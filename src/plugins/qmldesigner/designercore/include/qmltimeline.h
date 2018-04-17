@@ -33,7 +33,7 @@ namespace QmlDesigner {
 class AbstractViewAbstractVieweGroup;
 class QmlObjectNode;
 class QmlModelStateGroup;
-class QmlTimelineFrames;
+class QmlTimelineKeyframeGroup;
 
 class QMLDESIGNERCORE_EXPORT QmlTimeline : public QmlModelNodeFacade
 {
@@ -46,31 +46,31 @@ public:
     static bool isValidQmlTimeline(const ModelNode &modelNode);
     void destroy();
 
-    QmlTimelineFrames timelineFrames(const ModelNode &modelNode, const PropertyName &propertyName);
+    QmlTimelineKeyframeGroup keyframeGroup(const ModelNode &modelNode, const PropertyName &propertyName);
     bool hasTimeline(const ModelNode &modelNode, const PropertyName &propertyName);
 
-    qreal startFrame() const;
-    qreal endFrame() const;
-    qreal currentFrame() const;
+    qreal startKeyframe() const;
+    qreal endKeyframe() const;
+    qreal currentKeyframe() const;
     qreal duration() const;
 
     bool isEnabled() const;
 
-    qreal minActualFrame(const ModelNode &target) const;
-    qreal maxActualFrame(const ModelNode &target) const;
+    qreal minActualKeyframe(const ModelNode &target) const;
+    qreal maxActualKeyframe(const ModelNode &target) const;
 
-    void moveAllFrames(const ModelNode &target, qreal offset);
-    void scaleAllFrames(const ModelNode &target, qreal factor);
+    void moveAllKeyframes(const ModelNode &target, qreal offset);
+    void scaleAllKeyframes(const ModelNode &target, qreal factor);
 
     QList<ModelNode> allTargets() const;
-    QList<QmlTimelineFrames> framesForTarget(const ModelNode &target) const;
-    void destroyFramesForTarget(const ModelNode &target);
+    QList<QmlTimelineKeyframeGroup> keyframeGroupsForTarget(const ModelNode &target) const;
+    void destroyKeyframesForTarget(const ModelNode &target);
     static bool hasActiveTimeline(AbstractView *view);
 
 private:
-    void addFramesIfNotExists(const ModelNode &node, const PropertyName &propertyName);
-    bool hasFrames(const ModelNode &node, const PropertyName &propertyName) const;
-    QList<QmlTimelineFrames> allTimelineFrames() const;
+    void addKeyframeGroupIfNotExists(const ModelNode &node, const PropertyName &propertyName);
+    bool hasKeyframeGroup(const ModelNode &node, const PropertyName &propertyName) const;
+    QList<QmlTimelineKeyframeGroup> allKeyframeGroups() const;
 };
 
 } //QmlDesigner

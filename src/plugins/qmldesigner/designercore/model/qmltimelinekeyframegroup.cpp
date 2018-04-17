@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "qmltimelinekeyframes.h"
+#include "qmltimelinekeyframegroup.h"
 #include "abstractview.h"
 #include <nodelistproperty.h>
 #include <variantproperty.h>
@@ -38,34 +38,34 @@
 
 namespace QmlDesigner {
 
-QmlTimelineFrames::QmlTimelineFrames()
+QmlTimelineKeyframeGroup::QmlTimelineKeyframeGroup()
 {
 
 }
 
-QmlTimelineFrames::QmlTimelineFrames(const ModelNode &modelNode) : QmlModelNodeFacade(modelNode)
+QmlTimelineKeyframeGroup::QmlTimelineKeyframeGroup(const ModelNode &modelNode) : QmlModelNodeFacade(modelNode)
 {
 
 }
 
-bool QmlTimelineFrames::isValid() const
+bool QmlTimelineKeyframeGroup::isValid() const
 {
-    return isValidQmlTimelineFrames(modelNode());
+    return isValidQmlTimelineKeyframeGroup(modelNode());
 }
 
-bool QmlTimelineFrames::isValidQmlTimelineFrames(const ModelNode &modelNode)
+bool QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(const ModelNode &modelNode)
 {
     return  modelNode.isValid() && modelNode.metaInfo().isValid()
             && modelNode.metaInfo().isSubclassOf("QtQuick.Timeline.KeyframeGroup");
 }
 
-void QmlTimelineFrames::destroy()
+void QmlTimelineKeyframeGroup::destroy()
 {
     Q_ASSERT(isValid());
     modelNode().destroy();
 }
 
-ModelNode QmlTimelineFrames::target() const
+ModelNode QmlTimelineKeyframeGroup::target() const
 {
     if (modelNode().property("target").isBindingProperty())
         return modelNode().bindingProperty("target").resolveToModelNode();
@@ -73,23 +73,23 @@ ModelNode QmlTimelineFrames::target() const
         return ModelNode(); //exception?
 }
 
-void QmlTimelineFrames::setTarget(const ModelNode &target)
+void QmlTimelineKeyframeGroup::setTarget(const ModelNode &target)
 {
     modelNode().bindingProperty("target").setExpression(target.id());
 }
 
 
-PropertyName QmlTimelineFrames::propertyName() const
+PropertyName QmlTimelineKeyframeGroup::propertyName() const
 {
     return modelNode().variantProperty("property").value().toString().toUtf8();
 }
 
-void QmlTimelineFrames::setPropertyName(const PropertyName &propertyName)
+void QmlTimelineKeyframeGroup::setPropertyName(const PropertyName &propertyName)
 {
     modelNode().variantProperty("property").setValue(QString::fromUtf8(propertyName));
 }
 
-int QmlTimelineFrames::getSupposedTargetIndex(qreal newFrame) const
+int QmlTimelineKeyframeGroup::getSupposedTargetIndex(qreal newFrame) const
 {
     const NodeListProperty nodeListProperty = modelNode().defaultNodeListProperty();
     int i = 0;
@@ -107,12 +107,12 @@ int QmlTimelineFrames::getSupposedTargetIndex(qreal newFrame) const
     return nodeListProperty.count();
 }
 
-int QmlTimelineFrames::indexOfFrame(const ModelNode &frame) const
+int QmlTimelineKeyframeGroup::indexOfKeyframe(const ModelNode &frame) const
 {
     return modelNode().defaultNodeListProperty().indexOf(frame);
 }
 
-void QmlTimelineFrames::slideFrame(int /*sourceIndex*/, int /*targetIndex*/)
+void QmlTimelineKeyframeGroup::slideKeyframe(int /*sourceIndex*/, int /*targetIndex*/)
 {
     /*
     if (targetIndex != sourceIndex)
@@ -120,7 +120,7 @@ void QmlTimelineFrames::slideFrame(int /*sourceIndex*/, int /*targetIndex*/)
     */
 }
 
-void QmlTimelineFrames::setValue(const QVariant &value, qreal currentFrame)
+void QmlTimelineKeyframeGroup::setValue(const QVariant &value, qreal currentFrame)
 {
 
     for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
@@ -141,10 +141,10 @@ void QmlTimelineFrames::setValue(const QVariant &value, qreal currentFrame)
 
     nodeListProperty.reparentHere(frame);
 
-    slideFrame(sourceIndex, targetIndex);
+    slideKeyframe(sourceIndex, targetIndex);
 }
 
-QVariant QmlTimelineFrames::value(qreal frame) const
+QVariant QmlTimelineKeyframeGroup::value(qreal frame) const
 {
     for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
         if (qFuzzyCompare(childNode.variantProperty("frame").value().toReal(), frame)) {
@@ -155,7 +155,7 @@ QVariant QmlTimelineFrames::value(qreal frame) const
     return QVariant();
 }
 
-TypeName QmlTimelineFrames::valueType() const
+TypeName QmlTimelineKeyframeGroup::valueType() const
 {
     const ModelNode targetNode = target();
 
@@ -165,7 +165,7 @@ TypeName QmlTimelineFrames::valueType() const
     return TypeName();
 }
 
-bool QmlTimelineFrames::hasKeyframe(qreal frame)
+bool QmlTimelineKeyframeGroup::hasKeyframe(qreal frame)
 {
     for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
         if (qFuzzyCompare(childNode.variantProperty("frame").value().toReal(), frame))
@@ -175,7 +175,7 @@ bool QmlTimelineFrames::hasKeyframe(qreal frame)
     return false;
 }
 
-qreal QmlTimelineFrames::minActualFrame() const
+qreal QmlTimelineKeyframeGroup::minActualKeyframe() const
 {
     qreal min = std::numeric_limits<double>::max();
     for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
@@ -187,7 +187,7 @@ qreal QmlTimelineFrames::minActualFrame() const
     return min;
 }
 
-qreal QmlTimelineFrames::maxActualFrame() const
+qreal QmlTimelineKeyframeGroup::maxActualKeyframe() const
 {
     qreal max = std::numeric_limits<double>::min();
     for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
@@ -199,7 +199,7 @@ qreal QmlTimelineFrames::maxActualFrame() const
     return max;
 }
 
-const QList<ModelNode> QmlTimelineFrames::keyframePositions() const
+const QList<ModelNode> QmlTimelineKeyframeGroup::keyframePositions() const
 {
     QList<ModelNode> returnValues;
     for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
@@ -211,30 +211,30 @@ const QList<ModelNode> QmlTimelineFrames::keyframePositions() const
     return returnValues;
 }
 
-bool QmlTimelineFrames::isValidKeyframe(const ModelNode &node)
+bool QmlTimelineKeyframeGroup::isValidKeyframe(const ModelNode &node)
 {
     return isValidQmlModelNodeFacade(node)
             && node.metaInfo().isValid()
             && node.metaInfo().isSubclassOf("QtQuick.Timeline.Keyframe");
 }
 
-bool QmlTimelineFrames::checkKeyframesType(const ModelNode &node)
+bool QmlTimelineKeyframeGroup::checkKeyframesType(const ModelNode &node)
 {
     return node.isValid() && node.type()  == "QtQuick.Timeline.KeyframeGroup";
 }
 
-QmlTimelineFrames QmlTimelineFrames::keyframesForKeyframe(const ModelNode &node)
+QmlTimelineKeyframeGroup QmlTimelineKeyframeGroup::keyframeGroupForKeyframe(const ModelNode &node)
 {
     if (isValidKeyframe(node) && node.hasParentProperty()) {
-        const QmlTimelineFrames timeline(node.parentProperty().parentModelNode());
+        const QmlTimelineKeyframeGroup timeline(node.parentProperty().parentModelNode());
         if (timeline.isValid())
             return timeline;
     }
 
-    return QmlTimelineFrames();
+    return QmlTimelineKeyframeGroup();
 }
 
-void QmlTimelineFrames::moveAllFrames(qreal offset)
+void QmlTimelineKeyframeGroup::moveAllKeyframes(qreal offset)
 {
     for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
         auto property = childNode.variantProperty("frame");
@@ -243,7 +243,7 @@ void QmlTimelineFrames::moveAllFrames(qreal offset)
     }
 }
 
-void QmlTimelineFrames::scaleAllFrames(qreal factor)
+void QmlTimelineKeyframeGroup::scaleAllKeyframes(qreal factor)
 {
     for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
         auto property = childNode.variantProperty("frame");

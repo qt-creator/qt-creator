@@ -46,7 +46,7 @@
 #include "qmlchangeset.h"
 #include "qmlstate.h"
 #include "qmltimeline.h"
-#include "qmltimelinekeyframes.h"
+#include "qmltimelinekeyframegroup.h"
 
 #include "createscenecommand.h"
 #include "createinstancescommand.h"
@@ -713,9 +713,9 @@ void NodeInstanceView::updatePosition(const QList<VariantProperty> &propertyList
             }
         } else if (currentTimeline().isValid()
                    && variantProperty.name() == "value"
-                   &&  QmlTimelineFrames::isValidKeyframe(variantProperty.parentModelNode())) {
+                   &&  QmlTimelineKeyframeGroup::isValidKeyframe(variantProperty.parentModelNode())) {
 
-            QmlTimelineFrames frames = QmlTimelineFrames::keyframesForKeyframe(variantProperty.parentModelNode());
+            QmlTimelineKeyframeGroup frames = QmlTimelineKeyframeGroup::keyframeGroupForKeyframe(variantProperty.parentModelNode());
 
             if (frames.isValid() && frames.propertyName() == "x" && frames.target().isValid()) {
 

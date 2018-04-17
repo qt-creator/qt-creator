@@ -26,7 +26,7 @@
 #include "qmlobjectnode.h"
 #include "qmlitemnode.h"
 #include "qmlstate.h"
-#include "qmltimelinekeyframes.h"
+#include "qmltimelinekeyframegroup.h"
 #include "variantproperty.h"
 #include "nodeproperty.h"
 #include <invalidmodelnodeexception.h>
@@ -55,7 +55,7 @@ void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant 
     if (timelineIsActive()) {
         modelNode().validId();
 
-        QmlTimelineFrames timelineFrames(currentTimeline().timelineFrames(modelNode(), name));
+        QmlTimelineKeyframeGroup timelineFrames(currentTimeline().keyframeGroup(modelNode(), name));
 
         Q_ASSERT(timelineFrames.isValid());
 
@@ -201,7 +201,7 @@ QVariant QmlObjectNode::modelValue(const PropertyName &name) const
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
     if (timelineIsActive() && currentTimeline().hasTimeline(modelNode(), name)) {
-        QmlTimelineFrames timelineFrames(currentTimeline().timelineFrames(modelNode(), name));
+        QmlTimelineKeyframeGroup timelineFrames(currentTimeline().keyframeGroup(modelNode(), name));
 
         Q_ASSERT(timelineFrames.isValid());
 
@@ -358,7 +358,7 @@ void QmlObjectNode::destroy()
     for (const ModelNode &timelineNode : view()->allModelNodes()) {
         if (QmlTimeline::isValidQmlTimeline(timelineNode)) {
             QmlTimeline timeline(timelineNode);
-            timeline.destroyFramesForTarget(modelNode());
+            timeline.destroyKeyframesForTarget(modelNode());
         }
     }
 

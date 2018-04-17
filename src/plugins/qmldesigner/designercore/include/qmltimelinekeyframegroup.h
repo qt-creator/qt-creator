@@ -34,15 +34,15 @@ namespace QmlDesigner {
 class AbstractViewAbstractVieweGroup;
 class QmlObjectNode;
 
-class QMLDESIGNERCORE_EXPORT QmlTimelineFrames : public QmlModelNodeFacade
+class QMLDESIGNERCORE_EXPORT QmlTimelineKeyframeGroup : public QmlModelNodeFacade
 {
 
 public:
-    QmlTimelineFrames();
-    QmlTimelineFrames(const ModelNode &modelNode);
+    QmlTimelineKeyframeGroup();
+    QmlTimelineKeyframeGroup(const ModelNode &modelNode);
 
     bool isValid() const;
-    static bool isValidQmlTimelineFrames(const ModelNode &modelNode);
+    static bool isValidQmlTimelineKeyframeGroup(const ModelNode &modelNode);
     void destroy();
 
     ModelNode target() const;
@@ -60,21 +60,21 @@ public:
 
     bool hasKeyframe(qreal frame);
 
-    qreal minActualFrame() const;
-    qreal maxActualFrame() const;
+    qreal minActualKeyframe() const;
+    qreal maxActualKeyframe() const;
 
     const QList<ModelNode> keyframePositions() const;
 
     static bool isValidKeyframe(const ModelNode &node);
     static bool checkKeyframesType(const ModelNode &node);
-    static QmlTimelineFrames keyframesForKeyframe(const ModelNode &node);
+    static QmlTimelineKeyframeGroup keyframeGroupForKeyframe(const ModelNode &node);
 
-    void moveAllFrames(qreal offset);
-    void scaleAllFrames(qreal factor);
+    void moveAllKeyframes(qreal offset);
+    void scaleAllKeyframes(qreal factor);
     int getSupposedTargetIndex(qreal newFrame) const;
 
-    int indexOfFrame(const ModelNode &frame) const;
-    void slideFrame(int sourceIndex, int targetIndex);
+    int indexOfKeyframe(const ModelNode &frame) const;
+    void slideKeyframe(int sourceIndex, int targetIndex);
 };
 
 } //QmlDesigner

@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "qmltimeline.h"
-#include "qmltimelinekeyframes.h"
+#include "qmltimelinekeyframegroup.h"
 #include "abstractview.h"
 #include <nodelistproperty.h>
 #include <variantproperty.h>
@@ -68,13 +68,13 @@ void QmlTimeline::destroy()
     modelNode().destroy();
 }
 
-QmlTimelineFrames QmlTimeline::timelineFrames(const ModelNode &node, const PropertyName &propertyName)
+QmlTimelineKeyframeGroup QmlTimeline::keyframeGroup(const ModelNode &node, const PropertyName &propertyName)
 {
     if (isValid()) {
-        addFramesIfNotExists(node, propertyName);
+        addKeyframeGroupIfNotExists(node, propertyName);
         for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
-            if (QmlTimelineFrames::isValidQmlTimelineFrames(childNode)) {
-                const QmlTimelineFrames frames(childNode);
+            if (QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(childNode)) {
+                const QmlTimelineKeyframeGroup frames(childNode);
 
                 if (frames.target().isValid()
                         && frames.target() == node
@@ -84,15 +84,15 @@ QmlTimelineFrames QmlTimeline::timelineFrames(const ModelNode &node, const Prope
         }
     }
 
-    return QmlTimelineFrames(); //not found
+    return QmlTimelineKeyframeGroup(); //not found
 }
 
 bool QmlTimeline::hasTimeline(const ModelNode &node, const PropertyName &propertyName)
 {
     if (isValid()) {
         for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
-            if (QmlTimelineFrames::isValidQmlTimelineFrames(childNode)) {
-                const QmlTimelineFrames frames(childNode);
+            if (QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(childNode)) {
+                const QmlTimelineKeyframeGroup frames(childNode);
 
                 if (frames.target().isValid()
                         && frames.target() == node
@@ -104,21 +104,21 @@ bool QmlTimeline::hasTimeline(const ModelNode &node, const PropertyName &propert
     return false;
 }
 
-qreal QmlTimeline::startFrame() const
+qreal QmlTimeline::startKeyframe() const
 {
     if (isValid())
         return QmlObjectNode(modelNode()).instanceValue("startFrame").toReal();
     return 0;
 }
 
-qreal QmlTimeline::endFrame() const
+qreal QmlTimeline::endKeyframe() const
 {
     if (isValid())
         return QmlObjectNode(modelNode()).instanceValue("endFrame").toReal();
     return 0;
 }
 
-qreal QmlTimeline::currentFrame() const
+qreal QmlTimeline::currentKeyframe() const
 {
     if (isValid())
         return QmlObjectNode(modelNode()).instanceValue("currentFrame").toReal();
@@ -127,7 +127,7 @@ qreal QmlTimeline::currentFrame() const
 
 qreal QmlTimeline::duration() const
 {
-    return endFrame() - startFrame();
+    return endKeyframe() - startKeyframe();
 }
 
 bool QmlTimeline::isEnabled() const
@@ -135,12 +135,12 @@ bool QmlTimeline::isEnabled() const
     return QmlObjectNode(modelNode()).modelValue("enabled").toBool();
 }
 
-qreal QmlTimeline::minActualFrame(const ModelNode &target) const
+qreal QmlTimeline::minActualKeyframe(const ModelNode &target) const
 {
     qreal min = std::numeric_limits<double>::max();
 
-    for (const QmlTimelineFrames &frames : framesForTarget(target)) {
-        qreal value = frames.minActualFrame();
+    for (const QmlTimelineKeyframeGroup &frames : keyframeGroupsForTarget(target)) {
+        qreal value = frames.minActualKeyframe();
         if (value < min)
             min = value;
     }
@@ -148,12 +148,12 @@ qreal QmlTimeline::minActualFrame(const ModelNode &target) const
     return min;
 }
 
-qreal QmlTimeline::maxActualFrame(const ModelNode &target) const
+qreal QmlTimeline::maxActualKeyframe(const ModelNode &target) const
 {
     qreal max = std::numeric_limits<double>::min();
 
-    for (const QmlTimelineFrames &frames : framesForTarget(target)) {
-        qreal value = frames.maxActualFrame();
+    for (const QmlTimelineKeyframeGroup &frames : keyframeGroupsForTarget(target)) {
+        qreal value = frames.maxActualKeyframe();
         if (value > max)
             max = value;
     }
@@ -161,17 +161,17 @@ qreal QmlTimeline::maxActualFrame(const ModelNode &target) const
     return max;
 }
 
-void QmlTimeline::moveAllFrames(const ModelNode &target, qreal offset)
+void QmlTimeline::moveAllKeyframes(const ModelNode &target, qreal offset)
 {
-    for (QmlTimelineFrames &frames : framesForTarget(target))
-        frames.moveAllFrames(offset);
+    for (QmlTimelineKeyframeGroup &frames : keyframeGroupsForTarget(target))
+        frames.moveAllKeyframes(offset);
 
 }
 
-void QmlTimeline::scaleAllFrames(const ModelNode &target, qreal factor)
+void QmlTimeline::scaleAllKeyframes(const ModelNode &target, qreal factor)
 {
-    for (QmlTimelineFrames &frames : framesForTarget(target))
-        frames.scaleAllFrames(factor);
+    for (QmlTimelineKeyframeGroup &frames : keyframeGroupsForTarget(target))
+        frames.scaleAllKeyframes(factor);
 }
 
 QList<ModelNode> QmlTimeline::allTargets() const
@@ -179,8 +179,8 @@ QList<ModelNode> QmlTimeline::allTargets() const
     QList<ModelNode> result;
     if (isValid()) {
         for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
-            if (QmlTimelineFrames::isValidQmlTimelineFrames(childNode)) {
-                const QmlTimelineFrames frames(childNode);
+            if (QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(childNode)) {
+                const QmlTimelineKeyframeGroup frames(childNode);
                 if (!result.contains(frames.target()))
                     result.append(frames.target());
             }
@@ -189,13 +189,13 @@ QList<ModelNode> QmlTimeline::allTargets() const
     return result;
 }
 
-QList<QmlTimelineFrames> QmlTimeline::framesForTarget(const ModelNode &target) const
+QList<QmlTimelineKeyframeGroup> QmlTimeline::keyframeGroupsForTarget(const ModelNode &target) const
 {
-     QList<QmlTimelineFrames> result;
+     QList<QmlTimelineKeyframeGroup> result;
      if (isValid()) {
          for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
-             if (QmlTimelineFrames::isValidQmlTimelineFrames(childNode)) {
-                 const QmlTimelineFrames frames(childNode);
+             if (QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(childNode)) {
+                 const QmlTimelineKeyframeGroup frames(childNode);
                  if (frames.target() == target)
                      result.append(frames);
              }
@@ -204,9 +204,9 @@ QList<QmlTimelineFrames> QmlTimeline::framesForTarget(const ModelNode &target) c
      return result;
 }
 
-void QmlTimeline::destroyFramesForTarget(const ModelNode &target)
+void QmlTimeline::destroyKeyframesForTarget(const ModelNode &target)
 {
-    for (QmlTimelineFrames frames : framesForTarget(target))
+    for (QmlTimelineKeyframeGroup frames : keyframeGroupsForTarget(target))
         frames.destroy();
 }
 
@@ -227,26 +227,27 @@ bool QmlTimeline::hasActiveTimeline(AbstractView *view)
     return false;
 }
 
-void QmlTimeline::addFramesIfNotExists(const ModelNode &node, const PropertyName &propertyName)
+void QmlTimeline::addKeyframeGroupIfNotExists(const ModelNode &node, const PropertyName &propertyName)
 {
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-    if (!hasFrames(node, propertyName)) {
+    if (!hasKeyframeGroup(node, propertyName)) {
         ModelNode frames = modelNode().view()->createModelNode("QtQuick.Timeline.KeyframeGroup", 1, 0);
+
         modelNode().defaultNodeListProperty().reparentHere(frames);
 
-        QmlTimelineFrames(frames).setTarget(node);
-        QmlTimelineFrames(frames).setPropertyName(propertyName);
+        QmlTimelineKeyframeGroup(frames).setTarget(node);
+        QmlTimelineKeyframeGroup(frames).setPropertyName(propertyName);
 
-        Q_ASSERT(QmlTimelineFrames::isValidQmlTimelineFrames(frames));
+        Q_ASSERT(QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(frames));
     }
 }
 
 
-bool QmlTimeline::hasFrames(const ModelNode &node, const PropertyName &propertyName) const
+bool QmlTimeline::hasKeyframeGroup(const ModelNode &node, const PropertyName &propertyName) const
 {
-    for (const QmlTimelineFrames &frames : allTimelineFrames()) {
+    for (const QmlTimelineKeyframeGroup &frames : allKeyframeGroups()) {
         if (frames.target().isValid()
                 && frames.target() == node
                 && frames.propertyName() == propertyName)
@@ -256,13 +257,13 @@ bool QmlTimeline::hasFrames(const ModelNode &node, const PropertyName &propertyN
     return false;
 }
 
-QList<QmlTimelineFrames> QmlTimeline::allTimelineFrames() const
+QList<QmlTimelineKeyframeGroup> QmlTimeline::allKeyframeGroups() const
 {
-    QList<QmlTimelineFrames> returnList;
+    QList<QmlTimelineKeyframeGroup> returnList;
 
     for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
-        if (QmlTimelineFrames::isValidQmlTimelineFrames(childNode))
-            returnList.append(QmlTimelineFrames(childNode));
+        if (QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(childNode))
+            returnList.append(QmlTimelineKeyframeGroup(childNode));
     }
 
     return returnList;

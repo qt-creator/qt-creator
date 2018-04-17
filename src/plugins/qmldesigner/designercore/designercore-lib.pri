@@ -79,8 +79,8 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/internalsignalhandlerproperty.cpp \
     $$PWD/model/anchorline.cpp \
     $$PWD/instances/puppetdialog.cpp \
-    $$PWD/model/qmltimelinekeyframes.cpp \
-    $$PWD/model/qmltimeline.cpp
+    $$PWD/model/qmltimeline.cpp \
+    $$PWD/model/qmltimelinekeyframegroup.cpp
 
 HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/include/abstractview.h \
@@ -155,8 +155,8 @@ HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/model/internalsignalhandlerproperty.h \
     $$PWD/include/anchorline.h \
     $$PWD/instances/puppetdialog.h \
-    $$PWD/include/qmltimelinekeyframes.h \
-    $$PWD/include/qmltimeline.h
+    $$PWD/include/qmltimeline.h \
+    $$PWD/include/qmltimelinekeyframegroup.h
 
 FORMS += \
     $$PWD/instances/puppetdialog.ui
