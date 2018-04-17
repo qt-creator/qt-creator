@@ -49,7 +49,7 @@ namespace Internal {
 class TestParseResult;
 class TestConfiguration;
 enum class TestRunMode;
-class TestTreeItem : public Utils::TreeItem
+class TestTreeItem : public Utils::TypedTreeItem<TestTreeItem>
 {
 public:
 
@@ -100,7 +100,6 @@ public:
     bool markedForRemoval() const { return m_status == MarkedForRemoval; }
     bool newlyAdded() const { return m_status == NewlyAdded; }
     TestTreeItem *parentItem() const;
-    TestTreeItem *childItem(int row) const;
 
     TestTreeItem *findChildByName(const QString &name);
     TestTreeItem *findChildByFile(const QString &filePath);
@@ -127,7 +126,6 @@ public:
 protected:
     void copyBasicDataFrom(const TestTreeItem *other);
     typedef std::function<bool(const TestTreeItem *)> CompareFunction;
-    TestTreeItem *findChildBy(CompareFunction compare) const;
     static QSet<QString> dependingInternalTargets(CppTools::CppModelManager *cppMM,
                                                   const QString &file);
 

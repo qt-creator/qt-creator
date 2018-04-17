@@ -50,17 +50,14 @@ QHash<QString, QString> testCaseNamesForFiles(const Core::Id &id, const QStringL
     TestTreeItem *rootNode = TestFrameworkManager::instance()->rootNodeForTestFramework(id);
     QTC_ASSERT(rootNode, return result);
 
-    for (int row = 0, rootCount = rootNode->childCount(); row < rootCount; ++row) {
-        const TestTreeItem *child = rootNode->childItem(row);
-        if (files.contains(child->filePath())) {
+    rootNode->forFirstLevelChildren([&result, &files](TestTreeItem *child) {
+        if (files.contains(child->filePath()))
             result.insert(child->filePath(), child->name());
-        }
-        for (int childRow = 0, count = child->childCount(); childRow < count; ++childRow) {
-            const TestTreeItem *grandChild = child->childItem(childRow);
+        child->forFirstLevelChildren([&result, &files, child](TestTreeItem *grandChild) {
             if (files.contains(grandChild->filePath()))
                 result.insert(grandChild->filePath(), child->name());
-        }
-    }
+        });
+    });
     return result;
 }
 
@@ -70,18 +67,17 @@ QMultiHash<QString, QString> alternativeFiles(const Core::Id &id, const QStringL
     TestTreeItem *rootNode = TestFrameworkManager::instance()->rootNodeForTestFramework(id);
     QTC_ASSERT(rootNode, return result);
 
-    for (int row = 0, rootCount = rootNode->childCount(); row < rootCount; ++row) {
-        const TestTreeItem *child = rootNode->childItem(row);
+    rootNode->forFirstLevelChildren([&result, &files](TestTreeItem *child) {
         const QString &baseFilePath = child->filePath();
         for (int childRow = 0, count = child->childCount(); childRow < count; ++childRow) {
-            auto grandChild = static_cast<const QtTestTreeItem *>(child->childItem(childRow));
+            auto grandChild = static_cast<const QtTestTreeItem *>(child->childAt(childRow));
             const QString &filePath = grandChild->filePath();
             if (grandChild->inherited() && baseFilePath != filePath && files.contains(filePath)) {
                 if (!result.contains(filePath, baseFilePath))
                     result.insert(filePath, baseFilePath);
             }
         }
-    }
+    });
     return result;
 }
 

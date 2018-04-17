@@ -191,17 +191,16 @@ void TestTreeItem::markForRemovalRecursively(bool mark)
 {
     markForRemoval(mark);
     for (int row = 0, count = childCount(); row < count; ++row)
-        childItem(row)->markForRemovalRecursively(mark);
+        childAt(row)->markForRemovalRecursively(mark);
 }
 
 void TestTreeItem::markForRemovalRecursively(const QString &filePath)
 {
     bool mark = m_filePath == filePath;
-    for (int row = 0, count = childCount(); row < count; ++row) {
-        TestTreeItem *child = childItem(row);
+    forFirstLevelChildren([&mark, &filePath](TestTreeItem *child) {
         child->markForRemovalRecursively(filePath);
         mark &= child->markedForRemoval();
-    }
+    });
     markForRemoval(mark);
 }
 
@@ -210,35 +209,28 @@ TestTreeItem *TestTreeItem::parentItem() const
     return static_cast<TestTreeItem *>(parent());
 }
 
-TestTreeItem *TestTreeItem::childItem(int row) const
-{
-    return static_cast<TestTreeItem *>(childAt(row));
-}
-
 TestTreeItem *TestTreeItem::findChildByName(const QString &name)
 {
-    return findChildBy([name](const TestTreeItem *other) -> bool {
-        return other->name() == name;
-    });
+    return findFirstLevelChild([name](const TestTreeItem *other) { return other->name() == name; });
 }
 
 TestTreeItem *TestTreeItem::findChildByFile(const QString &filePath)
 {
-    return findChildBy([filePath](const TestTreeItem *other) -> bool {
+    return findFirstLevelChild([filePath](const TestTreeItem *other) {
         return other->filePath() == filePath;
     });
 }
 
 TestTreeItem *TestTreeItem::findChildByFileAndType(const QString &filePath, Type tType)
 {
-    return findChildBy([filePath, tType](const TestTreeItem *other) {
+    return findFirstLevelChild([filePath, tType](const TestTreeItem *other) {
         return other->type() == tType && other->filePath() == filePath;
     });
 }
 
 TestTreeItem *TestTreeItem::findChildByNameAndFile(const QString &name, const QString &filePath)
 {
-    return findChildBy([name, filePath](const TestTreeItem *other) -> bool {
+    return findFirstLevelChild([name, filePath](const TestTreeItem *other) {
         return other->filePath() == filePath && other->name() == name;
     });
 }
@@ -351,16 +343,6 @@ inline bool TestTreeItem::modifyName(const QString &name)
         return true;
     }
     return false;
-}
-
-TestTreeItem *TestTreeItem::findChildBy(CompareFunction compare) const
-{
-    for (int row = 0, count = childCount(); row < count; ++row) {
-        TestTreeItem *child = childItem(row);
-        if (compare(child))
-            return child;
-    }
-    return nullptr;
 }
 
 /*
