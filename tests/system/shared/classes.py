@@ -193,18 +193,6 @@ class Qt5Path:
 
     @staticmethod
     def __createPlatformQtPath__(qt5Minor):
-        # special handling for Qt5.2
-        if qt5Minor == 2:
-            if platform.system() in ('Microsoft', 'Windows'):
-                return "C:/Qt/Qt5.2.1/5.2.1/msvc2010"
-            elif platform.system() == 'Linux':
-                if __is64BitOS__():
-                    return os.path.expanduser("~/Qt5.2.1/5.2.1/gcc_64")
-                else:
-                    return os.path.expanduser("~/Qt5.2.1/5.2.1/gcc")
-            else:
-                return os.path.expanduser("~/Qt5.2.1/5.2.1/clang_64")
-        # Qt5.3+
         if platform.system() in ('Microsoft', 'Windows'):
             return "C:/Qt/Qt5.%d.1" % qt5Minor
         else:
