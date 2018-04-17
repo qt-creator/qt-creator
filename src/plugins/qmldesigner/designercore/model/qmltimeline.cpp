@@ -233,7 +233,7 @@ void QmlTimeline::addFramesIfNotExists(const ModelNode &node, const PropertyName
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
     if (!hasFrames(node, propertyName)) {
-        ModelNode frames = modelNode().view()->createModelNode("QtQuick.Timeline.Keyframes", 1, 0);
+        ModelNode frames = modelNode().view()->createModelNode("QtQuick.Timeline.KeyframeGroup", 1, 0);
         modelNode().defaultNodeListProperty().reparentHere(frames);
 
         QmlTimelineFrames(frames).setTarget(node);

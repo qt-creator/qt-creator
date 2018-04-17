@@ -56,7 +56,7 @@ bool QmlTimelineFrames::isValid() const
 bool QmlTimelineFrames::isValidQmlTimelineFrames(const ModelNode &modelNode)
 {
     return  modelNode.isValid() && modelNode.metaInfo().isValid()
-            && modelNode.metaInfo().isSubclassOf("QtQuick.Timeline.Keyframes");
+            && modelNode.metaInfo().isSubclassOf("QtQuick.Timeline.KeyframeGroup");
 }
 
 void QmlTimelineFrames::destroy()
@@ -220,7 +220,7 @@ bool QmlTimelineFrames::isValidKeyframe(const ModelNode &node)
 
 bool QmlTimelineFrames::checkKeyframesType(const ModelNode &node)
 {
-    return node.isValid() && node.type()  == "QtQuick.Timeline.Keyframes";
+    return node.isValid() && node.type()  == "QtQuick.Timeline.KeyframeGroup";
 }
 
 QmlTimelineFrames QmlTimelineFrames::keyframesForKeyframe(const ModelNode &node)
