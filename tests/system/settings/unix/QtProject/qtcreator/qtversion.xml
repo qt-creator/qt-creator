@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorQtVersions>
-<!-- Written by QtCreator 4.0.83, 2016-07-21T11:54:33. -->
+<!-- Written by QtCreator 4.5.1, 2018-01-10T17:13:44. -->
 <qtcreator>
  <data>
   <variable>QtVersion.0</variable>
@@ -15,16 +15,6 @@
  <data>
   <variable>QtVersion.1</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">11</value>
-   <value type="QString" key="Name">Qt 5.3.1 (SQUISH_DEFAULT_COMPILER)</value>
-   <value type="QString" key="QMakePath">~/Qt5.3.1/5.3/SQUISH_DEFAULT_COMPILER/bin/qmake</value>
-   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
-   <value type="bool" key="isAutodetected">false</value>
-  </valuemap>
- </data>
- <data>
-  <variable>QtVersion.2</variable>
-  <valuemap type="QVariantMap">
    <value type="int" key="Id">13</value>
    <value type="QString" key="Name">Qt %{Qt:Version} (SQUISH_DEFAULT_COMPILER)</value>
    <value type="QString" key="QMakePath">~/Qt5.4.1/5.4/SQUISH_DEFAULT_COMPILER/bin/qmake</value>
@@ -33,11 +23,21 @@
   </valuemap>
  </data>
  <data>
-  <variable>QtVersion.3</variable>
+  <variable>QtVersion.2</variable>
   <valuemap type="QVariantMap">
    <value type="int" key="Id">15</value>
    <value type="QString" key="Name">Qt %{Qt:Version} (SQUISH_DEFAULT_COMPILER)</value>
    <value type="QString" key="QMakePath">~/Qt5.6.1/5.6/SQUISH_DEFAULT_COMPILER/bin/qmake</value>
+   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
+   <value type="bool" key="isAutodetected">false</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>QtVersion.3</variable>
+  <valuemap type="QVariantMap">
+   <value type="int" key="Id">17</value>
+   <value type="QString" key="Name">Qt %{Qt:Version} (SQUISH_DEFAULT_COMPILER)</value>
+   <value type="QString" key="QMakePath">~/Qt5.10.1/5.10.1/SQUISH_DEFAULT_COMPILER/bin/qmake</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
    <value type="bool" key="isAutodetected">false</value>
   </valuemap>

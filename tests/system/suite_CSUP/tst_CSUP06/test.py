@@ -165,7 +165,7 @@ def main():
         with TestSection(getCodeModelString(useClang)):
             if not startCreator(useClang):
                 continue
-            openQmakeProject(examplePath, [Targets.DESKTOP_5_3_1_DEFAULT])
+            openQmakeProject(examplePath, [Targets.DESKTOP_5_6_1_DEFAULT])
             checkCodeModelSettings(useClang)
             if not openDocument("cplusplus-tools.Sources.main\\.cpp"):
                 earlyExit("Failed to open main.cpp.")

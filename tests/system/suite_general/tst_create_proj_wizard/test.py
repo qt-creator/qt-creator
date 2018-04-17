@@ -27,7 +27,6 @@ source("../../shared/qtcreator.py")
 
 def main():
     global tmpSettingsDir, availableBuildSystems
-    qtVersionsForQuick = ["5.6"]
     availableBuildSystems = ["qmake", "Qbs"]
     if which("cmake"):
         availableBuildSystems.append("CMake")
@@ -72,6 +71,7 @@ def main():
         template = current.values()[0]
         displayedPlatforms = __createProject__(category, template)
         if template.startswith("Qt Quick Application - "):
+            qtVersionsForQuick = ["5.6", "5.10"] if template == "Qt Quick Application - Empty" else ["5.10"]
             for counter, qtVersion in enumerate(qtVersionsForQuick):
                 def additionalFunc(displayedPlatforms, qtVersion):
                     requiredQtVersion = __createProjectHandleQtQuickSelection__(qtVersion)
@@ -128,9 +128,7 @@ def handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
         test.log("Using build system '%s'" % buildSystem)
         selectFromCombo(combo, buildSystem)
         clickButton(waitForObject(":Next_QPushButton"))
-        if (template.startswith("Qt Quick Application - ")
-            and template != "Qt Quick Application - Empty"):
-            test.warning("No suitable Qt version available for '%s'" % template)
+        if template == "Qt Quick Application - Scroll":
             clickButton(waitForObject(":Next_QPushButton"))
         elif specialHandlingFunc:
             specialHandlingFunc(displayedPlatforms, *args)

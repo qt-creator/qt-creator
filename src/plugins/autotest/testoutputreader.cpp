@@ -74,6 +74,14 @@ void TestOutputReader::reportCrash()
     m_futureInterface.reportResult(result);
 }
 
+void TestOutputReader::createAndReportResult(const QString &message, Result::Type type)
+{
+    TestResultPtr result = createDefaultResult();
+    result->setDescription(message);
+    result->setResult(type);
+    reportResult(result);
+}
+
 void TestOutputReader::reportResult(const TestResultPtr &result)
 {
     m_futureInterface.reportResult(result);

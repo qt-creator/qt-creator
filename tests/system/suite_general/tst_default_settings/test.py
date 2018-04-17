@@ -188,9 +188,10 @@ def __getExpectedCompilers__():
         compilers.extend(findAllFilesInPATH("*g++*"))
         compilers.extend(findAllFilesInPATH("*gcc*"))
     if platform.system() == 'Darwin':
-        xcodeClang = getOutputFromCmdline(["xcrun", "--find", "clang++"]).strip("\n")
-        if xcodeClang and os.path.exists(xcodeClang) and xcodeClang not in expected:
-            expected.append(xcodeClang)
+        for compilerExe in ('clang++', 'clang'):
+            xcodeClang = getOutputFromCmdline(["xcrun", "--find", compilerExe]).strip("\n")
+            if xcodeClang and os.path.exists(xcodeClang) and xcodeClang not in expected:
+                expected.append(xcodeClang)
     for compiler in compilers:
         compilerPath = which(compiler)
         if compilerPath:

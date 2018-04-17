@@ -56,6 +56,9 @@ public:
     static QString deviceSerialNumber(ProjectExplorer::Target *target);
     static void setDeviceSerialNumber(ProjectExplorer::Target *target, const QString &deviceSerialNumber);
 
+    static int deviceApiLevel(ProjectExplorer::Target *target);
+    static void setDeviceApiLevel(ProjectExplorer::Target *target, int level);
+
     static QString buildTargetSDK(ProjectExplorer::Target *target);
 
     static bool signPackage(ProjectExplorer::Target *target);

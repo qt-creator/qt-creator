@@ -75,11 +75,10 @@ void QnxQmlProfilerSupport::start()
     serverUrl.setScheme("tcp");
     m_profiler->recordData("QmlServerUrl", serverUrl);
 
-    QString args = QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, qmlPort);
     auto r = runnable().as<StandardRunnable>();
-    if (!r.commandLineArguments.isEmpty())
-        r.commandLineArguments.append(' ');
-    r.commandLineArguments += args;
+    QtcProcess::addArg(&r.commandLineArguments,
+                       QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, qmlPort),
+                       device()->osType());
 
     setRunnable(r);
 

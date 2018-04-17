@@ -477,16 +477,16 @@ void DebuggerRunTool::setCoreFileName(const QString &coreFile, bool isSnapshot)
 
 void DebuggerRunTool::appendInferiorCommandLineArgument(const QString &arg)
 {
-    if (!m_runParameters.inferior.commandLineArguments.isEmpty())
-        m_runParameters.inferior.commandLineArguments.append(' ');
-    m_runParameters.inferior.commandLineArguments.append(arg);
+    QtcProcess::addArg(&m_runParameters.inferior.commandLineArguments, arg,
+                       device() ? device()->osType() : HostOsInfo::hostOs());
 }
 
 void DebuggerRunTool::prependInferiorCommandLineArgument(const QString &arg)
 {
     if (!m_runParameters.inferior.commandLineArguments.isEmpty())
         m_runParameters.inferior.commandLineArguments.prepend(' ');
-    m_runParameters.inferior.commandLineArguments.prepend(arg);
+    m_runParameters.inferior.commandLineArguments.prepend(
+                QtcProcess::quoteArg(arg, device() ? device()->osType() : HostOsInfo::hostOs()));
 }
 
 void DebuggerRunTool::addQmlServerInferiorCommandLineArgumentIfNeeded()

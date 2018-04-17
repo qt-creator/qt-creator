@@ -28,6 +28,7 @@
 #include <projectexplorer/runnables.h>
 
 #include <ssh/sshconnection.h>
+#include <utils/qtcprocess.h>
 #include <utils/url.h>
 
 using namespace ProjectExplorer;
@@ -66,11 +67,9 @@ void RemoteLinuxQmlToolingSupport::start()
     serverUrl.setPort(qmlPort.number());
     m_runworker->recordData("QmlServerUrl", serverUrl);
 
-    QString args = QmlDebug::qmlDebugTcpArguments(m_services, qmlPort);
     auto r = runnable().as<StandardRunnable>();
-    if (!r.commandLineArguments.isEmpty())
-        r.commandLineArguments.append(' ');
-    r.commandLineArguments += args;
+    QtcProcess::addArg(&r.commandLineArguments, QmlDebug::qmlDebugTcpArguments(m_services, qmlPort),
+                       device()->osType());
 
     setRunnable(r);
 
