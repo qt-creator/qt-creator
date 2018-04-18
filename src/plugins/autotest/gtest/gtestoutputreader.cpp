@@ -52,10 +52,8 @@ GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResultPtr> &futu
                 static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
                 this, [this] (int exitCode, QProcess::ExitStatus /*exitStatus*/) {
             if (exitCode == 1 && !m_description.isEmpty()) {
-                // TODO tr()
-                const QString message{"Running test(s) failed\n" + m_description
-                            + "\nExecutable: " + m_executable};
-                createAndReportResult(message, Result::MessageFatal);
+                createAndReportResult(tr("Running tests failed.\n %1\nExecutable: %2")
+                        .arg(m_description).arg(m_executable), Result::MessageFatal);
             }
             // on Windows abort() will result in normal termination, but exit code will be set to 3
             if (Utils::HostOsInfo::isWindowsHost() && exitCode == 3)
