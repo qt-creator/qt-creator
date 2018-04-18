@@ -155,7 +155,6 @@
 :Qt Creator_FilenameQComboBox	{type='QComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Find::Internal::SearchResultTreeView	{type='Core::Internal::SearchResultTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Git::Internal::GitEditor	{type='Git::Internal::GitEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator_Help::Internal::HelpViewer	{type='Help::Internal::QtWebKitHelpWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_HelpSelector_QComboBox	{occurrence='3' type='QComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Issues_Core::Internal::OutputPaneToggleButton	{occurrence='1' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QHelpContentWidget	{type='Utils::NavigationTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}

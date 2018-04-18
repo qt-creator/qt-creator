@@ -33,20 +33,11 @@ urlDictionary = { "deployment":"qthelp://com.trolltech.qt.487/qdoc/gettingstarte
 
 
 def __getSelectedText__():
-    hv = getHelpViewer()
-    isWebEngineView = className(hv) == "QWebEngineView"
     try:
-        selText = hv.selectedText
-        if className(selText) != 'instancemethod':
-            return str(selText), isWebEngineView
-    except:
-        pass
-    try:
-        selText = getHighlightsInHtml(str(hv.toHtml()))
+        return getHighlightsInHtml(str(getHelpViewer().toHtml()))
     except:
         test.warning("Could not get highlighted text.")
-        selText = ''
-    return str(selText), isWebEngineView
+        return str("")
 
 def __getUrl__():
     helpViewer = getHelpViewer()
@@ -69,12 +60,7 @@ def getHighlightsInHtml(htmlCode):
     return res
 
 def verifySelection(expected):
-    selText, isWebEngineView = __getSelectedText__()
-    if isWebEngineView:
-        test.log("The search results are not a selection in a QWebEngineView",
-                 "Searched strings should still be highlighted")
-        return
-    selText = str(selText)
+    selText = str(__getSelectedText__())
     if test.verify(selText, "Verify that there is a selection"):
         # verify if search keyword is found in results
         test.verify(expected.lower() in selText.lower(),
@@ -118,13 +104,13 @@ def main():
             test.verify(waitFor("re.match('[1-9]\d* - [1-9]\d* of [1-9]\d* Hits',"
                                 "str(findObject(':Hits_QLabel').text))", 2000),
                                 "Verifying if search results found with 1+ hits for: " + searchKeyword)
-            selText = __getSelectedText__()[0]
+            selText = __getSelectedText__()
             url = __getUrl__()
             # click in the widget, tab to first item and press enter
             mouseClick(waitForObject(":Hits_QCLuceneResultWidget"), 1, 1, 0, Qt.LeftButton)
             type(waitForObject(":Hits_QCLuceneResultWidget"), "<Tab>")
             type(waitForObject(":Hits_QCLuceneResultWidget"), "<Return>")
-            waitFor("__getUrl__() != url or selText != __getSelectedText__()[0]", 20000)
+            waitFor("__getUrl__() != url or selText != __getSelectedText__()", 20000)
             verifySelection(searchKeyword)
             verifyUrl(urlDictionary[searchKeyword])
         else:
