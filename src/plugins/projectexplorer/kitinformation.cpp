@@ -187,7 +187,7 @@ QList<Task> ToolChainKitInformation::validate(const Kit *k) const
 
     const QList<ToolChain*> tcList = toolChains(k);
     if (tcList.isEmpty()) {
-        result << Task(Task::Error, ToolChainKitInformation::msgNoToolChainInTarget(),
+        result << Task(Task::Warning, ToolChainKitInformation::msgNoToolChainInTarget(),
                        Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
     } else {
         QSet<Abi> targetAbis;
