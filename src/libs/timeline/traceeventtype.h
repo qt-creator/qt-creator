@@ -33,7 +33,7 @@
 
 namespace Timeline {
 
-class TIMELINE_EXPORT TraceEventType
+class TraceEventType
 {
 public:
     TraceEventType(quint8 feature = 255, const QString &displayName = QString())

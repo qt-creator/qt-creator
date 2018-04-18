@@ -32,7 +32,7 @@
 
 namespace Timeline {
 
-class TIMELINE_EXPORT TraceEvent
+class TraceEvent
 {
 public:
     TraceEvent(qint64 timestamp = -1, qint32 typeIndex = -1)
