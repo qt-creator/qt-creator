@@ -53,6 +53,7 @@ const char avdInfoPathKey[] = "Path:";
 const char avdInfoAbiKey[] = "abi.type";
 const char avdInfoTargetKey[] = "target";
 const char avdInfoErrorKey[] = "Error:";
+const char googleApiTag[] = "google_apis";
 
 const int avdCreateTimeoutMs = 30000;
 
@@ -111,13 +112,17 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig config, const CreateAv
         return result;
     }
 
-    QStringList arguments({"create", "avd", "-k", result.sdkPlatform->sdkStylePath(), "-n", result.name});
+    QStringList arguments({"create", "avd", "-n", result.name});
 
     if (!result.abi.isEmpty()) {
         SystemImage *image = Utils::findOrDefault(result.sdkPlatform->systemImages(),
                                                  Utils::equal(&SystemImage::abiName, result.abi));
         if (image && image->isValid()) {
             arguments << "-k" << image->sdkStylePath();
+            // Google api system images requires explicit abi as
+            // google-apis/ABI or --tag "google-apis"
+            if (image->sdkStylePath().contains(googleApiTag))
+                arguments << "--tag" << googleApiTag;
         } else {
             QString name = result.sdkPlatform->displayText();
             qCDebug(avdManagerLog) << "AVD Create failed. Cannot find system image for the platform"
