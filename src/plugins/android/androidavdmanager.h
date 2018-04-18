@@ -36,6 +36,8 @@ class AvdManagerOutputParser;
 
 class AndroidAvdManager
 {
+    Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidAvdManager)
+
 public:
     AndroidAvdManager(const AndroidConfig& config = AndroidConfigurations::currentConfig());
     ~AndroidAvdManager();

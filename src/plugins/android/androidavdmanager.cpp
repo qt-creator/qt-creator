@@ -26,6 +26,7 @@
 
 #include "androidtoolmanager.h"
 
+#include "coreplugin/icore.h"
 #include "utils/algorithm.h"
 #include "utils/qtcassert.h"
 #include "utils/runextensions.h"
@@ -34,6 +35,7 @@
 #include <QApplication>
 #include <QFileInfo>
 #include <QLoggingCategory>
+#include <QMessageBox>
 #include <QSettings>
 
 #include <chrono>
@@ -270,6 +272,15 @@ QString AndroidAvdManager::startAvd(const QString &name) const
 
 bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
 {
+    QFileInfo info(m_config.emulatorToolPath().toString());
+    if (!info.exists()) {
+        QMessageBox::critical(Core::ICore::dialogParent(),
+                              tr("Emulator Tool Is Missing"),
+                              tr("Install the missing emulator tool (%1) to the"
+                                 " installed Android SDK.")
+                              .arg(m_config.emulatorToolPath().toString()));
+        return false;
+    }
     QProcess *avdProcess = new QProcess();
     QObject::connect(avdProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
                      avdProcess, &QObject::deleteLater);
