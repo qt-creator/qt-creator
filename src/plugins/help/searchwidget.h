@@ -33,9 +33,12 @@
 
 QT_BEGIN_NAMESPACE
 class QHelpSearchEngine;
+class QHelpSearchQueryWidget;
 class QHelpSearchResultWidget;
 class QUrl;
 QT_END_NAMESPACE
+
+namespace Utils { class ProgressIndicator; }
 
 namespace Help {
 namespace Internal {
@@ -93,6 +96,9 @@ private:
 
     QHelpSearchEngine *searchEngine;
     QHelpSearchResultWidget *resultWidget;
+    QHelpSearchQueryWidget *m_queryWidget;
+    QWidget *m_indexingDocumentationLabel;
+    Utils::ProgressIndicator *m_indexingIndicator;
 };
 
 } // namespace Internal
