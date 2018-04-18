@@ -98,6 +98,8 @@ uint PROJECTEXPLORER_EXPORT qHash(const Task &task);
 
 bool PROJECTEXPLORER_EXPORT operator<(const Task &a, const Task &b);
 
+QString PROJECTEXPLORER_EXPORT toHtml(const QList<Task> &issues);
+
 } //namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::Task)

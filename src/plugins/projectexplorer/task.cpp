@@ -32,6 +32,8 @@
 
 #include "projectexplorerconstants.h"
 
+#include <QTextStream>
+
 namespace ProjectExplorer
 {
 
@@ -147,6 +149,29 @@ bool operator<(const Task &a, const Task &b)
 uint qHash(const Task &task)
 {
     return task.taskId;
+}
+
+QString toHtml(const QList<Task> &issues)
+{
+    QString result;
+    QTextStream str(&result);
+
+    for (const Task &t : issues) {
+        str << "<b>";
+        switch (t.type) {
+        case Task::Error:
+            str << QCoreApplication::translate("ProjectExplorer::Kit", "Error:") << " ";
+            break;
+        case Task::Warning:
+            str << QCoreApplication::translate("ProjectExplorer::Kit", "Warning:") << " ";
+            break;
+        case Task::Unknown:
+        default:
+            break;
+        }
+        str << "</b>" << t.description << "<br>";
+    }
+    return result;
 }
 
 } // namespace ProjectExplorer

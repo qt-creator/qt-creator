@@ -532,34 +532,15 @@ IOutputParser *Kit::createOutputParser() const
 
 QString Kit::toHtml(const QList<Task> &additional) const
 {
-    QString rc;
-    QTextStream str(&rc);
+    QString result;
+    QTextStream str(&result);
     str << "<html><body>";
     str << "<h3>" << displayName() << "</h3>";
+
+    if (!isValid() || hasWarning() || !additional.isEmpty())
+        str << "<p>" << toHtml(additional + validate()) << "</p>";
+
     str << "<table>";
-
-    if (!isValid() || hasWarning() || !additional.isEmpty()) {
-        QList<Task> issues = additional;
-        issues.append(validate());
-        str << "<p>";
-        foreach (const Task &t, issues) {
-            str << "<b>";
-            switch (t.type) {
-            case Task::Error:
-                str << QCoreApplication::translate("ProjectExplorer::Kit", "Error:") << " ";
-                break;
-            case Task::Warning:
-                str << QCoreApplication::translate("ProjectExplorer::Kit", "Warning:") << " ";
-                break;
-            case Task::Unknown:
-            default:
-                break;
-            }
-            str << "</b>" << t.description << "<br>";
-        }
-        str << "</p>";
-    }
-
     QList<KitInformation *> infoList = KitManager::kitInformation();
     foreach (KitInformation *ki, infoList) {
         KitInformation::ItemList list = ki->toUserOutput(this);
@@ -576,7 +557,7 @@ QString Kit::toHtml(const QList<Task> &additional) const
         }
     }
     str << "</table></body></html>";
-    return rc;
+    return result;
 }
 
 void Kit::setAutoDetected(bool detected)
