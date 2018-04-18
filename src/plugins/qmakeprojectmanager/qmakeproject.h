@@ -60,7 +60,7 @@ public:
 
     QmakeProFile *rootProFile() const;
 
-    bool supportsKit(const ProjectExplorer::Kit *k, QString *errorMesage) const final;
+    QList<ProjectExplorer::Task> projectIssues(const ProjectExplorer::Kit *k) const final;
 
     QmakeProFileNode *rootProjectNode() const final;
 

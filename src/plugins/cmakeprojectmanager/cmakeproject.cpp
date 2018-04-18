@@ -363,14 +363,16 @@ bool CMakeProject::knowsAllBuildExecutables() const
     return false;
 }
 
-bool CMakeProject::supportsKit(const Kit *k, QString *errorMessage) const
+QList<Task> CMakeProject::projectIssues(const Kit *k) const
 {
-    if (!CMakeKitInformation::cmakeTool(k)) {
-        if (errorMessage)
-            *errorMessage = tr("No cmake tool set.");
-        return false;
-    }
-    return true;
+    QList<Task> result = Project::projectIssues(k);
+
+    if (!CMakeKitInformation::cmakeTool(k))
+        result.append(createProjectTask(Task::TaskType::Error, tr("No cmake tool set.")));
+    if (ToolChainKitInformation::toolChains(k).isEmpty())
+        result.append(createProjectTask(Task::TaskType::Warning, tr("No compilers set in kit.")));
+
+    return result;
 }
 
 void CMakeProject::runCMake()

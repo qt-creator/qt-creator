@@ -112,7 +112,7 @@ public:
     int m_nestedBlockingLevel = 0;
     bool m_autodetected = false;
     bool m_sdkProvided = false;
-    bool m_isValid = true;
+    bool m_hasError = false;
     bool m_hasWarning = false;
     bool m_hasValidityInfo = false;
     bool m_mustNotify = false;
@@ -209,7 +209,7 @@ Kit *Kit::clone(bool keepName) const
     k->d->m_autodetected = false;
     k->d->m_data = d->m_data;
     // Do not clone m_fileSystemFriendlyName, needs to be unique
-    k->d->m_isValid = d->m_isValid;
+    k->d->m_hasError = d->m_hasError;
     k->d->m_cachedIcon = d->m_cachedIcon;
     k->d->m_iconPath = d->m_iconPath;
     k->d->m_sticky = d->m_sticky;
@@ -240,7 +240,7 @@ bool Kit::isValid() const
     if (!d->m_hasValidityInfo)
         validate();
 
-    return d->m_isValid;
+    return !d->m_hasError;
 }
 
 bool Kit::hasWarning() const
@@ -255,18 +255,13 @@ QList<Task> Kit::validate() const
 {
     QList<Task> result;
     QList<KitInformation *> infoList = KitManager::kitInformation();
-    d->m_isValid = true;
-    d->m_hasWarning = false;
-    foreach (KitInformation *i, infoList) {
+    for (KitInformation *i : infoList) {
         QList<Task> tmp = i->validate(this);
-        foreach (const Task &t, tmp) {
-            if (t.type == Task::Error)
-                d->m_isValid = false;
-            if (t.type == Task::Warning)
-                d->m_hasWarning = true;
-        }
         result.append(tmp);
     }
+    d->m_hasError = containsType(result, Task::TaskType::Error);
+    d->m_hasWarning = containsType(result, Task::TaskType::Warning);
+
     Utils::sort(result);
     d->m_hasValidityInfo = true;
     return result;

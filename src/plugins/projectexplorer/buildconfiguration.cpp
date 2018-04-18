@@ -407,7 +407,7 @@ bool IBuildConfigurationFactory::canHandle(const Target *target) const
     if (m_supportedProjectType.isValid() && m_supportedProjectType != target->project()->id())
         return false;
 
-    if (!target->project()->supportsKit(target->kit()))
+    if (containsType(target->project()->projectIssues(target->kit()), Task::TaskType::Error))
         return false;
 
     if (!supportsTargetDeviceType(DeviceTypeKitInformation::deviceTypeId(target->kit())))

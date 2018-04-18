@@ -184,7 +184,7 @@ bool DeployConfigurationFactory::canHandle(Target *target) const
             return false;
     }
 
-    if (!target->project()->supportsKit(target->kit()))
+    if (containsType(target->project()->projectIssues(target->kit()), Task::TaskType::Error))
         return false;
 
     if (!m_supportedTargetDeviceTypes.isEmpty()) {

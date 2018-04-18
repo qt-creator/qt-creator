@@ -198,7 +198,9 @@ Project::Project(const QString &mimeType, const Utils::FileName &fileName,
     // Only set up containernode after d is set so that it will find the project directory!
     d->m_containerNode = std::make_unique<ContainerNode>(this);
 
-    setRequiredKitPredicate([this](const Kit *k) { return supportsKit(k); });
+    setRequiredKitPredicate([this](const Kit *k) {
+        return !containsType(projectIssues(k), Task::TaskType::Error);
+    });
 }
 
 Project::~Project()
@@ -317,11 +319,12 @@ Target *Project::target(Kit *k) const
     return Utils::findOrDefault(d->m_targets, Utils::equal(&Target::kit, k));
 }
 
-bool Project::supportsKit(const Kit *k, QString *errorMessage) const
+QList<Task> Project::projectIssues(const Kit *k) const
 {
-    Q_UNUSED(k);
-    Q_UNUSED(errorMessage);
-    return true;
+    QList<Task> result;
+    if (!k->isValid())
+        result.append(createProjectTask(Task::TaskType::Error, tr("Kit is not valid.")));
+    return {};
 }
 
 Target *Project::createTarget(Kit *k)
@@ -760,6 +763,11 @@ void Project::setProjectLanguage(Core::Id id, bool enabled)
 
 void Project::projectLoaded()
 {
+}
+
+Task Project::createProjectTask(Task::TaskType type, const QString &description)
+{
+    return Task(type, description, Utils::FileName(), -1, Core::Id());
 }
 
 Core::Context Project::projectContext() const

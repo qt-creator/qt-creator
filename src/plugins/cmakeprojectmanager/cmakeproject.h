@@ -67,7 +67,7 @@ public:
 
     bool knowsAllBuildExecutables() const final;
 
-    bool supportsKit(const ProjectExplorer::Kit *k, QString *errorMessage = nullptr) const final;
+    QList<ProjectExplorer::Task> projectIssues(const ProjectExplorer::Kit *k) const final;
 
     void runCMake();
     void runCMakeAndScanProjectTree();

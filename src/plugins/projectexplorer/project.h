@@ -122,7 +122,7 @@ public:
     Target *activeTarget() const;
     Target *target(Core::Id id) const;
     Target *target(Kit *k) const;
-    virtual bool supportsKit(const Kit *k, QString *errorMessage = nullptr) const;
+    virtual QList<Task> projectIssues(const Kit *k) const;
 
     Target *createTarget(Kit *k);
     static bool copySteps(Target *sourceTarget, Target *newTarget);
@@ -237,6 +237,9 @@ protected:
     void removeProjectLanguage(Core::Id id);
     void setProjectLanguage(Core::Id id, bool enabled);
     virtual void projectLoaded(); // Called when the project is fully loaded.
+
+    static ProjectExplorer::Task createProjectTask(ProjectExplorer::Task::TaskType type,
+                                                   const QString &description);
 
 private:
     // The predicate used to select kits available in TargetSetupPage.

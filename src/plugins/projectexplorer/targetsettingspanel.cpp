@@ -40,6 +40,7 @@
 #include "session.h"
 #include "target.h"
 #include "targetsetuppage.h"
+#include "task.h"
 
 #include <app/app_version.h>
 
@@ -282,9 +283,12 @@ class TargetItem : public TypedTreeItem<TreeItem, TargetGroupItem>
 public:
     enum { DefaultPage = 0 }; // Build page.
 
-    TargetItem(Project *project, Id kitId)
-        : m_project(project), m_kitId(kitId)
+    TargetItem(Project *project, Id kitId, const QList<Task> &issues)
+        : m_project(project), m_kitId(kitId), m_kitIssues(issues)
     {
+        m_kitWarningForProject = containsType(m_kitIssues, Task::TaskType::Warning);
+        m_kitErrorsForProject = containsType(m_kitIssues, Task::TaskType::Error);
+
         updateSubItems();
     }
 
@@ -298,7 +302,8 @@ public:
     Qt::ItemFlags flags(int column) const override
     {
         Q_UNUSED(column)
-        return Qt::ItemFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+        return m_kitErrorsForProject ? Qt::ItemFlags(0)
+                                     : Qt::ItemFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     }
 
     QVariant data(int column, int role) const override
@@ -313,11 +318,11 @@ public:
         case Qt::DecorationRole: {
             const Kit *k = KitManager::kit(m_kitId);
             QTC_ASSERT(k, return QVariant());
+            if (m_kitErrorsForProject)
+                return kitIconWithOverlay(*k, IconOverlay::Error);
             if (!isEnabled())
                 return kitIconWithOverlay(*k, IconOverlay::Add);
-            if (!k->isValid())
-                return kitIconWithOverlay(*k, IconOverlay::Error);
-            if (k->hasWarning())
+            if (m_kitWarningForProject)
                 return kitIconWithOverlay(*k, IconOverlay::Warning);
             return k->icon();
         }
@@ -341,9 +346,12 @@ public:
             Kit *k = KitManager::kit(m_kitId);
             QTC_ASSERT(k, return QVariant());
             QString toolTip;
-            if (!isEnabled())
+            if (m_kitErrorsForProject)
+                toolTip = "<h3>" + tr("Kit is unsuited for Project") + "</h3>";
+            else if (!isEnabled())
                 toolTip = "<h3>" + tr("Click to activate:") + "</h3>";
-            toolTip += k->toHtml();
+            if (!m_kitIssues.isEmpty())
+                toolTip += toHtml(m_kitIssues);
             return toolTip;
         }
 
@@ -466,12 +474,15 @@ public:
         }
     }
 
-    bool isEnabled() const { return target() != 0; }
+    bool isEnabled() const { return target() != nullptr; }
 
 public:
     QPointer<Project> m_project; // Not owned.
     Id m_kitId;
-    int m_currentChild = DefaultPage; // Use run page by default.
+    int m_currentChild = DefaultPage;
+    bool m_kitErrorsForProject = false;
+    bool m_kitWarningForProject = false;
+    QList<Task> m_kitIssues;
 
 private:
     enum class IconOverlay {
@@ -526,10 +537,9 @@ public:
 
     BuildOrRunItem(Project *project, Id kitId, SubIndex subIndex)
         : m_project(project), m_kitId(kitId), m_subIndex(subIndex)
-    {
-    }
+    { }
 
-    ~BuildOrRunItem()
+    ~BuildOrRunItem() override
     {
         delete m_panel;
     }
@@ -769,7 +779,7 @@ TargetItem *TargetGroupItem::targetItem(Target *target) const
         Id needle = target->id(); // Unconfigured project have no active target.
         return findFirstLevelChild([needle](TargetItem *item) { return item->m_kitId == needle; });
     }
-    return 0;
+    return nullptr;
 }
 
 void TargetGroupItemPrivate::handleRemovedKit(Kit *kit)
@@ -786,8 +796,7 @@ void TargetGroupItemPrivate::handleUpdatedKit(Kit *kit)
 
 void TargetGroupItemPrivate::handleAddedKit(Kit *kit)
 {
-    if (m_project->supportsKit(kit))
-        q->appendChild(new TargetItem(m_project, kit->id()));
+    q->appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
 }
 
 void TargetItem::updateSubItems()
@@ -805,11 +814,9 @@ void TargetGroupItemPrivate::rebuildContents()
 {
     q->removeChildren();
 
-    const QList<Kit *> kits = KitManager::sortKits(KitManager::kits([this](const Kit *kit) {
-        return m_project->supportsKit(const_cast<Kit *>(kit));
-    }));
+    const QList<Kit *> kits = KitManager::sortKits(KitManager::kits());
     for (Kit *kit : kits)
-        q->appendChild(new TargetItem(m_project, kit->id()));
+        q->appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
 
     if (q->parent())
         q->parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(q)),

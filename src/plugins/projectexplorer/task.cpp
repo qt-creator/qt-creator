@@ -25,12 +25,14 @@
 
 #include "task.h"
 
+#include "projectexplorerconstants.h"
+
 #include <app/app_version.h>
 #include <texteditor/textmark.h>
+
+#include <utils/algorithm.h>
 #include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
-
-#include "projectexplorerconstants.h"
 
 #include <QTextStream>
 
@@ -172,6 +174,11 @@ QString toHtml(const QList<Task> &issues)
         str << "</b>" << t.description << "<br>";
     }
     return result;
+}
+
+bool containsType(const QList<Task> &issues, Task::TaskType type)
+{
+    return Utils::contains(issues, [type](const Task &t) { return t.type == type; });
 }
 
 } // namespace ProjectExplorer

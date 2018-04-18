@@ -540,7 +540,7 @@ bool RunConfigurationFactory::canHandle(Target *target) const
     const Project *project = target->project();
     Kit *kit = target->kit();
 
-    if (!project->supportsKit(kit))
+    if (containsType(target->project()->projectIssues(kit), Task::TaskType::Error))
         return false;
 
     if (!m_supportedProjectTypes.isEmpty())

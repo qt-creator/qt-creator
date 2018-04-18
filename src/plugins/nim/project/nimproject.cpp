@@ -154,20 +154,16 @@ void NimProject::updateProject()
     emitParsingFinished(true);
 }
 
-bool NimProject::supportsKit(const Kit *k, QString *errorMessage) const
+QList<Task> NimProject::projectIssues(const Kit *k) const
 {
+    QList<Task> result = Project::projectIssues(k);
     auto tc = dynamic_cast<NimToolChain*>(ToolChainKitInformation::toolChain(k, Constants::C_NIMLANGUAGE_ID));
-    if (!tc) {
-        if (errorMessage)
-            *errorMessage = tr("No Nim compiler set.");
-        return false;
-    }
-    if (!tc->compilerCommand().exists()) {
-        if (errorMessage)
-            *errorMessage = tr("Nim compiler does not exist.");
-        return false;
-    }
-    return true;
+    if (!tc)
+        result.append(createProjectTask(Task::TaskType::Error, tr("No Nim compiler set.")));
+    if (!tc->compilerCommand().exists())
+        result.append(createProjectTask(Task::TaskType::Error, tr("Nim compiler does not exist.")));
+
+    return result;
 }
 
 FileNameList NimProject::nimFiles() const

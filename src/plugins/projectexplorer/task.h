@@ -99,6 +99,7 @@ uint PROJECTEXPLORER_EXPORT qHash(const Task &task);
 bool PROJECTEXPLORER_EXPORT operator<(const Task &a, const Task &b);
 
 QString PROJECTEXPLORER_EXPORT toHtml(const QList<Task> &issues);
+bool PROJECTEXPLORER_EXPORT containsType(const QList<Task> &issues, Task::TaskType);
 
 } //namespace ProjectExplorer
 

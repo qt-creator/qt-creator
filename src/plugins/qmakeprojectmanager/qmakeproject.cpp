@@ -50,6 +50,7 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
@@ -596,12 +597,14 @@ void QmakeProject::buildFinished(bool success)
         m_invalidateQmakeVfsContents = true;
 }
 
-bool QmakeProject::supportsKit(const Kit *k, QString *errorMessage) const
+QList<Task> QmakeProject::projectIssues(const Kit *k) const
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
-    if (!version && errorMessage)
-        *errorMessage = tr("No Qt version set in kit.");
-    return version;
+    QList<Task> result = Project::projectIssues(k);
+    if (!QtSupport::QtKitInformation::qtVersion(k))
+        result.append(createProjectTask(Task::TaskType::Error, tr("No Qt version set in kit.")));
+    if (!ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID))
+        result.append(createProjectTask(Task::TaskType::Error, tr("No C++ compiler set in kit.")));
+    return result;
 }
 
 // Find the folder that contains a file with a certain name (recurse down)
