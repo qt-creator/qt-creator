@@ -85,12 +85,14 @@ def main():
     switchViewTo(ViewConstants.HELP)
     # verify that search widget is accessible
     mouseClick(waitForObjectItem(":Qt Creator_Core::Internal::CommandComboBox", "Search"))
+    snooze(1) # Looks like searching is still available for an instant
     test.verify(checkIfObjectExists("{type='QHelpSearchQueryWidget' unnamed='1' visible='1' "
-                                    "window=':Qt Creator_Core::Internal::MainWindow'}"),
+                                    "window=':Qt Creator_Core::Internal::MainWindow'}",
+                                    timeout=600000),
                 "Verifying search widget visibility.")
     # try to search empty string
     clickButton(waitForObject("{text='Search' type='QPushButton' unnamed='1' visible='1' "
-                              "window=':Qt Creator_Core::Internal::MainWindow'}", 600000))
+                              "window=':Qt Creator_Core::Internal::MainWindow'}"))
     try:
         # Creator built with Qt <= 5.8.0
         resultWidget = waitForObject(':Hits_QCLuceneResultWidget', 5000)
