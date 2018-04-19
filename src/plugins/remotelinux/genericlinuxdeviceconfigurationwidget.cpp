@@ -78,6 +78,7 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
             this, &GenericLinuxDeviceConfigurationWidget::gdbServerEditingFinished);
     connect(m_ui->hostKeyCheckBox, &QCheckBox::toggled,
             this, &GenericLinuxDeviceConfigurationWidget::hostKeyCheckingChanged);
+    m_ui->gdbServerLineEdit->setToolTip(m_ui->gdbServerLineEdit->placeholderText());
 
     initGui();
 }
