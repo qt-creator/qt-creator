@@ -121,12 +121,12 @@ void TextBrowserHelpViewer::setScale(qreal scale)
         scale = 10;
     else if (scale < -5)
         scale = -5;
-    int diff = (int)scale - m_textBrowser->zoomCount;
+    int diff = int(scale) - m_textBrowser->zoomCount;
     if (diff > 0)
         m_textBrowser->zoomIn(diff);
     else if (diff < 0)
         m_textBrowser->zoomOut(-diff);
-    m_textBrowser->zoomCount = (int)scale;
+    m_textBrowser->zoomCount = int(scale);
     m_textBrowser->forceFont = false;
 }
 
@@ -354,9 +354,9 @@ void TextBrowserHelpWidget::scaleDown()
 
 void TextBrowserHelpWidget::contextMenuEvent(QContextMenuEvent *event)
 {
-    QMenu menu("", 0);
+    QMenu menu("", nullptr);
 
-    QAction *copyAnchorAction = 0;
+    QAction *copyAnchorAction = nullptr;
     const QUrl link(linkAt(event->pos()));
     if (!link.isEmpty() && link.isValid()) {
         QAction *action = menu.addAction(tr("Open Link"));

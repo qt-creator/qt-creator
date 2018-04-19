@@ -133,9 +133,9 @@ void XbelReader::readXBEL()
 
         if (isStartElement()) {
             if (name() == "folder")
-                readFolder(0);
+                readFolder(nullptr);
             else if (name() == "bookmark")
-                readBookmark(0);
+                readBookmark(nullptr);
             else
                 readUnknownElement();
         }

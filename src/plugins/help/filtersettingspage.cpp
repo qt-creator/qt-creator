@@ -104,7 +104,7 @@ void FilterSettingsPage::updateFilterPage()
     foreach (const QString &attribute, attributes)
         new QTreeWidgetItem(m_ui.attributeWidget, QStringList(attribute));
 
-    if (!m_filterMap.keys().isEmpty()) {
+    if (!m_filterMap.isEmpty()) {
         m_ui.filterWidget->setCurrentRow(0);
         updateAttributes(m_ui.filterWidget->currentItem());
     }
@@ -228,7 +228,7 @@ void FilterSettingsPage::finish()
 
 QString FilterSettingsPage::msgFilterLabel(const QString &filter) const
 {
-    if (m_filterMap.keys().isEmpty())
+    if (m_filterMap.isEmpty())
         return tr("No user defined filters available or no filter selected.");
 
     const QStringList &checkedList = m_filterMap.value(filter);

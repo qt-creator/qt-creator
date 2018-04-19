@@ -89,16 +89,16 @@ private:
     void contextMenuEvent(QContextMenuEvent *contextMenuEvent);
     QStringList currentSearchTerms() const;
 
-    int zoomCount;
+    int zoomCount = 0;
 
     QFutureWatcher<void> m_watcher;
-    QFutureInterface<void> *m_progress;
+    QFutureInterface<void> *m_progress = nullptr;
 
-    QHelpSearchEngine *searchEngine;
-    QHelpSearchResultWidget *resultWidget;
-    QHelpSearchQueryWidget *m_queryWidget;
-    QWidget *m_indexingDocumentationLabel;
-    Utils::ProgressIndicator *m_indexingIndicator;
+    QHelpSearchEngine *searchEngine = nullptr;
+    QHelpSearchResultWidget *resultWidget = nullptr;
+    QHelpSearchQueryWidget *m_queryWidget = nullptr;
+    QWidget *m_indexingDocumentationLabel = nullptr;
+    Utils::ProgressIndicator *m_indexingIndicator = nullptr;
 };
 
 } // namespace Internal

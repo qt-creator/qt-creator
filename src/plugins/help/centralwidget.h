@@ -38,7 +38,7 @@ class CentralWidget : public HelpWidget
     Q_OBJECT
 
 public:
-    CentralWidget(const Core::Context &context, QWidget *parent = 0);
+    CentralWidget(const Core::Context &context, QWidget *parent = nullptr);
     ~CentralWidget();
 
     static CentralWidget *instance();

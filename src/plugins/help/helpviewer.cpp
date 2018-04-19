@@ -46,7 +46,9 @@ using namespace Help::Internal;
 struct ExtensionMap {
     const char *extension;
     const char *mimeType;
-} extensionMap[] = {
+};
+
+static ExtensionMap extensionMap[] = {
     {".bmp", "image/bmp"},
     {".css", "text/css"},
     {".gif", "image/gif"},
@@ -76,8 +78,8 @@ struct ExtensionMap {
     {".xhtml", "application/xhtml+xml"},
     {".wml", "text/vnd.wap.wml"},
     {".wmlc", "application/vnd.wap.wmlc"},
-    {"about:blank", 0},
-    {0, 0}
+    {"about:blank", nullptr},
+    {nullptr, nullptr}
 };
 
 HelpViewer::HelpViewer(QWidget *parent)

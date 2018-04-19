@@ -48,7 +48,7 @@ public:
     };
     Q_DECLARE_FLAGS(Actions, Action)
 
-    explicit HelpViewer(QWidget *parent = 0);
+    explicit HelpViewer(QWidget *parent = nullptr);
     ~HelpViewer();
 
     virtual QFont viewerFont() const = 0;
@@ -75,7 +75,7 @@ public:
     bool isActionVisible(Action action);
 
     virtual bool findText(const QString &text, Core::FindFlags flags,
-        bool incremental, bool fromSearch, bool *wrapped = 0) = 0;
+        bool incremental, bool fromSearch, bool *wrapped = nullptr) = 0;
 
     bool handleForwardBackwardMouseButtons(QMouseEvent *e);
 

@@ -740,7 +740,7 @@ void HelpPluginPrivate::handleHelpRequest(const QUrl &url, HelpManager::HelpView
 class DialogClosingOnEscape : public QDialog
 {
 public:
-    DialogClosingOnEscape(QWidget *parent = 0) : QDialog(parent) {}
+    DialogClosingOnEscape(QWidget *parent = nullptr) : QDialog(parent) {}
     bool event(QEvent *event)
     {
         if (event->type() == QEvent::ShortcutOverride) {

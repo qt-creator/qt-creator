@@ -41,7 +41,7 @@ class TextBrowserHelpViewer : public HelpViewer
     Q_OBJECT
 
 public:
-    explicit TextBrowserHelpViewer(QWidget *parent = 0);
+    explicit TextBrowserHelpViewer(QWidget *parent = nullptr);
     ~TextBrowserHelpViewer();
 
     QFont viewerFont() const;
@@ -64,7 +64,7 @@ public:
     void addForwardHistoryItems(QMenu *forwardMenu);
 
     bool findText(const QString &text, Core::FindFlags flags,
-                  bool incremental, bool fromSearch, bool *wrapped = 0);
+                  bool incremental, bool fromSearch, bool *wrapped = nullptr);
 
     void scaleUp();
     void scaleDown();

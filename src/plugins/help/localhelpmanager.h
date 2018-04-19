@@ -57,7 +57,7 @@ public:
         ShowLastPages = 2,
     };
 
-    LocalHelpManager(QObject *parent = 0);
+    LocalHelpManager(QObject *parent = nullptr);
     ~LocalHelpManager();
 
     static LocalHelpManager *instance();

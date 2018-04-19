@@ -58,7 +58,7 @@ public:
         ExternalWindow
     };
 
-    HelpWidget(const Core::Context &context, WidgetStyle style, QWidget *parent = 0);
+    HelpWidget(const Core::Context &context, WidgetStyle style, QWidget *parent = nullptr);
     ~HelpWidget();
 
     HelpViewer *currentViewer() const;

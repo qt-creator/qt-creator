@@ -39,7 +39,7 @@ class HelpIndexFilter : public Core::ILocatorFilter
 
 public:
     HelpIndexFilter();
-    ~HelpIndexFilter();
+    ~HelpIndexFilter() final;
 
     // ILocatorFilter
     void prepareSearch(const QString &entry) override;

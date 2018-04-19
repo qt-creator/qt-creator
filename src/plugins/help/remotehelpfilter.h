@@ -40,7 +40,7 @@ class RemoteHelpFilter : public Core::ILocatorFilter
     Q_OBJECT
 public:
     RemoteHelpFilter();
-    ~RemoteHelpFilter();
+    ~RemoteHelpFilter() final;
 
     // ILocatorFilter
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,

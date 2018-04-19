@@ -32,7 +32,7 @@
 
 using namespace Help::Internal;
 
-static CentralWidget *gStaticCentralWidget = 0;
+static CentralWidget *gStaticCentralWidget = nullptr;
 
 // -- CentralWidget
 

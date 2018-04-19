@@ -61,8 +61,8 @@ private:
     void selectPageUpDown(int summand);
 
 private:
-    OpenPagesModel *m_openPagesModel;
-    OpenPagesWidget *m_openPagesWidget;
+    OpenPagesModel *m_openPagesModel = nullptr;
+    OpenPagesWidget *m_openPagesWidget = nullptr;
 };
 
     }   // namespace Internal

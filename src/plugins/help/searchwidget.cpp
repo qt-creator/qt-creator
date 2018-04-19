@@ -56,10 +56,6 @@
 using namespace Help::Internal;
 
 SearchWidget::SearchWidget()
-    : zoomCount(0)
-    , m_progress(0)
-    , searchEngine(0)
-    , resultWidget(0)
 {
 }
 
@@ -226,7 +222,7 @@ void SearchWidget::indexingFinished()
     m_progress->reportFinished();
 
     delete m_progress;
-    m_progress = NULL;
+    m_progress = nullptr;
 
     m_queryWidget->show();
     m_indexingDocumentationLabel->hide();
@@ -261,9 +257,9 @@ void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
     if (!browser->rect().contains(point, true))
         return;
 
-    QAction *openLink = 0;
-    QAction *openLinkInNewTab = 0;
-    QAction *copyAnchorAction = 0;
+    QAction *openLink = nullptr;
+    QAction *openLinkInNewTab = nullptr;
+    QAction *copyAnchorAction = nullptr;
 
     QMenu menu;
     QUrl link = browser->anchorAt(point);

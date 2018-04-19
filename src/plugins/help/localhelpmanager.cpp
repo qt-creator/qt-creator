@@ -42,18 +42,18 @@
 
 using namespace Help::Internal;
 
-static LocalHelpManager *m_instance = 0;
+static LocalHelpManager *m_instance = nullptr;
 
 bool LocalHelpManager::m_guiNeedsSetup = true;
 bool LocalHelpManager::m_needsCollectionFile = true;
 
 QMutex LocalHelpManager::m_guiMutex;
-QHelpEngine* LocalHelpManager::m_guiEngine = 0;
+QHelpEngine* LocalHelpManager::m_guiEngine = nullptr;
 
 QMutex LocalHelpManager::m_bkmarkMutex;
-BookmarkManager* LocalHelpManager::m_bookmarkManager = 0;
+BookmarkManager* LocalHelpManager::m_bookmarkManager = nullptr;
 
-QStandardItemModel *LocalHelpManager::m_filterModel = 0;
+QStandardItemModel *LocalHelpManager::m_filterModel = nullptr;
 QString LocalHelpManager::m_currentFilter = QString();
 int LocalHelpManager::m_currentFilterIndex = -1;
 
@@ -115,11 +115,11 @@ LocalHelpManager::~LocalHelpManager()
     if (m_bookmarkManager) {
         m_bookmarkManager->saveBookmarks();
         delete m_bookmarkManager;
-        m_bookmarkManager = 0;
+        m_bookmarkManager = nullptr;
     }
 
     delete m_guiEngine;
-    m_guiEngine = 0;
+    m_guiEngine = nullptr;
 }
 
 LocalHelpManager *LocalHelpManager::instance()

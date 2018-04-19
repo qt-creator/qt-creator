@@ -71,7 +71,7 @@ private:
     bool m_returnOnClose;
 
     QPointer<QWidget> m_widget;
-    Ui::GeneralSettingsPage *m_ui;
+    Ui::GeneralSettingsPage *m_ui = nullptr;
 };
 
     }   // Internal

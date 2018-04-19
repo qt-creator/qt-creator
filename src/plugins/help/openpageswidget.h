@@ -37,7 +37,7 @@ class OpenPagesWidget : public Core::OpenDocumentsTreeView
     Q_OBJECT
 
 public:
-    explicit OpenPagesWidget(OpenPagesModel *model, QWidget *parent = 0);
+    explicit OpenPagesWidget(OpenPagesModel *model, QWidget *parent = nullptr);
     ~OpenPagesWidget();
 
     void selectCurrentPage();
