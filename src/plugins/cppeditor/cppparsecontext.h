@@ -74,6 +74,8 @@ public:
     ParseContextWidget(ParseContextModel &parseContextModel, QWidget *parent);
     void syncToModel();
 
+    QSize minimumSizeHint() const final;
+
 private:
     ParseContextModel &m_parseContextModel;
     QAction *m_clearPreferredAction = nullptr;

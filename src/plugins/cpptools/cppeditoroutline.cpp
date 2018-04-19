@@ -112,6 +112,7 @@ CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
     m_combo->setMinimumContentsLength(22);
     QSizePolicy policy = m_combo->sizePolicy();
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
+    policy.setHorizontalStretch(2);
     m_combo->setSizePolicy(policy);
     m_combo->setMaxVisibleItems(40);
 

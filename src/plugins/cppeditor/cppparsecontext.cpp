@@ -134,6 +134,11 @@ ParseContextWidget::ParseContextWidget(ParseContextModel &parseContextModel, QWi
     : QComboBox(parent)
     , m_parseContextModel(parseContextModel)
 {
+    setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    QSizePolicy policy = sizePolicy();
+    policy.setHorizontalStretch(1);
+    policy.setHorizontalPolicy(QSizePolicy::Maximum);
+    setSizePolicy(policy);
     // Set up context menu with a clear action
     setContextMenuPolicy(Qt::ActionsContextMenu);
     m_clearPreferredAction = new QAction(tr("Clear Preferred Parse Context"), this);
@@ -168,6 +173,17 @@ void ParseContextWidget::syncToModel()
     const bool isPreferred = m_parseContextModel.isCurrentPreferred();
     m_clearPreferredAction->setEnabled(isPreferred);
     CppEditorWidget::updateWidgetHighlighting(this, isPreferred);
+}
+
+QSize ParseContextWidget::minimumSizeHint() const
+{
+    // QComboBox always returns the same from sizeHint() and minimumSizeHint().
+    // We want sizeHint() to be the preferred and maximum size
+    // (horizontalPolicy == Maximum), but want it to be shrinkable, which is not the case
+    // if the minimumSizeHint() is the same as sizeHint()
+    QSize size = QComboBox::minimumSizeHint();
+    size.setWidth(120);
+    return size;
 }
 
 } // namespace Internal
