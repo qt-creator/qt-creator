@@ -101,11 +101,11 @@ void QmlProfilerStatisticsModel::restrictToFeatures(quint64 features)
 
     clear();
     QFutureInterface<void> future;
-    m_modelManager->replayEvents(m_modelManager->traceStart(), m_modelManager->traceEnd(),
-                                 std::bind(&QmlProfilerStatisticsModel::loadEvent, this,
-                                           std::placeholders::_1, std::placeholders::_2),
-                                 std::bind(&QmlProfilerStatisticsModel::beginResetModel, this),
-                                 [this]() {
+    m_modelManager->replayQmlEvents(m_modelManager->traceStart(), m_modelManager->traceEnd(),
+                                    std::bind(&QmlProfilerStatisticsModel::loadEvent, this,
+                                              std::placeholders::_1, std::placeholders::_2),
+                                    std::bind(&QmlProfilerStatisticsModel::beginResetModel, this),
+                                    [this]() {
         finalize();
         notesChanged(QmlProfilerStatisticsModel::s_invalidTypeId); // Reload notes
     }, [this](const QString &message) {

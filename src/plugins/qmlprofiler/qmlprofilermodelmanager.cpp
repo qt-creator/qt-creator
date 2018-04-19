@@ -149,8 +149,8 @@ void QmlProfilerModelManager::replayEvents(qint64 rangeStart, qint64 rangeEnd,
                                            Finalizer finalizer, ErrorHandler errorHandler,
                                            QFutureInterface<void> &future) const
 {
-    replayEvents(rangeStart, rangeEnd, static_cast<QmlEventLoader>(loader), initializer, finalizer,
-                 errorHandler, future);
+    replayQmlEvents(rangeStart, rangeEnd, static_cast<QmlEventLoader>(loader), initializer,
+                    finalizer, errorHandler, future);
 }
 
 static bool isStateful(const QmlEventType &type)
@@ -162,10 +162,10 @@ static bool isStateful(const QmlEventType &type)
     return message == PixmapCacheEvent || message == MemoryAllocation;
 }
 
-void QmlProfilerModelManager::replayEvents(qint64 rangeStart, qint64 rangeEnd,
-                                           QmlEventLoader loader, Initializer initializer,
-                                           Finalizer finalizer, ErrorHandler errorHandler,
-                                           QFutureInterface<void> &future) const
+void QmlProfilerModelManager::replayQmlEvents(qint64 rangeStart, qint64 rangeEnd,
+                                              QmlEventLoader loader, Initializer initializer,
+                                              Finalizer finalizer, ErrorHandler errorHandler,
+                                              QFutureInterface<void> &future) const
 {
     if (initializer)
         initializer();

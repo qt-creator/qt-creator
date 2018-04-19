@@ -64,9 +64,9 @@ public:
     void addEventTypes(const QVector<QmlEventType> &types);
     const QmlEventType &eventType(int typeId) const;
 
-    void replayEvents(qint64 rangeStart, qint64 rangeEnd, QmlEventLoader loader,
-                      Initializer initializer, Finalizer finalizer,
-                      ErrorHandler errorHandler, QFutureInterface<void> &future) const;
+    void replayQmlEvents(qint64 rangeStart, qint64 rangeEnd, QmlEventLoader loader,
+                         Initializer initializer, Finalizer finalizer,
+                         ErrorHandler errorHandler, QFutureInterface<void> &future) const;
 
     void finalize() override;
 
