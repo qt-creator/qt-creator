@@ -86,14 +86,7 @@ void buildTree(const TokenContainers &containers,
     addFirstItem(root);
 }
 
-static QString addResultTypeToFunctionSignature(const QString &signature,
-                                                const ClangBackEnd::ExtraInfo &extraInfo)
-{
-    return signature + extraInfo.typeSpelling.toString() + QLatin1String(" -> ", 4)
-            + extraInfo.resultTypeSpelling.toString();
-}
-
-static QString addTypeToVariableName(const QString &name, const ClangBackEnd::ExtraInfo &extraInfo)
+static QString addType(const QString &name, const ClangBackEnd::ExtraInfo &extraInfo)
 {
     return name + QLatin1String(" -> ", 4) + extraInfo.typeSpelling.toString();
 }
@@ -116,11 +109,11 @@ QVariant TokenTreeItem::data(int column, int role) const
 
         if (mainType == ClangBackEnd::HighlightingType::VirtualFunction
                     || mainType == ClangBackEnd::HighlightingType::Function) {
-            name = addResultTypeToFunctionSignature(name, token.extraInfo);
+            name = addType(name, token.extraInfo);
         } else if (mainType == ClangBackEnd::HighlightingType::GlobalVariable
                    || mainType == ClangBackEnd::HighlightingType::Field
                    || mainType == ClangBackEnd::HighlightingType::QtProperty) {
-            name = addTypeToVariableName(name, token.extraInfo);
+            name = addType(name, token.extraInfo);
             if (token.types.mixinHighlightingTypes.contains(
                                         ClangBackEnd::HighlightingType::ObjectiveCProperty)) {
                 name = QLatin1String("@property ") + name;

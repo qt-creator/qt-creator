@@ -77,7 +77,6 @@ QDebug operator<<(QDebug debug, const ExtraInfo &extraInfo)
     debug.nospace() << "ExtraInfo("
                     << extraInfo.token << ", "
                     << extraInfo.typeSpelling << ", "
-                    << extraInfo.resultTypeSpelling << ", "
                     << extraInfo.semanticParentTypeSpelling << ", "
                     << extraInfo.cursorRange << ", "
                     << extraInfo.lexicalParentIndex << ", "

@@ -60,14 +60,13 @@ struct ExtraInfo
         , slot(false)
     {
     }
-    ExtraInfo(Utf8String token, Utf8String typeSpelling, Utf8String resultTypeSpelling,
+    ExtraInfo(Utf8String token, Utf8String typeSpelling,
               Utf8String semanticParentTypeSpelling, SourceRangeContainer cursorRange,
               int lexicalParentIndex, AccessSpecifier accessSpecifier, StorageClass storageClass,
               bool isIdentifier, bool isInclusion, bool isDeclaration, bool isDefinition,
               bool isSignal, bool isSlot)
         : token(token)
         , typeSpelling(typeSpelling)
-        , resultTypeSpelling(resultTypeSpelling)
         , semanticParentTypeSpelling(semanticParentTypeSpelling)
         , cursorRange(cursorRange)
         , lexicalParentIndex(lexicalParentIndex)
@@ -83,7 +82,6 @@ struct ExtraInfo
     }
     Utf8String token;
     Utf8String typeSpelling;
-    Utf8String resultTypeSpelling;
     Utf8String semanticParentTypeSpelling;
     SourceRangeContainer cursorRange;
     int lexicalParentIndex = -1;
@@ -183,7 +181,6 @@ inline QDataStream &operator<<(QDataStream &out, const ExtraInfo &extraInfo)
 {
     out << extraInfo.token;
     out << extraInfo.typeSpelling;
-    out << extraInfo.resultTypeSpelling;
     out << extraInfo.semanticParentTypeSpelling;
     out << extraInfo.cursorRange;
     out << extraInfo.lexicalParentIndex;
@@ -202,7 +199,6 @@ inline QDataStream &operator>>(QDataStream &in, ExtraInfo &extraInfo)
 {
     in >> extraInfo.token;
     in >> extraInfo.typeSpelling;
-    in >> extraInfo.resultTypeSpelling;
     in >> extraInfo.semanticParentTypeSpelling;
     in >> extraInfo.cursorRange;
     in >> extraInfo.lexicalParentIndex;
@@ -240,7 +236,6 @@ inline bool operator==(const ExtraInfo &first, const ExtraInfo &second)
 {
     return first.token == second.token
             && first.typeSpelling == second.typeSpelling
-            && first.resultTypeSpelling == second.resultTypeSpelling
             && first.semanticParentTypeSpelling == second.semanticParentTypeSpelling
             && first.cursorRange == second.cursorRange
             && first.lexicalParentIndex == second.lexicalParentIndex

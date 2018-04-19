@@ -66,15 +66,9 @@ void FullTokenInfo::updateTypeSpelling(const Cursor &cursor, bool functionLike)
     if (!functionLike)
         return;
     Type type = cursor.type().canonical();
-    m_extraInfo.resultTypeSpelling = type.resultType().utf8Spelling();
-    bool hasSpaceAfterReturnType = false;
-    if (m_extraInfo.resultTypeSpelling.byteSize() < m_extraInfo.typeSpelling.byteSize()) {
-        const char *data = m_extraInfo.typeSpelling.constData();
-        hasSpaceAfterReturnType = (data[m_extraInfo.resultTypeSpelling.byteSize()] == ' ');
-    }
-    m_extraInfo.typeSpelling
-            = m_extraInfo.typeSpelling.mid(m_extraInfo.resultTypeSpelling.byteSize()
-                                         + (hasSpaceAfterReturnType ? 1 : 0));
+    m_extraInfo.token = cursor.displayName();
+    // On the client side full type is typeSpelling + token.
+    m_extraInfo.typeSpelling = type.resultType().utf8Spelling();
 }
 
 static Utf8String propertyParentSpelling(CXTranslationUnit cxTranslationUnit,

@@ -556,7 +556,6 @@ std::ostream &operator<<(std::ostream &os, const ExtraInfo &extraInfo)
     os << "("
        << extraInfo.token << ", "
        << extraInfo.typeSpelling << ", "
-       << extraInfo.resultTypeSpelling << ", "
        << extraInfo.semanticParentTypeSpelling << ", "
        << static_cast<uint>(extraInfo.accessSpecifier) << ", "
        << static_cast<uint>(extraInfo.storageClass) << ", "

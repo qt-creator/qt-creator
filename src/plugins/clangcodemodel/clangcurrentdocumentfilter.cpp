@@ -66,11 +66,9 @@ ClangCurrentDocumentFilter::ClangCurrentDocumentFilter()
             Qt::QueuedConnection);
 }
 
-static QString addResultTypeToFunctionSignature(const QString &signature,
-                                                const ClangBackEnd::ExtraInfo &extraInfo)
+static QString addType(const QString &signature, const ClangBackEnd::ExtraInfo &extraInfo)
 {
-    return signature + extraInfo.typeSpelling.toString() + QLatin1String(" -> ", 4)
-            + extraInfo.resultTypeSpelling.toString();
+    return signature + QLatin1String(" -> ", 4) + extraInfo.typeSpelling.toString();
 }
 
 static QString addTypeToVariableName(const QString &name, const ClangBackEnd::ExtraInfo &extraInfo)
@@ -89,7 +87,7 @@ static Core::LocatorFilterEntry makeEntry(Core::ILocatorFilter *filter,
     ClangBackEnd::HighlightingType mainType = info.types.mainHighlightingType;
     if (mainType == ClangBackEnd::HighlightingType::VirtualFunction
             || mainType == ClangBackEnd::HighlightingType::Function) {
-        displayName = addResultTypeToFunctionSignature(displayName, extraInfo);
+        displayName = addType(displayName, extraInfo);
         extra = extraInfo.semanticParentTypeSpelling.toString();
     } else if (mainType == ClangBackEnd::HighlightingType::GlobalVariable
                || mainType == ClangBackEnd::HighlightingType::Field
