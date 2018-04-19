@@ -96,12 +96,12 @@ def main():
     try:
         # Creator built with Qt <= 5.8.0
         resultWidget = waitForObject(':Hits_QCLuceneResultWidget', 5000)
-        olderThan59 = False
+        olderThan59 = True
     except:
         # Creator built with Qt >= 5.9.0
         resultWidget = waitForObject(':Hits_QResultWidget', 5000)
-        olderThan59 = True
-    if not olderThan59 or not JIRA.isBugStillOpen(67737, JIRA.Bug.QT):
+        olderThan59 = False
+    if olderThan59 or not JIRA.isBugStillOpen(67737, JIRA.Bug.QT):
         test.verify(waitFor("noMatch in "
                             "str(resultWidget.plainText)", 2000),
                             "Verifying if search did not match anything.")
@@ -131,11 +131,11 @@ def main():
             verifySelection(searchKeyword)
             verifyUrl(urlDictionary[searchKeyword])
         else:
-            if not olderThan59 or not JIRA.isBugStillOpen(67737, JIRA.Bug.QT):
+            if olderThan59 or not JIRA.isBugStillOpen(67737, JIRA.Bug.QT):
                 test.verify(waitFor("noMatch in "
                                     "str(resultWidget.plainText)", 1000),
                                     "Verifying if search did not match anything for: " + searchKeyword)
-    if not olderThan59:
+    if olderThan59:
         # advanced search - setup
         clickButton(waitForObject("{text='+' type='QToolButton' unnamed='1' visible='1' "
                                   "window=':Qt Creator_Core::Internal::MainWindow'}"))
