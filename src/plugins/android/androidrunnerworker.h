@@ -42,7 +42,7 @@ namespace Internal {
 
 const int MIN_SOCKET_HANDSHAKE_PORT = 20001;
 
-static void deleter(QProcess *p)
+static inline void deleter(QProcess *p)
 {
     p->terminate();
     if (!p->waitForFinished(1000)) {

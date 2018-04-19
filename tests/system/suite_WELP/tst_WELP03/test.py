@@ -80,7 +80,7 @@ def main():
     expect = (("QTableView", "unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'",
                "examples list"),
               ("QLineEdit", "placeholderText='Search in Examples...'", "examples search line edit"),
-              ("QComboBox", "text~='.*Qt.*' visible='1'", "Qt version combo box"))
+              ("QComboBox", "currentText~='.*Qt.*' visible='1'", "Qt version combo box"))
     search = "{type='%s' %s}"
     test.verify(all(map(checkIfObjectExists, (search % (exp[0], exp[1]) for exp in expect))),
                 "Verifying: 'Examples' topic is opened and the examples are shown.")

@@ -32,6 +32,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <utils/progressindicator.h>
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
@@ -43,6 +44,7 @@
 #include <QHelpSearchResultWidget>
 #include <QKeyEvent>
 #include <QLayout>
+#include <QLabel>
 #include <QMap>
 #include <QMenu>
 #include <QRegExp>
@@ -112,11 +114,14 @@ void SearchWidget::showEvent(QShowEvent *event)
 
         Utils::StyledBar *toolbar = new Utils::StyledBar(this);
         toolbar->setSingleRow(false);
-        QHelpSearchQueryWidget *queryWidget = searchEngine->queryWidget();
+        m_queryWidget = searchEngine->queryWidget();
         QLayout *tbLayout = new QVBoxLayout();
         tbLayout->setSpacing(6);
         tbLayout->setMargin(4);
-        tbLayout->addWidget(queryWidget);
+        tbLayout->addWidget(m_queryWidget);
+        m_indexingDocumentationLabel = new QLabel(tr("Indexing Documentation"), toolbar);
+        m_indexingDocumentationLabel->hide();
+        tbLayout->addWidget(m_indexingDocumentationLabel);
         toolbar->setLayout(tbLayout);
 
         Utils::StyledBar *toolbar2 = new Utils::StyledBar(this);
@@ -127,12 +132,17 @@ void SearchWidget::showEvent(QShowEvent *event)
         tbLayout->addWidget(resultWidget = searchEngine->resultWidget());
         toolbar2->setLayout(tbLayout);
 
+        m_indexingIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Medium,
+                                                           resultWidget);
+        m_indexingIndicator->attachToWidget(resultWidget);
+        m_indexingIndicator->hide();
+
         vLayout->addWidget(toolbar);
         vLayout->addWidget(toolbar2);
 
-        setFocusProxy(queryWidget);
+        setFocusProxy(m_queryWidget);
 
-        connect(queryWidget, &QHelpSearchQueryWidget::search, this, &SearchWidget::search);
+        connect(m_queryWidget, &QHelpSearchQueryWidget::search, this, &SearchWidget::search);
         connect(resultWidget, &QHelpSearchResultWidget::requestShowLink, this,
                 [this](const QUrl &url) {
                     emit linkActivated(url, currentSearchTerms(), false/*newPage*/);
@@ -205,6 +215,10 @@ void SearchWidget::indexingStarted()
     m_watcher.setFuture(m_progress->future());
     connect(&m_watcher, &QFutureWatcherBase::canceled,
             searchEngine, &QHelpSearchEngine::cancelIndexing);
+
+    m_queryWidget->hide();
+    m_indexingDocumentationLabel->show();
+    m_indexingIndicator->show();
 }
 
 void SearchWidget::indexingFinished()
@@ -213,6 +227,10 @@ void SearchWidget::indexingFinished()
 
     delete m_progress;
     m_progress = NULL;
+
+    m_queryWidget->show();
+    m_indexingDocumentationLabel->hide();
+    m_indexingIndicator->hide();
 }
 
 bool SearchWidget::eventFilter(QObject *o, QEvent *e)

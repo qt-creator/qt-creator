@@ -165,6 +165,7 @@ private:
     // cached data during project rescan
     std::unique_ptr<QMakeGlobals> m_qmakeGlobals;
     int m_qmakeGlobalsRefCnt = 0;
+    bool m_invalidateQmakeVfsContents = false;
 
     QString m_qmakeSysroot;
 

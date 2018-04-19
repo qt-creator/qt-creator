@@ -562,7 +562,12 @@ void QmakeProject::asyncUpdate()
 {
     m_asyncUpdateTimer.setInterval(UPDATE_INTERVAL);
 
-    m_qmakeVfs->invalidateCache();
+    if (m_invalidateQmakeVfsContents) {
+        m_invalidateQmakeVfsContents = false;
+        m_qmakeVfs->invalidateContents();
+    } else {
+        m_qmakeVfs->invalidateCache();
+    }
 
     Q_ASSERT(!m_asyncUpdateFutureInterface);
     m_asyncUpdateFutureInterface = new QFutureInterface<void>();
@@ -588,7 +593,7 @@ void QmakeProject::asyncUpdate()
 void QmakeProject::buildFinished(bool success)
 {
     if (success)
-        m_qmakeVfs->invalidateContents();
+        m_invalidateQmakeVfsContents = true;
 }
 
 bool QmakeProject::supportsKit(const Kit *k, QString *errorMessage) const
@@ -789,6 +794,7 @@ void QmakeProject::activeTargetWasChanged()
     }
 
     m_activeTarget = activeTarget();
+    m_invalidateQmakeVfsContents = true;
 
     if (!m_activeTarget)
         return;
