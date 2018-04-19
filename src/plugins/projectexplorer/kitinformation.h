@@ -95,6 +95,7 @@ public:
     QSet<Core::Id> availableFeatures(const Kit *k) const override;
 
     static Core::Id id();
+    static QByteArray toolChainId(const Kit *k, Core::Id language);
     static ToolChain *toolChain(const Kit *k, Core::Id language);
     static QList<ToolChain *> toolChains(const Kit *k);
     static void setToolChain(Kit *k, ToolChain *tc);

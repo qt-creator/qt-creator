@@ -272,8 +272,9 @@ void ToolChainKitInformation::fix(Kit *k)
 {
     QTC_ASSERT(ToolChainManager::isLoaded(), return);
     foreach (const Core::Id& l, ToolChainManager::allLanguages()) {
-        if (!toolChain(k, l)) {
-            qWarning("No tool chain set up in kit \"%s\" for \"%s\".",
+        const QByteArray tcId = toolChainId(k, l);
+        if (!tcId.isEmpty() && !ToolChainManager::findToolChain(tcId)) {
+            qWarning("Tool chain set up in kit \"%s\" for \"%s\" not found.",
                      qPrintable(k->displayName()),
                      qPrintable(ToolChainManager::displayNameOfLanguageId(l)));
             clearToolChain(k, l); // make sure to clear out no longer known tool chains
@@ -392,14 +393,18 @@ Core::Id ToolChainKitInformation::id()
     return KITINFORMATION_ID_V3;
 }
 
-ToolChain *ToolChainKitInformation::toolChain(const Kit *k, Core::Id language)
+QByteArray ToolChainKitInformation::toolChainId(const Kit *k, Core::Id language)
 {
     QTC_ASSERT(ToolChainManager::isLoaded(), return nullptr);
     if (!k)
-        return nullptr;
+        return QByteArray();
     QVariantMap value = k->value(ToolChainKitInformation::id()).toMap();
-    const QByteArray id = value.value(language.toString(), QByteArray()).toByteArray();
-    return ToolChainManager::findToolChain(id);
+    return value.value(language.toString(), QByteArray()).toByteArray();
+}
+
+ToolChain *ToolChainKitInformation::toolChain(const Kit *k, Core::Id language)
+{
+    return ToolChainManager::findToolChain(toolChainId(k, language));
 }
 
 QList<ToolChain *> ToolChainKitInformation::toolChains(const Kit *k)
