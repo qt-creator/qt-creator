@@ -452,7 +452,8 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
 
 bool Project::setupTarget(Target *t)
 {
-    t->updateDefaultBuildConfigurations();
+    if (needsBuildConfigurations())
+        t->updateDefaultBuildConfigurations();
     t->updateDefaultDeployConfigurations();
     t->updateDefaultRunConfigurations();
     return true;
@@ -796,6 +797,11 @@ void Project::setNamedSettings(const QString &name, const QVariant &value)
 bool Project::needsConfiguration() const
 {
     return d->m_targets.isEmpty();
+}
+
+bool Project::needsBuildConfigurations() const
+{
+    return true;
 }
 
 void Project::configureAsExampleProject(const QSet<Core::Id> &platforms)

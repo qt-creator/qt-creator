@@ -150,6 +150,7 @@ public:
     void setNamedSettings(const QString &name, const QVariant &value);
 
     virtual bool needsConfiguration() const;
+    virtual bool needsBuildConfigurations() const;
     virtual void configureAsExampleProject(const QSet<Core::Id> &platforms);
 
     virtual ProjectImporter *projectImporter() const;

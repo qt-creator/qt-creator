@@ -75,10 +75,11 @@ public:
 
     void refreshProjectFile();
 
+    bool needsBuildConfigurations() const final;
+
     static QStringList makeAbsolute(const Utils::FileName &path, const QStringList &relativePaths);
 protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
-    bool setupTarget(ProjectExplorer::Target *t) override;
 
 private:
     void generateProjectTree();

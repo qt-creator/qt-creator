@@ -247,6 +247,11 @@ void QmlProject::refreshProjectFile()
     refresh(QmlProject::ProjectFile | Files);
 }
 
+bool QmlProject::needsBuildConfigurations() const
+{
+    return false;
+}
+
 QStringList QmlProject::makeAbsolute(const Utils::FileName &path, const QStringList &relativePaths)
 {
     if (path.isEmpty())
@@ -347,13 +352,6 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
     onActiveTargetChanged(activeTarget());
 
     return RestoreResult::Ok;
-}
-
-bool QmlProject::setupTarget(Target *target)
-{
-    target->updateDefaultDeployConfigurations();
-    target->updateDefaultRunConfigurations();
-    return true;
 }
 
 void QmlProject::generateProjectTree()

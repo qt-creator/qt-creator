@@ -805,7 +805,8 @@ void TargetItem::updateSubItems()
         m_currentChild = DefaultPage; // We will add children below.
     removeChildren();
     if (isEnabled()) {
-        appendChild(new BuildOrRunItem(m_project, m_kitId, BuildOrRunItem::BuildPage));
+        if (m_project->needsBuildConfigurations())
+            appendChild(new BuildOrRunItem(m_project, m_kitId, BuildOrRunItem::BuildPage));
         appendChild(new BuildOrRunItem(m_project, m_kitId, BuildOrRunItem::RunPage));
     }
 }
