@@ -66,6 +66,8 @@ static bool avdManagerCommand(const AndroidConfig config, const QStringList &arg
 {
     QString avdManagerToolPath = config.avdManagerToolPath().toString();
     Utils::SynchronousProcess proc;
+    auto env = AndroidConfigurations::toolsEnvironment(config).toStringList();
+    proc.setEnvironment(env);
     Utils::SynchronousProcessResponse response = proc.runBlocking(avdManagerToolPath, args);
     if (response.result == Utils::SynchronousProcessResponse::Finished) {
         if (output)
