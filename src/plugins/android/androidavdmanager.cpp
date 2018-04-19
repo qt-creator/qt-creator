@@ -39,6 +39,7 @@
 #include <QSettings>
 
 #include <chrono>
+#include <functional>
 
 namespace {
 Q_LOGGING_CATEGORY(avdManagerLog, "qtc.android.avdManager")
@@ -195,6 +196,18 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig config, const CreateAv
     return result;
 }
 
+static void avdProcessFinished(int exitCode, QProcess *p)
+{
+    QTC_ASSERT(p, return);
+    if (exitCode) {
+        QString title = QCoreApplication::translate("Android::Internal::AndroidAvdManager",
+                                                    "AVD Start Error");
+        QMessageBox::critical(Core::ICore::dialogParent(), title,
+                              QString::fromLatin1(p->readAll()));
+    }
+    p->deleteLater();
+}
+
 /*!
     \class AvdManagerOutputParser
     \brief The AvdManagerOutputParser class is a helper class to parse the output of the avdmanager
@@ -282,8 +295,10 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
         return false;
     }
     QProcess *avdProcess = new QProcess();
-    QObject::connect(avdProcess, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
-                     avdProcess, &QObject::deleteLater);
+    QObject::connect(avdProcess,
+                     static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+                     avdProcess,
+                     std::bind(&avdProcessFinished, std::placeholders::_1, avdProcess));
 
     // start the emulator
     QStringList arguments;
