@@ -538,7 +538,7 @@ QString Kit::toHtml(const QList<Task> &additional) const
     str << "<h3>" << displayName() << "</h3>";
 
     if (!isValid() || hasWarning() || !additional.isEmpty())
-        str << "<p>" << toHtml(additional + validate()) << "</p>";
+        str << "<p>" << ProjectExplorer::toHtml(additional + validate()) << "</p>";
 
     str << "<table>";
     QList<KitInformation *> infoList = KitManager::kitInformation();
