@@ -28,7 +28,11 @@ Second - some of the test suites/test cases expect a build of Qt 4.8.7 to be ava
 Third - some of the test suites/test cases expect Qt versions to be installed in their default
 locations. On Linux/macOS this is ~/Qt5.x.1 and on Windows this is C:\Qt\Qt5.x.1. It's easiest to
 use installations of the official opensource Qt packages. Just install the Qt version for the
-respective toolchain and if possible the additional module Qt Script. Do not install Qt WebEngine.
+respective toolchain with the components (if available):
+- (Desktop) <toolchain> <bitness>, e.g. Desktop gcc 64-bit
+- Qt Quick Controls
+- Qt Script
+
 The exact versions and toolchains are:
 
 Linux:
