@@ -977,8 +977,11 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         QList<DocumentMessage> warnings;
 
         if (Document::MutablePtr doc = createParsedDocument(url, data, &errors)) {
-            if (m_document && (m_document->fingerprint() == doc->fingerprint()))
-                    return true;
+            if (m_document && (m_document->fingerprint() == doc->fingerprint())) {
+                setActive(false);
+                return true;
+            }
+
             snapshot.insert(doc);
             m_document = doc;
             qCInfo(rewriterBenchmark) << "parsed correctly: " << time.elapsed();
