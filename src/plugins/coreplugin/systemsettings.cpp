@@ -55,8 +55,6 @@ SystemSettings::SystemSettings()
     setId(Constants::SETTINGS_ID_SYSTEM);
     setDisplayName(tr("System"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_CORE_ICON));
 
     connect(VcsManager::instance(), &VcsManager::configurationChanged,
             this, &SystemSettings::updatePath);

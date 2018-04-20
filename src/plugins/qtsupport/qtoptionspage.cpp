@@ -158,9 +158,6 @@ QtOptionsPage::QtOptionsPage()
     setId(Constants::QTVERSION_SETTINGS_PAGE_ID);
     setDisplayName(QCoreApplication::translate("QtSupport", Constants::QTVERSION_SETTINGS_PAGE_NAME));
     setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
-        ProjectExplorer::Constants::KITS_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(ProjectExplorer::Icons::OPTIONS_CATEGORY_KITS);
 }
 
 QWidget *QtOptionsPage::widget()

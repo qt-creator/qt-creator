@@ -269,8 +269,6 @@ GdbOptionsPage::GdbOptionsPage()
     setId("M.Gdb");
     setDisplayName(tr("GDB"));
     setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Debugger", Constants::DEBUGGER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *GdbOptionsPage::widget()
@@ -411,8 +409,6 @@ GdbOptionsPage2::GdbOptionsPage2()
     setId("M.Gdb2");
     setDisplayName(tr("GDB Extended"));
     setCategory(Constants::DEBUGGER_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Debugger", Constants::DEBUGGER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *GdbOptionsPage2::widget()

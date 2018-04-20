@@ -233,9 +233,6 @@ SettingsPage::SettingsPage() :
     setId("B.QmlDesigner");
     setDisplayName(tr("Qt Quick Designer"));
     setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
-    setDisplayCategory(QCoreApplication::translate("QmlJSEditor",
-        QmlJSEditor::Constants::SETTINGS_TR_CATEGORY_QML));
-    setCategoryIcon(Utils::Icon(QmlJSTools::Constants::SETTINGS_CATEGORY_QML_ICON));
 }
 
 QWidget *SettingsPage::widget()

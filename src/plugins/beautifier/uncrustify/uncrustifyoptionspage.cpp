@@ -103,8 +103,6 @@ UncrustifyOptionsPage::UncrustifyOptionsPage(UncrustifySettings *settings, QObje
     setId(Constants::Uncrustify::OPTION_ID);
     setDisplayName(tr("Uncrustify"));
     setCategory(Constants::OPTION_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::OPTION_CATEGORY_ICON));
 }
 
 QWidget *UncrustifyOptionsPage::widget()

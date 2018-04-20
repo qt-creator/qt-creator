@@ -53,8 +53,8 @@ GeneralSettings::GeneralSettings()
     setId(Constants::SETTINGS_ID_INTERFACE);
     setDisplayName(tr("Interface"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_CORE_ICON));
+    setDisplayCategory(QCoreApplication::translate("Core", "Environment"));
+    setCategoryIcon(Utils::Icon(":/core/images/category_core.png"));
 }
 
 static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrPath)

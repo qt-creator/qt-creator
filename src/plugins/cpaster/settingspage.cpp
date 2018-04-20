@@ -68,9 +68,8 @@ SettingsPage::SettingsPage(const QSharedPointer<Settings> &settings, QObject *pa
     setId("A.CodePaster.General");
     setDisplayName(tr("General"));
     setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("CodePaster",
-        Constants::CPASTER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_CPASTER_ICON));
+    setDisplayCategory(QCoreApplication::translate("CodePaster", "Code Pasting"));
+    setCategoryIcon(Utils::Icon(":/cpaster/images/category_cpaster.png"));
 }
 
 SettingsPage::~SettingsPage()

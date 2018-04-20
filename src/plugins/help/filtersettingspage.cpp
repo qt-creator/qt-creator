@@ -43,8 +43,6 @@ FilterSettingsPage::FilterSettingsPage()
     setId("D.Filters");
     setDisplayName(tr("Filters"));
     setCategory(Help::Constants::HELP_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Help::Constants::HELP_CATEGORY_ICON));
 }
 
 QWidget *FilterSettingsPage::widget()

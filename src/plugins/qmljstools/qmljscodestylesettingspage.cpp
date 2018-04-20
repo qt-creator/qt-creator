@@ -131,8 +131,8 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage(/*QSharedPointer<CppFileS
     setId(Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
     setDisplayName(QCoreApplication::translate("QmlJSTools", Constants::QML_JS_CODE_STYLE_SETTINGS_NAME));
     setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
-    setDisplayCategory(QCoreApplication::translate("QmlJSEditor", QmlJSEditor::Constants::SETTINGS_TR_CATEGORY_QML));
-    setCategoryIcon(Utils::Icon(QmlJSTools::Constants::SETTINGS_CATEGORY_QML_ICON));
+    setDisplayCategory(QCoreApplication::translate("QmlJSEditor", "Qt Quick"));
+    setCategoryIcon(Utils::Icon(":/qmljstools/images/category_qml.png"));
 }
 
 QWidget *QmlJSCodeStyleSettingsPage::widget()

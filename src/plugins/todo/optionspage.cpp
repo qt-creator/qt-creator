@@ -49,7 +49,7 @@ OptionsPage::OptionsPage(const Settings &settings, QObject *parent) :
     setDisplayName(tr("To-Do"));
     setCategory("To-Do");
     setDisplayCategory(tr("To-Do"));
-    setCategoryIcon(Utils::Icon(Constants::ICON_TODO));
+    setCategoryIcon(Utils::Icon(":/todoplugin/images/todo.png"));
 }
 
 void OptionsPage::setSettings(const Settings &settings)

@@ -98,7 +98,6 @@ FileShareProtocolSettingsPage::FileShareProtocolSettingsPage(const QSharedPointe
     setId("X.CodePaster.FileSharePaster");
     setDisplayName(tr("Fileshare"));
     setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("CodePaster", Constants::CPASTER_SETTINGS_TR_CATEGORY));
 }
 
 QWidget *FileShareProtocolSettingsPage::widget()

@@ -31,9 +31,6 @@
 namespace Todo {
 namespace Constants {
 
-// Dummy, needs to be changed
-const char ICON_TODO[] = ":/todoplugin/images/todo.png";
-
 // Settings entries
 const char SETTINGS_GROUP[] = "TodoPlugin";
 const char SCANNING_SCOPE[] = "ScanningScope";

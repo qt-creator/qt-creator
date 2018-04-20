@@ -518,8 +518,6 @@ CppCodeStyleSettingsPage::CppCodeStyleSettingsPage(QWidget *parent) :
     setId(Constants::CPP_CODE_STYLE_SETTINGS_ID);
     setDisplayName(QCoreApplication::translate("CppTools", Constants::CPP_CODE_STYLE_SETTINGS_NAME));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("CppTools", Constants::CPP_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_CPP_ICON));
 }
 
 QWidget *CppCodeStyleSettingsPage::widget()

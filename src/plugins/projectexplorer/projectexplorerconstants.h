@@ -102,7 +102,6 @@ const char SCXML_MIMETYPE[]       = "application/scxml+xml";
 
 // Kits settings category
 const char KITS_SETTINGS_CATEGORY[]  = "A.Kits";
-const char KITS_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Kits");
 
 // Kits pages
 const char KITS_SETTINGS_PAGE_ID[] = "D.ProjectExplorer.KitsOptions";
@@ -112,15 +111,12 @@ const char DEBUGGER_SETTINGS_PAGE_ID[] = "N.ProjectExplorer.DebuggerOptions";
 
 // Build and Run settings category
 const char BUILD_AND_RUN_SETTINGS_CATEGORY[]  = "K.BuildAndRun";
-const char BUILD_AND_RUN_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Build & Run");
-const char BUILD_AND_RUN_SETTINGS_CATEGORY_ICON[]  = ":/projectexplorer/images/category_buildrun.png";
 
 // Build and Run page
 const char BUILD_AND_RUN_SETTINGS_PAGE_ID[] = "A.ProjectExplorer.BuildAndRunOptions";
 
 // Device settings page
 const char DEVICE_SETTINGS_CATEGORY[] = "XW.Devices";
-const char DEVICE_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Devices");
 
 // Task categories
 const char TASK_CATEGORY_COMPILE[] = "Task.Category.Compile";

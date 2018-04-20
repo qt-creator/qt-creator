@@ -204,8 +204,6 @@ const char *nameForStyle(TextStyle style);
 TextStyle styleFromName(const char *name);
 
 const char TEXT_EDITOR_SETTINGS_CATEGORY[] = "C.TextEditor";
-const char TEXT_EDITOR_SETTINGS_CATEGORY_ICON[] = ":/core/images/category_texteditor.png";
-const char TEXT_EDITOR_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("TextEditor", "Text Editor");
 const char TEXT_EDITOR_FONT_SETTINGS[] = "A.FontSettings";
 const char TEXT_EDITOR_BEHAVIOR_SETTINGS[] = "B.BehaviourSettings";
 const char TEXT_EDITOR_DISPLAY_SETTINGS[] = "D.DisplaySettings";

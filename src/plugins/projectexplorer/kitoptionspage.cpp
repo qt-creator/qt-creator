@@ -237,12 +237,14 @@ QModelIndex KitOptionsPageWidget::currentIndex() const
 
 KitOptionsPage::KitOptionsPage()
 {
+    static const Utils::Icon categoryIcon({{":/projectexplorer/images/mode_project_mask.png",
+                                            Utils::Theme::PanelTextColorDark}},
+                                          Utils::Icon::Tint);
     setId(Constants::KITS_SETTINGS_PAGE_ID);
     setDisplayName(tr("Kits"));
     setCategory(Constants::KITS_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
-                                       Constants::KITS_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(ProjectExplorer::Icons::OPTIONS_CATEGORY_KITS);
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer", "Kits"));
+    setCategoryIcon(categoryIcon);
 }
 
 QWidget *KitOptionsPage::widget()

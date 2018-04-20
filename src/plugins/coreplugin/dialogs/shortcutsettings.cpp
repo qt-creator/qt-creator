@@ -289,8 +289,6 @@ ShortcutSettings::ShortcutSettings(QObject *parent)
     setId(Constants::SETTINGS_ID_SHORTCUTS);
     setDisplayName(tr("Keyboard"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 QWidget *ShortcutSettings::widget()

@@ -422,8 +422,6 @@ GdbServerProvidersSettingsPage::GdbServerProvidersSettingsPage(QObject *parent)
     setId(Constants::GDB_PROVIDERS_SETTINGS_ID);
     setDisplayName(tr("Bare Metal"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
-                                       ProjectExplorer::Constants::DEVICE_SETTINGS_TR_CATEGORY));
 }
 
 QWidget *GdbServerProvidersSettingsPage::widget()

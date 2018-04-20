@@ -167,9 +167,6 @@ QmlJsEditingSettingsPage::QmlJsEditingSettingsPage() :
     setId("C.QmlJsEditing");
     setDisplayName(tr("QML/JS Editing"));
     setCategory(Constants::SETTINGS_CATEGORY_QML);
-    setDisplayCategory(QCoreApplication::translate("QmlJSEditor",
-        QmlJSEditor::Constants::SETTINGS_TR_CATEGORY_QML));
-    setCategoryIcon(Utils::Icon(QmlJSTools::Constants::SETTINGS_CATEGORY_QML_ICON));
 }
 
 QWidget *QmlJsEditingSettingsPage::widget()

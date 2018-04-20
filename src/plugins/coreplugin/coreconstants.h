@@ -194,8 +194,6 @@ const char WIZARD_KIND_PROJECT[] = "project";
 const char WIZARD_KIND_FILE[] = "file";
 
 const char SETTINGS_CATEGORY_CORE[] = "B.Core";
-const char SETTINGS_CATEGORY_CORE_ICON[] = ":/core/images/category_core.png";
-const char SETTINGS_TR_CATEGORY_CORE[] = QT_TRANSLATE_NOOP("Core", "Environment");
 const char SETTINGS_ID_INTERFACE[] = "A.Interface";
 const char SETTINGS_ID_SYSTEM[] = "B.Core.System";
 const char SETTINGS_ID_SHORTCUTS[] = "C.Keyboard";

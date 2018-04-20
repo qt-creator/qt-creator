@@ -562,9 +562,6 @@ MimeTypeSettings::MimeTypeSettings(QObject *parent)
     setId(Constants::SETTINGS_ID_MIMETYPES);
     setDisplayName(tr("MIME Types"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core",
-        Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 MimeTypeSettings::~MimeTypeSettings()

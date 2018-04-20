@@ -47,9 +47,7 @@ SettingsPage::SettingsPage(UpdateInfoPlugin *plugin)
 {
     setId(FILTER_OPTIONS_PAGE_ID);
     setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
-    setCategoryIcon(Utils::Icon(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
     setDisplayName(QCoreApplication::translate("Update", FILTER_OPTIONS_PAGE));
-    setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE));
 }
 
 QWidget *SettingsPage::widget()

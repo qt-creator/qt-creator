@@ -67,8 +67,8 @@ CommonOptionsPage::CommonOptionsPage(const QSharedPointer<GlobalDebuggerOptions>
     setId(DEBUGGER_COMMON_SETTINGS_ID);
     setDisplayName(QCoreApplication::translate("Debugger", "General"));
     setCategory(DEBUGGER_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Icon(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
+    setDisplayCategory(QCoreApplication::translate("Debugger", "Debugger"));
+    setCategoryIcon(Icon(":/debugger/images/category_debug.png"));
 }
 
 void CommonOptionsPage::apply()
@@ -285,8 +285,6 @@ LocalsAndExpressionsOptionsPage::LocalsAndExpressionsOptionsPage()
     //: '&&' will appear as one (one is marking keyboard shortcut)
     setDisplayName(QCoreApplication::translate("Debugger", "Locals && Expressions"));
     setCategory(DEBUGGER_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Icon(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 void LocalsAndExpressionsOptionsPage::apply()

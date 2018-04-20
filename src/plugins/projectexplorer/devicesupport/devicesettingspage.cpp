@@ -41,8 +41,7 @@ DeviceSettingsPage::DeviceSettingsPage(QObject *parent)
     setId(Constants::DEVICE_SETTINGS_PAGE_ID);
     setDisplayName(tr("Devices"));
     setCategory(Constants::DEVICE_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
-                                       ProjectExplorer::Constants::DEVICE_SETTINGS_TR_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer", "Devices"));
     setCategoryIcon(Utils::Icon(":/projectexplorer/images/MaemoDevice.png"));
 }
 

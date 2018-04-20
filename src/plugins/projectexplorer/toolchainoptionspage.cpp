@@ -434,9 +434,6 @@ ToolChainOptionsPage::ToolChainOptionsPage()
     setId(Constants::TOOLCHAIN_SETTINGS_PAGE_ID);
     setDisplayName(tr("Compilers"));
     setCategory(Constants::KITS_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
-        Constants::KITS_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(ProjectExplorer::Icons::OPTIONS_CATEGORY_KITS);
 }
 
 QWidget *ToolChainOptionsPage::widget()

@@ -108,7 +108,6 @@ namespace Internal {
 
 const char INSTALL_HANDLER[]                = "TextEditor.FakeVimHandler";
 const char SETTINGS_CATEGORY[]              = "D.FakeVim";
-const char SETTINGS_CATEGORY_FAKEVIM_ICON[] = ":/fakevim/images/category_fakevim.png";
 const char SETTINGS_ID[]                    = "A.FakeVim.General";
 const char SETTINGS_EX_CMDS_ID[]            = "B.FakeVim.ExCommands";
 const char SETTINGS_USER_CMDS_ID[]          = "C.FakeVim.UserCommands";
@@ -365,7 +364,7 @@ public:
         setDisplayName(Tr::tr("General"));
         setCategory(SETTINGS_CATEGORY);
         setDisplayCategory(Tr::tr("FakeVim"));
-        setCategoryIcon(Utils::Icon(SETTINGS_CATEGORY_FAKEVIM_ICON));
+        setCategoryIcon(Utils::Icon(":/fakevim/images/category_fakevim.png"));
     }
 
     QWidget *widget();
@@ -640,8 +639,6 @@ public:
         setId(SETTINGS_EX_CMDS_ID);
         setDisplayName(Tr::tr("Ex Command Mapping"));
         setCategory(SETTINGS_CATEGORY);
-        setDisplayCategory(Tr::tr("FakeVim"));
-        setCategoryIcon(Utils::Icon(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }
 
     QWidget *widget() override
@@ -882,8 +879,6 @@ public:
         setId(SETTINGS_USER_CMDS_ID);
         setDisplayName(Tr::tr("User Command Mapping"));
         setCategory(SETTINGS_CATEGORY);
-        setDisplayCategory(Tr::tr("FakeVim"));
-        setCategoryIcon(Utils::Icon(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }
 
     void apply() override;

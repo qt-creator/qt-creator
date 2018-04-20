@@ -98,8 +98,6 @@ ArtisticStyleOptionsPage::ArtisticStyleOptionsPage(ArtisticStyleSettings *settin
     setId(Constants::ArtisticStyle::OPTION_ID);
     setDisplayName(tr("Artistic Style"));
     setCategory(Constants::OPTION_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::OPTION_CATEGORY_ICON));
 }
 
 QWidget *ArtisticStyleOptionsPage::widget()

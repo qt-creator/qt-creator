@@ -65,7 +65,5 @@ PROJECTEXPLORER_EXPORT extern const Utils::Icon MODE_PROJECT_CLASSIC;
 PROJECTEXPLORER_EXPORT extern const Utils::Icon MODE_PROJECT_FLAT;
 PROJECTEXPLORER_EXPORT extern const Utils::Icon MODE_PROJECT_FLAT_ACTIVE;
 
-PROJECTEXPLORER_EXPORT extern const Utils::Icon OPTIONS_CATEGORY_KITS;
-
 } // namespace Icons
 } // namespace ProjectExplorer

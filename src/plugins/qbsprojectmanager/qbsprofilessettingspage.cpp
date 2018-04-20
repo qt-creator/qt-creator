@@ -73,9 +73,6 @@ QbsProfilesSettingsPage::QbsProfilesSettingsPage(QObject *parent)
     setId("Y.QbsProfiles");
     setDisplayName(QCoreApplication::translate("QbsProjectManager", "Qbs"));
     setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
-       ProjectExplorer::Constants::KITS_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(ProjectExplorer::Icons::OPTIONS_CATEGORY_KITS);
 }
 
 QWidget *QbsProfilesSettingsPage::widget()
