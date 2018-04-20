@@ -304,7 +304,7 @@ public:
     static QList<TTC *> toolChains();
     static bool hasToolChains() { return !m_toolChains.isEmpty(); }
 
-    QString typeDisplayName() const override { return "Test Tool Chain"; }
+    QString typeDisplayName() const override { return QString("Test Tool Chain"); }
     Abi targetAbi() const override { return Abi::hostAbi(); }
     bool isValid() const override { return m_valid; }
     PredefinedMacrosRunner createPredefinedMacrosRunner() const override { return PredefinedMacrosRunner(); }
@@ -315,7 +315,7 @@ public:
     QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags, const FileName &sysRoot) const override
     { Q_UNUSED(cxxflags); Q_UNUSED(sysRoot); return QList<HeaderPath>(); }
     void addToEnvironment(Environment &env) const override { Q_UNUSED(env); }
-    QString makeCommand(const Environment &env) const override { Q_UNUSED(env); return "make"; }
+    QString makeCommand(const Environment &env) const override { Q_UNUSED(env); return QString("make"); }
     FileName compilerCommand() const override { return Utils::FileName::fromString("/tmp/test/gcc"); }
     IOutputParser *outputParser() const override { return nullptr; }
     ToolChainConfigWidget *configurationWidget() override { return nullptr; }
