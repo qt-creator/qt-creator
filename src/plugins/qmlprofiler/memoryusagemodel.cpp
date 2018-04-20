@@ -97,6 +97,15 @@ QVariantList MemoryUsageModel::labels() const
     return result;
 }
 
+static int toSameSignedInt(qint64 number)
+{
+    if (number > std::numeric_limits<int>::max())
+        return std::numeric_limits<int>::max();
+    if (number < std::numeric_limits<int>::min())
+        return std::numeric_limits<int>::min();
+    return static_cast<int>(number);
+}
+
 QVariantMap MemoryUsageModel::details(int index) const
 {
     QVariantMap result;
@@ -107,14 +116,17 @@ QVariantMap MemoryUsageModel::details(int index) const
     else
         result.insert(QLatin1String("displayName"), tr("Memory Freed"));
 
-    result.insert(tr("Total"), tr("%n byte(s)", nullptr, ev->size));
+    result.insert(tr("Total"), tr("%1 byte(s)", nullptr, toSameSignedInt(ev->size)).arg(ev->size));
     if (ev->allocations > 0) {
-        result.insert(tr("Allocated"), tr("%1 bytes").arg(ev->allocated));
-        result.insert(tr("Allocations"), QString::number(ev->allocations));
+        result.insert(tr("Allocated"), tr("%1 byte(s)", nullptr, toSameSignedInt(ev->allocated))
+                      .arg(ev->allocated));
+        result.insert(tr("Allocations"), ev->allocations);
     }
     if (ev->deallocations > 0) {
-        result.insert(tr("Deallocated"), tr("%1 bytes").arg(-ev->deallocated));
-        result.insert(tr("Deallocations"), QString::number(ev->deallocations));
+        result.insert(tr("Deallocated"),
+                      tr("%1 byte(s)", nullptr, toSameSignedInt(-ev->deallocated))
+                      .arg(-ev->deallocated));
+        result.insert(tr("Deallocations"), ev->deallocations);
     }
     QString memoryTypeName;
     switch (selectionId(index)) {

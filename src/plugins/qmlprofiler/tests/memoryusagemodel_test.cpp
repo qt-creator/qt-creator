@@ -149,8 +149,10 @@ void MemoryUsageModelTest::testDetails()
 {
     const QVariantMap allocated = model.details(0);
     QCOMPARE(allocated[QString("displayName")].toString(), model.tr("Memory Allocated"));
-    QCOMPARE(allocated[model.tr("Total")].toString(), model.tr("%1 bytes").arg(4096));
-    QCOMPARE(allocated[model.tr("Allocated")].toString(), model.tr("%1 bytes").arg(4096));
+    QCOMPARE(allocated[model.tr("Total")].toString(),
+            model.tr("%1 byte(s)", nullptr, 4096).arg(4096));
+    QCOMPARE(allocated[model.tr("Allocated")].toString(),
+            model.tr("%1 byte(s)", nullptr, 4096).arg(4096));
     QCOMPARE(allocated[model.tr("Allocations")].toString(), QString::number(2));
     QCOMPARE(allocated[model.tr("Type")].toString(), model.tr("Heap Allocation"));
     QCOMPARE(allocated[model.tr("Location")].toString(), QmlProfilerModelManager::tr("<bytecode>"));
@@ -160,8 +162,10 @@ void MemoryUsageModelTest::testDetails()
 
     const QVariantMap large = model.details(2);
     QCOMPARE(large[QString("displayName")].toString(), model.tr("Memory Allocated"));
-    QCOMPARE(large[model.tr("Total")].toString(), model.tr("%1 bytes").arg(5120));
-    QCOMPARE(large[model.tr("Allocated")].toString(), model.tr("%1 bytes").arg(1024));
+    QCOMPARE(large[model.tr("Total")].toString(),
+            model.tr("%1 byte(s)", nullptr, 5120).arg(5120));
+    QCOMPARE(large[model.tr("Allocated")].toString(),
+            model.tr("%1 byte(s)", nullptr, 1024).arg(1024));
     QCOMPARE(large[model.tr("Allocations")].toString(), QString::number(1));
     QCOMPARE(large[model.tr("Type")].toString(), model.tr("Large Item Allocation"));
     QCOMPARE(large[model.tr("Location")].toString(), QmlProfilerModelManager::tr("<bytecode>"));
@@ -171,8 +175,10 @@ void MemoryUsageModelTest::testDetails()
 
     const QVariantMap freed = model.details(9);
     QCOMPARE(freed[QString("displayName")].toString(), model.tr("Memory Freed"));
-    QCOMPARE(freed[model.tr("Total")].toString(), model.tr("%1 bytes").arg(2048));
-    QCOMPARE(freed[model.tr("Deallocated")].toString(), model.tr("%1 bytes").arg(1024));
+    QCOMPARE(freed[model.tr("Total")].toString(),
+            model.tr("%1 byte(s)", nullptr, 2048).arg(2048));
+    QCOMPARE(freed[model.tr("Deallocated")].toString(),
+            model.tr("%1 byte(s)", nullptr, 1024).arg(1024));
     QCOMPARE(freed[model.tr("Deallocations")].toString(), QString::number(1));
     QCOMPARE(freed[model.tr("Type")].toString(), model.tr("Heap Usage"));
     QCOMPARE(freed[model.tr("Location")].toString(), QmlProfilerModelManager::tr("<bytecode>"));
