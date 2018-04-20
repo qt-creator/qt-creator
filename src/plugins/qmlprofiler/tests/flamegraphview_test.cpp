@@ -58,8 +58,9 @@ void FlameGraphViewTest::testSelection()
         QCOMPARE(file, QLatin1String("somefile.js"));
     });
 
-    auto con2 = connect(&view, &QmlProfilerEventsView::typeSelected, [](int selected) {
-        QCOMPARE(selected, 0);
+    int expectedType = 0;
+    auto con2 = connect(&view, &QmlProfilerEventsView::typeSelected, [&](int selected) {
+        QCOMPARE(selected, expectedType);
     });
 
     QSignalSpy spy(&view, SIGNAL(typeSelected(int)));
@@ -71,12 +72,13 @@ void FlameGraphViewTest::testSelection()
     view.selectByTypeId(1);
     QCOMPARE(spy.count(), 1);
 
-    // Click in empty area shouldn't change anything, either
+    // Click in empty area deselects
+    expectedType = -1;
     QTest::mouseClick(view.childAt(250, 250), Qt::LeftButton, Qt::NoModifier, QPoint(495, 50));
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 2);
 
     view.onVisibleFeaturesChanged(1 << ProfileBinding);
-    QCOMPARE(spy.count(), 1); // External event: still doesn't change anything
+    QCOMPARE(spy.count(), 2); // External event: still doesn't change anything
 
     disconnect(con1);
     disconnect(con2);
