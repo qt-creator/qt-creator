@@ -402,6 +402,11 @@ void ItemLibraryWidget::addResources()
         map.insert(handler.category, handler.filter);
     }
 
+    QMap<QString, QString> reverseMap;
+    for (const AddResourceHandler &handler : handlers) {
+        reverseMap.insert(handler.filter, handler.category);
+    }
+
     QMap<QString, int> priorities;
     for (const AddResourceHandler &handler : handlers) {
         priorities.insert(handler.category, handler.piority);
@@ -422,25 +427,30 @@ void ItemLibraryWidget::addResources()
         filters.append(str);
     }
 
+    filters.prepend(tr("All Files (%1)").arg(map.values().join(" ")));
+
     const auto fileNames = QFileDialog::getOpenFileNames(this,
                                                    tr("Add Resources"),
                                                    document->fileName().parentDir().toString(),
                                                    filters.join(";;"));
 
-    if (!fileNames.isEmpty()) {
-        const auto directory = QFileDialog::getExistingDirectory(this,
-                                                              tr("Target Directory"),
-                                                              document->fileName().parentDir().toString());
+    QMultiMap<QString, QString> partitionedFileNames;
 
-        for (const QString &fileName : fileNames) {
-            for (const AddResourceHandler &handler : handlers) {
-                QString postfix = handler.filter;
-                postfix.remove(0, 1);
-                if (fileName.endsWith(postfix))
-                    if (!handler.operation(fileName, directory))
-                        Core::AsynchronousMessageBox::warning(tr("Failed to Add File"), tr("Could not add %1 to project.").arg(fileName));
-            }
-        }
+    for (const QString &fileName : fileNames) {
+        const QString suffix = "*." + QFileInfo(fileName).completeSuffix();
+        const QString category = reverseMap.value(suffix);
+        partitionedFileNames.insert(category, fileName);
+    }
+
+    for (const QString &category : partitionedFileNames.uniqueKeys()) {
+         for (const AddResourceHandler &handler : handlers) {
+             QStringList fileNames = partitionedFileNames.values(category);
+             if (handler.category == category) {
+                 if (!handler.operation(fileNames, document->fileName().parentDir().toString()))
+                     Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"), tr("Could not add %1 to project.").arg(fileNames.join(" ")));
+                 break;
+             }
+         }
     }
 }
 

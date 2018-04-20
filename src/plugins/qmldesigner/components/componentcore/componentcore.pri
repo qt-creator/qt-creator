@@ -1,6 +1,7 @@
 VPATH += $$PWD
 
 SOURCES += modelnodecontextmenu.cpp
+SOURCES += addimagesdialog.cpp
 SOURCES += changestyleaction.cpp
 SOURCES += theme.cpp
 SOURCES += findimplementation.cpp
@@ -17,6 +18,7 @@ SOURCES += crumblebar.cpp
 SOURCES += qmldesignericonprovider.cpp
 
 HEADERS += modelnodecontextmenu.h
+HEADERS += addimagesdialog.h
 HEADERS += changestyleaction.h
 HEADERS += theme.h
 HEADERS += findimplementation.h

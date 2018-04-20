@@ -371,6 +371,8 @@ Project {
         Group {
             prefix: "components/"
             files: [
+                "componentcore/addimagesdialog.cpp",
+                "componentcore/addimagesdialog.h",
                 "componentcore/abstractaction.cpp",
                 "componentcore/abstractaction.h",
                 "componentcore/abstractactiongroup.cpp",
