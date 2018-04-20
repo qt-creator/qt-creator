@@ -48,7 +48,7 @@ public:
 
 private:
     ProjectExplorer::Runnable runnable() const override;
-    QWidget *createConfigurationWidget() override;
+    void fillConfigurationLayout(QFormLayout *layout) const override;
 };
 
 class QnxRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory

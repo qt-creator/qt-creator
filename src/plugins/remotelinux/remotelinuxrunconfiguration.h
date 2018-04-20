@@ -29,20 +29,14 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-#include <QStringList>
-
 namespace RemoteLinux {
 
 class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
-    friend class RemoteLinuxRunConfigurationWidget;
 
 public:
     explicit RemoteLinuxRunConfiguration(ProjectExplorer::Target *target);
-
-    QWidget *createConfigurationWidget() override;
-    ProjectExplorer::Runnable runnable() const override;
 
     static const char *IdPrefix;
 

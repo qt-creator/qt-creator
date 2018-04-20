@@ -40,9 +40,6 @@ class DesktopQmakeRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     explicit DesktopQmakeRunConfiguration(ProjectExplorer::Target *target);
 
-    QWidget *createConfigurationWidget() override;
-
-    ProjectExplorer::Runnable runnable() const override;
     QVariantMap toMap() const override;
 
     void addToBaseEnvironment(Utils::Environment &env) const;
@@ -57,17 +54,6 @@ private:
     bool canRunForNode(const ProjectExplorer::Node *node) const final;
 
     Utils::FileName proFilePath() const;
-};
-
-class DesktopQmakeRunConfigurationWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit DesktopQmakeRunConfigurationWidget(ProjectExplorer::RunConfiguration *rc);
-
-private:
-    ProjectExplorer::RunConfiguration *m_runConfiguration = nullptr;
 };
 
 class DesktopQmakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory

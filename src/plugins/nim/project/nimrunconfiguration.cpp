@@ -36,25 +36,11 @@
 
 #include <QDir>
 #include <QFileInfo>
-#include <QFormLayout>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Nim {
-
-class NimRunConfigurationWidget : public QWidget
-{
-public:
-    explicit NimRunConfigurationWidget(NimRunConfiguration *rc)
-    {
-        auto fl = new QFormLayout(this);
-        rc->extraAspect<ExecutableAspect>()->addToMainConfigurationWidget(this, fl);
-        rc->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, fl);
-        rc->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, fl);
-        rc->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, fl);
-    }
-};
 
 NimRunConfiguration::NimRunConfiguration(Target *target)
     : RunConfiguration(target, Constants::C_NIMRUNCONFIGURATION_ID)
@@ -75,22 +61,6 @@ NimRunConfiguration::NimRunConfiguration(Target *target)
     connect(target, &Target::activeBuildConfigurationChanged,
             this, &NimRunConfiguration::updateConfiguration);
     updateConfiguration();
-}
-
-QWidget *NimRunConfiguration::createConfigurationWidget()
-{
-    return wrapWidget(new NimRunConfigurationWidget(this));
-}
-
-Runnable NimRunConfiguration::runnable() const
-{
-    StandardRunnable result;
-    result.runMode = extraAspect<TerminalAspect>()->runMode();
-    result.executable = extraAspect<ExecutableAspect>()->executable().toString();
-    result.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
-    result.workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
-    result.environment = extraAspect<EnvironmentAspect>()->environment();
-    return result;
 }
 
 void NimRunConfiguration::updateConfiguration()

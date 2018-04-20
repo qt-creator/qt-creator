@@ -35,10 +35,6 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
-#include <utils/qtcassert.h>
-
-#include <QFormLayout>
-
 using namespace ProjectExplorer;
 
 namespace CMakeProjectManager {
@@ -46,21 +42,6 @@ namespace Internal {
 
 const char CMAKE_RC_PREFIX[] = "CMakeProjectManager.CMakeRunConfiguration.";
 const char TITLE_KEY[] = "CMakeProjectManager.CMakeRunConfiguation.Title";
-
-// Configuration widget
-class CMakeRunConfigurationWidget : public QWidget
-{
-public:
-    CMakeRunConfigurationWidget(RunConfiguration *rc)
-    {
-        auto fl = new QFormLayout(this);
-
-        rc->extraAspect<ExecutableAspect>()->addToMainConfigurationWidget(this, fl);
-        rc->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, fl);
-        rc->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, fl);
-        rc->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, fl);
-    }
-};
 
 CMakeRunConfiguration::CMakeRunConfiguration(Target *target)
     : RunConfiguration(target, CMAKE_RC_PREFIX)
@@ -86,17 +67,6 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *target)
 
     if (QtSupport::QtKitInformation::qtVersion(target->kit()))
         setOutputFormatter<QtSupport::QtOutputFormatter>();
-}
-
-Runnable CMakeRunConfiguration::runnable() const
-{
-    StandardRunnable r;
-    r.executable = extraAspect<ExecutableAspect>()->executable().toString();
-    r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
-    r.workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
-    r.environment = extraAspect<LocalEnvironmentAspect>()->environment();
-    r.runMode = extraAspect<TerminalAspect>()->runMode();
-    return r;
 }
 
 QVariantMap CMakeRunConfiguration::toMap() const
@@ -132,11 +102,6 @@ void CMakeRunConfiguration::updateEnabledState()
         setEnabled(false);
     else
         RunConfiguration::updateEnabledState();
-}
-
-QWidget *CMakeRunConfiguration::createConfigurationWidget()
-{
-    return wrapWidget(new CMakeRunConfigurationWidget(this));
 }
 
 QString CMakeRunConfiguration::disabledReason() const

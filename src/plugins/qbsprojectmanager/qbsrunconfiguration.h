@@ -27,12 +27,9 @@
 
 #include <projectexplorer/runnables.h>
 
-#include <QCheckBox>
 #include <QHash>
-#include <QLabel>
 #include <QPair>
 #include <QStringList>
-#include <QWidget>
 
 namespace QbsProjectManager {
 namespace Internal {
@@ -41,14 +38,8 @@ class QbsRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 
-    // to change the display name and arguments and set the userenvironmentchanges
-    friend class QbsRunConfigurationWidget;
-
 public:
     explicit QbsRunConfiguration(ProjectExplorer::Target *target);
-
-    QWidget *createConfigurationWidget() final;
-    ProjectExplorer::Runnable runnable() const final;
 
     void addToBaseEnvironment(Utils::Environment &env) const;
 

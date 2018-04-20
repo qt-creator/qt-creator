@@ -38,8 +38,6 @@
 
 #include <qtsupport/qtoutputformatter.h>
 
-#include <QFormLayout>
-
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -86,29 +84,6 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
             this, &RemoteLinuxRunConfiguration::updateTargetInformation);
     connect(target, &Target::kitChanged,
             this, &RemoteLinuxRunConfiguration::updateTargetInformation);
-}
-
-QWidget *RemoteLinuxRunConfiguration::createConfigurationWidget()
-{
-    auto widget = new QWidget;
-    auto formLayout = new QFormLayout(widget);
-
-    extraAspect<ExecutableAspect>()->addToMainConfigurationWidget(widget, formLayout);
-    extraAspect<SymbolFileAspect>()->addToMainConfigurationWidget(widget, formLayout);
-    extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(widget, formLayout);
-    extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(widget, formLayout);
-
-    return wrapWidget(widget);
-}
-
-Runnable RemoteLinuxRunConfiguration::runnable() const
-{
-    StandardRunnable r;
-    r.environment = extraAspect<RemoteLinuxEnvironmentAspect>()->environment();
-    r.executable = extraAspect<ExecutableAspect>()->executable().toString();
-    r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
-    r.workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
-    return r;
 }
 
 void RemoteLinuxRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)

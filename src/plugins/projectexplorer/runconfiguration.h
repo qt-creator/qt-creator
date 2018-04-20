@@ -42,6 +42,10 @@
 #include <functional>
 #include <memory>
 
+QT_BEGIN_NAMESPACE
+class QFormLayout;
+QT_END_NAMESPACE
+
 namespace Utils { class OutputFormatter; }
 
 namespace ProjectExplorer {
@@ -215,7 +219,8 @@ public:
 
     QString disabledReason() const override;
 
-    virtual QWidget *createConfigurationWidget() = 0;
+    virtual QWidget *createConfigurationWidget();
+    virtual void fillConfigurationLayout(QFormLayout *layout) const;
 
     virtual bool isConfigured() const;
     // Pop up configuration dialog in case for example the executable is missing.

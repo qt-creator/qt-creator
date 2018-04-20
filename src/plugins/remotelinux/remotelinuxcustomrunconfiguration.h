@@ -38,8 +38,6 @@ public:
 
     bool isConfigured() const override;
     ConfigurationState ensureConfigured(QString *errorMessage) override;
-    QWidget *createConfigurationWidget() override;
-    ProjectExplorer::Runnable runnable() const override;
 
     static Core::Id runConfigId();
     QString runConfigDefaultDisplayName();

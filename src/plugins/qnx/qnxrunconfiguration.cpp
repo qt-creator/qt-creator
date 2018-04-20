@@ -62,18 +62,10 @@ Runnable QnxRunConfiguration::runnable() const
     return r;
 }
 
-QWidget *QnxRunConfiguration::createConfigurationWidget()
+void QnxRunConfiguration::fillConfigurationLayout(QFormLayout *layout) const
 {
-    auto widget = new QWidget;
-    auto formLayout = new QFormLayout(widget);
-
-    extraAspect<ExecutableAspect>()->addToMainConfigurationWidget(widget, formLayout);
-    extraAspect<SymbolFileAspect>()->addToMainConfigurationWidget(widget, formLayout);
-    extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(widget, formLayout);
-    extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(widget, formLayout);
-    extraAspect<QtLibPathAspect>()->addToMainConfigurationWidget(widget, formLayout);
-
-    return wrapWidget(widget);
+    RemoteLinuxRunConfiguration::fillConfigurationLayout(layout);
+    extraAspect<QtLibPathAspect>()->addToMainConfigurationWidget(layout->parentWidget(), layout);
 }
 
 // QnxRunConfigurationFactory

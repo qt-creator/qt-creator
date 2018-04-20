@@ -38,9 +38,6 @@ class NimRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     explicit NimRunConfiguration(ProjectExplorer::Target *target);
 
-    QWidget *createConfigurationWidget() override;
-    ProjectExplorer::Runnable runnable() const override;
-
 private:
     void updateConfiguration();
     void setActiveBuildConfiguration(NimBuildConfiguration *activeBuildConfiguration);

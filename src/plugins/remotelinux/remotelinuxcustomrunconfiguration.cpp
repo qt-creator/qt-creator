@@ -33,30 +33,12 @@
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtoutputformatter.h>
-#include <utils/pathchooser.h>
-
-#include <QFormLayout>
-#include <QLabel>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
-
-class RemoteLinuxCustomRunConfigWidget : public QWidget
-{
-public:
-    explicit RemoteLinuxCustomRunConfigWidget(RemoteLinuxCustomRunConfiguration *runConfig)
-    {
-        auto fl = new QFormLayout(this);
-
-        runConfig->extraAspect<ExecutableAspect>()->addToMainConfigurationWidget(this, fl);
-        runConfig->extraAspect<SymbolFileAspect>()->addToMainConfigurationWidget(this, fl);
-        runConfig->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, fl);
-        runConfig->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, fl);
-    }
-};
 
 RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *target)
     : RunConfiguration(target, runConfigId())
@@ -97,21 +79,6 @@ RemoteLinuxCustomRunConfiguration::ensureConfigured(QString *errorMessage)
         return UnConfigured;
     }
     return Configured;
-}
-
-QWidget *RemoteLinuxCustomRunConfiguration::createConfigurationWidget()
-{
-    return wrapWidget(new RemoteLinuxCustomRunConfigWidget(this));
-}
-
-Runnable RemoteLinuxCustomRunConfiguration::runnable() const
-{
-    StandardRunnable r;
-    r.executable = extraAspect<ExecutableAspect>()->executable().toString();
-    r.environment = extraAspect<RemoteLinuxEnvironmentAspect>()->environment();
-    r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
-    r.workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
-    return r;
 }
 
 Core::Id RemoteLinuxCustomRunConfiguration::runConfigId()

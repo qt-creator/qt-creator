@@ -27,13 +27,13 @@
 
 #include "qmakeprojectmanagerconstants.h"
 
-#include <coreplugin/variablechooser.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runnables.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -46,10 +46,8 @@
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
-#include <QCheckBox>
 #include <QDir>
 #include <QFileInfo>
-#include <QFormLayout>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -112,43 +110,6 @@ void DesktopQmakeRunConfiguration::updateTargetInformation()
         terminalAspect->setUseTerminal(bti.usesTerminal);
 
     extraAspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
-}
-
-//
-// DesktopQmakeRunConfigurationWidget
-//
-
-DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(RunConfiguration *rc)
-    :  m_runConfiguration(rc)
-{
-    auto toplayout = new QFormLayout(this);
-
-    rc->extraAspect<ExecutableAspect>()->addToMainConfigurationWidget(this, toplayout);
-    rc->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);
-    rc->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, toplayout);
-    rc->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
-    rc->extraAspect<UseLibraryPathsAspect>()->addToMainConfigurationWidget(this, toplayout);
-
-    if (HostOsInfo::isMacHost())
-        rc->extraAspect<UseDyldSuffixAspect>()->addToMainConfigurationWidget(this, toplayout);
-
-    Core::VariableChooser::addSupportForChildWidgets(this, rc->macroExpander());
-}
-
-QWidget *DesktopQmakeRunConfiguration::createConfigurationWidget()
-{
-    return wrapWidget(new DesktopQmakeRunConfigurationWidget(this));
-}
-
-Runnable DesktopQmakeRunConfiguration::runnable() const
-{
-    StandardRunnable r;
-    r.executable = extraAspect<ExecutableAspect>()->executable().toString();
-    r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
-    r.workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
-    r.environment = extraAspect<LocalEnvironmentAspect>()->environment();
-    r.runMode = extraAspect<TerminalAspect>()->runMode();
-    return r;
 }
 
 QVariantMap DesktopQmakeRunConfiguration::toMap() const

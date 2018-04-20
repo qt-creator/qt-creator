@@ -38,9 +38,6 @@ public:
     explicit CMakeRunConfiguration(ProjectExplorer::Target *target);
 
 private:
-    ProjectExplorer::Runnable runnable() const override;
-    QWidget *createConfigurationWidget() override;
-
     QVariantMap toMap() const override;
     QString disabledReason() const override;
 

@@ -32,6 +32,7 @@
 #include "buildconfiguration.h"
 #include "environmentaspect.h"
 #include "kitinformation.h"
+#include "runconfigurationaspects.h"
 #include "runnables.h"
 #include "session.h"
 #include "kitinformation.h"
@@ -43,9 +44,9 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-#include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/variablechooser.h>
 
 #include <QDir>
 #include <QFormLayout>
@@ -247,6 +248,37 @@ QString RunConfiguration::disabledReason() const
     return QString();
 }
 
+QWidget *RunConfiguration::createConfigurationWidget()
+{
+    auto widget = new QWidget;
+    auto formLayout = new QFormLayout(widget);
+
+    fillConfigurationLayout(formLayout);
+
+    Core::VariableChooser::addSupportForChildWidgets(widget, macroExpander());
+
+    return wrapWidget(widget);
+}
+
+void RunConfiguration::fillConfigurationLayout(QFormLayout *layout) const
+{
+    auto widget = layout->parentWidget();
+    if (auto aspect = extraAspect<ExecutableAspect>())
+        aspect->addToMainConfigurationWidget(widget, layout);
+    if (auto aspect = extraAspect<SymbolFileAspect>())
+        aspect->addToMainConfigurationWidget(widget, layout);
+    if (auto aspect = extraAspect<ArgumentsAspect>())
+        aspect->addToMainConfigurationWidget(widget, layout);
+    if (auto aspect = extraAspect<WorkingDirectoryAspect>())
+        aspect->addToMainConfigurationWidget(widget, layout);
+    if (auto aspect = extraAspect<TerminalAspect>())
+        aspect->addToMainConfigurationWidget(widget, layout);
+    if (auto aspect = extraAspect<UseLibraryPathsAspect>())
+        aspect->addToMainConfigurationWidget(widget, layout);
+    if (auto aspect = extraAspect<UseDyldSuffixAspect>())
+        aspect->addToMainConfigurationWidget(widget, layout);
+}
+
 void RunConfiguration::updateEnabledState()
 {
     Project *p = target()->project();
@@ -416,7 +448,18 @@ IRunConfigurationAspect *RunConfiguration::extraAspect(Core::Id id) const
 
 Runnable RunConfiguration::runnable() const
 {
-    return Runnable();
+    StandardRunnable r;
+    if (auto aspect = extraAspect<ExecutableAspect>())
+        r.executable = aspect->executable().toString();
+    if (auto aspect = extraAspect<ArgumentsAspect>())
+        r.commandLineArguments = aspect->arguments();
+    if (auto aspect = extraAspect<WorkingDirectoryAspect>())
+        r.workingDirectory = aspect->workingDirectory().toString();
+    if (auto aspect = extraAspect<EnvironmentAspect>())
+        r.environment = aspect->environment();
+    if (auto aspect = extraAspect<TerminalAspect>())
+        r.runMode = aspect->runMode();
+    return r;
 }
 
 OutputFormatter *RunConfiguration::createOutputFormatter() const

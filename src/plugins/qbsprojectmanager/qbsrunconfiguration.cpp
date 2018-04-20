@@ -29,8 +29,6 @@
 #include "qbsprojectmanagerconstants.h"
 #include "qbsproject.h"
 
-#include <coreplugin/variablechooser.h>
-
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/project.h>
@@ -39,9 +37,7 @@
 
 #include <qtsupport/qtoutputformatter.h>
 
-#include <QCheckBox>
 #include <QFileInfo>
-#include <QFormLayout>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -50,27 +46,6 @@ namespace QbsProjectManager {
 namespace Internal {
 
 const char QBS_RC_PREFIX[] = "Qbs.RunConfiguration:";
-
-// --------------------------------------------------------------------
-// QbsRunConfigurationWidget:
-// --------------------------------------------------------------------
-
-class QbsRunConfigurationWidget : public QWidget
-{
-public:
-    explicit QbsRunConfigurationWidget(RunConfiguration *rc)
-    {
-        auto toplayout = new QFormLayout(this);
-
-        rc->extraAspect<ExecutableAspect>()->addToMainConfigurationWidget(this, toplayout);
-        rc->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, toplayout);
-        rc->extraAspect<WorkingDirectoryAspect>()->addToMainConfigurationWidget(this, toplayout);
-        rc->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, toplayout);
-        rc->extraAspect<UseLibraryPathsAspect>()->addToMainConfigurationWidget(this, toplayout);
-
-        Core::VariableChooser::addSupportForChildWidgets(this, rc->macroExpander());
-    }
-};
 
 // --------------------------------------------------------------------
 // QbsRunConfiguration:
@@ -132,22 +107,6 @@ void QbsRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &
 {
     setDefaultDisplayName(info.displayName);
     updateTargetInformation();
-}
-
-QWidget *QbsRunConfiguration::createConfigurationWidget()
-{
-    return wrapWidget(new QbsRunConfigurationWidget(this));
-}
-
-Runnable QbsRunConfiguration::runnable() const
-{
-    StandardRunnable r;
-    r.executable = extraAspect<ExecutableAspect>()->executable().toString();
-    r.workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory().toString();
-    r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
-    r.runMode = extraAspect<TerminalAspect>()->runMode();
-    r.environment = extraAspect<LocalEnvironmentAspect>()->environment();
-    return r;
 }
 
 void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
