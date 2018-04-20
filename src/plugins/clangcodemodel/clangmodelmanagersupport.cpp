@@ -165,14 +165,12 @@ void ModelManagerSupportClang::onCurrentEditorChanged(Core::IEditor *editor)
     m_communicator.updateTranslationUnitVisiblity();
 
     // Update task hub issues for current CppEditorDocument
-    QTC_ASSERT(editor, return);
-    Core::IDocument *document = editor->document();
-    QTC_ASSERT(document, return);
-    TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(document);
+    ClangEditorDocumentProcessor::clearTaskHubIssues();
+    if (!editor || !editor->document() || !cppModelManager()->isCppEditor(editor))
+        return;
 
-    auto processor = ClangEditorDocumentProcessor::get(document->filePath().toString());
-    processor->clearTaskHubIssues();
-    if (textDocument && cppModelManager()->isCppEditor(editor))
+    const ::Utils::FileName filePath = editor->document()->filePath();
+    if (auto processor = ClangEditorDocumentProcessor::get(filePath.toString()))
         processor->generateTaskHubIssues();
 }
 

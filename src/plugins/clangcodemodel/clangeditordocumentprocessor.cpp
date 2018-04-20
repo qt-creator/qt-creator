@@ -243,7 +243,7 @@ const QVector<ClangBackEnd::TokenInfoContainer>
 
 void ClangEditorDocumentProcessor::clearTaskHubIssues()
 {
-    m_diagnosticManager.clearTaskHubIssues();
+    ClangDiagnosticManager::clearTaskHubIssues();
 }
 
 void ClangEditorDocumentProcessor::generateTaskHubIssues()

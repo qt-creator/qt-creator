@@ -103,7 +103,7 @@ public:
 
     const QVector<ClangBackEnd::TokenInfoContainer> &tokenInfos() const;
 
-    void clearTaskHubIssues();
+    static void clearTaskHubIssues();
     void generateTaskHubIssues();
 
 public:
