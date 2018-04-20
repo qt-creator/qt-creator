@@ -224,6 +224,7 @@ void TestResultsPane::addTestResult(const TestResultPtr &result)
 
     m_model->addTestResult(result, m_expandCollapse->isChecked());
     setIconBadgeNumber(m_model->resultTypeCount(Result::Fail)
+                       + m_model->resultTypeCount(Result::MessageFatal)
                        + m_model->resultTypeCount(Result::UnexpectedPass));
     flash();
     navigateStateChanged();
