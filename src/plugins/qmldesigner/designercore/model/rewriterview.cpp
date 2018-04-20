@@ -453,6 +453,15 @@ void RewriterView::notifyErrorsAndWarnings(const QList<DocumentMessage> &errors)
     emitDocumentMessage(errors, m_warnings);
 }
 
+static QString replaceIllegalPropertyNameChars(const QString &str)
+{
+    QString ret = str;
+
+    ret.replace("@", "__AT__");
+
+    return ret;
+}
+
 QString RewriterView::auxiliaryDataAsQML() const
 {
     bool hasAuxData = false;
@@ -481,7 +490,7 @@ QString RewriterView::auxiliaryDataAsQML() const
                     strValue = "\"" + strValue + "\"";
 
                 if (!strValue.isEmpty()) {
-                    str += QString::fromUtf8(i.key()) + ":";
+                    str += replaceIllegalPropertyNameChars(QString::fromUtf8(i.key())) + ":";
                     str += strValue;
                     str += ";";
                 }
@@ -950,6 +959,14 @@ static void checkChildNodes(QmlJS::SimpleReaderNode::Ptr node, RewriterView *vie
     for (auto child : node->children())
         checkNode(child, view);
 }
+
+static QString fixUpIllegalChars(const QString &str)
+{
+    QString ret = str;
+    ret.replace("__AT__", "@");
+    return ret;
+}
+
 static void checkNode(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view)
 {
     if (!node)
@@ -967,7 +984,7 @@ static void checkNode(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view)
 
     for (auto i = properties.begin(); i != properties.end(); ++i) {
         if (i.key() != "i")
-            modelNode.setAuxiliaryData(i.key().toUtf8(), i.value());
+            modelNode.setAuxiliaryData(fixUpIllegalChars(i.key()).toUtf8(), i.value());
     }
 
     checkChildNodes(node, view);
