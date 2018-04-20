@@ -944,6 +944,9 @@ static void checkNode(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view);
 
 static void checkChildNodes(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view)
 {
+    if (!node)
+        return;
+
     for (auto child : node->children())
         checkNode(child, view);
 }
