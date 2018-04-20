@@ -53,7 +53,6 @@ void DebugMessagesModelTest::initTestCase()
         manager.addEvent(event);
     }
     manager.finalize();
-    QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
 }
 
 void DebugMessagesModelTest::testTypeId()

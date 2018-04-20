@@ -341,7 +341,6 @@ const char *QmlProfilerModelManager::featureName(ProfileFeature feature)
 
 void QmlProfilerModelManager::finalize()
 {
-    QTC_ASSERT(state() == AcquiringData, /**/);
     if (!d->file.flush())
         emit error(tr("Failed to flush temporary trace file"));
     d->detailsRewriter->reloadDocuments();

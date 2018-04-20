@@ -62,7 +62,6 @@ void InputEventsModelTest::initTestCase()
     }
 
     manager.finalize();
-    QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
 }
 
 void InputEventsModelTest::testAccepted()

@@ -96,7 +96,8 @@ void QmlProfilerStatisticsModel::restrictToFeatures(quint64 features)
             }
         }
     }
-    if (!didChange || m_modelManager->state() != QmlProfilerModelManager::Done)
+
+    if (!didChange)
         return;
 
     clear();

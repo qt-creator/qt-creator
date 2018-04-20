@@ -40,8 +40,6 @@ class TimelineTraceManager::TimelineTraceManagerPrivate
 public:
     TimelineNotesModel *notesModel = nullptr;
 
-    TimelineTraceManager::State state = Empty;
-
     int numEvents = 0;
     int numEventTypes = 0;
     quint64 availableFeatures = 0;
@@ -61,7 +59,6 @@ public:
 
     void dispatch(const TraceEvent &event, const TraceEventType &type);
     void reset();
-    void setState(TimelineTraceManager *q, TimelineTraceManager::State state);
     void updateTraceTime(qint64 time);
     void restrictTraceTimeToRange(qint64 start, qint64 end);
 };
@@ -184,20 +181,15 @@ void TimelineTraceManager::initialize()
 {
     for (const Initializer &initializer : qAsConst(d->initializers))
         initializer();
-
-    d->setState(this, AcquiringData);
 }
 
 void TimelineTraceManager::finalize()
 {
-    QTC_CHECK(state() == AcquiringData);
     // Load notes after the timeline models have been initialized ...
     // which happens on stateChanged(Done).
 
     for (const Finalizer &finalizer : qAsConst(d->finalizers))
         finalizer();
-
-    d->setState(this, Done);
 }
 
 QFuture<void> TimelineTraceManager::save(const QString &filename)
@@ -335,35 +327,6 @@ void TimelineTraceManager::increaseTraceEnd(qint64 end)
     }
 }
 
-void TimelineTraceManager::TimelineTraceManagerPrivate::setState(
-        TimelineTraceManager *q, TimelineTraceManager::State newState)
-{
-    // It's not an error, we are continuously calling "AcquiringData" for example
-    if (newState == state)
-        return;
-
-    switch (newState) {
-    case ClearingData:
-        QTC_CHECK(state == Done || state == Empty || state == AcquiringData);
-        break;
-    case Empty:
-        // if it's not empty, complain but go on
-        QTC_CHECK(q->isEmpty());
-        break;
-    case AcquiringData:
-        break;
-    case Done:
-        QTC_ASSERT(state == AcquiringData || state == Empty, return);
-        break;
-    default:
-        QTC_ASSERT(false, return);
-        break;
-    }
-
-    state = newState;
-    emit q->stateChanged(state);
-}
-
 void TimelineTraceManager::TimelineTraceManagerPrivate::updateTraceTime(qint64 time)
 {
     QTC_ASSERT(time >= 0, return);
@@ -380,12 +343,6 @@ void TimelineTraceManager::TimelineTraceManagerPrivate::restrictTraceTimeToRange
     QTC_ASSERT(end == -1 || start <= end, end = start);
     restrictedTraceStart = start;
     restrictedTraceEnd = end;
-}
-
-
-TimelineTraceManager::State TimelineTraceManager::state() const
-{
-    return d->state;
 }
 
 void TimelineTraceManager::setNotesModel(TimelineNotesModel *notesModel)
@@ -410,17 +367,13 @@ void TimelineTraceManager::clearTypeStorage()
 
 void TimelineTraceManager::clear()
 {
-    d->setState(this, ClearingData);
     clearEventStorage();
-    d->setState(this, Empty);
 }
 
 void TimelineTraceManager::clearAll()
 {
-    d->setState(this, ClearingData);
     clearEventStorage();
     clearTypeStorage();
-    d->setState(this, Empty);
 }
 
 void TimelineTraceManager::restrictToRange(qint64 startTime, qint64 endTime)
@@ -428,7 +381,6 @@ void TimelineTraceManager::restrictToRange(qint64 startTime, qint64 endTime)
     if (d->notesModel)
         d->notesModel->stash();
 
-    d->setState(this, ClearingData);
     d->reset();
     setVisibleFeatures(0);
 

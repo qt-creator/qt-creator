@@ -97,7 +97,6 @@ void MemoryUsageModelTest::initTestCase()
     manager.addEvent(event);
 
     manager.finalize();
-    QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
     QCOMPARE(model.count(), 11);
 }
 

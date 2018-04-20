@@ -98,7 +98,6 @@ void FlameGraphModelTest::initTestCase()
 {
     QCOMPARE(model.modelManager(), &manager);
     rangeModelId = generateData(&manager, &aggregator);
-    QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
 }
 
 void FlameGraphModelTest::testIndex()

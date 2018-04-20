@@ -55,7 +55,6 @@ void QmlProfilerAnimationsModelTest::initTestCase()
         manager.addEvent(event);
     }
     manager.finalize();
-    QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
 }
 
 void QmlProfilerAnimationsModelTest::testAccepted()

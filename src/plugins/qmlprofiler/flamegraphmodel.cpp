@@ -159,8 +159,6 @@ void FlameGraphModel::restrictToFeatures(quint64 visibleFeatures)
         return;
 
     m_acceptedFeatures = visibleFeatures;
-    if (m_modelManager->state() != QmlProfilerModelManager::Done)
-        return;
 
     clear();
 

@@ -104,6 +104,10 @@ private:
     void createTextMarks();
     void clearTextMarks();
 
+    void initialize();
+    void finalize();
+    void clear();
+
     class QmlProfilerToolPrivate;
     QmlProfilerToolPrivate *d;
 };

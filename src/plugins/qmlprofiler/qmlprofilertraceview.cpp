@@ -96,33 +96,27 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
     setObjectName("QmlProfiler.Timeline.Dock");
 
     d->m_zoomControl = new Timeline::TimelineZoomControl(this);
-    connect(modelManager, &QmlProfilerModelManager::stateChanged, this, [modelManager, this]() {
-        switch (modelManager->state()) {
-        case QmlProfilerModelManager::Done: {
-            const qint64 start = modelManager->traceStart();
-            const qint64 end = modelManager->traceEnd();
-            d->m_zoomControl->setTrace(start, end);
-            d->m_zoomControl->setRange(start, start + (end - start) / 10);
-            Q_FALLTHROUGH();
+    modelManager->registerFeatures(0, QmlProfilerModelManager::QmlEventLoader(), [this]() {
+        if (d->m_suspendedModels.isEmpty()) {
+            // Temporarily remove the models, while we're changing them
+            d->m_suspendedModels = d->m_modelProxy->models();
+            d->m_modelProxy->setModels(QVariantList());
         }
-        case QmlProfilerModelManager::Empty:
+        // Otherwise models are suspended already. This can happen if either acquiring was
+        // aborted or we're doing a "restrict to range" which consists of a partial clearing and
+        // then re-acquiring of data.
+    }, [this, modelManager]() {
+        const qint64 start = modelManager->traceStart();
+        const qint64 end = modelManager->traceEnd();
+        d->m_zoomControl->setTrace(start, end);
+        d->m_zoomControl->setRange(start, start + (end - start) / 10);
+        d->m_modelProxy->setModels(d->m_suspendedModels);
+        d->m_suspendedModels.clear();
+    }, [this]() {
+        d->m_zoomControl->clear();
+        if (!d->m_suspendedModels.isEmpty()) {
             d->m_modelProxy->setModels(d->m_suspendedModels);
             d->m_suspendedModels.clear();
-            d->m_modelManager->notesModel()->restore();
-            break;
-        case QmlProfilerModelManager::ClearingData:
-            d->m_zoomControl->clear();
-            Q_FALLTHROUGH();
-        case QmlProfilerModelManager::AcquiringData:
-            if (d->m_suspendedModels.isEmpty()) {
-                // Temporarily remove the models, while we're changing them
-                d->m_suspendedModels = d->m_modelProxy->models();
-                d->m_modelProxy->setModels(QVariantList());
-            }
-            // Otherwise models are suspended already. This can happen if either acquiring was
-            // aborted or we're doing a "restrict to range" which consists of a partial clearing and
-            // then re-acquiring of data.
-            break;
         }
     });
 

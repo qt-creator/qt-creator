@@ -45,8 +45,9 @@ public:
 private:
     void showText(const QString &text);
     void updateDisplay();
-    void update();
     void reposition();
+    void initialize();
+    void clear();
 
     class QmlProfilerStateWidgetPrivate;
     QmlProfilerStateWidgetPrivate *d;

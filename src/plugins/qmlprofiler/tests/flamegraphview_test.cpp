@@ -44,7 +44,6 @@ void FlameGraphViewTest::initTestCase()
     connect(&view, &QmlProfilerEventsView::showFullRange,
             this, [this](){ manager.restrictToRange(-1, -1); });
     FlameGraphModelTest::generateData(&manager, &aggregator);
-    QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
     view.resize(500, 500);
     view.show();
     QVERIFY(QTest::qWaitForWindowExposed(&view));

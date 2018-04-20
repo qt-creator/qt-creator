@@ -188,8 +188,6 @@ void PixmapCacheModelTest::initTestCase()
 
 
     manager.finalize();
-
-    QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
 }
 
 void PixmapCacheModelTest::testConsistency()

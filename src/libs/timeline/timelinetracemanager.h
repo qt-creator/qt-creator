@@ -42,13 +42,6 @@ class TIMELINE_EXPORT TimelineTraceManager : public QObject
 {
     Q_OBJECT
 public:
-    enum State {
-        Empty,
-        AcquiringData,
-        ClearingData,
-        Done
-    };
-
     typedef std::function<void(const TraceEvent &, const TraceEventType &)> TraceEventLoader;
     typedef std::function<void()> Initializer;
     typedef std::function<void()> Finalizer;
@@ -57,8 +50,6 @@ public:
 
     explicit TimelineTraceManager(QObject *parent = nullptr);
     ~TimelineTraceManager();
-
-    State state() const;
 
     qint64 traceStart() const;
     qint64 traceEnd() const;
@@ -99,7 +90,6 @@ public:
 
 signals:
     void error(const QString &error);
-    void stateChanged(State state);
     void loadFinished();
     void saveFinished();
 

@@ -149,8 +149,11 @@ QmlProfilerTool::QmlProfilerTool()
             this, &QmlProfilerTool::clientsDisconnected);
 
     d->m_profilerModelManager = new QmlProfilerModelManager(this);
-    connect(d->m_profilerModelManager, &QmlProfilerModelManager::stateChanged,
-            this, &QmlProfilerTool::profilerDataModelStateChanged);
+    d->m_profilerModelManager->registerFeatures(0, QmlProfilerModelManager::QmlEventLoader(),
+                                                std::bind(&QmlProfilerTool::initialize, this),
+                                                std::bind(&QmlProfilerTool::finalize, this),
+                                                std::bind(&QmlProfilerTool::clear, this));
+
     connect(d->m_profilerModelManager, &QmlProfilerModelManager::error,
             this, &QmlProfilerTool::showErrorDialog);
     connect(d->m_profilerModelManager, &QmlProfilerModelManager::availableFeaturesChanged,
@@ -305,21 +308,6 @@ QmlProfilerTool::QmlProfilerTool()
         d->m_recordButton->setToolTip(recording ? tr("Disable Profiling") : tr("Enable Profiling"));
         d->m_recordButton->setIcon(recording ? recordOn : recordOff);
         d->m_recordButton->setChecked(recording);
-
-        switch (d->m_profilerModelManager->state()) {
-        case QmlProfilerModelManager::Empty:
-        case QmlProfilerModelManager::AcquiringData:
-        case QmlProfilerModelManager::Done:
-            // Don't change the recording button if the application cannot react to it.
-            d->m_recordButton->setEnabled(d->m_profilerState->currentState()
-                                          != QmlProfilerStateManager::AppStopRequested
-                                          && d->m_profilerState->currentState()
-                                          != QmlProfilerStateManager::AppDying);
-            break;
-        case QmlProfilerModelManager::ClearingData:
-            d->m_recordButton->setEnabled(false);
-            break;
-        }
     };
 
     connect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
@@ -327,8 +315,6 @@ QmlProfilerTool::QmlProfilerTool()
     connect(d->m_profilerState, &QmlProfilerStateManager::serverRecordingChanged,
             d->m_recordButton, updateRecordButton);
     connect(d->m_profilerState, &QmlProfilerStateManager::clientRecordingChanged,
-            d->m_recordButton, updateRecordButton);
-    connect(d->m_profilerModelManager, &QmlProfilerModelManager::stateChanged,
             d->m_recordButton, updateRecordButton);
     updateRecordButton();
 }
@@ -434,11 +420,9 @@ void QmlProfilerTool::recordingButtonChanged(bool recording)
 {
     // clientRecording is our intention for new sessions. That may differ from the state of the
     // current session, as indicated by the button. To synchronize it, toggle once.
-
     if (recording && d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning) {
         if (checkForUnsavedNotes()) {
-            if (!d->m_profilerModelManager->aggregateTraces() ||
-                    d->m_profilerModelManager->state() == QmlProfilerModelManager::Done)
+            if (!d->m_profilerModelManager->aggregateTraces())
                 clearEvents(); // clear before the recording starts, unless we aggregate recordings
             if (d->m_profilerState->clientRecording())
                 d->m_profilerState->setClientRecording(false);
@@ -485,8 +469,7 @@ void QmlProfilerTool::updateTimeDisplay()
         }
         Q_FALLTHROUGH();
     case QmlProfilerStateManager::Idle:
-        if (d->m_profilerModelManager->state() != QmlProfilerModelManager::Empty &&
-               d->m_profilerModelManager->state() != QmlProfilerModelManager::ClearingData)
+        if (d->m_profilerModelManager->traceDuration() > 0)
             seconds = d->m_profilerModelManager->traceDuration() / 1.0e9;
         break;
     }
@@ -735,7 +718,7 @@ void QmlProfilerTool::restoreFeatureVisibility()
 
 void QmlProfilerTool::clientsDisconnected()
 {
-    if (d->m_profilerModelManager->state() == QmlProfilerModelManager::AcquiringData) {
+    if (d->m_toolBusy) {
         if (d->m_profilerModelManager->aggregateTraces()) {
             d->m_profilerModelManager->finalize();
         } else {
@@ -802,28 +785,27 @@ void QmlProfilerTool::setRecordedFeatures(quint64 features)
         action->setEnabled(features & (1ULL << action->data().toUInt()));
 }
 
-void QmlProfilerTool::profilerDataModelStateChanged()
+void QmlProfilerTool::initialize()
 {
-    switch (d->m_profilerModelManager->state()) {
-    case QmlProfilerModelManager::Empty :
-        setButtonsEnabled(true);
-        break;
-    case QmlProfilerModelManager::ClearingData :
-        clearTextMarks();
-        setButtonsEnabled(false);
-        clearDisplay();
-        break;
-    case QmlProfilerModelManager::AcquiringData :
-        restoreFeatureVisibility();
-        setButtonsEnabled(false);            // Other buttons disabled
-        break;
-    case QmlProfilerModelManager::Done :
-        showSaveOption();
-        updateTimeDisplay();
-        setButtonsEnabled(true);
-        createTextMarks();
-        break;
-    }
+    restoreFeatureVisibility();
+    setButtonsEnabled(false);            // Other buttons disabled
+}
+
+void QmlProfilerTool::finalize()
+{
+    showSaveOption();
+    updateTimeDisplay();
+    createTextMarks();
+    setButtonsEnabled(true);
+    d->m_recordButton->setEnabled(true);
+}
+
+void QmlProfilerTool::clear()
+{
+    clearTextMarks();
+    clearDisplay();
+    setButtonsEnabled(true);
+    d->m_recordButton->setEnabled(true);
 }
 
 QList <QAction *> QmlProfilerTool::profilerContextMenuActions()
@@ -913,8 +895,7 @@ void QmlProfilerTool::serverRecordingChanged()
 
             d->m_recordingTimer.start();
             d->m_recordingElapsedTime.start();
-            if (!d->m_profilerModelManager->aggregateTraces() ||
-                    d->m_profilerModelManager->state() == QmlProfilerModelManager::Done)
+            if (!d->m_profilerModelManager->aggregateTraces())
                 clearEvents();
             d->m_profilerModelManager->initialize();
         } else {
