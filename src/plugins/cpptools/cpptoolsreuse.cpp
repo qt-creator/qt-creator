@@ -195,6 +195,12 @@ bool isQtKeyword(const QStringRef &text)
     return false;
 }
 
+void autoIncludeHeader()
+{
+  auto header = identifierUnderCursor();
+  
+}
+  
 void switchHeaderSource()
 {
     const Core::IDocument *currentDocument = Core::EditorManager::currentDocument();
