@@ -180,6 +180,13 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     // Actions
     Context context(CppEditor::Constants::CPPEDITOR_ID);
 
+     QAction *autoIncludeAction = new QAction(tr("Include text under cursor"), this);
+    Command *includeCommand = ActionManager::registerAction(autoIncludeAction, Constants::AUTO_INCLUD_UNDER_CURSOR, context, true);
+    //includeCommand->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
+    mcpptools->addAction(includeCommand);
+    connect(autoIncludeAction, &QAction::triggered,
+            this, &CppToolsPlugin::autoIncludeAction);
+    
     QAction *switchAction = new QAction(tr("Switch Header/Source"), this);
     Command *command = ActionManager::registerAction(switchAction, Constants::SWITCH_HEADER_SOURCE, context, true);
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
