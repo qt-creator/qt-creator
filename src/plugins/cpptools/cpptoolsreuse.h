@@ -70,7 +70,10 @@ enum class CacheUsage { ReadWrite, ReadOnly };
 
 QString CPPTOOLS_EXPORT correspondingHeaderOrSource(const QString &fileName, bool *wasHeader = 0,
                                                     CacheUsage cacheUsage = CacheUsage::ReadWrite);
+void CPPTOOLS_EXPORT autoIncludeHeader();
+  
 void CPPTOOLS_EXPORT switchHeaderSource();
+
 
 class CppCodeModelSettings;
 QSharedPointer<CppCodeModelSettings> CPPTOOLS_EXPORT codeModelSettings();
