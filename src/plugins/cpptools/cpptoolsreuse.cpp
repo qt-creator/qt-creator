@@ -198,7 +198,9 @@ bool isQtKeyword(const QStringRef &text)
 void autoIncludeHeader()
 {
   auto header = identifierUnderCursor();
-  
+  // include header in first line of document
+  const Core::IDocument *currentDocument = Core::EditorManager::currentDocument();
+  //...
 }
   
 void switchHeaderSource()
