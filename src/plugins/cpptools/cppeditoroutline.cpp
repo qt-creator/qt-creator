@@ -109,10 +109,9 @@ CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
     // Set up combo box
     m_combo->setModel(m_proxyModel);
 
-    m_combo->setMinimumContentsLength(22);
+    m_combo->setMinimumContentsLength(13);
     QSizePolicy policy = m_combo->sizePolicy();
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
-    policy.setHorizontalStretch(2);
     m_combo->setSizePolicy(policy);
     m_combo->setMaxVisibleItems(40);
 

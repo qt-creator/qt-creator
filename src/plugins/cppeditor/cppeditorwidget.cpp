@@ -220,9 +220,6 @@ void CppEditorWidget::finalizeInitialization()
         d->m_cppSelectionChanger.onCursorPositionChanged(textCursor());
     });
 
-    // Toolbar: Outline/Overview combo box
-    insertExtraToolBarWidget(TextEditorWidget::Left, d->m_cppEditorOutline->widget());
-
     // Toolbar: Parse context
     ParseContextModel &parseContextModel = cppEditorDocument()->parseContextModel();
     d->m_parseContextWidget = new ParseContextWidget(parseContextModel, this);
@@ -233,6 +230,10 @@ void CppEditorWidget::finalizeInitialization()
             this, [this](bool areMultipleAvailable) {
         d->m_parseContextAction->setVisible(areMultipleAvailable);
     });
+
+    // Toolbar: Outline/Overview combo box
+    insertExtraToolBarWidget(TextEditorWidget::Left, d->m_cppEditorOutline->widget());
+
     // clang-format on
     // Toolbar: '#' Button
     // TODO: Make "Additional Preprocessor Directives" also useful with Clang Code Model.

@@ -607,11 +607,11 @@ public:
 
 public:
     TextEditorWidget *q;
+    QWidget *m_toolBarWidget = nullptr;
     QToolBar *m_toolBar = nullptr;
     QWidget *m_stretchWidget = nullptr;
     LineColumnLabel *m_cursorPositionLabel = nullptr;
     FixedSizeClickLabel *m_fileEncodingLabel = nullptr;
-    QAction *m_cursorPositionLabelAction = nullptr;
     QAction *m_fileEncodingLabelAction = nullptr;
 
     bool m_contentsChanged = false;
@@ -799,21 +799,27 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_extraArea = new TextEditExtraArea(q);
     m_extraArea->setMouseTracking(true);
 
+    auto toolBarLayout = new QHBoxLayout;
+    toolBarLayout->setContentsMargins(0, 0, 0, 0);
+    toolBarLayout->setSpacing(0);
+    m_toolBarWidget = new QWidget;
+    m_toolBarWidget->setLayout(toolBarLayout);
     m_stretchWidget = new QWidget;
     m_stretchWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_toolBar = new QToolBar;
     m_toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
     m_toolBar->addWidget(m_stretchWidget);
+    m_toolBarWidget->layout()->addWidget(m_toolBar);
 
     m_cursorPositionLabel = new LineColumnLabel(q);
     const int spacing = q->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) / 2;
     m_cursorPositionLabel->setContentsMargins(spacing, 0, spacing, 0);
+    m_toolBarWidget->layout()->addWidget(m_cursorPositionLabel);
 
     m_fileEncodingLabel = new FixedSizeClickLabel;
     m_fileEncodingLabel->setContentsMargins(spacing, 0, spacing, 0);
-
-    m_cursorPositionLabelAction = m_toolBar->addWidget(m_cursorPositionLabel);
     m_fileEncodingLabelAction = m_toolBar->addWidget(m_fileEncodingLabel);
+
     m_extraSelections.reserve(NExtraSelectionKinds);
 }
 
@@ -822,7 +828,7 @@ TextEditorWidgetPrivate::~TextEditorWidgetPrivate()
     QObject::disconnect(m_document.data(), &TextDocument::markRemoved,
                         this, &TextEditorWidgetPrivate::markRemoved);
     q->disconnect(this);
-    delete m_toolBar;
+    delete m_toolBarWidget;
     delete m_highlightScrollBarController;
 }
 
@@ -7808,7 +7814,7 @@ IDocument *BaseTextEditor::document()
 
 QWidget *BaseTextEditor::toolBar()
 {
-    return editorWidget()->d->m_toolBar;
+    return editorWidget()->d->m_toolBarWidget;
 }
 
 QAction * TextEditorWidget::insertExtraToolBarWidget(TextEditorWidget::Side side,
@@ -7821,7 +7827,7 @@ QAction * TextEditorWidget::insertExtraToolBarWidget(TextEditorWidget::Side side
     }
 
     if (side == Right)
-        return d->m_toolBar->insertWidget(d->m_cursorPositionLabelAction, widget);
+        return d->m_toolBar->insertWidget(d->m_fileEncodingLabelAction, widget);
     else
         return d->m_toolBar->insertWidget(d->m_toolBar->actions().constFirst(), widget);
 }
