@@ -461,29 +461,9 @@ ExecutableAspect::ExecutableAspect(RunConfiguration *rc)
 
 void ExecutableAspect::setExecutablePathStyle(OsType osType)
 {
-    if (osType == OsTypeWindows) {
-        // Stolen from QDir::toNativeSeparators which cannot be used directly as it
-        // depends on host type, whereas we need a configurable value here.
-        m_executable.setDisplayFilter([&](const QString &pathName) {
-            int i = pathName.indexOf(QLatin1Char('/'));
-            if (i != -1) {
-                QString n(pathName);
-
-                QChar * const data = n.data();
-                data[i++] = QLatin1Char('\\');
-
-                for (; i < n.length(); ++i) {
-                    if (data[i] == QLatin1Char('/'))
-                        data[i] = QLatin1Char('\\');
-                }
-
-                return n;
-            }
-            return pathName;
-        });
-    } else {
-        m_executable.setDisplayFilter({});
-    }
+    m_executable.setDisplayFilter([osType](const QString &pathName) {
+        return OsSpecificAspects(osType).pathWithNativeSeparators(pathName);
+    });
 }
 
 void ExecutableAspect::makeOverridable(const QString &overridingKey, const QString &useOverridableKey)

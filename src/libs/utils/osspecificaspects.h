@@ -29,6 +29,8 @@
 
 #include <QString>
 
+#include <algorithm>
+
 #define QTC_WIN_EXE_SUFFIX ".exe"
 
 namespace Utils {
@@ -58,6 +60,18 @@ public:
 
     Qt::KeyboardModifier controlModifier() const {
         return m_osType == OsTypeMac ? Qt::MetaModifier : Qt::ControlModifier;
+    }
+
+    QString pathWithNativeSeparators(const QString &pathName) const {
+        if (m_osType == OsTypeWindows) {
+            const int pos = pathName.indexOf('/');
+            if (pos >= 0) {
+                QString n = pathName;
+                std::replace(std::begin(n) + pos, std::end(n), '/', '\\');
+                return n;
+            }
+        }
+        return pathName;
     }
 
 private:
