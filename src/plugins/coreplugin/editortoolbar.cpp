@@ -410,7 +410,7 @@ void EditorToolBar::updateDocumentStatus(IDocument *document)
 
     const Utils::optional<int> index = DocumentModel::rowOfDocument(document);
     if (QTC_GUARD(index))
-        d->m_editorList->setCurrentIndex(index.value());
+        d->m_editorList->setCurrentIndex(*index);
 
     if (document->filePath().isEmpty()) {
         d->m_lockButton->setIcon(QIcon());
