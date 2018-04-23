@@ -325,13 +325,13 @@ void Environment::prependOrSet(const QString&key, const QString &value, const QS
 void Environment::appendOrSetPath(const QString &value)
 {
     appendOrSet("PATH", QDir::toNativeSeparators(value),
-                QString(OsSpecificAspects(m_osType).pathListSeparator()));
+                QString(OsSpecificAspects::pathListSeparator(m_osType)));
 }
 
 void Environment::prependOrSetPath(const QString &value)
 {
     prependOrSet("PATH", QDir::toNativeSeparators(value),
-            QString(OsSpecificAspects(m_osType).pathListSeparator()));
+            QString(OsSpecificAspects::pathListSeparator(m_osType)));
 }
 
 void Environment::prependOrSetLibrarySearchPath(const QString &value)
@@ -496,7 +496,7 @@ FileName Environment::searchInPath(const QString &executable,
 FileNameList Environment::path() const
 {
     const QStringList pathComponents = value("PATH")
-            .split(OsSpecificAspects(m_osType).pathListSeparator(), QString::SkipEmptyParts);
+            .split(OsSpecificAspects::pathListSeparator(m_osType), QString::SkipEmptyParts);
     return Utils::transform(pathComponents, &FileName::fromUserInput);
 }
 

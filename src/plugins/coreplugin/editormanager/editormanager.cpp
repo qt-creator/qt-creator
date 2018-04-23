@@ -978,7 +978,7 @@ void EditorManagerPrivate::saveSettings()
     qsettings->setValue(bigTextFileSizeLimitKey, d->m_bigFileSizeLimitInMB);
 
     Qt::CaseSensitivity defaultSensitivity
-            = OsSpecificAspects(HostOsInfo::hostOs()).fileNameCaseSensitivity();
+            = OsSpecificAspects::fileNameCaseSensitivity(HostOsInfo::hostOs());
     Qt::CaseSensitivity sensitivity = HostOsInfo::fileNameCaseSensitivity();
     if (defaultSensitivity == sensitivity)
         qsettings->remove(fileSystemCaseSensitivityKey);
@@ -997,7 +997,7 @@ void EditorManagerPrivate::readSettings()
 
     if (qs->contains(fileSystemCaseSensitivityKey)) {
         Qt::CaseSensitivity defaultSensitivity
-                = OsSpecificAspects(HostOsInfo::hostOs()).fileNameCaseSensitivity();
+                = OsSpecificAspects::fileNameCaseSensitivity(HostOsInfo::hostOs());
         bool ok = false;
         Qt::CaseSensitivity sensitivity = defaultSensitivity;
         int sensitivitySetting = qs->value(fileSystemCaseSensitivityKey).toInt(&ok);

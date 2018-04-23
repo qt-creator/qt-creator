@@ -462,7 +462,7 @@ ExecutableAspect::ExecutableAspect(RunConfiguration *rc)
 void ExecutableAspect::setExecutablePathStyle(OsType osType)
 {
     m_executable.setDisplayFilter([osType](const QString &pathName) {
-        return OsSpecificAspects(osType).pathWithNativeSeparators(pathName);
+        return OsSpecificAspects::pathWithNativeSeparators(osType, pathName);
     });
 }
 
