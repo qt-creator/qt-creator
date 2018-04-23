@@ -36,7 +36,7 @@ index 9f37c428ff..475c5f84c0 100644
 +extern volatile int ClazyPluginAnchorSource;
 +static int LLVM_ATTRIBUTE_UNUSED ClazyPluginAnchorDestination = ClazyPluginAnchorSource;
 diff --git a/tools/clang/tools/extra/clang-tidy/modernize/LoopConvertCheck.cpp b/tools/clang/tools/extra/clang-tidy/modernize/LoopConvertCheck.cpp
-index 54bf941f..49fabe9f 100644
+index ac0bceb1..305bd78a 100644
 --- a/tools/clang/tools/extra/clang-tidy/modernize/LoopConvertCheck.cpp
 +++ b/tools/clang/tools/extra/clang-tidy/modernize/LoopConvertCheck.cpp
 @@ -44,9 +44,6 @@ static const char EndVarName[] = "endVar";
@@ -58,3 +58,72 @@ index 54bf941f..49fabe9f 100644
    return forStmt(
               unless(isInTemplateInstantiation()),
               hasLoopInit(anyOf(declStmt(declCountIs(2),
+diff --git a/tools/clang/tools/extra/clang-tidy/plugin/CMakeLists.txt b/tools/clang/tools/extra/clang-tidy/plugin/CMakeLists.txt
+index 5c888327..832e2090 100644
+--- a/tools/clang/tools/extra/clang-tidy/plugin/CMakeLists.txt
++++ b/tools/clang/tools/extra/clang-tidy/plugin/CMakeLists.txt
+@@ -10,9 +10,11 @@ add_clang_library(clangTidyPlugin
+   clangTidy
+   clangTidyAndroidModule
+   clangTidyBoostModule
++  clangTidyBugproneModule
+   clangTidyCERTModule
+   clangTidyCppCoreGuidelinesModule
+   clangTidyGoogleModule
++  clangTidyHICPPModule
+   clangTidyLLVMModule
+   clangTidyMiscModule
+   clangTidyModernizeModule
+diff --git a/tools/clang/tools/extra/clang-tidy/plugin/ClangTidyPlugin.cpp b/tools/clang/tools/extra/clang-tidy/plugin/ClangTidyPlugin.cpp
+index 1e6346c2..7028c40c 100644
+--- a/tools/clang/tools/extra/clang-tidy/plugin/ClangTidyPlugin.cpp
++++ b/tools/clang/tools/extra/clang-tidy/plugin/ClangTidyPlugin.cpp
+@@ -83,6 +83,16 @@ extern volatile int CERTModuleAnchorSource;
+ static int LLVM_ATTRIBUTE_UNUSED CERTModuleAnchorDestination =
+     CERTModuleAnchorSource;
+ 
++// This anchor is used to force the linker to link the BoostModule.
++extern volatile int BoostModuleAnchorSource;
++static int LLVM_ATTRIBUTE_UNUSED BoostModuleAnchorDestination =
++    BoostModuleAnchorSource;
++
++// This anchor is used to force the linker to link the BugproneModule.
++extern volatile int BugproneModuleAnchorSource;
++static int LLVM_ATTRIBUTE_UNUSED BugproneModuleAnchorDestination =
++    BugproneModuleAnchorSource;
++
+ // This anchor is used to force the linker to link the LLVMModule.
+ extern volatile int LLVMModuleAnchorSource;
+ static int LLVM_ATTRIBUTE_UNUSED LLVMModuleAnchorDestination =
+@@ -98,6 +108,11 @@ extern volatile int GoogleModuleAnchorSource;
+ static int LLVM_ATTRIBUTE_UNUSED GoogleModuleAnchorDestination =
+     GoogleModuleAnchorSource;
+ 
++// This anchor is used to force the linker to link the AndroidModule.
++extern volatile int AndroidModuleAnchorSource;
++static int LLVM_ATTRIBUTE_UNUSED AndroidModuleAnchorDestination =
++    AndroidModuleAnchorSource;
++
+ // This anchor is used to force the linker to link the MiscModule.
+ extern volatile int MiscModuleAnchorSource;
+ static int LLVM_ATTRIBUTE_UNUSED MiscModuleAnchorDestination =
+@@ -111,7 +126,7 @@ static int LLVM_ATTRIBUTE_UNUSED ModernizeModuleAnchorDestination =
+ // This anchor is used to force the linker to link the MPIModule.
+ extern volatile int MPIModuleAnchorSource;
+ static int LLVM_ATTRIBUTE_UNUSED MPIModuleAnchorDestination =
+-  MPIModuleAnchorSource;
++    MPIModuleAnchorSource;
+ 
+ // This anchor is used to force the linker to link the PerformanceModule.
+ extern volatile int PerformanceModuleAnchorSource;
+@@ -123,5 +138,10 @@ extern volatile int ReadabilityModuleAnchorSource;
+ static int LLVM_ATTRIBUTE_UNUSED ReadabilityModuleAnchorDestination =
+     ReadabilityModuleAnchorSource;
+ 
++// This anchor is used to force the linker to link the HICPPModule.
++extern volatile int HICPPModuleAnchorSource;
++static int LLVM_ATTRIBUTE_UNUSED HICPPModuleAnchorDestination =
++    HICPPModuleAnchorSource;
++
+ } // namespace tidy
+ } // namespace clang
