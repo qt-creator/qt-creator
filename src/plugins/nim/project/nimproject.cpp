@@ -158,8 +158,10 @@ QList<Task> NimProject::projectIssues(const Kit *k) const
 {
     QList<Task> result = Project::projectIssues(k);
     auto tc = dynamic_cast<NimToolChain*>(ToolChainKitInformation::toolChain(k, Constants::C_NIMLANGUAGE_ID));
-    if (!tc)
+    if (!tc) {
         result.append(createProjectTask(Task::TaskType::Error, tr("No Nim compiler set.")));
+        return result;
+    }
     if (!tc->compilerCommand().exists())
         result.append(createProjectTask(Task::TaskType::Error, tr("Nim compiler does not exist.")));
 
