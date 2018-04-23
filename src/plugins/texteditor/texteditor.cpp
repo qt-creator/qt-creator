@@ -1051,8 +1051,8 @@ static void printPage(int index, QPainter *painter, const QTextDocument *doc,
     const QRectF box = titleBox.translated(0, view.top());
     const int dpix = painter->device()->logicalDpiX();
     const int dpiy = painter->device()->logicalDpiY();
-    const int mx = 5 * dpix / 72.0;
-    const int my = 2 * dpiy / 72.0;
+    const int mx = int(5 * dpix / 72.0);
+    const int my = int(2 * dpiy / 72.0);
     painter->fillRect(box.adjusted(-mx, -my, mx, my), QColor(210, 210, 210));
     if (!title.isEmpty())
         painter->drawText(box, Qt::AlignCenter, title);
@@ -1128,7 +1128,7 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
     layout->setPaintDevice(p.device());
 
     int dpiy = p.device()->logicalDpiY();
-    int margin = (int) ((2/2.54)*dpiy); // 2 cm margins
+    int margin = int((2/2.54)*dpiy); // 2 cm margins
 
     QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
     fmt.setMargin(margin);
@@ -3601,7 +3601,7 @@ QRect TextEditorWidgetPrivate::foldBox()
     return QRect(m_extraArea->width() - foldBoxWidth(q->fontMetrics()),
                  int(br.top()),
                  foldBoxWidth(q->fontMetrics()),
-                 er.bottom() - br.top());
+                 int(er.bottom() - br.top()));
 }
 
 QTextBlock TextEditorWidgetPrivate::foldedBlockAt(const QPoint &pos, QRect *box) const
@@ -4878,7 +4878,7 @@ void TextEditorWidget::drawCollapsedBlockPopup(QPainter &painter,
     if (!block.isValid())
         return;
 
-    int margin = block.document()->documentMargin();
+    int margin = int(block.document()->documentMargin());
     qreal maxWidth = 0;
     qreal blockHeight = 0;
     QTextBlock b = block;
@@ -5683,7 +5683,7 @@ void TextEditorWidget::extraAreaLeaveEvent(QEvent *)
     ToolTip::hide();
 
     // fake missing mouse move event from Qt
-    QMouseEvent me(QEvent::MouseMove, QPoint(-1, -1), Qt::NoButton, 0, 0);
+    QMouseEvent me(QEvent::MouseMove, QPoint(-1, -1), Qt::NoButton, nullptr, nullptr);
     extraAreaMouseEvent(&me);
 }
 
@@ -6113,9 +6113,9 @@ void TextEditorWidget::wheelEvent(QWheelEvent *e)
             return;
         }
 
-        const float delta = e->angleDelta().y() / 120.f;
-        if (delta != 0)
-            zoomF(delta);
+        const int deltaY = e->angleDelta().y();
+        if (deltaY != 0)
+            zoomF(deltaY / 120.f);
         return;
     }
     QPlainTextEdit::wheelEvent(e);
@@ -6301,13 +6301,13 @@ void TextEditorWidgetPrivate::adjustScrollBarRanges()
 {
     if (!m_highlightScrollBarController)
         return;
-    const float lineSpacing = QFontMetricsF(q->font()).lineSpacing();
+    const double lineSpacing = QFontMetricsF(q->font()).lineSpacing();
     if (lineSpacing == 0)
         return;
 
-    const float offset = q->contentOffset().y();
-    m_highlightScrollBarController->setVisibleRange((q->viewport()->rect().height() - offset) / lineSpacing);
-    m_highlightScrollBarController->setRangeOffset(offset / lineSpacing);
+    const double offset = q->contentOffset().y();
+    m_highlightScrollBarController->setVisibleRange(float((q->viewport()->rect().height() - offset) / lineSpacing));
+    m_highlightScrollBarController->setRangeOffset(float(offset / lineSpacing));
 }
 
 void TextEditorWidgetPrivate::highlightSearchResultsInScrollBar()
@@ -7823,7 +7823,7 @@ QAction * TextEditorWidget::insertExtraToolBarWidget(TextEditorWidget::Side side
     if (side == Right)
         return d->m_toolBar->insertWidget(d->m_cursorPositionLabelAction, widget);
     else
-        return d->m_toolBar->insertWidget(d->m_toolBar->actions().first(), widget);
+        return d->m_toolBar->insertWidget(d->m_toolBar->actions().constFirst(), widget);
 }
 
 void TextEditorWidget::keepAutoCompletionHighlight(bool keepHighlight)
@@ -8132,7 +8132,7 @@ void TextEditorWidgetPrivate::updateTabStops()
 int TextEditorWidget::columnCount() const
 {
     QFontMetricsF fm(font());
-    return viewport()->rect().width() / fm.width(QLatin1Char('x'));
+    return int(viewport()->rect().width() / fm.width(QLatin1Char('x')));
 }
 
 int TextEditorWidget::rowCount() const
