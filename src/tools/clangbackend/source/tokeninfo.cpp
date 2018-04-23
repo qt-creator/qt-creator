@@ -557,70 +557,129 @@ void TokenInfo::punctuationOrOperatorKind()
         m_types.mixinHighlightingTypes.push_back(HighlightingType::OutputArgument);
 }
 
-enum class PropertyPart
+enum class QtMacroPart
 {
     None,
+    SignalFunction,
+    SignalType,
+    SlotFunction,
+    SlotType,
     Type,
     Property,
     Keyword,
     FunctionOrPrimitiveType
 };
 
-static PropertyPart propertyPart(CXTranslationUnit tu, CXToken *token)
+static bool isFirstTokenOfCursor(const Cursor &cursor, CXToken *token)
+{
+    const CXTranslationUnit cxTranslationUnit = cursor.cxTranslationUnit();
+    const SourceLocation tokenLocation = SourceLocation(cxTranslationUnit,
+                                                        clang_getTokenLocation(cxTranslationUnit,
+                                                                               *token));
+    return cursor.sourceLocation() == tokenLocation;
+}
+
+static bool isLastTokenOfCursor(const Cursor &cursor, CXToken *token)
+{
+    const CXTranslationUnit cxTranslationUnit = cursor.cxTranslationUnit();
+    const SourceLocation tokenLocation = SourceLocation(cxTranslationUnit,
+                                                        clang_getTokenLocation(cxTranslationUnit,
+                                                                               *token));
+    return cursor.sourceRange().end() == tokenLocation;
+}
+
+static bool isValidMacroToken(const Cursor &cursor, CXToken *token)
+{
+    // Proper macro token has at least '(' and ')' around it.
+    return !isFirstTokenOfCursor(cursor, token) && !isLastTokenOfCursor(cursor, token);
+}
+
+static QtMacroPart propertyPart(CXTranslationUnit cxTranslationUnit, CXToken *token)
 {
     static constexpr const char *propertyKeywords[]
             = {"READ", "WRITE", "MEMBER", "RESET", "NOTIFY", "REVISION", "DESIGNABLE",
                "SCRIPTABLE", "STORED", "USER", "CONSTANT", "FINAL"
               };
-    CXSourceLocation location = clang_getTokenLocation(tu, *token);
 
-    // If current token is inside Q_PROPERTY then the cursor from token's position will be
-    // the whole Q_PROPERTY macro cursor.
-    Cursor possibleQPropertyCursor = clang_getCursor(tu, location);
-    if (!(possibleQPropertyCursor.spelling() == "Q_PROPERTY"))
-        return PropertyPart::None;
-
-    const ClangString currentToken = clang_getTokenSpelling(tu, *token);
+    const ClangString currentToken = clang_getTokenSpelling(cxTranslationUnit, *token);
     if (std::find(std::begin(propertyKeywords), std::end(propertyKeywords), currentToken)
             != std::end(propertyKeywords)) {
-        return PropertyPart::Keyword;
+        return QtMacroPart::Keyword;
     }
 
-    const ClangString nextToken = clang_getTokenSpelling(tu, *(token + 1));
-    const ClangString previousToken = clang_getTokenSpelling(tu, *(token - 1));
+    const ClangString nextToken = clang_getTokenSpelling(cxTranslationUnit, *(token + 1));
+    const ClangString previousToken = clang_getTokenSpelling(cxTranslationUnit, *(token - 1));
     if (std::find(std::begin(propertyKeywords), std::end(propertyKeywords), nextToken)
             != std::end(propertyKeywords)) {
         if (std::find(std::begin(propertyKeywords), std::end(propertyKeywords), previousToken)
                 == std::end(propertyKeywords)) {
-            return PropertyPart::Property;
+            return QtMacroPart::Property;
         }
 
-        return PropertyPart::FunctionOrPrimitiveType;
+        return QtMacroPart::FunctionOrPrimitiveType;
     }
 
     if (std::find(std::begin(propertyKeywords), std::end(propertyKeywords), previousToken)
             != std::end(propertyKeywords)) {
-        return PropertyPart::FunctionOrPrimitiveType;
+        return QtMacroPart::FunctionOrPrimitiveType;
     }
-    return PropertyPart::Type;
+    return QtMacroPart::Type;
+}
+
+static QtMacroPart signalSlotPart(CXTranslationUnit cxTranslationUnit, CXToken *token, bool signal)
+{
+    // We are inside macro so current token has at least '(' and macro name before it.
+    const ClangString prevToken = clang_getTokenSpelling(cxTranslationUnit, *(token - 2));
+    if (signal)
+        return (prevToken == "SIGNAL") ? QtMacroPart::SignalFunction : QtMacroPart::SignalType;
+    return (prevToken == "SLOT") ? QtMacroPart::SlotFunction : QtMacroPart::SlotType;
+}
+
+static QtMacroPart qtMacroPart(CXTranslationUnit cxTranslationUnit, CXToken *token)
+{
+    CXSourceLocation location = clang_getTokenLocation(cxTranslationUnit, *token);
+
+    // If current token is inside macro then the cursor from token's position will be
+    // the whole macro cursor.
+    Cursor possibleQtMacroCursor = clang_getCursor(cxTranslationUnit, location);
+    if (!isValidMacroToken(possibleQtMacroCursor, token))
+        return QtMacroPart::None;
+
+    ClangString spelling = possibleQtMacroCursor.spelling();
+    if (spelling == "Q_PROPERTY")
+        return propertyPart(cxTranslationUnit, token);
+
+    if (spelling == "SIGNAL")
+        return signalSlotPart(cxTranslationUnit, token, true);
+    if (spelling == "SLOT")
+        return signalSlotPart(cxTranslationUnit, token, false);
+    return QtMacroPart::None;
 }
 
 void TokenInfo::invalidFileKind()
 {
-    const PropertyPart propPart = propertyPart(m_cxTranslationUnit, m_cxToken);
+    const QtMacroPart macroPart = qtMacroPart(m_cxTranslationUnit, m_cxToken);
 
-    switch (propPart) {
-    case PropertyPart::None:
-    case PropertyPart::Keyword:
+    switch (macroPart) {
+    case QtMacroPart::None:
+    case QtMacroPart::Keyword:
         m_types.mainHighlightingType = HighlightingType::Invalid;
         return;
-    case PropertyPart::Property:
+    case QtMacroPart::SignalFunction:
+    case QtMacroPart::SlotFunction:
+        m_types.mainHighlightingType = HighlightingType::Function;
+        break;
+    case QtMacroPart::SignalType:
+    case QtMacroPart::SlotType:
+        m_types.mainHighlightingType = HighlightingType::Type;
+        break;
+    case QtMacroPart::Property:
         m_types.mainHighlightingType = HighlightingType::QtProperty;
         return;
-    case PropertyPart::Type:
+    case QtMacroPart::Type:
         m_types.mainHighlightingType = HighlightingType::Type;
         return;
-    case PropertyPart::FunctionOrPrimitiveType:
+    case QtMacroPart::FunctionOrPrimitiveType:
         m_types.mainHighlightingType = HighlightingType::Function;
         return;
     }

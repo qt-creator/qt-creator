@@ -61,6 +61,9 @@
 // static_assert can be found as a class child but does not add extra AST nodes for completion
 #define Q_PROPERTY(arg) static_assert("Q_PROPERTY", #arg);
 
+#define SIGNAL(arg) #arg
+#define SLOT(arg) #arg
+
 #pragma clang diagnostic pop
 
 #endif // WRAPPED_QOBJECT_DEFS_H

@@ -127,11 +127,6 @@ SourceLocation::SourceLocation(CXTranslationUnit cxTranslationUnit,
     clang_getFileLocation(cxSourceLocation, 0, 0, 0, &offset_);
 }
 
-bool operator==(const SourceLocation &first, const SourceLocation &second)
-{
-    return clang_equalLocations(first.cxSourceLocation, second.cxSourceLocation);
-}
-
 SourceLocation::operator CXSourceLocation() const
 {
     return cxSourceLocation;

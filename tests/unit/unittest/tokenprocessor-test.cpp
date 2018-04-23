@@ -1535,6 +1535,7 @@ TEST_F(TokenProcessor, QtPropertyName)
 {
     const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(599, 103));
 
+    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::PreprocessorExpansion));
     ASSERT_THAT(infos[8], HasOnlyType(HighlightingType::QtProperty));
 }
 
@@ -1612,6 +1613,35 @@ TEST_F(TokenProcessor, LexicalParentIndex)
                 translationUnit.sourceRange(50, 1, 53, 3)).toTokenInfoContainers();
 
     ASSERT_THAT(containers[3].extraInfo.lexicalParentIndex, 1);
+}
+
+TEST_F(TokenProcessor, QtOldStyleSignal)
+{
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(672, 32));
+
+    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::PreprocessorExpansion));
+    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Function));
+    ASSERT_THAT(infos[4], HasOnlyType(HighlightingType::Type));
+}
+
+TEST_F(TokenProcessor, QtOldStyleSlot)
+{
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(673, 30));
+
+    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::PreprocessorExpansion));
+    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Function));
+    ASSERT_THAT(infos[4], HasOnlyType(HighlightingType::Type));
+}
+
+TEST_F(TokenProcessor, QtOldStyleSignalFunctionPointerType)
+{
+    const auto infos = translationUnit.fullTokenInfosInRange(sourceRange(674, 50));
+
+    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::PreprocessorExpansion));
+    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Function));
+    ASSERT_THAT(infos[4], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[7], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[10], HasOnlyType(HighlightingType::Type));
 }
 
 Data *TokenProcessor::d;

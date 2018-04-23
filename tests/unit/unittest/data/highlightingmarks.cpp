@@ -663,3 +663,13 @@ void TryOverloadedOperators2(Dummy object)
     *dummy2;
     dummy2 = 3;
 }
+
+int OperatorTest() {
+    return 1 < 2 ? 20 : 30;
+}
+
+int signalSlotTest() {
+    SIGNAL(something(QString));
+    SLOT(something(QString));
+    SIGNAL(something(QString (*func1)(QString)));
+}
