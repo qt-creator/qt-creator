@@ -51,10 +51,14 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
     if (cursorFuture.isCanceled())
         return defaultCallback();
 
-    QObject::connect(&m_watcher, &FutureCursorWatcher::finished, [=]() {
-        if (m_watcher.isCanceled())
+    if (m_watcher)
+        m_watcher->cancel();
+
+    m_watcher.reset(new FutureCursorWatcher());
+    QObject::connect(m_watcher.get(), &FutureCursorWatcher::finished, [=]() {
+        if (m_watcher->isCanceled())
             return defaultCallback();
-        const CppTools::CursorInfo info = m_watcher.result();
+        const CppTools::CursorInfo info = m_watcher->result();
         if (info.useRanges.empty())
             return defaultCallback();
 
@@ -72,7 +76,7 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
         renameSymbolsCallback(symbolName, container, data.cursor().document()->revision());
     });
 
-    m_watcher.setFuture(cursorFuture);
+    m_watcher->setFuture(cursorFuture);
 }
 
 }
