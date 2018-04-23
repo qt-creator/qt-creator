@@ -35,3 +35,26 @@ index 9f37c428ff..475c5f84c0 100644
 +// This anchor is used to force the linker to link the clazy plugin.
 +extern volatile int ClazyPluginAnchorSource;
 +static int LLVM_ATTRIBUTE_UNUSED ClazyPluginAnchorDestination = ClazyPluginAnchorSource;
+diff --git a/tools/clang/tools/extra/clang-tidy/modernize/LoopConvertCheck.cpp b/tools/clang/tools/extra/clang-tidy/modernize/LoopConvertCheck.cpp
+index 54bf941f..49fabe9f 100644
+--- a/tools/clang/tools/extra/clang-tidy/modernize/LoopConvertCheck.cpp
++++ b/tools/clang/tools/extra/clang-tidy/modernize/LoopConvertCheck.cpp
+@@ -44,9 +44,6 @@ static const char EndVarName[] = "endVar";
+ static const char DerefByValueResultName[] = "derefByValueResult";
+ static const char DerefByRefResultName[] = "derefByRefResult";
+ 
+-// shared matchers
+-static const TypeMatcher AnyType = anything();
+-
+ static const StatementMatcher IntegerComparisonMatcher =
+     expr(ignoringParenImpCasts(
+         declRefExpr(to(varDecl(hasType(isInteger())).bind(ConditionVarName)))));
+@@ -173,6 +170,8 @@ StatementMatcher makeIteratorLoopMatcher() {
+                   qualType(unless(hasCanonicalType(rValueReferenceType())))
+                       .bind(DerefByRefResultName)))))));
+ 
++  static const TypeMatcher AnyType = anything();
++
+   return forStmt(
+              unless(isInTemplateInstantiation()),
+              hasLoopInit(anyOf(declStmt(declCountIs(2),
