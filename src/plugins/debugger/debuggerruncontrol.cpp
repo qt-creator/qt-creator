@@ -45,6 +45,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/runnables.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
@@ -825,8 +826,11 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
                 QString(), QString(), optionalPrompt);
     });
 
-    if (runConfig)
+    if (runConfig) {
         m_runParameters.displayName = runConfig->displayName();
+        if (auto symbolsAspect = runConfig->extraAspect<SymbolFileAspect>())
+            m_runParameters.symbolFile = symbolsAspect->value();
+    }
 
     if (runConfig && !kit)
         kit = runConfig->target()->kit();

@@ -48,10 +48,6 @@ LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
     setStartMode(AttachToRemoteServer);
     setCloseMode(KillAndExitMonitorAtClose);
     setUseExtendedRemote(true);
-
-    RunConfiguration *runConfig = runControl->runConfiguration();
-    if (auto aspect = runConfig->extraAspect<SymbolFileAspect>())
-        setSymbolFile(aspect->fileName().toString());
 }
 
 } // namespace Internal
