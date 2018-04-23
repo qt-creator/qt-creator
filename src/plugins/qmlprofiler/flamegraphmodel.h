@@ -110,7 +110,6 @@ private:
     FlameGraphData *m_compileStackTop;
 
     quint64 m_acceptedFeatures;
-    int m_modelId;
     QmlProfilerModelManager *m_modelManager;
 
     QSet<int> m_typeIdsWithNotes;
