@@ -72,7 +72,8 @@ SettingsPageProvider::SettingsPageProvider(QObject *parent)
     setCategory(Designer::Constants::SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Designer",
         Designer::Constants::SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(":/core/images/category_design.png"));
+    setCategoryIcon(Utils::Icon({{":/core/images/settingscategory_design.png",
+                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }
 
 QList<Core::IOptionsPage *> SettingsPageProvider::pages() const

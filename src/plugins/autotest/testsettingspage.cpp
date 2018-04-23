@@ -282,7 +282,8 @@ TestSettingsPage::TestSettingsPage(const QSharedPointer<TestSettings> &settings)
     setDisplayName(tr("General"));
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("AutoTest", Constants::AUTOTEST_SETTINGS_TR));
-    setCategoryIcon(Utils::Icon(":/autotest/images/autotest.png"));
+    setCategoryIcon(Utils::Icon({{":/autotest/images/settingscategory_autotest.png",
+                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }
 
 TestSettingsPage::~TestSettingsPage()

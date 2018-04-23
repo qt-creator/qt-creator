@@ -240,14 +240,12 @@ static KitOptionsPage *theKitOptionsPage = nullptr;
 KitOptionsPage::KitOptionsPage()
 {
     theKitOptionsPage = this;
-    static const Utils::Icon categoryIcon({{":/projectexplorer/images/mode_project_mask.png",
-                                            Utils::Theme::PanelTextColorDark}},
-                                          Utils::Icon::Tint);
     setId(Constants::KITS_SETTINGS_PAGE_ID);
     setDisplayName(tr("Kits"));
     setCategory(Constants::KITS_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer", "Kits"));
-    setCategoryIcon(categoryIcon);
+    setCategoryIcon(Utils::Icon({{":/projectexplorer/images/settingscategory_kits.png",
+                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }
 
 QWidget *KitOptionsPage::widget()

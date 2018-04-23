@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/autotest">
-        <file>images/autotest.png</file>
+        <file>images/settingscategory_autotest.png</file>
+        <file>images/settingscategory_autotest@2x.png</file>
         <file>images/sort.png</file>
         <file>images/sort@2x.png</file>
         <file>images/leafsort.png</file>

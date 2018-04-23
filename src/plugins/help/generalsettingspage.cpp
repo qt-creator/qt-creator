@@ -55,7 +55,8 @@ GeneralSettingsPage::GeneralSettingsPage()
     setDisplayName(tr("General"));
     setCategory(Help::Constants::HELP_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Help", "Help"));
-    setCategoryIcon(Utils::Icon(":/help/images/category_help.png"));
+    setCategoryIcon(Utils::Icon({{":/help/images/settingscategory_help.png",
+                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }
 
 QWidget *GeneralSettingsPage::widget()

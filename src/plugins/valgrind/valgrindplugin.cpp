@@ -40,6 +40,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <debugger/analyzer/analyzerrunconfigwidget.h>
+#include <debugger/analyzer/analyzericons.h>
 
 #include <projectexplorer/projectexplorer.h>
 
@@ -64,7 +65,7 @@ public:
         setDisplayName(QCoreApplication::translate("Valgrind::Internal::ValgrindOptionsPage", "Valgrind"));
         setCategory("T.Analyzer");
         setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
-        setCategoryIcon(Utils::Icon(":/images/analyzer_category.png"));
+        setCategoryIcon(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
     }
 
     QWidget *widget()

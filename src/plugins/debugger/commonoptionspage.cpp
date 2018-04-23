@@ -68,7 +68,8 @@ CommonOptionsPage::CommonOptionsPage(const QSharedPointer<GlobalDebuggerOptions>
     setDisplayName(QCoreApplication::translate("Debugger", "General"));
     setCategory(DEBUGGER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Debugger", "Debugger"));
-    setCategoryIcon(Icon(":/debugger/images/category_debug.png"));
+    setCategoryIcon(Utils::Icon({{":/debugger/images/settingscategory_debugger.png",
+                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }
 
 void CommonOptionsPage::apply()

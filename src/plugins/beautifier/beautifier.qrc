@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/beautifier">
-        <file>images/beautifier.png</file>
-        <file>images/beautifier@2x.png</file>
+        <file>images/settingscategory_beautifier.png</file>
+        <file>images/settingscategory_beautifier@2x.png</file>
     </qresource>
 </RCC>

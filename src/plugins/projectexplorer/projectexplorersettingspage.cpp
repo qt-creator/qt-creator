@@ -191,7 +191,8 @@ ProjectExplorerSettingsPage::ProjectExplorerSettingsPage()
     setDisplayName(tr("General"));
     setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer", "Build & Run"));
-    setCategoryIcon(Utils::Icon(":/projectexplorer/images/category_buildrun.png"));
+    setCategoryIcon(Utils::Icon({{":/projectexplorer/images/settingscategory_buildrun.png",
+                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }
 
 QWidget *ProjectExplorerSettingsPage::widget()

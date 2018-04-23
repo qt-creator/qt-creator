@@ -48,7 +48,8 @@ VcsBaseOptionsPage::VcsBaseOptionsPage(QObject *parent) : Core::IOptionsPage(par
 {
     setCategory(Constants::VCS_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("VcsBase", "Version Control"));
-    setCategoryIcon(Utils::Icon(":/vcsbase/images/category_vcs.png"));
+    setCategoryIcon(Utils::Icon({{":/vcsbase/images/settingscategory_vcs.png",
+                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }
 
 VcsBaseOptionsPage::~VcsBaseOptionsPage() = default;

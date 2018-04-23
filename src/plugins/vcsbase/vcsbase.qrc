@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/vcsbase">
-        <file>images/category_vcs.png</file>
+        <file>images/settingscategory_vcs.png</file>
+        <file>images/settingscategory_vcs@2x.png</file>
         <file>images/diff_arrows.png</file>
         <file>images/diff_arrows@2x.png</file>
         <file>images/diff_documents.png</file>

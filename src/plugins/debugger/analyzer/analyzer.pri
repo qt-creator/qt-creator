@@ -12,6 +12,7 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/analyzerconstants.h \
+    $$PWD/analyzericons.h \
     $$PWD/analyzermanager.h \
     $$PWD/analyzerrunconfigwidget.h \
     $$PWD/analyzerutils.h \

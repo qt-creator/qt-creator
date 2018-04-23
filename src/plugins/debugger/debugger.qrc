@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/debugger">
-        <file>images/category_debug.png</file>
+        <file>images/settingscategory_debugger.png</file>
+        <file>images/settingscategory_debugger@2x.png</file>
         <file>images/debugger_breakpoints.png</file>
         <file>images/debugger_continue.png</file>
         <file>images/debugger_continue@2x.png</file>

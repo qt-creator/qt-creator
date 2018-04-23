@@ -51,7 +51,8 @@ NimCodeStyleSettingsPage::NimCodeStyleSettingsPage(QWidget *parent)
     setDisplayName(tr(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_DISPLAY));
     setCategory(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_CATEGORY);
     setDisplayCategory(tr("Nim"));
-    setCategoryIcon(Utils::Icon(Nim::Constants::C_NIM_ICON_PATH));
+    setCategoryIcon(Utils::Icon({{":/nim/images/settingscategory_nim.png",
+                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }
 
 NimCodeStyleSettingsPage::~NimCodeStyleSettingsPage()

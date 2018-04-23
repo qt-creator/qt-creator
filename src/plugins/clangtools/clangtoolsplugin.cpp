@@ -36,6 +36,8 @@
 #include "clangstaticanalyzerunittests.h"
 #endif
 
+#include <debugger/analyzer/analyzericons.h>
+
 #include <utils/qtcassert.h>
 
 #include <coreplugin/icore.h>
@@ -74,7 +76,7 @@ public:
                            "Clang Static Analyzer"));
         setCategory("T.Analyzer");
         setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
-        setCategoryIcon(Utils::Icon(":/images/analyzer_category.png"));
+        setCategoryIcon(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
     }
 
     QWidget *widget()

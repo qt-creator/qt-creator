@@ -364,7 +364,8 @@ public:
         setDisplayName(Tr::tr("General"));
         setCategory(SETTINGS_CATEGORY);
         setDisplayCategory(Tr::tr("FakeVim"));
-        setCategoryIcon(Utils::Icon(":/fakevim/images/category_fakevim.png"));
+        setCategoryIcon(Utils::Icon({{":/fakevim/images/settingscategory_fakevim.png",
+                        Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
     }
 
     QWidget *widget();

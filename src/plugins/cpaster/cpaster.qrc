@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/cpaster">
-        <file>images/category_cpaster.png</file>
+        <file>images/settingscategory_cpaster.png</file>
+        <file>images/settingscategory_cpaster@2x.png</file>
     </qresource>
 </RCC>
