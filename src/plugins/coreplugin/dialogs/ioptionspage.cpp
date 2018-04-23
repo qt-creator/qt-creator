@@ -211,5 +211,5 @@ const QList<Core::IOptionsPageProvider *> Core::IOptionsPageProvider::allOptions
 
 QIcon Core::IOptionsPageProvider::categoryIcon() const
 {
-    return QIcon(m_categoryIcon);
+    return m_categoryIcon.icon();
 }

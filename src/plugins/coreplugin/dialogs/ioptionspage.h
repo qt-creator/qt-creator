@@ -105,11 +105,11 @@ public:
 protected:
     void setCategory(Id category) { m_category = category; }
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
-    void setCategoryIcon(const QString &categoryIcon) { m_categoryIcon = categoryIcon; }
+    void setCategoryIcon(const Utils::Icon &categoryIcon) { m_categoryIcon = categoryIcon; }
 
     Id m_category;
     QString m_displayCategory;
-    QString m_categoryIcon;
+    Utils::Icon m_categoryIcon;
 };
 
 } // namespace Core
