@@ -188,11 +188,13 @@ bool ImageView::exportSvg(const ExportData &ed)
     return result;
 }
 
+#ifndef QT_NO_SVG
 static QString suggestedExportFileName(const QFileInfo &fi)
 {
     return fi.absolutePath() + QLatin1Char('/') + fi.baseName()
         + QStringLiteral(".png");
 }
+#endif
 
 QSize ImageView::svgSize() const
 {
