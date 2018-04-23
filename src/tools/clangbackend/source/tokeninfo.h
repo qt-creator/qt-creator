@@ -99,8 +99,8 @@ protected:
     virtual void invalidFileKind();
 
     Cursor m_originalCursor;
-    CXToken *m_cxToken;
-    CXTranslationUnit m_cxTranslationUnit;
+    CXToken *m_cxToken = nullptr;
+    CXTranslationUnit m_cxTranslationUnit = nullptr;
     HighlightingTypes m_types;
 
 private:
