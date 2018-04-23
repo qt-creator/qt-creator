@@ -4,7 +4,6 @@
     <file alias="images/qtcreatorlogo-big@2x.png">images/logo/256/QtProject-qtcreator.png</file>
     <file>images/category_core.png</file>
     <file>images/category_design.png</file>
-    <file>images/category_locator.png</file>
     <file>images/category_texteditor.png</file>
     </qresource>
 </RCC>
