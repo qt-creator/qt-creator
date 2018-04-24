@@ -369,6 +369,29 @@ void BaseStringAspect::setPlaceHolderText(const QString &placeHolderText)
         m_lineEditDisplay->setPlaceholderText(placeHolderText);
 }
 
+void BaseStringAspect::setHistoryCompleter(const QString &historyCompleterKey)
+{
+    m_historyCompleterKey = historyCompleterKey;
+    if (m_lineEditDisplay)
+        m_lineEditDisplay->setHistoryCompleter(historyCompleterKey);
+    if (m_pathChooserDisplay)
+        m_pathChooserDisplay->setHistoryCompleter(historyCompleterKey);
+}
+
+void BaseStringAspect::setExpectedKind(const PathChooser::Kind expectedKind)
+{
+    m_expectedKind = expectedKind;
+    if (m_pathChooserDisplay)
+        m_pathChooserDisplay->setExpectedKind(expectedKind);
+}
+
+void BaseStringAspect::setEnvironment(const Environment &env)
+{
+    m_environment = env;
+    if (m_pathChooserDisplay)
+        m_pathChooserDisplay->setEnvironment(env);
+}
+
 void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
 {
     QTC_CHECK(!m_label);
@@ -380,7 +403,9 @@ void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
     switch (m_displayStyle) {
     case PathChooserDisplay:
         m_pathChooserDisplay = new PathChooser(parent);
-        m_pathChooserDisplay->setExpectedKind(PathChooser::File);
+        m_pathChooserDisplay->setExpectedKind(m_expectedKind);
+        m_pathChooserDisplay->setHistoryCompleter(m_historyCompleterKey);
+        m_pathChooserDisplay->setEnvironment(m_environment);
         connect(m_pathChooserDisplay, &PathChooser::pathChanged,
                 this, &BaseStringAspect::setValue);
         hbox->addWidget(m_pathChooserDisplay);
@@ -388,6 +413,7 @@ void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
     case LineEditDisplay:
         m_lineEditDisplay = new FancyLineEdit(parent);
         m_lineEditDisplay->setPlaceholderText(m_placeHolderText);
+        m_lineEditDisplay->setHistoryCompleter(m_historyCompleterKey);
         connect(m_lineEditDisplay, &FancyLineEdit::textEdited,
                 this, &BaseStringAspect::setValue);
         hbox->addWidget(m_lineEditDisplay);
@@ -465,6 +491,27 @@ void ExecutableAspect::setExecutablePathStyle(OsType osType)
     m_executable.setDisplayFilter([osType](const QString &pathName) {
         return OsSpecificAspects::pathWithNativeSeparators(osType, pathName);
     });
+}
+
+void ExecutableAspect::setHistoryCompleter(const QString &historyCompleterKey)
+{
+    m_executable.setHistoryCompleter(historyCompleterKey);
+    if (m_alternativeExecutable)
+        m_alternativeExecutable->setHistoryCompleter(historyCompleterKey);
+}
+
+void ExecutableAspect::setExpectedKind(const PathChooser::Kind expectedKind)
+{
+    m_executable.setExpectedKind(expectedKind);
+    if (m_alternativeExecutable)
+        m_alternativeExecutable->setExpectedKind(expectedKind);
+}
+
+void ExecutableAspect::setEnvironment(const Environment &env)
+{
+    m_executable.setEnvironment(env);
+    if (m_alternativeExecutable)
+        m_alternativeExecutable->setEnvironment(env);
 }
 
 void ExecutableAspect::makeOverridable(const QString &overridingKey, const QString &useOverridableKey)

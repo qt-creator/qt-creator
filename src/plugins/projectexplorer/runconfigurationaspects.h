@@ -29,6 +29,7 @@
 #include "applicationlauncher.h"
 
 #include <utils/fileutils.h>
+#include <utils/pathchooser.h>
 #include <utils/osspecificaspects.h>
 
 QT_BEGIN_NAMESPACE
@@ -38,11 +39,6 @@ class QLineEdit;
 class QFormLayout;
 class QToolButton;
 QT_END_NAMESPACE
-
-namespace Utils {
-class FancyLineEdit;
-class PathChooser;
-}
 
 namespace ProjectExplorer {
 
@@ -189,6 +185,9 @@ public:
 
     void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
     void setPlaceHolderText(const QString &placeHolderText);
+    void setHistoryCompleter(const QString &historyCompleterKey);
+    void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
+    void setEnvironment(const Utils::Environment &env);
 
     bool isChecked() const;
     void makeCheckable(const QString &optionalLabel, const QString &optionalBaseKey);
@@ -212,6 +211,9 @@ private:
 
     QString m_value;
     QString m_placeHolderText;
+    QString m_historyCompleterKey;
+    Utils::PathChooser::Kind m_expectedKind = Utils::PathChooser::File;
+    Utils::Environment m_environment;
     QPointer<QLabel> m_label;
     QPointer<QLabel> m_labelDisplay;
     QPointer<Utils::FancyLineEdit> m_lineEditDisplay;
@@ -233,6 +235,9 @@ public:
     void setLabelText(const QString &labelText);
     void setPlaceHolderText(const QString &placeHolderText);
     void setExecutablePathStyle(Utils::OsType osType);
+    void setHistoryCompleter(const QString &historyCompleterKey);
+    void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
+    void setEnvironment(const Utils::Environment &env);
 
 protected:
     void fromMap(const QVariantMap &map) override;
