@@ -30,12 +30,16 @@
 #include "clangtidyclazytool.h"
 #include "clangtoolsutils.h"
 
+#include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolstestcase.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/toolchain.h>
+
+#include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
 
 #include <QEventLoop>
@@ -72,6 +76,19 @@ void ClangToolsUnitTests::cleanupTestCase()
     delete m_tmpDir;
 }
 
+static CppTools::ClangDiagnosticConfig createTidyClazyConfig()
+{
+    CppTools::ClangDiagnosticConfig config;
+    config.setId("Test.ClangTidy");
+    config.setDisplayName("Test");
+    config.setIsReadOnly(true);
+    config.setClangOptions(QStringList{QStringLiteral("-Wno-everything")});
+    config.setClangTidyMode(CppTools::ClangDiagnosticConfig::TidyMode::ChecksString);
+    config.setClangTidyChecksString("-*,modernize-*, misc-*");
+    config.setClazyChecks("level2");
+    return config;
+}
+
 void ClangToolsUnitTests::testProject()
 {
     QFETCH(Tool, clangtool);
@@ -91,9 +108,34 @@ void ClangToolsUnitTests::testProject()
     ClangTool *tool = (clangtool == Tool::ClangStaticAnalyzer)
             ? ClangStaticAnalyzerTool::instance()
             : static_cast<ClangTool *>(ClangTidyClazyTool::instance());
+
+    ExecuteOnDestruction executeOnDestruction;
+    if (clangtool == Tool::ClangTidyAndClazy) {
+        // Change configs
+        QSharedPointer<CppTools::CppCodeModelSettings> settings = CppTools::codeModelSettings();
+        const CppTools::ClangDiagnosticConfigs originalConfigs
+                = settings->clangCustomDiagnosticConfigs();
+        const Core::Id originalId = settings->clangDiagnosticConfigId();
+
+        CppTools::ClangDiagnosticConfigs modifiedConfigs = originalConfigs;
+
+        const CppTools::ClangDiagnosticConfig clangTidyConfig = createTidyClazyConfig();
+        modifiedConfigs.push_back(clangTidyConfig);
+
+        executeOnDestruction.reset([=]() {
+            // Restore configs
+            settings->setClangCustomDiagnosticConfigs(originalConfigs);
+            settings->setClangDiagnosticConfigId(originalId);
+        });
+
+        settings->setClangCustomDiagnosticConfigs(modifiedConfigs);
+        settings->setClangDiagnosticConfigId(clangTidyConfig.id());
+    }
+
     tool->startTool();
     QSignalSpy waiter(tool, SIGNAL(finished(bool)));
     QVERIFY(waiter.wait(30000));
+
     const QList<QVariant> arguments = waiter.takeFirst();
     QVERIFY(arguments.first().toBool());
     QCOMPARE(tool->diagnostics().count(), expectedDiagCount);
@@ -122,6 +164,10 @@ void ClangToolsUnitTests::testProject_data()
 
     addTestRow(Tool::ClangStaticAnalyzer, "mingw-includes/mingw-includes.qbs", 0);
     addTestRow(Tool::ClangStaticAnalyzer, "mingw-includes/mingw-includes.pro", 0);
+
+    addTestRow(Tool::ClangTidyAndClazy, "clangtidy_clazy/clangtidy_clazy.pro",
+               4 /* ClangTidy: modernize-*,misc-* */
+               + 2 /* Clazy: level1 */);
 }
 
 void ClangToolsUnitTests::addTestRow(Tool tool, const QByteArray &relativeFilePath,
