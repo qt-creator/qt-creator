@@ -99,8 +99,7 @@ Runnable CMakeRunConfiguration::runnable() const
 
 QString CMakeRunConfiguration::baseWorkingDirectory() const
 {
-    const QString exe = m_executable;
-    if (!exe.isEmpty())
+    if (!m_executable.isEmpty())
         return QFileInfo(m_executable).absolutePath();
     return QString();
 }
@@ -137,12 +136,12 @@ bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
 
     if (!extraId.isEmpty()) {
         m_buildSystemTarget = extraId;
-        m_executable = extraId;
         if (m_title.isEmpty())
             m_title = extraId;
 
         CMakeProject *project = static_cast<CMakeProject *>(target()->project());
-        const CMakeBuildTarget ct = project->buildTargetForTitle(m_title);
+        const CMakeBuildTarget ct = project->buildTargetForTitle(m_buildSystemTarget);
+        m_executable = ct.executable.toString();
         extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(ct.workingDirectory);
 
         setDefaultDisplayName(m_title);
