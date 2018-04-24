@@ -34,7 +34,6 @@
 #include "kitoptionspage.h"
 
 #include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/detailsbutton.h>
@@ -201,12 +200,13 @@ void TargetSetupWidget::targetCheckBoxToggled(bool b)
 
 void TargetSetupWidget::manageKit()
 {
-    KitOptionsPage *page = ExtensionSystem::PluginManager::getObject<KitOptionsPage>();
-    if (!page || !m_kit)
+    if (!m_kit)
         return;
 
-    page->showKit(m_kit);
-    Core::ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, parentWidget());
+    if (auto kitPage = KitOptionsPage::instance()) {
+        kitPage->showKit(m_kit);
+        Core::ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, parentWidget());
+    }
 }
 
 void TargetSetupWidget::setProjectPath(const QString &projectPath)

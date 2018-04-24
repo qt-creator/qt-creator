@@ -53,6 +53,7 @@ public:
     void finish() override;
 
     void showKit(Kit *k);
+    static KitOptionsPage *instance();
 
 private:
     QPointer<Internal::KitOptionsPageWidget> m_widget;

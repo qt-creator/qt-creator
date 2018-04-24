@@ -235,8 +235,11 @@ QModelIndex KitOptionsPageWidget::currentIndex() const
 // KitOptionsPage:
 // --------------------------------------------------------------------------
 
+static KitOptionsPage *theKitOptionsPage = nullptr;
+
 KitOptionsPage::KitOptionsPage()
 {
+    theKitOptionsPage = this;
     static const Utils::Icon categoryIcon({{":/projectexplorer/images/mode_project_mask.png",
                                             Utils::Theme::PanelTextColorDark}},
                                           Utils::Icon::Tint);
@@ -281,6 +284,11 @@ void KitOptionsPage::showKit(Kit *k)
                                 | QItemSelectionModel::SelectCurrent
                                 | QItemSelectionModel::Rows);
     m_widget->m_kitsView->scrollTo(index);
+}
+
+KitOptionsPage *KitOptionsPage::instance()
+{
+    return theKitOptionsPage;
 }
 
 } // namespace ProjectExplorer
