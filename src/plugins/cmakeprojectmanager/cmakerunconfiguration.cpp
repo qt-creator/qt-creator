@@ -40,8 +40,6 @@ using namespace ProjectExplorer;
 namespace CMakeProjectManager {
 namespace Internal {
 
-const char TITLE_KEY[] = "CMakeProjectManager.CMakeRunConfiguation.Title";
-
 CMakeRunConfiguration::CMakeRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
@@ -68,23 +66,9 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *target, Core::Id id)
         setOutputFormatter<QtSupport::QtOutputFormatter>();
 }
 
-QVariantMap CMakeRunConfiguration::toMap() const
-{
-    QVariantMap map(RunConfiguration::toMap());
-    map.insert(QLatin1String(TITLE_KEY), m_title);
-    return map;
-}
-
-bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
-{
-    RunConfiguration::fromMap(map);
-    m_title = map.value(QLatin1String(TITLE_KEY)).toString();
-    return true;
-}
-
 void CMakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
 {
-    m_title = info.displayName;
+    Q_UNUSED(info);
     updateTargetInformation();
 }
 
@@ -112,8 +96,6 @@ QString CMakeRunConfiguration::disabledReason() const
 
 void CMakeRunConfiguration::updateTargetInformation()
 {
-    setDefaultDisplayName(m_title);
-
     BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
     extraAspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
     extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);

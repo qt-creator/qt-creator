@@ -38,17 +38,13 @@ public:
     CMakeRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
 private:
-    QVariantMap toMap() const override;
     QString disabledReason() const override;
 
-    bool fromMap(const QVariantMap &map) override;
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
     bool isBuildTargetValid() const;
     void updateTargetInformation();
 
     void updateEnabledState() final;
-
-    QString m_title;
 };
 
 class CMakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
