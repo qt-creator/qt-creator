@@ -149,7 +149,6 @@ HEADERS += projectexplorer.h \
     projectexplorericons.h \
     projectexplorer_global.h \
     extracompiler.h \
-    customexecutableconfigurationwidget.h \
     customexecutablerunconfiguration.h \
     projectmacro.h
 
@@ -286,7 +285,6 @@ SOURCES += projectexplorer.cpp \
     waitforstopdialog.cpp \
     projectexplorericons.cpp \
     extracompiler.cpp \
-    customexecutableconfigurationwidget.cpp \
     customexecutablerunconfiguration.cpp \
     projectmacro.cpp
 

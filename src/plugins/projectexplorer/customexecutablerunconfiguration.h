@@ -27,57 +27,35 @@
 
 #include "projectexplorer_global.h"
 
+#include "projectexplorer/runconfigurationaspects.h"
 #include "projectexplorer/runnables.h"
 
 namespace ProjectExplorer {
 
-class CustomExecutableDialog;
-
-namespace Internal { class CustomExecutableConfigurationWidget; }
-
 class PROJECTEXPLORER_EXPORT CustomExecutableRunConfiguration : public RunConfiguration
 {
     Q_OBJECT
-    // the configuration widget needs to setExecutable setWorkingDirectory and setCommandLineArguments
-    friend class Internal::CustomExecutableConfigurationWidget;
-    friend class ProjectExplorer::RunConfigurationFactory;
 
 public:
-    explicit CustomExecutableRunConfiguration(Target *target, Core::Id id);
+    CustomExecutableRunConfiguration(Target *target, Core::Id id);
     explicit CustomExecutableRunConfiguration(Target *target);
     ~CustomExecutableRunConfiguration() override;
 
-    /**
-     * Returns the executable, looks in the environment for it and might even
-     * ask the user if none is specified
-     */
-    QString executable() const;
     Runnable runnable() const override;
 
     /** Returns whether this runconfiguration ever was configured with an executable
      */
     bool isConfigured() const override;
-    QWidget *createConfigurationWidget() override;
     Abi abi() const override;
-    QVariantMap toMap() const override;
     ConfigurationState ensureConfigured(QString *errorMessage) override;
 
-signals:
-    void changed();
-
-private:
-    bool fromMap(const QVariantMap &map) override;
     QString defaultDisplayName() const;
 
+private:
     void configurationDialogFinished();
-    void setExecutable(const QString &executable);
     QString rawExecutable() const;
-    void setUserName(const QString &name);
-    bool validateExecutable(QString *executable = 0, QString *errorMessage = 0) const;
 
-    QString m_executable;
-    QString m_workingDirectory;
-    CustomExecutableDialog *m_dialog = nullptr;
+    class CustomExecutableDialog *m_dialog = nullptr;
 };
 
 class CustomExecutableRunConfigurationFactory : public FixedRunConfigurationFactory

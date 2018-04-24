@@ -80,6 +80,9 @@ void TerminalAspect::fromMap(const QVariantMap &map)
     } else {
         m_userSet = false;
     }
+
+    if (m_checkBox)
+        m_checkBox->setChecked(m_useTerminal);
 }
 
 void TerminalAspect::toMap(QVariantMap &data) const
@@ -182,6 +185,9 @@ void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
 
     if (m_workingDirectory.isEmpty())
         m_workingDirectory = m_defaultWorkingDirectory;
+
+    if (m_chooser)
+        m_chooser->setFileName(m_workingDirectory.isEmpty() ? m_defaultWorkingDirectory : m_workingDirectory);
 }
 
 void WorkingDirectoryAspect::toMap(QVariantMap &data) const
@@ -275,6 +281,9 @@ void ArgumentsAspect::fromMap(const QVariantMap &map)
         m_arguments = QtcProcess::joinArgs(args.toStringList(), OsTypeLinux);
     else
         m_arguments = args.toString();
+
+    if (m_chooser)
+        m_chooser->setText(m_arguments);
 }
 
 void ArgumentsAspect::toMap(QVariantMap &map) const
