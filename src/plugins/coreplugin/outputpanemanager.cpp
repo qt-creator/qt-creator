@@ -432,7 +432,8 @@ void OutputPaneManager::readSettings()
         settings->setArrayIndex(i);
         Id id = Id::fromSetting(settings->value(QLatin1String(outputPaneIdKeyC)));
         const int idx = Utils::indexOf(g_outputPanes, Utils::equal(&OutputPaneData::id, id));
-        QTC_ASSERT(idx >= 0, continue);
+        if (idx < 0) // happens for e.g. disabled plugins (with outputpanes) that were loaded before
+            continue;
         const bool visible = settings->value(QLatin1String(outputPaneVisibleKeyC)).toBool();
         g_outputPanes[idx].buttonVisible = visible;
         g_outputPanes[idx].button->setVisible(visible);
