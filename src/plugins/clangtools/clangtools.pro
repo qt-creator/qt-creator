@@ -59,13 +59,13 @@ FORMS += \
 equals(TEST, 1) {
     HEADERS += \
         clangstaticanalyzerpreconfiguredsessiontests.h \
-        clangstaticanalyzerunittests.h
+        clangtoolsunittests.h
 
     SOURCES += \
         clangstaticanalyzerpreconfiguredsessiontests.cpp \
-        clangstaticanalyzerunittests.cpp
+        clangtoolsunittests.cpp
 
-    RESOURCES += clangstaticanalyzerunittests.qrc
+    RESOURCES += clangtoolsunittests.qrc
 }
 
 DISTFILES += \

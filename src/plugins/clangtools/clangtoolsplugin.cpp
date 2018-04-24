@@ -34,7 +34,7 @@
 
 #ifdef WITH_TESTS
 #include "clangstaticanalyzerpreconfiguredsessiontests.h"
-#include "clangstaticanalyzerunittests.h"
+#include "clangtoolsunittests.h"
 #endif
 
 #include <debugger/analyzer/analyzericons.h>
@@ -135,7 +135,7 @@ QList<QObject *> ClangToolsPlugin::createTestObjects() const
     QList<QObject *> tests;
 #ifdef WITH_TESTS
     tests << new ClangStaticAnalyzerPreconfiguredSessionTests;
-    tests << new ClangStaticAnalyzerUnitTests;
+    tests << new ClangToolsUnitTests;
 #endif
     return tests;
 }

@@ -79,9 +79,9 @@ QtcPlugin {
         files: [
             "clangstaticanalyzerpreconfiguredsessiontests.cpp",
             "clangstaticanalyzerpreconfiguredsessiontests.h",
-            "clangstaticanalyzerunittests.cpp",
-            "clangstaticanalyzerunittests.h",
-            "clangstaticanalyzerunittests.qrc",
+            "clangtoolsunittests.cpp",
+            "clangtoolsunittests.h",
+            "clangtoolsunittests.qrc",
         ]
     }
 

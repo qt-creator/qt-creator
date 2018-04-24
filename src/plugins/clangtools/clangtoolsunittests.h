@@ -32,12 +32,18 @@ namespace CppTools { namespace Tests { class TemporaryCopiedDir; } }
 namespace ClangTools {
 namespace Internal {
 
-class ClangStaticAnalyzerUnitTests : public QObject
+enum class Tool
+{
+    ClangStaticAnalyzer,
+    ClangTidyAndClazy
+};
+
+class ClangToolsUnitTests : public QObject
 {
     Q_OBJECT
 
 public:
-    ClangStaticAnalyzerUnitTests() {}
+    ClangToolsUnitTests() {}
 
 private slots:
     void initTestCase();
@@ -46,7 +52,7 @@ private slots:
     void testProject_data();
 
 private:
-    void addTestRow(const QByteArray &relativeFilePath, int expectedDiagCount);
+    void addTestRow(Tool tool, const QByteArray &relativeFilePath, int expectedDiagCount);
 
 private:
     CppTools::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
@@ -54,3 +60,5 @@ private:
 
 } // namespace Internal
 } // namespace ClangTools
+
+Q_DECLARE_METATYPE(ClangTools::Internal::Tool)

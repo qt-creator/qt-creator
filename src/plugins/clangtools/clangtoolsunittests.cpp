@@ -23,10 +23,11 @@
 **
 ****************************************************************************/
 
-#include "clangstaticanalyzerunittests.h"
+#include "clangtoolsunittests.h"
 
 #include "clangtoolsdiagnostic.h"
 #include "clangstaticanalyzertool.h"
+#include "clangtidyclazytool.h"
 #include "clangtoolsutils.h"
 
 #include <cpptools/cppmodelmanager.h>
@@ -48,7 +49,7 @@ using namespace Utils;
 namespace ClangTools {
 namespace Internal {
 
-void ClangStaticAnalyzerUnitTests::initTestCase()
+void ClangToolsUnitTests::initTestCase()
 {
     const QList<Kit *> allKits = KitManager::kits();
     if (allKits.count() != 1)
@@ -66,13 +67,14 @@ void ClangStaticAnalyzerUnitTests::initTestCase()
     QVERIFY(m_tmpDir->isValid());
 }
 
-void ClangStaticAnalyzerUnitTests::cleanupTestCase()
+void ClangToolsUnitTests::cleanupTestCase()
 {
     delete m_tmpDir;
 }
 
-void ClangStaticAnalyzerUnitTests::testProject()
+void ClangToolsUnitTests::testProject()
 {
+    QFETCH(Tool, clangtool);
     QFETCH(QString, projectFilePath);
     QFETCH(int, expectedDiagCount);
     if (projectFilePath.contains("mingw")) {
@@ -86,7 +88,9 @@ void ClangStaticAnalyzerUnitTests::testProject()
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
     const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
     QVERIFY(projectInfo.isValid());
-    auto tool = ClangStaticAnalyzerTool::instance();
+    ClangTool *tool = (clangtool == Tool::ClangStaticAnalyzer)
+            ? ClangStaticAnalyzerTool::instance()
+            : static_cast<ClangTool *>(ClangTidyClazyTool::instance());
     tool->startTool();
     QSignalSpy waiter(tool, SIGNAL(finished(bool)));
     QVERIFY(waiter.wait(30000));
@@ -95,37 +99,38 @@ void ClangStaticAnalyzerUnitTests::testProject()
     QCOMPARE(tool->diagnostics().count(), expectedDiagCount);
 }
 
-void ClangStaticAnalyzerUnitTests::testProject_data()
+void ClangToolsUnitTests::testProject_data()
 {
+    QTest::addColumn<Tool>("clangtool");
     QTest::addColumn<QString>("projectFilePath");
     QTest::addColumn<int>("expectedDiagCount");
 
-    addTestRow("simple/simple.qbs", 1);
-    addTestRow("simple/simple.pro", 1);
+    addTestRow(Tool::ClangStaticAnalyzer, "simple/simple.qbs", 1);
+    addTestRow(Tool::ClangStaticAnalyzer, "simple/simple.pro", 1);
 
-    addTestRow("simple-library/simple-library.qbs", 0);
-    addTestRow("simple-library/simple-library.pro", 0);
+    addTestRow(Tool::ClangStaticAnalyzer, "simple-library/simple-library.qbs", 0);
+    addTestRow(Tool::ClangStaticAnalyzer, "simple-library/simple-library.pro", 0);
 
-    addTestRow("stdc++11-includes/stdc++11-includes.qbs", 0);
-    addTestRow("stdc++11-includes/stdc++11-includes.pro", 0);
+    addTestRow(Tool::ClangStaticAnalyzer, "stdc++11-includes/stdc++11-includes.qbs", 0);
+    addTestRow(Tool::ClangStaticAnalyzer, "stdc++11-includes/stdc++11-includes.pro", 0);
 
-    addTestRow("qt-widgets-app/qt-widgets-app.qbs", 0);
-    addTestRow("qt-widgets-app/qt-widgets-app.pro", 0);
+    addTestRow(Tool::ClangStaticAnalyzer, "qt-widgets-app/qt-widgets-app.qbs", 0);
+    addTestRow(Tool::ClangStaticAnalyzer, "qt-widgets-app/qt-widgets-app.pro", 0);
 
-    addTestRow("qt-essential-includes/qt-essential-includes.qbs", 0);
-    addTestRow("qt-essential-includes/qt-essential-includes.pro", 0);
+    addTestRow(Tool::ClangStaticAnalyzer, "qt-essential-includes/qt-essential-includes.qbs", 0);
+    addTestRow(Tool::ClangStaticAnalyzer, "qt-essential-includes/qt-essential-includes.pro", 0);
 
-    addTestRow("mingw-includes/mingw-includes.qbs", 0);
-    addTestRow("mingw-includes/mingw-includes.pro", 0);
+    addTestRow(Tool::ClangStaticAnalyzer, "mingw-includes/mingw-includes.qbs", 0);
+    addTestRow(Tool::ClangStaticAnalyzer, "mingw-includes/mingw-includes.pro", 0);
 }
 
-void ClangStaticAnalyzerUnitTests::addTestRow(const QByteArray &relativeFilePath,
-                                              int expectedDiagCount)
+void ClangToolsUnitTests::addTestRow(Tool tool, const QByteArray &relativeFilePath,
+                                     int expectedDiagCount)
 {
     const QString absoluteFilePath = m_tmpDir->absolutePath(relativeFilePath);
     const QString fileName = QFileInfo(absoluteFilePath).fileName();
 
-    QTest::newRow(fileName.toUtf8().constData()) << absoluteFilePath << expectedDiagCount;
+    QTest::newRow(fileName.toUtf8().constData()) << tool << absoluteFilePath << expectedDiagCount;
 }
 
 } // namespace Internal
