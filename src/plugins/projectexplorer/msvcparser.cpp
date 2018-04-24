@@ -98,8 +98,7 @@ MsvcParser::MsvcParser()
 {
     setObjectName("MsvcParser");
     m_compileRegExp.setPattern(QString(FILE_POS_PATTERN)
-                               + "(?:Command line |fatal )?(?:(warning|error) "
-                                 "([A-Z]+\\d{4} ?: )|note: )(.*)$");
+                               + ".*(?:(warning|error) ([A-Z]+\\d{4} ?: )|note: )(.*)$");
     QTC_CHECK(m_compileRegExp.isValid());
     m_additionalInfoRegExp.setPattern("^        (?:(could be |or )\\s*')?(.*)\\((\\d+)\\) : (.*)$");
     QTC_CHECK(m_additionalInfoRegExp.isValid());
@@ -310,7 +309,6 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
     QTest::addColumn<QString>("childStdErrLines");
     QTest::addColumn<QList<Task> >("tasks");
     QTest::addColumn<QString>("outputLines");
-
 
     QTest::newRow("pass-through stdout")
             << "Sometext" << OutputParserTester::STDOUT
@@ -567,6 +565,16 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                         "see declaration of 'func'",
                         FileName::fromUserInput("main.cpp"), 6,
                         Constants::TASK_CATEGORY_COMPILE))
+            << "";
+
+    QTest::newRow("cyrillic warning") // QTCREATORBUG-20297
+            << QString::fromUtf8("cl: командная строка warning D9025: переопределение \"/MDd\" на \"/MTd\"")
+            << OutputParserTester::STDERR
+            << "" << ""
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Warning,
+                        QString::fromUtf8("D9025: переопределение \"/MDd\" на \"/MTd\""),
+                        FileName(), -1, Constants::TASK_CATEGORY_COMPILE))
             << "";
 }
 
