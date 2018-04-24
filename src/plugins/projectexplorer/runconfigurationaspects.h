@@ -230,6 +230,7 @@ public:
     Utils::FileName executable() const;
     void setExecutable(const Utils::FileName &executable);
 
+    void setSettingsKey(const QString &key);
     void makeOverridable(const QString &overridingKey, const QString &useOverridableKey);
     void addToConfigurationLayout(QFormLayout *layout);
     void setLabelText(const QString &labelText);

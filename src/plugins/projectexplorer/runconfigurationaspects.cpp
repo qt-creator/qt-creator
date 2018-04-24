@@ -554,6 +554,12 @@ void ExecutableAspect::setExecutable(const FileName &executable)
    m_executable.setValue(executable.toString());
 }
 
+void ExecutableAspect::setSettingsKey(const QString &key)
+{
+    IRunConfigurationAspect::setSettingsKey(key);
+    m_executable.setSettingsKey(key);
+}
+
 void ExecutableAspect::fromMap(const QVariantMap &map)
 {
     m_executable.fromMap(map);
