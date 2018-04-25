@@ -1228,13 +1228,12 @@ void AndroidConfigurations::load()
                                                               QSettings::NativeFormat));
             allVersions = settings->childGroups();
 #ifdef Q_OS_WIN
-#if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
             if (allVersions.isEmpty()) {
                 settings.reset(new QSettings(jdkSettingsPath, QSettings::Registry64Format));
                 allVersions = settings->childGroups();
             }
-#endif
-#endif
+#endif // Q_OS_WIN
+
             QString javaHome;
             int major = -1;
             int minor = -1;

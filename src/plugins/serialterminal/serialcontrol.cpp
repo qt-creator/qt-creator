@@ -52,15 +52,8 @@ SerialControl::SerialControl(const Settings &settings, QObject *parent) :
 
     connect(&m_serialPort, &QSerialPort::readyRead,
             this, &SerialControl::handleReadyRead);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
     connect(&m_serialPort, &QSerialPort::errorOccurred,
             this, &SerialControl::handleError);
-#else
-    connect(&m_serialPort,
-            static_cast<void (QSerialPort::*)(QSerialPort::SerialPortError)>(&QSerialPort::error),
-            this, &SerialControl::handleError);
-#endif
-
     connect(&m_reconnectTimer, &QTimer::timeout,
             this, &SerialControl::reconnectTimeout);
 }

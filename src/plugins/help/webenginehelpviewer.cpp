@@ -36,9 +36,7 @@
 #include <QCoreApplication>
 #include <QTimer>
 #include <QVBoxLayout>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
 #include <QWebEngineContextMenuData>
-#endif
 #include <QWebEngineHistory>
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
@@ -289,14 +287,6 @@ WebEngineHelpPage::WebEngineHelpPage(QObject *parent)
 {
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
-QWebEnginePage *WebEngineHelpPage::createWindow(QWebEnginePage::WebWindowType)
-{
-    auto viewer = static_cast<WebEngineHelpViewer *>(OpenPagesManager::instance().createPage());
-    return viewer->page();
-}
-#endif
-
 WebView::WebView(WebEngineHelpViewer *viewer)
     : QWebEngineView(viewer),
       m_viewer(viewer)
@@ -314,12 +304,6 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
         // insert after
         ++it;
         QAction *before = (it == actions.cend() ? 0 : *it);
-#if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
-        if (m_viewer->isActionVisible(HelpViewer::Action::NewPage)) {
-            QAction *openLinkInNewTab = page()->action(QWebEnginePage::OpenLinkInNewTab);
-            menu->insertAction(before, openLinkInNewTab);
-        }
-#else
         QUrl url = page()->contextMenuData().linkUrl();
         if (m_viewer->isActionVisible(HelpViewer::Action::NewPage)) {
             auto openLink = new QAction(QCoreApplication::translate("HelpViewer",
@@ -337,7 +321,6 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
             });
             menu->insertAction(before, openLink);
         }
-#endif
     }
 
     connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);

@@ -46,9 +46,6 @@ class WebEngineHelpPage : public QWebEnginePage
 {
 public:
     explicit WebEngineHelpPage(QObject *parent = nullptr);
-#if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
-    QWebEnginePage *createWindow(QWebEnginePage::WebWindowType) override;
-#endif
 };
 
 class WebView : public QWebEngineView
