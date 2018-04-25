@@ -303,6 +303,12 @@ BaseStringAspect::BaseStringAspect(RunConfiguration *rc)
 {
 }
 
+BaseStringAspect::~BaseStringAspect()
+{
+    delete m_checker;
+    m_checker = nullptr;
+}
+
 QString BaseStringAspect::value() const
 {
     return m_value;
@@ -486,6 +492,12 @@ ExecutableAspect::ExecutableAspect(RunConfiguration *rc)
     m_executable.setDisplayStyle(BaseStringAspect::LabelDisplay);
 }
 
+ExecutableAspect::~ExecutableAspect()
+{
+    delete m_alternativeExecutable;
+    m_alternativeExecutable = nullptr;
+}
+
 void ExecutableAspect::setExecutablePathStyle(OsType osType)
 {
     m_executable.setDisplayFilter([osType](const QString &pathName) {
@@ -583,6 +595,8 @@ BaseBoolAspect::BaseBoolAspect(RunConfiguration *runConfig, const QString &setti
 {
     setSettingsKey(settingsKey);
 }
+
+BaseBoolAspect::~BaseBoolAspect() = default;
 
 void BaseBoolAspect::addToConfigurationLayout(QFormLayout *layout)
 {

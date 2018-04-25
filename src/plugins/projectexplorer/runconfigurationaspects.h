@@ -132,6 +132,7 @@ class PROJECTEXPLORER_EXPORT BaseBoolAspect : public IRunConfigurationAspect
 
 public:
     explicit BaseBoolAspect(RunConfiguration *rc, const QString &settingsKey = QString());
+    ~BaseBoolAspect() override;
 
     void addToConfigurationLayout(QFormLayout *layout);
 
@@ -174,6 +175,7 @@ class PROJECTEXPLORER_EXPORT BaseStringAspect : public IRunConfigurationAspect
 
 public:
     explicit BaseStringAspect(RunConfiguration *rc);
+    ~BaseStringAspect() override;
 
     void addToConfigurationLayout(QFormLayout *layout);
 
@@ -226,6 +228,7 @@ class PROJECTEXPLORER_EXPORT ExecutableAspect : public IRunConfigurationAspect
 
 public:
     explicit ExecutableAspect(RunConfiguration *rc);
+    ~ExecutableAspect() override;
 
     Utils::FileName executable() const;
     void setExecutable(const Utils::FileName &executable);
