@@ -521,7 +521,7 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
 
     // Check if existing
     switch (d->m_acceptingKind) {
-    case PathChooser::ExistingDirectory: // fall through
+    case PathChooser::ExistingDirectory:
         if (!fi.exists()) {
             if (errorMessage)
                 *errorMessage = tr("The path \"%1\" does not exist.").arg(QDir::toNativeSeparators(expandedPath));
@@ -533,7 +533,7 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
             return false;
         }
         break;
-    case PathChooser::File: // fall through
+    case PathChooser::File:
         if (!fi.exists()) {
             if (errorMessage)
                 *errorMessage = tr("The path \"%1\" does not exist.").arg(QDir::toNativeSeparators(expandedPath));
@@ -576,7 +576,7 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
             return false;
         }
         break;
-    case PathChooser::Command: // fall through
+    case PathChooser::Command:
         if (fi.exists() && !fi.isExecutable()) {
             if (errorMessage)
                 *errorMessage = tr("Cannot execute \"%1\".").arg(QDir::toNativeSeparators(expandedPath));
