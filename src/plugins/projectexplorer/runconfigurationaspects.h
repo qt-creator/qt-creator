@@ -242,6 +242,7 @@ public:
     void setHistoryCompleter(const QString &historyCompleterKey);
     void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
     void setEnvironment(const Utils::Environment &env);
+    void setDisplayStyle(BaseStringAspect::DisplayStyle style);
 
 protected:
     void fromMap(const QVariantMap &map) override;

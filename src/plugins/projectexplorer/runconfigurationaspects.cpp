@@ -526,6 +526,11 @@ void ExecutableAspect::setEnvironment(const Environment &env)
         m_alternativeExecutable->setEnvironment(env);
 }
 
+void ExecutableAspect::setDisplayStyle(BaseStringAspect::DisplayStyle style)
+{
+    m_executable.setDisplayStyle(style);
+}
+
 void ExecutableAspect::makeOverridable(const QString &overridingKey, const QString &useOverridableKey)
 {
     QTC_ASSERT(!m_alternativeExecutable, return);

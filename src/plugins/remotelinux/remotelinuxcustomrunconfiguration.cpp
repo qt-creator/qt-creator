@@ -47,6 +47,8 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
     exeAspect->setSettingsKey("RemoteLinux.CustomRunConfig.RemoteExecutable");
     exeAspect->setLabelText(tr("Remote Executable:"));
     exeAspect->setExecutablePathStyle(OsTypeLinux);
+    exeAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    exeAspect->setExpectedKind(PathChooser::Any);
     addExtraAspect(exeAspect);
 
     auto symbolsAspect = new SymbolFileAspect(this);
