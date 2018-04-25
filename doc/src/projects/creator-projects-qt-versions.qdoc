@@ -46,11 +46,12 @@
     your system or by installers. To view detailed information for each Qt
     version, select it in the list and select \uicontrol Details in the
     \uicontrol {Qt version for} section. To add Qt versions, select
-    \uicontrol {Tools > Options > Build & Run > Qt Versions}.
+    \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+    \uicontrol {Qt Versions}.
 
     You specify the Qt version to use for each \l{glossary-buildandrun-kit}
     {kit} for building and running your projects
-    in \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Kits.
+    in \uicontrol Tools > \uicontrol Options > \uicontrol Kits.
 
     \section1 Setting Up New Qt Versions
 
@@ -58,7 +59,8 @@
 
         \list 1
 
-            \li Select \uicontrol {Tools > Options > Build & Run > Qt Versions > Add}.
+            \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+                \uicontrol {Qt Versions} > \uicontrol Add.
 
             \li Select the qmake executable for the Qt version that you want to
                 add.

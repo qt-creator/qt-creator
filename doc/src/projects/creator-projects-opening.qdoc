@@ -48,15 +48,15 @@
 
     The \uicontrol {Configure Project} tab displays a list of \l{glossary-buildandrun-kit}{kits}
     for building and running projects, that are installed on the development PC and
-    configured in \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Kits.
+    configured in \uicontrol Tools > \uicontrol Options > \uicontrol Kits.
     Select the kits that you want to build and run the project with.
 
     \image qtcreator-open-project-kits.png "Configure Project tab"
 
     Even if you do not intend to build the project, the C++ and QML code models
     need a Qt version and compiler to offer code completion. To specify them,
-    select the \uicontrol Options link, or select \uicontrol {Tools > Options > Build & Run
-    > Kits}.
+    select the \uicontrol Options link, or select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Kits.
 
     If \QC cannot find an existing build for a particular \l{glossary-buildandrun-kit}{kit},
     it starts out

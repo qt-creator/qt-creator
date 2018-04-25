@@ -90,9 +90,9 @@
 
             \endlist
 
-        \li Select \uicontrol Tools > \uicontrol Options >
-            \uicontrol {Build & Run} > \uicontrol Kits > \uicontrol Add to add a
-            kit for building applications and running them on bare metal devices:
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+            \uicontrol Add to add a kit for building applications and running
+            them on bare metal devices:
 
             \image creator-baremetal-kits.png "Bare Metal Device kits"
 

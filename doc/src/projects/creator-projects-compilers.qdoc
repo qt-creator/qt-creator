@@ -77,14 +77,14 @@
     For QCC, also specify the path to the QNX Software Development Platform (SDP).
 
     You specify the compiler to use for each kit in \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Kits.
+    \uicontrol Options > \uicontrol Kits.
 
     To add C or C++ compilers:
 
     \list 1
 
         \li Select \uicontrol Tools > \uicontrol Options >
-            \uicontrol {Build & Run} > \uicontrol Compilers > \uicontrol Add,
+            \uicontrol Kits > \uicontrol Compilers > \uicontrol Add,
             then select a compiler in the list, and then select \uicontrol C or
             \uicontrol C++ to add a C or C++ compiler.
 
@@ -116,8 +116,8 @@
 
     \section1 Adding Nim Compilers
 
-    To build an application using the Nim Compiler, select  \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Compilers >
+    To build an application using the Nim Compiler, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Kits > \uicontrol Compilers >
     \uicontrol Add > \uicontrol Nim, and specify the path to the directory where
     the compiler is located.
 
@@ -133,7 +133,7 @@
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
             \uicontrol Compilers > \uicontrol Add > \uicontrol Custom >
             \uicontrol C or \uicontrol C++.
 

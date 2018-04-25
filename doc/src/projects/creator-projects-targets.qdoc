@@ -67,8 +67,8 @@
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run}
-            > \uicontrol Kits > \uicontrol Add.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+            \uicontrol Add.
 
             \image qtcreator-kits.png
 
@@ -153,7 +153,7 @@
     \section1 Editing Qbs Profiles
 
     To view the Qbs profile associated with the kit, select \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Qbs.
+    \uicontrol Options > \uicontrol Kits > \uicontrol Qbs.
 
     You can add keys and values to the profile or remove them from it, as well
     as modify existing values. For a list of available keys and values, see

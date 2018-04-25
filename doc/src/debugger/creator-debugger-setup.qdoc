@@ -41,8 +41,7 @@
     The main debugger settings are associated with the
     \l{glossary-buildandrun-kit}{kit} you build and run your project with. To
     specify the debugger and compiler to use for each kit, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol {Build and Run} >
-    \uicontrol Kits.
+    \uicontrol Tools > \uicontrol Options > \uicontrol Kits.
 
     You need to set up the debugger only if the automatic setup fails, because
     the native debugger is missing (as is usually the case for the CDB debugger
@@ -57,7 +56,7 @@
     kit for your project.
 
     If the debugger you want to use is not automatically detected, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+    \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
     \uicontrol Debuggers > \uicontrol Add to add it.
 
     \note To use the debugging tools for Windows, you must install them and add
@@ -330,7 +329,7 @@
             \endcode
 
         \li In \QC, select \uicontrol {Qt Creator} > \uicontrol Preferences >
-            \uicontrol {Build & Run} > \uicontrol Kits > \uicontrol Add to
+            \uicontrol Kits > \uicontrol Add to
             create a kit that uses FSF GDB.
 
             \li In the \uicontrol Debugger field, specify the path to FSF GDB
@@ -350,14 +349,14 @@
     \list 1
 
         \li Select \uicontrol Tools > \uicontrol Options >
-            \uicontrol {Build & Run} > \uicontrol Kits.
+            \uicontrol Kits.
 
         \li Select an automatically created kit in the list, and then select
             \uicontrol Clone to create a copy of the kit.
 
         \li In the \uicontrol Debugger field, select an LLDB Engine. If an LLDB
             Engine is not listed, select \uicontrol Manage to add it in
-            \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+            \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
             \uicontrol Debuggers. For more information, see
             \l {Adding Debuggers}.
 

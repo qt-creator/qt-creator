@@ -68,7 +68,7 @@
     yourself to tell \QC where everything is.
 
     To add kits, select \uicontrol Tools > \uicontrol Options >
-    \uicontrol {Build & Run} > \uicontrol Kits > \uicontrol Add.
+    \uicontrol Kits > \uicontrol Add.
 
     For more information, see \l{Adding Kits}.
 
@@ -76,12 +76,12 @@
     \l{glossary-device}{device}, compiler, and Qt version. If you know you have
     installed a Qt
     version, but it is not listed in \uicontrol Tools > \uicontrol Options >
-    \uicontrol {Build & Run} > \uicontrol {Qt Versions}, you must add it.
+    \uicontrol Kits > \uicontrol {Qt Versions}, you must add it.
 
     For more information, see \l{Adding Qt Versions}.
 
     Also check that your compiler is listed in \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Build & Run} > \uicontrol {Compilers}.
+    \uicontrol Options > \uicontrol Kits > \uicontrol {Compilers}.
 
     For more information, see \l{Adding Compilers}.
 

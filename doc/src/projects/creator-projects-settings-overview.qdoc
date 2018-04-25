@@ -60,7 +60,7 @@
     \image qtcreator-project-kits.png
 
     The list displays kits that are configured in \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Kits. To modify
+    \uicontrol Options > \uicontrol Kits. To modify
     kit configuration or to add kits to the list, right-click the sidebar to
     open a context-menu, and then select \uicontrol {Manage Kits}. For more
     information about managing kits, see \l{Adding Kits}.
