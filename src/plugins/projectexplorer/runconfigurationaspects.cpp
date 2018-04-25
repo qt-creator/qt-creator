@@ -316,8 +316,11 @@ QString BaseStringAspect::value() const
 
 void BaseStringAspect::setValue(const QString &value)
 {
+    const bool isSame = value == m_value;
     m_value = value;
     update();
+    if (!isSame)
+        emit changed();
 }
 
 void BaseStringAspect::fromMap(const QVariantMap &map)
@@ -473,6 +476,7 @@ void BaseStringAspect::makeCheckable(const QString &checkerLabel, const QString 
     m_checker->setSettingsKey(checkerKey);
 
     connect(m_checker, &BaseBoolAspect::changed, this, &BaseStringAspect::update);
+    connect(m_checker, &BaseBoolAspect::changed, this, &BaseStringAspect::changed);
 
     update();
 }
@@ -490,6 +494,9 @@ ExecutableAspect::ExecutableAspect(RunConfiguration *rc)
     m_executable.setPlaceHolderText(tr("<unknown>"));
     m_executable.setLabelText(tr("Executable:"));
     m_executable.setDisplayStyle(BaseStringAspect::LabelDisplay);
+
+    connect(&m_executable, &BaseStringAspect::changed,
+            this, &ExecutableAspect::changed);
 }
 
 ExecutableAspect::~ExecutableAspect()
@@ -539,6 +546,8 @@ void ExecutableAspect::makeOverridable(const QString &overridingKey, const QStri
     m_alternativeExecutable->setLabelText(tr("Alternate executable on device:"));
     m_alternativeExecutable->setSettingsKey(overridingKey);
     m_alternativeExecutable->makeCheckable(tr("Use this command instead"), useOverridableKey);
+    connect(m_alternativeExecutable, &BaseStringAspect::changed,
+            this, &ExecutableAspect::changed);
 }
 
 FileName ExecutableAspect::executable() const

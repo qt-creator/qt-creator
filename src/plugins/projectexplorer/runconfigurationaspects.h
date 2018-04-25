@@ -203,6 +203,9 @@ public:
     Utils::FileName fileName() const;
     void setFileName(const Utils::FileName &val);
 
+signals:
+    void changed();
+
 private:
     void update();
 
@@ -243,6 +246,9 @@ public:
     void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
     void setEnvironment(const Utils::Environment &env);
     void setDisplayStyle(BaseStringAspect::DisplayStyle style);
+
+signals:
+    void changed();
 
 protected:
     void fromMap(const QVariantMap &map) override;
