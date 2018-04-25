@@ -35,7 +35,7 @@ class WinRtRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT
 
 public:
-    explicit WinRtRunConfiguration(ProjectExplorer::Target *target);
+    WinRtRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     QWidget *createConfigurationWidget() override;
 
@@ -47,6 +47,12 @@ public:
 
 private:
     QString executable() const;
+};
+
+class WinRtRunConfigurationFactory  : public ProjectExplorer::RunConfigurationFactory
+{
+public:
+    WinRtRunConfigurationFactory();
 };
 
 } // namespace Internal

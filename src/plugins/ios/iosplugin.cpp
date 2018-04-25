@@ -34,7 +34,6 @@
 #include "iosdevicefactory.h"
 #include "iosdsymbuildstep.h"
 #include "iosqtversionfactory.h"
-#include "iosrunfactories.h"
 #include "iosrunner.h"
 #include "iossettingspage.h"
 #include "iossimulator.h"

@@ -9,7 +9,6 @@ HEADERS += \
     createandroidmanifestwizard.h \
     qmakeandroidsupport.h \
     qmakeandroidrunconfiguration.h \
-    qmakeandroidrunfactories.h \
     qmakeandroidbuildapkstep.h \
     qmakeandroidbuildapkwidget.h \
     androidqmakebuildconfigurationfactory.h \
@@ -20,7 +19,6 @@ SOURCES += \
     createandroidmanifestwizard.cpp \
     qmakeandroidsupport.cpp \
     qmakeandroidrunconfiguration.cpp \
-    qmakeandroidrunfactories.cpp \
     qmakeandroidbuildapkstep.cpp \
     qmakeandroidbuildapkwidget.cpp \
     androidqmakebuildconfigurationfactory.cpp \

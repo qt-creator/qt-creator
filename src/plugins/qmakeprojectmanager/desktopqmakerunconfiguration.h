@@ -38,7 +38,7 @@ class DesktopQmakeRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT
 
 public:
-    explicit DesktopQmakeRunConfiguration(ProjectExplorer::Target *target);
+    DesktopQmakeRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     QVariantMap toMap() const override;
 

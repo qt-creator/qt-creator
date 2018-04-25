@@ -38,8 +38,6 @@ QtcPlugin {
         "winrtrunconfiguration.h",
         "winrtruncontrol.cpp",
         "winrtruncontrol.h",
-        "winrtrunfactories.cpp",
-        "winrtrunfactories.h",
         "winrtrunnerhelper.cpp",
         "winrtrunnerhelper.h"
     ]

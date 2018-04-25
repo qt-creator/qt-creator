@@ -45,14 +45,12 @@ using namespace Utils;
 namespace QbsProjectManager {
 namespace Internal {
 
-const char QBS_RC_PREFIX[] = "Qbs.RunConfiguration:";
-
 // --------------------------------------------------------------------
 // QbsRunConfiguration:
 // --------------------------------------------------------------------
 
-QbsRunConfiguration::QbsRunConfiguration(Target *target)
-    : RunConfiguration(target, QBS_RC_PREFIX)
+QbsRunConfiguration::QbsRunConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id)
 {
     auto envAspect = new LocalEnvironmentAspect(this,
             [](RunConfiguration *rc, Environment &env) {
@@ -174,7 +172,7 @@ bool QbsRunConfiguration::canRunForNode(const Node *node) const
 
 QbsRunConfigurationFactory::QbsRunConfigurationFactory()
 {
-    registerRunConfiguration<QbsRunConfiguration>(QBS_RC_PREFIX);
+    registerRunConfiguration<QbsRunConfiguration>("Qbs.RunConfiguration:");
     addSupportedProjectType(Constants::PROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 }

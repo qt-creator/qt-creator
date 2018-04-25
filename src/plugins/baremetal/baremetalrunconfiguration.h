@@ -37,7 +37,7 @@ class BareMetalRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT
 
 public:
-    explicit BareMetalRunConfiguration(ProjectExplorer::Target *target);
+    BareMetalRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     QWidget *createConfigurationWidget() override;
 

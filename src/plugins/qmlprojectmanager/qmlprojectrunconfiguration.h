@@ -43,7 +43,7 @@ class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplor
     friend class QmlProject; // to call updateEnabled()
 
 public:
-    explicit QmlProjectRunConfiguration(ProjectExplorer::Target *target);
+    QmlProjectRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     ProjectExplorer::Runnable runnable() const override;
 

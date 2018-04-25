@@ -40,11 +40,10 @@ using namespace ProjectExplorer;
 namespace CMakeProjectManager {
 namespace Internal {
 
-const char CMAKE_RC_PREFIX[] = "CMakeProjectManager.CMakeRunConfiguration.";
 const char TITLE_KEY[] = "CMakeProjectManager.CMakeRunConfiguation.Title";
 
-CMakeRunConfiguration::CMakeRunConfiguration(Target *target)
-    : RunConfiguration(target, CMAKE_RC_PREFIX)
+CMakeRunConfiguration::CMakeRunConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id)
 {
     // Workaround for QTCREATORBUG-19354:
     auto cmakeRunEnvironmentModifier = [](RunConfiguration *rc, Utils::Environment &env) {
@@ -128,7 +127,7 @@ void CMakeRunConfiguration::updateTargetInformation()
 // Factory
 CMakeRunConfigurationFactory::CMakeRunConfigurationFactory()
 {
-    registerRunConfiguration<CMakeRunConfiguration>(CMAKE_RC_PREFIX);
+    registerRunConfiguration<CMakeRunConfiguration>("CMakeProjectManager.CMakeRunConfiguration.");
     addSupportedProjectType(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 }

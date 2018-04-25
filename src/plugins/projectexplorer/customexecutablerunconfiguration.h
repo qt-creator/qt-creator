@@ -43,6 +43,7 @@ class PROJECTEXPLORER_EXPORT CustomExecutableRunConfiguration : public RunConfig
     friend class ProjectExplorer::RunConfigurationFactory;
 
 public:
+    explicit CustomExecutableRunConfiguration(Target *target, Core::Id id);
     explicit CustomExecutableRunConfiguration(Target *target);
     ~CustomExecutableRunConfiguration() override;
 

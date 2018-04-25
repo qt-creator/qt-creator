@@ -36,17 +36,12 @@ class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::R
     Q_OBJECT
 
 public:
-    explicit RemoteLinuxRunConfiguration(ProjectExplorer::Target *target);
-
+    RemoteLinuxRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
     static const char *IdPrefix;
 
-protected:
-    // FIXME: Used by QNX, remove.
-    RemoteLinuxRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-
+private:
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
 
-private:
     QString defaultDisplayName() const;
     void updateTargetInformation();
 };

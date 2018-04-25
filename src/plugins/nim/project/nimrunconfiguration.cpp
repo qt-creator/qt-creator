@@ -42,8 +42,8 @@ using namespace Utils;
 
 namespace Nim {
 
-NimRunConfiguration::NimRunConfiguration(Target *target)
-    : RunConfiguration(target, Constants::C_NIMRUNCONFIGURATION_ID)
+NimRunConfiguration::NimRunConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id)
 {
     auto terminalAspect = new TerminalAspect(this, "Nim.NimRunConfiguration.TerminalAspect");
     terminalAspect->setRunMode(ApplicationLauncher::Gui);
@@ -100,7 +100,7 @@ void NimRunConfiguration::setActiveBuildConfiguration(NimBuildConfiguration *act
 
 NimRunConfigurationFactory::NimRunConfigurationFactory() : FixedRunConfigurationFactory(QString())
 {
-    registerRunConfiguration<NimRunConfiguration>(Constants::C_NIMRUNCONFIGURATION_ID);
+    registerRunConfiguration<NimRunConfiguration>("Nim.NimRunConfiguration");
     addSupportedProjectType(Constants::C_NIMPROJECT_ID);
 }
 

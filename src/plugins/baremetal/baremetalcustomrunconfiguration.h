@@ -33,8 +33,9 @@ namespace Internal {
 class BareMetalCustomRunConfiguration : public BareMetalRunConfiguration
 {
     Q_OBJECT
+
 public:
-    explicit BareMetalCustomRunConfiguration(ProjectExplorer::Target *parent);
+    BareMetalCustomRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
     bool isConfigured() const override;
     ConfigurationState ensureConfigured(QString *errorMessage) override;

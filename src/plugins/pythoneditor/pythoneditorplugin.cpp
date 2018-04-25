@@ -75,7 +75,6 @@ using namespace Utils;
 namespace PythonEditor {
 namespace Internal {
 
-const char PythonRunConfigurationPrefix[] = "PythonEditor.RunConfiguration.";
 const char InterpreterKey[] = "PythonEditor.RunConfiguation.Interpreter";
 const char MainScriptKey[] = "PythonEditor.RunConfiguation.MainScript";
 const char PythonMimeType[] = "text/x-python-project"; // ### FIXME
@@ -235,7 +234,7 @@ class PythonRunConfiguration : public RunConfiguration
     Q_PROPERTY(QString arguments READ arguments)
 
 public:
-    explicit PythonRunConfiguration(Target *target);
+    PythonRunConfiguration(Target *target, Core::Id id);
 
     QWidget *createConfigurationWidget() override;
     QVariantMap toMap() const override;
@@ -250,8 +249,6 @@ public:
     void setInterpreter(const QString &interpreter) { m_interpreter = interpreter; }
 
 private:
-    friend class ProjectExplorer::RunConfigurationFactory;
-
     QString defaultDisplayName() const;
 
     QString m_interpreter;
@@ -260,8 +257,8 @@ private:
 
 ////////////////////////////////////////////////////////////////
 
-PythonRunConfiguration::PythonRunConfiguration(Target *target)
-    : RunConfiguration(target, PythonRunConfigurationPrefix)
+PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id)
 {
     addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
     addExtraAspect(new ArgumentsAspect(this, "PythonEditor.RunConfiguration.Arguments"));
@@ -351,7 +348,7 @@ class PythonRunConfigurationFactory : public RunConfigurationFactory
 public:
     PythonRunConfigurationFactory()
     {
-        registerRunConfiguration<PythonRunConfiguration>(PythonRunConfigurationPrefix);
+        registerRunConfiguration<PythonRunConfiguration>("PythonEditor.RunConfiguration.");
         addSupportedProjectType(PythonProjectId);
     }
 };

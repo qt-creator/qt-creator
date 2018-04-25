@@ -40,8 +40,8 @@ using namespace Utils;
 namespace RemoteLinux {
 namespace Internal {
 
-RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *target)
-    : RunConfiguration(target, runConfigId())
+RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id)
 {
     auto exeAspect = new ExecutableAspect(this);
     exeAspect->setSettingsKey("RemoteLinux.CustomRunConfig.RemoteExecutable");

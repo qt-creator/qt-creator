@@ -81,14 +81,19 @@ private:
     CustomExecutableConfigurationWidget *m_widget;
 };
 
-CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *target)
-    : RunConfiguration(target, CUSTOM_EXECUTABLE_ID)
+CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id)
 {
     addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
     addExtraAspect(new ArgumentsAspect(this, "ProjectExplorer.CustomExecutableRunConfiguration.Arguments"));
     addExtraAspect(new TerminalAspect(this, "ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal"));
     addExtraAspect(new WorkingDirectoryAspect(this, "ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory"));
     setDefaultDisplayName(defaultDisplayName());
+}
+
+CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *target)
+    : CustomExecutableRunConfiguration(target, CUSTOM_EXECUTABLE_ID)
+{
 }
 
 // Note: Qt4Project deletes all empty customexecrunconfigs for which isConfigured() == false.

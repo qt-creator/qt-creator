@@ -29,8 +29,6 @@ QtcPlugin {
         "androidqmakebuildconfigurationfactory.h",
         "qmakeandroidrunconfiguration.cpp",
         "qmakeandroidrunconfiguration.h",
-        "qmakeandroidrunfactories.cpp",
-        "qmakeandroidrunfactories.h",
         "qmakeandroidsupport.cpp",
         "qmakeandroidsupport.h",
         "qmakeandroidsupportplugin.h",

@@ -11,7 +11,6 @@ HEADERS += \
     iosconstants.h \
     iosconfigurations.h \
     iosrunconfiguration.h \
-    iosrunfactories.h \
     iossettingspage.h \
     iossettingswidget.h \
     iosrunner.h \
@@ -41,7 +40,6 @@ HEADERS += \
 SOURCES += \
     iosconfigurations.cpp \
     iosrunconfiguration.cpp \
-    iosrunfactories.cpp \
     iossettingspage.cpp \
     iossettingswidget.cpp \
     iosrunner.cpp \

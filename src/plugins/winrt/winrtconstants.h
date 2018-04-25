@@ -39,7 +39,6 @@ const char WINRT_WINPHONEQT[] = "WinRt.QtVersion.WindowsPhone";
 const char WINRT_QTMAP_SUBKEYNAME[] = "WinRt";
 const char WINRT_QTMAP_OSFLAVOR[] = "OsFlavor";
 const char WINRT_MANIFEST_EDITOR_ID[] = "WinRTManifestEditorID";
-const char WINRT_RC_PREFIX[] = "WinRt.WinRtRunConfiguration:";
 
 } // Constants
 } // Internal

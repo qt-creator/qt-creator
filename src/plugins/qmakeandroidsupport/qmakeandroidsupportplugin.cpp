@@ -27,7 +27,7 @@
 
 #include "androidqmakebuildconfigurationfactory.h"
 #include "qmakeandroidbuildapkstep.h"
-#include "qmakeandroidrunfactories.h"
+#include "qmakeandroidrunconfiguration.h"
 #include "qmakeandroidsupport.h"
 
 namespace QmakeAndroidSupport {

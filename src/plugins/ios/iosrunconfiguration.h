@@ -44,7 +44,7 @@ class IosRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT
 
 public:
-    explicit IosRunConfiguration(ProjectExplorer::Target *target);
+    IosRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     QWidget *createConfigurationWidget() override;
     IosDeployStep *deployStep() const;
@@ -72,6 +72,12 @@ private:
     bool canRunForNode(const ProjectExplorer::Node *node) const final;
 
     IosDeviceType m_deviceType;
+};
+
+class IosRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
+{
+public:
+    IosRunConfigurationFactory();
 };
 
 } // namespace Internal

@@ -33,8 +33,9 @@ namespace Internal {
 class RemoteLinuxCustomRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
+
 public:
-    explicit RemoteLinuxCustomRunConfiguration(ProjectExplorer::Target *target);
+    RemoteLinuxCustomRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     bool isConfigured() const override;
     ConfigurationState ensureConfigured(QString *errorMessage) override;

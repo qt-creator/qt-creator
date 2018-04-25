@@ -36,7 +36,7 @@ class NimRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT
 
 public:
-    explicit NimRunConfiguration(ProjectExplorer::Target *target);
+    NimRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
 private:
     void updateConfiguration();

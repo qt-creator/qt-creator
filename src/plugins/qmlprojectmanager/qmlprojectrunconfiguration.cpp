@@ -52,8 +52,8 @@ namespace QmlProjectManager {
 
 const char M_CURRENT_FILE[] = "CurrentFile";
 
-QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target)
-    : RunConfiguration(target, Constants::QML_SCENE_RC_ID)
+QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
+    : RunConfiguration(target, id)
 {
     addExtraAspect(new QmlProjectEnvironmentAspect(this));
     setOutputFormatter<QtSupport::QtOutputFormatter>();
@@ -296,7 +296,8 @@ namespace Internal {
 QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory()
     : FixedRunConfigurationFactory(QmlProjectRunConfiguration::tr("QML Scene"), false)
 {
-    registerRunConfiguration<QmlProjectRunConfiguration>(Constants::QML_SCENE_RC_ID);
+    registerRunConfiguration<QmlProjectRunConfiguration>
+            ("QmlProjectManager.QmlRunConfiguration.QmlScene");
     addSupportedProjectType(QmlProjectManager::Constants::QML_PROJECT_ID);
 }
 

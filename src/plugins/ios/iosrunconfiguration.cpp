@@ -35,9 +35,12 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/runconfigurationaspects.h>
+
 #include <qmakeprojectmanager/qmakebuildconfiguration.h>
-#include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
+
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtkitinformation.h>
 
@@ -93,8 +96,8 @@ private:
     QComboBox *m_deviceTypeComboBox;
 };
 
-IosRunConfiguration::IosRunConfiguration(Target *target)
-    : RunConfiguration(target, Constants::IOS_RC_ID_PREFIX)
+IosRunConfiguration::IosRunConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id)
 {
     addExtraAspect(new ArgumentsAspect(this, "Ios.run_arguments"));
     setOutputFormatter<QtSupport::QtOutputFormatter>();
@@ -417,6 +420,17 @@ void IosRunConfigurationWidget::updateValues()
         }
     }
     m_executableLineEdit->setText(m_runConfiguration->localExecutable().toUserOutput());
+}
+
+
+// IosRunConfigurationFactory
+
+IosRunConfigurationFactory::IosRunConfigurationFactory()
+{
+    registerRunConfiguration<IosRunConfiguration>("Qt4ProjectManager.IosRunConfiguration:");
+    addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
+    addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
+    addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
 }
 
 } // namespace Internal

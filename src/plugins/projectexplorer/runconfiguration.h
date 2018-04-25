@@ -343,7 +343,9 @@ protected:
     template <class RunConfig>
     void registerRunConfiguration(Core::Id runConfigBaseId)
     {
-        m_creator = [](Target *t) -> RunConfiguration * { return new RunConfig(t); };
+        m_creator = [runConfigBaseId](Target *t) -> RunConfiguration * {
+            return new RunConfig(t, runConfigBaseId);
+        };
         m_runConfigBaseId = runConfigBaseId;
     }
 

@@ -55,15 +55,14 @@ using namespace Utils;
 namespace QmakeProjectManager {
 namespace Internal {
 
-const char QMAKE_RC_PREFIX[] = "Qt4ProjectManager.Qt4RunConfiguration:";
 const char PRO_FILE_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.ProFile";
 
 //
 // DesktopQmakeRunConfiguration
 //
 
-DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target)
-    : RunConfiguration(target, QMAKE_RC_PREFIX)
+DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id)
 {
     auto envAspect = new LocalEnvironmentAspect(this, [](RunConfiguration *rc, Environment &env) {
                        static_cast<DesktopQmakeRunConfiguration *>(rc)->addToBaseEnvironment(env);
@@ -172,7 +171,7 @@ QString DesktopQmakeRunConfiguration::defaultDisplayName()
 
 DesktopQmakeRunConfigurationFactory::DesktopQmakeRunConfigurationFactory()
 {
-    registerRunConfiguration<DesktopQmakeRunConfiguration>(QMAKE_RC_PREFIX);
+    registerRunConfiguration<DesktopQmakeRunConfiguration>("Qt4ProjectManager.Qt4RunConfiguration:");
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 }

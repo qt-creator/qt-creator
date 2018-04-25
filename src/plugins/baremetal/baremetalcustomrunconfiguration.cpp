@@ -71,8 +71,8 @@ private:
     BareMetalCustomRunConfiguration * const m_runConfig;
 };
 
-BareMetalCustomRunConfiguration::BareMetalCustomRunConfiguration(Target *parent)
-    : BareMetalRunConfiguration(parent)
+BareMetalCustomRunConfiguration::BareMetalCustomRunConfiguration(Target *parent, Core::Id id)
+    : BareMetalRunConfiguration(parent, id)
 {
 }
 

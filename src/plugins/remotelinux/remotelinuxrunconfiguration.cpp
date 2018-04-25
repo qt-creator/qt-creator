@@ -43,11 +43,6 @@ using namespace Utils;
 
 namespace RemoteLinux {
 
-RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target)
-    : RemoteLinuxRunConfiguration(target, IdPrefix)
-{
-}
-
 RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {

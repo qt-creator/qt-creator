@@ -35,8 +35,8 @@ using namespace RemoteLinux;
 namespace Qnx {
 namespace Internal {
 
-QnxRunConfiguration::QnxRunConfiguration(Target *target)
-    : RemoteLinuxRunConfiguration(target, Constants::QNX_QNX_RUNCONFIGURATION_PREFIX)
+QnxRunConfiguration::QnxRunConfiguration(Target *target, Core::Id id)
+    : RemoteLinuxRunConfiguration(target, id)
 {
     auto libAspect = new QtLibPathAspect(this);
     libAspect->setSettingsKey("Qt4ProjectManager.QnxRunConfiguration.QtLibPath");

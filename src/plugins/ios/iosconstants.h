@@ -51,7 +51,5 @@ const quint16 IOS_SIMULATOR_PORT_END = 31000;
 
 const char EXTRA_INFO_KEY[] = "extraInfo";
 
-const char IOS_RC_ID_PREFIX[] = "Qt4ProjectManager.IosRunConfiguration:";
-
 } // namespace Constants;
 } // namespace Ios

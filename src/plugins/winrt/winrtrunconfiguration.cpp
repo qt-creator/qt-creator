@@ -36,6 +36,7 @@
 #include <utils/detailswidget.h>
 
 #include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <QFormLayout>
 
@@ -57,8 +58,8 @@ public:
 };
 
 
-WinRtRunConfiguration::WinRtRunConfiguration(Target *target)
-    : RunConfiguration(target, Constants::WINRT_RC_PREFIX)
+WinRtRunConfiguration::WinRtRunConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id)
 {
     setDisplayName(tr("Run App Package"));
     addExtraAspect(new ArgumentsAspect(this, "WinRtRunConfigurationArgumentsId"));
@@ -133,6 +134,18 @@ QString WinRtRunConfiguration::executable() const
     QString executable = QDir::cleanPath(destDir + '/' + ti.target);
     executable = Utils::HostOsInfo::withExecutableSuffix(executable);
     return executable;
+}
+
+
+// WinRtRunConfigurationFactory
+
+WinRtRunConfigurationFactory::WinRtRunConfigurationFactory()
+{
+    registerRunConfiguration<WinRtRunConfiguration>("WinRt.WinRtRunConfiguration:");
+    addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
+    addSupportedTargetDeviceType(Constants::WINRT_DEVICE_TYPE_LOCAL);
+    addSupportedTargetDeviceType(Constants::WINRT_DEVICE_TYPE_PHONE);
+    addSupportedTargetDeviceType(Constants::WINRT_DEVICE_TYPE_EMULATOR);
 }
 
 } // namespace Internal

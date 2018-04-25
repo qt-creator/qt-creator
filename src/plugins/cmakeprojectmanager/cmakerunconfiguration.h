@@ -35,7 +35,7 @@ class CMakeRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT
 
 public:
-    explicit CMakeRunConfiguration(ProjectExplorer::Target *target);
+    CMakeRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
 private:
     QVariantMap toMap() const override;

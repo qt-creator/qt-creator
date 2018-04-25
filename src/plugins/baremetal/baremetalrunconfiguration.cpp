@@ -84,8 +84,8 @@ void BareMetalRunConfigurationWidget::updateTargetInformation()
 
 // BareMetalRunConfiguration
 
-BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target)
-    : RunConfiguration(target, IdPrefix)
+BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id)
 {
     addExtraAspect(new ArgumentsAspect(this, "Qt4ProjectManager.MaemoRunConfiguration.Arguments"));
     addExtraAspect(new WorkingDirectoryAspect(this, "BareMetal.RunConfig.WorkingDirectory"));

@@ -39,7 +39,7 @@ class QbsRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT
 
 public:
-    explicit QbsRunConfiguration(ProjectExplorer::Target *target);
+    QbsRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     void addToBaseEnvironment(Utils::Environment &env) const;
 

@@ -39,7 +39,7 @@ class QmakeAndroidRunConfiguration : public Android::AndroidRunConfiguration
     Q_OBJECT
 
 public:
-    explicit QmakeAndroidRunConfiguration(ProjectExplorer::Target *target);
+    QmakeAndroidRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     Utils::FileName proFilePath() const;
 
@@ -50,6 +50,12 @@ private:
     void updateDisplayName();
 
     QmakeProjectManager::QmakeProject *qmakeProject() const;
+};
+
+class QmakeAndroidRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
+{
+public:
+    QmakeAndroidRunConfigurationFactory();
 };
 
 } // namespace Internal

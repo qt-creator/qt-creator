@@ -25,17 +25,20 @@
 
 #include "qmakeandroidrunconfiguration.h"
 
+#include <android/androidconstants.h>
+
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtkitinformation.h>
+
 #include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 #include <qmakeprojectmanager/qmakenodes.h>
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-
-#include <QFileInfo>
 
 namespace {
     QLatin1String PRO_FILE_KEY("QMakeProjectManager.QmakeAndroidRunConfiguration.ProFile");
@@ -47,10 +50,8 @@ using QmakeProjectManager::QmakeProject;
 namespace QmakeAndroidSupport {
 namespace Internal {
 
-static const char ANDROID_RC_ID_PREFIX[] = "Qt4ProjectManager.AndroidRunConfiguration:";
-
-QmakeAndroidRunConfiguration::QmakeAndroidRunConfiguration(Target *target)
-    : AndroidRunConfiguration(target, ANDROID_RC_ID_PREFIX)
+QmakeAndroidRunConfiguration::QmakeAndroidRunConfiguration(Target *target, Core::Id id)
+    : AndroidRunConfiguration(target, id)
 {
     connect(target->project(), &Project::parsingFinished, this, [this]() {
         updateDisplayName();
@@ -125,6 +126,17 @@ QmakeProject *QmakeAndroidRunConfiguration::qmakeProject() const
 Utils::FileName QmakeAndroidRunConfiguration::proFilePath() const
 {
     return Utils::FileName::fromString(buildKey());
+}
+
+
+// QmakeAndroidRunConfigurationFactory
+
+QmakeAndroidRunConfigurationFactory::QmakeAndroidRunConfigurationFactory()
+{
+    registerRunConfiguration<QmakeAndroidRunConfiguration>
+            ("Qt4ProjectManager.AndroidRunConfiguration:");
+    addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
+    addSupportedTargetDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
 }
 
 } // namespace Internal

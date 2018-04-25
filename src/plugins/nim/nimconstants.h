@@ -40,7 +40,6 @@ const char C_NIMTOOLCHAIN_TYPEID[] = "Nim.NimToolChain";
 const char C_NIMTOOLCHAIN_COMPILER_COMMAND_KEY[] = "Nim.NimToolChain.CompilerCommand";
 
 // NimRunConfiguration
-const char C_NIMRUNCONFIGURATION_ID[] = "Nim.NimRunConfiguration";
 const QString C_NIMRUNCONFIGURATION_EXECUTABLE_KEY = QStringLiteral("Nim.NimRunConfiguration.Executable");
 
 // NimProject
