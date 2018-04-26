@@ -117,7 +117,7 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
         env = it.value();
         return;
     }
-    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
+    BuildTargetInfo bti = buildTargetInfo();
     if (bti.runEnvModifier)
         bti.runEnvModifier(env, usingLibraryPaths);
     m_envCache.insert(key, env);
@@ -137,7 +137,7 @@ Utils::FileName QbsRunConfiguration::executableToRun(const BuildTargetInfo &targ
 
 void QbsRunConfiguration::updateTargetInformation()
 {
-    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
+    BuildTargetInfo bti = buildTargetInfo();
     const FileName executable = executableToRun(bti);
     auto terminalAspect = extraAspect<TerminalAspect>();
     if (!terminalAspect->isUserSet())

@@ -254,6 +254,8 @@ public:
     // Return a handle to the build system target that created this run configuration.
     // May return an empty string if no target built the executable!
     QString buildKey() const { return m_buildKey; }
+    // The BuildTargetInfo corresponding to the buildKey.
+    BuildTargetInfo buildTargetInfo() const;
 
     void addExtraAspect(IRunConfigurationAspect *aspect);
 

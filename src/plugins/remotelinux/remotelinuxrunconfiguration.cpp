@@ -93,7 +93,7 @@ QString RemoteLinuxRunConfiguration::defaultDisplayName() const
 
 void RemoteLinuxRunConfiguration::updateTargetInformation()
 {
-    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
+    BuildTargetInfo bti = buildTargetInfo();
     QString localExecutable = bti.targetFilePath.toString();
     DeployableFile depFile = target()->deploymentData().deployableForLocalFile(localExecutable);
 

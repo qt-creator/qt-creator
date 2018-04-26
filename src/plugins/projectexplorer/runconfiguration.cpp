@@ -380,6 +380,11 @@ Abi RunConfiguration::abi() const
     return tc->targetAbi();
 }
 
+BuildTargetInfo RunConfiguration::buildTargetInfo() const
+{
+    return target()->applicationTargets().buildTargetInfo(m_buildKey);
+}
+
 bool RunConfiguration::fromMap(const QVariantMap &map)
 {
     if (!ProjectConfiguration::fromMap(map))

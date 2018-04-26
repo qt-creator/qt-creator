@@ -97,7 +97,7 @@ void DesktopQmakeRunConfiguration::updateTargetInformation()
     setDefaultDisplayName(defaultDisplayName());
     extraAspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();
 
-    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
+    BuildTargetInfo bti = buildTargetInfo();
 
     auto wda = extraAspect<WorkingDirectoryAspect>();
     wda->setDefaultWorkingDirectory(bti.workingDirectory);
@@ -137,7 +137,7 @@ void DesktopQmakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreat
 
 void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
 {
-    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
+    BuildTargetInfo bti = buildTargetInfo();
     if (bti.runEnvModifier)
         bti.runEnvModifier(env, extraAspect<UseLibraryPathsAspect>()->value());
 
