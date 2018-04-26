@@ -173,8 +173,7 @@ private:
         FlagIsGenerated = 1 << 1,
         FlagListInProject = 1 << 2,
     };
-    using NodeFlags = QFlags<NodeFlag>;
-    NodeFlags m_flags = FlagIsEnabled;
+    NodeFlag m_flags = FlagIsEnabled;
 };
 
 class PROJECTEXPLORER_EXPORT FileNode : public Node

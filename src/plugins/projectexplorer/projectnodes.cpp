@@ -131,17 +131,17 @@ void Node::setPriority(int p)
 void Node::setListInProject(bool l)
 {
     if (l)
-        m_flags |= FlagListInProject;
+        m_flags = static_cast<NodeFlag>(m_flags | FlagListInProject);
     else
-        m_flags &= ~FlagListInProject;
+        m_flags = static_cast<NodeFlag>(m_flags & ~FlagListInProject);
 }
 
 void Node::setIsGenerated(bool g)
 {
     if (g)
-        m_flags |= FlagIsGenerated;
+        m_flags = static_cast<NodeFlag>(m_flags | FlagIsGenerated);
     else
-        m_flags &= ~FlagIsGenerated;
+        m_flags = static_cast<NodeFlag>(m_flags & ~FlagIsGenerated);
 }
 
 void Node::setAbsoluteFilePathAndLine(const Utils::FileName &path, int line)
@@ -170,7 +170,7 @@ int Node::priority() const
   */
 bool Node::listInProject() const
 {
-    return m_flags.testFlag(FlagListInProject);
+    return (m_flags & FlagListInProject) == FlagListInProject;
 }
 
 /*!
@@ -239,7 +239,7 @@ QString Node::tooltip() const
 
 bool Node::isEnabled() const
 {
-    if (!m_flags.testFlag(FlagIsEnabled))
+    if ((m_flags & FlagIsEnabled) == 0)
         return false;
     FolderNode *parent = parentFolderNode();
     return parent ? parent->isEnabled() : true;
@@ -261,9 +261,9 @@ bool Node::supportsAction(ProjectAction, const Node *) const
 void Node::setEnabled(bool enabled)
 {
     if (enabled)
-        m_flags |= FlagIsEnabled;
+        m_flags = static_cast<NodeFlag>(m_flags | FlagIsEnabled);
     else
-        m_flags &= ~FlagIsEnabled;
+        m_flags = static_cast<NodeFlag>(m_flags & ~FlagIsEnabled);
 }
 
 bool Node::sortByPath(const Node *a, const Node *b)
