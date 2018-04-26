@@ -526,9 +526,9 @@ void QbsProject::handleQbsParsingDone(bool success)
 
 void QbsProject::rebuildProjectTree()
 {
-    QbsProjectNode *newRoot = Internal::QbsNodeTreeBuilder::buildTree(this);
+    std::unique_ptr<QbsRootProjectNode> newRoot = Internal::QbsNodeTreeBuilder::buildTree(this);
     setDisplayName(newRoot ? newRoot->displayName() : projectFilePath().toFileInfo().completeBaseName());
-    setRootProjectNode(newRoot);
+    setRootProjectNode(std::move(newRoot));
 }
 
 void QbsProject::handleRuleExecutionDone()

@@ -359,7 +359,7 @@ void QmlProject::generateProjectTree()
     if (!m_projectItem)
         return;
 
-    auto newRoot = new Internal::QmlProjectNode(this);
+    auto newRoot = std::make_unique<Internal::QmlProjectNode>(this);
 
     for (const QString &f : m_projectItem.data()->files()) {
         const Utils::FileName fileName = Utils::FileName::fromString(f);
@@ -369,7 +369,7 @@ void QmlProject::generateProjectTree()
     }
     newRoot->addNestedNode(new FileNode(projectFilePath(), FileType::Project, false));
 
-    setRootProjectNode(newRoot);
+    setRootProjectNode(std::move(newRoot));
     refreshTargetDirectory();
 }
 

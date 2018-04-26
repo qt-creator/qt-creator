@@ -55,14 +55,14 @@ public:
     {
         ProjectExplorer::FileNode *fileNode
                 = new ProjectExplorer::FileNode(file, ProjectExplorer::FileType::Source, false);
-        DummyProjectNode *root = new DummyProjectNode(file);
+        auto root = std::make_unique<DummyProjectNode>(file);
         root->addNode(fileNode);
         fileNode = new ProjectExplorer::FileNode(
                     Utils::FileName::fromLatin1(
                         ":/qmlprofiler/tests/qmlprofilerdetailsrewriter_test.cpp"),
                     ProjectExplorer::FileType::Source, false);
         root->addNode(fileNode);
-        setRootProjectNode(root);
+        setRootProjectNode(std::move(root));
     }
 
     bool needsConfiguration() const final { return false; }

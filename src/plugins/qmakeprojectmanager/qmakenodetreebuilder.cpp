@@ -197,7 +197,7 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
     }
 }
 
-QmakeProFileNode *QmakeNodeTreeBuilder::buildTree(QmakeProject *project)
+std::unique_ptr<QmakeProFileNode> QmakeNodeTreeBuilder::buildTree(QmakeProject *project)
 {
     // Remove qmake implementation details that litter up the project data:
     Target *t = project->activeTarget();
@@ -206,8 +206,9 @@ QmakeProFileNode *QmakeNodeTreeBuilder::buildTree(QmakeProject *project)
 
     const FileNameList toExclude = qt ? qt->directoriesToIgnoreInProjectTree() : FileNameList();
 
-    auto root = new QmakeProFileNode(project, project->projectFilePath(), project->rootProFile());
-    createTree(project->rootProFile(), root, toExclude);
+    auto root = std::make_unique<QmakeProFileNode>(project, project->projectFilePath(),
+                                                   project->rootProFile());
+    createTree(project->rootProFile(), root.get(), toExclude);
 
     return root;
 }

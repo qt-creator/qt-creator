@@ -339,7 +339,7 @@ void GenericProject::refresh(RefreshOptions options)
     parseProject(options);
 
     if (options & Files) {
-        auto newRoot = new GenericProjectNode(this);
+        auto newRoot = std::make_unique<GenericProjectNode>(this);
 
         for (const QString &f : m_files) {
             FileType fileType = FileType::Source; // ### FIXME
@@ -358,7 +358,7 @@ void GenericProject::refresh(RefreshOptions options)
                                              FileType::Project,
                                              /* generated = */ false));
 
-        setRootProjectNode(newRoot);
+        setRootProjectNode(std::move(newRoot));
     }
 
     refreshCppCodeModel();

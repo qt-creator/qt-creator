@@ -99,7 +99,7 @@ private:
     void updateProjectData(Internal::CMakeBuildConfiguration *bc);
     void updateQmlJSCodeModel();
 
-    Internal::CMakeProjectNode *
+    std::unique_ptr<Internal::CMakeProjectNode>
     generateProjectTree(const QList<const ProjectExplorer::FileNode*> &allFiles) const;
 
     void createGeneratedCodeModelSupport();

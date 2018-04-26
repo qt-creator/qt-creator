@@ -491,28 +491,26 @@ void Project::setId(Core::Id id)
     d->m_id = id;
 }
 
-void Project::setRootProjectNode(ProjectNode *root)
+void Project::setRootProjectNode(std::unique_ptr<ProjectNode> &&root)
 {
-    if (d->m_rootProjectNode.get() == root)
-        return;
+    QTC_ASSERT(d->m_rootProjectNode.get() != root.get(), return);
 
     if (root && root->isEmpty()) {
         // Something went wrong with parsing: At least the project file needs to be
         // shown so that the user can fix the breakage.
         // Do not leak root and use default project tree in this case.
-        delete root;
-        root = nullptr;
+        root.reset();
     }
 
     if (root) {
-        ProjectTree::applyTreeManager(root);
+        ProjectTree::applyTreeManager(root.get());
         root->setParentFolderNode(d->m_containerNode.get());
     }
 
     std::unique_ptr<ProjectNode> oldNode = std::move(d->m_rootProjectNode);
 
-    d->m_rootProjectNode.reset(root);
-    if (oldNode || root)
+    d->m_rootProjectNode = std::move(root);
+    if (oldNode || d->m_rootProjectNode)
         handleSubTreeChanged(d->m_containerNode.get());
 }
 
@@ -1049,13 +1047,13 @@ void ProjectExplorerPlugin::testProject_projectTree()
     QCOMPARE(fileSpy.count(), 0);
     QVERIFY(!project.rootProjectNode());
 
-    project.setRootProjectNode(new TestProjectNode(project.projectDirectory())); // will delete the fileNode...
+    project.setRootProjectNode(std::make_unique<TestProjectNode>(project.projectDirectory()));
     QCOMPARE(fileSpy.count(), 0);
     QVERIFY(!project.rootProjectNode());
 
     std::unique_ptr<ProjectNode> root = createFileTree(&project);
     ProjectNode *rootNode = root.get();
-    project.setRootProjectNode(root.release());
+    project.setRootProjectNode(std::move(root));
     QCOMPARE(fileSpy.count(), 1);
     QCOMPARE(project.rootProjectNode(), rootNode);
 
@@ -1076,10 +1074,6 @@ void ProjectExplorerPlugin::testProject_projectTree()
     QCOMPARE(sourceFiles.count(), 2);
     QVERIFY(sourceFiles.contains(TEST_PROJECT_PATH));
     QVERIFY(sourceFiles.contains(TEST_PROJECT_CPP_FILE));
-
-    project.setRootProjectNode(rootNode);
-    QCOMPARE(fileSpy.count(), 1);
-    QCOMPARE(project.rootProjectNode(), rootNode);
 
     project.setRootProjectNode(nullptr);
     QCOMPARE(fileSpy.count(), 2);

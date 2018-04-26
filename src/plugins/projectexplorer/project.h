@@ -232,7 +232,7 @@ protected:
     void setPreferredKitPredicate(const Kit::Predicate &predicate);
 
     void setId(Core::Id id);
-    void setRootProjectNode(ProjectNode *root); // takes ownership!
+    void setRootProjectNode(std::unique_ptr<ProjectNode> &&root); // takes ownership!
     void setProjectLanguages(Core::Context language);
     void addProjectLanguage(Core::Id id);
     void removeProjectLanguage(Core::Id id);

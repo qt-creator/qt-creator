@@ -457,7 +457,7 @@ void PythonProject::refresh(Target *target)
 
     QDir baseDir(projectDirectory().toString());
     BuildTargetInfoList appTargets;
-    auto newRoot = new PythonProjectNode(this);
+    auto newRoot = std::make_unique<PythonProjectNode>(this);
     for (const QString &f : m_files) {
         const QString displayName = baseDir.relativeFilePath(f);
         FileType fileType = f.endsWith(".pyqtc") ? FileType::Project : FileType::Source;
@@ -470,7 +470,7 @@ void PythonProject::refresh(Target *target)
             appTargets.list.append(bti);
         }
     }
-    setRootProjectNode(newRoot);
+    setRootProjectNode(std::move(newRoot));
 
     if (!target)
         target = activeTarget();

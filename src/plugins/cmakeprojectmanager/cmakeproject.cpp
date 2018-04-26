@@ -272,7 +272,7 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
     auto newRoot = generateProjectTree(m_allFiles);
     if (newRoot) {
         setDisplayName(newRoot->displayName());
-        setRootProjectNode(newRoot);
+        setRootProjectNode(std::move(newRoot));
     }
 
     updateApplicationAndDeploymentTargets();
@@ -348,14 +348,15 @@ void CMakeProject::updateQmlJSCodeModel()
     modelManager->updateProjectInfo(projectInfo, this);
 }
 
-CMakeProjectNode *CMakeProject::generateProjectTree(const QList<const FileNode *> &allFiles) const
+std::unique_ptr<CMakeProjectNode>
+CMakeProject::generateProjectTree(const QList<const FileNode *> &allFiles) const
 {
     if (m_buildDirManager.isParsing())
         return nullptr;
 
     auto root = std::make_unique<CMakeProjectNode>(projectDirectory());
     m_buildDirManager.generateProjectTree(root.get(), allFiles);
-    return root ? root.release() : nullptr;
+    return root;
 }
 
 bool CMakeProject::knowsAllBuildExecutables() const

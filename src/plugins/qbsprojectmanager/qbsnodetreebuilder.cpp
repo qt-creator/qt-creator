@@ -205,13 +205,13 @@ QStringList unreferencedBuildSystemFiles(const qbs::Project &p)
 namespace QbsProjectManager {
 namespace Internal {
 
-QbsRootProjectNode *QbsNodeTreeBuilder::buildTree(QbsProject *project)
+std::unique_ptr<QbsRootProjectNode> QbsNodeTreeBuilder::buildTree(QbsProject *project)
 {
     if (!project->qbsProjectData().isValid())
-        return nullptr;
+        return {};
 
-    auto root = new QbsRootProjectNode(project);
-    setupProjectNode(root, project->qbsProjectData(), project->qbsProject());
+    auto root = std::make_unique<QbsRootProjectNode>(project);
+    setupProjectNode(root.get(), project->qbsProjectData(), project->qbsProject());
     auto buildSystemFiles
             = new ProjectExplorer::FolderNode(project->projectDirectory(),
                                               ProjectExplorer::NodeType::Folder,

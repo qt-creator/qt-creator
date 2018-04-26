@@ -147,10 +147,10 @@ void NimProject::updateProject()
     if (oldFiles == m_files)
         return;
 
-    auto newRoot = new NimProjectNode(*this, projectDirectory());
+    auto newRoot = std::make_unique<NimProjectNode>(*this, projectDirectory());
     newRoot->setDisplayName(displayName());
     newRoot->addNestedNodes(fileNodes);
-    setRootProjectNode(newRoot);
+    setRootProjectNode(std::move(newRoot));
     emitParsingFinished(true);
 }
 
