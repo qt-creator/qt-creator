@@ -907,7 +907,7 @@ void ServerModeReader::addHeaderNodes(ProjectNode *root, const QList<FileNode *>
         }
     }
 
-    if (headerNode->nodes().isEmpty())
+    if (headerNode->isEmpty())
         delete headerNode; // No Headers, do not show this Folder.
     else
         root->addNode(headerNode);

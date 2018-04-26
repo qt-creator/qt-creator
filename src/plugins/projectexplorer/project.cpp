@@ -496,7 +496,7 @@ void Project::setRootProjectNode(ProjectNode *root)
     if (d->m_rootProjectNode.get() == root)
         return;
 
-    if (root && root->nodes().isEmpty()) {
+    if (root && root->isEmpty()) {
         // Something went wrong with parsing: At least the project file needs to be
         // shown so that the user can fix the breakage.
         // Do not leak root and use default project tree in this case.

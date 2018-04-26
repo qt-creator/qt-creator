@@ -206,7 +206,6 @@ class PROJECTEXPLORER_EXPORT FolderNode : public Node
 public:
     explicit FolderNode(const Utils::FileName &folderPath, NodeType nodeType = NodeType::Folder,
                         const QString &displayName = QString(), const QByteArray &id = {});
-    ~FolderNode() override;
 
     QString displayName() const override;
     QIcon icon() const;
@@ -218,7 +217,7 @@ public:
                      const std::function<void(FolderNode *)> &folderTask = {},
                      const std::function<bool(const FolderNode *)> &folderFilterTask = {}) const;
     void forEachGenericNode(const std::function<void(Node *)> &genericTask) const;
-    const QList<Node *> nodes() const { return m_nodes; }
+    const QList<Node *> nodes() const;
     QList<FileNode *> fileNodes() const;
     FileNode *fileNode(const Utils::FileName &file) const;
     QList<FolderNode *> folderNodes() const;
@@ -279,7 +278,9 @@ public:
     virtual bool showWhenEmpty() const;
 
     void addNode(Node *node);
+    void addNode(std::unique_ptr<Node> &&node);
     void removeNode(Node *node);
+    std::unique_ptr<Node> takeNode(Node *node);
 
     bool isEmpty() const;
 
@@ -289,7 +290,7 @@ public:
 protected:
     virtual void handleSubTreeChanged(FolderNode *node);
 
-    QList<Node *> m_nodes;
+    std::vector<std::unique_ptr<Node>> m_nodes;
     QList<LocationInfo> m_locations;
 
 private:
