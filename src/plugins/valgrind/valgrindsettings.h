@@ -183,7 +183,7 @@ class ValgrindGlobalSettings : public ValgrindBaseSettings
 public:
     ValgrindGlobalSettings();
 
-    QWidget *createConfigWidget(QWidget *parent);
+    QWidget *createConfigWidget(QWidget *parent) override;
     void toMap(QVariantMap &map) const;
     void fromMap(const QVariantMap &map);
     ISettingsAspect *create() const { return new ValgrindGlobalSettings; }
@@ -243,7 +243,7 @@ class ValgrindProjectSettings : public ValgrindBaseSettings
 public:
     ValgrindProjectSettings() {}
 
-    QWidget *createConfigWidget(QWidget *parent);
+    QWidget *createConfigWidget(QWidget *parent) override;
     void toMap(QVariantMap &map) const;
     void fromMap(const QVariantMap &map);
     ISettingsAspect *create() const { return new ValgrindProjectSettings; }
