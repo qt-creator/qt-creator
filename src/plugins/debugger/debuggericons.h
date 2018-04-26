@@ -36,12 +36,14 @@ namespace Icons {
 DEBUGGER_EXPORT extern const Utils::Icon RECORD_ON;
 DEBUGGER_EXPORT extern const Utils::Icon RECORD_OFF;
 
+DEBUGGER_EXPORT extern const Utils::Icon TRACEPOINT;
+DEBUGGER_EXPORT extern const Utils::Icon TRACEPOINT_TOOLBAR;
+
 extern const Utils::Icon BREAKPOINT;
 extern const Utils::Icon BREAKPOINT_DISABLED;
 extern const Utils::Icon BREAKPOINT_PENDING;
 extern const Utils::Icon BREAKPOINTS;
 extern const Utils::Icon WATCHPOINT;
-extern const Utils::Icon TRACEPOINT;
 extern const Utils::Icon CONTINUE;
 extern const Utils::Icon CONTINUE_FLAT;
 extern const Utils::Icon DEBUG_CONTINUE_SMALL;

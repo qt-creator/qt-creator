@@ -44,6 +44,9 @@ const Icon WATCHPOINT({
 const Icon TRACEPOINT({
         {":/utils/images/eye_open.png", Theme::TextColorNormal},
         {":/debugger/images/tracepointoverlay.png", Theme::TextColorNormal}}, Icon::Tint | Icon::PunchEdges);
+const Icon TRACEPOINT_TOOLBAR({
+        {":/utils/images/eye_open.png", Theme::IconsBaseColor},
+        {":/debugger/images/tracepointoverlay.png", Theme::IconsBaseColor}});
 const Icon CONTINUE(
         ":/debugger/images/debugger_continue.png");
 const Icon CONTINUE_FLAT({
