@@ -55,7 +55,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/outputformatter.h>
-#include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
@@ -75,8 +74,6 @@ using namespace Utils;
 namespace PythonEditor {
 namespace Internal {
 
-const char InterpreterKey[] = "PythonEditor.RunConfiguation.Interpreter";
-const char MainScriptKey[] = "PythonEditor.RunConfiguation.MainScript";
 const char PythonMimeType[] = "text/x-python-project"; // ### FIXME
 const char PythonProjectId[] = "PythonProject";
 const char PythonErrorTaskCategory[] = "Task.Category.Python";
@@ -214,14 +211,22 @@ private:
     const QRegularExpression filePattern;
 };
 
-class PythonRunConfigurationWidget : public QWidget
-{
-public:
-    explicit PythonRunConfigurationWidget(PythonRunConfiguration *runConfiguration);
-    void setInterpreter(const QString &interpreter);
+////////////////////////////////////////////////////////////////
 
-private:
-    PythonRunConfiguration *m_runConfiguration;
+class InterpreterAspect : public BaseStringAspect
+{
+    Q_OBJECT
+
+public:
+    explicit InterpreterAspect(RunConfiguration *rc) : BaseStringAspect(rc) {}
+};
+
+class MainScriptAspect : public BaseStringAspect
+{
+    Q_OBJECT
+
+public:
+    explicit MainScriptAspect(RunConfiguration *rc) : BaseStringAspect(rc) {}
 };
 
 class PythonRunConfiguration : public RunConfiguration
@@ -236,111 +241,75 @@ class PythonRunConfiguration : public RunConfiguration
 public:
     PythonRunConfiguration(Target *target, Core::Id id);
 
-    QWidget *createConfigurationWidget() override;
-    QVariantMap toMap() const override;
-    bool fromMap(const QVariantMap &map) override;
-    Runnable runnable() const override;
-    void doAdditionalSetup(const RunConfigurationCreationInfo &info) override;
+private:
+    void doAdditionalSetup(const RunConfigurationCreationInfo &) final { updateTargetInformation(); }
+    void fillConfigurationLayout(QFormLayout *layout) const final;
+    Runnable runnable() const final;
 
     bool supportsDebugger() const { return true; }
-    QString mainScript() const { return m_mainScript; }
-    QString arguments() const;
-    QString interpreter() const { return m_interpreter; }
-    void setInterpreter(const QString &interpreter) { m_interpreter = interpreter; }
+    QString mainScript() const { return extraAspect<MainScriptAspect>()->value(); }
+    QString arguments() const { return extraAspect<ArgumentsAspect>()->arguments(); }
+    QString interpreter() const { return extraAspect<InterpreterAspect>()->value(); }
 
-private:
-    QString defaultDisplayName() const;
-
-    QString m_interpreter;
-    QString m_mainScript;
+    void updateTargetInformation();
 };
-
-////////////////////////////////////////////////////////////////
 
 PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
+    const Environment sysEnv = Environment::systemEnvironment();
+    const QString exec = sysEnv.searchInPath("python").toString();
+
+    auto interpreterAspect = new InterpreterAspect(this);
+    interpreterAspect->setSettingsKey("PythonEditor.RunConfiguation.Interpreter");
+    interpreterAspect->setLabelText(tr("Interpreter:"));
+    interpreterAspect->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    interpreterAspect->setValue(exec.isEmpty() ? "python" : exec);
+    addExtraAspect(interpreterAspect);
+
+    auto scriptAspect = new MainScriptAspect(this);
+    scriptAspect->setSettingsKey("PythonEditor.RunConfiguation.Script");
+    scriptAspect->setLabelText(tr("Script:"));
+    scriptAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
+    addExtraAspect(scriptAspect);
+
     addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
     addExtraAspect(new ArgumentsAspect(this, "PythonEditor.RunConfiguration.Arguments"));
     addExtraAspect(new TerminalAspect(this, "PythonEditor.RunConfiguration.UseTerminal"));
+
     setOutputFormatter<PythonOutputFormatter>();
+
+    connect(target, &Target::applicationTargetsChanged,
+            this, &PythonRunConfiguration::updateTargetInformation);
+    connect(target->project(), &Project::parsingFinished,
+            this, &PythonRunConfiguration::updateTargetInformation);
 }
 
-QVariantMap PythonRunConfiguration::toMap() const
+void PythonRunConfiguration::updateTargetInformation()
 {
-    QVariantMap map(RunConfiguration::toMap());
-    map.insert(MainScriptKey, m_mainScript);
-    map.insert(InterpreterKey, m_interpreter);
-    return map;
+    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
+    const QString script = bti.targetFilePath.toString();
+    setDefaultDisplayName(tr("Run %1").arg(script));
+    extraAspect<MainScriptAspect>()->setValue(script);
 }
 
-bool PythonRunConfiguration::fromMap(const QVariantMap &map)
+void PythonRunConfiguration::fillConfigurationLayout(QFormLayout *layout) const
 {
-    if (!RunConfiguration::fromMap(map))
-        return false;
-    m_mainScript = map.value(MainScriptKey).toString();
-    m_interpreter = map.value(InterpreterKey).toString();
-    return true;
-}
-
-void PythonRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
-{
-    Environment sysEnv = Environment::systemEnvironment();
-    const QString exec = sysEnv.searchInPath("python").toString();
-    m_interpreter = exec.isEmpty() ? "python" : exec;
-    m_mainScript = info.buildKey;
-    setDefaultDisplayName(defaultDisplayName());
-}
-
-QString PythonRunConfiguration::defaultDisplayName() const
-{
-    return tr("Run %1").arg(m_mainScript);
-}
-
-QWidget *PythonRunConfiguration::createConfigurationWidget()
-{
-    return wrapWidget(new PythonRunConfigurationWidget(this));
+    extraAspect<InterpreterAspect>()->addToConfigurationLayout(layout);
+    extraAspect<MainScriptAspect>()->addToConfigurationLayout(layout);
+    extraAspect<ArgumentsAspect>()->addToConfigurationLayout(layout);
+    extraAspect<TerminalAspect>()->addToConfigurationLayout(layout);
 }
 
 Runnable PythonRunConfiguration::runnable() const
 {
     StandardRunnable r;
-    QtcProcess::addArg(&r.commandLineArguments, m_mainScript);
+    QtcProcess::addArg(&r.commandLineArguments, mainScript());
     QtcProcess::addArgs(&r.commandLineArguments, extraAspect<ArgumentsAspect>()->arguments());
-    r.executable = m_interpreter;
+    r.executable = extraAspect<InterpreterAspect>()->value();
     r.runMode = extraAspect<TerminalAspect>()->runMode();
     r.environment = extraAspect<EnvironmentAspect>()->environment();
     return r;
-}
-
-QString PythonRunConfiguration::arguments() const
-{
-    auto aspect = extraAspect<ArgumentsAspect>();
-    QTC_ASSERT(aspect, return QString());
-    return aspect->arguments();
-}
-
-PythonRunConfigurationWidget::PythonRunConfigurationWidget(PythonRunConfiguration *runConfiguration)
-    : m_runConfiguration(runConfiguration)
-{
-    auto fl = new QFormLayout(this);
-
-    auto interpreterChooser = new FancyLineEdit(this);
-    interpreterChooser->setText(runConfiguration->interpreter());
-    connect(interpreterChooser, &QLineEdit::textChanged,
-            this, &PythonRunConfigurationWidget::setInterpreter);
-
-    auto scriptLabel = new QLabel(this);
-    scriptLabel->setText(runConfiguration->mainScript());
-
-    fl->addRow(PythonRunConfiguration::tr("Interpreter: "), interpreterChooser);
-    fl->addRow(PythonRunConfiguration::tr("Script: "), scriptLabel);
-    runConfiguration->extraAspect<ArgumentsAspect>()->addToConfigurationLayout(fl);
-    runConfiguration->extraAspect<TerminalAspect>()->addToConfigurationLayout(fl);
-
-    connect(runConfiguration->target(), &Target::applicationTargetsChanged, this, [this, scriptLabel] {
-        scriptLabel->setText(QDir::toNativeSeparators(m_runConfiguration->mainScript()));
-    });
 }
 
 class PythonRunConfigurationFactory : public RunConfigurationFactory
@@ -634,13 +603,6 @@ bool PythonProjectNode::renameFile(const QString &filePath, const QString &newFi
     return m_project->renameFile(filePath, newFilePath);
 }
 
-// PythonRunConfigurationWidget
-
-void PythonRunConfigurationWidget::setInterpreter(const QString &interpreter)
-{
-    m_runConfiguration->setInterpreter(interpreter);
-}
-
 ////////////////////////////////////////////////////////////////////////////////////
 //
 // PythonEditorPlugin
@@ -669,8 +631,8 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
     ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
 
     auto constraint = [](RunConfiguration *runConfiguration) {
-        auto rc = dynamic_cast<PythonRunConfiguration *>(runConfiguration);
-        return  rc && !rc->interpreter().isEmpty();
+        auto aspect = runConfiguration->extraAspect<InterpreterAspect>();
+        return aspect && !aspect->value().isEmpty();
     };
     RunControl::registerWorker<SimpleTargetRunner>(ProjectExplorer::Constants::NORMAL_RUN_MODE, constraint);
 
