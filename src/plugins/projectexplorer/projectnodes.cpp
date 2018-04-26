@@ -96,8 +96,8 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
             // No FolderNode yet, so create it
             auto tmp = factory(path);
             tmp->setDisplayName(part);
-            parent->addNode(tmp);
-            next = tmp;
+            next = tmp.get();
+            parent->addNode(std::move(tmp));
         }
         parent = next;
     }

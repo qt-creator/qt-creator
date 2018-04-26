@@ -727,16 +727,14 @@ ServerModeReader::addCMakeLists(CMakeProjectNode *root, const QList<FileNode *> 
             = Utils::transform<QSet>(cmakeLists, [](const Node *n) { return n->filePath().parentDir(); });
     root->addNestedNodes(cmakeLists, Utils::FileName(),
                          [&cmakeDirs, &cmakeListsNodes](const Utils::FileName &fp)
-                         -> ProjectExplorer::FolderNode * {
-        FolderNode *fn = nullptr;
+                         -> std::unique_ptr<ProjectExplorer::FolderNode> {
         if (cmakeDirs.contains(fp)) {
-            CMakeListsNode *n = new CMakeListsNode(fp);
-            cmakeListsNodes.insert(fp, n);
-            fn = n;
-        } else {
-            fn = new FolderNode(fp);
+            auto fn = std::make_unique<CMakeListsNode>(fp);
+            cmakeListsNodes.insert(fp, fn.get());
+            return fn;
         }
-        return fn;
+
+        return std::make_unique<FolderNode>(fp);
     });
     root->compress();
     return cmakeListsNodes;
