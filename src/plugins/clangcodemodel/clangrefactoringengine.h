@@ -57,7 +57,7 @@ public:
 
 private:
     using FutureCursorWatcher = QFutureWatcher<CppTools::CursorInfo>;
-    FutureCursorWatcher m_watcher;
+    std::unique_ptr<FutureCursorWatcher> m_watcher;
 };
 
 } // namespace ClangRefactoring
