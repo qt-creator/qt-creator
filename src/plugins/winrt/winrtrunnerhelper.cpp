@@ -41,6 +41,8 @@
 
 #include <QDir>
 
+using namespace ProjectExplorer;
+
 using namespace WinRt;
 using namespace WinRt::Internal;
 
@@ -66,11 +68,12 @@ WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QStr
         return;
     }
 
-    const QString &proFile = runConfiguration->proFilePath();
-    m_executableFilePath = target->applicationTargets().targetForProject(proFile).toString();
+    const BuildTargetInfo bti = target->applicationTargets().buildTargetInfo(runConfiguration->buildKey());
+    m_executableFilePath = bti.targetFilePath.toString();
+
     if (m_executableFilePath.isEmpty()) {
         *errorMessage = tr("Cannot determine the executable file path for \"%1\".").arg(
-                    QDir::toNativeSeparators(proFile));
+                    QDir::toNativeSeparators(bti.projectFilePath.toString()));
         return;
     }
 

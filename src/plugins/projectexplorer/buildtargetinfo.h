@@ -72,20 +72,6 @@ inline uint qHash(const BuildTargetInfo &ti)
 class PROJECTEXPLORER_EXPORT BuildTargetInfoList
 {
 public:
-    Utils::FileName targetForProject(const QString &projectFilePath) const
-    {
-        return targetForProject(Utils::FileName::fromString(projectFilePath));
-    }
-
-    Utils::FileName targetForProject(const Utils::FileName &projectFilePath) const
-    {
-        foreach (const BuildTargetInfo &ti, list) {
-            if (ti.projectFilePath == projectFilePath)
-                return ti.targetFilePath;
-        }
-        return Utils::FileName();
-    }
-
     BuildTargetInfo buildTargetInfo(const QString &buildKey) {
         return Utils::findOrDefault(list, [&buildKey](const BuildTargetInfo &ti) {
             return ti.buildKey == buildKey;
