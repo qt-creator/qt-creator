@@ -254,8 +254,8 @@ public:
 
     bool supportsAction(ProjectAction action, const Node *node) const override;
 
-    virtual bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
-    virtual bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
+    virtual bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr);
+    virtual bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr);
     virtual bool deleteFiles(const QStringList &filePaths);
     virtual bool canRenameFile(const QString &filePath, const QString &newFilePath);
     virtual bool renameFile(const QString &filePath, const QString &newFilePath);
