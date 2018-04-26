@@ -29,10 +29,8 @@
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/runconfigurationaspects.h>
-#include <qtsupport/qtoutputformatter.h>
-#include <utils/pathchooser.h>
 
-#include <QFormLayout>
+#include <qtsupport/qtoutputformatter.h>
 
 using namespace Utils;
 using namespace ProjectExplorer;
@@ -40,45 +38,27 @@ using namespace ProjectExplorer;
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalCustomRunConfigWidget : public RunConfigWidget
+BareMetalCustomRunConfiguration::BareMetalCustomRunConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id)
 {
-public:
-    BareMetalCustomRunConfigWidget(BareMetalCustomRunConfiguration *runConfig)
-        : m_runConfig(runConfig)
-    {
-        auto executableChooser = new PathChooser;
-        executableChooser->setExpectedKind(PathChooser::File);
-        executableChooser->setPath(m_runConfig->localExecutableFilePath());
+    auto exeAspect = new ExecutableAspect(this);
+    exeAspect->setSettingsKey("BareMetal.CustomRunConfig.Executable");
+    exeAspect->setPlaceHolderText(tr("Unknown"));
+    exeAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    exeAspect->setExpectedKind(PathChooser::Any);
+    addExtraAspect(exeAspect);
 
-        auto clayout = new QFormLayout(this);
-        clayout->addRow(BareMetalCustomRunConfiguration::tr("Executable:"), executableChooser);
+    addExtraAspect(new ArgumentsAspect(this, "Qt4ProjectManager.MaemoRunConfiguration.Arguments"));
+    addExtraAspect(new WorkingDirectoryAspect(this, "BareMetal.RunConfig.WorkingDirectory"));
 
-        runConfig->extraAspect<ArgumentsAspect>()->addToConfigurationLayout(clayout);
-        runConfig->extraAspect<WorkingDirectoryAspect>()->addToConfigurationLayout(clayout);
-
-        connect(executableChooser, &PathChooser::pathChanged,
-                this, &BareMetalCustomRunConfigWidget::handleLocalExecutableChanged);
-    }
-
-private:
-    void handleLocalExecutableChanged(const QString &path)
-    {
-        m_runConfig->setLocalExecutableFilePath(path.trimmed());
-    }
-
-    QString displayName() const { return m_runConfig->displayName(); }
-
-    BareMetalCustomRunConfiguration * const m_runConfig;
-};
-
-BareMetalCustomRunConfiguration::BareMetalCustomRunConfiguration(Target *parent, Core::Id id)
-    : BareMetalRunConfiguration(parent, id)
-{
+    setDefaultDisplayName(RunConfigurationFactory::decoratedTargetName(tr("Custom Executable)"), target));
 }
+
+const char *BareMetalCustomRunConfiguration::Id = "BareMetal";
 
 bool BareMetalCustomRunConfiguration::isConfigured() const
 {
-    return !m_localExecutable.isEmpty();
+    return !extraAspect<ExecutableAspect>()->executable().isEmpty();
 }
 
 RunConfiguration::ConfigurationState
@@ -94,38 +74,12 @@ BareMetalCustomRunConfiguration::ensureConfigured(QString *errorMessage)
     return Configured;
 }
 
-QWidget *BareMetalCustomRunConfiguration::createConfigurationWidget()
-{
-    return wrapWidget(new BareMetalCustomRunConfigWidget(this));
-}
-
-static QString exeKey()
-{
-    return QLatin1String("BareMetal.CustomRunConfig.Executable");
-}
-
-bool BareMetalCustomRunConfiguration::fromMap(const QVariantMap &map)
-{
-    if (!BareMetalRunConfiguration::fromMap(map))
-            return false;
-    m_localExecutable = map.value(exeKey()).toString();
-    return true;
-}
-
-QVariantMap BareMetalCustomRunConfiguration::toMap() const
-{
-    QVariantMap map = BareMetalRunConfiguration::toMap();
-    map.insert(exeKey(), m_localExecutable);
-    return map;
-}
-
 // BareMetalCustomRunConfigurationFactory
 
-BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory() :
-    FixedRunConfigurationFactory(BareMetalCustomRunConfiguration::tr("Custom Executable"), true)
+BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory()
+    : FixedRunConfigurationFactory(BareMetalCustomRunConfiguration::tr("Custom Executable"), true)
 {
-    registerRunConfiguration<BareMetalCustomRunConfiguration>("BareMetal.CustomRunConfig");
-    setDecorateDisplayNames(true);
+    registerRunConfiguration<BareMetalCustomRunConfiguration>(BareMetalCustomRunConfiguration::Id);
     addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
 }
 

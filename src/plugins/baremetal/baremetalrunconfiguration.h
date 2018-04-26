@@ -30,8 +30,6 @@
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalRunConfigurationWidget;
-
 class BareMetalRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
@@ -39,21 +37,10 @@ class BareMetalRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     BareMetalRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
-    QWidget *createConfigurationWidget() override;
-
-    virtual QString localExecutableFilePath() const;
-    QVariantMap toMap() const override;
-
     static const char *IdPrefix;
 
-signals:
-    void targetInformationChanged() const;
-
-protected:
-    bool fromMap(const QVariantMap &map) override;
-
 private:
-    void handleBuildSystemDataUpdated();
+    void updateTargetInformation();
 };
 
 class BareMetalRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory

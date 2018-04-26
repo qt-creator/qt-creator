@@ -25,31 +25,22 @@
 
 #pragma once
 
-#include "baremetalrunconfiguration.h"
+#include <projectexplorer/runconfiguration.h>
 
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalCustomRunConfiguration : public BareMetalRunConfiguration
+class BareMetalCustomRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 
 public:
-    BareMetalCustomRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    BareMetalCustomRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
+public:
+    static const char *Id;
     bool isConfigured() const override;
     ConfigurationState ensureConfigured(QString *errorMessage) override;
-    QWidget *createConfigurationWidget() override;
-
-    virtual QString localExecutableFilePath() const override { return m_localExecutable; }
-
-    void setLocalExecutableFilePath(const QString &executable) { m_localExecutable = executable; }
-
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
-
-private:
-    QString m_localExecutable;
 };
 
 class BareMetalCustomRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory

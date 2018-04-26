@@ -32,104 +32,43 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
-#include <QFormLayout>
-#include <QLabel>
-#include <QDir>
-
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace BareMetal {
 namespace Internal {
 
-// BareMetalRunConfigurationWidget
-
-class BareMetalRunConfigurationWidget : public QWidget
-{
-public:
-    explicit BareMetalRunConfigurationWidget(BareMetalRunConfiguration *runConfiguration);
-
-private:
-    void updateTargetInformation();
-
-    BareMetalRunConfiguration * const m_runConfiguration;
-    QLabel m_localExecutableLabel;
-};
-
-BareMetalRunConfigurationWidget::BareMetalRunConfigurationWidget(BareMetalRunConfiguration *runConfiguration)
-    : m_runConfiguration(runConfiguration)
-{
-    auto formLayout = new QFormLayout(this);
-    formLayout->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-
-    m_localExecutableLabel.setText(m_runConfiguration->localExecutableFilePath());
-    formLayout->addRow(BareMetalRunConfiguration::tr("Executable:"), &m_localExecutableLabel);
-
-    //d->genericWidgetsLayout.addRow(tr("Debugger host:"),d->runConfiguration);
-    //d->genericWidgetsLayout.addRow(tr("Debugger port:"),d->runConfiguration);
-    runConfiguration->extraAspect<ArgumentsAspect>()->addToConfigurationLayout(formLayout);
-    runConfiguration->extraAspect<WorkingDirectoryAspect>()->addToConfigurationLayout(formLayout);
-
-    connect(m_runConfiguration, &BareMetalRunConfiguration::targetInformationChanged,
-            this, &BareMetalRunConfigurationWidget::updateTargetInformation);
-}
-
-void BareMetalRunConfigurationWidget::updateTargetInformation()
-{
-    const QString regularText = QDir::toNativeSeparators(m_runConfiguration->localExecutableFilePath());
-    const QString errorMessage = "<font color=\"red\">" + tr("Unknown") + "</font>";
-    m_localExecutableLabel.setText(regularText.isEmpty() ? errorMessage : regularText);
-}
-
-
 // BareMetalRunConfiguration
 
 BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
+    auto exeAspect = new ExecutableAspect(this);
+    exeAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
+    exeAspect->setPlaceHolderText(tr("Unknown"));
+    addExtraAspect(exeAspect);
+
     addExtraAspect(new ArgumentsAspect(this, "Qt4ProjectManager.MaemoRunConfiguration.Arguments"));
     addExtraAspect(new WorkingDirectoryAspect(this, "BareMetal.RunConfig.WorkingDirectory"));
 
     connect(target, &Target::deploymentDataChanged,
-            this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated);
+            this, &BareMetalRunConfiguration::updateTargetInformation);
     connect(target, &Target::applicationTargetsChanged,
-            this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated);
+            this, &BareMetalRunConfiguration::updateTargetInformation);
     connect(target, &Target::kitChanged,
-            this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated); // Handles device changes, etc.
+            this, &BareMetalRunConfiguration::updateTargetInformation); // Handles device changes, etc.
+    connect(target->project(), &Project::parsingFinished,
+            this, &BareMetalRunConfiguration::updateTargetInformation);
 }
 
-QWidget *BareMetalRunConfiguration::createConfigurationWidget()
-{
-    return wrapWidget(new BareMetalRunConfigurationWidget(this));
-}
-
-QVariantMap BareMetalRunConfiguration::toMap() const
-{
-    return RunConfiguration::toMap();
-}
-
-bool BareMetalRunConfiguration::fromMap(const QVariantMap &map)
-{
-    if (!RunConfiguration::fromMap(map))
-        return false;
-
-    return true;
-}
-
-QString BareMetalRunConfiguration::localExecutableFilePath() const
+void BareMetalRunConfiguration::updateTargetInformation()
 {
     const BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
-    return bti.targetFilePath.toString();
-}
-
-void BareMetalRunConfiguration::handleBuildSystemDataUpdated()
-{
-    emit targetInformationChanged();
+    extraAspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
     emit enabledChanged();
 }
 
-const char *BareMetalRunConfiguration::IdPrefix = "BareMetal";
-
+const char *BareMetalRunConfiguration::IdPrefix = "BareMetalCustom";
 
 // BareMetalRunConfigurationFactory
 

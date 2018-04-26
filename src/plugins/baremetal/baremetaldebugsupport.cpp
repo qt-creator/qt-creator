@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "baremetaldebugsupport.h"
-#include "baremetalrunconfiguration.h"
 #include "baremetaldevice.h"
 #include "baremetalgdbcommandsdeploystep.h"
 
@@ -86,10 +85,12 @@ BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
 
 void BareMetalDebugSupport::start()
 {
-    const auto rc = qobject_cast<BareMetalRunConfiguration *>(runControl()->runConfiguration());
+    const auto rc = runControl()->runConfiguration();
     QTC_ASSERT(rc, reportFailure(); return);
+    const auto exeAspect = rc->extraAspect<ExecutableAspect>();
+    QTC_ASSERT(exeAspect, reportFailure(); return);
 
-    const QString bin = rc->localExecutableFilePath();
+    const QString bin = exeAspect->executable().toString();
     if (bin.isEmpty()) {
         reportFailure(tr("Cannot debug: Local executable is not set."));
         return;
