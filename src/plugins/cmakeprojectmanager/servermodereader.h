@@ -144,7 +144,7 @@ private:
     void fixTarget(Target *target) const;
 
     QHash<Utils::FileName, ProjectExplorer::ProjectNode *>
-    addCMakeLists(CMakeProjectNode *root, const QList<ProjectExplorer::FileNode *> &cmakeLists);
+    addCMakeLists(CMakeProjectNode *root, std::vector<std::unique_ptr<ProjectExplorer::FileNode> > &&cmakeLists);
     void addProjects(const QHash<Utils::FileName, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
                      const QList<Project *> &projects,
                      QList<ProjectExplorer::FileNode *> &knownHeaderNodes);
@@ -169,7 +169,7 @@ private:
     CMakeConfig m_cmakeConfiguration;
 
     QSet<Utils::FileName> m_cmakeFiles;
-    QList<ProjectExplorer::FileNode *> m_cmakeInputsFileNodes;
+    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> m_cmakeInputsFileNodes;
 
     QList<Project *> m_projects;
     QList<Target *> m_targets;

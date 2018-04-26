@@ -223,10 +223,6 @@ public:
     FileNode *fileNode(const Utils::FileName &file) const;
     QList<FolderNode *> folderNodes() const;
     using FolderNodeFactory = std::function<std::unique_ptr<FolderNode>(const Utils::FileName &)>;
-    void addNestedNodes(const QList<FileNode *> &files,
-                        const Utils::FileName &overrideBaseDir = Utils::FileName(),
-                        const FolderNodeFactory &factory
-                        = [](const Utils::FileName &fn) {return std::make_unique<FolderNode>(fn); });
     void addNestedNodes(std::vector<std::unique_ptr<FileNode>> &&files,
                         const Utils::FileName &overrideBaseDir = Utils::FileName(),
                         const FolderNodeFactory &factory

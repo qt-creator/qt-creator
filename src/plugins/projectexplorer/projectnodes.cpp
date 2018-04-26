@@ -557,13 +557,6 @@ void FolderNode::addNestedNode(std::unique_ptr<FileNode> &&fileNode,
     folder->addNode(std::move(fileNode));
 }
 
-void FolderNode::addNestedNodes(const QList<FileNode *> &files, const Utils::FileName &overrideBaseDir,
-                                const FolderNodeFactory &factory)
-{
-    for (FileNode *fileNode : files)
-        addNestedNode(std::unique_ptr<FileNode>(fileNode), overrideBaseDir, factory);
-}
-
 void FolderNode::addNestedNodes(std::vector<std::unique_ptr<FileNode> > &&files,
                                 const Utils::FileName &overrideBaseDir,
                                 const FolderNode::FolderNodeFactory &factory)
