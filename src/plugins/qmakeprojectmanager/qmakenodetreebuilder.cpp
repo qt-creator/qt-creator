@@ -176,7 +176,7 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
                     // qt quick compiler moves qrc files into it:-/ Get better data based on
                     // the filename.
                     type = FileNode::fileTypeForFileName(fn);
-                    vfolder->addNestedNode(new FileNode(fn, type, false));
+                    vfolder->addNestedNode(std::make_unique<FileNode>(fn, type, false));
                 }
                 for (FolderNode *fn : vfolder->folderNodes())
                     fn->compress();

@@ -548,21 +548,23 @@ QList<FolderNode*> FolderNode::folderNodes() const
     return result;
 }
 
-void FolderNode::addNestedNode(FileNode *fileNode, const Utils::FileName &overrideBaseDir,
+void FolderNode::addNestedNode(std::unique_ptr<FileNode> &&fileNode,
+                               const Utils::FileName &overrideBaseDir,
                                const FolderNodeFactory &factory)
 {
-    // Get relative path to rootNode
     FolderNode *folder = recursiveFindOrCreateFolderNode(this, fileNode->filePath().parentDir(),
                                                          overrideBaseDir, factory);
-    folder->addNode(fileNode);
-
+    folder->addNode(std::move(fileNode));
 }
 
 void FolderNode::addNestedNodes(const QList<FileNode *> &files, const Utils::FileName &overrideBaseDir,
                                 const FolderNodeFactory &factory)
 {
-    for (FileNode *fn : files)
-        addNestedNode(fn, overrideBaseDir, factory);
+    for (FileNode *fileNode : files) {
+        FolderNode *folder = recursiveFindOrCreateFolderNode(this, fileNode->filePath().parentDir(),
+                                                             overrideBaseDir, factory);
+        folder->addNode(fileNode);
+    }
 }
 
 // "Compress" a tree of foldernodes such that foldernodes with exactly one foldernode as a child

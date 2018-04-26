@@ -230,10 +230,11 @@ void FlatModel::addOrRebuildProjectModel(Project *project)
             trimEmptyDirectories(container);
     }
     if (container->childCount() == 0) {
-        FileNode *projectFileNode = new FileNode(project->projectFilePath(), FileType::Project, false);
-        project->containerNode()->addNestedNode(projectFileNode);
-        seen.insert(projectFileNode);
-        container->appendChild(new WrapperNode(projectFileNode));
+        auto projectFileNode = std::make_unique<FileNode>(project->projectFilePath(),
+                                                          FileType::Project, false);
+        seen.insert(projectFileNode.get());
+        container->appendChild(new WrapperNode(projectFileNode.get()));
+        project->containerNode()->addNestedNode(std::move(projectFileNode));
     }
 
     container->sortChildren(&sortWrapperNodes);

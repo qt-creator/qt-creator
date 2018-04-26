@@ -461,7 +461,8 @@ void PythonProject::refresh(Target *target)
     for (const QString &f : m_files) {
         const QString displayName = baseDir.relativeFilePath(f);
         FileType fileType = f.endsWith(".pyqtc") ? FileType::Project : FileType::Source;
-        newRoot->addNestedNode(new PythonFileNode(FileName::fromString(f), displayName, fileType));
+        newRoot->addNestedNode(std::make_unique<PythonFileNode>(FileName::fromString(f),
+                                                                displayName, fileType));
         if (fileType == FileType::Source) {
             BuildTargetInfo bti;
             bti.buildKey = f;

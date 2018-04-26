@@ -73,10 +73,9 @@ void setupArtifacts(ProjectExplorer::FolderNode *root, const QList<qbs::Artifact
             QLatin1String("linkerscript"),
             QLatin1String("qrc"), QLatin1String("java.java")
         };
-        ProjectExplorer::FileNode * const node
-                = new ProjectExplorer::FileNode(path, type, isGenerated);
+        auto node = std::make_unique<ProjectExplorer::FileNode>(path, type, isGenerated);
         node->setListInProject(!isGenerated || ad.fileTags().toSet().intersects(sourceTags));
-        root->addNestedNode(node);
+        root->addNestedNode(std::move(node));
     }
     root->compress();
 }
@@ -222,7 +221,7 @@ std::unique_ptr<QbsRootProjectNode> QbsNodeTreeBuilder::buildTree(QbsProject *pr
     for (const QString &f : files) {
         const Utils::FileName filePath = Utils::FileName::fromString(f);
         if (filePath.isChildOf(base))
-            buildSystemFiles->addNestedNode(new ProjectExplorer::FileNode(filePath, ProjectExplorer::FileType::Project, false));
+            buildSystemFiles->addNestedNode(std::make_unique<ProjectExplorer::FileNode>(filePath, ProjectExplorer::FileType::Project, false));
     }
     buildSystemFiles->compress();
     root->addNode(buildSystemFiles);

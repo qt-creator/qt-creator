@@ -345,18 +345,19 @@ void GenericProject::refresh(RefreshOptions options)
             FileType fileType = FileType::Source; // ### FIXME
             if (f.endsWith(".qrc"))
                 fileType = FileType::Resource;
-            newRoot->addNestedNode(new FileNode(Utils::FileName::fromString(f), fileType, false));
+            newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(f), fileType,
+                                                              false));
         }
 
-        newRoot->addNestedNode(new FileNode(Utils::FileName::fromString(m_filesFileName),
-                                             FileType::Project,
-                                             /* generated = */ false));
-        newRoot->addNestedNode(new FileNode(Utils::FileName::fromString(m_includesFileName),
-                                             FileType::Project,
-                                             /* generated = */ false));
-        newRoot->addNestedNode(new FileNode(Utils::FileName::fromString(m_configFileName),
-                                             FileType::Project,
-                                             /* generated = */ false));
+        newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_filesFileName),
+                                                          FileType::Project,
+                                                          /* generated = */ false));
+        newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_includesFileName),
+                                                          FileType::Project,
+                                                          /* generated = */ false));
+        newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_configFileName),
+                                                          FileType::Project,
+                                                          /* generated = */ false));
 
         setRootProjectNode(std::move(newRoot));
     }

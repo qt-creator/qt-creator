@@ -899,9 +899,9 @@ void ServerModeReader::addHeaderNodes(ProjectNode *root, const QList<FileNode *>
         const int count = seenHeaders.count();
         seenHeaders.insert(fn->filePath());
         if (seenHeaders.count() != count) {
-            auto node = fn->clone();
+            std::unique_ptr<FileNode> node(fn->clone());
             node->setEnabled(false);
-            headerNode->addNestedNode(node);
+            headerNode->addNestedNode(std::move(node));
         }
     }
 
