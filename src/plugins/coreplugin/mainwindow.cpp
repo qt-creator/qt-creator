@@ -708,13 +708,7 @@ void MainWindow::registerDefaultActions()
     mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
     m_toggleRightSideBarButton->setEnabled(false);
 
-    // Show Mode Selector Action
-    m_toggleModeSelectorAction = new QAction(tr("Show Mode Selector"), this);
-    m_toggleModeSelectorAction->setCheckable(true);
-    cmd = ActionManager::registerAction(m_toggleModeSelectorAction, Constants::TOGGLE_MODE_SELECTOR);
-    connect(m_toggleModeSelectorAction, &QAction::triggered,
-            ModeManager::instance(), &ModeManager::setModeSelectorVisible);
-    mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
+    registerModeSelectorStyleActions();
 
     // Window->Views
     ActionContainer *mviews = ActionManager::createMenu(Constants::M_WINDOW_VIEWS);
@@ -758,6 +752,42 @@ void MainWindow::registerDefaultActions()
         cmd = ActionManager::registerAction(tmpaction, "QtCreator.Help.Sep.About");
         mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
     }
+}
+
+void MainWindow::registerModeSelectorStyleActions()
+{
+    ActionContainer *mwindow = ActionManager::actionContainer(Constants::M_WINDOW);
+
+    // Cycle Mode Selector Styles
+    m_cycleModeSelectorStyleAction = new QAction(tr("Cycle Mode Selector Styles"), this);
+    ActionManager::registerAction(m_cycleModeSelectorStyleAction, Constants::CYCLE_MODE_SELECTOR_STYLE);
+    connect(m_cycleModeSelectorStyleAction, &QAction::triggered, this, [this] {
+        ModeManager::cycleModeStyle();
+        updateModeSelectorStyleMenu();
+    });
+
+    // Mode Selector Styles
+    ActionContainer *mmodeLayouts = ActionManager::createMenu(Constants::M_WINDOW_MODESTYLES);
+    mwindow->addMenu(mmodeLayouts, Constants::G_WINDOW_VIEWS);
+    QMenu *styleMenu = mmodeLayouts->menu();
+    styleMenu->setTitle(tr("Mode Selector Style"));
+    auto *stylesGroup = new QActionGroup(styleMenu);
+    stylesGroup->setExclusive(true);
+
+    m_setModeSelectorStyleIconsAndTextAction = stylesGroup->addAction(tr("Icons and Text"));
+    connect(m_setModeSelectorStyleIconsAndTextAction, &QAction::triggered,
+                                 [] { ModeManager::setModeStyle(ModeManager::Style::IconsAndText); });
+    m_setModeSelectorStyleIconsAndTextAction->setCheckable(true);
+    m_setModeSelectorStyleIconsOnlyAction = stylesGroup->addAction(tr("Icons Only"));
+    connect(m_setModeSelectorStyleIconsOnlyAction, &QAction::triggered,
+                                 [] { ModeManager::setModeStyle(ModeManager::Style::IconsOnly); });
+    m_setModeSelectorStyleIconsOnlyAction->setCheckable(true);
+    m_setModeSelectorStyleHiddenAction = stylesGroup->addAction(tr("Hidden"));
+    connect(m_setModeSelectorStyleHiddenAction, &QAction::triggered,
+                                 [] { ModeManager::setModeStyle(ModeManager::Style::Hidden); });
+    m_setModeSelectorStyleHiddenAction->setCheckable(true);
+
+    styleMenu->addActions(stylesGroup->actions());
 }
 
 void MainWindow::openFile()
@@ -941,7 +971,7 @@ static const char settingsGroup[] = "MainWindow";
 static const char colorKey[] = "Color";
 static const char windowGeometryKey[] = "WindowGeometry";
 static const char windowStateKey[] = "WindowState";
-static const char modeSelectorVisibleKey[] = "ModeSelectorVisible";
+static const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
 
 void MainWindow::readSettings()
 {
@@ -957,9 +987,20 @@ void MainWindow::readSettings()
                                   QColor(StyleHelper::DEFAULT_BASE_COLOR)).value<QColor>());
     }
 
-    bool modeSelectorVisible = settings->value(QLatin1String(modeSelectorVisibleKey), true).toBool();
-    ModeManager::setModeSelectorVisible(modeSelectorVisible);
-    m_toggleModeSelectorAction->setChecked(modeSelectorVisible);
+    {
+        ModeManager::Style modeStyle =
+                ModeManager::Style(settings->value(modeSelectorLayoutKey, int(ModeManager::Style::IconsAndText)).toInt());
+
+        // Migrate legacy setting from Qt Creator 4.6 and earlier
+        static const char modeSelectorVisibleKey[] = "ModeSelectorVisible";
+        if (!settings->contains(modeSelectorLayoutKey) && settings->contains(modeSelectorVisibleKey)) {
+            bool visible = settings->value(modeSelectorVisibleKey, true).toBool();
+            modeStyle = visible ? ModeManager::Style::IconsAndText : ModeManager::Style::Hidden;
+        }
+
+        ModeManager::setModeStyle(modeStyle);
+        updateModeSelectorStyleMenu();
+    }
 
     settings->endGroup();
 
@@ -999,9 +1040,24 @@ void MainWindow::saveWindowSettings()
         setWindowState(windowState() & ~Qt::WindowFullScreen);
     settings->setValue(QLatin1String(windowGeometryKey), saveGeometry());
     settings->setValue(QLatin1String(windowStateKey), saveState());
-    settings->setValue(QLatin1String(modeSelectorVisibleKey), ModeManager::isModeSelectorVisible());
+    settings->setValue(modeSelectorLayoutKey, int(ModeManager::modeStyle()));
 
     settings->endGroup();
+}
+
+void MainWindow::updateModeSelectorStyleMenu()
+{
+    switch (ModeManager::modeStyle()) {
+    case ModeManager::Style::IconsAndText:
+        m_setModeSelectorStyleIconsAndTextAction->setChecked(true);
+        break;
+    case ModeManager::Style::IconsOnly:
+        m_setModeSelectorStyleIconsOnlyAction->setChecked(true);
+        break;
+    case ModeManager::Style::Hidden:
+        m_setModeSelectorStyleHiddenAction->setChecked(true);
+        break;
+    }
 }
 
 void MainWindow::updateAdditionalContexts(const Context &remove, const Context &add,

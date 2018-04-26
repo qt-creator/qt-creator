@@ -119,6 +119,8 @@ public:
     void setTabToolTip(int index, const QString &toolTip) { m_tabs[index]->toolTip = toolTip; }
     QString tabToolTip(int index) const { return m_tabs.at(index)->toolTip; }
 
+    void setIconsOnly(bool iconOnly);
+
     int count() const { return m_tabs.count(); }
     QRect tabRect(int index) const;
 
@@ -130,6 +132,7 @@ private:
     QRect m_hoverRect;
     int m_hoverIndex = -1;
     int m_currentIndex = -1;
+    bool m_iconsOnly = false;
     QList<FancyTab *> m_tabs;
     QSize tabSizeHint(bool minimum = false) const;
 };
@@ -156,6 +159,8 @@ public:
 
     void setTabEnabled(int index, bool enable);
     bool isTabEnabled(int index) const;
+
+    void setIconsOnly(bool iconsOnly);
 
     bool isSelectionWidgetVisible() const;
 

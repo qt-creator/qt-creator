@@ -55,12 +55,15 @@ public:
         update();
     }
 
+    void setIconsOnly(bool iconsOnly);
+
     static void hoverOverlay(QPainter *painter, const QRect &spanRect);
 
 private:
     void actionChanged();
 
     qreal m_fader = 0;
+    bool m_iconsOnly = false;
 };
 
 class FancyActionBar : public QWidget
@@ -75,9 +78,11 @@ public:
     void addProjectSelector(QAction *action);
     QLayout *actionsLayout() const;
     QSize minimumSizeHint() const override;
+    void setIconsOnly(bool iconsOnly);
 
 private:
     QVBoxLayout *m_actionsLayout;
+    bool m_iconsOnly = false;
 };
 
 } // namespace Internal

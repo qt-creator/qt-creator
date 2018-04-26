@@ -133,9 +133,12 @@ private:
 
     void registerDefaultContainers();
     void registerDefaultActions();
+    void registerModeSelectorStyleActions();
 
     void readSettings();
     void saveWindowSettings();
+
+    void updateModeSelectorStyleMenu();
 
     ICore *m_coreImpl = nullptr;
     QStringList m_aboutInformation;
@@ -179,7 +182,10 @@ private:
     QAction *m_optionsAction = nullptr;
     QAction *m_toggleLeftSideBarAction = nullptr;
     QAction *m_toggleRightSideBarAction = nullptr;
-    QAction *m_toggleModeSelectorAction = nullptr;
+    QAction *m_cycleModeSelectorStyleAction = nullptr;
+    QAction *m_setModeSelectorStyleIconsAndTextAction = nullptr;
+    QAction *m_setModeSelectorStyleHiddenAction = nullptr;
+    QAction *m_setModeSelectorStyleIconsOnlyAction = nullptr;
     QAction *m_themeAction = nullptr;
 
     QToolButton *m_toggleLeftSideBarButton = nullptr;

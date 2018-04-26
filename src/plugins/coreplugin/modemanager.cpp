@@ -73,7 +73,7 @@ struct ModeManagerPrivate
     QVector<Command*> m_modeCommands;
     Context m_addedContexts;
     int m_oldCurrent;
-    bool m_modeSelectorVisible;
+    ModeManager::Style m_modeStyle = ModeManager::Style::IconsAndText;
 
     bool m_startingUp = true;
     Id m_pendingFirstActiveMode; // Valid before extentionsInitialized.
@@ -108,8 +108,7 @@ ModeManager::ModeManager(Internal::MainWindow *mainWindow,
     d->m_oldCurrent = -1;
     d->m_actionBar = new Internal::FancyActionBar(modeStack);
     d->m_modeStack->addCornerWidget(d->m_actionBar);
-    d->m_modeSelectorVisible = true;
-    d->m_modeStack->setSelectionWidgetVisible(d->m_modeSelectorVisible);
+    setModeStyle(d->m_modeStyle);
 
     connect(d->m_modeStack, &Internal::FancyTabWidget::currentAboutToShow,
             this, &ModeManager::currentTabAboutToChange);
@@ -310,15 +309,26 @@ void ModeManager::setFocusToCurrentMode()
     }
 }
 
-void ModeManager::setModeSelectorVisible(bool visible)
+void ModeManager::setModeStyle(ModeManager::Style style)
 {
-    d->m_modeSelectorVisible = visible;
+    const bool visible = style != Style::Hidden;
+    const bool iconsOnly = style == Style::IconsOnly;
+
+    d->m_modeStyle = style;
+    d->m_actionBar->setIconsOnly(iconsOnly);
+    d->m_modeStack->setIconsOnly(iconsOnly);
     d->m_modeStack->setSelectionWidgetVisible(visible);
 }
 
-bool ModeManager::isModeSelectorVisible()
+void ModeManager::cycleModeStyle()
 {
-    return d->m_modeSelectorVisible;
+    auto nextStyle = Style((int(modeStyle()) + 1) % 3);
+    setModeStyle(nextStyle);
+}
+
+ModeManager::Style ModeManager::modeStyle()
+{
+    return d->m_modeStyle;
 }
 
 ModeManager *ModeManager::instance()

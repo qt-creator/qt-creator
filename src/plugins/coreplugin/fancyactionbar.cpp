@@ -135,8 +135,6 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
     QPainter painter(this);
 
     // draw borders
-    const bool isTitledAction = defaultAction()->property("titledAction").toBool();
-
     if (!HostOsInfo::isMacHost() // Mac UIs usually don't hover
         && m_fader > 0 && isEnabled() && !isDown() && !isChecked()) {
         painter.save();
@@ -177,8 +175,10 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
                                      ? ((isDown() || isChecked()) ? QIcon::Active : QIcon::Normal)
                                      : QIcon::Disabled;
     QRect iconRect(0, 0, Constants::MODEBAR_ICON_SIZE, Constants::MODEBAR_ICON_SIZE);
+
+    const bool isTitledAction = defaultAction()->property("titledAction").toBool();
     // draw popup texts
-    if (isTitledAction) {
+    if (isTitledAction && !m_iconsOnly) {
         QFont normalFont(painter.font());
         QRect centerRect = rect();
         normalFont.setPointSizeF(StyleHelper::sidebarFontSize());
@@ -244,16 +244,18 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
             painter.drawText(buildConfigRect[i], textFlags, buildConfigText);
         }
 
-        // pop up arrow next to icon
-        if (isEnabled() && !icon().isNull()) {
-            QStyleOption opt;
-            opt.initFrom(this);
-            opt.rect = rect().adjusted(rect().width() - 16, 0, -8, 0);
-            StyleHelper::drawArrow(QStyle::PE_IndicatorArrowRight, &painter, &opt);
-        }
     } else {
         iconRect.moveCenter(rect().center());
         StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, iconMode);
+    }
+
+    // pop up arrow next to icon
+    if (isTitledAction && isEnabled() && !icon().isNull()) {
+        QStyleOption opt;
+        opt.initFrom(this);
+        opt.rect = rect().adjusted(rect().width() -
+                                  (m_iconsOnly ? 6 : 16), 0, -(m_iconsOnly ? 0 : 8), 0);
+        StyleHelper::drawArrow(QStyle::PE_IndicatorArrowRight, &painter, &opt);
     }
 }
 
@@ -278,6 +280,11 @@ void FancyActionBar::paintEvent(QPaintEvent *event)
 
 QSize FancyToolButton::sizeHint() const
 {
+    if (m_iconsOnly) {
+        return {Core::Constants::MODEBAR_ICONSONLY_BUTTON_SIZE,
+                Core::Constants::MODEBAR_ICONSONLY_BUTTON_SIZE};
+    }
+
     QSizeF buttonSize = iconSize().expandedTo(QSize(64, 38));
     if (defaultAction()->property("titledAction").toBool()) {
         QFont boldFont(font());
@@ -298,6 +305,12 @@ QSize FancyToolButton::sizeHint() const
 QSize FancyToolButton::minimumSizeHint() const
 {
     return {8, 8};
+}
+
+void FancyToolButton::setIconsOnly(bool iconsOnly)
+{
+    m_iconsOnly = iconsOnly;
+    updateGeometry();
 }
 
 void FancyToolButton::hoverOverlay(QPainter *painter, const QRect &spanRect)
@@ -346,23 +359,22 @@ FancyActionBar::FancyActionBar(QWidget *parent)
 {
     setObjectName("actionbar");
     m_actionsLayout = new QVBoxLayout;
-    auto spacerLayout = new QVBoxLayout;
-    spacerLayout->addLayout(m_actionsLayout);
-    const int sbh = 8;
-    spacerLayout->addSpacing(sbh);
-    spacerLayout->setMargin(0);
-    spacerLayout->setSpacing(0);
-    setLayout(spacerLayout);
-    setContentsMargins(0, 2, 0, 0);
+    m_actionsLayout->setMargin(0);
+    m_actionsLayout->setSpacing(0);
+    setLayout(m_actionsLayout);
+    setContentsMargins(0, 2, 0, 8);
 }
 
 void FancyActionBar::addProjectSelector(QAction *action)
 {
-    m_actionsLayout->insertWidget(0, new FancyToolButton(action, this));
+    insertAction(0, action);
 }
+
 void FancyActionBar::insertAction(int index, QAction *action)
 {
-    m_actionsLayout->insertWidget(index, new FancyToolButton(action, this));
+    auto *button = new FancyToolButton(action, this);
+    button->setIconsOnly(m_iconsOnly);
+    m_actionsLayout->insertWidget(index, button);
 }
 
 QLayout *FancyActionBar::actionsLayout() const
@@ -373,6 +385,16 @@ QLayout *FancyActionBar::actionsLayout() const
 QSize FancyActionBar::minimumSizeHint() const
 {
     return sizeHint();
+}
+
+void FancyActionBar::setIconsOnly(bool iconsOnly)
+{
+    m_iconsOnly = iconsOnly;
+    for (int i = 0, c = m_actionsLayout->count(); i < c; ++i) {
+        if (auto *button = qobject_cast<FancyToolButton*>(m_actionsLayout->itemAt(i)->widget()))
+            button->setIconsOnly(iconsOnly);
+    }
+    setContentsMargins(0, iconsOnly ? 7 : 2, 0, iconsOnly ? 2 : 8);
 }
 
 } // namespace Internal
