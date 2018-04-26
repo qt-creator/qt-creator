@@ -78,13 +78,14 @@ namespace ProjectExplorer {
 //
 ///////////////////////////////////////////////////////////////////////
 
-ISettingsAspect *ISettingsAspect::clone() const
+ISettingsAspect::ISettingsAspect(RunConfiguration *runConfiguration) :
+    m_runConfiguration(runConfiguration)
 {
-    ISettingsAspect *other = create();
-    QVariantMap data;
-    toMap(data);
-    other->fromMap(data);
-    return other;
+}
+
+RunConfiguration *ISettingsAspect::runConfiguration() const
+{
+    return m_runConfiguration;
 }
 
 ///////////////////////////////////////////////////////////////////////

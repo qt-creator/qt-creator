@@ -59,7 +59,7 @@ public:
         LeakCheckOnFinishYes
     };
 
-    ValgrindBaseSettings() {}
+    ValgrindBaseSettings(ProjectExplorer::RunConfiguration *runConfiguration = nullptr);
 
     void toMap(QVariantMap &map) const;
     void fromMap(const QVariantMap &map);
@@ -186,8 +186,6 @@ public:
     QWidget *createConfigWidget(QWidget *parent) override;
     void toMap(QVariantMap &map) const;
     void fromMap(const QVariantMap &map);
-    ISettingsAspect *create() const { return new ValgrindGlobalSettings; }
-
 
     /*
      * Global memcheck settings
@@ -241,12 +239,11 @@ class ValgrindProjectSettings : public ValgrindBaseSettings
     Q_OBJECT
 
 public:
-    ValgrindProjectSettings() {}
+    ValgrindProjectSettings(ProjectExplorer::RunConfiguration *runConfiguration);
 
     QWidget *createConfigWidget(QWidget *parent) override;
     void toMap(QVariantMap &map) const;
     void fromMap(const QVariantMap &map);
-    ISettingsAspect *create() const { return new ValgrindProjectSettings; }
 
     /**
      * Per-project memcheck settings, saves a diff to the global suppression files list

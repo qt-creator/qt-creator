@@ -37,7 +37,7 @@ QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(
         ProjectExplorer::RunConfiguration *parent) :
     ProjectExplorer::IRunConfigurationAspect(parent)
 {
-    setProjectSettings(new QmlProfilerSettings());
+    setProjectSettings(new QmlProfilerSettings(parent));
     setGlobalSettings(QmlProfilerPlugin::globalSettings());
     setId(Constants::SETTINGS);
     setDisplayName(QCoreApplication::translate("QmlProfilerRunConfiguration", "QML Profiler Settings"));

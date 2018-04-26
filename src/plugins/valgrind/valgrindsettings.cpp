@@ -113,6 +113,10 @@ void ValgrindBaseSettings::fromMap(const QVariantMap &map)
     emit changed();
 }
 
+ValgrindBaseSettings::ValgrindBaseSettings(ProjectExplorer::RunConfiguration *runConfiguration) :
+    ProjectExplorer::ISettingsAspect(runConfiguration)
+{}
+
 void ValgrindBaseSettings::toMap(QVariantMap &map) const
 {
     // General
@@ -470,6 +474,11 @@ void ValgrindGlobalSettings::setShortenTemplates(bool on)
 // ValgrindProjectSettings
 //
 //////////////////////////////////////////////////////////////////
+
+ValgrindProjectSettings::ValgrindProjectSettings(
+        ProjectExplorer::RunConfiguration *runConfiguration) :
+    ValgrindBaseSettings(runConfiguration)
+{}
 
 QWidget *ValgrindProjectSettings::createConfigWidget(QWidget *parent)
 {
