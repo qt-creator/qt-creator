@@ -654,12 +654,9 @@ public:
     PythonRunConfigurationFactory runConfigFactory;
 };
 
-static PythonEditorPluginPrivate *dd = nullptr;
-
 PythonEditorPlugin::~PythonEditorPlugin()
 {
-    delete dd;
-    dd = nullptr;
+    delete d;
 }
 
 bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -667,7 +664,7 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    dd = new PythonEditorPluginPrivate;
+    d = new PythonEditorPluginPrivate;
 
     ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
 

@@ -37,10 +37,13 @@ class PythonEditorPlugin : public ExtensionSystem::IPlugin
 
 public:
     PythonEditorPlugin() = default;
-    ~PythonEditorPlugin() override;
+    ~PythonEditorPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
-    void extensionsInitialized() override;
+private:
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
+
+    class PythonEditorPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal
