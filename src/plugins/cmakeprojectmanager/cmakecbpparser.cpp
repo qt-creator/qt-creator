@@ -61,11 +61,11 @@ int distance(const FileName &targetDirectory, const FileName &fileName)
 void CMakeCbpParser::sortFiles()
 {
     QLoggingCategory log("qtc.cmakeprojectmanager.filetargetmapping");
-    FileNameList fileNames = transform(m_fileList, &FileNode::filePath);
+    FileNameList fileNames = transform<QList>(m_fileList, &FileNode::filePath);
 
     sort(fileNames);
 
-    CMakeBuildTarget *last = 0;
+    CMakeBuildTarget *last = nullptr;
     FileName parentDirectory;
 
     qCDebug(log) << "###############";
@@ -428,7 +428,8 @@ void CMakeCbpParser::parseUnit()
             if (!fileName.endsWith(".rule") && !m_processedUnits.contains(fileName)) {
                 // Now check whether we found a virtual element beneath
                 if (m_parsingCMakeUnit) {
-                    m_cmakeFileList.append( new FileNode(fileName, FileType::Project, false));
+                    m_cmakeFileList.emplace_back(
+                                std::make_unique<FileNode>(fileName, FileType::Project, false));
                 } else {
                     bool generated = false;
                     QString onlyFileName = fileName.fileName();
@@ -437,10 +438,15 @@ void CMakeCbpParser::parseUnit()
                         || (onlyFileName.startsWith("qrc_") && onlyFileName.endsWith(".cxx")))
                         generated = true;
 
-                    if (fileName.endsWith(".qrc"))
-                        m_fileList.append( new FileNode(fileName, FileType::Resource, generated));
-                    else
-                        m_fileList.append( new FileNode(fileName, FileType::Source, generated));
+                    if (fileName.endsWith(".qrc")) {
+                        m_fileList.emplace_back(
+                                    std::make_unique<FileNode>(fileName, FileType::Resource,
+                                                               generated));
+                    } else {
+                        m_fileList.emplace_back(
+                                    std::make_unique<FileNode>(fileName, FileType::Source,
+                                                               generated));
+                    }
                 }
                 m_unitTargetMap.insert(fileName, m_unitTargets);
                 m_processedUnits.insert(fileName);
@@ -488,19 +494,9 @@ void CMakeCbpParser::parseUnknownElement()
     }
 }
 
-QList<FileNode *> CMakeCbpParser::fileList()
-{
-    return m_fileList;
-}
-
-QList<FileNode *> CMakeCbpParser::cmakeFileList()
-{
-    return m_cmakeFileList;
-}
-
 bool CMakeCbpParser::hasCMakeFiles()
 {
-    return !m_cmakeFileList.isEmpty();
+    return m_cmakeFileList.size() > 0;
 }
 
 QList<CMakeBuildTarget> CMakeCbpParser::buildTargets()

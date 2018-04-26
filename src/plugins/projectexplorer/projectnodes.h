@@ -227,6 +227,10 @@ public:
                         const Utils::FileName &overrideBaseDir = Utils::FileName(),
                         const FolderNodeFactory &factory
                         = [](const Utils::FileName &fn) {return std::make_unique<FolderNode>(fn); });
+    void addNestedNodes(std::vector<std::unique_ptr<FileNode>> &&files,
+                        const Utils::FileName &overrideBaseDir = Utils::FileName(),
+                        const FolderNodeFactory &factory
+                        = [](const Utils::FileName &fn) { return std::make_unique<FolderNode>(fn); });
     void addNestedNode(std::unique_ptr<FileNode> &&fileNode,
                        const Utils::FileName &overrideBaseDir = Utils::FileName(),
                        const FolderNodeFactory &factory

@@ -1029,11 +1029,11 @@ void ProjectExplorerPlugin::testProject_parsingFail()
 std::unique_ptr<ProjectNode> createFileTree(Project *project)
 {
     std::unique_ptr<ProjectNode> root = std::make_unique<TestProjectNode>(project->projectDirectory());
-    QList<FileNode *> nodes;
-    nodes.append(new FileNode(TEST_PROJECT_PATH, FileType::Project, false));
-    nodes.append(new FileNode(TEST_PROJECT_CPP_FILE, FileType::Source, false));
-    nodes.append(new FileNode(TEST_PROJECT_GENERATED_FILE, FileType::Source, true));
-    root->addNestedNodes(nodes);
+    std::vector<std::unique_ptr<FileNode>> nodes;
+    nodes.emplace_back(std::make_unique<FileNode>(TEST_PROJECT_PATH, FileType::Project, false));
+    nodes.emplace_back(std::make_unique<FileNode>(TEST_PROJECT_CPP_FILE, FileType::Source, false));
+    nodes.emplace_back(std::make_unique<FileNode>(TEST_PROJECT_GENERATED_FILE, FileType::Source, true));
+    root->addNestedNodes(std::move(nodes));
 
     return root;
 }

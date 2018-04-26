@@ -82,7 +82,7 @@ private:
     QSet<Utils::FileName> m_cmakeFiles;
     QString m_projectName;
     QList<CMakeBuildTarget> m_buildTargets;
-    QList<ProjectExplorer::FileNode *> m_files;
+    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> m_files;
     QSet<Internal::CMakeFile *> m_watchedFiles;
 
     // RegExps for function-like macrosses names fixups

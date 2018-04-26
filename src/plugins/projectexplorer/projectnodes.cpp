@@ -564,6 +564,14 @@ void FolderNode::addNestedNodes(const QList<FileNode *> &files, const Utils::Fil
         addNestedNode(std::unique_ptr<FileNode>(fileNode), overrideBaseDir, factory);
 }
 
+void FolderNode::addNestedNodes(std::vector<std::unique_ptr<FileNode> > &&files,
+                                const Utils::FileName &overrideBaseDir,
+                                const FolderNode::FolderNodeFactory &factory)
+{
+    for (std::unique_ptr<FileNode> &f : files)
+        addNestedNode(std::move(f), overrideBaseDir, factory);
+}
+
 // "Compress" a tree of foldernodes such that foldernodes with exactly one foldernode as a child
 // are merged into one. This e.g. turns a sequence of FolderNodes "foo" "bar" "baz" into one
 // FolderNode named "foo/bar/baz", saving a lot of clicks in the Project View to get to the actual

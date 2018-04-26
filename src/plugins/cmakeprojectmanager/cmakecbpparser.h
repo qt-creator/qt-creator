@@ -48,8 +48,10 @@ class CMakeCbpParser : public QXmlStreamReader
 public:
     bool parseCbpFile(CMakeTool::PathMapper mapper, const Utils::FileName &fileName,
                       const Utils::FileName &sourceDirectory);
-    QList<ProjectExplorer::FileNode *> fileList();
-    QList<ProjectExplorer::FileNode *> cmakeFileList();
+    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> &&
+    takeFileList() { return std::move(m_fileList); }
+    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> &&
+    takeCmakeFileList() { return std::move(m_cmakeFileList); }
     QList<CMakeBuildTarget> buildTargets();
     QString projectName() const;
     QString compilerName() const;
@@ -74,8 +76,8 @@ private:
 
     QMap<Utils::FileName, QStringList> m_unitTargetMap;
     CMakeTool::PathMapper m_pathMapper;
-    QList<ProjectExplorer::FileNode *> m_fileList;
-    QList<ProjectExplorer::FileNode *> m_cmakeFileList;
+    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> m_fileList;
+    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> m_cmakeFileList;
     QSet<Utils::FileName> m_processedUnits;
     bool m_parsingCMakeUnit = false;
 
