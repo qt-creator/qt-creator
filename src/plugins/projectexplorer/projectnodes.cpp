@@ -583,7 +583,7 @@ void FolderNode::compress()
         }
         setAbsoluteFilePathAndLine(subFolder->filePath(), -1);
 
-        removeNode(subFolder);
+        takeNode(subFolder);
 
         compress();
     } else {
@@ -617,7 +617,7 @@ bool FolderNode::replaceSubtree(Node *oldNode, Node *newNode)
             nn->setParentFolderNode(this);
             *it = std::move(nn);
         } else {
-            removeNode(oldNode); // Happens e.g. when project is shutting down
+            takeNode(oldNode); // Happens e.g. when project is shutting down
         }
         QTimer::singleShot(0, [oldNode]() { delete oldNode; });
     }
@@ -728,14 +728,8 @@ void FolderNode::addNode(std::unique_ptr<Node> &&node)
 }
 
 /*!
-  Removes a node specified by \a node from the internal list of nodes.
-  The node object itself is not deleted.
+  Return a node specified by \a node from the internal list.
 */
-
-void FolderNode::removeNode(Node *node)
-{
-    takeNode(node);
-}
 
 std::unique_ptr<Node> FolderNode::takeNode(Node *node)
 {

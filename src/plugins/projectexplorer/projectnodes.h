@@ -279,7 +279,6 @@ public:
 
     void addNode(Node *node);
     void addNode(std::unique_ptr<Node> &&node);
-    void removeNode(Node *node);
     std::unique_ptr<Node> takeNode(Node *node);
 
     bool isEmpty() const;
