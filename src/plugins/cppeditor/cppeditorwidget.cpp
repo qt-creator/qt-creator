@@ -435,10 +435,14 @@ void CppEditorWidget::findUsages(QTextCursor cursor)
 {
     if (cursor.isNull())
         cursor = textCursor();
+    // 'this' in cursorInEditor is never used (and must never be used) asynchronously.
     const CppTools::CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this};
+    QPointer<CppEditorWidget> cppEditorWidget = this;
     refactoringEngine().findUsages(cursorInEditor,
-                                   [this, cursor](const CppTools::Usages &usages) {
-                                       findRenameCallback(this, cursor, usages);
+                                   [=](const CppTools::Usages &usages) {
+                                       if (!cppEditorWidget)
+                                           return;
+                                       findRenameCallback(cppEditorWidget.data(), cursor, usages);
                                    });
 }
 
@@ -447,10 +451,13 @@ void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor curso
     if (cursor.isNull())
         cursor = textCursor();
     CppTools::CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this};
+    QPointer<CppEditorWidget> cppEditorWidget = this;
     refactoringEngine().globalRename(cursorInEditor,
-                                     [this, cursor, &replacement](const CppTools::Usages &usages) {
-                                         findRenameCallback(this, cursor, usages, true,
-                                                            replacement);
+                                     [=](const CppTools::Usages &usages) {
+                                         if (!cppEditorWidget)
+                                             return;
+                                         findRenameCallback(cppEditorWidget.data(), cursor, usages,
+                                                            true, replacement);
                                      },
                                      replacement);
 }

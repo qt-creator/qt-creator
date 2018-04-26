@@ -384,20 +384,23 @@ void SessionManager::addProject(Project *pro)
 
     emit m_instance->projectAdded(pro);
     const auto updateFolderNavigation = [pro] {
-        const QIcon icon = pro->rootProjectNode() ? pro->rootProjectNode()->icon() : QIcon();
-        FolderNavigationWidgetFactory::insertRootDirectory({projectFolderId(pro),
-                                                            PROJECT_SORT_VALUE,
-                                                            pro->displayName(),
-                                                            pro->projectFilePath().parentDir(),
-                                                            icon});
+        // destructing projects might trigger changes, so check if the project is actually there
+        if (QTC_GUARD(d->m_projects.contains(pro))) {
+            const QIcon icon = pro->rootProjectNode() ? pro->rootProjectNode()->icon() : QIcon();
+            FolderNavigationWidgetFactory::insertRootDirectory({projectFolderId(pro),
+                                                                PROJECT_SORT_VALUE,
+                                                                pro->displayName(),
+                                                                pro->projectFilePath().parentDir(),
+                                                                icon});
+        }
     };
     updateFolderNavigation();
     configureEditors(pro);
-    connect(pro, &Project::fileListChanged, [pro, updateFolderNavigation]() {
+    connect(pro, &Project::fileListChanged, m_instance, [pro, updateFolderNavigation]() {
         configureEditors(pro);
         updateFolderNavigation(); // update icon
     });
-    connect(pro, &Project::displayNameChanged, pro, updateFolderNavigation);
+    connect(pro, &Project::displayNameChanged, m_instance, updateFolderNavigation);
 
     if (!startupProject())
         setStartupProject(pro);
@@ -696,8 +699,9 @@ void SessionManager::removeProjects(const QList<Project *> &remove)
         if (pro == d->m_startupProject)
             changeStartupProject = true;
 
-        emit m_instance->projectRemoved(pro);
         FolderNavigationWidgetFactory::removeRootDirectory(projectFolderId(pro));
+        disconnect(pro, nullptr, m_instance, nullptr);
+        emit m_instance->projectRemoved(pro);
     }
 
     if (changeStartupProject)
