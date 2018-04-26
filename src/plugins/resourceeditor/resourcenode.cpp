@@ -72,8 +72,8 @@ public:
             return true;
         FolderNode *parent = m_node->parentFolderNode();
         QTC_ASSERT(parent, return false);
-        auto newNode = new ResourceTopLevelNode(m_node->filePath(), false, m_node->contents(), parent);
-        m_node->parentFolderNode()->replaceSubtree(m_node, newNode);
+        parent->replaceSubtree(m_node, std::make_unique<ResourceTopLevelNode>(
+                                   m_node->filePath(), false, m_node->contents(), parent));
         return true;
     }
 

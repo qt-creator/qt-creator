@@ -237,7 +237,7 @@ public:
 
     // takes ownership of newNode.
     // Will delete newNode if oldNode is not a child of this node.
-    bool replaceSubtree(Node *oldNode, Node *newNode);
+    bool replaceSubtree(Node *oldNode, std::unique_ptr<Node> &&newNode);
 
     void setDisplayName(const QString &name);
     void setIcon(const QIcon &icon);
