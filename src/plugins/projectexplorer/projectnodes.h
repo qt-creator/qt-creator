@@ -282,7 +282,6 @@ public:
     // determines if node will always be shown when hiding empty directories
     virtual bool showWhenEmpty() const;
 
-    void addNode(Node *node);
     void addNode(std::unique_ptr<Node> &&node);
     std::unique_ptr<Node> takeNode(Node *node);
 

@@ -313,9 +313,9 @@ void ResourceTopLevelNode::addInternalNodes()
         // ensure that we don't duplicate prefixes
         PrefixFolderLang prefixId(prefix, QString(), lang);
         if (!folderNodes.contains(prefixId)) {
-            FolderNode *fn = new ResourceFolderNode(file.prefix(i), file.lang(i), this);
-            addNode(fn);
-            folderNodes.insert(prefixId, fn);
+            auto fn = std::make_unique<ResourceFolderNode>(file.prefix(i), file.lang(i), this);
+            folderNodes.insert(prefixId, fn.get());
+            addNode(std::move(fn));
         }
         ResourceFolderNode *currentPrefixNode = static_cast<ResourceFolderNode*>(folderNodes[prefixId]);
 
@@ -357,19 +357,18 @@ void ResourceTopLevelNode::addInternalNodes()
                             = filePath().toFileInfo().absoluteDir().absoluteFilePath(
                                 currentPathList.join(QLatin1Char('/')));
                     const FileName folderPath = FileName::fromString(absoluteFolderName);
-                    FolderNode *newNode
-                            = new SimpleResourceFolderNode(folderName, pathElement,
-                                                           prefix, lang, folderPath,
-                                                           this, currentPrefixNode);
-                    folderNodes.insert(folderId, newNode);
+                    std::unique_ptr<FolderNode> newNode
+                            = std::make_unique<SimpleResourceFolderNode>(folderName, pathElement,
+                                                                         prefix, lang, folderPath,
+                                                                         this, currentPrefixNode);
+                    folderNodes.insert(folderId, newNode.get());
 
                     PrefixFolderLang thisPrefixId = prefixId;
                     if (!parentIsPrefix)
                         thisPrefixId = PrefixFolderLang(prefix, parentFolderName, lang);
                     FolderNode *fn = folderNodes[thisPrefixId];
-                    QTC_CHECK(fn);
-                    if (fn)
-                        fn->addNode(newNode);
+                    if (QTC_GUARD(fn))
+                        fn->addNode(std::move(newNode));
                 }
                 parentIsPrefix = false;
                 parentFolderName = folderName;
@@ -380,8 +379,8 @@ void ResourceTopLevelNode::addInternalNodes()
             FolderNode *fn = folderNodes[folderId];
             QTC_CHECK(fn);
             if (fn)
-                fn->addNode(new ResourceFileNode(FileName::fromString(fileName),
-                                                 qrcPath, displayName));
+                fn->addNode(std::make_unique<ResourceFileNode>(FileName::fromString(fileName),
+                                                               qrcPath, displayName));
         }
     }
 }

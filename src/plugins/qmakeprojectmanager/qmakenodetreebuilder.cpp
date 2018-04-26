@@ -137,7 +137,7 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
     node->setIcon(qmakeStaticData()->projectIcon);
 
     // .pro/.pri-file itself:
-    node->addNode(new FileNode(pri->filePath(), FileType::Project, false));
+    node->addNode(std::make_unique<FileNode>(pri->filePath(), FileType::Project, false));
 
     // other normal files:
     const QVector<QmakeStaticData::FileTypeData> &fileTypes = qmakeStaticData()->fileTypeData;
@@ -148,7 +148,7 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
         });
 
         if (!newFilePaths.isEmpty()) {
-            auto vfolder = new VirtualFolderNode(pri->filePath().parentDir(), Node::DefaultVirtualFolderPriority - i);
+            auto vfolder = std::make_unique<VirtualFolderNode>(pri->filePath().parentDir(), Node::DefaultVirtualFolderPriority - i);
             vfolder->setIcon(fileTypes.at(i).icon);
             vfolder->setDisplayName(fileTypes.at(i).typeName);
             vfolder->setAddFileFilter(fileTypes.at(i).addFileFilter);
@@ -167,8 +167,7 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
                         int eid = vfs->idForFileName(file.toString(), QMakeVfs::VfsExact);
                         vfs->readFile(eid, &contents, &errorMessage);
                     }
-                    auto resourceNode = new ResourceEditor::ResourceTopLevelNode(file, false, contents, vfolder);
-                    vfolder->addNode(resourceNode);
+                    vfolder->addNode(std::make_unique<ResourceEditor::ResourceTopLevelNode>(file, false, contents, vfolder.get()));
                 }
             } else {
                 for (const FileName &fn : newFilePaths) {
@@ -181,19 +180,19 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
                 for (FolderNode *fn : vfolder->folderNodes())
                     fn->compress();
             }
-            node->addNode(vfolder);
+            node->addNode(std::move(vfolder));
         }
     }
 
     // Virtual folders:
     for (QmakePriFile *c : pri->children()) {
-        QmakePriFileNode *newNode = nullptr;
+        std::unique_ptr<QmakePriFileNode> newNode;
         if (auto pf = dynamic_cast<QmakeProFile *>(c))
-            newNode = new QmakeProFileNode(c->project(), c->filePath(), pf);
+            newNode = std::make_unique<QmakeProFileNode>(c->project(), c->filePath(), pf);
         else
-            newNode = new QmakePriFileNode(c->project(), node->proFileNode(), c->filePath(), c);
-        createTree(c, newNode, toExclude);
-        node->addNode(newNode);
+            newNode = std::make_unique<QmakePriFileNode>(c->project(), node->proFileNode(), c->filePath(), c);
+        createTree(c, newNode.get(), toExclude);
+        node->addNode(std::move(newNode));
     }
 }
 

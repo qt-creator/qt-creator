@@ -53,15 +53,15 @@ public:
     DummyProject(const Utils::FileName &file) :
         ProjectExplorer::Project(QString(), file, {})
     {
-        ProjectExplorer::FileNode *fileNode
-                = new ProjectExplorer::FileNode(file, ProjectExplorer::FileType::Source, false);
+        auto fileNode
+                = std::make_unique<ProjectExplorer::FileNode>(file, ProjectExplorer::FileType::Source, false);
         auto root = std::make_unique<DummyProjectNode>(file);
-        root->addNode(fileNode);
-        fileNode = new ProjectExplorer::FileNode(
+        root->addNode(std::move(fileNode));
+        fileNode = std::make_unique<ProjectExplorer::FileNode>(
                     Utils::FileName::fromLatin1(
                         ":/qmlprofiler/tests/qmlprofilerdetailsrewriter_test.cpp"),
                     ProjectExplorer::FileType::Source, false);
-        root->addNode(fileNode);
+        root->addNode(std::move(fileNode));
         setRootProjectNode(std::move(root));
     }
 

@@ -264,9 +264,10 @@ static void addCMakeVFolder(FolderNode *base, const Utils::FileName &basePath, i
         return;
     FolderNode *folder = base;
     if (!displayName.isEmpty()) {
-        folder = new VirtualFolderNode(basePath, priority);
-        folder->setDisplayName(displayName);
-        base->addNode(folder);
+        auto newFolder = std::make_unique<VirtualFolderNode>(basePath, priority);
+        newFolder->setDisplayName(displayName);
+        folder = newFolder.get();
+        base->addNode(std::move(newFolder));
     }
     folder->addNestedNodes(files);
     for (FolderNode *fn : folder->folderNodes())
@@ -291,8 +292,7 @@ static void addCMakeInputs(FolderNode *root,
                            QList<FileNode *> &buildInputs,
                            QList<FileNode *> &rootInputs)
 {
-    ProjectNode *cmakeVFolder = new CMakeInputsNode(root->filePath());
-    root->addNode(cmakeVFolder);
+    std::unique_ptr<ProjectNode> cmakeVFolder = std::make_unique<CMakeInputsNode>(root->filePath());
 
     QSet<Utils::FileName> knownFiles;
     root->forEachGenericNode([&knownFiles](const Node *n) {
@@ -300,13 +300,15 @@ static void addCMakeInputs(FolderNode *root,
             knownFiles.insert(n->filePath());
     });
 
-    addCMakeVFolder(cmakeVFolder, sourceDir, 1000, QString(), removeKnownNodes(knownFiles, sourceInputs));
-    addCMakeVFolder(cmakeVFolder, buildDir, 100,
+    addCMakeVFolder(cmakeVFolder.get(), sourceDir, 1000, QString(), removeKnownNodes(knownFiles, sourceInputs));
+    addCMakeVFolder(cmakeVFolder.get(), buildDir, 100,
                     QCoreApplication::translate("CMakeProjectManager::Internal::ServerModeReader", "<Build Directory>"),
                     removeKnownNodes(knownFiles, buildInputs));
-    addCMakeVFolder(cmakeVFolder, Utils::FileName(), 10,
+    addCMakeVFolder(cmakeVFolder.get(), Utils::FileName(), 10,
                     QCoreApplication::translate("CMakeProjectManager::Internal::ServerModeReader", "<Other Locations>"),
                     removeKnownNodes(knownFiles, rootInputs));
+
+    root->addNode(std::move(cmakeVFolder));
 }
 
 void ServerModeReader::generateProjectTree(CMakeProjectNode *root,
@@ -751,8 +753,9 @@ static ProjectNode *createProjectNode(const QHash<Utils::FileName, ProjectNode *
 
     CMakeProjectNode *pn = static_cast<CMakeProjectNode *>(cmln->projectNode(projectName));
     if (!pn) {
-        pn = new CMakeProjectNode(projectName);
-        cmln->addNode(pn);
+        auto newNode = std::make_unique<CMakeProjectNode>(projectName);
+        pn = newNode.get();
+        cmln->addNode(std::move(newNode));
     }
     pn->setDisplayName(displayName);
     return pn;
@@ -781,8 +784,9 @@ static CMakeTargetNode *createTargetNode(const QHash<Utils::FileName, ProjectNod
         return n->id() == targetId;
     }));
     if (!tn) {
-        tn = new CMakeTargetNode(dir, displayName);
-        cmln->addNode(tn);
+        auto newNode = std::make_unique<CMakeTargetNode>(dir, displayName);
+        tn = newNode.get();
+        cmln->addNode(std::move(newNode));
     }
     tn->setDisplayName(displayName);
     return tn;
@@ -885,7 +889,7 @@ void ServerModeReader::addHeaderNodes(ProjectNode *root, const QList<FileNode *>
         return;
 
     static QIcon headerNodeIcon = Core::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_H);
-    auto headerNode = new VirtualFolderNode(root->filePath(), Node::DefaultPriority - 5);
+    auto headerNode = std::make_unique<VirtualFolderNode>(root->filePath(), Node::DefaultPriority - 5);
     headerNode->setDisplayName(tr("<Headers>"));
     headerNode->setIcon(headerNodeIcon);
 
@@ -905,10 +909,8 @@ void ServerModeReader::addHeaderNodes(ProjectNode *root, const QList<FileNode *>
         }
     }
 
-    if (headerNode->isEmpty())
-        delete headerNode; // No Headers, do not show this Folder.
-    else
-        root->addNode(headerNode);
+    if (!headerNode->isEmpty())
+        root->addNode(std::move(headerNode));
 }
 
 } // namespace Internal
