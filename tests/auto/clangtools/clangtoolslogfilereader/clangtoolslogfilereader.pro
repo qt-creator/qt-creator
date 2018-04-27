@@ -1,4 +1,7 @@
 include(../clangtoolstest.pri)
+include(../../../../src/shared/clang/clang_installation.pri)
+
+requires(!isEmpty(LLVM_VERSION))
 
 TARGET = tst_clangtoolslogfilereader
 
