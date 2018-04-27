@@ -27,7 +27,6 @@
 
 #include "winrtconstants.h"
 #include "winrtpackagedeploymentstepwidget.h"
-#include "winrtrunconfiguration.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
@@ -36,7 +35,10 @@
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runconfiguration.h>
+
 #include <qtsupport/qtkitinformation.h>
+
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -57,16 +59,15 @@ WinRtPackageDeploymentStep::WinRtPackageDeploymentStep(BuildStepList *bsl)
 
 bool WinRtPackageDeploymentStep::init(QList<const BuildStep *> &earlierSteps)
 {
-    WinRtRunConfiguration *rc = qobject_cast<WinRtRunConfiguration *>(
-                target()->activeRunConfiguration());
+    RunConfiguration *rc = target()->activeRunConfiguration();
     QTC_ASSERT(rc, return false);
 
-    Utils::FileName appTargetFilePath =
-            target()->applicationTargets().buildTargetInfo(rc->proFilePath()).targetFilePath;
+    const BuildTargetInfo bti = rc->buildTargetInfo();
+    Utils::FileName appTargetFilePath = bti.targetFilePath;
 
     m_targetFilePath = appTargetFilePath.toString();
     if (m_targetFilePath.isEmpty()) {
-        raiseError(tr("No executable to deploy found in %1.").arg(rc->proFilePath()));
+        raiseError(tr("No executable to deploy found in %1.").arg(bti.projectFilePath.toString()));
         return false;
     }
 
