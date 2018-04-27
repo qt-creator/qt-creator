@@ -86,13 +86,6 @@ public:
         return Utils::FileName();
     }
 
-    Utils::FileName targetFilePath(const QString &buildKey) {
-        return Utils::findOrDefault(list, [&buildKey](const BuildTargetInfo &ti) {
-            return ti.buildKey == buildKey
-                || ti.projectFilePath.toString() == buildKey;
-        }).targetFilePath;
-    }
-
     BuildTargetInfo buildTargetInfo(const QString &buildKey) {
         return Utils::findOrDefault(list, [&buildKey](const BuildTargetInfo &ti) {
             return ti.buildKey == buildKey;
