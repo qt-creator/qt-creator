@@ -25,6 +25,7 @@
 
 #include "abstractprocessstep.h"
 #include "ansifilterparser.h"
+#include "buildconfiguration.h"
 #include "buildstep.h"
 #include "project.h"
 #include "task.h"
@@ -305,8 +306,11 @@ void AbstractProcessStep::processReadyReadStdOutput()
     if (!m_process)
         return;
     m_process->setReadChannel(QProcess::StandardOutput);
+    const bool utf8Output = buildConfiguration()->environment().hasKey("VSLANG");
+
     while (m_process->canReadLine()) {
-        QString line = QString::fromLocal8Bit(m_process->readLine());
+        QString line = utf8Output ? QString::fromUtf8(m_process->readLine())
+                                  : QString::fromLocal8Bit(m_process->readLine());
         stdOutput(line);
     }
 }

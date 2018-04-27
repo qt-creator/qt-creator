@@ -247,24 +247,46 @@ void AbstractMsvcToolChain::addToEnvironment(Utils::Environment &env) const
     env = m_resultEnvironment;
 }
 
+static QString wrappedMakeCommand(const QString &command)
+{
+    const QString wrapperPath = QDir::currentPath() + "/msvc_make.bat";
+    QFile wrapper(wrapperPath);
+    if (!wrapper.open(QIODevice::WriteOnly))
+        return command;
+    QTextStream stream(&wrapper);
+    stream << "chcp 65001\n";
+    stream << command << " %*";
+
+    return wrapperPath;
+}
+
 QString AbstractMsvcToolChain::makeCommand(const Utils::Environment &environment) const
 {
     bool useJom = ProjectExplorerPlugin::projectExplorerSettings().useJom;
-    const QString jom = QLatin1String("jom.exe");
-    const QString nmake = QLatin1String("nmake.exe");
+    const QString jom("jom.exe");
+    const QString nmake("nmake.exe");
     Utils::FileName tmp;
 
+    QString command;
     if (useJom) {
         tmp = environment.searchInPath(jom, {Utils::FileName::fromString(QCoreApplication::applicationDirPath())});
         if (!tmp.isEmpty())
-            return tmp.toString();
+            command = tmp.toString();
     }
-    tmp = environment.searchInPath(nmake);
-    if (!tmp.isEmpty())
-        return tmp.toString();
 
-    // Nothing found :(
-    return useJom ? jom : nmake;
+    if (command.isEmpty()) {
+        tmp = environment.searchInPath(nmake);
+        if (!tmp.isEmpty())
+            command = tmp.toString();
+    }
+
+    if (command.isEmpty())
+        command = useJom ? jom : nmake;
+
+    if (environment.hasKey("VSLANG"))
+        return wrappedMakeCommand(command);
+
+    return command;
 }
 
 Utils::FileName AbstractMsvcToolChain::compilerCommand() const
