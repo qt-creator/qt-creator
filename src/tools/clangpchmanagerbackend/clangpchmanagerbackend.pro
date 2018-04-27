@@ -27,10 +27,4 @@ SOURCES += \
     ../clangrefactoringbackend/source/clangtool.cpp \
     ../clangrefactoringbackend/source/refactoringcompilationdatabase.cpp
 
-
-unix:!disable_external_rpath:!contains(QMAKE_DEFAULT_LIBDIRS, $${LLVM_LIBDIR}) {
-    !macx: QMAKE_LFLAGS += -Wl,-z,origin
-    QMAKE_LFLAGS += -Wl,-rpath,$$shell_quote($${LLVM_LIBDIR})
-}
-
 DEFINES += CLANG_COMPILER_PATH=\"R\\\"xxx($${LLVM_BINDIR}/clang)xxx\\\"\"

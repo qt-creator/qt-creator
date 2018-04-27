@@ -172,4 +172,9 @@ isEmpty(LLVM_VERSION) {
     LLVM_CXXFLAGS ~= s,-gsplit-dwarf,
 
     LLVM_IS_COMPILED_WITH_RTTI = $$system($$llvm_config --has-rtti, lines)
+
+    unix:!disable_external_rpath:!contains(QMAKE_DEFAULT_LIBDIRS, $${LLVM_LIBDIR}) {
+        !macos: QMAKE_LFLAGS += -Wl,-z,origin
+        QMAKE_LFLAGS += -Wl,-rpath,$$shell_quote($${LLVM_LIBDIR})
+    }
 }
