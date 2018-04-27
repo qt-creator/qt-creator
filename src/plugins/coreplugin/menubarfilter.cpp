@@ -37,6 +37,7 @@
 #include <QMenuBar>
 #include <QPointer>
 #include <QRegularExpression>
+#include <QTimer>
 
 using namespace Core::Internal;
 using namespace Core;
@@ -78,8 +79,12 @@ void MenuBarFilter::accept(LocatorFilterEntry selection, QString *newText,
     Q_UNUSED(newText);
     Q_UNUSED(selectionStart);
     Q_UNUSED(selectionLength);
-    if (auto action = selection.internalData.value<QPointer<QAction>>())
-        action->trigger();
+    if (auto action = selection.internalData.value<QPointer<QAction>>()) {
+        QTimer::singleShot(0, action, [action] {
+            if (action->isEnabled())
+                action->trigger();
+        });
+    }
 }
 
 void MenuBarFilter::refresh(QFutureInterface<void> &future)
