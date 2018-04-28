@@ -58,25 +58,6 @@ QmakeAndroidRunConfiguration::QmakeAndroidRunConfiguration(Target *target, Core:
     });
 }
 
-bool QmakeAndroidRunConfiguration::fromMap(const QVariantMap &map)
-{
-    if (!AndroidRunConfiguration::fromMap(map))
-        return false;
-
-    return true;
-}
-
-QVariantMap QmakeAndroidRunConfiguration::toMap() const
-{
-    QVariantMap map(AndroidRunConfiguration::toMap());
-
-    // FIXME: Remove, only left for compatibility in 4.7 development cycle.
-    const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
-    map.insert(PRO_FILE_KEY, projectDir.relativeFilePath(proFilePath().toString()));
-
-    return map;
-}
-
 void QmakeAndroidRunConfiguration::updateDisplayName()
 {
     QmakeProject *project = qmakeProject();

@@ -45,8 +45,6 @@ public:
 
 private:
     QString disabledReason() const override;
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
     void updateDisplayName();
 
     QmakeProjectManager::QmakeProject *qmakeProject() const;
