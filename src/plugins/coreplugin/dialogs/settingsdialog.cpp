@@ -316,7 +316,7 @@ public:
     QSize sizeHint() const final
     {
         int width = sizeHintForColumn(0) + frameWidth() * 2 + 5;
-        width += verticalScrollBar()->width();
+        width += verticalScrollBar()->sizeHint().width();
         return QSize(width, 100);
     }
 
