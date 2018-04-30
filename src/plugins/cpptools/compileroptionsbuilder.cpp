@@ -528,7 +528,7 @@ void CompilerOptionsBuilder::addClangIncludeFolder()
 {
     QTC_CHECK(!m_clangVersion.isEmpty());
     add(SYSTEM_INCLUDE_PREFIX);
-    add(clangIncludeDirectory());
+    add(clangIncludeDirectory(m_clangVersion, m_clangResourceDirectory));
 }
 
 void CompilerOptionsBuilder::addProjectConfigFileInclude()
@@ -548,12 +548,21 @@ static QString creatorLibexecPath()
 #endif
 }
 
-QString CompilerOptionsBuilder::clangIncludeDirectory() const
+QString clangIncludeDirectory(const QString &clangVersion, const QString &clangResourceDirectory)
 {
-    QDir dir(creatorLibexecPath() + "/clang" + clangIncludePath(m_clangVersion));
+    QDir dir(creatorLibexecPath() + "/clang" + clangIncludePath(clangVersion));
     if (!dir.exists() || !QFileInfo(dir, "stdint.h").exists())
-        dir = QDir(m_clangResourceDirectory);
+        dir = QDir(clangResourceDirectory);
     return QDir::toNativeSeparators(dir.canonicalPath());
+}
+
+QString clangExecutable(const QString &clangBinDirectory)
+{
+    const QString hostExeSuffix(QTC_HOST_EXE_SUFFIX);
+    QDir executable(creatorLibexecPath() + "/clang/bin/clang" + hostExeSuffix);
+    if (!executable.exists())
+        executable = QDir(clangBinDirectory + "/clang" + hostExeSuffix);
+    return QDir::toNativeSeparators(executable.canonicalPath());
 }
 
 void CompilerOptionsBuilder::undefineClangVersionMacrosForMsvc()

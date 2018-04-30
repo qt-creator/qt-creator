@@ -1,6 +1,8 @@
 include(../../qtcreatorplugin.pri)
 include(../../shared/clang/clang_installation.pri)
 
+include(../../shared/clang/clang_defines.pri)
+
 requires(!isEmpty(LLVM_VERSION))
 
 LIBS += $$LIBCLANG_LIBS

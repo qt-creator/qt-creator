@@ -74,6 +74,11 @@ function libDir(llvmConfig)
     return FileInfo.fromNativeSeparators(readOutput(llvmConfig, ["--libdir"]));
 }
 
+function binDir(llvmConfig)
+{
+    return FileInfo.fromNativeSeparators(readOutput(llvmConfig, ["--bindir"]));
+}
+
 function version(llvmConfig)
 {
     return readOutput(llvmConfig, ["--version"]).replace(/(\d+\.\d+\.\d+).*/, "$1")

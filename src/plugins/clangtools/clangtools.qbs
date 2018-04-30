@@ -1,4 +1,5 @@
 import qbs
+import qbs.FileInfo
 
 QtcPlugin {
     name: "ClangTools"
@@ -25,6 +26,19 @@ QtcPlugin {
     cpp.libraryPaths: base.concat(libclang.llvmLibDir)
     cpp.dynamicLibraries: base.concat(libclang.llvmLibs)
     cpp.rpaths: base.concat(libclang.llvmLibDir)
+
+    cpp.defines: {
+        var defines = base;
+        defines.push("CLANGPCHMANAGER_LIB");
+
+        // The following defines are used to determine the clang include path for intrinsics.
+        defines.push('CLANG_VERSION="' + libclang.llvmVersion + '"');
+        var resourceDir = FileInfo.joinPaths(libclang.llvmLibDir, "clang", libclang.llvmVersion,
+                                             "include");
+        defines.push('CLANG_RESOURCE_DIR="' + resourceDir + '"');
+        defines.push('CLANG_BINDIR="' + libclang.llvmBinDir + '"');
+        return defines;
+    }
 
     files: [
         "clangstaticanalyzerconfigwidget.cpp",

@@ -45,9 +45,6 @@ public:
                                              QWidget *parent = 0);
     ~ClangStaticAnalyzerConfigWidget();
 
-    void updateDetectedVersionLabel(bool executableIsValid,
-                                    const ClangExecutableVersion &providedVersion);
-
 private:
     Ui::ClangStaticAnalyzerConfigWidget *m_ui;
     ClangToolsSettings *m_settings;

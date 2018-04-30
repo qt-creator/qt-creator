@@ -39,36 +39,7 @@ namespace Debugger { class DiagnosticLocation; }
 namespace ClangTools {
 namespace Internal {
 
-bool isClangExecutableUsable(const QString &filePath, QString *errorMessage = 0);
-
-QString clangExecutableFromSettings(bool *isValid);
-
 QString createFullLocationString(const Debugger::DiagnosticLocation &location);
-
-// CLANG-UPGRADE-CHECK: Adapt minimum version numbers.
-class ClangExecutableVersion : public QVersionNumber {
-public:
-    ClangExecutableVersion() : QVersionNumber(-1, -1, -1) {}
-    ClangExecutableVersion(int major, int minor, int micro)
-        : QVersionNumber(major, minor, micro) {}
-
-    bool isValid() const
-    {
-        return majorVersion() >= 0 && minorVersion() >= 0 && microVersion() >= 0;
-    }
-
-    bool isSupportedVersion() const
-    {
-        return majorVersion() == 5 && minorVersion() == 0;
-    }
-
-    static QString supportedVersionAsString()
-    {
-        return QLatin1String("5.0");
-    }
-};
-
-ClangExecutableVersion clangExecutableVersion(const QString &absolutePath);
 
 } // namespace Internal
 } // namespace ClangTools

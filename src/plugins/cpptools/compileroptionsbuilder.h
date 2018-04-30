@@ -90,13 +90,17 @@ private:
     QByteArray macroOption(const ProjectExplorer::Macro &macro) const;
     QByteArray toDefineOption(const ProjectExplorer::Macro &macro) const;
     QString defineDirectiveToDefineOption(const ProjectExplorer::Macro &marco) const;
-    QString clangIncludeDirectory() const;
     void addClangIncludeFolder();
 
     QStringList m_options;
     QString m_clangVersion;
     QString m_clangResourceDirectory;
 };
+
+QString CPPTOOLS_EXPORT clangExecutable(const QString &clangBinDirectory);
+
+QString CPPTOOLS_EXPORT clangIncludeDirectory(const QString &clangVersion,
+                                              const QString &clangResourceDirectory);
 
 template<class T>
 T clangIncludePath(const T &clangVersion)

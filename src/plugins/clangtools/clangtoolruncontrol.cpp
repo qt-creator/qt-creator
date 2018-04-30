@@ -145,18 +145,11 @@ static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QVector<ProjectPart::Pt
     return unitsToAnalyze;
 }
 
-static QString clangResourceDir(const QString &clangExecutable, const QString &clangVersion)
-{
-    QDir llvmDir = QFileInfo(clangExecutable).dir();
-    llvmDir.cdUp();
-    return llvmDir.absolutePath() + clangIncludePath(clangVersion);
-}
-
 AnalyzeUnits ClangToolRunControl::sortedUnitsToAnalyze(const QString &clangVersion)
 {
     QTC_ASSERT(m_projectInfo.isValid(), return AnalyzeUnits());
 
-    const QString clangResourceDirectory = clangResourceDir(m_clangExecutable, clangVersion);
+    const QString clangResourceDirectory = clangIncludeDirectory(m_clangExecutable, clangVersion);
     AnalyzeUnits units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(), clangVersion,
                                                         clangResourceDirectory);
 
@@ -179,7 +172,9 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
 }
 
 ClangToolRunControl::ClangToolRunControl(RunControl *runControl, Target *target)
-    : RunWorker(runControl), m_target(target)
+    : RunWorker(runControl)
+    , m_clangExecutable(CppTools::clangExecutable(CLANG_BINDIR))
+    , m_target(target)
 {
 }
 
@@ -208,9 +203,18 @@ void ClangToolRunControl::start()
         return;
     }
 
+    const QString &toolName = tool()->name();
+    if (m_clangExecutable.isEmpty()) {
+        const QString errorMessage = tr("%1 : Can't find clang executable, stop.").arg(toolName);
+        appendMessage(errorMessage, Utils::ErrorMessageFormat);
+        TaskHub::addTask(Task::Error, errorMessage, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::requestPopup();
+        reportFailure();
+        return;
+    }
+
     m_projectInfo = CppTools::CppModelManager::instance()->projectInfo(m_target->project());
 
-    const QString toolName = tool()->name();
     // Some projects provides CompilerCallData once a build is finished,
     if (m_projectInfo.configurationOrFilesChanged(m_projectInfoBeforeBuild)) {
         // If it's more than a release/debug build configuration change, e.g.
@@ -224,42 +228,6 @@ void ClangToolRunControl::start()
     const Utils::FileName projectFile = m_projectInfo.project()->projectFilePath();
     appendMessage(tr("Running %1 on %2").arg(toolName).arg(projectFile.toUserOutput()),
                   Utils::NormalMessageFormat);
-
-    // Check clang executable
-    bool isValidClangExecutable;
-    const QString executable = clangExecutableFromSettings(&isValidClangExecutable);
-    if (!isValidClangExecutable) {
-        const QString errorMessage = toolName
-                + tr(": Invalid executable \"%1\", stop.").arg(executable);
-        appendMessage(errorMessage, Utils::ErrorMessageFormat);
-        TaskHub::addTask(Task::Error, errorMessage, Debugger::Constants::ANALYZERTASK_ID);
-        TaskHub::requestPopup();
-        reportFailure();
-        return;
-    }
-
-    // Check clang version
-    const ClangExecutableVersion version = clangExecutableVersion(executable);
-    if (!version.isValid()) {
-        const QString warningMessage
-            = toolName + tr(": Running with possibly unsupported version, "
-                 "could not determine version from executable \"%1\".")
-                    .arg(executable);
-        appendMessage(warningMessage, Utils::StdErrFormat);
-        TaskHub::addTask(Task::Warning, warningMessage, Debugger::Constants::ANALYZERTASK_ID);
-        TaskHub::requestPopup();
-    } else if (!version.isSupportedVersion()) {
-        const QString warningMessage
-            = toolName + tr(": Running with unsupported version %1, "
-                 "supported version is %2.")
-                    .arg(version.toString())
-                    .arg(ClangExecutableVersion::supportedVersionAsString());
-        appendMessage(warningMessage, Utils::StdErrFormat);
-        TaskHub::addTask(Task::Warning, warningMessage, Debugger::Constants::ANALYZERTASK_ID);
-        TaskHub::requestPopup();
-    }
-
-    m_clangExecutable = executable;
 
     // Create log dir
     Utils::TemporaryDirectory temporaryDir("qtc-clangtools-XXXXXX");
@@ -276,7 +244,7 @@ void ClangToolRunControl::start()
     m_clangLogFileDir = temporaryDir.path();
 
     // Collect files
-    const AnalyzeUnits unitsToProcess = sortedUnitsToAnalyze(version.toString());
+    const AnalyzeUnits unitsToProcess = sortedUnitsToAnalyze(CLANG_VERSION);
     qCDebug(LOG) << "Files to process:" << unitsToProcess;
     m_unitsToProcess = unitsToProcess;
     m_initialFilesToProcessSize = m_unitsToProcess.count();
@@ -298,7 +266,7 @@ void ClangToolRunControl::start()
     // Start process(es)
     qCDebug(LOG) << "Environment:" << m_environment;
     m_runners.clear();
-    const int parallelRuns = ClangToolsSettings::instance()->simultaneousProcesses();
+    const int parallelRuns = ClangToolsSettings::instance()->savedSimultaneousProcesses();
     QTC_ASSERT(parallelRuns >= 1, reportFailure(); return);
     m_success = true;
 

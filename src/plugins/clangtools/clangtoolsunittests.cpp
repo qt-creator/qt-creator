@@ -62,9 +62,8 @@ void ClangToolsUnitTests::initTestCase()
                                                                            Constants::CXX_LANGUAGE_ID);
     if (!toolchain)
         QSKIP("This test requires that there is a kit with a toolchain.");
-    bool hasClangExecutable;
-    clangExecutableFromSettings(&hasClangExecutable);
-    if (!hasClangExecutable)
+
+    if (CppTools::clangExecutable(CLANG_BINDIR).isEmpty())
         QSKIP("No clang suitable for analyzing found");
 
     m_tmpDir = new CppTools::Tests::TemporaryCopiedDir(QLatin1String(":/unit-tests"));

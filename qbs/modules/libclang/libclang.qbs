@@ -16,6 +16,7 @@ Module {
         property string llvmVersion
         property string llvmIncludeDir
         property string llvmLibDir
+        property string llvmBinDir
         property stringList llvmLibs
         property stringList llvmToolingLibs
         property stringList llvmToolingDefines
@@ -28,6 +29,7 @@ Module {
             llvmVersion = ClangFunctions.version(llvmConfig);
             llvmIncludeDir = ClangFunctions.includeDir(llvmConfig);
             llvmLibDir = ClangFunctions.libDir(llvmConfig);
+            llvmBinDir = ClangFunctions.binDir(llvmConfig);
             llvmLibs = ClangFunctions.libraries(targetOS);
             llvmToolingLibs = ClangFunctions.toolingLibs(llvmConfig, targetOS);
             llvmBuildMode = ClangFunctions.buildMode(llvmConfig);
@@ -43,6 +45,7 @@ Module {
     property string llvmVersion: clangProbe.llvmVersion
     property string llvmIncludeDir: clangProbe.llvmIncludeDir
     property string llvmLibDir: clangProbe.llvmLibDir
+    property string llvmBinDir: clangProbe.llvmBinDir
     property stringList llvmLibs: clangProbe.llvmLibs
     property stringList llvmToolingLibs: clangProbe.llvmToolingLibs
     property string llvmBuildMode: clangProbe.llvmBuildMode

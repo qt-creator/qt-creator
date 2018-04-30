@@ -35,11 +35,9 @@ class ClangToolsSettings
 public:
     static ClangToolsSettings *instance();
 
-    void writeSettings() const;
+    void writeSettings();
 
-    QString defaultClangExecutable() const;
-    QString clangExecutable(bool *isSet = nullptr) const;
-    void setClangExecutable(const QString &exectuable);
+    int savedSimultaneousProcesses() const;
 
     int simultaneousProcesses() const;
     void setSimultaneousProcesses(int processes);
@@ -48,8 +46,8 @@ private:
     ClangToolsSettings();
     void readSettings();
 
-    QString m_clangExecutable;
-    int m_simultaneousProcesses;
+    int m_simultaneousProcesses = -1;
+    int m_savedSimultaneousProcesses = -1;
 };
 
 } // namespace Internal

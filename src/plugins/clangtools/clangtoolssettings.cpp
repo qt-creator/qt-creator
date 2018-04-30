@@ -35,14 +35,12 @@
 #include <QFileInfo>
 #include <QThread>
 
-static const char clangExecutableKey[] = "clangExecutable";
 static const char simultaneousProcessesKey[] = "simultaneousProcesses";
 
 namespace ClangTools {
 namespace Internal {
 
 ClangToolsSettings::ClangToolsSettings()
-    : m_simultaneousProcesses(-1)
 {
     readSettings();
 }
@@ -53,36 +51,9 @@ ClangToolsSettings *ClangToolsSettings::instance()
     return &instance;
 }
 
-static QString clangExecutableFileName()
+int ClangToolsSettings::savedSimultaneousProcesses() const
 {
-    return QLatin1String("clang" QTC_HOST_EXE_SUFFIX);
-}
-
-QString ClangToolsSettings::defaultClangExecutable() const
-{
-    const QString shippedBinary = Core::ICore::libexecPath()
-                    + QLatin1String("/clang/bin/")
-                    + clangExecutableFileName();
-    if (QFileInfo(shippedBinary).isExecutable())
-        return shippedBinary;
-    return clangExecutableFileName();
-}
-
-QString ClangToolsSettings::clangExecutable(bool *isSet) const
-{
-    if (m_clangExecutable.isEmpty()) {
-        if (isSet)
-            *isSet = false;
-        return defaultClangExecutable();
-    }
-    if (isSet)
-        *isSet = true;
-    return m_clangExecutable;
-}
-
-void ClangToolsSettings::setClangExecutable(const QString &exectuable)
-{
-    m_clangExecutable = exectuable;
+    return m_savedSimultaneousProcesses;
 }
 
 int ClangToolsSettings::simultaneousProcesses() const
@@ -92,7 +63,6 @@ int ClangToolsSettings::simultaneousProcesses() const
 
 void ClangToolsSettings::setSimultaneousProcesses(int processes)
 {
-    QTC_ASSERT(processes >=1, return);
     m_simultaneousProcesses = processes;
 }
 
@@ -101,21 +71,22 @@ void ClangToolsSettings::readSettings()
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String(Constants::SETTINGS_ID));
 
-    setClangExecutable(settings->value(QLatin1String(clangExecutableKey)).toString());
-
     const int defaultSimultaneousProcesses = qMax(0, QThread::idealThreadCount() / 2);
-    setSimultaneousProcesses(settings->value(QLatin1String(simultaneousProcessesKey),
-                                             defaultSimultaneousProcesses).toInt());
+    m_savedSimultaneousProcesses = m_simultaneousProcesses
+            = settings->value(QString(simultaneousProcessesKey),
+                              defaultSimultaneousProcesses).toInt();
 
     settings->endGroup();
 }
 
-void ClangToolsSettings::writeSettings() const
+void ClangToolsSettings::writeSettings()
 {
     QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String(Constants::SETTINGS_ID));
-    settings->setValue(QLatin1String(clangExecutableKey), m_clangExecutable);
-    settings->setValue(QLatin1String(simultaneousProcessesKey), simultaneousProcesses());
+    settings->beginGroup(QString(Constants::SETTINGS_ID));
+    settings->setValue(QString(simultaneousProcessesKey), m_simultaneousProcesses);
+
+    m_savedSimultaneousProcesses = m_simultaneousProcesses;
+
     settings->endGroup();
 }
 

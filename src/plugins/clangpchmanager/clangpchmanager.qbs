@@ -23,6 +23,7 @@ QtcPlugin {
         var resourceDir = FileInfo.joinPaths(libclang.llvmLibDir, "clang", libclang.llvmVersion,
                                              "include");
         defines.push('CLANG_RESOURCE_DIR="' + resourceDir + '"');
+        defines.push('CLANG_BINDIR="' + libclang.llvmBinDir + '"');
         return defines;
     }
 

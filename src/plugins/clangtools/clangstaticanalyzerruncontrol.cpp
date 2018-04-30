@@ -147,7 +147,6 @@ ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(RunControl *runCont
 
 ClangToolRunner *ClangStaticAnalyzerRunControl::createRunner()
 {
-    QTC_ASSERT(!m_clangExecutable.isEmpty(), return 0);
     QTC_ASSERT(!m_clangLogFileDir.isEmpty(), return 0);
 
     auto runner = new ClangStaticAnalyzerRunner(m_clangExecutable,
