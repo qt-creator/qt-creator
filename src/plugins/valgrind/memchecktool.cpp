@@ -97,6 +97,7 @@
 #include <QPushButton>
 #include <QSpinBox>
 #include <QStandardPaths>
+#include <QVBoxLayout>
 #include <QWinEventNotifier>
 
 #include <utils/winutils.h>
@@ -733,7 +734,8 @@ void MemcheckTool::heobAction()
     if (Project *project = SessionManager::startupProject()) {
         if (Target *target = project->activeTarget()) {
             if (RunConfiguration *rc = target->activeRunConfiguration()) {
-                if (kit = target->kit()) {
+                kit = target->kit();
+                if (kit) {
                     abi = ToolChainKitInformation::targetAbi(kit);
 
                     const Runnable runnable = rc->runnable();
