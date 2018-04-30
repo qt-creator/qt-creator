@@ -47,12 +47,16 @@ CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
     : m_projectPart(projectPart)
     , m_clangVersion(clangVersion)
     , m_clangResourceDirectory(clangResourceDirectory)
+    , m_languageVersion(m_projectPart.languageVersion)
 {
 }
 
 QStringList CompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind, PchUsage pchUsage)
 {
     m_options.clear();
+
+    if (fileKind == ProjectFile::CHeader || fileKind == ProjectFile::CSource)
+        QTC_ASSERT(m_languageVersion <= ProjectPart::LatestCVersion, return QStringList(););
 
     addWordWidth();
     addTargetTriple();
@@ -119,7 +123,8 @@ void CompilerOptionsBuilder::addExtraCodeModelFlags()
 
 void CompilerOptionsBuilder::enableExceptions()
 {
-    add(QLatin1String("-fcxx-exceptions"));
+    if (m_languageVersion > ProjectPart::LatestCVersion)
+        add(QLatin1String("-fcxx-exceptions"));
     add(QLatin1String("-fexceptions"));
 }
 
@@ -287,7 +292,8 @@ void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtension
     QStringList opts;
     const ProjectPart::LanguageExtensions languageExtensions = m_projectPart.languageExtensions;
     const bool gnuExtensions = languageExtensions & ProjectPart::GnuExtensions;
-    switch (m_projectPart.languageVersion) {
+
+    switch (m_languageVersion) {
     case ProjectPart::C89:
         opts << (gnuExtensions ? QLatin1String("-std=gnu89") : QLatin1String("-std=c89"));
         break;
@@ -472,9 +478,7 @@ QString CompilerOptionsBuilder::includeOption() const
 
 bool CompilerOptionsBuilder::excludeDefineDirective(const ProjectExplorer::Macro &macro) const
 {
-    // This is a quick fix for QTCREATORBUG-11501.
-    // TODO: do a proper fix, see QTCREATORBUG-11709.
-    if (macro.key == "__cplusplus")
+    if (macro.key == "__cplusplus" && m_languageVersion <= ProjectPart::LatestCVersion)
         return true;
 
     // Ignore for all compiler toolchains since LLVM has it's own implementation for
