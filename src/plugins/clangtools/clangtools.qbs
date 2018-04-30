@@ -41,9 +41,6 @@ QtcPlugin {
     }
 
     files: [
-        "clangstaticanalyzerconfigwidget.cpp",
-        "clangstaticanalyzerconfigwidget.h",
-        "clangstaticanalyzerconfigwidget.ui",
         "clangstaticanalyzerdiagnosticview.cpp",
         "clangstaticanalyzerdiagnosticview.h",
         "clangstaticanalyzerprojectsettings.cpp",
@@ -72,6 +69,9 @@ QtcPlugin {
         "clangtoolrunner.cpp",
         "clangtoolrunner.h",
         "clangtools_global.h",
+        "clangtoolsconfigwidget.cpp",
+        "clangtoolsconfigwidget.h",
+        "clangtoolsconfigwidget.ui",
         "clangtoolsconstants.h",
         "clangtoolsdiagnostic.cpp",
         "clangtoolsdiagnostic.h",

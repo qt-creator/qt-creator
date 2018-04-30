@@ -25,7 +25,7 @@
 
 #include "clangtoolsplugin.h"
 
-#include "clangstaticanalyzerconfigwidget.h"
+#include "clangtoolsconfigwidget.h"
 #include "clangtoolsconstants.h"
 #include "clangstaticanalyzerprojectsettingswidget.h"
 #include "clangstaticanalyzerruncontrol.h"
@@ -66,15 +66,15 @@ using namespace ProjectExplorer;
 namespace ClangTools {
 namespace Internal {
 
-class ClangStaticAnalyzerOptionsPage : public Core::IOptionsPage
+class ClangToolsOptionsPage : public Core::IOptionsPage
 {
 public:
-    explicit ClangStaticAnalyzerOptionsPage()
+    explicit ClangToolsOptionsPage()
     {
-        setId("Analyzer.ClangStaticAnalyzer.Settings"); // TODO: Get it from "clangstaticanalyzersettings.h"
+        setId("Analyzer.ClangTools.Settings"); // TODO: Get it from "clangstaticanalyzersettings.h"
         setDisplayName(QCoreApplication::translate(
-                           "ClangTools::Internal::ClangStaticAnalyzerOptionsPage",
-                           "Clang Static Analyzer"));
+                           "ClangTools::Internal::ClangToolsOptionsPage",
+                           "Clang Tools"));
         setCategory("T.Analyzer");
         setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
         setCategoryIcon(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
@@ -83,7 +83,7 @@ public:
     QWidget *widget()
     {
         if (!m_widget)
-            m_widget = new ClangStaticAnalyzerConfigWidget(ClangToolsSettings::instance());
+            m_widget = new ClangToolsConfigWidget(ClangToolsSettings::instance());
         return m_widget;
     }
 
@@ -106,7 +106,7 @@ class ClangToolsPluginPrivate
 public:
     ClangStaticAnalyzerTool staticAnalyzerTool;
     ClangTidyClazyTool clangTidyClazyTool;
-    ClangStaticAnalyzerOptionsPage optionsPage;
+    ClangToolsOptionsPage optionsPage;
 };
 
 ClangToolsPlugin::~ClangToolsPlugin()

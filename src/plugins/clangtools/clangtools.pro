@@ -9,7 +9,6 @@ LIBS += $$LIBCLANG_LIBS
 INCLUDEPATH += $$LLVM_INCLUDEPATH
 
 SOURCES += \
-    clangstaticanalyzerconfigwidget.cpp \
     clangstaticanalyzerdiagnosticview.cpp \
     clangstaticanalyzerprojectsettings.cpp \
     clangstaticanalyzerprojectsettingsmanager.cpp \
@@ -28,10 +27,10 @@ SOURCES += \
     clangtoolslogfilereader.cpp \
     clangtoolsplugin.cpp \
     clangtoolssettings.cpp \
-    clangtoolsutils.cpp
+    clangtoolsutils.cpp \
+    clangtoolsconfigwidget.cpp
 
 HEADERS += \
-    clangstaticanalyzerconfigwidget.h \
     clangstaticanalyzerdiagnosticview.h \
     clangstaticanalyzerprojectsettings.h \
     clangstaticanalyzerprojectsettingsmanager.h \
@@ -52,11 +51,12 @@ HEADERS += \
     clangtoolslogfilereader.h \
     clangtoolsplugin.h \
     clangtoolssettings.h \
-    clangtoolsutils.h
+    clangtoolsutils.h \
+    clangtoolsconfigwidget.h
 
 FORMS += \
-    clangstaticanalyzerconfigwidget.ui \
-    clangstaticanalyzerprojectsettingswidget.ui
+    clangstaticanalyzerprojectsettingswidget.ui \
+    clangtoolsconfigwidget.ui
 
 equals(TEST, 1) {
     HEADERS += \

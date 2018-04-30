@@ -23,32 +23,38 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "clangtoolsconfigwidget.h"
+#include "ui_clangtoolsconfigwidget.h"
 
-#include "clangtoolssettings.h"
+#include "clangtoolsutils.h"
 
-#include <QWidget>
+#include <QDir>
+#include <QThread>
 
 namespace ClangTools {
 namespace Internal {
 
-namespace Ui { class ClangStaticAnalyzerConfigWidget; }
-
-class ClangExecutableVersion;
-
-class ClangStaticAnalyzerConfigWidget : public QWidget
+ClangToolsConfigWidget::ClangToolsConfigWidget(
+        ClangToolsSettings *settings,
+        QWidget *parent)
+    : QWidget(parent)
+    , m_ui(new Ui::ClangToolsConfigWidget)
+    , m_settings(settings)
 {
-    Q_OBJECT
+    m_ui->setupUi(this);
 
-public:
-    explicit ClangStaticAnalyzerConfigWidget(ClangToolsSettings *settings,
-                                             QWidget *parent = 0);
-    ~ClangStaticAnalyzerConfigWidget();
+    m_ui->simultaneousProccessesSpinBox->setValue(settings->savedSimultaneousProcesses());
+    m_ui->simultaneousProccessesSpinBox->setMinimum(1);
+    m_ui->simultaneousProccessesSpinBox->setMaximum(QThread::idealThreadCount());
+    connect(m_ui->simultaneousProccessesSpinBox,
+            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            [settings](int count) { settings->setSimultaneousProcesses(count); });
+}
 
-private:
-    Ui::ClangStaticAnalyzerConfigWidget *m_ui;
-    ClangToolsSettings *m_settings;
-};
+ClangToolsConfigWidget::~ClangToolsConfigWidget()
+{
+    delete m_ui;
+}
 
 } // namespace Internal
 } // namespace ClangTools
