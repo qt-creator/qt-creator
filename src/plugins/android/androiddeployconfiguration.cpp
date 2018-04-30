@@ -44,23 +44,20 @@ using namespace ProjectExplorer;
 namespace Android {
 namespace Internal {
 
-// Qt 5.2 has a new form of deployment
-const char ANDROID_DEPLOYCONFIGURATION_ID[] = "Qt4ProjectManager.AndroidDeployConfiguration2";
-
-AndroidDeployConfiguration::AndroidDeployConfiguration(Target *parent)
-    : DeployConfiguration(parent, ANDROID_DEPLOYCONFIGURATION_ID)
+AndroidDeployConfiguration::AndroidDeployConfiguration(Target *parent, Core::Id id)
+    : DeployConfiguration(parent, id)
 {}
 
 void AndroidDeployConfiguration::initialize()
 {
-    stepList()->insertStep(0, new AndroidDeployQtStep(stepList()));
+    stepList()->appendStep(new AndroidDeployQtStep(stepList()));
 }
 
 AndroidDeployConfigurationFactory::AndroidDeployConfigurationFactory()
 {
-    setObjectName("AndroidDeployConfigurationFactory");
-    registerDeployConfiguration<AndroidDeployConfiguration>(ANDROID_DEPLOYCONFIGURATION_ID);
-    setSupportedTargetDeviceTypes({Constants::ANDROID_DEVICE_TYPE});
+    registerDeployConfiguration<AndroidDeployConfiguration>
+            ("Qt4ProjectManager.AndroidDeployConfiguration2");
+    addSupportedTargetDeviceType(Constants::ANDROID_DEVICE_TYPE);
     setDefaultDisplayName(AndroidDeployConfiguration::tr("Deploy to Android device"));
 }
 

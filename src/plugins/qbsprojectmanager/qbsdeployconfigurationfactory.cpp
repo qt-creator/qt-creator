@@ -35,18 +35,15 @@
 namespace QbsProjectManager {
 namespace Internal {
 
-const char QBS_DEPLOYCONFIG_ID[] = "Qbs.Deploy";
-
-QbsDeployConfiguration::QbsDeployConfiguration(ProjectExplorer::Target *target) :
-    ProjectExplorer::DeployConfiguration(target, QBS_DEPLOYCONFIG_ID)
+QbsDeployConfiguration::QbsDeployConfiguration(ProjectExplorer::Target *target, Core::Id id) :
+    ProjectExplorer::DeployConfiguration(target, id)
 {
 }
 
 QbsDeployConfigurationFactory::QbsDeployConfigurationFactory()
 {
-    setObjectName("QbsDeployConfiguration");
-    registerDeployConfiguration<QbsDeployConfiguration>(QBS_DEPLOYCONFIG_ID);
-    setSupportedTargetDeviceTypes({ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE});
+    registerDeployConfiguration<QbsDeployConfiguration>("Qbs.Deploy");
+    addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     setSupportedProjectType(Constants::PROJECT_ID);
     setDefaultDisplayName(QCoreApplication::translate("Qbs", "Qbs Install"));
 }

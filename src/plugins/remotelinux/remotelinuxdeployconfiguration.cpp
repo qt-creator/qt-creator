@@ -43,15 +43,15 @@ namespace RemoteLinux {
 
 using namespace Internal;
 
-RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(Target *target)
-    : DeployConfiguration(target, genericDeployConfigurationId())
+RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(Target *target, Core::Id id)
+    : DeployConfiguration(target, id)
 {}
 
 void RemoteLinuxDeployConfiguration::initialize()
 {
-    stepList()->insertStep(0, new RemoteLinuxCheckForFreeDiskSpaceStep(stepList()));
-    stepList()->insertStep(1, new RemoteLinuxKillAppStep(stepList()));
-    stepList()->insertStep(2, new GenericDirectUploadStep(stepList()));
+    stepList()->appendStep(new RemoteLinuxCheckForFreeDiskSpaceStep(stepList()));
+    stepList()->appendStep(new RemoteLinuxKillAppStep(stepList()));
+    stepList()->appendStep(new GenericDirectUploadStep(stepList()));
 }
 
 NamedWidget *RemoteLinuxDeployConfiguration::createConfigWidget()
@@ -68,10 +68,9 @@ namespace Internal {
 
 RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
 {
-    setObjectName("RemoteLinuxDeployConfiguration");
     registerDeployConfiguration<RemoteLinuxDeployConfiguration>
             (RemoteLinuxDeployConfiguration::genericDeployConfigurationId());
-    setSupportedTargetDeviceTypes({RemoteLinux::Constants::GenericLinuxOsType});
+    addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
     setDefaultDisplayName(QCoreApplication::translate("RemoteLinux",
                                                       "Deploy to Remote Linux Host"));
 }

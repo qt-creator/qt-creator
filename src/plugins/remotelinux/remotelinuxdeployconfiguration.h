@@ -38,7 +38,7 @@ class REMOTELINUX_EXPORT RemoteLinuxDeployConfiguration
     Q_OBJECT
 
 public:
-    explicit RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target);
+    RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     static Core::Id genericDeployConfigurationId();
 
@@ -63,8 +63,6 @@ namespace Internal {
 
 class RemoteLinuxDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     RemoteLinuxDeployConfigurationFactory();
 };

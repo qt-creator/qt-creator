@@ -72,13 +72,11 @@ private:
     BuildStepList m_stepList;
 };
 
-class PROJECTEXPLORER_EXPORT DeployConfigurationFactory : public QObject
+class PROJECTEXPLORER_EXPORT DeployConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     DeployConfigurationFactory();
-    ~DeployConfigurationFactory();
+    virtual ~DeployConfigurationFactory();
 
     // used to show the list of possible additons to a target, returns a list of types
     QList<Core::Id> availableCreationIds(Target *parent) const;
@@ -92,7 +90,7 @@ public:
     static DeployConfiguration *restore(Target *parent, const QVariantMap &map);
     static DeployConfiguration *clone(Target *parent, const DeployConfiguration *dc);
 
-    void setSupportedTargetDeviceTypes(const QList<Core::Id> &ids);
+    void addSupportedTargetDeviceType(Core::Id id);
     void setDefaultDisplayName(const QString &defaultDisplayName);
     void setSupportedProjectType(Core::Id id);
 
@@ -106,8 +104,8 @@ protected:
     template <class DeployConfig>
     void registerDeployConfiguration(Core::Id deployConfigBaseId)
     {
-        m_creator = [this](Target *t) {
-            auto dc = new DeployConfig(t);
+        m_creator = [this, deployConfigBaseId](Target *t) {
+            auto dc = new DeployConfig(t, deployConfigBaseId);
             dc->setDefaultDisplayName(m_defaultDisplayName);
             return dc;
         };
@@ -115,6 +113,9 @@ protected:
     }
 
 private:
+    DeployConfigurationFactory(const DeployConfigurationFactory &) = delete;
+    DeployConfigurationFactory operator=(const DeployConfigurationFactory &) = delete;
+
     DeployConfigurationCreator m_creator;
     Core::Id m_deployConfigBaseId;
     Core::Id m_supportedProjectType;

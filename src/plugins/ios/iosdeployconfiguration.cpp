@@ -30,7 +30,6 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/target.h>
 
-#include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 using namespace ProjectExplorer;
@@ -38,25 +37,23 @@ using namespace ProjectExplorer;
 namespace Ios {
 namespace Internal {
 
-const char IOS_DEPLOYCONFIGURATION_ID[] = "Qt4ProjectManager.IosDeployConfiguration";
-
-IosDeployConfiguration::IosDeployConfiguration(Target *parent)
-    : DeployConfiguration(parent, IOS_DEPLOYCONFIGURATION_ID)
+IosDeployConfiguration::IosDeployConfiguration(Target *parent, Core::Id id)
+    : DeployConfiguration(parent, id)
 {
 }
 
 void IosDeployConfiguration::initialize()
 {
-    stepList()->insertStep(0, new IosDeployStep(stepList()));
+    stepList()->appendStep(new IosDeployStep(stepList()));
 }
 
 IosDeployConfigurationFactory::IosDeployConfigurationFactory()
 {
-    setObjectName("IosDeployConfigurationFactory");
-    registerDeployConfiguration<IosDeployConfiguration>(IOS_DEPLOYCONFIGURATION_ID);
+    registerDeployConfiguration<IosDeployConfiguration>("Qt4ProjectManager.IosDeployConfiguration");
     setSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
-    setSupportedTargetDeviceTypes({Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE});
-    setDefaultDisplayName(tr("Deploy on iOS"));
+    addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
+    addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
+    setDefaultDisplayName(IosDeployConfiguration::tr("Deploy on iOS"));
 }
 
 } // namespace Internal

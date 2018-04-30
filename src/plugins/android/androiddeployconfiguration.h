@@ -35,14 +35,12 @@ class AndroidDeployConfiguration : public ProjectExplorer::DeployConfiguration
     Q_OBJECT
 
 public:
-    explicit AndroidDeployConfiguration(ProjectExplorer::Target *parent);
+    AndroidDeployConfiguration(ProjectExplorer::Target *parent, Core::Id id);
     void initialize() override;
 };
 
 class AndroidDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     AndroidDeployConfigurationFactory();
 

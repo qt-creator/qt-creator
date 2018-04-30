@@ -35,13 +35,11 @@ class QbsDeployConfiguration : public ProjectExplorer::DeployConfiguration
     Q_OBJECT
 
 public:
-    explicit QbsDeployConfiguration(ProjectExplorer::Target *target);
+    QbsDeployConfiguration(ProjectExplorer::Target *target, Core::Id id);
 };
 
 class QbsDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     QbsDeployConfigurationFactory();
 };

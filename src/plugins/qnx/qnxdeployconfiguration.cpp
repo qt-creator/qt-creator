@@ -40,8 +40,8 @@ using namespace RemoteLinux;
 namespace Qnx {
 namespace Internal {
 
-QnxDeployConfiguration::QnxDeployConfiguration(Target *target)
-    : DeployConfiguration(target, Constants::QNX_QNX_DEPLOYCONFIGURATION_ID)
+QnxDeployConfiguration::QnxDeployConfiguration(Target *target, Core::Id id)
+    : DeployConfiguration(target, id)
 {
 }
 
@@ -59,9 +59,10 @@ NamedWidget *QnxDeployConfiguration::createConfigWidget()
 
 QnxDeployConfigurationFactory::QnxDeployConfigurationFactory()
 {
-    registerDeployConfiguration<QnxDeployConfiguration>(Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
-    setDefaultDisplayName(tr("Deploy to QNX Device"));
-    setSupportedTargetDeviceTypes({QnxDeviceFactory::deviceType()});
+    registerDeployConfiguration<QnxDeployConfiguration>
+            ("Qt4ProjectManager.QNX.QNXDeployConfiguration");
+    setDefaultDisplayName(QnxDeployConfiguration::tr("Deploy to QNX Device"));
+    addSupportedTargetDeviceType(QnxDeviceFactory::deviceType());
 }
 
 } // namespace Internal

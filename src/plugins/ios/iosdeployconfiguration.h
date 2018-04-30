@@ -35,14 +35,12 @@ class IosDeployConfiguration : public ProjectExplorer::DeployConfiguration
     Q_OBJECT
 
 public:
-    explicit IosDeployConfiguration(ProjectExplorer::Target *parent);
+    IosDeployConfiguration(ProjectExplorer::Target *parent, Core::Id id);
     void initialize() override;
 };
 
 class IosDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
 {
-    Q_OBJECT
-
 public:
     IosDeployConfigurationFactory();
 };

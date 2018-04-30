@@ -38,7 +38,6 @@ namespace ProjectExplorer {
 
 const char BUILD_STEP_LIST_COUNT[] = "ProjectExplorer.BuildConfiguration.BuildStepListCount";
 const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildStepList.";
-const char DEFAULT_DEPLOYCONFIGURATION_ID[] = "ProjectExplorer.DefaultDeployConfiguration";
 
 DeployConfiguration::DeployConfiguration(Target *target, Core::Id id)
     : ProjectConfiguration(target, id),
@@ -144,7 +143,6 @@ static QList<DeployConfigurationFactory *> g_deployConfigurationFactories;
 
 DeployConfigurationFactory::DeployConfigurationFactory()
 {
-    setObjectName("DeployConfigurationFactory");
     g_deployConfigurationFactories.append(this);
 }
 
@@ -252,9 +250,9 @@ QList<DeployConfigurationFactory *> DeployConfigurationFactory::find(Target *par
         });
 }
 
-void DeployConfigurationFactory::setSupportedTargetDeviceTypes(const QList<Core::Id> &ids)
+void DeployConfigurationFactory::addSupportedTargetDeviceType(Core::Id id)
 {
-    m_supportedTargetDeviceTypes = ids;
+    m_supportedTargetDeviceTypes.append(id);
 }
 
 void DeployConfigurationFactory::setDefaultDisplayName(const QString &defaultDisplayName)
@@ -273,17 +271,10 @@ void DeployConfigurationFactory::setSupportedProjectType(Core::Id id)
 
 DefaultDeployConfigurationFactory::DefaultDeployConfigurationFactory()
 {
-    struct DefaultDeployConfiguration : DeployConfiguration
-    {
-        DefaultDeployConfiguration(Target *t)
-            : DeployConfiguration(t, DEFAULT_DEPLOYCONFIGURATION_ID)
-        {}
-    };
-
-    registerDeployConfiguration<DefaultDeployConfiguration>(DEFAULT_DEPLOYCONFIGURATION_ID);
-    setSupportedTargetDeviceTypes({Constants::DESKTOP_DEVICE_TYPE});
+    registerDeployConfiguration<DeployConfiguration>("ProjectExplorer.DefaultDeployConfiguration");
+    addSupportedTargetDeviceType(Constants::DESKTOP_DEVICE_TYPE);
     //: Display name of the default deploy configuration
-    setDefaultDisplayName(DeployConfigurationFactory::tr("Deploy Configuration"));
+    setDefaultDisplayName(DeployConfiguration::tr("Deploy Configuration"));
 }
 
 bool DefaultDeployConfigurationFactory::canHandle(Target *parent) const
