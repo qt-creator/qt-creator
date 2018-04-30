@@ -17,19 +17,28 @@ Editing
 
 * Fixed crash when closing file with generic highlighting (QTCREATORBUG-20247)
 
+Help
+
+* Fixed crash when searching while indexing documentation
+  (QTCREATORBUG-20295)
+
 All Projects
 
 * Fixed that `.qrc` files were not listed as project files in Locator and
   searches (QTCREATORBUG-20220)
+* Fixed removal of project directory items from `File System` pane
+  (QTCREATORBUG-20314)
 
 QMake Projects
 
 * Fixed that run and build buttons could stay disabled after project parsing
   (QTCREATORBUG-20203)
+* Fixed reparsing project after changing target (QTCREATORBUG-20113)
 
 CMake Projects
 
 * Fixed that build steps for `clean` were missing (QTCREATORBUG-19823)
+* Fixed path to executable when adding CMake targets (QTCREATORBUG-19792)
 
 Qbs Projects
 
@@ -75,3 +84,30 @@ Android
 * Fixed deployment issue for 32-bit applications (QTCREATORBUG-20084)
 * Fixed crash when trying to set up a broken NDK (QTCREATORBUG-20217)
 * Fixed debugging on Android 8 or later
+* Fixed failure to install over existing app with different certificate
+  (QTCREATORBUG-17414)
+* Fixed creation of AVDs with `google-apis` system image (QTCREATORBUG-20298)
+* Fixed AVD Manager issue when `JAVA_HOME` environment variable is not set
+  (QTCREATORBUG-19988)
+
+Credits for these changes go to:  
+Alessandro Portale  
+Andre Hartmann  
+BogDan Vatra  
+Christian Kandeler  
+Christian Stenger  
+David Schulz  
+Eike Ziller  
+Ivan Donchevskii  
+Jaroslaw Kobus  
+Leena Miettinen  
+Morten Johan Sørvig  
+Nikolai Kosjar  
+Orgad Shaneh  
+Oswald Buddenhagen  
+Robert Löhning  
+Thomas Hartmann  
+Tim Jenssen  
+Tobias Hunger  
+Ulf Hermann  
+Vikas Pachdha  
