@@ -110,6 +110,7 @@ private:
     void documentPrevNext(bool next);
 
     Bookmark *findBookmark(const Utils::FileName &filePath, int lineNumber);
+    void insertBookmark(int index, Bookmark *bookmark, bool userset = true);
     void addBookmark(Bookmark *bookmark, bool userset = true);
     void addBookmark(const QString &s);
     static QString bookmarkToString(const Bookmark *b);

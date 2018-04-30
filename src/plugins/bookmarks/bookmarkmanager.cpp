@@ -455,7 +455,10 @@ void BookmarkManager::toggleBookmark(const FileName &fileName, int lineNumber)
     // Add a new bookmark if no bookmark existed on this line
     Bookmark *mark = new Bookmark(lineNumber, this);
     mark->updateFileName(fileName.toString());
-    addBookmark(mark);
+    const QModelIndex currentIndex = selectionModel()->currentIndex();
+    const int insertionIndex = currentIndex.isValid() ? currentIndex.row() + 1
+                                                      : m_bookmarksList.size();
+    insertBookmark(insertionIndex, mark);
 }
 
 void BookmarkManager::updateBookmark(Bookmark *bookmark)
@@ -731,23 +734,30 @@ Bookmark *BookmarkManager::findBookmark(const FileName &filePath, int lineNumber
                                 Utils::equal(&Bookmark::lineNumber, lineNumber));
 }
 
-/* Adds a bookmark to the internal data structures. The 'userset' parameter
- * determines whether action status should be updated and whether the bookmarks
- * should be saved to the session settings.
- */
-void BookmarkManager::addBookmark(Bookmark *bookmark, bool userset)
+void BookmarkManager::insertBookmark(int idx, Bookmark *bookmark, bool userset)
 {
-    beginInsertRows(QModelIndex(), m_bookmarksList.size(), m_bookmarksList.size());
+    idx = qBound(0, idx, m_bookmarksList.size());
+    beginInsertRows(QModelIndex(), idx, idx);
 
     m_bookmarksMap[FileName::fromString(bookmark->fileName())].append(bookmark);
-    m_bookmarksList.append(bookmark);
+    m_bookmarksList.insert(idx, bookmark);
 
     endInsertRows();
     if (userset) {
         updateActionStatus();
         saveBookmarks();
     }
-    selectionModel()->setCurrentIndex(index(m_bookmarksList.size()-1 , 0, QModelIndex()), QItemSelectionModel::Select | QItemSelectionModel::Clear);
+    selectionModel()->setCurrentIndex(index(idx, 0, QModelIndex()),
+                                      QItemSelectionModel::Select | QItemSelectionModel::Clear);
+}
+
+/* Adds a bookmark to the internal data structures. The 'userset' parameter
+ * determines whether action status should be updated and whether the bookmarks
+ * should be saved to the session settings.
+ */
+void BookmarkManager::addBookmark(Bookmark *bookmark, bool userset)
+{
+    insertBookmark(m_bookmarksList.size(), bookmark, userset);
 }
 
 /* Adds a new bookmark based on information parsed from the string. */
