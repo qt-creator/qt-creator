@@ -35,9 +35,6 @@
 #include <coreplugin/id.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
-#include <projectexplorer/applicationlauncher.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/localenvironmentaspect.h>
@@ -58,9 +55,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
-#include <QCoreApplication>
 #include <QDir>
-#include <QFormLayout>
 #include <QRegExp>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
@@ -77,9 +72,6 @@ namespace Internal {
 const char PythonMimeType[] = "text/x-python-project"; // ### FIXME
 const char PythonProjectId[] = "PythonProject";
 const char PythonErrorTaskCategory[] = "Task.Category.Python";
-
-class PythonRunConfiguration;
-class PythonProjectFile;
 
 class PythonProject : public Project
 {
@@ -287,7 +279,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
 
 void PythonRunConfiguration::updateTargetInformation()
 {
-    BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
+    const BuildTargetInfo bti = buildTargetInfo();
     const QString script = bti.targetFilePath.toString();
     setDefaultDisplayName(tr("Run %1").arg(script));
     extraAspect<MainScriptAspect>()->setValue(script);
