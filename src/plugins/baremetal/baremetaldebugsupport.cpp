@@ -65,8 +65,7 @@ BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
     const QString providerId = dev->gdbServerProviderId();
     const GdbServerProvider *p = GdbServerProviderManager::findProvider(providerId);
     if (!p) {
-        // FIXME: Translate.
-        reportFailure(QString("No GDB server provider found for %1").arg(providerId));
+        reportFailure(tr("No GDB server provider found for %1").arg(providerId));
         return;
     }
 
