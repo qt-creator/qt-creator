@@ -603,7 +603,8 @@ void BookmarkManager::prev()
     QModelIndex current = selectionModel()->currentIndex();
     if (!current.isValid())
         return;
-
+    if (!isAtCurrentBookmark() && gotoBookmark(bookmarkForIndex(current)))
+        return;
     int row = current.row();
     while (true) {
         if (row == 0)
@@ -804,6 +805,17 @@ void BookmarkManager::loadBookmarks()
         addBookmark(bookmarkString);
 
     updateActionStatus();
+}
+
+bool BookmarkManager::isAtCurrentBookmark() const
+{
+    Bookmark *bk = bookmarkForIndex(selectionModel()->currentIndex());
+    if (!bk)
+        return true;
+    IEditor *currentEditor = EditorManager::currentEditor();
+    return currentEditor
+           && currentEditor->document()->filePath() == Utils::FileName::fromString(bk->fileName())
+           && currentEditor->currentLine() == bk->lineNumber();
 }
 
 // BookmarkViewFactory

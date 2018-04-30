@@ -105,6 +105,7 @@ signals:
 private:
     void updateActionStatus();
     void loadBookmarks();
+    bool isAtCurrentBookmark() const;
 
     void documentPrevNext(bool next);
 
