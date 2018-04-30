@@ -42,6 +42,7 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/fileutils.h>
+#include <utils/utilsicons.h>
 
 #include <QMenu>
 
@@ -113,12 +114,16 @@ BookmarksPluginRunData::BookmarksPluginRunData()
     mbm->addSeparator();
 
     // Previous
+    m_prevAction.setIcon(Utils::Icons::PREV_TOOLBAR.icon());
+    m_prevAction.setIconVisibleInMenu(false);
     cmd = ActionManager::registerAction(&m_prevAction, BOOKMARKS_PREV_ACTION, editorManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? BookmarksPlugin::tr("Meta+,")
                                                             : BookmarksPlugin::tr("Ctrl+,")));
     mbm->addAction(cmd);
 
     // Next
+    m_nextAction.setIcon(Utils::Icons::NEXT_TOOLBAR.icon());
+    m_nextAction.setIconVisibleInMenu(false);
     cmd = ActionManager::registerAction(&m_nextAction, BOOKMARKS_NEXT_ACTION, editorManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? BookmarksPlugin::tr("Meta+.")
                                                             : BookmarksPlugin::tr("Ctrl+.")));
