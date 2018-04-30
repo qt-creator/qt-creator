@@ -32,7 +32,9 @@
 #include "../gitconstants.h"
 
 #include <utils/icon.h>
+#include <utils/theme/theme.h>
 
+#include <QApplication>
 #include <QDateTime>
 #include <QDir>
 #include <QPushButton>
@@ -43,6 +45,8 @@ using namespace Git::Internal;
 
 namespace Gerrit {
 namespace Internal {
+
+static const int ReasonableDistance = 100;
 
 class PushItemDelegate : public IconItemDelegate
 {
@@ -207,8 +211,18 @@ void GerritPushDialog::setChangeRange()
     }
     m_ui->infoLabel->show();
     const QString remote = selectedRemoteName() + '/' + remoteBranchName;
-    m_ui->infoLabel->setText(
-                tr("Number of commits between %1 and %2: %3").arg(branch, remote, range));
+    QString labelText = tr("Number of commits between %1 and %2: %3").arg(branch, remote, range);
+    const int currentRange = range.toInt();
+    QPalette palette = QApplication::palette();
+    if (currentRange > ReasonableDistance) {
+        const QColor errorColor = Utils::creatorTheme()->color(Utils::Theme::TextColorError);
+        palette.setColor(QPalette::Foreground, errorColor);
+        palette.setColor(QPalette::ButtonText, errorColor);
+        labelText.append("\n" + tr("Are you sure you selected the right target branch?"));
+    }
+    m_ui->infoLabel->setPalette(palette);
+    m_ui->targetBranchComboBox->setPalette(palette);
+    m_ui->infoLabel->setText(labelText);
 }
 
 static bool versionSupportsWip(const QString &version)
