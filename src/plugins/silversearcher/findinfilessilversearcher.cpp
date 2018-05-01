@@ -105,15 +105,15 @@ void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
     for (const QString &filter : parameters.exclusionFilters)
         arguments << "--ignore" << filter;
 
-    FileName path = FileName::fromUserInput(FileUtils::normalizePathName(directory));
-    arguments << parameters.text << path.toString();
-
     QString nameFiltersAsRegex;
     for (const QString &filter : parameters.nameFilters)
         nameFiltersAsRegex += QString("(%1)|").arg(convertWildcardToRegex(filter));
     nameFiltersAsRegex.remove(nameFiltersAsRegex.length() - 1, 1);
 
     arguments << "-G" << nameFiltersAsRegex;
+
+    const FileName path = FileName::fromUserInput(FileUtils::normalizePathName(directory));
+    arguments << "-- " << parameters.text << path.toString();
 
     QProcess process;
     process.start("ag", arguments);
