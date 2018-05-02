@@ -200,7 +200,10 @@ Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
                    << "\nMOBILITY = "
                    << "\n";
         }
-        proStr << '\n';
+        proStr << "\n\n# Default rules for deployment.\n"
+                  "qnx: target.path = /tmp/$${TARGET}/bin\n"
+                  "else: unix:!android: target.path = /opt/$${TARGET}/bin\n"
+                  "!isEmpty(target.path): INSTALLS += target\n";
     }
     profile.setContents(contents);
     // List
