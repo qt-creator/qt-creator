@@ -533,7 +533,7 @@ DocumentModel::Entry *DocumentModel::entryForFilePath(const Utils::FileName &fil
     const Utils::optional<int> index = d->indexOfFilePath(filePath);
     if (!index)
         return nullptr;
-    return d->m_entries.at(index.value());
+    return d->m_entries.at(*index);
 }
 
 QList<IDocument *> DocumentModel::openedDocuments()
