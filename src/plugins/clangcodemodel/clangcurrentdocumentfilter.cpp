@@ -59,11 +59,9 @@ ClangCurrentDocumentFilter::ClangCurrentDocumentFilter()
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::currentEditorChanged,
-            this, &ClangCurrentDocumentFilter::onCurrentEditorChanged,
-            Qt::QueuedConnection);
+            this, &ClangCurrentDocumentFilter::onCurrentEditorChanged);
     connect(editorManager, &Core::EditorManager::editorAboutToClose,
-            this, &ClangCurrentDocumentFilter::onEditorAboutToClose,
-            Qt::QueuedConnection);
+            this, &ClangCurrentDocumentFilter::onEditorAboutToClose);
 }
 
 static QString addType(const QString &signature, const ClangBackEnd::ExtraInfo &extraInfo)
