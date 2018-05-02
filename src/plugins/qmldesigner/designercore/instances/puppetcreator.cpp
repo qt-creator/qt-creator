@@ -422,7 +422,6 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
         environment.prependOrSetPath(qtBinPath.toString());
     }
     environment.set("QML_BAD_GUI_RENDER_LOOP", "true");
-    environment.set("QML_USE_MOCKUPS", "true");
     environment.set("QML_PUPPET_MODE", "true");
     environment.set("QML_DISABLE_DISK_CACHE", "true");
     if (!environment.hasKey("QT_SCREEN_SCALE_FACTORS") && !environment.hasKey("QT_SCALE_FACTOR")
