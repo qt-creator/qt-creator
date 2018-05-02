@@ -310,8 +310,12 @@ def main():
     QT_INSTALL_TRANSLATIONS = qt_install_info['QT_INSTALL_TRANSLATIONS']
 
     plugins = ['accessible', 'codecs', 'designer', 'iconengines', 'imageformats', 'platformthemes',
-               'platforminputcontexts', 'platforms', 'printsupport', 'sqldrivers', 'styles',
-               'xcbglintegrations', 'qmltooling']
+               'platforminputcontexts', 'platforms', 'printsupport', 'qmltooling', 'sqldrivers', 'styles',
+               'xcbglintegrations',
+               'wayland-decoration-client',
+               'wayland-graphics-integration-client',
+               'wayland-shell-integration',
+               ]
     imports = ['Qt', 'QtWebKit']
 
     if common.is_windows_platform():

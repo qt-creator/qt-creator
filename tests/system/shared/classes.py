@@ -118,31 +118,6 @@ class ViewConstants:
             return None
         return toolTip % (viewTab + 1)
 
-class SubprocessType:
-    QT_WIDGET=0
-    QT_QUICK_APPLICATION=1
-    QT_QUICK_UI=2
-    USER_DEFINED=3
-
-    @staticmethod
-    def getWindowType(subprocessType, qtQuickVersion="1.1"):
-        if subprocessType == SubprocessType.QT_WIDGET:
-            return "QMainWindow"
-        if subprocessType == SubprocessType.QT_QUICK_APPLICATION:
-            qqv = "2"
-            if qtQuickVersion[0] == "1":
-                qqv = "1"
-            return "QtQuick%sApplicationViewer" % qqv
-        if subprocessType == SubprocessType.QT_QUICK_UI:
-            if qtQuickVersion == "1.1":
-                return "QDeclarativeViewer"
-            else:
-                return "QQuickView"
-        if subprocessType == SubprocessType.USER_DEFINED:
-            return "user-defined"
-        test.fatal("Could not determine the WindowType for SubprocessType %s" % subprocessType)
-        return None
-
 class QtInformation:
     QT_VERSION = 0
     QT_BINPATH = 1
