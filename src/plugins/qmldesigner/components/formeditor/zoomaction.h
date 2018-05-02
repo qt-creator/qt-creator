@@ -24,6 +24,8 @@
 ****************************************************************************/
 #pragma once
 
+#include <qmldesignercorelib_global.h>
+
 #include <QWidgetAction>
 #include <QPointer>
 
@@ -33,7 +35,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class ZoomAction : public QWidgetAction
+class QMLDESIGNERCORE_EXPORT ZoomAction : public QWidgetAction
 {
     Q_OBJECT
 
