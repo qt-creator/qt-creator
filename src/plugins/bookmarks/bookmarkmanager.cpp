@@ -169,33 +169,6 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
                 0.7 * textColor.greenF() + 0.3 * backgroundColor.greenF(),
                 0.7 * textColor.blueF()  + 0.3 * backgroundColor.blueF());
     painter->setPen(mix);
-//
-//    QString directory = index.data(BookmarkManager::Directory).toString();
-//    int availableSpace = opt.rect.width() - 12;
-//    if (fm.width(directory) > availableSpace) {
-//        // We need a shorter directory
-//        availableSpace -= fm.width("...");
-//
-//        int pos = directory.size();
-//        int idx;
-//        forever {
-//            idx = directory.lastIndexOf("/", pos-1);
-//            if (idx == -1) {
-//                // Can't happen, this means the string did fit after all?
-//                break;
-//            }
-//            int width = fm.width(directory.mid(idx, pos-idx));
-//            if (width > availableSpace) {
-//                directory = "..." + directory.mid(pos);
-//                break;
-//            } else {
-//                pos = idx;
-//                availableSpace -= width;
-//            }
-//        }
-//    }
-//
-//    painter->drawText(3, opt.rect.top() + fm.ascent() + fm.height() + 6, directory);
 
     QString lineText = index.data(BookmarkManager::Note).toString().trimmed();
     if (lineText.isEmpty())
@@ -514,7 +487,7 @@ void BookmarkManager::deleteBookmark(Bookmark *bookmark)
 Bookmark *BookmarkManager::bookmarkForIndex(const QModelIndex &index) const
 {
     if (!index.isValid() || index.row() >= m_bookmarksList.size())
-        return 0;
+        return nullptr;
     return m_bookmarksList.at(index.row());
 }
 

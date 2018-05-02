@@ -141,7 +141,7 @@ BookmarksPluginRunData::BookmarksPluginRunData()
                                         editorManagerContext);
     mbm->addAction(cmd);
 
-    connect(&m_toggleAction, &QAction::triggered, [this] {
+    connect(&m_toggleAction, &QAction::triggered, this, [this] {
         BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
         if (editor && !editor->document()->isTemporary())
             m_bookmarkManager.toggleBookmark(editor->document()->filePath(), editor->currentLine());
@@ -154,7 +154,7 @@ BookmarksPluginRunData::BookmarksPluginRunData()
     connect(&m_docNextAction, &QAction::triggered,
             &m_bookmarkManager, &BookmarkManager::nextInDocument);
 
-    connect(&m_editBookmarkAction, &QAction::triggered, [this] {
+    connect(&m_editBookmarkAction, &QAction::triggered, this, [this] {
             m_bookmarkManager.editByFileAndLine(m_marginActionFileName, m_marginActionLineNumber);
     });
 
@@ -162,7 +162,7 @@ BookmarksPluginRunData::BookmarksPluginRunData()
             this, &BookmarksPluginRunData::updateActions);
     updateActions(false, m_bookmarkManager.state());
 
-    connect(&m_bookmarkMarginAction, &QAction::triggered, [this] {
+    connect(&m_bookmarkMarginAction, &QAction::triggered, this, [this] {
             m_bookmarkManager.toggleBookmark(m_marginActionFileName, m_marginActionLineNumber);
     });
 
