@@ -42,6 +42,7 @@ class DesignDocument;
 class AbstractCustomTool;
 class DesignerActionManager;
 class NodeInstanceView;
+class RewriterView;
 
 namespace Internal { class DesignModeWidget; }
 
@@ -97,6 +98,8 @@ public:
 
     void qmlJSEditorHelpId(const Core::IContext::HelpIdCallback &callback) const;
     DesignDocument *currentDesignDocument() const;
+
+    bool usesRewriterView(RewriterView *rewriterView);
 
 private: // functions
     Q_DISABLE_COPY(ViewManager)

@@ -873,8 +873,11 @@ void RewriterView::qmlTextChanged()
                 amendQmlText();
             } else {
 #ifndef QMLDESIGNER_TEST
-                QmlDesignerPlugin::instance()->viewManager().disableWidgets();
-                m_amendTimer.start(400);
+                auto &viewManager = QmlDesignerPlugin::instance()->viewManager();
+                if (viewManager.usesRewriterView(this)) {
+                    QmlDesignerPlugin::instance()->viewManager().disableWidgets();
+                    m_amendTimer.start(400);
+                }
 #else
                 /*Keep test synchronous*/
                 amendQmlText();

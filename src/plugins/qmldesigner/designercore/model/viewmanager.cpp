@@ -449,6 +449,11 @@ void ViewManager::reformatFileUsingTextEditorView()
     d->textEditorView.reformatFile();
 }
 
+bool ViewManager::usesRewriterView(RewriterView *rewriterView)
+{
+    return currentDesignDocument()->rewriterView() == rewriterView;
+}
+
 } // namespace QmlDesigner
 
 #endif //QMLDESIGNER_TEST
