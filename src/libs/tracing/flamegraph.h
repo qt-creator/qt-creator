@@ -94,6 +94,11 @@ public:
         setRoot(QModelIndex());
     }
 
+    Q_INVOKABLE QVariant total(int role) const
+    {
+        return m_model ? m_model->data(m_root, role) : QVariant();
+    }
+
     static FlameGraphAttached *qmlAttachedProperties(QObject *object);
 
 signals:

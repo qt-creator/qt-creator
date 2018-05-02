@@ -208,7 +208,6 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
     case DurationRole: return stats.duration;
     case CallCountRole: return stats.calls;
     case TimePerCallRole: return stats.duration / stats.calls;
-    case TimeInPercentRole: return stats.duration * 100 / m_stackBottom.duration;
     case AllocationsRole: return stats.allocations;
     case MemoryRole: return stats.memory;
     default: break;
@@ -321,7 +320,6 @@ QHash<int, QByteArray> FlameGraphModel::roleNames() const
         {ColumnRole, "column"},
         {NoteRole, "note"},
         {TimePerCallRole, "timePerCall"},
-        {TimeInPercentRole, "timeInPercent"},
         {RangeTypeRole, "rangeType"},
         {LocationRole, "location" },
         {AllocationsRole, "allocations" },

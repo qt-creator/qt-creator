@@ -158,8 +158,6 @@ void FlameGraphModelTest::testData()
     QCOMPARE(model.data(index2, FlameGraphModel::NoteRole).toString(), QString());
     QCOMPARE(model.data(index, FlameGraphModel::TimePerCallRole).toLongLong(), 20);
     QCOMPARE(model.data(index2, FlameGraphModel::TimePerCallRole).toLongLong(), 12);
-    QCOMPARE(model.data(index, FlameGraphModel::TimeInPercentRole).toInt(), 62);
-    QCOMPARE(model.data(index2, FlameGraphModel::TimeInPercentRole).toInt(), 37);
     QCOMPARE(model.data(index, FlameGraphModel::RangeTypeRole).toInt(),
              static_cast<int>(Javascript));
     QCOMPARE(model.data(index2, FlameGraphModel::RangeTypeRole).toInt(),
@@ -201,7 +199,6 @@ void FlameGraphModelTest::testRoleNames()
     QCOMPARE(names[FlameGraphModel::ColumnRole],        QByteArray("column"));
     QCOMPARE(names[FlameGraphModel::NoteRole],          QByteArray("note"));
     QCOMPARE(names[FlameGraphModel::TimePerCallRole],   QByteArray("timePerCall"));
-    QCOMPARE(names[FlameGraphModel::TimeInPercentRole], QByteArray("timeInPercent"));
     QCOMPARE(names[FlameGraphModel::RangeTypeRole],     QByteArray("rangeType"));
 }
 

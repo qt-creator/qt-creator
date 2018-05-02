@@ -6,6 +6,7 @@
         <file>FlameGraphDelegate.qml</file>
         <file>FlameGraphDetails.qml</file>
         <file>FlameGraphText.qml</file>
+        <file>FlameGraphView.qml</file>
         <file>ico_edit.png</file>
         <file>ico_edit@2x.png</file>
         <file>ico_rangeselected.png</file>

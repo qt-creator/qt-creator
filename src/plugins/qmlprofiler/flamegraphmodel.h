@@ -68,7 +68,6 @@ public:
         ColumnRole,
         NoteRole,
         TimePerCallRole,
-        TimeInPercentRole,
         RangeTypeRole,
         LocationRole,
         AllocationsRole,
