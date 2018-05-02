@@ -33,8 +33,10 @@ using namespace ProjectExplorer;
 namespace ClangTools {
 namespace Internal {
 
-ClangTidyClazyRunControl::ClangTidyClazyRunControl(RunControl *runControl, Target *target)
-    : ClangToolRunControl(runControl, target)
+ClangTidyClazyRunControl::ClangTidyClazyRunControl(RunControl *runControl,
+                                                   Target *target,
+                                                   const FileInfos &fileInfos)
+    : ClangToolRunControl(runControl, target, fileInfos)
 {
     setDisplayName("ClangTidyClazyRunner");
     init();

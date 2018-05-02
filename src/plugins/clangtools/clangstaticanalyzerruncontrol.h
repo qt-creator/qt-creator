@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "clangfileinfo.h"
 #include "clangtoolruncontrol.h"
 
 namespace ClangTools {
@@ -36,7 +37,8 @@ class ClangStaticAnalyzerRunControl final : public ClangToolRunControl
 
 public:
     ClangStaticAnalyzerRunControl(ProjectExplorer::RunControl *runControl,
-                                  ProjectExplorer::Target *target);
+                                  ProjectExplorer::Target *target,
+                                  const FileInfos &fileInfos);
 
 protected:
     ClangToolRunner *createRunner() final;

@@ -71,8 +71,10 @@ using namespace ProjectExplorer;
 namespace ClangTools {
 namespace Internal {
 
-ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(RunControl *runControl, Target *target)
-    : ClangToolRunControl(runControl, target)
+ClangStaticAnalyzerRunControl::ClangStaticAnalyzerRunControl(RunControl *runControl,
+                                                             Target *target,
+                                                             const FileInfos &fileInfos)
+    : ClangToolRunControl(runControl, target, fileInfos)
 {
     setDisplayName("ClangStaticAnalyzerRunner");
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,33 +25,40 @@
 
 #pragma once
 
-#include "clangtool.h"
+#include "clangfileinfo.h"
+
+#include <QDialog>
+
+#include <memory>
+
+QT_BEGIN_NAMESPACE
+class QPushButton;
+QT_END_NAMESPACE
+
+namespace CppTools { class ProjectInfo; }
 
 namespace ClangTools {
 namespace Internal {
 
-const char ClangTidyClazyPerspectiveId[] = "ClangTidyClazy.Perspective";
-const char ClangTidyClazyDockId[]        = "ClangTidyClazy.Dock";
+namespace Ui { class SelectableFilesDialog; }
+class SelectableFilesModel;
 
-class ClangTidyClazyTool final : public ClangTool
+class SelectableFilesDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    ClangTidyClazyTool();
+    explicit SelectableFilesDialog(const CppTools::ProjectInfo &projectInfo,
+                                   const FileInfos &allFileInfos);
+    ~SelectableFilesDialog() override;
 
-    static ClangTidyClazyTool *instance();
-
-    void startTool(bool askUserForFileSelection) final;
-
-    QList<Diagnostic> read(const QString &filePath,
-                           const QString &logFilePath,
-                           QString *errorMessage) const final;
+    FileInfos filteredFileInfos() const;
 
 private:
-    void handleStateUpdate() final;
+    std::unique_ptr<Ui::SelectableFilesDialog> m_ui;
+    std::unique_ptr<SelectableFilesModel> m_filesModel;
 
-    void updateRunActions();
+    QPushButton *m_analyzeButton = nullptr;
 };
 
 } // namespace Internal

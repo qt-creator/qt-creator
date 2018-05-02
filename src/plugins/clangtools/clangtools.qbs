@@ -41,6 +41,10 @@ QtcPlugin {
     }
 
     files: [
+        "clangfileinfo.h",
+        "clangselectablefilesdialog.cpp",
+        "clangselectablefilesdialog.h",
+        "clangselectablefilesdialog.ui",
         "clangstaticanalyzerdiagnosticview.cpp",
         "clangstaticanalyzerdiagnosticview.h",
         "clangstaticanalyzerprojectsettings.cpp",

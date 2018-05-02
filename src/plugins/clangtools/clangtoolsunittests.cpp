@@ -131,7 +131,7 @@ void ClangToolsUnitTests::testProject()
         settings->setClangDiagnosticConfigId(clangTidyConfig.id());
     }
 
-    tool->startTool();
+    tool->startTool(false);
     QSignalSpy waiter(tool, SIGNAL(finished(bool)));
     QVERIFY(waiter.wait(30000));
 

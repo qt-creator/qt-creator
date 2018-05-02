@@ -185,48 +185,31 @@ private:
      bool m_success = false;
 };
 
-static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QVector<ProjectPart::Ptr> projectParts,
-                                                   const QString &clangVersion,
-                                                   const QString &clangResourceDirectory)
+static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos,
+                                   const QString &clangVersion,
+                                   const QString &clangResourceDirectory)
 {
-    qCDebug(LOG) << "Taking arguments for analyzing from ProjectParts.";
-
     AnalyzeUnits unitsToAnalyze;
-
-    foreach (const ProjectPart::Ptr &projectPart, projectParts) {
-        if (!projectPart->selectedForBuilding || !projectPart.data())
-            continue;
-
-        foreach (const ProjectFile &file, projectPart->files) {
-            if (file.path == CppModelManager::configurationFileName())
-                continue;
-            QTC_CHECK(file.kind != ProjectFile::Unclassified);
-            QTC_CHECK(file.kind != ProjectFile::Unsupported);
-            if (ProjectFile::isSource(file.kind)) {
-                const CompilerOptionsBuilder::PchUsage pchUsage = CppTools::getPchUsage();
-                CompilerOptionsBuilder optionsBuilder(*projectPart, clangVersion,
-                                                      clangResourceDirectory);
-                QStringList arguments = extraClangToolsPrependOptions();
-                arguments.append(optionsBuilder.build(file.kind, pchUsage));
-                arguments.append(extraClangToolsAppendOptions());
-                unitsToAnalyze << AnalyzeUnit(file.path, arguments);
-            }
-        }
+    const CompilerOptionsBuilder::PchUsage pchUsage = CppTools::getPchUsage();
+    for (const FileInfo &fileInfo : fileInfos) {
+        CompilerOptionsBuilder optionsBuilder(*fileInfo.projectPart,
+                                              clangVersion,
+                                              clangResourceDirectory);
+        QStringList arguments = extraClangToolsPrependOptions();
+        arguments.append(optionsBuilder.build(fileInfo.kind, pchUsage));
+        arguments.append(extraClangToolsAppendOptions());
+        unitsToAnalyze << AnalyzeUnit(fileInfo.file.toString(), arguments);
     }
 
     return unitsToAnalyze;
 }
 
-AnalyzeUnits ClangToolRunControl::sortedUnitsToAnalyze(const QString &clangVersion)
+AnalyzeUnits ClangToolRunControl::unitsToAnalyze(const QString &clangVersion)
 {
     QTC_ASSERT(m_projectInfo.isValid(), return AnalyzeUnits());
 
     const QString clangResourceDirectory = clangIncludeDirectory(m_clangExecutable, clangVersion);
-    AnalyzeUnits units = unitsToAnalyzeFromProjectParts(m_projectInfo.projectParts(), clangVersion,
-                                                        clangResourceDirectory);
-
-    Utils::sort(units, &AnalyzeUnit::file);
-    return units;
+    return toAnalyzeUnits(m_fileInfos, clangVersion, clangResourceDirectory);
 }
 
 static QDebug operator<<(QDebug debug, const Utils::Environment &environment)
@@ -243,11 +226,14 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
     return debug;
 }
 
-ClangToolRunControl::ClangToolRunControl(RunControl *runControl, Target *target)
+ClangToolRunControl::ClangToolRunControl(RunControl *runControl,
+                                         Target *target,
+                                         const FileInfos &fileInfos)
     : RunWorker(runControl)
     , m_projectBuilder(new ProjectBuilder(runControl, target->project(), this))
     , m_clangExecutable(CppTools::clangExecutable(CLANG_BINDIR))
     , m_target(target)
+    , m_fileInfos(fileInfos)
 {
     addStartDependency(m_projectBuilder);
 
@@ -327,7 +313,7 @@ void ClangToolRunControl::start()
     m_clangLogFileDir = temporaryDir.path();
 
     // Collect files
-    const AnalyzeUnits unitsToProcess = sortedUnitsToAnalyze(CLANG_VERSION);
+    const AnalyzeUnits unitsToProcess = unitsToAnalyze(CLANG_VERSION);
     qCDebug(LOG) << "Files to process:" << unitsToProcess;
     m_unitsToProcess = unitsToProcess;
     m_initialFilesToProcessSize = m_unitsToProcess.count();

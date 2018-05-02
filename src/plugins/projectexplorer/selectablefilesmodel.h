@@ -47,7 +47,11 @@ namespace ProjectExplorer {
 class Tree
 {
 public:
-    ~Tree();
+    virtual ~Tree()
+    {
+        qDeleteAll(childDirectories);
+        qDeleteAll(files);
+    }
 
     QString name;
     Qt::CheckState checked = Qt::Unchecked;

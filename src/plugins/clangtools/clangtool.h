@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "clangfileinfo.h"
+
 #include <projectexplorer/runconfiguration.h>
 #include <cpptools/projectinfo.h>
 
@@ -44,11 +46,14 @@ public:
     ClangTool(const QString &name);
     virtual ~ClangTool() = default;
 
-    virtual void startTool() = 0;
+    virtual void startTool(bool askUserForFileSelection) = 0;
 
     virtual QList<Diagnostic> read(const QString &filePath,
                                    const QString &logFilePath,
                                    QString *errorMessage) const = 0;
+
+    FileInfos collectFileInfos(ProjectExplorer::Project *project,
+                               bool askUserForFileSelection) const;
 
     // For testing.
     QList<Diagnostic> diagnostics() const;

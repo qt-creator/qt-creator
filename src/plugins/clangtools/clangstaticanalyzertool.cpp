@@ -108,11 +108,11 @@ ClangStaticAnalyzerTool::ClangStaticAnalyzerTool()
         {{ClangStaticAnalyzerDockId, m_diagnosticView, {}, Perspective::SplitVertical}}
     ));
 
-    action = new QAction(tr("Clang Static Analyzer"), this);
+    action = new QAction(tr("Clang Static Analyzer..."), this);
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, "ClangStaticAnalyzer.Action"),
                     Debugger::Constants::G_ANALYZER_TOOLS);
-    QObject::connect(action, &QAction::triggered, this, &ClangStaticAnalyzerTool::startTool);
+    QObject::connect(action, &QAction::triggered, this, [this]() { startTool(true); });
     QObject::connect(m_startAction, &QAction::triggered, action, &QAction::triggered);
     QObject::connect(m_startAction, &QAction::changed, action, [action, this] {
         action->setEnabled(m_startAction->isEnabled());
@@ -136,7 +136,7 @@ ClangStaticAnalyzerTool *ClangStaticAnalyzerTool::instance()
     return s_instance;
 }
 
-void ClangStaticAnalyzerTool::startTool()
+void ClangStaticAnalyzerTool::startTool(bool askUserForFileSelection)
 {
     auto runControl = new RunControl(nullptr, Constants::CLANGSTATICANALYZER_RUN_MODE);
     runControl->setDisplayName(tr("Clang Static Analyzer"));
@@ -146,7 +146,13 @@ void ClangStaticAnalyzerTool::startTool()
     QTC_ASSERT(project, return);
     QTC_ASSERT(project->activeTarget(), return);
 
-    auto clangTool = new ClangStaticAnalyzerRunControl(runControl, project->activeTarget());
+    const FileInfos fileInfos = collectFileInfos(project, askUserForFileSelection);
+    if (fileInfos.isEmpty())
+        return;
+
+    auto clangTool = new ClangStaticAnalyzerRunControl(runControl,
+                                                       project->activeTarget(),
+                                                       fileInfos);
 
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, runControl, [runControl] {

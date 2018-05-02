@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,34 +25,23 @@
 
 #pragma once
 
-#include "clangtool.h"
+#include <cpptools/cppprojectfile.h>
+#include <cpptools/projectpart.h>
+
+#include <utils/fileutils.h>
 
 namespace ClangTools {
 namespace Internal {
 
-const char ClangTidyClazyPerspectiveId[] = "ClangTidyClazy.Perspective";
-const char ClangTidyClazyDockId[]        = "ClangTidyClazy.Dock";
-
-class ClangTidyClazyTool final : public ClangTool
+class FileInfo
 {
-    Q_OBJECT
-
 public:
-    ClangTidyClazyTool();
-
-    static ClangTidyClazyTool *instance();
-
-    void startTool(bool askUserForFileSelection) final;
-
-    QList<Diagnostic> read(const QString &filePath,
-                           const QString &logFilePath,
-                           QString *errorMessage) const final;
-
-private:
-    void handleStateUpdate() final;
-
-    void updateRunActions();
+    Utils::FileName file;
+    CppTools::ProjectFile::Kind kind;
+    CppTools::ProjectPart::Ptr projectPart;
 };
+
+using FileInfos = QVector<FileInfo>;
 
 } // namespace Internal
 } // namespace ClangTools

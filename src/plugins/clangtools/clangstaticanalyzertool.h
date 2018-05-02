@@ -47,7 +47,7 @@ public:
 
     static ClangStaticAnalyzerTool *instance();
 
-    void startTool() final;
+    void startTool(bool askUserForFileSelection) final;
 
     QList<Diagnostic> read(const QString &,
                            const QString &logFilePath,

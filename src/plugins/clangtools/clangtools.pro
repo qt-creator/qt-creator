@@ -9,6 +9,7 @@ LIBS += $$LIBCLANG_LIBS
 INCLUDEPATH += $$LLVM_INCLUDEPATH
 
 SOURCES += \
+    clangselectablefilesdialog.cpp \
     clangstaticanalyzerdiagnosticview.cpp \
     clangstaticanalyzerprojectsettings.cpp \
     clangstaticanalyzerprojectsettingsmanager.cpp \
@@ -31,6 +32,8 @@ SOURCES += \
     clangtoolsconfigwidget.cpp
 
 HEADERS += \
+    clangfileinfo.h \
+    clangselectablefilesdialog.h \
     clangstaticanalyzerdiagnosticview.h \
     clangstaticanalyzerprojectsettings.h \
     clangstaticanalyzerprojectsettingsmanager.h \
@@ -57,6 +60,7 @@ HEADERS += \
 FORMS += \
     clangstaticanalyzerprojectsettingswidget.ui \
     clangtoolsconfigwidget.ui
+    clangselectablefilesdialog.ui
 
 equals(TEST, 1) {
     HEADERS += \

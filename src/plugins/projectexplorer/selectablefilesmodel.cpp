@@ -47,12 +47,6 @@ const char HIDE_FILE_FILTER_DEFAULT[] = "Makefile*; *.o; *.lo; *.la; *.obj; *~; 
                                         " *.config; *.creator; *.user*; *.includes; *.autosave";
 const char SHOW_FILE_FILTER_DEFAULT[] = "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;";
 
-Tree::~Tree()
-{
-    qDeleteAll(childDirectories);
-    qDeleteAll(files);
-}
-
 SelectableFilesModel::SelectableFilesModel(QObject *parent) : QAbstractItemModel(parent)
 {
     m_root = new Tree;

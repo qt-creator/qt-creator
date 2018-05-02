@@ -36,7 +36,8 @@ class ClangTidyClazyRunControl final : public ClangToolRunControl
 
 public:
     ClangTidyClazyRunControl(ProjectExplorer::RunControl *runControl,
-                             ProjectExplorer::Target *target);
+                             ProjectExplorer::Target *target,
+                             const FileInfos &fileInfos);
 
 protected:
     ClangToolRunner *createRunner() final;

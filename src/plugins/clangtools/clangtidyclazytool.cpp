@@ -25,6 +25,7 @@
 
 #include "clangtidyclazytool.h"
 
+#include "clangselectablefilesdialog.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolsdiagnosticmodel.h"
 #include "clangtoolslogfilereader.h"
@@ -32,6 +33,8 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+
+#include <cpptools/cppmodelmanager.h>
 
 #include <debugger/analyzer/analyzermanager.h>
 
@@ -76,11 +79,11 @@ ClangTidyClazyTool::ClangTidyClazyTool()
         {{ClangTidyClazyDockId, m_diagnosticView, {}, Perspective::SplitVertical}}
     ));
 
-    auto *action = new QAction(tr("Clang-Tidy and Clazy"), this);
+    auto *action = new QAction(tr("Clang-Tidy and Clazy..."), this);
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, "ClangTidyClazy.Action"),
                     Debugger::Constants::G_ANALYZER_TOOLS);
-    QObject::connect(action, &QAction::triggered, this, &ClangTidyClazyTool::startTool);
+    QObject::connect(action, &QAction::triggered, this, [this]() { startTool(true); });
     QObject::connect(m_startAction, &QAction::triggered, action, &QAction::triggered);
     QObject::connect(m_startAction, &QAction::changed, action, [action, this] {
         action->setEnabled(m_startAction->isEnabled());
@@ -103,7 +106,7 @@ ClangTidyClazyTool *ClangTidyClazyTool::instance()
     return s_instance;
 }
 
-void ClangTidyClazyTool::startTool()
+void ClangTidyClazyTool::startTool(bool askUserForFileSelection)
 {
     auto runControl = new RunControl(nullptr, Constants::CLANGTIDYCLAZY_RUN_MODE);
     runControl->setDisplayName(tr("Clang-Tidy and Clazy"));
@@ -112,7 +115,11 @@ void ClangTidyClazyTool::startTool()
     Project *project = SessionManager::startupProject();
     QTC_ASSERT(project, return);
 
-    auto clangTool = new ClangTidyClazyRunControl(runControl, project->activeTarget());
+    const FileInfos fileInfos = collectFileInfos(project, askUserForFileSelection);
+    if (fileInfos.isEmpty())
+        return;
+
+    auto clangTool = new ClangTidyClazyRunControl(runControl, project->activeTarget(), fileInfos);
 
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, runControl, [runControl] {

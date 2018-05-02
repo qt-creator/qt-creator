@@ -120,7 +120,7 @@ void ClangStaticAnalyzerPreconfiguredSessionTests::testPreconfiguredSession()
 
     QVERIFY(switchToProjectAndTarget(project, target));
 
-    ClangStaticAnalyzerTool::instance()->startTool();
+    ClangStaticAnalyzerTool::instance()->startTool(false);
     QSignalSpy waitUntilAnalyzerFinished(ClangStaticAnalyzerTool::instance(), SIGNAL(finished(bool)));
     QVERIFY(waitUntilAnalyzerFinished.wait(30000));
     const QList<QVariant> arguments = waitUntilAnalyzerFinished.takeFirst();
