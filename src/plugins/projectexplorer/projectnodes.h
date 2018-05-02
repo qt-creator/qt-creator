@@ -109,6 +109,7 @@ public:
     };
 
     virtual ~Node();
+    Node(const Node &other) = delete;
     NodeType nodeType() const;
     int priority() const;
 
