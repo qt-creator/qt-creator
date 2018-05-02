@@ -29,6 +29,7 @@
 
 #include <coreplugin/id.h>
 #include <utils/theme/theme.h>
+#include <utils/fileutils.h>
 
 #include <QIcon>
 
@@ -47,7 +48,10 @@ class TextDocument;
 class TEXTEDITOR_EXPORT TextMark
 {
 public:
-    TextMark(const QString &fileName, int lineNumber, Core::Id category, double widthFactor = 1.0);
+    TextMark(const Utils::FileName &fileName,
+             int lineNumber,
+             Core::Id category,
+             double widthFactor = 1.0);
     TextMark() = delete;
     virtual ~TextMark();
 
@@ -59,7 +63,7 @@ public:
         HighPriority // shown on top.
     };
 
-    QString fileName() const;
+    Utils::FileName fileName() const;
     int lineNumber() const;
 
     virtual void paintIcon(QPainter *painter, const QRect &rect) const;
@@ -78,7 +82,7 @@ public:
     AnnotationRects annotationRects(const QRectF &boundingRect, const QFontMetrics &fm,
                                     const qreal fadeInOffset, const qreal fadeOutOffset) const;
     /// called if the filename of the document changed
-    virtual void updateFileName(const QString &fileName);
+    virtual void updateFileName(const Utils::FileName &fileName);
     virtual void updateLineNumber(int lineNumber);
     virtual void updateBlock(const QTextBlock &block);
     virtual void move(int line);
@@ -122,7 +126,7 @@ private:
     Q_DISABLE_COPY(TextMark)
 
     TextDocument *m_baseTextDocument = nullptr;
-    QString m_fileName;
+    Utils::FileName m_fileName;
     int m_lineNumber = 0;
     Priority m_priority = LowPriority;
     QIcon m_icon;

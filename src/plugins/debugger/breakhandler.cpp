@@ -159,7 +159,7 @@ private:
 class BreakpointMarker : public TextEditor::TextMark
 {
 public:
-    BreakpointMarker(BreakpointItem *b, const QString &fileName, int lineNumber)
+    BreakpointMarker(BreakpointItem *b, const FileName &fileName, int lineNumber)
         : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_bp(b)
     {
         setColor(Theme::Debugger_Breakpoint_TextMarkColor);
@@ -180,10 +180,10 @@ public:
         m_bp->updateLineNumberFromMarker(lineNumber);
     }
 
-    void updateFileName(const QString &fileName)
+    void updateFileName(const FileName &fileName)
     {
         TextMark::updateFileName(fileName);
-        m_bp->updateFileNameFromMarker(fileName);
+        m_bp->updateFileNameFromMarker(fileName.toString());
     }
 
     bool isDraggable() const { return true; }
@@ -2256,7 +2256,7 @@ void BreakpointItem::updateMarkerIcon()
 
 void BreakpointItem::updateMarker()
 {
-    QString file = markerFileName();
+    FileName file = FileName::fromString(markerFileName());
     int line = markerLineNumber();
     if (m_marker && (file != m_marker->fileName() || line != m_marker->lineNumber()))
         destroyMarker();

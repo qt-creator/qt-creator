@@ -35,13 +35,14 @@
 
 #include <utils/qtcassert.h>
 
+using namespace Utils;
 using namespace Valgrind::Internal;
 using namespace Valgrind::Callgrind;
 
 namespace Constants { const char CALLGRIND_TEXT_MARK_CATEGORY[] = "Callgrind.Textmark"; }
 
 CallgrindTextMark::CallgrindTextMark(const QPersistentModelIndex &index,
-                                     const QString &fileName, int lineNumber)
+                                     const FileName &fileName, int lineNumber)
     : TextEditor::TextMark(fileName, lineNumber, Constants::CALLGRIND_TEXT_MARK_CATEGORY, 4.0)
     , m_modelIndex(index)
 {

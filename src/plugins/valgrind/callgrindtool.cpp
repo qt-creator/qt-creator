@@ -848,7 +848,7 @@ void CallgrindTool::requestContextMenu(TextEditorWidget *widget, int line, QMenu
 {
     // Find callgrind text mark that corresponds to this editor's file and line number
     foreach (CallgrindTextMark *textMark, m_textMarks) {
-        if (textMark->fileName() == widget->textDocument()->filePath().toString() && textMark->lineNumber() == line) {
+        if (textMark->fileName() == widget->textDocument()->filePath() && textMark->lineNumber() == line) {
             const Function *func = textMark->function();
             QAction *action = menu->addAction(tr("Select This Function in the Analyzer Output"));
             connect(action, &QAction::triggered, this, [this, func] { selectFunction(func); });
@@ -956,7 +956,7 @@ void CallgrindTool::createTextMarks()
             continue;
         locations << location;
 
-        m_textMarks.append(new CallgrindTextMark(index, fileName, lineNumber));
+        m_textMarks.append(new CallgrindTextMark(index, FileName::fromString(fileName), lineNumber));
     }
 }
 

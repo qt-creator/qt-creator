@@ -485,7 +485,7 @@ private:
 class LocationMark : public TextEditor::TextMark
 {
 public:
-    LocationMark(DebuggerEngine *engine, const QString &file, int line);
+    LocationMark(DebuggerEngine *engine, const Utils::FileName &file, int line);
     void removedFromEditor() override { updateLineNumber(0); }
 
 private:

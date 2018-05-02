@@ -370,17 +370,17 @@ QVariant BookmarkManager::data(const QModelIndex &index, int role) const
 
     Bookmark *bookMark = m_bookmarksList.at(index.row());
     if (role == BookmarkManager::Filename)
-        return FileName::fromString(bookMark->fileName()).fileName();
+        return bookMark->fileName().fileName();
     if (role == BookmarkManager::LineNumber)
         return bookMark->lineNumber();
     if (role == BookmarkManager::Directory)
-        return QFileInfo(bookMark->fileName()).path();
+        return bookMark->fileName().toFileInfo().path();
     if (role == BookmarkManager::LineText)
         return bookMark->lineText();
     if (role == BookmarkManager::Note)
         return bookMark->note();
     if (role == Qt::ToolTipRole)
-        return QDir::toNativeSeparators(bookMark->fileName());
+        return bookMark->fileName().toUserOutput();
     return QVariant();
 }
 
@@ -408,7 +408,7 @@ QMimeData *BookmarkManager::mimeData(const QModelIndexList &indexes) const
         if (!index.isValid() || index.column() != 0 || index.row() < 0 || index.row() >= m_bookmarksList.count())
             continue;
         Bookmark *bookMark = m_bookmarksList.at(index.row());
-        data->addFile(bookMark->fileName(), bookMark->lineNumber());
+        data->addFile(bookMark->fileName().toString(), bookMark->lineNumber());
     }
     return data;
 }
@@ -427,7 +427,7 @@ void BookmarkManager::toggleBookmark(const FileName &fileName, int lineNumber)
 
     // Add a new bookmark if no bookmark existed on this line
     Bookmark *mark = new Bookmark(lineNumber, this);
-    mark->updateFileName(fileName.toString());
+    mark->updateFileName(fileName);
     const QModelIndex currentIndex = selectionModel()->currentIndex();
     const int insertionIndex = currentIndex.isValid() ? currentIndex.row() + 1
                                                       : m_bookmarksList.size();
@@ -446,11 +446,11 @@ void BookmarkManager::updateBookmark(Bookmark *bookmark)
 
 void BookmarkManager::updateBookmarkFileName(Bookmark *bookmark, const QString &oldFileName)
 {
-    if (oldFileName == bookmark->fileName())
+    if (oldFileName == bookmark->fileName().toString())
         return;
 
     m_bookmarksMap[Utils::FileName::fromString(oldFileName)].removeAll(bookmark);
-    m_bookmarksMap[Utils::FileName::fromString(bookmark->fileName())].append(bookmark);
+    m_bookmarksMap[bookmark->fileName()].append(bookmark);
     updateBookmark(bookmark);
 }
 
@@ -471,7 +471,7 @@ void BookmarkManager::deleteBookmark(Bookmark *bookmark)
     int idx = m_bookmarksList.indexOf(bookmark);
     beginRemoveRows(QModelIndex(), idx, idx);
 
-    m_bookmarksMap[Utils::FileName::fromString(bookmark->fileName())].removeAll(bookmark);
+    m_bookmarksMap[bookmark->fileName()].removeAll(bookmark);
     delete bookmark;
 
     m_bookmarksList.removeAt(idx);
@@ -493,7 +493,8 @@ Bookmark *BookmarkManager::bookmarkForIndex(const QModelIndex &index) const
 
 bool BookmarkManager::gotoBookmark(const Bookmark *bookmark) const
 {
-    if (IEditor *editor = EditorManager::openEditorAt(bookmark->fileName(), bookmark->lineNumber()))
+    if (IEditor *editor = EditorManager::openEditorAt(bookmark->fileName().toString(),
+                                                      bookmark->lineNumber()))
         return editor->currentLine() == bookmark->lineNumber();
     return false;
 }
@@ -712,7 +713,7 @@ void BookmarkManager::insertBookmark(int idx, Bookmark *bookmark, bool userset)
     idx = qBound(0, idx, m_bookmarksList.size());
     beginInsertRows(QModelIndex(), idx, idx);
 
-    m_bookmarksMap[FileName::fromString(bookmark->fileName())].append(bookmark);
+    m_bookmarksMap[bookmark->fileName()].append(bookmark);
     m_bookmarksList.insert(idx, bookmark);
 
     endInsertRows();
@@ -749,7 +750,7 @@ void BookmarkManager::addBookmark(const QString &s)
         const int lineNumber = s.midRef(index2 + 1, index3 - index2 - 1).toInt();
         if (!filePath.isEmpty() && !findBookmark(FileName::fromString(filePath), lineNumber)) {
             Bookmark *b = new Bookmark(lineNumber, this);
-            b->updateFileName(filePath);
+            b->updateFileName(FileName::fromString(filePath));
             b->setNote(note);
             addBookmark(b, false);
         }
@@ -764,7 +765,7 @@ QString BookmarkManager::bookmarkToString(const Bookmark *b)
     const QLatin1Char colon(':');
     // Using \t as delimiter because any another symbol can be a part of note.
     const QLatin1Char noteDelimiter('\t');
-    return colon + b->fileName() +
+    return colon + b->fileName().toString() +
             colon + QString::number(b->lineNumber()) +
             noteDelimiter + b->note();
 }
@@ -797,7 +798,7 @@ bool BookmarkManager::isAtCurrentBookmark() const
         return true;
     IEditor *currentEditor = EditorManager::currentEditor();
     return currentEditor
-           && currentEditor->document()->filePath() == Utils::FileName::fromString(bk->fileName())
+           && currentEditor->document()->filePath() == bk->fileName()
            && currentEditor->currentLine() == bk->lineNumber();
 }
 

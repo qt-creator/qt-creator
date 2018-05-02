@@ -75,7 +75,7 @@ private:
 
 TextMarkRegistry *m_instance = nullptr;
 
-TextMark::TextMark(const QString &fileName, int lineNumber, Id category, double widthFactor)
+TextMark::TextMark(const FileName &fileName, int lineNumber, Id category, double widthFactor)
     : m_fileName(fileName)
     , m_lineNumber(lineNumber)
     , m_visible(true)
@@ -95,12 +95,12 @@ TextMark::~TextMark()
     m_baseTextDocument = nullptr;
 }
 
-QString TextMark::fileName() const
+FileName TextMark::fileName() const
 {
     return m_fileName;
 }
 
-void TextMark::updateFileName(const QString &fileName)
+void TextMark::updateFileName(const FileName &fileName)
 {
     if (fileName == m_fileName)
         return;
@@ -324,8 +324,9 @@ TextMarkRegistry::TextMarkRegistry(QObject *parent)
 
 void TextMarkRegistry::add(TextMark *mark)
 {
-    instance()->m_marks[FileName::fromString(mark->fileName())].insert(mark);
-    auto document = qobject_cast<TextDocument*>(DocumentModel::documentForFilePath(mark->fileName()));
+    instance()->m_marks[mark->fileName()].insert(mark);
+    auto document = qobject_cast<TextDocument *>(
+        DocumentModel::documentForFilePath(mark->fileName().toString()));
     if (!document)
         return;
     document->addMark(mark);
@@ -333,7 +334,7 @@ void TextMarkRegistry::add(TextMark *mark)
 
 bool TextMarkRegistry::remove(TextMark *mark)
 {
-    return instance()->m_marks[FileName::fromString(mark->fileName())].remove(mark);
+    return instance()->m_marks[mark->fileName()].remove(mark);
 }
 
 TextMarkRegistry *TextMarkRegistry::instance()
@@ -374,7 +375,7 @@ void TextMarkRegistry::documentRenamed(IDocument *document, const
     m_marks[newFileName].unite(toBeMoved);
 
     foreach (TextMark *mark, toBeMoved)
-        mark->updateFileName(newName);
+        mark->updateFileName(newFileName);
 }
 
 void TextMarkRegistry::allDocumentsRenamed(const QString &oldName, const QString &newName)
@@ -390,7 +391,7 @@ void TextMarkRegistry::allDocumentsRenamed(const QString &oldName, const QString
     m_marks[oldFileName].clear();
 
     foreach (TextMark *mark, oldFileNameMarks)
-        mark->updateFileName(newName);
+        mark->updateFileName(newFileName);
 }
 
 QHash<AnnotationColors::SourceColors, AnnotationColors> AnnotationColors::m_colorCache;

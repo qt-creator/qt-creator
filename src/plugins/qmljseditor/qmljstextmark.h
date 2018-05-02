@@ -38,10 +38,10 @@ class QmlJSTextMark : public TextEditor::TextMark
 public:
     using RemovedFromEditorHandler = std::function<void(QmlJSTextMark *)>;
 
-    QmlJSTextMark(const QString &fileName,
+    QmlJSTextMark(const Utils::FileName &fileName,
                   const QmlJS::DiagnosticMessage &diagnostic,
                   const RemovedFromEditorHandler &removedHandler);
-    QmlJSTextMark(const QString &fileName,
+    QmlJSTextMark(const Utils::FileName &fileName,
                   const QmlJS::StaticAnalysis::Message &message,
                   const RemovedFromEditorHandler &removedHandler);
 

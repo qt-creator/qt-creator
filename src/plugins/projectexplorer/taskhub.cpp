@@ -35,6 +35,8 @@
 
 #include <QApplication>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 // Task mark categories
@@ -60,7 +62,7 @@ class TaskMark : public TextEditor::TextMark
 {
 public:
     TaskMark(const Task &task) :
-        TextMark(task.file.toString(), task.line, categoryForType(task.type)),
+        TextMark(task.file, task.line, categoryForType(task.type)),
         m_id(task.taskId)
     {
         setColor(task.type == Task::Error ? Utils::Theme::ProjectExplorer_TaskError_TextMarkColor
@@ -77,7 +79,7 @@ public:
     bool isClickable() const;
     void clicked();
 
-    void updateFileName(const QString &fileName);
+    void updateFileName(const FileName &fileName);
     void updateLineNumber(int lineNumber);
     void removedFromEditor();
 private:
@@ -90,10 +92,10 @@ void TaskMark::updateLineNumber(int lineNumber)
     TextMark::updateLineNumber(lineNumber);
 }
 
-void TaskMark::updateFileName(const QString &fileName)
+void TaskMark::updateFileName(const FileName &fileName)
 {
-    TaskHub::updateTaskFileName(m_id, fileName);
-    TextMark::updateFileName(fileName);
+    TaskHub::updateTaskFileName(m_id, fileName.toString());
+    TextMark::updateFileName(FileName::fromString(fileName.toString()));
 }
 
 void TaskMark::removedFromEditor()

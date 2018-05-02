@@ -36,6 +36,8 @@
 #include <QLayout>
 #include <QString>
 
+using namespace Utils;
+
 namespace ClangCodeModel {
 
 namespace {
@@ -62,7 +64,7 @@ static Core::Id categoryForSeverity(ClangBackEnd::DiagnosticSeverity severity)
 } // anonymous namespace
 
 
-ClangTextMark::ClangTextMark(const QString &fileName,
+ClangTextMark::ClangTextMark(const FileName &fileName,
                              const ClangBackEnd::DiagnosticContainer &diagnostic,
                              const RemovedFromEditorHandler &removedHandler,
                              bool showLineAnnotations)

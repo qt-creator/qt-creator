@@ -58,7 +58,7 @@ QList<LocatorFilterEntry> BookmarkFilter::matchesFor(QFutureInterface<LocatorFil
     QList<LocatorFilterEntry> entries;
     for (const QModelIndex &idx : matches) {
         const Bookmark *bookmark = m_manager->bookmarkForIndex(idx);
-        const QString filename = FileName::fromString(bookmark->fileName()).fileName();
+        const QString filename = bookmark->fileName().fileName();
         LocatorFilterEntry filterEntry(this,
                                        QString("%1:%2").arg(filename).arg(bookmark->lineNumber()),
                                        QVariant::fromValue(idx));
@@ -67,7 +67,7 @@ QList<LocatorFilterEntry> BookmarkFilter::matchesFor(QFutureInterface<LocatorFil
         else if (!bookmark->lineText().isEmpty())
             filterEntry.extraInfo = bookmark->lineText();
         else
-            filterEntry.extraInfo = bookmark->fileName();
+            filterEntry.extraInfo = bookmark->fileName().toString();
         int highlightIndex = filterEntry.displayName.indexOf(entry, 0, Qt::CaseInsensitive);
         if (highlightIndex >= 0) {
             filterEntry.highlightInfo = {highlightIndex, entry.length()};

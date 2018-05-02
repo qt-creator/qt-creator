@@ -610,8 +610,7 @@ void QmlJSEditorDocumentPrivate::createTextMarks(const QList<DiagnosticMessage> 
             delete mark;
          };
 
-        auto mark = new QmlJSTextMark(q->filePath().toString(),
-                                      diagnostic, onMarkRemoved);
+        auto mark = new QmlJSTextMark(q->filePath(), diagnostic, onMarkRemoved);
         m_diagnosticMarks.append(mark);
         q->addMark(mark);
     }
@@ -630,13 +629,13 @@ void QmlJSEditorDocumentPrivate::createTextMarks(const SemanticInfo &info)
         delete mark;
     };
     for (const DiagnosticMessage &diagnostic : qAsConst(info.semanticMessages)) {
-        auto mark = new QmlJSTextMark(q->filePath().toString(),
+        auto mark = new QmlJSTextMark(q->filePath(),
                                       diagnostic, onMarkRemoved);
         m_semanticMarks.append(mark);
         q->addMark(mark);
     }
     for (const QmlJS::StaticAnalysis::Message &message : qAsConst(info.staticAnalysisMessages)) {
-        auto mark = new QmlJSTextMark(q->filePath().toString(),
+        auto mark = new QmlJSTextMark(q->filePath(),
                                       message, onMarkRemoved);
         m_semanticMarks.append(mark);
         q->addMark(mark);

@@ -45,7 +45,7 @@ public:
      * \note The index parameter must refer to one of the DataModel cost columns
      */
     explicit CallgrindTextMark(const QPersistentModelIndex &index,
-                               const QString &fileName, int lineNumber);
+                               const Utils::FileName &fileName, int lineNumber);
 
     const Valgrind::Callgrind::Function *function() const;
 
