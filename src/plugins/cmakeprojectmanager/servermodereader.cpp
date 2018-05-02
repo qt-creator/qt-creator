@@ -731,7 +731,7 @@ ServerModeReader::addCMakeLists(CMakeProjectNode *root, const QList<FileNode *> 
         if (cmakeDirs.contains(fp)) {
             auto fn = std::make_unique<CMakeListsNode>(fp);
             cmakeListsNodes.insert(fp, fn.get());
-            return fn;
+            return std::move(fn);
         }
 
         return std::make_unique<FolderNode>(fp);
