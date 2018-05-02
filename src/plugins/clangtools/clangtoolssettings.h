@@ -25,29 +25,42 @@
 
 #pragma once
 
+#include <QObject>
 #include <QString>
 
 namespace ClangTools {
 namespace Internal {
 
-class ClangToolsSettings
+class ClangToolsSettings : public QObject
 {
+    Q_OBJECT
 public:
     static ClangToolsSettings *instance();
 
     void writeSettings();
 
     int savedSimultaneousProcesses() const;
+    bool savedBuildBeforeAnalysis() const;
 
     int simultaneousProcesses() const;
     void setSimultaneousProcesses(int processes);
+
+    int buildBeforeAnalysis() const;
+    void setBuildBeforeAnalysis(bool build);
+
+signals:
+    void buildBeforeAnalysisChanged(bool checked) const;
 
 private:
     ClangToolsSettings();
     void readSettings();
 
+    void updateSavedBuildBeforeAnalysiIfRequired();
+
     int m_simultaneousProcesses = -1;
     int m_savedSimultaneousProcesses = -1;
+    bool m_buildBeforeAnalysis = false;
+    bool m_savedBuildBeforeAnalysis= false;
 };
 
 } // namespace Internal

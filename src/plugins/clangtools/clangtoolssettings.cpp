@@ -36,6 +36,7 @@
 #include <QThread>
 
 static const char simultaneousProcessesKey[] = "simultaneousProcesses";
+static const char buildBeforeAnalysisKey[] = "buildBeforeAnalysis";
 
 namespace ClangTools {
 namespace Internal {
@@ -66,6 +67,29 @@ void ClangToolsSettings::setSimultaneousProcesses(int processes)
     m_simultaneousProcesses = processes;
 }
 
+bool ClangToolsSettings::savedBuildBeforeAnalysis() const
+{
+    return m_savedBuildBeforeAnalysis;
+}
+
+int ClangToolsSettings::buildBeforeAnalysis() const
+{
+    return m_buildBeforeAnalysis;
+}
+
+void ClangToolsSettings::setBuildBeforeAnalysis(bool build)
+{
+    m_buildBeforeAnalysis = build;
+}
+
+void ClangToolsSettings::updateSavedBuildBeforeAnalysiIfRequired()
+{
+    if (m_savedBuildBeforeAnalysis == m_buildBeforeAnalysis)
+        return;
+    m_savedBuildBeforeAnalysis = m_buildBeforeAnalysis;
+    emit buildBeforeAnalysisChanged(m_savedBuildBeforeAnalysis);
+}
+
 void ClangToolsSettings::readSettings()
 {
     QSettings *settings = Core::ICore::settings();
@@ -76,6 +100,9 @@ void ClangToolsSettings::readSettings()
             = settings->value(QString(simultaneousProcessesKey),
                               defaultSimultaneousProcesses).toInt();
 
+    m_buildBeforeAnalysis = settings->value(QString(buildBeforeAnalysisKey), true).toBool();
+    updateSavedBuildBeforeAnalysiIfRequired();
+
     settings->endGroup();
 }
 
@@ -84,8 +111,10 @@ void ClangToolsSettings::writeSettings()
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QString(Constants::SETTINGS_ID));
     settings->setValue(QString(simultaneousProcessesKey), m_simultaneousProcesses);
+    settings->setValue(QString(buildBeforeAnalysisKey), m_buildBeforeAnalysis);
 
     m_savedSimultaneousProcesses = m_simultaneousProcesses;
+    updateSavedBuildBeforeAnalysiIfRequired();
 
     settings->endGroup();
 }

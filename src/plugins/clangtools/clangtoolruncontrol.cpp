@@ -113,6 +113,78 @@ static QStringList extraClangToolsAppendOptions() {
 namespace ClangTools {
 namespace Internal {
 
+class ProjectBuilder : public RunWorker
+{
+public:
+    ProjectBuilder(RunControl *runControl, Project *project, ClangToolRunControl *parent)
+        : RunWorker(runControl), m_project(project), m_parent(parent)
+    {
+        setDisplayName("ProjectBuilder");
+    }
+
+    void setEnabled(bool enabled) { m_enabled = enabled; }
+
+    bool success() const { return m_success; }
+
+private:
+    void start() final
+    {
+        if (!m_enabled) {
+            ProjectExplorerPlugin::saveModifiedFiles();
+            onBuildFinished(true);
+            return;
+        }
+
+        Target *target = m_project->activeTarget();
+        QTC_ASSERT(target, reportFailure(); return);
+
+        BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
+        if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
+            buildType = buildConfig->buildType();
+
+        if (buildType == BuildConfiguration::Release) {
+            const QString wrongMode = ClangToolRunControl::tr("Release");
+            const QString toolName = m_parent->tool()->name();
+            const QString title = ClangToolRunControl::tr("Run %1 in %2 Mode?").arg(toolName)
+                    .arg(wrongMode);
+            const QString message = ClangToolRunControl::tr(
+                        "<html><head/><body>"
+                        "<p>You are trying to run the tool \"%1\" on an application in %2 mode. The tool is "
+                        "designed to be used in Debug mode since enabled assertions can reduce the number of "
+                        "false positives.</p>"
+                        "<p>Do you want to continue and run the tool in %2 mode?</p>"
+                        "</body></html>")
+                    .arg(toolName).arg(wrongMode);
+            if (Utils::CheckableMessageBox::doNotAskAgainQuestion(Core::ICore::mainWindow(),
+                                                                  title, message, Core::ICore::settings(),
+                                                                  "ClangStaticAnalyzerCorrectModeWarning") != QDialogButtonBox::Yes)
+            {
+                reportFailure();
+                return;
+            }
+        }
+
+        connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
+                this, &ProjectBuilder::onBuildFinished, Qt::QueuedConnection);
+
+        ProjectExplorerPlugin::buildProject(m_project);
+     }
+
+     void onBuildFinished(bool success)
+     {
+         disconnect(BuildManager::instance(), &BuildManager::buildQueueFinished,
+                    this, &ProjectBuilder::onBuildFinished);
+         m_success = success;
+         reportDone();
+     }
+
+private:
+     QPointer<Project> m_project;
+     ClangToolRunControl *m_parent;
+     bool m_enabled = true;
+     bool m_success = false;
+};
+
 static AnalyzeUnits unitsToAnalyzeFromProjectParts(const QVector<ProjectPart::Ptr> projectParts,
                                                    const QString &clangVersion,
                                                    const QString &clangResourceDirectory)
@@ -173,9 +245,18 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
 
 ClangToolRunControl::ClangToolRunControl(RunControl *runControl, Target *target)
     : RunWorker(runControl)
+    , m_projectBuilder(new ProjectBuilder(runControl, target->project(), this))
     , m_clangExecutable(CppTools::clangExecutable(CLANG_BINDIR))
     , m_target(target)
 {
+    addStartDependency(m_projectBuilder);
+
+    auto *settings = ClangToolsSettings::instance();
+    m_projectBuilder->setEnabled(settings->savedBuildBeforeAnalysis());
+
+    connect(settings, &ClangToolsSettings::buildBeforeAnalysisChanged, this, [this](bool checked) {
+        m_projectBuilder->setEnabled(checked);
+    });
 }
 
 void ClangToolRunControl::init()
@@ -197,10 +278,12 @@ void ClangToolRunControl::init()
 
 void ClangToolRunControl::start()
 {
-    m_success = m_projectBuilder ? m_projectBuilder->success() : true;
-    if (!m_success) {
-        reportFailure();
-        return;
+    if (ClangToolsSettings::instance()->savedBuildBeforeAnalysis()) {
+        QTC_ASSERT(m_projectBuilder, return;);
+        if (!m_projectBuilder->success()) {
+            reportFailure();
+            return;
+        }
     }
 
     const QString &toolName = tool()->name();

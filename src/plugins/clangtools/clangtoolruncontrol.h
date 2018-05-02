@@ -49,13 +49,6 @@ struct AnalyzeUnit {
 };
 typedef QList<AnalyzeUnit> AnalyzeUnits;
 
-class BaseProjectBuilder
-{
-public:
-    virtual ~BaseProjectBuilder() {}
-    virtual bool success() const { return true; }
-};
-
 class ClangToolRunControl : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
@@ -66,10 +59,10 @@ public:
 
     bool success() const { return m_success; } // For testing.
 
+    virtual ClangTool *tool() = 0;
+
 protected:
     void init();
-
-    virtual ClangTool *tool() = 0;
 
     virtual ClangToolRunner *createRunner() = 0;
 
@@ -91,7 +84,7 @@ private:
     void finalize();
 
 protected:
-    BaseProjectBuilder *m_projectBuilder = nullptr;
+    ProjectBuilder *m_projectBuilder;
     Utils::Environment m_environment;
     QString m_clangExecutable;
     QString m_clangLogFileDir;

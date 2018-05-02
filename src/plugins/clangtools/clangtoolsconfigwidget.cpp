@@ -49,6 +49,12 @@ ClangToolsConfigWidget::ClangToolsConfigWidget(
     connect(m_ui->simultaneousProccessesSpinBox,
             static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             [settings](int count) { settings->setSimultaneousProcesses(count); });
+
+    m_ui->buildBeforeAnalysis->setCheckState(settings->savedBuildBeforeAnalysis()
+                                              ? Qt::Checked : Qt::Unchecked);
+    connect(m_ui->buildBeforeAnalysis, &QCheckBox::toggled, [settings](bool checked) {
+        settings->setBuildBeforeAnalysis(checked);
+    });
 }
 
 ClangToolsConfigWidget::~ClangToolsConfigWidget()
