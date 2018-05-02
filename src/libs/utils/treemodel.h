@@ -193,6 +193,7 @@ protected:
     QModelIndex sibling(int row, int column, const QModelIndex &idx) const override;
     Qt::ItemFlags flags(const QModelIndex &idx) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    bool hasChildren(const QModelIndex &idx) const override;
 
     bool canFetchMore(const QModelIndex &idx) const override;
     void fetchMore(const QModelIndex &idx) override;

@@ -1028,6 +1028,14 @@ QVariant BaseTreeModel::headerData(int section, Qt::Orientation orientation,
     return QVariant();
 }
 
+bool BaseTreeModel::hasChildren(const QModelIndex &idx) const
+{
+    if (idx.column() > 0)
+        return false;
+    TreeItem *item = itemForIndex(idx);
+    return !item || item->hasChildren();
+}
+
 Qt::ItemFlags BaseTreeModel::flags(const QModelIndex &idx) const
 {
     if (!idx.isValid())
