@@ -156,8 +156,6 @@ CppTypeData BackendModel::cppTypeDataForType(const QString &typeName) const
 {
     RewriterView *rewriterView = m_connectionView->model()->rewriterView();
 
-    QStringList list;
-
     if (!rewriterView)
         return CppTypeData();
 
