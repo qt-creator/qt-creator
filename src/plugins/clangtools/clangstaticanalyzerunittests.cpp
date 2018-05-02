@@ -80,7 +80,7 @@ void ClangStaticAnalyzerUnitTests::testProject()
                 = ToolChainKitInformation::toolChain(KitManager::kits().first(),
                                                      Constants::CXX_LANGUAGE_ID);
         if (toolchain->typeId() != ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID)
-            QSKIP("This test is mingw specific, does not run for other toolchais");
+            QSKIP("This test is mingw specific, does not run for other toolchains");
     }
 
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
