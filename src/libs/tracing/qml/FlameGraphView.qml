@@ -122,11 +122,13 @@ ScrollView {
     MouseArea {
         anchors.fill: parent
         onClicked: {
+            selectedTypeId = -1;
             tooltip.selectedNode = null;
             if (model !== null)
                 model.typeSelected(-1);
         }
         onDoubleClicked: {
+            selectedTypeId = -1;
             tooltip.selectedNode = null;
             if (model !== null)
                 model.typeSelected(-1);
