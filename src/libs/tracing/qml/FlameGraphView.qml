@@ -242,8 +242,9 @@ ScrollView {
 
                 onClicked: selectClicked()
                 onDoubleClicked: {
+                    tooltip.selectedNode = null;
+                    tooltip.hoveredNode = null;
                     flamegraph.root = FlameGraph.modelIndex;
-                    selectClicked();
                 }
 
                 // Functions, not properties to limit the initial overhead when creating the nodes,
