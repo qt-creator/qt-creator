@@ -617,7 +617,6 @@ bool FolderNode::replaceSubtree(Node *oldNode, std::unique_ptr<Node> &&newNode)
         } else {
             takeNode(oldNode); // Happens e.g. when project is shutting down
         }
-        QTimer::singleShot(0, [oldNode]() { delete oldNode; });
     }
     handleSubTreeChanged(this);
     return true;
