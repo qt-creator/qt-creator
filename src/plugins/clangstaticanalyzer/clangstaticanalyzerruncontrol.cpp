@@ -275,7 +275,9 @@ static QStringList tweakedArguments(const ProjectPart &projectPart,
             == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
     QStringList newArguments = inputAndOutputArgumentsRemoved(filePath, arguments);
     prependWordWidthArgumentIfNotIncluded(&newArguments, projectPart.toolChainWordWidth);
-    if (!isMsvc)
+    if (isMsvc)
+        newArguments.append(QStringList{"--driver-mode=cl"});
+    else
         prependTargetTripleIfNotIncludedAndNotEmpty(&newArguments, targetTriple);
     newArguments.append(createHeaderPathsOptionsForClangOnMac(projectPart));
     newArguments.append(createMsCompatibilityVersionOption(projectPart));
