@@ -170,7 +170,7 @@ ScrollView {
                 borderColor: {
                     if (isSelected)
                         return flamegraph.blue2;
-                    else if (tooltip.hoveredNode === flamegraphItem)
+                    else if (tooltip.currentNode === flamegraphItem)
                         return flamegraph.blue1;
                     else if (note() !== "" || isHighlighted)
                         return flamegraph.highlight;
@@ -178,8 +178,7 @@ ScrollView {
                         return flamegraph.grey1;
                 }
                 borderWidth: {
-                    if (tooltip.hoveredNode === flamegraphItem ||
-                            tooltip.selectedNode === flamegraphItem) {
+                    if (tooltip.currentNode === flamegraphItem) {
                         return 2;
                     } else if (note() !== "" || isHighlighted) {
                         return 3;
@@ -280,7 +279,7 @@ ScrollView {
             property var selectedNode: null;
 
             property var currentNode: {
-                if (hoveredNode !== null)
+                if (!locked && hoveredNode !== null)
                     return hoveredNode;
                 else if (selectedNode !== null)
                     return selectedNode;

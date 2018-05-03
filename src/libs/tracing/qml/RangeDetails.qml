@@ -54,7 +54,6 @@ Item {
     property alias noteReadonly: noteEdit.readOnly
 
     signal recenterOnItem
-    signal toggleSelectionLocked
     signal clearSelection
     signal updateNote(string text)
 
@@ -117,7 +116,7 @@ Item {
             anchors.top: closeIcon.top
             anchors.right: closeIcon.left
             implicitHeight: typeTitle.height
-            onClicked: rangeDetails.toggleSelectionLocked()
+            onClicked: locked = !locked
         }
 
         ImageToolButton {

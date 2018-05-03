@@ -371,8 +371,8 @@ Rectangle {
             content.select(selectedModel, selectedItem)
         }
 
-        onToggleSelectionLocked: {
-            content.selectionLocked = !content.selectionLocked;
+        onLockedChanged: {
+            content.selectionLocked = locked;
         }
 
         onClearSelection: {
