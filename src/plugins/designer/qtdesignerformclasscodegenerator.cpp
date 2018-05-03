@@ -148,7 +148,7 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
         headerStr << ", private " << uiClassName;
     headerStr << "\n{\n" << namespaceIndent << indent << "Q_OBJECT\n\n"
               << namespaceIndent << "public:\n"
-              << namespaceIndent << indent << "explicit " << unqualifiedClassName << "(QWidget *parent = 0);\n";
+              << namespaceIndent << indent << "explicit " << unqualifiedClassName << "(QWidget *parent = nullptr);\n";
     if (generationParameters.embedding == QtSupport::CodeGenSettings::PointerAggregatedUiClass)
         headerStr << namespaceIndent << indent << "~" << unqualifiedClassName << "();\n";
     // retranslation
