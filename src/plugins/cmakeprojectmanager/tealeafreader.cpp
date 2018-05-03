@@ -456,8 +456,6 @@ void TeaLeafReader::extractData()
                   }))
         m_files.emplace_back(std::make_unique<FileNode>(topCMake, FileType::Project, false));
 
-    Utils::sort(m_files, &Node::sortByPath);
-
     m_buildTargets = cbpparser.buildTargets();
 }
 
