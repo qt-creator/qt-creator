@@ -54,11 +54,11 @@ static QTableWidget* createFilesTable(const QStringList &fileNames)
     for (const QString &filePath : fileNames) {
            const QString toolTip = QDir::toNativeSeparators(filePath);
            const QString fileName = QFileInfo(filePath).fileName();
-           const qint64 size = QFileInfo(filePath).size();
+           const qint64 size = QFileInfo(filePath).size() / 1024;
            QTableWidgetItem *fileNameItem = new QTableWidgetItem(fileName);
            fileNameItem->setToolTip(toolTip);
            fileNameItem->setFlags(fileNameItem->flags() ^ Qt::ItemIsEditable);
-           QTableWidgetItem *sizeItem = new QTableWidgetItem(QLocale().formattedDataSize(size));
+           QTableWidgetItem *sizeItem = new QTableWidgetItem(QString::number(size) + " KB");
            sizeItem->setToolTip(toolTip);
            sizeItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
            sizeItem->setFlags(sizeItem->flags() ^ Qt::ItemIsEditable);
