@@ -301,19 +301,6 @@ class RunConfigurationCreationInfo
 {
 public:
     enum CreationMode {AlwaysCreate, ManualCreationOnly};
-    RunConfigurationCreationInfo() = default;
-    RunConfigurationCreationInfo(const RunConfigurationFactory *factory,
-                                 Core::Id id,
-                                 QString buildKey, QString displayName,
-                                 CreationMode creationMode = AlwaysCreate,
-                                 bool useTerminal = false)
-        : factory(factory), id(id),
-          buildKey(buildKey),
-          displayName(displayName),
-          creationMode(creationMode),
-          useTerminal(useTerminal)
-    {}
-
     RunConfiguration *create(Target *target) const;
 
     const RunConfigurationFactory *factory = nullptr;

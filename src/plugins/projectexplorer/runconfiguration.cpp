@@ -550,7 +550,11 @@ RunConfigurationFactory::availableCreators(Target *parent) const
             displayName = decoratedTargetName(ti.buildKey, parent);
         else if (m_decorateDisplayNames)
             displayName = decoratedTargetName(displayName, parent);
-        RunConfigurationCreationInfo rci(this, m_runConfigBaseId, ti.buildKey, displayName);
+        RunConfigurationCreationInfo rci;
+        rci.factory = this;
+        rci.id = m_runConfigBaseId;
+        rci.buildKey = ti.buildKey;
+        rci.displayName = displayName;
         rci.creationMode = ti.isQtcRunnable || !hasAnyQtcRunnable
                 ? RunConfigurationCreationInfo::AlwaysCreate
                 : RunConfigurationCreationInfo::ManualCreationOnly;
@@ -664,7 +668,11 @@ FixedRunConfigurationFactory::availableCreators(Target *parent) const
 {
     QString displayName = m_decorateTargetName ? decoratedTargetName(m_fixedBuildTarget, parent)
                                                : m_fixedBuildTarget;
-    return {RunConfigurationCreationInfo(this, runConfigurationBaseId(), QString(), displayName)};
+    RunConfigurationCreationInfo rci;
+    rci.factory = this;
+    rci.id = runConfigurationBaseId();
+    rci.displayName = displayName;
+    return {rci};
 }
 
 using WorkerFactories = std::vector<RunControl::WorkerFactory>;
