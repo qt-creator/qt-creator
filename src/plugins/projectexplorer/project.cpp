@@ -493,7 +493,7 @@ void Project::setId(Core::Id id)
 
 void Project::setRootProjectNode(std::unique_ptr<ProjectNode> &&root)
 {
-    QTC_ASSERT(d->m_rootProjectNode.get() != root.get(), return);
+    QTC_ASSERT(d->m_rootProjectNode.get() != root.get() || !root, return);
 
     if (root && root->isEmpty()) {
         // Something went wrong with parsing: At least the project file needs to be
