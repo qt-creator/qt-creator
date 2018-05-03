@@ -29,272 +29,213 @@ import TimelineTheme 1.0
 Item {
     id: rangeDetails
 
-    property string duration
-    property string label
-    property string dialogTitle
-    property string file
-    property int line
-    property int column
-    property bool isBindingLoop
-    property bool hasContents
+    property real titleBarHeight: 20
+    property real borderWidth: 1
+    property real outerMargin: 10
+    property real innerMargin: 5
+    property real minimumInnerWidth: 150
+    property real initialWidth: 300
 
-    property int selectedModel: -1
-    property int selectedItem: -1
+    property real minimumX: 0
+    property real maximumX: parent.width
+    property real minimumY: 0
+    property real maximumY: parent.height
 
-    property bool locked
+    property string dialogTitle: ""
+    property string file: ""
+    property int line: -1
+    property int column: -1
 
-    property var models
-    property var notes
+    property bool locked: false
+    property var model: []
+
+    property alias noteText: noteEdit.text
+    property alias noteFocus: noteEdit.focus
+    property alias noteReadonly: noteEdit.readOnly
 
     signal recenterOnItem
     signal toggleSelectionLocked
     signal clearSelection
+    signal updateNote(string text)
 
-    width: col.width + 20
-    height: hasContents ? contentArea.height + titleBar.height : 0
+    visible: dialogTitle.length > 0 || model.length > 0
 
-    function hide() {
-        noteEdit.focus = false;
-        hasContents = false;
-        selectedModel = selectedItem = -1;
-        noteEdit.text = "";
-        duration = "";
-        label = "";
-        file = "";
-        line = -1;
-        column = 0;
-        isBindingLoop = false;
-    }
+    width: dragHandle.x + dragHandle.width
+    height: contentArea.height + titleBar.height
 
-    Connections {
-        target: rangeDetails.parent
-        // keep inside view
-        onWidthChanged: fitInView();
-        onHeightChanged: fitInView();
-    }
+    onMinimumXChanged: x = Math.max(x, minimumX)
+    onMaximumXChanged: x = Math.min(x, Math.max(minimumX, maximumX - width))
+    onMinimumYChanged: y = Math.max(y, minimumY)
+    onMaximumYChanged: y = Math.min(y, Math.max(minimumY, maximumY - height))
 
-    QtObject {
-        id: eventInfo
-        property bool ready: false
-        property var content: []
-    }
-
-    function showInfo(model, item) {
-        eventInfo.ready = false;
-        // make sure we don't accidentally save the old text for the new event
-        noteEdit.focus = false;
-
-        selectedModel = model;
-        selectedItem = item;
-        var timelineModel = models[selectedModel];
-        var eventData = timelineModel.details(selectedItem)
-        eventInfo.content = [];
-        for (var k in eventData) {
-            if (k === "displayName") {
-                dialogTitle = eventData[k];
-            } else {
-                eventInfo.content.push(k);
-                eventInfo.content.push(eventData[k]);
-            }
-        }
-        eventInfo.ready = true;
-        hasContents = eventInfo.content.length > 0;
-
-        var location = timelineModel.location(selectedItem)
-        if (location.hasOwnProperty("file")) { // not empty
-            file = location.file;
-            line = location.line;
-            column = location.column;
-        } else {
-            // reset to default values
-            file = "";
-            line = 0;
-            column = -1;
-        }
-
-        noteEdit.focus = false;
-        var noteId = notes ? notes.get(timelineModel.modelId, selectedItem) : -1;
-        noteEdit.text = (noteId !== -1) ? notes.text(noteId) : "";
-    }
-
-    function fitInView() {
-        // don't reposition if it does not fit
-        if (parent.width < width || parent.height < height)
-            return;
-
-        if (x + width > parent.width)
-            x = parent.width - width;
-        if (x < 0)
-            x = 0;
-        if (y + height > parent.height)
-            y = parent.height - height;
-        if (y < 0)
-            y = 0;
+    MouseArea {
+        anchors.fill: parent
+        drag.target: parent
+        drag.minimumX: parent.minimumX
+        drag.maximumX: parent.maximumX - rangeDetails.width
+        drag.minimumY: parent.minimumY
+        drag.maximumY: parent.maximumY - rangeDetails.height
+        onClicked: rangeDetails.recenterOnItem()
     }
 
     Rectangle {
         id: titleBar
         width: parent.width
-        height: 20
+        height: titleBarHeight
         color: Theme.color(Theme.Timeline_PanelHeaderColor)
-    }
-    Item {
-        width: parent.width+1
-        height: 11
-        y: 10
-        clip: true
-        Rectangle {
-            width: parent.width-1
-            height: 15
-            y: -5
-            color: Theme.color(Theme.Timeline_PanelHeaderColor)
+        border.width: borderWidth
+        border.color: Theme.color(Theme.PanelTextColorMid)
+
+        TimelineText {
+            id: typeTitle
+            text: rangeDetails.dialogTitle
+            font.bold: true
+            verticalAlignment: Text.AlignVCenter
+            anchors.left: parent.left
+            anchors.right: closeIcon.left
+            anchors.leftMargin: outerMargin
+            anchors.rightMargin: innerMargin
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            color: Theme.color(Theme.PanelTextColorLight)
+            elide: Text.ElideRight
+        }
+
+        ImageToolButton {
+            id: editIcon
+            imageSource: "image://icons/edit"
+            anchors.top: parent.top
+            anchors.right: lockIcon.left
+            implicitHeight: typeTitle.height
+            visible: !rangeDetails.noteReadonly
+            onClicked: noteEdit.focus = true
+        }
+
+        ImageToolButton {
+            id: lockIcon
+            imageSource: "image://icons/lock_" + (locked ? "closed" : "open")
+            anchors.top: closeIcon.top
+            anchors.right: closeIcon.left
+            implicitHeight: typeTitle.height
+            onClicked: rangeDetails.toggleSelectionLocked()
+        }
+
+        ImageToolButton {
+            id: closeIcon
+            anchors.right: parent.right
+            anchors.top: parent.top
+            implicitHeight: typeTitle.height
+            imageSource: "image://icons/close_window"
+            onClicked: rangeDetails.clearSelection()
         }
     }
 
-    //title
-    TimelineText {
-        id: typeTitle
-        text: "  "+rangeDetails.dialogTitle
-        font.bold: true
-        height: 20
-        verticalAlignment: Text.AlignVCenter
-        anchors.left: parent.left
-        anchors.right: editIcon.left
-        elide: Text.ElideRight
-        color: Theme.color(Theme.PanelTextColorLight)
-    }
-
-    // Details area
     Rectangle {
         id: contentArea
         color: Theme.color(Theme.Timeline_PanelBackgroundColor)
-        width: parent.width
-        height: 10 + col.height + (noteEdit.visible ? (noteEdit.height + 5) : 0)
-        y: 20
 
-        //details
-        Grid {
-            property int outerMargin: 10
-            property int minimumWidth: 150
-            property int labelWidth: (minimumWidth - spacing) / 2 - outerMargin
-            property int valueWidth: dragHandle.x - labelWidth - spacing - outerMargin
-
-            id: col
-            x: outerMargin
-            y: 5
-            spacing: 5
-            columns: 2
-
-            onChildrenChanged: {
-                // max(width of longest label * 2, 150)
-                var result = 150;
-                for (var i = 0; i < children.length; ++i) {
-                    if (children[i].isLabel)
-                        result = Math.max(children[i].implicitWidth * 2 + spacing, result);
-                }
-
-                minimumWidth = result + 2 * outerMargin;
-                if (dragHandle.x < minimumWidth - outerMargin)
-                    dragHandle.x = minimumWidth - outerMargin;
-            }
-
-            Repeater {
-                model: eventInfo.ready ? eventInfo.content : 0
-                Detail {
-                    labelWidth: col.labelWidth
-                    valueWidth: col.valueWidth
-                    isLabel: index % 2 === 0
-                    text: isLabel ? (modelData + ":") : modelData
-                }
-            }
-        }
-
-
-        TextEdit {
-            id: noteEdit
-            x: 10
-            anchors.topMargin: 5
-            anchors.bottomMargin: 5
-            anchors.top: col.bottom
-
-            visible: notes && (text.length > 0 || focus)
-            width: col.width
-            wrapMode: Text.Wrap
-            color: Theme.color(Theme.Timeline_HighlightColor)
-            font.italic: true
-            font.pixelSize: typeTitle.font.pixelSize
-            font.family: typeTitle.font.family
-            renderType: typeTitle.renderType
-            selectByMouse: true
-            onTextChanged: saveTimer.restart()
-            onFocusChanged: {
-                if (!focus && selectedModel != -1 && selectedItem != -1) {
-                    saveTimer.stop();
-                    if (notes)
-                        notes.setText(models[selectedModel].modelId, selectedItem, text);
-                }
-            }
-
-            Timer {
-                id: saveTimer
-                onTriggered: {
-                    if (notes && selectedModel != -1 && selectedItem != -1)
-                        notes.setText(models[selectedModel].modelId, selectedItem, noteEdit.text);
-                }
-                interval: 1000
-            }
-        }
-    }
-
-    MouseArea {
-        anchors.fill: parent
-        drag.target: parent
-        drag.minimumX: 0
-        drag.maximumX: rangeDetails.parent.width - rangeDetails.width
-        drag.minimumY: 0
-        drag.maximumY: rangeDetails.parent.height - rangeDetails.height
-        onClicked: rangeDetails.recenterOnItem()
-    }
-
-    ImageToolButton {
-        id: editIcon
-        imageSource: "image://icons/edit"
-        anchors.top: closeIcon.top
-        anchors.right: lockIcon.left
-        implicitHeight: typeTitle.height
-        visible: notes
-        onClicked: noteEdit.focus = true
-    }
-
-    ImageToolButton {
-        id: lockIcon
-        imageSource: "image://icons/lock_" + (locked ? "closed" : "open")
-        anchors.top: closeIcon.top
-        anchors.right: closeIcon.left
-        implicitHeight: typeTitle.height
-        onClicked: rangeDetails.toggleSelectionLocked()
-    }
-
-    ImageToolButton {
-        id: closeIcon
+        anchors.top: titleBar.bottom
+        anchors.left: parent.left
         anchors.right: parent.right
-        anchors.top: parent.top
-        implicitHeight: typeTitle.height
-        imageSource: "image://icons/close_window"
-        onClicked: rangeDetails.clearSelection()
+        anchors.bottom: dragHandle.bottom
+
+        border.width: borderWidth
+        border.color: Theme.color(Theme.PanelTextColorMid)
+    }
+
+    Grid {
+        id: col
+
+        anchors.left: parent.left
+        anchors.top: titleBar.bottom
+        anchors.topMargin: innerMargin
+        anchors.leftMargin: outerMargin
+        anchors.rightMargin: outerMargin
+
+        spacing: innerMargin
+        columns: 2
+        property int minimumWidth: {
+            // max(width of longest label * 2, minimumInnerWidth)
+            var result = minimumInnerWidth;
+            for (var i = 0; i < children.length; ++i) {
+                if (children[i].isLabel)
+                    result = Math.max(children[i].implicitWidth * 2 + innerMargin, result);
+            }
+
+            return result + 2 * outerMargin;
+        }
+
+        property int labelWidth: (minimumWidth - innerMargin) / 2 - outerMargin
+        property int valueWidth: dragHandle.x - labelWidth - innerMargin - outerMargin
+
+        onMinimumWidthChanged: {
+            if (dragHandle.x < minimumWidth - outerMargin)
+                dragHandle.x = minimumWidth - outerMargin;
+        }
+
+        Repeater {
+            model: rangeDetails.model
+            Detail {
+                labelWidth: col.labelWidth
+                valueWidth: col.valueWidth
+                isLabel: index % 2 === 0
+                text: isLabel ? (modelData + ":") : modelData
+            }
+        }
+    }
+
+
+    TextEdit {
+        id: noteEdit
+
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.leftMargin: outerMargin
+        anchors.rightMargin: outerMargin
+        anchors.topMargin: visible ? innerMargin : 0
+        anchors.top: col.bottom
+        height: visible ? implicitHeight : 0
+
+        readOnly: rangeDetails.noteReadonly
+        visible: (text.length > 0 || focus)
+        wrapMode: Text.Wrap
+        color: Theme.color(Theme.Timeline_HighlightColor)
+        font.italic: true
+        font.pixelSize: typeTitle.font.pixelSize
+        font.family: typeTitle.font.family
+        renderType: typeTitle.renderType
+        selectByMouse: true
+        onTextChanged: saveTimer.restart()
+        onFocusChanged: {
+            if (!focus) {
+                saveTimer.stop();
+                if (!readOnly)
+                    rangeDetails.updateNote(text);
+            }
+        }
+
+        Timer {
+            id: saveTimer
+            onTriggered: {
+                if (!rangeDetails.readOnly)
+                    rangeDetails.updateNote(noteEdit.text);
+            }
+            interval: 1000
+        }
+
     }
 
     Item {
         id: dragHandle
-        width: 10
-        height: 10
-        x: 300
-        anchors.bottom: parent.bottom
+        width: outerMargin
+        height: outerMargin
+        x: initialWidth
+        anchors.top: noteEdit.bottom
         clip: true
         MouseArea {
             anchors.fill: parent
             drag.target: parent
-            drag.minimumX: col.minimumWidth - col.outerMargin
+            drag.minimumX: col.minimumWidth - outerMargin
             drag.axis: Drag.XAxis
             cursorShape: Qt.SizeHorCursor
         }

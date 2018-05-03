@@ -224,11 +224,12 @@ Rectangle {
             if (selectedModel !== -1 && selectedModel !== newModel)
                 select(selectedModel, -1);
 
+            rangeDetails.saveNote();
             selectedItem = newItem
             selectedModel = newModel
             if (selectedItem !== -1) {
                 // display details
-                rangeDetails.showInfo(selectedModel, selectedItem);
+                rangeDetails.showInfo();
 
                 // update in other views
                 var model = timelineModelAggregator.models[selectedModel];
@@ -362,19 +363,72 @@ Rectangle {
         x: 200
         y: 25
 
+        noteReadonly: false
         clip: true
         locked: content.selectionLocked
-        models: timelineModelAggregator.models
-        notes: timelineModelAggregator.notes
-        hasContents: false
+
         onRecenterOnItem: {
             content.select(selectedModel, selectedItem)
         }
+
         onToggleSelectionLocked: {
             content.selectionLocked = !content.selectionLocked;
         }
+
         onClearSelection: {
             content.propagateSelection(-1, -1);
+        }
+
+        onUpdateNote: {
+            if (timelineModelAggregator.notes && selectedModel != -1 && selectedItem != -1) {
+                timelineModelAggregator.notes.setText(
+                            timelineModelAggregator.models[selectedModel].modelId,
+                            selectedItem, text);
+            }
+        }
+
+        function hide() {
+            model = [];
+            file = "";
+            line = -1;
+            column = 0;
+            noteText = "";
+            dialogTitle = "";
+        }
+
+        function saveNote() {
+            noteFocus = false;
+        }
+
+        function showInfo() {
+            var timelineModel = timelineModelAggregator.models[selectedModel];
+            var eventData = timelineModel.details(selectedItem)
+            var content = [];
+            for (var k in eventData) {
+                if (k === "displayName") {
+                    dialogTitle = eventData[k];
+                } else {
+                    content.push(k);
+                    content.push(eventData[k]);
+                }
+            }
+            rangeDetails.model = content;
+
+            var location = timelineModel.location(selectedItem)
+            if (location.hasOwnProperty("file")) { // not empty
+                rangeDetails.file = location.file;
+                rangeDetails.line = location.line;
+                rangeDetails.column = location.column;
+            } else {
+                // reset to default values
+                rangeDetails.file = "";
+                rangeDetails.line = 0;
+                rangeDetails.column = -1;
+            }
+
+            var notes = timelineModelAggregator.notes;
+            var noteId = notes ? notes.get(timelineModel.modelId, selectedItem) : -1;
+            rangeDetails.noteText = (noteId !== -1) ? notes.text(noteId) : "";
         }
     }
 

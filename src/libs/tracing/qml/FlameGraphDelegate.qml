@@ -57,7 +57,7 @@ Item {
         anchors.right: flamegraphItem.right
         anchors.bottom: flamegraphItem.bottom
 
-        FlameGraphText {
+        TimelineText {
             id: text
             visible: textVisible
             anchors.fill: parent

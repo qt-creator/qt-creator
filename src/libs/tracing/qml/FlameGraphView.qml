@@ -265,21 +265,15 @@ ScrollView {
             }
         }
 
-        FlameGraphDetails {
+        RangeDetails {
             id: tooltip
 
             minimumX: 0
             maximumX: flickable.width
             minimumY: flickable.contentY
             maximumY: flickable.contentY + flickable.height
+            noteReadonly: true
 
-            titleBarColor: Theme.color(Theme.Timeline_PanelHeaderColor)
-            titleBarTextColor: Theme.color(Theme.PanelTextColorLight)
-            contentColor: Theme.color(Theme.Timeline_PanelBackgroundColor)
-            contentTextColor: Theme.color(Theme.Timeline_TextColor)
-            noteTextColor: Theme.color(Theme.Timeline_HighlightColor)
-            buttonHoveredColor: Theme.color(Theme.FancyToolButtonHoverColor)
-            buttonSelectedColor: Theme.color(Theme.FancyToolButtonSelectedColor)
             borderWidth: 0
 
             property var hoveredNode: null;
@@ -310,7 +304,7 @@ ScrollView {
             }
 
             model: currentNode ? currentNode.details() : []
-            note: currentNode ? currentNode.note() : ""
+            noteText: currentNode ? currentNode.note() : ""
 
             Connections {
                 target: root.model
