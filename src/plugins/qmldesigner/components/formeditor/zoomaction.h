@@ -44,6 +44,7 @@ public:
 
     void zoomIn();
     void zoomOut();
+    void resetZoomLevel();
 
 protected:
     QWidget *createWidget(QWidget *parent);
@@ -51,6 +52,7 @@ protected:
 signals:
     void zoomLevelChanged(double zoom);
     void indexChanged(int);
+    void reseted();
 
 private:
     void emitZoomLevelChanged(int index);

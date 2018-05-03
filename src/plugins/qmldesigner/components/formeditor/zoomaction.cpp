@@ -26,6 +26,7 @@
 #include "zoomaction.h"
 
 #include <QComboBox>
+#include <QAbstractItemView>
 
 namespace QmlDesigner {
 
@@ -53,6 +54,13 @@ void ZoomAction::zoomOut()
 {
     if (m_currentComboBoxIndex < (m_comboBoxModel->rowCount() - 1))
         emit indexChanged(m_currentComboBoxIndex + 1);
+}
+
+void ZoomAction::resetZoomLevel()
+{
+    m_zoomLevel = 1.0;
+    m_currentComboBoxIndex = 8;
+    emit reseted();
 }
 
 void ZoomAction::setZoomLevel(double zoomLevel)
@@ -90,7 +98,12 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
         comboBox->setModel(m_comboBoxModel.data());
     }
 
-    comboBox->setCurrentIndex(8);
+    comboBox->setCurrentIndex(m_currentComboBoxIndex);
+    connect(this, &ZoomAction::reseted, comboBox, [this, comboBox]() {
+        blockSignals(true);
+        comboBox->setCurrentIndex(m_currentComboBoxIndex);
+        blockSignals(false);
+    });
     connect(comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &ZoomAction::emitZoomLevelChanged);
     connect(this, &ZoomAction::indexChanged, comboBox, &QComboBox::setCurrentIndex);
