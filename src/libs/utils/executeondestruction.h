@@ -32,11 +32,14 @@ namespace Utils {
 class ExecuteOnDestruction
 {
 public:
-    ExecuteOnDestruction(std::function<void()> code) : destructionCode(code) {}
+    ExecuteOnDestruction() noexcept : destructionCode([](){}) {}
+    ExecuteOnDestruction(std::function<void()> code) : destructionCode(std::move(code)) {}
     ~ExecuteOnDestruction() { if (destructionCode) destructionCode(); }
 
+    void reset(std::function<void()> code) { destructionCode = std::move(code); }
+
 private:
-    const std::function<void()> destructionCode;
+    std::function<void()> destructionCode;
 };
 
 } // Utils
