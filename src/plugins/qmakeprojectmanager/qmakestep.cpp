@@ -471,7 +471,7 @@ QString QMakeStep::makeArguments() const
 QString QMakeStep::effectiveQMakeCall() const
 {
     BaseQtVersion *qtVersion = QtKitInformation::qtVersion(target()->kit());
-    QString qmake = qtVersion ? qtVersion->qmakeCommand().fileName() : QString();
+    QString qmake = qtVersion ? qtVersion->qmakeCommand().toUserOutput() : QString();
     if (qmake.isEmpty())
         qmake = tr("<no Qt version>");
     QString make = makeCommand();
