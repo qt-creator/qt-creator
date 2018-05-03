@@ -24,8 +24,9 @@
 ****************************************************************************/
 
 #include "inputeventsmodel_test.h"
-#include "timeline/timelinemodel_p.h"
-#include "timeline/timelineformattime.h"
+
+#include <tracing/timelinemodel_p.h>
+#include <tracing/timelineformattime.h>
 
 #include <QtTest>
 

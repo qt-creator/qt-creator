@@ -26,4 +26,4 @@ SUBDIRS += \
     valgrind
 
 qtHaveModule(qml): SUBDIRS += qml
-qtHaveModule(quick): SUBDIRS += flamegraph timeline
+qtHaveModule(quick): SUBDIRS += tracing

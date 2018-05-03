@@ -28,8 +28,8 @@
 
 #include <qmlprofiler/qmlprofilerbindingloopsrenderpass.h>
 #include <qmlprofiler/qmlprofilerrangemodel.h>
-#include <timeline/timelineabstractrenderer.h>
-#include <timeline/runscenegraphtest.h>
+#include <tracing/timelineabstractrenderer.h>
+#include <tracing/runscenegraphtest.h>
 #include <QtTest>
 
 namespace QmlProfiler {

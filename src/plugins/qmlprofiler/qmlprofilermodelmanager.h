@@ -33,7 +33,7 @@
 #include "qmlprofilertextmark.h"
 
 #include <utils/fileinprojectfinder.h>
-#include <timeline/timelinetracemanager.h>
+#include <tracing/timelinetracemanager.h>
 
 #include <QObject>
 #include <functional>

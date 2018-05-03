@@ -42,12 +42,12 @@
 // Communication with the other views (limit events to range)
 #include "qmlprofilerviewmanager.h"
 
-#include "timeline/timelinezoomcontrol.h"
-#include "timeline/timelinemodelaggregator.h"
-#include "timeline/timelinerenderer.h"
-#include "timeline/timelineoverviewrenderer.h"
-#include "timeline/timelinetheme.h"
-#include "timeline/timelineformattime.h"
+#include <tracing/timelinezoomcontrol.h>
+#include <tracing/timelinemodelaggregator.h>
+#include <tracing/timelinerenderer.h>
+#include <tracing/timelineoverviewrenderer.h>
+#include <tracing/timelinetheme.h>
+#include <tracing/timelineformattime.h>
 
 #include <aggregation/aggregate.h>
 // Needed for the load&save actions in the context menu
@@ -172,7 +172,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
                                                      d->m_modelProxy);
     d->m_mainView->rootContext()->setContextProperty(QLatin1String("zoomControl"),
                                                      d->m_zoomControl);
-    d->m_mainView->setSource(QUrl(QLatin1String("qrc:/timeline/MainView.qml")));
+    d->m_mainView->setSource(QUrl(QLatin1String("qrc:/tracing/MainView.qml")));
 
     connect(d->m_modelProxy, &Timeline::TimelineModelAggregator::updateCursorPosition,
             this, &QmlProfilerTraceView::updateCursorPosition);

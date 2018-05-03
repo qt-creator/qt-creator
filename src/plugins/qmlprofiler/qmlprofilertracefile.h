@@ -32,7 +32,7 @@
 #include "qmlevent.h"
 #include "qmlprofilermodelmanager.h"
 
-#include <timeline/timelinetracefile.h>
+#include <tracing/timelinetracefile.h>
 
 #include <QFutureInterface>
 #include <QObject>

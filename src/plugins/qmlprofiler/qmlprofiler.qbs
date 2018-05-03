@@ -5,11 +5,10 @@ QtcPlugin {
 
     Depends { name: "Qt"; submodules: ["widgets", "network", "quick", "quickwidgets"] }
 
-    Depends { name: "FlameGraph" }
     Depends { name: "QmlJS" }
     Depends { name: "QmlDebug" }
     Depends { name: "Utils" }
-    Depends { name: "Timeline" }
+    Depends { name: "Tracing" }
 
     Depends { name: "Core" }
     Depends { name: "Debugger" }

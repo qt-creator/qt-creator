@@ -27,7 +27,7 @@
 #include "qmleventlocation.h"
 #include "qmlprofilereventtypes.h"
 
-#include <timeline/traceeventtype.h>
+#include <tracing/traceeventtype.h>
 
 #include <QString>
 #include <QMetaType>

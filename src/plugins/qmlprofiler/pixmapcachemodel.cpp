@@ -27,7 +27,7 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilereventtypes.h"
 
-#include <timeline/timelineformattime.h>
+#include <tracing/timelineformattime.h>
 
 namespace QmlProfiler {
 namespace Internal {

@@ -27,8 +27,9 @@
 
 #include "qmlprofiler_global.h"
 #include "qmlprofilermodelmanager.h"
-#include "timeline/timelinemodel.h"
-#include "timeline/timelinemodelaggregator.h"
+
+#include <tracing/timelinemodel.h>
+#include <tracing/timelinemodelaggregator.h>
 
 namespace QmlProfiler {
 

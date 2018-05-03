@@ -27,8 +27,8 @@
 #include "qmlprofilerconstants.h"
 #include "qmlprofilertool.h"
 
-#include <flamegraph/flamegraph.h>
-#include <timeline/timelinetheme.h>
+#include <tracing/flamegraph.h>
+#include <tracing/timelinetheme.h>
 #include <utils/theme/theme.h>
 
 #include <QQmlEngine>

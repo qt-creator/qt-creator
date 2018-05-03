@@ -26,7 +26,7 @@
 #include "qmlprofilerstatisticsmodel.h"
 #include "qmlprofilermodelmanager.h"
 
-#include <timeline/timelineformattime.h>
+#include <tracing/timelineformattime.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 

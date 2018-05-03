@@ -25,7 +25,7 @@
 
 #include "debugmessagesmodel.h"
 #include "qmlprofilerconstants.h"
-#include <timeline/timelineformattime.h>
+#include <tracing/timelineformattime.h>
 
 namespace QmlProfiler {
 namespace Internal {

@@ -27,7 +27,9 @@
 
 #include "qmlprofilermodelmanager.h"
 #include "qmlnote.h"
-#include "timeline/timelinenotesmodel.h"
+
+#include <tracing/timelinenotesmodel.h>
+
 #include <QList>
 #include <QHash>
 

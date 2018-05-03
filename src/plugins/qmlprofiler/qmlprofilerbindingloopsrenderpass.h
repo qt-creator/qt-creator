@@ -27,9 +27,9 @@
 
 #include "qmlprofilerrangemodel.h"
 
-#include "timeline/timelineabstractrenderer.h"
-#include "timeline/timelinerenderpass.h"
-#include "timeline/timelinerenderstate.h"
+#include <tracing/timelineabstractrenderer.h>
+#include <tracing/timelinerenderpass.h>
+#include <tracing/timelinerenderstate.h>
 
 #include <QSGMaterial>
 

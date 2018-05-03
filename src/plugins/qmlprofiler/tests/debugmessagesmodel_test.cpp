@@ -25,7 +25,7 @@
 
 #include "debugmessagesmodel_test.h"
 
-#include <timeline/timelineformattime.h>
+#include <tracing/timelineformattime.h>
 
 #include <QtTest>
 

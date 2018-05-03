@@ -27,10 +27,10 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerbindingloopsrenderpass.h"
 
-#include "timeline/timelinenotesrenderpass.h"
-#include "timeline/timelineitemsrenderpass.h"
-#include "timeline/timelineselectionrenderpass.h"
-#include "timeline/timelineformattime.h"
+#include <tracing/timelinenotesrenderpass.h>
+#include <tracing/timelineitemsrenderpass.h>
+#include <tracing/timelineselectionrenderpass.h>
+#include <tracing/timelineformattime.h>
 
 #include <QCoreApplication>
 #include <QVector>

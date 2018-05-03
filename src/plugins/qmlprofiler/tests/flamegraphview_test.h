@@ -28,7 +28,7 @@
 #include <qmlprofiler/flamegraphview.h>
 #include <qmlprofiler/qmlprofilermodelmanager.h>
 
-#include <timeline/timelinemodelaggregator.h>
+#include <tracing/timelinemodelaggregator.h>
 
 #include <QObject>
 

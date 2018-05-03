@@ -28,7 +28,7 @@
 
 #include <coreplugin/minisplitter.h>
 #include <utils/qtcassert.h>
-#include <timeline/timelineformattime.h>
+#include <tracing/timelineformattime.h>
 
 #include <QHeaderView>
 #include <QApplication>

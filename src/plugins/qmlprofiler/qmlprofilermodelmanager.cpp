@@ -30,7 +30,7 @@
 #include "qmlprofilerdetailsrewriter.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <timeline/tracestashfile.h>
+#include <tracing/tracestashfile.h>
 #include <utils/runextensions.h>
 #include <utils/qtcassert.h>
 

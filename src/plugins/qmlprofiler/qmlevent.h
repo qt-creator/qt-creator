@@ -26,7 +26,7 @@
 
 #include "qmlprofilereventtypes.h"
 
-#include <timeline/traceevent.h>
+#include <tracing/traceevent.h>
 
 #include <QString>
 #include <QByteArray>

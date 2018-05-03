@@ -19,8 +19,7 @@ SUBDIRS   = \
 
 qtHaveModule(quick) {
     SUBDIRS += \
-        flamegraph \
-        timeline
+        tracing
 }
 
 for(l, SUBDIRS) {

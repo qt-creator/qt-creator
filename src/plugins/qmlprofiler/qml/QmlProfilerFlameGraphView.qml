@@ -28,7 +28,7 @@ import QtQuick.Controls 1.3
 import FlameGraph 1.0
 import QmlProfilerFlameGraphModel 1.0
 import TimelineTheme 1.0
-import "../flamegraph/"
+import "../tracing/"
 
 ScrollView {
     id: root
