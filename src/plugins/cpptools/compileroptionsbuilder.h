@@ -96,7 +96,6 @@ private:
     QStringList m_options;
     QString m_clangVersion;
     QString m_clangResourceDirectory;
-    ProjectPart::LanguageVersion m_languageVersion;
 };
 
 template<class T>

@@ -47,7 +47,6 @@ CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
     : m_projectPart(projectPart)
     , m_clangVersion(clangVersion)
     , m_clangResourceDirectory(clangResourceDirectory)
-    , m_languageVersion(m_projectPart.languageVersion)
 {
 }
 
@@ -55,8 +54,10 @@ QStringList CompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind, 
 {
     m_options.clear();
 
-    if (fileKind == ProjectFile::CHeader || fileKind == ProjectFile::CSource)
-        QTC_ASSERT(m_languageVersion <= ProjectPart::LatestCVersion, return QStringList(););
+    if (fileKind == ProjectFile::CHeader || fileKind == ProjectFile::CSource) {
+        QTC_ASSERT(m_projectPart.languageVersion <= ProjectPart::LatestCVersion,
+                   return QStringList(););
+    }
 
     addWordWidth();
     addTargetTriple();
@@ -123,7 +124,7 @@ void CompilerOptionsBuilder::addExtraCodeModelFlags()
 
 void CompilerOptionsBuilder::enableExceptions()
 {
-    if (m_languageVersion > ProjectPart::LatestCVersion)
+    if (m_projectPart.languageVersion > ProjectPart::LatestCVersion)
         add(QLatin1String("-fcxx-exceptions"));
     add(QLatin1String("-fexceptions"));
 }
@@ -293,7 +294,7 @@ void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtension
     const ProjectPart::LanguageExtensions languageExtensions = m_projectPart.languageExtensions;
     const bool gnuExtensions = languageExtensions & ProjectPart::GnuExtensions;
 
-    switch (m_languageVersion) {
+    switch (m_projectPart.languageVersion) {
     case ProjectPart::C89:
         opts << (gnuExtensions ? QLatin1String("-std=gnu89") : QLatin1String("-std=c89"));
         break;
@@ -478,7 +479,8 @@ QString CompilerOptionsBuilder::includeOption() const
 
 bool CompilerOptionsBuilder::excludeDefineDirective(const ProjectExplorer::Macro &macro) const
 {
-    if (macro.key == "__cplusplus" && m_languageVersion <= ProjectPart::LatestCVersion)
+    // TODO: Remove in QtCreator 4.7
+    if (macro.key == "__cplusplus")
         return true;
 
     // Ignore for all compiler toolchains since LLVM has it's own implementation for
