@@ -109,6 +109,7 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
     connect(this, &ZoomAction::indexChanged, comboBox, &QComboBox::setCurrentIndex);
 
     comboBox->setProperty("hideborder", true);
+    comboBox->setMaximumWidth(qMax(comboBox->view()->sizeHintForColumn(0) / 2, 16));
     return comboBox;
 }
 
