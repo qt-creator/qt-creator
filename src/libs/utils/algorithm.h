@@ -358,7 +358,7 @@ Q_REQUIRED_RESULT
 decltype(auto) transform(SC &&container, F function)
 {
     ResultContainer result;
-    reserve(result, container.size());
+    reserve(result, typename ResultContainer::size_type(container.size()));
     std::transform(std::begin(container), std::end(container), inserter(result), function);
     return result;
 }
