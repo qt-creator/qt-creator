@@ -26,7 +26,6 @@ SOURCES += formeditoritem.cpp \
     resizehandleitem.cpp \
     dragtool.cpp \
     toolbox.cpp \
-    zoomaction.cpp \
     formeditorgraphicsview.cpp \
     numberseriesaction.cpp \
     lineeditaction.cpp \
@@ -66,7 +65,6 @@ HEADERS += formeditorscene.h \
     resizehandleitem.h \
     dragtool.h \
     toolbox.h \
-    zoomaction.h \
     formeditorgraphicsview.h \
     numberseriesaction.h \
     lineeditaction.h \

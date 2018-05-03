@@ -16,6 +16,7 @@ SOURCES += designeractionmanager.cpp
 SOURCES += modelnodeoperations.cpp
 SOURCES += crumblebar.cpp
 SOURCES += qmldesignericonprovider.cpp
+SOURCES += zoomaction.cpp
 
 HEADERS += modelnodecontextmenu.h
 HEADERS += addimagesdialog.h
@@ -35,6 +36,7 @@ HEADERS += modelnodeoperations.h
 HEADERS += actioninterface.h
 HEADERS += crumblebar.h
 HEADERS += qmldesignericonprovider.h
+HEADERS += zoomaction.h
 
 FORMS += \
     $$PWD/addsignalhandlerdialog.ui
