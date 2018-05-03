@@ -227,7 +227,8 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     m_adbPath = AndroidConfigurations::currentConfig().adbToolPath().toString();
 
     AndroidAvdManager avdManager;
-    if (avdManager.findAvd(m_avdName).isEmpty())
+    // Start the AVD if not running.
+    if (!m_avdName.isEmpty() && avdManager.findAvd(m_avdName).isEmpty())
         avdManager.startAvdAsync(m_avdName);
     return true;
 }
