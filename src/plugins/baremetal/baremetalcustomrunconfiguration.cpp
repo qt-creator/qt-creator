@@ -45,6 +45,7 @@ BareMetalCustomRunConfiguration::BareMetalCustomRunConfiguration(Target *target,
     exeAspect->setSettingsKey("BareMetal.CustomRunConfig.Executable");
     exeAspect->setPlaceHolderText(tr("Unknown"));
     exeAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    exeAspect->setHistoryCompleter("BareMetal.CustomRunConfig.History");
     exeAspect->setExpectedKind(PathChooser::Any);
     addExtraAspect(exeAspect);
 

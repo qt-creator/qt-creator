@@ -52,6 +52,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
     exeAspect->setPlaceHolderText(tr("Remote path not set"));
     exeAspect->makeOverridable("RemoteLinux.RunConfig.AlternateRemoteExecutable",
                                "RemoteLinux.RunConfig.UseAlternateRemoteExecutable");
+    exeAspect->setHistoryCompleter("RemoteLinux.AlternateExecutable.History");
     addExtraAspect(exeAspect);
 
     auto symbolsAspect = new SymbolFileAspect(this);
