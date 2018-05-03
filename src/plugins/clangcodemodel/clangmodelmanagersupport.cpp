@@ -84,11 +84,9 @@ ModelManagerSupportClang::ModelManagerSupportClang()
     connect(editorManager, &Core::EditorManager::editorOpened,
             this, &ModelManagerSupportClang::onEditorOpened);
     connect(editorManager, &Core::EditorManager::currentEditorChanged,
-            this, &ModelManagerSupportClang::onCurrentEditorChanged,
-            Qt::QueuedConnection);
+            this, &ModelManagerSupportClang::onCurrentEditorChanged);
     connect(editorManager, &Core::EditorManager::editorsClosed,
-            this, &ModelManagerSupportClang::onEditorClosed,
-            Qt::QueuedConnection);
+            this, &ModelManagerSupportClang::onEditorClosed);
 
     CppTools::CppModelManager *modelManager = cppModelManager();
     connect(modelManager, &CppTools::CppModelManager::abstractEditorSupportContentsUpdated,
