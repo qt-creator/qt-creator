@@ -38,6 +38,7 @@
 
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runconfigurationaspects.h>
 
 #include <QApplication>
 
@@ -84,6 +85,9 @@ void ValgrindToolRunner::start()
     m_runner.setValgrindArguments(genericToolArguments() + toolArguments());
     m_runner.setDevice(device());
     m_runner.setDebuggee(runnable());
+
+    if (auto aspect = runControl()->runConfiguration()->extraAspect<TerminalAspect>())
+        m_runner.setUseTerminal(aspect->useTerminal());
 
     connect(&m_runner, &ValgrindRunner::processOutputReceived,
             this, &ValgrindToolRunner::receiveProcessOutput);

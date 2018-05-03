@@ -299,7 +299,6 @@ Runnable PythonRunConfiguration::runnable() const
     QtcProcess::addArg(&r.commandLineArguments, mainScript());
     QtcProcess::addArgs(&r.commandLineArguments, extraAspect<ArgumentsAspect>()->arguments());
     r.executable = extraAspect<InterpreterAspect>()->value();
-    r.runMode = extraAspect<TerminalAspect>()->runMode();
     r.environment = extraAspect<EnvironmentAspect>()->environment();
     return r;
 }

@@ -413,7 +413,7 @@ void CdbEngine::setupEngine()
         sp.inferior.commandLineArguments.clear();
         sp.attachPID = ProcessHandle(terminal()->applicationPid());
         sp.startMode = AttachExternal;
-        sp.inferior.runMode = ApplicationLauncher::Gui; // Force no terminal.
+        sp.useTerminal = false; // Force no terminal.
         showMessage(QString("Attaching to %1...").arg(sp.attachPID.pid()), LogMisc);
     } else {
         m_effectiveStartMode = sp.startMode;
@@ -462,7 +462,7 @@ void CdbEngine::setupEngine()
     // register idle (debuggee stop) notification
               << "-c"
               << ".idle_cmd " + m_extensionCommandPrefix + "idle";
-    if (sp.inferior.runMode == ApplicationLauncher::Console) // Separate console
+    if (sp.useTerminal) // Separate console
         arguments << "-2";
     if (boolSetting(IgnoreFirstChanceAccessViolation))
         arguments << "-x";
@@ -530,8 +530,7 @@ void CdbEngine::setupEngine()
 
     // Make sure that QTestLib uses OutputDebugString for logging.
     const QString qtLoggingToConsoleKey = QStringLiteral("QT_LOGGING_TO_CONSOLE");
-    if (sp.inferior.runMode != ApplicationLauncher::Console
-            && !inferiorEnvironment.hasKey(qtLoggingToConsoleKey))
+    if (!sp.useTerminal && !inferiorEnvironment.hasKey(qtLoggingToConsoleKey))
         inferiorEnvironment.set(qtLoggingToConsoleKey, QString(QLatin1Char('0')));
 
     m_process.setEnvironment(mergeEnvironment(inferiorEnvironment.toStringList(),

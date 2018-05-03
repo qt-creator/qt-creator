@@ -77,7 +77,6 @@ Runnable QmlProjectRunConfiguration::runnable() const
     Runnable r;
     r.executable = executable();
     r.commandLineArguments = commandLineArguments();
-    r.runMode = ApplicationLauncher::Gui;
     r.environment = extraAspect<QmlProjectEnvironmentAspect>()->environment();
     r.workingDirectory = static_cast<QmlProject *>(project())->targetDirectory(target()).toString();
     return r;

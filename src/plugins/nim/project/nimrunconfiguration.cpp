@@ -44,14 +44,11 @@ namespace Nim {
 NimRunConfiguration::NimRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    auto terminalAspect = new TerminalAspect(this, "Nim.NimRunConfiguration.TerminalAspect");
-    terminalAspect->setRunMode(ApplicationLauncher::Gui);
-    addExtraAspect(terminalAspect);
-
     addExtraAspect(new ExecutableAspect(this));
     addExtraAspect(new ArgumentsAspect(this, "Nim.NimRunConfiguration.ArgumentAspect"));
     addExtraAspect(new WorkingDirectoryAspect(this, "Nim.NimRunConfiguration.WorkingDirectoryAspect"));
     addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
+    addExtraAspect(new TerminalAspect(this, "Nim.NimRunConfiguration.TerminalAspect"));
 
     setDisplayName(tr("Current Build Target"));
     setDefaultDisplayName(tr("Current Build Target"));

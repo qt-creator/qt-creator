@@ -55,9 +55,6 @@ public:
     bool useTerminal() const;
     void setUseTerminal(bool useTerminal);
 
-    ApplicationLauncher::Mode runMode() const;
-    void setRunMode(ApplicationLauncher::Mode runMode);
-
     bool isUserSet() const;
 
 private:

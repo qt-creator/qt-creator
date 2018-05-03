@@ -166,7 +166,6 @@ public:
     QString commandLineArguments;
     QString workingDirectory;
     Utils::Environment environment;
-    ApplicationLauncher::Mode runMode = ApplicationLauncher::Gui;
     IDevice::ConstPtr device; // Override the kit's device. Keep unset by default.
 
     // FIXME: Not necessarily a display name
@@ -586,6 +585,7 @@ private:
     Runnable m_runnable;
     IDevice::ConstPtr m_device;
     bool m_stopReported = false;
+    bool m_useTerminal = false;
 };
 
 } // namespace ProjectExplorer

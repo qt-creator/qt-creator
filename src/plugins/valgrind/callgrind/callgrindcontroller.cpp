@@ -128,7 +128,6 @@ void CallgrindController::run(Option option)
 
     Runnable controller = m_valgrindRunnable;
     controller.executable =  CALLGRIND_CONTROL_BINARY;
-    controller.runMode = ApplicationLauncher::Gui;
     controller.commandLineArguments = QString("%1 %2").arg(toOptionString(option)).arg(m_pid);
 
     if (!m_valgrindRunnable.device

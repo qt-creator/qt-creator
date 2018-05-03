@@ -260,7 +260,6 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(QmlProfilerTool *profilerTool,
         arguments += ' ' + debuggee.commandLineArguments;
 
     debuggee.commandLineArguments = arguments;
-    debuggee.runMode = ApplicationLauncher::Gui;
 
     setRunnable(debuggee);
 }

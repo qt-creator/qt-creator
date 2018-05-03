@@ -67,7 +67,6 @@ public:
         r.commandLineArguments = m_testConfig->argumentsForTestRunner().join(' ');
         r.workingDirectory = m_testConfig->workingDirectory();
         r.environment = m_testConfig->environment();
-        r.runMode = ProjectExplorer::ApplicationLauncher::Gui;
         r.device = ProjectExplorer::DeviceManager::instance()->defaultDevice(
                     ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
         return r;

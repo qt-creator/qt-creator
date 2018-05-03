@@ -111,16 +111,6 @@ bool TerminalAspect::isUserSet() const
     return m_userSet;
 }
 
-ApplicationLauncher::Mode TerminalAspect::runMode() const
-{
-    return m_useTerminal ? ApplicationLauncher::Console : ApplicationLauncher::Gui;
-}
-
-void TerminalAspect::setRunMode(ApplicationLauncher::Mode runMode)
-{
-    setUseTerminal(runMode == ApplicationLauncher::Console);
-}
-
 /*!
     \class ProjectExplorer::WorkingDirectoryAspect
 */

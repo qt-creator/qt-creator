@@ -110,7 +110,6 @@ void ValgrindRunner::Private::run()
     valgrind.executable = m_valgrindExecutable;
     valgrind.workingDirectory = m_debuggee.workingDirectory;
     valgrind.environment = m_debuggee.environment;
-    valgrind.runMode = m_debuggee.runMode;
     valgrind.device = m_device;
     valgrind.commandLineArguments = QtcProcess::joinArgs(fullArgs, m_device->osType());
     Utils::QtcProcess::addArgs(&valgrind.commandLineArguments, m_debuggee.commandLineArguments);
@@ -256,6 +255,11 @@ void ValgrindRunner::setLocalServerAddress(const QHostAddress &localServerAddres
 void ValgrindRunner::setDevice(const IDevice::ConstPtr &device)
 {
     d->m_device = device;
+}
+
+void ValgrindRunner::setUseTerminal(bool on)
+{
+    d->m_valgrindProcess.setUseTerminal(on);
 }
 
 void ValgrindRunner::waitForFinished() const

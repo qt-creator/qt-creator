@@ -466,8 +466,6 @@ Runnable RunConfiguration::runnable() const
         r.workingDirectory = aspect->workingDirectory().toString();
     if (auto aspect = extraAspect<EnvironmentAspect>())
         r.environment = aspect->environment();
-    if (auto aspect = extraAspect<TerminalAspect>())
-        r.runMode = aspect->runMode();
     return r;
 }
 
@@ -1644,12 +1642,17 @@ SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
     setDisplayName("SimpleTargetRunner");
     m_runnable = runControl->runnable(); // Default value. Can be overridden using setRunnable.
     m_device = runControl->device(); // Default value. Can be overridden using setDevice.
+    if (auto runConfig = runControl->runConfiguration()) {
+        if (auto terminalAspect = runConfig->extraAspect<TerminalAspect>())
+            m_useTerminal = terminalAspect->useTerminal();
+    }
 }
 
 void SimpleTargetRunner::start()
 {
     m_stopReported = false;
     m_launcher.disconnect(this);
+    m_launcher.setUseTerminal(m_useTerminal);
 
     const bool isDesktop = m_device.isNull()
             || m_device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;

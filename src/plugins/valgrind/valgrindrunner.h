@@ -50,6 +50,7 @@ public:
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
     void setLocalServerAddress(const QHostAddress &localServerAddress);
     void setDevice(const ProjectExplorer::IDevice::ConstPtr &device);
+    void setUseTerminal(bool on);
 
     void waitForFinished() const;
 

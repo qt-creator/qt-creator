@@ -435,7 +435,6 @@ void DebuggerRunTool::setOverrideStartScript(const QString &script)
 void DebuggerRunTool::setInferior(const Runnable &runnable)
 {
     m_runParameters.inferior = runnable;
-    setUseTerminal(m_runParameters.inferior.runMode == ApplicationLauncher::Console);
 }
 
 void DebuggerRunTool::setInferiorExecutable(const QString &executable)
@@ -839,6 +838,8 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
         m_runParameters.displayName = runConfig->displayName();
         if (auto symbolsAspect = runConfig->extraAspect<SymbolFileAspect>())
             m_runParameters.symbolFile = symbolsAspect->value();
+        if (auto terminalAspect = runConfig->extraAspect<TerminalAspect>())
+            m_runParameters.useTerminal = terminalAspect->useTerminal();
     }
 
     if (runConfig && !kit)
@@ -865,7 +866,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
     // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
     m_runParameters.inferior.workingDirectory =
             FileUtils::normalizePathName(m_runParameters.inferior.workingDirectory);
-    setUseTerminal(allowTerminal && m_runParameters.inferior.runMode == ApplicationLauncher::Console);
+    setUseTerminal(allowTerminal && m_runParameters.useTerminal);
 
     const QByteArray envBinary = qgetenv("QTC_DEBUGGER_PATH");
     if (!envBinary.isEmpty())
