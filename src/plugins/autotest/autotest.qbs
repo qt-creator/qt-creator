@@ -41,6 +41,8 @@ QtcPlugin {
         "testcodeparser.h",
         "testconfiguration.cpp",
         "testconfiguration.h",
+        "testeditormark.cpp",
+        "testeditormark.h",
         "testnavigationwidget.cpp",
         "testnavigationwidget.h",
         "testresult.cpp",

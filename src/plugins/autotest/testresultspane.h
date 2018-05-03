@@ -53,6 +53,7 @@ namespace Internal {
 class TestResultModel;
 class TestResultFilterModel;
 class TestResult;
+class TestEditorMark;
 
 class ResultsTreeView : public Utils::TreeView
 {
@@ -92,6 +93,7 @@ public:
 
     void addTestResult(const TestResultPtr &result);
     void addOutput(const QByteArray &output);
+    void showTestResult(const QModelIndex &index);
 
 private:
     explicit TestResultsPane(QObject *parent = 0);
@@ -117,6 +119,9 @@ private:
     void toggleOutputStyle();
     QString getWholeOutput(const QModelIndex &parent = QModelIndex());
 
+    void createMarks(const QModelIndex& parent = QModelIndex());
+    void clearMarks();
+
     QStackedWidget *m_outputWidget;
     QFrame *m_summaryWidget;
     QLabel *m_summaryLabel;
@@ -135,6 +140,7 @@ private:
     bool m_autoScroll = false;
     bool m_atEnd = false;
     bool m_testRunning = false;
+    QVector<TestEditorMark *> m_marks;
 };
 
 } // namespace Internal

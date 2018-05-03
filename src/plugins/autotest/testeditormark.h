@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,36 +25,24 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include <texteditor/textmark.h>
+
+#include <QPersistentModelIndex>
 
 namespace Autotest {
-namespace Constants {
-
-const char ACTION_SCAN_ID[]             = "AutoTest.ScanAction";
-const char ACTION_RUN_ALL_ID[]          = "AutoTest.RunAll";
-const char ACTION_RUN_SELECTED_ID[]     = "AutoTest.RunSelected";
-const char ACTION_RUN_UCURSOR[]         = "AutoTest.RunUnderCursor";
-const char ACTION_RUN_DBG_UCURSOR[]     = "AutoTest.RunDebugUnderCursor";
-const char MENU_ID[]                    = "AutoTest.Menu";
-const char AUTOTEST_ID[]                = "AutoTest.ATP";
-const char AUTOTEST_CONTEXT[]           = "Auto Tests";
-const char TASK_INDEX[]                 = "AutoTest.Task.Index";
-const char TASK_PARSE[]                 = "AutoTest.Task.Parse";
-const char AUTOTEST_SETTINGS_CATEGORY[] = "ZY.Tests";
-const char AUTOTEST_SETTINGS_TR[]       = QT_TRANSLATE_NOOP("AutoTest", "Testing");
-const char FRAMEWORK_PREFIX[]           = "AutoTest.Framework.";
-const char SETTINGSPAGE_PREFIX[]        = "A.AutoTest.";
-const char SETTINGSGROUP[]              = "Autotest";
-const char TASK_MARK_ID[]               = "Autotest.TaskMark";
-} // namespace Constants
-
 namespace Internal {
-enum class TestRunMode
+
+class TestEditorMark : public TextEditor::TextMark
 {
-    Run,
-    RunWithoutDeploy,
-    Debug,
-    DebugWithoutDeploy
+public:
+    TestEditorMark(QPersistentModelIndex item, const Utils::FileName &file, int line);
+
+    bool isClickable() const override { return true; }
+    void clicked() override;
+
+private:
+    QPersistentModelIndex m_item;
 };
+
 } // namespace Internal
 } // namespace Autotest
