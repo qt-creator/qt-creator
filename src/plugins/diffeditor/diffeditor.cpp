@@ -76,8 +76,8 @@ class DescriptionEditorWidget : public TextEditorWidget
 {
     Q_OBJECT
 public:
-    DescriptionEditorWidget(QWidget *parent = 0);
-    ~DescriptionEditorWidget();
+    DescriptionEditorWidget(QWidget *parent = nullptr);
+    ~DescriptionEditorWidget() override;
 
     virtual QSize sizeHint() const override;
 
@@ -281,7 +281,7 @@ Core::IDocument *DiffEditor::document()
 
 QWidget *DiffEditor::toolBar()
 {
-    QTC_ASSERT(m_toolBar, return 0);
+    QTC_ASSERT(m_toolBar, return nullptr);
     return m_toolBar;
 }
 
@@ -522,7 +522,7 @@ void DiffEditor::toggleSync()
 
 IDiffView *DiffEditor::loadSettings()
 {
-    QTC_ASSERT(currentView(), return 0);
+    QTC_ASSERT(currentView(), return nullptr);
     QSettings *s = Core::ICore::settings();
 
     // Read current settings:
@@ -563,7 +563,7 @@ void DiffEditor::addView(IDiffView *view)
 IDiffView *DiffEditor::currentView() const
 {
     if (m_currentViewIndex < 0)
-        return 0;
+        return nullptr;
     return m_views.at(m_currentViewIndex);
 }
 
@@ -615,7 +615,7 @@ void DiffEditor::showDiffView(IDiffView *view)
         return;
 
     if (currentView()) // during initialization
-        currentView()->setDocument(0);
+        currentView()->setDocument(nullptr);
 
     QTC_ASSERT(view, return);
     setupView(view);

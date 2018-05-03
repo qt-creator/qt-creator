@@ -71,8 +71,8 @@ class DiffFile
 {
 public:
     DiffFile(bool ignoreWhitespace, int contextLineCount)
-        : m_ignoreWhitespace(ignoreWhitespace),
-          m_contextLineCount(contextLineCount)
+        : m_contextLineCount(contextLineCount),
+          m_ignoreWhitespace(ignoreWhitespace)
     {}
 
     void operator()(QFutureInterface<FileData> &futureInterface,
@@ -110,8 +110,8 @@ public:
     }
 
 private:
-    const bool m_ignoreWhitespace;
     const int m_contextLineCount;
+    const bool m_ignoreWhitespace;
 };
 
 class DiffFilesController : public DiffEditorController

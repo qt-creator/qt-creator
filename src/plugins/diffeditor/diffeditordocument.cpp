@@ -210,7 +210,7 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
     if (!ok)
         return false;
 
-    setController(0);
+    setController(nullptr);
     setDescription(QString());
     Core::EditorManager::clearUniqueId(this);
 

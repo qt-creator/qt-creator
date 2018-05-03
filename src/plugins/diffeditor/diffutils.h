@@ -64,9 +64,8 @@ public:
         Invalid
     };
     TextLineData() {}
-    TextLineData(const QString &txt) : textLineType(TextLine), text(txt) {}
+    TextLineData(const QString &txt) : text(txt), textLineType(TextLine) {}
     TextLineData(TextLineType t) : textLineType(t) {}
-    TextLineType textLineType = Invalid;
     QString text;
     /*
      * <start position, end position>
@@ -75,6 +74,7 @@ public:
      * <-1, -1> the whole line is a continuation (from the previous line to the next line)
      */
     QMap<int, int> changedPositions; // counting from the beginning of the line
+    TextLineType textLineType = Invalid;
 };
 
 class DIFFEDITOR_EXPORT RowData {
@@ -93,10 +93,10 @@ class DIFFEDITOR_EXPORT ChunkData {
 public:
     ChunkData() {}
     QList<RowData> rows;
-    bool contextChunk = false;
+    QString contextInfo;
     int leftStartingLineNumber = 0;
     int rightStartingLineNumber = 0;
-    QString contextInfo;
+    bool contextChunk = false;
 };
 
 class DIFFEDITOR_EXPORT FileData {
@@ -146,7 +146,7 @@ public:
     static QString makePatch(const QList<FileData> &fileDataList,
                              unsigned formatFlags = 0);
     static QList<FileData> readPatch(const QString &patch,
-                                     bool *ok = 0,
+                                     bool *ok = nullptr,
                                      QFutureInterfaceBase *jobController = nullptr);
 };
 

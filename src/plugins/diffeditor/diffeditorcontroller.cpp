@@ -78,13 +78,13 @@ Core::IDocument *DiffEditorController::findOrCreateDocument(const QString &vcsId
     QString preferredDisplayName = displayName;
     Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
                 Constants::DIFF_EDITOR_ID, &preferredDisplayName, QByteArray(), vcsId);
-    return editor ? editor->document() : 0;
+    return editor ? editor->document() : nullptr;
 }
 
 DiffEditorController *DiffEditorController::controller(Core::IDocument *document)
 {
     auto doc = qobject_cast<Internal::DiffEditorDocument *>(document);
-    return doc ? doc->controller() : 0;
+    return doc ? doc->controller() : nullptr;
 }
 
 void DiffEditorController::setDiffFiles(const QList<FileData> &diffFileList,

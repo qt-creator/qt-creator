@@ -136,7 +136,6 @@ private:
 
     // block number, visual line number.
     QMap<int, int> m_lineNumbers;
-    int m_lineNumberDigits = 1;
     // block number, fileInfo. Set for file lines only.
     QMap<int, DiffFileInfo> m_fileInfo;
     // block number, skipped lines and context info. Set for chunk lines only.
@@ -153,7 +152,7 @@ private:
     QTextBlock m_drawCollapsedBlock;
     QPointF m_drawCollapsedOffset;
     QRect m_drawCollapsedClip;
-
+    int m_lineNumberDigits = 1;
 };
 
 SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
@@ -476,7 +475,7 @@ void SideDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
 static QString skippedText(int skippedNumber)
 {
     if (skippedNumber > 0)
-        return SideBySideDiffEditorWidget::tr("Skipped %n lines...", 0, skippedNumber);
+        return SideBySideDiffEditorWidget::tr("Skipped %n lines...", nullptr, skippedNumber);
     if (skippedNumber == -2)
         return SideBySideDiffEditorWidget::tr("Binary files differ");
     return SideBySideDiffEditorWidget::tr("Skipped unknown number of lines...");
