@@ -48,6 +48,7 @@ GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResultPtr> &futu
     , m_executable(testApplication ? testApplication->program() : QString())
     , m_projectFile(projectFile)
 {
+    if (m_testApplication) {
         connect(m_testApplication,
                 static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
                 this, [this] (int exitCode, QProcess::ExitStatus /*exitStatus*/) {
@@ -59,6 +60,7 @@ GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResultPtr> &futu
             if (Utils::HostOsInfo::isWindowsHost() && exitCode == 3)
                 reportCrash();
         });
+    }
 }
 
 void GTestOutputReader::processOutput(const QByteArray &outputLine)
