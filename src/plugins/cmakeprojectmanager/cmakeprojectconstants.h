@@ -42,9 +42,6 @@ const char RUNCMAKECONTEXTMENU[] = "CMakeProject.RunCMakeContextMenu";
 // Project
 const char CMAKEPROJECT_ID[] = "CMakeProjectManager.CMakeProject";
 
-// Buildconfiguration
-const char CMAKE_BC_ID[] = "CMakeProjectManager.CMakeBuildConfiguration";
-
 // Menu
 const char M_CONTEXT[] = "CMakeEditor.ContextMenu";
 

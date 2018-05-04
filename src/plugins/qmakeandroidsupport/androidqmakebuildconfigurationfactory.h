@@ -41,7 +41,7 @@ class AndroidQmakeBuildConfiguration : public QmakeProjectManager::QmakeBuildCon
     Q_OBJECT
 
 public:
-    explicit AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target);
+    AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     void initialize(const ProjectExplorer::BuildInfo *info) override;
     void addToEnvironment(Utils::Environment &env) const override;

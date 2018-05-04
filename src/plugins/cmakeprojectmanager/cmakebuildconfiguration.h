@@ -47,7 +47,7 @@ class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
     Q_OBJECT
 
     friend class ProjectExplorer::IBuildConfigurationFactory;
-    explicit CMakeBuildConfiguration(ProjectExplorer::Target *parent);
+    CMakeBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
 public:
     void emitBuildTypeChanged();

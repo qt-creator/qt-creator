@@ -56,8 +56,8 @@ using namespace ProjectExplorer::Constants;
 
 // AutotoolsBuildConfiguration
 
-AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent)
-    : BuildConfiguration(parent, Constants::AUTOTOOLS_BC_ID)
+AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent, Core::Id id)
+    : BuildConfiguration(parent, id)
 {
     // /<foobar> is used so the un-changed check in setBuildDirectory() works correctly.
     // The leading / is to avoid the relative the path expansion in BuildConfiguration::buildDirectory.
@@ -111,7 +111,9 @@ NamedWidget *AutotoolsBuildConfiguration::createConfigWidget()
 
 AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory()
 {
-    registerBuildConfiguration<AutotoolsBuildConfiguration>(AUTOTOOLS_BC_ID);
+    registerBuildConfiguration<AutotoolsBuildConfiguration>
+            ("AutotoolsProjectManager.AutotoolsBuildConfiguration");
+
     setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::MAKEFILE_MIMETYPE);
 }

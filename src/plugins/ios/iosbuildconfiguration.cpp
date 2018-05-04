@@ -49,8 +49,8 @@ const char qmakeProvisioningProfileSettings[] = "QMAKE_MAC_XCODE_SETTINGS+=qprof
 const char signingIdentifierKey[] = "Ios.SigningIdentifier";
 const char autoManagedSigningKey[] = "Ios.AutoManagedSigning";
 
-IosBuildConfiguration::IosBuildConfiguration(Target *target)
-    : QmakeBuildConfiguration(target)
+IosBuildConfiguration::IosBuildConfiguration(Target *target, Core::Id id)
+    : QmakeBuildConfiguration(target, id)
 {
 }
 

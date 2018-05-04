@@ -41,7 +41,7 @@ class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
     Q_OBJECT
 
     friend class ProjectExplorer::IBuildConfigurationFactory;
-    explicit GenericBuildConfiguration(ProjectExplorer::Target *parent);
+    GenericBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
     void initialize(const ProjectExplorer::BuildInfo *info) override;
     ProjectExplorer::NamedWidget *createConfigWidget() override;

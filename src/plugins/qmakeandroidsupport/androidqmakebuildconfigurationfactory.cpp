@@ -59,8 +59,8 @@ AndroidQmakeBuildConfigurationFactory::AndroidQmakeBuildConfigurationFactory()
 
 // AndroidQmakeBuildConfiguration
 
-AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(Target *target)
-    : QmakeBuildConfiguration(target)
+AndroidQmakeBuildConfiguration::AndroidQmakeBuildConfiguration(Target *target, Core::Id id)
+    : QmakeBuildConfiguration(target, id)
 {
     updateCacheAndEmitEnvironmentChanged();
     connect(target->project(), &Project::parsingFinished, this, [this] {

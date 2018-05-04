@@ -34,7 +34,7 @@ class IosBuildConfiguration : public QmakeProjectManager::QmakeBuildConfiguratio
     Q_OBJECT
 
 public:
-    explicit IosBuildConfiguration(ProjectExplorer::Target *target);
+    IosBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
 private:
     QList<ProjectExplorer::NamedWidget *> createSubConfigWidgets() override;

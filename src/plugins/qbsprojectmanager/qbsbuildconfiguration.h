@@ -46,7 +46,7 @@ class QbsBuildConfiguration : public ProjectExplorer::BuildConfiguration
     Q_OBJECT
 
     friend class ProjectExplorer::IBuildConfigurationFactory;
-    explicit QbsBuildConfiguration(ProjectExplorer::Target *target);
+    QbsBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
 public:
     void initialize(const ProjectExplorer::BuildInfo *info) override;

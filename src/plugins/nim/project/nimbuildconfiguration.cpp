@@ -70,8 +70,8 @@ static FileName defaultBuildDirectory(const Kit *k,
     return result;
 }
 
-NimBuildConfiguration::NimBuildConfiguration(Target *target)
-    : BuildConfiguration(target, Constants::C_NIMBUILDCONFIGURATION_ID)
+NimBuildConfiguration::NimBuildConfiguration(Target *target, Core::Id id)
+    : BuildConfiguration(target, id)
 {
 }
 

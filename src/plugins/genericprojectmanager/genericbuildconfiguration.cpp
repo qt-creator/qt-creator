@@ -52,10 +52,8 @@ using namespace ProjectExplorer;
 namespace GenericProjectManager {
 namespace Internal {
 
-const char GENERIC_BC_ID[] = "GenericProjectManager.GenericBuildConfiguration";
-
-GenericBuildConfiguration::GenericBuildConfiguration(Target *parent)
-    : BuildConfiguration(parent, GENERIC_BC_ID)
+GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, Core::Id id)
+    : BuildConfiguration(parent, id)
 {
     updateCacheAndEmitEnvironmentChanged();
 }
@@ -84,7 +82,9 @@ NamedWidget *GenericBuildConfiguration::createConfigWidget()
 
 GenericBuildConfigurationFactory::GenericBuildConfigurationFactory()
 {
-    registerBuildConfiguration<GenericBuildConfiguration>(GENERIC_BC_ID);
+    registerBuildConfiguration<GenericBuildConfiguration>
+        ("GenericProjectManager.GenericBuildConfiguration");
+
     setSupportedProjectType(Constants::GENERICPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::GENERICMIMETYPE);
 }

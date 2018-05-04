@@ -37,7 +37,7 @@ class NimBuildConfiguration : public ProjectExplorer::BuildConfiguration
     Q_OBJECT
 
     friend class ProjectExplorer::IBuildConfigurationFactory;
-    explicit NimBuildConfiguration(ProjectExplorer::Target *target);
+    NimBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     void initialize(const ProjectExplorer::BuildInfo *info) override;
     ProjectExplorer::NamedWidget *createConfigWidget() override;

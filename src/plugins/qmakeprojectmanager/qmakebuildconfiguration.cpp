@@ -98,8 +98,8 @@ const char BUILD_CONFIGURATION_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.
 
 enum { debug = 0 };
 
-QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target)
-    : BuildConfiguration(target, Constants::QMAKE_BC_ID)
+QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id)
+    : BuildConfiguration(target, id)
 {
     connect(this, &BuildConfiguration::buildDirectoryChanged,
             this, &QmakeBuildConfiguration::emitProFileEvaluateNeeded);

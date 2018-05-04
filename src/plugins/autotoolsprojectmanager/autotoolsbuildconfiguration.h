@@ -39,7 +39,7 @@ class AutotoolsBuildConfiguration : public ProjectExplorer::BuildConfiguration
     Q_OBJECT
 
     friend class ProjectExplorer::IBuildConfigurationFactory;
-    explicit AutotoolsBuildConfiguration(ProjectExplorer::Target *parent);
+    AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
     void initialize(const ProjectExplorer::BuildInfo *info) override;
     ProjectExplorer::NamedWidget *createConfigWidget() override;

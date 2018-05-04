@@ -159,7 +159,7 @@ protected:
     void registerBuildConfiguration(Core::Id buildConfigId)
     {
         setObjectName(buildConfigId.toString() + "BuildConfigurationFactory");
-        m_creator = [](Target *t) { return new BuildConfig(t); };
+        m_creator = [buildConfigId](Target *t) { return new BuildConfig(t, buildConfigId); };
         m_buildConfigId = buildConfigId;
     }
 

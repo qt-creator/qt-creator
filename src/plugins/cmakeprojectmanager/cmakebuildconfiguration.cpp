@@ -60,8 +60,8 @@ namespace Internal {
 const char INITIAL_ARGUMENTS[] = "CMakeProjectManager.CMakeBuildConfiguration.InitialArgument"; // Obsolete since QtC 3.7
 const char CONFIGURATION_KEY[] = "CMake.Configuration";
 
-CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent)
-    : BuildConfiguration(parent, Constants::CMAKE_BC_ID)
+CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
+    : BuildConfiguration(parent, id)
 {
     CMakeProject *project = static_cast<CMakeProject *>(target()->project());
     setBuildDirectory(shadowBuildDirectory(project->projectFilePath(),
@@ -334,7 +334,8 @@ ProjectExplorer::NamedWidget *CMakeBuildConfiguration::createConfigWidget()
 
 CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory()
 {
-    registerBuildConfiguration<CMakeBuildConfiguration>(Constants::CMAKE_BC_ID);
+    registerBuildConfiguration<CMakeBuildConfiguration>("CMakeProjectManager.CMakeBuildConfiguration");
+
     setSupportedProjectType(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::CMAKEPROJECTMIMETYPE);
 }

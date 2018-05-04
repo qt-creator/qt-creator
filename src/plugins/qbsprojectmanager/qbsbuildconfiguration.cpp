@@ -74,8 +74,8 @@ static FileName defaultBuildDirectory(const QString &projectFilePath, const Kit 
 // QbsBuildConfiguration:
 // ---------------------------------------------------------------------------
 
-QbsBuildConfiguration::QbsBuildConfiguration(Target *target)
-    : BuildConfiguration(target, Constants::QBS_BC_ID)
+QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
+    : BuildConfiguration(target, id)
 {
     connect(project(), &Project::parsingStarted, this, &BuildConfiguration::enabledChanged);
     connect(project(), &Project::parsingFinished, this, &BuildConfiguration::enabledChanged);
