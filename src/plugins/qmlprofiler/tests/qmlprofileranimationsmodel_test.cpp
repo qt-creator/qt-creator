@@ -44,10 +44,9 @@ void QmlProfilerAnimationsModelTest::initTestCase()
 {
     manager.initialize();
 
-    QmlEventType type(Event, MaximumRangeType, AnimationFrame);
     QmlEvent event;
-    event.setTypeIndex(manager.numEventTypes());
-    manager.addEventType(type);
+    event.setTypeIndex(manager.appendEventType(
+                           QmlEventType(Event, MaximumRangeType, AnimationFrame)));
 
     for (int i = 0; i < 10; ++i) {
         event.setTimestamp(i);

@@ -34,8 +34,20 @@
 #include <QFuture>
 
 #include <functional>
+#include <memory>
 
 namespace Timeline {
+
+class TRACING_EXPORT TraceEventTypeStorage
+{
+public:
+    virtual ~TraceEventTypeStorage();
+    virtual const TraceEventType &get(int typeId) const = 0;
+    virtual void set(int typeId, TraceEventType &&type) = 0;
+    virtual int append(TraceEventType &&type) = 0;
+    virtual int size() const = 0;
+    virtual void clear() = 0;
+};
 
 class TimelineTraceFile;
 class TRACING_EXPORT TimelineTraceManager : public QObject
@@ -49,7 +61,8 @@ public:
     typedef std::function<void()> Clearer;
     typedef std::function<void(const QString &)> ErrorHandler;
 
-    explicit TimelineTraceManager(QObject *parent = nullptr);
+    explicit TimelineTraceManager(std::unique_ptr<TraceEventTypeStorage> &&typeStorage,
+                                  QObject *parent = nullptr);
     ~TimelineTraceManager() override;
 
     qint64 traceStart() const;
@@ -64,6 +77,8 @@ public:
     bool isEmpty() const;
     int numEvents() const;
     int numEventTypes() const;
+
+    const TraceEventTypeStorage *typeStorage() const;
 
     void registerFeatures(quint64 features, TraceEventLoader eventLoader,
                           Initializer initializer = Initializer(),
@@ -103,8 +118,10 @@ protected:
     void restrictByFilter(TraceEventFilter filter);
 
     void addEvent(const TraceEvent &event);
-    void addEventType(const TraceEventType &type);
-    virtual const TraceEventType &lookupType(int typeId) const = 0;
+
+    const TraceEventType &eventType(int typeId) const;
+    void setEventType(int typeId, TraceEventType &&type);
+    int appendEventType(TraceEventType &&type);
 
     virtual TimelineTraceFile *createTraceFile() = 0;
     virtual void replayEvents(TraceEventLoader loader, Initializer initializer, Finalizer finalizer,

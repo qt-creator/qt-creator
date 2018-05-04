@@ -43,8 +43,8 @@ void PixmapCacheModelTest::initTestCase()
 
     for (int i = 0; i < MaximumPixmapEventType; ++i) {
         eventTypeIndices[i] = manager.numEventTypes();
-        manager.addEventType(QmlEventType(PixmapCacheEvent, MaximumRangeType, i,
-                                          QmlEventLocation("dings.png", 0, 0)));
+        manager.appendEventType(QmlEventType(PixmapCacheEvent, MaximumRangeType, i,
+                                             QmlEventLocation("dings.png", 0, 0)));
     }
 
     // random data, should still result in consistent model.
@@ -58,8 +58,8 @@ void PixmapCacheModelTest::initTestCase()
 
     for (int i = 0; i < MaximumPixmapEventType; ++i) {
         eventTypeIndices[i + MaximumPixmapEventType] = manager.numEventTypes();
-        manager.addEventType(QmlEventType(PixmapCacheEvent, MaximumRangeType, i,
-                                          QmlEventLocation("blah.png", 0, 0)));
+        manager.appendEventType(QmlEventType(PixmapCacheEvent, MaximumRangeType, i,
+                                             QmlEventLocation("blah.png", 0, 0)));
     }
 
 

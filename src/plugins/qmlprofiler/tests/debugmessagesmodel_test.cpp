@@ -49,7 +49,7 @@ void DebugMessagesModelTest::initTestCase()
         QmlEventType type(DebugMessage, MaximumRangeType, i % (QtMsgType::QtInfoMsg + 1),
                           QmlEventLocation("somefile.js", i, 10 - i));
         event.setTypeIndex(manager.numEventTypes());
-        manager.addEventType(type);
+        manager.appendEventType(std::move(type));
         manager.addEvent(event);
     }
     manager.finalize();

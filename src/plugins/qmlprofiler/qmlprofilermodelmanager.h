@@ -62,7 +62,6 @@ public:
                           Clearer clearer = nullptr);
 
     void addEvents(const QVector<QmlEvent> &events);
-    void addEventTypes(const QVector<QmlEventType> &types);
     const QmlEventType &eventType(int typeId) const;
 
     void replayQmlEvents(QmlEventLoader loader, Initializer initializer, Finalizer finalizer,
@@ -75,7 +74,8 @@ public:
 
     static const char *featureName(ProfileFeature feature);
 
-    void addEventType(const QmlEventType &type);
+    int appendEventType(QmlEventType &&type);
+    void setEventType(int typeId, QmlEventType &&type);
     void addEvent(const QmlEvent &event);
 
     void restrictToRange(qint64 start, qint64 end);
@@ -92,9 +92,7 @@ private:
     void restrictByFilter(QmlEventFilter filter);
 
     void clearEventStorage() override;
-    void clearTypeStorage() override;
 
-    const Timeline::TraceEventType &lookupType(int typeId) const override;
     Timeline::TimelineTraceFile *createTraceFile() override;
     void replayEvents(TraceEventLoader loader, Initializer initializer, Finalizer finalizer,
                       ErrorHandler errorHandler, QFutureInterface<void> &future) const override;

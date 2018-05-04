@@ -61,14 +61,25 @@ static const char *ProfileFeatureNames[] = {
 
 Q_STATIC_ASSERT(sizeof(ProfileFeatureNames) == sizeof(char *) * MaximumProfileFeature);
 
+class QmlProfilerEventTypeStorage : public Timeline::TraceEventTypeStorage
+{
+public:
+    const Timeline::TraceEventType &get(int typeId) const override;
+    void set(int typeId, Timeline::TraceEventType &&type) override;
+    int append(Timeline::TraceEventType &&type) override;
+    int size() const override;
+    void clear() override;
+
+private:
+    std::vector<QmlEventType> m_types;
+};
+
 class QmlProfilerModelManager::QmlProfilerModelManagerPrivate
 {
 public:
     QmlProfilerModelManagerPrivate() : file("qmlprofiler-data") {}
 
     Internal::QmlProfilerTextMarkModel *textMarkModel = nullptr;
-
-    QVector<QmlEventType> eventTypes;
     Internal::QmlProfilerDetailsRewriter *detailsRewriter = nullptr;
 
     Timeline::TraceStashFile<QmlEvent> file;
@@ -79,12 +90,12 @@ public:
     void addEventType(const QmlEventType &eventType);
     void handleError(const QString &message);
 
-    void rewriteType(int typeIndex);
     int resolveStackTop();
 };
 
 QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent) :
-    Timeline::TimelineTraceManager(parent), d(new QmlProfilerModelManagerPrivate)
+    Timeline::TimelineTraceManager(std::make_unique<QmlProfilerEventTypeStorage>(), parent),
+    d(new QmlProfilerModelManagerPrivate)
 {
     setNotesModel(new QmlProfilerNotesModel(this));
     d->textMarkModel = new Internal::QmlProfilerTextMarkModel(this);
@@ -133,17 +144,9 @@ void QmlProfilerModelManager::addEvents(const QVector<QmlEvent> &events)
         addEvent(event);
 }
 
-void QmlProfilerModelManager::addEventTypes(const QVector<QmlEventType> &types)
-{
-    for (const QmlEventType &type : types) {
-        d->addEventType(type);
-        TimelineTraceManager::addEventType(type);
-    }
-}
-
 const QmlEventType &QmlProfilerModelManager::eventType(int typeId) const
 {
-    return d->eventTypes.at(typeId);
+    return static_cast<const QmlEventType &>(TimelineTraceManager::eventType(typeId));
 }
 
 void QmlProfilerModelManager::replayEvents(TraceEventLoader loader, Initializer initializer,
@@ -175,7 +178,7 @@ void QmlProfilerModelManager::replayQmlEvents(QmlEventLoader loader,
         if (future.isCanceled())
             return false;
 
-        loader(event, d->eventTypes[event.typeIndex()]);
+        loader(event, eventType(event.typeIndex()));
         return true;
     });
 
@@ -238,39 +241,10 @@ void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::writeToStream(cons
     file.append(event);
 }
 
-void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::addEventType(const QmlEventType &type)
-{
-    const int typeId = eventTypes.count();
-    eventTypes.append(type);
-    rewriteType(typeId);
-    const QmlEventLocation &location = type.location();
-    if (location.isValid()) {
-        textMarkModel->addTextMarkId(typeId, QmlEventLocation(
-                                         detailsRewriter->getLocalFile(location.filename()),
-                                         location.line(), location.column()));
-    }
-}
-
 void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::handleError(const QString &message)
 {
     // What to do here?
     qWarning() << message;
-}
-
-void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::rewriteType(int typeIndex)
-{
-    QmlEventType &type = eventTypes[typeIndex];
-    type.setDisplayName(getDisplayName(type));
-    type.setData(getInitialDetails(type));
-
-    const QmlEventLocation &location = type.location();
-    // There is no point in looking for invalid locations
-    if (!location.isValid())
-        return;
-
-    // Only bindings and signal handlers need rewriting
-    if (type.rangeType() == Binding || type.rangeType() == HandlingSignal)
-        detailsRewriter->requestDetailsForLocation(typeIndex, location);
 }
 
 const char *QmlProfilerModelManager::featureName(ProfileFeature feature)
@@ -302,8 +276,10 @@ QString QmlProfilerModelManager::findLocalFile(const QString &remoteFile)
 
 void QmlProfilerModelManager::detailsChanged(int typeId, const QString &newString)
 {
-    QTC_ASSERT(typeId < d->eventTypes.count(), return);
-    d->eventTypes[typeId].setData(newString);
+    QTC_ASSERT(typeId < numEventTypes(), return);
+    QmlEventType type = eventType(typeId);
+    type.setData(newString);
+    setEventType(typeId, std::move(type));
     emit typeDetailsChanged(typeId);
 }
 
@@ -323,11 +299,6 @@ void QmlProfilerModelManager::restrictByFilter(QmlProfilerModelManager::QmlEvent
     });
 }
 
-const Timeline::TraceEventType &QmlProfilerModelManager::lookupType(int typeIndex) const
-{
-    return eventType(typeIndex);
-}
-
 void QmlProfilerModelManager::clearEventStorage()
 {
     TimelineTraceManager::clearEventStorage();
@@ -336,17 +307,49 @@ void QmlProfilerModelManager::clearEventStorage()
         emit error(tr("Failed to reset temporary trace file"));
 }
 
-void QmlProfilerModelManager::clearTypeStorage()
+int QmlProfilerModelManager::appendEventType(QmlEventType &&type)
 {
-    TimelineTraceManager::clearTypeStorage();
-    d->eventTypes.clear();
+    type.setDisplayName(getDisplayName(type));
+    type.setData(getInitialDetails(type));
+
+    const QmlEventLocation &location = type.location();
+    if (location.isValid()) {
+        const RangeType rangeType = type.rangeType();
+        const QmlEventLocation localLocation(d->detailsRewriter->getLocalFile(location.filename()),
+                                             location.line(), location.column());
+
+        // location and type are invalid after this
+        const int typeIndex = TimelineTraceManager::appendEventType(std::move(type));
+
+        // Only bindings and signal handlers need rewriting
+        if (rangeType == Binding || rangeType == HandlingSignal)
+            d->detailsRewriter->requestDetailsForLocation(typeIndex, location);
+        d->textMarkModel->addTextMarkId(typeIndex, localLocation);
+        return typeIndex;
+    } else {
+        // There is no point in looking for invalid locations; just add the type
+        return TimelineTraceManager::appendEventType(std::move(type));
+    }
 }
 
-void QmlProfilerModelManager::addEventType(const QmlEventType &type)
+void QmlProfilerModelManager::setEventType(int typeIndex, QmlEventType &&type)
 {
-    d->addEventType(type);
-    TimelineTraceManager::addEventType(type);
+    type.setDisplayName(getDisplayName(type));
+    type.setData(getInitialDetails(type));
+
+    const QmlEventLocation &location = type.location();
+    if (location.isValid()) {
+        // Only bindings and signal handlers need rewriting
+        if (type.rangeType() == Binding || type.rangeType() == HandlingSignal)
+            d->detailsRewriter->requestDetailsForLocation(typeIndex, location);
+        d->textMarkModel->addTextMarkId(typeIndex, QmlEventLocation(
+                                            d->detailsRewriter->getLocalFile(location.filename()),
+                                            location.line(), location.column()));
+    }
+
+    TimelineTraceManager::setEventType(typeIndex, std::move(type));
 }
+
 
 void QmlProfilerModelManager::addEvent(const QmlEvent &event)
 {
@@ -440,6 +443,41 @@ QmlProfilerModelManager::rangeFilter(qint64 rangeStart, qint64 rangeEnd) const
 Timeline::TimelineTraceFile *QmlProfilerModelManager::createTraceFile()
 {
     return new Internal::QmlProfilerTraceFile(this);
+}
+
+const Timeline::TraceEventType &QmlProfilerEventTypeStorage::get(int typeId) const
+{
+    Q_ASSERT(typeId >= 0);
+    return m_types.at(static_cast<size_t>(typeId));
+}
+
+void QmlProfilerEventTypeStorage::set(int typeId, Timeline::TraceEventType &&type)
+{
+    Q_ASSERT(typeId >= 0);
+    const size_t index = static_cast<size_t>(typeId);
+    if (m_types.size() <= index)
+        m_types.resize(index + 1);
+    m_types[index] = std::move(static_cast<QmlEventType &&>(type));
+}
+
+int QmlProfilerEventTypeStorage::append(Timeline::TraceEventType &&type)
+{
+    const size_t index = m_types.size();
+    m_types.push_back(std::move(static_cast<QmlEventType &&>(type)));
+    QTC_ASSERT(index <= std::numeric_limits<int>::max(), return std::numeric_limits<int>::max());
+    return static_cast<int>(index);
+}
+
+int QmlProfilerEventTypeStorage::size() const
+{
+    const size_t size = m_types.size();
+    QTC_ASSERT(size <= std::numeric_limits<int>::max(), return std::numeric_limits<int>::max());
+    return static_cast<int>(size);
+}
+
+void QmlProfilerEventTypeStorage::clear()
+{
+    m_types.clear();
 }
 
 } // namespace QmlProfiler

@@ -33,15 +33,21 @@
 #include <QFile>
 #include <QDataStream>
 
+#include <memory>
+
 namespace Timeline {
+
+TraceEventTypeStorage::~TraceEventTypeStorage()
+{
+}
 
 class TimelineTraceManager::TimelineTraceManagerPrivate
 {
 public:
+    std::unique_ptr<TraceEventTypeStorage> typeStorage;
     TimelineNotesModel *notesModel = nullptr;
 
     int numEvents = 0;
-    int numEventTypes = 0;
     quint64 availableFeatures = 0;
     quint64 visibleFeatures = 0;
     quint64 recordedFeatures = 0;
@@ -60,9 +66,11 @@ public:
     void updateTraceTime(qint64 time);
 };
 
-TimelineTraceManager::TimelineTraceManager(QObject *parent) :
+TimelineTraceManager::TimelineTraceManager(std::unique_ptr<TraceEventTypeStorage> &&typeStorage,
+                                           QObject *parent) :
     QObject(parent), d(new TimelineTraceManagerPrivate)
 {
+    d->typeStorage = std::move(typeStorage);
 }
 
 TimelineTraceManager::~TimelineTraceManager()
@@ -87,19 +95,34 @@ int TimelineTraceManager::numEvents() const
 
 int TimelineTraceManager::numEventTypes() const
 {
-    return d->numEventTypes;
+    return d->typeStorage->size();
+}
+
+const TraceEventTypeStorage *TimelineTraceManager::typeStorage() const
+{
+    return d->typeStorage.get();
 }
 
 void TimelineTraceManager::addEvent(const TraceEvent &event)
 {
-    d->dispatch(event, lookupType(event.typeIndex()));
+    d->dispatch(event, d->typeStorage->get(event.typeIndex()));
 }
 
-void TimelineTraceManager::addEventType(const TraceEventType &type)
+const TraceEventType &TimelineTraceManager::eventType(int typeId) const
 {
-    const quint8 feature = type.feature();
-    d->recordedFeatures |= (1ull << feature);
-    ++(d->numEventTypes);
+    return d->typeStorage->get(typeId);
+}
+
+void TimelineTraceManager::setEventType(int typeId, TraceEventType &&type)
+{
+    d->recordedFeatures |= (1ull << type.feature());
+    d->typeStorage->set(typeId, std::move(type));
+}
+
+int TimelineTraceManager::appendEventType(TraceEventType &&type)
+{
+    d->recordedFeatures |= (1ull << type.feature());
+    return d->typeStorage->append(std::move(type));
 }
 
 void TimelineTraceManager::registerFeatures(quint64 features, TraceEventLoader eventLoader,
@@ -350,7 +373,7 @@ void TimelineTraceManager::clearEventStorage()
 
 void TimelineTraceManager::clearTypeStorage()
 {
-    d->numEventTypes = 0;
+    d->typeStorage->clear();
     d->recordedFeatures = 0;
 }
 

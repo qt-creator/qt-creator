@@ -229,25 +229,24 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
     QByteArray data;
     setDeviceProgress(device);
 
+    QmlProfilerModelManager *manager = modelManager();
     if (!isCanceled()) {
         stream >> data;
         buffer.setData(qUncompress(data));
         buffer.open(QIODevice::ReadOnly);
-        QVector<QmlEventType> eventTypes;
         quint32 numEventTypes;
         bufferStream >> numEventTypes;
         if (numEventTypes > quint32(std::numeric_limits<int>::max())) {
             emit error(tr("Excessive number of event types: %1").arg(numEventTypes));
             return;
         }
-        eventTypes.reserve(static_cast<int>(numEventTypes));
-        QmlEventType type;
+
         for (int typeId = 0; typeId < static_cast<int>(numEventTypes); ++typeId) {
+            QmlEventType type;
             bufferStream >> type;
-            eventTypes.append(type);
+            manager->setEventType(typeId, std::move(type));
         }
         buffer.close();
-        modelManager()->addEventTypes(eventTypes);
         setDeviceProgress(device);
     }
 
@@ -275,7 +274,7 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
                     emit error(tr("Invalid type index %1").arg(event.typeIndex()));
                     return;
                 }
-                addFeature(modelManager()->eventType(event.typeIndex()).feature());
+                addFeature(manager->eventType(event.typeIndex()).feature());
                 if (event.timestamp() < 0)
                     event.setTimestamp(0);
             } else if (bufferStream.status() == QDataStream::ReadPastEnd) {
@@ -288,7 +287,7 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
             }
             eventBuffer.append(event);
         }
-        modelManager()->addEvents(eventBuffer);
+        manager->addEvents(eventBuffer);
         eventBuffer.clear();
         buffer.close();
         setDeviceProgress(device);
@@ -297,7 +296,7 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
     if (isCanceled()) {
         emit canceled();
     } else {
-        modelManager()->addEvents(eventBuffer);
+        manager->addEvents(eventBuffer);
         emit success();
     }
 }
@@ -316,7 +315,6 @@ void QmlProfilerTraceFile::addStageProgress(QmlProfilerTraceFile::ProgressValues
 void QmlProfilerTraceFile::loadEventTypes(QXmlStreamReader &stream)
 {
     QTC_ASSERT(stream.name() == _("eventData"), return);
-    QVector<QmlEventType> eventTypes;
 
     int typeIndex = -1;
 
@@ -421,12 +419,11 @@ void QmlProfilerTraceFile::loadEventTypes(QXmlStreamReader &stream)
         case QXmlStreamReader::EndElement: {
             if (elementName == _("event")) {
                 if (typeIndex >= 0) {
-                    if (typeIndex >= eventTypes.length())
-                        eventTypes.resize(typeIndex + 1);
-                    QmlEventType type(messageAndRange.first, messageAndRange.second, detailType,
-                                      QmlEventLocation(filename, line, column), data, displayName);
-                    eventTypes[typeIndex] = type;
+                    QmlEventType type(messageAndRange.first, messageAndRange.second,
+                                      detailType, QmlEventLocation(filename, line, column),
+                                      data, displayName);
                     const quint8 feature = type.feature();
+                    modelManager()->setEventType(typeIndex, std::move(type));
                     if (feature != MaximumProfileFeature)
                         addFeature(feature);
                 }
@@ -435,7 +432,6 @@ void QmlProfilerTraceFile::loadEventTypes(QXmlStreamReader &stream)
 
             if (elementName == _("eventData")) {
                 // done reading eventData
-                modelManager()->addEventTypes(eventTypes);
                 return;
             }
             break;

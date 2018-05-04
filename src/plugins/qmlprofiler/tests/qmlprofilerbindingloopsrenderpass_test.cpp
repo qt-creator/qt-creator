@@ -50,16 +50,17 @@ DummyModel::DummyModel(QmlProfilerModelManager *manager,
 void DummyModel::loadData()
 {
     QmlEventType type(MaximumMessage, Binding);
-    modelManager()->addEventType(type);
+    const int typeIndex = modelManager()->appendEventType(QmlEventType(type));
+    QCOMPARE(typeIndex, 0);
 
     for (int i = 0; i < 10; ++i) {
-        QmlEvent event(i, 0, {});
+        QmlEvent event(i, typeIndex, {});
         event.setRangeStage(RangeStart);
         loadEvent(event, type);
     }
 
     for (int i = 10; i < 20; ++i) {
-        QmlEvent event(i, 0, {});
+        QmlEvent event(i, typeIndex, {});
         event.setRangeStage(RangeEnd);
         loadEvent(event, type);
     }
