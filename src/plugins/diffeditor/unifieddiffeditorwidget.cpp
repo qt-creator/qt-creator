@@ -284,9 +284,12 @@ void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList,
 {
     Q_UNUSED(workingDirectory)
 
+    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
+    m_controller.m_ignoreCurrentIndexChange = true;
     clear();
     m_controller.m_contextFileData = diffFileList;
     showDiff();
+    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
 }
 
 QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
