@@ -68,7 +68,7 @@ void TerminalAspect::addToConfigurationLayout(QFormLayout *layout)
     connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         m_userSet = true;
         m_useTerminal = m_checkBox->isChecked();
-        emit useTerminalChanged(m_useTerminal);
+        emit changed();
     });
 }
 
@@ -100,7 +100,7 @@ void TerminalAspect::setUseTerminal(bool useTerminal)
 {
     if (m_useTerminal != useTerminal) {
         m_useTerminal = useTerminal;
-        emit useTerminalChanged(useTerminal);
+        emit changed();
     }
     if (m_checkBox)
         m_checkBox->setChecked(m_useTerminal);

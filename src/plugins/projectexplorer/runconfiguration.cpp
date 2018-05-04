@@ -155,6 +155,11 @@ void IRunConfigurationAspect::toMap(QVariantMap &map) const
     map.insert(m_id.toString() + QLatin1String(".UseGlobalSettings"), m_useGlobalSettings);
 }
 
+void IRunConfigurationAspect::addToConfigurationLayout(QFormLayout *layout)
+{
+    Q_UNUSED(layout);
+}
+
 void IRunConfigurationAspect::setRunConfigWidgetCreator(const RunConfigWidgetCreator &runConfigWidgetCreator)
 {
     m_runConfigWidgetCreator = runConfigWidgetCreator;

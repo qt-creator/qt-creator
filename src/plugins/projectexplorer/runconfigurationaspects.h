@@ -50,7 +50,7 @@ public:
     TerminalAspect(RunConfiguration *rc, const QString &settingsKey,
                    bool useTerminal = false);
 
-    void addToConfigurationLayout(QFormLayout *layout);
+    void addToConfigurationLayout(QFormLayout *layout) override;
 
     bool useTerminal() const;
     void setUseTerminal(bool useTerminal);
@@ -59,9 +59,6 @@ public:
     void setRunMode(ApplicationLauncher::Mode runMode);
 
     bool isUserSet() const;
-
-signals:
-    void useTerminalChanged(bool);
 
 private:
     void fromMap(const QVariantMap &map) override;
@@ -80,7 +77,7 @@ public:
     explicit WorkingDirectoryAspect(RunConfiguration *runConfig,
                                     const QString &settingsKey = QString());
 
-    void addToConfigurationLayout(QFormLayout *layout);
+    void addToConfigurationLayout(QFormLayout *layout) override;
 
     Utils::FileName workingDirectory() const;
     Utils::FileName defaultWorkingDirectory() const;
@@ -108,7 +105,7 @@ class PROJECTEXPLORER_EXPORT ArgumentsAspect : public IRunConfigurationAspect
 public:
     explicit ArgumentsAspect(RunConfiguration *runConfig, const QString &settingsKey = QString());
 
-    void addToConfigurationLayout(QFormLayout *layout);
+    void addToConfigurationLayout(QFormLayout *layout) override;
 
     QString arguments() const;
     QString unexpandedArguments() const;
@@ -134,7 +131,7 @@ public:
     explicit BaseBoolAspect(RunConfiguration *rc, const QString &settingsKey = QString());
     ~BaseBoolAspect() override;
 
-    void addToConfigurationLayout(QFormLayout *layout);
+    void addToConfigurationLayout(QFormLayout *layout) override;
 
     bool value() const;
     void setValue(bool val);
@@ -143,9 +140,6 @@ public:
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
-
-signals:
-    void changed();
 
 private:
     bool m_value = false;
@@ -177,7 +171,7 @@ public:
     explicit BaseStringAspect(RunConfiguration *rc);
     ~BaseStringAspect() override;
 
-    void addToConfigurationLayout(QFormLayout *layout);
+    void addToConfigurationLayout(QFormLayout *layout) override;
 
     QString value() const;
     void setValue(const QString &val);
@@ -202,9 +196,6 @@ public:
 
     Utils::FileName fileName() const;
     void setFileName(const Utils::FileName &val);
-
-signals:
-    void changed();
 
 private:
     void update();
@@ -238,7 +229,7 @@ public:
 
     void setSettingsKey(const QString &key);
     void makeOverridable(const QString &overridingKey, const QString &useOverridableKey);
-    void addToConfigurationLayout(QFormLayout *layout);
+    void addToConfigurationLayout(QFormLayout *layout) override;
     void setLabelText(const QString &labelText);
     void setPlaceHolderText(const QString &placeHolderText);
     void setExecutablePathStyle(Utils::OsType osType);
@@ -246,9 +237,6 @@ public:
     void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
     void setEnvironment(const Utils::Environment &env);
     void setDisplayStyle(BaseStringAspect::DisplayStyle style);
-
-signals:
-    void changed();
 
 protected:
     void fromMap(const QVariantMap &map) override;

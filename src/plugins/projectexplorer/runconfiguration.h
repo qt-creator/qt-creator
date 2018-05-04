@@ -134,6 +134,11 @@ public:
     ISettingsAspect *currentSettings() const;
     RunConfiguration *runConfiguration() const { return m_runConfiguration; }
 
+    virtual void addToConfigurationLayout(QFormLayout *layout);
+
+signals:
+    void changed();
+
 protected:
     friend class RunConfiguration;
     virtual void fromMap(const QVariantMap &map);
