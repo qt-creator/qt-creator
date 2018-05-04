@@ -177,3 +177,13 @@ def is_debug(path, filenames):
 def is_not_debug(path, filenames):
     files = [fn for fn in filenames if os.path.isfile(os.path.join(path, fn))]
     return [fn for fn in files if not is_debug_file(os.path.join(path, fn))]
+
+def codesign(app_path):
+    signing_identity = os.environ.get('SIGNING_IDENTITY')
+    if is_mac_platform() and signing_identity:
+        codesign_call = ['codesign', '--force', '--deep', '-s', signing_identity, '-v']
+        signing_flags = os.environ.get('SIGNING_FLAGS')
+        if signing_flags:
+            codesign_call.extend(signing_flags.split())
+        codesign_call.append(app_path)
+        subprocess.check_call(codesign_call)
