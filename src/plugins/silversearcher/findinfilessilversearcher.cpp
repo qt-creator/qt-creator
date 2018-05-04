@@ -113,7 +113,7 @@ void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
     arguments << "-G" << nameFiltersAsRegex;
 
     const FileName path = FileName::fromUserInput(FileUtils::normalizePathName(directory));
-    arguments << "-- " << parameters.text << path.toString();
+    arguments << "--" << parameters.text << path.toString();
 
     QProcess process;
     process.start("ag", arguments);
