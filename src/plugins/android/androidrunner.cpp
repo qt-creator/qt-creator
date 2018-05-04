@@ -26,6 +26,7 @@
 
 #include "androidrunner.h"
 
+#include "androidconstants.h"
 #include "androiddeployqtstep.h"
 #include "androidconfigurations.h"
 #include "androidrunconfiguration.h"
@@ -36,6 +37,7 @@
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <utils/url.h>
 
@@ -135,13 +137,17 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
     m_androidRunnable.deviceSerialNumber = AndroidManager::deviceSerialNumber(m_target);
     m_androidRunnable.apiLevel = AndroidManager::deviceApiLevel(m_target);
 
-    if (auto androidRunConfig = qobject_cast<AndroidRunConfiguration *>(
-                runControl->runConfiguration())) {
-        m_androidRunnable.amStartExtraArgs = androidRunConfig->amStartExtraArgs();
-        for (QString shellCmd: androidRunConfig->preStartShellCommands())
-            m_androidRunnable.beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
+    RunConfiguration *rc = runControl->runConfiguration();
+    if (auto aspect = rc->extraAspect(Constants::ANDROID_AMSTARTARGS_ASPECT))
+        m_androidRunnable.amStartExtraArgs = static_cast<BaseStringAspect *>(aspect)->value().split(' ');
 
-        for (QString shellCmd: androidRunConfig->postFinishShellCommands())
+    if (auto aspect = rc->extraAspect(Constants::ANDROID_PRESTARTSHELLCMDLIST_ASPECT)) {
+        for (QString shellCmd : static_cast<BaseStringListAspect *>(aspect)->value())
+            m_androidRunnable.beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
+    }
+
+    if (auto aspect = rc->extraAspect(Constants::ANDROID_POSTSTARTSHELLCMDLIST_ASPECT)) {
+        for (QString shellCmd : static_cast<BaseStringListAspect *>(aspect)->value())
             m_androidRunnable.afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
 

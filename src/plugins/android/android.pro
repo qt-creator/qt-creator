@@ -50,7 +50,6 @@ HEADERS += \
     androidtoolmanager.h \
     androidsdkmanager.h \
     androidavdmanager.h \
-    androidrunconfigurationwidget.h \
     adbcommandswidget.h \
     androidsdkpackage.h \
     androidsdkmodel.h \
@@ -99,7 +98,6 @@ SOURCES += \
     androidtoolmanager.cpp \
     androidsdkmanager.cpp \
     androidavdmanager.cpp \
-    androidrunconfigurationwidget.cpp \
     adbcommandswidget.cpp \
     androidsdkpackage.cpp \
     androidsdkmodel.cpp \
@@ -113,7 +111,6 @@ FORMS += \
     androiddevicedialog.ui \
     androiddeployqtwidget.ui \
     androidbuildapkwidget.ui \
-    androidrunconfigurationwidget.ui \
     adbcommandswidget.ui \
     androidsdkmanagerwidget.ui
 

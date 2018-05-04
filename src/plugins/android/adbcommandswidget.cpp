@@ -54,7 +54,7 @@ static void swapData(QStringListModel *model, const QModelIndex &srcIndex,
 class AdbCommandsWidgetPrivate
 {
 public:
-    AdbCommandsWidgetPrivate(const AdbCommandsWidget &parent, QWidget *parentWidget);
+    AdbCommandsWidgetPrivate(AdbCommandsWidget *parent);
     ~AdbCommandsWidgetPrivate();
 
 private:
@@ -65,16 +65,15 @@ private:
     void onRemove();
     void onCurrentIndexChanged(const QModelIndex &newIndex, const QModelIndex &prevIndex);
 
-    const AdbCommandsWidget &m_parent;
-    QGroupBox *m_rootWidget = nullptr;
+    AdbCommandsWidget *q;
     Ui::AdbCommandsWidget *m_ui = nullptr;
     QStringListModel *m_stringModel = nullptr;
     friend class AdbCommandsWidget;
 };
 
 AdbCommandsWidget::AdbCommandsWidget(QWidget *parent) :
-    QObject(parent),
-    d(new AdbCommandsWidgetPrivate(*this, parent))
+    QGroupBox(parent),
+    d(new AdbCommandsWidgetPrivate(this))
 {
 }
 
@@ -87,14 +86,9 @@ QStringList AdbCommandsWidget::commandsList() const
     return d->m_stringModel->stringList();
 }
 
-QWidget *AdbCommandsWidget::widget() const
-{
-    return d->m_rootWidget;
-}
-
 void AdbCommandsWidget::setTitleText(const QString &title)
 {
-    d->m_rootWidget->setTitle(title);
+    setTitle(title);
 }
 
 void AdbCommandsWidget::setCommandList(const QStringList &commands)
@@ -102,14 +96,12 @@ void AdbCommandsWidget::setCommandList(const QStringList &commands)
     d->m_stringModel->setStringList(commands);
 }
 
-AdbCommandsWidgetPrivate::AdbCommandsWidgetPrivate(const AdbCommandsWidget &parent,
-                                                   QWidget *parentWidget):
-    m_parent(parent),
-    m_rootWidget(new QGroupBox(parentWidget)),
+AdbCommandsWidgetPrivate::AdbCommandsWidgetPrivate(AdbCommandsWidget *q):
+    q(q),
     m_ui(new Ui::AdbCommandsWidget),
     m_stringModel(new QStringListModel)
 {
-    m_ui->setupUi(m_rootWidget);
+    m_ui->setupUi(q);
     m_ui->addButton->setIcon(Utils::Icons::PLUS.icon());
     m_ui->removeButton->setIcon(Utils::Icons::MINUS.icon());
     m_ui->moveUpButton->setIcon(Utils::Icons::ARROW_UP.icon());
@@ -131,9 +123,9 @@ AdbCommandsWidgetPrivate::AdbCommandsWidgetPrivate(const AdbCommandsWidget &pare
 
     m_ui->commandsView->setModel(m_stringModel);
     QObject::connect(m_stringModel, &QStringListModel::dataChanged,
-                     &m_parent, &AdbCommandsWidget::commandsChanged);
+                     q, &AdbCommandsWidget::commandsChanged);
     QObject::connect(m_stringModel, &QStringListModel::rowsRemoved,
-                     &m_parent, &AdbCommandsWidget::commandsChanged);
+                     q, &AdbCommandsWidget::commandsChanged);
     QObject::connect(m_ui->commandsView->selectionModel(), &QItemSelectionModel::currentChanged,
                      std::bind(&AdbCommandsWidgetPrivate::onCurrentIndexChanged, this, _1, _2));
 }
