@@ -157,16 +157,13 @@ def getQtInformationForBuildSettings(kitCount, alreadyOnProjectsBuildSettings=Fa
 
     qmakeCallLabel = waitForObject("{text?='<b>qmake:</b> qmake*' type='QLabel' unnamed='1' visible='1' "
                                    "window=':Qt Creator_Core::Internal::MainWindow'}")
-    mkspec = __getMkspecFromQMakeCall__(str(qmakeCallLabel.text))
-    qtVersion = getQtInformationByQMakeCall(qtDir, QtInformation.QT_VERSION)
-    qtLibPath = getQtInformationByQMakeCall(qtDir, QtInformation.QT_LIBPATH)
-    qtBinPath = getQtInformationByQMakeCall(qtDir, QtInformation.QT_BINPATH)
+    qtVersion = getQtInformationByQMakeCall(qtDir)
     if afterSwitchTo:
         if ViewConstants.FIRST_AVAILABLE <= afterSwitchTo <= ViewConstants.LAST_AVAILABLE:
             switchViewTo(afterSwitchTo)
         else:
             test.warning("Don't know where you trying to switch to (%s)" % afterSwitchTo)
-    return qtVersion, mkspec, qtBinPath, qtLibPath
+    return qtVersion
 
 def getQtInformationForQmlProject():
     fancyToolButton = waitForObject(":*Qt Creator_Core::Internal::FancyToolButton")
@@ -240,20 +237,10 @@ def getExecutableAndTargetFromToolTip(toolTip):
         return None, target
     return exe.group(1).strip(), target
 
-def __getMkspecFromQMakeCall__(qmakeCall):
-    qCall = qmakeCall.split("</b>")[1].strip()
-    tmp = qCall.split()
-    for i in range(len(tmp)):
-        if tmp[i] == '-spec' and i + 1 < len(tmp):
-            return tmp[i + 1]
-    test.fatal("Couldn't get mkspec from qmake call '%s'" % qmakeCall)
-    return None
-
-# this function queries information from qmake
+# this function queries the version number from qmake
 # param qtDir set this to a path that holds a valid Qt
-# param which set this to one of the QtInformation "constants"
 # the function will return the wanted information or None if something went wrong
-def getQtInformationByQMakeCall(qtDir, which):
+def getQtInformationByQMakeCall(qtDir):
     qmake = os.path.join(qtDir, "bin", "qmake")
     if platform.system() in ('Microsoft', 'Windows'):
         qmake += ".exe"
@@ -261,17 +248,7 @@ def getQtInformationByQMakeCall(qtDir, which):
         test.fatal("Given Qt directory does not exist or does not contain bin/qmake.",
                    "Constructed path: '%s'" % qmake)
         return None
-    query = ""
-    if which == QtInformation.QT_VERSION:
-        query = "QT_VERSION"
-    elif which == QtInformation.QT_BINPATH:
-        query = "QT_INSTALL_BINS"
-    elif which == QtInformation.QT_LIBPATH:
-        query = "QT_INSTALL_LIBS"
-    else:
-        test.fatal("You're trying to fetch an unknown information (%s)" % which)
-        return None
-    return getOutputFromCmdline([qmake, "-query", query]).strip()
+    return getOutputFromCmdline([qmake, "-query", "QT_VERSION"]).strip()
 
 def invokeContextMenuOnProject(projectName, menuItem):
     try:

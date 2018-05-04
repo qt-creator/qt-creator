@@ -67,7 +67,7 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
         # switching from MSVC to MinGW build will fail on the clean step of 'Rebuild All' because
         # of differences between MSVC's and MinGW's Makefile (so clean before switching kits)
         invokeMenuItem('Build', 'Clean Project "%s"' % projectName)
-        qtVersion = verifyBuildConfig(targetCount, kit, config, True, True, True)[0]
+        qtVersion = verifyBuildConfig(targetCount, kit, config, True, True, True)
         test.log("Selected kit using Qt %s" % qtVersion)
         # explicitly build before start debugging for adding the executable as allowed program to WinFW
         invokeMenuItem("Build", "Rebuild All")
