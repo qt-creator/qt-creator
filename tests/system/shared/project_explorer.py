@@ -165,54 +165,6 @@ def getQtInformationForBuildSettings(kitCount, alreadyOnProjectsBuildSettings=Fa
             test.warning("Don't know where you trying to switch to (%s)" % afterSwitchTo)
     return qtVersion
 
-def getQtInformationForQmlProject():
-    fancyToolButton = waitForObject(":*Qt Creator_Core::Internal::FancyToolButton")
-    kit = __getTargetFromToolTip__(str(fancyToolButton.toolTip))
-    if not kit:
-        test.fatal("Could not figure out which kit you're using...")
-        return None
-    test.log("Searching for Qt information for kit '%s'" % kit)
-    invokeMenuItem("Tools", "Options...")
-    waitForObjectItem(":Options_QListView", "Build & Run")
-    clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
-    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Kits")
-    targetsTreeView = waitForObject(":BuildAndRun_QTreeView")
-    if not __selectTreeItemOnBuildAndRun__(targetsTreeView, "%s(\s\(default\))?" % kit, True):
-        test.fatal("Found no matching kit - this shouldn't happen.")
-        clickButton(waitForObject(":Options.Cancel_QPushButton"))
-        return None
-    qtVersionStr = str(waitForObject(":Kits_QtVersion_QComboBox").currentText)
-    test.log("Kit '%s' uses Qt Version '%s'" % (kit, qtVersionStr))
-    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
-    treeView = waitForObject(":qtdirList_QTreeView")
-    if not __selectTreeItemOnBuildAndRun__(treeView, qtVersionStr):
-        test.fatal("Found no matching Qt Version for kit - this shouldn't happen.")
-        clickButton(waitForObject(":Options.Cancel_QPushButton"))
-        return None
-    qmake = str(waitForObject(":QtSupport__Internal__QtVersionManager.qmake_QLabel").text)
-    test.log("Qt Version '%s' uses qmake at '%s'" % (qtVersionStr, qmake))
-    clickButton(waitForObject(":Options.Cancel_QPushButton"))
-    return qmake
-
-def __selectTreeItemOnBuildAndRun__(treeViewOrWidget, itemText, isRegex=False):
-    model = treeViewOrWidget.model()
-    test.compare(model.rowCount(), 2, "Verifying expected section count")
-    autoDetected = model.index(0, 0)
-    test.compare(autoDetected.data().toString(), "Auto-detected", "Verifying label for section")
-    manual = model.index(1, 0)
-    test.compare(manual.data().toString(), "Manual", "Verifying label for section")
-    if isRegex:
-        pattern = re.compile(itemText)
-    for section in [autoDetected, manual]:
-        for dumpedItem in dumpItems(model, section):
-            if (isRegex and pattern.match(dumpedItem)
-                or itemText == dumpedItem):
-                item = ".".join([str(section.data().toString()),
-                                 dumpedItem.replace(".", "\\.").replace("_", "\\_")])
-                clickItem(treeViewOrWidget, item, 5, 5, 0, Qt.LeftButton)
-                return True
-    return False
-
 def __getTargetFromToolTip__(toolTip):
     if toolTip == None or not isinstance(toolTip, (str, unicode)):
         test.warning("Parameter toolTip must be of type str or unicode and can't be None!")

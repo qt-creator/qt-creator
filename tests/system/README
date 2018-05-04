@@ -76,8 +76,8 @@ Attention! If any of these prerequisites cannot be satisfied the tests will like
 
 Prerequisites - debugging and analyzing
 -----------------------------------------
-In some tests, Creator needs to read data from an application it started.
-On Windows, those have the following prerequisites:
+In tst_simple_debug from suite_debbugger, Creator needs to read data from an application it
+started. On Windows, this has the following prerequisites:
 Either:
     * have no firewall at all enabled (sure that's a bad idea)
 Or:

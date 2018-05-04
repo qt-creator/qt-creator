@@ -75,13 +75,6 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
         if not checkCompile():
             test.fatal("Compile had errors... Skipping current build config")
             continue
-        if platform.system() in ('Microsoft' 'Windows'):
-            switchViewTo(ViewConstants.PROJECTS)
-            switchToBuildOrRunSettingsFor(targetCount, kit, ProjectSettings.BUILD)
-            buildDir = os.path.join(str(waitForObject(":Qt Creator_Utils::BuildDirectoryLineEdit").text),
-                                    "debug")
-            switchViewTo(ViewConstants.EDIT)
-            allowAppThroughWinFW(buildDir, projectName, None)
         switchViewTo(ViewConstants.DEBUG)
         selectFromCombo(":Analyzer Toolbar.AnalyzerManagerToolBox_QComboBox", "QML Profiler")
         recordButton = waitForObject("{container=':DebugModeWidget.Toolbar_QDockWidget' "
@@ -131,8 +124,6 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
                 elif str(model.index(row, colCalls).data()) == "2":
                     test.compare(model.index(row, colMedian).data(), model.index(row, colLongest).data(),
                                  "For two calls, median and longest time must be the same.")
-        if platform.system() in ('Microsoft' 'Windows'):
-            deleteAppFromWinFW(buildDir, projectName, None)
         progressBarWait(15000, False)   # wait for "Build" progressbar to disappear
         clickButton(waitForObject(":Analyzer Toolbar.Clear_QToolButton"))
         test.verify(waitFor("model.rowCount() == 0", 3000), "Analyzer results cleared.")
