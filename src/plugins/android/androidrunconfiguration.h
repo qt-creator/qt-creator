@@ -41,6 +41,7 @@ public:
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
+    QString disabledReason() const override;
 
     const QStringList &amStartExtraArgs() const;
     const QStringList &preStartShellCommands() const;
@@ -51,6 +52,7 @@ private:
     void setPreStartShellCommands(const QStringList &cmdList);
     void setPostFinishShellCommands(const QStringList &cmdList);
     void setAmStartExtraArgs(const QStringList &args);
+    void updateTargetInformation();
 
     QStringList m_amStartExtraArgs;
     QStringList m_preStartShellCommands;

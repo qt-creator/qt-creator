@@ -25,12 +25,13 @@
 ****************************************************************************/
 
 #include "androidextralibrarylistmodel.h"
-#include "qmakeandroidrunconfiguration.h"
 
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
+
 #include <proparser/prowriter.h>
 
 
@@ -114,11 +115,10 @@ void AndroidExtraLibraryListModel::activeRunConfigurationChanged()
 QmakeProjectManager::QmakeProFile *AndroidExtraLibraryListModel::activeProFile() const
 {
     ProjectExplorer::RunConfiguration *rc = m_target->activeRunConfiguration();
-    QmakeAndroidRunConfiguration *qarc = qobject_cast<QmakeAndroidRunConfiguration *>(rc);
-    if (!qarc)
-        return 0;
+    if (!rc)
+        return nullptr;
     auto project = static_cast<QmakeProject *>(m_target->project());
-    return project->rootProFile()->findProFile(qarc->proFilePath());
+    return project->rootProFile()->findProFile(Utils::FileName::fromString(rc->buildKey()));
 }
 
 void AndroidExtraLibraryListModel::proFileUpdated(QmakeProjectManager::QmakeProFile *pro)

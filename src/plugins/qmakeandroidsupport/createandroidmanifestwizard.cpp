@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "createandroidmanifestwizard.h"
-#include "qmakeandroidrunconfiguration.h"
 
 #include <android/androidconfigurations.h>
 #include <android/androidmanager.h>
@@ -32,6 +31,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
 #include <qmakeprojectmanager/qmakeproject.h>
@@ -206,9 +206,8 @@ CreateAndroidManifestWizard::CreateAndroidManifestWizard(ProjectExplorer::Target
     m_copyGradle = version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
 
     const QmakeProFile *currentRunNode = nullptr;
-    ProjectExplorer::RunConfiguration *rc = target->activeRunConfiguration();
-    if (auto qrc = qobject_cast<QmakeAndroidRunConfiguration *>(rc))
-        currentRunNode = project->rootProFile()->findProFile(qrc->proFilePath());
+    if (ProjectExplorer::RunConfiguration *rc = target->activeRunConfiguration())
+        currentRunNode = project->rootProFile()->findProFile(FileName::fromString(rc->buildKey()));
 
     if (files.isEmpty()) {
         // oh uhm can't create anything

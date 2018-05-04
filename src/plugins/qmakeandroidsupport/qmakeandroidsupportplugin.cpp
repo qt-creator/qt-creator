@@ -27,11 +27,31 @@
 
 #include "androidqmakebuildconfigurationfactory.h"
 #include "qmakeandroidbuildapkstep.h"
-#include "qmakeandroidrunconfiguration.h"
 #include "qmakeandroidsupport.h"
+
+#include <android/androidconstants.h>
+#include <android/androidrunconfiguration.h>
+
+#include <projectexplorer/runconfiguration.h>
+
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
+
+using namespace ProjectExplorer;
 
 namespace QmakeAndroidSupport {
 namespace Internal {
+
+class QmakeAndroidRunConfigurationFactory : public RunConfigurationFactory
+{
+public:
+    QmakeAndroidRunConfigurationFactory()
+    {
+        registerRunConfiguration<Android::AndroidRunConfiguration>
+                ("Qt4ProjectManager.AndroidRunConfiguration:");
+        addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
+        addSupportedTargetDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
+    }
+};
 
 class QmakeAndroidSupportPluginPrivate
 {

@@ -26,7 +26,6 @@
 
 #include "qmakeandroidbuildapkstep.h"
 #include "qmakeandroidbuildapkwidget.h"
-#include "qmakeandroidrunconfiguration.h"
 
 #include <android/androidconfigurations.h>
 #include <android/androidconstants.h>
@@ -45,8 +44,6 @@
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <utils/qtcprocess.h>
-
-#include <QHBoxLayout>
 
 using namespace Android;
 using QmakeProjectManager::QmakeProject;
@@ -80,8 +77,8 @@ QmakeAndroidBuildApkStep::QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepLis
 Utils::FileName QmakeAndroidBuildApkStep::proFilePathForInputFile() const
 {
     ProjectExplorer::RunConfiguration *rc = target()->activeRunConfiguration();
-    if (auto *arc = qobject_cast<QmakeAndroidRunConfiguration *>(rc))
-        return arc->proFilePath();
+    if (rc)
+        return Utils::FileName::fromString(rc->buildKey());
     return Utils::FileName();
 }
 
