@@ -31,12 +31,8 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/runnables.h>
 
 #include <utils/detailswidget.h>
-
-#include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <QFormLayout>
 
@@ -46,17 +42,15 @@ using namespace Utils;
 namespace WinRt {
 namespace Internal {
 
-class UninstallAfterStopAspect : public BaseBoolAspect
-{
-    Q_OBJECT
-public:
-    UninstallAfterStopAspect(RunConfiguration *rc)
-        : BaseBoolAspect(rc, "WinRtRunConfigurationUninstallAfterStopId")
-    {
-        setLabel(WinRtRunConfiguration::tr("Uninstall package after application stops"));
-    }
-};
+// UninstallAfterStopAspect
 
+UninstallAfterStopAspect::UninstallAfterStopAspect(RunConfiguration *rc)
+    : BaseBoolAspect(rc, "WinRtRunConfigurationUninstallAfterStopId")
+{
+    setLabel(WinRtRunConfiguration::tr("Uninstall package after application stops"));
+}
+
+// WinRtRunConfiguration
 
 WinRtRunConfiguration::WinRtRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
@@ -82,67 +76,11 @@ QWidget *WinRtRunConfiguration::createConfigurationWidget()
     return detailsWidget;
 }
 
-bool WinRtRunConfiguration::uninstallAfterStop() const
-{
-    return extraAspect<UninstallAfterStopAspect>()->value();
-}
-
-QString WinRtRunConfiguration::proFilePath() const
-{
-    return buildKey();
-}
-
-QString WinRtRunConfiguration::arguments() const
-{
-    return extraAspect<ProjectExplorer::ArgumentsAspect>()->arguments();
-}
-
-ProjectExplorer::Runnable WinRtRunConfiguration::runnable() const
-{
-    ProjectExplorer::StandardRunnable r;
-    r.executable = executable();
-    r.commandLineArguments = arguments();
-    return r;
-}
-
-QString WinRtRunConfiguration::executable() const
-{
-    QmakeProjectManager::QmakeProject *project
-            = static_cast<QmakeProjectManager::QmakeProject *>(target()->project());
-    if (!project)
-        return QString();
-
-    QmakeProjectManager::QmakeProFile *rootProFile = project->rootProFile();
-    if (!rootProFile)
-        return QString();
-
-    const QmakeProjectManager::QmakeProFile *pro
-            = rootProFile->findProFile(Utils::FileName::fromString(proFilePath()));
-    if (!pro)
-        return QString();
-
-    QmakeProjectManager::TargetInformation ti = pro->targetInformation();
-    if (!ti.valid)
-        return QString();
-
-    QString destDir = ti.destDir.toString();
-    if (destDir.isEmpty())
-        destDir = ti.buildDir.toString();
-    else if (QDir::isRelativePath(destDir))
-        destDir = QDir::cleanPath(ti.buildDir.toString() + '/' + destDir);
-
-    QString executable = QDir::cleanPath(destDir + '/' + ti.target);
-    executable = Utils::HostOsInfo::withExecutableSuffix(executable);
-    return executable;
-}
-
-
 // WinRtRunConfigurationFactory
 
 WinRtRunConfigurationFactory::WinRtRunConfigurationFactory()
 {
     registerRunConfiguration<WinRtRunConfiguration>("WinRt.WinRtRunConfiguration:");
-    addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     addSupportedTargetDeviceType(Constants::WINRT_DEVICE_TYPE_LOCAL);
     addSupportedTargetDeviceType(Constants::WINRT_DEVICE_TYPE_PHONE);
     addSupportedTargetDeviceType(Constants::WINRT_DEVICE_TYPE_EMULATOR);
@@ -150,5 +88,3 @@ WinRtRunConfigurationFactory::WinRtRunConfigurationFactory()
 
 } // namespace Internal
 } // namespace WinRt
-
-#include "winrtrunconfiguration.moc"

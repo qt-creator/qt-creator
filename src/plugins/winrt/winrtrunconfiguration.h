@@ -30,6 +30,14 @@
 namespace WinRt {
 namespace Internal {
 
+class UninstallAfterStopAspect : public ProjectExplorer::BaseBoolAspect
+{
+    Q_OBJECT
+
+public:
+    UninstallAfterStopAspect(ProjectExplorer::RunConfiguration *rc);
+};
+
 class WinRtRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
@@ -38,15 +46,6 @@ public:
     WinRtRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     QWidget *createConfigurationWidget() override;
-
-    QString proFilePath() const;
-    QString arguments() const;
-    bool uninstallAfterStop() const;
-
-    ProjectExplorer::Runnable runnable() const override;
-
-private:
-    QString executable() const;
 };
 
 class WinRtRunConfigurationFactory  : public ProjectExplorer::RunConfigurationFactory
