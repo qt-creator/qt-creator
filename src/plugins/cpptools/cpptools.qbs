@@ -48,6 +48,8 @@ Project {
             "clangdiagnosticconfig.h",
             "clangdiagnosticconfigsmodel.cpp",
             "clangdiagnosticconfigsmodel.h",
+            "clangdiagnosticconfigsselectionwidget.cpp",
+            "clangdiagnosticconfigsselectionwidget.h",
             "clangdiagnosticconfigswidget.cpp",
             "clangdiagnosticconfigswidget.h",
             "clangdiagnosticconfigswidget.ui",

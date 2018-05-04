@@ -25,59 +25,34 @@
 
 #pragma once
 
-#include "cppcodemodelsettings.h"
+#include "cpptools_global.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include "clangdiagnosticconfigsmodel.h"
 
-#include <QPointer>
-#include <QWidget>
-
-QT_FORWARD_DECLARE_CLASS(QComboBox)
-QT_FORWARD_DECLARE_CLASS(QSettings)
+#include <QComboBox>
 
 namespace CppTools {
 
-namespace Internal {
-
-namespace Ui { class CppCodeModelSettingsPage; }
-
-class CppCodeModelSettingsWidget: public QWidget
+class CPPTOOLS_EXPORT ClangDiagnosticConfigsSelectionWidget : public QComboBox
 {
     Q_OBJECT
 
 public:
-    explicit CppCodeModelSettingsWidget(QWidget *parent = 0);
-    ~CppCodeModelSettingsWidget() override;
+    explicit ClangDiagnosticConfigsSelectionWidget(QWidget *parent = nullptr);
 
-    void setSettings(const QSharedPointer<CppCodeModelSettings> &s);
-    void applyToSettings() const;
+    Core::Id currentConfigId() const;
 
-private:
-    void setupGeneralWidgets();
-    void setupClangCodeModelWidgets();
+    void refresh(Core::Id id);
 
-    bool applyGeneralWidgetsToSettings() const;
-    bool applyClangCodeModelWidgetsToSettings() const;
+signals:
+    void currentConfigChanged(const Core::Id &currentConfigId);
 
 private:
-    Ui::CppCodeModelSettingsPage *m_ui = nullptr;
-    QSharedPointer<CppCodeModelSettings> m_settings;
+    void connectToCurrentIndexChanged();
+    void disconnectFromCurrentIndexChanged();
+
+    QMetaObject::Connection m_currentIndexChangedConnection;
+    ClangDiagnosticConfigsModel m_diagnosticConfigsModel;
 };
 
-class CppCodeModelSettingsPage: public Core::IOptionsPage
-{
-public:
-    explicit CppCodeModelSettingsPage(QSharedPointer<CppCodeModelSettings> &settings,
-                                      QObject *parent = 0);
-
-    QWidget *widget();
-    void apply();
-    void finish();
-
-private:
-    const QSharedPointer<CppCodeModelSettings> m_settings;
-    QPointer<CppCodeModelSettingsWidget> m_widget;
-};
-
-} // Internal namespace
 } // CppTools namespace

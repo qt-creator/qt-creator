@@ -13,6 +13,7 @@ HEADERS += \
     builtinindexingsupport.h \
     clangdiagnosticconfig.h \
     clangdiagnosticconfigsmodel.h \
+    clangdiagnosticconfigsselectionwidget.h \
     clangdiagnosticconfigswidget.h \
     cppcanonicalsymbol.h \
     cppchecksymbols.h \
@@ -111,6 +112,7 @@ SOURCES += \
     builtinindexingsupport.cpp \
     clangdiagnosticconfig.cpp \
     clangdiagnosticconfigsmodel.cpp \
+    clangdiagnosticconfigsselectionwidget.cpp \
     clangdiagnosticconfigswidget.cpp \
     cppcanonicalsymbol.cpp \
     cppchecksymbols.cpp \
@@ -184,7 +186,7 @@ SOURCES += \
     compileroptionsbuilder.cpp \
     cppprojectfilecategorizer.cpp \
     cppprojectpartchooser.cpp \
-    wrappablelineedit.cpp \
+    wrappablelineedit.cpp
 
 FORMS += \
     clangdiagnosticconfigswidget.ui \

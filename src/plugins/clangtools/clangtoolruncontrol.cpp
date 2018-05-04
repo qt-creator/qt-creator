@@ -274,7 +274,7 @@ void ClangToolRunControl::start()
 
     const QString &toolName = tool()->name();
     if (m_clangExecutable.isEmpty()) {
-        const QString errorMessage = tr("%1 : Can't find clang executable, stop.").arg(toolName);
+        const QString errorMessage = tr("%1: Can't find clang executable, stop.").arg(toolName);
         appendMessage(errorMessage, Utils::ErrorMessageFormat);
         TaskHub::addTask(Task::Error, errorMessage, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();

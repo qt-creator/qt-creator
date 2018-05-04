@@ -29,12 +29,9 @@
 
 #include "clangprojectsettings.h"
 
-#include <cpptools/clangdiagnosticconfigsmodel.h>
-
 #include <QPointer>
 
 namespace ProjectExplorer { class Project; }
-namespace CppTools { class ClangDiagnosticConfigsWidget; }
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -48,19 +45,16 @@ public:
 
 private:
     void onCurrentWarningConfigChanged(const Core::Id &currentConfigId);
-    void onCustomWarningConfigsChanged(const CppTools::ClangDiagnosticConfigs &customConfigs);
     void onDelayedTemplateParseClicked(bool);
     void onClangSettingsChanged(int index);
     void onAboutToSaveProjectSettings();
-    void refreshDiagnosticConfigsWidgetFromSettings();
-    void connectToCppCodeModelSettingsChanged();
-    void disconnectFromCppCodeModelSettingsChanged();
     void syncOtherWidgetsToComboBox();
+
+    void refreshDiagnosticConfigsWidgetFromSettings();
 
 private:
     Ui::ClangProjectSettingsWidget m_ui;
     ClangProjectSettings &m_projectSettings;
-    QPointer<CppTools::ClangDiagnosticConfigsWidget> m_diagnosticConfigWidget;
 };
 
 } // namespace Internal
