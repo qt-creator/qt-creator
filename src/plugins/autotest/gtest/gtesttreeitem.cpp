@@ -268,6 +268,39 @@ QList<TestConfiguration *> GTestTreeItem::getSelectedTestConfigurations() const
     return getTestConfigurations(false);
 }
 
+QList<TestConfiguration *> GTestTreeItem::getTestConfigurationsForFile(const Utils::FileName &fileName) const
+{
+    QList<TestConfiguration *> result;
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    if (!project || type() != Root)
+        return result;
+
+    QHash<QString, TestCases> testCases;
+    const QString &file = fileName.toString();
+    forAllChildren([&testCases, &file](TestTreeItem *node) {
+        if (node->type() == Type::TestFunctionOrSet && node->filePath() == file) {
+            QTC_ASSERT(node->parentItem(), return);
+            const GTestTreeItem *testCase = static_cast<GTestTreeItem *>(node->parentItem());
+            QTC_ASSERT(testCase->type() == Type::TestCase, return);
+            TestCases &cases = testCases[testCase->proFile()];
+            cases.filters.append(
+                        gtestFilter(testCase->state()).arg(testCase->name(), node->name()));
+            cases.internalTargets.unite(node->internalTargets());
+        }
+    });
+    for (auto it = testCases.begin(), end = testCases.end(); it != end; ++it) {
+        for (const QString &target : qAsConst(it.value().internalTargets)) {
+            GTestConfiguration *tc = new GTestConfiguration;
+            tc->setTestCases(it.value().filters);
+            tc->setProjectFile(it.key());
+            tc->setProject(project);
+            tc->setInternalTarget(target);
+            result << tc;
+        }
+    }
+    return result;
+}
+
 TestTreeItem *GTestTreeItem::find(const TestParseResult *result)
 {
     QTC_ASSERT(result, return nullptr);

@@ -60,6 +60,7 @@ private:
     void initializeMenuEntries();
     void onRunAllTriggered();
     void onRunSelectedTriggered();
+    void onRunFileTriggered();
     void onRunUnderCursorTriggered(TestRunMode mode);
     QList<QObject *> createTestObjects() const override;
     const QSharedPointer<TestSettings> m_settings;

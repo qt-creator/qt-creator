@@ -127,6 +127,18 @@ void AutotestPlugin::initializeMenuEntries()
     action->setEnabled(false);
     menu->addAction(command);
 
+    action = new QAction(tr("Run Tests for Current &File"), this);
+    Utils::Icon runFileIcon = Utils::Icons::RUN_SMALL_TOOLBAR;
+    for (const Utils::IconMaskAndColor &maskAndColor : Icons::RUN_FILE_OVERLAY)
+        runFileIcon.append(maskAndColor);
+    action->setIcon(runFileIcon.icon());
+    action->setToolTip(tr("Run Tests for Current File"));
+    command = ActionManager::registerAction(action, Constants::ACTION_RUN_FILE_ID);
+    command->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+T,Alt+F")));
+    connect(action, &QAction::triggered, this, &AutotestPlugin::onRunFileTriggered);
+    action->setEnabled(false);
+    menu->addAction(command);
+
     action = new QAction(tr("Re&scan Tests"), this);
     command = ActionManager::registerAction(action, Constants::ACTION_SCAN_ID);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+T,Alt+S")));
@@ -219,6 +231,26 @@ void AutotestPlugin::onRunSelectedTriggered()
     runner->prepareToRunTests(TestRunMode::Run);
 }
 
+void AutotestPlugin::onRunFileTriggered()
+{
+    const IDocument *document = EditorManager::currentDocument();
+    if (!document)
+        return;
+
+    const Utils::FileName &fileName = document->filePath();
+    if (fileName.isEmpty())
+        return;
+
+    TestTreeModel *model = TestTreeModel::instance();
+    const QList<TestConfiguration *> tests = model->getTestsForFile(fileName);
+    if (tests.isEmpty())
+        return;
+
+    TestRunner *runner = TestRunner::instance();
+    runner->setSelectedTests(tests);
+    runner->prepareToRunTests(TestRunMode::Run);
+}
+
 void AutotestPlugin::onRunUnderCursorTriggered(TestRunMode mode)
 {
     QTextCursor cursor = Utils::Text::wordStartCursor(
@@ -263,6 +295,7 @@ void AutotestPlugin::updateMenuItemsEnabledState()
 
     ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action()->setEnabled(canRun);
     ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action()->setEnabled(canRun);
+    ActionManager::command(Constants::ACTION_RUN_FILE_ID)->action()->setEnabled(canRun);
     ActionManager::command(Constants::ACTION_SCAN_ID)->action()->setEnabled(canScan);
 
     ActionContainer *contextMenu = ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT);

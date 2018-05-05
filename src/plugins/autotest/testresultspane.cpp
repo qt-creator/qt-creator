@@ -178,6 +178,9 @@ void TestResultsPane::createToolButtons()
     m_runSelected = new QToolButton(m_treeView);
     m_runSelected->setDefaultAction(Core::ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action());
 
+    m_runFile = new QToolButton(m_treeView);
+    m_runFile->setDefaultAction(Core::ActionManager::command(Constants::ACTION_RUN_FILE_ID)->action());
+
     m_stopTestRun = new QToolButton(m_treeView);
     m_stopTestRun->setIcon(Utils::Icons::STOP_SMALL_TOOLBAR.icon());
     m_stopTestRun->setToolTip(tr("Stop Test Run"));
@@ -248,8 +251,8 @@ QWidget *TestResultsPane::outputWidget(QWidget *parent)
 
 QList<QWidget *> TestResultsPane::toolBarWidgets() const
 {
-    return {m_expandCollapse, m_runAll, m_runSelected, m_stopTestRun, m_outputToggleButton,
-            m_filterButton};
+    return {m_expandCollapse, m_runAll, m_runSelected, m_runFile, m_stopTestRun,
+            m_outputToggleButton, m_filterButton};
 }
 
 QString TestResultsPane::displayName() const

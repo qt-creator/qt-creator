@@ -158,6 +158,14 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
     return result;
 }
 
+QList<TestConfiguration *> TestTreeModel::getTestsForFile(const Utils::FileName &fileName) const
+{
+    QList<TestConfiguration *> result;
+    for (Utils::TreeItem *frameworkRoot : *rootItem())
+        result.append(static_cast<TestTreeItem *>(frameworkRoot)->getTestConfigurationsForFile(fileName));
+    return result;
+}
+
 QList<TestTreeItem *> TestTreeModel::testItemsByName(TestTreeItem *root, const QString &testName)
 {
     QList<TestTreeItem *> result;

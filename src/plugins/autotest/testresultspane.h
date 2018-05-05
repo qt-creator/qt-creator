@@ -132,6 +132,7 @@ private:
     QToolButton *m_expandCollapse;
     QToolButton *m_runAll;
     QToolButton *m_runSelected;
+    QToolButton *m_runFile;
     QToolButton *m_stopTestRun;
     QToolButton *m_filterButton;
     QToolButton *m_outputToggleButton;

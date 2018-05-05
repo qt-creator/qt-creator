@@ -259,6 +259,11 @@ QList<TestConfiguration *> TestTreeItem::getSelectedTestConfigurations() const
     return QList<TestConfiguration *>();
 }
 
+QList<TestConfiguration *> TestTreeItem::getTestConfigurationsForFile(const Utils::FileName &) const
+{
+    return QList<TestConfiguration *>();
+}
+
 bool TestTreeItem::lessThan(const TestTreeItem *other, SortMode mode) const
 {
     const QString &lhs = data(0, Qt::DisplayRole).toString();
