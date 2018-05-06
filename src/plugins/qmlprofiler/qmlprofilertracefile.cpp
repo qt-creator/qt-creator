@@ -236,7 +236,7 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
         QVector<QmlEventType> eventTypes;
         quint32 numEventTypes;
         bufferStream >> numEventTypes;
-        if (numEventTypes > std::numeric_limits<int>::max()) {
+        if (numEventTypes > quint32(std::numeric_limits<int>::max())) {
             emit error(tr("Excessive number of event types: %1").arg(numEventTypes));
             return;
         }
