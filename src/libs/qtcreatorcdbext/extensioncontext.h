@@ -34,6 +34,7 @@
 class LocalsSymbolGroup;
 class WatchesSymbolGroup;
 class OutputCallback;
+class EventCallback;
 class ExtensionCommandContext;
 
 // Global parameters
@@ -140,7 +141,7 @@ private:
     CIDebugClient *m_hookedClient = nullptr;
     IDebugEventCallbacks *m_oldEventCallback = nullptr;
     IDebugOutputCallbacksWide *m_oldOutputCallback = nullptr;
-    IDebugEventCallbacks *m_creatorEventCallback = nullptr;
+    EventCallback *m_creatorEventCallback = nullptr;
     OutputCallback *m_creatorOutputCallback = nullptr;
 
     StopReasonMap m_stopReason;
