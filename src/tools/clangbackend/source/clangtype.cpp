@@ -178,7 +178,7 @@ static const char *builtinTypeToText(CXTypeKind kind)
 Utf8String Type::builtinTypeToString() const
 {
     const char *text = builtinTypeToText(cxType.kind);
-    return Utf8String::fromByteArray(QByteArray::fromRawData(text, strlen(text)));
+    return Utf8String::fromByteArray(QByteArray::fromRawData(text, int(strlen(text))));
 }
 
 int Type::argumentCount() const

@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "fulltokeninfo.h"
 #include "sourcerange.h"
 #include "tokenprocessoriterator.h"
 #include "tokeninfocontainer.h"
@@ -61,7 +62,7 @@ public:
     }
     ~TokenProcessor()
     {
-        clang_disposeTokens(cxTranslationUnit, cxTokens, cxCursors.size());
+        clang_disposeTokens(cxTranslationUnit, cxTokens, unsigned(cxCursors.size()));
     }
 
     bool isEmpty() const
@@ -117,7 +118,7 @@ private:
     QVector<TC> toTokens() const
     {
         QVector<TC> tokens;
-        tokens.reserve(size());
+        tokens.reserve(int(size()));
 
         const auto isValidTokenInfo = [](const T &tokenInfo) {
             return !tokenInfo.hasInvalidMainType()

@@ -56,7 +56,7 @@ public:
 
     constexpr SizedArray() = default;
     SizedArray(std::initializer_list<T> list)
-        : m_size(list.size())
+        : m_size(std::uint8_t(list.size()))
     {
         std::copy(list.begin(), list.end(), begin());
     }
