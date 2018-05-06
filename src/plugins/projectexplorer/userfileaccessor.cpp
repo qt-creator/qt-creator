@@ -453,6 +453,7 @@ UserFileAccessor::UserFileAccessor(Project *project) :
     auto secondary
             = std::make_unique<SettingsAccessor>(docType, displayName, applicationDisplayName);
     secondary->setBaseFilePath(sharedFile());
+    secondary->setReadOnly();
     setSecondaryAccessor(std::move(secondary));
 
     setSettingsId(ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray());

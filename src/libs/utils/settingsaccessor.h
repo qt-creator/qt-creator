@@ -122,6 +122,7 @@ public:
     const QString applicationDisplayName;
 
     void setBaseFilePath(const Utils::FileName &baseFilePath) { m_baseFilePath = baseFilePath; }
+    void setReadOnly() { m_readOnly = true; }
     Utils::FileName baseFilePath() const { return m_baseFilePath; }
 
     virtual RestoreData readData(const Utils::FileName &path, QWidget *parent) const;
@@ -141,6 +142,7 @@ protected:
 private:
     Utils::FileName m_baseFilePath;
     mutable std::unique_ptr<PersistentSettingsWriter> m_writer;
+    bool m_readOnly = false;
 };
 
 // --------------------------------------------------------------------

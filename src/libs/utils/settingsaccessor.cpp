@@ -141,7 +141,7 @@ SettingsAccessor::RestoreData SettingsAccessor::readFile(const FileName &path) c
     }
 
     const QVariantMap data = reader.restoreValues();
-    if (path == m_baseFilePath) {
+    if (!m_readOnly && path == m_baseFilePath) {
         if (!m_writer)
             m_writer = std::make_unique<PersistentSettingsWriter>(m_baseFilePath, docType);
         m_writer->setContents(data);
@@ -165,7 +165,7 @@ SettingsAccessor::writeFile(const FileName &path, const QVariantMap &data) const
     }
 
     QString errorMessage;
-    if (!m_writer || m_writer->fileName() != path)
+    if (!m_readOnly && (!m_writer || m_writer->fileName() != path))
         m_writer = std::make_unique<PersistentSettingsWriter>(path, docType);
 
     if (!m_writer->save(data, &errorMessage)) {
