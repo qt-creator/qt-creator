@@ -112,8 +112,10 @@ void QmlProfilerStatisticsModel::restrictToFeatures(quint64 features)
         notesChanged(QmlProfilerStatisticsModel::s_invalidTypeId); // Reload notes
     }, [this](const QString &message) {
         endResetModel();
-        emit m_modelManager->error(tr("Could not re-read events from temporary trace file: %1")
-                                    .arg(message));
+        if (!message.isEmpty()) {
+            emit m_modelManager->error(tr("Could not re-read events from temporary trace file: %1")
+                                        .arg(message));
+        }
         clear();
     }, future);
 }

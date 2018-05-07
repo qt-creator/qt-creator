@@ -61,7 +61,6 @@ public:
                           Initializer initializer = nullptr, Finalizer finalizer = nullptr,
                           Clearer clearer = nullptr);
 
-    void addEvents(const QVector<QmlEvent> &events);
     const QmlEventType &eventType(int typeId) const;
 
     void replayQmlEvents(QmlEventLoader loader, Initializer initializer, Finalizer finalizer,
@@ -76,7 +75,7 @@ public:
 
     int appendEventType(QmlEventType &&type);
     void setEventType(int typeId, QmlEventType &&type);
-    void addEvent(const QmlEvent &event);
+    void appendEvent(QmlEvent &&event);
 
     void restrictToRange(qint64 start, qint64 end);
     bool isRestrictedToRange() const;
@@ -90,8 +89,6 @@ signals:
 private:
     void detailsChanged(int typeId, const QString &newString);
     void restrictByFilter(QmlEventFilter filter);
-
-    void clearEventStorage() override;
 
     Timeline::TimelineTraceFile *createTraceFile() override;
     void replayEvents(TraceEventLoader loader, Initializer initializer, Finalizer finalizer,

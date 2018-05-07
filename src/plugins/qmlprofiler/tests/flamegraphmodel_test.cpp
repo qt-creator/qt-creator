@@ -46,14 +46,13 @@ int FlameGraphModelTest::generateData(QmlProfilerModelManager *manager,
     manager->notesModel()->addTimelineModel(rangeModel);
 
     manager->initialize();
-    QmlEvent event;
 
-    event.setTypeIndex(-1);
     QStack<int> typeIndices;
 
     int i = 0;
+    int typeIndex = -1;
     while (i < 10) {
-        int typeIndex = -1;
+        QmlEvent event;
         if (i < 5) {
             typeIndex = manager->appendEventType(
                         QmlEventType(MaximumMessage,
@@ -66,26 +65,29 @@ int FlameGraphModelTest::generateData(QmlProfilerModelManager *manager,
         event.setTypeIndex(typeIndex);
         event.setTimestamp(++i);
         event.setRangeStage(RangeStart);
-        manager->addEvent(event);
+        manager->appendEvent(std::move(event));
         typeIndices.push(typeIndex);
     }
 
+    QmlEvent event;
+    event.setTypeIndex(typeIndex);
     event.setRangeStage(RangeEnd);
     event.setTypeIndex(typeIndices.pop());
     event.setTimestamp(++i);
-    manager->addEvent(event);
+    manager->appendEvent(QmlEvent(event));
 
     event.setRangeStage(RangeStart);
     event.setTypeIndex(0); // Have it accepted by the JavaScript range model above
     typeIndices.push(0);
     event.setTimestamp(++i);
-    manager->addEvent(event);
+    manager->appendEvent(std::move(event));
 
     while (!typeIndices.isEmpty()) {
+        QmlEvent event;
         event.setTimestamp(++i);
         event.setRangeStage(RangeEnd);
         event.setTypeIndex(typeIndices.pop());
-        manager->addEvent(event);
+        manager->appendEvent(std::move(event));
     }
 
     manager->finalize();

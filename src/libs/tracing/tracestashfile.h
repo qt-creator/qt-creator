@@ -67,12 +67,12 @@ public:
             return ReplayOpenFailed;
 
         QDataStream readStream(&readFile);
-        Event event;
         while (!readStream.atEnd()) {
+            Event event;
             readStream >> event;
             if (readStream.status() == QDataStream::ReadPastEnd)
                 return ReplayReadPastEnd;
-            if (!loader(event))
+            if (!loader(std::move(event)))
                 return ReplayLoadFailed;
         }
 

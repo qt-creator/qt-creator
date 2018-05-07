@@ -48,16 +48,16 @@ InputEventsModelTest::InputEventsModelTest(QObject *parent) :
 void InputEventsModelTest::initTestCase()
 {
     manager.initialize();
-    QmlEvent event;
 
     for (int i = 0; i < 10; ++i) {
+        QmlEvent event;
         event.setTimestamp(i);
         InputEventType type = inputType(i);
         event.setTypeIndex(type <= InputKeyUnknown ? keyTypeId : mouseTypeId);
         event.setNumbers({static_cast<qint32>(type),
                           (i * 32) % 256,
                           static_cast<qint32>((i * 0x02000000) & Qt::KeyboardModifierMask)});
-        manager.addEvent(event);
+        manager.appendEvent(std::move(event));
     }
 
     manager.finalize();

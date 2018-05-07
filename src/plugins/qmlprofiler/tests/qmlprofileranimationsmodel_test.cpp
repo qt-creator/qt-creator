@@ -51,7 +51,7 @@ void QmlProfilerAnimationsModelTest::initTestCase()
     for (int i = 0; i < 10; ++i) {
         event.setTimestamp(i);
         event.setNumbers<int>({frameRate(i), 9 - i, (i % 2) ? RenderThread : GuiThread});
-        manager.addEvent(event);
+        manager.appendEvent(QmlEvent(event));
     }
     manager.finalize();
 }

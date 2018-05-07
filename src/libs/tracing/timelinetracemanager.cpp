@@ -41,10 +41,16 @@ TraceEventTypeStorage::~TraceEventTypeStorage()
 {
 }
 
+TraceEventStorage::~TraceEventStorage()
+{
+}
+
 class TimelineTraceManager::TimelineTraceManagerPrivate
 {
 public:
     std::unique_ptr<TraceEventTypeStorage> typeStorage;
+    std::unique_ptr<TraceEventStorage> eventStorage;
+
     TimelineNotesModel *notesModel = nullptr;
 
     int numEvents = 0;
@@ -66,10 +72,12 @@ public:
     void updateTraceTime(qint64 time);
 };
 
-TimelineTraceManager::TimelineTraceManager(std::unique_ptr<TraceEventTypeStorage> &&typeStorage,
+TimelineTraceManager::TimelineTraceManager(std::unique_ptr<TraceEventStorage> &&eventStorage,
+                                           std::unique_ptr<TraceEventTypeStorage> &&typeStorage,
                                            QObject *parent) :
     QObject(parent), d(new TimelineTraceManagerPrivate)
 {
+    d->eventStorage = std::move(eventStorage);
     d->typeStorage = std::move(typeStorage);
 }
 
@@ -85,7 +93,7 @@ TimelineNotesModel *TimelineTraceManager::notesModel() const
 
 bool TimelineTraceManager::isEmpty() const
 {
-    return d->numEvents == 0;
+    return d->eventStorage->size() == 0;
 }
 
 int TimelineTraceManager::numEvents() const
@@ -98,14 +106,20 @@ int TimelineTraceManager::numEventTypes() const
     return d->typeStorage->size();
 }
 
+const TraceEventStorage *TimelineTraceManager::eventStorage() const
+{
+    return d->eventStorage.get();
+}
+
 const TraceEventTypeStorage *TimelineTraceManager::typeStorage() const
 {
     return d->typeStorage.get();
 }
 
-void TimelineTraceManager::addEvent(const TraceEvent &event)
+void TimelineTraceManager::appendEvent(TraceEvent &&event)
 {
     d->dispatch(event, d->typeStorage->get(event.typeIndex()));
+    d->eventStorage->append(std::move(event));
 }
 
 const TraceEventType &TimelineTraceManager::eventType(int typeId) const
@@ -205,6 +219,8 @@ void TimelineTraceManager::initialize()
 
 void TimelineTraceManager::finalize()
 {
+    d->eventStorage->finalize();
+
     // Load notes after the timeline models have been initialized ...
     // which happens on stateChanged(Done).
 
@@ -237,7 +253,8 @@ QFuture<void> TimelineTraceManager::save(const QString &filename)
         file->close();
         file->remove();
         delete file;
-        emit error(message);
+        if (!message.isEmpty())
+            emit error(message);
     }, Qt::QueuedConnection);
 
     connect(writer, &TimelineTraceFile::success, this, [file]() {
@@ -292,7 +309,8 @@ QFuture<void> TimelineTraceManager::load(const QString &filename)
     connect(reader, &TimelineTraceFile::error, this, [this, reader](const QString &message) {
         clearAll();
         delete reader;
-        emit error(message);
+        if (!message.isEmpty())
+            emit error(message);
     }, Qt::QueuedConnection);
 
     connect(reader, &TimelineTraceFile::canceled, this, [this, reader]() {
@@ -369,6 +387,7 @@ void TimelineTraceManager::clearEventStorage()
         d->notesModel->clear();
     setVisibleFeatures(0);
     setRecordedFeatures(0);
+    d->eventStorage->clear();
 }
 
 void TimelineTraceManager::clearTypeStorage()
@@ -406,8 +425,10 @@ void TimelineTraceManager::restrictByFilter(TraceEventFilter filter)
             d->notesModel->restore();
         finalize();
     }, [this](const QString &message) {
-        emit error(tr("Could not re-read events from temporary trace file: %1\n"
-                      "The trace data is lost.").arg(message));
+        if (!message.isEmpty()) {
+            emit error(tr("Could not re-read events from temporary trace file: %1\n"
+                          "The trace data is lost.").arg(message));
+        }
         clearAll();
     }, future);
 }

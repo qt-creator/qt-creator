@@ -52,23 +52,23 @@ void MemoryUsageModelTest::initTestCase()
         event.setTimestamp(++timestamp);
         event.setTypeIndex(heapPageTypeId);
         event.setNumbers({2048});
-        manager.addEvent(event);
-        manager.addEvent(event); // allocate two of them and make the model summarize
+        manager.appendEvent(QmlEvent(event));
+        manager.appendEvent(QmlEvent(event)); // allocate two of them and make the model summarize
 
         event.setTimestamp(++timestamp);
         event.setTypeIndex(smallItemTypeId);
         event.setNumbers({32});
-        manager.addEvent(event);
+        manager.appendEvent(QmlEvent(event));
 
         event.setTimestamp(++timestamp);
         event.setTypeIndex(largeItemTypeId);
         event.setNumbers({1024});
-        manager.addEvent(event);
+        manager.appendEvent(QmlEvent(event));
 
         event.setTimestamp(++timestamp);
         event.setTypeIndex(smallItemTypeId);
         event.setNumbers({-32});
-        manager.addEvent(event);
+        manager.appendEvent(std::move(event));
     };
 
     addMemoryEvents();
@@ -82,19 +82,19 @@ void MemoryUsageModelTest::initTestCase()
     event.setRangeStage(RangeStart);
     event.setTimestamp(++timestamp);
     event.setTypeIndex(rangeTypeId);
-    manager.addEvent(event);
+    manager.appendEvent(QmlEvent(event));
 
     addMemoryEvents();
     addMemoryEvents(); // twice to also trigger summary in first row
 
     event.setRangeStage(RangeEnd);
     event.setTimestamp(++timestamp);
-    manager.addEvent(event);
+    manager.appendEvent(QmlEvent(event));
 
     event.setTimestamp(++timestamp);
     event.setTypeIndex(largeItemTypeId);
     event.setNumbers({-1024});
-    manager.addEvent(event);
+    manager.appendEvent(std::move(event));
 
     manager.finalize();
     QCOMPARE(model.count(), 11);

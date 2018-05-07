@@ -261,7 +261,6 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
         setDeviceProgress(device);
     }
 
-    QVector<QmlEvent> eventBuffer;
     while (!stream.atEnd() && !isCanceled()) {
         stream >> data;
         buffer.setData(qUncompress(data));
@@ -285,10 +284,8 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
             } else {
                 Q_UNREACHABLE();
             }
-            eventBuffer.append(event);
+            manager->appendEvent(std::move(event));
         }
-        manager->addEvents(eventBuffer);
-        eventBuffer.clear();
         buffer.close();
         setDeviceProgress(device);
     }
@@ -296,7 +293,6 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
     if (isCanceled()) {
         emit canceled();
     } else {
-        manager->addEvents(eventBuffer);
         emit success();
     }
 }
@@ -447,7 +443,7 @@ public:
     void addEvent(const QmlEvent &event);
     void addRange(const QmlEvent &start, const QmlEvent &end);
 
-    QVector<QmlEvent> finalize();
+    void finalize(QmlProfilerModelManager *modelManager);
 
 private:
     struct QmlRange {
@@ -468,7 +464,7 @@ void EventList::addRange(const QmlEvent &start, const QmlEvent &end)
     ranges.append({start, end});
 }
 
-QVector<QmlEvent> EventList::finalize()
+void EventList::finalize(QmlProfilerModelManager *modelManager)
 {
     std::sort(ranges.begin(), ranges.end(), [](const QmlRange &a, const QmlRange &b) {
         if (a.begin.timestamp() < b.begin.timestamp())
@@ -482,15 +478,13 @@ QVector<QmlEvent> EventList::finalize()
     });
 
     QList<QmlEvent> ends;
-    QVector<QmlEvent> result;
     while (!ranges.isEmpty()) {
         // This is more expensive than just iterating, but we don't want to double the already
         // high memory footprint.
         QmlRange range = ranges.takeFirst();
         while (!ends.isEmpty() && ends.last().timestamp() <= range.begin.timestamp())
-            result.append(ends.takeLast());
+            modelManager->appendEvent(ends.takeLast());
 
-        result.append(range.begin);
         if (range.end.isValid()) {
             auto it = ends.end();
             for (auto begin = ends.begin(); it != begin;) {
@@ -501,11 +495,10 @@ QVector<QmlEvent> EventList::finalize()
             }
             ends.insert(it, range.end);
         }
+        modelManager->appendEvent(std::move(range.begin));
     }
     while (!ends.isEmpty())
-        result.append(ends.takeLast());
-
-    return result;
+        modelManager->appendEvent(ends.takeLast());
 }
 
 void QmlProfilerTraceFile::loadEvents(QXmlStreamReader &stream)
@@ -585,7 +578,7 @@ void QmlProfilerTraceFile::loadEvents(QXmlStreamReader &stream)
         case QXmlStreamReader::EndElement: {
             if (elementName == _("profilerDataModel")) {
                 // done reading profilerDataModel
-                modelManager()->addEvents(events.finalize());
+                events.finalize(modelManager());
                 return;
             }
             break;

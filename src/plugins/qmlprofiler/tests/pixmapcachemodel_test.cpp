@@ -53,7 +53,7 @@ void PixmapCacheModelTest::initTestCase()
         event.setTypeIndex(eventTypeIndices[(i * 13) % MaximumPixmapEventType]);
         event.setTimestamp(i);
         event.setNumbers({i + 1, i - 1, i * 2});
-        manager.addEvent(event);
+        manager.appendEvent(std::move(event));
     }
 
     for (int i = 0; i < MaximumPixmapEventType; ++i) {
@@ -68,27 +68,27 @@ void PixmapCacheModelTest::initTestCase()
     QmlEvent event;
     event.setTypeIndex(eventTypeIndices[MaximumPixmapEventType + PixmapLoadingStarted]);
     event.setTimestamp(101);
-    manager.addEvent(event);
+    manager.appendEvent(QmlEvent(event));
     QCOMPARE(model.cacheState(nextItem), PixmapCacheModel::Uncached);
     QCOMPARE(model.loadState(nextItem), PixmapCacheModel::Loading);
 
     event.setTypeIndex(eventTypeIndices[MaximumPixmapEventType + PixmapCacheCountChanged]);
     event.setNumbers({0, 0, 200}); // cache count increase
     event.setTimestamp(102);
-    manager.addEvent(event);
+    manager.appendEvent(QmlEvent(event));
     QCOMPARE(model.cacheState(nextItem), PixmapCacheModel::ToBeCached);
     QCOMPARE(model.loadState(nextItem), PixmapCacheModel::Loading);
 
     event.setTypeIndex(eventTypeIndices[MaximumPixmapEventType + PixmapLoadingError]);
     event.setTimestamp(103);
-    manager.addEvent(event);
+    manager.appendEvent(QmlEvent(event));
     QCOMPARE(model.cacheState(nextItem), PixmapCacheModel::Corrupt);
     QCOMPARE(model.loadState(nextItem), PixmapCacheModel::Error);
 
     event.setTypeIndex(eventTypeIndices[MaximumPixmapEventType + PixmapCacheCountChanged]);
     event.setNumbers({0, 0, 199}); // cache count decrease
     event.setTimestamp(104);
-    manager.addEvent(event);
+    manager.appendEvent(QmlEvent(event));
     QCOMPARE(model.cacheState(nextItem), PixmapCacheModel::Uncacheable);
     QCOMPARE(model.loadState(nextItem), PixmapCacheModel::Error);
 
@@ -97,13 +97,13 @@ void PixmapCacheModelTest::initTestCase()
     QCOMPARE(model.count(), nextItem);
     event.setTypeIndex(eventTypeIndices[MaximumPixmapEventType + PixmapLoadingStarted]);
     event.setTimestamp(105);
-    manager.addEvent(event);
+    manager.appendEvent(QmlEvent(event));
     QCOMPARE(model.cacheState(nextItem), PixmapCacheModel::Uncached);
     QCOMPARE(model.loadState(nextItem), PixmapCacheModel::Loading);
 
     event.setTypeIndex(eventTypeIndices[MaximumPixmapEventType + PixmapLoadingError]);
     event.setTimestamp(106);
-    manager.addEvent(event);
+    manager.appendEvent(QmlEvent(event));
     QCOMPARE(model.cacheState(nextItem), PixmapCacheModel::Uncacheable);
     QCOMPARE(model.loadState(nextItem), PixmapCacheModel::Error);
 
@@ -112,7 +112,7 @@ void PixmapCacheModelTest::initTestCase()
     // This way we get a corrupt cache entry ...
     event.setNumbers({0, 0, 200});
     event.setTimestamp(107);
-    manager.addEvent(event);
+    manager.appendEvent(QmlEvent(event));
     QCOMPARE(model.cacheState(nextItem - 1), PixmapCacheModel::Corrupt);
     QCOMPARE(model.loadState(nextItem - 1), PixmapCacheModel::Error);
     QCOMPARE(model.cacheState(nextItem), PixmapCacheModel::Uncacheable);
@@ -122,7 +122,7 @@ void PixmapCacheModelTest::initTestCase()
     event.setTypeIndex(eventTypeIndices[MaximumPixmapEventType + PixmapCacheCountChanged]);
     event.setNumbers({0, 0, 199}); // cache count decrease, removes the corrupt entry
     event.setTimestamp(108);
-    manager.addEvent(event);
+    manager.appendEvent(QmlEvent(event));
     QCOMPARE(model.cacheState(nextItem - 1), PixmapCacheModel::Uncacheable);
     QCOMPARE(model.loadState(nextItem - 1), PixmapCacheModel::Error);
     QCOMPARE(model.cacheState(nextItem), PixmapCacheModel::Uncacheable);
@@ -133,28 +133,28 @@ void PixmapCacheModelTest::initTestCase()
     QCOMPARE(model.count(), nextItem);
     event.setTypeIndex(eventTypeIndices[MaximumPixmapEventType + PixmapLoadingStarted]);
     event.setTimestamp(109);
-    manager.addEvent(event);
+    manager.appendEvent(QmlEvent(event));
     QCOMPARE(model.cacheState(nextItem), PixmapCacheModel::Uncached);
     QCOMPARE(model.loadState(nextItem), PixmapCacheModel::Loading);
 
     event.setTypeIndex(eventTypeIndices[MaximumPixmapEventType + PixmapCacheCountChanged]);
     event.setNumbers({0, 0, 200}); // cache count increase
     event.setTimestamp(110);
-    manager.addEvent(event);
+    manager.appendEvent(QmlEvent(event));
     QCOMPARE(model.cacheState(nextItem), PixmapCacheModel::ToBeCached);
     QCOMPARE(model.loadState(nextItem), PixmapCacheModel::Loading);
 
     event.setTypeIndex(eventTypeIndices[MaximumPixmapEventType + PixmapSizeKnown]);
     event.setNumbers({50, 50});
     event.setTimestamp(111);
-    manager.addEvent(event);
+    manager.appendEvent(QmlEvent(event));
     QCOMPARE(model.cacheState(nextItem), PixmapCacheModel::Cached);
     QCOMPARE(model.loadState(nextItem), PixmapCacheModel::Loading);
 
     event.setTypeIndex(eventTypeIndices[MaximumPixmapEventType + PixmapCacheCountChanged]);
     event.setNumbers({0, 0, 199}); // cache count decrease
     event.setTimestamp(112);
-    manager.addEvent(event);
+    manager.appendEvent(QmlEvent(event));
     QCOMPARE(model.cacheState(nextItem), PixmapCacheModel::Uncached);
     QCOMPARE(model.loadState(nextItem), PixmapCacheModel::Loading);
 
@@ -163,13 +163,13 @@ void PixmapCacheModelTest::initTestCase()
     event.setTypeIndex(eventTypeIndices[MaximumPixmapEventType + PixmapSizeKnown]);
     event.setNumbers({20, 30});
     event.setTimestamp(113);
-    manager.addEvent(event); // Results in Uncached, with valid size
+    manager.appendEvent(QmlEvent(event)); // Results in Uncached, with valid size
     QCOMPARE(model.count(), nextItem + 3); // no item added here; we just store the size
 
     event.setTypeIndex(eventTypeIndices[MaximumPixmapEventType + PixmapLoadingError]);
     event.setTimestamp(114);
     // terminates the still loading item, adding another cache count change
-    manager.addEvent(event);
+    manager.appendEvent(std::move(event));
     QCOMPARE(model.count(), nextItem + 4);
     QCOMPARE(model.cacheState(nextItem), PixmapCacheModel::Uncacheable);
     QCOMPARE(model.loadState(nextItem), PixmapCacheModel::Error);
@@ -182,7 +182,7 @@ void PixmapCacheModelTest::initTestCase()
             event.setTypeIndex(eventTypeIndices[i]);
             event.setTimestamp(i + j + 200);
             event.setNumbers({i + 1, i - 1, i - j});
-            manager.addEvent(event);
+            manager.appendEvent(std::move(event));
         }
     }
 

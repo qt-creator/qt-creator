@@ -170,8 +170,10 @@ void FlameGraphModel::restrictToFeatures(quint64 visibleFeatures)
                                     std::bind(&FlameGraphModel::beginResetModel, this),
                                     std::bind(&FlameGraphModel::finalize, this),
                                     [this](const QString &message) {
-        emit m_modelManager->error(tr("Could not re-read events from temporary trace file: %1")
-                                       .arg(message));
+        if (!message.isEmpty()) {
+            emit m_modelManager->error(tr("Could not re-read events from temporary trace file: %1")
+                                           .arg(message));
+        }
         endResetModel();
         clear();
     }, future);

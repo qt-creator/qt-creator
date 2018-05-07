@@ -40,17 +40,16 @@ DebugMessagesModelTest::DebugMessagesModelTest(QObject *parent) :
 void DebugMessagesModelTest::initTestCase()
 {
     manager.initialize();
-    QmlEvent event;
-    event.setTypeIndex(-1);
 
     for (int i = 0; i < 10; ++i) {
+        QmlEvent event;
         event.setTimestamp(i);
         event.setString(QString::fromLatin1("message %1").arg(i));
         QmlEventType type(DebugMessage, MaximumRangeType, i % (QtMsgType::QtInfoMsg + 1),
                           QmlEventLocation("somefile.js", i, 10 - i));
         event.setTypeIndex(manager.numEventTypes());
         manager.appendEventType(std::move(type));
-        manager.addEvent(event);
+        manager.appendEvent(std::move(event));
     }
     manager.finalize();
 }

@@ -75,7 +75,7 @@ public:
     bool updateFeatures(quint8 feature);
     int resolveType(const QmlTypedEvent &type);
     int resolveStackTop();
-    void forwardEvents(const QmlEvent &last);
+    void forwardEvents(QmlEvent &&last);
     void processCurrentEvent();
     void finalize();
 
@@ -143,17 +143,17 @@ int QmlProfilerTraceClientPrivate::resolveStackTop()
            && pendingMessages.head().timestamp() < typedEvent.event.timestamp()) {
         forwardEvents(pendingMessages.dequeue());
     }
-    forwardEvents(typedEvent.event);
+    forwardEvents(QmlEvent(typedEvent.event));
     return typeIndex;
 }
 
-void QmlProfilerTraceClientPrivate::forwardEvents(const QmlEvent &last)
+void QmlProfilerTraceClientPrivate::forwardEvents(QmlEvent &&last)
 {
     while (!pendingDebugMessages.isEmpty()
            && pendingDebugMessages.front().timestamp() <= last.timestamp()) {
-         modelManager->addEvent(pendingDebugMessages.dequeue());
+         modelManager->appendEvent(pendingDebugMessages.dequeue());
     }
-    modelManager->addEvent(last);
+    modelManager->appendEvent(std::move(last));
 }
 
 void QmlProfilerTraceClientPrivate::processCurrentEvent()
@@ -176,7 +176,7 @@ void QmlProfilerTraceClientPrivate::processCurrentEvent()
         currentEvent.event.setTypeIndex(typeIndex);
         while (!pendingMessages.isEmpty())
             forwardEvents(pendingMessages.dequeue());
-        forwardEvents(currentEvent.event);
+        forwardEvents(QmlEvent(currentEvent.event));
         rangesInProgress.pop();
         break;
     }
@@ -196,7 +196,7 @@ void QmlProfilerTraceClientPrivate::processCurrentEvent()
         int typeIndex = resolveType(currentEvent);
         currentEvent.event.setTypeIndex(typeIndex);
         if (rangesInProgress.isEmpty())
-            forwardEvents(currentEvent.event);
+            forwardEvents(QmlEvent(currentEvent.event));
         else
             pendingMessages.enqueue(currentEvent.event);
         break;
@@ -214,7 +214,7 @@ void QmlProfilerTraceClientPrivate::finalize()
     }
     QTC_CHECK(pendingMessages.isEmpty());
     while (!pendingDebugMessages.isEmpty())
-        modelManager->addEvent(pendingDebugMessages.dequeue());
+        modelManager->appendEvent(pendingDebugMessages.dequeue());
 }
 
 void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)

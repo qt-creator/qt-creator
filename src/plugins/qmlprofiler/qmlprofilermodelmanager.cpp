@@ -74,19 +74,37 @@ private:
     std::vector<QmlEventType> m_types;
 };
 
+class QmlProfilerEventStorage : public Timeline::TraceEventStorage
+{
+    Q_DECLARE_TR_FUNCTIONS(QmlProfilerEventStorage)
+public:
+    using ErrorHandler = std::function<void(const QString &)>;
+
+    QmlProfilerEventStorage(const ErrorHandler &errorHandler);
+
+    int append(Timeline::TraceEvent &&event) override;
+    int size() const override;
+    void clear() override;
+    bool replay(const std::function<bool(Timeline::TraceEvent &&)> &receiver) const override;
+    void finalize() override;
+
+    ErrorHandler errorHandler() const;
+    void setErrorHandler(const ErrorHandler &errorHandler);
+
+private:
+    Timeline::TraceStashFile<QmlEvent> m_file;
+    std::function<void(const QString &)> m_errorHandler;
+    int m_size = 0;
+};
+
 class QmlProfilerModelManager::QmlProfilerModelManagerPrivate
 {
 public:
-    QmlProfilerModelManagerPrivate() : file("qmlprofiler-data") {}
-
     Internal::QmlProfilerTextMarkModel *textMarkModel = nullptr;
     Internal::QmlProfilerDetailsRewriter *detailsRewriter = nullptr;
 
-    Timeline::TraceStashFile<QmlEvent> file;
-
     bool isRestrictedToRange = false;
 
-    void writeToStream(const QmlEvent &event);
     void addEventType(const QmlEventType &eventType);
     void handleError(const QString &message);
 
@@ -94,7 +112,10 @@ public:
 };
 
 QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent) :
-    Timeline::TimelineTraceManager(std::make_unique<QmlProfilerEventTypeStorage>(), parent),
+    Timeline::TimelineTraceManager(
+        std::make_unique<QmlProfilerEventStorage>(
+            std::bind(&Timeline::TimelineTraceManager::error, this, std::placeholders::_1)),
+        std::make_unique<QmlProfilerEventTypeStorage>(), parent),
     d(new QmlProfilerModelManagerPrivate)
 {
     setNotesModel(new QmlProfilerNotesModel(this));
@@ -105,9 +126,6 @@ QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent) :
             this, &QmlProfilerModelManager::typeDetailsChanged);
     connect(d->detailsRewriter, &Internal::QmlProfilerDetailsRewriter::eventDetailsChanged,
             this, &QmlProfilerModelManager::typeDetailsFinished);
-
-    if (!d->file.open())
-        emit error(tr("Cannot open temporary trace file to store events."));
 
     quint64 allFeatures = 0;
     for (quint8 i = 0; i <= MaximumProfileFeature; ++i)
@@ -136,12 +154,6 @@ void QmlProfilerModelManager::registerFeatures(quint64 features, QmlEventLoader 
 
     Timeline::TimelineTraceManager::registerFeatures(features, traceEventLoader, initializer,
                                                      finalizer, clearer);
-}
-
-void QmlProfilerModelManager::addEvents(const QVector<QmlEvent> &events)
-{
-    for (const QmlEvent &event : events)
-        addEvent(event);
 }
 
 const QmlEventType &QmlProfilerModelManager::eventType(int typeId) const
@@ -174,31 +186,19 @@ void QmlProfilerModelManager::replayQmlEvents(QmlEventLoader loader,
     if (initializer)
         initializer();
 
-    const auto result = d->file.replay([&](const QmlEvent &event) {
+    const auto result = eventStorage()->replay([&](Timeline::TraceEvent &&event) {
         if (future.isCanceled())
             return false;
 
-        loader(event, eventType(event.typeIndex()));
+        loader(static_cast<QmlEvent &&>(event), eventType(event.typeIndex()));
         return true;
     });
 
-    switch (result) {
-    case Timeline::TraceStashFile<QmlEvent>::ReplaySuccess:
-        if (finalizer)
-            finalizer();
-        break;
-    case Timeline::TraceStashFile<QmlEvent>::ReplayOpenFailed:
-        if (errorHandler)
-            errorHandler(tr("Could not re-open temporary trace file"));
-        break;
-    case Timeline::TraceStashFile<QmlEvent>::ReplayLoadFailed:
-        if (errorHandler)
-            errorHandler(tr("Could not load events from temporary trace file"));
-        break;
-    case Timeline::TraceStashFile<QmlEvent>::ReplayReadPastEnd:
-        if (errorHandler)
-            errorHandler(tr("Read past end in temporary trace file"));
-        break;
+    if (!result && errorHandler) {
+        errorHandler(future.isCanceled() ? QString()
+                                         : tr("Failed to replay QML events from stash file."));
+    } else if (result && finalizer) {
+        finalizer();
     }
 }
 
@@ -236,11 +236,6 @@ static QString getInitialDetails(const QmlEventType &event)
     return details;
 }
 
-void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::writeToStream(const QmlEvent &event)
-{
-    file.append(event);
-}
-
 void QmlProfilerModelManager::QmlProfilerModelManagerPrivate::handleError(const QString &message)
 {
     // What to do here?
@@ -254,8 +249,6 @@ const char *QmlProfilerModelManager::featureName(ProfileFeature feature)
 
 void QmlProfilerModelManager::finalize()
 {
-    if (!d->file.flush())
-        emit error(tr("Failed to flush temporary trace file"));
     d->detailsRewriter->reloadDocuments();
 
     // Load notes after the timeline models have been initialized ...
@@ -297,14 +290,6 @@ void QmlProfilerModelManager::restrictByFilter(QmlProfilerModelManager::QmlEvent
                               static_cast<const QmlEventType &>(type));
         };
     });
-}
-
-void QmlProfilerModelManager::clearEventStorage()
-{
-    TimelineTraceManager::clearEventStorage();
-    d->file.clear();
-    if (!d->file.open())
-        emit error(tr("Failed to reset temporary trace file"));
 }
 
 int QmlProfilerModelManager::appendEventType(QmlEventType &&type)
@@ -351,10 +336,9 @@ void QmlProfilerModelManager::setEventType(int typeIndex, QmlEventType &&type)
 }
 
 
-void QmlProfilerModelManager::addEvent(const QmlEvent &event)
+void QmlProfilerModelManager::appendEvent(QmlEvent &&event)
 {
-    d->writeToStream(event);
-    TimelineTraceManager::addEvent(event);
+    TimelineTraceManager::appendEvent(std::move(event));
 }
 
 void QmlProfilerModelManager::restrictToRange(qint64 start, qint64 end)
@@ -478,6 +462,69 @@ int QmlProfilerEventTypeStorage::size() const
 void QmlProfilerEventTypeStorage::clear()
 {
     m_types.clear();
+}
+
+QmlProfilerEventStorage::QmlProfilerEventStorage(
+        const std::function<void (const QString &)> &errorHandler)
+    : m_file("qmlprofiler-data"), m_errorHandler(errorHandler)
+{
+    if (!m_file.open())
+        errorHandler(tr("Cannot open temporary trace file to store events."));
+}
+
+int QmlProfilerEventStorage::append(Timeline::TraceEvent &&event)
+{
+    m_file.append(std::move(static_cast<QmlEvent &&>(event)));
+    return m_size++;
+}
+
+int QmlProfilerEventStorage::size() const
+{
+    return m_size;
+}
+
+void QmlProfilerEventStorage::clear()
+{
+    m_size = 0;
+    m_file.clear();
+    if (!m_file.open())
+        m_errorHandler(tr("Failed to reset temporary trace file"));
+}
+
+void QmlProfilerEventStorage::finalize()
+{
+    if (!m_file.flush())
+        m_errorHandler(tr("Failed to flush temporary trace file"));
+}
+
+QmlProfilerEventStorage::ErrorHandler QmlProfilerEventStorage::errorHandler() const
+{
+    return m_errorHandler;
+}
+
+void QmlProfilerEventStorage::setErrorHandler(
+        const QmlProfilerEventStorage::ErrorHandler &errorHandler)
+{
+    m_errorHandler = errorHandler;
+}
+
+bool QmlProfilerEventStorage::replay(
+        const std::function<bool (Timeline::TraceEvent &&)> &receiver) const
+{
+    switch (m_file.replay(receiver)) {
+    case Timeline::TraceStashFile<QmlEvent>::ReplaySuccess:
+        return true;
+    case Timeline::TraceStashFile<QmlEvent>::ReplayOpenFailed:
+        m_errorHandler(tr("Could not re-open temporary trace file"));
+        break;
+    case Timeline::TraceStashFile<QmlEvent>::ReplayLoadFailed:
+        // Happens if the loader rejects an event. Not an actual error
+        break;
+    case Timeline::TraceStashFile<QmlEvent>::ReplayReadPastEnd:
+        m_errorHandler(tr("Read past end in temporary trace file"));
+        break;
+    }
+    return false;
 }
 
 } // namespace QmlProfiler
