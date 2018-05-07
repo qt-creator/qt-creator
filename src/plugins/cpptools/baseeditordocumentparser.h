@@ -72,7 +72,7 @@ public:
 
 public:
     BaseEditorDocumentParser(const QString &filePath);
-    virtual ~BaseEditorDocumentParser();
+    ~BaseEditorDocumentParser() override;
 
     QString filePath() const;
     Configuration configuration() const;

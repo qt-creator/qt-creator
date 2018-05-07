@@ -39,7 +39,7 @@ class CppLocatorFilter : public Core::ILocatorFilter
 
 public:
     CppLocatorFilter(CppLocatorData *locatorData);
-    ~CppLocatorFilter();
+    ~CppLocatorFilter() override;
 
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;

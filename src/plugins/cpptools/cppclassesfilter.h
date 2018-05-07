@@ -39,7 +39,7 @@ class CPPTOOLS_EXPORT CppClassesFilter : public Internal::CppLocatorFilter
 
 public:
     CppClassesFilter(CppLocatorData *locatorData);
-    ~CppClassesFilter();
+    ~CppClassesFilter() override;
 
 protected:
     IndexItem::ItemType matchTypes() const override { return IndexItem::Class; }

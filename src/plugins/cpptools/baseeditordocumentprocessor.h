@@ -67,7 +67,7 @@ class CPPTOOLS_EXPORT BaseEditorDocumentProcessor : public QObject
 
 public:
     BaseEditorDocumentProcessor(QTextDocument *textDocument, const QString &filePath);
-    virtual ~BaseEditorDocumentProcessor();
+    ~BaseEditorDocumentProcessor() override;
 
     void run(bool projectsUpdated = false);
     virtual void semanticRehighlight() = 0;

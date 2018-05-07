@@ -260,14 +260,14 @@ public:
     void setCodeStyleSettings(const CppCodeStyleSettings &settings);
 
 protected:
-    virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth, int *paddingDepth, int *savedPaddingDepth) const;
-    virtual void adjustIndent(const CPlusPlus::Tokens &tokens, int lexerState, int *indentDepth, int *paddingDepth) const;
+    void onEnter(int newState, int *indentDepth, int *savedIndentDepth, int *paddingDepth, int *savedPaddingDepth) const override;
+    void adjustIndent(const CPlusPlus::Tokens &tokens, int lexerState, int *indentDepth, int *paddingDepth) const override;
 
-    virtual void saveBlockData(QTextBlock *block, const BlockData &data) const;
-    virtual bool loadBlockData(const QTextBlock &block, BlockData *data) const;
+    void saveBlockData(QTextBlock *block, const BlockData &data) const override;
+    bool loadBlockData(const QTextBlock &block, BlockData *data) const override;
 
-    virtual void saveLexerState(QTextBlock *block, int state) const;
-    virtual int loadLexerState(const QTextBlock &block) const;
+    void saveLexerState(QTextBlock *block, int state) const override;
+    int loadLexerState(const QTextBlock &block) const override;
 
     static bool shouldClearPaddingOnEnter(int state);
 

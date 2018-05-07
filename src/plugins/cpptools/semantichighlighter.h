@@ -65,7 +65,7 @@ public:
 
 public:
     explicit SemanticHighlighter(TextEditor::TextDocument *baseTextDocument);
-    ~SemanticHighlighter();
+    ~SemanticHighlighter() override;
 
     void setHighlightingRunner(HighlightingRunner highlightingRunner);
     void updateFormatMapFromFontSettings();

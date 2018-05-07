@@ -51,7 +51,7 @@ class CPPTOOLS_EXPORT CppToolsSettings : public QObject
 
 public:
     explicit CppToolsSettings(QObject *parent);
-    ~CppToolsSettings();
+    ~CppToolsSettings() override;
 
     static CppToolsSettings *instance();
 

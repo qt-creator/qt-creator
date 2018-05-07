@@ -40,7 +40,7 @@ class CPPTOOLS_EXPORT BuiltinEditorDocumentProcessor : public BaseEditorDocument
 public:
     BuiltinEditorDocumentProcessor(TextEditor::TextDocument *document,
                                    bool enableSemanticHighlighter = true);
-    ~BuiltinEditorDocumentProcessor();
+    ~BuiltinEditorDocumentProcessor() override;
 
     // BaseEditorDocumentProcessor interface
     void runImpl(const BaseEditorDocumentParser::UpdateParams &updateParams) override;

@@ -44,7 +44,7 @@ class CPPTOOLS_EXPORT CppProjectUpdater : public QObject
 
 public:
     CppProjectUpdater(ProjectExplorer::Project *project);
-    ~CppProjectUpdater();
+    ~CppProjectUpdater() override;
 
     void update(const ProjectUpdateInfo &projectUpdateInfo);
     void cancel();

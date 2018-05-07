@@ -91,7 +91,7 @@ public:
 
 public:
     CppModelManager();
-    ~CppModelManager();
+    ~CppModelManager() override;
 
     static CppModelManager *instance();
     static void createCppModelManager(Internal::CppToolsPlugin *parent);
@@ -130,7 +130,7 @@ public:
     ///         all loaded projects.
     ProjectPart::Ptr fallbackProjectPart();
 
-    CPlusPlus::Snapshot snapshot() const;
+    CPlusPlus::Snapshot snapshot() const override;
     Document::Ptr document(const QString &fileName) const;
     bool replaceDocument(Document::Ptr newDoc);
 
