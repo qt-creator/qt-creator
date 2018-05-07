@@ -77,7 +77,7 @@ public:
                      SharedDataClass
                    };
 
-    explicit NewClassWidget(QWidget *parent = 0);
+    explicit NewClassWidget(QWidget *parent = nullptr);
     ~NewClassWidget() override;
 
     bool namespacesEnabled() const;
@@ -106,7 +106,7 @@ public:
     QString namesDelimiter() const;
     bool isClassTypeComboVisible() const;
 
-    bool isValid(QString *error = 0) const;
+    bool isValid(QString *error = nullptr) const;
 
     QStringList files() const;
 

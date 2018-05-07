@@ -42,7 +42,7 @@ class QTCREATOR_UTILS_EXPORT ProjectIntroPage : public WizardPage
     Q_PROPERTY(bool forceSubProject READ forceSubProject WRITE setForceSubProject DESIGNABLE true)
 
 public:
-    explicit ProjectIntroPage(QWidget *parent = 0);
+    explicit ProjectIntroPage(QWidget *parent = nullptr);
     ~ProjectIntroPage() override;
 
     QString projectName() const;

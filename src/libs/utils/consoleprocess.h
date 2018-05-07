@@ -43,7 +43,7 @@ class QTCREATOR_UTILS_EXPORT ConsoleProcess : public QObject
 
 public:
     enum Mode { Run, Debug, Suspend };
-    ConsoleProcess(QObject *parent = 0);
+    ConsoleProcess(QObject *parent = nullptr);
     ~ConsoleProcess() override;
 
     void setWorkingDirectory(const QString &dir);

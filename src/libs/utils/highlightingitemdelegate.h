@@ -44,7 +44,7 @@ enum class HighlightingItemRole {
 class QTCREATOR_UTILS_EXPORT HighlightingItemDelegate : public QItemDelegate
 {
 public:
-    HighlightingItemDelegate(int tabWidth, QObject *parent = 0);
+    HighlightingItemDelegate(int tabWidth, QObject *parent = nullptr);
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
     void setTabWidth(int width);

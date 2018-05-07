@@ -71,7 +71,7 @@ public:
     enum Type { Invalid = 0, String, RegExp, Host16, Host32, Big16, Big32, Little16, Little32, Byte };
 
     MimeMagicRule(Type type, const QByteArray &value, int startPos, int endPos,
-                  const QByteArray &mask = QByteArray(), QString *errorString = 0);
+                  const QByteArray &mask = QByteArray(), QString *errorString = nullptr);
     MimeMagicRule(const MimeMagicRule &other);
     ~MimeMagicRule();
 

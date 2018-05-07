@@ -43,7 +43,7 @@ class QTCREATOR_UTILS_EXPORT CompletingTextEdit : public QTextEdit
                READ completionLengthThreshold WRITE setCompletionLengthThreshold)
 
 public:
-    CompletingTextEdit(QWidget *parent = 0);
+    CompletingTextEdit(QWidget *parent = nullptr);
     ~CompletingTextEdit() override;
 
     void setCompleter(QCompleter *c);

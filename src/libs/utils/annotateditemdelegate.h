@@ -34,7 +34,7 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT AnnotatedItemDelegate : public QStyledItemDelegate
 {
 public:
-    AnnotatedItemDelegate(QObject *parent = 0);
+    AnnotatedItemDelegate(QObject *parent = nullptr);
     ~AnnotatedItemDelegate() override;
 
     void setAnnotationRole(int role);

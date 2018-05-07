@@ -37,7 +37,7 @@ class QTCREATOR_UTILS_EXPORT FadingPanel : public QWidget
     Q_OBJECT
 
 public:
-    FadingPanel(QWidget *parent = 0)
+    FadingPanel(QWidget *parent = nullptr)
         : QWidget(parent)
     {}
     virtual void fadeTo(qreal value) = 0;
@@ -48,7 +48,7 @@ class QTCREATOR_UTILS_EXPORT FadingWidget : public FadingPanel
 {
     Q_OBJECT
 public:
-    FadingWidget(QWidget *parent = 0);
+    FadingWidget(QWidget *parent = nullptr);
     void fadeTo(qreal value) override;
     qreal opacity();
     void setOpacity(qreal value) override;
@@ -62,7 +62,7 @@ class QTCREATOR_UTILS_EXPORT DetailsButton : public QAbstractButton
     Q_PROPERTY(float fader READ fader WRITE setFader)
 
 public:
-    DetailsButton(QWidget *parent = 0);
+    DetailsButton(QWidget *parent = nullptr);
 
     QSize sizeHint() const override;
     float fader() { return m_fader; }

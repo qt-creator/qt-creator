@@ -46,7 +46,7 @@ class QTCREATOR_UTILS_EXPORT PathListEditor : public QWidget
     Q_PROPERTY(QString fileDialogTitle READ fileDialogTitle WRITE setFileDialogTitle DESIGNABLE true)
 
 public:
-    explicit PathListEditor(QWidget *parent = 0);
+    explicit PathListEditor(QWidget *parent = nullptr);
     ~PathListEditor() override;
 
     QString pathListString() const;

@@ -38,7 +38,7 @@ class QTCREATOR_UTILS_EXPORT RemoveFileDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit RemoveFileDialog(const QString &filePath, QWidget *parent = 0);
+    explicit RemoveFileDialog(const QString &filePath, QWidget *parent = nullptr);
     ~RemoveFileDialog() override;
 
     void setDeleteFileVisible(bool visible);

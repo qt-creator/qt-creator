@@ -52,7 +52,7 @@ public:
         OnlySummary
     };
 
-    explicit DetailsWidget(QWidget *parent = 0);
+    explicit DetailsWidget(QWidget *parent = nullptr);
     ~DetailsWidget() override;
 
     void setSummaryText(const QString &text);

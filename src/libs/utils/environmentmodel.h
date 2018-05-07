@@ -40,7 +40,7 @@ class QTCREATOR_UTILS_EXPORT EnvironmentModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    explicit EnvironmentModel(QObject *parent = 0);
+    explicit EnvironmentModel(QObject *parent = nullptr);
     ~EnvironmentModel() override;
 
     int rowCount(const QModelIndex &parent) const override;

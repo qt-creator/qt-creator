@@ -38,7 +38,7 @@ class QTCREATOR_UTILS_EXPORT ClassNameValidatingLineEdit : public FancyLineEdit
     Q_PROPERTY(bool lowerCaseFileName READ lowerCaseFileName WRITE setLowerCaseFileName)
 
 public:
-    explicit ClassNameValidatingLineEdit(QWidget *parent = 0);
+    explicit ClassNameValidatingLineEdit(QWidget *parent = nullptr);
     ~ClassNameValidatingLineEdit() override;
 
     bool namespacesEnabled() const;

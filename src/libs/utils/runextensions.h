@@ -53,7 +53,7 @@ static testCallOperatorNo testCallOperator(...);
 template<typename T>
 struct hasCallOperator
 {
-    static const bool value = (sizeof(testCallOperator<T>(0)) == sizeof(testCallOperatorYes));
+    static const bool value = (sizeof(testCallOperator<T>(nullptr)) == sizeof(testCallOperatorYes));
 };
 
 namespace Utils {
@@ -379,7 +379,7 @@ private:
 class QTCREATOR_UTILS_EXPORT RunnableThread : public QThread
 {
 public:
-    explicit RunnableThread(QRunnable *runnable, QObject *parent = 0);
+    explicit RunnableThread(QRunnable *runnable, QObject *parent = nullptr);
 
 protected:
     void run() override;

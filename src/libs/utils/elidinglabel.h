@@ -36,8 +36,8 @@ class  QTCREATOR_UTILS_EXPORT ElidingLabel : public QLabel
     Q_PROPERTY(Qt::TextElideMode elideMode READ elideMode WRITE setElideMode DESIGNABLE true)
 
 public:
-    explicit ElidingLabel(QWidget *parent = 0);
-    explicit ElidingLabel(const QString &text, QWidget *parent = 0);
+    explicit ElidingLabel(QWidget *parent = nullptr);
+    explicit ElidingLabel(const QString &text, QWidget *parent = nullptr);
 
     Qt::TextElideMode elideMode() const;
     void setElideMode(const Qt::TextElideMode &elideMode);

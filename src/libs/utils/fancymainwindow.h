@@ -42,7 +42,7 @@ class QTCREATOR_UTILS_EXPORT FancyMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit FancyMainWindow(QWidget *parent = 0);
+    explicit FancyMainWindow(QWidget *parent = nullptr);
     ~FancyMainWindow() override;
 
     /* The widget passed in should have an objectname set

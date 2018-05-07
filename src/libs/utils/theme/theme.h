@@ -48,7 +48,7 @@ class QTCREATOR_UTILS_EXPORT Theme : public QObject
     Q_ENUMS(WidgetStyle)
 
 public:
-    Theme(const QString &id, QObject *parent = 0);
+    Theme(const QString &id, QObject *parent = nullptr);
     ~Theme() override;
 
     enum Color {

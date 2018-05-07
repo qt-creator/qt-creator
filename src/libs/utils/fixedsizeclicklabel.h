@@ -36,7 +36,7 @@ class  QTCREATOR_UTILS_EXPORT FixedSizeClickLabel : public QLabel
     Q_PROPERTY(QString maxText READ maxText WRITE setMaxText DESIGNABLE true)
 
 public:
-    explicit FixedSizeClickLabel(QWidget *parent = 0);
+    explicit FixedSizeClickLabel(QWidget *parent = nullptr);
 
     void setText(const QString &text, const QString &maxText);
     using QLabel::setText;

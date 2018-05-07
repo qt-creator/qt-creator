@@ -37,7 +37,7 @@ class QTCREATOR_UTILS_EXPORT NetworkAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT
 public:
-    NetworkAccessManager(QObject *parent = 0);
+    NetworkAccessManager(QObject *parent = nullptr);
 
     static NetworkAccessManager *instance();
 

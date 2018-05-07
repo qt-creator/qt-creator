@@ -82,13 +82,13 @@ public:
     Kind kind() const { return m_kind; }
     static QString kindToString(Kind kind);
 
-    virtual JsonStringValue *toString() { return 0; }
-    virtual JsonDoubleValue *toDouble() { return 0; }
-    virtual JsonIntValue *toInt() { return 0; }
-    virtual JsonObjectValue *toObject() { return 0; }
-    virtual JsonArrayValue *toArray() { return 0; }
-    virtual JsonBooleanValue *toBoolean() { return 0; }
-    virtual JsonNullValue *toNull() { return 0; }
+    virtual JsonStringValue *toString() { return nullptr; }
+    virtual JsonDoubleValue *toDouble() { return nullptr; }
+    virtual JsonIntValue *toInt() { return nullptr; }
+    virtual JsonObjectValue *toObject() { return nullptr; }
+    virtual JsonArrayValue *toArray() { return nullptr; }
+    virtual JsonBooleanValue *toBoolean() { return nullptr; }
+    virtual JsonNullValue *toNull() { return nullptr; }
 
     static JsonValue *create(const QString &s, JsonMemoryPool *pool);
     void *operator new(size_t size, JsonMemoryPool *pool);
@@ -399,7 +399,7 @@ public:
 private:
     struct JsonSchemaData
     {
-        JsonSchemaData(const QString &absoluteFileName, JsonSchema *schema = 0)
+        JsonSchemaData(const QString &absoluteFileName, JsonSchema *schema = nullptr)
             : m_absoluteFileName(absoluteFileName)
             , m_schema(schema)
         {}

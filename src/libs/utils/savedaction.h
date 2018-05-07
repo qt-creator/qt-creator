@@ -42,7 +42,7 @@ class QTCREATOR_UTILS_EXPORT SavedAction : public QAction
     Q_OBJECT
 
 public:
-    SavedAction(QObject *parent = 0);
+    SavedAction(QObject *parent = nullptr);
 
     QVariant value() const;
     void setValue(const QVariant &value, bool doemit = true);

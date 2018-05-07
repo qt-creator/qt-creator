@@ -53,7 +53,7 @@ public:
         ItemDelegateRole,
     };
 
-    BaseTreeView(QWidget *parent = 0);
+    BaseTreeView(QWidget *parent = nullptr);
     ~BaseTreeView() override;
 
     void setSettings(QSettings *settings, const QByteArray &key);

@@ -112,9 +112,10 @@ using FileNameList = QList<FileName>;
 
 class QTCREATOR_UTILS_EXPORT FileUtils {
 public:
-    static bool removeRecursively(const FileName &filePath, QString *error = 0);
-    static bool copyRecursively(const FileName &srcFilePath, const FileName &tgtFilePath,
-                                QString *error = 0, const std::function<bool (QFileInfo, QFileInfo, QString *)> &copyHelper = std::function<bool (QFileInfo, QFileInfo, QString *)>());
+    static bool removeRecursively(const FileName &filePath, QString *error = nullptr);
+    static bool copyRecursively(
+            const FileName &srcFilePath, const FileName &tgtFilePath, QString *error = nullptr,
+            const std::function<bool (QFileInfo, QFileInfo, QString *)> &copyHelper = nullptr);
     static bool isFileNewerThan(const FileName &filePath, const QDateTime &timeStamp);
     static FileName resolveSymlinks(const FileName &path);
     static FileName canonicalPath(const FileName &path);

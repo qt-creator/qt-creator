@@ -46,7 +46,7 @@ class QTCREATOR_UTILS_EXPORT IconButton: public QAbstractButton
     Q_PROPERTY(float iconOpacity READ iconOpacity WRITE setIconOpacity)
     Q_PROPERTY(bool autoHide READ hasAutoHide WRITE setAutoHide)
 public:
-    explicit IconButton(QWidget *parent = 0);
+    explicit IconButton(QWidget *parent = nullptr);
     void paintEvent(QPaintEvent *event) override;
     float iconOpacity() { return m_iconOpacity; }
     void setIconOpacity(float value) { m_iconOpacity = value; update(); }
@@ -79,7 +79,7 @@ class QTCREATOR_UTILS_EXPORT FancyLineEdit : public CompletingLineEdit
 public:
     enum Side {Left = 0, Right = 1};
 
-    explicit FancyLineEdit(QWidget *parent = 0);
+    explicit FancyLineEdit(QWidget *parent = nullptr);
     ~FancyLineEdit() override;
 
     QIcon buttonIcon(Side side) const;

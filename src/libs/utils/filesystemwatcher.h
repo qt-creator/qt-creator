@@ -44,8 +44,8 @@ public:
         WatchAllChanges
     };
 
-    explicit FileSystemWatcher(QObject *parent = 0);
-    explicit FileSystemWatcher(int id, QObject *parent = 0);
+    explicit FileSystemWatcher(QObject *parent = nullptr);
+    explicit FileSystemWatcher(int id, QObject *parent = nullptr);
     ~FileSystemWatcher() override;
 
     void addFile(const QString &file, WatchMode wm);
