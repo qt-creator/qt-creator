@@ -38,7 +38,7 @@ class DataProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    explicit DataProxyModel(QObject *parent = 0);
+    explicit DataProxyModel(QObject *parent = nullptr);
 
     void setSourceModel(QAbstractItemModel *sourceModel) override;
 
