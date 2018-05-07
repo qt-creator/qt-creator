@@ -132,9 +132,6 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
     m_androidRunnable.packageName = m_androidRunnable.intentName.left(
                 m_androidRunnable.intentName.indexOf(QLatin1Char('/')));
 
-    m_androidRunnable.extraAppParams = extraAppParams;
-    m_androidRunnable.extraEnvVars = extraEnvVars;
-
     RunConfiguration *rc = runControl->runConfiguration();
     if (auto aspect = rc->extraAspect(Constants::ANDROID_AMSTARTARGS_ASPECT))
         m_androidRunnable.amStartExtraArgs = static_cast<BaseStringAspect *>(aspect)->value().split(' ');
@@ -154,6 +151,9 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
         m_worker.reset(new AndroidRunnerWorker(runControl, m_androidRunnable));
     else
         m_worker.reset(new AndroidRunnerWorkerPreNougat(runControl, m_androidRunnable));
+    m_worker->setExtraAppParams(extraAppParams);
+    m_worker->setExtraEnvVars(extraEnvVars);
+
     m_worker->moveToThread(&m_thread);
 
     connect(this, &AndroidRunner::asyncStart, m_worker.data(), &AndroidRunnerWorkerBase::asyncStart);

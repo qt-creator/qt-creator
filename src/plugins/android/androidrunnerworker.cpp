@@ -426,14 +426,14 @@ void AndroidRunnerWorkerBase::asyncStart()
                 .arg(m_qmlServer.port()).arg(QmlDebug::qmlDebugServices(m_qmlDebugServices));
     }
 
-    if (!m_androidRunnable.extraAppParams.isEmpty()) {
+    if (!m_extraAppParams.isEmpty()) {
         args << "-e" << "extraappparams"
-             << QString::fromLatin1(m_androidRunnable.extraAppParams.toUtf8().toBase64());
+             << QString::fromLatin1(m_extraAppParams.toUtf8().toBase64());
     }
 
-    if (m_androidRunnable.extraEnvVars.size() > 0) {
+    if (m_extraEnvVars.size() > 0) {
         args << "-e" << "extraenvvars"
-             << QString::fromLatin1(m_androidRunnable.extraEnvVars.toStringList().join('\t')
+             << QString::fromLatin1(m_extraEnvVars.toStringList().join('\t')
                                     .toUtf8().toBase64());
     }
 
@@ -548,6 +548,16 @@ void AndroidRunnerWorkerBase::onProcessIdChanged(qint64 pid)
         m_psIsAlive->start(m_adb, selector() << QStringLiteral("shell")
                            << pidPollingScript.arg(m_processPID));
     }
+}
+
+void AndroidRunnerWorkerBase::setExtraEnvVars(const Utils::Environment &extraEnvVars)
+{
+    m_extraEnvVars = extraEnvVars;
+}
+
+void AndroidRunnerWorkerBase::setExtraAppParams(const QString &extraAppParams)
+{
+    m_extraAppParams = extraAppParams;
 }
 
 

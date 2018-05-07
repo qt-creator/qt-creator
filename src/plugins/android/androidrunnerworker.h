@@ -60,6 +60,8 @@ public:
     void logcatReadStandardOutput();
     void logcatProcess(const QByteArray &text, QByteArray &buffer, bool onlyError);
     void setAndroidDeviceInfo(const AndroidDeviceInfo &info);
+    void setExtraEnvVars(const Utils::Environment &extraEnvVars);
+    void setExtraAppParams(const QString &extraAppParams);
 
     virtual void asyncStart();
     virtual void asyncStop();
@@ -104,6 +106,8 @@ protected:
     std::unique_ptr<QProcess, Deleter> m_jdbProcess;
     QString m_deviceSerialNumber;
     int m_apiLevel = -1;
+    QString m_extraAppParams;
+    Utils::Environment m_extraEnvVars;
 };
 
 

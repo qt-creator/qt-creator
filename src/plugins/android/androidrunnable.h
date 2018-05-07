@@ -39,8 +39,6 @@ struct ANDROID_EXPORT AndroidRunnable
     Utils::Environment environment;
     QStringList beforeStartAdbCommands;
     QStringList afterFinishAdbCommands;
-    QString extraAppParams;
-    Utils::Environment extraEnvVars;
 
     QString displayName() const { return packageName; }
     static void *staticTypeId;
