@@ -40,7 +40,7 @@ public:
     typedef  QSet<QString> ChangeNumbers;
 
     explicit BaseAnnotationHighlighter(const ChangeNumbers &changeNumbers,
-                                       QTextDocument *document = 0);
+                                       QTextDocument *document = nullptr);
     ~BaseAnnotationHighlighter() override;
 
     void setChangeNumbers(const ChangeNumbers &changeNumbers);

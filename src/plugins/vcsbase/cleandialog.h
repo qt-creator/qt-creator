@@ -42,7 +42,7 @@ class VCSBASE_EXPORT CleanDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit CleanDialog(QWidget *parent = 0);
+    explicit CleanDialog(QWidget *parent = nullptr);
     ~CleanDialog() override;
 
     void setFileList(const QString &workingDirectory, const QStringList &files,

@@ -174,7 +174,7 @@ public:
                                                     const QStringList &arguments,
                                                     int timeOutS,
                                                     unsigned flags = 0,
-                                                    QTextCodec *outputCodec = 0,
+                                                    QTextCodec *outputCodec = nullptr,
                                                     const QProcessEnvironment &env = QProcessEnvironment());
 
 protected:

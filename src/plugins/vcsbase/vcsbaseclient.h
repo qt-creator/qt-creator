@@ -78,7 +78,7 @@ public:
                                          const QString &dynamicPropertyValue) const;
 
     VcsCommand *createCommand(const QString &workingDirectory,
-                              VcsBaseEditorWidget *editor = 0,
+                              VcsBaseEditorWidget *editor = nullptr,
                               JobOutputBindMode mode = NoOutputBind) const;
 
     void enqueueJob(VcsCommand *cmd, const QStringList &args,
