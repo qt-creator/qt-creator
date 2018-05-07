@@ -35,7 +35,7 @@ class TEXTEDITOR_EXPORT CompletionAssistProvider : public IAssistProvider
     Q_OBJECT
 
 public:
-    CompletionAssistProvider(QObject *parent = 0);
+    CompletionAssistProvider(QObject *parent = nullptr);
     ~CompletionAssistProvider() override;
 
     IAssistProvider::RunType runType() const override;

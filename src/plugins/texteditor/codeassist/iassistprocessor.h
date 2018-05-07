@@ -40,7 +40,7 @@ public:
     IAssistProcessor();
     virtual ~IAssistProcessor();
 
-    virtual IAssistProposal *immediateProposal(const AssistInterface *) { return 0; }
+    virtual IAssistProposal *immediateProposal(const AssistInterface *) { return nullptr; }
     virtual IAssistProposal *perform(const AssistInterface *interface) = 0;
 
     void setAsyncProposalAvailable(IAssistProposal *proposal);

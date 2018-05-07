@@ -44,7 +44,7 @@ class TEXTEDITOR_EXPORT CodeStyleEditor : public QWidget
     Q_OBJECT
 public:
     CodeStyleEditor(ICodeStylePreferencesFactory *factory,
-                           ICodeStylePreferences *codeStyle, QWidget *parent = 0);
+                           ICodeStylePreferences *codeStyle, QWidget *parent = nullptr);
 
     void clearMargins();
 

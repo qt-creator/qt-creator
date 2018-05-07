@@ -60,7 +60,7 @@ class Highlighter : public TextEditor::SyntaxHighlighter
     Q_OBJECT
 
 public:
-    Highlighter(QTextDocument *parent = 0);
+    Highlighter(QTextDocument *parent = nullptr);
     ~Highlighter() override;
 
     enum TextFormatId {

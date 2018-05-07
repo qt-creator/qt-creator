@@ -40,6 +40,6 @@ class Highlighter;
 
 void setMimeTypeForHighlighter(Highlighter *highlighter, const Utils::MimeType &mimeType,
                                const QString &filePath,
-                               QString *foundDefinitionId = 0);
+                               QString *foundDefinitionId = nullptr);
 
 } // namespace TextEditor

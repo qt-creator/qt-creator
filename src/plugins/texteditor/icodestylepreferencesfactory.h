@@ -40,7 +40,7 @@ class TEXTEDITOR_EXPORT ICodeStylePreferencesFactory : public QObject
 {
     Q_OBJECT
 public:
-    explicit ICodeStylePreferencesFactory(QObject *parent = 0);
+    explicit ICodeStylePreferencesFactory(QObject *parent = nullptr);
 
     virtual Core::Id languageId() = 0;
     virtual QString displayName() = 0;

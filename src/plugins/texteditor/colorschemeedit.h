@@ -49,7 +49,7 @@ class ColorSchemeEdit : public QWidget
     Q_OBJECT
 
 public:
-    ColorSchemeEdit(QWidget *parent = 0);
+    ColorSchemeEdit(QWidget *parent = nullptr);
     ~ColorSchemeEdit() override;
 
     void setFormatDescriptions(const FormatDescriptions &descriptions);

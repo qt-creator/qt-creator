@@ -42,7 +42,7 @@ class TEXTEDITOR_EXPORT SimpleCodeStylePreferencesWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit SimpleCodeStylePreferencesWidget(QWidget *parent = 0);
+    explicit SimpleCodeStylePreferencesWidget(QWidget *parent = nullptr);
 
     void setPreferences(ICodeStylePreferences *tabPreferences);
 

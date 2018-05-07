@@ -45,7 +45,7 @@ public:
         QtQuickLink
     };
 
-    explicit TabSettingsWidget(QWidget *parent = 0);
+    explicit TabSettingsWidget(QWidget *parent = nullptr);
     ~TabSettingsWidget() override;
 
     TabSettings tabSettings() const;

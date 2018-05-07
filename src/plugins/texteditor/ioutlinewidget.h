@@ -37,7 +37,7 @@ class TEXTEDITOR_EXPORT IOutlineWidget : public QWidget
 {
     Q_OBJECT
 public:
-    IOutlineWidget(QWidget *parent = 0) : QWidget(parent) {}
+    IOutlineWidget(QWidget *parent = nullptr) : QWidget(parent) {}
 
     virtual QList<QAction*> filterMenuActions() const = 0;
     virtual void setCursorSynchronization(bool syncWithCursor) = 0;
