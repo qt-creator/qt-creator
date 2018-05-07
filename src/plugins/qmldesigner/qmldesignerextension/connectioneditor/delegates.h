@@ -38,7 +38,7 @@ class PropertiesComboBox : public QComboBox
     Q_OBJECT
     Q_PROPERTY(QString text READ text WRITE setText USER true)
 public:
-    PropertiesComboBox(QWidget *parent = 0);
+    PropertiesComboBox(QWidget *parent = nullptr);
 
     virtual QString text() const;
     void setText(const QString &text);
@@ -49,21 +49,21 @@ class ConnectionComboBox : public PropertiesComboBox
 {
     Q_OBJECT
 public:
-    ConnectionComboBox(QWidget *parent = 0);
+    ConnectionComboBox(QWidget *parent = nullptr);
     QString text() const override;
 };
 
 class ConnectionEditorDelegate : public QStyledItemDelegate
 {
 public:
-    ConnectionEditorDelegate(QWidget *parent = 0);
+    ConnectionEditorDelegate(QWidget *parent = nullptr);
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 };
 
 class BindingDelegate : public ConnectionEditorDelegate
 {
 public:
-    BindingDelegate(QWidget *parent = 0);
+    BindingDelegate(QWidget *parent = nullptr);
     QWidget *createEditor(QWidget *parent,
                                     const QStyleOptionViewItem &option,
                                     const QModelIndex &index) const override;
@@ -72,7 +72,7 @@ public:
 class DynamicPropertiesDelegate : public ConnectionEditorDelegate
 {
 public:
-    DynamicPropertiesDelegate(QWidget *parent = 0);
+    DynamicPropertiesDelegate(QWidget *parent = nullptr);
     QWidget *createEditor(QWidget *parent,
                                     const QStyleOptionViewItem &option,
                                     const QModelIndex &index) const override;
@@ -83,7 +83,7 @@ class ConnectionDelegate : public ConnectionEditorDelegate
 {
     Q_OBJECT
 public:
-    ConnectionDelegate(QWidget *parent = 0);
+    ConnectionDelegate(QWidget *parent = nullptr);
     QWidget *createEditor(QWidget *parent,
                                     const QStyleOptionViewItem &option,
                                     const QModelIndex &index) const override;
@@ -93,7 +93,7 @@ class BackendDelegate : public ConnectionEditorDelegate
 {
     Q_OBJECT
 public:
-    BackendDelegate(QWidget *parent = 0);
+    BackendDelegate(QWidget *parent = nullptr);
     QWidget *createEditor(QWidget *parent,
                                   const QStyleOptionViewItem &option,
                                   const QModelIndex &index) const override;

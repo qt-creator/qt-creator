@@ -89,7 +89,7 @@ public:
     void createDefaultAddResourceHandler();
     DesignerActionManagerView *view();
 
-    DesignerActionToolBar *createToolBar(QWidget *parent = 0) const;
+    DesignerActionToolBar *createToolBar(QWidget *parent = nullptr) const;
     void polishActions() const;
     QGraphicsWidget *createFormEditorToolBar(QGraphicsItem *parent);
 

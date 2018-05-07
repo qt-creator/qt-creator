@@ -43,7 +43,7 @@ class PropertyEditorNodeWrapper : public QObject {
     Q_PROPERTY(QString type READ type NOTIFY typeChanged)
 
 public:
-    PropertyEditorNodeWrapper(QObject *parent=0);
+    PropertyEditorNodeWrapper(QObject *parent=nullptr);
     PropertyEditorNodeWrapper(PropertyEditorValue* parent);
     bool exists();
     QString type();
@@ -87,7 +87,7 @@ class PropertyEditorValue : public QObject
     Q_PROPERTY(PropertyEditorNodeWrapper* complexNode READ complexNode NOTIFY complexNodeChanged FINAL)
 
 public:
-    PropertyEditorValue(QObject *parent=0);
+    PropertyEditorValue(QObject *parent=nullptr);
 
     QVariant value() const;
     void setValueWithEmit(const QVariant &value);

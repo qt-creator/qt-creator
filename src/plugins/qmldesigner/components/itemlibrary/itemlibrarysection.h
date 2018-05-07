@@ -39,7 +39,7 @@ class ItemLibrarySection: public QObject {
     Q_PROPERTY(bool sectionExpanded READ sectionExpanded FINAL)
 
 public:
-    ItemLibrarySection(const QString &sectionName, QObject *parent = 0);
+    ItemLibrarySection(const QString &sectionName, QObject *parent = nullptr);
 
     QString sectionName() const;
     bool sectionExpanded() const;

@@ -36,7 +36,7 @@ class ImportLabel : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ImportLabel(QWidget *parent = 0);
+    explicit ImportLabel(QWidget *parent = nullptr);
 
     void setImport(const Import &import);
     const Import import() const;

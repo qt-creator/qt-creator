@@ -47,7 +47,7 @@ public:
         TargetPropertyNameRow = 1,
         SourceRow = 2
     };
-    ConnectionModel(ConnectionView *parent = 0);
+    ConnectionModel(ConnectionView *parent = nullptr);
     void resetModel();
     SignalHandlerProperty signalHandlerPropertyForRow(int rowNumber) const;
     ConnectionView *connectionView() const;

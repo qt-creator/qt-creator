@@ -40,7 +40,7 @@ class StackedUtilityPanelController : public UtilityPanelController
     Q_OBJECT
 
 public:
-    StackedUtilityPanelController(QObject* parent = 0);
+    StackedUtilityPanelController(QObject* parent = nullptr);
 
     void show(DesignDocument* DesignDocument);
     void close(DesignDocument* DesignDocument);

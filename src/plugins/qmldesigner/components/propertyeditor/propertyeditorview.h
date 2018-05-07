@@ -51,7 +51,7 @@ class PropertyEditorView: public AbstractView
     Q_OBJECT
 
 public:
-    PropertyEditorView(QWidget *parent = 0);
+    PropertyEditorView(QWidget *parent = nullptr);
     ~PropertyEditorView() override;
 
     bool hasWidget() const override;

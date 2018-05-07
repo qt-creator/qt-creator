@@ -49,7 +49,7 @@ public:
         ModelNodeRole = Qt::UserRole
     };
 
-    ComponentView(QObject *parent = 0);
+    ComponentView(QObject *parent = nullptr);
 
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;

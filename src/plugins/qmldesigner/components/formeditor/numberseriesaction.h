@@ -37,7 +37,7 @@ class NumberSeriesAction : public QWidgetAction
 {
 Q_OBJECT
 public:
-    explicit NumberSeriesAction(QObject *parent = 0);
+    explicit NumberSeriesAction(QObject *parent = nullptr);
 
     void addEntry(const QString &text, const QVariant &value);
     void setCurrentEntryIndex(int index);

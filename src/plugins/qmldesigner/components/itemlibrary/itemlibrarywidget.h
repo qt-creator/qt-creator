@@ -63,7 +63,7 @@ class ItemLibraryWidget : public QFrame
     };
 
 public:
-    ItemLibraryWidget(QWidget *parent = 0);
+    ItemLibraryWidget(QWidget *parent = nullptr);
 
     void setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo);
     QList<QToolButton *> createToolBarWidgets();

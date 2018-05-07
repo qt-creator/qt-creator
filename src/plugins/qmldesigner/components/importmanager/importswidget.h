@@ -41,7 +41,7 @@ class ImportsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ImportsWidget(QWidget *parent = 0);
+    explicit ImportsWidget(QWidget *parent = nullptr);
 
     void setImports(const QList<Import> &imports);
     void removeImports();

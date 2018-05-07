@@ -48,7 +48,7 @@ public:
         SourceModelNodeRow = 2,
         SourcePropertyNameRow = 3
     };
-    BindingModel(ConnectionView *parent = 0);
+    BindingModel(ConnectionView *parent = nullptr);
     void bindingChanged(const BindingProperty &bindingProperty);
     void bindingRemoved(const BindingProperty &bindingProperty);
     void selectionChanged(const QList<ModelNode> &selectedNodes);

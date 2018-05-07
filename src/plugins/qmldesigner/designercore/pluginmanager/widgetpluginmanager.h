@@ -61,7 +61,7 @@ public:
 
     // Convenience to create a model for an "About Plugins"
     // dialog. Forces plugin initialization.
-    QAbstractItemModel *createModel(QObject *parent = 0);
+    QAbstractItemModel *createModel(QObject *parent = nullptr);
 
 private:
     PluginPathList m_paths;

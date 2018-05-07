@@ -40,8 +40,8 @@ class FormEditorToolButton : public QGraphicsWidget
     Q_OBJECT
 
 public:
-    explicit FormEditorToolButton(QAction *action, QGraphicsItem *parent = 0);
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) override;
+    explicit FormEditorToolButton(QAction *action, QGraphicsItem *parent = nullptr);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     QRectF boundingRect() const override;
 
 signals:

@@ -54,7 +54,7 @@ class NavigatorView : public AbstractView
     Q_OBJECT
 
 public:
-    NavigatorView(QObject* parent = 0);
+    NavigatorView(QObject* parent = nullptr);
     ~NavigatorView() override;
 
     bool hasWidget() const override;

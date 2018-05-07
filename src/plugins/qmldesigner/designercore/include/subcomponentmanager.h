@@ -45,7 +45,7 @@ class QMLDESIGNERCORE_EXPORT SubComponentManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit SubComponentManager(Model *model, QObject *parent = 0);
+    explicit SubComponentManager(Model *model, QObject *parent = nullptr);
 
     void update(const QUrl &fileUrl, const QList<Import> &imports);
 

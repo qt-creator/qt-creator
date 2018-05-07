@@ -38,7 +38,7 @@ class ItemLibrarySectionModel: public QAbstractListModel {
     Q_OBJECT
 
 public:
-    ItemLibrarySectionModel(QObject *parent = 0);
+    ItemLibrarySectionModel(QObject *parent = nullptr);
     ~ItemLibrarySectionModel() override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;

@@ -33,7 +33,7 @@ class TextEditorStatusBar : public QToolBar
 {
     Q_OBJECT
 public:
-    explicit TextEditorStatusBar(QWidget *parent = 0);
+    explicit TextEditorStatusBar(QWidget *parent = nullptr);
     void clearText();
     void setText(const QString &text);
 private:

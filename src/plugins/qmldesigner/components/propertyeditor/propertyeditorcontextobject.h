@@ -62,7 +62,7 @@ class PropertyEditorContextObject : public QObject
     Q_PROPERTY(QQmlComponent* specificQmlComponent READ specificQmlComponent NOTIFY specificQmlComponentChanged)
 
 public:
-    PropertyEditorContextObject(QObject *parent = 0);
+    PropertyEditorContextObject(QObject *parent = nullptr);
 
     QUrl globalBaseUrl() const {return m_globalBaseUrl; }
     QUrl specificsUrl() const {return m_specificsUrl; }

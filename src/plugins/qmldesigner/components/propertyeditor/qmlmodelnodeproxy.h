@@ -38,7 +38,7 @@ class QmlModelNodeProxy : public QObject
      Q_PROPERTY(QmlDesigner::ModelNode modelNode READ modelNode NOTIFY modelNodeChanged)
 
 public:
-    explicit QmlModelNodeProxy(QObject *parent = 0);
+    explicit QmlModelNodeProxy(QObject *parent = nullptr);
 
     void setup(const QmlItemNode &itemNode);
 

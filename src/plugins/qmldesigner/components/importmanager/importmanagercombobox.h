@@ -31,7 +31,7 @@ class ImportManagerComboBox : public QComboBox
 {
     Q_OBJECT
 public:
-    explicit ImportManagerComboBox(QWidget *parent = 0);
+    explicit ImportManagerComboBox(QWidget *parent = nullptr);
 
 protected:
     void paintEvent(QPaintEvent *e) override;

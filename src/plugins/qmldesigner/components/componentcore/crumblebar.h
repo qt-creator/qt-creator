@@ -36,7 +36,7 @@ class CrumbleBar : public QObject
 {
     Q_OBJECT
 public:
-    explicit CrumbleBar(QObject *parent = 0);
+    explicit CrumbleBar(QObject *parent = nullptr);
     ~CrumbleBar() override;
 
     void pushFile(const Utils::FileName &fileName);

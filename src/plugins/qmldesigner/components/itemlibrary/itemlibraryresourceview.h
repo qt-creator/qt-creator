@@ -37,7 +37,7 @@ class ItemLibraryResourceView : public QListView {
 
     Q_OBJECT
 public:
-    explicit ItemLibraryResourceView(QWidget *parent = 0);
+    explicit ItemLibraryResourceView(QWidget *parent = nullptr);
 
     void startDrag(Qt::DropActions supportedActions) override;
 private:

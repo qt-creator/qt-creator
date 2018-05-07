@@ -35,7 +35,7 @@ class DesignerPropertyMap : public QQmlPropertyMap
 {
 
 public:
-    DesignerPropertyMap(QObject *parent = 0);
+    DesignerPropertyMap(QObject *parent = nullptr);
 
     QVariant value(const QString &key) const;
 

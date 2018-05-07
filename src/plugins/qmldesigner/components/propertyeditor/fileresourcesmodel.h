@@ -43,7 +43,7 @@ class FileResourcesModel : public QObject
     Q_PROPERTY(QStringList fileModel READ fileModel NOTIFY fileModelChanged)
 
 public:
-    explicit FileResourcesModel(QObject *parent = 0);
+    explicit FileResourcesModel(QObject *parent = nullptr);
 
     void setModelNodeBackend(const QVariant &modelNodeBackend);
     QString fileName() const;

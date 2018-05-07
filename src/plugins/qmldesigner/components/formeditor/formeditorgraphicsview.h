@@ -32,7 +32,7 @@ class FormEditorGraphicsView : public QGraphicsView
 {
 Q_OBJECT
 public:
-    explicit FormEditorGraphicsView(QWidget *parent = 0);
+    explicit FormEditorGraphicsView(QWidget *parent = nullptr);
 
     void setRootItemRect(const QRectF &rect);
     QRectF rootItemRect() const;

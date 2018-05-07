@@ -39,7 +39,7 @@ class  DebugView : public AbstractView
     Q_OBJECT
 
 public:
-    DebugView(QObject *parent = 0);
+    DebugView(QObject *parent = nullptr);
     ~DebugView() override;
 
     // AbstractView

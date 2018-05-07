@@ -34,7 +34,7 @@ class LineEditAction : public QWidgetAction
 {
     Q_OBJECT
 public:
-    explicit LineEditAction(const QString &placeHolderText, QObject *parent = 0);
+    explicit LineEditAction(const QString &placeHolderText, QObject *parent = nullptr);
 
     void setLineEditText(const QString &text);
     void clearLineEditText();

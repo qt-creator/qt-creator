@@ -40,7 +40,7 @@ class AddNewBackendDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AddNewBackendDialog(QWidget *parent = 0);
+    explicit AddNewBackendDialog(QWidget *parent = nullptr);
     ~AddNewBackendDialog() override;
     void setupPossibleTypes(const QList<CppTypeData> &types);
     QString importString() const;

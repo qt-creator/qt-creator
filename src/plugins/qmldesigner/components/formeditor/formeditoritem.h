@@ -51,7 +51,7 @@ class QMLDESIGNERCORE_EXPORT FormEditorItem : public QGraphicsItem
 public:
     ~FormEditorItem() override;
 
-    void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0 ) override;
+    void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = nullptr ) override;
 
     bool isContainer() const;
     QmlItemNode qmlItemNode() const;

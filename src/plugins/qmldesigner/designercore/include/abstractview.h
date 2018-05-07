@@ -123,7 +123,7 @@ public:
       EmptyPropertiesRemoved = 0x2
     };
     Q_DECLARE_FLAGS(PropertyChangeFlags, PropertyChangeFlag)
-    AbstractView(QObject *parent = 0)
+    AbstractView(QObject *parent = nullptr)
             : QObject(parent) {}
 
     ~AbstractView() override;
@@ -267,8 +267,8 @@ public:
 protected:
     void setModel(Model * model);
     void removeModel();
-    static WidgetInfo createWidgetInfo(QWidget *widget = 0,
-                                       WidgetInfo::ToolBarWidgetFactoryInterface *toolBarWidgetFactory = 0,
+    static WidgetInfo createWidgetInfo(QWidget *widget = nullptr,
+                                       WidgetInfo::ToolBarWidgetFactoryInterface *toolBarWidgetFactory = nullptr,
                                        const QString &uniqueId = QString(),
                                        WidgetInfo::PlacementHint placementHint = WidgetInfo::NoPane,
                                        int placementPriority = 0,

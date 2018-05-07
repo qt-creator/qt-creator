@@ -45,7 +45,7 @@ class ItemLibraryModel: public QAbstractListModel {
     Q_PROPERTY(QString searchText READ searchText WRITE setSearchText NOTIFY searchTextChanged)
 
 public:
-    explicit ItemLibraryModel(QObject *parent = 0);
+    explicit ItemLibraryModel(QObject *parent = nullptr);
     ~ItemLibraryModel() override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;

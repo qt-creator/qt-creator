@@ -43,7 +43,7 @@ class ChangeStyleWidgetAction : public QWidgetAction
     Q_OBJECT
 
 public:
-    explicit ChangeStyleWidgetAction(QObject *parent = 0);
+    explicit ChangeStyleWidgetAction(QObject *parent = nullptr);
     void handleModelUpdate(const QString &style);
 
 protected:

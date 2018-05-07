@@ -35,7 +35,7 @@ class Quick2PropertyEditorView : public QQuickWidget
     Q_OBJECT
 
 public:
-    explicit Quick2PropertyEditorView(QWidget *parent = 0);
+    explicit Quick2PropertyEditorView(QWidget *parent = nullptr);
 
     static void registerQmlTypes();
 };

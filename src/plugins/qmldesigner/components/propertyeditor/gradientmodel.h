@@ -41,7 +41,7 @@ class GradientModel : public QAbstractListModel
     Q_PROPERTY(bool hasGradient READ hasGradient NOTIFY hasGradientChanged)
 
 public:
-    explicit GradientModel(QObject *parent = 0);
+    explicit GradientModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 

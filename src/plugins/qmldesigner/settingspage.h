@@ -47,7 +47,7 @@ class SettingsPageWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit SettingsPageWidget(QWidget *parent = 0);
+    explicit SettingsPageWidget(QWidget *parent = nullptr);
 
     DesignerSettings settings() const;
     void setSettings(const DesignerSettings &settings);

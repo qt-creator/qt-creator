@@ -48,7 +48,7 @@ public:
         PropertyTypeRow = 2,
         PropertyValueRow = 3
     };
-    DynamicPropertiesModel(ConnectionView *parent = 0);
+    DynamicPropertiesModel(ConnectionView *parent = nullptr);
     void bindingPropertyChanged(const BindingProperty &bindingProperty);
     void variantPropertyChanged(const VariantProperty &variantProperty);
     void bindingRemoved(const BindingProperty &bindingProperty);

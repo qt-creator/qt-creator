@@ -42,7 +42,7 @@ class SwitchSplitTabWidget : public QWidget
         TabMode
     };
 public:
-    explicit SwitchSplitTabWidget(QWidget *parent = 0);
+    explicit SwitchSplitTabWidget(QWidget *parent = nullptr);
     int count() const;
     QWidget *currentWidget() const;
 

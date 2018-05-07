@@ -37,7 +37,7 @@ class DebugViewWidget : public QWidget
 {
     Q_OBJECT
 public:
-    DebugViewWidget(QWidget *parent = 0);
+    DebugViewWidget(QWidget *parent = nullptr);
 
     void addLogMessage(const QString &topic, const QString &message, bool highlight = false);
     void addErrorMessage(const QString &topic, const QString &message);

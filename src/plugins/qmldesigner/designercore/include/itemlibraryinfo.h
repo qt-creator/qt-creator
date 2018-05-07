@@ -116,7 +116,7 @@ signals:
     void entriesChanged();
 
 private: // functions
-    ItemLibraryInfo(QObject *parent = 0);
+    ItemLibraryInfo(QObject *parent = nullptr);
     void setBaseInfo(ItemLibraryInfo *m_baseInfo);
 
 private: // variables
