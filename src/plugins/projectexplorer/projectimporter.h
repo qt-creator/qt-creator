@@ -51,7 +51,7 @@ public:
     };
 
     ProjectImporter(const Utils::FileName &path);
-    virtual ~ProjectImporter();
+    ~ProjectImporter() override;
 
     const Utils::FileName projectFilePath() const { return m_projectPath; }
     const Utils::FileName projectDirectory() const { return m_projectPath.parentDir(); }

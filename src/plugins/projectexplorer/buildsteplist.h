@@ -81,8 +81,8 @@ public:
     Target *target() const;
     Project *project() const override;
 
-    virtual QVariantMap toMap() const override;
-    virtual bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &map) override;
 
     bool isActive() const override;
 

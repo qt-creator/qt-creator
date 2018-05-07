@@ -283,7 +283,7 @@ public:
     void addToEnvironment(Utils::Environment &env) const override;
 
 protected:
-    virtual CompilerFlags defaultCompilerFlags() const override;
+    CompilerFlags defaultCompilerFlags() const override;
 
 private:
     friend class Internal::ClangToolChainFactory;

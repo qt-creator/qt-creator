@@ -124,7 +124,7 @@ class PROJECTEXPLORER_EXPORT BuildStepFactory : public QObject
 
 public:
     BuildStepFactory();
-    ~BuildStepFactory();
+    ~BuildStepFactory() override;
 
     static const QList<BuildStepFactory *> allBuildStepFactories();
 
@@ -191,9 +191,9 @@ public:
                 this, &BuildStepConfigWidget::updateSummary);
     }
 
-    QString summaryText() const { return QLatin1String("<b>") + displayName() + QLatin1String("</b>"); }
-    QString displayName() const { return m_step->displayName(); }
-    bool showWidget() const { return false; }
+    QString summaryText() const override { return QLatin1String("<b>") + displayName() + QLatin1String("</b>"); }
+    QString displayName() const override { return m_step->displayName(); }
+    bool showWidget() const override { return false; }
     BuildStep *step() const { return m_step; }
 
 private:

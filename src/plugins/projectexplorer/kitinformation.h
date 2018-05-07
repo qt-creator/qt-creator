@@ -163,7 +163,7 @@ public:
 
     ItemList toUserOutput(const Kit *k) const override;
 
-    virtual void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
+    void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
 
     static Core::Id id();
     static IDevice::ConstPtr device(const Kit *k);

@@ -38,7 +38,7 @@ class PROJECTEXPLORER_EXPORT ClangParser : public ProjectExplorer::GccParser
 
 public:
     ClangParser();
-    void stdError(const QString &line);
+    void stdError(const QString &line) override;
 
     static Core::Id id();
 

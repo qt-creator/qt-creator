@@ -99,7 +99,7 @@ public:
 
     ProcessExtraCompiler(const Project *project, const Utils::FileName &source,
                          const Utils::FileNameList &targets, QObject *parent = nullptr);
-    ~ProcessExtraCompiler();
+    ~ProcessExtraCompiler() override;
 
 protected:
     // This will run a process in a thread, if
@@ -141,7 +141,7 @@ class PROJECTEXPLORER_EXPORT ExtraCompilerFactory : public QObject
     Q_OBJECT
 public:
     explicit ExtraCompilerFactory(QObject *parent = nullptr);
-    ~ExtraCompilerFactory();
+    ~ExtraCompilerFactory() override;
 
     virtual FileType sourceType() const = 0;
     virtual QString sourceTag() const = 0;

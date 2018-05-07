@@ -122,7 +122,7 @@ class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory : public QObject
 
 protected:
     IBuildConfigurationFactory();
-    ~IBuildConfigurationFactory();
+    ~IBuildConfigurationFactory() override;
 
 public:
     // The priority is negative if this factory can not create anything for the target.

@@ -56,7 +56,7 @@ class ProjectWindow : public Utils::FancyMainWindow
 
 public:
     ProjectWindow();
-    ~ProjectWindow();
+    ~ProjectWindow() override;
 
 private:
     ProjectWindowPrivate *d;

@@ -180,7 +180,7 @@ class PROJECTEXPLORER_EXPORT ToolChainFactory : public QObject
 
 public:
     ToolChainFactory();
-    ~ToolChainFactory();
+    ~ToolChainFactory() override;
 
     static const QList<ToolChainFactory *> allToolChainFactories();
 

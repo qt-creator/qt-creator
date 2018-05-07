@@ -46,7 +46,7 @@ protected:
     explicit ProjectConfiguration(QObject *parent, Core::Id id);
 
 public:
-    ~ProjectConfiguration() = default;
+    ~ProjectConfiguration() override = default;
 
     Core::Id id() const;
 
