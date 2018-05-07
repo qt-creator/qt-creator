@@ -87,6 +87,7 @@ public:
     LocatorModel(QObject *parent = nullptr)
         : QAbstractListModel(parent)
         , mBackgroundColor(Utils::creatorTheme()->color(Utils::Theme::TextColorHighlightBackground))
+        , mForegroundColor(Utils::creatorTheme()->color(Utils::Theme::TextColorNormal))
     {}
 
     void clear();
@@ -100,6 +101,7 @@ private:
     mutable QList<LocatorFilterEntry> mEntries;
     bool hasExtraInfo = false;
     QColor mBackgroundColor;
+    QColor mForegroundColor;
 };
 
 class CompletionDelegate : public HighlightingItemDelegate
@@ -224,6 +226,8 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
     }
     case int(HighlightingItemRole::Background):
         return mBackgroundColor;
+    case int(HighlightingItemRole::Foreground):
+        return mForegroundColor;
     }
 
     return QVariant();
