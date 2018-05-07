@@ -60,7 +60,7 @@ public:
 
     explicit TextEditorActionHandler(QObject *parent, Core::Id editorId, Core::Id contextId,
                                      uint optionalActions = None);
-    ~TextEditorActionHandler();
+    ~TextEditorActionHandler() override;
 
     void setTextEditorWidgetResolver(const TextEditorWidgetResolver &resolver);
 

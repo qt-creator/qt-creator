@@ -48,12 +48,12 @@ class DisplaySettingsPage : public TextEditorOptionsPage
 
 public:
     DisplaySettingsPage(const DisplaySettingsPageParameters &p, QObject *parent);
-    ~DisplaySettingsPage();
+    ~DisplaySettingsPage() override;
 
     // IOptionsPage
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
     const DisplaySettings &displaySettings() const;
     const MarginSettings &marginSettings() const;

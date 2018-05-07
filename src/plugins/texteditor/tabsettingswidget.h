@@ -46,7 +46,7 @@ public:
     };
 
     explicit TabSettingsWidget(QWidget *parent = 0);
-    ~TabSettingsWidget();
+    ~TabSettingsWidget() override;
 
     TabSettings tabSettings() const;
 

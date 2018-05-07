@@ -36,7 +36,7 @@ class TEXTEDITOR_EXPORT CompletionAssistProvider : public IAssistProvider
 
 public:
     CompletionAssistProvider(QObject *parent = 0);
-    ~CompletionAssistProvider();
+    ~CompletionAssistProvider() override;
 
     IAssistProvider::RunType runType() const override;
     virtual int activationCharSequenceLength() const;

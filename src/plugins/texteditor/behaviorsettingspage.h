@@ -54,12 +54,12 @@ class BehaviorSettingsPage : public TextEditorOptionsPage
 
 public:
     BehaviorSettingsPage(const BehaviorSettingsPageParameters &p, QObject *parent);
-    ~BehaviorSettingsPage();
+    ~BehaviorSettingsPage() override;
 
     // IOptionsPage
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
     ICodeStylePreferences *codeStyle() const;
     CodeStylePool *codeStylePool() const;

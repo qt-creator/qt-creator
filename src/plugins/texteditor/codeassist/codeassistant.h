@@ -43,7 +43,7 @@ class CodeAssistant : public QObject
 
 public:
     CodeAssistant();
-    ~CodeAssistant();
+    ~CodeAssistant() override;
 
     void configure(TextEditorWidget *editorWidget);
 

@@ -57,7 +57,7 @@ class Manager : public QObject
 {
     Q_OBJECT
 public:
-    virtual ~Manager();
+    ~Manager() override;
     static Manager *instance();
 
     QString definitionIdByName(const QString &name) const;

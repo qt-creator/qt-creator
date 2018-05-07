@@ -58,7 +58,7 @@ public:
     SyntaxHighlighter(QObject *parent = 0);
     SyntaxHighlighter(QTextDocument *parent);
     SyntaxHighlighter(QTextEdit *parent);
-    virtual ~SyntaxHighlighter();
+    ~SyntaxHighlighter() override;
 
     void setDocument(QTextDocument *doc);
     QTextDocument *document() const;

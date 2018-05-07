@@ -37,19 +37,19 @@ class FindInOpenFiles : public BaseFileFind
 public:
     FindInOpenFiles();
 
-    QString id() const;
-    QString displayName() const;
-    bool isEnabled() const;
-    void writeSettings(QSettings *settings);
-    void readSettings(QSettings *settings);
+    QString id() const override;
+    QString displayName() const override;
+    bool isEnabled() const override;
+    void writeSettings(QSettings *settings) override;
+    void readSettings(QSettings *settings) override;
 
 protected:
     Utils::FileIterator *files(const QStringList &nameFilters,
                                const QStringList &exclusionFilters,
-                               const QVariant &additionalParameters) const;
-    QVariant additionalParameters() const;
-    QString label() const;
-    QString toolTip() const;
+                               const QVariant &additionalParameters) const override;
+    QVariant additionalParameters() const override;
+    QString label() const override;
+    QString toolTip() const override;
 
 private:
     void updateEnabledState();

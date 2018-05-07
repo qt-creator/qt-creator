@@ -43,7 +43,7 @@ class TEXTEDITOR_EXPORT IAssistProposalWidget  : public QFrame
 
 public:
     IAssistProposalWidget();
-    virtual ~IAssistProposalWidget();
+    ~IAssistProposalWidget() override;
 
     virtual void setAssistant(CodeAssistant *assistant) = 0;
     virtual void setReason(AssistReason reason) = 0;

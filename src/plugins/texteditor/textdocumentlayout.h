@@ -68,7 +68,7 @@ public:
         , m_foldingEndIncluded(false)
         , m_codeFormatterData(nullptr)
     {}
-    ~TextBlockUserData();
+    ~TextBlockUserData() override;
 
     inline TextMarks marks() const { return m_marks; }
     void addMark(TextMark *mark);

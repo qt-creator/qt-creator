@@ -45,7 +45,7 @@ class TEXTEDITOR_EXPORT GenericProposalModel : public IAssistProposalModel
 {
 public:
     GenericProposalModel();
-    ~GenericProposalModel();
+    ~GenericProposalModel() override;
 
     void reset() override;
     int size() const override;

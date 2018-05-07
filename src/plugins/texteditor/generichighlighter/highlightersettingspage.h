@@ -42,11 +42,11 @@ class HighlighterSettingsPage : public TextEditorOptionsPage
 
 public:
     HighlighterSettingsPage(Core::Id id, QObject *parent);
-    ~HighlighterSettingsPage();
+    ~HighlighterSettingsPage() override;
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
     const HighlighterSettings &highlighterSettings() const;
 

@@ -40,7 +40,7 @@ public:
     GenericProposal(int cursorPos, GenericProposalModelPtr model);
     GenericProposal(int cursorPos, const QList<AssistProposalItemInterface *> &items);
 
-    ~GenericProposal();
+    ~GenericProposal() override;
 
     static GenericProposal *createProposal(const AssistInterface *interface,
                                            const QuickFixOperations &quickFixes);

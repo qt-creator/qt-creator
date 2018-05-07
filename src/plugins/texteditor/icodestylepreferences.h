@@ -48,7 +48,7 @@ class TEXTEDITOR_EXPORT ICodeStylePreferences : public QObject
 public:
     // pool is a pool which will be used by this preferences for setting delegates
     explicit ICodeStylePreferences(QObject *parentObject = 0);
-    virtual ~ICodeStylePreferences();
+    ~ICodeStylePreferences() override;
 
     QByteArray id() const;
     void setId(const QByteArray &name);

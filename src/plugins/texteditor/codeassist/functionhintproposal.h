@@ -36,7 +36,7 @@ class TEXTEDITOR_EXPORT FunctionHintProposal : public IAssistProposal
 {
 public:
     FunctionHintProposal(int cursorPos, FunctionHintProposalModelPtr model);
-    ~FunctionHintProposal();
+    ~FunctionHintProposal() override;
 
     ProposalModelPtr model() const override;
     IAssistProposalWidget *createWidget() const override;

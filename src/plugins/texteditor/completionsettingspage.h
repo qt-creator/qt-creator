@@ -43,11 +43,11 @@ class CompletionSettingsPage : public TextEditorOptionsPage
 
 public:
     CompletionSettingsPage(QObject *parent);
-    ~CompletionSettingsPage();
+    ~CompletionSettingsPage() override;
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
     const CompletionSettings & completionSettings();
     const CommentsSettings & commentsSettings();

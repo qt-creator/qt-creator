@@ -43,7 +43,7 @@ class TEXTEDITOR_EXPORT GenericProposalWidget : public IAssistProposalWidget
 
 public:
     GenericProposalWidget();
-    ~GenericProposalWidget();
+    ~GenericProposalWidget() override;
 
     void setAssistant(CodeAssistant *assistant) override;
     void setReason(AssistReason reason) override;

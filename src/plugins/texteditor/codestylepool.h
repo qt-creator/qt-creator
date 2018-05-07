@@ -43,7 +43,7 @@ class TEXTEDITOR_EXPORT CodeStylePool : public QObject
     Q_OBJECT
 public:
     explicit CodeStylePool(ICodeStylePreferencesFactory *factory, QObject *parent = 0);
-    virtual ~CodeStylePool();
+    ~CodeStylePool() override;
 
     QList<ICodeStylePreferences *> codeStyles() const;
     QList<ICodeStylePreferences *> builtInCodeStyles() const;

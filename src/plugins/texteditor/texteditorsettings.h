@@ -63,7 +63,7 @@ class TEXTEDITOR_EXPORT TextEditorSettings : public QObject
 
 public:
     TextEditorSettings();
-    ~TextEditorSettings();
+    ~TextEditorSettings() override;
 
     static TextEditorSettings *instance();
 

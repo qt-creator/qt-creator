@@ -45,7 +45,7 @@ class CodecSelector : public QDialog
 public:
 
     CodecSelector(QWidget *parent, TextDocument *doc);
-    ~CodecSelector();
+    ~CodecSelector() override;
 
     QTextCodec *selectedCodec() const;
 

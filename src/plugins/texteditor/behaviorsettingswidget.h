@@ -50,7 +50,7 @@ class TEXTEDITOR_EXPORT BehaviorSettingsWidget : public QWidget
 
 public:
     explicit BehaviorSettingsWidget(QWidget *parent = 0);
-    virtual ~BehaviorSettingsWidget();
+    ~BehaviorSettingsWidget() override;
 
     void setActive(bool active);
 

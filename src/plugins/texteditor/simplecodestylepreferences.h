@@ -35,11 +35,11 @@ class TEXTEDITOR_EXPORT SimpleCodeStylePreferences : public ICodeStylePreference
 public:
     explicit SimpleCodeStylePreferences(QObject *parentObject = 0);
 
-    virtual QVariant value() const;
-    virtual void setValue(const QVariant &);
+    QVariant value() const override;
+    void setValue(const QVariant &) override;
 
 protected:
-    virtual QString settingsSuffix() const;
+    QString settingsSuffix() const override;
 
 };
 

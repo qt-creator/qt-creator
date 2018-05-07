@@ -66,7 +66,7 @@ class TEXTEDITOR_EXPORT SearchEngine : public QObject
     Q_OBJECT
 public:
     SearchEngine(QObject *parent = nullptr);
-    ~SearchEngine();
+    ~SearchEngine() override;
     virtual QString title() const = 0;
     virtual QString toolTip() const = 0; // add %1 placeholder where the find flags should be put
     virtual QWidget *widget() const = 0;
@@ -93,12 +93,12 @@ class TEXTEDITOR_EXPORT BaseFileFind : public Core::IFindFilter
 
 public:
     BaseFileFind();
-    ~BaseFileFind();
+    ~BaseFileFind() override;
 
-    bool isEnabled() const;
-    bool isReplaceSupported() const { return true; }
-    void findAll(const QString &txt, Core::FindFlags findFlags);
-    void replaceAll(const QString &txt, Core::FindFlags findFlags);
+    bool isEnabled() const override;
+    bool isReplaceSupported() const override { return true; }
+    void findAll(const QString &txt, Core::FindFlags findFlags) override;
+    void replaceAll(const QString &txt, Core::FindFlags findFlags) override;
     void addSearchEngine(SearchEngine *searchEngine);
 
     /* returns the list of unique files that were passed in items */
