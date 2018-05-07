@@ -217,7 +217,7 @@ signals:
 private:
     friend class Android::Internal::AndroidPluginPrivate;
     AndroidConfigurations();
-    ~AndroidConfigurations();
+    ~AndroidConfigurations() override;
     void load();
     void save();
 

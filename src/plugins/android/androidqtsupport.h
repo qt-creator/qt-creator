@@ -47,7 +47,7 @@ class ANDROID_EXPORT AndroidQtSupport : public QObject
 
 protected:
     AndroidQtSupport();
-    ~AndroidQtSupport();
+    ~AndroidQtSupport() override;
 
 public:
     enum BuildType {

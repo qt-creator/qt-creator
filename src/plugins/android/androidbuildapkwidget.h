@@ -47,7 +47,7 @@ class ANDROID_EXPORT AndroidBuildApkWidget : public ProjectExplorer::BuildStepCo
 
 public:
     AndroidBuildApkWidget(AndroidBuildApkStep *step);
-    ~AndroidBuildApkWidget();
+    ~AndroidBuildApkWidget() override;
 
 private:
     void setTargetSdk(const QString &sdk);
@@ -60,8 +60,8 @@ private:
     void updateKeyStorePath(const QString &path);
     void signPackageCheckBoxToggled(bool checked);
 
-    virtual QString summaryText() const;
-    virtual QString displayName() const;
+    QString summaryText() const override;
+    QString displayName() const override;
     void setCertificates();
 
     Ui::AndroidBuildApkWidget *m_ui;
