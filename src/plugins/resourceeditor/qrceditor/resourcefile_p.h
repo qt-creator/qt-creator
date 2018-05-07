@@ -202,12 +202,12 @@ public:
     explicit ResourceModel(QObject *parent = 0);
 
     QModelIndex index(int row, int column,
-                        const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &index) const;
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
-    bool hasChildren(const QModelIndex &parent) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+                        const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &index) const override;
+    int rowCount(const QModelIndex &parent) const override;
+    int columnCount(const QModelIndex &parent) const override;
+    bool hasChildren(const QModelIndex &parent) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     void refresh();
 
@@ -216,8 +216,8 @@ public:
     QList<QModelIndex> nonExistingFiles() const;
 
 protected:
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 
 public:
     QString fileName() const { return m_resource_file.fileName(); }
@@ -261,7 +261,7 @@ public:
     void setDirty(bool b);
 
 private:
-    virtual QMimeData *mimeData (const QModelIndexList & indexes) const;
+    QMimeData *mimeData (const QModelIndexList & indexes) const override;
 
     static bool iconFileExtension(const QString &path);
     static QString resourcePath(const QString &prefix, const QString &file);
@@ -302,7 +302,7 @@ class RelativeResourceModel : public ResourceModel
 public:
     RelativeResourceModel(QObject *parent = 0);
 
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
     {
         if (!index.isValid())
             return QVariant();
@@ -318,7 +318,7 @@ public:
     void setResourceDragEnabled(bool e) { m_resourceDragEnabled = e; }
     bool resourceDragEnabled() const { return m_resourceDragEnabled; }
 
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     EntryBackup * removeEntry(const QModelIndex &index);
 

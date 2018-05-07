@@ -48,8 +48,8 @@ public:
     ResourceEditorPlugin();
 
     // IPlugin
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
+    bool initialize(const QStringList &arguments, QString *errorMessage = 0) override;
+    void extensionsInitialized() override;
 
 private slots:
     void onUndo();

@@ -48,7 +48,7 @@ protected:
     ResourceView *m_view;
 
     ViewCommand(ResourceView *view);
-    virtual ~ViewCommand();
+    ~ViewCommand() override;
 };
 
 /*!
@@ -64,7 +64,7 @@ class ModelIndexViewCommand : public ViewCommand
 
 protected:
     ModelIndexViewCommand(ResourceView *view);
-    virtual ~ModelIndexViewCommand();
+    ~ModelIndexViewCommand() override;
     void storeIndex(const QModelIndex &index);
     QModelIndex makeIndex() const;
 };
@@ -87,10 +87,10 @@ public:
             const QString &after = QString());
 
 private:
-    int id() const { return m_mergeId; }
-    bool mergeWith(const QUndoCommand * command);
-    void undo();
-    void redo();
+    int id() const override { return m_mergeId; }
+    bool mergeWith(const QUndoCommand * command) override;
+    void undo() override;
+    void redo() override;
 };
 
 /*!
@@ -105,11 +105,11 @@ class RemoveEntryCommand : public ModelIndexViewCommand
 
 public:
     RemoveEntryCommand(ResourceView *view, const QModelIndex &index);
-    ~RemoveEntryCommand();
+    ~RemoveEntryCommand() override;
 
 private:
-    void redo();
-    void undo();
+    void redo() override;
+    void undo() override;
     void freeEntry();
 };
 
@@ -124,7 +124,7 @@ class RemoveMultipleEntryCommand : public QUndoCommand
 public:
     // list must be in view order
     RemoveMultipleEntryCommand(ResourceView *view, const QList<QModelIndex> &list);
-    ~RemoveMultipleEntryCommand();
+    ~RemoveMultipleEntryCommand() override;
 private:
     void redo() override;
     void undo() override;
@@ -149,8 +149,8 @@ public:
             const QStringList &fileNames);
 
 private:
-    void redo();
-    void undo();
+    void redo() override;
+    void undo() override;
 };
 
 /*!
@@ -166,8 +166,8 @@ public:
     AddEmptyPrefixCommand(ResourceView *view);
 
 private:
-    void redo();
-    void undo();
+    void redo() override;
+    void undo() override;
 };
 
 } // namespace Internal

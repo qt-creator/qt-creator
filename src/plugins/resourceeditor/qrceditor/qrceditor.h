@@ -40,7 +40,7 @@ class QrcEditor : public QWidget
 
 public:
     QrcEditor(RelativeResourceModel *model, QWidget *parent = 0);
-    virtual ~QrcEditor();
+    ~QrcEditor() override;
 
     void loaded(bool success);
 

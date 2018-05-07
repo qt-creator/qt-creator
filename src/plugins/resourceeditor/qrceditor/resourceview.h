@@ -52,7 +52,7 @@ public:
     };
 
     explicit ResourceView(RelativeResourceModel *model, QUndoStack *history, QWidget *parent = 0);
-    ~ResourceView();
+    ~ResourceView() override;
 
     QString fileName() const;
 
@@ -92,7 +92,7 @@ signals:
     void contextMenuShown(const QPoint &globalPos, const QString &fileName);
 
 protected:
-    void keyPressEvent(QKeyEvent *e);
+    void keyPressEvent(QKeyEvent *e) override;
 
 private:
     void onItemActivated(const QModelIndex &index);
