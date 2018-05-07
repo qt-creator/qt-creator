@@ -78,11 +78,10 @@ static IosDeviceType toIosDeviceType(const SimulatorInfo &device)
     return iosDeviceType;
 }
 
-class IosRunConfigurationWidget : public RunConfigWidget
+class IosRunConfigurationWidget : public QWidget
 {
 public:
     IosRunConfigurationWidget(IosRunConfiguration *runConfiguration);
-    QString displayName() const override;
 
 private:
     void argumentsLineEditTextEdited();
@@ -366,11 +365,6 @@ IosRunConfigurationWidget::IosRunConfigurationWidget(IosRunConfiguration *runCon
             this, &IosRunConfigurationWidget::setDeviceTypeIndex);
     connect(runConfiguration, &IosRunConfiguration::localExecutableChanged,
             this, &IosRunConfigurationWidget::updateValues);
-}
-
-QString IosRunConfigurationWidget::displayName() const
-{
-    return IosRunConfiguration::tr("iOS run settings");
 }
 
 void IosRunConfigurationWidget::setDeviceTypeIndex(int devIndex)
