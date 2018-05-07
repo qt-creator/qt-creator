@@ -44,7 +44,7 @@ namespace QmlJSTools {
 class QMLJSTOOLS_EXPORT Range
 {
 public:
-    Range(): ast(0) {}
+    Range(): ast(nullptr) {}
 
 public: // attributes
     QmlJS::AST::Node *ast;

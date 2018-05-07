@@ -64,7 +64,7 @@ public:
     };
 
 public:
-    FindReferences(QObject *parent = 0);
+    FindReferences(QObject *parent = nullptr);
     ~FindReferences() override;
 
 signals:
