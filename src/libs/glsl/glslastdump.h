@@ -39,8 +39,8 @@ public:
     void operator()(AST *ast);
 
 protected:
-    virtual bool preVisit(AST *);
-    virtual void postVisit(AST *);
+    bool preVisit(AST *) override;
+    void postVisit(AST *) override;
 
 private:
     QTextStream &out;

@@ -38,10 +38,10 @@ class GLSL_EXPORT Argument: public Symbol
 public:
     Argument(Function *scope);
 
-    virtual const Type *type() const;
+    const Type *type() const override;
     void setType(const Type *type);
 
-    virtual Argument *asArgument() { return this; }
+    Argument *asArgument() override { return this; }
 
 private:
     const Type *_type;
@@ -52,13 +52,13 @@ class GLSL_EXPORT Variable: public Symbol
 public:
     Variable(Scope *scope);
 
-    virtual const Type *type() const;
+    const Type *type() const override;
     void setType(const Type *type);
 
     int qualifiers() const { return _qualifiers; }
     void setQualifiers(int qualifiers) { _qualifiers = qualifiers; }
 
-    virtual Variable *asVariable() { return this; }
+    Variable *asVariable() override { return this; }
 
 private:
     const Type *_type;
@@ -70,13 +70,13 @@ class GLSL_EXPORT Block: public Scope
 public:
     Block(Scope *enclosingScope = 0);
 
-    virtual QList<Symbol *> members() const;
-    virtual void add(Symbol *symbol);
+    QList<Symbol *> members() const override;
+    void add(Symbol *symbol) override;
 
-    virtual Block *asBlock() { return this; }
+    Block *asBlock() override { return this; }
 
-    virtual const Type *type() const;
-    virtual Symbol *find(const QString &name) const;
+    const Type *type() const override;
+    Symbol *find(const QString &name) const override;
 
 private:
     QHash<QString, Symbol *> _members;
@@ -86,15 +86,15 @@ class GLSL_EXPORT Namespace: public Scope
 {
 public:
     Namespace();
-    virtual ~Namespace();
+    ~Namespace() override;
 
-    void add(Symbol *symbol);
+    void add(Symbol *symbol) override;
 
-    virtual Namespace *asNamespace() { return this; }
+    Namespace *asNamespace() override { return this; }
 
-    virtual QList<Symbol *> members() const;
-    virtual const Type *type() const;
-    virtual Symbol *find(const QString &name) const;
+    QList<Symbol *> members() const override;
+    const Type *type() const override;
+    Symbol *find(const QString &name) const override;
 
 private:
     QHash<QString, Symbol *> _members;

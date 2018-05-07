@@ -294,7 +294,7 @@ public: // attributes
     int lineno;
 
 protected:
-    ~AST() {}       // Managed types cannot be deleted.
+    ~AST() override {}       // Managed types cannot be deleted.
 };
 
 class GLSL_EXPORT TranslationUnitAST: public AST
@@ -303,9 +303,9 @@ public:
     TranslationUnitAST(List<DeclarationAST *> *declarations)
         : AST(Kind_TranslationUnit), declarations(finish(declarations)) {}
 
-    virtual TranslationUnitAST *asTranslationUnit() { return this; }
+    TranslationUnitAST *asTranslationUnit() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     List<DeclarationAST *> *declarations;
@@ -317,7 +317,7 @@ protected:
     ExpressionAST(Kind _kind) : AST(_kind) {}
 
 public:
-    virtual ExpressionAST *asExpression() { return this; }
+    ExpressionAST *asExpression() override { return this; }
 };
 
 class GLSL_EXPORT IdentifierExpressionAST: public ExpressionAST
@@ -326,9 +326,9 @@ public:
     IdentifierExpressionAST(const QString *_name)
         : ExpressionAST(Kind_Identifier), name(_name) {}
 
-    virtual IdentifierExpressionAST *asIdentifierExpression() { return this; }
+    IdentifierExpressionAST *asIdentifierExpression() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     const QString *name;
@@ -340,9 +340,9 @@ public:
     LiteralExpressionAST(const QString *_value)
         : ExpressionAST(Kind_Literal), value(_value) {}
 
-    virtual LiteralExpressionAST *asLiteralExpression() { return this; }
+    LiteralExpressionAST *asLiteralExpression() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     const QString *value;
@@ -354,9 +354,9 @@ public:
     BinaryExpressionAST(Kind _kind, ExpressionAST *_left, ExpressionAST *_right)
         : ExpressionAST(_kind), left(_left), right(_right) {}
 
-    virtual BinaryExpressionAST *asBinaryExpression() { return this; }
+    BinaryExpressionAST *asBinaryExpression() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     ExpressionAST *left;
@@ -369,9 +369,9 @@ public:
     UnaryExpressionAST(Kind _kind, ExpressionAST *_expr)
         : ExpressionAST(_kind), expr(_expr) {}
 
-    virtual UnaryExpressionAST *asUnaryExpression() { return this; }
+    UnaryExpressionAST *asUnaryExpression() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     ExpressionAST *expr;
@@ -383,9 +383,9 @@ public:
     TernaryExpressionAST(Kind _kind, ExpressionAST *_first, ExpressionAST *_second, ExpressionAST *_third)
         : ExpressionAST(_kind), first(_first), second(_second), third(_third) {}
 
-    virtual TernaryExpressionAST *asTernaryExpression() { return this; }
+    TernaryExpressionAST *asTernaryExpression() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     ExpressionAST *first;
@@ -399,9 +399,9 @@ public:
     AssignmentExpressionAST(Kind _kind, ExpressionAST *_variable, ExpressionAST *_value)
         : ExpressionAST(_kind), variable(_variable), value(_value) {}
 
-    virtual AssignmentExpressionAST *asAssignmentExpression() { return this; }
+    AssignmentExpressionAST *asAssignmentExpression() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     ExpressionAST *variable;
@@ -414,9 +414,9 @@ public:
     MemberAccessExpressionAST(ExpressionAST *_expr, const QString *_field)
         : ExpressionAST(Kind_MemberAccess), expr(_expr), field(_field) {}
 
-    virtual MemberAccessExpressionAST *asMemberAccessExpression() { return this; }
+    MemberAccessExpressionAST *asMemberAccessExpression() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     ExpressionAST *expr;
@@ -435,9 +435,9 @@ public:
         : ExpressionAST(Kind_MemberFunctionCall), expr(_expr), id(_id)
         , arguments(finish(_arguments)) {}
 
-    virtual FunctionCallExpressionAST *asFunctionCallExpression() { return this; }
+    FunctionCallExpressionAST *asFunctionCallExpression() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     ExpressionAST *expr;
@@ -453,9 +453,9 @@ public:
     FunctionIdentifierAST(TypeAST *_type)
         : AST(Kind_FunctionIdentifier), name(0), type(_type) {}
 
-    virtual FunctionIdentifierAST *asFunctionIdentifier() { return this; }
+    FunctionIdentifierAST *asFunctionIdentifier() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     const QString *name;
@@ -470,9 +470,9 @@ public:
         : ExpressionAST(Kind_DeclarationExpression), type(_type)
         , name(_name), initializer(_initializer) {}
 
-    virtual DeclarationExpressionAST *asDeclarationExpression() { return this; }
+    DeclarationExpressionAST *asDeclarationExpression() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     TypeAST *type;
@@ -486,7 +486,7 @@ protected:
     StatementAST(Kind _kind) : AST(_kind) {}
 
 public:
-    virtual StatementAST *asStatement() { return this; }
+    StatementAST *asStatement() override { return this; }
 };
 
 class GLSL_EXPORT ExpressionStatementAST: public StatementAST
@@ -495,9 +495,9 @@ public:
     ExpressionStatementAST(ExpressionAST *_expr)
         : StatementAST(Kind_ExpressionStatement), expr(_expr) {}
 
-    virtual ExpressionStatementAST *asExpressionStatement() { return this; }
+    ExpressionStatementAST *asExpressionStatement() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     ExpressionAST *expr;
@@ -513,9 +513,9 @@ public:
         : StatementAST(Kind_CompoundStatement), statements(finish(_statements))
         , start(0), end(0), symbol(0) {}
 
-    virtual CompoundStatementAST *asCompoundStatement() { return this; }
+    CompoundStatementAST *asCompoundStatement() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     List<StatementAST *> *statements;
@@ -531,9 +531,9 @@ public:
         : StatementAST(Kind_If), condition(_condition)
         , thenClause(_thenClause), elseClause(_elseClause) {}
 
-    virtual IfStatementAST *asIfStatement() { return this; }
+    IfStatementAST *asIfStatement() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     ExpressionAST *condition;
@@ -547,9 +547,9 @@ public:
     WhileStatementAST(ExpressionAST *_condition, StatementAST *_body)
         : StatementAST(Kind_While), condition(_condition), body(_body) {}
 
-    virtual WhileStatementAST *asWhileStatement() { return this; }
+    WhileStatementAST *asWhileStatement() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     ExpressionAST *condition;
@@ -562,9 +562,9 @@ public:
     DoStatementAST(StatementAST *_body, ExpressionAST *_condition)
         : StatementAST(Kind_Do), body(_body), condition(_condition) {}
 
-    virtual DoStatementAST *asDoStatement() { return this; }
+    DoStatementAST *asDoStatement() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     StatementAST *body;
@@ -577,9 +577,9 @@ public:
     ForStatementAST(StatementAST *_init, ExpressionAST *_condition, ExpressionAST *_increment, StatementAST *_body)
         : StatementAST(Kind_For), init(_init), condition(_condition), increment(_increment), body(_body) {}
 
-    virtual ForStatementAST *asForStatement() { return this; }
+    ForStatementAST *asForStatement() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     StatementAST *init;
@@ -593,9 +593,9 @@ class GLSL_EXPORT JumpStatementAST: public StatementAST
 public:
     JumpStatementAST(Kind _kind) : StatementAST(_kind) {}
 
-    virtual JumpStatementAST *asJumpStatement() { return this; }
+    JumpStatementAST *asJumpStatement() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 };
 
 class GLSL_EXPORT ReturnStatementAST: public StatementAST
@@ -605,9 +605,9 @@ public:
     ReturnStatementAST(ExpressionAST *_expr)
         : StatementAST(Kind_ReturnExpression), expr(_expr) {}
 
-    virtual ReturnStatementAST *asReturnStatement() { return this; }
+    ReturnStatementAST *asReturnStatement() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     ExpressionAST *expr;
@@ -619,9 +619,9 @@ public:
     SwitchStatementAST(ExpressionAST *_expr, StatementAST *_body)
         : StatementAST(Kind_Switch), expr(_expr), body(_body) {}
 
-    virtual SwitchStatementAST *asSwitchStatement() { return this; }
+    SwitchStatementAST *asSwitchStatement() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     ExpressionAST *expr;
@@ -635,9 +635,9 @@ public:
     CaseLabelStatementAST(ExpressionAST *_expr)
         : StatementAST(Kind_CaseLabel), expr(_expr) {}
 
-    virtual CaseLabelStatementAST *asCaseLabelStatement() { return this; }
+    CaseLabelStatementAST *asCaseLabelStatement() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     ExpressionAST *expr;
@@ -649,9 +649,9 @@ public:
     DeclarationStatementAST(DeclarationAST *_decl)
         : StatementAST(Kind_DeclarationStatement), decl(_decl) {}
 
-    virtual DeclarationStatementAST *asDeclarationStatement() { return this; }
+    DeclarationStatementAST *asDeclarationStatement() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     DeclarationAST *decl;
@@ -672,7 +672,7 @@ public:
         Highp
     };
 
-    virtual TypeAST *asType() { return this; }
+    TypeAST *asType() override { return this; }
 
     virtual Precision precision() const = 0;
 
@@ -687,12 +687,12 @@ public:
     // Pass the parser's token code: T_VOID, T_VEC4, etc.
     BasicTypeAST(int _token, const char *_name);
 
-    virtual BasicTypeAST *asBasicType() { return this; }
+    BasicTypeAST *asBasicType() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
-    virtual Precision precision() const;
-    virtual bool setPrecision(Precision precision);
+    Precision precision() const override;
+    bool setPrecision(Precision precision) override;
 
 public: // attributes
     Precision prec;
@@ -705,12 +705,12 @@ class GLSL_EXPORT NamedTypeAST: public TypeAST
 public:
     NamedTypeAST(const QString *_name) : TypeAST(Kind_NamedType), name(_name) {}
 
-    virtual NamedTypeAST *asNamedType() { return this; }
+    NamedTypeAST *asNamedType() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
-    virtual Precision precision() const;
-    virtual bool setPrecision(Precision precision);
+    Precision precision() const override;
+    bool setPrecision(Precision precision) override;
 
 public: // attributes
     const QString *name;
@@ -724,12 +724,12 @@ public:
     ArrayTypeAST(TypeAST *_elementType, ExpressionAST *_size)
         : TypeAST(Kind_ArrayType), elementType(_elementType), size(_size) {}
 
-    virtual ArrayTypeAST *asArrayType() { return this; }
+    ArrayTypeAST *asArrayType() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
-    virtual Precision precision() const;
-    virtual bool setPrecision(Precision precision);
+    Precision precision() const override;
+    bool setPrecision(Precision precision) override;
 
 public: // attributes
     TypeAST *elementType;
@@ -751,7 +751,7 @@ public:
         Field(const QString *_name, TypeAST *_type)
             : AST(Kind_StructField), name(_name), type(_type) {}
 
-        virtual void accept0(Visitor *visitor);
+        void accept0(Visitor *visitor) override;
 
         void setInnerType(TypeAST *innerType);
 
@@ -764,12 +764,12 @@ public:
     StructTypeAST(const QString *_name, List<Field *> *_fields)
         : TypeAST(Kind_StructType), name(_name), fields(finish(_fields)) {}
 
-    virtual StructTypeAST *asStructType() { return this; }
+    StructTypeAST *asStructType() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
-    virtual Precision precision() const;
-    virtual bool setPrecision(Precision precision);
+    Precision precision() const override;
+    bool setPrecision(Precision precision) override;
 
     // Fix the inner types of a field list.  The "innerType" will
     // be copied into the "array holes" of all fields.
@@ -786,8 +786,8 @@ public:
     LayoutQualifierAST(const QString *_name, const QString *_number)
         : AST(Kind_LayoutQualifier), name(_name), number(_number) {}
 
-    virtual LayoutQualifierAST *asLayoutQualifier() { return this; }
-    virtual void accept0(Visitor *visitor);
+    LayoutQualifierAST *asLayoutQualifier() override { return this; }
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     const QString *name;
@@ -827,12 +827,12 @@ public:
         Struct              = 0x00020000
     };
 
-    virtual QualifiedTypeAST *asQualifiedType() { return this; }
+    QualifiedTypeAST *asQualifiedType() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
-    virtual Precision precision() const { return type->precision(); }
-    virtual bool setPrecision(Precision precision) { return type->setPrecision(precision); }
+    Precision precision() const override { return type->precision(); }
+    bool setPrecision(Precision precision) override { return type->setPrecision(precision); }
 
 public: // attributes
     int qualifiers;
@@ -846,7 +846,7 @@ protected:
     DeclarationAST(Kind _kind) : AST(_kind) {}
 
 public:
-    virtual DeclarationAST *asDeclaration() { return this; }
+    DeclarationAST *asDeclaration() override { return this; }
 };
 
 class GLSL_EXPORT PrecisionDeclarationAST: public DeclarationAST
@@ -856,9 +856,9 @@ public:
         : DeclarationAST(Kind_PrecisionDeclaration)
         , precision(_precision), type(_type) {}
 
-    virtual PrecisionDeclarationAST *asPrecisionDeclaration() { return this; }
+    PrecisionDeclarationAST *asPrecisionDeclaration() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     TypeAST::Precision precision;
@@ -879,9 +879,9 @@ public:
         : DeclarationAST(Kind_ParameterDeclaration), type(_type)
         , qualifier(_qualifier), name(_name) {}
 
-    virtual ParameterDeclarationAST *asParameterDeclaration() { return this; }
+    ParameterDeclarationAST *asParameterDeclaration() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     TypeAST *type;
@@ -897,9 +897,9 @@ public:
         : DeclarationAST(Kind_VariableDeclaration), type(_type)
         , name(_name), initializer(_initializer) {}
 
-    virtual VariableDeclarationAST *asVariableDeclaration() { return this; }
+    VariableDeclarationAST *asVariableDeclaration() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
     static TypeAST *declarationType(List<DeclarationAST *> *decls);
 
@@ -915,9 +915,9 @@ public:
     TypeDeclarationAST(TypeAST *_type)
         : DeclarationAST(Kind_TypeDeclaration), type(_type) {}
 
-    virtual TypeDeclarationAST *asTypeDeclaration() { return this; }
+    TypeDeclarationAST *asTypeDeclaration() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     TypeAST *type;
@@ -931,9 +931,9 @@ public:
         : DeclarationAST(Kind_TypeAndVariableDeclaration)
         , typeDecl(_typeDecl), varDecl(_varDecl) {}
 
-    virtual TypeAndVariableDeclarationAST *asTypeAndVariableDeclaration() { return this; }
+    TypeAndVariableDeclarationAST *asTypeAndVariableDeclaration() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     TypeDeclarationAST *typeDecl;
@@ -946,9 +946,9 @@ public:
     InvariantDeclarationAST(const QString *_name)
         : DeclarationAST(Kind_InvariantDeclaration), name(_name) {}
 
-    virtual InvariantDeclarationAST *asInvariantDeclaration() { return this; }
+    InvariantDeclarationAST *asInvariantDeclaration() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     const QString *name;
@@ -960,9 +960,9 @@ public:
     InitDeclarationAST(List<DeclarationAST *> *_decls)
         : DeclarationAST(Kind_InitDeclaration), decls(finish(_decls)) {}
 
-    virtual InitDeclarationAST *asInitDeclaration() { return this; }
+    InitDeclarationAST *asInitDeclaration() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
 public: // attributes
     List<DeclarationAST *> *decls;
@@ -975,9 +975,9 @@ public:
         : DeclarationAST(Kind_FunctionDeclaration), returnType(_returnType)
         , name(_name), params(0), body(0) {}
 
-    virtual FunctionDeclarationAST *asFunctionDeclaration() { return this; }
+    FunctionDeclarationAST *asFunctionDeclaration() override { return this; }
 
-    virtual void accept0(Visitor *visitor);
+    void accept0(Visitor *visitor) override;
 
     void finishParams() { params = finish(params); }
 

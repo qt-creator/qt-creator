@@ -34,7 +34,7 @@ class GLSL_EXPORT Semantic: protected Visitor
 {
 public:
     Semantic();
-    virtual ~Semantic();
+    ~Semantic() override;
 
     struct ExprResult {
         ExprResult(const Type *type = 0, bool isConstant = false)
@@ -73,50 +73,50 @@ protected:
     Symbol *field(StructTypeAST::Field *ast);
     void parameterDeclaration(ParameterDeclarationAST *ast, Function *fun);
 
-    virtual bool visit(TranslationUnitAST *ast);
-    virtual bool visit(FunctionIdentifierAST *ast);
-    virtual bool visit(StructTypeAST::Field *ast);
+    bool visit(TranslationUnitAST *ast) override;
+    bool visit(FunctionIdentifierAST *ast) override;
+    bool visit(StructTypeAST::Field *ast) override;
 
     // expressions
-    virtual bool visit(IdentifierExpressionAST *ast);
-    virtual bool visit(LiteralExpressionAST *ast);
-    virtual bool visit(BinaryExpressionAST *ast);
-    virtual bool visit(UnaryExpressionAST *ast);
-    virtual bool visit(TernaryExpressionAST *ast);
-    virtual bool visit(AssignmentExpressionAST *ast);
-    virtual bool visit(MemberAccessExpressionAST *ast);
-    virtual bool visit(FunctionCallExpressionAST *ast);
-    virtual bool visit(DeclarationExpressionAST *ast);
+    bool visit(IdentifierExpressionAST *ast) override;
+    bool visit(LiteralExpressionAST *ast) override;
+    bool visit(BinaryExpressionAST *ast) override;
+    bool visit(UnaryExpressionAST *ast) override;
+    bool visit(TernaryExpressionAST *ast) override;
+    bool visit(AssignmentExpressionAST *ast) override;
+    bool visit(MemberAccessExpressionAST *ast) override;
+    bool visit(FunctionCallExpressionAST *ast) override;
+    bool visit(DeclarationExpressionAST *ast) override;
 
     // statements
-    virtual bool visit(ExpressionStatementAST *ast);
-    virtual bool visit(CompoundStatementAST *ast);
-    virtual bool visit(IfStatementAST *ast);
-    virtual bool visit(WhileStatementAST *ast);
-    virtual bool visit(DoStatementAST *ast);
-    virtual bool visit(ForStatementAST *ast);
-    virtual bool visit(JumpStatementAST *ast);
-    virtual bool visit(ReturnStatementAST *ast);
-    virtual bool visit(SwitchStatementAST *ast);
-    virtual bool visit(CaseLabelStatementAST *ast);
-    virtual bool visit(DeclarationStatementAST *ast);
+    bool visit(ExpressionStatementAST *ast) override;
+    bool visit(CompoundStatementAST *ast) override;
+    bool visit(IfStatementAST *ast) override;
+    bool visit(WhileStatementAST *ast) override;
+    bool visit(DoStatementAST *ast) override;
+    bool visit(ForStatementAST *ast) override;
+    bool visit(JumpStatementAST *ast) override;
+    bool visit(ReturnStatementAST *ast) override;
+    bool visit(SwitchStatementAST *ast) override;
+    bool visit(CaseLabelStatementAST *ast) override;
+    bool visit(DeclarationStatementAST *ast) override;
 
     // types
-    virtual bool visit(BasicTypeAST *ast);
-    virtual bool visit(NamedTypeAST *ast);
-    virtual bool visit(ArrayTypeAST *ast);
-    virtual bool visit(StructTypeAST *ast);
-    virtual bool visit(QualifiedTypeAST *ast);
+    bool visit(BasicTypeAST *ast) override;
+    bool visit(NamedTypeAST *ast) override;
+    bool visit(ArrayTypeAST *ast) override;
+    bool visit(StructTypeAST *ast) override;
+    bool visit(QualifiedTypeAST *ast) override;
 
     // declarations
-    virtual bool visit(PrecisionDeclarationAST *ast);
-    virtual bool visit(ParameterDeclarationAST *ast);
-    virtual bool visit(VariableDeclarationAST *ast);
-    virtual bool visit(TypeDeclarationAST *ast);
-    virtual bool visit(TypeAndVariableDeclarationAST *ast);
-    virtual bool visit(InvariantDeclarationAST *ast);
-    virtual bool visit(InitDeclarationAST *ast);
-    virtual bool visit(FunctionDeclarationAST *ast);
+    bool visit(PrecisionDeclarationAST *ast) override;
+    bool visit(ParameterDeclarationAST *ast) override;
+    bool visit(VariableDeclarationAST *ast) override;
+    bool visit(TypeDeclarationAST *ast) override;
+    bool visit(TypeAndVariableDeclarationAST *ast) override;
+    bool visit(InvariantDeclarationAST *ast) override;
+    bool visit(InitDeclarationAST *ast) override;
+    bool visit(FunctionDeclarationAST *ast) override;
 
 private:
     Engine *_engine;
