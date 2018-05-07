@@ -36,15 +36,21 @@ namespace Timeline {
 class TraceEventType
 {
 public:
-    TraceEventType(quint8 feature = 255, const QString &displayName = QString())
-        : m_displayName(displayName), m_feature(feature)
-    {}
-
     const QString &displayName() const { return m_displayName; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
 
     quint8 feature() const { return m_feature; }
     void setFeature(quint8 feature) { m_feature = feature; }
+
+protected:
+    TraceEventType(quint8 feature = 255, const QString &displayName = QString())
+        : m_displayName(displayName), m_feature(feature)
+    {}
+
+    TraceEventType(const TraceEventType &) = default;
+    TraceEventType(TraceEventType &&) = default;
+    TraceEventType &operator=(const TraceEventType &) = default;
+    TraceEventType &operator=(TraceEventType &&) = default;
 
 private:
     QString m_displayName;
@@ -52,8 +58,6 @@ private:
 };
 
 } // namespace Timeline
-
-Q_DECLARE_METATYPE(Timeline::TraceEventType)
 
 QT_BEGIN_NAMESPACE
 Q_DECLARE_TYPEINFO(Timeline::TraceEventType, Q_MOVABLE_TYPE);

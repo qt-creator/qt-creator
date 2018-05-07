@@ -35,10 +35,6 @@ namespace Timeline {
 class TraceEvent
 {
 public:
-    TraceEvent(qint64 timestamp = -1, qint32 typeIndex = -1)
-        : m_timestamp(timestamp), m_typeIndex(typeIndex)
-    {}
-
     qint64 timestamp() const { return m_timestamp; }
     void setTimestamp(qint64 timestamp) { m_timestamp = timestamp; }
 
@@ -47,14 +43,22 @@ public:
 
     bool isValid() const { return m_typeIndex != -1; }
 
+protected:
+    TraceEvent(qint64 timestamp = -1, qint32 typeIndex = -1)
+        : m_timestamp(timestamp), m_typeIndex(typeIndex)
+    {}
+
+    TraceEvent(const TraceEvent &) = default;
+    TraceEvent(TraceEvent &&) = default;
+    TraceEvent &operator=(const TraceEvent &) = default;
+    TraceEvent &operator=(TraceEvent &&) = default;
+
 private:
     qint64 m_timestamp;
     qint32 m_typeIndex;
 };
 
 } // namespace Timeline
-
-Q_DECLARE_METATYPE(Timeline::TraceEvent)
 
 QT_BEGIN_NAMESPACE
 Q_DECLARE_TYPEINFO(Timeline::TraceEvent, Q_MOVABLE_TYPE);
