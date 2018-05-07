@@ -51,7 +51,7 @@ public:
 
     void highlightBlock(const QString &text) override;
 
-    virtual void setFontSettings(const TextEditor::FontSettings &fontSettings) override;
+    void setFontSettings(const TextEditor::FontSettings &fontSettings) override;
 
 private:
     friend class DiffAndLogHighlighterPrivate;

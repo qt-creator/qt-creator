@@ -43,7 +43,7 @@ public:
     VcsBaseDiffEditorController(Core::IDocument *document,
                                 VcsBaseClientImpl *client,
                                 const QString &workingDirectory);
-    ~VcsBaseDiffEditorController();
+    ~VcsBaseDiffEditorController() override;
 
 protected:
     void runCommand(const QList<QStringList> &args, unsigned flags, QTextCodec *codec = nullptr);

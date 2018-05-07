@@ -69,8 +69,8 @@ public:
     explicit VcsClientOptionsPage(Core::IVersionControl *control, VcsBaseClientImpl *client, QObject *parent = 0);
 
     VcsClientOptionsPageWidget *widget() override;
-    virtual void apply() override;
-    virtual void finish() override;
+    void apply() override;
+    void finish() override;
 
 signals:
     void settingsChanged();

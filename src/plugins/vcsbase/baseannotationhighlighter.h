@@ -45,9 +45,9 @@ public:
 
     void setChangeNumbers(const ChangeNumbers &changeNumbers);
 
-    virtual void highlightBlock(const QString &text) override;
+    void highlightBlock(const QString &text) override;
 
-    virtual void setFontSettings(const TextEditor::FontSettings &fontSettings) override;
+    void setFontSettings(const TextEditor::FontSettings &fontSettings) override;
 
 private:
     // Implement this to return the change number of a line
