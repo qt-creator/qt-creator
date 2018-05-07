@@ -42,7 +42,7 @@ class QMLDEBUG_EXPORT QmlDebugConnection : public QObject
     Q_DECLARE_PRIVATE(QmlDebugConnection)
 public:
     QmlDebugConnection(QObject * = 0);
-    ~QmlDebugConnection();
+    ~QmlDebugConnection() override;
 
     void connectToHost(const QString &hostName, quint16 port);
     void startLocalServer(const QString &fileName);

@@ -44,7 +44,7 @@ public:
     enum State { NotConnected, Unavailable, Enabled };
 
     QmlDebugClient(const QString &, QmlDebugConnection *parent);
-    ~QmlDebugClient();
+    ~QmlDebugClient() override;
 
     QString name() const;
     float serviceVersion() const;

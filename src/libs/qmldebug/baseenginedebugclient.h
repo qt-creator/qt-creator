@@ -72,8 +72,8 @@ public:
     virtual quint32 queryObjectsForLocation(const QString &fileName, int lineNumber,
                                             int columnNumber);
 
-    virtual void stateChanged(State status) override;
-    virtual void messageReceived(const QByteArray &) override;
+    void stateChanged(State status) override;
+    void messageReceived(const QByteArray &) override;
 
 signals:
     void newState(QmlDebug::QmlDebugClient::State status);
