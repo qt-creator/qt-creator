@@ -130,6 +130,8 @@ Utils::FileName QbsRunConfiguration::executableToRun(const BuildTargetInfo &targ
         return appInBuildDir;
     const QString deployedAppFilePath = target()->deploymentData()
             .deployableForLocalFile(appInBuildDir.toString()).remoteFilePath();
+    if (deployedAppFilePath.isEmpty())
+        return appInBuildDir;
     const FileName appInLocalInstallDir = target()->deploymentData().localInstallRoot()
             + deployedAppFilePath;
     return appInLocalInstallDir.exists() ? appInLocalInstallDir : appInBuildDir;
