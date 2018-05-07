@@ -58,7 +58,7 @@ public:
     };
 
     LocalHelpManager(QObject *parent = nullptr);
-    ~LocalHelpManager();
+    ~LocalHelpManager() override;
 
     static LocalHelpManager *instance();
 

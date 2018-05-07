@@ -41,9 +41,9 @@ class GeneralSettingsPage : public Core::IOptionsPage
 public:
     GeneralSettingsPage();
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 signals:
     void fontChanged();

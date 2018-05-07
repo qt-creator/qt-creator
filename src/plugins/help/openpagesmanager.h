@@ -48,7 +48,7 @@ class OpenPagesManager : public QObject
 
 public:
     OpenPagesManager(QObject *parent = nullptr);
-    ~OpenPagesManager();
+    ~OpenPagesManager() override;
 
     static OpenPagesManager &instance();
 

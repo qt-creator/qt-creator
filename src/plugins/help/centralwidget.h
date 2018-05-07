@@ -39,7 +39,7 @@ class CentralWidget : public HelpWidget
 
 public:
     CentralWidget(const Core::Context &context, QWidget *parent = nullptr);
-    ~CentralWidget();
+    ~CentralWidget() override;
 
     static CentralWidget *instance();
 };

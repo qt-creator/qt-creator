@@ -50,7 +50,7 @@ class SearchSideBarItem : public Core::SideBarItem
 public:
     SearchSideBarItem();
 
-    QList<QToolButton *> createToolBarWidgets();
+    QList<QToolButton *> createToolBarWidgets() override;
 
 signals:
     void linkActivated(const QUrl &url, const QStringList &searchTerms, bool newPage);
@@ -62,7 +62,7 @@ class SearchWidget : public QWidget
 
 public:
     SearchWidget();
-    ~SearchWidget();
+    ~SearchWidget() override;
 
     void zoomIn();
     void zoomOut();
@@ -74,7 +74,7 @@ signals:
     void linkActivated(const QUrl &link, const QStringList &searchTerms, bool newPage);
 
 protected:
-    void showEvent(QShowEvent *event);
+    void showEvent(QShowEvent *event) override;
 
 private:
     void search() const;
@@ -85,8 +85,8 @@ private:
     void indexingStarted();
     void indexingFinished();
 
-    bool eventFilter(QObject* o, QEvent *e);
-    void contextMenuEvent(QContextMenuEvent *contextMenuEvent);
+    bool eventFilter(QObject* o, QEvent *e) override;
+    void contextMenuEvent(QContextMenuEvent *contextMenuEvent) override;
     QStringList currentSearchTerms() const;
 
     int zoomCount = 0;

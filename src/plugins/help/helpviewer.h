@@ -49,7 +49,7 @@ public:
     Q_DECLARE_FLAGS(Actions, Action)
 
     explicit HelpViewer(QWidget *parent = nullptr);
-    ~HelpViewer();
+    ~HelpViewer() override;
 
     virtual QFont viewerFont() const = 0;
     virtual void setViewerFont(const QFont &font) = 0;
