@@ -49,7 +49,6 @@ public:
     QWidget *createConfigurationWidget() override;
     IosDeployStep *deployStep() const;
 
-    QString commandLineArguments() const;
     Utils::FileName profilePath() const;
     QString applicationName() const;
     Utils::FileName bundleDirectory() const;

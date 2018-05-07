@@ -84,7 +84,6 @@ public:
     IosRunConfigurationWidget(IosRunConfiguration *runConfiguration);
 
 private:
-    void argumentsLineEditTextEdited();
     void updateValues();
     void setDeviceTypeIndex(int devIndex);
 
@@ -116,11 +115,6 @@ void IosRunConfiguration::deviceChanges()
 QWidget *IosRunConfiguration::createConfigurationWidget()
 {
     return new IosRunConfigurationWidget(this);
-}
-
-QString IosRunConfiguration::commandLineArguments() const
-{
-    return extraAspect<ArgumentsAspect>()->arguments();
 }
 
 void IosRunConfiguration::updateDisplayNames()

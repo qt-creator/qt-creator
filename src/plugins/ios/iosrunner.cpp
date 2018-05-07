@@ -37,6 +37,7 @@
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
@@ -99,7 +100,7 @@ IosRunner::IosRunner(RunControl *runControl)
     stopRunningRunControl(runControl);
     auto runConfig = qobject_cast<IosRunConfiguration *>(runControl->runConfiguration());
     m_bundleDir = runConfig->bundleDirectory().toString();
-    m_arguments = QStringList(runConfig->commandLineArguments());
+    m_arguments = runConfig->extraAspect<ArgumentsAspect>()->arguments();
     m_device = DeviceKitInformation::device(runConfig->target()->kit());
     m_deviceType = runConfig->deviceType();
 }
@@ -122,14 +123,6 @@ void IosRunner::setQmlDebugging(QmlDebug::QmlDebugServicesPreset qmlDebugService
 QString IosRunner::bundlePath()
 {
     return m_bundleDir;
-}
-
-QStringList IosRunner::extraArgs()
-{
-    QStringList res = m_arguments;
-    if (m_qmlServerPort.isValid())
-        res << QmlDebug::qmlDebugTcpArguments(m_qmlDebugServices, m_qmlServerPort);
-    return res;
 }
 
 QString IosRunner::deviceId()
@@ -207,7 +200,12 @@ void IosRunner::start()
             this, &IosRunner::handleToolExited);
     connect(m_toolHandler, &IosToolHandler::finished,
             this, &IosRunner::handleFinished);
-    m_toolHandler->requestRunApp(bundlePath(), extraArgs(), runType(), deviceId());
+
+    QStringList args = QtcProcess::splitArgs(m_arguments, OsTypeMac);
+    if (m_qmlServerPort.isValid())
+        args.append(QmlDebug::qmlDebugTcpArguments(m_qmlDebugServices, m_qmlServerPort));
+
+    m_toolHandler->requestRunApp(bundlePath(), args, runType(), deviceId());
 }
 
 void IosRunner::stop()
@@ -388,7 +386,7 @@ IosQmlProfilerSupport::IosQmlProfilerSupport(RunControl *runControl)
     auto iosRunConfig = qobject_cast<IosRunConfiguration *>(runControl->runConfiguration());
     StandardRunnable runnable;
     runnable.executable = iosRunConfig->localExecutable().toUserOutput();
-    runnable.commandLineArguments = iosRunConfig->commandLineArguments();
+    runnable.commandLineArguments = iosRunConfig->extraAspect<ArgumentsAspect>()->arguments();
     runControl->setDisplayName(iosRunConfig->applicationName());
     runControl->setRunnable(runnable);
 
