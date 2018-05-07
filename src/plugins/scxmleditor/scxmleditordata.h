@@ -47,7 +47,7 @@ class ScxmlEditorData : public QObject
     Q_OBJECT
 public:
     ScxmlEditorData(QObject *parent = nullptr);
-    ~ScxmlEditorData();
+    ~ScxmlEditorData() override;
 
     void fullInit();
     IEditor *createEditor();

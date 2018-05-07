@@ -75,7 +75,7 @@ class OutputTabWidget : public QFrame
 
 public:
     explicit OutputTabWidget(QWidget *parent = nullptr);
-    ~OutputTabWidget();
+    ~OutputTabWidget() override;
 
     int addPane(OutputPane *pane);
     void showPane(OutputPane *pane);

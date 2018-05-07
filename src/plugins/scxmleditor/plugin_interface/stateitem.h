@@ -62,7 +62,7 @@ public:
     void updateAttributes() override;
     void updateEditorInfo(bool allChildren = false) override;
     void updateColors() override;
-    virtual void doLayout(int d) override;
+    void doLayout(int d) override;
     void shrink();
     void setInitial(bool initial);
     bool isInitial() const;
