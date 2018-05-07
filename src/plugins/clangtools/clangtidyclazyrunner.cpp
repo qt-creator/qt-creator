@@ -25,10 +25,13 @@
 
 #include "clangtidyclazyrunner.h"
 
+#include "clangtoolssettings.h"
+
 #include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cpptoolsreuse.h>
 
 #include <utils/synchronousprocess.h>
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QDir>
@@ -75,7 +78,12 @@ QStringList ClangTidyClazyRunner::constructCommandLineArguments(const QStringLis
               << QString("-serialize-diagnostics")
               << QString(m_logFile);
 
-    const ClangDiagnosticConfig config = CppTools::codeModelSettings()->clangDiagnosticConfig();
+    const ClangDiagnosticConfigsModel configsModel(
+                CppTools::codeModelSettings()->clangCustomDiagnosticConfigs());
+    const Core::Id configId = ClangToolsSettings::instance()->savedDiagnosticConfigId();
+    QTC_ASSERT(configsModel.hasConfigWithId(configId), return arguments;);
+
+    const ClangDiagnosticConfig &config = configsModel.configWithId(configId);
 
     const ClangDiagnosticConfig::TidyMode tidyMode = config.clangTidyMode();
     if (tidyMode != ClangDiagnosticConfig::TidyMode::Disabled) {

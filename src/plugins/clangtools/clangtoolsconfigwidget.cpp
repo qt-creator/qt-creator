@@ -28,6 +28,10 @@
 
 #include "clangtoolsutils.h"
 
+#include <cpptools/clangdiagnosticconfigswidget.h>
+#include <cpptools/cppcodemodelsettings.h>
+#include <cpptools/cpptoolsreuse.h>
+
 #include <QDir>
 #include <QThread>
 
@@ -54,6 +58,23 @@ ClangToolsConfigWidget::ClangToolsConfigWidget(
                                               ? Qt::Checked : Qt::Unchecked);
     connect(m_ui->buildBeforeAnalysis, &QCheckBox::toggled, [settings](bool checked) {
         settings->setBuildBeforeAnalysis(checked);
+    });
+
+    m_ui->clangDiagnosticConfigsSelectionWidget->refresh(settings->savedDiagnosticConfigId());
+
+    CppTools::connectToClangDiagnosticConfigsDialog(m_ui->manageButton);
+
+    connect(m_ui->clangDiagnosticConfigsSelectionWidget,
+            &CppTools::ClangDiagnosticConfigsSelectionWidget::currentConfigChanged,
+            this, [this](const Core::Id &currentConfigId) {
+        m_settings->setDiagnosticConfigId(currentConfigId);
+    });
+
+    connect(CppTools::codeModelSettings().data(), &CppTools::CppCodeModelSettings::changed,
+            this, [this]() {
+        // Settings were applied so apply also the current selection if possible.
+        m_ui->clangDiagnosticConfigsSelectionWidget->refresh(m_settings->diagnosticConfigId());
+        m_settings->writeSettings();
     });
 }
 
