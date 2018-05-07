@@ -49,7 +49,7 @@ class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployService : public QObject
     Q_DISABLE_COPY(AbstractRemoteLinuxDeployService)
 public:
     explicit AbstractRemoteLinuxDeployService(QObject *parent = 0);
-    ~AbstractRemoteLinuxDeployService();
+    ~AbstractRemoteLinuxDeployService() override;
 
     void setTarget(ProjectExplorer::Target *bc);
     // Only use setDevice() as fallback if no target is available

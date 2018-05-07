@@ -43,10 +43,10 @@ class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizardSetupPage : public
 
 public:
     explicit GenericLinuxDeviceConfigurationWizardSetupPage(QWidget *parent = 0);
-    ~GenericLinuxDeviceConfigurationWizardSetupPage();
+    ~GenericLinuxDeviceConfigurationWizardSetupPage() override;
 
-    void initializePage();
-    bool isComplete() const;
+    void initializePage() override;
+    bool isComplete() const override;
 
     QString configurationName() const;
     QUrl url() const;
@@ -70,9 +70,9 @@ class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizardFinalPage : public
     Q_OBJECT
 public:
     GenericLinuxDeviceConfigurationWizardFinalPage(QWidget *parent);
-    ~GenericLinuxDeviceConfigurationWizardFinalPage();
+    ~GenericLinuxDeviceConfigurationWizardFinalPage() override;
 
-    void initializePage();
+    void initializePage() override;
 
 protected:
     virtual QString infoText() const;
