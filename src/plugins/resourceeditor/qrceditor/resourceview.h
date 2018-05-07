@@ -51,7 +51,7 @@ public:
         LanguageProperty
     };
 
-    explicit ResourceView(RelativeResourceModel *model, QUndoStack *history, QWidget *parent = 0);
+    explicit ResourceView(RelativeResourceModel *model, QUndoStack *history, QWidget *parent = nullptr);
     ~ResourceView() override;
 
     QString fileName() const;

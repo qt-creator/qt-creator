@@ -48,7 +48,7 @@ class ResourceEditorDocument
     Q_PROPERTY(QString plainText READ plainText STORED false) // For access by code pasters
 
 public:
-    ResourceEditorDocument(QObject *parent = 0);
+    ResourceEditorDocument(QObject *parent = nullptr);
 
     //IDocument
     OpenResult open(QString *errorString, const QString &fileName,
@@ -85,7 +85,7 @@ class ResourceEditorW : public Core::IEditor
 public:
     ResourceEditorW(const Core::Context &context,
                    ResourceEditorPlugin *plugin,
-                   QWidget *parent = 0);
+                   QWidget *parent = nullptr);
     ~ResourceEditorW() override;
 
     // IEditor

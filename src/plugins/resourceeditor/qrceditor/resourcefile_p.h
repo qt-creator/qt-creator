@@ -105,7 +105,7 @@ public:
 struct Prefix : public Node
 {
     Prefix(const QString &_name = QString(), const QString &_lang = QString(), const FileList &_file_list = FileList())
-        : Node(NULL, this), name(_name), lang(_lang), file_list(_file_list) {}
+        : Node(nullptr, this), name(_name), lang(_lang), file_list(_file_list) {}
     ~Prefix()
     {
         qDeleteAll(file_list);
@@ -199,7 +199,7 @@ class ResourceModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit ResourceModel(QObject *parent = 0);
+    explicit ResourceModel(QObject *parent = nullptr);
 
     QModelIndex index(int row, int column,
                         const QModelIndex &parent = QModelIndex()) const override;
@@ -300,7 +300,7 @@ public:
 class RelativeResourceModel : public ResourceModel
 {
 public:
-    RelativeResourceModel(QObject *parent = 0);
+    RelativeResourceModel(QObject *parent = nullptr);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
     {

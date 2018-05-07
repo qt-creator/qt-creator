@@ -48,7 +48,7 @@ public:
     ResourceEditorPlugin();
 
     // IPlugin
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0) override;
+    bool initialize(const QStringList &arguments, QString *errorMessage = nullptr) override;
     void extensionsInitialized() override;
 
 private slots:

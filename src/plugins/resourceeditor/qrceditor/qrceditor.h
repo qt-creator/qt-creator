@@ -39,7 +39,7 @@ class QrcEditor : public QWidget
     Q_OBJECT
 
 public:
-    QrcEditor(RelativeResourceModel *model, QWidget *parent = 0);
+    QrcEditor(RelativeResourceModel *model, QWidget *parent = nullptr);
     ~QrcEditor() override;
 
     void loaded(bool success);
