@@ -141,8 +141,8 @@ public:
 
     Utils::FileName keytoolPath() const;
 
-    QVector<AndroidDeviceInfo> connectedDevices(QString *error = 0) const;
-    static QVector<AndroidDeviceInfo> connectedDevices(const QString &adbToolPath, QString *error = 0);
+    QVector<AndroidDeviceInfo> connectedDevices(QString *error = nullptr) const;
+    static QVector<AndroidDeviceInfo> connectedDevices(const QString &adbToolPath, QString *error = nullptr);
 
     QString bestNdkPlatformMatch(int target) const;
 
