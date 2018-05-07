@@ -28,15 +28,15 @@
 #include "iosdeploystep.h"
 #include "simulatorcontrol.h"
 
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/target.h>
 
-#include <qmakeprojectmanager/qmakebuildconfiguration.h>
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
@@ -196,9 +196,7 @@ FileName IosRunConfiguration::bundleDirectory() const
         qCWarning(iosLog) << "unexpected device type in bundleDirForTarget: " << devType.toString();
         return res;
     }
-    QmakeBuildConfiguration *bc =
-            qobject_cast<QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
-    if (bc) {
+    if (BuildConfiguration *bc = target()->activeBuildConfiguration()) {
         const QmakeProFile *pro = proFile(this);
         if (pro) {
             TargetInformation ti = pro->targetInformation();
