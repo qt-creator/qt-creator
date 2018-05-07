@@ -42,7 +42,7 @@ class CORE_EXPORT VariableChooser : public QWidget
 
 public:
     explicit VariableChooser(QWidget *parent = 0);
-    ~VariableChooser();
+    ~VariableChooser() override;
 
     void addMacroExpanderProvider(const Utils::MacroExpanderProvider &provider);
     void addSupportedWidget(QWidget *textcontrol, const QByteArray &ownName = QByteArray());
@@ -50,8 +50,8 @@ public:
     static void addSupportForChildWidgets(QWidget *parent, Utils::MacroExpander *expander);
 
 protected:
-    bool event(QEvent *ev);
-    bool eventFilter(QObject *, QEvent *event);
+    bool event(QEvent *ev) override;
+    bool eventFilter(QObject *, QEvent *event) override;
 
 private:
     Internal::VariableChooserPrivate *d;

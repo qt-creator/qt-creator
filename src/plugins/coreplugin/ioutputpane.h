@@ -43,7 +43,7 @@ class CORE_EXPORT IOutputPane : public QObject
 
 public:
     IOutputPane(QObject *parent = nullptr);
-    ~IOutputPane();
+    ~IOutputPane() override;
 
     virtual QWidget *outputWidget(QWidget *parent) = 0;
     virtual QList<QWidget *> toolBarWidgets() const = 0;

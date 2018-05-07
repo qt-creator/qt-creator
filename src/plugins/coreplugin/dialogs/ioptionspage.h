@@ -45,7 +45,7 @@ class CORE_EXPORT IOptionsPage : public QObject
 
 public:
     IOptionsPage(QObject *parent = nullptr, bool registerGlobally = true);
-    virtual ~IOptionsPage();
+    ~IOptionsPage() override;
 
     static const QList<IOptionsPage *> allOptionsPages();
 
@@ -91,7 +91,7 @@ class CORE_EXPORT IOptionsPageProvider : public QObject
 
 public:
     IOptionsPageProvider(QObject *parent = nullptr);
-    ~IOptionsPageProvider();
+    ~IOptionsPageProvider() override;
 
     static const QList<IOptionsPageProvider *> allOptionsPagesProviders();
 

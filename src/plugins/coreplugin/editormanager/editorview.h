@@ -73,7 +73,7 @@ class EditorView : public QWidget
 
 public:
     explicit EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent = nullptr);
-    virtual ~EditorView();
+    ~EditorView() override;
 
     SplitterOrView *parentSplitterOrView() const;
     EditorView *findNextView();
@@ -104,9 +104,9 @@ signals:
     void currentEditorChanged(Core::IEditor *editor);
 
 protected:
-    void paintEvent(QPaintEvent *);
-    void mousePressEvent(QMouseEvent *e);
-    void focusInEvent(QFocusEvent *);
+    void paintEvent(QPaintEvent *) override;
+    void mousePressEvent(QMouseEvent *e) override;
+    void focusInEvent(QFocusEvent *) override;
 
 private:
     friend class SplitterOrView; // for setParentSplitterOrView
@@ -169,7 +169,7 @@ class SplitterOrView  : public QWidget
 public:
     explicit SplitterOrView(IEditor *editor = nullptr);
     explicit SplitterOrView(EditorView *view);
-    ~SplitterOrView();
+    ~SplitterOrView() override;
 
     void split(Qt::Orientation orientation);
     void unsplit();
@@ -193,8 +193,8 @@ public:
     EditorView *findLastView();
     SplitterOrView *findParentSplitter() const;
 
-    QSize sizeHint() const { return minimumSizeHint(); }
-    QSize minimumSizeHint() const;
+    QSize sizeHint() const override { return minimumSizeHint(); }
+    QSize minimumSizeHint() const override;
 
     void unsplitAll();
 

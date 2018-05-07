@@ -53,7 +53,7 @@ class NewDialog : public QDialog
 
 public:
     explicit NewDialog(QWidget *parent);
-    ~NewDialog();
+    ~NewDialog() override;
 
     void setWizardFactories(QList<IWizardFactory*> factories, const QString &defaultLocation, const QVariantMap &extraVariables);
 
@@ -63,13 +63,13 @@ public:
     static QWidget *currentDialog();
 
 protected:
-    bool event(QEvent *);
+    bool event(QEvent *) override;
 
 private:
     void currentCategoryChanged(const QModelIndex &);
     void currentItemChanged(const QModelIndex &);
-    void accept();
-    void reject();
+    void accept() override;
+    void reject() override;
     void updateOkButton();
     void setSelectedPlatform(const QString &platform);
 

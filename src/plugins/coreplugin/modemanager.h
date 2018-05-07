@@ -68,7 +68,7 @@ signals:
 
 private:
     explicit ModeManager(Internal::MainWindow *mainWindow, Internal::FancyTabWidget *modeStack);
-    ~ModeManager();
+    ~ModeManager() override;
 
     static void extensionsInitialized();
 

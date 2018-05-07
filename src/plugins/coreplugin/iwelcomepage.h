@@ -49,7 +49,7 @@ class CORE_EXPORT IWelcomePage : public QObject
 
 public:
     IWelcomePage();
-    virtual ~IWelcomePage();
+    ~IWelcomePage() override;
 
     virtual QString title() const = 0;
     virtual int priority() const { return 0; }
@@ -73,7 +73,7 @@ class CORE_EXPORT WelcomePageButton : public WelcomePageFrame
 {
 public:
     WelcomePageButton(QWidget *parent);
-    ~WelcomePageButton();
+    ~WelcomePageButton() override;
 
     void mousePressEvent(QMouseEvent *) override;
     void enterEvent(QEvent *) override;

@@ -39,7 +39,7 @@ class AddToVcsDialog : public QDialog
 public:
     explicit AddToVcsDialog(QWidget *parent, const QString &title,
                             const QStringList &files, const QString &vcsDisplayName);
-    ~AddToVcsDialog();
+    ~AddToVcsDialog() override;
 
 private:
     Ui::AddToVcsDialog *ui;

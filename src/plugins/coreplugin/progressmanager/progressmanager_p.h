@@ -49,7 +49,7 @@ class ProgressManagerPrivate : public Core::ProgressManager
     Q_OBJECT
 public:
     ProgressManagerPrivate();
-    ~ProgressManagerPrivate();
+    ~ProgressManagerPrivate() override;
     void init();
     void cleanup();
 
@@ -63,7 +63,7 @@ public slots:
     void doCancelTasks(Core::Id type);
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     void taskFinished();
@@ -115,8 +115,8 @@ class ToggleButton : public QToolButton
     Q_OBJECT
 public:
     ToggleButton(QWidget *parent);
-    QSize sizeHint() const;
-    void paintEvent(QPaintEvent *event);
+    QSize sizeHint() const override;
+    void paintEvent(QPaintEvent *event) override;
 };
 
 } // namespace Internal

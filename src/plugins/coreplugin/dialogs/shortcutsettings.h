@@ -60,13 +60,13 @@ class ShortcutButton : public QPushButton
 public:
     ShortcutButton(QWidget *parent = 0);
 
-    QSize sizeHint() const;
+    QSize sizeHint() const override;
 
 signals:
     void keySequenceChanged(const QKeySequence &sequence);
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *evt);
+    bool eventFilter(QObject *obj, QEvent *evt) override;
 
 private:
     void updateText();

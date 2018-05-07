@@ -54,11 +54,11 @@ public:
         ListIterator(const QStringList &filePaths);
         ListIterator(const QStringList &filePaths, const QStringList &fileNames);
 
-        void toFront();
-        bool hasNext() const;
-        QString next();
-        QString filePath() const;
-        QString fileName() const;
+        void toFront() override;
+        bool hasNext() const override;
+        QString next() override;
+        QString filePath() const override;
+        QString fileName() const override;
 
     private:
         QStringList m_filePaths;
@@ -68,7 +68,7 @@ public:
     };
 
     BaseFileFilter();
-    ~BaseFileFilter();
+    ~BaseFileFilter() override;
     void prepareSearch(const QString &entry) override;
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                          const QString &entry) override;

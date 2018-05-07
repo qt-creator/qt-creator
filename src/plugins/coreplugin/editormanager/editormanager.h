@@ -202,7 +202,7 @@ public slots:
 
 private:
     explicit EditorManager(QObject *parent);
-    ~EditorManager();
+    ~EditorManager() override;
 
     friend class Core::Internal::MainWindow;
 };

@@ -66,7 +66,7 @@ signals:
 
 private:
     ProgressManager();
-    ~ProgressManager();
+    ~ProgressManager() override;
 
     friend class Core::Internal::ProgressManagerPrivate;
 };

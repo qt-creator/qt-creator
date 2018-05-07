@@ -65,7 +65,7 @@ public slots:
     void toggleMaximized();
 
 protected:
-    void focusInEvent(QFocusEvent *e);
+    void focusInEvent(QFocusEvent *e) override;
 
 private:
     // the only class that is allowed to create and destroy
@@ -76,7 +76,7 @@ private:
     static void destroy();
 
     explicit OutputPaneManager(QWidget *parent = 0);
-    ~OutputPaneManager();
+    ~OutputPaneManager() override;
 
     void shortcutTriggered(int idx);
     void clearPage();
@@ -137,14 +137,14 @@ class OutputPaneToggleButton : public QToolButton
 public:
     OutputPaneToggleButton(int number, const QString &text, QAction *action,
                            QWidget *parent = 0);
-    QSize sizeHint() const;
-    void paintEvent(QPaintEvent*);
+    QSize sizeHint() const override;
+    void paintEvent(QPaintEvent*) override;
     void flash(int count = 3);
     void setIconBadgeNumber(int number);
 
 private:
     void updateToolTip();
-    void checkStateSet();
+    void checkStateSet() override;
 
     QString m_number;
     QString m_text;
@@ -158,8 +158,8 @@ class OutputPaneManageButton : public QToolButton
     Q_OBJECT
 public:
     OutputPaneManageButton();
-    QSize sizeHint() const;
-    void paintEvent(QPaintEvent*);
+    QSize sizeHint() const override;
+    void paintEvent(QPaintEvent*) override;
 };
 
 } // namespace Internal

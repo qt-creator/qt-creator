@@ -87,7 +87,7 @@ public:
     };
 
     explicit IVersionControl(TopicCache *topicCache = 0) : m_topicCache(topicCache) {}
-    virtual ~IVersionControl();
+    ~IVersionControl() override;
 
     virtual QString displayName() const = 0;
     virtual Id id() const = 0;
@@ -243,7 +243,7 @@ public:
     TestVersionControl(Id id, const QString &name) :
         m_id(id), m_displayName(name), m_dirCount(0), m_fileCount(0)
     { }
-    ~TestVersionControl();
+    ~TestVersionControl() override;
 
     bool isVcsFileOrDirectory(const Utils::FileName &fileName) const final
     { Q_UNUSED(fileName); return false; }

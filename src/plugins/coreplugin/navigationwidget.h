@@ -54,7 +54,7 @@ class CORE_EXPORT NavigationWidgetPlaceHolder : public QWidget
 
 public:
     explicit NavigationWidgetPlaceHolder(Id mode, Side side, QWidget *parent = 0);
-    virtual ~NavigationWidgetPlaceHolder();
+    ~NavigationWidgetPlaceHolder() override;
     static NavigationWidgetPlaceHolder *current(Side side);
     static void setCurrent(Side side, NavigationWidgetPlaceHolder *navWidget);
     void applyStoredSize();
@@ -81,7 +81,7 @@ public:
     };
 
     explicit NavigationWidget(QAction *toggleSideBarAction, Side side);
-    virtual ~NavigationWidget();
+    ~NavigationWidget() override;
 
     void setFactories(const QList<INavigationWidgetFactory*> &factories);
 
@@ -107,7 +107,7 @@ public:
     QAbstractItemModel *factoryModel() const;
 
 protected:
-    void resizeEvent(QResizeEvent *);
+    void resizeEvent(QResizeEvent *) override;
 
 private:
     void splitSubWidget(int factoryIndex);

@@ -43,25 +43,25 @@ class CORE_EXPORT BaseTextFind : public IFindSupport
 public:
     explicit BaseTextFind(QPlainTextEdit *editor);
     explicit BaseTextFind(QTextEdit *editor);
-    virtual ~BaseTextFind();
+    ~BaseTextFind() override;
 
-    bool supportsReplace() const;
-    FindFlags supportedFindFlags() const;
-    void resetIncrementalSearch();
-    void clearHighlights();
-    QString currentFindString() const;
-    QString completedFindString() const;
+    bool supportsReplace() const override;
+    FindFlags supportedFindFlags() const override;
+    void resetIncrementalSearch() override;
+    void clearHighlights() override;
+    QString currentFindString() const override;
+    QString completedFindString() const override;
 
-    Result findIncremental(const QString &txt, FindFlags findFlags);
-    Result findStep(const QString &txt, FindFlags findFlags);
-    void replace(const QString &before, const QString &after, FindFlags findFlags);
-    bool replaceStep(const QString &before, const QString &after, FindFlags findFlags);
-    int replaceAll(const QString &before, const QString &after, FindFlags findFlags);
+    Result findIncremental(const QString &txt, FindFlags findFlags) override;
+    Result findStep(const QString &txt, FindFlags findFlags) override;
+    void replace(const QString &before, const QString &after, FindFlags findFlags) override;
+    bool replaceStep(const QString &before, const QString &after, FindFlags findFlags) override;
+    int replaceAll(const QString &before, const QString &after, FindFlags findFlags) override;
 
-    void defineFindScope();
-    void clearFindScope();
+    void defineFindScope() override;
+    void clearFindScope() override;
 
-    void highlightAll(const QString &txt, FindFlags findFlags);
+    void highlightAll(const QString &txt, FindFlags findFlags) override;
 
 signals:
     void highlightAllRequested(const QString &txt, Core::FindFlags findFlags);

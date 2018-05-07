@@ -52,7 +52,7 @@ public:
 
     ExternalTool();
     explicit ExternalTool(const ExternalTool *other);
-    ~ExternalTool();
+    ~ExternalTool() override;
 
     QString id() const;
     QString description() const;
@@ -123,7 +123,7 @@ class ExternalToolRunner : public QObject
     Q_OBJECT
 public:
     ExternalToolRunner(const ExternalTool *tool);
-    ~ExternalToolRunner();
+    ~ExternalToolRunner() override;
 
     bool hasError() const;
     QString errorString() const;

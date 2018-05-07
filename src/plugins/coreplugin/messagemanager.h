@@ -61,7 +61,7 @@ public slots:
 
 private:
     MessageManager();
-    ~MessageManager();
+    ~MessageManager() override;
     static void init();
     friend class Core::Internal::MainWindow;
 };

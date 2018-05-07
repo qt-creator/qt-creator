@@ -38,7 +38,7 @@ class CORE_EXPORT FindToolBarPlaceHolder : public QWidget
     Q_OBJECT
 public:
     explicit FindToolBarPlaceHolder(QWidget *owner, QWidget *parent = 0);
-    ~FindToolBarPlaceHolder();
+    ~FindToolBarPlaceHolder() override;
 
     static const QList<FindToolBarPlaceHolder *> allFindToolbarPlaceHolders();
 

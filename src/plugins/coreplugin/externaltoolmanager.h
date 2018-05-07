@@ -42,7 +42,7 @@ class CORE_EXPORT ExternalToolManager : public QObject
 
 public:
     ExternalToolManager();
-    ~ExternalToolManager();
+    ~ExternalToolManager() override;
 
     static ExternalToolManager *instance();
     static QMap<QString, QList<Internal::ExternalTool *> > toolsByCategory();

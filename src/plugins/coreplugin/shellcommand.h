@@ -39,7 +39,7 @@ public:
     ShellCommand(const QString &workingDirectory, const QProcessEnvironment &environment);
 
 protected:
-    void addTask(QFuture<void> &future);
+    void addTask(QFuture<void> &future) override;
 
     virtual void coreAboutToClose();
 };

@@ -38,14 +38,14 @@ class CORE_EXPORT OpenDocumentsTreeView : public Utils::TreeView
 public:
     explicit OpenDocumentsTreeView(QWidget *parent = 0);
 
-    void setModel(QAbstractItemModel *model);
+    void setModel(QAbstractItemModel *model) override;
     void setCloseButtonVisible(bool visible);
 
 signals:
     void closeActivated(const QModelIndex &index);
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     Internal::OpenDocumentsDelegate *m_delegate;

@@ -46,7 +46,7 @@ class CORE_EXPORT CommandMappings : public QWidget
 
 public:
     CommandMappings(QWidget *parent = 0);
-    ~CommandMappings();
+    ~CommandMappings() override;
 
 signals:
     void currentCommandChanged(QTreeWidgetItem *current);

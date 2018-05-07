@@ -80,7 +80,7 @@ signals:
 
 private:
     ActionManager(QObject *parent = 0);
-    ~ActionManager();
+    ~ActionManager() override;
     static void saveSettings();
     static void setContext(const Context &context);
 

@@ -42,7 +42,7 @@ class CORE_EXPORT IDocumentFactory : public QObject
 
 public:
     IDocumentFactory(QObject *parent = nullptr);
-    ~IDocumentFactory();
+    ~IDocumentFactory() override;
 
     static const QList<IDocumentFactory *> allDocumentFactories();
 

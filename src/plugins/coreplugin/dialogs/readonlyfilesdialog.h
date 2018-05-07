@@ -67,12 +67,12 @@ public:
     explicit ReadOnlyFilesDialog(const QList<IDocument *> &documents,
                                  QWidget * parent = 0);
 
-    ~ReadOnlyFilesDialog();
+    ~ReadOnlyFilesDialog() override;
 
     void setMessage(const QString &message);
     void setShowFailWarning(bool show, const QString &warning = QString());
 
-    int exec();
+    int exec() override;
 
 private:
     friend class Internal::ReadOnlyFilesDialogPrivate;

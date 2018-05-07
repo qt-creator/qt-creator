@@ -76,7 +76,7 @@ class MainWindow : public Utils::AppMainWindow
 
 public:
     MainWindow();
-    ~MainWindow();
+    ~MainWindow() override;
 
     void init();
     void extensionsInitialized();
@@ -112,7 +112,7 @@ public slots:
     void exit();
 
 protected:
-    virtual void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
 
 private:
     void openFile();

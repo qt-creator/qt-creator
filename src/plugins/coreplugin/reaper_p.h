@@ -41,7 +41,7 @@ class ProcessReaper : public QObject
 
 public:
     ProcessReaper(QProcess *p, int timeoutMs);
-    ~ProcessReaper();
+    ~ProcessReaper() override;
 
     int timeoutMs() const;
     bool isFinished() const;

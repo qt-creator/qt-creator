@@ -157,11 +157,11 @@ signals:
     void projectsDirectoryChanged(const Utils::FileName &directory);
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *e);
+    bool eventFilter(QObject *obj, QEvent *e) override;
 
 private:
     explicit DocumentManager(QObject *parent);
-    ~DocumentManager();
+    ~DocumentManager() override;
 
     void documentDestroyed(QObject *obj);
     void checkForNewFileName();

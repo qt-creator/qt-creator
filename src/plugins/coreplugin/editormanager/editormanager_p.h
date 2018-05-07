@@ -203,7 +203,7 @@ private:
 
 private:
     explicit EditorManagerPrivate(QObject *parent);
-    ~EditorManagerPrivate();
+    ~EditorManagerPrivate() override;
     void init();
 
     QList<EditLocation> m_globalHistory;

@@ -47,35 +47,35 @@ class Action : public Command
 public:
     Action(Id id);
 
-    Id id() const;
+    Id id() const override;
 
-    void setDefaultKeySequence(const QKeySequence &key);
-    QKeySequence defaultKeySequence() const;
+    void setDefaultKeySequence(const QKeySequence &key) override;
+    QKeySequence defaultKeySequence() const override;
 
-    void setKeySequence(const QKeySequence &key);
-    QKeySequence keySequence() const;
+    void setKeySequence(const QKeySequence &key) override;
+    QKeySequence keySequence() const override;
 
-    void setDescription(const QString &text);
-    QString description() const;
+    void setDescription(const QString &text) override;
+    QString description() const override;
 
-    QAction *action() const;
+    QAction *action() const override;
 
-    QString stringWithAppendedShortcut(const QString &str) const;
+    QString stringWithAppendedShortcut(const QString &str) const override;
 
-    Context context() const;
+    Context context() const override;
     void setCurrentContext(const Context &context);
 
-    bool isActive() const;
+    bool isActive() const override;
     void addOverrideAction(QAction *action, const Context &context, bool scriptable);
     void removeOverrideAction(QAction *action);
     bool isEmpty() const;
 
-    bool isScriptable() const;
-    bool isScriptable(const Context &context) const;
+    bool isScriptable() const override;
+    bool isScriptable(const Context &context) const override;
 
-    void setAttribute(CommandAttribute attr);
-    void removeAttribute(CommandAttribute attr);
-    bool hasAttribute(CommandAttribute attr) const;
+    void setAttribute(CommandAttribute attr) override;
+    void removeAttribute(CommandAttribute attr) override;
+    bool hasAttribute(CommandAttribute attr) const override;
 
 private:
     void updateActiveState();

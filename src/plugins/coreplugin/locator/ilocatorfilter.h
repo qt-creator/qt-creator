@@ -108,7 +108,7 @@ public:
     enum Priority {Highest = 0, High = 1, Medium = 2, Low = 3};
 
     ILocatorFilter(QObject *parent = nullptr);
-    virtual ~ILocatorFilter();
+    ~ILocatorFilter() override;
 
     static const QList<ILocatorFilter *> allLocatorFilters();
 

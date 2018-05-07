@@ -39,7 +39,7 @@ class CORE_EXPORT IExternalEditor : public QObject
 
 public:
     explicit IExternalEditor(QObject *parent = nullptr);
-    ~IExternalEditor();
+    ~IExternalEditor() override;
 
     static const QList<IExternalEditor *> allExternalEditors();
 

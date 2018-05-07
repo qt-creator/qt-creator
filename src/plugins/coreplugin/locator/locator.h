@@ -45,7 +45,7 @@ class Locator : public QObject
 
 public:
     Locator();
-    ~Locator();
+    ~Locator() override;
 
     static Locator *instance();
 

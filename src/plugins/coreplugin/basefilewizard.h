@@ -45,12 +45,12 @@ public:
     explicit BaseFileWizard(const BaseFileWizardFactory *factory, const QVariantMap &extraValues,
                             QWidget *parent = 0);
 
-    void initializePage(int id);
+    void initializePage(int id) override;
 
     QList<QWizardPage *> extensionPages();
 
-    void accept();
-    void reject();
+    void accept() override;
+    void reject() override;
 
 private:
     void generateFileList();

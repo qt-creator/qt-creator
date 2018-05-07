@@ -42,7 +42,7 @@ class CORE_EXPORT IFindFilter : public QObject
 
 public:
     IFindFilter();
-    virtual ~IFindFilter();
+    ~IFindFilter() override;
 
     static const QList<IFindFilter *> allFindFilters();
 

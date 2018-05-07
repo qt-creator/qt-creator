@@ -58,7 +58,7 @@ class CORE_EXPORT ICore : public QObject
     friend class IWizardFactory;
 
     explicit ICore(Internal::MainWindow *mw);
-    ~ICore();
+    ~ICore() override;
 
 public:
     enum class ContextPriority {

@@ -42,7 +42,7 @@ class FilePropertiesDialog : public QDialog
 
 public:
     explicit FilePropertiesDialog(const Utils::FileName &fileName, QWidget *parent = nullptr);
-    ~FilePropertiesDialog();
+    ~FilePropertiesDialog() override;
 
 private:
     void refresh();

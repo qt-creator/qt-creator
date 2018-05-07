@@ -49,7 +49,7 @@ public:
     typedef QHash<Id, Action *> IdCmdMap;
     typedef QHash<Id, ActionContainerPrivate *> IdContainerMap;
 
-    ~ActionManagerPrivate();
+    ~ActionManagerPrivate() override;
 
     void setContext(const Context &context);
     bool hasContext(int context) const;

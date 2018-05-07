@@ -53,7 +53,7 @@ class CORE_EXPORT INavigationWidgetFactory : public QObject
 
 public:
     INavigationWidgetFactory();
-    ~INavigationWidgetFactory();
+    ~INavigationWidgetFactory() override;
 
     static const QList<INavigationWidgetFactory *> allNavigationFactories();
 

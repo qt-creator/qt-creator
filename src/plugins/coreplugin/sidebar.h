@@ -56,7 +56,7 @@ class CORE_EXPORT SideBarItem : public QObject
 public:
     // id is non-localized string of the item that's used to store the settings.
     explicit SideBarItem(QWidget *widget, const QString &id);
-    virtual ~SideBarItem();
+    ~SideBarItem() override;
 
     QWidget *widget() const;
     QString id() const;
@@ -86,7 +86,7 @@ public:
      * of multiple SideBars.
      */
     SideBar(QList<SideBarItem *> widgetList, QList<SideBarItem *> defaultVisible);
-    virtual ~SideBar();
+    ~SideBar() override;
 
     QStringList availableItemIds() const;
     QStringList availableItemTitles() const;

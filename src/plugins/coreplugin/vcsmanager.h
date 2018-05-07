@@ -108,7 +108,7 @@ signals:
 
 private:
     explicit VcsManager(QObject *parent = 0);
-    ~VcsManager();
+    ~VcsManager() override;
 
     static void addVersionControl(IVersionControl *vc);
 
