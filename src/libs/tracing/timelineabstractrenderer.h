@@ -47,7 +47,7 @@ class TRACING_EXPORT TimelineAbstractRenderer : public QQuickItem
 
 public:
     TimelineAbstractRenderer(QQuickItem *parent = 0);
-    ~TimelineAbstractRenderer();
+    ~TimelineAbstractRenderer() override;
 
     bool selectionLocked() const;
     int selectedItem() const;
@@ -81,7 +81,7 @@ public:
     void setRowHeightsDirty();
 
 protected:
-    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
+    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData) override;
 
     class TimelineAbstractRendererPrivate;
     TimelineAbstractRenderer(TimelineAbstractRendererPrivate &dd, QQuickItem *parent = 0);

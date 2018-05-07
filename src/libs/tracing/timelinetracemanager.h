@@ -49,7 +49,7 @@ public:
     typedef std::function<void(const QString &)> ErrorHandler;
 
     explicit TimelineTraceManager(QObject *parent = nullptr);
-    ~TimelineTraceManager();
+    ~TimelineTraceManager() override;
 
     qint64 traceStart() const;
     qint64 traceEnd() const;

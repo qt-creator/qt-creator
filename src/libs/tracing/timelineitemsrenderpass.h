@@ -44,8 +44,8 @@ public:
     QColor selectionColor() const;
     void setSelectionColor(QColor selectionColor);
 
-    QSGMaterialType *type() const;
-    QSGMaterialShader *createShader() const;
+    QSGMaterialType *type() const override;
+    QSGMaterialShader *createShader() const override;
 
 private:
     QVector2D m_scale;
@@ -95,7 +95,7 @@ public:
     static const TimelineItemsRenderPass *instance();
     State *update(const TimelineAbstractRenderer *renderer, const TimelineRenderState *parentState,
                   State *state, int firstIndex, int lastIndex, bool stateChanged,
-                  float spacing) const;
+                  float spacing) const override;
 protected:
     TimelineItemsRenderPass();
 };

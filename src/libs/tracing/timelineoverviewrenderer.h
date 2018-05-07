@@ -35,7 +35,7 @@ public:
     TimelineOverviewRenderer(QQuickItem *parent = 0);
 
 protected:
-    virtual QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
+    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData) override;
 
     class TimelineOverviewRendererPrivate;
     Q_DECLARE_PRIVATE(TimelineOverviewRenderer)

@@ -38,7 +38,7 @@ class TRACING_EXPORT TimelineModelAggregator : public QObject
     Q_PROPERTY(Timeline::TimelineNotesModel *notes READ notes CONSTANT)
 public:
     TimelineModelAggregator(TimelineNotesModel *notes = nullptr, QObject *parent = nullptr);
-    ~TimelineModelAggregator();
+    ~TimelineModelAggregator() override;
 
     int height() const;
     int generateModelId();

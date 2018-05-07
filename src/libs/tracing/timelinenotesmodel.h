@@ -35,7 +35,7 @@ class TRACING_EXPORT TimelineNotesModel : public QObject
     Q_PROPERTY(int count READ count NOTIFY changed)
 public:
     TimelineNotesModel(QObject *parent = 0);
-    ~TimelineNotesModel();
+    ~TimelineNotesModel() override;
 
     int count() const;
     void addTimelineModel(const TimelineModel *timelineModel);

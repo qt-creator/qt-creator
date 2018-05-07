@@ -37,7 +37,7 @@ public:
 
     State *update(const TimelineAbstractRenderer *renderer, const TimelineRenderState *parentState,
                   State *oldState, int firstIndex, int lastIndex, bool stateChanged,
-                  float spacing) const;
+                  float spacing) const override;
 
 private:
     TimelineNotesRenderPass();

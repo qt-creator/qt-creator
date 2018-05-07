@@ -53,7 +53,7 @@ public:
     class TimelineModelPrivate;
 
     TimelineModel(TimelineModelAggregator *parent);
-    ~TimelineModel();
+    ~TimelineModel() override;
 
     // Methods implemented by the abstract model itself
     bool isEmpty() const;
