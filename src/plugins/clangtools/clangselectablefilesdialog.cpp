@@ -26,6 +26,7 @@
 #include "clangselectablefilesdialog.h"
 #include "ui_clangselectablefilesdialog.h"
 
+#include "clangtoolsprojectsettings.h"
 #include "clangtoolsutils.h"
 
 #include <cpptools/compileroptionsbuilder.h>
@@ -97,6 +98,88 @@ public:
         buildTree(projectInfo.project(), allFileInfos);
     }
 
+    // Returns the minimal selection that can restore all selected files.
+    //
+    // For example, if a directory node if fully checked, there is no need to
+    // save all the children of that node.
+    void minimalSelection(QSet<FileName> &checkedDirs, QSet<FileName> &checkedFiles) const
+    {
+        traverse(index(0, 0, QModelIndex()), [&](const QModelIndex &index){
+            auto node = static_cast<Tree *>(index.internalPointer());
+
+            if (node->checked == Qt::Checked) {
+                if (node->isDir) {
+                    checkedDirs += node->fullPath;
+                    return false; // Do not descend further.
+                }
+
+                checkedFiles += node->fullPath;
+            }
+
+            return true;
+        });
+    }
+
+    void restoreMinimalSelection(const QSet<FileName> &dirs, const QSet<FileName> &files)
+    {
+        if (dirs.isEmpty() && files.isEmpty())
+            return;
+
+        traverse(index(0, 0, QModelIndex()), [&](const QModelIndex &index){
+            auto node = static_cast<Tree *>(index.internalPointer());
+
+            if (node->isDir && dirs.contains(node->fullPath)) {
+                setData(index, Qt::Checked, Qt::CheckStateRole);
+                return false; // Do not descend further.
+            }
+
+            if (!node->isDir && files.contains(node->fullPath))
+                setData(index, Qt::Checked, Qt::CheckStateRole);
+
+            return true;
+        });
+    }
+
+    FileInfos selectedFileInfos() const
+    {
+        FileInfos result;
+
+        traverse(index(0, 0, QModelIndex()), [&](const QModelIndex &index){
+            auto node = static_cast<Tree *>(index.internalPointer());
+
+            if (node->checked == Qt::Unchecked)
+                return false;
+
+            if (!node->isDir)
+                result += static_cast<TreeWithFileInfo *>(node)->info;
+
+            return true;
+        });
+
+        return result;
+    }
+
+private:
+    void traverse(const QModelIndex &index,
+                  const std::function<bool(const QModelIndex &)> &visit) const
+    {
+        if (!index.isValid())
+            return;
+
+        if (!visit(index))
+            return;
+
+        if (!hasChildren(index))
+            return;
+
+        const int rows = rowCount(index);
+        const int cols = columnCount(index);
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j)
+                traverse(this->index(i, j, index), visit);
+        }
+    }
+
     void buildTree(ProjectExplorer::Project *project, const FileInfos &fileInfos)
     {
         m_root->fullPath = project->projectFilePath();
@@ -131,9 +214,9 @@ public:
         }
     }
 
-    static Tree *buildProjectDirTree(const FileName &projectDir,
-                                     const FileInfos &fileInfos,
-                                     FileInfos &outOfBaseDirFiles)
+    Tree *buildProjectDirTree(const FileName &projectDir,
+                              const FileInfos &fileInfos,
+                              FileInfos &outOfBaseDirFiles) const
     {
         Tree *projectDirNode = createDirNode(projectDir.fileName(), projectDir);
 
@@ -177,26 +260,6 @@ public:
 
         return projectDirNode;
     }
-
-    FileInfos selectedFileInfos() const
-    {
-        FileInfos result;
-        collectFileInfos(m_root, &result);
-        return result;
-    }
-
-private:
-    void collectFileInfos(ProjectExplorer::Tree *root, FileInfos *result) const
-    {
-        if (root->checked == Qt::Unchecked)
-            return;
-        for (Tree *t : root->childDirectories)
-            collectFileInfos(t, result);
-        for (Tree *t : root->visibleFiles) {
-            if (t->checked == Qt::Checked)
-                result->append(static_cast<TreeWithFileInfo *>(t)->info);
-        }
-    }
 };
 
 SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
@@ -204,6 +267,7 @@ SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
     : QDialog(nullptr)
     , m_ui(new Ui::SelectableFilesDialog)
     , m_filesModel(new SelectableFilesModel(projectInfo, allFileInfos))
+    , m_project(projectInfo.project())
     , m_analyzeButton(new QPushButton(tr("Analyze"), this))
 {
     m_ui->setupUi(this);
@@ -213,6 +277,10 @@ SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
 
     m_ui->buttons->setStandardButtons(QDialogButtonBox::Cancel);
     m_ui->buttons->addButton(m_analyzeButton, QDialogButtonBox::AcceptRole);
+
+    // Restore selection
+    ClangToolsProjectSettings *settings = ClangToolsProjectSettingsManager::getSettings(m_project);
+    m_filesModel->restoreMinimalSelection(settings->selectedDirs(), settings->selectedFiles());
 
     m_analyzeButton->setEnabled(m_filesModel->hasCheckedFiles());
     connect(m_filesModel.get(), &QAbstractItemModel::dataChanged, [this]() {
@@ -225,6 +293,19 @@ SelectableFilesDialog::~SelectableFilesDialog() {}
 FileInfos SelectableFilesDialog::filteredFileInfos() const
 {
     return m_filesModel->selectedFileInfos();
+}
+
+void SelectableFilesDialog::accept()
+{
+    // Save selection
+    QSet<FileName> checkedDirs;
+    QSet<FileName> checkedFiles;
+    m_filesModel->minimalSelection(checkedDirs, checkedFiles);
+    ClangToolsProjectSettings *settings = ClangToolsProjectSettingsManager::getSettings(m_project);
+    settings->setSelectedDirs(checkedDirs);
+    settings->setSelectedFiles(checkedFiles);
+
+    QDialog::accept();
 }
 
 } // namespace Internal

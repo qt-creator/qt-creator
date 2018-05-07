@@ -83,6 +83,8 @@ QtcPlugin {
         "clangtoolsdiagnosticmodel.h",
         "clangtoolslogfilereader.cpp",
         "clangtoolslogfilereader.h",
+        "clangtoolsprojectsettings.cpp",
+        "clangtoolsprojectsettings.h",
         "clangtoolssettings.cpp",
         "clangtoolssettings.h",
         "clangtoolsutils.cpp",

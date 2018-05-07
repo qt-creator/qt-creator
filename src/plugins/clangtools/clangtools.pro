@@ -27,6 +27,7 @@ SOURCES += \
     clangtoolsdiagnosticmodel.cpp \
     clangtoolslogfilereader.cpp \
     clangtoolsplugin.cpp \
+    clangtoolsprojectsettings.cpp \
     clangtoolssettings.cpp \
     clangtoolsutils.cpp \
     clangtoolsconfigwidget.cpp
@@ -53,6 +54,7 @@ HEADERS += \
     clangtoolsdiagnosticmodel.h \
     clangtoolslogfilereader.h \
     clangtoolsplugin.h \
+    clangtoolsprojectsettings.h \
     clangtoolssettings.h \
     clangtoolsutils.h \
     clangtoolsconfigwidget.h

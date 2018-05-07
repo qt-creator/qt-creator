@@ -130,13 +130,15 @@ public:
 signals:
     void checkedFilesChanged();
 
+protected:
+    void propagateUp(const QModelIndex &index);
+    void propagateDown(const QModelIndex &index);
+
 private:
     QList<Glob> parseFilter(const QString &filter);
     Qt::CheckState applyFilter(const QModelIndex &index);
     void collectFiles(Tree *root, Utils::FileNameList *result) const;
     void collectPaths(Tree *root, Utils::FileNameList *result) const;
-    void propagateUp(const QModelIndex &index);
-    void propagateDown(const QModelIndex &index);
     void selectAllFiles(Tree *root);
 
 protected:

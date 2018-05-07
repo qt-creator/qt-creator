@@ -31,6 +31,7 @@
 #include "clangstaticanalyzerruncontrol.h"
 #include "clangstaticanalyzertool.h"
 #include "clangtidyclazytool.h"
+#include "clangtoolsprojectsettings.h"
 
 #ifdef WITH_TESTS
 #include "clangstaticanalyzerpreconfiguredsessiontests.h"
@@ -107,6 +108,7 @@ public:
     ClangStaticAnalyzerTool staticAnalyzerTool;
     ClangTidyClazyTool clangTidyClazyTool;
     ClangToolsOptionsPage optionsPage;
+    ClangToolsProjectSettingsManager settingsManager;
 };
 
 ClangToolsPlugin::~ClangToolsPlugin()

@@ -25,43 +25,52 @@
 
 #pragma once
 
-#include "clangfileinfo.h"
+#include <QObject>
 
-#include <QDialog>
+#include <projectexplorer/project.h>
 
-#include <memory>
-
-QT_BEGIN_NAMESPACE
-class QPushButton;
-QT_END_NAMESPACE
-
-namespace CppTools { class ProjectInfo; }
+#include <utils/fileutils.h>
 
 namespace ClangTools {
 namespace Internal {
 
-namespace Ui { class SelectableFilesDialog; }
-class SelectableFilesModel;
-
-class SelectableFilesDialog : public QDialog
+// TODO: Incorporate Clang Static Analyzer's ProjectSettings
+class ClangToolsProjectSettings : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit SelectableFilesDialog(const CppTools::ProjectInfo &projectInfo,
-                                   const FileInfos &allFileInfos);
-    ~SelectableFilesDialog() override;
+    ClangToolsProjectSettings(ProjectExplorer::Project *project);
+    ~ClangToolsProjectSettings() override;
 
-    FileInfos filteredFileInfos() const;
+    QSet<Utils::FileName> selectedDirs() const { return m_selectedDirs; }
+    void setSelectedDirs(const QSet<Utils::FileName> &value) { m_selectedDirs = value; }
+
+    QSet<Utils::FileName> selectedFiles() const { return m_selectedFiles; }
+    void setSelectedFiles(const QSet<Utils::FileName> &value) { m_selectedFiles = value; }
 
 private:
-    void accept() override;
-
-    std::unique_ptr<Ui::SelectableFilesDialog> m_ui;
-    std::unique_ptr<SelectableFilesModel> m_filesModel;
+    void load();
+    void store();
 
     ProjectExplorer::Project *m_project;
-    QPushButton *m_analyzeButton = nullptr;
+    QSet<Utils::FileName> m_selectedDirs;
+    QSet<Utils::FileName> m_selectedFiles;
+};
+
+// TODO: Incorporate Clang Static Analyzer's ProjectSettingsManager
+class ClangToolsProjectSettingsManager
+{
+public:
+    ClangToolsProjectSettingsManager();
+
+    static ClangToolsProjectSettings *getSettings(ProjectExplorer::Project *project);
+
+private:
+    static void handleProjectToBeRemoved(ProjectExplorer::Project *project);
+
+    using SettingsMap = QHash<ProjectExplorer::Project *, QSharedPointer<ClangToolsProjectSettings>>;
+    static SettingsMap m_settings;
 };
 
 } // namespace Internal
