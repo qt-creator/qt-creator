@@ -59,7 +59,7 @@ public:
 
     Q_DECLARE_FLAGS(LogFlags, LogFlag)
 
-    explicit LogChangeWidget(QWidget *parent = 0);
+    explicit LogChangeWidget(QWidget *parent = nullptr);
     bool init(const QString &repository, const QString &commit = QString(), LogFlags flags = None);
     QString commit() const;
     int commitIndex() const;
