@@ -50,7 +50,7 @@ class QMLPROFILER_EXPORT QmlProfilerTool : public QObject
 
 public:
     QmlProfilerTool();
-    ~QmlProfilerTool();
+    ~QmlProfilerTool() override;
 
     void finalizeRunControl(QmlProfilerRunner *runWorker);
 

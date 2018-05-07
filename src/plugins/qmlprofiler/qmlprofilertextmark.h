@@ -53,7 +53,7 @@ class QmlProfilerTextMarkModel : public QObject
 {
 public:
     QmlProfilerTextMarkModel(QObject *parent = nullptr);
-    ~QmlProfilerTextMarkModel();
+    ~QmlProfilerTextMarkModel() override;
 
     void clear();
     void addTextMarkId(int typeId, const QmlEventLocation &location);

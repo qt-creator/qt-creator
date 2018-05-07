@@ -51,7 +51,7 @@ public:
     ProfileFeature mainFeature() const;
 
     virtual bool accepted(const QmlEventType &type) const;
-    bool handlesTypeId(int typeId) const;
+    bool handlesTypeId(int typeId) const override;
 
     QVariantMap locationFromTypeId(int index) const;
 

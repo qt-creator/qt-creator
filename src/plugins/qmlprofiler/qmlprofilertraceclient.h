@@ -52,8 +52,8 @@ public:
     bool isRecording() const;
     void setRecording(bool);
     quint64 recordedFeatures() const;
-    virtual void messageReceived(const QByteArray &) override;
-    virtual void stateChanged(State status) override;
+    void messageReceived(const QByteArray &) override;
+    void stateChanged(State status) override;
 
     void clearEvents();
     void clear();

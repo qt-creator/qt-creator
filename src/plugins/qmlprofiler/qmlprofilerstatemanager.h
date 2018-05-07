@@ -41,7 +41,7 @@ public:
     };
 
     explicit QmlProfilerStateManager(QObject *parent = nullptr);
-    ~QmlProfilerStateManager();
+    ~QmlProfilerStateManager() override;
 
     QmlProfilerState currentState();
     bool clientRecording();

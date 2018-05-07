@@ -70,7 +70,7 @@ public:
 
     int typeId(int index) const override;
 
-    virtual QList<const Timeline::TimelineRenderPass *> supportedRenderPasses() const override;
+    QList<const Timeline::TimelineRenderPass *> supportedRenderPasses() const override;
 
 protected:
     void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
