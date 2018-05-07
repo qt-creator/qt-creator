@@ -52,15 +52,15 @@ class QTSUPPORT_EXPORT QtOutputFormatter : public Utils::OutputFormatter
     Q_OBJECT
 public:
     explicit QtOutputFormatter(ProjectExplorer::Project *project);
-    ~QtOutputFormatter();
+    ~QtOutputFormatter() override;
 
-    void appendMessage(const QString &text, Utils::OutputFormat format);
-    void appendMessage(const QString &text, const QTextCharFormat &format);
-    void handleLink(const QString &href);
-    void setPlainTextEdit(QPlainTextEdit *plainText);
+    void appendMessage(const QString &text, Utils::OutputFormat format) override;
+    void appendMessage(const QString &text, const QTextCharFormat &format) override;
+    void handleLink(const QString &href) override;
+    void setPlainTextEdit(QPlainTextEdit *plainText) override;
 
 protected:
-    void clearLastLine();
+    void clearLastLine() override;
     virtual void openEditor(const QString &fileName, int line, int column = -1);
 
 private:

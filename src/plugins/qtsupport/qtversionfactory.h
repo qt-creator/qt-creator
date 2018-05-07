@@ -47,7 +47,7 @@ class QTSUPPORT_EXPORT QtVersionFactory : public QObject
 
 public:
     explicit QtVersionFactory(QObject *parent = 0);
-    ~QtVersionFactory();
+    ~QtVersionFactory() override;
 
     static const QList<QtVersionFactory *> allQtVersionFactories();
 

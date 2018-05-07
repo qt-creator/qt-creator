@@ -40,7 +40,7 @@ class QTSUPPORT_EXPORT QtParser : public ProjectExplorer::IOutputParser
 
 public:
     QtParser();
-    void stdError(const QString &line);
+    void stdError(const QString &line) override;
 
 private:
     QRegExp m_mocRegExp;

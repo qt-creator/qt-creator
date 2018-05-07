@@ -39,7 +39,7 @@ class QTSUPPORT_EXPORT QtVersionManager : public QObject
 public:
     static QtVersionManager *instance();
     QtVersionManager();
-    ~QtVersionManager();
+    ~QtVersionManager() override;
     static void initialized();
 
     static bool isLoaded();

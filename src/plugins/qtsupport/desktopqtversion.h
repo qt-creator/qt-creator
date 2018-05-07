@@ -34,20 +34,20 @@ class QTSUPPORT_EXPORT DesktopQtVersion : public BaseQtVersion
 public:
     DesktopQtVersion();
     DesktopQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
-    DesktopQtVersion *clone() const;
+    DesktopQtVersion *clone() const override;
 
-    QString type() const;
+    QString type() const override;
 
-    QStringList warningReason() const;
+    QStringList warningReason() const override;
 
-    QList<ProjectExplorer::Abi> detectQtAbis() const;
+    QList<ProjectExplorer::Abi> detectQtAbis() const override;
 
-    QString description() const;
+    QString description() const override;
 
-    QSet<Core::Id> availableFeatures() const;
-    QSet<Core::Id> targetDeviceTypes() const;
+    QSet<Core::Id> availableFeatures() const override;
+    QSet<Core::Id> targetDeviceTypes() const override;
 
-    virtual void fromMap(const QVariantMap &map);
+    void fromMap(const QVariantMap &map) override;
 
     QString qmlsceneCommand() const;
 
