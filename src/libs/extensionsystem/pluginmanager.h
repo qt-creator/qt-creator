@@ -50,7 +50,7 @@ public:
     static PluginManager *instance();
 
     PluginManager();
-    ~PluginManager();
+    ~PluginManager() override;
 
     // Object pool operations
     static void addObject(QObject *obj);

@@ -49,7 +49,7 @@ class EXTENSIONSYSTEM_EXPORT PluginView : public QWidget
 
 public:
     explicit PluginView(QWidget *parent = 0);
-    ~PluginView();
+    ~PluginView() override;
 
     PluginSpec *currentPlugin() const;
     void setFilter(const QString &filter);

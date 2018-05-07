@@ -51,7 +51,7 @@ public:
     };
 
     IPlugin();
-    virtual ~IPlugin();
+    ~IPlugin() override;
 
     virtual bool initialize(const QStringList &arguments, QString *errorString) = 0;
     virtual void extensionsInitialized() = 0;

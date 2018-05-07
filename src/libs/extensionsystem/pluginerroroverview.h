@@ -45,7 +45,7 @@ class EXTENSIONSYSTEM_EXPORT PluginErrorOverview : public QDialog
 
 public:
     explicit PluginErrorOverview(QWidget *parent = 0);
-    ~PluginErrorOverview();
+    ~PluginErrorOverview() override;
 
 private:
     void showDetails(QListWidgetItem *item);

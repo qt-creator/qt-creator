@@ -41,7 +41,7 @@ class AGGREGATION_EXPORT Aggregate : public QObject
 
 public:
     Aggregate(QObject *parent = 0);
-    virtual ~Aggregate();
+    ~Aggregate() override;
 
     void add(QObject *component);
     void remove(QObject *component);

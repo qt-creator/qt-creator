@@ -42,7 +42,7 @@ class EXTENSIONSYSTEM_EXPORT PluginErrorView : public QWidget
 
 public:
     PluginErrorView(QWidget *parent = 0);
-    ~PluginErrorView();
+    ~PluginErrorView() override;
 
     void update(PluginSpec *spec);
 

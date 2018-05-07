@@ -44,7 +44,7 @@ class EXTENSIONSYSTEM_EXPORT PluginDetailsView : public QWidget
 
 public:
     PluginDetailsView(QWidget *parent = 0);
-    ~PluginDetailsView();
+    ~PluginDetailsView() override;
 
     void update(PluginSpec *spec);
 
