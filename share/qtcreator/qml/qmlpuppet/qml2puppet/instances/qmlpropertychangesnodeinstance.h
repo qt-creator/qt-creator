@@ -44,10 +44,10 @@ public:
 
     static Pointer create(QObject *objectToBeWrapped);
 
-    virtual void setPropertyVariant(const PropertyName &name, const QVariant &value) override;
-    virtual void setPropertyBinding(const PropertyName &name, const QString &expression) override;
-    virtual QVariant property(const PropertyName &name) const override;
-    virtual void resetProperty(const PropertyName &name) override;
+    void setPropertyVariant(const PropertyName &name, const QVariant &value) override;
+    void setPropertyBinding(const PropertyName &name, const QString &expression) override;
+    QVariant property(const PropertyName &name) const override;
+    void resetProperty(const PropertyName &name) override;
 
     void reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty) override;
 

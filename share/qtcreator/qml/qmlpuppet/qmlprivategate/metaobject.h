@@ -46,7 +46,7 @@ struct MetaPropertyData;
 class MetaObject : public QQmlVMEMetaObject
 {
 public:
-    ~MetaObject();
+    ~MetaObject() override;
 
     static void registerNotifyPropertyChangeCallBack(void (*callback)(QObject*, const PropertyName &propertyName));
 

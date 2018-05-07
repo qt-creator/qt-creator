@@ -65,19 +65,19 @@ class NodeInstanceClientProxy : public QObject, public NodeInstanceClientInterfa
 public:
     NodeInstanceClientProxy(QObject *parent = 0);
 
-    void informationChanged(const InformationChangedCommand &command);
-    void valuesChanged(const ValuesChangedCommand &command);
-    void pixmapChanged(const PixmapChangedCommand &command);
-    void childrenChanged(const ChildrenChangedCommand &command);
-    void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command);
-    void componentCompleted(const ComponentCompletedCommand &command);
-    void token(const TokenCommand &command);
-    void debugOutput(const DebugOutputCommand &command);
+    void informationChanged(const InformationChangedCommand &command) override;
+    void valuesChanged(const ValuesChangedCommand &command) override;
+    void pixmapChanged(const PixmapChangedCommand &command) override;
+    void childrenChanged(const ChildrenChangedCommand &command) override;
+    void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command) override;
+    void componentCompleted(const ComponentCompletedCommand &command) override;
+    void token(const TokenCommand &command) override;
+    void debugOutput(const DebugOutputCommand &command) override;
     void puppetAlive(const PuppetAliveCommand &command);
 
-    void flush();
-    void synchronizeWithClientProcess();
-    qint64 bytesToWrite() const;
+    void flush() override;
+    void synchronizeWithClientProcess() override;
+    qint64 bytesToWrite() const override;
 
 protected:
     void initializeSocket();
