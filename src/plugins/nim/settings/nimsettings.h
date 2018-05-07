@@ -37,7 +37,7 @@ class NimSettings : public QObject
 
 public:
     NimSettings(QObject *parent = nullptr);
-    ~NimSettings();
+    ~NimSettings() override;
 
     static TextEditor::SimpleCodeStylePreferences *globalCodeStyle();
 };
