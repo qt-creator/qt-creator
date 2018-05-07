@@ -57,7 +57,7 @@ public:
      */
     explicit QmlJSQuickFixOperation(const QmlJSQuickFixInterface &interface, int priority = -1);
 
-    virtual void perform();
+    void perform() override;
 
 protected:
     typedef Utils::ChangeSet::Range Range;

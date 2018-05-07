@@ -65,7 +65,7 @@ public:
 
 public:
     FindReferences(QObject *parent = 0);
-    virtual ~FindReferences();
+    ~FindReferences() override;
 
 signals:
     void changed();

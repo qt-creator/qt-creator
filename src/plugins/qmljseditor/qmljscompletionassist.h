@@ -88,7 +88,7 @@ class QmlJSCompletionAssistProcessor : public TextEditor::IAssistProcessor
 {
 public:
     QmlJSCompletionAssistProcessor();
-    ~QmlJSCompletionAssistProcessor();
+    ~QmlJSCompletionAssistProcessor() override;
 
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
 

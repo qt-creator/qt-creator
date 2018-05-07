@@ -60,7 +60,7 @@ protected:
     QmlJSRefactoringFile(TextEditor::TextEditorWidget *editor, QmlJS::Document::Ptr document);
 
     QmlJSRefactoringChangesData *data() const;
-    virtual void fileChanged();
+    void fileChanged() override;
 
     mutable QmlJS::Document::Ptr m_qmljsDocument;
 
