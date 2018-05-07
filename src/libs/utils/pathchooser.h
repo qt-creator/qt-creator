@@ -63,7 +63,7 @@ public:
     static QString browseButtonLabel();
 
     explicit PathChooser(QWidget *parent = nullptr);
-    virtual ~PathChooser();
+    ~PathChooser() override;
 
     enum Kind {
         ExistingDirectory,

@@ -49,7 +49,7 @@ class QTCREATOR_UTILS_EXPORT OutputFormatter : public QObject
 
 public:
     OutputFormatter();
-    virtual ~OutputFormatter();
+    ~OutputFormatter() override;
 
     QPlainTextEdit *plainTextEdit() const;
     virtual void setPlainTextEdit(QPlainTextEdit *plainText);

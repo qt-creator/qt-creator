@@ -41,12 +41,12 @@ class QTCREATOR_UTILS_EXPORT FileWizardPage : public WizardPage
 
 public:
     explicit FileWizardPage(QWidget *parent = 0);
-    ~FileWizardPage();
+    ~FileWizardPage() override;
 
     QString fileName() const;
     QString path() const;
 
-    bool isComplete() const;
+    bool isComplete() const override;
 
     void setFileNameLabel(const QString &label);
     void setPathLabel(const QString &label);

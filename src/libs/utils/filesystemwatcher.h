@@ -46,7 +46,7 @@ public:
 
     explicit FileSystemWatcher(QObject *parent = 0);
     explicit FileSystemWatcher(int id, QObject *parent = 0);
-    virtual ~FileSystemWatcher();
+    ~FileSystemWatcher() override;
 
     void addFile(const QString &file, WatchMode wm);
     void addFiles(const QStringList &files, WatchMode wm);

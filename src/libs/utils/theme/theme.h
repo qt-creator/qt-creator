@@ -49,7 +49,7 @@ class QTCREATOR_UTILS_EXPORT Theme : public QObject
 
 public:
     Theme(const QString &id, QObject *parent = 0);
-    ~Theme();
+    ~Theme() override;
 
     enum Color {
         BackgroundColorAlternate,

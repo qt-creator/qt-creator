@@ -40,14 +40,14 @@ public:
 
     void setText(const QString &text, const QString &maxText);
     using QLabel::setText;
-    QSize sizeHint() const;
+    QSize sizeHint() const override;
 
     QString maxText() const;
     void setMaxText(const QString &maxText);
 
 protected:
-    void mousePressEvent(QMouseEvent *ev);
-    void mouseReleaseEvent(QMouseEvent *ev);
+    void mousePressEvent(QMouseEvent *ev) override;
+    void mouseReleaseEvent(QMouseEvent *ev) override;
 
 signals:
     void clicked();

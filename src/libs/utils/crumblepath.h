@@ -40,7 +40,7 @@ class QTCREATOR_UTILS_EXPORT CrumblePath : public QWidget
 
 public:
     explicit CrumblePath(QWidget *parent = nullptr);
-    ~CrumblePath();
+    ~CrumblePath() override;
 
     QVariant dataForIndex(int index) const;
     QVariant dataForLastIndex() const;

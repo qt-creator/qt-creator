@@ -39,7 +39,7 @@ class QTCREATOR_UTILS_EXPORT ClassNameValidatingLineEdit : public FancyLineEdit
 
 public:
     explicit ClassNameValidatingLineEdit(QWidget *parent = 0);
-    virtual ~ClassNameValidatingLineEdit();
+    ~ClassNameValidatingLineEdit() override;
 
     bool namespacesEnabled() const;
     void setNamespacesEnabled(bool b);
@@ -63,8 +63,8 @@ signals:
 
 protected:
     bool validateClassName(FancyLineEdit *edit, QString *errorMessage) const;
-    void handleChanged(const QString &t);
-    QString fixInputString(const QString &string);
+    void handleChanged(const QString &t) override;
+    QString fixInputString(const QString &string) override;
 
 private:
     void updateRegExp() const;

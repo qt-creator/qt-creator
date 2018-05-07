@@ -43,7 +43,7 @@ public:
     bool isLightColored() const;
 
 protected:
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent *event) override;
 };
 
 class QTCREATOR_UTILS_EXPORT StyledSeparator : public QWidget
@@ -52,7 +52,7 @@ class QTCREATOR_UTILS_EXPORT StyledSeparator : public QWidget
 public:
     StyledSeparator(QWidget *parent = 0);
 protected:
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent *event) override;
 };
 
 } // Utils

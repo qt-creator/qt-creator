@@ -59,7 +59,7 @@ protected:
     ToolTip();
 
 public:
-    ~ToolTip();
+    ~ToolTip() override;
 
     enum {
         ColorContent = 0,
@@ -67,7 +67,7 @@ public:
         WidgetContent = 42
     };
 
-    bool eventFilter(QObject *o, QEvent *event);
+    bool eventFilter(QObject *o, QEvent *event) override;
 
     static ToolTip *instance();
 

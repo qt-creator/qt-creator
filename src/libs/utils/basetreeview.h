@@ -54,7 +54,7 @@ public:
     };
 
     BaseTreeView(QWidget *parent = 0);
-    ~BaseTreeView();
+    ~BaseTreeView() override;
 
     void setSettings(QSettings *settings, const QByteArray &key);
 

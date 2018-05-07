@@ -172,9 +172,9 @@ public:
     BackingUpSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy, const QString &docType,
                               const QString &displayName, const QString &applicationDisplayName);
 
-    RestoreData readData(const Utils::FileName &path, QWidget *parent) const;
+    RestoreData readData(const Utils::FileName &path, QWidget *parent) const override;
     Utils::optional<Issue> writeData(const Utils::FileName &path, const QVariantMap &data,
-                                     QWidget *parent) const;
+                                     QWidget *parent) const override;
 
     BackUpStrategy *strategy() const { return m_strategy.get(); }
 

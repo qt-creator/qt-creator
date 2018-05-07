@@ -47,7 +47,7 @@ class QTCREATOR_UTILS_EXPORT PathListEditor : public QWidget
 
 public:
     explicit PathListEditor(QWidget *parent = 0);
-    virtual ~PathListEditor();
+    ~PathListEditor() override;
 
     QString pathListString() const;
     QStringList pathList() const;

@@ -89,7 +89,7 @@ public:
     };
 
     SynchronousProcess();
-    virtual ~SynchronousProcess();
+    ~SynchronousProcess() override;
 
     /* Timeout for hanging processes (triggers after no more output
      * occurs on stderr/stdout). */

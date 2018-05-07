@@ -38,8 +38,8 @@ public:
     explicit CompletingLineEdit(QWidget *parent = 0);
 
 protected:
-    bool event(QEvent *e);
-    void keyPressEvent(QKeyEvent *e);
+    bool event(QEvent *e) override;
+    void keyPressEvent(QKeyEvent *e) override;
 };
 
 } // namespace Utils

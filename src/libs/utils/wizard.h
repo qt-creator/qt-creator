@@ -94,7 +94,7 @@ class QTCREATOR_UTILS_EXPORT WizardProgress : public QObject
 
 public:
     WizardProgress(QObject *parent = 0);
-    ~WizardProgress();
+    ~WizardProgress() override;
 
     WizardProgressItem *addItem(const QString &title);
     void removeItem(WizardProgressItem *item);

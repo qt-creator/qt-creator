@@ -78,7 +78,7 @@ public:
                    };
 
     explicit NewClassWidget(QWidget *parent = 0);
-    ~NewClassWidget();
+    ~NewClassWidget() override;
 
     bool namespacesEnabled() const;
     bool isBaseClassInputVisible() const;

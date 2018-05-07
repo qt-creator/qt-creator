@@ -145,7 +145,7 @@ public:
                        const QStringList &filters,
                        const QStringList &exclusionFilters,
                        QTextCodec *encoding = 0);
-    ~SubDirFileIterator();
+    ~SubDirFileIterator() override;
 
     int maxProgress() const override;
     int currentProgress() const override;

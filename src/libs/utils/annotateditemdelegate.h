@@ -35,7 +35,7 @@ class QTCREATOR_UTILS_EXPORT AnnotatedItemDelegate : public QStyledItemDelegate
 {
 public:
     AnnotatedItemDelegate(QObject *parent = 0);
-    virtual ~AnnotatedItemDelegate();
+    ~AnnotatedItemDelegate() override;
 
     void setAnnotationRole(int role);
     int annotationRole() const;
@@ -44,10 +44,10 @@ public:
     const QString &delimiter() const;
 
 protected:
-    virtual void paint(QPainter *painter,
+    void paint(QPainter *painter,
                        const QStyleOptionViewItem &option,
-                       const QModelIndex &index) const;
-    virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+                       const QModelIndex &index) const override;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
 private:
     int m_annotationRole;

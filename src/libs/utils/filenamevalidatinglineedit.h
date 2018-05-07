@@ -69,7 +69,7 @@ public:
     void setRequiredExtensions(const QStringList &extensionList);
 
 protected:
-    virtual QString fixInputString(const QString &string);
+    QString fixInputString(const QString &string) override;
 
 private:
     bool m_allowDirectories;

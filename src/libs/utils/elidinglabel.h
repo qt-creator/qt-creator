@@ -43,7 +43,7 @@ public:
     void setElideMode(const Qt::TextElideMode &elideMode);
 
 protected:
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent *event) override;
 
 private:
     Qt::TextElideMode m_elideMode;

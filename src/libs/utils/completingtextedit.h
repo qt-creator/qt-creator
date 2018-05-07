@@ -44,7 +44,7 @@ class QTCREATOR_UTILS_EXPORT CompletingTextEdit : public QTextEdit
 
 public:
     CompletingTextEdit(QWidget *parent = 0);
-    ~CompletingTextEdit();
+    ~CompletingTextEdit() override;
 
     void setCompleter(QCompleter *c);
     QCompleter *completer() const;
@@ -53,9 +53,9 @@ public:
     void setCompletionLengthThreshold(int len);
 
 protected:
-    void keyPressEvent(QKeyEvent *e);
-    void focusInEvent(QFocusEvent *e);
-    bool event(QEvent *e);
+    void keyPressEvent(QKeyEvent *e) override;
+    void focusInEvent(QFocusEvent *e) override;
+    bool event(QEvent *e) override;
 
 private:
     class CompletingTextEditPrivate *d;

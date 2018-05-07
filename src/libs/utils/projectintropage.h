@@ -43,7 +43,7 @@ class QTCREATOR_UTILS_EXPORT ProjectIntroPage : public WizardPage
 
 public:
     explicit ProjectIntroPage(QWidget *parent = 0);
-    virtual ~ProjectIntroPage();
+    ~ProjectIntroPage() override;
 
     QString projectName() const;
     QString path() const;
@@ -53,7 +53,7 @@ public:
     // Insert an additional control into the form layout for the target.
     void insertControl(int row, QWidget *label, QWidget *control);
 
-    virtual bool isComplete() const;
+    bool isComplete() const override;
 
     bool forceSubProject() const;
     void setForceSubProject(bool force);

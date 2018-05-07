@@ -49,7 +49,7 @@ public:
     static bool historyExistsFor(const QString &historyKey);
 
 private:
-    ~HistoryCompleter();
+    ~HistoryCompleter() override;
     int historySize() const;
     int maximalHistorySize() const;
     void setMaximalHistorySize(int numberOfEntries);

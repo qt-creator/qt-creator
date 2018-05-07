@@ -42,7 +42,8 @@ public:
     static NetworkAccessManager *instance();
 
 protected:
-    virtual QNetworkReply* createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData);
+    QNetworkReply* createRequest(Operation op, const QNetworkRequest &request,
+                                 QIODevice *outgoingData) override;
 };
 
 

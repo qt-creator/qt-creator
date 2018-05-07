@@ -215,9 +215,10 @@ class QTCREATOR_UTILS_EXPORT FileSaver : public FileSaverBase
 {
     Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
-    explicit FileSaver(const QString &filename, QIODevice::OpenMode mode = QIODevice::NotOpen); // QIODevice::WriteOnly is implicit
+    // QIODevice::WriteOnly is implicit
+    explicit FileSaver(const QString &filename, QIODevice::OpenMode mode = QIODevice::NotOpen);
 
-    virtual bool finalize();
+    bool finalize() override;
     using FileSaverBase::finalize;
 
 private:
@@ -229,7 +230,7 @@ class QTCREATOR_UTILS_EXPORT TempFileSaver : public FileSaverBase
     Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
     explicit TempFileSaver(const QString &templ = QString());
-    ~TempFileSaver();
+    ~TempFileSaver() override;
 
     void setAutoRemove(bool on) { m_autoRemove = on; }
 

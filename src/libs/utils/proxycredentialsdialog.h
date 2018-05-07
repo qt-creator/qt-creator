@@ -42,7 +42,7 @@ class QTCREATOR_UTILS_EXPORT ProxyCredentialsDialog : public QDialog
 
 public:
     explicit ProxyCredentialsDialog(const QNetworkProxy &proxy, QWidget *parent = 0);
-    ~ProxyCredentialsDialog();
+    ~ProxyCredentialsDialog() override;
 
     QString userName() const;
     void setUserName(const QString &username);

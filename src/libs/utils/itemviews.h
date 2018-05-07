@@ -68,7 +68,7 @@ public:
         return v.toBool() ? SingleClickActivation : DoubleClickActivation;
     }
 
-    void keyPressEvent(QKeyEvent *event)
+    void keyPressEvent(QKeyEvent *event) override
     {
         // Note: This always eats the event
         // whereas QAbstractItemView never eats it

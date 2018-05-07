@@ -39,8 +39,8 @@ public:
     explicit FakeToolTip(QWidget *parent = 0);
 
 protected:
-    void paintEvent(QPaintEvent *e);
-    void resizeEvent(QResizeEvent *e);
+    void paintEvent(QPaintEvent *e) override;
+    void resizeEvent(QResizeEvent *e) override;
 };
 
 } // namespace Utils

@@ -325,7 +325,7 @@ public:
         futureInterface.reportStarted();
     }
 
-    ~AsyncJob()
+    ~AsyncJob() override
     {
         // QThreadPool can delete runnables even if they were never run (e.g. QThreadPool::clear).
         // Since we reported them as started, we make sure that we always report them as finished.
@@ -382,7 +382,7 @@ public:
     explicit RunnableThread(QRunnable *runnable, QObject *parent = 0);
 
 protected:
-    void run();
+    void run() override;
 
 private:
     QRunnable *m_runnable;
