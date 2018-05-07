@@ -48,7 +48,7 @@ class EXTENSIONSYSTEM_EXPORT PluginView : public QWidget
     Q_OBJECT
 
 public:
-    explicit PluginView(QWidget *parent = 0);
+    explicit PluginView(QWidget *parent = nullptr);
     ~PluginView() override;
 
     PluginSpec *currentPlugin() const;

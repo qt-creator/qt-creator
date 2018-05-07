@@ -59,7 +59,7 @@ public:
     virtual ShutdownFlag aboutToShutdown() { return SynchronousShutdown; }
     virtual QObject *remoteCommand(const QStringList & /* options */,
                                    const QString & /* workingDirectory */,
-                                   const QStringList & /* arguments */) { return 0; }
+                                   const QStringList & /* arguments */) { return nullptr; }
     virtual QList<QObject *> createTestObjects() const;
 
     PluginSpec *pluginSpec() const;

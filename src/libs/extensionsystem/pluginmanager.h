@@ -67,7 +67,7 @@ public:
             if (T *result = qobject_cast<T *>(obj))
                 return result;
         }
-        return 0;
+        return nullptr;
     }
     template <typename T, typename Predicate> static T *getObject(Predicate predicate)
     {
@@ -117,7 +117,7 @@ public:
 
     static bool testRunRequested();
 
-    static void profilingReport(const char *what, const PluginSpec *spec = 0);
+    static void profilingReport(const char *what, const PluginSpec *spec = nullptr);
 
     static QString platformName();
 
