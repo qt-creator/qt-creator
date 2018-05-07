@@ -35,7 +35,7 @@ class EditableTextItem : public QGraphicsTextItem
 
 public:
     explicit EditableTextItem(QGraphicsItem *parent);
-    ~EditableTextItem();
+    ~EditableTextItem() override;
 
 signals:
     void returnKeyPressed();

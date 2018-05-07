@@ -39,7 +39,7 @@ class StereotypeDisplayVisitor : public DConstVoidVisitor
 {
 public:
     StereotypeDisplayVisitor();
-    ~StereotypeDisplayVisitor();
+    ~StereotypeDisplayVisitor() override;
 
     void setModelController(ModelController *modelController);
     void setStereotypeController(StereotypeController *stereotypeController);
