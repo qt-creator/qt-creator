@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "androidconfigurations.h"
+#include "androidmanager.h"
 #include "androidrunnerworker.h"
 
 #include <QThread>
@@ -185,6 +186,10 @@ AndroidRunnerWorkerBase::AndroidRunnerWorkerBase(RunControl *runControl, const A
     m_adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
     m_localJdbServerPort = Utils::Port(5038);
     QTC_CHECK(m_localJdbServerPort.isValid());
+
+    auto target = runConfig->target();
+    m_deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
+    m_apiLevel = AndroidManager::deviceApiLevel(target);
 }
 
 AndroidRunnerWorkerBase::~AndroidRunnerWorkerBase()
@@ -234,10 +239,9 @@ void AndroidRunnerWorkerBase::adbKill(qint64 pid)
     runAdb({"shell", "run-as", m_androidRunnable.packageName, "kill", "-9", QString::number(pid)});
 }
 
-
 QStringList AndroidRunnerWorkerBase::selector() const
 {
-    return AndroidDeviceInfo::adbSelector(m_androidRunnable.deviceSerialNumber);
+    return AndroidDeviceInfo::adbSelector(m_deviceSerialNumber);
 }
 
 void AndroidRunnerWorkerBase::forceStop()
@@ -328,9 +332,10 @@ void AndroidRunnerWorkerBase::logcatProcess(const QByteArray &text, QByteArray &
     }
 }
 
-void AndroidRunnerWorkerBase::setAndroidRunnable(const AndroidRunnable &runnable)
+void AndroidRunnerWorkerBase::setAndroidDeviceInfo(const AndroidDeviceInfo &info)
 {
-    m_androidRunnable = runnable;
+    m_deviceSerialNumber = info.serialNumber;
+    m_apiLevel = info.sdk;
 }
 
 void AndroidRunnerWorkerBase::asyncStart()

@@ -134,8 +134,6 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
 
     m_androidRunnable.extraAppParams = extraAppParams;
     m_androidRunnable.extraEnvVars = extraEnvVars;
-    m_androidRunnable.deviceSerialNumber = AndroidManager::deviceSerialNumber(m_target);
-    m_androidRunnable.apiLevel = AndroidManager::deviceApiLevel(m_target);
 
     RunConfiguration *rc = runControl->runConfiguration();
     if (auto aspect = rc->extraAspect(Constants::ANDROID_AMSTARTARGS_ASPECT))
@@ -151,7 +149,8 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
             m_androidRunnable.afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
 
-    if (m_androidRunnable.apiLevel > 23)
+    const int apiLevel = AndroidManager::deviceApiLevel(m_target);
+    if (apiLevel > 23)
         m_worker.reset(new AndroidRunnerWorker(runControl, m_androidRunnable));
     else
         m_worker.reset(new AndroidRunnerWorkerPreNougat(runControl, m_androidRunnable));
@@ -159,9 +158,8 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
 
     connect(this, &AndroidRunner::asyncStart, m_worker.data(), &AndroidRunnerWorkerBase::asyncStart);
     connect(this, &AndroidRunner::asyncStop, m_worker.data(), &AndroidRunnerWorkerBase::asyncStop);
-    connect(this, &AndroidRunner::androidRunnableChanged,
-            m_worker.data(), &AndroidRunnerWorkerBase::setAndroidRunnable);
-
+    connect(this, &AndroidRunner::androidDeviceInfoChanged,
+            m_worker.data(), &AndroidRunnerWorkerBase::setAndroidDeviceInfo);
     connect(m_worker.data(), &AndroidRunnerWorkerBase::remoteProcessStarted,
             this, &AndroidRunner::handleRemoteProcessStarted);
     connect(m_worker.data(), &AndroidRunnerWorkerBase::remoteProcessFinished,
@@ -251,14 +249,6 @@ void AndroidRunner::handleRemoteProcessFinished(const QString &errString)
     reportStopped();
 }
 
-void AndroidRunner::setRunnable(const AndroidRunnable &runnable)
-{
-    if (runnable != m_androidRunnable) {
-        m_androidRunnable = runnable;
-        emit androidRunnableChanged(m_androidRunnable);
-    }
-}
-
 void AndroidRunner::launchAVD()
 {
     if (!m_target || !m_target->project())
@@ -271,9 +261,7 @@ void AndroidRunner::launchAVD()
     AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(
                 m_target->project(), deviceAPILevel, targetArch);
     AndroidManager::setDeviceSerialNumber(m_target, info.serialNumber);
-    m_androidRunnable.deviceSerialNumber = info.serialNumber;
-    m_androidRunnable.apiLevel = info.sdk;
-    emit androidRunnableChanged(m_androidRunnable);
+    emit androidDeviceInfoChanged(info);
     if (info.isValid()) {
         AndroidAvdManager avdManager;
         if (avdManager.findAvd(info.avdname).isEmpty()) {

@@ -39,10 +39,8 @@ struct ANDROID_EXPORT AndroidRunnable
     Utils::Environment environment;
     QStringList beforeStartAdbCommands;
     QStringList afterFinishAdbCommands;
-    QString deviceSerialNumber;
     QString extraAppParams;
     Utils::Environment extraEnvVars;
-    int apiLevel = -1;
 
     QString displayName() const { return packageName; }
     static void *staticTypeId;
@@ -55,8 +53,7 @@ inline bool operator==(const AndroidRunnable &r1, const AndroidRunnable &r2)
         && r1.amStartExtraArgs == r2.amStartExtraArgs
         && r1.environment == r2.environment
         && r1.beforeStartAdbCommands == r2.beforeStartAdbCommands
-        && r1.afterFinishAdbCommands == r2.afterFinishAdbCommands
-        && r1.deviceSerialNumber == r2.deviceSerialNumber;
+        && r1.afterFinishAdbCommands == r2.afterFinishAdbCommands;
 }
 
 inline bool operator!=(const AndroidRunnable &r1, const AndroidRunnable &r2)

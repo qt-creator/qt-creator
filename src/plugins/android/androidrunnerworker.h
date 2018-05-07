@@ -38,6 +38,9 @@ class RunControl;
 }
 
 namespace Android {
+
+class AndroidDeviceInfo;
+
 namespace Internal {
 
 const int MIN_SOCKET_HANDSHAKE_PORT = 20001;
@@ -56,7 +59,7 @@ public:
     void logcatReadStandardError();
     void logcatReadStandardOutput();
     void logcatProcess(const QByteArray &text, QByteArray &buffer, bool onlyError);
-    void setAndroidRunnable(const AndroidRunnable &runnable);
+    void setAndroidDeviceInfo(const AndroidDeviceInfo &info);
 
     virtual void asyncStart();
     virtual void asyncStop();
@@ -99,6 +102,8 @@ protected:
     Utils::Port m_localJdbServerPort;
     std::unique_ptr<QProcess, Deleter> m_gdbServerProcess;
     std::unique_ptr<QProcess, Deleter> m_jdbProcess;
+    QString m_deviceSerialNumber;
+    int m_apiLevel = -1;
 };
 
 

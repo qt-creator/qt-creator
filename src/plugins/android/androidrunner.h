@@ -56,9 +56,6 @@ public:
                            const Utils::Environment &extraEnvVars = Utils::Environment());
     ~AndroidRunner() override;
 
-    void setRunnable(const AndroidRunnable &runnable);
-    const AndroidRunnable &runnable() const { return m_androidRunnable; }
-
     Utils::Port gdbServerPort() const { return m_gdbServerPort; }
     QUrl qmlServer() const { return m_qmlServer; }
     Utils::ProcessHandle pid() const { return m_pid; }
@@ -70,7 +67,7 @@ signals:
     void asyncStart();
     void asyncStop();
     void qmlServerReady(const QUrl &serverUrl);
-    void androidRunnableChanged(const AndroidRunnable &runnable);
+    void androidDeviceInfoChanged(const AndroidDeviceInfo &deviceInfo);
     void avdDetected();
 
 private:
