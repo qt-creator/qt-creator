@@ -70,7 +70,7 @@ class StartApplicationDialog : public QDialog
 
 public:
     explicit StartApplicationDialog(QWidget *parent);
-    ~StartApplicationDialog();
+    ~StartApplicationDialog() override;
 
     static void attachToRemoteServer();
     static void startAndDebugApplication();
@@ -93,7 +93,7 @@ class AttachToQmlPortDialog : public QDialog
 
 public:
     explicit AttachToQmlPortDialog(QWidget *parent);
-    ~AttachToQmlPortDialog();
+    ~AttachToQmlPortDialog() override;
 
     int port() const;
     void setPort(const int port);
@@ -111,14 +111,14 @@ class StartRemoteCdbDialog : public QDialog
 
 public:
     explicit StartRemoteCdbDialog(QWidget *parent);
-    ~StartRemoteCdbDialog();
+    ~StartRemoteCdbDialog() override;
 
     QString connection() const;
     void setConnection(const QString &);
 
 private:
     void textChanged(const QString &);
-    void accept();
+    void accept() override;
 
     QPushButton *m_okButton;
     QLineEdit *m_lineEdit;
@@ -136,7 +136,7 @@ public:
 
 private:
      void textChanged();
-     void accept();
+     void accept() override;
 
      void setOkButtonEnabled(bool v);
      bool isOkButtonEnabled() const;
@@ -153,7 +153,7 @@ class StartRemoteEngineDialog : public QDialog
 
 public:
     explicit StartRemoteEngineDialog(QWidget *parent);
-    ~StartRemoteEngineDialog();
+    ~StartRemoteEngineDialog() override;
     QString username() const;
     QString host() const;
     QString password() const;
@@ -172,7 +172,7 @@ class TypeFormatsDialog : public QDialog
 
 public:
     explicit TypeFormatsDialog(QWidget *parent);
-    ~TypeFormatsDialog();
+    ~TypeFormatsDialog() override;
 
     void addTypeFormats(const QString &type, const DisplayFormats &formats,
         int currentFormat);

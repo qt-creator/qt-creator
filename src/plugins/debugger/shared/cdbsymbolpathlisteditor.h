@@ -53,7 +53,7 @@ public:
    void setPath(const QString &p);
    QString path() const;
 
-   virtual void accept();
+   void accept() override;
 
 private:
    Utils::PathChooser *m_chooser;

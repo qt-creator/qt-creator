@@ -52,7 +52,7 @@ class StackHandler : public QAbstractTableModel
 
 public:
     explicit StackHandler(DebuggerEngine *engine);
-    ~StackHandler();
+    ~StackHandler() override;
 
     void setFrames(const StackFrames &frames, bool canExpand = false);
     void setFramesAndCurrentIndex(const GdbMi &frames, bool isFull);

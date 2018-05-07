@@ -45,7 +45,7 @@ class DEBUGGER_EXPORT DebuggerItemManager : public QObject
 
 public:
     DebuggerItemManager();
-    ~DebuggerItemManager();
+    ~DebuggerItemManager() override;
 
     static QList<DebuggerItem> debuggers();
 

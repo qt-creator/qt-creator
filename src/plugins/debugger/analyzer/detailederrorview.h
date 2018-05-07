@@ -38,7 +38,7 @@ class DEBUGGER_EXPORT DetailedErrorView : public QTreeView
 
 public:
     DetailedErrorView(QWidget *parent = nullptr);
-    ~DetailedErrorView();
+    ~DetailedErrorView() override;
 
     void goNext();
     void goBack();

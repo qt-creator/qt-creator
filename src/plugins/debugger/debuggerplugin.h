@@ -40,7 +40,7 @@ class DebuggerPlugin : public ExtensionSystem::IPlugin
 
 public:
     DebuggerPlugin();
-    ~DebuggerPlugin();
+    ~DebuggerPlugin() override;
 
     static DebuggerPlugin *instance();
 

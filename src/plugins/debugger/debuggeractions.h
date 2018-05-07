@@ -56,7 +56,7 @@ class DebuggerSettings : public QObject
 
 public:
     explicit DebuggerSettings();
-    ~DebuggerSettings();
+    ~DebuggerSettings() override;
 
     void insertItem(int code, Utils::SavedAction *item);
     Utils::SavedAction *item(int code) const;

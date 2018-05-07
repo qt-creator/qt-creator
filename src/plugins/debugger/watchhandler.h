@@ -60,7 +60,7 @@ class WatchHandler : public QObject
 
 public:
     explicit WatchHandler(DebuggerEngine *engine);
-    ~WatchHandler();
+    ~WatchHandler() override;
 
     WatchModelBase *model() const;
 

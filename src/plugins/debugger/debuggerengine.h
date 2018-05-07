@@ -237,7 +237,7 @@ class DebuggerEngine : public QObject
 
 public:
     explicit DebuggerEngine();
-    virtual ~DebuggerEngine();
+    ~DebuggerEngine() override;
 
     const DebuggerRunParameters &runParameters() const;
 
