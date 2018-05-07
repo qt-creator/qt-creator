@@ -50,7 +50,7 @@ class CORE_EXPORT EditorToolBar : public Utils::StyledBar
     Q_OBJECT
 
 public:
-    explicit EditorToolBar(QWidget *parent = 0);
+    explicit EditorToolBar(QWidget *parent = nullptr);
     ~EditorToolBar() override;
 
     typedef std::function<void(QMenu*)> MenuProvider;

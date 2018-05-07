@@ -62,7 +62,7 @@ class ThemeChooser : public QWidget
     Q_OBJECT
 
 public:
-    ThemeChooser(QWidget *parent = 0);
+    ThemeChooser(QWidget *parent = nullptr);
     ~ThemeChooser() override;
 
     void apply();

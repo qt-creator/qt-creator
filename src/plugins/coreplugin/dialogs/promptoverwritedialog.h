@@ -43,7 +43,7 @@ class CORE_EXPORT PromptOverwriteDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit PromptOverwriteDialog(QWidget *parent = 0);
+    explicit PromptOverwriteDialog(QWidget *parent = nullptr);
 
     void setFiles(const QStringList &);
 

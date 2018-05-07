@@ -45,7 +45,7 @@ public:
         KeepOnFinishTillUserInteraction = 1,
         KeepOnFinish = 2
     };
-    explicit FutureProgress(QWidget *parent = 0);
+    explicit FutureProgress(QWidget *parent = nullptr);
     ~FutureProgress() override;
 
     bool eventFilter(QObject *object, QEvent *) override;

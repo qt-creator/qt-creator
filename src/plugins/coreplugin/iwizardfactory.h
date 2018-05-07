@@ -123,7 +123,7 @@ private:
 
     static void clearWizardFactories();
 
-    QAction *m_action = 0;
+    QAction *m_action = nullptr;
     QIcon m_icon;
     QString m_iconText;
     QString m_description;
@@ -133,7 +133,7 @@ private:
     QString m_descriptionImage;
     QSet<Id> m_requiredFeatures;
     QSet<Id> m_supportedProjectTypes;
-    WizardFlags m_flags = 0;
+    WizardFlags m_flags = nullptr;
     Id m_id;
 
     friend class Internal::CorePlugin;

@@ -42,7 +42,7 @@ class CORE_EXPORT OutputPanePlaceHolder : public QWidget
     Q_OBJECT
 
 public:
-    explicit OutputPanePlaceHolder(Id mode, QSplitter *parent = 0);
+    explicit OutputPanePlaceHolder(Id mode, QSplitter *parent = nullptr);
     ~OutputPanePlaceHolder() override;
 
     static OutputPanePlaceHolder *getCurrent();

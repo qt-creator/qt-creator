@@ -44,7 +44,7 @@ class CORE_EXPORT RightPanePlaceHolder : public QWidget
     Q_OBJECT
 
 public:
-    explicit RightPanePlaceHolder(Id mode, QWidget *parent = 0);
+    explicit RightPanePlaceHolder(Id mode, QWidget *parent = nullptr);
     ~RightPanePlaceHolder() override;
     static RightPanePlaceHolder *current();
 

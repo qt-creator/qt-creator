@@ -43,7 +43,7 @@ class ProgressView : public QWidget
     Q_OBJECT
 
 public:
-    ProgressView(QWidget *parent = 0);
+    ProgressView(QWidget *parent = nullptr);
     ~ProgressView() override;
 
     void addProgressWidget(QWidget *widget);

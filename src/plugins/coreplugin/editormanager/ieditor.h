@@ -39,14 +39,14 @@ class CORE_EXPORT IEditor : public IContext
     Q_OBJECT
 
 public:
-    IEditor(QObject *parent = 0);
+    IEditor(QObject *parent = nullptr);
 
     bool duplicateSupported() const;
     void setDuplicateSupported(bool duplicateSupported);
 
     virtual IDocument *document() = 0;
 
-    virtual IEditor *duplicate() { return 0; }
+    virtual IEditor *duplicate() { return nullptr; }
 
     virtual QByteArray saveState() const { return QByteArray(); }
     virtual bool restoreState(const QByteArray &/*state*/) { return true; }

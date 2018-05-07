@@ -79,7 +79,7 @@ public:
         FlagIgnore
     };
 
-    IDocument(QObject *parent = 0);
+    IDocument(QObject *parent = nullptr);
     ~IDocument() override;
 
     void setId(Id id);

@@ -41,7 +41,7 @@ class CORE_EXPORT VariableChooser : public QWidget
     Q_OBJECT
 
 public:
-    explicit VariableChooser(QWidget *parent = 0);
+    explicit VariableChooser(QWidget *parent = nullptr);
     ~VariableChooser() override;
 
     void addMacroExpanderProvider(const Utils::MacroExpanderProvider &provider);

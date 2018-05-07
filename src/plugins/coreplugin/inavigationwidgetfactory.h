@@ -41,7 +41,7 @@ namespace Core {
 
 struct NavigationView
 {
-    NavigationView(QWidget *w = 0) : widget(w) {}
+    NavigationView(QWidget *w = nullptr) : widget(w) {}
 
     QWidget *widget;
     QList<QToolButton *> dockToolBarWidgets;

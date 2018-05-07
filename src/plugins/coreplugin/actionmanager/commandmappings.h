@@ -45,7 +45,7 @@ class CORE_EXPORT CommandMappings : public QWidget
     Q_OBJECT
 
 public:
-    CommandMappings(QWidget *parent = 0);
+    CommandMappings(QWidget *parent = nullptr);
     ~CommandMappings() override;
 
 signals:

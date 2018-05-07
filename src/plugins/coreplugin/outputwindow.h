@@ -45,7 +45,7 @@ class CORE_EXPORT OutputWindow : public QPlainTextEdit
     Q_OBJECT
 
 public:
-    OutputWindow(Context context, QWidget *parent = 0);
+    OutputWindow(Context context, QWidget *parent = nullptr);
     ~OutputWindow() override;
 
     Utils::OutputFormatter *formatter() const;

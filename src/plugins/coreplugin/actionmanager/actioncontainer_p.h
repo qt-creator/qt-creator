@@ -57,7 +57,7 @@ public:
     void addAction(Command *action, Id group = Id()) override;
     void addMenu(ActionContainer *menu, Id group = Id()) override;
     void addMenu(ActionContainer *before, ActionContainer *menu, Id group = Id()) override;
-    Command *addSeparator(const Context &context, Id group = Id(), QAction **outSeparator = 0) override;
+    Command *addSeparator(const Context &context, Id group = Id(), QAction **outSeparator = nullptr) override;
     void clear() override;
 
     Id id() const override;

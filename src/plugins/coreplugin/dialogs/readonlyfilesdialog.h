@@ -58,14 +58,14 @@ public:
     };
 
     explicit ReadOnlyFilesDialog(const QList<QString> &fileNames,
-                                 QWidget *parent = 0);
+                                 QWidget *parent = nullptr);
     explicit ReadOnlyFilesDialog(const QString &fileName,
-                                 QWidget * parent = 0);
+                                 QWidget * parent = nullptr);
     explicit ReadOnlyFilesDialog(IDocument *document,
-                                 QWidget * parent = 0,
+                                 QWidget * parent = nullptr,
                                  bool displaySaveAs = false);
     explicit ReadOnlyFilesDialog(const QList<IDocument *> &documents,
-                                 QWidget * parent = 0);
+                                 QWidget * parent = nullptr);
 
     ~ReadOnlyFilesDialog() override;
 

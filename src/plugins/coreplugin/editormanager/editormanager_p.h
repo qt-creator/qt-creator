@@ -79,20 +79,20 @@ public:
                                const QString &fileName,
                                Id editorId = Id(),
                                EditorManager::OpenEditorFlags flags = EditorManager::NoFlags,
-                               bool *newEditor = 0);
+                               bool *newEditor = nullptr);
     static IEditor *openEditorAt(EditorView *view,
                                  const QString &fileName,
                                  int line,
                                  int column = 0,
                                  Id editorId = Id(),
                                  EditorManager::OpenEditorFlags flags = EditorManager::NoFlags,
-                                 bool *newEditor = 0);
+                                 bool *newEditor = nullptr);
     static IEditor *openEditorWith(const QString &fileName, Core::Id editorId);
     static IEditor *duplicateEditor(IEditor *editor);
     static IEditor *activateEditor(EditorView *view, IEditor *editor,
                                    EditorManager::OpenEditorFlags flags = EditorManager::NoFlags);
     static IEditor *activateEditorForDocument(EditorView *view, IDocument *document,
-                                              EditorManager::OpenEditorFlags flags = 0);
+                                              EditorManager::OpenEditorFlags flags = nullptr);
     static bool activateEditorForEntry(EditorView *view, DocumentModel::Entry *entry,
                                        EditorManager::OpenEditorFlags flags = EditorManager::NoFlags);
     /* closes the document if there is no other editor on the document visible */
@@ -106,7 +106,7 @@ public:
     static MakeWritableResult makeFileWritable(IDocument *document);
     static void doEscapeKeyFocusMoveMagic();
 
-    static Id getOpenWithEditorId(const QString &fileName, bool *isExternalEditor = 0);
+    static Id getOpenWithEditorId(const QString &fileName, bool *isExternalEditor = nullptr);
 
     static void saveSettings();
     static void readSettings();
@@ -191,8 +191,8 @@ private:
     static IEditor *placeEditor(EditorView *view, IEditor *editor);
     static void restoreEditorState(IEditor *editor);
     static int visibleDocumentsCount();
-    static EditorArea *findEditorArea(const EditorView *view, int *areaIndex = 0);
-    static IEditor *pickUnusedEditor(Internal::EditorView **foundView = 0);
+    static EditorArea *findEditorArea(const EditorView *view, int *areaIndex = nullptr);
+    static IEditor *pickUnusedEditor(Internal::EditorView **foundView = nullptr);
     static void addDocumentToRecentFiles(IDocument *document);
     static void updateAutoSave();
     static void updateMakeWritableWarning();

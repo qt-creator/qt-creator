@@ -53,7 +53,7 @@ class CORE_EXPORT NavigationWidgetPlaceHolder : public QWidget
     friend class Core::NavigationWidget;
 
 public:
-    explicit NavigationWidgetPlaceHolder(Id mode, Side side, QWidget *parent = 0);
+    explicit NavigationWidgetPlaceHolder(Id mode, Side side, QWidget *parent = nullptr);
     ~NavigationWidgetPlaceHolder() override;
     static NavigationWidgetPlaceHolder *current(Side side);
     static void setCurrent(Side side, NavigationWidgetPlaceHolder *navWidget);

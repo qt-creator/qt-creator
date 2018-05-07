@@ -71,7 +71,7 @@ public:
 
     static void resetVersionControlForDirectory(const QString &inputDirectory);
     static IVersionControl *findVersionControlForDirectory(const QString &directory,
-                                                           QString *topLevelDirectory = 0);
+                                                           QString *topLevelDirectory = nullptr);
     static QString findTopLevelForDirectory(const QString &directory);
 
     static QStringList repositories(const IVersionControl *);
@@ -107,7 +107,7 @@ signals:
     void configurationChanged(const IVersionControl *vcs);
 
 private:
-    explicit VcsManager(QObject *parent = 0);
+    explicit VcsManager(QObject *parent = nullptr);
     ~VcsManager() override;
 
     static void addVersionControl(IVersionControl *vc);

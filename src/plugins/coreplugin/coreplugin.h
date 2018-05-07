@@ -53,7 +53,7 @@ public:
     CorePlugin();
     ~CorePlugin() override;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0) override;
+    bool initialize(const QStringList &arguments, QString *errorMessage = nullptr) override;
     void extensionsInitialized() override;
     bool delayedInitialize() override;
     ShutdownFlag aboutToShutdown() override;

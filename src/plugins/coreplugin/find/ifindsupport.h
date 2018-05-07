@@ -39,7 +39,7 @@ class CORE_EXPORT IFindSupport : public QObject
 public:
     enum Result { Found, NotFound, NotYetFound };
 
-    IFindSupport() : QObject(0) {}
+    IFindSupport() : QObject(nullptr) {}
     ~IFindSupport() override {}
 
     virtual bool supportsReplace() const = 0;

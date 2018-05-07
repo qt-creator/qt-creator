@@ -41,8 +41,8 @@ class CORE_EXPORT CommandButton : public QToolButton
     Q_OBJECT
     Q_PROPERTY(QString toolTipBase READ toolTipBase WRITE setToolTipBase)
 public:
-    explicit CommandButton(QWidget *parent = 0);
-    explicit CommandButton(Id id, QWidget *parent = 0);
+    explicit CommandButton(QWidget *parent = nullptr);
+    explicit CommandButton(Id id, QWidget *parent = nullptr);
     void setCommandId(Id id);
     QString toolTipBase() const;
     void setToolTipBase(const QString &toolTipBase);

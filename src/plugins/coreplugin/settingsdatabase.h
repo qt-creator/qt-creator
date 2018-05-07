@@ -39,7 +39,7 @@ namespace Internal { class SettingsDatabasePrivate; }
 class CORE_EXPORT SettingsDatabase : public QObject
 {
 public:
-    SettingsDatabase(const QString &path, const QString &application, QObject *parent = 0);
+    SettingsDatabase(const QString &path, const QString &application, QObject *parent = nullptr);
     ~SettingsDatabase() override;
 
     void setValue(const QString &key, const QVariant &value);

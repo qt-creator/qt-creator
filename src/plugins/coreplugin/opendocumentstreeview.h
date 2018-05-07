@@ -36,7 +36,7 @@ class CORE_EXPORT OpenDocumentsTreeView : public Utils::TreeView
 {
     Q_OBJECT
 public:
-    explicit OpenDocumentsTreeView(QWidget *parent = 0);
+    explicit OpenDocumentsTreeView(QWidget *parent = nullptr);
 
     void setModel(QAbstractItemModel *model) override;
     void setCloseButtonVisible(bool visible);

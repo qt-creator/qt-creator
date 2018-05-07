@@ -54,7 +54,7 @@ public:
 
     static FindFlags findFlags();
     static bool hasFindFlag(FindFlag flag);
-    static void updateFindCompletion(const QString &text, FindFlags flags = 0);
+    static void updateFindCompletion(const QString &text, FindFlags flags = nullptr);
     static void updateReplaceCompletion(const QString &text);
     static QAbstractListModel *findCompletionModel();
     static QStringListModel *replaceCompletionModel();

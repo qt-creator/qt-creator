@@ -121,7 +121,7 @@ class CORE_EXPORT InfoBarDisplay : public QObject
     Q_OBJECT
 
 public:
-    InfoBarDisplay(QObject *parent = 0);
+    InfoBarDisplay(QObject *parent = nullptr);
     void setTarget(QBoxLayout *layout, int index);
     void setInfoBar(InfoBar *infoBar);
 

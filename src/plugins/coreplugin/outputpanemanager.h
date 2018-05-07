@@ -75,7 +75,7 @@ private:
     static void create();
     static void destroy();
 
-    explicit OutputPaneManager(QWidget *parent = 0);
+    explicit OutputPaneManager(QWidget *parent = nullptr);
     ~OutputPaneManager() override;
 
     void shortcutTriggered(int idx);
@@ -136,7 +136,7 @@ class OutputPaneToggleButton : public QToolButton
     Q_OBJECT
 public:
     OutputPaneToggleButton(int number, const QString &text, QAction *action,
-                           QWidget *parent = 0);
+                           QWidget *parent = nullptr);
     QSize sizeHint() const override;
     void paintEvent(QPaintEvent*) override;
     void flash(int count = 3);
