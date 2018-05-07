@@ -26,6 +26,7 @@
 #pragma once
 
 #include "tracing_global.h"
+#include "safecastable.h"
 
 #include <QHash>
 #include <QMetaType>
@@ -33,7 +34,7 @@
 
 namespace Timeline {
 
-class TraceEventType
+class TraceEventType : public SafeCastable<TraceEventType>
 {
 public:
     const QString &displayName() const { return m_displayName; }
@@ -42,9 +43,11 @@ public:
     quint8 feature() const { return m_feature; }
     void setFeature(quint8 feature) { m_feature = feature; }
 
+    qint32 classId() const { return m_classId; }
+
 protected:
-    TraceEventType(quint8 feature = 255, const QString &displayName = QString())
-        : m_displayName(displayName), m_feature(feature)
+    TraceEventType(qint32 classId, quint8 feature = 255, const QString &displayName = QString())
+        : m_displayName(displayName), m_classId(classId), m_feature(feature)
     {}
 
     TraceEventType(const TraceEventType &) = default;
@@ -54,6 +57,7 @@ protected:
 
 private:
     QString m_displayName;
+    qint32 m_classId;
     quint8 m_feature;
 };
 

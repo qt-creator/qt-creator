@@ -17,6 +17,7 @@ Project {
                 "README",
                 "flamegraph.cpp", "flamegraph.h",
                 "flamegraphattached.h",
+                "safecastable.h",
                 "timelineabstractrenderer.cpp", "timelineabstractrenderer.h",
                 "timelineabstractrenderer_p.h",
                 "timelineformattime.cpp", "timelineformattime.h",

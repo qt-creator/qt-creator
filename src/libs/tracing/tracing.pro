@@ -25,6 +25,7 @@ SOURCES += \
 HEADERS += \
     $$PWD/flamegraph.h \
     $$PWD/flamegraphattached.h \
+    $$PWD/safecastable.h \
     $$PWD/tracing_global.h \
     $$PWD/timelinemodel.h \
     $$PWD/timelinemodel_p.h \

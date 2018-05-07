@@ -39,24 +39,26 @@
 namespace QmlProfiler {
 
 struct QmlEvent : public Timeline::TraceEvent {
-    QmlEvent() : m_dataType(Inline8Bit), m_dataLength(0) {}
+    static const qint32 staticClassId = 0x716d6c65; // 'qmle';
+
+    QmlEvent() : TraceEvent(staticClassId), m_dataType(Inline8Bit), m_dataLength(0) {}
 
     template<typename Number>
     QmlEvent(qint64 timestamp, int typeIndex, std::initializer_list<Number> list)
-        : TraceEvent(timestamp, typeIndex)
+        : TraceEvent(staticClassId, timestamp, typeIndex)
     {
         assignNumbers<std::initializer_list<Number>, Number>(list);
     }
 
     QmlEvent(qint64 timestamp, int typeIndex, const QString &data)
-        : TraceEvent(timestamp, typeIndex)
+        : TraceEvent(staticClassId, timestamp, typeIndex)
     {
         assignNumbers<QByteArray, qint8>(data.toUtf8());
     }
 
     template<typename Number>
     QmlEvent(qint64 timestamp, int typeIndex, const QVector<Number> &data)
-        : TraceEvent(timestamp, typeIndex)
+        : TraceEvent(staticClassId, timestamp, typeIndex)
     {
         assignNumbers<QVector<Number>, Number>(data);
     }

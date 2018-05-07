@@ -25,45 +25,38 @@
 
 #pragma once
 
-#include "tracing_global.h"
-#include "safecastable.h"
-
-#include <QHash>
-#include <QMetaType>
-
 namespace Timeline {
 
-class TraceEvent : public SafeCastable<TraceEvent>
+template<class Base>
+class SafeCastable
 {
 public:
-    qint64 timestamp() const { return m_timestamp; }
-    void setTimestamp(qint64 timestamp) { m_timestamp = timestamp; }
+    template<class Derived>
+    bool is() const
+    {
+        return static_cast<const Base *>(this)->classId() == Derived::staticClassId;
+    }
 
-    qint32 typeIndex() const { return m_typeIndex; }
-    void setTypeIndex(qint32 typeIndex) { m_typeIndex = typeIndex; }
+    template<class Derived>
+    Derived &asRef()
+    {
+        Q_ASSERT(is<Derived>());
+        return static_cast<Derived &>(*this);
+    }
 
-    bool isValid() const { return m_typeIndex != -1; }
+    template<class Derived>
+    const Derived &asConstRef() const
+    {
+        Q_ASSERT(is<Derived>());
+        return static_cast<const Derived &>(*this);
+    }
 
-    qint32 classId() const { return m_classId; }
-
-protected:
-    TraceEvent(qint32 classId, qint64 timestamp = -1, qint32 typeIndex = -1)
-        : m_timestamp(timestamp), m_typeIndex(typeIndex), m_classId(classId)
-    {}
-
-    TraceEvent(const TraceEvent &) = default;
-    TraceEvent(TraceEvent &&) = default;
-    TraceEvent &operator=(const TraceEvent &) = default;
-    TraceEvent &operator=(TraceEvent &&) = default;
-
-private:
-    qint64 m_timestamp;
-    qint32 m_typeIndex;
-    qint32 m_classId;
+    template<class Derived>
+    Derived &&asRvalueRef()
+    {
+        Q_ASSERT(is<Derived>());
+        return static_cast<Derived &&>(*this);
+    }
 };
 
 } // namespace Timeline
-
-QT_BEGIN_NAMESPACE
-Q_DECLARE_TYPEINFO(Timeline::TraceEvent, Q_MOVABLE_TYPE);
-QT_END_NAMESPACE

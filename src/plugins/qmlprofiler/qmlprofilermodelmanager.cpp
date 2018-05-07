@@ -148,8 +148,9 @@ void QmlProfilerModelManager::registerFeatures(quint64 features, QmlEventLoader 
 {
     const TraceEventLoader traceEventLoader = eventLoader ? [eventLoader](
             const Timeline::TraceEvent &event, const Timeline::TraceEventType &type) {
-        return eventLoader(static_cast<const QmlEvent &>(event),
-                           static_cast<const QmlEventType &>(type));
+        QTC_ASSERT(event.is<QmlEvent>(), return);
+        QTC_ASSERT(type.is<QmlEventType>(), return);
+        eventLoader(event.asConstRef<QmlEvent>(), type.asConstRef<QmlEventType>());
     } : TraceEventLoader();
 
     Timeline::TimelineTraceManager::registerFeatures(features, traceEventLoader, initializer,
@@ -158,7 +159,10 @@ void QmlProfilerModelManager::registerFeatures(quint64 features, QmlEventLoader 
 
 const QmlEventType &QmlProfilerModelManager::eventType(int typeId) const
 {
-    return static_cast<const QmlEventType &>(TimelineTraceManager::eventType(typeId));
+    static const QmlEventType invalid;
+    const Timeline::TraceEventType &type = TimelineTraceManager::eventType(typeId);
+    QTC_ASSERT(type.is<QmlEventType>(), return invalid);
+    return type.asConstRef<QmlEventType>();
 }
 
 void QmlProfilerModelManager::replayEvents(TraceEventLoader loader, Initializer initializer,
@@ -190,7 +194,8 @@ void QmlProfilerModelManager::replayQmlEvents(QmlEventLoader loader,
         if (future.isCanceled())
             return false;
 
-        loader(static_cast<QmlEvent &&>(event), eventType(event.typeIndex()));
+        QTC_ASSERT(event.is<QmlEvent>(), return false);
+        loader(event.asRvalueRef<QmlEvent>(), eventType(event.typeIndex()));
         return true;
     });
 
@@ -462,13 +467,19 @@ void QmlProfilerEventTypeStorage::set(int typeId, Timeline::TraceEventType &&typ
     const size_t index = static_cast<size_t>(typeId);
     if (m_types.size() <= index)
         m_types.resize(index + 1);
-    m_types[index] = std::move(static_cast<QmlEventType &&>(type));
+    QTC_ASSERT(type.is<QmlEventType>(), return);
+    m_types[index] = std::move(type.asRvalueRef<QmlEventType>());
 }
 
 int QmlProfilerEventTypeStorage::append(Timeline::TraceEventType &&type)
 {
     const size_t index = m_types.size();
-    m_types.push_back(std::move(static_cast<QmlEventType &&>(type)));
+    if (type.is<QmlEventType>()) {
+        m_types.push_back(std::move(type.asRvalueRef<QmlEventType>()));
+    } else {
+        QTC_CHECK(false);
+        m_types.push_back(QmlEventType());
+    }
     QTC_ASSERT(index <= std::numeric_limits<int>::max(), return std::numeric_limits<int>::max());
     return static_cast<int>(index);
 }
@@ -495,7 +506,8 @@ QmlProfilerEventStorage::QmlProfilerEventStorage(
 
 int QmlProfilerEventStorage::append(Timeline::TraceEvent &&event)
 {
-    m_file.append(std::move(static_cast<QmlEvent &&>(event)));
+    QTC_ASSERT(event.is<QmlEvent>(), return m_size);
+    m_file.append(std::move(event.asRvalueRef<QmlEvent>()));
     return m_size++;
 }
 

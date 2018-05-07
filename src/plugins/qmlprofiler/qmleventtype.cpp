@@ -79,7 +79,7 @@ QDataStream &operator<<(QDataStream &stream, const QmlEventType &type)
 QmlEventType::QmlEventType(Message message, RangeType rangeType, int detailType,
                            const QmlEventLocation &location, const QString &data,
                            const QString displayName) :
-    TraceEventType(qmlFeatureFromType(message, rangeType, detailType)),
+    TraceEventType(staticClassId, qmlFeatureFromType(message, rangeType, detailType)),
     m_data(data), m_location(location), m_message(message),
     m_rangeType(rangeType), m_detailType(detailType)
 {
