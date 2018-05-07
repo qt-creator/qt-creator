@@ -43,7 +43,7 @@ class TRACING_EXPORT FlameGraphAttached : public QObject
     Q_PROPERTY(QModelIndex modelIndex READ modelIndex WRITE setModelIndex NOTIFY modelIndexChanged)
 
 public:
-    FlameGraphAttached(QObject *parent = 0) :
+    FlameGraphAttached(QObject *parent = nullptr) :
         QObject(parent), m_relativeSize(0), m_relativePosition(0) {}
 
     QModelIndex modelIndex() const

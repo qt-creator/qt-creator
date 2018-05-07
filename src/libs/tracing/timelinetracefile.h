@@ -46,7 +46,7 @@ public:
         MaximumProgress = 1000
     };
 
-    explicit TimelineTraceFile(QObject *parent = 0);
+    explicit TimelineTraceFile(QObject *parent = nullptr);
 
     void setTraceManager(TimelineTraceManager *traceManager) { m_traceManager = traceManager; }
     TimelineTraceManager *traceManager() const { return m_traceManager; }

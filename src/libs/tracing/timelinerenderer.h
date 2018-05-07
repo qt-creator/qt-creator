@@ -41,7 +41,7 @@ class TRACING_EXPORT TimelineRenderer : public TimelineAbstractRenderer
     Q_OBJECT
 
 public:
-    explicit TimelineRenderer(QQuickItem *parent = 0);
+    explicit TimelineRenderer(QQuickItem *parent = nullptr);
 
     Q_INVOKABLE void selectNextFromSelectionId(int selectionId);
     Q_INVOKABLE void selectPrevFromSelectionId(int selectionId);

@@ -47,7 +47,7 @@ class TRACING_EXPORT FlameGraph : public QQuickItem
     Q_PROPERTY(QPersistentModelIndex root READ root WRITE setRoot NOTIFY rootChanged)
 
 public:
-    FlameGraph(QQuickItem *parent = 0);
+    FlameGraph(QQuickItem *parent = nullptr);
 
     QQmlComponent *delegate() const;
     void setDelegate(QQmlComponent *delegate);

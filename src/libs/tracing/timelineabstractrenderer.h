@@ -46,7 +46,7 @@ class TRACING_EXPORT TimelineAbstractRenderer : public QQuickItem
     Q_PROPERTY(int selectedItem READ selectedItem WRITE setSelectedItem NOTIFY selectedItemChanged)
 
 public:
-    TimelineAbstractRenderer(QQuickItem *parent = 0);
+    TimelineAbstractRenderer(QQuickItem *parent = nullptr);
     ~TimelineAbstractRenderer() override;
 
     bool selectionLocked() const;
@@ -84,7 +84,7 @@ protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData) override;
 
     class TimelineAbstractRendererPrivate;
-    TimelineAbstractRenderer(TimelineAbstractRendererPrivate &dd, QQuickItem *parent = 0);
+    TimelineAbstractRenderer(TimelineAbstractRendererPrivate &dd, QQuickItem *parent = nullptr);
     TimelineAbstractRendererPrivate *d_ptr;
     Q_DECLARE_PRIVATE(TimelineAbstractRenderer)
 };

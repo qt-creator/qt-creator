@@ -32,7 +32,7 @@ namespace Timeline {
 class TRACING_EXPORT TimelineOverviewRenderer : public TimelineAbstractRenderer
 {
 public:
-    TimelineOverviewRenderer(QQuickItem *parent = 0);
+    TimelineOverviewRenderer(QQuickItem *parent = nullptr);
 
 protected:
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData) override;

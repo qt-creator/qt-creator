@@ -59,7 +59,7 @@ public:
     qint64 maximumZoomFactor() const { return 1 << 10; }
     qint64 minimumRangeLength() const { return 500; }
 
-    TimelineZoomControl(QObject *parent = 0);
+    TimelineZoomControl(QObject *parent = nullptr);
     qint64 traceStart() const { return m_traceStart; }
     qint64 traceEnd() const { return m_traceEnd; }
     qint64 traceDuration() const { return m_traceEnd - m_traceStart; }
