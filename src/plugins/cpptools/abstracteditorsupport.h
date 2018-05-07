@@ -37,7 +37,7 @@ class CPPTOOLS_EXPORT AbstractEditorSupport : public QObject
 {
     Q_OBJECT
 public:
-    explicit AbstractEditorSupport(CppModelManager *modelmanager, QObject *parent = 0);
+    explicit AbstractEditorSupport(CppModelManager *modelmanager, QObject *parent = nullptr);
     ~AbstractEditorSupport() override;
 
     /// \returns the contents, encoded as UTF-8

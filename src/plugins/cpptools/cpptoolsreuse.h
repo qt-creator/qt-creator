@@ -68,7 +68,7 @@ const CPlusPlus::Macro CPPTOOLS_EXPORT *findCanonicalMacro(const QTextCursor &cu
 
 enum class CacheUsage { ReadWrite, ReadOnly };
 
-QString CPPTOOLS_EXPORT correspondingHeaderOrSource(const QString &fileName, bool *wasHeader = 0,
+QString CPPTOOLS_EXPORT correspondingHeaderOrSource(const QString &fileName, bool *wasHeader = nullptr,
                                                     CacheUsage cacheUsage = CacheUsage::ReadWrite);
 void CPPTOOLS_EXPORT switchHeaderSource();
 

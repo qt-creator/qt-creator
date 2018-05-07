@@ -48,7 +48,7 @@ class CPPTOOLS_EXPORT CppCompletionAssistProvider : public TextEditor::Completio
     Q_OBJECT
 
 public:
-    CppCompletionAssistProvider(QObject *parent = 0);
+    CppCompletionAssistProvider(QObject *parent = nullptr);
     int activationCharSequenceLength() const override;
     bool isActivationCharSequence(const QString &sequence) const override;
     bool isContinuationChar(const QChar &c) const override;

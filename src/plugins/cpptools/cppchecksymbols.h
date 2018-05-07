@@ -118,7 +118,7 @@ protected:
     bool maybeFunction(const CPlusPlus::Name *name) const;
 
     void checkNamespace(CPlusPlus::NameAST *name);
-    void checkName(CPlusPlus::NameAST *ast, CPlusPlus::Scope *scope = 0);
+    void checkName(CPlusPlus::NameAST *ast, CPlusPlus::Scope *scope = nullptr);
     CPlusPlus::ClassOrNamespace *checkNestedName(CPlusPlus::QualifiedNameAST *ast);
 
     void addUse(const Result &use);

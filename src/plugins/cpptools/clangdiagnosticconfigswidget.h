@@ -57,7 +57,7 @@ public:
     explicit ClangDiagnosticConfigsWidget(
             const ClangDiagnosticConfigsModel &diagnosticConfigsModel = ClangDiagnosticConfigsModel(),
             const Core::Id &configToSelect = Core::Id(),
-            QWidget *parent = 0);
+            QWidget *parent = nullptr);
     ~ClangDiagnosticConfigsWidget() override;
 
     Core::Id currentConfigId() const;

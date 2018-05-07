@@ -55,7 +55,7 @@ class CPPTOOLS_EXPORT ModelManagerTestHelper: public QObject
 public:
     typedef ProjectExplorer::Project Project;
 
-    explicit ModelManagerTestHelper(QObject *parent = 0,
+    explicit ModelManagerTestHelper(QObject *parent = nullptr,
                                     bool testOnlyForCleanedProjects = true);
     ~ModelManagerTestHelper() override;
 

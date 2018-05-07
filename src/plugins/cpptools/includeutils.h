@@ -90,8 +90,8 @@ public:
 
     /// Returns the line (1-based) at which the include directive should be inserted.
     /// On error, -1 is returned.
-    int operator()(const QString &newIncludeFileName, unsigned *newLinesToPrepend = 0,
-                   unsigned *newLinesToAppend = 0);
+    int operator()(const QString &newIncludeFileName, unsigned *newLinesToPrepend = nullptr,
+                   unsigned *newLinesToAppend = nullptr);
 
 private:
     int findInsertLineForVeryFirstInclude(unsigned *newLinesToPrepend, unsigned *newLinesToAppend);
