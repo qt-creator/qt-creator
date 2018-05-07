@@ -39,7 +39,7 @@ class ConfigurationPanel : public QWidget
 
 public:
     explicit ConfigurationPanel(QWidget *parent = nullptr);
-    ~ConfigurationPanel();
+    ~ConfigurationPanel() override;
 
     void setSettings(AbstractSettings *settings);
     void setCurrentConfiguration(const QString &text);
