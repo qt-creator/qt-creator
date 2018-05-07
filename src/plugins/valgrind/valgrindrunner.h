@@ -42,7 +42,7 @@ class ValgrindRunner : public QObject
 
 public:
     explicit ValgrindRunner(QObject *parent = 0);
-    ~ValgrindRunner();
+    ~ValgrindRunner() override;
 
     void setValgrindExecutable(const QString &executable);
     void setValgrindArguments(const QStringList &toolArguments);

@@ -51,7 +51,7 @@ class Parser : public QObject
 
 public:
     explicit Parser(QObject *parent = 0);
-    ~Parser();
+    ~Parser() override;
 
     // get and take ownership of the parsing results. If this function is not called the repository
     // will be destroyed when the parser is destroyed. Subsequent calls return null.
