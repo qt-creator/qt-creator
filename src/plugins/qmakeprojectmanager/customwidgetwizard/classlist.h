@@ -40,7 +40,7 @@ class ClassList : public QListView
     Q_OBJECT
 
 public:
-    explicit ClassList(QWidget *parent = 0);
+    explicit ClassList(QWidget *parent = nullptr);
 
     QString className(int row) const;
 
