@@ -59,7 +59,7 @@ signals:
     void colorChanged();
 
 protected:
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent *event) override;
 private:
     QString m_colorString;
     bool m_noColor;

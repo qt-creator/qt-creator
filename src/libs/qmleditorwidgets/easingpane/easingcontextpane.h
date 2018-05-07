@@ -46,7 +46,7 @@ class EasingContextPane : public QWidget
     enum GraphDisplayMode { GraphMode, SimulationMode };
 public:
     explicit EasingContextPane(QWidget *parent = 0);
-    ~EasingContextPane();
+    ~EasingContextPane() override;
 
     void setProperties(QmlJS::PropertyReader *propertyReader);
     void setGraphDisplayMode(GraphDisplayMode newMode);
