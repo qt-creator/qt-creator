@@ -54,13 +54,10 @@ public:
 
     qint64 traceStart = -1;
     qint64 traceEnd = -1;
-    qint64 restrictedTraceStart = -1;
-    qint64 restrictedTraceEnd = -1;
 
     void dispatch(const TraceEvent &event, const TraceEventType &type);
     void reset();
     void updateTraceTime(qint64 time);
-    void restrictTraceTimeToRange(qint64 start, qint64 end);
 };
 
 TimelineTraceManager::TimelineTraceManager(QObject *parent) :
@@ -290,12 +287,12 @@ QFuture<void> TimelineTraceManager::load(const QString &filename)
 
 qint64 TimelineTraceManager::traceStart() const
 {
-    return d->restrictedTraceStart != -1 ? d->restrictedTraceStart : d->traceStart;
+    return d->traceStart;
 }
 
 qint64 TimelineTraceManager::traceEnd() const
 {
-    return d->restrictedTraceEnd != -1 ? d->restrictedTraceEnd : d->traceEnd;
+    return d->traceEnd;
 }
 
 qint64 TimelineTraceManager::traceDuration() const
@@ -335,14 +332,6 @@ void TimelineTraceManager::TimelineTraceManagerPrivate::updateTraceTime(qint64 t
     if (traceEnd < time || traceEnd == -1)
         traceEnd = time;
     QTC_ASSERT(traceEnd >= traceStart, traceStart = traceEnd);
-}
-
-void TimelineTraceManager::TimelineTraceManagerPrivate::restrictTraceTimeToRange(qint64 start,
-                                                                                 qint64 end)
-{
-    QTC_ASSERT(end == -1 || start <= end, end = start);
-    restrictedTraceStart = start;
-    restrictedTraceEnd = end;
 }
 
 void TimelineTraceManager::setNotesModel(TimelineNotesModel *notesModel)
@@ -388,8 +377,7 @@ void TimelineTraceManager::restrictToRange(qint64 startTime, qint64 endTime)
     replayEvents(startTime, endTime,
                  std::bind(&TimelineTraceManagerPrivate::dispatch, d, std::placeholders::_1,
                            std::placeholders::_2),
-                 [this, startTime, endTime]() {
-        d->restrictTraceTimeToRange(startTime, endTime);
+                 [this]() {
         initialize();
     }, [this]() {
         if (d->notesModel)
@@ -400,11 +388,6 @@ void TimelineTraceManager::restrictToRange(qint64 startTime, qint64 endTime)
                       "The trace data is lost.").arg(message));
         clearAll();
     }, future);
-}
-
-bool TimelineTraceManager::isRestrictedToRange() const
-{
-    return d->restrictedTraceStart != -1 || d->restrictedTraceEnd != -1;
 }
 
 void TimelineTraceManager::TimelineTraceManagerPrivate::dispatch(const TraceEvent &event,
@@ -420,7 +403,6 @@ void TimelineTraceManager::TimelineTraceManagerPrivate::dispatch(const TraceEven
 
 void TimelineTraceManager::TimelineTraceManagerPrivate::reset()
 {
-    restrictTraceTimeToRange(-1, -1);
     traceStart = -1;
     traceEnd = -1;
 

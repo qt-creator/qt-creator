@@ -82,8 +82,6 @@ public:
     virtual void clear();
 
     void clearAll();
-    void restrictToRange(qint64 startTime, qint64 endTime);
-    bool isRestrictedToRange() const;
 
     QFuture<void> save(const QString &filename);
     QFuture<void> load(const QString &filename);
@@ -100,6 +98,8 @@ signals:
 protected:
     virtual void clearEventStorage();
     virtual void clearTypeStorage();
+
+    void restrictToRange(qint64 startTime, qint64 endTime);
 
     void addEvent(const TraceEvent &event);
     void addEventType(const TraceEventType &type);

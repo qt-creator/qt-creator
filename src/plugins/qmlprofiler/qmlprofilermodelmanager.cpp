@@ -73,6 +73,8 @@ public:
 
     Timeline::TraceStashFile<QmlEvent> file;
 
+    bool isRestrictedToRange = false;
+
     void writeToStream(const QmlEvent &event);
     void addEventType(const QmlEventType &eventType);
     void handleError(const QString &message);
@@ -397,6 +399,17 @@ void QmlProfilerModelManager::addEvent(const QmlEvent &event)
 {
     d->writeToStream(event);
     TimelineTraceManager::addEvent(event);
+}
+
+void QmlProfilerModelManager::restrictToRange(qint64 start, qint64 end)
+{
+    d->isRestrictedToRange = (start != -1 || end != -1);
+    TimelineTraceManager::restrictToRange(start, end);
+}
+
+bool QmlProfilerModelManager::isRestrictedToRange() const
+{
+    return d->isRestrictedToRange;
 }
 
 Timeline::TimelineTraceFile *QmlProfilerModelManager::createTraceFile()

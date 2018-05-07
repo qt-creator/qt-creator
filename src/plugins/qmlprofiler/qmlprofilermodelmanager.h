@@ -78,6 +78,9 @@ public:
     void addEventType(const QmlEventType &type);
     void addEvent(const QmlEvent &event);
 
+    void restrictToRange(qint64 start, qint64 end);
+    bool isRestrictedToRange() const;
+
 signals:
     void typeDetailsChanged(int typeId);
     void typeDetailsFinished();
