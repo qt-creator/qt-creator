@@ -41,7 +41,7 @@ public:
     ~GenericDirectUploadStep() override;
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-    bool initInternal(QString *error = 0) override;
+    bool initInternal(QString *error = nullptr) override;
 
     void setIncrementalDeployment(bool incremental);
     bool incrementalDeployment() const;

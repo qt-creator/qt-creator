@@ -38,7 +38,7 @@ class REMOTELINUX_EXPORT GenericLinuxDeviceTester : public ProjectExplorer::Devi
     Q_OBJECT
 
 public:
-    explicit GenericLinuxDeviceTester(QObject *parent = 0);
+    explicit GenericLinuxDeviceTester(QObject *parent = nullptr);
     ~GenericLinuxDeviceTester() override;
 
     void testDevice(const ProjectExplorer::IDevice::ConstPtr &deviceConfiguration) override;

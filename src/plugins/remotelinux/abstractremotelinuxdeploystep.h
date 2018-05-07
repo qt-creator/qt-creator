@@ -56,7 +56,7 @@ public:
 
 protected:
     explicit AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
-    virtual bool initInternal(QString *error = 0) = 0;
+    virtual bool initInternal(QString *error = nullptr) = 0;
 
 private:
     void handleProgressMessage(const QString &message);

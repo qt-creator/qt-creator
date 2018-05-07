@@ -42,7 +42,7 @@ class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizardSetupPage : public
     Q_OBJECT
 
 public:
-    explicit GenericLinuxDeviceConfigurationWizardSetupPage(QWidget *parent = 0);
+    explicit GenericLinuxDeviceConfigurationWizardSetupPage(QWidget *parent = nullptr);
     ~GenericLinuxDeviceConfigurationWizardSetupPage() override;
 
     void initializePage() override;
