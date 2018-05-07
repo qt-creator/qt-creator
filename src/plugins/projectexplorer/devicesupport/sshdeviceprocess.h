@@ -35,7 +35,7 @@ class PROJECTEXPLORER_EXPORT SshDeviceProcess : public DeviceProcess
 {
     Q_OBJECT
 public:
-    explicit SshDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = 0);
+    explicit SshDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = nullptr);
     ~SshDeviceProcess() override;
 
     void start(const Runnable &runnable) override;

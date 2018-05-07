@@ -43,7 +43,7 @@ class PROJECTEXPLORER_EXPORT DeviceUsedPortsGatherer : public QObject
     Q_OBJECT
 
 public:
-    DeviceUsedPortsGatherer(QObject *parent = 0);
+    DeviceUsedPortsGatherer(QObject *parent = nullptr);
     ~DeviceUsedPortsGatherer() override;
 
     void start(const IDevice::ConstPtr &device);

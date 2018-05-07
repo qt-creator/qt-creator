@@ -325,8 +325,8 @@ public:
         return Utils::nullopt;
     }
 
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) override;
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) override;
+    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr) override;
     bool deleteFiles(const QStringList &filePaths) override;
     bool canRenameFile(const QString &filePath, const QString &newFilePath) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;

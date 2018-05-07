@@ -56,7 +56,7 @@ public:
     virtual bool visibleInKit() { return true; }
 
     virtual QWidget *mainWidget() const = 0;
-    virtual QWidget *buttonWidget() const { return 0; }
+    virtual QWidget *buttonWidget() const { return nullptr; }
 
     bool isSticky() const { return m_isSticky; }
     bool isMutable() const;

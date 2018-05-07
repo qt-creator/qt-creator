@@ -76,7 +76,7 @@ class GnuMakeParserTester : public QObject
     Q_OBJECT
 
 public:
-    explicit GnuMakeParserTester(GnuMakeParser *parser, QObject *parent = 0);
+    explicit GnuMakeParserTester(GnuMakeParser *parser, QObject *parent = nullptr);
     void parserIsAboutToBeDeleted();
 
     QStringList directories;

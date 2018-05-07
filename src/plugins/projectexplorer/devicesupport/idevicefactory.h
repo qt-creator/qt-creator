@@ -62,7 +62,7 @@ public:
     static IDeviceFactory *find(Core::Id type);
 
 protected:
-    explicit IDeviceFactory(QObject *parent = 0);
+    explicit IDeviceFactory(QObject *parent = nullptr);
 };
 
 } // namespace ProjectExplorer
