@@ -61,7 +61,7 @@ public:
                 && config == other->config;
     }
 
-    QList<Task> reportIssues(const QString &projectPath, const QString &buildDir) const
+    QList<Task> reportIssues(const QString &projectPath, const QString &buildDir) const override
     {
         ProjectExplorer::Kit *k = ProjectExplorer::KitManager::kit(kitId);
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);

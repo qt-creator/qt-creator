@@ -64,7 +64,7 @@ public:
 
     QmakeProFileNode *rootProjectNode() const final;
 
-    virtual QStringList filesGeneratedFrom(const QString &file) const final;
+    QStringList filesGeneratedFrom(const QString &file) const final;
 
     enum Parsing {ExactParse, ExactAndCumulativeParse };
     QList<QmakeProFile *> allProFiles(const QList<ProjectType> &projectTypes = QList<ProjectType>(),

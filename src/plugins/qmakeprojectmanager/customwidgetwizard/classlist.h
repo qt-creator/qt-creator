@@ -59,7 +59,7 @@ private:
     void slotCurrentRowChanged(const QModelIndex &,const QModelIndex &);
 
 protected:
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     ClassModel *m_model;

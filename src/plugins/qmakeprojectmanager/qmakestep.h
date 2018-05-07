@@ -193,10 +193,10 @@ class QMakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
     Q_OBJECT
 public:
     QMakeStepConfigWidget(QMakeStep *step);
-    ~QMakeStepConfigWidget();
-    QString summaryText() const;
-    QString additionalSummaryText() const;
-    QString displayName() const;
+    ~QMakeStepConfigWidget() override;
+    QString summaryText() const override;
+    QString additionalSummaryText() const override;
+    QString displayName() const override;
 private:
     // slots for handling buildconfiguration/step signals
     void qtVersionChanged();

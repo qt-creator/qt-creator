@@ -48,7 +48,7 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeBuildConfiguration : public ProjectExplore
 
 public:
     explicit QmakeBuildConfiguration(ProjectExplorer::Target *target);
-    ~QmakeBuildConfiguration();
+    ~QmakeBuildConfiguration() override;
 
     void initialize(const ProjectExplorer::BuildInfo *info) override;
     ProjectExplorer::NamedWidget *createConfigWidget() override;
@@ -93,8 +93,8 @@ public:
 
     QVariantMap toMap() const override;
 
-    virtual bool isEnabled() const override;
-    virtual QString disabledReason() const override;
+    bool isEnabled() const override;
+    QString disabledReason() const override;
     /// \internal For QmakeProject, since that manages the parsing information
     void setEnabled(bool enabled);
 
