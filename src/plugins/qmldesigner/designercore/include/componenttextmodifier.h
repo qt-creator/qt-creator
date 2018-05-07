@@ -34,7 +34,7 @@ class ComponentTextModifier: public TextModifier
     Q_OBJECT
 public:
     ComponentTextModifier(TextModifier *originalModifier, int componentStartOffset, int componentEndOffset, int rootStartOffset);
-    ~ComponentTextModifier();
+    ~ComponentTextModifier() override;
 
     void replace(int offset, int length, const QString& replacement) override;
     void move(const MoveInfo &moveInfo) override;

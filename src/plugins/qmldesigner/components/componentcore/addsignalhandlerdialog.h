@@ -38,7 +38,7 @@ class AddSignalHandlerDialog : public QDialog
 
 public:
     explicit AddSignalHandlerDialog(QWidget *parent = 0);
-    ~AddSignalHandlerDialog();
+    ~AddSignalHandlerDialog() override;
     void setSignals(const QStringList &_signals);
     QString signal() const;
 

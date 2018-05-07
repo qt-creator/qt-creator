@@ -46,7 +46,7 @@ class QMLDESIGNERCORE_EXPORT QmlItemNode : public QmlObjectNode
 public:
     QmlItemNode() : QmlObjectNode() {}
     QmlItemNode(const ModelNode &modelNode)  : QmlObjectNode(modelNode) {}
-    bool isValid() const;
+    bool isValid() const override;
     static bool isValidQmlItemNode(const ModelNode &modelNode);
     bool isRootNode() const;
 
@@ -81,7 +81,7 @@ public:
     bool instanceHasAnchors() const;
     bool instanceHasShowContent() const;
 
-    bool instanceCanReparent() const;
+    bool instanceCanReparent() const override;
     bool instanceIsAnchoredBySibling() const;
     bool instanceIsAnchoredByChildren() const;
     bool instanceIsMovable() const;

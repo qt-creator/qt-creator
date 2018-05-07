@@ -46,7 +46,7 @@ public:
     void close(DesignDocument* DesignDocument);
 
 protected:
-    virtual QWidget* contentWidget() const;
+    QWidget* contentWidget() const override;
     virtual QWidget* stackedPageWidget(DesignDocument* DesignDocument) const = 0;
 
 private:

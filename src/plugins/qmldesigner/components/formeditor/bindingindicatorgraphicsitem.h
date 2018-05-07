@@ -34,8 +34,8 @@ class BindingIndicatorGraphicsItem : public QGraphicsObject
 public:
     explicit BindingIndicatorGraphicsItem(QGraphicsItem *parent = 0);
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    QRectF boundingRect() const;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    QRectF boundingRect() const override;
 
     void updateBindingIndicator(const QLineF &bindingLine);
 

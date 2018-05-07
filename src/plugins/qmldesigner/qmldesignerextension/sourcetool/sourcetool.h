@@ -41,7 +41,7 @@ class SourceTool : public QObject, public AbstractCustomTool
     Q_OBJECT
 public:
     SourceTool();
-    ~SourceTool();
+    ~SourceTool() override;
 
     void mousePressEvent(const QList<QGraphicsItem*> &itemList,
                          QGraphicsSceneMouseEvent *event) override;

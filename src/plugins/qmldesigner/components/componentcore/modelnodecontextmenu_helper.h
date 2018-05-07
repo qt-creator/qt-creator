@@ -107,7 +107,7 @@ public:
         : DefaultAction(description), m_action(action)
     { }
 
-    virtual void actionTriggered(bool b)
+    void actionTriggered(bool b) override
     {
         m_selectionContext.setToggled(b);
         m_action(m_selectionContext);
@@ -130,12 +130,12 @@ public:
     {
     }
 
-    bool isVisible(const SelectionContext &m_selectionState) const { return m_visibility(m_selectionState); }
-    bool isEnabled(const SelectionContext &m_selectionState) const { return m_enabled(m_selectionState); }
-    QByteArray category() const { return QByteArray(); }
-    QByteArray menuId() const { return m_menuId; }
-    int priority() const { return m_priority; }
-    Type type() const { return ContextMenu; }
+    bool isVisible(const SelectionContext &m_selectionState) const override { return m_visibility(m_selectionState); }
+    bool isEnabled(const SelectionContext &m_selectionState) const override { return m_enabled(m_selectionState); }
+    QByteArray category() const override { return QByteArray(); }
+    QByteArray menuId() const override { return m_menuId; }
+    int priority() const override { return m_priority; }
+    Type type() const override { return ContextMenu; }
 
 private:
     const QByteArray m_menuId;
@@ -153,13 +153,13 @@ public:
         m_visibility(&SelectionContextFunctors::always)
     { defaultAction()->setSeparator(true); }
 
-    bool isVisible(const SelectionContext &m_selectionState) const { return m_visibility(m_selectionState); }
-    bool isEnabled(const SelectionContext &) const { return true; }
-    QByteArray category() const { return m_category; }
-    QByteArray menuId() const { return QByteArray(); }
-    int priority() const { return m_priority; }
-    Type type() const { return ContextMenuAction; }
-    void currentContextChanged(const SelectionContext &) {}
+    bool isVisible(const SelectionContext &m_selectionState) const override { return m_visibility(m_selectionState); }
+    bool isEnabled(const SelectionContext &) const override { return true; }
+    QByteArray category() const override { return m_category; }
+    QByteArray menuId() const override { return QByteArray(); }
+    int priority() const override { return m_priority; }
+    Type type() const override { return ContextMenuAction; }
+    void currentContextChanged(const SelectionContext &) override {}
 
 private:
     const QByteArray m_category;

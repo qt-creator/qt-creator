@@ -61,7 +61,7 @@ class QMLDESIGNERCORE_EXPORT DesignDocument: public QObject
     Q_OBJECT
 public:
     DesignDocument(QObject *parent = 0);
-    ~DesignDocument();
+    ~DesignDocument() override;
 
     QString displayName() const;
     QString simplfiedDisplayName() const;

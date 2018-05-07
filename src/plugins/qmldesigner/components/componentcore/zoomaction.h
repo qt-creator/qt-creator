@@ -49,7 +49,7 @@ public:
     void resetZoomLevel();
 
 protected:
-    QWidget *createWidget(QWidget *parent);
+    QWidget *createWidget(QWidget *parent) override;
     void setZoomLevel(double zoomLevel);
 signals:
     void zoomLevelChanged(double zoom);

@@ -40,7 +40,7 @@ class PuppetDialog : public QDialog
 
 public:
     explicit PuppetDialog(QWidget *parent = 0);
-    ~PuppetDialog();
+    ~PuppetDialog() override;
 
     void setDescription(const QString &description);
     void setCopyAndPasteCode(const QString &text);

@@ -36,7 +36,7 @@ public:
                               const QByteArray &function,
                               const QByteArray &file);
 
-    QString type() const;
+    QString type() const override;
 
 };
 

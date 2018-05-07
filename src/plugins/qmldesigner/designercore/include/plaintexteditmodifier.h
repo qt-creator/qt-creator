@@ -47,7 +47,7 @@ private:
 
 public:
     PlainTextEditModifier(QPlainTextEdit *textEdit);
-    ~PlainTextEditModifier();
+    ~PlainTextEditModifier() override;
 
     QTextDocument *textDocument() const override;
     QString text() const override;

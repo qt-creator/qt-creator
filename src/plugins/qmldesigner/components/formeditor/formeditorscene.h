@@ -51,7 +51,7 @@ class QMLDESIGNERCORE_EXPORT FormEditorScene : public QGraphicsScene
 
 public:
     FormEditorScene(FormEditorWidget *widget, FormEditorView *editorView);
-    ~FormEditorScene();
+    ~FormEditorScene() override;
     FormEditorItem *addFormEditorItem(const QmlItemNode &qmlItemNode);
 
     FormEditorItem* itemForQmlItemNode(const QmlItemNode &qmlItemNode) const;

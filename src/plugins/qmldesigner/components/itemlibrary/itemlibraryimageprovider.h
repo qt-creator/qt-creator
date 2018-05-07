@@ -36,7 +36,7 @@ class ItemLibraryImageProvider : public QQuickImageProvider
 public:
     ItemLibraryImageProvider();
 
-    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize);
+    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize) override;
 };
 
 }

@@ -37,8 +37,8 @@ public:
                               const QByteArray &file,
                               const QByteArray &qmlSource = QByteArray());
 
-    QString type() const;
-    QString description() const;
+    QString type() const override;
+    QString description() const override;
 
 private:
    QString m_qmlSource;

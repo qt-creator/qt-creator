@@ -51,7 +51,7 @@ class  ConnectionView : public AbstractView
 
 public:
     ConnectionView(QObject *parent = 0);
-    ~ConnectionView();
+    ~ConnectionView() override;
 
     // AbstractView
     void modelAttached(Model *model) override;

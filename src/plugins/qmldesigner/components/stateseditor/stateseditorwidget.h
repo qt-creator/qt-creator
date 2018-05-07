@@ -47,7 +47,7 @@ class StatesEditorWidget : public QQuickWidget
 
 public:
     StatesEditorWidget(StatesEditorView *m_statesEditorView, StatesEditorModel *statesEditorModel);
-    virtual ~StatesEditorWidget();
+    ~StatesEditorWidget() override;
 
     int currentStateInternalId() const;
     void setCurrentStateInternalId(int internalId);

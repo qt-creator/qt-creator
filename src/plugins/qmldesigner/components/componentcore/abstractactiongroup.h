@@ -45,7 +45,7 @@ public:
     QMenu *menu() const;
     SelectionContext selectionContext() const;
 
-    virtual void currentContextChanged(const SelectionContext &selectionContext) override;
+    void currentContextChanged(const SelectionContext &selectionContext) override;
     virtual void updateContext();
 
 private:

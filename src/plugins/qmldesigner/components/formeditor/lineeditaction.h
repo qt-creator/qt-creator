@@ -40,7 +40,7 @@ public:
     void clearLineEditText();
 
 protected:
-    QWidget *createWidget(QWidget *parent);
+    QWidget *createWidget(QWidget *parent) override;
 
 signals:
     void textChanged(const QString &text);

@@ -39,11 +39,11 @@ public:
                                       const QIcon &uncheckedIcon);
 
     QSize sizeHint(const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const;
+                   const QModelIndex &index) const override;
 
     void paint(QPainter *painter,
                const QStyleOptionViewItem &option,
-               const QModelIndex &index) const;
+               const QModelIndex &index) const override;
 
 private:
     const QIcon m_checkedIcon;

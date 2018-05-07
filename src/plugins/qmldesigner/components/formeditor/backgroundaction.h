@@ -44,7 +44,7 @@ signals:
     void backgroundChanged(const QColor &color);
 
 protected:
-    QWidget *createWidget(QWidget *parent);
+    QWidget *createWidget(QWidget *parent) override;
 
 private:
     void emitBackgroundChanged(int index);

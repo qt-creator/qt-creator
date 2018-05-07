@@ -84,7 +84,7 @@ public:
         ToolBarWidgetDefaultFactory(T *t ) : m_t(t)
         {}
 
-        QList<QToolButton*> createToolBarWidgets()
+        QList<QToolButton*> createToolBarWidgets() override
         {
             return m_t->createToolBarWidgets();
         }
@@ -126,7 +126,7 @@ public:
     AbstractView(QObject *parent = 0)
             : QObject(parent) {}
 
-    virtual ~AbstractView();
+    ~AbstractView() override;
 
     Model* model() const;
     bool isAttached() const;

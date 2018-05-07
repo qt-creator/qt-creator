@@ -37,7 +37,7 @@ class UtilityPanelController : public QObject
 
 public:
     UtilityPanelController(QObject* parent = 0);
-    virtual ~UtilityPanelController() = 0;
+    ~UtilityPanelController() override = 0;
 
     QWidget* widget();
 

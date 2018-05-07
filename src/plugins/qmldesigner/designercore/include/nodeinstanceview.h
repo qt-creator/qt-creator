@@ -78,7 +78,7 @@ public:
     typedef QWeakPointer<NodeInstanceView> Pointer;
 
     explicit NodeInstanceView(QObject *parent = 0, NodeInstanceServerInterface::RunModus runModus = NodeInstanceServerInterface::NormalModus);
-    ~NodeInstanceView();
+    ~NodeInstanceView() override;
 
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;

@@ -47,7 +47,7 @@ public:
     void emitCurrentComponentChanged(int index);
 
 protected:
-    QWidget *createWidget(QWidget *parent);
+    QWidget *createWidget(QWidget *parent) override;
 
 signals:
     void currentComponentChanged(const ModelNode &node);

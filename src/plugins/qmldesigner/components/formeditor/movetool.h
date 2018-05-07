@@ -38,7 +38,7 @@ class MoveTool : public AbstractFormEditorTool
 {
 public:
     MoveTool(FormEditorView* editorView);
-    ~MoveTool();
+    ~MoveTool() override;
 
     void mousePressEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) override;
     void mouseMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) override;

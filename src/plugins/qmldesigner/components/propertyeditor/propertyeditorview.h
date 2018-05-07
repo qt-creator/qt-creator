@@ -52,7 +52,7 @@ class PropertyEditorView: public AbstractView
 
 public:
     PropertyEditorView(QWidget *parent = 0);
-    ~PropertyEditorView();
+    ~PropertyEditorView() override;
 
     bool hasWidget() const override;
     WidgetInfo widgetInfo() override;

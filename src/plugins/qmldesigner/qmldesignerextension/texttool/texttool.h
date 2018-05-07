@@ -41,7 +41,7 @@ class TextTool : public QObject, public AbstractCustomTool
     Q_OBJECT
 public:
     TextTool();
-    ~TextTool();
+    ~TextTool() override;
 
     void mousePressEvent(const QList<QGraphicsItem*> &itemList,
                          QGraphicsSceneMouseEvent *event) override;

@@ -58,7 +58,7 @@ public:
     QList<QmlObjectNode> allAffectedNodes() const;
     QString name() const;
     void setName(const QString &name);
-    bool isValid() const;
+    bool isValid() const override;
     static bool isValidQmlModelState(const ModelNode &modelNode);
     void destroy();
 

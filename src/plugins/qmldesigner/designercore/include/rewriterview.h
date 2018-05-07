@@ -75,7 +75,7 @@ public:
 
 public:
     RewriterView(DifferenceHandling differenceHandling, QObject *parent);
-    ~RewriterView();
+    ~RewriterView() override;
 
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;

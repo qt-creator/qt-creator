@@ -36,7 +36,7 @@ class ResizeTool : public AbstractFormEditorTool
 {
 public:
     ResizeTool(FormEditorView* editorView);
-    ~ResizeTool();
+    ~ResizeTool() override;
 
     void mousePressEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) override;
     void mouseMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) override;

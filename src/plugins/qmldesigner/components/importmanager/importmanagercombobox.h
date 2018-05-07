@@ -34,5 +34,5 @@ public:
     explicit ImportManagerComboBox(QWidget *parent = 0);
 
 protected:
-    void paintEvent(QPaintEvent *e);
+    void paintEvent(QPaintEvent *e) override;
 };

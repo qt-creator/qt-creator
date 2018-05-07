@@ -45,7 +45,7 @@ public:
     QVariant currentValue() const;
 
 protected:
-    QWidget *createWidget(QWidget *parent);
+    QWidget *createWidget(QWidget *parent) override;
 
 signals:
     void valueChanged(const QVariant &value);

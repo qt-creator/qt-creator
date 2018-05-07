@@ -45,7 +45,7 @@ class ItemLibraryItem: public QObject {
 
 public:
     ItemLibraryItem(QObject *parent);
-    ~ItemLibraryItem();
+    ~ItemLibraryItem() override;
 
     QString itemName() const;
     QString typeName() const;

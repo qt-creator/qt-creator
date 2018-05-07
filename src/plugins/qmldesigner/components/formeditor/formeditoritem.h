@@ -49,9 +49,9 @@ class QMLDESIGNERCORE_EXPORT FormEditorItem : public QGraphicsItem
 {
     friend class QmlDesigner::FormEditorScene;
 public:
-    ~FormEditorItem();
+    ~FormEditorItem() override;
 
-    void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0 );
+    void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0 ) override;
 
     bool isContainer() const;
     QmlItemNode qmlItemNode() const;
@@ -59,7 +59,7 @@ public:
 
     enum { Type = UserType + 0xfffa };
 
-    int type() const;
+    int type() const override;
 
     static FormEditorItem* fromQGraphicsItem(QGraphicsItem *graphicsItem);
 
@@ -84,9 +84,9 @@ public:
     FormEditorScene *scene() const;
     FormEditorItem *parentItem() const;
 
-    QRectF boundingRect() const;
-    QPainterPath shape() const;
-    bool contains(const QPointF &point) const;
+    QRectF boundingRect() const override;
+    QPainterPath shape() const override;
+    bool contains(const QPointF &point) const override;
 
     void updateGeometry();
     void updateVisibilty();

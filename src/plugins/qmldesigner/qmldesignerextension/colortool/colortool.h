@@ -39,7 +39,7 @@ class ColorTool : public QObject, public AbstractCustomTool
     Q_OBJECT
 public:
     ColorTool();
-    ~ColorTool();
+    ~ColorTool() override;
 
     void mousePressEvent(const QList<QGraphicsItem*> &itemList,
                          QGraphicsSceneMouseEvent *event) override;

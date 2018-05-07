@@ -48,7 +48,7 @@ public:
     QmlObjectNode(const ModelNode &modelNode);
 
     static bool isValidQmlObjectNode(const ModelNode &modelNode);
-    bool isValid() const;
+    bool isValid() const override;
 
     bool hasError() const;
     QString error() const;

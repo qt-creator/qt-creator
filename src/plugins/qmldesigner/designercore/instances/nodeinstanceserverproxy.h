@@ -65,7 +65,7 @@ public:
                                      RunModus runModus,
                                      ProjectExplorer::Kit *kit,
                                      ProjectExplorer::Project *project);
-    ~NodeInstanceServerProxy();
+    ~NodeInstanceServerProxy() override;
     void createInstances(const CreateInstancesCommand &command) override;
     void changeFileUrl(const ChangeFileUrlCommand &command) override;
     void createScene(const CreateSceneCommand &command) override;

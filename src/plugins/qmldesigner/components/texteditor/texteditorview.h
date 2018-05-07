@@ -48,7 +48,7 @@ class QMLDESIGNERCORE_EXPORT TextEditorView : public AbstractView
 
 public:
     TextEditorView(QObject *parent = 0);
-    ~TextEditorView();
+    ~TextEditorView() override;
 
     // AbstractView
     void modelAttached(Model *model) override;

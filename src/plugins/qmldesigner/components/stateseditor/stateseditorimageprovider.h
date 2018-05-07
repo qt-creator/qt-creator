@@ -40,7 +40,7 @@ class StatesEditorImageProvider : public QQuickImageProvider
 public:
     StatesEditorImageProvider();
 
-    QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
+    QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize) override;
 
     void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
 

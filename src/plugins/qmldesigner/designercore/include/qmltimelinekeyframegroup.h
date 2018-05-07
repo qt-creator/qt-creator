@@ -41,7 +41,7 @@ public:
     QmlTimelineKeyframeGroup();
     QmlTimelineKeyframeGroup(const ModelNode &modelNode);
 
-    bool isValid() const;
+    bool isValid() const override;
     static bool isValidQmlTimelineKeyframeGroup(const ModelNode &modelNode);
     void destroy();
 

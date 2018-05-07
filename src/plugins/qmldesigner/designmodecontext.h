@@ -39,7 +39,7 @@ class DesignModeContext : public Core::IContext
 
 public:
     DesignModeContext(QWidget *widget);
-    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
+    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const override;
 };
 
 class FormEditorContext : public Core::IContext
@@ -48,7 +48,7 @@ class FormEditorContext : public Core::IContext
 
 public:
     FormEditorContext(QWidget *widget);
-    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
+    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const override;
 };
 
 class NavigatorContext : public Core::IContext
@@ -57,7 +57,7 @@ class NavigatorContext : public Core::IContext
 
 public:
     NavigatorContext(QWidget *widget);
-    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
+    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const override;
 };
 
 class TextEditorContext : public Core::IContext
@@ -66,7 +66,7 @@ class TextEditorContext : public Core::IContext
 
 public:
     TextEditorContext(QWidget *widget);
-    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
+    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const override;
 };
 
 }

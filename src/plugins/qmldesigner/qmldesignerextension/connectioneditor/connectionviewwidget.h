@@ -60,7 +60,7 @@ public:
     };
 
     explicit ConnectionViewWidget(QWidget *parent = 0);
-    ~ConnectionViewWidget();
+    ~ConnectionViewWidget() override;
 
     void setBindingModel(BindingModel *model);
     void setConnectionModel(ConnectionModel *model);

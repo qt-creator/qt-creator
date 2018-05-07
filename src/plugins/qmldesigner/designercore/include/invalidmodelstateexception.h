@@ -37,7 +37,7 @@ public:
                                const QByteArray &file);
 
 
-    QString type() const;
+    QString type() const override;
 };
 
 } // namespace QmlDesigner

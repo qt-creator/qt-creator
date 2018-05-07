@@ -41,7 +41,7 @@ signals:
     void resized();
 
 protected:
-    void resizeEvent(QResizeEvent * event);
+    void resizeEvent(QResizeEvent * event) override;
 };
 
 } //QmlDesigner

@@ -40,7 +40,7 @@ class DragTool : public AbstractFormEditorTool
 {
 public:
     DragTool(FormEditorView *editorView);
-    virtual ~DragTool();
+    ~DragTool() override;
 
     void mousePressEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) override;
     void mouseMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) override;

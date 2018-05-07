@@ -40,7 +40,7 @@ class PuppetBuildProgressDialog : public QDialog
 
 public:
     explicit PuppetBuildProgressDialog();
-    ~PuppetBuildProgressDialog();
+    ~PuppetBuildProgressDialog() override;
 
     void setProgress(int progress);
     void newBuildOutput(const QByteArray &standardOutput);

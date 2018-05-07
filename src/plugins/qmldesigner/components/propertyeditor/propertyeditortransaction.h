@@ -39,7 +39,7 @@ public:
     Q_INVOKABLE void end();
 
 protected:
-     void timerEvent(QTimerEvent *event);
+     void timerEvent(QTimerEvent *event) override;
 
 private:
     QmlDesigner::PropertyEditorView *m_propertyEditor;

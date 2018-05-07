@@ -59,7 +59,7 @@ class DesignModeWidget : public QWidget
 
 public:
     DesignModeWidget();
-    ~DesignModeWidget();
+    ~DesignModeWidget() override;
 
     void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
 

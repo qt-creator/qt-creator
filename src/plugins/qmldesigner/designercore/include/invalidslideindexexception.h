@@ -35,7 +35,7 @@ public:
     InvalidSlideIndexException(int line,
                                const QByteArray &function,
                                const QByteArray &file);
-    QString type() const;
+    QString type() const override;
 };
 
 } // namespace QmlDesigner

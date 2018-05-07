@@ -40,7 +40,7 @@ class  DebugView : public AbstractView
 
 public:
     DebugView(QObject *parent = 0);
-    ~DebugView();
+    ~DebugView() override;
 
     // AbstractView
     void modelAttached(Model *model) override;

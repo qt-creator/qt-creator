@@ -40,7 +40,7 @@ class StatesEditorView : public AbstractView {
 
 public:
     explicit StatesEditorView(QObject *parent = 0);
-    ~StatesEditorView();
+    ~StatesEditorView() override;
 
     void renameState(int internalNodeId,const QString &newName);
     void setWhenCondition(int internalNodeId, const QString &condition);

@@ -38,9 +38,9 @@ public:
                              const QByteArray &file,
                              const QByteArray &argument);
 
-    QString type() const;
+    QString type() const override;
     QString argument() const;
-    QString description() const;
+    QString description() const override;
 
 private:
     const QString m_argument;

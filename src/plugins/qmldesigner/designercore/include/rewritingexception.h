@@ -38,8 +38,8 @@ public:
                        const QByteArray &description,
                        const QString &documentTextContent);
 
-    virtual QString type() const;
-    virtual QString description() const;
+    QString type() const override;
+    QString description() const override;
     QString documentTextContent() const;
 private:
     QString m_description;

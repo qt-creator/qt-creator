@@ -43,7 +43,7 @@ class QMLDESIGNERCORE_EXPORT DocumentManager : public QObject
     Q_OBJECT
 public:
     DocumentManager();
-    ~DocumentManager();
+    ~DocumentManager() override;
 
     void setCurrentDesignDocument(Core::IEditor*editor);
     DesignDocument *currentDesignDocument() const;

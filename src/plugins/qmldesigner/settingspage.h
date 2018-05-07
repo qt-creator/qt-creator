@@ -64,9 +64,9 @@ class SettingsPage : public Core::IOptionsPage
 public:
     SettingsPage();
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     QPointer<SettingsPageWidget> m_widget;

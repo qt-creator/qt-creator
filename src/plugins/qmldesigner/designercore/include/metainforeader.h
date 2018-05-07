@@ -55,9 +55,9 @@ public:
     void setQualifcation(const TypeName &qualification);
 
 protected:
-    virtual void elementStart(const QString &name);
-    virtual void elementEnd();
-    virtual void propertyDefinition(const QString &name, const QVariant &value);
+    void elementStart(const QString &name) override;
+    void elementEnd() override;
+    void propertyDefinition(const QString &name, const QVariant &value) override;
 
 private:
     enum ParserSate { Error,

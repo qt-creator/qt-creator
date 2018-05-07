@@ -46,7 +46,7 @@ class NavigatorTreeModel : public QAbstractItemModel, public NavigatorModelInter
 public:
 
     explicit NavigatorTreeModel(QObject *parent = 0);
-    ~NavigatorTreeModel();
+    ~NavigatorTreeModel() override;
 
     QVariant data(const QModelIndex &index, int role) const override;
 

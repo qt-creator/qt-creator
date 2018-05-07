@@ -86,7 +86,7 @@ public:
     FormEditorGraphicsView *graphicsView() const;
 
 protected:
-    void wheelEvent(QWheelEvent *event);
+    void wheelEvent(QWheelEvent *event) override;
     QActionGroup *toolActionGroup() const;
     DocumentWarningWidget *errorWidget();
 
