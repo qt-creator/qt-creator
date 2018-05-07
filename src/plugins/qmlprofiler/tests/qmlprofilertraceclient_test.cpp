@@ -70,7 +70,7 @@ void QmlProfilerTraceClientTest::testMessageReceived()
         traceClient.stateChanged(QmlDebug::QmlDebugClient::NotConnected);
 
         QFutureInterface<void> future;
-        modelManager.replayQmlEvents(-1, -1, [&](const QmlEvent &event, const QmlEventType &type) {
+        modelManager.replayQmlEvents([&](const QmlEvent &event, const QmlEventType &type) {
             qint64 timestamp;
             qint32 message;
             qint32 rangeType;

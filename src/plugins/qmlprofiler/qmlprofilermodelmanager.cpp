@@ -146,13 +146,12 @@ const QmlEventType &QmlProfilerModelManager::eventType(int typeId) const
     return d->eventTypes.at(typeId);
 }
 
-void QmlProfilerModelManager::replayEvents(qint64 rangeStart, qint64 rangeEnd,
-                                           TraceEventLoader loader, Initializer initializer,
+void QmlProfilerModelManager::replayEvents(TraceEventLoader loader, Initializer initializer,
                                            Finalizer finalizer, ErrorHandler errorHandler,
                                            QFutureInterface<void> &future) const
 {
-    replayQmlEvents(rangeStart, rangeEnd, static_cast<QmlEventLoader>(loader), initializer,
-                    finalizer, errorHandler, future);
+    replayQmlEvents(static_cast<QmlEventLoader>(loader), initializer, finalizer, errorHandler,
+                    future);
 }
 
 static bool isStateful(const QmlEventType &type)
@@ -164,81 +163,19 @@ static bool isStateful(const QmlEventType &type)
     return message == PixmapCacheEvent || message == MemoryAllocation;
 }
 
-void QmlProfilerModelManager::replayQmlEvents(qint64 rangeStart, qint64 rangeEnd,
-                                              QmlEventLoader loader, Initializer initializer,
-                                              Finalizer finalizer, ErrorHandler errorHandler,
+void QmlProfilerModelManager::replayQmlEvents(QmlEventLoader loader,
+                                              Initializer initializer, Finalizer finalizer,
+                                              ErrorHandler errorHandler,
                                               QFutureInterface<void> &future) const
 {
     if (initializer)
         initializer();
 
-    QStack<QmlEvent> stack;
-    bool crossedRangeStart = false;
-
     const auto result = d->file.replay([&](const QmlEvent &event) {
         if (future.isCanceled())
             return false;
 
-        const QmlEventType &type = d->eventTypes[event.typeIndex()];
-
-        // No restrictions: load all events
-        if (rangeStart == -1 || rangeEnd == -1) {
-            loader(event, type);
-            return true;
-        }
-
-        // Double-check if rangeStart has been crossed. Some versions of Qt send dirty data.
-        qint64 adjustedTimestamp = event.timestamp();
-        if (event.timestamp() < rangeStart && !crossedRangeStart) {
-            if (type.rangeType() != MaximumRangeType) {
-                if (event.rangeStage() == RangeStart)
-                    stack.push(event);
-                else if (event.rangeStage() == RangeEnd)
-                    stack.pop();
-                return true;
-            } else if (isStateful(type)) {
-                adjustedTimestamp = rangeStart;
-            } else {
-                return true;
-            }
-        } else {
-            if (!crossedRangeStart) {
-                for (QmlEvent stashed : stack) {
-                    stashed.setTimestamp(rangeStart);
-                    loader(stashed, d->eventTypes[stashed.typeIndex()]);
-                }
-                stack.clear();
-                crossedRangeStart = true;
-            }
-            if (event.timestamp() > rangeEnd) {
-                if (type.rangeType() != MaximumRangeType) {
-                    if (event.rangeStage() == RangeEnd) {
-                        if (stack.isEmpty()) {
-                            QmlEvent endEvent(event);
-                            endEvent.setTimestamp(rangeEnd);
-                            loader(endEvent, d->eventTypes[event.typeIndex()]);
-                        } else {
-                            stack.pop();
-                        }
-                    } else if (event.rangeStage() == RangeStart) {
-                        stack.push(event);
-                    }
-                    return true;
-                } else if (isStateful(type)) {
-                    adjustedTimestamp = rangeEnd;
-                } else {
-                    return true;
-                }
-            }
-        }
-
-        if (adjustedTimestamp != event.timestamp()) {
-            QmlEvent adjusted(event);
-            adjusted.setTimestamp(adjustedTimestamp);
-            loader(adjusted, type);
-        } else {
-            loader(event, type);
-        }
+        loader(event, d->eventTypes[event.typeIndex()]);
         return true;
     });
 
@@ -370,6 +307,22 @@ void QmlProfilerModelManager::detailsChanged(int typeId, const QString &newStrin
     emit typeDetailsChanged(typeId);
 }
 
+void QmlProfilerModelManager::restrictByFilter(QmlProfilerModelManager::QmlEventFilter filter)
+{
+    return Timeline::TimelineTraceManager::restrictByFilter([filter](TraceEventLoader loader) {
+        const auto filteredQmlLoader = filter([loader](const QmlEvent &event,
+                                                       const QmlEventType &type) {
+            loader(event, type);
+        });
+
+        return [filteredQmlLoader](const Timeline::TraceEvent &event,
+                                   const Timeline::TraceEventType &type) {
+            filteredQmlLoader(static_cast<const QmlEvent &>(event),
+                              static_cast<const QmlEventType &>(type));
+        };
+    });
+}
+
 const Timeline::TraceEventType &QmlProfilerModelManager::lookupType(int typeIndex) const
 {
     return eventType(typeIndex);
@@ -404,12 +357,84 @@ void QmlProfilerModelManager::addEvent(const QmlEvent &event)
 void QmlProfilerModelManager::restrictToRange(qint64 start, qint64 end)
 {
     d->isRestrictedToRange = (start != -1 || end != -1);
-    TimelineTraceManager::restrictToRange(start, end);
+    restrictByFilter(rangeFilter(start, end));
 }
 
 bool QmlProfilerModelManager::isRestrictedToRange() const
 {
     return d->isRestrictedToRange;
+}
+
+QmlProfilerModelManager::QmlEventFilter
+QmlProfilerModelManager::rangeFilter(qint64 rangeStart, qint64 rangeEnd) const
+{
+    return [rangeStart, rangeEnd, this] (QmlEventLoader loader) {
+        QStack<QmlEvent> stack;
+        bool crossedRangeStart = false;
+
+        return [=](const QmlEvent &event, const QmlEventType &type) mutable {
+
+            // No restrictions: load all events
+            if (rangeStart == -1 || rangeEnd == -1) {
+                loader(event, type);
+                return true;
+            }
+
+            // Double-check if rangeStart has been crossed. Some versions of Qt send dirty data.
+            qint64 adjustedTimestamp = event.timestamp();
+            if (event.timestamp() < rangeStart && !crossedRangeStart) {
+                if (type.rangeType() != MaximumRangeType) {
+                    if (event.rangeStage() == RangeStart)
+                        stack.push(event);
+                    else if (event.rangeStage() == RangeEnd)
+                        stack.pop();
+                    return true;
+                } else if (isStateful(type)) {
+                    adjustedTimestamp = rangeStart;
+                } else {
+                    return true;
+                }
+            } else {
+                if (!crossedRangeStart) {
+                    for (auto stashed : stack) {
+                        stashed.setTimestamp(rangeStart);
+                        loader(stashed, eventType(stashed.typeIndex()));
+                    }
+                    stack.clear();
+                    crossedRangeStart = true;
+                }
+                if (event.timestamp() > rangeEnd) {
+                    if (type.rangeType() != MaximumRangeType) {
+                        if (event.rangeStage() == RangeEnd) {
+                            if (stack.isEmpty()) {
+                                QmlEvent endEvent(event);
+                                endEvent.setTimestamp(rangeEnd);
+                                loader(endEvent, type);
+                            } else {
+                                stack.pop();
+                            }
+                        } else if (event.rangeStage() == RangeStart) {
+                            stack.push(event);
+                        }
+                        return true;
+                    } else if (isStateful(type)) {
+                        adjustedTimestamp = rangeEnd;
+                    } else {
+                        return true;
+                    }
+                }
+            }
+
+            if (adjustedTimestamp != event.timestamp()) {
+                QmlEvent adjusted(event);
+                adjusted.setTimestamp(adjustedTimestamp);
+                loader(adjusted, type);
+            } else {
+                loader(event, type);
+            }
+            return true;
+        };
+    };
 }
 
 Timeline::TimelineTraceFile *QmlProfilerModelManager::createTraceFile()

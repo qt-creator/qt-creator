@@ -43,6 +43,7 @@ class TRACING_EXPORT TimelineTraceManager : public QObject
     Q_OBJECT
 public:
     typedef std::function<void(const TraceEvent &, const TraceEventType &)> TraceEventLoader;
+    typedef std::function<TraceEventLoader(TraceEventLoader)> TraceEventFilter;
     typedef std::function<void()> Initializer;
     typedef std::function<void()> Finalizer;
     typedef std::function<void()> Clearer;
@@ -99,15 +100,14 @@ protected:
     virtual void clearEventStorage();
     virtual void clearTypeStorage();
 
-    void restrictToRange(qint64 startTime, qint64 endTime);
+    void restrictByFilter(TraceEventFilter filter);
 
     void addEvent(const TraceEvent &event);
     void addEventType(const TraceEventType &type);
     virtual const TraceEventType &lookupType(int typeId) const = 0;
 
     virtual TimelineTraceFile *createTraceFile() = 0;
-    virtual void replayEvents(qint64 rangeStart, qint64 rangeEnd, TraceEventLoader loader,
-                              Initializer initializer, Finalizer finalizer,
+    virtual void replayEvents(TraceEventLoader loader, Initializer initializer, Finalizer finalizer,
                               ErrorHandler errorHandler, QFutureInterface<void> &future) const = 0;
 
 private:

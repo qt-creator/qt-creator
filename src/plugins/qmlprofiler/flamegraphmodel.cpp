@@ -163,9 +163,10 @@ void FlameGraphModel::restrictToFeatures(quint64 visibleFeatures)
     clear();
 
     QFutureInterface<void> future;
-    m_modelManager->replayQmlEvents(m_modelManager->traceStart(), m_modelManager->traceEnd(),
-                                    std::bind(&FlameGraphModel::loadEvent, this,
-                                              std::placeholders::_1, std::placeholders::_2),
+    const auto filter = m_modelManager->rangeFilter(m_modelManager->traceStart(),
+                                                    m_modelManager->traceEnd());
+    m_modelManager->replayQmlEvents(filter(std::bind(&FlameGraphModel::loadEvent, this,
+                                                     std::placeholders::_1, std::placeholders::_2)),
                                     std::bind(&FlameGraphModel::beginResetModel, this),
                                     std::bind(&FlameGraphModel::finalize, this),
                                     [this](const QString &message) {

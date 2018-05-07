@@ -365,7 +365,7 @@ void TimelineTraceManager::clearAll()
     clearTypeStorage();
 }
 
-void TimelineTraceManager::restrictToRange(qint64 startTime, qint64 endTime)
+void TimelineTraceManager::restrictByFilter(TraceEventFilter filter)
 {
     if (d->notesModel)
         d->notesModel->stash();
@@ -374,9 +374,8 @@ void TimelineTraceManager::restrictToRange(qint64 startTime, qint64 endTime)
     setVisibleFeatures(0);
 
     QFutureInterface<void> future;
-    replayEvents(startTime, endTime,
-                 std::bind(&TimelineTraceManagerPrivate::dispatch, d, std::placeholders::_1,
-                           std::placeholders::_2),
+    replayEvents(filter(std::bind(&TimelineTraceManagerPrivate::dispatch, d,
+                                  std::placeholders::_1, std::placeholders::_2)),
                  [this]() {
         initialize();
     }, [this]() {

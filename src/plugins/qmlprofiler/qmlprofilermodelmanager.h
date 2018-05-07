@@ -50,6 +50,7 @@ class QMLPROFILER_EXPORT QmlProfilerModelManager : public Timeline::TimelineTrac
     Q_OBJECT
 public:
     typedef std::function<void(const QmlEvent &, const QmlEventType &)> QmlEventLoader;
+    typedef std::function<QmlEventLoader(QmlEventLoader)> QmlEventFilter;
 
     explicit QmlProfilerModelManager(QObject *parent = nullptr);
     ~QmlProfilerModelManager() override;
@@ -64,8 +65,7 @@ public:
     void addEventTypes(const QVector<QmlEventType> &types);
     const QmlEventType &eventType(int typeId) const;
 
-    void replayQmlEvents(qint64 rangeStart, qint64 rangeEnd, QmlEventLoader loader,
-                         Initializer initializer, Finalizer finalizer,
+    void replayQmlEvents(QmlEventLoader loader, Initializer initializer, Finalizer finalizer,
                          ErrorHandler errorHandler, QFutureInterface<void> &future) const;
 
     void finalize() override;
@@ -81,20 +81,22 @@ public:
     void restrictToRange(qint64 start, qint64 end);
     bool isRestrictedToRange() const;
 
+    QmlEventFilter rangeFilter(qint64 start, qint64 end) const;
+
 signals:
     void typeDetailsChanged(int typeId);
     void typeDetailsFinished();
 
 private:
     void detailsChanged(int typeId, const QString &newString);
+    void restrictByFilter(QmlEventFilter filter);
 
     void clearEventStorage() override;
     void clearTypeStorage() override;
 
     const Timeline::TraceEventType &lookupType(int typeId) const override;
     Timeline::TimelineTraceFile *createTraceFile() override;
-    void replayEvents(qint64 rangeStart, qint64 rangeEnd, TraceEventLoader loader,
-                      Initializer initializer, Finalizer finalizer,
+    void replayEvents(TraceEventLoader loader, Initializer initializer, Finalizer finalizer,
                       ErrorHandler errorHandler, QFutureInterface<void> &future) const override;
 
     class QmlProfilerModelManagerPrivate;

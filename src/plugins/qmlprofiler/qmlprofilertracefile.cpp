@@ -712,7 +712,7 @@ void QmlProfilerTraceFile::saveQtd(QIODevice *device)
 
     QStack<QmlEvent> stack;
     qint64 lastProgressTimestamp = traceStart();
-    modelManager()->replayQmlEvents(-1, -1, [&](const QmlEvent &event, const QmlEventType &type) {
+    modelManager()->replayQmlEvents([&](const QmlEvent &event, const QmlEventType &type) {
         if (type.rangeType() != MaximumRangeType && event.rangeStage() == RangeStart) {
             stack.push(event);
             return;
@@ -858,7 +858,7 @@ void QmlProfilerTraceFile::saveQzt(QIODevice *device)
     }
 
     qint64 lastProgressTimestamp = traceStart();
-    modelManager()->replayQmlEvents(-1, -1, [&](const QmlEvent &event, const QmlEventType &type) {
+    modelManager()->replayQmlEvents([&](const QmlEvent &event, const QmlEventType &type) {
         Q_UNUSED(type);
         bufferStream << event;
         // 32MB buffer should be plenty for efficient compression
