@@ -43,10 +43,10 @@ class FormClassWizardPage : public QWizardPage
 
 public:
     explicit FormClassWizardPage(QWidget *parent = nullptr);
-    ~FormClassWizardPage();
+    ~FormClassWizardPage() override;
 
-    virtual bool isComplete () const;
-    virtual bool validatePage();
+    bool isComplete () const override;
+    bool validatePage() override;
 
     void setClassName(const QString &suggestedClassName);
     void setPath(const QString &);
