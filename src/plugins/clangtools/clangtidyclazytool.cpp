@@ -30,6 +30,7 @@
 #include "clangtoolsdiagnosticmodel.h"
 #include "clangtoolslogfilereader.h"
 #include "clangtidyclazyruncontrol.h"
+#include "clangstaticanalyzerdiagnosticview.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -64,11 +65,26 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     setObjectName("ClangTidyClazyTool");
     s_instance = this;
 
-    m_diagnosticView = new Debugger::DetailedErrorView;
+    m_diagnosticFilterModel = new ClangStaticAnalyzerDiagnosticFilterModel(this);
+    m_diagnosticFilterModel->setSourceModel(m_diagnosticModel);
+
+    m_diagnosticView = new ClangStaticAnalyzerDiagnosticView;
     initDiagnosticView();
-    m_diagnosticView->setModel(m_diagnosticModel);
+    m_diagnosticView->setModel(m_diagnosticFilterModel);
     m_diagnosticView->setObjectName(QLatin1String("ClangTidyClazyIssuesView"));
     m_diagnosticView->setWindowTitle(tr("Clang-Tidy and Clazy Issues"));
+
+    foreach (auto * const model,
+             QList<QAbstractItemModel *>() << m_diagnosticModel << m_diagnosticFilterModel) {
+        connect(model, &QAbstractItemModel::rowsInserted,
+                this, &ClangTidyClazyTool::handleStateUpdate);
+        connect(model, &QAbstractItemModel::rowsRemoved,
+                this, &ClangTidyClazyTool::handleStateUpdate);
+        connect(model, &QAbstractItemModel::modelReset,
+                this, &ClangTidyClazyTool::handleStateUpdate);
+        connect(model, &QAbstractItemModel::layoutChanged, // For QSortFilterProxyModel::invalidate()
+                this, &ClangTidyClazyTool::handleStateUpdate);
+    }
 
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     const QString toolTip = tr("Clang-Tidy and Clazy use a customized Clang executable from the "
@@ -141,6 +157,7 @@ void ClangTidyClazyTool::startTool(bool askUserForFileSelection)
 
     m_diagnosticModel->clear();
     setToolBusy(true);
+    m_diagnosticFilterModel->setProject(project);
     m_running = true;
     handleStateUpdate();
     updateRunActions();

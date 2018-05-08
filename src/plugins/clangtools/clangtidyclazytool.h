@@ -30,9 +30,12 @@
 namespace ClangTools {
 namespace Internal {
 
+class ClangStaticAnalyzerDiagnosticFilterModel;
+
 const char ClangTidyClazyPerspectiveId[] = "ClangTidyClazy.Perspective";
 const char ClangTidyClazyDockId[]        = "ClangTidyClazy.Dock";
 
+// TODO: Add "go next" and "go previous" button like for the static analyzer
 class ClangTidyClazyTool final : public ClangTool
 {
     Q_OBJECT
@@ -52,6 +55,8 @@ private:
     void handleStateUpdate() final;
 
     void updateRunActions();
+
+    ClangStaticAnalyzerDiagnosticFilterModel *m_diagnosticFilterModel = nullptr;
 };
 
 } // namespace Internal
