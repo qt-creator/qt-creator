@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-#include "clangstaticanalyzerprojectsettingswidget.h"
-#include "ui_clangstaticanalyzerprojectsettingswidget.h"
+#include "clangtoolsprojectsettingswidget.h"
+#include "ui_clangtoolsprojectsettingswidget.h"
 
 #include "clangtoolsprojectsettings.h"
 
@@ -164,4 +164,4 @@ QVariant SuppressedDiagnosticsModel::data(const QModelIndex &index, int role) co
 } // namespace Internal
 } // namespace ClangTools
 
-#include "clangstaticanalyzerprojectsettingswidget.moc"
+#include "clangtoolsprojectsettingswidget.moc"

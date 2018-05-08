@@ -45,11 +45,11 @@ QtcPlugin {
         "clangselectablefilesdialog.cpp",
         "clangselectablefilesdialog.h",
         "clangselectablefilesdialog.ui",
-        "clangstaticanalyzerdiagnosticview.cpp",
-        "clangstaticanalyzerdiagnosticview.h",
-        "clangstaticanalyzerprojectsettingswidget.cpp",
-        "clangstaticanalyzerprojectsettingswidget.h",
-        "clangstaticanalyzerprojectsettingswidget.ui",
+        "clangtoolsdiagnosticview.cpp",
+        "clangtoolsdiagnosticview.h",
+        "clangtoolsprojectsettingswidget.cpp",
+        "clangtoolsprojectsettingswidget.h",
+        "clangtoolsprojectsettingswidget.ui",
         "clangstaticanalyzerruncontrol.cpp",
         "clangstaticanalyzerruncontrol.h",
         "clangstaticanalyzerrunner.cpp",
@@ -93,8 +93,8 @@ QtcPlugin {
         name: "Unit tests"
         condition: qtc.testsEnabled
         files: [
-            "clangstaticanalyzerpreconfiguredsessiontests.cpp",
-            "clangstaticanalyzerpreconfiguredsessiontests.h",
+            "clangtoolspreconfiguredsessiontests.cpp",
+            "clangtoolspreconfiguredsessiontests.h",
             "clangtoolsunittests.cpp",
             "clangtoolsunittests.h",
             "clangtoolsunittests.qrc",

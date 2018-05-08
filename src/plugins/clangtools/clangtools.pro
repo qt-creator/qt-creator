@@ -10,8 +10,8 @@ INCLUDEPATH += $$LLVM_INCLUDEPATH
 
 SOURCES += \
     clangselectablefilesdialog.cpp \
-    clangstaticanalyzerdiagnosticview.cpp \
-    clangstaticanalyzerprojectsettingswidget.cpp \
+    clangtoolsdiagnosticview.cpp \
+    clangtoolsprojectsettingswidget.cpp \
     clangstaticanalyzerruncontrol.cpp \
     clangstaticanalyzerrunner.cpp \
     clangstaticanalyzertool.cpp \
@@ -33,8 +33,8 @@ SOURCES += \
 HEADERS += \
     clangfileinfo.h \
     clangselectablefilesdialog.h \
-    clangstaticanalyzerdiagnosticview.h \
-    clangstaticanalyzerprojectsettingswidget.h \
+    clangtoolsdiagnosticview.h \
+    clangtoolsprojectsettingswidget.h \
     clangstaticanalyzerruncontrol.h \
     clangstaticanalyzerrunner.h \
     clangstaticanalyzertool.h \
@@ -56,17 +56,17 @@ HEADERS += \
     clangtoolsconfigwidget.h
 
 FORMS += \
-    clangstaticanalyzerprojectsettingswidget.ui \
+    clangtoolsprojectsettingswidget.ui \
     clangtoolsconfigwidget.ui
     clangselectablefilesdialog.ui
 
 equals(TEST, 1) {
     HEADERS += \
-        clangstaticanalyzerpreconfiguredsessiontests.h \
+        clangtoolspreconfiguredsessiontests.h \
         clangtoolsunittests.h
 
     SOURCES += \
-        clangstaticanalyzerpreconfiguredsessiontests.cpp \
+        clangtoolspreconfiguredsessiontests.cpp \
         clangtoolsunittests.cpp
 
     RESOURCES += clangtoolsunittests.qrc

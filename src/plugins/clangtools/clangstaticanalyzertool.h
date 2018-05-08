@@ -30,9 +30,9 @@
 namespace ClangTools {
 namespace Internal {
 
-class ClangStaticAnalyzerDiagnosticFilterModel;
+class DiagnosticFilterModel;
 class ClangToolsDiagnosticModel;
-class ClangStaticAnalyzerDiagnosticView;
+class DiagnosticView;
 class Diagnostic;
 
 const char ClangStaticAnalyzerPerspectiveId[] = "ClangStaticAnalyzer.Perspective";
@@ -58,7 +58,7 @@ private:
 
     void updateRunActions();
 
-    ClangStaticAnalyzerDiagnosticFilterModel *m_diagnosticFilterModel = nullptr;
+    DiagnosticFilterModel *m_diagnosticFilterModel = nullptr;
 
     QAction *m_goBack = nullptr;
     QAction *m_goNext = nullptr;

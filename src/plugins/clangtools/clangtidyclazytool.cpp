@@ -30,7 +30,7 @@
 #include "clangtoolsdiagnosticmodel.h"
 #include "clangtoolslogfilereader.h"
 #include "clangtidyclazyruncontrol.h"
-#include "clangstaticanalyzerdiagnosticview.h"
+#include "clangtoolsdiagnosticview.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -65,10 +65,10 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     setObjectName("ClangTidyClazyTool");
     s_instance = this;
 
-    m_diagnosticFilterModel = new ClangStaticAnalyzerDiagnosticFilterModel(this);
+    m_diagnosticFilterModel = new DiagnosticFilterModel(this);
     m_diagnosticFilterModel->setSourceModel(m_diagnosticModel);
 
-    m_diagnosticView = new ClangStaticAnalyzerDiagnosticView;
+    m_diagnosticView = new DiagnosticView;
     initDiagnosticView();
     m_diagnosticView->setModel(m_diagnosticFilterModel);
     m_diagnosticView->setObjectName(QLatin1String("ClangTidyClazyIssuesView"));

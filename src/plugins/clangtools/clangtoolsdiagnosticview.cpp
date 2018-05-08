@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "clangstaticanalyzerdiagnosticview.h"
+#include "clangtoolsdiagnosticview.h"
 
 #include "clangtoolsdiagnosticmodel.h"
 #include "clangtoolsprojectsettings.h"
@@ -40,15 +40,15 @@ using namespace Debugger;
 namespace ClangTools {
 namespace Internal {
 
-ClangStaticAnalyzerDiagnosticView::ClangStaticAnalyzerDiagnosticView(QWidget *parent)
+DiagnosticView::DiagnosticView(QWidget *parent)
     : Debugger::DetailedErrorView(parent)
 {
     m_suppressAction = new QAction(tr("Suppress This Diagnostic"), this);
     connect(m_suppressAction, &QAction::triggered,
-            this, &ClangStaticAnalyzerDiagnosticView::suppressCurrentDiagnostic);
+            this, &DiagnosticView::suppressCurrentDiagnostic);
 }
 
-void ClangStaticAnalyzerDiagnosticView::suppressCurrentDiagnostic()
+void DiagnosticView::suppressCurrentDiagnostic()
 {
     const QModelIndexList indexes = selectionModel()->selectedRows();
     QTC_ASSERT(indexes.count() == 1, return);
@@ -59,7 +59,7 @@ void ClangStaticAnalyzerDiagnosticView::suppressCurrentDiagnostic()
 
     // If the original project was closed, we work directly on the filter model, otherwise
     // we go via the project settings.
-    auto * const filterModel = static_cast<ClangStaticAnalyzerDiagnosticFilterModel *>(model());
+    auto * const filterModel = static_cast<DiagnosticFilterModel *>(model());
     ProjectExplorer::Project * const project = filterModel->project();
     if (project) {
         Utils::FileName filePath = Utils::FileName::fromString(diag.location.filePath);
@@ -75,7 +75,7 @@ void ClangStaticAnalyzerDiagnosticView::suppressCurrentDiagnostic()
     }
 }
 
-QList<QAction *> ClangStaticAnalyzerDiagnosticView::customActions() const
+QList<QAction *> DiagnosticView::customActions() const
 {
     return QList<QAction *>() << m_suppressAction;
 }

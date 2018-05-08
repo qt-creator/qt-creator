@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "clangstaticanalyzerpreconfiguredsessiontests.h"
+#include "clangtoolspreconfiguredsessiontests.h"
 
 #include "clangtoolsdiagnostic.h"
 #include "clangstaticanalyzertool.h"
@@ -97,11 +97,11 @@ private:
 namespace ClangTools {
 namespace Internal {
 
-void ClangStaticAnalyzerPreconfiguredSessionTests::initTestCase()
+void PreconfiguredSessionTests::initTestCase()
 {
-    const QString preconfiguredSessionName = QLatin1String("ClangStaticAnalyzerPreconfiguredSession");
+    const QString preconfiguredSessionName = QLatin1String("ClangToolsTest");
     if (!SessionManager::sessions().contains(preconfiguredSessionName))
-        QSKIP("Manually preconfigured session 'ClangStaticAnalyzerPreconfiguredSession' needed.");
+        QSKIP("Manually preconfigured session 'ClangToolsTest' needed.");
 
     if (SessionManager::activeSession() == preconfiguredSessionName)
         QSKIP("Session must not be already active.");
@@ -113,7 +113,7 @@ void ClangStaticAnalyzerPreconfiguredSessionTests::initTestCase()
     QVERIFY(waitForParsedProjects.wait());
 }
 
-void ClangStaticAnalyzerPreconfiguredSessionTests::testPreconfiguredSession()
+void PreconfiguredSessionTests::testPreconfiguredSession()
 {
     QFETCH(Project *, project);
     QFETCH(Target *, target);
@@ -188,7 +188,7 @@ static QByteArray dataTagName(Project *project, Target *target)
     return dataTagAsString.toUtf8();
 }
 
-void ClangStaticAnalyzerPreconfiguredSessionTests::testPreconfiguredSession_data()
+void PreconfiguredSessionTests::testPreconfiguredSession_data()
 {
     QTest::addColumn<Project *>("project");
     QTest::addColumn<Target *>("target");
@@ -206,7 +206,7 @@ void ClangStaticAnalyzerPreconfiguredSessionTests::testPreconfiguredSession_data
         QSKIP("Session has no valid projects/targets to test.");
 }
 
-bool ClangStaticAnalyzerPreconfiguredSessionTests::switchToProjectAndTarget(Project *project,
+bool PreconfiguredSessionTests::switchToProjectAndTarget(Project *project,
                                                                             Target *target)
 {
     Project * const activeProject = SessionManager::startupProject();

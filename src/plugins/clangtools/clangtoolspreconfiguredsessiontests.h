@@ -25,24 +25,30 @@
 
 #pragma once
 
-#include <debugger/analyzer/detailederrorview.h>
+#include <QObject>
+#include <QString>
+
+namespace ProjectExplorer {
+class Project;
+class Target;
+}
 
 namespace ClangTools {
 namespace Internal {
 
-class ClangStaticAnalyzerDiagnosticView : public Debugger::DetailedErrorView
+class PreconfiguredSessionTests: public QObject
 {
     Q_OBJECT
 
-public:
-    ClangStaticAnalyzerDiagnosticView(QWidget *parent = 0);
+private slots:
+    void initTestCase();
+
+    void testPreconfiguredSession();
+    void testPreconfiguredSession_data();
 
 private:
-    void suppressCurrentDiagnostic();
-
-    QList<QAction *> customActions() const;
-
-    QAction *m_suppressAction;
+    bool switchToProjectAndTarget(ProjectExplorer::Project *project,
+                                  ProjectExplorer::Target *target);
 };
 
 } // namespace Internal

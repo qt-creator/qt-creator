@@ -27,14 +27,14 @@
 
 #include "clangtoolsconfigwidget.h"
 #include "clangtoolsconstants.h"
-#include "clangstaticanalyzerprojectsettingswidget.h"
+#include "clangtoolsprojectsettingswidget.h"
 #include "clangstaticanalyzerruncontrol.h"
 #include "clangstaticanalyzertool.h"
 #include "clangtidyclazytool.h"
 #include "clangtoolsprojectsettings.h"
 
 #ifdef WITH_TESTS
-#include "clangstaticanalyzerpreconfiguredsessiontests.h"
+#include "clangtoolspreconfiguredsessiontests.h"
 #include "clangtoolsunittests.h"
 #endif
 
@@ -136,7 +136,7 @@ QList<QObject *> ClangToolsPlugin::createTestObjects() const
 {
     QList<QObject *> tests;
 #ifdef WITH_TESTS
-    tests << new ClangStaticAnalyzerPreconfiguredSessionTests;
+    tests << new PreconfiguredSessionTests;
     tests << new ClangToolsUnitTests;
 #endif
     return tests;

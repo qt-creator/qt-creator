@@ -25,7 +25,7 @@
 
 #include "clangtoolsdiagnosticmodel.h"
 
-#include "clangstaticanalyzerdiagnosticview.h"
+#include "clangtoolsdiagnosticview.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolsutils.h"
 
@@ -306,7 +306,7 @@ QVariant ExplainingStepItem::data(int column, int role) const
 }
 
 
-ClangStaticAnalyzerDiagnosticFilterModel::ClangStaticAnalyzerDiagnosticFilterModel(QObject *parent)
+DiagnosticFilterModel::DiagnosticFilterModel(QObject *parent)
     : QSortFilterProxyModel(parent)
 {
     // So that when a user closes and re-opens a project and *then* clicks "Suppress",
@@ -319,23 +319,23 @@ ClangStaticAnalyzerDiagnosticFilterModel::ClangStaticAnalyzerDiagnosticFilterMod
             });
 }
 
-void ClangStaticAnalyzerDiagnosticFilterModel::setProject(ProjectExplorer::Project *project)
+void DiagnosticFilterModel::setProject(ProjectExplorer::Project *project)
 {
     QTC_ASSERT(project, return);
     if (m_project) {
         disconnect(ClangToolsProjectSettingsManager::getSettings(m_project),
                    &ClangToolsProjectSettings::suppressedDiagnosticsChanged, this,
-                   &ClangStaticAnalyzerDiagnosticFilterModel::handleSuppressedDiagnosticsChanged);
+                   &DiagnosticFilterModel::handleSuppressedDiagnosticsChanged);
     }
     m_project = project;
     m_lastProjectDirectory = m_project->projectDirectory();
     connect(ClangToolsProjectSettingsManager::getSettings(m_project),
             &ClangToolsProjectSettings::suppressedDiagnosticsChanged,
-            this, &ClangStaticAnalyzerDiagnosticFilterModel::handleSuppressedDiagnosticsChanged);
+            this, &DiagnosticFilterModel::handleSuppressedDiagnosticsChanged);
     handleSuppressedDiagnosticsChanged();
 }
 
-void ClangStaticAnalyzerDiagnosticFilterModel::addSuppressedDiagnostic(
+void DiagnosticFilterModel::addSuppressedDiagnostic(
         const SuppressedDiagnostic &diag)
 {
     QTC_ASSERT(!m_project, return);
@@ -343,7 +343,7 @@ void ClangStaticAnalyzerDiagnosticFilterModel::addSuppressedDiagnostic(
     invalidate();
 }
 
-bool ClangStaticAnalyzerDiagnosticFilterModel::filterAcceptsRow(int sourceRow,
+bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow,
         const QModelIndex &sourceParent) const
 {
     if (sourceParent.isValid())
@@ -363,7 +363,7 @@ bool ClangStaticAnalyzerDiagnosticFilterModel::filterAcceptsRow(int sourceRow,
     return true;
 }
 
-void ClangStaticAnalyzerDiagnosticFilterModel::handleSuppressedDiagnosticsChanged()
+void DiagnosticFilterModel::handleSuppressedDiagnosticsChanged()
 {
     QTC_ASSERT(m_project, return);
     m_suppressedDiagnostics

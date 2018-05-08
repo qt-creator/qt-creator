@@ -30,7 +30,7 @@
 namespace ClangTools {
 namespace Internal {
 
-class ClangStaticAnalyzerDiagnosticFilterModel;
+class DiagnosticFilterModel;
 
 const char ClangTidyClazyPerspectiveId[] = "ClangTidyClazy.Perspective";
 const char ClangTidyClazyDockId[]        = "ClangTidyClazy.Dock";
@@ -56,7 +56,7 @@ private:
 
     void updateRunActions();
 
-    ClangStaticAnalyzerDiagnosticFilterModel *m_diagnosticFilterModel = nullptr;
+    DiagnosticFilterModel *m_diagnosticFilterModel = nullptr;
 };
 
 } // namespace Internal

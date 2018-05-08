@@ -55,12 +55,12 @@ public:
     };
 };
 
-class ClangStaticAnalyzerDiagnosticFilterModel : public QSortFilterProxyModel
+class DiagnosticFilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 
 public:
-    ClangStaticAnalyzerDiagnosticFilterModel(QObject *parent = nullptr);
+    DiagnosticFilterModel(QObject *parent = nullptr);
 
     void setProject(ProjectExplorer::Project *project);
     void addSuppressedDiagnostic(const SuppressedDiagnostic &diag);
