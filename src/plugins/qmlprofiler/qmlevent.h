@@ -68,8 +68,9 @@ struct QmlEvent : public Timeline::TraceEvent {
     }
 
     QmlEvent(QmlEvent &&other)
+        : TraceEvent(other), m_dataType(other.m_dataType), m_dataLength(other.m_dataLength)
     {
-        memcpy(this, &other, sizeof(QmlEvent));
+        memcpy(&m_data, &other.m_data, sizeof(m_data));
         other.m_dataType = Inline8Bit; // prevent dtor from deleting the pointer
     }
 
@@ -88,7 +89,10 @@ struct QmlEvent : public Timeline::TraceEvent {
     QmlEvent &operator=(QmlEvent &&other)
     {
         if (this != &other) {
-            memcpy(this, &other, sizeof(QmlEvent));
+            TraceEvent::operator=(other);
+            m_dataType = other.m_dataType;
+            m_dataLength = other.m_dataLength;
+            memcpy(&m_data, &other.m_data, sizeof(m_data));
             other.m_dataType = Inline8Bit;
         }
         return *this;
