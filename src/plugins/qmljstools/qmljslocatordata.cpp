@@ -25,6 +25,9 @@
 
 #include "qmljslocatordata.h"
 
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
+
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsutils.h>
 //#include <qmljs/qmljsinterpreter.h>
@@ -40,10 +43,25 @@ LocatorData::LocatorData()
 {
     ModelManagerInterface *manager = ModelManagerInterface::instance();
 
+    // Force the updating of source file when updating a project (they could be cached, in such
+    // case LocatorData::onDocumentUpdated will not be called.
+    connect(manager, &ModelManagerInterface::projectInfoUpdated,
+            [manager](const ModelManagerInterface::ProjectInfo &info) {
+        QStringList files;
+        for (const Utils::FileName &f: info.project->files(ProjectExplorer::Project::SourceFiles))
+            files << f.toString();
+        manager->updateSourceFiles(files, true);
+    });
+
     connect(manager, &ModelManagerInterface::documentUpdated,
             this, &LocatorData::onDocumentUpdated);
     connect(manager, &ModelManagerInterface::aboutToRemoveFiles,
             this, &LocatorData::onAboutToRemoveFiles);
+
+    ProjectExplorer::SessionManager *session = ProjectExplorer::SessionManager::instance();
+    if (session)
+        connect(session, &ProjectExplorer::SessionManager::projectRemoved,
+                [this] (ProjectExplorer::Project*) { m_entries.clear(); });
 }
 
 LocatorData::~LocatorData()
@@ -233,4 +251,3 @@ void LocatorData::onAboutToRemoveFiles(const QStringList &files)
         m_entries.remove(file);
     }
 }
-
