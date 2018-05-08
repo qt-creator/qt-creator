@@ -11,8 +11,6 @@ INCLUDEPATH += $$LLVM_INCLUDEPATH
 SOURCES += \
     clangselectablefilesdialog.cpp \
     clangstaticanalyzerdiagnosticview.cpp \
-    clangstaticanalyzerprojectsettings.cpp \
-    clangstaticanalyzerprojectsettingsmanager.cpp \
     clangstaticanalyzerprojectsettingswidget.cpp \
     clangstaticanalyzerruncontrol.cpp \
     clangstaticanalyzerrunner.cpp \
@@ -36,8 +34,6 @@ HEADERS += \
     clangfileinfo.h \
     clangselectablefilesdialog.h \
     clangstaticanalyzerdiagnosticview.h \
-    clangstaticanalyzerprojectsettings.h \
-    clangstaticanalyzerprojectsettingsmanager.h \
     clangstaticanalyzerprojectsettingswidget.h \
     clangstaticanalyzerruncontrol.h \
     clangstaticanalyzerrunner.h \

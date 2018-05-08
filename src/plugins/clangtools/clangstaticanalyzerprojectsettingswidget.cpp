@@ -26,8 +26,7 @@
 #include "clangstaticanalyzerprojectsettingswidget.h"
 #include "ui_clangstaticanalyzerprojectsettingswidget.h"
 
-#include "clangstaticanalyzerprojectsettings.h"
-#include "clangstaticanalyzerprojectsettingsmanager.h"
+#include "clangtoolsprojectsettings.h"
 
 #include <utils/qtcassert.h>
 
@@ -59,12 +58,12 @@ private:
 ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project, QWidget *parent) :
     QWidget(parent),
     m_ui(new Ui::ProjectSettingsWidget)
-  , m_projectSettings(ProjectSettingsManager::getSettings(project))
+  , m_projectSettings(ClangToolsProjectSettingsManager::getSettings(project))
 {
     m_ui->setupUi(this);
     auto * const model = new SuppressedDiagnosticsModel(this);
     model->setDiagnostics(m_projectSettings->suppressedDiagnostics());
-    connect(m_projectSettings, &ProjectSettings::suppressedDiagnosticsChanged,
+    connect(m_projectSettings, &ClangToolsProjectSettings::suppressedDiagnosticsChanged,
             [model, this] {
                     model->setDiagnostics(m_projectSettings->suppressedDiagnostics());
                     updateButtonStates();

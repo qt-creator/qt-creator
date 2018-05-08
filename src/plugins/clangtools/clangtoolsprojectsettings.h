@@ -33,8 +33,39 @@
 
 namespace ClangTools {
 namespace Internal {
+class Diagnostic;
 
-// TODO: Incorporate Clang Static Analyzer's ProjectSettings
+class SuppressedDiagnostic
+{
+public:
+    SuppressedDiagnostic(const Utils::FileName &filePath, const QString &description,
+                         const QString &contextKind, const QString &context, int uniquifier)
+        : filePath(filePath)
+        , description(description)
+        , contextKind(contextKind)
+        , context(context)
+        , uniquifier(uniquifier)
+    {
+    }
+
+    SuppressedDiagnostic(const Diagnostic &diag);
+
+    Utils::FileName filePath; // Relative for files in project, absolute otherwise.
+    QString description;
+    QString contextKind;
+    QString context;
+    int uniquifier;
+};
+
+inline bool operator==(const SuppressedDiagnostic &d1, const SuppressedDiagnostic &d2)
+{
+    return d1.filePath == d2.filePath && d1.description == d2.description
+            && d1.contextKind == d2.contextKind && d1.context == d2.context
+            && d1.uniquifier == d2.uniquifier;
+}
+
+typedef QList<SuppressedDiagnostic> SuppressedDiagnosticsList;
+
 class ClangToolsProjectSettings : public QObject
 {
     Q_OBJECT
@@ -49,6 +80,14 @@ public:
     QSet<Utils::FileName> selectedFiles() const { return m_selectedFiles; }
     void setSelectedFiles(const QSet<Utils::FileName> &value) { m_selectedFiles = value; }
 
+    SuppressedDiagnosticsList suppressedDiagnostics() const { return m_suppressedDiagnostics; }
+    void addSuppressedDiagnostic(const SuppressedDiagnostic &diag);
+    void removeSuppressedDiagnostic(const SuppressedDiagnostic &diag);
+    void removeAllSuppressedDiagnostics();
+
+signals:
+    void suppressedDiagnosticsChanged();
+
 private:
     void load();
     void store();
@@ -56,9 +95,9 @@ private:
     ProjectExplorer::Project *m_project;
     QSet<Utils::FileName> m_selectedDirs;
     QSet<Utils::FileName> m_selectedFiles;
+    SuppressedDiagnosticsList m_suppressedDiagnostics;
 };
 
-// TODO: Incorporate Clang Static Analyzer's ProjectSettingsManager
 class ClangToolsProjectSettingsManager
 {
 public:

@@ -26,7 +26,7 @@
 #pragma once
 
 #include "clangtoolsdiagnostic.h"
-#include "clangstaticanalyzerprojectsettings.h"
+#include "clangtoolsprojectsettings.h"
 
 #include <debugger/analyzer/detailederrorview.h>
 #include <utils/fileutils.h>

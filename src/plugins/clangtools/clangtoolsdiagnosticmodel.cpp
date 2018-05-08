@@ -26,7 +26,7 @@
 #include "clangtoolsdiagnosticmodel.h"
 
 #include "clangstaticanalyzerdiagnosticview.h"
-#include "clangstaticanalyzerprojectsettingsmanager.h"
+#include "clangtoolsprojectsettings.h"
 #include "clangtoolsutils.h"
 
 #include <projectexplorer/project.h>
@@ -323,14 +323,14 @@ void ClangStaticAnalyzerDiagnosticFilterModel::setProject(ProjectExplorer::Proje
 {
     QTC_ASSERT(project, return);
     if (m_project) {
-        disconnect(ProjectSettingsManager::getSettings(m_project),
-                   &ProjectSettings::suppressedDiagnosticsChanged, this,
+        disconnect(ClangToolsProjectSettingsManager::getSettings(m_project),
+                   &ClangToolsProjectSettings::suppressedDiagnosticsChanged, this,
                    &ClangStaticAnalyzerDiagnosticFilterModel::handleSuppressedDiagnosticsChanged);
     }
     m_project = project;
     m_lastProjectDirectory = m_project->projectDirectory();
-    connect(ProjectSettingsManager::getSettings(m_project),
-            &ProjectSettings::suppressedDiagnosticsChanged,
+    connect(ClangToolsProjectSettingsManager::getSettings(m_project),
+            &ClangToolsProjectSettings::suppressedDiagnosticsChanged,
             this, &ClangStaticAnalyzerDiagnosticFilterModel::handleSuppressedDiagnosticsChanged);
     handleSuppressedDiagnosticsChanged();
 }
@@ -367,7 +367,7 @@ void ClangStaticAnalyzerDiagnosticFilterModel::handleSuppressedDiagnosticsChange
 {
     QTC_ASSERT(m_project, return);
     m_suppressedDiagnostics
-            = ProjectSettingsManager::getSettings(m_project)->suppressedDiagnostics();
+            = ClangToolsProjectSettingsManager::getSettings(m_project)->suppressedDiagnostics();
     invalidate();
 }
 

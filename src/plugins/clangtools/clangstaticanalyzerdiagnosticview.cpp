@@ -26,8 +26,7 @@
 #include "clangstaticanalyzerdiagnosticview.h"
 
 #include "clangtoolsdiagnosticmodel.h"
-#include "clangstaticanalyzerprojectsettings.h"
-#include "clangstaticanalyzerprojectsettingsmanager.h"
+#include "clangtoolsprojectsettings.h"
 #include "clangtoolsutils.h"
 
 #include <utils/fileutils.h>
@@ -70,7 +69,7 @@ void ClangStaticAnalyzerDiagnosticView::suppressCurrentDiagnostic()
             filePath = relativeFilePath;
         const SuppressedDiagnostic supDiag(filePath, diag.description, diag.issueContextKind,
                                            diag.issueContext, diag.explainingSteps.count());
-        ProjectSettingsManager::getSettings(project)->addSuppressedDiagnostic(supDiag);
+        ClangToolsProjectSettingsManager::getSettings(project)->addSuppressedDiagnostic(supDiag);
     } else {
         filterModel->addSuppressedDiagnostic(SuppressedDiagnostic(diag));
     }

@@ -31,7 +31,7 @@ namespace ProjectExplorer { class Project; }
 
 namespace ClangTools {
 namespace Internal {
-class ProjectSettings;
+class ClangToolsProjectSettings;
 
 namespace Ui { class ProjectSettingsWidget; }
 
@@ -50,7 +50,7 @@ private:
     void removeSelected();
 
     Ui::ProjectSettingsWidget * const m_ui;
-    ProjectSettings * const m_projectSettings;
+    ClangToolsProjectSettings * const m_projectSettings;
 };
 
 } // namespace Internal
