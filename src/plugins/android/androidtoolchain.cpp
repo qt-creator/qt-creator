@@ -471,8 +471,9 @@ AndroidToolChainFactory::autodetectToolChainsForNdk(const FileName &ndkPath,
                 tc = new AndroidToolChain(abi, version, lang,
                                           ToolChain::AutoDetection);
                 tc->resetToolChain(compilerPath);
+                QTC_ASSERT(!tc->originalTargetTriple().isEmpty(),
+                           delete tc; continue);
             }
-            QTC_ASSERT(!tc->originalTargetTriple().isEmpty(), continue);
             result.append(tc);
             toolChainBundle.append(tc);
         }
