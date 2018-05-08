@@ -280,7 +280,10 @@ SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
 
     // Restore selection
     ClangToolsProjectSettings *settings = ClangToolsProjectSettingsManager::getSettings(m_project);
-    m_filesModel->restoreMinimalSelection(settings->selectedDirs(), settings->selectedFiles());
+    if (settings->selectedDirs().isEmpty() && settings->selectedFiles().isEmpty())
+        m_filesModel->selectAllFiles(); // Initially, all files are selected
+    else // Restore selection
+        m_filesModel->restoreMinimalSelection(settings->selectedDirs(), settings->selectedFiles());
 
     m_analyzeButton->setEnabled(m_filesModel->hasCheckedFiles());
     connect(m_filesModel.get(), &QAbstractItemModel::dataChanged, [this]() {
