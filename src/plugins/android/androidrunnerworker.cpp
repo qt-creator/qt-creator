@@ -138,6 +138,17 @@ void findProcessPID(QFutureInterface<qint64> &fi, const QString &adbPath,
         fi.reportResult(processPID);
 }
 
+static void deleter(QProcess *p)
+{
+    p->terminate();
+    if (!p->waitForFinished(1000)) {
+        p->kill();
+        p->waitForFinished();
+    }
+    // Might get deleted from its own signal handler.
+    p->deleteLater();
+}
+
 AndroidRunnerWorkerBase::AndroidRunnerWorkerBase(RunControl *runControl, const AndroidRunnable &runnable)
     : m_androidRunnable(runnable)
     , m_adbLogcatProcess(nullptr, deleter)
@@ -327,7 +338,7 @@ void AndroidRunnerWorkerBase::asyncStart()
     forceStop();
 
     // Start the logcat process before app starts.
-    std::unique_ptr<QProcess, decltype(&deleter)> logcatProcess(new QProcess, deleter);
+    std::unique_ptr<QProcess, Deleter> logcatProcess(new QProcess, deleter);
     connect(logcatProcess.get(), &QProcess::readyReadStandardOutput,
             this, &AndroidRunnerWorkerBase::logcatReadStandardOutput);
     connect(logcatProcess.get(), &QProcess::readyReadStandardError,
@@ -373,7 +384,7 @@ void AndroidRunnerWorkerBase::asyncStart()
 
         runAdb({"shell", "run-as", m_androidRunnable.packageName, "killall", gdbServerExecutable});
         runAdb({"shell", "run-as", m_androidRunnable.packageName, "rm", gdbServerSocket});
-        std::unique_ptr<QProcess, decltype(&deleter)> gdbServerProcess(new QProcess, deleter);
+        std::unique_ptr<QProcess, Deleter> gdbServerProcess(new QProcess, deleter);
         gdbServerProcess->start(m_adb, selector() << "shell" << "run-as"
                                     << m_androidRunnable.packageName << "lib/" + gdbServerExecutable
                                     << "--multi" << "+" + gdbServerSocket);
@@ -457,7 +468,7 @@ void AndroidRunnerWorkerBase::handleJdbWaiting()
     else
         jdbPath.appendPath("jdb");
 
-    std::unique_ptr<QProcess, decltype(&deleter)> jdbProcess(new QProcess, deleter);
+    std::unique_ptr<QProcess, Deleter> jdbProcess(new QProcess, &deleter);
     jdbProcess->setProcessChannelMode(QProcess::MergedChannels);
     jdbProcess->start(jdbPath.toString(), QStringList() << "-connect" <<
                       QString("com.sun.jdi.SocketAttach:hostname=localhost,port=%1")

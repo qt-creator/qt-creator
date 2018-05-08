@@ -42,17 +42,6 @@ namespace Internal {
 
 const int MIN_SOCKET_HANDSHAKE_PORT = 20001;
 
-static inline void deleter(QProcess *p)
-{
-    p->terminate();
-    if (!p->waitForFinished(1000)) {
-        p->kill();
-        p->waitForFinished();
-    }
-    // Might get deleted from its own signal handler.
-    p->deleteLater();
-}
-
 class AndroidRunnerWorkerBase : public QObject
 {
     Q_OBJECT
@@ -88,13 +77,14 @@ protected:
         Settled
     };
     virtual void onProcessIdChanged(qint64 pid);
+    using Deleter = void (*)(QProcess *);
 
     // Create the processes and timer in the worker thread, for correct thread affinity
     AndroidRunnable m_androidRunnable;
     QString m_adb;
     qint64 m_processPID = -1;
-    std::unique_ptr<QProcess, decltype(&deleter)> m_adbLogcatProcess;
-    std::unique_ptr<QProcess, decltype(&deleter)> m_psIsAlive;
+    std::unique_ptr<QProcess, Deleter> m_adbLogcatProcess;
+    std::unique_ptr<QProcess, Deleter> m_psIsAlive;
     QByteArray m_stdoutBuffer;
     QByteArray m_stderrBuffer;
     QRegExp m_logCatRegExp;
@@ -107,8 +97,8 @@ protected:
     QString m_lastRunAdbError;
     JDBState m_jdbState = JDBState::Idle;
     Utils::Port m_localJdbServerPort;
-    std::unique_ptr<QProcess, decltype(&deleter)> m_gdbServerProcess;
-    std::unique_ptr<QProcess, decltype(&deleter)> m_jdbProcess;
+    std::unique_ptr<QProcess, Deleter> m_gdbServerProcess;
+    std::unique_ptr<QProcess, Deleter> m_jdbProcess;
 };
 
 
