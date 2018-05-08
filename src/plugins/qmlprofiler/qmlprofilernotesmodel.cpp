@@ -110,14 +110,16 @@ void QmlProfilerNotesModel::stash()
             continue;
 
         int index = timelineIndex(i);
-        QmlNote save = {
-            model->typeId(index),
-            model->collapsedRow(index),
-            model->startTime(index),
-            model->duration(index),
-            text(i)
-        };
-        m_notes.append(save);
+        if (index < model->count()) {
+            QmlNote save = {
+                model->typeId(index),
+                model->collapsedRow(index),
+                model->startTime(index),
+                model->duration(index),
+                text(i)
+            };
+            m_notes.append(save);
+        }
     }
     resetModified();
 }

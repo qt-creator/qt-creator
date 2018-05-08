@@ -76,7 +76,7 @@ int TimelineNotesModel::typeId(int index) const
     Q_D(const TimelineNotesModel);
     const TimelineNotesModelPrivate::Note &note = d->data[index];
     const TimelineModel *model = timelineModelByModelId(note.timelineModel);
-    if (!model)
+    if (!model || note.timelineIndex >= model->count())
         return -1; // This can happen if one of the timeline models has been removed
     return model->typeId(note.timelineIndex);
 }
