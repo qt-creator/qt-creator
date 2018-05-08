@@ -508,6 +508,7 @@ static const char *highlightingTypeToCStringLiteral(HighlightingType type)
         RETURN_TEXT_FOR_CASE(Label);
         RETURN_TEXT_FOR_CASE(FunctionDefinition);
         RETURN_TEXT_FOR_CASE(OutputArgument);
+        RETURN_TEXT_FOR_CASE(OverloadedOperator);
         RETURN_TEXT_FOR_CASE(PreprocessorDefinition);
         RETURN_TEXT_FOR_CASE(PreprocessorExpansion);
         RETURN_TEXT_FOR_CASE(PrimitiveType);
