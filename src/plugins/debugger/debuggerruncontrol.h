@@ -136,9 +136,6 @@ public:
 
     Internal::TerminalRunner *terminalRunner() const;
 
-signals:
-    void aboutToNotifyInferiorSetupOk();
-
 private:
     bool fixupParameters();
 

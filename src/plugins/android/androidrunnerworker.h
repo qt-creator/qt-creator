@@ -71,7 +71,6 @@ public:
 
     virtual void asyncStart();
     virtual void asyncStop();
-    virtual void handleRemoteDebuggerRunning();
     virtual void handleJdbWaiting();
     virtual void handleJdbSettled();
 

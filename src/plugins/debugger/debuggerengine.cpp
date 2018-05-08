@@ -650,12 +650,9 @@ void DebuggerEngine::notifyEngineSetupOk()
     d->m_progress.setProgressValue(250);
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << this << state());
     setState(EngineSetupOk);
-    if (isMasterEngine() && runTool()) {
-        runTool()->aboutToNotifyInferiorSetupOk(); // FIXME: Remove, only used for Android.
-        runTool()->reportStarted();
-    }
-
     if (isMasterEngine()) {
+        if (runTool())
+            runTool()->reportStarted();
         // Slaves will get called setupSlaveInferior() below.
         setState(EngineRunRequested);
         showMessage("CALL: RUN ENGINE");

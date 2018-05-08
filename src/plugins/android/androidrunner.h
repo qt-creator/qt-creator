@@ -69,7 +69,6 @@ public:
 signals:
     void asyncStart();
     void asyncStop();
-    void remoteDebuggerRunning();
     void qmlServerReady(const QUrl &serverUrl);
     void androidRunnableChanged(const AndroidRunnable &runnable);
     void avdDetected();

@@ -440,9 +440,6 @@ void AndroidRunnerWorkerBase::asyncStop()
     m_gdbServerProcess.reset();
 }
 
-void AndroidRunnerWorkerBase::handleRemoteDebuggerRunning()
-{}
-
 void AndroidRunnerWorkerBase::handleJdbWaiting()
 {
     QStringList removeForward{"forward", "--remove", "tcp:" + m_localJdbServerPort.toString()};

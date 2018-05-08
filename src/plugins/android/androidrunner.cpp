@@ -155,8 +155,6 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
     connect(this, &AndroidRunner::asyncStop, m_worker.data(), &AndroidRunnerWorkerBase::asyncStop);
     connect(this, &AndroidRunner::androidRunnableChanged,
             m_worker.data(), &AndroidRunnerWorkerBase::setAndroidRunnable);
-    connect(this, &AndroidRunner::remoteDebuggerRunning,
-            m_worker.data(), &AndroidRunnerWorkerBase::handleRemoteDebuggerRunning);
 
     connect(m_worker.data(), &AndroidRunnerWorkerBase::remoteProcessStarted,
             this, &AndroidRunner::handleRemoteProcessStarted);

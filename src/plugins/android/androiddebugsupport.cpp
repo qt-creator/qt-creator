@@ -143,10 +143,6 @@ void AndroidDebugSupport::start()
             addSearchDirectory(qtVersion->qmlPath().toString());
     }
 
-    // FIXME: Move signal to base class and generalize handling.
-    connect(this, &DebuggerRunTool::aboutToNotifyInferiorSetupOk,
-            m_runner, &AndroidRunner::remoteDebuggerRunning);
-
     DebuggerRunTool::start();
 }
 
