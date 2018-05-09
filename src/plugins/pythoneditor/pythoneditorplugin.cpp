@@ -256,6 +256,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
     interpreterAspect->setSettingsKey("PythonEditor.RunConfiguation.Interpreter");
     interpreterAspect->setLabelText(tr("Interpreter:"));
     interpreterAspect->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    interpreterAspect->setHistoryCompleter("PythonEditor.Interpreter.History");
     interpreterAspect->setValue(exec.isEmpty() ? "python" : exec);
     addExtraAspect(interpreterAspect);
 
