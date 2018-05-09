@@ -35,9 +35,7 @@ namespace QmlDesigner {
 class ComponentsPlugin : public QObject, QmlDesigner::IWidgetPlugin
 {
     Q_OBJECT
-#if QT_VERSION >= 0x050000
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QmlDesignerPlugin" FILE "componentsplugin.json")
-#endif
     Q_DISABLE_COPY(ComponentsPlugin)
     Q_INTERFACES(QmlDesigner::IWidgetPlugin)
 public:
