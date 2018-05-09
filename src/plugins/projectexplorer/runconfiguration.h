@@ -431,6 +431,7 @@ class PROJECTEXPLORER_EXPORT RunControl : public QObject
 
 public:
     RunControl(RunConfiguration *runConfiguration, Core::Id mode);
+    RunControl(const IDevice::ConstPtr &device, Core::Id mode);
     ~RunControl() override;
 
     void initiateStart();
