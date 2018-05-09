@@ -19,6 +19,108 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string notr="true">&amp;Project Parts</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_12">
+       <item>
+        <widget class="QSplitter" name="projectPartsSplitter">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <widget class="QTabWidget" name="projectPartTab">
+          <property name="currentIndex">
+           <number>3</number>
+          </property>
+          <widget class="QWidget" name="tab_17">
+           <attribute name="title">
+            <string notr="true">&amp;General</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_9">
+            <item>
+             <widget class="QTreeView" name="partGeneralView"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab_13">
+           <attribute name="title">
+            <string notr="true">Project &amp;Files</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_14">
+            <item>
+             <widget class="QTreeView" name="projectFilesView"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab_14">
+           <attribute name="title">
+            <string notr="true">&amp;Defines</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_19">
+            <item>
+             <widget class="QGroupBox" name="groupBox">
+              <property name="title">
+               <string notr="true">Toolchain Defines</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_13">
+               <item>
+                <widget class="QPlainTextEdit" name="partToolchainDefinesEdit">
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_2">
+              <property name="title">
+               <string notr="true">Project Defines</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_15">
+               <item>
+                <widget class="QPlainTextEdit" name="partProjectDefinesEdit">
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab_15">
+           <attribute name="title">
+            <string notr="true">&amp;Header Paths</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_16">
+            <item>
+             <widget class="QTreeView" name="projectHeaderPathsView"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab_16">
+           <attribute name="title">
+            <string notr="true">Pre&amp;compiled Headers</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_18">
+            <item>
+             <widget class="QPlainTextEdit" name="partPrecompiledHeadersEdit">
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tab">
       <attribute name="title">
        <string notr="true">&amp;Snapshots and Documents</string>
@@ -172,108 +274,6 @@
               </property>
               <property name="textElideMode">
                <enum>Qt::ElideMiddle</enum>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </widget>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_2">
-      <attribute name="title">
-       <string notr="true">&amp;Project Parts</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_12">
-       <item>
-        <widget class="QSplitter" name="projectPartsSplitter">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <widget class="QTabWidget" name="projectPartTab">
-          <property name="currentIndex">
-           <number>0</number>
-          </property>
-          <widget class="QWidget" name="tab_17">
-           <attribute name="title">
-            <string notr="true">&amp;General</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_9">
-            <item>
-             <widget class="QTreeView" name="partGeneralView"/>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="tab_13">
-           <attribute name="title">
-            <string notr="true">Project &amp;Files</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_14">
-            <item>
-             <widget class="QTreeView" name="projectFilesView"/>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="tab_14">
-           <attribute name="title">
-            <string notr="true">&amp;Defines</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_19">
-            <item>
-             <widget class="QGroupBox" name="groupBox">
-              <property name="title">
-               <string notr="true">Toolchain Defines</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_13">
-               <item>
-                <widget class="QPlainTextEdit" name="partToolchainDefinesEdit">
-                 <property name="readOnly">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBox_2">
-              <property name="title">
-               <string notr="true">Project Defines</string>
-              </property>
-              <layout class="QVBoxLayout" name="verticalLayout_15">
-               <item>
-                <widget class="QPlainTextEdit" name="partProjectDefinesEdit">
-                 <property name="readOnly">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="tab_15">
-           <attribute name="title">
-            <string notr="true">&amp;Header Paths</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_16">
-            <item>
-             <widget class="QTreeView" name="projectHeaderPathsView"/>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="tab_16">
-           <attribute name="title">
-            <string notr="true">Pre&amp;compiled Headers</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_18">
-            <item>
-             <widget class="QPlainTextEdit" name="partPrecompiledHeadersEdit">
-              <property name="readOnly">
-               <bool>true</bool>
               </property>
              </widget>
             </item>
