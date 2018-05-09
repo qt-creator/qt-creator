@@ -51,7 +51,6 @@ private:
     void setCurrentTestSet(const QString &testSet);
     void setCurrentTestName(const QString &testName);
 
-    QString m_executable;
     QString m_projectFile;
     QString m_currentTestName;
     QString m_currentTestSet;

@@ -311,13 +311,13 @@ TestResultItem *TestResultModel::findParentItemFor(const TestResultItem *item,
     TestResultItem *root = startItem ? const_cast<TestResultItem *>(startItem) : nullptr;
     const TestResult *result = item->testResult();
     const QString &name = result->name();
-    const QString &executable = result->executable();
+    const QString &id = result->id();
 
     if (root == nullptr && !name.isEmpty()) {
         for (int row = rootItem()->childCount() - 1; row >= 0; --row) {
             TestResultItem *tmp = static_cast<TestResultItem *>(rootItem()->childAt(row));
             auto tmpTestResult = tmp->testResult();
-            if (tmpTestResult->executable() == executable && tmpTestResult->name() == name) {
+            if (tmpTestResult->id() == id && tmpTestResult->name() == name) {
                 root = tmp;
                 break;
             }

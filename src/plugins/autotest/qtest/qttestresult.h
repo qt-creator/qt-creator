@@ -35,7 +35,7 @@ class QtTestResult : public TestResult
 {
 public:
     QtTestResult(const QString &projectFile, TestType type, const QString &className = QString());
-    QtTestResult(const QString &executable, const QString &projectFile, TestType type,
+    QtTestResult(const QString &id, const QString &projectFile, TestType type,
                  const QString &className);
     const QString outputString(bool selected) const override;
 

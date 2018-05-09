@@ -38,9 +38,9 @@ GTestResult::GTestResult(const QString &projectFile, const QString &name)
 {
 }
 
-GTestResult::GTestResult(const QString &executable, const QString &projectFile,
+GTestResult::GTestResult(const QString &id, const QString &projectFile,
                          const QString &name)
-    : TestResult(executable, name), m_projectFile(projectFile)
+    : TestResult(id, name), m_projectFile(projectFile)
 {
 }
 
