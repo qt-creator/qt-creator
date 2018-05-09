@@ -70,7 +70,7 @@ void QmlProfilerRangeModel::loadEvent(const QmlEvent &event, const QmlEventType 
     if (event.rangeStage() == RangeStart) {
         int index = insertStart(event.timestamp(), event.typeIndex());
         m_stack.append(index);
-        m_data.insert(index, QmlRangeEventStartInstance());
+        m_data.insert(index, Item());
     } else if (event.rangeStage() == RangeEnd) {
         if (!m_stack.isEmpty()) {
             int index = m_stack.pop();

@@ -76,7 +76,7 @@ void QmlProfilerAnimationsModel::loadEvent(const QmlEvent &event, const QmlEvent
 
     // Don't "fix" the framerate even if we've fixed the duration.
     // The server should know better after all and if it doesn't we want to see that.
-    QmlPaintEventData lastEvent;
+    Item lastEvent;
     lastEvent.typeId = event.typeIndex();
     lastEvent.framerate = event.number<qint32>(0);
     lastEvent.animationcount = event.number<qint32>(1);

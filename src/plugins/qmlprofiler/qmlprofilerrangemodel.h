@@ -44,8 +44,8 @@ class QmlProfilerRangeModel : public QmlProfilerTimelineModel
     Q_OBJECT
 public:
 
-    struct QmlRangeEventStartInstance {
-        QmlRangeEventStartInstance() :
+    struct Item {
+        Item() :
                 displayRowExpanded(1),
                 displayRowCollapsed(Constants::QML_MIN_LEVEL),
                 bindingLoopHead(-1) {}
@@ -84,7 +84,7 @@ private:
     void computeExpandedLevels();
     void findBindingLoops();
 
-    QVector<QmlRangeEventStartInstance> m_data;
+    QVector<Item> m_data;
     QStack<int> m_stack;
     QVector<int> m_expandedRowTypes;
 };

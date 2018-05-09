@@ -114,7 +114,7 @@ QVariantList PixmapCacheModel::labels() const
 QVariantMap PixmapCacheModel::details(int index) const
 {
     QVariantMap result;
-    const PixmapCacheItem *ev = &m_data[index];
+    const Item *ev = &m_data[index];
 
     if (ev->pixmapEventType == PixmapCacheCountChanged) {
         result.insert(QLatin1String("displayName"), tr("Image Cached"));
@@ -165,7 +165,7 @@ QVariantMap PixmapCacheModel::details(int index) const
  */
 void PixmapCacheModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    PixmapCacheItem newEvent;
+    Item newEvent;
     const PixmapEventType pixmapType = static_cast<PixmapEventType>(type.detailType());
     newEvent.pixmapEventType = pixmapType;
     qint64 pixmapStartTime = event.timestamp();
@@ -407,7 +407,7 @@ void PixmapCacheModel::clear()
 #ifdef WITH_TESTS
 PixmapCacheModel::LoadState PixmapCacheModel::loadState(int index) const
 {
-    const PixmapCacheItem &item = m_data[index];
+    const Item &item = m_data[index];
     if (item.urlIndex == -1 || item.sizeIndex == -1)
         return MaximumLoadState;
 
@@ -416,7 +416,7 @@ PixmapCacheModel::LoadState PixmapCacheModel::loadState(int index) const
 
 PixmapCacheModel::CacheState PixmapCacheModel::cacheState(int index) const
 {
-    const PixmapCacheItem &item = m_data[index];
+    const Item &item = m_data[index];
     if (item.urlIndex == -1 || item.sizeIndex == -1)
         return MaximumCacheState;
 
@@ -425,14 +425,14 @@ PixmapCacheModel::CacheState PixmapCacheModel::cacheState(int index) const
 
 QString PixmapCacheModel::fileName(int index) const
 {
-    const PixmapCacheItem &item = m_data[index];
+    const Item &item = m_data[index];
     return (item.urlIndex == -1) ? QString() : m_pixmaps[item.urlIndex].url;
 }
 #endif // WITH_TESTS
 
 void PixmapCacheModel::computeMaxCacheSize()
 {
-    foreach (const PixmapCacheModel::PixmapCacheItem &event, m_data) {
+    foreach (const PixmapCacheModel::Item &event, m_data) {
         if (event.pixmapEventType == PixmapCacheModel::PixmapCacheCountChanged) {
             if (event.cacheSize > m_maxCacheSize)
                 m_maxCacheSize = event.cacheSize;
@@ -462,7 +462,7 @@ void PixmapCacheModel::flattenLoads()
     // computes "compressed row"
     QVector <qint64> eventEndTimes;
     for (int i = 0; i < count(); i++) {
-        PixmapCacheModel::PixmapCacheItem &event = m_data[i];
+        PixmapCacheModel::Item &event = m_data[i];
         if (event.pixmapEventType == PixmapCacheModel::PixmapLoadingStarted) {
             event.rowNumberCollapsed = 0;
             while (eventEndTimes.count() > event.rowNumberCollapsed &&
@@ -486,7 +486,7 @@ void PixmapCacheModel::flattenLoads()
 }
 
 int PixmapCacheModel::updateCacheCount(int lastCacheSizeEvent,
-        qint64 pixmapStartTime, qint64 pixSize, PixmapCacheItem &newEvent, int typeId)
+        qint64 pixmapStartTime, qint64 pixSize, Item &newEvent, int typeId)
 {
     newEvent.pixmapEventType = PixmapCacheCountChanged;
     newEvent.rowNumberCollapsed = 1;
