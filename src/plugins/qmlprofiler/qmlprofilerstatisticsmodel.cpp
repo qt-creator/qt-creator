@@ -577,9 +577,8 @@ QVariant QmlProfilerStatisticsRelativesModel::dataForMainEntry(qint64 totalDurat
         case RelativeCallCount: return 1;
         case RelativeDetails: return tr("Main Program");
         }
-    default:
-        return QVariant();
     }
+    return QVariant();
 }
 
 QVariant QmlProfilerStatisticsRelativesModel::data(const QModelIndex &index, int role) const
