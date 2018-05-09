@@ -457,7 +457,8 @@ void ValgrindMemcheckParserTest::testParserStop()
 {
     ValgrindRunner runner;
     runner.setValgrindExecutable(fakeValgrindExecutable());
-    runner.setValgrindArguments({"-i", dataFile("memcheck-output-sample1.xml"), "--wait", "5" });
+    runner.setValgrindArguments({QString("--xml-socket=127.0.0.1:%1").arg(m_server->serverPort()),
+                                 "-i", dataFile("memcheck-output-sample1.xml"), "--wait", "5" });
     runner.setProcessChannelMode(QProcess::ForwardedChannels);
 
     runner.setDevice(ProjectExplorer::DeviceManager::instance()->defaultDevice(
