@@ -27,6 +27,7 @@
 
 #include "clangconstants.h"
 #include "clangdiagnostictooltipwidget.h"
+#include "clangutils.h"
 
 #include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
@@ -75,20 +76,20 @@ ClangTextMark::ClangTextMark(const FileName &fileName,
     , m_removedFromEditorHandler(removedHandler)
 {
     const bool warning = isWarningOrNote(diagnostic.severity);
-    setColor(warning ? Utils::Theme::ClangCodeModel_Warning_TextMarkColor
-                     : Utils::Theme::ClangCodeModel_Error_TextMarkColor);
+    setColor(warning ? ::Utils::Theme::ClangCodeModel_Warning_TextMarkColor
+                     : ::Utils::Theme::ClangCodeModel_Error_TextMarkColor);
     setDefaultToolTip(warning ? QApplication::translate("Clang Code Model Marks", "Code Model Warning")
                               : QApplication::translate("Clang Code Model Marks", "Code Model Error"));
     setPriority(warning ? TextEditor::TextMark::NormalPriority
                         : TextEditor::TextMark::HighPriority);
     updateIcon();
     if (showLineAnnotations)
-        setLineAnnotation(diagnostic.text.toString());
+        setLineAnnotation(Utils::diagnosticCategoryPrefixRemoved(diagnostic.text.toString()));
 }
 
 void ClangTextMark::updateIcon(bool valid)
 {
-    using namespace Utils::Icons;
+    using namespace ::Utils::Icons;
     if (isWarningOrNote(m_diagnostic.severity))
         setIcon(valid ? CODEMODEL_WARNING.icon() : CODEMODEL_DISABLED_WARNING.icon());
     else

@@ -56,6 +56,8 @@ bool isProjectPartLoaded(const CppTools::ProjectPart::Ptr projectPart);
 QString projectPartIdForFile(const QString &filePath);
 int clangColumn(const QTextBlock &lineText, int cppEditorColumn);
 
+QString diagnosticCategoryPrefixRemoved(const QString &text);
+
 CPlusPlus::Icons::IconType iconTypeForToken(const ClangBackEnd::TokenInfoContainer &token);
 
 } // namespace Utils
