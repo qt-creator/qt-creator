@@ -29,7 +29,6 @@
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <QFuture>
-#include <QTcpSocket>
 
 #include "androidrunnable.h"
 
@@ -45,12 +44,12 @@ namespace Internal {
 
 const int MIN_SOCKET_HANDSHAKE_PORT = 20001;
 
-class AndroidRunnerWorkerBase : public QObject
+class AndroidRunnerWorker : public QObject
 {
     Q_OBJECT
 public:
-    AndroidRunnerWorkerBase(ProjectExplorer::RunControl *runControl, const AndroidRunnable &runnable);
-    ~AndroidRunnerWorkerBase() override;
+    AndroidRunnerWorker(ProjectExplorer::RunControl *runControl, const AndroidRunnable &runnable);
+    ~AndroidRunnerWorker() override;
     bool adbShellAmNeedsQuotes();
     bool runAdb(const QStringList &args, int timeoutS = 10);
     void adbKill(qint64 pid);
@@ -62,11 +61,12 @@ public:
     void setAndroidDeviceInfo(const AndroidDeviceInfo &info);
     void setExtraEnvVars(const Utils::Environment &extraEnvVars);
     void setExtraAppParams(const QString &extraAppParams);
+    void setIsPreNougat(bool isPreNougat) { m_isPreNougat = isPreNougat; }
 
-    virtual void asyncStart();
-    virtual void asyncStop();
-    virtual void handleJdbWaiting();
-    virtual void handleJdbSettled();
+    void asyncStart();
+    void asyncStop();
+    void handleJdbWaiting();
+    void handleJdbSettled();
 
 signals:
     void remoteProcessStarted(Utils::Port gdbServerPort, const QUrl &qmlServer, int pid);
@@ -76,15 +76,18 @@ signals:
     void remoteErrorOutput(const QString &output);
 
 protected:
+    void asyncStartHelper();
+
     enum class JDBState {
         Idle,
         Waiting,
         Settled
     };
-    virtual void onProcessIdChanged(qint64 pid);
+    void onProcessIdChanged(qint64 pid);
     using Deleter = void (*)(QProcess *);
 
     // Create the processes and timer in the worker thread, for correct thread affinity
+    bool m_isPreNougat = false;
     AndroidRunnable m_androidRunnable;
     QString m_adb;
     qint64 m_processPID = -1;
@@ -108,24 +111,6 @@ protected:
     int m_apiLevel = -1;
     QString m_extraAppParams;
     Utils::Environment m_extraEnvVars;
-};
-
-
-class AndroidRunnerWorker : public AndroidRunnerWorkerBase
-{
-    Q_OBJECT
-public:
-    AndroidRunnerWorker(ProjectExplorer::RunControl *runControl, const AndroidRunnable &runnable);
-    void asyncStart() override;
-};
-
-
-class AndroidRunnerWorkerPreNougat : public AndroidRunnerWorkerBase
-{
-    Q_OBJECT
-public:
-    AndroidRunnerWorkerPreNougat(ProjectExplorer::RunControl *runControl, const AndroidRunnable &runnable);
-    void asyncStart() override;
 };
 
 } // namespace Internal

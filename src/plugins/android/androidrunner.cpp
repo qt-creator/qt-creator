@@ -147,26 +147,24 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
     }
 
     const int apiLevel = AndroidManager::deviceApiLevel(m_target);
-    if (apiLevel > 23)
-        m_worker.reset(new AndroidRunnerWorker(runControl, m_androidRunnable));
-    else
-        m_worker.reset(new AndroidRunnerWorkerPreNougat(runControl, m_androidRunnable));
+    m_worker.reset(new AndroidRunnerWorker(runControl, m_androidRunnable));
+    m_worker->setIsPreNougat(apiLevel <= 23);
     m_worker->setExtraAppParams(extraAppParams);
     m_worker->setExtraEnvVars(extraEnvVars);
 
     m_worker->moveToThread(&m_thread);
 
-    connect(this, &AndroidRunner::asyncStart, m_worker.data(), &AndroidRunnerWorkerBase::asyncStart);
-    connect(this, &AndroidRunner::asyncStop, m_worker.data(), &AndroidRunnerWorkerBase::asyncStop);
+    connect(this, &AndroidRunner::asyncStart, m_worker.data(), &AndroidRunnerWorker::asyncStart);
+    connect(this, &AndroidRunner::asyncStop, m_worker.data(), &AndroidRunnerWorker::asyncStop);
     connect(this, &AndroidRunner::androidDeviceInfoChanged,
-            m_worker.data(), &AndroidRunnerWorkerBase::setAndroidDeviceInfo);
-    connect(m_worker.data(), &AndroidRunnerWorkerBase::remoteProcessStarted,
+            m_worker.data(), &AndroidRunnerWorker::setAndroidDeviceInfo);
+    connect(m_worker.data(), &AndroidRunnerWorker::remoteProcessStarted,
             this, &AndroidRunner::handleRemoteProcessStarted);
-    connect(m_worker.data(), &AndroidRunnerWorkerBase::remoteProcessFinished,
+    connect(m_worker.data(), &AndroidRunnerWorker::remoteProcessFinished,
             this, &AndroidRunner::handleRemoteProcessFinished);
-    connect(m_worker.data(), &AndroidRunnerWorkerBase::remoteOutput,
+    connect(m_worker.data(), &AndroidRunnerWorker::remoteOutput,
             this, &AndroidRunner::remoteOutput);
-    connect(m_worker.data(), &AndroidRunnerWorkerBase::remoteErrorOutput,
+    connect(m_worker.data(), &AndroidRunnerWorker::remoteErrorOutput,
             this, &AndroidRunner::remoteErrorOutput);
 
     connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
