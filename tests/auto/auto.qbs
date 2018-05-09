@@ -7,7 +7,6 @@ Project {
         "aggregation/aggregation.qbs",
         "algorithm/algorithm.qbs",
         "changeset/changeset.qbs",
-        "clangtools/clangtools.qbs",
         "cplusplus/cplusplus.qbs",
         "debugger/debugger.qbs",
         "diff/diff.qbs",

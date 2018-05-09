@@ -29,7 +29,6 @@ namespace ClangTools {
 namespace Constants {
 
 const char SETTINGS_ID[] = "ClangTools";
-const char CLANGSTATICANALYZER_RUN_MODE[] = "ClangStaticAnalyzer.RunMode";
 const char CLANGTIDYCLAZY_RUN_MODE[] = "ClangTidyClazy.RunMode";
 
 } // Constants

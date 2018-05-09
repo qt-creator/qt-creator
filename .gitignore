@@ -158,8 +158,6 @@ tmp/
 /tests/auto/aggregation/tst_aggregation
 /tests/auto/algorithm/tst_algorithm
 /tests/auto/changeset/tst_changeset
-/tests/auto/clangstaticanalyzer/clangstaticanalyzerlogfilereader/tst_clangstaticanalyzerlogfilereader
-/tests/auto/clangstaticanalyzer/clangstaticanalyzerrunner/tst_clangstaticanalyzerrunnertest
 /tests/auto/cplusplus/ast/tst_ast
 /tests/auto/cplusplus/c99/tst_c99
 /tests/auto/cplusplus/checksymbols/tst_checksymbols

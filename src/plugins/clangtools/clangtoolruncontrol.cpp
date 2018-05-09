@@ -157,7 +157,7 @@ private:
                     .arg(toolName).arg(wrongMode);
             if (Utils::CheckableMessageBox::doNotAskAgainQuestion(Core::ICore::mainWindow(),
                                                                   title, message, Core::ICore::settings(),
-                                                                  "ClangStaticAnalyzerCorrectModeWarning") != QDialogButtonBox::Yes)
+                                                                  "ClangToolsCorrectModeWarning") != QDialogButtonBox::Yes)
             {
                 reportFailure();
                 return;

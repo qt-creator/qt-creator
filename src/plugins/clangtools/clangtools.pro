@@ -12,9 +12,6 @@ SOURCES += \
     clangselectablefilesdialog.cpp \
     clangtoolsdiagnosticview.cpp \
     clangtoolsprojectsettingswidget.cpp \
-    clangstaticanalyzerruncontrol.cpp \
-    clangstaticanalyzerrunner.cpp \
-    clangstaticanalyzertool.cpp \
     clangtidyclazyruncontrol.cpp \
     clangtidyclazyrunner.cpp \
     clangtidyclazytool.cpp \
@@ -35,9 +32,6 @@ HEADERS += \
     clangselectablefilesdialog.h \
     clangtoolsdiagnosticview.h \
     clangtoolsprojectsettingswidget.h \
-    clangstaticanalyzerruncontrol.h \
-    clangstaticanalyzerrunner.h \
-    clangstaticanalyzertool.h \
     clangtidyclazyruncontrol.h \
     clangtidyclazyrunner.h \
     clangtidyclazytool.h \

@@ -39,7 +39,6 @@ class LogFileReader
 {
     Q_DECLARE_TR_FUNCTIONS(ClangTools::Internal::LogFileReader)
 public:
-    static QList<Diagnostic> readPlist(const QString &filePath, QString *errorMessage);
     static QList<Diagnostic> readSerialized(const QString &filePath,
                                             const QString &logFilePath,
                                             QString *errorMessage);

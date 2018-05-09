@@ -28,8 +28,6 @@
 #include "clangtoolsconfigwidget.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolsprojectsettingswidget.h"
-#include "clangstaticanalyzerruncontrol.h"
-#include "clangstaticanalyzertool.h"
 #include "clangtidyclazytool.h"
 #include "clangtoolsprojectsettings.h"
 
@@ -72,7 +70,7 @@ class ClangToolsOptionsPage : public Core::IOptionsPage
 public:
     explicit ClangToolsOptionsPage()
     {
-        setId("Analyzer.ClangTools.Settings"); // TODO: Get it from "clangstaticanalyzersettings.h"
+        setId("Analyzer.ClangTools.Settings");
         setDisplayName(QCoreApplication::translate(
                            "ClangTools::Internal::ClangToolsOptionsPage",
                            "Clang Tools"));
@@ -105,7 +103,6 @@ private:
 class ClangToolsPluginPrivate
 {
 public:
-    ClangStaticAnalyzerTool staticAnalyzerTool;
     ClangTidyClazyTool clangTidyClazyTool;
     ClangToolsOptionsPage optionsPage;
     ClangToolsProjectSettingsManager settingsManager;
