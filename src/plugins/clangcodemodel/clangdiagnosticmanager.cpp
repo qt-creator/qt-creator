@@ -353,7 +353,7 @@ static void addTask(const ClangBackEnd::DiagnosticContainer &diagnostic, bool is
                           diagnostic.location.line,
                           Constants::TASK_CATEGORY_DIAGNOSTICS,
                           icon,
-                          /*addTextMark =*/ false));
+                          Task::NoOptions));
 }
 
 void ClangDiagnosticManager::clearTaskHubIssues()

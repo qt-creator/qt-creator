@@ -154,7 +154,7 @@ void TaskHub::addTask(Task task)
         task.line = -1;
     task.movedLine = task.line;
 
-    if (task.addTextMark && task.line != -1)
+    if ((task.options & Task::AddTextMark) && task.line != -1)
         task.setMark(new TaskMark(task));
     emit m_instance->taskAdded(task);
 }

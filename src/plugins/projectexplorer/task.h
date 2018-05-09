@@ -52,11 +52,18 @@ public:
         Warning
     };
 
+    enum Option : char {
+        NoOptions   = 0,
+        AddTextMark = 1 << 0,
+        FlashWorthy = 1 << 1,
+    };
+    using Options = char;
+
     Task() = default;
     Task(TaskType type, const QString &description,
          const Utils::FileName &file, int line, Core::Id category,
          const QIcon &icon = QIcon(),
-         bool addTextMark = true);
+         Options options = AddTextMark | FlashWorthy);
 
     static Task compilerMissingTask();
     static Task buildConfigurationMissingTask();
@@ -66,7 +73,7 @@ public:
 
     unsigned int taskId = 0;
     TaskType type = Unknown;
-    bool addTextMark = true;
+    Options options = AddTextMark | FlashWorthy;
     QString description;
     Utils::FileName file;
     int line = -1;

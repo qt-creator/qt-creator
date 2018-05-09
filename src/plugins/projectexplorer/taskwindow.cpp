@@ -446,9 +446,12 @@ void TaskWindow::addTask(const Task &task)
     emit tasksChanged();
     navigateStateChanged();
 
-    if (task.type == Task::Error && d->m_filter->filterIncludesErrors()
-            && !d->m_filter->filteredCategories().contains(task.category))
+    if ((task.options & Task::FlashWorthy)
+         && task.type == Task::Error
+         && d->m_filter->filterIncludesErrors()
+         && !d->m_filter->filteredCategories().contains(task.category)) {
         flash();
+    }
 }
 
 void TaskWindow::removeTask(const Task &task)
