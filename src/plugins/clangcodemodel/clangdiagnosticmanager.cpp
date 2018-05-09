@@ -314,6 +314,9 @@ void ClangDiagnosticManager::generateFixItAvailableMarkers()
 {
     m_fixItAvailableMarkers.clear();
 
+    if (!m_fullVisualization)
+        return;
+
     QSet<int> lineNumbersWithFixItMarker;
     addFixItAvailableMarker(m_warningDiagnostics, lineNumbersWithFixItMarker);
     addFixItAvailableMarker(m_errorDiagnostics, lineNumbersWithFixItMarker);
@@ -360,6 +363,9 @@ void ClangDiagnosticManager::clearTaskHubIssues()
 
 void ClangDiagnosticManager::generateTaskHubIssues()
 {
+    if (!m_fullVisualization)
+        return;
+
     const QVector<ClangBackEnd::DiagnosticContainer> diagnostics = m_errorDiagnostics
                                                                    + m_warningDiagnostics;
     for (const ClangBackEnd::DiagnosticContainer &diagnostic : diagnostics) {
@@ -431,16 +437,19 @@ void ClangDiagnosticManager::generateEditorSelections()
     m_extraSelections.clear();
     m_extraSelections.reserve(int(m_warningDiagnostics.size() + m_errorDiagnostics.size()));
 
+    if (!m_fullVisualization)
+        return;
+
     addWarningSelections(m_warningDiagnostics, m_textDocument->document(), m_extraSelections);
     addErrorSelections(m_errorDiagnostics, m_textDocument->document(), m_extraSelections);
 }
 
 void ClangDiagnosticManager::processNewDiagnostics(
         const QVector<ClangBackEnd::DiagnosticContainer> &allDiagnostics,
-        bool showTextMarkAnnotations)
+        bool fullVisualization)
 {
     m_diagnosticsInvalidated = false;
-    m_showTextMarkAnnotations = showTextMarkAnnotations;
+    m_fullVisualization = fullVisualization;
     filterDiagnostics(allDiagnostics);
 
     generateEditorSelections();
@@ -478,7 +487,7 @@ void ClangDiagnosticManager::addClangTextMarks(
         auto textMark = new ClangTextMark(::Utils::FileName::fromString(filePath()),
                                           diagnostic,
                                           onMarkRemoved,
-                                          m_showTextMarkAnnotations);
+                                          m_fullVisualization);
         m_clangTextMarks.push_back(textMark);
         m_textDocument->addMark(textMark);
     }

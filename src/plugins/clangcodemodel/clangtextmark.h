@@ -42,7 +42,7 @@ public:
     ClangTextMark(const ::Utils::FileName &fileName,
                   const ClangBackEnd::DiagnosticContainer &diagnostic,
                   const RemovedFromEditorHandler &removedHandler,
-                  bool showLineAnnotations);
+                  bool fullVisualization);
 
     void updateIcon(bool valid = true);
 private:

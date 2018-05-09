@@ -68,7 +68,7 @@ static Core::Id categoryForSeverity(ClangBackEnd::DiagnosticSeverity severity)
 ClangTextMark::ClangTextMark(const FileName &fileName,
                              const ClangBackEnd::DiagnosticContainer &diagnostic,
                              const RemovedFromEditorHandler &removedHandler,
-                             bool showLineAnnotations)
+                             bool fullVisualization)
     : TextEditor::TextMark(fileName,
                            int(diagnostic.location.line),
                            categoryForSeverity(diagnostic.severity))
@@ -76,15 +76,16 @@ ClangTextMark::ClangTextMark(const FileName &fileName,
     , m_removedFromEditorHandler(removedHandler)
 {
     const bool warning = isWarningOrNote(diagnostic.severity);
-    setColor(warning ? ::Utils::Theme::ClangCodeModel_Warning_TextMarkColor
-                     : ::Utils::Theme::ClangCodeModel_Error_TextMarkColor);
     setDefaultToolTip(warning ? QApplication::translate("Clang Code Model Marks", "Code Model Warning")
                               : QApplication::translate("Clang Code Model Marks", "Code Model Error"));
     setPriority(warning ? TextEditor::TextMark::NormalPriority
                         : TextEditor::TextMark::HighPriority);
     updateIcon();
-    if (showLineAnnotations)
+    if (fullVisualization) {
         setLineAnnotation(Utils::diagnosticCategoryPrefixRemoved(diagnostic.text.toString()));
+        setColor(warning ? ::Utils::Theme::ClangCodeModel_Warning_TextMarkColor
+                         : ::Utils::Theme::ClangCodeModel_Error_TextMarkColor);
+    }
 }
 
 void ClangTextMark::updateIcon(bool valid)
