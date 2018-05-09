@@ -114,6 +114,7 @@ def selectFromLocator(filter, itemName = None):
     # clicking the wanted item
     # if you replace this by pressing ENTER, be sure that something is selected
     # otherwise you will run into unwanted behavior
+    snooze(1)
     wantedItem = waitForObjectItem("{type='QTreeView' unnamed='1' visible='1'}", itemName)
     doubleClick(wantedItem, 5, 5, 0, Qt.LeftButton)
 
