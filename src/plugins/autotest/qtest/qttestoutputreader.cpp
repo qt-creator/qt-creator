@@ -142,11 +142,14 @@ QtTestOutputReader::QtTestOutputReader(const QFutureInterface<TestResultPtr> &fu
 
 void QtTestOutputReader::processOutput(const QByteArray &outputLine)
 {
+    static const QByteArray qmlDebug = "QML Debugger: Waiting for connection on port";
     switch (m_mode) {
     case PlainText:
         processPlainTextOutput(outputLine);
         break;
     case XML:
+        if (m_xmlReader.tokenType() == QXmlStreamReader::NoToken && outputLine.startsWith(qmlDebug))
+            return;
         processXMLOutput(outputLine);
         break;
     }
