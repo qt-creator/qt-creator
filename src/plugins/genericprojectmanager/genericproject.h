@@ -40,8 +40,6 @@ public:
     explicit GenericProject(const Utils::FileName &filename);
     ~GenericProject() override;
 
-    QStringList buildTargets() const;
-
     bool addFiles(const QStringList &filePaths);
     bool removeFiles(const QStringList &filePaths);
     bool setFiles(const QStringList &filePaths);

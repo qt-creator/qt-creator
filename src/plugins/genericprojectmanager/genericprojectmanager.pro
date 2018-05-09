@@ -17,8 +17,6 @@ SOURCES = genericproject.cpp \
     genericbuildconfiguration.cpp \
     filesselectionwizardpage.cpp
 
-FORMS += genericmakestep.ui
-
 equals(TEST, 1) {
     SOURCES += genericprojectplugin_test.cpp
     DEFINES += SRCDIR=\\\"$$PWD\\\"

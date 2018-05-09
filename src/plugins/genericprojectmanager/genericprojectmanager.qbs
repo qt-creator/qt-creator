@@ -25,7 +25,6 @@ QtcPlugin {
         "genericbuildconfiguration.h",
         "genericmakestep.cpp",
         "genericmakestep.h",
-        "genericmakestep.ui",
         "genericproject.cpp",
         "genericproject.h",
         "genericprojectconstants.h",

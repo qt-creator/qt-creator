@@ -150,7 +150,8 @@ HEADERS += projectexplorer.h \
     projectexplorer_global.h \
     extracompiler.h \
     customexecutablerunconfiguration.h \
-    projectmacro.h
+    projectmacro.h \
+    makestep.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -286,7 +287,8 @@ SOURCES += projectexplorer.cpp \
     projectexplorericons.cpp \
     extracompiler.cpp \
     customexecutablerunconfiguration.cpp \
-    projectmacro.cpp
+    projectmacro.cpp \
+    makestep.cpp
 
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
@@ -299,7 +301,8 @@ FORMS += processstep.ui \
     devicesupport/devicesettingswidget.ui \
     devicesupport/devicetestdialog.ui \
     devicesupport/desktopdeviceconfigurationwidget.ui \
-    customparserconfigdialog.ui
+    customparserconfigdialog.ui \
+    makestep.ui
 
 WINSOURCES += \
     windebuginterface.cpp \

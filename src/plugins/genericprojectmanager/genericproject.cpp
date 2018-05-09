@@ -475,12 +475,6 @@ void GenericProject::activeBuildConfigurationWasChanged()
     refresh(Everything);
 }
 
-QStringList GenericProject::buildTargets() const
-{
-    const QStringList targets = { "all", "clean" };
-    return targets;
-}
-
 Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *errorMessage)
 {
     const RestoreResult result = Project::fromMap(map, errorMessage);
