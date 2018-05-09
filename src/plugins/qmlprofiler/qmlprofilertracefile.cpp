@@ -189,12 +189,8 @@ void QmlProfilerTraceFile::loadQtd(QIODevice *device)
         }
     }
 
-    if (isCanceled())
-        emit canceled();
-    else if (stream.hasError())
-        emit error(tr("Error while parsing trace data file: %1").arg(stream.errorString()));
-    else
-        emit success();
+    if (stream.hasError())
+        fail(tr("Error while parsing trace data file: %1").arg(stream.errorString()));
 }
 
 void QmlProfilerTraceFile::loadQzt(QIODevice *device)
@@ -205,7 +201,7 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
     QByteArray magic;
     stream >> magic;
     if (magic != QByteArray("QMLPROFILER")) {
-        emit error(tr("Invalid magic: %1").arg(QLatin1String(magic)));
+        fail(tr("Invalid magic: %1").arg(QLatin1String(magic)));
         return;
     }
 
@@ -213,7 +209,7 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
     stream >> dataStreamVersion;
 
     if (dataStreamVersion > QDataStream::Qt_DefaultCompiledVersion) {
-        emit error(tr("Unknown data stream version: %1").arg(dataStreamVersion));
+        fail(tr("Unknown data stream version: %1").arg(dataStreamVersion));
         return;
     }
     stream.setVersion(dataStreamVersion);
@@ -237,7 +233,7 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
         quint32 numEventTypes;
         bufferStream >> numEventTypes;
         if (numEventTypes > quint32(std::numeric_limits<int>::max())) {
-            emit error(tr("Excessive number of event types: %1").arg(numEventTypes));
+            fail(tr("Excessive number of event types: %1").arg(numEventTypes));
             return;
         }
 
@@ -270,7 +266,7 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
             bufferStream >> event;
             if (bufferStream.status() == QDataStream::Ok) {
                 if (event.typeIndex() >= traceManager()->numEventTypes()) {
-                    emit error(tr("Invalid type index %1").arg(event.typeIndex()));
+                    fail(tr("Invalid type index %1").arg(event.typeIndex()));
                     return;
                 }
                 addFeature(manager->eventType(event.typeIndex()).feature());
@@ -279,7 +275,7 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
             } else if (bufferStream.status() == QDataStream::ReadPastEnd) {
                 break; // Apparently EOF is a character so we end up here after the last event.
             } else if (bufferStream.status() == QDataStream::ReadCorruptData) {
-                emit error(tr("Corrupt data before position %1.").arg(device->pos()));
+                fail(tr("Corrupt data before position %1.").arg(device->pos()));
                 return;
             } else {
                 Q_UNREACHABLE();
@@ -288,12 +284,6 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
         }
         buffer.close();
         setDeviceProgress(device);
-    }
-
-    if (isCanceled()) {
-        emit canceled();
-    } else {
-        emit success();
     }
 }
 
@@ -694,10 +684,8 @@ void QmlProfilerTraceFile::saveQtd(QIODevice *device)
     addStageProgress(ProgressTypes);
     stream.writeEndElement(); // eventData
 
-    if (isCanceled()) {
-        emit canceled();
+    if (isCanceled())
         return;
-    }
 
     QStack<QmlEvent> stack;
     qint64 lastProgressTimestamp = traceStart();
@@ -794,15 +782,11 @@ void QmlProfilerTraceFile::saveQtd(QIODevice *device)
         stream.writeEndElement(); // trace
         stream.writeEndDocument();
 
-        if (isCanceled())
-            emit canceled();
-        else if (stream.hasError())
-            emit error(tr("Error writing trace file."));
-        else
-            emit success();
+        if (stream.hasError())
+            fail(tr("Error writing trace file."));
     }, [this](const QString &message) {
-        emit error(tr("Could not re-read events from temporary trace file: %s\nSaving failed.")
-                   .arg(message));
+        fail(tr("Could not re-read events from temporary trace file: %s\nSaving failed.")
+             .arg(message));
     }, future());
 }
 
@@ -841,10 +825,8 @@ void QmlProfilerTraceFile::saveQzt(QIODevice *device)
         addStageProgress(ProgressNotes);
     }
 
-    if (isCanceled()) {
-        emit canceled();
+    if (isCanceled())
         return;
-    }
 
     qint64 lastProgressTimestamp = traceStart();
     modelManager()->replayQmlEvents([&](const QmlEvent &event, const QmlEventType &type) {
@@ -864,18 +846,15 @@ void QmlProfilerTraceFile::saveQzt(QIODevice *device)
     }, [&]() {
         buffer.open(QIODevice::WriteOnly);
     }, [&]() {
-        if (isCanceled()) {
-            emit canceled();
-        } else {
+        if (!isCanceled()) {
             stream << qCompress(buffer.data());
             buffer.close();
             buffer.buffer().clear();
             addEventsProgress(traceEnd() - lastProgressTimestamp);
-            emit success();
         }
     }, [this](const QString &message) {
-        emit error(tr("Could not re-read events from temporary trace file: %s\nSaving failed.")
-                   .arg(message));
+        fail(tr("Could not re-read events from temporary trace file: %s\nSaving failed.")
+             .arg(message));
     }, future());
 }
 

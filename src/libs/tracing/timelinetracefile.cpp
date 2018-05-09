@@ -61,6 +61,12 @@ void TimelineTraceFile::setDeviceProgress(QIODevice *device)
                               * (MaximumProgress - MinimumProgress) / device->size());
 }
 
+void TimelineTraceFile::fail(const QString &message)
+{
+    emit error(message);
+    m_future.cancel();
+}
+
 bool TimelineTraceFile::isCanceled() const
 {
     return m_future.isCanceled();

@@ -230,100 +230,66 @@ void TimelineTraceManager::finalize()
 
 QFuture<void> TimelineTraceManager::save(const QString &filename)
 {
-    QFile *file = new QFile(filename);
-    if (!file->open(QIODevice::WriteOnly)) {
-        delete file;
-        return Utils::runAsync([this, filename](QFutureInterface<void> &future) {
-            future.setProgressRange(0, 1);
-            future.setProgressValue(1);
-            emit error(tr("Could not open %1 for writing.").arg(filename));
-            emit saveFinished();
-        });
-    }
-
     TimelineTraceFile *writer = createTraceFile();
     writer->setTraceTime(traceStart(), traceEnd(), traceDuration());
     writer->setTraceManager(this);
     writer->setNotes(d->notesModel);
 
-    connect(writer, &QObject::destroyed, this, &TimelineTraceManager::saveFinished,
-            Qt::QueuedConnection);
+    connect(writer, &QObject::destroyed, this, &TimelineTraceManager::saveFinished);
+    connect(writer, &TimelineTraceFile::error, this, &TimelineTraceManager::error);
 
-    connect(writer, &TimelineTraceFile::error, this, [this, file](const QString &message) {
-        file->close();
-        file->remove();
-        delete file;
-        if (!message.isEmpty())
-            emit error(message);
-    }, Qt::QueuedConnection);
-
-    connect(writer, &TimelineTraceFile::success, this, [file]() {
-        file->close();
-        delete file;
-    }, Qt::QueuedConnection);
-
-    connect(writer, &TimelineTraceFile::canceled, this, [file]() {
-        file->close();
-        file->remove();
-        delete file;
-    }, Qt::QueuedConnection);
-
-    return Utils::runAsync([file, writer] (QFutureInterface<void> &future) {
+    return Utils::runAsync([filename, writer] (QFutureInterface<void> &future) {
         writer->setFuture(future);
-        writer->save(file);
+        QFile file(filename);
+
+        if (file.open(QIODevice::WriteOnly))
+            writer->save(&file);
+        else
+            writer->fail(tr("Could not open %1 for writing.").arg(filename));
+
+        if (future.isCanceled())
+            file.remove();
         writer->deleteLater();
     });
 }
 
 QFuture<void> TimelineTraceManager::load(const QString &filename)
 {
-    QFile *file = new QFile(filename, this);
-    if (!file->open(QIODevice::ReadOnly)) {
-        delete file;
-        return Utils::runAsync([this, filename] (QFutureInterface<void> &future) {
-            future.setProgressRange(0, 1);
-            future.setProgressValue(1);
-            emit error(tr("Could not open %1 for reading.").arg(filename));
-            emit loadFinished();
-        });
-    }
-
     clearAll();
     initialize();
     TimelineTraceFile *reader = createTraceFile();
     reader->setTraceManager(this);
     reader->setNotes(d->notesModel);
 
-    connect(reader, &QObject::destroyed, this, &TimelineTraceManager::loadFinished,
-            Qt::QueuedConnection);
+    connect(reader, &QObject::destroyed, this, &TimelineTraceManager::loadFinished);
+    connect(reader, &TimelineTraceFile::error, this, &TimelineTraceManager::error);
 
-    connect(reader, &TimelineTraceFile::success, this, [this, reader]() {
-        if (reader->traceStart() >= 0)
-            decreaseTraceStart(reader->traceStart());
-        if (reader->traceEnd() >= 0)
-            increaseTraceEnd(reader->traceEnd());
-        finalize();
-        delete reader;
-    }, Qt::QueuedConnection);
-
-    connect(reader, &TimelineTraceFile::error, this, [this, reader](const QString &message) {
-        clearAll();
-        delete reader;
-        if (!message.isEmpty())
-            emit error(message);
-    }, Qt::QueuedConnection);
-
-    connect(reader, &TimelineTraceFile::canceled, this, [this, reader]() {
-        clearAll();
-        delete reader;
-    }, Qt::QueuedConnection);
-
-    return Utils::runAsync([file, reader] (QFutureInterface<void> &future) {
+    QFuture<void> future = Utils::runAsync([filename, reader] (QFutureInterface<void> &future) {
         reader->setFuture(future);
-        reader->load(file);
-        file->close();
-        file->deleteLater();
+        QFile file(filename);
+
+        if (file.open(QIODevice::ReadOnly))
+            reader->load(&file);
+        else
+            reader->fail(tr("Could not open %1 for reading.").arg(filename));
+
+        reader->deleteLater();
     });
+
+    QFutureWatcher<void> *watcher = new QFutureWatcher<void>(reader);
+    watcher->setFuture(future);
+    connect(watcher, &QFutureWatcherBase::canceled, this, &TimelineTraceManager::clearAll);
+    connect(watcher, &QFutureWatcherBase::finished, this, [this, reader]() {
+        if (!reader->isCanceled()) {
+            if (reader->traceStart() >= 0)
+                decreaseTraceStart(reader->traceStart());
+            if (reader->traceEnd() >= 0)
+                increaseTraceEnd(reader->traceEnd());
+            finalize();
+        }
+    });
+
+    return future;
 }
 
 qint64 TimelineTraceManager::traceStart() const
