@@ -57,7 +57,7 @@ public:
         : qmlError(QLatin1String("(" QML_URL_REGEXP    // url
                                   ":\\d+"           // colon, line
                                   "(?::\\d+)?)"     // colon, column (optional)
-                                  "[: \t]"))        // colon, space or tab
+                                  "[: \t)]"))       // colon, space, tab or brace
         , qtError(QLatin1String("Object::.*in (.*:\\d+)"))
         , qtAssert(QLatin1String("ASSERT: .* in file (.+, line \\d+)"))
         , qtAssertX(QLatin1String("ASSERT failure in .*: \".*\", file (.+, line \\d+)"))
@@ -351,6 +351,11 @@ void QtSupportPlugin::testQtOutputFormatter_data()
     QTest::newRow("qrc:///main.qml:20")
             << QString::fromLatin1("qrc:///main.qml:20 Unexpected token `identifier'")
             << 0 << 18 << QString::fromLatin1("qrc:///main.qml:20")
+            << QString::fromLatin1("/main.qml") << 20 << -1;
+
+    QTest::newRow("onClicked (qrc:/main.qml:20)")
+            << QString::fromLatin1("onClicked (qrc:/main.qml:20)")
+            << 11 << 27 << QString::fromLatin1("qrc:/main.qml:20")
             << QString::fromLatin1("/main.qml") << 20 << -1;
 
     QTest::newRow("file:///main.qml:20")
