@@ -4,3 +4,28 @@ For instructions on how to set up the Qt Creator repository to contribute
 patches back to Qt Creator, please check:
 
 https://wiki.qt.io/Setting_up_Gerrit#How_to_get_started_-_Gerrit_registration
+
+Qt Creator has integrated auto tests, and further external tests in the
+subdirectory 'tests'.
+
+To build the integrated auto tests, build Qt Creator with the additional
+QMake option TEST=1
+
+To build also the auto tests, manual tests and unit tests in the 'tests'
+subdirectory, use the QMake option BUILD_TESTS=1
+
+Afterwards:
+
+* The tests from the 'tests' subdirectory can be run as individual applications.
+  They are also available as separate Run configuration from within Qt Creator.
+
+* All the integrated tests for a specific plugin can be run with:
+
+ qtcreator -test QtSupport
+
+* To run only a specific test case, use:
+
+ qtcreator -test QtSupport,testQtOutputFormatter
+
+Note: Adding -test to Qt Creator will run the tests in a clean settingspath.
+To run them with specific settings, -settingspath /path has to be provided.
