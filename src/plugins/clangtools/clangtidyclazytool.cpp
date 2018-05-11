@@ -86,6 +86,22 @@ ClangTidyClazyTool::ClangTidyClazyTool()
                 this, &ClangTidyClazyTool::handleStateUpdate);
     }
 
+    // Go to previous diagnostic
+    auto action = new QAction(this);
+    action->setDisabled(true);
+    action->setIcon(Utils::Icons::PREV_TOOLBAR.icon());
+    action->setToolTip(tr("Go to previous diagnostic."));
+    connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goBack);
+    m_goBack = action;
+
+    // Go to next diagnostic
+    action = new QAction(this);
+    action->setDisabled(true);
+    action->setIcon(Utils::Icons::NEXT_TOOLBAR.icon());
+    action->setToolTip(tr("Go to next diagnostic."));
+    connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goNext);
+    m_goNext = action;
+
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     const QString toolTip = tr("Clang-Tidy and Clazy use a customized Clang executable from the "
                                "Clang project to search for errors and warnings.");
@@ -95,7 +111,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
         {{ClangTidyClazyDockId, m_diagnosticView, {}, Perspective::SplitVertical}}
     ));
 
-    auto *action = new QAction(tr("Clang-Tidy and Clazy..."), this);
+    action = new QAction(tr("Clang-Tidy and Clazy..."), this);
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, "ClangTidyClazy.Action"),
                     Debugger::Constants::G_ANALYZER_TOOLS);
@@ -108,6 +124,8 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     ToolbarDescription tidyClazyToolbar;
     tidyClazyToolbar.addAction(m_startAction);
     tidyClazyToolbar.addAction(m_stopAction);
+    tidyClazyToolbar.addAction(m_goBack);
+    tidyClazyToolbar.addAction(m_goNext);
     Debugger::registerToolbar(ClangTidyClazyPerspectiveId, tidyClazyToolbar);
 
     updateRunActions();
@@ -190,9 +208,16 @@ void ClangTidyClazyTool::updateRunActions()
 
 void ClangTidyClazyTool::handleStateUpdate()
 {
+    QTC_ASSERT(m_goBack, return);
+    QTC_ASSERT(m_goNext, return);
     QTC_ASSERT(m_diagnosticModel, return);
+    QTC_ASSERT(m_diagnosticFilterModel, return);
 
     const int issuesFound = m_diagnosticModel->diagnostics().count();
+    const int issuesVisible = m_diagnosticFilterModel->rowCount();
+    m_goBack->setEnabled(issuesVisible > 1);
+    m_goNext->setEnabled(issuesVisible > 1);
+
     QString message;
     if (m_running)
         message = tr("Clang-Tidy and Clazy are running.");

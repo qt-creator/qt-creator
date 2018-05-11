@@ -57,6 +57,9 @@ private:
     void updateRunActions();
 
     DiagnosticFilterModel *m_diagnosticFilterModel = nullptr;
+
+    QAction *m_goBack = nullptr;
+    QAction *m_goNext = nullptr;
 };
 
 } // namespace Internal
