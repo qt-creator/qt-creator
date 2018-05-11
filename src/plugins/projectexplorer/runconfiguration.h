@@ -453,12 +453,29 @@ public:
     using WorkerCreator = std::function<RunWorker *(RunControl *)>;
     using Constraint = std::function<bool(RunConfiguration *)>;
 
-    RunWorkerFactory(Core::Id mode, Constraint constr, const WorkerCreator &prod,
-                     int prio = 0);
-
+    RunWorkerFactory();
     virtual ~RunWorkerFactory();
 
-    bool canRun(RunConfiguration *runConfiguration, Core::Id m_runMode) const;
+    template <class Worker>
+    void registerRunWorker()
+    {
+        m_producer = [](RunControl *rc) { return new Worker(rc); };
+    }
+
+    template <class RunConfig>
+    void setSupportedRunConfiguration()
+    {
+        m_constraints.append([](RunConfiguration *runConfig) {
+            return qobject_cast<RunConfig *>(runConfig) != nullptr;
+        });
+    }
+
+    bool canRun(RunConfiguration *runConfiguration, Core::Id runMode) const;
+
+    void setPriority(int priority);
+    void setProducer(const WorkerCreator &producer);
+    void addConstraint(const Constraint &constraint);
+    void addSupportedRunMode(Core::Id runMode);
 
     int priority() const { return m_priority; }
     WorkerCreator producer() const { return m_producer; }
@@ -469,8 +486,8 @@ private:
     friend class ProjectExplorerPlugin;
     static void destroyRemainingRunWorkerFactories();
 
-    Core::Id m_runMode;
-    Constraint m_constraint;
+    QList<Core::Id> m_supportedRunModes;
+    QList<Constraint> m_constraints;
     WorkerCreator m_producer;
     int m_priority = 0;
 };
@@ -546,20 +563,28 @@ public:
     static void registerWorker(Core::Id runMode, const WorkerCreator &producer,
                                const Constraint &constraint = {})
     {
-        (void) new RunWorkerFactory(runMode, constraint, producer);
+        auto factory = new RunWorkerFactory;
+        factory->setProducer(producer);
+        factory->addSupportedRunMode(runMode);
+        factory->addConstraint(constraint);
     }
     template <class Worker>
     static void registerWorker(Core::Id runMode, const Constraint &constraint, int priority = 0)
     {
-        auto producer = [](RunControl *rc) { return new Worker(rc); };
-        (void) new RunWorkerFactory(runMode, constraint, producer, priority);
+        auto factory = new RunWorkerFactory;
+        factory->registerRunWorker<Worker>();
+        factory->addSupportedRunMode(runMode);
+        factory->addConstraint(constraint);
+        factory->setPriority(priority);
     }
     template <class Config, class Worker>
     static void registerWorker(Core::Id runMode, int priority = 0)
     {
-        auto constraint = [](RunConfiguration *runConfig) { return qobject_cast<Config *>(runConfig) != nullptr; };
-        auto producer = [](RunControl *rc) { return new Worker(rc); };
-        (void) new RunWorkerFactory(runMode, constraint, producer, priority);
+        auto factory = new RunWorkerFactory;
+        factory->registerRunWorker<Worker>();
+        factory->addSupportedRunMode(runMode);
+        factory->setSupportedRunConfiguration<Config>();
+        factory->setPriority(priority);
     }
 
     static WorkerCreator producer(RunConfiguration *runConfiguration, Core::Id runMode);

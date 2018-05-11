@@ -685,8 +685,7 @@ FixedRunConfigurationFactory::availableCreators(Target *parent) const
 
 static QList<RunWorkerFactory *> g_runWorkerFactories;
 
-RunWorkerFactory::RunWorkerFactory(Core::Id mode, Constraint constr, const WorkerCreator &prod, int prio)
-    : m_runMode(mode), m_constraint(constr), m_producer(prod), m_priority(prio)
+RunWorkerFactory::RunWorkerFactory()
 {
     g_runWorkerFactories.append(this);
 }
@@ -698,11 +697,40 @@ RunWorkerFactory::~RunWorkerFactory()
 
 bool RunWorkerFactory::canRun(RunConfiguration *runConfiguration, Core::Id runMode) const
 {
-    if (runMode != this->m_runMode)
+    if (!m_supportedRunModes.contains(runMode))
         return false;
-    if (!m_constraint)
-        return true;
-    return m_constraint(runConfiguration);
+
+    for (const Constraint &constraint : m_constraints) {
+        if (!constraint(runConfiguration))
+            return false;
+    }
+
+    return true;
+}
+
+void RunWorkerFactory::setPriority(int priority)
+{
+    m_priority = priority;
+}
+
+void RunWorkerFactory::setProducer(const WorkerCreator &producer)
+{
+    m_producer = producer;
+}
+
+void RunWorkerFactory::addConstraint(const Constraint &constraint)
+{
+    // Default constructed Constraints are not worth keeping.
+    // FIXME: Make it a QTC_ASSERT once there is no code path
+    // using this "feature" anymore.
+    if (!constraint)
+        return;
+    m_constraints.append(constraint);
+}
+
+void RunWorkerFactory::addSupportedRunMode(Core::Id runMode)
+{
+    m_supportedRunModes.append(runMode);
 }
 
 void RunWorkerFactory::destroyRemainingRunWorkerFactories()
