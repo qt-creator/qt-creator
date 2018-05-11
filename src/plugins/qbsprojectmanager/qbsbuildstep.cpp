@@ -207,6 +207,8 @@ QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) co
     config.insert(Constants::QBS_FORCE_PROBES_KEY, m_forceProbes);
     if (m_enableQmlDebugging)
         config.insert(Constants::QBS_CONFIG_QUICK_DEBUG_KEY, true);
+    else
+        config.remove(Constants::QBS_CONFIG_QUICK_DEBUG_KEY);
     if (variableHandling == ExpandVariables) {
         const Utils::MacroExpander *expander = Utils::globalMacroExpander();
         for (auto it = config.begin(), end = config.end(); it != end; ++it) {
