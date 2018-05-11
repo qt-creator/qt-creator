@@ -76,9 +76,6 @@ bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     ToolChainManager::registerLanguage(Constants::C_NIMLANGUAGE_ID, Constants::C_NIMLANGUAGE_NAME);
 
-    RunControl::registerWorker<NimRunConfiguration, SimpleTargetRunner>
-            (ProjectExplorer::Constants::NORMAL_RUN_MODE);
-
     TextEditor::SnippetProvider::registerGroup(Constants::C_NIMSNIPPETSGROUP_ID,
                                                tr("Nim", "SnippetProvider"),
                                                &NimEditorFactory::decorateEditor);

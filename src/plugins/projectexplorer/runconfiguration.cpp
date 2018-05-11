@@ -520,6 +520,8 @@ RunConfigurationFactory::RunConfigurationFactory()
 RunConfigurationFactory::~RunConfigurationFactory()
 {
     g_runConfigurationFactories.removeOne(this);
+    qDeleteAll(m_ownedRunWorkerFactories);
+    m_ownedRunWorkerFactories.clear();
 }
 
 QString RunConfigurationFactory::decoratedTargetName(const QString targetName, Target *target)
@@ -584,6 +586,16 @@ void RunConfigurationFactory::addSupportedTargetDeviceType(Core::Id id)
 void RunConfigurationFactory::setDecorateDisplayNames(bool on)
 {
     m_decorateDisplayNames = on;
+}
+
+RunWorkerFactory *RunConfigurationFactory::addRunWorkerFactoryHelper
+    (Core::Id runMode, const std::function<RunWorker *(RunControl *)> &creator)
+{
+    auto factory = new RunWorkerFactory;
+    factory->addConstraint(m_ownTypeChecker);
+    factory->addSupportedRunMode(runMode);
+    factory->setProducer(creator);
+    return factory;
 }
 
 void RunConfigurationFactory::addSupportedProjectType(Core::Id id)

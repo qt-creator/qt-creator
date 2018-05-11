@@ -59,6 +59,7 @@ class RunConfiguration;
 class RunConfigurationCreationInfo;
 class RunConfigWidget;
 class RunControl;
+class RunWorkerFactory;
 class Target;
 
 namespace Internal {
@@ -301,13 +302,25 @@ protected:
             return new RunConfig(t, runConfigBaseId);
         };
         m_runConfigBaseId = runConfigBaseId;
+        m_ownTypeChecker = [](RunConfiguration *runConfig) {
+            return qobject_cast<RunConfig *>(runConfig) != nullptr;
+        };
     }
 
     void addSupportedProjectType(Core::Id id);
     void addSupportedTargetDeviceType(Core::Id id);
     void setDecorateDisplayNames(bool on);
 
+    template<class Worker>
+    RunWorkerFactory *addRunWorkerFactory(Core::Id runMode)
+    {
+        return addRunWorkerFactoryHelper(runMode, [](RunControl *rc) { return new Worker(rc); });
+    }
+
 private:
+    RunWorkerFactory *addRunWorkerFactoryHelper
+        (Core::Id runMode, const std::function<RunWorker *(RunControl *)> &creator);
+
     RunConfigurationFactory(const RunConfigurationFactory &) = delete;
     RunConfigurationFactory operator=(const RunConfigurationFactory &) = delete;
 
@@ -319,6 +332,8 @@ private:
     QList<Core::Id> m_supportedProjectTypes;
     QList<Core::Id> m_supportedTargetDeviceTypes;
     bool m_decorateDisplayNames = false;
+    QList<RunWorkerFactory *> m_ownedRunWorkerFactories;
+    std::function<bool(RunConfiguration *)> m_ownTypeChecker;
 };
 
 class PROJECTEXPLORER_EXPORT FixedRunConfigurationFactory : public RunConfigurationFactory
@@ -419,14 +434,6 @@ public:
     void registerRunWorker()
     {
         m_producer = [](RunControl *rc) { return new Worker(rc); };
-    }
-
-    template <class RunConfig>
-    void setSupportedRunConfiguration()
-    {
-        m_constraints.append([](RunConfiguration *runConfig) {
-            return qobject_cast<RunConfig *>(runConfig) != nullptr;
-        });
     }
 
     bool canRun(RunConfiguration *runConfiguration, Core::Id runMode) const;
@@ -534,15 +541,6 @@ public:
         factory->registerRunWorker<Worker>();
         factory->addSupportedRunMode(runMode);
         factory->addConstraint(constraint);
-        factory->setPriority(priority);
-    }
-    template <class Config, class Worker>
-    static void registerWorker(Core::Id runMode, int priority = 0)
-    {
-        auto factory = new RunWorkerFactory;
-        factory->registerRunWorker<Worker>();
-        factory->addSupportedRunMode(runMode);
-        factory->setSupportedRunConfiguration<Config>();
         factory->setPriority(priority);
     }
 
