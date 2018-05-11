@@ -228,14 +228,6 @@ void MemoryUsageModelTest::testRelativeHeight()
         QCOMPARE(model.relativeHeight(i), heights[i]);
 }
 
-void MemoryUsageModelTest::testAccepted()
-{
-    QVERIFY(!model.accepted(QmlEventType()));
-    QVERIFY(!model.accepted(QmlEventType(MaximumMessage, MaximumRangeType, HeapPage)));
-    QVERIFY(model.accepted(QmlEventType(MemoryAllocation, MaximumRangeType, HeapPage)));
-    QVERIFY(model.accepted(QmlEventType(MaximumMessage, Javascript)));
-}
-
 void MemoryUsageModelTest::cleanupTestCase()
 {
     manager.clearAll();

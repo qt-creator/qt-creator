@@ -141,12 +141,6 @@ QVariantMap MemoryUsageModel::details(int index) const
     return result;
 }
 
-bool MemoryUsageModel::accepted(const QmlEventType &type) const
-{
-    return QmlProfilerTimelineModel::accepted(type)
-            || (type.rangeType() != MaximumRangeType && type.rangeType() != Compiling);
-}
-
 void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
     if (type.message() != MemoryAllocation) {

@@ -50,7 +50,6 @@ public:
     Message message() const;
     ProfileFeature mainFeature() const;
 
-    virtual bool accepted(const QmlEventType &type) const;
     bool handlesTypeId(int typeId) const override;
 
     QVariantMap locationFromTypeId(int index) const;

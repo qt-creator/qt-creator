@@ -63,15 +63,6 @@ void InputEventsModelTest::initTestCase()
     manager.finalize();
 }
 
-void InputEventsModelTest::testAccepted()
-{
-    QVERIFY(!model.accepted(QmlEventType()));
-    QVERIFY(!model.accepted(QmlEventType(Event)));
-    QVERIFY(!model.accepted(QmlEventType(Event, MaximumRangeType)));
-    QVERIFY(model.accepted(QmlEventType(Event, MaximumRangeType, Key)));
-    QVERIFY(model.accepted(QmlEventType(Event, MaximumRangeType, Mouse)));
-}
-
 void InputEventsModelTest::testTypeId()
 {
     for (int i = 0; i < 10; ++i) {

@@ -65,17 +65,12 @@ ProfileFeature QmlProfilerTimelineModel::mainFeature() const
     return m_mainFeature;
 }
 
-bool QmlProfilerTimelineModel::accepted(const QmlEventType &type) const
-{
-    return (type.rangeType() == m_rangeType && type.message() == m_message);
-}
-
 bool QmlProfilerTimelineModel::handlesTypeId(int typeIndex) const
 {
     if (typeIndex < 0)
         return false;
 
-    return accepted(modelManager()->eventType(typeIndex));
+    return modelManager()->eventType(typeIndex).feature() == m_mainFeature;
 }
 
 QmlProfilerModelManager *QmlProfilerTimelineModel::modelManager() const

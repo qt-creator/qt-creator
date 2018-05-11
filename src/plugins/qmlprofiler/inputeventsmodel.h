@@ -44,7 +44,6 @@ public:
 
     InputEventsModel(QmlProfilerModelManager *manager, Timeline::TimelineModelAggregator *parent);
 
-    bool accepted(const QmlEventType &type) const override;
     void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
     void finalize() override;
     void clear() override;
