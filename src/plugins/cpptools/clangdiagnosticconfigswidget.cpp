@@ -246,7 +246,7 @@ void ClangDiagnosticConfigsWidget::syncConfigChooserToModel(const Core::Id &conf
 {
     disconnectConfigChooserCurrentIndex();
 
-    m_ui->configChooserComboBox->clear();
+    m_ui->configChooserList->clear();
     m_selectedConfigIndex = std::max(std::min(m_selectedConfigIndex,
                                               m_diagnosticConfigsModel.size() - 1),
                                      0);
@@ -256,7 +256,7 @@ void ClangDiagnosticConfigsWidget::syncConfigChooserToModel(const Core::Id &conf
         const ClangDiagnosticConfig &config = m_diagnosticConfigsModel.at(i);
         const QString displayName
                 = ClangDiagnosticConfigsModel::displayNameWithBuiltinIndication(config);
-        m_ui->configChooserComboBox->addItem(displayName, config.id().toSetting());
+        m_ui->configChooserList->addItem(displayName);
 
         if (configToSelect == config.id())
             m_selectedConfigIndex = i;
@@ -264,7 +264,7 @@ void ClangDiagnosticConfigsWidget::syncConfigChooserToModel(const Core::Id &conf
 
     connectConfigChooserCurrentIndex();
 
-    m_ui->configChooserComboBox->setCurrentIndex(m_selectedConfigIndex);
+    m_ui->configChooserList->setCurrentRow(m_selectedConfigIndex);
 }
 
 void ClangDiagnosticConfigsWidget::syncOtherWidgetsToComboBox()
@@ -372,7 +372,7 @@ void ClangDiagnosticConfigsWidget::updateConfig(const ClangDiagnosticConfig &con
 
 bool ClangDiagnosticConfigsWidget::isConfigChooserEmpty() const
 {
-    return m_ui->configChooserComboBox->count() == 0;
+    return m_ui->configChooserList->count() == 0;
 }
 
 void ClangDiagnosticConfigsWidget::setDiagnosticOptions(const QString &options)
@@ -441,17 +441,13 @@ void ClangDiagnosticConfigsWidget::connectClazyRadioButtonClicked(QRadioButton *
 
 void ClangDiagnosticConfigsWidget::connectConfigChooserCurrentIndex()
 {
-    connect(m_ui->configChooserComboBox,
-            static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this,
+    connect(m_ui->configChooserList, &QListWidget::currentRowChanged, this,
             &ClangDiagnosticConfigsWidget::onCurrentConfigChanged);
 }
 
 void ClangDiagnosticConfigsWidget::disconnectConfigChooserCurrentIndex()
 {
-    disconnect(m_ui->configChooserComboBox,
-               static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-               this,
+    disconnect(m_ui->configChooserList, &QListWidget::currentRowChanged, this,
                &ClangDiagnosticConfigsWidget::onCurrentConfigChanged);
 }
 
