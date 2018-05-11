@@ -683,17 +683,18 @@ FixedRunConfigurationFactory::availableCreators(Target *parent) const
 
 // RunWorkerFactory
 
-using RunWorkerFactories = std::vector<RunWorkerFactory>;
-
-static RunWorkerFactories &theWorkerFactories()
-{
-    static RunWorkerFactories factories;
-    return factories;
-}
+static QList<RunWorkerFactory *> g_runWorkerFactories;
 
 RunWorkerFactory::RunWorkerFactory(Core::Id mode, Constraint constr, const WorkerCreator &prod, int prio)
     : m_runMode(mode), m_constraint(constr), m_producer(prod), m_priority(prio)
-{}
+{
+    g_runWorkerFactories.append(this);
+}
+
+RunWorkerFactory::~RunWorkerFactory()
+{
+    g_runWorkerFactories.removeOne(this);
+}
 
 bool RunWorkerFactory::canRun(RunConfiguration *runConfiguration, Core::Id runMode) const
 {
@@ -704,7 +705,10 @@ bool RunWorkerFactory::canRun(RunConfiguration *runConfiguration, Core::Id runMo
     return m_constraint(runConfiguration);
 }
 
-
+void RunWorkerFactory::destroyRemainingRunWorkerFactories()
+{
+    qDeleteAll(g_runWorkerFactories);
+}
 
 /*!
     \class ProjectExplorer::RunControl
@@ -1003,7 +1007,7 @@ RunWorker *RunControl::createWorker(Core::Id id)
 RunWorkerFactory::WorkerCreator RunControl::producer(RunConfiguration *runConfig, Core::Id runMode)
 {
     const auto canRun = std::bind(&RunWorkerFactory::canRun, std::placeholders::_1, runConfig, runMode);
-    const RunWorkerFactories candidates = Utils::filtered(theWorkerFactories(), canRun);
+    const QList<RunWorkerFactory *> candidates = Utils::filtered(g_runWorkerFactories, canRun);
 
     if (candidates.empty())
         return {};
@@ -1013,12 +1017,7 @@ RunWorkerFactory::WorkerCreator RunControl::producer(RunConfiguration *runConfig
                                           std::bind(&RunWorkerFactory::priority, std::placeholders::_2));
     const auto bestFactory = std::max_element(candidates.begin(), candidates.end(), higherPriority);
 
-    return bestFactory->producer();
-}
-
-void RunControl::addWorkerFactory(const RunWorkerFactory &workerFactory)
-{
-    theWorkerFactories().push_back(workerFactory);
+    return (*bestFactory)->producer();
 }
 
 void RunControlPrivate::initiateStart()

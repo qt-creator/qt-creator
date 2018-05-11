@@ -524,6 +524,8 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
     delete dd->m_toolChainManager;
     ProjectPanelFactory::destroyFactories();
     delete dd;
+
+    RunWorkerFactory::destroyRemainingRunWorkerFactories();
 }
 
 ProjectExplorerPlugin *ProjectExplorerPlugin::instance()

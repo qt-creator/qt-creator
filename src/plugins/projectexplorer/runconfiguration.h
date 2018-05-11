@@ -456,12 +456,19 @@ public:
     RunWorkerFactory(Core::Id mode, Constraint constr, const WorkerCreator &prod,
                      int prio = 0);
 
+    virtual ~RunWorkerFactory();
+
     bool canRun(RunConfiguration *runConfiguration, Core::Id m_runMode) const;
 
     int priority() const { return m_priority; }
     WorkerCreator producer() const { return m_producer; }
 
 private:
+    // FIXME: That's temporary until ownership has been transferred to
+    // the individual plugins.
+    friend class ProjectExplorerPlugin;
+    static void destroyRemainingRunWorkerFactories();
+
     Core::Id m_runMode;
     Constraint m_constraint;
     WorkerCreator m_producer;
@@ -539,20 +546,20 @@ public:
     static void registerWorker(Core::Id runMode, const WorkerCreator &producer,
                                const Constraint &constraint = {})
     {
-        addWorkerFactory({runMode, constraint, producer});
+        (void) new RunWorkerFactory(runMode, constraint, producer);
     }
     template <class Worker>
     static void registerWorker(Core::Id runMode, const Constraint &constraint, int priority = 0)
     {
         auto producer = [](RunControl *rc) { return new Worker(rc); };
-        addWorkerFactory({runMode, constraint, producer, priority});
+        (void) new RunWorkerFactory(runMode, constraint, producer, priority);
     }
     template <class Config, class Worker>
     static void registerWorker(Core::Id runMode, int priority = 0)
     {
         auto constraint = [](RunConfiguration *runConfig) { return qobject_cast<Config *>(runConfig) != nullptr; };
         auto producer = [](RunControl *rc) { return new Worker(rc); };
-        addWorkerFactory({runMode, constraint, producer, priority});
+        (void) new RunWorkerFactory(runMode, constraint, producer, priority);
     }
 
     static WorkerCreator producer(RunConfiguration *runConfiguration, Core::Id runMode);
@@ -570,7 +577,6 @@ private:
     friend class RunWorker;
     friend class Internal::RunWorkerPrivate;
 
-    static void addWorkerFactory(const RunWorkerFactory &workerFactory);
     Internal::RunControlPrivate *d;
 };
 
