@@ -680,22 +680,31 @@ FixedRunConfigurationFactory::availableCreators(Target *parent) const
     return {rci};
 }
 
-using WorkerFactories = std::vector<RunControl::WorkerFactory>;
 
-static WorkerFactories &theWorkerFactories()
+// RunWorkerFactory
+
+using RunWorkerFactories = std::vector<RunWorkerFactory>;
+
+static RunWorkerFactories &theWorkerFactories()
 {
-    static WorkerFactories factories;
+    static RunWorkerFactories factories;
     return factories;
 }
 
-bool RunControl::WorkerFactory::canRun(RunConfiguration *runConfiguration, Core::Id runMode) const
+RunWorkerFactory::RunWorkerFactory(Core::Id mode, Constraint constr, const WorkerCreator &prod, int prio)
+    : m_runMode(mode), m_constraint(constr), m_producer(prod), m_priority(prio)
+{}
+
+bool RunWorkerFactory::canRun(RunConfiguration *runConfiguration, Core::Id runMode) const
 {
-    if (runMode != this->runMode)
+    if (runMode != this->m_runMode)
         return false;
-    if (!constraint)
+    if (!m_constraint)
         return true;
-    return constraint(runConfiguration);
+    return m_constraint(runConfiguration);
 }
+
+
 
 /*!
     \class ProjectExplorer::RunControl
@@ -885,7 +894,7 @@ public:
     QPointer<Project> project; // Not owned.
     QPointer<Utils::OutputFormatter> outputFormatter = nullptr;
     std::function<bool(bool*)> promptToStop;
-    std::vector<RunControl::WorkerFactory> m_factories;
+    std::vector<RunWorkerFactory> m_factories;
 
     // A handle to the actual application process.
     Utils::ProcessHandle applicationProcessHandle;
@@ -991,27 +1000,23 @@ RunWorker *RunControl::createWorker(Core::Id id)
     return nullptr;
 }
 
-RunControl::WorkerCreator RunControl::producer(RunConfiguration *runConfiguration, Core::Id runMode)
+RunWorkerFactory::WorkerCreator RunControl::producer(RunConfiguration *runConfig, Core::Id runMode)
 {
-    WorkerFactories candidates;
-    for (const RunControl::WorkerFactory &factory : theWorkerFactories()) {
-        if (factory.canRun(runConfiguration, runMode))
-            candidates.push_back(factory);
-    }
+    const auto canRun = std::bind(&RunWorkerFactory::canRun, std::placeholders::_1, runConfig, runMode);
+    const RunWorkerFactories candidates = Utils::filtered(theWorkerFactories(), canRun);
 
     if (candidates.empty())
         return {};
 
-    RunControl::WorkerFactory bestFactory = *candidates.begin();
-    for (const RunControl::WorkerFactory &factory : candidates) {
-        if (factory.priority > bestFactory.priority)
-            bestFactory = factory;
-    }
+    const auto higherPriority = std::bind(std::greater<int>(),
+                                          std::bind(&RunWorkerFactory::priority, std::placeholders::_1),
+                                          std::bind(&RunWorkerFactory::priority, std::placeholders::_2));
+    const auto bestFactory = std::max_element(candidates.begin(), candidates.end(), higherPriority);
 
-    return bestFactory.producer;
+    return bestFactory->producer();
 }
 
-void RunControl::addWorkerFactory(const RunControl::WorkerFactory &workerFactory)
+void RunControl::addWorkerFactory(const RunWorkerFactory &workerFactory)
 {
     theWorkerFactories().push_back(workerFactory);
 }
