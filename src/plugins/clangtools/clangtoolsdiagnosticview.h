@@ -41,6 +41,7 @@ private:
     void suppressCurrentDiagnostic();
 
     QList<QAction *> customActions() const;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
     QAction *m_suppressAction;
 };

@@ -46,6 +46,7 @@ DiagnosticView::DiagnosticView(QWidget *parent)
     m_suppressAction = new QAction(tr("Suppress This Diagnostic"), this);
     connect(m_suppressAction, &QAction::triggered,
             this, &DiagnosticView::suppressCurrentDiagnostic);
+    installEventFilter(this);
 }
 
 void DiagnosticView::suppressCurrentDiagnostic()
@@ -78,6 +79,28 @@ void DiagnosticView::suppressCurrentDiagnostic()
 QList<QAction *> DiagnosticView::customActions() const
 {
     return QList<QAction *>() << m_suppressAction;
+}
+
+bool DiagnosticView::eventFilter(QObject *watched, QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::KeyRelease: {
+        const int key = static_cast<QKeyEvent *>(event)->key();
+        switch (key) {
+        case Qt::Key_Return:
+        case Qt::Key_Enter:
+        case Qt::Key_Space:
+            const QModelIndex current = currentIndex();
+            const QModelIndex location = model()->index(current.row(),
+                                                        LocationColumn,
+                                                        current.parent());
+            emit clicked(location);
+        }
+        return true;
+    }
+    default:
+        return QObject::eventFilter(watched, event);
+    }
 }
 
 } // namespace Internal
