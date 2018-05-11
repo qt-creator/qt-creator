@@ -57,7 +57,7 @@ HEADERS += \
 
 FORMS += \
     clangtoolsprojectsettingswidget.ui \
-    clangtoolsconfigwidget.ui
+    clangtoolsconfigwidget.ui \
     clangselectablefilesdialog.ui
 
 equals(TEST, 1) {
