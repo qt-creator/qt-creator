@@ -97,6 +97,8 @@ QStringList ClangTidyClazyRunner::constructCommandLineArguments(const QStringLis
     const QString clazyChecks = config.clazyChecks();
     if (!clazyChecks.isEmpty()) {
         addXclangArg(arguments, QString("-add-plugin"), QString("clang-lazy"));
+        addXclangArg(arguments, QString("-plugin-arg-clang-lazy"), QString("enable-all-fixits"));
+        addXclangArg(arguments, QString("-plugin-arg-clang-lazy"), QString("no-autowrite-fixits"));
         addXclangArg(arguments, QString("-plugin-arg-clang-lazy"), config.clazyChecks());
     }
 
