@@ -176,14 +176,17 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep) :
         item->setCheckState(m_makeStep->buildsTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
     }
 
-    m_ui->makeLineEdit->setText(m_makeStep->makeCommand());
+    m_ui->makeLineEdit->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_ui->makeLineEdit->setBaseDirectory(Utils::PathChooser::homePath());
+    m_ui->makeLineEdit->setHistoryCompleter("PE.MakeCommand.History");
+    m_ui->makeLineEdit->setPath(m_makeStep->makeCommand());
     m_ui->makeArgumentsLineEdit->setText(m_makeStep->userArguments());
     updateMakeOverrideLabel();
     updateDetails();
 
     connect(m_ui->targetsList, &QListWidget::itemChanged,
             this, &MakeStepConfigWidget::itemChanged);
-    connect(m_ui->makeLineEdit, &QLineEdit::textEdited,
+    connect(m_ui->makeLineEdit, &Utils::PathChooser::rawPathChanged,
             this, &MakeStepConfigWidget::makeLineEditTextEdited);
     connect(m_ui->makeArgumentsLineEdit, &QLineEdit::textEdited,
             this, &MakeStepConfigWidget::makeArgumentsLineEditTextEdited);
@@ -266,7 +269,7 @@ void MakeStepConfigWidget::itemChanged(QListWidgetItem *item)
 
 void MakeStepConfigWidget::makeLineEditTextEdited()
 {
-    m_makeStep->setMakeCommand(m_ui->makeLineEdit->text());
+    m_makeStep->setMakeCommand(m_ui->makeLineEdit->rawPath());
     updateDetails();
 }
 
