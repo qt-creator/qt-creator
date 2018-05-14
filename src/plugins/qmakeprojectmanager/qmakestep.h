@@ -120,8 +120,15 @@ public:
     bool immutable() const override;
     void setForced(bool b);
 
+    enum class ArgumentFlag {
+        OmitProjectPath = 0x01,
+        Expand = 0x02
+    };
+    Q_DECLARE_FLAGS(ArgumentFlags, ArgumentFlag);
+
     // the complete argument line
-    QString allArguments(const QtSupport::BaseQtVersion *v, bool shorted = false) const;
+    QString allArguments(const QtSupport::BaseQtVersion *v,
+                         ArgumentFlags flags = ArgumentFlags()) const;
     QMakeStepConfig deducedArguments() const;
     // arguments passed to the pro file parser
     QStringList parserArguments();
@@ -231,3 +238,5 @@ private:
 };
 
 } // namespace QmakeProjectManager
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QmakeProjectManager::QMakeStep::ArgumentFlags);
