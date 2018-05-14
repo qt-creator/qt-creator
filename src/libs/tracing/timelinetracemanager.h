@@ -26,7 +26,6 @@
 #pragma once
 
 #include "tracing_global.h"
-#include "timelinenotesmodel.h"
 #include "traceevent.h"
 #include "traceeventtype.h"
 
@@ -60,6 +59,7 @@ public:
     virtual bool replay(const std::function<bool(TraceEvent &&)> &receiver) const = 0;
 };
 
+class TimelineNotesModel;
 class TimelineTraceFile;
 class TRACING_EXPORT TimelineTraceManager : public QObject
 {

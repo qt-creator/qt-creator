@@ -25,10 +25,12 @@
 
 #pragma once
 
-#include "timelinemodel.h"
+#include "tracing_global.h"
+#include <QObject>
 
 namespace Timeline {
 
+class TimelineModel;
 class TRACING_EXPORT TimelineNotesModel : public QObject
 {
     Q_OBJECT

@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "timelinenotesmodel.h"
 #include "timelinetracemanager.h"
 #include "timelinetracefile.h"
 
