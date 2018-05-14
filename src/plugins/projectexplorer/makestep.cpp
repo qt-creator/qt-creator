@@ -115,17 +115,17 @@ QString MakeStep::makeCommand() const
     return m_makeCommand;
 }
 
-QString MakeStep::makeCommand(const Utils::Environment &environment) const
+QString MakeStep::effectiveMakeCommand() const
 {
-    QString command = m_makeCommand;
-    if (command.isEmpty()) {
-        ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-        if (tc)
-            command = tc->makeCommand(environment);
-        else
-            command = "make";
-    }
-    return command;
+    if (!m_makeCommand.isEmpty())
+        return m_makeCommand;
+    BuildConfiguration *bc = buildConfiguration();
+    if (!bc)
+        bc = target()->activeBuildConfiguration();
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    if (bc && tc)
+        return tc->makeCommand(bc->environment());
+    return QString();
 }
 
 BuildStepConfigWidget *MakeStep::createConfigWidget()
@@ -227,8 +227,14 @@ void MakeStepConfigWidget::updateMakeOverrideLabel()
     BuildConfiguration *bc = m_makeStep->buildConfiguration();
     if (!bc)
         bc = m_makeStep->target()->activeBuildConfiguration();
-
-    m_ui->makeLabel->setText(tr("Override %1:").arg(QDir::toNativeSeparators(m_makeStep->makeCommand(bc->environment()))));
+    ToolChain *tc = ToolChainKitInformation::toolChain(m_makeStep->target()->kit(),
+                                                       ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    if (bc && tc) {
+        m_ui->makeLabel->setText(
+            tr("Override %1:").arg(QDir::toNativeSeparators(tc->makeCommand(bc->environment()))));
+    } else {
+        m_ui->makeLabel->setText(tr("Make:"));
+    }
 }
 
 void MakeStepConfigWidget::updateDetails()
@@ -241,7 +247,7 @@ void MakeStepConfigWidget::updateDetails()
     param.setMacroExpander(bc->macroExpander());
     param.setWorkingDirectory(bc->buildDirectory().toString());
     param.setEnvironment(bc->environment());
-    param.setCommand(m_makeStep->makeCommand(bc->environment()));
+    param.setCommand(m_makeStep->effectiveMakeCommand());
     param.setArguments(m_makeStep->allArguments());
     m_summaryText = param.summary(displayName());
     emit updateSummary();

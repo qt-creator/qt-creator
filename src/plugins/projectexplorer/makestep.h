@@ -56,7 +56,7 @@ public:
     void setUserArguments(const QString &args);
     QString makeCommand() const;
     void setMakeCommand(const QString &command);
-    QString makeCommand(const Utils::Environment &environment) const;
+    QString effectiveMakeCommand() const;
 
     void setClean(bool clean);
     bool isClean() const;

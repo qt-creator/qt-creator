@@ -71,7 +71,7 @@ bool GenericMakeStep::init(QList<const BuildStep *> &earlierSteps)
     Utils::Environment env = bc->environment();
     Utils::Environment::setupEnglishOutput(&env);
     pp->setEnvironment(env);
-    pp->setCommand(makeCommand(bc->environment()));
+    pp->setCommand(effectiveMakeCommand());
     pp->setArguments(allArguments());
     pp->resolveAll();
 
