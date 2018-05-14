@@ -118,13 +118,11 @@ public:
     BuildStepCreator creator;
 };
 
-class PROJECTEXPLORER_EXPORT BuildStepFactory : public QObject
+class PROJECTEXPLORER_EXPORT BuildStepFactory
 {
-    Q_OBJECT
-
 public:
     BuildStepFactory();
-    ~BuildStepFactory() override;
+    virtual ~BuildStepFactory();
 
     static const QList<BuildStepFactory *> allBuildStepFactories();
 
@@ -133,9 +131,12 @@ public:
     BuildStep *create(BuildStepList *parent, Core::Id id);
     BuildStep *restore(BuildStepList *parent, const QVariantMap &map);
 
-    virtual bool canHandle(BuildStepList *bsl) const;
+    bool canHandle(BuildStepList *bsl) const;
 
 protected:
+    BuildStepFactory(const BuildStepFactory &) = delete;
+    BuildStepFactory &operator=(const BuildStepFactory &) = delete;
+
     using BuildStepCreator = std::function<BuildStep *(BuildStepList *)>;
 
     template <class BuildStepType>

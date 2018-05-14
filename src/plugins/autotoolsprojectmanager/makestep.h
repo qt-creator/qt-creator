@@ -37,8 +37,6 @@ namespace Internal {
 ///////////////////////////
 class MakeStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
     MakeStepFactory();
 };

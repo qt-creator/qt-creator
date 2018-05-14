@@ -555,7 +555,7 @@ QString CMakeBuildStepConfigWidget::summaryText() const
 CMakeBuildStepFactory::CMakeBuildStepFactory()
 {
     registerStep<CMakeBuildStep>(Constants::CMAKE_BUILD_STEP_ID);
-    setDisplayName(tr("Build", "Display name for CMakeProjectManager::CMakeBuildStep id."));
+    setDisplayName(CMakeBuildStep::tr("Build", "Display name for CMakeProjectManager::CMakeBuildStep id."));
     setSupportedProjectType(Constants::CMAKEPROJECT_ID);
 }
 

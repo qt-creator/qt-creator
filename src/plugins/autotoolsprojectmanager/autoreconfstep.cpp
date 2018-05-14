@@ -55,7 +55,7 @@ const char AUTORECONF_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.Auto
 AutoreconfStepFactory::AutoreconfStepFactory()
 {
     registerStep<AutoreconfStep>(AUTORECONF_STEP_ID);
-    setDisplayName(tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id."));
+    setDisplayName(AutoreconfStep::tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id."));
     setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
 }

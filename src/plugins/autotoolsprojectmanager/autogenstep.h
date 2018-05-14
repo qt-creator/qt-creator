@@ -50,8 +50,6 @@ class AutogenStepConfigWidget;
  */
 class AutogenStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
     AutogenStepFactory();
 };

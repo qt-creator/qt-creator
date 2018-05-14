@@ -33,8 +33,6 @@ namespace Internal {
 
 class ProcessStepFactory : public BuildStepFactory
 {
-    Q_OBJECT
-
 public:
     ProcessStepFactory();
 };

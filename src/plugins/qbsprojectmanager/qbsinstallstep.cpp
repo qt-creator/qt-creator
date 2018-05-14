@@ -338,7 +338,7 @@ QbsInstallStepFactory::QbsInstallStepFactory()
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     setSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     setSupportedProjectType(Constants::PROJECT_ID);
-    setDisplayName(tr("Qbs Install"));
+    setDisplayName(QbsInstallStep::tr("Qbs Install"));
 }
 
 } // namespace Internal

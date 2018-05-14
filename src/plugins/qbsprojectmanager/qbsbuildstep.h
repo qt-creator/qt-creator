@@ -143,8 +143,6 @@ private:
 
 class QbsBuildStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
     QbsBuildStepFactory();
 };

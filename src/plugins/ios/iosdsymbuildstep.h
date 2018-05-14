@@ -90,7 +90,6 @@ private:
 
 class IosDsymBuildStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
 public:
     explicit IosDsymBuildStepFactory();
 };

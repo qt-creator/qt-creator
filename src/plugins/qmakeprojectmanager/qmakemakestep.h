@@ -37,8 +37,6 @@ namespace Internal {
 
 class QmakeMakeStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
     QmakeMakeStepFactory();
 };

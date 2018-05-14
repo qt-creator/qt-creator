@@ -56,7 +56,7 @@ const char AUTOGEN_STEP_ID[] = "AutotoolsProjectManager.AutogenStep";
 AutogenStepFactory::AutogenStepFactory()
 {
     registerStep<AutogenStep>(AUTOGEN_STEP_ID);
-    setDisplayName(tr("Autogen", "Display name for AutotoolsProjectManager::AutogenStep id."));
+    setDisplayName(AutogenStep::tr("Autogen", "Display name for AutotoolsProjectManager::AutogenStep id."));
     setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
 }

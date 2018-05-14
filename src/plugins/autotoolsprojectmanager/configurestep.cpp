@@ -70,7 +70,7 @@ static QString projectDirRelativeToBuildDir(BuildConfiguration *bc) {
 ConfigureStepFactory::ConfigureStepFactory()
 {
     registerStep<ConfigureStep>(CONFIGURE_STEP_ID);
-    setDisplayName(tr("Configure", "Display name for AutotoolsProjectManager::ConfigureStep id."));
+    setDisplayName(ConfigureStep::tr("Configure", "Display name for AutotoolsProjectManager::ConfigureStep id."));
     setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
 }

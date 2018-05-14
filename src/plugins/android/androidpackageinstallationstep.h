@@ -68,8 +68,6 @@ private:
 
 class AndroidPackageInstallationFactory: public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
     AndroidPackageInstallationFactory();
 };

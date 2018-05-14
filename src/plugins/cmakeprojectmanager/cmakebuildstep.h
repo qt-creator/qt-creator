@@ -138,8 +138,6 @@ private:
 
 class CMakeBuildStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
     CMakeBuildStepFactory();
 };

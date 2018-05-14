@@ -832,7 +832,7 @@ bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QS
 QbsBuildStepFactory::QbsBuildStepFactory()
 {
     registerStep<QbsBuildStep>(Constants::QBS_BUILDSTEP_ID);
-    setDisplayName(tr("Qbs Build"));
+    setDisplayName(QbsBuildStep::tr("Qbs Build"));
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     setSupportedConfiguration(Constants::QBS_BC_ID);
     setSupportedProjectType(Constants::PROJECT_ID);

@@ -49,8 +49,6 @@ class ConfigureStepConfigWidget;
  */
 class ConfigureStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
     ConfigureStepFactory();
 };

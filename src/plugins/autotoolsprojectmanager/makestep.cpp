@@ -56,7 +56,6 @@ MakeStepFactory::MakeStepFactory()
         }
     };
 
-    setObjectName("Autotools::MakeStepFactory");
     registerStep<Step>(MAKE_STEP_ID);
     setDisplayName(ProjectExplorer::MakeStep::defaultDisplayName());
     setSupportedProjectType(AUTOTOOLS_PROJECT_ID);

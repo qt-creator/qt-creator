@@ -33,8 +33,6 @@ namespace Internal {
 
 class QmakeAndroidBuildApkStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
     QmakeAndroidBuildApkStepFactory();
 };

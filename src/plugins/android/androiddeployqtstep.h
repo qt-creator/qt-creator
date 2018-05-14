@@ -43,7 +43,6 @@ namespace Internal {
 
 class AndroidDeployQtStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
 public:
     AndroidDeployQtStepFactory();
 };

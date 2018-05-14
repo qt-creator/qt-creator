@@ -44,7 +44,6 @@ namespace QtSupport { class BaseQtVersion; }
 
 namespace QmakeProjectManager {
 class QmakeBuildConfiguration;
-class QmakeProject;
 
 namespace Internal {
 
@@ -52,8 +51,6 @@ namespace Ui { class QMakeStep; }
 
 class QMakeStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
     QMakeStepFactory();
 };

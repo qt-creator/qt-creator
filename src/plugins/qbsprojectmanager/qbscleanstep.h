@@ -114,8 +114,6 @@ private:
 
 class QbsCleanStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
     QbsCleanStepFactory();
 };

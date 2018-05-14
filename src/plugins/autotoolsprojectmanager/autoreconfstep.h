@@ -49,8 +49,6 @@ class AutoreconfStep;
  */
 class AutoreconfStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
     AutoreconfStepFactory();
 };

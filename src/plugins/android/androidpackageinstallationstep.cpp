@@ -155,7 +155,7 @@ AndroidPackageInstallationFactory::AndroidPackageInstallationFactory()
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     setSupportedDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
     setRepeatable(false);
-    setDisplayName(tr("Deploy to device"));
+    setDisplayName(AndroidPackageInstallationStep::tr("Deploy to device"));
 }
 
 } // namespace Internal

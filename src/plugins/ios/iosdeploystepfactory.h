@@ -32,8 +32,6 @@ namespace Internal {
 
 class IosDeployStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
     IosDeployStepFactory();
 };
