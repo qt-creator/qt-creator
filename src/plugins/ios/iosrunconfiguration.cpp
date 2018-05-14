@@ -108,8 +108,17 @@ IosRunConfiguration::IosRunConfiguration(Target *target, Core::Id id)
 
 void IosRunConfiguration::deviceChanges()
 {
+    updateDeviceType();
     updateDisplayNames();
     updateEnabledState();
+}
+
+void IosRunConfiguration::updateDeviceType()
+{
+    if (DeviceTypeKitInformation::deviceTypeId(target()->kit()) == Constants::IOS_DEVICE_TYPE)
+        m_deviceType = IosDeviceType(IosDeviceType::IosDevice);
+    else if (m_deviceType.type == IosDeviceType::IosDevice)
+        m_deviceType = IosDeviceType(IosDeviceType::SimulatedDevice);
 }
 
 QWidget *IosRunConfiguration::createConfigurationWidget()
@@ -119,10 +128,6 @@ QWidget *IosRunConfiguration::createConfigurationWidget()
 
 void IosRunConfiguration::updateDisplayNames()
 {
-    if (DeviceTypeKitInformation::deviceTypeId(target()->kit()) == Constants::IOS_DEVICE_TYPE)
-        m_deviceType = IosDeviceType(IosDeviceType::IosDevice);
-    else if (m_deviceType.type == IosDeviceType::IosDevice)
-        m_deviceType = IosDeviceType(IosDeviceType::SimulatedDevice);
     IDevice::ConstPtr dev = DeviceKitInformation::device(target()->kit());
     const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
     setDefaultDisplayName(tr("Run on %1").arg(devName));
@@ -235,10 +240,7 @@ bool IosRunConfiguration::fromMap(const QVariantMap &map)
     bool deviceTypeIsInt;
     map.value(deviceTypeKey).toInt(&deviceTypeIsInt);
     if (deviceTypeIsInt || !m_deviceType.fromMap(map.value(deviceTypeKey).toMap())) {
-        if (DeviceTypeKitInformation::deviceTypeId(target()->kit()) == Constants::IOS_DEVICE_TYPE)
-            m_deviceType = IosDeviceType(IosDeviceType::IosDevice);
-        else
-            m_deviceType = IosDeviceType(IosDeviceType::SimulatedDevice);
+        updateDeviceType();
     }
 
     updateDisplayNames();
@@ -330,6 +332,12 @@ IosDeviceType IosRunConfiguration::deviceType() const
 void IosRunConfiguration::setDeviceType(const IosDeviceType &deviceType)
 {
     m_deviceType = deviceType;
+}
+
+void IosRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
+{
+    updateDeviceType();
+    updateDisplayNames();
 }
 
 IosRunConfigurationWidget::IosRunConfigurationWidget(IosRunConfiguration *runConfiguration)

@@ -57,6 +57,7 @@ public:
     IosDeviceType deviceType() const;
     void setDeviceType(const IosDeviceType &deviceType);
 
+    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
@@ -66,6 +67,7 @@ signals:
 private:
     void deviceChanges();
     friend class IosRunConfigurationWidget;
+    void updateDeviceType();
     void updateDisplayNames();
     void updateEnabledState() final;
     bool canRunForNode(const ProjectExplorer::Node *node) const final;
