@@ -35,6 +35,7 @@
 #include "toolchain.h"
 
 #include <coreplugin/id.h>
+#include <coreplugin/variablechooser.h>
 #include <utils/qtcprocess.h>
 
 using namespace Core;
@@ -213,6 +214,8 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep) :
             updateDetails();
         }
     });
+
+    Core::VariableChooser::addSupportForChildWidgets(this, m_makeStep->macroExpander());
 }
 
 MakeStepConfigWidget::~MakeStepConfigWidget()
