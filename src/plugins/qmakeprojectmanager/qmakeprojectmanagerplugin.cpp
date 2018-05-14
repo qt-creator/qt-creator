@@ -95,7 +95,7 @@ public:
         qmakeProjectWizard{"qmakeproject", IWizardFactory::ProjectWizard};
 
     QMakeStepFactory qmakeStepFactory;
-    MakeStepFactory makeStepFactory;
+    QmakeMakeStepFactory makeStepFactory;
 
     QmakeBuildConfigurationFactory buildConfigFactory;
     DesktopQmakeRunConfigurationFactory runConfigFactory;

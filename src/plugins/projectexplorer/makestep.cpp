@@ -176,6 +176,10 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep) :
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(m_makeStep->buildsTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
     }
+    if (availableTargets.isEmpty()) {
+        m_ui->targetsLabel->hide();
+        m_ui->targetsList->hide();
+    }
 
     m_ui->makeLineEdit->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui->makeLineEdit->setBaseDirectory(Utils::PathChooser::homePath());

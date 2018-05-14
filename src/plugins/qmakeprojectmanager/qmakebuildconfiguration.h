@@ -36,7 +36,7 @@ namespace QmakeProjectManager {
 
 class QmakeBuildInfo;
 class QMakeStep;
-class MakeStep;
+class QmakeMakeStep;
 class QmakeBuildConfigurationFactory;
 class QmakeProFileNode;
 
@@ -81,7 +81,7 @@ public:
     // QmakeProject *
     // So that we can later enable people to build qmake the way they would like
     QMakeStep *qmakeStep() const;
-    MakeStep *makeStep() const;
+    QmakeMakeStep *makeStep() const;
 
     QString makefile() const;
 

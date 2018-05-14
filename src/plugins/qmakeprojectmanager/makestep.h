@@ -27,88 +27,41 @@
 
 #include "qmakeprojectmanager_global.h"
 
-#include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/makestep.h>
 
 namespace QmakeProjectManager {
 
 class QmakeBuildConfiguration;
-class MakeStepConfigWidget;
 
 namespace Internal {
 
-namespace Ui { class MakeStep; }
-
-class MakeStepFactory : public ProjectExplorer::BuildStepFactory
+class QmakeMakeStepFactory : public ProjectExplorer::BuildStepFactory
 {
     Q_OBJECT
 
 public:
-    MakeStepFactory();
+    QmakeMakeStepFactory();
 };
 
 } //namespace Internal
 
 class QmakeProject;
 
-class QMAKEPROJECTMANAGER_EXPORT MakeStep : public ProjectExplorer::AbstractProcessStep
+class QMAKEPROJECTMANAGER_EXPORT QmakeMakeStep : public ProjectExplorer::MakeStep
 {
     Q_OBJECT
-    friend class Internal::MakeStepFactory;
-    friend class MakeStepConfigWidget;
 
 public:
-    explicit MakeStep(ProjectExplorer::BuildStepList *bsl);
+    explicit QmakeMakeStep(ProjectExplorer::BuildStepList *bsl);
 
     QmakeBuildConfiguration *qmakeBuildConfiguration() const;
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &) override;
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-    bool immutable() const override;
-    QString userArguments();
-    void setUserArguments(const QString &arguments);
-    bool isClean() const;
-    QString makeCommand() const;
-
-    QString effectiveMakeCommand() const;
-
-    QVariantMap toMap() const override;
-
 private:
-    bool fromMap(const QVariantMap &map) override;
-
-    void setMakeCommand(const QString &make);
-    QStringList automaticallyAddedArguments() const;
-    bool m_clean = false;
     bool m_scriptTarget = false;
     QString m_makeFileToCheck;
-    QString m_userArgs;
-    QString m_makeCmd;
-};
-
-class MakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-    Q_OBJECT
-public:
-    explicit MakeStepConfigWidget(MakeStep *makeStep);
-    virtual ~MakeStepConfigWidget();
-
-    QString displayName() const;
-    QString summaryText() const;
-private:
-    // User changes to our widgets
-    void makeEdited();
-    void makeArgumentsLineEdited();
-
-    void updateDetails();
-    void activeBuildConfigurationChanged();
-    void setSummaryText(const QString &text);
-
-    Internal::Ui::MakeStep *m_ui = nullptr;
-    MakeStep *m_makeStep = nullptr;
-    QString m_summaryText;
-    ProjectExplorer::BuildConfiguration *m_bc = nullptr;
 };
 
 } // QmakeProjectManager

@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "makestep.h"
-#include "ui_makestep.h"
 
 #include "qmakeparser.h"
 #include "qmakeproject.h"
@@ -50,88 +49,24 @@ using namespace ProjectExplorer;
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
 
-namespace {
 const char MAKESTEP_BS_ID[] = "Qt4ProjectManager.MakeStep";
-const char MAKE_ARGUMENTS_KEY[] = "Qt4ProjectManager.MakeStep.MakeArguments";
-const char AUTOMATICLY_ADDED_MAKE_ARGUMENTS_KEY[] = "Qt4ProjectManager.MakeStep.AutomaticallyAddedMakeArguments";
-const char MAKE_COMMAND_KEY[] = "Qt4ProjectManager.MakeStep.MakeCommand";
-const char CLEAN_KEY[] = "Qt4ProjectManager.MakeStep.Clean";
-}
 
-MakeStep::MakeStep(BuildStepList *bsl)
-    : AbstractProcessStep(bsl, MAKESTEP_BS_ID)
+QmakeMakeStep::QmakeMakeStep(BuildStepList *bsl)
+    : MakeStep(bsl, MAKESTEP_BS_ID)
 {
     setDefaultDisplayName(tr("Make", "Qt MakeStep display name."));
-    m_clean = bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN;
-    if (m_clean)
-        m_userArgs = "clean";
+    if (bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
+        setClean(true);
+        setUserArguments("clean");
+    }
 }
 
-void MakeStep::setMakeCommand(const QString &make)
-{
-    m_makeCmd = make;
-}
-
-QmakeBuildConfiguration *MakeStep::qmakeBuildConfiguration() const
+QmakeBuildConfiguration *QmakeMakeStep::qmakeBuildConfiguration() const
 {
     return static_cast<QmakeBuildConfiguration *>(buildConfiguration());
 }
 
-QString MakeStep::makeCommand() const
-{
-    return m_makeCmd;
-}
-
-QString MakeStep::effectiveMakeCommand() const
-{
-    QString makeCmd = m_makeCmd;
-    if (makeCmd.isEmpty()) {
-        QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
-        if (!bc)
-            bc = qobject_cast<QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
-        ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-
-        if (bc && tc)
-            makeCmd = tc->makeCommand(bc->environment());
-    }
-    return makeCmd;
-}
-
-QVariantMap MakeStep::toMap() const
-{
-    QVariantMap map(AbstractProcessStep::toMap());
-    map.insert(MAKE_ARGUMENTS_KEY, m_userArgs);
-    map.insert(MAKE_COMMAND_KEY, m_makeCmd);
-    map.insert(CLEAN_KEY, m_clean);
-    map.insert(AUTOMATICLY_ADDED_MAKE_ARGUMENTS_KEY, automaticallyAddedArguments());
-    return map;
-}
-
-QStringList MakeStep::automaticallyAddedArguments() const
-{
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    if (!tc || tc->targetAbi().binaryFormat() == Abi::PEFormat)
-        return QStringList();
-    return QStringList() << "-w" << "-r";
-}
-
-bool MakeStep::fromMap(const QVariantMap &map)
-{
-    m_makeCmd = map.value(MAKE_COMMAND_KEY).toString();
-    m_userArgs = map.value(MAKE_ARGUMENTS_KEY).toString();
-    m_clean = map.value(CLEAN_KEY).toBool();
-    QStringList oldAddedArgs
-            = map.value(AUTOMATICLY_ADDED_MAKE_ARGUMENTS_KEY).toStringList();
-    foreach (const QString &newArg, automaticallyAddedArguments()) {
-        if (oldAddedArgs.contains(newArg))
-            continue;
-        m_userArgs.prepend(newArg + ' ');
-    }
-
-    return AbstractProcessStep::fromMap(map);
-}
-
-bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
+bool QmakeMakeStep::init(QList<const BuildStep *> &earlierSteps)
 {
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     if (!bc)
@@ -163,7 +98,7 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
     // If we are cleaning, then make can fail with a error code, but that doesn't mean
     // we should stop the clean queue
     // That is mostly so that rebuild works on a already clean project
-    setIgnoreReturnValue(m_clean);
+    setIgnoreReturnValue(isClean());
 
     QString args;
 
@@ -197,7 +132,7 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
         }
     }
 
-    Utils::QtcProcess::addArgs(&args, m_userArgs);
+    Utils::QtcProcess::addArgs(&args, userArguments());
     if (bc->fileNodeBuild() && subProFile) {
         QString objectsDir = subProFile->objectsDirectory();
         if (objectsDir.isEmpty()) {
@@ -249,7 +184,7 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
     return AbstractProcessStep::init(earlierSteps);
 }
 
-void MakeStep::run(QFutureInterface<bool> & fi)
+void QmakeMakeStep::run(QFutureInterface<bool> & fi)
 {
     if (m_scriptTarget) {
         reportRunResult(fi, true);
@@ -267,184 +202,13 @@ void MakeStep::run(QFutureInterface<bool> & fi)
     AbstractProcessStep::run(fi);
 }
 
-bool MakeStep::immutable() const
-{
-    return false;
-}
-
-BuildStepConfigWidget *MakeStep::createConfigWidget()
-{
-    return new MakeStepConfigWidget(this);
-}
-
-QString MakeStep::userArguments()
-{
-    return m_userArgs;
-}
-
-void MakeStep::setUserArguments(const QString &arguments)
-{
-    m_userArgs = arguments;
-}
-
-MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
-    : BuildStepConfigWidget(), m_ui(new Internal::Ui::MakeStep), m_makeStep(makeStep)
-{
-    m_ui->setupUi(this);
-
-    m_ui->makePathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_ui->makePathChooser->setBaseDirectory(Utils::PathChooser::homePath());
-    m_ui->makePathChooser->setHistoryCompleter("PE.MakeCommand.History");
-
-    const QString &makeCmd = m_makeStep->makeCommand();
-    m_ui->makePathChooser->setPath(makeCmd);
-    m_ui->makeArgumentsLineEdit->setText(m_makeStep->userArguments());
-
-    updateDetails();
-
-    connect(m_ui->makePathChooser, &Utils::PathChooser::rawPathChanged,
-            this, &MakeStepConfigWidget::makeEdited);
-    connect(m_ui->makeArgumentsLineEdit, &QLineEdit::textEdited,
-            this, &MakeStepConfigWidget::makeArgumentsLineEdited);
-
-    BuildConfiguration *bc = makeStep->buildConfiguration();
-    if (!bc) {
-        // That means the step is in the deploylist, so we listen to the active build config
-        // changed signal and react to the buildDirectoryChanged() signal of the buildconfiguration
-        bc = makeStep->target()->activeBuildConfiguration();
-        m_bc = bc;
-        connect (makeStep->target(), &Target::activeBuildConfigurationChanged,
-                 this, &MakeStepConfigWidget::activeBuildConfigurationChanged);
-    }
-
-    if (bc) {
-        connect(bc, &BuildConfiguration::buildDirectoryChanged,
-                this, &MakeStepConfigWidget::updateDetails);
-        connect(bc, &BuildConfiguration::environmentChanged,
-                this, &MakeStepConfigWidget::updateDetails);
-    }
-
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            this, &MakeStepConfigWidget::updateDetails);
-    connect(m_makeStep->target(), &Target::kitChanged, this, &MakeStepConfigWidget::updateDetails);
-
-    Core::VariableChooser::addSupportForChildWidgets(this, m_makeStep->macroExpander());
-}
-
-void MakeStepConfigWidget::activeBuildConfigurationChanged()
-{
-    if (m_bc) {
-        disconnect(m_bc, &BuildConfiguration::buildDirectoryChanged,
-                this, &MakeStepConfigWidget::updateDetails);
-        disconnect(m_bc, &BuildConfiguration::environmentChanged,
-                   this, &MakeStepConfigWidget::updateDetails);
-    }
-
-    m_bc = m_makeStep->target()->activeBuildConfiguration();
-    updateDetails();
-
-    if (m_bc) {
-        connect(m_bc, &BuildConfiguration::buildDirectoryChanged,
-                this, &MakeStepConfigWidget::updateDetails);
-        connect(m_bc, &BuildConfiguration::environmentChanged,
-                this, &MakeStepConfigWidget::updateDetails);
-    }
-}
-
-void MakeStepConfigWidget::setSummaryText(const QString &text)
-{
-    if (text == m_summaryText)
-        return;
-    m_summaryText = text;
-    emit updateSummary();
-}
-
-MakeStepConfigWidget::~MakeStepConfigWidget()
-{
-    delete m_ui;
-}
-
-void MakeStepConfigWidget::updateDetails()
-{
-    ToolChain *tc
-            = ToolChainKitInformation::toolChain(m_makeStep->target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    QmakeBuildConfiguration *bc = m_makeStep->qmakeBuildConfiguration();
-    if (!bc)
-        bc = qobject_cast<QmakeBuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
-
-    if (tc && bc)
-        m_ui->makeLabel->setText(tr("Override %1:").arg(QDir::toNativeSeparators(tc->makeCommand(bc->environment()))));
-    else
-        m_ui->makeLabel->setText(tr("Make:"));
-
-    if (!tc) {
-        setSummaryText(tr("<b>Make:</b> %1").arg(ProjectExplorer::ToolChainKitInformation::msgNoToolChainInTarget()));
-        return;
-    }
-    if (!bc) {
-        setSummaryText(tr("<b>Make:</b> No Qt build configuration."));
-        return;
-    }
-
-    ProcessParameters param;
-    param.setMacroExpander(bc->macroExpander());
-    param.setWorkingDirectory(bc->buildDirectory().toString());
-    QString makeCmd = tc->makeCommand(bc->environment());
-    if (!m_makeStep->makeCommand().isEmpty())
-        makeCmd = m_makeStep->makeCommand();
-    param.setCommand(makeCmd);
-
-    QString args = m_makeStep->userArguments();
-
-    Utils::Environment env = bc->environment();
-    Utils::Environment::setupEnglishOutput(&env);
-    // We prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
-    // FIXME doing this without the user having a way to override this is rather bad
-    if (tc && m_makeStep->makeCommand().isEmpty()) {
-        if (tc->targetAbi().os() == Abi::WindowsOS
-                && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {
-            const QString makeFlags = "MAKEFLAGS";
-            env.set(makeFlags, 'L' + env.value(makeFlags));
-        }
-    }
-    param.setArguments(args);
-    param.setEnvironment(env);
-
-    if (param.commandMissing())
-        setSummaryText(tr("<b>Make:</b> %1 not found in the environment.").arg(makeCmd)); // Override display text
-    else
-        setSummaryText(param.summaryInWorkdir(displayName()));
-}
-
-QString MakeStepConfigWidget::summaryText() const
-{
-    return m_summaryText;
-}
-
-QString MakeStepConfigWidget::displayName() const
-{
-    return m_makeStep->displayName();
-}
-
-void MakeStepConfigWidget::makeEdited()
-{
-    m_makeStep->setMakeCommand(m_ui->makePathChooser->rawPath());
-    updateDetails();
-}
-
-void MakeStepConfigWidget::makeArgumentsLineEdited()
-{
-    m_makeStep->setUserArguments(m_ui->makeArgumentsLineEdit->text());
-    updateDetails();
-}
-
 ///
-// MakeStepFactory
+// QmakeMakeStepFactory
 ///
 
-MakeStepFactory::MakeStepFactory()
+QmakeMakeStepFactory::QmakeMakeStepFactory()
 {
-    registerStep<MakeStep>(MAKESTEP_BS_ID);
+    registerStep<QmakeMakeStep>(MAKESTEP_BS_ID);
     setSupportedProjectType(Constants::QMAKEPROJECT_ID);
     setDisplayName(tr("Make"));
 }

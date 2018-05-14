@@ -127,10 +127,10 @@ void QmakeBuildConfiguration::initialize(const BuildInfo *info)
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     auto qmakeStep = new QMakeStep(buildSteps);
     buildSteps->appendStep(qmakeStep);
-    buildSteps->appendStep(new MakeStep(buildSteps));
+    buildSteps->appendStep(new QmakeMakeStep(buildSteps));
 
     BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-    cleanSteps->appendStep(new MakeStep(cleanSteps));
+    cleanSteps->appendStep(new QmakeMakeStep(cleanSteps));
 
     const QmakeBuildInfo *qmakeInfo = static_cast<const QmakeBuildInfo *>(info);
     BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
@@ -315,13 +315,13 @@ QMakeStep *QmakeBuildConfiguration::qmakeStep() const
     return 0;
 }
 
-MakeStep *QmakeBuildConfiguration::makeStep() const
+QmakeMakeStep *QmakeBuildConfiguration::makeStep() const
 {
-    MakeStep *ms = 0;
+    QmakeMakeStep *ms = 0;
     BuildStepList *bsl = stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
     Q_ASSERT(bsl);
     for (int i = 0; i < bsl->count(); ++i)
-        if ((ms = qobject_cast<MakeStep *>(bsl->at(i))) != 0)
+        if ((ms = qobject_cast<QmakeMakeStep *>(bsl->at(i))) != 0)
             return ms;
     return 0;
 }

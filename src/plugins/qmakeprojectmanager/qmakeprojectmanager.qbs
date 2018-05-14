@@ -30,7 +30,7 @@ Project {
                 "externaleditors.cpp", "externaleditors.h",
                 "librarydetailscontroller.cpp", "librarydetailscontroller.h",
                 "librarydetailswidget.ui",
-                "makestep.cpp", "makestep.h", "makestep.ui",
+                "makestep.cpp", "makestep.h",
                 "makefileparse.cpp", "makefileparse.h",
                 "profilecompletionassist.cpp", "profilecompletionassist.h",
                 "profileeditor.cpp", "profileeditor.h",

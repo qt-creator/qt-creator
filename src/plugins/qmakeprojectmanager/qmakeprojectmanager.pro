@@ -83,7 +83,7 @@ SOURCES += \
     profilecompletionassist.cpp \
     makefileparse.cpp
 
-FORMS += makestep.ui \
+FORMS += \
     qmakestep.ui \
     qmakeprojectconfigwidget.ui \
     librarydetailswidget.ui
