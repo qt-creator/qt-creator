@@ -285,7 +285,6 @@ QString MakeStep::userArguments()
 void MakeStep::setUserArguments(const QString &arguments)
 {
     m_userArgs = arguments;
-    emit userArgumentsChanged();
 }
 
 MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
@@ -307,9 +306,6 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
             this, &MakeStepConfigWidget::makeEdited);
     connect(m_ui->makeArgumentsLineEdit, &QLineEdit::textEdited,
             this, &MakeStepConfigWidget::makeArgumentsLineEdited);
-
-    connect(makeStep, &MakeStep::userArgumentsChanged,
-            this, &MakeStepConfigWidget::userArgumentsChanged);
 
     BuildConfiguration *bc = makeStep->buildConfiguration();
     if (!bc) {
@@ -430,14 +426,6 @@ QString MakeStepConfigWidget::displayName() const
     return m_makeStep->displayName();
 }
 
-void MakeStepConfigWidget::userArgumentsChanged()
-{
-    if (m_ignoreChange)
-        return;
-    m_ui->makeArgumentsLineEdit->setText(m_makeStep->userArguments());
-    updateDetails();
-}
-
 void MakeStepConfigWidget::makeEdited()
 {
     m_makeStep->setMakeCommand(m_ui->makePathChooser->rawPath());
@@ -446,9 +434,7 @@ void MakeStepConfigWidget::makeEdited()
 
 void MakeStepConfigWidget::makeArgumentsLineEdited()
 {
-    m_ignoreChange = true;
     m_makeStep->setUserArguments(m_ui->makeArgumentsLineEdit->text());
-    m_ignoreChange = false;
     updateDetails();
 }
 

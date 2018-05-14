@@ -75,9 +75,6 @@ public:
 
     QVariantMap toMap() const override;
 
-signals:
-    void userArgumentsChanged();
-
 private:
     bool fromMap(const QVariantMap &map) override;
 
@@ -105,7 +102,6 @@ private:
     void makeArgumentsLineEdited();
 
     void updateDetails();
-    void userArgumentsChanged();
     void activeBuildConfigurationChanged();
     void setSummaryText(const QString &text);
 
@@ -113,7 +109,6 @@ private:
     MakeStep *m_makeStep = nullptr;
     QString m_summaryText;
     ProjectExplorer::BuildConfiguration *m_bc = nullptr;
-    bool m_ignoreChange = false;
 };
 
 } // QmakeProjectManager
