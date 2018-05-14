@@ -31,6 +31,7 @@
 #include <utils/stringutils.h>
 
 #include <QAction>
+#include <QTimer>
 
 namespace Core {
 
@@ -104,8 +105,11 @@ void CommandLocator::accept(LocatorFilterEntry entry,
     const int index = entry.internalData.toInt();
     QTC_ASSERT(index >= 0 && index < d->commands.size(), return);
     QAction *action = d->commands.at(index)->action();
-    QTC_ASSERT(action->isEnabled(), return);
-    action->trigger();
+    // avoid nested stack trace and blocking locator by delayed triggering
+    QTimer::singleShot(0, action, [action] {
+        if (action->isEnabled())
+            action->trigger();
+    });
 }
 
 void CommandLocator::refresh(QFutureInterface<void> &)

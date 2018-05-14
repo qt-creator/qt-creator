@@ -193,6 +193,13 @@ for(dir, QTC_PLUGIN_DIRS) {
     INCLUDEPATH += $$dir
 }
 
+QTC_LIB_DIRS_FROM_ENVIRONMENT = $$(QTC_LIB_DIRS)
+QTC_LIB_DIRS += $$split(QTC_LIB_DIRS_FROM_ENVIRONMENT, $$QMAKE_DIRLIST_SEP)
+QTC_LIB_DIRS += $$IDE_SOURCE_TREE/src/libs
+for(dir, QTC_LIB_DIRS) {
+    INCLUDEPATH += $$dir
+}
+
 CONFIG += \
     depend_includepath \
     no_include_pwd
@@ -276,7 +283,16 @@ for(ever) {
         break()
     done_libs += $$QTC_LIB_DEPENDS
     for(dep, QTC_LIB_DEPENDS) {
-        include($$PWD/src/libs/$$dep/$${dep}_dependencies.pri)
+        dependencies_file =
+        for(dir, QTC_LIB_DIRS) {
+            exists($$dir/$$dep/$${dep}_dependencies.pri) {
+                dependencies_file = $$dir/$$dep/$${dep}_dependencies.pri
+                break()
+            }
+        }
+        isEmpty(dependencies_file): \
+            error("Library dependency $$dep not found")
+        include($$dependencies_file)
         LIBS += -l$$qtLibraryName($$QTC_LIB_NAME)
     }
     QTC_LIB_DEPENDS = $$unique(QTC_LIB_DEPENDS)

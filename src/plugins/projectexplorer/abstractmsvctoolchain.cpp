@@ -133,15 +133,27 @@ ToolChain::CompilerFlags AbstractMsvcToolChain::compilerFlags(const QStringList 
     if (cxxflags.contains(QLatin1String("/Za")))
         flags &= ~MicrosoftExtensions;
 
+    bool cLanguage = (language() == ProjectExplorer::Constants::C_LANGUAGE_ID);
+
     switch (m_abi.osFlavor()) {
     case Abi::WindowsMsvc2010Flavor:
-    case Abi::WindowsMsvc2012Flavor: flags |= StandardCxx11;
+    case Abi::WindowsMsvc2012Flavor:
+        if (cLanguage)
+            flags |= StandardC99;
+        else
+            flags |= StandardCxx11;
         break;
     case Abi::WindowsMsvc2013Flavor:
-    case Abi::WindowsMsvc2015Flavor: flags |= StandardCxx14;
+    case Abi::WindowsMsvc2015Flavor:
+        if (cLanguage)
+            flags |= StandardC99;
+        else
+            flags |= StandardCxx14;
         break;
     case Abi::WindowsMsvc2017Flavor:
-        if (cxxflags.contains("/std:c++17") || cxxflags.contains("/std:c++latest"))
+        if (cLanguage)
+            flags |= StandardC11;
+        else if (cxxflags.contains("/std:c++17") || cxxflags.contains("/std:c++latest"))
             flags |= StandardCxx17;
         else
             flags |= StandardCxx14;

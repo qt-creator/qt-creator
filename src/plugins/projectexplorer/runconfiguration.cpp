@@ -921,6 +921,12 @@ RunControl::RunControl(RunConfiguration *runConfiguration, Core::Id mode) :
 #endif
 }
 
+RunControl::RunControl(const IDevice::ConstPtr &device, Core::Id mode)
+    : RunControl(nullptr, mode)
+{
+    d->device = device;
+}
+
 RunControl::~RunControl()
 {
 #ifdef WITH_JOURNALD

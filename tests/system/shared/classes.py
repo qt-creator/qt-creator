@@ -118,11 +118,6 @@ class ViewConstants:
             return None
         return toolTip % (viewTab + 1)
 
-class QtInformation:
-    QT_VERSION = 0
-    QT_BINPATH = 1
-    QT_LIBPATH = 2
-
 class LibType:
     SHARED = 0
     STATIC = 1
