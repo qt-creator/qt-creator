@@ -27,6 +27,8 @@
 
 #include "clangfileinfo.h"
 
+#include <coreplugin/id.h>
+
 #include <QDialog>
 
 #include <memory>
@@ -60,6 +62,7 @@ private:
     std::unique_ptr<Ui::SelectableFilesDialog> m_ui;
     std::unique_ptr<SelectableFilesModel> m_filesModel;
 
+    Core::Id m_customDiagnosticConfig;
     ProjectExplorer::Project *m_project;
     QPushButton *m_analyzeButton = nullptr;
 };

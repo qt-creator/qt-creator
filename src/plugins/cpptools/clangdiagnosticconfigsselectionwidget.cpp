@@ -69,12 +69,13 @@ static void connectToClangDiagnosticConfigsDialog(QPushButton *button)
 
 ClangDiagnosticConfigsSelectionWidget::ClangDiagnosticConfigsSelectionWidget(QWidget *parent)
     : QWidget(parent)
+    , m_label(new QLabel(tr("Diagnostic Configuration:"), this))
     , m_selectionComboBox(new QComboBox(this))
 {
     auto *layout = new QHBoxLayout(this);
     layout->setMargin(0);
     setLayout(layout);
-    layout->addWidget(new QLabel(tr("Diagnostic Configuration:"), this));
+    layout->addWidget(m_label);
     layout->addWidget(m_selectionComboBox);
     auto *manageButton = new QPushButton(tr("Manage..."), this);
     layout->addWidget(manageButton);
@@ -131,6 +132,11 @@ void ClangDiagnosticConfigsSelectionWidget::refresh(Core::Id id)
         emit currentConfigChanged(currentConfigId());
 
     connectToCurrentIndexChanged();
+}
+
+void ClangDiagnosticConfigsSelectionWidget::showLabel(bool show)
+{
+    m_label->setVisible(show);
 }
 
 } // CppTools namespace

@@ -42,7 +42,8 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runner")
 namespace ClangTools {
 namespace Internal {
 
-ClangTidyClazyRunner::ClangTidyClazyRunner(const QString &clangExecutable,
+ClangTidyClazyRunner::ClangTidyClazyRunner(const CppTools::ClangDiagnosticConfig &diagnosticConfig,
+                                           const QString &clangExecutable,
                                            const QString &clangLogFileDir,
                                            const Utils::Environment &environment,
                                            QObject *parent)
@@ -51,6 +52,7 @@ ClangTidyClazyRunner::ClangTidyClazyRunner(const QString &clangExecutable,
                       environment,
                       tr("Clang-Tidy and Clazy"),
                       parent)
+    , m_diagnosticConfig(diagnosticConfig)
 {
 }
 
@@ -78,28 +80,21 @@ QStringList ClangTidyClazyRunner::constructCommandLineArguments(const QStringLis
               << QString("-serialize-diagnostics")
               << QString(m_logFile);
 
-    const ClangDiagnosticConfigsModel configsModel(
-                CppTools::codeModelSettings()->clangCustomDiagnosticConfigs());
-    const Core::Id configId = ClangToolsSettings::instance()->savedDiagnosticConfigId();
-    QTC_ASSERT(configsModel.hasConfigWithId(configId), return arguments;);
-
-    const ClangDiagnosticConfig &config = configsModel.configWithId(configId);
-
-    const ClangDiagnosticConfig::TidyMode tidyMode = config.clangTidyMode();
+    const ClangDiagnosticConfig::TidyMode tidyMode = m_diagnosticConfig.clangTidyMode();
     if (tidyMode != ClangDiagnosticConfig::TidyMode::Disabled) {
         addXclangArg(arguments, QString("-add-plugin"), QString("clang-tidy"));
         if (tidyMode != ClangDiagnosticConfig::TidyMode::File) {
-            const QString tidyChecks = config.clangTidyChecks();
+            const QString tidyChecks = m_diagnosticConfig.clangTidyChecks();
             addXclangArg(arguments, QString("-plugin-arg-clang-tidy"), "-checks=" + tidyChecks);
         }
     }
 
-    const QString clazyChecks = config.clazyChecks();
+    const QString clazyChecks = m_diagnosticConfig.clazyChecks();
     if (!clazyChecks.isEmpty()) {
         addXclangArg(arguments, QString("-add-plugin"), QString("clang-lazy"));
         addXclangArg(arguments, QString("-plugin-arg-clang-lazy"), QString("enable-all-fixits"));
         addXclangArg(arguments, QString("-plugin-arg-clang-lazy"), QString("no-autowrite-fixits"));
-        addXclangArg(arguments, QString("-plugin-arg-clang-lazy"), config.clazyChecks());
+        addXclangArg(arguments, QString("-plugin-arg-clang-lazy"), m_diagnosticConfig.clazyChecks());
     }
 
     arguments += options;

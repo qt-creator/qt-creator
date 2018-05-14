@@ -27,6 +27,7 @@
 
 #include <QObject>
 
+#include <coreplugin/id.h>
 #include <projectexplorer/project.h>
 
 #include <utils/fileutils.h>
@@ -74,6 +75,12 @@ public:
     ClangToolsProjectSettings(ProjectExplorer::Project *project);
     ~ClangToolsProjectSettings() override;
 
+    bool useGlobalSettings() const;
+    void setUseGlobalSettings(bool useGlobalSettings);
+
+    Core::Id diagnosticConfig() const;
+    void setDiagnosticConfig(const Core::Id &diagnosticConfig);
+
     QSet<Utils::FileName> selectedDirs() const { return m_selectedDirs; }
     void setSelectedDirs(const QSet<Utils::FileName> &value) { m_selectedDirs = value; }
 
@@ -93,6 +100,8 @@ private:
     void store();
 
     ProjectExplorer::Project *m_project;
+    bool m_useGlobalSettings = true;
+    Core::Id m_diagnosticConfig;
     QSet<Utils::FileName> m_selectedDirs;
     QSet<Utils::FileName> m_selectedFiles;
     SuppressedDiagnosticsList m_suppressedDiagnostics;

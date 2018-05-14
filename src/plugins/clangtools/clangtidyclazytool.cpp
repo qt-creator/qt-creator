@@ -31,11 +31,16 @@
 #include "clangtoolslogfilereader.h"
 #include "clangtidyclazyruncontrol.h"
 #include "clangtoolsdiagnosticview.h"
+#include "clangtoolsprojectsettings.h"
+#include "clangtoolssettings.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 
+#include <cpptools/clangdiagnosticconfigsmodel.h>
+#include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolsreuse.h>
 
 #include <debugger/analyzer/analyzermanager.h>
 
@@ -50,6 +55,7 @@
 #include <QAction>
 
 using namespace Core;
+using namespace CppTools;
 using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -140,6 +146,24 @@ ClangTidyClazyTool *ClangTidyClazyTool::instance()
     return s_instance;
 }
 
+static ClangDiagnosticConfig getDiagnosticConfig(Project *project)
+{
+    ClangToolsProjectSettings *projectSettings = ClangToolsProjectSettingsManager::getSettings(
+        project);
+
+    Core::Id diagnosticConfigId;
+    if (projectSettings->useGlobalSettings())
+        diagnosticConfigId = ClangToolsSettings::instance()->savedDiagnosticConfigId();
+    else
+        diagnosticConfigId = projectSettings->diagnosticConfig();
+
+    const ClangDiagnosticConfigsModel configsModel(
+                CppTools::codeModelSettings()->clangCustomDiagnosticConfigs());
+
+    QTC_ASSERT(configsModel.hasConfigWithId(diagnosticConfigId), return ClangDiagnosticConfig());
+    return configsModel.configWithId(diagnosticConfigId);
+}
+
 void ClangTidyClazyTool::startTool(bool askUserForFileSelection)
 {
     auto runControl = new RunControl(nullptr, Constants::CLANGTIDYCLAZY_RUN_MODE);
@@ -153,7 +177,10 @@ void ClangTidyClazyTool::startTool(bool askUserForFileSelection)
     if (fileInfos.isEmpty())
         return;
 
-    auto clangTool = new ClangTidyClazyRunControl(runControl, project->activeTarget(), fileInfos);
+    auto clangTool = new ClangTidyClazyRunControl(runControl,
+                                                  project->activeTarget(),
+                                                  getDiagnosticConfig(project),
+                                                  fileInfos);
 
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, runControl, [runControl] {

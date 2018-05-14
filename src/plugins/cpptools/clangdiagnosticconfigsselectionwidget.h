@@ -33,6 +33,7 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
+class QLabel;
 QT_END_NAMESPACE
 
 namespace CppTools {
@@ -48,6 +49,8 @@ public:
 
     void refresh(Core::Id id);
 
+    void showLabel(bool show);
+
 signals:
     void currentConfigChanged(const Core::Id &currentConfigId);
 
@@ -58,6 +61,7 @@ private:
     QMetaObject::Connection m_currentIndexChangedConnection;
     ClangDiagnosticConfigsModel m_diagnosticConfigsModel;
 
+    QLabel *m_label = nullptr;
     QComboBox *m_selectionComboBox = nullptr;
 };
 

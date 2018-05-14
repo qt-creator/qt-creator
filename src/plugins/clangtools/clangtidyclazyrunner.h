@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <cpptools/clangdiagnosticconfig.h>
+
 #include "clangtoolrunner.h"
 
 namespace ClangTools {
@@ -35,12 +37,17 @@ class ClangTidyClazyRunner final : public ClangToolRunner
     Q_OBJECT
 
 public:
-    ClangTidyClazyRunner(const QString &clangExecutable,
+    ClangTidyClazyRunner(const CppTools::ClangDiagnosticConfig &diagnosticConfig,
+                         const QString &clangExecutable,
                          const QString &clangLogFileDir,
                          const Utils::Environment &environment,
                          QObject *parent = nullptr);
+
 protected:
     QStringList constructCommandLineArguments(const QStringList &options) final;
+
+private:
+    const CppTools::ClangDiagnosticConfig m_diagnosticConfig;
 };
 
 } // namespace Internal

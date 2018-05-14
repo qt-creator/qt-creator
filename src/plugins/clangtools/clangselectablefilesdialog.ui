@@ -11,14 +11,55 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Select the Files to Analyze</string>
+   <string>Analyzer Configuration</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTreeView" name="filesView">
-     <property name="headerHidden">
-      <bool>true</bool>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Diagnostic Configuration</string>
      </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QComboBox" name="globalOrCustom">
+        <item>
+         <property name="text">
+          <string>Global</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Custom</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="CppTools::ClangDiagnosticConfigsSelectionWidget" name="diagnosticConfigsSelectionWidget" native="true"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Files to Analyze</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QTreeView" name="filesView">
+        <property name="headerHidden">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
@@ -33,6 +74,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CppTools::ClangDiagnosticConfigsSelectionWidget</class>
+   <extends>QWidget</extends>
+   <header>cpptools/clangdiagnosticconfigsselectionwidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

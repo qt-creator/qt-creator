@@ -34,6 +34,8 @@
 namespace ClangTools {
 namespace Internal {
 
+static const char SETTINGS_KEY_USE_GLOBAL_SETTINGS[] = "ClangTools.UseGlobalSettings";
+static const char SETTINGS_KEY_DIAGNOSTIC_CONFIG[] = "ClangTools.DiagnosticConfig";
 static const char SETTINGS_KEY_SELECTED_DIRS[] = "ClangTools.SelectedDirs";
 static const char SETTINGS_KEY_SELECTED_FILES[] = "ClangTools.SelectedFiles";
 static const char SETTINGS_KEY_SUPPRESSED_DIAGS[] = "ClangTools.SuppressedDiagnostics";
@@ -80,6 +82,11 @@ void ClangToolsProjectSettings::removeAllSuppressedDiagnostics()
 
 void ClangToolsProjectSettings::load()
 {
+    const QVariant useGlobalVariant =  m_project->namedSettings(SETTINGS_KEY_USE_GLOBAL_SETTINGS);
+    m_useGlobalSettings = useGlobalVariant.isValid() ? useGlobalVariant.toBool() : true;
+    m_diagnosticConfig = Core::Id::fromSetting(
+        m_project->namedSettings(SETTINGS_KEY_DIAGNOSTIC_CONFIG));
+
     auto toFileName = [](const QString &s) { return Utils::FileName::fromString(s); };
 
     const QStringList dirs = m_project->namedSettings(SETTINGS_KEY_SELECTED_DIRS).toStringList();
@@ -115,6 +122,9 @@ void ClangToolsProjectSettings::load()
 
 void ClangToolsProjectSettings::store()
 {
+    m_project->setNamedSettings(SETTINGS_KEY_USE_GLOBAL_SETTINGS, m_useGlobalSettings);
+    m_project->setNamedSettings(SETTINGS_KEY_DIAGNOSTIC_CONFIG, m_diagnosticConfig.toSetting());
+
     const QStringList dirs = Utils::transform(m_selectedDirs.toList(), &Utils::FileName::toString);
     m_project->setNamedSettings(SETTINGS_KEY_SELECTED_DIRS, dirs);
 
@@ -132,6 +142,26 @@ void ClangToolsProjectSettings::store()
         list << diagMap;
     }
     m_project->setNamedSettings(SETTINGS_KEY_SUPPRESSED_DIAGS, list);
+}
+
+bool ClangToolsProjectSettings::useGlobalSettings() const
+{
+    return m_useGlobalSettings;
+}
+
+void ClangToolsProjectSettings::setUseGlobalSettings(bool useGlobalSettings)
+{
+    m_useGlobalSettings = useGlobalSettings;
+}
+
+Core::Id ClangToolsProjectSettings::diagnosticConfig() const
+{
+    return m_diagnosticConfig;
+}
+
+void ClangToolsProjectSettings::setDiagnosticConfig(const Core::Id &diagnosticConfig)
+{
+    m_diagnosticConfig = diagnosticConfig;
 }
 
 ClangToolsProjectSettingsManager::ClangToolsProjectSettingsManager()
