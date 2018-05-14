@@ -926,7 +926,7 @@ void IosSimulatorToolHandlerPrivate::installAppOnSimulator()
             didTransferApp(m_bundlePath, m_deviceId, IosToolHandler::Success);
         } else {
             errorMsg(IosToolHandler::tr("Application install on simulator failed. %1")
-                     .arg(QString::fromLocal8Bit(response.commandOutput)));
+                     .arg(response.commandOutput));
             didTransferApp(m_bundlePath, m_deviceId, IosToolHandler::Failure);
         }
         emit q->finished(q);
@@ -990,7 +990,7 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
         } else {
             m_pid = -1;
             errorMsg(IosToolHandler::tr("Application launch on simulator failed. %1")
-                     .arg(QString::fromLocal8Bit(response.commandOutput)));
+                     .arg(response.commandOutput));
             didStartApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Failure);
             stop(-1);
             q->finished(q);

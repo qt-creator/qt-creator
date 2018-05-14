@@ -77,17 +77,17 @@ static bool checkForTimeout(const chrono::high_resolution_clock::time_point &sta
     return timedOut;
 }
 
-static bool runCommand(QString command, const QStringList &args, QByteArray *output)
+static bool runCommand(QString command, const QStringList &args, QString *output)
 {
     Utils::SynchronousProcess p;
     p.setTimeoutS(-1);
     Utils::SynchronousProcessResponse resp = p.runBlocking(command, args);
     if (output)
-        *output = resp.allRawOutput();
+        *output = resp.stdOut();
     return resp.result == Utils::SynchronousProcessResponse::Finished;
 }
 
-static bool runSimCtlCommand(QStringList args, QByteArray *output)
+static bool runSimCtlCommand(QStringList args, QString *output)
 {
     args.prepend("simctl");
     return runCommand("xcrun", args, output);
@@ -100,11 +100,10 @@ static bool launchSimulator(const QString &simUdid) {
 
     if (IosConfigurations::xcodeVersion() >= QVersionNumber(9)) {
         // For XCode 9 boot the second device instead of launching simulator app twice.
-        QByteArray psOutput;
+        QString psOutput;
         if (runCommand("ps", {"-A", "-o", "comm"}, &psOutput)) {
-            QByteArray simulatorCommand = simulatorAppPath.toLatin1();
-            for (const QByteArray &comm : psOutput.split('\n')) {
-                if (comm == simulatorCommand)
+            for (const QString &comm : psOutput.split('\n')) {
+                if (comm == simulatorAppPath)
                     return runSimCtlCommand(QStringList({"boot", simUdid}), nullptr);
             }
         } else {
@@ -120,9 +119,9 @@ static bool launchSimulator(const QString &simUdid) {
 static QList<DeviceTypeInfo> getAvailableDeviceTypes()
 {
     QList<DeviceTypeInfo> deviceTypes;
-    QByteArray output;
+    QString output;
     runSimCtlCommand({"list", "-j", deviceTypeTag}, &output);
-    QJsonDocument doc = QJsonDocument::fromJson(output);
+    QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
     if (!doc.isNull()) {
         const QJsonArray runtimesArray = doc.object().value(deviceTypeTag).toArray();
         foreach (const QJsonValue deviceTypeValue, runtimesArray) {
@@ -144,9 +143,9 @@ static QList<DeviceTypeInfo> getAvailableDeviceTypes()
 static QList<RuntimeInfo> getAvailableRuntimes()
 {
     QList<RuntimeInfo> runtimes;
-    QByteArray output;
+    QString output;
     runSimCtlCommand({"list", "-j", runtimesTag}, &output);
-    QJsonDocument doc = QJsonDocument::fromJson(output);
+    QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
     if (!doc.isNull()) {
         const QJsonArray runtimesArray = doc.object().value(runtimesTag).toArray();
         foreach (const QJsonValue runtimeValue, runtimesArray) {
@@ -220,9 +219,9 @@ QList<SimulatorInfo> SimulatorControl::availableSimulators()
 static QList<SimulatorInfo> getAllSimulatorDevices()
 {
     QList<SimulatorInfo> simulatorDevices;
-    QByteArray output;
+    QString output;
     runSimCtlCommand({"list", "-j", devicesTag}, &output);
-    QJsonDocument doc = QJsonDocument::fromJson(output);
+    QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
     if (!doc.isNull()) {
         const QJsonObject runtimeObject = doc.object().value(devicesTag).toObject();
         foreach (const QString &runtime, runtimeObject.keys()) {
@@ -512,7 +511,7 @@ void SimulatorControlPrivate::launchApp(QFutureInterface<SimulatorControl::Respo
         }
 
         if (runSimCtlCommand(args, &response.commandOutput)) {
-            const QByteArray pIdStr = response.commandOutput.trimmed().split(' ').last().trimmed();
+            const QString pIdStr = response.commandOutput.trimmed().split(' ').last().trimmed();
             bool validPid = false;
             response.pID = pIdStr.toLongLong(&validPid);
             response.success = validPid;
@@ -566,7 +565,7 @@ void SimulatorControlPrivate::createSimulator(QFutureInterface<SimulatorControl:
                                              deviceType.identifier,
                                              runtime.identifier},
                                             &response.commandOutput);
-        response.simUdid = response.success ? QString::fromLatin1(response.commandOutput.trimmed())
+        response.simUdid = response.success ? response.commandOutput.trimmed()
                                             : QString();
     }
 

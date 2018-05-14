@@ -155,7 +155,7 @@ void IosSettingsWidget::onCreate()
                                     .arg(name).arg(response.simUdid), Utils::StdOutFormat);
         } else {
             statusDialog->addMessage(tr("Simulator device (%1) creation failed.\nError: %2").
-                                    arg(name).arg(QString::fromUtf8(response.commandOutput)),
+                                    arg(name).arg(response.commandOutput),
                                     Utils::StdErrFormat);
         }
     };

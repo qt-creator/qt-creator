@@ -84,7 +84,7 @@ public:
         QString simUdid;
         bool success = false;
         qint64 pID = -1;
-        QByteArray commandOutput = "";
+        QString commandOutput = "";
     };
 
 public:
