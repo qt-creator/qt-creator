@@ -111,14 +111,8 @@ int TimelineModel::collapsedRowCount() const
 
 void TimelineModel::setCollapsedRowCount(int rows)
 {
-    if (d->collapsedRowCount != rows) {
+    if (d->collapsedRowCount != rows)
         d->collapsedRowCount = rows;
-        emit collapsedRowCountChanged();
-        if (!d->expanded) {
-            emit rowCountChanged();
-            emit heightChanged(); // collapsed rows have a fixed size
-        }
-    }
 }
 
 int TimelineModel::expandedRowCount() const
@@ -129,16 +123,9 @@ int TimelineModel::expandedRowCount() const
 void TimelineModel::setExpandedRowCount(int rows)
 {
     if (d->expandedRowCount != rows) {
-        int prevHeight = height();
         if (d->rowOffsets.length() > rows)
             d->rowOffsets.resize(rows);
         d->expandedRowCount = rows;
-        emit expandedRowCountChanged();
-        if (d->expanded) {
-            emit rowCountChanged();
-            if (height() != prevHeight)
-                emit heightChanged();
-        }
     }
 }
 
@@ -158,6 +145,13 @@ TimelineModel::TimelineModel(TimelineModelAggregator *parent) :
 {
     connect(this, &TimelineModel::contentChanged, this, &TimelineModel::labelsChanged);
     connect(this, &TimelineModel::contentChanged, this, &TimelineModel::detailsChanged);
+    connect(this, &TimelineModel::hiddenChanged, this, &TimelineModel::heightChanged);
+    connect(this, &TimelineModel::expandedChanged, this, &TimelineModel::heightChanged);
+    connect(this, &TimelineModel::expandedRowHeightChanged, this, &TimelineModel::heightChanged);
+    connect(this, &TimelineModel::expandedChanged, this, &TimelineModel::rowCountChanged);
+    connect(this, &TimelineModel::contentChanged, this, &TimelineModel::rowCountChanged);
+    connect(this, &TimelineModel::contentChanged,
+            this, [this]() { emit expandedRowHeightChanged(-1, -1); });
 }
 
 TimelineModel::~TimelineModel()
@@ -220,8 +214,6 @@ void TimelineModel::setExpandedRowHeight(int rowNumber, int height)
             d->rowOffsets[offsetRow] += difference;
         }
         emit expandedRowHeightChanged(rowNumber, height);
-        if (d->expanded)
-            emit heightChanged();
     }
 }
 
@@ -486,13 +478,8 @@ bool TimelineModel::expanded() const
 void TimelineModel::setExpanded(bool expanded)
 {
     if (expanded != d->expanded) {
-        int prevHeight = height();
         d->expanded = expanded;
         emit expandedChanged();
-        if (prevHeight != height())
-            emit heightChanged();
-        if (d->collapsedRowCount != d->expandedRowCount)
-            emit rowCountChanged();
     }
 }
 
@@ -504,11 +491,8 @@ bool TimelineModel::hidden() const
 void TimelineModel::setHidden(bool hidden)
 {
     if (hidden != d->hidden) {
-        int prevHeight = height();
         d->hidden = hidden;
         emit hiddenChanged();
-        if (height() != prevHeight)
-            emit heightChanged();
     }
 }
 
@@ -574,8 +558,6 @@ int TimelineModel::selectionId(int index) const
 
 void TimelineModel::clear()
 {
-    bool hadRowHeights = !d->rowOffsets.empty();
-    bool wasEmpty = isEmpty();
     setExpandedRowCount(1);
     setCollapsedRowCount(1);
     setExpanded(false);
@@ -583,14 +565,7 @@ void TimelineModel::clear()
     d->rowOffsets.clear();
     d->ranges.clear();
     d->endTimes.clear();
-    if (hadRowHeights)
-        emit expandedRowHeightChanged(-1, -1);
-    if (!wasEmpty) {
-        emit contentChanged();
-        emit heightChanged();
-        emit labelsChanged();
-        emit detailsChanged();
-    }
+    emit contentChanged();
 }
 
 int TimelineModel::nextItemBySelectionId(int selectionId, qint64 time, int currentItem) const

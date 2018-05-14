@@ -108,6 +108,7 @@ void DummyModel::loadData()
     computeNesting();
     setCollapsedRowCount(2);
     setExpandedRowCount(3);
+    emit contentChanged();
 }
 
 tst_TimelineModel::tst_TimelineModel() :
@@ -216,7 +217,6 @@ void tst_TimelineModel::height()
     int heightAfterLastSignal = 0;
     int heightChangedSignals = 0;
     connect(&dummy, &Timeline::TimelineModel::heightChanged, [&](){
-        QVERIFY(dummy.height() != heightAfterLastSignal);
         ++heightChangedSignals;
         heightAfterLastSignal = dummy.height();
     });
@@ -432,20 +432,17 @@ void tst_TimelineModel::insertStartEnd()
 void tst_TimelineModel::rowCount()
 {
     DummyModel dummy(&aggregator);
-    QSignalSpy expandedSpy(&dummy, SIGNAL(expandedRowCountChanged()));
-    QSignalSpy collapsedSpy(&dummy, SIGNAL(collapsedRowCountChanged()));
+    QSignalSpy contentSpy(&dummy, SIGNAL(contentChanged()));
     QCOMPARE(dummy.rowCount(), 1);
     dummy.setExpanded(true);
     QCOMPARE(dummy.rowCount(), 1);
     dummy.loadData();
-    QCOMPARE(expandedSpy.count(), 1);
-    QCOMPARE(collapsedSpy.count(), 1);
+    QCOMPARE(contentSpy.count(), 1);
     QCOMPARE(dummy.rowCount(), 3);
     dummy.setExpanded(false);
     QCOMPARE(dummy.rowCount(), 2);
     dummy.clear();
-    QCOMPARE(expandedSpy.count(), 2);
-    QCOMPARE(collapsedSpy.count(), 2);
+    QCOMPARE(contentSpy.count(), 2);
     QCOMPARE(dummy.rowCount(), 1);
 }
 
