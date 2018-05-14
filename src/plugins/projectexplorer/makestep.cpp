@@ -182,7 +182,6 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep) :
     m_ui->makeLineEdit->setHistoryCompleter("PE.MakeCommand.History");
     m_ui->makeLineEdit->setPath(m_makeStep->makeCommand());
     m_ui->makeArgumentsLineEdit->setText(m_makeStep->userArguments());
-    updateMakeOverrideLabel();
     updateDetails();
 
     connect(m_ui->targetsList, &QListWidget::itemChanged,
@@ -193,24 +192,25 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep) :
             this, &MakeStepConfigWidget::makeArgumentsLineEditTextEdited);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            this, &MakeStepConfigWidget::updateMakeOverrideLabel);
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
             this, &MakeStepConfigWidget::updateDetails);
 
     connect(m_makeStep->target(), &Target::kitChanged,
-            this, &MakeStepConfigWidget::updateMakeOverrideLabel);
+            this, &MakeStepConfigWidget::updateDetails);
 
     const auto pro = m_makeStep->target()->project();
     pro->subscribeSignal(&BuildConfiguration::environmentChanged, this, [this]() {
         if (static_cast<BuildConfiguration *>(sender())->isActive()) {
-            updateMakeOverrideLabel();
+            updateDetails();
+        }
+    });
+    pro->subscribeSignal(&BuildConfiguration::buildDirectoryChanged, this, [this]() {
+        if (static_cast<BuildConfiguration *>(sender())->isActive()) {
             updateDetails();
         }
     });
     connect(pro, &Project::activeProjectConfigurationChanged,
             this, [this](ProjectConfiguration *pc) {
         if (pc && pc->isActive()) {
-            updateMakeOverrideLabel();
             updateDetails();
         }
     });
@@ -228,35 +228,60 @@ QString MakeStepConfigWidget::displayName() const
     return m_makeStep->displayName();
 }
 
-void MakeStepConfigWidget::updateMakeOverrideLabel()
+void MakeStepConfigWidget::setSummaryText(const QString &text)
 {
-    BuildConfiguration *bc = m_makeStep->buildConfiguration();
-    if (!bc)
-        bc = m_makeStep->target()->activeBuildConfiguration();
-    ToolChain *tc = ToolChainKitInformation::toolChain(m_makeStep->target()->kit(),
-                                                       ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    if (bc && tc) {
-        m_ui->makeLabel->setText(
-            tr("Override %1:").arg(QDir::toNativeSeparators(tc->makeCommand(bc->environment()))));
-    } else {
-        m_ui->makeLabel->setText(tr("Make:"));
-    }
+    if (text == m_summaryText)
+        return;
+    m_summaryText = text;
+    emit updateSummary();
 }
 
 void MakeStepConfigWidget::updateDetails()
 {
+    ToolChain *tc
+            = ToolChainKitInformation::toolChain(m_makeStep->target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     BuildConfiguration *bc = m_makeStep->buildConfiguration();
     if (!bc)
         bc = m_makeStep->target()->activeBuildConfiguration();
 
+    const QString make = tc && bc ? tc->makeCommand(bc->environment()) : QString();
+    if (make.isEmpty())
+        m_ui->makeLabel->setText(tr("Make:"));
+    else
+        m_ui->makeLabel->setText(tr("Override %1:").arg(QDir::toNativeSeparators(make)));
+
+    if (!tc) {
+        setSummaryText(tr("<b>Make:</b> %1").arg(ProjectExplorer::ToolChainKitInformation::msgNoToolChainInTarget()));
+        return;
+    }
+    if (!bc) {
+        setSummaryText(tr("<b>Make:</b> No build configuration."));
+        return;
+    }
+
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
     param.setWorkingDirectory(bc->buildDirectory().toString());
-    param.setEnvironment(bc->environment());
     param.setCommand(m_makeStep->effectiveMakeCommand());
+
+    Utils::Environment env = bc->environment();
+    Utils::Environment::setupEnglishOutput(&env);
+    // We prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
+    // FIXME doing this without the user having a way to override this is rather bad
+    if (tc && m_makeStep->makeCommand().isEmpty()) {
+        if (tc->targetAbi().os() == Abi::WindowsOS
+                && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {
+            const QString makeFlags = "MAKEFLAGS";
+            env.set(makeFlags, 'L' + env.value(makeFlags));
+        }
+    }
     param.setArguments(m_makeStep->allArguments());
-    m_summaryText = param.summary(displayName());
-    emit updateSummary();
+    param.setEnvironment(env);
+
+    if (param.commandMissing())
+        setSummaryText(tr("<b>Make:</b> %1 not found in the environment.").arg(param.command())); // Override display text
+    else
+        setSummaryText(param.summaryInWorkdir(displayName()));
 }
 
 QString MakeStepConfigWidget::summaryText() const
