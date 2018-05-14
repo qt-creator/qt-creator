@@ -109,6 +109,8 @@ void QbsBuildConfiguration::initialize(const BuildInfo *info)
 
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     auto bs = new QbsBuildStep(buildSteps);
+    if (info->buildType == Release)
+        bs->setQmlDebuggingEnabled(false);
     bs->setQbsConfiguration(bd);
     buildSteps->appendStep(bs);
 

@@ -114,6 +114,7 @@ def selectFromLocator(filter, itemName = None):
     # clicking the wanted item
     # if you replace this by pressing ENTER, be sure that something is selected
     # otherwise you will run into unwanted behavior
+    snooze(1)
     wantedItem = waitForObjectItem("{type='QTreeView' unnamed='1' visible='1'}", itemName)
     doubleClick(wantedItem, 5, 5, 0, Qt.LeftButton)
 
@@ -176,21 +177,10 @@ def invokeMenuItem(menu, item, *subItems):
             waitForObject(":Qt Creator.QtCreator.MenuBar_QMenuBar", 2000)
         except:
             nativeMouseClick(waitForObject(":Qt Creator_Core::Internal::MainWindow", 1000), 20, 20, 0, Qt.LeftButton)
-    # HACK as Squish fails to provide a proper way to access the system menu
-    if platform.system() == "Darwin":
-        if menu == "Tools" and item == "Options...":
-            #nativeType("<Command+,>")
-            # the following is a pure HACK because using the default key sequence seems to be broken
-            # when running from inside Squish
-            menuBar = waitForObject(":Qt Creator.QtCreator.MenuBar_QMenuBar", 500)
-            nativeMouseClick(menuBar, 75, 5, 0, Qt.LeftButton)
-            for _ in range(3):
-                nativeType("<Down>")
-            nativeType("<Return>")
-            return
-        if menu == "File" and item == "Exit":
-            nativeType("<Command+q>")
-            return
+    # Use Locator for menu items which wouldn't work on macOS
+    if menu == "Tools" and item == "Options..." or menu == "File" and item == "Exit":
+        selectFromLocator("t %s" % item, item)
+        return
     menuObject = waitForObjectItem(":Qt Creator.QtCreator.MenuBar_QMenuBar", menu)
     snooze(1)
     waitFor("menuObject.visible", 1000)

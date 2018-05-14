@@ -1188,7 +1188,8 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         if (!kit)
             kit = guessKitFromAbis(Abi::abisOfBinary(FileName::fromString(executable)));
 
-        auto runControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+        auto runControl = new RunControl(device, ProjectExplorer::Constants::DEBUG_RUN_MODE);
         auto debugger = new DebuggerRunTool(runControl, kit);
         debugger->setInferiorExecutable(executable);
         if (pid) {
@@ -1953,7 +1954,8 @@ void DebuggerPluginPrivate::attachCore()
     setConfigValue("LastExternalStartScript", dlg.overrideStartScript());
     setConfigValue("LastForceLocalCoreFile", dlg.forcesLocalCoreFile());
 
-    auto runControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    IDevice::ConstPtr device = DeviceKitInformation::device(dlg.kit());
+    auto runControl = new RunControl(device, ProjectExplorer::Constants::DEBUG_RUN_MODE);
     auto debugger = new DebuggerRunTool(runControl, dlg.kit());
     debugger->setInferiorExecutable(dlg.localExecutableFile());
     debugger->setCoreFileName(dlg.localCoreFile());
@@ -1980,7 +1982,8 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
         return;
     setConfigValue(connectionKey, dlg.connection());
 
-    auto runControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    IDevice::ConstPtr device = DeviceKitInformation::device(kit);
+    auto runControl = new RunControl(device, ProjectExplorer::Constants::DEBUG_RUN_MODE);
     auto debugger = new DebuggerRunTool(runControl, kit);
     debugger->setStartMode(AttachToRemoteServer);
     debugger->setCloseMode(KillAtClose);
@@ -2038,7 +2041,7 @@ void DebuggerPluginPrivate::attachToRunningApplication()
     if (device->type() == PE::DESKTOP_DEVICE_TYPE) {
         attachToRunningProcess(kit, process, false);
     } else {
-        auto runControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        auto runControl = new RunControl(device, ProjectExplorer::Constants::DEBUG_RUN_MODE);
         auto debugger = new RemoteAttachRunner(runControl, kit, process.pid);
         debugger->startRunControl();
     }

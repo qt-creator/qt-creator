@@ -53,6 +53,11 @@ QStringList CompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind, 
 {
     m_options.clear();
 
+    if (fileKind == ProjectFile::CHeader || fileKind == ProjectFile::CSource) {
+        QTC_ASSERT(m_projectPart.languageVersion <= ProjectPart::LatestCVersion,
+                   return QStringList(););
+    }
+
     addWordWidth();
     addTargetTriple();
     addExtraCodeModelFlags();
@@ -118,7 +123,8 @@ void CompilerOptionsBuilder::addExtraCodeModelFlags()
 
 void CompilerOptionsBuilder::enableExceptions()
 {
-    add(QLatin1String("-fcxx-exceptions"));
+    if (m_projectPart.languageVersion > ProjectPart::LatestCVersion)
+        add(QLatin1String("-fcxx-exceptions"));
     add(QLatin1String("-fexceptions"));
 }
 
@@ -286,6 +292,7 @@ void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtension
     QStringList opts;
     const ProjectPart::LanguageExtensions languageExtensions = m_projectPart.languageExtensions;
     const bool gnuExtensions = languageExtensions & ProjectPart::GnuExtensions;
+
     switch (m_projectPart.languageVersion) {
     case ProjectPart::C89:
         opts << (gnuExtensions ? QLatin1String("-std=gnu89") : QLatin1String("-std=c89"));
@@ -471,8 +478,7 @@ QString CompilerOptionsBuilder::includeOption() const
 
 bool CompilerOptionsBuilder::excludeDefineDirective(const ProjectExplorer::Macro &macro) const
 {
-    // This is a quick fix for QTCREATORBUG-11501.
-    // TODO: do a proper fix, see QTCREATORBUG-11709.
+    // TODO: Remove in QtCreator 4.7
     if (macro.key == "__cplusplus")
         return true;
 

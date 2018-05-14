@@ -97,13 +97,6 @@ def performDebugging(projectName, checkedTargets):
         invokeMenuItem("Build", "Rebuild All")
         waitForCompile()
         isMsvc = isMsvcConfig(len(checkedTargets), kit)
-        if platform.system() in ('Microsoft' 'Windows'):
-            switchViewTo(ViewConstants.PROJECTS)
-            switchToBuildOrRunSettingsFor(len(checkedTargets), kit, ProjectSettings.BUILD)
-            buildDir = os.path.join(str(waitForObject(":Qt Creator_Utils::BuildDirectoryLineEdit").text),
-                                    "debug")
-            switchViewTo(ViewConstants.EDIT)
-            allowAppThroughWinFW(buildDir, projectName, None)
         clickButton(waitForObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton"))
         handleDebuggerWarnings(config, isMsvc)
         waitForObject(":Qt Creator.DebugModeWidget_QSplitter")
@@ -118,5 +111,3 @@ def performDebugging(projectName, checkedTargets):
         clickButton(waitForObject(":*Qt Creator.Continue_Core::Internal::FancyToolButton"))
         __handleAppOutputWaitForDebuggerFinish__()
         removeOldBreakpoints()
-        if platform.system() in ('Microsoft' 'Windows'):
-            deleteAppFromWinFW(buildDir, projectName, None)
