@@ -30,6 +30,8 @@
 #include <QVariant>
 #include <QColor>
 
+#include <memory>
+
 namespace Timeline {
 class TimelineModelAggregator;
 
@@ -143,8 +145,7 @@ protected:
     virtual void clear();
 
 private:
-    TimelineModelPrivate *d_ptr;
-    Q_DECLARE_PRIVATE(TimelineModel)
+    std::unique_ptr<TimelineModelPrivate> d;
 };
 
 } // namespace Timeline
