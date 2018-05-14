@@ -131,6 +131,8 @@ public:
     bool hasError() const;
     QString errorString() const;
 
+    void setEnabledBySettings(bool value);
+
 private:
     PluginSpec();
 
