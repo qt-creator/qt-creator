@@ -719,7 +719,7 @@ QList<QGraphicsItem*> Snapper::generateSnappingLines(const QList<QRectF> &boundi
         lineItem->setZValue(40);
         QPen linePen;
         linePen.setCosmetic(true);
-        linePen.setColor("#5d2dd7");
+        linePen.setColor(QColor(0x5d, 0x2d, 0xd7));
         lineItem->setPen(linePen);
 
         graphicsItemList.append(lineItem);
