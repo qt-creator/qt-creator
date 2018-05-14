@@ -62,8 +62,6 @@ ClangToolsConfigWidget::ClangToolsConfigWidget(
 
     m_ui->clangDiagnosticConfigsSelectionWidget->refresh(settings->savedDiagnosticConfigId());
 
-    CppTools::connectToClangDiagnosticConfigsDialog(m_ui->manageButton);
-
     connect(m_ui->clangDiagnosticConfigsSelectionWidget,
             &CppTools::ClangDiagnosticConfigsSelectionWidget::currentConfigChanged,
             this, [this](const Core::Id &currentConfigId) {

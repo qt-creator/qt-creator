@@ -32,14 +32,11 @@
 #include "ui_clazychecks.h"
 #include "ui_tidychecks.h"
 
-#include <coreplugin/icore.h>
-
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QDebug>
-#include <QDialogButtonBox>
 #include <QInputDialog>
 #include <QPushButton>
 #include <QUuid>
@@ -441,14 +438,14 @@ void ClangDiagnosticConfigsWidget::connectClazyRadioButtonClicked(QRadioButton *
 
 void ClangDiagnosticConfigsWidget::connectConfigChooserCurrentIndex()
 {
-    connect(m_ui->configChooserList, &QListWidget::currentRowChanged, this,
-            &ClangDiagnosticConfigsWidget::onCurrentConfigChanged);
+    connect(m_ui->configChooserList, &QListWidget::currentRowChanged,
+            this, &ClangDiagnosticConfigsWidget::onCurrentConfigChanged);
 }
 
 void ClangDiagnosticConfigsWidget::disconnectConfigChooserCurrentIndex()
 {
-    disconnect(m_ui->configChooserList, &QListWidget::currentRowChanged, this,
-               &ClangDiagnosticConfigsWidget::onCurrentConfigChanged);
+    disconnect(m_ui->configChooserList, &QListWidget::currentRowChanged,
+               this, &ClangDiagnosticConfigsWidget::onCurrentConfigChanged);
 }
 
 void ClangDiagnosticConfigsWidget::connectDiagnosticOptionsChanged()
@@ -501,35 +498,6 @@ void ClangDiagnosticConfigsWidget::setupTabs()
     m_ui->tabWidget->addTab(m_tidyChecksWidget, tr("Clang-Tidy"));
     m_ui->tabWidget->addTab(m_clazyChecksWidget, tr("Clazy"));
     m_ui->tabWidget->setCurrentIndex(0);
-}
-
-void connectToClangDiagnosticConfigsDialog(QPushButton *button)
-{
-    QObject::connect(button, &QPushButton::clicked, []() {
-        ClangDiagnosticConfigsWidget *widget = new ClangDiagnosticConfigsWidget;
-        QDialog dialog;
-        dialog.setWindowTitle(widget->tr("Diagnostic Configurations"));
-        dialog.setLayout(new QVBoxLayout);
-        dialog.layout()->setMargin(0);
-        dialog.layout()->setSpacing(0);
-        dialog.layout()->addWidget(widget);
-        auto *buttonsBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-        dialog.layout()->addWidget(buttonsBox);
-        QObject::connect(buttonsBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-        QObject::connect(buttonsBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
-
-        QObject::connect(&dialog, &QDialog::accepted, [widget]() {
-            QSharedPointer<CppCodeModelSettings> settings = codeModelSettings();
-            const ClangDiagnosticConfigs oldDiagnosticConfigs
-                    = settings->clangCustomDiagnosticConfigs();
-            const ClangDiagnosticConfigs currentDiagnosticConfigs = widget->customConfigs();
-            if (oldDiagnosticConfigs != currentDiagnosticConfigs) {
-                settings->setClangCustomDiagnosticConfigs(currentDiagnosticConfigs);
-                settings->toSettings(Core::ICore::settings());
-            }
-        });
-        dialog.exec();
-    });
 }
 
 } // CppTools namespace

@@ -29,11 +29,15 @@
 
 #include "clangdiagnosticconfigsmodel.h"
 
-#include <QComboBox>
+#include <QWidget>
+
+QT_BEGIN_NAMESPACE
+class QComboBox;
+QT_END_NAMESPACE
 
 namespace CppTools {
 
-class CPPTOOLS_EXPORT ClangDiagnosticConfigsSelectionWidget : public QComboBox
+class CPPTOOLS_EXPORT ClangDiagnosticConfigsSelectionWidget : public QWidget
 {
     Q_OBJECT
 
@@ -53,6 +57,8 @@ private:
 
     QMetaObject::Connection m_currentIndexChangedConnection;
     ClangDiagnosticConfigsModel m_diagnosticConfigsModel;
+
+    QComboBox *m_selectionComboBox = nullptr;
 };
 
 } // CppTools namespace

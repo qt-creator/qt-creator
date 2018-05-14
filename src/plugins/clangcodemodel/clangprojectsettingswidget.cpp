@@ -59,7 +59,7 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
 
     using namespace CppTools;
 
-    m_ui.generalConfigurationGroupBox->setVisible(Utils::HostOsInfo::isWindowsHost());
+    m_ui.delayedTemplateParse->setVisible(Utils::HostOsInfo::isWindowsHost());
 
     m_ui.clangSettings->setCurrentIndex(m_projectSettings.useGlobalConfig() ? 0 : 1);
 
@@ -77,8 +77,6 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
 
     connect(CppTools::codeModelSettings().data(), &CppTools::CppCodeModelSettings::changed,
             this, &ClangProjectSettingsWidget::syncOtherWidgetsToComboBox);
-
-    connectToClangDiagnosticConfigsDialog(m_ui.manageButton);
 
     syncOtherWidgetsToComboBox();
 }
@@ -124,9 +122,13 @@ void ClangProjectSettingsWidget::syncOtherWidgetsToComboBox()
                 options.contains(QLatin1String{ClangProjectSettings::DelayedTemplateParsing}));
 
     const bool isCustom = !m_projectSettings.useGlobalConfig();
-    m_ui.generalConfigurationGroupBox->setEnabled(isCustom);
-    m_ui.clangDiagnosticsLabel->setEnabled(isCustom);
-    m_ui.clangDiagnosticConfigsSelectionWidget->setEnabled(isCustom);
+    m_ui.delayedTemplateParse->setEnabled(isCustom);
+
+    for (int i = 0; i < m_ui.clangDiagnosticConfigsSelectionWidget->layout()->count(); ++i) {
+        QWidget *widget = m_ui.clangDiagnosticConfigsSelectionWidget->layout()->itemAt(i)->widget();
+        if (widget)
+            widget->setEnabled(isCustom);
+    }
 
     refreshDiagnosticConfigsWidgetFromSettings();
 }

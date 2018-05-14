@@ -25,14 +25,63 @@
 
 #include "clangdiagnosticconfigsselectionwidget.h"
 
+#include "clangdiagnosticconfigswidget.h"
 #include "cppcodemodelsettings.h"
 #include "cpptoolsreuse.h"
 
+#include <coreplugin/icore.h>
+
+#include <QComboBox>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QHBoxLayout>
+#include <QPushButton>
+
 namespace CppTools {
 
-ClangDiagnosticConfigsSelectionWidget::ClangDiagnosticConfigsSelectionWidget(QWidget *parent)
-    : QComboBox(parent)
+static void connectToClangDiagnosticConfigsDialog(QPushButton *button)
 {
+    QObject::connect(button, &QPushButton::clicked, []() {
+        ClangDiagnosticConfigsWidget *widget = new ClangDiagnosticConfigsWidget;
+        widget->layout()->setMargin(0);
+        QDialog dialog;
+        dialog.setWindowTitle(widget->tr("Diagnostic Configurations"));
+        dialog.setLayout(new QVBoxLayout);
+        dialog.layout()->addWidget(widget);
+        auto *buttonsBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        dialog.layout()->addWidget(buttonsBox);
+        QObject::connect(buttonsBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+        QObject::connect(buttonsBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+        QObject::connect(&dialog, &QDialog::accepted, [widget]() {
+            QSharedPointer<CppCodeModelSettings> settings = codeModelSettings();
+            const ClangDiagnosticConfigs oldDiagnosticConfigs
+                    = settings->clangCustomDiagnosticConfigs();
+            const ClangDiagnosticConfigs currentDiagnosticConfigs = widget->customConfigs();
+            if (oldDiagnosticConfigs != currentDiagnosticConfigs) {
+                settings->setClangCustomDiagnosticConfigs(currentDiagnosticConfigs);
+                settings->toSettings(Core::ICore::settings());
+            }
+        });
+        dialog.exec();
+    });
+}
+
+ClangDiagnosticConfigsSelectionWidget::ClangDiagnosticConfigsSelectionWidget(QWidget *parent)
+    : QWidget(parent)
+    , m_selectionComboBox(new QComboBox(this))
+{
+    auto *layout = new QHBoxLayout(this);
+    layout->setMargin(0);
+    setLayout(layout);
+    layout->addWidget(new QLabel(tr("Diagnostic Configuration:"), this));
+    layout->addWidget(m_selectionComboBox);
+    auto *manageButton = new QPushButton(tr("Manage..."), this);
+    layout->addWidget(manageButton);
+    layout->addStretch();
+
+    connectToClangDiagnosticConfigsDialog(manageButton);
+
     refresh(codeModelSettings()->clangDiagnosticConfigId());
 
     connectToCurrentIndexChanged();
@@ -40,13 +89,13 @@ ClangDiagnosticConfigsSelectionWidget::ClangDiagnosticConfigsSelectionWidget(QWi
 
 Core::Id ClangDiagnosticConfigsSelectionWidget::currentConfigId() const
 {
-    return Core::Id::fromSetting(currentData());
+    return Core::Id::fromSetting(m_selectionComboBox->currentData());
 }
 
 void ClangDiagnosticConfigsSelectionWidget::connectToCurrentIndexChanged()
 {
     m_currentIndexChangedConnection
-            = connect(this,
+            = connect(m_selectionComboBox,
                       static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
                       this,
                       [this]() { emit currentConfigChanged(currentConfigId()); });
@@ -62,7 +111,7 @@ void ClangDiagnosticConfigsSelectionWidget::refresh(Core::Id id)
     disconnectFromCurrentIndexChanged();
 
     int configToSelectIndex = -1;
-    clear();
+    m_selectionComboBox->clear();
     m_diagnosticConfigsModel = ClangDiagnosticConfigsModel(
                 codeModelSettings()->clangCustomDiagnosticConfigs());
     const int size = m_diagnosticConfigsModel.size();
@@ -70,14 +119,14 @@ void ClangDiagnosticConfigsSelectionWidget::refresh(Core::Id id)
         const ClangDiagnosticConfig &config = m_diagnosticConfigsModel.at(i);
         const QString displayName
                 = ClangDiagnosticConfigsModel::displayNameWithBuiltinIndication(config);
-        addItem(displayName, config.id().toSetting());
+        m_selectionComboBox->addItem(displayName, config.id().toSetting());
 
         if (id == config.id())
             configToSelectIndex = i;
     }
 
     if (configToSelectIndex != -1)
-        setCurrentIndex(configToSelectIndex);
+        m_selectionComboBox->setCurrentIndex(configToSelectIndex);
     else
         emit currentConfigChanged(currentConfigId());
 

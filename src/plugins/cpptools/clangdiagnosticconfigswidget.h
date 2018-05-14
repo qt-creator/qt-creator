@@ -119,6 +119,4 @@ private:
     int m_selectedConfigIndex = 0;
 };
 
-CPPTOOLS_EXPORT void connectToClangDiagnosticConfigsDialog(QPushButton *button);
-
 } // CppTools namespace

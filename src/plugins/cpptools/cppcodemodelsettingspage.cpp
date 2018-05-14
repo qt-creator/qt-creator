@@ -75,13 +75,11 @@ void CppCodeModelSettingsWidget::setupClangCodeModelWidgets()
 
     m_ui->clangCodeModelIsDisabledHint->setVisible(!isClangActive);
     m_ui->clangCodeModelIsEnabledHint->setVisible(isClangActive);
-    for (int i = 0; i < m_ui->clangDiagnosticsLayout->count(); ++i) {
-        QWidget *widget = m_ui->clangDiagnosticsLayout->itemAt(i)->widget();
+    for (int i = 0; i < m_ui->clangDiagnosticConfigsSelectionWidget->layout()->count(); ++i) {
+        QWidget *widget = m_ui->clangDiagnosticConfigsSelectionWidget->layout()->itemAt(i)->widget();
         if (widget)
             widget->setEnabled(isClangActive);
     }
-
-    connectToClangDiagnosticConfigsDialog(m_ui->manageButton);
 
     connect(m_settings.data(), &CppCodeModelSettings::changed,
             this, [this]() {
