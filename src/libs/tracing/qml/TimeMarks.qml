@@ -54,11 +54,18 @@ Item {
     }
 
     function prettyPrintScale(amount) {
+        var sign;
+        if (amount < 0) {
+            sign = "-";
+            amount = -amount;
+        } else {
+            sign = "";
+        }
         var unitOffset = 0;
         var unitAmount = 1;
         for (unitOffset = 0; amount > unitAmount * 1024; ++unitOffset, unitAmount *= 1024) {}
         var result = amount / unitAmount;
-        return roundTo3Digits(result) + units[unitOffset];
+        return sign + roundTo3Digits(result) + units[unitOffset];
     }
 
     Connections {
@@ -134,7 +141,7 @@ Item {
                                     anchors.bottomMargin: 2
                                     anchors.leftMargin: 2
                                     anchors.left: parent.left
-                                    text: prettyPrintScale(index * row.stepVal)
+                                    text: prettyPrintScale(row.minVal + index * row.stepVal)
                                 }
 
                                 Rectangle {
