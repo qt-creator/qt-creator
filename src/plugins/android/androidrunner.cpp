@@ -127,10 +127,8 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
     m_checkAVDTimer.setInterval(2000);
     connect(&m_checkAVDTimer, &QTimer::timeout, this, &AndroidRunner::checkAVD);
 
-    m_androidRunnable.intentName = intentName.isEmpty() ? AndroidManager::intentName(m_target)
-                                                        : intentName;
-    m_androidRunnable.packageName = m_androidRunnable.intentName.left(
-                m_androidRunnable.intentName.indexOf(QLatin1Char('/')));
+    QString intent = intentName.isEmpty() ? AndroidManager::intentName(m_target) : intentName;
+    m_androidRunnable.packageName = intent.left(intent.indexOf('/'));
 
     RunConfiguration *rc = runControl->runConfiguration();
     if (auto aspect = rc->extraAspect(Constants::ANDROID_AMSTARTARGS_ASPECT))
@@ -148,6 +146,7 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
 
     const int apiLevel = AndroidManager::deviceApiLevel(m_target);
     m_worker.reset(new AndroidRunnerWorker(runControl, m_androidRunnable));
+    m_worker->setIntentName(intent);
     m_worker->setIsPreNougat(apiLevel <= 23);
     m_worker->setExtraAppParams(extraAppParams);
     m_worker->setExtraEnvVars(extraEnvVars);

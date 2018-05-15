@@ -62,6 +62,7 @@ public:
     void setExtraEnvVars(const Utils::Environment &extraEnvVars);
     void setExtraAppParams(const QString &extraAppParams);
     void setIsPreNougat(bool isPreNougat) { m_isPreNougat = isPreNougat; }
+    void setIntentName(const QString &intentName) { m_intentName = intentName; }
 
     void asyncStart();
     void asyncStop();
@@ -89,6 +90,7 @@ protected:
     // Create the processes and timer in the worker thread, for correct thread affinity
     bool m_isPreNougat = false;
     AndroidRunnable m_androidRunnable;
+    QString m_intentName;
     QString m_adb;
     qint64 m_processPID = -1;
     std::unique_ptr<QProcess, Deleter> m_adbLogcatProcess;

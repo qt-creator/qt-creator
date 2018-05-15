@@ -345,7 +345,7 @@ void AndroidRunnerWorker::asyncStartHelper()
 
     QStringList args({"shell", "am", "start"});
     args << m_androidRunnable.amStartExtraArgs;
-    args << "-n" << m_androidRunnable.intentName;
+    args << "-n" << m_intentName;
     if (m_useCppDebugger) {
         args << "-D";
         QString gdbServerSocket;
