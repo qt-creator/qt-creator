@@ -140,8 +140,8 @@ static void deleter(QProcess *p)
     p->deleteLater();
 }
 
-AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const AndroidRunnable &runnable)
-    : m_androidRunnable(runnable)
+AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packageName)
+    : m_packageName(packageName)
     , m_adbLogcatProcess(nullptr, deleter)
     , m_psIsAlive(nullptr, deleter)
     , m_logCatRegExp(regExpLogcat)
@@ -243,7 +243,7 @@ bool AndroidRunnerWorker::runAdb(const QStringList &args, int timeoutS)
 void AndroidRunnerWorker::adbKill(qint64 pid)
 {
     runAdb({"shell", "kill", "-9", QString::number(pid)});
-    runAdb({"shell", "run-as", m_androidRunnable.packageName, "kill", "-9", QString::number(pid)});
+    runAdb({"shell", "run-as", m_packageName, "kill", "-9", QString::number(pid)});
 }
 
 QStringList AndroidRunnerWorker::selector() const
@@ -253,14 +253,14 @@ QStringList AndroidRunnerWorker::selector() const
 
 void AndroidRunnerWorker::forceStop()
 {
-    runAdb({"shell", "am", "force-stop", m_androidRunnable.packageName}, 30);
+    runAdb({"shell", "am", "force-stop", m_packageName}, 30);
 
     // try killing it via kill -9
     const QByteArray out = Utils::SynchronousProcess()
             .runBlocking(m_adb, selector() << QStringLiteral("shell") << pidScriptPreNougat)
             .allRawOutput();
 
-    qint64 pid = extractPID(out.simplified(), m_androidRunnable.packageName);
+    qint64 pid = extractPID(out.simplified(), m_packageName);
     if (pid != -1) {
         adbKill(pid);
     }
@@ -370,14 +370,14 @@ void AndroidRunnerWorker::asyncStartHelper()
         args << "-D";
         QString gdbServerSocket;
         // run-as <package-name> pwd fails on API 22 so route the pwd through shell.
-        if (!runAdb({"shell", "run-as", m_androidRunnable.packageName, "/system/bin/sh", "-c", "pwd"})) {
+        if (!runAdb({"shell", "run-as", m_packageName, "/system/bin/sh", "-c", "pwd"})) {
             emit remoteProcessFinished(tr("Failed to get process path. Reason: %1.").arg(m_lastRunAdbError));
             return;
         }
         gdbServerSocket = QString::fromUtf8(m_lastRunAdbRawOutput.trimmed()) + "/debug-socket";
 
         QString gdbServerExecutable;
-        if (!runAdb({"shell", "run-as", m_androidRunnable.packageName, "ls", "lib/"})) {
+        if (!runAdb({"shell", "run-as", m_packageName, "ls", "lib/"})) {
             emit remoteProcessFinished(tr("Failed to get process path. Reason: %1.").arg(m_lastRunAdbError));
             return;
         }
@@ -394,11 +394,11 @@ void AndroidRunnerWorker::asyncStartHelper()
             return;
         }
 
-        runAdb({"shell", "run-as", m_androidRunnable.packageName, "killall", gdbServerExecutable});
-        runAdb({"shell", "run-as", m_androidRunnable.packageName, "rm", gdbServerSocket});
+        runAdb({"shell", "run-as", m_packageName, "killall", gdbServerExecutable});
+        runAdb({"shell", "run-as", m_packageName, "rm", gdbServerSocket});
         std::unique_ptr<QProcess, Deleter> gdbServerProcess(new QProcess, deleter);
         gdbServerProcess->start(m_adb, selector() << "shell" << "run-as"
-                                    << m_androidRunnable.packageName << "lib/" + gdbServerExecutable
+                                    << m_packageName << "lib/" + gdbServerExecutable
                                     << "--multi" << "+" + gdbServerSocket);
         if (!gdbServerProcess->waitForStarted()) {
             emit remoteProcessFinished(tr("Failed to start C++ debugger."));
@@ -456,7 +456,7 @@ void AndroidRunnerWorker::asyncStart()
     asyncStartHelper();
 
     m_pidFinder = Utils::onResultReady(Utils::runAsync(findProcessPID, m_adb, selector(),
-                                                       m_androidRunnable.packageName, m_isPreNougat),
+                                                       m_packageName, m_isPreNougat),
                                        bind(&AndroidRunnerWorker::onProcessIdChanged, this, _1));
 }
 
@@ -541,7 +541,7 @@ void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
     m_processPID = pid;
     if (pid == -1) {
         emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" died.")
-                                   .arg(m_androidRunnable.packageName));
+                                   .arg(m_packageName));
         // App died/killed. Reset log, monitor, jdb & gdb processes.
         m_adbLogcatProcess.reset();
         m_psIsAlive.reset();

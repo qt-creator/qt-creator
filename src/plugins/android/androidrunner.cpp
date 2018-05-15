@@ -128,10 +128,10 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
     connect(&m_checkAVDTimer, &QTimer::timeout, this, &AndroidRunner::checkAVD);
 
     QString intent = intentName.isEmpty() ? AndroidManager::intentName(m_target) : intentName;
-    m_androidRunnable.packageName = intent.left(intent.indexOf('/'));
+    m_packageName = intent.left(intent.indexOf('/'));
 
     const int apiLevel = AndroidManager::deviceApiLevel(m_target);
-    m_worker.reset(new AndroidRunnerWorker(this, m_androidRunnable));
+    m_worker.reset(new AndroidRunnerWorker(this, m_packageName));
     m_worker->setIntentName(intent);
     m_worker->setIsPreNougat(apiLevel <= 23);
     m_worker->setExtraAppParams(extraAppParams);
@@ -182,7 +182,7 @@ void AndroidRunner::stop()
 {
     if (m_checkAVDTimer.isActive()) {
         m_checkAVDTimer.stop();
-        appendMessage("\n\n" + tr("\"%1\" terminated.").arg(m_androidRunnable.packageName),
+        appendMessage("\n\n" + tr("\"%1\" terminated.").arg(m_packageName),
                       Utils::DebugFormat);
         return;
     }

@@ -80,7 +80,7 @@ private:
     void checkAVD();
     void launchAVD();
 
-    AndroidRunnable m_androidRunnable;
+    QString m_packageName;
     QString m_launchedAVDName;
     QThread m_thread;
     QTimer m_checkAVDTimer;
