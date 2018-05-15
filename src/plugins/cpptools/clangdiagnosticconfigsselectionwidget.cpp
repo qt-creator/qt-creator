@@ -76,7 +76,7 @@ ClangDiagnosticConfigsSelectionWidget::ClangDiagnosticConfigsSelectionWidget(QWi
     layout->setMargin(0);
     setLayout(layout);
     layout->addWidget(m_label);
-    layout->addWidget(m_selectionComboBox);
+    layout->addWidget(m_selectionComboBox, 1);
     auto *manageButton = new QPushButton(tr("Manage..."), this);
     layout->addWidget(manageButton);
     layout->addStretch();
