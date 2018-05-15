@@ -34,7 +34,6 @@ struct ANDROID_EXPORT AndroidRunnable
 {
     AndroidRunnable();
     QString packageName;
-    QStringList amStartExtraArgs;
     QStringList beforeStartAdbCommands;
     QStringList afterFinishAdbCommands;
 
@@ -45,7 +44,6 @@ struct ANDROID_EXPORT AndroidRunnable
 inline bool operator==(const AndroidRunnable &r1, const AndroidRunnable &r2)
 {
     return r1.packageName == r2.packageName
-        && r1.amStartExtraArgs == r2.amStartExtraArgs
         && r1.beforeStartAdbCommands == r2.beforeStartAdbCommands
         && r1.afterFinishAdbCommands == r2.afterFinishAdbCommands;
 }

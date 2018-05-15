@@ -23,11 +23,12 @@
 **
 ****************************************************************************/
 
-#include "androidconfigurations.h"
-#include "androidmanager.h"
 #include "androidrunnerworker.h"
 
-#include <QThread>
+#include "androidconfigurations.h"
+#include "androidconstants.h"
+#include "androidmanager.h"
+#include "androidrunconfiguration.h"
 
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/target.h>
@@ -40,6 +41,8 @@
 #include <utils/url.h>
 
 #include <QTcpServer>
+#include <QThread>
+
 #include <chrono>
 
 using namespace std;
@@ -177,6 +180,9 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunControl *runControl, const AndroidRu
     auto target = runConfig->target();
     m_deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
     m_apiLevel = AndroidManager::deviceApiLevel(target);
+
+    if (auto aspect = runConfig->extraAspect(Constants::ANDROID_AMSTARTARGS_ASPECT))
+        m_amStartExtraArgs = static_cast<BaseStringAspect *>(aspect)->value().split(' ');
 }
 
 AndroidRunnerWorker::~AndroidRunnerWorker()
@@ -344,7 +350,7 @@ void AndroidRunnerWorker::asyncStartHelper()
         runAdb(entry.split(' ', QString::SkipEmptyParts));
 
     QStringList args({"shell", "am", "start"});
-    args << m_androidRunnable.amStartExtraArgs;
+    args << m_amStartExtraArgs;
     args << "-n" << m_intentName;
     if (m_useCppDebugger) {
         args << "-D";

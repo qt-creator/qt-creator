@@ -131,9 +131,6 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
     m_androidRunnable.packageName = intent.left(intent.indexOf('/'));
 
     RunConfiguration *rc = runControl->runConfiguration();
-    if (auto aspect = rc->extraAspect(Constants::ANDROID_AMSTARTARGS_ASPECT))
-        m_androidRunnable.amStartExtraArgs = static_cast<BaseStringAspect *>(aspect)->value().split(' ');
-
     if (auto aspect = rc->extraAspect(Constants::ANDROID_PRESTARTSHELLCMDLIST_ASPECT)) {
         for (QString shellCmd : static_cast<BaseStringListAspect *>(aspect)->value())
             m_androidRunnable.beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));

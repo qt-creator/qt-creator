@@ -92,6 +92,7 @@ protected:
     AndroidRunnable m_androidRunnable;
     QString m_intentName;
     QString m_adb;
+    QStringList m_amStartExtraArgs;
     qint64 m_processPID = -1;
     std::unique_ptr<QProcess, Deleter> m_adbLogcatProcess;
     std::unique_ptr<QProcess, Deleter> m_psIsAlive;
