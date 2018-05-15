@@ -141,8 +141,8 @@ static ExplainingStep buildFixIt(const CXDiagnostic cxDiagnostic, unsigned index
 {
     ExplainingStep fixItStep;
     CXSourceRange cxFixItRange;
-    fixItStep.message = "fix-it: " + fromCXString(clang_getDiagnosticFixIt(cxDiagnostic, index,
-                                                                           &cxFixItRange));
+    fixItStep.isFixIt = true;
+    fixItStep.message = fromCXString(clang_getDiagnosticFixIt(cxDiagnostic, index, &cxFixItRange));
     fixItStep.location = diagLocationFromSourceLocation(clang_getRangeStart(cxFixItRange));
     fixItStep.ranges.push_back(fixItStep.location);
     fixItStep.ranges.push_back(diagLocationFromSourceLocation(clang_getRangeEnd(cxFixItRange)));
@@ -184,7 +184,9 @@ static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic, const QString
         diagnostic.explainingSteps.push_back(diagnosticStep);
     }
 
-    for (unsigned i = 0; i < clang_getDiagnosticNumFixIts(cxDiagnostic); ++i)
+    const unsigned fixItCount = clang_getDiagnosticNumFixIts(cxDiagnostic);
+    diagnostic.hasFixits = fixItCount != 0;
+    for (unsigned i = 0; i < fixItCount; ++i)
         diagnostic.explainingSteps.push_back(buildFixIt(cxDiagnostic, i));
 
     diagnostic.description = fromCXString(clang_getDiagnosticSpelling(cxDiagnostic));

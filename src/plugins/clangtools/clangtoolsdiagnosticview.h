@@ -37,6 +37,10 @@ class DiagnosticView : public Debugger::DetailedErrorView
 public:
     DiagnosticView(QWidget *parent = 0);
 
+    enum ExtraColumn {
+        FixItColumn = LocationColumn + 1,
+    };
+
 private:
     void suppressCurrentDiagnostic();
 

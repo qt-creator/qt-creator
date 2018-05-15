@@ -28,11 +28,6 @@
 namespace ClangTools {
 namespace Internal {
 
-ExplainingStep::ExplainingStep()
-    : depth(0)
-{
-}
-
 bool ExplainingStep::isValid() const
 {
     return location.isValid() && !ranges.isEmpty() && !message.isEmpty();

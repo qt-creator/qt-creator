@@ -40,6 +40,24 @@ namespace ProjectExplorer { class Project; }
 namespace ClangTools {
 namespace Internal {
 
+class DiagnosticItem : public Utils::TreeItem
+{
+public:
+    DiagnosticItem(const Diagnostic &diag);
+
+    Diagnostic diagnostic() const { return m_diagnostic; }
+    bool applyFixits() const { return m_applyFixits; }
+
+private:
+    Qt::ItemFlags flags(int column) const override;
+    QVariant data(int column, int role) const override;
+    bool setData(int column, const QVariant &data, int role) override;
+
+private:
+    const Diagnostic m_diagnostic;
+    bool m_applyFixits = false;
+};
+
 class ClangToolsDiagnosticModel : public Utils::TreeModel<>
 {
     Q_OBJECT

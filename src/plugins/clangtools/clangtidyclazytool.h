@@ -27,6 +27,10 @@
 
 #include "clangtool.h"
 
+QT_BEGIN_NAMESPACE
+class QToolButton;
+QT_END_NAMESPACE
+
 namespace Utils { class FancyLineEdit; }
 
 namespace ClangTools {
@@ -61,6 +65,7 @@ private:
     DiagnosticFilterModel *m_diagnosticFilterModel = nullptr;
 
     Utils::FancyLineEdit *m_filterLineEdit = nullptr;
+    QToolButton *m_applyFixitsButton = nullptr;
 
     QAction *m_goBack = nullptr;
     QAction *m_goNext = nullptr;

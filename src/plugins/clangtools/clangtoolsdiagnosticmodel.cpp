@@ -42,19 +42,6 @@
 namespace ClangTools {
 namespace Internal {
 
-class DiagnosticItem : public Utils::TreeItem
-{
-public:
-    DiagnosticItem(const Diagnostic &diag);
-
-    Diagnostic diagnostic() const { return m_diagnostic; }
-
-private:
-    QVariant data(int column, int role) const override;
-
-    const Diagnostic m_diagnostic;
-};
-
 class ExplainingStepItem : public Utils::TreeItem
 {
 public:
@@ -69,7 +56,7 @@ private:
 ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(QObject *parent)
     : Utils::TreeModel<>(parent)
 {
-    setHeader({tr("Issue"), tr("Location")});
+    setHeader({tr("Issue"), tr("Location"), tr("Fixits")});
 }
 
 void ClangToolsDiagnosticModel::addDiagnostics(const QList<Diagnostic> &diagnostics)
@@ -225,6 +212,13 @@ DiagnosticItem::DiagnosticItem(const Diagnostic &diag) : m_diagnostic(diag)
         appendChild(new ExplainingStepItem(s));
 }
 
+Qt::ItemFlags DiagnosticItem::flags(int column) const
+{
+    if (column == DiagnosticView::FixItColumn && m_diagnostic.hasFixits)
+        return TreeItem::flags(column) | Qt::ItemIsUserCheckable;
+    return TreeItem::flags(column);
+}
+
 static QVariant locationData(int role, const Debugger::DiagnosticLocation &location)
 {
     switch (role) {
@@ -255,6 +249,12 @@ QVariant DiagnosticItem::data(int column, int role) const
     if (column == Debugger::DetailedErrorView::LocationColumn)
         return locationData(role, m_diagnostic.location);
 
+    if (column == DiagnosticView::FixItColumn) {
+        if (role == Qt::CheckStateRole)
+            return m_applyFixits ? Qt::Checked : Qt::Unchecked;
+        return QVariant();
+    }
+
     // DiagnosticColumn
     switch (role) {
     case Debugger::DetailedErrorView::FullTextRole:
@@ -272,6 +272,17 @@ QVariant DiagnosticItem::data(int column, int role) const
     }
 }
 
+bool DiagnosticItem::setData(int column, const QVariant &data, int role)
+{
+    if (column == DiagnosticView::FixItColumn && role == Qt::CheckStateRole) {
+        m_applyFixits = data.value<Qt::CheckState>() == Qt::Checked ? true : false;
+        update();
+        return true;
+    }
+
+    return Utils::TreeItem::setData(column, data, role);
+}
+
 ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step) : m_step(step)
 {
 }
@@ -280,6 +291,9 @@ QVariant ExplainingStepItem::data(int column, int role) const
 {
     if (column == Debugger::DetailedErrorView::LocationColumn)
         return locationData(role, m_step.location);
+
+    if (column == DiagnosticView::FixItColumn)
+        return QVariant();
 
     // DiagnosticColumn
     switch (role) {

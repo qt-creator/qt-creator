@@ -50,10 +50,13 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
 
+#include <texteditor/refactoringchanges.h>
+
 #include <utils/fancylineedit.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
+#include <QToolButton>
 
 using namespace Core;
 using namespace CppTools;
@@ -65,6 +68,43 @@ namespace ClangTools {
 namespace Internal {
 
 static ClangTidyClazyTool *s_instance;
+
+static void applyFixits(const QVector<Diagnostic> &diagnostics)
+{
+    TextEditor::RefactoringChanges changes;
+    QMap<QString, TextEditor::RefactoringFilePtr> refactoringFiles;
+
+    // Create refactoring files and changes
+    for (const Diagnostic &diagnostic : diagnostics) {
+        const auto filePath = diagnostic.location.filePath;
+        QTC_ASSERT(!filePath.isEmpty(), continue);
+
+        // Get or create refactoring file
+        TextEditor::RefactoringFilePtr refactoringFile = refactoringFiles.value(filePath);
+        if (!refactoringFile) {
+            refactoringFile = changes.file(filePath);
+            refactoringFiles.insert(filePath, refactoringFile);
+        }
+
+        // Append changes
+        ChangeSet cs = refactoringFile->changeSet();
+
+        for (const ExplainingStep &step : diagnostic.explainingSteps) {
+            if (step.isFixIt) {
+                const Debugger::DiagnosticLocation start = step.ranges.first();
+                const Debugger::DiagnosticLocation end = step.ranges.last();
+                cs.replace(refactoringFile->position(start.line, start.column),
+                           refactoringFile->position(end.line, end.column), step.message);
+            }
+        }
+
+        refactoringFile->setChangeSet(cs);
+    }
+
+    // Apply refactoring file changes
+    for (TextEditor::RefactoringFilePtr refactoringFile  : refactoringFiles.values())
+        refactoringFile->apply();
+}
 
 ClangTidyClazyTool::ClangTidyClazyTool()
     : ClangTool("Clang-Tidy and Clazy")
@@ -118,6 +158,22 @@ ClangTidyClazyTool::ClangTidyClazyTool()
             QRegExp(filter, Qt::CaseSensitive, QRegExp::WildcardUnix));
     });
 
+    // Apply fixits button
+    m_applyFixitsButton = new QToolButton;
+    m_applyFixitsButton->setText(tr("Apply Fixits"));
+    connect(m_applyFixitsButton, &QToolButton::clicked, [this]() {
+        QVector<Diagnostic> diagnosticsWithFixits;
+
+        const int count = m_diagnosticModel->rootItem()->childCount();
+        for (int i = 0; i < count; ++i) {
+            auto *item = static_cast<DiagnosticItem *>(m_diagnosticModel->rootItem()->childAt(i));
+            if (item->applyFixits())
+                diagnosticsWithFixits += item->diagnostic();
+        }
+
+        applyFixits(diagnosticsWithFixits);
+    });
+
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     const QString toolTip = tr("Clang-Tidy and Clazy use a customized Clang executable from the "
                                "Clang project to search for errors and warnings.");
@@ -143,6 +199,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     tidyClazyToolbar.addAction(m_goBack);
     tidyClazyToolbar.addAction(m_goNext);
     tidyClazyToolbar.addWidget(m_filterLineEdit);
+    tidyClazyToolbar.addWidget(m_applyFixitsButton);
     Debugger::registerToolbar(ClangTidyClazyPerspectiveId, tidyClazyToolbar);
 
     updateRunActions();
