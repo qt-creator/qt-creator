@@ -32,10 +32,6 @@
 
 #include "androidrunnable.h"
 
-namespace ProjectExplorer {
-class RunControl;
-}
-
 namespace Android {
 
 class AndroidDeviceInfo;
@@ -48,7 +44,7 @@ class AndroidRunnerWorker : public QObject
 {
     Q_OBJECT
 public:
-    AndroidRunnerWorker(ProjectExplorer::RunControl *runControl, const AndroidRunnable &runnable);
+    AndroidRunnerWorker(ProjectExplorer::RunWorker *runner, const AndroidRunnable &runnable);
     ~AndroidRunnerWorker() override;
     bool adbShellAmNeedsQuotes();
     bool runAdb(const QStringList &args, int timeoutS = 10);

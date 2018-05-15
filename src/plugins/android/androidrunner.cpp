@@ -142,7 +142,7 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
     }
 
     const int apiLevel = AndroidManager::deviceApiLevel(m_target);
-    m_worker.reset(new AndroidRunnerWorker(runControl, m_androidRunnable));
+    m_worker.reset(new AndroidRunnerWorker(this, m_androidRunnable));
     m_worker->setIntentName(intent);
     m_worker->setIsPreNougat(apiLevel <= 23);
     m_worker->setExtraAppParams(extraAppParams);

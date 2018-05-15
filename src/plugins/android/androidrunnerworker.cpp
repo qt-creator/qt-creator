@@ -140,7 +140,7 @@ static void deleter(QProcess *p)
     p->deleteLater();
 }
 
-AndroidRunnerWorker::AndroidRunnerWorker(RunControl *runControl, const AndroidRunnable &runnable)
+AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const AndroidRunnable &runnable)
     : m_androidRunnable(runnable)
     , m_adbLogcatProcess(nullptr, deleter)
     , m_psIsAlive(nullptr, deleter)
@@ -149,9 +149,9 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunControl *runControl, const AndroidRu
     , m_jdbProcess(nullptr, deleter)
 
 {
-    auto runConfig = runControl->runConfiguration();
+    auto runConfig = runner->runControl()->runConfiguration();
     auto aspect = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    Core::Id runMode = runControl->runMode();
+    Core::Id runMode = runner->runMode();
     const bool debuggingMode = runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE;
     m_useCppDebugger = debuggingMode && aspect->useCppDebugger();
     if (debuggingMode && aspect->useQmlDebugger())
