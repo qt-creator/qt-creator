@@ -36,7 +36,6 @@ struct ANDROID_EXPORT AndroidRunnable
     QString packageName;
     QString intentName;
     QStringList amStartExtraArgs;
-    Utils::Environment environment;
     QStringList beforeStartAdbCommands;
     QStringList afterFinishAdbCommands;
 
@@ -49,7 +48,6 @@ inline bool operator==(const AndroidRunnable &r1, const AndroidRunnable &r2)
     return r1.packageName == r2.packageName
         && r1.intentName == r2.intentName
         && r1.amStartExtraArgs == r2.amStartExtraArgs
-        && r1.environment == r2.environment
         && r1.beforeStartAdbCommands == r2.beforeStartAdbCommands
         && r1.afterFinishAdbCommands == r2.afterFinishAdbCommands;
 }
