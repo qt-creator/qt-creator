@@ -34,8 +34,6 @@ struct ANDROID_EXPORT AndroidRunnable
 {
     AndroidRunnable();
     QString packageName;
-    QStringList beforeStartAdbCommands;
-    QStringList afterFinishAdbCommands;
 
     QString displayName() const { return packageName; }
     static void *staticTypeId;
@@ -43,9 +41,7 @@ struct ANDROID_EXPORT AndroidRunnable
 
 inline bool operator==(const AndroidRunnable &r1, const AndroidRunnable &r2)
 {
-    return r1.packageName == r2.packageName
-        && r1.beforeStartAdbCommands == r2.beforeStartAdbCommands
-        && r1.afterFinishAdbCommands == r2.afterFinishAdbCommands;
+    return r1.packageName == r2.packageName;
 }
 
 inline bool operator!=(const AndroidRunnable &r1, const AndroidRunnable &r2)

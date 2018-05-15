@@ -181,8 +181,22 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const AndroidRunnabl
     m_deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
     m_apiLevel = AndroidManager::deviceApiLevel(target);
 
-    if (auto aspect = runConfig->extraAspect(Constants::ANDROID_AMSTARTARGS_ASPECT))
+    if (auto aspect = runConfig->extraAspect(Constants::ANDROID_AMSTARTARGS))
         m_amStartExtraArgs = static_cast<BaseStringAspect *>(aspect)->value().split(' ');
+
+    if (auto aspect = runConfig->extraAspect(Constants::ANDROID_PRESTARTSHELLCMDLIST)) {
+        for (const QString &shellCmd : static_cast<BaseStringListAspect *>(aspect)->value())
+            m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
+    }
+    for (const QString &shellCmd : runner->recordedData(Constants::ANDROID_PRESTARTSHELLCMDLIST).toStringList())
+        m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
+
+    if (auto aspect = runConfig->extraAspect(Constants::ANDROID_POSTFINISHSHELLCMDLIST)) {
+        for (const QString &shellCmd : static_cast<BaseStringListAspect *>(aspect)->value())
+            m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
+    }
+    for (const QString &shellCmd : runner->recordedData(Constants::ANDROID_POSTFINISHSHELLCMDLIST).toStringList())
+        m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
 }
 
 AndroidRunnerWorker::~AndroidRunnerWorker()
@@ -346,7 +360,7 @@ void AndroidRunnerWorker::asyncStartHelper()
     QTC_ASSERT(!m_adbLogcatProcess, /**/);
     m_adbLogcatProcess = std::move(logcatProcess);
 
-    for (const QString &entry: m_androidRunnable.beforeStartAdbCommands)
+    for (const QString &entry : m_beforeStartAdbCommands)
         runAdb(entry.split(' ', QString::SkipEmptyParts));
 
     QStringList args({"shell", "am", "start"});
@@ -398,7 +412,7 @@ void AndroidRunnerWorker::asyncStartHelper()
             emit remoteProcessFinished(tr("Failed to forward C++ debugging ports. Reason: %1.").arg(m_lastRunAdbError));
             return;
         }
-        m_androidRunnable.afterFinishAdbCommands.push_back(removeForward.join(' '));
+        m_afterFinishAdbCommands.push_back(removeForward.join(' '));
     }
 
     if (m_qmlDebugServices != QmlDebug::NoQmlDebugServices) {
@@ -411,7 +425,7 @@ void AndroidRunnerWorker::asyncStartHelper()
                                        .arg(m_lastRunAdbError));
             return;
         }
-        m_androidRunnable.afterFinishAdbCommands.push_back(removeForward.join(' '));
+        m_afterFinishAdbCommands.push_back(removeForward.join(' '));
 
         args << "-e" << "qml_debug" << "true"
              << "-e" << "qmljsdebugger"
@@ -467,7 +481,7 @@ void AndroidRunnerWorker::handleJdbWaiting()
         emit remoteProcessFinished(tr("Failed to forward jdb debugging ports. Reason: %1.").arg(m_lastRunAdbError));
         return;
     }
-    m_androidRunnable.afterFinishAdbCommands.push_back(removeForward.join(' '));
+    m_afterFinishAdbCommands.push_back(removeForward.join(' '));
 
     auto jdbPath = AndroidConfigurations::currentConfig().openJDKLocation().appendPath("bin");
     if (Utils::HostOsInfo::isWindowsHost())
@@ -535,7 +549,7 @@ void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
         m_gdbServerProcess.reset();
 
         // Run adb commands after application quit.
-        for (const QString &entry: m_androidRunnable.afterFinishAdbCommands)
+        for (const QString &entry: m_afterFinishAdbCommands)
             runAdb(entry.split(' ', QString::SkipEmptyParts));
     } else {
         // In debugging cases this will be funneled to the engine to actually start

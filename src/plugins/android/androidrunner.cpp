@@ -130,17 +130,6 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
     QString intent = intentName.isEmpty() ? AndroidManager::intentName(m_target) : intentName;
     m_androidRunnable.packageName = intent.left(intent.indexOf('/'));
 
-    RunConfiguration *rc = runControl->runConfiguration();
-    if (auto aspect = rc->extraAspect(Constants::ANDROID_PRESTARTSHELLCMDLIST_ASPECT)) {
-        for (QString shellCmd : static_cast<BaseStringListAspect *>(aspect)->value())
-            m_androidRunnable.beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
-    }
-
-    if (auto aspect = rc->extraAspect(Constants::ANDROID_POSTSTARTSHELLCMDLIST_ASPECT)) {
-        for (QString shellCmd : static_cast<BaseStringListAspect *>(aspect)->value())
-            m_androidRunnable.afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
-    }
-
     const int apiLevel = AndroidManager::deviceApiLevel(m_target);
     m_worker.reset(new AndroidRunnerWorker(this, m_androidRunnable));
     m_worker->setIntentName(intent);

@@ -51,9 +51,11 @@ const char ANDROID_SETTINGS_ID[] = "BB.Android Configurations";
 const char ANDROID_TOOLCHAIN_ID[] = "Qt4ProjectManager.ToolChain.Android";
 const char ANDROIDQT[] = "Qt4ProjectManager.QtVersion.Android";
 
-const char ANDROID_AMSTARTARGS_ASPECT[] = "Android.AmStartArgs";
-const char ANDROID_PRESTARTSHELLCMDLIST_ASPECT[] = "Android.PreStartShellCmdList";
-const char ANDROID_POSTSTARTSHELLCMDLIST_ASPECT[] = "Android.PostStartShellCmdList";
+const char ANDROID_AMSTARTARGS[] = "Android.AmStartArgs";
+// Note: Can be set on RunConfiguration using an aspect and/or
+// the AndroidRunnerWorker using recordData()
+const char ANDROID_PRESTARTSHELLCMDLIST[] = "Android.PreStartShellCmdList";
+const char ANDROID_POSTFINISHSHELLCMDLIST[] = "Android.PostFinishShellCmdList";
 
 const char ANDROID_DEVICE_TYPE[] = "Android.Device.Type";
 const char ANDROID_DEVICE_ID[] = "Android Device";

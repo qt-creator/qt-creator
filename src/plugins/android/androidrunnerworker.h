@@ -87,6 +87,8 @@ protected:
     bool m_isPreNougat = false;
     AndroidRunnable m_androidRunnable;
     QString m_intentName;
+    QStringList m_beforeStartAdbCommands;
+    QStringList m_afterFinishAdbCommands;
     QString m_adb;
     QStringList m_amStartExtraArgs;
     qint64 m_processPID = -1;

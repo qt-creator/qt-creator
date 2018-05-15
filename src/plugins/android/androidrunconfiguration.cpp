@@ -111,20 +111,20 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
     auto amStartArgsAspect = new BaseStringAspect(this);
-    amStartArgsAspect->setId(Constants::ANDROID_AMSTARTARGS_ASPECT);
+    amStartArgsAspect->setId(Constants::ANDROID_AMSTARTARGS);
     amStartArgsAspect->setSettingsKey("Android.AmStartArgsKey");
     amStartArgsAspect->setLabelText(tr("Activity manager start options:"));
     amStartArgsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
     addExtraAspect(amStartArgsAspect);
 
     auto preStartShellCmdAspect = new BaseStringListAspect(this);
-    preStartShellCmdAspect->setId(Constants::ANDROID_PRESTARTSHELLCMDLIST_ASPECT);
+    preStartShellCmdAspect->setId(Constants::ANDROID_PRESTARTSHELLCMDLIST);
     preStartShellCmdAspect->setSettingsKey("Android.PreStartShellCmdListKey");
     preStartShellCmdAspect->setLabel(tr("Shell commands to run on Android device before application launch."));
     addExtraAspect(preStartShellCmdAspect);
 
     auto postStartShellCmdAspect = new BaseStringListAspect(this);
-    postStartShellCmdAspect->setId(Constants::ANDROID_POSTSTARTSHELLCMDLIST_ASPECT);
+    postStartShellCmdAspect->setId(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
     postStartShellCmdAspect->setSettingsKey("Android.PostStartShellCmdListKey");
     postStartShellCmdAspect->setLabel(tr("Shell commands to run on Android device after application quits."));
     addExtraAspect(postStartShellCmdAspect);
@@ -140,7 +140,7 @@ QWidget *AndroidRunConfiguration::createConfigurationWidget()
     auto widget = new QWidget;
     auto layout = new QFormLayout(widget);
 
-    extraAspect(Constants::ANDROID_AMSTARTARGS_ASPECT)->addToConfigurationLayout(layout);
+    extraAspect(Constants::ANDROID_AMSTARTARGS)->addToConfigurationLayout(layout);
 
     auto warningIconLabel = new QLabel;
     warningIconLabel->setPixmap(Utils::Icons::WARNING.pixmap());
@@ -148,8 +148,8 @@ QWidget *AndroidRunConfiguration::createConfigurationWidget()
     auto warningLabel = new QLabel(tr("If the \"am start\" options conflict, the application might not start."));
     layout->addRow(warningIconLabel, warningLabel);
 
-    extraAspect(Constants::ANDROID_PRESTARTSHELLCMDLIST_ASPECT)->addToConfigurationLayout(layout);
-    extraAspect(Constants::ANDROID_POSTSTARTSHELLCMDLIST_ASPECT)->addToConfigurationLayout(layout);
+    extraAspect(Constants::ANDROID_PRESTARTSHELLCMDLIST)->addToConfigurationLayout(layout);
+    extraAspect(Constants::ANDROID_POSTFINISHSHELLCMDLIST)->addToConfigurationLayout(layout);
 
     auto wrapped = wrapWidget(widget);
     auto detailsWidget = qobject_cast<DetailsWidget *>(wrapped);
