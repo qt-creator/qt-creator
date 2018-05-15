@@ -50,6 +50,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
 
+#include <utils/fancylineedit.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -108,6 +109,15 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goNext);
     m_goNext = action;
 
+    // Filter line edit
+    m_filterLineEdit = new Utils::FancyLineEdit();
+    m_filterLineEdit->setFiltering(true);
+    m_filterLineEdit->setHistoryCompleter("CppTools.ClangTidyClazyIssueFilter", true);
+    connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged, [this](const QString &filter) {
+        m_diagnosticFilterModel->setFilterRegExp(
+            QRegExp(filter, Qt::CaseSensitive, QRegExp::WildcardUnix));
+    });
+
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     const QString toolTip = tr("Clang-Tidy and Clazy use a customized Clang executable from the "
                                "Clang project to search for errors and warnings.");
@@ -132,6 +142,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     tidyClazyToolbar.addAction(m_stopAction);
     tidyClazyToolbar.addAction(m_goBack);
     tidyClazyToolbar.addAction(m_goNext);
+    tidyClazyToolbar.addWidget(m_filterLineEdit);
     Debugger::registerToolbar(ClangTidyClazyPerspectiveId, tidyClazyToolbar);
 
     updateRunActions();

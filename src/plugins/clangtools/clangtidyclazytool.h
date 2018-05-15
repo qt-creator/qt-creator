@@ -27,6 +27,8 @@
 
 #include "clangtool.h"
 
+namespace Utils { class FancyLineEdit; }
+
 namespace ClangTools {
 namespace Internal {
 
@@ -57,6 +59,8 @@ private:
     void updateRunActions();
 
     DiagnosticFilterModel *m_diagnosticFilterModel = nullptr;
+
+    Utils::FancyLineEdit *m_filterLineEdit = nullptr;
 
     QAction *m_goBack = nullptr;
     QAction *m_goNext = nullptr;

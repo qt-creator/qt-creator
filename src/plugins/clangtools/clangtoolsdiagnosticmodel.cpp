@@ -346,8 +346,11 @@ void DiagnosticFilterModel::addSuppressedDiagnostic(
 bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow,
         const QModelIndex &sourceParent) const
 {
+    // Avoid filtering child diagnostics / explaining steps.
     if (sourceParent.isValid())
         return true;
+
+    // Is the diagnostic suppressed?
     const Diagnostic diag = static_cast<ClangToolsDiagnosticModel *>(sourceModel())
             ->diagnostics().at(sourceRow);
     foreach (const SuppressedDiagnostic &d, m_suppressedDiagnostics) {
@@ -360,7 +363,12 @@ bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow,
         if (filePath == diag.location.filePath)
             return false;
     }
-    return true;
+
+    // Does the diagnostic match the filter?
+    if (diag.description.contains(filterRegExp()))
+        return true;
+
+    return false;
 }
 
 void DiagnosticFilterModel::handleSuppressedDiagnosticsChanged()
