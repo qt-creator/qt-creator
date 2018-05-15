@@ -38,10 +38,8 @@ const Utils::Icon ARROW_DOWN({
         {QLatin1String(":/navigator/icon/arrowdown.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon ARROW_LEFT({
         {QLatin1String(":/navigator/icon/arrowleft.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon EXPORT_CHECKED({
-        {QLatin1String(":/navigator/icon/export_checked.png"), Utils::Theme::IconsBaseColor}});
-const Utils::Icon EXPORT_UNCHECKED({
-        {QLatin1String(":/navigator/icon/export_unchecked.png"), Utils::Theme::IconsBaseColor}});
+const Utils::Icon EXPORT_CHECKED(":/navigator/icon/export_checked.png");
+const Utils::Icon EXPORT_UNCHECKED(":/navigator/icon/export_unchecked.png");
 const Utils::Icon SNAPPING({
         {QLatin1String(":/icon/layout/snapping.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon NO_SNAPPING({

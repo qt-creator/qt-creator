@@ -163,16 +163,7 @@ MetaInfo {
         ItemLibraryEntry {
             name: "List View"
             category: "Qt Quick - Views"
-            libraryIcon: ":/qtquickplugin/images/pathview-icon.png"
-            version: "1.1"
-
-            QmlSource { source: ":/qtquickplugin/source/listview.qml" }
-        }
-
-        ItemLibraryEntry {
-            name: "List View"
-            category: "Qt Quick - Views"
-            libraryIcon: ":/qtquickplugin/images/pathview-icon.png"
+            libraryIcon: ":/qtquickplugin/images/listview-icon.png"
             version: "2.0"
 
             QmlSource { source: ":/qtquickplugin/source/listviewv2.qml" }

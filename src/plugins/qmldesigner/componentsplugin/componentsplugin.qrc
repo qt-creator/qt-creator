@@ -33,6 +33,10 @@
         <file>images/splitview-layouts-icon-16px.png</file>
         <file>images/stack-layouts-icon.png</file>
         <file>images/stack-layouts-icon-16px.png</file>
+        <file>images/column-layouts-icon@2x.png</file>
+        <file>images/grid-layouts-icon@2x.png</file>
+        <file>images/row-layouts-icon@2x.png</file>
+        <file>images/stack-layouts-icon@2x.png</file>
     </qresource>
     <qresource prefix="/propertyEditorQmlSources/QtQuick">
         <file>Controls/ButtonSpecifics.qml</file>
