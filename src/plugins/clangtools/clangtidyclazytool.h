@@ -41,7 +41,6 @@ class DiagnosticFilterModel;
 const char ClangTidyClazyPerspectiveId[] = "ClangTidyClazy.Perspective";
 const char ClangTidyClazyDockId[]        = "ClangTidyClazy.Dock";
 
-// TODO: Add "go next" and "go previous" button like for the static analyzer
 class ClangTidyClazyTool final : public ClangTool
 {
     Q_OBJECT
