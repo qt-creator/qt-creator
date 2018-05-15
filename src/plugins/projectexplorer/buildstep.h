@@ -132,7 +132,6 @@ public:
     Core::Id stepId() const;
     BuildStep *create(BuildStepList *parent, Core::Id id);
     BuildStep *restore(BuildStepList *parent, const QVariantMap &map);
-    BuildStep *clone(BuildStepList *parent, BuildStep *product);
 
     virtual bool canHandle(BuildStepList *bsl) const;
 
