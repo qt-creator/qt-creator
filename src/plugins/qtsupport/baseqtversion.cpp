@@ -1815,9 +1815,8 @@ bool BaseQtVersion::isQtQuickCompilerSupported(QString *reason) const
         return false;
     }
 
-    const QString qtQuickCompilerExecutable =
-            HostOsInfo::withExecutableSuffix(binPath().toString() + "/qtquickcompiler");
-    if (!QFileInfo::exists(qtQuickCompilerExecutable)) {
+    const QString qtQuickCompilerPrf = mkspecsPath().toString() + "/features/qtquickcompiler.prf";
+    if (!QFileInfo::exists(qtQuickCompilerPrf)) {
         if (reason)
             *reason = QCoreApplication::translate("BaseQtVersion", "This Qt Version does not contain Qt Quick Compiler.");
         return false;
