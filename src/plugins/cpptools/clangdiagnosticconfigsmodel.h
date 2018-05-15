@@ -42,7 +42,6 @@ public:
     int size() const;
     const ClangDiagnosticConfig &at(int index) const;
 
-    void prepend(const ClangDiagnosticConfig &config);
     void appendOrUpdate(const ClangDiagnosticConfig &config);
     void removeConfigWithId(const Core::Id &id);
 

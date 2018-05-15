@@ -109,11 +109,6 @@ const ClangDiagnosticConfig &ClangDiagnosticConfigsModel::at(int index) const
     return m_diagnosticConfigs.at(index);
 }
 
-void ClangDiagnosticConfigsModel::prepend(const ClangDiagnosticConfig &config)
-{
-    m_diagnosticConfigs.prepend(config);
-}
-
 void ClangDiagnosticConfigsModel::appendOrUpdate(const ClangDiagnosticConfig &config)
 {
     const int index = indexOfConfig(config.id());
