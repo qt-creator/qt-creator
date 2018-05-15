@@ -46,7 +46,6 @@ HEADERS += \
     android_global.h \
     androidbuildapkstep.h \
     androidbuildapkwidget.h \
-    androidrunnable.h \
     androidtoolmanager.h \
     androidsdkmanager.h \
     androidavdmanager.h \
@@ -94,7 +93,6 @@ SOURCES += \
     androidbuildapkstep.cpp \
     androidbuildapkwidget.cpp \
     androidqtsupport.cpp \
-    androidrunnable.cpp \
     androidtoolmanager.cpp \
     androidsdkmanager.cpp \
     androidavdmanager.cpp \

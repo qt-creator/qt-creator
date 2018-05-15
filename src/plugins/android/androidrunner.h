@@ -26,7 +26,6 @@
 #pragma once
 
 #include "androidconfigurations.h"
-#include "androidrunnable.h"
 
 #include <projectexplorer/runconfiguration.h>
 #include <qmldebug/qmldebugcommandlinearguments.h>
