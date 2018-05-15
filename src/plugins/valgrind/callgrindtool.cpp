@@ -217,6 +217,7 @@ public:
     QAction *m_dumpAction = nullptr;
     QAction *m_resetAction = nullptr;
     QAction *m_pauseAction = nullptr;
+    QAction *m_discardAction = nullptr;
 
     QString m_toggleCollectFunction;
     bool m_toolBusy = false;
@@ -392,6 +393,15 @@ CallgrindTool::CallgrindTool()
     action->setToolTip(tr("Pause event logging. No events are counted which will speed up program execution during profiling."));
     connect(action, &QAction::toggled, this, &CallgrindTool::pauseToggled);
 
+    // discard data action
+    m_discardAction = action = new QAction(this);
+    action->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
+    action->setToolTip(tr("Discard Data"));
+    connect(action, &QAction::triggered, this, [this](bool) {
+        clearTextMarks();
+        doClear(true);
+    });
+
     // navigation
     // go back
     m_goBack = action = new QAction(this);
@@ -421,6 +431,7 @@ CallgrindTool::CallgrindTool()
     toolbar.addAction(m_dumpAction);
     toolbar.addAction(m_resetAction);
     toolbar.addAction(m_pauseAction);
+    toolbar.addAction(m_discardAction);
     toolbar.addAction(m_goBack);
     toolbar.addAction(m_goNext);
     toolbar.addWidget(new Utils::StyledSeparator);
