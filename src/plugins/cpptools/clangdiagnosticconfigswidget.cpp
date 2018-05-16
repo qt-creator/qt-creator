@@ -26,28 +26,169 @@
 #include "clangdiagnosticconfigswidget.h"
 
 #include "cppcodemodelsettings.h"
+#include "cpptools_clangtidychecks.h"
 #include "cpptoolsreuse.h"
 #include "ui_clangdiagnosticconfigswidget.h"
 #include "ui_clangbasechecks.h"
 #include "ui_clazychecks.h"
 #include "ui_tidychecks.h"
 
+#include <projectexplorer/selectablefilesmodel.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QDebug>
+#include <QDialogButtonBox>
 #include <QInputDialog>
 #include <QPushButton>
 #include <QUuid>
 
 namespace CppTools {
 
+static void buildTree(ProjectExplorer::Tree *parent,
+                      ProjectExplorer::Tree *current,
+                      const Constants::TidyNode &node)
+{
+    current->name = QString::fromUtf8(node.name);
+    current->isDir = node.children.size();
+    if (parent) {
+        current->fullPath = parent->fullPath + current->name;
+        parent->childDirectories.push_back(current);
+    } else {
+        current->fullPath = Utils::FileName::fromString(current->name);
+    }
+    current->parent = parent;
+    for (const Constants::TidyNode &nodeChild : node.children)
+        buildTree(current, new ProjectExplorer::Tree, nodeChild);
+}
+
+class TidyChecksTreeModel final : public ProjectExplorer::SelectableFilesModel
+{
+    Q_OBJECT
+
+public:
+    TidyChecksTreeModel()
+        : ProjectExplorer::SelectableFilesModel(nullptr)
+    {
+        buildTree(nullptr, m_root, Constants::CLANG_TIDY_CHECKS_ROOT);
+    }
+
+    QString selectedChecks() const
+    {
+        QString checks;
+        collectChecks(m_root, checks);
+        return "-*" + checks;
+    }
+
+    void selectChecks(const QString &checks)
+    {
+        m_root->checked = Qt::Unchecked;
+        propagateDown(index(0, 0, QModelIndex()));
+
+        QStringList checksList = checks.simplified().remove(" ")
+                .split(",", QString::SkipEmptyParts);
+
+        for (QString &check : checksList) {
+            Qt::CheckState state;
+            if (check.startsWith("-")) {
+                check = check.right(check.length() - 1);
+                state = Qt::Unchecked;
+            } else {
+                state = Qt::Checked;
+            }
+            const QModelIndex index = indexForCheck(check);
+            if (!index.isValid())
+                continue;
+            auto node = static_cast<ProjectExplorer::Tree *>(index.internalPointer());
+            node->checked = state;
+            propagateUp(index);
+            propagateDown(index);
+        }
+    }
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const final
+    {
+        if (!index.isValid() || role == Qt::DecorationRole)
+            return QVariant();
+        if (role == Qt::DisplayRole) {
+            auto *node = static_cast<ProjectExplorer::Tree *>(index.internalPointer());
+            return node->isDir ? (node->name + "*") : node->name;
+        }
+        return ProjectExplorer::SelectableFilesModel::data(index, role);
+    }
+
+private:
+
+    // TODO: Remove/replace this method after base class refactoring is done.
+    void traverse(const QModelIndex &index,
+                  const std::function<bool(const QModelIndex &)> &visit) const
+    {
+        if (!index.isValid())
+            return;
+
+        if (!visit(index))
+            return;
+
+        if (!hasChildren(index))
+            return;
+
+        const int rows = rowCount(index);
+        const int cols = columnCount(index);
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j)
+                traverse(this->index(i, j, index), visit);
+        }
+    }
+
+    QModelIndex indexForCheck(const QString &check) const {
+        if (check == "*")
+            return index(0, 0, QModelIndex());
+
+        QModelIndex result;
+        traverse(index(0, 0, QModelIndex()), [&](const QModelIndex &index){
+            using ProjectExplorer::Tree;
+            if (result.isValid())
+                return false;
+
+            auto *node = static_cast<Tree *>(index.internalPointer());
+            const QString nodeName = node->fullPath.toString();
+            if ((check.endsWith("*") && nodeName.startsWith(check.left(check.length() - 1)))
+                    || (!node->isDir && nodeName == check)) {
+                result = index;
+                return false;
+            }
+
+            if (!check.startsWith(nodeName))
+                return false;
+
+            return true;
+        });
+        return result;
+    }
+
+    static void collectChecks(const ProjectExplorer::Tree *root, QString &checks)
+    {
+        if (root->checked == Qt::Unchecked)
+            return;
+        if (root->checked == Qt::Checked) {
+            checks += "," + root->fullPath.toString();
+            if (root->isDir)
+                checks += "*";
+            return;
+        }
+        for (const ProjectExplorer::Tree *t : root->childDirectories)
+            collectChecks(t, checks);
+    }
+};
+
 ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(const Core::Id &configToSelect,
                                                            QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::ClangDiagnosticConfigsWidget)
     , m_diagnosticConfigsModel(codeModelSettings()->clangCustomDiagnosticConfigs())
+    , m_tidyTreeModel(new TidyChecksTreeModel())
 {
     m_ui->setupUi(this);
     setupTabs();
@@ -134,22 +275,10 @@ void ClangDiagnosticConfigsWidget::onClangTidyModeChanged(int index)
     syncClangTidyWidgets(config);
 }
 
-void ClangDiagnosticConfigsWidget::onClangTidyItemChanged(QListWidgetItem *item)
-{
-    const QString prefix = item->text();
-    ClangDiagnosticConfig config = selectedConfig();
-    QString checks = config.clangTidyChecksPrefixes();
-    item->checkState() == Qt::Checked
-            ? checks.append(',' + prefix)
-            : checks.remove(',' + prefix);
-    config.setClangTidyChecksPrefixes(checks);
-    updateConfig(config);
-}
-
-void ClangDiagnosticConfigsWidget::onClangTidyLineEdited(const QString &text)
+void ClangDiagnosticConfigsWidget::onClangTidyTreeChanged()
 {
     ClangDiagnosticConfig config = selectedConfig();
-    config.setClangTidyChecksString(text);
+    config.setClangTidyChecks(m_tidyTreeModel->selectedChecks());
     updateConfig(config);
 }
 
@@ -302,18 +431,13 @@ void ClangDiagnosticConfigsWidget::syncClangTidyWidgets(const ClangDiagnosticCon
     switch (tidyMode) {
     case ClangDiagnosticConfig::TidyMode::Disabled:
     case ClangDiagnosticConfig::TidyMode::File:
-        m_tidyChecks->checksString->setVisible(false);
+        m_tidyChecks->plainTextEditButton->setVisible(false);
         m_tidyChecks->checksListWrapper->setCurrentIndex(1);
-        break;
-    case ClangDiagnosticConfig::TidyMode::ChecksString:
-        m_tidyChecks->checksString->setVisible(true);
-        m_tidyChecks->checksListWrapper->setCurrentIndex(1);
-        m_tidyChecks->checksString->setText(config.clangTidyChecksString());
         break;
     case ClangDiagnosticConfig::TidyMode::ChecksPrefixList:
-        m_tidyChecks->checksString->setVisible(false);
+        m_tidyChecks->plainTextEditButton->setVisible(true);
         m_tidyChecks->checksListWrapper->setCurrentIndex(0);
-        syncTidyChecksList(config);
+        syncTidyChecksToTree(config);
         break;
     }
 
@@ -321,25 +445,9 @@ void ClangDiagnosticConfigsWidget::syncClangTidyWidgets(const ClangDiagnosticCon
     connectClangTidyItemChanged();
 }
 
-void ClangDiagnosticConfigsWidget::syncTidyChecksList(const ClangDiagnosticConfig &config)
+void ClangDiagnosticConfigsWidget::syncTidyChecksToTree(const ClangDiagnosticConfig &config)
 {
-    const QString tidyChecks = config.clangTidyChecksPrefixes();
-    for (int row = 0; row < m_tidyChecks->checksPrefixesList->count(); ++row) {
-        QListWidgetItem *item = m_tidyChecks->checksPrefixesList->item(row);
-
-        Qt::ItemFlags flags = item->flags();
-        flags |= Qt::ItemIsUserCheckable;
-        if (config.isReadOnly())
-            flags &= ~Qt::ItemIsEnabled;
-        else
-            flags |= Qt::ItemIsEnabled;
-        item->setFlags(flags);
-
-        if (tidyChecks.indexOf(item->text()) != -1)
-            item->setCheckState(Qt::Checked);
-        else
-            item->setCheckState(Qt::Unchecked);
-    }
+    m_tidyTreeModel->selectChecks(config.clangTidyChecks());
 }
 
 void ClangDiagnosticConfigsWidget::syncClazyWidgets(const ClangDiagnosticConfig &config)
@@ -411,10 +519,8 @@ void ClangDiagnosticConfigsWidget::connectClangTidyItemChanged()
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this,
             &ClangDiagnosticConfigsWidget::onClangTidyModeChanged);
-    connect(m_tidyChecks->checksPrefixesList, &QListWidget::itemChanged,
-            this, &ClangDiagnosticConfigsWidget::onClangTidyItemChanged);
-    connect(m_tidyChecks->checksString, &QLineEdit::textEdited,
-            this, &ClangDiagnosticConfigsWidget::onClangTidyLineEdited);
+    connect(m_tidyTreeModel.get(), &TidyChecksTreeModel::dataChanged,
+            this, &ClangDiagnosticConfigsWidget::onClangTidyTreeChanged);
 }
 
 void ClangDiagnosticConfigsWidget::disconnectClangTidyItemChanged()
@@ -423,10 +529,8 @@ void ClangDiagnosticConfigsWidget::disconnectClangTidyItemChanged()
                static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
                this,
                &ClangDiagnosticConfigsWidget::onClangTidyModeChanged);
-    disconnect(m_tidyChecks->checksPrefixesList, &QListWidget::itemChanged,
-               this, &ClangDiagnosticConfigsWidget::onClangTidyItemChanged);
-    disconnect(m_tidyChecks->checksString, &QLineEdit::textEdited,
-               this, &ClangDiagnosticConfigsWidget::onClangTidyLineEdited);
+    disconnect(m_tidyTreeModel.get(), &TidyChecksTreeModel::dataChanged,
+               this, &ClangDiagnosticConfigsWidget::onClangTidyTreeChanged);
 }
 
 void ClangDiagnosticConfigsWidget::connectClazyRadioButtonClicked(QRadioButton *button)
@@ -493,6 +597,37 @@ void ClangDiagnosticConfigsWidget::setupTabs()
     m_tidyChecks.reset(new CppTools::Ui::TidyChecks);
     m_tidyChecksWidget = new QWidget();
     m_tidyChecks->setupUi(m_tidyChecksWidget);
+    m_tidyChecks->checksPrefixesTree->setModel(m_tidyTreeModel.get());
+    m_tidyChecks->checksPrefixesTree->expandToDepth(0);
+    connect(m_tidyChecks->plainTextEditButton, &QPushButton::clicked, this, [this]() {
+        QDialog dialog;
+        dialog.setWindowTitle(tr("Checks"));
+        dialog.setLayout(new QVBoxLayout);
+        auto *textEdit = new QTextEdit(&dialog);
+        dialog.layout()->addWidget(textEdit);
+        auto *buttonsBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        dialog.layout()->addWidget(buttonsBox);
+        QObject::connect(buttonsBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+        QObject::connect(buttonsBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+        const QString initialChecks = m_tidyTreeModel->selectedChecks();
+        textEdit->setPlainText(initialChecks);
+
+        QObject::connect(&dialog, &QDialog::accepted, [=, &initialChecks]() {
+            const QString updatedChecks = textEdit->toPlainText();
+            if (updatedChecks == initialChecks)
+                return;
+
+            disconnectClangTidyItemChanged();
+
+            // Also throws away invalid options.
+            m_tidyTreeModel->selectChecks(updatedChecks);
+            onClangTidyTreeChanged();
+
+            connectClangTidyItemChanged();
+        });
+        dialog.exec();
+    });
+
     connectClangTidyItemChanged();
 
     m_ui->tabWidget->addTab(m_clangBaseChecksWidget, tr("Clang"));
@@ -502,3 +637,5 @@ void ClangDiagnosticConfigsWidget::setupTabs()
 }
 
 } // CppTools namespace
+
+#include "clangdiagnosticconfigswidget.moc"

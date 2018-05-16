@@ -81,8 +81,8 @@ static CppTools::ClangDiagnosticConfig createTidyClazyConfig()
     config.setDisplayName("Test");
     config.setIsReadOnly(true);
     config.setClangOptions(QStringList{QStringLiteral("-Wno-everything")});
-    config.setClangTidyMode(CppTools::ClangDiagnosticConfig::TidyMode::ChecksString);
-    config.setClangTidyChecksString("-*,modernize-*, misc-*");
+    config.setClangTidyMode(CppTools::ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
+    config.setClangTidyChecks("modernize-*, misc-*");
     config.setClazyChecks("level2");
     return config;
 }

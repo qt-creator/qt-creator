@@ -41,7 +41,6 @@ public:
     {
         Disabled = 0,
         ChecksPrefixList,
-        ChecksString,
         File
     };
 
@@ -55,12 +54,7 @@ public:
     void setClangOptions(const QStringList &options);
 
     QString clangTidyChecks() const;
-
-    QString clangTidyChecksPrefixes() const;
-    void setClangTidyChecksPrefixes(const QString &checks);
-
-    QString clangTidyChecksString() const;
-    void setClangTidyChecksString(const QString &checks);
+    void setClangTidyChecks(const QString &checks);
 
     TidyMode clangTidyMode() const;
     void setClangTidyMode(TidyMode mode);
@@ -79,8 +73,7 @@ private:
     QString m_displayName;
     QStringList m_clangOptions;
     TidyMode m_clangTidyMode = TidyMode::Disabled;
-    QString m_clangTidyChecksPrefixes;
-    QString m_clangTidyChecksString;
+    QString m_clangTidyChecks;
     QString m_clazyChecks;
     bool m_isReadOnly = false;
 };

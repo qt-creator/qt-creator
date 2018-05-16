@@ -55,11 +55,8 @@ static QString clangDiagnosticConfigsArrayDisplayNameKey()
 static QString clangDiagnosticConfigsArrayWarningsKey()
 { return QLatin1String("diagnosticOptions"); }
 
-static QString clangDiagnosticConfigsArrayClangTidyChecksPrefixesKey()
+static QString clangDiagnosticConfigsArrayClangTidyChecksKey()
 { return QLatin1String("clangTidyChecks"); }
-
-static QString clangDiagnosticConfigsArrayClangTidyChecksStringKey()
-{ return QLatin1String("clangTidyChecksString"); }
 
 static QString clangDiagnosticConfigsArrayClangTidyModeKey()
 { return QLatin1String("clangTidyMode"); }
@@ -96,10 +93,8 @@ static ClangDiagnosticConfigs customDiagnosticConfigsFromSettings(QSettings *s)
         config.setClangOptions(s->value(clangDiagnosticConfigsArrayWarningsKey()).toStringList());
         config.setClangTidyMode(static_cast<ClangDiagnosticConfig::TidyMode>(
                                     s->value(clangDiagnosticConfigsArrayClangTidyModeKey()).toInt()));
-        config.setClangTidyChecksPrefixes(
-                    s->value(clangDiagnosticConfigsArrayClangTidyChecksPrefixesKey()).toString());
-        config.setClangTidyChecksString(
-                    s->value(clangDiagnosticConfigsArrayClangTidyChecksStringKey()).toString());
+        config.setClangTidyChecks(
+                    s->value(clangDiagnosticConfigsArrayClangTidyChecksKey()).toString());
         config.setClazyChecks(s->value(clangDiagnosticConfigsArrayClazyChecksKey()).toString());
         configs.append(config);
     }
@@ -157,10 +152,8 @@ void CppCodeModelSettings::toSettings(QSettings *s)
         s->setValue(clangDiagnosticConfigsArrayWarningsKey(), config.clangOptions());
         s->setValue(clangDiagnosticConfigsArrayClangTidyModeKey(),
                     static_cast<int>(config.clangTidyMode()));
-        s->setValue(clangDiagnosticConfigsArrayClangTidyChecksPrefixesKey(),
-                    config.clangTidyChecksPrefixes());
-        s->setValue(clangDiagnosticConfigsArrayClangTidyChecksStringKey(),
-                    config.clangTidyChecksString());
+        s->setValue(clangDiagnosticConfigsArrayClangTidyChecksKey(),
+                    config.clangTidyChecks());
         s->setValue(clangDiagnosticConfigsArrayClazyChecksKey(), config.clazyChecks());
     }
     s->endArray();
