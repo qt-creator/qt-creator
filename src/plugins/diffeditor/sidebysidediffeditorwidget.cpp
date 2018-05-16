@@ -179,6 +179,7 @@ SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
         connect(documentLayout, &TextDocumentLayout::foldChanged,
                 this, &SideDiffEditorWidget::foldChanged);
     setCodeFoldingSupported(true);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 }
 
 void SideDiffEditorWidget::saveState()
@@ -714,6 +715,13 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     connect(m_rightEditor, &SideDiffEditorWidget::foldChanged,
             m_leftEditor, &SideDiffEditorWidget::setFolded);
 
+    connect(m_leftEditor->horizontalScrollBar(), &QAbstractSlider::rangeChanged,
+            this, &SideBySideDiffEditorWidget::syncHorizontalScrollBarPolicy);
+
+    connect(m_rightEditor->horizontalScrollBar(), &QAbstractSlider::rangeChanged,
+            this, &SideBySideDiffEditorWidget::syncHorizontalScrollBarPolicy);
+
+    syncHorizontalScrollBarPolicy();
 
     m_splitter = new MiniSplitter(this);
     m_splitter->addWidget(m_leftEditor);
@@ -1131,6 +1139,18 @@ void SideBySideDiffEditorWidget::rightCursorPositionChanged()
     handlePositionChange(m_rightEditor, m_leftEditor);
     rightVSliderChanged();
     rightHSliderChanged();
+}
+
+void SideBySideDiffEditorWidget::syncHorizontalScrollBarPolicy()
+{
+    const bool alwaysOn = m_leftEditor->horizontalScrollBar()->maximum()
+            || m_rightEditor->horizontalScrollBar()->maximum();
+    const Qt::ScrollBarPolicy newPolicy = alwaysOn
+            ? Qt::ScrollBarAlwaysOn : Qt::ScrollBarAsNeeded;
+    if (m_leftEditor->horizontalScrollBarPolicy() != newPolicy)
+        m_leftEditor->setHorizontalScrollBarPolicy(newPolicy);
+    if (m_rightEditor->horizontalScrollBarPolicy() != newPolicy)
+        m_rightEditor->setHorizontalScrollBarPolicy(newPolicy);
 }
 
 void SideBySideDiffEditorWidget::handlePositionChange(SideDiffEditorWidget *source, SideDiffEditorWidget *dest)
