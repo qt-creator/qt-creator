@@ -150,6 +150,9 @@ Declaration::Declaration(Clone *clone, Subst *subst, Declaration *original)
     if (!firstTemplParamName)
         return;
 
+    if (!subst)
+        return;
+
     FullySpecifiedType newType;
     if (std::strcmp(enNamespaceNameId, "std") == 0 ||
         std::strcmp(enNamespaceNameId, "__cxx11") == 0) {
