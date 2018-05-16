@@ -279,8 +279,7 @@ static std::vector<std::unique_ptr<FileNode>> &&
 removeKnownNodes(const QSet<Utils::FileName> &knownFiles,
                  std::vector<std::unique_ptr<FileNode>> &&files)
 {
-    std::remove_if(std::begin(files), std::end(files),
-                   [&knownFiles](const std::unique_ptr<FileNode> &n) {
+    Utils::erase(files, [&knownFiles](const std::unique_ptr<FileNode> &n) {
         return knownFiles.contains(n->filePath());
     });
     return std::move(files);
