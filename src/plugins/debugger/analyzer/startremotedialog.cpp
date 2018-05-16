@@ -28,7 +28,7 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/runnables.h>
+#include <projectexplorer/runconfiguration.h>
 #include <ssh/sshconnection.h>
 
 #include <QDialogButtonBox>
@@ -131,7 +131,7 @@ void StartRemoteDialog::validate()
 Runnable StartRemoteDialog::runnable() const
 {
     Kit *kit = d->kitChooser->currentKit();
-    StandardRunnable r;
+    Runnable r;
     r.device = DeviceKitInformation::device(kit);
     r.executable = d->executable->text();
     r.commandLineArguments = d->arguments->text();

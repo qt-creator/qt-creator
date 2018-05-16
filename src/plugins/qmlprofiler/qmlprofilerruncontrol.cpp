@@ -35,7 +35,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/baseqtversion.h>
@@ -244,7 +243,7 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(QmlProfilerTool *profilerTool,
     // In the TCP case, it doesn't hurt either to start the profiler before.
     addStartDependency(m_profiler);
 
-    StandardRunnable debuggee = runnable().as<StandardRunnable>();
+    Runnable debuggee = runnable();
 
     QString code;
     if (serverUrl.scheme() == Utils::urlSocketScheme())

@@ -27,7 +27,7 @@
 
 #include "qmlprojectmanager_global.h"
 
-#include <projectexplorer/runnables.h>
+#include <projectexplorer/runconfiguration.h>
 
 namespace Core { class IEditor; }
 

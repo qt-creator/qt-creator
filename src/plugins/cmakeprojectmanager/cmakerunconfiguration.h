@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <projectexplorer/runnables.h>
+#include <projectexplorer/runconfiguration.h>
 
 namespace CMakeProjectManager {
 namespace Internal {

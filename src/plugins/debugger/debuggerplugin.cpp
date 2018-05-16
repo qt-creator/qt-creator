@@ -101,7 +101,6 @@
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runnables.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
@@ -3024,11 +3023,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     auto constraint = [](RunConfiguration *runConfig) {
         Runnable runnable = runConfig->runnable();
-        if (runnable.is<StandardRunnable>()) {
-            IDevice::ConstPtr device = runnable.as<StandardRunnable>().device;
-            if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-                return true;
-        }
+        if (runnable.device && runnable.device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+            return true;
 
         if (DeviceTypeKitInformation::deviceTypeId(runConfig->target()->kit())
                     == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
@@ -3663,7 +3659,7 @@ void DebuggerUnitTests::testStateMachine()
     auto runControl = new RunControl(rc, ProjectExplorer::Constants::DEBUG_RUN_MODE);
     auto debugger = new DebuggerRunTool(runControl);
 
-    debugger->setInferior(rc->runnable().as<StandardRunnable>());
+    debugger->setInferior(rc->runnable());
     debugger->setTestCase(TestNoBoundsOfCurrentFunction);
 
     connect(debugger, &DebuggerRunTool::stopped,

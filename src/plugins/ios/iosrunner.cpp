@@ -384,7 +384,7 @@ IosQmlProfilerSupport::IosQmlProfilerSupport(RunControl *runControl)
     setDisplayName("IosAnalyzeSupport");
 
     auto iosRunConfig = qobject_cast<IosRunConfiguration *>(runControl->runConfiguration());
-    StandardRunnable runnable;
+    Runnable runnable;
     runnable.executable = iosRunConfig->localExecutable().toUserOutput();
     runnable.commandLineArguments = iosRunConfig->extraAspect<ArgumentsAspect>()->arguments();
     runControl->setDisplayName(iosRunConfig->applicationName());

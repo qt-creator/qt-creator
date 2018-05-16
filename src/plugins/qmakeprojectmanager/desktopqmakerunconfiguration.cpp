@@ -30,7 +30,6 @@
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/runnables.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 

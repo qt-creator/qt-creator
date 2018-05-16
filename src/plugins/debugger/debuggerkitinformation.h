@@ -29,7 +29,7 @@
 #include "debuggerconstants.h"
 
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/runnables.h>
+#include <projectexplorer/runconfiguration.h>
 
 namespace Debugger {
 class DebuggerItem;
@@ -50,7 +50,7 @@ public:
     void fix(ProjectExplorer::Kit *k) override;
 
     static const DebuggerItem *debugger(const ProjectExplorer::Kit *kit);
-    static ProjectExplorer::StandardRunnable runnable(const ProjectExplorer::Kit *kit);
+    static ProjectExplorer::Runnable runnable(const ProjectExplorer::Kit *kit);
 
     enum ConfigurationError
     {

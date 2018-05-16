@@ -727,7 +727,7 @@ MemcheckTool::MemcheckTool()
 void MemcheckTool::heobAction()
 {
 #ifdef Q_OS_WIN
-    StandardRunnable sr;
+    Runnable sr;
     Abi abi;
     bool hasLocalRc = false;
     Kit *kit = nullptr;
@@ -739,13 +739,11 @@ void MemcheckTool::heobAction()
                     abi = ToolChainKitInformation::targetAbi(kit);
 
                     const Runnable runnable = rc->runnable();
-                    if (runnable.is<StandardRunnable>()) {
-                        sr = runnable.as<StandardRunnable>();
-                        const IDevice::ConstPtr device = sr.device;
-                        hasLocalRc = device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-                        if (!hasLocalRc)
-                            hasLocalRc = DeviceTypeKitInformation::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-                    }
+                    sr = runnable;
+                    const IDevice::ConstPtr device = sr.device;
+                    hasLocalRc = device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+                    if (!hasLocalRc)
+                        hasLocalRc = DeviceTypeKitInformation::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
                 }
             }
         }

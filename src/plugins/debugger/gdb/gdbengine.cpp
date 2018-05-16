@@ -4832,7 +4832,7 @@ static QString findExecutableFromName(const QString &fileNameFromCore, const QSt
     return QString();
 }
 
-CoreInfo CoreInfo::readExecutableNameFromCore(const StandardRunnable &debugger, const QString &coreFile)
+CoreInfo CoreInfo::readExecutableNameFromCore(const Runnable &debugger, const QString &coreFile)
 {
     CoreInfo cinfo;
 #if 0

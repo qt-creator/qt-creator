@@ -28,7 +28,6 @@
 #include "remotelinuxkillappservice.h"
 
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
@@ -55,9 +54,7 @@ bool RemoteLinuxKillAppStep::initInternal(QString *error)
     Target * const theTarget = target();
     QTC_ASSERT(theTarget, return false);
     RunConfiguration * const rc = theTarget->activeRunConfiguration();
-    const QString remoteExe = rc && rc->runnable().is<StandardRunnable>()
-            ? rc->runnable().as<StandardRunnable>().executable
-            : QString();
+    const QString remoteExe = rc ? rc->runnable().executable : QString();
     m_service->setRemoteExecutable(remoteExe);
     return true;
 }

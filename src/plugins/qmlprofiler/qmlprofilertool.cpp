@@ -54,7 +54,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/runnables.h>
 #include <projectexplorer/taskhub.h>
 #include <texteditor/texteditor.h>
 

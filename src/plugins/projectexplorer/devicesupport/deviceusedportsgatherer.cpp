@@ -26,8 +26,6 @@
 #include "deviceprocess.h"
 #include "deviceusedportsgatherer.h"
 
-#include <projectexplorer/runnables.h>
-
 #include <ssh/sshconnection.h>
 
 #include <utils/port.h>

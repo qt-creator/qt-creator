@@ -35,7 +35,6 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/runnables.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -93,10 +92,7 @@ void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguratio
         return;
     }
 
-    Runnable runnable = rc->runnable();
-    if (!runnable.is<StandardRunnable>())
-        return;
-    m_runnable = runnable.as<StandardRunnable>();
+    m_runnable = rc->runnable();
     m_displayName = rc->displayName();
     m_project = rc->project();
 
@@ -193,15 +189,10 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
             continue;
         }
 
-        Runnable runnable = runConfig->runnable();
-        if (!runnable.is<StandardRunnable>()) {
-            qCDebug(LOG) << " Skipped as not being a StandardRunnable";
-            continue;
-        }
-        StandardRunnable stdRunnable = runnable.as<StandardRunnable>();
+        const Runnable runnable = runConfig->runnable();
         // not the best approach - but depending on the build system and whether the executables
         // are going to get installed or not we have to soften the condition...
-        const QString &currentExecutable = ensureExeEnding(stdRunnable.executable);
+        const QString currentExecutable = ensureExeEnding(runnable.executable);
         const QString currentBST = runConfig->buildKey() + '|';
         qCDebug(LOG) << " CurrentExecutable" << currentExecutable;
         qCDebug(LOG) << " BST of RunConfig" << currentBST;
@@ -213,7 +204,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
                                           }))) {
             qCDebug(LOG) << "  Using this RunConfig.";
             m_origRunConfig = runConfig;
-            m_runnable = stdRunnable;
+            m_runnable = runnable;
             m_runnable.executable = currentExecutable;
             m_displayName = runConfig->displayName();
             m_project = project;
@@ -234,16 +225,13 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
         // we failed to find a valid runconfiguration - but we've got the executable already
         if (auto rc = target->activeRunConfiguration()) {
             if (isLocal(rc)) { // FIXME for now only Desktop support
-                Runnable runnable = rc->runnable();
-                if (runnable.is<StandardRunnable>()) {
-                    StandardRunnable stdRunnable = runnable.as<StandardRunnable>();
-                    m_runnable.environment = stdRunnable.environment;
-                    m_project = project;
-                    m_guessedConfiguration = true;
-                    m_guessedFrom = rc->displayName();
-                    if (runMode == TestRunMode::Debug)
-                        m_runConfig = new TestRunConfiguration(rc->target(), this);
-                }
+                const Runnable runnable = rc->runnable();
+                m_runnable.environment = runnable.environment;
+                m_project = project;
+                m_guessedConfiguration = true;
+                m_guessedFrom = rc->displayName();
+                if (runMode == TestRunMode::Debug)
+                    m_runConfig = new TestRunConfiguration(rc->target(), this);
             } else {
                 qCDebug(LOG) << "not using the fallback as the current active run configuration "
                                 "appears to be non-Desktop";

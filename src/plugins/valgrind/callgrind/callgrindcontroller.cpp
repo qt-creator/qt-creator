@@ -126,7 +126,7 @@ void CallgrindController::run(Option option)
     connect(m_controllerProcess, &ApplicationLauncher::finished,
             this, &CallgrindController::controllerProcessClosed);
 
-    StandardRunnable controller = m_valgrindRunnable;
+    Runnable controller = m_valgrindRunnable;
     controller.executable =  CALLGRIND_CONTROL_BINARY;
     controller.runMode = ApplicationLauncher::Gui;
     controller.commandLineArguments = QString("%1 %2").arg(toOptionString(option)).arg(m_pid);
@@ -280,8 +280,7 @@ void CallgrindController::cleanupTempFile()
 
 void CallgrindController::setValgrindRunnable(const Runnable &runnable)
 {
-    QTC_ASSERT(runnable.is<StandardRunnable>(), return);
-    m_valgrindRunnable = runnable.as<StandardRunnable>();
+    m_valgrindRunnable = runnable;
 }
 
 } // namespace Callgrind

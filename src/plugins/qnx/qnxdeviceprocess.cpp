@@ -26,7 +26,7 @@
 #include "qnxdeviceprocess.h"
 
 #include <projectexplorer/devicesupport/sshdeviceprocess.h>
-#include <projectexplorer/runnables.h>
+
 #include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
@@ -69,7 +69,7 @@ QString QnxDeviceProcess::fullCommandLine(const Runnable &runnable) const
 void QnxDeviceProcess::doSignal(int sig)
 {
     auto signaler = new SshDeviceProcess(device(), this);
-    StandardRunnable r;
+    Runnable r;
     r.executable = QString::fromLatin1("kill -%2 `cat %1`").arg(m_pidFile).arg(sig);
     connect(signaler, &SshDeviceProcess::finished, signaler, &QObject::deleteLater);
     signaler->start(r);

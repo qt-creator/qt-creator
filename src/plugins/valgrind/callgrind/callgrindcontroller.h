@@ -29,7 +29,7 @@
 #include <ssh/sftpchannel.h>
 #include <ssh/sshconnection.h>
 
-#include <projectexplorer/runnables.h>
+#include <projectexplorer/runconfiguration.h>
 
 #include <QProcess>
 
@@ -83,7 +83,7 @@ private:
     void controllerProcessClosed(bool success);
 
     ProjectExplorer::ApplicationLauncher *m_controllerProcess = nullptr;
-    ProjectExplorer::StandardRunnable m_valgrindRunnable;
+    ProjectExplorer::Runnable m_valgrindRunnable;
     qint64 m_pid = 0;
 
     Option m_lastOption = Unknown;

@@ -33,7 +33,6 @@
 #include "environmentaspect.h"
 #include "kitinformation.h"
 #include "runconfigurationaspects.h"
-#include "runnables.h"
 #include "session.h"
 #include "kitinformation.h"
 
@@ -458,7 +457,7 @@ IRunConfigurationAspect *RunConfiguration::extraAspect(Core::Id id) const
 
 Runnable RunConfiguration::runnable() const
 {
-    StandardRunnable r;
+    Runnable r;
     if (auto aspect = extraAspect<ExecutableAspect>())
         r.executable = aspect->executable().toString();
     if (auto aspect = extraAspect<ArgumentsAspect>())
@@ -840,8 +839,7 @@ public:
             runnable = runConfiguration->runnable();
             displayName  = runConfiguration->displayName();
             outputFormatter = runConfiguration->createOutputFormatter();
-            if (runnable.is<StandardRunnable>())
-                device = runnable.as<StandardRunnable>().device;
+            device = runnable.device;
             if (!device)
                 device = DeviceKitInformation::device(runConfiguration->target()->kit());
             project = runConfiguration->target()->project();
@@ -1413,7 +1411,10 @@ bool RunControl::canReUseOutputPane(const RunControl *other) const
     if (!other || other->isRunning())
         return false;
 
-    return d->runnable.canReUseOutputPane(other->d->runnable);
+    return d->runnable.executable == other->d->runnable.executable
+        && d->runnable.commandLineArguments == other->d->runnable.commandLineArguments
+        && d->runnable.workingDirectory == other->d->runnable.workingDirectory
+        && d->runnable.environment == other->d->runnable.environment;
 }
 
 /*!
@@ -1607,15 +1608,6 @@ void RunControl::appendMessage(const QString &msg, Utils::OutputFormat format)
     emit appendMessageRequested(this, msg, format);
 }
 
-bool Runnable::canReUseOutputPane(const Runnable &other) const
-{
-    return executable == other.executable
-        && commandLineArguments == other.commandLineArguments
-        && workingDirectory == other.workingDirectory
-        && environment == other.environment;
-}
-
-
 // SimpleTargetRunner
 
 SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
@@ -1651,8 +1643,7 @@ void SimpleTargetRunner::start()
         connect(&m_launcher, &ApplicationLauncher::error,
                 this, &SimpleTargetRunner::onProcessError);
 
-        QTC_ASSERT(m_runnable.is<StandardRunnable>(), return);
-        const QString executable = m_runnable.as<StandardRunnable>().executable;
+        const QString executable = m_runnable.executable;
         if (executable.isEmpty()) {
             reportFailure(RunControl::tr("No executable specified."));
         } else {

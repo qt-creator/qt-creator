@@ -43,7 +43,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
@@ -296,7 +295,7 @@ void PythonRunConfiguration::fillConfigurationLayout(QFormLayout *layout) const
 
 Runnable PythonRunConfiguration::runnable() const
 {
-    StandardRunnable r;
+    Runnable r;
     QtcProcess::addArg(&r.commandLineArguments, mainScript());
     QtcProcess::addArgs(&r.commandLineArguments, extraAspect<ArgumentsAspect>()->arguments());
     r.executable = extraAspect<InterpreterAspect>()->value();

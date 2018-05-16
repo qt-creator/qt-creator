@@ -649,9 +649,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     auto constraint = [](RunConfiguration *runConfiguration) {
         const Runnable runnable = runConfiguration->runnable();
-        if (!runnable.is<StandardRunnable>())
-            return false;
-        const IDevice::ConstPtr device = runnable.as<StandardRunnable>().device;
+        const IDevice::ConstPtr device = runnable.device;
         if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
             return true;
         Target *target = runConfiguration->target();
@@ -1484,10 +1482,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         tr("The currently active run configuration's executable (if applicable)."),
         []() -> QString {
             if (Target *target = activeTarget()) {
-                if (RunConfiguration *rc = target->activeRunConfiguration()) {
-                    if (rc->runnable().is<StandardRunnable>())
-                        return rc->runnable().as<StandardRunnable>().executable;
-                }
+                if (RunConfiguration *rc = target->activeRunConfiguration())
+                    return rc->runnable().executable;
             }
             return QString();
         });
@@ -2371,11 +2367,9 @@ int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> ste
                                               BuildConfiguration *bc = t ? t->activeBuildConfiguration() : nullptr;
                                               if (!bc)
                                                   return false;
-                                              if (!rc->runnable().is<StandardRunnable>())
+                                              if (!Utils::FileName::fromString(rc->runnable().executable).isChildOf(bc->buildDirectory()))
                                                   return false;
-                                              if (!Utils::FileName::fromString(rc->runnable().as<StandardRunnable>().executable).isChildOf(bc->buildDirectory()))
-                                                  return false;
-                                              IDevice::ConstPtr device = rc->runnable().as<StandardRunnable>().device;
+                                              IDevice::ConstPtr device = rc->runnable().device;
                                               if (device.isNull())
                                                   device = DeviceKitInformation::device(t->kit());
                                               return !device.isNull() && device->type() == Core::Id(Constants::DESKTOP_DEVICE_TYPE);

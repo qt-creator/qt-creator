@@ -35,7 +35,7 @@
 
 #include <coreplugin/id.h>
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
-#include <projectexplorer/runnables.h>
+#include <projectexplorer/runconfiguration.h>
 #include <ssh/sshremoteprocessrunner.h>
 #include <utils/algorithm.h>
 #include <utils/port.h>
@@ -136,7 +136,7 @@ class LinuxPortsGatheringMethod : public PortsGatheringMethod
         Q_UNUSED(protocol)
 
         // /proc/net/tcp* covers /proc/net/tcp and /proc/net/tcp6
-        StandardRunnable runnable;
+        Runnable runnable;
         runnable.executable = "sed";
         runnable.commandLineArguments = "-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*";
         return runnable;

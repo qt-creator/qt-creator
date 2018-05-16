@@ -29,7 +29,6 @@
 #include "androidconfigurations.h"
 
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runnables.h>
 
 #include <utils/url.h>
 

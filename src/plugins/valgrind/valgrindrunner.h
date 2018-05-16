@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <projectexplorer/runnables.h>
+#include <projectexplorer/runconfiguration.h>
 
 #include <utils/outputformat.h>
 
@@ -46,7 +46,7 @@ public:
 
     void setValgrindExecutable(const QString &executable);
     void setValgrindArguments(const QStringList &toolArguments);
-    void setDebuggee(const ProjectExplorer::StandardRunnable &debuggee);
+    void setDebuggee(const ProjectExplorer::Runnable &debuggee);
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
     void setLocalServerAddress(const QHostAddress &localServerAddress);
     void setDevice(const ProjectExplorer::IDevice::ConstPtr &device);

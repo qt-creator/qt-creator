@@ -28,7 +28,7 @@
 #include "autotestconstants.h"
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/runnables.h>
+#include <projectexplorer/runconfiguration.h>
 #include <utils/environment.h>
 
 #include <QFutureInterface>
@@ -88,7 +88,7 @@ public:
     QString runConfigDisplayName() const { return m_guessedConfiguration ? m_guessedFrom
                                                                          : m_displayName; }
 
-    ProjectExplorer::StandardRunnable runnable() const { return m_runnable; }
+    ProjectExplorer::Runnable runnable() const { return m_runnable; }
     virtual TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
                                            QProcess *app) const = 0;
     virtual QStringList argumentsForTestRunner(QStringList *omitted = nullptr) const = 0;
@@ -105,7 +105,7 @@ private:
     TestRunConfiguration *m_runConfig = nullptr;
     QSet<QString> m_buildTargets;
     ProjectExplorer::RunConfiguration *m_origRunConfig = nullptr;
-    ProjectExplorer::StandardRunnable m_runnable;
+    ProjectExplorer::Runnable m_runnable;
 };
 
 class DebuggableTestConfiguration : public TestConfiguration

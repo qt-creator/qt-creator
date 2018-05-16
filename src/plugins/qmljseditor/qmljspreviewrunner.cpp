@@ -27,7 +27,7 @@
 
 #include <coreplugin/icore.h>
 
-#include <projectexplorer/runnables.h>
+#include <projectexplorer/runconfiguration.h>
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -59,7 +59,7 @@ void QmlJSPreviewRunner::run(const QString &filename)
 {
     QString errorMessage;
     if (!filename.isEmpty()) {
-        ProjectExplorer::StandardRunnable r;
+        ProjectExplorer::Runnable r;
         r.environment = Utils::Environment::systemEnvironment();
         r.runMode = ProjectExplorer::ApplicationLauncher::Gui;
         r.executable = m_qmlViewerDefaultPath;

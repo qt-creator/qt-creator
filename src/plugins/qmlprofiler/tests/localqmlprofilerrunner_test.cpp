@@ -26,7 +26,7 @@
 #include "localqmlprofilerrunner_test.h"
 
 #include <debugger/analyzer/analyzermanager.h>
-#include <projectexplorer/runnables.h>
+
 #include <qmlprofiler/qmlprofilerruncontrol.h>
 #include <qmlprofiler/qmlprofilertool.h>
 
@@ -48,7 +48,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     QmlProfilerTool tool;
     QPointer<ProjectExplorer::RunControl> runControl;
     QPointer<LocalQmlProfilerSupport> profiler;
-    ProjectExplorer::StandardRunnable debuggee;
+    ProjectExplorer::Runnable debuggee;
     QUrl serverUrl;
 
     bool running = false;

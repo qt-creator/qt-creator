@@ -161,11 +161,6 @@ class PROJECTEXPLORER_EXPORT Runnable
 public:
     Runnable() = default;
 
-    template <class T> bool is() const { return true; }
-    template <class T> const T &as() const { return *this; }
-
-    bool canReUseOutputPane(const Runnable &other) const;
-
     QString executable;
     QString commandLineArguments;
     QString workingDirectory;

@@ -29,7 +29,6 @@
 #include <QSocketNotifier>
 
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runnables.h>
 
 #include <utils/consoleprocess.h>
 
@@ -85,7 +84,7 @@ private:
     void stubError(const QString &msg);
 
     Utils::ConsoleProcess m_stubProc;
-    ProjectExplorer::StandardRunnable m_stubRunnable;
+    ProjectExplorer::Runnable m_stubRunnable;
     qint64 m_applicationPid = 0;
     qint64 m_applicationMainThreadId = 0;
 };

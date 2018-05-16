@@ -28,7 +28,6 @@
 #include "remotelinux_constants.h"
 #include "remotelinuxenvironmentaspect.h"
 
-#include <projectexplorer/runnables.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 

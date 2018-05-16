@@ -336,9 +336,7 @@ static ProjectExplorer::RunConfiguration *getRunConfiguration(const QString &dia
     RunConfiguration *runConfig = nullptr;
     const QList<RunConfiguration *> runConfigurations
             = Utils::filtered(target->runConfigurations(), [] (const RunConfiguration *rc) {
-        if (!rc->runnable().is<StandardRunnable>())
-            return false;
-        return !rc->runnable().as<StandardRunnable>().executable.isEmpty();
+        return !rc->runnable().executable.isEmpty();
     });
     if (runConfigurations.size() == 1)
         return runConfigurations.first();
@@ -353,7 +351,7 @@ static ProjectExplorer::RunConfiguration *getRunConfiguration(const QString &dia
         runConfig = Utils::findOr(runConfigurations, nullptr, [&dName, &exe] (const RunConfiguration *rc) {
             if (rc->displayName() != dName)
                 return false;
-            return rc->runnable().as<StandardRunnable>().executable == exe;
+            return rc->runnable().executable == exe;
         });
     }
     return runConfig;
@@ -489,7 +487,7 @@ void TestRunner::debugTests()
     }
 
     QStringList omitted;
-    ProjectExplorer::StandardRunnable inferior = config->runnable();
+    ProjectExplorer::Runnable inferior = config->runnable();
     inferior.executable = commandFilePath;
 
     const QStringList args = config->argumentsForTestRunner(&omitted);
@@ -660,13 +658,11 @@ void RunConfigurationSelectionDialog::populate()
     if (auto project = ProjectExplorer::SessionManager::startupProject()) {
         if (auto target = project->activeTarget()) {
             for (ProjectExplorer::RunConfiguration *rc : target->runConfigurations()) {
-                if (rc->runnable().is<ProjectExplorer::StandardRunnable>()) {
-                    auto runnable = rc->runnable().as<ProjectExplorer::StandardRunnable>();
-                    const QStringList rcDetails = { runnable.executable,
-                                                    runnable.commandLineArguments,
-                                                    runnable.workingDirectory };
-                    m_rcCombo->addItem(rc->displayName(), rcDetails);
-                }
+                auto runnable = rc->runnable();
+                const QStringList rcDetails = { runnable.executable,
+                                                runnable.commandLineArguments,
+                                                runnable.workingDirectory };
+                m_rcCombo->addItem(rc->displayName(), rcDetails);
             }
         }
     }

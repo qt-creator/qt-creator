@@ -74,7 +74,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
 
 Runnable QmlProjectRunConfiguration::runnable() const
 {
-    StandardRunnable r;
+    Runnable r;
     r.executable = executable();
     r.commandLineArguments = commandLineArguments();
     r.runMode = ApplicationLauncher::Gui;
