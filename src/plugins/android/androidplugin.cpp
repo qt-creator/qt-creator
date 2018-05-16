@@ -62,6 +62,17 @@ using namespace ProjectExplorer::Constants;
 namespace Android {
 namespace Internal {
 
+class AndroidRunConfigurationFactory : public RunConfigurationFactory
+{
+public:
+    AndroidRunConfigurationFactory()
+    {
+        registerRunConfiguration<Android::AndroidRunConfiguration>
+                ("Qt4ProjectManager.AndroidRunConfiguration:");
+        addSupportedTargetDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
+    }
+};
+
 class AndroidPluginPrivate
 {
 public:
@@ -76,6 +87,7 @@ public:
     JavaEditorFactory javaEditorFactory;
     AndroidPackageInstallationFactory packackeInstallationFactory;
     AndroidManifestEditorFactory manifestEditorFactory;
+    AndroidRunConfigurationFactory runConfigFactory;
 };
 
 AndroidPlugin::~AndroidPlugin()
