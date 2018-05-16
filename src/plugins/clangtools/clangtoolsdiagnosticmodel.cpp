@@ -34,7 +34,6 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-#include <QCoreApplication>
 #include <QFileInfo>
 
 #include <cmath>
@@ -232,18 +231,6 @@ Qt::ItemFlags DiagnosticItem::flags(int column) const
     return itemFlags;
 }
 
-static QVariant locationData(int role, const Debugger::DiagnosticLocation &location)
-{
-    switch (role) {
-    case Debugger::DetailedErrorView::LocationRole:
-        return QVariant::fromValue(location);
-    case Qt::ToolTipRole:
-        return location.filePath.isEmpty() ? QVariant() : QVariant(location.filePath);
-    default:
-        return QVariant();
-    }
-}
-
 static QVariant iconData(const QString &type)
 {
     if (type == "warning")
@@ -260,7 +247,7 @@ static QVariant iconData(const QString &type)
 QVariant DiagnosticItem::data(int column, int role) const
 {
     if (column == Debugger::DetailedErrorView::LocationColumn)
-        return locationData(role, m_diagnostic.location);
+        return Debugger::DetailedErrorView::locationData(role, m_diagnostic.location);
 
     if (column == DiagnosticView::FixItColumn) {
         if (role == Qt::CheckStateRole)
@@ -305,7 +292,7 @@ ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step) : m_step(step
 QVariant ExplainingStepItem::data(int column, int role) const
 {
     if (column == Debugger::DetailedErrorView::LocationColumn)
-        return locationData(role, m_step.location);
+        return Debugger::DetailedErrorView::locationData(role, m_step.location);
 
     if (column == DiagnosticView::FixItColumn)
         return QVariant();
