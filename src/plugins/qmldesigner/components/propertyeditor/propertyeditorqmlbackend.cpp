@@ -271,6 +271,8 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 
     if (qmlObjectNode.isValid()) {
 
+        m_contextObject->setModel(propertyEditor->model());
+
         qCInfo(propertyEditorBenchmark) << Q_FUNC_INFO;
 
         QTime time;
