@@ -35,6 +35,8 @@
 #include <QPointer>
 #include <QSortFilterProxyModel>
 
+#include <functional>
+
 namespace ProjectExplorer { class Project; }
 
 namespace ClangTools {
@@ -43,7 +45,8 @@ namespace Internal {
 class DiagnosticItem : public Utils::TreeItem
 {
 public:
-    DiagnosticItem(const Diagnostic &diag);
+    using OnCheckedFixit = std::function<void(bool)>;
+    DiagnosticItem(const Diagnostic &diag, const OnCheckedFixit &onCheckedFixit);
 
     Diagnostic diagnostic() const { return m_diagnostic; }
     bool applyFixits() const { return m_applyFixits; }
@@ -56,6 +59,7 @@ private:
 private:
     const Diagnostic m_diagnostic;
     bool m_applyFixits = false;
+    OnCheckedFixit m_onCheckedFixit;
 };
 
 class ClangToolsDiagnosticModel : public Utils::TreeModel<>
@@ -71,6 +75,12 @@ public:
     enum ItemRole {
         DiagnosticRole = Debugger::DetailedErrorView::FullTextRole + 1
     };
+
+signals:
+    void fixItsToApplyCountChanged(int count);
+
+private:
+    int m_fixItsToApplyCount = 0;
 };
 
 class DiagnosticFilterModel : public QSortFilterProxyModel

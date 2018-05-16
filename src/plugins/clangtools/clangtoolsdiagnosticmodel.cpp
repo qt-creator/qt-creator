@@ -61,8 +61,13 @@ ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(QObject *parent)
 
 void ClangToolsDiagnosticModel::addDiagnostics(const QList<Diagnostic> &diagnostics)
 {
-    foreach (const Diagnostic &d, diagnostics)
-        rootItem()->appendChild(new DiagnosticItem(d));
+    const auto onFixItChanged = [this](bool checked){
+        m_fixItsToApplyCount += checked ? +1 : -1;
+        emit fixItsToApplyCountChanged(m_fixItsToApplyCount);
+    };
+
+    for (const Diagnostic &d : diagnostics)
+        rootItem()->appendChild(new DiagnosticItem(d, onFixItChanged));
 }
 
 QList<Diagnostic> ClangToolsDiagnosticModel::diagnostics() const
@@ -199,7 +204,9 @@ static QString fullText(const Diagnostic &diagnostic)
 }
 
 
-DiagnosticItem::DiagnosticItem(const Diagnostic &diag) : m_diagnostic(diag)
+DiagnosticItem::DiagnosticItem(const Diagnostic &diag, const OnCheckedFixit &onCheckedFixit)
+    : m_diagnostic(diag)
+    , m_onCheckedFixit(onCheckedFixit)
 {
     // Don't show explaining steps if they add no information.
     if (diag.explainingSteps.count() == 1) {
@@ -277,6 +284,8 @@ bool DiagnosticItem::setData(int column, const QVariant &data, int role)
     if (column == DiagnosticView::FixItColumn && role == Qt::CheckStateRole) {
         m_applyFixits = data.value<Qt::CheckState>() == Qt::Checked ? true : false;
         update();
+        if (m_onCheckedFixit)
+            m_onCheckedFixit(m_applyFixits);
         return true;
     }
 

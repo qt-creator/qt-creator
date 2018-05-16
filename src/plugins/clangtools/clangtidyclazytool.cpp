@@ -161,6 +161,10 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     // Apply fixits button
     m_applyFixitsButton = new QToolButton;
     m_applyFixitsButton->setText(tr("Apply Fixits"));
+    m_applyFixitsButton->setEnabled(false);
+    connect(m_diagnosticModel,
+            &ClangToolsDiagnosticModel::fixItsToApplyCountChanged,
+            [this](int c) { m_applyFixitsButton->setEnabled(c); });
     connect(m_applyFixitsButton, &QToolButton::clicked, [this]() {
         QVector<Diagnostic> diagnosticsWithFixits;
 
