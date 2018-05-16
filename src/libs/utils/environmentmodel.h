@@ -40,15 +40,16 @@ class QTCREATOR_UTILS_EXPORT EnvironmentModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    explicit EnvironmentModel(QObject *parent = 0);
-    ~EnvironmentModel();
+    explicit EnvironmentModel(QObject *parent = nullptr);
+    ~EnvironmentModel() override;
 
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    int rowCount(const QModelIndex &parent) const override;
+    int columnCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 
     QModelIndex addVariable();
     QModelIndex addVariable(const EnvironmentItem &item);

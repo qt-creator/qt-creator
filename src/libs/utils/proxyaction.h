@@ -43,7 +43,7 @@ public:
     };
     Q_DECLARE_FLAGS(Attributes, Attribute)
 
-    explicit ProxyAction(QObject *parent = 0);
+    explicit ProxyAction(QObject *parent = nullptr);
 
     void initialize(QAction *action);
 

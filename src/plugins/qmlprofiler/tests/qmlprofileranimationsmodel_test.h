@@ -40,7 +40,6 @@ public:
 
 private slots:
     void initTestCase();
-    void testAccepted();
     void testRowMaxValue();
     void testRowNumbers();
     void testTypeId();

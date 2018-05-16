@@ -109,7 +109,7 @@ static int toSameSignedInt(qint64 number)
 QVariantMap MemoryUsageModel::details(int index) const
 {
     QVariantMap result;
-    const MemoryAllocationItem *ev = &m_data[index];
+    const Item *ev = &m_data[index];
 
     if (ev->allocated >= -ev->deallocated)
         result.insert(QLatin1String("displayName"), tr("Memory Allocated"));
@@ -139,12 +139,6 @@ QVariantMap MemoryUsageModel::details(int index) const
 
     result.insert(tr("Location"), modelManager()->eventType(ev->typeId).displayName());
     return result;
-}
-
-bool MemoryUsageModel::accepted(const QmlEventType &type) const
-{
-    return QmlProfilerTimelineModel::accepted(type)
-            || (type.rangeType() != MaximumRangeType && type.rangeType() != Compiling);
 }
 
 void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
@@ -187,7 +181,7 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
             m_data[m_currentUsageIndex].update(event.number<qint64>(0));
             m_currentUsage = m_data[m_currentUsageIndex].size;
         } else {
-            MemoryAllocationItem allocation(
+            Item allocation(
                         m_rangeStack.empty() ? event.typeIndex() :
                                                m_rangeStack.top().originTypeIndex,
                         m_currentUsage);
@@ -218,7 +212,7 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
             m_data[m_currentJSHeapIndex].update(event.number<qint64>(0));
             m_currentSize = m_data[m_currentJSHeapIndex].size;
         } else {
-            MemoryAllocationItem allocation(
+            Item allocation(
                         m_rangeStack.empty() ? event.typeIndex() :
                                                m_rangeStack.top().originTypeIndex,
                         m_currentSize);
@@ -285,13 +279,13 @@ bool MemoryUsageModel::handlesTypeId(int typeId) const
     return false;
 }
 
-MemoryUsageModel::MemoryAllocationItem::MemoryAllocationItem(int typeId, qint64 baseAmount) :
+MemoryUsageModel::Item::Item(int typeId, qint64 baseAmount) :
     size(baseAmount), allocated(0), deallocated(0), allocations(0), deallocations(0),
     typeId(typeId)
 {
 }
 
-void MemoryUsageModel::MemoryAllocationItem::update(qint64 amount)
+void MemoryUsageModel::Item::update(qint64 amount)
 {
     size += amount;
     if (amount < 0) {

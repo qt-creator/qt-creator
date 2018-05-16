@@ -49,7 +49,6 @@ private slots:
     void testCollapsedRow();
     void testLocation();
     void testRelativeHeight();
-    void testAccepted();
     void cleanupTestCase();
 
 private:

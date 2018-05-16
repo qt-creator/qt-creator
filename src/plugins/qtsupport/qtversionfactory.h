@@ -46,7 +46,7 @@ class QTSUPPORT_EXPORT QtVersionFactory : public QObject
     Q_OBJECT
 
 public:
-    explicit QtVersionFactory(QObject *parent = 0);
+    explicit QtVersionFactory(QObject *parent = nullptr);
     ~QtVersionFactory() override;
 
     static const QList<QtVersionFactory *> allQtVersionFactories();
@@ -58,9 +58,14 @@ public:
     /// a qtversion, the priority of the desktop factory is 0 and
     /// the desktop factory claims to handle all paths
     virtual int priority() const = 0;
-    virtual BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString()) = 0;
+    virtual BaseQtVersion *create(const Utils::FileName &qmakePath,
+                                  ProFileEvaluator *evaluator,
+                                  bool isAutoDetected = false,
+                                  const QString &autoDetectionSource = QString()) = 0;
 
-    static BaseQtVersion *createQtVersionFromQMakePath(const Utils::FileName &qmakePath, bool isAutoDetected = false, const QString &autoDetectionSource = QString(), QString *error = 0);
+    static BaseQtVersion *createQtVersionFromQMakePath(
+            const Utils::FileName &qmakePath, bool isAutoDetected = false,
+            const QString &autoDetectionSource = QString(), QString *error = nullptr);
 };
 
 } // namespace QtSupport

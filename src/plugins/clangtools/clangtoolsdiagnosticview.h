@@ -25,32 +25,29 @@
 
 #pragma once
 
-#include <QWidget>
-
-namespace ProjectExplorer { class Project; }
+#include <debugger/analyzer/detailederrorview.h>
 
 namespace ClangTools {
 namespace Internal {
-class ProjectSettings;
 
-namespace Ui { class ProjectSettingsWidget; }
-
-class ProjectSettingsWidget : public QWidget
+class DiagnosticView : public Debugger::DetailedErrorView
 {
     Q_OBJECT
 
 public:
-    explicit ProjectSettingsWidget(ProjectExplorer::Project *project, QWidget *parent = 0);
-    ~ProjectSettingsWidget();
+    DiagnosticView(QWidget *parent = 0);
+
+    enum ExtraColumn {
+        FixItColumn = LocationColumn + 1,
+    };
 
 private:
-    void updateButtonStates();
-    void updateButtonStateRemoveSelected();
-    void updateButtonStateRemoveAll();
-    void removeSelected();
+    void suppressCurrentDiagnostic();
 
-    Ui::ProjectSettingsWidget * const m_ui;
-    ProjectSettings * const m_projectSettings;
+    QList<QAction *> customActions() const;
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
+    QAction *m_suppressAction;
 };
 
 } // namespace Internal

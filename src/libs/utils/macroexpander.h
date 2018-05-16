@@ -52,7 +52,7 @@ public:
 
     bool resolveMacro(const QString &name, QString *ret) const;
 
-    QString value(const QByteArray &variable, bool *found = 0) const;
+    QString value(const QByteArray &variable, bool *found = nullptr) const;
 
     QString expand(const QString &stringWithVariables) const;
     QByteArray expand(const QByteArray &stringWithVariables) const;

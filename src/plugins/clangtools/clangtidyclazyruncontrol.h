@@ -27,6 +27,8 @@
 
 #include "clangtoolruncontrol.h"
 
+#include <cpptools/clangdiagnosticconfig.h>
+
 namespace ClangTools {
 namespace Internal {
 
@@ -36,11 +38,16 @@ class ClangTidyClazyRunControl final : public ClangToolRunControl
 
 public:
     ClangTidyClazyRunControl(ProjectExplorer::RunControl *runControl,
-                             ProjectExplorer::Target *target);
+                             ProjectExplorer::Target *target,
+                             const CppTools::ClangDiagnosticConfig &diagnosticConfig,
+                             const FileInfos &fileInfos);
 
 protected:
     ClangToolRunner *createRunner() final;
     ClangTool *tool() final;
+
+private:
+    CppTools::ClangDiagnosticConfig m_diagnosticConfig;
 };
 
 } // namespace Internal

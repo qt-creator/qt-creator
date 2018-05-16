@@ -279,6 +279,36 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
     return result;
 }
 
+QList<TestConfiguration *> QuickTestTreeItem::getTestConfigurationsForFile(const Utils::FileName &fileName) const
+{
+    QList<TestConfiguration *> result;
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    if (!project || type() != Root)
+        return result;
+
+    QHash<TestTreeItem *, QStringList> testFunctions;
+    const QString &file = fileName.toString();
+    forAllChildren([&testFunctions, &file](TestTreeItem *node) {
+        if (node->type() == Type::TestFunctionOrSet && node->filePath() == file) {
+            QTC_ASSERT(node->parentItem(), return);
+            TestTreeItem *testCase = node->parentItem();
+            QTC_ASSERT(testCase->type() == Type::TestCase, return);
+            if (testCase->name().isEmpty())
+                return;
+            testFunctions[testCase] << testCase->name() + "::" + node->name();
+        }
+    });
+
+    for (auto it = testFunctions.cbegin(), end = testFunctions.cend(); it != end; ++it) {
+        TestConfiguration *tc = it.key()->testConfiguration();
+        QTC_ASSERT(tc, continue);
+        tc->setTestCases(it.value());
+        result << tc;
+    }
+
+    return result;
+}
+
 TestTreeItem *QuickTestTreeItem::find(const TestParseResult *result)
 {
     QTC_ASSERT(result, return nullptr);

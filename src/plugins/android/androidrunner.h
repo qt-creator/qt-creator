@@ -43,7 +43,7 @@
 namespace Android {
 namespace Internal {
 
-class AndroidRunnerWorkerBase;
+class AndroidRunnerWorker;
 
 class AndroidRunner : public ProjectExplorer::RunWorker
 {
@@ -84,7 +84,7 @@ private:
     QString m_launchedAVDName;
     QThread m_thread;
     QTimer m_checkAVDTimer;
-    QScopedPointer<AndroidRunnerWorkerBase> m_worker;
+    QScopedPointer<AndroidRunnerWorker> m_worker;
     QPointer<ProjectExplorer::Target> m_target;
     Utils::Port m_gdbServerPort;
     QUrl m_qmlServer;

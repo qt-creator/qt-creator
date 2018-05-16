@@ -47,20 +47,8 @@ const char HIDE_FILE_FILTER_DEFAULT[] = "Makefile*; *.o; *.lo; *.la; *.obj; *~; 
                                         " *.config; *.creator; *.user*; *.includes; *.autosave";
 const char SHOW_FILE_FILTER_DEFAULT[] = "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;";
 
-Tree::~Tree()
-{
-    qDeleteAll(childDirectories);
-    qDeleteAll(files);
-}
-
 SelectableFilesModel::SelectableFilesModel(QObject *parent) : QAbstractItemModel(parent)
 {
-    connect(&m_watcher, &QFutureWatcherBase::finished,
-            this, &SelectableFilesModel::buildTreeFinished);
-
-    connect(this, &SelectableFilesModel::dataChanged, this, [this] { emit checkedFilesChanged(); });
-    connect(this, &SelectableFilesModel::modelReset, this, [this] { emit checkedFilesChanged(); });
-
     m_root = new Tree;
 }
 
@@ -70,7 +58,7 @@ void SelectableFilesModel::setInitialMarkedFiles(const Utils::FileNameList &file
     m_allFiles = files.isEmpty();
 }
 
-void SelectableFilesModel::startParsing(const Utils::FileName &baseDir)
+void SelectableFilesFromDirModel::startParsing(const Utils::FileName &baseDir)
 {
     m_watcher.cancel();
     m_watcher.waitForFinished();
@@ -82,16 +70,16 @@ void SelectableFilesModel::startParsing(const Utils::FileName &baseDir)
     m_rootForFuture->fullPath = baseDir;
     m_rootForFuture->isDir = true;
 
-    m_watcher.setFuture(Utils::runAsync(&SelectableFilesModel::run, this));
+    m_watcher.setFuture(Utils::runAsync(&SelectableFilesFromDirModel::run, this));
 }
 
-void SelectableFilesModel::run(QFutureInterface<void> &fi)
+void SelectableFilesFromDirModel::run(QFutureInterface<void> &fi)
 {
     m_futureCount = 0;
     buildTree(m_baseDir, m_rootForFuture, fi, 5);
 }
 
-void SelectableFilesModel::buildTreeFinished()
+void SelectableFilesFromDirModel::buildTreeFinished()
 {
     beginResetModel();
     delete m_root;
@@ -104,7 +92,7 @@ void SelectableFilesModel::buildTreeFinished()
     emit parsingFinished();
 }
 
-void SelectableFilesModel::cancel()
+void SelectableFilesFromDirModel::cancel()
 {
     m_watcher.cancel();
     m_watcher.waitForFinished();
@@ -128,8 +116,8 @@ SelectableFilesModel::FilterState SelectableFilesModel::filter(Tree *t)
     return Utils::anyOf(m_hideFilesFilter, matchesTreeName) ? FilterState::HIDDEN : FilterState::SHOWN;
 }
 
-void SelectableFilesModel::buildTree(const Utils::FileName &baseDir, Tree *tree,
-                                     QFutureInterface<void> &fi, int symlinkDepth)
+void SelectableFilesFromDirModel::buildTree(const Utils::FileName &baseDir, Tree *tree,
+                                            QFutureInterface<void> &fi, int symlinkDepth)
 {
     if (symlinkDepth == 0)
         return;
@@ -185,7 +173,6 @@ void SelectableFilesModel::buildTree(const Utils::FileName &baseDir, Tree *tree,
 
 SelectableFilesModel::~SelectableFilesModel()
 {
-    cancel();
     delete m_root;
 }
 
@@ -642,12 +629,12 @@ void SelectableFilesWidget::resetModel(const Utils::FileName &path, const Utils:
     m_view->setModel(nullptr);
 
     delete m_model;
-    m_model = new SelectableFilesModel(this);
+    m_model = new SelectableFilesFromDirModel(this);
 
     m_model->setInitialMarkedFiles(files);
-    connect(m_model, &SelectableFilesModel::parsingProgress,
+    connect(m_model, &SelectableFilesFromDirModel::parsingProgress,
             this, &SelectableFilesWidget::parsingProgress);
-    connect(m_model, &SelectableFilesModel::parsingFinished,
+    connect(m_model, &SelectableFilesFromDirModel::parsingFinished,
             this, &SelectableFilesWidget::parsingFinished);
     connect(m_model, &SelectableFilesModel::checkedFilesChanged,
             this, &SelectableFilesWidget::selectedFilesChanged);
@@ -773,6 +760,23 @@ SelectableFilesDialogAddDirectory::SelectableFilesDialogAddDirectory(const Utils
     setWindowTitle(tr("Add Existing Directory"));
 
     m_filesWidget->setBaseDirEditable(true);
+}
+
+SelectableFilesFromDirModel::SelectableFilesFromDirModel(QObject *parent)
+    : SelectableFilesModel(parent)
+{
+    connect(&m_watcher, &QFutureWatcherBase::finished,
+            this, &SelectableFilesFromDirModel::buildTreeFinished);
+
+    connect(this, &SelectableFilesFromDirModel::dataChanged,
+            this, [this] { emit checkedFilesChanged(); });
+    connect(this, &SelectableFilesFromDirModel::modelReset,
+            this, [this] { emit checkedFilesChanged(); });
+}
+
+SelectableFilesFromDirModel::~SelectableFilesFromDirModel()
+{
+    cancel();
 }
 
 } // namespace ProjectExplorer

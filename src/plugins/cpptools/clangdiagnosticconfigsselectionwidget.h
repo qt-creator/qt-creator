@@ -25,28 +25,44 @@
 
 #pragma once
 
-namespace ProjectExplorer { class Project; }
+#include "cpptools_global.h"
 
-#include <QHash>
-#include <QSharedPointer>
+#include "clangdiagnosticconfigsmodel.h"
 
-namespace ClangTools {
-namespace Internal {
-class ProjectSettings;
+#include <QWidget>
 
-class ProjectSettingsManager
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QLabel;
+QT_END_NAMESPACE
+
+namespace CppTools {
+
+class CPPTOOLS_EXPORT ClangDiagnosticConfigsSelectionWidget : public QWidget
 {
-public:
-    ProjectSettingsManager();
+    Q_OBJECT
 
-    static ProjectSettings *getSettings(ProjectExplorer::Project *project);
+public:
+    explicit ClangDiagnosticConfigsSelectionWidget(QWidget *parent = nullptr);
+
+    Core::Id currentConfigId() const;
+
+    void refresh(Core::Id id);
+
+    void showLabel(bool show);
+
+signals:
+    void currentConfigChanged(const Core::Id &currentConfigId);
 
 private:
-    static void handleProjectToBeRemoved(ProjectExplorer::Project *project);
+    void connectToCurrentIndexChanged();
+    void disconnectFromCurrentIndexChanged();
 
-    typedef QHash<ProjectExplorer::Project *, QSharedPointer<ProjectSettings>> SettingsMap;
-    static SettingsMap m_settings;
+    QMetaObject::Connection m_currentIndexChangedConnection;
+    ClangDiagnosticConfigsModel m_diagnosticConfigsModel;
+
+    QLabel *m_label = nullptr;
+    QComboBox *m_selectionComboBox = nullptr;
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // CppTools namespace

@@ -46,8 +46,8 @@ class QTCREATOR_UTILS_EXPORT IconButton: public QAbstractButton
     Q_PROPERTY(float iconOpacity READ iconOpacity WRITE setIconOpacity)
     Q_PROPERTY(bool autoHide READ hasAutoHide WRITE setAutoHide)
 public:
-    explicit IconButton(QWidget *parent = 0);
-    void paintEvent(QPaintEvent *event);
+    explicit IconButton(QWidget *parent = nullptr);
+    void paintEvent(QPaintEvent *event) override;
     float iconOpacity() { return m_iconOpacity; }
     void setIconOpacity(float value) { m_iconOpacity = value; update(); }
     void animateShow(bool visible);
@@ -55,11 +55,11 @@ public:
     void setAutoHide(bool hide) { m_autoHide = hide; }
     bool hasAutoHide() const { return m_autoHide; }
 
-    QSize sizeHint() const;
+    QSize sizeHint() const override;
 
 protected:
-    void keyPressEvent(QKeyEvent *ke);
-    void keyReleaseEvent(QKeyEvent *ke);
+    void keyPressEvent(QKeyEvent *ke) override;
+    void keyReleaseEvent(QKeyEvent *ke) override;
 
 private:
     float m_iconOpacity;
@@ -79,8 +79,8 @@ class QTCREATOR_UTILS_EXPORT FancyLineEdit : public CompletingLineEdit
 public:
     enum Side {Left = 0, Right = 1};
 
-    explicit FancyLineEdit(QWidget *parent = 0);
-    ~FancyLineEdit();
+    explicit FancyLineEdit(QWidget *parent = nullptr);
+    ~FancyLineEdit() override;
 
     QIcon buttonIcon(Side side) const;
     void setButtonIcon(Side side, const QIcon &icon);
@@ -154,7 +154,7 @@ signals:
     void validReturnPressed();
 
 protected:
-    void resizeEvent(QResizeEvent *e);
+    void resizeEvent(QResizeEvent *e) override;
 
     virtual QString fixInputString(const QString &string);
 

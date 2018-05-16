@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,31 +25,23 @@
 
 #pragma once
 
-#include <QObject>
-#include <QString>
+#include <cpptools/cppprojectfile.h>
+#include <cpptools/projectpart.h>
 
-namespace ProjectExplorer {
-class Project;
-class Target;
-}
+#include <utils/fileutils.h>
 
 namespace ClangTools {
 namespace Internal {
 
-class ClangStaticAnalyzerPreconfiguredSessionTests: public QObject
+class FileInfo
 {
-    Q_OBJECT
-
-private slots:
-    void initTestCase();
-
-    void testPreconfiguredSession();
-    void testPreconfiguredSession_data();
-
-private:
-    bool switchToProjectAndTarget(ProjectExplorer::Project *project,
-                                  ProjectExplorer::Target *target);
+public:
+    Utils::FileName file;
+    CppTools::ProjectFile::Kind kind;
+    CppTools::ProjectPart::Ptr projectPart;
 };
+
+using FileInfos = QVector<FileInfo>;
 
 } // namespace Internal
 } // namespace ClangTools

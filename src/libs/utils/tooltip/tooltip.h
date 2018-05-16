@@ -59,7 +59,7 @@ protected:
     ToolTip();
 
 public:
-    ~ToolTip();
+    ~ToolTip() override;
 
     enum {
         ColorContent = 0,
@@ -67,17 +67,17 @@ public:
         WidgetContent = 42
     };
 
-    bool eventFilter(QObject *o, QEvent *event);
+    bool eventFilter(QObject *o, QEvent *event) override;
 
     static ToolTip *instance();
 
-    static void show(const QPoint &pos, const QString &content, QWidget *w = 0,
+    static void show(const QPoint &pos, const QString &content, QWidget *w = nullptr,
                      const QString &helpId = QString(), const QRect &rect = QRect());
-    static void show(const QPoint &pos, const QColor &color, QWidget *w = 0,
+    static void show(const QPoint &pos, const QColor &color, QWidget *w = nullptr,
                      const QString &helpId = QString(), const QRect &rect = QRect());
-    static void show(const QPoint &pos, QWidget *content, QWidget *w = 0,
+    static void show(const QPoint &pos, QWidget *content, QWidget *w = nullptr,
                      const QString &helpId = QString(), const QRect &rect = QRect());
-    static void show(const QPoint &pos, QLayout *content, QWidget *w = 0,
+    static void show(const QPoint &pos, QLayout *content, QWidget *w = nullptr,
                      const QString &helpId = QString(), const QRect &rect = QRect());
     static void move(const QPoint &pos, QWidget *w);
     static void hide();

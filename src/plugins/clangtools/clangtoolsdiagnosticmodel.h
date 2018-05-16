@@ -26,7 +26,7 @@
 #pragma once
 
 #include "clangtoolsdiagnostic.h"
-#include "clangstaticanalyzerprojectsettings.h"
+#include "clangtoolsprojectsettings.h"
 
 #include <debugger/analyzer/detailederrorview.h>
 #include <utils/fileutils.h>
@@ -39,6 +39,24 @@ namespace ProjectExplorer { class Project; }
 
 namespace ClangTools {
 namespace Internal {
+
+class DiagnosticItem : public Utils::TreeItem
+{
+public:
+    DiagnosticItem(const Diagnostic &diag);
+
+    Diagnostic diagnostic() const { return m_diagnostic; }
+    bool applyFixits() const { return m_applyFixits; }
+
+private:
+    Qt::ItemFlags flags(int column) const override;
+    QVariant data(int column, int role) const override;
+    bool setData(int column, const QVariant &data, int role) override;
+
+private:
+    const Diagnostic m_diagnostic;
+    bool m_applyFixits = false;
+};
 
 class ClangToolsDiagnosticModel : public Utils::TreeModel<>
 {
@@ -55,12 +73,12 @@ public:
     };
 };
 
-class ClangStaticAnalyzerDiagnosticFilterModel : public QSortFilterProxyModel
+class DiagnosticFilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 
 public:
-    ClangStaticAnalyzerDiagnosticFilterModel(QObject *parent = nullptr);
+    DiagnosticFilterModel(QObject *parent = nullptr);
 
     void setProject(ProjectExplorer::Project *project);
     void addSuppressedDiagnostic(const SuppressedDiagnostic &diag);

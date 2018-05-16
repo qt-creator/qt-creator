@@ -40,7 +40,6 @@ public:
 
 private slots:
     void initTestCase();
-    void testAccepted();
     void testTypeId();
     void testColor();
     void testLabels();

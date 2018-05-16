@@ -44,7 +44,7 @@ public:
     explicit ParameterAction(const QString &emptyText,
                              const QString &parameterText,
                              EnablingMode em = AlwaysEnabled,
-                             QObject *parent = 0);
+                             QObject *parent = nullptr);
 
     QString emptyText() const;
     void setEmptyText(const QString &);

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,23 +25,46 @@
 
 #pragma once
 
-#include "clangtoolruncontrol.h"
+#include "clangfileinfo.h"
+
+#include <coreplugin/id.h>
+
+#include <QDialog>
+
+#include <memory>
+
+QT_BEGIN_NAMESPACE
+class QPushButton;
+QT_END_NAMESPACE
+
+namespace CppTools { class ProjectInfo; }
 
 namespace ClangTools {
 namespace Internal {
 
-class ClangStaticAnalyzerRunControl final : public ClangToolRunControl
+namespace Ui { class SelectableFilesDialog; }
+class SelectableFilesModel;
+
+class SelectableFilesDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    ClangStaticAnalyzerRunControl(ProjectExplorer::RunControl *runControl,
-                                  ProjectExplorer::Target *target);
+    explicit SelectableFilesDialog(const CppTools::ProjectInfo &projectInfo,
+                                   const FileInfos &allFileInfos);
+    ~SelectableFilesDialog() override;
 
-protected:
-    ClangToolRunner *createRunner() final;
+    FileInfos filteredFileInfos() const;
 
-    ClangTool *tool() final;
+private:
+    void accept() override;
+
+    std::unique_ptr<Ui::SelectableFilesDialog> m_ui;
+    std::unique_ptr<SelectableFilesModel> m_filesModel;
+
+    Core::Id m_customDiagnosticConfig;
+    ProjectExplorer::Project *m_project;
+    QPushButton *m_analyzeButton = nullptr;
 };
 
 } // namespace Internal

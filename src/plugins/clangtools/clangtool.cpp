@@ -25,14 +25,18 @@
 
 #include "clangtool.h"
 
+#include "clangselectablefilesdialog.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolsdiagnosticmodel.h"
+#include "clangtoolsutils.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+
+#include <cpptools/cppmodelmanager.h>
 
 #include <debugger/analyzer/analyzermanager.h>
 
@@ -58,6 +62,33 @@ using namespace Utils;
 namespace ClangTools {
 namespace Internal {
 
+static FileInfos sortedFileInfos(const QVector<CppTools::ProjectPart::Ptr> &projectParts)
+{
+    FileInfos fileInfos;
+
+    for (CppTools::ProjectPart::Ptr projectPart : projectParts) {
+        QTC_ASSERT(projectPart, continue);
+        if (!projectPart->selectedForBuilding)
+            continue;
+
+        for (const CppTools::ProjectFile &file : projectPart->files) {
+            QTC_ASSERT(file.kind != CppTools::ProjectFile::Unclassified, continue);
+            QTC_ASSERT(file.kind != CppTools::ProjectFile::Unsupported, continue);
+            if (file.path == CppTools::CppModelManager::configurationFileName())
+                continue;
+
+            if (CppTools::ProjectFile::isSource(file.kind)) {
+                const FileInfo info{Utils::FileName::fromString(file.path), file.kind, projectPart};
+                fileInfos.append(info);
+            }
+        }
+    }
+
+    Utils::sort(fileInfos, &FileInfo::file);
+
+    return fileInfos;
+}
+
 ClangTool::ClangTool(const QString &name)
     : m_name(name)
 {
@@ -65,6 +96,23 @@ ClangTool::ClangTool(const QString &name)
 
     m_startAction = Debugger::createStartAction();
     m_stopAction = Debugger::createStopAction();
+}
+
+FileInfos ClangTool::collectFileInfos(Project *project, bool askUserForFileSelection) const
+{
+    auto projectInfo = CppTools::CppModelManager::instance()->projectInfo(project);
+    QTC_ASSERT(projectInfo.isValid(), return FileInfos());
+
+    const FileInfos allFileInfos = sortedFileInfos(projectInfo.projectParts());
+
+    if (askUserForFileSelection) {
+        SelectableFilesDialog dialog(projectInfo, allFileInfos);
+        if (dialog.exec() == QDialog::Rejected)
+            return FileInfos();
+        return dialog.filteredFileInfos();
+    } else {
+        return allFileInfos;
+    }
 }
 
 const QString &ClangTool::name() const

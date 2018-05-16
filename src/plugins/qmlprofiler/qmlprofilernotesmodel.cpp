@@ -25,6 +25,7 @@
 
 #include "qmlprofilernotesmodel.h"
 
+#include <tracing/timelinemodel.h>
 #include <utils/algorithm.h>
 
 namespace QmlProfiler {

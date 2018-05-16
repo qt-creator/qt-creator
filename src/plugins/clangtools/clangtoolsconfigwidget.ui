@@ -19,16 +19,23 @@
      <property name="title">
       <string>General</string>
      </property>
-     <layout class="QFormLayout" name="formLayout">
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="buildBeforeAnalysis">
         <property name="text">
-         <string>Simultaneous processes:</string>
+         <string>Build the project before analysis</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <layout class="QHBoxLayout" name="processesLayout">
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Simultaneous processes:</string>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QSpinBox" name="simultaneousProccessesSpinBox">
           <property name="minimum">
@@ -54,12 +61,8 @@
         </item>
        </layout>
       </item>
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="buildBeforeAnalysis">
-        <property name="text">
-         <string>Build the project before analysis</string>
-        </property>
-       </widget>
+      <item>
+       <widget class="CppTools::ClangDiagnosticConfigsSelectionWidget" name="clangDiagnosticConfigsSelectionWidget" native="true"/>
       </item>
      </layout>
     </widget>
@@ -79,6 +82,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CppTools::ClangDiagnosticConfigsSelectionWidget</class>
+   <extends>QWidget</extends>
+   <header>cpptools/clangdiagnosticconfigsselectionwidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

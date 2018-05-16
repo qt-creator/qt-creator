@@ -102,7 +102,7 @@ int DebugMessagesModel::collapsedRow(int index) const
 void DebugMessagesModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
     m_data.insert(insert(event.timestamp(), 0, type.detailType()),
-                  MessageData(event.string(), event.typeIndex()));
+                  Item(event.string(), event.typeIndex()));
     if (type.detailType() > m_maximumMsgType)
         m_maximumMsgType = type.detailType();
 }

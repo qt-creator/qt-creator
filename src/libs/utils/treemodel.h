@@ -170,8 +170,8 @@ class QTCREATOR_UTILS_EXPORT BaseTreeModel : public QAbstractItemModel
     Q_OBJECT
 
 protected:
-    explicit BaseTreeModel(QObject *parent = 0);
-    explicit BaseTreeModel(TreeItem *root, QObject *parent = 0);
+    explicit BaseTreeModel(QObject *parent = nullptr);
+    explicit BaseTreeModel(TreeItem *root, QObject *parent = nullptr);
     ~BaseTreeModel() override;
 
     void setHeader(const QStringList &displays);
@@ -269,8 +269,8 @@ public:
     using RootItem = typename Internal::SelectType<0, LevelItemTypes...>::Type;
     using BestItem = typename Internal::BestItemType<LevelItemTypes...>::Type;
 
-    explicit TreeModel(QObject *parent = 0) : BaseTreeModel(new RootItem, parent) {}
-    explicit TreeModel(RootItem *root, QObject *parent = 0) : BaseTreeModel(root, parent) {}
+    explicit TreeModel(QObject *parent = nullptr) : BaseTreeModel(new RootItem, parent) {}
+    explicit TreeModel(RootItem *root, QObject *parent = nullptr) : BaseTreeModel(root, parent) {}
 
     using BaseTreeModel::canFetchMore;
     using BaseTreeModel::clear;
@@ -307,14 +307,17 @@ public:
     }
 
     template<int Level>
-    typename Internal::SelectType<Level, LevelItemTypes...>::Type *itemForIndexAtLevel(const QModelIndex &idx) const {
-       TreeItem *item = BaseTreeModel::itemForIndex(idx);
-        return item && item->level() == Level ? static_cast<typename Internal::SelectType<Level, LevelItemTypes...>::Type *>(item) : 0;
+    typename Internal::SelectType<Level, LevelItemTypes...>::Type *itemForIndexAtLevel(
+            const QModelIndex &idx) const {
+        TreeItem *item = BaseTreeModel::itemForIndex(idx);
+        return item && item->level() == Level
+                ? static_cast<typename Internal::SelectType<Level, LevelItemTypes...>::Type *>(item)
+                : nullptr;
     }
 
     BestItem *nonRootItemForIndex(const QModelIndex &idx) const {
         TreeItem *item = BaseTreeModel::itemForIndex(idx);
-        return item && item->parent() ? static_cast<BestItem *>(item) : 0;
+        return item && item->parent() ? static_cast<BestItem *>(item) : nullptr;
     }
 
     template <class Predicate>

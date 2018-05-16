@@ -26,6 +26,7 @@
 #include "clangfixitoperationsextractor.h"
 
 #include "clangfixitoperation.h"
+#include "clangutils.h"
 
 #include <utils/algorithm.h>
 
@@ -40,27 +41,6 @@ void capitalizeText(QString &text)
     text[0] = text[0].toUpper();
 }
 
-void removeDiagnosticCategoryPrefix(QString &text)
-{
-    // Prefixes are taken from $LLVM_SOURCE_DIR/tools/clang/lib/Frontend/TextDiagnostic.cpp,
-    // function TextDiagnostic::printDiagnosticLevel (llvm-3.6.2).
-    static const QStringList categoryPrefixes = {
-        QStringLiteral("note"),
-        QStringLiteral("remark"),
-        QStringLiteral("warning"),
-        QStringLiteral("error"),
-        QStringLiteral("fatal error")
-    };
-
-    foreach (const QString &prefix, categoryPrefixes) {
-        const QString fullPrefix = prefix + QStringLiteral(": ");
-        if (text.startsWith(fullPrefix)) {
-            text.remove(0, fullPrefix.length());
-            break;
-        }
-    }
-}
-
 QString tweakedDiagnosticText(const QString &diagnosticText)
 {
     // Examples:
@@ -70,7 +50,7 @@ QString tweakedDiagnosticText(const QString &diagnosticText)
     QString tweakedText = diagnosticText;
 
     if (!tweakedText.isEmpty()) {
-        removeDiagnosticCategoryPrefix(tweakedText);
+        tweakedText = ClangCodeModel::Utils::diagnosticCategoryPrefixRemoved(tweakedText);
         capitalizeText(tweakedText);
     }
 

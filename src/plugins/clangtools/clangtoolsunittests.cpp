@@ -26,7 +26,6 @@
 #include "clangtoolsunittests.h"
 
 #include "clangtoolsdiagnostic.h"
-#include "clangstaticanalyzertool.h"
 #include "clangtidyclazytool.h"
 #include "clangtoolsutils.h"
 
@@ -90,7 +89,6 @@ static CppTools::ClangDiagnosticConfig createTidyClazyConfig()
 
 void ClangToolsUnitTests::testProject()
 {
-    QFETCH(Tool, clangtool);
     QFETCH(QString, projectFilePath);
     QFETCH(int, expectedDiagCount);
     if (projectFilePath.contains("mingw")) {
@@ -104,34 +102,28 @@ void ClangToolsUnitTests::testProject()
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
     const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
     QVERIFY(projectInfo.isValid());
-    ClangTool *tool = (clangtool == Tool::ClangStaticAnalyzer)
-            ? ClangStaticAnalyzerTool::instance()
-            : static_cast<ClangTool *>(ClangTidyClazyTool::instance());
+    ClangTool *tool = ClangTidyClazyTool::instance();
 
-    ExecuteOnDestruction executeOnDestruction;
-    if (clangtool == Tool::ClangTidyAndClazy) {
-        // Change configs
-        QSharedPointer<CppTools::CppCodeModelSettings> settings = CppTools::codeModelSettings();
-        const CppTools::ClangDiagnosticConfigs originalConfigs
-                = settings->clangCustomDiagnosticConfigs();
-        const Core::Id originalId = settings->clangDiagnosticConfigId();
+    // Change configs
+    QSharedPointer<CppTools::CppCodeModelSettings> settings = CppTools::codeModelSettings();
+    const CppTools::ClangDiagnosticConfigs originalConfigs = settings->clangCustomDiagnosticConfigs();
+    const Core::Id originalId = settings->clangDiagnosticConfigId();
 
-        CppTools::ClangDiagnosticConfigs modifiedConfigs = originalConfigs;
+    CppTools::ClangDiagnosticConfigs modifiedConfigs = originalConfigs;
 
-        const CppTools::ClangDiagnosticConfig clangTidyConfig = createTidyClazyConfig();
-        modifiedConfigs.push_back(clangTidyConfig);
+    const CppTools::ClangDiagnosticConfig clangTidyConfig = createTidyClazyConfig();
+    modifiedConfigs.push_back(clangTidyConfig);
 
-        executeOnDestruction.reset([=]() {
-            // Restore configs
-            settings->setClangCustomDiagnosticConfigs(originalConfigs);
-            settings->setClangDiagnosticConfigId(originalId);
-        });
+    ExecuteOnDestruction executeOnDestruction([=]() {
+        // Restore configs
+        settings->setClangCustomDiagnosticConfigs(originalConfigs);
+        settings->setClangDiagnosticConfigId(originalId);
+    });
 
-        settings->setClangCustomDiagnosticConfigs(modifiedConfigs);
-        settings->setClangDiagnosticConfigId(clangTidyConfig.id());
-    }
+    settings->setClangCustomDiagnosticConfigs(modifiedConfigs);
+    settings->setClangDiagnosticConfigId(clangTidyConfig.id());
 
-    tool->startTool();
+    tool->startTool(false);
     QSignalSpy waiter(tool, SIGNAL(finished(bool)));
     QVERIFY(waiter.wait(30000));
 
@@ -142,40 +134,39 @@ void ClangToolsUnitTests::testProject()
 
 void ClangToolsUnitTests::testProject_data()
 {
-    QTest::addColumn<Tool>("clangtool");
     QTest::addColumn<QString>("projectFilePath");
     QTest::addColumn<int>("expectedDiagCount");
 
-    addTestRow(Tool::ClangStaticAnalyzer, "simple/simple.qbs", 1);
-    addTestRow(Tool::ClangStaticAnalyzer, "simple/simple.pro", 1);
+    addTestRow("simple/simple.qbs", 1);
+    addTestRow("simple/simple.pro", 1);
 
-    addTestRow(Tool::ClangStaticAnalyzer, "simple-library/simple-library.qbs", 0);
-    addTestRow(Tool::ClangStaticAnalyzer, "simple-library/simple-library.pro", 0);
+    addTestRow("simple-library/simple-library.qbs", 0);
+    addTestRow("simple-library/simple-library.pro", 0);
 
-    addTestRow(Tool::ClangStaticAnalyzer, "stdc++11-includes/stdc++11-includes.qbs", 0);
-    addTestRow(Tool::ClangStaticAnalyzer, "stdc++11-includes/stdc++11-includes.pro", 0);
+    addTestRow("stdc++11-includes/stdc++11-includes.qbs", 0);
+    addTestRow("stdc++11-includes/stdc++11-includes.pro", 0);
 
-    addTestRow(Tool::ClangStaticAnalyzer, "qt-widgets-app/qt-widgets-app.qbs", 0);
-    addTestRow(Tool::ClangStaticAnalyzer, "qt-widgets-app/qt-widgets-app.pro", 0);
+    addTestRow("qt-widgets-app/qt-widgets-app.qbs", 0);
+    addTestRow("qt-widgets-app/qt-widgets-app.pro", 0);
 
-    addTestRow(Tool::ClangStaticAnalyzer, "qt-essential-includes/qt-essential-includes.qbs", 0);
-    addTestRow(Tool::ClangStaticAnalyzer, "qt-essential-includes/qt-essential-includes.pro", 0);
+    addTestRow("qt-essential-includes/qt-essential-includes.qbs", 0);
+    addTestRow("qt-essential-includes/qt-essential-includes.pro", 0);
 
-    addTestRow(Tool::ClangStaticAnalyzer, "mingw-includes/mingw-includes.qbs", 0);
-    addTestRow(Tool::ClangStaticAnalyzer, "mingw-includes/mingw-includes.pro", 0);
+    addTestRow("mingw-includes/mingw-includes.qbs", 0);
+    addTestRow("mingw-includes/mingw-includes.pro", 0);
 
-    addTestRow(Tool::ClangTidyAndClazy, "clangtidy_clazy/clangtidy_clazy.pro",
+    addTestRow("clangtidy_clazy/clangtidy_clazy.pro",
                4 /* ClangTidy: modernize-*,misc-* */
                + 2 /* Clazy: level1 */);
 }
 
-void ClangToolsUnitTests::addTestRow(Tool tool, const QByteArray &relativeFilePath,
+void ClangToolsUnitTests::addTestRow(const QByteArray &relativeFilePath,
                                      int expectedDiagCount)
 {
     const QString absoluteFilePath = m_tmpDir->absolutePath(relativeFilePath);
     const QString fileName = QFileInfo(absoluteFilePath).fileName();
 
-    QTest::newRow(fileName.toUtf8().constData()) << tool << absoluteFilePath << expectedDiagCount;
+    QTest::newRow(fileName.toUtf8().constData()) << absoluteFilePath << expectedDiagCount;
 }
 
 } // namespace Internal

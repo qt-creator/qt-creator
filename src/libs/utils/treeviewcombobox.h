@@ -36,7 +36,7 @@ class QTCREATOR_UTILS_EXPORT TreeViewComboBoxView : public QTreeView
 {
     Q_OBJECT
 public:
-    TreeViewComboBoxView(QWidget *parent = 0);
+    TreeViewComboBoxView(QWidget *parent = nullptr);
     void adjustWidth(int width);
 };
 
@@ -44,14 +44,14 @@ class QTCREATOR_UTILS_EXPORT TreeViewComboBox : public QComboBox
 {
     Q_OBJECT
 public:
-    TreeViewComboBox(QWidget *parent = 0);
+    TreeViewComboBox(QWidget *parent = nullptr);
 
-    void wheelEvent(QWheelEvent *e);
-    void keyPressEvent(QKeyEvent *e);
+    void wheelEvent(QWheelEvent *e) override;
+    void keyPressEvent(QKeyEvent *e) override;
     void setCurrentIndex(const QModelIndex &index);
-    bool eventFilter(QObject* object, QEvent* event);
-    void showPopup();
-    void hidePopup();
+    bool eventFilter(QObject* object, QEvent* event) override;
+    void showPopup() override;
+    void hidePopup() override;
 
     TreeViewComboBoxView *view() const;
 

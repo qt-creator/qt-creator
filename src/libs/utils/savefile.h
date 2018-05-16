@@ -39,9 +39,9 @@ class QTCREATOR_UTILS_EXPORT SaveFile : public QFile
 
 public:
     explicit SaveFile(const QString &filename);
-    virtual ~SaveFile();
+    ~SaveFile() override;
 
-    bool open(OpenMode flags = QIODevice::WriteOnly);
+    bool open(OpenMode flags = QIODevice::WriteOnly) override;
 
     void rollback();
     bool commit();

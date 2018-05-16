@@ -37,7 +37,7 @@ class QTCREATOR_UTILS_EXPORT StatusLabel : public QLabel
 {
     Q_OBJECT
 public:
-    explicit StatusLabel(QWidget *parent = 0);
+    explicit StatusLabel(QWidget *parent = nullptr);
 
 public slots:
     void showStatusMessage(const QString &message, int timeoutMS = 5000);

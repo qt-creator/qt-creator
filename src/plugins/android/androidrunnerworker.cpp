@@ -23,11 +23,12 @@
 **
 ****************************************************************************/
 
-#include "androidconfigurations.h"
-#include "androidmanager.h"
 #include "androidrunnerworker.h"
 
-#include <QThread>
+#include "androidconfigurations.h"
+#include "androidconstants.h"
+#include "androidmanager.h"
+#include "androidrunconfiguration.h"
 
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/target.h>
@@ -40,6 +41,8 @@
 #include <utils/url.h>
 
 #include <QTcpServer>
+#include <QThread>
+
 #include <chrono>
 
 using namespace std;
@@ -98,41 +101,28 @@ static qint64 extractPID(const QByteArray &output, const QString &packageName)
     return pid;
 }
 
-void findProcessPIDPreNougat(QFutureInterface<qint64> &fi, const QString &adbPath,
-                    QStringList selector, const QString &packageName)
+static void findProcessPID(QFutureInterface<qint64> &fi, const QString &adbPath,
+                           QStringList selector, const QString &packageName,
+                           bool preNougat)
 {
     if (packageName.isEmpty())
         return;
 
     qint64 processPID = -1;
     chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
+
+    selector.append("shell");
+    selector.append(preNougat ? pidScriptPreNougat : pidScript.arg(packageName));
+
     do {
         QThread::msleep(200);
-        const QByteArray out = Utils::SynchronousProcess()
-                .runBlocking(adbPath, selector << QStringLiteral("shell") << pidScriptPreNougat)
-                .allRawOutput();
-        processPID = extractPID(out, packageName);
-    } while (processPID == -1 && !isTimedOut(start) && !fi.isCanceled());
-
-    if (!fi.isCanceled())
-        fi.reportResult(processPID);
-}
-
-void findProcessPID(QFutureInterface<qint64> &fi, const QString &adbPath,
-                    QStringList selector, const QString &packageName)
-{
-    if (packageName.isEmpty())
-        return;
-
-    qint64 processPID = -1;
-    chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
-    do {
-        QThread::msleep(200);
-        const QByteArray out = Utils::SynchronousProcess()
-                .runBlocking(adbPath, selector << QStringLiteral("shell") << pidScript.arg(packageName))
-                .allRawOutput();
-        if (!out.isEmpty())
-            processPID = out.trimmed().toLongLong();
+        const QByteArray out = Utils::SynchronousProcess().runBlocking(adbPath, selector).allRawOutput();
+        if (preNougat) {
+            processPID = extractPID(out, packageName);
+        } else {
+            if (!out.isEmpty())
+                processPID = out.trimmed().toLongLong();
+        }
     } while (processPID == -1 && !isTimedOut(start) && !fi.isCanceled());
 
     if (!fi.isCanceled())
@@ -150,7 +140,7 @@ static void deleter(QProcess *p)
     p->deleteLater();
 }
 
-AndroidRunnerWorkerBase::AndroidRunnerWorkerBase(RunControl *runControl, const AndroidRunnable &runnable)
+AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const AndroidRunnable &runnable)
     : m_androidRunnable(runnable)
     , m_adbLogcatProcess(nullptr, deleter)
     , m_psIsAlive(nullptr, deleter)
@@ -159,9 +149,9 @@ AndroidRunnerWorkerBase::AndroidRunnerWorkerBase(RunControl *runControl, const A
     , m_jdbProcess(nullptr, deleter)
 
 {
-    auto runConfig = runControl->runConfiguration();
+    auto runConfig = runner->runControl()->runConfiguration();
     auto aspect = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    Core::Id runMode = runControl->runMode();
+    Core::Id runMode = runner->runMode();
     const bool debuggingMode = runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE;
     m_useCppDebugger = debuggingMode && aspect->useCppDebugger();
     if (debuggingMode && aspect->useQmlDebugger())
@@ -190,9 +180,12 @@ AndroidRunnerWorkerBase::AndroidRunnerWorkerBase(RunControl *runControl, const A
     auto target = runConfig->target();
     m_deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
     m_apiLevel = AndroidManager::deviceApiLevel(target);
+
+    if (auto aspect = runConfig->extraAspect(Constants::ANDROID_AMSTARTARGS_ASPECT))
+        m_amStartExtraArgs = static_cast<BaseStringAspect *>(aspect)->value().split(' ');
 }
 
-AndroidRunnerWorkerBase::~AndroidRunnerWorkerBase()
+AndroidRunnerWorker::~AndroidRunnerWorker()
 {
     if (m_processPID != -1)
         forceStop();
@@ -201,7 +194,7 @@ AndroidRunnerWorkerBase::~AndroidRunnerWorkerBase()
         m_pidFinder.cancel();
 }
 
-bool AndroidRunnerWorkerBase::adbShellAmNeedsQuotes()
+bool AndroidRunnerWorker::adbShellAmNeedsQuotes()
 {
     // Between Android SDK Tools version 24.3.1 and 24.3.4 the quoting
     // needs for the 'adb shell am start ...' parameters changed.
@@ -223,7 +216,7 @@ bool AndroidRunnerWorkerBase::adbShellAmNeedsQuotes()
     return !oldSdk;
 }
 
-bool AndroidRunnerWorkerBase::runAdb(const QStringList &args, int timeoutS)
+bool AndroidRunnerWorker::runAdb(const QStringList &args, int timeoutS)
 {
     Utils::SynchronousProcess adb;
     adb.setTimeoutS(timeoutS);
@@ -233,18 +226,18 @@ bool AndroidRunnerWorkerBase::runAdb(const QStringList &args, int timeoutS)
     return response.result == Utils::SynchronousProcessResponse::Finished;
 }
 
-void AndroidRunnerWorkerBase::adbKill(qint64 pid)
+void AndroidRunnerWorker::adbKill(qint64 pid)
 {
     runAdb({"shell", "kill", "-9", QString::number(pid)});
     runAdb({"shell", "run-as", m_androidRunnable.packageName, "kill", "-9", QString::number(pid)});
 }
 
-QStringList AndroidRunnerWorkerBase::selector() const
+QStringList AndroidRunnerWorker::selector() const
 {
     return AndroidDeviceInfo::adbSelector(m_deviceSerialNumber);
 }
 
-void AndroidRunnerWorkerBase::forceStop()
+void AndroidRunnerWorker::forceStop()
 {
     runAdb({"shell", "am", "force-stop", m_androidRunnable.packageName}, 30);
 
@@ -259,19 +252,19 @@ void AndroidRunnerWorkerBase::forceStop()
     }
 }
 
-void AndroidRunnerWorkerBase::logcatReadStandardError()
+void AndroidRunnerWorker::logcatReadStandardError()
 {
     if (m_processPID != -1)
         logcatProcess(m_adbLogcatProcess->readAllStandardError(), m_stderrBuffer, true);
 }
 
-void AndroidRunnerWorkerBase::logcatReadStandardOutput()
+void AndroidRunnerWorker::logcatReadStandardOutput()
 {
     if (m_processPID != -1)
         logcatProcess(m_adbLogcatProcess->readAllStandardOutput(), m_stdoutBuffer, false);
 }
 
-void AndroidRunnerWorkerBase::logcatProcess(const QByteArray &text, QByteArray &buffer, bool onlyError)
+void AndroidRunnerWorker::logcatProcess(const QByteArray &text, QByteArray &buffer, bool onlyError)
 {
     QList<QByteArray> lines = text.split('\n');
     // lines always contains at least one item
@@ -332,22 +325,22 @@ void AndroidRunnerWorkerBase::logcatProcess(const QByteArray &text, QByteArray &
     }
 }
 
-void AndroidRunnerWorkerBase::setAndroidDeviceInfo(const AndroidDeviceInfo &info)
+void AndroidRunnerWorker::setAndroidDeviceInfo(const AndroidDeviceInfo &info)
 {
     m_deviceSerialNumber = info.serialNumber;
     m_apiLevel = info.sdk;
 }
 
-void AndroidRunnerWorkerBase::asyncStart()
+void AndroidRunnerWorker::asyncStartHelper()
 {
     forceStop();
 
     // Start the logcat process before app starts.
     std::unique_ptr<QProcess, Deleter> logcatProcess(new QProcess, deleter);
     connect(logcatProcess.get(), &QProcess::readyReadStandardOutput,
-            this, &AndroidRunnerWorkerBase::logcatReadStandardOutput);
+            this, &AndroidRunnerWorker::logcatReadStandardOutput);
     connect(logcatProcess.get(), &QProcess::readyReadStandardError,
-            this, &AndroidRunnerWorkerBase::logcatReadStandardError);
+            this, &AndroidRunnerWorker::logcatReadStandardError);
     // Its assumed that the device or avd returned by selector() is online.
     logcatProcess->start(m_adb, selector() << "logcat");
     QTC_ASSERT(!m_adbLogcatProcess, /**/);
@@ -357,8 +350,8 @@ void AndroidRunnerWorkerBase::asyncStart()
         runAdb(entry.split(' ', QString::SkipEmptyParts));
 
     QStringList args({"shell", "am", "start"});
-    args << m_androidRunnable.amStartExtraArgs;
-    args << "-n" << m_androidRunnable.intentName;
+    args << m_amStartExtraArgs;
+    args << "-n" << m_intentName;
     if (m_useCppDebugger) {
         args << "-D";
         QString gdbServerSocket;
@@ -444,7 +437,16 @@ void AndroidRunnerWorkerBase::asyncStart()
     }
 }
 
-void AndroidRunnerWorkerBase::asyncStop()
+void AndroidRunnerWorker::asyncStart()
+{
+    asyncStartHelper();
+
+    m_pidFinder = Utils::onResultReady(Utils::runAsync(findProcessPID, m_adb, selector(),
+                                                       m_androidRunnable.packageName, m_isPreNougat),
+                                       bind(&AndroidRunnerWorker::onProcessIdChanged, this, _1));
+}
+
+void AndroidRunnerWorker::asyncStop()
 {
     if (!m_pidFinder.isFinished())
         m_pidFinder.cancel();
@@ -456,7 +458,7 @@ void AndroidRunnerWorkerBase::asyncStop()
     m_gdbServerProcess.reset();
 }
 
-void AndroidRunnerWorkerBase::handleJdbWaiting()
+void AndroidRunnerWorker::handleJdbWaiting()
 {
     QStringList removeForward{"forward", "--remove", "tcp:" + m_localJdbServerPort.toString()};
     runAdb(removeForward);
@@ -485,7 +487,7 @@ void AndroidRunnerWorkerBase::handleJdbWaiting()
     m_jdbProcess = std::move(jdbProcess);
 }
 
-void AndroidRunnerWorkerBase::handleJdbSettled()
+void AndroidRunnerWorker::handleJdbSettled()
 {
     auto waitForCommand = [&]() {
         for (int i= 0; i < 5 && m_jdbProcess->state() == QProcess::Running; ++i) {
@@ -518,7 +520,7 @@ void AndroidRunnerWorkerBase::handleJdbSettled()
     emit remoteProcessFinished(tr("Can't attach jdb to the running application").arg(m_lastRunAdbError));
 }
 
-void AndroidRunnerWorkerBase::onProcessIdChanged(qint64 pid)
+void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
 {
     // Don't write to m_psProc from a different thread
     QTC_ASSERT(QThread::currentThread() == thread(), return);
@@ -544,49 +546,22 @@ void AndroidRunnerWorkerBase::onProcessIdChanged(qint64 pid)
         m_psIsAlive.reset(new QProcess);
         m_psIsAlive->setProcessChannelMode(QProcess::MergedChannels);
         connect(m_psIsAlive.get(), static_cast<void(QProcess::*)(int)>(&QProcess::finished),
-                this, bind(&AndroidRunnerWorkerBase::onProcessIdChanged, this, -1));
+                this, bind(&AndroidRunnerWorker::onProcessIdChanged, this, -1));
         m_psIsAlive->start(m_adb, selector() << QStringLiteral("shell")
                            << pidPollingScript.arg(m_processPID));
     }
 }
 
-void AndroidRunnerWorkerBase::setExtraEnvVars(const Utils::Environment &extraEnvVars)
+void AndroidRunnerWorker::setExtraEnvVars(const Utils::Environment &extraEnvVars)
 {
     m_extraEnvVars = extraEnvVars;
 }
 
-void AndroidRunnerWorkerBase::setExtraAppParams(const QString &extraAppParams)
+void AndroidRunnerWorker::setExtraAppParams(const QString &extraAppParams)
 {
     m_extraAppParams = extraAppParams;
 }
 
-
-AndroidRunnerWorker::AndroidRunnerWorker(RunControl *runControl, const AndroidRunnable &runnable)
-    : AndroidRunnerWorkerBase(runControl, runnable)
-{
-}
-
-void AndroidRunnerWorker::asyncStart()
-{
-    AndroidRunnerWorkerBase::asyncStart();
-    m_pidFinder = Utils::onResultReady(Utils::runAsync(&findProcessPID, m_adb, selector(),
-                                                       m_androidRunnable.packageName),
-                                       bind(&AndroidRunnerWorker::onProcessIdChanged, this, _1));
-}
-
-AndroidRunnerWorkerPreNougat::AndroidRunnerWorkerPreNougat(RunControl *runControl, const AndroidRunnable &runnable)
-    : AndroidRunnerWorkerBase(runControl, runnable)
-{
-}
-
-void AndroidRunnerWorkerPreNougat::asyncStart()
-{
-    AndroidRunnerWorkerBase::asyncStart();
-    m_pidFinder = Utils::onResultReady(Utils::runAsync(&findProcessPIDPreNougat, m_adb, selector(),
-                                                       m_androidRunnable.packageName),
-                                       bind(&AndroidRunnerWorkerPreNougat::onProcessIdChanged, this, _1));
-
-}
 
 } // namespace Internal
 } // namespace Android

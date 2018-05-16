@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "clangfileinfo.h"
+
 #include <projectexplorer/runconfiguration.h>
 #include <cpptools/projectinfo.h>
 #include <utils/environment.h>
@@ -55,7 +57,8 @@ class ClangToolRunControl : public ProjectExplorer::RunWorker
 
 public:
     ClangToolRunControl(ProjectExplorer::RunControl *runControl,
-                        ProjectExplorer::Target *target);
+                        ProjectExplorer::Target *target,
+                        const FileInfos &fileInfos);
 
     bool success() const { return m_success; } // For testing.
 
@@ -73,7 +76,7 @@ private:
     void start() final;
     void stop() final;
 
-    AnalyzeUnits sortedUnitsToAnalyze(const QString &clangVersion);
+    AnalyzeUnits unitsToAnalyze(const QString &clangVersion);
     void analyzeNextFile();
 
     void handleFinished();
@@ -91,6 +94,7 @@ protected:
 
 private:
     QPointer<ProjectExplorer::Target> m_target;
+    FileInfos m_fileInfos;
 
     CppTools::ProjectInfo m_projectInfoBeforeBuild;
     CppTools::ProjectInfo m_projectInfo;

@@ -72,8 +72,6 @@ public:
     QString buildTargetSdk() const;
     void setBuildTargetSdk(const QString &sdk);
 
-    virtual Utils::FileName androidPackageSourceDir() const = 0;
-
 protected:
     Q_INVOKABLE void showInGraphicalShell();
 

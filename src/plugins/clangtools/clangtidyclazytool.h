@@ -27,8 +27,16 @@
 
 #include "clangtool.h"
 
+QT_BEGIN_NAMESPACE
+class QToolButton;
+QT_END_NAMESPACE
+
+namespace Utils { class FancyLineEdit; }
+
 namespace ClangTools {
 namespace Internal {
+
+class DiagnosticFilterModel;
 
 const char ClangTidyClazyPerspectiveId[] = "ClangTidyClazy.Perspective";
 const char ClangTidyClazyDockId[]        = "ClangTidyClazy.Dock";
@@ -42,7 +50,7 @@ public:
 
     static ClangTidyClazyTool *instance();
 
-    void startTool() final;
+    void startTool(bool askUserForFileSelection) final;
 
     QList<Diagnostic> read(const QString &filePath,
                            const QString &logFilePath,
@@ -52,6 +60,14 @@ private:
     void handleStateUpdate() final;
 
     void updateRunActions();
+
+    DiagnosticFilterModel *m_diagnosticFilterModel = nullptr;
+
+    Utils::FancyLineEdit *m_filterLineEdit = nullptr;
+    QToolButton *m_applyFixitsButton = nullptr;
+
+    QAction *m_goBack = nullptr;
+    QAction *m_goNext = nullptr;
 };
 
 } // namespace Internal

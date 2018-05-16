@@ -47,7 +47,7 @@ class ANDROID_EXPORT AndroidQtSupport : public QObject
 
 protected:
     AndroidQtSupport();
-    ~AndroidQtSupport();
+    ~AndroidQtSupport() override;
 
 public:
     enum BuildType {
@@ -65,6 +65,8 @@ public:
     virtual Utils::FileName androiddeployJsonPath(const ProjectExplorer::Target *target) const = 0;
     virtual void manifestSaved(const ProjectExplorer::Target *target) = 0;
     virtual Utils::FileName manifestSourcePath(const ProjectExplorer::Target *target) = 0;
+    virtual QString deploySettingsFile(const ProjectExplorer::Target *target) const = 0;
+    virtual Utils::FileName packageSourceDir(const ProjectExplorer::Target *target) const = 0;
 };
 
 } // namespace Android

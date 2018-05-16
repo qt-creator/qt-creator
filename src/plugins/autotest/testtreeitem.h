@@ -42,6 +42,7 @@ namespace {
 }
 
 namespace CppTools { class CppModelManager; }
+namespace Utils { class FileName; }
 
 namespace Autotest {
 namespace Internal {
@@ -113,6 +114,7 @@ public:
     TestConfiguration *asConfiguration(TestRunMode mode) const;
     virtual QList<TestConfiguration *> getAllTestConfigurations() const;
     virtual QList<TestConfiguration *> getSelectedTestConfigurations() const;
+    virtual QList<TestConfiguration *> getTestConfigurationsForFile(const Utils::FileName &fileName) const;
     virtual bool lessThan(const TestTreeItem *other, SortMode mode) const;
     virtual TestTreeItem *find(const TestParseResult *result) = 0;
     virtual TestTreeItem *findChild(const TestTreeItem *other) = 0;

@@ -217,7 +217,7 @@ private:
 
     QStringRef currentTokenText() const;
 
-    int tokenizeBlock(const QTextBlock &block, bool *endedJoined = 0);
+    int tokenizeBlock(const QTextBlock &block, bool *endedJoined = nullptr);
 
     void turnInto(int newState);
 

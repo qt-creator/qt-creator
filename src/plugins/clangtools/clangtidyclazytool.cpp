@@ -25,13 +25,22 @@
 
 #include "clangtidyclazytool.h"
 
+#include "clangselectablefilesdialog.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolsdiagnosticmodel.h"
 #include "clangtoolslogfilereader.h"
 #include "clangtidyclazyruncontrol.h"
+#include "clangtoolsdiagnosticview.h"
+#include "clangtoolsprojectsettings.h"
+#include "clangtoolssettings.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+
+#include <cpptools/clangdiagnosticconfigsmodel.h>
+#include <cpptools/cppcodemodelsettings.h>
+#include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolsreuse.h>
 
 #include <debugger/analyzer/analyzermanager.h>
 
@@ -41,11 +50,16 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
 
+#include <texteditor/refactoringchanges.h>
+
+#include <utils/fancylineedit.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
+#include <QToolButton>
 
 using namespace Core;
+using namespace CppTools;
 using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -55,17 +69,110 @@ namespace Internal {
 
 static ClangTidyClazyTool *s_instance;
 
+static void applyFixits(const QVector<Diagnostic> &diagnostics)
+{
+    TextEditor::RefactoringChanges changes;
+    QMap<QString, TextEditor::RefactoringFilePtr> refactoringFiles;
+
+    // Create refactoring files and changes
+    for (const Diagnostic &diagnostic : diagnostics) {
+        const auto filePath = diagnostic.location.filePath;
+        QTC_ASSERT(!filePath.isEmpty(), continue);
+
+        // Get or create refactoring file
+        TextEditor::RefactoringFilePtr refactoringFile = refactoringFiles.value(filePath);
+        if (!refactoringFile) {
+            refactoringFile = changes.file(filePath);
+            refactoringFiles.insert(filePath, refactoringFile);
+        }
+
+        // Append changes
+        ChangeSet cs = refactoringFile->changeSet();
+
+        for (const ExplainingStep &step : diagnostic.explainingSteps) {
+            if (step.isFixIt) {
+                const Debugger::DiagnosticLocation start = step.ranges.first();
+                const Debugger::DiagnosticLocation end = step.ranges.last();
+                cs.replace(refactoringFile->position(start.line, start.column),
+                           refactoringFile->position(end.line, end.column), step.message);
+            }
+        }
+
+        refactoringFile->setChangeSet(cs);
+    }
+
+    // Apply refactoring file changes
+    for (TextEditor::RefactoringFilePtr refactoringFile  : refactoringFiles.values())
+        refactoringFile->apply();
+}
+
 ClangTidyClazyTool::ClangTidyClazyTool()
     : ClangTool("Clang-Tidy and Clazy")
 {
     setObjectName("ClangTidyClazyTool");
     s_instance = this;
 
-    m_diagnosticView = new Debugger::DetailedErrorView;
+    m_diagnosticFilterModel = new DiagnosticFilterModel(this);
+    m_diagnosticFilterModel->setSourceModel(m_diagnosticModel);
+
+    m_diagnosticView = new DiagnosticView;
     initDiagnosticView();
-    m_diagnosticView->setModel(m_diagnosticModel);
+    m_diagnosticView->setModel(m_diagnosticFilterModel);
     m_diagnosticView->setObjectName(QLatin1String("ClangTidyClazyIssuesView"));
     m_diagnosticView->setWindowTitle(tr("Clang-Tidy and Clazy Issues"));
+
+    foreach (auto * const model,
+             QList<QAbstractItemModel *>() << m_diagnosticModel << m_diagnosticFilterModel) {
+        connect(model, &QAbstractItemModel::rowsInserted,
+                this, &ClangTidyClazyTool::handleStateUpdate);
+        connect(model, &QAbstractItemModel::rowsRemoved,
+                this, &ClangTidyClazyTool::handleStateUpdate);
+        connect(model, &QAbstractItemModel::modelReset,
+                this, &ClangTidyClazyTool::handleStateUpdate);
+        connect(model, &QAbstractItemModel::layoutChanged, // For QSortFilterProxyModel::invalidate()
+                this, &ClangTidyClazyTool::handleStateUpdate);
+    }
+
+    // Go to previous diagnostic
+    auto action = new QAction(this);
+    action->setDisabled(true);
+    action->setIcon(Utils::Icons::PREV_TOOLBAR.icon());
+    action->setToolTip(tr("Go to previous diagnostic."));
+    connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goBack);
+    m_goBack = action;
+
+    // Go to next diagnostic
+    action = new QAction(this);
+    action->setDisabled(true);
+    action->setIcon(Utils::Icons::NEXT_TOOLBAR.icon());
+    action->setToolTip(tr("Go to next diagnostic."));
+    connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goNext);
+    m_goNext = action;
+
+    // Filter line edit
+    m_filterLineEdit = new Utils::FancyLineEdit();
+    m_filterLineEdit->setFiltering(true);
+    m_filterLineEdit->setHistoryCompleter("CppTools.ClangTidyClazyIssueFilter", true);
+    connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged, [this](const QString &filter) {
+        m_diagnosticFilterModel->setFilterRegExp(
+            QRegExp(filter, Qt::CaseSensitive, QRegExp::WildcardUnix));
+    });
+
+    // Apply fixits button
+    m_applyFixitsButton = new QToolButton;
+    m_applyFixitsButton->setText(tr("Apply Fixits"));
+    connect(m_applyFixitsButton, &QToolButton::clicked, [this]() {
+        QVector<Diagnostic> diagnosticsWithFixits;
+
+        const int count = m_diagnosticModel->rootItem()->childCount();
+        for (int i = 0; i < count; ++i) {
+            auto *item = static_cast<DiagnosticItem *>(m_diagnosticModel->rootItem()->childAt(i));
+            if (item->applyFixits())
+                diagnosticsWithFixits += item->diagnostic();
+        }
+
+        applyFixits(diagnosticsWithFixits);
+    });
 
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     const QString toolTip = tr("Clang-Tidy and Clazy use a customized Clang executable from the "
@@ -76,11 +183,11 @@ ClangTidyClazyTool::ClangTidyClazyTool()
         {{ClangTidyClazyDockId, m_diagnosticView, {}, Perspective::SplitVertical}}
     ));
 
-    auto *action = new QAction(tr("Clang-Tidy and Clazy"), this);
+    action = new QAction(tr("Clang-Tidy and Clazy..."), this);
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, "ClangTidyClazy.Action"),
                     Debugger::Constants::G_ANALYZER_TOOLS);
-    QObject::connect(action, &QAction::triggered, this, &ClangTidyClazyTool::startTool);
+    QObject::connect(action, &QAction::triggered, this, [this]() { startTool(true); });
     QObject::connect(m_startAction, &QAction::triggered, action, &QAction::triggered);
     QObject::connect(m_startAction, &QAction::changed, action, [action, this] {
         action->setEnabled(m_startAction->isEnabled());
@@ -89,6 +196,10 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     ToolbarDescription tidyClazyToolbar;
     tidyClazyToolbar.addAction(m_startAction);
     tidyClazyToolbar.addAction(m_stopAction);
+    tidyClazyToolbar.addAction(m_goBack);
+    tidyClazyToolbar.addAction(m_goNext);
+    tidyClazyToolbar.addWidget(m_filterLineEdit);
+    tidyClazyToolbar.addWidget(m_applyFixitsButton);
     Debugger::registerToolbar(ClangTidyClazyPerspectiveId, tidyClazyToolbar);
 
     updateRunActions();
@@ -103,7 +214,25 @@ ClangTidyClazyTool *ClangTidyClazyTool::instance()
     return s_instance;
 }
 
-void ClangTidyClazyTool::startTool()
+static ClangDiagnosticConfig getDiagnosticConfig(Project *project)
+{
+    ClangToolsProjectSettings *projectSettings = ClangToolsProjectSettingsManager::getSettings(
+        project);
+
+    Core::Id diagnosticConfigId;
+    if (projectSettings->useGlobalSettings())
+        diagnosticConfigId = ClangToolsSettings::instance()->savedDiagnosticConfigId();
+    else
+        diagnosticConfigId = projectSettings->diagnosticConfig();
+
+    const ClangDiagnosticConfigsModel configsModel(
+                CppTools::codeModelSettings()->clangCustomDiagnosticConfigs());
+
+    QTC_ASSERT(configsModel.hasConfigWithId(diagnosticConfigId), return ClangDiagnosticConfig());
+    return configsModel.configWithId(diagnosticConfigId);
+}
+
+void ClangTidyClazyTool::startTool(bool askUserForFileSelection)
 {
     auto runControl = new RunControl(nullptr, Constants::CLANGTIDYCLAZY_RUN_MODE);
     runControl->setDisplayName(tr("Clang-Tidy and Clazy"));
@@ -112,7 +241,14 @@ void ClangTidyClazyTool::startTool()
     Project *project = SessionManager::startupProject();
     QTC_ASSERT(project, return);
 
-    auto clangTool = new ClangTidyClazyRunControl(runControl, project->activeTarget());
+    const FileInfos fileInfos = collectFileInfos(project, askUserForFileSelection);
+    if (fileInfos.isEmpty())
+        return;
+
+    auto clangTool = new ClangTidyClazyRunControl(runControl,
+                                                  project->activeTarget(),
+                                                  getDiagnosticConfig(project),
+                                                  fileInfos);
 
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, runControl, [runControl] {
@@ -134,6 +270,7 @@ void ClangTidyClazyTool::startTool()
 
     m_diagnosticModel->clear();
     setToolBusy(true);
+    m_diagnosticFilterModel->setProject(project);
     m_running = true;
     handleStateUpdate();
     updateRunActions();
@@ -166,9 +303,16 @@ void ClangTidyClazyTool::updateRunActions()
 
 void ClangTidyClazyTool::handleStateUpdate()
 {
+    QTC_ASSERT(m_goBack, return);
+    QTC_ASSERT(m_goNext, return);
     QTC_ASSERT(m_diagnosticModel, return);
+    QTC_ASSERT(m_diagnosticFilterModel, return);
 
     const int issuesFound = m_diagnosticModel->diagnostics().count();
+    const int issuesVisible = m_diagnosticFilterModel->rowCount();
+    m_goBack->setEnabled(issuesVisible > 1);
+    m_goNext->setEnabled(issuesVisible > 1);
+
     QString message;
     if (m_running)
         message = tr("Clang-Tidy and Clazy are running.");

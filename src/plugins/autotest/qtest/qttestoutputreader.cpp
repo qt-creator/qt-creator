@@ -133,7 +133,6 @@ QtTestOutputReader::QtTestOutputReader(const QFutureInterface<TestResultPtr> &fu
                                        QProcess *testApplication, const QString &buildDirectory,
                                        const QString &projectFile, OutputMode mode, TestType type)
     : TestOutputReader(futureInterface, testApplication, buildDirectory)
-    , m_executable(testApplication ? testApplication->program() : QString())
     , m_projectFile(projectFile)
     , m_mode(mode)
     , m_testType(type)
@@ -142,11 +141,14 @@ QtTestOutputReader::QtTestOutputReader(const QFutureInterface<TestResultPtr> &fu
 
 void QtTestOutputReader::processOutput(const QByteArray &outputLine)
 {
+    static const QByteArray qmlDebug = "QML Debugger: Waiting for connection on port";
     switch (m_mode) {
     case PlainText:
         processPlainTextOutput(outputLine);
         break;
     case XML:
+        if (m_xmlReader.tokenType() == QXmlStreamReader::NoToken && outputLine.startsWith(qmlDebug))
+            return;
         processXMLOutput(outputLine);
         break;
     }
@@ -154,7 +156,7 @@ void QtTestOutputReader::processOutput(const QByteArray &outputLine)
 
 TestResultPtr QtTestOutputReader::createDefaultResult() const
 {
-    QtTestResult *result = new QtTestResult(m_executable, m_projectFile, m_testType, m_className);
+    QtTestResult *result = new QtTestResult(id(), m_projectFile, m_testType, m_className);
     result->setFunctionName(m_testCase);
     result->setDataTag(m_dataTag);
     return TestResultPtr(result);

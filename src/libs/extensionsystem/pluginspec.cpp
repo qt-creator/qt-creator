@@ -486,6 +486,11 @@ bool PluginSpec::requiresAny(const QSet<PluginSpec *> &plugins) const
     });
 }
 
+void PluginSpec::setEnabledBySettings(bool value)
+{
+    d->setEnabledBySettings(value);
+}
+
 //==========PluginSpecPrivate==================
 
 namespace {

@@ -33,8 +33,13 @@ using namespace ProjectExplorer;
 namespace ClangTools {
 namespace Internal {
 
-ClangTidyClazyRunControl::ClangTidyClazyRunControl(RunControl *runControl, Target *target)
-    : ClangToolRunControl(runControl, target)
+ClangTidyClazyRunControl::ClangTidyClazyRunControl(
+    RunControl *runControl,
+    Target *target,
+    const CppTools::ClangDiagnosticConfig &diagnosticConfig,
+    const FileInfos &fileInfos)
+    : ClangToolRunControl(runControl, target, fileInfos)
+    , m_diagnosticConfig(diagnosticConfig)
 {
     setDisplayName("ClangTidyClazyRunner");
     init();
@@ -45,7 +50,8 @@ ClangToolRunner *ClangTidyClazyRunControl::createRunner()
     QTC_ASSERT(!m_clangExecutable.isEmpty(), return 0);
     QTC_ASSERT(!m_clangLogFileDir.isEmpty(), return 0);
 
-    auto runner = new ClangTidyClazyRunner(m_clangExecutable,
+    auto runner = new ClangTidyClazyRunner(m_diagnosticConfig,
+                                           m_clangExecutable,
                                            m_clangLogFileDir,
                                            m_environment,
                                            this);

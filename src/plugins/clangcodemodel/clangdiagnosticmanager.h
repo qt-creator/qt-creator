@@ -51,7 +51,7 @@ public:
     ~ClangDiagnosticManager();
 
     void processNewDiagnostics(const QVector<ClangBackEnd::DiagnosticContainer> &allDiagnostics,
-                               bool showTextMarkAnnotations);
+                               bool fullVisualization);
 
     const QVector<ClangBackEnd::DiagnosticContainer> &diagnosticsWithFixIts() const;
     QList<QTextEdit::ExtraSelection> takeExtraSelections();
@@ -88,7 +88,7 @@ private:
     std::vector<ClangTextMark *> m_clangTextMarks;
     bool m_firstDiagnostics = true;
     bool m_diagnosticsInvalidated = false;
-    bool m_showTextMarkAnnotations = false;
+    bool m_fullVisualization = false;
     QTimer m_textMarkDelay;
 };
 

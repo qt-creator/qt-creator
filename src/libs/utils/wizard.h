@@ -43,7 +43,7 @@ class QTCREATOR_UTILS_EXPORT Wizard : public QWizard
     Q_PROPERTY(bool automaticProgressCreationEnabled READ isAutomaticProgressCreationEnabled WRITE setAutomaticProgressCreationEnabled)
 
 public:
-    explicit Wizard(QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    explicit Wizard(QWidget *parent = nullptr, Qt::WindowFlags flags = nullptr);
     ~Wizard() override;
 
     bool isAutomaticProgressCreationEnabled() const;
@@ -93,8 +93,8 @@ class QTCREATOR_UTILS_EXPORT WizardProgress : public QObject
     Q_OBJECT
 
 public:
-    WizardProgress(QObject *parent = 0);
-    ~WizardProgress();
+    WizardProgress(QObject *parent = nullptr);
+    ~WizardProgress() override;
 
     WizardProgressItem *addItem(const QString &title);
     void removeItem(WizardProgressItem *item);

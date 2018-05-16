@@ -33,7 +33,6 @@
 #include "androiddeployqtstep.h"
 #include "androidqtsupport.h"
 #include "androidqtversion.h"
-#include "androidbuildapkstep.h"
 #include "androidavdmanager.h"
 #include "androidsdkmanager.h"
 
@@ -542,13 +541,15 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
     if (!version)
         return false;
 
-    AndroidBuildApkStep *buildApkStep
-        = AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
-
-    if (!buildApkStep || !buildApkStep->androidPackageSourceDir().appendPath(QLatin1String("gradlew")).exists())
+    AndroidQtSupport *qtSupport = androidQtSupport(target);
+    if (!qtSupport)
         return false;
 
-    Utils::FileName wrapperProps(buildApkStep->androidPackageSourceDir());
+    Utils::FileName packageSourceDir = qtSupport->packageSourceDir(target);
+    if (!packageSourceDir.appendPath("gradlew").exists())
+        return false;
+
+    Utils::FileName wrapperProps = packageSourceDir;
     wrapperProps.appendPath(QLatin1String("gradle/wrapper/gradle-wrapper.properties"));
     if (wrapperProps.exists()) {
         GradleProperties wrapperProperties = readGradleProperties(wrapperProps.toString());
@@ -562,10 +563,10 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
 
     GradleProperties localProperties;
     localProperties["sdk.dir"] = AndroidConfigurations::currentConfig().sdkLocation().toString().toLocal8Bit();
-    if (!mergeGradleProperties(buildApkStep->androidPackageSourceDir().appendPath(QLatin1String("local.properties")).toString(), localProperties))
+    if (!mergeGradleProperties(packageSourceDir.appendPath("local.properties").toString(), localProperties))
         return false;
 
-    QString gradlePropertiesPath = buildApkStep->androidPackageSourceDir().appendPath(QLatin1String("gradle.properties")).toString();
+    QString gradlePropertiesPath = packageSourceDir.appendPath("gradle.properties").toString();
     GradleProperties gradleProperties = readGradleProperties(gradlePropertiesPath);
     gradleProperties["qt5AndroidDir"] = version->qmakeProperty("QT_INSTALL_PREFIX")
             .append(QLatin1String("/src/android/java")).toLocal8Bit();

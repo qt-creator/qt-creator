@@ -24,6 +24,9 @@
 ****************************************************************************/
 
 #include "clangdiagnosticconfigswidget.h"
+
+#include "cppcodemodelsettings.h"
+#include "cpptoolsreuse.h"
 #include "ui_clangdiagnosticconfigswidget.h"
 #include "ui_clangbasechecks.h"
 #include "ui_clazychecks.h"
@@ -35,20 +38,21 @@
 
 #include <QDebug>
 #include <QInputDialog>
+#include <QPushButton>
 #include <QUuid>
 
 namespace CppTools {
 
-ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(
-        const ClangDiagnosticConfigsModel &diagnosticConfigsModel,
-        const Core::Id &configToSelect,
-        QWidget *parent)
+ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::ClangDiagnosticConfigsWidget)
-    , m_diagnosticConfigsModel(diagnosticConfigsModel)
+    , m_diagnosticConfigsModel(codeModelSettings()->clangCustomDiagnosticConfigs())
 {
     m_ui->setupUi(this);
     setupTabs();
+
+    m_selectedConfigIndex = m_diagnosticConfigsModel.indexOfConfig(
+                codeModelSettings()->clangDiagnosticConfigId());
 
     connectConfigChooserCurrentIndex();
     connect(m_ui->copyButton, &QPushButton::clicked,
@@ -57,7 +61,7 @@ ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(
             this, &ClangDiagnosticConfigsWidget::onRemoveButtonClicked);
     connectDiagnosticOptionsChanged();
 
-    syncWidgetsToModel(configToSelect);
+    syncWidgetsToModel();
 }
 
 ClangDiagnosticConfigsWidget::~ClangDiagnosticConfigsWidget()
@@ -65,11 +69,10 @@ ClangDiagnosticConfigsWidget::~ClangDiagnosticConfigsWidget()
     delete m_ui;
 }
 
-void ClangDiagnosticConfigsWidget::onCurrentConfigChanged(int)
+void ClangDiagnosticConfigsWidget::onCurrentConfigChanged(int index)
 {
+    m_selectedConfigIndex = index;
     syncOtherWidgetsToComboBox();
-
-    emit currentConfigChanged(currentConfigId());
 }
 
 static ClangDiagnosticConfig createCustomConfig(const ClangDiagnosticConfig &config,
@@ -85,7 +88,7 @@ static ClangDiagnosticConfig createCustomConfig(const ClangDiagnosticConfig &con
 
 void ClangDiagnosticConfigsWidget::onCopyButtonClicked()
 {
-    const ClangDiagnosticConfig &config = currentConfig();
+    const ClangDiagnosticConfig &config = selectedConfig();
 
     bool diaglogAccepted = false;
     const QString newName = QInputDialog::getText(this,
@@ -104,9 +107,19 @@ void ClangDiagnosticConfigsWidget::onCopyButtonClicked()
     }
 }
 
+const ClangDiagnosticConfig &ClangDiagnosticConfigsWidget::selectedConfig() const
+{
+    return m_diagnosticConfigsModel.at(m_selectedConfigIndex);
+}
+
+Core::Id ClangDiagnosticConfigsWidget::selectedConfigId() const
+{
+    return selectedConfig().id();
+}
+
 void ClangDiagnosticConfigsWidget::onRemoveButtonClicked()
 {
-    m_diagnosticConfigsModel.removeConfigWithId(currentConfigId());
+    m_diagnosticConfigsModel.removeConfigWithId(selectedConfigId());
     emit customConfigsChanged(customConfigs());
 
     syncConfigChooserToModel();
@@ -114,7 +127,7 @@ void ClangDiagnosticConfigsWidget::onRemoveButtonClicked()
 
 void ClangDiagnosticConfigsWidget::onClangTidyModeChanged(int index)
 {
-    ClangDiagnosticConfig config = currentConfig();
+    ClangDiagnosticConfig config = selectedConfig();
     config.setClangTidyMode(static_cast<ClangDiagnosticConfig::TidyMode>(index));
     updateConfig(config);
     syncClangTidyWidgets(config);
@@ -123,7 +136,7 @@ void ClangDiagnosticConfigsWidget::onClangTidyModeChanged(int index)
 void ClangDiagnosticConfigsWidget::onClangTidyItemChanged(QListWidgetItem *item)
 {
     const QString prefix = item->text();
-    ClangDiagnosticConfig config = currentConfig();
+    ClangDiagnosticConfig config = selectedConfig();
     QString checks = config.clangTidyChecksPrefixes();
     item->checkState() == Qt::Checked
             ? checks.append(',' + prefix)
@@ -134,7 +147,7 @@ void ClangDiagnosticConfigsWidget::onClangTidyItemChanged(QListWidgetItem *item)
 
 void ClangDiagnosticConfigsWidget::onClangTidyLineEdited(const QString &text)
 {
-    ClangDiagnosticConfig config = currentConfig();
+    ClangDiagnosticConfig config = selectedConfig();
     config.setClangTidyChecksString(text);
     updateConfig(config);
 }
@@ -156,7 +169,7 @@ void ClangDiagnosticConfigsWidget::onClazyRadioButtonChanged(bool checked)
     else if (m_clazyChecks->clazyRadioLevel3->isChecked())
         checks = "level3";
 
-    ClangDiagnosticConfig config = currentConfig();
+    ClangDiagnosticConfig config = selectedConfig();
     config.setClazyChecks(checks);
     updateConfig(config);
 }
@@ -209,13 +222,13 @@ void ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited()
     updateValidityWidgets(errorMessage);
     if (!errorMessage.isEmpty()) {
         // Remember the entered options in case the user will switch back.
-        m_notAcceptedOptions.insert(currentConfigId(), diagnosticOptions);
+        m_notAcceptedOptions.insert(selectedConfigId(), diagnosticOptions);
         return;
     }
-    m_notAcceptedOptions.remove(currentConfigId());
+    m_notAcceptedOptions.remove(selectedConfigId());
 
     // Commit valid changes
-    ClangDiagnosticConfig updatedConfig = currentConfig();
+    ClangDiagnosticConfig updatedConfig = selectedConfig();
     updatedConfig.setClangOptions(normalizedOptions);
     updateConfig(updatedConfig);
 }
@@ -230,29 +243,25 @@ void ClangDiagnosticConfigsWidget::syncConfigChooserToModel(const Core::Id &conf
 {
     disconnectConfigChooserCurrentIndex();
 
-    const int previousCurrentIndex = m_ui->configChooserComboBox->currentIndex();
-    m_ui->configChooserComboBox->clear();
-    int configToSelectIndex = -1;
+    m_ui->configChooserList->clear();
+    m_selectedConfigIndex = std::max(std::min(m_selectedConfigIndex,
+                                              m_diagnosticConfigsModel.size() - 1),
+                                     0);
 
     const int size = m_diagnosticConfigsModel.size();
     for (int i = 0; i < size; ++i) {
         const ClangDiagnosticConfig &config = m_diagnosticConfigsModel.at(i);
         const QString displayName
                 = ClangDiagnosticConfigsModel::displayNameWithBuiltinIndication(config);
-        m_ui->configChooserComboBox->addItem(displayName, config.id().toSetting());
+        m_ui->configChooserList->addItem(displayName);
 
         if (configToSelect == config.id())
-            configToSelectIndex = i;
+            m_selectedConfigIndex = i;
     }
 
     connectConfigChooserCurrentIndex();
 
-    if (configToSelectIndex != -1) {
-        m_ui->configChooserComboBox->setCurrentIndex(configToSelectIndex);
-    } else if (previousCurrentIndex != m_ui->configChooserComboBox->currentIndex()) {
-        syncOtherWidgetsToComboBox();
-        emit currentConfigChanged(currentConfigId());
-    }
+    m_ui->configChooserList->setCurrentRow(m_selectedConfigIndex);
 }
 
 void ClangDiagnosticConfigsWidget::syncOtherWidgetsToComboBox()
@@ -260,7 +269,7 @@ void ClangDiagnosticConfigsWidget::syncOtherWidgetsToComboBox()
     if (isConfigChooserEmpty())
         return;
 
-    const ClangDiagnosticConfig &config = currentConfig();
+    const ClangDiagnosticConfig &config = selectedConfig();
 
     // Update main button row
     m_ui->removeButton->setEnabled(!config.isReadOnly());
@@ -360,12 +369,7 @@ void ClangDiagnosticConfigsWidget::updateConfig(const ClangDiagnosticConfig &con
 
 bool ClangDiagnosticConfigsWidget::isConfigChooserEmpty() const
 {
-    return m_ui->configChooserComboBox->count() == 0;
-}
-
-const ClangDiagnosticConfig &ClangDiagnosticConfigsWidget::currentConfig() const
-{
-    return m_diagnosticConfigsModel.configWithId(currentConfigId());
+    return m_ui->configChooserList->count() == 0;
 }
 
 void ClangDiagnosticConfigsWidget::setDiagnosticOptions(const QString &options)
@@ -434,18 +438,14 @@ void ClangDiagnosticConfigsWidget::connectClazyRadioButtonClicked(QRadioButton *
 
 void ClangDiagnosticConfigsWidget::connectConfigChooserCurrentIndex()
 {
-    connect(m_ui->configChooserComboBox,
-            static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this,
-            &ClangDiagnosticConfigsWidget::onCurrentConfigChanged);
+    connect(m_ui->configChooserList, &QListWidget::currentRowChanged,
+            this, &ClangDiagnosticConfigsWidget::onCurrentConfigChanged);
 }
 
 void ClangDiagnosticConfigsWidget::disconnectConfigChooserCurrentIndex()
 {
-    disconnect(m_ui->configChooserComboBox,
-               static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-               this,
-               &ClangDiagnosticConfigsWidget::onCurrentConfigChanged);
+    disconnect(m_ui->configChooserList, &QListWidget::currentRowChanged,
+               this, &ClangDiagnosticConfigsWidget::onCurrentConfigChanged);
 }
 
 void ClangDiagnosticConfigsWidget::connectDiagnosticOptionsChanged()
@@ -464,11 +464,6 @@ void ClangDiagnosticConfigsWidget::disconnectDiagnosticOptionsChanged()
                &ClangDiagnosticConfigsWidget::onDiagnosticOptionsEdited);
 }
 
-Core::Id ClangDiagnosticConfigsWidget::currentConfigId() const
-{
-    return Core::Id::fromSetting(m_ui->configChooserComboBox->currentData());
-}
-
 ClangDiagnosticConfigs ClangDiagnosticConfigsWidget::customConfigs() const
 {
     const ClangDiagnosticConfigs allConfigs = m_diagnosticConfigsModel.configs();
@@ -476,14 +471,6 @@ ClangDiagnosticConfigs ClangDiagnosticConfigsWidget::customConfigs() const
     return Utils::filtered(allConfigs, [](const ClangDiagnosticConfig &config){
         return !config.isReadOnly();
     });
-}
-
-void ClangDiagnosticConfigsWidget::refresh(
-        const ClangDiagnosticConfigsModel &diagnosticConfigsModel,
-        const Core::Id &configToSelect)
-{
-    m_diagnosticConfigsModel = diagnosticConfigsModel;
-    syncWidgetsToModel(configToSelect);
 }
 
 void ClangDiagnosticConfigsWidget::setupTabs()

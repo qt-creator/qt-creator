@@ -53,7 +53,7 @@ static testCallOperatorNo testCallOperator(...);
 template<typename T>
 struct hasCallOperator
 {
-    static const bool value = (sizeof(testCallOperator<T>(0)) == sizeof(testCallOperatorYes));
+    static const bool value = (sizeof(testCallOperator<T>(nullptr)) == sizeof(testCallOperatorYes));
 };
 
 namespace Utils {
@@ -325,7 +325,7 @@ public:
         futureInterface.reportStarted();
     }
 
-    ~AsyncJob()
+    ~AsyncJob() override
     {
         // QThreadPool can delete runnables even if they were never run (e.g. QThreadPool::clear).
         // Since we reported them as started, we make sure that we always report them as finished.
@@ -379,10 +379,10 @@ private:
 class QTCREATOR_UTILS_EXPORT RunnableThread : public QThread
 {
 public:
-    explicit RunnableThread(QRunnable *runnable, QObject *parent = 0);
+    explicit RunnableThread(QRunnable *runnable, QObject *parent = nullptr);
 
 protected:
-    void run();
+    void run() override;
 
 private:
     QRunnable *m_runnable;

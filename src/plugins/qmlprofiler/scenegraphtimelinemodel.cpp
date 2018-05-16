@@ -230,7 +230,7 @@ void SceneGraphTimelineModel::flattenLoads()
     QVector <qint64> eventEndTimes;
 
     for (int i = 0; i < count(); i++) {
-        SceneGraphEvent &event = m_data[i];
+        Item &event = m_data[i];
         int stage = selectionId(i);
         // Don't try to put render thread events in GUI row and vice versa.
         // Rows below those are free for all.
@@ -272,7 +272,7 @@ qint64 SceneGraphTimelineModel::insert(qint64 start, qint64 duration, int typeIn
         return 0;
 
     m_data.insert(QmlProfilerTimelineModel::insert(start, duration, stage),
-                  SceneGraphEvent(typeIndex, glyphCount));
+                  Item(typeIndex, glyphCount));
     return duration;
 }
 
@@ -293,7 +293,7 @@ void SceneGraphTimelineModel::clear()
     QmlProfilerTimelineModel::clear();
 }
 
-SceneGraphTimelineModel::SceneGraphEvent::SceneGraphEvent(int typeId, int glyphCount) :
+SceneGraphTimelineModel::Item::Item(int typeId, int glyphCount) :
     typeId(typeId), rowNumberCollapsed(-1), glyphCount(glyphCount)
 {
 }

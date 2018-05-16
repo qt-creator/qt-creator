@@ -35,8 +35,8 @@ class InputEventsModel : public QmlProfilerTimelineModel
     Q_OBJECT
 
 public:
-    struct InputEvent {
-        InputEvent(InputEventType type = MaximumInputEventType, int a = 0, int b = 0);
+    struct Item {
+        Item(InputEventType type = MaximumInputEventType, int a = 0, int b = 0);
         InputEventType type;
         int a;
         int b;
@@ -44,7 +44,6 @@ public:
 
     InputEventsModel(QmlProfilerModelManager *manager, Timeline::TimelineModelAggregator *parent);
 
-    bool accepted(const QmlEventType &type) const override;
     void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
     void finalize() override;
     void clear() override;
@@ -61,7 +60,7 @@ private:
     int m_keyTypeId;
     int m_mouseTypeId;
 
-    QVector<InputEvent> m_data;
+    QVector<Item> m_data;
 };
 
 } // namespace Internal

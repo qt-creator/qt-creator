@@ -35,41 +35,41 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="generalConfigurationGroupBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="title">
-      <string>General</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <widget class="QCheckBox" name="delayedTemplateParse">
-        <property name="toolTip">
-         <string>Parse templates in a MSVC-compliant way. This helps to parse headers for example from Active Template Library (ATL) or Windows Runtime Library (WRL).
+    <widget class="QCheckBox" name="delayedTemplateParse">
+     <property name="toolTip">
+      <string>Parse templates in a MSVC-compliant way. This helps to parse headers for example from Active Template Library (ATL) or Windows Runtime Library (WRL).
 However, using the relaxed and extended rules means also that no highlighting/completion can be provided within template functions.</string>
-        </property>
-        <property name="text">
-         <string>Enable MSVC-compliant template parsing</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     </property>
+     <property name="text">
+      <string>Enable MSVC-compliant template parsing</string>
+     </property>
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="diagnosticConfigurationGroupBox">
-     <property name="title">
-      <string>Warnings</string>
+    <widget class="CppTools::ClangDiagnosticConfigsSelectionWidget" name="clangDiagnosticConfigsSelectionWidget" native="true"/>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2"/>
-    </widget>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CppTools::ClangDiagnosticConfigsSelectionWidget</class>
+   <extends>QWidget</extends>
+   <header>cpptools/clangdiagnosticconfigsselectionwidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

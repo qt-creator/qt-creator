@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "timelinemodel.h"
 #include "timelinenotesmodel_p.h"
 
 namespace Timeline {

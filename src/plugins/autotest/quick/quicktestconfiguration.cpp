@@ -47,15 +47,11 @@ TestOutputReader *QuickTestConfiguration::outputReader(const QFutureInterface<Te
             = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
     TestFrameworkManager *manager = TestFrameworkManager::instance();
     auto qtSettings = qSharedPointerCast<QtTestSettings>(manager->settingsForTestFramework(id));
-    if (qtSettings.isNull())
-        return nullptr;
-    if (qtSettings->useXMLOutput) {
-        return new QtTestOutputReader(fi, app, buildDirectory(), projectFile(),
-                                      QtTestOutputReader::XML, TestType::QuickTest);
-    } else {
-        return new QtTestOutputReader(fi, app, buildDirectory(), projectFile(),
-                                      QtTestOutputReader::PlainText, TestType::QuickTest);
-    }
+    const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput
+            ? QtTestOutputReader::XML
+            : QtTestOutputReader::PlainText;
+    return new QtTestOutputReader(fi, app, buildDirectory(), projectFile(),
+                                  mode, TestType::QuickTest);
 }
 
 QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted) const

@@ -447,6 +447,27 @@ private:
     Internal::RunWorkerPrivate *d;
 };
 
+class PROJECTEXPLORER_EXPORT RunWorkerFactory
+{
+public:
+    using WorkerCreator = std::function<RunWorker *(RunControl *)>;
+    using Constraint = std::function<bool(RunConfiguration *)>;
+
+    RunWorkerFactory(Core::Id mode, Constraint constr, const WorkerCreator &prod,
+                     int prio = 0);
+
+    bool canRun(RunConfiguration *runConfiguration, Core::Id m_runMode) const;
+
+    int priority() const { return m_priority; }
+    WorkerCreator producer() const { return m_producer; }
+
+private:
+    Core::Id m_runMode;
+    Constraint m_constraint;
+    WorkerCreator m_producer;
+    int m_priority = 0;
+};
+
 /**
  * A RunControl controls the running of an application or tool
  * on a target device. It controls start and stop, and handles
@@ -510,8 +531,8 @@ public:
 
     RunWorker *createWorker(Core::Id id);
 
-    using WorkerCreator = std::function<RunWorker *(RunControl *)>;
-    using Constraint = std::function<bool(RunConfiguration *)>;
+    using WorkerCreator = RunWorkerFactory::WorkerCreator;
+    using Constraint = RunWorkerFactory::Constraint;
 
     static void registerWorkerCreator(Core::Id id, const WorkerCreator &workerCreator);
 
@@ -534,18 +555,6 @@ public:
         addWorkerFactory({runMode, constraint, producer, priority});
     }
 
-    struct WorkerFactory {
-        Core::Id runMode;
-        Constraint constraint;
-        WorkerCreator producer;
-        int priority = 0;
-
-        WorkerFactory(const Core::Id &mode, Constraint constr, const WorkerCreator &prod,
-                      int prio = 0)
-            : runMode(mode), constraint(constr), producer(prod), priority(prio) {}
-        bool canRun(RunConfiguration *runConfiguration, Core::Id runMode) const;
-    };
-
     static WorkerCreator producer(RunConfiguration *runConfiguration, Core::Id runMode);
 
 signals:
@@ -561,7 +570,7 @@ private:
     friend class RunWorker;
     friend class Internal::RunWorkerPrivate;
 
-    static void addWorkerFactory(const WorkerFactory &workerFactory);
+    static void addWorkerFactory(const RunWorkerFactory &workerFactory);
     Internal::RunControlPrivate *d;
 };
 

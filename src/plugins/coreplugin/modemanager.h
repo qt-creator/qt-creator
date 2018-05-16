@@ -61,10 +61,10 @@ public:
 
     static void activateMode(Id id);
     static void setFocusToCurrentMode();
-    static enum Style modeStyle();
+    static Style modeStyle();
 
 public slots:
-    static void setModeStyle(enum Style layout);
+    static void setModeStyle(Style layout);
     static void cycleModeStyle();
 
 signals:

@@ -144,8 +144,8 @@ public:
     SubDirFileIterator(const QStringList &directories,
                        const QStringList &filters,
                        const QStringList &exclusionFilters,
-                       QTextCodec *encoding = 0);
-    ~SubDirFileIterator();
+                       QTextCodec *encoding = nullptr);
+    ~SubDirFileIterator() override;
 
     int maxProgress() const override;
     int currentProgress() const override;

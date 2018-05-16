@@ -44,6 +44,8 @@ public:
 
     void manifestSaved(const ProjectExplorer::Target *target) override;
     Utils::FileName manifestSourcePath(const ProjectExplorer::Target *target) override;
+    Utils::FileName packageSourceDir(const ProjectExplorer::Target *target) const override;
+    QString deploySettingsFile(const ProjectExplorer::Target *target) const override;
 };
 
 } // namespace Internal

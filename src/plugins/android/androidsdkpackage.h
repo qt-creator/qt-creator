@@ -65,7 +65,7 @@ public:
     };
 
     AndroidSdkPackage(QVersionNumber revision, QString sdkStylePathStr, QObject *parent = nullptr);
-    virtual ~AndroidSdkPackage() { }
+    ~AndroidSdkPackage() override { }
 
     virtual bool isValid() const = 0;
     virtual PackageType type() const = 0;
@@ -128,7 +128,7 @@ public:
     SdkPlatform(QVersionNumber revision, QString sdkStylePathStr, int api,
                 QObject *parent = nullptr);
 
-    ~SdkPlatform();
+    ~SdkPlatform() override;
 
 // AndroidSdkPackage Overrides
     bool isValid() const override;

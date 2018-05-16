@@ -38,6 +38,7 @@ TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &future
     : m_futureInterface(futureInterface)
     , m_testApplication(testApplication)
     , m_buildDir(buildDirectory)
+    , m_id(testApplication ? testApplication->program() : QString())
 {
     if (m_testApplication) {
         connect(m_testApplication, &QProcess::readyRead,

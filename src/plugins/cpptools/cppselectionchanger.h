@@ -42,7 +42,7 @@ public:
     ASTNodePositions(CPlusPlus::AST *_ast) : ast(_ast) {}
     operator bool() const { return ast; }
 
-    CPlusPlus::AST *ast = 0;
+    CPlusPlus::AST *ast = nullptr;
     unsigned firstTokenIndex = 0;
     unsigned lastTokenIndex = 0;
     unsigned secondToLastTokenIndex = 0;
@@ -54,7 +54,7 @@ class CPPTOOLS_EXPORT CppSelectionChanger : public QObject
 {
     Q_OBJECT
 public:
-    explicit CppSelectionChanger(QObject *parent = 0);
+    explicit CppSelectionChanger(QObject *parent = nullptr);
 
     enum Direction {
         ExpandSelection,

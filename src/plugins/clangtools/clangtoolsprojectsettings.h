@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,11 +25,12 @@
 
 #pragma once
 
-#include <projectexplorer/project.h>
-#include <utils/fileutils.h>
-
-#include <QList>
 #include <QObject>
+
+#include <coreplugin/id.h>
+#include <projectexplorer/project.h>
+
+#include <utils/fileutils.h>
 
 namespace ClangTools {
 namespace Internal {
@@ -66,11 +67,25 @@ inline bool operator==(const SuppressedDiagnostic &d1, const SuppressedDiagnosti
 
 typedef QList<SuppressedDiagnostic> SuppressedDiagnosticsList;
 
-class ProjectSettings : public QObject
+class ClangToolsProjectSettings : public QObject
 {
     Q_OBJECT
+
 public:
-    ProjectSettings(ProjectExplorer::Project *project);
+    ClangToolsProjectSettings(ProjectExplorer::Project *project);
+    ~ClangToolsProjectSettings() override;
+
+    bool useGlobalSettings() const;
+    void setUseGlobalSettings(bool useGlobalSettings);
+
+    Core::Id diagnosticConfig() const;
+    void setDiagnosticConfig(const Core::Id &diagnosticConfig);
+
+    QSet<Utils::FileName> selectedDirs() const { return m_selectedDirs; }
+    void setSelectedDirs(const QSet<Utils::FileName> &value) { m_selectedDirs = value; }
+
+    QSet<Utils::FileName> selectedFiles() const { return m_selectedFiles; }
+    void setSelectedFiles(const QSet<Utils::FileName> &value) { m_selectedFiles = value; }
 
     SuppressedDiagnosticsList suppressedDiagnostics() const { return m_suppressedDiagnostics; }
     void addSuppressedDiagnostic(const SuppressedDiagnostic &diag);
@@ -84,8 +99,26 @@ private:
     void load();
     void store();
 
-    ProjectExplorer::Project * const m_project;
+    ProjectExplorer::Project *m_project;
+    bool m_useGlobalSettings = true;
+    Core::Id m_diagnosticConfig;
+    QSet<Utils::FileName> m_selectedDirs;
+    QSet<Utils::FileName> m_selectedFiles;
     SuppressedDiagnosticsList m_suppressedDiagnostics;
+};
+
+class ClangToolsProjectSettingsManager
+{
+public:
+    ClangToolsProjectSettingsManager();
+
+    static ClangToolsProjectSettings *getSettings(ProjectExplorer::Project *project);
+
+private:
+    static void handleProjectToBeRemoved(ProjectExplorer::Project *project);
+
+    using SettingsMap = QHash<ProjectExplorer::Project *, QSharedPointer<ClangToolsProjectSettings>>;
+    static SettingsMap m_settings;
 };
 
 } // namespace Internal

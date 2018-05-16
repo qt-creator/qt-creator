@@ -75,8 +75,8 @@ public:
         MaximumSceneGraphStage = MaximumTextureStage
     };
 
-    struct SceneGraphEvent {
-        SceneGraphEvent(int typeId = -1, int glyphCount = -1);
+    struct Item {
+        Item(int typeId = -1, int glyphCount = -1);
         int typeId;
         int rowNumberCollapsed;
         int glyphCount; // only used for one event type
@@ -105,7 +105,7 @@ private:
                   int glyphCount = -1);
     static const char *threadLabel(SceneGraphStage stage);
 
-    QVector<SceneGraphEvent> m_data;
+    QVector<Item> m_data;
 };
 
 } // namespace Internal

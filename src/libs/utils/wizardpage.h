@@ -74,7 +74,7 @@ class QTCREATOR_UTILS_EXPORT WizardPage : public QWizardPage
     Q_OBJECT
 
 public:
-    explicit WizardPage(QWidget *parent = 0);
+    explicit WizardPage(QWidget *parent = nullptr);
 
     virtual void pageWasAdded(); // called when this page was added to a Utils::Wizard
 
@@ -86,7 +86,7 @@ public:
     }
 
     void registerFieldWithName(const QString &name, QWidget *widget,
-                               const char *property = 0, const char *changedSignal = 0);
+                               const char *property = nullptr, const char *changedSignal = nullptr);
 
     virtual bool handleReject();
     virtual bool handleAccept();

@@ -36,18 +36,18 @@ class  QTCREATOR_UTILS_EXPORT FixedSizeClickLabel : public QLabel
     Q_PROPERTY(QString maxText READ maxText WRITE setMaxText DESIGNABLE true)
 
 public:
-    explicit FixedSizeClickLabel(QWidget *parent = 0);
+    explicit FixedSizeClickLabel(QWidget *parent = nullptr);
 
     void setText(const QString &text, const QString &maxText);
     using QLabel::setText;
-    QSize sizeHint() const;
+    QSize sizeHint() const override;
 
     QString maxText() const;
     void setMaxText(const QString &maxText);
 
 protected:
-    void mousePressEvent(QMouseEvent *ev);
-    void mouseReleaseEvent(QMouseEvent *ev);
+    void mousePressEvent(QMouseEvent *ev) override;
+    void mouseReleaseEvent(QMouseEvent *ev) override;
 
 signals:
     void clicked();

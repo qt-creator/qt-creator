@@ -17,5 +17,7 @@
         <file>images/text@2x.png</file>
         <file>images/visual.png</file>
         <file>images/visual@2x.png</file>
+        <file>images/run_file.png</file>
+        <file>images/run_file@2x.png</file>
     </qresource>
 </RCC>

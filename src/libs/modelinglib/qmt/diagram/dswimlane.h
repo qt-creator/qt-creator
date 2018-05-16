@@ -34,7 +34,7 @@ class QMT_EXPORT DSwimlane : public DElement
 public:
     DSwimlane();
     DSwimlane(const DSwimlane &rhs);
-    ~DSwimlane();
+    ~DSwimlane() override;
 
     DSwimlane &operator=(const DSwimlane &rhs);
 

@@ -37,7 +37,7 @@ class CPPTOOLS_EXPORT CppCodeStylePreferences : public TextEditor::ICodeStylePre
     Q_OBJECT
 public:
     explicit CppCodeStylePreferences(
-        QObject *parent = 0);
+        QObject *parent = nullptr);
 
     QVariant value() const override;
     void setValue(const QVariant &) override;

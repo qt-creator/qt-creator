@@ -112,9 +112,10 @@ using FileNameList = QList<FileName>;
 
 class QTCREATOR_UTILS_EXPORT FileUtils {
 public:
-    static bool removeRecursively(const FileName &filePath, QString *error = 0);
-    static bool copyRecursively(const FileName &srcFilePath, const FileName &tgtFilePath,
-                                QString *error = 0, const std::function<bool (QFileInfo, QFileInfo, QString *)> &copyHelper = std::function<bool (QFileInfo, QFileInfo, QString *)>());
+    static bool removeRecursively(const FileName &filePath, QString *error = nullptr);
+    static bool copyRecursively(
+            const FileName &srcFilePath, const FileName &tgtFilePath, QString *error = nullptr,
+            const std::function<bool (QFileInfo, QFileInfo, QString *)> &copyHelper = nullptr);
     static bool isFileNewerThan(const FileName &filePath, const QDateTime &timeStamp);
     static FileName resolveSymlinks(const FileName &path);
     static FileName canonicalPath(const FileName &path);
@@ -215,9 +216,10 @@ class QTCREATOR_UTILS_EXPORT FileSaver : public FileSaverBase
 {
     Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
-    explicit FileSaver(const QString &filename, QIODevice::OpenMode mode = QIODevice::NotOpen); // QIODevice::WriteOnly is implicit
+    // QIODevice::WriteOnly is implicit
+    explicit FileSaver(const QString &filename, QIODevice::OpenMode mode = QIODevice::NotOpen);
 
-    virtual bool finalize();
+    bool finalize() override;
     using FileSaverBase::finalize;
 
 private:
@@ -229,7 +231,7 @@ class QTCREATOR_UTILS_EXPORT TempFileSaver : public FileSaverBase
     Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
     explicit TempFileSaver(const QString &templ = QString());
-    ~TempFileSaver();
+    ~TempFileSaver() override;
 
     void setAutoRemove(bool on) { m_autoRemove = on; }
 

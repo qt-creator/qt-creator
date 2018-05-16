@@ -74,6 +74,7 @@ public:
     QString textOf(int start, int end) const;
     QString textOf(const Range &range) const;
 
+    Utils::ChangeSet changeSet() const;
     void setChangeSet(const Utils::ChangeSet &changeSet);
     void appendIndentRange(const Range &range);
     void appendReindentRange(const Range &range);

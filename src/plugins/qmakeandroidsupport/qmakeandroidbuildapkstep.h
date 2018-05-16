@@ -47,7 +47,6 @@ public:
     Utils::FileName proFilePathForInputFile() const;
 
 protected:
-    Utils::FileName androidPackageSourceDir() const override;
     bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &fi) override;
     void processStarted() override;

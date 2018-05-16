@@ -544,6 +544,8 @@ private:
             return;
 
         addXclangArg("-add-plugin", "clang-lazy");
+        addXclangArg("-plugin-arg-clang-lazy", "enable-all-fixits");
+        addXclangArg("-plugin-arg-clang-lazy", "no-autowrite-fixits");
         addXclangArg("-plugin-arg-clang-lazy", checks);
 
         // NOTE: we already use -isystem for all include paths to make libclang skip diagnostics for

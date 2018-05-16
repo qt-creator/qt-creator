@@ -81,7 +81,7 @@ QVariantMap InputEventsModel::details(int index) const
     result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index),
                                                         modelManager()->traceDuration()));
     QString type;
-    const InputEvent &event = m_data[index];
+    const Item &event = m_data[index];
     switch (event.type) {
     case InputKeyPress:
         type = tr("Key Press");
@@ -150,7 +150,7 @@ int InputEventsModel::collapsedRow(int index) const
 void InputEventsModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
     m_data.insert(insert(event.timestamp(), 0, type.detailType()),
-                  InputEvent(static_cast<InputEventType>(event.number<qint32>(0)),
+                  Item(static_cast<InputEventType>(event.number<qint32>(0)),
                              event.number<qint32>(1), event.number<qint32>(2)));
 
     if (type.detailType() == Mouse) {
@@ -175,13 +175,7 @@ void InputEventsModel::clear()
     QmlProfilerTimelineModel::clear();
 }
 
-bool InputEventsModel::accepted(const QmlEventType &type) const
-{
-    return QmlProfilerTimelineModel::accepted(type) &&
-            (type.detailType() == Mouse || type.detailType() == Key);
-}
-
-InputEventsModel::InputEvent::InputEvent(InputEventType type, int a, int b) :
+InputEventsModel::Item::Item(InputEventType type, int a, int b) :
     type(type), a(a), b(b)
 {
 }

@@ -23,11 +23,10 @@
 **
 ****************************************************************************/
 
-#include "clangstaticanalyzerdiagnosticview.h"
+#include "clangtoolsdiagnosticview.h"
 
 #include "clangtoolsdiagnosticmodel.h"
-#include "clangstaticanalyzerprojectsettings.h"
-#include "clangstaticanalyzerprojectsettingsmanager.h"
+#include "clangtoolsprojectsettings.h"
 #include "clangtoolsutils.h"
 
 #include <utils/fileutils.h>
@@ -41,15 +40,16 @@ using namespace Debugger;
 namespace ClangTools {
 namespace Internal {
 
-ClangStaticAnalyzerDiagnosticView::ClangStaticAnalyzerDiagnosticView(QWidget *parent)
+DiagnosticView::DiagnosticView(QWidget *parent)
     : Debugger::DetailedErrorView(parent)
 {
     m_suppressAction = new QAction(tr("Suppress This Diagnostic"), this);
     connect(m_suppressAction, &QAction::triggered,
-            this, &ClangStaticAnalyzerDiagnosticView::suppressCurrentDiagnostic);
+            this, &DiagnosticView::suppressCurrentDiagnostic);
+    installEventFilter(this);
 }
 
-void ClangStaticAnalyzerDiagnosticView::suppressCurrentDiagnostic()
+void DiagnosticView::suppressCurrentDiagnostic()
 {
     const QModelIndexList indexes = selectionModel()->selectedRows();
     QTC_ASSERT(indexes.count() == 1, return);
@@ -60,7 +60,7 @@ void ClangStaticAnalyzerDiagnosticView::suppressCurrentDiagnostic()
 
     // If the original project was closed, we work directly on the filter model, otherwise
     // we go via the project settings.
-    auto * const filterModel = static_cast<ClangStaticAnalyzerDiagnosticFilterModel *>(model());
+    auto * const filterModel = static_cast<DiagnosticFilterModel *>(model());
     ProjectExplorer::Project * const project = filterModel->project();
     if (project) {
         Utils::FileName filePath = Utils::FileName::fromString(diag.location.filePath);
@@ -70,15 +70,37 @@ void ClangStaticAnalyzerDiagnosticView::suppressCurrentDiagnostic()
             filePath = relativeFilePath;
         const SuppressedDiagnostic supDiag(filePath, diag.description, diag.issueContextKind,
                                            diag.issueContext, diag.explainingSteps.count());
-        ProjectSettingsManager::getSettings(project)->addSuppressedDiagnostic(supDiag);
+        ClangToolsProjectSettingsManager::getSettings(project)->addSuppressedDiagnostic(supDiag);
     } else {
         filterModel->addSuppressedDiagnostic(SuppressedDiagnostic(diag));
     }
 }
 
-QList<QAction *> ClangStaticAnalyzerDiagnosticView::customActions() const
+QList<QAction *> DiagnosticView::customActions() const
 {
     return QList<QAction *>() << m_suppressAction;
+}
+
+bool DiagnosticView::eventFilter(QObject *watched, QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::KeyRelease: {
+        const int key = static_cast<QKeyEvent *>(event)->key();
+        switch (key) {
+        case Qt::Key_Return:
+        case Qt::Key_Enter:
+        case Qt::Key_Space:
+            const QModelIndex current = currentIndex();
+            const QModelIndex location = model()->index(current.row(),
+                                                        LocationColumn,
+                                                        current.parent());
+            emit clicked(location);
+        }
+        return true;
+    }
+    default:
+        return QObject::eventFilter(watched, event);
+    }
 }
 
 } // namespace Internal

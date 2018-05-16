@@ -285,6 +285,11 @@ QString RefactoringFile::textOf(const Range &range) const
     return textOf(range.start, range.end);
 }
 
+ChangeSet RefactoringFile::changeSet() const
+{
+    return m_changes;
+}
+
 void RefactoringFile::setChangeSet(const ChangeSet &changeSet)
 {
     if (m_fileName.isEmpty())

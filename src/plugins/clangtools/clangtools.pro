@@ -9,13 +9,9 @@ LIBS += $$LIBCLANG_LIBS
 INCLUDEPATH += $$LLVM_INCLUDEPATH
 
 SOURCES += \
-    clangstaticanalyzerdiagnosticview.cpp \
-    clangstaticanalyzerprojectsettings.cpp \
-    clangstaticanalyzerprojectsettingsmanager.cpp \
-    clangstaticanalyzerprojectsettingswidget.cpp \
-    clangstaticanalyzerruncontrol.cpp \
-    clangstaticanalyzerrunner.cpp \
-    clangstaticanalyzertool.cpp \
+    clangselectablefilesdialog.cpp \
+    clangtoolsdiagnosticview.cpp \
+    clangtoolsprojectsettingswidget.cpp \
     clangtidyclazyruncontrol.cpp \
     clangtidyclazyrunner.cpp \
     clangtidyclazytool.cpp \
@@ -26,18 +22,16 @@ SOURCES += \
     clangtoolsdiagnosticmodel.cpp \
     clangtoolslogfilereader.cpp \
     clangtoolsplugin.cpp \
+    clangtoolsprojectsettings.cpp \
     clangtoolssettings.cpp \
     clangtoolsutils.cpp \
     clangtoolsconfigwidget.cpp
 
 HEADERS += \
-    clangstaticanalyzerdiagnosticview.h \
-    clangstaticanalyzerprojectsettings.h \
-    clangstaticanalyzerprojectsettingsmanager.h \
-    clangstaticanalyzerprojectsettingswidget.h \
-    clangstaticanalyzerruncontrol.h \
-    clangstaticanalyzerrunner.h \
-    clangstaticanalyzertool.h \
+    clangfileinfo.h \
+    clangselectablefilesdialog.h \
+    clangtoolsdiagnosticview.h \
+    clangtoolsprojectsettingswidget.h \
     clangtidyclazyruncontrol.h \
     clangtidyclazyrunner.h \
     clangtidyclazytool.h \
@@ -50,21 +44,23 @@ HEADERS += \
     clangtoolsdiagnosticmodel.h \
     clangtoolslogfilereader.h \
     clangtoolsplugin.h \
+    clangtoolsprojectsettings.h \
     clangtoolssettings.h \
     clangtoolsutils.h \
     clangtoolsconfigwidget.h
 
 FORMS += \
-    clangstaticanalyzerprojectsettingswidget.ui \
-    clangtoolsconfigwidget.ui
+    clangtoolsprojectsettingswidget.ui \
+    clangtoolsconfigwidget.ui \
+    clangselectablefilesdialog.ui
 
 equals(TEST, 1) {
     HEADERS += \
-        clangstaticanalyzerpreconfiguredsessiontests.h \
+        clangtoolspreconfiguredsessiontests.h \
         clangtoolsunittests.h
 
     SOURCES += \
-        clangstaticanalyzerpreconfiguredsessiontests.cpp \
+        clangtoolspreconfiguredsessiontests.cpp \
         clangtoolsunittests.cpp
 
     RESOURCES += clangtoolsunittests.qrc

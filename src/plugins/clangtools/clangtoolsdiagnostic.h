@@ -37,15 +37,14 @@ namespace Internal {
 class ExplainingStep
 {
 public:
-    ExplainingStep();
-
     bool isValid() const;
 
     QString message;
     QString extendedMessage;
     Debugger::DiagnosticLocation location;
     QList<Debugger::DiagnosticLocation> ranges;
-    int depth;
+    int depth = 0;
+    bool isFixIt = false;
 };
 
 class Diagnostic
@@ -60,6 +59,7 @@ public:
     QString issueContext;
     Debugger::DiagnosticLocation location;
     QList<ExplainingStep> explainingSteps;
+    bool hasFixits = false;
 };
 
 } // namespace Internal

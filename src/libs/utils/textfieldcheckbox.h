@@ -38,7 +38,7 @@ class QTCREATOR_UTILS_EXPORT TextFieldCheckBox : public QCheckBox {
     Q_PROPERTY(QString falseText READ falseText WRITE setFalseText)
     Q_OBJECT
 public:
-    explicit TextFieldCheckBox(const QString &text, QWidget *parent = 0);
+    explicit TextFieldCheckBox(const QString &text, QWidget *parent = nullptr);
 
     QString text() const;
     void setText(const QString &s);

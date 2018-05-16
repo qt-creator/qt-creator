@@ -39,15 +39,11 @@
 #include <projectexplorer/target.h>
 #include <qtsupport/qtkitinformation.h>
 
-#include <qmakeprojectmanager/qmakenodes.h>
-#include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <utils/qtcprocess.h>
 
 using namespace Android;
-using QmakeProjectManager::QmakeProject;
-using QmakeProjectManager::QmakeProFileNode;
 
 namespace QmakeAndroidSupport {
 namespace Internal {
@@ -82,18 +78,6 @@ Utils::FileName QmakeAndroidBuildApkStep::proFilePathForInputFile() const
     return Utils::FileName();
 }
 
-Utils::FileName QmakeAndroidBuildApkStep::androidPackageSourceDir() const
-{
-    QmakeProjectManager::QmakeProject *pro = static_cast<QmakeProjectManager::QmakeProject *>(project());
-    const QmakeProjectManager::QmakeProFileNode *node
-            = pro->rootProjectNode()->findProFileFor(proFilePathForInputFile());
-    if (!node)
-        return Utils::FileName();
-
-    QFileInfo sourceDirInfo(node->singleVariableValue(QmakeProjectManager::Variable::AndroidPackageSourceDir));
-    return Utils::FileName::fromString(sourceDirInfo.canonicalFilePath());
-}
-
 bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
 {
     if (AndroidManager::checkForQt51Files(project()->projectDirectory()))
@@ -116,13 +100,7 @@ bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
     QString outputDir = bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString();
 
-    const auto *pro = static_cast<QmakeProjectManager::QmakeProject *>(project());
-    const QmakeProjectManager::QmakeProFileNode *node = pro->rootProjectNode()->findProFileFor(proFilePathForInputFile());
-    m_skipBuilding = !node;
-    if (m_skipBuilding)
-        return true;
-
-    QString inputFile = node->singleVariableValue(QmakeProjectManager::Variable::AndroidDeploySettingsFile);
+    QString inputFile = AndroidManager::androidQtSupport(target())->deploySettingsFile(target());
     if (inputFile.isEmpty()) {
         m_skipBuilding = true;
         return true;

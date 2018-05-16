@@ -59,19 +59,14 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
 
     using namespace CppTools;
 
-    m_diagnosticConfigWidget = new ClangDiagnosticConfigsWidget;
-    refreshDiagnosticConfigsWidgetFromSettings();
-
-    m_ui.generalConfigurationGroupBox->setVisible(Utils::HostOsInfo::isWindowsHost());
+    m_ui.delayedTemplateParse->setVisible(Utils::HostOsInfo::isWindowsHost());
 
     m_ui.clangSettings->setCurrentIndex(m_projectSettings.useGlobalConfig() ? 0 : 1);
-    syncOtherWidgetsToComboBox();
 
-    connectToCppCodeModelSettingsChanged();
-    connect(m_diagnosticConfigWidget.data(), &ClangDiagnosticConfigsWidget::currentConfigChanged,
+    connect(m_ui.clangDiagnosticConfigsSelectionWidget,
+            &ClangDiagnosticConfigsSelectionWidget::currentConfigChanged,
             this, &ClangProjectSettingsWidget::onCurrentWarningConfigChanged);
-    connect(m_diagnosticConfigWidget.data(), &ClangDiagnosticConfigsWidget::customConfigsChanged,
-            this, &ClangProjectSettingsWidget::onCustomWarningConfigsChanged);
+
     connect(m_ui.delayedTemplateParse, &QCheckBox::toggled,
             this, &ClangProjectSettingsWidget::onDelayedTemplateParseClicked);
     connect(m_ui.clangSettings,
@@ -80,7 +75,10 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
     connect(project, &ProjectExplorer::Project::aboutToSaveSettings,
             this, &ClangProjectSettingsWidget::onAboutToSaveProjectSettings);
 
-    m_ui.diagnosticConfigurationGroupBox->layout()->addWidget(m_diagnosticConfigWidget);
+    connect(CppTools::codeModelSettings().data(), &CppTools::CppCodeModelSettings::changed,
+            this, &ClangProjectSettingsWidget::syncOtherWidgetsToComboBox);
+
+    syncOtherWidgetsToComboBox();
 }
 
 void ClangProjectSettingsWidget::onCurrentWarningConfigChanged(const Core::Id &currentConfigId)
@@ -89,18 +87,6 @@ void ClangProjectSettingsWidget::onCurrentWarningConfigChanged(const Core::Id &c
     if (m_projectSettings.useGlobalConfig())
         return;
     m_projectSettings.setWarningConfigId(currentConfigId);
-}
-
-void ClangProjectSettingsWidget::onCustomWarningConfigsChanged(
-        const CppTools::ClangDiagnosticConfigs &customConfigs)
-{
-    disconnectFromCppCodeModelSettingsChanged();
-
-    const QSharedPointer<CppTools::CppCodeModelSettings> codeModelSettings
-            = CppTools::codeModelSettings();
-    codeModelSettings->setClangCustomDiagnosticConfigs(customConfigs);
-
-    connectToCppCodeModelSettingsChanged();
 }
 
 void ClangProjectSettingsWidget::onDelayedTemplateParseClicked(bool checked)
@@ -136,30 +122,20 @@ void ClangProjectSettingsWidget::syncOtherWidgetsToComboBox()
                 options.contains(QLatin1String{ClangProjectSettings::DelayedTemplateParsing}));
 
     const bool isCustom = !m_projectSettings.useGlobalConfig();
-    m_ui.generalConfigurationGroupBox->setEnabled(isCustom);
-    m_ui.diagnosticConfigurationGroupBox->setEnabled(isCustom);
+    m_ui.delayedTemplateParse->setEnabled(isCustom);
+
+    for (int i = 0; i < m_ui.clangDiagnosticConfigsSelectionWidget->layout()->count(); ++i) {
+        QWidget *widget = m_ui.clangDiagnosticConfigsSelectionWidget->layout()->itemAt(i)->widget();
+        if (widget)
+            widget->setEnabled(isCustom);
+    }
 
     refreshDiagnosticConfigsWidgetFromSettings();
 }
 
 void ClangProjectSettingsWidget::refreshDiagnosticConfigsWidgetFromSettings()
 {
-    CppTools::ClangDiagnosticConfigsModel configsModel(
-                CppTools::codeModelSettings()->clangCustomDiagnosticConfigs());
-    m_diagnosticConfigWidget->refresh(configsModel,
-                                      configIdForProject(m_projectSettings));
-}
-
-void ClangProjectSettingsWidget::connectToCppCodeModelSettingsChanged()
-{
-    connect(CppTools::codeModelSettings().data(), &CppTools::CppCodeModelSettings::changed,
-            this, &ClangProjectSettingsWidget::refreshDiagnosticConfigsWidgetFromSettings);
-}
-
-void ClangProjectSettingsWidget::disconnectFromCppCodeModelSettingsChanged()
-{
-    disconnect(CppTools::codeModelSettings().data(), &CppTools::CppCodeModelSettings::changed,
-               this, &ClangProjectSettingsWidget::refreshDiagnosticConfigsWidgetFromSettings);
+    m_ui.clangDiagnosticConfigsSelectionWidget->refresh(configIdForProject(m_projectSettings));
 }
 
 } // namespace Internal

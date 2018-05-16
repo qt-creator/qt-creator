@@ -40,7 +40,9 @@
 #include <QJsonObject>
 #include <QRegularExpression>
 
+using namespace ProjectExplorer;
 using namespace QmakeProjectManager;
+using namespace Utils;
 
 namespace QmakeAndroidSupport {
 namespace Internal {
@@ -174,6 +176,31 @@ Utils::FileName QmakeAndroidSupport::manifestSourcePath(const ProjectExplorer::T
         }
     }
     return Utils::FileName();
+}
+
+static QmakeProFileNode *activeNodeForTarget(const Target *target)
+{
+    FileName proFilePathForInputFile;
+    if (RunConfiguration *rc = target->activeRunConfiguration())
+        proFilePathForInputFile = FileName::fromString(rc->buildKey());
+    const auto pro = static_cast<QmakeProject *>(target->project());
+    return  pro->rootProjectNode()->findProFileFor(proFilePathForInputFile);
+}
+
+QString QmakeAndroidSupport::deploySettingsFile(const Target *target) const
+{
+    if (QmakeProFileNode *node = activeNodeForTarget(target))
+        return node->singleVariableValue(Variable::AndroidDeploySettingsFile);
+    return QString();
+}
+
+FileName QmakeAndroidSupport::packageSourceDir(const Target *target) const
+{
+    if (QmakeProFileNode *node = activeNodeForTarget(target)) {
+        QFileInfo sourceDirInfo(node->singleVariableValue(Variable::AndroidPackageSourceDir));
+        return FileName::fromString(sourceDirInfo.canonicalFilePath());
+    }
+    return FileName();
 }
 
 } // namespace Internal

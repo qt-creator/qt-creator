@@ -59,9 +59,9 @@ class AndroidPackageInstallationStepWidget : public ProjectExplorer::BuildStepCo
 public:
     AndroidPackageInstallationStepWidget(AndroidPackageInstallationStep *step);
 
-    QString summaryText() const;
-    QString displayName() const;
-    bool showWidget() const;
+    QString summaryText() const override;
+    QString displayName() const override;
+    bool showWidget() const override;
 private:
     AndroidPackageInstallationStep *m_step;
 };

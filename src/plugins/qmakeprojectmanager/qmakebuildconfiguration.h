@@ -86,10 +86,10 @@ public:
     QString makefile() const;
 
     enum MakefileState { MakefileMatches, MakefileForWrongProject, MakefileIncompatible, MakefileMissing };
-    MakefileState compareToImportFrom(const QString &makefile, QString *errorString = 0);
-    static Utils::FileName extractSpecFromArguments(QString *arguments,
-                                            const QString &directory, const QtSupport::BaseQtVersion *version,
-                                            QStringList *outArgs = 0);
+    MakefileState compareToImportFrom(const QString &makefile, QString *errorString = nullptr);
+    static Utils::FileName extractSpecFromArguments(
+            QString *arguments, const QString &directory, const QtSupport::BaseQtVersion *version,
+            QStringList *outArgs = nullptr);
 
     QVariantMap toMap() const override;
 
@@ -136,7 +136,7 @@ private:
 
     bool m_shadowBuild = true;
     bool m_isEnabled = true;
-    QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration = 0;
+    QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration = nullptr;
     QmakeProFileNode *m_subNodeBuild = nullptr;
     ProjectExplorer::FileNode *m_fileNodeBuild = nullptr;
 

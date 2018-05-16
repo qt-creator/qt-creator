@@ -25,8 +25,8 @@
 
 #include "clangtoolsdiagnosticmodel.h"
 
-#include "clangstaticanalyzerdiagnosticview.h"
-#include "clangstaticanalyzerprojectsettingsmanager.h"
+#include "clangtoolsdiagnosticview.h"
+#include "clangtoolsprojectsettings.h"
 #include "clangtoolsutils.h"
 
 #include <projectexplorer/project.h>
@@ -42,19 +42,6 @@
 namespace ClangTools {
 namespace Internal {
 
-class DiagnosticItem : public Utils::TreeItem
-{
-public:
-    DiagnosticItem(const Diagnostic &diag);
-
-    Diagnostic diagnostic() const { return m_diagnostic; }
-
-private:
-    QVariant data(int column, int role) const override;
-
-    const Diagnostic m_diagnostic;
-};
-
 class ExplainingStepItem : public Utils::TreeItem
 {
 public:
@@ -69,7 +56,7 @@ private:
 ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(QObject *parent)
     : Utils::TreeModel<>(parent)
 {
-    setHeader({tr("Issue"), tr("Location")});
+    setHeader({tr("Issue"), tr("Location"), tr("Fixits")});
 }
 
 void ClangToolsDiagnosticModel::addDiagnostics(const QList<Diagnostic> &diagnostics)
@@ -225,6 +212,13 @@ DiagnosticItem::DiagnosticItem(const Diagnostic &diag) : m_diagnostic(diag)
         appendChild(new ExplainingStepItem(s));
 }
 
+Qt::ItemFlags DiagnosticItem::flags(int column) const
+{
+    if (column == DiagnosticView::FixItColumn && m_diagnostic.hasFixits)
+        return TreeItem::flags(column) | Qt::ItemIsUserCheckable;
+    return TreeItem::flags(column);
+}
+
 static QVariant locationData(int role, const Debugger::DiagnosticLocation &location)
 {
     switch (role) {
@@ -255,6 +249,12 @@ QVariant DiagnosticItem::data(int column, int role) const
     if (column == Debugger::DetailedErrorView::LocationColumn)
         return locationData(role, m_diagnostic.location);
 
+    if (column == DiagnosticView::FixItColumn) {
+        if (role == Qt::CheckStateRole)
+            return m_applyFixits ? Qt::Checked : Qt::Unchecked;
+        return QVariant();
+    }
+
     // DiagnosticColumn
     switch (role) {
     case Debugger::DetailedErrorView::FullTextRole:
@@ -272,6 +272,17 @@ QVariant DiagnosticItem::data(int column, int role) const
     }
 }
 
+bool DiagnosticItem::setData(int column, const QVariant &data, int role)
+{
+    if (column == DiagnosticView::FixItColumn && role == Qt::CheckStateRole) {
+        m_applyFixits = data.value<Qt::CheckState>() == Qt::Checked ? true : false;
+        update();
+        return true;
+    }
+
+    return Utils::TreeItem::setData(column, data, role);
+}
+
 ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step) : m_step(step)
 {
 }
@@ -280,6 +291,9 @@ QVariant ExplainingStepItem::data(int column, int role) const
 {
     if (column == Debugger::DetailedErrorView::LocationColumn)
         return locationData(role, m_step.location);
+
+    if (column == DiagnosticView::FixItColumn)
+        return QVariant();
 
     // DiagnosticColumn
     switch (role) {
@@ -306,7 +320,7 @@ QVariant ExplainingStepItem::data(int column, int role) const
 }
 
 
-ClangStaticAnalyzerDiagnosticFilterModel::ClangStaticAnalyzerDiagnosticFilterModel(QObject *parent)
+DiagnosticFilterModel::DiagnosticFilterModel(QObject *parent)
     : QSortFilterProxyModel(parent)
 {
     // So that when a user closes and re-opens a project and *then* clicks "Suppress",
@@ -319,23 +333,23 @@ ClangStaticAnalyzerDiagnosticFilterModel::ClangStaticAnalyzerDiagnosticFilterMod
             });
 }
 
-void ClangStaticAnalyzerDiagnosticFilterModel::setProject(ProjectExplorer::Project *project)
+void DiagnosticFilterModel::setProject(ProjectExplorer::Project *project)
 {
     QTC_ASSERT(project, return);
     if (m_project) {
-        disconnect(ProjectSettingsManager::getSettings(m_project),
-                   &ProjectSettings::suppressedDiagnosticsChanged, this,
-                   &ClangStaticAnalyzerDiagnosticFilterModel::handleSuppressedDiagnosticsChanged);
+        disconnect(ClangToolsProjectSettingsManager::getSettings(m_project),
+                   &ClangToolsProjectSettings::suppressedDiagnosticsChanged, this,
+                   &DiagnosticFilterModel::handleSuppressedDiagnosticsChanged);
     }
     m_project = project;
     m_lastProjectDirectory = m_project->projectDirectory();
-    connect(ProjectSettingsManager::getSettings(m_project),
-            &ProjectSettings::suppressedDiagnosticsChanged,
-            this, &ClangStaticAnalyzerDiagnosticFilterModel::handleSuppressedDiagnosticsChanged);
+    connect(ClangToolsProjectSettingsManager::getSettings(m_project),
+            &ClangToolsProjectSettings::suppressedDiagnosticsChanged,
+            this, &DiagnosticFilterModel::handleSuppressedDiagnosticsChanged);
     handleSuppressedDiagnosticsChanged();
 }
 
-void ClangStaticAnalyzerDiagnosticFilterModel::addSuppressedDiagnostic(
+void DiagnosticFilterModel::addSuppressedDiagnostic(
         const SuppressedDiagnostic &diag)
 {
     QTC_ASSERT(!m_project, return);
@@ -343,11 +357,14 @@ void ClangStaticAnalyzerDiagnosticFilterModel::addSuppressedDiagnostic(
     invalidate();
 }
 
-bool ClangStaticAnalyzerDiagnosticFilterModel::filterAcceptsRow(int sourceRow,
+bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow,
         const QModelIndex &sourceParent) const
 {
+    // Avoid filtering child diagnostics / explaining steps.
     if (sourceParent.isValid())
         return true;
+
+    // Is the diagnostic suppressed?
     const Diagnostic diag = static_cast<ClangToolsDiagnosticModel *>(sourceModel())
             ->diagnostics().at(sourceRow);
     foreach (const SuppressedDiagnostic &d, m_suppressedDiagnostics) {
@@ -360,14 +377,19 @@ bool ClangStaticAnalyzerDiagnosticFilterModel::filterAcceptsRow(int sourceRow,
         if (filePath == diag.location.filePath)
             return false;
     }
-    return true;
+
+    // Does the diagnostic match the filter?
+    if (diag.description.contains(filterRegExp()))
+        return true;
+
+    return false;
 }
 
-void ClangStaticAnalyzerDiagnosticFilterModel::handleSuppressedDiagnosticsChanged()
+void DiagnosticFilterModel::handleSuppressedDiagnosticsChanged()
 {
     QTC_ASSERT(m_project, return);
     m_suppressedDiagnostics
-            = ProjectSettingsManager::getSettings(m_project)->suppressedDiagnostics();
+            = ClangToolsProjectSettingsManager::getSettings(m_project)->suppressedDiagnostics();
     invalidate();
 }
 

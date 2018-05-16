@@ -46,17 +46,17 @@ public:
     enum State { Idle, Running, Failed, Succeeded };
 
     explicit ShellCommandPage(QWidget *parent = nullptr);
-    ~ShellCommandPage();
+    ~ShellCommandPage() override;
 
     void setStartedStatus(const QString &startedStatus);
     void start(ShellCommand *command);
 
-    virtual bool isComplete() const;
+    bool isComplete() const override;
     bool isRunning() const{ return m_state == Running; }
 
     void terminate();
 
-    bool handleReject();
+    bool handleReject() override;
 
 signals:
     void finished(bool success);

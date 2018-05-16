@@ -35,7 +35,7 @@ class QTCREATOR_UTILS_EXPORT StyledBar : public QWidget
 {
     Q_OBJECT
 public:
-    StyledBar(QWidget *parent = 0);
+    StyledBar(QWidget *parent = nullptr);
     void setSingleRow(bool singleRow);
     bool isSingleRow() const;
 
@@ -43,16 +43,16 @@ public:
     bool isLightColored() const;
 
 protected:
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent *event) override;
 };
 
 class QTCREATOR_UTILS_EXPORT StyledSeparator : public QWidget
 {
     Q_OBJECT
 public:
-    StyledSeparator(QWidget *parent = 0);
+    StyledSeparator(QWidget *parent = nullptr);
 protected:
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent *event) override;
 };
 
 } // Utils

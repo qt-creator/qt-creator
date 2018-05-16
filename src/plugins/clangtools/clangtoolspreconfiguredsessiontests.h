@@ -23,36 +23,33 @@
 **
 ****************************************************************************/
 
-#include "clangstaticanalyzerprojectsettingsmanager.h"
+#pragma once
 
-#include "clangstaticanalyzerprojectsettings.h"
+#include <QObject>
+#include <QString>
 
-#include <projectexplorer/session.h>
+namespace ProjectExplorer {
+class Project;
+class Target;
+}
 
 namespace ClangTools {
 namespace Internal {
 
-ProjectSettingsManager::ProjectSettingsManager()
+class PreconfiguredSessionTests: public QObject
 {
-    QObject::connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::aboutToRemoveProject,
-            &ProjectSettingsManager::handleProjectToBeRemoved);
-}
+    Q_OBJECT
 
-ProjectSettings *ProjectSettingsManager::getSettings(ProjectExplorer::Project *project)
-{
-    auto &settings = m_settings[project];
-    if (!settings)
-        settings.reset(new ProjectSettings(project));
-    return settings.data();
-}
+private slots:
+    void initTestCase();
 
-void ProjectSettingsManager::handleProjectToBeRemoved(ProjectExplorer::Project *project)
-{
-    m_settings.remove(project);
-}
+    void testPreconfiguredSession();
+    void testPreconfiguredSession_data();
 
-ProjectSettingsManager::SettingsMap ProjectSettingsManager::m_settings;
+private:
+    bool switchToProjectAndTarget(ProjectExplorer::Project *project,
+                                  ProjectExplorer::Target *target);
+};
 
 } // namespace Internal
 } // namespace ClangTools

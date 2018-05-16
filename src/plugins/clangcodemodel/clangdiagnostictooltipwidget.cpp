@@ -157,20 +157,90 @@ private:
         return text;
     }
 
+    class DiagnosticTextInfo
+    {
+    public:
+        DiagnosticTextInfo(const QString &text)
+            : m_text(text)
+            , m_squareBracketStartIndex(text.lastIndexOf('['))
+        {}
+
+        QString textWithoutOption() const
+        {
+            if (m_squareBracketStartIndex == -1)
+                return m_text;
+
+            return m_text.mid(0, m_squareBracketStartIndex - 1);
+        }
+
+        QString option() const
+        {
+            if (m_squareBracketStartIndex == -1)
+                return QString();
+
+            const int index = m_squareBracketStartIndex + 1;
+            return m_text.mid(index, m_text.count() - index - 1);
+        }
+
+        QString category() const
+        {
+            if (m_squareBracketStartIndex == -1)
+                return QString();
+
+            const int index = m_squareBracketStartIndex + 1;
+            if (m_text.midRef(index).startsWith("-Wclazy"))
+                return QCoreApplication::translate("ClangDiagnosticWidget", "Clazy Issue");
+            else
+                return QCoreApplication::translate("ClangDiagnosticWidget", "Clang-Tidy Issue");
+        }
+
+    private:
+        const QString m_text;
+        const int m_squareBracketStartIndex;
+    };
+
+    // Diagnostics from clazy/tidy do not have any category or option set but
+    // we will conclude them from the diagnostic message.
+    //
+    // Ideally, libclang should provide the correct category/option by default.
+    // However, tidy and clazy diagnostics use "custom diagnostic ids" and
+    // clang's static diagnostic table does not know anything about them.
+    //
+    // For clazy/tidy diagnostics, we expect something like "some text [some option]", e.g.:
+    //  * clazy: "Use the static QFileInfo::exists() instead. It's documented to be faster. [-Wclazy-qfileinfo-exists]"
+    //  * tidy:  "use emplace_back instead of push_back [modernize-use-emplace]"
+    static ClangBackEnd::DiagnosticContainer supplementedDiagnostic(
+        const ClangBackEnd::DiagnosticContainer &diagnostic)
+    {
+        if (!diagnostic.category.isEmpty() && !diagnostic.enableOption.isEmpty())
+            return diagnostic; // OK, diagnostics from clang have this set.
+
+        ClangBackEnd::DiagnosticContainer supplementedDiagnostic = diagnostic;
+
+        DiagnosticTextInfo info(diagnostic.text);
+        supplementedDiagnostic.enableOption = info.option();
+        supplementedDiagnostic.category = info.category();
+        supplementedDiagnostic.text = info.textWithoutOption();
+
+        for (auto &child : supplementedDiagnostic.children)
+            child.text = DiagnosticTextInfo(diagnostic.text.toString()).textWithoutOption();
+
+        return supplementedDiagnostic;
+    }
+
     QString tableRows(const ClangBackEnd::DiagnosticContainer &diagnostic)
     {
         m_mainFilePath = m_displayHints.showFileNameInMainDiagnostic
                 ? Utf8String()
                 : diagnostic.location.filePath;
 
-        QString text;
+        const ClangBackEnd::DiagnosticContainer diag = supplementedDiagnostic(diagnostic);
 
-        // Diagnostics from clazy/tidy do not have any category or option set, so
-        // avoid to add an empty line.
-        if (m_displayHints.showCategoryAndEnableOption && !diagnostic.category.isEmpty())
-            text.append(diagnosticCategoryAndEnableOptionRow(diagnostic));
-        text.append(diagnosticRow(diagnostic, IndentMode::DoNotIndent));
-        text.append(diagnosticRowsForChildren(diagnostic));
+        QString text;
+        if (m_displayHints.showCategoryAndEnableOption)
+            text.append(diagnosticCategoryAndEnableOptionRow(diag));
+        text.append(diagnosticRow(diag, IndentMode::DoNotIndent));
+        text.append(diagnosticRowsForChildren(diag));
 
         return text;
     }

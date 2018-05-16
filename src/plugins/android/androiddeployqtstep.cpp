@@ -390,7 +390,7 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
         emit setSerialNumber(serialNumber);
     }
 
-    if (m_apkPath.isEmpty()) { // nothing to deploy
+    if (!target()->activeBuildConfiguration()) { // nothing to deploy
         reportRunResult(fi, true);
         return;
     }

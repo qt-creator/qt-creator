@@ -56,14 +56,6 @@ void QmlProfilerAnimationsModelTest::initTestCase()
     manager.finalize();
 }
 
-void QmlProfilerAnimationsModelTest::testAccepted()
-{
-    QVERIFY(!model.accepted(QmlEventType()));
-    QVERIFY(!model.accepted(QmlEventType(Event)));
-    QVERIFY(!model.accepted(QmlEventType(Event, MaximumRangeType)));
-    QVERIFY(model.accepted(QmlEventType(Event, MaximumRangeType, AnimationFrame)));
-}
-
 void QmlProfilerAnimationsModelTest::testRowMaxValue()
 {
     QCOMPARE(model.rowMaxValue(0), 0);

@@ -54,6 +54,7 @@ public:
     bool hasTests() const;
     QList<TestConfiguration *> getAllTestCases() const;
     QList<TestConfiguration *> getSelectedTests() const;
+    QList<TestConfiguration *> getTestsForFile(const Utils::FileName &fileName) const;
     QList<TestTreeItem *> testItemsByName(const QString &testName);
     void syncTestFrameworks();
     void rebuild(const QList<Core::Id> &frameworkIds);

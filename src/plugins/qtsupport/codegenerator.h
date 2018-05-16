@@ -37,7 +37,7 @@ class QTSUPPORT_EXPORT CodeGenerator : public QObject
     Q_OBJECT
 
 public:
-    CodeGenerator(QObject *parent = 0) : QObject(parent) { }
+    CodeGenerator(QObject *parent = nullptr) : QObject(parent) { }
 
     // Ui file related:
     // Change the class name in a UI XML form

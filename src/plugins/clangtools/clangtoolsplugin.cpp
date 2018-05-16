@@ -27,13 +27,12 @@
 
 #include "clangtoolsconfigwidget.h"
 #include "clangtoolsconstants.h"
-#include "clangstaticanalyzerprojectsettingswidget.h"
-#include "clangstaticanalyzerruncontrol.h"
-#include "clangstaticanalyzertool.h"
+#include "clangtoolsprojectsettingswidget.h"
 #include "clangtidyclazytool.h"
+#include "clangtoolsprojectsettings.h"
 
 #ifdef WITH_TESTS
-#include "clangstaticanalyzerpreconfiguredsessiontests.h"
+#include "clangtoolspreconfiguredsessiontests.h"
 #include "clangtoolsunittests.h"
 #endif
 
@@ -71,7 +70,7 @@ class ClangToolsOptionsPage : public Core::IOptionsPage
 public:
     explicit ClangToolsOptionsPage()
     {
-        setId("Analyzer.ClangTools.Settings"); // TODO: Get it from "clangstaticanalyzersettings.h"
+        setId("Analyzer.ClangTools.Settings");
         setDisplayName(QCoreApplication::translate(
                            "ClangTools::Internal::ClangToolsOptionsPage",
                            "Clang Tools"));
@@ -104,9 +103,9 @@ private:
 class ClangToolsPluginPrivate
 {
 public:
-    ClangStaticAnalyzerTool staticAnalyzerTool;
     ClangTidyClazyTool clangTidyClazyTool;
     ClangToolsOptionsPage optionsPage;
+    ClangToolsProjectSettingsManager settingsManager;
 };
 
 ClangToolsPlugin::~ClangToolsPlugin()
@@ -134,7 +133,7 @@ QList<QObject *> ClangToolsPlugin::createTestObjects() const
 {
     QList<QObject *> tests;
 #ifdef WITH_TESTS
-    tests << new ClangStaticAnalyzerPreconfiguredSessionTests;
+    tests << new PreconfiguredSessionTests;
     tests << new ClangToolsUnitTests;
 #endif
     return tests;

@@ -66,7 +66,7 @@ public:
     bool isValueDrop(QDropEvent *event) const;
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     void emitFilesDropped();
