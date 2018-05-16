@@ -41,6 +41,7 @@ namespace Utils {
 using std::experimental::optional;
 // --> Utils::nullopt
 using std::experimental::nullopt;
+using std::experimental::nullopt_t;
 // --> Utils::in_place
 using std::experimental::in_place;
 
