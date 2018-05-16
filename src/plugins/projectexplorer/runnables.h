@@ -27,30 +27,8 @@
 
 #include "runconfiguration.h"
 
-#include "applicationlauncher.h"
-#include "devicesupport/idevice.h"
-
-#include <utils/environment.h>
-
-
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT StandardRunnable
-{
-public:
-    QString executable;
-    QString commandLineArguments;
-    QString workingDirectory;
-    Utils::Environment environment;
-    ApplicationLauncher::Mode runMode = ApplicationLauncher::Gui;
-    IDevice::ConstPtr device; // Override the kit's device. Keep unset by default.
-
-    // FIXME: Not necessarily a display name
-    QString displayName() const { return executable; }
-
-    static void *staticTypeId;
-};
-
-PROJECTEXPLORER_EXPORT bool operator==(const StandardRunnable &r1, const StandardRunnable &r2);
+using StandardRunnable = Runnable;
 
 } // namespace ProjectExplorer

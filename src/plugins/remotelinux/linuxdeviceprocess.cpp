@@ -73,7 +73,7 @@ qint64 LinuxDeviceProcess::processId() const
     return m_processId;
 }
 
-QString LinuxDeviceProcess::fullCommandLine(const StandardRunnable &runnable) const
+QString LinuxDeviceProcess::fullCommandLine(const Runnable &runnable) const
 {
     const Environment env = runnable.environment;
 

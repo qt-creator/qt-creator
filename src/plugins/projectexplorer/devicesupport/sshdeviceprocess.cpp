@@ -280,7 +280,7 @@ void SshDeviceProcess::handleKillOperationTimeout()
     emit finished();
 }
 
-QString SshDeviceProcess::fullCommandLine(const StandardRunnable &runnable) const
+QString SshDeviceProcess::fullCommandLine(const Runnable &runnable) const
 {
     QString cmdLine = runnable.executable;
     if (!runnable.commandLineArguments.isEmpty())

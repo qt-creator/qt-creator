@@ -46,7 +46,7 @@ public:
     QByteArray readAllStandardOutput() override;
 
 private:
-    QString fullCommandLine(const ProjectExplorer::StandardRunnable &) const override;
+    QString fullCommandLine(const ProjectExplorer::Runnable &) const override;
     qint64 processId() const override;
 
     QStringList rcFilesToSource() const;

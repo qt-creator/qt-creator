@@ -43,7 +43,7 @@ QnxDeviceProcess::QnxDeviceProcess(const QSharedPointer<const IDevice> &device, 
     m_pidFile = QString::fromLatin1("/var/run/qtc.%1.pid").arg(++pidFileCounter);
 }
 
-QString QnxDeviceProcess::fullCommandLine(const StandardRunnable &runnable) const
+QString QnxDeviceProcess::fullCommandLine(const Runnable &runnable) const
 {
     QStringList args = QtcProcess::splitArgs(runnable.commandLineArguments);
     args.prepend(runnable.executable);

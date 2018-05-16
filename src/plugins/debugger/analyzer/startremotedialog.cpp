@@ -128,7 +128,7 @@ void StartRemoteDialog::validate()
     d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(valid);
 }
 
-StandardRunnable StartRemoteDialog::runnable() const
+Runnable StartRemoteDialog::runnable() const
 {
     Kit *kit = d->kitChooser->currentKit();
     StandardRunnable r;

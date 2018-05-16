@@ -1609,7 +1609,10 @@ void RunControl::appendMessage(const QString &msg, Utils::OutputFormat format)
 
 bool Runnable::canReUseOutputPane(const Runnable &other) const
 {
-    return d ? d->canReUseOutputPane(other.d) : (other.d.get() == 0);
+    return executable == other.executable
+        && commandLineArguments == other.commandLineArguments
+        && workingDirectory == other.workingDirectory
+        && environment == other.environment;
 }
 
 
