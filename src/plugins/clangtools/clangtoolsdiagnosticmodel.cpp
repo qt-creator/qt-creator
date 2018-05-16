@@ -55,18 +55,21 @@ private:
 ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(QObject *parent)
     : Utils::TreeModel<>(parent)
 {
-    setHeader({tr("Issue"), tr("Location"), tr("Fixits")});
+    setHeader({tr("Issue"), tr("Location"), tr("Fixit Status")});
 }
 
 void ClangToolsDiagnosticModel::addDiagnostics(const QList<Diagnostic> &diagnostics)
 {
-    const auto onFixItChanged = [this](bool checked){
-        m_fixItsToApplyCount += checked ? +1 : -1;
+    const auto onFixitStatusChanged = [this](FixitStatus newStatus) {
+        if (newStatus == FixitStatus::Scheduled)
+            ++m_fixItsToApplyCount;
+        else
+            --m_fixItsToApplyCount;
         emit fixItsToApplyCountChanged(m_fixItsToApplyCount);
     };
 
     for (const Diagnostic &d : diagnostics)
-        rootItem()->appendChild(new DiagnosticItem(d, onFixItChanged));
+        rootItem()->appendChild(new DiagnosticItem(d, onFixitStatusChanged));
 }
 
 QList<Diagnostic> ClangToolsDiagnosticModel::diagnostics() const
@@ -203,10 +206,13 @@ static QString fullText(const Diagnostic &diagnostic)
 }
 
 
-DiagnosticItem::DiagnosticItem(const Diagnostic &diag, const OnCheckedFixit &onCheckedFixit)
+DiagnosticItem::DiagnosticItem(const Diagnostic &diag, const OnFixitStatusChanged &onFixitStatusChanged)
     : m_diagnostic(diag)
-    , m_onCheckedFixit(onCheckedFixit)
+    , m_onFixitStatusChanged(onFixitStatusChanged)
 {
+    if (diag.hasFixits)
+        m_fixitStatus = FixitStatus::NotScheduled;
+
     // Don't show explaining steps if they add no information.
     if (diag.explainingSteps.count() == 1) {
         const ExplainingStep &step = diag.explainingSteps.first();
@@ -222,10 +228,16 @@ Qt::ItemFlags DiagnosticItem::flags(int column) const
 {
     const Qt::ItemFlags itemFlags = TreeItem::flags(column);
     if (column == DiagnosticView::FixItColumn) {
-        if (m_diagnostic.hasFixits)
-            return itemFlags | Qt::ItemIsUserCheckable;
-        else
+        switch (m_fixitStatus) {
+        case FixitStatus::NotAvailable:
+        case FixitStatus::Applied:
+        case FixitStatus::FailedToApply:
+        case FixitStatus::Invalidated:
             return itemFlags & ~Qt::ItemIsEnabled;
+        case FixitStatus::Scheduled:
+        case FixitStatus::NotScheduled:
+            return itemFlags | Qt::ItemIsUserCheckable;
+        }
     }
 
     return itemFlags;
@@ -250,8 +262,33 @@ QVariant DiagnosticItem::data(int column, int role) const
         return Debugger::DetailedErrorView::locationData(role, m_diagnostic.location);
 
     if (column == DiagnosticView::FixItColumn) {
-        if (role == Qt::CheckStateRole)
-            return m_applyFixits ? Qt::Checked : Qt::Unchecked;
+        if (role == Qt::CheckStateRole) {
+            switch (m_fixitStatus) {
+            case FixitStatus::NotAvailable:
+            case FixitStatus::NotScheduled:
+            case FixitStatus::Invalidated:
+            case FixitStatus::Applied:
+            case FixitStatus::FailedToApply:
+                return Qt::Unchecked;
+            case FixitStatus::Scheduled:
+                return Qt::Checked;
+            }
+        } else if (role == Qt::DisplayRole) {
+            switch (m_fixitStatus) {
+            case FixitStatus::NotAvailable:
+                return ClangToolsDiagnosticModel::tr("No Fixits");
+            case FixitStatus::NotScheduled:
+                return ClangToolsDiagnosticModel::tr("Not Scheduled");
+            case FixitStatus::Invalidated:
+                return ClangToolsDiagnosticModel::tr("Invalidated");
+            case FixitStatus::Scheduled:
+                return ClangToolsDiagnosticModel::tr("Scheduled");
+            case FixitStatus::FailedToApply:
+                return ClangToolsDiagnosticModel::tr("Failed to Apply");
+            case FixitStatus::Applied:
+                return ClangToolsDiagnosticModel::tr("Applied");
+            }
+        }
         return QVariant();
     }
 
@@ -275,14 +312,29 @@ QVariant DiagnosticItem::data(int column, int role) const
 bool DiagnosticItem::setData(int column, const QVariant &data, int role)
 {
     if (column == DiagnosticView::FixItColumn && role == Qt::CheckStateRole) {
-        m_applyFixits = data.value<Qt::CheckState>() == Qt::Checked ? true : false;
-        update();
-        if (m_onCheckedFixit)
-            m_onCheckedFixit(m_applyFixits);
+        const FixitStatus newStatus = data.value<Qt::CheckState>() == Qt::Checked
+                                          ? FixitStatus::Scheduled
+                                          : FixitStatus::NotScheduled;
+
+        setFixItStatus(newStatus);
         return true;
     }
 
     return Utils::TreeItem::setData(column, data, role);
+}
+
+void DiagnosticItem::setFixItStatus(const FixitStatus &status)
+{
+    const FixitStatus oldStatus = m_fixitStatus;
+    m_fixitStatus = status;
+    update();
+    if (m_onFixitStatusChanged && status != oldStatus)
+        m_onFixitStatusChanged(status);
+}
+
+FixitStatus DiagnosticItem::fixItStatus() const
+{
+    return m_fixitStatus;
 }
 
 ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step) : m_step(step)

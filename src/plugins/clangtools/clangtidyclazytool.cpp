@@ -69,42 +69,102 @@ namespace Internal {
 
 static ClangTidyClazyTool *s_instance;
 
-static void applyFixits(const QVector<Diagnostic> &diagnostics)
+class ApplyFixIts
 {
-    TextEditor::RefactoringChanges changes;
-    QMap<QString, TextEditor::RefactoringFilePtr> refactoringFiles;
+public:
+    class RefactoringFileInfo
+    {
+    public:
+        bool isValid() const { return file; }
 
-    // Create refactoring files and changes
-    for (const Diagnostic &diagnostic : diagnostics) {
-        const auto filePath = diagnostic.location.filePath;
-        QTC_ASSERT(!filePath.isEmpty(), continue);
+        TextEditor::RefactoringFilePtr file;
+        QVector<DiagnosticItem *> diagnosticItems;
+        bool hasScheduledFixits = false;
+    };
 
-        // Get or create refactoring file
-        TextEditor::RefactoringFilePtr refactoringFile = refactoringFiles.value(filePath);
-        if (!refactoringFile) {
-            refactoringFile = changes.file(filePath);
-            refactoringFiles.insert(filePath, refactoringFile);
+    ApplyFixIts(const QVector<DiagnosticItem *> &diagnosticItems)
+    {
+        for (DiagnosticItem *diagnosticItem : diagnosticItems) {
+            const QString &filePath = diagnosticItem->diagnostic().location.filePath;
+            QTC_ASSERT(!filePath.isEmpty(), continue);
+
+            // Get or create refactoring file
+            RefactoringFileInfo &fileInfo = m_refactoringFileInfos[filePath];
+            if (!fileInfo.isValid())
+                fileInfo.file = m_changes.file(filePath);
+
+            // Append item
+            fileInfo.diagnosticItems += diagnosticItem;
+            if (diagnosticItem->fixItStatus() == FixitStatus::Scheduled)
+                fileInfo.hasScheduledFixits = true;
         }
-
-        // Append changes
-        ChangeSet cs = refactoringFile->changeSet();
-
-        for (const ExplainingStep &step : diagnostic.explainingSteps) {
-            if (step.isFixIt) {
-                const Debugger::DiagnosticLocation start = step.ranges.first();
-                const Debugger::DiagnosticLocation end = step.ranges.last();
-                cs.replace(refactoringFile->position(start.line, start.column),
-                           refactoringFile->position(end.line, end.column), step.message);
-            }
-        }
-
-        refactoringFile->setChangeSet(cs);
     }
 
-    // Apply refactoring file changes
-    for (TextEditor::RefactoringFilePtr refactoringFile  : refactoringFiles.values())
-        refactoringFile->apply();
-}
+
+    static bool addChanges(TextEditor::RefactoringFilePtr file,
+                           const Diagnostic &diagnostic,
+                           ChangeSet &changeSet)
+    {
+        for (const ExplainingStep &step : diagnostic.explainingSteps) {
+            if (!step.isFixIt)
+                continue;
+
+            const Debugger::DiagnosticLocation start = step.ranges.first();
+            const Debugger::DiagnosticLocation end = step.ranges.last();
+            const bool operationAdded = changeSet.replace(file->position(start.line, start.column),
+                                                          file->position(end.line, end.column),
+                                                          step.message);
+            if (!operationAdded)
+                return false;
+        }
+
+        return true;
+    }
+
+    void apply()
+    {
+        for (auto i = m_refactoringFileInfos.begin(); i != m_refactoringFileInfos.end(); ++i) {
+            const RefactoringFileInfo &fileInfo = i.value();
+
+            QVector<DiagnosticItem *> itemsSucceeded;
+            QVector<DiagnosticItem *> itemsFailed;
+            QVector<DiagnosticItem *> itemsInvalidated;
+
+            // Construct change set
+            for (DiagnosticItem *diagnosticItem : fileInfo.diagnosticItems) {
+                const FixitStatus fixItStatus = diagnosticItem->fixItStatus();
+                if (fixItStatus == FixitStatus::Scheduled) {
+                    ChangeSet changeSet = fileInfo.file->changeSet();
+                    if (addChanges(fileInfo.file, diagnosticItem->diagnostic(), changeSet))
+                        itemsSucceeded += diagnosticItem;
+                    else // Ops, some fixits might have overlapping ranges.
+                        itemsFailed += diagnosticItem;
+                    fileInfo.file->setChangeSet(changeSet);
+                } else if (fileInfo.hasScheduledFixits && fixItStatus == FixitStatus::NotScheduled) {
+                    itemsInvalidated += diagnosticItem;
+                }
+            }
+
+            // Apply file
+            if (!fileInfo.file->apply()) {
+                itemsSucceeded.clear();
+                itemsFailed = fileInfo.diagnosticItems;
+            }
+
+            // Update DiagnosticItem state
+            for (DiagnosticItem *diagnosticItem : itemsSucceeded)
+                diagnosticItem->setFixItStatus(FixitStatus::Applied);
+            for (DiagnosticItem *diagnosticItem : itemsFailed)
+                diagnosticItem->setFixItStatus(FixitStatus::FailedToApply);
+            for (DiagnosticItem *diagnosticItem : itemsInvalidated)
+                diagnosticItem->setFixItStatus(FixitStatus::Invalidated);
+        }
+    }
+
+private:
+    TextEditor::RefactoringChanges m_changes;
+    QMap<QString, RefactoringFileInfo> m_refactoringFileInfos;
+};
 
 ClangTidyClazyTool::ClangTidyClazyTool()
     : ClangTool("Clang-Tidy and Clazy")
@@ -166,16 +226,12 @@ ClangTidyClazyTool::ClangTidyClazyTool()
             &ClangToolsDiagnosticModel::fixItsToApplyCountChanged,
             [this](int c) { m_applyFixitsButton->setEnabled(c); });
     connect(m_applyFixitsButton, &QToolButton::clicked, [this]() {
-        QVector<Diagnostic> diagnosticsWithFixits;
+        QVector<DiagnosticItem *> diagnosticItems;
+        m_diagnosticModel->rootItem()->forChildrenAtLevel(1, [&](TreeItem *item){
+            diagnosticItems += static_cast<DiagnosticItem *>(item);
+        });
 
-        const int count = m_diagnosticModel->rootItem()->childCount();
-        for (int i = 0; i < count; ++i) {
-            auto *item = static_cast<DiagnosticItem *>(m_diagnosticModel->rootItem()->childAt(i));
-            if (item->applyFixits())
-                diagnosticsWithFixits += item->diagnostic();
-        }
-
-        applyFixits(diagnosticsWithFixits);
+        ApplyFixIts(diagnosticItems).apply();
     });
 
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);

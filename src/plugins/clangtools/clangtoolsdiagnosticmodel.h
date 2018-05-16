@@ -42,14 +42,25 @@ namespace ProjectExplorer { class Project; }
 namespace ClangTools {
 namespace Internal {
 
+enum class FixitStatus {
+    NotAvailable,
+    NotScheduled,
+    Scheduled,
+    Applied,
+    FailedToApply,
+    Invalidated,
+};
+
 class DiagnosticItem : public Utils::TreeItem
 {
 public:
-    using OnCheckedFixit = std::function<void(bool)>;
-    DiagnosticItem(const Diagnostic &diag, const OnCheckedFixit &onCheckedFixit);
+    using OnFixitStatusChanged = std::function<void(FixitStatus newStatus)>;
+    DiagnosticItem(const Diagnostic &diag, const OnFixitStatusChanged &onFixitStatusChanged);
 
     Diagnostic diagnostic() const { return m_diagnostic; }
-    bool applyFixits() const { return m_applyFixits; }
+
+    FixitStatus fixItStatus() const;
+    void setFixItStatus(const FixitStatus &status);
 
 private:
     Qt::ItemFlags flags(int column) const override;
@@ -58,8 +69,8 @@ private:
 
 private:
     const Diagnostic m_diagnostic;
-    bool m_applyFixits = false;
-    OnCheckedFixit m_onCheckedFixit;
+    FixitStatus m_fixitStatus = FixitStatus::NotAvailable;
+    OnFixitStatusChanged m_onFixitStatusChanged;
 };
 
 class ClangToolsDiagnosticModel : public Utils::TreeModel<>
