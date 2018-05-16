@@ -38,7 +38,7 @@ using namespace ProjectExplorer;
 DeviceCheckBuildStep::DeviceCheckBuildStep(BuildStepList *bsl)
     : BuildStep(bsl, stepId())
 {
-    setDefaultDisplayName(stepDisplayName());
+    setDefaultDisplayName(displayName());
 }
 
 bool DeviceCheckBuildStep::init(QList<const BuildStep *> &earlierSteps)
@@ -92,7 +92,7 @@ Core::Id DeviceCheckBuildStep::stepId()
     return "ProjectExplorer.DeviceCheckBuildStep";
 }
 
-QString DeviceCheckBuildStep::stepDisplayName()
+QString DeviceCheckBuildStep::displayName()
 {
     return tr("Check for a configured device");
 }

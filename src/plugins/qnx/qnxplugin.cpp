@@ -45,6 +45,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/devicesupport/devicecheckbuildstep.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -55,6 +56,9 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
+#include <remotelinux/genericdirectuploadstep.h>
+#include <remotelinux/remotelinuxcheckforfreediskspacestep.h>
+
 #include <qtsupport/qtkitinformation.h>
 
 #include <QAction>
@@ -63,6 +67,19 @@ using namespace ProjectExplorer;
 
 namespace Qnx {
 namespace Internal {
+
+template <class Step>
+class GenericQnxDeployStepFactory : public BuildStepFactory
+{
+public:
+    GenericQnxDeployStepFactory()
+    {
+        registerStep<Step>(Step::stepId());
+        setDisplayName(Step::displayName());
+        setSupportedConfiguration(Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    }
+};
 
 class QnxPluginPrivate
 {
@@ -76,6 +93,9 @@ public:
     QnxQtVersionFactory qtVersionFactory;
     QnxDeviceFactory deviceFactory;
     QnxDeployConfigurationFactory deployConfigFactory;
+    GenericQnxDeployStepFactory<RemoteLinux::GenericDirectUploadStep> directUploadDeployFactory;
+    GenericQnxDeployStepFactory<RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep> checkForFreeDiskSpaceDeployFactory;
+    GenericQnxDeployStepFactory<DeviceCheckBuildStep> checkBuildDeployFactory;
     QnxRunConfigurationFactory runConfigFactory;
     QnxSettingsPage settingsPage;
     QnxToolChainFactory toolChainFactory;
