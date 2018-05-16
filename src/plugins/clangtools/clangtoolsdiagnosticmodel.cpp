@@ -221,9 +221,15 @@ DiagnosticItem::DiagnosticItem(const Diagnostic &diag, const OnCheckedFixit &onC
 
 Qt::ItemFlags DiagnosticItem::flags(int column) const
 {
-    if (column == DiagnosticView::FixItColumn && m_diagnostic.hasFixits)
-        return TreeItem::flags(column) | Qt::ItemIsUserCheckable;
-    return TreeItem::flags(column);
+    const Qt::ItemFlags itemFlags = TreeItem::flags(column);
+    if (column == DiagnosticView::FixItColumn) {
+        if (m_diagnostic.hasFixits)
+            return itemFlags | Qt::ItemIsUserCheckable;
+        else
+            return itemFlags & ~Qt::ItemIsEnabled;
+    }
+
+    return itemFlags;
 }
 
 static QVariant locationData(int role, const Debugger::DiagnosticLocation &location)
