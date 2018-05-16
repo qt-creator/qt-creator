@@ -90,8 +90,8 @@ void QmlJSTextMark::init(bool warning, const QString message)
 {
     setIcon(warning ? Utils::Icons::CODEMODEL_WARNING.icon()
                     : Utils::Icons::CODEMODEL_ERROR.icon());
-    setColor(warning ? Utils::Theme::ClangCodeModel_Warning_TextMarkColor
-                     : Utils::Theme::ClangCodeModel_Error_TextMarkColor);
+    setColor(warning ? Utils::Theme::CodeModel_Warning_TextMarkColor
+                     : Utils::Theme::CodeModel_Error_TextMarkColor);
     setDefaultToolTip(warning ? QApplication::translate("QmlJS Code Model Marks", "Code Model Warning")
                               : QApplication::translate("QmlJS Code Model Marks", "Code Model Error"));
     setToolTip(message);
