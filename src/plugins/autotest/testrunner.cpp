@@ -142,11 +142,8 @@ static QString rcInfo(const TestConfiguration * const config)
 
 static QString constructOmittedDetailsString(const QStringList &omitted)
 {
-    QString details = TestRunner::tr("Omitted the following arguments specified on the run "
-                                     "configuration page for \"%1\":");
-    for (const QString &arg : omitted)
-        details += "\n" + arg;
-    return details;
+    return TestRunner::tr("Omitted the following arguments specified on the run "
+                          "configuration page for \"%1\":") + '\n' + omitted.join('\n');
 }
 
 static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
