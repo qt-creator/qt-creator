@@ -33,7 +33,8 @@ import tempfile
 import common
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description="Create Qt Creator package, filtering out debug information files.")
+    parser = argparse.ArgumentParser(description="Create Qt Creator package, filtering out debug information files.",
+        epilog="To sign the contents before packaging on macOS, set the SIGNING_IDENTITY and optionally the SIGNING_FLAGS environment variables.")
     parser.add_argument('--7z', help='path to 7z binary',
         default='7z.exe' if common.is_windows_platform() else '7z',
         metavar='<7z_binary>', dest='sevenzip')
@@ -52,6 +53,10 @@ def main():
     try:
         common.copytree(arguments.source_directory, tempdir, symlinks=True,
             ignore=(common.is_not_debug if arguments.debug else common.is_debug))
+        # on macOS we might have to codesign (again) to account for removed debug info
+        if not arguments.debug:
+            common.codesign(tempdir)
+        # package
         zip_source = os.path.join(tempdir, '*') if arguments.exclude_toplevel else tempdir
         subprocess.check_call([arguments.sevenzip, 'a', '-mx9',
             arguments.target_archive, zip_source])

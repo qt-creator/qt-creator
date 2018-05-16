@@ -2166,6 +2166,10 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
         watchHandler->insertItem(item);
         evaluate(exp, -1, [this, iname, exp](const QVariantMap &response) {
             handleEvaluateExpression(response, iname, exp);
+
+            // If there are no scopes, "this" may be the only thing to look up.
+            if (currentFrameScopes.isEmpty())
+                checkForFinishedUpdate();
         });
     }
 

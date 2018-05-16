@@ -60,7 +60,7 @@ NamedWidget *QnxDeployConfiguration::createConfigWidget()
 QnxDeployConfigurationFactory::QnxDeployConfigurationFactory()
 {
     registerDeployConfiguration<QnxDeployConfiguration>
-            ("Qt4ProjectManager.QNX.QNXDeployConfiguration");
+            (Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
     setDefaultDisplayName(QnxDeployConfiguration::tr("Deploy to QNX Device"));
     addSupportedTargetDeviceType(QnxDeviceFactory::deviceType());
 }

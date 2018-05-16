@@ -116,7 +116,9 @@ static void addSystemHeaderPaths(QList<ProjectExplorer::HeaderPath> &paths,
     const Utils::FileName ndkPath = AndroidConfigurations::currentConfig().ndkLocation();
 
     // Get short version (for example 4.9)
-    const QString clangVersion = version.left(version.lastIndexOf('.'));
+    auto versionNumber = QVersionNumber::fromString(version);
+    const QString clangVersion = QString("%1.%2")
+            .arg(versionNumber.majorVersion()).arg(versionNumber.minorVersion());
     Utils::FileName stdcppPath = ndkPath;
     stdcppPath.appendPath("sources/cxx-stl/gnu-libstdc++/" + clangVersion);
     Utils::FileName includePath = stdcppPath;
