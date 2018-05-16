@@ -977,10 +977,12 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         QList<DocumentMessage> warnings;
 
         if (Document::MutablePtr doc = createParsedDocument(url, data, &errors)) {
+            /* We cannot do this since changes to other documents do have side effects on the current document
             if (m_document && (m_document->fingerprint() == doc->fingerprint())) {
                 setActive(false);
                 return true;
             }
+            */
 
             snapshot.insert(doc);
             m_document = doc;

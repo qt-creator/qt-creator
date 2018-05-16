@@ -45,7 +45,7 @@ public:
     BuildStepConfigWidget *createConfigWidget() override;
 
     static Core::Id stepId();
-    static QString stepDisplayName();
+    static QString displayName();
 };
 
 } // namespace ProjectExplorer
