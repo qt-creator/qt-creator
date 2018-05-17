@@ -65,7 +65,7 @@ Controls.TextField {
     }
 
     ExtendedFunctionButton {
-        x: 2
+        x: 4
         anchors.verticalCenter: parent.verticalCenter
         backendValue: lineEdit.backendValue
         visible: lineEdit.enabled && showExtendedFunctionButton
@@ -127,7 +127,7 @@ Controls.TextField {
 
         padding.top: 2
         padding.bottom: 2
-        padding.left: 16
+        padding.left: 18
         padding.right: lineEdit.showTranslateCheckBox ? 16 : 1
         background: Rectangle {
             implicitWidth: 100
