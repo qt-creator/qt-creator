@@ -38,8 +38,6 @@ class GenericMakeStep : public ProjectExplorer::MakeStep
 
 public:
     explicit GenericMakeStep(ProjectExplorer::BuildStepList *parent, const QString &buildTarget = {});
-
-    bool init(QList<const BuildStep *> &earlierSteps) override;
 };
 
 class GenericMakeAllStepFactory : public ProjectExplorer::BuildStepFactory

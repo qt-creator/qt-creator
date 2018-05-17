@@ -89,14 +89,12 @@ void AutotoolsBuildConfiguration::initialize(const BuildInfo *info)
             configureStep, &ConfigureStep::notifyBuildDirectoryChanged);
 
     // make
-    MakeStep *makeStep = new MakeStep(buildSteps);
+    MakeStep *makeStep = new MakeStep(buildSteps, "all");
     buildSteps->insertStep(2, makeStep);
-    makeStep->setBuildTarget(QLatin1String("all"),  /*on =*/ true);
 
     // ### Build Steps Clean ###
     BuildStepList *cleanSteps = stepList(BUILDSTEPS_CLEAN);
-    MakeStep *cleanMakeStep = new MakeStep(cleanSteps);
-    cleanMakeStep->setAdditionalArguments("clean");
+    MakeStep *cleanMakeStep = new MakeStep(cleanSteps, "clean");
     cleanMakeStep->setClean(true);
     cleanSteps->insertStep(0, cleanMakeStep);
 }

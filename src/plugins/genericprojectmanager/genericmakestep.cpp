@@ -26,11 +26,7 @@
 #include "genericmakestep.h"
 #include "genericprojectconstants.h"
 
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/gnumakeparser.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
 
 using namespace ProjectExplorer;
 
@@ -42,45 +38,6 @@ const char GENERIC_MS_ID[] = "GenericProjectManager.GenericMakeStep";
 GenericMakeStep::GenericMakeStep(BuildStepList *parent, const QString &buildTarget)
     : MakeStep(parent, GENERIC_MS_ID, buildTarget, {"all", "clean"})
 {
-}
-
-bool GenericMakeStep::init(QList<const BuildStep *> &earlierSteps)
-{
-    BuildConfiguration *bc = buildConfiguration();
-    if (!bc)
-        emit addTask(Task::buildConfigurationMissingTask());
-
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    if (!tc)
-        emit addTask(Task::compilerMissingTask());
-
-    if (!bc || !tc) {
-        emitFaultyConfigurationMessage();
-        return false;
-    }
-
-    ProcessParameters *pp = processParameters();
-    pp->setMacroExpander(bc->macroExpander());
-    pp->setWorkingDirectory(bc->buildDirectory().toString());
-    Utils::Environment env = bc->environment();
-    Utils::Environment::setupEnglishOutput(&env);
-    pp->setEnvironment(env);
-    pp->setCommand(effectiveMakeCommand());
-    pp->setArguments(allArguments());
-    pp->resolveAll();
-
-    // If we are cleaning, then make can fail with an error code, but that doesn't mean
-    // we should stop the clean queue
-    // That is mostly so that rebuild works on an already clean project
-    setIgnoreReturnValue(isClean());
-
-    setOutputParser(new GnuMakeParser());
-    IOutputParser *parser = target()->kit()->createOutputParser();
-    if (parser)
-        appendOutputParser(parser);
-    outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
-
-    return AbstractProcessStep::init(earlierSteps);
 }
 
 //
