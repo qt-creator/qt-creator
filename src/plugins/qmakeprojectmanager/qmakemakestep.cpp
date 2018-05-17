@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "makestep.h"
+#include "qmakemakestep.h"
 
 #include "qmakeparser.h"
 #include "qmakeproject.h"

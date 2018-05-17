@@ -29,7 +29,7 @@
 #include "qmakeprojectmanager.h"
 #include "qmakenodes.h"
 #include "qmakestep.h"
-#include "makestep.h"
+#include "qmakemakestep.h"
 #include "qmakebuildconfiguration.h"
 #include "desktopqmakerunconfiguration.h"
 #include "wizards/guiappwizard.h"

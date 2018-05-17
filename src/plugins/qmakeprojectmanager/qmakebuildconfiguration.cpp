@@ -32,7 +32,7 @@
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakenodes.h"
 #include "qmakestep.h"
-#include "makestep.h"
+#include "qmakemakestep.h"
 #include "makefileparse.h"
 
 #include <coreplugin/documentmanager.h>

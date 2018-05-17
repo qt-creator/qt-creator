@@ -26,7 +26,7 @@
 #include "qmakestep.h"
 #include "ui_qmakestep.h"
 
-#include "makestep.h"
+#include "qmakemakestep.h"
 #include "qmakebuildconfiguration.h"
 #include "qmakekitinformation.h"
 #include "qmakenodes.h"

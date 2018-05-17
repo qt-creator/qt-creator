@@ -31,7 +31,6 @@ HEADERS += \
     wizards/subdirsprojectwizarddialog.h \
     wizards/simpleprojectwizard.h \
     qmakeprojectmanagerconstants.h \
-    makestep.h \
     qmakestep.h \
     qtmodulesinfo.h \
     qmakeprojectconfigwidget.h \
@@ -43,7 +42,8 @@ HEADERS += \
     qmakeprojectmanager_global.h \
     desktopqmakerunconfiguration.h \
     profilecompletionassist.h \
-    makefileparse.h
+    makefileparse.h \
+    qmakemakestep.h
 
 SOURCES += \
     qmakekitconfigwidget.cpp \
@@ -70,7 +70,6 @@ SOURCES += \
     wizards/subdirsprojectwizard.cpp \
     wizards/subdirsprojectwizarddialog.cpp \
     wizards/simpleprojectwizard.cpp \
-    makestep.cpp \
     qmakestep.cpp \
     qtmodulesinfo.cpp \
     qmakeprojectconfigwidget.cpp \
@@ -81,7 +80,8 @@ SOURCES += \
     librarydetailscontroller.cpp \
     desktopqmakerunconfiguration.cpp \
     profilecompletionassist.cpp \
-    makefileparse.cpp
+    makefileparse.cpp \
+    qmakemakestep.cpp
 
 FORMS += \
     qmakestep.ui \
