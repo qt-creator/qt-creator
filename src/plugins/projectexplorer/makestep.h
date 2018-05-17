@@ -64,6 +64,10 @@ public:
 
     static QString defaultDisplayName();
 
+    QString defaultMakeCommand() const;
+    static QString msgNoMakeCommand();
+    static Task makeCommandMissingTask();
+
 private:
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &map) override;

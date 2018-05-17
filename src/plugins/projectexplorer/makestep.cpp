@@ -66,11 +66,11 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
     if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    if (!tc)
-        emit addTask(Task::compilerMissingTask());
+    const QString make = effectiveMakeCommand();
+    if (make.isEmpty())
+        emit addTask(makeCommandMissingTask());
 
-    if (!bc || !tc) {
+    if (!bc || make.isEmpty()) {
         emitFaultyConfigurationMessage();
         return false;
     }
@@ -81,7 +81,7 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
     Utils::Environment env = bc->environment();
     Utils::Environment::setupEnglishOutput(&env);
     pp->setEnvironment(env);
-    pp->setCommand(effectiveMakeCommand());
+    pp->setCommand(make);
     pp->setArguments(allArguments());
     pp->resolveAll();
 
@@ -112,6 +112,29 @@ bool MakeStep::isClean() const
 QString MakeStep::defaultDisplayName()
 {
     return tr("Make");
+}
+
+QString MakeStep::defaultMakeCommand() const
+{
+    BuildConfiguration *bc = buildConfiguration();
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    if (bc && tc)
+        return tc->makeCommand(bc->environment());
+    return QString();
+}
+
+QString MakeStep::msgNoMakeCommand()
+{
+    return tr("Make command missing. Specify Make command in step configuration.");
+}
+
+Task MakeStep::makeCommandMissingTask()
+{
+    return Task(Task::Error,
+                msgNoMakeCommand(),
+                Utils::FileName(),
+                -1,
+                Constants::TASK_CATEGORY_BUILDSYSTEM);
 }
 
 void MakeStep::setMakeCommand(const QString &command)
@@ -166,11 +189,7 @@ QString MakeStep::effectiveMakeCommand() const
 {
     if (!m_makeCommand.isEmpty())
         return m_makeCommand;
-    BuildConfiguration *bc = buildConfiguration();
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    if (bc && tc)
-        return tc->makeCommand(bc->environment());
-    return QString();
+    return defaultMakeCommand();
 }
 
 BuildStepConfigWidget *MakeStep::createConfigWidget()
@@ -290,14 +309,14 @@ void MakeStepConfigWidget::updateDetails()
             = ToolChainKitInformation::toolChain(m_makeStep->target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     BuildConfiguration *bc = m_makeStep->buildConfiguration();
 
-    const QString make = tc && bc ? tc->makeCommand(bc->environment()) : QString();
-    if (make.isEmpty())
+    const QString defaultMake = m_makeStep->defaultMakeCommand();
+    if (defaultMake.isEmpty())
         m_ui->makeLabel->setText(tr("Make:"));
     else
-        m_ui->makeLabel->setText(tr("Override %1:").arg(QDir::toNativeSeparators(make)));
+        m_ui->makeLabel->setText(tr("Override %1:").arg(QDir::toNativeSeparators(defaultMake)));
 
-    if (!tc) {
-        setSummaryText(tr("<b>Make:</b> %1").arg(ProjectExplorer::ToolChainKitInformation::msgNoToolChainInTarget()));
+    if (m_makeStep->effectiveMakeCommand().isEmpty()) {
+        setSummaryText(tr("<b>Make:</b> %1").arg(MakeStep::msgNoMakeCommand()));
         return;
     }
     if (!bc) {

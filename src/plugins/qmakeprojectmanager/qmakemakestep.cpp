@@ -71,11 +71,11 @@ bool QmakeMakeStep::init(QList<const BuildStep *> &earlierSteps)
     if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    if (!tc)
-        emit addTask(Task::compilerMissingTask());
+    const QString make = effectiveMakeCommand();
+    if (make.isEmpty())
+        emit addTask(makeCommandMissingTask());
 
-    if (!bc || !tc) {
+    if (!bc || make.isEmpty()) {
         emitFaultyConfigurationMessage();
         return false;
     }
@@ -90,7 +90,7 @@ bool QmakeMakeStep::init(QList<const BuildStep *> &earlierSteps)
         workingDirectory = bc->buildDirectory().toString();
     pp->setWorkingDirectory(workingDirectory);
 
-    pp->setCommand(effectiveMakeCommand());
+    pp->setCommand(make);
 
     // If we are cleaning, then make can fail with a error code, but that doesn't mean
     // we should stop the clean queue
@@ -154,6 +154,8 @@ bool QmakeMakeStep::init(QList<const BuildStep *> &earlierSteps)
     Utils::Environment env = bc->environment();
     Utils::Environment::setupEnglishOutput(&env);
     // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(),
+                                                       ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (tc && makeCommand().isEmpty()) {
         if (tc->targetAbi().os() == Abi::WindowsOS
                 && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {
