@@ -50,28 +50,32 @@ TEST(NativeFilePathView, FilePathSlashForEmptyPath)
 
 TEST(NativeFilePathView, FilePathSlashForSingleSlash)
 {
-    NativeFilePathView filePath(native("/"));
+    Utils::PathString nativePath = native("/");
+    NativeFilePathView filePath(nativePath);
 
     ASSERT_THAT(filePath.slashIndex(), 0);
 }
 
 TEST(NativeFilePathView, FilePathSlashForFileInRoot)
 {
-    NativeFilePathView filePath(native("/file.h"));
+    Utils::PathString nativePath = native("/file.h");
+    NativeFilePathView filePath(nativePath);
 
     ASSERT_THAT(filePath.slashIndex(), 0);
 }
 
 TEST(NativeFilePathView, FilePathSlashForSomeLongerPath)
 {
-    NativeFilePathView filePath(native("/path/to/some/file.h"));
+    Utils::PathString nativePath = native("/path/to/some/file.h");
+    NativeFilePathView filePath(nativePath);
 
     ASSERT_THAT(filePath.slashIndex(), 13);
 }
 
 TEST(NativeFilePathView, FilePathSlashForFileNameOnly)
 {
-    NativeFilePathView filePath(native("file.h"));
+    Utils::PathString nativePath = native("file.h");
+    NativeFilePathView filePath(nativePath);
 
     ASSERT_THAT(filePath.slashIndex(), -1);
 }
@@ -85,14 +89,16 @@ TEST(NativeFilePathView, DirectoryPathForEmptyPath)
 
 TEST(NativeFilePathView, DirectoryPathForSingleSlashPath)
 {
-    NativeFilePathView filePath{native("/")};
+    Utils::PathString nativePath = native("/");
+    NativeFilePathView filePath(nativePath);
 
     ASSERT_THAT(filePath.directory(), "");
 }
 
 TEST(NativeFilePathView, DirectoryPathForLongerPath)
 {
-    NativeFilePathView filePath{native("/path/to/some/file.h")};
+    Utils::PathString nativePath = native("/path/to/some/file.h");
+    NativeFilePathView filePath(nativePath);
 
     ASSERT_THAT(filePath.directory(), native("/path/to/some"));
 }
@@ -113,14 +119,16 @@ TEST(NativeFilePathView, FileNameForEmptyPath)
 
 TEST(NativeFilePathView, FileNameForSingleSlashPath)
 {
-    NativeFilePathView filePath{native("/")};
+    Utils::PathString nativePath = native("/");
+    NativeFilePathView filePath(nativePath);
 
     ASSERT_THAT(filePath.name(), "");
 }
 
 TEST(NativeFilePathView, FileNameForLongerPath)
 {
-    NativeFilePathView filePath{native("/path/to/some/file.h")};
+    Utils::PathString nativePath = native("/path/to/some/file.h");
+    NativeFilePathView filePath(nativePath);
 
     ASSERT_THAT(filePath.name(), "file.h");
 }
