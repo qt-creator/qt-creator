@@ -31,12 +31,13 @@
 #include <QDialog>
 #include <QFutureWatcher>
 #include <QObject>
-#include <QProcess>
+#include <QQueue>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QDialogButtonBox;
 class QLabel;
+class QProcess;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -51,6 +52,8 @@ class TestRunner : public QObject
     Q_OBJECT
 
 public:
+    enum CancelReason { UserCanceled, Timeout };
+
     static TestRunner* instance();
     ~TestRunner();
 
@@ -72,6 +75,10 @@ private:
     void onFinished();
 
     int precheckTestConfigurations();
+    void scheduleNext();
+    void cancelCurrent(CancelReason reason);
+    void onProcessFinished();
+    void resetInternalPointers();
 
     void runTests();
     void debugTests();
@@ -79,8 +86,12 @@ private:
     explicit TestRunner(QObject *parent = 0);
 
     QFutureWatcher<TestResultPtr> m_futureWatcher;
-    QList<TestConfiguration *> m_selectedTests;
-    bool m_executingTests;
+    QFutureInterface<TestResultPtr> *m_fakeFutureInterface = nullptr;
+    QQueue<TestConfiguration *> m_selectedTests;
+    bool m_executingTests = false;
+    TestConfiguration *m_currentConfig = nullptr;
+    QProcess *m_currentProcess = nullptr;
+    TestOutputReader *m_currentOutputReader = nullptr;
     TestRunMode m_runMode = TestRunMode::Run;
 
     // temporarily used if building before running is necessary
