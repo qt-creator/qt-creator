@@ -121,8 +121,6 @@ QString MakeStep::effectiveMakeCommand() const
     if (!m_makeCommand.isEmpty())
         return m_makeCommand;
     BuildConfiguration *bc = buildConfiguration();
-    if (!bc)
-        bc = target()->activeBuildConfiguration();
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (bc && tc)
         return tc->makeCommand(bc->environment());
@@ -245,8 +243,6 @@ void MakeStepConfigWidget::updateDetails()
     ToolChain *tc
             = ToolChainKitInformation::toolChain(m_makeStep->target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     BuildConfiguration *bc = m_makeStep->buildConfiguration();
-    if (!bc)
-        bc = m_makeStep->target()->activeBuildConfiguration();
 
     const QString make = tc && bc ? tc->makeCommand(bc->environment()) : QString();
     if (make.isEmpty())

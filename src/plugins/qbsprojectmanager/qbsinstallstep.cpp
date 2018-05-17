@@ -146,8 +146,7 @@ bool QbsInstallStep::keepGoing() const
 
 const QbsBuildConfiguration *QbsInstallStep::buildConfig() const
 {
-    return static_cast<QbsBuildConfiguration *>(
-                deployConfiguration()->target()->activeBuildConfiguration());
+    return static_cast<QbsBuildConfiguration *>(buildConfiguration());
 }
 
 bool QbsInstallStep::fromMap(const QVariantMap &map)

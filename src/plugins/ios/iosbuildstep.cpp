@@ -73,8 +73,6 @@ bool IosBuildStep::init(QList<const BuildStep *> &earlierSteps)
 {
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
-        bc = target()->activeBuildConfiguration();
-    if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
@@ -140,7 +138,7 @@ QStringList IosBuildStep::defaultArguments() const
     QStringList res;
     Kit *kit = target()->kit();
     ToolChain *tc = ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    switch (target()->activeBuildConfiguration()->buildType()) {
+    switch (buildConfiguration()->buildType()) {
     case BuildConfiguration::Debug :
         res << "-configuration" << "Debug";
         break;
@@ -152,7 +150,7 @@ QStringList IosBuildStep::defaultArguments() const
         break;
     default:
         qCWarning(iosLog) << "IosBuildStep had an unknown buildType "
-                          << target()->activeBuildConfiguration()->buildType();
+                          << buildConfiguration()->buildType();
     }
     if (tc->typeId() == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
             || tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
@@ -161,7 +159,7 @@ QStringList IosBuildStep::defaultArguments() const
     }
     if (!SysRootKitInformation::sysRoot(kit).isEmpty())
         res << "-sdk" << SysRootKitInformation::sysRoot(kit).toString();
-    res << "SYMROOT=" + target()->activeBuildConfiguration()->buildDirectory().toString();
+    res << "SYMROOT=" + buildConfiguration()->buildDirectory().toString();
     return res;
 }
 
@@ -257,8 +255,6 @@ QString IosBuildStepConfigWidget::displayName() const
 void IosBuildStepConfigWidget::updateDetails()
 {
     BuildConfiguration *bc = m_buildStep->buildConfiguration();
-    if (!bc)
-        bc = m_buildStep->target()->activeBuildConfiguration();
 
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());

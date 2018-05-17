@@ -83,8 +83,6 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
 {
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
-        bc = target()->activeBuildConfiguration();
-    if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
     QList<ToolChain *> tcList = ToolChainKitInformation::toolChains(target()->kit());
@@ -227,8 +225,6 @@ QString MakeStepConfigWidget::summaryText() const
 void MakeStepConfigWidget::updateDetails()
 {
     BuildConfiguration *bc = m_makeStep->buildConfiguration();
-    if (!bc)
-        bc = m_makeStep->target()->activeBuildConfiguration();
     QList<ToolChain *> tcList = ToolChainKitInformation::toolChains(m_makeStep->target()->kit());
 
     if (!tcList.isEmpty()) {

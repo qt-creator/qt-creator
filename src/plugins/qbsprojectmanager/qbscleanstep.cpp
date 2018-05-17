@@ -70,8 +70,6 @@ bool QbsCleanStep::init(QList<const BuildStep *> &earlierSteps)
         return false;
 
     QbsBuildConfiguration *bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
-    if (!bc)
-        bc = static_cast<QbsBuildConfiguration *>(target()->activeBuildConfiguration());
 
     if (!bc)
         return false;

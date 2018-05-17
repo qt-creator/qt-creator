@@ -52,8 +52,6 @@ bool GenericMakeStep::init(QList<const BuildStep *> &earlierSteps)
 {
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
-        bc = target()->activeBuildConfiguration();
-    if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);

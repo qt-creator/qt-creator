@@ -70,8 +70,6 @@ bool QmakeMakeStep::init(QList<const BuildStep *> &earlierSteps)
 {
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     if (!bc)
-        bc = qobject_cast<QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
-    if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);

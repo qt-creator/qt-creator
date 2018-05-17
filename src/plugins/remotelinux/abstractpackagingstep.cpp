@@ -75,7 +75,7 @@ void AbstractPackagingStep::handleBuildConfigurationChanged()
 {
     if (d->currentBuildConfiguration)
         disconnect(d->currentBuildConfiguration, 0, this, 0);
-    d->currentBuildConfiguration = target()->activeBuildConfiguration();
+    d->currentBuildConfiguration = buildConfiguration();
     if (d->currentBuildConfiguration) {
         connect(d->currentBuildConfiguration, &BuildConfiguration::buildDirectoryChanged,
                 this, &AbstractPackagingStep::packageFilePathChanged);

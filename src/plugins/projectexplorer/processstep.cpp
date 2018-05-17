@@ -58,8 +58,6 @@ ProcessStep::ProcessStep(BuildStepList *bsl)
 bool ProcessStep::init(QList<const BuildStep *> &earlierSteps)
 {
     BuildConfiguration *bc = buildConfiguration();
-    if (!bc)
-        bc = target()->activeBuildConfiguration();
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc ? bc->macroExpander() : Utils::globalMacroExpander());
     pp->setEnvironment(bc ? bc->environment() : Utils::Environment::systemEnvironment());
@@ -115,7 +113,7 @@ void ProcessStep::setArguments(const QString &arguments)
 void ProcessStep::setWorkingDirectory(const QString &workingDirectory)
 {
     if (workingDirectory.isEmpty())
-        if (target()->activeBuildConfiguration())
+        if (buildConfiguration())
             m_workingDirectory = Constants::DEFAULT_WORKING_DIR;
         else
             m_workingDirectory = Constants::DEFAULT_WORKING_DIR_ALTERNATE;
@@ -163,8 +161,6 @@ ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step) :
     m_ui.workingDirectory->setExpectedKind(Utils::PathChooser::Directory);
 
     BuildConfiguration *bc = m_step->buildConfiguration();
-    if (!bc)
-        bc = m_step->target()->activeBuildConfiguration();
     Utils::Environment env = bc ? bc->environment() : Utils::Environment::systemEnvironment();
     m_ui.command->setEnvironment(env);
     m_ui.command->setPath(m_step->command());
@@ -193,8 +189,6 @@ void ProcessStepConfigWidget::updateDetails()
         displayName = tr("Custom Process Step");
     ProcessParameters param;
     BuildConfiguration *bc = m_step->buildConfiguration();
-    if (!bc) // iff the step is actually in the deploy list
-        bc = m_step->target()->activeBuildConfiguration();
     param.setMacroExpander(bc ? bc->macroExpander() : Utils::globalMacroExpander());
     param.setEnvironment(bc ? bc->environment() : Utils::Environment::systemEnvironment());
 

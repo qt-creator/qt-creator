@@ -149,8 +149,6 @@ bool QbsBuildStep::init(QList<const BuildStep *> &earlierSteps)
         return false;
 
     QbsBuildConfiguration *bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
-    if (!bc)
-        bc = static_cast<QbsBuildConfiguration *>(target()->activeBuildConfiguration());
 
     if (!bc)
         return false;
@@ -549,7 +547,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
             this, &QbsBuildStepConfigWidget::updateState);
     step->target()->subscribeSignal(&ProjectExplorer::BuildConfiguration::buildDirectoryChanged,
                                     this, [this]() {
-        if (m_step->target()->activeBuildConfiguration() == sender())
+        if (m_step->buildConfiguration() == sender())
             updateState();
     });
 

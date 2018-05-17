@@ -109,11 +109,6 @@ CMakeBuildConfiguration *CMakeBuildStep::cmakeBuildConfiguration() const
     return static_cast<CMakeBuildConfiguration *>(buildConfiguration());
 }
 
-CMakeBuildConfiguration *CMakeBuildStep::targetsActiveBuildConfiguration() const
-{
-    return static_cast<CMakeBuildConfiguration *>(target()->activeBuildConfiguration());
-}
-
 CMakeRunConfiguration *CMakeBuildStep::targetsActiveRunConfiguration() const
 {
     return qobject_cast<CMakeRunConfiguration *>(target()->activeRunConfiguration());
@@ -154,8 +149,6 @@ bool CMakeBuildStep::init(QList<const BuildStep *> &earlierSteps)
 {
     bool canInit = true;
     CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
-    if (!bc)
-        bc = targetsActiveBuildConfiguration();
     if (!bc) {
         emit addTask(Task::buildConfigurationMissingTask());
         canInit = false;
@@ -241,8 +234,6 @@ void CMakeBuildStep::run(QFutureInterface<bool> &fi)
 {
     // Make sure CMake state was written to disk before trying to build:
     CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
-    if (!bc)
-        bc = targetsActiveBuildConfiguration();
     QTC_ASSERT(bc, return);
 
     bool mustDelay = false;
@@ -535,8 +526,6 @@ void CMakeBuildStepConfigWidget::selectedBuildTargetsChanged()
 void CMakeBuildStepConfigWidget::updateDetails()
 {
     BuildConfiguration *bc = m_buildStep->buildConfiguration();
-    if (!bc)
-        bc = m_buildStep->targetsActiveBuildConfiguration();
     if (!bc) {
         m_summaryText = tr("<b>No build configuration found on this kit.</b>");
         emit updateSummary();

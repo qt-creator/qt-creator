@@ -120,7 +120,7 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     }
 
     AndroidBuildApkStep *androidBuildApkStep
-        = AndroidGlobal::buildStep<AndroidBuildApkStep>(target()->activeBuildConfiguration());
+        = AndroidGlobal::buildStep<AndroidBuildApkStep>(buildConfiguration());
     if (!androidBuildApkStep)
         emit addOutput(tr("Cannot find the android build step."), OutputFormat::Stderr);
 
@@ -137,7 +137,7 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     m_avdName = info.avdname;
     m_serialNumber = info.serialNumber;
 
-    ProjectExplorer::BuildConfiguration *bc = target()->activeBuildConfiguration();
+    ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
     m_filesToPull.clear();
     QString buildDir = bc ? bc->buildDirectory().toString() : QString();
     if (bc && !buildDir.endsWith("/")) {
@@ -390,7 +390,7 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
         emit setSerialNumber(serialNumber);
     }
 
-    if (!target()->activeBuildConfiguration()) { // nothing to deploy
+    if (!buildConfiguration()) { // nothing to deploy
         reportRunResult(fi, true);
         return;
     }

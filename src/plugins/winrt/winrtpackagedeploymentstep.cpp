@@ -95,7 +95,7 @@ bool WinRtPackageDeploymentStep::init(QList<const BuildStep *> &earlierSteps)
     ProcessParameters *params = processParameters();
     params->setCommand(QLatin1String("windeployqt.exe"));
     params->setArguments(args);
-    params->setEnvironment(target()->activeBuildConfiguration()->environment());
+    params->setEnvironment(buildConfiguration()->environment());
 
     return AbstractProcessStep::init(earlierSteps);
 }
