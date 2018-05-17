@@ -61,6 +61,8 @@ public:
     void setClean(bool clean);
     bool isClean() const;
 
+    static QString defaultDisplayName();
+
 private:
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &map) override;

@@ -54,7 +54,6 @@ const char MAKESTEP_BS_ID[] = "Qt4ProjectManager.MakeStep";
 QmakeMakeStep::QmakeMakeStep(BuildStepList *bsl)
     : MakeStep(bsl, MAKESTEP_BS_ID)
 {
-    setDefaultDisplayName(tr("Make", "Qt MakeStep display name."));
     if (bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
         setClean(true);
         setUserArguments("clean");
@@ -208,5 +207,5 @@ QmakeMakeStepFactory::QmakeMakeStepFactory()
 {
     registerStep<QmakeMakeStep>(MAKESTEP_BS_ID);
     setSupportedProjectType(Constants::QMAKEPROJECT_ID);
-    setDisplayName(tr("Make"));
+    setDisplayName(MakeStep::defaultDisplayName());
 }

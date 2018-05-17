@@ -54,6 +54,7 @@ MakeStep::MakeStep(BuildStepList *parent,
     : AbstractProcessStep(parent, id),
       m_availableTargets(availableTargets)
 {
+    setDefaultDisplayName(defaultDisplayName());
     if (!buildTarget.isEmpty())
         setBuildTarget(buildTarget, true);
 }
@@ -66,6 +67,11 @@ void MakeStep::setClean(bool clean)
 bool MakeStep::isClean() const
 {
     return m_clean;
+}
+
+QString MakeStep::defaultDisplayName()
+{
+    return tr("Make");
 }
 
 void MakeStep::setMakeCommand(const QString &command)

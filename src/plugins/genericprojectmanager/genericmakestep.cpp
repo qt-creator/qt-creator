@@ -38,14 +38,10 @@ namespace GenericProjectManager {
 namespace Internal {
 
 const char GENERIC_MS_ID[] = "GenericProjectManager.GenericMakeStep";
-const char GENERIC_MS_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("GenericProjectManager::Internal::GenericMakeStep",
-                                                     "Make");
 
 GenericMakeStep::GenericMakeStep(BuildStepList *parent, const QString &buildTarget)
     : MakeStep(parent, GENERIC_MS_ID, buildTarget, {"all", "clean"})
 {
-    setDefaultDisplayName(QCoreApplication::translate("GenericProjectManager::Internal::GenericMakeStep",
-                                                      GENERIC_MS_DISPLAY_NAME));
 }
 
 bool GenericMakeStep::init(QList<const BuildStep *> &earlierSteps)
@@ -99,8 +95,7 @@ GenericMakeAllStepFactory::GenericMakeAllStepFactory()
     };
 
     registerStep<Step>(GENERIC_MS_ID);
-    setDisplayName(QCoreApplication::translate(
-        "GenericProjectManager::Internal::GenericMakeStep", GENERIC_MS_DISPLAY_NAME));
+    setDisplayName(MakeStep::defaultDisplayName());
     setSupportedProjectType(Constants::GENERICPROJECT_ID);
     setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_BUILD,
                            ProjectExplorer::Constants::BUILDSTEPS_DEPLOY});
@@ -122,8 +117,7 @@ GenericMakeCleanStepFactory::GenericMakeCleanStepFactory()
     };
 
     registerStep<Step>(GENERIC_MS_ID);
-    setDisplayName(QCoreApplication::translate(
-        "GenericProjectManager::Internal::GenericMakeStep", GENERIC_MS_DISPLAY_NAME));
+    setDisplayName(MakeStep::defaultDisplayName());
     setSupportedProjectType(Constants::GENERICPROJECT_ID);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
 }
