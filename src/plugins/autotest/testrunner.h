@@ -71,6 +71,8 @@ private:
     void buildFinished(bool success);
     void onFinished();
 
+    int precheckTestConfigurations();
+
     void runTests();
     void debugTests();
     void runOrDebugTests();

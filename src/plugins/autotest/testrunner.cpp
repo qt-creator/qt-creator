@@ -148,32 +148,10 @@ static QString constructOmittedDetailsString(const QStringList &omitted)
 
 static void performTestRun(QFutureInterface<TestResultPtr> &futureInterface,
                            const QList<TestConfiguration *> selectedTests,
-                           const TestSettings &settings)
+                           const TestSettings &settings, int testCaseCount)
 {
     const int timeout = settings.timeout;
-    const bool omitRunConfigWarnings = settings.omitRunConfigWarn;
     QEventLoop eventLoop;
-    int testCaseCount = 0;
-    for (TestConfiguration *config : selectedTests) {
-        config->completeTestInformation(TestRunMode::Run);
-        if (config->project()) {
-            testCaseCount += config->testCaseCount();
-            if (!omitRunConfigWarnings && config->isGuessed()) {
-                QString message = TestRunner::tr(
-                            "Project's run configuration was guessed for \"%1\".\n"
-                            "This might cause trouble during execution.\n"
-                            "(guessed from \"%2\")");
-                message = message.arg(config->displayName()).arg(config->runConfigDisplayName());
-                futureInterface.reportResult(
-                            TestResultPtr(new FaultyTestResult(Result::MessageWarn, message)));
-            }
-        } else {
-            futureInterface.reportResult(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
-                TestRunner::tr("Project is null for \"%1\". Removing from test run.\n"
-                            "Check the test environment.").arg(config->displayName()))));
-        }
-    }
-
     QProcess testProcess;
     testProcess.setReadChannel(QProcess::StandardOutput);
 
@@ -355,6 +333,32 @@ static ProjectExplorer::RunConfiguration *getRunConfiguration(const QString &dia
     return runConfig;
 }
 
+int TestRunner::precheckTestConfigurations()
+{
+    const bool omitWarnings = AutotestPlugin::settings()->omitRunConfigWarn;
+    int testCaseCount = 0;
+    for (TestConfiguration *config : m_selectedTests) {
+        config->completeTestInformation(TestRunMode::Run);
+        if (config->project()) {
+            testCaseCount += config->testCaseCount();
+            if (!omitWarnings && config->isGuessed()) {
+                QString message = tr(
+                            "Project's run configuration was guessed for \"%1\".\n"
+                            "This might cause trouble during execution.\n"
+                            "(guessed from \"%2\")");
+                message = message.arg(config->displayName()).arg(config->runConfigDisplayName());
+                emit testResultReady(
+                            TestResultPtr(new FaultyTestResult(Result::MessageWarn, message)));
+            }
+        } else {
+            emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
+                tr("Project is null for \"%1\". Removing from test run.\n"
+                   "Check the test environment.").arg(config->displayName()))));
+        }
+    }
+    return testCaseCount;
+}
+
 void TestRunner::runTests()
 {
     QList<TestConfiguration *> toBeRemoved;
@@ -378,8 +382,10 @@ void TestRunner::runTests()
         return;
     }
 
+    int testCaseCount = precheckTestConfigurations();
+
     QFuture<TestResultPtr> future = Utils::runAsync(&performTestRun, m_selectedTests,
-                                                    *AutotestPlugin::settings());
+                                                    *AutotestPlugin::settings(), testCaseCount);
     m_futureWatcher.setFuture(future);
     Core::ProgressManager::addTask(future, tr("Running Tests"), Autotest::Constants::TASK_INDEX);
 }
