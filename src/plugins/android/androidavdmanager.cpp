@@ -297,6 +297,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
         return false;
     }
     QProcess *avdProcess = new QProcess();
+    avdProcess->setReadChannelMode(QProcess::MergedChannels);
     QObject::connect(avdProcess,
                      static_cast<void (QProcess::*)(int)>(&QProcess::finished),
                      avdProcess,
