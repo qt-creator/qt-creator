@@ -175,6 +175,10 @@ uint TranslationUnitUpdater::defaultParseOptions()
 {
     return CXTranslationUnit_CacheCompletionResults
          | CXTranslationUnit_PrecompiledPreamble
+#ifdef CINDEX_VERSION_HAS_LIMITSKIPFUNCTIONBODIESTOPREAMBLE_BACKPORTED
+         | CXTranslationUnit_SkipFunctionBodies
+         | CXTranslationUnit_LimitSkipFunctionBodiesToPreamble
+#endif
          | CXTranslationUnit_IncludeBriefCommentsInCodeCompletion
          | CXTranslationUnit_DetailedPreprocessingRecord
          | CXTranslationUnit_KeepGoing;
