@@ -120,7 +120,8 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
     setDisplayName("AndroidRunner");
     static const int metaTypes[] = {
         qRegisterMetaType<QVector<QStringList> >("QVector<QStringList>"),
-        qRegisterMetaType<Utils::Port>("Utils::Port")
+        qRegisterMetaType<Utils::Port>("Utils::Port"),
+        qRegisterMetaType<AndroidDeviceInfo>("Android::AndroidDeviceInfo")
     };
     Q_UNUSED(metaTypes);
 

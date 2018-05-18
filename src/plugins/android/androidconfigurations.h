@@ -232,3 +232,4 @@ private:
 
 } // namespace Android
 
+Q_DECLARE_METATYPE(Android::AndroidDeviceInfo)

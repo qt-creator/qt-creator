@@ -66,7 +66,7 @@ signals:
     void asyncStart();
     void asyncStop();
     void qmlServerReady(const QUrl &serverUrl);
-    void androidDeviceInfoChanged(const AndroidDeviceInfo &deviceInfo);
+    void androidDeviceInfoChanged(const Android::AndroidDeviceInfo &deviceInfo);
     void avdDetected();
 
 private:
