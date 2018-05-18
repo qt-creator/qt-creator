@@ -195,14 +195,15 @@ void TestRunner::scheduleNext()
     QProcessEnvironment environment = m_currentConfig->environment().toProcessEnvironment();
     if (Utils::HostOsInfo::isWindowsHost())
         environment.insert("QT_LOGGING_TO_CONSOLE", "1");
+    const int timeout = AutotestPlugin::settings()->timeout;
+    if (timeout > 5 * 60 * 1000) // Qt5.5 introduced hard limit, Qt5.6.1 added env var to raise this
+        environment.insert("QTEST_FUNCTION_TIMEOUT", QString::number(timeout));
     m_currentProcess->setProcessEnvironment(environment);
 
     connect(m_currentProcess,
             static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             this, &TestRunner::onProcessFinished);
-    QTimer::singleShot(AutotestPlugin::settings()->timeout, m_currentProcess, [this]() {
-        cancelCurrent(Timeout);
-    });
+    QTimer::singleShot(timeout, m_currentProcess, [this]() { cancelCurrent(Timeout); });
 
     m_currentProcess->start();
     if (!m_currentProcess->waitForStarted()) {
