@@ -125,6 +125,7 @@ signals:
     void recordedFeaturesChanged(quint64 features);
 
 protected:
+    void swapEventStorage(std::unique_ptr<TraceEventStorage> &other);
     virtual void clearEventStorage();
     virtual void clearTypeStorage();
 

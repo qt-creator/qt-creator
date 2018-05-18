@@ -107,6 +107,11 @@ int TimelineTraceManager::numEventTypes() const
     return d->typeStorage->size();
 }
 
+void TimelineTraceManager::swapEventStorage(std::unique_ptr<TraceEventStorage> &other)
+{
+    d->eventStorage.swap(other);
+}
+
 const TraceEventStorage *TimelineTraceManager::eventStorage() const
 {
     return d->eventStorage.get();
