@@ -247,7 +247,7 @@ void AndroidRunner::launchAVD()
     emit androidDeviceInfoChanged(info);
     if (info.isValid()) {
         AndroidAvdManager avdManager;
-        if (avdManager.findAvd(info.avdname).isEmpty()) {
+        if (!info.avdname.isEmpty() && avdManager.findAvd(info.avdname).isEmpty()) {
             bool launched = avdManager.startAvdAsync(info.avdname);
             m_launchedAVDName = launched ? info.avdname:"";
         } else {
