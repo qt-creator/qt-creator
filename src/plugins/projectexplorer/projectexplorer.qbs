@@ -87,7 +87,7 @@ Project {
                 "ldparser.cpp", "ldparser.h",
                 "linuxiccparser.cpp", "linuxiccparser.h",
                 "localenvironmentaspect.cpp", "localenvironmentaspect.h",
-                "makestep.cpp", "makestep.h",
+                "makestep.cpp", "makestep.h", "makestep.ui",
                 "miniprojecttargetselector.cpp", "miniprojecttargetselector.h",
                 "msvcparser.cpp", "msvcparser.h",
                 "namedwidget.cpp", "namedwidget.h",
