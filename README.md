@@ -251,11 +251,11 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
 
    1. Clone LLVM and checkout a suitable branch
 
-          git clone -b release_60-based git://code.qt.io/clang/llvm.git
+          git clone -b release_60-based https://code.qt.io/clang/llvm
 
    2. Clone Clang into llvm/tools/clang and checkout a suitable branch
 
-          git clone -b release_60-based git://code.qt.io/clang/clang.git llvm/tools/clang
+          git clone -b release_60-based https://code.qt.io/clang/clang llvm/tools/clang
 
    3. Build and install LLVM/Clang
 
