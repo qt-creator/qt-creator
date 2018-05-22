@@ -75,10 +75,13 @@ public:
         {
             if (readFile->open(QIODevice::ReadOnly)) {
                 readStream->setDevice(readFile.get());
-                if (readStream->atEnd())
+                if (readStream->atEnd()) {
                     streamAtEnd = true;
-                else
+                } else {
                     (*readStream) >> nextEvent;
+                    if (readPastEnd())
+                        streamAtEnd = true;
+                }
                 return true;
             }
             streamAtEnd = true;
@@ -107,6 +110,8 @@ public:
 
             const Event result = std::move(nextEvent);
             (*readStream) >> nextEvent;
+            if (readPastEnd())
+                streamAtEnd = true;
             return result;
         }
 
