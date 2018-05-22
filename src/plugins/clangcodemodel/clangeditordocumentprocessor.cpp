@@ -556,11 +556,7 @@ private:
 
     void addGlobalDiagnosticOptions()
     {
-        m_options.append({
-            // Avoid undesired warnings from e.g. Q_OBJECT
-            QStringLiteral("-Wno-unknown-pragmas"),
-            QStringLiteral("-Wno-unknown-warning-option")
-        });
+        m_options += CppTools::ClangDiagnosticConfigsModel::globalDiagnosticOptions();
     }
 
     void addGlobalOptions()

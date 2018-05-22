@@ -165,6 +165,15 @@ QVector<Core::Id> ClangDiagnosticConfigsModel::changedOrRemovedConfigs(
     return changedConfigs;
 }
 
+QStringList ClangDiagnosticConfigsModel::globalDiagnosticOptions()
+{
+    return {
+        // Avoid undesired warnings from e.g. Q_OBJECT
+        QStringLiteral("-Wno-unknown-pragmas"),
+        QStringLiteral("-Wno-unknown-warning-option")
+    };
+}
+
 int ClangDiagnosticConfigsModel::indexOfConfig(const Core::Id &id) const
 {
     return Utils::indexOf(m_diagnosticConfigs, [&](const ClangDiagnosticConfig &config) {
