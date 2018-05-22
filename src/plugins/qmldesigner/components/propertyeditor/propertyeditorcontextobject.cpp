@@ -33,6 +33,7 @@
 
 #include <coreplugin/messagebox.h>
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QQmlContext>
 
@@ -135,15 +136,13 @@ QStringList PropertyEditorContextObject::autoComplete(const QString &text, int p
 
 void PropertyEditorContextObject::toogleExportAlias()
 {
-    if (!m_model || !m_model->rewriterView())
-        return;
+    QTC_ASSERT(m_model && m_model->rewriterView(), return);
 
     /* Ideally we should not missuse the rewriterView
      * If we add more code here we have to forward the property editor view */
     RewriterView *rewriterView = m_model->rewriterView();
 
-    if (rewriterView->selectedModelNodes().isEmpty())
-        return;
+    QTC_ASSERT(!rewriterView->selectedModelNodes().isEmpty(), return);
 
     const ModelNode selectedNode = rewriterView->selectedModelNodes().constFirst();
 
@@ -174,15 +173,13 @@ void PropertyEditorContextObject::toogleExportAlias()
 void PropertyEditorContextObject::changeTypeName(const QString &typeName)
 {
 
-    if (!m_model || !m_model->rewriterView())
-        return;
+    QTC_ASSERT(m_model && m_model->rewriterView(), return);
 
     /* Ideally we should not missuse the rewriterView
      * If we add more code here we have to forward the property editor view */
     RewriterView *rewriterView = m_model->rewriterView();
 
-    if (rewriterView->selectedModelNodes().isEmpty())
-        return;
+    QTC_ASSERT(!rewriterView->selectedModelNodes().isEmpty(), return);
 
     ModelNode selectedNode = rewriterView->selectedModelNodes().constFirst();
 
@@ -210,15 +207,13 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
 
 void PropertyEditorContextObject::insertKeyframe(const QString &propertyName)
 {
-    if (!m_model || !m_model->rewriterView())
-        return;
+    QTC_ASSERT(m_model && m_model->rewriterView(), return);
 
     /* Ideally we should not missuse the rewriterView
      * If we add more code here we have to forward the property editor view */
     RewriterView *rewriterView = m_model->rewriterView();
 
-    if (rewriterView->selectedModelNodes().isEmpty())
-        return;
+    QTC_ASSERT(!rewriterView->selectedModelNodes().isEmpty(), return);
 
     ModelNode selectedNode = rewriterView->selectedModelNodes().constFirst();
 

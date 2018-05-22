@@ -83,8 +83,8 @@ ClangTextMark::ClangTextMark(const FileName &fileName,
     updateIcon();
     if (fullVisualization) {
         setLineAnnotation(Utils::diagnosticCategoryPrefixRemoved(diagnostic.text.toString()));
-        setColor(warning ? ::Utils::Theme::ClangCodeModel_Warning_TextMarkColor
-                         : ::Utils::Theme::ClangCodeModel_Error_TextMarkColor);
+        setColor(warning ? ::Utils::Theme::CodeModel_Warning_TextMarkColor
+                         : ::Utils::Theme::CodeModel_Error_TextMarkColor);
     }
 }
 

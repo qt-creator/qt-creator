@@ -5363,15 +5363,13 @@ void TextEditorWidgetPrivate::updateCurrentLineInScrollbar()
 {
     if (m_highlightCurrentLine && m_highlightScrollBarController) {
         m_highlightScrollBarController->removeHighlights(Constants::SCROLL_BAR_CURRENT_LINE);
-        if (m_highlightScrollBarController->scrollBar()->maximum() > 0) {
-            const QTextCursor &tc = q->textCursor();
-            if (QTextLayout *layout = tc.block().layout()) {
-                const int pos = q->textCursor().block().firstLineNumber() +
-                        layout->lineForTextPosition(tc.positionInBlock()).lineNumber();
-                m_highlightScrollBarController->addHighlight({Constants::SCROLL_BAR_CURRENT_LINE, pos,
-                                                    Theme::TextEditor_CurrentLine_ScrollBarColor,
-                                                    Highlight::HighestPriority});
-            }
+        const QTextCursor &tc = q->textCursor();
+        if (QTextLayout *layout = tc.block().layout()) {
+            const int pos = q->textCursor().block().firstLineNumber() +
+                    layout->lineForTextPosition(tc.positionInBlock()).lineNumber();
+            m_highlightScrollBarController->addHighlight({Constants::SCROLL_BAR_CURRENT_LINE, pos,
+                                                          Theme::TextEditor_CurrentLine_ScrollBarColor,
+                                                          Highlight::HighestPriority});
         }
     }
 }

@@ -33,8 +33,10 @@ Controls.SpinBox {
     property color textColor: colorLogic.textColor
     property variant backendValue;
 
+    implicitWidth: 74
+
     ExtendedFunctionButton {
-        x: 2
+        x: 4
         anchors.verticalCenter: parent.verticalCenter
         backendValue: spinBox.backendValue
         visible: spinBox.enabled
@@ -59,4 +61,5 @@ Controls.SpinBox {
 
     style: CustomSpinBoxStyle {
     }
+
 }

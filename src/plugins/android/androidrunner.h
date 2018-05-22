@@ -26,7 +26,6 @@
 #pragma once
 
 #include "androidconfigurations.h"
-#include "androidrunnable.h"
 
 #include <projectexplorer/runconfiguration.h>
 #include <qmldebug/qmldebugcommandlinearguments.h>
@@ -67,7 +66,7 @@ signals:
     void asyncStart();
     void asyncStop();
     void qmlServerReady(const QUrl &serverUrl);
-    void androidDeviceInfoChanged(const AndroidDeviceInfo &deviceInfo);
+    void androidDeviceInfoChanged(const Android::AndroidDeviceInfo &deviceInfo);
     void avdDetected();
 
 private:
@@ -80,7 +79,7 @@ private:
     void checkAVD();
     void launchAVD();
 
-    AndroidRunnable m_androidRunnable;
+    QString m_packageName;
     QString m_launchedAVDName;
     QThread m_thread;
     QTimer m_checkAVDTimer;

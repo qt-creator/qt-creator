@@ -86,8 +86,6 @@ Project {
             "androidrunconfiguration.h",
             "androidruncontrol.cpp",
             "androidruncontrol.h",
-            "androidrunnable.cpp",
-            "androidrunnable.h",
             "androidrunner.cpp",
             "androidrunner.h",
             "androidrunnerworker.cpp",

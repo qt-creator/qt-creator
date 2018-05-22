@@ -701,6 +701,11 @@ void Project::createTargetFromMap(const QVariantMap &map, int index)
     Target *t = restoreTarget(targetMap);
     if (!t)
         return;
+    if (t->runConfigurations().isEmpty() && t->buildConfigurations().isEmpty()) {
+        delete t;
+        return;
+    }
+
 
     addTarget(t);
 }

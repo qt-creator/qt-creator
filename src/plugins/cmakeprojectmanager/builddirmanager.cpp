@@ -196,6 +196,12 @@ void BuildDirManager::setParametersAndRequestParse(const BuildDirParameters &par
                                                    int newReaderReparseOptions,
                                                    int existingReaderReparseOptions)
 {
+    if (!parameters.cmakeTool) {
+        TaskHub::addTask(Task::Error,
+                         tr("The kit needs to define a CMake tool to parse this project."),
+                         ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+        return;
+    }
     QTC_ASSERT(parameters.isValid(), return);
 
     if (m_reader)

@@ -34,7 +34,6 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-#include <QCoreApplication>
 #include <QFileInfo>
 
 #include <cmath>
@@ -61,8 +60,13 @@ ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(QObject *parent)
 
 void ClangToolsDiagnosticModel::addDiagnostics(const QList<Diagnostic> &diagnostics)
 {
-    foreach (const Diagnostic &d, diagnostics)
-        rootItem()->appendChild(new DiagnosticItem(d));
+    const auto onFixItChanged = [this](bool checked){
+        m_fixItsToApplyCount += checked ? +1 : -1;
+        emit fixItsToApplyCountChanged(m_fixItsToApplyCount);
+    };
+
+    for (const Diagnostic &d : diagnostics)
+        rootItem()->appendChild(new DiagnosticItem(d, onFixItChanged));
 }
 
 QList<Diagnostic> ClangToolsDiagnosticModel::diagnostics() const
@@ -199,7 +203,9 @@ static QString fullText(const Diagnostic &diagnostic)
 }
 
 
-DiagnosticItem::DiagnosticItem(const Diagnostic &diag) : m_diagnostic(diag)
+DiagnosticItem::DiagnosticItem(const Diagnostic &diag, const OnCheckedFixit &onCheckedFixit)
+    : m_diagnostic(diag)
+    , m_onCheckedFixit(onCheckedFixit)
 {
     // Don't show explaining steps if they add no information.
     if (diag.explainingSteps.count() == 1) {
@@ -214,21 +220,15 @@ DiagnosticItem::DiagnosticItem(const Diagnostic &diag) : m_diagnostic(diag)
 
 Qt::ItemFlags DiagnosticItem::flags(int column) const
 {
-    if (column == DiagnosticView::FixItColumn && m_diagnostic.hasFixits)
-        return TreeItem::flags(column) | Qt::ItemIsUserCheckable;
-    return TreeItem::flags(column);
-}
-
-static QVariant locationData(int role, const Debugger::DiagnosticLocation &location)
-{
-    switch (role) {
-    case Debugger::DetailedErrorView::LocationRole:
-        return QVariant::fromValue(location);
-    case Qt::ToolTipRole:
-        return location.filePath.isEmpty() ? QVariant() : QVariant(location.filePath);
-    default:
-        return QVariant();
+    const Qt::ItemFlags itemFlags = TreeItem::flags(column);
+    if (column == DiagnosticView::FixItColumn) {
+        if (m_diagnostic.hasFixits)
+            return itemFlags | Qt::ItemIsUserCheckable;
+        else
+            return itemFlags & ~Qt::ItemIsEnabled;
     }
+
+    return itemFlags;
 }
 
 static QVariant iconData(const QString &type)
@@ -247,7 +247,7 @@ static QVariant iconData(const QString &type)
 QVariant DiagnosticItem::data(int column, int role) const
 {
     if (column == Debugger::DetailedErrorView::LocationColumn)
-        return locationData(role, m_diagnostic.location);
+        return Debugger::DetailedErrorView::locationData(role, m_diagnostic.location);
 
     if (column == DiagnosticView::FixItColumn) {
         if (role == Qt::CheckStateRole)
@@ -277,6 +277,8 @@ bool DiagnosticItem::setData(int column, const QVariant &data, int role)
     if (column == DiagnosticView::FixItColumn && role == Qt::CheckStateRole) {
         m_applyFixits = data.value<Qt::CheckState>() == Qt::Checked ? true : false;
         update();
+        if (m_onCheckedFixit)
+            m_onCheckedFixit(m_applyFixits);
         return true;
     }
 
@@ -290,7 +292,7 @@ ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step) : m_step(step
 QVariant ExplainingStepItem::data(int column, int role) const
 {
     if (column == Debugger::DetailedErrorView::LocationColumn)
-        return locationData(role, m_step.location);
+        return Debugger::DetailedErrorView::locationData(role, m_step.location);
 
     if (column == DiagnosticView::FixItColumn)
         return QVariant();

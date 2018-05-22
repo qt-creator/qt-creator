@@ -19,7 +19,7 @@ include($$PWD/../../../src/shared/clang/clang_defines.pri)
 include($$PWD/../../../src/tools/clangbackend/source/clangbackendclangipc-source.pri)
 include($$PWD/../../../src/plugins/clangcodemodel/clangcodemodelunittestfiles.pri)
 } else {
-DEFINES += CLANG_VERSION=\\\"5.0.0\\\"
+DEFINES += CLANG_VERSION=\\\"6.0.0\\\"
 DEFINES += "\"CLANG_RESOURCE_DIR=\\\"/usr/include\\\"\""
 }
 

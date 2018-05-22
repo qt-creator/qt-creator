@@ -173,24 +173,16 @@ ErrorItem::ErrorItem(const ErrorListModel *model, const Error &error)
     }
 }
 
-static QVariant location(const Frame &frame, int role)
+static QVariant locationData(int role, const Frame &frame)
 {
-    switch (role) {
-    case Debugger::DetailedErrorView::LocationRole:
-        return QVariant::fromValue(Debugger::DiagnosticLocation(frame.filePath(), frame.line(), 0));
-    case Qt::ToolTipRole:
-        return frame.filePath().isEmpty() ? QVariant() : QVariant(frame.filePath());
-    default:
-        return QVariant();
-    }
+    const Debugger::DiagnosticLocation location(frame.filePath(), frame.line(), 0);
+    return Debugger::DetailedErrorView::locationData(role, location);
 }
 
 QVariant ErrorItem::data(int column, int role) const
 {
-    if (column == Debugger::DetailedErrorView::LocationColumn) {
-        const Frame frame = m_model->findRelevantFrame(m_error);
-        return location(frame, role);
-    }
+    if (column == Debugger::DetailedErrorView::LocationColumn)
+        return locationData(role, m_model->findRelevantFrame(m_error));
 
     // DiagnosticColumn
     switch (role) {
@@ -243,7 +235,7 @@ QVariant StackItem::data(int column, int role) const
 {
     const ErrorItem * const errorItem = getErrorItem();
     if (column == Debugger::DetailedErrorView::LocationColumn)
-        return location(errorItem->modelPrivate()->findRelevantFrame(errorItem->error()), role);
+        return locationData(role, errorItem->modelPrivate()->findRelevantFrame(errorItem->error()));
 
     // DiagnosticColumn
     switch (role) {
@@ -271,7 +263,7 @@ FrameItem::FrameItem(const Frame &frame) : m_frame(frame)
 QVariant FrameItem::data(int column, int role) const
 {
     if (column == Debugger::DetailedErrorView::LocationColumn)
-        return location(m_frame, role);
+        return locationData(role, m_frame);
 
     // DiagnosticColumn
     switch (role) {

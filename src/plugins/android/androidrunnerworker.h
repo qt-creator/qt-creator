@@ -26,11 +26,11 @@
 
 #pragma once
 
+#include <projectexplorer/runconfiguration.h>
+
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <QFuture>
-
-#include "androidrunnable.h"
 
 namespace Android {
 
@@ -44,7 +44,7 @@ class AndroidRunnerWorker : public QObject
 {
     Q_OBJECT
 public:
-    AndroidRunnerWorker(ProjectExplorer::RunWorker *runner, const AndroidRunnable &runnable);
+    AndroidRunnerWorker(ProjectExplorer::RunWorker *runner, const QString &packageName);
     ~AndroidRunnerWorker() override;
     bool adbShellAmNeedsQuotes();
     bool runAdb(const QStringList &args, int timeoutS = 10);
@@ -85,8 +85,10 @@ protected:
 
     // Create the processes and timer in the worker thread, for correct thread affinity
     bool m_isPreNougat = false;
-    AndroidRunnable m_androidRunnable;
+    QString m_packageName;
     QString m_intentName;
+    QStringList m_beforeStartAdbCommands;
+    QStringList m_afterFinishAdbCommands;
     QString m_adb;
     QStringList m_amStartExtraArgs;
     qint64 m_processPID = -1;

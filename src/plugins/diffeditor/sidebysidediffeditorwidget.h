@@ -95,6 +95,7 @@ private:
     void rightHSliderChanged();
     void leftCursorPositionChanged();
     void rightCursorPositionChanged();
+    void syncHorizontalScrollBarPolicy();
     void handlePositionChange(SideDiffEditorWidget *source, SideDiffEditorWidget *dest);
     void syncCursor(SideDiffEditorWidget *source, SideDiffEditorWidget *dest);
 

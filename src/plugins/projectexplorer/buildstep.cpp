@@ -337,22 +337,4 @@ BuildStep *BuildStepFactory::restore(BuildStepList *parent, const QVariantMap &m
     return bs;
 }
 
-BuildStep *BuildStepFactory::clone(BuildStepList *parent, BuildStep *product)
-{
-    if ((m_info.flags & BuildStepInfo::Unclonable) != 0)
-        return nullptr;
-    if (m_info.id != product->id())
-        return nullptr;
-    BuildStep *bs = m_info.creator(parent);
-    if (!bs)
-        return nullptr;
-    const QVariantMap map = product->toMap();
-    if (!bs->fromMap(map)) {
-        QTC_CHECK(false);
-        delete bs;
-        return nullptr;
-    }
-    return bs;
-}
-
 } // ProjectExplorer

@@ -120,7 +120,8 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
     setDisplayName("AndroidRunner");
     static const int metaTypes[] = {
         qRegisterMetaType<QVector<QStringList> >("QVector<QStringList>"),
-        qRegisterMetaType<Utils::Port>("Utils::Port")
+        qRegisterMetaType<Utils::Port>("Utils::Port"),
+        qRegisterMetaType<AndroidDeviceInfo>("Android::AndroidDeviceInfo")
     };
     Q_UNUSED(metaTypes);
 
@@ -128,21 +129,10 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
     connect(&m_checkAVDTimer, &QTimer::timeout, this, &AndroidRunner::checkAVD);
 
     QString intent = intentName.isEmpty() ? AndroidManager::intentName(m_target) : intentName;
-    m_androidRunnable.packageName = intent.left(intent.indexOf('/'));
-
-    RunConfiguration *rc = runControl->runConfiguration();
-    if (auto aspect = rc->extraAspect(Constants::ANDROID_PRESTARTSHELLCMDLIST_ASPECT)) {
-        for (QString shellCmd : static_cast<BaseStringListAspect *>(aspect)->value())
-            m_androidRunnable.beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
-    }
-
-    if (auto aspect = rc->extraAspect(Constants::ANDROID_POSTSTARTSHELLCMDLIST_ASPECT)) {
-        for (QString shellCmd : static_cast<BaseStringListAspect *>(aspect)->value())
-            m_androidRunnable.afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
-    }
+    m_packageName = intent.left(intent.indexOf('/'));
 
     const int apiLevel = AndroidManager::deviceApiLevel(m_target);
-    m_worker.reset(new AndroidRunnerWorker(this, m_androidRunnable));
+    m_worker.reset(new AndroidRunnerWorker(this, m_packageName));
     m_worker->setIntentName(intent);
     m_worker->setIsPreNougat(apiLevel <= 23);
     m_worker->setExtraAppParams(extraAppParams);
@@ -193,7 +183,7 @@ void AndroidRunner::stop()
 {
     if (m_checkAVDTimer.isActive()) {
         m_checkAVDTimer.stop();
-        appendMessage("\n\n" + tr("\"%1\" terminated.").arg(m_androidRunnable.packageName),
+        appendMessage("\n\n" + tr("\"%1\" terminated.").arg(m_packageName),
                       Utils::DebugFormat);
         return;
     }
@@ -258,7 +248,7 @@ void AndroidRunner::launchAVD()
     emit androidDeviceInfoChanged(info);
     if (info.isValid()) {
         AndroidAvdManager avdManager;
-        if (avdManager.findAvd(info.avdname).isEmpty()) {
+        if (!info.avdname.isEmpty() && avdManager.findAvd(info.avdname).isEmpty()) {
             bool launched = avdManager.startAvdAsync(info.avdname);
             m_launchedAVDName = launched ? info.avdname:"";
         } else {

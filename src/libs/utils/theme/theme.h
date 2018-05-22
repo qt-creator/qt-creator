@@ -212,6 +212,11 @@ public:
         IconsCodeModelOverlayBackgroundColor,
         IconsCodeModelOverlayForegroundColor,
 
+        /* Code model text marks */
+
+        CodeModel_Error_TextMarkColor,
+        CodeModel_Warning_TextMarkColor,
+
         /* Output panes */
 
         OutputPanes_DebugTextColor,
@@ -286,10 +291,6 @@ public:
         /* ProjectExplorer Plugin */
         ProjectExplorer_TaskError_TextMarkColor,
         ProjectExplorer_TaskWarn_TextMarkColor,
-
-        /* ClangCodeModel Plugin */
-        ClangCodeModel_Error_TextMarkColor,
-        ClangCodeModel_Warning_TextMarkColor,
 
         /* QmlDesigner Plugin */
         QmlDesigner_BackgroundColor,
