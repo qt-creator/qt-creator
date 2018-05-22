@@ -46,6 +46,7 @@ private:
 
     QList<QAction *> customActions() const;
     bool eventFilter(QObject *watched, QEvent *event) override;
+    void setModel(QAbstractItemModel *model) override;
 
     QAction *m_suppressAction;
 };

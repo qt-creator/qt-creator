@@ -97,6 +97,12 @@ static QString createDiagnosticToolTipString(const Diagnostic &diagnostic)
                      diagnostic.type.toHtmlEscaped());
     }
 
+    if (!diagnostic.description.isEmpty()) {
+        lines << qMakePair(
+                     QCoreApplication::translate("ClangTools::Diagnostic", "Description:"),
+                     diagnostic.description.toHtmlEscaped());
+    }
+
     if (!diagnostic.issueContext.isEmpty() && !diagnostic.issueContextKind.isEmpty()) {
         lines << qMakePair(
                      QCoreApplication::translate("ClangTools::Diagnostic", "Context:"),
