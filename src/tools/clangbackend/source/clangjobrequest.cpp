@@ -26,10 +26,8 @@
 #include "clangjobrequest.h"
 
 #include "clangcompletecodejob.h"
-#include "clangcreateinitialdocumentpreamblejob.h"
 #include "clangfollowsymboljob.h"
 #include "clangparsesupportivetranslationunitjob.h"
-#include "clangreparsesupportivetranslationunitjob.h"
 #include "clangrequestdocumentannotationsjob.h"
 #include "clangrequestreferencesjob.h"
 #include "clangrequesttooltipjob.h"
@@ -60,8 +58,6 @@ static const char *JobRequestTypeToText(JobRequest::Type type)
         RETURN_TEXT_FOR_CASE(UpdateDocumentAnnotations);
         RETURN_TEXT_FOR_CASE(UpdateExtraDocumentAnnotations);
         RETURN_TEXT_FOR_CASE(ParseSupportiveTranslationUnit);
-        RETURN_TEXT_FOR_CASE(ReparseSupportiveTranslationUnit);
-        RETURN_TEXT_FOR_CASE(CreateInitialDocumentPreamble);
         RETURN_TEXT_FOR_CASE(CompleteCode);
         RETURN_TEXT_FOR_CASE(RequestDocumentAnnotations);
         RETURN_TEXT_FOR_CASE(RequestReferences);
@@ -196,11 +192,9 @@ bool JobRequest::isTakeOverable() const
     // anyway.
     case Type::UpdateDocumentAnnotations:
     case Type::UpdateExtraDocumentAnnotations:
-    case Type::CreateInitialDocumentPreamble:
 
     // Discard these as they only make sense in a row. Avoid splitting them up.
     case Type::ParseSupportiveTranslationUnit:
-    case Type::ReparseSupportiveTranslationUnit:
 
     case Type::Invalid:
         return false;
@@ -231,10 +225,6 @@ IAsyncJob *JobRequest::createJob() const
         return new UpdateExtraDocumentAnnotationsJob();
     case JobRequest::Type::ParseSupportiveTranslationUnit:
         return new ParseSupportiveTranslationUnitJob();
-    case JobRequest::Type::ReparseSupportiveTranslationUnit:
-        return new ReparseSupportiveTranslationUnitJob();
-    case JobRequest::Type::CreateInitialDocumentPreamble:
-        return new CreateInitialDocumentPreambleJob();
     case JobRequest::Type::CompleteCode:
         return new CompleteCodeJob();
     case JobRequest::Type::RequestDocumentAnnotations:
@@ -264,8 +254,6 @@ void JobRequest::cancelJob(ClangCodeModelClientInterface &client) const
     case JobRequest::Type::UpdateDocumentAnnotations:
     case JobRequest::Type::UpdateExtraDocumentAnnotations:
     case JobRequest::Type::ParseSupportiveTranslationUnit:
-    case JobRequest::Type::ReparseSupportiveTranslationUnit:
-    case JobRequest::Type::CreateInitialDocumentPreamble:
     case JobRequest::Type::RequestDocumentAnnotations:
     case JobRequest::Type::SuspendDocument:
     case JobRequest::Type::ResumeDocument:

@@ -104,7 +104,6 @@ SOURCES += \
     clangcodemodelserver-test.cpp \
     clangcompletecodejob-test.cpp \
     clangcompletioncontextanalyzer-test.cpp \
-    clangcreateinitialdocumentpreamblejob-test.cpp \
     clangdiagnosticfilter-test.cpp \
     clangdocumentprocessors-test.cpp \
     clangdocumentprocessor-test.cpp \
@@ -118,7 +117,6 @@ SOURCES += \
     clangjobs-test.cpp \
     clangparsesupportivetranslationunitjob-test.cpp \
     clangreferencescollector-test.cpp \
-    clangreparsesupportivetranslationunitjob-test.cpp \
     clangrequestdocumentannotationsjob-test.cpp \
     clangrequestreferencesjob-test.cpp \
     clangresumedocumentjob-test.cpp \

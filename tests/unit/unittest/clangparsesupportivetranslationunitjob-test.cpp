@@ -66,23 +66,4 @@ TEST_F(ParseSupportiveTranslationUnitJobSlowTest, RunAsync)
     ASSERT_TRUE(waitUntilJobFinished(job));
 }
 
-TEST_F(ParseSupportiveTranslationUnitJobSlowTest, DoNotIncorporateUpdaterResult)
-{
-    const TimePoint parseTimePointBefore = parseTimePointOfDocument();
-    job.setContext(jobContext);
-    job.prepareAsyncRun();
-
-    job.runAsync();
-
-    ASSERT_TRUE(waitUntilJobFinished(job));
-    ASSERT_THAT(parseTimePointOfDocument(), Eq(parseTimePointBefore));
-}
-
-TimePoint ParseSupportiveTranslationUnitJob::parseTimePointOfDocument()
-{
-    const Utf8String translationUnitId = document.translationUnit().id();
-
-    return document.translationUnits().parseTimePoint(translationUnitId);
-}
-
 } // anonymous

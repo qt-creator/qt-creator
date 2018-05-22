@@ -82,29 +82,13 @@ void SupportiveTranslationUnitInitializer::checkIfParseJobFinished(const Jobs::R
         return;
 
     if (job.jobRequest.type == JobRequest::Type::ParseSupportiveTranslationUnit) {
-        m_jobs.setJobFinishedCallback([this](const Jobs::RunningJob &runningJob) {
-            checkIfReparseJobFinished(runningJob);
-        });
-
-        addJob(JobRequest::Type::ReparseSupportiveTranslationUnit);
-
-        m_state = State::WaitingForReparseJob;
-    }
-}
-
-void SupportiveTranslationUnitInitializer::checkIfReparseJobFinished(const Jobs::RunningJob &job)
-{
-    if (!checkStateAndDocument(State::WaitingForReparseJob))
-        return;
-
-    if (job.jobRequest.type == JobRequest::Type::ReparseSupportiveTranslationUnit) {
         if (m_document.translationUnits().areAllTranslationUnitsParsed()) {
             m_jobs.setJobFinishedCallback(nullptr);
             m_state = State::Initialized;
         } else {
-            // The supportive translation unit was reparsed, but the document
+            // The supportive translation unit was parsed, but the document
             // revision changed in the meanwhile, so try again.
-            addJob(JobRequest::Type::ReparseSupportiveTranslationUnit);
+            addJob(JobRequest::Type::ParseSupportiveTranslationUnit);
         }
     }
 }

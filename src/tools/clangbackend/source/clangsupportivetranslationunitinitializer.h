@@ -40,7 +40,6 @@ public:
     enum class State {
         NotInitialized,
         WaitingForParseJob,
-        WaitingForReparseJob,
         Initialized,
         Aborted
     };
@@ -57,7 +56,6 @@ public:
 public: // for tests
     void setState(const State &state);
     void checkIfParseJobFinished(const Jobs::RunningJob &job);
-    void checkIfReparseJobFinished(const Jobs::RunningJob &job);
 
 private:
     bool checkStateAndDocument(State currentExpectedState);

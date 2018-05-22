@@ -481,7 +481,6 @@ void ClangCodeModelServer::processInitialJobsForDocuments(const std::vector<Docu
         DocumentProcessor processor = documentProcessors().processor(document);
         processor.addJob(JobRequest::Type::UpdateDocumentAnnotations);
         processor.addJob(JobRequest::Type::UpdateExtraDocumentAnnotations);
-        processor.addJob(JobRequest::Type::CreateInitialDocumentPreamble);
         processor.process();
     }
 }
