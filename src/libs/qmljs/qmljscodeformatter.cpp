@@ -290,7 +290,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             if (tryInsideExpression())
                 break;
             switch (kind) {
-            case Comma:
+            case Comma:             leave(true); break;
             case Delimiter:         enter(expression_continuation); break;
             case RightBracket:
             case RightParenthesis:  leave(); continue;
@@ -342,11 +342,11 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             if (tryInsideExpression())
                 break;
             switch (kind) {
+            case Comma:             leave(); break;
             case Delimiter:         enter(expression_continuation); break;
             case RightBracket:
             case RightParenthesis:  leave(); continue; // error recovery
             case RightBrace:        leave(); continue; // so we also leave objectliteral_open
-            case Comma:             leave(); break;
             } break;
 
         case bracket_element_start:
