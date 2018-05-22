@@ -36,6 +36,7 @@ Module {
         Property { name: "additionalProductTypes"; type: "string"; isList: true }
         Property { name: "condition"; type: "bool" }
         Property { name: "name"; type: "string" }
+        Property { name: "prefixMapping"; type: "QVariant" }
         Property { name: "present"; type: "bool" }
         Property { name: "setupBuildEnvironment"; type: "QVariant" }
         Property { name: "setupRunEnvironment"; type: "QVariant" }
@@ -114,7 +115,6 @@ Module {
         Property { name: "multiplexed"; type: "bool" }
         Property { name: "multiplexedType"; type: "string"; isList: true }
         Property { name: "name"; type: "string" }
-        Property { name: "profile"; type: "string" }
         Property { name: "profiles"; type: "string"; isList: true }
         Property { name: "qbsSearchPaths"; type: "string"; isList: true }
         Property { name: "targetName"; type: "string" }
@@ -146,6 +146,7 @@ Module {
         name: "Properties"
         exports: [ "qbs/Properties 1.0" ]
         prototype: "QQuickItem"
+        Property { name: "condition"; type: "bool" }
     }
     Component {
         name: "PropertyOptions"
@@ -164,7 +165,9 @@ Module {
         Property { name: "auxiliaryInputs"; type: "string"; isList: true }
         Property { name: "condition"; type: "bool" }
         Property { name: "excludedAuxiliaryInputs"; type: "string"; isList: true }
+        Property { name: "excludedInputs"; type: "string"; isList: true }
         Property { name: "explicitlyDependsOn"; type: "string"; isList: true }
+        Property { name: "explicitlyDependsOnFromDependencies"; type: "string"; isList: true }
         Property { name: "inputs"; type: "string"; isList: true }
         Property { name: "inputsFromDependencies"; type: "string"; isList: true }
         Property { name: "multiplex"; type: "bool" }
