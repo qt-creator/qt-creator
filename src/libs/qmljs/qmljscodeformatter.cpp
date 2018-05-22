@@ -177,6 +177,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case Property:      enter(property_start); break;
             case Function:      enter(function_start); break;
             case Signal:        enter(signal_start); break;
+            case Enum:          enter(enum_start); break;
             case On:
             case As:
             case List:
@@ -213,6 +214,11 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             switch (kind) {
             case Colon:         turnInto(binding_assignment); break;
             default:            leave(true); continue;
+            } break;
+
+        case enum_start:
+            switch (kind) {
+            case LeftBrace: enter(objectliteral_open); break;
             } break;
 
         case signal_start:
@@ -931,6 +937,8 @@ CodeFormatter::TokenKind CodeFormatter::extendedTokenKind(const QmlJS::Token &to
             return On;
         if (text == QLatin1String("list"))
             return List;
+        if (text == QLatin1String("enum"))
+            return Enum;
     } else if (kind == Keyword) {
         const char char1 = text.at(0).toLatin1();
         const char char2 = text.at(1).toLatin1();

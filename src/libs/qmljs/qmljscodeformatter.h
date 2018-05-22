@@ -109,6 +109,8 @@ public: // must be public to make Q_GADGET introspection work
         property_name, // after the type
         property_maybe_initializer, // after the identifier
 
+        enum_start, // after 'enum'
+
         signal_start, // after 'signal'
         signal_maybe_arglist, // after identifier
         signal_arglist_open, // after '('
@@ -197,6 +199,7 @@ protected:
         Comma,
         Dot,
         Delimiter,
+        RegExp,
 
         EndOfExistingTokenKinds,
 
@@ -209,6 +212,7 @@ protected:
         Delete,
         Do,
         Else,
+        Enum,
         Finally,
         For,
         Function,
