@@ -39,34 +39,6 @@
 
 namespace CppTools {
 
-static void connectToClangDiagnosticConfigsDialog(QPushButton *button)
-{
-    QObject::connect(button, &QPushButton::clicked, []() {
-        ClangDiagnosticConfigsWidget *widget = new ClangDiagnosticConfigsWidget;
-        widget->layout()->setMargin(0);
-        QDialog dialog;
-        dialog.setWindowTitle(widget->tr("Diagnostic Configurations"));
-        dialog.setLayout(new QVBoxLayout);
-        dialog.layout()->addWidget(widget);
-        auto *buttonsBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-        dialog.layout()->addWidget(buttonsBox);
-        QObject::connect(buttonsBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-        QObject::connect(buttonsBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
-
-        QObject::connect(&dialog, &QDialog::accepted, [widget]() {
-            QSharedPointer<CppCodeModelSettings> settings = codeModelSettings();
-            const ClangDiagnosticConfigs oldDiagnosticConfigs
-                    = settings->clangCustomDiagnosticConfigs();
-            const ClangDiagnosticConfigs currentDiagnosticConfigs = widget->customConfigs();
-            if (oldDiagnosticConfigs != currentDiagnosticConfigs) {
-                settings->setClangCustomDiagnosticConfigs(currentDiagnosticConfigs);
-                settings->toSettings(Core::ICore::settings());
-            }
-        });
-        dialog.exec();
-    });
-}
-
 ClangDiagnosticConfigsSelectionWidget::ClangDiagnosticConfigsSelectionWidget(QWidget *parent)
     : QWidget(parent)
     , m_label(new QLabel(tr("Diagnostic Configuration:"), this))
@@ -137,6 +109,34 @@ void ClangDiagnosticConfigsSelectionWidget::refresh(Core::Id id)
 void ClangDiagnosticConfigsSelectionWidget::showLabel(bool show)
 {
     m_label->setVisible(show);
+}
+
+void ClangDiagnosticConfigsSelectionWidget::connectToClangDiagnosticConfigsDialog(QPushButton *button)
+{
+    connect(button, &QPushButton::clicked, [this]() {
+        ClangDiagnosticConfigsWidget *widget = new ClangDiagnosticConfigsWidget(currentConfigId());
+        widget->layout()->setMargin(0);
+        QDialog dialog;
+        dialog.setWindowTitle(widget->tr("Diagnostic Configurations"));
+        dialog.setLayout(new QVBoxLayout);
+        dialog.layout()->addWidget(widget);
+        auto *buttonsBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        dialog.layout()->addWidget(buttonsBox);
+        connect(buttonsBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+        connect(buttonsBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+        connect(&dialog, &QDialog::accepted, [widget]() {
+            QSharedPointer<CppCodeModelSettings> settings = codeModelSettings();
+            const ClangDiagnosticConfigs oldDiagnosticConfigs
+                    = settings->clangCustomDiagnosticConfigs();
+            const ClangDiagnosticConfigs currentDiagnosticConfigs = widget->customConfigs();
+            if (oldDiagnosticConfigs != currentDiagnosticConfigs) {
+                settings->setClangCustomDiagnosticConfigs(currentDiagnosticConfigs);
+                settings->toSettings(Core::ICore::settings());
+            }
+        });
+        dialog.exec();
+    });
 }
 
 } // CppTools namespace

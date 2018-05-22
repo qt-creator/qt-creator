@@ -55,7 +55,7 @@ class CPPTOOLS_EXPORT ClangDiagnosticConfigsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ClangDiagnosticConfigsWidget(QWidget *parent = nullptr);
+    explicit ClangDiagnosticConfigsWidget(const Core::Id &configToSelect, QWidget *parent = nullptr);
     ~ClangDiagnosticConfigsWidget() override;
 
     ClangDiagnosticConfigs customConfigs() const;

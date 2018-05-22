@@ -43,7 +43,8 @@
 
 namespace CppTools {
 
-ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(QWidget *parent)
+ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(const Core::Id &configToSelect,
+                                                           QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::ClangDiagnosticConfigsWidget)
     , m_diagnosticConfigsModel(codeModelSettings()->clangCustomDiagnosticConfigs())
@@ -61,7 +62,7 @@ ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(QWidget *parent)
             this, &ClangDiagnosticConfigsWidget::onRemoveButtonClicked);
     connectDiagnosticOptionsChanged();
 
-    syncWidgetsToModel();
+    syncWidgetsToModel(configToSelect);
 }
 
 ClangDiagnosticConfigsWidget::~ClangDiagnosticConfigsWidget()
