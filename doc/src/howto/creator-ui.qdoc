@@ -604,7 +604,7 @@
     This section describes the cases where the behavior of \QC depends on the
     operating system it runs on.
 
-    \section2 Locations of Functions
+    \section2 Location of Functions
 
     \QC uses standard names and locations for standard features, such as
     \e options or \e preferences. In this manual, the names and locations on
@@ -627,6 +627,47 @@
             \li \uicontrol {Qt Creator} > \uicontrol Preferences > \uicontrol Environment >
                 \uicontrol Keyboard
     \endtable
+
+    \section2 Location of Settings Files
+
+    \QC creates the following files and directories:
+
+    \list
+
+        \li QtCreator.db
+
+        \li QtCreator.ini
+
+        \li qtversion.xml
+
+        \li toolChains.xml
+
+        \li qtcreator
+
+        \li qtc-qmldump
+
+    \endlist
+
+    The location of the above files and directories depends on the platform:
+
+    \list
+
+        \li On Linux and other Unix platforms, the files are located in
+            \c {~/.config/QtProject} and
+            \c {~/.local/share/data/QtProject/qtcreator}.
+
+        \li On \macos, the files are located in \c {~/.config/QtProject} and
+            \c {~/Library/Application Support/QtProject/Qt Creator}.
+
+        \li On Windows XP, the files are located in
+            \c {%SystemDrive%\Documents and Settings\%USERNAME%\Application Data\QtProject} and
+            \c {%SystemDrive%\Documents and Settings\%USERNAME%\Local Settings\Application Data\QtProject}.
+
+        \li On Windows 7, the files are located in
+            \c {%SystemDrive%\Users\%USERNAME%\AppData\Roaming\QtProject} and
+            \c {%SystemDrive%\Users\%USERNAME%\AppData\Local\QtProject}.
+
+    \endlist
 
     \section2 High DPI Scaling
 
