@@ -32,15 +32,30 @@
 #include <utils/tooltip/tooltip.h>
 
 #include <QApplication>
+#include <QDesktopServices>
 #include <QDesktopWidget>
 #include <QFileInfo>
 #include <QHash>
 #include <QLabel>
+#include <QUrl>
 
 using namespace ClangCodeModel;
 using Internal::ClangDiagnosticWidget;
 
 namespace {
+
+// CLANG-UPGRADE-CHECK: Checks/update URLs.
+//
+// For tidy, upgrade the version in the URL. Note that we cannot use the macro
+// CLANG_VERSION here because it might denote a version that was not yet
+// released (e.g. 6.0.1, but only 6.0.0 was released).
+//
+// For clazy, once it gets dedicated documentation pages for released versions,
+// use them instead of pointing to master, as checks might vanish.
+const char TIDY_DOCUMENTATION_URL_TEMPLATE[]
+    = "https://releases.llvm.org/6.0.0/tools/clang/tools/extra/docs/clang-tidy/checks/%1.html";
+const char CLAZY_DOCUMENTATION_URL_TEMPLATE[]
+    = "https://github.com/KDE/clazy/blob/master/docs/checks/README-%1.md";
 
 const char LINK_ACTION_GOTO_LOCATION[] = "#gotoLocation";
 const char LINK_ACTION_APPLY_FIX[] = "#applyFix";
@@ -130,12 +145,15 @@ private:
         QObject::connect(label, &QLabel::linkActivated, [table, hideToolTipAfterLinkActivation]
                          (const QString &action) {
             const ClangBackEnd::DiagnosticContainer diagnostic = table.value(action);
-            QTC_ASSERT(diagnostic != ClangBackEnd::DiagnosticContainer(), return);
 
-            if (action.startsWith(LINK_ACTION_APPLY_FIX))
+            if (diagnostic == ClangBackEnd::DiagnosticContainer())
+                QDesktopServices::openUrl(QUrl(action));
+            else if (action.startsWith(LINK_ACTION_GOTO_LOCATION))
+                openEditorAt(diagnostic);
+            else if (action.startsWith(LINK_ACTION_APPLY_FIX))
                 applyFixit(diagnostic);
             else
-                openEditorAt(diagnostic);
+                QTC_CHECK(!"Link target cannot be handled.");
 
             if (hideToolTipAfterLinkActivation)
                 Utils::ToolTip::hideImmediately();
@@ -156,6 +174,8 @@ private:
 
         return text;
     }
+
+    static bool isClazyOption(const QString &option) { return option.startsWith("-Wclazy"); }
 
     class DiagnosticTextInfo
     {
@@ -188,7 +208,7 @@ private:
                 return QString();
 
             const int index = m_squareBracketStartIndex + 1;
-            if (m_text.midRef(index).startsWith("-Wclazy"))
+            if (isClazyOption(m_text.mid(index)))
                 return QCoreApplication::translate("ClangDiagnosticWidget", "Clazy Issue");
             else
                 return QCoreApplication::translate("ClangDiagnosticWidget", "Clang-Tidy Issue");
@@ -245,6 +265,39 @@ private:
         return text;
     }
 
+    static QString documentationUrlForOption(const Utf8String &optionAsUtf8String)
+    {
+        if (optionAsUtf8String.isEmpty())
+            return QString();
+
+        QString option = optionAsUtf8String.toString();
+
+        // Clazy
+        if (isClazyOption(option)) {
+            option = optionAsUtf8String.mid(8); // Remove "-Wclazy-" prefix.
+            return QString::fromUtf8(CLAZY_DOCUMENTATION_URL_TEMPLATE).arg(option);
+        }
+
+        // Clang itself
+        if (option.startsWith("-W"))
+            return QString();
+
+        // Clang-Tidy
+        return QString::fromUtf8(TIDY_DOCUMENTATION_URL_TEMPLATE).arg(option);
+    }
+
+    static QString maybeClickableOption(const Utf8String &option)
+    {
+        if (option.isEmpty())
+            return option;
+
+        const QString link = documentationUrlForOption(option);
+        if (link.isEmpty())
+            return QString();
+
+        return wrapInLink(option.toString(), link);
+    }
+
     static QString diagnosticCategoryAndEnableOptionRow(
             const ClangBackEnd::DiagnosticContainer &diagnostic)
     {
@@ -253,7 +306,7 @@ private:
             "    <td align='left'><b>%1</b></td>"
             "    <td align='right'>&nbsp;<font color='gray'>%2</font></td>"
             "  </tr>")
-            .arg(diagnostic.category, diagnostic.enableOption);
+            .arg(diagnostic.category, maybeClickableOption(diagnostic.enableOption));
 
         return text;
     }
