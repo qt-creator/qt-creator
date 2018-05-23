@@ -212,8 +212,8 @@ private:
     static ClangBackEnd::DiagnosticContainer supplementedDiagnostic(
         const ClangBackEnd::DiagnosticContainer &diagnostic)
     {
-        if (!diagnostic.category.isEmpty() && !diagnostic.enableOption.isEmpty())
-            return diagnostic; // OK, diagnostics from clang have this set.
+        if (!diagnostic.category.isEmpty())
+            return diagnostic; // OK, diagnostics from clang itself have this set.
 
         ClangBackEnd::DiagnosticContainer supplementedDiagnostic = diagnostic;
 
