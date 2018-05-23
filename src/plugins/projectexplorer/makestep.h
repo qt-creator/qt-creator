@@ -68,6 +68,8 @@ public:
     static QString msgNoMakeCommand();
     static Task makeCommandMissingTask();
 
+    Utils::Environment environment(BuildConfiguration *bc) const;
+
 private:
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &map) override;

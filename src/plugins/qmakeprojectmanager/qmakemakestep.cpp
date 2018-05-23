@@ -151,24 +151,13 @@ bool QmakeMakeStep::init(QList<const BuildStep *> &earlierSteps)
                 subProFile->objectExtension();
         Utils::QtcProcess::addArg(&args, objectFile);
     }
-    Utils::Environment env = bc->environment();
-    Utils::Environment::setupEnglishOutput(&env);
-    // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(),
-                                                       ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    if (tc && makeCommand().isEmpty()) {
-        if (tc->targetAbi().os() == Abi::WindowsOS
-                && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {
-            const QString makeFlags = "MAKEFLAGS";
-            env.set(makeFlags, 'L' + env.value(makeFlags));
-        }
-    }
-
-    pp->setEnvironment(env);
+    pp->setEnvironment(environment(bc));
     pp->setArguments(args);
     pp->resolveAll();
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(),
+                                                       ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (tc && tc->targetAbi().os() == Abi::DarwinOS)
         appendOutputParser(new XcodebuildParser);
     IOutputParser *parser = target()->kit()->createOutputParser();

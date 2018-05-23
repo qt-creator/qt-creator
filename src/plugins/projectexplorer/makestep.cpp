@@ -78,9 +78,7 @@ bool MakeStep::init(QList<const BuildStep *> &earlierSteps)
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setWorkingDirectory(bc->buildDirectory().toString());
-    Utils::Environment env = bc->environment();
-    Utils::Environment::setupEnglishOutput(&env);
-    pp->setEnvironment(env);
+    pp->setEnvironment(environment(bc));
     pp->setCommand(make);
     pp->setArguments(allArguments());
     pp->resolveAll();
@@ -119,7 +117,7 @@ QString MakeStep::defaultMakeCommand() const
     BuildConfiguration *bc = buildConfiguration();
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (bc && tc)
-        return tc->makeCommand(bc->environment());
+        return tc->makeCommand(environment(bc));
     return QString();
 }
 
@@ -135,6 +133,23 @@ Task MakeStep::makeCommandMissingTask()
                 Utils::FileName(),
                 -1,
                 Constants::TASK_CATEGORY_BUILDSYSTEM);
+}
+
+Utils::Environment MakeStep::environment(BuildConfiguration *bc) const
+{
+    Utils::Environment env = bc ? bc->environment() : Utils::Environment::systemEnvironment();
+    Utils::Environment::setupEnglishOutput(&env);
+    if (makeCommand().isEmpty()) {
+        // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
+        ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(),
+                                                           ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+        if (tc && tc->targetAbi().os() == Abi::WindowsOS
+                && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {
+            const QString makeFlags = "MAKEFLAGS";
+            env.set(makeFlags, 'L' + env.value(makeFlags));
+        }
+    }
+    return env;
 }
 
 void MakeStep::setMakeCommand(const QString &command)
@@ -305,8 +320,6 @@ void MakeStepConfigWidget::setSummaryText(const QString &text)
 
 void MakeStepConfigWidget::updateDetails()
 {
-    ToolChain *tc
-            = ToolChainKitInformation::toolChain(m_makeStep->target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     BuildConfiguration *bc = m_makeStep->buildConfiguration();
 
     const QString defaultMake = m_makeStep->defaultMakeCommand();
@@ -329,19 +342,8 @@ void MakeStepConfigWidget::updateDetails()
     param.setWorkingDirectory(bc->buildDirectory().toString());
     param.setCommand(m_makeStep->effectiveMakeCommand());
 
-    Utils::Environment env = bc->environment();
-    Utils::Environment::setupEnglishOutput(&env);
-    // We prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
-    // FIXME doing this without the user having a way to override this is rather bad
-    if (tc && m_makeStep->makeCommand().isEmpty()) {
-        if (tc->targetAbi().os() == Abi::WindowsOS
-                && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {
-            const QString makeFlags = "MAKEFLAGS";
-            env.set(makeFlags, 'L' + env.value(makeFlags));
-        }
-    }
     param.setArguments(m_makeStep->allArguments());
-    param.setEnvironment(env);
+    param.setEnvironment(m_makeStep->environment(bc));
 
     if (param.commandMissing())
         setSummaryText(tr("<b>Make:</b> %1 not found in the environment.").arg(param.command())); // Override display text
