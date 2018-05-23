@@ -337,6 +337,7 @@ void QmlCppEngine::continueInferior()
 void QmlCppEngine::interruptInferior()
 {
     EDEBUG("\nMASTER INTERRUPT INFERIOR");
+    m_activeEngine->setState(InferiorStopRequested);
     m_activeEngine->interruptInferior();
 }
 
