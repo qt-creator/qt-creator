@@ -230,6 +230,11 @@ DiagnosticItem::DiagnosticItem(const Diagnostic &diag, const OnFixitStatusChange
         appendChild(new ExplainingStepItem(s));
 }
 
+DiagnosticItem::~DiagnosticItem()
+{
+    setFixitOperations(ReplacementOperations());
+}
+
 Qt::ItemFlags DiagnosticItem::flags(int column) const
 {
     const Qt::ItemFlags itemFlags = TreeItem::flags(column);
@@ -338,9 +343,10 @@ void DiagnosticItem::setFixItStatus(const FixitStatus &status)
         m_onFixitStatusChanged(status);
 }
 
-FixitStatus DiagnosticItem::fixItStatus() const
+void DiagnosticItem::setFixitOperations(const ReplacementOperations &replacements)
 {
-    return m_fixitStatus;
+    qDeleteAll(m_fixitOperations);
+    m_fixitOperations = replacements;
 }
 
 ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step) : m_step(step)

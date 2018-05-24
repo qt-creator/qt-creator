@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "clangfixitsrefactoringchanges.h"
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolsprojectsettings.h"
 
@@ -56,11 +57,15 @@ class DiagnosticItem : public Utils::TreeItem
 public:
     using OnFixitStatusChanged = std::function<void(FixitStatus newStatus)>;
     DiagnosticItem(const Diagnostic &diag, const OnFixitStatusChanged &onFixitStatusChanged);
+    ~DiagnosticItem() override;
 
     Diagnostic diagnostic() const { return m_diagnostic; }
 
-    FixitStatus fixItStatus() const;
+    FixitStatus fixItStatus() const { return m_fixitStatus; }
     void setFixItStatus(const FixitStatus &status);
+
+    ReplacementOperations &fixitOperations() { return m_fixitOperations; }
+    void setFixitOperations(const ReplacementOperations &replacements);
 
 private:
     Qt::ItemFlags flags(int column) const override;
@@ -69,8 +74,10 @@ private:
 
 private:
     const Diagnostic m_diagnostic;
-    FixitStatus m_fixitStatus = FixitStatus::NotAvailable;
     OnFixitStatusChanged m_onFixitStatusChanged;
+
+    ReplacementOperations  m_fixitOperations;
+    FixitStatus m_fixitStatus = FixitStatus::NotAvailable;
 };
 
 class ClangToolsDiagnosticModel : public Utils::TreeModel<>

@@ -25,6 +25,7 @@
 
 #include "clangtidyclazytool.h"
 
+#include "clangfixitsrefactoringchanges.h"
 #include "clangselectablefilesdialog.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolsdiagnosticmodel.h"
@@ -50,8 +51,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
 
-#include <texteditor/refactoringchanges.h>
-
 #include <utils/fancylineedit.h>
 #include <utils/utilsicons.h>
 
@@ -75,9 +74,9 @@ public:
     class RefactoringFileInfo
     {
     public:
-        bool isValid() const { return file; }
+        bool isValid() const { return file.isValid(); }
 
-        TextEditor::RefactoringFilePtr file;
+        FixitsRefactoringFile file;
         QVector<DiagnosticItem *> diagnosticItems;
         bool hasScheduledFixits = false;
     };
@@ -91,7 +90,7 @@ public:
             // Get or create refactoring file
             RefactoringFileInfo &fileInfo = m_refactoringFileInfos[filePath];
             if (!fileInfo.isValid())
-                fileInfo.file = m_changes.file(filePath);
+                fileInfo.file = FixitsRefactoringFile(filePath);
 
             // Append item
             fileInfo.diagnosticItems += diagnosticItem;
@@ -100,61 +99,90 @@ public:
         }
     }
 
-
-    static bool addChanges(TextEditor::RefactoringFilePtr file,
-                           const Diagnostic &diagnostic,
-                           ChangeSet &changeSet)
+    static void addFixitOperations(DiagnosticItem *diagnosticItem,
+                                   const FixitsRefactoringFile &file, bool apply)
     {
-        for (const ExplainingStep &step : diagnostic.explainingSteps) {
+        // Did we already created the fixit operations?
+        ReplacementOperations currentOps = diagnosticItem->fixitOperations();
+        if (!currentOps.isEmpty()) {
+            for (ReplacementOperation *op : currentOps)
+                op->apply = apply;
+            return;
+        }
+
+        // Collect/construct the fixit operations
+        ReplacementOperations replacements;
+
+        for (const ExplainingStep &step : diagnosticItem->diagnostic().explainingSteps) {
             if (!step.isFixIt)
                 continue;
 
             const Debugger::DiagnosticLocation start = step.ranges.first();
             const Debugger::DiagnosticLocation end = step.ranges.last();
-            const bool operationAdded = changeSet.replace(file->position(start.line, start.column),
-                                                          file->position(end.line, end.column),
-                                                          step.message);
-            if (!operationAdded)
-                return false;
+            const int startPos = file.position(start.line, start.column);
+            const int endPos = file.position(end.line, end.column);
+
+            auto op = new ReplacementOperation;
+            op->pos = startPos;
+            op->length = endPos - startPos;
+            op->text = step.message;
+            op->apply = apply;
+
+            replacements += op;
         }
 
-        return true;
+        diagnosticItem->setFixitOperations(replacements);
     }
 
     void apply()
     {
-        for (auto i = m_refactoringFileInfos.begin(); i != m_refactoringFileInfos.end(); ++i) {
-            const RefactoringFileInfo &fileInfo = i.value();
+        for (auto it = m_refactoringFileInfos.begin(); it != m_refactoringFileInfos.end(); ++it) {
+            RefactoringFileInfo &fileInfo = it.value();
 
-            QVector<DiagnosticItem *> itemsSucceeded;
-            QVector<DiagnosticItem *> itemsFailed;
-            QVector<DiagnosticItem *> itemsInvalidated;
+            QVector<DiagnosticItem *> itemsScheduledOrSchedulable;
+            QVector<DiagnosticItem *> itemsScheduled;
+            QVector<DiagnosticItem *> itemsSchedulable;
 
-            // Construct change set
+            // Construct refactoring operations
             for (DiagnosticItem *diagnosticItem : fileInfo.diagnosticItems) {
                 const FixitStatus fixItStatus = diagnosticItem->fixItStatus();
-                if (fixItStatus == FixitStatus::Scheduled) {
-                    ChangeSet changeSet = fileInfo.file->changeSet();
-                    if (addChanges(fileInfo.file, diagnosticItem->diagnostic(), changeSet))
-                        itemsSucceeded += diagnosticItem;
-                    else // Ops, some fixits might have overlapping ranges.
-                        itemsFailed += diagnosticItem;
-                    fileInfo.file->setChangeSet(changeSet);
-                } else if (fileInfo.hasScheduledFixits && fixItStatus == FixitStatus::NotScheduled) {
-                    itemsInvalidated += diagnosticItem;
+
+                const bool isScheduled = fixItStatus == FixitStatus::Scheduled;
+                const bool isSchedulable = fileInfo.hasScheduledFixits
+                                           && fixItStatus == FixitStatus::NotScheduled;
+
+                if (isScheduled || isSchedulable) {
+                    addFixitOperations(diagnosticItem, fileInfo.file, isScheduled);
+                    itemsScheduledOrSchedulable += diagnosticItem;
+                    if (isScheduled)
+                        itemsScheduled += diagnosticItem;
+                    else
+                        itemsSchedulable += diagnosticItem;
                 }
             }
 
+            // Collect replacements
+            ReplacementOperations ops;
+            for (DiagnosticItem *item : itemsScheduledOrSchedulable)
+                ops += item->fixitOperations();
+
             // Apply file
-            if (!fileInfo.file->apply()) {
-                itemsSucceeded.clear();
-                itemsFailed = fileInfo.diagnosticItems;
+            QVector<DiagnosticItem *> itemsApplied;
+            QVector<DiagnosticItem *> itemsFailedToApply;
+            QVector<DiagnosticItem *> itemsInvalidated;
+
+            fileInfo.file.setReplacements(ops);
+            if (fileInfo.file.apply()) {
+                itemsApplied = itemsScheduled;
+            } else {
+                itemsFailedToApply = itemsScheduled;
+                itemsInvalidated = itemsSchedulable;
             }
 
             // Update DiagnosticItem state
-            for (DiagnosticItem *diagnosticItem : itemsSucceeded)
+            for (DiagnosticItem *diagnosticItem : itemsScheduled)
                 diagnosticItem->setFixItStatus(FixitStatus::Applied);
-            for (DiagnosticItem *diagnosticItem : itemsFailed)
+            for (DiagnosticItem *diagnosticItem : itemsFailedToApply)
                 diagnosticItem->setFixItStatus(FixitStatus::FailedToApply);
             for (DiagnosticItem *diagnosticItem : itemsInvalidated)
                 diagnosticItem->setFixItStatus(FixitStatus::Invalidated);
@@ -162,7 +190,6 @@ public:
     }
 
 private:
-    TextEditor::RefactoringChanges m_changes;
     QMap<QString, RefactoringFileInfo> m_refactoringFileInfos;
 };
 
