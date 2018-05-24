@@ -131,8 +131,8 @@ TeaLeafReader::TeaLeafReader()
     connect(EditorManager::instance(), &EditorManager::aboutToSave,
             this, [this](const IDocument *document) {
         if (m_cmakeFiles.contains(document->filePath())
-                || !m_parameters.cmakeTool
-                || !m_parameters.cmakeTool->isAutoRun())
+                || !m_parameters.cmakeTool()
+                || !m_parameters.cmakeTool()->isAutoRun())
             emit dirty();
     });
 
@@ -154,9 +154,9 @@ TeaLeafReader::~TeaLeafReader()
 
 bool TeaLeafReader::isCompatible(const BuildDirParameters &p)
 {
-    if (!p.cmakeTool)
+    if (!p.cmakeTool())
         return false;
-    return !p.cmakeTool->hasServerMode();
+    return !p.cmakeTool()->hasServerMode();
 }
 
 void TeaLeafReader::resetData()
@@ -409,7 +409,8 @@ void TeaLeafReader::cleanUpProcess()
 
 void TeaLeafReader::extractData()
 {
-    QTC_ASSERT(m_parameters.isValid() && m_parameters.cmakeTool, return);
+    CMakeTool *cmake = m_parameters.cmakeTool();
+    QTC_ASSERT(m_parameters.isValid() && cmake, return);
 
     const FileName srcDir = m_parameters.sourceDirectory;
     const FileName bldDir = m_parameters.workDirectory;
@@ -436,7 +437,7 @@ void TeaLeafReader::extractData()
     // setFolderName
     CMakeCbpParser cbpparser;
     // Parsing
-    if (!cbpparser.parseCbpFile(m_parameters.cmakeTool->pathMapper(), cbpFile, srcDir))
+    if (!cbpparser.parseCbpFile(cmake->pathMapper(), cbpFile, srcDir))
         return;
 
     m_projectName = cbpparser.projectName();
@@ -461,7 +462,8 @@ void TeaLeafReader::extractData()
 
 void TeaLeafReader::startCMake(const QStringList &configurationArguments)
 {
-    QTC_ASSERT(m_parameters.isValid() && m_parameters.cmakeTool, return);
+    CMakeTool *cmake = m_parameters.cmakeTool();
+    QTC_ASSERT(m_parameters.isValid() && cmake, return);
 
     const FileName workDirectory = m_parameters.workDirectory;
     QTC_ASSERT(!m_cmakeProcess, return);
@@ -506,7 +508,7 @@ void TeaLeafReader::startCMake(const QStringList &configurationArguments)
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
     MessageManager::write(tr("Running \"%1 %2\" in %3.")
-                          .arg(m_parameters.cmakeTool->cmakeExecutable().toUserOutput())
+                          .arg(cmake->cmakeExecutable().toUserOutput())
                           .arg(args)
                           .arg(workDirectory.toUserOutput()));
 
@@ -516,7 +518,7 @@ void TeaLeafReader::startCMake(const QStringList &configurationArguments)
                              tr("Configuring \"%1\"").arg(m_parameters.projectName),
                              "CMake.Configure");
 
-    m_cmakeProcess->setCommand(m_parameters.cmakeTool->cmakeExecutable().toString(), args);
+    m_cmakeProcess->setCommand(cmake->cmakeExecutable().toString(), args);
     emit configurationStarted();
     m_cmakeProcess->start();
 }

@@ -46,6 +46,7 @@ public:
     BuildDirParameters(const BuildDirParameters &other);
 
     bool isValid() const;
+    CMakeTool *cmakeTool() const;
 
     CMakeBuildConfiguration *buildConfiguration = nullptr;
     QString projectName;
@@ -54,7 +55,7 @@ public:
     Utils::FileName buildDirectory;
     Utils::FileName workDirectory; // either buildDirectory or a QTemporaryDirectory!
     Utils::Environment environment;
-    CMakeTool *cmakeTool = nullptr;
+    Core::Id cmakeToolId;
 
     QByteArray cxxToolChainId;
     QByteArray cToolChainId;

@@ -98,13 +98,14 @@ ServerModeReader::~ServerModeReader()
 
 void ServerModeReader::setParameters(const BuildDirParameters &p)
 {
-    QTC_ASSERT(p.cmakeTool, return);
+    CMakeTool *cmake = p.cmakeTool();
+    QTC_ASSERT(cmake, return);
 
     BuildDirReader::setParameters(p);
     if (!m_cmakeServer) {
         m_cmakeServer.reset(new ServerMode(p.environment,
                                            p.sourceDirectory, p.workDirectory,
-                                           p.cmakeTool->cmakeExecutable(),
+                                           cmake->cmakeExecutable(),
                                            p.generator, p.extraGenerator, p.platform, p.toolset,
                                            true, 1));
         connect(m_cmakeServer.get(), &ServerMode::errorOccured,
@@ -139,15 +140,17 @@ void ServerModeReader::setParameters(const BuildDirParameters &p)
 
 bool ServerModeReader::isCompatible(const BuildDirParameters &p)
 {
-    if (!p.cmakeTool)
+    CMakeTool *newCmake = p.cmakeTool();
+    CMakeTool *oldCmake = m_parameters.cmakeTool();
+    if (!newCmake || !oldCmake)
         return false;
 
     // Server mode connection got lost, reset...
-    if (!m_parameters.cmakeTool->cmakeExecutable().isEmpty() && !m_cmakeServer)
+    if (!oldCmake && oldCmake->cmakeExecutable().isEmpty() && !m_cmakeServer)
         return false;
 
-    return p.cmakeTool->hasServerMode()
-            && p.cmakeTool->cmakeExecutable() == m_parameters.cmakeTool->cmakeExecutable()
+    return newCmake->hasServerMode()
+            && newCmake->cmakeExecutable() == oldCmake->cmakeExecutable()
             && p.environment == m_parameters.environment
             && p.generator == m_parameters.generator
             && p.extraGenerator == m_parameters.extraGenerator

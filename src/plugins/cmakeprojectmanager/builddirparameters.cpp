@@ -27,6 +27,7 @@
 
 #include "cmakebuildconfiguration.h"
 #include "cmakekitinformation.h"
+#include "cmaketoolmanager.h"
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
@@ -53,7 +54,7 @@ BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
 
     environment = bc->environment();
 
-    cmakeTool = CMakeKitInformation::cmakeTool(k);
+    cmakeToolId = CMakeKitInformation::cmakeToolId(k);
 
     auto tc = ToolChainKitInformation::toolChain(k, Constants::CXX_LANGUAGE_ID);
     if (tc)
@@ -74,7 +75,12 @@ BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
     generatorArguments = CMakeGeneratorKitInformation::generatorArguments(k);
 }
 
-bool BuildDirParameters::isValid() const { return buildConfiguration && cmakeTool; }
+bool BuildDirParameters::isValid() const { return buildConfiguration && cmakeTool(); }
+
+CMakeTool *BuildDirParameters::cmakeTool() const
+{
+    return CMakeToolManager::findById(cmakeToolId);
+}
 
 BuildDirParameters::BuildDirParameters(const BuildDirParameters &) = default;
 

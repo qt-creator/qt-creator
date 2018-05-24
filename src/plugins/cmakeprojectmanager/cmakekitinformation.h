@@ -43,6 +43,7 @@ public:
 
     static Core::Id id();
 
+    static Core::Id cmakeToolId(const ProjectExplorer::Kit *k);
     static CMakeTool *cmakeTool(const ProjectExplorer::Kit *k);
     static void setCMakeTool(ProjectExplorer::Kit *k, const Core::Id id);
 
