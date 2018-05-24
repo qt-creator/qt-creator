@@ -202,9 +202,9 @@ void QmlProfilerDetailsRewriterTest::seedRewriter()
 
     DummyProject *project = new DummyProject(Utils::FileName::fromString(filename));
     ProjectExplorer::SessionManager::addProject(project);
-    ProjectExplorer::Target *target = project->createTarget(kit);
+    std::unique_ptr<ProjectExplorer::Target> target = project->createTarget(kit);
 
-    m_rewriter.populateFileFinder(target);
+    m_rewriter.populateFileFinder(target.get());
     ProjectExplorer::SessionManager::removeProject(project);
     ProjectExplorer::KitManager::deleteKit(kit);
 }

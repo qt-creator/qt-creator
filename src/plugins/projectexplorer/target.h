@@ -54,7 +54,10 @@ class PROJECTEXPLORER_EXPORT Target : public ProjectConfiguration
     friend class SessionManager; // for setActiveBuild and setActiveDeployConfiguration
     Q_OBJECT
 
+    struct _constructor_tag { explicit _constructor_tag() = default; };
+
 public:
+    Target(Project *parent, Kit *k, _constructor_tag);
     ~Target() override;
 
     Project *project() const override;
@@ -164,7 +167,6 @@ signals:
     void applicationTargetsChanged();
 
 private:
-    Target(Project *parent, Kit *k);
     void setEnabled(bool);
 
     bool fromMap(const QVariantMap &map) override;

@@ -554,9 +554,10 @@ public:
         for (BuildInfo *info : toImport) {
             Target *target = project->target(info->kitId);
             if (!target) {
-                target = project->createTarget(KitManager::kit(info->kitId));
-                if (target)
-                    project->addTarget(target);
+                std::unique_ptr<Target> newTarget = project->createTarget(KitManager::kit(info->kitId));
+                target = newTarget.get();
+                if (newTarget)
+                    project->addTarget(std::move(newTarget));
             }
             if (target) {
                 projectImporter->makePersistent(target->kit());

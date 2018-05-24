@@ -92,11 +92,11 @@ public:
     QIcon m_overlayIcon;
 
     QList<BuildConfiguration *> m_buildConfigurations;
-    BuildConfiguration *m_activeBuildConfiguration = 0;
+    BuildConfiguration *m_activeBuildConfiguration = nullptr;
     QList<DeployConfiguration *> m_deployConfigurations;
-    DeployConfiguration *m_activeDeployConfiguration = 0;
+    DeployConfiguration *m_activeDeployConfiguration = nullptr;
     QList<RunConfiguration *> m_runConfigurations;
-    RunConfiguration* m_activeRunConfiguration = 0;
+    RunConfiguration* m_activeRunConfiguration = nullptr;
     DeploymentData m_deploymentData;
     BuildTargetInfoList m_appTargets;
     QVariantMap m_pluginSettings;
@@ -108,7 +108,7 @@ TargetPrivate::TargetPrivate(Kit *k) :
     m_kit(k)
 { }
 
-Target::Target(Project *project, Kit *k) :
+Target::Target(Project *project, Kit *k, _constructor_tag) :
     ProjectConfiguration(project, k->id()),
     d(new TargetPrivate(k))
 {
