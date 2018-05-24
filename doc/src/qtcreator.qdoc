@@ -122,6 +122,8 @@
                     \li \l{Glossary}
                 \endlist
         \row
+            \li {4,1} \l{All Topics}
+        \row
             \li {4,1} \note To report bugs and suggestions to the Qt Bug
                 Tracker, select \uicontrol {Help > Report Bug}.
                 To copy and paste detailed information about your system to the

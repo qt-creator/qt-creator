@@ -28,10 +28,7 @@
     \contentspage {Qt Creator}
     \page qtcreator-toc.html
 
-    \title Qt Creator TOC
-
-    This file is used only for generating the TOC for the help file to be
-    displayed in the Qt Creator Help mode Contents view.
+    \title All Topics
 
     \list
         \li \l{Getting Started}
