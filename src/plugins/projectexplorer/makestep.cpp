@@ -112,12 +112,35 @@ QString MakeStep::defaultDisplayName()
     return tr("Make");
 }
 
+static const QList<ToolChain *> preferredToolChains(const Kit *kit)
+{
+    QList<ToolChain *> tcs = ToolChainKitInformation::toolChains(kit);
+    // prefer CXX, then C, then others
+    Utils::sort(tcs, [](ToolChain *tcA, ToolChain *tcB) {
+        if (tcA->language() == tcB->language())
+            return false;
+        if (tcA->language() == Constants::CXX_LANGUAGE_ID)
+            return true;
+        if (tcB->language() == Constants::CXX_LANGUAGE_ID)
+            return false;
+        if (tcA->language() == Constants::C_LANGUAGE_ID)
+            return true;
+        return false;
+    });
+    return tcs;
+}
+
 QString MakeStep::defaultMakeCommand() const
 {
     BuildConfiguration *bc = buildConfiguration();
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    if (bc && tc)
-        return tc->makeCommand(environment(bc));
+    if (!bc)
+        return QString();
+    const Utils::Environment env = environment(bc);
+    for (const ToolChain *tc : preferredToolChains(target()->kit())) {
+        const QString make = tc->makeCommand(env);
+        if (!make.isEmpty())
+            return make;
+    }
     return QString();
 }
 
@@ -141,8 +164,8 @@ Utils::Environment MakeStep::environment(BuildConfiguration *bc) const
     Utils::Environment::setupEnglishOutput(&env);
     if (makeCommand().isEmpty()) {
         // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
-        ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(),
-                                                           ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+        const QList<ToolChain *> tcs = preferredToolChains(target()->kit());
+        const ToolChain *tc = tcs.isEmpty() ? nullptr : tcs.constFirst();
         if (tc && tc->targetAbi().os() == Abi::WindowsOS
                 && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {
             const QString makeFlags = "MAKEFLAGS";
