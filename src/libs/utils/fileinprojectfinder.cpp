@@ -95,7 +95,7 @@ QString FileInProjectFinder::projectDirectory() const
     return m_projectDir;
 }
 
-void FileInProjectFinder::setProjectFiles(const QStringList &projectFiles)
+void FileInProjectFinder::setProjectFiles(const Utils::FileNameList &projectFiles)
 {
     if (m_projectFiles == projectFiles)
         return;
@@ -309,9 +309,9 @@ QString FileInProjectFinder::findInSearchPath(const QString &searchPath, const Q
 QStringList FileInProjectFinder::filesWithSameFileName(const QString &fileName) const
 {
     QStringList result;
-    foreach (const QString &f, m_projectFiles) {
-        if (FileName::fromString(f).fileName() == fileName)
-            result << f;
+    foreach (const FileName &f, m_projectFiles) {
+        if (f.fileName() == fileName)
+            result << f.toString();
     }
     return result;
 }
@@ -319,8 +319,8 @@ QStringList FileInProjectFinder::filesWithSameFileName(const QString &fileName) 
 QStringList FileInProjectFinder::pathSegmentsWithSameName(const QString &pathSegment) const
 {
     QStringList result;
-    for (const QString &f : m_projectFiles) {
-        QDir dir = FileName::fromString(f).toFileInfo().absoluteDir();
+    for (const FileName &f : m_projectFiles) {
+        QDir dir = f.toFileInfo().absoluteDir();
         do {
             if (dir.dirName() == pathSegment) {
                 if (result.isEmpty() || result.last() != dir.path())

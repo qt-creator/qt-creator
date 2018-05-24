@@ -33,6 +33,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runconfiguration.h>
 #include <texteditor/textmark.h>
+#include <utils/fileutils.h>
 
 #include <QObject>
 #include <QProcess>
@@ -143,7 +144,7 @@ public:
     ProjectExplorer::Abi toolChainAbi;
 
     QString projectSourceDirectory;
-    QStringList projectSourceFiles;
+    Utils::FileNameList projectSourceFiles;
 
     // Used by Script debugging
     QString interpreter;
