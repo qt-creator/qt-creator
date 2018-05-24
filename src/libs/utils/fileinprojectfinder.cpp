@@ -320,13 +320,14 @@ QStringList FileInProjectFinder::pathSegmentsWithSameName(const QString &pathSeg
 {
     QStringList result;
     for (const FileName &f : m_projectFiles) {
-        QDir dir = f.toFileInfo().absoluteDir();
+        FileName currentPath = f.parentDir();
         do {
-            if (dir.dirName() == pathSegment) {
-                if (result.isEmpty() || result.last() != dir.path())
-                    result.append(dir.path());
+            if (currentPath.fileName() == pathSegment) {
+                if (result.isEmpty() || result.last() != currentPath.toString())
+                    result.append(currentPath.toString());
             }
-        } while (dir.cdUp());
+            currentPath = currentPath.parentDir();
+        } while (!currentPath.isEmpty());
     }
     result.removeDuplicates();
     return result;
