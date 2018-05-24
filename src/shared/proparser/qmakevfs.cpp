@@ -49,13 +49,23 @@ QMakeVfs::QMakeVfs()
 #ifndef QT_NO_TEXTCODEC
     m_textCodec = 0;
 #endif
+    ref();
+}
+
+QMakeVfs::~QMakeVfs()
+{
+    deref();
+}
+
+void QMakeVfs::ref()
+{
 #ifdef PROEVALUATOR_THREAD_SAFE
     QMutexLocker locker(&s_mutex);
 #endif
     ++s_refCount;
 }
 
-QMakeVfs::~QMakeVfs()
+void QMakeVfs::deref()
 {
 #ifdef PROEVALUATOR_THREAD_SAFE
     QMutexLocker locker(&s_mutex);
@@ -66,7 +76,6 @@ QMakeVfs::~QMakeVfs()
         s_idFileMap.clear();
     }
 }
-
 
 #ifdef PROPARSER_THREAD_SAFE
 QMutex QMakeVfs::s_mutex;

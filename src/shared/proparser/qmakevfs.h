@@ -74,6 +74,9 @@ public:
     QMakeVfs();
     ~QMakeVfs();
 
+    static void ref();
+    static void deref();
+
     int idForFileName(const QString &fn, VfsFlags flags);
     QString fileNameForId(int id);
     bool writeFile(int id, QIODevice::OpenMode mode, VfsFlags flags, const QString &contents, QString *errStr);
