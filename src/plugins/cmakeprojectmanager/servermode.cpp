@@ -103,7 +103,7 @@ ServerMode::ServerMode(const Environment &env,
     m_connectionTimer.setInterval(100);
     connect(&m_connectionTimer, &QTimer::timeout, this, &ServerMode::connectToServer);
 
-    m_cmakeProcess.reset(new QtcProcess);
+    m_cmakeProcess = std::make_unique<QtcProcess>();
 
     m_cmakeProcess->setEnvironment(env);
     m_cmakeProcess->setWorkingDirectory(buildDirectory.toString());
