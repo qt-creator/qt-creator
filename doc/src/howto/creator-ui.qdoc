@@ -74,7 +74,9 @@
     {corresponding keyboard shortcut}.
 
     To hide the mode selector and to save space on the display, select
-    \uicontrol Window > \uicontrol {Show Mode Selector}.
+    \uicontrol Window > \uicontrol {Mode Selector Style} > \uicontrol Hidden.
+    To only show icons on the mode selector, select the \uicontrol {Icons Only}
+    style.
 
     The following image displays an example application in \uicontrol Edit mode (1)
     and \uicontrol Design mode (2).
