@@ -37,7 +37,11 @@
 
 #include <coreplugin/id.h>
 #include <coreplugin/variablechooser.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
+#include <utils/utilsicons.h>
+
+#include <QThread>
 
 using namespace Core;
 
@@ -45,6 +49,10 @@ const char BUILD_TARGETS_SUFFIX[] = ".BuildTargets";
 const char MAKE_ARGUMENTS_SUFFIX[] = ".MakeArguments";
 const char MAKE_COMMAND_SUFFIX[] = ".MakeCommand";
 const char CLEAN_SUFFIX[] = ".Clean";
+const char OVERRIDE_MAKEFLAGS_SUFFIX[] = ".OverrideMakeflags";
+const char JOBCOUNT_SUFFIX[] = ".JobCount";
+
+const char MAKEFLAGS[] = "MAKEFLAGS";
 
 namespace ProjectExplorer {
 
@@ -53,7 +61,8 @@ MakeStep::MakeStep(BuildStepList *parent,
                    const QString &buildTarget,
                    const QStringList &availableTargets)
     : AbstractProcessStep(parent, id),
-      m_availableTargets(availableTargets)
+      m_availableTargets(availableTargets),
+      m_userJobCount(defaultJobCount())
 {
     setDefaultDisplayName(defaultDisplayName());
     if (!buildTarget.isEmpty())
@@ -158,6 +167,45 @@ Task MakeStep::makeCommandMissingTask()
                 Constants::TASK_CATEGORY_BUILDSYSTEM);
 }
 
+bool MakeStep::isJobCountSupported() const
+{
+    const QList<ToolChain *> tcs = preferredToolChains(target()->kit());
+    const ToolChain *tc = tcs.isEmpty() ? nullptr : tcs.constFirst();
+    return tc
+           && (tc->targetAbi().os() != Abi::WindowsOS
+               || tc->targetAbi().osFlavor() == Abi::WindowsMSysFlavor);
+}
+
+int MakeStep::jobCount() const
+{
+    return m_userJobCount;
+}
+
+void MakeStep::setJobCount(int count)
+{
+    m_userJobCount = count;
+}
+
+bool MakeStep::jobCountOverridesMakeflags() const
+{
+    return m_overrideMakeflags;
+}
+
+void MakeStep::setJobCountOverrideMakeflags(bool override)
+{
+    m_overrideMakeflags = override;
+}
+
+bool MakeStep::makeflagsContainsJobCount() const
+{
+    const Utils::Environment env = environment(buildConfiguration());
+    if (!env.hasKey(MAKEFLAGS))
+        return false;
+    const QStringList args = Utils::QtcProcess::splitArgs(env.value(MAKEFLAGS),
+                                                          Utils::HostOsInfo::hostOs());
+    return Utils::anyOf(args, [](const QString &arg) { return arg.startsWith("-j"); });
+}
+
 Utils::Environment MakeStep::environment(BuildConfiguration *bc) const
 {
     Utils::Environment env = bc ? bc->environment() : Utils::Environment::systemEnvironment();
@@ -168,8 +216,7 @@ Utils::Environment MakeStep::environment(BuildConfiguration *bc) const
         const ToolChain *tc = tcs.isEmpty() ? nullptr : tcs.constFirst();
         if (tc && tc->targetAbi().os() == Abi::WindowsOS
                 && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {
-            const QString makeFlags = "MAKEFLAGS";
-            env.set(makeFlags, 'L' + env.value(makeFlags));
+            env.set(MAKEFLAGS, 'L' + env.value(MAKEFLAGS));
         }
     }
     return env;
@@ -188,6 +235,12 @@ QVariantMap MakeStep::toMap() const
     map.insert(id().withSuffix(MAKE_ARGUMENTS_SUFFIX).toString(), m_makeArguments);
     map.insert(id().withSuffix(MAKE_COMMAND_SUFFIX).toString(), m_makeCommand);
     map.insert(id().withSuffix(CLEAN_SUFFIX).toString(), m_clean);
+    const QString jobCountKey = id().withSuffix(JOBCOUNT_SUFFIX).toString();
+    if (m_userJobCount != defaultJobCount())
+        map.insert(jobCountKey, m_userJobCount);
+    else
+        map.remove(jobCountKey);
+    map.insert(id().withSuffix(OVERRIDE_MAKEFLAGS_SUFFIX).toString(), m_overrideMakeflags);
     return map;
 }
 
@@ -197,14 +250,27 @@ bool MakeStep::fromMap(const QVariantMap &map)
     m_makeArguments = map.value(id().withSuffix(MAKE_ARGUMENTS_SUFFIX).toString()).toString();
     m_makeCommand = map.value(id().withSuffix(MAKE_COMMAND_SUFFIX).toString()).toString();
     m_clean = map.value(id().withSuffix(CLEAN_SUFFIX).toString()).toBool();
-
+    m_overrideMakeflags = map.value(id().withSuffix(OVERRIDE_MAKEFLAGS_SUFFIX).toString(), false).toBool();
+    m_userJobCount = map.value(id().withSuffix(JOBCOUNT_SUFFIX).toString(), defaultJobCount()).toInt();
     return BuildStep::fromMap(map);
+}
+
+int MakeStep::defaultJobCount()
+{
+    return QThread::idealThreadCount();
+}
+
+QStringList MakeStep::jobArguments() const
+{
+    if (!isJobCountSupported() || (makeflagsContainsJobCount() && !jobCountOverridesMakeflags()))
+        return {};
+    return {"-j" + QString::number(m_userJobCount)};
 }
 
 QString MakeStep::allArguments() const
 {
     QString args = m_makeArguments;
-    Utils::QtcProcess::addArgs(&args, m_buildTargets);
+    Utils::QtcProcess::addArgs(&args, jobArguments() + m_buildTargets);
     return args;
 }
 
@@ -287,6 +353,10 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep) :
     m_ui->makeLineEdit->setHistoryCompleter("PE.MakeCommand.History");
     m_ui->makeLineEdit->setPath(m_makeStep->makeCommand());
     m_ui->makeArgumentsLineEdit->setText(m_makeStep->userArguments());
+    m_ui->nonOverrideWarning->setToolTip("<html><body><p>" +
+        tr("<code>MAKEFLAGS</code> specifies parallel jobs. Check \"%1\" to override.")
+            .arg(m_ui->overrideMakeflags->text()) + "</p></body></html>");
+    m_ui->nonOverrideWarning->setPixmap(Utils::Icons::WARNING.pixmap());
     updateDetails();
 
     connect(m_ui->targetsList, &QListWidget::itemChanged,
@@ -295,6 +365,14 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep) :
             this, &MakeStepConfigWidget::makeLineEditTextEdited);
     connect(m_ui->makeArgumentsLineEdit, &QLineEdit::textEdited,
             this, &MakeStepConfigWidget::makeArgumentsLineEditTextEdited);
+    connect(m_ui->userJobCount, qOverload<int>(&QSpinBox::valueChanged), this, [this](int value) {
+        m_makeStep->setJobCount(value);
+        updateDetails();
+    });
+    connect(m_ui->overrideMakeflags, &QCheckBox::stateChanged, this, [this](int state) {
+        m_makeStep->setJobCountOverrideMakeflags(state == Qt::Checked);
+        updateDetails();
+    });
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
             this, &MakeStepConfigWidget::updateDetails);
@@ -341,6 +419,13 @@ void MakeStepConfigWidget::setSummaryText(const QString &text)
     emit updateSummary();
 }
 
+void MakeStepConfigWidget::setUserJobCountVisible(bool visible)
+{
+    m_ui->jobsLabel->setVisible(visible);
+    m_ui->userJobCount->setVisible(visible);
+    m_ui->overrideMakeflags->setVisible(visible);
+}
+
 void MakeStepConfigWidget::updateDetails()
 {
     BuildConfiguration *bc = m_makeStep->buildConfiguration();
@@ -359,6 +444,13 @@ void MakeStepConfigWidget::updateDetails()
         setSummaryText(tr("<b>Make:</b> No build configuration."));
         return;
     }
+
+    setUserJobCountVisible(m_makeStep->isJobCountSupported());
+    m_ui->userJobCount->setValue(m_makeStep->jobCount());
+    m_ui->overrideMakeflags->setCheckState(
+        m_makeStep->jobCountOverridesMakeflags() ? Qt::Checked : Qt::Unchecked);
+    m_ui->nonOverrideWarning->setVisible(m_makeStep->makeflagsContainsJobCount()
+                                         && !m_makeStep->jobCountOverridesMakeflags());
 
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());

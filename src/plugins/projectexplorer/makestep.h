@@ -68,16 +68,27 @@ public:
     static QString msgNoMakeCommand();
     static Task makeCommandMissingTask();
 
+    bool isJobCountSupported() const;
+    int jobCount() const;
+    void setJobCount(int count);
+    bool jobCountOverridesMakeflags() const;
+    void setJobCountOverrideMakeflags(bool override);
+    bool makeflagsContainsJobCount() const;
+
     Utils::Environment environment(BuildConfiguration *bc) const;
 
 private:
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &map) override;
+    static int defaultJobCount();
+    QStringList jobArguments() const;
 
     QStringList m_buildTargets;
     QStringList m_availableTargets;
     QString m_makeArguments;
     QString m_makeCommand;
+    int m_userJobCount = 4;
+    bool m_overrideMakeflags = false;
     bool m_clean = false;
 };
 
@@ -98,6 +109,7 @@ private:
     void makeArgumentsLineEditTextEdited();
     void updateDetails();
     void setSummaryText(const QString &text);
+    void setUserJobCountVisible(bool visible);
 
     Internal::Ui::MakeStep *m_ui;
     MakeStep *m_makeStep;

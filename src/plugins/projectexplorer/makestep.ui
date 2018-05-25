@@ -53,6 +53,13 @@
     <widget class="QLineEdit" name="makeArgumentsLineEdit"/>
    </item>
    <item row="2" column="0">
+    <widget class="QLabel" name="jobsLabel">
+     <property name="text">
+      <string>Parallel jobs:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
     <widget class="QLabel" name="targetsLabel">
      <property name="text">
       <string>Targets:</string>
@@ -62,8 +69,36 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="3" column="1">
     <widget class="QListWidget" name="targetsList"/>
+   </item>
+   <item row="2" column="1">
+    <layout class="QHBoxLayout" name="jobLayout">
+     <item>
+      <widget class="QSpinBox" name="userJobCount">
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="value">
+        <number>4</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="overrideMakeflags">
+       <property name="text">
+        <string>Override MAKEFLAGS</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="nonOverrideWarning">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
