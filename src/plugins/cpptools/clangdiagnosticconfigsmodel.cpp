@@ -37,8 +37,9 @@ static void addConfigForQuestionableConstructs(ClangDiagnosticConfigsModel &mode
 {
     ClangDiagnosticConfig config;
     config.setId("Builtin.Questionable");
-    config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
-                                                      "Warnings for questionable constructs"));
+    config.setDisplayName(QCoreApplication::translate(
+                              "ClangDiagnosticConfigsModel",
+                              "Clang-only checks for questionable constructs"));
     config.setIsReadOnly(true);
     config.setClangOptions(QStringList{
         QStringLiteral("-Wall"),
@@ -53,7 +54,7 @@ static void addConfigForPedanticWarnings(ClangDiagnosticConfigsModel &model)
     ClangDiagnosticConfig config;
     config.setId("Builtin.Pedantic");
     config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
-                                                      "Pedantic Warnings"));
+                                                      "Clang-only pedantic checks"));
     config.setIsReadOnly(true);
     config.setClangOptions(QStringList{QStringLiteral("-Wpedantic")});
 
@@ -64,8 +65,9 @@ static void addConfigForAlmostEveryWarning(ClangDiagnosticConfigsModel &model)
 {
     ClangDiagnosticConfig config;
     config.setId(Constants::CPP_CLANG_BUILTIN_CONFIG_ID_EVERYTHING_WITH_EXCEPTIONS);
-    config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
-                                                      "Warnings for almost everything"));
+    config.setDisplayName(QCoreApplication::translate(
+                              "ClangDiagnosticConfigsModel",
+                              "Clang-only checks for almost everything"));
     config.setIsReadOnly(true);
     config.setClangOptions(QStringList{
         QStringLiteral("-Weverything"),
@@ -86,11 +88,56 @@ static void addConfigForAlmostEveryWarning(ClangDiagnosticConfigsModel &model)
     model.appendOrUpdate(config);
 }
 
+static void addConfigForTidy(ClangDiagnosticConfigsModel &model)
+{
+    ClangDiagnosticConfig config;
+    config.setId("Builtin.Tidy");
+    config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
+                                                      "Clang-Tidy thorough checks"));
+    config.setIsReadOnly(true);
+    config.setClangOptions(QStringList{
+        QStringLiteral("-w"),
+    });
+    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
+    config.setClangTidyChecks("-*,"
+                              "bugprone-*,"
+                              "cppcoreguidelines-*,"
+                              "misc-*,"
+                              "modernize-*,"
+                              "performance-*,"
+                              "readability-*,"
+                              "-cppcoreguidelines-owning-memory,"
+                              "-readability-braces-around-statements,"
+                              "-readability-implicit-bool-conversion,"
+                              "-readability-named-parameter");
+
+    model.appendOrUpdate(config);
+}
+
+static void addConfigForClangAnalyze(ClangDiagnosticConfigsModel &model)
+{
+    ClangDiagnosticConfig config;
+    config.setId("Builtin.TidyClangAnalyze");
+    config.setDisplayName(QCoreApplication::translate(
+                              "ClangDiagnosticConfigsModel",
+                              "Clang-Tidy static analyzer checks"));
+    config.setIsReadOnly(true);
+    config.setClangOptions(QStringList{
+        QStringLiteral("-w"),
+    });
+    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
+    config.setClangTidyChecks("-*,clang-analyzer-*");
+
+    model.appendOrUpdate(config);
+}
+
 static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
 {
     addConfigForPedanticWarnings(model);
     addConfigForQuestionableConstructs(model);
     addConfigForAlmostEveryWarning(model);
+    addConfigForTidy(model);
+    addConfigForClangAnalyze(model);
 }
 
 ClangDiagnosticConfigsModel::ClangDiagnosticConfigsModel(const ClangDiagnosticConfigs &customConfigs)

@@ -112,7 +112,7 @@ public:
             const QModelIndex index = indexForCheck(check);
             if (!index.isValid())
                 continue;
-            auto node = static_cast<ProjectExplorer::Tree *>(index.internalPointer());
+            auto *node = static_cast<ProjectExplorer::Tree *>(index.internalPointer());
             node->checked = state;
             propagateUp(index);
             propagateDown(index);
@@ -159,6 +159,18 @@ public:
             return node->isDir ? (node->name + "*") : node->name;
 
         return ProjectExplorer::SelectableFilesModel::data(index, role);
+    }
+
+    void setEnabled(bool enabled)
+    {
+        m_enabled = enabled;
+    }
+
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override
+    {
+        if (role == Qt::CheckStateRole && !m_enabled)
+            return false;
+        return ProjectExplorer::SelectableFilesModel::setData(index, value, role);
     }
 
 private:
@@ -220,6 +232,8 @@ private:
         for (const ProjectExplorer::Tree *t : root->childDirectories)
             collectChecks(t, checks);
     }
+
+    bool m_enabled = true;
 };
 
 ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(const Core::Id &configToSelect,
@@ -489,7 +503,11 @@ void ClangDiagnosticConfigsWidget::syncClangTidyWidgets(const ClangDiagnosticCon
         break;
     }
 
-    m_tidyChecksWidget->setEnabled(!config.isReadOnly());
+    const bool enabled = !config.isReadOnly();
+    m_tidyChecks->tidyMode->setEnabled(enabled);
+    m_tidyChecks->plainTextEditButton->setText(enabled ? tr("Edit Checks as String...")
+                                                       : tr("View Checks as String..."));
+    m_tidyTreeModel->setEnabled(enabled);
     connectClangTidyItemChanged();
 }
 
@@ -650,12 +668,17 @@ void ClangDiagnosticConfigsWidget::setupTabs()
     m_tidyChecks->checksPrefixesTree->header()->setStretchLastSection(false);
     m_tidyChecks->checksPrefixesTree->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     connect(m_tidyChecks->plainTextEditButton, &QPushButton::clicked, this, [this]() {
+        const bool readOnly = selectedConfig().isReadOnly();
+
         QDialog dialog;
         dialog.setWindowTitle(tr("Checks"));
         dialog.setLayout(new QVBoxLayout);
         auto *textEdit = new QTextEdit(&dialog);
+        textEdit->setReadOnly(readOnly);
         dialog.layout()->addWidget(textEdit);
-        auto *buttonsBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        auto *buttonsBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                                | (readOnly ? QDialogButtonBox::NoButton
+                                                            : QDialogButtonBox::Cancel));
         dialog.layout()->addWidget(buttonsBox);
         QObject::connect(buttonsBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
         QObject::connect(buttonsBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
