@@ -202,9 +202,15 @@ void QmlProfilerDetailsRewriterTest::seedRewriter()
 
     DummyProject *project = new DummyProject(Utils::FileName::fromString(filename));
     ProjectExplorer::SessionManager::addProject(project);
-    std::unique_ptr<ProjectExplorer::Target> target = project->createTarget(kit);
 
-    m_rewriter.populateFileFinder(target.get());
+    {
+        // Make sure the uniqe_ptr gets deleted before the project.
+        // Otherwise we'll get a double free because the target is also parented to the project
+        // and unique_ptr doesn't know anything about QObject parent/child relationships.
+        std::unique_ptr<ProjectExplorer::Target> target = project->createTarget(kit);
+        m_rewriter.populateFileFinder(target.get());
+    }
+
     ProjectExplorer::SessionManager::removeProject(project);
     ProjectExplorer::KitManager::deleteKit(kit);
 }
