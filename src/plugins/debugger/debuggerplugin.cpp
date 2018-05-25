@@ -2855,21 +2855,8 @@ void DebuggerPluginPrivate::showMessage(const QString &msg, int channel, int tim
 
 static void createNewDock(QWidget *widget)
 {
-//    m_mainWindow->registerDockWidget(dockId, widget);
-
-//    QDockWidget *dockWidget = qobject_cast<QDockWidget *>(widget->parentWidget());
-//    //dockWidget->installEventFilter(&m_resizeEventFilter);
-
-//    QAction *toggleViewAction = dockWidget->toggleViewAction();
-//    Command *cmd = ActionManager::registerAction(toggleViewAction,
-//             Id("Debugger.").withSuffix(widget->objectName()));
-//    cmd->setAttribute(Command::CA_Hide);
-//    dd->createDockWidget(Core::Id::fromString(widget->objectName()), widget);
-//    QDockWidget *dockWidget = qobject_cast<QDockWidget *>(widget->parentWidget());
-//    QDockWidget *dockWidget = Debugger::registerDockWidget(Id::fromString(widget->objectName()), widget);
-    QDockWidget *dockWidget = new QDockWidget;
+    auto dockWidget = new QDockWidget;
     dockWidget->setWidget(widget);
-
     dockWidget->setWindowTitle(widget->windowTitle());
     dockWidget->setFeatures(QDockWidget::DockWidgetClosable);
     dockWidget->show();
