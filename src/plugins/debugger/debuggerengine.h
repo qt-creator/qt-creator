@@ -269,6 +269,7 @@ public:
     virtual void selectWatchData(const QString &iname);
 
     virtual void prepareForRestart() {}
+    virtual void abortDebuggerProcess() {} // second attempt
 
     virtual void watchPoint(const QPoint &pnt);
     virtual void runCommand(const DebuggerCommand &cmd);
@@ -360,8 +361,6 @@ public:
     virtual void gotoLocation(const Internal::Location &location);
     virtual void quitDebugger(); // called when pressing the stop button
 
-    void abortDebugger(); // called from the debug menu action
-
     void updateViews();
     bool isSlaveEngine() const;
     bool isMasterEngine() const;
@@ -443,8 +442,6 @@ protected:
 
     virtual void frameUp();
     virtual void frameDown();
-
-    virtual void abortDebuggerProcess() {} // second attempt
 
     virtual void doUpdateLocals(const UpdateParameters &params);
 

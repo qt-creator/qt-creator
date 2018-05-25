@@ -1157,21 +1157,6 @@ void DebuggerEngine::quitDebugger()
     }
 }
 
-void DebuggerEngine::abortDebugger()
-{
-    if (!isDying()) {
-        // Be friendly the first time. This will change targetState().
-        showMessage("ABORTING DEBUGGER. FIRST TIME.");
-        quitDebugger();
-    } else {
-        // We already tried. Try harder.
-        showMessage("ABORTING DEBUGGER. SECOND TIME.");
-        abortDebuggerProcess();
-        if (d->m_runTool && d->m_runTool->runControl())
-            d->m_runTool->runControl()->initiateFinish();
-    }
-}
-
 void DebuggerEngine::requestInterruptInferior()
 {
     QTC_CHECK(isMasterEngine());

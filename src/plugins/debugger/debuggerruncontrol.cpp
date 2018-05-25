@@ -701,7 +701,18 @@ void DebuggerRunTool::quitDebugger()
 
 void DebuggerRunTool::abortDebugger()
 {
-    m_engine->abortDebugger();
+    m_engine->resetLocation();
+    if (!m_isDying) {
+        // Be friendly the first time. This will change targetState().
+        showMessage("ABORTING DEBUGGER. FIRST TIME.");
+        quitDebugger();
+    } else {
+        // We already tried. Try harder.
+        showMessage("ABORTING DEBUGGER. SECOND TIME.");
+        m_engine->abortDebuggerProcess();
+        if (runControl())
+            runControl()->initiateFinish();
+    }
 }
 
 bool DebuggerRunTool::fixupParameters()

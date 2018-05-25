@@ -783,8 +783,8 @@ public:
 
     void handleAbort()
     {
-        currentEngine()->resetLocation();
-        currentEngine()->abortDebugger();
+        if (dd->m_currentRunTool)
+            dd->m_currentRunTool->abortDebugger();
     }
 
     void handleReset()
@@ -2799,9 +2799,9 @@ void DebuggerPluginPrivate::aboutToShutdown()
     m_shutdownTimer.setInterval(0);
     m_shutdownTimer.setSingleShot(true);
     connect(&m_shutdownTimer, &QTimer::timeout, this, &DebuggerPluginPrivate::doShutdown);
-    if (DebuggerEngine *engine = currentEngine()) {
-        if (engine->state() != Debugger::DebuggerNotReady) {
-            engine->abortDebugger();
+    if (dd->m_currentRunTool) {
+        if (dd->m_currentRunTool->engine()->state() != Debugger::DebuggerNotReady) {
+            dd->m_currentRunTool->abortDebugger();
             m_shutdownTimer.setInterval(3000);
         }
     }
