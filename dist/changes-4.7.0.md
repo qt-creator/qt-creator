@@ -65,14 +65,21 @@ C++ Support
 * Fixed location information of macros (QTCREATORBUG-19905)
 * Clang Code Model
     * Enabled by default
+    * Switched to Clang 6.0
     * Implemented outline pane, outline dropdown and
       `C++ Symbols in Current Document` locator filter
     * Implemented `Follow Symbol` for single translation unit
-    * Added option to provide `clang-tidy` configuration file or checks string
     * Added type highlighting for Objective-C/C++
     * Added errors and warnings of current editor to Issues pane
       (category `Clang Code Model`)
     * Added highlighting style for overloaded operators (QTCREATORBUG-19659)
+    * Added option to use `.clang-tidy` configuration file or checks string
+    * Added link to the documentation in tooltip for Clang-Tidy and Clazy
+      diagnostics
+    * Improved reparse performance and memory usage
+    * Improved selecting and deselecting specific Clang-Tidy checks
+    * Fixed slow completion in case Clang-Tidy or Clazy checks were enabled
+    * Fixed crashes when closing documents fast
 * Built-in Code Model
     * Added support for nested namespaces (QTCREATORBUG-16774)
 
@@ -92,7 +99,7 @@ Clang Static Analyzer
 
 * Renamed plugin to `ClangTools`
 * Replaced Clang static analyzer by tool that runs Clang-Tidy and Clazy over
-  whole project
+  whole project or a subset of the project's files
 
 QML Profiler
 
