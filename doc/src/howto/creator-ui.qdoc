@@ -466,7 +466,7 @@
     The figure below shows an example search result for all
     occurrences of the search string in the specified directory.
 
-    \image qtcreator-search-pane.png
+    \image qtcreator-searchresults.png
 
     For more information about the different search options, see
     \l {Finding and Replacing}.
