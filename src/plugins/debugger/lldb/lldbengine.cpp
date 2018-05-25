@@ -143,7 +143,7 @@ void LldbEngine::runCommand(const DebuggerCommand &command)
         if (state() == InferiorRunOk) {
             showStatusMessage(tr("Stopping temporarily"), 1000);
             m_onStop.append(cmd, false);
-            requestInterruptInferior();
+            interruptInferior();
             return;
         }
     }
