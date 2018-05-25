@@ -118,8 +118,11 @@ void ClangToolsSettings::readSettings()
 
     m_buildBeforeAnalysis = settings->value(QString(buildBeforeAnalysisKey), true).toBool();
 
-    m_savedDiagnosticConfigId = m_diagnosticConfigId
-            = Core::Id::fromSetting(settings->value(QString(diagnosticConfigIdKey)));
+    m_diagnosticConfigId = Core::Id::fromSetting(settings->value(QString(diagnosticConfigIdKey)));
+    if (!m_diagnosticConfigId.isValid())
+        m_diagnosticConfigId = "Builtin.TidyAndClazy";
+
+    m_savedDiagnosticConfigId = m_diagnosticConfigId;
 
     updateSavedBuildBeforeAnalysiIfRequired();
 
