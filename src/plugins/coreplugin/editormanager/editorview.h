@@ -202,7 +202,7 @@ signals:
     void splitStateChanged();
 
 private:
-    void unsplitAll_helper();
+    const QList<IEditor *> unsplitAll_helper();
     QStackedLayout *m_layout;
     EditorView *m_view;
     QSplitter *m_splitter;

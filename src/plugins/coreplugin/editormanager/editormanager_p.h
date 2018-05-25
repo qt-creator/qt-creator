@@ -126,7 +126,8 @@ public:
     static EditorWindow *createEditorWindow();
     static void splitNewWindow(Internal::EditorView *view);
     static void closeView(Internal::EditorView *view);
-    static void emptyView(Internal::EditorView *view);
+    static const QList<IEditor *> emptyView(Internal::EditorView *view);
+    static void deleteEditors(const QList<IEditor *> &editors);
 
     static void updateActions();
 
