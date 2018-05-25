@@ -28,6 +28,8 @@
 #include <debugger/debuggerengine.h>
 #include <debugger/breakhandler.h>
 
+#include <cplusplus/CppDocument.h>
+
 #include <projectexplorer/devicesupport/idevice.h>
 
 #include <QTime>
@@ -248,6 +250,7 @@ private:
     QScopedPointer<GdbMi> m_coreStopReason;
     int m_pythonVersion = 0; // 0xMMmmpp MM = major; mm = minor; pp = patch
     bool m_initialSessionIdleHandled = false;
+    mutable CPlusPlus::Snapshot m_codeModelSnapshot;
 };
 
 } // namespace Internal

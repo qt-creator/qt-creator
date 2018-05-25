@@ -243,6 +243,9 @@ CdbEngine::CdbEngine() :
             this, &CdbEngine::readyReadStandardOut);
     connect(action(UseDebuggingHelpers), &SavedAction::valueChanged,
             this, &CdbEngine::updateLocals);
+
+    if (action(UseCodeModel)->isChecked())
+        m_codeModelSnapshot = CppTools::CppModelManager::instance()->snapshot();
 }
 
 void CdbEngine::init()
@@ -1166,7 +1169,7 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
 
         if (boolSetting(UseCodeModel)) {
             QStringList uninitializedVariables;
-            getUninitializedVariables(Internal::cppCodeModelSnapshot(),
+            getUninitializedVariables(m_codeModelSnapshot,
                                       frame.function, frame.file, frame.line, &uninitializedVariables);
             cmd.arg("uninitialized", uninitializedVariables);
         }
@@ -1237,7 +1240,7 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
         // variables in case of errors in uninitializedVariables().
         if (boolSetting(UseCodeModel)) {
             QStringList uninitializedVariables;
-            getUninitializedVariables(Internal::cppCodeModelSnapshot(),
+            getUninitializedVariables(m_codeModelSnapshot,
                                       frame.function, frame.file, frame.line, &uninitializedVariables);
             if (!uninitializedVariables.isEmpty()) {
                 str << blankSeparator << "-u \"";
@@ -2634,7 +2637,7 @@ void CdbEngine::attemptBreakpointSynchronization()
                     && parameters.type == BreakpointByFileAndLine
                     && boolSetting(CdbBreakPointCorrection)) {
                 if (lineCorrection.isNull())
-                    lineCorrection.reset(new BreakpointCorrectionContext(Internal::cppCodeModelSnapshot(),
+                    lineCorrection.reset(new BreakpointCorrectionContext(m_codeModelSnapshot,
                                                                          CppTools::CppModelManager::instance()->workingCopy()));
                 response.lineNumber = lineCorrection->fixLineNumber(parameters.fileName, parameters.lineNumber);
                 QString cmd = cdbAddBreakpointCommand(response, m_sourcePathMappings, id, false);

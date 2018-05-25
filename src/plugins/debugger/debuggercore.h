@@ -67,7 +67,6 @@ enum TestCases
 // Some convenience.
 void updateState(DebuggerRunTool *runTool);
 void updateLocalsWindow(bool showReturn);
-const CPlusPlus::Snapshot &cppCodeModelSnapshot();
 bool hasSnapshots();
 void openTextEditor(const QString &titlePattern, const QString &contents);
 

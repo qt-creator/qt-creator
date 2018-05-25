@@ -88,7 +88,6 @@
 
 #include <cppeditor/cppeditorconstants.h>
 #include <qmljseditor/qmljseditorconstants.h>
-#include <cpptools/cppmodelmanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
@@ -1042,7 +1041,6 @@ public:
     bool m_busy = false;
     QString m_lastPermanentStatusMessage;
 
-    mutable CPlusPlus::Snapshot m_codeModelSnapshot;
     DebuggerPlugin *m_plugin = nullptr;
 
     SnapshotHandler *m_snapshotHandler = nullptr;
@@ -2607,7 +2605,6 @@ void DebuggerPluginPrivate::updateState(DebuggerRunTool *runTool)
         m_debugWithoutDeployAction->setEnabled(canRun);
         setProxyAction(m_visibleStartAction, Id(Constants::DEBUG));
         m_hiddenStopAction->setAction(m_undisturbableAction);
-        m_codeModelSnapshot = CPlusPlus::Snapshot();
         setBusyCursor(false);
         cleanupViews();
     } else if (state == InferiorUnrunnable) {
@@ -2810,13 +2807,6 @@ void DebuggerPluginPrivate::aboutToShutdown()
         }
     }
     m_shutdownTimer.start();
-}
-
-const CPlusPlus::Snapshot &cppCodeModelSnapshot()
-{
-    if (dd->m_codeModelSnapshot.isEmpty() && action(UseCodeModel)->isChecked())
-        dd->m_codeModelSnapshot = CppTools::CppModelManager::instance()->snapshot();
-    return dd->m_codeModelSnapshot;
 }
 
 void setSessionValue(const QByteArray &key, const QVariant &value)
