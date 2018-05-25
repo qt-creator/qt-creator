@@ -747,7 +747,7 @@ public:
     void runControlFinished(DebuggerRunTool *runTool);
     void remoteCommand(const QStringList &options);
 
-    void displayDebugger(DebuggerRunTool *runTool, bool updateEngine = true);
+    void displayDebugger(DebuggerRunTool *runTool);
 
     void dumpLog();
     void cleanupViews();
@@ -2379,7 +2379,7 @@ void DebuggerPluginPrivate::requestMark(TextEditorWidget *widget, int lineNumber
 }
 
 // If updateEngine is set, the engine will update its threads/modules and so forth.
-void DebuggerPluginPrivate::displayDebugger(DebuggerRunTool *runTool, bool updateEngine)
+void DebuggerPluginPrivate::displayDebugger(DebuggerRunTool *runTool)
 {
     QTC_ASSERT(runTool, return);
     DebuggerEngine *engine = runTool ? runTool->engine() : dummyEngine();
@@ -2387,8 +2387,7 @@ void DebuggerPluginPrivate::displayDebugger(DebuggerRunTool *runTool, bool updat
 
     disconnectEngine();
     connectEngine(runTool);
-    if (updateEngine)
-        engine->updateAll();
+    engine->updateAll();
     engine->updateViews();
 }
 
@@ -3197,9 +3196,9 @@ void runControlFinished(DebuggerRunTool *runTool)
     dd->runControlFinished(runTool);
 }
 
-void displayDebugger(DebuggerRunTool *runTool, bool updateEngine)
+void displayDebugger(DebuggerRunTool *runTool)
 {
-    dd->displayDebugger(runTool, updateEngine);
+    dd->displayDebugger(runTool);
 }
 
 void synchronizeBreakpoints()

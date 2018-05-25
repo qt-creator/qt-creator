@@ -77,7 +77,7 @@ void showMessage(const QString &msg, int channel, int timeout = -1);
 bool isReverseDebugging();
 void runControlStarted(DebuggerRunTool *runTool);
 void runControlFinished(DebuggerRunTool *runTool);
-void displayDebugger(DebuggerRunTool *runTool, bool updateEngine);
+void displayDebugger(DebuggerRunTool *runTool);
 void synchronizeBreakpoints();
 
 void saveModeToRestore();
