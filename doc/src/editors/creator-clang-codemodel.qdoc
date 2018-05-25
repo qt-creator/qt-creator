@@ -85,8 +85,8 @@
     include several files, processing a single file and all the included files
     can take a while.
 
-    The following services are currently implemented in the Clang
-    code model plugin:
+    The Clang code model plugin replaces services of the old C/C++ code model.
+    Currently the following services are implemented:
 
     \list
 
@@ -99,8 +99,6 @@
         \li Renaming of local symbols
 
     \endlist
-
-    To use the plugin, you must activate it and configure it in \QC.
 
     \section1 Code Model Warnings
 
@@ -155,26 +153,6 @@
     For more information about the checks run at each level, see
     \l{https://github.com/KDE/clazy/blob/master/README.md#list-of-checks}
     {List of Checks} in the Clazy documentation.
-
-    \section1 Activating Clang Code Model
-
-    If you build \QC yourself, ensure that the plugin is also built, as
-    described in the \QC
-    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/README.md}{README file}.
-
-    To activate the plugin:
-
-    \list 1
-
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol {C++} > \uicontrol ClangCodeModel to enable the plugin.
-
-        \li Restart \QC to be able to use the plugin.
-
-            If you build \QC yourself, add \c ${LLVM_INSTALL_DIR}\bin to the
-            \c PATH variable so the LLVM libraries will be found on startup.
-
-    \endlist
 
     \section1 Configuring Clang Code Model
 
