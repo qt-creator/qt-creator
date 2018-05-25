@@ -513,8 +513,7 @@ void TestRunner::debugTests()
     // We need a fake QFuture for the results. TODO: replace with QtConcurrent::run
     QFutureInterface<TestResultPtr> *futureInterface
             = new QFutureInterface<TestResultPtr>(QFutureInterfaceBase::Running);
-    QFuture<TestResultPtr> future(futureInterface);
-    m_futureWatcher.setFuture(future);
+    m_futureWatcher.setFuture(futureInterface->future());
 
     if (useOutputProcessor) {
         TestOutputReader *outputreader = config->outputReader(*futureInterface, 0);
