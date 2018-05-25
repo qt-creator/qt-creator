@@ -182,27 +182,24 @@ static void blockRecursion(const Overview &overview,
         blockRecursion(overview, enclosingScope, line, uninitializedVariables, seenHash, level + 1);
 }
 
-// Inline helper with integer error return codes.
-static inline
-int getUninitializedVariablesI(const Snapshot &snapshot,
-                               const QString &functionName,
-                               const QString &file,
-                               int line,
-                               QStringList *uninitializedVariables)
+QStringList getUninitializedVariables(const Snapshot &snapshot,
+                                      const QString &functionName,
+                                      const QString &file,
+                                      int line)
 {
-    uninitializedVariables->clear();
+    QStringList result;
     // Find document
     if (snapshot.isEmpty() || functionName.isEmpty() || file.isEmpty() || line < 1)
-        return 1;
+        return result;
     const Snapshot::const_iterator docIt = snapshot.find(file);
     if (docIt == snapshot.end())
-        return 2;
+        return result;
     const Document::Ptr doc = docIt.value();
     // Look at symbol at line and find its function. Either it is the
     // function itself or some expression/variable.
     const Symbol *symbolAtLine = doc->lastVisibleSymbolAt(line, 0);
     if (!symbolAtLine)
-        return 4;
+        return result;
     // First figure out the function to do a safety name check
     // and the innermost scope at cursor position
     const Function *function = nullptr;
@@ -221,45 +218,24 @@ int getUninitializedVariablesI(const Snapshot &snapshot,
         }
     }
     if (!function || !innerMostScope)
-        return 7;
+        return result;
     // Compare function names with a bit off fuzz,
     // skipping modules from a CDB symbol "lib!foo" or namespaces
     // that the code model does not show at this point
     Overview overview;
     const QString name = overview.prettyName(function->name());
     if (!functionName.endsWith(name))
-        return 11;
+        return result;
     if (functionName.size() > name.size()) {
         const char previousChar = functionName.at(functionName.size() - name.size() - 1).toLatin1();
         if (previousChar != ':' && previousChar != '!' )
-            return 11;
+            return result;
     }
     // Starting from the innermost block scope, collect declarations.
     SeenHash seenHash;
-    blockRecursion(overview, innerMostScope, line, uninitializedVariables, &seenHash);
-    return 0;
+    blockRecursion(overview, innerMostScope, line, &result, &seenHash);
+    return result;
 }
-
-bool getUninitializedVariables(const Snapshot &snapshot,
-                               const QString &function,
-                               const QString &file,
-                               int line,
-                               QStringList *uninitializedVariables)
-{
-    const int rc = getUninitializedVariablesI(snapshot, function, file, line, uninitializedVariables);
-    if (debug) {
-        QString msg;
-        QTextStream str(&msg);
-        str << "getUninitializedVariables() " << function << ' ' << file << ':' << line
-                << " returns (int) " << rc << " '"
-                << uninitializedVariables->join(QLatin1Char(',')) << '\'';
-        if (rc)
-            str << " of " << snapshot.size() << " documents";
-        qDebug() << msg;
-    }
-    return rc == 0;
-}
-
 
 QString cppFunctionAt(const QString &fileName, int line, int column)
 {

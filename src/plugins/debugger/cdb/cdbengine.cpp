@@ -1168,10 +1168,9 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
         cmd.arg("displaystringlimit", action(DisplayStringLimit)->value().toString());
 
         if (boolSetting(UseCodeModel)) {
-            QStringList uninitializedVariables;
-            getUninitializedVariables(m_codeModelSnapshot,
-                                      frame.function, frame.file, frame.line, &uninitializedVariables);
-            cmd.arg("uninitialized", uninitializedVariables);
+            QStringList variables = getUninitializedVariables(m_codeModelSnapshot,
+                                                              frame.function, frame.file, frame.line);
+            cmd.arg("uninitialized", variables);
         }
 
         cmd.callback = [this](const DebuggerResponse &response) {
@@ -1239,13 +1238,12 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
         // Uninitialized variables if desired. Quote as safeguard against shadowed
         // variables in case of errors in uninitializedVariables().
         if (boolSetting(UseCodeModel)) {
-            QStringList uninitializedVariables;
-            getUninitializedVariables(m_codeModelSnapshot,
-                                      frame.function, frame.file, frame.line, &uninitializedVariables);
-            if (!uninitializedVariables.isEmpty()) {
+            const QStringList variables = getUninitializedVariables(m_codeModelSnapshot,
+                                                                    frame.function, frame.file, frame.line);
+            if (!variables.isEmpty()) {
                 str << blankSeparator << "-u \"";
                 int i = 0;
-                foreach (const QString &u, uninitializedVariables) {
+                for (const QString &u : variables) {
                     if (i++)
                         str << ',';
                     str << localsPrefixC << u;

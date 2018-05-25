@@ -49,9 +49,8 @@ QString cppFunctionAt(const QString &fileName, int line, int column = 0);
 // Get variables that are not initialized at a certain line
 // of a function from the code model. Shadowed variables will
 // be reported using the debugger naming conventions '<shadowed n>'
-bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
-   const QString &function, const QString &file, int line,
-   QStringList *uninitializedVariables);
+QStringList getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
+                                      const QString &function, const QString &file, int line);
 
 ContextData getLocationContext(TextEditor::TextDocument *document, int lineNumber);
 
