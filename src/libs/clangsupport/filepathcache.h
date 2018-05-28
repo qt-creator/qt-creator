@@ -121,7 +121,7 @@ public:
     {
         Utils::SmallStringView directoryPath = filePath.directory();
 
-        int directoryId = m_directyPathCache.stringId(directoryPath,
+        int directoryId = m_directoryPathCache.stringId(directoryPath,
                                                       [&] (const Utils::SmallStringView) {
             return m_filePathStorage.fetchDirectoryId(directoryPath);
         });
@@ -143,7 +143,7 @@ public:
 
         auto fetchFilePath = [&] (int id) { return m_filePathStorage.fetchDirectoryPath(id); };
 
-        Utils::PathString directoryPath = m_directyPathCache.string(filePathId.directoryId,
+        Utils::PathString directoryPath = m_directoryPathCache.string(filePathId.directoryId,
                                                                     fetchFilePath);
 
 
@@ -158,7 +158,7 @@ public:
     }
 
 private:
-    mutable DirectoryPathCache m_directyPathCache;
+    mutable DirectoryPathCache m_directoryPathCache;
     mutable FileNameCache m_fileNameCache;
     FilePathStorage &m_filePathStorage;
 };
