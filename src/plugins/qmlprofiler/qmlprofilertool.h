@@ -77,6 +77,14 @@ public:
 
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber);
 
+    void showSaveDialog();
+    void showLoadDialog();
+
+    void profileStartupProject();
+
+    QAction *startAction() const;
+    QAction *stopAction() const;
+
 private:
     void clearEvents();
     void clearData();
@@ -85,10 +93,6 @@ private:
     void updateTimeDisplay();
     void showTimeLineSearch();
 
-    void showSaveOption();
-    void showLoadOption();
-    void showSaveDialog();
-    void showLoadDialog();
     void onLoadSaveFinished();
 
     void toggleRequestedFeature(QAction *action);

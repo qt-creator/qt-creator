@@ -15,6 +15,7 @@ SOURCES += \
     qmleventlocation.cpp \
     qmleventtype.cpp \
     qmlnote.cpp \
+    qmlprofileractions.cpp \
     qmlprofileranimationsmodel.cpp \
     qmlprofilerattachdialog.cpp \
     qmlprofilerbindingloopsrenderpass.cpp \
@@ -55,6 +56,7 @@ HEADERS += \
     qmleventtype.h \
     qmlnote.h \
     qmlprofiler_global.h \
+    qmlprofileractions.h \
     qmlprofileranimationsmodel.h \
     qmlprofilerattachdialog.h \
     qmlprofilerbindingloopsrenderpass.h \

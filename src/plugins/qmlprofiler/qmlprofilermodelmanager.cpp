@@ -202,6 +202,12 @@ void QmlProfilerModelManager::replayQmlEvents(QmlEventLoader loader,
     }
 }
 
+void QmlProfilerModelManager::clearEventStorage()
+{
+    TimelineTraceManager::clearEventStorage();
+    emit traceChanged();
+}
+
 static QString getDisplayName(const QmlEventType &event)
 {
     if (event.location().filename().isEmpty()) {
@@ -255,6 +261,7 @@ void QmlProfilerModelManager::finalize()
     // which happens on stateChanged(Done).
 
     TimelineTraceManager::finalize();
+    emit traceChanged();
 }
 
 void QmlProfilerModelManager::populateFileFinder(const ProjectExplorer::Target *target)

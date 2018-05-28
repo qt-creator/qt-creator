@@ -83,12 +83,15 @@ public:
     QmlEventFilter rangeFilter(qint64 start, qint64 end) const;
 
 signals:
+    void traceChanged();
     void typeDetailsChanged(int typeId);
     void typeDetailsFinished();
 
 private:
     void detailsChanged(int typeId, const QString &newString);
     void restrictByFilter(QmlEventFilter filter);
+
+    void clearEventStorage() final;
 
     Timeline::TimelineTraceFile *createTraceFile() override;
     void replayEvents(TraceEventLoader loader, Initializer initializer, Finalizer finalizer,

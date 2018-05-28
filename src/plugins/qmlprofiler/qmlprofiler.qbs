@@ -31,6 +31,7 @@ QtcPlugin {
             "qmleventtype.cpp", "qmleventtype.h",
             "qmlnote.cpp", "qmlnote.h",
             "qmlprofiler_global.h",
+            "qmlprofileractions.h", "qmlprofileractions.cpp"
             "qmlprofileranimationsmodel.h", "qmlprofileranimationsmodel.cpp",
             "qmlprofilerattachdialog.cpp", "qmlprofilerattachdialog.h",
             "qmlprofilerbindingloopsrenderpass.cpp","qmlprofilerbindingloopsrenderpass.h",
