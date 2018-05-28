@@ -191,6 +191,8 @@ void QmlProfilerTraceFile::loadQtd(QIODevice *device)
 
     if (stream.hasError())
         fail(tr("Error while parsing trace data file: %1").arg(stream.errorString()));
+    else
+        finish();
 }
 
 void QmlProfilerTraceFile::loadQzt(QIODevice *device)
@@ -285,6 +287,8 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
         buffer.close();
         setDeviceProgress(device);
     }
+
+    finish();
 }
 
 void QmlProfilerTraceFile::addEventsProgress(qint64 timestamp)

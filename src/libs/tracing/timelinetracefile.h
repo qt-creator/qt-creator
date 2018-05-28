@@ -64,7 +64,9 @@ public:
 
     virtual void save(QIODevice *device) = 0;
     virtual void load(QIODevice *device) = 0;
+
     void fail(const QString &message);
+    void finish();
 
     void setTraceStart(qint64 traceStart) { m_traceStart = traceStart; }
     qint64 traceStart() const { return m_traceStart; }
