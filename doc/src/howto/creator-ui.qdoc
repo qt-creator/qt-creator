@@ -403,6 +403,10 @@
         \li \uicontrol {Build System} - Errors and warnings encountered during a
             build.
 
+        \li \uicontrol {Clang Code Model} -
+            \l {Parsing C++ Files with the Clang Code Model}
+            {Errors and warnings from the current editor}.
+
         \li \uicontrol Compile - Selected output from the compiler. Open the
             \uicontrol {Compile Output} pane for more detailed information.
 
@@ -421,6 +425,8 @@
         \li \uicontrol {My Tasks} - Entries from a task list file (.tasks) generated
             by \l{Showing Task List Files in Issues Pane}
             {code scanning and analysis tools}.
+
+        \li \uicontrol Python - Runtime errors and exceptions of Python scripts.
 
         \li \uicontrol QML - Errors in QML syntax.
 
