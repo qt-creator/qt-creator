@@ -2210,7 +2210,7 @@ void EditorManagerPrivate::autoSuspendDocuments()
         return;
 
     auto visibleDocuments = Utils::transform<QSet>(EditorManager::visibleEditors(),
-                                                   [](IEditor *editor) { return editor->document(); });
+                                                   &IEditor::document);
     int keptEditorCount = 0;
     QList<IDocument *> documentsToSuspend;
     foreach (const EditLocation &editLocation, d->m_globalHistory) {

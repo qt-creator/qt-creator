@@ -166,8 +166,7 @@ void JsonSummaryPage::cleanupPage()
 void JsonSummaryPage::triggerCommit(const JsonWizard::GeneratorFiles &files)
 {
     GeneratedFiles coreFiles
-            = Utils::transform(files, [](const JsonWizard::GeneratorFile &f) -> GeneratedFile
-                                      { return f.file; });
+            = Utils::transform(files, &JsonWizard::GeneratorFile::file);
 
     QString errorMessage;
     if (!runVersionControl(coreFiles, &errorMessage)) {

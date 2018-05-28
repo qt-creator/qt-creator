@@ -3211,8 +3211,7 @@ void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const QStri
         const QString message = tr("Could not add following files to project %1:")
                 .arg(folderNode->managingProject()->displayName()) + QLatin1Char('\n');
         const QStringList nativeFiles
-                = Utils::transform(notAdded,
-                                   [](const QString &f) { return QDir::toNativeSeparators(f); });
+                = Utils::transform(notAdded, &QDir::toNativeSeparators);
         QMessageBox::warning(ICore::mainWindow(), tr("Adding Files to Project Failed"),
                              message + nativeFiles.join(QLatin1Char('\n')));
         fileNames = Utils::filtered(fileNames,

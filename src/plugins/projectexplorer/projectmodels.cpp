@@ -338,7 +338,7 @@ WrapperNode *FlatModel::nodeForProject(const Project *project) const
 void FlatModel::loadExpandData()
 {
     const QList<QVariant> data = SessionManager::value("ProjectTree.ExpandData").value<QList<QVariant>>();
-    m_toExpand = Utils::transform<QSet>(data, [](const QVariant &v) { return ExpandData::fromSettings(v); });
+    m_toExpand = Utils::transform<QSet>(data, &ExpandData::fromSettings);
     m_toExpand.remove(ExpandData());
 }
 

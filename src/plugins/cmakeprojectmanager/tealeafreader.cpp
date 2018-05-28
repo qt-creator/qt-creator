@@ -271,7 +271,7 @@ void TeaLeafReader::generateProjectTree(CMakeProjectNode *root, const QList<cons
 
     // Delete no longer necessary file watcher based on m_cmakeFiles:
     const QSet<FileName> currentWatched
-            = transform(m_watchedFiles, [](CMakeFile *cmf) { return cmf->filePath(); });
+            = transform(m_watchedFiles, &CMakeFile::filePath);
     const QSet<FileName> toWatch = m_cmakeFiles;
     QSet<FileName> toDelete = currentWatched;
     toDelete.subtract(toWatch);
@@ -383,7 +383,7 @@ void TeaLeafReader::updateCodeModel(CppTools::RawProjectParts &rpps)
 
         rpp.setMacros(cbt.macros);
         rpp.setDisplayName(cbt.title);
-        rpp.setFiles(transform(cbt.files, [](const FileName &fn) { return fn.toString(); }));
+        rpp.setFiles(transform(cbt.files, &FileName::toString));
 
         const bool isExecutable = cbt.targetType == ExecutableType;
         rpp.setBuildTargetType(isExecutable ? CppTools::ProjectPart::Executable

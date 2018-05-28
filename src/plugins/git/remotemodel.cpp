@@ -38,7 +38,7 @@ RemoteModel::RemoteModel(QObject *parent) : QAbstractTableModel(parent)
 
 QStringList RemoteModel::allRemoteNames() const
 {
-    return Utils::transform(m_remotes, std::mem_fn(&Remote::name));
+    return Utils::transform(m_remotes, &Remote::name);
 }
 
 QString RemoteModel::remoteName(int row) const

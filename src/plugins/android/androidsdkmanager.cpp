@@ -313,9 +313,7 @@ SdkPlatformList AndroidSdkManager::installedSdkPlatforms()
 {
     AndroidSdkPackageList list = m_d->filteredPackages(AndroidSdkPackage::Installed,
                                                        AndroidSdkPackage::SdkPlatformPackage);
-    return Utils::transform(list, [](AndroidSdkPackage *p) {
-       return static_cast<SdkPlatform *>(p);
-    });
+    return Utils::qobject_container_cast<SdkPlatform *>(list);
 }
 
 const AndroidSdkPackageList &AndroidSdkManager::allSdkPackages()

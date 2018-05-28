@@ -532,9 +532,7 @@ void AndroidDeviceDialog::devicesRefreshed()
 
     AndroidDeviceInfoList devices = m_futureWatcherRefreshDevices.result();
     QSet<QString> startedAvds = Utils::transform<QSet>(m_connectedDevices,
-                                                       [] (const AndroidDeviceInfo &info) {
-                                                           return info.avdname;
-                                                       });
+                                                       &AndroidDeviceInfo::avdname);
 
     for (const AndroidDeviceInfo &dev : devices)
         if (!startedAvds.contains(dev.avdname))

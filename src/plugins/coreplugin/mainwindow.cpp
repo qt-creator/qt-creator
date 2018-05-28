@@ -353,10 +353,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::openDroppedFiles(const QList<DropSupport::FileSpec> &files)
 {
     raiseWindow();
-    QStringList filePaths = Utils::transform(files,
-                                             [](const DropSupport::FileSpec &spec) -> QString {
-                                                 return spec.filePath;
-                                             });
+    QStringList filePaths = Utils::transform(files, &DropSupport::FileSpec::filePath);
     openFiles(filePaths, ICore::SwitchMode);
 }
 
