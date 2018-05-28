@@ -28,26 +28,6 @@
 
 namespace QmlProfiler {
 
-QDataStream &operator>>(QDataStream &stream, QmlEventType &type)
-{
-    quint8 message;
-    quint8 rangeType;
-    QString displayName;
-    stream >> displayName >> type.m_data >> type.m_location >> message >> rangeType
-           >> type.m_detailType;
-    type.setDisplayName(displayName);
-    type.m_message = static_cast<Message>(message);
-    type.m_rangeType = static_cast<RangeType>(rangeType);
-    return stream;
-}
-
-QDataStream &operator<<(QDataStream &stream, const QmlEventType &type)
-{
-    return stream << type.displayName() << type.m_data << type.m_location
-                  << static_cast<quint8>(type.m_message) << static_cast<quint8>(type.m_rangeType)
-                  << type.m_detailType;
-}
-
 static ProfileFeature qmlFeatureFromType(Message message, RangeType rangeType, int detailType)
 {
     switch (message) {
@@ -73,6 +53,27 @@ static ProfileFeature qmlFeatureFromType(Message message, RangeType rangeType, i
     default:
         return featureFromRangeType(rangeType);
     }
+}
+
+QDataStream &operator>>(QDataStream &stream, QmlEventType &type)
+{
+    quint8 message;
+    quint8 rangeType;
+    QString displayName;
+    stream >> displayName >> type.m_data >> type.m_location >> message >> rangeType
+           >> type.m_detailType;
+    type.setDisplayName(displayName);
+    type.m_message = static_cast<Message>(message);
+    type.m_rangeType = static_cast<RangeType>(rangeType);
+    type.setFeature(qmlFeatureFromType(type.m_message, type.m_rangeType, type.m_detailType));
+    return stream;
+}
+
+QDataStream &operator<<(QDataStream &stream, const QmlEventType &type)
+{
+    return stream << type.displayName() << type.m_data << type.m_location
+                  << static_cast<quint8>(type.m_message) << static_cast<quint8>(type.m_rangeType)
+                  << type.m_detailType;
 }
 
 QmlEventType::QmlEventType(Message message, RangeType rangeType, int detailType,

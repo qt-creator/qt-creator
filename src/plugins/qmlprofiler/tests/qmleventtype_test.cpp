@@ -136,6 +136,7 @@ void QmlEventTypeTest::testStreamOps()
 
     rstream >> type2;
 
+    QCOMPARE(type.feature(), type2.feature());
     QCOMPARE(type.message(), type2.message());
     QCOMPARE(type.rangeType(), type2.rangeType());
     QCOMPARE(type.detailType(), type2.detailType());
