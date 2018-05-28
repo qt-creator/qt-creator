@@ -41,7 +41,7 @@ def main():
     waitFor("runButton.enabled", 30000)
     # Starting before opening, because this is where Creator froze (QTCREATORBUG-10733)
     startopening = datetime.utcnow()
-    openQmakeProject(pathCreator, [Targets.DESKTOP_5_6_1_DEFAULT])
+    openQmakeProject(pathCreator, [Targets.DESKTOP_5_10_1_DEFAULT])
     # Wait for parsing to complete
     startreading = datetime.utcnow()
     waitFor("runButton.enabled", 300000)
@@ -64,9 +64,9 @@ def main():
         openGeneralMessages()
     # Verify messages appear once, from using default kit before configuring
     generalMessages = str(waitForObject(":Qt Creator_Core::OutputWindow").plainText)
-    test.compare(generalMessages.count("Project MESSAGE: Cannot build Qt Creator with Qt version 5.6.1."), 2,
+    test.compare(generalMessages.count("Project MESSAGE: Cannot build Qt Creator with Qt version 5.6.1."), 1,
                  "Warning about outdated Qt shown?")
-    test.compare(generalMessages.count("Project ERROR: Use at least Qt 5.6.2."), 2,
+    test.compare(generalMessages.count("Project ERROR: Use at least Qt 5.6.2."), 1,
                  "Minimum Qt version shown (once when parsing with default kit, once with selected)?")
 
     # Verify that qmljs.g is in the project even when we don't know where (QTCREATORBUG-17609)
