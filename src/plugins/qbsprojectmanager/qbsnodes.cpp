@@ -353,6 +353,15 @@ bool QbsGroupNode::renameFile(const QString &filePath, const QString &newFilePat
                                                    prdNode->qbsProductData(), m_qbsGroupData);
 }
 
+FolderNode::AddNewInformation QbsGroupNode::addNewInformation(const QStringList &files,
+                                                              Node *context) const
+{
+    AddNewInformation info = QbsBaseProjectNode::addNewInformation(files, context);
+    if (context != this)
+        --info.priority;
+    return info;
+}
+
 // --------------------------------------------------------------------
 // QbsProductNode:
 // --------------------------------------------------------------------

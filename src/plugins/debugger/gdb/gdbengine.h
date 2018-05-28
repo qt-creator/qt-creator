@@ -61,7 +61,7 @@ struct CoreInfo
     QString foundExecutableName; // empty if no corresponding exec could be found
     bool isCore = false;
 
-    static CoreInfo readExecutableNameFromCore(const ProjectExplorer::StandardRunnable &debugger,
+    static CoreInfo readExecutableNameFromCore(const ProjectExplorer::Runnable &debugger,
                                                const QString &coreFile);
 };
 

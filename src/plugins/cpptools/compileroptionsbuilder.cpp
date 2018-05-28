@@ -565,10 +565,10 @@ QString clangIncludeDirectory(const QString &clangVersion, const QString &clangR
 QString clangExecutable(const QString &clangBinDirectory)
 {
     const QString hostExeSuffix(QTC_HOST_EXE_SUFFIX);
-    QDir executable(creatorLibexecPath() + "/clang/bin/clang" + hostExeSuffix);
+    QFileInfo executable(creatorLibexecPath() + "/clang/bin/clang" + hostExeSuffix);
     if (!executable.exists())
-        executable = QDir(clangBinDirectory + "/clang" + hostExeSuffix);
-    return QDir::toNativeSeparators(executable.canonicalPath());
+        executable = QFileInfo(clangBinDirectory + "/clang" + hostExeSuffix);
+    return QDir::toNativeSeparators(executable.canonicalFilePath());
 }
 
 void CompilerOptionsBuilder::undefineClangVersionMacrosForMsvc()

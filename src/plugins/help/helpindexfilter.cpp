@@ -70,9 +70,7 @@ void HelpIndexFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
     QStringList namespaces = HelpManager::registeredNamespaces();
-    m_helpDatabases = Utils::transform(namespaces, [](const QString &ns) {
-        return HelpManager::fileFromNamespace(ns);
-    });
+    m_helpDatabases = Utils::transform(namespaces, &HelpManager::fileFromNamespace);
 }
 
 QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)

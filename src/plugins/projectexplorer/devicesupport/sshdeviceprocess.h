@@ -29,7 +29,7 @@
 
 namespace ProjectExplorer {
 
-class StandardRunnable;
+class Runnable;
 
 class PROJECTEXPLORER_EXPORT SshDeviceProcess : public DeviceProcess
 {
@@ -67,7 +67,7 @@ private:
     void handleKillOperationFinished(const QString &errorMessage);
     void handleKillOperationTimeout();
 
-    virtual QString fullCommandLine(const StandardRunnable &runnable) const;
+    virtual QString fullCommandLine(const Runnable &runnable) const;
     virtual qint64 processId() const;
 
     class SshDeviceProcessPrivate;

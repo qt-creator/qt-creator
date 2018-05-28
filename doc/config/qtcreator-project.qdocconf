@@ -65,7 +65,7 @@ qhp.QtCreator.indexRoot        =
 
 qhp.QtCreator.subprojects = manual
 qhp.QtCreator.subprojects.manual.title = Qt Creator Manual
-qhp.QtCreator.subprojects.manual.indexTitle = Qt Creator TOC
+qhp.QtCreator.subprojects.manual.indexTitle = All Topics
 qhp.QtCreator.subprojects.manual.type = manual
 
 # Doxygen compatibility commands

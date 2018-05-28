@@ -51,10 +51,8 @@ public:
 
         UpdateDocumentAnnotations,
         UpdateExtraDocumentAnnotations,
-        CreateInitialDocumentPreamble,
 
         ParseSupportiveTranslationUnit,
-        ReparseSupportiveTranslationUnit,
 
         CompleteCode,
         RequestDocumentAnnotations,

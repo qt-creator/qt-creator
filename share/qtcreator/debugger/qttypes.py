@@ -492,7 +492,7 @@ def qdump__QFile(d, value):
     if qtVersion >= 0x050700:
         if d.isWindowsTarget():
             if d.isMsvcTarget():
-                offset = 184 if is32bit else 248
+                offset = 176 if is32bit else 248
             else:
                 offset = 172 if is32bit else 248
         else:

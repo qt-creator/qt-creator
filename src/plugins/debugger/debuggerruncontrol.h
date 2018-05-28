@@ -181,7 +181,7 @@ public:
 
     ~GdbServerRunner() override;
 
-    void setRunnable(const ProjectExplorer::StandardRunnable &runnable);
+    void setRunnable(const ProjectExplorer::Runnable &runnable);
     void setUseMulti(bool on);
     void setAttachPid(Utils::ProcessHandle pid);
 
@@ -189,7 +189,7 @@ private:
     void start() override;
 
     GdbServerPortsGatherer *m_portsGatherer;
-    ProjectExplorer::StandardRunnable m_runnable;
+    ProjectExplorer::Runnable m_runnable;
     Utils::ProcessHandle m_pid;
     bool m_useMulti = true;
 };

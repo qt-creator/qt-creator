@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "clangfixitsrefactoringchanges.h"
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolsprojectsettings.h"
 
@@ -42,14 +43,29 @@ namespace ProjectExplorer { class Project; }
 namespace ClangTools {
 namespace Internal {
 
+enum class FixitStatus {
+    NotAvailable,
+    NotScheduled,
+    Scheduled,
+    Applied,
+    FailedToApply,
+    Invalidated,
+};
+
 class DiagnosticItem : public Utils::TreeItem
 {
 public:
-    using OnCheckedFixit = std::function<void(bool)>;
-    DiagnosticItem(const Diagnostic &diag, const OnCheckedFixit &onCheckedFixit);
+    using OnFixitStatusChanged = std::function<void(FixitStatus newStatus)>;
+    DiagnosticItem(const Diagnostic &diag, const OnFixitStatusChanged &onFixitStatusChanged);
+    ~DiagnosticItem() override;
 
     Diagnostic diagnostic() const { return m_diagnostic; }
-    bool applyFixits() const { return m_applyFixits; }
+
+    FixitStatus fixItStatus() const { return m_fixitStatus; }
+    void setFixItStatus(const FixitStatus &status);
+
+    ReplacementOperations &fixitOperations() { return m_fixitOperations; }
+    void setFixitOperations(const ReplacementOperations &replacements);
 
 private:
     Qt::ItemFlags flags(int column) const override;
@@ -58,8 +74,10 @@ private:
 
 private:
     const Diagnostic m_diagnostic;
-    bool m_applyFixits = false;
-    OnCheckedFixit m_onCheckedFixit;
+    OnFixitStatusChanged m_onFixitStatusChanged;
+
+    ReplacementOperations  m_fixitOperations;
+    FixitStatus m_fixitStatus = FixitStatus::NotAvailable;
 };
 
 class ClangToolsDiagnosticModel : public Utils::TreeModel<>

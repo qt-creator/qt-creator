@@ -250,7 +250,7 @@ Runnable CustomExecutableRunConfiguration::runnable() const
 {
     FileName workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory();
 
-    StandardRunnable r;
+    Runnable r;
     r.executable = extraAspect<ExecutableAspect>()->executable().toString();
     r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
     r.environment = extraAspect<EnvironmentAspect>()->environment();

@@ -321,7 +321,7 @@ QList<Kit *> KitManager::sortKits(const QList<Kit *> kits)
             return a.second < b.second;
         return a. first < b.first;
     });
-    return Utils::transform(sortList, [](const QPair<QString, Kit *> &a) { return a.second; });
+    return Utils::transform(sortList, &QPair<QString, Kit *>::second);
 }
 
 KitManager::KitList KitManager::restoreKits(const FileName &fileName)

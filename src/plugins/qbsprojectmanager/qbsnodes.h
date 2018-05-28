@@ -89,6 +89,8 @@ public:
     qbs::GroupData qbsGroupData() const { return m_qbsGroupData; }
 
 private:
+    AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
+
     qbs::GroupData m_qbsGroupData;
     QString m_productPath;
 };

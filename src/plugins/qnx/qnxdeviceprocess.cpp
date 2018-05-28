@@ -26,7 +26,7 @@
 #include "qnxdeviceprocess.h"
 
 #include <projectexplorer/devicesupport/sshdeviceprocess.h>
-#include <projectexplorer/runnables.h>
+
 #include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
@@ -43,7 +43,7 @@ QnxDeviceProcess::QnxDeviceProcess(const QSharedPointer<const IDevice> &device, 
     m_pidFile = QString::fromLatin1("/var/run/qtc.%1.pid").arg(++pidFileCounter);
 }
 
-QString QnxDeviceProcess::fullCommandLine(const StandardRunnable &runnable) const
+QString QnxDeviceProcess::fullCommandLine(const Runnable &runnable) const
 {
     QStringList args = QtcProcess::splitArgs(runnable.commandLineArguments);
     args.prepend(runnable.executable);
@@ -69,7 +69,7 @@ QString QnxDeviceProcess::fullCommandLine(const StandardRunnable &runnable) cons
 void QnxDeviceProcess::doSignal(int sig)
 {
     auto signaler = new SshDeviceProcess(device(), this);
-    StandardRunnable r;
+    Runnable r;
     r.executable = QString::fromLatin1("kill -%2 `cat %1`").arg(m_pidFile).arg(sig);
     connect(signaler, &SshDeviceProcess::finished, signaler, &QObject::deleteLater);
     signaler->start(r);

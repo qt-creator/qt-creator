@@ -26,8 +26,6 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    test.warning("This needs a Qt 5.6.2 kit. Skipping it.")
-    return
     pathCreator = os.path.join(srcPath, "creator", "qtcreator.qbs")
     if not neededFilePresent(pathCreator):
         return
@@ -36,8 +34,8 @@ def main():
     if not startedWithoutPluginError():
         return
     openQbsProject(pathCreator)
-    if not addAndActivateKit(Targets.DESKTOP_5_6_1_DEFAULT):
-        test.fatal("Failed to activate '%s'" % Targets.getStringForTarget(Targets.DESKTOP_5_4_1_GCC))
+    if not addAndActivateKit(Targets.DESKTOP_5_10_1_DEFAULT):
+        test.fatal("Failed to activate '%s'" % Targets.getStringForTarget(Targets.DESKTOP_5_10_1_DEFAULT))
         invokeMenuItem("File", "Exit")
         return
     test.log("Start parsing project")

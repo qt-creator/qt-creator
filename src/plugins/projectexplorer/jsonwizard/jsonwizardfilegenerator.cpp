@@ -189,7 +189,7 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::MacroExpander *exp
             = Utils::partition(concreteFiles, [](const File &f) { return !QFileInfo(f.source).isDir(); });
 
     const QSet<QString> knownFiles
-            = QSet<QString>::fromList(Utils::transform(fileList, [](const File &f) { return f.target; }));
+            = QSet<QString>::fromList(Utils::transform(fileList, &File::target));
 
     foreach (const File &dir, dirList) {
         QDir sourceDir(dir.source);

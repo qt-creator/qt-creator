@@ -29,7 +29,7 @@
 
 #include <QDialog>
 
-namespace ProjectExplorer { class StandardRunnable; }
+namespace ProjectExplorer { class Runnable; }
 
 namespace Debugger {
 
@@ -43,7 +43,7 @@ public:
     explicit StartRemoteDialog(QWidget *parent = nullptr);
     ~StartRemoteDialog() override;
 
-    ProjectExplorer::StandardRunnable runnable() const;
+    ProjectExplorer::Runnable runnable() const;
 
 private:
     void validate();

@@ -144,34 +144,8 @@ TEST_F(SupportiveTranslationUnitInitializerSlowTest, CheckIfParseJobFinishedStar
     initializer.checkIfParseJobFinished(runningJob);
     jobs.process();
 
-    assertSingleJobRunningAndEmptyQueue();
-    runningJob = jobs.runningJobs().first();
-    ASSERT_THAT(runningJob.jobRequest.type, JobRequest::Type::ReparseSupportiveTranslationUnit);
-}
-
-TEST_F(SupportiveTranslationUnitInitializer, CheckIfReparseJobFinishedAbortsIfDocumentIsClosed)
-{
-    documents.remove({FileContainer(filePath, projectPartId)});
-    initializer.setState(ClangBackEnd::SupportiveTranslationUnitInitializer::State::WaitingForReparseJob);
-    const Jobs::RunningJob runningJob = createRunningJob(JobRequest::Type::ReparseSupportiveTranslationUnit);
-
-    initializer.checkIfReparseJobFinished(runningJob);
-
-    assertNoJobIsRunningAndEmptyQueue();
-    ASSERT_THAT(initializer.state(), Eq(ClangBackEnd::SupportiveTranslationUnitInitializer::State::Aborted));
-}
-
-TEST_F(SupportiveTranslationUnitInitializerSlowTest, CheckIfReparseJobFinishedStartsJob)
-{
-    parse();
-    initializer.setState(ClangBackEnd::SupportiveTranslationUnitInitializer::State::WaitingForReparseJob);
-    Jobs::RunningJob runningJob = createRunningJob(JobRequest::Type::ReparseSupportiveTranslationUnit);
-
-    initializer.checkIfReparseJobFinished(runningJob);
-    jobs.process();
-
-    assertNoJobIsRunningAndEmptyQueue();
-    ASSERT_THAT(initializer.state(), Eq(ClangBackEnd::SupportiveTranslationUnitInitializer::State::Initialized));
+    ASSERT_THAT(jobs.runningJobs(), IsEmpty());
+    ASSERT_THAT(jobs.queue(), IsEmpty());
 }
 
 TEST_F(SupportiveTranslationUnitInitializerSlowTest, FullRun)

@@ -1413,20 +1413,18 @@ void BaseQtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Tar
     QTC_CHECK(projects.isEmpty() || startupProject);
 
     QString projectDirectory;
-    QStringList sourceFiles;
+    Utils::FileNameList sourceFiles;
 
     // Sort files from startupProject to the front of the list ...
     if (startupProject) {
         projectDirectory = startupProject->projectDirectory().toString();
-        sourceFiles.append(Utils::transform(startupProject->files(ProjectExplorer::Project::SourceFiles),
-                                            &Utils::FileName::toString));
+        sourceFiles.append(startupProject->files(ProjectExplorer::Project::SourceFiles));
     }
 
     // ... then add all the other projects' files.
     for (const ProjectExplorer::Project *project : projects) {
         if (project != startupProject)
-            sourceFiles.append(Utils::transform(project->files(ProjectExplorer::Project::SourceFiles),
-                                                &Utils::FileName::toString));
+            sourceFiles.append(project->files(ProjectExplorer::Project::SourceFiles));
     }
 
     // If no target was given, but we've found a startupProject, then try to deduce a
@@ -1815,9 +1813,8 @@ bool BaseQtVersion::isQtQuickCompilerSupported(QString *reason) const
         return false;
     }
 
-    const QString qtQuickCompilerExecutable =
-            HostOsInfo::withExecutableSuffix(binPath().toString() + "/qtquickcompiler");
-    if (!QFileInfo::exists(qtQuickCompilerExecutable)) {
+    const QString qtQuickCompilerPrf = mkspecsPath().toString() + "/features/qtquickcompiler.prf";
+    if (!QFileInfo::exists(qtQuickCompilerPrf)) {
         if (reason)
             *reason = QCoreApplication::translate("BaseQtVersion", "This Qt Version does not contain Qt Quick Compiler.");
         return false;

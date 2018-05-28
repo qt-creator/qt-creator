@@ -30,6 +30,7 @@
 #include "projectexplorer.h"
 #include "projecttree.h"
 #include "session.h"
+#include "target.h"
 
 #include <coreplugin/fileiconprovider.h>
 #include <utils/utilsicons.h>
@@ -98,8 +99,11 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
 {
     QVariant result;
 
-    if (Node *node = nodeForIndex(index)) {
-        FolderNode *folderNode = node->asFolderNode();
+    if (const Node *node = nodeForIndex(index)) {
+        const FolderNode *folderNode = node->asFolderNode();
+        const ContainerNode *containerNode = node->asContainerNode();
+        const Project *project = containerNode ? containerNode->project() : nullptr;
+
         switch (role) {
         case Qt::DisplayRole: {
             result = node->displayName();
@@ -110,16 +114,31 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
             break;
         }
         case Qt::ToolTipRole: {
-            result = node->tooltip();
+            QString tooltip = node->tooltip();
+
+            if (project) {
+                if (project->activeTarget()) {
+                    QString projectIssues = toHtml(project->projectIssues(project->activeTarget()->kit()));
+                    if (!projectIssues.isEmpty())
+                        tooltip += "<p>" + projectIssues;
+                } else {
+                    tooltip += "<p>" + tr("No Kit is used for this project. "
+                                          "Please visit \"Projects\" mode for configuration.");
+                }
+            }
+            result = tooltip;
             break;
         }
         case Qt::DecorationRole: {
             if (folderNode) {
+                static QIcon warnIcon = Utils::Icons::WARNING.icon();
                 static QIcon emptyIcon = Utils::Icons::EMPTY16.icon();
-                if (ContainerNode *containerNode = folderNode->asContainerNode()) {
-                    Project *project = containerNode->project();
-                    if (project && project->isParsing())
+                if (project) {
+                    if (project->isParsing())
                         result = emptyIcon;
+                    else if (!project->activeTarget()
+                             || !project->projectIssues(project->activeTarget()->kit()).isEmpty())
+                        result = warnIcon;
                     else
                         result = containerNode->rootProjectNode() ? containerNode->rootProjectNode()->icon() :
                                                                     folderNode->icon();
@@ -133,10 +152,8 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         }
         case Qt::FontRole: {
             QFont font;
-            if (Project *project = SessionManager::startupProject()) {
-                if (node == project->containerNode())
-                    font.setBold(true);
-            }
+            if (project == SessionManager::startupProject())
+                font.setBold(true);
             result = font;
             break;
         }
@@ -149,13 +166,6 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
             break;
         }
         case Project::isParsingRole: {
-            const Project *project = nullptr;
-            if (node->asContainerNode()) {
-                WrapperNode *wn = wrapperForNode(node);
-                project = Utils::findOrDefault(SessionManager::projects(), [this, wn](const Project *p) {
-                    return nodeForProject(p) == wn;
-                });
-            }
             result = project ? project->isParsing() : false;
             break;
         }
@@ -328,7 +338,7 @@ WrapperNode *FlatModel::nodeForProject(const Project *project) const
 void FlatModel::loadExpandData()
 {
     const QList<QVariant> data = SessionManager::value("ProjectTree.ExpandData").value<QList<QVariant>>();
-    m_toExpand = Utils::transform<QSet>(data, [](const QVariant &v) { return ExpandData::fromSettings(v); });
+    m_toExpand = Utils::transform<QSet>(data, &ExpandData::fromSettings);
     m_toExpand.remove(ExpandData());
 }
 

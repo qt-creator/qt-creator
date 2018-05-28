@@ -28,7 +28,6 @@
 #include "projectexplorer_global.h"
 
 #include "projectexplorer/runconfigurationaspects.h"
-#include "projectexplorer/runnables.h"
 
 namespace ProjectExplorer {
 

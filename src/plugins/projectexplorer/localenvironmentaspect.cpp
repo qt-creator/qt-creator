@@ -27,7 +27,6 @@
 
 #include "buildconfiguration.h"
 #include "environmentaspectwidget.h"
-#include "runnables.h"
 #include "kit.h"
 #include "target.h"
 

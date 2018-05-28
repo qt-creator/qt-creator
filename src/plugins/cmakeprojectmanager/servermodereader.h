@@ -68,6 +68,8 @@ private:
     void handleProgress(int min, int cur, int max, const QString &inReplyTo);
     void handleSignal(const QString &signal, const QVariantMap &data);
 
+    void reportError();
+
     int calculateProgress(const int minRange, const int min,
                           const int cur,
                           const int max, const int maxRange);
@@ -165,6 +167,8 @@ private:
 
     int m_progressStepMinimum = 0;
     int m_progressStepMaximum = 1000;
+
+    QString m_delayedErrorMessage;
 
     CMakeConfig m_cmakeConfiguration;
 

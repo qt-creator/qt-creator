@@ -7,7 +7,6 @@ HEADERS += \
     $$PWD/clangcodecompleteresults.h \
     $$PWD/clangcodemodelserver.h \
     $$PWD/clangcompletecodejob.h \
-    $$PWD/clangcreateinitialdocumentpreamblejob.h \
     $$PWD/clangdocument.h \
     $$PWD/clangdocumentjob.h \
     $$PWD/clangdocumentprocessor.h \
@@ -26,7 +25,6 @@ HEADERS += \
     $$PWD/clangjobs.h \
     $$PWD/clangparsesupportivetranslationunitjob.h \
     $$PWD/clangreferencescollector.h \
-    $$PWD/clangreparsesupportivetranslationunitjob.h \
     $$PWD/clangrequestdocumentannotationsjob.h \
     $$PWD/clangrequestreferencesjob.h \
     $$PWD/clangrequesttooltipjob.h \
@@ -68,7 +66,6 @@ SOURCES += \
     $$PWD/clangcodecompleteresults.cpp \
     $$PWD/clangcodemodelserver.cpp \
     $$PWD/clangcompletecodejob.cpp \
-    $$PWD/clangcreateinitialdocumentpreamblejob.cpp \
     $$PWD/clangdocument.cpp \
     $$PWD/clangdocumentprocessor.cpp \
     $$PWD/clangdocumentprocessors.cpp \
@@ -87,7 +84,6 @@ SOURCES += \
     $$PWD/clangparsesupportivetranslationunitjob.cpp \
     $$PWD/clangresumedocumentjob.cpp \
     $$PWD/clangreferencescollector.cpp \
-    $$PWD/clangreparsesupportivetranslationunitjob.cpp \
     $$PWD/clangrequestdocumentannotationsjob.cpp \
     $$PWD/clangrequestreferencesjob.cpp \
     $$PWD/clangrequesttooltipjob.cpp \

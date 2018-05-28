@@ -40,7 +40,7 @@ public:
     void interrupt() { doSignal(2); }
     void terminate() { doSignal(15); }
     void kill() { doSignal(9); }
-    QString fullCommandLine(const ProjectExplorer::StandardRunnable &runnable) const;
+    QString fullCommandLine(const ProjectExplorer::Runnable &runnable) const;
 
 private:
     void doSignal(int sig);

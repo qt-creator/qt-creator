@@ -507,8 +507,11 @@ QWidget *KitEnvironmentConfigWidget::buttonWidget() const
 
 void KitEnvironmentConfigWidget::initMSVCOutputSwitch(QVBoxLayout *layout)
 {
-    m_vslangCheckbox = new QCheckBox(tr("Force English MSVC compiler output (VSLANG=1033)"));
+    m_vslangCheckbox = new QCheckBox(tr("Force UTF-8 MSVC compiler output"));
     layout->addWidget(m_vslangCheckbox);
+    m_vslangCheckbox->setToolTip(tr("Either switches MSVC to English or keeps the language and "
+                                    "just forces UTF-8 output (may vary depending on the used MSVC "
+                                    "compiler)."));
     connect(m_vslangCheckbox, &QCheckBox::toggled, this, [this](bool checked) {
         QList<Utils::EnvironmentItem> changes
                 = EnvironmentKitInformation::environmentChanges(m_kit);

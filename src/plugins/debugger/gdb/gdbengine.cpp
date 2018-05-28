@@ -696,7 +696,6 @@ void GdbEngine::interruptInferior()
         showStatusMessage(tr("Stop requested..."), 5000);
         showMessage("TRYING TO INTERRUPT INFERIOR");
         if (HostOsInfo::isWindowsHost() && !m_isQnxGdb) {
-            QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state(); notifyInferiorStopFailed());
             IDevice::ConstPtr device = runTool()->device();
             if (!device)
                 device = runParameters().inferior.device;
@@ -4832,7 +4831,7 @@ static QString findExecutableFromName(const QString &fileNameFromCore, const QSt
     return QString();
 }
 
-CoreInfo CoreInfo::readExecutableNameFromCore(const StandardRunnable &debugger, const QString &coreFile)
+CoreInfo CoreInfo::readExecutableNameFromCore(const Runnable &debugger, const QString &coreFile)
 {
     CoreInfo cinfo;
 #if 0

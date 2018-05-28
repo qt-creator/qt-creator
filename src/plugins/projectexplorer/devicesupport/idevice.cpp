@@ -31,7 +31,6 @@
 #include "../kit.h"
 #include "../kitinformation.h"
 #include "../runconfiguration.h"
-#include "../runnables.h"
 
 #include <ssh/sshconnection.h>
 #include <utils/icon.h>

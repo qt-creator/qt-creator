@@ -362,7 +362,7 @@ void QmakePriFile::update(const Internal::QmakePriFileEvalResult &result)
 void QmakePriFile::watchFolders(const QSet<FileName> &folders)
 {
     const QSet<QString> folderStrings =
-            Utils::transform(folders, [] (const FileName &f) { return f.toString(); });
+            Utils::transform(folders, &FileName::toString);
     QSet<QString> toUnwatch = m_watchedFolders;
     toUnwatch.subtract(folderStrings);
 

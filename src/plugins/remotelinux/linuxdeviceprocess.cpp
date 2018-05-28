@@ -25,7 +25,7 @@
 
 #include "linuxdeviceprocess.h"
 
-#include <projectexplorer/runnables.h>
+#include <projectexplorer/runconfiguration.h>
 
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
@@ -73,7 +73,7 @@ qint64 LinuxDeviceProcess::processId() const
     return m_processId;
 }
 
-QString LinuxDeviceProcess::fullCommandLine(const StandardRunnable &runnable) const
+QString LinuxDeviceProcess::fullCommandLine(const Runnable &runnable) const
 {
     const Environment env = runnable.environment;
 

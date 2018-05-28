@@ -26,7 +26,7 @@
 #include "desktopdeviceprocess.h"
 
 #include "idevice.h"
-#include "../runnables.h"
+#include "../runconfiguration.h"
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -51,12 +51,11 @@ DesktopDeviceProcess::DesktopDeviceProcess(const QSharedPointer<const IDevice> &
 
 void DesktopDeviceProcess::start(const Runnable &runnable)
 {
-    QTC_ASSERT(runnable.is<StandardRunnable>(), return);
     QTC_ASSERT(m_process.state() == QProcess::NotRunning, return);
-    auto r = runnable.as<StandardRunnable>();
-    m_process.setProcessEnvironment(r.environment.toProcessEnvironment());
-    m_process.setWorkingDirectory(r.workingDirectory);
-    m_process.start(r.executable, Utils::QtcProcess::splitArgs(r.commandLineArguments));
+    m_process.setProcessEnvironment(runnable.environment.toProcessEnvironment());
+    m_process.setWorkingDirectory(runnable.workingDirectory);
+    m_process.start(runnable.executable,
+                    Utils::QtcProcess::splitArgs(runnable.commandLineArguments));
 }
 
 void DesktopDeviceProcess::interrupt()

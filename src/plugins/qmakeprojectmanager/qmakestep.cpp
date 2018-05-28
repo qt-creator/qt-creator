@@ -97,14 +97,14 @@ QmakeBuildConfiguration *QMakeStep::qmakeBuildConfiguration() const
 /// config arguemnts
 /// moreArguments
 /// user arguments
-QString QMakeStep::allArguments(const BaseQtVersion *v, bool shorted) const
+QString QMakeStep::allArguments(const BaseQtVersion *v, ArgumentFlags flags) const
 {
     QTC_ASSERT(v, return QString());
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     QStringList arguments;
     if (bc->subNodeBuild())
         arguments << bc->subNodeBuild()->filePath().toUserOutput();
-    else if (shorted)
+    else if (flags & ArgumentFlag::OmitProjectPath)
         arguments << project()->projectFilePath().fileName();
     else
         arguments << project()->projectFilePath().toUserOutput();
@@ -134,7 +134,7 @@ QString QMakeStep::allArguments(const BaseQtVersion *v, bool shorted) const
     QtcProcess::addArgs(&args, m_userArgs);
     foreach (QString arg, m_extraArgs)
         QtcProcess::addArgs(&args, arg);
-    return args;
+    return (flags & ArgumentFlag::Expand) ? bc->macroExpander()->expand(args) : args;
 }
 
 QMakeStepConfig QMakeStep::deducedArguments() const
@@ -480,7 +480,7 @@ QString QMakeStep::effectiveQMakeCall() const
 
     QString result = qmake;
     if (qtVersion) {
-        result += ' ' + buildConfiguration()->macroExpander()->expand(allArguments(qtVersion));
+        result += ' ' + allArguments(qtVersion, ArgumentFlag::Expand);
         if (qtVersion->qtVersion() >= QtVersionNumber(5, 0, 0))
             result.append(QString::fromLatin1(" && %1 %2").arg(make).arg(makeArguments()));
     }
@@ -492,7 +492,7 @@ QStringList QMakeStep::parserArguments()
     QStringList result;
     BaseQtVersion *qt = QtKitInformation::qtVersion(target()->kit());
     QTC_ASSERT(qt, return QStringList());
-    for (QtcProcess::ConstArgIterator ait(allArguments(qt)); ait.next(); ) {
+    for (QtcProcess::ConstArgIterator ait(allArguments(qt, ArgumentFlag::Expand)); ait.next(); ) {
         if (ait.isSimple())
             result << ait.value();
     }
@@ -780,9 +780,12 @@ void QMakeStepConfigWidget::updateSummaryLabel()
         return;
     }
     // We don't want the full path to the .pro file
-    QString args = m_step->allArguments(qtVersion, true);
+    const QString args = m_step->allArguments(
+                qtVersion,
+                QMakeStep::ArgumentFlag::OmitProjectPath
+                | QMakeStep::ArgumentFlag::Expand);
     // And we only use the .pro filename not the full path
-    QString program = qtVersion->qmakeCommand().fileName();
+    const QString program = qtVersion->qmakeCommand().fileName();
     setSummaryText(tr("<b>qmake:</b> %1 %2").arg(program, args));
 }
 

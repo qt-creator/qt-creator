@@ -32,7 +32,6 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runnables.h>
 
 #include <ssh/sshconnection.h>
 
@@ -155,7 +154,7 @@ class DesktopPortsGatheringMethod : public PortsGatheringMethod
 
         Q_UNUSED(protocol)
 
-        StandardRunnable runnable;
+        Runnable runnable;
         if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost()) {
             runnable.executable = "netstat";
             runnable.commandLineArguments =  "-a -n";

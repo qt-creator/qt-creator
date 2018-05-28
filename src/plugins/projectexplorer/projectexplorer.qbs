@@ -120,7 +120,6 @@ Project {
                 "projectwindow.cpp", "projectwindow.h",
                 "projectwizardpage.cpp", "projectwizardpage.h", "projectwizardpage.ui",
                 "removetaskhandler.cpp", "removetaskhandler.h",
-                "runnables.cpp", "runnables.h",
                 "runconfiguration.cpp", "runconfiguration.h",
                 "runconfigurationaspects.cpp", "runconfigurationaspects.h",
                 "runsettingspropertiespage.cpp", "runsettingspropertiespage.h",

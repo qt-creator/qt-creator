@@ -27,8 +27,6 @@
 
 #include "qnxconstants.h"
 
-#include <projectexplorer/runnables.h>
-
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
 
@@ -46,7 +44,7 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Core::Id id)
 
 Runnable QnxRunConfiguration::runnable() const
 {
-    auto r = RemoteLinuxRunConfiguration::runnable().as<StandardRunnable>();
+    Runnable r = RemoteLinuxRunConfiguration::runnable();
     QString libPath = extraAspect<QtLibPathAspect>()->value();
     if (!libPath.isEmpty()) {
         r.environment.appendOrSet("LD_LIBRARY_PATH", libPath + "/lib:$LD_LIBRARY_PATH");

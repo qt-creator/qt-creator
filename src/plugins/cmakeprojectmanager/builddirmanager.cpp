@@ -356,8 +356,6 @@ QList<CMakeBuildTarget> BuildDirManager::takeBuildTargets() const
 
 CMakeConfig BuildDirManager::takeCMakeConfiguration() const
 {
-    QTC_ASSERT(!m_isHandlingError, return {});
-
     if (!m_reader)
         return CMakeConfig();
 

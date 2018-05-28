@@ -108,37 +108,10 @@
 
     \b {How do I reset all \QC settings?}
 
-    \QC creates the following files and directories:
+    Remove the settings files created by \QC.
 
-    \list
-
-        \li QtCreator.db
-
-        \li QtCreator.ini
-
-        \li qtversion.xml
-
-        \li toolChains.xml
-
-        \li qtcreator
-
-        \li qtc-qmldump
-
-    \endlist
-
-    The location depends on the platform. On Linux and other Unix platforms, the files
-    are located in \c {~/.config/QtProject} and \c {~/.local/share/data/QtProject/qtcreator}.
-
-    On \macos, the files are located in \c {~/.config/QtProject} and
-    \c {~/Library/Application Support/QtProject/Qt Creator}.
-
-    On Windows XP, the files are located in
-    \c {%SystemDrive%\Documents and Settings\%USERNAME%\Application Data\QtProject} and
-    \c {%SystemDrive%\Documents and Settings\%USERNAME%\Local Settings\Application Data\QtProject}.
-
-    On Windows Vista and Windows 7, the files are located in
-    \c {%SystemDrive%\Users\%USERNAME%\AppData\Roaming\QtProject} and
-    \c {%SystemDrive%\Users\%USERNAME%\AppData\Local\QtProject}.
+    For more information about where the files are located on each supported
+    platform, see \l {Location of Settings Files}.
 
     \b {\QC comes with MinGW, should I use this version with Qt?}
 

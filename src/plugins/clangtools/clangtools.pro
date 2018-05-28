@@ -9,6 +9,7 @@ LIBS += $$LIBCLANG_LIBS
 INCLUDEPATH += $$LLVM_INCLUDEPATH
 
 SOURCES += \
+    clangfixitsrefactoringchanges.cpp \
     clangselectablefilesdialog.cpp \
     clangtoolsdiagnosticview.cpp \
     clangtoolsprojectsettingswidget.cpp \
@@ -29,6 +30,7 @@ SOURCES += \
 
 HEADERS += \
     clangfileinfo.h \
+    clangfixitsrefactoringchanges.h \
     clangselectablefilesdialog.h \
     clangtoolsdiagnosticview.h \
     clangtoolsprojectsettingswidget.h \

@@ -74,7 +74,9 @@
     {corresponding keyboard shortcut}.
 
     To hide the mode selector and to save space on the display, select
-    \uicontrol Window > \uicontrol {Show Mode Selector}.
+    \uicontrol Window > \uicontrol {Mode Selector Style} > \uicontrol Hidden.
+    To only show icons on the mode selector, select the \uicontrol {Icons Only}
+    style.
 
     The following image displays an example application in \uicontrol Edit mode (1)
     and \uicontrol Design mode (2).
@@ -263,7 +265,9 @@
     By default, the contents of the directory that contains the file currently
     active in the editor are displayed. The path to the active file is displayed
     as bread crumbs. You can move to any directory along the path by clicking
-    it.
+    it. To hide the bread crumbs, select \inlineimage filtericon.png
+    (\uicontrol Options) and then deselect the \uicontrol {Show Bread Crumbs}
+    check box.
 
     To move to the root directory of the
     file system, select \uicontrol Computer in the menu (1). Select
@@ -271,11 +275,15 @@
     select a project to move to an open project or \uicontrol Projects to open
     the \uicontrol Projects view.
 
+    By default, folders are separated from files and listed first in the view.
+    To list all items in alphabetic order, select \uicontrol Options and then
+    deselect the \uicontrol {Show Folders on Top} check box.
+
+    To also show hidden files, select \uicontrol Options >
+    \uicontrol {Show Hidden Files}.
+
     To stop the synchronization with the file currently opened in the editor,
     deselect \uicontrol {Synchronize with Editor}.
-
-    To also show hidden files, select \uicontrol {Filter Files} >
-    \uicontrol {Show Hidden Files}.
 
     Use the context menu functions to:
 
@@ -292,15 +300,21 @@
 
         \li Search from the selected directory.
 
+        \li View file properties, such as MIME type, default editor, and size.
+
         \li Create new files. For more information, see
             \l{Adding Files to Projects}.
 
         \li Rename or remove existing files.
 
+        \li Create new folders.
+
         \li Compare the selected file with the currently open file in the diff
             editor. For more information, see \l{Comparing Files}.
 
         \li Display the contents of a particular directory in the view.
+
+        \li Collapse all open folders.
 
     \endlist
 
@@ -452,7 +466,7 @@
     The figure below shows an example search result for all
     occurrences of the search string in the specified directory.
 
-    \image qtcreator-search-pane.png
+    \image qtcreator-searchresults.png
 
     For more information about the different search options, see
     \l {Finding and Replacing}.
@@ -601,6 +615,11 @@
 
     \section1 Platform Notes
 
+    This section describes the cases where the behavior of \QC depends on the
+    operating system it runs on.
+
+    \section2 Location of Functions
+
     \QC uses standard names and locations for standard features, such as
     \e options or \e preferences. In this manual, the names and locations on
     Windows and Linux are usually used to keep the instructions short. Here are
@@ -623,4 +642,70 @@
                 \uicontrol Keyboard
     \endtable
 
+    \section2 Location of Settings Files
+
+    \QC creates the following files and directories:
+
+    \list
+
+        \li QtCreator.db
+
+        \li QtCreator.ini
+
+        \li qtversion.xml
+
+        \li toolChains.xml
+
+        \li qtcreator
+
+        \li qtc-qmldump
+
+    \endlist
+
+    The location of the above files and directories depends on the platform:
+
+    \list
+
+        \li On Linux and other Unix platforms, the files are located in
+            \c {~/.config/QtProject} and
+            \c {~/.local/share/data/QtProject/qtcreator}.
+
+        \li On \macos, the files are located in \c {~/.config/QtProject} and
+            \c {~/Library/Application Support/QtProject/Qt Creator}.
+
+        \li On Windows XP, the files are located in
+            \c {%SystemDrive%\Documents and Settings\%USERNAME%\Application Data\QtProject} and
+            \c {%SystemDrive%\Documents and Settings\%USERNAME%\Local Settings\Application Data\QtProject}.
+
+        \li On Windows 7, the files are located in
+            \c {%SystemDrive%\Users\%USERNAME%\AppData\Roaming\QtProject} and
+            \c {%SystemDrive%\Users\%USERNAME%\AppData\Local\QtProject}.
+
+    \endlist
+
+    \section2 High DPI Scaling
+
+    The operating systems supported by \QC implement high dots-per-inch (DPI)
+    scaling at varying levels. Therefore, \QC handles high DPI scaling
+    differently on different operating system:
+
+    \list
+
+        \li On \macos, high DPI scaling is forced, which means that \QC allows
+            Qt to use the system scaling factor as the \QC scaling factor.
+
+        \li On Windows, if no \l{High DPI Support in Qt}
+            {scaling environment variables} are set, \QC instructs Qt to detect
+            the scaling factor and use it for \QC.
+
+        \li On Linux, \QC leaves it to the user to enable high DPI scaling,
+            because the process varies so much on different distributions
+            and windowing systems that it cannot be reliably done automatically.
+
+    \endlist
+
+    To override the default approach and always enable high-DPI scaling, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol Environment >
+    \uicontrol {Enable high DPI scaling}. The changes will take effect after you
+    restart \QC.
 */

@@ -159,9 +159,19 @@
     \uicontrol {Edit Bookmark}. To view the note, move the mouse pointer over
     the bookmark.
 
-    To go to previous bookmark in the current session, press \key {Ctrl+,}.
+    To go to the previous bookmark in the current session, select
+    \uicontrol Tools \uicontrol Bookmarks > \uicontrol {Previous Bookmark}
+    or press \key {Ctrl+,}.
 
-    To go to next bookmark in the current session, press \key {Ctrl+.}.
+    To go to the next bookmark in the current session, select \uicontrol Tools
+    \uicontrol Bookmarks > \uicontrol {Previous Bookmark} or press
+    \key {Ctrl+.}.
+
+    Bookmarks are listed in the \uicontrol Bookmarks view in the sidebar. To
+    move between bookmarks, select the \uicontrol {Previous Bookmark} or
+    \uicontrol {Next Bookmark} button or use the keyboard shortcuts.
+
+    \image qtcreator-bookmarks-view.png
 
     \section1 Moving to Symbol Definition or Declaration
 

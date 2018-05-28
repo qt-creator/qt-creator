@@ -309,7 +309,6 @@ TEST_F(JobQueue, PrioritizeCurrentDocumentOverVisible)
 TEST_F(JobQueue, RunNothingForNotCurrentOrVisibleDocument)
 {
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::CreateInitialDocumentPreamble));
     documents.setVisibleInEditors({});
     documents.setUsedByCurrentEditor(Utf8StringLiteral("aNonExistingFilePath"));
 
@@ -321,7 +320,7 @@ TEST_F(JobQueue, RunNothingForNotCurrentOrVisibleDocument)
 TEST_F(JobQueue, RunOnlyOneJobPerTranslationUnitIfMultipleAreInQueue)
 {
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::CreateInitialDocumentPreamble));
+    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::RequestDocumentAnnotations));
 
     const JobRequests jobsToRun = jobQueue.processQueue();
 
@@ -350,7 +349,6 @@ TEST_F(JobQueue, RunJobsForDistinctTranslationUnits)
 TEST_F(JobQueue, DoNotRunJobForTranslationUnittThatIsBeingProcessed)
 {
     jobQueue.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::CreateInitialDocumentPreamble));
     JobRequests jobsToRun = jobQueue.processQueue();
     jobQueue.setIsJobRunningForTranslationUnitHandler([](const Utf8String &) {
        return true;
@@ -441,16 +439,6 @@ TEST_F(JobQueue, RequestCompleteCodeNotOutdatableByDocumentRevisionChange)
     const JobRequests jobsToStart = jobQueue.processQueue();
 
     ASSERT_THAT(jobsToStart.size(), Eq(1));
-}
-
-TEST_F(JobQueue, RequestCreateInitialDocumentPreambleOutdatableByDocumentClose)
-{
-    jobQueue.add(createJobRequest(filePath1, JobRequest::Type::CreateInitialDocumentPreamble));
-    removeDocument();
-
-    const JobRequests jobsToStart = jobQueue.processQueue();
-
-    ASSERT_THAT(jobsToStart.size(), Eq(0));
 }
 
 TEST_F(JobQueue, RequestCompleteCodeOutdatableByDocumentRevisionChange)

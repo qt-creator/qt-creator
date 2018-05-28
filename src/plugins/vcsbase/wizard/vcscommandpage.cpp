@@ -87,9 +87,7 @@ Utils::WizardPage *VcsCommandPageFactory::create(JsonWizard *wizard, Id typeId,
         if (argsVar.type() == QVariant::String) {
             args << argsVar.toString();
         } else if (argsVar.type() == QVariant::List) {
-            args = Utils::transform(argsVar.toList(), [](const QVariant &in) {
-                return in.toString();
-            });
+            args = Utils::transform(argsVar.toList(), &QVariant::toString);
         } else {
             return 0;
         }

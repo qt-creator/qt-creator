@@ -53,6 +53,7 @@ public:
     static QString displayNameWithBuiltinIndication(const ClangDiagnosticConfig &config);
     static QVector<Core::Id> changedOrRemovedConfigs(const ClangDiagnosticConfigs &oldConfigs,
                                                      const ClangDiagnosticConfigs &newConfigs);
+    static QStringList globalDiagnosticOptions();
 
 private:
     ClangDiagnosticConfigs m_diagnosticConfigs;

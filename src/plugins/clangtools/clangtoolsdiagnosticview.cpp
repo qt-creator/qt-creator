@@ -34,6 +34,7 @@
 
 #include <QAction>
 #include <QDebug>
+#include <QHeaderView>
 
 using namespace Debugger;
 
@@ -101,6 +102,13 @@ bool DiagnosticView::eventFilter(QObject *watched, QEvent *event)
     default:
         return QObject::eventFilter(watched, event);
     }
+}
+
+void DiagnosticView::setModel(QAbstractItemModel *model)
+{
+    Debugger::DetailedErrorView::setModel(model);
+    header()->setStretchLastSection(false);
+    header()->setSectionResizeMode(0, QHeaderView::Stretch);
 }
 
 } // namespace Internal

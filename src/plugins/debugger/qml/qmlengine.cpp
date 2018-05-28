@@ -48,7 +48,6 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/applicationlauncher.h>
-#include <projectexplorer/runnables.h>
 
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -526,7 +525,7 @@ void QmlEngine::runEngine()
 void QmlEngine::startApplicationLauncher()
 {
     if (!d->applicationLauncher.isRunning()) {
-        StandardRunnable runnable = runParameters().inferior;
+        const Runnable runnable = runParameters().inferior;
         runTool()->appendMessage(tr("Starting %1 %2").arg(
                                      QDir::toNativeSeparators(runnable.executable),
                                      runnable.commandLineArguments),

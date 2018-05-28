@@ -37,7 +37,6 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/runnables.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -70,7 +69,7 @@ BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
     }
 
     if (p->startupMode() == GdbServerProvider::StartupOnNetwork) {
-        StandardRunnable r;
+        Runnable r;
         r.executable = p->executable();
         // We need to wrap the command arguments depending on a host OS,
         // as the bare metal's GDB servers are launched on a host,
@@ -123,7 +122,7 @@ void BareMetalDebugSupport::start()
     setCommandsAfterConnect(commands);
 #endif
 
-    StandardRunnable inferior;
+    Runnable inferior;
     inferior.executable = bin;
     if (auto aspect = rc->extraAspect<ArgumentsAspect>())
         inferior.commandLineArguments = aspect->arguments();

@@ -57,7 +57,7 @@ public:
     void findPidOutputReceived(const QString &out);
 
     ValgrindRunner *q;
-    StandardRunnable m_debuggee;
+    Runnable m_debuggee;
     ApplicationLauncher m_valgrindProcess;
     IDevice::ConstPtr m_device;
 
@@ -106,7 +106,7 @@ void ValgrindRunner::Private::run()
         fullArgs << "--dsymutil=yes";
     fullArgs << m_debuggee.executable;
 
-    StandardRunnable valgrind;
+    Runnable valgrind;
     valgrind.executable = m_valgrindExecutable;
     valgrind.workingDirectory = m_debuggee.workingDirectory;
     valgrind.environment = m_debuggee.environment;
@@ -154,7 +154,7 @@ void ValgrindRunner::Private::remoteProcessStarted()
     // plain path to exe, m_valgrindExe contains e.g. env vars etc. pp.
     const QString proc = m_valgrindExecutable.split(' ').last();
 
-    StandardRunnable findPid;
+    Runnable findPid;
     findPid.executable = "/bin/sh";
     // sleep required since otherwise we might only match "bash -c..."
     //  and not the actual valgrind run
@@ -238,7 +238,7 @@ void ValgrindRunner::setValgrindArguments(const QStringList &toolArguments)
     d->m_valgrindArguments = toolArguments;
 }
 
-void ValgrindRunner::setDebuggee(const StandardRunnable &debuggee)
+void ValgrindRunner::setDebuggee(const Runnable &debuggee)
 {
     d->m_debuggee = debuggee;
 }

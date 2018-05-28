@@ -34,6 +34,7 @@
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QLabel;
+class QPushButton;
 QT_END_NAMESPACE
 
 namespace CppTools {
@@ -55,6 +56,7 @@ signals:
     void currentConfigChanged(const Core::Id &currentConfigId);
 
 private:
+    void connectToClangDiagnosticConfigsDialog(QPushButton *button);
     void connectToCurrentIndexChanged();
     void disconnectFromCurrentIndexChanged();
 

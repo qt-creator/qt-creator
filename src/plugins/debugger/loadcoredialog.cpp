@@ -363,7 +363,7 @@ void AttachCoreDialog::coreFileChanged(const QString &core)
     if (!HostOsInfo::isWindowsHost() && QFile::exists(core)) {
         Kit *k = d->kitChooser->currentKit();
         QTC_ASSERT(k, return);
-        StandardRunnable debugger = DebuggerKitInformation::runnable(k);
+        Runnable debugger = DebuggerKitInformation::runnable(k);
         CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(debugger, core);
         if (!cinfo.foundExecutableName.isEmpty())
             d->localExecFileName->setFileName(FileName::fromString(cinfo.foundExecutableName));

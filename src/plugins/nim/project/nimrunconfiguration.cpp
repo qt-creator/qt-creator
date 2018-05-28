@@ -28,7 +28,6 @@
 
 #include "../nimconstants.h"
 
-#include <projectexplorer/runnables.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
 

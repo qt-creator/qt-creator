@@ -27,7 +27,6 @@
 
 #include <projectexplorer/devicesupport/deviceprocess.h>
 
-namespace ProjectExplorer { class Runnable; }
 namespace Utils { class QtcProcess; }
 
 namespace BareMetal {

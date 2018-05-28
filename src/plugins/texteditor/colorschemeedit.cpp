@@ -153,7 +153,6 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
     m_formatsModel(new FormatsModel(this))
 {
     setContentsMargins(0, layoutSpacing, 0, 0);
-    setPalette(Utils::Theme::initialPalette());
     m_ui->setupUi(this);
     m_ui->itemList->setModel(m_formatsModel);
 

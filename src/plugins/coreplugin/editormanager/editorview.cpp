@@ -641,7 +641,7 @@ SplitterOrView::~SplitterOrView()
     delete m_layout;
     m_layout = nullptr;
     if (m_view)
-        EditorManagerPrivate::emptyView(m_view);
+        EditorManagerPrivate::deleteEditors(EditorManagerPrivate::emptyView(m_view));
     delete m_view;
     m_view = nullptr;
     delete m_splitter;
@@ -772,7 +772,7 @@ void SplitterOrView::unsplitAll()
     }
     m_splitter->hide();
     m_layout->removeWidget(m_splitter); // workaround Qt bug
-    unsplitAll_helper();
+    const QList<IEditor *> editorsToDelete = unsplitAll_helper();
     m_view = currentView;
     m_layout->addWidget(m_view);
     delete m_splitter;
@@ -785,19 +785,27 @@ void SplitterOrView::unsplitAll()
         else
             m_view->setFocus();
     }
+    EditorManagerPrivate::deleteEditors(editorsToDelete);
     emit splitStateChanged();
 }
 
-void SplitterOrView::unsplitAll_helper()
+/*!
+    Recursively empties all views.
+    Returns the editors to delete with EditorManagerPrivate::deleteEditors.
+    \internal
+*/
+const QList<IEditor *> SplitterOrView::unsplitAll_helper()
 {
     if (m_view)
-        EditorManagerPrivate::emptyView(m_view);
+        return EditorManagerPrivate::emptyView(m_view);
+    QList<IEditor *> editorsToDelete;
     if (m_splitter) {
         for (int i = 0; i < m_splitter->count(); ++i) {
             if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
-                splitterOrView->unsplitAll_helper();
+                editorsToDelete.append(splitterOrView->unsplitAll_helper());
         }
     }
+    return editorsToDelete;
 }
 
 void SplitterOrView::unsplit()
@@ -809,7 +817,7 @@ void SplitterOrView::unsplit()
     SplitterOrView *childSplitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(0));
     QSplitter *oldSplitter = m_splitter;
     m_splitter = nullptr;
-
+    QList<IEditor *> editorsToDelete;
     if (childSplitterOrView->isSplitter()) {
         Q_ASSERT(childSplitterOrView->view() == nullptr);
         m_splitter = childSplitterOrView->takeSplitter();
@@ -825,7 +833,7 @@ void SplitterOrView::unsplit()
                 m_view->addEditor(e);
                 m_view->setCurrentEditor(e);
             }
-            EditorManagerPrivate::emptyView(childView);
+            editorsToDelete = EditorManagerPrivate::emptyView(childView);
         } else {
             m_view = childSplitterOrView->takeView();
             m_view->setParentSplitterOrView(this);
@@ -849,6 +857,7 @@ void SplitterOrView::unsplit()
         EditorManagerPrivate::activateView(newCurrent);
     else
         EditorManagerPrivate::setCurrentView(nullptr);
+    EditorManagerPrivate::deleteEditors(editorsToDelete);
     emit splitStateChanged();
 }
 

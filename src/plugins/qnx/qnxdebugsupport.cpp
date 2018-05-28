@@ -46,7 +46,6 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/runnables.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -106,7 +105,7 @@ public:
 private:
     void start() final
     {
-        StandardRunnable r = runnable().as<StandardRunnable>();
+        Runnable r = runnable();
         QStringList arguments;
         if (m_portsGatherer->useGdbServer()) {
             Port pdebugPort = m_portsGatherer->gdbServerPort();
@@ -212,7 +211,7 @@ private:
     {
         Port pdebugPort = m_portsGatherer->gdbServerPort();
 
-        StandardRunnable r;
+        Runnable r;
         r.executable = Constants::QNX_DEBUG_EXECUTABLE;
         r.commandLineArguments = pdebugPort.toString();
         setRunnable(r);

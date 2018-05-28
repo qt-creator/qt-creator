@@ -37,12 +37,7 @@
        </item>
        <item>
         <property name="text">
-         <string>Select Clang-Tidy prefixes</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Provide Clang-Tidy checks string</string>
+         <string>Select Checks</string>
         </property>
        </item>
        <item>
@@ -50,6 +45,13 @@
          <string>Use .clang-tidy config file</string>
         </property>
        </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="plainTextEditButton">
+       <property name="text">
+        <string>Edit Checks as String...</string>
+       </property>
       </widget>
      </item>
      <item>
@@ -68,9 +70,6 @@
     </layout>
    </item>
    <item>
-    <widget class="QLineEdit" name="checksString"/>
-   </item>
-   <item>
     <widget class="QStackedWidget" name="checksListWrapper">
      <widget class="QWidget" name="checksPage">
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -87,87 +86,16 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QListWidget" name="checksPrefixesList">
-         <item>
-          <property name="text">
-           <string>android-*</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>boost-*</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>bugprone-*</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>cert-*</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>cppcoreguidelines-*</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>clang-analyzer-*</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>clang-diagnostic-*</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>google-*</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>hicpp-*</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>llvm-*</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>misc-*</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>modernize-*</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>mpi-*</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>objc-*</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>performance-*</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>readability-*</string>
-          </property>
-         </item>
+        <widget class="QTreeView" name="checksPrefixesTree">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>300</height>
+          </size>
+         </property>
+         <attribute name="headerVisible">
+          <bool>false</bool>
+         </attribute>
         </widget>
        </item>
       </layout>
@@ -186,19 +114,6 @@
        <property name="bottomMargin">
         <number>0</number>
        </property>
-       <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>237</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
       </layout>
      </widget>
     </widget>

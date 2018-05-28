@@ -31,8 +31,9 @@
 #include "debuggerprotocol.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/runnables.h>
+#include <projectexplorer/runconfiguration.h>
 #include <texteditor/textmark.h>
+#include <utils/fileutils.h>
 
 #include <QObject>
 #include <QProcess>
@@ -82,7 +83,7 @@ public:
     DebuggerStartMode startMode = NoStartMode;
     DebuggerCloseMode closeMode = KillAtClose;
 
-    ProjectExplorer::StandardRunnable inferior;
+    ProjectExplorer::Runnable inferior;
     QString displayName; // Used in the Snapshots view.
     Utils::ProcessHandle attachPID;
     QStringList solibSearchPath;
@@ -133,7 +134,7 @@ public:
     bool breakOnMain = false;
     bool multiProcess = false; // Whether to set detach-on-fork off.
 
-    ProjectExplorer::StandardRunnable debugger;
+    ProjectExplorer::Runnable debugger;
     QString overrideStartScript; // Used in attach to core and remote debugging
     QString startMessage; // First status message shown.
     QString debugInfoLocation; // Gdb "set-debug-file-directory".
@@ -143,7 +144,7 @@ public:
     ProjectExplorer::Abi toolChainAbi;
 
     QString projectSourceDirectory;
-    QStringList projectSourceFiles;
+    Utils::FileNameList projectSourceFiles;
 
     // Used by Script debugging
     QString interpreter;

@@ -128,10 +128,16 @@ void TargetSelectorDelegate::paint(QPainter *painter,
     painter->save();
     painter->setClipping(false);
 
+    QColor textColor = creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor);
     if (option.state & QStyle::State_Selected) {
-        const QColor color = (option.state & QStyle::State_HasFocus) ?
-                    option.palette.highlight().color() :
-                    option.palette.dark().color();
+        QColor color;
+        if (option.state & QStyle::State_HasFocus) {
+            color = option.palette.highlight().color();
+            textColor = option.palette.highlightedText().color();
+        } else {
+            color = option.palette.dark().color();
+        }
+
         if (creatorTheme()->flag(Theme::FlatToolBars)) {
             painter->fillRect(option.rect, color);
         } else {
@@ -150,7 +156,7 @@ void TargetSelectorDelegate::paint(QPainter *painter,
 
     QFontMetrics fm(option.font);
     QString text = index.data(Qt::DisplayRole).toString();
-    painter->setPen(creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor));
+    painter->setPen(textColor);
     QString elidedText = fm.elidedText(text, Qt::ElideMiddle, option.rect.width() - 12);
     if (elidedText != text)
         const_cast<QAbstractItemModel *>(index.model())->setData(index, text, Qt::ToolTipRole);

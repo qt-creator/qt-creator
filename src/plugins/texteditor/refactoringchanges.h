@@ -79,7 +79,7 @@ public:
     void appendIndentRange(const Range &range);
     void appendReindentRange(const Range &range);
     void setOpenEditor(bool activate = false, int pos = -1);
-    void apply();
+    bool apply();
 
 protected:
     // users may only get const access to RefactoringFiles created through

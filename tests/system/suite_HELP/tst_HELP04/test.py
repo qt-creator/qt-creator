@@ -93,15 +93,8 @@ def main():
     # try to search empty string
     clickButton(waitForObject("{text='Search' type='QPushButton' unnamed='1' visible='1' "
                               "window=':Qt Creator_Core::Internal::MainWindow'}"))
-    try:
-        # Creator built with Qt <= 5.8.0
-        resultWidget = waitForObject(':Hits_QCLuceneResultWidget', 5000)
-        olderThan59 = True
-    except:
-        # Creator built with Qt >= 5.9.0
-        resultWidget = waitForObject(':Hits_QResultWidget', 5000)
-        olderThan59 = False
-    if olderThan59 or not JIRA.isBugStillOpen(67737, JIRA.Bug.QT):
+    resultWidget = waitForObject(':Hits_QResultWidget', 5000)
+    if not JIRA.isBugStillOpen(67737, JIRA.Bug.QT):
         test.verify(waitFor("noMatch in "
                             "str(resultWidget.plainText)", 2000),
                             "Verifying if search did not match anything.")
@@ -131,45 +124,9 @@ def main():
             verifySelection(searchKeyword)
             verifyUrl(urlDictionary[searchKeyword])
         else:
-            if olderThan59 or not JIRA.isBugStillOpen(67737, JIRA.Bug.QT):
+            if not JIRA.isBugStillOpen(67737, JIRA.Bug.QT):
                 test.verify(waitFor("noMatch in "
                                     "str(resultWidget.plainText)", 1000),
                                     "Verifying if search did not match anything for: " + searchKeyword)
-    if olderThan59:
-        # advanced search - setup
-        clickButton(waitForObject("{text='+' type='QToolButton' unnamed='1' visible='1' "
-                                  "window=':Qt Creator_Core::Internal::MainWindow'}"))
-        label = ("{text='%s' type='QLabel' unnamed='1' visible='1' "
-                 "window=':Qt Creator_Core::Internal::MainWindow'}")
-        lineEdit = ("{leftWidget=%s type='QLineEdit' unnamed='1' visible='1' "
-                    "window=':Qt Creator_Core::Internal::MainWindow'}")
-        labelTextsToSearchStr = {"words <B>similar</B> to:":"deploy",
-                                 "<B>without</B> the words:":"bookmark",
-                                 "with <B>exact phrase</B>:":"sql in qt",
-                                 "with <B>all</B> of the words:":"designer sql",
-                                 "with <B>at least one</B> of the words:":"printing"}
-        for labelText,searchStr in labelTextsToSearchStr.items():
-            type(waitForObject(lineEdit % (label % labelText)), searchStr)
-        # advanced search - do search
-        clickButton(waitForObject("{text='Search' type='QPushButton' unnamed='1' visible='1' "
-                                  "window=':Qt Creator_Core::Internal::MainWindow'}"))
-        progressBarWait(warn=False)
-        # verify that advanced search results found
-        test.verify(waitFor("re.search('1 - 2 of 2 Hits',"
-                            "str(findObject(':Hits_QLabel').text))", 3000),
-                            "Verifying if 2 search results found")
-        resultsView = waitForObject(":Hits_QCLuceneResultWidget")
-        mouseClick(resultsView, 1, 1, 0, Qt.LeftButton)
-        type(resultsView, "<Tab>")
-        type(resultsView, "<Return>")
-        verifySelection("printing")
-        verifyUrl("qthelp://com.trolltech.qt.487/qdoc/overviews.html")
-        for i in range(2):
-            type(resultsView, "<Tab>")
-        type(resultsView, "<Return>")
-        verifyUrl("qthelp://com.trolltech.qt.487/qdoc/best-practices.html")
-        # verify if simple search is properly disabled
-        test.verify(not searchLineEdit.enabled,
-                    "Verifying if simple search is not active in advanced mode.")
     # exit
     invokeMenuItem("File", "Exit")

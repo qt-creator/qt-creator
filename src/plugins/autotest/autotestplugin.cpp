@@ -185,7 +185,8 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
 void AutotestPlugin::extensionsInitialized()
 {
     ActionContainer *contextMenu = ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT);
-    QTC_ASSERT(contextMenu, return);
+    if (!contextMenu) // if QC is started without CppEditor plugin
+        return;
 
     QAction *action = new QAction(tr("&Run Test Under Cursor"), this);
     action->setEnabled(false);

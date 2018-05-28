@@ -31,7 +31,7 @@
 #include "qnxdeviceprocess.h"
 
 #include <projectexplorer/devicesupport/sshdeviceprocess.h>
-#include <projectexplorer/runnables.h>
+
 #include <ssh/sshconnection.h>
 #include <utils/port.h>
 #include <utils/qtcassert.h>
@@ -59,7 +59,7 @@ class QnxPortsGatheringMethod : public PortsGatheringMethod
     Runnable runnable(QAbstractSocket::NetworkLayerProtocol protocol) const override
     {
         Q_UNUSED(protocol);
-        StandardRunnable runnable;
+        Runnable runnable;
         runnable.executable = "netstat";
         runnable.commandLineArguments = "-na";
         return runnable;
@@ -131,7 +131,7 @@ void QnxDevice::updateVersionNumber() const
     QObject::connect(&versionNumberProcess, &SshDeviceProcess::finished, &eventLoop, &QEventLoop::quit);
     QObject::connect(&versionNumberProcess, &DeviceProcess::error, &eventLoop, &QEventLoop::quit);
 
-    StandardRunnable r;
+    Runnable r;
     r.executable = QLatin1String("uname");
     r.commandLineArguments = QLatin1String("-r");
     versionNumberProcess.start(r);

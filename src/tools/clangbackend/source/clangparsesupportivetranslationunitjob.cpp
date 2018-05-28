@@ -53,6 +53,10 @@ IAsyncJob::AsyncPrepareResult ParseSupportiveTranslationUnitJob::prepareAsyncRun
 
 void ParseSupportiveTranslationUnitJob::finalizeAsyncRun()
 {
+    if (!context().isOutdated()) {
+        const AsyncResult result = asyncResult();
+        m_pinnedDocument.incorporateUpdaterResult(result);
+    }
 }
 
 } // namespace ClangBackEnd

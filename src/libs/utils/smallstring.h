@@ -183,6 +183,9 @@ public:
 
     BasicSmallString &operator=(BasicSmallString &&other) noexcept
     {
+        if (this == &other)
+            return *this;
+
         this->~BasicSmallString();
 
         m_data = other.m_data;

@@ -26,7 +26,6 @@
 #pragma once
 
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runnables.h>
 
 #include <utils/fileutils.h>
 

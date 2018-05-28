@@ -254,9 +254,9 @@ const DebuggerItem *DebuggerKitInformation::debugger(const Kit *kit)
     return DebuggerItemManager::findById(id);
 }
 
-StandardRunnable DebuggerKitInformation::runnable(const Kit *kit)
+Runnable DebuggerKitInformation::runnable(const Kit *kit)
 {
-    StandardRunnable runnable;
+    Runnable runnable;
     if (const DebuggerItem *item = debugger(kit)) {
         runnable.executable = item->command().toString();
         runnable.workingDirectory = item->workingDirectory().toString();

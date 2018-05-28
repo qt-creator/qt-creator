@@ -31,7 +31,6 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runnables.h>
 #include <projectexplorer/toolchain.h>
 
 #include <app/app_version.h>
@@ -147,7 +146,7 @@ public:
     Id kitId;
     uint serverPort;
     QString serverAddress;
-    StandardRunnable runnable;
+    Runnable runnable;
     bool breakAtMain = false;
     QString serverStartScript;
     QString debugInfoLocation;
@@ -424,7 +423,7 @@ void StartApplicationDialog::run(bool attachRemote)
         settings->endGroup();
     }
 
-    StandardRunnable inferior = newParameters.runnable;
+    Runnable inferior = newParameters.runnable;
     const QString inputAddress = dialog.d->channelOverrideEdit->text();
     if (!inputAddress.isEmpty())
         debugger->setRemoteChannel(inputAddress);

@@ -26,7 +26,7 @@
 #include "sshdeviceprocess.h"
 
 #include "idevice.h"
-#include "../runnables.h"
+#include "../runconfiguration.h"
 
 #include <ssh/sshconnection.h>
 #include <ssh/sshconnectionmanager.h>
@@ -48,7 +48,7 @@ public:
     bool serverSupportsSignals = false;
     QSsh::SshConnection *connection = nullptr;
     QSsh::SshRemoteProcess::Ptr process;
-    StandardRunnable runnable;
+    Runnable runnable;
     QString errorMessage;
     QSsh::SshRemoteProcess::ExitStatus exitStatus;
     DeviceProcessSignalOperation::Ptr killOperation;
@@ -77,16 +77,11 @@ SshDeviceProcess::~SshDeviceProcess()
 void SshDeviceProcess::start(const Runnable &runnable)
 {
     QTC_ASSERT(d->state == SshDeviceProcessPrivate::Inactive, return);
-    if (!runnable.is<StandardRunnable>()) {
-        d->errorMessage = tr("Internal error");
-        error(QProcess::FailedToStart);
-        return;
-    }
     d->setState(SshDeviceProcessPrivate::Connecting);
 
     d->errorMessage.clear();
     d->exitCode = -1;
-    d->runnable = runnable.as<StandardRunnable>();
+    d->runnable = runnable;
     d->connection = QSsh::acquireConnection(device()->sshParameters());
     connect(d->connection, &QSsh::SshConnection::error,
             this, &SshDeviceProcess::handleConnectionError);
@@ -280,7 +275,7 @@ void SshDeviceProcess::handleKillOperationTimeout()
     emit finished();
 }
 
-QString SshDeviceProcess::fullCommandLine(const StandardRunnable &runnable) const
+QString SshDeviceProcess::fullCommandLine(const Runnable &runnable) const
 {
     QString cmdLine = runnable.executable;
     if (!runnable.commandLineArguments.isEmpty())

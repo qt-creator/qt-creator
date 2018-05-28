@@ -31,6 +31,7 @@
 #include "buildtargetinfo.h"
 #include "devicesupport/idevice.h"
 
+#include <utils/environment.h>
 #include <utils/port.h>
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>
@@ -157,60 +158,18 @@ private:
 
 class PROJECTEXPLORER_EXPORT Runnable
 {
-    struct Concept
-    {
-        virtual ~Concept() {}
-        virtual Concept *clone() const = 0;
-        virtual bool canReUseOutputPane(const std::unique_ptr<Concept> &other) const = 0;
-        virtual QString displayName() const = 0;
-        virtual void *typeId() const = 0;
-    };
-
-    template <class T>
-    struct Model : public Concept
-    {
-        Model(const T &data) : m_data(data) {}
-
-        Concept *clone() const override { return new Model(*this); }
-
-        bool canReUseOutputPane(const std::unique_ptr<Concept> &other) const override
-        {
-            if (!other.get())
-                return false;
-            if (other->typeId() != typeId())
-                return false;
-            auto that = static_cast<const Model<T> *>(other.get());
-            return m_data == that->m_data;
-        }
-
-        QString displayName() const override { return m_data.displayName(); }
-
-        void *typeId() const override { return T::staticTypeId; }
-
-        T m_data;
-    };
-
 public:
     Runnable() = default;
-    Runnable(const Runnable &other) : d(other.d ? other.d->clone() : nullptr) { }
-    Runnable(Runnable &&other) : d(std::move(other.d)) {}
-    template <class T> Runnable(const T &data) : d(new Model<T>(data)) {}
 
-    void operator=(Runnable other) { d = std::move(other.d); }
+    QString executable;
+    QString commandLineArguments;
+    QString workingDirectory;
+    Utils::Environment environment;
+    ApplicationLauncher::Mode runMode = ApplicationLauncher::Gui;
+    IDevice::ConstPtr device; // Override the kit's device. Keep unset by default.
 
-    template <class T> bool is() const {
-        return d.get() && (d.get()->typeId() == T::staticTypeId);
-    }
-
-    template <class T> const T &as() const {
-        return static_cast<Model<T> *>(d.get())->m_data;
-    }
-
-    bool canReUseOutputPane(const Runnable &other) const;
-    QString displayName() const { return d ? d->displayName() : QString(); }
-
-private:
-    std::unique_ptr<Concept> d;
+    // FIXME: Not necessarily a display name
+    QString displayName() const { return executable; }
 };
 
 // Documentation inside.

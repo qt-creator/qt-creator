@@ -494,7 +494,7 @@ CMakeConfig CMakeConfigurationKitInformation::configuration(const Kit *k)
     if (!k)
         return CMakeConfig();
     const QStringList tmp = k->value(CONFIGURATION_ID).toStringList();
-    return Utils::transform(tmp, [](const QString &s) { return CMakeConfigItem::fromString(s); });
+    return Utils::transform(tmp, &CMakeConfigItem::fromString);
 }
 
 void CMakeConfigurationKitInformation::setConfiguration(Kit *k, const CMakeConfig &config)

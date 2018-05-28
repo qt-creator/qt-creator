@@ -1537,7 +1537,7 @@ void EditorManagerPrivate::closeView(EditorView *view)
     if (!view)
         return;
 
-    emptyView(view);
+    const QList<IEditor *> editorsToDelete = emptyView(view);
 
     SplitterOrView *splitterOrView = view->parentSplitterOrView();
     Q_ASSERT(splitterOrView);
@@ -1552,15 +1552,23 @@ void EditorManagerPrivate::closeView(EditorView *view)
     EditorView *newCurrent = splitter->findFirstView();
     if (newCurrent)
         EditorManagerPrivate::activateView(newCurrent);
+    deleteEditors(editorsToDelete);
 }
 
-void EditorManagerPrivate::emptyView(EditorView *view)
+/*!
+    Removes all editors from the view and from the document model, taking care of
+    the handling of editors that are the last ones for the document.
+    Returns the list of editors that were actually removed from the document model and
+    need to be deleted with EditorManagerPrivate::deleteEditors.
+    \internal
+*/
+const QList<IEditor *> EditorManagerPrivate::emptyView(EditorView *view)
 {
     if (!view)
-        return;
-
-    QList<IEditor *> editors = view->editors();
-    foreach (IEditor *editor, editors) {
+        return {};
+    const QList<IEditor *> editors = view->editors();
+    QList<IEditor *> removedEditors;
+    for (IEditor *editor : editors) {
         if (DocumentModel::editorsForDocument(editor->document()).size() == 1) {
             // it's the only editor for that file
             // so we need to keep it around (--> in the editor model)
@@ -1569,19 +1577,26 @@ void EditorManagerPrivate::emptyView(EditorView *view)
                 setCurrentView(view);
                 setCurrentEditor(nullptr);
             }
-            editors.removeAll(editor);
             view->removeEditor(editor);
-            continue; // don't close the editor
+        } else {
+            emit m_instance->editorAboutToClose(editor);
+            removeEditor(editor, true /*=removeSuspendedEntry, but doesn't matter since it's not the last editor anyhow*/);
+            view->removeEditor(editor);
+            removedEditors.append(editor);
         }
-        emit m_instance->editorAboutToClose(editor);
-        removeEditor(editor, true /*=removeSuspendedEntry, but doesn't matter since it's not the last editor anyhow*/);
-        view->removeEditor(editor);
     }
+    return removedEditors;
+}
+
+/*!
+    Signals editorsClosed and deletes the editors.
+    \internal
+*/
+void EditorManagerPrivate::deleteEditors(const QList<IEditor *> &editors)
+{
     if (!editors.isEmpty()) {
         emit m_instance->editorsClosed(editors);
-        foreach (IEditor *editor, editors) {
-            delete editor;
-        }
+        qDeleteAll(editors);
     }
 }
 
@@ -2195,7 +2210,7 @@ void EditorManagerPrivate::autoSuspendDocuments()
         return;
 
     auto visibleDocuments = Utils::transform<QSet>(EditorManager::visibleEditors(),
-                                                   [](IEditor *editor) { return editor->document(); });
+                                                   &IEditor::document);
     int keptEditorCount = 0;
     QList<IDocument *> documentsToSuspend;
     foreach (const EditLocation &editLocation, d->m_globalHistory) {
