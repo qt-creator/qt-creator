@@ -37,6 +37,7 @@
 #include <QMouseEvent>
 #include <QScrollArea>
 #include <QSlider>
+#include <QStyle>
 #include <QToolButton>
 #include <QDebug>
 
