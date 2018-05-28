@@ -49,7 +49,8 @@
             is not available, the tooltip displays type information for the
             symbol.
 
-        \li To display the full help on a Qt class or function, press \key F1.
+        \li To display the full help on a Qt class or function, press \key F1 or
+            select \uicontrol {Context Help} in the context menu.
             The documentation is displayed in a
             pane next to the code editor, or, if there is not enough vertical
             space, in the fullscreen \uicontrol Help mode.
