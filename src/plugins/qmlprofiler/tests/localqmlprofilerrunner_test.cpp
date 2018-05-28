@@ -96,6 +96,9 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     connectRunner();
 
+    QTest::ignoreMessage(
+                QtDebugMsg, "Invalid run control state transition from  "
+                            "\"RunControlState::Starting\"  to  \"RunControlState::Stopped\"");
     runControl->initiateStart();
 
     QTRY_COMPARE_WITH_TIMEOUT(startCount, 1, 30000);
