@@ -111,8 +111,6 @@ using namespace ProjectExplorer;
 using namespace Utils;
 using namespace Valgrind::XmlProtocol;
 
-using namespace std::placeholders;
-
 namespace Valgrind {
 namespace Internal {
 
@@ -128,8 +126,7 @@ class MemcheckToolRunner : public ValgrindToolRunner
     Q_OBJECT
 
 public:
-    explicit MemcheckToolRunner(ProjectExplorer::RunControl *runControl,
-                                bool withGdb = false);
+    explicit MemcheckToolRunner(ProjectExplorer::RunControl *runControl);
 
     void start() override;
     void stop() override;
@@ -174,33 +171,6 @@ public:
 
     QSsh::SshConnection connection;
 };
-
-MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl, bool withGdb)
-    : ValgrindToolRunner(runControl),
-      m_withGdb(withGdb),
-      m_localServerAddress(QHostAddress::LocalHost)
-{
-    setDisplayName("MemcheckToolRunner");
-    connect(m_runner.parser(), &XmlProtocol::ThreadedParser::error,
-            this, &MemcheckToolRunner::parserError);
-    connect(m_runner.parser(), &XmlProtocol::ThreadedParser::suppressionCount,
-            this, &MemcheckToolRunner::suppressionCount);
-
-    if (withGdb) {
-        connect(&m_runner, &ValgrindRunner::valgrindStarted,
-                this, &MemcheckToolRunner::startDebugger);
-        connect(&m_runner, &ValgrindRunner::logMessageReceived,
-                this, &MemcheckToolRunner::appendLog);
-//        m_runner.disableXml();
-    } else {
-        connect(m_runner.parser(), &XmlProtocol::ThreadedParser::internalError,
-                this, &MemcheckToolRunner::internalParserError);
-    }
-
-    // We need a real address to connect to from the outside.
-    if (device()->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-        addStartDependency(new LocalAddressFinder(runControl, &m_localServerAddress));
-}
 
 QString MemcheckToolRunner::progressTitle() const
 {
@@ -423,8 +393,7 @@ class MemcheckTool : public QObject
 public:
     MemcheckTool();
 
-    RunWorker *createRunWorker(RunControl *runControl);
-
+    void setupRunner(MemcheckToolRunner *runTool);
     void loadShowXmlLogFile(const QString &filePath, const QString &exitMsg);
 
 private:
@@ -703,7 +672,8 @@ MemcheckTool::MemcheckTool()
         TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
         Debugger::selectPerspective(MemcheckPerspectiveId);
         RunControl *rc = new RunControl(runConfig, MEMCHECK_RUN_MODE);
-        rc->createWorker(MEMCHECK_RUN_MODE);
+        if (auto creator = RunControl::producer(runConfig, MEMCHECK_RUN_MODE))
+            creator(rc);
         const auto runnable = dlg.runnable();
         rc->setRunnable(runnable);
         rc->setDisplayName(runnable.executable);
@@ -963,12 +933,11 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     updateFromSettings();
 }
 
-RunWorker *MemcheckTool::createRunWorker(RunControl *runControl)
+void MemcheckTool::setupRunner(MemcheckToolRunner *runTool)
 {
+    RunControl *runControl = runTool->runControl();
     m_errorModel.setRelevantFrameFinder(makeFrameFinder(transform(runControl->project()->files(Project::AllFiles),
                                                                   &FileName::toString)));
-
-    auto runTool = new MemcheckToolRunner(runControl, runControl->runMode() == MEMCHECK_WITH_GDB_RUN_MODE);
 
     connect(runTool, &MemcheckToolRunner::parserError, this, &MemcheckTool::parserError);
     connect(runTool, &MemcheckToolRunner::internalParserError, this, &MemcheckTool::internalParserError);
@@ -997,8 +966,6 @@ RunWorker *MemcheckTool::createRunWorker(RunControl *runControl)
         });
         m_suppressionActions.append(action);
     }
-
-    return runTool;
 }
 
 void MemcheckTool::loadShowXmlLogFile(const QString &filePath, const QString &exitMsg)
@@ -1140,13 +1107,41 @@ void MemcheckTool::setBusyCursor(bool busy)
 
 static MemcheckTool *theMemcheckTool;
 
+MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
+    : ValgrindToolRunner(runControl),
+      m_withGdb(runControl->runMode() == MEMCHECK_WITH_GDB_RUN_MODE),
+      m_localServerAddress(QHostAddress::LocalHost)
+{
+    setDisplayName("MemcheckToolRunner");
+    connect(m_runner.parser(), &XmlProtocol::ThreadedParser::error,
+            this, &MemcheckToolRunner::parserError);
+    connect(m_runner.parser(), &XmlProtocol::ThreadedParser::suppressionCount,
+            this, &MemcheckToolRunner::suppressionCount);
+
+    if (m_withGdb) {
+        connect(&m_runner, &ValgrindRunner::valgrindStarted,
+                this, &MemcheckToolRunner::startDebugger);
+        connect(&m_runner, &ValgrindRunner::logMessageReceived,
+                this, &MemcheckToolRunner::appendLog);
+//        m_runner.disableXml();
+    } else {
+        connect(m_runner.parser(), &XmlProtocol::ThreadedParser::internalError,
+                this, &MemcheckToolRunner::internalParserError);
+    }
+
+    // We need a real address to connect to from the outside.
+    if (device()->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+        addStartDependency(new LocalAddressFinder(runControl, &m_localServerAddress));
+
+    theMemcheckTool->setupRunner(this);
+}
+
 void initMemcheckTool()
 {
     theMemcheckTool = new MemcheckTool;
 
-    auto producer = std::bind(&MemcheckTool::createRunWorker, theMemcheckTool, _1);
-    RunControl::registerWorker(MEMCHECK_RUN_MODE, producer);
-    RunControl::registerWorker(MEMCHECK_WITH_GDB_RUN_MODE, producer);
+    RunControl::registerWorker<MemcheckToolRunner>(MEMCHECK_RUN_MODE, {});
+    RunControl::registerWorker<MemcheckToolRunner>(MEMCHECK_WITH_GDB_RUN_MODE, {});
 }
 
 void destroyMemcheckTool()

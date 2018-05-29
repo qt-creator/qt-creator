@@ -42,6 +42,8 @@ using namespace Valgrind::Callgrind;
 namespace Valgrind {
 namespace Internal {
 
+void setupCallgrindRunner(CallgrindToolRunner *);
+
 CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
     : ValgrindToolRunner(runControl)
 {
@@ -67,6 +69,8 @@ CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
     });
 
     m_controller.setValgrindRunnable(runnable());
+
+    setupCallgrindRunner(this);
 }
 
 QStringList CallgrindToolRunner::toolArguments() const

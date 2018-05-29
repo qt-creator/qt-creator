@@ -98,7 +98,6 @@ using namespace Valgrind::Callgrind;
 using namespace TextEditor;
 using namespace ProjectExplorer;
 using namespace Utils;
-using namespace std::placeholders;
 
 namespace Valgrind {
 namespace Internal {
@@ -121,7 +120,7 @@ public:
     CallgrindTool();
     ~CallgrindTool();
 
-    ValgrindToolRunner *createRunTool(RunControl *runControl);
+    void setupRunner(CallgrindToolRunner *runner);
 
     void setParseData(ParseData *data);
     CostDelegate::CostFormat costFormat() const;
@@ -272,7 +271,7 @@ CallgrindTool::CallgrindTool()
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, CallgrindRemoteActionId),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
-    QObject::connect(action, &QAction::triggered, this, [this, action] {
+    QObject::connect(action, &QAction::triggered, this, [action] {
         auto runConfig = RunConfiguration::startupRunConfiguration();
         if (!runConfig) {
             showCannotStartDialog(action->text());
@@ -283,10 +282,11 @@ CallgrindTool::CallgrindTool()
             return;
         Debugger::selectPerspective(CallgrindPerspectiveId);
         auto runControl = new RunControl(runConfig, CALLGRIND_RUN_MODE);
+        if (auto creator = RunControl::producer(runConfig, CALLGRIND_RUN_MODE))
+            creator(runControl);
         const auto runnable = dlg.runnable();
         runControl->setRunnable(runnable);
         runControl->setDisplayName(runnable.executable);
-        createRunTool(runControl);
         ProjectExplorerPlugin::startRunControl(runControl);
     });
 
@@ -747,9 +747,9 @@ void CallgrindTool::updateEventCombo()
         m_eventCombo->addItem(ParseData::prettyStringForEvent(event));
 }
 
-ValgrindToolRunner *CallgrindTool::createRunTool(RunControl *runControl)
+void CallgrindTool::setupRunner(CallgrindToolRunner *toolRunner)
 {
-    auto toolRunner = new CallgrindToolRunner(runControl);
+    RunControl *runControl = toolRunner->runControl();
 
     connect(toolRunner, &CallgrindToolRunner::parserDataReady, this, &CallgrindTool::takeParserDataFromRunControl);
     connect(runControl, &RunControl::stopped, this, &CallgrindTool::engineFinished);
@@ -767,7 +767,7 @@ ValgrindToolRunner *CallgrindTool::createRunTool(RunControl *runControl)
     toolRunner->setToggleCollectFunction(m_toggleCollectFunction);
     m_toggleCollectFunction.clear();
 
-    QTC_ASSERT(m_visualization, return toolRunner);
+    QTC_ASSERT(m_visualization, return);
 
     // apply project settings
     if (IRunConfigurationAspect *analyzerAspect = runControl->runConfiguration()->extraAspect(ANALYZER_VALGRIND_SETTINGS)) {
@@ -787,8 +787,6 @@ ValgrindToolRunner *CallgrindTool::createRunTool(RunControl *runControl)
     m_loadExternalLogFile->setEnabled(false);
     clearTextMarks();
     doClear(true);
-
-    return toolRunner;
 }
 
 void CallgrindTool::updateRunActions()
@@ -974,12 +972,16 @@ void CallgrindTool::createTextMarks()
 
 static CallgrindTool *theCallgrindTool;
 
+void setupCallgrindRunner(CallgrindToolRunner *toolRunner)
+{
+    theCallgrindTool->setupRunner(toolRunner);
+}
+
 void initCallgrindTool()
 {
     theCallgrindTool = new CallgrindTool;
 
-    auto producer = std::bind(&CallgrindTool::createRunTool, theCallgrindTool, _1);
-    RunControl::registerWorker(CALLGRIND_RUN_MODE, producer);
+    RunControl::registerWorker<CallgrindToolRunner>(CALLGRIND_RUN_MODE, {});
 }
 
 void destroyCallgrindTool()
