@@ -311,6 +311,7 @@ public:
     {
         registerRunConfiguration<PythonRunConfiguration>("PythonEditor.RunConfiguration.");
         addSupportedProjectType(PythonProjectId);
+        addRunWorkerFactory<SimpleTargetRunner>(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     }
 };
 
@@ -622,12 +623,6 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
     d = new PythonEditorPluginPrivate;
 
     ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
-
-    auto constraint = [](RunConfiguration *runConfiguration) {
-        auto aspect = runConfiguration->extraAspect<InterpreterAspect>();
-        return aspect && !aspect->value().isEmpty();
-    };
-    RunControl::registerWorker<SimpleTargetRunner>(ProjectExplorer::Constants::NORMAL_RUN_MODE, constraint);
 
     return true;
 }
