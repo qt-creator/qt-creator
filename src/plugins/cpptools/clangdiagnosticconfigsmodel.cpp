@@ -170,7 +170,10 @@ QStringList ClangDiagnosticConfigsModel::globalDiagnosticOptions()
     return {
         // Avoid undesired warnings from e.g. Q_OBJECT
         QStringLiteral("-Wno-unknown-pragmas"),
-        QStringLiteral("-Wno-unknown-warning-option")
+        QStringLiteral("-Wno-unknown-warning-option"),
+
+        // qdoc commands
+        QStringLiteral("-Wno-documentation-unknown-command")
     };
 }
 
