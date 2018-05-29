@@ -28,6 +28,8 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <cpptools/cpptoolsconstants.h>
+
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 
@@ -46,14 +48,8 @@ namespace {
 
 // CLANG-UPGRADE-CHECK: Checks/update URLs.
 //
-// For tidy, upgrade the version in the URL. Note that we cannot use the macro
-// CLANG_VERSION here because it might denote a version that was not yet
-// released (e.g. 6.0.1, but only 6.0.0 was released).
-//
-// For clazy, once it gets dedicated documentation pages for released versions,
+// Once it gets dedicated documentation pages for released versions,
 // use them instead of pointing to master, as checks might vanish.
-const char TIDY_DOCUMENTATION_URL_TEMPLATE[]
-    = "https://releases.llvm.org/6.0.0/tools/clang/tools/extra/docs/clang-tidy/checks/%1.html";
 const char CLAZY_DOCUMENTATION_URL_TEMPLATE[]
     = "https://github.com/KDE/clazy/blob/master/docs/checks/README-%1.md";
 
@@ -283,7 +279,7 @@ private:
             return QString();
 
         // Clang-Tidy
-        return QString::fromUtf8(TIDY_DOCUMENTATION_URL_TEMPLATE).arg(option);
+        return QString::fromUtf8(CppTools::Constants::TIDY_DOCUMENTATION_URL_TEMPLATE).arg(option);
     }
 
     static QString maybeClickableOption(const Utf8String &option)

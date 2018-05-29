@@ -27,6 +27,7 @@
 
 #include "cppcodemodelsettings.h"
 #include "cpptools_clangtidychecks.h"
+#include "cpptoolsconstants.h"
 #include "cpptoolsreuse.h"
 #include "ui_clangdiagnosticconfigswidget.h"
 #include "ui_clangbasechecks.h"
@@ -40,12 +41,16 @@
 #include <utils/utilsicons.h>
 
 #include <QDebug>
+#include <QDesktopServices>
 #include <QDialogButtonBox>
 #include <QInputDialog>
 #include <QPushButton>
 #include <QUuid>
 
 namespace CppTools {
+
+static constexpr const char CLANG_STATIC_ANALYZER_URL[]
+    = "https://clang-analyzer.llvm.org/available_checks.html";
 
 static void buildTree(ProjectExplorer::Tree *parent,
                       ProjectExplorer::Tree *current,
@@ -62,6 +67,12 @@ static void buildTree(ProjectExplorer::Tree *parent,
     current->parent = parent;
     for (const Constants::TidyNode &nodeChild : node.children)
         buildTree(current, new ProjectExplorer::Tree, nodeChild);
+}
+
+static bool needsLink(ProjectExplorer::Tree *node) {
+    if (node->name == "clang-analyzer-")
+        return true;
+    return !node->isDir && !node->fullPath.toString().startsWith("clang-analyzer-");
 }
 
 class TidyChecksTreeModel final : public ProjectExplorer::SelectableFilesModel
@@ -108,14 +119,45 @@ public:
         }
     }
 
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const final
+    int columnCount(const QModelIndex &/*parent*/) const override
     {
-        if (!index.isValid() || role == Qt::DecorationRole)
+        return 2;
+    }
+
+    QVariant data(const QModelIndex &fullIndex, int role = Qt::DisplayRole) const final
+    {
+        if (!fullIndex.isValid() || role == Qt::DecorationRole)
             return QVariant();
-        if (role == Qt::DisplayRole) {
-            auto *node = static_cast<ProjectExplorer::Tree *>(index.internalPointer());
-            return node->isDir ? (node->name + "*") : node->name;
+        QModelIndex index = this->index(fullIndex.row(), 0, fullIndex.parent());
+        auto *node = static_cast<ProjectExplorer::Tree *>(index.internalPointer());
+
+        if (fullIndex.column() == 1) {
+            if (!needsLink(node))
+                return QVariant();
+            switch (role) {
+            case Qt::DisplayRole:
+                return tr("Web Page");
+            case Qt::FontRole: {
+                QFont font = QApplication::font();
+                font.setUnderline(true);
+                return font;
+            }
+            case Qt::ForegroundRole:
+                return QApplication::palette().link().color();
+            case Qt::UserRole: {
+                // 'clang-analyzer-' group
+                if (node->isDir)
+                    return QString::fromUtf8(CLANG_STATIC_ANALYZER_URL);
+                return QString::fromUtf8(Constants::TIDY_DOCUMENTATION_URL_TEMPLATE)
+                        .arg(node->fullPath.toString());
+            }
+            }
+            return QVariant();
         }
+
+        if (role == Qt::DisplayRole)
+            return node->isDir ? (node->name + "*") : node->name;
+
         return ProjectExplorer::SelectableFilesModel::data(index, role);
     }
 
@@ -160,10 +202,7 @@ private:
                 return false;
             }
 
-            if (!check.startsWith(nodeName))
-                return false;
-
-            return true;
+            return check.startsWith(nodeName);
         });
         return result;
     }
@@ -202,6 +241,15 @@ ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(const Core::Id &confi
     connect(m_ui->removeButton, &QPushButton::clicked,
             this, &ClangDiagnosticConfigsWidget::onRemoveButtonClicked);
     connectDiagnosticOptionsChanged();
+
+    connect(m_tidyChecks->checksPrefixesTree, &QTreeView::clicked,
+            [this](const QModelIndex &index) {
+        const QString link = m_tidyTreeModel->data(index, Qt::UserRole).toString();
+        if (link.isEmpty())
+            return;
+
+        QDesktopServices::openUrl(QUrl(link));
+    });
 
     syncWidgetsToModel(configToSelect);
 }
@@ -599,6 +647,8 @@ void ClangDiagnosticConfigsWidget::setupTabs()
     m_tidyChecks->setupUi(m_tidyChecksWidget);
     m_tidyChecks->checksPrefixesTree->setModel(m_tidyTreeModel.get());
     m_tidyChecks->checksPrefixesTree->expandToDepth(0);
+    m_tidyChecks->checksPrefixesTree->header()->setStretchLastSection(false);
+    m_tidyChecks->checksPrefixesTree->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     connect(m_tidyChecks->plainTextEditButton, &QPushButton::clicked, this, [this]() {
         QDialog dialog;
         dialog.setWindowTitle(tr("Checks"));
