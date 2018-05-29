@@ -58,17 +58,6 @@ public:
 };
 static CMakeToolManagerPrivate *d = nullptr;
 
-static void addCMakeTool(CMakeTool *item)
-{
-    QTC_ASSERT(item->id().isValid(), return);
-
-    d->m_cmakeTools.append(item);
-
-    //set the first registered cmake tool as default if there is not already one
-    if (!d->m_defaultCMake.isValid())
-        CMakeToolManager::setDefaultCMakeTool(item->id());
-}
-
 static FileName userSettingsFileName()
 {
     return FileName::fromString(ICore::userResourcePath() + CMAKETOOL_FILENAME);
@@ -243,7 +232,6 @@ Id CMakeToolManager::registerOrFindCMakeTool(const FileName &command)
     cmake->setDisplayName(tr("CMake at %1").arg(command.toUserOutput()));
 
     addCMakeTool(cmake);
-    emit m_instance->cmakeAdded(cmake->id());
     return cmake->id();
 }
 
@@ -261,7 +249,6 @@ bool CMakeToolManager::registerCMakeTool(CMakeTool *tool)
     }
 
     addCMakeTool(tool);
-    emit m_instance->cmakeAdded(tool->id());
     return true;
 }
 
@@ -421,6 +408,19 @@ void CMakeToolManager::saveCMakeTools()
     }
     data.insert(QLatin1String(CMAKETOOL_COUNT_KEY), count);
     d->m_writer->save(data, ICore::mainWindow());
+}
+
+void CMakeToolManager::addCMakeTool(CMakeTool *item)
+{
+    QTC_ASSERT(item->id().isValid(), return);
+
+    d->m_cmakeTools.append(item);
+
+    emit CMakeToolManager::m_instance->cmakeAdded(item->id());
+
+    //set the first registered cmake tool as default if there is not already one
+    if (!d->m_defaultCMake.isValid())
+        CMakeToolManager::setDefaultCMakeTool(item->id());
 }
 
 } // namespace CMakeProjectManager
