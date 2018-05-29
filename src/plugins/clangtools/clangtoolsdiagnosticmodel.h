@@ -59,7 +59,7 @@ public:
     DiagnosticItem(const Diagnostic &diag, const OnFixitStatusChanged &onFixitStatusChanged);
     ~DiagnosticItem() override;
 
-    Diagnostic diagnostic() const { return m_diagnostic; }
+    const Diagnostic &diagnostic() const { return m_diagnostic; }
 
     FixitStatus fixItStatus() const { return m_fixitStatus; }
     void setFixItStatus(const FixitStatus &status);
@@ -89,6 +89,8 @@ public:
 
     virtual void addDiagnostics(const QList<Diagnostic> &diagnostics);
     virtual QList<Diagnostic> diagnostics() const;
+
+    int diagnosticsCount() const;
 
     enum ItemRole {
         DiagnosticRole = Debugger::DetailedErrorView::FullTextRole + 1

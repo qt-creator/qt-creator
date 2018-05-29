@@ -395,7 +395,7 @@ void ClangTidyClazyTool::handleStateUpdate()
     QTC_ASSERT(m_diagnosticModel, return);
     QTC_ASSERT(m_diagnosticFilterModel, return);
 
-    const int issuesFound = m_diagnosticModel->diagnostics().count();
+    const int issuesFound = m_diagnosticModel->diagnosticsCount();
     const int issuesVisible = m_diagnosticFilterModel->rowCount();
     m_goBack->setEnabled(issuesVisible > 1);
     m_goNext->setEnabled(issuesVisible > 1);

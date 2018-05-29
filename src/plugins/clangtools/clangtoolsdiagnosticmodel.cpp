@@ -80,6 +80,11 @@ QList<Diagnostic> ClangToolsDiagnosticModel::diagnostics() const
     return diags;
 }
 
+int ClangToolsDiagnosticModel::diagnosticsCount() const
+{
+    return rootItem()->childCount();
+}
+
 static QString createDiagnosticToolTipString(const Diagnostic &diagnostic)
 {
     typedef QPair<QString, QString> StringPair;
@@ -431,8 +436,9 @@ bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow,
         return true;
 
     // Is the diagnostic suppressed?
-    const Diagnostic diag = static_cast<ClangToolsDiagnosticModel *>(sourceModel())
-            ->diagnostics().at(sourceRow);
+    auto model = static_cast<ClangToolsDiagnosticModel *>(sourceModel());
+    auto item = static_cast<DiagnosticItem *>(model->rootItem()->childAt(sourceRow));
+    const Diagnostic &diag = item->diagnostic();
     foreach (const SuppressedDiagnostic &d, m_suppressedDiagnostics) {
         if (d.description != diag.description)
             continue;
