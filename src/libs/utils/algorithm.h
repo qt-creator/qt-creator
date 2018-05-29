@@ -627,6 +627,20 @@ Container<T> qobject_container_cast(const Container<Base> &container)
 }
 
 //////////////////
+// static_container_cast
+/////////////////
+template <class T, template<typename> class Container, typename Base>
+Container<T> static_container_cast(const Container<Base> &container)
+{
+    Container<T> result;
+    reserve(result, container.size());
+    auto ins = inserter(result);
+    for (Base val : container)
+        ins = static_cast<T>(val);
+    return result;
+}
+
+//////////////////
 // sort
 /////////////////
 template <typename Container>

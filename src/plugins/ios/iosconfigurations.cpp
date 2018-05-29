@@ -596,7 +596,7 @@ QList<ToolChain *> IosToolChainFactory::autoDetect(const QList<ToolChain *> &exi
 {
     QList<ClangToolChain *> existingClangToolChains = clangToolChains(existingToolChains);
     const QList<XcodePlatform> platforms = XcodeProbe::detectPlatforms().values();
-    QList<ClangToolChain *> toolChains;
+    QList<ToolChain *> toolChains;
     toolChains.reserve(platforms.size());
     foreach (const XcodePlatform &platform, platforms) {
         for (const XcodePlatform::ToolchainTarget &target : platform.targets) {
@@ -614,7 +614,7 @@ QList<ToolChain *> IosToolChainFactory::autoDetect(const QList<ToolChain *> &exi
             createOrAdd(platformToolchains.second, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
         }
     }
-    return Utils::transform(toolChains, [](ClangToolChain *tc) -> ToolChain * { return tc; });
+    return toolChains;
 }
 
 QString DevelopmentTeam::identifier() const

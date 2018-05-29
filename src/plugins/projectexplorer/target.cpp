@@ -358,9 +358,9 @@ BuildTargetInfoList Target::applicationTargets() const
 QList<ProjectConfiguration *> Target::projectConfigurations() const
 {
     QList<ProjectConfiguration *> result;
-    result.append(Utils::qobject_container_cast<ProjectConfiguration *>(buildConfigurations()));
-    result.append(Utils::qobject_container_cast<ProjectConfiguration *>(deployConfigurations()));
-    result.append(Utils::qobject_container_cast<ProjectConfiguration *>(runConfigurations()));
+    result.append(Utils::static_container_cast<ProjectConfiguration *>(buildConfigurations()));
+    result.append(Utils::static_container_cast<ProjectConfiguration *>(deployConfigurations()));
+    result.append(Utils::static_container_cast<ProjectConfiguration *>(runConfigurations()));
     return result;
 }
 

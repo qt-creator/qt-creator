@@ -1032,9 +1032,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             && tc->typeId() == Constants::ANDROID_TOOLCHAIN_ID
             && !static_cast<const AndroidToolChain *>(tc)->isSecondaryToolChain();
     });
-    const QList<AndroidToolChain *> toolchains = Utils::transform(tmp, [](ToolChain *tc) {
-            return static_cast<AndroidToolChain *>(tc);
-    });
+    const auto toolchains = Utils::static_container_cast<AndroidToolChain *>(tmp);
     for (AndroidToolChain *tc : toolchains) {
         if (tc->isSecondaryToolChain() || tc->language() != Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID))
             continue;
