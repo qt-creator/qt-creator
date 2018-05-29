@@ -187,6 +187,12 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                tr("Is %1 running on any unix-based platform?")
                                    .arg(Constants::IDE_DISPLAY_NAME),
                                []() { return QVariant(Utils::HostOsInfo::isAnyUnixHost()).toString(); });
+    expander->registerVariable("HostOs:PathListSeparator",
+                               tr("Return the path list separator for the platform."),
+                               []() { return QString(Utils::HostOsInfo::pathListSeparator()); });
+    expander->registerVariable("HostOs:ExecutableSuffix",
+                               tr("Return the platform executable suffix."),
+                               []() { return QString(Utils::HostOsInfo::withExecutableSuffix("")); });
     expander->registerVariable("IDE:ResourcePath",
                                tr("The directory where %1 finds its pre-installed resources.")
                                    .arg(Constants::IDE_DISPLAY_NAME),
