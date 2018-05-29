@@ -430,12 +430,6 @@ public:
     RunWorkerFactory();
     virtual ~RunWorkerFactory();
 
-    template <class Worker>
-    void registerRunWorker()
-    {
-        m_producer = [](RunControl *rc) { return new Worker(rc); };
-    }
-
     bool canRun(RunConfiguration *runConfiguration, Core::Id runMode) const;
 
     void setPriority(int priority);
@@ -537,7 +531,7 @@ public:
     static void registerWorker(Core::Id runMode, const Constraint &constraint, int priority = 0)
     {
         auto factory = new RunWorkerFactory;
-        factory->registerRunWorker<Worker>();
+        factory->setProducer([](RunControl *rc) { return new Worker(rc); });
         factory->addSupportedRunMode(runMode);
         factory->addConstraint(constraint);
         factory->setPriority(priority);
