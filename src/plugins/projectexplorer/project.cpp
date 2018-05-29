@@ -269,18 +269,13 @@ bool Project::removeTarget(Target *target)
     if (BuildManager::isBuilding(target))
         return false;
 
-    if (target == activeTarget()) {
-        if (d->m_targets.size() == 1)
-            SessionManager::setActiveTarget(this, nullptr, SetActive::Cascade);
-        else if (d->m_targets.at(0).get() == target)
-            SessionManager::setActiveTarget(this, d->m_targets.at(1).get(), SetActive::Cascade);
-        else
-            SessionManager::setActiveTarget(this, d->m_targets.at(0).get(), SetActive::Cascade);
-    }
-
     emit aboutToRemoveProjectConfiguration(target);
     emit aboutToRemoveTarget(target);
     auto keep = Utils::take(d->m_targets, target);
+    if (target == d->m_activeTarget) {
+        Target *newActiveTarget = (d->m_targets.size() == 0 ? nullptr : d->m_targets.at(0).get());
+        SessionManager::setActiveTarget(this, newActiveTarget, SetActive::Cascade);
+    }
     emit removedTarget(target);
     emit removedProjectConfiguration(target);
 
@@ -299,8 +294,12 @@ Target *Project::activeTarget() const
 
 void Project::setActiveTarget(Target *target)
 {
-    if ((!target && d->m_targets.size() > 0) ||
-        (target && Utils::contains(d->m_targets, target) && d->m_activeTarget != target)) {
+    if (d->m_activeTarget == target)
+        return;
+
+    // Allow to set nullptr just before the last target is removed or when no target exists.
+    if ((!target && d->m_targets.size() == 0) ||
+        (target && Utils::contains(d->m_targets, target))) {
         d->m_activeTarget = target;
         emit activeProjectConfigurationChanged(d->m_activeTarget);
         emit activeTargetChanged(d->m_activeTarget);
