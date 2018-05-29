@@ -293,6 +293,11 @@ static void paintIconAndText(QPainter *painter, const QRect &rect,
                              const QIcon &icon, const QString &text,
                              bool enabled, bool selected)
 {
+    QFont boldFont(painter->font());
+    boldFont.setPointSizeF(StyleHelper::sidebarFontSize());
+    boldFont.setBold(true);
+    painter->setFont(boldFont);
+
     const bool drawIcon = rect.height() > 36;
     if (drawIcon) {
         const int textHeight =
@@ -322,10 +327,6 @@ static void paintIconAndText(QPainter *painter, const QRect &rect,
     painter->translate(0, -1);
     QRect tabTextRect(rect);
     tabTextRect.translate(0, drawIcon ? -2 : 1);
-    QFont boldFont(painter->font());
-    boldFont.setPointSizeF(StyleHelper::sidebarFontSize());
-    boldFont.setBold(true);
-    painter->setFont(boldFont);
     const int textFlags = Qt::AlignCenter | (drawIcon ? Qt::AlignBottom : Qt::AlignVCenter)
                           | Qt::TextWordWrap;
     painter->drawText(tabTextRect, textFlags, text);
