@@ -1445,17 +1445,6 @@ Project *RunControl::project() const
     return d->project.data();
 }
 
-bool RunControl::canReUseOutputPane(const RunControl *other) const
-{
-    if (!other || other->isRunning())
-        return false;
-
-    return d->runnable.executable == other->d->runnable.executable
-        && d->runnable.commandLineArguments == other->d->runnable.commandLineArguments
-        && d->runnable.workingDirectory == other->d->runnable.workingDirectory
-        && d->runnable.environment == other->d->runnable.environment;
-}
-
 /*!
     A handle to the application process.
 

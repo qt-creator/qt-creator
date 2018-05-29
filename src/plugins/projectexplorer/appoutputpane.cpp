@@ -411,8 +411,15 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
             this, &AppOutputPane::appendMessage);
 
     // First look if we can reuse a tab
-    const int tabIndex = Utils::indexOf(m_runControlTabs, [rc](const RunControlTab &tab) {
-        return rc->canReUseOutputPane(tab.runControl);
+    const Runnable thisRunnable = rc->runnable();
+    const int tabIndex = Utils::indexOf(m_runControlTabs, [&](const RunControlTab &tab) {
+        if (!tab.runControl || tab.runControl->isRunning())
+            return false;
+        const Runnable otherRunnable = tab.runControl->runnable();
+        return thisRunnable.executable == otherRunnable.executable
+                && thisRunnable.commandLineArguments == otherRunnable.commandLineArguments
+                && thisRunnable.workingDirectory == otherRunnable.workingDirectory
+                && thisRunnable.environment == otherRunnable.environment;
     });
     if (tabIndex != -1) {
         RunControlTab &tab = m_runControlTabs[tabIndex];

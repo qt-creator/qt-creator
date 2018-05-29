@@ -504,7 +504,6 @@ public:
 
     RunConfiguration *runConfiguration() const;
     Project *project() const;
-    bool canReUseOutputPane(const RunControl *other) const;
 
     Utils::OutputFormatter *outputFormatter() const;
     Core::Id runMode() const;
