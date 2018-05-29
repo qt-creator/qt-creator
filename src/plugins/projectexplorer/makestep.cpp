@@ -365,7 +365,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep) :
             this, &MakeStepConfigWidget::makeLineEditTextEdited);
     connect(m_ui->makeArgumentsLineEdit, &QLineEdit::textEdited,
             this, &MakeStepConfigWidget::makeArgumentsLineEditTextEdited);
-    connect(m_ui->userJobCount, qOverload<int>(&QSpinBox::valueChanged), this, [this](int value) {
+    connect(m_ui->userJobCount, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) {
         m_makeStep->setJobCount(value);
         updateDetails();
     });
