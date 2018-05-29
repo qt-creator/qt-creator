@@ -202,10 +202,22 @@ void QmlProfilerModelManager::replayQmlEvents(QmlEventLoader loader,
     }
 }
 
+void QmlProfilerModelManager::initialize()
+{
+    d->textMarkModel->hideTextMarks();
+    TimelineTraceManager::initialize();
+}
+
 void QmlProfilerModelManager::clearEventStorage()
 {
     TimelineTraceManager::clearEventStorage();
     emit traceChanged();
+}
+
+void QmlProfilerModelManager::clearTypeStorage()
+{
+    d->textMarkModel->clear();
+    TimelineTraceManager::clearTypeStorage();
 }
 
 static QString getDisplayName(const QmlEventType &event)
@@ -261,6 +273,7 @@ void QmlProfilerModelManager::finalize()
     // which happens on stateChanged(Done).
 
     TimelineTraceManager::finalize();
+    d->textMarkModel->showTextMarks();
     emit traceChanged();
 }
 

@@ -105,8 +105,7 @@ private:
     bool checkForUnsavedNotes();
     void restoreFeatureVisibility();
     void setButtonsEnabled(bool enable);
-    void createTextMarks();
-    void clearTextMarks();
+    void createInitialTextMarks();
 
     void initialize();
     void finalize();

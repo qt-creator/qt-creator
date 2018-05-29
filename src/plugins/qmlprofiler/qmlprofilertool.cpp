@@ -471,16 +471,11 @@ void QmlProfilerTool::setButtonsEnabled(bool enable)
     d->m_recordFeaturesMenu->setEnabled(enable);
 }
 
-void QmlProfilerTool::createTextMarks()
+void QmlProfilerTool::createInitialTextMarks()
 {
     QmlProfilerTextMarkModel *model = d->m_profilerModelManager->textMarkModel();
     foreach (IDocument *document, DocumentModel::openedDocuments())
         model->createMarks(d->m_viewContainer, document->filePath().toString());
-}
-
-void QmlProfilerTool::clearTextMarks()
-{
-    d->m_profilerModelManager->textMarkModel()->clear();
 }
 
 bool QmlProfilerTool::prepareTool()
@@ -757,14 +752,13 @@ void QmlProfilerTool::initialize()
 void QmlProfilerTool::finalize()
 {
     updateTimeDisplay();
-    createTextMarks();
+    createInitialTextMarks();
     setButtonsEnabled(true);
     d->m_recordButton->setEnabled(true);
 }
 
 void QmlProfilerTool::clear()
 {
-    clearTextMarks();
     clearDisplay();
     setButtonsEnabled(true);
     d->m_recordButton->setEnabled(true);

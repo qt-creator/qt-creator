@@ -59,6 +59,9 @@ public:
     void addTextMarkId(int typeId, const QmlEventLocation &location);
     void createMarks(QmlProfilerViewManager *viewManager, const QString &fileName);
 
+    void showTextMarks();
+    void hideTextMarks();
+
 private:
     struct TextMarkId {
         int typeId;
