@@ -299,6 +299,8 @@ QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory()
     registerRunConfiguration<QmlProjectRunConfiguration>
             ("QmlProjectManager.QmlRunConfiguration.QmlScene");
     addSupportedProjectType(QmlProjectManager::Constants::QML_PROJECT_ID);
+
+    addRunWorkerFactory<SimpleTargetRunner>(ProjectExplorer::Constants::NORMAL_RUN_MODE);
 }
 
 } // namespace Internal

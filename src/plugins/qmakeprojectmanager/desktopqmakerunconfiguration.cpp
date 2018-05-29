@@ -173,6 +173,8 @@ DesktopQmakeRunConfigurationFactory::DesktopQmakeRunConfigurationFactory()
     registerRunConfiguration<DesktopQmakeRunConfiguration>("Qt4ProjectManager.Qt4RunConfiguration:");
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+
+    addRunWorkerFactory<SimpleTargetRunner>(ProjectExplorer::Constants::NORMAL_RUN_MODE);
 }
 
 } // namespace Internal

@@ -649,17 +649,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     panelFactory->setCreateWidgetFunction([](Project *project) { return new DependenciesWidget(project); });
     ProjectPanelFactory::registerFactory(panelFactory);
 
-    auto constraint = [](RunConfiguration *runConfiguration) {
-        const Runnable runnable = runConfiguration->runnable();
-        const IDevice::ConstPtr device = runnable.device;
-        if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-            return true;
-        Target *target = runConfiguration->target();
-        Kit *kit = target ? target->kit() : nullptr;
-        return DeviceTypeKitInformation::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-    };
-    RunControl::registerWorker<SimpleTargetRunner>(Constants::NORMAL_RUN_MODE, constraint);
-
     // context menus
     ActionContainer *msessionContextMenu =
         ActionManager::createMenu(Constants::M_SESSIONCONTEXT);
