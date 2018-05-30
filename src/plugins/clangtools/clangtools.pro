@@ -19,6 +19,7 @@ SOURCES += \
     clangtool.cpp \
     clangtoolruncontrol.cpp \
     clangtoolrunner.cpp \
+    clangtoolsbasicsettings.cpp \
     clangtoolsdiagnostic.cpp \
     clangtoolsdiagnosticmodel.cpp \
     clangtoolslogfilereader.cpp \
@@ -41,6 +42,7 @@ HEADERS += \
     clangtoolruncontrol.h \
     clangtoolrunner.h \
     clangtools_global.h \
+    clangtoolsbasicsettings.h \
     clangtoolsconstants.h \
     clangtoolsdiagnostic.h \
     clangtoolsdiagnosticmodel.h \
@@ -54,7 +56,8 @@ HEADERS += \
 FORMS += \
     clangtoolsprojectsettingswidget.ui \
     clangtoolsconfigwidget.ui \
-    clangselectablefilesdialog.ui
+    clangselectablefilesdialog.ui \
+    clangtoolsbasicsettings.ui
 
 equals(TEST, 1) {
     HEADERS += \

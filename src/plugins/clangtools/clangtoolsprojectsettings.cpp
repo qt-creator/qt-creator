@@ -36,6 +36,7 @@ namespace Internal {
 
 static const char SETTINGS_KEY_USE_GLOBAL_SETTINGS[] = "ClangTools.UseGlobalSettings";
 static const char SETTINGS_KEY_DIAGNOSTIC_CONFIG[] = "ClangTools.DiagnosticConfig";
+static const char SETTINGS_KEY_BUILD_BEFORE_ANALYSIS[] = "ClangTools.BuildBeforeAnalysis";
 static const char SETTINGS_KEY_SELECTED_DIRS[] = "ClangTools.SelectedDirs";
 static const char SETTINGS_KEY_SELECTED_FILES[] = "ClangTools.SelectedFiles";
 static const char SETTINGS_KEY_SUPPRESSED_DIAGS[] = "ClangTools.SuppressedDiagnostics";
@@ -86,6 +87,7 @@ void ClangToolsProjectSettings::load()
     m_useGlobalSettings = useGlobalVariant.isValid() ? useGlobalVariant.toBool() : true;
     m_diagnosticConfig = Core::Id::fromSetting(
         m_project->namedSettings(SETTINGS_KEY_DIAGNOSTIC_CONFIG));
+    m_buildBeforeAnalysis = m_project->namedSettings(SETTINGS_KEY_BUILD_BEFORE_ANALYSIS).toBool();
 
     auto toFileName = [](const QString &s) { return Utils::FileName::fromString(s); };
 
@@ -124,6 +126,7 @@ void ClangToolsProjectSettings::store()
 {
     m_project->setNamedSettings(SETTINGS_KEY_USE_GLOBAL_SETTINGS, m_useGlobalSettings);
     m_project->setNamedSettings(SETTINGS_KEY_DIAGNOSTIC_CONFIG, m_diagnosticConfig.toSetting());
+    m_project->setNamedSettings(SETTINGS_KEY_BUILD_BEFORE_ANALYSIS, m_buildBeforeAnalysis);
 
     const QStringList dirs = Utils::transform(m_selectedDirs.toList(), &Utils::FileName::toString);
     m_project->setNamedSettings(SETTINGS_KEY_SELECTED_DIRS, dirs);
@@ -162,6 +165,16 @@ Core::Id ClangToolsProjectSettings::diagnosticConfig() const
 void ClangToolsProjectSettings::setDiagnosticConfig(const Core::Id &diagnosticConfig)
 {
     m_diagnosticConfig = diagnosticConfig;
+}
+
+bool ClangToolsProjectSettings::buildBeforeAnalysis() const
+{
+    return m_buildBeforeAnalysis;
+}
+
+void ClangToolsProjectSettings::setBuildBeforeAnalysis(bool build)
+{
+    m_buildBeforeAnalysis = build;
 }
 
 ClangToolsProjectSettingsManager::ClangToolsProjectSettingsManager()

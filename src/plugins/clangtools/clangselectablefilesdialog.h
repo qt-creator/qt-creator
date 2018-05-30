@@ -65,6 +65,7 @@ private:
     Core::Id m_customDiagnosticConfig;
     ProjectExplorer::Project *m_project;
     QPushButton *m_analyzeButton = nullptr;
+    bool m_buildBeforeAnalysis = true;
 };
 
 } // namespace Internal

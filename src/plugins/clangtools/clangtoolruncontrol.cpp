@@ -27,6 +27,7 @@
 
 #include "clangtool.h"
 #include "clangtoolslogfilereader.h"
+#include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
 #include "clangtoolrunner.h"
@@ -237,12 +238,12 @@ ClangToolRunControl::ClangToolRunControl(RunControl *runControl,
 {
     addStartDependency(m_projectBuilder);
 
-    auto *settings = ClangToolsSettings::instance();
-    m_projectBuilder->setEnabled(settings->savedBuildBeforeAnalysis());
-
-    connect(settings, &ClangToolsSettings::buildBeforeAnalysisChanged, this, [this](bool checked) {
-        m_projectBuilder->setEnabled(checked);
-    });
+    ClangToolsProjectSettings *projectSettings = ClangToolsProjectSettingsManager::getSettings(
+        target->project());
+    if (projectSettings->useGlobalSettings())
+        m_projectBuilder->setEnabled(ClangToolsSettings::instance()->savedBuildBeforeAnalysis());
+    else
+        m_projectBuilder->setEnabled(projectSettings->buildBeforeAnalysis());
 }
 
 void ClangToolRunControl::init()

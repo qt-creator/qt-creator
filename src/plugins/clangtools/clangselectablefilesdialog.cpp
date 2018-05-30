@@ -25,6 +25,7 @@
 
 #include "clangselectablefilesdialog.h"
 #include "ui_clangselectablefilesdialog.h"
+#include "ui_clangtoolsbasicsettings.h"
 
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
@@ -291,38 +292,53 @@ SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
     m_ui->buttons->setStandardButtons(QDialogButtonBox::Cancel);
     m_ui->buttons->addButton(m_analyzeButton, QDialogButtonBox::AcceptRole);
 
-    m_ui->diagnosticConfigsSelectionWidget->showLabel(false);
+    CppTools::ClangDiagnosticConfigsSelectionWidget *diagnosticConfigsSelectionWidget
+            = m_ui->clangToolsBasicSettings->ui()->clangDiagnosticConfigsSelectionWidget;
+    QCheckBox *buildBeforeAnalysis = m_ui->clangToolsBasicSettings->ui()->buildBeforeAnalysis;
 
     ClangToolsProjectSettings *settings = ClangToolsProjectSettingsManager::getSettings(m_project);
     m_customDiagnosticConfig = diagnosticConfiguration(settings);
+    m_buildBeforeAnalysis = settings->buildBeforeAnalysis();
 
     if (settings->useGlobalSettings()) {
         m_ui->globalOrCustom->setCurrentIndex(GlobalSettings);
-        m_ui->diagnosticConfigsSelectionWidget->setEnabled(false);
-        m_ui->diagnosticConfigsSelectionWidget->refresh(
+        m_ui->clangToolsBasicSettings->setEnabled(false);
+        diagnosticConfigsSelectionWidget->refresh(
                     ClangToolsSettings::instance()->savedDiagnosticConfigId());
+        buildBeforeAnalysis->setCheckState(
+                    ClangToolsSettings::instance()->savedBuildBeforeAnalysis()
+                    ? Qt::Checked : Qt::Unchecked);
     } else {
         m_ui->globalOrCustom->setCurrentIndex(CustomSettings);
-        m_ui->diagnosticConfigsSelectionWidget->setEnabled(true);
-        m_ui->diagnosticConfigsSelectionWidget->refresh(m_customDiagnosticConfig);
+        m_ui->clangToolsBasicSettings->setEnabled(true);
+        diagnosticConfigsSelectionWidget->refresh(m_customDiagnosticConfig);
+        buildBeforeAnalysis->setCheckState(m_buildBeforeAnalysis ? Qt::Checked : Qt::Unchecked);
     }
 
     connect(m_ui->globalOrCustom,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            [this](int index){
-        m_ui->diagnosticConfigsSelectionWidget->setEnabled(index == CustomSettings);
+            [=](int index){
+        m_ui->clangToolsBasicSettings->setEnabled(index == CustomSettings);
         if (index == CustomSettings) {
-            m_ui->diagnosticConfigsSelectionWidget->refresh(m_customDiagnosticConfig);
+            diagnosticConfigsSelectionWidget->refresh(m_customDiagnosticConfig);
+            buildBeforeAnalysis->setCheckState(m_buildBeforeAnalysis ? Qt::Checked : Qt::Unchecked);
         } else {
-            m_ui->diagnosticConfigsSelectionWidget->refresh(
+            diagnosticConfigsSelectionWidget->refresh(
                 ClangToolsSettings::instance()->savedDiagnosticConfigId());
+            buildBeforeAnalysis->setCheckState(
+                        ClangToolsSettings::instance()->savedBuildBeforeAnalysis()
+                        ? Qt::Checked : Qt::Unchecked);
         }
     });
-    connect(m_ui->diagnosticConfigsSelectionWidget,
+    connect(diagnosticConfigsSelectionWidget,
             &ClangDiagnosticConfigsSelectionWidget::currentConfigChanged,
             [this](const Core::Id &currentConfigId) {
         if (m_ui->globalOrCustom->currentIndex() == CustomSettings)
             m_customDiagnosticConfig = currentConfigId;
+    });
+    connect(buildBeforeAnalysis, &QCheckBox::toggled, [this](bool checked) {
+        if (m_ui->globalOrCustom->currentIndex() == CustomSettings)
+            m_buildBeforeAnalysis = checked;
     });
 
     // Restore selection
@@ -339,9 +355,9 @@ SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
     connect(CppTools::codeModelSettings().data(), &CppTools::CppCodeModelSettings::changed,
             this, [=]() {
         if (m_ui->globalOrCustom->currentIndex() == CustomSettings) {
-            m_ui->diagnosticConfigsSelectionWidget->refresh(m_customDiagnosticConfig);
+            diagnosticConfigsSelectionWidget->refresh(m_customDiagnosticConfig);
         } else {
-            m_ui->diagnosticConfigsSelectionWidget->refresh(
+            diagnosticConfigsSelectionWidget->refresh(
                 ClangToolsSettings::instance()->savedDiagnosticConfigId());
         }
     });
@@ -358,9 +374,10 @@ void SelectableFilesDialog::accept()
 {
     ClangToolsProjectSettings *settings = ClangToolsProjectSettingsManager::getSettings(m_project);
 
-    // Save diagnostic configuration
+    // Save diagnostic configuration and flag to build before analysis
     settings->setUseGlobalSettings(m_ui->globalOrCustom->currentIndex() == GlobalSettings);
     settings->setDiagnosticConfig(m_customDiagnosticConfig);
+    settings->setBuildBeforeAnalysis(m_buildBeforeAnalysis);
 
     // Save selection
     QSet<FileName> checkedDirs;

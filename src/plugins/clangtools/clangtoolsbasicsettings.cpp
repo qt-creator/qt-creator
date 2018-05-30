@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,53 +23,28 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "clangtoolsbasicsettings.h"
+#include "ui_clangtoolsbasicsettings.h"
 
-#include <coreplugin/id.h>
-
-#include <QObject>
-#include <QString>
+#include "clangtoolsutils.h"
 
 namespace ClangTools {
-namespace Internal {
 
-class ClangToolsSettings : public QObject
+ClangToolsBasicSettings::ClangToolsBasicSettings(QWidget *parent)
+    : QWidget(parent)
+    , m_ui(new Ui::ClangToolsBasicSettings)
 {
-    Q_OBJECT
-public:
-    static ClangToolsSettings *instance();
+    m_ui->setupUi(this);
+}
 
-    void writeSettings();
+ClangToolsBasicSettings::~ClangToolsBasicSettings()
+{
+    delete m_ui;
+}
 
-    int savedSimultaneousProcesses() const;
-    bool savedBuildBeforeAnalysis() const;
-    Core::Id savedDiagnosticConfigId() const;
+Ui::ClangToolsBasicSettings *ClangToolsBasicSettings::ui()
+{
+    return m_ui;
+}
 
-    int simultaneousProcesses() const;
-    void setSimultaneousProcesses(int processes);
-
-    bool buildBeforeAnalysis() const;
-    void setBuildBeforeAnalysis(bool build);
-
-    Core::Id diagnosticConfigId() const;
-    void setDiagnosticConfigId(Core::Id id);
-
-signals:
-    void buildBeforeAnalysisChanged(bool checked) const;
-
-private:
-    ClangToolsSettings();
-    void readSettings();
-
-    void updateSavedBuildBeforeAnalysiIfRequired();
-
-    int m_simultaneousProcesses = -1;
-    int m_savedSimultaneousProcesses = -1;
-    bool m_buildBeforeAnalysis = false;
-    bool m_savedBuildBeforeAnalysis= false;
-    Core::Id m_diagnosticConfigId;
-    Core::Id m_savedDiagnosticConfigId;
-};
-
-} // namespace Internal
 } // namespace ClangTools

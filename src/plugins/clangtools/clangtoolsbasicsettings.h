@@ -25,51 +25,25 @@
 
 #pragma once
 
-#include <coreplugin/id.h>
-
-#include <QObject>
-#include <QString>
+#include <QWidget>
 
 namespace ClangTools {
-namespace Internal {
 
-class ClangToolsSettings : public QObject
+namespace Ui { class ClangToolsBasicSettings; }
+
+class ClangExecutableVersion;
+
+class ClangToolsBasicSettings : public QWidget
 {
     Q_OBJECT
+
 public:
-    static ClangToolsSettings *instance();
+    explicit ClangToolsBasicSettings(QWidget *parent = 0);
+    ~ClangToolsBasicSettings();
 
-    void writeSettings();
-
-    int savedSimultaneousProcesses() const;
-    bool savedBuildBeforeAnalysis() const;
-    Core::Id savedDiagnosticConfigId() const;
-
-    int simultaneousProcesses() const;
-    void setSimultaneousProcesses(int processes);
-
-    bool buildBeforeAnalysis() const;
-    void setBuildBeforeAnalysis(bool build);
-
-    Core::Id diagnosticConfigId() const;
-    void setDiagnosticConfigId(Core::Id id);
-
-signals:
-    void buildBeforeAnalysisChanged(bool checked) const;
-
+    Ui::ClangToolsBasicSettings *ui();
 private:
-    ClangToolsSettings();
-    void readSettings();
-
-    void updateSavedBuildBeforeAnalysiIfRequired();
-
-    int m_simultaneousProcesses = -1;
-    int m_savedSimultaneousProcesses = -1;
-    bool m_buildBeforeAnalysis = false;
-    bool m_savedBuildBeforeAnalysis= false;
-    Core::Id m_diagnosticConfigId;
-    Core::Id m_savedDiagnosticConfigId;
+    Ui::ClangToolsBasicSettings *m_ui;
 };
 
-} // namespace Internal
 } // namespace ClangTools

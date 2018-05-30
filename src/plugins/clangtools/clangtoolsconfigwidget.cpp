@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "clangtoolsconfigwidget.h"
+#include "ui_clangtoolsbasicsettings.h"
 #include "ui_clangtoolsconfigwidget.h"
 
 #include "clangtoolsutils.h"
@@ -54,24 +55,27 @@ ClangToolsConfigWidget::ClangToolsConfigWidget(
             static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             [settings](int count) { settings->setSimultaneousProcesses(count); });
 
-    m_ui->buildBeforeAnalysis->setCheckState(settings->savedBuildBeforeAnalysis()
+    QCheckBox *buildBeforeAnalysis = m_ui->clangToolsBasicSettings->ui()->buildBeforeAnalysis;
+    buildBeforeAnalysis->setCheckState(settings->savedBuildBeforeAnalysis()
                                               ? Qt::Checked : Qt::Unchecked);
-    connect(m_ui->buildBeforeAnalysis, &QCheckBox::toggled, [settings](bool checked) {
+    connect(buildBeforeAnalysis, &QCheckBox::toggled, [settings](bool checked) {
         settings->setBuildBeforeAnalysis(checked);
     });
 
-    m_ui->clangDiagnosticConfigsSelectionWidget->refresh(settings->savedDiagnosticConfigId());
+    CppTools::ClangDiagnosticConfigsSelectionWidget *clangDiagnosticConfigsSelectionWidget
+            = m_ui->clangToolsBasicSettings->ui()->clangDiagnosticConfigsSelectionWidget;
+    clangDiagnosticConfigsSelectionWidget->refresh(settings->savedDiagnosticConfigId());
 
-    connect(m_ui->clangDiagnosticConfigsSelectionWidget,
+    connect(clangDiagnosticConfigsSelectionWidget,
             &CppTools::ClangDiagnosticConfigsSelectionWidget::currentConfigChanged,
             this, [this](const Core::Id &currentConfigId) {
         m_settings->setDiagnosticConfigId(currentConfigId);
     });
 
     connect(CppTools::codeModelSettings().data(), &CppTools::CppCodeModelSettings::changed,
-            this, [this]() {
+            this, [=]() {
         // Settings were applied so apply also the current selection if possible.
-        m_ui->clangDiagnosticConfigsSelectionWidget->refresh(m_settings->diagnosticConfigId());
+        clangDiagnosticConfigsSelectionWidget->refresh(m_settings->diagnosticConfigId());
         m_settings->writeSettings();
     });
 }

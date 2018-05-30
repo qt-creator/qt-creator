@@ -106,11 +106,6 @@ void ClangDiagnosticConfigsSelectionWidget::refresh(Core::Id id)
     connectToCurrentIndexChanged();
 }
 
-void ClangDiagnosticConfigsSelectionWidget::showLabel(bool show)
-{
-    m_label->setVisible(show);
-}
-
 void ClangDiagnosticConfigsSelectionWidget::connectToClangDiagnosticConfigsDialog(QPushButton *button)
 {
     connect(button, &QPushButton::clicked, [this]() {

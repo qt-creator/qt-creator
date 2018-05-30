@@ -15,33 +15,44 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
-      <string>Diagnostic Configuration</string>
+      <string>General</string>
      </property>
-     <property name="checkable">
-      <bool>false</bool>
-     </property>
-     <property name="checked">
-      <bool>false</bool>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QVBoxLayout" name="verticalLayout_5">
       <item>
-       <widget class="QComboBox" name="globalOrCustom">
+       <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <property name="text">
-          <string>Global</string>
-         </property>
+         <widget class="QComboBox" name="globalOrCustom">
+          <item>
+           <property name="text">
+            <string>Global Settings</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Custom Settings</string>
+           </property>
+          </item>
+         </widget>
         </item>
         <item>
-         <property name="text">
-          <string>Custom</string>
-         </property>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
-       </widget>
+       </layout>
       </item>
       <item>
-       <widget class="CppTools::ClangDiagnosticConfigsSelectionWidget" name="diagnosticConfigsSelectionWidget" native="true"/>
+       <widget class="ClangTools::ClangToolsBasicSettings" name="clangToolsBasicSettings" native="true"/>
       </item>
      </layout>
     </widget>
@@ -76,9 +87,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CppTools::ClangDiagnosticConfigsSelectionWidget</class>
+   <class>ClangTools::ClangToolsBasicSettings</class>
    <extends>QWidget</extends>
-   <header>cpptools/clangdiagnosticconfigsselectionwidget.h</header>
+   <header>clangtools/clangtoolsbasicsettings.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

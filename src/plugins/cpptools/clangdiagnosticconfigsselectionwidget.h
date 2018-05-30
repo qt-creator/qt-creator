@@ -50,8 +50,6 @@ public:
 
     void refresh(Core::Id id);
 
-    void showLabel(bool show);
-
 signals:
     void currentConfigChanged(const Core::Id &currentConfigId);
 
