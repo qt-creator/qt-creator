@@ -259,7 +259,7 @@ void Project::addTarget(std::unique_ptr<Target> &&t)
 
     // check activeTarget:
     if (!activeTarget())
-        setActiveTarget(pointer);
+        SessionManager::setActiveTarget(this, pointer, SetActive::Cascade);
 }
 
 bool Project::removeTarget(Target *target)
