@@ -48,8 +48,6 @@ QtcPlugin {
         "qmljsoutline.h",
         "qmljsoutlinetreeview.cpp",
         "qmljsoutlinetreeview.h",
-        "qmljspreviewrunner.cpp",
-        "qmljspreviewrunner.h",
         "qmljsquickfix.cpp",
         "qmljsquickfix.h",
         "qmljsquickfixassist.cpp",

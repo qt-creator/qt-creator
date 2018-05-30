@@ -30,7 +30,6 @@
 #include "qmljseditorplugin.h"
 #include "qmljshighlighter.h"
 #include "qmljsoutline.h"
-#include "qmljspreviewrunner.h"
 #include "qmljsquickfixassist.h"
 #include "qmltaskmanager.h"
 #include "quicktoolbar.h"
