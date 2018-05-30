@@ -103,7 +103,6 @@ private:
     template<ProfileFeature feature>
     void updateFeatures(quint64 features);
     bool checkForUnsavedNotes();
-    void restoreFeatureVisibility();
     void setButtonsEnabled(bool enable);
     void createInitialTextMarks();
 

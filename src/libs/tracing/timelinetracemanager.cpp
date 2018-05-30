@@ -357,7 +357,6 @@ void TimelineTraceManager::clearEventStorage()
     d->reset();
     if (d->notesModel)
         d->notesModel->clear();
-    setVisibleFeatures(0);
     setRecordedFeatures(0);
     d->eventStorage->clear();
 }
@@ -385,7 +384,6 @@ void TimelineTraceManager::restrictByFilter(TraceEventFilter filter)
         d->notesModel->stash();
 
     d->reset();
-    setVisibleFeatures(0);
 
     QFutureInterface<void> future;
     replayEvents(filter(std::bind(&TimelineTraceManagerPrivate::dispatch, d,

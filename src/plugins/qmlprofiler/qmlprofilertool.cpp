@@ -662,18 +662,6 @@ bool QmlProfilerTool::checkForUnsavedNotes()
                                 QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
 }
 
-void QmlProfilerTool::restoreFeatureVisibility()
-{
-    // Restore the shown/hidden state of features to what the user selected. When clearing data the
-    // the model manager sets its features to 0, and models get automatically shown, for the mockup.
-    quint64 features = 0;
-    foreach (const QAction *action, d->m_displayFeaturesMenu->actions()) {
-        if (action->isChecked())
-            features |= (1ULL << action->data().toUInt());
-    }
-    d->m_profilerModelManager->setVisibleFeatures(features);
-}
-
 void QmlProfilerTool::clientsDisconnected()
 {
     if (d->m_toolBusy) {
@@ -745,7 +733,6 @@ void QmlProfilerTool::setRecordedFeatures(quint64 features)
 
 void QmlProfilerTool::initialize()
 {
-    restoreFeatureVisibility();
     setButtonsEnabled(false);            // Other buttons disabled
 }
 
