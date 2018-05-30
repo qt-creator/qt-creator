@@ -193,15 +193,12 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
         // not the best approach - but depending on the build system and whether the executables
         // are going to get installed or not we have to soften the condition...
         const QString currentExecutable = ensureExeEnding(runnable.executable);
-        const QString currentBST = runConfig->buildKey() + '|';
+        const QString currentBST = runConfig->buildKey();
         qCDebug(LOG) << " CurrentExecutable" << currentExecutable;
         qCDebug(LOG) << " BST of RunConfig" << currentBST;
-        const bool isQbs = runConfig->id().toString().startsWith("Qbs.RunConfiguration:"); // BAD!
         if ((localExecutable == currentExecutable)
                 || (deployedExecutable == currentExecutable)
-                || (isQbs && Utils::anyOf(buildSystemTargets, [currentBST] (const QString &b) {
-                                              return b.startsWith(currentBST);
-                                          }))) {
+                || (buildSystemTargets.contains(currentBST))) {
             qCDebug(LOG) << "  Using this RunConfig.";
             m_origRunConfig = runConfig;
             m_runnable = runnable;
@@ -240,7 +237,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     }
 
     if (m_displayName.isEmpty()) // happens e.g. when guessing the TestConfiguration or error
-        m_displayName = (*buildSystemTargets.begin()).split('|').first();
+        m_displayName = (*buildSystemTargets.begin());
 }
 
 /**
