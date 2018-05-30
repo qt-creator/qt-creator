@@ -335,10 +335,11 @@ public:
 
         case Qt::FontRole: {
             QFont font = parent()->data(column, role).value<QFont>();
-            if (TargetItem *targetItem = parent()->currentTargetItem())
-                if (targetItem->target()->id() == m_kitId
-                        && m_project == SessionManager::startupProject())
+            if (TargetItem *targetItem = parent()->currentTargetItem()) {
+                Target *t = targetItem->target();
+                if (t && t->id() == m_kitId && m_project == SessionManager::startupProject())
                     font.setBold(true);
+            }
             return font;
         }
 
