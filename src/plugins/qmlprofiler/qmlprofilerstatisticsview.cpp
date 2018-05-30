@@ -274,8 +274,14 @@ void QmlProfilerStatisticsMainView::jumpToItem(int typeIndex)
 {
     displayTypeIndex(typeIndex);
 
+    QSortFilterProxyModel *sortModel = qobject_cast<QSortFilterProxyModel *>(model());
+    QTC_ASSERT(sortModel, return);
+
+    QAbstractItemModel *sourceModel = sortModel->sourceModel();
+    QTC_ASSERT(sourceModel, return);
+
     // show in editor
-    getSourceLocation(model()->index(typeIndex, MainLocation),
+    getSourceLocation(sourceModel->index(typeIndex, MainLocation),
                       [this](const QString &fileName, int line, int column) {
         emit gotoSourceLocation(fileName, line, column);
     });
