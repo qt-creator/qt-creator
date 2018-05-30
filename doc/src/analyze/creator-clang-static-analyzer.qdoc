@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -32,63 +32,113 @@
 /*!
     \contentspage {Qt Creator Manual}
     \previouspage creator-running-valgrind-remotely.html
-    \page creator-clang-static-analyzer.html
+    \page creator-clang-tools.html
     \nextpage creator-heob.html
 
-    \title Using Clang Static Analyzer
+    \title Using Clang Tools
 
-    \QC integrates the \l{http://clang-analyzer.llvm.org}
-    {Clang Static Analyzer} for finding problems in C, C++, and Objective-C
-    programs.
+    \QC integrates the following Clang tools for finding problems in C, C++, and
+    Objective-C source code by using static analysis:
 
-    \image qtcreator-clang-static-analyzer.png
+    \list
+
+        \li \l{https://clang.llvm.org/extra/clang-tidy/}{Clang-Tidy}, which
+            provides diagnostics and fixes for typical programming errors,
+            such as style violations or interface misuse.
+
+        \li \l{https://github.com/KDE/clazy/blob/master/README.md}{Clazy}, which
+            helps Clang understand Qt semantics. It displays Qt related compiler
+            warnings, ranging from unnecessary memory allocation to misuse of
+            API and provides refactoring actions for fixing some of the issues.
+
+    \endlist
+
+    \note The Clang static analyzer checks are a part of Clang-Tidy. To use
+    the checks you must create a custom configuration for the Clang tools and
+    enable them for Clang-Tidy.
+
+    Clang tools are delivered and installed with \QC, and therefore you do not
+    need to set them up separately.
+
+    \section1 Running Clang Tools
+
+    To run the Clang tools to analyze an open project:
+
+    \list 1
+
+        \li Select \uicontrol Analyze > \uicontrol {Clang-Tidy and Clazy}.
+
+            \image qtcreator-files-to-analyze.png
+
+        \li In the \uicontrol {Diagnostic Configuration} group, select
+            \uicontrol Custom, and then select \uicontrol Manage to
+            specify the Clang-Tidy and Clazy checks to perform.
+
+        \li Select the new custom configuration in the list of configurations
+            (1).
+
+        \li In the \uicontrol {Files to Analyze} group, select the files to
+            apply the checks to.
+
+        \li Select \uicontrol Analyze to start the checks.
+
+    \endlist
+
+    If you select \uicontrol Debug in the mode selector to open the
+    \uicontrol Debug mode and then select \uicontrol {Clang-Tidy and Clazy},
+    you must select the \inlineimage qtcreator-analyze-start-button.png
+    (\uicontrol Start) button to open the \uicontrol {Analyzer Configuration}
+    dialog.
+
+    \image qtcreator-clang-tools.png
 
     Select the link in the \uicontrol Location column to move to the location
     where the issue appears in the code editor.
 
-    The Clang Static Analyzer runs with all the default checkers enabled. For
-    more information about the checkers, see
-    \l{http://clang-analyzer.llvm.org/available_checks.html}{Available Checkers}.
+    In the \uicontrol {Fixit Status} column, select issues that you want to
+    apply refactoring actions to, and then select \uicontrol {Apply Fixits}.
+    The status of the issues is updated in the \uicontrol {Fixit Status} column.
+
+    \section1 Configuring Clang Tools
+
+    To configure Clang diagnostics globally for Clang tools:
+
+    \list
+
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Analyzer >
+            \uicontrol {Clang Tools} > \uicontrol Manage.
+
+            \image qtcreator-clang-tools-options.png
+
+        \li In the \uicontrol {Clang-Tidy} tab, select the checks to
+            perform.
+
+            \image qtcreator-clang-tidy.png
+
+        \li To edit the selected check as plain text, select
+            \uicontrol {Edit Checks as String}.
+
+        \li In the \uicontrol Clazy tab, select the level of Clazy
+            checks to perform.
+
+            \image qtcreator-clazy.png
+
+    \endlist
 
     To suppress diagnostics, select \uicontrol {Suppress This Diagnostic} in the
     context menu. To view the suppression list for a project and to remove
     diagnostics from it, select \uicontrol Projects >
-    \uicontrol {Project Settings} > \uicontrol {Clang Static Analyzer}.
+    \uicontrol {Project Settings} > \uicontrol {Clang Tools}.
 
-    \section1 Supported Project Types and Tool Chains
+    \section2 Selecting Clazy Check Levels
 
-    The Clang Static Analyzer relies on the data (specific macros and include
-    directories) from the projects and tool chains. Not all projects
-    and tool chains can provide enough data for reasonable results.
+    The Clazy checks are divided into levels from 0 to 3. Each level adds checks
+    to the previous level. The checks at level 0 are very stable and provide
+    hardly any false positives, while the checks at level 3 can be considered
+    experimental.
 
-    Currently, only Qbs and qmake projects together with the GCC, MinGW, Clang
-    and Microsoft Visual Studio tool chains are supported.
+    For more information about the checks run at each level, see
+    \l{https://github.com/KDE/clazy/blob/master/README.md#list-of-checks}
+    {List of Checks} in the Clazy documentation.
 
-    \section1 Setting Up Clang Static Analyzer
-
-    As a tested version of Clang is shipped together with Qt Creator, no manual
-    setup is required.
-
-    To profit from improved checkers in newer Clang versions, \QC can be set up
-    to use those. However, only the shipped version of Clang is tested and known
-    to work. Other versions might not work at all.
-
-    To set up a particular Clang version for the Clang Static Analyzer, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol Analyzer >
-    \uicontrol {Clang Static Analyzer} and check that the path to the Clang
-    executable is set correctly in the \uicontrol {Clang executable} field.
-
-    \image qtcreator-clang-static-analyzer-options.png
-
-    \section1 Running Clang Static Analyzer
-
-    To run the Clang Static Analyzer to analyze an open project, select
-    \uicontrol Analyze > \uicontrol {Clang Static Analyzer} on the menu bar. The
-    Clang Static Analyzer starts automatically.
-
-    However, if you select \uicontrol Debug in the mode selector to open the
-    \uicontrol Debug mode and then select \uicontrol {Clang Static Analyzer},
-    you must start the Clang Static Analyzer by selecting the
-    \inlineimage qtcreator-analyze-start-button.png
-    (\uicontrol Start) button.
 */
