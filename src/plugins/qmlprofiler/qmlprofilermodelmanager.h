@@ -89,7 +89,7 @@ signals:
     void typeDetailsFinished();
 
 private:
-    void detailsChanged(int typeId, const QString &newString);
+    void setTypeDetails(int typeId, const QString &details);
     void restrictByFilter(QmlEventFilter filter);
 
     void clearEventStorage() final;

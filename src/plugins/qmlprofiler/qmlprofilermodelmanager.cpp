@@ -123,7 +123,7 @@ QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent) :
 
     d->detailsRewriter = new Internal::QmlProfilerDetailsRewriter(this);
     connect(d->detailsRewriter, &Internal::QmlProfilerDetailsRewriter::rewriteDetailsString,
-            this, &QmlProfilerModelManager::typeDetailsChanged);
+            this, &QmlProfilerModelManager::setTypeDetails);
     connect(d->detailsRewriter, &Internal::QmlProfilerDetailsRewriter::eventDetailsChanged,
             this, &QmlProfilerModelManager::typeDetailsFinished);
 
@@ -287,12 +287,13 @@ QString QmlProfilerModelManager::findLocalFile(const QString &remoteFile)
     return d->detailsRewriter->getLocalFile(remoteFile);
 }
 
-void QmlProfilerModelManager::detailsChanged(int typeId, const QString &newString)
+void QmlProfilerModelManager::setTypeDetails(int typeId, const QString &details)
 {
     QTC_ASSERT(typeId < numEventTypes(), return);
     QmlEventType type = eventType(typeId);
-    type.setData(newString);
-    setEventType(typeId, std::move(type));
+    type.setData(details);
+    // Don't rewrite the details again, but directly push the type into the type storage.
+    Timeline::TimelineTraceManager::setEventType(typeId, std::move(type));
     emit typeDetailsChanged(typeId);
 }
 
