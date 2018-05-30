@@ -331,8 +331,8 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
     d->document->setPreferredDisplayName(QString("Disassembler (%1)")
         .arg(d->location.functionName()));
 
-    Breakpoints bps = breakHandler()->engineBreakpoints(d->engine);
-    foreach (Breakpoint bp, bps)
+    const Breakpoints bps = breakHandler()->engineBreakpoints(d->engine);
+    for (Breakpoint bp : bps)
         updateBreakpointMarker(bp);
 
     updateLocationMarker();

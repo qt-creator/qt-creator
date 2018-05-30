@@ -295,7 +295,7 @@ void PdbEngine::refreshModules(const GdbMi &modules)
 {
     ModulesHandler *handler = modulesHandler();
     handler->beginUpdateAll();
-    foreach (const GdbMi &item, modules.children()) {
+    for (const GdbMi &item : modules.children()) {
         Module module;
         module.moduleName = item["name"].data();
         QString path = item["value"].data();
@@ -350,7 +350,7 @@ void PdbEngine::refreshSymbols(const GdbMi &symbols)
 {
     QString moduleName = symbols["module"].data();
     Symbols syms;
-    foreach (const GdbMi &item, symbols["symbols"].children()) {
+    for (const GdbMi &item : symbols["symbols"].children()) {
         Symbol symbol;
         symbol.name = item["name"].data();
         syms.append(symbol);
@@ -512,7 +512,7 @@ void PdbEngine::refreshStack(const GdbMi &stack)
 {
     StackHandler *handler = stackHandler();
     StackFrames frames;
-    foreach (const GdbMi &item, stack["frames"].children()) {
+    for (const GdbMi &item : stack["frames"].children()) {
         StackFrame frame;
         frame.level = item["level"].data();
         frame.file = item["file"].data();

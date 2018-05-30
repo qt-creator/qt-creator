@@ -241,12 +241,12 @@ void clearExceptionSelection()
 QStringList highlightExceptionCode(int lineNumber, const QString &filePath, const QString &errorMessage)
 {
     QStringList messages;
-    QList<IEditor *> editors = DocumentModel::editorsForFilePath(filePath);
+    const QList<IEditor *> editors = DocumentModel::editorsForFilePath(filePath);
 
     const  TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
     QTextCharFormat errorFormat = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
 
-    foreach (IEditor *editor, editors) {
+    for (IEditor *editor : editors) {
         TextEditorWidget *ed = qobject_cast<TextEditorWidget *>(editor->widget());
         if (!ed)
             continue;

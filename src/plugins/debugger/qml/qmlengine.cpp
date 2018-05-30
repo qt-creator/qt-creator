@@ -775,13 +775,13 @@ void QmlEngine::attemptBreakpointSynchronization()
     BreakHandler *handler = breakHandler();
 
     DebuggerEngine *bpOwner = masterEngine();
-    foreach (Breakpoint bp, handler->unclaimedBreakpoints()) {
+    for (Breakpoint bp : handler->unclaimedBreakpoints()) {
         // Take ownership of the breakpoint. Requests insertion.
         if (acceptsBreakpoint(bp))
             bp.setEngine(bpOwner);
     }
 
-    foreach (Breakpoint bp, handler->engineBreakpoints(bpOwner)) {
+    for (Breakpoint bp : handler->engineBreakpoints(bpOwner)) {
         switch (bp.state()) {
         case BreakpointNew:
             // Should not happen once claimed.
@@ -1132,8 +1132,8 @@ void QmlEnginePrivate::updateScriptSource(const QString &fileName, int lineOffse
     }
     QTC_CHECK(cursor.positionInBlock() == columnOffset);
 
-    QStringList lines = source.split('\n');
-    foreach (QString line, lines) {
+    const QStringList lines = source.split('\n');
+    for (QString line : lines) {
         if (line.endsWith('\r'))
             line.remove(line.size() -1, 1);
 
@@ -1879,7 +1879,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                     QList<int> v8BreakpointIds;
                     {
                         const QVariantList v8BreakpointIdList = breakData.value("breakpoints").toList();
-                        foreach (const QVariant &breakpointId, v8BreakpointIdList)
+                        for (const QVariant &breakpointId : v8BreakpointIdList)
                             v8BreakpointIds << breakpointId.toInt();
                     }
 
@@ -1893,7 +1893,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                         int newColumn = sourceLineText.indexOf('(') + 1;
                         BreakHandler *handler = engine->breakHandler();
 
-                        foreach (int v8Id, v8BreakpointIds) {
+                        for (int v8Id : v8BreakpointIds) {
                             const BreakpointModelId id = breakpoints.key(v8Id);
                             Breakpoint bp = handler->breakpointById(id);
                             if (bp.isValid()) {
@@ -1923,7 +1923,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                     if (inferiorStop) {
                         //Update breakpoint data
                         BreakHandler *handler = engine->breakHandler();
-                        foreach (int v8Id, v8BreakpointIds) {
+                        for (int v8Id : v8BreakpointIds) {
                             const BreakpointModelId id = breakpoints.key(v8Id);
                             Breakpoint bp = handler->breakpointById(id);
                             if (bp) {
@@ -1942,7 +1942,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                         }
 
                         if (engine->state() == InferiorRunOk) {
-                            foreach (const QVariant &breakpointId, v8BreakpointIds) {
+                            for (const QVariant &breakpointId : v8BreakpointIds) {
                                 if (breakpointsTemp.contains(breakpointId.toInt()))
                                     clearBreakpoint(breakpointId.toInt());
                             }
@@ -1965,8 +1965,8 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                     const QVariantMap exception = body.value("exception").toMap();
                     QString errorMessage = exception.value("text").toString();
 
-                    QStringList messages = highlightExceptionCode(lineNumber, filePath, errorMessage);
-                    foreach (const QString msg, messages)
+                    const QStringList messages = highlightExceptionCode(lineNumber, filePath, errorMessage);
+                    for (const QString &msg : messages)
                         engine->showMessage(msg, ConsoleOutput);
 
                     if (engine->state() == InferiorRunOk) {
@@ -2026,7 +2026,7 @@ void QmlEnginePrivate::handleBacktrace(const QVariantMap &response)
     StackFrames stackFrames;
     int i = 0;
     stackIndexLookup.clear();
-    foreach (const QVariant &frame, frames) {
+    for (const QVariant &frame : frames) {
         StackFrame stackFrame = extractStackFrame(frame);
         if (stackFrame.level.isEmpty())
             continue;
@@ -2174,7 +2174,7 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
 
     currentFrameScopes.clear();
     const QVariantList scopes = body.value("scopes").toList();
-    foreach (const QVariant &scope, scopes) {
+    for (const QVariant &scope : scopes) {
         //Do not query for global types (0)
         //Showing global properties increases clutter.
         if (scope.toMap().value("type").toInt() == 0)
@@ -2187,8 +2187,8 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
 
     // Send watchers list
     if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
-        QStringList watchers = watchHandler->watchedExpressions();
-        foreach (const QString &exp, watchers) {
+        const QStringList watchers = watchHandler->watchedExpressions();
+        for (const QString &exp : watchers) {
             const QString iname = watchHandler->watcherName(exp);
             evaluate(exp, -1, [this, iname, exp](const QVariantMap &response) {
                 handleEvaluateExpression(response, iname, exp);
@@ -2227,10 +2227,10 @@ void QmlEnginePrivate::handleScope(const QVariantMap &response)
     if (bodyMap.value("frameIndex").toInt() != stackHandler->currentIndex())
         return;
 
-    QmlV8ObjectData objectData = extractData(bodyMap.value("object"));
+    const QmlV8ObjectData objectData = extractData(bodyMap.value("object"));
 
     LookupItems itemsToLookup;
-    foreach (const QVariant &property, objectData.properties) {
+    for (const QVariant &property : objectData.properties) {
         QmlV8ObjectData localData = extractData(property);
         std::unique_ptr<WatchItem> item(new WatchItem);
         item->exp = localData.name;
@@ -2274,7 +2274,7 @@ void QmlEnginePrivate::constructChildLogItems(ConsoleItem *item, const QmlV8Obje
     // changes, invalidating cached indices. So we presort them before inserting.
     QVarLengthArray<ConsoleItem *> children(objectData.properties.size());
     auto it = children.begin();
-    foreach (const QVariant &property, objectData.properties)
+    for (const QVariant &property : objectData.properties)
         *(it++) = constructLogItemTree(extractData(property), seenHandles);
 
     if (boolSetting(SortStructMembers))
@@ -2302,8 +2302,8 @@ ConsoleItem *QmlEnginePrivate::constructLogItemTree(const QmlV8ObjectData &objec
             cmd.arg(HANDLES, QList<int>() << handle);
             runCommand(cmd, [this, item, handle](const QVariantMap &response) {
                 const QVariantMap body = response.value(BODY).toMap();
-                QStringList handlesList = body.keys();
-                foreach (const QString &handleString, handlesList) {
+                const QStringList handlesList = body.keys();
+                for (const QString &handleString : handlesList) {
                     if (handle != handleString.toInt())
                         continue;
 
@@ -2363,7 +2363,7 @@ void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &pro
     LookupItems itemsToLookup;
 
     const QSet<QString> expandedINames = engine->watchHandler()->expandedINames();
-    foreach (const QVariant &property, properties) {
+    for (const QVariant &property : properties) {
         QmlV8ObjectData propertyData = extractData(property);
         std::unique_ptr<WatchItem> item(new WatchItem);
         item->name = propertyData.name;
@@ -2426,13 +2426,13 @@ void QmlEnginePrivate::handleLookup(const QVariantMap &response)
     //    }
     const QVariantMap body = response.value(BODY).toMap();
 
-    QStringList handlesList = body.keys();
-    foreach (const QString &handleString, handlesList) {
-        int handle = handleString.toInt();
-        QmlV8ObjectData bodyObjectData = extractData(body.value(handleString));
-        QList<LookupData> vals = currentlyLookingUp.values(handle);
+    const QStringList handlesList = body.keys();
+    for (const QString &handleString : handlesList) {
+        const int handle = handleString.toInt();
+        const QmlV8ObjectData bodyObjectData = extractData(body.value(handleString));
+        const QList<LookupData> vals = currentlyLookingUp.values(handle);
         currentlyLookingUp.remove(handle);
-        foreach (const LookupData &res, vals) {
+        for (const LookupData &res : vals) {
             auto item = new WatchItem;
             item->exp = res.exp;
             item->iname = res.iname;

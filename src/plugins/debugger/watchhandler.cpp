@@ -651,7 +651,7 @@ static QString quoteUnprintable(const QString &str)
 
     QString encoded;
     if (theUnprintableBase == -1) {
-        foreach (const QChar c, str) {
+        for (const QChar c : str) {
             int u = c.unicode();
             if (c.isPrint())
                 encoded += c;
@@ -667,7 +667,7 @@ static QString quoteUnprintable(const QString &str)
         return encoded;
     }
 
-    foreach (const QChar c, str) {
+    for (const QChar c : str) {
         if (c.isPrint())
             encoded += c;
         else if (theUnprintableBase == 8)
@@ -1067,8 +1067,8 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
         if (auto dev = ev.as<QDropEvent>()) {
             if (dev->mimeData()->hasText()) {
                 QString exp;
-                QString data = dev->mimeData()->text();
-                foreach (const QChar c, data)
+                const QString data = dev->mimeData()->text();
+                for (const QChar c : data)
                     exp.append(c.isPrint() ? c : QChar(' '));
                 m_handler->watchVariable(exp);
                 //ev->acceptProposedAction();
@@ -1852,7 +1852,7 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item)
                        [this, iname] {
                                 // FIXME: Extend to multi-selection.
                                 //const QModelIndexList active = activeRows();
-                                //foreach (const QModelIndex &idx, active)
+                                //for (const QModelIndex &idx : active)
                                 //    setModelData(LocalsIndividualFormatRole, AutomaticFormat, idx);
                                 setIndividualFormat(iname, AutomaticFormat);
                                 m_engine->updateLocals();
@@ -1872,7 +1872,7 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item)
     addCheckableAction(menu, spacer + tr("Automatic"), true, typeFormat == AutomaticFormat,
                        [this, item] {
                             //const QModelIndexList active = activeRows();
-                           //foreach (const QModelIndex &idx, active)
+                           //for (const QModelIndex &idx : active)
                            //    setModelData(LocalsTypeFormatRole, AutomaticFormat, idx);
                            setTypeFormat(item->type, AutomaticFormat);
                            m_engine->updateLocals();
@@ -1981,7 +1981,7 @@ void WatchHandler::insertItems(const GdbMi &data)
     QSet<WatchItem *> itemsToSort;
 
     const bool sortStructMembers = boolSetting(SortStructMembers);
-    foreach (const GdbMi &child, data.children()) {
+    for (const GdbMi &child : data.children()) {
         auto item = new WatchItem;
         item->parse(child, sortStructMembers);
         const TypeInfo ti = m_model->m_reportedTypeInfo.value(item->type);
@@ -2573,7 +2573,7 @@ void WatchHandler::appendWatchersAndTooltipRequests(DebuggerCommand *cmd)
 
 void WatchHandler::addDumpers(const GdbMi &dumpers)
 {
-    foreach (const GdbMi &dumper, dumpers.children()) {
+    for (const GdbMi &dumper : dumpers.children()) {
         DisplayFormats formats;
         formats.append(RawFormat);
         QString reportedFormats = dumper["formats"].data();
@@ -2640,7 +2640,7 @@ QSet<QString> WatchHandler::expandedINames() const
 void WatchHandler::recordTypeInfo(const GdbMi &typeInfo)
 {
     if (typeInfo.type() == GdbMi::List) {
-        foreach (const GdbMi &s, typeInfo.children()) {
+        for (const GdbMi &s : typeInfo.children()) {
             QString typeName = fromHex(s["name"].data());
             TypeInfo ti(s["size"].data().toUInt());
             m_model->m_reportedTypeInfo.insert(typeName, ti);

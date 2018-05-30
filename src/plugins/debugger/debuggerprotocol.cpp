@@ -448,7 +448,7 @@ void extractGdbVersion(const QString &msg,
     QString build;
     bool inClean = true;
     bool inParenthesis = false;
-    foreach (QChar c, msg) {
+    for (QChar c : msg) {
         if (inClean && !cleaned.isEmpty() && c != dot && (c.isPunct() || c.isSpace()))
             inClean = false;
         if (ignoreParenthesisContent) {

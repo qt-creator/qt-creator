@@ -281,7 +281,7 @@ void ModulesHandler::removeAll()
     m_model->clear();
 }
 
-Modules ModulesHandler::modules() const
+const Modules ModulesHandler::modules() const
 {
     Modules mods;
     m_model->forItemsAtLevel<1>([&mods](ModuleItem *item) { mods.append(item->module); });

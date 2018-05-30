@@ -968,7 +968,7 @@ DebuggerItemManager::~DebuggerItemManager()
     delete d;
 }
 
-QList<DebuggerItem> DebuggerItemManager::debuggers()
+const QList<DebuggerItem> DebuggerItemManager::debuggers()
 {
     QList<DebuggerItem> result;
     forAllDebuggers([&result](const DebuggerItem &item) { result.append(item); });

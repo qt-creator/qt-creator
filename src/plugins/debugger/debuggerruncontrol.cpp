@@ -609,7 +609,7 @@ void DebuggerRunTool::start()
 
     if (m_runParameters.startMode == StartInternal) {
         QStringList unhandledIds;
-        foreach (Breakpoint bp, breakHandler()->allBreakpoints()) {
+        for (const Breakpoint &bp : breakHandler()->allBreakpoints()) {
             if (bp.isEnabled() && !m_engine->acceptsBreakpoint(bp))
                 unhandledIds.append(bp.id().toString());
         }

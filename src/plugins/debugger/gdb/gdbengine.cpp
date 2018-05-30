@@ -560,7 +560,7 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
         BreakHandler *handler = breakHandler();
         Breakpoint bp;
         BreakpointResponse br;
-        foreach (const GdbMi &bkpt, res.children()) {
+        for (const GdbMi &bkpt : res.children()) {
             const QString nr = bkpt["number"].data();
             BreakpointResponseId rid(nr);
             if (nr.contains('.')) {
@@ -585,7 +585,7 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
         // {bkpt={number="2",type="hw watchpoint",disp="keep",enabled="y",
         // what="*0xbfffed48",times="0",original-location="*0xbfffed48"}}
         BreakHandler *handler = breakHandler();
-        foreach (const GdbMi &bkpt, result.children()) {
+        for (const GdbMi &bkpt : result.children()) {
             BreakpointResponse br;
             br.type = BreakpointByFileAndLine;
             updateResponse(br, bkpt);
@@ -1059,7 +1059,7 @@ void GdbEngine::handleQuerySources(const DebuggerResponse &response)
         // "^done,files=[{file="../../../../bin/dumper/dumper.cpp",
         // fullname="/data5/dev/ide/main/bin/dumper/dumper.cpp"},
         GdbMi files = response.data["files"];
-        foreach (const GdbMi &item, files.children()) {
+        for (const GdbMi &item : files.children()) {
             GdbMi fileName = item["file"];
             if (fileName.data().endsWith("<built-in>"))
                 continue;
@@ -2086,7 +2086,7 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
     response.enabled = true;
     response.pending = false;
     response.condition.clear();
-    foreach (const GdbMi &child, bkpt.children()) {
+    for (const GdbMi &child : bkpt.children()) {
         if (child.hasName("number")) {
             response.id = BreakpointResponseId(child.data());
         } else if (child.hasName("func")) {
@@ -2319,7 +2319,7 @@ void GdbEngine::handleBkpt(const GdbMi &bkpt, Breakpoint bp)
     // http://permalink.gmane.org/gmane.comp.gdb.patches/83936
     const GdbMi locations = bkpt["locations"];
     if (locations.isValid()) {
-        foreach (const GdbMi &loc, locations.children()) {
+        for (const GdbMi &loc : locations.children()) {
             // A sub-breakpoint.
             const QString subnr = loc["number"].data();
             const BreakpointResponseId subrid(subnr);
@@ -2357,7 +2357,7 @@ void GdbEngine::handleBreakInsert1(const DebuggerResponse &response, Breakpoint 
         // the "main" entry. Use the "main" entry to retrieve the
         // already known data from the BreakpointManager, and then
         // iterate over all items to update main- and sub-data.
-        foreach (const GdbMi &bkpt, response.data.children())
+        for (const GdbMi &bkpt : response.data.children())
             handleBkpt(bkpt, bp);
         if (bp.needsChange()) {
             bp.notifyBreakpointChangeAfterInsertNeeded();
@@ -2703,10 +2703,10 @@ void GdbEngine::loadSymbolsForStack()
 {
     bool needUpdate = false;
     const Modules &modules = modulesHandler()->modules();
-    foreach (const StackFrame &frame, stackHandler()->frames()) {
+    for (const StackFrame &frame : stackHandler()->frames()) {
         if (frame.function == "??") {
             //qDebug() << "LOAD FOR " << frame.address;
-            foreach (const Module &module, modules) {
+            for (const Module &module : modules) {
                 if (module.startAddress <= frame.address
                         && frame.address < module.endAddress) {
                     runCommand({"sharedlibrary " + dotEscape(module.modulePath)});
@@ -2899,7 +2899,7 @@ void GdbEngine::handleModulesList(const DebuggerResponse &response)
             // state="Y",path="/usr/lib/dyld",description="/usr/lib/dyld",
             // loaded_addr="0x8fe00000",slide="0x0",prefix="__dyld_"},
             // shlib-info={...}...
-            foreach (const GdbMi &item, response.data.children()) {
+            for (const GdbMi &item : response.data.children()) {
                 module.modulePath = item["path"].data();
                 module.moduleName = nameFromPath(module.modulePath);
                 module.symbolsRead = (item["state"].data() == "Y")
@@ -2916,7 +2916,7 @@ void GdbEngine::handleModulesList(const DebuggerResponse &response)
 void GdbEngine::examineModules()
 {
     ModulesHandler *handler = modulesHandler();
-    foreach (const Module &module, handler->modules()) {
+    for (const Module &module : handler->modules()) {
         if (module.elfData.symbolsType == UnknownSymbols)
             handler->updateModule(module);
     }
@@ -2942,7 +2942,7 @@ void GdbEngine::reloadSourceFiles()
                 // "^done,files=[{file="../../../../bin/dumper/dumper.cpp",
                 // fullname="/data5/dev/ide/main/bin/dumper/dumper.cpp"},
                 GdbMi files = response.data["files"];
-                foreach (const GdbMi &item, files.children()) {
+                for (const GdbMi &item : files.children()) {
                     GdbMi fileName = item["file"];
                     if (fileName.data().endsWith("<built-in>"))
                         continue;
@@ -3115,7 +3115,7 @@ void GdbEngine::handleThreadNames(const DebuggerResponse &response)
         ThreadsHandler *handler = threadsHandler();
         GdbMi names;
         names.fromString(response.consoleStreamOutput);
-        foreach (const GdbMi &name, names.children()) {
+        for (const GdbMi &name : names.children()) {
             ThreadData thread;
             thread.id = ThreadId(name["id"].toInt());
             thread.name = decodeData(name["value"].data(), name["valueencoded"].data());
@@ -3282,7 +3282,7 @@ void GdbEngine::handleRegisterListNames(const DebuggerResponse &response)
     GdbMi names = response.data["register-names"];
     m_registers.clear();
     int gdbRegisterNumber = 0;
-    foreach (const GdbMi &item, names.children()) {
+    for (const GdbMi &item : names.children()) {
         if (!item.data().isEmpty()) {
             Register reg;
             reg.name = item.data();
@@ -3328,7 +3328,7 @@ void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
     RegisterHandler *handler = registerHandler();
     // 24^done,register-values=[{number="0",value="0xf423f"},...]
     const GdbMi values = response.data["register-values"];
-    foreach (const GdbMi &item, values.children()) {
+    for (const GdbMi &item : values.children()) {
         const int number = item["number"].toInt();
         Register reg = m_registers[number];
         QString data = item["value"].data();
@@ -3425,7 +3425,7 @@ void GdbEngine::changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray 
 {
     Q_UNUSED(agent)
     DebuggerCommand cmd("-data-write-memory 0x" + QString::number(addr, 16) + " d 1", NeedsTemporaryStop);
-    foreach (unsigned char c, data)
+    for (unsigned char c : data)
         cmd.function += ' ' + QString::number(uint(c));
     cmd.callback = CB(handleVarAssign);
     runCommand(cmd);
@@ -3797,7 +3797,7 @@ void GdbEngine::setupEngine()
     }
 
     // Spaces just will not work.
-    foreach (const QString &src, rp.debugSourceLocation) {
+    for (const QString &src : rp.debugSourceLocation) {
         if (QDir(src).exists())
             runCommand({"directory " + src});
         else

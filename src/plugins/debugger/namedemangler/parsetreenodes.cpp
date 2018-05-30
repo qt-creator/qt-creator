@@ -72,7 +72,7 @@ template<int base> static int getNonNegativeNumber(GlobalParseState *parseState)
 
 ParseTreeNode::ParseTreeNode(const ParseTreeNode &other) : m_parseState(other.m_parseState)
 {
-    foreach (const ParseTreeNode::Ptr &child, other.m_children)
+    for (const ParseTreeNode::Ptr &child : other.m_children)
         addChild(child->clone());
 }
 
@@ -91,7 +91,7 @@ ParseTreeNode::Ptr ParseTreeNode::childAt(int i, const QString &func, const QStr
 QByteArray ParseTreeNode::pasteAllChildren() const
 {
     QByteArray repr;
-    foreach (const ParseTreeNode::Ptr &node, m_children)
+    for (const ParseTreeNode::Ptr &node : m_children)
         repr += node->toByteArray();
     return repr;
 }
@@ -101,7 +101,7 @@ void ParseTreeNode::print(int indentation) const
     for (int i = 0; i < indentation; ++i)
         std::cerr << ' ';
     std::cerr << description().data() << std::endl;
-    foreach (const ParseTreeNode::Ptr &n, m_children)
+    for (const ParseTreeNode::Ptr &n : m_children)
         n->print(indentation + 2);
 }
 
@@ -2679,7 +2679,7 @@ QByteArray TypeNode::toByteArrayQualPointerRef(const TypeNode *typeNode,
 QByteArray TypeNode::qualPtrRefListToByteArray(const QList<const ParseTreeNode *> &nodeList) const
 {
     QByteArray repr;
-    foreach (const ParseTreeNode * const n, nodeList) {
+    for (const ParseTreeNode * const n : nodeList) {
         const TypeNode * const typeNode = dynamic_cast<const TypeNode *>(n);
         if (typeNode) {
             switch (typeNode->m_type) {

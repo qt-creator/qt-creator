@@ -119,8 +119,8 @@ void CdbBreakEventWidget::setBreakEvents(const QStringList &l)
 {
     clear();
     // Split the list of ("eh", "out:MyOutput")
-    foreach (const QString &evt, l) {
-        const int colonPos = evt.indexOf(QLatin1Char(':'));
+    for (const QString &evt : l) {
+        const int colonPos = evt.indexOf(':');
         const QString abbrev = colonPos != -1 ? evt.mid(0, colonPos) : evt;
         const int index = indexOfEvent(abbrev);
         if (index != -1)

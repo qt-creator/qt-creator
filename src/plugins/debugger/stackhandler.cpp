@@ -361,7 +361,7 @@ void StackHandler::saveTaskFile()
     }
 
     QTextStream str(&file);
-    foreach (const StackFrame &frame, frames()) {
+    for (const StackFrame &frame : frames()) {
         if (frame.isUsable())
             str << frame.file << '\t' << frame.line << "\tstack\tFrame #" << frame.level << '\n';
     }

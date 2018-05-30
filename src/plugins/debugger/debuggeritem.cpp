@@ -212,7 +212,7 @@ QString DebuggerItem::engineTypeName() const
 QStringList DebuggerItem::abiNames() const
 {
     QStringList list;
-    foreach (const Abi &abi, m_abis)
+    for (const Abi &abi : m_abis)
         list.append(abi.toString());
     return list;
 }
@@ -368,7 +368,7 @@ static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &t
 DebuggerItem::MatchLevel DebuggerItem::matchTarget(const Abi &targetAbi) const
 {
     MatchLevel bestMatch = DoesNotMatch;
-    foreach (const Abi &debuggerAbi, m_abis) {
+    for (const Abi &debuggerAbi : m_abis) {
         MatchLevel currentMatch = matchSingle(debuggerAbi, targetAbi, m_engineType);
         if (currentMatch > bestMatch)
             bestMatch = currentMatch;

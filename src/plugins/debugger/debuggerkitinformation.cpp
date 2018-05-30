@@ -61,8 +61,8 @@ QVariant DebuggerKitInformation::defaultValue(const Kit *k) const
     const Abi toolChainAbi = ToolChainKitInformation::targetAbi(k);
     const Utils::FileNameList paths = Environment::systemEnvironment().path();
     QVariant nextBestFit;
-    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers()) {
-        foreach (const Abi targetAbi, item.abis()) {
+    for (const DebuggerItem &item : DebuggerItemManager::debuggers()) {
+        for (const Abi &targetAbi : item.abis()) {
             if (targetAbi.isCompatibleWith(toolChainAbi)) {
                 if (paths.contains(item.command()))
                     return item.id(); // prefer debuggers found in PATH over those found elsewhere
@@ -104,7 +104,7 @@ void DebuggerKitInformation::setup(Kit *k)
     DebuggerItem bestItem;
     DebuggerItem::MatchLevel bestLevel = DebuggerItem::DoesNotMatch;
     const Environment systemEnvironment = Environment::systemEnvironment();
-    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers()) {
+    for (const DebuggerItem &item : DebuggerItemManager::debuggers()) {
         DebuggerItem::MatchLevel level = DebuggerItem::DoesNotMatch;
 
         if (rawId.isNull()) {

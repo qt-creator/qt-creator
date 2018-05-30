@@ -129,7 +129,7 @@ public:
     void endUpdateAll();
 
     void removeAll();
-    Modules modules() const;
+    const Modules modules() const;
 
 private:
     ModuleItem *moduleFromPath(const QString &modulePath) const;

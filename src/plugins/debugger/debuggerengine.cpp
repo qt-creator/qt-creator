@@ -976,7 +976,7 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
 
     if (state == DebuggerFinished) {
         // Give up ownership on claimed breakpoints.
-        foreach (Breakpoint bp, breakHandler()->engineBreakpoints(this))
+        for (Breakpoint bp : breakHandler()->engineBreakpoints(this))
             bp.notifyBreakpointReleased();
         DebuggerToolTipManager::deregisterEngine(this);
         d->m_memoryAgents.handleDebuggerFinished();
@@ -1318,7 +1318,7 @@ void DebuggerEngine::attemptBreakpointSynchronization()
 
     BreakHandler *handler = breakHandler();
 
-    foreach (Breakpoint bp, handler->unclaimedBreakpoints()) {
+    for (Breakpoint bp : handler->unclaimedBreakpoints()) {
         // Take ownership of the breakpoint. Requests insertion.
         if (acceptsBreakpoint(bp)) {
             showMessage(QString("TAKING OWNERSHIP OF BREAKPOINT %1 IN STATE %2")
@@ -1331,7 +1331,7 @@ void DebuggerEngine::attemptBreakpointSynchronization()
     }
 
     bool done = true;
-    foreach (Breakpoint bp, handler->engineBreakpoints(this)) {
+    for (Breakpoint bp : handler->engineBreakpoints(this)) {
         switch (bp.state()) {
         case BreakpointNew:
             // Should not happen once claimed.
@@ -1591,8 +1591,8 @@ void DebuggerRunParameters::validateExecutable()
         }
 
         Utils::ElfReader reader(symbolFile);
-        Utils::ElfData elfData = reader.readHeaders();
-        QString error = reader.errorString();
+        const ElfData elfData = reader.readHeaders();
+        const QString error = reader.errorString();
 
         Internal::showMessage("EXAMINING " + symbolFile, LogDebug);
         QByteArray msg = "ELF SECTIONS: ";
@@ -1611,7 +1611,7 @@ void DebuggerRunParameters::validateExecutable()
         };
 
         QSet<QByteArray> seen;
-        foreach (const Utils::ElfSectionHeader &header, elfData.sectionHeaders) {
+        for (const ElfSectionHeader &header : elfData.sectionHeaders) {
             msg.append(header.name);
             msg.append(' ');
             if (interesting.contains(header.name))

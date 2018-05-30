@@ -647,7 +647,7 @@ public:
     {
         QSignalBlocker blocker(m_threadBox);
         m_threadBox->clear();
-        foreach (const QString &item, list)
+        for (const QString &item : list)
             m_threadBox->addItem(item);
         m_threadBox->setCurrentIndex(index);
     }
@@ -1155,7 +1155,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         bool useTerminal = false;
 
         if (!pid) {
-            foreach (const QString &arg, args) {
+            for (const QString &arg : args) {
                 const QString key = arg.section('=', 0, 0);
                 const QString val = arg.section('=', 1, 1);
                 if (val.isEmpty()) {
@@ -3065,7 +3065,7 @@ void showModuleSymbols(const QString &moduleName, const Symbols &symbols)
     header.append(DebuggerPlugin::tr("Name"));
     w->setHeaderLabels(header);
     w->setWindowTitle(DebuggerPlugin::tr("Symbols in \"%1\"").arg(moduleName));
-    foreach (const Symbol &s, symbols) {
+    for (const Symbol &s : symbols) {
         QTreeWidgetItem *it = new QTreeWidgetItem;
         it->setData(0, Qt::DisplayRole, s.name);
         it->setData(1, Qt::DisplayRole, s.address);
@@ -3094,7 +3094,7 @@ void showModuleSections(const QString &moduleName, const Sections &sections)
     header.append(DebuggerPlugin::tr("Flags"));
     w->setHeaderLabels(header);
     w->setWindowTitle(DebuggerPlugin::tr("Sections in \"%1\"").arg(moduleName));
-    foreach (const Section &s, sections) {
+    for (const Section &s : sections) {
         QTreeWidgetItem *it = new QTreeWidgetItem;
         it->setData(0, Qt::DisplayRole, s.name);
         it->setData(1, Qt::DisplayRole, s.from);
