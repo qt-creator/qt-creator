@@ -39,9 +39,7 @@ using enable_if_has_char_data_pointer = typename std::enable_if_t<
                                             std::is_same<
                                                 std::remove_const_t<
                                                     std::remove_pointer_t<
-                                                        std::result_of_t<
-                                                            decltype(&String::data)(String)
-                                                            >
+                                                        decltype(std::declval<const String>().data())
                                                         >
                                                     >, char>::value
                                             , int>;

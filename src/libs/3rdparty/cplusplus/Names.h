@@ -101,7 +101,7 @@ public:
     bool isSpecialization() const { return _isSpecialization; }
 
     // Comparator needed to distinguish between two different TemplateNameId(e.g.:used in std::map)
-    struct Compare: std::binary_function<const TemplateNameId *, const TemplateNameId *, bool> {
+    struct Compare {
         bool operator()(const TemplateNameId *name, const TemplateNameId *other) const;
     };
 

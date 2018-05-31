@@ -59,7 +59,7 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
     QList<int> mibs = QTextCodec::availableMibs();
     Utils::sort(mibs);
     QList<int>::iterator firstNonNegative =
-        std::find_if(mibs.begin(), mibs.end(), std::bind2nd(std::greater_equal<int>(), 0));
+        std::find_if(mibs.begin(), mibs.end(), [](int n) { return n >=0; });
     if (firstNonNegative != mibs.end())
         std::rotate(mibs.begin(), firstNonNegative, mibs.end());
     foreach (int mib, mibs) {

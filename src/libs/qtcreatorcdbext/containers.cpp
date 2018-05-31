@@ -245,7 +245,7 @@ AbstractSymbolGroupNodePtrVector linkedListChildList(SymbolGroupValue headNode,
 }
 
 // Helper function for linkedListChildList that returns a member by name
-class MemberByName : public std::unary_function<const SymbolGroupValue &, SymbolGroupValue>
+class MemberByName
 {
 public:
     explicit MemberByName(const char *name) : m_name(name) {}

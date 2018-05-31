@@ -465,7 +465,7 @@ inline V search_map(const std::map<K, V>& mapping,
 * Function adaptor for delete operation
 */
 template<class T>
-class del_fun : public std::unary_function<T, void>
+class del_fun
    {
    public:
       void operator()(T* ptr) { delete ptr; }

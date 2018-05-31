@@ -52,7 +52,7 @@ void split(const std::string &s, char sep, Iterator it)
 
 // A boolean predicate that can be used for grepping sequences
 // of strings for a 'needle' substring.
-class SubStringPredicate : public std::unary_function<const std::string &, bool>
+class SubStringPredicate
 {
 public:
     explicit SubStringPredicate(const char *needle) : m_needle(needle) {}
