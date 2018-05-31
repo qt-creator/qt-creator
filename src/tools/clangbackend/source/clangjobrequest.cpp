@@ -157,7 +157,7 @@ static JobRequest::RunConditions conditionsForType(JobRequest::Type type)
                           | Conditions(Condition::DocumentVisible);
 
     if (type == Type::RequestReferences || type == Type::FollowSymbol
-            || type == Type::RequestToolTip) {
+        || type == Type::RequestToolTip || type == Type::UpdateExtraDocumentAnnotations) {
         conditions |= Condition::CurrentDocumentRevision;
     }
 
