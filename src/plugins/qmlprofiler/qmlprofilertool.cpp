@@ -348,15 +348,23 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
         QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());
         infoBox->setIcon(QMessageBox::Critical);
         infoBox->setWindowTitle(Core::Constants::IDE_DISPLAY_NAME);
-        infoBox->setText(QmlProfilerTool::tr("Could not connect to the in-process QML profiler.\n"
-                                             "Do you want to retry?"));
+
+        const int interval = d->m_profilerConnections->retryInterval();
+        const int retries = d->m_profilerConnections->maximumRetries();
+
+        infoBox->setText(QmlProfilerTool::tr("Could not connect to the in-process QML profiler "
+                                             "within %1 s.\n"
+                                             "Do you want to retry and wait %2 s?")
+                         .arg(interval * retries / 1000.0)
+                         .arg(interval * 2 * retries / 1000.0));
         infoBox->setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel | QMessageBox::Help);
         infoBox->setDefaultButton(QMessageBox::Retry);
         infoBox->setModal(true);
 
-        connect(infoBox, &QDialog::finished, runWorker, [this, runWorker](int result) {
+        connect(infoBox, &QDialog::finished, runWorker, [this, runWorker, interval](int result) {
             switch (result) {
             case QMessageBox::Retry:
+                d->m_profilerConnections->setRetryInterval(interval * 2);
                 d->m_profilerConnections->retryConnect();
                 break;
             case QMessageBox::Help:

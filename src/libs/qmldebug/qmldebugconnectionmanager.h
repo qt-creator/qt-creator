@@ -47,7 +47,12 @@ public:
     bool isConnecting() const;
     bool isConnected() const;
 
-    void setRetryParams(int interval, int maxAttempts);
+    int retryInterval() const { return m_retryInterval; }
+    void setRetryInterval(int retryInterval) { m_retryInterval = retryInterval; }
+
+    int maximumRetries() const { return m_maximumRetries; }
+    void setMaximumRetries(int maximumRetries) { m_maximumRetries = maximumRetries; }
+
     void retryConnect();
 
 signals:
@@ -71,7 +76,7 @@ private:
     QUrl m_server;
 
     int m_retryInterval = 200;
-    int m_maximumRetries = 50;
+    int m_maximumRetries = 10;
     int m_numRetries = 0;
 
     void createConnection();
