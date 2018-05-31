@@ -27,6 +27,8 @@
 
 #include "android_global.h"
 
+#include <coreplugin/id.h>
+
 #include <QObject>
 #include <QList>
 
@@ -40,6 +42,13 @@ namespace ProjectExplorer {
 namespace Utils { class FileName; }
 
 namespace Android {
+namespace Constants {
+
+const char AndroidPackageSourceDir[] = "AndroidPackageSourceDir";
+const char AndroidDeploySettingsFile[] = "AndroidDeploySettingsFile";
+const char AndroidExtraLibs[] = "AndroidExtraLibs";
+
+} // namespace Constants
 
 class ANDROID_EXPORT AndroidQtSupport : public QObject
 {
@@ -58,15 +67,13 @@ public:
 
     virtual bool canHandle(const ProjectExplorer::Target *target) const = 0;
     virtual QStringList soLibSearchPath(const ProjectExplorer::Target *target) const = 0;
-    virtual QStringList androidExtraLibs(const ProjectExplorer::Target *target) const = 0;
     virtual QStringList projectTargetApplications(const ProjectExplorer::Target *target) const = 0;
     virtual Utils::FileName apkPath(const ProjectExplorer::Target *target) const;
     virtual Utils::FileName androiddeployqtPath(const ProjectExplorer::Target *target) const = 0;
-    virtual Utils::FileName androiddeployJsonPath(const ProjectExplorer::Target *target) const = 0;
     virtual void manifestSaved(const ProjectExplorer::Target *target) = 0;
-    virtual Utils::FileName manifestSourcePath(const ProjectExplorer::Target *target) = 0;
-    virtual QString deploySettingsFile(const ProjectExplorer::Target *target) const = 0;
-    virtual Utils::FileName packageSourceDir(const ProjectExplorer::Target *target) const = 0;
+
+    virtual QString targetDataItem(Core::Id role, const ProjectExplorer::Target *target) const = 0;
+    virtual QStringList targetData(Core::Id role, const ProjectExplorer::Target *target) const = 0;
 };
 
 } // namespace Android

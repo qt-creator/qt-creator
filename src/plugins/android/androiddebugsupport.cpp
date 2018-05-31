@@ -125,7 +125,7 @@ void AndroidDebugSupport::start()
         AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(target);
         QStringList solibSearchPath = qtSupport->soLibSearchPath(target);
         solibSearchPath.append(qtSoPaths(qtVersion));
-        solibSearchPath.append(uniquePaths(qtSupport->androidExtraLibs(target)));
+        solibSearchPath.append(uniquePaths(qtSupport->targetData(Android::Constants::AndroidExtraLibs, target)));
         setSolibSearchPath(solibSearchPath);
         setSymbolFile(target->activeBuildConfiguration()->buildDirectory().toString()
                       + "/app_process");

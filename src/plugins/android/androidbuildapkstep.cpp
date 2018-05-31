@@ -149,12 +149,14 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     parser->setProjectFileList(Utils::transform(target()->project()->files(ProjectExplorer::Project::AllFiles),
                                                 &Utils::FileName::toString));
 
-    parser->setSourceDirectory(AndroidManager::androidQtSupport(target())->packageSourceDir(target()));
+    AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(target());
+    QFileInfo sourceDirInfo(qtSupport->targetDataItem(Constants::AndroidPackageSourceDir, target()));
+    parser->setSourceDirectory(Utils::FileName::fromString(sourceDirInfo.canonicalFilePath()));
     parser->setBuildDirectory(Utils::FileName::fromString(bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString()));
     setOutputParser(parser);
 
     m_openPackageLocationForRun = m_openPackageLocation;
-    m_apkPath = AndroidManager::androidQtSupport(target())->apkPath(target()).toString();
+    m_apkPath = qtSupport->apkPath(target()).toString();
 
     bool result = AbstractProcessStep::init(earlierSteps);
     if (!result)

@@ -69,6 +69,9 @@ namespace {
 
 } // anonymous namespace
 
+
+using namespace Utils;
+
 namespace Android {
 
 using namespace Internal;
@@ -203,9 +206,12 @@ Utils::FileName AndroidManager::dirPath(ProjectExplorer::Target *target)
 Utils::FileName AndroidManager::manifestSourcePath(ProjectExplorer::Target *target)
 {
     if (AndroidQtSupport *androidQtSupport = AndroidManager::androidQtSupport(target)) {
-        Utils::FileName source = androidQtSupport->manifestSourcePath(target);
-        if (!source.isEmpty())
-            return source;
+        const QString packageSource = androidQtSupport->targetDataItem(Android::Constants::AndroidPackageSourceDir, target);
+        if (!packageSource.isEmpty()) {
+            const FileName manifest = FileName::fromUserInput(packageSource + "/AndroidManifest.xml");
+            if (manifest.exists())
+                return manifest;
+        }
     }
     return manifestPath(target);
 }
@@ -545,7 +551,8 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
     if (!qtSupport)
         return false;
 
-    Utils::FileName packageSourceDir = qtSupport->packageSourceDir(target);
+    QFileInfo sourceDirInfo(qtSupport->targetDataItem(Constants::AndroidPackageSourceDir, target));
+    FileName packageSourceDir = FileName::fromString(sourceDirInfo.canonicalFilePath());
     if (!packageSourceDir.appendPath("gradlew").exists())
         return false;
 

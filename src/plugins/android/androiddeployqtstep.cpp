@@ -194,12 +194,12 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, m_workingDirectory);
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--no-build"));
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--input"));
-        tmp = AndroidManager::androidQtSupport(target())->androiddeployJsonPath(target());
-        if (tmp.isEmpty()) {
+        const QString jsonFile = qtSupport->targetDataItem(Constants::AndroidDeploySettingsFile, target());
+        if (jsonFile.isEmpty()) {
             emit addOutput(tr("Cannot find the androiddeploy Json file."), OutputFormat::Stderr);
             return false;
         }
-        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, tmp.toString());
+        Utils::QtcProcess::addArg(&m_androiddeployqtArgs, jsonFile);
         if (androidBuildApkStep && androidBuildApkStep->useMinistro()) {
             Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--deployment"));
             Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("ministro"));

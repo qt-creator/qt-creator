@@ -92,7 +92,8 @@ bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
     QString outputDir = bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString();
 
-    QString inputFile = AndroidManager::androidQtSupport(target())->deploySettingsFile(target());
+    QString inputFile = AndroidManager::androidQtSupport(target())
+            ->targetDataItem(Constants::AndroidDeploySettingsFile, target());
     if (inputFile.isEmpty()) {
         m_skipBuilding = true;
         return true;
