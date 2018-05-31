@@ -40,7 +40,7 @@ class TestSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TestSettingsWidget(QWidget *parent = 0);
+    explicit TestSettingsWidget(QWidget *parent = nullptr);
 
     void setSettings(const TestSettings &settings);
     TestSettings settings() const;

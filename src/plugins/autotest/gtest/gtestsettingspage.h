@@ -41,7 +41,7 @@ class GTestSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit GTestSettingsWidget(QWidget *parent = 0);
+    explicit GTestSettingsWidget(QWidget *parent = nullptr);
 
     void setSettings(const GTestSettings &settings);
     GTestSettings settings() const;

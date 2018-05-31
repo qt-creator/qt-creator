@@ -56,7 +56,7 @@ public:
         Shutdown
     };
 
-    explicit TestCodeParser(TestTreeModel *parent = 0);
+    explicit TestCodeParser(TestTreeModel *parent = nullptr);
     virtual ~TestCodeParser();
     void setState(State state);
     State state() const { return m_parserState; }

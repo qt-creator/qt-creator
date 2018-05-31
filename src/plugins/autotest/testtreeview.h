@@ -39,7 +39,7 @@ class TestTreeView : public Utils::NavigationTreeView
     Q_OBJECT
 
 public:
-    explicit TestTreeView(QWidget *parent = 0);
+    explicit TestTreeView(QWidget *parent = nullptr);
 
     void selectAll() override;
     void deselectAll();

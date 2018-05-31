@@ -91,8 +91,7 @@ GTestSettings GTestSettingsWidget::settings() const
 GTestSettingsPage::GTestSettingsPage(QSharedPointer<IFrameworkSettings> settings,
                                      const ITestFramework *framework)
     : ITestSettingsPage(framework),
-      m_settings(qSharedPointerCast<GTestSettings>(settings)),
-      m_widget(0)
+      m_settings(qSharedPointerCast<GTestSettings>(settings))
 {
     setDisplayName(QCoreApplication::translate("GTestFramework",
                                                GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));

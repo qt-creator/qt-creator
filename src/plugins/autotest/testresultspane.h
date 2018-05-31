@@ -59,7 +59,7 @@ class ResultsTreeView : public Utils::TreeView
 {
     Q_OBJECT
 public:
-    explicit ResultsTreeView(QWidget *parent = 0);
+    explicit ResultsTreeView(QWidget *parent = nullptr);
 
 signals:
     void copyShortcutTriggered();
@@ -96,7 +96,7 @@ public:
     void showTestResult(const QModelIndex &index);
 
 private:
-    explicit TestResultsPane(QObject *parent = 0);
+    explicit TestResultsPane(QObject *parent = nullptr);
 
     void onItemActivated(const QModelIndex &index);
     void onRunAllTriggered();

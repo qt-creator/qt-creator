@@ -74,8 +74,8 @@ public:
     }
 
 private:
-    QWidget *createConfigurationWidget() override { return 0; }
-    TestConfiguration *m_testConfig = 0;
+    QWidget *createConfigurationWidget() override { return nullptr; }
+    TestConfiguration *m_testConfig = nullptr;
 };
 
 } // namespace Internal

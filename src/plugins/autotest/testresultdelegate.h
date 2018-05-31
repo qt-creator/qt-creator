@@ -37,7 +37,7 @@ class TestResultDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    explicit TestResultDelegate(QObject *parent = 0);
+    explicit TestResultDelegate(QObject *parent = nullptr);
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;

@@ -514,7 +514,7 @@ void TestRunner::debugTests()
     m_futureWatcher.setFuture(futureInterface->future());
 
     if (useOutputProcessor) {
-        TestOutputReader *outputreader = config->outputReader(*futureInterface, 0);
+        TestOutputReader *outputreader = config->outputReader(*futureInterface, nullptr);
         outputreader->setId(inferior.executable);
         connect(outputreader, &TestOutputReader::newOutputAvailable,
                 TestResultsPane::instance(), &TestResultsPane::addOutput);

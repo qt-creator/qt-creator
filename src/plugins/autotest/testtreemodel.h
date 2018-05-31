@@ -92,7 +92,7 @@ private:
     bool sweepChildren(TestTreeItem *item);
     void insertItemInParent(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled);
     void revalidateCheckState(TestTreeItem *item);
-    explicit TestTreeModel(QObject *parent = 0);
+    explicit TestTreeModel(QObject *parent = nullptr);
     void setupParsingConnections();
     void filterAndInsert(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled);
     QList<TestTreeItem *> testItemsByName(TestTreeItem *root, const QString &testName);
@@ -111,7 +111,7 @@ public:
         ShowAll            = ShowInitAndCleanup | ShowTestData
     };
 
-    explicit TestTreeSortFilterModel(TestTreeModel *sourceModel, QObject *parent = 0);
+    explicit TestTreeSortFilterModel(TestTreeModel *sourceModel, QObject *parent = nullptr);
     void setSortMode(TestTreeItem::SortMode sortMode);
     void setFilterMode(FilterMode filterMode);
     void toggleFilter(FilterMode filterMode);
