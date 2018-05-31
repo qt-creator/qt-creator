@@ -24,9 +24,7 @@
 ****************************************************************************/
 
 #include "createandroidmanifestwizard.h"
-#include "qmakeandroidbuildapkstep.h"
 #include "qmakeandroidbuildapkwidget.h"
-#include "ui_qmakeandroidbuildapkwidget.h"
 
 #include <android/androidbuildapkwidget.h>
 #include <android/androidmanager.h>
@@ -36,69 +34,81 @@
 #include <utils/utilsicons.h>
 
 #include <QFileDialog>
+#include <QGroupBox>
 #include <QLabel>
+#include <QListView>
+#include <QPushButton>
+#include <QToolButton>
+#include <QVBoxLayout>
 
 namespace QmakeAndroidSupport {
 namespace Internal {
 
 QmakeAndroidBuildApkWidget::QmakeAndroidBuildApkWidget(Android::AndroidBuildApkStep *step) :
-    m_ui(new Ui::QmakeAndroidBuildApkWidget),
     m_step(step)
 {
-    QVBoxLayout *topLayout = new QVBoxLayout;
-
-    QHBoxLayout *qt51WarningLayout = new QHBoxLayout();
-    QLabel *oldFilesWarningIcon = new QLabel(this);
-    oldFilesWarningIcon->setObjectName(QStringLiteral("oldFilesWarningIcon"));
-    QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    sizePolicy.setHorizontalStretch(0);
-    sizePolicy.setVerticalStretch(0);
-    sizePolicy.setHeightForWidth(oldFilesWarningIcon->sizePolicy().hasHeightForWidth());
-    oldFilesWarningIcon->setSizePolicy(sizePolicy);
-    oldFilesWarningIcon->setPixmap(Utils::Icons::WARNING.pixmap());
-    oldFilesWarningIcon->setAlignment(Qt::Alignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop));
-    qt51WarningLayout->addWidget(oldFilesWarningIcon);
-
-    QLabel *oldFilesWarningLabel = new QLabel(this);
-    oldFilesWarningLabel->setObjectName(QStringLiteral("oldFilesWarningLabel"));
-    oldFilesWarningLabel->setWordWrap(true);
-    qt51WarningLayout->addWidget(oldFilesWarningLabel);
-
-    topLayout->addWidget(new Android::AndroidBuildApkWidget(step));
-
-    QWidget *widget = new QWidget(this);
-    m_ui->setupUi(widget);
-    topLayout->addWidget(widget);
-    setLayout(topLayout);
-
-    bool oldFiles = Android::AndroidManager::checkForQt51Files(m_step->project()->projectDirectory());
-    oldFilesWarningIcon->setVisible(oldFiles);
-    oldFilesWarningLabel->setVisible(oldFiles);
-
     m_extraLibraryListModel = new AndroidExtraLibraryListModel(m_step->target(), this);
-    m_ui->androidExtraLibsListView->setModel(m_extraLibraryListModel);
 
-    connect(m_ui->createAndroidTemplatesButton, &QAbstractButton::clicked,
+    auto base = new Android::AndroidBuildApkWidget(step);
+    base->layout()->setContentsMargins(0, 0, 0, 0);
+
+    auto createTemplatesGroupBox = new QGroupBox(tr("Android"));
+    createTemplatesGroupBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    auto createAndroidTemplatesButton = new QPushButton(tr("Create Templates"));
+
+    auto horizontalLayout = new QHBoxLayout(createTemplatesGroupBox);
+    horizontalLayout->addWidget(createAndroidTemplatesButton);
+    horizontalLayout->addStretch(1);
+
+    auto additionalLibrariesGroupBox = new QGroupBox(tr("Additional Libraries"));
+    additionalLibrariesGroupBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+
+    m_androidExtraLibsListView = new QListView;
+    m_androidExtraLibsListView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_androidExtraLibsListView->setToolTip(tr("List of extra libraries to include in Android package and load on startup."));
+    m_androidExtraLibsListView->setModel(m_extraLibraryListModel);
+
+    auto addAndroidExtraLibButton = new QToolButton;
+    addAndroidExtraLibButton->setText(tr("Add..."));
+    addAndroidExtraLibButton->setToolTip(tr("Select library to include in package."));
+    addAndroidExtraLibButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    addAndroidExtraLibButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+
+    m_removeAndroidExtraLibButton = new QToolButton;
+    m_removeAndroidExtraLibButton->setText(tr("Remove"));
+    m_removeAndroidExtraLibButton->setToolTip(tr("Remove currently selected library from list."));
+
+    auto androidExtraLibsButtonLayout = new QVBoxLayout();
+    androidExtraLibsButtonLayout->addWidget(addAndroidExtraLibButton);
+    androidExtraLibsButtonLayout->addWidget(m_removeAndroidExtraLibButton);
+    androidExtraLibsButtonLayout->addStretch(1);
+
+    auto androidExtraLibsLayout = new QHBoxLayout(additionalLibrariesGroupBox);
+    androidExtraLibsLayout->addWidget(m_androidExtraLibsListView);
+    androidExtraLibsLayout->addLayout(androidExtraLibsButtonLayout);
+
+    auto topLayout = new QVBoxLayout(this);
+    topLayout->addWidget(base);
+    topLayout->addWidget(createTemplatesGroupBox);
+    topLayout->addWidget(additionalLibrariesGroupBox);
+
+    connect(createAndroidTemplatesButton, &QAbstractButton::clicked,
             this, &QmakeAndroidBuildApkWidget::createAndroidTemplatesButton);
 
-    connect(m_ui->addAndroidExtraLibButton, &QAbstractButton::clicked,
+    connect(addAndroidExtraLibButton, &QAbstractButton::clicked,
             this, &QmakeAndroidBuildApkWidget::addAndroidExtraLib);
 
-    connect(m_ui->removeAndroidExtraLibButton, &QAbstractButton::clicked,
+    connect(m_removeAndroidExtraLibButton, &QAbstractButton::clicked,
             this, &QmakeAndroidBuildApkWidget::removeAndroidExtraLib);
 
-    connect(m_ui->androidExtraLibsListView->selectionModel(), &QItemSelectionModel::selectionChanged,
+    connect(m_androidExtraLibsListView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &QmakeAndroidBuildApkWidget::checkEnableRemoveButton);
 
     connect(m_extraLibraryListModel, &AndroidExtraLibraryListModel::enabledChanged,
-            m_ui->additionalLibrariesGroupBox, &QWidget::setEnabled);
+            additionalLibrariesGroupBox, &QWidget::setEnabled);
 
-    m_ui->additionalLibrariesGroupBox->setEnabled(m_extraLibraryListModel->isEnabled());
-}
-
-QmakeAndroidBuildApkWidget::~QmakeAndroidBuildApkWidget()
-{
-    delete m_ui;
+    additionalLibrariesGroupBox->setEnabled(m_extraLibraryListModel->isEnabled());
 }
 
 void QmakeAndroidBuildApkWidget::createAndroidTemplatesButton()
@@ -120,13 +130,13 @@ void QmakeAndroidBuildApkWidget::addAndroidExtraLib()
 
 void QmakeAndroidBuildApkWidget::removeAndroidExtraLib()
 {
-    QModelIndexList removeList = m_ui->androidExtraLibsListView->selectionModel()->selectedIndexes();
+    QModelIndexList removeList = m_androidExtraLibsListView->selectionModel()->selectedIndexes();
     m_extraLibraryListModel->removeEntries(removeList);
 }
 
 void QmakeAndroidBuildApkWidget::checkEnableRemoveButton()
 {
-    m_ui->removeAndroidExtraLibButton->setEnabled(m_ui->androidExtraLibsListView->selectionModel()->hasSelection());
+    m_removeAndroidExtraLibButton->setEnabled(m_androidExtraLibsListView->selectionModel()->hasSelection());
 }
 
 QString QmakeAndroidBuildApkWidget::summaryText() const

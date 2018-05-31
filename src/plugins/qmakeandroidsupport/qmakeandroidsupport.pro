@@ -21,5 +21,3 @@ SOURCES += \
     qmakeandroidbuildapkwidget.cpp \
     androidqmakebuildconfigurationfactory.cpp \
     qmakeandroidsupportplugin.cpp
-
-FORMS += qmakeandroidbuildapkwidget.ui

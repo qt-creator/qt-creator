@@ -30,12 +30,11 @@
 #include <projectexplorer/buildstep.h>
 #include <android/androidbuildapkstep.h>
 
-#include <QWidget>
+#include <QListView>
+#include <QToolButton>
 
 namespace QmakeAndroidSupport {
 namespace Internal {
-
-namespace Ui { class QmakeAndroidBuildApkWidget; }
 
 class QmakeAndroidBuildApkWidget : public ProjectExplorer::BuildStepConfigWidget
 {
@@ -43,7 +42,6 @@ class QmakeAndroidBuildApkWidget : public ProjectExplorer::BuildStepConfigWidget
 
 public:
     explicit QmakeAndroidBuildApkWidget(Android::AndroidBuildApkStep *step);
-    ~QmakeAndroidBuildApkWidget();
 
 private:
     void createAndroidTemplatesButton();
@@ -51,15 +49,16 @@ private:
     void removeAndroidExtraLib();
     void checkEnableRemoveButton();
 
+    QString summaryText() const final;
+    QString displayName() const final;
+
 private:
-    Ui::QmakeAndroidBuildApkWidget *m_ui = nullptr;
+    QListView *m_androidExtraLibsListView = nullptr;
+    QToolButton *m_removeAndroidExtraLibButton = nullptr;
+
     Android::AndroidBuildApkStep *m_step = nullptr;
     AndroidExtraLibraryListModel *m_extraLibraryListModel = nullptr;
     bool m_ignoreChange = false;
-
-    // BuildStepConfigWidget interface
-    QString summaryText() const final;
-    QString displayName() const final;
 };
 
 } // namespace Internal

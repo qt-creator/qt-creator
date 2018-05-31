@@ -24,7 +24,6 @@ QtcPlugin {
         "qmakeandroidbuildapkstep.h",
         "qmakeandroidbuildapkwidget.cpp",
         "qmakeandroidbuildapkwidget.h",
-        "qmakeandroidbuildapkwidget.ui",
         "androidqmakebuildconfigurationfactory.cpp",
         "androidqmakebuildconfigurationfactory.h",
         "qmakeandroidsupport.cpp",
