@@ -70,14 +70,6 @@ QmakeAndroidBuildApkStep::QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepLis
 {
 }
 
-Utils::FileName QmakeAndroidBuildApkStep::proFilePathForInputFile() const
-{
-    ProjectExplorer::RunConfiguration *rc = target()->activeRunConfiguration();
-    if (rc)
-        return Utils::FileName::fromString(rc->buildKey());
-    return Utils::FileName();
-}
-
 bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
 {
     if (AndroidManager::checkForQt51Files(project()->projectDirectory()))

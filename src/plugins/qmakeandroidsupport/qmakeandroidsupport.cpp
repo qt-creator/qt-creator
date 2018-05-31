@@ -36,6 +36,8 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qmakeprojectmanager/qmakeproject.h>
 
+#include <utils/qtcassert.h>
+
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
@@ -132,20 +134,17 @@ Utils::FileName QmakeAndroidSupport::androiddeployqtPath(const ProjectExplorer::
 Utils::FileName QmakeAndroidSupport::androiddeployJsonPath(const ProjectExplorer::Target *target) const
 {
     const auto *pro = static_cast<QmakeProject *>(target->project());
-    QmakeAndroidBuildApkStep *buildApkStep
-        = Android::AndroidGlobal::buildStep<QmakeAndroidBuildApkStep>(target->activeBuildConfiguration());
 
-    if (!buildApkStep) // should never happen
-        return Utils::FileName();
+    RunConfiguration *rc = target->activeRunConfiguration();
+    QTC_ASSERT(rc, return FileName());
 
-    const QmakeProFileNode *node =
-            pro->rootProjectNode()->findProFileFor(buildApkStep->proFilePathForInputFile());
-    if (!node) // should never happen
-        return Utils::FileName();
+    const FileName projectFile = FileName::fromString(rc->buildKey());
+
+    const QmakeProFileNode *node = pro->rootProjectNode()->findProFileFor(projectFile);
+    QTC_ASSERT(node, return FileName());
 
     QString inputFile = node->singleVariableValue(Variable::AndroidDeploySettingsFile);
-    if (inputFile.isEmpty()) // should never happen
-        return Utils::FileName();
+    QTC_ASSERT(!inputFile.isEmpty(), return FileName());
 
     return Utils::FileName::fromString(inputFile);
 }
