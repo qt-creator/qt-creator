@@ -250,6 +250,9 @@ CMakeToolTreeItem *CMakeToolItemModel::cmakeToolItem(const QModelIndex &index) c
 
 void CMakeToolItemModel::removeCMakeTool(const Core::Id &id)
 {
+    if (m_removedItems.contains(id))
+        return; // Item has already been removed in the model!
+
     CMakeToolTreeItem *treeItem = cmakeToolItem(id);
     QTC_ASSERT(treeItem, return);
 
