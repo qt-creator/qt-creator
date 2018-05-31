@@ -667,7 +667,7 @@ void QmlProfilerTool::clientsDisconnected()
     if (d->m_toolBusy) {
         if (d->m_profilerModelManager->aggregateTraces()) {
             d->m_profilerModelManager->finalize();
-        } else {
+        } else if (d->m_profilerState->serverRecording()) {
             // If the application stopped by itself, check if we have all the data
             if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppDying ||
                     d->m_profilerState->currentState() == QmlProfilerStateManager::Idle) {
