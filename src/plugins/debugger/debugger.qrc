@@ -45,5 +45,7 @@
         <file>images/recordfill@2x.png</file>
         <file>images/recordoutline.png</file>
         <file>images/recordoutline@2x.png</file>
+        <file>images/tracepointoverlay.png</file>
+        <file>images/tracepointoverlay@2x.png</file>
     </qresource>
 </RCC>
