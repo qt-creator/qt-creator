@@ -316,6 +316,13 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
         d->m_toolBusy = false;
         updateRunActions();
         disconnect(d->m_stopAction, &QAction::triggered, runControl, &RunControl::initiateStop);
+
+        // If we're still trying to connect, stop now.
+        if (d->m_profilerConnections->isConnecting()) {
+            showNonmodalWarning(tr("The application finished before a connection could be "
+                                   "established. No data was loaded."));
+            d->m_profilerConnections->disconnectFromServer();
+        }
     };
 
     connect(runControl, &RunControl::stopped, this, handleStop);

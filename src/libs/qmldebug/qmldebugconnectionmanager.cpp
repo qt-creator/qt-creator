@@ -71,6 +71,11 @@ void QmlDebugConnectionManager::disconnectFromServer()
     stopConnectionTimer();
 }
 
+bool QmlDebugConnectionManager::isConnecting() const
+{
+    return m_connectionTimer.isActive();
+}
+
 static quint16 port16(const QUrl &url)
 {
     const int port32 = url.port();
