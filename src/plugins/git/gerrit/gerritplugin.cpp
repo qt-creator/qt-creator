@@ -292,7 +292,12 @@ bool GerritPlugin::initialize(ActionContainer *ac)
     connect(pushAction, &QAction::triggered, this, [this]() { push(); });
     ac->addAction(m_pushToGerritCommand);
 
-    new GerritOptionsPage(m_parameters, this);
+    auto options = new GerritOptionsPage(m_parameters, this);
+    connect(options, &GerritOptionsPage::settingsChanged,
+            this, [this] {
+        if (m_dialog)
+            m_dialog->scheduleUpdateRemotes();
+    });
     return true;
 }
 
