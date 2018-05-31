@@ -76,10 +76,6 @@ QmlProject::~QmlProject()
 
 void QmlProject::addedTarget(Target *target)
 {
-    connect(target, &Target::addedRunConfiguration,
-            this, &QmlProject::addedRunConfiguration);
-    foreach (RunConfiguration *rc, target->runConfigurations())
-        addedRunConfiguration(rc);
     updateDeploymentData(target);
 }
 
@@ -99,15 +95,6 @@ void QmlProject::onKitChanged()
 {
     // make sure e.g. the default qml imports are adapted
     refresh(Configuration);
-}
-
-void QmlProject::addedRunConfiguration(RunConfiguration *rc)
-{
-    // The enabled state of qml runconfigurations can only be decided after
-    // they have been added to a project
-    QmlProjectRunConfiguration *qmlrc = qobject_cast<QmlProjectRunConfiguration *>(rc);
-    if (qmlrc)
-        qmlrc->updateEnabledState();
 }
 
 Utils::FileName QmlProject::canonicalProjectDir() const

@@ -89,7 +89,6 @@ private:
     void addedTarget(ProjectExplorer::Target *target);
     void onActiveTargetChanged(ProjectExplorer::Target *target);
     void onKitChanged();
-    void addedRunConfiguration(ProjectExplorer::RunConfiguration *);
 
     // plain format
     void parseProject(RefreshOptions options);
