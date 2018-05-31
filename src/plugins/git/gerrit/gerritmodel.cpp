@@ -480,19 +480,19 @@ static QStandardItem *numberSearchRecursion(QStandardItem *item, int number)
         if (QStandardItem *i = numberSearchRecursion(item->child(r, 0), number))
             return i;
     }
-    return 0;
+    return nullptr;
 }
 
 QStandardItem *GerritModel::itemForNumber(int number) const
 {
     if (!number)
-        return 0;
+        return nullptr;
     const int numRows = rowCount();
     for (int r = 0; r < numRows; ++r) {
         if (QStandardItem *i = numberSearchRecursion(item(r, 0), number))
             return i;
     }
-    return 0;
+    return nullptr;
 }
 
 void GerritModel::refresh(const QSharedPointer<GerritServer> &server, const QString &query)

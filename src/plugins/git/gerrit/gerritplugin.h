@@ -78,8 +78,8 @@ private:
     QSharedPointer<GerritParameters> m_parameters;
     QSharedPointer<GerritServer> m_server;
     QPointer<GerritDialog> m_dialog;
-    Core::Command *m_gerritCommand;
-    Core::Command *m_pushToGerritCommand;
+    Core::Command *m_gerritCommand = nullptr;
+    Core::Command *m_pushToGerritCommand = nullptr;
     QString m_reviewers;
 };
 
