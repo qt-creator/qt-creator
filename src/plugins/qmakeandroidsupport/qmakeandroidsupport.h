@@ -27,7 +27,18 @@
 
 #include <android/androidqtsupport.h>
 
+#include <coreplugin/id.h>
+
 namespace QmakeAndroidSupport {
+
+namespace Constants {
+
+const char AndroidPackageSourceDir[] = "AndroidPackageSourceDir";
+const char AndroidDeploySettingsFile[] = "AndroidDeploySettingsFile";
+const char AndroidExtraLibs[] = "AndroidExtraLibs";
+
+} // namespace Constants
+
 namespace Internal {
 
 class QmakeAndroidSupport : public Android::AndroidQtSupport
@@ -46,6 +57,9 @@ public:
     Utils::FileName manifestSourcePath(const ProjectExplorer::Target *target) override;
     Utils::FileName packageSourceDir(const ProjectExplorer::Target *target) const override;
     QString deploySettingsFile(const ProjectExplorer::Target *target) const override;
+
+    QString targetDataItem(Core::Id role, const ProjectExplorer::Target *target) const;
+    QStringList targetData(Core::Id role, const ProjectExplorer::Target *target) const;
 };
 
 } // namespace Internal
