@@ -69,7 +69,7 @@ protected:
 
     virtual ClangToolRunner *createRunner() = 0;
 
-    void onRunnerFinishedWithSuccess(const QString &filePath, const QString &logFilePath);
+    void onRunnerFinishedWithSuccess(const QString &filePath);
     void onRunnerFinishedWithFailure(const QString &errorMessage, const QString &errorDetails);
 
 private:

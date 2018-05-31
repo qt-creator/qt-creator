@@ -53,10 +53,11 @@ public:
     bool run(const QString &filePath, const QStringList &compilerOptions = QStringList());
 
     QString filePath() const;
+    QString actualLogFile() const;
 
 signals:
     void started();
-    void finishedWithSuccess(const QString &filePath, const QString &logFilePath);
+    void finishedWithSuccess(const QString &filePath);
     void finishedWithFailure(const QString &errorMessage, const QString &errorDetails);
 
 protected:
@@ -71,7 +72,6 @@ private:
 
     QString createLogFile(const QString &filePath) const;
     QString processCommandlineAndOutput() const;
-    QString actualLogFile() const;
 
 protected:
     QString m_logFile;
