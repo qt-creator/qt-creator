@@ -224,7 +224,8 @@ void GerritDialog::remoteChanged()
            return;
     }
     *m_server = server;
-    refresh();
+    if (isVisible())
+        refresh();
 }
 
 void GerritDialog::updateRemotes(bool forceReload)
