@@ -117,7 +117,7 @@ SOURCES += \
     clangjobs-test.cpp \
     clangparsesupportivetranslationunitjob-test.cpp \
     clangreferencescollector-test.cpp \
-    clangrequestdocumentannotationsjob-test.cpp \
+    clangrequestannotationsjob-test.cpp \
     clangrequestreferencesjob-test.cpp \
     clangresumedocumentjob-test.cpp \
     clangstring-test.cpp \
@@ -126,7 +126,7 @@ SOURCES += \
     clangtooltipinfo-test.cpp \
     clangtranslationunits-test.cpp \
     clangtranslationunit-test.cpp \
-    clangupdatedocumentannotationsjob-test.cpp \
+    clangupdateannotationsjob-test.cpp \
     codecompleter-test.cpp \
     codecompletionsextractor-test.cpp \
     completionchunkstotextconverter-test.cpp \

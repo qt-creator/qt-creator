@@ -33,30 +33,35 @@ class MockClangCodeModelServer : public ClangBackEnd::ClangCodeModelServerInterf
 public:
     MOCK_METHOD0(end,
                  void());
-    MOCK_METHOD1(registerTranslationUnitsForEditor,
-                 void(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &message));
-    MOCK_METHOD1(updateTranslationUnitsForEditor,
-                 void(const ClangBackEnd::UpdateTranslationUnitsForEditorMessage &message));
-    MOCK_METHOD1(unregisterTranslationUnitsForEditor,
-                 void(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message));
-    MOCK_METHOD1(registerProjectPartsForEditor,
-                 void(const ClangBackEnd::RegisterProjectPartsForEditorMessage &message));
-    MOCK_METHOD1(unregisterProjectPartsForEditor,
-                 void(const ClangBackEnd::UnregisterProjectPartsForEditorMessage &message));
-    MOCK_METHOD1(registerUnsavedFilesForEditor,
-                 void(const ClangBackEnd::RegisterUnsavedFilesForEditorMessage &message));
-    MOCK_METHOD1(unregisterUnsavedFilesForEditor,
-                 void(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message));
-    MOCK_METHOD1(completeCode,
-                 void(const ClangBackEnd::CompleteCodeMessage &message));
-    MOCK_METHOD1(requestDocumentAnnotations,
-                 void(const ClangBackEnd::RequestDocumentAnnotationsMessage &message));
+
+    MOCK_METHOD1(documentsOpened,
+                 void(const ClangBackEnd::DocumentsOpenedMessage &message));
+    MOCK_METHOD1(documentsChanged,
+                 void(const ClangBackEnd::DocumentsChangedMessage &message));
+    MOCK_METHOD1(documentsClosed,
+                 void(const ClangBackEnd::DocumentsClosedMessage &message));
+    MOCK_METHOD1(documentVisibilityChanged,
+                 void(const ClangBackEnd::DocumentVisibilityChangedMessage &message));
+
+    MOCK_METHOD1(projectPartsUpdated,
+                 void(const ClangBackEnd::ProjectPartsUpdatedMessage &message));
+    MOCK_METHOD1(projectPartsRemoved,
+                 void(const ClangBackEnd::ProjectPartsRemovedMessage &message));
+
+    MOCK_METHOD1(unsavedFilesUpdated,
+                 void(const ClangBackEnd::UnsavedFilesUpdatedMessage &message));
+    MOCK_METHOD1(unsavedFilesRemoved,
+                 void(const ClangBackEnd::UnsavedFilesRemovedMessage &message));
+
+    MOCK_METHOD1(requestCompletions,
+                 void(const ClangBackEnd::RequestCompletionsMessage &message));
+    MOCK_METHOD1(requestAnnotations,
+                 void(const ClangBackEnd::RequestAnnotationsMessage &message));
     MOCK_METHOD1(requestReferences,
                  void(const ClangBackEnd::RequestReferencesMessage &message));
     MOCK_METHOD1(requestFollowSymbol,
                  void(const ClangBackEnd::RequestFollowSymbolMessage &message));
     MOCK_METHOD1(requestToolTip,
                  void(const ClangBackEnd::RequestToolTipMessage &message));
-    MOCK_METHOD1(updateVisibleTranslationUnits,
-                 void(const ClangBackEnd::UpdateVisibleTranslationUnitsMessage &message));
+
 };

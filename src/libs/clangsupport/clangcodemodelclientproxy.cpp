@@ -75,12 +75,12 @@ void ClangCodeModelClientProxy::echo(const EchoMessage &message)
     m_writeMessageBlock.write(message);
 }
 
-void ClangCodeModelClientProxy::codeCompleted(const CodeCompletedMessage &message)
+void ClangCodeModelClientProxy::completions(const CompletionsMessage &message)
 {
     m_writeMessageBlock.write(message);
 }
 
-void ClangCodeModelClientProxy::documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message)
+void ClangCodeModelClientProxy::annotations(const AnnotationsMessage &message)
 {
     m_writeMessageBlock.write(message);
 }

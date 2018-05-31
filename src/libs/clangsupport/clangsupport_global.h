@@ -138,18 +138,19 @@ enum class MessageType : quint8 {
     EchoMessage,
     EndMessage,
 
-    RegisterTranslationUnitForEditorMessage,
-    UpdateTranslationUnitsForEditorMessage,
-    UnregisterTranslationUnitsForEditorMessage,
+    DocumentsOpenedMessage,
+    DocumentsChangedMessage,
+    DocumentsClosedMessage,
+    DocumentVisibilityChangedMessage,
 
-    RegisterUnsavedFilesForEditorMessage,
-    UnregisterUnsavedFilesForEditorMessage,
+    UnsavedFilesUpdatedMessage,
+    UnsavedFilesRemovedMessage,
 
-    RegisterProjectPartsForEditorMessage,
-    UnregisterProjectPartsForEditorMessage,
+    ProjectPartsUpdatedMessage,
+    ProjectPartsRemovedMessage,
 
-    RequestDocumentAnnotationsMessage,
-    DocumentAnnotationsChangedMessage,
+    RequestAnnotationsMessage,
+    AnnotationsMessage,
 
     RequestReferencesMessage,
     ReferencesMessage,
@@ -160,10 +161,8 @@ enum class MessageType : quint8 {
     RequestToolTipMessage,
     ToolTipMessage,
 
-    UpdateVisibleTranslationUnitsMessage,
-
-    CompleteCodeMessage,
-    CodeCompletedMessage,
+    RequestCompletionsMessage,
+    CompletionsMessage,
 
     SourceLocationsForRenamingMessage,
     RequestSourceLocationsForRenamingMessage,

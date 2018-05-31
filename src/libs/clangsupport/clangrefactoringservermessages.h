@@ -26,7 +26,7 @@
 #pragma once
 
 #include "cancelmessage.h"
-#include "cmbendmessage.h"
+#include "endmessage.h"
 #include "requestsourcelocationforrenamingmessage.h"
 #include "requestsourcerangesanddiagnosticsforquerymessage.h"
 #include "requestsourcerangesforquerymessage.h"

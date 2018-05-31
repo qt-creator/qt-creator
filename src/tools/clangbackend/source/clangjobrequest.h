@@ -49,15 +49,15 @@ public:
     enum class Type {
         Invalid,
 
-        UpdateDocumentAnnotations,
-        UpdateExtraDocumentAnnotations,
+        UpdateAnnotations,
+        UpdateExtraAnnotations,
 
         ParseSupportiveTranslationUnit,
 
-        CompleteCode,
-        RequestDocumentAnnotations,
+        RequestCompletions,
+        RequestAnnotations,
         RequestReferences,
-        FollowSymbol,
+        RequestFollowSymbol,
         RequestToolTip,
 
         SuspendDocument,

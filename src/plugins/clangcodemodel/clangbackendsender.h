@@ -38,19 +38,23 @@ public:
     BackendSender(ClangBackEnd::ClangCodeModelConnectionClient *connectionClient);
 
     void end() override;
-    void registerTranslationUnitsForEditor(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &message) override;
-    void updateTranslationUnitsForEditor(const ClangBackEnd::UpdateTranslationUnitsForEditorMessage &message) override;
-    void unregisterTranslationUnitsForEditor(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message) override;
-    void registerProjectPartsForEditor(const ClangBackEnd::RegisterProjectPartsForEditorMessage &message) override;
-    void unregisterProjectPartsForEditor(const ClangBackEnd::UnregisterProjectPartsForEditorMessage &message) override;
-    void registerUnsavedFilesForEditor(const ClangBackEnd::RegisterUnsavedFilesForEditorMessage &message) override;
-    void unregisterUnsavedFilesForEditor(const ClangBackEnd::UnregisterUnsavedFilesForEditorMessage &message) override;
-    void completeCode(const ClangBackEnd::CompleteCodeMessage &message) override;
-    void requestDocumentAnnotations(const ClangBackEnd::RequestDocumentAnnotationsMessage &message) override;
+
+    void documentsOpened(const ClangBackEnd::DocumentsOpenedMessage &message) override;
+    void documentsChanged(const ClangBackEnd::DocumentsChangedMessage &message) override;
+    void documentsClosed(const ClangBackEnd::DocumentsClosedMessage &message) override;
+    void documentVisibilityChanged(const ClangBackEnd::DocumentVisibilityChangedMessage &message) override;
+
+    void projectPartsUpdated(const ClangBackEnd::ProjectPartsUpdatedMessage &message) override;
+    void projectPartsRemoved(const ClangBackEnd::ProjectPartsRemovedMessage &message) override;
+
+    void unsavedFilesUpdated(const ClangBackEnd::UnsavedFilesUpdatedMessage &message) override;
+    void unsavedFilesRemoved(const ClangBackEnd::UnsavedFilesRemovedMessage &message) override;
+
+    void requestCompletions(const ClangBackEnd::RequestCompletionsMessage &message) override;
+    void requestAnnotations(const ClangBackEnd::RequestAnnotationsMessage &message) override;
     void requestReferences(const ClangBackEnd::RequestReferencesMessage &message) override;
     void requestToolTip(const ClangBackEnd::RequestToolTipMessage &message) override;
     void requestFollowSymbol(const ClangBackEnd::RequestFollowSymbolMessage &message) override;
-    void updateVisibleTranslationUnits(const ClangBackEnd::UpdateVisibleTranslationUnitsMessage &message) override;
 
 private:
     ClangBackEnd::ClangCodeModelConnectionClient *m_connection = nullptr;

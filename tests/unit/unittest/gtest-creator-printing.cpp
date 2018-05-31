@@ -228,7 +228,7 @@ std::ostream &operator<<(std::ostream &os, const SourceLocationsContainer &conta
     return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const RegisterProjectPartsForEditorMessage &message)
+std::ostream &operator<<(std::ostream &os, const ProjectPartsUpdatedMessage &message)
 {
     os << "("
        << message.projectContainers
@@ -258,7 +258,7 @@ std::ostream &operator<<(std::ostream &os, const FollowSymbolMessage &message)
     return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const CompleteCodeMessage &message)
+std::ostream &operator<<(std::ostream &os, const RequestCompletionsMessage &message)
 {
     os << "("
        << message.filePath << ", "
@@ -274,9 +274,9 @@ std::ostream &operator<<(std::ostream &os, const CompleteCodeMessage &message)
      return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const RegisterTranslationUnitForEditorMessage &message)
+std::ostream &operator<<(std::ostream &os, const DocumentsOpenedMessage &message)
 {
-    os << "RegisterTranslationUnitForEditorMessage("
+    os << "DocumentsOpenedMessage("
        << message.fileContainers << ", "
        << message.currentEditorFilePath << ", "
        << message.visibleEditorFilePaths << ")";
@@ -311,7 +311,7 @@ static const char *completionCorrectionToText(CompletionCorrection correction)
 }
 #undef RETURN_TEXT_FOR_CASE
 
-std::ostream &operator<<(std::ostream &os, const CodeCompletedMessage &message)
+std::ostream &operator<<(std::ostream &os, const CompletionsMessage &message)
 {
     os << "("
        << message.codeCompletions << ", "
@@ -323,9 +323,9 @@ std::ostream &operator<<(std::ostream &os, const CodeCompletedMessage &message)
     return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const DocumentAnnotationsChangedMessage &message)
+std::ostream &operator<<(std::ostream &os, const AnnotationsMessage &message)
 {
-    os << "DocumentAnnotationsChangedMessage("
+    os << "AnnotationsMessage("
        << message.fileContainer
        << "," << message.diagnostics.size()
        << "," << !message.firstHeaderErrorDiagnostic.text.isEmpty()
@@ -364,7 +364,7 @@ std::ostream &operator<<(std::ostream &os, const EchoMessage &/*message*/)
      return os << "()";
 }
 
-std::ostream &operator<<(std::ostream &os, const UnregisterProjectPartsForEditorMessage &message)
+std::ostream &operator<<(std::ostream &os, const ProjectPartsRemovedMessage &message)
 {
     os << "("
        << message.projectPartIds
@@ -373,7 +373,7 @@ std::ostream &operator<<(std::ostream &os, const UnregisterProjectPartsForEditor
     return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const UnregisterTranslationUnitsForEditorMessage &message)
+std::ostream &operator<<(std::ostream &os, const DocumentsClosedMessage &message)
 {
     os << "("
        << message.fileContainers
@@ -627,7 +627,7 @@ std::ostream &operator<<(std::ostream &out, const ProjectPartPch &projectPartPch
     return out;
 }
 
-std::ostream &operator<<(std::ostream &os, const RegisterUnsavedFilesForEditorMessage &message)
+std::ostream &operator<<(std::ostream &os, const UnsavedFilesUpdatedMessage &message)
 {
     os << "("
        << message.fileContainers
@@ -636,7 +636,7 @@ std::ostream &operator<<(std::ostream &os, const RegisterUnsavedFilesForEditorMe
     return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const RequestDocumentAnnotationsMessage &message)
+std::ostream &operator<<(std::ostream &os, const RequestAnnotationsMessage &message)
 {
     os << "("
        << message.fileContainer.filePath << ","
@@ -811,7 +811,7 @@ std::ostream &operator<<(std::ostream &os, const SourceRangeWithTextContainer &c
     return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const UnregisterUnsavedFilesForEditorMessage &message)
+std::ostream &operator<<(std::ostream &os, const UnsavedFilesRemovedMessage &message)
 {
     os << "("
         << message.fileContainers
@@ -827,16 +827,16 @@ std::ostream &operator<<(std::ostream &out, const UpdateProjectPartsMessage &mes
                << ")";
 }
 
-std::ostream &operator<<(std::ostream &os, const UpdateTranslationUnitsForEditorMessage &message)
+std::ostream &operator<<(std::ostream &os, const DocumentsChangedMessage &message)
 {
-    os << "UpdateTranslationUnitsForEditorMessage("
+    os << "DocumentsChangedMessage("
        << message.fileContainers
        << ")";
 
     return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const UpdateVisibleTranslationUnitsMessage &message)
+std::ostream &operator<<(std::ostream &os, const DocumentVisibilityChangedMessage &message)
 {
     os << "("
        << message.currentEditorFilePath  << ", "

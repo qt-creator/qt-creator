@@ -34,8 +34,8 @@ public:
 
     void alive() override {}
     void echo(const ClangBackEnd::EchoMessage &) override {}
-    void codeCompleted(const ClangBackEnd::CodeCompletedMessage &) override {}
-    void documentAnnotationsChanged(const ClangBackEnd::DocumentAnnotationsChangedMessage &) override {}
+    void completions(const ClangBackEnd::CompletionsMessage &) override {}
+    void annotations(const ClangBackEnd::AnnotationsMessage &) override {}
     void references(const ClangBackEnd::ReferencesMessage &) override {}
     void followSymbol(const ClangBackEnd::FollowSymbolMessage &) override {}
     void tooltip(const ClangBackEnd::ToolTipMessage &) override {}

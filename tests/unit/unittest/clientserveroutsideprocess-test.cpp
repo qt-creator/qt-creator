@@ -92,64 +92,64 @@ TEST_F(ClientServerOutsideProcessSlowTest, RestartProcessAfterTermination)
     ASSERT_THAT(clientSpy, SizeIs(1));
 }
 
-TEST_F(ClientServerOutsideProcess, SendRegisterTranslationUnitForEditorMessage)
+TEST_F(ClientServerOutsideProcess, SendDocumentsOpenedMessage)
 {
     auto filePath = Utf8StringLiteral("foo.cpp");
     ClangBackEnd::FileContainer fileContainer(filePath, Utf8StringLiteral("projectId"));
-    ClangBackEnd::RegisterTranslationUnitForEditorMessage registerTranslationUnitForEditorMessage({fileContainer},
-                                                                                                  filePath,
-                                                                                                  {filePath});
-    EchoMessage echoMessage(registerTranslationUnitForEditorMessage);
+    ClangBackEnd::DocumentsOpenedMessage documentsOpenedMessage({fileContainer},
+                                                                filePath,
+                                                                {filePath});
+    EchoMessage echoMessage(documentsOpenedMessage);
 
     EXPECT_CALL(mockClangCodeModelClient, echo(echoMessage));
 
-    client.serverProxy().registerTranslationUnitsForEditor(registerTranslationUnitForEditorMessage);
+    client.serverProxy().documentsOpened(documentsOpenedMessage);
     ASSERT_TRUE(client.waitForEcho());
 }
 
-TEST_F(ClientServerOutsideProcess, SendUnregisterTranslationUnitsForEditorMessage)
+TEST_F(ClientServerOutsideProcess, SendDocumentsClosedMessage)
 {
     FileContainer fileContainer(Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("projectId"));
-    ClangBackEnd::UnregisterTranslationUnitsForEditorMessage unregisterTranslationUnitsForEditorMessage ({fileContainer});
-    EchoMessage echoMessage(unregisterTranslationUnitsForEditorMessage);
+    ClangBackEnd::DocumentsClosedMessage documentsClosedMessage({fileContainer});
+    EchoMessage echoMessage(documentsClosedMessage);
 
     EXPECT_CALL(mockClangCodeModelClient, echo(echoMessage));
 
-    client.serverProxy().unregisterTranslationUnitsForEditor(unregisterTranslationUnitsForEditorMessage);
+    client.serverProxy().documentsClosed(documentsClosedMessage);
     ASSERT_TRUE(client.waitForEcho());
 }
 
 TEST_F(ClientServerOutsideProcess, SendCompleteCodeMessage)
 {
-    CompleteCodeMessage codeCompleteMessage(Utf8StringLiteral("foo.cpp"), 24, 33, Utf8StringLiteral("do what I want"));
+    RequestCompletionsMessage codeCompleteMessage(Utf8StringLiteral("foo.cpp"), 24, 33, Utf8StringLiteral("do what I want"));
     EchoMessage echoMessage(codeCompleteMessage);
 
     EXPECT_CALL(mockClangCodeModelClient, echo(echoMessage));
 
-    client.serverProxy().completeCode(codeCompleteMessage);
+    client.serverProxy().requestCompletions(codeCompleteMessage);
     ASSERT_TRUE(client.waitForEcho());
 }
 
-TEST_F(ClientServerOutsideProcess, SendRegisterProjectPartsForEditorMessage)
+TEST_F(ClientServerOutsideProcess, SendProjectPartsUpdatedMessage)
 {
     ClangBackEnd::ProjectPartContainer projectContainer(Utf8StringLiteral(TESTDATA_DIR"/complete.pro"));
-    ClangBackEnd::RegisterProjectPartsForEditorMessage registerProjectPartsForEditorMessage({projectContainer});
-    EchoMessage echoMessage(registerProjectPartsForEditorMessage);
+    ClangBackEnd::ProjectPartsUpdatedMessage projectPartsUpdatedMessage({projectContainer});
+    EchoMessage echoMessage(projectPartsUpdatedMessage);
 
     EXPECT_CALL(mockClangCodeModelClient, echo(echoMessage));
 
-    client.serverProxy().registerProjectPartsForEditor(registerProjectPartsForEditorMessage);
+    client.serverProxy().projectPartsUpdated(projectPartsUpdatedMessage);
     ASSERT_TRUE(client.waitForEcho());
 }
 
-TEST_F(ClientServerOutsideProcess, SendUnregisterProjectPartsForEditorMessage)
+TEST_F(ClientServerOutsideProcess, SendProjectPartsRemovedMessage)
 {
-    ClangBackEnd::UnregisterProjectPartsForEditorMessage unregisterProjectPartsForEditorMessage({Utf8StringLiteral(TESTDATA_DIR"/complete.pro")});
-    EchoMessage echoMessage(unregisterProjectPartsForEditorMessage);
+    ClangBackEnd::ProjectPartsRemovedMessage projectPartsRemovedMessage({Utf8StringLiteral(TESTDATA_DIR"/complete.pro")});
+    EchoMessage echoMessage(projectPartsRemovedMessage);
 
     EXPECT_CALL(mockClangCodeModelClient, echo(echoMessage));
 
-    client.serverProxy().unregisterProjectPartsForEditor(unregisterProjectPartsForEditorMessage);
+    client.serverProxy().projectPartsRemoved(projectPartsRemovedMessage);
     ASSERT_TRUE(client.waitForEcho());
 }
 

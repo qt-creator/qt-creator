@@ -25,7 +25,7 @@ HEADERS += \
     $$PWD/clangjobs.h \
     $$PWD/clangparsesupportivetranslationunitjob.h \
     $$PWD/clangreferencescollector.h \
-    $$PWD/clangrequestdocumentannotationsjob.h \
+    $$PWD/clangrequestannotationsjob.h \
     $$PWD/clangrequestreferencesjob.h \
     $$PWD/clangrequesttooltipjob.h \
     $$PWD/clangresumedocumentjob.h \
@@ -38,8 +38,8 @@ HEADERS += \
     $$PWD/clangtranslationunitupdater.h \
     $$PWD/clangtype.h \
     $$PWD/clangunsavedfilesshallowarguments.h \
-    $$PWD/clangupdatedocumentannotationsjob.h \
-    $$PWD/clangupdateextradocumentannotationsjob.h \
+    $$PWD/clangupdateannotationsjob.h \
+    $$PWD/clangupdateextraannotationsjob.h \
     $$PWD/codecompleter.h \
     $$PWD/codecompletionchunkconverter.h \
     $$PWD/codecompletionsextractor.h \
@@ -84,7 +84,7 @@ SOURCES += \
     $$PWD/clangparsesupportivetranslationunitjob.cpp \
     $$PWD/clangresumedocumentjob.cpp \
     $$PWD/clangreferencescollector.cpp \
-    $$PWD/clangrequestdocumentannotationsjob.cpp \
+    $$PWD/clangrequestannotationsjob.cpp \
     $$PWD/clangrequestreferencesjob.cpp \
     $$PWD/clangrequesttooltipjob.cpp \
     $$PWD/clangsuspenddocumentjob.cpp  \
@@ -95,8 +95,8 @@ SOURCES += \
     $$PWD/clangtranslationunitupdater.cpp \
     $$PWD/clangtype.cpp \
     $$PWD/clangunsavedfilesshallowarguments.cpp \
-    $$PWD/clangupdatedocumentannotationsjob.cpp \
-    $$PWD/clangupdateextradocumentannotationsjob.cpp \
+    $$PWD/clangupdateannotationsjob.cpp \
+    $$PWD/clangupdateextraannotationsjob.cpp \
     $$PWD/codecompleter.cpp \
     $$PWD/codecompletionchunkconverter.cpp \
     $$PWD/codecompletionsextractor.cpp \

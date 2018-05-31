@@ -128,7 +128,7 @@ TranslationUnit::CodeCompletionResult TranslationUnit::complete(
     return CodeCompletionResult{completions, correction};
 }
 
-void TranslationUnit::extractDocumentAnnotations(
+void TranslationUnit::extractAnnotations(
         DiagnosticContainer &firstHeaderErrorDiagnostic,
         QVector<DiagnosticContainer> &mainFileDiagnostics,
         QVector<TokenInfoContainer> &tokenInfos,

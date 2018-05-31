@@ -51,7 +51,7 @@ public:
     using AliveHandler = std::function<void ()>;
     void setAliveHandler(const AliveHandler &handler);
 
-    void addExpectedCodeCompletedMessage(quint64 ticket, ClangCompletionAssistProcessor *processor);
+    void addExpectedCompletionsMessage(quint64 ticket, ClangCompletionAssistProcessor *processor);
     void deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *textEditorWidget);
 
     QFuture<CppTools::CursorInfo>
@@ -60,16 +60,16 @@ public:
                                      = CppTools::SemanticInfo::LocalUseMap());
     QFuture<CppTools::SymbolInfo> addExpectedRequestFollowSymbolMessage(quint64 ticket);
     QFuture<CppTools::ToolTipInfo> addExpectedToolTipMessage(quint64 ticket);
-    bool isExpectingCodeCompletedMessage() const;
+    bool isExpectingCompletionsMessage() const;
 
     void reset();
 
 private:
     void alive() override;
     void echo(const ClangBackEnd::EchoMessage &message) override;
-    void codeCompleted(const ClangBackEnd::CodeCompletedMessage &message) override;
+    void completions(const ClangBackEnd::CompletionsMessage &message) override;
 
-    void documentAnnotationsChanged(const ClangBackEnd::DocumentAnnotationsChangedMessage &message) override;
+    void annotations(const ClangBackEnd::AnnotationsMessage &message) override;
     void references(const ClangBackEnd::ReferencesMessage &message) override;
     void tooltip(const ClangBackEnd::ToolTipMessage &message) override;
     void followSymbol(const ClangBackEnd::FollowSymbolMessage &message) override;

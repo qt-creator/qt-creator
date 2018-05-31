@@ -82,10 +82,10 @@ public:
 
     void extractDiagnostics(DiagnosticContainer &firstHeaderErrorDiagnostic,
                             QVector<DiagnosticContainer> &mainFileDiagnostics) const;
-    void extractDocumentAnnotations(DiagnosticContainer &firstHeaderErrorDiagnostic,
-                                    QVector<DiagnosticContainer> &mainFileDiagnostics,
-                                    QVector<TokenInfoContainer> &tokenInfos,
-                                    QVector<SourceRangeContainer> &skippedSourceRanges) const;
+    void extractAnnotations(DiagnosticContainer &firstHeaderErrorDiagnostic,
+                            QVector<DiagnosticContainer> &mainFileDiagnostics,
+                            QVector<TokenInfoContainer> &tokenInfos,
+                            QVector<SourceRangeContainer> &skippedSourceRanges) const;
 
     ReferencesResult references(uint line, uint column, bool localReferences = false) const;
     ToolTipInfo tooltip(UnsavedFiles &unsavedFiles,

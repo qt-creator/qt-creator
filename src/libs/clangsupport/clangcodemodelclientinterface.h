@@ -31,25 +31,25 @@ namespace ClangBackEnd {
 
 class ClangCodeModelServerInterface;
 
-class CodeCompletedMessage;
-class CompleteCodeMessage;
-class DocumentAnnotationsChangedMessage;
+class AnnotationsMessage;
+class CompletionsMessage;
+class DocumentVisibilityChangedMessage;
+class DocumentsChangedMessage;
+class DocumentsClosedMessage;
+class DocumentsOpenedMessage;
 class EchoMessage;
-class ReferencesMessage;
 class FollowSymbolMessage;
-class RegisterProjectPartsForEditorMessage;
-class RegisterTranslationUnitForEditorMessage;
-class RegisterUnsavedFilesForEditorMessage;
-class RequestDocumentAnnotationsMessage;
-class RequestReferencesMessage;
+class ProjectPartsRemovedMessage;
+class ProjectPartsUpdatedMessage;
+class ReferencesMessage;
+class RequestAnnotationsMessage;
+class RequestCompletionsMessage;
 class RequestFollowSymbolMessage;
+class RequestReferencesMessage;
 class RequestToolTipMessage;
 class ToolTipMessage;
-class UnregisterProjectPartsForEditorMessage;
-class UnregisterTranslationUnitsForEditorMessage;
-class UnregisterUnsavedFilesForEditorMessage;
-class UpdateTranslationUnitsForEditorMessage;
-class UpdateVisibleTranslationUnitsMessage;
+class UnsavedFilesRemovedMessage;
+class UnsavedFilesUpdatedMessage;
 
 class CLANGSUPPORT_EXPORT ClangCodeModelClientInterface : public IpcClientInterface
 {
@@ -58,8 +58,8 @@ public:
 
     virtual void alive() = 0;
     virtual void echo(const EchoMessage &message) = 0;
-    virtual void codeCompleted(const CodeCompletedMessage &message) = 0;
-    virtual void documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message) = 0;
+    virtual void completions(const CompletionsMessage &message) = 0;
+    virtual void annotations(const AnnotationsMessage &message) = 0;
     virtual void references(const ReferencesMessage &message) = 0;
     virtual void followSymbol(const FollowSymbolMessage &message) = 0;
     virtual void tooltip(const ToolTipMessage &message) = 0;

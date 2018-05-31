@@ -27,7 +27,7 @@
 
 #include <clangsupport/clangsupportdebugutils.h>
 #include <clangsupport/clangcodemodelclientinterface.h>
-#include <clangsupport/cmbcodecompletedmessage.h>
+#include <clangsupport/completionsmessage.h>
 
 #include <utils/qtcassert.h>
 
@@ -36,7 +36,7 @@ namespace ClangBackEnd {
 IAsyncJob::AsyncPrepareResult CompleteCodeJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
-    QTC_ASSERT(jobRequest.type == JobRequest::Type::CompleteCode, return AsyncPrepareResult());
+    QTC_ASSERT(jobRequest.type == JobRequest::Type::RequestCompletions, return AsyncPrepareResult());
     QTC_ASSERT(acquireDocument(), return AsyncPrepareResult());
 
     const TranslationUnit translationUnit = *m_translationUnit;
@@ -69,10 +69,10 @@ void CompleteCodeJob::finalizeAsyncRun()
     if (context().isDocumentOpen()) {
         const AsyncResult result = asyncResult();
 
-        const CodeCompletedMessage message(result.completions,
-                                           result.correction,
-                                           context().jobRequest.ticketNumber);
-        context().client->codeCompleted(message);
+        const CompletionsMessage message(result.completions,
+                                         result.correction,
+                                         context().jobRequest.ticketNumber);
+        context().client->completions(message);
     }
 }
 

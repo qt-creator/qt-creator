@@ -36,7 +36,7 @@ void ResumeDocumentJob::finalizeAsyncRun()
             m_pinnedDocument.setIsSuspended(false);
     }
 
-    UpdateDocumentAnnotationsJob::finalizeAsyncRun();
+    UpdateAnnotationsJob::finalizeAsyncRun();
 }
 
 bool ResumeDocumentJob::isExpectedJobRequestType(const JobRequest &jobRequest) const
@@ -46,7 +46,7 @@ bool ResumeDocumentJob::isExpectedJobRequestType(const JobRequest &jobRequest) c
 
 TranslationUnitUpdateInput ResumeDocumentJob::createUpdateInput(const Document &document) const
 {
-    TranslationUnitUpdateInput input = UpdateDocumentAnnotationsJob::createUpdateInput(document);
+    TranslationUnitUpdateInput input = UpdateAnnotationsJob::createUpdateInput(document);
     input.reparseNeeded = true;
     return input;
 }

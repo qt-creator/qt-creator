@@ -25,18 +25,22 @@
 
 #pragma once
 
-#include "cmbechomessage.h"
-#include "cmbcompletecodemessage.h"
-#include "cmbendmessage.h"
-#include "cmbregisterprojectsforeditormessage.h"
-#include "cmbregistertranslationunitsforeditormessage.h"
-#include "cmbunregisterprojectsforeditormessage.h"
-#include "cmbunregistertranslationunitsforeditormessage.h"
-#include "registerunsavedfilesforeditormessage.h"
-#include "requestdocumentannotations.h"
-#include "requestreferencesmessage.h"
+#include "echomessage.h"
+#include "endmessage.h"
+
+#include "documentsopenedmessage.h"
+#include "documentsclosedmessage.h"
+#include "documentschangedmessage.h"
+#include "documentvisibilitychangedmessage.h"
+
+#include "projectpartsupdatedmessage.h"
+#include "projectpartsremovedmessage.h"
+
+#include "unsavedfilesupdatedmessage.h"
+#include "unsavedfilesremovedmessage.h"
+
+#include "requestannotationsmessage.h"
+#include "requestcompletionsmessage.h"
 #include "requestfollowsymbolmessage.h"
+#include "requestreferencesmessage.h"
 #include "requesttooltipmessage.h"
-#include "unregisterunsavedfilesforeditormessage.h"
-#include "updatetranslationunitsforeditormessage.h"
-#include "updatevisibletranslationunitsmessage.h"

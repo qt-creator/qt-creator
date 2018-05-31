@@ -88,7 +88,7 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
     m_updateTranslationUnitTimer.setSingleShot(true);
     m_updateTranslationUnitTimer.setInterval(350);
     connect(&m_updateTranslationUnitTimer, &QTimer::timeout,
-            this, &ClangEditorDocumentProcessor::updateTranslationUnitIfProjectPartExists);
+            this, &ClangEditorDocumentProcessor::updateBackendDocumentIfProjectPartExists);
 
     connect(m_parser.data(), &ClangEditorDocumentParser::projectPartInfoUpdated,
             this, &BaseEditorDocumentProcessor::projectPartInfoUpdated);
@@ -109,7 +109,7 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
     m_parserWatcher.waitForFinished();
 
     if (m_projectPart)
-        unregisterTranslationUnitForEditor();
+        closeBackendDocument();
 }
 
 void ClangEditorDocumentProcessor::runImpl(
@@ -143,7 +143,7 @@ void ClangEditorDocumentProcessor::semanticRehighlight()
     m_semanticHighlighter.updateFormatMapFromFontSettings();
 
     if (m_projectPart)
-        requestDocumentAnnotations(m_projectPart->id());
+        requestAnnotationsFromBackend(m_projectPart->id());
 }
 
 CppTools::SemanticInfo ClangEditorDocumentProcessor::recalculateSemanticInfo()
@@ -427,12 +427,12 @@ static bool isProjectPartLoadedOrIsFallback(CppTools::ProjectPart::Ptr projectPa
         && (projectPart->id().isEmpty() || ClangCodeModel::Utils::isProjectPartLoaded(projectPart));
 }
 
-void ClangEditorDocumentProcessor::updateProjectPartAndTranslationUnitForEditor()
+void ClangEditorDocumentProcessor::updateBackendProjectPartAndDocument()
 {
     const CppTools::ProjectPart::Ptr projectPart = m_parser->projectPartInfo().projectPart;
 
     if (isProjectPartLoadedOrIsFallback(projectPart)) {
-        registerTranslationUnitForEditor(*projectPart.data());
+        updateBackendDocument(*projectPart.data());
 
         m_projectPart = projectPart;
         m_isProjectFile = m_parser->projectPartInfo().hints
@@ -445,7 +445,7 @@ void ClangEditorDocumentProcessor::onParserFinished()
     if (revision() != m_parserRevision)
         return;
 
-    updateProjectPartAndTranslationUnitForEditor();
+    updateBackendProjectPartAndDocument();
 }
 
 namespace {
@@ -592,7 +592,7 @@ private:
 };
 } // namespace
 
-void ClangEditorDocumentProcessor::registerTranslationUnitForEditor(
+void ClangEditorDocumentProcessor::updateBackendDocument(
     CppTools::ProjectPart &projectPart)
 {
     // On registration we send the document content immediately as an unsaved
@@ -611,32 +611,31 @@ void ClangEditorDocumentProcessor::registerTranslationUnitForEditor(
 
     const FileOptionsBuilder fileOptions(filePath(), projectPart);
     m_diagnosticConfigId = fileOptions.diagnosticConfigId();
-    m_communicator.registerTranslationUnitsForEditor(
+    m_communicator.documentsOpened(
         {fileContainerWithOptionsAndDocumentContent(projectPart, fileOptions.options())});
     ClangCodeModel::Utils::setLastSentDocumentRevision(filePath(), revision());
 }
 
-void ClangEditorDocumentProcessor::unregisterTranslationUnitForEditor()
+void ClangEditorDocumentProcessor::closeBackendDocument()
 {
     QTC_ASSERT(m_projectPart, return);
-    m_communicator.unregisterTranslationUnitsForEditor(
-        {ClangBackEnd::FileContainer(filePath(), m_projectPart->id())});
+    m_communicator.documentsClosed({ClangBackEnd::FileContainer(filePath(), m_projectPart->id())});
 }
 
-void ClangEditorDocumentProcessor::updateTranslationUnitIfProjectPartExists()
+void ClangEditorDocumentProcessor::updateBackendDocumentIfProjectPartExists()
 {
     if (m_projectPart) {
-        const ClangBackEnd::FileContainer fileContainer = fileContainerWithDocumentContent(m_projectPart->id());
-
-        m_communicator.updateTranslationUnitWithRevisionCheck(fileContainer);
+        const ClangBackEnd::FileContainer fileContainer = fileContainerWithDocumentContent(
+            m_projectPart->id());
+        m_communicator.documentsChangedWithRevisionCheck(fileContainer);
     }
 }
 
-void ClangEditorDocumentProcessor::requestDocumentAnnotations(const QString &projectpartId)
+void ClangEditorDocumentProcessor::requestAnnotationsFromBackend(const QString &projectpartId)
 {
     const auto fileContainer = fileContainerWithDocumentContent(projectpartId);
 
-    m_communicator.requestDocumentAnnotations(fileContainer);
+    m_communicator.requestAnnotations(fileContainer);
 }
 
 CppTools::BaseEditorDocumentProcessor::HeaderErrorDiagnosticWidgetCreator

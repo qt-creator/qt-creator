@@ -74,19 +74,23 @@ class DummyBackendSender : public ClangBackEnd::ClangCodeModelServerInterface
 {
 public:
     void end() override {}
-    void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &) override {}
-    void updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &) override {}
-    void unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &) override {}
-    void registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &) override {}
-    void unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &) override {}
-    void registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &) override {}
-    void unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &) override {}
-    void completeCode(const CompleteCodeMessage &) override {}
-    void requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &) override {}
+
+    void documentsOpened(const DocumentsOpenedMessage &) override {}
+    void documentsChanged(const DocumentsChangedMessage &) override {}
+    void documentsClosed(const DocumentsClosedMessage &) override {}
+    void documentVisibilityChanged(const DocumentVisibilityChangedMessage &) override {}
+
+    void projectPartsUpdated(const ProjectPartsUpdatedMessage &) override {}
+    void projectPartsRemoved(const ProjectPartsRemovedMessage &) override {}
+
+    void unsavedFilesUpdated(const UnsavedFilesUpdatedMessage &) override {}
+    void unsavedFilesRemoved(const UnsavedFilesRemovedMessage &) override {}
+
+    void requestCompletions(const RequestCompletionsMessage &) override {}
+    void requestAnnotations(const RequestAnnotationsMessage &) override {}
     void requestReferences(const RequestReferencesMessage &) override {}
     void requestFollowSymbol(const RequestFollowSymbolMessage &) override {}
     void requestToolTip(const RequestToolTipMessage &) override {}
-    void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &) override {}
 };
 
 BackendCommunicator::BackendCommunicator()
@@ -161,12 +165,12 @@ static QVector<ProjectPartContainer> toProjectPartContainers(
     return projectPartContainers;
 }
 
-void BackendCommunicator::registerFallbackProjectPart()
+void BackendCommunicator::projectPartsUpdatedForFallback()
 {
     const auto projectPart = CppTools::CppModelManager::instance()->fallbackProjectPart();
     const auto projectPartContainer = toProjectPartContainer(projectPart);
 
-    registerProjectPartsForEditor({projectPartContainer});
+    projectPartsUpdated({projectPartContainer});
 }
 
 namespace {
@@ -232,36 +236,36 @@ Utf8StringVector visibleCppEditorDocumentsFilePaths()
 
 }
 
-void BackendCommunicator::updateTranslationUnitVisiblity()
+void BackendCommunicator::documentVisibilityChanged()
 {
-    updateTranslationUnitVisiblity(currentCppEditorDocumentFilePath(), visibleCppEditorDocumentsFilePaths());
+    documentVisibilityChanged(currentCppEditorDocumentFilePath(), visibleCppEditorDocumentsFilePaths());
 }
 
 bool BackendCommunicator::isNotWaitingForCompletion() const
 {
-    return !m_receiver.isExpectingCodeCompletedMessage();
+    return !m_receiver.isExpectingCompletionsMessage();
 }
 
-void BackendCommunicator::updateTranslationUnitVisiblity(const Utf8String &currentEditorFilePath,
-                                                     const Utf8StringVector &visibleEditorsFilePaths)
+void BackendCommunicator::documentVisibilityChanged(const Utf8String &currentEditorFilePath,
+                                                    const Utf8StringVector &visibleEditorsFilePaths)
 {
-    const UpdateVisibleTranslationUnitsMessage message(currentEditorFilePath, visibleEditorsFilePaths);
-    m_sender->updateVisibleTranslationUnits(message);
+    const DocumentVisibilityChangedMessage message(currentEditorFilePath, visibleEditorsFilePaths);
+    m_sender->documentVisibilityChanged(message);
 }
 
-void BackendCommunicator::registerCurrentProjectParts()
+void BackendCommunicator::projectPartsUpdatedForCurrentProjects()
 {
     using namespace CppTools;
 
     const QList<ProjectInfo> projectInfos = CppModelManager::instance()->projectInfos();
     foreach (const ProjectInfo &projectInfo, projectInfos)
-        registerProjectsParts(projectInfo.projectParts());
+        projectPartsUpdated(projectInfo.projectParts());
 }
 
 void BackendCommunicator::restoreCppEditorDocuments()
 {
     resetCppEditorDocumentProcessors();
-    registerVisibleCppEditorDocumentAndMarkInvisibleDirty();
+    CppTools::CppModelManager::instance()->updateCppEditorDocuments();
 }
 
 void BackendCommunicator::resetCppEditorDocumentProcessors()
@@ -273,12 +277,7 @@ void BackendCommunicator::resetCppEditorDocumentProcessors()
         cppEditorDocument->resetProcessor();
 }
 
-void BackendCommunicator::registerVisibleCppEditorDocumentAndMarkInvisibleDirty()
-{
-    CppTools::CppModelManager::instance()->updateCppEditorDocuments();
-}
-
-void BackendCommunicator::registerCurrentCodeModelUiHeaders()
+void BackendCommunicator::unsavedFilesUpdatedForUiHeaders()
 {
     using namespace CppTools;
 
@@ -286,53 +285,55 @@ void BackendCommunicator::registerCurrentCodeModelUiHeaders()
     foreach (const AbstractEditorSupport *es, editorSupports) {
         const QString mappedPath
                 = ModelManagerSupportClang::instance()->dummyUiHeaderOnDiskPath(es->fileName());
-        updateUnsavedFile(mappedPath, es->contents(), es->revision());
+        unsavedFilesUpdated(mappedPath, es->contents(), es->revision());
     }
 }
 
-void BackendCommunicator::registerProjectsParts(const QVector<CppTools::ProjectPart::Ptr> projectParts)
+void BackendCommunicator::projectPartsUpdated(const QVector<CppTools::ProjectPart::Ptr> projectParts)
 {
     const auto projectPartContainers = toProjectPartContainers(projectParts);
-    registerProjectPartsForEditor(projectPartContainers);
+    projectPartsUpdated(projectPartContainers);
 }
 
-void BackendCommunicator::updateTranslationUnitFromCppEditorDocument(const QString &filePath)
+void BackendCommunicator::documentsChangedFromCppEditorDocument(const QString &filePath)
 {
     const CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath);
 
-    updateTranslationUnit(filePath, document->contents(), document->revision());
+    documentsChanged(filePath, document->contents(), document->revision());
 }
 
-void BackendCommunicator::updateUnsavedFileFromCppEditorDocument(const QString &filePath)
+void BackendCommunicator::unsavedFielsUpdatedFromCppEditorDocument(const QString &filePath)
 {
     const CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath);
 
-    updateUnsavedFile(filePath, document->contents(), document->revision());
+    unsavedFilesUpdated(filePath, document->contents(), document->revision());
 }
 
-void BackendCommunicator::updateTranslationUnit(const QString &filePath,
-                                            const QByteArray &contents,
-                                            uint documentRevision)
+void BackendCommunicator::documentsChanged(const QString &filePath,
+                                           const QByteArray &contents,
+                                           uint documentRevision)
 {
     const bool hasUnsavedContent = true;
 
-    updateTranslationUnitsForEditor({{filePath,
-                                      Utf8String(),
-                                      Utf8String::fromByteArray(contents),
-                                      hasUnsavedContent,
-                                      documentRevision}});
+    documentsChanged({{filePath,
+                       Utf8String(),
+                       Utf8String::fromByteArray(contents),
+                       hasUnsavedContent,
+                       documentRevision}});
 }
 
-void BackendCommunicator::updateUnsavedFile(const QString &filePath, const QByteArray &contents, uint documentRevision)
+void BackendCommunicator::unsavedFilesUpdated(const QString &filePath,
+                                              const QByteArray &contents,
+                                              uint documentRevision)
 {
     const bool hasUnsavedContent = true;
 
     // TODO: Send new only if changed
-    registerUnsavedFilesForEditor({{filePath,
-                                    Utf8String(),
-                                    Utf8String::fromByteArray(contents),
-                                    hasUnsavedContent,
-                                    documentRevision}});
+    unsavedFilesUpdated({{filePath,
+                          Utf8String(),
+                          Utf8String::fromByteArray(contents),
+                          hasUnsavedContent,
+                          documentRevision}});
 }
 
 static bool documentHasChanged(const QString &filePath, uint revision)
@@ -349,19 +350,19 @@ static void setLastSentDocumentRevision(const QString &filePath, uint revision)
         document->sendTracker().setLastSentRevision(int(revision));
 }
 
-void BackendCommunicator::updateTranslationUnitWithRevisionCheck(const FileContainer &fileContainer)
+void BackendCommunicator::documentsChangedWithRevisionCheck(const FileContainer &fileContainer)
 {
     if (documentHasChanged(fileContainer.filePath, fileContainer.documentRevision)) {
-        updateTranslationUnitsForEditor({fileContainer});
+        documentsChanged({fileContainer});
         setLastSentDocumentRevision(fileContainer.filePath,
                                     fileContainer.documentRevision);
     }
 }
 
-void BackendCommunicator::requestDocumentAnnotations(const FileContainer &fileContainer)
+void BackendCommunicator::requestAnnotations(const FileContainer &fileContainer)
 {
-    const RequestDocumentAnnotationsMessage message(fileContainer);
-    m_sender->requestDocumentAnnotations(message);
+    const RequestAnnotationsMessage message(fileContainer);
+    m_sender->requestAnnotations(message);
 }
 
 QFuture<CppTools::CursorInfo> BackendCommunicator::requestReferences(
@@ -401,24 +402,22 @@ QFuture<CppTools::SymbolInfo> BackendCommunicator::requestFollowSymbol(
         quint32 line,
         quint32 column)
 {
-    const RequestFollowSymbolMessage message(curFileContainer,
-                                             line,
-                                             column);
+    const RequestFollowSymbolMessage message(curFileContainer, line, column);
     m_sender->requestFollowSymbol(message);
 
     return m_receiver.addExpectedRequestFollowSymbolMessage(message.ticketNumber);
 }
 
-void BackendCommunicator::updateTranslationUnitWithRevisionCheck(Core::IDocument *document)
+void BackendCommunicator::documentsChangedWithRevisionCheck(Core::IDocument *document)
 {
     const auto textDocument = qobject_cast<TextDocument*>(document);
     const auto filePath = textDocument->filePath().toString();
     const QString projectPartId = CppTools::CppToolsBridge::projectPartIdForFile(filePath);
 
-    updateTranslationUnitWithRevisionCheck(FileContainer(filePath,
-                                                         projectPartId,
-                                                         Utf8StringVector(),
-                                                         textDocument->document()->revision()));
+    documentsChangedWithRevisionCheck(FileContainer(filePath,
+                                                    projectPartId,
+                                                    Utf8StringVector(),
+                                                    textDocument->document()->revision()));
 }
 
 void BackendCommunicator::updateChangeContentStartPosition(const QString &filePath, int position)
@@ -427,23 +426,23 @@ void BackendCommunicator::updateChangeContentStartPosition(const QString &filePa
         document->sendTracker().applyContentChange(position);
 }
 
-void BackendCommunicator::updateTranslationUnitIfNotCurrentDocument(Core::IDocument *document)
+void BackendCommunicator::documentsChangedIfNotCurrentDocument(Core::IDocument *document)
 {
     QTC_ASSERT(document, return);
     if (Core::EditorManager::currentDocument() != document)
-        updateTranslationUnit(document);
+        documentsChanged(document);
 }
 
-void BackendCommunicator::updateTranslationUnit(Core::IDocument *document)
+void BackendCommunicator::documentsChanged(Core::IDocument *document)
 {
-    updateTranslationUnitFromCppEditorDocument(document->filePath().toString());
+    documentsChangedFromCppEditorDocument(document->filePath().toString());
 }
 
-void BackendCommunicator::updateUnsavedFile(Core::IDocument *document)
+void BackendCommunicator::unsavedFilesUpdated(Core::IDocument *document)
 {
     QTC_ASSERT(document, return);
 
-     updateUnsavedFileFromCppEditorDocument(document->filePath().toString());
+     unsavedFielsUpdatedFromCppEditorDocument(document->filePath().toString());
 }
 
 void BackendCommunicator::onConnectedToBackend()
@@ -511,70 +510,74 @@ void BackendCommunicator::logError(const QString &text)
 
 void BackendCommunicator::initializeBackendWithCurrentData()
 {
-    registerFallbackProjectPart();
-    registerCurrentProjectParts();
-    registerCurrentCodeModelUiHeaders();
+    projectPartsUpdatedForFallback();
+    projectPartsUpdatedForCurrentProjects();
+    unsavedFilesUpdatedForUiHeaders();
     restoreCppEditorDocuments();
-    updateTranslationUnitVisiblity();
+    documentVisibilityChanged();
 }
 
-void BackendCommunicator::registerTranslationUnitsForEditor(const FileContainers &fileContainers)
+void BackendCommunicator::documentsOpened(const FileContainers &fileContainers)
 {
-    const RegisterTranslationUnitForEditorMessage message(fileContainers,
-                                                          currentCppEditorDocumentFilePath(),
-                                                          visibleCppEditorDocumentsFilePaths());
-    m_sender->registerTranslationUnitsForEditor(message);
+    const DocumentsOpenedMessage message(fileContainers,
+                                         currentCppEditorDocumentFilePath(),
+                                         visibleCppEditorDocumentsFilePaths());
+    m_sender->documentsOpened(message);
 }
 
-void BackendCommunicator::updateTranslationUnitsForEditor(const FileContainers &fileContainers)
+void BackendCommunicator::documentsChanged(const FileContainers &fileContainers)
 {
-    const UpdateTranslationUnitsForEditorMessage message(fileContainers);
-    m_sender->updateTranslationUnitsForEditor(message);
+    const DocumentsChangedMessage message(fileContainers);
+    m_sender->documentsChanged(message);
 }
 
-void BackendCommunicator::unregisterTranslationUnitsForEditor(const FileContainers &fileContainers)
+void BackendCommunicator::documentsClosed(const FileContainers &fileContainers)
 {
-    const UnregisterTranslationUnitsForEditorMessage message(fileContainers);
-    m_sender->unregisterTranslationUnitsForEditor(message);
+    const DocumentsClosedMessage message(fileContainers);
+    m_sender->documentsClosed(message);
 }
 
-void BackendCommunicator::registerProjectPartsForEditor(
+void BackendCommunicator::projectPartsUpdated(
         const ProjectPartContainers &projectPartContainers)
 {
-    const RegisterProjectPartsForEditorMessage message(projectPartContainers);
-    m_sender->registerProjectPartsForEditor(message);
+    const ProjectPartsUpdatedMessage message(projectPartContainers);
+    m_sender->projectPartsUpdated(message);
 }
 
-void BackendCommunicator::unregisterProjectPartsForEditor(const QStringList &projectPartIds)
+void BackendCommunicator::projectPartsRemoved(const QStringList &projectPartIds)
 {
-    const UnregisterProjectPartsForEditorMessage message((Utf8StringVector(projectPartIds)));
-    m_sender->unregisterProjectPartsForEditor(message);
+    const ProjectPartsRemovedMessage message((Utf8StringVector(projectPartIds)));
+    m_sender->projectPartsRemoved(message);
 }
 
-void BackendCommunicator::registerUnsavedFilesForEditor(const FileContainers &fileContainers)
+void BackendCommunicator::unsavedFilesUpdated(const FileContainers &fileContainers)
 {
-    const RegisterUnsavedFilesForEditorMessage message(fileContainers);
-    m_sender->registerUnsavedFilesForEditor(message);
+    const UnsavedFilesUpdatedMessage message(fileContainers);
+    m_sender->unsavedFilesUpdated(message);
 }
 
-void BackendCommunicator::unregisterUnsavedFilesForEditor(const FileContainers &fileContainers)
+void BackendCommunicator::unsavedFilesRemoved(const FileContainers &fileContainers)
 {
-    const UnregisterUnsavedFilesForEditorMessage message(fileContainers);
-    m_sender->unregisterUnsavedFilesForEditor(message);
+    const UnsavedFilesRemovedMessage message(fileContainers);
+    m_sender->unsavedFilesRemoved(message);
 }
 
-void BackendCommunicator::completeCode(ClangCompletionAssistProcessor *assistProcessor,
-                                   const QString &filePath,
-                                   quint32 line,
-                                   quint32 column,
-                                   const QString &projectFilePath,
-                                   qint32 funcNameStartLine,
-                                   qint32 funcNameStartColumn)
+void BackendCommunicator::requestCompletions(ClangCompletionAssistProcessor *assistProcessor,
+                                             const QString &filePath,
+                                             quint32 line,
+                                             quint32 column,
+                                             const QString &projectFilePath,
+                                             qint32 funcNameStartLine,
+                                             qint32 funcNameStartColumn)
 {
-    const CompleteCodeMessage message(filePath, line, column, projectFilePath, funcNameStartLine,
-                                      funcNameStartColumn);
-    m_sender->completeCode(message);
-    m_receiver.addExpectedCodeCompletedMessage(message.ticketNumber, assistProcessor);
+    const RequestCompletionsMessage message(filePath,
+                                            line,
+                                            column,
+                                            projectFilePath,
+                                            funcNameStartLine,
+                                            funcNameStartColumn);
+    m_sender->requestCompletions(message);
+    m_receiver.addExpectedCompletionsMessage(message.ticketNumber, assistProcessor);
 }
 
 } // namespace Internal

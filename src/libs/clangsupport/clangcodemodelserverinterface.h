@@ -41,19 +41,23 @@ public:
     void dispatch(const MessageEnvelop &messageEnvelop) override;
 
     virtual void end() = 0;
-    virtual void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message) = 0;
-    virtual void updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message) = 0;
-    virtual void unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message) = 0;
-    virtual void registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message) = 0;
-    virtual void unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message) = 0;
-    virtual void registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message) = 0;
-    virtual void unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message) = 0;
-    virtual void completeCode(const CompleteCodeMessage &message) = 0;
-    virtual void requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message) = 0;
+
+    virtual void documentsOpened(const DocumentsOpenedMessage &message) = 0;
+    virtual void documentsChanged(const DocumentsChangedMessage &message) = 0;
+    virtual void documentsClosed(const DocumentsClosedMessage &message) = 0;
+    virtual void documentVisibilityChanged(const DocumentVisibilityChangedMessage &message) = 0;
+
+    virtual void projectPartsUpdated(const ProjectPartsUpdatedMessage &message) = 0;
+    virtual void projectPartsRemoved(const ProjectPartsRemovedMessage &message) = 0;
+
+    virtual void unsavedFilesUpdated(const UnsavedFilesUpdatedMessage &message) = 0;
+    virtual void unsavedFilesRemoved(const UnsavedFilesRemovedMessage &message) = 0;
+
+    virtual void requestCompletions(const RequestCompletionsMessage &message) = 0;
+    virtual void requestAnnotations(const RequestAnnotationsMessage &message) = 0;
     virtual void requestReferences(const RequestReferencesMessage &message) = 0;
     virtual void requestFollowSymbol(const RequestFollowSymbolMessage &message) = 0;
     virtual void requestToolTip(const RequestToolTipMessage &message) = 0;
-    virtual void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) = 0;
 };
 
 } // namespace ClangBackEnd
