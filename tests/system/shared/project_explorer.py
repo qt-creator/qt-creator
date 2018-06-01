@@ -83,7 +83,10 @@ def prepareBuildSettings(targetCount, currentTarget, setReleaseBuild=True, disab
 # param targetCount specifies the number of targets currently defined (must be correct!)
 # param projectSettings specifies where to switch to (must be one of ProjectSettings.BUILD or ProjectSettings.RUN)
 def switchToBuildOrRunSettingsFor(targetCount, currentTarget, projectSettings):
-    clickToActivate = "<h3>Click to activate:</h3>"
+    def kitIsActivated(kit):
+        return not (str(kit.toolTip).startswith("<h3>Click to activate:</h3>")
+                    or str(kit.toolTip).startswith("<h3>Kit is unsuited for Project</h3>"))
+
     try:
         treeView = waitForObject(":Projects.ProjectNavigationTreeView")
     except LookupError:
@@ -92,12 +95,12 @@ def switchToBuildOrRunSettingsFor(targetCount, currentTarget, projectSettings):
 
     targetIndices = dumpIndices(treeView.model(), waitForObject(bAndRIndex))
     targets = map(lambda t: str(t.data(0)),
-                  filter(lambda x: not str(x.toolTip).startswith(clickToActivate), targetIndices))
+                  filter(kitIsActivated, targetIndices))
     if not test.compare(targetCount, len(targets), "Check whether all chosen targets are listed."):
         return False
     # we assume the targets are still ordered the same way
     currentTargetIndex = getQModelIndexStr("text='%s'" % targets[currentTarget], bAndRIndex)
-    if not test.verify(not str(findObject(currentTargetIndex).toolTip).startswith(clickToActivate),
+    if not test.verify(kitIsActivated(findObject(currentTargetIndex)),
                        "Verifying target '%s' is enabled." % targets[currentTarget]):
         return False
     index = waitForObject(currentTargetIndex)
