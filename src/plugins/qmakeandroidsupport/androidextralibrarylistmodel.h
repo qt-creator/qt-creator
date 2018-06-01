@@ -61,8 +61,7 @@ signals:
     void enabledChanged(bool);
 
 private:
-    void proFileUpdated(QmakeProjectManager::QmakeProFile *pro);
-    void activeRunConfigurationChanged();
+    void updateModel();
     QmakeProjectManager::QmakeProFile *activeProFile() const;
 
     ProjectExplorer::Target *m_target;
