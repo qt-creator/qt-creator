@@ -249,12 +249,10 @@ void TestRunner::onProcessFinished()
 
     resetInternalPointers();
 
-    if (!m_selectedTests.isEmpty() && !m_fakeFutureInterface->isCanceled()) {
+    if (!m_selectedTests.isEmpty() && !m_fakeFutureInterface->isCanceled())
         scheduleNext();
-    } else {
+    else
         m_fakeFutureInterface->reportFinished();
-        onFinished();
-    }
 }
 
 void TestRunner::resetInternalPointers()
