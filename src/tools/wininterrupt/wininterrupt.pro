@@ -25,11 +25,14 @@ build_all:!build_pass {
     CONFIG += release
 }
 
-ENV_CPU=$$(CPU)
+# Check for VSCMD_ARG_TGT_ARCH (VS 17) or Platform=X64 (VS 13, 15)
+# For older versions, fall back to hacky check on LIBPATH
+ENV_TARGET_ARCH=$$(VSCMD_ARG_TGT_ARCH)
+isEmpty(ENV_TARGET_ARCH):ENV_TARGET_ARCH = $$(Platform)
 ENV_LIBPATH=$$(LIBPATH)
-contains(ENV_CPU, ^AMD64$) {
+contains(ENV_TARGET_ARCH, .*64$) {
     TARGET = win64interrupt
-} else:isEmpty(ENV_CPU):contains(ENV_LIBPATH, ^.*amd64.*$) {
+} else:isEmpty(ENV_TARGET_ARCH):contains(ENV_LIBPATH, ^.*amd64.*$) {
     TARGET = win64interrupt
 } else {
     TARGET = win32interrupt

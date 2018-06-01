@@ -197,7 +197,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QMakeParser::ParseFlags)
 class QMAKE_EXPORT ProFileCache
 {
 public:
-    ProFileCache() {}
+    ProFileCache();
     ~ProFileCache();
 
     void discardFile(int id);
