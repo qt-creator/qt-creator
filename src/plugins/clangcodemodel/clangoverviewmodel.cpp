@@ -213,10 +213,20 @@ bool OverviewModel::isGenerated(const QModelIndex &) const
     TokenTreeItem *item = static_cast<TokenTreeItem *>(itemForIndex(sourceIndex));
     if (!item)
         return {};
-    ::Utils::LineColumn lineColumn;
-    lineColumn.line = static_cast<int>(item->token.line);
-    lineColumn.column = static_cast<int>(item->token.column);
-    return lineColumn;
+    return ::Utils::LineColumn(static_cast<int>(item->token.line),
+                               static_cast<int>(item->token.column));
+}
+
+OverviewModel::Range OverviewModel::rangeFromIndex(const QModelIndex &sourceIndex) const
+{
+    TokenTreeItem *item = static_cast<TokenTreeItem *>(itemForIndex(sourceIndex));
+    if (!item)
+        return {};
+    const ClangBackEnd::SourceRangeContainer &range = item->token.extraInfo.cursorRange;
+    return std::make_pair(::Utils::LineColumn(static_cast<int>(range.start.line),
+                                              static_cast<int>(range.start.column)),
+                          ::Utils::LineColumn(static_cast<int>(range.end.line),
+                                              static_cast<int>(range.end.column)));
 }
 
 } // namespace Internal

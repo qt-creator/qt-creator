@@ -54,6 +54,7 @@ public:
     bool isGenerated(const QModelIndex &sourceIndex) const override;
     Utils::Link linkFromIndex(const QModelIndex &sourceIndex) const override;
     Utils::LineColumn lineColumnFromIndex(const QModelIndex &sourceIndex) const override;
+    Range rangeFromIndex(const QModelIndex &sourceIndex) const override;
 
 private:
     CPlusPlus::Symbol *symbolFromIndex(const QModelIndex &index) const;

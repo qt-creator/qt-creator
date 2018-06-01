@@ -51,6 +51,11 @@ public:
         return first.isValid() && first.line == second.line && first.column == second.column;
     }
 
+    friend bool operator!=(LineColumn first, LineColumn second)
+    {
+        return !(first == second);
+    }
+
 public:
     int line = -1;
     int column = -1;

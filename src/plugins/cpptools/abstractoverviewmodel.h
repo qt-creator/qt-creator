@@ -32,6 +32,8 @@
 
 #include <QSharedPointer>
 
+#include <utility>
+
 namespace CPlusPlus { class Document; }
 
 namespace Utils {
@@ -90,6 +92,9 @@ public:
     virtual bool isGenerated(const QModelIndex &) const { return false; }
     virtual Utils::Link linkFromIndex(const QModelIndex &) const = 0;
     virtual Utils::LineColumn lineColumnFromIndex(const QModelIndex &) const = 0;
+
+    using Range = std::pair<Utils::LineColumn, Utils::LineColumn>;
+    virtual Range rangeFromIndex(const QModelIndex &) const = 0;
 
 signals:
     void needsUpdate();
