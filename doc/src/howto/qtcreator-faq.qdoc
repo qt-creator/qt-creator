@@ -79,6 +79,29 @@
 
     \section1 QML and Qt Quick Questions
 
+    \b {Why is there a red line below my QML import, even though I have the module?}
+
+    By default, \QC looks in the QML import path of Qt for QML modules.
+    Sometimes, it does not get it right and you need to tell it where the
+    modules are by specifying the \c{QML_IMPORT_PATH} in the \c{.pro} file of
+    your application.
+
+    This also enables code completion of QML code and removes error messages.
+
+    The following example illustrates how to specify the import path so that
+    it works when switching between build and run kits for different target
+    platforms:
+
+    \code
+    TEMPNAME = $${QMAKE_QMAKE}
+    MY_QTPATH = $$dirname(TEMPNAME)
+    QML_IMPORT_PATH += $$MY_QTPATH/../qml
+    message("my QML Import Path: "$$QML_IMPORT_PATH)
+    \endcode
+
+    For more information about how to set the import path when using CMake, see
+    \l {Importing QML Modules}.
+
     \b {What should I do when \QC complains about missing OpenGL support?}
 
     Some parts of \QC, such as \QMLD and QML Profiler, use Qt Quick 2, which
