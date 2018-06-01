@@ -255,7 +255,7 @@ static
 CppTools::SymbolInfo toSymbolInfo(const FollowSymbolMessage &message)
 {
     CppTools::SymbolInfo result;
-    const SourceRangeContainer &range = message.sourceRange;
+    const SourceRangeContainer &range = message.result.range;
 
     const SourceLocationContainer &start = range.start;
     const SourceLocationContainer &end = range.end;
@@ -264,6 +264,8 @@ CppTools::SymbolInfo toSymbolInfo(const FollowSymbolMessage &message)
     result.endLine = static_cast<int>(end.line);
     result.endColumn = static_cast<int>(end.column);
     result.fileName = start.filePath;
+
+    result.isPureDeclarationForUsage = message.result.isPureDeclarationForUsage;
 
     return result;
 }
@@ -354,7 +356,7 @@ void BackendReceiver::tooltip(const ToolTipMessage &message)
 void BackendReceiver::followSymbol(const ClangBackEnd::FollowSymbolMessage &message)
 {
     qCDebugIpc() << "FollowSymbolMessage with"
-                 << message.sourceRange << "range";
+                 << message.result;
 
     const quint64 ticket = message.ticketNumber;
     QFutureInterface<CppTools::SymbolInfo> futureInterface = m_followTable.take(ticket);

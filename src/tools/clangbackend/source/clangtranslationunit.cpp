@@ -269,7 +269,7 @@ void TranslationUnit::extractDiagnostics(DiagnosticContainer &firstHeaderErrorDi
     }
 }
 
-SourceRangeContainer TranslationUnit::followSymbol(uint line, uint column) const
+FollowSymbolResult TranslationUnit::followSymbol(uint line, uint column) const
 {
     return FollowSymbol::followSymbol(m_cxTranslationUnit, cursorAt(line, column), line, column);
 }

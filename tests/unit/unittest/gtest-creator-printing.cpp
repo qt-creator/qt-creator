@@ -237,12 +237,22 @@ std::ostream &operator<<(std::ostream &os, const RegisterProjectPartsForEditorMe
     return os;
 }
 
+std::ostream &operator<<(std::ostream &os, const FollowSymbolResult &result)
+{
+    os << "("
+       << result.range
+       << ", " << result.isPureDeclarationForUsage
+       << ")";
+
+    return os;
+}
+
 std::ostream &operator<<(std::ostream &os, const FollowSymbolMessage &message)
 {
       os << "("
          << message.fileContainer << ", "
          << message.ticketNumber << ", "
-         << message.sourceRange << ", "
+         << message.result << ", "
          << ")";
 
     return os;

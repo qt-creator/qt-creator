@@ -630,14 +630,12 @@ void ClangCodeModelServer::expectReferences()
 
 void ClangCodeModelServer::expectFollowSymbol()
 {
-    const ClangBackEnd::SourceRangeContainer classDefinition{
-         {filePathC, 40, 7},
-         {filePathC, 40, 10}
-     };
+    const ClangBackEnd::FollowSymbolResult classDefinition
+            = ClangBackEnd::SourceRangeContainer({filePathC, 40, 7}, {filePathC, 40, 10});
 
     EXPECT_CALL(mockClangCodeModelClient,
                 followSymbol(
-                    Field(&FollowSymbolMessage::sourceRange,
+                    Field(&FollowSymbolMessage::result,
                           Eq(classDefinition))))
         .Times(1);
 }

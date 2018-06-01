@@ -32,6 +32,7 @@
 #include <clangdocuments.h>
 #include <clangtranslationunit.h>
 #include <fixitcontainer.h>
+#include <followsymbolmessage.h>
 #include <projectpart.h>
 #include <projects.h>
 #include <sourcelocationcontainer.h>
@@ -55,6 +56,7 @@ using ::ClangBackEnd::Document;
 using ::ClangBackEnd::UnsavedFiles;
 using ::ClangBackEnd::ReferencesResult;
 using ::ClangBackEnd::SourceRangeContainer;
+using ::ClangBackEnd::FollowSymbolResult;
 
 namespace {
 const Utf8String sourceFilePath = Utf8StringLiteral(TESTDATA_DIR"/followsymbol_main.cpp");
@@ -131,12 +133,12 @@ public:
 class FollowSymbol : public ::testing::Test
 {
 protected:
-    SourceRangeContainer followSymbol(uint line, uint column)
+    FollowSymbolResult followSymbol(uint line, uint column)
     {
         return document.translationUnit().followSymbol(line, column);
     }
 
-    SourceRangeContainer followHeaderSymbol(uint line, uint column)
+    FollowSymbolResult followHeaderSymbol(uint line, uint column)
     {
         return headerDocument.translationUnit().followSymbol(line, column);
     }

@@ -37,6 +37,7 @@ namespace ClangBackEnd {
 class Cursor;
 class DiagnosticContainer;
 class DiagnosticSet;
+class FollowSymbolResult;
 class ReferencesResult;
 class SkippedSourceRanges;
 class SourceLocation;
@@ -108,7 +109,7 @@ public:
     TokenProcessor<FullTokenInfo> fullTokenInfosInRange(const SourceRange &range) const;
 
     SkippedSourceRanges skippedSourceRanges() const;
-    SourceRangeContainer followSymbol(uint line, uint column) const;
+    FollowSymbolResult followSymbol(uint line, uint column) const;
 
 private:
     const Utf8String m_id;
