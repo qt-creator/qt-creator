@@ -42,11 +42,17 @@ QT_BEGIN_NAMESPACE
 //
 ///////////////////////////////////////////////////////////////////////
 
+ProFileCache::ProFileCache()
+{
+    QMakeVfs::ref();
+}
+
 ProFileCache::~ProFileCache()
 {
     foreach (const Entry &ent, parsed_files)
         if (ent.pro)
             ent.pro->deref();
+    QMakeVfs::deref();
 }
 
 void ProFileCache::discardFile(const QString &fileName, QMakeVfs *vfs)
