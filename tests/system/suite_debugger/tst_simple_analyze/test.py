@@ -102,7 +102,7 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
             model = waitForObject(":Events.QmlProfilerEventsTable_QmlProfiler::"
                                   "Internal::QmlProfilerStatisticsMainView").model()
             compareEventsTab(model, "events_qt%s.tsv" % qtVersion)
-            test.compare(dumpItems(model, column=colPercent)[0], '100.00 %')
+            test.compare(dumpItems(model, column=colPercent)[0], '100 %')
             # cannot run following test on colShortest (unstable)
             for i in [colTotal, colMean, colMedian, colLongest]:
                 for item in dumpItems(model, column=i)[2:5]:
@@ -122,8 +122,8 @@ def performTest(workingDir, projectName, targetCount, availableConfigs):
                         test.compare(model.index(row, colMean).data(), model.index(row, col).data(),
                                      "For just one call, no differences in execution time may be shown.")
                 elif str(model.index(row, colCalls).data()) == "2":
-                    test.compare(model.index(row, colMedian).data(), model.index(row, colLongest).data(),
-                                 "For two calls, median and longest time must be the same.")
+                    test.compare(model.index(row, colMedian).data(), model.index(row, colMean).data(),
+                                 "For two calls, median and mean time must be the same.")
         progressBarWait(15000, False)   # wait for "Build" progressbar to disappear
         clickButton(waitForObject(":Analyzer Toolbar.Clear_QToolButton"))
         test.verify(waitFor("model.rowCount() == 0", 3000), "Analyzer results cleared.")
