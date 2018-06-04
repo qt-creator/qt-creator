@@ -219,7 +219,11 @@
 
         \li To stop synchronizing the position in the project tree with the file
             currently opened in the editor, deselect \inlineimage linkicon.png
-            (\uicontrol {Synchronize with Editor}).
+            (\uicontrol {Synchronize with Editor}). You can specify a keyboard
+            shortcut to use when synchronization is needed. Select
+            \uicontrol Tools > \uicontrol Options > \uicontrol Environment >
+            \uicontrol Keyboard, and then search for
+            \uicontrol {Show in Explorer}.
 
         \li To see the absolute path of a file, move the mouse pointer over the
             file name.
@@ -263,7 +267,10 @@
     \image qtcreator-filesystem-view.png
 
     By default, the contents of the directory that contains the file currently
-    active in the editor are displayed. The path to the active file is displayed
+    active in the editor are displayed. To stop the synchronization, delesect
+    the \uicontrol {Synchronize Root Directory with Editor} button.
+
+    The path to the active file is displayed
     as bread crumbs. You can move to any directory along the path by clicking
     it. To hide the bread crumbs, select \inlineimage filtericon.png
     (\uicontrol Options) and then deselect the \uicontrol {Show Bread Crumbs}
