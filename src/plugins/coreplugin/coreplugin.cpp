@@ -58,8 +58,10 @@
 #include <utils/theme/theme_p.h>
 
 #include <QtPlugin>
-#include <QDebug>
+
 #include <QDateTime>
+#include <QDebug>
+#include <QDir>
 #include <QMenu>
 #include <QUuid>
 
@@ -68,9 +70,9 @@ using namespace Core::Internal;
 using namespace Utils;
 
 CorePlugin::CorePlugin()
-  : m_mainWindow(0)
-  , m_editMode(0)
-  , m_locator(0)
+  : m_mainWindow(nullptr)
+  , m_editMode(nullptr)
+  , m_locator(nullptr)
 {
     qRegisterMetaType<Id>();
     qRegisterMetaType<Core::Search::TextPosition>();
@@ -87,7 +89,7 @@ CorePlugin::~CorePlugin()
     DesignMode::destroyModeIfRequired();
 
     delete m_mainWindow;
-    setCreatorTheme(0);
+    setCreatorTheme(nullptr);
 }
 
 struct CoreArguments {
@@ -261,17 +263,27 @@ void CorePlugin::addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QM
     QList<QAction*> actions = menu->actions();
     QAction *firstAction = actions.isEmpty() ? nullptr : actions.first();
 
-    auto *showInGraphicalShell = new QAction(Core::FileUtils::msgGraphicalShellAction(), menu);
-    connect(showInGraphicalShell, &QAction::triggered, pathChooser, [pathChooser]() {
-        Core::FileUtils::showInGraphicalShell(pathChooser, pathChooser->path());
-    });
-    menu->insertAction(firstAction, showInGraphicalShell);
+    if (QDir().exists(pathChooser->path())) {
+        auto *showInGraphicalShell = new QAction(Core::FileUtils::msgGraphicalShellAction(), menu);
+        connect(showInGraphicalShell, &QAction::triggered, pathChooser, [pathChooser]() {
+            Core::FileUtils::showInGraphicalShell(pathChooser, pathChooser->path());
+        });
+        menu->insertAction(firstAction, showInGraphicalShell);
 
-    auto *showInTerminal = new QAction(Core::FileUtils::msgTerminalAction(), menu);
-    connect(showInTerminal, &QAction::triggered, pathChooser, [pathChooser]() {
-        Core::FileUtils::openTerminal(pathChooser->path());
-    });
-    menu->insertAction(firstAction, showInTerminal);
+        auto *showInTerminal = new QAction(Core::FileUtils::msgTerminalAction(), menu);
+        connect(showInTerminal, &QAction::triggered, pathChooser, [pathChooser]() {
+            Core::FileUtils::openTerminal(pathChooser->path());
+        });
+        menu->insertAction(firstAction, showInTerminal);
+
+    } else {
+        auto *mkPathAct = new QAction(tr("Create Folder"), menu);
+        connect(mkPathAct, &QAction::triggered, pathChooser, [pathChooser]() {
+            QDir().mkpath(pathChooser->path());
+            pathChooser->triggerChanged();
+        });
+        menu->insertAction(firstAction, mkPathAct);
+    }
 
     if (firstAction)
         menu->insertSeparator(firstAction);
