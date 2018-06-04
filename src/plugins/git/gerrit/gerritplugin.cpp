@@ -267,7 +267,6 @@ GerritPlugin::GerritPlugin(QObject *parent)
     : QObject(parent)
     , m_parameters(new GerritParameters)
     , m_server(new GerritServer)
-    , m_gerritCommand(0), m_pushToGerritCommand(0)
 {
 }
 
@@ -359,8 +358,8 @@ void GerritPlugin::openView()
         m_dialog = gd;
     } else {
         m_dialog->setCurrentPath(currentRepository());
-        m_dialog->refresh();
     }
+    m_dialog->refresh();
     const Qt::WindowStates state = m_dialog->windowState();
     if (state & Qt::WindowMinimized)
         m_dialog->setWindowState(state & ~Qt::WindowMinimized);

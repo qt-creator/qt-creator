@@ -36,19 +36,23 @@ class EchoClangCodeModelServer : public ClangCodeModelServerInterface,
 public:
     void dispatch(const MessageEnvelop &message) override;
     void end() override;
-    void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message) override;
-    void updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message) override;
-    void unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message) override;
-    void registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message) override;
-    void unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message) override;
-    void registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message) override;
-    void unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message) override;
-    void completeCode(const CompleteCodeMessage &message) override;
-    void requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message) override;
+
+    void documentsOpened(const DocumentsOpenedMessage &message) override;
+    void documentsChanged(const DocumentsChangedMessage &message) override;
+    void documentsClosed(const DocumentsClosedMessage &message) override;
+    void documentVisibilityChanged(const DocumentVisibilityChangedMessage &message) override;
+
+    void projectPartsUpdated(const ProjectPartsUpdatedMessage &message) override;
+    void projectPartsRemoved(const ProjectPartsRemovedMessage &message) override;
+
+    void unsavedFilesUpdated(const UnsavedFilesUpdatedMessage &message) override;
+    void unsavedFilesRemoved(const UnsavedFilesRemovedMessage &message) override;
+
+    void requestCompletions(const RequestCompletionsMessage &message) override;
+    void requestAnnotations(const RequestAnnotationsMessage &message) override;
     void requestReferences(const RequestReferencesMessage &message) override;
     void requestFollowSymbol(const RequestFollowSymbolMessage &message) override;
     void requestToolTip(const RequestToolTipMessage &message) override;
-    void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override;
 
 private:
     void echoMessage(const MessageEnvelop &message);

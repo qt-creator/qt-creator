@@ -27,14 +27,15 @@
 
 #include "clangdocumentjob.h"
 
+#include <clangsupport/followsymbolmessage.h>
 #include <clangsupport/sourcerangecontainer.h>
 
 namespace ClangBackEnd {
 
-class FollowSymbolJob : public DocumentJob<SourceRangeContainer>
+class FollowSymbolJob : public DocumentJob<FollowSymbolResult>
 {
 public:
-    using AsyncResult = SourceRangeContainer;
+    using AsyncResult = FollowSymbolResult;
 
     AsyncPrepareResult prepareAsyncRun() override;
     void finalizeAsyncRun() override;

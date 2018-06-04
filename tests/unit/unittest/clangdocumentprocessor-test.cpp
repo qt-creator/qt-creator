@@ -72,7 +72,7 @@ TEST_F(DocumentProcessor, ProcessEmpty)
 TEST_F(DocumentProcessorSlowTest, ProcessSingleJob)
 {
     const JobRequest jobRequest
-            = documentProcessor->createJobRequest(JobRequest::Type::UpdateDocumentAnnotations);
+            = documentProcessor->createJobRequest(JobRequest::Type::UpdateAnnotations);
     documentProcessor->addJob(jobRequest);
 
     const JobRequests jobsStarted = documentProcessor->process();

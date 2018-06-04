@@ -95,6 +95,7 @@
         \li Diagnostics
         \li Clang-Tidy checks
         \li Clazy checks
+        \li Outline of symbols
         \li Tooltips
         \li Renaming of local symbols
 

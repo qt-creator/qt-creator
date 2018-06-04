@@ -37,6 +37,7 @@ namespace ClangBackEnd {
 class Cursor;
 class DiagnosticContainer;
 class DiagnosticSet;
+class FollowSymbolResult;
 class ReferencesResult;
 class SkippedSourceRanges;
 class SourceLocation;
@@ -81,10 +82,10 @@ public:
 
     void extractDiagnostics(DiagnosticContainer &firstHeaderErrorDiagnostic,
                             QVector<DiagnosticContainer> &mainFileDiagnostics) const;
-    void extractDocumentAnnotations(DiagnosticContainer &firstHeaderErrorDiagnostic,
-                                    QVector<DiagnosticContainer> &mainFileDiagnostics,
-                                    QVector<TokenInfoContainer> &tokenInfos,
-                                    QVector<SourceRangeContainer> &skippedSourceRanges) const;
+    void extractAnnotations(DiagnosticContainer &firstHeaderErrorDiagnostic,
+                            QVector<DiagnosticContainer> &mainFileDiagnostics,
+                            QVector<TokenInfoContainer> &tokenInfos,
+                            QVector<SourceRangeContainer> &skippedSourceRanges) const;
 
     ReferencesResult references(uint line, uint column, bool localReferences = false) const;
     ToolTipInfo tooltip(UnsavedFiles &unsavedFiles,
@@ -108,7 +109,7 @@ public:
     TokenProcessor<FullTokenInfo> fullTokenInfosInRange(const SourceRange &range) const;
 
     SkippedSourceRanges skippedSourceRanges() const;
-    SourceRangeContainer followSymbol(uint line, uint column) const;
+    FollowSymbolResult followSymbol(uint line, uint column) const;
 
 private:
     const Utf8String m_id;

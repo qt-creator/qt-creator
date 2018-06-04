@@ -66,6 +66,7 @@ public:
     void replayQmlEvents(QmlEventLoader loader, Initializer initializer, Finalizer finalizer,
                          ErrorHandler errorHandler, QFutureInterface<void> &future) const;
 
+    void initialize() override;
     void finalize() override;
 
     void populateFileFinder(const ProjectExplorer::Target *target = nullptr);
@@ -83,12 +84,16 @@ public:
     QmlEventFilter rangeFilter(qint64 start, qint64 end) const;
 
 signals:
+    void traceChanged();
     void typeDetailsChanged(int typeId);
     void typeDetailsFinished();
 
 private:
-    void detailsChanged(int typeId, const QString &newString);
+    void setTypeDetails(int typeId, const QString &details);
     void restrictByFilter(QmlEventFilter filter);
+
+    void clearEventStorage() final;
+    void clearTypeStorage() final;
 
     Timeline::TimelineTraceFile *createTraceFile() override;
     void replayEvents(TraceEventLoader loader, Initializer initializer, Finalizer finalizer,

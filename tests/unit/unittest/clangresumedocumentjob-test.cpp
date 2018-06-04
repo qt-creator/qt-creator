@@ -83,7 +83,7 @@ TEST_F(ResumeDocumentJob, SendsAnnotationsAfterResume)
     suspendDocument();
     job.setContext(jobContextWithMockClient);
     job.prepareAsyncRun();
-    EXPECT_CALL(mockIpcClient, documentAnnotationsChanged(_)).Times(1);
+    EXPECT_CALL(mockIpcClient, annotations(_)).Times(1);
 
     job.runAsync();
     ASSERT_TRUE(waitUntilJobFinished(job));

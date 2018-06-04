@@ -31,7 +31,9 @@
 #include "clangtoolsutils.h"
 
 #include <cpptools/compileroptionsbuilder.h>
+#include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <cpptools/projectinfo.h>
 #include <cpptools/projectpart.h>
 
@@ -265,6 +267,13 @@ private:
 
 enum { GlobalSettings , CustomSettings };
 
+static Core::Id diagnosticConfiguration(ClangToolsProjectSettings *settings)
+{
+    if (settings->useGlobalSettings())
+        return ClangToolsSettings::instance()->savedDiagnosticConfigId();
+    return settings->diagnosticConfig();
+}
+
 SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
                                              const FileInfos &allFileInfos)
     : QDialog(nullptr)
@@ -285,18 +294,15 @@ SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
 
     ClangToolsProjectSettings *settings = ClangToolsProjectSettingsManager::getSettings(m_project);
 
-    Core::Id diagnosticConfig;
     if (settings->useGlobalSettings()) {
         m_ui->globalOrCustom->setCurrentIndex(GlobalSettings);
         m_ui->diagnosticConfigsSelectionWidget->setEnabled(false);
-        diagnosticConfig = ClangToolsSettings::instance()->savedDiagnosticConfigId();
     } else {
         m_ui->globalOrCustom->setCurrentIndex(CustomSettings);
         m_ui->diagnosticConfigsSelectionWidget->setEnabled(true);
-        diagnosticConfig = settings->diagnosticConfig();
     }
-    m_customDiagnosticConfig = diagnosticConfig;
-    m_ui->diagnosticConfigsSelectionWidget->refresh(diagnosticConfig);
+    m_customDiagnosticConfig = diagnosticConfiguration(settings);
+    m_ui->diagnosticConfigsSelectionWidget->refresh(m_customDiagnosticConfig);
 
     connect(m_ui->globalOrCustom,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
@@ -325,6 +331,11 @@ SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
     m_analyzeButton->setEnabled(m_filesModel->hasCheckedFiles());
     connect(m_filesModel.get(), &QAbstractItemModel::dataChanged, [this]() {
         m_analyzeButton->setEnabled(m_filesModel->hasCheckedFiles());
+    });
+
+    connect(CppTools::codeModelSettings().data(), &CppTools::CppCodeModelSettings::changed,
+            this, [=]() {
+        m_ui->diagnosticConfigsSelectionWidget->refresh(diagnosticConfiguration(settings));
     });
 }
 

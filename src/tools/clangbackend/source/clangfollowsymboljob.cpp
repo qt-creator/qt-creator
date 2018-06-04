@@ -36,7 +36,7 @@ namespace ClangBackEnd {
 IAsyncJob::AsyncPrepareResult FollowSymbolJob::prepareAsyncRun()
 {
     const JobRequest jobRequest = context().jobRequest;
-    QTC_ASSERT(jobRequest.type == JobRequest::Type::FollowSymbol,
+    QTC_ASSERT(jobRequest.type == JobRequest::Type::RequestFollowSymbol,
                return AsyncPrepareResult());
     QTC_ASSERT(acquireDocument(), return AsyncPrepareResult());
 

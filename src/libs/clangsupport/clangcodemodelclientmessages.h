@@ -25,10 +25,10 @@
 
 #pragma once
 
-#include "cmbalivemessage.h"
-#include "cmbcodecompletedmessage.h"
-#include "cmbechomessage.h"
-#include "documentannotationschangedmessage.h"
+#include "alivemessage.h"
+#include "completionsmessage.h"
+#include "echomessage.h"
+#include "annotationsmessage.h"
 #include "referencesmessage.h"
 #include "followsymbolmessage.h"
 #include "tooltipmessage.h"

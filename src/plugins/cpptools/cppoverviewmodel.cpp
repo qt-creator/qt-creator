@@ -190,6 +190,12 @@ Utils::LineColumn OverviewModel::lineColumnFromIndex(const QModelIndex &sourceIn
     return lineColumn;
 }
 
+OverviewModel::Range OverviewModel::rangeFromIndex(const QModelIndex &sourceIndex) const
+{
+    Utils::LineColumn lineColumn = lineColumnFromIndex(sourceIndex);
+    return std::make_pair(lineColumn, lineColumn);
+}
+
 void OverviewModel::buildTree(SymbolItem *root, bool isRoot)
 {
     if (!root)

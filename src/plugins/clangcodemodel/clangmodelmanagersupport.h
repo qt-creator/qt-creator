@@ -109,7 +109,7 @@ private:
 
     void onDiagnosticConfigsInvalidated(const QVector<Core::Id> &configIds);
 
-    void unregisterTranslationUnitsWithProjectParts(const QStringList &projectPartIds);
+    void closeBackendDocumentsWithProjectParts(const QStringList &projectPartIds);
 
     void connectTextDocumentToTranslationUnit(TextEditor::TextDocument *textDocument);
     void connectTextDocumentToUnsavedFiles(TextEditor::TextDocument *textDocument);

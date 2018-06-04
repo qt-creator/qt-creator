@@ -40,7 +40,7 @@ def main():
     if not startedWithoutPluginError():
         return
     invokeMenuItem("Tools", "Options...")
-    __checkBuildAndRun__()
+    __checkKits__()
     clickButton(waitForObject(":Options.Cancel_QPushButton"))
     invokeMenuItem("File", "Exit")
     __checkCreatedSettings__(emptySettings)
@@ -53,9 +53,9 @@ def __createMinimumIni__(emptyParent):
     iniFile.write("OverrideLanguage=C\n")
     iniFile.close()
 
-def __checkBuildAndRun__():
-    waitForObjectItem(":Options_QListView", "Build & Run")
-    clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
+def __checkKits__():
+    waitForObjectItem(":Options_QListView", "Kits")
+    clickItem(":Options_QListView", "Kits", 14, 15, 0, Qt.LeftButton)
     # check compilers
     expectedCompilers = __getExpectedCompilers__()
     foundCompilers = []

@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.9
 import TimelineTheme 1.0
 
 Item {
@@ -153,7 +153,9 @@ Item {
 
         spacing: innerMargin
         columns: 2
-        property int minimumWidth: {
+
+        property int minimumWidth: minimumInnerWidth
+        onPositioningComplete: {
             // max(width of longest label * 2, minimumInnerWidth)
             var result = minimumInnerWidth;
             for (var i = 0; i < children.length; ++i) {
@@ -161,10 +163,10 @@ Item {
                     result = Math.max(children[i].implicitWidth * 2 + innerMargin, result);
             }
 
-            return result + 2 * outerMargin;
+            minimumWidth = result + 2 * outerMargin;
         }
 
-        property int labelWidth: (minimumWidth - innerMargin) / 2 - outerMargin
+        property int labelWidth: Math.ceil((minimumWidth - innerMargin) / 2) - outerMargin
         property int valueWidth: dragHandle.x - labelWidth - innerMargin - outerMargin
 
         onMinimumWidthChanged: {

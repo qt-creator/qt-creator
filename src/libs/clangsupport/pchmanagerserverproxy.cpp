@@ -25,7 +25,7 @@
 
 #include "pchmanagerserverproxy.h"
 
-#include "cmbendmessage.h"
+#include "endmessage.h"
 #include "messageenvelop.h"
 #include "pchmanagerclientinterface.h"
 #include "removeprojectpartsmessage.h"

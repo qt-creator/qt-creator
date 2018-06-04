@@ -80,6 +80,17 @@ void buildTree(const TokenContainers &containers,
         if (lexicalParentIndex >= 0 && treeItemCache[lexicalParentIndex])
             parent = treeItemCache[lexicalParentIndex];
 
+        if (parent != root
+                && (container.extraInfo.storageClass == ClangBackEnd::StorageClass::Extern
+                    || container.extraInfo.storageClass == ClangBackEnd::StorageClass::Static)) {
+            ClangBackEnd::HighlightingType parentType = parent->token.types.mainHighlightingType;
+            if (parentType == ClangBackEnd::HighlightingType::VirtualFunction
+                    || parentType == ClangBackEnd::HighlightingType::Function) {
+                // Treat static and extern variables inside a function scope as local variables.
+                continue;
+            }
+        }
+
         parent->appendChild(item.release());
     }
 
@@ -213,10 +224,20 @@ bool OverviewModel::isGenerated(const QModelIndex &) const
     TokenTreeItem *item = static_cast<TokenTreeItem *>(itemForIndex(sourceIndex));
     if (!item)
         return {};
-    ::Utils::LineColumn lineColumn;
-    lineColumn.line = static_cast<int>(item->token.line);
-    lineColumn.column = static_cast<int>(item->token.column);
-    return lineColumn;
+    return ::Utils::LineColumn(static_cast<int>(item->token.line),
+                               static_cast<int>(item->token.column));
+}
+
+OverviewModel::Range OverviewModel::rangeFromIndex(const QModelIndex &sourceIndex) const
+{
+    TokenTreeItem *item = static_cast<TokenTreeItem *>(itemForIndex(sourceIndex));
+    if (!item)
+        return {};
+    const ClangBackEnd::SourceRangeContainer &range = item->token.extraInfo.cursorRange;
+    return std::make_pair(::Utils::LineColumn(static_cast<int>(range.start.line),
+                                              static_cast<int>(range.start.column)),
+                          ::Utils::LineColumn(static_cast<int>(range.end.line),
+                                              static_cast<int>(range.end.column)));
 }
 
 } // namespace Internal

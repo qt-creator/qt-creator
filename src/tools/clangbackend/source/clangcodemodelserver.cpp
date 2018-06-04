@@ -57,8 +57,8 @@ namespace ClangBackEnd {
 ClangCodeModelServer::ClangCodeModelServer()
     : documents(projects, unsavedFiles)
 {
-    updateDocumentAnnotationsTimer.setSingleShot(true);
-    QObject::connect(&updateDocumentAnnotationsTimer,
+    updateAnnotationsTimer.setSingleShot(true);
+    QObject::connect(&updateAnnotationsTimer,
                      &QTimer::timeout,
                      [this]() {
         processJobsForDirtyAndVisibleDocuments();
@@ -75,7 +75,7 @@ ClangCodeModelServer::ClangCodeModelServer()
                      &ClangFileSystemWatcher::fileChanged,
                      [this](const Utf8String &filePath) {
         if (!documents.hasDocumentWithFilePath(filePath))
-            updateDocumentAnnotationsTimer.start(0);
+            updateAnnotationsTimer.start(0);
     });
 }
 
@@ -92,11 +92,10 @@ static std::vector<Document> operator+(const std::vector<Document> &a,
     return result;
 }
 
-// TODO: Rename to createOrUpdate...
-void ClangCodeModelServer::registerTranslationUnitsForEditor(const ClangBackEnd::RegisterTranslationUnitForEditorMessage &message)
+void ClangCodeModelServer::documentsOpened(const ClangBackEnd::DocumentsOpenedMessage &message)
 {
-    qCDebug(serverLog) << "########## registerTranslationUnitsForEditor";
-    TIME_SCOPE_DURATION("ClangCodeModelServer::registerTranslationUnitsForEditor");
+    qCDebug(serverLog) << "########## documentsOpened";
+    TIME_SCOPE_DURATION("ClangCodeModelServer::documentsOpened");
 
     try {
         DocumentResetInfos toReset;
@@ -115,14 +114,14 @@ void ClangCodeModelServer::registerTranslationUnitsForEditor(const ClangBackEnd:
         processSuspendResumeJobs(documents.documents());
         processInitialJobsForDocuments(createdDocuments + resetDocuments_);
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangCodeModelServer::registerTranslationUnitsForEditor:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::documentsOpened:" << exception.what();
     }
 }
 
-void ClangCodeModelServer::updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message)
+void ClangCodeModelServer::documentsChanged(const DocumentsChangedMessage &message)
 {
-    qCDebug(serverLog) << "########## updateTranslationUnitsForEditor";
-    TIME_SCOPE_DURATION("ClangCodeModelServer::updateTranslationUnitsForEditor");
+    qCDebug(serverLog) << "########## documentsChanged";
+    TIME_SCOPE_DURATION("ClangCodeModelServer::documentsChanged");
 
     try {
         const auto newerFileContainers = documents.newerFileContainers(message.fileContainers);
@@ -138,17 +137,17 @@ void ClangCodeModelServer::updateTranslationUnitsForEditor(const UpdateTranslati
             // Start the jobs on the next event loop iteration since otherwise
             // we might block the translation unit for a completion request
             // that comes right after this message.
-            updateDocumentAnnotationsTimer.start(0);
+            updateAnnotationsTimer.start(0);
         }
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangCodeModelServer::updateTranslationUnitsForEditor:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::documentsChanged:" << exception.what();
     }
 }
 
-void ClangCodeModelServer::unregisterTranslationUnitsForEditor(const ClangBackEnd::UnregisterTranslationUnitsForEditorMessage &message)
+void ClangCodeModelServer::documentsClosed(const ClangBackEnd::DocumentsClosedMessage &message)
 {
-    qCDebug(serverLog) << "########## unregisterTranslationUnitsForEditor";
-    TIME_SCOPE_DURATION("ClangCodeModelServer::unregisterTranslationUnitsForEditor");
+    qCDebug(serverLog) << "########## documentsClosed";
+    TIME_SCOPE_DURATION("ClangCodeModelServer::documentsClosed");
 
     try {
         for (const auto &fileContainer : message.fileContainers) {
@@ -158,7 +157,7 @@ void ClangCodeModelServer::unregisterTranslationUnitsForEditor(const ClangBackEn
         documents.remove(message.fileContainers);
         unsavedFiles.remove(message.fileContainers);
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangCodeModelServer::unregisterTranslationUnitsForEditor:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::documentsClosed:" << exception.what();
     }
 }
 
@@ -170,10 +169,10 @@ static DocumentResetInfos toDocumentResetInfos(const std::vector<Document> &docu
     return infos;
 }
 
-void ClangCodeModelServer::registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message)
+void ClangCodeModelServer::projectPartsUpdated(const ProjectPartsUpdatedMessage &message)
 {
-    qCDebug(serverLog) << "########## registerProjectPartsForEditor";
-    TIME_SCOPE_DURATION("ClangCodeModelServer::registerProjectPartsForEditor");
+    qCDebug(serverLog) << "########## projectPartsUpdated";
+    TIME_SCOPE_DURATION("ClangCodeModelServer::projectPartsUpdated");
 
     try {
         projects.createOrUpdate(message.projectContainers);
@@ -183,60 +182,60 @@ void ClangCodeModelServer::registerProjectPartsForEditor(const RegisterProjectPa
 
         processJobsForDirtyAndVisibleDocuments();
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangCodeModelServer::registerProjectPartsForEditor:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::projectPartsUpdated:" << exception.what();
     }
 }
 
-void ClangCodeModelServer::unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message)
+void ClangCodeModelServer::projectPartsRemoved(const ProjectPartsRemovedMessage &message)
 {
-    qCDebug(serverLog) << "########## unregisterProjectPartsForEditor";
-    TIME_SCOPE_DURATION("ClangCodeModelServer::unregisterProjectPartsForEditor");
+    qCDebug(serverLog) << "########## projectPartsRemoved";
+    TIME_SCOPE_DURATION("ClangCodeModelServer::projectPartsRemoved");
 
     try {
         projects.remove(message.projectPartIds);
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangCodeModelServer::unregisterProjectPartsForEditor:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::projectPartsRemoved:" << exception.what();
     }
 }
 
-void ClangCodeModelServer::registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message)
+void ClangCodeModelServer::unsavedFilesUpdated(const UnsavedFilesUpdatedMessage &message)
 {
-    qCDebug(serverLog) << "########## registerUnsavedFilesForEditor";
-    TIME_SCOPE_DURATION("ClangCodeModelServer::registerUnsavedFilesForEditor");
+    qCDebug(serverLog) << "########## unsavedFilesUpdated";
+    TIME_SCOPE_DURATION("ClangCodeModelServer::unsavedFilesUpdated");
 
     try {
         unsavedFiles.createOrUpdate(message.fileContainers);
         documents.updateDocumentsWithChangedDependencies(message.fileContainers);
 
-        updateDocumentAnnotationsTimer.start(updateDocumentAnnotationsTimeOutInMs);
+        updateAnnotationsTimer.start(updateAnnotationsTimeOutInMs);
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangCodeModelServer::registerUnsavedFilesForEditor:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::unsavedFilesUpdated:" << exception.what();
     }
 }
 
-void ClangCodeModelServer::unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message)
+void ClangCodeModelServer::unsavedFilesRemoved(const UnsavedFilesRemovedMessage &message)
 {
-    qCDebug(serverLog) << "########## registerUnsavedFilesForEditor";
-    TIME_SCOPE_DURATION("ClangCodeModelServer::unregisterUnsavedFilesForEditor");
+    qCDebug(serverLog) << "########## unsavedFilesRemoved";
+    TIME_SCOPE_DURATION("ClangCodeModelServer::unsavedFilesRemoved");
 
     try {
         unsavedFiles.remove(message.fileContainers);
         documents.updateDocumentsWithChangedDependencies(message.fileContainers);
     } catch (const std::exception &exception) {
-        qWarning() << "Error in ClangCodeModelServer::unregisterUnsavedFilesForEditor:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::unsavedFilesRemoved:" << exception.what();
     }
 }
 
-void ClangCodeModelServer::completeCode(const ClangBackEnd::CompleteCodeMessage &message)
+void ClangCodeModelServer::requestCompletions(const ClangBackEnd::RequestCompletionsMessage &message)
 {
-    qCDebug(serverLog) << "########## completeCode";
-    TIME_SCOPE_DURATION("ClangCodeModelServer::completeCode");
+    qCDebug(serverLog) << "########## requestCompletions";
+    TIME_SCOPE_DURATION("ClangCodeModelServer::requestCompletions");
 
     try {
         Document document = documents.document(message.filePath, message.projectPartId);
         DocumentProcessor processor = documentProcessors().processor(document);
 
-        JobRequest jobRequest = processor.createJobRequest(JobRequest::Type::CompleteCode);
+        JobRequest jobRequest = processor.createJobRequest(JobRequest::Type::RequestCompletions);
         jobRequest.line = message.line;
         jobRequest.column = message.column;
         jobRequest.funcNameStartLine = message.funcNameStartLine;
@@ -246,25 +245,25 @@ void ClangCodeModelServer::completeCode(const ClangBackEnd::CompleteCodeMessage 
         processor.addJob(jobRequest);
         processor.process();
     }  catch (const std::exception &exception) {
-        qWarning() << "Error in ClangCodeModelServer::completeCode:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::requestCompletions:" << exception.what();
     }
 }
 
-void ClangCodeModelServer::requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message)
+void ClangCodeModelServer::requestAnnotations(const RequestAnnotationsMessage &message)
 {
-    qCDebug(serverLog) << "########## requestDocumentAnnotations";
-    TIME_SCOPE_DURATION("ClangCodeModelServer::requestDocumentAnnotations");
+    qCDebug(serverLog) << "########## requestAnnotations";
+    TIME_SCOPE_DURATION("ClangCodeModelServer::requestAnnotations");
 
     try {
         auto document = documents.document(message.fileContainer.filePath,
                                            message.fileContainer.projectPartId);
 
         DocumentProcessor processor = documentProcessors().processor(document);
-        processor.addJob(JobRequest::Type::RequestDocumentAnnotations);
-        processor.addJob(JobRequest::Type::UpdateExtraDocumentAnnotations);
+        processor.addJob(JobRequest::Type::RequestAnnotations);
+        processor.addJob(JobRequest::Type::UpdateExtraAnnotations);
         processor.process();
     }  catch (const std::exception &exception) {
-        qWarning() << "Error in ClangCodeModelServer::requestDocumentAnnotations:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::requestAnnotations:" << exception.what();
     }
 }
 
@@ -310,7 +309,7 @@ void ClangCodeModelServer::requestFollowSymbol(const RequestFollowSymbolMessage 
         Document document = documents.document(message.fileContainer.filePath, projectPartId);
         DocumentProcessor processor = documentProcessors().processor(document);
 
-        JobRequest jobRequest = processor.createJobRequest(JobRequest::Type::FollowSymbol);
+        JobRequest jobRequest = processor.createJobRequest(JobRequest::Type::RequestFollowSymbol);
         fillJobRequest(jobRequest, message);
         processor.addJob(jobRequest);
         processor.process();
@@ -338,19 +337,19 @@ void ClangCodeModelServer::requestToolTip(const RequestToolTipMessage &message)
     }
 }
 
-void ClangCodeModelServer::updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message)
+void ClangCodeModelServer::documentVisibilityChanged(const DocumentVisibilityChangedMessage &message)
 {
-    qCDebug(serverLog) << "########## updateVisibleTranslationUnits";
-    TIME_SCOPE_DURATION("ClangCodeModelServer::updateVisibleTranslationUnits");
+    qCDebug(serverLog) << "########## documentVisibilityChanged";
+    TIME_SCOPE_DURATION("ClangCodeModelServer::documentVisibilityChanged");
 
     try {
         documents.setUsedByCurrentEditor(message.currentEditorFilePath);
         documents.setVisibleInEditors(message.visibleEditorFilePaths);
         processSuspendResumeJobs(documents.documents());
 
-        updateDocumentAnnotationsTimer.start(0);
+        updateAnnotationsTimer.start(0);
     }  catch (const std::exception &exception) {
-        qWarning() << "Error in ClangCodeModelServer::updateVisibleTranslationUnits:" << exception.what();
+        qWarning() << "Error in ClangCodeModelServer::documentVisibilityChanged:" << exception.what();
     }
 }
 
@@ -371,7 +370,7 @@ int ClangCodeModelServer::queueSizeForTestsOnly()
 
 bool ClangCodeModelServer::isTimerRunningForTestOnly() const
 {
-    return updateDocumentAnnotationsTimer.isActive();
+    return updateAnnotationsTimer.isActive();
 }
 
 void ClangCodeModelServer::processJobsForDirtyAndVisibleDocuments()
@@ -396,9 +395,9 @@ void ClangCodeModelServer::addAndRunUpdateJobs(std::vector<Document> documents)
         DocumentProcessor processor = documentProcessors().processor(document);
 
         // Run the regular edit-reparse-job
-        processor.addJob(JobRequest::Type::UpdateDocumentAnnotations,
+        processor.addJob(JobRequest::Type::UpdateAnnotations,
                          PreferredTranslationUnit::PreviouslyParsed);
-        processor.addJob(JobRequest::Type::UpdateExtraDocumentAnnotations,
+        processor.addJob(JobRequest::Type::UpdateExtraAnnotations,
                          PreferredTranslationUnit::RecentlyParsed);
         processor.process();
 
@@ -429,7 +428,7 @@ void ClangCodeModelServer::processSuspendResumeJobs(const std::vector<Document> 
         DocumentProcessor processor = documentProcessors().processor(entry.document);
         processor.addJob(entry.jobRequestType, entry.preferredTranslationUnit);
         if (entry.jobRequestType == JobRequest::Type::ResumeDocument) {
-            processor.addJob(JobRequest::Type::UpdateExtraDocumentAnnotations,
+            processor.addJob(JobRequest::Type::UpdateExtraAnnotations,
                              PreferredTranslationUnit::RecentlyParsed);
         }
         processor.process();
@@ -479,15 +478,15 @@ void ClangCodeModelServer::processInitialJobsForDocuments(const std::vector<Docu
 {
     for (const auto &document : documents) {
         DocumentProcessor processor = documentProcessors().processor(document);
-        processor.addJob(JobRequest::Type::UpdateDocumentAnnotations);
-        processor.addJob(JobRequest::Type::UpdateExtraDocumentAnnotations);
+        processor.addJob(JobRequest::Type::UpdateAnnotations);
+        processor.addJob(JobRequest::Type::UpdateExtraAnnotations);
         processor.process();
     }
 }
 
-void ClangCodeModelServer::setUpdateDocumentAnnotationsTimeOutInMsForTestsOnly(int value)
+void ClangCodeModelServer::setUpdateAnnotationsTimeOutInMsForTestsOnly(int value)
 {
-    updateDocumentAnnotationsTimeOutInMs = value;
+    updateAnnotationsTimeOutInMs = value;
 }
 
 void ClangCodeModelServer::setUpdateVisibleButNotCurrentDocumentsTimeOutInMsForTestsOnly(int value)

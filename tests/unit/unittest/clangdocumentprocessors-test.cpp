@@ -157,7 +157,7 @@ TEST_F(DocumentProcessors, ProcessEmpty)
 TEST_F(DocumentProcessorsSlowTest, ProcessSingle)
 {
     DocumentProcessor documentProcessor = documentProcessors.create(document);
-    documentProcessor.addJob(JobRequest::Type::UpdateDocumentAnnotations);
+    documentProcessor.addJob(JobRequest::Type::UpdateAnnotations);
 
     const JobRequests jobsStarted = documentProcessors.process();
 

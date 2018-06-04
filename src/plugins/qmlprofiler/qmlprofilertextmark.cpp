@@ -119,6 +119,18 @@ void QmlProfilerTextMarkModel::createMarks(QmlProfilerViewManager *viewManager,
     }
 }
 
+void QmlProfilerTextMarkModel::showTextMarks()
+{
+    for (QmlProfilerTextMark *mark : qAsConst(m_marks))
+        mark->setVisible(true);
+}
+
+void QmlProfilerTextMarkModel::hideTextMarks()
+{
+    for (QmlProfilerTextMark *mark : qAsConst(m_marks))
+        mark->setVisible(false);
+}
+
 bool QmlProfilerTextMark::addToolTipContent(QLayout *target) const
 {
     QGridLayout *layout = new QGridLayout;

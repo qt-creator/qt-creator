@@ -53,8 +53,8 @@ public:
 
     void alive() override;
     void echo(const EchoMessage &message) override;
-    void codeCompleted(const CodeCompletedMessage &message) override;
-    void documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message) override;
+    void completions(const CompletionsMessage &message) override;
+    void annotations(const AnnotationsMessage &message) override;
     void references(const ReferencesMessage &message) override;
     void followSymbol(const FollowSymbolMessage &message) override;
     void tooltip(const ToolTipMessage &message) override;

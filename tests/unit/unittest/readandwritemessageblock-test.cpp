@@ -54,7 +54,7 @@ protected:
     template<class Type>
     void CompareMessage(const Type &message);
 
-    ClangBackEnd::MessageEnvelop writeCodeCompletedMessage();
+    ClangBackEnd::MessageEnvelop writeCompletionsMessage();
     void popLastCharacterFromBuffer();
     void pushLastCharacterToBuffer();
     void readPartialMessage();
@@ -190,38 +190,36 @@ TEST_F(ReadAndWriteMessageBlock, CompareAliveMessage)
     CompareMessage(ClangBackEnd::AliveMessage());
 }
 
-TEST_F(ReadAndWriteMessageBlock, CompareRegisterTranslationUnitForEditorMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareDocumentsOpenedMessage)
 {
-    CompareMessage(ClangBackEnd::RegisterTranslationUnitForEditorMessage({fileContainer}, filePath, {filePath}));
+    CompareMessage(ClangBackEnd::DocumentsOpenedMessage({fileContainer}, filePath, {filePath}));
 }
 
-TEST_F(ReadAndWriteMessageBlock, CompareUpdateTranslationUnitForEditorMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareDocumentsChangedMessage)
 {
-    CompareMessage(ClangBackEnd::UpdateTranslationUnitsForEditorMessage({fileContainer}));
+    CompareMessage(ClangBackEnd::DocumentsChangedMessage({fileContainer}));
 }
 
-TEST_F(ReadAndWriteMessageBlock, CompareUnregisterFileForEditorMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareDocumentsClosedMessage)
 {
-    CompareMessage(ClangBackEnd::UnregisterTranslationUnitsForEditorMessage({fileContainer}));
+    CompareMessage(ClangBackEnd::DocumentsClosedMessage({fileContainer}));
 }
 
-TEST_F(ReadAndWriteMessageBlock, CompareCompleteCodeMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareRequestCompletionsMessage)
 {
-    CompareMessage(ClangBackEnd::CompleteCodeMessage(Utf8StringLiteral("foo.cpp"), 24, 33, Utf8StringLiteral("do what I want")));
+    CompareMessage(ClangBackEnd::RequestCompletionsMessage(Utf8StringLiteral("foo.cpp"), 24, 33, Utf8StringLiteral("do what I want")));
 }
 
-TEST_F(ReadAndWriteMessageBlock, CompareCodeCompletedMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareCompletionsMessage)
 {
     ClangBackEnd::CodeCompletions codeCompletions({Utf8StringLiteral("newFunction()")});
 
-    CompareMessage(
-        ClangBackEnd::CodeCompletedMessage(codeCompletions,
-                                           ClangBackEnd::CompletionCorrection::NoCorrection,
-                                           1)
-    );
+    CompareMessage(ClangBackEnd::CompletionsMessage(codeCompletions,
+                                                    ClangBackEnd::CompletionCorrection::NoCorrection,
+                                                    1));
 }
 
-TEST_F(ReadAndWriteMessageBlock, CompareDocumentAnnotationsChangedMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareAnnotationsMessage)
 {
     ClangBackEnd::DiagnosticContainer diagnostic(Utf8StringLiteral("don't do that"),
                                                 Utf8StringLiteral("warning"),
@@ -236,39 +234,39 @@ TEST_F(ReadAndWriteMessageBlock, CompareDocumentAnnotationsChangedMessage)
     types.mainHighlightingType = ClangBackEnd::HighlightingType::Keyword;
     ClangBackEnd::TokenInfoContainer tokenInfo(1, 1, 1, types);
 
-    CompareMessage(ClangBackEnd::DocumentAnnotationsChangedMessage(fileContainer,
-                                                                   {diagnostic},
-                                                                   {},
-                                                                   {tokenInfo},
-                                                                   QVector<ClangBackEnd::SourceRangeContainer>()));
+    CompareMessage(ClangBackEnd::AnnotationsMessage(fileContainer,
+                                                    {diagnostic},
+                                                    {},
+                                                    {tokenInfo},
+                                                    QVector<ClangBackEnd::SourceRangeContainer>()));
 }
 
-TEST_F(ReadAndWriteMessageBlock, CompareRegisterUnsavedFilesForEditorMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareUnsavedFilesUpdatedMessage)
 {
-    CompareMessage(ClangBackEnd::RegisterUnsavedFilesForEditorMessage({fileContainer}));
+    CompareMessage(ClangBackEnd::UnsavedFilesUpdatedMessage({fileContainer}));
 }
 
-TEST_F(ReadAndWriteMessageBlock, CompareUnregisterUnsavedFilesForEditorMessage)
+TEST_F(ReadAndWriteMessageBlock, CompareUnsavedFilesRemovedMessage)
 {
-    CompareMessage(ClangBackEnd::UnregisterUnsavedFilesForEditorMessage({fileContainer}));
+    CompareMessage(ClangBackEnd::UnsavedFilesRemovedMessage({fileContainer}));
 }
 
-TEST_F(ReadAndWriteMessageBlock, CompareRequestDocumentAnnotations)
+TEST_F(ReadAndWriteMessageBlock, CompareRequestAnnotationsMessage)
 {
-    CompareMessage(ClangBackEnd::RequestDocumentAnnotationsMessage(fileContainer));
+    CompareMessage(ClangBackEnd::RequestAnnotationsMessage(fileContainer));
 }
 
-TEST_F(ReadAndWriteMessageBlock, CompareRequestReferences)
+TEST_F(ReadAndWriteMessageBlock, CompareRequestReferencesMessage)
 {
     CompareMessage(ClangBackEnd::RequestReferencesMessage{fileContainer, 13, 37});
 }
 
-TEST_F(ReadAndWriteMessageBlock, CompareRequestFollowSymbol)
+TEST_F(ReadAndWriteMessageBlock, CompareRequestFollowSymbolMessage)
 {
     CompareMessage(ClangBackEnd::RequestFollowSymbolMessage{fileContainer, 13, 37});
 }
 
-TEST_F(ReadAndWriteMessageBlock, CompareReferences)
+TEST_F(ReadAndWriteMessageBlock, CompareReferencesMessage)
 {
     const QVector<ClangBackEnd::SourceRangeContainer> references{
         true,
@@ -280,7 +278,7 @@ TEST_F(ReadAndWriteMessageBlock, CompareReferences)
 
 TEST_F(ReadAndWriteMessageBlock, GetInvalidMessageForAPartialBuffer)
 {
-    writeCodeCompletedMessage();
+    writeCompletionsMessage();
     popLastCharacterFromBuffer();
     buffer.seek(0);
 
@@ -289,7 +287,7 @@ TEST_F(ReadAndWriteMessageBlock, GetInvalidMessageForAPartialBuffer)
 
 TEST_F(ReadAndWriteMessageBlock, ReadMessageAfterInterruption)
 {
-    const auto writeMessage = writeCodeCompletedMessage();
+    const auto writeMessage = writeCompletionsMessage();
     popLastCharacterFromBuffer();
     buffer.seek(0);
     readPartialMessage();
@@ -298,9 +296,9 @@ TEST_F(ReadAndWriteMessageBlock, ReadMessageAfterInterruption)
     ASSERT_EQ(readMessageBlock.read(), writeMessage);
 }
 
-ClangBackEnd::MessageEnvelop ReadAndWriteMessageBlock::writeCodeCompletedMessage()
+ClangBackEnd::MessageEnvelop ReadAndWriteMessageBlock::writeCompletionsMessage()
 {
-    ClangBackEnd::CodeCompletedMessage message(
+    ClangBackEnd::CompletionsMessage message(
         ClangBackEnd::CodeCompletions({Utf8StringLiteral("newFunction()")}),
         ClangBackEnd::CompletionCorrection::NoCorrection,
         1);

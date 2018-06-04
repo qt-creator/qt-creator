@@ -105,6 +105,7 @@ QVariantMap QmlProfilerTimelineModel::locationFromTypeId(int index) const
 
 void QmlProfilerTimelineModel::initialize()
 {
+    setHidden(!(modelManager()->visibleFeatures() & (1ULL << m_mainFeature)));
 }
 
 void QmlProfilerTimelineModel::finalize()

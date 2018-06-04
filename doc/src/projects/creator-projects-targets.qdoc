@@ -74,7 +74,15 @@
 
             To clone the selected kit, select \uicontrol Clone.
 
-        \li In the \uicontrol Name column, double-click the kit name to change it.
+        \li In the \uicontrol Name column, enter a name for the kit.
+
+        \li Select the \inlineimage qtcreator-desktopdevice-button.png
+            button to select an image to use as an icon for the kit.
+
+        \li In the \uicontrol {File system name} field, enter a name for the kit
+            to use as a part of directory names. This value is used for the
+            \e CurrentKit:FileSystemName variable, which determines the name of
+            the shadow build directory, for example.
 
         \li In the \uicontrol{Device type} field, select the type of the device.
 
@@ -100,6 +108,11 @@
             environment variable values for build environments in
             the \uicontrol {Edit Environment Changes} dialog. For more information
             about how to add and remove variable values, see \l{Batch Editing}.
+
+        \li Select the \uicontrol {Force UTF-8 MSVC compiler output} check box
+            to either switch the language of MSVC to English or to keep the
+            language setting and just force UTF-8 output, depending on the
+            MSVC compiler used.
 
         \li In the \uicontrol Debugger field, select the debugger to debug the project
             on the target platform. \QC automatically detects available

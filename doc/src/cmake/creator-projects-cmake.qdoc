@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -72,6 +72,9 @@
         \li In the \uicontrol Path field, specify the path to the CMake
             executable.
 
+        \li Select the \uicontrol {Auto-create build directories} check box to
+            automatically create build directories for CMake projects.
+
         \li Select \uicontrol Apply to save your changes.
 
     \endlist
@@ -83,7 +86,7 @@
     is.
 
     Select the \uicontrol Kits tab to add the CMake tool to a build and run kit.
-    The kit also specifies the CMake Generator that is used for producing
+    The kit also specifies the CMake generator that is used for producing
     project files for \QC and the configuration variables that are used:
 
     \image qtcreator-kits.png

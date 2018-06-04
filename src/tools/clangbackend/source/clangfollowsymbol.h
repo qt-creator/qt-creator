@@ -33,17 +33,18 @@ class Utf8String;
 
 namespace ClangBackEnd {
 
-class Cursor;
-class SourceRangeContainer;
 class CommandLineArguments;
+class Cursor;
+class FollowSymbolResult;
+class SourceRangeContainer;
 
 class FollowSymbol
 {
 public:
-    static SourceRangeContainer followSymbol(CXTranslationUnit tu,
-                                             const Cursor &fullCursor,
-                                             uint line,
-                                             uint column);
+    static FollowSymbolResult followSymbol(CXTranslationUnit tu,
+                                           const Cursor &fullCursor,
+                                           uint line,
+                                           uint column);
 };
 
 } // namespace ClangBackEnd

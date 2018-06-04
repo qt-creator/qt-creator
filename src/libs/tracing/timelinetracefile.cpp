@@ -67,6 +67,11 @@ void TimelineTraceFile::fail(const QString &message)
     m_future.cancel();
 }
 
+void TimelineTraceFile::finish()
+{
+    m_future.reportFinished();
+}
+
 bool TimelineTraceFile::isCanceled() const
 {
     return m_future.isCanceled();

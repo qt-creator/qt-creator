@@ -123,7 +123,7 @@ QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent) :
 
     d->detailsRewriter = new Internal::QmlProfilerDetailsRewriter(this);
     connect(d->detailsRewriter, &Internal::QmlProfilerDetailsRewriter::rewriteDetailsString,
-            this, &QmlProfilerModelManager::typeDetailsChanged);
+            this, &QmlProfilerModelManager::setTypeDetails);
     connect(d->detailsRewriter, &Internal::QmlProfilerDetailsRewriter::eventDetailsChanged,
             this, &QmlProfilerModelManager::typeDetailsFinished);
 
@@ -202,6 +202,24 @@ void QmlProfilerModelManager::replayQmlEvents(QmlEventLoader loader,
     }
 }
 
+void QmlProfilerModelManager::initialize()
+{
+    d->textMarkModel->hideTextMarks();
+    TimelineTraceManager::initialize();
+}
+
+void QmlProfilerModelManager::clearEventStorage()
+{
+    TimelineTraceManager::clearEventStorage();
+    emit traceChanged();
+}
+
+void QmlProfilerModelManager::clearTypeStorage()
+{
+    d->textMarkModel->clear();
+    TimelineTraceManager::clearTypeStorage();
+}
+
 static QString getDisplayName(const QmlEventType &event)
 {
     if (event.location().filename().isEmpty()) {
@@ -255,6 +273,8 @@ void QmlProfilerModelManager::finalize()
     // which happens on stateChanged(Done).
 
     TimelineTraceManager::finalize();
+    d->textMarkModel->showTextMarks();
+    emit traceChanged();
 }
 
 void QmlProfilerModelManager::populateFileFinder(const ProjectExplorer::Target *target)
@@ -267,12 +287,13 @@ QString QmlProfilerModelManager::findLocalFile(const QString &remoteFile)
     return d->detailsRewriter->getLocalFile(remoteFile);
 }
 
-void QmlProfilerModelManager::detailsChanged(int typeId, const QString &newString)
+void QmlProfilerModelManager::setTypeDetails(int typeId, const QString &details)
 {
     QTC_ASSERT(typeId < numEventTypes(), return);
     QmlEventType type = eventType(typeId);
-    type.setData(newString);
-    setEventType(typeId, std::move(type));
+    type.setData(details);
+    // Don't rewrite the details again, but directly push the type into the type storage.
+    Timeline::TimelineTraceManager::setEventType(typeId, std::move(type));
     emit typeDetailsChanged(typeId);
 }
 

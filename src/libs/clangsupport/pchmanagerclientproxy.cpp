@@ -25,7 +25,7 @@
 
 #include "pchmanagerclientproxy.h"
 
-#include "cmbalivemessage.h"
+#include "alivemessage.h"
 #include "messageenvelop.h"
 #include "pchmanagerserverinterface.h"
 #include "precompiledheadersupdatedmessage.h"

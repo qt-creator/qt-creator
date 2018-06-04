@@ -29,12 +29,23 @@
 
 namespace ClangBackEnd {
 
+QDebug operator<<(QDebug debug, const FollowSymbolResult &result)
+{
+    debug.nospace() << "FollowSymbolResult("
+                    << result.range
+                    << ", " << result.isPureDeclarationForUsage;
+
+    debug.nospace() << ")";
+
+    return debug;
+}
+
 QDebug operator<<(QDebug debug, const FollowSymbolMessage &message)
 {
     debug.nospace() << "FollowSymbolMessage("
                     << message.fileContainer
                     << ", " << message.ticketNumber
-                    << ", " << message.sourceRange;
+                    << ", " << message.result;
 
     debug.nospace() << ")";
 

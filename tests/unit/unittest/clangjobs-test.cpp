@@ -83,7 +83,7 @@ TEST_F(Jobs, ProcessEmptyQueue)
 
 TEST_F(JobsSlowTest, ProcessQueueWithSingleJob)
 {
-    jobs.add(document, JobRequest::Type::UpdateDocumentAnnotations);
+    jobs.add(document, JobRequest::Type::UpdateAnnotations);
 
     const JobRequests jobsStarted = jobs.process();
 
@@ -93,9 +93,9 @@ TEST_F(JobsSlowTest, ProcessQueueWithSingleJob)
 
 TEST_F(JobsSlowTest, ProcessQueueUntilEmpty)
 {
-    jobs.add(document, JobRequest::Type::UpdateDocumentAnnotations);
-    jobs.add(document, JobRequest::Type::UpdateDocumentAnnotations);
-    jobs.add(document, JobRequest::Type::UpdateDocumentAnnotations);
+    jobs.add(document, JobRequest::Type::UpdateAnnotations);
+    jobs.add(document, JobRequest::Type::UpdateAnnotations);
+    jobs.add(document, JobRequest::Type::UpdateAnnotations);
 
     jobs.process();
 
@@ -104,7 +104,7 @@ TEST_F(JobsSlowTest, ProcessQueueUntilEmpty)
 
 TEST_F(JobsSlowTest, IsJobRunning)
 {
-    jobs.add(document, JobRequest::Type::UpdateDocumentAnnotations);
+    jobs.add(document, JobRequest::Type::UpdateAnnotations);
     jobs.process();
 
     const bool isJobRunning = jobs.isJobRunningForTranslationUnit(document.translationUnit().id());

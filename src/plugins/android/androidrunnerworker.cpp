@@ -422,7 +422,7 @@ void AndroidRunnerWorker::asyncStartHelper()
         runAdb(removeForward);
         if (!runAdb({"forward", port, port})) {
             emit remoteProcessFinished(tr("Failed to forward QML debugging ports. Reason: %1.")
-                                       .arg(m_lastRunAdbError));
+                                       .arg(m_lastRunAdbError) + "\n" + m_lastRunAdbRawOutput);
             return;
         }
         m_afterFinishAdbCommands.push_back(removeForward.join(' '));

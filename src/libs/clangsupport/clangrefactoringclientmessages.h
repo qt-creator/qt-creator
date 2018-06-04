@@ -28,4 +28,4 @@
 #include "sourcelocationsforrenamingmessage.h"
 #include "sourcerangesanddiagnosticsforquerymessage.h"
 #include "sourcerangesforquerymessage.h"
-#include "cmbalivemessage.h"
+#include "alivemessage.h"

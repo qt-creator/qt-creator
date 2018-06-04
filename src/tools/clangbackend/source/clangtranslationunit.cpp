@@ -128,7 +128,7 @@ TranslationUnit::CodeCompletionResult TranslationUnit::complete(
     return CodeCompletionResult{completions, correction};
 }
 
-void TranslationUnit::extractDocumentAnnotations(
+void TranslationUnit::extractAnnotations(
         DiagnosticContainer &firstHeaderErrorDiagnostic,
         QVector<DiagnosticContainer> &mainFileDiagnostics,
         QVector<TokenInfoContainer> &tokenInfos,
@@ -269,7 +269,7 @@ void TranslationUnit::extractDiagnostics(DiagnosticContainer &firstHeaderErrorDi
     }
 }
 
-SourceRangeContainer TranslationUnit::followSymbol(uint line, uint column) const
+FollowSymbolResult TranslationUnit::followSymbol(uint line, uint column) const
 {
     return FollowSymbol::followSymbol(m_cxTranslationUnit, cursorAt(line, column), line, column);
 }

@@ -77,7 +77,7 @@ void BackendReceiver::setAliveHandler(const BackendReceiver::AliveHandler &handl
     m_aliveHandler = handler;
 }
 
-void BackendReceiver::addExpectedCodeCompletedMessage(
+void BackendReceiver::addExpectedCompletionsMessage(
         quint64 ticket,
         ClangCompletionAssistProcessor *processor)
 {
@@ -138,7 +138,7 @@ QFuture<CppTools::ToolTipInfo> BackendReceiver::addExpectedToolTipMessage(quint6
     return futureInterface.future();
 }
 
-bool BackendReceiver::isExpectingCodeCompletedMessage() const
+bool BackendReceiver::isExpectingCompletionsMessage() const
 {
     return !m_assistProcessorsTable.isEmpty();
 }
@@ -180,9 +180,9 @@ void BackendReceiver::echo(const EchoMessage &message)
     qCDebugIpc() << message;
 }
 
-void BackendReceiver::codeCompleted(const CodeCompletedMessage &message)
+void BackendReceiver::completions(const CompletionsMessage &message)
 {
-    qCDebugIpc() << "CodeCompletedMessage with" << message.codeCompletions.size()
+    qCDebugIpc() << "CompletionsMessage with" << message.codeCompletions.size()
                  << "items";
 
     const quint64 ticket = message.ticketNumber;
@@ -193,9 +193,9 @@ void BackendReceiver::codeCompleted(const CodeCompletedMessage &message)
     }
 }
 
-void BackendReceiver::documentAnnotationsChanged(const DocumentAnnotationsChangedMessage &message)
+void BackendReceiver::annotations(const AnnotationsMessage &message)
 {
-    qCDebugIpc() << "DocumentAnnotationsChangedMessage with"
+    qCDebugIpc() << "AnnotationsMessage with"
                  << message.diagnostics.size() << "diagnostics"
                  << message.tokenInfos.size() << "highlighting marks"
                  << message.skippedPreprocessorRanges.size() << "skipped preprocessor ranges";
@@ -255,7 +255,7 @@ static
 CppTools::SymbolInfo toSymbolInfo(const FollowSymbolMessage &message)
 {
     CppTools::SymbolInfo result;
-    const SourceRangeContainer &range = message.sourceRange;
+    const SourceRangeContainer &range = message.result.range;
 
     const SourceLocationContainer &start = range.start;
     const SourceLocationContainer &end = range.end;
@@ -264,6 +264,8 @@ CppTools::SymbolInfo toSymbolInfo(const FollowSymbolMessage &message)
     result.endLine = static_cast<int>(end.line);
     result.endColumn = static_cast<int>(end.column);
     result.fileName = start.filePath;
+
+    result.isPureDeclarationForUsage = message.result.isPureDeclarationForUsage;
 
     return result;
 }
@@ -354,7 +356,7 @@ void BackendReceiver::tooltip(const ToolTipMessage &message)
 void BackendReceiver::followSymbol(const ClangBackEnd::FollowSymbolMessage &message)
 {
     qCDebugIpc() << "FollowSymbolMessage with"
-                 << message.sourceRange << "range";
+                 << message.result;
 
     const quint64 ticket = message.ticketNumber;
     QFutureInterface<CppTools::SymbolInfo> futureInterface = m_followTable.take(ticket);

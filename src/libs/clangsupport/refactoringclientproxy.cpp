@@ -25,7 +25,7 @@
 
 #include "refactoringclientproxy.h"
 
-#include "cmbalivemessage.h"
+#include "alivemessage.h"
 #include "messageenvelop.h"
 #include "refactoringserverinterface.h"
 #include "clangrefactoringclientmessages.h"

@@ -115,6 +115,7 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
     amStartArgsAspect->setSettingsKey("Android.AmStartArgsKey");
     amStartArgsAspect->setLabelText(tr("Activity manager start options:"));
     amStartArgsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    amStartArgsAspect->setHistoryCompleter("Android.AmStartArgs.History");
     addExtraAspect(amStartArgsAspect);
 
     auto preStartShellCmdAspect = new BaseStringListAspect(this);

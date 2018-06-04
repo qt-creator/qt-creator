@@ -146,10 +146,10 @@ static int getTokenIndex(CXTranslationUnit tu, const Tokens &tokens, uint line, 
     return tokenIndex;
 }
 
-SourceRangeContainer FollowSymbol::followSymbol(CXTranslationUnit tu,
-                                                const Cursor &fullCursor,
-                                                uint line,
-                                                uint column)
+FollowSymbolResult FollowSymbol::followSymbol(CXTranslationUnit tu,
+                                              const Cursor &fullCursor,
+                                              uint line,
+                                              uint column)
 {
     std::unique_ptr<Tokens> tokens(new Tokens(fullCursor));
 
@@ -175,7 +175,7 @@ SourceRangeContainer FollowSymbol::followSymbol(CXTranslationUnit tu,
         CXFile file = clang_getIncludedFile(cursors[tokenIndex]);
         const ClangString filename(clang_getFileName(file));
         const SourceLocation loc(tu, filename, 1, 1);
-        return SourceRange(loc, loc);
+        return SourceRangeContainer(SourceRange(loc, loc));
     }
 
     // For definitions we can always find a declaration in current TU
@@ -185,12 +185,16 @@ SourceRangeContainer FollowSymbol::followSymbol(CXTranslationUnit tu,
     if (!cursor.isDeclaration()) {
         // This is the symbol usage
         // We want to return definition
+        FollowSymbolResult result;
         cursor = cursor.referenced();
-        if (cursor.isNull() || !cursor.isDefinition()) {
-            // We can't find definition in this TU
+        if (cursor.isNull())
             return SourceRangeContainer();
+        if (!cursor.isDefinition()) {
+            // We can't find definition in this TU
+            result.isPureDeclarationForUsage = true;
         }
-        return extractMatchingTokenRange(cursor, tokenSpelling);
+        result.range = extractMatchingTokenRange(cursor, tokenSpelling);
+        return result;
     }
 
     cursor = cursor.definition();

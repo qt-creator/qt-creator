@@ -27,11 +27,11 @@
 
 #include "clangasyncjob.h"
 #include "clangdocument.h"
-#include "clangupdatedocumentannotationsjob.h"
+#include "clangupdateannotationsjob.h"
 
 namespace ClangBackEnd {
 
-class ResumeDocumentJob : public UpdateDocumentAnnotationsJob
+class ResumeDocumentJob : public UpdateAnnotationsJob
 {
 public:
     void finalizeAsyncRun() override;

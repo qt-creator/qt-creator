@@ -118,7 +118,8 @@ QString QbsManager::profileForKit(const ProjectExplorer::Kit *k)
     if (!k)
         return QString();
     m_instance->updateProfileIfNecessary(k);
-    return settings()->value(qtcProfilePrefix() + k->id().toString()).toString();
+    return settings()->value(qtcProfilePrefix() + k->id().toString(), qbs::Settings::UserScope)
+            .toString();
 }
 
 void QbsManager::setProfileForKit(const QString &name, const ProjectExplorer::Kit *k)
@@ -236,7 +237,7 @@ void QbsManager::handleKitRemoval(ProjectExplorer::Kit *kit)
 {
     m_kitsToBeSetupForQbs.removeOne(kit);
     const QString key = qtcProfilePrefix() + kit->id().toString();
-    const QString profileName = settings()->value(key).toString();
+    const QString profileName = settings()->value(key, qbs::Settings::UserScope).toString();
     settings()->remove(key);
     qbs::Profile(profileName, settings()).removeProfile();
 }

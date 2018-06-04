@@ -33,15 +33,53 @@
 
 namespace ClangBackEnd {
 
+class FollowSymbolResult
+{
+public:
+    FollowSymbolResult() = default;
+    FollowSymbolResult(SourceRangeContainer range)
+        : range(std::move(range))
+    {}
+    FollowSymbolResult(SourceRangeContainer range, bool isPureDeclarationForUsage)
+        : range(std::move(range))
+        , isPureDeclarationForUsage(isPureDeclarationForUsage)
+    {}
+
+    friend QDataStream &operator<<(QDataStream &out, const FollowSymbolResult &container)
+    {
+        out << container.range;
+        out << container.isPureDeclarationForUsage;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, FollowSymbolResult &container)
+    {
+        in >> container.range;
+        in >> container.isPureDeclarationForUsage;
+
+        return in;
+    }
+
+    friend bool operator==(const FollowSymbolResult &first, const FollowSymbolResult &second)
+    {
+        return first.range == second.range
+                && first.isPureDeclarationForUsage == second.isPureDeclarationForUsage;
+    }
+
+    SourceRangeContainer range;
+    bool isPureDeclarationForUsage = false;
+};
+
 class FollowSymbolMessage
 {
 public:
     FollowSymbolMessage() = default;
     FollowSymbolMessage(const FileContainer &fileContainer,
-                        const SourceRangeContainer &range,
+                        const FollowSymbolResult &result,
                         quint64 ticketNumber)
         : fileContainer(fileContainer)
-        , sourceRange(range)
+        , result(result)
         , ticketNumber(ticketNumber)
     {
     }
@@ -49,7 +87,7 @@ public:
     friend QDataStream &operator<<(QDataStream &out, const FollowSymbolMessage &message)
     {
         out << message.fileContainer;
-        out << message.sourceRange;
+        out << message.result;
         out << message.ticketNumber;
         return out;
     }
@@ -57,7 +95,7 @@ public:
     friend QDataStream &operator>>(QDataStream &in, FollowSymbolMessage &message)
     {
         in >> message.fileContainer;
-        in >> message.sourceRange;
+        in >> message.result;
         in >> message.ticketNumber;
         return in;
     }
@@ -66,15 +104,16 @@ public:
     {
         return first.ticketNumber == second.ticketNumber
                 && first.fileContainer == second.fileContainer
-                && first.sourceRange == second.sourceRange;
+                && first.result == second.result;
     }
 
 public:
     FileContainer fileContainer;
-    SourceRangeContainer sourceRange;
+    FollowSymbolResult result;
     quint64 ticketNumber = 0;
 };
 
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const FollowSymbolResult &result);
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const FollowSymbolMessage &message);
 
 DECLARE_MESSAGE(FollowSymbolMessage);

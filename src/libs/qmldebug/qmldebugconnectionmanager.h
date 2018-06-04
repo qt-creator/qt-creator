@@ -44,6 +44,7 @@ public:
     void connectToServer(const QUrl &server);
     void disconnectFromServer();
 
+    bool isConnecting() const;
     bool isConnected() const;
 
     void setRetryParams(int interval, int maxAttempts);

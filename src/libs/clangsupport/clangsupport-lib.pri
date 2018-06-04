@@ -16,21 +16,21 @@ SOURCES += \
     $$PWD/clangcodemodelconnectionclient.cpp \
     $$PWD/clangcodemodelserverinterface.cpp \
     $$PWD/clangcodemodelserverproxy.cpp \
-    $$PWD/cmbalivemessage.cpp \
-    $$PWD/cmbcodecompletedmessage.cpp \
-    $$PWD/cmbcompletecodemessage.cpp \
-    $$PWD/cmbechomessage.cpp \
-    $$PWD/cmbendmessage.cpp \
-    $$PWD/cmbregisterprojectsforeditormessage.cpp \
-    $$PWD/cmbregistertranslationunitsforeditormessage.cpp \
-    $$PWD/cmbunregisterprojectsforeditormessage.cpp \
-    $$PWD/cmbunregistertranslationunitsforeditormessage.cpp \
+    $$PWD/alivemessage.cpp \
+    $$PWD/completionsmessage.cpp \
+    $$PWD/requestcompletionsmessage.cpp \
+    $$PWD/echomessage.cpp \
+    $$PWD/endmessage.cpp \
+    $$PWD/projectpartsupdatedmessage.cpp \
+    $$PWD/documentsopenedmessage.cpp \
+    $$PWD/projectpartsremovedmessage.cpp \
+    $$PWD/documentsclosedmessage.cpp \
     $$PWD/codecompletionchunk.cpp \
     $$PWD/codecompletion.cpp \
     $$PWD/connectionclient.cpp \
     $$PWD/connectionserver.cpp \
     $$PWD/diagnosticcontainer.cpp \
-    $$PWD/documentannotationschangedmessage.cpp \
+    $$PWD/annotationsmessage.cpp \
     $$PWD/dynamicastmatcherdiagnosticcontainer.cpp \
     $$PWD/dynamicastmatcherdiagnosticcontextcontainer.cpp \
     $$PWD/dynamicastmatcherdiagnosticmessagecontainer.cpp \
@@ -55,9 +55,9 @@ SOURCES += \
     $$PWD/refactoringserverinterface.cpp \
     $$PWD/refactoringserverproxy.cpp \
     $$PWD/referencesmessage.cpp \
-    $$PWD/registerunsavedfilesforeditormessage.cpp \
+    $$PWD/unsavedfilesupdatedmessage.cpp \
     $$PWD/removeprojectpartsmessage.cpp \
-    $$PWD/requestdocumentannotations.cpp \
+    $$PWD/requestannotationsmessage.cpp \
     $$PWD/requestfollowsymbolmessage.cpp \
     $$PWD/requestreferencesmessage.cpp \
     $$PWD/requestsourcelocationforrenamingmessage.cpp \
@@ -80,10 +80,10 @@ SOURCES += \
     $$PWD/tokeninfocontainer.cpp \
     $$PWD/tooltipmessage.cpp \
     $$PWD/tooltipinfo.cpp \
-    $$PWD/unregisterunsavedfilesforeditormessage.cpp \
+    $$PWD/unsavedfilesremovedmessage.cpp \
     $$PWD/updateprojectpartsmessage.cpp \
-    $$PWD/updatetranslationunitsforeditormessage.cpp \
-    $$PWD/updatevisibletranslationunitsmessage.cpp \
+    $$PWD/documentschangedmessage.cpp \
+    $$PWD/documentvisibilitychangedmessage.cpp \
     $$PWD/writemessageblock.cpp \
     $$PWD/filepathcaching.cpp \
     $$PWD/filepathid.cpp \
@@ -106,21 +106,21 @@ HEADERS += \
     $$PWD/clangrefactoringclientmessages.h \
     $$PWD/clangrefactoringmessages.h \
     $$PWD/clangrefactoringservermessages.h \
-    $$PWD/cmbalivemessage.h \
-    $$PWD/cmbcodecompletedmessage.h \
-    $$PWD/cmbcompletecodemessage.h \
-    $$PWD/cmbechomessage.h \
-    $$PWD/cmbendmessage.h \
-    $$PWD/cmbregisterprojectsforeditormessage.h \
-    $$PWD/cmbregistertranslationunitsforeditormessage.h \
-    $$PWD/cmbunregisterprojectsforeditormessage.h \
-    $$PWD/cmbunregistertranslationunitsforeditormessage.h \
+    $$PWD/alivemessage.h \
+    $$PWD/completionsmessage.h \
+    $$PWD/requestcompletionsmessage.h \
+    $$PWD/echomessage.h \
+    $$PWD/endmessage.h \
+    $$PWD/projectpartsupdatedmessage.h \
+    $$PWD/documentsopenedmessage.h \
+    $$PWD/projectpartsremovedmessage.h \
+    $$PWD/documentsclosedmessage.h \
     $$PWD/codecompletionchunk.h \
     $$PWD/codecompletion.h \
     $$PWD/connectionclient.h \
     $$PWD/connectionserver.h \
     $$PWD/diagnosticcontainer.h \
-    $$PWD/documentannotationschangedmessage.h \
+    $$PWD/annotationsmessage.h \
     $$PWD/dynamicastmatcherdiagnosticcontainer.h \
     $$PWD/dynamicastmatcherdiagnosticcontextcontainer.h \
     $$PWD/dynamicastmatcherdiagnosticmessagecontainer.h \
@@ -149,9 +149,9 @@ HEADERS += \
     $$PWD/refactoringserverinterface.h \
     $$PWD/refactoringserverproxy.h \
     $$PWD/referencesmessage.h \
-    $$PWD/registerunsavedfilesforeditormessage.h \
+    $$PWD/unsavedfilesupdatedmessage.h \
     $$PWD/removeprojectpartsmessage.h \
-    $$PWD/requestdocumentannotations.h \
+    $$PWD/requestannotationsmessage.h \
     $$PWD/requestfollowsymbolmessage.h \
     $$PWD/requestreferencesmessage.h \
     $$PWD/requestsourcelocationforrenamingmessage.h \
@@ -177,10 +177,10 @@ HEADERS += \
     $$PWD/tokeninfocontainer.h \
     $$PWD/tooltipmessage.h \
     $$PWD/tooltipinfo.h \
-    $$PWD/unregisterunsavedfilesforeditormessage.h \
+    $$PWD/unsavedfilesremovedmessage.h \
     $$PWD/updateprojectpartsmessage.h \
-    $$PWD/updatetranslationunitsforeditormessage.h \
-    $$PWD/updatevisibletranslationunitsmessage.h \
+    $$PWD/documentschangedmessage.h \
+    $$PWD/documentvisibilitychangedmessage.h \
     $$PWD/writemessageblock.h \
     $$PWD/ipcclientprovider.h \
     $$PWD/requestsourcerangesforquerymessage.h \

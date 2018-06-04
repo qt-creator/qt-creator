@@ -73,6 +73,7 @@ private:
     void onRemoveButtonClicked();
     void onClangTidyModeChanged(int index);
     void onClangTidyTreeChanged();
+    void onClangTidyTreeItemClicked(const QModelIndex &index);
     void onClazyRadioButtonChanged(bool checked);
 
     void onDiagnosticOptionsEdited();

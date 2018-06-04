@@ -4131,7 +4131,7 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
     QRect updateRect(lineRect.toRect().topRight(), boundingRect.toRect().bottomRight());
     updateRect.setLeft(qBound(0, updateRect.left(), q->viewport()->width() - 1));
     updateRect.setRight(qBound(0, updateRect.right(), q->viewport()->width() - 1));
-    if (!updateRect.isEmpty() && !data.eventRect.contains(updateRect))
+    if (!updateRect.isEmpty() && !data.eventRect.contains(q->viewport()->rect() & updateRect))
         q->viewport()->update(updateRect);
 }
 

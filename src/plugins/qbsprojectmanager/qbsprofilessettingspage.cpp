@@ -100,7 +100,7 @@ void QbsProfilesSettingsPage::finish()
 
 QbsProfilesSettingsWidget::QbsProfilesSettingsWidget(QWidget *parent)
     : QWidget(parent)
-    , m_model(QbsProjectManagerSettings::qbsSettingsBaseDir())
+    , m_model(QbsProjectManagerSettings::qbsSettingsBaseDir(), qbs::Settings::UserScope)
 {
     m_model.setEditable(false);
     m_ui.setupUi(this);
