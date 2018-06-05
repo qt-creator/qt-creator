@@ -64,11 +64,8 @@ void buildTree(const TokenContainers &containers,
     std::unordered_map<int, TokenTreeItem *> treeItemCache;
     for (int index = 0; index < containers.size(); ++index) {
         const TokenContainer &container = containers[index];
-        if (!container.extraInfo.declaration ||
-                (container.types.mainHighlightingType
-                 == ClangBackEnd::HighlightingType::LocalVariable)) {
+        if (!container.isGlobalDeclaration())
             continue;
-        }
 
         const int lexicalParentIndex = container.extraInfo.lexicalParentIndex;
         QTC_ASSERT(lexicalParentIndex < index, return;);
