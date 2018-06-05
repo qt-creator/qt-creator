@@ -80,15 +80,11 @@ void buildTree(const TokenContainers &containers,
         if (lexicalParentIndex >= 0 && treeItemCache[lexicalParentIndex])
             parent = treeItemCache[lexicalParentIndex];
 
-        if (parent != root
-                && (container.extraInfo.storageClass == ClangBackEnd::StorageClass::Extern
-                    || container.extraInfo.storageClass == ClangBackEnd::StorageClass::Static)) {
-            ClangBackEnd::HighlightingType parentType = parent->token.types.mainHighlightingType;
-            if (parentType == ClangBackEnd::HighlightingType::VirtualFunction
-                    || parentType == ClangBackEnd::HighlightingType::Function) {
-                // Treat static and extern variables inside a function scope as local variables.
-                continue;
-            }
+        ClangBackEnd::HighlightingType parentType = parent->token.types.mainHighlightingType;
+        if (parentType == ClangBackEnd::HighlightingType::VirtualFunction
+                || parentType == ClangBackEnd::HighlightingType::Function) {
+            // Treat everything inside a function scope as local variables.
+            continue;
         }
 
         parent->appendChild(item.release());
