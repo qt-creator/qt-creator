@@ -405,6 +405,13 @@
     The CPU Usage Analyzer might fail to record data for the following reasons:
 
     \list 1
+        \li Perf events may be globally disabled on your system. The
+            preconfigured Boot to Qt images come with perf events enabled. For
+            a custom configuration you need to make sure that the file
+            \c {/proc/sys/kernel/perf_event_paranoid} contains a value smaller
+            than \c {2}. For maximum flexibility in recording traces you can
+            set the value to \c {-1}. This allows any user to record any kind
+            of trace, even using raw kernel trace points.
         \li The connection between the target device and the host may not be
             fast enough to transfer the data produced by Perf. Try modifying
             the values of the \uicontrol {Stack snapshot size} or
