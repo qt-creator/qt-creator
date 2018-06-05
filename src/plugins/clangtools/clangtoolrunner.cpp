@@ -143,7 +143,7 @@ QString ClangToolRunner::createLogFile(const QString &filePath) const
 {
     const QString fileName = QFileInfo(filePath).fileName();
     const QString fileTemplate = m_clangLogFileDir
-            + QLatin1String("/report-") + fileName + QLatin1String("-XXXXXX.plist");
+            + QLatin1String("/report-") + fileName + QLatin1String("-XXXXXX");
 
     Utils::TemporaryFile temporaryFile("clangtools");
     temporaryFile.setAutoRemove(false);
