@@ -48,11 +48,10 @@ ClangTidyClazyRunControl::ClangTidyClazyRunControl(
 ClangToolRunner *ClangTidyClazyRunControl::createRunner()
 {
     QTC_ASSERT(!m_clangExecutable.isEmpty(), return 0);
-    QTC_ASSERT(!m_clangLogFileDir.isEmpty(), return 0);
 
     auto runner = new ClangTidyClazyRunner(m_diagnosticConfig,
                                            m_clangExecutable,
-                                           m_clangLogFileDir,
+                                           m_temporaryDir.path(),
                                            m_environment,
                                            this);
     connect(runner, &ClangTidyClazyRunner::finishedWithSuccess,

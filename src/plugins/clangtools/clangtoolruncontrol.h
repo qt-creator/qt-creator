@@ -30,6 +30,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <cpptools/projectinfo.h>
 #include <utils/environment.h>
+#include <utils/temporarydirectory.h>
 
 #include <QFutureInterface>
 #include <QStringList>
@@ -90,7 +91,7 @@ protected:
     ProjectBuilder *m_projectBuilder;
     Utils::Environment m_environment;
     QString m_clangExecutable;
-    QString m_clangLogFileDir;
+    Utils::TemporaryDirectory m_temporaryDir;
 
 private:
     QPointer<ProjectExplorer::Target> m_target;
