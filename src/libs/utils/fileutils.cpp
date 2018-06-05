@@ -801,7 +801,7 @@ QTextStream &operator<<(QTextStream &s, const FileName &fn)
 
 #ifdef Q_OS_WIN
 template <>
-void withNTFSPermissions(const std::function<void()> &task)
+void withNtfsPermissions(const std::function<void()> &task)
 {
     qt_ntfs_permission_lookup++;
     task();

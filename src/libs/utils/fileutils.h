@@ -51,7 +51,7 @@ class QWidget;
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Utils::FileName &c);
 
-// for withNTFSPermissions
+// for withNtfsPermissions
 #ifdef Q_OS_WIN
 extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
 #endif
@@ -135,7 +135,7 @@ public:
 #ifdef Q_OS_WIN
 
 template <typename T>
-T withNTFSPermissions(const std::function<T()> &task)
+T withNtfsPermissions(const std::function<T()> &task)
 {
     qt_ntfs_permission_lookup++;
     T result = task();
@@ -144,12 +144,12 @@ T withNTFSPermissions(const std::function<T()> &task)
 }
 
 template <>
-QTCREATOR_UTILS_EXPORT void withNTFSPermissions(const std::function<void()> &task);
+QTCREATOR_UTILS_EXPORT void withNtfsPermissions(const std::function<void()> &task);
 
 #else // Q_OS_WIN
 
 template <typename T>
-T withNTFSPermissions(const std::function<T()> &task)
+T withNtfsPermissions(const std::function<T()> &task)
 {
     return task();
 }
