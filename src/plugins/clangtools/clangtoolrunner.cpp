@@ -122,9 +122,10 @@ void ClangToolRunner::onProcessFinished(int exitCode, QProcess::ExitStatus exitS
             qCDebug(LOG).noquote() << "Output:\n" << Utils::SynchronousProcess::normalizeNewlines(
                                                         QString::fromLocal8Bit(m_processOutput));
             emit finishedWithSuccess(m_filePath);
+        } else {
+            emit finishedWithFailure(finishedWithBadExitCode(m_name, exitCode),
+                                     processCommandlineAndOutput());
         }
-        else
-            emit finishedWithFailure(finishedWithBadExitCode(m_name, exitCode), processCommandlineAndOutput());
     } else { // == QProcess::CrashExit
         emit finishedWithFailure(finishedDueToCrash(m_name), processCommandlineAndOutput());
     }
