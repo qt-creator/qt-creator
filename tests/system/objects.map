@@ -67,7 +67,7 @@
 :File has been removed.Save_QPushButton	{text='Save' type='QPushButton' unnamed='1' visible='1' window=':File has been removed_QMessageBox'}
 :File has been removed_QMessageBox	{text?='The file * removed*. Do you want to save it under a different name, or close the editor?' type='QMessageBox' unnamed='1' visible='1'}
 :Files.Check all_QCheckBox	{container=':splitter.Files_QGroupBox' name='checkAllCheckBox' text='Select all' type='QCheckBox' visible='1'}
-:Form.Startup_QGroupBox	{container=':qt_tabwidget_stackedwidget.Form_QWidget' name='startupGroupBox' title='Startup' type='QGroupBox' visible='1'}
+:Form.Startup_QGroupBox	{container=':qt_tabwidget_stackedwidget_QScrollArea' name='startupGroupBox' type='QGroupBox' visible='1'}
 :FormEditorStack.CheckBox_QCheckBox	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' name='checkBox' text='CheckBox' type='QCheckBox' visible='1'}
 :FormEditorStack.PushButton_QPushButton	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' name='pushButton' text='PushButton' type='QPushButton' visible='1'}
 :FormEditorStack.__qt__passive_editor_QLineEdit	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' name='__qt__passive_editor' type='QLineEdit' visible='1'}
@@ -212,7 +212,6 @@
 :qdesigner_internal::WidgetBoxCategoryListView	{container=':Widget Box_qdesigner_internal::WidgetBoxTreeWidget' occurrence='3' type='qdesigner_internal::WidgetBoxCategoryListView' unnamed='1' visible='1'}
 :qmakeCallEdit	{container=':Qt Creator.scrollArea_QScrollArea' text?='<b>qmake:</b> qmake*' type='QLabel' unnamed='1' visible='1'}
 :qt_tabwidget_stackedwidget.Core__Internal__GeneralSettings_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='Core__Internal__GeneralSettings' type='QWidget' visible='1'}
-:qt_tabwidget_stackedwidget.Form_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='Help__Internal__GeneralSettingsPage' type='QWidget' visible='1' windowTitle='Form'}
 :qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='QtSupport__Internal__QtVersionManager' type='QtSupport::Internal::QtOptionsPageWidget' visible='1'}
 :qt_tabwidget_stackedwidget_QScrollArea	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' type='QScrollArea' unnamed='1' visible='1'}
 :qt_tabwidget_stackedwidget_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' type='QWidget' unnamed='1' visible='1'}
