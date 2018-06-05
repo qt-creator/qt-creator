@@ -387,7 +387,7 @@ void ClangToolRunControl::analyzeNextFile()
 
 void ClangToolRunControl::onRunnerFinishedWithSuccess(const QString &filePath)
 {
-    const QString logFilePath = qobject_cast<ClangToolRunner *>(sender())->actualLogFile();
+    const QString logFilePath = qobject_cast<ClangToolRunner *>(sender())->logFilePath();
     qCDebug(LOG) << "onRunnerFinishedWithSuccess:" << logFilePath;
 
     QString errorMessage;
@@ -415,7 +415,7 @@ void ClangToolRunControl::onRunnerFinishedWithFailure(const QString &errorMessag
                            << errorMessage << '\n' << errorDetails;
 
     // Even in the error case the log file was created, so clean it up here, too.
-    QFile::remove(qobject_cast<ClangToolRunner *>(sender())->actualLogFile());
+    QFile::remove(qobject_cast<ClangToolRunner *>(sender())->logFilePath());
 
     ++m_filesNotAnalyzed;
     m_success = false;

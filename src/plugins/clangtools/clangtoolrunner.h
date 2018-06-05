@@ -52,8 +52,8 @@ public:
     //   (2) -o output-file
     bool run(const QString &filePath, const QStringList &compilerOptions = QStringList());
 
-    QString filePath() const;
-    QString actualLogFile() const;
+    QString filePath() const { return m_filePath; }
+    QString logFilePath() const { return m_logFile; }
 
 signals:
     void started();

@@ -105,11 +105,6 @@ bool ClangToolRunner::run(const QString &filePath, const QStringList &compilerOp
     return true;
 }
 
-QString ClangToolRunner::filePath() const
-{
-    return m_filePath;
-}
-
 void ClangToolRunner::onProcessStarted()
 {
     emit started();
@@ -169,16 +164,6 @@ QString ClangToolRunner::processCommandlineAndOutput() const
                                  QString::number(m_process.error()),
                                  Utils::SynchronousProcess::normalizeNewlines(
                                      QString::fromLocal8Bit(m_processOutput)));
-}
-
-QString ClangToolRunner::actualLogFile() const
-{
-    if (QFileInfo(m_logFile).size() == 0) {
-        // Current clang-cl ignores -o, always putting the log file into the working directory.
-        return m_clangLogFileDir + QLatin1Char('/') + QFileInfo(m_filePath).completeBaseName()
-                + QLatin1String(".plist");
-    }
-    return m_logFile;
 }
 
 } // namespace Internal
