@@ -136,7 +136,7 @@ private:
     Core::Id m_diagnosticConfigId;
     bool m_isProjectFile = false;
     QFutureWatcher<void> m_parserWatcher;
-    QTimer m_updateTranslationUnitTimer;
+    QTimer m_updateBackendDocumentTimer;
     unsigned m_parserRevision;
 
     QVector<ClangBackEnd::TokenInfoContainer> m_tokenInfos;
