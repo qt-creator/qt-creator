@@ -67,7 +67,7 @@ static bool checkFilePath(const QString &filePath, QString *errorMessage)
 QList<Diagnostic> LogFileReader::readSerialized(const QString &filePath, const QString &logFilePath,
                                                 QString *errorMessage)
 {
-    if (!checkFilePath(filePath, errorMessage))
+    if (!checkFilePath(logFilePath, errorMessage))
         return QList<Diagnostic>();
 
     ClangSerializedDiagnosticsReader reader;
