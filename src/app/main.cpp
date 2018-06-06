@@ -337,6 +337,43 @@ void loadFonts()
         QFontDatabase::addApplicationFont(fileInfo.absoluteFilePath());
 }
 
+struct Options
+{
+    QString settingsPath;
+    QString installSettingsPath;
+    QStringList customPluginPaths;
+    std::vector<char *> appArguments;
+    bool hasTestOption = false;
+};
+
+Options parseCommandLine(int argc, char *argv[])
+{
+    Options options;
+    auto it = argv;
+    const auto end = argv + argc;
+    while (it != end) {
+        const auto arg = QString::fromLocal8Bit(*it);
+        const bool hasNext = it + 1 != end;
+
+        if (arg == SETTINGS_OPTION && hasNext) {
+            ++it;
+            options.settingsPath = QDir::fromNativeSeparators(QString::fromLocal8Bit(*it));
+        } else if (arg == INSTALL_SETTINGS_OPTION && hasNext) {
+            ++it;
+            options.installSettingsPath = QDir::fromNativeSeparators(QString::fromLocal8Bit(*it));
+        } else if (arg == PLUGINPATH_OPTION && hasNext) {
+            ++it;
+            options.customPluginPaths += QDir::fromNativeSeparators(QString::fromLocal8Bit(*it));
+        } else { // arguments that are still passed on to the application
+            if (arg == TEST_OPTION)
+                options.hasTestOption = true;
+            options.appArguments.push_back(*it);
+        }
+        ++it;
+    }
+    return options;
+}
+
 int main(int argc, char **argv)
 {
 #ifdef Q_OS_WIN
@@ -362,68 +399,40 @@ int main(int argc, char **argv)
     setrlimit(RLIMIT_NOFILE, &rl);
 #endif
 
-    // Manually determine -settingspath and -installsettingspath command line options
-    // We can't use the regular way of the plugin manager, because that needs to parse plugin meta data
-    // but the settings path can influence which plugins are enabled
-    QString settingsPath;
-    QString installSettingsPath;
-    QStringList customPluginPaths;
-    std::vector<char *> appArguments;
-    bool hasTestOption = false;
-
-    auto it = argv;
-    const auto end = argv + argc;
-    while (it != end) {
-        const auto arg = QString::fromLocal8Bit(*it);
-        const bool hasNext = it + 1 != end;
-
-        if (arg == SETTINGS_OPTION && hasNext) {
-            ++it;
-            settingsPath = QDir::fromNativeSeparators(QString::fromLocal8Bit(*it));
-        } else if (arg == INSTALL_SETTINGS_OPTION && hasNext) {
-            ++it;
-            installSettingsPath = QDir::fromNativeSeparators(QString::fromLocal8Bit(*it));
-        } else if (arg == PLUGINPATH_OPTION && hasNext) {
-            ++it;
-            customPluginPaths += QDir::fromNativeSeparators(QString::fromLocal8Bit(*it));
-        } else {
-            if (arg == TEST_OPTION)
-                hasTestOption = true;
-            appArguments.push_back(*it);
-        }
-        ++it;
-    }
-
+    // Manually determine various command line options
+    // We can't use the regular way of the plugin manager,
+    // because settings can change the way plugin manager behaves
+    Options options = parseCommandLine(argc, argv);
     applicationDirPath(argv[0]);
 
     QScopedPointer<Utils::TemporaryDirectory> temporaryCleanSettingsDir;
-    if (settingsPath.isEmpty() && hasTestOption) {
+    if (options.settingsPath.isEmpty() && options.hasTestOption) {
         temporaryCleanSettingsDir.reset(new Utils::TemporaryDirectory("qtc-test-settings"));
         if (!temporaryCleanSettingsDir->isValid())
             return 1;
-        settingsPath = temporaryCleanSettingsDir->path();
+        options.settingsPath = temporaryCleanSettingsDir->path();
     }
-    if (!settingsPath.isEmpty())
-        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsPath);
+    if (!options.settingsPath.isEmpty())
+        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, options.settingsPath);
 
     // Must be done before any QSettings class is created
     QSettings::setDefaultFormat(QSettings::IniFormat);
-    setupInstallSettings(installSettingsPath);
+    setupInstallSettings(options.installSettingsPath);
     // plugin manager takes control of this settings object
 
     setHighDpiEnvironmentVariable();
 
     SharedTools::QtSingleApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
-    int numberofArguments = static_cast<int>(appArguments.size());
+    int numberofArguments = static_cast<int>(options.appArguments.size());
 
     SharedTools::QtSingleApplication app((QLatin1String(Core::Constants::IDE_DISPLAY_NAME)),
                                          numberofArguments,
-                                         appArguments.data());
+                                         options.appArguments.data());
     const QStringList pluginArguments = app.arguments();
 
     /*Initialize global settings and resetup install settings with QApplication::applicationDirPath */
-    setupInstallSettings(installSettingsPath);
+    setupInstallSettings(options.installSettingsPath);
     QSettings *settings = userSettings();
     QSettings *globalSettings = new QSettings(QSettings::IniFormat, QSettings::SystemScope,
                                               QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
@@ -490,7 +499,7 @@ int main(int argc, char **argv)
     QNetworkProxyFactory::setUseSystemConfiguration(true);
 
     // Load
-    const QStringList pluginPaths = getPluginPaths() + customPluginPaths;
+    const QStringList pluginPaths = getPluginPaths() + options.customPluginPaths;
     PluginManager::setPluginPaths(pluginPaths);
     QMap<QString, QString> foundAppOptions;
     if (pluginArguments.size() > 1) {
