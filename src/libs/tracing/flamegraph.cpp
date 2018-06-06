@@ -30,6 +30,8 @@ namespace FlameGraph {
 FlameGraph::FlameGraph(QQuickItem *parent) :
     QQuickItem(parent)
 {
+    setAcceptedMouseButtons(Qt::LeftButton);
+
     // Queue the rebuild in this case so that a delegate can set the root without getting deleted
     // during the call.
     connect(this, &FlameGraph::rootChanged, this, &FlameGraph::rebuild, Qt::QueuedConnection);
@@ -130,7 +132,6 @@ QObject *FlameGraph::appendChild(QObject *parentObject, QQuickItem *parentItem,
     return childObject;
 }
 
-
 int FlameGraph::buildNode(const QModelIndex &parentIndex, QObject *parentObject, int depth,
                           int maximumDepth)
 {
@@ -192,6 +193,24 @@ void FlameGraph::rebuild()
     }
 
     emit depthChanged(m_depth);
+}
+
+void FlameGraph::mousePressEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+void FlameGraph::mouseReleaseEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event);
+    setSelectedTypeId(-1);
+}
+
+void FlameGraph::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event);
+    setSelectedTypeId(-1);
+    resetRoot();
 }
 
 } // namespace FlameGraph

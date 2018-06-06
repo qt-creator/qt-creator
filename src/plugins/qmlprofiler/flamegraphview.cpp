@@ -67,7 +67,7 @@ FlameGraphView::FlameGraphView(QmlProfilerModelManager *manager, QWidget *parent
     layout->addWidget(m_content);
     setLayout(layout);
 
-    connect(m_model, &FlameGraphModel::typeSelected, this, &FlameGraphView::typeSelected);
+    connect(m_content->rootObject(), SIGNAL(typeSelected(int)), this, SIGNAL(typeSelected(int)));
     connect(m_model, &FlameGraphModel::gotoSourceLocation,
             this, &FlameGraphView::gotoSourceLocation);
 }

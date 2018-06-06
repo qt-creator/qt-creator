@@ -32,7 +32,16 @@ import QtQuick.Controls 1.3
 
 ScrollView {
     id: root
+
     property int selectedTypeId: -1
+    signal typeSelected(int typeId)
+
+    onSelectedTypeIdChanged: {
+        // selectedTypeId can be set from outside. Don't send typeSelected() from here.
+        tooltip.hoveredNode = null;
+        flamegraph.selectedTypeId = selectedTypeId;
+    }
+
     property int sizeRole: -1
     property var model: null
 
@@ -117,25 +126,6 @@ ScrollView {
         }
     }
 
-    onSelectedTypeIdChanged: tooltip.hoveredNode = null
-
-    MouseArea {
-        anchors.fill: parent
-        onClicked: {
-            selectedTypeId = -1;
-            tooltip.selectedNode = null;
-            if (model !== null)
-                model.typeSelected(-1);
-        }
-        onDoubleClicked: {
-            selectedTypeId = -1;
-            tooltip.selectedNode = null;
-            if (model !== null)
-                model.typeSelected(-1);
-            flamegraph.resetRoot();
-        }
-    }
-
     Flickable {
         id: flickable
         contentHeight: flamegraph.height
@@ -158,6 +148,14 @@ ScrollView {
             maximumDepth: 128
             y: flickable.height > height ? flickable.height - height : 0
 
+            onSelectedTypeIdChanged: {
+                if (selectedTypeId !== root.selectedTypeId) {
+                    // Change originates from inside. Send typeSelected().
+                    root.selectedTypeId = selectedTypeId;
+                    root.typeSelected(selectedTypeId);
+                }
+            }
+
             delegate: FlameGraphDelegate {
                 id: flamegraphItem
 
@@ -165,7 +163,7 @@ ScrollView {
                 property bool isHighlighted: root.isHighlighted(flamegraphItem)
 
                 itemHeight: flamegraph.delegateHeight
-                isSelected: typeId !== -1 && typeId === root.selectedTypeId
+                isSelected: typeId !== -1 && typeId === flamegraph.selectedTypeId
 
                 borderColor: {
                     if (isSelected)
@@ -189,7 +187,7 @@ ScrollView {
 
                 onIsSelectedChanged: {
                     if (isSelected && (tooltip.selectedNode === null ||
-                            tooltip.selectedNode.typeId !== root.selectedTypeId)) {
+                            tooltip.selectedNode.typeId !== flamegraph.selectedTypeId)) {
                         tooltip.selectedNode = flamegraphItem;
                     } else if (!isSelected && tooltip.selectedNode === flamegraphItem) {
                         tooltip.selectedNode = null;
@@ -222,7 +220,7 @@ ScrollView {
                     if (tooltip.hoveredNode === flamegraphItem) {
                         // Keep the window around until something else is hovered or selected.
                         if (tooltip.selectedNode === null
-                                || tooltip.selectedNode.typeId !== root.selectedTypeId) {
+                                || tooltip.selectedNode.typeId !== flamegraph.selectedTypeId) {
                             tooltip.selectedNode = flamegraphItem;
                         }
                         tooltip.hoveredNode = null;
@@ -232,8 +230,7 @@ ScrollView {
                 function selectClicked() {
                     if (FlameGraph.dataValid) {
                         tooltip.selectedNode = flamegraphItem;
-                        selectedTypeId = FlameGraph.data(root.typeIdRole);
-                        model.typeSelected(selectedTypeId);
+                        flamegraph.selectedTypeId = FlameGraph.data(root.typeIdRole);
                         model.gotoSourceLocation(
                                     FlameGraph.data(root.sourceFileRole),
                                     FlameGraph.data(root.sourceLineRole),
@@ -246,6 +243,7 @@ ScrollView {
                     tooltip.selectedNode = null;
                     tooltip.hoveredNode = null;
                     flamegraph.root = FlameGraph.modelIndex;
+                    selectClicked();
                 }
 
                 // Functions, not properties to limit the initial overhead when creating the nodes,
@@ -288,9 +286,8 @@ ScrollView {
             }
 
             onClearSelection: {
-                selectedTypeId = -1;
+                flamegraph.selectedTypeId = -1;
                 selectedNode = null;
-                root.model.typeSelected(-1);
             }
 
             dialogTitle: {
