@@ -758,7 +758,6 @@ void HelpPluginPrivate::slotSystemInformation()
 {
     auto dialog = new DialogClosingOnEscape(ICore::dialogParent());
     dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->setWindowFlags(Qt::Window);
     dialog->setModal(true);
     dialog->setWindowTitle(HelpPlugin::tr("System Information"));
     auto layout = new QVBoxLayout;
