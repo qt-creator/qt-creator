@@ -354,16 +354,17 @@ Options parseCommandLine(int argc, char *argv[])
     while (it != end) {
         const auto arg = QString::fromLocal8Bit(*it);
         const bool hasNext = it + 1 != end;
+        const auto nextArg = hasNext ? QString::fromLocal8Bit(*(it + 1)) : QString();
 
         if (arg == SETTINGS_OPTION && hasNext) {
             ++it;
-            options.settingsPath = QDir::fromNativeSeparators(QString::fromLocal8Bit(*it));
+            options.settingsPath = QDir::fromNativeSeparators(nextArg);
         } else if (arg == INSTALL_SETTINGS_OPTION && hasNext) {
             ++it;
-            options.installSettingsPath = QDir::fromNativeSeparators(QString::fromLocal8Bit(*it));
+            options.installSettingsPath = QDir::fromNativeSeparators(nextArg);
         } else if (arg == PLUGINPATH_OPTION && hasNext) {
             ++it;
-            options.customPluginPaths += QDir::fromNativeSeparators(QString::fromLocal8Bit(*it));
+            options.customPluginPaths += QDir::fromNativeSeparators(nextArg);
         } else { // arguments that are still passed on to the application
             if (arg == TEST_OPTION)
                 options.hasTestOption = true;
