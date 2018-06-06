@@ -50,7 +50,7 @@ def startCreator(useClang):
             if not startCreatorTryingClang():
                 return False
         else:
-            startApplication("qtcreator" + SettingsPath)
+            startApplication("qtcreator -noload ClangCodeModel" + SettingsPath)
     finally:
         overrideStartApplication()
     return startedWithoutPluginError()

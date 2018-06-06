@@ -251,7 +251,7 @@ std::string SymbolGroup::debug(const std::string &iname,
 
 typedef std::pair<unsigned, std::string> InamePathEntry;
 
-struct InamePathEntryLessThan : public std::binary_function<InamePathEntry, InamePathEntry, bool> {
+struct InamePathEntryLessThan {
     bool operator()(const InamePathEntry &i1, const InamePathEntry& i2) const
     {
         if (i1.first < i2.first)

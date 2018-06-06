@@ -71,7 +71,7 @@ template <typename Type>
 class TypeTable
 {
 public:
-    struct Compare: std::binary_function<Type, Type, bool> {
+    struct Compare {
         bool operator()(const Type &value, const Type &other) const {
             return value.isLessThan(&other);
         }

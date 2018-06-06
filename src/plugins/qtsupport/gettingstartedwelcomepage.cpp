@@ -201,7 +201,7 @@ void ExamplesWelcomePage::openProject(const ExampleItem &item)
 
     // If the Qt is a distro Qt on Linux, it will not be writable, hence compilation will fail
     // Same if it is installed in non-writable location for other reasons
-    const bool needsCopy = withNTFSPermissions<bool>([proFileInfo] {
+    const bool needsCopy = withNtfsPermissions<bool>([proFileInfo] {
         QFileInfo pathInfo(proFileInfo.path());
         return !proFileInfo.isWritable()
                 || !pathInfo.isWritable() /* path of .pro file */

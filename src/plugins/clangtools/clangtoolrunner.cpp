@@ -105,11 +105,6 @@ bool ClangToolRunner::run(const QString &filePath, const QStringList &compilerOp
     return true;
 }
 
-QString ClangToolRunner::filePath() const
-{
-    return m_filePath;
-}
-
 void ClangToolRunner::onProcessStarted()
 {
     emit started();
@@ -121,10 +116,11 @@ void ClangToolRunner::onProcessFinished(int exitCode, QProcess::ExitStatus exitS
         if (exitCode == 0) {
             qCDebug(LOG).noquote() << "Output:\n" << Utils::SynchronousProcess::normalizeNewlines(
                                                         QString::fromLocal8Bit(m_processOutput));
-            emit finishedWithSuccess(m_filePath, actualLogFile());
+            emit finishedWithSuccess(m_filePath);
+        } else {
+            emit finishedWithFailure(finishedWithBadExitCode(m_name, exitCode),
+                                     processCommandlineAndOutput());
         }
-        else
-            emit finishedWithFailure(finishedWithBadExitCode(m_name, exitCode), processCommandlineAndOutput());
     } else { // == QProcess::CrashExit
         emit finishedWithFailure(finishedDueToCrash(m_name), processCommandlineAndOutput());
     }
@@ -147,7 +143,7 @@ QString ClangToolRunner::createLogFile(const QString &filePath) const
 {
     const QString fileName = QFileInfo(filePath).fileName();
     const QString fileTemplate = m_clangLogFileDir
-            + QLatin1String("/report-") + fileName + QLatin1String("-XXXXXX.plist");
+            + QLatin1String("/report-") + fileName + QLatin1String("-XXXXXX");
 
     Utils::TemporaryFile temporaryFile("clangtools");
     temporaryFile.setAutoRemove(false);
@@ -168,16 +164,6 @@ QString ClangToolRunner::processCommandlineAndOutput() const
                                  QString::number(m_process.error()),
                                  Utils::SynchronousProcess::normalizeNewlines(
                                      QString::fromLocal8Bit(m_processOutput)));
-}
-
-QString ClangToolRunner::actualLogFile() const
-{
-    if (QFileInfo(m_logFile).size() == 0) {
-        // Current clang-cl ignores -o, always putting the log file into the working directory.
-        return m_clangLogFileDir + QLatin1Char('/') + QFileInfo(m_filePath).completeBaseName()
-                + QLatin1String(".plist");
-    }
-    return m_logFile;
 }
 
 } // namespace Internal

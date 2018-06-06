@@ -30,6 +30,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <cpptools/projectinfo.h>
 #include <utils/environment.h>
+#include <utils/temporarydirectory.h>
 
 #include <QFutureInterface>
 #include <QStringList>
@@ -69,7 +70,7 @@ protected:
 
     virtual ClangToolRunner *createRunner() = 0;
 
-    void onRunnerFinishedWithSuccess(const QString &filePath, const QString &logFilePath);
+    void onRunnerFinishedWithSuccess(const QString &filePath);
     void onRunnerFinishedWithFailure(const QString &errorMessage, const QString &errorDetails);
 
 private:
@@ -90,7 +91,7 @@ protected:
     ProjectBuilder *m_projectBuilder;
     Utils::Environment m_environment;
     QString m_clangExecutable;
-    QString m_clangLogFileDir;
+    Utils::TemporaryDirectory m_temporaryDir;
 
 private:
     QPointer<ProjectExplorer::Target> m_target;

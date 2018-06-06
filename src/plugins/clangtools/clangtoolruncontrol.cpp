@@ -60,7 +60,6 @@
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/hostosinfo.h>
-#include <utils/temporarydirectory.h>
 #include <utils/qtcprocess.h>
 
 #include <QAction>
@@ -232,6 +231,7 @@ ClangToolRunControl::ClangToolRunControl(RunControl *runControl,
     : RunWorker(runControl)
     , m_projectBuilder(new ProjectBuilder(runControl, target->project(), this))
     , m_clangExecutable(CppTools::clangExecutable(CLANG_BINDIR))
+    , m_temporaryDir("clangtools-XXXXXX")
     , m_target(target)
     , m_fileInfos(fileInfos)
 {
@@ -299,9 +299,7 @@ void ClangToolRunControl::start()
                   Utils::NormalMessageFormat);
 
     // Create log dir
-    Utils::TemporaryDirectory temporaryDir("qtc-clangtools-XXXXXX");
-    temporaryDir.setAutoRemove(false);
-    if (!temporaryDir.isValid()) {
+    if (!m_temporaryDir.isValid()) {
         const QString errorMessage
                 = toolName + tr(": Failed to create temporary dir, stop.");
         appendMessage(errorMessage, Utils::ErrorMessageFormat);
@@ -310,7 +308,6 @@ void ClangToolRunControl::start()
         reportFailure(errorMessage);
         return;
     }
-    m_clangLogFileDir = temporaryDir.path();
 
     // Collect files
     const AnalyzeUnits unitsToProcess = unitsToAnalyze(CLANG_VERSION);
@@ -388,13 +385,15 @@ void ClangToolRunControl::analyzeNextFile()
                   Utils::StdOutFormat);
 }
 
-void ClangToolRunControl::onRunnerFinishedWithSuccess(const QString &filePath,
-                                                      const QString &logFilePath)
+void ClangToolRunControl::onRunnerFinishedWithSuccess(const QString &filePath)
 {
+    const QString logFilePath = qobject_cast<ClangToolRunner *>(sender())->logFilePath();
     qCDebug(LOG) << "onRunnerFinishedWithSuccess:" << logFilePath;
 
     QString errorMessage;
     const QList<Diagnostic> diagnostics = tool()->read(filePath, logFilePath, &errorMessage);
+    QFile::remove(logFilePath); // Clean-up.
+
     if (!errorMessage.isEmpty()) {
         qCDebug(LOG) << "onRunnerFinishedWithSuccess: Error reading log file:" << errorMessage;
         const QString filePath = qobject_cast<ClangToolRunner *>(sender())->filePath();
@@ -414,6 +413,9 @@ void ClangToolRunControl::onRunnerFinishedWithFailure(const QString &errorMessag
 {
     qCDebug(LOG).noquote() << "onRunnerFinishedWithFailure:"
                            << errorMessage << '\n' << errorDetails;
+
+    // Even in the error case the log file was created, so clean it up here, too.
+    QFile::remove(qobject_cast<ClangToolRunner *>(sender())->logFilePath());
 
     ++m_filesNotAnalyzed;
     m_success = false;

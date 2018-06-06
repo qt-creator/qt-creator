@@ -683,7 +683,7 @@ static QString matchingLine(unsigned position, const QString &source)
     return source.mid(start, end - start);
 }
 
-class ProcessFile: public std::unary_function<QString, QList<FindReferences::Usage> >
+class ProcessFile
 {
     ContextPtr context;
     typedef FindReferences::Usage Usage;
@@ -692,6 +692,10 @@ class ProcessFile: public std::unary_function<QString, QList<FindReferences::Usa
     QFutureInterface<Usage> *future;
 
 public:
+    // needed by QtConcurrent
+    using argument_type = const QString &;
+    using result_type = QList<Usage>;
+
     ProcessFile(const ContextPtr &context,
                 QString name,
                 const ObjectValue *scope,
@@ -721,7 +725,7 @@ public:
     }
 };
 
-class SearchFileForType: public std::unary_function<QString, QList<FindReferences::Usage> >
+class SearchFileForType
 {
     ContextPtr context;
     typedef FindReferences::Usage Usage;
@@ -730,6 +734,10 @@ class SearchFileForType: public std::unary_function<QString, QList<FindReference
     QFutureInterface<Usage> *future;
 
 public:
+    // needed by QtConcurrent
+    using argument_type = const QString &;
+    using result_type = QList<Usage>;
+
     SearchFileForType(const ContextPtr &context,
                       QString name,
                       const ObjectValue *scope,
@@ -759,12 +767,17 @@ public:
     }
 };
 
-class UpdateUI: public std::binary_function<QList<FindReferences::Usage> &, QList<FindReferences::Usage>, void>
+class UpdateUI
 {
     typedef FindReferences::Usage Usage;
     QFutureInterface<Usage> *future;
 
 public:
+    // needed by QtConcurrent
+    using first_argument_type = QList<Usage> &;
+    using second_argument_type = const QList<Usage> &;
+    using result_type = void;
+
     UpdateUI(QFutureInterface<Usage> *future): future(future) {}
 
     void operator()(QList<Usage> &, const QList<Usage> &usages)

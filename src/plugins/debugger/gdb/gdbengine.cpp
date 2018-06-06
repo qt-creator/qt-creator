@@ -4034,7 +4034,7 @@ void GdbEngine::handleDebugInfoLocation(const DebuggerResponse &response)
 {
     if (response.resultClass == ResultDone) {
         const QString debugInfoLocation = runParameters().debugInfoLocation;
-        if (QFile::exists(debugInfoLocation)) {
+        if (!debugInfoLocation.isEmpty() && QFile::exists(debugInfoLocation)) {
             const QString curDebugInfoLocations = response.consoleStreamOutput.split('"').value(1);
             QString cmd = "set debug-file-directory " + debugInfoLocation;
             if (!curDebugInfoLocations.isEmpty())

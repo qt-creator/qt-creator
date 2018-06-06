@@ -63,7 +63,7 @@ FilePropertiesDialog::~FilePropertiesDialog()
 
 void FilePropertiesDialog::refresh()
 {
-    Utils::withNTFSPermissions<void>([this] {
+    Utils::withNtfsPermissions<void>([this] {
         const QFileInfo fileInfo(m_fileName);
         QLocale locale;
 
@@ -94,7 +94,7 @@ void FilePropertiesDialog::refresh()
 
 void FilePropertiesDialog::setPermission(QFile::Permissions newPermissions, bool set)
 {
-    Utils::withNTFSPermissions<void>([this, newPermissions, set] {
+    Utils::withNtfsPermissions<void>([this, newPermissions, set] {
         QFile::Permissions permissions = QFile::permissions(m_fileName);
         if (set)
             permissions |= newPermissions;

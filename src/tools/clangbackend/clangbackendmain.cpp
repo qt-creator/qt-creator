@@ -82,7 +82,6 @@ int main(int argc, char *argv[])
 
     const QString connection = processArguments(application);
 
-    clang_toggleCrashRecovery(true);
     clang_enableStackTraces();
 
     ClangCodeModelServer clangCodeModelServer;
