@@ -575,6 +575,9 @@
     the \uicontrol {Visualize Allocations} view, select \uicontrol Allocations
     in the drop-down menu.
 
+    Double-click an item in a view to zoom into it. Double-click an empty
+    area in the view to zoom out again.
+
     Unlike the
     \uicontrol Timeline view, the \uicontrol {Flame Graph} view does not show the
     time spans when no QML or JavaScript is running at all. Thus, it is not
