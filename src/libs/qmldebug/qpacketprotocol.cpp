@@ -29,8 +29,6 @@
 
 namespace QmlDebug {
 
-static const unsigned int MAX_PACKET_SIZE = 0x7FFFFFFF;
-
 /*!
   \class QPacketProtocol
   \internal
@@ -98,8 +96,7 @@ class QPacketProtocolPrivate : public QObject
 
 public:
     QPacketProtocolPrivate(QPacketProtocol *parent, QIODevice *_dev)
-        : QObject(parent), inProgressSize(-1), maxPacketSize(MAX_PACKET_SIZE),
-          waitingForPacket(false), dev(_dev)
+        : QObject(parent), inProgressSize(-1), waitingForPacket(false), dev(_dev)
     {
         Q_ASSERT(4 == sizeof(qint32));
 
@@ -152,12 +149,12 @@ public:
                     return;
 
                 // Read size header
-                int read = dev->read((char *)&inProgressSize, sizeof(qint32));
+                const qint64 read = dev->read((char *)&inProgressSize, sizeof(qint32));
                 Q_ASSERT(read == sizeof(qint32));
                 Q_UNUSED(read);
 
                 // Check sizing constraints
-                if (inProgressSize > maxPacketSize) {
+                if (inProgressSize < qint32(sizeof(qint32))) {
                     QObject::disconnect(dev, &QIODevice::readyRead,
                                         this, &QPacketProtocolPrivate::readyToRead);
                     QObject::disconnect(dev, &QIODevice::aboutToClose,
@@ -191,7 +188,6 @@ public:
     QList<QByteArray> packets;
     QByteArray inProgress;
     qint32 inProgressSize;
-    qint32 maxPacketSize;
     bool waitingForPacket;
     QIODevice *dev;
 };
