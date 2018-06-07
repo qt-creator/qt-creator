@@ -241,7 +241,7 @@ std::ostream &operator<<(std::ostream &os, const FollowSymbolResult &result)
 {
     os << "("
        << result.range
-       << ", " << result.isPureDeclarationForUsage
+       << ", " << result.isResultOnlyForFallBack
        << ")";
 
     return os;

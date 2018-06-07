@@ -33,7 +33,7 @@ QDebug operator<<(QDebug debug, const FollowSymbolResult &result)
 {
     debug.nospace() << "FollowSymbolResult("
                     << result.range
-                    << ", " << result.isPureDeclarationForUsage;
+                    << ", " << result.isResultOnlyForFallBack;
 
     debug.nospace() << ")";
 
