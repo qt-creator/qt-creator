@@ -222,7 +222,7 @@ public:
     Argument *argumentAt(int index) const;
 
     // as Type
-    QString prettyPrint(int currentArgument) const;
+    QString prettyPrint() const;
     QString toString() const override;
     const Function *asFunctionType() const override { return this; }
     bool isEqualTo(const Type *other) const override;
