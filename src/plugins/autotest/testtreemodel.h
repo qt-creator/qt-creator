@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "autotest_global.h"
+
 #include "testconfiguration.h"
 #include "testtreeitem.h"
 
@@ -40,7 +42,7 @@ class TestParseResult;
 
 using TestParseResultPtr = QSharedPointer<TestParseResult>;
 
-class TestTreeModel : public Utils::TreeModel<>
+class AUTOTESTSHARED_EXPORT TestTreeModel : public Utils::TreeModel<>
 {
     Q_OBJECT
 public:

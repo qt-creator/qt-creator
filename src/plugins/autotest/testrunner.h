@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "autotest_global.h"
+
 #include "testconfiguration.h"
 #include "testresult.h"
 
@@ -47,7 +49,7 @@ class Project;
 namespace Autotest {
 namespace Internal {
 
-class TestRunner : public QObject
+class AUTOTESTSHARED_EXPORT TestRunner : public QObject
 {
     Q_OBJECT
 
