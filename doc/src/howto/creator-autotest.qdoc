@@ -222,6 +222,15 @@
     \uicontrol Tools > \uicontrol Options > \uicontrol {Testing} >
     \uicontrol General, and then select the \uicontrol Group check box next to
     the framework name in the \uicontrol {Active Test Frameworks} list.
+    By default, tests are grouped based on the directory where they are located.
+
+    To group Google tests by using a GTest filter, select
+    \uicontrol {Google Test}. In the \uicontrol {Group mode} field,
+    select \uicontrol {GTest Filter} and specify the filter to use in the
+    \uicontrol {Active filter} field. For more information about GTest
+    filters, see
+    \l{https://github.com/google/googletest/blob/master/googletest/docs/AdvancedGuide.md#running-a-subset-of-the-tests}
+    {Running a Subset of the Tests}.
 
     \image qtcreator-autotests-options.png
 
