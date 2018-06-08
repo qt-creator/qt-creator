@@ -107,13 +107,6 @@ ConsoleView::ConsoleView(ConsoleItemModel *model, QWidget *parent) :
         // Sometimes we get the standard windows 95 style as a fallback
         if (QStyleFactory::keys().contains(QLatin1String("Fusion"))) {
             baseName = QLatin1String("fusion"); // Qt5
-        } else { // Qt4
-            // e.g. if we are running on a KDE4 desktop
-            QByteArray desktopEnvironment = qgetenv("DESKTOP_SESSION");
-            if (desktopEnvironment == "kde")
-                baseName = QLatin1String("plastique");
-            else
-                baseName = QLatin1String("cleanlooks");
         }
     }
     ConsoleViewStyle *style = new ConsoleViewStyle(baseName);
