@@ -269,9 +269,10 @@ enum { GlobalSettings , CustomSettings };
 
 static Core::Id diagnosticConfiguration(ClangToolsProjectSettings *settings)
 {
-    if (settings->useGlobalSettings())
-        return ClangToolsSettings::instance()->savedDiagnosticConfigId();
-    return settings->diagnosticConfig();
+    Core::Id id = settings->diagnosticConfig();
+    if (id.isValid())
+        return id;
+    return ClangToolsSettings::instance()->savedDiagnosticConfigId();
 }
 
 SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
@@ -293,16 +294,18 @@ SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
     m_ui->diagnosticConfigsSelectionWidget->showLabel(false);
 
     ClangToolsProjectSettings *settings = ClangToolsProjectSettingsManager::getSettings(m_project);
+    m_customDiagnosticConfig = diagnosticConfiguration(settings);
 
     if (settings->useGlobalSettings()) {
         m_ui->globalOrCustom->setCurrentIndex(GlobalSettings);
         m_ui->diagnosticConfigsSelectionWidget->setEnabled(false);
+        m_ui->diagnosticConfigsSelectionWidget->refresh(
+                    ClangToolsSettings::instance()->savedDiagnosticConfigId());
     } else {
         m_ui->globalOrCustom->setCurrentIndex(CustomSettings);
         m_ui->diagnosticConfigsSelectionWidget->setEnabled(true);
+        m_ui->diagnosticConfigsSelectionWidget->refresh(m_customDiagnosticConfig);
     }
-    m_customDiagnosticConfig = diagnosticConfiguration(settings);
-    m_ui->diagnosticConfigsSelectionWidget->refresh(m_customDiagnosticConfig);
 
     connect(m_ui->globalOrCustom,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
@@ -335,7 +338,12 @@ SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
 
     connect(CppTools::codeModelSettings().data(), &CppTools::CppCodeModelSettings::changed,
             this, [=]() {
-        m_ui->diagnosticConfigsSelectionWidget->refresh(diagnosticConfiguration(settings));
+        if (m_ui->globalOrCustom->currentIndex() == CustomSettings) {
+            m_ui->diagnosticConfigsSelectionWidget->refresh(m_customDiagnosticConfig);
+        } else {
+            m_ui->diagnosticConfigsSelectionWidget->refresh(
+                ClangToolsSettings::instance()->savedDiagnosticConfigId());
+        }
     });
 }
 
