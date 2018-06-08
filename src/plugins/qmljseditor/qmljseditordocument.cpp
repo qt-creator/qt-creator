@@ -597,6 +597,10 @@ void QmlJSEditorDocumentPrivate::updateOutlineModel()
 
 static void cleanMarks(QVector<TextEditor::TextMark *> *marks, TextEditor::TextDocument *doc)
 {
+    // if doc is null, this method is improperly called, so better do nothing that leave an
+    // inconsistent state where marks are cleared but not removed from doc.
+    if (!marks || !doc)
+        return;
     for (TextEditor::TextMark *mark : *marks) {
         doc->removeMark(mark);
         delete mark;
