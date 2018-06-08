@@ -43,7 +43,7 @@ static QTableWidget* createFilesTable(const QStringList &fileNames)
     table->setSelectionMode(QAbstractItemView::NoSelection);
 
     QStringList labels({
-                           QCoreApplication::translate("AddImageToResources","Filename"),
+                           QCoreApplication::translate("AddImageToResources","File Name"),
                            QCoreApplication::translate("AddImageToResources","Size")
                        });
     table->setHorizontalHeaderLabels(labels);
