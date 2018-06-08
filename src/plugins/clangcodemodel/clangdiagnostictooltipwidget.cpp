@@ -289,7 +289,7 @@ private:
 
         const QString link = documentationUrlForOption(option);
         if (link.isEmpty())
-            return QString();
+            return option;
 
         return wrapInLink(option.toString(), link);
     }
