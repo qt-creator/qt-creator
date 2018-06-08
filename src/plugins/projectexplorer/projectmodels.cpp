@@ -122,8 +122,8 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
                     if (!projectIssues.isEmpty())
                         tooltip += "<p>" + projectIssues;
                 } else {
-                    tooltip += "<p>" + tr("No Kit is used for this project. "
-                                          "Please visit \"Projects\" mode for configuration.");
+                    tooltip += "<p>" + tr("No kits are enabled for this project. "
+                                          "Enable kits in the \"Projects\" mode.");
                 }
             }
             result = tooltip;
