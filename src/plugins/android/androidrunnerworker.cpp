@@ -390,7 +390,7 @@ void AndroidRunnerWorker::asyncStartHelper()
         }
 
         if (gdbServerExecutable.isEmpty()) {
-            emit remoteProcessFinished(tr("Can't find C++ debugger."));
+            emit remoteProcessFinished(tr("Cannot find C++ debugger."));
             return;
         }
 
@@ -495,7 +495,7 @@ void AndroidRunnerWorker::handleJdbWaiting()
                       QString("com.sun.jdi.SocketAttach:hostname=localhost,port=%1")
                       .arg(m_localJdbServerPort.toString()));
     if (!jdbProcess->waitForStarted()) {
-        emit remoteProcessFinished(tr("Failed to start JDB"));
+        emit remoteProcessFinished(tr("Failed to start jdb"));
         return;
     }
     m_jdbProcess = std::move(jdbProcess);
@@ -531,7 +531,7 @@ void AndroidRunnerWorker::handleJdbSettled()
             }
         }
     }
-    emit remoteProcessFinished(tr("Can't attach jdb to the running application").arg(m_lastRunAdbError));
+    emit remoteProcessFinished(tr("Cannot attach jdb to the running application").arg(m_lastRunAdbError));
 }
 
 void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
