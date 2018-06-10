@@ -357,9 +357,11 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
         return MakefileForWrongProject;
     }
 
-    if (parse.srcProFile() != qs->project()->projectFilePath().toString()) {
+    const Utils::FileName projectPath =
+            m_subNodeBuild ? m_subNodeBuild->filePath() : qs->project()->projectFilePath();
+    if (parse.srcProFile() != projectPath.toString()) {
         qCDebug(logs) << "**Different profile used to generate the Makefile:"
-                      << parse.srcProFile() << " expected profile:" << qs->project()->projectFilePath();
+                      << parse.srcProFile() << " expected profile:" << projectPath;
         if (errorString)
             *errorString = tr("The Makefile is for a different project.");
         return MakefileIncompatible;
