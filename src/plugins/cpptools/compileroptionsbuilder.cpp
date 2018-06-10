@@ -26,6 +26,7 @@
 #include "compileroptionsbuilder.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/vcsmanager.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -137,7 +138,12 @@ static Utils::FileName projectTopLevelDirectory(const ProjectPart &projectPart)
 {
     if (!projectPart.project)
         return Utils::FileName();
-    return projectPart.project->projectDirectory();
+    const Utils::FileName result = projectPart.project->projectDirectory();
+    const Utils::FileName vcsTopLevel = Utils::FileName::fromString(
+                Core::VcsManager::findTopLevelForDirectory(result.toString()));
+    if (result.isChildOf(vcsTopLevel))
+        return vcsTopLevel;
+    return result;
 }
 
 void CompilerOptionsBuilder::addHeaderPathOptions()
@@ -165,10 +171,13 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
             // intentional fall-through:
         case HeaderPath::IncludePath:
             path = absoluteDirectory(headerPath.path);
-            if (path == projectDirectory || path.isChildOf(projectDirectory))
+            if (projectDirectory.isEmpty()
+                    || path == projectDirectory
+                    || path.isChildOf(projectDirectory)) {
                 prefix = defaultPrefix;
-            else
+            } else {
                 prefix = SYSTEM_INCLUDE_PREFIX;
+            }
             break;
         }
 
