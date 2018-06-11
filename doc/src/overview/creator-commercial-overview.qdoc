@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -43,8 +43,6 @@
     \list
         \li \l{Analyzing CPU Usage}{CPU Usage Analyzer}
         \li \l{Browsing ISO 7000 Icons} in \QMLD
-        \li \l{http://doc.qt.io/QtQuickCompiler/}{Qt Quick Compiler}
-            integration
         \li \l{http://doc.qt.io/QtForDeviceCreation/index.html}{Developing for
             embedded devices}
         \li \l{http://doc.qt.io/qtcreator/creator-overview-qtasam.html}

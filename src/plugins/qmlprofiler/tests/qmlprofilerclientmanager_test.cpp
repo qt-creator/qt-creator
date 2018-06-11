@@ -60,7 +60,8 @@ QtMessageHandler MessageHandler::defaultHandler;
 QmlProfilerClientManagerTest::QmlProfilerClientManagerTest(QObject *parent) :
     QObject(parent), modelManager(nullptr)
 {
-    clientManager.setRetryParams(10, 10);
+    clientManager.setRetryInterval(10);
+    clientManager.setMaximumRetries(10);
 }
 
 void QmlProfilerClientManagerTest::testConnectionFailure_data()
@@ -115,7 +116,8 @@ void softAssertMessageHandler(QtMsgType type, const QMessageLogContext &context,
 
 void QmlProfilerClientManagerTest::testConnectionFailure()
 {
-    clientManager.setRetryParams(1, 2);
+    clientManager.setRetryInterval(1);
+    clientManager.setMaximumRetries(2);
     // This triggers a lot of soft asserts. We test that it still doesn't crash and stays in a
     // consistent state.
     QByteArray fatalAsserts =  qgetenv("QTC_FATAL_ASSERTS");
@@ -153,7 +155,8 @@ void QmlProfilerClientManagerTest::testConnectionFailure()
     clientManager.disconnectFromServer();
 
     qputenv("QTC_FATAL_ASSERTS", fatalAsserts);
-    clientManager.setRetryParams(10, 10);
+    clientManager.setRetryInterval(10);
+    clientManager.setMaximumRetries(10);
 }
 
 void QmlProfilerClientManagerTest::testUnresponsiveTcp()
@@ -384,7 +387,8 @@ void QmlProfilerClientManagerTest::testStopRecording()
 
     {
         QmlProfilerClientManager clientManager;
-        clientManager.setRetryParams(10, 10);
+        clientManager.setRetryInterval(10);
+        clientManager.setMaximumRetries(10);
         QSignalSpy openedSpy(&clientManager, SIGNAL(connectionOpened()));
         QSignalSpy closedSpy(&clientManager, SIGNAL(connectionClosed()));
 
@@ -420,7 +424,8 @@ void QmlProfilerClientManagerTest::testConnectionDrop()
     QmlProfilerClientManager clientManager;
 
     {
-        clientManager.setRetryParams(10, 10);
+        clientManager.setRetryInterval(10);
+        clientManager.setMaximumRetries(10);
         clientManager.setProfilerStateManager(&stateManager);
         clientManager.setModelManager(&modelManager);
         clientManager.connectToServer(socketUrl);

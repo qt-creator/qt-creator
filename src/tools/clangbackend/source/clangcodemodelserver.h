@@ -84,8 +84,8 @@ public: // for tests
 
 private:
     void processInitialJobsForDocuments(const std::vector<Document> &documents);
-    void processJobsForDirtyAndVisibleDocuments();
-    void processJobsForDirtyCurrentDocument();
+    void processJobsForVisibleDocuments();
+    void processJobsForCurrentDocument();
     void processTimerForVisibleButNotCurrentDocuments();
     void processSuspendResumeJobs(const std::vector<Document> &documents);
 

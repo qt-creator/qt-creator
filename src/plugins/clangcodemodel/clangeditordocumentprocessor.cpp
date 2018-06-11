@@ -85,9 +85,9 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
     , m_semanticHighlighter(document)
     , m_builtinProcessor(document, /*enableSemanticHighlighter=*/ false)
 {
-    m_updateTranslationUnitTimer.setSingleShot(true);
-    m_updateTranslationUnitTimer.setInterval(350);
-    connect(&m_updateTranslationUnitTimer, &QTimer::timeout,
+    m_updateBackendDocumentTimer.setSingleShot(true);
+    m_updateBackendDocumentTimer.setInterval(350);
+    connect(&m_updateBackendDocumentTimer, &QTimer::timeout,
             this, &ClangEditorDocumentProcessor::updateBackendDocumentIfProjectPartExists);
 
     connect(m_parser.data(), &ClangEditorDocumentParser::projectPartInfoUpdated,
@@ -103,7 +103,7 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(
 
 ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
 {
-    m_updateTranslationUnitTimer.stop();
+    m_updateBackendDocumentTimer.stop();
 
     m_parserWatcher.cancel();
     m_parserWatcher.waitForFinished();
@@ -115,7 +115,7 @@ ClangEditorDocumentProcessor::~ClangEditorDocumentProcessor()
 void ClangEditorDocumentProcessor::runImpl(
         const CppTools::BaseEditorDocumentParser::UpdateParams &updateParams)
 {
-    m_updateTranslationUnitTimer.start();
+    m_updateBackendDocumentTimer.start();
 
     // Run clang parser
     disconnect(&m_parserWatcher, &QFutureWatcher<void>::finished,
@@ -317,7 +317,7 @@ void ClangEditorDocumentProcessor::addDiagnosticToolTipToLayout(uint line,
 
 void ClangEditorDocumentProcessor::editorDocumentTimerRestarted()
 {
-    m_updateTranslationUnitTimer.stop(); // Wait for the next call to run().
+    m_updateBackendDocumentTimer.stop(); // Wait for the next call to run().
 }
 
 void ClangEditorDocumentProcessor::invalidateDiagnostics()

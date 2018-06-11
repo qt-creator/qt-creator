@@ -188,11 +188,17 @@
 
         \li In the \uicontrol Tests view, select the tests to run.
 
-        \li In the \uicontrol {Test Results} output pane, select
-            \inlineimage run_small.png
-            (\uicontrol {Run All Tests}) to run all test or
-            \inlineimage qtcreator-run-selected-tests.png
-            (\uicontrol {Run Selected Tests}) to run the selected tests.
+        \li In the \uicontrol {Test Results} output pane, select:
+
+            \list
+                \li \inlineimage run_small.png
+                    (\uicontrol {Run All Tests}) to run all tests.
+                 \li \inlineimage qtcreator-run-selected-tests.png
+                    (\uicontrol {Run Selected Tests}) to run the selected tests.
+                 \li \inlineimage qtcreator-run-tests-in-current-file.png
+                    (\uicontrol {Run Tests for Current File}) to run the tests
+                    in the file currently open in the code editor.
+            \endlist
 
             \note By default, \QC builds a project before deploying and running
             it.
@@ -222,6 +228,15 @@
     \uicontrol Tools > \uicontrol Options > \uicontrol {Testing} >
     \uicontrol General, and then select the \uicontrol Group check box next to
     the framework name in the \uicontrol {Active Test Frameworks} list.
+    By default, tests are grouped based on the directory where they are located.
+
+    To group Google tests by using a GTest filter, select
+    \uicontrol {Google Test}. In the \uicontrol {Group mode} field,
+    select \uicontrol {GTest Filter} and specify the filter to use in the
+    \uicontrol {Active filter} field. For more information about GTest
+    filters, see
+    \l{https://github.com/google/googletest/blob/master/googletest/docs/AdvancedGuide.md#running-a-subset-of-the-tests}
+    {Running a Subset of the Tests}.
 
     \image qtcreator-autotests-options.png
 
@@ -239,6 +254,18 @@
     The test cases are listed in alphabetic order. To list them in the order in
     which they are defined in the source code, select \inlineimage leafsort.png
     (\uicontrol {Sort Naturally}).
+
+    \section2 Running and Debugging Tests from Code Editor
+
+    You can run and debug tests in the file currently open in the code editor.
+    To run all tests in the open file, select \uicontrol Tools >
+    \uicontrol Tests > \uicontrol {Run Tests for Current File}.
+
+    To run the test currently selected in the open file, select
+    \uicontrol {Run Test Under Cursor} in the context menu.
+
+    To debug the currently selected test, select
+    \uicontrol {Debug Test Under Cursor} in the context menu.
 
     \section2 Specifying Settings for Running Qt Tests
 

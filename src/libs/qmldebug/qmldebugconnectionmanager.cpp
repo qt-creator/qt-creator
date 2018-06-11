@@ -43,12 +43,6 @@ QmlDebugConnectionManager::~QmlDebugConnectionManager()
         disconnectConnectionSignals();
 }
 
-void QmlDebugConnectionManager::setRetryParams(int interval, int maxAttempts)
-{
-    m_retryInterval = interval;
-    m_maximumRetries = maxAttempts;
-}
-
 void QmlDebugConnectionManager::connectToServer(const QUrl &server)
 {
     if (m_server != server) {

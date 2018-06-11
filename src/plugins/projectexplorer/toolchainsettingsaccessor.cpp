@@ -184,7 +184,7 @@ static ToolChainOperations mergeToolChainLists(const QList<ToolChain *> &systemF
 
 ToolChainSettingsAccessor::ToolChainSettingsAccessor() :
     UpgradingSettingsAccessor("QtCreatorToolChains",
-                              QCoreApplication::translate("ProjectExplorer::ToolChainManager", "ToolChains"),
+                              QCoreApplication::translate("ProjectExplorer::ToolChainManager", "Tool Chains"),
                               Core::Constants::IDE_DISPLAY_NAME)
 {
     setBaseFilePath(FileName::fromString(Core::ICore::userResourcePath() + TOOLCHAIN_FILENAME));

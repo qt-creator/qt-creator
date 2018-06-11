@@ -61,39 +61,6 @@ private:
     CXTranslationUnit tu;
 };
 
-class FollowSymbolData {
-public:
-    FollowSymbolData() = delete;
-    FollowSymbolData(const Utf8String &usr, const Utf8String &tokenSpelling, bool isFunctionLike,
-                     std::atomic<bool> &ready)
-        : m_usr(usr)
-        , m_spelling(tokenSpelling)
-        , m_isFunctionLike(isFunctionLike)
-        , m_ready(ready)
-    {}
-    FollowSymbolData(const FollowSymbolData &other)
-        : m_usr(other.m_usr)
-        , m_spelling(other.m_spelling)
-        , m_isFunctionLike(other.m_isFunctionLike)
-        , m_ready(other.m_ready)
-    {}
-
-    const Utf8String &usr() const { return m_usr; }
-    const Utf8String &spelling() const { return m_spelling; }
-    bool isFunctionLike() const { return m_isFunctionLike; }
-    bool ready() const { return m_ready; }
-    const SourceRangeContainer &result() const { return m_result; }
-
-    void setReady(bool ready = true) { m_ready = ready; }
-    void setResult(const SourceRangeContainer &result) { m_result = result; }
-private:
-    const Utf8String &m_usr;
-    const Utf8String &m_spelling;
-    SourceRangeContainer m_result;
-    bool m_isFunctionLike;
-    std::atomic<bool> &m_ready;
-};
-
 } // anonymous namespace
 
 static SourceRange getOperatorRange(const CXTranslationUnit tu,

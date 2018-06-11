@@ -348,7 +348,7 @@ public:
             QTC_ASSERT(k, return QVariant());
             QString toolTip;
             if (m_kitErrorsForProject)
-                toolTip = "<h3>" + tr("Kit is unsuited for Project") + "</h3>";
+                toolTip = "<h3>" + tr("Kit is unsuited for project") + "</h3>";
             else if (!isEnabled())
                 toolTip = "<h3>" + tr("Click to activate:") + "</h3>" + k->toHtml();
             if (!m_kitIssues.isEmpty())

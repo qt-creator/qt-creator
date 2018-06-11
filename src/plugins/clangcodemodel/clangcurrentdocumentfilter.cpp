@@ -124,9 +124,7 @@ QList<Core::LocatorFilterEntry> ClangCurrentDocumentFilter::matchesFor(
     const QVector<TokInfoContainer> &infos = processor->tokenInfos();
 
     for (const TokInfoContainer &info : infos) {
-        if (!info.extraInfo.declaration)
-            continue;
-        if (info.types.mainHighlightingType == ClangBackEnd::HighlightingType::LocalVariable)
+        if (!info.isGlobalDeclaration())
             continue;
         QRegularExpressionMatch match = regexp.match(info.extraInfo.token);
         if (match.hasMatch())

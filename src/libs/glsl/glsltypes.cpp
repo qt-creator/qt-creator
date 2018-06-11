@@ -366,10 +366,10 @@ bool Struct::isLessThan(const Type *other) const
 
 QString Function::toString() const
 {
-    return prettyPrint(-1);
+    return prettyPrint();
 }
 
-QString Function::prettyPrint(int currentArgument) const
+QString Function::prettyPrint() const
 {
     QString proto;
     proto += _returnType->toString();
@@ -379,14 +379,10 @@ QString Function::prettyPrint(int currentArgument) const
     for (int i = 0; i < _arguments.size(); ++i) {
         if (i != 0)
             proto += QLatin1String(", ");
-        if (currentArgument == i)
-            proto += QLatin1String("<b>");
         Argument *arg = _arguments.at(i);
         proto += arg->type()->toString();
         proto += QLatin1Char(' ');
         proto += arg->name();
-        if (currentArgument == i)
-            proto += QLatin1String("</b>");
     }
     proto += QLatin1Char(')');
     return proto;

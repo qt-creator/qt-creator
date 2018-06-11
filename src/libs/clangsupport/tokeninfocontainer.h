@@ -127,6 +127,14 @@ public:
         return line == 0 && column == 0 && length == 0;
     }
 
+    bool isGlobalDeclaration() const
+    {
+        return extraInfo.declaration
+                && types.mainHighlightingType != HighlightingType::LocalVariable
+                && ((types.mainHighlightingType == HighlightingType::Operator)
+                    == extraInfo.token.startsWith("operator"));
+    }
+
     friend QDataStream &operator<<(QDataStream &out, const TokenInfoContainer &container)
     {
         out << container.line;

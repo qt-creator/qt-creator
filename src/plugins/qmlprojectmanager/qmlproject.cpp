@@ -294,7 +294,7 @@ QList<Task> QmlProject::projectIssues(const Kit *k) const
         } else {
             // Non-desktop Qt on a desktop device? We don't support that.
             result.append(createProjectTask(Task::TaskType::Error,
-                                            tr("Non-desktop Qt is used with a Desktop device.")));
+                                            tr("Non-desktop Qt is used with a desktop device.")));
         }
     } else {
         // If not a desktop device, don't check the Qt version for qmlscene.

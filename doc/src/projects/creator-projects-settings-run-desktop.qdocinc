@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -39,12 +39,18 @@
     \image qtcreator-pprunsettings.png
 
     When building an application, \QC creates a list of directories where the
-    linker will look for libraries that were built as part of the project. To
-    search those directories for libraries when starting an application, select
-    the \uicontrol {Add build library search path} check box. The linked
-    directories are made visible to the executable that \QC is attempting to
-    run. This option is enabled by default, and you should disable it only if
-    you use deployment steps.
+    linker will look for libraries that the application links to. By
+    default, the linked libraries are made visible to the executable that
+    \QC is attempting to run. Usually, you should disable this option only if it
+    causes unwanted side-effects or if you use deployment steps, such as
+    \c {make install}, and want to make sure that the deployed application will
+    find the libraries also when it is run without \QC.
+
+    To disable library linking for the current project, deselect the
+    \uicontrol {Add build library search path to PATH} check box. To disable
+    library linking for all projects, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol General, and then deselect the
+    \uicontrol {Add linker library search paths to run environment} check box.
 
     The \uicontrol {Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)} option
     (only available on \macos) enables you to debug (for example, step into)

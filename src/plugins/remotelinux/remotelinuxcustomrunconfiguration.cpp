@@ -44,7 +44,7 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
 {
     auto exeAspect = new ExecutableAspect(this);
     exeAspect->setSettingsKey("RemoteLinux.CustomRunConfig.RemoteExecutable");
-    exeAspect->setLabelText(tr("Remote Executable:"));
+    exeAspect->setLabelText(tr("Remote executable:"));
     exeAspect->setExecutablePathStyle(OsTypeLinux);
     exeAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
     exeAspect->setHistoryCompleter("RemoteLinux.CustomExecutable.History");

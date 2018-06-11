@@ -195,6 +195,9 @@ bool PxNodeController::hasDiagramForExplorerNode(const ProjectExplorer::Node *no
 
 qmt::MDiagram *PxNodeController::findDiagramForExplorerNode(const ProjectExplorer::Node *node)
 {
+    if (!node)
+        return nullptr;
+
     QStringList relativeElements = qmt::NameController::buildElementsPath(
                 d->pxnodeUtilities->calcRelativePath(node, d->anchorFolder), false);
 

@@ -61,7 +61,7 @@ ClangCodeModelServer::ClangCodeModelServer()
     QObject::connect(&updateAnnotationsTimer,
                      &QTimer::timeout,
                      [this]() {
-        processJobsForDirtyAndVisibleDocuments();
+        processJobsForVisibleDocuments();
     });
 
     updateVisibleButNotCurrentDocumentsTimer.setSingleShot(true);
@@ -180,7 +180,7 @@ void ClangCodeModelServer::projectPartsUpdated(const ProjectPartsUpdatedMessage 
 
         resetDocuments(toDocumentResetInfos(affectedDocuments));
 
-        processJobsForDirtyAndVisibleDocuments();
+        processJobsForVisibleDocuments();
     } catch (const std::exception &exception) {
         qWarning() << "Error in ClangCodeModelServer::projectPartsUpdated:" << exception.what();
     }
@@ -373,20 +373,30 @@ bool ClangCodeModelServer::isTimerRunningForTestOnly() const
     return updateAnnotationsTimer.isActive();
 }
 
-void ClangCodeModelServer::processJobsForDirtyAndVisibleDocuments()
+void ClangCodeModelServer::processJobsForVisibleDocuments()
 {
-    processJobsForDirtyCurrentDocument();
+    processJobsForCurrentDocument();
     processTimerForVisibleButNotCurrentDocuments();
 }
 
-void ClangCodeModelServer::processJobsForDirtyCurrentDocument()
+void ClangCodeModelServer::processJobsForCurrentDocument()
 {
-    auto currentDirtyDocuments = documents.filtered([](const Document &document) {
-        return document.isDirty() && document.isUsedByCurrentEditor();
+    auto currentDocuments = documents.filtered([](const Document &document) {
+        return document.isUsedByCurrentEditor()
+               && (document.isDirty() || document.documentRevision() == 1);
     });
-    QTC_CHECK(currentDirtyDocuments.size() <= 1);
+    QTC_CHECK(currentDocuments.size() <= 1);
 
-    addAndRunUpdateJobs(currentDirtyDocuments);
+    addAndRunUpdateJobs(currentDocuments);
+}
+
+static void addUpdateAnnotationsJobsAndProcess(DocumentProcessor &processor)
+{
+    processor.addJob(JobRequest::Type::UpdateAnnotations,
+                     PreferredTranslationUnit::PreviouslyParsed);
+    processor.addJob(JobRequest::Type::UpdateExtraAnnotations,
+                     PreferredTranslationUnit::RecentlyParsed);
+    processor.process();
 }
 
 void ClangCodeModelServer::addAndRunUpdateJobs(std::vector<Document> documents)
@@ -395,11 +405,7 @@ void ClangCodeModelServer::addAndRunUpdateJobs(std::vector<Document> documents)
         DocumentProcessor processor = documentProcessors().processor(document);
 
         // Run the regular edit-reparse-job
-        processor.addJob(JobRequest::Type::UpdateAnnotations,
-                         PreferredTranslationUnit::PreviouslyParsed);
-        processor.addJob(JobRequest::Type::UpdateExtraAnnotations,
-                         PreferredTranslationUnit::RecentlyParsed);
-        processor.process();
+        addUpdateAnnotationsJobsAndProcess(processor);
 
         // If requested, run jobs to increase the responsiveness of the document
         if (useSupportiveTranslationUnit() && document.isResponsivenessIncreaseNeeded()) {
@@ -478,9 +484,7 @@ void ClangCodeModelServer::processInitialJobsForDocuments(const std::vector<Docu
 {
     for (const auto &document : documents) {
         DocumentProcessor processor = documentProcessors().processor(document);
-        processor.addJob(JobRequest::Type::UpdateAnnotations);
-        processor.addJob(JobRequest::Type::UpdateExtraAnnotations);
-        processor.process();
+        addUpdateAnnotationsJobsAndProcess(processor);
     }
 }
 

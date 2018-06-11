@@ -258,6 +258,21 @@ TEST_F(ClangCodeModelServerSlowTest, NoInitialAnnotationsForClosedDocument)
     closeDocument(filePathA);
 }
 
+TEST_F(ClangCodeModelServerSlowTest, AnnotationsForInitiallyNotVisibleDocument)
+{
+    const int expectedAnnotationsCount = 2;
+    updateProjectPart();
+    updateVisibilty(filePathA, filePathA);
+    expectAnnotations(expectedAnnotationsCount);
+    clangServer.documentsOpened( // Open document while another is still visible
+        DocumentsOpenedMessage({FileContainer(filePathB, projectPartId, Utf8String(), false, 1)},
+                               filePathA, {filePathA}));
+    clangServer.unsavedFilesUpdated( // Invalidate added jobs
+        UnsavedFilesUpdatedMessage({FileContainer(Utf8StringLiteral("aFile"), Utf8String())}));
+
+    updateVisibilty(filePathB, filePathB);
+}
+
 TEST_F(ClangCodeModelServerSlowTest, NoAnnotationsForClosedDocument)
 {
     const int expectedAnnotationsCount = AnnotationJobsMultiplier; // Only for registration.

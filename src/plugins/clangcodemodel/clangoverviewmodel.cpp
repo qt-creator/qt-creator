@@ -64,11 +64,8 @@ void buildTree(const TokenContainers &containers,
     std::unordered_map<int, TokenTreeItem *> treeItemCache;
     for (int index = 0; index < containers.size(); ++index) {
         const TokenContainer &container = containers[index];
-        if (!container.extraInfo.declaration ||
-                (container.types.mainHighlightingType
-                 == ClangBackEnd::HighlightingType::LocalVariable)) {
+        if (!container.isGlobalDeclaration())
             continue;
-        }
 
         const int lexicalParentIndex = container.extraInfo.lexicalParentIndex;
         QTC_ASSERT(lexicalParentIndex < index, return;);
@@ -80,15 +77,12 @@ void buildTree(const TokenContainers &containers,
         if (lexicalParentIndex >= 0 && treeItemCache[lexicalParentIndex])
             parent = treeItemCache[lexicalParentIndex];
 
-        if (parent != root
-                && (container.extraInfo.storageClass == ClangBackEnd::StorageClass::Extern
-                    || container.extraInfo.storageClass == ClangBackEnd::StorageClass::Static)) {
-            ClangBackEnd::HighlightingType parentType = parent->token.types.mainHighlightingType;
-            if (parentType == ClangBackEnd::HighlightingType::VirtualFunction
-                    || parentType == ClangBackEnd::HighlightingType::Function) {
-                // Treat static and extern variables inside a function scope as local variables.
-                continue;
-            }
+        ClangBackEnd::HighlightingType parentType = parent->token.types.mainHighlightingType;
+        if (parentType == ClangBackEnd::HighlightingType::VirtualFunction
+                || parentType == ClangBackEnd::HighlightingType::Function) {
+            // Treat everything inside a function scope as local variables.
+            treeItemCache.erase(index);
+            continue;
         }
 
         parent->appendChild(item.release());
