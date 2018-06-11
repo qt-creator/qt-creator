@@ -50,13 +50,15 @@ class PROJECTEXPLORER_EXPORT RawProjectPartFlags
 {
 public:
     RawProjectPartFlags() = default;
-    RawProjectPartFlags(const ToolChain *toolChain, const QStringList &commandLineFlags);
+    RawProjectPartFlags(const ToolChain *toolChain, const QStringList &commandLineFlags,
+                        const QString &includeFileBaseDir);
 
 public:
     QStringList commandLineFlags;
     // The following are deduced from commandLineFlags.
     Utils::WarningFlags warningFlags = Utils::WarningFlags::Default;
     Utils::LanguageExtensions languageExtensions = Utils::LanguageExtension::None;
+    QStringList includedFiles;
 };
 
 class PROJECTEXPLORER_EXPORT RawProjectPart
@@ -78,6 +80,7 @@ public:
     void setHeaderPaths(const HeaderPaths &headerPaths);
     void setIncludePaths(const QStringList &includePaths);
     void setPreCompiledHeaders(const QStringList &preCompiledHeaders);
+    void setIncludedFiles(const QStringList &files);
 
     void setBuildSystemTarget(const QString &target);
     void setBuildTargetType(BuildTargetType type);
@@ -102,6 +105,7 @@ public:
     FileIsActive fileIsActive;
     GetMimeType getMimeType;
     QStringList precompiledHeaders;
+    QStringList includedFiles;
     HeaderPaths headerPaths;
     QString projectConfigFile; // Generic Project Manager only
 

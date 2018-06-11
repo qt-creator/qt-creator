@@ -562,8 +562,8 @@ void GenericBuildSystem::refreshCppCodeModel()
     rpp.setQtVersion(kitInfo.projectPartQtVersion);
     rpp.setHeaderPaths(m_projectIncludePaths);
     rpp.setConfigFileName(m_configFileName);
-    rpp.setFlagsForCxx({nullptr, m_cxxflags});
-    rpp.setFlagsForC({nullptr, m_cflags});
+    rpp.setFlagsForCxx({nullptr, m_cxxflags, projectDirectory().toString()});
+    rpp.setFlagsForC({nullptr, m_cflags, projectDirectory().toString()});
     rpp.setFiles(m_files);
 
     m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), {rpp}});

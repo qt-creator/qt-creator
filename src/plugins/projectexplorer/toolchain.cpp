@@ -35,6 +35,8 @@
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
 #include <QUuid>
 
 static const char ID_KEY[] = "ProjectExplorer.ToolChain.Id";
@@ -183,6 +185,13 @@ Utils::Id ToolChain::typeId() const
 Abis ToolChain::supportedAbis() const
 {
     return {targetAbi()};
+}
+
+QStringList ToolChain::includedFiles(const QStringList &flags, const QString &directory) const
+{
+    Q_UNUSED(flags)
+    Q_UNUSED(directory)
+    return {};
 }
 
 Utils::Id ToolChain::language() const
@@ -387,6 +396,24 @@ Utils::LanguageVersion ToolChain::languageVersion(const Utils::Id &language, con
         QTC_CHECK(false && "Unexpected toolchain language, assuming latest C++ we support.");
         return LanguageVersion::LatestCxx;
     }
+}
+
+QStringList ToolChain::includedFiles(const QString &option,
+                                     const QStringList &flags,
+                                     const QString &directoryPath)
+{
+    QStringList result;
+
+    for (int i = 0; i < flags.size(); ++i) {
+        if (flags[i] == option && i + 1 < flags.size()) {
+            QString includeFile = flags[++i];
+            if (!QFileInfo(includeFile).isAbsolute())
+                includeFile = directoryPath + "/" + includeFile;
+            result.append(QDir::cleanPath(includeFile));
+        }
+    }
+
+    return result;
 }
 
 /*!

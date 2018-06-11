@@ -80,6 +80,8 @@ public:
     Macros predefinedMacros(const QStringList &cxxflags) const override;
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     Utils::WarningFlags warningFlags(const QStringList &cflags) const override;
+    QStringList includedFiles(const QStringList &flags,
+                              const QString &directoryPath) const override;
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
             const Utils::Environment &env) const override;
     HeaderPaths builtInHeaderPaths(const QStringList &cxxflags,

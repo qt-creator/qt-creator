@@ -140,6 +140,7 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
     addLanguageVersionAndExtensions();
     addMsvcExceptions();
 
+    addIncludedFiles(m_projectPart.includedFiles); // GCC adds these before precompiled headers.
     addPrecompiledHeaderOptions(usePrecompiledHeaders);
     addProjectConfigFileInclude();
 
@@ -366,6 +367,21 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
         for (const HeaderPath &headerPath : filter.builtInHeaderPaths)
             addIncludeDirOptionForPath(headerPath);
     }
+}
+
+void CompilerOptionsBuilder::addIncludedFiles(const QStringList &files)
+{
+    QStringList result;
+
+    const QString includeOptionString
+            = QLatin1String(isClStyle() ? includeFileOptionCl : includeFileOptionGcc);
+    for (const QString &file : files) {
+        if (QFile::exists(file)) {
+            result += includeOptionString;
+            result += QDir::toNativeSeparators(file);
+        }
+    }
+    m_options.append(result);
 }
 
 void CompilerOptionsBuilder::addPrecompiledHeaderOptions(UsePrecompiledHeaders usePrecompiledHeaders)
@@ -827,6 +843,12 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             || option.startsWith(includeSystemPathOption)
             || option.startsWith(includeUserPathOptionWindows)) {
             // Optimization and run-time flags.
+            continue;
+        }
+
+        // These were already parsed into ProjectPart::includedFiles.
+        if (option == includeFileOptionCl || option == includeFileOptionGcc) {
+            skipNext = true;
             continue;
         }
 

@@ -203,7 +203,7 @@ RawProjectPart makeRawProjectPart(const Utils::FilePath &projectFile,
                                                     ProjectExplorer::Constants::C_LANGUAGE_ID);
         }
         addDriverModeFlagIfNeeded(kitInfo.cToolChain, flags, originalFlags);
-        rpp.setFlagsForC({kitInfo.cToolChain, flags});
+        rpp.setFlagsForC({kitInfo.cToolChain, flags, workingDir});
     } else {
         if (!kitInfo.cxxToolChain) {
             kitInfo.cxxToolChain = toolchainFromFlags(kit,
@@ -211,7 +211,7 @@ RawProjectPart makeRawProjectPart(const Utils::FilePath &projectFile,
                                                       ProjectExplorer::Constants::CXX_LANGUAGE_ID);
         }
         addDriverModeFlagIfNeeded(kitInfo.cxxToolChain, flags, originalFlags);
-        rpp.setFlagsForCxx({kitInfo.cxxToolChain, flags});
+        rpp.setFlagsForCxx({kitInfo.cxxToolChain, flags, workingDir});
     }
 
     return rpp;

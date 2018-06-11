@@ -36,7 +36,8 @@
 namespace ProjectExplorer {
 
 RawProjectPartFlags::RawProjectPartFlags(const ToolChain *toolChain,
-                                         const QStringList &commandLineFlags)
+                                         const QStringList &commandLineFlags,
+                                         const QString &includeFileBaseDir)
 {
     // Keep the following cheap/non-blocking for the ui thread. Expensive
     // operations are encapsulated in ToolChainInfo as "runners".
@@ -44,6 +45,7 @@ RawProjectPartFlags::RawProjectPartFlags(const ToolChain *toolChain,
     if (toolChain) {
         warningFlags = toolChain->warningFlags(commandLineFlags);
         languageExtensions = toolChain->languageExtensions(commandLineFlags);
+        includedFiles = toolChain->includedFiles(commandLineFlags, includeFileBaseDir);
     }
 }
 
@@ -128,6 +130,11 @@ void RawProjectPart::setIncludePaths(const QStringList &includePaths)
 void RawProjectPart::setPreCompiledHeaders(const QStringList &preCompiledHeaders)
 {
     this->precompiledHeaders = preCompiledHeaders;
+}
+
+void RawProjectPart::setIncludedFiles(const QStringList &files)
+{
+     includedFiles = files;
 }
 
 void RawProjectPart::setSelectedForBuilding(bool yesno)

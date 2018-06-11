@@ -351,8 +351,11 @@ void QmakeBuildSystem::updateCppCodeModel()
             rpp.setBuildTargetType(BuildTargetType::Unknown);
             break;
         }
-        rpp.setFlagsForCxx({kitInfo.cxxToolChain, pro->variableValue(Variable::CppFlags)});
-        rpp.setFlagsForC({kitInfo.cToolChain, pro->variableValue(Variable::CFlags)});
+        const QString includeFileBaseDir = pro->sourceDir().toString();
+        rpp.setFlagsForCxx({kitInfo.cxxToolChain, pro->variableValue(Variable::CppFlags),
+                            includeFileBaseDir});
+        rpp.setFlagsForC({kitInfo.cToolChain, pro->variableValue(Variable::CFlags),
+                          includeFileBaseDir});
         rpp.setMacros(ProjectExplorer::Macro::toMacros(pro->cxxDefines()));
         rpp.setPreCompiledHeaders(pro->variableValue(Variable::PrecompiledHeader));
         rpp.setSelectedForBuilding(pro->includedInExactParse());

@@ -69,6 +69,7 @@ private:
 
         ProjectExplorer::HeaderPaths headerPaths;
         QString projectConfigFile;
+        QStringList includedFiles;
         QStringList precompiledHeaders;
 
         CPlusPlus::Snapshot snapshot;

@@ -77,6 +77,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
     CppModelManager *modelManager = CppModelManager::instance();
     QByteArray configFile = modelManager->codeModelConfiguration();
     ProjectExplorer::HeaderPaths headerPaths;
+    QStringList includedFiles;
     QStringList precompiledHeaders;
     QString projectConfigFile;
     LanguageFeatures features = LanguageFeatures::defaultFeatures();
@@ -102,6 +103,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
             configFile += ProjectPart::readProjectConfigFile(part);
         headerPaths = part->headerPaths;
         projectConfigFile = part->projectConfigFile;
+        includedFiles = part->includedFiles;
         if (baseConfig.usePrecompiledHeaders)
             precompiledHeaders = part->precompiledHeaders;
         features = part->languageFeatures;
@@ -126,6 +128,11 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
 
     if (projectConfigFile != state.projectConfigFile) {
         state.projectConfigFile = projectConfigFile;
+        invalidateSnapshot = true;
+    }
+
+    if (includedFiles != state.includedFiles) {
+        state.includedFiles = includedFiles;
         invalidateSnapshot = true;
     }
 
@@ -212,8 +219,11 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
         }
         if (!baseState.editorDefines.isEmpty())
             sourceProcessor.run(editorDefinesFileName);
-        sourceProcessor.run(filePath(), baseConfig.usePrecompiledHeaders ? state.precompiledHeaders
-                                                                         : QStringList());
+        QStringList includedFiles = state.includedFiles;
+        if (baseConfig.usePrecompiledHeaders)
+            includedFiles << state.precompiledHeaders;
+        includedFiles.removeDuplicates();
+        sourceProcessor.run(filePath(), includedFiles);
         state.snapshot = sourceProcessor.snapshot();
         Snapshot newSnapshot = state.snapshot.simplified(state.snapshot.document(filePath()));
         for (Snapshot::const_iterator i = state.snapshot.begin(), ei = state.snapshot.end(); i != ei; ++i) {

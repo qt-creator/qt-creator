@@ -285,9 +285,9 @@ ProjectExplorer::RawProjectPart MesonProjectParser::buildRawPart(
     part.setIncludePaths(toAbsolutePath(m_buildDir, flags.includePaths));
     part.setProjectFileLocation(target.definedIn);
     if (sources.language == "cpp")
-        part.setFlagsForCxx({cxxToolChain, flags.args});
+        part.setFlagsForCxx({cxxToolChain, flags.args, {}});
     else if (sources.language == "c")
-        part.setFlagsForC({cToolChain, flags.args});
+        part.setFlagsForC({cToolChain, flags.args, {}});
     part.setQtVersion(m_qtVersion);
     return part;
 }

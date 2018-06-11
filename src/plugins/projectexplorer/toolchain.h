@@ -119,6 +119,7 @@ public:
 
     virtual Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const = 0;
     virtual Utils::WarningFlags warningFlags(const QStringList &cflags) const = 0;
+    virtual QStringList includedFiles(const QStringList &flags, const QString &directory) const;
     virtual QString sysRoot() const;
 
     class MacroInspectionReport
@@ -181,6 +182,10 @@ protected:
 
     // Make sure to call this function when deriving!
     virtual bool fromMap(const QVariantMap &data);
+
+    static QStringList includedFiles(const QString &option,
+                                     const QStringList &flags,
+                                     const QString &directoryPath);
 
 private:
     ToolChain(const ToolChain &) = delete;

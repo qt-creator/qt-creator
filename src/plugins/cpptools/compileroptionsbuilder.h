@@ -62,6 +62,7 @@ public:
     void addWordWidth();
     void addHeaderPathOptions();
     void addPrecompiledHeaderOptions(UsePrecompiledHeaders usePrecompiledHeaders);
+    void addIncludedFiles(const QStringList &files);
     void addMacros(const ProjectExplorer::Macros &macros);
 
     void addTargetTriple();

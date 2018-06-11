@@ -87,6 +87,7 @@ public:
 
     // Files
     ProjectFiles files;
+    QStringList includedFiles;
     QStringList precompiledHeaders;
     ProjectExplorer::HeaderPaths headerPaths;
     QString projectConfigFile; // Generic Project Manager only

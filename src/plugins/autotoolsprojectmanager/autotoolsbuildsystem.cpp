@@ -188,8 +188,10 @@ void AutotoolsBuildSystem::updateCppCodeModel()
     QStringList cxxflags = m_makefileParserThread->cxxflags();
     if (cxxflags.isEmpty())
         cxxflags = cflags;
-    rpp.setFlagsForC({kitInfo.cToolChain, cflags});
-    rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxflags});
+
+    const QString includeFileBaseDir = projectDirectory().toString();
+    rpp.setFlagsForC({kitInfo.cToolChain, cflags, includeFileBaseDir});
+    rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxflags, includeFileBaseDir});
 
     const QString absSrc = project()->projectDirectory().toString();
     BuildConfiguration *bc = target()->activeBuildConfiguration();

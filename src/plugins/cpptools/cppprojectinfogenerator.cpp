@@ -106,6 +106,7 @@ static ProjectPart::Ptr projectPartFromRawProjectPart(
     }
 
     part->precompiledHeaders = rawProjectPart.precompiledHeaders;
+    part->includedFiles = rawProjectPart.includedFiles;
     part->selectedForBuilding = rawProjectPart.selectedForBuilding;
 
     return part;
@@ -205,6 +206,11 @@ ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
     part->extraCodeModelFlags = tcInfo.extraCodeModelFlags;
     part->compilerFlags = flags.commandLineFlags;
     part->warningFlags = flags.warningFlags;
+    if (part->includedFiles.isEmpty()) {
+        // The project manager did not provide the included files, so take
+        // the ones we were able to detect from the toolchain's command line.
+        part->includedFiles = flags.includedFiles;
+    }
     part->language = language;
     part->languageExtensions = flags.languageExtensions;
 

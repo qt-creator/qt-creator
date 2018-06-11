@@ -650,10 +650,15 @@ void CMakeBuildSystem::updateProjectData()
         for (RawProjectPart &rpp : rpps) {
             rpp.setQtVersion(
                 kitInfo.projectPartQtVersion); // TODO: Check if project actually uses Qt.
-            if (kitInfo.cxxToolChain)
-                rpp.setFlagsForCxx({kitInfo.cxxToolChain, rpp.flagsForCxx.commandLineFlags});
-            if (kitInfo.cToolChain)
-                rpp.setFlagsForC({kitInfo.cToolChain, rpp.flagsForC.commandLineFlags});
+            const QString includeFileBaseDir = buildConfiguration()->buildDirectory().toString();
+            if (kitInfo.cxxToolChain) {
+                rpp.setFlagsForCxx({kitInfo.cxxToolChain, rpp.flagsForCxx.commandLineFlags,
+                                    includeFileBaseDir});
+            }
+            if (kitInfo.cToolChain) {
+                rpp.setFlagsForC({kitInfo.cToolChain, rpp.flagsForC.commandLineFlags,
+                                  includeFileBaseDir});
+            }
         }
 
         m_cppCodeModelUpdater->update({p, kitInfo, cmakeBuildConfiguration()->environment(), rpps});

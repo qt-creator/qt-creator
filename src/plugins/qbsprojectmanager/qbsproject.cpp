@@ -888,8 +888,8 @@ static RawProjectParts generateProjectParts(
             QStringList cFlags;
             QStringList cxxFlags;
             getExpandedCompilerFlags(cFlags, cxxFlags, props);
-            rpp.setFlagsForC({cToolChain.get(), cFlags});
-            rpp.setFlagsForCxx({cxxToolChain.get(), cxxFlags});
+            rpp.setFlagsForC({cToolChain.get(), cFlags, {}});
+            rpp.setFlagsForCxx({cxxToolChain.get(), cxxFlags, {}});
 
             const QStringList defines = arrayToStringList(props.value("cpp.defines"))
                     + arrayToStringList(props.value("cpp.platformDefines"));
@@ -978,6 +978,7 @@ static RawProjectParts generateProjectParts(
                 qCWarning(qbsPmLog) << "Expect problems with code model";
             }
             rpp.setPreCompiledHeaders(Utils::toList(pchFiles));
+            rpp.setIncludedFiles(arrayToStringList(props.value("cpp.prefixHeaders")));
             rpp.setFiles(filePathToSourceArtifact.keys(), {},
                          [filePathToSourceArtifact](const QString &filePath) {
                 // Keep this lambda thread-safe!

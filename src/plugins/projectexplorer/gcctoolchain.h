@@ -82,6 +82,8 @@ public:
 
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     Utils::WarningFlags warningFlags(const QStringList &cflags) const override;
+    QStringList includedFiles(const QStringList &flags,
+                              const QString &directoryPath) const override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
     Macros predefinedMacros(const QStringList &cxxflags) const override;
