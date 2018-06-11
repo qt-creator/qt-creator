@@ -81,6 +81,7 @@ void buildTree(const TokenContainers &containers,
         if (parentType == ClangBackEnd::HighlightingType::VirtualFunction
                 || parentType == ClangBackEnd::HighlightingType::Function) {
             // Treat everything inside a function scope as local variables.
+            treeItemCache.erase(index);
             continue;
         }
 
