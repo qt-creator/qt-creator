@@ -8477,7 +8477,6 @@ bool TextEditorWidget::isMissingSyntaxDefinition() const
 // The remnants of PlainTextEditor.
 void TextEditorWidget::setupGenericHighlighter()
 {
-    setMarksVisible(true);
     setLineSeparatorsAllowed(true);
 
     connect(textDocument(), &IDocument::filePathChanged,
@@ -8574,7 +8573,7 @@ public:
     bool m_duplicatedSupported = true;
     bool m_codeFoldingSupported = false;
     bool m_paranthesesMatchinEnabled = false;
-    bool m_marksVisible = false;
+    bool m_marksVisible = true;
 };
 
 } /// namespace Internal
