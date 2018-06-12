@@ -29,6 +29,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/manhattanstyle.h>
+#include <qtsupport/baseqtversion.h>
 #include <utils/hostosinfo.h>
 
 #include <QAction>
@@ -128,6 +129,11 @@ void ConsoleView::onScrollToBottom()
         scrollToBottom();
 }
 
+void ConsoleView::populateFileFinder()
+{
+    QtSupport::BaseQtVersion::populateQmlFileFinder(&m_finder, nullptr);
+}
+
 void ConsoleView::mousePressEvent(QMouseEvent *event)
 {
     QPoint pos = event->pos();
@@ -212,17 +218,10 @@ void ConsoleView::onRowActivated(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    // See if we have file and line Info
-    QString filePath = model()->data(index, ConsoleItem::FileRole).toString();
-    const QUrl fileUrl = QUrl(filePath);
-    if (fileUrl.isLocalFile())
-        filePath = fileUrl.toLocalFile();
-    if (!filePath.isEmpty()) {
-        QFileInfo fi(filePath);
-        if (fi.exists() && fi.isFile() && fi.isReadable()) {
-            int line = model()->data(index, ConsoleItem::LineRole).toInt();
-            Core::EditorManager::openEditorAt(fi.canonicalFilePath(), line);
-        }
+    const QFileInfo fi(m_finder.findFile(model()->data(index, ConsoleItem::FileRole).toString()));
+    if (fi.exists() && fi.isFile() && fi.isReadable()) {
+        Core::EditorManager::openEditorAt(fi.canonicalFilePath(),
+                                          model()->data(index, ConsoleItem::LineRole).toInt());
     }
 }
 
@@ -250,17 +249,9 @@ bool ConsoleView::canShowItemInTextEditor(const QModelIndex &index)
     if (!index.isValid())
         return false;
 
-    // See if we have file and line Info
-    QString filePath = model()->data(index, ConsoleItem::FileRole).toString();
-    const QUrl fileUrl = QUrl(filePath);
-    if (fileUrl.isLocalFile())
-        filePath = fileUrl.toLocalFile();
-    if (!filePath.isEmpty()) {
-        QFileInfo fi(filePath);
-        if (fi.exists() && fi.isFile() && fi.isReadable())
-            return true;
-    }
-    return false;
+    bool success = false;
+    m_finder.findFile(model()->data(index, ConsoleItem::FileRole).toString(), &success);
+    return success;
 }
 
 } // Internal

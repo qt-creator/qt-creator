@@ -254,6 +254,11 @@ void Console::setScriptEvaluator(const ScriptEvaluator &evaluator)
         setContext(QString());
 }
 
+void Console::populateFileFinder()
+{
+    m_consoleView->populateFileFinder();
+}
+
 void Console::printItem(ConsoleItem::ItemType itemType, const QString &text)
 {
     printItem(new ConsoleItem(itemType, text));

@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <utils/fileinprojectfinder.h>
 #include <utils/itemviews.h>
 
 namespace Debugger {
@@ -40,6 +41,7 @@ public:
     ConsoleView(ConsoleItemModel *model, QWidget *parent);
 
     void onScrollToBottom();
+    void populateFileFinder();
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -55,6 +57,7 @@ private:
     bool canShowItemInTextEditor(const QModelIndex &index);
 
     ConsoleItemModel *m_model;
+    Utils::FileInProjectFinder m_finder;
 };
 
 } // Internal

@@ -76,6 +76,7 @@ public:
     void setContext(const QString &context);
 
     void setScriptEvaluator(const ScriptEvaluator &evaluator);
+    void populateFileFinder();
 
     void evaluate(const QString &expression);
     void printItem(ConsoleItem *item);
