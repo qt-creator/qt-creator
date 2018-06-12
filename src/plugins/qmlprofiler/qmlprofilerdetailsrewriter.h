@@ -60,7 +60,6 @@ private:
 
     QMultiHash<QString, PendingEvent> m_pendingEvents;
     Utils::FileInProjectFinder m_projectFinder;
-    QHash<QString, QString> m_filesCache;
 
     void rewriteDetailsForLocation(const QString &source, QmlJS::Document::Ptr doc, int typeId,
                                    const QmlEventLocation &location);

@@ -112,14 +112,8 @@ void QmlProfilerDetailsRewriter::requestDetailsForLocation(int typeId,
 
 QString QmlProfilerDetailsRewriter::getLocalFile(const QString &remoteFile)
 {
-    QString localFile;
-    if (!m_filesCache.contains(remoteFile)) {
-        localFile = m_projectFinder.findFile(remoteFile);
-        m_filesCache[remoteFile] = localFile;
-    } else {
-        localFile = m_filesCache[remoteFile];
-    }
-    QFileInfo fileInfo(localFile);
+    const QString localFile = m_projectFinder.findFile(remoteFile);
+    const QFileInfo fileInfo(localFile);
     if (!fileInfo.exists() || !fileInfo.isReadable())
         return QString();
     if (!QmlJS::ModelManagerInterface::guessLanguageOfFile(localFile).isQmlLikeOrJsLanguage())
@@ -176,7 +170,6 @@ void QmlProfilerDetailsRewriter::disconnectQmlModel()
 
 void QmlProfilerDetailsRewriter::clear()
 {
-    m_filesCache.clear();
     m_pendingEvents.clear();
     disconnectQmlModel();
 }
@@ -203,14 +196,12 @@ void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
     if (m_pendingEvents.isEmpty()) {
         disconnectQmlModel();
         emit eventDetailsChanged();
-        m_filesCache.clear();
     }
 }
 
 void QmlProfilerDetailsRewriter::populateFileFinder(const ProjectExplorer::Target *target)
 {
     QtSupport::BaseQtVersion::populateQmlFileFinder(&m_projectFinder, target);
-    m_filesCache.clear();
 }
 
 } // namespace Internal
