@@ -421,7 +421,7 @@ void ProjectTreeWidget::editCurrentItem()
     m_view->edit(currentIndex);
     // Select complete file basename for renaming
     const Node *node = m_model->nodeForIndex(currentIndex);
-    if (!node || node->nodeType() != NodeType::File)
+    if (!node)
         return;
     QLineEdit *editor = qobject_cast<QLineEdit*>(m_view->indexWidget(currentIndex));
     if (!editor)
