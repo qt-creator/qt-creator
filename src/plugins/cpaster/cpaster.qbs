@@ -10,6 +10,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
 
     cpp.includePaths: base.concat([project.sharedSourcesDir + "/cpaster"])
+    cpp.defines: ["CPASTER_PLUGIN_GUI"]
 
     files: [
         "columnindicatortextedit.cpp",
