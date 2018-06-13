@@ -104,9 +104,8 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
             menu = ":Qt Creator.Project.Menu.File_QMenu"
         activateItem(waitForObjectItem(menu, "Rename..."))
     replaceEdit = waitForObject(":Qt Creator_Utils::NavigationTreeView::QExpandingLineEdit")
-    if not (oldname.lower().endswith(".qrc") and JIRA.isBugStillOpen(20057)):
-        test.compare(replaceEdit.selectedText, oldname.rsplit(".", 1)[0],
-                     "Only the filename without the extension is selected?")
+    test.compare(replaceEdit.selectedText, oldname.rsplit(".", 1)[0],
+                 "Only the filename without the extension is selected?")
     replaceEditorContent(replaceEdit, newname)
     type(replaceEdit, "<Return>")
     test.verify(waitFor("os.path.exists(newFilePath)", 1000),
