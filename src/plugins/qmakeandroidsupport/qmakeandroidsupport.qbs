@@ -20,8 +20,6 @@ QtcPlugin {
         "createandroidmanifestwizard.h",
         "qmakeandroidbuildapkstep.cpp",
         "qmakeandroidbuildapkstep.h",
-        "qmakeandroidbuildapkwidget.cpp",
-        "qmakeandroidbuildapkwidget.h",
         "androidqmakebuildconfigurationfactory.cpp",
         "androidqmakebuildconfigurationfactory.h",
         "qmakeandroidsupport.cpp",

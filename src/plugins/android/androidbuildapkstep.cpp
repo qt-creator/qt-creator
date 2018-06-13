@@ -255,7 +255,7 @@ void AndroidBuildApkStep::showInGraphicalShell()
 
 ProjectExplorer::BuildStepConfigWidget *AndroidBuildApkStep::createConfigWidget()
 {
-    return new AndroidBuildApkWidget(this);
+    return new AndroidBuildApkInnerWidget(this);
 }
 
 void AndroidBuildApkStep::processFinished(int exitCode, QProcess::ExitStatus status)

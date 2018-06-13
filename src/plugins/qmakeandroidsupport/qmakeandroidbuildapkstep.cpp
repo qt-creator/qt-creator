@@ -25,9 +25,11 @@
 ****************************************************************************/
 
 #include "qmakeandroidbuildapkstep.h"
-#include "qmakeandroidbuildapkwidget.h"
+
+#include "createandroidmanifestwizard.h"
 
 #include <android/androidconstants.h>
+#include <android/androidbuildapkwidget.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -62,7 +64,13 @@ QmakeAndroidBuildApkStep::QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepLis
 
 ProjectExplorer::BuildStepConfigWidget *QmakeAndroidBuildApkStep::createConfigWidget()
 {
-    return new QmakeAndroidBuildApkWidget(this);
+    auto widget = new AndroidBuildApkWidget(this);
+    connect(widget, &AndroidBuildApkWidget::requestAndroidTemplates, this, [this] {
+        CreateAndroidManifestWizard wizard(target());
+        wizard.exec();
+    });
+
+    return widget;
 }
 
 } // namespace Internal
