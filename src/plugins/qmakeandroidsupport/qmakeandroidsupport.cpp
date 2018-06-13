@@ -74,10 +74,65 @@ QStringList QmakeAndroidSupport::targetData(Core::Id role, const Target *target)
         var = Variable::AndroidDeploySettingsFile;
     else if (role == Android::Constants::AndroidExtraLibs)
         var = Variable::AndroidExtraLibs;
+    else if (role == Android::Constants::AndroidArch)
+        var = Variable::AndroidArch;
     else
         QTC_CHECK(false);
 
     return profileNode->variableValue(var);
+}
+
+static QmakeProFile *applicationProFile(const Target *target)
+{
+    ProjectExplorer::RunConfiguration *rc = target->activeRunConfiguration();
+    if (!rc)
+        return nullptr;
+    auto project = static_cast<QmakeProject *>(target->project());
+    return project->rootProFile()->findProFile(FileName::fromString(rc->buildKey()));
+}
+
+bool QmakeAndroidSupport::parseInProgress(const Target *target) const
+{
+    QmakeProjectManager::QmakeProFile *pro = applicationProFile(target);
+    return !pro || pro->parseInProgress();
+}
+
+bool QmakeAndroidSupport::validParse(const Target *target) const
+{
+    QmakeProjectManager::QmakeProFile *pro = applicationProFile(target);
+    return pro->validParse() && pro->projectType() == ProjectType::ApplicationTemplate;
+}
+
+bool QmakeAndroidSupport::extraLibraryEnabled(const Target *target) const
+{
+    QmakeProFile *pro = applicationProFile(target);
+    return pro && !pro->parseInProgress();
+}
+
+FileName QmakeAndroidSupport::projectFilePath(const Target *target) const
+{
+    QmakeProFile *pro = applicationProFile(target);
+    return pro ? pro->filePath() : FileName();
+}
+
+bool QmakeAndroidSupport::setTargetData(Core::Id role, const QStringList &values, const Target *target) const
+{
+    QmakeProFile *pro = applicationProFile(target);
+    if (!pro)
+        return false;
+
+    QString var;
+    if (role == Android::Constants::AndroidExtraLibs)
+        var = "ANDROID_EXTRA_LIBS";
+
+    if (var.isEmpty())
+        return false;
+
+    const QString arch = pro->singleVariableValue(Variable::AndroidArch);
+    const QString scope = "contains(ANDROID_TARGET_ARCH," + arch + ')';
+    return pro->setProVariable(var, values, scope,
+                        QmakeProjectManager::Internal::ProWriter::ReplaceValues
+                        | QmakeProjectManager::Internal::ProWriter::MultiLine);
 }
 
 QString QmakeAndroidSupport::targetDataItem(Core::Id role, const Target *target) const

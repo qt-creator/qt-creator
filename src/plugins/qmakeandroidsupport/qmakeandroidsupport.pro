@@ -5,7 +5,6 @@ DEFINES += \
     QMAKEANDROID_LIBRARY
 
 HEADERS += \
-    androidextralibrarylistmodel.h \
     createandroidmanifestwizard.h \
     qmakeandroidsupport.h \
     qmakeandroidbuildapkstep.h \
@@ -14,7 +13,6 @@ HEADERS += \
     qmakeandroidsupportplugin.h
 
 SOURCES += \
-    androidextralibrarylistmodel.cpp \
     createandroidmanifestwizard.cpp \
     qmakeandroidsupport.cpp \
     qmakeandroidbuildapkstep.cpp \

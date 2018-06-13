@@ -26,18 +26,14 @@
 
 #include "androidextralibrarylistmodel.h"
 
+#include <android/androidqtsupport.h>
+#include <android/androidmanager.h>
+
+#include <projectexplorer/project.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
-#include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakenodes.h>
-
-#include <proparser/prowriter.h>
-
-
-using namespace QmakeAndroidSupport;
-using namespace Internal;
-using QmakeProjectManager::QmakeProject;
+namespace Android {
 
 AndroidExtraLibraryListModel::AndroidExtraLibraryListModel(ProjectExplorer::Target *target,
                                                            QObject *parent)
@@ -86,20 +82,18 @@ QVariant AndroidExtraLibraryListModel::data(const QModelIndex &index, int role) 
 
 void AndroidExtraLibraryListModel::updateModel()
 {
-    QmakeProjectManager::QmakeProFile *pro = activeProFile();
-    if (!pro || pro->parseInProgress()) {
+    AndroidQtSupport *qtSupport = Android::AndroidManager::androidQtSupport(m_target);
+    QTC_ASSERT(qtSupport, return);
+
+    if (qtSupport->parseInProgress(m_target)) {
         emit enabledChanged(false);
         return;
     }
 
-    m_scope = QLatin1String("contains(ANDROID_TARGET_ARCH,")
-            + pro->singleVariableValue(QmakeProjectManager::Variable::AndroidArch)
-            + QLatin1Char(')');
-
     bool enabled;
     beginResetModel();
-    if (pro->validParse() && pro->projectType() == QmakeProjectManager::ProjectType::ApplicationTemplate) {
-        m_entries = pro->variableValue(QmakeProjectManager::Variable::AndroidExtraLibs);
+    if (qtSupport->validParse(m_target)) {
+        m_entries = qtSupport->targetData(Constants::AndroidExtraLibs, m_target);
         enabled = true;
     } else {
         // parsing error or not a application template
@@ -111,37 +105,19 @@ void AndroidExtraLibraryListModel::updateModel()
     emit enabledChanged(enabled);
 }
 
-QmakeProjectManager::QmakeProFile *AndroidExtraLibraryListModel::activeProFile() const
-{
-    ProjectExplorer::RunConfiguration *rc = m_target->activeRunConfiguration();
-    if (!rc)
-        return nullptr;
-    auto project = static_cast<QmakeProject *>(m_target->project());
-    return project->rootProFile()->findProFile(Utils::FileName::fromString(rc->buildKey()));
-}
-
-bool AndroidExtraLibraryListModel::isEnabled() const
-{
-    QmakeProjectManager::QmakeProFile *pro = activeProFile();
-    return pro && !pro->parseInProgress() && pro->projectType() == QmakeProjectManager::ProjectType::ApplicationTemplate;
-}
-
 void AndroidExtraLibraryListModel::addEntries(const QStringList &list)
 {
-    QmakeProjectManager::QmakeProFile *pro = activeProFile();
-    if (!pro || pro->projectType() != QmakeProjectManager::ProjectType::ApplicationTemplate)
-        return;
+    AndroidQtSupport *qtSupport = Android::AndroidManager::androidQtSupport(m_target);
+    QTC_ASSERT(qtSupport, return);
+    Utils::FileName projectFilePath = qtSupport->projectFilePath(m_target);
 
     beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size() + list.size());
 
-    foreach (const QString &path, list)
-        m_entries +=  QLatin1String("$$PWD/")
-                + pro->filePath().toFileInfo().absoluteDir().relativeFilePath(path);
+    const QDir dir = qtSupport->projectFilePath(m_target).toFileInfo().absoluteDir();
+    for (const QString &path : list)
+        m_entries += "$$PWD/" + dir.relativeFilePath(path);
 
-    pro->setProVariable("ANDROID_EXTRA_LIBS", m_entries, m_scope,
-                        QmakeProjectManager::Internal::ProWriter::ReplaceValues
-                        | QmakeProjectManager::Internal::ProWriter::MultiLine);
-
+    qtSupport->setTargetData(Constants::AndroidExtraLibs, m_entries, m_target);
     endInsertRows();
 }
 
@@ -152,10 +128,7 @@ bool greaterModelIndexByRow(const QModelIndex &a, const QModelIndex &b)
 
 void AndroidExtraLibraryListModel::removeEntries(QModelIndexList list)
 {
-    QmakeProjectManager::QmakeProFile *pro = activeProFile();
-    if (!pro)
-        return;
-    if (list.isEmpty() || !pro || pro->projectType() != QmakeProjectManager::ProjectType::ApplicationTemplate)
+    if (list.isEmpty())
         return;
 
     std::sort(list.begin(), list.end(), greaterModelIndexByRow);
@@ -174,5 +147,9 @@ void AndroidExtraLibraryListModel::removeEntries(QModelIndexList list)
         endRemoveRows();
     }
 
-    pro->setProVariable(QLatin1String("ANDROID_EXTRA_LIBS"), m_entries, m_scope);
+    AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(m_target);
+    QTC_ASSERT(qtSupport, return);
+    qtSupport->setTargetData(Constants::AndroidExtraLibs, m_entries, m_target);
 }
+
+} // Android

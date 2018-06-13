@@ -25,10 +25,11 @@
 
 #pragma once
 
-#include "androidextralibrarylistmodel.h"
-
 #include <projectexplorer/buildstep.h>
+
 #include <android/androidbuildapkstep.h>
+#include <android/androidextralibrarylistmodel.h>
+#include <android/androidqtsupport.h>
 
 #include <QListView>
 #include <QToolButton>
@@ -57,7 +58,7 @@ private:
     QToolButton *m_removeAndroidExtraLibButton = nullptr;
 
     Android::AndroidBuildApkStep *m_step = nullptr;
-    AndroidExtraLibraryListModel *m_extraLibraryListModel = nullptr;
+    Android::AndroidExtraLibraryListModel *m_extraLibraryListModel = nullptr;
     bool m_ignoreChange = false;
 };
 

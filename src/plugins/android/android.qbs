@@ -55,6 +55,8 @@ Project {
             "androiddevicefactory.h",
             "androiderrormessage.h",
             "androiderrormessage.cpp",
+            "androidextralibrarylistmodel.cpp",
+            "androidextralibrarylistmodel.h",
             "androidgdbserverkitinformation.cpp",
             "androidgdbserverkitinformation.h",
             "androidglobal.h",

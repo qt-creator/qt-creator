@@ -41,6 +41,8 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+using namespace Android;
+
 namespace QmakeAndroidSupport {
 namespace Internal {
 
@@ -108,7 +110,9 @@ QmakeAndroidBuildApkWidget::QmakeAndroidBuildApkWidget(Android::AndroidBuildApkS
     connect(m_extraLibraryListModel, &AndroidExtraLibraryListModel::enabledChanged,
             additionalLibrariesGroupBox, &QWidget::setEnabled);
 
-    additionalLibrariesGroupBox->setEnabled(m_extraLibraryListModel->isEnabled());
+    AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(m_step->target());
+    QTC_ASSERT(qtSupport, return);
+    additionalLibrariesGroupBox->setEnabled(qtSupport->extraLibraryEnabled(m_step->target()));
 }
 
 void QmakeAndroidBuildApkWidget::createAndroidTemplatesButton()

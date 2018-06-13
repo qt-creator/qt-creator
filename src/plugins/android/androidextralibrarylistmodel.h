@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include "android_global.h"
+
 #include <QAbstractItemModel>
 #include <QStringList>
 
@@ -34,12 +36,9 @@ class RunConfiguration;
 class Target;
 }
 
-namespace QmakeProjectManager { class QmakeProFile; }
+namespace Android {
 
-namespace QmakeAndroidSupport {
-
-namespace Internal {
-class AndroidExtraLibraryListModel : public QAbstractItemModel
+class ANDROID_EXPORT AndroidExtraLibraryListModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
@@ -55,19 +54,14 @@ public:
     void removeEntries(QModelIndexList list);
     void addEntries(const QStringList &list);
 
-    bool isEnabled() const;
-
 signals:
     void enabledChanged(bool);
 
 private:
     void updateModel();
-    QmakeProjectManager::QmakeProFile *activeProFile() const;
 
     ProjectExplorer::Target *m_target;
     QStringList m_entries;
-    QString m_scope;
 };
 
-} // namespace Internal
-} // namespace QmakeAndroidSupport
+} // namespace Android

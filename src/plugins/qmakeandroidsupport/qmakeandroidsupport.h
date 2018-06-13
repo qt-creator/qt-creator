@@ -42,6 +42,13 @@ public:
 
     QString targetDataItem(Core::Id role, const ProjectExplorer::Target *target) const override;
     QStringList targetData(Core::Id role, const ProjectExplorer::Target *target) const override;
+    bool setTargetData(Core::Id role, const QStringList &values,
+                       const ProjectExplorer::Target *target) const override;
+
+    bool parseInProgress(const ProjectExplorer::Target *target) const override;
+    bool validParse(const ProjectExplorer::Target *target) const override;
+    bool extraLibraryEnabled(const ProjectExplorer::Target *target) const override;
+    Utils::FileName projectFilePath(const ProjectExplorer::Target *target) const override;
 };
 
 } // namespace Internal

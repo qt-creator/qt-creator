@@ -47,6 +47,7 @@ namespace Constants {
 const char AndroidPackageSourceDir[] = "AndroidPackageSourceDir";
 const char AndroidDeploySettingsFile[] = "AndroidDeploySettingsFile";
 const char AndroidExtraLibs[] = "AndroidExtraLibs";
+const char AndroidArch[] = "AndroidArch";
 
 } // namespace Constants
 
@@ -73,6 +74,13 @@ public:
 
     virtual QString targetDataItem(Core::Id role, const ProjectExplorer::Target *target) const = 0;
     virtual QStringList targetData(Core::Id role, const ProjectExplorer::Target *target) const = 0;
+    virtual bool setTargetData(Core::Id role, const QStringList &values,
+                               const ProjectExplorer::Target *target) const = 0;
+
+    virtual bool parseInProgress(const ProjectExplorer::Target *target) const = 0;
+    virtual bool validParse(const ProjectExplorer::Target *target) const = 0;
+    virtual bool extraLibraryEnabled(const ProjectExplorer::Target *target) const = 0;
+    virtual Utils::FileName projectFilePath(const ProjectExplorer::Target *target) const = 0;
 };
 
 } // namespace Android

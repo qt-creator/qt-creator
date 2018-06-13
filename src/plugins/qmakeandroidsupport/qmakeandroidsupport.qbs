@@ -16,8 +16,6 @@ QtcPlugin {
     Depends { name: "Qt.widgets" }
 
     files: [
-        "androidextralibrarylistmodel.cpp",
-        "androidextralibrarylistmodel.h",
         "createandroidmanifestwizard.cpp",
         "createandroidmanifestwizard.h",
         "qmakeandroidbuildapkstep.cpp",
