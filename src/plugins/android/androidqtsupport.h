@@ -69,7 +69,6 @@ public:
     virtual QStringList soLibSearchPath(const ProjectExplorer::Target *target) const = 0;
     virtual QStringList projectTargetApplications(const ProjectExplorer::Target *target) const = 0;
     virtual Utils::FileName apkPath(const ProjectExplorer::Target *target) const;
-    virtual Utils::FileName androiddeployqtPath(const ProjectExplorer::Target *target) const = 0;
     virtual void manifestSaved(const ProjectExplorer::Target *target) = 0;
 
     virtual QString targetDataItem(Core::Id role, const ProjectExplorer::Target *target) const = 0;

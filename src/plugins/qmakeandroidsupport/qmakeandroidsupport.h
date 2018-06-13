@@ -38,8 +38,6 @@ public:
     bool canHandle(const ProjectExplorer::Target *target) const override;
     QStringList soLibSearchPath(const ProjectExplorer::Target *target) const override;
     QStringList projectTargetApplications(const ProjectExplorer::Target *target) const override;
-    Utils::FileName androiddeployqtPath(const ProjectExplorer::Target *target) const override;
-
     void manifestSaved(const ProjectExplorer::Target *target) override;
 
     QString targetDataItem(Core::Id role, const ProjectExplorer::Target *target) const override;

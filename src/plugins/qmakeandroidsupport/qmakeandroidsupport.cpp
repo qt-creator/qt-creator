@@ -141,19 +141,6 @@ QStringList QmakeAndroidSupport::projectTargetApplications(const ProjectExplorer
     return apps;
 }
 
-Utils::FileName QmakeAndroidSupport::androiddeployqtPath(const ProjectExplorer::Target *target) const
-{
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
-    if (!version)
-        return Utils::FileName();
-
-    QString command = version->qmakeProperty("QT_HOST_BINS");
-    if (!command.endsWith(QLatin1Char('/')))
-        command += QLatin1Char('/');
-    command += Utils::HostOsInfo::withExecutableSuffix(QLatin1String("androiddeployqt"));
-    return Utils::FileName::fromString(command);
-}
-
 void QmakeAndroidSupport::manifestSaved(const ProjectExplorer::Target *target)
 {
     ProjectExplorer::BuildConfiguration *bc = target->activeBuildConfiguration();

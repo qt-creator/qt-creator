@@ -176,13 +176,15 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     m_useAndroiddeployqt = qtSupport && version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
 
     if (m_useAndroiddeployqt) {
-        Utils::FileName tmp = qtSupport->androiddeployqtPath(target());
-        if (tmp.isEmpty()) {
+        m_command = version->qmakeProperty("QT_HOST_BINS");
+        if (m_command.isEmpty()) {
             emit addOutput(tr("Cannot find the androiddeployqt tool."), OutputFormat::Stderr);
             return false;
         }
+        if (!m_command.endsWith(QLatin1Char('/')))
+            m_command += QLatin1Char('/');
+        m_command += Utils::HostOsInfo::withExecutableSuffix(QLatin1String("androiddeployqt"));
 
-        m_command = tmp.toString();
         m_workingDirectory = bc ? bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString()
                                 : QString();
 
