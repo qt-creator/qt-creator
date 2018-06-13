@@ -110,9 +110,6 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     Q_UNUSED(earlierSteps);
     m_androiddeployqtArgs.clear();
 
-    if (AndroidManager::checkForQt51Files(project()->projectDirectory()))
-        emit addOutput(tr("Found old folder \"android\" in source directory. Qt 5.2 does not use that folder by default."), OutputFormat::Stderr);
-
     m_targetArch = AndroidManager::targetArch(target());
     if (m_targetArch.isEmpty()) {
         emit addOutput(tr("No Android arch set by the .pro file."), OutputFormat::Stderr);

@@ -83,7 +83,6 @@ public:
     static bool checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd);
     static bool checkCertificateExists(const QString &keystorePath, const QString &keystorePasswd,
                                        const QString &alias);
-    static bool checkForQt51Files(Utils::FileName fileName);
     static AndroidQtSupport *androidQtSupport(ProjectExplorer::Target *target);
     static bool updateGradleProperties(ProjectExplorer::Target *target);
     static int findApiLevel(const Utils::FileName &platformPath);

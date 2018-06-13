@@ -459,17 +459,6 @@ bool AndroidManager::checkCertificateExists(const QString &keystorePath,
     return response.result == Utils::SynchronousProcessResponse::Finished && response.exitCode == 0;
 }
 
-bool AndroidManager::checkForQt51Files(Utils::FileName fileName)
-{
-    fileName.appendPath(QLatin1String("android")).appendPath(QLatin1String("version.xml"));
-    if (!fileName.exists())
-        return false;
-    QDomDocument dstVersionDoc;
-    if (!openXmlFile(dstVersionDoc, fileName))
-        return false;
-    return dstVersionDoc.documentElement().attribute(QLatin1String("value")).toDouble() < 5.2;
-}
-
 AndroidQtSupport *AndroidManager::androidQtSupport(ProjectExplorer::Target *target)
 {
     for (AndroidQtSupport *provider : g_androidQtSupportProviders) {

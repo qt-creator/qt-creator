@@ -72,9 +72,6 @@ QmakeAndroidBuildApkStep::QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepLis
 
 bool QmakeAndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
 {
-    if (AndroidManager::checkForQt51Files(project()->projectDirectory()))
-        emit addOutput(tr("Found old folder \"android\" in source directory. Qt 5.2 does not use that folder by default."), OutputFormat::Stderr);
-
     if (!AndroidBuildApkStep::init(earlierSteps))
         return false;
 
