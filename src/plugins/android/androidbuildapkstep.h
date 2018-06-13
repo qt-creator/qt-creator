@@ -72,17 +72,19 @@ public:
     QString buildTargetSdk() const;
     void setBuildTargetSdk(const QString &sdk);
 
-protected:
+private:
     Q_INVOKABLE void showInGraphicalShell();
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool immutable() const override { return true; }
+    void processStarted() override;
     void processFinished(int exitCode, QProcess::ExitStatus status) override;
     bool verifyKeystorePassword();
     bool verifyCertificatePassword();
 
-protected:
+    void run(QFutureInterface<bool> &fi) override;
+
     bool m_signPackage = false;
     bool m_verbose = false;
     bool m_useMinistro = false;
@@ -96,6 +98,10 @@ protected:
     QString m_certificateAlias;
     QString m_certificatePasswd;
     QString m_apkPath;
+
+    QString m_command;
+    QString m_argumentsPasswordConcealed;
+    bool m_skipBuilding = false;
 };
 
 } // namespace Android

@@ -44,20 +44,7 @@ public:
     QmakeAndroidBuildApkStep(ProjectExplorer::BuildStepList *bc);
 
 protected:
-    bool init(QList<const BuildStep *> &earlierSteps) override;
-    void run(QFutureInterface<bool> &fi) override;
-    void processStarted() override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
-
-private:
-    void setupProcessParameters(ProjectExplorer::ProcessParameters *pp,
-                                ProjectExplorer::BuildConfiguration *bc,
-                                const QStringList &arguments, const QString &command);
-    QString m_command;
-    QString m_argumentsPasswordConcealed;
-    bool m_skipBuilding = false;
 };
 
 } // namespace Internal
