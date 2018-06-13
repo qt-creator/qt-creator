@@ -129,28 +129,10 @@ void CompilerOptionsBuilder::enableExceptions()
     add(QLatin1String("-fexceptions"));
 }
 
-static Utils::FileName absoluteDirectory(const QString &filePath)
-{
-    return Utils::FileName::fromString(QFileInfo(filePath + '/').absolutePath());
-}
-
-static Utils::FileName projectTopLevelDirectory(const ProjectPart &projectPart)
-{
-    if (!projectPart.project)
-        return Utils::FileName();
-    const Utils::FileName result = projectPart.project->projectDirectory();
-    const Utils::FileName vcsTopLevel = Utils::FileName::fromString(
-                Core::VcsManager::findTopLevelForDirectory(result.toString()));
-    if (result.isChildOf(vcsTopLevel))
-        return vcsTopLevel;
-    return result;
-}
-
 void CompilerOptionsBuilder::addHeaderPathOptions()
 {
     typedef ProjectPartHeaderPath HeaderPath;
     const QString defaultPrefix = includeDirOption();
-    const Utils::FileName projectDirectory = projectTopLevelDirectory(m_projectPart);
 
     QStringList result;
 
@@ -170,14 +152,7 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
         default: // This shouldn't happen, but let's be nice..:
             // intentional fall-through:
         case HeaderPath::IncludePath:
-            path = absoluteDirectory(headerPath.path);
-            if (projectDirectory.isEmpty()
-                    || path == projectDirectory
-                    || path.isChildOf(projectDirectory)) {
-                prefix = defaultPrefix;
-            } else {
-                prefix = SYSTEM_INCLUDE_PREFIX;
-            }
+            prefix = defaultPrefix;
             break;
         }
 
