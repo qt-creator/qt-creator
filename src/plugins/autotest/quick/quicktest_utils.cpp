@@ -35,7 +35,8 @@ namespace Autotest {
 namespace Internal {
 namespace QuickTestUtils {
 
-static const QByteArrayList valid = {"QUICK_TEST_MAIN", "QUICK_TEST_OPENGL_MAIN"};
+static const QByteArrayList valid = {"QUICK_TEST_MAIN", "QUICK_TEST_OPENGL_MAIN",
+                                     "QUICK_TEST_MAIN_WITH_SETUP"};
 
 bool isQuickTestMacro(const QByteArray &macro)
 {
