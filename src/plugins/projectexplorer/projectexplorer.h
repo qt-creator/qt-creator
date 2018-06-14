@@ -227,6 +227,8 @@ private slots:
     void testAbiOfBinary();
     void testAbiFromTargetTriplet_data();
     void testAbiFromTargetTriplet();
+    void testAbiUserOsFlavor_data();
+    void testAbiUserOsFlavor();
 
     void testDeviceManager();
 

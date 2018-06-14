@@ -139,12 +139,16 @@ public:
     static BinaryFormat binaryFormatFromString(const QStringRef &bf);
     static unsigned char wordWidthFromString(const QStringRef &w);
 
+    static OSFlavor registerOsFlavor(const std::vector<OS> &oses, const QString &flavorName);
     static QList<OSFlavor> flavorsForOs(const OS &o);
+    static QList<OSFlavor> allOsFlavors();
+    static bool osSupportsFlavor(const OS &os, const OSFlavor &flavor);
     static OSFlavor flavorForMsvcVersion(int version);
 
     static Abi fromString(const QString &abiString);
     static Abi hostAbi();
     static QList<Abi> abisOfBinary(const Utils::FileName &path);
+
 
 private:
     Architecture m_architecture;
