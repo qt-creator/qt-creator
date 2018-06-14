@@ -88,7 +88,7 @@ void QmlProfilerTraceClientTest::testMessageReceived()
             traceClient.clear();
         }, [this, &lastError](const QString &message) {
             QVERIFY(!message.isEmpty());
-            if (lastError == QmlProfilerModelManager::tr("Read past end in temporary trace file")) {
+            if (lastError == QmlProfilerModelManager::tr("Read past end in temporary trace file.")) {
                 // Ignore read-past-end errors: Our test traces are somewhat dirty and don't end on
                 //                              packet boundaries
                 modelManager.clearAll();
