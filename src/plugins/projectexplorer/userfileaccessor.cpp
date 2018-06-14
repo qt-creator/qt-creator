@@ -1588,7 +1588,7 @@ QVariantMap UserFileVersion11Upgrader::upgrade(const QVariantMap &map)
             Abi compilerAbi;
             int debuggerEngine = 1; // GDB
             for (int i = 1; i < split.count() - 1; ++i) {
-                compilerAbi = Abi(split.at(i));
+                compilerAbi = Abi::fromString(split.at(i));
                 if (!compilerAbi.isValid())
                     continue;
                 if (compilerAbi.os() == Abi::WindowsOS

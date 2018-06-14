@@ -381,42 +381,6 @@ Abi::Abi(const Architecture &a, const OS &o,
     }
 }
 
-Abi::Abi(const QString &abiString) :
-    m_architecture(UnknownArchitecture), m_os(UnknownOS),
-    m_osFlavor(UnknownFlavor), m_binaryFormat(UnknownFormat), m_wordWidth(0)
-{
-    const QVector<QStringRef> abiParts = abiString.splitRef('-');
-    if (abiParts.count() >= 1) {
-        m_architecture = architectureFromString(abiParts.at(0));
-        if (abiParts.at(0) != toString(m_architecture))
-            return;
-    }
-
-    if (abiParts.count() >= 2) {
-        m_os = osFromString(abiParts.at(1));
-        if (abiParts.at(1) != toString(m_os))
-            return;
-    }
-
-    if (abiParts.count() >= 3) {
-        m_osFlavor = osFlavorFromString(abiParts.at(2), m_os);
-        if (abiParts.at(2) != toString(m_osFlavor))
-            return;
-    }
-
-    if (abiParts.count() >= 4) {
-        m_binaryFormat = binaryFormatFromString(abiParts.at(3));
-        if (abiParts.at(3) != toString(m_binaryFormat))
-            return;
-    }
-
-    if (abiParts.count() >= 5) {
-        m_wordWidth = wordWidthFromString(abiParts.at(4));
-        if (abiParts.at(4) != toString(m_wordWidth))
-            return;
-    }
-}
-
 Abi Abi::abiFromTargetTriplet(const QString &triple)
 {
     const QString machine = triple.toLower();
@@ -722,6 +686,47 @@ QString Abi::toString(int w)
     if (w == 0)
         return QLatin1String("unknown");
     return QString::fromLatin1("%1bit").arg(w);
+}
+
+Abi Abi::fromString(const QString &abiString)
+{
+    Abi::Architecture architecture = UnknownArchitecture;
+    const QVector<QStringRef> abiParts = abiString.splitRef('-');
+    if (abiParts.count() >= 1) {
+        architecture = architectureFromString(abiParts.at(0));
+        if (abiParts.at(0) != toString(architecture))
+            return Abi();
+    }
+
+    Abi::OS os = UnknownOS;
+    if (abiParts.count() >= 2) {
+        os = osFromString(abiParts.at(1));
+        if (abiParts.at(1) != toString(os))
+            return Abi(architecture, UnknownOS, UnknownFlavor, UnknownFormat, 0);
+    }
+
+    Abi::OSFlavor flavor = UnknownFlavor;
+    if (abiParts.count() >= 3) {
+        flavor = osFlavorFromString(abiParts.at(2), os);
+        if (abiParts.at(2) != toString(flavor))
+            return Abi(architecture, os, UnknownFlavor, UnknownFormat, 0);;
+    }
+
+    Abi::BinaryFormat format = UnknownFormat;
+    if (abiParts.count() >= 4) {
+        format = binaryFormatFromString(abiParts.at(3));
+        if (abiParts.at(3) != toString(format))
+            return Abi(architecture, os, flavor, UnknownFormat, 0);;
+    }
+
+    unsigned char wordWidth = 0;
+    if (abiParts.count() >= 5) {
+        wordWidth = wordWidthFromString(abiParts.at(4));
+        if (abiParts.at(4) != toString(wordWidth))
+            return Abi(architecture, os, flavor, format, 0);;
+    }
+
+    return Abi(architecture, os, flavor, format, wordWidth);
 }
 
 Abi::Architecture Abi::architectureFromString(const QStringRef &a)

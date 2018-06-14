@@ -336,7 +336,7 @@ bool CustomToolChain::fromMap(const QVariantMap &data)
 
     m_compilerCommand = FileName::fromString(data.value(QLatin1String(compilerCommandKeyC)).toString());
     m_makeCommand = FileName::fromString(data.value(QLatin1String(makeCommandKeyC)).toString());
-    m_targetAbi = Abi(data.value(QLatin1String(targetAbiKeyC)).toString());
+    m_targetAbi = Abi::fromString(data.value(QLatin1String(targetAbiKeyC)).toString());
     const QStringList macros = data.value(QLatin1String(predefinedMacrosKeyC)).toStringList();
     m_predefinedMacros = Macro::toMacros(macros.join('\n').toUtf8());
     setHeaderPaths(data.value(QLatin1String(headerPathsKeyC)).toStringList());

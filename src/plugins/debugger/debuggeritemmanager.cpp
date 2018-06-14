@@ -356,7 +356,7 @@ DebuggerItem DebuggerItemConfigWidget::item() const
     foreach (const QString &a, m_abis->text().split(QRegExp(QLatin1String("[^A-Za-z0-9-_]+")))) {
         if (a.isNull())
             continue;
-        abiList << a;
+        abiList << Abi::fromString(a);
     }
     item.setAbis(abiList);
     item.setVersion(m_versionLabel->text());

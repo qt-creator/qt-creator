@@ -112,14 +112,9 @@ public:
         UnknownFormat
     };
 
-    Abi() :
-        m_architecture(UnknownArchitecture), m_os(UnknownOS),
-        m_osFlavor(UnknownFlavor), m_binaryFormat(UnknownFormat), m_wordWidth(0)
-    { }
-
-    Abi(const Architecture &a, const OS &o,
-        const OSFlavor &so, const BinaryFormat &f, unsigned char w);
-    Abi(const QString &abiString);
+    Abi(const Architecture &a = UnknownArchitecture, const OS &o = UnknownOS,
+        const OSFlavor &so = UnknownFlavor, const BinaryFormat &f = UnknownFormat,
+        unsigned char w = 0);
 
     static Abi abiFromTargetTriplet(const QString &machineTriple);
 
@@ -153,6 +148,7 @@ public:
     static QList<OSFlavor> flavorsForOs(const OS &o);
     static OSFlavor flavorForMsvcVersion(int version);
 
+    static Abi fromString(const QString &abiString);
     static Abi hostAbi();
     static QList<Abi> abisOfBinary(const Utils::FileName &path);
 

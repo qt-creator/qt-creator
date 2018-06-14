@@ -831,12 +831,12 @@ bool GccToolChain::fromMap(const QVariantMap &data)
     m_compilerCommand = FileName::fromString(data.value(compilerCommandKeyC).toString());
     m_platformCodeGenFlags = data.value(compilerPlatformCodeGenFlagsKeyC).toStringList();
     m_platformLinkerFlags = data.value(compilerPlatformLinkerFlagsKeyC).toStringList();
-    m_targetAbi = Abi(data.value(targetAbiKeyC).toString());
+    m_targetAbi = Abi::fromString(data.value(targetAbiKeyC).toString());
     m_originalTargetTriple = data.value(originalTargetTripleKeyC).toString();
     const QStringList abiList = data.value(supportedAbisKeyC).toStringList();
     m_supportedAbis.clear();
     for (const QString &a : abiList) {
-        Abi abi(a);
+        Abi abi = Abi::fromString(a);
         if (!abi.isValid())
             continue;
         m_supportedAbis.append(abi);

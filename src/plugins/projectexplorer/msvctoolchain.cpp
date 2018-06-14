@@ -708,7 +708,7 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
     m_vcvarsBat = QDir::fromNativeSeparators(data.value(QLatin1String(varsBatKeyC)).toString());
     m_varsBatArg = data.value(QLatin1String(varsBatArgKeyC)).toString();
     const QString abiString = data.value(QLatin1String(supportedAbiKeyC)).toString();
-    m_abi = Abi(abiString);
+    m_abi = Abi::fromString(abiString);
     m_environmentModifications = Utils::EnvironmentItem::itemsFromVariantList(
                 data.value(QLatin1String(environModsKeyC)).toList());
 

@@ -3754,12 +3754,12 @@ void DebuggerUnitTests::testDebuggerMatching()
 
     QList<Abi> debuggerAbis;
     foreach (const QString &abi, debugger)
-        debuggerAbis << Abi(abi);
+        debuggerAbis << Abi::fromString(abi);
 
     DebuggerItem item;
     item.setAbis(debuggerAbis);
 
-    DebuggerItem::MatchLevel level = item.matchTarget(Abi(target));
+    DebuggerItem::MatchLevel level = item.matchTarget(Abi::fromString(target));
     if (level == DebuggerItem::MatchesPerfectly)
         level = DebuggerItem::MatchesWell;
 
