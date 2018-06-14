@@ -97,8 +97,9 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted,
     // handle Quick options as well
     static const QSet<QString> knownInterferingQuickOption = { "-qtquick1" };
     static const QSet<QString> knownAllowedQuickOptionsWithParameter {
-        "-import", "-plugins", "-input"
+        "-import", "-plugins", "-input", "-translation"
     };
+    static const QSet<QString> knownAllowedSingleQuickOptions = { "-opengl", "-widgets" };
 
     QStringList allowed;
     auto it = provided.cbegin();
@@ -126,6 +127,8 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted,
                 ++it;
                 QTC_ASSERT(it != end, return QStringList());
                 allowed.append(*it);
+            } else if (knownAllowedSingleQuickOptions.contains(currentOpt)) {
+                allowed.append(currentOpt);
             } else if (knownInterferingQuickOption.contains(currentOpt)) {
                 if (omitted)
                     omitted->append(currentOpt);
