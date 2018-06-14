@@ -416,9 +416,9 @@ public:
     QString removeNamespaces(QString str) const;
 
     bool contextMenuEvent(const ItemViewEvent &ev);
-    QMenu *createFormatMenu(WatchItem *item);
-    QMenu *createMemoryMenu(WatchItem *item);
-    QMenu *createBreakpointMenu(WatchItem *item);
+    QMenu *createFormatMenu(WatchItem *item, QWidget *parent);
+    QMenu *createMemoryMenu(WatchItem *item, QWidget *parent);
+    QMenu *createBreakpointMenu(WatchItem *item, QWidget *parent);
 
     void addStackLayoutMemoryView(bool separateView, const QPoint &p);
 
@@ -1657,9 +1657,9 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
               [this] { grabWidget(); });
 
     menu->addSeparator();
-    menu->addMenu(createFormatMenu(item));
-    menu->addMenu(createMemoryMenu(item));
-    menu->addMenu(createBreakpointMenu(item));
+    menu->addMenu(createFormatMenu(item, menu));
+    menu->addMenu(createMemoryMenu(item, menu));
+    menu->addMenu(createBreakpointMenu(item, menu));
     menu->addSeparator();
 
     addAction(menu, tr("Expand All Children"),
@@ -1712,13 +1712,14 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
 
     menu->addSeparator();
     menu->addAction(action(SettingsDialog));
+    connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
     return true;
 }
 
-QMenu *WatchModel::createBreakpointMenu(WatchItem *item)
+QMenu *WatchModel::createBreakpointMenu(WatchItem *item, QWidget *parent)
 {
-    auto menu = new QMenu(tr("Add Data Breakpoint"));
+    auto menu = new QMenu(tr("Add Data Breakpoint"), parent);
     if (!item) {
         menu->setEnabled(false);
         return menu;
@@ -1760,9 +1761,9 @@ QMenu *WatchModel::createBreakpointMenu(WatchItem *item)
     return menu;
 }
 
-QMenu *WatchModel::createMemoryMenu(WatchItem *item)
+QMenu *WatchModel::createMemoryMenu(WatchItem *item, QWidget *parent)
 {
-    auto menu = new QMenu(tr("Open Memory Editor"));
+    auto menu = new QMenu(tr("Open Memory Editor"), parent);
     if (!item || !m_engine->hasCapability(ShowMemoryCapability)) {
         menu->setEnabled(false);
         return menu;
@@ -1813,9 +1814,9 @@ QMenu *WatchModel::createMemoryMenu(WatchItem *item)
     return menu;
 }
 
-QMenu *WatchModel::createFormatMenu(WatchItem *item)
+QMenu *WatchModel::createFormatMenu(WatchItem *item, QWidget *parent)
 {
-    auto menu = new QMenu(tr("Change Value Display Format"));
+    auto menu = new QMenu(tr("Change Value Display Format"), parent);
     if (!item) {
         menu->setEnabled(false);
         return menu;
