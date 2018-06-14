@@ -241,15 +241,14 @@ QList<QnxTarget> QnxUtils::findTargets(const Utils::FileName &basePath)
 
 Abi QnxUtils::convertAbi(const Abi &abi)
 {
-    if (abi.os() == Abi::LinuxOS && abi.osFlavor() == Abi::GenericLinuxFlavor) {
+    if (abi.os() == Abi::LinuxOS && abi.osFlavor() == Abi::GenericFlavor) {
         return Abi(abi.architecture(),
                    Abi::QnxOS,
-                   Abi::GenericQnxFlavor,
+                   Abi::GenericFlavor,
                    abi.binaryFormat(),
                    abi.wordWidth());
-    } else {
-        return abi;
     }
+    return abi;
 }
 
 QList<Abi> QnxUtils::convertAbis(const QList<Abi> &abis)

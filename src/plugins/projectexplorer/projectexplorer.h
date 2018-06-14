@@ -225,7 +225,6 @@ private slots:
     void testAbiRoundTrips();
     void testAbiOfBinary_data();
     void testAbiOfBinary();
-    void testFlavorForOs();
     void testAbiFromTargetTriplet_data();
     void testAbiFromTargetTriplet();
 

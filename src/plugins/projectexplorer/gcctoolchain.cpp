@@ -707,7 +707,7 @@ FileNameList GccToolChain::suggestedMkspecList() const
     }
 
     if (abi.os() == Abi::LinuxOS) {
-        if (abi.osFlavor() != Abi::GenericLinuxFlavor)
+        if (abi.osFlavor() != Abi::GenericFlavor)
             return FileNameList(); // most likely not a desktop, so leave the mkspec alone.
         if (abi.wordWidth() == host.wordWidth()) {
             // no need to explicitly set the word width, but provide that mkspec anyway to make sure

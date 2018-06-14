@@ -72,14 +72,9 @@ public:
         OpenBsdFlavor,
 
         // Linux
-        GenericLinuxFlavor,
         AndroidLinuxFlavor,
 
-        // Darwin
-        GenericDarwinFlavor,
-
         // Unix
-        GenericUnixFlavor,
         SolarisUnixFlavor,
 
         // Windows
@@ -95,13 +90,12 @@ public:
 
         // Embedded
         VxWorksFlavor,
-        GenericQnxFlavor,
-        GenericBareMetalFlavor,
 
         // Generic:
         RtosFlavor,
+        GenericFlavor,
 
-        UnknownFlavor
+        UnknownFlavor // keep last in this enum!
     };
 
     enum BinaryFormat {
