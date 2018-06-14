@@ -34,13 +34,11 @@ namespace ProjectExplorer {
 
 static inline QByteArray msgFileComparisonFail(const Utils::FileName &f1, const Utils::FileName &f2)
 {
-    const QString result = QLatin1Char('"') + f1.toUserOutput()
-        + QLatin1String("\" != \"") + f2.toUserOutput() + QLatin1Char('"');
+    const QString result = '"' + f1.toUserOutput() + "\" != \"" + f2.toUserOutput() + '"';
     return result.toLocal8Bit();
 }
 
-OutputParserTester::OutputParserTester() :
-    m_debug(false)
+OutputParserTester::OutputParserTester()
 { }
 
 // test functions:
@@ -54,28 +52,28 @@ void OutputParserTester::testParsing(const QString &lines,
     reset();
     Q_ASSERT(childParser());
 
-    QStringList inputLines = lines.split(QLatin1Char('\n'));
-    foreach (const QString &input, inputLines) {
+    const QStringList inputLines = lines.split('\n');
+    for (const QString &input : inputLines) {
         if (inputChannel == STDOUT)
-            childParser()->stdOutput(input + QLatin1Char('\n'));
+            childParser()->stdOutput(input + '\n');
         else
-            childParser()->stdError(input + QLatin1Char('\n'));
+            childParser()->stdError(input + '\n');
     }
     childParser()->flush();
 
      // first disconnect ourselves from the end of the parser chain again
-    IOutputParser * parser = this;
+    IOutputParser *parser = this;
     while ( (parser = parser->childParser()) ) {
         if (parser->childParser() == this) {
             childParser()->takeOutputParserChain();
             break;
         }
     }
-    parser = 0;
+    parser = nullptr;
     emit aboutToDeleteParser();
 
     // then delete the parser(s) to test
-    setChildParser(0);
+    setChildParser(nullptr);
 
     QCOMPARE(m_receivedOutput, outputLines);
     QCOMPARE(m_receivedStdErrChildLine, childStdErrLines);
@@ -142,7 +140,7 @@ void OutputParserTester::outputAdded(const QString &line, BuildStep::OutputForma
 {
     Q_UNUSED(format);
     if (!m_receivedOutput.isEmpty())
-        m_receivedOutput.append(QLatin1Char('\n'));
+        m_receivedOutput.append('\n');
     m_receivedOutput.append(line);
 }
 
@@ -167,13 +165,13 @@ TestTerminator::TestTerminator(OutputParserTester *t) :
 
 void TestTerminator::stdOutput(const QString &line)
 {
-    QVERIFY(line.endsWith(QLatin1Char('\n')));
+    QVERIFY(line.endsWith('\n'));
     m_tester->m_receivedStdOutChildLine.append(line);
 }
 
 void TestTerminator::stdError(const QString &line)
 {
-    QVERIFY(line.endsWith(QLatin1Char('\n')));
+    QVERIFY(line.endsWith('\n'));
     m_tester->m_receivedStdErrChildLine.append(line);
 }
 
