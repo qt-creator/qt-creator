@@ -127,7 +127,8 @@ public:
         SwitchMode = 1,
         CanContainLineAndColumnNumbers = 2,
          /// Stop loading once the first file fails to load
-        StopOnLoadFail = 4
+        StopOnLoadFail = 4,
+        SwitchSplitIfAlreadyVisible = 8
     };
     static void openFiles(const QStringList &fileNames, OpenFilesFlags flags = None);
 

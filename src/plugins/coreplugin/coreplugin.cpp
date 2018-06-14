@@ -247,7 +247,7 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
         return nullptr;
     }
     IDocument *res = m_mainWindow->openFiles(
-                args, ICore::OpenFilesFlags(ICore::SwitchMode | ICore::CanContainLineAndColumnNumbers),
+                args, ICore::OpenFilesFlags(ICore::SwitchMode | ICore::CanContainLineAndColumnNumbers | ICore::SwitchSplitIfAlreadyVisible),
                 workingDirectory);
     m_mainWindow->raiseWindow();
     return res;

@@ -845,6 +845,8 @@ IDocument *MainWindow::openFiles(const QStringList &fileNames,
             QFlags<EditorManager::OpenEditorFlag> emFlags;
             if (flags & ICore::CanContainLineAndColumnNumbers)
                 emFlags |=  EditorManager::CanContainLineAndColumnNumber;
+            if (flags & ICore::SwitchSplitIfAlreadyVisible)
+                emFlags |= EditorManager::SwitchSplitIfAlreadyVisible;
             IEditor *editor = EditorManager::openEditor(absoluteFilePath, Id(), emFlags);
             if (!editor) {
                 if (flags & ICore::StopOnLoadFail)

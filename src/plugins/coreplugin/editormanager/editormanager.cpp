@@ -576,6 +576,17 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
     const QList<IEditor *> editors = DocumentModel::editorsForFilePath(fn);
     if (!editors.isEmpty()) {
         IEditor *editor = editors.first();
+        if (flags & EditorManager::SwitchSplitIfAlreadyVisible) {
+            for (IEditor *ed : editors) {
+                EditorView *v = viewForEditor(ed);
+                // Don't switch to a view where editor is not its current editor
+                if (v && v->currentEditor() == ed) {
+                    editor = ed;
+                    view = v;
+                    break;
+                }
+            }
+        }
         editor = activateEditor(view, editor, flags);
         if (editor && flags & EditorManager::CanContainLineAndColumnNumber)
             editor->gotoLine(lineNumber, columnNumber);
