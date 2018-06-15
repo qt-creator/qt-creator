@@ -66,7 +66,7 @@ public:
 signals:
     void contextMenuRequested(const QPoint &pos, int index);
 protected:
-    bool eventFilter(QObject *object, QEvent *event) override final;
+    bool eventFilter(QObject *object, QEvent *event) final;
 private:
     int m_tabIndexForMiddleClick = -1;
 };
@@ -112,7 +112,7 @@ class ComboBox : public QComboBox
 {
     Q_OBJECT
 public:
-    void showPopup() override final;
+    void showPopup() final;
 signals:
     void opened();
 };

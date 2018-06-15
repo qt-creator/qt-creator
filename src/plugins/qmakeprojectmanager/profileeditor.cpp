@@ -57,10 +57,10 @@ namespace Internal {
 class ProFileEditorWidget : public TextEditorWidget
 {
 protected:
-    virtual void findLinkAt(const QTextCursor &,
-                            Utils::ProcessLinkCallback &&processLinkCallback,
-                            bool resolveTarget = true,
-                            bool inNextSplit = false) override;
+    void findLinkAt(const QTextCursor &,
+                    Utils::ProcessLinkCallback &&processLinkCallback,
+                    bool resolveTarget = true,
+                    bool inNextSplit = false) override;
     void contextMenuEvent(QContextMenuEvent *) override;
 };
 

@@ -79,7 +79,7 @@ public:
     DescriptionEditorWidget(QWidget *parent = nullptr);
     ~DescriptionEditorWidget() override;
 
-    virtual QSize sizeHint() const override;
+    QSize sizeHint() const override;
 
 protected:
     void setDisplaySettings(const DisplaySettings &ds) override;
