@@ -176,9 +176,7 @@ TEST_F(ClientServerInProcess, SendRequestAnnotationsMessage)
 TEST_F(ClientServerInProcess, SendCompletionsMessage)
 {
     ClangBackEnd::CodeCompletions codeCompletions({Utf8StringLiteral("newFunction()")});
-    ClangBackEnd::CompletionsMessage message(codeCompletions,
-                                             ClangBackEnd::CompletionCorrection::NoCorrection,
-                                             1);
+    ClangBackEnd::CompletionsMessage message(codeCompletions, 1);
 
     EXPECT_CALL(mockClangCodeModelClient, completions(message))
         .Times(1);

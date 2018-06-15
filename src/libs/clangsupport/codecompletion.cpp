@@ -77,6 +77,8 @@ QDebug operator<<(QDebug debug, const CodeCompletion &message)
     debug.nospace() << message.priority << ", ";
     debug.nospace() << completionKindToString(message.completionKind) << ", ";
     debug.nospace() << availabilityToString(message.availability) << ", ";
+    if (!message.requiredFixIts.isEmpty())
+        debug.nospace() << message.requiredFixIts << ", ";
     debug.nospace() << message.hasParameters;
 
     debug.nospace() << ")";

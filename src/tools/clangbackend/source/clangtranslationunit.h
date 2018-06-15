@@ -52,12 +52,6 @@ class CommandLineArguments;
 class TranslationUnit
 {
 public:
-    struct CodeCompletionResult {
-        CodeCompletions completions;
-        CompletionCorrection correction;
-    };
-
-public:
     TranslationUnit(const Utf8String &id,
                     const Utf8String &filePath,
                     CXIndex &cxIndex,
@@ -77,8 +71,8 @@ public:
     TranslationUnitUpdateResult parse(const TranslationUnitUpdateInput &parseInput) const;
     TranslationUnitUpdateResult reparse(const TranslationUnitUpdateInput &parseInput) const;
 
-    CodeCompletionResult complete(UnsavedFiles &unsavedFiles, uint line, uint column,
-                                  int funcNameStartLine, int funcNameStartColumn) const;
+    CodeCompletions complete(UnsavedFiles &unsavedFiles, uint line, uint column,
+                             int funcNameStartLine, int funcNameStartColumn) const;
 
     void extractDiagnostics(DiagnosticContainer &firstHeaderErrorDiagnostic,
                             QVector<DiagnosticContainer> &mainFileDiagnostics) const;

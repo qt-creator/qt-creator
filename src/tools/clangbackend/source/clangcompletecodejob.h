@@ -31,16 +31,10 @@
 
 namespace ClangBackEnd {
 
-struct CompleteCodeJobResult
-{
-    CodeCompletions completions;
-    CompletionCorrection correction = CompletionCorrection::NoCorrection;
-};
-
-class CompleteCodeJob : public DocumentJob<CompleteCodeJobResult>
+class CompleteCodeJob : public DocumentJob<CodeCompletions>
 {
 public:
-    using AsyncResult = CompleteCodeJobResult;
+    using AsyncResult = CodeCompletions;
 
     AsyncPrepareResult prepareAsyncRun() override;
     void finalizeAsyncRun() override;

@@ -56,4 +56,9 @@ enum class PreferredTranslationUnit
 #  define IS_SKIPWARNINGSFROMINCLUDEDFILES_SUPPORTED
 #endif
 
+// CLANG-UPGRADE-CHECK: Remove IS_COMPLETION_FIXITS_BACKPORTED once we require clang >= 7.0
+#if defined(CINDEX_VERSION_HAS_COMPLETION_FIXITS_BACKPORTED) || CINDEX_VERSION_MINOR >= 49
+#  define IS_COMPLETION_FIXITS_BACKPORTED
+#endif
+
 } // namespace ClangBackEnd

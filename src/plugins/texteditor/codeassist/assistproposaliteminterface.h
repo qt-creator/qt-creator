@@ -65,6 +65,7 @@ public:
     virtual bool isSnippet() const = 0;
     virtual bool isValid() const = 0;
     virtual quint64 hash() const = 0; // it is only for removing duplicates
+    virtual bool requiresFixIts() const { return false; }
 
     inline int order() const { return m_order; }
     inline void setOrder(int order) { m_order = order; }

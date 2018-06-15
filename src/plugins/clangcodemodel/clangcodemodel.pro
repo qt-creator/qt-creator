@@ -8,7 +8,6 @@ requires(!isEmpty(LLVM_VERSION))
 SOURCES += \
     clangactivationsequencecontextprocessor.cpp \
     clangactivationsequenceprocessor.cpp \
-    clangassistproposal.cpp \
     clangassistproposalitem.cpp \
     clangassistproposalmodel.cpp \
     clangbackendcommunicator.cpp \
@@ -46,7 +45,6 @@ SOURCES += \
 HEADERS += \
     clangactivationsequencecontextprocessor.h \
     clangactivationsequenceprocessor.h \
-    clangassistproposal.h \
     clangassistproposalitem.h \
     clangassistproposalmodel.h \
     clangbackendcommunicator.h \

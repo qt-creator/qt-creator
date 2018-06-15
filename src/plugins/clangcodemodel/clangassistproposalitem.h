@@ -50,6 +50,7 @@ public:
     bool isSnippet() const final;
     bool isValid() const final;
     quint64 hash() const final;
+    bool requiresFixIts() const final;
 
     void keepCompletionOperator(unsigned compOp);
 
@@ -60,6 +61,9 @@ public:
     const ClangBackEnd::CodeCompletion &codeCompletion() const;
 
 private:
+    QString fixItText() const;
+    int fixItsShift(const TextEditor::TextDocumentManipulatorInterface &manipulator) const;
+
     ClangBackEnd::CodeCompletion m_codeCompletion;
     QList<ClangBackEnd::CodeCompletion> m_overloads;
     bool m_hasOverloadsWithParameters = false;

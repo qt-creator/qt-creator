@@ -169,7 +169,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, Function)
 {
     ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                functionDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Function"),
                                          CodeCompletion::FunctionCompletionKind,
@@ -180,7 +182,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, TemplateFunction)
 {
     ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                functionDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("TemplateFunction"),
                                          CodeCompletion::TemplateFunctionCompletionKind,
@@ -191,7 +195,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, Variable)
 {
     ClangCodeCompleteResults completeResults(getResults(variableDocument, 4));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                variableDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Var"),
                                          CodeCompletion::VariableCompletionKind,
@@ -202,7 +208,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, NonTypeTemplateParameter)
 {
     ClangCodeCompleteResults completeResults(getResults(variableDocument, 25, 19));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                variableDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("NonTypeTemplateParameter"),
                                          CodeCompletion::VariableCompletionKind,
@@ -214,7 +222,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, VariableReference)
 {
     ClangCodeCompleteResults completeResults(getResults(variableDocument, 12));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                variableDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Var"),
                                          CodeCompletion::VariableCompletionKind,
@@ -225,7 +235,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, Parameter)
 {
     ClangCodeCompleteResults completeResults(getResults(variableDocument, 4));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                variableDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Parameter"),
                                          CodeCompletion::VariableCompletionKind,
@@ -236,7 +248,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, Field)
 {
     ClangCodeCompleteResults completeResults(getResults(variableDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                variableDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Field"),
                                          CodeCompletion::VariableCompletionKind,
@@ -247,7 +261,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, Class)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                classDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Class"),
                                          CodeCompletion::ClassCompletionKind,
@@ -258,7 +274,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, Struct)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                classDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Struct"),
                                          CodeCompletion::ClassCompletionKind,
@@ -269,7 +287,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, Union)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                classDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Union"),
                                          CodeCompletion::ClassCompletionKind,
@@ -280,7 +300,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, Typedef)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                classDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("TypeDef"),
                                          CodeCompletion::TypeAliasCompletionKind,
@@ -291,7 +313,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, UsingAsTypeAlias)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                classDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("UsingClass"),
                                          CodeCompletion::TypeAliasCompletionKind,
@@ -302,7 +326,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, TemplateTypeParameter)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                classDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("TemplateTypeParameter"),
                                          CodeCompletion::ClassCompletionKind,
@@ -313,7 +339,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, TemplateClass)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                classDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("TemplateClass"),
                                          CodeCompletion::TemplateClassCompletionKind,
@@ -324,7 +352,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, TemplateTemplateParameter)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                classDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("TemplateTemplateParameter"),
                                          CodeCompletion::TemplateClassCompletionKind,
@@ -335,7 +365,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, ClassTemplatePartialSpecialization)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                classDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("ClassTemplatePartialSpecialization"),
                                          CodeCompletion::TemplateClassCompletionKind,
@@ -346,7 +378,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, Namespace)
 {
     ClangCodeCompleteResults completeResults(getResults(namespaceDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                namespaceDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Namespace"),
                                          CodeCompletion::NamespaceCompletionKind,
@@ -357,7 +391,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, NamespaceAlias)
 {
     ClangCodeCompleteResults completeResults(getResults(namespaceDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                namespaceDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("NamespaceAlias"),
                                          CodeCompletion::NamespaceCompletionKind,
@@ -368,7 +404,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, Enumeration)
 {
     ClangCodeCompleteResults completeResults(getResults(enumerationDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                enumerationDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Enumeration"),
                                          CodeCompletion::EnumerationCompletionKind,
@@ -379,7 +417,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, Enumerator)
 {
     ClangCodeCompleteResults completeResults(getResults(enumerationDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                enumerationDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Enumerator"),
                                          CodeCompletion::EnumeratorCompletionKind,
@@ -390,7 +430,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, Constructor)
 {
     ClangCodeCompleteResults completeResults(getResults(constructorDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                constructorDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Constructor"),
                                          CodeCompletion::ConstructorCompletionKind,
@@ -401,7 +443,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, Destructor)
 {
     ClangCodeCompleteResults completeResults(getResults(constructorDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                constructorDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("~Constructor"),
                                          CodeCompletion::DestructorCompletionKind,
@@ -412,7 +456,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, Method)
 {
     ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                functionDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Method"),
                                          CodeCompletion::FunctionCompletionKind,
@@ -424,7 +470,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, MethodWithParameters)
 {
     ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                functionDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("MethodWithParameters"),
                                          CodeCompletion::FunctionCompletionKind,
@@ -436,7 +484,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, Slot)
 {
     ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                functionDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Slot"),
                                          CodeCompletion::SlotCompletionKind,
@@ -447,7 +497,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, Signal)
 {
     ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                functionDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Signal"),
                                          CodeCompletion::SignalCompletionKind,
@@ -458,7 +510,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, MacroDefinition)
 {
     ClangCodeCompleteResults completeResults(getResults(variableDocument, 35));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                variableDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("MacroDefinition"),
                                          CodeCompletion::PreProcessorCompletionKind,
@@ -469,7 +523,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, FunctionMacro)
 {
     ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                functionDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("FunctionMacro"),
                                          CodeCompletion::FunctionCompletionKind,
@@ -480,7 +536,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, IntKeyword)
 {
     ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                functionDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("int"),
                                          CodeCompletion::KeywordCompletionKind,
@@ -491,7 +549,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, SwitchKeyword)
 {
     ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                functionDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("switch"),
                                          CodeCompletion::KeywordCompletionKind,
@@ -502,7 +562,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, ClassKeyword)
 {
     ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                functionDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("class"),
                                          CodeCompletion::KeywordCompletionKind,
@@ -513,7 +575,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, DeprecatedFunction)
 {
     ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                functionDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("DeprecatedFunction"),
                                          CodeCompletion::FunctionCompletionKind,
@@ -524,7 +588,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, NotAccessibleFunction)
 {
     ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                functionDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("NotAccessibleFunction"),
                                          CodeCompletion::FunctionCompletionKind,
@@ -535,7 +601,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, NotAvailableFunction)
 {
     ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                functionDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("NotAvailableFunction"),
                                          CodeCompletion::FunctionCompletionKind,
@@ -549,7 +617,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, UnsavedFile)
                                  TESTDATA_DIR"/complete_extractor_function_unsaved.cpp")});
     ClangCodeCompleteResults completeResults(getResults(document, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                document.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Method2"),
                                          CodeCompletion::FunctionCompletionKind,
@@ -566,7 +636,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, ChangeUnsavedFile)
                                  TESTDATA_DIR"/complete_extractor_function_unsaved_2.cpp")});
     completeResults = getResults(document, 20);
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                document.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Method3"),
                                          CodeCompletion::FunctionCompletionKind,
@@ -578,7 +650,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, ArgumentDefinition)
     project.setArguments({Utf8StringLiteral("-DArgumentDefinition"), Utf8StringLiteral("-std=gnu++14")});
     ClangCodeCompleteResults completeResults(getResults(variableDocument, 35));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                variableDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("ArgumentDefinitionVariable"),
                                          CodeCompletion::VariableCompletionKind,
@@ -590,7 +664,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, NoArgumentDefinition)
     project.setArguments({Utf8StringLiteral("-std=gnu++14")});
     ClangCodeCompleteResults completeResults(getResults(variableDocument, 35));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                variableDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, Not(HasCompletion(Utf8StringLiteral("ArgumentDefinitionVariable"),
                                              CodeCompletion::VariableCompletionKind,
@@ -601,7 +677,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, CompletionChunksFunction)
 {
     ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                functionDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletionChunks(Utf8StringLiteral("Function"),
                                                CodeCompletionChunks({{CodeCompletionChunk::ResultType, Utf8StringLiteral("void")},
@@ -614,7 +692,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, CompletionChunksFunctionWithOptionalChu
 {
     ClangCodeCompleteResults completeResults(getResults(functionDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                functionDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletionChunks(Utf8StringLiteral("FunctionWithOptional"),
                                                CodeCompletionChunks({{CodeCompletionChunk::ResultType, Utf8StringLiteral("void")},
@@ -632,7 +712,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, CompletionChunksField)
 {
     ClangCodeCompleteResults completeResults(getResults(variableDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                variableDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletionChunks(Utf8StringLiteral("Field"),
                                                CodeCompletionChunks({{CodeCompletionChunk::ResultType, Utf8StringLiteral("int")},
@@ -643,7 +725,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, CompletionChunksEnumerator)
 {
     ClangCodeCompleteResults completeResults(getResults(enumerationDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                enumerationDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletionChunks(Utf8StringLiteral("Enumerator"),
                                                CodeCompletionChunks({{CodeCompletionChunk::ResultType, Utf8StringLiteral("Enumeration")},
@@ -654,7 +738,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, CompletionChunksEnumeration)
 {
     ClangCodeCompleteResults completeResults(getResults(enumerationDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                enumerationDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletionChunks(Utf8StringLiteral("Enumeration"),
                                                CodeCompletionChunks({{CodeCompletionChunk::TypedText, Utf8StringLiteral("Enumeration")}})));
@@ -664,7 +750,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, CompletionChunksClass)
 {
     ClangCodeCompleteResults completeResults(getResults(classDocument, 20));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                classDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletionChunks(Utf8StringLiteral("Class"),
                                                CodeCompletionChunks({{CodeCompletionChunk::TypedText, Utf8StringLiteral("Class")}})));
@@ -675,7 +763,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, BriefComment)
     ClangCodeCompleteResults completeResults(getResults(briefCommentDocument, 10, 1,
                                                         /*needsReparse=*/ true));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                briefCommentDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasBriefComment(Utf8StringLiteral("BriefComment"), Utf8StringLiteral("A brief comment")));
 }
@@ -684,7 +774,9 @@ TEST_F(CodeCompletionsExtractorSlowTest, OverloadCandidate)
 {
     ClangCodeCompleteResults completeResults(getResults(functionOverloadDocument, 8, 13));
 
-    ::CodeCompletionsExtractor extractor(completeResults.data());
+    ::CodeCompletionsExtractor extractor(
+                functionOverloadDocument.translationUnit().cxTranslationUnit(),
+                completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletionChunks(Utf8String(),
                                                CodeCompletionChunks({

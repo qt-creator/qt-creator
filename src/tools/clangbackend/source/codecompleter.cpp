@@ -25,19 +25,20 @@
 
 #include "codecompleter.h"
 
-#include "clangfilepath.h"
+#include "clangbackend_global.h"
 #include "clangcodecompleteresults.h"
-#include "clangstring.h"
-#include "cursor.h"
+#include "clangdocument.h"
 #include "clangexceptions.h"
+#include "clangfilepath.h"
+#include "clangstring.h"
+#include "clangtranslationunitupdater.h"
+#include "clangunsavedfilesshallowarguments.h"
 #include "codecompletionsextractor.h"
+#include "cursor.h"
 #include "sourcelocation.h"
+#include "sourcerange.h"
 #include "unsavedfile.h"
 #include "unsavedfiles.h"
-#include "clangdocument.h"
-#include "sourcerange.h"
-#include "clangunsavedfilesshallowarguments.h"
-#include "clangtranslationunitupdater.h"
 
 #include <clang-c/Index.h>
 
@@ -45,12 +46,13 @@ namespace ClangBackEnd {
 
 namespace {
 
-CodeCompletions toCodeCompletions(const ClangCodeCompleteResults &results)
+CodeCompletions toCodeCompletions(const TranslationUnit &translationUnit,
+                                  const ClangCodeCompleteResults &results)
 {
     if (results.isNull())
         return CodeCompletions();
 
-    CodeCompletionsExtractor extractor(results.data());
+    CodeCompletionsExtractor extractor(translationUnit.cxTranslationUnit(), results.data());
     CodeCompletions codeCompletions = extractor.extractAll();
 
     return codeCompletions;
@@ -85,8 +87,6 @@ CodeCompletions CodeCompleter::complete(uint line, uint column,
                                         int funcNameStartLine,
                                         int funcNameStartColumn)
 {
-    neededCorrection_ = CompletionCorrection::NoCorrection;
-
     // Check if we have a smart pointer completion and get proper constructor signatures in results.
     // Results are empty when it's not a smart pointer or this completion failed.
     ClangCodeCompleteResults results = completeSmartPointerCreation(line,
@@ -98,14 +98,8 @@ CodeCompletions CodeCompleter::complete(uint line, uint column,
         results = completeHelper(line, column);
 
     filterUnknownContextResults(results, unsavedFile(), line, column);
-    tryDotArrowCorrectionIfNoResults(results, line, column);
 
-    return toCodeCompletions(results);
-}
-
-CompletionCorrection CodeCompleter::neededCorrection() const
-{
-    return neededCorrection_;
+    return toCodeCompletions(translationUnit, results);
 }
 
 // For given "make_unique<T>" / "make_shared<T>" / "QSharedPointer<T>::create" return "new T("
@@ -181,7 +175,10 @@ ClangCodeCompleteResults CodeCompleter::completeHelper(uint line, uint column)
 uint CodeCompleter::defaultOptions() const
 {
     uint options = CXCodeComplete_IncludeMacros
-                 | CXCodeComplete_IncludeCodePatterns;
+        #ifdef IS_COMPLETION_FIXITS_BACKPORTED
+            | CXCodeComplete_IncludeCompletionsWithFixIts
+        #endif
+            | CXCodeComplete_IncludeCodePatterns;
 
     if (TranslationUnitUpdater::defaultParseOptions()
             & CXTranslationUnit_IncludeBriefCommentsInCodeCompletion) {
@@ -194,38 +191,6 @@ uint CodeCompleter::defaultOptions() const
 UnsavedFile &CodeCompleter::unsavedFile()
 {
     return unsavedFiles.unsavedFile(translationUnit.filePath());
-}
-
-void CodeCompleter::tryDotArrowCorrectionIfNoResults(ClangCodeCompleteResults &results,
-                                                     uint line,
-                                                     uint column)
-{
-    if (results.hasNoResultsForDotCompletion()) {
-        const UnsavedFile &theUnsavedFile = unsavedFile();
-        bool positionIsOk = false;
-        const uint dotPosition = theUnsavedFile.toUtf8Position(line, column - 1, &positionIsOk);
-        if (positionIsOk && theUnsavedFile.hasCharacterAt(dotPosition, '.'))
-            results = completeWithArrowInsteadOfDot(line, column, dotPosition);
-    }
-}
-
-ClangCodeCompleteResults CodeCompleter::completeWithArrowInsteadOfDot(uint line,
-                                                                      uint column,
-                                                                      uint dotPosition)
-{
-    ClangCodeCompleteResults results;
-    const bool replaced = unsavedFile().replaceAt(dotPosition,
-                                                  1,
-                                                  Utf8StringLiteral("->"));
-
-    if (replaced) {
-        results = completeHelper(line, column + 1);
-        if (results.hasResults())
-            neededCorrection_ = CompletionCorrection::DotToArrowCorrection;
-        filterUnknownContextResults(results, unsavedFile(), line, column+1);
-    }
-
-    return results;
 }
 
 } // namespace ClangBackEnd

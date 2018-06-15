@@ -38,18 +38,15 @@ class CompletionsMessage
 public:
     CompletionsMessage() = default;
     CompletionsMessage(const CodeCompletions &codeCompletions,
-                       CompletionCorrection neededCorrection,
                        quint64 ticketNumber)
         : codeCompletions(codeCompletions)
         , ticketNumber(ticketNumber)
-        , neededCorrection(neededCorrection)
     {
     }
 
     friend QDataStream &operator<<(QDataStream &out, const CompletionsMessage &message)
     {
         out << message.codeCompletions;
-        out << static_cast<quint32>(message.neededCorrection);
         out << message.ticketNumber;
 
         return out;
@@ -57,13 +54,8 @@ public:
 
     friend QDataStream &operator>>(QDataStream &in, CompletionsMessage &message)
     {
-        quint32 neededCorrection;
-
         in >> message.codeCompletions;
-        in >> neededCorrection;
         in >> message.ticketNumber;
-
-        message.neededCorrection = static_cast<CompletionCorrection>(neededCorrection);
 
         return in;
     }
@@ -71,14 +63,12 @@ public:
     friend bool operator==(const CompletionsMessage &first, const CompletionsMessage &second)
     {
         return first.ticketNumber == second.ticketNumber
-            && first.neededCorrection == second.neededCorrection
             && first.codeCompletions == second.codeCompletions;
     }
 
 public:
     CodeCompletions codeCompletions;
     quint64 ticketNumber = 0;
-    CompletionCorrection neededCorrection = CompletionCorrection::NoCorrection;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const CompletionsMessage &message);

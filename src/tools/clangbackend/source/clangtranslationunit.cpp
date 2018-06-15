@@ -111,21 +111,11 @@ bool TranslationUnit::suspend() const
     return clang_suspendTranslationUnit(cxTranslationUnit());
 }
 
-TranslationUnit::CodeCompletionResult TranslationUnit::complete(
-        UnsavedFiles &unsavedFiles,
-        uint line,
-        uint column,
-        int funcNameStartLine,
-        int funcNameStartColumn) const
+CodeCompletions TranslationUnit::complete(UnsavedFiles &unsavedFiles, uint line, uint column,
+                                          int funcNameStartLine, int funcNameStartColumn) const
 {
-    CodeCompleter codeCompleter(*this, unsavedFiles);
-
-    const CodeCompletions completions = codeCompleter.complete(line, column,
-                                                               funcNameStartLine,
-                                                               funcNameStartColumn);
-    const CompletionCorrection correction = codeCompleter.neededCorrection();
-
-    return CodeCompletionResult{completions, correction};
+    return CodeCompleter(*this, unsavedFiles).complete(line, column, funcNameStartLine,
+                                                       funcNameStartColumn);
 }
 
 void TranslationUnit::extractAnnotations(

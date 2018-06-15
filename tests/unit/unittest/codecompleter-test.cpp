@@ -67,6 +67,11 @@ MATCHER_P2(IsCodeCompletion, text, completionKind,
     return true;
 }
 
+MATCHER(HasFixIts, "")
+{
+    return !arg.requiredFixIts.empty();
+}
+
 class CodeCompleter : public ::testing::Test
 {
 protected:
@@ -372,8 +377,7 @@ TEST_F(CodeCompleterSlowTest, ArrowCompletion)
     ASSERT_THAT(completions,
                 Contains(IsCodeCompletion(Utf8StringLiteral("member"),
                                           CodeCompletion::VariableCompletionKind)));
-    ASSERT_THAT(myCompleter.neededCorrection(),
-                ClangBackEnd::CompletionCorrection::NoCorrection);
+    ASSERT_THAT(completions, Not(Contains(HasFixIts())));
 }
 
 TEST_F(CodeCompleterSlowTest, DotToArrowCompletionForPointer)
@@ -385,8 +389,7 @@ TEST_F(CodeCompleterSlowTest, DotToArrowCompletionForPointer)
     ASSERT_THAT(completions,
                 Contains(IsCodeCompletion(Utf8StringLiteral("member"),
                                           CodeCompletion::VariableCompletionKind)));
-    ASSERT_THAT(myCompleter.neededCorrection(),
-                ClangBackEnd::CompletionCorrection::DotToArrowCorrection);
+    ASSERT_THAT(completions, Contains(HasFixIts()));
 }
 
 TEST_F(CodeCompleterSlowTest, DotToArrowCompletionForPointerInOutdatedDocument)
@@ -406,8 +409,7 @@ TEST_F(CodeCompleterSlowTest, DotToArrowCompletionForPointerInOutdatedDocument)
     ASSERT_THAT(completions,
                 Contains(IsCodeCompletion(Utf8StringLiteral("member"),
                                           CodeCompletion::VariableCompletionKind)));
-    ASSERT_THAT(myCompleter.neededCorrection(),
-                ClangBackEnd::CompletionCorrection::DotToArrowCorrection);
+    ASSERT_THAT(completions, Contains(HasFixIts()));
 }
 
 TEST_F(CodeCompleterSlowTest, NoDotToArrowCompletionForObject)
@@ -419,7 +421,7 @@ TEST_F(CodeCompleterSlowTest, NoDotToArrowCompletionForObject)
     ASSERT_THAT(completions,
                 Contains(IsCodeCompletion(Utf8StringLiteral("member"),
                                           CodeCompletion::VariableCompletionKind)));
-    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
+    ASSERT_THAT(completions, Not(Contains(HasFixIts())));
 }
 
 TEST_F(CodeCompleterSlowTest, NoDotToArrowCompletionForFloat)
@@ -429,7 +431,6 @@ TEST_F(CodeCompleterSlowTest, NoDotToArrowCompletionForFloat)
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(3, 18);
 
     ASSERT_TRUE(completions.isEmpty());
-    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 
 TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForObjectWithArrowOperator)
@@ -441,7 +442,7 @@ TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForObjectWithArrowOperator)
     ASSERT_THAT(completions,
                 Contains(IsCodeCompletion(Utf8StringLiteral("member"),
                                           CodeCompletion::VariableCompletionKind)));
-    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
+    ASSERT_THAT(completions, Not(Contains(HasFixIts())));
 }
 
 TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForDotDot)
@@ -451,7 +452,6 @@ TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForDotDot)
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 10);
 
     ASSERT_TRUE(completions.isEmpty());
-    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 
 TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForArrowDot)
@@ -461,7 +461,6 @@ TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForArrowDot)
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 11);
 
     ASSERT_TRUE(completions.isEmpty());
-    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 
 TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForOnlyDot)
@@ -471,7 +470,6 @@ TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForOnlyDot)
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 6);
 
     ASSERT_TRUE(completions.isEmpty());
-    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 
 TEST_F(CodeCompleterSlowTest, GlobalCompletionForSpaceAfterOnlyDot)
@@ -489,16 +487,7 @@ TEST_F(CodeCompleterSlowTest, NoDotArrowCorrectionForColonColon)
     auto myCompleter = setupCompleter(noDotArrowCorrectionForColonColonFileContainer);
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(1, 7);
 
-    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
-}
-
-TEST_F(CodeCompleterSlowTest, DotArrowCorrectionForForwardDeclaredClassPointer)
-{
-    auto myCompleter = setupCompleter(dotArrowCorrectionForForwardDeclaredClassPointer);
-    const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 9);
-
-    ASSERT_TRUE(completions.isEmpty());
-    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::DotToArrowCorrection);
+    ASSERT_THAT(completions, Not(Contains(HasFixIts())));
 }
 
 TEST_F(CodeCompleterSlowTest, NoGlobalCompletionAfterForwardDeclaredClassPointer)
@@ -507,7 +496,6 @@ TEST_F(CodeCompleterSlowTest, NoGlobalCompletionAfterForwardDeclaredClassPointer
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(5, 10);
 
     ASSERT_TRUE(completions.isEmpty());
-    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 
 TEST_F(CodeCompleterSlowTest, GlobalCompletionAfterForwardDeclaredClassPointer)
@@ -516,7 +504,6 @@ TEST_F(CodeCompleterSlowTest, GlobalCompletionAfterForwardDeclaredClassPointer)
     const ClangBackEnd::CodeCompletions completions = myCompleter.complete(6, 4);
 
     ASSERT_TRUE(!completions.isEmpty());
-    ASSERT_THAT(myCompleter.neededCorrection(), ClangBackEnd::CompletionCorrection::NoCorrection);
 }
 
 ClangBackEnd::CodeCompleter CodeCompleter::setupCompleter(

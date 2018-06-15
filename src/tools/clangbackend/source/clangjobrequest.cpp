@@ -268,8 +268,7 @@ void JobRequest::cancelJob(ClangCodeModelClientInterface &client) const
         client.tooltip(ToolTipMessage(FileContainer(), ToolTipInfo(), ticketNumber));
         break;
     case JobRequest::Type::RequestCompletions:
-        client.completions(
-            CompletionsMessage(CodeCompletions(), CompletionCorrection::NoCorrection, ticketNumber));
+        client.completions(CompletionsMessage(CodeCompletions(), ticketNumber));
         break;
     case JobRequest::Type::RequestFollowSymbol:
         client.followSymbol(

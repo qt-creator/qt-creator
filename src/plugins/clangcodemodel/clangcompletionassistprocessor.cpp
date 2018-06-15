@@ -26,7 +26,6 @@
 #include "clangassistproposalitem.h"
 
 #include "clangactivationsequenceprocessor.h"
-#include "clangassistproposal.h"
 #include "clangassistproposalmodel.h"
 #include "clangcompletionassistprocessor.h"
 #include "clangcompletioncontextanalyzer.h"
@@ -41,6 +40,7 @@
 
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/functionhintproposal.h>
+#include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 
 #include <cplusplus/BackwardsScanner.h>
@@ -68,7 +68,6 @@ namespace {
 
 QList<AssistProposalItemInterface *> toAssistProposalItems(const CodeCompletions &completions)
 {
-
     bool signalCompletion = false; // TODO
     bool slotCompletion = false; // TODO
 
@@ -143,8 +142,7 @@ static CodeCompletions filterFunctionSignatures(const CodeCompletions &completio
 }
 
 void ClangCompletionAssistProcessor::handleAvailableCompletions(
-        const CodeCompletions &completions,
-        CompletionCorrection neededCorrection)
+        const CodeCompletions &completions)
 {
     QTC_CHECK(m_completions.isEmpty());
 
@@ -154,7 +152,7 @@ void ClangCompletionAssistProcessor::handleAvailableCompletions(
         if (m_addSnippets && !m_completions.isEmpty())
             addSnippets();
 
-        setAsyncProposalAvailable(createProposal(neededCorrection));
+        setAsyncProposalAvailable(createProposal());
     } else {
         const CodeCompletions functionSignatures = filterFunctionSignatures(completions);
         if (!functionSignatures.isEmpty())
@@ -591,13 +589,12 @@ bool ClangCompletionAssistProcessor::sendCompletionRequest(int position,
     return false;
 }
 
-TextEditor::IAssistProposal *ClangCompletionAssistProcessor::createProposal(
-        CompletionCorrection neededCorrection)
+TextEditor::IAssistProposal *ClangCompletionAssistProcessor::createProposal()
 {
     m_requestSent = false;
-    TextEditor::GenericProposalModelPtr model(new ClangAssistProposalModel(neededCorrection));
+    TextEditor::GenericProposalModelPtr model(new ClangAssistProposalModel());
     model->loadContent(m_completions);
-    return new ClangAssistProposal(m_positionForProposal, model);
+    return new GenericProposal(m_positionForProposal, model);
 }
 
 IAssistProposal *ClangCompletionAssistProcessor::createFunctionHintProposal(

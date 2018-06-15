@@ -29,23 +29,11 @@
 
 namespace ClangBackEnd {
 
-#define RETURN_TEXT_FOR_CASE(enumValue) case CompletionCorrection::enumValue: return #enumValue
-static const char *completionCorrectionToText(CompletionCorrection correction)
-{
-    switch (correction) {
-        RETURN_TEXT_FOR_CASE(NoCorrection);
-        RETURN_TEXT_FOR_CASE(DotToArrowCorrection);
-        default: return "UnhandledCompletionCorrection";
-    }
-}
-#undef RETURN_TEXT_FOR_CASE
-
 QDebug operator<<(QDebug debug, const CompletionsMessage &message)
 {
     debug.nospace() << "CompletionsMessage(";
 
     debug.nospace() << message.codeCompletions << ", "
-                    << completionCorrectionToText(message.neededCorrection) << ", "
                     << message.ticketNumber;
 
     debug.nospace() << ")";

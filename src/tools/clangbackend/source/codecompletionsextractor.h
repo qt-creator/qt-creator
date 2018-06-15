@@ -38,7 +38,8 @@ namespace ClangBackEnd {
 class CodeCompletionsExtractor
 {
 public:
-    CodeCompletionsExtractor(CXCodeCompleteResults *cxCodeCompleteResults);
+    CodeCompletionsExtractor(CXTranslationUnit cxTranslationUnit,
+                             CXCodeCompleteResults *cxCodeCompleteResults);
 
     CodeCompletionsExtractor(CodeCompletionsExtractor&) = delete;
     CodeCompletionsExtractor &operator=(CodeCompletionsExtractor&) = delete;
@@ -63,6 +64,7 @@ private:
     void extractHasParameters();
     void extractBriefComment();
     void extractCompletionChunks();
+    void extractRequiredFixIts();
 
     void adaptPriority();
     void decreasePriorityForNonAvailableCompletions();
@@ -75,6 +77,7 @@ private:
 
 private:
     CodeCompletion currentCodeCompletion_;
+    CXTranslationUnit cxTranslationUnit;
     CXCompletionResult currentCxCodeCompleteResult;
     CXCodeCompleteResults *cxCodeCompleteResults;
     uint cxCodeCompleteResultIndex = 0;

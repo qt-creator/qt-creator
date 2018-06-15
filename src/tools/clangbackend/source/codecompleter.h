@@ -47,29 +47,19 @@ public:
                              int funcNameStartLine = -1,
                              int funcNameStartColumn = -1);
 
-    CompletionCorrection neededCorrection() const;
-
 private:
     uint defaultOptions() const;
     UnsavedFile &unsavedFile();
-
-    void tryDotArrowCorrectionIfNoResults(ClangCodeCompleteResults &results,
-                                          uint line,
-                                          uint column);
 
     ClangCodeCompleteResults completeHelper(uint line, uint column);
     ClangCodeCompleteResults completeSmartPointerCreation(uint line,
                                                           uint column,
                                                           int funcNameStartLine,
                                                           int funcNameStartColumn);
-    ClangCodeCompleteResults completeWithArrowInsteadOfDot(uint line,
-                                                           uint column,
-                                                           uint dotPosition);
 
 private:
     TranslationUnit translationUnit;
     UnsavedFiles unsavedFiles;
-    CompletionCorrection neededCorrection_ = CompletionCorrection::NoCorrection;
 };
 
 } // namespace ClangBackEnd

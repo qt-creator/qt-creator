@@ -214,9 +214,7 @@ TEST_F(ReadAndWriteMessageBlock, CompareCompletionsMessage)
 {
     ClangBackEnd::CodeCompletions codeCompletions({Utf8StringLiteral("newFunction()")});
 
-    CompareMessage(ClangBackEnd::CompletionsMessage(codeCompletions,
-                                                    ClangBackEnd::CompletionCorrection::NoCorrection,
-                                                    1));
+    CompareMessage(ClangBackEnd::CompletionsMessage(codeCompletions, 1));
 }
 
 TEST_F(ReadAndWriteMessageBlock, CompareAnnotationsMessage)
@@ -299,9 +297,7 @@ TEST_F(ReadAndWriteMessageBlock, ReadMessageAfterInterruption)
 ClangBackEnd::MessageEnvelop ReadAndWriteMessageBlock::writeCompletionsMessage()
 {
     ClangBackEnd::CompletionsMessage message(
-        ClangBackEnd::CodeCompletions({Utf8StringLiteral("newFunction()")}),
-        ClangBackEnd::CompletionCorrection::NoCorrection,
-        1);
+        ClangBackEnd::CodeCompletions({Utf8StringLiteral("newFunction()")}), 1);
 
     writeMessageBlock.write(message);
 

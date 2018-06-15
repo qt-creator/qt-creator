@@ -26,6 +26,7 @@
 #include "clangassistproposalitem.h"
 
 #include "clangcompletionchunkstotextconverter.h"
+#include "clangfixitoperation.h"
 
 #include <cplusplus/Icons.h>
 #include <cplusplus/MatchingText.h>
@@ -35,9 +36,12 @@
 #include <texteditor/completionsettings.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <QCoreApplication>
 #include <QTextCursor>
 
 #include <utils/algorithm.h>
+#include <utils/textutils.h>
+#include <utils/qtcassert.h>
 
 using namespace CPlusPlus;
 using namespace ClangBackEnd;
@@ -119,7 +123,15 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
 {
     const CodeCompletion ccr = codeCompletion();
 
-    QString textToBeInserted = text();
+    if (!ccr.requiredFixIts.empty()) {
+        ClangFixItOperation fixItOperation(Utf8String(), ccr.requiredFixIts);
+        fixItOperation.perform();
+
+        const int shift = fixItsShift(manipulator);
+        basePosition += shift;
+    }
+
+    QString textToBeInserted = m_text;
     QString extraCharacters;
     int extraLength = 0;
     int cursorOffset = 0;
@@ -269,7 +281,43 @@ void ClangAssistProposalItem::setText(const QString &text)
 
 QString ClangAssistProposalItem::text() const
 {
-    return m_text;
+    return m_text + (requiresFixIts() ? fixItText() : QString());
+}
+
+// FIXME: Indicate required fix-it without adding extra text.
+QString ClangAssistProposalItem::fixItText() const
+{
+    const FixItContainer &fixIt = m_codeCompletion.requiredFixIts.first();
+    const SourceRangeContainer &range = fixIt.range;
+    return QCoreApplication::translate("ClangCodeModel::ClangAssistProposalItem",
+                                       " (requires to correct [%1:%2-%3:%4] to \"%5\")")
+            .arg(range.start.line)
+            .arg(range.start.column)
+            .arg(range.end.line)
+            .arg(range.end.column)
+            .arg(fixIt.text.toString());
+}
+
+int ClangAssistProposalItem::fixItsShift(
+        const TextEditor::TextDocumentManipulatorInterface &manipulator) const
+{
+    if (m_codeCompletion.requiredFixIts.empty())
+        return 0;
+
+    int shift = 0;
+    QTextCursor cursor = manipulator.textCursorAt(0);
+    for (const FixItContainer &fixIt : m_codeCompletion.requiredFixIts) {
+        const int fixItStartPos = Utils::Text::positionInText(
+                    cursor.document(),
+                    static_cast<int>(fixIt.range.start.line),
+                    static_cast<int>(fixIt.range.start.column));
+        const int fixItEndPos = Utils::Text::positionInText(
+                    cursor.document(),
+                    static_cast<int>(fixIt.range.end.line),
+                    static_cast<int>(fixIt.range.end.column));
+        shift += fixIt.text.toString().length() - (fixItEndPos - fixItStartPos);
+    }
+    return shift;
 }
 
 QIcon ClangAssistProposalItem::icon() const
@@ -360,6 +408,11 @@ bool ClangAssistProposalItem::isValid() const
 quint64 ClangAssistProposalItem::hash() const
 {
     return 0;
+}
+
+bool ClangAssistProposalItem::requiresFixIts() const
+{
+    return !m_codeCompletion.requiredFixIts.empty();
 }
 
 bool ClangAssistProposalItem::hasOverloadsWithParameters() const

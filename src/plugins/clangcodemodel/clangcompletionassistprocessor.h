@@ -50,8 +50,7 @@ public:
 
     TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
 
-    void handleAvailableCompletions(const CodeCompletions &completions,
-                                    CompletionCorrection neededCorrection);
+    void handleAvailableCompletions(const CodeCompletions &completions);
     bool running() final { return m_requestSent; }
 
     const TextEditor::TextEditorWidget *textEditorWidget() const;
@@ -62,8 +61,7 @@ private:
     int findStartOfName(int pos = -1) const;
     bool accepts() const;
 
-    TextEditor::IAssistProposal *createProposal(
-            CompletionCorrection neededCorrection = CompletionCorrection::NoCorrection);
+    TextEditor::IAssistProposal *createProposal();
     TextEditor::IAssistProposal *createFunctionHintProposal(
             const CodeCompletions &completions);
 

@@ -25,15 +25,19 @@
 
 #include "codecompletionsextractor.h"
 
+#include "clangbackend_global.h"
 #include "clangstring.h"
 #include "codecompletionchunkconverter.h"
+#include "sourcerange.h"
 
 #include <QDebug>
 
 namespace ClangBackEnd {
 
-CodeCompletionsExtractor::CodeCompletionsExtractor(CXCodeCompleteResults *cxCodeCompleteResults)
-    : cxCodeCompleteResults(cxCodeCompleteResults)
+CodeCompletionsExtractor::CodeCompletionsExtractor(CXTranslationUnit cxTranslationUnit,
+                                                   CXCodeCompleteResults *cxCodeCompleteResults)
+    : cxTranslationUnit(cxTranslationUnit)
+    , cxCodeCompleteResults(cxCodeCompleteResults)
 {
 
 }
@@ -55,6 +59,7 @@ bool CodeCompletionsExtractor::next()
         extractBriefComment();
         extractCompletionChunks();
         adaptPriority();
+        extractRequiredFixIts();
 
         ++cxCodeCompleteResultIndex;
 
@@ -258,6 +263,27 @@ void CodeCompletionsExtractor::extractBriefComment()
 void CodeCompletionsExtractor::extractCompletionChunks()
 {
     currentCodeCompletion_.chunks = CodeCompletionChunkConverter::extract(currentCxCodeCompleteResult.CompletionString);
+}
+
+void CodeCompletionsExtractor::extractRequiredFixIts()
+{
+#ifdef IS_COMPLETION_FIXITS_BACKPORTED
+    unsigned fixItsNumber = clang_getCompletionNumFixIts(cxCodeCompleteResults,
+                                                         cxCodeCompleteResultIndex);
+
+    if (!fixItsNumber)
+        return;
+
+    CXSourceRange range;
+    for (unsigned i = 0; i < fixItsNumber; ++i) {
+        ClangString fixIt = clang_getCompletionFixIt(cxCodeCompleteResults,
+                                                     cxCodeCompleteResultIndex,
+                                                     i,
+                                                     &range);
+        currentCodeCompletion_.requiredFixIts.push_back(
+                    FixItContainer(Utf8String(fixIt), SourceRange(cxTranslationUnit, range)));
+    }
+#endif
 }
 
 void CodeCompletionsExtractor::adaptPriority()

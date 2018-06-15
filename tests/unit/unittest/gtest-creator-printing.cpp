@@ -315,7 +315,6 @@ std::ostream &operator<<(std::ostream &os, const CompletionsMessage &message)
 {
     os << "("
        << message.codeCompletions << ", "
-       << completionCorrectionToText(message.neededCorrection) << ", "
        << message.ticketNumber
 
        << ")";

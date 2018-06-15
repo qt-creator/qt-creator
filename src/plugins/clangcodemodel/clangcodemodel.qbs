@@ -36,8 +36,6 @@ QtcPlugin {
         "clangactivationsequencecontextprocessor.h",
         "clangactivationsequenceprocessor.cpp",
         "clangactivationsequenceprocessor.h",
-        "clangassistproposal.cpp",
-        "clangassistproposal.h",
         "clangassistproposalitem.cpp",
         "clangassistproposalitem.h",
         "clangassistproposalmodel.cpp",

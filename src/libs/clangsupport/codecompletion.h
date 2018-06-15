@@ -27,8 +27,9 @@
 
 #include "clangsupport_global.h"
 #include "codecompletionchunk.h"
+#include "fixitcontainer.h"
 
-#include <utf8string.h>
+#include <sqlite/utf8string.h>
 
 #include <QDataStream>
 #include <QVector>
@@ -90,6 +91,7 @@ public:
         out << message.text;
         out << message.briefComment;
         out << message.chunks;
+        out << message.requiredFixIts;
         out << message.priority;
         out << static_cast<quint32>(message.completionKind);
         out << static_cast<quint32>(message.availability);
@@ -106,6 +108,7 @@ public:
         in >> message.text;
         in >> message.briefComment;
         in >> message.chunks;
+        in >> message.requiredFixIts;
         in >> message.priority;
         in >> completionKind;
         in >> availability;
@@ -120,13 +123,15 @@ public:
     friend bool operator==(const CodeCompletion &first, const CodeCompletion &second)
     {
         return first.text == second.text
-                && first.completionKind == second.completionKind;
+                && first.completionKind == second.completionKind
+                && first.requiredFixIts == second.requiredFixIts;
     }
 
 public:
     Utf8String text;
     Utf8String briefComment;
     CodeCompletionChunks chunks;
+    QVector<FixItContainer> requiredFixIts;
     quint32 priority = 0;
     Kind completionKind = Other;
     Availability availability = NotAvailable;

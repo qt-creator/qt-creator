@@ -187,10 +187,8 @@ void BackendReceiver::completions(const CompletionsMessage &message)
 
     const quint64 ticket = message.ticketNumber;
     QScopedPointer<ClangCompletionAssistProcessor> processor(m_assistProcessorsTable.take(ticket));
-    if (processor) {
-        processor->handleAvailableCompletions(message.codeCompletions,
-                                              message.neededCorrection);
-    }
+    if (processor)
+        processor->handleAvailableCompletions(message.codeCompletions);
 }
 
 void BackendReceiver::annotations(const AnnotationsMessage &message)

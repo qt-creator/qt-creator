@@ -37,17 +37,12 @@ namespace Internal {
 class ClangAssistProposalModel : public TextEditor::GenericProposalModel
 {
 public:
-    ClangAssistProposalModel(ClangBackEnd::CompletionCorrection neededCorrection);
+    ClangAssistProposalModel() = default;
 
     bool containsDuplicates() const override;
 
     bool isSortable(const QString &prefix) const override;
     void sort(const QString &prefix) override;
-
-    ClangBackEnd::CompletionCorrection neededCorrection() const;
-
-private:
-    ClangBackEnd::CompletionCorrection m_neededCorrection;
 };
 
 } // namespace Internal
