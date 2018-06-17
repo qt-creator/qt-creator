@@ -1078,6 +1078,7 @@ bool GitPlugin::submitEditorAboutToClose()
 
         if (!m_gitClient->addAndCommit(m_submitRepository, editor->panelData(), commitType,
                                        amendSHA1, m_commitMessageFileName, model)) {
+            editor->updateFileModel();
             return false;
         }
     }
