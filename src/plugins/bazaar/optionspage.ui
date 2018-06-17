@@ -120,6 +120,9 @@
         <property name="suffix">
          <string>s</string>
         </property>
+        <property name="maximum">
+         <number>360</number>
+        </property>
         <property name="value">
          <number>30</number>
         </property>
