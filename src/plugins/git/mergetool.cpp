@@ -68,7 +68,7 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
         connect(m_process, &QIODevice::readyRead, this, &MergeTool::readData);
     } else {
         delete m_process;
-        m_process = 0;
+        m_process = nullptr;
         return false;
     }
     return true;
