@@ -235,6 +235,13 @@ void MergeTool::readData()
             prompt(tr("Unchanged File"), tr("Was the merge successful?"));
         } else if (m_line.startsWith("Continue merging")) {
             prompt(tr("Continue Merging"), tr("Continue merging other unresolved paths?"));
+        } else if (m_line.startsWith("Hit return")) {
+            QMessageBox::warning(
+                        Core::ICore::dialogParent(), tr("Merge Tool"),
+                        tr("<html><body><p>Merge tool is not configured.</p>\n"
+                           "<p>Run git config --global merge.tool &lt;tool&gt; to configure it, "
+                           "then try again</p></body></html>"));
+            m_process->kill();
         } else if (m_line.endsWith('\n')) {
             // Skip unidentified lines
             m_line.clear();
