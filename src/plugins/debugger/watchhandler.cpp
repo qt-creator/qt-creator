@@ -1783,6 +1783,10 @@ QMenu *WatchModel::createMemoryMenu(WatchItem *item, QWidget *parent)
                createPointerActions,
                [this, item, pos] { addVariableMemoryView(true, item, true, pos); });
 
+    addAction(menu, tr("Open Memory View Showing Stack Layout"),
+              true,
+              [this, pos] { addStackLayoutMemoryView(true, pos); });
+
     menu->addSeparator();
 
     addAction(menu, tr("Open Memory Editor at Object's Address (0x%1)").arg(item->address, 0, 16),
