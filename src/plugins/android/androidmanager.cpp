@@ -54,12 +54,17 @@
 #include <QDir>
 #include <QFileSystemWatcher>
 #include <QList>
+#include <QLoggingCategory>
 #include <QProcess>
 #include <QRegExp>
 #include <QMessageBox>
 #include <QApplication>
 #include <QDomDocument>
 #include <QVersionNumber>
+
+namespace {
+Q_LOGGING_CATEGORY(androidManagerLog, "qtc.android.androidManager")
+}
 
 namespace {
     const QLatin1String AndroidManifestName("AndroidManifest.xml");
@@ -243,6 +248,8 @@ QString AndroidManager::deviceSerialNumber(ProjectExplorer::Target *target)
 
 void AndroidManager::setDeviceSerialNumber(ProjectExplorer::Target *target, const QString &deviceSerialNumber)
 {
+    qCDebug(androidManagerLog) << "Device serial for the target changed"
+                               << target->displayName() << deviceSerialNumber;
     target->setNamedSettings(AndroidDeviceSn, deviceSerialNumber);
 }
 
@@ -253,6 +260,8 @@ int AndroidManager::deviceApiLevel(ProjectExplorer::Target *target)
 
 void AndroidManager::setDeviceApiLevel(ProjectExplorer::Target *target, int level)
 {
+    qCDebug(androidManagerLog) << "Device API level for the target changed"
+                               << target->displayName() << level;
     target->setNamedSettings(ApiLevelKey, level);
 }
 

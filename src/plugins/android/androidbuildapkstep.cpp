@@ -52,6 +52,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QLoggingCategory>
 #include <QMessageBox>
 #include <QProcess>
 #include <QPushButton>
@@ -60,6 +61,9 @@
 #include <memory>
 
 using namespace ProjectExplorer;
+namespace {
+Q_LOGGING_CATEGORY(buildapkstepLog, "qtc.android.build.androidbuildapkstep")
+}
 
 namespace Android {
 using namespace Internal;
@@ -125,9 +129,12 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
 
     if (m_signPackage) {
+        qCDebug(buildapkstepLog) << "Signing enabled";
         // check keystore and certificate passwords
-        if (!verifyKeystorePassword() || !verifyCertificatePassword())
+        if (!verifyKeystorePassword() || !verifyCertificatePassword()) {
+            qCDebug(buildapkstepLog) << "Init failed. Keystore/Certificate password verification failed.";
             return false;
+        }
 
         if (bc->buildType() != ProjectExplorer::BuildConfiguration::Release)
             emit addOutput(tr("Warning: Signing a debug or profile package."),
@@ -173,6 +180,7 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
 
     m_openPackageLocationForRun = m_openPackageLocation;
     m_apkPath = qtSupport->apkPath(target()).toString();
+    qCDebug(buildapkstepLog) << "APK path:" << m_apkPath;
 
     if (!AbstractProcessStep::init(earlierSteps))
         return false;
