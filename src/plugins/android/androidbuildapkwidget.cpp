@@ -48,8 +48,6 @@
 using namespace Android;
 using namespace Internal;
 
-const int minApiSupported = 9;
-
 AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     : ProjectExplorer::BuildStepConfigWidget(),
       m_ui(new Ui::AndroidBuildApkWidget),
@@ -58,6 +56,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     m_ui->setupUi(this);
 
     // Target sdk combobox
+    const int minApiSupported = AndroidManager::apiLevelRange().first;
     QStringList targets = AndroidConfig::apiLevelNamesFor(AndroidConfigurations::sdkManager()->
                                                           filteredSdkPlatforms(minApiSupported));
     targets.removeDuplicates();

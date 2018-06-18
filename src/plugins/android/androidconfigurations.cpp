@@ -702,13 +702,13 @@ bool AndroidConfig::useNativeUiTools() const
 
 QString AndroidConfig::bestNdkPlatformMatch(int target) const
 {
-    target = std::max(9, target);
+    target = std::max(AndroidManager::apiLevelRange().first, target);
     updateNdkInformation();
     foreach (int apiLevel, m_availableNdkPlatforms) {
         if (apiLevel <= target)
             return QString::fromLatin1("android-%1").arg(apiLevel);
     }
-    return QLatin1String("android-9");
+    return QString("android-%1").arg(AndroidManager::apiLevelRange().first);
 }
 
 FileName AndroidConfig::sdkLocation() const
