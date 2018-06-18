@@ -35,6 +35,8 @@ class QbsKitInformation final : public ProjectExplorer::KitInformation
     Q_OBJECT
 
 public:
+    QbsKitInformation();
+
     static QString displayName();
     static QString representation(const ProjectExplorer::Kit *kit);
     static QVariantMap properties(const ProjectExplorer::Kit *kit);
