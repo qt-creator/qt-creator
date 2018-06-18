@@ -687,7 +687,7 @@ public:
 
     QRegExp m_searchExpr;
     FindFlags m_findFlags;
-    void highlightSearchResults(const QTextBlock &block, TextEditorOverlay *overlay) const;
+    void highlightSearchResults(const QTextBlock &block, const PaintEventData &data) const;
     QTimer m_delayedUpdateTimer;
 
     void setExtraSelections(Core::Id kind, const QList<QTextEdit::ExtraSelection> &selections);
@@ -3657,8 +3657,7 @@ QTextBlock TextEditorWidgetPrivate::foldedBlockAt(const QPoint &pos, QRect *box)
     return QTextBlock();
 }
 
-void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block,
-                                                   TextEditorOverlay *overlay) const
+void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, const PaintEventData &data) const
 {
     if (m_searchExpr.isEmpty())
         return;
@@ -3670,6 +3669,13 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block,
     text.replace(QChar::Nbsp, QLatin1Char(' '));
     int idx = -1;
     int l = 1;
+
+    const int left = data.viewportRect.left() - int(data.offset.x());
+    const int right = data.viewportRect.right() - int(data.offset.x());
+    const int top = data.viewportRect.top() - int(data.offset.y());
+    const int bottom = data.viewportRect.bottom() - int(data.offset.y());
+    const QColor &searchResultColor = m_document->fontSettings()
+            .toTextCharFormat(C_SEARCH_RESULT).background().color().darker(120);
 
     while (idx < text.length()) {
         idx = m_searchExpr.indexIn(text, idx + l);
@@ -3683,19 +3689,44 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block,
                 || (idx + l < text.length() && text.at(idx + l).isLetterOrNumber())))
             continue;
 
-        if (!q->inFindScope(blockPosition + idx, blockPosition + idx + l))
+        const int start = blockPosition + idx;
+        const int end = start + l;
+        if (!q->inFindScope(start, end))
             continue;
 
-        const QTextCharFormat &searchResultFormat
-                = m_document->fontSettings().toTextCharFormat(C_SEARCH_RESULT);
-        overlay->addOverlaySelection(blockPosition + idx,
-                                     blockPosition + idx + l,
-                                     searchResultFormat.background().color().darker(120),
-                                     QColor(),
-                                     (idx == cursor.selectionStart() - blockPosition
-                                      && idx + l == cursor.selectionEnd() - blockPosition)?
-                                     TextEditorOverlay::DropShadow : 0);
+        // check if the result is inside the visibale area for long blocks
+        const QTextLine &startLine = block.layout()->lineForTextPosition(idx);
+        const QTextLine &endLine = block.layout()->lineForTextPosition(idx + l);
 
+        if (startLine.isValid() && endLine.isValid()
+                && startLine.lineNumber() == endLine.lineNumber()) {
+            const int lineY = int(endLine.y() + q->blockBoundingGeometry(block).y());
+            if (startLine.cursorToX(idx) > right) { // result is behind the visible area
+                if (endLine.lineNumber() >= block.lineCount() - 1)
+                    break; // this is the last line in the block, nothing more to add
+
+                // skip to the start of the next line
+                idx = block.layout()->lineAt(endLine.lineNumber() + 1).textStart();
+                l = 0;
+                continue;
+            } else if (endLine.cursorToX(idx + l, QTextLine::Trailing) < left) { // result is in front of the visible area skip it
+                continue;
+            } else if (lineY + endLine.height() < top) {
+                if (endLine.lineNumber() >= block.lineCount() - 1)
+                    break; // this is the last line in the block, nothing more to add
+                // before visible area, skip to the start of the next line
+                idx = block.layout()->lineAt(endLine.lineNumber() + 1).textStart();
+                l = 0;
+                continue;
+            } else if (lineY > bottom) {
+                break; // under the visible area, nothing more to add
+            }
+        }
+
+        const uint flag = (idx == cursor.selectionStart() - blockPosition
+                           && idx + l == cursor.selectionEnd() - blockPosition) ?
+                    TextEditorOverlay::DropShadow : 0;
+        m_searchResultOverlay->addOverlaySelection(start, end, searchResultColor, QColor(), flag);
     }
 }
 
@@ -4256,7 +4287,7 @@ void TextEditorWidgetPrivate::paintSearchResultOverlay(const PaintEventData &dat
 
         if (blockBoundingRect.bottom() >= data.eventRect.top() - margin
                 && blockBoundingRect.top() <= data.eventRect.bottom() + margin) {
-            highlightSearchResults(block, m_searchResultOverlay);
+            highlightSearchResults(block, data);
         }
         offset.ry() += blockBoundingRect.height();
 
