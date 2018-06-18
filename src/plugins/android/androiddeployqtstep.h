@@ -91,6 +91,7 @@ private:
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &fi) override;
+    void gatherFilesToPull();
     DeployErrorCode runDeploy(QFutureInterface<bool> &fi);
     void slotAskForUninstall(DeployErrorCode errorCode);
     void slotSetSerialNumber(const QString &serialNumber);
@@ -113,7 +114,7 @@ private:
     Utils::FileName m_manifestName;
     QString m_serialNumber;
     QString m_avdName;
-    QString m_apkPath;
+    Utils::FileName m_apkPath;
     QMap<QString, QString> m_filesToPull;
 
     QString m_targetArch;
