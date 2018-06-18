@@ -1795,9 +1795,8 @@ QMenu *WatchModel::createMemoryMenu(WatchItem *item, QWidget *parent)
                createPointerActions,
                [this, item, pos] { addVariableMemoryView(false, item, true, pos); });
 
-
     addAction(menu, tr("Open Memory Editor Showing Stack Layout"),
-              item && item->isLocal(),
+              true,
               [this, pos] { addStackLayoutMemoryView(false, pos); });
 
     addAction(menu, tr("Open Memory Editor..."),
