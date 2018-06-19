@@ -30,8 +30,10 @@
 #include "editormanager.h"
 #include "editorview.h"
 #include "ieditor.h"
+#include "ieditorfactory.h"
 
 #include <coreplugin/idocument.h>
+#include <utils/mimetypes/mimedatabase.h>
 
 #include <QList>
 #include <QObject>
@@ -185,7 +187,7 @@ private:
     static OpenEditorsWindow *windowPopup();
     static void showPopupOrSelectDocument();
 
-    static EditorManager::EditorFactoryList findFactories(Id editorId, const QString &fileName);
+    static EditorFactoryList findFactories(Id editorId, const QString &fileName);
     static IEditor *createEditor(IEditorFactory *factory, const QString &fileName);
     static void addEditor(IEditor *editor);
     static void removeEditor(IEditor *editor, bool removeSusependedEntry);
@@ -275,6 +277,54 @@ private:
     QString m_placeholderText;
     QList<std::function<bool(IEditor *)>> m_closeEditorListeners;
 };
+
+/* For something that has a 'QStringList mimeTypes' (IEditorFactory
+ * or IExternalEditor), find the one best matching the mimetype passed in.
+ *  Recurse over the parent classes of the mimetype to find them. */
+template <class EditorFactoryLike>
+static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
+                                     const QList<EditorFactoryLike*> &allFactories,
+                                     bool firstMatchOnly,
+                                     QList<EditorFactoryLike*> *list)
+{
+    QSet<EditorFactoryLike *> matches;
+    // search breadth-first through parent hierarchy, e.g. for hierarchy
+    // * application/x-ruby
+    //     * application/x-executable
+    //         * application/octet-stream
+    //     * text/plain
+    QList<Utils::MimeType> queue;
+    QSet<QString> seen;
+    queue.append(mimeType);
+    seen.insert(mimeType.name());
+    while (!queue.isEmpty()) {
+        Utils::MimeType mt = queue.takeFirst();
+        // check for matching factories
+        foreach (EditorFactoryLike *factory, allFactories) {
+            if (!matches.contains(factory)) {
+                foreach (const QString &mimeName, factory->mimeTypes()) {
+                    if (mt.matchesName(mimeName)) {
+                        list->append(factory);
+                        if (firstMatchOnly)
+                            return;
+                        matches.insert(factory);
+                    }
+                }
+            }
+        }
+        // add parent mime types
+        QStringList parentNames = mt.parentMimeTypes();
+        foreach (const QString &parentName, parentNames) {
+            const Utils::MimeType parent = Utils::mimeTypeForName(parentName);
+            if (parent.isValid()) {
+                int seenSize = seen.size();
+                seen.insert(parent.name());
+                if (seen.size() != seenSize) // not seen before, so add
+                    queue.append(parent);
+            }
+        }
+    }
+}
 
 } // Internal
 } // Core

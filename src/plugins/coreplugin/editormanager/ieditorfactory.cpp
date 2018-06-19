@@ -24,8 +24,13 @@
 ****************************************************************************/
 
 #include "ieditorfactory.h"
+#include "editormanager.h"
+#include "editormanager_p.h"
 
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
+
+#include <QFileInfo>
 
 namespace Core {
 
@@ -42,9 +47,37 @@ IEditorFactory::~IEditorFactory()
     g_editorFactories.removeOne(this);
 }
 
-const QList<IEditorFactory *> IEditorFactory::allEditorFactories()
+const EditorFactoryList IEditorFactory::allEditorFactories()
 {
     return g_editorFactories;
 }
+
+const EditorFactoryList IEditorFactory::editorFactories(const Utils::MimeType &mimeType, bool bestMatchOnly)
+{
+    EditorFactoryList rc;
+    const EditorFactoryList allFactories = IEditorFactory::allEditorFactories();
+    Internal::mimeTypeFactoryLookup(mimeType, allFactories, bestMatchOnly, &rc);
+    return rc;
+}
+
+const EditorFactoryList IEditorFactory::editorFactories(const QString &fileName, bool bestMatchOnly)
+{
+    const QFileInfo fileInfo(fileName);
+    // Find by mime type
+    Utils::MimeType mimeType = Utils::mimeTypeForFile(fileInfo);
+    if (!mimeType.isValid()) {
+        qWarning("%s unable to determine mime type of %s. Falling back to text/plain",
+                 Q_FUNC_INFO, fileName.toUtf8().constData());
+        mimeType = Utils::mimeTypeForName("text/plain");
+    }
+    // open text files > 48 MB in binary editor
+    if (fileInfo.size() > EditorManager::maxTextFileSize()
+            && mimeType.name().startsWith("text")) {
+        mimeType = Utils::mimeTypeForName("application/octet-stream");
+    }
+
+    return IEditorFactory::editorFactories(mimeType, bestMatchOnly);
+}
+
 
 } // Core

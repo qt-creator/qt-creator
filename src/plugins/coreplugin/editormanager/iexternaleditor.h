@@ -27,11 +27,16 @@
 
 #include <coreplugin/core_global.h>
 
+#include <utils/mimetypes/mimetype.h>
+
 #include <QObject>
 
 namespace Core {
 
 class Id;
+class IExternalEditor;
+
+using ExternalEditorList = QList<IExternalEditor *>;
 
 class CORE_EXPORT IExternalEditor : public QObject
 {
@@ -41,7 +46,9 @@ public:
     explicit IExternalEditor(QObject *parent = nullptr);
     ~IExternalEditor() override;
 
-    static const QList<IExternalEditor *> allExternalEditors();
+    static const ExternalEditorList allExternalEditors();
+    static const ExternalEditorList externalEditors(const Utils::MimeType &mimeType,
+                                                    bool bestMatchOnly = true);
 
     virtual QStringList mimeTypes() const = 0;
     virtual Id id() const = 0;

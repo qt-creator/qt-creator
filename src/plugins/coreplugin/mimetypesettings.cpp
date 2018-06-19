@@ -144,13 +144,12 @@ void MimeTypeSettingsModel::load()
 
     foreach (const Utils::MimeType &mimeType, m_mimeTypes) {
         QString value;
-        const QList<IEditorFactory *> factories =
-            EditorManager::editorFactories(mimeType);
+        const QList<IEditorFactory *> factories = IEditorFactory::editorFactories(mimeType);
         if (!factories.isEmpty()) {
             value = factories.front()->displayName();
         } else {
-            const QList<IExternalEditor *> externalEditors =
-                EditorManager::externalEditors(mimeType);
+            const QList<IExternalEditor *> externalEditors = IExternalEditor::externalEditors(
+                mimeType);
             if (!externalEditors.isEmpty())
                 value = externalEditors.front()->displayName();
             else
