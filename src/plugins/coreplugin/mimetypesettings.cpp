@@ -143,18 +143,8 @@ void MimeTypeSettingsModel::load()
     });
 
     foreach (const Utils::MimeType &mimeType, m_mimeTypes) {
-        QString value;
         const QList<IEditorFactory *> factories = IEditorFactory::editorFactories(mimeType);
-        if (!factories.isEmpty()) {
-            value = factories.front()->displayName();
-        } else {
-            const QList<IExternalEditor *> externalEditors = IExternalEditor::externalEditors(
-                mimeType);
-            if (!externalEditors.isEmpty())
-                value = externalEditors.front()->displayName();
-            else
-                value = tr("Undefined");
-        }
+        const QString value = factories.isEmpty() ? "" : factories.front()->displayName();
         m_handlersByMimeType.insert(mimeType.name(), value);
     }
     endResetModel();

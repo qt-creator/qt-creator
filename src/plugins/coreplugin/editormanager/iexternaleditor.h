@@ -47,8 +47,7 @@ public:
     ~IExternalEditor() override;
 
     static const ExternalEditorList allExternalEditors();
-    static const ExternalEditorList externalEditors(const Utils::MimeType &mimeType,
-                                                    bool bestMatchOnly = true);
+    static const ExternalEditorList externalEditors(const Utils::MimeType &mimeType);
 
     virtual QStringList mimeTypes() const = 0;
     virtual Id id() const = 0;

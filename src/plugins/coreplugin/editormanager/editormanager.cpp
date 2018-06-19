@@ -952,7 +952,7 @@ Id EditorManagerPrivate::getOpenWithEditorId(const QString &fileName, bool *isEx
         allEditorDisplayNames.push_back(editors.at(i)->displayName());
     }
     // External editors
-    const ExternalEditorList exEditors = IExternalEditor::externalEditors(mt, false);
+    const ExternalEditorList exEditors = IExternalEditor::externalEditors(mt);
     const int esize = exEditors.size();
     for (int i = 0; i < esize; i++) {
         externalEditorIds.push_back(exEditors.at(i)->id());
@@ -2475,7 +2475,7 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
     const Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
     if (mt.isValid()) {
         const EditorFactoryList factories = IEditorFactory::editorFactories(mt, false);
-        const ExternalEditorList extEditors = IExternalEditor::externalEditors(mt, false);
+        const ExternalEditorList extEditors = IExternalEditor::externalEditors(mt);
         anyMatches = !factories.empty() || !extEditors.empty();
         if (anyMatches) {
             // Add all suitable editors

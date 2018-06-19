@@ -73,12 +73,11 @@ const ExternalEditorList IExternalEditor::allExternalEditors()
     return g_externalEditors;
 }
 
-const ExternalEditorList IExternalEditor::externalEditors(const Utils::MimeType &mimeType,
-                                                          bool bestMatchOnly)
+const ExternalEditorList IExternalEditor::externalEditors(const Utils::MimeType &mimeType)
 {
     ExternalEditorList rc;
     const ExternalEditorList allEditors = IExternalEditor::allExternalEditors();
-    Internal::mimeTypeFactoryLookup(mimeType, allEditors, bestMatchOnly, &rc);
+    Internal::mimeTypeFactoryLookup(mimeType, allEditors, /*bestmatchonly=*/false, &rc);
     return rc;
 }
 
