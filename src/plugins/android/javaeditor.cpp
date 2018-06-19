@@ -75,7 +75,6 @@ JavaEditorFactory::JavaEditorFactory()
     setUseGenericHighlighter(true);
     setCommentDefinition(Utils::CommentDefinition::CppStyle);
     setEditorActionHandlers(TextEditor::TextEditorActionHandler::UnCommentSelection);
-    setMarksVisible(true);
     setCompletionAssistProvider(new TextEditor::KeywordsCompletionAssistProvider(keywords));
 }
 

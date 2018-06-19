@@ -266,7 +266,7 @@ const TestResult *TestResultModel::testResult(const QModelIndex &idx)
     if (idx.isValid())
         return static_cast<TestResultItem *>(itemForIndex(idx))->testResult();
 
-    return 0;
+    return nullptr;
 }
 
 void TestResultModel::recalculateMaxWidthOfFileName(const QFont &font)

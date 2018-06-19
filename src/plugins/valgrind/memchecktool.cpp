@@ -445,6 +445,8 @@ private:
 #ifdef Q_OS_WIN
 class HeobDialog : public QDialog
 {
+    Q_DECLARE_TR_FUNCTIONS(HeobDialog)
+
 public:
     HeobDialog(QWidget *parent);
 
@@ -475,6 +477,8 @@ private:
 
 class HeobData : public QObject
 {
+    Q_DECLARE_TR_FUNCTIONS(HeobData)
+
 public:
     HeobData(MemcheckTool *mcTool, const QString &xmlPath, Kit *kit, bool attach);
     ~HeobData();

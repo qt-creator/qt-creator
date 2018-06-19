@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,21 +25,14 @@
 
 #pragma once
 
-#include <QStyledItemDelegate>
+#include <QString>
 
-namespace Autotest {
-namespace Internal {
-
-class TestTreeItemDelegate : public QStyledItemDelegate
-{
-    Q_OBJECT
+namespace Core {
+class VcsManager {
 public:
-    explicit TestTreeItemDelegate(QObject *parent = nullptr);
-    ~TestTreeItemDelegate();
-
-public:
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    static QString findTopLevelForDirectory(const QString &directory)
+    {
+        return directory;
+    }
 };
-
-} // namespace Internal
-} // namespace Autotest
+} // namespace Core

@@ -57,7 +57,6 @@ PythonEditorFactory::PythonEditorFactory()
     setSyntaxHighlighterCreator([] { return new PythonHighlighter; });
     setCommentDefinition(Utils::CommentDefinition::HashStyle);
     setParenthesesMatchingEnabled(true);
-    setMarksVisible(true);
     setCodeFoldingSupported(true);
 }
 

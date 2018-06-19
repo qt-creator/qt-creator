@@ -33,7 +33,7 @@ namespace Internal {
 class GTestResult : public TestResult
 {
 public:
-    GTestResult(const QString &projectFile, const QString &name = QString());
+    explicit GTestResult(const QString &projectFile, const QString &name = QString());
     GTestResult(const QString &id, const QString &projectFile, const QString &name);
     const QString outputString(bool selected) const override;
 

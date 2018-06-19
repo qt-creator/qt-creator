@@ -265,6 +265,7 @@ QmlEngine::QmlEngine()
     connect(&d->applicationLauncher, &ApplicationLauncher::processStarted,
             this, &QmlEngine::handleLauncherStarted);
 
+    debuggerConsole()->populateFileFinder();
     debuggerConsole()->setScriptEvaluator([this](const QString &expr) {
         executeDebuggerCommand(expr, QmlLanguage);
     });

@@ -95,7 +95,6 @@ public:
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
-    void typeSelected(int typeIndex);
 
 private:
     QVariant lookup(const FlameGraphData &data, int role) const;

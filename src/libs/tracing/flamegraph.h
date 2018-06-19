@@ -45,6 +45,8 @@ class TRACING_EXPORT FlameGraph : public QQuickItem
                NOTIFY maximumDepthChanged)
     Q_PROPERTY(int depth READ depth NOTIFY depthChanged)
     Q_PROPERTY(QPersistentModelIndex root READ root WRITE setRoot NOTIFY rootChanged)
+    Q_PROPERTY(int selectedTypeId READ selectedTypeId WRITE setSelectedTypeId
+               NOTIFY selectedTypeIdChanged)
 
 public:
     FlameGraph(QQuickItem *parent = nullptr);
@@ -101,6 +103,20 @@ public:
 
     static FlameGraphAttached *qmlAttachedProperties(QObject *object);
 
+    int selectedTypeId() const
+    {
+        return m_selectedTypeId;
+    }
+
+    void setSelectedTypeId(int selectedTypeId)
+    {
+        if (m_selectedTypeId == selectedTypeId)
+            return;
+
+        m_selectedTypeId = selectedTypeId;
+        emit selectedTypeIdChanged(m_selectedTypeId);
+    }
+
 signals:
     void delegateChanged(QQmlComponent *delegate);
     void modelChanged(QAbstractItemModel *model);
@@ -109,6 +125,7 @@ signals:
     void depthChanged(int depth);
     void maximumDepthChanged();
     void rootChanged(const QPersistentModelIndex &root);
+    void selectedTypeIdChanged(int selectedTypeId);
 
 private:
     void rebuild();
@@ -120,11 +137,16 @@ private:
     int m_depth = 0;
     qreal m_sizeThreshold = 0;
     int m_maximumDepth = std::numeric_limits<int>::max();
+    int m_selectedTypeId = -1;
 
     int buildNode(const QModelIndex &parentIndex, QObject *parentObject, int depth,
                   int maximumDepth);
     QObject *appendChild(QObject *parentObject, QQuickItem *parentItem, QQmlContext *context,
                          const QModelIndex &childIndex, qreal position, qreal size);
+
+    void mousePressEvent(QMouseEvent *event) final;
+    void mouseReleaseEvent(QMouseEvent *event) final;
+    void mouseDoubleClickEvent(QMouseEvent *event) final;
 };
 
 } // namespace FlameGraph

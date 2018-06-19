@@ -325,7 +325,6 @@ GlslEditorFactory::GlslEditorFactory()
     setCommentDefinition(Utils::CommentDefinition::CppStyle);
     setCompletionAssistProvider(new GlslCompletionAssistProvider);
     setParenthesesMatchingEnabled(true);
-    setMarksVisible(true);
     setCodeFoldingSupported(true);
 
     setEditorActionHandlers(TextEditorActionHandler::Format

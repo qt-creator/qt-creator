@@ -248,21 +248,22 @@ public:
 
     {}
 
-    virtual void pragmaLibrary(int line, int column) override
+    void pragmaLibrary(int line, int column) override
     {
         isLibrary = true;
         addLocation(line, column);
     }
-    virtual void importFile(const QString &jsfile, const QString &module,
-                            int line, int column) override
+
+    void importFile(const QString &jsfile, const QString &module,
+                    int line, int column) override
     {
         imports += ImportInfo::pathImport(
                     documentPath, jsfile, LanguageUtils::ComponentVersion(), module);
         addLocation(line, column);
     }
 
-    virtual void importModule(const QString &uri, const QString &version, const QString &module,
-                              int line, int column) override
+    void importModule(const QString &uri, const QString &version, const QString &module,
+                      int line, int column) override
     {
         imports += ImportInfo::moduleImport(uri, LanguageUtils::ComponentVersion(version), module);
         addLocation(line, column);

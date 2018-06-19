@@ -71,7 +71,7 @@
             \image qtcreator-files-to-analyze.png
 
         \li In the \uicontrol {Diagnostic Configuration} group, select
-            \uicontrol Custom, and then select \uicontrol Manage to
+            \uicontrol {Custom Settings}, and then select \uicontrol Manage to
             specify the Clang-Tidy and Clazy checks to perform.
 
         \li Select the new custom configuration in the list of configurations

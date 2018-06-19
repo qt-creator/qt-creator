@@ -40,15 +40,15 @@ public:
     FollowSymbolResult(SourceRangeContainer range)
         : range(std::move(range))
     {}
-    FollowSymbolResult(SourceRangeContainer range, bool isPureDeclarationForUsage)
+    FollowSymbolResult(SourceRangeContainer range, bool isResultOnlyForFallBack)
         : range(std::move(range))
-        , isPureDeclarationForUsage(isPureDeclarationForUsage)
+        , isResultOnlyForFallBack(isResultOnlyForFallBack)
     {}
 
     friend QDataStream &operator<<(QDataStream &out, const FollowSymbolResult &container)
     {
         out << container.range;
-        out << container.isPureDeclarationForUsage;
+        out << container.isResultOnlyForFallBack;
 
         return out;
     }
@@ -56,7 +56,7 @@ public:
     friend QDataStream &operator>>(QDataStream &in, FollowSymbolResult &container)
     {
         in >> container.range;
-        in >> container.isPureDeclarationForUsage;
+        in >> container.isResultOnlyForFallBack;
 
         return in;
     }
@@ -64,11 +64,11 @@ public:
     friend bool operator==(const FollowSymbolResult &first, const FollowSymbolResult &second)
     {
         return first.range == second.range
-                && first.isPureDeclarationForUsage == second.isPureDeclarationForUsage;
+                && first.isResultOnlyForFallBack == second.isResultOnlyForFallBack;
     }
 
     SourceRangeContainer range;
-    bool isPureDeclarationForUsage = false;
+    bool isResultOnlyForFallBack = false;
 };
 
 class FollowSymbolMessage

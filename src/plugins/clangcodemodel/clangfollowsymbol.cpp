@@ -145,7 +145,7 @@ static ::Utils::ProcessLinkCallback extendedCallback(::Utils::ProcessLinkCallbac
 {
     // If globalFollowSymbol finds nothing follow to the declaration.
     return [original_callback = std::move(callback), result](const ::Utils::Link &link) {
-        if (!link.hasValidTarget() && result.isPureDeclarationForUsage) {
+        if (link.linkTextStart < 0 && result.isResultOnlyForFallBack) {
             return original_callback(::Utils::Link(result.fileName, result.startLine,
                                           result.startColumn - 1));
         }
@@ -198,7 +198,7 @@ void ClangFollowSymbol::findLink(const CppTools::CursorInEditor &data,
             return callback(Utils::Link());
         CppTools::SymbolInfo result = m_watcher->result();
         // We did not fail but the result is empty
-        if (result.fileName.isEmpty() || result.isPureDeclarationForUsage) {
+        if (result.fileName.isEmpty() || result.isResultOnlyForFallBack) {
             const CppTools::RefactoringEngineInterface &refactoringEngine
                     = *CppTools::CppModelManager::instance();
             refactoringEngine.globalFollowSymbol(data,

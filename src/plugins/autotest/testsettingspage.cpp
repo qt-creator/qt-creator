@@ -45,7 +45,7 @@ namespace Internal {
 class TestFilterDialog : public QDialog
 {
 public:
-    explicit TestFilterDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    explicit TestFilterDialog(QWidget *parent = nullptr, Qt::WindowFlags f = 0);
     QString filterPath() const;
     void setDetailsText(const QString &details) { m_details->setText(details); }
     void setDefaultFilterPath(const QString &defaultPath);
@@ -276,7 +276,7 @@ void TestSettingsWidget::onRemoveFilterClicked()
 }
 
 TestSettingsPage::TestSettingsPage(const QSharedPointer<TestSettings> &settings)
-    : m_settings(settings), m_widget(0)
+    : m_settings(settings)
 {
     setId("A.AutoTest.0.General");
     setDisplayName(tr("General"));

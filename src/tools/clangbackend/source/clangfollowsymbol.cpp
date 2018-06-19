@@ -152,14 +152,15 @@ FollowSymbolResult FollowSymbol::followSymbol(CXTranslationUnit tu,
     if (!cursor.isDeclaration()) {
         // This is the symbol usage
         // We want to return definition
-        FollowSymbolResult result;
         cursor = cursor.referenced();
         if (cursor.isNull())
             return SourceRangeContainer();
-        if (!cursor.isDefinition()) {
-            // We can't find definition in this TU
-            result.isPureDeclarationForUsage = true;
-        }
+
+        FollowSymbolResult result;
+        // We can't find definition in this TU or it's a virtual method call
+        if (!cursor.isDefinition() || cursor.isVirtualMethod())
+            result.isResultOnlyForFallBack = true;
+
         result.range = extractMatchingTokenRange(cursor, tokenSpelling);
         return result;
     }

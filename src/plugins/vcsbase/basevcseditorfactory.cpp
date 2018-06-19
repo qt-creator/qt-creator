@@ -80,6 +80,7 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
     });
 
     setEditorCreator([]() { return new VcsBaseEditor(); });
+    setMarksVisible(false);
 }
 
 VcsBaseEditor *VcsEditorFactory::createEditorById(const char *id)

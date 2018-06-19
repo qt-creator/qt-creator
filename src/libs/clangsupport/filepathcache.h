@@ -36,7 +36,7 @@
 namespace ClangBackEnd {
 
 template <typename FilePathStorage>
-class FilePathCache
+class CLANGSUPPORT_GCCEXPORT FilePathCache
 {
     class FileNameView
     {

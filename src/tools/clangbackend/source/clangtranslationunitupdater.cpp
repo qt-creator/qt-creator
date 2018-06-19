@@ -25,6 +25,7 @@
 
 #include "clangtranslationunitupdater.h"
 
+#include "clangbackend_global.h"
 #include "clangfilepath.h"
 #include "clangstring.h"
 #include "clangunsavedfilesshallowarguments.h"
@@ -176,7 +177,7 @@ uint TranslationUnitUpdater::defaultParseOptions()
     return CXTranslationUnit_CacheCompletionResults
          | CXTranslationUnit_PrecompiledPreamble
          | CXTranslationUnit_CreatePreambleOnFirstParse
-#ifdef CINDEX_VERSION_HAS_LIMITSKIPFUNCTIONBODIESTOPREAMBLE_BACKPORTED
+#ifdef IS_LIMITSKIPFUNCTIONBODIESTOPREAMBLE_SUPPORTED
          | CXTranslationUnit_SkipFunctionBodies
          | CXTranslationUnit_LimitSkipFunctionBodiesToPreamble
 #endif

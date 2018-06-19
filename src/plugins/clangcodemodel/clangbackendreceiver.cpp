@@ -265,7 +265,7 @@ CppTools::SymbolInfo toSymbolInfo(const FollowSymbolMessage &message)
     result.endColumn = static_cast<int>(end.column);
     result.fileName = start.filePath;
 
-    result.isPureDeclarationForUsage = message.result.isPureDeclarationForUsage;
+    result.isResultOnlyForFallBack = message.result.isResultOnlyForFallBack;
 
     return result;
 }

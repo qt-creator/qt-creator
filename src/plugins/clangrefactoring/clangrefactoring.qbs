@@ -59,6 +59,8 @@ QtcPlugin {
         "projectpartutilities.h",
         "qtcreatorclangqueryfindfilter.cpp",
         "qtcreatorclangqueryfindfilter.h",
+        "qtcreatoreditormanager.cpp",
+        "qtcreatoreditormanager.h",
         "qtcreatorsearch.cpp",
         "qtcreatorsearch.h",
         "qtcreatorsearchhandle.cpp",

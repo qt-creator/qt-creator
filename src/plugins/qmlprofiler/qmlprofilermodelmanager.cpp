@@ -509,13 +509,13 @@ void QmlProfilerEventStorage::clear()
     m_size = 0;
     m_file.clear();
     if (!m_file.open())
-        m_errorHandler(tr("Failed to reset temporary trace file"));
+        m_errorHandler(tr("Failed to reset temporary trace file."));
 }
 
 void QmlProfilerEventStorage::finalize()
 {
     if (!m_file.flush())
-        m_errorHandler(tr("Failed to flush temporary trace file"));
+        m_errorHandler(tr("Failed to flush temporary trace file."));
 }
 
 QmlProfilerEventStorage::ErrorHandler QmlProfilerEventStorage::errorHandler() const
@@ -536,13 +536,13 @@ bool QmlProfilerEventStorage::replay(
     case Timeline::TraceStashFile<QmlEvent>::ReplaySuccess:
         return true;
     case Timeline::TraceStashFile<QmlEvent>::ReplayOpenFailed:
-        m_errorHandler(tr("Could not re-open temporary trace file"));
+        m_errorHandler(tr("Could not re-open temporary trace file."));
         break;
     case Timeline::TraceStashFile<QmlEvent>::ReplayLoadFailed:
         // Happens if the loader rejects an event. Not an actual error
         break;
     case Timeline::TraceStashFile<QmlEvent>::ReplayReadPastEnd:
-        m_errorHandler(tr("Read past end in temporary trace file"));
+        m_errorHandler(tr("Read past end in temporary trace file."));
         break;
     }
     return false;

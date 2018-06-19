@@ -132,6 +132,7 @@ public:
         setEditorWidgetCreator([]() { return new Internal::DesignerXmlEditorWidget; });
         setUseGenericHighlighter(true);
         setDuplicatedSupported(false);
+        setMarksVisible(false);
     }
 
     FormWindowEditor *create(QDesignerFormWindowInterface *form)

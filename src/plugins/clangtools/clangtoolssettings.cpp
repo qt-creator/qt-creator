@@ -73,7 +73,7 @@ bool ClangToolsSettings::savedBuildBeforeAnalysis() const
     return m_savedBuildBeforeAnalysis;
 }
 
-int ClangToolsSettings::buildBeforeAnalysis() const
+bool ClangToolsSettings::buildBeforeAnalysis() const
 {
     return m_buildBeforeAnalysis;
 }

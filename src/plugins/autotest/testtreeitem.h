@@ -109,8 +109,8 @@ public:
 
     virtual bool canProvideTestConfiguration() const { return false; }
     virtual bool canProvideDebugConfiguration() const { return false; }
-    virtual TestConfiguration *testConfiguration() const { return 0; }
-    virtual TestConfiguration *debugConfiguration() const { return 0; }
+    virtual TestConfiguration *testConfiguration() const { return nullptr; }
+    virtual TestConfiguration *debugConfiguration() const { return nullptr; }
     TestConfiguration *asConfiguration(TestRunMode mode) const;
     virtual QList<TestConfiguration *> getAllTestConfigurations() const;
     virtual QList<TestConfiguration *> getSelectedTestConfigurations() const;

@@ -99,7 +99,6 @@ public:
         setAutoCompleterCreator([]() { return new CppAutoCompleter; });
         setCommentDefinition(CommentDefinition::CppStyle);
         setCodeFoldingSupported(true);
-        setMarksVisible(true);
         setParenthesesMatchingEnabled(true);
 
         setEditorActionHandlers(TextEditorActionHandler::Format

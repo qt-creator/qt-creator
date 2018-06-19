@@ -85,7 +85,7 @@ private:
     void runTests();
     void debugTests();
     void runOrDebugTests();
-    explicit TestRunner(QObject *parent = 0);
+    explicit TestRunner(QObject *parent = nullptr);
 
     QFutureWatcher<TestResultPtr> m_futureWatcher;
     QFutureInterface<TestResultPtr> *m_fakeFutureInterface = nullptr;

@@ -48,7 +48,7 @@ public:
     int simultaneousProcesses() const;
     void setSimultaneousProcesses(int processes);
 
-    int buildBeforeAnalysis() const;
+    bool buildBeforeAnalysis() const;
     void setBuildBeforeAnalysis(bool build);
 
     Core::Id diagnosticConfigId() const;

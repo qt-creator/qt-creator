@@ -81,6 +81,9 @@ public:
     Core::Id diagnosticConfig() const;
     void setDiagnosticConfig(const Core::Id &diagnosticConfig);
 
+    bool buildBeforeAnalysis() const;
+    void setBuildBeforeAnalysis(bool build);
+
     QSet<Utils::FileName> selectedDirs() const { return m_selectedDirs; }
     void setSelectedDirs(const QSet<Utils::FileName> &value) { m_selectedDirs = value; }
 
@@ -105,6 +108,7 @@ private:
     QSet<Utils::FileName> m_selectedDirs;
     QSet<Utils::FileName> m_selectedFiles;
     SuppressedDiagnosticsList m_suppressedDiagnostics;
+    bool m_buildBeforeAnalysis = true;
 };
 
 class ClangToolsProjectSettingsManager

@@ -25,21 +25,25 @@
 
 #pragma once
 
-#include <QStyledItemDelegate>
+#include <QWidget>
 
-namespace Autotest {
-namespace Internal {
+namespace ClangTools {
 
-class TestTreeItemDelegate : public QStyledItemDelegate
+namespace Ui { class ClangToolsBasicSettings; }
+
+class ClangExecutableVersion;
+
+class ClangToolsBasicSettings : public QWidget
 {
     Q_OBJECT
-public:
-    explicit TestTreeItemDelegate(QObject *parent = nullptr);
-    ~TestTreeItemDelegate();
 
 public:
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    explicit ClangToolsBasicSettings(QWidget *parent = 0);
+    ~ClangToolsBasicSettings();
+
+    Ui::ClangToolsBasicSettings *ui();
+private:
+    Ui::ClangToolsBasicSettings *m_ui;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace ClangTools

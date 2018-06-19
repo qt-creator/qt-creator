@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,23 +23,28 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "clangtoolsbasicsettings.h"
+#include "ui_clangtoolsbasicsettings.h"
 
-#include <QStyledItemDelegate>
+#include "clangtoolsutils.h"
 
-namespace Autotest {
-namespace Internal {
+namespace ClangTools {
 
-class TestTreeItemDelegate : public QStyledItemDelegate
+ClangToolsBasicSettings::ClangToolsBasicSettings(QWidget *parent)
+    : QWidget(parent)
+    , m_ui(new Ui::ClangToolsBasicSettings)
 {
-    Q_OBJECT
-public:
-    explicit TestTreeItemDelegate(QObject *parent = nullptr);
-    ~TestTreeItemDelegate();
+    m_ui->setupUi(this);
+}
 
-public:
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-};
+ClangToolsBasicSettings::~ClangToolsBasicSettings()
+{
+    delete m_ui;
+}
 
-} // namespace Internal
-} // namespace Autotest
+Ui::ClangToolsBasicSettings *ClangToolsBasicSettings::ui()
+{
+    return m_ui;
+}
+
+} // namespace ClangTools

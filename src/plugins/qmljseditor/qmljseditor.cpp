@@ -1059,7 +1059,6 @@ QmlJSEditorFactory::QmlJSEditorFactory()
     setAutoCompleterCreator([]() { return new AutoCompleter; });
     setCommentDefinition(Utils::CommentDefinition::CppStyle);
     setParenthesesMatchingEnabled(true);
-    setMarksVisible(true);
     setCodeFoldingSupported(true);
 
     addHoverHandler(new QmlJSHoverHandler);

@@ -67,9 +67,7 @@ NimEditorFactory::NimEditorFactory()
     });
     setCommentDefinition(CommentDefinition::HashStyle);
     setParenthesesMatchingEnabled(true);
-    setMarksVisible(false);
     setCodeFoldingSupported(true);
-    setMarksVisible(true);
 }
 
 Core::IEditor *NimEditorFactory::createEditor()

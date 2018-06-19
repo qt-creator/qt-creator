@@ -3,6 +3,7 @@ TEMPLATE = subdirs
 
 SUBDIRS = \
     flamegraph \
+    flamegraphview \
     timelineabstractrenderer \
     timelineitemsrenderpass \
     timelinemodel \

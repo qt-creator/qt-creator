@@ -95,8 +95,7 @@ QtTestSettings QtTestSettingsWidget::settings() const
 QtTestSettingsPage::QtTestSettingsPage(QSharedPointer<IFrameworkSettings> settings,
                                        const ITestFramework *framework)
     : ITestSettingsPage(framework),
-      m_settings(qSharedPointerCast<QtTestSettings>(settings)),
-      m_widget(0)
+      m_settings(qSharedPointerCast<QtTestSettings>(settings))
 {
     setDisplayName(QCoreApplication::translate("QtTestFramework",
                                                QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));

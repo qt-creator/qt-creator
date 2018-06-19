@@ -106,6 +106,8 @@ NimCompilerBuildStep::NimCompilerBuildStep(BuildStepList *parentList)
     auto bc = qobject_cast<NimBuildConfiguration *>(buildConfiguration());
     connect(bc, &NimBuildConfiguration::buildDirectoryChanged,
             this, &NimCompilerBuildStep::updateProcessParameters);
+    connect(bc, &BuildConfiguration::environmentChanged,
+            this, &NimCompilerBuildStep::updateProcessParameters);
     connect(this, &NimCompilerBuildStep::outFilePathChanged,
             bc, &NimBuildConfiguration::outFilePathChanged);
     connect(bc->target()->project(), &ProjectExplorer::Project::fileListChanged,

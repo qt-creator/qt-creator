@@ -302,6 +302,7 @@ void KdePasteProtocol::paste(const QString &text, Protocol::ContentType ct, int 
     const QString user;
     const QString passwd;
     qDebug() << "KDE needs credentials for pasting";
+    emit pasteDone(QString());
     return;
 #endif
     // store input data as members to be able to use them after the authentication succeeded
