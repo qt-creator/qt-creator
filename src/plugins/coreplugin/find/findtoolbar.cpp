@@ -54,6 +54,7 @@
 #include <QMenu>
 #include <QPainter>
 #include <QStringListModel>
+#include <QtWidgets>
 
 Q_DECLARE_METATYPE(QStringList)
 Q_DECLARE_METATYPE(Core::IFindFilter*)
