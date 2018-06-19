@@ -39,6 +39,7 @@
 #include <QSlider>
 #include <QToolButton>
 #include <QDebug>
+#include <QtWidgets>
 
 namespace QmlEditorWidgets {
 
