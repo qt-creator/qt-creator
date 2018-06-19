@@ -645,13 +645,13 @@
             \li Look In
         \row
             \li \uicontrol Tools > \uicontrol Options
-            \li \uicontrol {Qt Creator} > \uicontrol Preferences
+            \li \uicontrol {\QC} > \uicontrol Preferences
         \row
             \li \uicontrol Help > \uicontrol {About Plugins}
-            \li \uicontrol {Qt Creator} > \uicontrol {About Plugins}
+            \li \uicontrol {\QC} > \uicontrol {About Plugins}
         \row
             \li Keyboard shortcuts
-            \li \uicontrol {Qt Creator} > \uicontrol Preferences > \uicontrol Environment >
+            \li \uicontrol {\QC} > \uicontrol Preferences > \uicontrol Environment >
                 \uicontrol Keyboard
     \endtable
 

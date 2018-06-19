@@ -55,7 +55,7 @@
 
             \note Kits are listed if they have been specified in \uicontrol
             Tools > \uicontrol Options > \uicontrol Kits (on Windows and Linux)
-            or in \uicontrol {Qt Creator} > \uicontrol Preferences >
+            or in \uicontrol {\QC} > \uicontrol Preferences >
             \uicontrol Kits (on \macos).
 
         \li Select \uicontrol Next.
