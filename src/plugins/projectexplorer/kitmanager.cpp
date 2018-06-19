@@ -157,7 +157,7 @@ void KitManager::restoreKits()
             kitsToRegister.append(k);
     }
 
-    Kit *toStore = 0;
+    Kit *toStore = nullptr;
     foreach (Kit *current, kitsToValidate) {
         toStore = current;
         toStore->upgrade();
@@ -383,7 +383,7 @@ QList<Kit *> KitManager::kits(const Kit::Predicate &predicate)
 Kit *KitManager::kit(Id id)
 {
     if (!id.isValid())
-        return 0;
+        return nullptr;
 
     return Utils::findOrDefault(kits(), Utils::equal(&Kit::id, id));
 }
@@ -505,7 +505,7 @@ void KitInformation::addToEnvironment(const Kit *k, Environment &env) const
 IOutputParser *KitInformation::createOutputParser(const Kit *k) const
 {
     Q_UNUSED(k);
-    return 0;
+    return nullptr;
 }
 
 QString KitInformation::displayNamePostfix(const Kit *k) const
