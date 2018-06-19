@@ -263,6 +263,7 @@ void KitManager::registerKitInformation(KitInformation *ki)
 {
     QTC_CHECK(!isLoaded());
     QTC_ASSERT(!d->m_informationList.contains(ki), return);
+    QTC_ASSERT(ki->id().isValid(), return);
 
     auto it = std::lower_bound(d->m_informationList.begin(), d->m_informationList.end(),
                                ki, greaterPriority);
