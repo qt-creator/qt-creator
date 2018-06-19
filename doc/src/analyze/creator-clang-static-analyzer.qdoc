@@ -68,14 +68,12 @@
 
         \li Select \uicontrol Analyze > \uicontrol {Clang-Tidy and Clazy}.
 
-            \image qtcreator-files-to-analyze.png
+            \image qtcreator-files-to-analyze.png "Analyzer Configuration dialog"
 
-        \li In the \uicontrol {Diagnostic Configuration} group, select
-            \uicontrol {Custom Settings}, and then select \uicontrol Manage to
-            specify the Clang-Tidy and Clazy checks to perform.
-
-        \li Select the new custom configuration in the list of configurations
-            (1).
+        \li In the \uicontrol {Diagnostic Configuration} group, select a Clang
+            configuration in the list of pre-defined configurations (1). For
+            more information about creating a custom configuration, see
+            \l {Configuring Clang Tools}.
 
         \li In the \uicontrol {Files to Analyze} group, select the files to
             apply the checks to.
@@ -90,7 +88,10 @@
     (\uicontrol Start) button to open the \uicontrol {Analyzer Configuration}
     dialog.
 
-    \image qtcreator-clang-tools.png
+    The found issues are displayed in the \uicontrol {Clang-Tidy and Clazy}
+    view:
+
+    \image qtcreator-clang-tools.png "Clang-Tidy and Clazy view"
 
     Select the link in the \uicontrol Location column to move to the location
     where the issue appears in the code editor.
@@ -106,14 +107,35 @@
     \list
 
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Analyzer >
-            \uicontrol {Clang Tools} > \uicontrol Manage.
+            \uicontrol {Clang Tools}.
 
-            \image qtcreator-clang-tools-options.png
+            \image qtcreator-clang-tools-options.png "Clang Tools options tab"
+
+        \li To build the project before running the Clang tools, select the
+            \uicontrol {Build the project before analysis} check box. The Clang
+            tools do not require the project to be built before analysis, but
+            they might display misleading warnings about files missing that are
+            generated during the build. For big projects, not building the
+            project might save some time.
+
+        \li In the \uicontrol {Simultaneous processes} field, select the number
+            of processes to run simultaneously to make the analysis faster on
+            multi-core processors.
+
+        \li In the \uicontrol {Diagnostic Configuration} group, select
+            \uicontrol Manage to create or edit a custom configuration.
+
+        \li Select \uicontrol Copy to create a custom Clang configuration.
+
+            \image qtcreator-diagnostics-configuration.png "Diagnostics Configuration dialog"
+
+        \li In the \uicontrol {Diagnostic configuration name} field, give the
+            configuration a name, and then select \uicontrol OK.
 
         \li In the \uicontrol {Clang-Tidy} tab, select the checks to
             perform.
 
-            \image qtcreator-clang-tidy.png
+            \image qtcreator-clang-tidy.png "Clang-Tidy tab"
 
         \li To edit the selected check as plain text, select
             \uicontrol {Edit Checks as String}.
@@ -121,7 +143,7 @@
         \li In the \uicontrol Clazy tab, select the level of Clazy
             checks to perform.
 
-            \image qtcreator-clazy.png
+            \image qtcreator-clazy.png "Clazy tab"
 
     \endlist
 
