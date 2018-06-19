@@ -487,10 +487,6 @@ QString CompilerOptionsBuilder::includeOption() const
 
 bool CompilerOptionsBuilder::excludeDefineDirective(const ProjectExplorer::Macro &macro) const
 {
-    // TODO: Remove in QtCreator 4.7
-    if (macro.key == "__cplusplus")
-        return true;
-
     // Ignore for all compiler toolchains since LLVM has it's own implementation for
     // __has_include(STR) and __has_include_next(STR)
     if (macro.key.startsWith("__has_include"))
