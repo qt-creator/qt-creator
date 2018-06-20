@@ -148,17 +148,12 @@ isEmpty(LLVM_VERSION) {
     !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LIBCLANG_LIBS = -L$${LLVM_LIBDIR}
     LIBCLANG_LIBS += $${CLANG_LIB}
 
-    QTC_NO_CLANG_LIBTOOLING=$$(QTC_NO_CLANG_LIBTOOLING)
-    isEmpty(QTC_NO_CLANG_LIBTOOLING) {
-        QTC_FORCE_CLANG_LIBTOOLING = $$(QTC_FORCE_CLANG_LIBTOOLING)
-        versionIsEqual($$LLVM_VERSION, 6, 0)|!isEmpty(QTC_FORCE_CLANG_LIBTOOLING) {
-            !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LIBTOOLING_LIBS = -L$${LLVM_LIBDIR}
-            LIBTOOLING_LIBS += $$CLANGTOOLING_LIBS $$LLVM_STATIC_LIBS
-        } else {
-            warning("Clang LibTooling is disabled because only version 6.0 is supported.")
-        }
+    QTC_ENABLE_CLANG_LIBTOOLING=$$(QTC_ENABLE_CLANG_LIBTOOLING)
+    !isEmpty(QTC_ENABLE_CLANG_LIBTOOLING) {
+        !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LIBTOOLING_LIBS = -L$${LLVM_LIBDIR}
+        LIBTOOLING_LIBS += $$CLANGTOOLING_LIBS $$LLVM_STATIC_LIBS
     } else {
-        warning("Clang LibTooling is disabled.")
+        warning("Clang LibTooling is disabled. Set QTC_ENABLE_CLANG_LIBTOOLING to enable it.")
     }
 
     contains(QMAKE_DEFAULT_INCDIRS, $$LLVM_INCLUDEPATH): LLVM_INCLUDEPATH =
