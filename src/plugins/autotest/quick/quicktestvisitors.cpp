@@ -84,7 +84,9 @@ static bool isDerivedFromTestCase(QmlJS::AST::UiQualifiedId *id, const QmlJS::Do
 bool TestQmlVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
     const QStringRef name = ast->qualifiedTypeNameId->name;
+    m_objectStack.push(name.toString());
     if (name != "TestCase") {
+        m_insideTestCase = false;
         if (!isDerivedFromTestCase(ast->qualifiedTypeNameId, m_currentDoc, m_snapshot))
             return true;
     } else if (!documentImportsQtTest(m_currentDoc.data())) {
@@ -92,6 +94,7 @@ bool TestQmlVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
     }
 
     m_typeIsTestCase = true;
+    m_insideTestCase = true;
     m_currentTestCaseName.clear();
     const auto sourceLocation = ast->firstSourceLocation();
     m_testCaseLocation.m_name = m_currentDoc->fileName();
@@ -99,6 +102,11 @@ bool TestQmlVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
     m_testCaseLocation.m_column = sourceLocation.startColumn - 1;
     m_testCaseLocation.m_type = TestTreeItem::TestCase;
     return true;
+}
+
+void TestQmlVisitor::endVisit(QmlJS::AST::UiObjectDefinition *)
+{
+    m_insideTestCase = m_objectStack.pop() == "TestCase";
 }
 
 bool TestQmlVisitor::visit(QmlJS::AST::ExpressionStatement *ast)
@@ -109,8 +117,15 @@ bool TestQmlVisitor::visit(QmlJS::AST::ExpressionStatement *ast)
 
 bool TestQmlVisitor::visit(QmlJS::AST::UiScriptBinding *ast)
 {
-    const QStringRef name = ast->qualifiedId->name;
-    return name == "name";
+    if (m_insideTestCase)
+        m_expectTestCaseName = ast->qualifiedId->name == "name";
+    return m_expectTestCaseName;
+}
+
+void TestQmlVisitor::endVisit(QmlJS::AST::UiScriptBinding *)
+{
+    if (m_expectTestCaseName)
+        m_expectTestCaseName = false;
 }
 
 bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
@@ -139,8 +154,10 @@ bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
 
 bool TestQmlVisitor::visit(QmlJS::AST::StringLiteral *ast)
 {
-    if (m_typeIsTestCase)
+    if (m_expectTestCaseName && m_currentTestCaseName.isEmpty()) {
         m_currentTestCaseName = ast->value.toString();
+        m_expectTestCaseName = false;
+    }
     return false;
 }
 
