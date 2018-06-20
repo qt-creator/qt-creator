@@ -216,7 +216,8 @@ void TestRunner::scheduleNext()
 void TestRunner::cancelCurrent(TestRunner::CancelReason reason)
 {
     if (reason == UserCanceled) {
-        if (!m_fakeFutureInterface->isCanceled()) // depends on using the button / progress bar
+        // when using the stop button we need to report, for progress bar this happens automatically
+        if (m_fakeFutureInterface && !m_fakeFutureInterface->isCanceled())
             m_fakeFutureInterface->reportCanceled();
     }
     if (m_currentProcess && m_currentProcess->state() != QProcess::NotRunning) {
@@ -231,22 +232,23 @@ void TestRunner::cancelCurrent(TestRunner::CancelReason reason)
 
 void TestRunner::onProcessFinished()
 {
-    m_fakeFutureInterface->setProgressValue(m_fakeFutureInterface->progressValue()
-                                            + m_currentConfig->testCaseCount());
-    if (!m_fakeFutureInterface->isCanceled()) {
-        if (m_currentProcess->exitStatus() == QProcess::CrashExit) {
-            m_currentOutputReader->reportCrash();
-            emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
-                tr("Test for project \"%1\" crashed.").arg(m_currentConfig->displayName())
-                    + processInformation(m_currentProcess) + rcInfo(m_currentConfig))));
-        } else if (!m_currentOutputReader->hadValidOutput()) {
-            emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
-                tr("Test for project \"%1\" did not produce any expected output.")
+    if (m_currentConfig) {
+        m_fakeFutureInterface->setProgressValue(m_fakeFutureInterface->progressValue()
+                                                + m_currentConfig->testCaseCount());
+        if (!m_fakeFutureInterface->isCanceled()) {
+            if (m_currentProcess->exitStatus() == QProcess::CrashExit) {
+                m_currentOutputReader->reportCrash();
+                emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
+                        tr("Test for project \"%1\" crashed.").arg(m_currentConfig->displayName())
+                        + processInformation(m_currentProcess) + rcInfo(m_currentConfig))));
+            } else if (!m_currentOutputReader->hadValidOutput()) {
+                emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
+                    tr("Test for project \"%1\" did not produce any expected output.")
                     .arg(m_currentConfig->displayName()) + processInformation(m_currentProcess)
-                                                         + rcInfo(m_currentConfig))));
+                    + rcInfo(m_currentConfig))));
+            }
         }
     }
-
     resetInternalPointers();
 
     if (!m_selectedTests.isEmpty() && !m_fakeFutureInterface->isCanceled())
