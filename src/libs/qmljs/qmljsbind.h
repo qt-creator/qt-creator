@@ -66,6 +66,7 @@ protected:
 
     bool visit(AST::UiProgram *ast) override;
     bool visit(AST::Program *ast) override;
+    void endVisit(AST::UiProgram *) override;
 
     // Ui
     bool visit(AST::UiImport *ast) override;

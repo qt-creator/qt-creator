@@ -29,6 +29,8 @@
 #include "qmljsdocument.h"
 #include "qmljsmodelmanagerinterface.h"
 
+#include <utils/algorithm.h>
+
 using namespace LanguageUtils;
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -176,6 +178,17 @@ bool Bind::visit(AST::Program *)
     _currentObjectValue = _valueOwner.newObject(/*prototype =*/ 0);
     _rootObjectValue = _currentObjectValue;
     return true;
+}
+
+void Bind::endVisit(UiProgram *)
+{
+    if (_doc->language() == Dialect::QmlQbs) {
+        static const QString qbsBaseImport = QStringLiteral("qbs");
+        static auto isQbsBaseImport = [] (const ImportInfo &ii) {
+            return ii.name() == qbsBaseImport; };
+        if (!Utils::anyOf(_imports, isQbsBaseImport))
+            _imports += ImportInfo::moduleImport(qbsBaseImport, ComponentVersion(), QString());
+    }
 }
 
 bool Bind::visit(UiImport *ast)
