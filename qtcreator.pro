@@ -19,7 +19,7 @@ DISTFILES += dist/copyright_template.txt \
     README.md \
     $$files(dist/changes-*) \
     qtcreator.qbs \
-    qbs/pluginjson/pluginjson.qbs \
+    $$files(qbs/*, true) \
     $$files(scripts/*.py) \
     $$files(scripts/*.sh) \
     $$files(scripts/*.pl)
