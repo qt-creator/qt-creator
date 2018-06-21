@@ -43,7 +43,7 @@ EditorWidget::EditorWidget(QWidget *parent) :
     Utils::FancyMainWindow(parent),
     m_stack(new FormEditorStack)
 {
-    setObjectName(QLatin1String("EditorWidget"));
+    setObjectName("EditorWidget");
     setCentralWidget(m_stack);
     setDocumentMode(true);
     setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::South);
@@ -69,8 +69,8 @@ EditorWidget::EditorWidget(QWidget *parent) :
 void EditorWidget::resetToDefaultLayout()
 {
     setTrackingEnabled(false);
-    QList<QDockWidget *> dockWidgetList = dockWidgets();
-    foreach (QDockWidget *dockWidget, dockWidgetList) {
+    const QList<QDockWidget *> dockWidgetList = dockWidgets();
+    for (QDockWidget *dockWidget : dockWidgetList) {
         dockWidget->setFloating(false);
         removeDockWidget(dockWidget);
     }
@@ -84,7 +84,7 @@ void EditorWidget::resetToDefaultLayout()
     tabifyDockWidget(m_designerDockWidgets[ActionEditorSubWindow],
                      m_designerDockWidgets[SignalSlotEditorSubWindow]);
 
-    foreach (QDockWidget *dockWidget, dockWidgetList)
+    for (QDockWidget *dockWidget : dockWidgetList)
         dockWidget->show();
 
     setTrackingEnabled(true);

@@ -30,20 +30,18 @@
 namespace ClassView {
 namespace Internal {
 
-class Plugin : public ExtensionSystem::IPlugin
+class ClassViewPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClassView.json")
 
 public:
-    //! Constructor
-    Plugin() {}
+    ClassViewPlugin() = default;
+    ~ClassViewPlugin() final;
 
-    //! \implements ExtensionSystem::IPlugin::initialize
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-
-    //! \implements ExtensionSystem::IPlugin::extensionsInitialized
-    void extensionsInitialized() {}
+private:
+    bool initialize(const QStringList &arguments, QString *errorMessage = nullptr) final;
+    void extensionsInitialized() final {}
 };
 
 } // namespace Internal

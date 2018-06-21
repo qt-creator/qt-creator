@@ -91,7 +91,7 @@ void SshChannelManager::handleChannelOpen(const SshIncomingPacket &packet)
         try {
             m_sendFacility.sendChannelOpenFailurePacket(channelOpen.remoteChannel, reason,
                                                         QByteArray());
-        }  catch (const Botan::Exception &e) {
+        }  catch (const std::exception &e) {
             qCWarning(sshLog, "Botan error: %s", e.what());
         }
         return;

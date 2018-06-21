@@ -100,7 +100,7 @@ void GraphicsView::updateView()
 
 void GraphicsView::resizeEvent(QResizeEvent *event)
 {
-    QRect r(QPoint(0, 0), event->size());
+    Q_UNUSED(event)
 
     // Init layout item if necessary
     initLayoutItem();

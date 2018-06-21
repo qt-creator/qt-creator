@@ -80,9 +80,6 @@ ExtraCompiler::ExtraCompiler(const Project *project, const Utils::FileName &sour
         d->contents.insert(target, QByteArray());
     d->timer.setSingleShot(true);
 
-    connect(d->project, &Project::activeTargetChanged, this, &ExtraCompiler::onActiveTargetChanged);
-    onActiveTargetChanged();
-
     connect(&d->timer, &QTimer::timeout, this, [this](){
         if (d->dirty && d->lastEditor) {
             d->dirty = false;
@@ -254,41 +251,6 @@ void ExtraCompiler::onEditorAboutToClose(Core::IEditor *editor)
     d->lastEditor = nullptr;
 }
 
-void ExtraCompiler::onActiveTargetChanged()
-{
-    disconnect(d->activeBuildConfigConnection);
-    if (Target *target = d->project->activeTarget()) {
-        d->activeBuildConfigConnection = connect(
-                target, &Target::activeBuildConfigurationChanged,
-                this, &ExtraCompiler::onActiveBuildConfigurationChanged);
-        onActiveBuildConfigurationChanged();
-    } else {
-        disconnect(d->activeEnvironmentConnection);
-        setDirty();
-    }
-}
-
-void ExtraCompiler::onActiveBuildConfigurationChanged()
-{
-    disconnect(d->activeEnvironmentConnection);
-    Target *target = d->project->activeTarget();
-    QTC_ASSERT(target, return);
-    if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
-        d->activeEnvironmentConnection = connect(
-                    bc, &BuildConfiguration::environmentChanged,
-                    this, &ExtraCompiler::setDirty);
-    } else {
-        d->activeEnvironmentConnection = connect(KitManager::instance(), &KitManager::kitUpdated,
-                                                 this, [this](Kit *kit) {
-            Target *target = d->project->activeTarget();
-            QTC_ASSERT(target, return);
-            if (kit == target->kit())
-                setDirty();
-        });
-    }
-    setDirty();
-}
-
 Utils::Environment ExtraCompiler::buildEnvironment() const
 {
     if (Target *target = project()->activeTarget()) {
@@ -353,15 +315,12 @@ void ExtraCompiler::setContent(const Utils::FileName &file, const QByteArray &co
 
 ExtraCompilerFactory::ExtraCompilerFactory(QObject *parent) : QObject(parent)
 {
+    factories->append(this);
 }
 
-void ExtraCompilerFactory::registerExtraCompilerFactory(ExtraCompilerFactory *factory)
+ExtraCompilerFactory::~ExtraCompilerFactory()
 {
-    QList<ExtraCompilerFactory *> *factoryList = factories();
-    factoryList->append(factory);
-    connect(factory, &QObject::destroyed, [factoryList, factory]() {
-        factoryList->removeAll(factory);
-    });
+    factories->removeAll(this);
 }
 
 QList<ExtraCompilerFactory *> ExtraCompilerFactory::extraCompilerFactories()
@@ -384,13 +343,13 @@ ProcessExtraCompiler::~ProcessExtraCompiler()
 
 void ProcessExtraCompiler::run(const QByteArray &sourceContents)
 {
-    ContentProvider contents = [this, sourceContents]() { return sourceContents; };
+    ContentProvider contents = [sourceContents]() { return sourceContents; };
     runImpl(contents);
 }
 
 void ProcessExtraCompiler::run(const Utils::FileName &fileName)
 {
-    ContentProvider contents = [this, fileName]() {
+    ContentProvider contents = [fileName]() {
         QFile file(fileName.toString());
         if (!file.open(QFile::ReadOnly | QFile::Text))
             return QByteArray();

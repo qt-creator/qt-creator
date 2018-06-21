@@ -38,22 +38,22 @@ class OpenOcdGdbServerProviderFactory;
 class OpenOcdGdbServerProvider : public GdbServerProvider
 {
 public:
-    QString typeDisplayName() const;
+    QString typeDisplayName() const final;
 
-    QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &data);
+    QVariantMap toMap() const final;
+    bool fromMap(const QVariantMap &data) final;
 
-    bool operator==(const GdbServerProvider &) const;
+    bool operator==(const GdbServerProvider &) const final;
 
-    GdbServerProviderConfigWidget *configurationWidget();
-    GdbServerProvider *clone() const;
+    GdbServerProviderConfigWidget *configurationWidget() final;
+    GdbServerProvider *clone() const final;
 
-    QString channel() const;
-    QString executable() const;
-    QStringList arguments() const;
+    QString channel() const final;
+    QString executable() const final;
+    QStringList arguments() const final;
 
-    bool canStartupMode(StartupMode mode) const;
-    bool isValid() const;
+    bool canStartupMode(StartupMode mode) const final;
+    bool isValid() const final;
 
 private:
     explicit OpenOcdGdbServerProvider();
@@ -80,10 +80,10 @@ class OpenOcdGdbServerProviderFactory : public GdbServerProviderFactory
 public:
     explicit OpenOcdGdbServerProviderFactory();
 
-    GdbServerProvider *create();
+    GdbServerProvider *create() final;
 
-    bool canRestore(const QVariantMap &data);
-    GdbServerProvider *restore(const QVariantMap &data);
+    bool canRestore(const QVariantMap &data) const final;
+    GdbServerProvider *restore(const QVariantMap &data) final;
 
     GdbServerProviderConfigWidget *configurationWidget(GdbServerProvider *);
 };
@@ -95,12 +95,11 @@ class OpenOcdGdbServerProviderConfigWidget : public GdbServerProviderConfigWidge
 public:
     explicit OpenOcdGdbServerProviderConfigWidget(OpenOcdGdbServerProvider *);
 
-private slots:
+private:
     void startupModeChanged();
 
-private:
-    void applyImpl();
-    void discardImpl();
+    void applyImpl() final;
+    void discardImpl() final;
 
     void setFromProvider();
 

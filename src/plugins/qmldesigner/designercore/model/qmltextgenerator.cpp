@@ -132,7 +132,7 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
 
             switch (value.userType()) {
             case QMetaType::Bool:
-                if (value.value<bool>())
+                if (value.toBool())
                     return QStringLiteral("true");
                 else
                     return QStringLiteral("false");
@@ -167,8 +167,8 @@ QString QmlTextGenerator::toQml(const ModelNode &node, int indentDepth) const
     QString url;
     if (type.contains('.')) {
         QStringList nameComponents = type.split('.');
-        url = nameComponents.first();
-        type = nameComponents.last();
+        url = nameComponents.constFirst();
+        type = nameComponents.constLast();
     }
 
     QString alias;
@@ -272,6 +272,9 @@ QString QmlTextGenerator::propertyToQml(const AbstractProperty &property, int in
 QString QmlTextGenerator::escape(const QString &value)
 {
     QString result = value;
+
+    if (value.count() == 6 && value.startsWith("\\u")) //Do not dobule escape unicode chars
+        return result;
 
     result.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
 

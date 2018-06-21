@@ -24,7 +24,9 @@
 ****************************************************************************/
 
 #include "icore.h"
+
 #include "windowsupport.h"
+#include "dialogs/settingsdialog.h"
 
 #include <app/app_version.h>
 #include <extensionsystem/pluginmanager.h>
@@ -289,7 +291,10 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
+#include <QMessageBox>
+#include <QPushButton>
 #include <QStatusBar>
+#include <QTimer>
 
 using namespace Core::Internal;
 using namespace ExtensionSystem;
@@ -353,7 +358,7 @@ void ICore::showNewItemDialog(const QString &title,
 
 bool ICore::showOptionsDialog(const Id page, QWidget *parent)
 {
-    return m_mainwindow->showOptionsDialog(page, parent);
+    return executeSettingsDialog(parent ? parent : dialogParent(), page);
 }
 
 QString ICore::msgShowOptionsDialog()
@@ -371,10 +376,24 @@ QString ICore::msgShowOptionsDialogToolTip()
                                            "msgShowOptionsDialogToolTip (non-mac version)");
 }
 
+// Display a warning with an additional button to open
+// the settings dialog at a specified page if settingsId is nonempty.
 bool ICore::showWarningWithOptions(const QString &title, const QString &text,
                                    const QString &details, Id settingsId, QWidget *parent)
 {
-    return m_mainwindow->showWarningWithOptions(title, text, details, settingsId, parent);
+    if (!parent)
+        parent = m_mainwindow;
+    QMessageBox msgBox(QMessageBox::Warning, title, text,
+                       QMessageBox::Ok, parent);
+    if (!details.isEmpty())
+        msgBox.setDetailedText(details);
+    QAbstractButton *settingsButton = nullptr;
+    if (settingsId.isValid())
+        settingsButton = msgBox.addButton(tr("Settings..."), QMessageBox::AcceptRole);
+    msgBox.exec();
+    if (settingsButton && msgBox.clickedButton() == settingsButton)
+        return showOptionsDialog(settingsId);
+    return false;
 }
 
 QSettings *ICore::settings(QSettings::Scope scope)
@@ -409,7 +428,7 @@ QString ICore::userResourcePath()
 {
     // Create qtcreator dir if it doesn't yet exist
     const QString configDir = QFileInfo(settings(QSettings::UserScope)->fileName()).path();
-    const QString urp = configDir + QLatin1String("/qtcreator");
+    const QString urp = configDir + '/' + QLatin1String(Constants::IDE_ID);
 
     if (!QFileInfo::exists(urp + QLatin1Char('/'))) {
         QDir dir;
@@ -418,6 +437,12 @@ QString ICore::userResourcePath()
     }
 
     return urp;
+}
+
+QString ICore::installerResourcePath()
+{
+    return QFileInfo(settings(QSettings::SystemScope)->fileName()).path() + '/'
+           + Constants::IDE_ID;
 }
 
 QString ICore::documentationPath()
@@ -448,12 +473,10 @@ static QString compilerString()
 #elif defined(Q_CC_MSVC)
     if (_MSC_VER > 1999)
         return QLatin1String("MSVC <unknown>");
-    if (_MSC_VER >= 1900) // 1900: MSVC 2015
+    if (_MSC_VER >= 1910)
+        return QLatin1String("MSVC 2017");
+    if (_MSC_VER >= 1900)
         return QLatin1String("MSVC 2015");
-    if (_MSC_VER >= 1800) // 1800: MSVC 2013 (yearly release cycle)
-        return QLatin1String("MSVC ") + QString::number(2008 + ((_MSC_VER / 100) - 13));
-    if (_MSC_VER >= 1500) // 1500: MSVC 2008, 1600: MSVC 2010, ... (2-year release cycle)
-        return QLatin1String("MSVC ") + QString::number(2008 + 2 * ((_MSC_VER / 100) - 15));
 #endif
     return QLatin1String("<unknown compiler>");
 }
@@ -461,11 +484,11 @@ static QString compilerString()
 QString ICore::versionString()
 {
     QString ideVersionDescription;
-#ifdef IDE_VERSION_DESCRIPTION
-    ideVersionDescription = tr(" (%1)").arg(QLatin1String(Constants::IDE_VERSION_DESCRIPTION_STR));
-#endif
-    return tr("Qt Creator %1%2").arg(QLatin1String(Constants::IDE_VERSION_LONG),
-                                     ideVersionDescription);
+    if (QLatin1String(Constants::IDE_VERSION_LONG) != QLatin1String(Constants::IDE_VERSION_DISPLAY))
+        ideVersionDescription = tr(" (%1)").arg(QLatin1String(Constants::IDE_VERSION_LONG));
+    return tr("%1 %2%3").arg(QLatin1String(Constants::IDE_DISPLAY_NAME),
+                             QLatin1String(Constants::IDE_VERSION_DISPLAY),
+                             ideVersionDescription);
 }
 
 QString ICore::buildCompatibilityString()
@@ -480,8 +503,14 @@ IContext *ICore::currentContextObject()
     return m_mainwindow->currentContextObject();
 }
 
+QWidget *ICore::currentContextWidget()
+{
+    IContext *context = currentContextObject();
+    return context ? context->widget() : nullptr;
+}
 
-QWidget *ICore::mainWindow()
+
+QMainWindow *ICore::mainWindow()
 {
     return m_mainwindow;
 }
@@ -578,6 +607,56 @@ QString ICore::systemInformation()
      result += QString("Built on %1 %2\n").arg(QLatin1String(__DATE__), QLatin1String(__TIME__));
 #endif
      return result;
+}
+
+static const QByteArray &screenShotsPath()
+{
+    static const QByteArray path = qgetenv("QTC_SCREENSHOTS_PATH");
+    return path;
+}
+
+class ScreenShooter : public QObject
+{
+public:
+    ScreenShooter(QWidget *widget, const QString &name, const QRect &rc)
+        : m_widget(widget), m_name(name), m_rc(rc)
+    {
+        m_widget->installEventFilter(this);
+    }
+
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        QTC_ASSERT(watched == m_widget, return false);
+        if (event->type() == QEvent::Show)
+            QTimer::singleShot(0, this, &ScreenShooter::helper);
+        return false;
+    }
+
+    void helper()
+    {
+        if (m_widget) {
+            QRect rc = m_rc.isValid() ? m_rc : m_widget->rect();
+            QPixmap pm = m_widget->grab(rc);
+            for (int i = 0; ; ++i) {
+                QString fileName = screenShotsPath() + '/' + m_name + QString("-%1.png").arg(i);
+                if (!QFileInfo::exists(fileName)) {
+                    pm.save(fileName);
+                    break;
+                }
+            }
+        }
+        deleteLater();
+    }
+
+    QPointer<QWidget> m_widget;
+    QString m_name;
+    QRect m_rc;
+};
+
+void ICore::setupScreenShooter(const QString &name, QWidget *w, const QRect &rc)
+{
+    if (!screenShotsPath().isEmpty())
+        new ScreenShooter(w, name, rc);
 }
 
 void ICore::saveSettings()

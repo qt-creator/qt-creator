@@ -31,7 +31,7 @@ namespace ClangCodeModel {
 namespace Internal {
 
 ClangCompletionAssistInterface::ClangCompletionAssistInterface(
-        IpcCommunicator &ipcCommunicator,
+        BackendCommunicator &communicator,
         const TextEditor::TextEditorWidget *textEditorWidget,
         int position,
         const QString &fileName,
@@ -39,7 +39,7 @@ ClangCompletionAssistInterface::ClangCompletionAssistInterface(
         const CppTools::ProjectPartHeaderPaths &headerPaths,
         const CPlusPlus::LanguageFeatures &features)
     : AssistInterface(textEditorWidget->document(), position, fileName, reason)
-    , m_ipcCommunicator(ipcCommunicator)
+    , m_communicator(communicator)
     , m_headerPaths(headerPaths)
     , m_languageFeatures(features)
     , m_textEditorWidget(textEditorWidget)
@@ -71,9 +71,9 @@ const TextEditor::TextEditorWidget *ClangCompletionAssistInterface::textEditorWi
     return m_textEditorWidget;
 }
 
-IpcCommunicator &ClangCompletionAssistInterface::ipcCommunicator() const
+BackendCommunicator &ClangCompletionAssistInterface::communicator() const
 {
-    return m_ipcCommunicator;
+    return m_communicator;
 }
 
 } // namespace Internal

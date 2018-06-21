@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/projectexplorer">
-        <file>images/build_small.png</file>
-        <file>images/category_buildrun.png</file>
         <file>images/closetab.png</file>
         <file>images/debugger_start.png</file>
         <file>images/debugger_start@2x.png</file>
@@ -12,6 +10,10 @@
         <file>images/mode_project_mask.png</file>
         <file>images/mode_project_mask@2x.png</file>
         <file>images/projectexplorer.png</file>
+        <file>images/buildhammerhandle.png</file>
+        <file>images/buildhammerhandle@2x.png</file>
+        <file>images/buildhammerhead.png</file>
+        <file>images/buildhammerhead@2x.png</file>
         <file>images/rebuildhammerhandles.png</file>
         <file>images/rebuildhammerhandles@2x.png</file>
         <file>images/rebuildhammerheads.png</file>
@@ -73,5 +75,13 @@
         <file>images/fileoverlay_h@2x.png</file>
         <file>images/fileoverlay_unknown.png</file>
         <file>images/fileoverlay_unknown@2x.png</file>
+        <file>images/cancelbuild_overlay.png</file>
+        <file>images/cancelbuild_overlay@2x.png</file>
+        <file>images/settingscategory_buildrun.png</file>
+        <file>images/settingscategory_buildrun@2x.png</file>
+        <file>images/settingscategory_devices.png</file>
+        <file>images/settingscategory_devices@2x.png</file>
+        <file>images/settingscategory_kits.png</file>
+        <file>images/settingscategory_kits@2x.png</file>
     </qresource>
 </RCC>

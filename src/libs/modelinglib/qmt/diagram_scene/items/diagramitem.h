@@ -37,7 +37,7 @@ class DiagramItem : public ObjectItem
 {
 public:
     explicit DiagramItem(DDiagram *diagram, DiagramSceneModel *diagramSceneModel,
-                         QGraphicsItem *parent = 0);
+                         QGraphicsItem *parent = nullptr);
     ~DiagramItem() override;
 
     void update() override;
@@ -51,9 +51,9 @@ private:
     QSizeF calcMinimumGeometry() const;
     void updateGeometry();
 
-    CustomIconItem *m_customIcon = 0;
-    QGraphicsPolygonItem *m_body = 0;
-    QGraphicsPolygonItem *m_fold = 0;
+    CustomIconItem *m_customIcon = nullptr;
+    QGraphicsPolygonItem *m_body = nullptr;
+    QGraphicsPolygonItem *m_fold = nullptr;
 };
 
 } // namespace qmt

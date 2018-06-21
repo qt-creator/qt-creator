@@ -64,15 +64,11 @@ IDevice::Ptr QnxDeviceWizard::device()
 {
     QSsh::SshConnectionParameters sshParams;
     sshParams.options = QSsh::SshIgnoreDefaultProxy;
-    sshParams.host = m_setupPage->hostName();
-    sshParams.userName = m_setupPage->userName();
-    sshParams.port = 22;
+    sshParams.url = m_setupPage->url();
     sshParams.timeout = 10;
     sshParams.authenticationType = m_setupPage->authenticationType();
-    if (sshParams.authenticationType == QSsh::SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods
-        || sshParams.authenticationType == QSsh::SshConnectionParameters::AuthenticationTypePassword)
-        sshParams.password = m_setupPage->password();
-    else
+    if (sshParams.authenticationType != QSsh::SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods
+            && sshParams.authenticationType != QSsh::SshConnectionParameters::AuthenticationTypePassword)
         sshParams.privateKeyFile = m_setupPage->privateKeyFilePath();
 
     QnxDevice::Ptr device = QnxDevice::create(m_setupPage->configurationName(),

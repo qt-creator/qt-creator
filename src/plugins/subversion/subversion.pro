@@ -20,5 +20,3 @@ SOURCES += annotationhighlighter.cpp \
     subversionsettings.cpp
 
 FORMS += settingspage.ui
-
-RESOURCES += subversion.qrc

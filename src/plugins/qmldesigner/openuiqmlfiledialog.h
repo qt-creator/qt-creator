@@ -38,8 +38,8 @@ class OpenUiQmlFileDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit OpenUiQmlFileDialog(QWidget *parent = 0);
-    ~OpenUiQmlFileDialog();
+    explicit OpenUiQmlFileDialog(QWidget *parent = nullptr);
+    ~OpenUiQmlFileDialog() override;
     bool uiFileOpened() const;
     void setUiQmlFiles(const QString &projectPath, const QStringList &stringList);
     QString uiQmlFile() const;

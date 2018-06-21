@@ -43,23 +43,21 @@ class FormClassWizardDialog : public Core::BaseFileWizard
 public:
     typedef QList<QWizardPage *> WizardPageList;
 
-    explicit FormClassWizardDialog(const Core::BaseFileWizardFactory *factory, QWidget *parent = 0);
+    explicit FormClassWizardDialog(const Core::BaseFileWizardFactory *factory, QWidget *parent = nullptr);
 
     QString path() const;
+    void setPath(const QString &);
 
     Designer::FormClassWizardParameters parameters() const;
 
     bool validateCurrentPage();
 
-public slots:
-    void setPath(const QString &);
-
 protected:
     void initializePage(int id);
 
 private:
-    FormTemplateWizardPage *m_formPage;
-    FormClassWizardPage *m_classPage;
+    FormTemplateWizardPage *m_formPage = nullptr;
+    FormClassWizardPage *m_classPage = nullptr;
     QString m_rawFormTemplate;
 };
 

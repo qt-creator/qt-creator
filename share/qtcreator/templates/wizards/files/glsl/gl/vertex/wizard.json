@@ -6,6 +6,7 @@
     "trDescription": "Creates a vertex shader in the Desktop OpenGL Shading Language (GLSL). Vertex shaders transform the positions, normals and texture coordinates of triangles, points and lines rendered with OpenGL.",
     "trDisplayName": "Vertex Shader (Desktop OpenGL)",
     "trDisplayCategory": "GLSL",
+    "iconText": "vert",
     "platformIndependent": true,
     "enabled": "%{JS: [ %{Plugins} ].indexOf('GLSLEditor') >= 0}",
 

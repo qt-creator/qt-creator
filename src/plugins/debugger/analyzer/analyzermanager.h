@@ -30,25 +30,15 @@
 
 #include "../debuggermainwindow.h"
 
-#include <coreplugin/id.h>
-
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
+
+#include <QWidget>
 
 #include <QCoreApplication>
 
 #include <functional>
 
-QT_BEGIN_NAMESPACE
-class QDockWidget;
-class QAction;
-QT_END_NAMESPACE
-
-namespace ProjectExplorer { class RunConfiguration; }
-
 namespace Debugger {
-
-class AnalyzerRunControl;
 
 /**
  * The mode in which this tool should preferably be run
@@ -64,73 +54,16 @@ enum ToolMode {
     ReleaseMode   = 0x4,
     SymbolsMode   = DebugMode   | ProfileMode,
     OptimizedMode = ProfileMode | ReleaseMode,
-    AnyMode       = DebugMode   | ProfileMode | ReleaseMode
-};
-Q_DECLARE_FLAGS(ToolModes, ToolMode)
-
-/**
- * This class represents an analyzation action, i.e. a tool that runs in a specific mode.
- *
-*/
-
-class DEBUGGER_EXPORT ActionDescription
-{
-    Q_DECLARE_TR_FUNCTIONS(Debugger::AnalyzerAction)
-
-public:
-    ActionDescription() {}
-
-    Core::Id menuGroup() const { return m_menuGroup; }
-    void setMenuGroup(Core::Id menuGroup) { m_menuGroup = menuGroup; }
-
-    QByteArray perspectiveId() const { return m_perspectiveId; }
-    void setPerspectiveId(const QByteArray &id) { m_perspectiveId = id; }
-    void setToolMode(QFlags<ToolMode> mode) { m_toolMode = mode; }
-
-    Core::Id runMode() const { return m_runMode; }
-    void setRunMode(Core::Id mode) { m_runMode = mode; }
-    bool isRunnable(QString *reason = 0) const;
-
-    /// Returns a new engine for the given start parameters.
-    /// Called each time the tool is launched.
-    typedef std::function<AnalyzerRunControl *(ProjectExplorer::RunConfiguration *runConfiguration,
-                                               Core::Id runMode)> RunControlCreator;
-    RunControlCreator runControlCreator() const { return m_runControlCreator; }
-    void setRunControlCreator(const RunControlCreator &creator) { m_runControlCreator = creator; }
-
-    typedef std::function<bool()> ToolPreparer;
-    ToolPreparer toolPreparer() const { return m_toolPreparer; }
-    void setToolPreparer(const ToolPreparer &toolPreparer) { m_toolPreparer = toolPreparer; }
-
-    void startTool() const;
-
-    /// This is only used for setups not using the startup project.
-    typedef std::function<void(ProjectExplorer::RunConfiguration *runConfiguration)> ToolStarter;
-    void setCustomToolStarter(const ToolStarter &toolStarter) { m_customToolStarter = toolStarter; }
-
-    QString toolTip() const { return m_toolTip; }
-    void setToolTip(const QString &toolTip) { m_toolTip = toolTip; }
-
-    QString text() const { return m_text; }
-    void setText(const QString &text) { m_text = text; }
-
-private:
-    QString m_text;
-    QString m_toolTip;
-    Core::Id m_menuGroup;
-    QByteArray m_perspectiveId;
-    QFlags<ToolMode> m_toolMode = AnyMode;
-    Core::Id m_runMode;
-    RunControlCreator m_runControlCreator;
-    ToolStarter m_customToolStarter;
-    ToolPreparer m_toolPreparer;
+    //AnyMode       = DebugMode   | ProfileMode | ReleaseMode
 };
 
 // FIXME: Merge with something sensible.
+DEBUGGER_EXPORT bool wantRunTool(ToolMode toolMode, const QString &toolName);
+DEBUGGER_EXPORT void showCannotStartDialog(const QString &toolName);
 
 // Register a tool for a given start mode.
-DEBUGGER_EXPORT void registerAction(Core::Id actionId, const ActionDescription &desc, QAction *startAction = 0);
 DEBUGGER_EXPORT void registerPerspective(const QByteArray &perspectiveId, const Utils::Perspective *perspective);
+DEBUGGER_EXPORT void setPerspectiveEnabled(const QByteArray &perspectiveId, bool enable);
 DEBUGGER_EXPORT void registerToolbar(const QByteArray &perspectiveId, const Utils::ToolbarDescription &desc);
 
 DEBUGGER_EXPORT void enableMainWindow(bool on);
@@ -145,8 +78,5 @@ DEBUGGER_EXPORT void showPermanentStatusMessage(const QString &message);
 
 DEBUGGER_EXPORT QAction *createStartAction();
 DEBUGGER_EXPORT QAction *createStopAction();
-
-DEBUGGER_EXPORT AnalyzerRunControl *createAnalyzerRunControl(
-    ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode);
 
 } // namespace Debugger

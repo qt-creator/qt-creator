@@ -67,10 +67,10 @@ public:
 
     static ReadResult readFile(const QString &fileName, const QTextCodec *defaultCodec,
                                QStringList *plainText, TextFileFormat *format, QString *errorString,
-                               QByteArray *decodingErrorSample = 0);
+                               QByteArray *decodingErrorSample = nullptr);
     static ReadResult readFile(const QString &fileName, const QTextCodec *defaultCodec,
                                QString *plainText, TextFileFormat *format, QString *errorString,
-                               QByteArray *decodingErrorSample = 0);
+                               QByteArray *decodingErrorSample = nullptr);
     static ReadResult readFileUTF8(const QString &fileName, const QTextCodec *defaultCodec,
                                    QByteArray *plainText, QString *errorString);
 

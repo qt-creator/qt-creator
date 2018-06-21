@@ -29,29 +29,20 @@
 
 using namespace Utils;
 
+CommentDefinition CommentDefinition::CppStyle = CommentDefinition("//", "/*", "*/");
+CommentDefinition CommentDefinition::HashStyle = CommentDefinition("#");
+
 CommentDefinition::CommentDefinition() :
     isAfterWhiteSpaces(false)
 {}
 
-void CommentDefinition::setStyle(Style style)
+CommentDefinition::CommentDefinition(const QString &single, const QString &multiStart,
+                                     const QString &multiEnd)
+    : isAfterWhiteSpaces(false),
+      singleLine(single),
+      multiLineStart(multiStart),
+      multiLineEnd(multiEnd)
 {
-    switch (style) {
-        case CppStyle:
-            singleLine = QLatin1String("//");
-            multiLineStart = QLatin1String("/*");
-            multiLineEnd = QLatin1String("*/");
-            break;
-        case HashStyle:
-            singleLine = QLatin1Char('#');
-            multiLineStart.clear();
-            multiLineEnd.clear();
-            break;
-        case NoStyle:
-            singleLine.clear();
-            multiLineStart.clear();
-            multiLineEnd.clear();
-            break;
-    }
 }
 
 bool CommentDefinition::isValid() const

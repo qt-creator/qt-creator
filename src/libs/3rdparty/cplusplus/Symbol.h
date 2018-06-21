@@ -22,6 +22,7 @@
 
 #include "CPlusPlusForwardDeclarations.h"
 
+namespace Utils { struct Link; }
 
 namespace CPlusPlus {
 
@@ -196,6 +197,8 @@ public:
 
     /// Returns true if this Symbol is an Objective-C @property declaration.
     bool isObjCPropertyDeclaration() const;
+
+    Utils::Link toLink() const;
 
     virtual const Scope *asScope() const { return 0; }
     virtual const Enum *asEnum() const { return 0; }

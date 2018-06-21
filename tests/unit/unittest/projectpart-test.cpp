@@ -47,7 +47,7 @@ TEST(ProjectPart, CreateProjectPart)
 
     ClangBackEnd::ProjectPart project(projectPath);
 
-    ASSERT_THAT(project.projectPartId(), projectPath);
+    ASSERT_THAT(project.id(), projectPath);
 }
 
 TEST(ProjectPart, CreateProjectPartWithProjectPartContainer)
@@ -56,7 +56,7 @@ TEST(ProjectPart, CreateProjectPartWithProjectPartContainer)
 
     ClangBackEnd::ProjectPart project(projectContainer);
 
-    ASSERT_THAT(project.projectPartId(), Utf8StringLiteral("pathToProjectPart.pro"));
+    ASSERT_THAT(project.id(), Utf8StringLiteral("pathToProjectPart.pro"));
     ASSERT_THAT(project.arguments(), Contains(Utf8StringLiteral("-O")));
 }
 
@@ -104,8 +104,8 @@ TEST(ProjectPart, AddProjectParts)
 
     projects.createOrUpdate({projectContainer});
 
-    ASSERT_THAT(projects.project(projectContainer.projectPartId()), ClangBackEnd::ProjectPart(projectContainer));
-    ASSERT_THAT(projects.project(projectContainer.projectPartId()).arguments(), ElementsAre(Utf8StringLiteral("-O")));
+    ASSERT_THAT(projects.project(projectContainer.projectPartId), ClangBackEnd::ProjectPart(projectContainer));
+    ASSERT_THAT(projects.project(projectContainer.projectPartId).arguments(), ElementsAre(Utf8StringLiteral("-O")));
 }
 
 TEST(ProjectPart, UpdateProjectParts)
@@ -117,8 +117,8 @@ TEST(ProjectPart, UpdateProjectParts)
 
     projects.createOrUpdate({projectContainerWithNewArguments});
 
-    ASSERT_THAT(projects.project(projectContainer.projectPartId()), ClangBackEnd::ProjectPart(projectContainer));
-    ASSERT_THAT(projects.project(projectContainer.projectPartId()).arguments(), ElementsAre(Utf8StringLiteral("-fast")));
+    ASSERT_THAT(projects.project(projectContainer.projectPartId), ClangBackEnd::ProjectPart(projectContainer));
+    ASSERT_THAT(projects.project(projectContainer.projectPartId).arguments(), ElementsAre(Utf8StringLiteral("-fast")));
 }
 
 TEST(ProjectPart, ThrowExceptionForAccesingRemovedProjectParts)
@@ -127,9 +127,9 @@ TEST(ProjectPart, ThrowExceptionForAccesingRemovedProjectParts)
     ClangBackEnd::ProjectParts projects;
     projects.createOrUpdate({projectContainer});
 
-    projects.remove({projectContainer.projectPartId()});
+    projects.remove({projectContainer.projectPartId});
 
-    ASSERT_THROW(projects.project(projectContainer.projectPartId()), ClangBackEnd::ProjectPartDoNotExistException);
+    ASSERT_THROW(projects.project(projectContainer.projectPartId), ClangBackEnd::ProjectPartDoNotExistException);
 }
 
 TEST(ProjectPart, ProjectPartProjectPartIdIsEmptyfterRemoving)
@@ -137,11 +137,11 @@ TEST(ProjectPart, ProjectPartProjectPartIdIsEmptyfterRemoving)
     ClangBackEnd::ProjectPartContainer projectContainer(Utf8StringLiteral("pathToProjectPart.pro"), {Utf8StringLiteral("-O")});
     ClangBackEnd::ProjectParts projects;
     projects.createOrUpdate({projectContainer});
-    ClangBackEnd::ProjectPart project(projects.project(projectContainer.projectPartId()));
+    ClangBackEnd::ProjectPart project(projects.project(projectContainer.projectPartId));
 
-    projects.remove({projectContainer.projectPartId()});
+    projects.remove({projectContainer.projectPartId});
 
-    ASSERT_TRUE(project.projectPartId().isEmpty());
+    ASSERT_TRUE(project.id().isEmpty());
 }
 
 TEST(ProjectPart, ThrowsForNotExistingProjectPartButRemovesAllExistingProject)
@@ -151,7 +151,7 @@ TEST(ProjectPart, ThrowsForNotExistingProjectPartButRemovesAllExistingProject)
     projects.createOrUpdate({projectContainer});
     ClangBackEnd::ProjectPart project = *projects.findProjectPart(Utf8StringLiteral("pathToProjectPart.pro"));
 
-    EXPECT_THROW(projects.remove({Utf8StringLiteral("doesnotexist.pro"), projectContainer.projectPartId()}),  ClangBackEnd::ProjectPartDoNotExistException);
+    EXPECT_THROW(projects.remove({Utf8StringLiteral("doesnotexist.pro"), projectContainer.projectPartId}),  ClangBackEnd::ProjectPartDoNotExistException);
 
     ASSERT_THAT(projects.projects(), Not(Contains(project)));
 }
@@ -161,13 +161,13 @@ TEST(ProjectPart, ProjectPartIsClearedAfterRemove)
     ClangBackEnd::ProjectPartContainer projectContainer(Utf8StringLiteral("pathToProjectPart.pro"));
     ClangBackEnd::ProjectParts projects;
     projects.createOrUpdate({projectContainer});
-    ClangBackEnd::ProjectPart project = *projects.findProjectPart(projectContainer.projectPartId());
+    ClangBackEnd::ProjectPart project = *projects.findProjectPart(projectContainer.projectPartId);
     const auto lastChangeTimePoint = project.lastChangeTimePoint();
     std::this_thread::sleep_for(ClangBackEnd::Duration(1));
 
-    projects.remove({projectContainer.projectPartId()});
+    projects.remove({projectContainer.projectPartId});
 
-    ASSERT_THAT(project.projectPartId(), Utf8String());
+    ASSERT_THAT(project.id(), Utf8String());
     ASSERT_THAT(project.arguments().count(), 0);
     ASSERT_THAT(project.lastChangeTimePoint(), Gt(lastChangeTimePoint));
 }
@@ -178,7 +178,7 @@ TEST(ProjectPart, HasProjectPart)
     ClangBackEnd::ProjectParts projects;
     projects.createOrUpdate({projectContainer});
 
-    ASSERT_TRUE(projects.hasProjectPart(projectContainer.projectPartId()));
+    ASSERT_TRUE(projects.hasProjectPart(projectContainer.projectPartId));
 }
 
 TEST(ProjectPart, DoNotHasProjectPart)
@@ -189,6 +189,5 @@ TEST(ProjectPart, DoNotHasProjectPart)
 
     ASSERT_FALSE(projects.hasProjectPart(Utf8StringLiteral("doesnotexist.pro")));
 }
-
 
 }

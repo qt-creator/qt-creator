@@ -57,13 +57,13 @@ signals:
     void gradientChanged();
     void openColorDialog(const QPoint &pos);
 protected:
-    bool event(QEvent *event);
-    void keyPressEvent(QKeyEvent * event);
-    void paintEvent(QPaintEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseDoubleClickEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *);
-    void mouseMoveEvent(QMouseEvent *);
+    bool event(QEvent *event) override;
+    void keyPressEvent(QKeyEvent * event) override;
+    void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *) override;
+    void mouseMoveEvent(QMouseEvent *) override;
 
 private:
     void setup();

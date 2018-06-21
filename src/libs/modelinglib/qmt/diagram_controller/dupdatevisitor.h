@@ -52,14 +52,15 @@ public:
     void visitMDependency(const MDependency *dependency) override;
     void visitMInheritance(const MInheritance *inheritance) override;
     void visitMAssociation(const MAssociation *association) override;
+    void visitMConnection(const MConnection *connection) override;
 
 private:
     bool isUpdating(bool valueChanged);
 
-    DElement *m_target;
-    const MDiagram *m_diagram;
-    bool m_checkNeedsUpdate;
-    bool m_isUpdateNeeded;
+    DElement *m_target = nullptr;
+    const MDiagram *m_diagram = nullptr;
+    bool m_checkNeedsUpdate = false;
+    bool m_isUpdateNeeded = false;
 };
 
 } // namespace qmt

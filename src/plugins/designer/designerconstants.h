@@ -36,7 +36,6 @@ const char C_DESIGNER_XML_EDITOR[] = "Designer Xml Editor";
 const char C_DESIGNER_XML_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("Designer", "Form Editor");
 
 const char SETTINGS_CATEGORY[] = "P.Designer";
-const char SETTINGS_CATEGORY_ICON[] = ":/core/images/category_design.png";
 const char SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Designer", "Designer");
 
 // Context

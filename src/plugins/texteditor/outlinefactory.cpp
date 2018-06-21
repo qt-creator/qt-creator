@@ -38,6 +38,19 @@
 #include <QDebug>
 
 namespace TextEditor {
+
+static QList<IOutlineWidgetFactory *> g_outlineWidgetFactories;
+
+IOutlineWidgetFactory::IOutlineWidgetFactory()
+{
+    g_outlineWidgetFactories.append(this);
+}
+
+IOutlineWidgetFactory::~IOutlineWidgetFactory()
+{
+    g_outlineWidgetFactories.removeOne(this);
+}
+
 namespace Internal {
 
 OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
@@ -55,14 +68,18 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     addWidget(label);
 
     m_toggleSync = new QToolButton;
-    m_toggleSync->setIcon(Utils::Icons::LINK.icon());
+    m_toggleSync->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
     m_toggleSync->setCheckable(true);
     m_toggleSync->setChecked(true);
     m_toggleSync->setToolTip(tr("Synchronize with Editor"));
     connect(m_toggleSync, &QAbstractButton::clicked,
             this, &OutlineWidgetStack::toggleCursorSynchronization);
 
-    m_filterButton = new QToolButton;
+    m_filterButton = new QToolButton(this);
+    // The ToolButton needs a parent because updateFilterMenu() sets
+    // it visible. That would open a top-level window if the button
+    // did not have a parent in that moment.
+
     m_filterButton->setIcon(Utils::Icons::FILTER.icon());
     m_filterButton->setToolTip(tr("Filter tree"));
     m_filterButton->setPopupMode(QToolButton::InstantPopup);
@@ -89,37 +106,36 @@ QToolButton *OutlineWidgetStack::filterButton()
     return m_filterButton;
 }
 
-void OutlineWidgetStack::restoreSettings(int position)
+void OutlineWidgetStack::saveSettings(QSettings *settings, int position)
 {
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String("Sidebar.Outline.") + QString::number(position));
+    const QString baseKey = QStringLiteral("Outline.%1.").arg(position);
+    settings->setValue(baseKey + QLatin1String("SyncWithEditor"), toggleSyncButton()->isChecked());
+    for (auto iter = m_widgetSettings.constBegin(); iter != m_widgetSettings.constEnd(); ++iter)
+        settings->setValue(baseKey + iter.key(), iter.value());
+}
+
+void OutlineWidgetStack::restoreSettings(QSettings *settings, int position)
+{
+    const QString baseKey = QStringLiteral("Outline.%1.").arg(position);
 
     bool syncWithEditor = true;
     m_widgetSettings.clear();
-    foreach (const QString &key, settings->allKeys()) {
+    foreach (const QString &longKey, settings->allKeys()) {
+        if (!longKey.startsWith(baseKey))
+            continue;
+
+        const QString key = longKey.mid(baseKey.length());
+
         if (key == QLatin1String("SyncWithEditor")) {
-            syncWithEditor = settings->value(key).toBool();
+            syncWithEditor = settings->value(longKey).toBool();
             continue;
         }
-        m_widgetSettings.insert(key, settings->value(key));
+        m_widgetSettings.insert(key, settings->value(longKey));
     }
-    settings->endGroup();
 
     toggleSyncButton()->setChecked(syncWithEditor);
     if (IOutlineWidget *outlineWidget = qobject_cast<IOutlineWidget*>(currentWidget()))
         outlineWidget->restoreSettings(m_widgetSettings);
-}
-
-void OutlineWidgetStack::saveSettings(int position)
-{
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String("Sidebar.Outline.") + QString::number(position));
-
-    settings->setValue(QLatin1String("SyncWithEditor"), toggleSyncButton()->isChecked());
-    for (auto iter = m_widgetSettings.constBegin(); iter != m_widgetSettings.constEnd(); ++iter)
-        settings->setValue(iter.key(), iter.value());
-
-    settings->endGroup();
 }
 
 bool OutlineWidgetStack::isCursorSynchronized() const
@@ -150,7 +166,7 @@ void OutlineWidgetStack::updateCurrentEditor(Core::IEditor *editor)
     IOutlineWidget *newWidget = 0;
 
     if (editor) {
-        foreach (IOutlineWidgetFactory *widgetFactory, m_factory->widgetFactories()) {
+        for (IOutlineWidgetFactory *widgetFactory : g_outlineWidgetFactories) {
             if (widgetFactory->supportsEditor(editor)) {
                 newWidget = widgetFactory->createWidget(editor);
                 break;
@@ -186,16 +202,6 @@ OutlineFactory::OutlineFactory()
     setPriority(600);
 }
 
-QList<IOutlineWidgetFactory*> OutlineFactory::widgetFactories() const
-{
-    return m_factories;
-}
-
-void OutlineFactory::setWidgetFactories(QList<IOutlineWidgetFactory*> factories)
-{
-    m_factories = factories;
-}
-
 Core::NavigationView OutlineFactory::createWidget()
 {
     Core::NavigationView n;
@@ -206,18 +212,18 @@ Core::NavigationView OutlineFactory::createWidget()
     return n;
 }
 
-void OutlineFactory::saveSettings(int position, QWidget *widget)
+void OutlineFactory::saveSettings(QSettings *settings, int position, QWidget *widget)
 {
     OutlineWidgetStack *widgetStack = qobject_cast<OutlineWidgetStack *>(widget);
     Q_ASSERT(widgetStack);
-    widgetStack->saveSettings(position);
+    widgetStack->saveSettings(settings, position);
 }
 
-void OutlineFactory::restoreSettings(int position, QWidget *widget)
+void OutlineFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
 {
     OutlineWidgetStack *widgetStack = qobject_cast<OutlineWidgetStack *>(widget);
     Q_ASSERT(widgetStack);
-    widgetStack->restoreSettings(position);
+    widgetStack->restoreSettings(settings, position);
 }
 
 } // namespace Internal

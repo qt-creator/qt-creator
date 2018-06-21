@@ -174,7 +174,7 @@ public:
 } // end of anonymous namespace
 
 
-void WrapInLoader::match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result)
+void matchWrapInLoaderQuickFix(const QmlJSQuickFixInterface &interface, QuickFixOperations &result)
 {
     const int pos = interface->currentFile()->cursor().position();
 

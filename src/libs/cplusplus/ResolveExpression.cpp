@@ -50,7 +50,7 @@
 
 using namespace CPlusPlus;
 
-static const bool debug = ! qgetenv("QTC_LOOKUPCONTEXT_DEBUG").isEmpty();
+static const bool debug = qEnvironmentVariableIsSet("QTC_LOOKUPCONTEXT_DEBUG");
 
 namespace {
 
@@ -192,7 +192,7 @@ private:
 
     const LookupContext &_context;
     // binding has to be remembered in case of resolving typedefs for templates
-    ClassOrNamespace *_binding;
+    ClassOrNamespace *_binding = nullptr;
 };
 
 static int evaluateFunctionArgument(const FullySpecifiedType &actualTy,
@@ -688,6 +688,31 @@ public:
     bool _block;
 };
 
+class ExpressionDocumentHelper
+{
+public:
+    // Set up an expression document with an external Control
+    ExpressionDocumentHelper(const QByteArray &utf8code, Control *control)
+        : document(Document::create(QLatin1String("<completion>")))
+    {
+        Control *oldControl = document->swapControl(control);
+        delete oldControl->diagnosticClient();
+        delete oldControl;
+        document->setUtf8Source(utf8code);
+        document->parse(Document::ParseExpression);
+        document->check();
+    }
+
+    // Ensure that the external Control is not deleted
+    ~ExpressionDocumentHelper()
+    {
+        document->swapControl(nullptr);
+    }
+
+public:
+    Document::Ptr document;
+};
+
 } // namespace anonymous
 
 bool ResolveExpression::visit(SimpleNameAST *ast)
@@ -730,9 +755,9 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
             exprTyper.init(doc, _context.snapshot(), _context.bindings(),
                            QSet<const Declaration* >(_autoDeclarationsBeingResolved) << decl);
 
-            Document::Ptr exprDoc =
-                    documentForExpression(exprTyper.preprocessedExpression(initializer));
-            exprDoc->check();
+            const ExpressionDocumentHelper exprHelper(exprTyper.preprocessedExpression(initializer),
+                                                      _context.bindings()->control().data());
+            const Document::Ptr exprDoc = exprHelper.document;
 
             DeduceAutoCheck deduceAuto(ast->name->identifier(), exprDoc->translationUnit());
             if (deduceAuto._block)
@@ -925,9 +950,8 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
                 foreach (const LookupItem &r, b->find(arrayAccessOp)) {
                     Symbol *overload = r.declaration();
                     if (Function *funTy = overload->type()->asFunctionType()) {
-                        if (Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType())
-                            // ### TODO: check the actual arguments
-                            addResult(proto->returnType().simplified(), scope);
+                        // ### TODO: check the actual arguments
+                        addResult(funTy->returnType().simplified(), scope, b);
                     }
                 }
 

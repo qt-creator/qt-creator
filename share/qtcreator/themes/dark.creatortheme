@@ -13,9 +13,11 @@ normalBackground=ff333333
 alternateBackground=ff515151
 error=ffd84044
 warning=ffe0b716
+splitterColor=ff313131
 textColorLink=ff007af4
 textColorLinkVisited=ffa57aff
 backgroundColorDisabled=ff444444
+qmlDesignerButtonColor=ff3c3e40
 
 [Colors]
 BackgroundColorAlternate=alternateBackground
@@ -103,7 +105,7 @@ MiniProjectTargetSelectorBorderColor=shadowBackground
 MiniProjectTargetSelectorSummaryBackgroundColor=shadowBackground
 MiniProjectTargetSelectorTextColor=text
 PanelStatusBarBackgroundColor=shadowBackground
-PanelsWidgetSeparatorLineColor=0
+PanelsWidgetSeparatorLineColor=000000
 PanelTextColorDark=text
 PanelTextColorMid=ffa0a0a0
 PanelTextColorLight=text
@@ -112,14 +114,14 @@ ProgressBarColorFinished=ff5aaa3c
 ProgressBarColorNormal=ff808080
 ProgressBarTitleColor=text
 ProgressBarBackgroundColor=normalBackground
-SplitterColor=ff313131
+SplitterColor=splitterColor
 TextColorDisabled=textDisabled
 TextColorError=ffff4040
 TextColorHighlight=ffff0000
+TextColorHighlightBackground=555500
 TextColorLink=textColorLink
 TextColorLinkVisited=textColorLinkVisited
 TextColorNormal=text
-TodoItemTextColor=ff000000
 ToggleButtonBackgroundColor=shadowBackground
 ToolBarBackgroundColor=shadowBackground
 TreeViewArrowColorNormal=hoverBackground
@@ -162,6 +164,7 @@ Welcome_ButtonBackgroundColor=normalBackground
 Welcome_DividerColor=ff555555
 Welcome_HoverColor=ff444444
 Welcome_LinkColor=ff78bb39
+Welcome_DisabledLinkColor=textDisabled
 
 Timeline_TextColor=text
 Timeline_BackgroundColor1=normalBackground
@@ -176,7 +179,7 @@ Timeline_RangeColor=selectedBackground
 VcsBase_FileStatusUnknown_TextColor=text
 VcsBase_FileAdded_TextColor=ff00ff00
 VcsBase_FileModified_TextColor=ff8ee0ff
-VcsBase_FileDeleted_TextColor=fffff6c6c
+VcsBase_FileDeleted_TextColor=ffff6c6c
 VcsBase_FileRenamed_TextColor=ffffa500
 VcsBase_FileUnmerged_TextColor=ffff4040
 
@@ -188,8 +191,8 @@ TextEditor_CurrentLine_ScrollBarColor=ffffffff
 ProjectExplorer_TaskError_TextMarkColor=error
 ProjectExplorer_TaskWarn_TextMarkColor=warning
 
-ClangCodeModel_Error_TextMarkColor=error
-ClangCodeModel_Warning_TextMarkColor=warning
+CodeModel_Error_TextMarkColor=error
+CodeModel_Warning_TextMarkColor=warning
 
 PaletteWindow=normalBackground
 PaletteWindowText=text
@@ -199,6 +202,7 @@ PaletteButton=shadowBackground
 PaletteBrightText=ffff0000
 PaletteText=text
 PaletteButtonText=text
+PaletteButtonTextDisabled=textDisabled
 PaletteToolTipBase=selectedBackground
 PaletteHighlight=selectedBackground
 PaletteDark=shadowBackground
@@ -211,8 +215,19 @@ PaletteWindowTextDisabled=textDisabled
 PaletteBaseDisabled=backgroundColorDisabled
 PaletteTextDisabled=textDisabled
 
-QmlDesigner_BackgroundColor=ff3c3e40
+QmlDesigner_BackgroundColor=qmlDesignerButtonColor
 QmlDesigner_HighlightColor=ff46a2da
+QmlDesigner_FormEditorSelectionColor=ff4ba2ff
+QmlDesigner_FormEditorForegroundColor=ffffffff
+QmlDesigner_BackgroundColorDarkAlternate=qmlDesignerButtonColor
+QmlDesigner_BackgroundColorDarker=ff151515
+QmlDesigner_BorderColor=splitterColor
+QmlDesigner_ButtonColor=ff505050
+QmlDesigner_TabDark=shadowBackground
+QmlDesigner_TabLight=text
+QmlDesigner_FormeditorBackgroundColor=qmlDesignerButtonColor
+QmlDesigner_AlternateBackgroundColor=qmlDesignerButtonColor
+QmlDesigner_ScrollBarHandleColor=ff505050
 
 [Flags]
 ComboBoxDrawTextShadow=false
@@ -231,7 +246,7 @@ ToolBarIconShadow=true
 WindowColorAsBase=false
 
 [Gradients]
-DetailsWidgetHeaderGradient\1\color=0
+DetailsWidgetHeaderGradient\1\color=00000000
 DetailsWidgetHeaderGradient\1\pos=1
 DetailsWidgetHeaderGradient\size=1
 

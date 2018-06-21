@@ -37,7 +37,7 @@ class TEXTEDITOR_EXPORT IOutlineWidget : public QWidget
 {
     Q_OBJECT
 public:
-    IOutlineWidget(QWidget *parent = 0) : QWidget(parent) {}
+    IOutlineWidget(QWidget *parent = nullptr) : QWidget(parent) {}
 
     virtual QList<QAction*> filterMenuActions() const = 0;
     virtual void setCursorSynchronization(bool syncWithCursor) = 0;
@@ -46,9 +46,14 @@ public:
     virtual QVariantMap settings() const { return QVariantMap(); }
 };
 
-class TEXTEDITOR_EXPORT IOutlineWidgetFactory : public QObject {
+class TEXTEDITOR_EXPORT IOutlineWidgetFactory : public QObject
+{
     Q_OBJECT
+
 public:
+    IOutlineWidgetFactory();
+    ~IOutlineWidgetFactory() override;
+
     virtual bool supportsEditor(Core::IEditor *editor) const = 0;
     virtual IOutlineWidget *createWidget(Core::IEditor *editor) = 0;
 };

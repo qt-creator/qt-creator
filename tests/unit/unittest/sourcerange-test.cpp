@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "rundocumentparse-utility.h"
+#include "testenvironment.h"
 
 #include <clangtranslationunit.h>
 #include <diagnostic.h>
@@ -71,29 +73,9 @@ MATCHER_P4(IsSourceLocation, filePath, line, column, offset,
     return true;
 }
 
-struct SourceRangeData {
-    SourceRangeData(Document &document)
-        : diagnosticSet{document.translationUnit().diagnostics()}
-        , diagnostic{diagnosticSet.front()}
-        , diagnosticWithFilteredOutInvalidRange{diagnosticSet.at(1)}
-        , sourceRange{diagnostic.ranges().front()}
-    {
-    }
-
-    DiagnosticSet diagnosticSet;
-    Diagnostic diagnostic;
-    Diagnostic diagnosticWithFilteredOutInvalidRange;
-    ::SourceRange sourceRange;
-};
-
 struct Data {
-    Data()
-    {
-        document.parse();
-        d.reset(new SourceRangeData(document));
-    }
-
-    ProjectPart projectPart{Utf8StringLiteral("projectPartId"), {Utf8StringLiteral("-pedantic")}};
+    ProjectPart projectPart{Utf8StringLiteral("projectPartId"),
+                            TestEnvironment::addPlatformArguments({Utf8StringLiteral("-pedantic")})};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{projects, unsavedFiles};
@@ -102,12 +84,15 @@ struct Data {
                       projectPart,
                       Utf8StringVector(),
                       documents};
+    UnitTest::RunDocumentParse _1{document};
     TranslationUnit translationUnit{filePath,
                                     filePath,
                                     document.translationUnit().cxIndex(),
                                     document.translationUnit().cxTranslationUnit()};
-
-    std::unique_ptr<SourceRangeData> d;
+    DiagnosticSet diagnosticSet{document.translationUnit().diagnostics()};
+    Diagnostic diagnostic{diagnosticSet.front()};
+    Diagnostic diagnosticWithFilteredOutInvalidRange{diagnosticSet.at(1)};
+    ClangBackEnd::SourceRange sourceRange{diagnostic.ranges().front()};
 };
 
 class SourceRange : public ::testing::Test
@@ -117,11 +102,11 @@ public:
     static void TearDownTestCase();
 
 protected:
-    static Data *d;
-    const ::SourceRange &sourceRange = d->d->sourceRange;
-    const Diagnostic &diagnostic = d->d->diagnostic;
-    const Diagnostic &diagnosticWithFilteredOutInvalidRange = d->d->diagnosticWithFilteredOutInvalidRange;
-    const TranslationUnit &translationUnit = d->translationUnit;
+    static std::unique_ptr<const Data> data;
+    const ::SourceRange &sourceRange = data->sourceRange;
+    const Diagnostic &diagnostic = data->diagnostic;
+    const Diagnostic &diagnosticWithFilteredOutInvalidRange = data->diagnosticWithFilteredOutInvalidRange;
+    const TranslationUnit &translationUnit = data->translationUnit;
 };
 
 TEST_F(SourceRange, IsNull)
@@ -176,17 +161,16 @@ TEST_F(SourceRange, InvalidRangeIsFilteredOut)
     ASSERT_THAT(diagnosticWithFilteredOutInvalidRange.ranges(), IsEmpty());
 }
 
-Data *SourceRange::d;
+std::unique_ptr<const Data> SourceRange::data;
 
 void SourceRange::SetUpTestCase()
 {
-    d = new Data;
+    data = std::make_unique<const Data>();
 }
 
 void SourceRange::TearDownTestCase()
 {
-    delete d;
-    d = nullptr;
+    data.reset();
 }
 
 }

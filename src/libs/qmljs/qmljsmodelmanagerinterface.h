@@ -107,7 +107,7 @@ public:
         typedef QHash<QString, QPair<QString, int> > Table;
 
         void insert(const QString &fileName, const QString &source, int revision = 0)
-        { _elements.insert(fileName, qMakePair(source, revision)); }
+        { _elements.insert(fileName, {source, revision}); }
 
         bool contains(const QString &fileName) const
         { return _elements.contains(fileName); }
@@ -178,7 +178,7 @@ public:
     QList<ProjectInfo> allProjectInfosForPath(const QString &path) const;
     bool isIdle() const ;
 
-    PathsAndLanguages importPaths() const;
+    QStringList importPathsNames() const;
     QmlJS::QmlLanguageBundles activeBundles() const;
     QmlJS::QmlLanguageBundles extendedBundles() const;
 
@@ -205,7 +205,7 @@ public:
                     WorkingCopy workingCopyInternal,
                     PathsAndLanguages paths,
                     ModelManagerInterface *modelManager,
-                    bool emitDocChangedOnDisk, bool libOnly = true);
+                    bool emitDocChangedOnDisk, bool libOnly = true, bool forceRescan = false);
 
     virtual void resetCodeModel();
     void removeProjectInfo(ProjectExplorer::Project *project);
@@ -242,7 +242,7 @@ protected:
                       ModelManagerInterface *modelManager,
                       QmlJS::Dialect mainLanguage,
                       bool emitDocChangedOnDisk);
-    static void updateCppQmlTypes(QFutureInterface<void> &interface,
+    static void updateCppQmlTypes(QFutureInterface<void> &futureInterface,
                                   ModelManagerInterface *qmlModelManager,
                                   CPlusPlus::Snapshot snapshot,
                                   QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > documents);

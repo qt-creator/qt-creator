@@ -51,7 +51,6 @@ public:
     AutotoolsProjectNode(const Utils::FileName &projectDirectory);
 
     bool showInSimpleTree() const override;
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
 };
 
 } // namespace Internal

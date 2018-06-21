@@ -79,12 +79,7 @@ public:
 };
 
 SearchResultWidget::SearchResultWidget(QWidget *parent) :
-    QWidget(parent),
-    m_count(0),
-    m_preserveCaseSupported(true),
-    m_isShowingReplaceUI(false),
-    m_searchAgainSupported(false),
-    m_replaceSupported(false)
+    QWidget(parent)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
@@ -157,6 +152,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_label = new QLabel(m_descriptionContainer);
     m_label->setVisible(false);
     m_searchTerm = new QLabel(m_descriptionContainer);
+    m_searchTerm->setTextFormat(Qt::PlainText);
     m_searchTerm->setVisible(false);
     descriptionLayout->addWidget(m_label);
     descriptionLayout->addWidget(m_searchTerm);
@@ -166,24 +162,27 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     connect(m_cancelButton, &QAbstractButton::clicked, this, &SearchResultWidget::cancel);
     m_searchAgainButton = new QToolButton(topFindWidget);
     m_searchAgainButton->setToolTip(tr("Repeat the search with same parameters."));
-    m_searchAgainButton->setText(tr("Search again"));
+    m_searchAgainButton->setText(tr("&Search Again"));
     m_searchAgainButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
     m_searchAgainButton->setVisible(false);
     connect(m_searchAgainButton, &QAbstractButton::clicked, this, &SearchResultWidget::searchAgain);
 
-    m_replaceLabel = new QLabel(tr("Replace with:"), m_topReplaceWidget);
+    m_replaceLabel = new QLabel(tr("Repla&ce with:"), m_topReplaceWidget);
     m_replaceTextEdit = new WideEnoughLineEdit(m_topReplaceWidget);
+    m_replaceLabel->setBuddy(m_replaceTextEdit);
     m_replaceTextEdit->setMinimumWidth(120);
     m_replaceTextEdit->setEnabled(false);
     m_replaceTextEdit->setTabOrder(m_replaceTextEdit, m_searchResultTreeView);
+    m_preserveCaseCheck = new QCheckBox(m_topReplaceWidget);
+    m_preserveCaseCheck->setText(tr("Preser&ve case"));
+    m_preserveCaseCheck->setEnabled(false);
+    m_renameFilesCheckBox = new QCheckBox(m_topReplaceWidget);
+    m_renameFilesCheckBox->setVisible(false);
     m_replaceButton = new QToolButton(m_topReplaceWidget);
     m_replaceButton->setToolTip(tr("Replace all occurrences."));
-    m_replaceButton->setText(tr("Replace"));
+    m_replaceButton->setText(tr("&Replace"));
     m_replaceButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
     m_replaceButton->setEnabled(false);
-    m_preserveCaseCheck = new QCheckBox(m_topReplaceWidget);
-    m_preserveCaseCheck->setText(tr("Preserve case"));
-    m_preserveCaseCheck->setEnabled(false);
 
     m_preserveCaseCheck->setChecked(Find::hasFindFlag(FindPreserveCase));
     connect(m_preserveCaseCheck, &QAbstractButton::clicked, Find::instance(), &Find::setPreserveCase);
@@ -198,8 +197,9 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     topFindLayout->addWidget(m_matchesFoundLabel);
     topReplaceLayout->addWidget(m_replaceLabel);
     topReplaceLayout->addWidget(m_replaceTextEdit);
-    topReplaceLayout->addWidget(m_replaceButton);
     topReplaceLayout->addWidget(m_preserveCaseCheck);
+    topReplaceLayout->addWidget(m_renameFilesCheckBox);
+    topReplaceLayout->addWidget(m_replaceButton);
     topReplaceLayout->addStretch(2);
     setShowReplaceUI(m_replaceSupported);
     setSupportPreserveCase(true);
@@ -225,6 +225,11 @@ void SearchResultWidget::setInfo(const QString &label, const QString &toolTip, c
     m_descriptionContainer->setToolTip(toolTip);
     m_searchTerm->setText(term);
     m_searchTerm->setVisible(!term.isEmpty());
+}
+
+QWidget *SearchResultWidget::additionalReplaceWidget() const
+{
+    return m_renameFilesCheckBox;
 }
 
 void SearchResultWidget::addResult(const QString &fileName,
@@ -285,8 +290,6 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
     }
 }
 
-
-
 int SearchResultWidget::count() const
 {
     return m_count;
@@ -298,7 +301,6 @@ void SearchResultWidget::setSupportsReplace(bool replaceSupported, const QString
     setShowReplaceUI(replaceSupported);
     m_dontAskAgainGroup = group;
 }
-
 
 void SearchResultWidget::setTextToReplace(const QString &textToReplace)
 {
@@ -409,7 +411,7 @@ void SearchResultWidget::restart()
     m_count = 0;
     Id sizeWarningId(SIZE_WARNING_ID);
     m_infoBar.removeInfo(sizeWarningId);
-    m_infoBar.enableInfo(sizeWarningId);
+    m_infoBar.unsuppressInfo(sizeWarningId);
     m_cancelButton->setVisible(true);
     m_searchAgainButton->setVisible(false);
     m_messageWidget->setVisible(false);
@@ -432,7 +434,7 @@ void SearchResultWidget::finishSearch(bool canceled)
 {
     Id sizeWarningId(SIZE_WARNING_ID);
     m_infoBar.removeInfo(sizeWarningId);
-    m_infoBar.enableInfo(sizeWarningId);
+    m_infoBar.unsuppressInfo(sizeWarningId);
     m_replaceTextEdit->setEnabled(m_count > 0);
     m_replaceButton->setEnabled(m_count > 0);
     m_preserveCaseCheck->setEnabled(m_count > 0);

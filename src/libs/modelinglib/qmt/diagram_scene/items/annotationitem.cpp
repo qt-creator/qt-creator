@@ -60,7 +60,7 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
     {
-        QMT_CHECK(option);
+        QMT_ASSERT(option, return);
 
         QStyleOptionGraphicsItem option2(*option);
         option2.state &= ~(QStyle::State_Selected | QStyle::State_HasFocus);
@@ -213,6 +213,21 @@ void AnnotationItem::setFocusSelected(bool focusSelected)
     }
 }
 
+QRectF AnnotationItem::getSecondarySelectionBoundary()
+{
+    return QRectF();
+}
+
+void AnnotationItem::setBoundarySelected(const QRectF &boundary, bool secondary)
+{
+    if (boundary.contains(mapRectToScene(boundingRect()))) {
+        if (secondary)
+            setSecondarySelected(true);
+        else
+            setSelected(true);
+    }
+}
+
 bool AnnotationItem::isEditable() const
 {
     return true;
@@ -260,7 +275,7 @@ void AnnotationItem::updateSelectionMarker()
         if (m_selectionMarker->scene())
             m_selectionMarker->scene()->removeItem(m_selectionMarker);
         delete m_selectionMarker;
-        m_selectionMarker = 0;
+        m_selectionMarker = nullptr;
     }
 }
 

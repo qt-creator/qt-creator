@@ -28,19 +28,26 @@
 #include "clangeditordocumentprocessor.h"
 #include "clangmodelmanagersupport.h"
 
+#include <clangsupport/tokeninfocontainer.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <cpptools/baseeditordocumentparser.h>
-#include <cpptools/clangcompileroptionsbuilder.h>
+#include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/editordocumenthandle.h>
 #include <cpptools/projectpart.h>
+#include <cpptools/cppcodemodelsettings.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <projectexplorer/projectexplorerconstants.h>
+
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
 #include <QFile>
 #include <QStringList>
+#include <QTextBlock>
 
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
@@ -70,51 +77,68 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, const QString &fil
     return createClangOptions(pPart, fileKind);
 }
 
-class LibClangOptionsBuilder : public ClangCompilerOptionsBuilder
+static QString creatorResourcePath()
+{
+#ifndef UNIT_TESTS
+    return Core::ICore::resourcePath();
+#else
+    return QString();
+#endif
+}
+
+class LibClangOptionsBuilder final : public CompilerOptionsBuilder
 {
 public:
-    static QStringList build(const ProjectPart::Ptr &projectPart, ProjectFile::Kind fileKind)
+    LibClangOptionsBuilder(const ProjectPart &projectPart)
+        : CompilerOptionsBuilder(projectPart, CLANG_VERSION, CLANG_RESOURCE_DIR)
     {
-        if (projectPart.isNull())
-            return QStringList();
+    }
 
-        LibClangOptionsBuilder optionsBuilder(*projectPart.data());
+    void addPredefinedHeaderPathsOptions() final
+    {
+        CompilerOptionsBuilder::addPredefinedHeaderPathsOptions();
+        addWrappedQtHeadersIncludePath();
+    }
 
-        optionsBuilder.addWordWidth();
-        optionsBuilder.addTargetTriple();
-        optionsBuilder.addLanguageOption(fileKind);
-        optionsBuilder.addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
-        optionsBuilder.enableExceptions();
+    void addToolchainAndProjectMacros() final
+    {
+        addMacros({ProjectExplorer::Macro("Q_CREATOR_RUN", "1")});
+        CompilerOptionsBuilder::addToolchainAndProjectMacros();
+    }
 
-        optionsBuilder.addDefineToAvoidIncludingGccOrMinGwIntrinsics();
-        optionsBuilder.addDefineFloat128ForMingw();
-        optionsBuilder.addToolchainAndProjectDefines();
-        optionsBuilder.undefineCppLanguageFeatureMacrosForMsvc2015();
-
-        optionsBuilder.addPredefinedMacrosAndHeaderPathsOptions();
-        optionsBuilder.addWrappedQtHeadersIncludePath();
-        optionsBuilder.addHeaderPathOptions();
-        optionsBuilder.addDummyUiHeaderOnDiskIncludePath();
-        optionsBuilder.addProjectConfigFileInclude();
-
-        optionsBuilder.addMsvcCompatibilityVersion();
-
-        optionsBuilder.addExtraOptions();
-
-        return optionsBuilder.options();
+    void addExtraOptions() final
+    {
+        addDummyUiHeaderOnDiskIncludePath();
+        add("-fmessage-length=0");
+        add("-fdiagnostics-show-note-include-stack");
+        add("-fmacro-backtrace-limit=0");
+        add("-fretain-comments-from-system-headers");
+        add("-ferror-limit=1000");
     }
 
 private:
-    LibClangOptionsBuilder(const CppTools::ProjectPart &projectPart)
-        : ClangCompilerOptionsBuilder(projectPart, CLANG_VERSION, CLANG_RESOURCE_DIR)
+    void addWrappedQtHeadersIncludePath()
     {
+        static const QString resourcePath = creatorResourcePath();
+        static QString wrappedQtHeadersPath = resourcePath + "/cplusplus/wrappedQtHeaders";
+        QTC_ASSERT(QDir(wrappedQtHeadersPath).exists(), return;);
+
+        if (m_projectPart.qtVersion != CppTools::ProjectPart::NoQt) {
+            const QString wrappedQtCoreHeaderPath = wrappedQtHeadersPath + "/QtCore";
+            add(includeDirOption());
+            add(QDir::toNativeSeparators(wrappedQtHeadersPath));
+            add(includeDirOption());
+            add(QDir::toNativeSeparators(wrappedQtCoreHeaderPath));
+        }
     }
 
     void addDummyUiHeaderOnDiskIncludePath()
     {
         const QString path = ModelManagerSupportClang::instance()->dummyUiHeaderOnDiskDirPath();
-        if (!path.isEmpty())
-            add(includeDirOption() + QDir::toNativeSeparators(path));
+        if (!path.isEmpty()) {
+            add(includeDirOption());
+            add(QDir::toNativeSeparators(path));
+        }
     }
 };
 
@@ -125,13 +149,15 @@ private:
  */
 QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind fileKind)
 {
-    return LibClangOptionsBuilder::build(pPart, fileKind);
+    if (!pPart)
+        return QStringList();
+    return LibClangOptionsBuilder(*pPart).build(fileKind, CompilerOptionsBuilder::PchUsage::None);
 }
 
 ProjectPart::Ptr projectPartForFile(const QString &filePath)
 {
     if (const auto parser = CppTools::BaseEditorDocumentParser::get(filePath))
-        return parser->projectPart();
+        return parser->projectPartInfo().projectPart;
     return ProjectPart::Ptr();
 }
 
@@ -167,6 +193,143 @@ void setLastSentDocumentRevision(const QString &filePath, uint revision)
 {
     if (CppEditorDocumentHandle *document = cppDocument(filePath))
         document->sendTracker().setLastSentRevision(int(revision));
+}
+
+int clangColumn(const QTextBlock &line, int cppEditorColumn)
+{
+    // (1) cppEditorColumn is the actual column shown by CppEditor.
+    // (2) The return value is the column in Clang which is the utf8 byte offset from the beginning
+    //     of the line.
+    // Here we convert column from (1) to (2).
+    // '+ 1' is for 1-based columns
+    return line.text().left(cppEditorColumn).toUtf8().size() + 1;
+}
+
+CPlusPlus::Icons::IconType iconTypeForToken(const ClangBackEnd::TokenInfoContainer &token)
+{
+    const ClangBackEnd::ExtraInfo &extraInfo = token.extraInfo;
+    if (extraInfo.signal)
+        return CPlusPlus::Icons::SignalIconType;
+
+    ClangBackEnd::AccessSpecifier access = extraInfo.accessSpecifier;
+    if (extraInfo.slot) {
+        switch (access) {
+        case ClangBackEnd::AccessSpecifier::Public:
+        case ClangBackEnd::AccessSpecifier::Invalid:
+            return CPlusPlus::Icons::SlotPublicIconType;
+        case ClangBackEnd::AccessSpecifier::Protected:
+            return CPlusPlus::Icons::SlotProtectedIconType;
+        case ClangBackEnd::AccessSpecifier::Private:
+            return CPlusPlus::Icons::SlotPrivateIconType;
+        }
+    }
+
+    ClangBackEnd::HighlightingType mainType = token.types.mainHighlightingType;
+
+    if (mainType == ClangBackEnd::HighlightingType::QtProperty)
+        return CPlusPlus::Icons::PropertyIconType;
+
+    if (mainType == ClangBackEnd::HighlightingType::PreprocessorExpansion
+            || mainType == ClangBackEnd::HighlightingType::PreprocessorDefinition) {
+        return CPlusPlus::Icons::MacroIconType;
+    }
+
+    if (mainType == ClangBackEnd::HighlightingType::Enumeration)
+        return CPlusPlus::Icons::EnumeratorIconType;
+
+    if (mainType == ClangBackEnd::HighlightingType::Type
+            || mainType == ClangBackEnd::HighlightingType::Keyword) {
+        const ClangBackEnd::MixinHighlightingTypes &types = token.types.mixinHighlightingTypes;
+        if (types.contains(ClangBackEnd::HighlightingType::Enum))
+            return CPlusPlus::Icons::EnumIconType;
+        if (types.contains(ClangBackEnd::HighlightingType::Struct))
+            return CPlusPlus::Icons::StructIconType;
+        if (types.contains(ClangBackEnd::HighlightingType::Namespace))
+            return CPlusPlus::Icons::NamespaceIconType;
+        if (types.contains(ClangBackEnd::HighlightingType::Class))
+            return CPlusPlus::Icons::ClassIconType;
+        if (mainType == ClangBackEnd::HighlightingType::Keyword)
+            return CPlusPlus::Icons::KeywordIconType;
+        return CPlusPlus::Icons::ClassIconType;
+    }
+
+    ClangBackEnd::StorageClass storageClass = extraInfo.storageClass;
+    if (mainType == ClangBackEnd::HighlightingType::VirtualFunction
+            || mainType == ClangBackEnd::HighlightingType::Function
+            || mainType == ClangBackEnd::HighlightingType::Operator) {
+        if (storageClass != ClangBackEnd::StorageClass::Static) {
+            switch (access) {
+            case ClangBackEnd::AccessSpecifier::Public:
+            case ClangBackEnd::AccessSpecifier::Invalid:
+                return CPlusPlus::Icons::FuncPublicIconType;
+            case ClangBackEnd::AccessSpecifier::Protected:
+                return CPlusPlus::Icons::FuncProtectedIconType;
+            case ClangBackEnd::AccessSpecifier::Private:
+                return CPlusPlus::Icons::FuncPrivateIconType;
+            }
+        } else {
+            switch (access) {
+            case ClangBackEnd::AccessSpecifier::Public:
+            case ClangBackEnd::AccessSpecifier::Invalid:
+                return CPlusPlus::Icons::FuncPublicStaticIconType;
+            case ClangBackEnd::AccessSpecifier::Protected:
+                return CPlusPlus::Icons::FuncProtectedStaticIconType;
+            case ClangBackEnd::AccessSpecifier::Private:
+                return CPlusPlus::Icons::FuncPrivateStaticIconType;
+            }
+        }
+    }
+    if (mainType == ClangBackEnd::HighlightingType::GlobalVariable
+            || mainType == ClangBackEnd::HighlightingType::Field) {
+        if (storageClass != ClangBackEnd::StorageClass::Static) {
+            switch (access) {
+            case ClangBackEnd::AccessSpecifier::Public:
+            case ClangBackEnd::AccessSpecifier::Invalid:
+                return CPlusPlus::Icons::VarPublicIconType;
+            case ClangBackEnd::AccessSpecifier::Protected:
+                return CPlusPlus::Icons::VarProtectedIconType;
+            case ClangBackEnd::AccessSpecifier::Private:
+                return CPlusPlus::Icons::VarPrivateIconType;
+            }
+        } else {
+            switch (access) {
+            case ClangBackEnd::AccessSpecifier::Public:
+            case ClangBackEnd::AccessSpecifier::Invalid:
+                return CPlusPlus::Icons::VarPublicStaticIconType;
+            case ClangBackEnd::AccessSpecifier::Protected:
+                return CPlusPlus::Icons::VarProtectedStaticIconType;
+            case ClangBackEnd::AccessSpecifier::Private:
+                return CPlusPlus::Icons::VarPrivateStaticIconType;
+            }
+        }
+    }
+
+    return CPlusPlus::Icons::UnknownIconType;
+}
+
+QString diagnosticCategoryPrefixRemoved(const QString &text)
+{
+    QString theText = text;
+
+    // Prefixes are taken from $LLVM_SOURCE_DIR/tools/clang/lib/Frontend/TextDiagnostic.cpp,
+    // function TextDiagnostic::printDiagnosticLevel (llvm-3.6.2).
+    static const QStringList categoryPrefixes = {
+        QStringLiteral("note"),
+        QStringLiteral("remark"),
+        QStringLiteral("warning"),
+        QStringLiteral("error"),
+        QStringLiteral("fatal error")
+    };
+
+    for (const QString &prefix : categoryPrefixes) {
+        const QString fullPrefix = prefix + QStringLiteral(": ");
+        if (theText.startsWith(fullPrefix)) {
+            theText.remove(0, fullPrefix.length());
+            return theText;
+        }
+    }
+
+    return text;
 }
 
 } // namespace Utils

@@ -27,22 +27,53 @@
 
 #include "android_global.h"
 
+#include "adbcommandswidget.h"
+
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runconfigurationaspects.h>
 
 namespace Android {
+
+class BaseStringListAspect : public ProjectExplorer::IRunConfigurationAspect
+{
+    Q_OBJECT
+
+public:
+    explicit BaseStringListAspect(ProjectExplorer::RunConfiguration *rc,
+                                  const QString &settingsKey = QString(),
+                                  Core::Id id = Core::Id());
+    ~BaseStringListAspect() override;
+
+    void addToConfigurationLayout(QFormLayout *layout) override;
+
+    QStringList value() const;
+    void setValue(const QStringList &val);
+
+    void setLabel(const QString &label);
+
+    void fromMap(const QVariantMap &map) override;
+    void toMap(QVariantMap &map) const override;
+
+signals:
+    void changed();
+
+private:
+    QStringList m_value;
+    QString m_label;
+    QPointer<Android::Internal::AdbCommandsWidget> m_widget; // Owned by RunConfigWidget
+};
 
 class ANDROID_EXPORT AndroidRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 public:
-    AndroidRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    explicit AndroidRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
+    QString disabledReason() const override;
     QWidget *createConfigurationWidget() override;
-    Utils::OutputFormatter *createOutputFormatter() const override;
-    const QString remoteChannel() const;
 
-protected:
-    AndroidRunConfiguration(ProjectExplorer::Target *parent, AndroidRunConfiguration *source);
+private:
+    void updateTargetInformation();
 };
 
 } // namespace Android

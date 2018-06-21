@@ -40,7 +40,7 @@ def main():
     if not startedWithoutPluginError():
         return
     invokeMenuItem("Tools", "Options...")
-    __checkBuildAndRun__()
+    __checkKits__()
     clickButton(waitForObject(":Options.Cancel_QPushButton"))
     invokeMenuItem("File", "Exit")
     __checkCreatedSettings__(emptySettings)
@@ -53,9 +53,9 @@ def __createMinimumIni__(emptyParent):
     iniFile.write("OverrideLanguage=C\n")
     iniFile.close()
 
-def __checkBuildAndRun__():
-    waitForObjectItem(":Options_QListView", "Build & Run")
-    clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
+def __checkKits__():
+    waitForObjectItem(":Options_QListView", "Kits")
+    clickItem(":Options_QListView", "Kits", 14, 15, 0, Qt.LeftButton)
     # check compilers
     expectedCompilers = __getExpectedCompilers__()
     foundCompilers = []
@@ -87,7 +87,8 @@ def __checkBuildAndRun__():
 def __processSubItems__(treeObjStr, section, parModelIndexStr, doneItems,
                         additionalFunc, *additionalParameters):
     global currentSelectedTreeItem
-    model = waitForObject(treeObjStr).model()
+    tree = waitForObject(treeObjStr)
+    model = tree.model()
     items = dumpIndices(model, section)
     for it in items:
         indexName = str(it.data().toString())
@@ -97,6 +98,7 @@ def __processSubItems__(treeObjStr, section, parModelIndexStr, doneItems,
         if alreadyDone:
             itObj = "%s occurrence='%d'}" % (itObj[:-1], alreadyDone + 1)
         currentSelectedTreeItem = waitForObject(itObj, 3000)
+        tree.scrollTo(it)
         mouseClick(currentSelectedTreeItem, 5, 5, 0, Qt.LeftButton)
         additionalFunc(indexName, *additionalParameters)
         currentSelectedTreeItem = None
@@ -182,11 +184,14 @@ def __getExpectedCompilers__():
         expected.extend(__getWinCompilers__())
     compilers = ["g++", "gcc"]
     if platform.system() in ('Linux', 'Darwin'):
-        compilers.extend(["g++-4.0", "g++-4.2", "clang++", "clang"])
+        compilers.extend(["clang++", "clang"])
+        compilers.extend(findAllFilesInPATH("*g++*"))
+        compilers.extend(findAllFilesInPATH("*gcc*"))
     if platform.system() == 'Darwin':
-        xcodeClang = getOutputFromCmdline(["xcrun", "--find", "clang++"]).strip("\n")
-        if xcodeClang and os.path.exists(xcodeClang) and xcodeClang not in expected:
-            expected.append(xcodeClang)
+        for compilerExe in ('clang++', 'clang'):
+            xcodeClang = getOutputFromCmdline(["xcrun", "--find", compilerExe]).strip("\n")
+            if xcodeClang and os.path.exists(xcodeClang) and xcodeClang not in expected:
+                expected.append(xcodeClang)
     for compiler in compilers:
         compilerPath = which(compiler)
         if compilerPath:
@@ -252,7 +257,9 @@ def __getCDB__():
                          "C:\\Program Files (x86)\\Windows Kits\\8.1\\Debuggers\\x86",
                          "C:\\Program Files (x86)\\Windows Kits\\8.1\\Debuggers\\x64",
                          "C:\\Program Files\\Windows Kits\\8.1\\Debuggers\\x86",
-                         "C:\\Program Files\\Windows Kits\\8.1\\Debuggers\\x64"]
+                         "C:\\Program Files\\Windows Kits\\8.1\\Debuggers\\x64",
+                         "C:\\Program Files (x86)\\Windows Kits\\10\\Debuggers\\x86",
+                         "C:\\Program Files (x86)\\Windows Kits\\10\\Debuggers\\x64"]
     for cdbPath in possibleLocations:
         cdb = os.path.join(cdbPath, "cdb.exe")
         if os.path.exists(cdb):
@@ -329,7 +336,6 @@ def __checkCreatedSettings__(settingsFolder):
                   {os.path.join(folders[0], "qtversion.xml"):0},
                   {os.path.join(folders[0], "toolchains.xml"):0}])
     folders.extend([os.path.join(folders[0], "generic-highlighter"),
-                    os.path.join(folders[0], "json"),
                     os.path.join(folders[0], "macros")])
     for f in folders:
         test.verify(os.path.isdir(f),

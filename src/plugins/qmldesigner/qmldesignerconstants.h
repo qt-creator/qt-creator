@@ -45,7 +45,9 @@ const char SWITCH_TEXT_DESIGN[]   = "QmlDesigner.SwitchTextDesign";
 const char RESTORE_DEFAULT_VIEW[] = "QmlDesigner.RestoreDefaultView";
 const char TOGGLE_LEFT_SIDEBAR[] = "QmlDesigner.ToggleLeftSideBar";
 const char TOGGLE_RIGHT_SIDEBAR[] = "QmlDesigner.ToggleRightSideBar";
+const char TOGGLE_STATES_EDITOR[] = "QmlDesigner.ToggleStatesEditor";
 const char GO_INTO_COMPONENT[] = "QmlDesigner.GoIntoComponent";
+const char EXPORT_AS_IMAGE[] = "QmlDesigner.ExportAsImage";
 
 const char QML_DESIGNER_SUBFOLDER[] = "/designer/";
 

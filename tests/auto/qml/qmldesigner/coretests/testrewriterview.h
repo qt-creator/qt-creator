@@ -57,6 +57,8 @@ public:
     bool isModificationGroupActive() const;
     void setModificationGroupActive(bool active);
     void applyModificationGroupChanges();
+
+    using RewriterView::auxiliaryDataAsQML;
 };
 
 } // QmlDesigner

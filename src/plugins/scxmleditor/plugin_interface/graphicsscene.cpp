@@ -202,7 +202,7 @@ void GraphicsScene::removeSelectedItems()
 {
     QVector<ScxmlTag*> tags = SceneUtils::findRemovedTags(m_baseItems);
     if (tags.count() > 0) {
-        m_document->undoStack()->beginMacro(tr("Remove item(s)"));
+        m_document->undoStack()->beginMacro(tr("Remove items"));
 
         // Then remove found tags
         for (int i = tags.count(); i--;) {
@@ -216,6 +216,9 @@ void GraphicsScene::removeSelectedItems()
 
 void GraphicsScene::copy()
 {
+    if (!m_document->currentTag())
+        return;
+
     QPointF minPos;
     QVector<ScxmlTag*> tags;
     if (m_document->currentTag()->tagType() == Scxml) {
@@ -365,7 +368,7 @@ void GraphicsScene::init()
 
 void GraphicsScene::runLayoutToSelectedStates()
 {
-    m_document->undoStack()->beginMacro(tr("Relayout"));
+    m_document->undoStack()->beginMacro(tr("Re-layout"));
 
     QVector<BaseItem*> selectedItems;
     foreach (BaseItem *node, m_baseItems) {
@@ -462,7 +465,6 @@ void GraphicsScene::beginTagChange(ScxmlDocument::TagChange change, ScxmlTag *ta
 void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag, const QVariant &value)
 {
     Q_UNUSED(value)
-    QTC_ASSERT(tag, return);
 
     switch (change) {
     case ScxmlDocument::TagAttributesChanged: {
@@ -491,6 +493,7 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
         auto childItem = qobject_cast<ConnectableItem*>(findItem(tag));
 
         if (childItem) {
+            QTC_ASSERT(tag, break);
             BaseItem *newParentItem = findItem(tag->parentTag());
             BaseItem *oldParentItem = childItem->parentBaseItem();
 
@@ -527,6 +530,9 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
     }
     case ScxmlDocument::TagAddTags: {
         // Finalize transitions
+        if (!tag)
+            break;
+
         QVector<ScxmlTag*> childTransitionTags;
         if (tag->tagName(false) == "transition")
             childTransitionTags << tag;
@@ -538,9 +544,9 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
                 item->finalizeCreation();
         }
     }
-    // FIXME: intended fallthrough?
+    break;
     case ScxmlDocument::TagAddChild: {
-        ScxmlTag *childTag = tag->child(value.toInt());
+        ScxmlTag *childTag = tag ? tag->child(value.toInt()) : nullptr;
         if (childTag) {
             // Check that there is no any item with this tag
             BaseItem *childItem = findItem(childTag);
@@ -575,21 +581,26 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
         break;
     }
     case ScxmlDocument::TagRemoveChild: {
-        BaseItem *parentItem = findItem(tag);
-        if (parentItem) {
-            parentItem->updateAttributes();
-            parentItem->checkInitial();
-        } else {
-            checkInitialState();
+        if (tag) {
+            BaseItem *parentItem = findItem(tag);
+            if (parentItem) {
+                parentItem->updateAttributes();
+                parentItem->checkInitial();
+            } else {
+                checkInitialState();
+            }
         }
         break;
     }
     case ScxmlDocument::TagChangeOrder: {
-        BaseItem *parentItem = findItem(tag->parentTag());
-        if (parentItem)
-            parentItem->updateAttributes();
-        else
-            checkInitialState();
+        if (tag) {
+            BaseItem *parentItem = findItem(tag->parentTag());
+            if (parentItem)
+                parentItem->updateAttributes();
+            else
+                checkInitialState();
+        }
+        break;
     }
     default:
         break;

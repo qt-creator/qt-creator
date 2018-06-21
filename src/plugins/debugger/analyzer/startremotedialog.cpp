@@ -25,12 +25,10 @@
 
 #include "startremotedialog.h"
 
-#include "analyzerstartparameters.h"
-
 #include <coreplugin/icore.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/runnables.h>
+#include <projectexplorer/runconfiguration.h>
 #include <ssh/sshconnection.h>
 
 #include <QDialogButtonBox>
@@ -64,9 +62,9 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
     setWindowTitle(tr("Start Remote Analysis"));
 
     d->kitChooser = new KitChooser(this);
-    d->kitChooser->setKitMatcher([](const Kit *kit) {
+    d->kitChooser->setKitPredicate([](const Kit *kit) {
         const IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-        return kit->isValid() && device && !device->sshParameters().host.isEmpty();
+        return kit->isValid() && device && !device->sshParameters().host().isEmpty();
     });
     d->executable = new QLineEdit(this);
     d->arguments = new QLineEdit(this);
@@ -130,16 +128,11 @@ void StartRemoteDialog::validate()
     d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(valid);
 }
 
-QSsh::SshConnectionParameters StartRemoteDialog::sshParams() const
+Runnable StartRemoteDialog::runnable() const
 {
     Kit *kit = d->kitChooser->currentKit();
-    IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-    return device->sshParameters();
-}
-
-StandardRunnable StartRemoteDialog::runnable() const
-{
-    StandardRunnable r;
+    Runnable r;
+    r.device = DeviceKitInformation::device(kit);
     r.executable = d->executable->text();
     r.commandLineArguments = d->arguments->text();
     r.workingDirectory = d->workingDirectory->text();

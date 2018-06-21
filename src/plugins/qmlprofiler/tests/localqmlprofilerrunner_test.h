@@ -25,9 +25,10 @@
 
 #pragma once
 
-#include <qmlprofiler/localqmlprofilerrunner.h>
 #include <qmlprofiler/qmlprofilermodelmanager.h>
-#include <QObject>
+#include <qmlprofiler/qmlprofilerruncontrol.h>
+
+#include <QUrl>
 
 namespace QmlProfiler {
 namespace Internal {

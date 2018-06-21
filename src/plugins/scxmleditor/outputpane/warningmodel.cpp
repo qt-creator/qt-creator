@@ -237,14 +237,15 @@ Warning *WarningModel::getWarning(const QModelIndex &ind)
     return nullptr;
 }
 
-void WarningModel::warningDestroyed(QObject *ww)
+void WarningModel::warningDestroyed(QObject *w)
 {
-    auto w = static_cast<Warning*>(ww);
-    if (m_warnings.contains(w)) {
-        int ind = m_warnings.indexOf(w);
+    // Intentional static_cast.
+    // The Warning is being destroyed, so qobject_cast doesn't work anymore.
+    const int ind = m_warnings.indexOf(static_cast<Warning *>(w));
+    if (ind >= 0) {
         beginRemoveRows(QModelIndex(), ind, ind);
         m_warnings.removeAt(ind);
-        endResetModel();
+        endRemoveRows();
     }
 
     m_countChecker->start();

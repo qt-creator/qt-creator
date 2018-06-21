@@ -29,6 +29,7 @@
 #include <rewritingexception.h>
 
 #include <QDebug>
+#include <QRegExp>
 #include <math.h>
 
 #include <nodemetainfo.h>
@@ -66,12 +67,18 @@ WidgetInfo StatesEditorView::widgetInfo()
     if (!m_statesEditorWidget)
         m_statesEditorWidget = new StatesEditorWidget(this, m_statesEditorModel.data());
 
-    return createWidgetInfo(m_statesEditorWidget.data(), 0, QLatin1String("StatesEditor"), WidgetInfo::TopPane, 0, tr("States Editor"));
+    return createWidgetInfo(m_statesEditorWidget.data(), 0, QLatin1String("StatesEditor"), WidgetInfo::BottomPane, 0, tr("States"));
 }
 
 void StatesEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
     checkForWindow();
+}
+
+void StatesEditorView::toggleStatesViewExpanded()
+{
+    if (m_statesEditorWidget)
+        m_statesEditorWidget->toggleStatesViewExpanded();
 }
 
 void StatesEditorView::removeState(int nodeId)
@@ -146,11 +153,12 @@ void StatesEditorView::addState()
 
     try {
         if ((rootStateGroup().allStates().count() < 1) && //QtQuick import might be missing
-            (!model()->hasImport(Import::createLibraryImport(QLatin1String("QtQuick"), QLatin1String("1.0")), true, true)))
-            model()->changeImports(QList<Import>() << Import::createLibraryImport(QLatin1String("QtQuick"), QLatin1String("1.0")), QList<Import>());
+                (!model()->hasImport(Import::createLibraryImport("QtQuick", "1.0"), true, true))) {
+            model()->changeImports({Import::createLibraryImport("QtQuick", "1.0")}, {});
+        }
         ModelNode newState = rootStateGroup().addState(newStateName);
         setCurrentState(newState);
-    }  catch (const RewritingException &e) {
+    } catch (const RewritingException &e) {
         e.showException();
     }
 }
@@ -194,7 +202,8 @@ void StatesEditorView::duplicateCurrentState()
 void StatesEditorView::checkForWindow()
 {
     if (m_statesEditorWidget)
-        m_statesEditorWidget->showAddNewStatesButton(!rootModelNode().metaInfo().isSubclassOf("QtQuick.Window.Window"));
+        m_statesEditorWidget->showAddNewStatesButton(!rootModelNode().metaInfo().isSubclassOf("QtQuick.Window.Window")
+                                                     && !rootModelNode().metaInfo().isSubclassOf("QtQuick.Window.Popup"));
 }
 
 void StatesEditorView::setCurrentState(const QmlModelState &state)
@@ -378,6 +387,19 @@ void StatesEditorView::bindingPropertiesChanged(const QList<BindingProperty> &pr
         if (property.name() == "when" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
             resetModel();
     }
+}
+
+void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &propertyList,
+                                                AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+    m_block = true;
+
+    for (const VariantProperty &property : propertyList) {
+        if (property.name() == "name" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
+            resetModel();
+    }
+
+    m_block = false;
 }
 
 void StatesEditorView::currentStateChanged(const ModelNode &node)

@@ -24,12 +24,23 @@
 ****************************************************************************/
 
 #include "gtestresult.h"
+#include "gtestconstants.h"
+#include "../testframeworkmanager.h"
+#include "../testtreeitem.h"
+
+#include <coreplugin/id.h>
 
 namespace Autotest {
 namespace Internal {
 
-GTestResult::GTestResult(const QString &name)
-    : TestResult(name)
+GTestResult::GTestResult(const QString &projectFile, const QString &name)
+    : TestResult(name), m_projectFile(projectFile)
+{
+}
+
+GTestResult::GTestResult(const QString &id, const QString &projectFile,
+                         const QString &name)
+    : TestResult(id, name), m_projectFile(projectFile)
 {
 }
 
@@ -58,7 +69,68 @@ bool GTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermedi
         return false;
 
     const GTestResult *gtOther = static_cast<const GTestResult *>(other);
+    if (m_iteration != gtOther->m_iteration)
+        return false;
     return isTest() && gtOther->isTestSet();
+}
+
+static QString normalizeName(const QString &name)
+{
+    static QRegExp parameterIndex("/\\d+");
+
+    QString nameWithoutParameterIndices = name;
+    nameWithoutParameterIndices.remove(parameterIndex);
+
+    return nameWithoutParameterIndices.split('/').last();
+}
+
+static QString normalizeTestName(const QString &testname)
+{
+    QString nameWithoutTypeParam = testname.split(',').first();
+
+    return normalizeName(nameWithoutTypeParam);
+}
+
+const TestTreeItem *GTestResult::findTestTreeItem() const
+{
+    auto id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
+    const TestTreeItem *rootNode = TestFrameworkManager::instance()->rootNodeForTestFramework(id);
+    if (!rootNode)
+        return nullptr;
+
+    const auto item = rootNode->findAnyChild([this](const Utils::TreeItem *item) {
+        const auto treeItem = static_cast<const TestTreeItem *>(item);
+        return treeItem && matches(treeItem);
+    });
+    return static_cast<const TestTreeItem *>(item);
+}
+
+bool GTestResult::matches(const TestTreeItem *treeItem) const
+{
+    if (treeItem->proFile() != m_projectFile)
+        return false;
+
+    if (isTest())
+        return matchesTestCase(treeItem);
+
+    return matchesTestFunctionOrSet(treeItem);
+}
+
+bool GTestResult::matchesTestFunctionOrSet(const TestTreeItem *treeItem) const
+{
+    if (treeItem->type() != TestTreeItem::TestFunctionOrSet)
+        return false;
+
+    const QString testItemTestSet = treeItem->parentItem()->name() + '.' + treeItem->name();
+    return testItemTestSet == normalizeName(m_testSetName);
+}
+
+bool GTestResult::matchesTestCase(const TestTreeItem *treeItem) const
+{
+    if (treeItem->type() != TestTreeItem::TestCase)
+        return false;
+
+    return treeItem->name() == normalizeTestName(name());
 }
 
 } // namespace Internal

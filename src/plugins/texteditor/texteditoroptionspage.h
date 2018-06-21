@@ -39,7 +39,7 @@ class TEXTEDITOR_EXPORT TextEditorOptionsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    explicit TextEditorOptionsPage(QObject *parent = 0);
+    explicit TextEditorOptionsPage(QObject *parent = nullptr);
 };
 
 } // namespace TextEditor

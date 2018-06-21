@@ -25,14 +25,17 @@
 
 #include "servermode.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/reaper.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/temporarydirectory.h>
 
 #include <QByteArray>
 #include <QCryptographicHash>
+#include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLocalSocket>
@@ -60,15 +63,6 @@ Q_LOGGING_CATEGORY(cmakeServerMode, "qtc.cmake.serverMode");
 // Helpers:
 // ----------------------------------------------------------------------
 
-QString socketName(const Utils::FileName &buildDirectory)
-{
-    if (HostOsInfo::isWindowsHost()) {
-        QUuid uuid = QUuid::createUuid();
-        return "\\\\.\\pipe\\" + uuid.toString();
-    }
-    return buildDirectory.toString() + "/socket";
-}
-
 bool isValid(const QVariant &v)
 {
     if (v.isNull())
@@ -91,6 +85,12 @@ ServerMode::ServerMode(const Environment &env,
                        bool experimental, int major, int minor,
                        QObject *parent) :
     QObject(parent),
+#if defined(Q_OS_UNIX)
+    // Some unixes (e.g. Darwin) limit the length of a local socket to about 100 char (or less).
+    // Since some unixes (e.g. Darwin) also point TMPDIR to /really/long/paths we need to create
+    // our own socket in a place closer to '/'.
+    m_socketDir("/tmp/cmake-"),
+#endif
     m_sourceDirectory(sourceDirectory), m_buildDirectory(buildDirectory),
     m_cmakeExecutable(cmakeExecutable),
     m_generator(generator), m_extraGenerator(extraGenerator),
@@ -103,12 +103,18 @@ ServerMode::ServerMode(const Environment &env,
     m_connectionTimer.setInterval(100);
     connect(&m_connectionTimer, &QTimer::timeout, this, &ServerMode::connectToServer);
 
-    m_cmakeProcess.reset(new QtcProcess);
+    m_cmakeProcess = std::make_unique<QtcProcess>();
 
     m_cmakeProcess->setEnvironment(env);
     m_cmakeProcess->setWorkingDirectory(buildDirectory.toString());
-    m_socketName = socketName(buildDirectory);
-    const QStringList args = QStringList({ "-E", "server", "--pipe=" + m_socketName });
+
+#if defined(Q_OS_UNIX)
+    m_socketName = m_socketDir.path() + "/socket";
+#else
+    m_socketName = QString::fromLatin1("\\\\.\\pipe\\") + QUuid::createUuid().toString();
+#endif
+
+    const QStringList args = QStringList({"-E", "server", "--pipe=" + m_socketName});
 
     connect(m_cmakeProcess.get(), &QtcProcess::started, this, [this]() { m_connectionTimer.start(); });
     connect(m_cmakeProcess.get(),
@@ -162,7 +168,7 @@ void ServerMode::sendRequest(const QString &type, const QVariantMap &extra, cons
     data.insert(TYPE_KEY, type);
     const QVariant realCookie = cookie.isNull() ? QVariant(m_requestCounter) : cookie;
     data.insert(COOKIE_KEY, realCookie);
-    m_expectedReplies.push_back({ type, realCookie });
+    m_expectedReplies.push_back({type, realCookie});
 
     QJsonObject object = QJsonObject::fromVariantMap(data);
     QJsonDocument document;

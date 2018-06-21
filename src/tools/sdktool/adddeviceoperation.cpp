@@ -43,9 +43,6 @@ const char DEVICE_ID_ID[] = "InternalId";
 
 static const char INTERNAL_DSEKTOP_DEVICE_ID[] = "Desktop Device";
 
-AddDeviceOperation::AddDeviceOperation()
-{ }
-
 QString AddDeviceOperation::name() const
 {
     return QLatin1String("addDev");
@@ -53,7 +50,7 @@ QString AddDeviceOperation::name() const
 
 QString AddDeviceOperation::helpText() const
 {
-    return QLatin1String("add a Device to Qt Creator");
+    return QLatin1String("add a Device");
 }
 
 QString AddDeviceOperation::argumentsHelpText() const
@@ -79,13 +76,6 @@ QString AddDeviceOperation::argumentsHelpText() const
 
 bool AddDeviceOperation::setArguments(const QStringList &args)
 {
-    m_authentication = -1;
-    m_origin = 1;
-    m_sshPort = 0;
-    m_timeout = 5;
-    m_type = -1;
-    m_version = 0;
-
     for (int i = 0; i < args.count(); ++i) {
         const QString current = args.at(i);
         const QString next = ((i + 1) < args.count()) ? args.at(i + 1) : QString();

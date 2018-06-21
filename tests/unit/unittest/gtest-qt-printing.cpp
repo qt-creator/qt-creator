@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include <QString>
+#include <QTextCharFormat>
 #include <QDebug>
 
 #include <gtest/gtest-printers.h>
@@ -32,35 +33,59 @@
 
 QT_BEGIN_NAMESPACE
 
-void PrintTo(const QByteArray &byteArray, ::std::ostream *os)
+std::ostream &operator<<(std::ostream &out, const QByteArray &byteArray)
 {
     if (byteArray.contains('\n')) {
         QByteArray formattedArray = byteArray;
         formattedArray.replace("\n", "\n\t");
-        *os << "\n\t";
-        os->write(formattedArray.data(), formattedArray.size());
+        out << "\n\t";
+        out.write(formattedArray.data(), formattedArray.size());
     } else {
-        *os << "\"";
-        os->write(byteArray.data(), byteArray.size());
-        *os << "\"";
+        out << "\"";
+        out.write(byteArray.data(), byteArray.size());
+        out << "\"";
     }
+
+    return out;
 }
 
-void PrintTo(const QVariant &variant, ::std::ostream *os)
+std::ostream &operator<<(std::ostream &out, const QString &text)
+{
+    return out << text.toUtf8();
+}
+
+std::ostream &operator<<(std::ostream &out, const QVariant &variant)
 {
     QString output;
     QDebug debug(&output);
 
     debug << variant;
 
-    PrintTo(output.toUtf8(), os);
+    return out << output;
 }
 
-void PrintTo(const QString &text, ::std::ostream *os)
+std::ostream &operator<<(std::ostream &out, const QTextCharFormat &format)
 {
-    const QByteArray utf8 = text.toUtf8();
+    out << "("
+        << format.fontFamily();
 
-    PrintTo(text.toUtf8(), os);
+    if (format.fontItalic())
+        out << ", italic";
+
+    if (format.fontCapitalization() == QFont::Capitalize)
+        out << ", Capitalization";
+
+    if (format.fontOverline())
+        out << ", overline";
+
+    out << ")";
+
+    return out;
+}
+
+void PrintTo(const QString &text, std::ostream *os)
+{
+    *os << text;
 }
 
 QT_END_NAMESPACE

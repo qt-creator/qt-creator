@@ -28,6 +28,7 @@
 #include <enumeration.h>
 #include <qmlprivategate.h>
 
+#include <QDebug>
 #include <QEvent>
 #include <QQmlContext>
 #include <QQmlError>
@@ -125,7 +126,8 @@ void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Poi
     m_signalSpy.setObjectNodeInstance(objectNodeInstance);
 }
 
-void ObjectNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance)
+void ObjectNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
+                                    InstanceContainer::NodeFlags /*flags*/)
 {
     initializePropertyWatcher(objectNodeInstance);
     QmlPrivateGate::registerNodeInstanceMetaObject(objectNodeInstance->object(), objectNodeInstance->nodeInstanceServer()->engine());
@@ -253,7 +255,7 @@ bool ObjectNodeInstance::isAnchoredByChildren() const
 
 QPair<PropertyName, ServerNodeInstance> ObjectNodeInstance::anchor(const PropertyName &/*name*/) const
 {
-    return qMakePair(PropertyName(), ServerNodeInstance());
+    return {PropertyName(), ServerNodeInstance()};
 }
 
 
@@ -420,7 +422,7 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
     if (oldValue.type() == QVariant::Url) {
         QUrl url = oldValue.toUrl();
         QString path = url.toLocalFile();
-        if (QFileInfo(path).exists() && nodeInstanceServer() && !path.isEmpty())
+        if (QFileInfo::exists(path) && nodeInstanceServer() && !path.isEmpty())
             nodeInstanceServer()->removeFilePropertyFromFileSystemWatcher(object(), name, path);
     }
 
@@ -437,7 +439,7 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
     if (newValue.type() == QVariant::Url) {
         QUrl url = newValue.toUrl();
         QString path = url.toLocalFile();
-        if (QFileInfo(path).exists() && nodeInstanceServer() && !path.isEmpty())
+        if (QFileInfo::exists(path) && nodeInstanceServer() && !path.isEmpty())
             nodeInstanceServer()->addFilePropertyToFileSystemWatcher(object(), name, path);
     }
 }
@@ -605,14 +607,29 @@ ObjectNodeInstance::Pointer ObjectNodeInstance::create(QObject *object)
 
 QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
 {
-    QObject *object = QmlPrivateGate::createPrimitive(typeName, majorNumber, minorNumber, context);
+    QString polishTypeName = typeName;
+    if (typeName == "QtQuick.Controls/Popup"
+            || typeName == "QtQuick.Controls/Drawer"
+            || typeName == "QtQuick.Controls/Dialog"
+            || typeName == "QtQuick.Controls/Menu"
+            || typeName == "QtQuick.Controls/ToolTip")
+        polishTypeName = "QtQuick/Item";
+
+    const QHash<QString, QString> mockHash = {{"QtQuick.Controls/SwipeView","qrc:/qtquickplugin/mockfiles/SwipeView.qml"}};
+
+    QObject *object = nullptr;
+
+    if (mockHash.contains(typeName))
+        object = QmlPrivateGate::createComponent(mockHash.value(typeName), context);
+    else
+        object = QmlPrivateGate::createPrimitive(polishTypeName, majorNumber, minorNumber, context);
 
     /* Let's try to create the primitive from source, since with incomplete meta info this might be a pure
      * QML type. This is the case for example if a C++ type is mocked up with a QML file.
      */
 
     if (!object)
-        object = createPrimitiveFromSource(typeName, majorNumber, minorNumber, context);
+        object = createPrimitiveFromSource(polishTypeName, majorNumber, minorNumber, context);
 
     return object;
 }
@@ -670,14 +687,14 @@ static inline QString fixComponentPathForIncompatibleQt(const QString &component
         const QString relativeImportPath = componentPath.right(componentPath.length() - index);
         QString fixedComponentPath = QLibraryInfo::location(QLibraryInfo::ImportsPath) + relativeImportPath;
         fixedComponentPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
-        if (QFileInfo(fixedComponentPath).exists())
+        if (QFileInfo::exists(fixedComponentPath))
             return fixedComponentPath;
         QString fixedPath = QFileInfo(fixedComponentPath).path();
         if (fixedPath.endsWith(QLatin1String(".1.0"))) {
         //plugin directories might contain the version number
             fixedPath.chop(4);
             fixedPath += QLatin1Char('/') + QFileInfo(componentPath).fileName();
-            if (QFileInfo(fixedPath).exists())
+            if (QFileInfo::exists(fixedPath))
                 return fixedPath;
         }
     }

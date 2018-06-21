@@ -29,6 +29,7 @@
 #include "task.h"
 
 #include <utils/qtcassert.h>
+#include <utils/temporarydirectory.h>
 
 #include <QDir>
 #include <QFile>
@@ -114,6 +115,7 @@ void GnuMakeParser::stdError(const QString &line)
 
     QRegularExpressionMatch match = m_errorInMakefile.match(lne);
     if (match.hasMatch()) {
+        flush();
         Result res = parseDescription(match.captured(5));
         if (res.isFatal)
             ++m_fatalErrorCount;
@@ -127,6 +129,7 @@ void GnuMakeParser::stdError(const QString &line)
     }
     match = m_makeLine.match(lne);
     if (match.hasMatch()) {
+        flush();
         Result res = parseDescription(match.captured(6));
         if (res.isFatal)
             ++m_fatalErrorCount;
@@ -257,24 +260,23 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
 
     // make sure adding directories works (once;-)
     QTest::newRow("entering directory")
-            << (QStringList() << QString::fromLatin1("/test/dir") )
+            << QStringList("/test/dir")
             << QString::fromLatin1("make[4]: Entering directory `/home/code/build/qt/examples/opengl/grabber'\n"
                                    "make[4]: Entering directory `/home/code/build/qt/examples/opengl/grabber'")
             << OutputParserTester::STDOUT
             << QString() << QString()
             << QList<Task>()
             << QString()
-            << (QStringList() << QString::fromLatin1("/home/code/build/qt/examples/opengl/grabber")
-                              << QString::fromLatin1("/home/code/build/qt/examples/opengl/grabber")
-                              << QString::fromLatin1("/test/dir"));
+            << QStringList({"/home/code/build/qt/examples/opengl/grabber",
+                            "/home/code/build/qt/examples/opengl/grabber", "/test/dir"});
     QTest::newRow("leaving directory")
-            << (QStringList()  << QString::fromLatin1("/home/code/build/qt/examples/opengl/grabber") << QString::fromLatin1("/test/dir"))
+            << QStringList({"/home/code/build/qt/examples/opengl/grabber", "/test/dir"})
             << QString::fromLatin1("make[4]: Leaving directory `/home/code/build/qt/examples/opengl/grabber'")
             << OutputParserTester::STDOUT
             << QString() << QString()
             << QList<Task>()
             << QString()
-            << (QStringList() << QString::fromLatin1("/test/dir"));
+            << QStringList("/test/dir");
     QTest::newRow("make error")
             << QStringList()
             << QString::fromLatin1("make: *** No rule to make target `hello.c', needed by `hello.o'.  Stop.")
@@ -475,8 +477,8 @@ void ProjectExplorerPlugin::testGnuMakeParserTaskMangling_data()
                     -1,
                     Constants::TASK_CATEGORY_COMPILE);
     QTest::newRow("find file")
-            << (QStringList(QLatin1String("test/file.cpp")))
-            << (QStringList(QLatin1String("test")))
+            << QStringList("test/file.cpp")
+            << QStringList("test")
             << Task(Task::Error,
                     QLatin1String("mangling"),
                     Utils::FileName::fromUserInput(QLatin1String("file.cpp")),
@@ -501,18 +503,14 @@ void ProjectExplorerPlugin::testGnuMakeParserTaskMangling()
     QFETCH(Task, outputTask);
 
     // setup files:
-    QString tempdir = QDir::tempPath();
-    const QChar slash = QLatin1Char('/');
-    tempdir.append(slash);
-    tempdir.append(QUuid::createUuid().toString());
-    tempdir.append(slash);
-
+    const QString tempdir
+            = Utils::TemporaryDirectory::masterDirectoryPath() + '/' + QUuid::createUuid().toString() + '/';
     QDir filedir(tempdir);
     foreach (const QString &file, files) {
-        Q_ASSERT(!file.startsWith(slash));
-        Q_ASSERT(!file.contains(QLatin1String("../")));
+        Q_ASSERT(!file.startsWith('/'));
+        Q_ASSERT(!file.contains("../"));
 
-        filedir.mkpath(file.left(file.lastIndexOf(slash)));
+        filedir.mkpath(file.left(file.lastIndexOf('/')));
 
         QFile tempfile(tempdir + file);
         if (!tempfile.open(QIODevice::WriteOnly))

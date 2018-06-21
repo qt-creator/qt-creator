@@ -26,13 +26,11 @@
 #include "jsonwizardscannergenerator.h"
 
 #include "../projectexplorer.h"
-#include "../iprojectmanager.h"
+#include "../projectmanager.h"
 #include "jsonwizard.h"
 #include "jsonwizardfactory.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -87,7 +85,6 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
 
     QDir project(projectDir);
     Core::GeneratedFiles result;
-    Utils::MimeDatabase mdb;
 
     QRegularExpression binaryPattern;
     if (!m_binaryPattern.isEmpty()) {
@@ -104,22 +101,13 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
 
     result = scan(project.absolutePath(), project);
 
-    QList<IProjectManager *> projectManagers
-            = ExtensionSystem::PluginManager::getObjects<IProjectManager>();
-
     int projectCount = 0;
     for (auto it = result.begin(); it != result.end(); ++it) {
         const QString relPath = project.relativeFilePath(it->path());
         it->setBinary(binaryPattern.match(relPath).hasMatch());
-
-        Utils::MimeType mt = mdb.mimeTypeForFile(relPath);
-        if (mt.isValid()) {
-            bool found = Utils::anyOf(projectManagers, [mt](IProjectManager *m) {
-                return mt.matchesName(m->mimeType());
-            });
-            if (found && !(onlyFirst && projectCount++))
-                it->setAttributes(it->attributes() | Core::GeneratedFile::OpenProjectAttribute);
-        }
+        bool found = ProjectManager::canOpenProjectForMimeType(Utils::mimeTypeForFile(relPath));
+        if (found && !(onlyFirst && projectCount++))
+            it->setAttributes(it->attributes() | Core::GeneratedFile::OpenProjectAttribute);
     }
 
     return result;

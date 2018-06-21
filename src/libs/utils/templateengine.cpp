@@ -28,6 +28,7 @@
 #include "qtcassert.h"
 
 #include <QJSEngine>
+#include <QRegExp>
 #include <QStack>
 
 namespace Utils {

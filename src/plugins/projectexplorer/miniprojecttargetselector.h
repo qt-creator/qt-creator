@@ -124,6 +124,7 @@ public:
 private:
     void rowChanged(int index);
     void displayNameChanged();
+    void toolTipChanged();
     QListWidgetItem *itemForProjectConfiguration(ProjectConfiguration *pc);
     bool m_ignoreIndexChange;
 };
@@ -147,14 +148,8 @@ public:
 private:
     void projectAdded(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);
-    void slotAddedTarget(ProjectExplorer::Target *target);
-    void slotRemovedTarget(ProjectExplorer::Target *target);
-    void slotAddedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
-    void slotRemovedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
-    void slotAddedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
-    void slotRemovedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
-    void slotAddedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
-    void slotRemovedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void handleNewProjectConfiguration(ProjectConfiguration *pc);
+    void handleRemovalOfProjectConfiguration(ProjectConfiguration *pc);
 
     void changeStartupProject(ProjectExplorer::Project *project);
     void activeTargetChanged(ProjectExplorer::Target *target);
@@ -163,22 +158,17 @@ private:
     void activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration *dc);
     void activeRunConfigurationChanged(ProjectExplorer::RunConfiguration *rc);
 
-    void setActiveTarget(ProjectExplorer::ProjectConfiguration *pc);
-    void setActiveBuildConfiguration(ProjectExplorer::ProjectConfiguration *pc);
-    void setActiveDeployConfiguration(ProjectExplorer::ProjectConfiguration *pc);
-    void setActiveRunConfiguration(ProjectExplorer::ProjectConfiguration *pc);
-
     void delayedHide();
     void updateActionAndSummary();
     void switchToProjectsMode();
     void addedTarget(Target *target);
     void removedTarget(Target *target);
-    void addedBuildConfiguration(BuildConfiguration* bc);
-    void removedBuildConfiguration(BuildConfiguration* bc);
-    void addedDeployConfiguration(DeployConfiguration *dc);
-    void removedDeployConfiguration(DeployConfiguration *dc);
-    void addedRunConfiguration(RunConfiguration *rc);
-    void removedRunConfiguration(RunConfiguration *rc);
+    bool addedBuildConfiguration(BuildConfiguration* bc);
+    bool removedBuildConfiguration(BuildConfiguration* bc);
+    bool addedDeployConfiguration(DeployConfiguration *dc);
+    bool removedDeployConfiguration(DeployConfiguration *dc);
+    bool addedRunConfiguration(RunConfiguration *rc);
+    bool removedRunConfiguration(RunConfiguration *rc);
 
     void updateProjectListVisible();
     void updateTargetListVisible();

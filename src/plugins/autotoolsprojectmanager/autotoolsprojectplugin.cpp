@@ -26,18 +26,33 @@
 ****************************************************************************/
 
 #include "autotoolsprojectplugin.h"
-#include "autotoolsmanager.h"
+#include "autotoolsproject.h"
+#include "autotoolsprojectconstants.h"
 #include "autotoolsbuildconfiguration.h"
 #include "makestep.h"
 #include "autogenstep.h"
 #include "autoreconfstep.h"
 #include "configurestep.h"
-#include "autotoolsprojectconstants.h"
 
-#include <QStringList>
-#include <QtPlugin>
+#include <projectexplorer/projectmanager.h>
 
-using namespace AutotoolsProjectManager::Internal;
+namespace AutotoolsProjectManager {
+namespace Internal {
+
+class AutotoolsProjectPluginRunData
+{
+public:
+    AutotoolsBuildConfigurationFactory buildConfigurationFactory;
+    MakeStepFactory makeStepFaactory;
+    AutogenStepFactory autogenStepFactory;
+    ConfigureStepFactory configureStepFactory;
+    AutoreconfStepFactory autoreconfStepFactory;
+};
+
+AutotoolsProjectPlugin::~AutotoolsProjectPlugin()
+{
+    delete m_runData;
+}
 
 void AutotoolsProjectPlugin::extensionsInitialized()
 { }
@@ -48,12 +63,11 @@ bool AutotoolsProjectPlugin::initialize(const QStringList &arguments,
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    addAutoReleasedObject(new AutotoolsBuildConfigurationFactory);
-    addAutoReleasedObject(new MakeStepFactory);
-    addAutoReleasedObject(new AutogenStepFactory);
-    addAutoReleasedObject(new ConfigureStepFactory);
-    addAutoReleasedObject(new AutoreconfStepFactory);
-    addAutoReleasedObject(new AutotoolsManager);
+    m_runData = new AutotoolsProjectPluginRunData;
+    ProjectExplorer::ProjectManager::registerProjectType<AutotoolsProject>(Constants::MAKEFILE_MIMETYPE);
 
     return true;
 }
+
+} // Internal
+} // AutotoolsProjectManager

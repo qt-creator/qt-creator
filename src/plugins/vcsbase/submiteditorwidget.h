@@ -59,9 +59,9 @@ public:
     // The submit action should have Core::Command::CA_UpdateText set as its text will
     // be updated.
     void registerActions(QAction *editorUndoAction,  QAction *editorRedoAction,
-                         QAction *submitAction = 0, QAction *diffAction = 0);
+                         QAction *submitAction = nullptr, QAction *diffAction = nullptr);
     void unregisterActions(QAction *editorUndoAction,  QAction *editorRedoAction,
-                           QAction *submitAction = 0, QAction *diffAction = 0);
+                           QAction *submitAction = nullptr, QAction *diffAction = nullptr);
 
     QString descriptionText() const;
     void setDescriptionText(const QString &text);
@@ -99,6 +99,9 @@ public:
     virtual bool canSubmit() const;
     void setUpdateInProgress(bool value);
     bool updateInProgress() const;
+
+    QList<int> selectedRows() const;
+    void setSelectedRows(const QList<int> &rows);
 
 public slots:
     void updateSubmitAction();

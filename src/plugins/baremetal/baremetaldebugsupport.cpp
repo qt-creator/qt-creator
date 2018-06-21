@@ -24,176 +24,117 @@
 ****************************************************************************/
 
 #include "baremetaldebugsupport.h"
-#include "baremetalrunconfiguration.h"
 #include "baremetaldevice.h"
+#include "baremetalgdbcommandsdeploystep.h"
 
 #include "gdbserverprovider.h"
 #include "gdbserverprovidermanager.h"
 
 #include <debugger/debuggerruncontrol.h>
-#include <debugger/debuggerstartparameters.h>
+#include <debugger/debuggerkitinformation.h>
 
-#include <projectexplorer/devicesupport/deviceapplicationrunner.h>
-#include <projectexplorer/runnables.h>
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 
+#include <utils/portlist.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+using namespace Debugger;
 using namespace ProjectExplorer;
 
 namespace BareMetal {
 namespace Internal {
 
-BareMetalDebugSupport::BareMetalDebugSupport(Debugger::DebuggerRunControl *runControl)
-    : QObject(runControl)
-    , m_appRunner(new ProjectExplorer::DeviceApplicationRunner(this))
-    , m_runControl(runControl)
-    , m_state(BareMetalDebugSupport::Inactive)
+BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
+    : Debugger::DebuggerRunTool(runControl)
 {
-    Q_ASSERT(runControl);
-    connect(m_runControl.data(), &Debugger::DebuggerRunControl::requestRemoteSetup,
-            this, &BareMetalDebugSupport::remoteSetupRequested);
-    connect(runControl, &Debugger::DebuggerRunControl::finished,
-            this, &BareMetalDebugSupport::debuggingFinished);
-}
-
-BareMetalDebugSupport::~BareMetalDebugSupport()
-{
-    setFinished();
-}
-
-void BareMetalDebugSupport::remoteSetupRequested()
-{
-    QTC_ASSERT(m_state == Inactive, return);
-    startExecution();
-}
-
-void BareMetalDebugSupport::debuggingFinished()
-{
-    setFinished();
-    reset();
-}
-
-void BareMetalDebugSupport::remoteOutputMessage(const QByteArray &output)
-{
-    QTC_ASSERT(m_state == Inactive || m_state == Running, return);
-    showMessage(QString::fromUtf8(output), Debugger::AppOutput);
-}
-
-void BareMetalDebugSupport::remoteErrorOutputMessage(const QByteArray &output)
-{
-    QTC_ASSERT(m_state == Inactive, return);
-    showMessage(QString::fromUtf8(output), Debugger::AppError);
-
-    // FIXME: Should we here parse an outputn?
-}
-
-void BareMetalDebugSupport::remoteProcessStarted()
-{
-    QTC_ASSERT(m_state == StartingRunner, return);
-    adapterSetupDone();
-}
-
-void BareMetalDebugSupport::appRunnerFinished(bool success)
-{
-    if (m_state == Inactive)
+    auto dev = qSharedPointerCast<const BareMetalDevice>(device());
+    if (!dev) {
+        reportFailure(tr("Cannot debug: Kit has no device."));
         return;
-
-    if (m_state == Running) {
-        if (!success)
-            m_runControl->notifyInferiorIll();
-    } else if (m_state == StartingRunner) {
-        Debugger::RemoteSetupResult result;
-        result.success = false;
-        result.reason = tr("Debugging failed.");
-        m_runControl->notifyEngineRemoteSetupFinished(result);
     }
 
-    reset();
-}
+    const QString providerId = dev->gdbServerProviderId();
+    const GdbServerProvider *p = GdbServerProviderManager::findProvider(providerId);
+    if (!p) {
+        reportFailure(tr("No GDB server provider found for %1").arg(providerId));
+        return;
+    }
 
-void BareMetalDebugSupport::progressReport(const QString &progressOutput)
-{
-    showMessage(progressOutput + QLatin1Char('\n'), Debugger::LogStatus);
-}
-
-void BareMetalDebugSupport::appRunnerError(const QString &error)
-{
-    if (m_state == Running) {
-        showMessage(error, Debugger::AppError);
-        m_runControl->notifyInferiorIll();
-    } else if (m_state != Inactive) {
-        adapterSetupFailed(error);
+    if (p->startupMode() == GdbServerProvider::StartupOnNetwork) {
+        Runnable r;
+        r.executable = p->executable();
+        // We need to wrap the command arguments depending on a host OS,
+        // as the bare metal's GDB servers are launched on a host,
+        // but not on a target.
+        r.commandLineArguments = Utils::QtcProcess::joinArgs(p->arguments(), Utils::HostOsInfo::hostOs());
+        m_gdbServer = new SimpleTargetRunner(runControl);
+        m_gdbServer->setRunnable(r);
+        addStartDependency(m_gdbServer);
     }
 }
 
-void BareMetalDebugSupport::adapterSetupDone()
+void BareMetalDebugSupport::start()
 {
-    m_state = Running;
-    Debugger::RemoteSetupResult result;
-    result.success = true;
-    m_runControl->notifyEngineRemoteSetupFinished(result);
-}
+    const auto rc = runControl()->runConfiguration();
+    QTC_ASSERT(rc, reportFailure(); return);
+    const auto exeAspect = rc->extraAspect<ExecutableAspect>();
+    QTC_ASSERT(exeAspect, reportFailure(); return);
 
-void BareMetalDebugSupport::adapterSetupFailed(const QString &error)
-{
-    debuggingFinished();
-
-    Debugger::RemoteSetupResult result;
-    result.success = false;
-    result.reason = tr("Initial setup failed: %1").arg(error);
-    m_runControl->notifyEngineRemoteSetupFinished(result);
-}
-
-void BareMetalDebugSupport::startExecution()
-{
-    auto dev = qSharedPointerCast<const BareMetalDevice>(m_runControl->device());
-    QTC_ASSERT(dev, return);
-
-    const GdbServerProvider *p = GdbServerProviderManager::instance()->findProvider(
-                dev->gdbServerProviderId());
-    QTC_ASSERT(p, return);
-
-    m_state = StartingRunner;
-    showMessage(tr("Starting GDB server...") + QLatin1Char('\n'), Debugger::LogStatus);
-
-    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::remoteStderr,
-            this, &BareMetalDebugSupport::remoteErrorOutputMessage);
-    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::remoteStdout,
-            this, &BareMetalDebugSupport::remoteOutputMessage);
-    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::remoteProcessStarted,
-            this, &BareMetalDebugSupport::remoteProcessStarted);
-    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::finished,
-            this, &BareMetalDebugSupport::appRunnerFinished);
-    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::reportProgress,
-            this, &BareMetalDebugSupport::progressReport);
-    connect(m_appRunner, &ProjectExplorer::DeviceApplicationRunner::reportError,
-            this, &BareMetalDebugSupport::appRunnerError);
-
-    StandardRunnable r;
-    r.executable = p->executable();
-    r.commandLineArguments = Utils::QtcProcess::joinArgs(p->arguments(), Utils::OsTypeLinux);
-    m_appRunner->start(dev, r);
-}
-
-void BareMetalDebugSupport::setFinished()
-{
-    if (m_state == Inactive)
+    const QString bin = exeAspect->executable().toString();
+    if (bin.isEmpty()) {
+        reportFailure(tr("Cannot debug: Local executable is not set."));
         return;
-    if (m_state == Running)
-        m_appRunner->stop();
-    m_state = Inactive;
-}
+    }
+    if (!QFile::exists(bin)) {
+        reportFailure(tr("Cannot debug: Could not find executable for \"%1\".").arg(bin));
+        return;
+    }
 
-void BareMetalDebugSupport::reset()
-{
-    m_appRunner->disconnect(this);
-    m_state = Inactive;
-}
+    const Target *target = rc->target();
+    QTC_ASSERT(target, reportFailure(); return);
 
-void BareMetalDebugSupport::showMessage(const QString &msg, int channel)
-{
-    if (m_state != Inactive)
-        m_runControl->showMessage(msg, channel);
+    auto dev = qSharedPointerCast<const BareMetalDevice>(device());
+    QTC_ASSERT(dev, reportFailure(); return);
+    const GdbServerProvider *p = GdbServerProviderManager::findProvider(dev->gdbServerProviderId());
+    QTC_ASSERT(p, reportFailure(); return);
+
+#if 0
+    // Currently baremetal plugin does not provide way to configure deployments steps
+    // FIXME: Should it?
+    QString commands;
+    if (const BuildConfiguration *bc = target->activeBuildConfiguration()) {
+        if (BuildStepList *bsl = bc->stepList(BareMetalGdbCommandsDeployStep::stepId())) {
+            foreach (const BareMetalGdbCommandsDeployStep *bs, bsl->allOfType<BareMetalGdbCommandsDeployStep>()) {
+                if (!commands.endsWith("\n"))
+                    commands.append("\n");
+                commands.append(bs->gdbCommands());
+            }
+        }
+    }
+    setCommandsAfterConnect(commands);
+#endif
+
+    Runnable inferior;
+    inferior.executable = bin;
+    if (auto aspect = rc->extraAspect<ArgumentsAspect>())
+        inferior.commandLineArguments = aspect->arguments();
+    setInferior(inferior);
+    setSymbolFile(bin);
+    setStartMode(AttachToRemoteServer);
+    setCommandsAfterConnect(p->initCommands()); // .. and here?
+    setCommandsForReset(p->resetCommands());
+    setRemoteChannel(p->channel());
+    setUseContinueInsteadOfRun(true);
+
+    DebuggerRunTool::start();
 }
 
 } // namespace Internal

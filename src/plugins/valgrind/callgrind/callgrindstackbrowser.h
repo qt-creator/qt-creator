@@ -38,7 +38,7 @@ class StackBrowser : public QObject
     Q_OBJECT
 
 public:
-    explicit StackBrowser(QObject *parent = 0);
+    explicit StackBrowser(QObject *parent = nullptr);
 
     void select(const Function *item);
     const Function *current() const;
@@ -46,7 +46,6 @@ public:
     bool hasPrevious() const { return !m_stack.isEmpty(); }
     bool hasNext() const { return !m_redoStack.isEmpty(); }
 
-public slots:
     void goBack();
     void goNext();
 

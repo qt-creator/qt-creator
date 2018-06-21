@@ -84,11 +84,11 @@ public:
     QString autoDetectionSource() const { return m_autoDetectionSource; }
     void setAutoDetectionSource(const QString &autoDetectionSource);
 
-    QList<ProjectExplorer::Abi> abis() const { return m_abis; }
+    const QList<ProjectExplorer::Abi> &abis() const { return m_abis; }
     void setAbis(const QList<ProjectExplorer::Abi> &abis);
     void setAbi(const ProjectExplorer::Abi &abi);
 
-    enum MatchLevel { DoesNotMatch, MatchesSomewhat, MatchesWell, MatchesPerfectly };
+    enum MatchLevel { DoesNotMatch, MatchesSomewhat, MatchesWell, MatchesPerfectly, MatchesPerfectlyInPath };
     MatchLevel matchTarget(const ProjectExplorer::Abi &targetAbi) const;
 
     QStringList abiNames() const;

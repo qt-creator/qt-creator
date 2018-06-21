@@ -28,6 +28,7 @@
 #include "formeditorscene.h"
 #include "formeditorview.h"
 #include "formeditorwidget.h"
+#include "formeditorgraphicsview.h"
 
 #include "resizehandleitem.h"
 
@@ -66,6 +67,12 @@ void MoveTool::clear()
     m_contentNotEditableIndicator.clear();
 
     AbstractFormEditorTool::clear();
+    view()->formEditorWidget()->graphicsView()->viewport()->unsetCursor();
+}
+
+void MoveTool::start()
+{
+    view()->formEditorWidget()->graphicsView()->viewport()->setCursor(Qt::SizeAllCursor);
 }
 
 void MoveTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
@@ -99,9 +106,14 @@ void MoveTool::mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
 
         FormEditorItem *containerItem = containerFormEditorItem(itemList, m_movingItems);
         if (containerItem && view()->currentState().isBaseState()) {
-            if (containerItem != m_movingItems.first()->parentItem()
+            if (containerItem != m_movingItems.constFirst()->parentItem()
                     && event->modifiers().testFlag(Qt::ShiftModifier)) {
-                m_moveManipulator.reparentTo(containerItem);
+
+                const FormEditorItem *movingItem = m_movingItems.constFirst();
+
+                if (m_movingItems.count() > 1
+                        || (movingItem->qmlItemNode().canBereparentedTo(containerItem->qmlItemNode())))
+                        m_moveManipulator.reparentTo(containerItem, MoveManipulator::EnforceReparent);
             }
         }
 
@@ -110,23 +122,38 @@ void MoveTool::mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
 }
 
 void MoveTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
-                        QGraphicsSceneMouseEvent * /*event*/)
+                        QGraphicsSceneMouseEvent * event)
 {
     if (itemList.isEmpty()) {
         view()->changeToSelectionTool();
         return;
     }
 
-    ResizeHandleItem* resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.first());
+    ResizeHandleItem* resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.constFirst());
     if (resizeHandle) {
         view()->changeToResizeTool();
         return;
     }
 
+    if (view()->hasSingleSelectedModelNode() && selectedItemCursorInMovableArea(event->scenePos()))
+        return;
+
     if (!topSelectedItemIsMovable(itemList)) {
         view()->changeToSelectionTool();
         return;
     }
+
+    if (view()->hasSingleSelectedModelNode()) {
+        view()->changeToSelectionTool();
+        return;
+    }
+
+    if (event->modifiers().testFlag(Qt::ShiftModifier)
+            || event->modifiers().testFlag(Qt::ControlModifier) ) {
+        view()->changeToSelectionTool();
+        return;
+    }
+
 
     m_contentNotEditableIndicator.setItems(toFormEditorItemList(itemList));
 }
@@ -220,6 +247,8 @@ void MoveTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
     }
 
     AbstractFormEditorTool::mouseReleaseEvent(itemList, event);
+
+    view()->changeToSelectionTool();
 }
 
 void MoveTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event)
@@ -260,7 +289,7 @@ bool MoveTool::haveSameParent(const QList<FormEditorItem*> &itemList)
     if (itemList.isEmpty())
         return false;
 
-    QGraphicsItem *firstParent = itemList.first()->parentItem();
+    QGraphicsItem *firstParent = itemList.constFirst()->parentItem();
     foreach (FormEditorItem* item, itemList)
     {
         if (firstParent != item->parentItem())

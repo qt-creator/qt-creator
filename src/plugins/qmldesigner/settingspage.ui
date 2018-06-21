@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>678</width>
+    <width>685</width>
     <height>555</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
@@ -103,6 +103,55 @@
       </widget>
      </item>
      <item>
+      <widget class="QGroupBox" name="groupBox_4">
+       <property name="title">
+        <string>Root Item Init Size</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_7">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>Width:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_12">
+          <property name="text">
+           <string>Height:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSpinBox" name="spinRootItemInitHeight">
+          <property name="maximum">
+           <number>100000</number>
+          </property>
+          <property name="singleStep">
+           <number>1</number>
+          </property>
+          <property name="value">
+           <number>480</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QSpinBox" name="spinRootItemInitWidth">
+          <property name="maximum">
+           <number>100000</number>
+          </property>
+          <property name="singleStep">
+           <number>1</number>
+          </property>
+          <property name="value">
+           <number>640</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
       <widget class="QGroupBox" name="groupBox_03">
        <property name="minimumSize">
         <size>
@@ -167,7 +216,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_04">
+    <widget class="QGroupBox" name="emulationGroupBox">
      <property name="title">
       <string>QML Emulation Layer</string>
      </property>
@@ -203,14 +252,14 @@
            <bool>true</bool>
           </property>
           <property name="toolTip">
-           <string>Path where Qt Creator can find the QML emulation layer executable (qmlpuppet).</string>
+           <string>Path to the QML emulation layer executable (qmlpuppet).</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="resetFallbackPuppetPathButton">
           <property name="toolTip">
-           <string>Resets the path to the QML emulation layer that comes with Qt Creator.</string>
+           <string>Resets the path to the built-in QML emulation layer.</string>
           </property>
           <property name="text">
            <string>Reset Path</string>
@@ -349,13 +398,20 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QRadioButton" name="useQsTranslateFunctionRadioButton">
+          <property name="text">
+           <string>qsTranslate()</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </item>
     </layout>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_08">
+    <widget class="QGroupBox" name="debugGroupBox">
      <property name="title">
       <string>Debugging</string>
      </property>

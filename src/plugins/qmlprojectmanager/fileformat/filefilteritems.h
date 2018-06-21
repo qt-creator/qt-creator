@@ -28,6 +28,7 @@
 #include "qmlprojectitem.h"
 
 #include <QObject>
+#include <QRegExp>
 #include <QSet>
 #include <QTimer>
 

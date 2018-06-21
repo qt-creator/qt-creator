@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "qmlprofilertracefile.h"
+#include "qmlprofilernotesmodel.h"
+#include "qmlprofilerconstants.h"
 
 #include <utils/qtcassert.h>
 
@@ -108,19 +110,13 @@ static QString qmlTypeAsString(Message message, RangeType rangeType)
 {
     if (rangeType < MaximumRangeType)
         return _(RANGE_TYPE_STRINGS[rangeType]);
-    else if (message != MaximumMessage)
+    else if (message < MaximumMessage)
         return _(MESSAGE_STRINGS[message]);
     else
         return QString::number((int)rangeType);
 }
 
-
-QmlProfilerFileReader::QmlProfilerFileReader(QObject *parent) :
-    QObject(parent),
-    m_traceStart(-1),
-    m_traceEnd(-1),
-    m_future(0),
-    m_loadedFeatures(0)
+QmlProfilerTraceFile::QmlProfilerTraceFile(QObject *parent) : Timeline::TimelineTraceFile(parent)
 {
     static int meta[] = {
         qRegisterMetaType<QVector<QmlEvent> >(),
@@ -130,24 +126,31 @@ QmlProfilerFileReader::QmlProfilerFileReader(QObject *parent) :
     Q_UNUSED(meta);
 }
 
-void QmlProfilerFileReader::setFuture(QFutureInterface<void> *future)
+void QmlProfilerTraceFile::load(QIODevice *device)
 {
-    m_future = future;
-    if (m_future) {
-        m_future->setProgressRange(0, 1000);
-        m_future->setProgressValue(0);
-    }
+    const QFile *file = qobject_cast<QFile *>(device);
+    if (file && file->fileName().endsWith(Constants::QtdFileExtension))
+        loadQtd(device);
+    else
+        loadQzt(device);
 }
 
-bool QmlProfilerFileReader::loadQtd(QIODevice *device)
+void QmlProfilerTraceFile::save(QIODevice *device)
+{
+    const QFile *file = qobject_cast<QFile *>(device);
+    if (file && file->fileName().endsWith(Constants::QtdFileExtension))
+        saveQtd(device);
+    else
+        saveQzt(device);
+}
+
+void QmlProfilerTraceFile::loadQtd(QIODevice *device)
 {
     QXmlStreamReader stream(device);
 
     bool validVersion = true;
 
-    while (validVersion && !stream.atEnd() && !stream.hasError()) {
-        if (isCanceled())
-            return false;
+    while (validVersion && !stream.atEnd() && !stream.hasError() && !isCanceled()) {
         QXmlStreamReader::TokenType token = stream.readNext();
         const QStringRef elementName = stream.name();
         switch (token) {
@@ -160,14 +163,13 @@ bool QmlProfilerFileReader::loadQtd(QIODevice *device)
                 else
                     validVersion = false;
                 if (attributes.hasAttribute(_("traceStart")))
-                    m_traceStart = attributes.value(_("traceStart")).toLongLong();
+                    setTraceStart(attributes.value(_("traceStart")).toLongLong());
                 if (attributes.hasAttribute(_("traceEnd")))
-                    m_traceEnd = attributes.value(_("traceEnd")).toLongLong();
+                    setTraceEnd(attributes.value(_("traceEnd")).toLongLong());
             }
 
             if (elementName == _("eventData")) {
                 loadEventTypes(stream);
-                emit typesLoaded(m_eventTypes);
                 break;
             }
 
@@ -178,7 +180,6 @@ bool QmlProfilerFileReader::loadQtd(QIODevice *device)
 
             if (elementName == _("noteData")) {
                 loadNotes(stream);
-                emit notesLoaded(m_notes);
                 break;
             }
 
@@ -188,16 +189,13 @@ bool QmlProfilerFileReader::loadQtd(QIODevice *device)
         }
     }
 
-    if (stream.hasError()) {
-        emit error(tr("Error while parsing trace data file: %1").arg(stream.errorString()));
-        return false;
-    } else {
-        emit success();
-        return true;
-    }
+    if (stream.hasError())
+        fail(tr("Error while parsing trace data file: %1").arg(stream.errorString()));
+    else
+        finish();
 }
 
-bool QmlProfilerFileReader::loadQzt(QIODevice *device)
+void QmlProfilerTraceFile::loadQzt(QIODevice *device)
 {
     QDataStream stream(device);
     stream.setVersion(QDataStream::Qt_5_5);
@@ -205,89 +203,106 @@ bool QmlProfilerFileReader::loadQzt(QIODevice *device)
     QByteArray magic;
     stream >> magic;
     if (magic != QByteArray("QMLPROFILER")) {
-        emit error(tr("Invalid magic: %1").arg(QLatin1String(magic)));
-        return false;
+        fail(tr("Invalid magic: %1").arg(QLatin1String(magic)));
+        return;
     }
 
     qint32 dataStreamVersion;
     stream >> dataStreamVersion;
 
     if (dataStreamVersion > QDataStream::Qt_DefaultCompiledVersion) {
-        emit error(tr("Unknown data stream version: %1").arg(dataStreamVersion));
-        return false;
+        fail(tr("Unknown data stream version: %1").arg(dataStreamVersion));
+        return;
     }
     stream.setVersion(dataStreamVersion);
 
-    stream >> m_traceStart >> m_traceEnd;
+    qint64 traceStart, traceEnd;
+    stream >> traceStart >> traceEnd;
+    setTraceStart(traceStart);
+    setTraceEnd(traceEnd);
 
     QBuffer buffer;
     QDataStream bufferStream(&buffer);
     bufferStream.setVersion(dataStreamVersion);
     QByteArray data;
-    updateProgress(device);
+    setDeviceProgress(device);
 
-    stream >> data;
-    buffer.setData(qUncompress(data));
-    buffer.open(QIODevice::ReadOnly);
-    bufferStream >> m_eventTypes;
-    buffer.close();
-    emit typesLoaded(m_eventTypes);
-    updateProgress(device);
-
-    stream >> data;
-    buffer.setData(qUncompress(data));
-    buffer.open(QIODevice::ReadOnly);
-    bufferStream >> m_notes;
-    buffer.close();
-    emit notesLoaded(m_notes);
-    updateProgress(device);
-
-    const int eventBufferLength = 1024;
-    QVector<QmlEvent> eventBuffer(eventBufferLength);
-    int eventBufferIndex = 0;
-    while (!stream.atEnd()) {
+    QmlProfilerModelManager *manager = modelManager();
+    if (!isCanceled()) {
         stream >> data;
         buffer.setData(qUncompress(data));
         buffer.open(QIODevice::ReadOnly);
-        while (!buffer.atEnd()) {
-            if (isCanceled())
-                return false;
-            QmlEvent &event = eventBuffer[eventBufferIndex];
+        quint32 numEventTypes;
+        bufferStream >> numEventTypes;
+        if (numEventTypes > quint32(std::numeric_limits<int>::max())) {
+            fail(tr("Excessive number of event types: %1").arg(numEventTypes));
+            return;
+        }
+
+        for (int typeId = 0; typeId < static_cast<int>(numEventTypes); ++typeId) {
+            QmlEventType type;
+            bufferStream >> type;
+            manager->setEventType(typeId, std::move(type));
+        }
+        buffer.close();
+        setDeviceProgress(device);
+    }
+
+    if (!isCanceled()) {
+        stream >> data;
+        buffer.setData(qUncompress(data));
+        buffer.open(QIODevice::ReadOnly);
+        QVector<QmlNote> notes;
+        bufferStream >> notes;
+        buffer.close();
+        qmlNotes()->setNotes(notes);
+        setDeviceProgress(device);
+    }
+
+    while (!stream.atEnd() && !isCanceled()) {
+        stream >> data;
+        buffer.setData(qUncompress(data));
+        buffer.open(QIODevice::ReadOnly);
+        while (!buffer.atEnd() && !isCanceled()) {
+            QmlEvent event;
             bufferStream >> event;
             if (bufferStream.status() == QDataStream::Ok) {
-                if (event.typeIndex() >= m_eventTypes.length()) {
-                    emit error(tr("Invalid type index %1").arg(event.typeIndex()));
-                    return false;
+                if (event.typeIndex() >= traceManager()->numEventTypes()) {
+                    fail(tr("Invalid type index %1").arg(event.typeIndex()));
+                    return;
                 }
-                m_loadedFeatures |= (1ULL << m_eventTypes[event.typeIndex()].feature());
+                addFeature(manager->eventType(event.typeIndex()).feature());
+                if (event.timestamp() < 0)
+                    event.setTimestamp(0);
             } else if (bufferStream.status() == QDataStream::ReadPastEnd) {
                 break; // Apparently EOF is a character so we end up here after the last event.
             } else if (bufferStream.status() == QDataStream::ReadCorruptData) {
-                emit error(tr("Corrupt data before position %1.").arg(device->pos()));
-                return false;
+                fail(tr("Corrupt data before position %1.").arg(device->pos()));
+                return;
             } else {
                 Q_UNREACHABLE();
             }
-            if (++eventBufferIndex == eventBufferLength) {
-                emit qmlEventsLoaded(eventBuffer);
-                eventBufferIndex = 0;
-            }
+            manager->appendEvent(std::move(event));
         }
         buffer.close();
-        updateProgress(device);
+        setDeviceProgress(device);
     }
-    eventBuffer.resize(eventBufferIndex);
-    emit qmlEventsLoaded(eventBuffer);
-    emit success();
-    return true;
+
+    finish();
 }
 
-quint64 QmlProfilerFileReader::loadedFeatures() const
+void QmlProfilerTraceFile::addEventsProgress(qint64 timestamp)
 {
-    return m_loadedFeatures;
+    addProgressValue(static_cast<float>(timestamp) / static_cast<float>(traceEnd() - traceStart())
+                     * ProgressEvents);
 }
 
-void QmlProfilerFileReader::loadEventTypes(QXmlStreamReader &stream)
+void QmlProfilerTraceFile::addStageProgress(QmlProfilerTraceFile::ProgressValues stage)
+{
+    addProgressValue(stage);
+}
+
+void QmlProfilerTraceFile::loadEventTypes(QXmlStreamReader &stream)
 {
     QTC_ASSERT(stream.name() == _("eventData"), return);
 
@@ -309,9 +324,7 @@ void QmlProfilerFileReader::loadEventTypes(QXmlStreamReader &stream)
         line = column = 0;
     };
 
-    while (!stream.atEnd() && !stream.hasError()) {
-        if (isCanceled())
-            return;
+    while (!stream.atEnd() && !stream.hasError() && !isCanceled()) {
 
         QXmlStreamReader::TokenType token = stream.readNext();
         const QStringRef elementName = stream.name();
@@ -319,7 +332,7 @@ void QmlProfilerFileReader::loadEventTypes(QXmlStreamReader &stream)
         switch (token) {
         case QXmlStreamReader::StartElement: {
             if (elementName == _("event")) {
-                updateProgress(stream.device());
+                setDeviceProgress(stream.device());
                 clearType();
 
                 const QXmlStreamAttributes attributes = stream.attributes();
@@ -396,14 +409,13 @@ void QmlProfilerFileReader::loadEventTypes(QXmlStreamReader &stream)
         case QXmlStreamReader::EndElement: {
             if (elementName == _("event")) {
                 if (typeIndex >= 0) {
-                    if (typeIndex >= m_eventTypes.size())
-                        m_eventTypes.resize(typeIndex + 1);
-                    QmlEventType type(messageAndRange.first, messageAndRange.second, detailType,
-                                      QmlEventLocation(filename, line, column), data, displayName);
-                    m_eventTypes[typeIndex] = type;
-                    ProfileFeature feature = type.feature();
+                    QmlEventType type(messageAndRange.first, messageAndRange.second,
+                                      detailType, QmlEventLocation(filename, line, column),
+                                      data, displayName);
+                    const quint8 feature = type.feature();
+                    modelManager()->setEventType(typeIndex, std::move(type));
                     if (feature != MaximumProfileFeature)
-                        m_loadedFeatures |= (1ULL << static_cast<uint>(feature));
+                        addFeature(feature);
                 }
                 break;
             }
@@ -419,14 +431,76 @@ void QmlProfilerFileReader::loadEventTypes(QXmlStreamReader &stream)
     }
 }
 
-void QmlProfilerFileReader::loadEvents(QXmlStreamReader &stream)
+class EventList
+{
+public:
+    void addEvent(const QmlEvent &event);
+    void addRange(const QmlEvent &start, const QmlEvent &end);
+
+    void finalize(QmlProfilerModelManager *modelManager);
+
+private:
+    struct QmlRange {
+        QmlEvent begin;
+        QmlEvent end;
+    };
+
+    QList<QmlRange> ranges; // We are going to do a lot of takeFirst() on this.
+};
+
+void EventList::addEvent(const QmlEvent &event)
+{
+    ranges.append({event, QmlEvent()});
+}
+
+void EventList::addRange(const QmlEvent &start, const QmlEvent &end)
+{
+    ranges.append({start, end});
+}
+
+void EventList::finalize(QmlProfilerModelManager *modelManager)
+{
+    std::sort(ranges.begin(), ranges.end(), [](const QmlRange &a, const QmlRange &b) {
+        if (a.begin.timestamp() < b.begin.timestamp())
+            return true;
+        if (a.begin.timestamp() > b.begin.timestamp())
+            return false;
+
+        // If the start times are equal. Sort the one with the greater end time first, so that
+        // the nesting is retained.
+        return (a.end.timestamp() > b.end.timestamp());
+    });
+
+    QList<QmlEvent> ends;
+    while (!ranges.isEmpty()) {
+        // This is more expensive than just iterating, but we don't want to double the already
+        // high memory footprint.
+        QmlRange range = ranges.takeFirst();
+        while (!ends.isEmpty() && ends.last().timestamp() <= range.begin.timestamp())
+            modelManager->appendEvent(ends.takeLast());
+
+        if (range.end.isValid()) {
+            auto it = ends.end();
+            for (auto begin = ends.begin(); it != begin;) {
+                if ((--it)->timestamp() >= range.end.timestamp()) {
+                    ++it;
+                    break;
+                }
+            }
+            ends.insert(it, range.end);
+        }
+        modelManager->appendEvent(std::move(range.begin));
+    }
+    while (!ends.isEmpty())
+        modelManager->appendEvent(ends.takeLast());
+}
+
+void QmlProfilerTraceFile::loadEvents(QXmlStreamReader &stream)
 {
     QTC_ASSERT(stream.name() == _("profilerDataModel"), return);
-    QVector<QmlEvent> events;
+    EventList events;
 
-    while (!stream.atEnd() && !stream.hasError()) {
-        if (isCanceled())
-            return;
+    while (!stream.atEnd() && !stream.hasError() && !isCanceled()) {
 
         QXmlStreamReader::TokenType token = stream.readNext();
         const QStringRef elementName = stream.name();
@@ -434,7 +508,7 @@ void QmlProfilerFileReader::loadEvents(QXmlStreamReader &stream)
         switch (token) {
         case QXmlStreamReader::StartElement: {
             if (elementName == _("range")) {
-                updateProgress(stream.device());
+                setDeviceProgress(stream.device());
                 QmlEvent event;
 
                 const QXmlStreamAttributes attributes = stream.attributes();
@@ -444,17 +518,17 @@ void QmlProfilerFileReader::loadEvents(QXmlStreamReader &stream)
                     continue;
                 }
 
-                event.setTimestamp(attributes.value(_("startTime")).toLongLong());
+                const qint64 timestamp = attributes.value(_("startTime")).toLongLong();
+                event.setTimestamp(timestamp > 0 ? timestamp : 0);
                 event.setTypeIndex(attributes.value(_("eventIndex")).toInt());
 
                 if (attributes.hasAttribute(_("duration"))) {
                     event.setRangeStage(RangeStart);
-                    events.append(event);
                     QmlEvent rangeEnd(event);
                     rangeEnd.setRangeStage(RangeEnd);
-                    rangeEnd.setTimestamp(event.timestamp()
-                                          + attributes.value(_("duration")).toLongLong());
-                    events.append(rangeEnd);
+                    const qint64 duration = attributes.value(_("duration")).toLongLong();
+                    rangeEnd.setTimestamp(event.timestamp() + (duration > 0 ? duration : 0));
+                    events.addRange(event, rangeEnd);
                 } else {
                     // attributes for special events
                     if (attributes.hasAttribute(_("framerate")))
@@ -490,7 +564,7 @@ void QmlProfilerFileReader::loadEvents(QXmlStreamReader &stream)
                     if (attributes.hasAttribute(_("text")))
                         event.setString(attributes.value(_("text")).toString());
 
-                    events.append(event);
+                    events.addEvent(event);
                 }
             }
             break;
@@ -498,10 +572,7 @@ void QmlProfilerFileReader::loadEvents(QXmlStreamReader &stream)
         case QXmlStreamReader::EndElement: {
             if (elementName == _("profilerDataModel")) {
                 // done reading profilerDataModel
-                std::sort(events.begin(), events.end(), [](const QmlEvent &a, const QmlEvent &b) {
-                    return a.timestamp() < b.timestamp();
-                });
-                emit qmlEventsLoaded(events);
+                events.finalize(modelManager());
                 return;
             }
             break;
@@ -511,12 +582,10 @@ void QmlProfilerFileReader::loadEvents(QXmlStreamReader &stream)
     }
 }
 
-void QmlProfilerFileReader::loadNotes(QXmlStreamReader &stream)
+void QmlProfilerTraceFile::loadNotes(QXmlStreamReader &stream)
 {
     QmlNote currentNote;
-    while (!stream.atEnd() && !stream.hasError()) {
-        if (isCanceled())
-            return;
+    while (!stream.atEnd() && !stream.hasError() && !isCanceled()) {
 
         QXmlStreamReader::TokenType token = stream.readNext();
         const QStringRef elementName = stream.name();
@@ -524,7 +593,7 @@ void QmlProfilerFileReader::loadNotes(QXmlStreamReader &stream)
         switch (token) {
         case QXmlStreamReader::StartElement: {
             if (elementName == _("note")) {
-                updateProgress(stream.device());
+                setDeviceProgress(stream.device());
                 QXmlStreamAttributes attrs = stream.attributes();
                 int collapsedRow = attrs.hasAttribute(_("collapsedRow")) ?
                             attrs.value(_("collapsedRow")).toInt() : -1;
@@ -542,7 +611,7 @@ void QmlProfilerFileReader::loadNotes(QXmlStreamReader &stream)
         }
         case QXmlStreamReader::EndElement: {
             if (elementName == _("note")) {
-                m_notes.append(currentNote);
+                qmlNotes()->addNote(currentNote);
             } else if (elementName == _("noteData")) {
                 return;
             }
@@ -554,58 +623,8 @@ void QmlProfilerFileReader::loadNotes(QXmlStreamReader &stream)
     }
 }
 
-void QmlProfilerFileReader::updateProgress(QIODevice *device)
+void QmlProfilerTraceFile::saveQtd(QIODevice *device)
 {
-    if (!m_future)
-        return;
-
-    m_future->setProgressValue(device->pos() * 1000 / device->size());
-}
-
-bool QmlProfilerFileReader::isCanceled() const
-{
-    return m_future && m_future->isCanceled();
-}
-
-QmlProfilerFileWriter::QmlProfilerFileWriter(QObject *parent) :
-    QObject(parent),
-    m_startTime(0),
-    m_endTime(0),
-    m_measuredTime(0),
-    m_future(0)
-{
-}
-
-void QmlProfilerFileWriter::setTraceTime(qint64 startTime, qint64 endTime, qint64 measuredTime)
-{
-    m_startTime = startTime;
-    m_endTime = endTime;
-    m_measuredTime = measuredTime;
-}
-
-void QmlProfilerFileWriter::setData(const QmlProfilerDataModel *model)
-{
-    m_model = model;
-}
-
-void QmlProfilerFileWriter::setNotes(const QVector<QmlNote> &notes)
-{
-    m_notes = notes;
-}
-
-void QmlProfilerFileWriter::setFuture(QFutureInterface<void> *future)
-{
-    m_future = future;
-}
-
-void QmlProfilerFileWriter::saveQtd(QIODevice *device)
-{
-    if (m_future) {
-        m_future->setProgressRange(0, qMax(m_model->eventTypes().size() + m_notes.size(), 1));
-        m_future->setProgressValue(0);
-        m_newProgressValue = 0;
-    }
-
     QXmlStreamWriter stream(device);
 
     stream.setAutoFormatting(true);
@@ -614,18 +633,16 @@ void QmlProfilerFileWriter::saveQtd(QIODevice *device)
     stream.writeStartElement(_("trace"));
     stream.writeAttribute(_("version"), _(PROFILER_FILE_VERSION));
 
-    stream.writeAttribute(_("traceStart"), QString::number(m_startTime));
-    stream.writeAttribute(_("traceEnd"), QString::number(m_endTime));
+    stream.writeAttribute(_("traceStart"), QString::number(traceStart()));
+    stream.writeAttribute(_("traceEnd"), QString::number(traceEnd()));
 
     stream.writeStartElement(_("eventData"));
-    stream.writeAttribute(_("totalTime"), QString::number(m_measuredTime));
+    stream.writeAttribute(_("totalTime"), QString::number(measuredTime()));
+    const QmlProfilerModelManager *manager = modelManager();
+    for (int typeIndex = 0, end = manager->numEventTypes(); typeIndex < end && !isCanceled();
+         ++typeIndex) {
 
-    const QVector<QmlEventType> &eventTypes = m_model->eventTypes();
-    for (int typeIndex = 0; typeIndex < eventTypes.size(); ++typeIndex) {
-        if (isCanceled())
-            return;
-
-        const QmlEventType &type = eventTypes[typeIndex];
+        const QmlEventType &type = manager->eventType(typeIndex);
 
         stream.writeStartElement(_("event"));
         stream.writeAttribute(_("index"), QString::number(typeIndex));
@@ -667,18 +684,16 @@ void QmlProfilerFileWriter::saveQtd(QIODevice *device)
             stream.writeTextElement(_("level"), QString::number(type.detailType()));
         }
         stream.writeEndElement();
-        incrementProgress();
     }
+    addStageProgress(ProgressTypes);
     stream.writeEndElement(); // eventData
 
-    stream.writeStartElement(_("profilerDataModel"));
+    if (isCanceled())
+        return;
 
     QStack<QmlEvent> stack;
-    m_model->replayEvents(-1, -1, [this, &stack, &stream](const QmlEvent &event,
-                                                          const QmlEventType &type) {
-        if (isCanceled())
-            return;
-
+    qint64 lastProgressTimestamp = traceStart();
+    modelManager()->replayQmlEvents([&](const QmlEvent &event, const QmlEventType &type) {
         if (type.rangeType() != MaximumRangeType && event.rangeStage() == RangeStart) {
             stack.push(event);
             return;
@@ -742,65 +757,83 @@ void QmlProfilerFileWriter::saveQtd(QIODevice *device)
             stream.writeAttribute(_("text"), event.string());
 
         stream.writeEndElement();
-        incrementProgress();
-    });
-    stream.writeEndElement(); // profilerDataModel
 
-    stream.writeStartElement(_("noteData"));
-    for (int noteIndex = 0; noteIndex < m_notes.size(); ++noteIndex) {
-        if (isCanceled())
-            return;
+        if (isProgressUpdateNeeded()) {
+            addEventsProgress(event.timestamp() - lastProgressTimestamp);
+            lastProgressTimestamp = event.timestamp();
+        }
+    }, [&stream](){
+        stream.writeStartElement(_("profilerDataModel"));
+    }, [this, &stream]() {
+        stream.writeEndElement(); // profilerDataModel
+        if (!isCanceled()) {
+            stream.writeStartElement(_("noteData"));
+            const QVector<QmlNote> &notes = qmlNotes()->notes();
+            for (int noteIndex = 0; noteIndex < notes.length() && !isCanceled(); ++noteIndex) {
+                const QmlNote &note = notes[noteIndex];
+                stream.writeStartElement(_("note"));
+                stream.writeAttribute(_("startTime"), QString::number(note.startTime()));
+                stream.writeAttribute(_("duration"), QString::number(note.duration()));
+                stream.writeAttribute(_("eventIndex"), QString::number(note.typeIndex()));
+                stream.writeAttribute(_("collapsedRow"), QString::number(note.collapsedRow()));
+                stream.writeCharacters(note.text());
+                stream.writeEndElement(); // note
+            }
+            stream.writeEndElement(); // noteData
+            addStageProgress(ProgressNotes);
+        }
 
-        const QmlNote &note = m_notes[noteIndex];
-        stream.writeStartElement(_("note"));
-        stream.writeAttribute(_("startTime"), QString::number(note.startTime()));
-        stream.writeAttribute(_("duration"), QString::number(note.duration()));
-        stream.writeAttribute(_("eventIndex"), QString::number(note.typeIndex()));
-        stream.writeAttribute(_("collapsedRow"), QString::number(note.collapsedRow()));
-        stream.writeCharacters(note.text());
-        stream.writeEndElement(); // note
-        incrementProgress();
-    }
-    stream.writeEndElement(); // noteData
+        stream.writeEndElement(); // trace
+        stream.writeEndDocument();
 
-    if (isCanceled())
-        return;
-
-    stream.writeEndElement(); // trace
-    stream.writeEndDocument();
+        if (stream.hasError())
+            fail(tr("Error writing trace file."));
+    }, [this](const QString &message) {
+        fail(tr("Could not re-read events from temporary trace file: %s\nSaving failed.")
+             .arg(message));
+    }, future());
 }
 
-void QmlProfilerFileWriter::saveQzt(QFile *file)
+void QmlProfilerTraceFile::saveQzt(QIODevice *device)
 {
-    QDataStream stream(file);
+    QDataStream stream(device);
     stream.setVersion(QDataStream::Qt_5_5);
     stream << QByteArray("QMLPROFILER");
     stream << static_cast<qint32>(QDataStream::Qt_DefaultCompiledVersion);
     stream.setVersion(QDataStream::Qt_DefaultCompiledVersion);
 
-    stream << m_startTime << m_endTime;
+    stream << traceStart() << traceEnd();
 
     QBuffer buffer;
     QDataStream bufferStream(&buffer);
     buffer.open(QIODevice::WriteOnly);
 
-    incrementProgress();
-    buffer.open(QIODevice::WriteOnly);
-    bufferStream << m_model->eventTypes();
-    stream << qCompress(buffer.data());
-    buffer.close();
-    buffer.buffer().clear();
-    incrementProgress();
-    buffer.open(QIODevice::WriteOnly);
-    bufferStream << m_notes;
-    stream << qCompress(buffer.data());
-    buffer.close();
-    buffer.buffer().clear();
-    incrementProgress();
+    if (!isCanceled()) {
+        const QmlProfilerModelManager *manager = modelManager();
+        const int numEventTypes = manager->numEventTypes();
+        bufferStream << static_cast<quint32>(numEventTypes);
+        for (int typeId = 0; typeId < numEventTypes; ++typeId)
+            bufferStream << manager->eventType(typeId);
+        stream << qCompress(buffer.data());
+        buffer.close();
+        buffer.buffer().clear();
+        addStageProgress(ProgressTypes);
+    }
 
-    buffer.open(QIODevice::WriteOnly);
-    m_model->replayEvents(-1, -1, [&stream, &buffer, &bufferStream](const QmlEvent &event,
-                                                                    const QmlEventType &type) {
+    if (!isCanceled()) {
+        buffer.open(QIODevice::WriteOnly);
+        bufferStream << qmlNotes()->notes();
+        stream << qCompress(buffer.data());
+        buffer.close();
+        buffer.buffer().clear();
+        addStageProgress(ProgressNotes);
+    }
+
+    if (isCanceled())
+        return;
+
+    qint64 lastProgressTimestamp = traceStart();
+    modelManager()->replayQmlEvents([&](const QmlEvent &event, const QmlEventType &type) {
         Q_UNUSED(type);
         bufferStream << event;
         // 32MB buffer should be plenty for efficient compression
@@ -809,28 +842,34 @@ void QmlProfilerFileWriter::saveQzt(QFile *file)
             buffer.close();
             buffer.buffer().clear();
             buffer.open(QIODevice::WriteOnly);
+            if (isProgressUpdateNeeded()) {
+                addEventsProgress(event.timestamp() - lastProgressTimestamp);
+                lastProgressTimestamp = event.timestamp();
+            }
         }
-    });
-    stream << qCompress(buffer.data());
-    buffer.close();
-    buffer.buffer().clear();
+    }, [&]() {
+        buffer.open(QIODevice::WriteOnly);
+    }, [&]() {
+        if (!isCanceled()) {
+            stream << qCompress(buffer.data());
+            buffer.close();
+            buffer.buffer().clear();
+            addEventsProgress(traceEnd() - lastProgressTimestamp);
+        }
+    }, [this](const QString &message) {
+        fail(tr("Could not re-read events from temporary trace file: %s\nSaving failed.")
+             .arg(message));
+    }, future());
 }
 
-void QmlProfilerFileWriter::incrementProgress()
+QmlProfilerModelManager *QmlProfilerTraceFile::modelManager()
 {
-    if (!m_future)
-        return;
-
-    m_newProgressValue++;
-    if (float(m_newProgressValue - m_future->progressValue())
-            / float(m_future->progressMaximum() - m_future->progressMinimum()) >= 0.01) {
-        m_future->setProgressValue(m_newProgressValue);
-    }
+    return static_cast<QmlProfilerModelManager *>(traceManager());
 }
 
-bool QmlProfilerFileWriter::isCanceled() const
+QmlProfilerNotesModel *QmlProfilerTraceFile::qmlNotes()
 {
-    return m_future && m_future->isCanceled();
+    return static_cast<QmlProfilerNotesModel *>(notes());
 }
 
 } // namespace Internal

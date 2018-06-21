@@ -128,8 +128,7 @@ enum Type
     ErrInvalidStringValuePattern = 320,
     ErrLongerStringValueExpected = 321,
     ErrShorterStringValueExpected = 322,
-    ErrInvalidArrayValueLength = 323,
-    WarnAboutQtQuick1InsteadQtQuick2 = 324
+    ErrInvalidArrayValueLength = 323
 };
 
 class QMLJS_EXPORT PrototypeMessageData {
@@ -160,7 +159,7 @@ public:
     AST::SourceLocation location;
     QString message;
     Type type;
-    Severity::Enum severity;
+    Severity::Enum severity = Severity::Enum::Hint;
 
     static const PrototypeMessageData prototypeForMessageType(Type type);
 };

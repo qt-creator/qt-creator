@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "itestframework.h"
+
 #include <QHash>
 #include <QSharedPointer>
 
@@ -38,8 +40,8 @@ namespace Autotest {
 namespace Internal {
 
 class IFrameworkSettings;
-class ITestFramework;
 class ITestParser;
+class ITestSettingsPage;
 class TestRunner;
 struct TestSettings;
 class TestTreeItem;
@@ -63,6 +65,9 @@ public:
     QSharedPointer<IFrameworkSettings> settingsForTestFramework(const Core::Id &frameworkId) const;
     void synchronizeSettings(QSettings *s);
     bool isActive(const Core::Id &frameworkId) const;
+    bool groupingEnabled(const Core::Id &frameworkId) const;
+    void setGroupingEnabledFor(const Core::Id &frameworkId, bool enabled);
+    QString groupingToolTip(const Core::Id &frameworkId) const;
     bool hasActiveFrameworks() const;
 
 private:
@@ -70,6 +75,7 @@ private:
     explicit TestFrameworkManager();
     QHash<Core::Id, ITestFramework *> m_registeredFrameworks;
     QHash<Core::Id, QSharedPointer<IFrameworkSettings> > m_frameworkSettings;
+    QVector<ITestSettingsPage *> m_frameworkSettingsPages;
     TestTreeModel *m_testTreeModel;
     TestRunner *m_testRunner;
 

@@ -39,6 +39,10 @@ static const char omitInternalKey[]         = "OmitInternal";
 static const char omitRunConfigWarnKey[]    = "OmitRCWarnings";
 static const char limitResultOutputKey[]    = "LimitResultOutput";
 static const char autoScrollKey[]           = "AutoScrollResults";
+static const char filterScanKey[]           = "FilterScan";
+static const char filtersKey[]              = "WhiteListFilters";
+static const char processArgsKey[]          = "ProcessArgs";
+static const char groupSuffix[]             = ".group";
 
 static const int defaultTimeout = 60000;
 
@@ -55,9 +59,14 @@ void TestSettings::toSettings(QSettings *s) const
     s->setValue(omitRunConfigWarnKey, omitRunConfigWarn);
     s->setValue(limitResultOutputKey, limitResultOutput);
     s->setValue(autoScrollKey, autoScroll);
-    // store frameworks and their current active state
-    for (const Core::Id &id : frameworks.keys())
+    s->setValue(processArgsKey, processArgs);
+    s->setValue(filterScanKey, filterScan);
+    s->setValue(filtersKey, whiteListFilters);
+    // store frameworks and their current active and grouping state
+    for (const Core::Id &id : frameworks.keys()) {
         s->setValue(QLatin1String(id.name()), frameworks.value(id));
+        s->setValue(QLatin1String(id.name().append(groupSuffix)), frameworksGrouping.value(id));
+    }
     s->endGroup();
 }
 
@@ -69,13 +78,21 @@ void TestSettings::fromSettings(QSettings *s)
     omitRunConfigWarn = s->value(omitRunConfigWarnKey, false).toBool();
     limitResultOutput = s->value(limitResultOutputKey, true).toBool();
     autoScroll = s->value(autoScrollKey, true).toBool();
+    processArgs = s->value(processArgsKey, false).toBool();
+    filterScan = s->value(filterScanKey, false).toBool();
+    whiteListFilters = s->value(filtersKey, QStringList()).toStringList();
     // try to get settings for registered frameworks
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
     const QList<Core::Id> &registered = frameworkManager->registeredFrameworkIds();
     frameworks.clear();
+    frameworksGrouping.clear();
     for (const Core::Id &id : registered) {
+        // get their active state
         frameworks.insert(id, s->value(QLatin1String(id.name()),
                                        frameworkManager->isActive(id)).toBool());
+        // and whether grouping is enabled
+        frameworksGrouping.insert(id, s->value(QLatin1String(id.name().append(groupSuffix)),
+                                               frameworkManager->groupingEnabled(id)).toBool());
     }
     s->endGroup();
 }

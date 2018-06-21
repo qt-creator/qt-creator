@@ -41,7 +41,7 @@ class CORE_EXPORT JsExpander
 public:
     static void registerQObjectForJs(const QString &name, QObject *obj);
 
-    static QString evaluate(const QString &expression, QString *errorMessage = 0);
+    static QString evaluate(const QString &expression, QString *errorMessage = nullptr);
 
 private:
     JsExpander();

@@ -76,12 +76,25 @@ static void countBrackets(QTextCursor cursor, int from, int end, QChar open, QCh
     }
 }
 
+enum class CharType { OpenChar, CloseChar };
+static QChar charType(const QChar &c, CharType type)
+{
+    switch (c.unicode()) {
+    case '(': case ')':
+        return type == CharType::OpenChar ? QLatin1Char('(') : QLatin1Char(')');
+    case '[': case ']':
+        return type == CharType::OpenChar ? QLatin1Char('[') : QLatin1Char(']');
+    case '{': case '}':
+        return type == CharType::OpenChar ? QLatin1Char('{') : QLatin1Char('}');
+    }
+    return QChar();
+}
+
 static bool fixesBracketsError(const QString &textToInsert, const QTextCursor &cursor)
 {
     const QChar character = textToInsert.at(0);
-    const QString parentheses = QLatin1String("()");
-    const QString brackets = QLatin1String("[]");
-    if (!parentheses.contains(character) && !brackets.contains(character))
+    const QString allParentheses = QLatin1String("()[]{}");
+    if (!allParentheses.contains(character))
         return false;
 
     QTextCursor tmp = cursor;
@@ -90,8 +103,8 @@ static bool fixesBracketsError(const QString &textToInsert, const QTextCursor &c
     tmp = cursor;
     bool foundBlockEnd = TextBlockUserData::findNextBlockClosingParenthesis(&tmp);
     int blockEnd = foundBlockEnd ? tmp.position() : (cursor.document()->characterCount() - 1);
-    const QChar openChar = parentheses.contains(character) ? QLatin1Char('(') : QLatin1Char('[');
-    const QChar closeChar = parentheses.contains(character) ? QLatin1Char(')') : QLatin1Char(']');
+    const QChar openChar = charType(character, CharType::OpenChar);
+    const QChar closeChar = charType(character, CharType::CloseChar);
 
     int errors = 0;
     int stillopen = 0;
@@ -135,6 +148,24 @@ static QString surroundSelectionWithBrackets(const QString &textToInsert, const 
 bool AutoCompleter::isQuote(const QString &text)
 {
     return text == QLatin1String("\"") || text == QLatin1String("'");
+}
+
+bool AutoCompleter::isNextBlockIndented(const QTextBlock &currentBlock) const
+{
+    QTextBlock block = currentBlock;
+    int indentation = m_tabSettings.indentationColumn(block.text());
+
+    if (block.next().isValid()) { // not the last block
+        block = block.next();
+        //skip all empty blocks
+        while (block.isValid() && m_tabSettings.onlySpace(block.text()))
+            block = block.next();
+        if (block.isValid()
+                && m_tabSettings.indentationColumn(block.text()) > indentation)
+            return true;
+    }
+
+    return false;
 }
 
 QString AutoCompleter::replaceSelection(QTextCursor &cursor, const QString &textToInsert) const
@@ -215,7 +246,9 @@ bool AutoCompleter::autoBackspace(QTextCursor &cursor)
     const QChar lookFurtherBehind = doc->characterAt(pos - 2);
 
     const QChar character = lookBehind;
-    if (character == QLatin1Char('(') || character == QLatin1Char('[')) {
+    if (character == QLatin1Char('(')
+            || character == QLatin1Char('[')
+            || character == QLatin1Char('{')) {
         QTextCursor tmp = cursor;
         TextBlockUserData::findPreviousBlockOpenParenthesis(&tmp);
         int blockStart = tmp.isNull() ? 0 : tmp.position();
@@ -223,7 +256,7 @@ bool AutoCompleter::autoBackspace(QTextCursor &cursor)
         TextBlockUserData::findNextBlockClosingParenthesis(&tmp);
         int blockEnd = tmp.isNull() ? (cursor.document()->characterCount()-1) : tmp.position();
         QChar openChar = character;
-        QChar closeChar = (character == QLatin1Char('(')) ? QLatin1Char(')') : QLatin1Char(']');
+        QChar closeChar = charType(character, CharType::CloseChar);
 
         int errors = 0;
         int stillopen = 0;
@@ -242,6 +275,7 @@ bool AutoCompleter::autoBackspace(QTextCursor &cursor)
     // ### this code needs to be generalized
     if    ((lookBehind == QLatin1Char('(') && lookAhead == QLatin1Char(')'))
         || (lookBehind == QLatin1Char('[') && lookAhead == QLatin1Char(']'))
+        || (lookBehind == QLatin1Char('{') && lookAhead == QLatin1Char('}'))
         || (lookBehind == QLatin1Char('"') && lookAhead == QLatin1Char('"')
             && lookFurtherBehind != QLatin1Char('\\'))
         || (lookBehind == QLatin1Char('\'') && lookAhead == QLatin1Char('\'')
@@ -257,8 +291,7 @@ bool AutoCompleter::autoBackspace(QTextCursor &cursor)
     return false;
 }
 
-int AutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor,
-                                                       const TabSettings &tabSettings)
+int AutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
 {
     if (!m_autoInsertBrackets)
         return 0;
@@ -286,17 +319,8 @@ int AutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor,
             if (condition) {|
                 statement;
     */
-    int indentation = tabSettings.indentationColumn(block.text());
-
-    if (block.next().isValid()) { // not the last block
-        block = block.next();
-        //skip all empty blocks
-        while (block.isValid() && tabSettings.onlySpace(block.text()))
-            block = block.next();
-        if (block.isValid()
-                && tabSettings.indentationColumn(block.text()) > indentation)
-            return 0;
-    }
+    if (isNextBlockIndented(block))
+        return 0;
 
     const QString &textToInsert = insertParagraphSeparator(cursor);
     int pos = cursor.position();

@@ -41,12 +41,12 @@ public:
     };
 
     ResizeHandleItem(QGraphicsItem *parent, const ResizeController &resizeController);
-    ~ResizeHandleItem();
+    ~ResizeHandleItem() override;
     void setHandlePosition(const QPointF & globalPosition, const QPointF & itemSpacePosition);
 
-    int type() const;
-    QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    int type() const override;
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
     ResizeController resizeController() const;
 

@@ -40,28 +40,17 @@
 #include <cstdlib>
 #include <climits>
 #include <cstring>
+#include <initializer_list>
+#include <numeric>
 #include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
-#pragma push_macro("constexpr")
-#ifndef __cpp_constexpr
-#define constexpr
-#endif
-
-#pragma push_macro("noexcept")
-#ifdef __clang__
-#define  __cpp_noexcept 201003
-#endif
-#ifndef __cpp_noexcept
-#define noexcept
-#endif
-
 #ifdef UNIT_TESTS
-#define UNIT_TEST_PUBLIC public
+#define unittest_public public
 #else
-#define UNIT_TEST_PUBLIC private
+#define unittest_public private
 #endif
 
 namespace Utils {
@@ -76,6 +65,11 @@ public:
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = std::size_t;
 
+    static_assert(Size < 64
+                ? sizeof(Internal::StringDataLayout<Size>) == Size + 1
+                : sizeof(Internal::StringDataLayout<Size>) == Size + 2,
+                  "Size is wrong");
+    constexpr
     BasicSmallString() noexcept
         : m_data(Internal::StringDataLayout<Size>())
     {
@@ -99,14 +93,19 @@ public:
         if (Q_LIKELY(capacity <= shortStringCapacity())) {
             std::memcpy(m_data.shortString.string, string, size);
             m_data.shortString.string[size] = 0;
-            m_data.shortString.shortStringSize = uchar(size);
-            m_data.shortString.isReference = false;
-            m_data.shortString.isReadOnlyReference = false;
+            m_data.shortString.control.setShortStringSize(size);
+            m_data.shortString.control.setIsShortString(true);
+            m_data.shortString.control.setIsReadOnlyReference(false);
         } else {
             m_data.allocated.data.pointer = Memory::allocate(capacity + 1);
             std::memcpy(m_data.allocated.data.pointer, string, size);
             initializeLongString(size, capacity);
         }
+    }
+
+    explicit BasicSmallString(SmallStringView stringView)
+        : BasicSmallString(stringView.data(), stringView.size(), stringView.size())
+    {
     }
 
     BasicSmallString(const char *string, size_type size)
@@ -115,7 +114,7 @@ public:
     }
 
     template<typename Type,
-             typename = typename std::enable_if<std::is_pointer<Type>::value>::type
+             typename = std::enable_if_t<std::is_pointer<Type>::value>
              >
     BasicSmallString(Type characterPointer)
         : BasicSmallString(characterPointer, std::strlen(characterPointer))
@@ -127,22 +126,31 @@ public:
         : BasicSmallString(BasicSmallString::fromQString(qString))
     {}
 
-    template<typename Type,
-             typename = typename std::enable_if<
-                 std::is_same<typename std::decay<Type>::type, std::string>::value>::type>
-    BasicSmallString(Type &&string)
-        : BasicSmallString(string.data(), string.size())
+    BasicSmallString(const QByteArray &qByteArray)
+        : BasicSmallString(qByteArray.constData(), qByteArray.size())
     {}
+
+    template<typename String,
+             typename Utils::enable_if_has_char_data_pointer<String> = 0>
+    BasicSmallString(const String &string)
+        : BasicSmallString(string.data(), string.size())
+    {
+    }
 
     template<typename BeginIterator,
              typename EndIterator,
-             typename = typename std::enable_if<std::is_same<BeginIterator, EndIterator>::value>::type
+             typename = std::enable_if_t<std::is_same<BeginIterator, EndIterator>::value>
              >
     BasicSmallString(BeginIterator begin, EndIterator end)
         : BasicSmallString(&(*begin), size_type(end - begin))
     {
     }
 
+    BasicSmallString(std::initializer_list<Utils::SmallStringView> list)
+        : m_data(Internal::StringDataLayout<Size>())
+    {
+        appendInitializerList(list, 0);
+    }
 
     ~BasicSmallString() noexcept
     {
@@ -150,10 +158,6 @@ public:
             Memory::deallocate(m_data.allocated.data.pointer);
     }
 
-#if !defined(UNIT_TESTS) && !(defined(_MSC_VER) && _MSC_VER < 1900)
-    BasicSmallString(const BasicSmallString &other) = delete;
-    BasicSmallString &operator=(const BasicSmallString &other) = delete;
-#else
     BasicSmallString(const BasicSmallString &string)
     {
         if (string.isShortString() || string.isReadOnlyReference())
@@ -170,17 +174,22 @@ public:
 
         return *this;
     }
-#endif
 
     BasicSmallString(BasicSmallString &&other) noexcept
+        : m_data(other.m_data)
     {
-        m_data = other.m_data;
-        other.m_data = Internal::StringDataLayout<Size>();
+        other.m_data.reset();
     }
 
     BasicSmallString &operator=(BasicSmallString &&other) noexcept
     {
-        swap(*this, other);
+        if (this == &other)
+            return *this;
+
+        this->~BasicSmallString();
+
+        m_data = other.m_data;
+        other.m_data = Internal::StringDataLayout<Size>();
 
         return *this;
     }
@@ -190,7 +199,9 @@ public:
         BasicSmallString clonedString(m_data);
 
         if (Q_UNLIKELY(hasAllocatedMemory()))
-            new (&clonedString) BasicSmallString{m_data.allocated.data.pointer, m_data.allocated.data.size};
+            new (&clonedString) BasicSmallString{m_data.allocated.data.pointer,
+                                                 m_data.allocated.data.size,
+                                                 m_data.allocated.data.capacity};
 
         return clonedString;
     }
@@ -213,16 +224,23 @@ public:
         return QString::fromUtf8(data(), int(size()));
     }
 
+    SmallStringView toStringView() const
+    {
+        return SmallStringView(data(), size());
+    }
+
     operator SmallStringView() const
     {
         return SmallStringView(data(), size());
     }
 
+    explicit
     operator QString() const
     {
         return toQString();
     }
 
+    explicit
     operator std::string() const
     {
         return std::string(data(), size());
@@ -239,8 +257,10 @@ public:
         if (fitsNotInCapacity(newCapacity)) {
             if (Q_UNLIKELY(hasAllocatedMemory())) {
                 m_data.allocated.data.pointer = Memory::reallocate(m_data.allocated.data.pointer,
-                                                               newCapacity + 1);
+                                                                   newCapacity + 1);
                 m_data.allocated.data.capacity = newCapacity;
+            } else if (newCapacity <= shortStringCapacity()) {
+                new (this) BasicSmallString{m_data.allocated.data.pointer, m_data.allocated.data.size};
             } else {
                 const size_type oldSize = size();
                 newCapacity = std::max(newCapacity, oldSize);
@@ -294,22 +314,22 @@ public:
 
     reverse_iterator rbegin() noexcept
     {
-        return reverse_iterator(end() - static_cast<std::size_t>(1));
+        return reverse_iterator(end());
     }
 
     reverse_iterator rend() noexcept
     {
-        return reverse_iterator(begin() - static_cast<std::size_t>(1));
+        return reverse_iterator(begin());
     }
 
     const_reverse_iterator rbegin() const noexcept
     {
-        return const_reverse_iterator(end() - static_cast<std::size_t>(1));
+        return const_reverse_iterator(end());
     }
 
     const_reverse_iterator rend() const noexcept
     {
-        return const_reverse_iterator(begin() - static_cast<std::size_t>(1));
+        return const_reverse_iterator(begin());
     }
 
     const_iterator begin() const noexcept
@@ -346,19 +366,17 @@ public:
         return BasicSmallString(utf8ByteArray.constData(), uint(utf8ByteArray.size()));
     }
 
+    // precondition: has to be null terminated
     bool contains(SmallStringView subStringToSearch) const
     {
-        auto found = std::search(begin(),
-                                 end(),
-                                 subStringToSearch.begin(),
-                                 subStringToSearch.end());
+        const char *found = std::strstr(data(), subStringToSearch.data());
 
-        return found != end();
+        return found != nullptr;
     }
 
     bool contains(char characterToSearch) const
     {
-        auto found = std::strchr(data(), characterToSearch);
+        auto found = std::memchr(data(), characterToSearch, size());
 
         return found != nullptr;
     }
@@ -398,7 +416,7 @@ public:
         if (!isShortString())
             return m_data.allocated.data.size;
 
-        return m_data.shortString.shortStringSize;
+        return m_data.shortString.control.shortStringSize();
     }
 
     size_type capacity() const noexcept
@@ -412,6 +430,11 @@ public:
     bool isEmpty() const noexcept
     {
         return size() == 0;
+    }
+
+    bool empty() const noexcept
+    {
+        return isEmpty();
     }
 
     bool hasContent() const noexcept
@@ -429,7 +452,7 @@ public:
         return SmallStringView(data() + position, length);
     }
 
-    void append(SmallStringView string) noexcept
+    void append(SmallStringView string)
     {
         size_type oldSize = size();
         size_type newSize = oldSize + string.size();
@@ -447,6 +470,13 @@ public:
         return *this;
     }
 
+    BasicSmallString &operator+=(std::initializer_list<SmallStringView> list)
+    {
+        appendInitializerList(list, size());
+
+        return *this;
+    }
+
     void replace(SmallStringView fromText, SmallStringView toText)
     {
         if (toText.size() == fromText.size())
@@ -455,6 +485,13 @@ public:
             replaceSmallerSized(fromText, toText);
         else
             replaceLargerSized(fromText, toText);
+    }
+
+    void replace(char fromCharacter, char toCharacter)
+    {
+        reserve(size());
+
+        std::replace(begin(), end(), fromCharacter, toCharacter);
     }
 
     void replace(size_type position, size_type length, SmallStringView replacementText)
@@ -487,7 +524,7 @@ public:
     constexpr static
     size_type shortStringCapacity() noexcept
     {
-        return BasicSmallStringLiteral<Size>::shortStringCapacity();
+        return Internal::StringDataLayout<Size>::shortStringCapacity();
     }
 
     size_type optimalCapacity(const size_type size)
@@ -498,38 +535,116 @@ public:
         return size;
     }
 
+    constexpr
     size_type shortStringSize() const
     {
-        return m_data.shortString.shortStringSize;
+        return m_data.shortString.control.shortStringSize();
     }
 
     static
-    BasicSmallString join(std::initializer_list<BasicSmallString> list)
+    BasicSmallString join(std::initializer_list<SmallStringView> list)
     {
         size_type totalSize = 0;
-        for (const BasicSmallString &string : list)
+        for (SmallStringView string : list)
             totalSize += string.size();
 
         BasicSmallString joinedString;
         joinedString.reserve(totalSize);
 
-        for (const BasicSmallString &string : list)
+        for (SmallStringView string : list)
             joinedString.append(string);
 
         return joinedString;
     }
 
-UNIT_TEST_PUBLIC:
+    static
+    BasicSmallString number(int number)
+    {
+        char buffer[12];
+        std::size_t size = itoa(number, buffer, 10);
+
+        return BasicSmallString(buffer, size);
+    }
+
+    static
+    BasicSmallString number(long long int number)
+    {
+        char buffer[22];
+        std::size_t size = itoa(number, buffer, 10);
+
+        return BasicSmallString(buffer, size);
+    }
+
+    static
+    BasicSmallString number(double number)
+    {
+        return std::to_string(number);
+    }
+
+    char &operator[](std::size_t index)
+    {
+        return *(data() + index);
+    }
+
+    char operator[](std::size_t index) const
+    {
+        return *(data() + index);
+    }
+
+    friend BasicSmallString operator+(const BasicSmallString &first, const BasicSmallString &second)
+    {
+        BasicSmallString text;
+        text.reserve(first.size() + second.size());
+
+        text.append(first);
+        text.append(second);
+
+        return text;
+    }
+
+    friend BasicSmallString operator+(const BasicSmallString &first, SmallStringView second)
+    {
+        BasicSmallString text;
+        text.reserve(first.size() + second.size());
+
+        text.append(first);
+        text.append(second);
+
+        return text;
+    }
+
+    friend BasicSmallString operator+(SmallStringView first, const BasicSmallString &second)
+    {
+        return operator+(second, first);
+    }
+
+    template<size_type ArraySize>
+    friend BasicSmallString operator+(const BasicSmallString &first, const char(&second)[ArraySize])
+    {
+
+        return operator+(first, SmallStringView(second));
+    }
+
+    template<size_type ArraySize>
+    friend BasicSmallString operator+(const char(&first)[ArraySize], const BasicSmallString &second)
+    {
+        return operator+(SmallStringView(first), second);
+    }
+
+unittest_public:
+    constexpr
     bool isShortString() const noexcept
     {
-        return !m_data.shortString.isReference;
+        return m_data.shortString.control.isShortString();
     }
 
+    constexpr
     bool isReadOnlyReference() const noexcept
     {
-        return m_data.shortString.isReadOnlyReference;
+        return m_data.shortString.control.isReadOnlyReference();
     }
 
+    constexpr
     bool hasAllocatedMemory() const noexcept
     {
         return !isShortString() && !isReadOnlyReference();
@@ -546,121 +661,57 @@ UNIT_TEST_PUBLIC:
     {
         const size_type cacheLineSize = 64;
 
-        const auto divisionByCacheLineSize = std::div(int64_t(size), int64_t(cacheLineSize));
+        size_type cacheLineBlocks = (size - 1) / cacheLineSize;
 
-        size_type cacheLineBlocks = size_type(divisionByCacheLineSize.quot);
-        const size_type supplement = divisionByCacheLineSize.rem ? 1 : 0;
-
-        cacheLineBlocks += supplement;
-        int exponent;
-        const double significand = std::frexp(cacheLineBlocks, &exponent);
-        const double factorOneDotFiveSignificant = std::ceil(significand * 4.) / 4.;
-        cacheLineBlocks = size_type(std::ldexp(factorOneDotFiveSignificant, exponent));
-
-        return cacheLineBlocks * cacheLineSize;
+        return (cacheLineBlocks  + 1) * cacheLineSize;
     }
 
-    template<size_type ArraySize>
-    friend bool operator==(const BasicSmallString& first, const char(&second)[ArraySize]) noexcept
+    size_type countOccurrence(SmallStringView text)
     {
-        return first == SmallStringView(second);
-    }
+        auto found = begin();
 
-    template<size_type ArraySize>
-    friend bool operator==(const char(&first)[ArraySize], const BasicSmallString& second) noexcept
-    {
-        return second == first;
-    }
+        size_type count = 0;
 
-    template<typename Type,
-             typename = typename std::enable_if<std::is_pointer<Type>::value>::type
-             >
-    friend bool operator==(const BasicSmallString& first, Type second) noexcept
-    {
-        return first == SmallStringView(second);
-    }
+        while (true) {
+            found = std::search(found,
+                                end(),
+                                text.begin(),
+                                text.end());
+            if (found == end())
+                break;
 
-    template<typename Type,
-             typename = typename std::enable_if<std::is_pointer<Type>::value>::type
-             >
-    friend bool operator==(Type first, const BasicSmallString& second) noexcept
-    {
-        return second == first;
-    }
+            ++count;
+            found += text.size();
+        }
 
-    friend bool operator==(const BasicSmallString& first, const BasicSmallString& second) noexcept
-    {
-        return first.size() == second.size()
-            && std::memcmp(first.data(), second.data(), first.size()) == 0;
-    }
-
-    friend bool operator==(const BasicSmallString& first, const SmallStringView& second) noexcept
-    {
-        return first.size() == second.size()
-            && std::memcmp(first.data(), second.data(), first.size()) == 0;
-    }
-
-    friend bool operator==(const SmallStringView& first, const BasicSmallString& second) noexcept
-    {
-        return second == first;
-    }
-
-    friend bool operator!=(const BasicSmallString& first, const SmallStringView& second) noexcept
-    {
-        return !(first == second);
-    }
-
-    friend bool operator!=(const SmallStringView& first, const BasicSmallString& second) noexcept
-    {
-        return second == first;
-    }
-
-    friend bool operator!=(const BasicSmallString& first, const BasicSmallString& second) noexcept
-    {
-        return !(first == second);
-    }
-
-    template<size_type ArraySize>
-    friend bool operator!=(const BasicSmallString& first, const char(&second)[ArraySize]) noexcept
-    {
-        return !(first == second);
-    }
-
-    template<size_type ArraySize>
-    friend bool operator!=(const char(&first)[ArraySize], const BasicSmallString& second) noexcept
-    {
-        return second != first;
-    }
-
-    template<typename Type,
-             typename = typename std::enable_if<std::is_pointer<Type>::value>::type
-             >
-    friend bool operator!=(const BasicSmallString& first, Type second) noexcept
-    {
-        return !(first == second);
-    }
-
-    template<typename Type,
-             typename = typename std::enable_if<std::is_pointer<Type>::value>::type
-             >
-    friend bool operator!=(Type first, const BasicSmallString& second) noexcept
-    {
-        return second != first;
-    }
-
-    friend bool operator<(const BasicSmallString& first, const BasicSmallString& second) noexcept
-    {
-        size_type minimalSize = std::min(first.size(), second.size());
-
-        const int comparison = std::memcmp(first.data(), second.data(), minimalSize + 1);
-
-        return comparison < 0;
+        return count;
     }
 
 private:
-    BasicSmallString(Internal::StringDataLayout<Size> data) noexcept
+    BasicSmallString(const Internal::StringDataLayout<Size> &data) noexcept
         : m_data(data)
     {
+    }
+
+    void appendInitializerList(std::initializer_list<SmallStringView> list, std::size_t initialSize)
+    {
+        auto addSize =  [] (std::size_t size, Utils::SmallStringView string) {
+            return size + string.size();
+        };
+
+        std::size_t size = std::accumulate(list.begin(), list.end(), initialSize, addSize);
+
+        reserve(size);
+        setSize(size);
+
+        char *currentData = data() + initialSize;
+
+        for (Utils::SmallStringView string : list) {
+            std::memcpy(currentData, string.data(), string.size());
+            currentData += string.size();
+        }
+
+        at(size) = 0;
     }
 
     void initializeLongString(size_type size, size_type capacity)
@@ -668,9 +719,9 @@ private:
         m_data.allocated.data.pointer[size] = 0;
         m_data.allocated.data.size = size;
         m_data.allocated.data.capacity = capacity;
-        m_data.allocated.shortStringSize = 0;
-        m_data.allocated.isReference = true;
-        m_data.allocated.isReadOnlyReference = false;
+        m_data.shortString.control.setShortStringSize(0);
+        m_data.shortString.control.setIsReference(true);
+        m_data.shortString.control.setIsReadOnlyReference(false);
     }
 
     char &at(size_type index)
@@ -678,7 +729,7 @@ private:
         return *(data() + index);
     }
 
-    const char &at(size_type index) const
+    char at(size_type index) const
     {
         return *(data() + index);
     }
@@ -708,41 +759,44 @@ private:
 
     void replaceSmallerSized(SmallStringView fromText, SmallStringView toText)
     {
-        size_type newSize = size();
-        reserve(newSize);
-
-        auto start = begin();
-
-        auto found = std::search(start,
+        auto found = std::search(begin(),
                                  end(),
                                  fromText.begin(),
                                  fromText.end());
 
-        size_type sizeDifference = 0;
+        if (found != end()) {
+            size_type newSize = size();
+            {
+                size_type foundIndex = found - begin();
+                reserve(newSize);
+                found = begin() + foundIndex;
+            }
+            size_type sizeDifference = 0;
 
-        while (found != end()) {
-            start = found + fromText.size();
+            while (found != end()) {
+                auto start = found + fromText.size();
 
-            auto nextFound = std::search(start,
-                                         end(),
-                                         fromText.begin(),
-                                         fromText.end());
+                auto nextFound = std::search(start,
+                                             end(),
+                                             fromText.begin(),
+                                             fromText.end());
 
-            auto replacedTextEndPosition = found + fromText.size();
-            auto replacementTextEndPosition = found + toText.size() - sizeDifference;
-            auto replacementTextStartPosition = found - sizeDifference;
+                auto replacedTextEndPosition = found + fromText.size();
+                auto replacementTextEndPosition = found + toText.size() - sizeDifference;
+                auto replacementTextStartPosition = found - sizeDifference;
+                std::memmove(replacementTextEndPosition.data(),
+                             replacedTextEndPosition.data(),
+                             std::distance(start, nextFound));
+                std::memcpy(replacementTextStartPosition.data(), toText.data(), toText.size());
 
-            std::memmove(replacementTextEndPosition.data(),
-                         replacedTextEndPosition.data(),
-                         nextFound - start);
-            std::memcpy(replacementTextStartPosition.data(), toText.data(), toText.size());
+                sizeDifference += fromText.size() - toText.size();
+                found = nextFound;
+            }
 
-            sizeDifference += fromText.size() - toText.size();
-            found = nextFound;
+            newSize -= sizeDifference;
+            setSize(newSize);
+            at(newSize) = '\0';
         }
-        newSize -= sizeDifference;
-        setSize(newSize);
-        *end() = 0;
     }
 
     iterator replaceLargerSizedRecursive(size_type startIndex,
@@ -758,36 +812,32 @@ private:
         auto foundIndex = found - begin();
 
         if (found != end()) {
-            startIndex = foundIndex + fromText.size();
+            size_type startNextSearchIndex = foundIndex + fromText.size();
+            size_type newSizeDifference = sizeDifference + (toText.size() - fromText.size());
 
-            size_type newSizeDifference = sizeDifference + toText.size() - fromText.size();
-
-            auto nextFound = replaceLargerSizedRecursive(startIndex,
+            auto nextFound = replaceLargerSizedRecursive(startNextSearchIndex,
                                                          fromText,
                                                          toText,
                                                          newSizeDifference);
 
-            found = begin() + foundIndex;
-            auto start = begin() + startIndex;
+            auto startFound = begin() + foundIndex;
+            auto endOfFound = begin() + startNextSearchIndex;
 
-            auto replacedTextEndPosition = found + fromText.size();
-            auto replacementTextEndPosition = found + fromText.size() + newSizeDifference;
-            auto replacementTextStartPosition = found + sizeDifference;
-
+            auto replacedTextEndPosition = endOfFound;
+            auto replacementTextEndPosition = endOfFound + newSizeDifference;
+            auto replacementTextStartPosition = startFound + sizeDifference;
 
             std::memmove(replacementTextEndPosition.data(),
                          replacedTextEndPosition.data(),
-                         nextFound - start);
+                         std::distance(endOfFound, nextFound));
             std::memcpy(replacementTextStartPosition.data(), toText.data(), toText.size());
-        } else {
+        } else if (startIndex != 0) {
             size_type newSize = size() + sizeDifference;
-            reserve(optimalCapacity(newSize));
             setSize(newSize);
-            found = end();
-            *end() = 0;
+            at(newSize) = 0;
         }
 
-        return found;
+        return begin() + foundIndex;
     }
 
     void replaceLargerSized(SmallStringView fromText, SmallStringView toText)
@@ -795,20 +845,77 @@ private:
         size_type sizeDifference = 0;
         size_type startIndex = 0;
 
-        replaceLargerSizedRecursive(startIndex, fromText, toText, sizeDifference);
+        size_type replacementTextSizeDifference = toText.size() - fromText.size();
+        size_type occurrences = countOccurrence(fromText);
+        size_type newSize = size() + (replacementTextSizeDifference * occurrences);
+
+        if (occurrences > 0) {
+            reserve(optimalCapacity(newSize));
+
+            replaceLargerSizedRecursive(startIndex, fromText, toText, sizeDifference);
+        }
     }
 
     void setSize(size_type size)
     {
         if (isShortString())
-            m_data.shortString.shortStringSize = uchar(size);
+            m_data.shortString.control.setShortStringSize(size);
         else
             m_data.allocated.data.size = size;
+    }
+
+    static
+    std::size_t itoa(long long int number, char* string, uint base)
+    {
+        using llint = long long int;
+        using lluint = long long unsigned int;
+        std::size_t size = 0;
+        bool isNegative = false;
+        lluint unsignedNumber = 0;
+
+        if (number == 0)
+        {
+            string[size] = '0';
+            string[++size] = '\0';
+
+            return size;
+        }
+
+        if (number < 0 && base == 10)
+        {
+            isNegative = true;
+            if (number == std::numeric_limits<llint>::min())
+                unsignedNumber = lluint(std::numeric_limits<llint>::max()) + 1;
+            else
+                unsignedNumber = lluint(-number);
+        } else {
+            unsignedNumber = lluint(number);
+        }
+
+        while (unsignedNumber != 0)
+        {
+            int remainder = int(unsignedNumber % base);
+            string[size++] = (remainder > 9) ? char((remainder - 10) + 'a') : char(remainder + '0');
+            unsignedNumber /= base;
+        }
+
+        if (isNegative)
+            string[size++] = '-';
+
+        string[size] = '\0';
+
+        std::reverse(string, string+size);
+
+        return size;
     }
 
 private:
     Internal::StringDataLayout<Size> m_data;
 };
+
+template<template<uint> class String, uint Size>
+using isSameString = std::is_same<std::remove_reference_t<std::remove_cv_t<String<Size>>>,
+                                           BasicSmallString<Size>>;
 
 template<typename Key,
          typename Value,
@@ -830,18 +937,36 @@ clone(const std::unordered_map<Key, Value, Hash, KeyEqual, Allocator> &map)
 template <typename Type>
 std::vector<Type> clone(const std::vector<Type> &vector)
 {
-    std::vector<Type> clonedVector;
-    clonedVector.reserve(vector.size());
-
-    for (auto &&entry : vector)
-        clonedVector.push_back(entry.clone());
-
-    return clonedVector;
+    return vector;
 }
 
 using SmallString = BasicSmallString<31>;
+using PathString = BasicSmallString<190>;
+
+inline
+SmallString operator+(SmallStringView first, SmallStringView second)
+{
+    SmallString text;
+    text.reserve(first.size() + second.size());
+
+    text.append(first);
+    text.append(second);
+
+    return text;
+}
+
+template<std::size_t Size>
+inline
+SmallString operator+(SmallStringView first, const char(&second)[Size])
+{
+    return operator+(first, SmallStringView(second));
+}
+
+template<std::size_t Size>
+inline
+SmallString operator+(const char(&first)[Size], SmallStringView second)
+{
+    return operator+(SmallStringView(first), second);
+}
 
 } // namespace Utils
-
-#pragma pop_macro("noexcept")
-#pragma pop_macro("constexpr")

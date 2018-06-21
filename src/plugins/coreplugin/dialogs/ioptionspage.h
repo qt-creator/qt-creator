@@ -44,8 +44,10 @@ class CORE_EXPORT IOptionsPage : public QObject
     Q_OBJECT
 
 public:
-    IOptionsPage(QObject *parent = 0);
-    virtual ~IOptionsPage();
+    IOptionsPage(QObject *parent = nullptr, bool registerGlobally = true);
+    ~IOptionsPage() override;
+
+    static const QList<IOptionsPage *> allOptionsPages();
 
     Id id() const { return m_id; }
     QString displayName() const { return m_displayName; }
@@ -71,7 +73,7 @@ protected:
     QString m_displayCategory;
     Utils::Icon m_categoryIcon;
 
-    mutable bool m_keywordsInitialized;
+    mutable bool m_keywordsInitialized = false;
     mutable QStringList m_keywords;
 };
 
@@ -88,7 +90,10 @@ class CORE_EXPORT IOptionsPageProvider : public QObject
     Q_OBJECT
 
 public:
-    IOptionsPageProvider(QObject *parent = 0) : QObject(parent) {}
+    IOptionsPageProvider(QObject *parent = nullptr);
+    ~IOptionsPageProvider() override;
+
+    static const QList<IOptionsPageProvider *> allOptionsPagesProviders();
 
     Id category() const { return m_category; }
     QString displayCategory() const { return m_displayCategory; }
@@ -100,11 +105,11 @@ public:
 protected:
     void setCategory(Id category) { m_category = category; }
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
-    void setCategoryIcon(const QString &categoryIcon) { m_categoryIcon = categoryIcon; }
+    void setCategoryIcon(const Utils::Icon &categoryIcon) { m_categoryIcon = categoryIcon; }
 
     Id m_category;
     QString m_displayCategory;
-    QString m_categoryIcon;
+    Utils::Icon m_categoryIcon;
 };
 
 } // namespace Core

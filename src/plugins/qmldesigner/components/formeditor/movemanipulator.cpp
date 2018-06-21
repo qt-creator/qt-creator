@@ -27,16 +27,22 @@
 #include "layeritem.h"
 #include "formeditoritem.h"
 #include "formeditorscene.h"
+#include "formeditorwidget.h"
+#include "formeditorgraphicsview.h"
 
-#include <QPointF>
-#include <QDebug>
-
-#include <limits>
 #include <qmlanchors.h>
+#include <nodehints.h>
 #include <nodemetainfo.h>
 #include <variantproperty.h>
 #include <nodeabstractproperty.h>
 
+#include <QDebug>
+#include <QLoggingCategory>
+#include <QPointF>
+
+#include <limits>
+
+static Q_LOGGING_CATEGORY(moveManipulatorInfo, "qtc.qmldesigner.formeditor");
 
 namespace QmlDesigner {
 
@@ -69,10 +75,10 @@ void MoveManipulator::setItems(const QList<FormEditorItem*> &itemList)
 {
     m_itemList = itemList;
     if (!m_itemList.isEmpty()) {
-        if (m_itemList.first()->parentItem())
-            m_snapper.setContainerFormEditorItem(m_itemList.first()->parentItem());
+        if (m_itemList.constFirst()->parentItem())
+            m_snapper.setContainerFormEditorItem(m_itemList.constFirst()->parentItem());
         else
-            m_snapper.setContainerFormEditorItem(m_itemList.first());
+            m_snapper.setContainerFormEditorItem(m_itemList.constFirst());
         m_snapper.setTransformtionSpaceFormEditorItem(m_snapper.containerFormEditorItem());
     }
 }
@@ -99,8 +105,8 @@ void MoveManipulator::synchronizeParent(const QList<FormEditorItem*> &itemList, 
 
 void MoveManipulator::synchronizeInstanceParent(const QList<FormEditorItem*> &itemList)
 {
-    if (m_view->model() && !m_itemList.isEmpty() && m_itemList.first()->qmlItemNode().hasInstanceParent())
-        synchronizeParent(itemList, m_itemList.first()->qmlItemNode().instanceParent());
+    if (m_view->model() && !m_itemList.isEmpty() && m_itemList.constFirst()->qmlItemNode().hasInstanceParent())
+        synchronizeParent(itemList, m_itemList.constFirst()->qmlItemNode().instanceParent());
 }
 
 bool MoveManipulator::itemsCanReparented() const
@@ -125,6 +131,7 @@ void MoveManipulator::setDirectUpdateInNodeInstances(bool directUpdate)
 
 void MoveManipulator::begin(const QPointF &beginPoint)
 {
+    m_view->formEditorWidget()->graphicsView()->viewport()->setCursor(Qt::SizeAllCursor);
     m_isActive = true;
 
     m_snapper.updateSnappingLines(m_itemList);
@@ -157,8 +164,6 @@ void MoveManipulator::begin(const QPointF &beginPoint)
     }
 
     m_beginPoint = beginPoint;
-
-//    setOpacityForAllElements(0.62);
 
     setDirectUpdateInNodeInstances(true);
 
@@ -327,7 +332,7 @@ void MoveManipulator::clear()
     m_beginVerticalCenterHash.clear();
 }
 
-void MoveManipulator::reparentTo(FormEditorItem *newParent)
+void MoveManipulator::reparentTo(FormEditorItem *newParent, ReparentFlag flag)
 {
     deleteSnapLines();
 
@@ -337,14 +342,16 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent)
     if (!itemsCanReparented())
         return;
 
+    qCInfo(moveManipulatorInfo()) << Q_FUNC_INFO << newParent->qmlItemNode();
+
     if (!newParent->qmlItemNode().modelNode().metaInfo().isLayoutable()
             && newParent->qmlItemNode().modelNode().hasParentProperty()) {
         ModelNode grandParent = newParent->qmlItemNode().modelNode().parentProperty().parentModelNode();
-        if (grandParent.metaInfo().isLayoutable())
+        if (grandParent.metaInfo().isLayoutable()
+                && !NodeHints::fromModelNode(grandParent).isStackedContainer()
+                && flag == DoNotEnforceReparent)
             newParent = m_view.data()->scene()->itemForQmlItemNode(QmlItemNode(grandParent));
     }
-
-
 
     QVector<ModelNode> nodeReparentVector;
     NodeAbstractProperty parentProperty;
@@ -374,6 +381,7 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent)
 
 void MoveManipulator::end()
 {
+    m_view->formEditorWidget()->graphicsView()->viewport()->unsetCursor();
     setDirectUpdateInNodeInstances(false);
     m_isActive = false;
     deleteSnapLines();

@@ -32,13 +32,15 @@
 
 namespace Debugger {
 
+class DiagnosticLocation;
+
 class DEBUGGER_EXPORT DetailedErrorView : public QTreeView
 {
     Q_OBJECT
 
 public:
-    DetailedErrorView(QWidget *parent = 0);
-    ~DetailedErrorView();
+    DetailedErrorView(QWidget *parent = nullptr);
+    ~DetailedErrorView() override;
 
     void goNext();
     void goBack();
@@ -52,6 +54,8 @@ public:
         DiagnosticColumn,
         LocationColumn,
     };
+
+    static QVariant locationData(int role, const DiagnosticLocation &location);
 
 private:
     void contextMenuEvent(QContextMenuEvent *e) override;

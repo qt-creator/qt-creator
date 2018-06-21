@@ -46,7 +46,7 @@ class QMT_EXPORT DiagramsView : public QTabWidget, public DiagramsViewInterface
     Q_OBJECT
 
 public:
-    explicit DiagramsView(QWidget *parent = 0);
+    explicit DiagramsView(QWidget *parent = nullptr);
     ~DiagramsView() override;
 
 signals:
@@ -69,7 +69,7 @@ private:
     MDiagram *diagram(int tabIndex) const;
     MDiagram *diagram(DiagramView * diagramView) const;
 
-    DiagramsManager *m_diagramsManager;
+    DiagramsManager *m_diagramsManager = nullptr;
     QHash<Uid, DiagramView *> m_diagramViews;
 };
 

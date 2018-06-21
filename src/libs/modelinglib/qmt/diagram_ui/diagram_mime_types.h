@@ -38,5 +38,6 @@ static const char ELEMENT_TYPE_CLASS[] = "class";
 static const char ELEMENT_TYPE_ITEM[] = "item";
 static const char ELEMENT_TYPE_ANNOTATION[] = "annotation";
 static const char ELEMENT_TYPE_BOUNDARY[] = "boundary";
+static const char ELEMENT_TYPE_SWIMLANE[] = "swimlane";
 
 } // namespace qmt

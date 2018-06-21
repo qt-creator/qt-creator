@@ -47,8 +47,9 @@
         \li \l{Developing Qt Quick Applications}
 
             You can use wizards to create Qt Quick projects that contain
-            boiler-plate code. You can use the code editor (Edit mode) or the
-            visual editor (Design mode) to develop Qt Quick applications.
+            boiler-plate code. You can use \QMLD to develop Qt Quick
+            applications in the \uicontrol Design mode.
+
         \li \l{Developing Widget Based Applications}
 
             Widgets and forms created with \QD are integrated seamlessly with

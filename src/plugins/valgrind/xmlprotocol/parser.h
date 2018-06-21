@@ -58,11 +58,9 @@ public:
     ~Parser();
 
     QString errorString() const;
-
-public Q_SLOTS:
     void parse(QIODevice *stream);
 
-Q_SIGNALS:
+signals:
     void status(const Valgrind::XmlProtocol::Status &status);
     void error(const Valgrind::XmlProtocol::Error &error);
     void internalError(const QString &errorString);

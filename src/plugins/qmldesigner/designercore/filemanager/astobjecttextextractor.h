@@ -40,12 +40,12 @@ public:
     QString operator()(int location);
 
 protected:
-    virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
-    virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
+    bool visit(QmlJS::AST::UiObjectBinding *ast) override;
+    bool visit(QmlJS::AST::UiObjectDefinition *ast) override;
 
 private:
     QmlJS::Document::MutablePtr m_document;
-    quint32 m_location;
+    quint32 m_location = 0;
     QString m_text;
 };
 

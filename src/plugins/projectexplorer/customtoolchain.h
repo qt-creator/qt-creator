@@ -59,16 +59,10 @@ class PROJECTEXPLORER_EXPORT CustomToolChain : public ToolChain
     Q_DECLARE_TR_FUNCTIONS(CustomToolChain)
 
 public:
-    enum OutputParser
-    {
-        Gcc = 0,
-        Clang = 1,
-        LinuxIcc = 2,
-#if defined(Q_OS_WIN)
-        Msvc = 3,
-#endif
-        Custom,
-        OutputParserCount
+    class Parser {
+    public:
+        Core::Id parserId;   ///< A unique id identifying a parser
+        QString displayName; ///< A translateable name to show in the user interface
     };
 
     QString typeDisplayName() const override;
@@ -77,12 +71,14 @@ public:
 
     bool isValid() const override;
 
-    QByteArray predefinedMacros(const QStringList &cxxflags) const override;
+    PredefinedMacrosRunner createPredefinedMacrosRunner() const override;
+    Macros predefinedMacros(const QStringList &cxxflags) const override;
     CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cxxflags) const override;
-    const QStringList &rawPredefinedMacros() const;
-    void setPredefinedMacros(const QStringList &list);
+    const Macros &rawPredefinedMacros() const;
+    void setPredefinedMacros(const Macros &macros);
 
+    SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override;
     QList<HeaderPath> systemHeaderPaths(const QStringList &cxxFlags,
                                         const Utils::FileName &) const override;
     void addToEnvironment(Utils::Environment &env) const override;
@@ -111,29 +107,29 @@ public:
 
     ToolChain *clone() const override;
 
-    OutputParser outputParserType() const;
-    void setOutputParserType(OutputParser parser);
+    Core::Id outputParserId() const;
+    void setOutputParserId(Core::Id parserId);
     CustomParserSettings customParserSettings() const;
     void setCustomParserSettings(const CustomParserSettings &settings);
-    static QString parserName(OutputParser parser);
+    static QList<CustomToolChain::Parser> parsers();
 
 protected:
     CustomToolChain(const CustomToolChain &) = default;
 
 private:
     explicit CustomToolChain(Detection d);
-    explicit CustomToolChain(Language l, Detection d);
+    explicit CustomToolChain(Core::Id language, Detection d);
 
     Utils::FileName m_compilerCommand;
     Utils::FileName m_makeCommand;
 
     Abi m_targetAbi;
-    QStringList m_predefinedMacros;
+    Macros m_predefinedMacros;
     QList<HeaderPath> m_systemHeaderPaths;
     QStringList m_cxx11Flags;
     Utils::FileNameList m_mkspecs;
 
-    OutputParser m_outputParser;
+    Core::Id m_outputParserId;
     CustomParserSettings m_customParserSettings;
 
     friend class Internal::CustomToolChainFactory;
@@ -148,10 +144,10 @@ class CustomToolChainFactory : public ToolChainFactory
 
 public:
     CustomToolChainFactory();
-    QSet<ToolChain::Language> supportedLanguages() const override;
+    QSet<Core::Id> supportedLanguages() const override;
 
     bool canCreate() override;
-    ToolChain *create(ToolChain::Language l) override;
+    ToolChain *create(Core::Id language) override;
 
     // Used by the ToolChainManager to restore user-generated tool chains
     bool canRestore(const QVariantMap &data) override;
@@ -173,7 +169,7 @@ public:
 
 private:
     void updateSummaries();
-    void errorParserChanged(int index);
+    void errorParserChanged(int index = -1);
     void openCustomParserSettingsDialog();
 
 protected:

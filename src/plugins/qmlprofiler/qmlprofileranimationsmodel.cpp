@@ -25,10 +25,9 @@
 
 #include "qmlprofileranimationsmodel.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilerdatamodel.h"
 
 #include <utils/qtcassert.h>
-#include <timeline/timelineformattime.h>
+#include <tracing/timelineformattime.h>
 
 #include <QCoreApplication>
 #include <QVector>
@@ -42,7 +41,7 @@ namespace QmlProfiler {
 namespace Internal {
 
 QmlProfilerAnimationsModel::QmlProfilerAnimationsModel(QmlProfilerModelManager *manager,
-                                                       QObject *parent) :
+                                                       Timeline::TimelineModelAggregator *parent) :
     QmlProfilerTimelineModel(manager, Event, MaximumRangeType, ProfileAnimations, parent)
 {
     m_minNextStartTimes[0] = m_minNextStartTimes[1] = 0;
@@ -54,11 +53,6 @@ void QmlProfilerAnimationsModel::clear()
     m_maxGuiThreadAnimations = m_maxRenderThreadAnimations = 0;
     m_data.clear();
     QmlProfilerTimelineModel::clear();
-}
-
-bool QmlProfilerAnimationsModel::accepted(const QmlEventType &type) const
-{
-    return QmlProfilerTimelineModel::accepted(type) && type.detailType() == AnimationFrame;
 }
 
 void QmlProfilerAnimationsModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
@@ -82,11 +76,10 @@ void QmlProfilerAnimationsModel::loadEvent(const QmlEvent &event, const QmlEvent
 
     // Don't "fix" the framerate even if we've fixed the duration.
     // The server should know better after all and if it doesn't we want to see that.
-    QmlPaintEventData lastEvent;
+    Item lastEvent;
     lastEvent.typeId = event.typeIndex();
     lastEvent.framerate = event.number<qint32>(0);
     lastEvent.animationcount = event.number<qint32>(1);
-    QTC_ASSERT(lastEvent.animationcount > 0, return);
 
     m_data.insert(insert(realStartTime, realEndTime - realStartTime, lastThread), lastEvent);
 
@@ -104,6 +97,7 @@ void QmlProfilerAnimationsModel::finalize()
     computeNesting();
     setExpandedRowCount((m_maxGuiThreadAnimations == 0 || m_maxRenderThreadAnimations == 0) ? 2 : 3);
     setCollapsedRowCount(expandedRowCount());
+    QmlProfilerTimelineModel::finalize();
 }
 
 int QmlProfilerAnimationsModel::rowFromThreadId(int threadId) const
@@ -111,7 +105,7 @@ int QmlProfilerAnimationsModel::rowFromThreadId(int threadId) const
     return (threadId == GuiThread || m_maxGuiThreadAnimations == 0) ? 1 : 2;
 }
 
-int QmlProfilerAnimationsModel::rowMaxValue(int rowNumber) const
+qint64 QmlProfilerAnimationsModel::rowMaxValue(int rowNumber) const
 {
     switch (rowNumber) {
     case 1:

@@ -52,7 +52,6 @@ public:
 
 private:
     enum State { None = -1, Header, Other };
-    enum Format { Format_Comment };
     QRegExp m_keywordPattern;
 };
 
@@ -60,10 +59,8 @@ MercurialSubmitHighlighter::MercurialSubmitHighlighter(QTextEdit *parent) :
         TextEditor::SyntaxHighlighter(parent),
         m_keywordPattern(QLatin1String("^\\w+:"))
 {
-    static const QVector<TextEditor::TextStyle> categories({TextEditor::C_COMMENT});
-
-    setTextFormatCategories(categories);
     QTC_CHECK(m_keywordPattern.isValid());
+    setDefaultTextFormatCategories();
 }
 
 void MercurialSubmitHighlighter::highlightBlock(const QString &text)
@@ -71,7 +68,7 @@ void MercurialSubmitHighlighter::highlightBlock(const QString &text)
     // figure out current state
     State state = static_cast<State>(previousBlockState());
     if (text.startsWith(QLatin1String("HG:"))) {
-        setFormat(0, text.size(), formatForCategory(Format_Comment));
+        setFormat(0, text.size(), formatForCategory(TextEditor::C_COMMENT));
         setCurrentBlockState(state);
         return;
     }

@@ -45,10 +45,10 @@ public:
         KeepOnFinishTillUserInteraction = 1,
         KeepOnFinish = 2
     };
-    explicit FutureProgress(QWidget *parent = 0);
-    virtual ~FutureProgress();
+    explicit FutureProgress(QWidget *parent = nullptr);
+    ~FutureProgress() override;
 
-    virtual bool eventFilter(QObject *object, QEvent *);
+    bool eventFilter(QObject *object, QEvent *) override;
 
     void setFuture(const QFuture<void> &future);
     QFuture<void> future() const;
@@ -72,7 +72,7 @@ public:
 
     bool isFading() const;
 
-    QSize sizeHint() const;
+    QSize sizeHint() const override;
 
 signals:
     void clicked();
@@ -85,8 +85,8 @@ signals:
     void statusBarWidgetChanged();
 
 protected:
-    void mousePressEvent(QMouseEvent *event);
-    void paintEvent(QPaintEvent *);
+    void mousePressEvent(QMouseEvent *event) override;
+    void paintEvent(QPaintEvent *) override;
 
 private:
     void updateToolTip(const QString &);

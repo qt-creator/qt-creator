@@ -76,14 +76,14 @@ MimeDatabasePrivate *MimeDatabasePrivate::instance()
 }
 
 MimeDatabasePrivate::MimeDatabasePrivate()
-    : m_provider(0), m_defaultMimeType(QLatin1String("application/octet-stream"))
+    : m_provider(nullptr), m_defaultMimeType(QLatin1String("application/octet-stream"))
 {
 }
 
 MimeDatabasePrivate::~MimeDatabasePrivate()
 {
     delete m_provider;
-    m_provider = 0;
+    m_provider = nullptr;
 }
 
 MimeProviderBase *MimeDatabasePrivate::provider()
@@ -118,7 +118,7 @@ MimeType MimeDatabasePrivate::mimeTypeForName(const QString &nameOrAlias)
 QStringList MimeDatabasePrivate::mimeTypeForFileName(const QString &fileName, QString *foundSuffix)
 {
     if (fileName.endsWith(QLatin1Char('/')))
-        return QStringList() << QLatin1String("inode/directory");
+        return QStringList("inode/directory");
 
     const QStringList matchingMimeTypes = provider()->findByFileName(QFileInfo(fileName).fileName(), foundSuffix);
     return matchingMimeTypes;
@@ -331,15 +331,20 @@ MimeDatabase::~MimeDatabase()
     d = 0;
 }
 
-void MimeDatabase::addMimeTypes(const QString &fileName)
+void Utils::addMimeTypes(const QString &fileName, const QByteArray &data)
 {
     auto d = MimeDatabasePrivate::instance();
     QMutexLocker locker(&d->mutex);
+
+    if (d->m_startupPhase >= MimeDatabase::PluginsDelayedInitializing)
+        qWarning("Adding items from %s to MimeDatabase after initialization time",
+                 qPrintable(fileName));
+
     auto xmlProvider = static_cast<MimeXMLProvider *>(d->provider());
-    xmlProvider->addFile(fileName);
+    xmlProvider->addData(fileName, data);
 }
 
-QString MimeDatabase::allFiltersString(QString *allFilesFilter)
+QString Utils::allFiltersString(QString *allFilesFilter)
 {
     MimeDatabase mdb;
     QSet<QString> uniqueFilters;
@@ -362,13 +367,21 @@ QString MimeDatabase::allFiltersString(QString *allFilesFilter)
     return filters.join(QLatin1String(";;"));
 }
 
-QString MimeDatabase::allFilesFilterString()
+QString Utils::allFilesFilterString()
 {
+    auto d = MimeDatabasePrivate::instance();
+    if (d->m_startupPhase <= MimeDatabase::PluginsInitializing)
+        qWarning("Accessing MimeDatabase files filter strings before plugins are initialized");
+
     return QCoreApplication::translate("Core", ALL_FILES_FILTER.source, ALL_FILES_FILTER.comment);
 }
 
-QStringList MimeDatabase::allGlobPatterns()
+QStringList Utils::allGlobPatterns()
 {
+    auto d = MimeDatabasePrivate::instance();
+    if (d->m_startupPhase <= MimeDatabase::PluginsInitializing)
+        qWarning("Accessing MimeDatabase glob patterns before plugins are initialized");
+
     MimeDatabase mdb;
     QStringList patterns;
     foreach (const MimeType &mt, mdb.allMimeTypes())
@@ -383,6 +396,9 @@ QStringList MimeDatabase::allGlobPatterns()
 MimeType MimeDatabase::mimeTypeForName(const QString &nameOrAlias) const
 {
     QMutexLocker locker(&d->mutex);
+
+    if (d->m_startupPhase <= MimeDatabase::PluginsInitializing)
+        qWarning("Accessing MimeDatabase for %s before plugins are initialized", qPrintable(nameOrAlias));
 
     return d->mimeTypeForName(nameOrAlias);
 }
@@ -666,23 +682,68 @@ QList<MimeType> MimeDatabase::allMimeTypes() const
     \value MatchContent The file content is used to look for a match
 */
 
-QMap<int, QList<MimeMagicRule> > MimeDatabase::magicRulesForMimeType(const MimeType &mimeType)
+QMap<int, QList<MimeMagicRule> > Utils::magicRulesForMimeType(const MimeType &mimeType)
 {
     auto d = MimeDatabasePrivate::instance();
     QMutexLocker locker(&d->mutex);
     return d->provider()->magicRulesForMimeType(mimeType);
 }
 
-void MimeDatabase::setGlobPatternsForMimeType(const MimeType &mimeType, const QStringList &patterns)
+void Utils::setGlobPatternsForMimeType(const MimeType &mimeType, const QStringList &patterns)
 {
     auto d = MimeDatabasePrivate::instance();
     QMutexLocker locker(&d->mutex);
-    return d->provider()->setGlobPatternsForMimeType(mimeType, patterns);
+    d->provider()->setGlobPatternsForMimeType(mimeType, patterns);
 }
 
-void MimeDatabase::setMagicRulesForMimeType(const MimeType &mimeType, const QMap<int, QList<MimeMagicRule> > &rules)
+void Utils::setMagicRulesForMimeType(const MimeType &mimeType, const QMap<int, QList<MimeMagicRule> > &rules)
 {
     auto d = MimeDatabasePrivate::instance();
     QMutexLocker locker(&d->mutex);
-    return d->provider()->setMagicRulesForMimeType(mimeType, rules);
+    d->provider()->setMagicRulesForMimeType(mimeType, rules);
+}
+
+void Utils::setMimeStartupPhase(MimeStartupPhase phase)
+{
+    auto d = MimeDatabasePrivate::instance();
+    QMutexLocker locker(&d->mutex);
+    if (int(phase) != d->m_startupPhase + 1)
+        qWarning("Unexpected jump in MimedDatabase lifetime from %d to %d", d->m_startupPhase, int(phase));
+    d->m_startupPhase = int(phase);
+}
+
+MimeType Utils::mimeTypeForName(const QString &nameOrAlias)
+{
+    MimeDatabase mdb;
+    return mdb.mimeTypeForName(nameOrAlias);
+}
+
+MimeType Utils::mimeTypeForFile(const QString &fileName, MimeMatchMode mode)
+{
+    MimeDatabase mdb;
+    return mdb.mimeTypeForFile(fileName, MimeDatabase::MatchMode(mode));
+}
+
+MimeType Utils::mimeTypeForFile(const QFileInfo &fileInfo, MimeMatchMode mode)
+{
+    MimeDatabase mdb;
+    return mdb.mimeTypeForFile(fileInfo, MimeDatabase::MatchMode(mode));
+}
+
+QList<MimeType> Utils::mimeTypesForFileName(const QString &fileName)
+{
+    MimeDatabase mdb;
+    return mdb.mimeTypesForFileName(fileName);
+}
+
+MimeType Utils::mimeTypeForData(const QByteArray &data)
+{
+    MimeDatabase mdb;
+    return mdb.mimeTypeForData(data);
+}
+
+QList<MimeType> Utils::allMimeTypes()
+{
+    MimeDatabase mdb;
+    return mdb.allMimeTypes();
 }

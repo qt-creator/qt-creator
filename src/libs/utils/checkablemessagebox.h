@@ -50,7 +50,7 @@ class QTCREATOR_UTILS_EXPORT CheckableMessageBox : public QDialog
 
 public:
     explicit CheckableMessageBox(QWidget *parent);
-    virtual ~CheckableMessageBox();
+    ~CheckableMessageBox() override;
 
     static QDialogButtonBox::StandardButton
         question(QWidget *parent,

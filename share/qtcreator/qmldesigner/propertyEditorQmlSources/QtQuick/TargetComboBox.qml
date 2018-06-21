@@ -27,11 +27,12 @@ import QtQuick 2.0
 import HelperWidgets 2.0
 import QtQuick.Layouts 1.0
 import QtQuick.Controls 1.0 as Controls
+import QtQuickDesignerTheme 1.0
 
 Controls.ComboBox {
 
     property string targetName: anchorBackend.topTarget
-    property color textColor: creatorTheme.PanelTextColorLight
+    property color textColor: Theme.color(Theme.PanelTextColorLight)
 
     id: targetComboBox
 

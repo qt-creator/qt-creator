@@ -27,6 +27,7 @@
 
 #include <utils/port.h>
 #include <QString>
+#include <QUrl>
 
 namespace QmlDebug {
 
@@ -34,7 +35,8 @@ enum QmlDebugServicesPreset {
     NoQmlDebugServices,
     QmlDebuggerServices,
     QmlProfilerServices,
-    QmlNativeDebuggerServices
+    QmlNativeDebuggerServices,
+    QmlPreviewServices
 };
 
 static inline QString qmlDebugServices(QmlDebugServicesPreset preset)
@@ -48,6 +50,8 @@ static inline QString qmlDebugServices(QmlDebugServicesPreset preset)
         return QStringLiteral("CanvasFrameRate,EngineControl,DebugMessages");
     case QmlNativeDebuggerServices:
         return QStringLiteral("NativeQmlDebugger");
+    case QmlPreviewServices:
+        return QStringLiteral("QmlPreview");
     default:
         Q_ASSERT(false);
         return QString();
@@ -65,12 +69,9 @@ static inline QString qmlDebugCommandLineArguments(QmlDebugServicesPreset servic
 }
 
 static inline QString qmlDebugTcpArguments(QmlDebugServicesPreset services,
-                                           Utils::Port port = Utils::Port(),
-                                           bool block = true)
+                                           Utils::Port port, bool block = true)
 {
-    return qmlDebugCommandLineArguments(services, port.isValid() ?
-                                            QString::fromLatin1("port:%1").arg(port.number()) :
-                                            QStringLiteral("port:%qml_port%"), block);
+    return qmlDebugCommandLineArguments(services, QString("port:%1").arg(port.number()), block);
 }
 
 static inline QString qmlDebugNativeArguments(QmlDebugServicesPreset services, bool block = true)

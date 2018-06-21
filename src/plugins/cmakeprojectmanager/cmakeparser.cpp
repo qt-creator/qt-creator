@@ -30,10 +30,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 using namespace CMakeProjectManager;
-using namespace Internal;
 using namespace ProjectExplorer;
 
-const char COMMON_ERROR_PATTERN[] = "^CMake Error at (.*):([0-9]*) \\((.*)\\):";
+const char COMMON_ERROR_PATTERN[] = "^CMake Error at (.*):([0-9]*)( \\((.*)\\))?:";
 const char NEXT_SUBERROR_PATTERN[] = "^CMake Error in (.*):";
 const char LOCATION_LINE_PATTERN[] = ":(\\d+):(?:(\\d+))?$";
 
@@ -141,7 +140,7 @@ void CMakeParser::doFlush()
 
 #include <QTest>
 
-void CMakeProjectPlugin::testCMakeParser_data()
+void Internal::CMakeProjectPlugin::testCMakeParser_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
@@ -251,6 +250,20 @@ void CMakeProjectPlugin::testCMakeParser_data()
                         Utils::FileName(), -1, categoryBuild))
             << QString();
 
+    QTest::newRow("cmake error at")
+            << QString::fromLatin1("CMake Error at CMakeLists.txt:4:\n"
+                                   "  Parse error.  Expected \"(\", got newline with text \"\n"
+                                   "\n"
+                                   "  \".\n")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("Parse error.  Expected \"(\", got newline with text \" \"."),
+                        Utils::FileName::fromUserInput(QLatin1String("CMakeLists.txt")), 4,
+                        categoryBuild))
+            << QString();
+
     QTest::newRow("cmake warning")
             << QString::fromLatin1("Syntax Warning in cmake code at\n"
                                    "/test/path/CMakeLists.txt:9:15\n"
@@ -265,7 +278,7 @@ void CMakeProjectPlugin::testCMakeParser_data()
             << QString();
 }
 
-void CMakeProjectPlugin::testCMakeParser()
+void Internal::CMakeProjectPlugin::testCMakeParser()
 {
     OutputParserTester testbench;
     testbench.appendOutputParser(new CMakeParser);

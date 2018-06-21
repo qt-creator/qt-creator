@@ -45,7 +45,7 @@ void SshForwardedTcpIpTunnelPrivate::handleOpenSuccessInternal()
     try {
         m_sendFacility.sendChannelOpenConfirmationPacket(remoteChannel(), localChannelId(),
                                                          initialWindowSize(), maxPacketSize());
-    } catch (const Botan::Exception &e) { // Won't happen, but let's play it safe.
+    } catch (const std::exception &e) { // Won't happen, but let's play it safe.
         qCWarning(sshLog, "Botan error: %s", e.what());
         closeChannel();
     }

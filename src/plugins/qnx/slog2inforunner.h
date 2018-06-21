@@ -27,6 +27,7 @@
 
 #include <QObject>
 
+#include <projectexplorer/runconfiguration.h>
 #include <remotelinux/linuxdevice.h>
 #include <utils/outputformat.h>
 
@@ -38,26 +39,23 @@ namespace ProjectExplorer { class SshDeviceProcess; }
 namespace Qnx {
 namespace Internal {
 
-class Slog2InfoRunner : public QObject
+class Slog2InfoRunner : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 public:
-    explicit Slog2InfoRunner(const QString &applicationId, const RemoteLinux::LinuxDevice::ConstPtr &device, QObject *parent = 0);
+    explicit Slog2InfoRunner(ProjectExplorer::RunControl *runControl);
 
-    void stop();
+    void start() override;
+    void stop() override;
 
     bool commandFound() const;
-
-public slots:
-    void start();
 
 signals:
     void commandMissing();
     void started();
     void finished();
-    void output(const QString &msg, Utils::OutputFormat format);
 
-private slots:
+private:
     void handleTestProcessCompleted();
     void launchSlog2Info();
 
@@ -65,22 +63,21 @@ private slots:
     void readLogStandardError();
     void handleLogError();
 
-private:
+    void printMissingWarning();
     void readLaunchTime();
     void processLog(bool force);
     void processLogLine(const QString &line);
 
     QString m_applicationId;
 
-    bool m_found;
-
     QDateTime m_launchDateTime;
-    bool m_currentLogs;
+    bool m_found = false;
+    bool m_currentLogs = false;
     QString m_remainingData;
 
-    ProjectExplorer::SshDeviceProcess *m_launchDateTimeProcess;
-    ProjectExplorer::SshDeviceProcess *m_testProcess;
-    ProjectExplorer::SshDeviceProcess *m_logProcess;
+    ProjectExplorer::SshDeviceProcess *m_launchDateTimeProcess = nullptr;
+    ProjectExplorer::SshDeviceProcess *m_testProcess = nullptr;
+    ProjectExplorer::SshDeviceProcess *m_logProcess = nullptr;
 };
 
 } // namespace Internal

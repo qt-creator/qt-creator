@@ -61,7 +61,7 @@ public:
 protected:
     void updatePropertyName(int rowNumber);
 
-private slots:
+private:
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex& bottomRight);
 
 private:

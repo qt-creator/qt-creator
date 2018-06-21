@@ -34,9 +34,8 @@ namespace Internal {
 class ClipboardAssistProvider: public IAssistProvider
 {
 public:
-    ClipboardAssistProvider(QObject *parent = 0) : IAssistProvider(parent) {}
+    ClipboardAssistProvider(QObject *parent = nullptr) : IAssistProvider(parent) {}
     IAssistProvider::RunType runType() const override;
-    bool supportsEditor(Core::Id editorId) const override;
     IAssistProcessor *createProcessor() const override;
 };
 

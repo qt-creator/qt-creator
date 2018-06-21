@@ -42,16 +42,16 @@ namespace TextEditor {
 
 class SyntaxHighlighterPrivate
 {
-    SyntaxHighlighter *q_ptr;
+    SyntaxHighlighter *q_ptr = nullptr;
     Q_DECLARE_PUBLIC(SyntaxHighlighter)
 public:
-    inline SyntaxHighlighterPrivate()
-        : q_ptr(0), rehighlightPending(false), inReformatBlocks(false)
-    {}
+    SyntaxHighlighterPrivate()
+    {
+        updateFormats(TextEditorSettings::fontSettings());
+    }
 
     QPointer<QTextDocument> doc;
 
-    void _q_reformatBlocks(int from, int charsRemoved, int charsAdded);
     void reformatBlocks(int from, int charsRemoved, int charsAdded);
     void reformatBlock(const QTextBlock &block, int from, int charsRemoved, int charsAdded);
 
@@ -63,23 +63,18 @@ public:
         inReformatBlocks = false;
     }
 
-    inline void _q_delayedRehighlight() {
-        if (!rehighlightPending)
-            return;
-        rehighlightPending = false;
-        q_func()->rehighlight();
-    }
-
     void applyFormatChanges(int from, int charsRemoved, int charsAdded);
-    void updateFormatsForCategories(const FontSettings &fontSettings);
+    void updateFormats(const FontSettings &fontSettings);
 
     QVector<QTextCharFormat> formatChanges;
     QTextBlock currentBlock;
-    bool rehighlightPending;
-    bool inReformatBlocks;
+    bool rehighlightPending = false;
+    bool inReformatBlocks = false;
     TextDocumentLayout::FoldValidator foldValidator;
     QVector<QTextCharFormat> formats;
-    QVector<TextStyle> formatCategories;
+    QVector<std::pair<int,TextStyle>> formatCategories;
+    QTextCharFormat whitespaceFormat;
+    bool noAutomaticHighlighting = false;
 };
 
 static bool adjustRange(QTextLayout::FormatRange &range, int from, int charsRemoved, int charsAdded) {
@@ -92,6 +87,15 @@ static bool adjustRange(QTextLayout::FormatRange &range, int from, int charsRemo
         return true;
     }
     return false;
+}
+
+void SyntaxHighlighter::delayedRehighlight()
+{
+    Q_D(SyntaxHighlighter);
+    if (!d->rehighlightPending)
+        return;
+    d->rehighlightPending = false;
+    rehighlight();
 }
 
 void SyntaxHighlighterPrivate::applyFormatChanges(int from, int charsRemoved, int charsAdded)
@@ -124,7 +128,6 @@ void SyntaxHighlighterPrivate::applyFormatChanges(int from, int charsRemoved, in
     QTextCharFormat emptyFormat;
 
     QTextLayout::FormatRange r;
-    r.start = -1;
 
     QVector<QTextLayout::FormatRange> new_ranges;
     int i = 0;
@@ -142,17 +145,7 @@ void SyntaxHighlighterPrivate::applyFormatChanges(int from, int charsRemoved, in
         while (i < formatChanges.count() && formatChanges.at(i) == r.format)
             ++i;
 
-        if (i >= formatChanges.count())
-            break;
-
         r.length = i - r.start;
-
-        new_ranges << r;
-        r.start = -1;
-    }
-
-    if (r.start != -1) {
-        r.length = formatChanges.count() - r.start;
 
         new_ranges << r;
     }
@@ -172,10 +165,11 @@ void SyntaxHighlighterPrivate::applyFormatChanges(int from, int charsRemoved, in
     }
 }
 
-void SyntaxHighlighterPrivate::_q_reformatBlocks(int from, int charsRemoved, int charsAdded)
+void SyntaxHighlighter::reformatBlocks(int from, int charsRemoved, int charsAdded)
 {
-    if (!inReformatBlocks)
-        reformatBlocks(from, charsRemoved, charsAdded);
+    Q_D(SyntaxHighlighter);
+    if (!d->inReformatBlocks)
+        d->reformatBlocks(from, charsRemoved, charsAdded);
 }
 
 void SyntaxHighlighterPrivate::reformatBlocks(int from, int charsRemoved, int charsAdded)
@@ -310,8 +304,7 @@ void SyntaxHighlighter::setDocument(QTextDocument *doc)
 {
     Q_D(SyntaxHighlighter);
     if (d->doc) {
-        disconnect(d->doc, SIGNAL(contentsChange(int,int,int)),
-                   this, SLOT(_q_reformatBlocks(int,int,int)));
+        disconnect(d->doc, &QTextDocument::contentsChange, this, &SyntaxHighlighter::reformatBlocks);
 
         QTextCursor cursor(d->doc);
         cursor.beginEditBlock();
@@ -321,10 +314,11 @@ void SyntaxHighlighter::setDocument(QTextDocument *doc)
     }
     d->doc = doc;
     if (d->doc) {
-        connect(d->doc, SIGNAL(contentsChange(int,int,int)),
-                this, SLOT(_q_reformatBlocks(int,int,int)));
-        d->rehighlightPending = true;
-        QTimer::singleShot(0, this, SLOT(_q_delayedRehighlight()));
+        if (!d->noAutomaticHighlighting) {
+            connect(d->doc, &QTextDocument::contentsChange, this, &SyntaxHighlighter::reformatBlocks);
+            d->rehighlightPending = true;
+            QTimer::singleShot(0, this, &SyntaxHighlighter::delayedRehighlight);
+        }
         d->foldValidator.setup(qobject_cast<TextDocumentLayout *>(doc->documentLayout()));
     }
 }
@@ -484,19 +478,53 @@ void SyntaxHighlighter::setFormat(int start, int count, const QFont &font)
     setFormat(start, count, format);
 }
 
-void SyntaxHighlighter::applyFormatToSpaces(const QString &text, const QTextCharFormat &format)
+void SyntaxHighlighter::formatSpaces(const QString &text, int start, int count)
 {
-    int offset = 0;
-    const int length = text.length();
-    while (offset < length) {
+    Q_D(const SyntaxHighlighter);
+    int offset = start;
+    const int end = std::min(start + count, text.length());
+    while (offset < end) {
         if (text.at(offset).isSpace()) {
             int start = offset++;
-            while (offset < length && text.at(offset).isSpace())
+            while (offset < end && text.at(offset).isSpace())
                 ++offset;
-            setFormat(start, offset - start, format);
+            setFormat(start, offset - start, d->whitespaceFormat);
         } else {
             ++offset;
         }
+    }
+}
+
+/*!
+    The specified \a format is applied to all non-whitespace characters in the current text block
+    with \a text, from the \a start position for a length of \a count characters.
+    Whitespace characters are formatted with the visual whitespace format, merged with the
+    non-whitespace format.
+
+    \sa setFormat()
+*/
+void SyntaxHighlighter::setFormatWithSpaces(const QString &text, int start, int count,
+                                            const QTextCharFormat &format)
+{
+    Q_D(const SyntaxHighlighter);
+    QTextCharFormat visualSpaceFormat = d->whitespaceFormat;
+    visualSpaceFormat.setBackground(format.background());
+
+    const int end = std::min(start + count, text.length());
+    int index = start;
+
+    while (index != end) {
+        const bool isSpace = text.at(index).isSpace();
+        const int start = index;
+
+        do { ++index; }
+        while (index != end && text.at(index).isSpace() == isSpace);
+
+        const int tokenLength = index - start;
+        if (isSpace)
+            setFormat(start, tokenLength, visualSpaceFormat);
+        else if (format.isValid())
+            setFormat(start, tokenLength, format);
     }
 }
 
@@ -735,14 +763,62 @@ QList<QColor> SyntaxHighlighter::generateColors(int n, const QColor &background)
 void SyntaxHighlighter::setFontSettings(const FontSettings &fontSettings)
 {
     Q_D(SyntaxHighlighter);
-    d->updateFormatsForCategories(fontSettings);
+    d->updateFormats(fontSettings);
+}
+/*!
+    The syntax highlighter is not anymore reacting to the text document if \a noAutmatic is
+    \c true.
+*/
+void SyntaxHighlighter::setNoAutomaticHighlighting(bool noAutomatic)
+{
+    Q_D(SyntaxHighlighter);
+    d->noAutomaticHighlighting = noAutomatic;
 }
 
-void SyntaxHighlighter::setTextFormatCategories(const QVector<TextStyle> &categories)
+/*!
+    Creates text format categories for the text styles themselves, so the highlighter can
+    use \c{formatForCategory(C_COMMENT)} and similar, and avoid creating its own format enum.
+    \sa setTextFormatCategories()
+*/
+void SyntaxHighlighter::setDefaultTextFormatCategories()
+{
+    // map all text styles to themselves
+    setTextFormatCategories(C_LAST_STYLE_SENTINEL, [](int i) { return TextStyle(i); });
+}
+
+/*!
+    Uses the \a formatMapping function to create a mapping from the custom formats (the ints)
+    to text styles. The \a formatMapping must handle all values from 0 to \a count.
+
+    \sa setDefaultTextFormatCategories()
+    \sa setTextFormatCategories()
+*/
+void SyntaxHighlighter::setTextFormatCategories(int count,
+                                                std::function<TextStyle(int)> formatMapping)
+{
+    QVector<std::pair<int, TextStyle>> categories;
+    categories.reserve(count);
+    for (int i = 0; i < count; ++i)
+        categories.append({i, formatMapping(i)});
+    setTextFormatCategories(categories);
+}
+
+/*!
+    Creates a mapping between custom format enum values (the int values in the pairs) to
+    text styles. Afterwards \c{formatForCategory(MyCustomFormatEnumValue)} can be used to
+    efficiently retrieve the text style for a value.
+
+    Note that this creates a vector with a size of the maximum int value in \a categories.
+
+    \sa setDefaultTextFormatCategories()
+*/
+void SyntaxHighlighter::setTextFormatCategories(const QVector<std::pair<int, TextStyle>> &categories)
 {
     Q_D(SyntaxHighlighter);
     d->formatCategories = categories;
-    d->updateFormatsForCategories(TextEditorSettings::fontSettings());
+    const int maxCategory = Utils::maxElementOr(categories, {-1, C_TEXT}).first;
+    d->formats = QVector<QTextCharFormat>(maxCategory + 1);
+    d->updateFormats(TextEditorSettings::fontSettings());
 }
 
 QTextCharFormat SyntaxHighlighter::formatForCategory(int category) const
@@ -753,9 +829,16 @@ QTextCharFormat SyntaxHighlighter::formatForCategory(int category) const
     return d->formats.at(category);
 }
 
-void SyntaxHighlighterPrivate::updateFormatsForCategories(const FontSettings &fontSettings)
+void SyntaxHighlighter::highlightBlock(const QString &text)
 {
-    formats = fontSettings.toTextCharFormats(formatCategories);
+    formatSpaces(text);
+}
+
+void SyntaxHighlighterPrivate::updateFormats(const FontSettings &fontSettings)
+{
+    for (const auto &pair : qAsConst(formatCategories))
+        formats[pair.first] = fontSettings.toTextCharFormat(pair.second);
+    whitespaceFormat = fontSettings.toTextCharFormat(C_VISUAL_WHITESPACE);
 }
 
 } // namespace TextEditor

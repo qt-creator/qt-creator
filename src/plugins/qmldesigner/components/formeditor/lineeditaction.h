@@ -26,19 +26,21 @@
 
 #include <QWidgetAction>
 
+#include <theme.h>
+
 namespace QmlDesigner {
 
 class LineEditAction : public QWidgetAction
 {
     Q_OBJECT
 public:
-    explicit LineEditAction(const QString &placeHolderText, QObject *parent = 0);
+    explicit LineEditAction(const QString &placeHolderText, QObject *parent = nullptr);
 
     void setLineEditText(const QString &text);
     void clearLineEditText();
 
 protected:
-    QWidget *createWidget(QWidget *parent);
+    QWidget *createWidget(QWidget *parent) override;
 
 signals:
     void textChanged(const QString &text);

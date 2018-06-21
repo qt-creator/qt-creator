@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -31,7 +31,7 @@
 
 /*!
     \contentspage {Qt Creator Manual}
-    \previouspage creator-version-control.html
+    \previouspage creator-vcs-subversion.html
     \page creator-configuring-projects.html
     \nextpage creator-targets.html
 
@@ -60,14 +60,18 @@
     \image qtcreator-project-kits.png
 
     The list displays kits that are configured in \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Kits. To modify
-    kit configuration or to add kits to the list, right-click the sidebar to
-    open a context-menu, and then select \uicontrol {Manage Kits}. For more
-    information about managing kits, see \l{Adding Kits}.
+    \uicontrol Options > \uicontrol Kits. If the kit configuration is not
+    suitable for the project type, warning and error icons are displayed.
+    To view the warning and error messages, move the mouse pointer over
+    the kit name.
+
+    To modify kit configuration or to add kits to the list, select
+    \uicontrol {Manage Kits}. For more information about managing kits, see
+    \l{Adding Kits}.
 
     Each kit consists of a set of values that define one environment, such as a
-    device, compiler, and Qt version. For more information, see
-    \l{Adding Qt Versions}, \l{Adding Compilers}, and \l{Adding Debuggers}.
+    \l{glossary-device}{device}, compiler, and Qt version. For more information,
+    see \l{Adding Qt Versions}, \l{Adding Compilers}, and \l{Adding Debuggers}.
 
     To copy the build and run settings for a kit to another kit, select
     \uicontrol {Copy Steps from Other Kit} in the context menu.
@@ -100,7 +104,7 @@
                 \li \l{Parsing C++ Files with the Clang Code Model}
                     {Clang Code Model}
 
-                \li \l{Using Clang Static Analyzer}{Clang Static Analyzer}
+                \li \l{Using Clang Tools}{Clang Tools}
 
                 \li \l{To-Do Entries}{To-Do} (experimental)
 

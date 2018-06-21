@@ -32,6 +32,8 @@
 #include <utils/qtcassert.h>
 #include <QtGui>
 
+#include <QRegExpValidator>
+
 using namespace ProjectExplorer::Constants;
 
 namespace ProjectExplorer {

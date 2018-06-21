@@ -41,6 +41,7 @@ class MRelation;
 class MDependency;
 class MInheritance;
 class MAssociation;
+class MConnection;
 
 class MConstVisitor
 {
@@ -59,6 +60,7 @@ public:
     virtual void visitMDependency(const MDependency *dependency) = 0;
     virtual void visitMInheritance(const MInheritance *inheritance) = 0;
     virtual void visitMAssociation(const MAssociation *association) = 0;
+    virtual void visitMConnection(const MConnection *connection) = 0;
 };
 
 } // namespace qmt

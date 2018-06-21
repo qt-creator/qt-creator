@@ -95,7 +95,7 @@ private:
     Token readComment();
 
     bool matchMultiLineCommentStart();
-    bool matchMultiLineCommendEnd();
+    bool matchMultiLineCommentEnd();
     Token readMultiLineComment(bool moveForward);
 
     bool matchDocumentationStart();

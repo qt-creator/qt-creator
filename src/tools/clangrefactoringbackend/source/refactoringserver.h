@@ -25,44 +25,65 @@
 
 #pragma once
 
+#include "clangquerygatherer.h"
+
 #include <refactoringserverinterface.h>
 
+#include <ipcclientprovider.h>
+#include <filepathcachinginterface.h>
+
+#include <utils/smallstring.h>
+
+#include <QTimer>
+
 #include <future>
+#include <mutex>
 #include <vector>
 
 namespace ClangBackEnd {
 
-class SourceRangesAndDiagnosticsForQueryMessage;
+class SourceRangesForQueryMessage;
+class SymbolIndexingInterface;
 
 namespace V2 {
 class FileContainer;
 }
 
-class RefactoringServer : public RefactoringServerInterface
+class RefactoringServer : public RefactoringServerInterface,
+                          public IpcClientProvider<RefactoringClientInterface>
 {
-    using Future = std::future<SourceRangesAndDiagnosticsForQueryMessage>;
+    using Future = std::future<SourceRangesForQueryMessage>;
 public:
-    RefactoringServer();
+    RefactoringServer(SymbolIndexingInterface &symbolIndexing,
+                      FilePathCachingInterface &filePathCache);
 
     void end() override;
     void requestSourceLocationsForRenamingMessage(RequestSourceLocationsForRenamingMessage &&message) override;
     void requestSourceRangesAndDiagnosticsForQueryMessage(RequestSourceRangesAndDiagnosticsForQueryMessage &&message) override;
+    void requestSourceRangesForQueryMessage(RequestSourceRangesForQueryMessage &&message) override;
+    void updateProjectParts(UpdateProjectPartsMessage &&message) override;
+    void removeProjectParts(RemoveProjectPartsMessage &&message) override;
     void cancel() override;
 
     bool isCancelingJobs() const;
 
-    void supersedePollEventLoop(std::function<void()> &&pollEventLoop);
+    void pollSourceRangesForQueryMessages();
+    void waitThatSourceRangesForQueryMessagesAreFinished();
+
+    bool pollTimerIsActive() const;
+
+    void setGathererProcessingSlotCount(uint count);
 
 private:
-    void gatherSourceRangesAndDiagnosticsForQueryMessage(std::vector<V2::FileContainer> &&sources,
-                                                         std::vector<V2::FileContainer> &&unsaved,
-                                                         Utils::SmallString &&query);
-    std::size_t waitForNewSourceRangesAndDiagnosticsForQueryMessage(std::vector<Future> &futures);
+    void gatherSourceRangesForQueryMessages(std::vector<V2::FileContainer> &&sources,
+                                                          std::vector<V2::FileContainer> &&unsaved,
+                                                          Utils::SmallString &&query);
 
 private:
-    std::function<void()> pollEventLoop;
-    std::atomic_bool cancelWork{false};
-
+    ClangQueryGatherer m_gatherer;
+    QTimer m_pollTimer;
+    SymbolIndexingInterface &m_symbolIndexing;
+    FilePathCachingInterface &m_filePathCache;
 };
 
 } // namespace ClangBackEnd

@@ -35,6 +35,9 @@
 #include <QTime>
 #include <QDebug>
 #include <QTimer>
+#include <QPointer>
+
+#include <functional>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -46,8 +49,8 @@ class QmlProfilerStateWidget::QmlProfilerStateWidgetPrivate
 
     QLabel *text;
 
-    QmlProfilerStateManager *m_profilerState;
-    QmlProfilerModelManager *m_modelManager;
+    QPointer<QmlProfilerStateManager> m_profilerState;
+    QPointer<QmlProfilerModelManager> m_modelManager;
     QTimer timer;
 };
 
@@ -71,17 +74,16 @@ QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateMan
 
     // profiler state
     d->m_modelManager = modelManager;
-    connect(d->m_modelManager, &QmlProfilerModelManager::stateChanged,
-            this, &QmlProfilerStateWidget::update);
+
+    modelManager->registerFeatures(0, QmlProfilerModelManager::QmlEventLoader(),
+                                   std::bind(&QmlProfilerStateWidget::initialize, this),
+                                   std::bind(&QmlProfilerStateWidget::clear, this),
+                                   std::bind(&QmlProfilerStateWidget::clear, this));
     d->m_profilerState = stateManager;
-    connect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
-            this, &QmlProfilerStateWidget::update);
-    connect(d->m_profilerState, &QmlProfilerStateManager::serverRecordingChanged,
-            this, &QmlProfilerStateWidget::update);
     connect(&d->timer, &QTimer::timeout, this, &QmlProfilerStateWidget::updateDisplay);
 
     d->timer.setInterval(1000);
-    update();
+    setVisible(false);
 }
 
 QmlProfilerStateWidget::~QmlProfilerStateWidget()
@@ -96,6 +98,16 @@ void QmlProfilerStateWidget::reposition()
     move(parentWidget->width()/2 - width()/2, parentWidget->height()/3 - height()/2);
 }
 
+void QmlProfilerStateWidget::initialize()
+{
+    connect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
+            this, &QmlProfilerStateWidget::updateDisplay);
+    connect(d->m_profilerState, &QmlProfilerStateManager::serverRecordingChanged,
+            this, &QmlProfilerStateWidget::updateDisplay);
+    d->timer.start();
+    updateDisplay();
+}
+
 void QmlProfilerStateWidget::showText(const QString &text)
 {
     setVisible(true);
@@ -104,66 +116,45 @@ void QmlProfilerStateWidget::showText(const QString &text)
     reposition();
 }
 
+void QmlProfilerStateWidget::clear()
+{
+    disconnect(d->m_profilerState, &QmlProfilerStateManager::stateChanged,
+               this, &QmlProfilerStateWidget::updateDisplay);
+    disconnect(d->m_profilerState, &QmlProfilerStateManager::serverRecordingChanged,
+               this, &QmlProfilerStateWidget::updateDisplay);
+    d->timer.stop();
+    setVisible(false);
+}
+
 void QmlProfilerStateWidget::updateDisplay()
 {
+    QTC_ASSERT(d->m_modelManager, return);
+    QTC_ASSERT(d->m_profilerState, return);
+
     // When application is being profiled
     if (d->m_profilerState->serverRecording()) {
         // Heuristic to not show the number if the application will only send the events when it
         // stops. The number is still > 0 then because we get some StartTrace etc.
-        uint numEvents = d->m_modelManager->numLoadedEvents();
-        showText(numEvents > 256 ? tr("Profiling application: %n events", 0, numEvents) :
+        const int numEvents = d->m_modelManager->numEvents();
+        showText(numEvents > 256 ? tr("Profiling application: %n events", nullptr, numEvents) :
                                    tr("Profiling application"));
-        return;
-    }
-
-    QmlProfilerModelManager::State state = d->m_modelManager->state();
-    if (state == QmlProfilerModelManager::Done || state == QmlProfilerModelManager::Empty) {
+    } else if (d->m_modelManager->traceDuration() > 0 && d->m_modelManager->isEmpty()) {
         // After profiling, there is an empty trace
-        if (d->m_modelManager->traceTime()->duration() > 0 && d->m_modelManager->isEmpty()) {
-            showText(tr("No QML events recorded"));
-            return;
-        }
+        showText(tr("No QML events recorded"));
     } else if (!d->m_modelManager->isEmpty()) {
-        // When datamodel is acquiring or processing data
-        if (state == QmlProfilerModelManager::ProcessingData) {
-            showText(tr("Processing data: %1 / %2").arg(d->m_modelManager->numFinishedFinalizers())
-                                                   .arg(d->m_modelManager->numRegisteredFinalizers()));
-        } else if (d->m_profilerState->currentState() != QmlProfilerStateManager::Idle) {
-            if (state == QmlProfilerModelManager::AcquiringData) {
-                // we don't know how much more, so progress numbers are strange here
-                showText(tr("Loading buffered data: %n events", 0,
-                            d->m_modelManager->numLoadedEvents()));
-            } else if (state == QmlProfilerModelManager::ClearingData) {
-                // when starting a second recording from the same process without aggregation
-                showText(tr("Clearing old trace"));
-            }
-        } else if (state == QmlProfilerModelManager::AcquiringData) {
+        // When datamodel is acquiring data
+        if (d->m_profilerState->currentState() != QmlProfilerStateManager::Idle) {
+            // we don't know how much more, so progress numbers are strange here
+            showText(tr("Loading buffered data: %n events", nullptr,
+                        d->m_modelManager->numEvents()));
+        } else {
             // Application died before all data could be read
-            showText(tr("Loading offline data: %n events", 0,
-                        d->m_modelManager->numLoadedEvents()));
-        } else if (state == QmlProfilerModelManager::ClearingData) {
-            showText(tr("Clearing old trace"));
+            showText(tr("Loading offline data: %n events", nullptr,
+                        d->m_modelManager->numEvents()));
         }
-        return;
-    } else if (state == QmlProfilerModelManager::AcquiringData) {
-        showText(tr("Waiting for data"));
-        return;
-    }
-
-    // There is a trace on view, hide this dialog
-    setVisible(false);
-}
-
-void QmlProfilerStateWidget::update()
-{
-    QmlProfilerModelManager::State state = d->m_modelManager->state();
-    if (state == QmlProfilerModelManager::AcquiringData
-            || state == QmlProfilerModelManager::ProcessingData) {
-        d->timer.start();
     } else {
-        d->timer.stop();
+        showText(tr("Waiting for data"));
     }
-    updateDisplay();
 }
 
 } // namespace Internal

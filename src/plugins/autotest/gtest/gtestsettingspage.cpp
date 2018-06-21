@@ -23,20 +23,34 @@
 **
 ****************************************************************************/
 
-#include "../autotestconstants.h"
 #include "gtestconstants.h"
 #include "gtestsettingspage.h"
 #include "gtestsettings.h"
+#include "gtest_utils.h"
+#include "../autotestconstants.h"
+#include "../testframeworkmanager.h"
 
 #include <coreplugin/icore.h>
 
 namespace Autotest {
 namespace Internal {
 
+static bool validateFilter(Utils::FancyLineEdit *edit, QString * /*error*/)
+{
+    return edit && GTestUtils::isValidGTestFilter(edit->text());
+}
+
 GTestSettingsWidget::GTestSettingsWidget(QWidget *parent)
     : QWidget(parent)
 {
     m_ui.setupUi(this);
+    m_ui.filterLineEdit->setValidationFunction(&validateFilter);
+    m_ui.filterLineEdit->setEnabled(m_ui.groupModeCombo->currentIndex() == 1);
+
+    connect(m_ui.groupModeCombo, &QComboBox::currentTextChanged,
+            this, [this] () {
+        m_ui.filterLineEdit->setEnabled(m_ui.groupModeCombo->currentIndex() == 1);
+    });
     connect(m_ui.repeatGTestsCB, &QCheckBox::toggled, m_ui.repetitionSpin, &QSpinBox::setEnabled);
     connect(m_ui.shuffleGTestsCB, &QCheckBox::toggled, m_ui.seedSpin, &QSpinBox::setEnabled);
 }
@@ -50,6 +64,9 @@ void GTestSettingsWidget::setSettings(const GTestSettings &settings)
     m_ui.seedSpin->setValue(settings.seed);
     m_ui.breakOnFailureCB->setChecked(settings.breakOnFailure);
     m_ui.throwOnFailureCB->setChecked(settings.throwOnFailure);
+    m_ui.groupModeCombo->setCurrentIndex(settings.groupMode - 1); // there's None for internal use
+    m_ui.filterLineEdit->setText(settings.gtestFilter);
+    m_currentGTestFilter = settings.gtestFilter; // store it temporarily (if edit is invalid)
 }
 
 GTestSettings GTestSettingsWidget::settings() const
@@ -62,14 +79,19 @@ GTestSettings GTestSettingsWidget::settings() const
     result.seed = m_ui.seedSpin->value();
     result.breakOnFailure = m_ui.breakOnFailureCB->isChecked();
     result.throwOnFailure = m_ui.throwOnFailureCB->isChecked();
+    result.groupMode = static_cast<GTest::Constants::GroupMode>(
+                m_ui.groupModeCombo->currentIndex() + 1);
+    if (m_ui.filterLineEdit->isValid())
+        result.gtestFilter = m_ui.filterLineEdit->text();
+    else
+        result.gtestFilter = m_currentGTestFilter;
     return result;
 }
 
 GTestSettingsPage::GTestSettingsPage(QSharedPointer<IFrameworkSettings> settings,
                                      const ITestFramework *framework)
     : ITestSettingsPage(framework),
-      m_settings(qSharedPointerCast<GTestSettings>(settings)),
-      m_widget(0)
+      m_settings(qSharedPointerCast<GTestSettings>(settings))
 {
     setDisplayName(QCoreApplication::translate("GTestFramework",
                                                GTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));
@@ -88,8 +110,16 @@ void GTestSettingsPage::apply()
 {
     if (!m_widget) // page was not shown at all
         return;
+
+    GTest::Constants::GroupMode oldGroupMode = m_settings->groupMode;
+    const QString oldFilter = m_settings->gtestFilter;
     *m_settings = m_widget->settings();
     m_settings->toSettings(Core::ICore::settings());
+    if (m_settings->groupMode == oldGroupMode && oldFilter == m_settings->gtestFilter)
+        return;
+
+    auto id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
+    TestTreeModel::instance()->rebuild({id});
 }
 
 } // namespace Internal

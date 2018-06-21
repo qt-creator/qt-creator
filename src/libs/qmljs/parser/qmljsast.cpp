@@ -953,6 +953,23 @@ void UiSourceElement::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
+void UiEnumDeclaration::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(members, visitor);
+    }
+
+    visitor->endVisit(this);
+}
+
+void UiEnumMemberList::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+
+    visitor->endVisit(this);
+}
+
 } } // namespace QmlJS::AST
 
 QT_QML_END_NAMESPACE

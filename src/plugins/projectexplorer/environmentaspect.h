@@ -41,8 +41,13 @@ class PROJECTEXPLORER_EXPORT EnvironmentAspect : public IRunConfigurationAspect
     Q_OBJECT
 
 public:
-    virtual QList<int> possibleBaseEnvironments() const = 0;
-    virtual QString baseEnvironmentDisplayName(int base) const = 0;
+    // The environment the user chose as base for his modifications.
+    virtual Utils::Environment baseEnvironment() const = 0;
+    // The environment including the user's modifications.
+    Utils::Environment environment() const;
+
+    QList<int> possibleBaseEnvironments() const;
+    QString baseEnvironmentDisplayName(int base) const;
 
     int baseEnvironmentBase() const;
     void setBaseEnvironmentBase(int base);
@@ -50,10 +55,8 @@ public:
     QList<Utils::EnvironmentItem> userEnvironmentChanges() const { return m_changes; }
     void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
 
-    // The environment the user chose as base for his modifications.
-    virtual Utils::Environment baseEnvironment() const = 0;
-    // The environment including the user's modifications.
-    Utils::Environment environment() const;
+    void addSupportedBaseEnvironment(int base, const QString &displayName);
+    void addPreferredBaseEnvironment(int base, const QString &displayName);
 
 signals:
     void baseEnvironmentChanged();
@@ -66,8 +69,9 @@ protected:
     void toMap(QVariantMap &map) const override;
 
 private:
-    mutable int m_base;
+    int m_base = -1;
     QList<Utils::EnvironmentItem> m_changes;
+    QMap<int, QString> m_displayNames;
 };
 
 } // namespace ProjectExplorer

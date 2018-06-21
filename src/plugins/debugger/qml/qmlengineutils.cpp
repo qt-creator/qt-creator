@@ -210,6 +210,7 @@ void appendDebugOutput(QtMsgType type, const QString &message, const QDebugConte
 {
     ConsoleItem::ItemType itemType;
     switch (type) {
+    case QtInfoMsg:
     case QtDebugMsg:
         itemType = ConsoleItem::DebugType;
         break;
@@ -220,10 +221,9 @@ void appendDebugOutput(QtMsgType type, const QString &message, const QDebugConte
     case QtFatalMsg:
         itemType = ConsoleItem::ErrorType;
         break;
-    default:
-        //This case is not possible
-        return;
     }
+
+    QTC_ASSERT(itemType != ConsoleItem::DefaultType, return);
 
     debuggerConsole()->printItem(new ConsoleItem(itemType, message, info.file, info.line));
 }
@@ -241,12 +241,12 @@ void clearExceptionSelection()
 QStringList highlightExceptionCode(int lineNumber, const QString &filePath, const QString &errorMessage)
 {
     QStringList messages;
-    QList<IEditor *> editors = DocumentModel::editorsForFilePath(filePath);
+    const QList<IEditor *> editors = DocumentModel::editorsForFilePath(filePath);
 
     const  TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
     QTextCharFormat errorFormat = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
 
-    foreach (IEditor *editor, editors) {
+    for (IEditor *editor : editors) {
         TextEditorWidget *ed = qobject_cast<TextEditorWidget *>(editor->widget());
         if (!ed)
             continue;

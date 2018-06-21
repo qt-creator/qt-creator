@@ -35,6 +35,7 @@
 #include "qmt/model/mitem.h"
 #include "qmt/model/mrelation.h"
 #include "qmt/model/massociation.h"
+#include "qmt/model/mconnection.h"
 #include "qmt/model/mdependency.h"
 #include "qmt/model/minheritance.h"
 
@@ -44,7 +45,6 @@
 namespace qmt {
 
 MCloneVisitor::MCloneVisitor()
-    : m_cloned(0)
 {
 }
 
@@ -85,7 +85,7 @@ void MCloneVisitor::visitMDiagram(const MDiagram *diagram)
 {
     QMT_CHECK(m_cloned);
     auto cloned = dynamic_cast<MDiagram *>(m_cloned);
-    QMT_CHECK(cloned);
+    QMT_ASSERT(cloned, return);
     foreach (const DElement *element, diagram->diagramElements()) {
         DCloneDeepVisitor visitor;
         element->accept(&visitor);
@@ -136,8 +136,14 @@ void MCloneVisitor::visitMAssociation(const MAssociation *association)
     visitMRelation(association);
 }
 
+void MCloneVisitor::visitMConnection(const MConnection *connection)
+{
+    if (!m_cloned)
+        m_cloned = new MConnection(*connection);
+    visitMRelation(connection);
+}
+
 MCloneDeepVisitor::MCloneDeepVisitor()
-    : m_cloned(0)
 {
 }
 
@@ -152,24 +158,24 @@ void MCloneDeepVisitor::visitMObject(const MObject *object)
     QMT_CHECK(m_cloned);
     visitMElement(object);
     auto cloned = dynamic_cast<MObject *>(m_cloned);
-    QMT_CHECK(cloned);
-    foreach (const Handle<MObject> &handle, object->children()) {
+    QMT_ASSERT(cloned, return);
+    for (const Handle<MObject> &handle : object->children()) {
         if (handle.hasTarget()) {
             MCloneDeepVisitor visitor;
             handle.target()->accept(&visitor);
             auto clonedChild = dynamic_cast<MObject *>(visitor.cloned());
-            QMT_CHECK(clonedChild);
+            QMT_ASSERT(clonedChild, return);
             cloned->addChild(clonedChild);
         } else {
             cloned->addChild(handle.uid());
         }
     }
-    foreach (const Handle<MRelation> &handle, object->relations()) {
+    for (const Handle<MRelation> &handle : object->relations()) {
         if (handle.hasTarget()) {
             MCloneDeepVisitor visitor;
             handle.target()->accept(&visitor);
             auto clonedRelation = dynamic_cast<MRelation *>(visitor.cloned());
-            QMT_CHECK(clonedRelation);
+            QMT_ASSERT(clonedRelation, return);
             cloned->addRelation(clonedRelation);
         } else {
             cloned->addRelation(handle.uid());
@@ -202,7 +208,7 @@ void MCloneDeepVisitor::visitMDiagram(const MDiagram *diagram)
 {
     QMT_CHECK(m_cloned);
     auto cloned = dynamic_cast<MDiagram *>(m_cloned);
-    QMT_CHECK(cloned);
+    QMT_ASSERT(cloned, return);
     foreach (const DElement *element, diagram->diagramElements()) {
         DCloneDeepVisitor visitor;
         element->accept(&visitor);
@@ -231,7 +237,7 @@ void MCloneDeepVisitor::visitMRelation(const MRelation *relation)
     QMT_CHECK(m_cloned);
     visitMElement(relation);
     auto cloned = dynamic_cast<MRelation *>(m_cloned);
-    QMT_CHECK(cloned);
+    QMT_ASSERT(cloned, return);
     cloned->setEndAUid(relation->endAUid());
     cloned->setEndBUid(relation->endBUid());
 }
@@ -255,6 +261,13 @@ void MCloneDeepVisitor::visitMAssociation(const MAssociation *association)
     if (!m_cloned)
         m_cloned = new MAssociation(*association);
     visitMRelation(association);
+}
+
+void MCloneDeepVisitor::visitMConnection(const MConnection *connection)
+{
+    if (!m_cloned)
+        m_cloned = new MConnection(*connection);
+    visitMRelation(connection);
 }
 
 } // namespace qmt

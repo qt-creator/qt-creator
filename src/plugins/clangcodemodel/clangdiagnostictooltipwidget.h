@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <clangbackendipc/diagnosticcontainer.h>
+#include <clangsupport/diagnosticcontainer.h>
 
 QT_BEGIN_NAMESPACE
 class QLayout;

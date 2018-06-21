@@ -43,6 +43,8 @@ public:
     void stdOutput(const QString &line) override;
     void stdError(const QString &line) override;
 
+    static Core::Id id();
+
 private:
     void doFlush() override;
     bool processCompileLine(const QString &line);

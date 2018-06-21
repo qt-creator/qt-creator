@@ -99,7 +99,7 @@ static bool isQtReservedWord(const char *name, int size)
             size -= 2;
             switch (size) {
             case 1:
-                return name[2] == 'D' || name[2] == 'Q';
+                return name[0] == 'D' || name[0] == 'Q';
             case 4:
                 return same(name, "SLOT", size) || same(name, "EMIT", size);
             case 5:
@@ -840,7 +840,7 @@ void Preprocessor::handleDefined(PPToken *tk)
 
 void Preprocessor::pushToken(Preprocessor::PPToken *tk)
 {
-    const PPToken currentTokenBuffer[] = { *tk };
+    const PPToken currentTokenBuffer[] = {*tk};
     m_state.pushTokenBuffer(currentTokenBuffer, currentTokenBuffer + 1, 0);
 }
 

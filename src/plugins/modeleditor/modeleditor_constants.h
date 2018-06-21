@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <QtGlobal>
+
 namespace ModelEditor {
 namespace Constants {
 
@@ -36,9 +38,7 @@ const char DELETE_SELECTED_ELEMENTS[] = "ModelEditor.DeleteSelectedElements";
 const char OPEN_PARENT_DIAGRAM[] = "ModelEditor.OpenParentDiagram";
 const char MENU_ID[] = "ModelEditor.Menu";
 const char EXPORT_DIAGRAM[] = "ModelEditor.ExportDiagram";
-const char ZOOM_IN[] = "ModelEditor.ZoomIn";
-const char ZOOM_OUT[] = "ModelEditor.ZoomOut";
-const char RESET_ZOOM[] = "ModelEditor.ResetZoom";
+const char EXPORT_SELECTED_ELEMENTS[] = "ModelEditor.ExportSelectedElements";
 const char ACTION_ADD_PACKAGE[] = "ModelEditor.Action.AddPackage";
 const char ACTION_ADD_COMPONENT[] = "ModelEditor.Action.AddComponent";
 const char ACTION_ADD_CLASS[] = "ModelEditor.Action.AddClass";

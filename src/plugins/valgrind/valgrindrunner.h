@@ -26,62 +26,59 @@
 
 #pragma once
 
-#include <debugger/analyzer/analyzerconstants.h>
-
-#include <projectexplorer/runnables.h>
+#include <projectexplorer/runconfiguration.h>
 
 #include <utils/outputformat.h>
-#include <ssh/sshconnection.h>
 
 #include <QProcess>
 
 namespace Valgrind {
 
-class ValgrindProcess;
+namespace XmlProtocol { class ThreadedParser; }
 
 class ValgrindRunner : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit ValgrindRunner(QObject *parent = 0);
-    ~ValgrindRunner();
+    explicit ValgrindRunner(QObject *parent = nullptr);
+    ~ValgrindRunner() override;
 
-    QString valgrindExecutable() const;
     void setValgrindExecutable(const QString &executable);
-    QStringList valgrindArguments() const;
-    QStringList fullValgrindArguments() const;
     void setValgrindArguments(const QStringList &toolArguments);
-    void setDebuggee(const ProjectExplorer::StandardRunnable &debuggee) ;
+    void setDebuggee(const ProjectExplorer::Runnable &debuggee);
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
-
+    void setLocalServerAddress(const QHostAddress &localServerAddress);
     void setDevice(const ProjectExplorer::IDevice::ConstPtr &device);
-    ProjectExplorer::IDevice::ConstPtr device() const;
+    void setUseTerminal(bool on);
 
     void waitForFinished() const;
 
     QString errorString() const;
 
-    virtual bool start();
-    virtual void stop();
+    bool start();
+    void stop();
 
-    ValgrindProcess *valgrindProcess() const;
-
-protected:
-    virtual QString tool() const = 0;
+    XmlProtocol::ThreadedParser *parser() const;
 
 signals:
+    void logMessageReceived(const QByteArray &);
     void processOutputReceived(const QString &, Utils::OutputFormat);
     void processErrorReceived(const QString &, QProcess::ProcessError);
-    void started();
+    void valgrindExecuted(const QString &);
+    void valgrindStarted(qint64 pid);
     void finished();
-
-protected slots:
-    virtual void processError(QProcess::ProcessError);
-    virtual void processFinished(int, QProcess::ExitStatus);
-    virtual void localHostAddressRetrieved(const QHostAddress &localHostAddress);
+    void extraProcessFinished();
 
 private:
+    bool startServers();
+    void processError(QProcess::ProcessError);
+    void processFinished(int, QProcess::ExitStatus);
+
+    void xmlSocketConnected();
+    void logSocketConnected();
+    void readLogSocket();
+
     class Private;
     Private *d;
 };

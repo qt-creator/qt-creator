@@ -40,7 +40,7 @@ class SemanticInfoUpdater : public QObject
 
 public:
     explicit SemanticInfoUpdater();
-    ~SemanticInfoUpdater();
+    ~SemanticInfoUpdater() override;
 
     SemanticInfo semanticInfo() const;
 

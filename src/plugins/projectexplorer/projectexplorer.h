@@ -26,7 +26,6 @@
 #pragma once
 
 #include "projectexplorer_export.h"
-#include "projectexplorerconstants.h"
 #include "runconfiguration.h"
 
 #include <extensionsystem/iplugin.h>
@@ -44,10 +43,14 @@ class IMode;
 class Id;
 } // namespace Core
 
+namespace Utils {
+class ProcessHandle;
+class FileName;
+}
+
 namespace ProjectExplorer {
 class RunControl;
 class RunConfiguration;
-class IRunControlFactory;
 class Project;
 class Node;
 class FolderNode;
@@ -71,7 +74,7 @@ public:
     class OpenProjectResult
     {
     public:
-        OpenProjectResult(QList<Project *> projects, QList<Project *> alreadyOpen,
+        OpenProjectResult(const QList<Project *> &projects, const QList<Project *> &alreadyOpen,
                           const QString &errorMessage)
             : m_projects(projects), m_alreadyOpen(alreadyOpen),
               m_errorMessage(errorMessage)
@@ -124,14 +127,15 @@ public:
     ShutdownFlag aboutToShutdown() override;
 
     static void setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes);
-    static Internal::ProjectExplorerSettings projectExplorerSettings();
+    static const Internal::ProjectExplorerSettings &projectExplorerSettings();
 
-    static void startRunControl(RunControl *runControl, Core::Id runMode);
+    static void startRunControl(RunControl *runControl);
     static void showRunErrorMessage(const QString &errorMessage);
 
     // internal public for FlatModel
     static void renameFile(Node *node, const QString &newFilePath);
     static QStringList projectFilePatterns();
+    static bool isProjectFile(const Utils::FileName &filePath);
     static QList<QPair<QString, QString> > recentProjects();
 
     static bool canRunStartupProject(Core::Id runMode, QString *whyNot = nullptr);
@@ -139,6 +143,7 @@ public:
     static void runStartupProject(Core::Id runMode, bool forceSkipDeploy = false);
     static void runRunConfiguration(RunConfiguration *rc, Core::Id runMode,
                              const bool forceSkipDeploy = false);
+    static QList<QPair<Runnable, Utils::ProcessHandle>> runningRunControlProcesses();
 
     static void addExistingFiles(FolderNode *folderNode, const QStringList &filePaths);
 
@@ -160,14 +165,11 @@ public:
 
 signals:
     void finishedInitialization();
-    void runControlStarted(ProjectExplorer::RunControl *rc);
-    void runControlFinished(ProjectExplorer::RunControl *rc);
 
     // Is emitted when a project has been added/removed,
     // or the file list of a specific project has changed.
     void fileListChanged();
 
-    void aboutToExecuteProject(ProjectExplorer::Project *project, Core::Id runMode);
     void recentProjectsChanged();
 
     void settingsChanged();
@@ -179,6 +181,15 @@ private:
 
 #ifdef WITH_TESTS
 private slots:
+    void testJsonWizardsEmptyWizard();
+    void testJsonWizardsEmptyPage();
+    void testJsonWizardsUnusedKeyAtFields_data();
+    void testJsonWizardsUnusedKeyAtFields();
+    void testJsonWizardsCheckBox();
+    void testJsonWizardsLineEdit();
+    void testJsonWizardsComboBox();
+    void testJsonWizardsIconList();
+
     void testAnsiFilterOutputParser_data();
     void testAnsiFilterOutputParser();
 
@@ -211,16 +222,32 @@ private slots:
     void testGccAbiGuessing_data();
     void testGccAbiGuessing();
 
+    void testAbiRoundTrips();
     void testAbiOfBinary_data();
     void testAbiOfBinary();
-    void testFlavorForOs();
     void testAbiFromTargetTriplet_data();
     void testAbiFromTargetTriplet();
+    void testAbiUserOsFlavor_data();
+    void testAbiUserOsFlavor();
 
     void testDeviceManager();
 
-    void testToolChainManager_data();
-    void testToolChainManager();
+    void testToolChainMerging_data();
+    void testToolChainMerging();
+
+    void testUserFileAccessor_prepareToReadSettings();
+    void testUserFileAccessor_prepareToReadSettingsObsoleteVersion();
+    void testUserFileAccessor_prepareToReadSettingsObsoleteVersionNewVersion();
+    void testUserFileAccessor_prepareToWriteSettings();
+    void testUserFileAccessor_mergeSettings();
+    void testUserFileAccessor_mergeSettingsEmptyUser();
+    void testUserFileAccessor_mergeSettingsEmptyShared();
+
+    void testProject_setup();
+    void testProject_changeDisplayName();
+    void testProject_parsingSuccess();
+    void testProject_parsingFail();
+    void testProject_projectTree();
 #endif // WITH_TESTS
 };
 

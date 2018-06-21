@@ -41,15 +41,17 @@ class LineNumberFilter : public Core::ILocatorFilter
     Q_OBJECT
 
 public:
-    explicit LineNumberFilter(QObject *parent = 0);
+    explicit LineNumberFilter(QObject *parent = nullptr);
 
-    void prepareSearch(const QString &entry);
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
-    void accept(Core::LocatorFilterEntry selection) const;
-    void refresh(QFutureInterface<void> &) {}
+    void prepareSearch(const QString &entry) override;
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
+                                               const QString &entry) override;
+    void accept(Core::LocatorFilterEntry selection,
+                QString *newText, int *selectionStart, int *selectionLength) const override;
+    void refresh(QFutureInterface<void> &) override {}
 
 private:
-    bool m_hasCurrentEditor;
+    bool m_hasCurrentEditor = false;
 };
 
 } // namespace Internal

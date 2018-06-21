@@ -77,6 +77,7 @@ EnvironmentItemsWidget::EnvironmentItemsWidget(QWidget *parent) :
 {
     m_editor = new QPlainTextEdit(this);
     auto layout = new QVBoxLayout(this);
+    layout->setMargin(0);
     layout->addWidget(m_editor);
 }
 
@@ -114,18 +115,22 @@ EnvironmentDialog::EnvironmentDialog(QWidget *parent) :
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     resize(640, 480);
     d->m_editor = new Internal::EnvironmentItemsWidget(this);
-    d->m_editor->setToolTip(tr("Enter one variable per line with the variable name "
-                               "separated from the variable value by \"=\".<br>"
-                               "Environment variables can be referenced with ${OTHER}."));
     auto box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
     connect(box, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(box, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    auto helpLabel = new QLabel(this);
+    helpLabel->setText(tr("Enter one environment variable per line.\n"
+                          "To set or change a variable, use VARIABLE=VALUE.\n"
+                          "Existing variables can be referenced in a VALUE with ${OTHER}.\n"
+                          "To clear a variable, put its name on a line with nothing else on it."));
+
     auto layout = new QVBoxLayout(this);
-    QLabel *label = new QLabel(this);
-    label->setText(tr("Change environment by assigning one environment variable per line:"));
-    layout->addWidget(label);
     layout->addWidget(d->m_editor);
+    layout->addWidget(helpLabel);
+
     layout->addWidget(box);
+
     setWindowTitle(tr("Edit Environment"));
 }
 
@@ -152,9 +157,12 @@ void EnvironmentDialog::setPlaceholderText(const QString &text)
 QList<EnvironmentItem> EnvironmentDialog::getEnvironmentItems(bool *ok,
                 QWidget *parent,
                 const QList<EnvironmentItem> &initial,
-                const QString &placeholderText)
+                const QString &placeholderText,
+                Polisher polisher)
 {
     EnvironmentDialog dlg(parent);
+    if (polisher)
+        polisher(&dlg);
     dlg.setEnvironmentItems(initial);
     dlg.setPlaceholderText(placeholderText);
     bool result = dlg.exec() == QDialog::Accepted;

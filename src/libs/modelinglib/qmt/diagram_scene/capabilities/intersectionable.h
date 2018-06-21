@@ -40,7 +40,7 @@ public:
     virtual ~IIntersectionable() { }
 
     virtual bool intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint,
-                                        QLineF *intersectionLine = 0) const = 0;
+                                        QLineF *intersectionLine = nullptr) const = 0;
 };
 
 } // namespace qmt

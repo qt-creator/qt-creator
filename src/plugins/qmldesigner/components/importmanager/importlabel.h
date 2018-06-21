@@ -36,7 +36,7 @@ class ImportLabel : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ImportLabel(QWidget *parent = 0);
+    explicit ImportLabel(QWidget *parent = nullptr);
 
     void setImport(const Import &import);
     const Import import() const;
@@ -44,9 +44,6 @@ public:
 
 signals:
     void removeImport(const Import &import);
-
-private slots:
-    void emitRemoveImport();
 
 private:
     Import m_import;

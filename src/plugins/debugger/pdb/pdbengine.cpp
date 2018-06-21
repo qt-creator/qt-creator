@@ -30,7 +30,6 @@
 #include <debugger/debuggerdialogs.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerprotocol.h>
-#include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/threaddata.h>
 
@@ -63,10 +62,9 @@ using namespace Core;
 namespace Debugger {
 namespace Internal {
 
-PdbEngine::PdbEngine(const DebuggerRunParameters &startParameters)
-    : DebuggerEngine(startParameters)
+PdbEngine::PdbEngine()
 {
-    setObjectName(QLatin1String("PdbEngine"));
+    setObjectName("PdbEngine");
 }
 
 void PdbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
@@ -104,7 +102,7 @@ void PdbEngine::runCommand(const DebuggerCommand &cmd)
 void PdbEngine::shutdownInferior()
 {
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
-    notifyInferiorShutdownOk();
+    notifyInferiorShutdownFinished();
 }
 
 void PdbEngine::shutdownEngine()
@@ -136,7 +134,7 @@ void PdbEngine::setupEngine()
         notifyEngineSetupFailed();
     }
 
-    QStringList args = { bridge, scriptFile.fileName() };
+    QStringList args = {bridge, scriptFile.fileName()};
     args.append(Utils::QtcProcess::splitArgs(runParameters().inferior.workingDirectory));
     showMessage("STARTING " + m_interpreter + QLatin1Char(' ') + args.join(QLatin1Char(' ')));
     m_proc.setEnvironment(runParameters().debugger.environment.toStringList());
@@ -153,13 +151,6 @@ void PdbEngine::setupEngine()
         return;
     }
     notifyEngineSetupOk();
-}
-
-void PdbEngine::setupInferior()
-{
-    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-
-    notifyInferiorSetupOk();
 }
 
 void PdbEngine::runEngine()
@@ -304,7 +295,7 @@ void PdbEngine::refreshModules(const GdbMi &modules)
 {
     ModulesHandler *handler = modulesHandler();
     handler->beginUpdateAll();
-    foreach (const GdbMi &item, modules.children()) {
+    for (const GdbMi &item : modules.children()) {
         Module module;
         module.moduleName = item["name"].data();
         QString path = item["value"].data();
@@ -359,7 +350,7 @@ void PdbEngine::refreshSymbols(const GdbMi &symbols)
 {
     QString moduleName = symbols["module"].data();
     Symbols syms;
-    foreach (const GdbMi &item, symbols["symbols"].children()) {
+    for (const GdbMi &item : symbols["symbols"].children()) {
         Symbol symbol;
         symbol.name = item["name"].data();
         syms.append(symbol);
@@ -521,7 +512,7 @@ void PdbEngine::refreshStack(const GdbMi &stack)
 {
     StackHandler *handler = stackHandler();
     StackFrames frames;
-    foreach (const GdbMi &item, stack["frames"].children()) {
+    for (const GdbMi &item : stack["frames"].children()) {
         StackFrame frame;
         frame.level = item["level"].data();
         frame.file = item["file"].data();
@@ -559,7 +550,7 @@ void PdbEngine::updateLocals()
     watchHandler()->appendFormatRequests(&cmd);
     watchHandler()->appendWatchersAndTooltipRequests(&cmd);
 
-    const static bool alwaysVerbose = !qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty();
+    const static bool alwaysVerbose = qEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE");
     cmd.arg("passexceptions", alwaysVerbose);
     cmd.arg("fancy", boolSetting(UseDebuggingHelpers));
 
@@ -579,9 +570,9 @@ bool PdbEngine::hasCapability(unsigned cap) const
               | ShowModuleSymbolsCapability);
 }
 
-DebuggerEngine *createPdbEngine(const DebuggerRunParameters &startParameters)
+DebuggerEngine *createPdbEngine()
 {
-    return new PdbEngine(startParameters);
+    return new PdbEngine;
 }
 
 } // namespace Internal

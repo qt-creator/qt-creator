@@ -38,7 +38,7 @@ class REMOTELINUX_EXPORT LinuxDeviceProcess : public ProjectExplorer::SshDeviceP
     Q_OBJECT
 public:
     explicit LinuxDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device,
-                                QObject *parent = 0);
+                                QObject *parent = nullptr);
 
     // Files to source before executing the command (if they exist). Overrides the default.
     void setRcFilesToSource(const QStringList &filePaths);
@@ -46,7 +46,7 @@ public:
     QByteArray readAllStandardOutput() override;
 
 private:
-    QString fullCommandLine(const ProjectExplorer::StandardRunnable &) const override;
+    QString fullCommandLine(const ProjectExplorer::Runnable &) const override;
     qint64 processId() const override;
 
     QStringList rcFilesToSource() const;

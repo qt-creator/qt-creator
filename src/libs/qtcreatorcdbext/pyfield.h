@@ -25,22 +25,37 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <Python.h>
 
-#include <string>
+class PyType;
+struct PyFieldPrivate;
 
-struct Field
+class PyField
+{
+public:
+    PyField(std::string name, const PyType &parentType);
+    std::string name() const ;
+    const PyType &type() const;
+    const PyType &parentType() const;
+    ULONG64 bitsize() const;
+    ULONG64 bitpos() const;
+
+    bool isValid() const;
+
+private:
+    PyFieldPrivate *d = nullptr;
+};
+
+using PyFields = std::vector<PyField>;
+
+struct FieldPythonObject
 {
     PyObject_HEAD
-    const char *m_name; // owned
-    bool m_initialized;
-    unsigned long m_typeId;
-    unsigned long m_offset;
-    unsigned long m_parentTypeId;
-    ULONG64 m_module;
+    PyField *impl;
 };
 
 PyTypeObject *field_pytype();
-
-void initField(Field *field);
-bool initTypeAndOffset(Field *field);
+PyObject *createPythonObject(PyField typeClass);

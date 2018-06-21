@@ -40,8 +40,6 @@ namespace Core {
 namespace Internal {
 
 EditorArea::EditorArea()
-    : m_currentView(0),
-      m_currentDocument(0)
 {
     m_context = new IContext;
     m_context->setContext(Context(Constants::C_EDITORMANAGER));
@@ -59,7 +57,7 @@ EditorArea::EditorArea()
 EditorArea::~EditorArea()
 {
     // disconnect
-    setCurrentView(0);
+    setCurrentView(nullptr);
     disconnect(qApp, &QApplication::focusChanged,
                this, &EditorArea::focusChanged);
 
@@ -102,12 +100,12 @@ void EditorArea::setCurrentView(EditorView *view)
         connect(m_currentView.data(), &EditorView::currentEditorChanged,
                 this, &EditorArea::updateCurrentEditor);
     }
-    updateCurrentEditor(m_currentView ? m_currentView->currentEditor() : 0);
+    updateCurrentEditor(m_currentView ? m_currentView->currentEditor() : nullptr);
 }
 
 void EditorArea::updateCurrentEditor(IEditor *editor)
 {
-    IDocument *document = editor ? editor->document() : 0;
+    IDocument *document = editor ? editor->document() : nullptr;
     if (document == m_currentDocument)
         return;
     if (m_currentDocument) {

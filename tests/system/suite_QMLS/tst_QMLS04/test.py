@@ -27,9 +27,16 @@ source("../shared/qmls.py")
 
 def main():
     projectDir = tempDir()
-    editorArea = startQtCreatorWithNewAppAtQMLEditor(projectDir, "SampleApp", "TextEdit {")
+    editorArea = startQtCreatorWithNewAppAtQMLEditor(projectDir, "SampleApp")
     if not editorArea:
         return
+    # add basic TextEdit item to check it afterwards
+    codelines = ['TextEdit {', 'id: textEdit', 'text: "Enter something"', 'anchors.top: parent.top',
+                 'anchors.horizontalCenter: parent.horizontalCenter', 'anchors.topMargin: 20']
+    if not addTestableCodeAfterLine(editorArea, 'title: qsTr("Hello World")', codelines):
+        saveAndExit()
+        return
+    placeCursorToLine(editorArea, "TextEdit {")
     for i in range(5):
         type(editorArea, "<Left>")
     # invoke Refactoring - Move Component into separate file

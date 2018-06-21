@@ -2,7 +2,7 @@ TEMPLATE = aux
 
 include(../../../qtcreator.pri)
 
-LANGUAGES = cs de fr ja pl ru sl uk zh_CN zh_TW
+LANGUAGES = cs da de fr ja pl ru sl uk zh_CN zh_TW
 # *don't* re-enable these without a prior rework
 BAD_LANGUAGES = hu
 
@@ -27,6 +27,7 @@ JSONWIZARD_TR_H = $$OUT_PWD/jsonwizard_tr.h
 QMLWIZARD_TR_H = $$OUT_PWD/qmlwizard_tr.h
 QTQUICKWIZARD_TR_H = $$OUT_PWD/qtquickwizard_tr.h
 EXTERNALTOOLS_TR_H = $$OUT_PWD/externaltools_tr.h
+SNIPPETS_TR_H = $$OUT_PWD/snippets_tr.h
 
 win32: \
     PREFIX = "file:///"
@@ -48,12 +49,16 @@ QTQUICKWIZARD_FILES = \"$$join(QTQUICKWIZARD_FILES, "|$$PREFIX", "$$PREFIX")\"
 for(file, $$list($$files($$IDE_SOURCE_TREE/src/share/qtcreator/externaltools/*))):EXTERNALTOOLS_FILES += $$files($$file)
 EXTERNALTOOLS_FILES = \"$$join(EXTERNALTOOLS_FILES, "|$$PREFIX", "$$PREFIX")\"
 
+for(file, $$list($$files($$IDE_SOURCE_TREE/share/qtcreator/snippets/*))):SNIPPETS_FILES += $$files($$file)
+SNIPPETS_FILES = \"$$join(SNIPPETS_FILES, "|$$PREFIX", "$$PREFIX")\"
+
 extract.commands += \
     $$XMLPATTERNS -output $$MIME_TR_H -param files=$$MIMETYPES_FILES $$PWD/extract-mimetypes.xq $$escape_expand(\\n\\t) \
     $$XMLPATTERNS -output $$CUSTOMWIZARD_TR_H -param files=$$CUSTOMWIZARD_FILES $$PWD/extract-customwizards.xq $$escape_expand(\\n\\t) \
     $$XMLPATTERNS -output $$QMLWIZARD_TR_H -param files=$$QMLWIZARD_FILES $$PWD/extract-qmlwizards.xq $$escape_expand(\\n\\t) \
     $$XMLPATTERNS -output $$QTQUICKWIZARD_TR_H -param files=$$QTQUICKWIZARD_FILES $$PWD/extract-qtquickwizards.xq $$escape_expand(\\n\\t) \
     $$XMLPATTERNS -output $$EXTERNALTOOLS_TR_H -param files=$$EXTERNALTOOLS_FILES $$PWD/extract-externaltools.xq $$escape_expand(\\n\\t) \
+    $$XMLPATTERNS -output $$SNIPPETS_TR_H -param files=$$SNIPPETS_FILES $$PWD/extract-snippets.xq $$escape_expand(\\n\\t) \
     $(QMAKE) -o Makefile.jsonwizard JSONWIZARD_TR_H=\"$$JSONWIZARD_TR_H\" TOP_LEVEL=\"$$IDE_SOURCE_TREE/share/qtcreator/templates/wizards\" $$PWD/jsonwizard_tr.pro
 QMAKE_EXTRA_TARGETS += extract
 
@@ -69,8 +74,7 @@ shared_sources = $$files($$IDE_SOURCE_TREE/src/shared/*)
 shared_sources ~= s,^$$re_escape($$IDE_SOURCE_TREE/),,g$$i_flag
 shared_sources -= \
     src/shared/qbs
-sources = src/app src/libs $$plugin_sources $$shared_sources share/qtcreator/qmldesigner \
-          share/qtcreator/welcomescreen share/qtcreator/welcomescreen/widgets
+sources = src/app src/libs $$plugin_sources $$shared_sources share/qtcreator/qmldesigner
 
 for(path, INCLUDEPATH): include_options *= -I$$shell_quote($$path)
 
@@ -78,12 +82,12 @@ files = $$files($$PWD/*_??.ts) $$PWD/qtcreator_untranslated.ts
 for(file, files) {
     lang = $$replace(file, .*_([^/]*)\\.ts, \\1)
     v = ts-$${lang}.commands
-    $$v = cd $$wd && $$LUPDATE $$include_options $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H $$JSONWIZARD_TR_H $$QMLWIZARD_TR_H $$QTQUICKWIZARD_TR_H $$EXTERNALTOOLS_TR_H -ts $$file
+    $$v = cd $$wd && $$LUPDATE $$include_options $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H $$JSONWIZARD_TR_H $$QMLWIZARD_TR_H $$QTQUICKWIZARD_TR_H $$EXTERNALTOOLS_TR_H $$SNIPPETS_TR_H -ts $$file
     v = ts-$${lang}.depends
     $$v = extract
     QMAKE_EXTRA_TARGETS += ts-$$lang
 }
-ts-all.commands = cd $$wd && $$LUPDATE $$include_options $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H $$JSONWIZARD_TR_H $$QMLWIZARD_TR_H $$QTQUICKWIZARD_TR_H $$EXTERNALTOOLS_TR_H -ts $$files
+ts-all.commands = cd $$wd && $$LUPDATE $$include_options $$sources $$MIME_TR_H $$CUSTOMWIZARD_TR_H $$JSONWIZARD_TR_H $$QMLWIZARD_TR_H $$QTQUICKWIZARD_TR_H $$EXTERNALTOOLS_TR_H $$SNIPPETS_TR_H -ts $$files
 ts-all.depends = extract
 QMAKE_EXTRA_TARGETS += ts-all
 

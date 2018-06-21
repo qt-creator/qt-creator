@@ -700,7 +700,7 @@ static QString checkBinary(const QDir &dir, const QString &binary)
     case OsTypeOther:
         break;
     case OsTypeWindows: {
-            static const char *windowsExtensions[] = {".cmd", ".bat", ".exe", ".com" };
+            static const char *windowsExtensions[] = {".cmd", ".bat", ".exe", ".com"};
             // Check the Windows extensions using the order
             const int windowsExtensionCount = sizeof(windowsExtensions)/sizeof(const char*);
             for (int e = 0; e < windowsExtensionCount; e ++) {

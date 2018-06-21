@@ -29,17 +29,25 @@ namespace QmlProfiler {
 
 QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *modelManager,
                                                    Message message, RangeType rangeType,
-                                                   ProfileFeature mainFeature, QObject *parent) :
-    TimelineModel(modelManager->registerModelProxy(), parent),
-    m_message(message), m_rangeType(rangeType), m_mainFeature(mainFeature),
+                                                   ProfileFeature mainFeature,
+                                                   Timeline::TimelineModelAggregator *parent) :
+    TimelineModel(parent), m_message(message), m_rangeType(rangeType), m_mainFeature(mainFeature),
     m_modelManager(modelManager)
 {
     setDisplayName(tr(QmlProfilerModelManager::featureName(mainFeature)));
-    connect(modelManager, &QmlProfilerModelManager::stateChanged,
-            this, &QmlProfilerTimelineModel::dataChanged);
+    connect(modelManager, &QmlProfilerModelManager::typeDetailsFinished,
+            this, &Timeline::TimelineModel::labelsChanged);
+    connect(modelManager, &QmlProfilerModelManager::typeDetailsFinished,
+            this, &Timeline::TimelineModel::detailsChanged);
     connect(modelManager, &QmlProfilerModelManager::visibleFeaturesChanged,
             this, &QmlProfilerTimelineModel::onVisibleFeaturesChanged);
-    announceFeatures(1ULL << m_mainFeature);
+
+    m_modelManager->registerFeatures(1ULL << m_mainFeature,
+                                     std::bind(&QmlProfilerTimelineModel::loadEvent, this,
+                                               std::placeholders::_1, std::placeholders::_2),
+                                     std::bind(&QmlProfilerTimelineModel::initialize, this),
+                                     std::bind(&QmlProfilerTimelineModel::finalize, this),
+                                     std::bind(&QmlProfilerTimelineModel::clear, this));
 }
 
 RangeType QmlProfilerTimelineModel::rangeType() const
@@ -57,47 +65,17 @@ ProfileFeature QmlProfilerTimelineModel::mainFeature() const
     return m_mainFeature;
 }
 
-bool QmlProfilerTimelineModel::accepted(const QmlEventType &type) const
-{
-    return (type.rangeType() == m_rangeType && type.message() == m_message);
-}
-
 bool QmlProfilerTimelineModel::handlesTypeId(int typeIndex) const
 {
     if (typeIndex < 0)
         return false;
 
-    return accepted(modelManager()->qmlModel()->eventTypes().at(typeIndex));
+    return modelManager()->eventType(typeIndex).feature() == m_mainFeature;
 }
 
 QmlProfilerModelManager *QmlProfilerTimelineModel::modelManager() const
 {
     return m_modelManager;
-}
-
-void QmlProfilerTimelineModel::announceFeatures(quint64 features)
-{
-    m_modelManager->announceFeatures(
-                features, [this](const QmlEvent &event, const QmlEventType &type) {
-        loadEvent(event, type);
-    }, [this]() {
-        finalize();
-    });
-}
-
-void QmlProfilerTimelineModel::dataChanged()
-{
-    switch (m_modelManager->state()) {
-    case QmlProfilerModelManager::Done:
-        emit contentChanged();
-        break;
-    case QmlProfilerModelManager::ClearingData:
-        clear();
-        break;
-    default:
-        emit contentChanged();
-        break;
-    }
 }
 
 void QmlProfilerTimelineModel::onVisibleFeaturesChanged(quint64 features)
@@ -112,17 +90,27 @@ QVariantMap QmlProfilerTimelineModel::locationFromTypeId(int index) const
     if (id < 0)
         return result;
 
-    auto types = modelManager()->qmlModel()->eventTypes();
-    if (id >= types.length())
+    const QmlProfilerModelManager *manager = modelManager();
+    if (id >= manager->numEventTypes())
         return result;
 
-    QmlEventLocation location = types.at(id).location();
+    QmlEventLocation location = manager->eventType(id).location();
 
     result.insert(QStringLiteral("file"), location.filename());
     result.insert(QStringLiteral("line"), location.line());
     result.insert(QStringLiteral("column"), location.column());
 
     return result;
+}
+
+void QmlProfilerTimelineModel::initialize()
+{
+    setHidden(!(modelManager()->visibleFeatures() & (1ULL << m_mainFeature)));
+}
+
+void QmlProfilerTimelineModel::finalize()
+{
+    emit contentChanged();
 }
 
 } // namespace QmlProfiler

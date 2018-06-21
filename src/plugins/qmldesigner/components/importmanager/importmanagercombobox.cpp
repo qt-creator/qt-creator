@@ -27,11 +27,15 @@
 
 #include <utils/fileutils.h>
 
+#include <QStyle>
+#include <QStyleFactory>
 #include <QStylePainter>
 
 ImportManagerComboBox::ImportManagerComboBox(QWidget *parent) :
     QComboBox(parent)
 {
+    QStyle *style = QStyleFactory::create("fusion");
+    setStyle(style);
     setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/importmanager/importmanager.css"))));
     setToolTip(tr("Add new import"));
 }

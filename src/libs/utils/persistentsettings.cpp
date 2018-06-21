@@ -36,6 +36,10 @@
 #include <QRegExp>
 #include <QRect>
 
+#ifdef QT_GUI_LIB
+#include <QMessageBox>
+#endif
+
 #include <utils/qtcassert.h>
 
 // Read and write rectangle in X11 resource syntax "12x12+4+3"
@@ -104,29 +108,16 @@ namespace Utils {
 
 struct Context // Basic context containing element name string constants.
 {
-    Context();
-
-    const QString qtCreatorElement;
-    const QString dataElement;
-    const QString variableElement;
-    const QString typeAttribute;
-    const QString valueElement;
-    const QString valueListElement;
-    const QString valueMapElement;
-    const QString keyAttribute;
+    Context() {}
+    const QString qtCreatorElement = QString("qtcreator");
+    const QString dataElement = QString("data");
+    const QString variableElement = QString("variable");
+    const QString typeAttribute = QString("type");
+    const QString valueElement = QString("value");
+    const QString valueListElement = QString("valuelist");
+    const QString valueMapElement = QString("valuemap");
+    const QString keyAttribute = QString("key");
 };
-
-Context::Context() :
-    qtCreatorElement(QLatin1String("qtcreator")),
-    dataElement(QLatin1String("data")),
-    variableElement(QLatin1String("variable")),
-    typeAttribute(QLatin1String("type")),
-    valueElement(QLatin1String("value")),
-    valueListElement(QLatin1String("valuelist")),
-    valueMapElement(QLatin1String("valuemap")),
-    keyAttribute(QLatin1String("key"))
-{
-}
 
 struct ParseValueStackEntry
 {
@@ -225,7 +216,6 @@ QVariantMap ParseContext::parse(QFile &file)
             qWarning("Error reading %s:%d: %s", qPrintable(file.fileName()),
                      int(r.lineNumber()), qPrintable(r.errorString()));
             return QVariantMap();
-            break;
         default:
             break;
         } // switch token
@@ -430,18 +420,36 @@ PersistentSettingsWriter::~PersistentSettingsWriter()
     write(m_savedData, 0);
 }
 
-bool PersistentSettingsWriter::save(const QVariantMap &data, QWidget *parent) const
+bool PersistentSettingsWriter::save(const QVariantMap &data, QString *errorString) const
 {
     if (data == m_savedData)
         return true;
-
-    return write(data, parent);
+    return write(data, errorString);
 }
+
+#ifdef QT_GUI_LIB
+bool PersistentSettingsWriter::save(const QVariantMap &data, QWidget *parent) const
+{
+    QString errorString;
+    const bool success = save(data, &errorString);
+    if (!success)
+        QMessageBox::critical(parent,
+                              QCoreApplication::translate("Utils::FileSaverBase", "File Error"),
+                              errorString);
+    return success;
+}
+#endif // QT_GUI_LIB
 
 FileName PersistentSettingsWriter::fileName() const
 { return m_fileName; }
 
-bool PersistentSettingsWriter::write(const QVariantMap &data, QWidget *parent) const
+//** * @brief Set contents of file (e.g. from data read from it). */
+void PersistentSettingsWriter::setContents(const QVariantMap &data)
+{
+    m_savedData = data;
+}
+
+bool PersistentSettingsWriter::write(const QVariantMap &data, QString *errorString) const
 {
     QDir tmp;
     tmp.mkpath(m_fileName.toFileInfo().path());
@@ -469,9 +477,14 @@ bool PersistentSettingsWriter::write(const QVariantMap &data, QWidget *parent) c
 
         saver.setResult(&w);
     }
-    bool ok = saver.finalize(parent);
-    if (ok)
+    bool ok = saver.finalize();
+    if (ok) {
         m_savedData = data;
+    } else if (errorString) {
+        m_savedData.clear();
+        *errorString = saver.errorString();
+    }
+
     return ok;
 }
 

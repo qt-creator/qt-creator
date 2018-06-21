@@ -79,6 +79,7 @@ public:
     PropertyName name() const;
 
     bool isValid() const;
+    bool exists() const;
     ModelNode parentModelNode() const;
     QmlObjectNode parentQmlObjectNode() const;
 
@@ -107,6 +108,7 @@ protected:
     AbstractProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
     AbstractProperty(const Internal::InternalPropertyPointer &property, Model* model, AbstractView *view);
     Internal::InternalNodePointer internalNode() const;
+    Internal::ModelPrivate *privateModel() const;
 
 private:
     PropertyName m_propertyName;

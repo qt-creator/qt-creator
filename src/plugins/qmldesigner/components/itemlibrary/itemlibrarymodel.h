@@ -28,7 +28,7 @@
 #include <QMap>
 #include <QIcon>
 #include <QAbstractListModel>
-#include <QtQuick>
+#include <QtQml/qqml.h>
 
 QT_FORWARD_DECLARE_CLASS(QMimeData)
 
@@ -45,12 +45,12 @@ class ItemLibraryModel: public QAbstractListModel {
     Q_PROPERTY(QString searchText READ searchText WRITE setSearchText NOTIFY searchTextChanged)
 
 public:
-    explicit ItemLibraryModel(QObject *parent = 0);
-    ~ItemLibraryModel();
+    explicit ItemLibraryModel(QObject *parent = nullptr);
+    ~ItemLibraryModel() override;
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QHash<int, QByteArray> roleNames() const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    QHash<int, QByteArray> roleNames() const override;
 
     QString searchText() const;
 
@@ -69,7 +69,6 @@ public:
 
     ItemLibrarySection *sectionByName(const QString &sectionName);
 
-public slots:
     void setSearchText(const QString &searchText);
 
     void setExpanded(bool, const QString &section);

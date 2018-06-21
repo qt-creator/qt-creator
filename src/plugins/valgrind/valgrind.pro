@@ -1,6 +1,5 @@
 include(../../qtcreatorplugin.pri)
 include(callgrind/callgrind.pri)
-include(memcheck/memcheck.pri)
 include(xmlprotocol/xmlprotocol.pri)
 QT *= network
 
@@ -12,7 +11,6 @@ HEADERS += \
     valgrindconfigwidget.h \
     valgrindsettings.h \
     valgrindrunner.h \
-    valgrindprocess.h \
     callgrindcostdelegate.h \
     callgrindcostview.h \
     callgrindhelper.h \
@@ -20,13 +18,10 @@ HEADERS += \
     callgrindtool.h \
     callgrindvisualisation.h \
     callgrindengine.h \
-    workarounds.h \
     callgrindtextmark.h \
     memchecktool.h \
-    memcheckengine.h \
     memcheckerrorview.h \
-    suppressiondialog.h \
-    valgrindruncontrolfactory.h
+    suppressiondialog.h
 
 SOURCES += \
     valgrindplugin.cpp \
@@ -34,7 +29,6 @@ SOURCES += \
     valgrindconfigwidget.cpp \
     valgrindsettings.cpp \
     valgrindrunner.cpp \
-    valgrindprocess.cpp \
     callgrindcostdelegate.cpp \
     callgrindcostview.cpp \
     callgrindhelper.cpp \
@@ -42,13 +36,10 @@ SOURCES += \
     callgrindtool.cpp \
     callgrindvisualisation.cpp \
     callgrindengine.cpp \
-    workarounds.cpp \
     callgrindtextmark.cpp \
     memchecktool.cpp \
-    memcheckengine.cpp \
     memcheckerrorview.cpp \
-    suppressiondialog.cpp \
-    valgrindruncontrolfactory.cpp
+    suppressiondialog.cpp
 
 FORMS += \
     valgrindconfigwidget.ui

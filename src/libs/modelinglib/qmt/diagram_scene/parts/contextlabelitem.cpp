@@ -69,16 +69,16 @@ double ContextLabelItem::height() const
 
 void ContextLabelItem::update()
 {
-    setText(QString(QStringLiteral("(from %1)")).arg(m_context));
+    setText(QString("(from %1)").arg(m_context));
     if (m_maxWidth > 0.0) {
         double contextWidth = boundingRect().width();
         if (contextWidth > m_maxWidth) {
-            setText(QString(QStringLiteral("(%1)")).arg(m_context));
+            setText(QString("(%1)").arg(m_context));
             contextWidth = boundingRect().width();
         }
         if (contextWidth > m_maxWidth) {
             QFontMetricsF metrics(font());
-            setText(metrics.elidedText(QString(QStringLiteral("(%1)")).arg(m_context), Qt::ElideMiddle, m_maxWidth));
+            setText(metrics.elidedText(QString("(%1)").arg(m_context), Qt::ElideMiddle, m_maxWidth));
         }
     }
 }

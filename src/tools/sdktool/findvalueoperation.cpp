@@ -34,7 +34,7 @@ QString FindValueOperation::name() const
 
 QString FindValueOperation::helpText() const
 {
-    return QLatin1String("find a value in the settings of Qt Creator");
+    return QLatin1String("find a value in the settings");
 }
 
 QString FindValueOperation::argumentsHelpText() const

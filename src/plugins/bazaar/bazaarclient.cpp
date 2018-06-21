@@ -36,6 +36,7 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include <QRegExp>
 #include <QTextStream>
 #include <QDebug>
 

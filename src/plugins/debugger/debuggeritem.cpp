@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #include "debuggeritem.h"
+#include "debuggeritemmanager.h"
 #include "debuggerkitinformation.h"
 #include "debuggerkitconfigwidget.h"
-#include "debuggeroptionspage.h"
 #include "debuggerprotocol.h"
 
 #include <projectexplorer/abi.h>
@@ -95,12 +95,18 @@ DebuggerItem::DebuggerItem(const QVariantMap &data)
     m_lastModified = data.value(QLatin1String(DEBUGGER_INFORMATION_LASTMODIFIED)).toDateTime();
 
     foreach (const QString &a, data.value(QLatin1String(DEBUGGER_INFORMATION_ABIS)).toStringList()) {
-        Abi abi(a);
+        Abi abi = Abi::fromString(a);
         if (!abi.isNull())
             m_abis.append(abi);
     }
 
-    if (m_version.isEmpty())
+    bool mightBeAPreQnxSeparateOSQnxDebugger = m_command.fileName().startsWith("nto")
+            && m_abis.count() == 1
+            && m_abis[0].os() == Abi::UnknownOS
+            && m_abis[0].osFlavor() == Abi::UnknownFlavor
+            && m_abis[0].binaryFormat() == Abi::UnknownFormat;
+
+    if (m_version.isEmpty() || mightBeAPreQnxSeparateOSQnxDebugger)
         reinitializeFromFile();
 }
 
@@ -123,7 +129,7 @@ void DebuggerItem::reinitializeFromFile()
 
     SynchronousProcess proc;
     SynchronousProcessResponse response
-            = proc.runBlocking(m_command.toString(), QStringList({ QLatin1String(version) }));
+            = proc.runBlocking(m_command.toString(), QStringList({QLatin1String(version)}));
     if (response.result != SynchronousProcessResponse::Finished) {
         m_engineType = NoEngineType;
         return;
@@ -191,7 +197,7 @@ QString DebuggerItem::engineTypeName() const
 {
     switch (m_engineType) {
     case NoEngineType:
-        return DebuggerOptionsPage::tr("Not recognized");
+        return DebuggerItemManager::tr("Not recognized");
     case GdbEngineType:
         return QLatin1String("GDB");
     case CdbEngineType:
@@ -206,7 +212,7 @@ QString DebuggerItem::engineTypeName() const
 QStringList DebuggerItem::abiNames() const
 {
     QStringList list;
-    foreach (const Abi &abi, m_abis)
+    for (const Abi &abi : m_abis)
         list.append(abi.toString());
     return list;
 }
@@ -219,7 +225,7 @@ QDateTime DebuggerItem::lastModified() const
 QIcon DebuggerItem::decoration() const
 {
     if (m_engineType == NoEngineType)
-        return Utils::Icons::ERROR.icon();
+        return Utils::Icons::CRITICAL.icon();
     if (!m_command.toFileInfo().isExecutable())
         return Utils::Icons::WARNING.icon();
     if (!m_workingDirectory.isEmpty() && !m_workingDirectory.toFileInfo().isDir())
@@ -230,7 +236,7 @@ QIcon DebuggerItem::decoration() const
 QString DebuggerItem::validityMessage() const
 {
     if (m_engineType == NoEngineType)
-        return DebuggerOptionsPage::tr("Could not determine debugger type");
+        return DebuggerItemManager::tr("Could not determine debugger type");
     return QString();
 }
 
@@ -362,7 +368,7 @@ static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &t
 DebuggerItem::MatchLevel DebuggerItem::matchTarget(const Abi &targetAbi) const
 {
     MatchLevel bestMatch = DoesNotMatch;
-    foreach (const Abi &debuggerAbi, m_abis) {
+    for (const Abi &debuggerAbi : m_abis) {
         MatchLevel currentMatch = matchSingle(debuggerAbi, targetAbi, m_engineType);
         if (currentMatch > bestMatch)
             bestMatch = currentMatch;

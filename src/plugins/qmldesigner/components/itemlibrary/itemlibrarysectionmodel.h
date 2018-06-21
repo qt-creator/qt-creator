@@ -38,12 +38,12 @@ class ItemLibrarySectionModel: public QAbstractListModel {
     Q_OBJECT
 
 public:
-    ItemLibrarySectionModel(QObject *parent = 0);
-    ~ItemLibrarySectionModel();
+    ItemLibrarySectionModel(QObject *parent = nullptr);
+    ~ItemLibrarySectionModel() override;
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QHash<int, QByteArray> roleNames() const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    QHash<int, QByteArray> roleNames() const override;
 
     void clearItems();
 

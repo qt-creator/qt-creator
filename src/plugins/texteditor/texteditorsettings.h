@@ -39,7 +39,6 @@ QT_END_NAMESPACE
 namespace TextEditor {
 
 class FontSettings;
-class TabSettings;
 class TypingSettings;
 class StorageSettings;
 class BehaviorSettings;
@@ -63,8 +62,8 @@ class TEXTEDITOR_EXPORT TextEditorSettings : public QObject
     Q_OBJECT
 
 public:
-    explicit TextEditorSettings(QObject *parent);
-    ~TextEditorSettings();
+    TextEditorSettings();
+    ~TextEditorSettings() override;
 
     static TextEditorSettings *instance();
 

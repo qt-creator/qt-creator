@@ -25,6 +25,13 @@
 
 #pragma once
 
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+class QMenu;
+class QString;
+QT_END_NAMESPACE
+
 namespace qmt {
 
 class MElement;
@@ -73,6 +80,9 @@ public:
     virtual bool mayCreateDiagram(const DElement *, const MDiagram *) const = 0;
     virtual void createAndOpenDiagram(const MElement *) = 0;
     virtual void createAndOpenDiagram(const DElement *, const MDiagram *) = 0;
+
+    virtual bool extendContextMenu(const DElement *, const MDiagram *, QMenu *) = 0;
+    virtual bool handleContextMenuAction(const DElement *, const MDiagram *, const QString &) = 0;
 };
 
 } // namespace qmt

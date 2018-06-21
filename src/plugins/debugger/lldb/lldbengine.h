@@ -38,9 +38,7 @@
 
 #include <QPointer>
 #include <QProcess>
-#include <QQueue>
 #include <QMap>
-#include <QStack>
 #include <QVariant>
 
 
@@ -58,7 +56,7 @@ class LldbEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    explicit LldbEngine(const DebuggerRunParameters &runParameters);
+    LldbEngine();
     ~LldbEngine() override;
 
 signals:
@@ -74,13 +72,10 @@ private:
     void executeNextI() override;
 
     void setupEngine() override;
-    void startLldb();
-    void startLldbStage2();
-    void setupInferior() override;
     void runEngine() override;
     void shutdownInferior() override;
     void shutdownEngine() override;
-    void abortDebugger() override;
+    void abortDebuggerProcess() override;
 
     bool canHandleToolTip(const DebuggerToolTipContext &) const override;
 
@@ -139,10 +134,9 @@ private:
     void updateBreakpointData(Breakpoint bp, const GdbMi &bkpt, bool added);
     void fetchStack(int limit);
 
-    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result) override;
-
     void runCommand(const DebuggerCommand &cmd) override;
     void debugLastCommand() override;
+    void handleAttachedToCore();
 
 private:
     DebuggerCommand m_lastDebuggableCommand;
@@ -152,19 +146,12 @@ private:
     Utils::QtcProcess m_lldbProc;
 
     // FIXME: Make generic.
-    int m_lastAgentId;
-    int m_continueAtNextSpontaneousStop;
+    int m_lastAgentId = 0;
+    int m_continueAtNextSpontaneousStop = false;
     QMap<QPointer<DisassemblerAgent>, int> m_disassemblerAgents;
 
     QHash<int, DebuggerCommand> m_commandForToken;
     DebuggerCommandSequence m_onStop;
-
-    // Console handling.
-    void stubError(const QString &msg);
-    void stubExited();
-    void stubStarted();
-    bool prepareCommand();
-    Utils::ConsoleProcess m_stubProc;
 };
 
 } // namespace Internal

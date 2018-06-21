@@ -53,17 +53,6 @@ public:
 AbstractPackagingStep::AbstractPackagingStep(BuildStepList *bsl, Core::Id id)
     : BuildStep(bsl, id)
 {
-    ctor();
-}
-
-AbstractPackagingStep::AbstractPackagingStep(BuildStepList *bsl, AbstractPackagingStep *other)
-    : BuildStep(bsl, other)
-{
-    ctor();
-}
-
-void AbstractPackagingStep::ctor()
-{
     d = new Internal::AbstractPackagingStepPrivate;
     connect(target(), &Target::activeBuildConfigurationChanged,
             this, &AbstractPackagingStep::handleBuildConfigurationChanged);
@@ -86,7 +75,7 @@ void AbstractPackagingStep::handleBuildConfigurationChanged()
 {
     if (d->currentBuildConfiguration)
         disconnect(d->currentBuildConfiguration, 0, this, 0);
-    d->currentBuildConfiguration = target()->activeBuildConfiguration();
+    d->currentBuildConfiguration = buildConfiguration();
     if (d->currentBuildConfiguration) {
         connect(d->currentBuildConfiguration, &BuildConfiguration::buildDirectoryChanged,
                 this, &AbstractPackagingStep::packageFilePathChanged);
@@ -169,7 +158,7 @@ void AbstractPackagingStep::raiseError(const QString &errorMessage)
     Task task = Task(Task::Error, errorMessage, Utils::FileName(), -1,
                      Constants::TASK_CATEGORY_DEPLOYMENT);
     emit addTask(task);
-    emit addOutput(errorMessage, BuildStep::ErrorOutput);
+    emit addOutput(errorMessage, BuildStep::OutputFormat::Stderr);
 }
 
 void AbstractPackagingStep::raiseWarning(const QString &warningMessage)
@@ -177,7 +166,7 @@ void AbstractPackagingStep::raiseWarning(const QString &warningMessage)
     Task task = Task(Task::Warning, warningMessage, Utils::FileName(), -1,
                      Constants::TASK_CATEGORY_DEPLOYMENT);
     emit addTask(task);
-    emit addOutput(warningMessage, ErrorMessageOutput);
+    emit addOutput(warningMessage, OutputFormat::ErrorMessage);
 }
 
 } // namespace RemoteLinux

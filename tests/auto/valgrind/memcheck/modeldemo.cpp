@@ -38,33 +38,20 @@
 using namespace Valgrind;
 using namespace Valgrind::XmlProtocol;
 
-static QString fakeValgrindExecutable()
-{
-    return QLatin1String(VALGRIND_FAKE_PATH);
-}
-
-static QString dataFile(const QLatin1String &file)
-{
-    return QLatin1String(PARSERTESTS_DATA_DIR) + QLatin1String("/") + file;
-}
-
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     qRegisterMetaType<Error>();
 
-    ThreadedParser parser;
-
-    Memcheck::MemcheckRunner runner;
-    runner.setValgrindExecutable(fakeValgrindExecutable());
-    runner.setValgrindArguments(QStringList() << QLatin1String("-i") << dataFile(QLatin1String("memcheck-output-sample1.xml")) );
-    runner.setParser(&parser);
+    ValgrindRunner runner;
+    runner.setValgrindExecutable(VALGRIND_FAKE_PATH);
+    runner.setValgrindArguments({"-i", PARSERTESTS_DATA_DIR "/memcheck-output-sample1.xml"});
 
     ModelDemo demo(&runner);
     QObject::connect(&runner, &ValgrindRunner::finished,
                      &demo, &ModelDemo::finished);
     ErrorListModel model;
-    QObject::connect(&parser, &ThreadedParser::error,
+    QObject::connect(runner.parser(), &ThreadedParser::error,
                      &model, &ErrorListModel::addError,
                      Qt::QueuedConnection);
 

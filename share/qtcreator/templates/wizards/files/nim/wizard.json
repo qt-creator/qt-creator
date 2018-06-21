@@ -6,7 +6,7 @@
     "trDescription": "Creates an empty Nim file using UTF-8 charset.",
     "trDisplayName": "Nim File",
     "trDisplayCategory": "Nim",
-    "icon": "icon.png",
+    "icon": "../../projects/nim/icon.png",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('Nim') >= 0}",
 
     "pages" :

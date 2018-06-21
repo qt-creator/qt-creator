@@ -42,13 +42,13 @@ public:
     Handle(const Handle<U> &rhs) : m_uid(rhs.uid()), m_target(rhs.target()) { }
 
     bool isNull() const { return !m_uid.isValid(); }
-    bool hasTarget() const { return m_target != 0; }
+    bool hasTarget() const { return m_target != nullptr; }
     Uid uid() const { return m_uid; }
     T *target() const { return m_target; }
 
     void setUid(const Uid &uid)
     {
-        QMT_CHECK(m_target != 0 ? (m_target->uid() == uid) : true);
+        QMT_CHECK(m_target ? (m_target->uid() == uid) : true);
         m_uid = uid;
     }
 
@@ -61,14 +61,14 @@ public:
     void clear()
     {
         m_uid = Uid();
-        m_target = 0;
+        m_target = nullptr;
     }
 
-    void clearTarget() { m_target = 0; }
+    void clearTarget() { m_target = nullptr; }
 
 private:
     Uid m_uid;
-    T *m_target = 0;
+    T *m_target = nullptr;
 };
 
 template<class T>

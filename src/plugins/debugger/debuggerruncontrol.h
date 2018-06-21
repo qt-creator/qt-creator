@@ -27,85 +27,174 @@
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
+#include "debuggerengine.h"
 
 #include <projectexplorer/runconfiguration.h>
-
-#include <functional>
+#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 
 namespace Debugger {
 
-class RemoteSetupResult;
-class DebuggerStartParameters;
-class DebuggerRunControl;
+namespace Internal {
+class TerminalRunner;
+class DebuggerRunToolPrivate;
+} // Internal
 
-namespace Internal { class DebuggerEngine; }
+class GdbServerPortsGatherer;
 
-DEBUGGER_EXPORT DebuggerRunControl *createDebuggerRunControl(const DebuggerStartParameters &sp,
-                                                             ProjectExplorer::RunConfiguration *runConfig,
-                                                             QString *errorMessage,
-                                                             Core::Id runMode = ProjectExplorer::Constants::DEBUG_RUN_MODE);
-
-
-struct OutputProcessor
-{
-    enum OutputChannel
-    {
-        StandardOut,
-        StandardError
-    };
-
-    std::function<void(const QString &msg, OutputChannel channel)> process;
-    bool logToAppOutputPane = true;
-};
-
-class DEBUGGER_EXPORT DebuggerRunControl : public ProjectExplorer::RunControl
+class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 
 public:
-    ~DebuggerRunControl() override;
+    explicit DebuggerRunTool(ProjectExplorer::RunControl *runControl,
+                             ProjectExplorer::Kit *kit = nullptr,
+                             bool allowTerminal = true);
+    ~DebuggerRunTool() override;
 
-    // ProjectExplorer::RunControl
+    Internal::DebuggerEngine *engine() const { return m_engine; }
+    Internal::DebuggerEngine *activeEngine() const;
+
+    void startRunControl();
+
+    void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
+
     void start() override;
-    bool promptToStop(bool *prompt = 0) const override;
-    StopResult stop() override; // Called from SnapshotWindow.
-    bool isRunning() const override;
-    QString displayName() const override;
-    bool supportsReRunning() const override;
-    void handleApplicationOutput(const QString &msg, int channel);
+    void stop() override;
 
-    void startFailed();
-    void notifyEngineRemoteServerRunning(const QByteArray &msg, int pid);
-    void notifyEngineRemoteSetupFinished(const RemoteSetupResult &result);
     void notifyInferiorIll();
-    Q_SLOT void notifyInferiorExited();
+    Q_SLOT void notifyInferiorExited(); // Called from Android.
     void quitDebugger();
     void abortDebugger();
-    void debuggingFinished();
 
-    void showMessage(const QString &msg, int channel = LogDebug);
+    const Internal::DebuggerRunParameters &runParameters() const;
 
-    DebuggerStartParameters &startParameters();
+    void startDying() { m_isDying = true; }
+    bool isDying() const { return m_isDying; }
+    bool isCppDebugging() const;
+    bool isQmlDebugging() const;
+    int portsUsedByDebugger() const;
 
-    void setOutputProcessor(OutputProcessor *processor);
+    void setUsePortsGatherer(bool useCpp, bool useQml);
+    GdbServerPortsGatherer *portsGatherer() const;
 
-signals:
-    void requestRemoteSetup();
-    void aboutToNotifyInferiorSetupOk();
-    void stateChanged(Debugger::DebuggerState state);
+    void setSolibSearchPath(const QStringList &list);
+    void addSolibSearchDir(const QString &str);
+
+    static void setBreakOnMainNextTime();
+
+    void setInferior(const ProjectExplorer::Runnable &runnable);
+    void setInferiorExecutable(const QString &executable);
+    void setInferiorEnvironment(const Utils::Environment &env); // Used by GammaRay plugin
+    void setInferiorDevice(ProjectExplorer::IDevice::ConstPtr device); // Used by cdbengine
+    void setRunControlName(const QString &name);
+    void setStartMessage(const QString &msg);
+    void appendInferiorCommandLineArgument(const QString &arg);
+    void prependInferiorCommandLineArgument(const QString &arg);
+    void addQmlServerInferiorCommandLineArgumentIfNeeded();
+
+    void setCrashParameter(const QString &event);
+
+    void addExpectedSignal(const QString &signal);
+    void addSearchDirectory(const QString &dir);
+
+    void setStartMode(DebuggerStartMode startMode);
+    void setCloseMode(DebuggerCloseMode closeMode);
+
+    void setAttachPid(Utils::ProcessHandle pid);
+    void setAttachPid(qint64 pid);
+
+    void setSysRoot(const QString &sysRoot);
+    void setSymbolFile(const QString &symbolFile);
+    void setRemoteChannel(const QString &channel);
+    void setRemoteChannel(const QString &host, int port);
+    void setRemoteChannel(const QUrl &url);
+
+    void setUseExtendedRemote(bool on);
+    void setUseContinueInsteadOfRun(bool on);
+    void setUseTargetAsync(bool on);
+    void setContinueAfterAttach(bool on);
+    void setSkipExecutableValidation(bool on);
+    void setUseCtrlCStub(bool on);
+    void setBreakOnMain(bool on);
+    void setUseTerminal(bool on);
+
+    void setCommandsAfterConnect(const QString &commands);
+    void setCommandsForReset(const QString &commands);
+
+    void setServerStartScript(const QString &serverStartScript);
+    void setDebugInfoLocation(const QString &debugInfoLocation);
+
+    void setQmlServer(const QUrl &qmlServer);
+
+    void setCoreFileName(const QString &core, bool isSnapshot = false);
+
+    void setIosPlatform(const QString &platform);
+    void setDeviceSymbolsRoot(const QString &deviceSymbolsRoot);
+
+    void setTestCase(int testCase);
+    void setOverrideStartScript(const QString &script);
+
+    Internal::TerminalRunner *terminalRunner() const;
 
 private:
-    void handleFinished();
+    bool fixupParameters();
 
-    friend DebuggerRunControl *createHelper(ProjectExplorer::RunConfiguration *runConfig,
-                                            Internal::DebuggerEngine *engine);
-
-    DebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
-                       Internal::DebuggerEngine *engine);
-
-    Internal::DebuggerEngine *m_engine;
-    bool m_running;
-    OutputProcessor *m_outputProcessor = 0;
+    Internal::DebuggerRunToolPrivate *d;
+    QPointer<Internal::DebuggerEngine> m_engine; // Master engine
+    Internal::DebuggerRunParameters m_runParameters;
+    bool m_isDying = false;
 };
+
+class DEBUGGER_EXPORT GdbServerPortsGatherer : public ProjectExplorer::ChannelProvider
+{
+    Q_OBJECT
+
+public:
+    explicit GdbServerPortsGatherer(ProjectExplorer::RunControl *runControl);
+    ~GdbServerPortsGatherer() override;
+
+    void setUseGdbServer(bool useIt) { m_useGdbServer = useIt; }
+    bool useGdbServer() const { return m_useGdbServer; }
+    Utils::Port gdbServerPort() const;
+    QUrl gdbServer() const;
+
+    void setUseQmlServer(bool useIt) { m_useQmlServer = useIt; }
+    bool useQmlServer() const { return m_useQmlServer; }
+    Utils::Port qmlServerPort() const;
+    QUrl qmlServer() const;
+
+    void setDevice(ProjectExplorer::IDevice::ConstPtr device);
+
+private:
+    bool m_useGdbServer = false;
+    bool m_useQmlServer = false;
+    ProjectExplorer::IDevice::ConstPtr m_device;
+};
+
+class DEBUGGER_EXPORT GdbServerRunner : public ProjectExplorer::SimpleTargetRunner
+{
+    Q_OBJECT
+
+public:
+    explicit GdbServerRunner(ProjectExplorer::RunControl *runControl,
+                             GdbServerPortsGatherer *portsGatherer);
+
+    ~GdbServerRunner() override;
+
+    void setRunnable(const ProjectExplorer::Runnable &runnable);
+    void setUseMulti(bool on);
+    void setAttachPid(Utils::ProcessHandle pid);
+
+private:
+    void start() override;
+
+    GdbServerPortsGatherer *m_portsGatherer;
+    ProjectExplorer::Runnable m_runnable;
+    Utils::ProcessHandle m_pid;
+    bool m_useMulti = true;
+};
+
+extern DEBUGGER_EXPORT const char GdbServerRunnerWorkerId[];
+extern DEBUGGER_EXPORT const char GdbServerPortGathererWorkerId[];
 
 } // namespace Debugger

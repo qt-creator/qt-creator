@@ -41,7 +41,7 @@ class QMT_EXPORT UndoController : public QObject
     Q_OBJECT
 
 public:
-    explicit UndoController(QObject *parent = 0);
+    explicit UndoController(QObject *parent = nullptr);
     ~UndoController() override;
 
     QUndoStack *undoStack() const { return m_undoStack; }
@@ -54,8 +54,8 @@ public:
     void doNotMerge();
 
 private:
-    QUndoStack *m_undoStack;
-    bool m_doNotMerge;
+    QUndoStack *m_undoStack = nullptr;
+    bool m_doNotMerge = false;
 };
 
 } // namespace qmt

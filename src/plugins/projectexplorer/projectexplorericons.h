@@ -35,6 +35,7 @@ namespace Icons {
 PROJECTEXPLORER_EXPORT extern const Utils::Icon BUILD;
 PROJECTEXPLORER_EXPORT extern const Utils::Icon BUILD_FLAT;
 PROJECTEXPLORER_EXPORT extern const Utils::Icon BUILD_SMALL;
+PROJECTEXPLORER_EXPORT extern const Utils::Icon CANCELBUILD_FLAT;
 PROJECTEXPLORER_EXPORT extern const Utils::Icon REBUILD;
 PROJECTEXPLORER_EXPORT extern const Utils::Icon RUN;
 PROJECTEXPLORER_EXPORT extern const Utils::Icon RUN_FLAT;

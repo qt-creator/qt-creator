@@ -100,7 +100,7 @@ QImage Qt5PreviewNodeInstanceServer::renderPreviewImage()
     QRectF boundingRect = rootNodeInstance().boundingRect();
 
     QSize previewImageSize = boundingRect.size().toSize();
-    previewImageSize.scale(QSize(100, 100), Qt::KeepAspectRatio);
+    previewImageSize.scale(QSize(160, 160), Qt::KeepAspectRatio);
 
     QImage previewImage = rootNodeInstance().renderPreviewImage(previewImageSize);
 

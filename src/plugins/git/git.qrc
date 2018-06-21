@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/git">
         <file>images/arrowup.png</file>
-        <file>Git.mimetypes.xml</file>
     </qresource>
 </RCC>

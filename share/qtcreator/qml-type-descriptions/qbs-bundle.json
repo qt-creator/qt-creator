@@ -1,14 +1,32 @@
 {
     "name": "qbs",
     "searchPaths": [
-        "$(QBS_IMPORT_PATH)"],
+        "$(QBS_IMPORT_PATH)"
+    ],
     "installPaths": [
-        "$(QBS_IMPORT_PATH)"],
+        "$(QBS_IMPORT_PATH)"
+    ],
     "implicitImports": [
-        "__javascriptQt5__"],
+        "__javascriptQt5__"
+    ],
     "supportedImports": [
-        "qbs.base 1.0",
-        "qbs 1.0",
-        "qbs.fileinfo 1.0",
-        "qbs.probe 1.0"]
+        "qbs",
+        "qbs.BinaryFile",
+        "qbs.BundleTools",
+        "qbs.DarwinTools",
+        "qbs.Environment",
+        "qbs.File",
+        "qbs.FileInfo",
+        "qbs.ModUtils",
+        "qbs.PathTools",
+        "qbs.Probes",
+        "qbs.Process",
+        "qbs.PropertyList",
+        "qbs.TemporaryDir",
+        "qbs.TextFile",
+        "qbs.UnixUtils",
+        "qbs.Utilities",
+        "qbs.WindowsUtils",
+        "qbs.Xml"
+    ]
 }

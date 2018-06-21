@@ -38,9 +38,9 @@
 #include <QIcon>
 #include <QWidget>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
-class QAction;
-class QComboBox;
 class QFrame;
 class QLabel;
 class QMenu;
@@ -51,11 +51,9 @@ class QToolButton;
 QT_END_NAMESPACE
 
 namespace Core {
-class IContext;
 class IDocument;
 class IEditor;
 class InfoBarDisplay;
-class DocumentModel;
 class EditorToolBar;
 
 namespace Internal {
@@ -74,8 +72,8 @@ class EditorView : public QWidget
     Q_OBJECT
 
 public:
-    explicit EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent = 0);
-    virtual ~EditorView();
+    explicit EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent = nullptr);
+    ~EditorView() override;
 
     SplitterOrView *parentSplitterOrView() const;
     EditorView *findNextView();
@@ -95,7 +93,7 @@ public:
     void showEditorStatusBar(const QString &id,
                            const QString &infoText,
                            const QString &buttonText,
-                           QObject *object, const char *member);
+                           QObject *object, const std::function<void()> &function);
     void hideEditorStatusBar(const QString &id);
     void setCloseSplitEnabled(bool enable);
     void setCloseSplitIcon(const QIcon &icon);
@@ -106,9 +104,9 @@ signals:
     void currentEditorChanged(Core::IEditor *editor);
 
 protected:
-    void paintEvent(QPaintEvent *);
-    void mousePressEvent(QMouseEvent *e);
-    void focusInEvent(QFocusEvent *);
+    void paintEvent(QPaintEvent *) override;
+    void mousePressEvent(QMouseEvent *e) override;
+    void focusInEvent(QFocusEvent *) override;
 
 private:
     friend class SplitterOrView; // for setParentSplitterOrView
@@ -169,17 +167,17 @@ class SplitterOrView  : public QWidget
 {
     Q_OBJECT
 public:
-    explicit SplitterOrView(IEditor *editor = 0);
+    explicit SplitterOrView(IEditor *editor = nullptr);
     explicit SplitterOrView(EditorView *view);
-    ~SplitterOrView();
+    ~SplitterOrView() override;
 
     void split(Qt::Orientation orientation);
     void unsplit();
 
-    inline bool isView() const { return m_view != 0; }
-    inline bool isSplitter() const { return m_splitter != 0; }
+    inline bool isView() const { return m_view != nullptr; }
+    inline bool isSplitter() const { return m_splitter != nullptr; }
 
-    inline IEditor *editor() const { return m_view ? m_view->currentEditor() : 0; }
+    inline IEditor *editor() const { return m_view ? m_view->currentEditor() : nullptr; }
     inline QList<IEditor *> editors() const { return m_view ? m_view->editors() : QList<IEditor*>(); }
     inline bool hasEditor(IEditor *editor) const { return m_view && m_view->hasEditor(editor); }
     inline bool hasEditors() const { return m_view && m_view->editorCount() != 0; }
@@ -195,8 +193,8 @@ public:
     EditorView *findLastView();
     SplitterOrView *findParentSplitter() const;
 
-    QSize sizeHint() const { return minimumSizeHint(); }
-    QSize minimumSizeHint() const;
+    QSize sizeHint() const override { return minimumSizeHint(); }
+    QSize minimumSizeHint() const override;
 
     void unsplitAll();
 
@@ -204,7 +202,7 @@ signals:
     void splitStateChanged();
 
 private:
-    void unsplitAll_helper();
+    const QList<IEditor *> unsplitAll_helper();
     QStackedLayout *m_layout;
     EditorView *m_view;
     QSplitter *m_splitter;

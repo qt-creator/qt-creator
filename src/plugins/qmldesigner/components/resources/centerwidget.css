@@ -1,33 +1,36 @@
-QWidget#backgroundWidget {
-    background-color: creatorTheme.QmlDesignerTabDark
+QWidget#centralTabBar {
+    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
+}
+QWidget#tabBarBackground {
+    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
 }
 
-QTabWidget#centralTabWidget::pane {
-    border: 0px;
-    background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+QTabBar#centralTabBar::tab:first {
+    width: 0px;
+    height: 0px;
 }
-
-QTabWidget#centralTabWidget::tab-bar { alignment: right; }
-
-QTabBar::tab:selected {
-    border: none;
-    background-color: creatorTheme.QmlDesignerTabLight;
-    color: creatorTheme.QmlDesignerTabDark;
-}
-
 QTabBar#centralTabBar::tab {
-    width: 16px;
-    height: 80px;
+    background-color: creatorTheme.QmlDesigner_TabDark;
+    color: creatorTheme.QmlDesigner_TabLight;
 
-    border-image: none;
-    background-color: creatorTheme.QmlDesignerTabDark;
-    color: creatorTheme.QmlDesignerTabLight;
-
+    width: creatorTheme.captionFontPixelSize;
+    height: 100px;
     margin-top: 0x;
     margin-bottom: 0px;
     margin-left: 0px;
     margin-right: 0px;
     font: bold;
-    font-size: 11px;
+    font-size: creatorTheme.captionFontPixelSize;
 }
 
+QTabBar#centralTabBar::tab:selected {
+    background-color: creatorTheme.QmlDesigner_TabLight;
+    color: creatorTheme.QmlDesigner_TabDark;
+}
+
+QToolButton#centralTabBar {
+    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
+    width: 08px;
+    height: 16px;
+    border: none;
+}

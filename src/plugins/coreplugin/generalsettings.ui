@@ -24,6 +24,20 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="languageLabel">
+        <property name="text">
+         <string>Language:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="themeLabel">
+        <property name="text">
+         <string>Theme:</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
@@ -70,20 +84,13 @@
         </item>
        </layout>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="themeLabel">
-        <property name="text">
-         <string>Theme:</string>
+      <item row="4" column="0">
+       <widget class="QPushButton" name="resetWarningsButton">
+        <property name="toolTip">
+         <string>Re-enable warnings that were suppressed by selecting &quot;Do Not Show Again&quot; (for example, missing highlighter).</string>
         </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="Core::Internal::ThemeChooser" name="themeChooser" native="true"/>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="languageLabel">
         <property name="text">
-         <string>Language:</string>
+         <string comment="Button text">Reset Warnings</string>
         </property>
        </widget>
       </item>
@@ -114,13 +121,37 @@
         </item>
        </layout>
       </item>
+      <item row="1" column="1">
+       <widget class="Core::Internal::ThemeChooser" name="themeChooser" native="true"/>
+      </item>
+      <item row="3" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QCheckBox" name="dpiCheckbox">
+          <property name="text">
+           <string>Enable high DPI scaling</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>285</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
       <item row="3" column="0">
-       <widget class="QPushButton" name="resetWarningsButton">
-        <property name="toolTip">
-         <string>Re-enable warnings that were suppressed by selecting &quot;Do Not Show Again&quot; (for example, missing highlighter).</string>
-        </property>
+       <widget class="QLabel" name="dpiLabel">
         <property name="text">
-         <string comment="Button text">Reset Warnings</string>
+         <string>High DPI scaling:</string>
         </property>
        </widget>
       </item>

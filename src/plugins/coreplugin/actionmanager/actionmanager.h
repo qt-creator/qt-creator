@@ -35,7 +35,6 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QSettings;
 class QString;
 QT_END_NAMESPACE
 
@@ -80,8 +79,8 @@ signals:
     void commandAdded(Core::Id id);
 
 private:
-    ActionManager(QObject *parent = 0);
-    ~ActionManager();
+    ActionManager(QObject *parent = nullptr);
+    ~ActionManager() override;
     static void saveSettings();
     static void setContext(const Context &context);
 

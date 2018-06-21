@@ -36,16 +36,15 @@ class FilesPage;
 // Additional parameters required besides QtProjectParameters
 struct GuiAppParameters
 {
-    GuiAppParameters();
     QString className;
     QString baseClassName;
     QString sourceFileName;
     QString headerFileName;
     QString formFileName;
-    int widgetWidth;
-    int widgetHeight;
-    bool designerForm;
-    bool isMobileApplication;
+    int widgetWidth = 400;
+    int widgetHeight = 300;
+    bool designerForm = true;
+    bool isMobileApplication = false;
 };
 
 class GuiAppWizardDialog : public BaseQmakeProjectWizardDialog

@@ -28,20 +28,20 @@
 
 #include <coreplugin/icontext.h>
 
+#include <utils/stringutils.h>
+
 #include <QDesignerOptionsPageInterface>
 #include <QCoreApplication>
 
 using namespace Designer::Internal;
 
 SettingsPage::SettingsPage(QDesignerOptionsPageInterface *designerPage) :
+    Core::IOptionsPage(nullptr, false),
     m_designerPage(designerPage)
 {
     setId(Core::Id::fromString(m_designerPage->name()));
     setDisplayName(m_designerPage->name());
     setCategory(Designer::Constants::SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Designer",
-        Designer::Constants::SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Designer::Constants::SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *SettingsPage::widget()
@@ -72,7 +72,8 @@ SettingsPageProvider::SettingsPageProvider(QObject *parent)
     setCategory(Designer::Constants::SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Designer",
         Designer::Constants::SETTINGS_TR_CATEGORY));
-    setCategoryIcon(QLatin1String(Designer::Constants::SETTINGS_CATEGORY_ICON));
+    setCategoryIcon(Utils::Icon({{":/core/images/settingscategory_design.png",
+                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }
 
 QList<Core::IOptionsPage *> SettingsPageProvider::pages() const
@@ -116,9 +117,9 @@ bool SettingsPageProvider::matches(const QString &searchKeyWord) const
     if (m_keywords.isEmpty()) {
         m_keywords.reserve(itemCount);
         for (size_t i = 0; i < itemCount; ++i)
-            m_keywords << QCoreApplication::translate(uitext[i].context, uitext[i].value).remove(QLatin1Char('&'));
+            m_keywords << Utils::stripAccelerator(QCoreApplication::translate(uitext[i].context, uitext[i].value));
     }
-    foreach (const QString &key, m_keywords) {
+    for (const QString &key : qAsConst(m_keywords)) {
         if (key.contains(searchKeyWord, Qt::CaseInsensitive))
             return true;
     }

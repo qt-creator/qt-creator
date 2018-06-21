@@ -21,7 +21,6 @@ QtcPlugin {
         "checkoutdialog.cpp",
         "checkoutdialog.h",
         "checkoutdialog.ui",
-        "clearcase.qrc",
         "clearcaseconstants.h",
         "clearcasecontrol.cpp",
         "clearcasecontrol.h",

@@ -32,9 +32,13 @@
 #include <qmldesignerplugin.h>
 #endif
 
+#include <nodeinstanceview.h>
+
+#include <app/app_version.h>
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
@@ -48,9 +52,11 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
+#include <utils/temporarydirectory.h>
 
+#include <QApplication>
 #include <QProcess>
-#include <QTemporaryDir>
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDateTime>
@@ -58,20 +64,38 @@
 #include <QLibraryInfo>
 #include <QMessageBox>
 #include <QThread>
+#include <QSettings>
 
 static Q_LOGGING_CATEGORY(puppetStart, "qtc.puppet.start")
 static Q_LOGGING_CATEGORY(puppetBuild, "qtc.puppet.build")
 
 namespace QmlDesigner {
 
+class EventFilter : public QObject {
+
+public:
+    bool eventFilter(QObject *o, QEvent *event) final
+    {
+        if (event->type() == QEvent::MouseButtonPress
+                || event->type() == QEvent::MouseButtonRelease
+                || event->type() == QEvent::KeyPress
+                || event->type() == QEvent::KeyRelease) {
+            return true;
+        }
+
+        return QObject::eventFilter(o, event);
+    }
+};
+
 QHash<Core::Id, PuppetCreator::PuppetType> PuppetCreator::m_qml2PuppetForKitPuppetHash;
 
 QByteArray PuppetCreator::qtHash() const
 {
-    if (m_kit) {
-        QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(m_kit);
-        if (currentQtVersion)
-            return QCryptographicHash::hash(currentQtVersion->qmakeProperty("QT_INSTALL_DATA").toUtf8(), QCryptographicHash::Sha1).toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
+    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(m_kit);
+    if (currentQtVersion) {
+        return QCryptographicHash::hash(currentQtVersion->qmakeProperty("QT_INSTALL_DATA").toUtf8(),
+                                        QCryptographicHash::Sha1)
+                .toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
     }
 
     return QByteArray();
@@ -79,34 +103,33 @@ QByteArray PuppetCreator::qtHash() const
 
 QDateTime PuppetCreator::qtLastModified() const
 {
-    if (m_kit) {
-        QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(m_kit);
-        if (currentQtVersion)
-            return QFileInfo(currentQtVersion->qmakeProperty("QT_INSTALL_LIBS")).lastModified();
-    }
+    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(m_kit);
+    if (currentQtVersion)
+        return QFileInfo(currentQtVersion->qmakeProperty("QT_INSTALL_LIBS")).lastModified();
 
     return QDateTime();
 }
 
 QDateTime PuppetCreator::puppetSourceLastModified() const
 {
-    QString basePuppetSourcePath = puppetSourceDirectoryPath();
-    QStringList sourceDirectoryPathes;
+    const QString basePuppetSourcePath = puppetSourceDirectoryPath();
+
+    const QStringList sourceDirectoryPaths = {
+        basePuppetSourcePath + "/commands",
+        basePuppetSourcePath + "/container",
+        basePuppetSourcePath + "/instances",
+        basePuppetSourcePath + "/interfaces",
+        basePuppetSourcePath + "/types",
+        basePuppetSourcePath + "/qmlpuppet",
+        basePuppetSourcePath + "/qmlpuppet/instances",
+        basePuppetSourcePath + "/qml2puppet",
+        basePuppetSourcePath + "/qml2puppet/instances"
+    };
+
     QDateTime lastModified;
-
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/commands"));
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/container"));
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/instances"));
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/interfaces"));
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/types"));
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qmlpuppet"));
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qmlpuppet/instances"));
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qml2puppet"));
-    sourceDirectoryPathes.append(basePuppetSourcePath + QStringLiteral("/qml2puppet/instances"));
-
-    foreach (const QString directoryPath, sourceDirectoryPathes) {
+    foreach (const QString directoryPath, sourceDirectoryPaths) {
         foreach (const QFileInfo fileEntry, QDir(directoryPath).entryInfoList()) {
-            QDateTime filePathLastModified = fileEntry.lastModified();
+            const QDateTime filePathLastModified = fileEntry.lastModified();
             if (lastModified < filePathLastModified)
                 lastModified = filePathLastModified;
         }
@@ -118,6 +141,8 @@ QDateTime PuppetCreator::puppetSourceLastModified() const
 bool PuppetCreator::useOnlyFallbackPuppet() const
 {
 #ifndef QMLDESIGNER_TEST
+    if (!m_kit || !m_kit->isValid())
+        qWarning() << "Invalid kit for QML puppet";
     return m_designerSettings.value(DesignerSettingsKey::USE_ONLY_FALLBACK_PUPPET
                                     ).toBool() || m_kit == 0 || !m_kit->isValid();
 #else
@@ -125,29 +150,31 @@ bool PuppetCreator::useOnlyFallbackPuppet() const
 #endif
 }
 
+QString PuppetCreator::getStyleConfigFileName() const
+{
+#ifndef QMLDESIGNER_TEST
+    if (m_currentProject) {
+        for (const Utils::FileName &fileName : m_currentProject->files(ProjectExplorer::Project::SourceFiles)) {
+            if (fileName.fileName() == "qtquickcontrols2.conf")
+                return  fileName.toString();
+        }
+    }
+#endif
+    return QString();
+}
+
 PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit,
                              ProjectExplorer::Project *project,
-                             const QString &qtCreatorVersion,
                              const Model *model)
 
-    : m_qtCreatorVersion(qtCreatorVersion)
-    ,m_kit(kit)
-    ,m_availablePuppetType(FallbackPuppet)
-    ,m_model(model)
+    : m_kit(kit)
+    , m_availablePuppetType(FallbackPuppet)
+    , m_model(model)
 #ifndef QMLDESIGNER_TEST
-      ,m_designerSettings(QmlDesignerPlugin::instance()->settings())
+    , m_designerSettings(QmlDesignerPlugin::instance()->settings())
 #endif
-    ,m_currentProject(project)
+    , m_currentProject(project)
 {
-}
-
-PuppetCreator::~PuppetCreator()
-{
-}
-
-void PuppetCreator::createPuppetExecutableIfMissing()
-{
-    createQml2PuppetExecutableIfMissing();
 }
 
 QProcess *PuppetCreator::createPuppetProcess(const QString &puppetMode,
@@ -174,37 +201,37 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
                                        const char *outputSlot,
                                        const char *finishSlot) const
 {
-    QProcess *puppetProcess = new QProcess;
+    auto puppetProcess = new QProcess;
     puppetProcess->setObjectName(puppetMode);
     puppetProcess->setProcessEnvironment(processEnvironment());
 
-    QObject::connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), puppetProcess, SLOT(kill()));
+    QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, puppetProcess, &QProcess::kill);
     QObject::connect(puppetProcess, SIGNAL(finished(int,QProcess::ExitStatus)), handlerObject, finishSlot);
 
 #ifndef QMLDESIGNER_TEST
     QString forwardOutput = m_designerSettings.value(DesignerSettingsKey::
         FORWARD_PUPPET_OUTPUT).toString();
 #else
-    QString forwardOutput(QLatin1String("all"));
+    QString forwardOutput("all");
 #endif
-    if (forwardOutput == puppetMode || forwardOutput == QLatin1String("all")) {
+    if (forwardOutput == puppetMode || forwardOutput == "all") {
         puppetProcess->setProcessChannelMode(QProcess::MergedChannels);
         QObject::connect(puppetProcess, SIGNAL(readyRead()), handlerObject, outputSlot);
     }
     puppetProcess->setWorkingDirectory(workingDirectory);
-    puppetProcess->start(puppetPath, QStringList() << socketToken << puppetMode << QLatin1String("-graphicssystem raster"));
+    puppetProcess->start(puppetPath, {socketToken, puppetMode, "-graphicssystem raster"});
 
 #ifndef QMLDESIGNER_TEST
     QString debugPuppet = m_designerSettings.value(DesignerSettingsKey::
         DEBUG_PUPPET).toString();
 #else
-    QString debugPuppet(QLatin1String("all"));
+    QString debugPuppet("all");
 #endif
-    if (debugPuppet == puppetMode || debugPuppet == QLatin1String("all")) {
+    if (debugPuppet == puppetMode || debugPuppet == "all") {
         QMessageBox::information(Core::ICore::dialogParent(),
-            QStringLiteral("Puppet is starting ..."),
-            QStringLiteral("You can now attach your debugger to the %1 puppet with process id: %2."
-            ).arg(puppetMode, QString::number(puppetProcess->processId())));
+            QCoreApplication::translate("PuppetCreator", "Puppet is starting..."),
+            QCoreApplication::translate("PuppetCreator", "You can now attach your debugger to the %1 puppet with process id: %2.")
+                                 .arg(puppetMode, QString::number(puppetProcess->processId())));
     }
 
     return puppetProcess;
@@ -222,23 +249,34 @@ static QString idealProcessCount()
 bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
 {
     PuppetBuildProgressDialog progressDialog;
+    progressDialog.setParent(Core::ICore::mainWindow());
 
     m_compileLog.clear();
 
-    QTemporaryDir buildDirectory;
+    Utils::TemporaryDirectory buildDirectory("qml-puppet-build");
 
     bool buildSucceeded = false;
+
+
+    /* Ensure the model dialog is shown and no events are delivered to the rest of Qt Creator. */
+    EventFilter eventFilter;
+    QCoreApplication::instance()->installEventFilter(&eventFilter);
+    progressDialog.show();
+    QCoreApplication::processEvents();
+    QCoreApplication::instance()->removeEventFilter(&eventFilter);
+    /* Now the modal dialog will block input to the rest of Qt Creator.
+       We can call process events without risking a mode change. */
 
     if (qtIsSupported()) {
         if (buildDirectory.isValid()) {
             QStringList qmakeArguments;
-            qmakeArguments.append(QStringLiteral("-r"));
-            qmakeArguments.append(QStringLiteral("-after"));
-            qmakeArguments.append(QStringLiteral("DESTDIR=") + qmlPuppetDirectory(UserSpacePuppet));
+            qmakeArguments.append("-r");
+            qmakeArguments.append("-after");
+            qmakeArguments.append("DESTDIR=" + qmlPuppetDirectory(UserSpacePuppet));
 #ifdef QT_DEBUG
-            qmakeArguments.append(QStringLiteral("CONFIG+=debug"));
+            qmakeArguments.append("CONFIG+=debug");
 #else
-            qmakeArguments.append(QStringLiteral("CONFIG+=release"));
+            qmakeArguments.append("CONFIG+=release");
 #endif
             qmakeArguments.append(qmlPuppetProjectFilePath);
             buildSucceeded = startBuildProcess(buildDirectory.path(), qmakeCommand(), qmakeArguments, &progressDialog);
@@ -246,8 +284,8 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
                 progressDialog.show();
                 QString buildingCommand = buildCommand();
                 QStringList buildArguments;
-                if (buildingCommand == QStringLiteral("make")) {
-                    buildArguments.append(QStringLiteral("-j"));
+                if (buildingCommand == "make") {
+                    buildArguments.append("-j");
                     buildArguments.append(idealProcessCount());
                 }
                 buildSucceeded = startBuildProcess(buildDirectory.path(), buildingCommand, buildArguments, &progressDialog);
@@ -281,9 +319,9 @@ static void warnAboutInvalidKit()
                                            QCoreApplication::translate("PuppetCreator",
                                                                        "The QML emulation layer (QML Puppet) cannot be built because the kit is not configured correctly. "
                                                                        "For example the compiler can be misconfigured. "
-                                                                       "Fix the kit configuration and restart Qt Creator. "
+                                                                       "Fix the kit configuration and restart %1. "
                                                                        "Otherwise, the fallback emulation layer, which does not support all features, will be used."
-                                                                       ));
+                                                                       ).arg(Core::Constants::IDE_DISPLAY_NAME));
 }
 
 void PuppetCreator::createQml2PuppetExecutableIfMissing()
@@ -294,7 +332,7 @@ void PuppetCreator::createQml2PuppetExecutableIfMissing()
         // check if there was an already failing try to get the UserSpacePuppet
         // -> imagine as result a FallbackPuppet and nothing will happen again
         if (m_qml2PuppetForKitPuppetHash.value(m_kit->id(), UserSpacePuppet) == UserSpacePuppet ) {
-            if (checkQml2PuppetIsReady()) {
+            if (checkPuppetIsReady(qml2PuppetPath(UserSpacePuppet))) {
                 m_availablePuppetType = UserSpacePuppet;
             } else {
                 if (m_kit->isValid()) {
@@ -312,8 +350,7 @@ void PuppetCreator::createQml2PuppetExecutableIfMissing()
 
 QString PuppetCreator::defaultPuppetToplevelBuildDirectory()
 {
-    return Core::ICore::userResourcePath()
-            + QStringLiteral("/qmlpuppet/");
+    return Core::ICore::userResourcePath() + "/qmlpuppet/";
 }
 
 QString PuppetCreator::qmlPuppetToplevelBuildDirectory() const
@@ -332,8 +369,8 @@ QString PuppetCreator::qmlPuppetToplevelBuildDirectory() const
 QString PuppetCreator::qmlPuppetDirectory(PuppetType puppetType) const
 {
     if (puppetType == UserSpacePuppet)
-        return qmlPuppetToplevelBuildDirectory() + QStringLiteral("/")
-            + QCoreApplication::applicationVersion() + QStringLiteral("/") + QString::fromLatin1(qtHash());
+        return qmlPuppetToplevelBuildDirectory() + '/' + QCoreApplication::applicationVersion()
+                + '/' + QString::fromLatin1(qtHash());
 
     return qmlPuppetFallbackDirectory();
 }
@@ -341,7 +378,7 @@ QString PuppetCreator::qmlPuppetDirectory(PuppetType puppetType) const
 QString PuppetCreator::defaultPuppetFallbackDirectory()
 {
     if (Utils::HostOsInfo::isMacHost())
-        return Core::ICore::libexecPath() + QLatin1String("/qmldesigner");
+        return Core::ICore::libexecPath() + "/qmldesigner";
     else
         return Core::ICore::libexecPath();
 }
@@ -361,7 +398,7 @@ QString PuppetCreator::qmlPuppetFallbackDirectory() const
 
 QString PuppetCreator::qml2PuppetPath(PuppetType puppetType) const
 {
-    return qmlPuppetDirectory(puppetType) + QStringLiteral("/qml2puppet") + QStringLiteral(QTC_HOST_EXE_SUFFIX);
+    return qmlPuppetDirectory(puppetType) + "/qml2puppet" + QTC_HOST_EXE_SUFFIX;
 }
 
 static void filterOutQtBaseImportPath(QStringList *stringList)
@@ -378,11 +415,18 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     Utils::Environment environment = Utils::Environment::systemEnvironment();
     if (!useOnlyFallbackPuppet())
         m_kit->addToEnvironment(environment);
-    environment.set(QLatin1String("QML_BAD_GUI_RENDER_LOOP"), QLatin1String("true"));
-    environment.set(QLatin1String("QML_USE_MOCKUPS"), QLatin1String("true"));
-    environment.set(QLatin1String("QML_PUPPET_MODE"), QLatin1String("true"));
-    environment.set(QLatin1String("QML_DISABLE_DISK_CACHE"), QLatin1String("true"));
-    environment.set(QLatin1String("QT_AUTO_SCREEN_SCALE_FACTOR"), QLatin1String("1"));
+    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(m_kit);
+    if (QTC_GUARD(qt)) { // Kits without a Qt version should not have a puppet!
+        // Update PATH to include QT_HOST_BINS
+        const Utils::FileName qtBinPath = qt->binPath();
+        environment.prependOrSetPath(qtBinPath.toString());
+    }
+    environment.set("QML_BAD_GUI_RENDER_LOOP", "true");
+    environment.set("QML_PUPPET_MODE", "true");
+    environment.set("QML_DISABLE_DISK_CACHE", "true");
+    if (!environment.hasKey("QT_SCREEN_SCALE_FACTORS") && !environment.hasKey("QT_SCALE_FACTOR")
+            && QApplication::testAttribute(Qt::AA_EnableHighDpiScaling))
+        environment.set("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
 
 #ifndef QMLDESIGNER_TEST
     const QString controlsStyle = m_designerSettings.value(DesignerSettingsKey::
@@ -391,14 +435,29 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     const QString controlsStyle;
 #endif
     if (!controlsStyle.isEmpty() && controlsStyle != "Default") {
-        environment.set(QLatin1String("QT_QUICK_CONTROLS_STYLE"), controlsStyle);
-        environment.set(QLatin1String("QT_LABS_CONTROLS_STYLE"), controlsStyle);
+        environment.set("QT_QUICK_CONTROLS_STYLE", controlsStyle);
+        environment.set("QT_LABS_CONTROLS_STYLE", controlsStyle);
     }
 
+#ifndef QMLDESIGNER_TEST
+    environment.set("FORMEDITOR_DEVICE_PIXEL_RATIO", QString::number(QmlDesignerPlugin::formEditorDevicePixelRatio()));
+#endif
+
+    const QString styleConfigFileName = getStyleConfigFileName();
+
+    /* QT_QUICK_CONTROLS_CONF is not supported for Qt Version < 5.8.1,
+     * but we can manually at least set the correct style. */
+    if (!styleConfigFileName.isEmpty()) {
+        QSettings infiFile(styleConfigFileName, QSettings::IniFormat);
+        environment.set("QT_QUICK_CONTROLS_STYLE", infiFile.value("Controls/Style", "Default").toString());
+    }
 
     if (!m_qrcMapping.isEmpty()) {
-        environment.set(QLatin1String("QMLDESIGNER_RC_PATHS"), m_qrcMapping);
+        environment.set("QMLDESIGNER_RC_PATHS", m_qrcMapping);
     }
+#ifndef QMLDESIGNER_TEST
+    QmlDesignerPlugin::instance()->viewManager().nodeInstanceView()->emitCustomNotification("PuppetStatus", {}, {QVariant(m_qrcMapping)});
+#endif
 
     QStringList importPaths = m_model->importPaths();
 
@@ -406,15 +465,13 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     if (m_availablePuppetType == FallbackPuppet)
         filterOutQtBaseImportPath(&importPaths);
 
+    if (!styleConfigFileName.isEmpty())
+        environment.appendOrSet("QT_QUICK_CONTROLS_CONF", styleConfigFileName);
+
     if (m_currentProject) {
-        for (const QString &fileName : m_currentProject->files(ProjectExplorer::Project::SourceFiles)) {
-            QFileInfo fileInfo(fileName);
-            if (fileInfo.fileName() == "qtquickcontrols2.conf")
-                environment.appendOrSet("QT_QUICK_CONTROLS_CONF", fileName);
-        }
-        QmakeProjectManager::QmakeProject *qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(m_currentProject);
+        auto qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(m_currentProject);
         if (qmakeProject) {
-            QStringList designerImports = qmakeProject->rootProjectNode()->variableValue(QmakeProjectManager::QmlDesignerImportPathVar);
+            QStringList designerImports = qmakeProject->rootProjectNode()->variableValue(QmakeProjectManager::Variable::QmlDesignerImportPath);
             importPaths.append(designerImports);
         }
     }
@@ -439,7 +496,7 @@ QString PuppetCreator::buildCommand() const
 
     ProjectExplorer::ToolChain *toolChain
             = ProjectExplorer::ToolChainKitInformation::toolChain(m_kit,
-                                                                  ProjectExplorer::ToolChain::Language::Cxx);
+                                                                  ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     if (toolChain)
         return toolChain->makeCommand(environment);
@@ -456,11 +513,6 @@ QString PuppetCreator::qmakeCommand() const
     return QString();
 }
 
-QString PuppetCreator::compileLog() const
-{
-    return m_compileLog;
-}
-
 void PuppetCreator::setQrcMappingString(const QString qrcMapping)
 {
     m_qrcMapping = qrcMapping;
@@ -474,7 +526,7 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
     if (command.isEmpty())
         return false;
 
-    const QString errorOutputFilePath(buildDirectoryPath + QLatin1String("/build_error_output.txt"));
+    const QString errorOutputFilePath(buildDirectoryPath + "/build_error_output.txt");
     if (QFile::exists(errorOutputFilePath))
         QFile(errorOutputFilePath).remove();
     progressDialog->setErrorOutputFile(errorOutputFilePath);
@@ -485,7 +537,8 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
     process.setProcessEnvironment(processEnvironment());
     process.setWorkingDirectory(buildDirectoryPath);
     process.start(command, processArguments);
-    process.waitForStarted();
+    if (!process.waitForStarted())
+        return false;
     while (process.waitForReadyRead(100) || process.state() == QProcess::Running) {
         if (progressDialog->useFallbackPuppet())
             return false;
@@ -501,8 +554,9 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
 
     process.waitForFinished();
 
-     qCInfo(puppetBuild) << Q_FUNC_INFO;
-     qCInfo(puppetBuild) << m_compileLog;
+    qCInfo(puppetBuild) << Q_FUNC_INFO;
+    qCInfo(puppetBuild) << m_compileLog;
+    m_compileLog.clear();
 
     if (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0)
         return true;
@@ -512,17 +566,12 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
 
 QString PuppetCreator::puppetSourceDirectoryPath()
 {
-    return Core::ICore::resourcePath() + QStringLiteral("/qml/qmlpuppet");
+    return Core::ICore::resourcePath() + "/qml/qmlpuppet";
 }
 
 QString PuppetCreator::qml2PuppetProjectFile()
 {
-    return puppetSourceDirectoryPath() + QStringLiteral("/qml2puppet/qml2puppet.pro");
-}
-
-QString PuppetCreator::qmlPuppetProjectFile()
-{
-    return puppetSourceDirectoryPath() + QStringLiteral("/qmlpuppet/qmlpuppet.pro");
+    return puppetSourceDirectoryPath() + "/qml2puppet/qml2puppet.pro";
 }
 
 bool PuppetCreator::checkPuppetIsReady(const QString &puppetPath) const
@@ -537,11 +586,6 @@ bool PuppetCreator::checkPuppetIsReady(const QString &puppetPath) const
     return false;
 }
 
-bool PuppetCreator::checkQml2PuppetIsReady() const
-{
-    return checkPuppetIsReady(qml2PuppetPath(UserSpacePuppet));
-}
-
 static bool nonEarlyQt5Version(const QtSupport::QtVersionNumber &currentQtVersionNumber)
 {
     return currentQtVersionNumber >= QtSupport::QtVersionNumber(5, 2, 0) || currentQtVersionNumber < QtSupport::QtVersionNumber(5, 0, 0);
@@ -554,23 +598,7 @@ bool PuppetCreator::qtIsSupported() const
     return currentQtVersion
             && currentQtVersion->isValid()
             && nonEarlyQt5Version(currentQtVersion->qtVersion())
-            && currentQtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT);
-}
-
-bool PuppetCreator::checkPuppetVersion(const QString &qmlPuppetPath)
-{
-
-    QProcess qmlPuppetVersionProcess;
-    qmlPuppetVersionProcess.start(qmlPuppetPath, QStringList() << QLatin1String("--version"));
-    qmlPuppetVersionProcess.waitForReadyRead(6000);
-
-    QByteArray versionString = qmlPuppetVersionProcess.readAll();
-
-    bool canConvert;
-    unsigned int versionNumber = versionString.toUInt(&canConvert);
-
-    return canConvert && versionNumber == 2;
-
+            && currentQtVersion->type() == QtSupport::Constants::DESKTOPQT;
 }
 
 } // namespace QmlDesigner

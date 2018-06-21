@@ -23,11 +23,14 @@
 **
 ****************************************************************************/
 
+#include "algorithm.h"
 #include "filesearch.h"
+#include "fileutils.h"
 #include "mapreduce.h"
 
 #include <QCoreApplication>
 #include <QMutex>
+#include <QRegExp>
 #include <QRegularExpression>
 #include <QTextCodec>
 
@@ -82,7 +85,7 @@ class FileSearch
 {
 public:
     FileSearch(const QString &searchTerm, QTextDocument::FindFlags flags,
-               QMap<QString, QString> fileToContentsMap);
+               const QMap<QString, QString> &fileToContentsMap);
     void operator()(QFutureInterface<FileSearchResultList> &futureInterface,
                     const FileIterator::Item &item) const;
 
@@ -102,7 +105,7 @@ class FileSearchRegExp
 {
 public:
     FileSearchRegExp(const QString &searchTerm, QTextDocument::FindFlags flags,
-                     QMap<QString, QString> fileToContentsMap);
+                     const QMap<QString, QString> &fileToContentsMap);
     FileSearchRegExp(const FileSearchRegExp &other);
     void operator()(QFutureInterface<FileSearchResultList> &futureInterface,
                     const FileIterator::Item &item) const;
@@ -116,7 +119,7 @@ private:
 };
 
 FileSearch::FileSearch(const QString &searchTerm, QTextDocument::FindFlags flags,
-                       QMap<QString, QString> fileToContentsMap)
+                       const QMap<QString, QString> &fileToContentsMap)
 {
     this->fileToContentsMap = fileToContentsMap;
     caseSensitive = (flags & QTextDocument::FindCaseSensitively);
@@ -222,7 +225,7 @@ void FileSearch::operator()(QFutureInterface<FileSearchResultList> &futureInterf
 }
 
 FileSearchRegExp::FileSearchRegExp(const QString &searchTerm, QTextDocument::FindFlags flags,
-                                   QMap<QString, QString> fileToContentsMap)
+                                   const QMap<QString, QString> &fileToContentsMap)
 {
     this->fileToContentsMap = fileToContentsMap;
     QString term = searchTerm;
@@ -357,7 +360,7 @@ void cleanUpFileSearch(QFutureInterface<FileSearchResultList> &futureInterface,
 } // namespace
 
 QFuture<FileSearchResultList> Utils::findInFiles(const QString &searchTerm, FileIterator *files,
-    QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap)
+    QTextDocument::FindFlags flags, const QMap<QString, QString> &fileToContentsMap)
 {
     return mapReduce(files->begin(), files->end(),
                      [searchTerm, files](QFutureInterface<FileSearchResultList> &futureInterface) {
@@ -369,7 +372,7 @@ QFuture<FileSearchResultList> Utils::findInFiles(const QString &searchTerm, File
 }
 
 QFuture<FileSearchResultList> Utils::findInFilesRegExp(const QString &searchTerm, FileIterator *files,
-    QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap)
+    QTextDocument::FindFlags flags, const QMap<QString, QString> &fileToContentsMap)
 {
     return mapReduce(files->begin(), files->end(),
                      [searchTerm, files](QFutureInterface<FileSearchResultList> &futureInterface) {
@@ -382,12 +385,13 @@ QFuture<FileSearchResultList> Utils::findInFilesRegExp(const QString &searchTerm
 
 QString Utils::expandRegExpReplacement(const QString &replaceText, const QStringList &capturedTexts)
 {
-    // handles \1 \\ \& & \t \n
+    // handles \1 \\ \& \t \n $1 $$ $&
     QString result;
     const int numCaptures = capturedTexts.size() - 1;
-    for (int i = 0; i < replaceText.length(); ++i) {
+    const int replaceLength = replaceText.length();
+    for (int i = 0; i < replaceLength; ++i) {
         QChar c = replaceText.at(i);
-        if (c == QLatin1Char('\\') && i < replaceText.length() - 1) {
+        if (c == QLatin1Char('\\') && i < replaceLength - 1) {
             c = replaceText.at(++i);
             if (c == QLatin1Char('\\')) {
                 result += QLatin1Char('\\');
@@ -401,16 +405,26 @@ QString Utils::expandRegExpReplacement(const QString &replaceText, const QString
                 int index = c.unicode()-'1';
                 if (index < numCaptures) {
                     result += capturedTexts.at(index+1);
-                } else {
-                    result += QLatin1Char('\\');
-                    result += c;
-                }
+                } // else add nothing
             } else {
                 result += QLatin1Char('\\');
                 result += c;
             }
-        } else if (c == QLatin1Char('&')) {
-            result += capturedTexts.at(0);
+        } else if (c== '$' && i < replaceLength - 1) {
+            c = replaceText.at(++i);
+            if (c == '$') {
+                result += '$';
+            } else if (c == '&') {
+                result += capturedTexts.at(0);
+            } else if (c.isDigit()) {
+                int index = c.unicode()-'1';
+                if (index < numCaptures) {
+                    result += capturedTexts.at(index+1);
+                } // else add nothing
+            } else {
+                result += '$';
+                result += c;
+            }
         } else {
             result += c;
         }
@@ -438,7 +452,7 @@ QString matchCaseReplacement(const QString &originalText, const QString &replace
             restIsUpperCase = false;
 
         if (!restIsLowerCase && !restIsUpperCase)
-            return replaceText; // mixed
+            break;
     }
 
     if (restIsLowerCase) {
@@ -446,17 +460,86 @@ QString matchCaseReplacement(const QString &originalText, const QString &replace
         if (firstIsUpperCase)
             res.replace(0, 1, res.at(0).toUpper());
         return res;
-    }
-
-    if (restIsUpperCase) {
+    } else if (restIsUpperCase) {
         QString res = replaceText.toUpper();
         if (firstIsLowerCase)
             res.replace(0, 1, res.at(0).toLower());
         return res;
+    } else {
+        return replaceText; // mixed
     }
-
-    return replaceText;         // mixed
 }
+} // namespace
+
+static QList<QRegExp> filtersToRegExps(const QStringList &filters)
+{
+    return Utils::transform(filters, [](const QString &filter) {
+        return QRegExp(filter, Qt::CaseInsensitive, QRegExp::Wildcard);
+    });
+}
+
+static bool matches(const QList<QRegExp> &exprList, const QString &filePath)
+{
+    return Utils::anyOf(exprList, [&filePath](QRegExp reg) {
+        return (reg.exactMatch(filePath)
+                || reg.exactMatch(Utils::FileName::fromString(filePath).fileName()));
+    });
+}
+
+static bool isFileIncluded(const QList<QRegExp> &filterRegs, const QList<QRegExp> &exclusionRegs,
+                           const QString &filePath)
+{
+    const bool isIncluded = filterRegs.isEmpty() || matches(filterRegs, filePath);
+    return isIncluded && (exclusionRegs.isEmpty() || !matches(exclusionRegs, filePath));
+}
+
+std::function<bool(const QString &)>
+filterFileFunction(const QStringList &filters, const QStringList &exclusionFilters)
+{
+    const QList<QRegExp> filterRegs = filtersToRegExps(filters);
+    const QList<QRegExp> exclusionRegs = filtersToRegExps(exclusionFilters);
+    return [filterRegs, exclusionRegs](const QString &filePath) {
+        return isFileIncluded(filterRegs, exclusionRegs, filePath);
+    };
+}
+
+std::function<QStringList(const QStringList &)>
+filterFilesFunction(const QStringList &filters, const QStringList &exclusionFilters)
+{
+    const QList<QRegExp> filterRegs = filtersToRegExps(filters);
+    const QList<QRegExp> exclusionRegs = filtersToRegExps(exclusionFilters);
+    return [filterRegs, exclusionRegs](const QStringList &filePaths) {
+        return Utils::filtered(filePaths, [&filterRegs, &exclusionRegs](const QString &filePath) {
+            return isFileIncluded(filterRegs, exclusionRegs, filePath);
+        });
+    };
+}
+
+QStringList splitFilterUiText(const QString &text)
+{
+    const QStringList parts = text.split(',');
+    const QStringList trimmedPortableParts = Utils::transform(parts, [](const QString &s) {
+        return QDir::fromNativeSeparators(s.trimmed());
+    });
+    return Utils::filtered(trimmedPortableParts, [](const QString &s) { return !s.isEmpty(); });
+}
+
+
+QString msgFilePatternLabel()
+{
+    return QCoreApplication::translate("Utils::FileSearch", "Fi&le pattern:");
+}
+
+QString msgExclusionPatternLabel()
+{
+    return QCoreApplication::translate("Utils::FileSearch", "Excl&usion pattern:");
+}
+
+QString msgFilePatternToolTip()
+{
+    return QCoreApplication::translate("Utils::FileSearch",
+                                       "List of comma separated wildcard filters. "
+                                       "Files with file name or full file path matching any filter are included.");
 }
 
 QString matchCaseReplacement(const QString &originalText, const QString &replaceText)
@@ -513,7 +596,7 @@ FileIterator::const_iterator FileIterator::end() const
 
 // #pragma mark -- FileListIterator
 
-QTextCodec *encodingAt(const QList<QTextCodec *> encodings, int index)
+QTextCodec *encodingAt(const QList<QTextCodec *> &encodings, int index)
 {
     if (index >= 0 && index < encodings.size())
         return encodings.at(index);
@@ -562,8 +645,9 @@ namespace {
 }
 
 SubDirFileIterator::SubDirFileIterator(const QStringList &directories, const QStringList &filters,
-                                       QTextCodec *encoding)
-    : m_filters(filters), m_progress(0)
+                                       const QStringList &exclusionFilters, QTextCodec *encoding)
+    : m_filterFiles(filterFilesFunction(filters, exclusionFilters)),
+      m_progress(0)
 {
     m_encoding = (encoding == 0 ? QTextCodec::codecForLocale() : encoding);
     qreal maxPer = qreal(MAX_PROGRESS) / directories.count();
@@ -591,19 +675,21 @@ void SubDirFileIterator::update(int index)
         const qreal dirProgressMax = m_progressValues.pop();
         const bool processed = m_processedValues.pop();
         if (dir.exists()) {
+            const QString dirPath = dir.path();
             QStringList subDirs;
             if (!processed)
                 subDirs = dir.entryList(QDir::Dirs|QDir::Hidden|QDir::NoDotAndDotDot);
             if (subDirs.isEmpty()) {
-                QStringList fileEntries = dir.entryList(m_filters,
-                    QDir::Files|QDir::Hidden);
-                QStringListIterator it(fileEntries);
-                it.toBack();
-                m_items.reserve(m_items.size() + fileEntries.size());
-                while (it.hasPrevious()) {
-                    const QString &file = it.previous();
-                    m_items.append(new Item(dir.path()+ QLatin1Char('/') + file, m_encoding));
-                }
+                const QStringList allFileEntries = dir.entryList(QDir::Files|QDir::Hidden);
+                const QStringList allFilePaths = Utils::transform(allFileEntries,
+                                                                  [&dirPath](const QString &entry) {
+                    return QString(dirPath + '/' + entry);
+                });
+                const QStringList filePaths = m_filterFiles(allFilePaths);
+                m_items.reserve(m_items.size() + filePaths.size());
+                Utils::reverseForeach(filePaths, [this](const QString &file) {
+                    m_items.append(new Item(file, m_encoding));
+                });
                 m_progress += dirProgressMax;
             } else {
                 qreal subProgress = dirProgressMax/(subDirs.size()+1);
@@ -614,7 +700,7 @@ void SubDirFileIterator::update(int index)
                 it.toBack();
                 while (it.hasPrevious()) {
                     const QString &directory = it.previous();
-                    m_dirs.push(QDir(dir.path()+ QLatin1Char('/') + directory));
+                    m_dirs.push(QDir(dirPath + QLatin1Char('/') + directory));
                     m_progressValues.push(subProgress);
                     m_processedValues.push(false);
                 }

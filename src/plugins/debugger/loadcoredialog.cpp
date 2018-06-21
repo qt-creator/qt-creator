@@ -25,22 +25,22 @@
 
 #include "loadcoredialog.h"
 
-#include "debuggerstartparameters.h"
 #include "debuggerdialogs.h"
 #include "debuggerkitinformation.h"
-#include "gdb/coregdbadapter.h"
+#include "gdb/gdbengine.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <ssh/sftpfilesystemmodel.h>
+#include <ssh/sshconnection.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/temporaryfile.h>
 
 #include <QCheckBox>
 #include <QDebug>
 #include <QDir>
 #include <QRegExp>
-#include <QTemporaryFile>
 
 #include <QDialogButtonBox>
 #include <QFormLayout>
@@ -184,7 +184,7 @@ void SelectRemoteFileDialog::selectFile()
             this, &SelectRemoteFileDialog::handleSftpOperationFinished);
 
     {
-        QTemporaryFile localFile(QDir::tempPath() + QLatin1String("/remotecore-XXXXXX"));
+        Utils::TemporaryFile localFile("remotecore-XXXXXX");
         localFile.open();
         m_localFile = localFile.fileName();
     }
@@ -363,8 +363,8 @@ void AttachCoreDialog::coreFileChanged(const QString &core)
     if (!HostOsInfo::isWindowsHost() && QFile::exists(core)) {
         Kit *k = d->kitChooser->currentKit();
         QTC_ASSERT(k, return);
-        StandardRunnable debugger = DebuggerKitInformation::runnable(k);
-        GdbCoreEngine::CoreInfo cinfo = GdbCoreEngine::readExecutableNameFromCore(debugger, core);
+        Runnable debugger = DebuggerKitInformation::runnable(k);
+        CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(debugger, core);
         if (!cinfo.foundExecutableName.isEmpty())
             d->localExecFileName->setFileName(FileName::fromString(cinfo.foundExecutableName));
         else if (!d->localExecFileName->isValid() && !cinfo.rawStringFromCore.isEmpty())

@@ -47,8 +47,8 @@ class OpenPagesManager : public QObject
     Q_OBJECT
 
 public:
-    OpenPagesManager(QObject *parent = 0);
-    ~OpenPagesManager();
+    OpenPagesManager(QObject *parent = nullptr);
+    ~OpenPagesManager() override;
 
     static OpenPagesManager &instance();
 
@@ -79,10 +79,10 @@ private:
     void showTwicherOrSelectPage() const;
     void openPagesContextMenu(const QPoint &point);
 
-    QComboBox *m_comboBox;
-    OpenPagesModel *m_model;
-    mutable OpenPagesWidget *m_openPagesWidget;
-    OpenPagesSwitcher *m_openPagesSwitcher;
+    QComboBox *m_comboBox = nullptr;
+    OpenPagesModel *m_model = nullptr;
+    mutable OpenPagesWidget *m_openPagesWidget = nullptr;
+    OpenPagesSwitcher *m_openPagesSwitcher = nullptr;
 
     static OpenPagesManager *m_instance;
 };

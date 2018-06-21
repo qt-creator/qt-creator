@@ -27,23 +27,10 @@
 
 #include "clangrefactoringbackend_global.h"
 
+#include <filepathcachingfwd.h>
 #include <sourcelocationscontainer.h>
 
-#if defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#elif defined(_MSC_VER)
-#    pragma warning(push)
-#    pragma warning( disable : 4100 )
-#endif
-
 #include <clang/Tooling/Refactoring.h>
-
-#if defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#    pragma warning(pop)
-#endif
 
 namespace clang {
 class ASTConsumer;
@@ -54,27 +41,31 @@ namespace ClangBackEnd {
 class SymbolLocationFinderAction
 {
 public:
+    SymbolLocationFinderAction(FilePathCachingInterface &filePathCache)
+        : m_filePathCache(filePathCache)
+    {}
 
-  std::unique_ptr<clang::ASTConsumer> newASTConsumer();
+    std::unique_ptr<clang::ASTConsumer> newASTConsumer();
 
-  SourceLocationsContainer takeSourceLocations()
-  {
-      return std::move(sourceLocations);
-  }
+    SourceLocationsContainer takeSourceLocations()
+    {
+        return std::move(m_sourceLocations);
+    }
 
-  void setUnifiedSymbolResolutions(std::vector<USRName> &&unifiedSymbolResolutions)
-  {
-      unifiedSymbolResolutions_ = std::move(unifiedSymbolResolutions);
-  }
+    void setUnifiedSymbolResolutions(std::vector<USRName> &&unifiedSymbolResolutions)
+    {
+        m_unifiedSymbolResolutions_ = std::move(unifiedSymbolResolutions);
+    }
 
-  const std::vector<USRName> &unifiedSymbolResolutions() const
-  {
-      return unifiedSymbolResolutions_;
-  }
+    const std::vector<USRName> &unifiedSymbolResolutions() const
+    {
+        return m_unifiedSymbolResolutions_;
+    }
 
 private:
-  ClangBackEnd::SourceLocationsContainer sourceLocations;
-  std::vector<USRName> unifiedSymbolResolutions_;
+    ClangBackEnd::SourceLocationsContainer m_sourceLocations;
+    std::vector<USRName> m_unifiedSymbolResolutions_;
+    FilePathCachingInterface &m_filePathCache;
 };
 
 } // namespace ClangBackEnd

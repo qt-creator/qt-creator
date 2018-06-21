@@ -75,7 +75,8 @@ class AddPropertyRewriteAction: public RewriteAction
 {
 public:
     AddPropertyRewriteAction(const AbstractProperty &property, const QString &valueText, QmlDesigner::QmlRefactoring::PropertyType propertyType, const ModelNode &containedModelNode/* = ModelNode()*/):
-            m_property(property), m_valueText(valueText), m_propertyType(propertyType), m_containedModelNode(containedModelNode)
+            m_property(property), m_valueText(valueText), m_propertyType(propertyType), m_containedModelNode(containedModelNode),
+            m_sheduledInHierarchy(property.isValid() && property.parentModelNode().isInHierarchy())
     {}
 
     virtual bool execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore);
@@ -100,6 +101,7 @@ private:
     QString m_valueText;
     QmlDesigner::QmlRefactoring::PropertyType m_propertyType;
     ModelNode m_containedModelNode;
+    bool m_sheduledInHierarchy;
 };
 
 class ChangeIdRewriteAction: public RewriteAction
@@ -127,7 +129,8 @@ class ChangePropertyRewriteAction: public RewriteAction
 {
 public:
     ChangePropertyRewriteAction(const AbstractProperty &property, const QString &valueText, QmlDesigner::QmlRefactoring::PropertyType propertyType, const ModelNode &containedModelNode/* = ModelNode()*/):
-            m_property(property), m_valueText(valueText), m_propertyType(propertyType), m_containedModelNode(containedModelNode)
+            m_property(property), m_valueText(valueText), m_propertyType(propertyType), m_containedModelNode(containedModelNode),
+            m_sheduledInHierarchy(property.isValid() && property.parentModelNode().isInHierarchy())
     {}
 
     virtual bool execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore);
@@ -152,6 +155,7 @@ private:
     QString m_valueText;
     QmlDesigner::QmlRefactoring::PropertyType m_propertyType;
     ModelNode m_containedModelNode;
+    bool m_sheduledInHierarchy;
 };
 
 class ChangeTypeRewriteAction:public RewriteAction

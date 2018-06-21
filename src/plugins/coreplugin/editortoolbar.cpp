@@ -320,7 +320,9 @@ void EditorToolBar::setMenuProvider(const EditorToolBar::MenuProvider &provider)
 void EditorToolBar::setCurrentEditor(IEditor *editor)
 {
     IDocument *document = editor ? editor->document() : 0;
-    d->m_editorList->setCurrentIndex(DocumentModel::rowOfDocument(document));
+    const Utils::optional<int> index = DocumentModel::rowOfDocument(document);
+    if (QTC_GUARD(index))
+        d->m_editorList->setCurrentIndex(*index);
 
     // If we never added the toolbar from the editor,  we will never change
     // the editor, so there's no need to update the toolbar either.
@@ -332,8 +334,11 @@ void EditorToolBar::setCurrentEditor(IEditor *editor)
 
 void EditorToolBar::updateEditorListSelection(IEditor *newSelection)
 {
-    if (newSelection)
-        d->m_editorList->setCurrentIndex(DocumentModel::rowOfDocument(newSelection->document()));
+    if (newSelection) {
+        const Utils::optional<int> index = DocumentModel::rowOfDocument(newSelection->document());
+        if (QTC_GUARD(index))
+            d->m_editorList->setCurrentIndex(index.value());
+    }
 }
 
 void EditorToolBar::changeActiveEditor(int row)
@@ -403,7 +408,9 @@ void EditorToolBar::updateDocumentStatus(IDocument *document)
         return;
     }
 
-    d->m_editorList->setCurrentIndex(DocumentModel::rowOfDocument(document));
+    const Utils::optional<int> index = DocumentModel::rowOfDocument(document);
+    if (QTC_GUARD(index))
+        d->m_editorList->setCurrentIndex(*index);
 
     if (document->filePath().isEmpty()) {
         d->m_lockButton->setIcon(QIcon());

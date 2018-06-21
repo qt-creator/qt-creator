@@ -29,7 +29,7 @@
 
 #include <texteditor/codeassist/genericproposalmodel.h>
 
-#include <clangbackendipc/clangbackendipc_global.h>
+#include <clangsupport/clangsupport_global.h>
 
 namespace ClangCodeModel {
 namespace Internal {

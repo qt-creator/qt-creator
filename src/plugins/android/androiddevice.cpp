@@ -26,9 +26,11 @@
 #include "androiddevice.h"
 #include "androidconstants.h"
 #include "androidsignaloperation.h"
+#include "androidconfigurations.h"
 
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runnables.h>
+
+#include <utils/url.h>
 
 #include <QCoreApplication>
 
@@ -45,6 +47,7 @@ AndroidDevice::AndroidDevice()
 {
     setDisplayName(QCoreApplication::translate("Android::Internal::AndroidDevice", "Run on Android"));
     setDeviceState(DeviceReadyToUse);
+    setQmlsceneCommand(AndroidConfigurations::currentConfig().deviceQmlsceneCommand());
 }
 
 AndroidDevice::AndroidDevice(const AndroidDevice &other)
@@ -94,14 +97,22 @@ DeviceProcessSignalOperation::Ptr AndroidDevice::signalOperation() const
     return DeviceProcessSignalOperation::Ptr(new AndroidSignalOperation());
 }
 
+Utils::OsType AndroidDevice::osType() const
+{
+    return Utils::OsTypeOtherUnix;
+}
+
 IDevice::Ptr AndroidDevice::clone() const
 {
     return IDevice::Ptr(new AndroidDevice(*this));
 }
 
-Connection AndroidDevice::toolControlChannel(const ControlChannelHint &) const
+QUrl AndroidDevice::toolControlChannel(const ControlChannelHint &) const
 {
-    return HostName("localhost");
+    QUrl url;
+    url.setScheme(Utils::urlTcpScheme());
+    url.setHost("localhost");
+    return url;
 }
 
 } // namespace Internal

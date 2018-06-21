@@ -36,7 +36,7 @@
 namespace Beautifier {
 namespace Internal {
 
-GeneralOptionsPageWidget::GeneralOptionsPageWidget(GeneralSettings *settings,
+GeneralOptionsPageWidget::GeneralOptionsPageWidget(const QSharedPointer<GeneralSettings> &settings,
                                                    const QStringList &toolIds, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::GeneralOptionsPage),
@@ -73,8 +73,8 @@ void GeneralOptionsPageWidget::apply(bool *autoFormatChanged)
     m_settings->save();
 }
 
-GeneralOptionsPage::GeneralOptionsPage(GeneralSettings *settings, const QStringList &toolIds,
-                                       QObject *parent) :
+GeneralOptionsPage::GeneralOptionsPage(const QSharedPointer<GeneralSettings> &settings,
+                                       const QStringList &toolIds, QObject *parent) :
     IOptionsPage(parent),
     m_settings(settings),
     m_toolIds(toolIds)
@@ -82,8 +82,9 @@ GeneralOptionsPage::GeneralOptionsPage(GeneralSettings *settings, const QStringL
     setId(Constants::OPTION_GENERAL_ID);
     setDisplayName(tr("General"));
     setCategory(Constants::OPTION_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::OPTION_CATEGORY_ICON));
+    setDisplayCategory(QCoreApplication::translate("Beautifier", "Beautifier"));
+    setCategoryIcon(Utils::Icon({{":/beautifier/images/settingscategory_beautifier.png",
+                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }
 
 QWidget *GeneralOptionsPage::widget()

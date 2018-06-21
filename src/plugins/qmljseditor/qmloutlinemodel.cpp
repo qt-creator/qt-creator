@@ -430,6 +430,11 @@ Qt::DropActions QmlOutlineModel::supportedDragActions() const
     return Qt::MoveAction | Qt::CopyAction;
 }
 
+Qt::DropActions QmlOutlineModel::supportedDropActions() const
+{
+    return Qt::MoveAction;
+}
+
 
 Document::Ptr QmlOutlineModel::document() const
 {

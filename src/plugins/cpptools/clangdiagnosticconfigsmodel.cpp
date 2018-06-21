@@ -40,7 +40,7 @@ static void addConfigForQuestionableConstructs(ClangDiagnosticConfigsModel &mode
     config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
                                                       "Warnings for questionable constructs"));
     config.setIsReadOnly(true);
-    config.setCommandLineOptions({
+    config.setClangOptions(QStringList{
         QStringLiteral("-Wall"),
         QStringLiteral("-Wextra"),
     });
@@ -55,7 +55,7 @@ static void addConfigForPedanticWarnings(ClangDiagnosticConfigsModel &model)
     config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
                                                       "Pedantic Warnings"));
     config.setIsReadOnly(true);
-    config.setCommandLineOptions({QStringLiteral("-Wpedantic")});
+    config.setClangOptions(QStringList{QStringLiteral("-Wpedantic")});
 
     model.appendOrUpdate(config);
 }
@@ -67,7 +67,7 @@ static void addConfigForAlmostEveryWarning(ClangDiagnosticConfigsModel &model)
     config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
                                                       "Warnings for almost everything"));
     config.setIsReadOnly(true);
-    config.setCommandLineOptions({
+    config.setClangOptions(QStringList{
         QStringLiteral("-Weverything"),
         QStringLiteral("-Wno-c++98-compat"),
         QStringLiteral("-Wno-c++98-compat-pedantic"),
@@ -78,7 +78,9 @@ static void addConfigForAlmostEveryWarning(ClangDiagnosticConfigsModel &model)
         QStringLiteral("-Wno-gnu-zero-variadic-macro-arguments"),
         QStringLiteral("-Wno-documentation"),
         QStringLiteral("-Wno-shadow"),
+        QStringLiteral("-Wno-switch-enum"),
         QStringLiteral("-Wno-missing-prototypes"), // Not optimal for C projects.
+        QStringLiteral("-Wno-used-but-marked-unused"), // e.g. QTest::qWait
     });
 
     model.appendOrUpdate(config);
@@ -94,9 +96,7 @@ static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
 ClangDiagnosticConfigsModel::ClangDiagnosticConfigsModel(const ClangDiagnosticConfigs &customConfigs)
 {
     addBuiltinConfigs(*this);
-
-    foreach (const ClangDiagnosticConfig &config, customConfigs)
-        m_diagnosticConfigs.append(config);
+    m_diagnosticConfigs.append(customConfigs);
 }
 
 int ClangDiagnosticConfigsModel::size() const
@@ -107,11 +107,6 @@ int ClangDiagnosticConfigsModel::size() const
 const ClangDiagnosticConfig &ClangDiagnosticConfigsModel::at(int index) const
 {
     return m_diagnosticConfigs.at(index);
-}
-
-void ClangDiagnosticConfigsModel::prepend(const ClangDiagnosticConfig &config)
-{
-    m_diagnosticConfigs.prepend(config);
 }
 
 void ClangDiagnosticConfigsModel::appendOrUpdate(const ClangDiagnosticConfig &config)
@@ -151,6 +146,35 @@ ClangDiagnosticConfigsModel::displayNameWithBuiltinIndication(const ClangDiagnos
             ? QCoreApplication::translate("ClangDiagnosticConfigsModel", "%1 [built-in]")
                 .arg(config.displayName())
             : config.displayName();
+}
+
+QVector<Core::Id> ClangDiagnosticConfigsModel::changedOrRemovedConfigs(
+    const ClangDiagnosticConfigs &oldConfigs, const ClangDiagnosticConfigs &newConfigs)
+{
+    ClangDiagnosticConfigsModel newConfigsModel(newConfigs);
+    QVector<Core::Id> changedConfigs;
+
+    for (const ClangDiagnosticConfig &old: oldConfigs) {
+        const int i = newConfigsModel.indexOfConfig(old.id());
+        if (i == -1)
+            changedConfigs.append(old.id()); // Removed
+        else if (newConfigsModel.configs()[i] != old)
+            changedConfigs.append(old.id()); // Changed
+    }
+
+    return changedConfigs;
+}
+
+QStringList ClangDiagnosticConfigsModel::globalDiagnosticOptions()
+{
+    return {
+        // Avoid undesired warnings from e.g. Q_OBJECT
+        QStringLiteral("-Wno-unknown-pragmas"),
+        QStringLiteral("-Wno-unknown-warning-option"),
+
+        // qdoc commands
+        QStringLiteral("-Wno-documentation-unknown-command")
+    };
 }
 
 int ClangDiagnosticConfigsModel::indexOfConfig(const Core::Id &id) const

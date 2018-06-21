@@ -33,8 +33,7 @@ namespace qmt {
 
 UndoController::UndoController(QObject *parent) :
     QObject(parent),
-    m_undoStack(new QUndoStack(this)),
-    m_doNotMerge(false)
+    m_undoStack(new QUndoStack(this))
 {
 }
 

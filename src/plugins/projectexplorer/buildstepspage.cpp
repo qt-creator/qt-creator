@@ -32,7 +32,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreicons.h>
-#include <extensionsystem/pluginmanager.h>
+
 #include <utils/qtcassert.h>
 #include <utils/detailswidget.h>
 #include <utils/hostosinfo.h>
@@ -51,7 +51,7 @@ using namespace ProjectExplorer::Internal;
 using namespace Utils;
 
 ToolWidget::ToolWidget(QWidget *parent) : FadingPanel(parent),
-    m_targetOpacity(1.0f)
+    m_targetOpacity(.999)
 {
     auto layout = new QHBoxLayout;
     layout->setMargin(4);
@@ -136,9 +136,9 @@ void ToolWidget::setBuildStepEnabled(bool b)
             m_firstWidget->fadeTo(m_targetOpacity);
     } else {
         if (HostOsInfo::isMacHost())
-            m_firstWidget->setOpacity(1.0);
+            m_firstWidget->setOpacity(.999);
         else
-            m_firstWidget->fadeTo(1.0);
+            m_firstWidget->fadeTo(.999);
     }
     m_disableButton->setChecked(!b);
 }
@@ -193,11 +193,8 @@ BuildStepsWidgetData::~BuildStepsWidgetData()
 }
 
 BuildStepListWidget::BuildStepListWidget(QWidget *parent) :
-    NamedWidget(parent),
-    m_buildStepList(0),
-    m_addButton(0)
-{
-}
+    NamedWidget(parent)
+{ }
 
 BuildStepListWidget::~BuildStepListWidget()
 {
@@ -289,12 +286,11 @@ void BuildStepListWidget::init(BuildStepList *bsl)
 
 void BuildStepListWidget::updateAddBuildStepMenu()
 {
-    QMap<QString, QPair<Core::Id, IBuildStepFactory *> > map;
+    QMap<QString, QPair<Core::Id, BuildStepFactory *> > map;
     //Build up a list of possible steps and save map the display names to the (internal) name and factories.
-    QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::getObjects<IBuildStepFactory>();
-    foreach (IBuildStepFactory *factory, factories) {
-        const QList<BuildStepInfo> infos = factory->availableSteps(m_buildStepList);
-        for (const BuildStepInfo &info : infos) {
+    for (BuildStepFactory *factory : BuildStepFactory::allBuildStepFactories()) {
+        if (factory->canHandle(m_buildStepList)) {
+            const BuildStepInfo &info = factory->stepInfo();
             if (info.flags & BuildStepInfo::Uncreatable)
                 continue;
             if ((info.flags & BuildStepInfo::UniqueStep) && m_buildStepList->contains(info.id))
@@ -307,11 +303,11 @@ void BuildStepListWidget::updateAddBuildStepMenu()
     QMenu *menu = m_addButton->menu();
     menu->clear();
     if (!map.isEmpty()) {
-        QMap<QString, QPair<Core::Id, IBuildStepFactory *> >::const_iterator it, end;
+        QMap<QString, QPair<Core::Id, BuildStepFactory *> >::const_iterator it, end;
         end = map.constEnd();
         for (it = map.constBegin(); it != end; ++it) {
             QAction *action = menu->addAction(it.key());
-            IBuildStepFactory *factory = it.value().second;
+            BuildStepFactory *factory = it.value().second;
             Core::Id id = it.value().first;
 
             connect(action, &QAction::triggered, [id, factory, this]() {

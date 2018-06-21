@@ -27,12 +27,12 @@
 
 #include <QObject>
 #include "qmt/infrastructure/qmt_global.h"
+#include "qmt/model_controller/modelcontroller.h"
 
 namespace qmt {
 
 class ProjectController;
 class UndoController;
-class ModelController;
 class DiagramController;
 class DiagramSceneController;
 class StyleController;
@@ -49,6 +49,7 @@ class MDiagram;
 class MCanvasDiagram;
 class MContainer;
 class DContainer;
+class DReferences;
 class MSelection;
 class MObject;
 
@@ -56,13 +57,11 @@ class QMT_EXPORT DocumentController : public QObject
 {
     Q_OBJECT
 public:
-    explicit DocumentController(QObject *parent = 0);
+    explicit DocumentController(QObject *parent = nullptr);
     ~DocumentController() override;
 
 signals:
     void changed();
-    void modelClipboardChanged(bool isEmpty);
-    void diagramClipboardChanged(bool isEmpty);
 
 public:
     ProjectController *projectController() const { return m_projectController; }
@@ -78,17 +77,15 @@ public:
     DiagramsManager *diagramsManager() const { return m_diagramsManager; }
     SceneInspector *sceneInspector() const { return m_sceneInspector; }
 
-    bool isModelClipboardEmpty() const;
-    bool isDiagramClipboardEmpty() const;
     bool hasDiagramSelection(const qmt::MDiagram *diagram) const;
 
-    void cutFromModel(const MSelection &selection);
-    void cutFromDiagram(MDiagram *diagram);
-    void copyFromModel(const MSelection &selection);
-    void copyFromDiagram(const MDiagram *diagram);
+    MContainer cutFromModel(const MSelection &selection);
+    DContainer cutFromDiagram(MDiagram *diagram);
+    MContainer copyFromModel(const MSelection &selection);
+    DContainer copyFromDiagram(const MDiagram *diagram);
     void copyDiagram(const MDiagram *diagram);
-    void pasteIntoModel(MObject *modelObject);
-    void pasteIntoDiagram(MDiagram *diagram);
+    void pasteIntoModel(MObject *modelObject, const MReferences &container, ModelController::PasteOption option);
+    void pasteIntoDiagram(MDiagram *diagram, const DReferences &container);
     void deleteFromModel(const MSelection &selection);
     void deleteFromDiagram(MDiagram *diagram);
     void removeFromDiagram(MDiagram *diagram);
@@ -106,20 +103,18 @@ public:
     void loadProject(const QString &fileName);
 
 private:
-    ProjectController *m_projectController;
-    UndoController *m_undoController;
-    ModelController *m_modelController;
-    DiagramController *m_diagramController;
-    DiagramSceneController *m_diagramSceneController;
-    StyleController *m_styleController;
-    StereotypeController *m_stereotypeController;
-    ConfigController *m_configController;
-    TreeModel *m_treeModel;
-    SortedTreeModel *m_sortedTreeModel;
-    DiagramsManager *m_diagramsManager;
-    SceneInspector *m_sceneInspector;
-    QScopedPointer<MContainer> m_modelClipboard;
-    QScopedPointer<DContainer> m_diagramClipboard;
+    ProjectController *m_projectController = nullptr;
+    UndoController *m_undoController = nullptr;
+    ModelController *m_modelController = nullptr;
+    DiagramController *m_diagramController = nullptr;
+    DiagramSceneController *m_diagramSceneController = nullptr;
+    StyleController *m_styleController = nullptr;
+    StereotypeController *m_stereotypeController = nullptr;
+    ConfigController *m_configController = nullptr;
+    TreeModel *m_treeModel = nullptr;
+    SortedTreeModel *m_sortedTreeModel = nullptr;
+    DiagramsManager *m_diagramsManager = nullptr;
+    SceneInspector *m_sceneInspector = nullptr;
 };
 
 } // namespace qmt

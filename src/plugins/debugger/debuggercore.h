@@ -35,7 +35,6 @@
 #include <functional>
 
 QT_BEGIN_NAMESPACE
-class QIcon;
 class QMessageBox;
 class QWidget;
 class QMenu;
@@ -47,6 +46,9 @@ namespace CPlusPlus { class Snapshot; }
 namespace Utils { class SavedAction; }
 
 namespace Debugger {
+
+class DebuggerRunTool;
+
 namespace Internal {
 
 class BreakHandler;
@@ -63,9 +65,8 @@ enum TestCases
 };
 
 // Some convenience.
-void updateState(DebuggerEngine *engine);
-void updateWatchersWindow(bool showWatch, bool showReturn);
-const CPlusPlus::Snapshot &cppCodeModelSnapshot();
+void updateState(DebuggerRunTool *runTool);
+void updateLocalsWindow(bool showReturn);
 bool hasSnapshots();
 void openTextEditor(const QString &titlePattern, const QString &contents);
 
@@ -73,13 +74,14 @@ void openTextEditor(const QString &titlePattern, const QString &contents);
 void showMessage(const QString &msg, int channel, int timeout = -1);
 
 bool isReverseDebugging();
-void runControlStarted(DebuggerEngine *engine);
-void runControlFinished(DebuggerEngine *engine);
-void displayDebugger(DebuggerEngine *engine, bool updateEngine);
+void runControlStarted(DebuggerRunTool *runTool);
+void runControlFinished(DebuggerRunTool *runTool);
+void displayDebugger(DebuggerRunTool *runTool);
 void synchronizeBreakpoints();
 
 void saveModeToRestore();
 QWidget *mainWindow();
+void raiseWatchersWindow();
 bool isRegistersWindowVisible();
 bool isModulesWindowVisible();
 void showModuleSymbols(const QString &moduleName, const QVector<Internal::Symbol> &symbols);
@@ -117,6 +119,11 @@ QAction *addAction(QMenu *menu, const QString &d1, const QString &d2, bool on,
                    const std::function<void()> &onTriggered);
 QAction *addCheckableAction(QMenu *menu, const QString &display, bool on, bool checked,
                             const std::function<void()> &onTriggered);
+
+// Qt's various build paths for unpatched versions
+QStringList qtBuildPaths();
+
+void addDebugInfoTask(unsigned id, const QString &cmd);
 
 } // namespace Internal
 } // namespace Debugger

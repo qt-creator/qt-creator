@@ -31,9 +31,7 @@
 namespace qmt {
 
 DAnnotation::DAnnotation()
-    : DElement(),
-      m_visualRole(RoleNormal),
-      m_isAutoSized(true)
+    : DElement()
 {
 }
 

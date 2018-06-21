@@ -182,7 +182,7 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
     QStringList unmergedFiles;
     QStringList unstagedFiles;
     QStringList stagedFiles;
-    foreach (int row, rows) {
+    for (int row : rows) {
         const QString fileName = m_model->file(row);
         const FileStates state = static_cast<FileStates>(m_model->extraData(row).toInt());
         if (state & UnmergedFile) {

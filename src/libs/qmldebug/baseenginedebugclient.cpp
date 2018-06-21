@@ -178,7 +178,7 @@ void BaseEngineDebugClient::stateChanged(State state)
 
 void BaseEngineDebugClient::messageReceived(const QByteArray &data)
 {
-    QPacket ds(connection()->currentDataStreamVersion(), data);
+    QPacket ds(dataStreamVersion(), data);
     int queryId;
     QByteArray type;
     ds >> type >> queryId;
@@ -193,6 +193,7 @@ void BaseEngineDebugClient::messageReceived(const QByteArray &data)
         int count;
         ds >> count;
         QList<EngineReference> engines;
+        engines.reserve(count);
         for (int ii = 0; ii < count; ++ii) {
             EngineReference eng;
             ds >> eng.m_name;
@@ -250,7 +251,7 @@ quint32 BaseEngineDebugClient::addWatch(const PropertyReference &property)
     quint32 id = 0;
     if (state() == Enabled) {
         id = getId();
-        QPacket ds(connection()->currentDataStreamVersion());
+        QPacket ds(dataStreamVersion());
         ds << QByteArray("WATCH_PROPERTY") << id << property.m_objectDebugId
            << property.m_name.toUtf8();
         sendMessage(ds.data());
@@ -271,7 +272,7 @@ quint32 BaseEngineDebugClient::addWatch(const ObjectReference &object,
     quint32 id = 0;
     if (state() == Enabled) {
         id = getId();
-        QPacket ds(connection()->currentDataStreamVersion());
+        QPacket ds(dataStreamVersion());
         ds << QByteArray("WATCH_EXPR_OBJECT") << id << object.m_debugId << expr;
         sendMessage(ds.data());
     }
@@ -283,7 +284,7 @@ quint32 BaseEngineDebugClient::addWatch(int objectDebugId)
     quint32 id = 0;
     if (state() == Enabled) {
         id = getId();
-        QPacket ds(connection()->currentDataStreamVersion());
+        QPacket ds(dataStreamVersion());
         ds << QByteArray("WATCH_OBJECT") << id << objectDebugId;
         sendMessage(ds.data());
     }
@@ -299,7 +300,7 @@ quint32 BaseEngineDebugClient::addWatch(const FileReference &/*file*/)
 void BaseEngineDebugClient::removeWatch(quint32 id)
 {
     if (state() == Enabled) {
-        QPacket ds(connection()->currentDataStreamVersion());
+        QPacket ds(dataStreamVersion());
         ds << QByteArray("NO_WATCH") << id;
         sendMessage(ds.data());
     }
@@ -310,7 +311,7 @@ quint32 BaseEngineDebugClient::queryAvailableEngines()
     quint32 id = 0;
     if (state() == Enabled) {
         id = getId();
-        QPacket ds(connection()->currentDataStreamVersion());
+        QPacket ds(dataStreamVersion());
         ds << QByteArray("LIST_ENGINES") << id;
         sendMessage(ds.data());
     }
@@ -322,7 +323,7 @@ quint32 BaseEngineDebugClient::queryRootContexts(const EngineReference &engine)
     quint32 id = 0;
     if (state() == Enabled && engine.m_debugId != -1) {
         id = getId();
-        QPacket ds(connection()->currentDataStreamVersion());
+        QPacket ds(dataStreamVersion());
         ds << QByteArray("LIST_OBJECTS") << id << engine.m_debugId;
         sendMessage(ds.data());
     }
@@ -334,7 +335,7 @@ quint32 BaseEngineDebugClient::queryObject(int objectId)
     quint32 id = 0;
     if (state() == Enabled && objectId != -1) {
         id = getId();
-        QPacket ds(connection()->currentDataStreamVersion());
+        QPacket ds(dataStreamVersion());
         ds << QByteArray("FETCH_OBJECT") << id << objectId << false <<
               true;
         sendMessage(ds.data());
@@ -347,7 +348,7 @@ quint32 BaseEngineDebugClient::queryObjectRecursive(int objectId)
     quint32 id = 0;
     if (state() == Enabled && objectId != -1) {
         id = getId();
-        QPacket ds(connection()->currentDataStreamVersion());
+        QPacket ds(dataStreamVersion());
         ds << QByteArray("FETCH_OBJECT") << id << objectId << true <<
               true;
         sendMessage(ds.data());
@@ -362,7 +363,7 @@ quint32 BaseEngineDebugClient::queryExpressionResult(int objectDebugId,
     quint32 id = 0;
     if (state() == Enabled && objectDebugId != -1) {
         id = getId();
-        QPacket ds(connection()->currentDataStreamVersion());
+        QPacket ds(dataStreamVersion());
         ds << QByteArray("EVAL_EXPRESSION") << id << objectDebugId << expr
            << engineId;
         sendMessage(ds.data());
@@ -380,7 +381,7 @@ quint32 BaseEngineDebugClient::setBindingForObject(
     quint32 id = 0;
     if (state() == Enabled && objectDebugId != -1) {
         id = getId();
-        QPacket ds(connection()->currentDataStreamVersion());
+        QPacket ds(dataStreamVersion());
         ds << QByteArray("SET_BINDING") << id << objectDebugId << propertyName
            << bindingExpression << isLiteralValue << source << line;
         sendMessage(ds.data());
@@ -395,7 +396,7 @@ quint32 BaseEngineDebugClient::resetBindingForObject(
     quint32 id = 0;
     if (state() == Enabled && objectDebugId != -1) {
         id = getId();
-        QPacket ds(connection()->currentDataStreamVersion());
+        QPacket ds(dataStreamVersion());
         ds << QByteArray("RESET_BINDING") << id << objectDebugId << propertyName;
         sendMessage(ds.data());
     }
@@ -409,7 +410,7 @@ quint32 BaseEngineDebugClient::setMethodBody(
     quint32 id = 0;
     if (state() == Enabled && objectDebugId != -1) {
         id = getId();
-        QPacket ds(connection()->currentDataStreamVersion());
+        QPacket ds(dataStreamVersion());
         ds << QByteArray("SET_METHOD_BODY") << id << objectDebugId
            << methodName << methodBody;
         sendMessage(ds.data());
@@ -423,7 +424,7 @@ quint32 BaseEngineDebugClient::queryObjectsForLocation(
     quint32 id = 0;
     if (state() == Enabled) {
         id = getId();
-        QPacket ds(connection()->currentDataStreamVersion());
+        QPacket ds(dataStreamVersion());
         ds << QByteArray("FETCH_OBJECTS_FOR_LOCATION") << id <<
               fileName << lineNumber << columnNumber << false <<
               true;

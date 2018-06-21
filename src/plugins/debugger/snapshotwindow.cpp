@@ -29,7 +29,7 @@
 #include "debuggeractions.h"
 #include "debuggerinternalconstants.h"
 #include "debuggercore.h"
-#include "debuggerengine.h"
+#include "debuggerruncontrol.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>

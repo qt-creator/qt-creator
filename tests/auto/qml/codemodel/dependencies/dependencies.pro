@@ -25,10 +25,10 @@ DISTFILES += \
     samples/test_GridLayout.qml \
     samples/test_ListModel.qml \
     samples/test_ListView.qml \
+    samples/test_ListViewDelegate.qml \
     samples/test_LocalStorage.qml \
     samples/test_Material.qml \
     samples/test_MessageDialog.qml \
-    samples/test_ObjectModel.qml \
     samples/test_QtObject.qml \
     samples/test_RowLayout.qml \
     samples/test_SampleLib.qml \
@@ -47,5 +47,6 @@ DISTFILES += \
     samples/test_PieMenu.qml \
     samples/test_StatusIndicator.qml \
     samples/test_Tumbler.qml \
-    samples/test_TumblerColumn.qml
+    samples/test_TumblerColumn.qml \
+    samples/test_VisualItemModel.qml
 

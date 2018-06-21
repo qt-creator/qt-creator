@@ -35,16 +35,10 @@
 
 using namespace ProjectExplorer;
 
-DeviceCheckBuildStep::DeviceCheckBuildStep(BuildStepList *bsl, Core::Id id)
-    : BuildStep(bsl, id)
+DeviceCheckBuildStep::DeviceCheckBuildStep(BuildStepList *bsl)
+    : BuildStep(bsl, stepId())
 {
-    setDefaultDisplayName(stepDisplayName());
-}
-
-DeviceCheckBuildStep::DeviceCheckBuildStep(BuildStepList *bsl, DeviceCheckBuildStep *bs)
-    : BuildStep(bsl, bs)
-{
-    setDefaultDisplayName(stepDisplayName());
+    setDefaultDisplayName(displayName());
 }
 
 bool DeviceCheckBuildStep::init(QList<const BuildStep *> &earlierSteps)
@@ -55,7 +49,7 @@ bool DeviceCheckBuildStep::init(QList<const BuildStep *> &earlierSteps)
         Core::Id deviceTypeId = DeviceTypeKitInformation::deviceTypeId(target()->kit());
         IDeviceFactory *factory = IDeviceFactory::find(deviceTypeId);
         if (!factory || !factory->canCreate()) {
-            emit addOutput(tr("No device configured."), BuildStep::ErrorMessageOutput);
+            emit addOutput(tr("No device configured."), BuildStep::OutputFormat::ErrorMessage);
             return false;
         }
 
@@ -64,13 +58,13 @@ bool DeviceCheckBuildStep::init(QList<const BuildStep *> &earlierSteps)
                               QMessageBox::Yes|QMessageBox::No);
         msgBox.setDefaultButton(QMessageBox::Yes);
         if (msgBox.exec() == QMessageBox::No) {
-            emit addOutput(tr("No device configured."), BuildStep::ErrorMessageOutput);
+            emit addOutput(tr("No device configured."), BuildStep::OutputFormat::ErrorMessage);
             return false;
         }
 
         IDevice::Ptr newDevice = factory->create(deviceTypeId);
         if (newDevice.isNull()) {
-            emit addOutput(tr("No device configured."), BuildStep::ErrorMessageOutput);
+            emit addOutput(tr("No device configured."), BuildStep::OutputFormat::ErrorMessage);
             return false;
         }
 
@@ -98,7 +92,7 @@ Core::Id DeviceCheckBuildStep::stepId()
     return "ProjectExplorer.DeviceCheckBuildStep";
 }
 
-QString DeviceCheckBuildStep::stepDisplayName()
+QString DeviceCheckBuildStep::displayName()
 {
     return tr("Check for a configured device");
 }

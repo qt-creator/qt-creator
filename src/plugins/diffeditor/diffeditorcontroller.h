@@ -51,47 +51,46 @@ public:
     int contextLineCount() const;
     bool ignoreWhitespace() const;
 
-    QString revisionFromDescription() const;
+    enum PatchOption {
+        NoOption = 0,
+        Revert = 1,
+        AddPrefix = 2
+    };
+    Q_DECLARE_FLAGS(PatchOptions, PatchOption)
+    QString makePatch(int fileIndex, int chunkIndex, PatchOptions options) const;
 
-    QString makePatch(bool revert, bool addPrefix = false) const;
-
-    static Core::IDocument *findOrCreateDocument(const QString &vcsId, const QString &displayName);
+    static Core::IDocument *findOrCreateDocument(const QString &vcsId,
+                                                 const QString &displayName);
     static DiffEditorController *controller(Core::IDocument *document);
 
-public slots:
-    void informationForCommitReceived(const QString &output);
+    void requestChunkActions(QMenu *menu, int fileIndex, int chunkIndex);
+    bool chunkExists(int fileIndex, int chunkIndex) const;
+    Core::IDocument *document() const;
 
 signals:
-    void chunkActionsRequested(QMenu *menu, bool isValid);
-    void requestInformationForCommit(const QString &revision);
+    void chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex);
 
 protected:
     // reloadFinished() should be called
     // inside reload() (for synchronous reload)
     // or later (for asynchronous reload)
     virtual void reload() = 0;
-    virtual void reloadFinished(bool success);
+    void reloadFinished(bool success);
 
     void setDiffFiles(const QList<FileData> &diffFileList,
                       const QString &baseDirectory = QString(),
                       const QString &startupFile = QString());
     void setDescription(const QString &description);
+    QString description() const;
     void forceContextLineCount(int lines);
-    Core::IDocument *document() const;
 
 private:
-    void requestMoreInformation();
-    void requestChunkActions(QMenu *menu, int diffFileIndex, int chunkIndex);
-
-    QString prepareBranchesForCommit(const QString &output);
-
     Internal::DiffEditorDocument *const m_document;
-
-    bool m_isReloading;
-    int m_diffFileIndex;
-    int m_chunkIndex;
+    bool m_isReloading = false;
 
     friend class Internal::DiffEditorDocument;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(DiffEditorController::PatchOptions)
 
 } // namespace DiffEditor

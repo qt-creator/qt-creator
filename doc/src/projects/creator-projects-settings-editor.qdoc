@@ -50,7 +50,8 @@
 
     \list 1
 
-        \li Select \uicontrol Projects > \uicontrol Editor.
+        \li Select \uicontrol Projects > \uicontrol {Project Settings} >
+            \uicontrol Editor.
 
         \li In the \uicontrol {Editor settings} field, select \uicontrol {Custom}.
 

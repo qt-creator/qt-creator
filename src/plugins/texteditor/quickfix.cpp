@@ -55,12 +55,3 @@ void QuickFixOperation::setDescription(const QString &description)
 {
     _description = description;
 }
-
-QuickFixFactory::QuickFixFactory(QObject *parent)
-    : QObject(parent)
-{
-}
-
-QuickFixFactory::~QuickFixFactory()
-{
-}

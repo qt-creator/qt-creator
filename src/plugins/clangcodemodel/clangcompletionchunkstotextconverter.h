@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <clangbackendipc/codecompletionchunk.h>
+#include <clangsupport/codecompletion.h>
 
 #include <sqlite/utf8string.h>
 
@@ -54,6 +54,7 @@ public:
     void setEmphasizeOptional(bool emphasizeOptional); // Only for Html format
     void setAddOptional(bool addOptional);
     void setPlaceHolderToEmphasize(int placeHolderNumber);
+    void setCompletionKind(const ClangBackEnd::CodeCompletion::Kind kind);
 
     void setupForKeywords();
 
@@ -63,9 +64,12 @@ public:
 
     static QString convertToName(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks);
     static QString convertToKeywords(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks);
-    static QString convertToToolTipWithHtml(const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks);
+    static QString convertToToolTipWithHtml(
+            const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks,
+            ClangBackEnd::CodeCompletion::Kind codeCompletionKind);
     static QString convertToFunctionSignatureWithHtml(
             const ClangBackEnd::CodeCompletionChunks &codeCompletionChunks,
+            ClangBackEnd::CodeCompletion::Kind codeCompletionKind,
             int parameterToEmphasize = -1);
 
 private:
@@ -94,6 +98,7 @@ private:
     QString m_text;
     int m_placeHolderPositionToEmphasize = -1;
     TextFormat m_textFormat = TextFormat::Plain;
+    ClangBackEnd::CodeCompletion::Kind m_codeCompletionKind = ClangBackEnd::CodeCompletion::Other;
     bool m_addPlaceHolderText = false;
     bool m_addPlaceHolderPositions = false;
     bool m_addResultType = false;

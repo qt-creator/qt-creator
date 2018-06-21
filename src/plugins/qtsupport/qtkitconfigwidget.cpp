@@ -30,7 +30,6 @@
 #include "qtversionmanager.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>

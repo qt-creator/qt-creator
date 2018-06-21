@@ -26,6 +26,7 @@
 #pragma once
 
 #include "../iframeworksettings.h"
+#include "gtestconstants.h"
 
 namespace Autotest {
 namespace Internal {
@@ -43,6 +44,8 @@ public:
     bool repeat = false;
     bool throwOnFailure = false;
     bool breakOnFailure = true;
+    GTest::Constants::GroupMode groupMode = GTest::Constants::Directory;
+    QString gtestFilter{GTest::Constants::DEFAULT_FILTER};
 
 protected:
     void fromFrameworkSettings(const QSettings *s) override;

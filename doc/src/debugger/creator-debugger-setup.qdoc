@@ -41,8 +41,7 @@
     The main debugger settings are associated with the
     \l{glossary-buildandrun-kit}{kit} you build and run your project with. To
     specify the debugger and compiler to use for each kit, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol {Build and Run} >
-    \uicontrol Kits.
+    \uicontrol Tools > \uicontrol Options > \uicontrol Kits.
 
     You need to set up the debugger only if the automatic setup fails, because
     the native debugger is missing (as is usually the case for the CDB debugger
@@ -57,7 +56,7 @@
     kit for your project.
 
     If the debugger you want to use is not automatically detected, select
-    \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+    \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
     \uicontrol Debuggers > \uicontrol Add to add it.
 
     \note To use the debugging tools for Windows, you must install them and add
@@ -120,7 +119,7 @@
     or newer.
 
     For remote debugging using GDB and GDB server, the minimum supported version
-    of GDB server on the target device is 7.0.
+    of GDB server on the target \l{glossary-device}{device} is 7.0.
 
     \section2 Supported CDB Versions
 
@@ -170,67 +169,68 @@
 
     \section1 Installing Native Debuggers
 
-    Check the table below for the supported versions and other important
-    information about installing native debuggers.
+    The following sections provide information about installing native
+    debuggers.
 
-    \table
-        \header
-            \li Native Debugger
-            \li Notes
-        \row
-            \li GDB
-            \li On Windows, use the Python-enabled GDB versions that is bundled
-                with the Qt package or comes with recent versions of MinGW. On
-                most Linux distributions the GDB builds shipped with the system
-                are sufficient. You can also build your own. Follow the
-                instructions in \l{http://wiki.qt.io/QtCreator_Build_Gdb}
-                {Building GDB}. Builds of GDB shipped with Xcode on \macos are no
-                longer supported.
+    \section2 GDB
 
-        \row
-            \li Debugging tools for Windows
-            \li To use the CDB debugger, you must install the
-                \e{Debugging tools for Windows}. You can download them from
-                \l{http://msdn.microsoft.com/en-us/windows/hardware/gg463009/}
-                {Download and Install Debugging Tools for Windows}.
+    On Windows, use the Python-enabled GDB versions that is bundled
+    with the Qt package or comes with recent versions of MinGW. On
+    most Linux distributions, the GDB builds shipped with the system
+    are sufficient.
 
-                \note Visual Studio does not include the Debugging tools needed,
-                and therefore, you must install them separately.
+    You can also build your own GDB, as instructed in
+    \l{http://wiki.qt.io/QtCreator_Build_Gdb}{Building GDB}.
 
-                The pre-built \QSDK for Windows makes use of the library if it
-                is present on the system. When manually building \QC using
-                the Microsoft Visual C++ Compiler, the build process checks for
-                the required files in
-                \c{"%ProgramFiles%\Debugging Tools for Windows"}.
+    Builds of GDB shipped with Xcode on \macos are no longer supported.
 
-                It is highly recommended that you add the Symbol Server provided
-                by Microsoft to the symbol search path of the debugger. The
-                Symbol Server provides you with debugging informaton for the
-                operating system libraries for debugging Windows applications.
-                For more information, see
-                \l{Setting CDB Paths on Windows}.
+    \section2 Debugging Tools for Windows
 
-       \row
-            \li Debugging tools for \macos
-            \li The Qt binary distribution contains both debug and release
-                variants of the libraries. But you have to explicitly tell the
-                runtime linker that you want to use the debug libraries even if
-                your application is compiled as debug, as release is the default
-                library.
+    To use the CDB debugger, you must install the
+    \e{Debugging tools for Windows}. You can download them from
+    \l{https://developer.microsoft.com/windows/downloads/windows-10-sdk}
+    {Download and Install Debugging Tools for Windows} as part of the Windows
+    SDK.
 
-                If you use a qmake based project in \QC,  you can set a flag in
-                your \l{glossary-run-config}{run configuration}, in
-                \uicontrol Projects mode. In the run configuration, select
-                \uicontrol{Use debug version of frameworks}.
+    \note Visual Studio does not include the Debugging tools needed,
+    and therefore, you must install them separately.
 
-                For more detailed information about debugging on \macos,
-                see: \l{http://developer.apple.com/library/mac/#technotes/tn2124/_index.html#//apple_ref/doc/uid/DTS10003391}
-                {Mac OS X Debugging Magic}.
+    In addition, you must select \uicontrol {Qt Creator CDB Debugger Support}
+    (in \uicontrol Qt > \uicontrol Tools > \uicontrol {\QC}) when you install
+    Qt or the stand-alone \QC.
 
-       \row
-            \li LLDB
-            \li We recommend using the LLDB version that is delivered with Xcode 5.
-    \endtable
+    When manually building \QC using
+    the Microsoft Visual C++ Compiler, the build process checks for
+    the required files in
+    \c{"%ProgramFiles%\Debugging Tools for Windows"}.
+
+    It is highly recommended that you add the Symbol Server provided
+    by Microsoft to the symbol search path of the debugger. The
+    Symbol Server provides you with debugging informaton for the
+    operating system libraries for debugging Windows applications.
+    For more information, see
+    \l{Setting CDB Paths on Windows}.
+
+    \section2 Debugging Tools for \macos
+
+    The Qt binary distribution contains both debug and release
+    variants of the libraries. But you have to explicitly tell the
+    runtime linker that you want to use the debug libraries even if
+    your application is compiled as debug, as release is the default
+    library.
+
+    If you use a qmake based project in \QC,  you can set a flag in
+    your \l{glossary-run-config}{run configuration}, in
+    \uicontrol Projects mode. In the run configuration, select
+    \uicontrol{Use debug version of frameworks}.
+
+    For more detailed information about debugging on \macos,
+    see: \l{http://developer.apple.com/library/mac/#technotes/tn2124/_index.html#//apple_ref/doc/uid/DTS10003391}
+    {Mac OS X Debugging Magic}.
+
+    \section2 LLDB
+
+    We recommend using the LLDB version that is delivered with the latest Xcode.
 
     \section1 Mapping Source Paths
 
@@ -329,7 +329,7 @@
             \endcode
 
         \li In \QC, select \uicontrol {Qt Creator} > \uicontrol Preferences >
-            \uicontrol {Build & Run} > \uicontrol Kits > \uicontrol Add to
+            \uicontrol Kits > \uicontrol Add to
             create a kit that uses FSF GDB.
 
             \li In the \uicontrol Debugger field, specify the path to FSF GDB
@@ -349,14 +349,14 @@
     \list 1
 
         \li Select \uicontrol Tools > \uicontrol Options >
-            \uicontrol {Build & Run} > \uicontrol Kits.
+            \uicontrol Kits.
 
         \li Select an automatically created kit in the list, and then select
             \uicontrol Clone to create a copy of the kit.
 
         \li In the \uicontrol Debugger field, select an LLDB Engine. If an LLDB
             Engine is not listed, select \uicontrol Manage to add it in
-            \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+            \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
             \uicontrol Debuggers. For more information, see
             \l {Adding Debuggers}.
 

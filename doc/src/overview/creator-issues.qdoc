@@ -138,6 +138,9 @@
             paths may fail. For example, remounting parts of a file system
             using the --bind mount option.
 
+        \li  Setting breakpoints in files will fail when using LLDB if the file path
+            contains symbolic links.
+
         \li  A regression in GCC 4.5.0 causes return value optimization to
             produce inaccurate debug info that GCC applies also to
             non-optimized builds. For more information, see

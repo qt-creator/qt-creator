@@ -35,8 +35,6 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class Model;
-class ModelState;
 class StatesEditorModel;
 class StatesEditorView;
 class NodeInstanceView;
@@ -49,7 +47,7 @@ class StatesEditorWidget : public QQuickWidget
 
 public:
     StatesEditorWidget(StatesEditorView *m_statesEditorView, StatesEditorModel *statesEditorModel);
-    virtual ~StatesEditorWidget();
+    ~StatesEditorWidget() override;
 
     int currentStateInternalId() const;
     void setCurrentStateInternalId(int internalId);
@@ -59,9 +57,11 @@ public:
 
     static QString qmlSourcesPath();
 
-private slots:
+    void toggleStatesViewExpanded();
+
+private:
     void reloadQmlSource();
-    void changeHeight();
+    Q_SLOT void handleExpandedChanged();
 
 private:
     QPointer<StatesEditorView> m_statesEditorView;

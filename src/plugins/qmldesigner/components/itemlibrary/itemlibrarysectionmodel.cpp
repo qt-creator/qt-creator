@@ -27,6 +27,8 @@
 
 #include "itemlibraryitem.h"
 
+#include <QDebug>
+
 namespace QmlDesigner {
 
 ItemLibrarySectionModel::ItemLibrarySectionModel(QObject *parent) :

@@ -49,7 +49,6 @@ public:
     QMap<int,int> dirtyAreas() const
     { return m_dirtyAreas; }
 
-public slots:
     void replaced(int offset, int oldLength, int newLength);
     void moved(const TextModifier::MoveInfo &moveInfo);
 

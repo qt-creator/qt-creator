@@ -28,6 +28,8 @@
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
 
+#include "subscription.h"
+
 QT_FORWARD_DECLARE_CLASS(QIcon)
 
 namespace Utils { class Environment; }
@@ -39,7 +41,7 @@ class DeployConfiguration;
 class DeployConfigurationFactory;
 class DeploymentData;
 class IBuildConfigurationFactory;
-class IRunConfigurationFactory;
+class RunConfigurationFactory;
 class Kit;
 class NamedWidget;
 class Project;
@@ -52,17 +54,22 @@ class PROJECTEXPLORER_EXPORT Target : public ProjectConfiguration
     friend class SessionManager; // for setActiveBuild and setActiveDeployConfiguration
     Q_OBJECT
 
+    struct _constructor_tag { explicit _constructor_tag() = default; };
+
 public:
+    Target(Project *parent, Kit *k, _constructor_tag);
     ~Target() override;
 
-    Project *project() const;
+    Project *project() const override;
+
+    bool isActive() const final;
 
     // Kit:
     Kit *kit() const;
 
     // Build configuration
-    void addBuildConfiguration(BuildConfiguration *configuration);
-    bool removeBuildConfiguration(BuildConfiguration *configuration);
+    void addBuildConfiguration(BuildConfiguration *bc);
+    bool removeBuildConfiguration(BuildConfiguration *bc);
 
     QList<BuildConfiguration *> buildConfigurations() const;
     BuildConfiguration *activeBuildConfiguration() const;
@@ -80,13 +87,15 @@ public:
     void setApplicationTargets(const BuildTargetInfoList &appTargets);
     BuildTargetInfoList applicationTargets() const;
 
+    QList<ProjectConfiguration *> projectConfigurations() const;
+
     // Running
     QList<RunConfiguration *> runConfigurations() const;
-    void addRunConfiguration(RunConfiguration *runConfiguration);
-    void removeRunConfiguration(RunConfiguration *runConfiguration);
+    void addRunConfiguration(RunConfiguration *rc);
+    void removeRunConfiguration(RunConfiguration *rc);
 
     RunConfiguration *activeRunConfiguration() const;
-    void setActiveRunConfiguration(RunConfiguration *runConfiguration);
+    void setActiveRunConfiguration(RunConfiguration *rc);
 
     // Returns whether this target is actually available at he time
     // of the call. A target may become unavailable e.g. when a Qt version
@@ -96,11 +105,9 @@ public:
     bool isEnabled() const;
 
     QIcon icon() const;
-    void setIcon(QIcon icon);
     QIcon overlayIcon() const;
-    void setOverlayIcon(QIcon icon);
-    QString toolTip() const;
-    void setToolTip(const QString &text);
+    void setOverlayIcon(const QIcon &icon);
+    QString overlayIconToolTip();
 
     QVariantMap toMap() const override;
 
@@ -110,13 +117,37 @@ public:
 
     QVariant namedSettings(const QString &name) const;
     void setNamedSettings(const QString &name, const QVariant &value);
+
+    template<typename S, typename R, typename T>
+    void subscribeSignal(void (S::*sig)(), R*recv, T (R::*sl)()) {
+        new Internal::TargetSubscription([sig, recv, sl, this](ProjectConfiguration *pc) {
+            if (S* sender = qobject_cast<S*>(pc))
+                return connect(sender, sig, recv, sl);
+            return QMetaObject::Connection();
+        }, recv, this);
+    }
+
+    template<typename S, typename R, typename T>
+    void subscribeSignal(void (S::*sig)(), R*recv, T sl) {
+        new Internal::TargetSubscription([sig, recv, sl, this](ProjectConfiguration *pc) {
+            if (S* sender = qobject_cast<S*>(pc))
+                return connect(sender, sig, recv, sl);
+            return QMetaObject::Connection();
+        }, recv, this);
+    }
+
 signals:
     void targetEnabled(bool);
     void iconChanged();
     void overlayIconChanged();
-    void toolTipChanged();
 
     void kitChanged();
+
+    void aboutToRemoveProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
+    void removedProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
+    void addedProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
+
+    void activeProjectConfigurationChanged(ProjectExplorer::ProjectConfiguration *pc);
 
     // TODO clean up signal names
     // might be better to also have aboutToRemove signals
@@ -132,35 +163,16 @@ signals:
     void addedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
     void activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration *dc);
 
-    /// convenience signal, emitted if either the active buildconfiguration emits
-    /// environmentChanged() or if the active build configuration changes
-    void environmentChanged();
-
-    /// convenience signal, emitted if either the active configuration emits
-    /// enabledChanged() or if the active build configuration changes
-    void buildConfigurationEnabledChanged();
-    void deployConfigurationEnabledChanged();
-    void runConfigurationEnabledChanged();
-
     void deploymentDataChanged();
     void applicationTargetsChanged();
 
-    // Remove all the signals below, they are stupid
-    /// Emitted whenever the current build configuartion changed or the build directory of the current
-    /// build configuration was changed.
-    void buildDirectoryChanged();
-
 private:
-    Target(Project *parent, Kit *k);
     void setEnabled(bool);
 
     bool fromMap(const QVariantMap &map) override;
 
     void updateDeviceState();
-    void onBuildDirectoryChanged();
 
-    void changeEnvironment();
-    void changeBuildConfigurationEnabled();
     void changeDeployConfigurationEnabled();
     void changeRunConfigurationEnabled();
     void handleKitUpdates(ProjectExplorer::Kit *k);

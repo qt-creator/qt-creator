@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -37,19 +37,19 @@
 
     \title Using Other Build Systems
 
-    Most \QC project wizards create projects that are configured to use qmake. Most
-    of the instructions in this manual apply to using qmake. However, \QC is
-    also integrated to other build systems, as described in the the following
-    sections:
+    Most \QC project wizards enable you to choose the build system to use for
+    building the project: qmake, CMake, or Qbs. qmake is installed and
+    configured when you install Qt. To use one of the other supported build
+    systems, you need to set it up, as described in the the following sections:
 
     \list
 
-        \li \l{Setting Up a CMake Project}
+        \li \l{Setting Up CMake}
 
             CMake is an alternative to qmake for automating the generation of
             build configurations.
 
-        \li \l{Setting Up a Qbs Project}
+        \li \l{Setting Up Qbs}
 
             \l{Qbs Manual}{Qbs} is an all-in-one build
             tool that generates a build graph from a high-level project

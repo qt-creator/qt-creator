@@ -72,7 +72,7 @@ protected:
     CppRefactoringFile(TextEditor::TextEditorWidget *editor);
 
     CppRefactoringChangesData *data() const;
-    virtual void fileChanged();
+    void fileChanged() override;
 
     mutable CPlusPlus::Document::Ptr m_cppDocument;
 

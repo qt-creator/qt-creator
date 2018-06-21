@@ -27,7 +27,11 @@
 
 #include "cpptools_global.h"
 
+#include "cpprawprojectpart.h"
 #include "projectpart.h"
+
+#include <projectexplorer/project.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QHash>
 #include <QPointer>
@@ -35,6 +39,49 @@
 #include <QVector>
 
 namespace CppTools {
+
+class ToolChainInfo
+{
+public:
+    ToolChainInfo() = default;
+    ToolChainInfo(const ProjectExplorer::ToolChain *toolChain,
+                  const ProjectExplorer::Kit *kit);
+
+    bool isValid() const { return type.isValid(); }
+
+public:
+    Core::Id type;
+    bool isMsvc2015ToolChain = false;
+    unsigned wordWidth = 0;
+    QString targetTriple;
+    QStringList extraCodeModelFlags;
+
+    QString sysRootPath; // For headerPathsRunner.
+    ProjectExplorer::ToolChain::SystemHeaderPathsRunner headerPathsRunner;
+    ProjectExplorer::ToolChain::PredefinedMacrosRunner predefinedMacrosRunner;
+};
+
+class CPPTOOLS_EXPORT ProjectUpdateInfo
+{
+public:
+    ProjectUpdateInfo() = default;
+    ProjectUpdateInfo(ProjectExplorer::Project *project,
+                      const ProjectExplorer::ToolChain *cToolChain,
+                      const ProjectExplorer::ToolChain *cxxToolChain,
+                      const ProjectExplorer::Kit *kit,
+                      const RawProjectParts &rawProjectParts);
+    bool isValid() const { return project && !rawProjectParts.isEmpty(); }
+
+public:
+    QPointer<ProjectExplorer::Project> project;
+    QVector<RawProjectPart> rawProjectParts;
+
+    const ProjectExplorer::ToolChain *cToolChain = nullptr;
+    const ProjectExplorer::ToolChain *cxxToolChain = nullptr;
+
+    ToolChainInfo cToolChainInfo;
+    ToolChainInfo cxxToolChainInfo;
+};
 
 class CPPTOOLS_EXPORT ProjectInfo
 {
@@ -47,16 +94,6 @@ public:
     QPointer<ProjectExplorer::Project> project() const;
     const QVector<ProjectPart::Ptr> projectParts() const;
     const QSet<QString> sourceFiles() const;
-
-    struct CompilerCallGroup {
-        using CallsPerSourceFile = QHash<QString, QList<QStringList>>;
-
-        QString groupId;
-        CallsPerSourceFile callsPerSourceFile;
-    };
-    using CompilerCallData = QVector<CompilerCallGroup>;
-    void setCompilerCallData(const CompilerCallData &data);
-    CompilerCallData compilerCallData() const;
 
     // Comparisons
     bool operator ==(const ProjectInfo &other) const;
@@ -72,12 +109,11 @@ public:
 private:
     QPointer<ProjectExplorer::Project> m_project;
     QVector<ProjectPart::Ptr> m_projectParts;
-    CompilerCallData m_compilerCallData;
 
     // The members below are (re)calculated from the project parts with finish()
     ProjectPartHeaderPaths m_headerPaths;
     QSet<QString> m_sourceFiles;
-    QByteArray m_defines;
+    ProjectExplorer::Macros m_defines;
 };
 
 } // namespace CppTools

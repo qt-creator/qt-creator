@@ -31,21 +31,30 @@
 
 #include <utils/fileutils.h>
 
+#include <QVariant>
+
 namespace ProjectExplorer {
 
 class BuildInfo;
 class Kit;
 class Project;
 class Target;
+class ToolChain;
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT ProjectImporter : public QObject
 {
 public:
+    struct ToolChainData {
+        QList<ToolChain *> tcs;
+        bool areTemporary = false;
+    };
+
     ProjectImporter(const Utils::FileName &path);
-    virtual ~ProjectImporter();
+    ~ProjectImporter() override;
 
     const Utils::FileName projectFilePath() const { return m_projectPath; }
+    const Utils::FileName projectDirectory() const { return m_projectPath.parentDir(); }
 
     virtual QList<BuildInfo *> import(const Utils::FileName &importPath, bool silent = false);
     virtual QStringList importCandidates() = 0;
@@ -100,9 +109,14 @@ protected:
     // Does *any* kit feature the requested data yet?
     bool hasKitWithTemporaryData(Core::Id id, const QVariant &data) const;
 
+    ToolChainData findOrCreateToolChains(const Utils::FileName &toolChainPath, const Core::Id &language) const;
+
 private:
     void markKitAsTemporary(Kit *k) const;
     bool findTemporaryHandler(Core::Id id) const;
+
+    void cleanupTemporaryToolChains(ProjectExplorer::Kit *k, const QVariantList &vl);
+    void persistTemporaryToolChains(ProjectExplorer::Kit *k, const QVariantList &vl);
 
     const Utils::FileName m_projectPath;
     mutable bool m_isUpdating = false;

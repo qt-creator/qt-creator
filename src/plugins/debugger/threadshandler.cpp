@@ -273,7 +273,7 @@ static ThreadItem *itemForThreadId(const ThreadsHandler *handler, ThreadId threa
 static int indexForThreadId(const ThreadsHandler *handler, ThreadId threadId)
 {
     ThreadItem *item = itemForThreadId(handler, threadId);
-    return item ? handler->rootItem()->children().indexOf(item) : -1;
+    return item ? handler->rootItem()->indexOf(item) : -1;
 }
 
 int ThreadsHandler::currentThreadIndex() const

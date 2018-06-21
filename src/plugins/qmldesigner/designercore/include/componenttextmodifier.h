@@ -34,7 +34,7 @@ class ComponentTextModifier: public TextModifier
     Q_OBJECT
 public:
     ComponentTextModifier(TextModifier *originalModifier, int componentStartOffset, int componentEndOffset, int rootStartOffset);
-    ~ComponentTextModifier();
+    ~ComponentTextModifier() override;
 
     void replace(int offset, int length, const QString& replacement) override;
     void move(const MoveInfo &moveInfo) override;
@@ -60,9 +60,6 @@ public:
     { return m_originalModifier->autoComplete(textDocument, position, explicitComplete); }
     bool moveToComponent(int /* nodeOffset */) override
     { return false; }
-
-public slots:
-    void contentsChange(int position, int charsRemoved, int charsAdded);
 
 private:
     TextModifier *m_originalModifier;

@@ -41,7 +41,7 @@ class EditorArea : public SplitterOrView
 
 public:
     EditorArea();
-    ~EditorArea();
+    ~EditorArea() override;
 
     IDocument *currentDocument() const;
 

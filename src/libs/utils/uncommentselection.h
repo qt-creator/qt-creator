@@ -38,10 +38,12 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT CommentDefinition
 {
 public:
-    CommentDefinition();
+    static CommentDefinition CppStyle;
+    static CommentDefinition HashStyle;
 
-    enum Style { NoStyle, CppStyle, HashStyle };
-    void setStyle(Style style);
+    CommentDefinition();
+    CommentDefinition(const QString &single,
+                      const QString &multiStart = QString(), const QString &multiEnd = QString());
 
     bool isValid() const;
     bool hasSingleLineStyle() const;

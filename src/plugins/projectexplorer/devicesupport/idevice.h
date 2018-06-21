@@ -28,12 +28,16 @@
 #include "../projectexplorer_export.h"
 
 #include <coreplugin/id.h>
+#include <utils/hostosinfo.h>
 
 #include <QAbstractSocket>
 #include <QList>
 #include <QObject>
 #include <QSharedPointer>
+#include <QUrl>
 #include <QVariantMap>
+
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QWidget;
@@ -54,6 +58,9 @@ class Connection;
 class DeviceProcess;
 class DeviceProcessList;
 class Kit;
+class Runnable;
+class RunControl;
+class RunWorker;
 
 namespace Internal { class IDevicePrivate; }
 
@@ -105,12 +112,12 @@ public:
     typedef QSharedPointer<const PortsGatheringMethod> Ptr;
 
     virtual ~PortsGatheringMethod() = default;
-    virtual QByteArray commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const = 0;
+    virtual Runnable runnable(QAbstractSocket::NetworkLayerProtocol protocol) const = 0;
     virtual QList<Utils::Port> usedPorts(const QByteArray &commandOutput) const = 0;
 };
 
 // See cpp file for documentation.
-class PROJECTEXPLORER_EXPORT IDevice
+class PROJECTEXPLORER_EXPORT IDevice : public QEnableSharedFromThis<IDevice>
 {
 public:
     typedef QSharedPointer<IDevice> Ptr;
@@ -146,21 +153,24 @@ public:
     virtual IDeviceWidget *createWidget() = 0;
     virtual QList<Core::Id> actionIds() const = 0;
     virtual QString displayNameForActionId(Core::Id actionId) const = 0;
-    virtual void executeAction(Core::Id actionId, QWidget *parent = 0) = 0;
+    virtual void executeAction(Core::Id actionId, QWidget *parent = nullptr) = 0;
 
     // Devices that can auto detect ports need not return a ports gathering method. Such devices can
     // obtain a free port on demand. eg: Desktop device.
     virtual bool canAutoDetectPorts() const { return false; }
     virtual PortsGatheringMethod::Ptr portsGatheringMethod() const;
     virtual bool canCreateProcessModel() const { return false; }
-    virtual DeviceProcessList *createProcessListModel(QObject *parent = 0) const;
+    virtual DeviceProcessList *createProcessListModel(QObject *parent = nullptr) const;
     virtual bool hasDeviceTester() const { return false; }
     virtual DeviceTester *createDeviceTester() const;
+    virtual Utils::OsType osType() const;
 
     virtual bool canCreateProcess() const { return false; }
     virtual DeviceProcess *createProcess(QObject *parent) const;
     virtual DeviceProcessSignalOperation::Ptr signalOperation() const = 0;
     virtual DeviceEnvironmentFetcher::Ptr environmentFetcher() const;
+
+    virtual std::function<RunWorker *(RunControl *)> workerCreator(Core::Id) const { return {}; }
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
     DeviceState deviceState() const;
@@ -181,7 +191,7 @@ public:
     void setSshParameters(const QSsh::SshConnectionParameters &sshParameters);
 
     enum ControlChannelHint { QmlControlChannel };
-    virtual Connection toolControlChannel(const ControlChannelHint &) const;
+    virtual QUrl toolControlChannel(const ControlChannelHint &) const;
 
     Utils::PortList freePorts() const;
     void setFreePorts(const Utils::PortList &freePorts);
@@ -191,13 +201,13 @@ public:
     QString debugServerPath() const;
     void setDebugServerPath(const QString &path);
 
+    QString qmlsceneCommand() const;
+    void setQmlsceneCommand(const QString &path);
+
 protected:
     IDevice();
     IDevice(Core::Id type, Origin origin, MachineType machineType, Core::Id id = Core::Id());
     IDevice(const IDevice &other);
-
-    Ptr sharedFromThis();
-    ConstPtr sharedFromThis() const;
 
 private:
     IDevice &operator=(const IDevice &); // Unimplemented.
@@ -225,7 +235,7 @@ signals:
     void finished(ProjectExplorer::DeviceTester::TestResult result);
 
 protected:
-    explicit DeviceTester(QObject *parent = 0);
+    explicit DeviceTester(QObject *parent = nullptr);
 };
 
 } // namespace ProjectExplorer

@@ -113,6 +113,10 @@ void ValgrindBaseSettings::fromMap(const QVariantMap &map)
     emit changed();
 }
 
+ValgrindBaseSettings::ValgrindBaseSettings(ProjectExplorer::RunConfiguration *runConfiguration) :
+    ProjectExplorer::ISettingsAspect(runConfiguration)
+{}
+
 void ValgrindBaseSettings::toMap(QVariantMap &map) const
 {
     // General
@@ -143,10 +147,7 @@ void ValgrindBaseSettings::toMap(QVariantMap &map) const
 
 void ValgrindBaseSettings::setValgrindExecutable(const QString &valgrindExecutable)
 {
-    if (m_valgrindExecutable != valgrindExecutable) {
-        m_valgrindExecutable = valgrindExecutable;
-        emit valgrindExecutableChanged(valgrindExecutable);
-    }
+    m_valgrindExecutable = valgrindExecutable;
 }
 
 void ValgrindBaseSettings::setSelfModifyingCodeDetection(int smcDetection)
@@ -473,6 +474,11 @@ void ValgrindGlobalSettings::setShortenTemplates(bool on)
 // ValgrindProjectSettings
 //
 //////////////////////////////////////////////////////////////////
+
+ValgrindProjectSettings::ValgrindProjectSettings(
+        ProjectExplorer::RunConfiguration *runConfiguration) :
+    ValgrindBaseSettings(runConfiguration)
+{}
 
 QWidget *ValgrindProjectSettings::createConfigWidget(QWidget *parent)
 {

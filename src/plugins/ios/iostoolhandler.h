@@ -62,7 +62,7 @@ public:
     void requestRunApp(const QString &bundlePath, const QStringList &extraArgs, RunKind runType,
                             const QString &deviceId, int timeout = 1000);
     void requestDeviceInfo(const QString &deviceId, int timeout = 1000);
-    bool isRunning();
+    bool isRunning() const;
     void stop();
 
 signals:
@@ -83,9 +83,6 @@ signals:
     void errorMsg(Ios::IosToolHandler *handler, const QString &msg);
     void toolExited(Ios::IosToolHandler *handler, int code);
     void finished(Ios::IosToolHandler *handler);
-
-protected:
-    void killProcess();
 
 private:
     friend class Ios::Internal::IosToolHandlerPrivate;

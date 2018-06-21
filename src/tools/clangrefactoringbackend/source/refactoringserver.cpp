@@ -27,25 +27,28 @@
 
 #include "symbolfinder.h"
 #include "clangquery.h"
+#include "symbolindexing.h"
 
 #include <refactoringclientinterface.h>
-#include <requestsourcelocationforrenamingmessage.h>
-#include <requestsourcerangesanddiagnosticsforquerymessage.h>
-#include <sourcelocationsforrenamingmessage.h>
-#include <sourcerangesanddiagnosticsforquerymessage.h>
+#include <clangrefactoringmessages.h>
 
 #include <QCoreApplication>
 
-#include <algorithm>
-#include <chrono>
-#include <future>
+#include <functional>
 #include <atomic>
 
 namespace ClangBackEnd {
 
-RefactoringServer::RefactoringServer()
+RefactoringServer::RefactoringServer(SymbolIndexingInterface &symbolIndexing,
+                                     FilePathCachingInterface &filePathCache)
+    : m_symbolIndexing(symbolIndexing),
+      m_filePathCache(filePathCache)
 {
-    pollEventLoop = [] () { QCoreApplication::processEvents(); };
+    m_pollTimer.setInterval(100);
+
+    QObject::connect(&m_pollTimer,
+                     &QTimer::timeout,
+                     std::bind(&RefactoringServer::pollSourceRangesForQueryMessages, this));
 }
 
 void RefactoringServer::end()
@@ -55,127 +58,109 @@ void RefactoringServer::end()
 
 void RefactoringServer::requestSourceLocationsForRenamingMessage(RequestSourceLocationsForRenamingMessage &&message)
 {
-    SymbolFinder symbolFinder(message.line(), message.column());
+    SymbolFinder symbolFinder(message.line, message.column, m_filePathCache);
 
-    symbolFinder.addFile(message.filePath().directory(),
-                         message.filePath().name(),
-                         message.unsavedContent(),
-                         message.commandLine());
+    symbolFinder.addFile(std::string(message.filePath.directory()),
+                         std::string(message.filePath.name()),
+                         std::string(message.unsavedContent),
+                         std::vector<std::string>(message.commandLine));
 
     symbolFinder.findSymbol();
 
     client()->sourceLocationsForRenamingMessage({symbolFinder.takeSymbolName(),
                                                  symbolFinder.takeSourceLocations(),
-                                                 message.textDocumentRevision()});
+                                                 message.textDocumentRevision});
 }
 
 void RefactoringServer::requestSourceRangesAndDiagnosticsForQueryMessage(
         RequestSourceRangesAndDiagnosticsForQueryMessage &&message)
 {
-    gatherSourceRangesAndDiagnosticsForQueryMessage(message.takeSources(),
-                                                    message.takeUnsavedContent(),
-                                                    message.takeQuery());
+    ClangQuery clangQuery(m_filePathCache, message.takeQuery());
+
+    clangQuery.addFile(std::string(message.source.filePath.directory()),
+                       std::string(message.source.filePath.name()),
+                       std::string(message.source.unsavedFileContent),
+                       std::vector<std::string>(message.source.commandLineArguments));
+
+    clangQuery.findLocations();
+
+    client()->sourceRangesAndDiagnosticsForQueryMessage({clangQuery.takeSourceRanges(),
+                                                         clangQuery.takeDiagnosticContainers()});
+}
+
+void RefactoringServer::requestSourceRangesForQueryMessage(RequestSourceRangesForQueryMessage &&message)
+{
+    gatherSourceRangesForQueryMessages(message.takeSources(),
+                                                     message.takeUnsavedContent(),
+                                       message.takeQuery());
+}
+
+void RefactoringServer::updateProjectParts(UpdateProjectPartsMessage &&message)
+{
+    m_symbolIndexing.updateProjectParts(message.takeProjectsParts(), message.takeGeneratedFiles());
+}
+
+void RefactoringServer::removeProjectParts(RemoveProjectPartsMessage &&)
+{
+
 }
 
 void RefactoringServer::cancel()
 {
-    cancelWork = true;
+    m_gatherer.waitForFinished();
+    m_gatherer = ClangQueryGatherer();
+    m_pollTimer.stop();
 }
 
 bool RefactoringServer::isCancelingJobs() const
 {
-    return cancelWork;
+    return m_gatherer.isFinished();
 }
 
-void RefactoringServer::supersedePollEventLoop(std::function<void ()> &&pollEventLoop)
+void RefactoringServer::pollSourceRangesForQueryMessages()
 {
-    this->pollEventLoop = std::move(pollEventLoop);
+    for (auto &&message : m_gatherer.finishedMessages())
+        client()->sourceRangesForQueryMessage(std::move(message));
+
+    if (!m_gatherer.isFinished())
+        m_gatherer.startCreateNextSourceRangesMessages();
+    else
+        m_pollTimer.stop();
 }
 
-namespace {
-
-SourceRangesAndDiagnosticsForQueryMessage createSourceRangesAndDiagnosticsForQueryMessage(
-        V2::FileContainer &&source,
-        std::vector<V2::FileContainer> &&unsaved,
-        Utils::SmallString &&query,
-        const std::atomic_bool &cancelWork) {
-    ClangQuery clangQuery(std::move(query));
-
-    if (!cancelWork) {
-        clangQuery.addFile(source.filePath().directory(),
-                           source.filePath().name(),
-                           source.takeUnsavedFileContent(),
-                           source.takeCommandLineArguments());
-
-        clangQuery.addUnsavedFiles(std::move(unsaved));
-
-        clangQuery.findLocations();
+void RefactoringServer::waitThatSourceRangesForQueryMessagesAreFinished()
+{
+    while (!m_gatherer.isFinished()) {
+        m_gatherer.waitForFinished();
+        pollSourceRangesForQueryMessages();
     }
-
-    return {clangQuery.takeSourceRanges(), clangQuery.takeDiagnosticContainers()};
 }
 
-
+bool RefactoringServer::pollTimerIsActive() const
+{
+    return m_pollTimer.isActive();
 }
 
-void RefactoringServer::gatherSourceRangesAndDiagnosticsForQueryMessage(
+void RefactoringServer::setGathererProcessingSlotCount(uint count)
+{
+    m_gatherer.setProcessingSlotCount(count);
+}
+
+void RefactoringServer::gatherSourceRangesForQueryMessages(
         std::vector<V2::FileContainer> &&sources,
         std::vector<V2::FileContainer> &&unsaved,
         Utils::SmallString &&query)
 {
-    std::vector<Future> futures;
-
 #ifdef _WIN32
-    std::size_t freeProcessors = 1;
+    uint freeProcessors = 1;
 #else
-    std::size_t freeProcessors = std::thread::hardware_concurrency();
+    uint freeProcessors = std::thread::hardware_concurrency();
 #endif
 
-    while (!sources.empty() || !futures.empty()) {
-        --freeProcessors;
+    m_gatherer = ClangQueryGatherer(&m_filePathCache, std::move(sources), std::move(unsaved), std::move(query));
+    m_gatherer.setProcessingSlotCount(freeProcessors);
 
-        if (!sources.empty()) {
-            Future &&future = std::async(std::launch::async,
-                                         createSourceRangesAndDiagnosticsForQueryMessage,
-                                         std::move(sources.back()),
-                                         Utils::clone(unsaved),
-                                         query.clone(),
-                                         std::ref(cancelWork));
-            sources.pop_back();
-
-            futures.emplace_back(std::move(future));
-        }
-
-        if (freeProcessors == 0 || sources.empty())
-            freeProcessors += waitForNewSourceRangesAndDiagnosticsForQueryMessage(futures);
-    }
-}
-
-std::size_t RefactoringServer::waitForNewSourceRangesAndDiagnosticsForQueryMessage(std::vector<Future> &futures)
-{
-    while (true) {
-        pollEventLoop();
-
-        std::vector<Future> readyFutures;
-        readyFutures.reserve(futures.size());
-
-        auto beginReady = std::partition(futures.begin(),
-                                         futures.end(),
-                                         [] (const Future &future) {
-            return future.wait_for(std::chrono::duration<int>::zero()) != std::future_status::ready;
-        });
-
-        std::move(beginReady, futures.end(), std::back_inserter(readyFutures));
-        futures.erase(beginReady, futures.end());
-
-        for (Future &readyFuture : readyFutures)
-            client()->sourceRangesAndDiagnosticsForQueryMessage(readyFuture.get());
-
-        if (readyFutures.empty())
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
-        else
-            return readyFutures.size();
-    }
+    m_pollTimer.start();
 }
 
 } // namespace ClangBackEnd

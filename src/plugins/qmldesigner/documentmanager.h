@@ -43,7 +43,7 @@ class QMLDESIGNERCORE_EXPORT DocumentManager : public QObject
     Q_OBJECT
 public:
     DocumentManager();
-    ~DocumentManager();
+    ~DocumentManager() override;
 
     void setCurrentDesignDocument(Core::IEditor*editor);
     DesignDocument *currentDesignDocument() const;
@@ -56,6 +56,7 @@ public:
     static bool createFile(const QString &filePath, const QString &contents);
     static void addFileToVersionControl(const QString &directoryPath, const QString &newFilePath);
     static Utils::FileName currentFilePath();
+    static Utils::FileName currentProjectDirPath();
 
     static QStringList isoIconsQmakeVariableValue(const QString &proPath);
     static bool setIsoIconsQmakeVariableValue(const QString &proPath, const QStringList &value);
@@ -63,6 +64,7 @@ public:
         QString *resourceFileProPath, const QString &isoIconsQrcFile);
     static bool isoProFileSupportsAddingExistingFiles(const QString &resourceFileProPath);
     static bool addResourceFileToIsoProject(const QString &resourceFileProPath, const QString &resourceFilePath);
+    static bool belongsToQmakeProject();
 
 private:
     QHash<Core::IEditor *,QPointer<DesignDocument> > m_designDocumentHash;

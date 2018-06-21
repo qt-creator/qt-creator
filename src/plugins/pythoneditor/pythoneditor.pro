@@ -3,9 +3,6 @@ include(../../qtcreatorplugin.pri)
 DEFINES += \
     PYTHONEDITOR_LIBRARY
 
-RESOURCES += \
-    pythoneditorplugin.qrc
-
 HEADERS += \
     pythoneditorplugin.h \
     pythoneditor.h \

@@ -23,13 +23,15 @@
 **
 ****************************************************************************/
 
+#include "assistinterface.h"
+#include "assistproposalitem.h"
 #include "genericproposal.h"
 #include "genericproposalmodel.h"
 #include "genericproposalwidget.h"
 
 namespace TextEditor {
 
-GenericProposal::GenericProposal(int cursorPos, GenericProposalModel *model)
+GenericProposal::GenericProposal(int cursorPos, GenericProposalModelPtr model)
     : IAssistProposal(cursorPos)
     , m_model(model)
 {}
@@ -44,12 +46,38 @@ GenericProposal::GenericProposal(int cursorPos, const QList<AssistProposalItemIn
 GenericProposal::~GenericProposal()
 {}
 
-bool GenericProposal::isFragile() const
+GenericProposal *GenericProposal::createProposal(const AssistInterface *interface, const QuickFixOperations &quickFixes)
 {
-    return false;
+    if (quickFixes.isEmpty())
+        return nullptr;
+
+    QList<AssistProposalItemInterface *> items;
+    foreach (const QuickFixOperation::Ptr &op, quickFixes) {
+        QVariant v;
+        v.setValue(op);
+        AssistProposalItem *item = new AssistProposalItem;
+        item->setText(op->description());
+        item->setData(v);
+        item->setOrder(op->priority());
+        items.append(item);
+    }
+
+    return new GenericProposal(interface->position(), items);
 }
 
-IAssistProposalModel *GenericProposal::model() const
+bool GenericProposal::hasItemsToPropose(const QString &prefix, AssistReason reason) const
+{
+    if (!prefix.isEmpty()) {
+        if (m_model->containsDuplicates())
+            m_model->removeDuplicates();
+        m_model->filter(prefix);
+        m_model->setPrefilterPrefix(prefix);
+    }
+
+    return m_model->hasItemsToPropose(prefix, reason);
+}
+
+ProposalModelPtr GenericProposal::model() const
 {
     return m_model;
 }

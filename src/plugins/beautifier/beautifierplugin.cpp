@@ -45,17 +45,18 @@
 #include <diffeditor/differ.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
-#include <texteditor/convenience.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/algorithm.h>
+#include <utils/textutils.h>
 #include <utils/fileutils.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
+#include <utils/temporarydirectory.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -71,6 +72,27 @@ using namespace TextEditor;
 namespace Beautifier {
 namespace Internal {
 
+struct FormatTask
+{
+    FormatTask(QPlainTextEdit *_editor, const QString &_filePath, const QString &_sourceData,
+               const Command &_command, int _startPos = -1, int _endPos = 0) :
+        editor(_editor),
+        filePath(_filePath),
+        sourceData(_sourceData),
+        command(_command),
+        startPos(_startPos),
+        endPos(_endPos) {}
+
+    QPointer<QPlainTextEdit> editor;
+    QString filePath;
+    QString sourceData;
+    Command command;
+    int startPos = -1;
+    int endPos = 0;
+    QString formattedData;
+    QString error;
+};
+
 FormatTask format(FormatTask task)
 {
     task.error.clear();
@@ -84,7 +106,8 @@ FormatTask format(FormatTask task)
     case Command::FileProcessing: {
         // Save text to temporary file
         const QFileInfo fi(task.filePath);
-        Utils::TempFileSaver sourceFile(QDir::tempPath() + "/qtc_beautifier_XXXXXXXX."
+        Utils::TempFileSaver sourceFile(Utils::TemporaryDirectory::masterDirectoryPath()
+                                        + "/qtc_beautifier_XXXXXXXX."
                                         + fi.suffix());
         sourceFile.setAutoRemove(true);
         sourceFile.write(task.sourceData.toUtf8());
@@ -146,17 +169,16 @@ FormatTask format(FormatTask task)
             return task;
         }
 
-        const bool addsNewline = task.command.pipeAddsNewline();
-        const bool returnsCRLF = task.command.returnsCRLF();
-        if (addsNewline || returnsCRLF) {
-            task.formattedData = QString::fromUtf8(process.readAllStandardOutput());
-            if (addsNewline)
-                task.formattedData.remove(QRegExp("(\\r\\n|\\n)$"));
-            if (returnsCRLF)
-                task.formattedData.replace("\r\n", "\n");
-            return task;
-        }
         task.formattedData = QString::fromUtf8(process.readAllStandardOutput());
+
+        if (task.command.pipeAddsNewline() && task.formattedData.endsWith('\n')) {
+            task.formattedData.chop(1);
+            if (task.formattedData.endsWith('\r'))
+                task.formattedData.chop(1);
+        }
+        if (task.command.returnsCRLF())
+            task.formattedData.replace("\r\n", "\n");
+
         return task;
     }
     }
@@ -168,7 +190,7 @@ QString sourceData(TextEditorWidget *editor, int startPos, int endPos)
 {
     return (startPos < 0)
             ? editor->toPlainText()
-            : Convenience::textAt(editor->textCursor(), startPos, (endPos - startPos));
+            : Utils::Text::textAt(editor->textCursor(), startPos, (endPos - startPos));
 }
 
 bool isAutoFormatApplicable(const Core::IDocument *document,
@@ -180,12 +202,39 @@ bool isAutoFormatApplicable(const Core::IDocument *document,
     if (allowedMimeTypes.isEmpty())
         return true;
 
-    const Utils::MimeDatabase mdb;
-    const Utils::MimeType documentMimeType = mdb.mimeTypeForName(document->mimeType());
+    const Utils::MimeType documentMimeType = Utils::mimeTypeForName(document->mimeType());
     return Utils::anyOf(allowedMimeTypes, [&documentMimeType](const Utils::MimeType &mime) {
         return documentMimeType.inherits(mime.name());
     });
 }
+
+class BeautifierPluginPrivate : public QObject
+{
+public:
+    BeautifierPluginPrivate();
+
+    void updateActions(Core::IEditor *editor = nullptr);
+
+    void formatEditor(TextEditor::TextEditorWidget *editor, const Command &command,
+                      int startPos = -1, int endPos = 0);
+    void formatEditorAsync(TextEditor::TextEditorWidget *editor, const Command &command,
+                           int startPos = -1, int endPos = 0);
+    void checkAndApplyTask(const FormatTask &task);
+    void updateEditorText(QPlainTextEdit *editor, const QString &text);
+
+    void autoFormatOnSave(Core::IDocument *document);
+
+    QSharedPointer<GeneralSettings> m_generalSettings;
+    QHash<QObject*, QMetaObject::Connection> m_autoFormatConnections;
+
+    ArtisticStyle::ArtisticStyle artisticStyleBeautifier;
+    ClangFormat::ClangFormat clangFormatBeautifier;
+    Uncrustify::Uncrustify uncrustifyBeautifier;
+
+    QList<BeautifierAbstractTool *> m_tools;
+};
+
+static BeautifierPluginPrivate *dd = nullptr;
 
 bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
@@ -193,7 +242,7 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
     Q_UNUSED(errorString)
 
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::MENU_ID);
-    menu->menu()->setTitle(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
+    menu->menu()->setTitle(QCoreApplication::translate("Beautifier", "Bea&utifier"));
     menu->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
     return true;
@@ -201,45 +250,38 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
 
 void BeautifierPlugin::extensionsInitialized()
 {
-    m_tools << new ArtisticStyle::ArtisticStyle(this);
-    m_tools << new ClangFormat::ClangFormat(this);
-    m_tools << new Uncrustify::Uncrustify(this);
+    dd = new BeautifierPluginPrivate;
+}
 
+BeautifierPluginPrivate::BeautifierPluginPrivate()
+    : m_tools({&artisticStyleBeautifier, &uncrustifyBeautifier, &clangFormatBeautifier})
+{
     QStringList toolIds;
     toolIds.reserve(m_tools.count());
     for (BeautifierAbstractTool *tool : m_tools) {
         toolIds << tool->id();
         tool->initialize();
-        const QList<QObject *> autoReleasedObjects = tool->autoReleaseObjects();
-        for (QObject *object : autoReleasedObjects)
-            addAutoReleasedObject(object);
     }
 
-    m_generalSettings = new GeneralSettings;
-    auto settingsPage = new GeneralOptionsPage(m_generalSettings, toolIds, this);
-    addAutoReleasedObject(settingsPage);
+    m_generalSettings.reset(new GeneralSettings);
+    new GeneralOptionsPage(m_generalSettings, toolIds, this);
 
     updateActions();
 
     const Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::currentEditorChanged,
-            this, &BeautifierPlugin::updateActions);
+            this, &BeautifierPluginPrivate::updateActions);
     connect(editorManager, &Core::EditorManager::aboutToSave,
-            this, &BeautifierPlugin::autoFormatOnSave);
+            this, &BeautifierPluginPrivate::autoFormatOnSave);
 }
 
-ExtensionSystem::IPlugin::ShutdownFlag BeautifierPlugin::aboutToShutdown()
-{
-    return SynchronousShutdown;
-}
-
-void BeautifierPlugin::updateActions(Core::IEditor *editor)
+void BeautifierPluginPrivate::updateActions(Core::IEditor *editor)
 {
     for (BeautifierAbstractTool *tool : m_tools)
         tool->updateActions(editor);
 }
 
-void BeautifierPlugin::autoFormatOnSave(Core::IDocument *document)
+void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
 {
     if (!m_generalSettings->autoFormatOnSave())
         return;
@@ -250,8 +292,7 @@ void BeautifierPlugin::autoFormatOnSave(Core::IDocument *document)
     // Check if file is contained in the current project (if wished)
     if (m_generalSettings->autoFormatOnlyCurrentProject()) {
         const ProjectExplorer::Project *pro = ProjectExplorer::ProjectTree::currentProject();
-        if (!pro || !pro->files(ProjectExplorer::Project::SourceFiles).contains(
-                    document->filePath().toString())) {
+        if (!pro || !pro->files(ProjectExplorer::Project::SourceFiles).contains(document->filePath())) {
             return;
         }
     }
@@ -276,8 +317,9 @@ void BeautifierPlugin::autoFormatOnSave(Core::IDocument *document)
 
 void BeautifierPlugin::formatCurrentFile(const Command &command, int startPos, int endPos)
 {
+    QTC_ASSERT(dd, return);
     if (TextEditorWidget *editor = TextEditorWidget::currentTextEditorWidget())
-        formatEditorAsync(editor, command, startPos, endPos);
+        dd->formatEditorAsync(editor, command, startPos, endPos);
 }
 
 /**
@@ -287,8 +329,8 @@ void BeautifierPlugin::formatCurrentFile(const Command &command, int startPos, i
  *
  * @pre @a endPos must be greater than or equal to @a startPos
  */
-void BeautifierPlugin::formatEditor(TextEditorWidget *editor, const Command &command, int startPos,
-                                    int endPos)
+void BeautifierPluginPrivate::formatEditor(TextEditorWidget *editor, const Command &command,
+                                           int startPos, int endPos)
 {
     QTC_ASSERT(startPos <= endPos, return);
 
@@ -302,8 +344,8 @@ void BeautifierPlugin::formatEditor(TextEditorWidget *editor, const Command &com
 /**
  * Behaves like formatEditor except that the formatting is done asynchronously.
  */
-void BeautifierPlugin::formatEditorAsync(TextEditorWidget *editor, const Command &command,
-                                         int startPos, int endPos)
+void BeautifierPluginPrivate::formatEditorAsync(TextEditorWidget *editor, const Command &command,
+                                                int startPos, int endPos)
 {
     QTC_ASSERT(startPos <= endPos, return);
 
@@ -316,7 +358,7 @@ void BeautifierPlugin::formatEditorAsync(TextEditorWidget *editor, const Command
     connect(doc, &TextDocument::contentsChanged, watcher, &QFutureWatcher<FormatTask>::cancel);
     connect(watcher, &QFutureWatcherBase::finished, [this, watcher] {
         if (watcher->isCanceled())
-            showError(tr("File was modified."));
+            BeautifierPlugin::showError(BeautifierPlugin::tr("File was modified."));
         else
             checkAndApplyTask(watcher->result());
         watcher->deleteLater();
@@ -329,21 +371,21 @@ void BeautifierPlugin::formatEditorAsync(TextEditorWidget *editor, const Command
  * Checks the state of @a task and if the formatting was successful calls updateEditorText() with
  * the respective members of @a task.
  */
-void BeautifierPlugin::checkAndApplyTask(const FormatTask &task)
+void BeautifierPluginPrivate::checkAndApplyTask(const FormatTask &task)
 {
     if (!task.error.isEmpty()) {
-        showError(task.error);
+        BeautifierPlugin::showError(task.error);
         return;
     }
 
     if (task.formattedData.isEmpty()) {
-        showError(tr("Could not format file %1.").arg(task.filePath));
+        BeautifierPlugin::showError(BeautifierPlugin::tr("Could not format file %1.").arg(task.filePath));
         return;
     }
 
     QPlainTextEdit *textEditor = task.editor;
     if (!textEditor) {
-        showError(tr("File %1 was closed.").arg(task.filePath));
+        BeautifierPlugin::showError(BeautifierPlugin::tr("File %1 was closed.").arg(task.filePath));
         return;
     }
 
@@ -360,7 +402,7 @@ void BeautifierPlugin::checkAndApplyTask(const FormatTask &task)
  * actually changed parts are updated while preserving the cursor position, the folded
  * blocks, and the scroll bar position.
  */
-void BeautifierPlugin::updateEditorText(QPlainTextEdit *editor, const QString &text)
+void BeautifierPluginPrivate::updateEditorText(QPlainTextEdit *editor, const QString &text)
 {
     const QString editorText = editor->toPlainText();
     if (editorText == text)
@@ -490,13 +532,25 @@ QString BeautifierPlugin::msgCannotGetConfigurationFile(const QString &command)
 QString BeautifierPlugin::msgFormatCurrentFile()
 {
     //: Menu entry
-    return tr("Format Current File");
+    return tr("Format &Current File");
 }
 
 QString BeautifierPlugin::msgFormatSelectedText()
 {
     //: Menu entry
-    return tr("Format Selected Text");
+    return tr("Format &Selected Text");
+}
+
+QString BeautifierPlugin::msgFormatAtCursor()
+{
+    //: Menu entry
+    return tr("&Format at Cursor");
+}
+
+QString BeautifierPlugin::msgDisableFormattingSelectedText()
+{
+    //: Menu entry
+    return tr("&Disable Formatting for Selected Text");
 }
 
 QString BeautifierPlugin::msgCommandPromptDialogTitle(const QString &command)

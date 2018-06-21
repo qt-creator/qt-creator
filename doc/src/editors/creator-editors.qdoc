@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -187,10 +187,36 @@
 
     \endlist
 
-    In addition, you can run static checks on the QML and JavaScript code in
-    your project to find common problems.
+    When using the Clang code model, errors and warnings are additionally marked
+    with icons and annotated. If a \l{http://clang.llvm.org/diagnostics.html}
+    {Clang fix-it} is available, you can execute it by clicking the
+    \inlineimage refactormarker.png
+    icon and pressing \key Enter.
+
+    In the following figure, a semicolon is missing at the end of the
+    line.
+
+    \image qtcreator-syntaxerror-clang.png
+
+    In the following figure, the variable is not used.
+
+    \image qtcreator-semanticerror-clang.png
+
+    To specify the position where the annotations are displayed, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol Display > \uicontrol {Line annotations}, and then
+    select whether to display the annotations directly next to the code,
+    aligned to the right of the code, or in the right margin. Showing annotations
+    between lines can be useful if there is usually not enough space to
+    display annotations next to the text.
+
+    If you hide the annotations by deselecting the check box, you can move the
+    mouse pointer over an icon to view them.
 
     \section1 Checking JSON Data Structure
+
+    You can run static checks on the QML and JavaScript code in
+    your project to find common problems.
 
     \QC validates instances of JSON entities against
     \l{http://tools.ietf.org/html/draft-zyp-json-schema-03}
@@ -209,7 +235,7 @@
     in Windows. To check JSON data structure, copy the JSON schema file to the
     above folder.
 
-    \section1 Checking JavaScript and QML Syntax
+    \section2 Checking JavaScript and QML Syntax
 
     To run the checks, select \uicontrol Tools > \uicontrol {QML/JS} >
     \uicontrol {Run Checks} or press \key {Ctrl+Shift+C}. The results are shown
@@ -217,10 +243,11 @@
     pane.
 
 
-    \section1 List of JavaScript and QML Checks
+    \section2 List of JavaScript and QML Checks
 
     Many of the JavaScript checks are similar to the ones in Douglas Crockford's
-    \l{http://www.jslint.com}{JSLint} tool.
+    \l{http://www.jslint.com}{JSLint} tool. For more information about JSLint
+    errors, see \l{http://linterrors.com/js}{JSLint Error Explanations}.
 
     \table
     \header
@@ -287,25 +314,33 @@
         \li M10
         \li Error
         \li Duplicate property binding
-        \li
+        \li See also: \l{http://linterrors.com/js/duplicate-key-a}
+            {Duplicate key '{a}'}.
 
     \row
         \li M11
         \li Error
         \li Id expected
-        \li
+        \li See also:
+            \l{http://linterrors.com/js/expected-an-identifier-and-instead-saw-a-a-reserved-word}
+            {Expected an identifier and instead saw '{a}' (a reserved word)}.
 
     \row
         \li M14
         \li Error
         \li Invalid id
-        \li
+        \li See also:
+            \l{http://linterrors.com/js/expected-an-identifier-and-instead-saw-a-a-reserved-word}
+            {Expected an identifier and instead saw '{a}' (a reserved word)}.
+
 
     \row
         \li M15
         \li Error
         \li Duplicate id
         \li Ids in a file must be unique.
+            See also: \l{http://linterrors.com/js/duplicate-key-a}
+            {Duplicate key '{a}'}.
 
     \row
         \li M16
@@ -345,7 +380,7 @@
         \li M23
         \li Warning
         \li Do not use \c eval
-        \li
+        \li See also: \l{http://linterrors.com/js/eval-is-evil}{eval is evil}.
 
     \row
         \li M28
@@ -357,7 +392,8 @@
         \li M29
         \li Warning
         \li Do not use \c with
-        \li
+        \li See also: \l{http://linterrors.com/js/unexpected-with}
+            {Unexpected 'with'}.
 
     \row
         \li M30
@@ -407,44 +443,51 @@
         \li M108
         \li Warning
         \li Function \c name is used before its declaration
-        \li
+        \li See also: \l{http://linterrors.com/js/a-was-used-before-it-was-defined}
+            {{a} was used before it was defined}.
 
     \row
         \li M109
         \li Warning
         \li Do not use \c Boolean as a constructor
-        \li
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
 
     \row
         \li M110
         \li Warning
         \li Do not use \c String as a constructor
-        \li
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
 
     \row
         \li M111
         \li Warning
         \li Do not use \c Object as a constructor
-        \li
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
 
     \row
         \li M112
         \li Warning
         \li Do not use \c Array as a constructor
-        \li
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
 
     \row
         \li M113
         \li Warning
         \li Do not use \c Function as a constructor
-        \li
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
 
     \row
         \li M114
         \li Hint
         \li The \c function keyword and the opening parenthesis should be
             separated by a single space
-        \li
+        \li See also: \l{http://linterrors.com/js/expected-exactly-one-space-between-a-and-b}
+            {Expected exactly one space between {a} and {b}}.
 
     \row
         \li M115
@@ -464,13 +507,15 @@
         \li M117
         \li Warning
         \li Confusing pluses
-        \li
+        \li See also: \l{http://linterrors.com/js/confusing-pluses}
+            {Confusing pluses}.
 
     \row
         \li M119
         \li Warning
         \li Confusing minuses
-        \li
+        \li See also: \l{http://linterrors.com/js/confusing-minuses}
+            {Confusing minuses}.
 
     \row
         \li M121
@@ -512,7 +557,9 @@
         \li M201
         \li Hint
         \li Place var declarations at the start of a function
-        \li
+        \li See also:
+            \l{http://linterrors.com/js/move-var-declarations-to-the-top-of-the-function}
+            {Move 'var' declarations to the top of the function}.
 
     \row
         \li M202
@@ -654,13 +701,15 @@
         \li M307
         \li Warning
         \li Use \c new only with functions that start with an uppercase letter
-        \li
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
 
     \row
         \li M308
         \li Warning
         \li Do not use \c Number as a constructor
-        \li
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
 
     \row
         \li M309
@@ -750,17 +799,9 @@
         \li M323
         \li Error
         \li \c Number elements expected in array value
-        \li
-
-    \row
-        \li M324
-        \li Warning
-        \li Using Qt Quick 1 code model instead of Qt Quick 2
-        \li The code model might be corrupt or the QML emulation layer might
-            have been built with a different Qt version than the one selected in
-            the build and run kit. For more information, see
-            \l {Resetting the Code Model} and
-            \l {Running QML Modules in Qt Quick Designer}.
+        \li See also:
+            \l{http://linterrors.com/js/the-array-literal-notation-is-preferrable}
+            {The array literal notation [] is preferable}.
 
     \endtable
 
@@ -787,6 +828,12 @@
     To inspect QML and JavaScript properties, methods, and enums, move the
     cursor over them and select \uicontrol Tools > \uicontrol {QML/JS} >
     \uicontrol {Inspect API for Element Under Cursor}.
+
+    \section1 Automatically Formatting QML/JS Files
+
+    To automatically format QML/JS files upon saving, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} >
+    \uicontrol {Enable auto format on file save}.
 */
 
 
@@ -1160,10 +1207,161 @@
     mode, select \uicontrol Edit > \uicontrol Advanced >
     \uicontrol {Use Vim-style Editing} or press \key {Alt+V,Alt+V}.
 
+    \section1 Supported Modes and Commands
+
     In the \uicontrol FakeVim mode, most keystrokes in the main editor will be
-    intercepted and interpreted in a way that resembles Vim. Documentation for
-    Vim is not included in \QC. For more information on using Vim, see
-    \l{http://www.vim.org/docs.php}{Documentation} on the Vim web site.
+    intercepted and interpreted in a way that resembles Vim. Most of the
+    supported commands can be followed by a motion command or executed in visual
+    mode, or they work with registers or can be prefixed with a number of
+    repetitions.
+
+    The following sections describe the commands emulated in the supported modes
+    and how they diverge from Vim in functionality:
+
+    \list
+        \li Normal
+        \li Visual
+        \li Command line (:)
+        \li Insert and replace
+    \endlist
+
+    For more information on using Vim, see \l{http://www.vim.org/docs.php}
+    {Documentation} on the Vim web site.
+
+    \section2 Normal and Visual Modes
+
+    \list
+        \li Basic movement, such as \c h/j/k/l, \c <C-U>, \c <C-D>, \c <C-F>,
+            \c <C-B>, \c gg, \c G, \c 0, \c ^, \c $
+        \li Word movement, such as \c w, \c e, \c b
+        \li \e Inner/a movement, such as \c ciw, \c 3daw, ya{
+        \li \c f and \c t movement
+        \li \c [ and \c ] movement
+        \li { and } paragraph movement
+        \li Delete/change/yank/paste with register
+        \li Undo and redo
+        \li \c <C-A> and \c <C-X> increase or decrease a number in decimal,
+            octal, or hexadecimal format (for example \c 128<C-A> on or before
+            \c "0x0ff" changes it to \c "0x17f")
+        \li \c . repeats the last change
+        \li \c /search, \c ?search, \c *, \c #, \c n, \c N - most of regular
+            expression syntax is used in Vim except that \c \< and \c \> are
+            the same as \c {\b} in QRegExp
+        \li \c @ and \c q (macro recording and execution) special keys are saved
+            as \c <S-Left>
+        \li Marks
+        \li \c gv goes to last visual selection; can differ if text is edited
+            around it
+        \li Indentation using \c =, \c <<, \c >>, with movement, count, and in
+            visual mode
+        \li \e {to upper/lower}, such as \c ~, \c gU, \c gu
+        \li \c i, \c a, \c o, \c I, \c A, and \c O enter insert mode
+        \li Scroll window, such as \c zt, \c zb, \c zz
+        \li Wrap line movement, such as \c gj, \c gk, \c g0, \c g^, \c g$
+    \endlist
+
+    \section2 Command Line Mode
+
+    \list
+        \li \c :map, \c :unmap, \c :inoremap, and so on
+        \li \c :source provides very basic line-by-line sourcing of vimrc files
+        \li \c :substitute substitutes an expression in a range
+        \li \c :'<,'>!cmd filters through an external command (for example,
+            sorts the lines in a file with \c :%!sort)
+        \li \c :<range>sor[t][!]
+        \li \c :.!cmd inserts the standard output of an external command
+        \li \c :read
+        \li \c :yank, \c :delete, \c :change
+        \li \c :move, \c :join
+        \li \c :20 goes to an address
+        \li \c :history
+        \li \c :registers, \c :display
+        \li \c :nohlsearch
+        \li \c :undo, \c :redo
+        \li \c :normal
+        \li \c :<, \c :>
+    \endlist
+
+    \section2 Insert Mode
+
+    \list
+        \li \c <C-O> executes a single command and returns to insert mode
+        \li \c <C-V> inserts a raw character
+        \li \c <insert> toggles replace mode
+    \endlist
+
+    \section2 Options
+
+    Use \c {:set ...} to set the following options:
+
+    \list
+        \li \c autoindent
+        \li \c clipboard
+        \li \c backspace
+        \li \c expandtab
+        \li \c hlsearch
+        \li \c ignorecase
+        \li \c incsearch
+        \li \c indent
+        \li \c iskeyword
+        \li \c scrolloff
+        \li \c shiftwidth
+        \li \c showcmd
+        \li \c smartcase
+        \li \c smartindent
+        \li \c smarttab
+        \li \c startofline
+        \li \c tabstop
+        \li \c tildeop
+        \li \c wrapscan
+    \endlist
+
+    \section2 Vimrc Example
+
+    \code
+    " highlight matched
+    set hlsearch
+    " case insensitive search
+    set ignorecase
+    set smartcase
+    " search while typing
+    set incsearch
+    " wrap-around when searching
+    set wrapscan
+    " show pressed keys in lower right corner
+    set showcmd
+    " tab -> spaces
+    set expandtab
+    set tabstop=4
+    set shiftwidth=4
+    " keep a 5 line buffer for the cursor from top/bottom of window
+    set scrolloff=5
+    " X11 clipboard
+    set clipboard=unnamed
+    " use ~ with movement
+    set tildeop
+
+    " mappings
+    nnoremap ; :
+    inoremap jj <Esc>
+
+    " clear highlighted search term on space
+    noremap <silent> <Space> :nohls<CR>
+
+    " reselect visual block after indent
+    vnoremap < <gv
+    vnoremap > >gv
+
+    " MOVE LINE/BLOCK
+    nnoremap <C-S-J> :m+<CR>==
+    nnoremap <C-S-K> :m-2<CR>==
+    inoremap <C-S-J> <Esc>:m+<CR>==gi
+    inoremap <C-S-K> <Esc>:m-2<CR>==gi
+    vnoremap <C-S-J> :m'>+<CR>gv=gv
+    vnoremap <C-S-K> :m-2<CR>gv=gv
+    \endcode
+
+    \section1 Mapping FakeVim Commands
 
     To map commands entered on the \uicontrol FakeVim command line to actions
     of the \QC core, select \uicontrol Tools > \uicontrol Options >
@@ -1173,6 +1371,8 @@
     \uicontrol Options > \uicontrol FakeVim >
     \uicontrol {User Command Mapping}. The user command mapped to the shortcut
     is executed by FakeVim as if you were typing it (as when replaying a macro).
+
+    \section1 Specifying FakeVim Options
 
     To make changes to the Vim-style settings, select \uicontrol Tools >
     \uicontrol Options > \uicontrol FakeVim > \uicontrol General.
@@ -1188,6 +1388,8 @@
     To use a Vim-style color scheme, select \uicontrol Tools >
     \uicontrol Options > \uicontrol {Text Editor} > \uicontrol {Fonts & Color}.
     In the \uicontrol {Color Scheme} list, select \uicontrol {Vim (dark)}.
+
+    \section1 Quitting FakeVim Mode
 
     To quit the FakeVim mode, unselect \uicontrol Tools > \uicontrol Options >
     \uicontrol FakeVim > \uicontrol {Use FakeVim} or press \key {Alt+V,Alt+V}.
@@ -1570,35 +1772,57 @@
 
             \list
 
-                \li \uicontrol {All Projects} searches files matching the
-                    defined file pattern in all currently open projects.
-
-                    For example, to search for a string only in \c {.cpp}
-                    and \c {.h} files, enter in \uicontrol {File pattern}
-                    \c {*.cpp,*.h}.
+                \li \uicontrol {All Projects} searches from all currently open
+                    projects.
 
                     \image qtcreator-search-allprojects.png
 
-                \li \uicontrol {Current Project} searches files matching the
-                    defined file pattern only in the project you are currently
-                    editing.
+                \li \uicontrol {Current Project} searches from the project you
+                    are currently editing.
 
-                \li \uicontrol {Files in File System} recursively searches files
-                    matching the defined file pattern in the selected directory.
+                \li \uicontrol {Files in File System} recursively searches from
+                    the selected directory.
 
                     \image qtcreator-search-filesystem.png
 
-                    Select the \uicontrol {Use Git Grep} check box to use Git to
-                    only search tracked files in the Git work tree. To restrict
-                    the search to the HEAD, a tag, a local or remote branch, or
-                    a commit hash, enter a reference in the field. Leave the
-                    field empty to search through the file system.
+                    In the \uicontrol {Search engine} field, select the search
+                    engine to use:
 
-                \li \uicontrol {Current File} searches only the current file.
+                    \list
+                        \li Select \uicontrol Internal to use the \QC search
+                            engine.
 
-                \li \uicontrol {Open Documents} searches all open files.
+                        \li Select \uicontrol {Git Grep} to use Git to only
+                            search tracked files in the Git work tree. To
+                            restrict the search to the HEAD, a tag, a local or
+                            remote branch, or a commit hash, enter a reference.
+                            Leave the field empty to search through the file
+                            system.
+
+                        \li Select \uicontrol {Silver Searcher} to use the
+                            experimental Silver Searcher plugin. For more
+                            information, see \l{Enabling Silver Searcher}.
+
+                    \endlist
+
+                \li \uicontrol {Current File} searches only from the current
+                    file.
+
+                \li \uicontrol {Open Documents} searches from all open files.
+
+                \li \uicontrol {Clang Query Project} explores the Clang abstract
+                     syntax tree (AST) using AST matcher expressions. For more
+                     information, see \l{Exploring Clang AST}.
 
             \endlist
+
+        \li In the \uicontrol {File pattern} field, specify file patterns to
+            restrict the search to files that match the pattern. For example, to
+            search for a string only in \c {.cpp} and \c {.h} files, enter
+            \c {*.cpp,*.h}.
+
+        \li In the \uicontrol {Exclusion pattern} field, specify file patterns
+            to omit files from the search.
 
         \li Enter the text you are looking for and click \uicontrol Search.
 
@@ -1625,9 +1849,69 @@
     The search results are stored in the search history from which you can
     select earlier searches.
 
+    To clear the search results, select the \inlineimage clean_pane_small.png
+    (\uicontrol Clear) button.
+
+    To start a new search, select the \inlineimage qtcreator-new-search-icon.png
+    (\uicontrol {New Search}) button.
+
     \note You can use \uicontrol {Advanced Find} also to search for symbols. For
     more information, see \l{Finding Symbols}.
 
+    \section1 Enabling Silver Searcher
+
+    You can use Silver Searcher as a search engine in \QC if you install
+    Silver Searcher on the development PC and enable the experimental plugin.
+
+    To use Silver Searcher:
+
+    \list 1
+
+        \li Download and install Silver Searcher from
+            \l {https://geoff.greer.fm/ag/}{The Silver Searcher} or
+            \l {https://github.com/ggreer/the_silver_searcher}{GitHub}.
+
+            You might have to build Silver Searcher from sources for some
+            platforms.
+
+        \li Select \uicontrol Help > \uicontrol {About Plugins} >
+            \uicontrol {Utilities} > \uicontrol {SilverSearcher} to enable the
+            plugin.
+
+        \li Restart \QC to be able to use the plugin.
+
+        \li When searching, select \uicontrol {Silver Searcher} in the
+            \uicontrol {Search engine} field.
+
+    \endlist
+
+    \section1 Exploring Clang AST
+
+    You can use the experimental Clang Refactoring plugin to explore the Clang
+    AST using AST matcher expressions. For more information about constructing
+    matcher expressions, see
+    \l {http://clang.llvm.org/docs/LibASTMatchersReference.html}
+    {AST Matcher Reference}.
+
+    To explore the AST:
+
+    \list 1
+
+        \li Select \uicontrol Help > \uicontrol {About Plugins} > \uicontrol C++
+            > \uicontrol {ClangRefactoring} to enable the plugin.
+
+        \li Restart \QC to be able to use the plugin.
+
+        \li When searching, select \uicontrol {Clang Query Project} in the
+            \uicontrol {Scope} field.
+
+        \li Enter an AST matcher expression in the \uicontrol {Search for}
+            field.
+
+    \endlist
+
+    You can view the results of the query as links to code positions in the
+    \uicontrol {Search Results} output pane.
 */
 
 
@@ -1722,9 +2006,15 @@
             \inlineimage clean_pane_small.png
             (\uicontrol Clear) button.
 
+        \li To start a new search, click the
+            \inlineimage qtcreator-new-search-icon.png
+            (\uicontrol {New Search}) button.
     \endlist
 
     \section1 Renaming Symbols
+
+    You can rename symbols in all files in a project. When you rename a class,
+    you can also change filenames that match the class name.
 
     To rename a specific symbol in a Qt project:
 
@@ -1743,15 +2033,18 @@
             \image qtcreator-refactoring-replace.png
 
         \li To replace all selected instances, enter the name of the new symbol
-            in the \uicontrol {Replace with} text box and click
-            \uicontrol Replace.
+            in the \uicontrol {Replace with} text box.
 
             To omit an instance, uncheck the check-box next to the instance.
+
+        \li If the symbol is a class, select the \uicontrol {Rename files} check
+            box to also change the filenames that match the class name.
+
+        \li  Select \uicontrol Replace.
 
             \note This action replaces all selected instances of the symbol in
             all files listed in the \uicontrol {Search Results} pane. You cannot
             undo this action.
-
     \endlist
 
     \note Renaming local symbols does not open the \uicontrol {Search Results}
@@ -2429,8 +2722,14 @@
 
         \row
             \li Move Component into Separate File
-            \li Moves a QML type into a separate file
-            \li QML type name
+            \li Moves a QML type into a separate file. Give the new component a
+                name and select whether properties are set for the new component
+                or for the original one.
+
+                \image qtcreator-move-component-into-separate-file.png
+
+            \li QML type name. This action is also available in the
+                \uicontrol {Form Editor} in \QMLD.
         \row
             \li Split Initializer
             \li Reformats a one-line type into a multi-line type. For example,
@@ -2522,7 +2821,10 @@
 
     It is also possible to enter only a part of a search string. As you type,
     the locator shows the occurrences of that string regardless of where in the
-    name of an component it appears.
+    name of an component it appears. Some locator filters, such as colon and
+    \c m, support \e fuzzy matching, which means that you can enter the
+    uppercase letters to locate a symbol when using camel case or the letters
+    after the underscore when using snake case.
 
     To narrow down the search results, you can use the following wildcard
     characters:
@@ -2549,6 +2851,9 @@
         \li Locating files belonging to your project (\c {p}), such as source,
             header resource, and \c {.ui} files, or to any project (\c {a})
 
+        \li Locating bookmarks (\c {b}).
+            For more information, see \l{Using Bookmarks}.
+
         \li Locating class (\c {c}), enum, and function (m) definitions in your
             project or anywhere referenced from your project (\c {:})
 
@@ -2564,10 +2869,15 @@
         \li Running text editing macros that you record and save (\c {rm}). For
             more information, see \l{Using Text Editing Macros}
 
+        \li Executing JavaScript (\c {=}), especially useful for calculations.
+            For more information, see \l{Executing JavaScript}.
+
         \li Executing shell commands (\c {!})
 
         \li Executing version control system commands (\c {git}). For more
             information, see \l{Using Version Control Systems}
+
+        \li Triggering menu items from the main menu (\c {t})
 
         \li Running external tools (\c x)
 
@@ -2588,8 +2898,12 @@
 
         \li Activate the locator.
 
-        \li Enter \c{: QDataStream} (\c{:} (colon) followed by a
-            \key Space and the symbol name (QDataStream)).
+        \li Enter a colon (:) followed by a space and the upper case letters in
+            the symbol name (QDataStream):
+
+            \code
+            : qds
+            \endcode
 
             The locator lists the results.
 
@@ -2604,6 +2918,10 @@
     For example, to create a new file and open it in the editor, type \c f
     followed by \key Space, followed by path and file name, and then press
     \key Enter.
+
+    You can use the filter that triggers menu commands to open sessions. Enter
+    \c {t yoursess} or \c {t sess yoursess} to trigger \uicontrol File >
+    \uicontrol Sessions > \e yoursessionname.
 
     By default, the following filters are enabled and you do not need to use
     their prefixes explicitly:
@@ -2742,4 +3060,86 @@
 
     \endlist
 
+    \section1 Executing JavaScript
+
+    The locator provides access to a JavaScript interpreter, that can be used to
+    perform calculations.
+
+    Beside simple mathematical operations, like ((1 + 2) * 3), the following
+    built-in functions exist:
+
+    \table
+        \header
+            \li  Function
+            \li  Purpose
+        \row
+            \li  abs(x)
+            \li  Returns the absolute value of x
+        \row
+            \li  acos(x)
+            \li  Returns the arccosine of x, in radians
+        \row
+            \li  asin(x)
+            \li  Returns the arcsine of x, in radians
+        \row
+            \li  atan(x)
+            \li  Returns the arctangent of x, in radians
+        \row
+            \li  atan2(x, y)
+            \li  Returns the arctangent of the quotient of its arguments
+        \row
+            \li  bin(x)
+            \li  Returns the binary representation of x
+        \row
+            \li  ceil(x)
+            \li  Returns the value of x rounded up to the next integer
+        \row
+            \li  cos(x)
+            \li  Returns the cosine of x (x is in radians)
+        \row
+            \li  exp(x)
+            \li  Returns the value of E to the power of x
+        \row
+            \li  e()
+            \li  Returns Euler's number E (2.71828...)
+        \row
+            \li  floor(x)
+            \li  Returns the value of x rounded down to the next integer
+        \row
+            \li  hex(x)
+            \li  Returns the hexadecimal representation of x
+        \row
+            \li  log(x)
+            \li  Returns the natural logarithm (base E) of x
+        \row
+            \li  max([value1[, value2[, ...]]])
+            \li  Returns the highest value of the given numbers
+        \row
+            \li  min([value1[, value2[, ...]]])
+            \li  Returns the lowest value of the given numbers
+        \row
+            \li  oct(x)
+            \li  Returns the octal representation of x
+        \row
+            \li  pi()
+            \li  Returns PI (3.14159...)
+        \row
+            \li  pow(x, y)
+            \li  Returns the value of x to the power of y
+        \row
+            \li  random()
+            \li  Returns a random number between 0 and 1
+        \row
+            \li  round(x)
+            \li  Returns the value of x rounded to the next integer
+        \row
+            \li  sin(x)
+            \li  Returns the sine of x (x is in radians)
+        \row
+            \li  sqrt(x)
+            \li  Returns the square root of x
+        \row
+            \li  tan(x)
+            \li  Returns the tangent of x (x is in radians)
+        \endtable
 */

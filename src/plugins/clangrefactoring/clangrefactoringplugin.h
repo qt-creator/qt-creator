@@ -29,8 +29,8 @@
 #include "refactoringclient.h"
 #include "qtcreatorclangqueryfindfilter.h"
 #include "qtcreatorsearch.h"
+#include "refactoringconnectionclient.h"
 
-#include <refactoringconnectionclient.h>
 #include <refactoringserverproxy.h>
 
 #include <extensionsystem/iplugin.h>
@@ -59,6 +59,7 @@ private:
     void startBackend();
     void connectBackend();
     void backendIsConnected();
+    void initializeFilters();
 
 private:
     static std::unique_ptr<ClangRefactoringPluginData> d;

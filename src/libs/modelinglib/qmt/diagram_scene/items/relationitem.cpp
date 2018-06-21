@@ -28,6 +28,7 @@
 #include "qmt/diagram_controller/diagramcontroller.h"
 #include "qmt/diagram_controller/dvoidvisitor.h"
 #include "qmt/diagram/dassociation.h"
+#include "qmt/diagram/dconnection.h"
 #include "qmt/diagram/ddependency.h"
 #include "qmt/diagram/dinheritance.h"
 #include "qmt/diagram/dobject.h"
@@ -41,6 +42,8 @@
 #include "qmt/diagram_scene/parts/stereotypesitem.h"
 #include "qmt/infrastructure/geometryutilities.h"
 #include "qmt/infrastructure/qmtassert.h"
+#include "qmt/stereotype/customrelation.h"
+#include "qmt/stereotype/stereotypecontroller.h"
 #include "qmt/style/stylecontroller.h"
 #include "qmt/style/styledrelation.h"
 #include "qmt/style/style.h"
@@ -67,23 +70,23 @@ public:
     void visitDInheritance(const DInheritance *inheritance)
     {
         DObject *baseObject = m_diagramSceneModel->diagramController()->findElement<DObject>(inheritance->base(), m_diagramSceneModel->diagram());
-        QMT_CHECK(baseObject);
+        QMT_ASSERT(baseObject, return);
         bool baseIsInterface = false;
         bool lollipopDisplay = false;
         if (baseObject) {
-            baseIsInterface = baseObject->stereotypes().contains(QStringLiteral("interface"));
+            baseIsInterface = baseObject->stereotypes().contains("interface");
             if (baseIsInterface) {
                 StereotypeDisplayVisitor stereotypeDisplayVisitor;
                 stereotypeDisplayVisitor.setModelController(m_diagramSceneModel->diagramSceneController()->modelController());
                 stereotypeDisplayVisitor.setStereotypeController(m_diagramSceneModel->stereotypeController());
                 baseObject->accept(&stereotypeDisplayVisitor);
-                lollipopDisplay = stereotypeDisplayVisitor.stereotypeDisplay() == DObject::StereotypeIcon;
+                lollipopDisplay = stereotypeDisplayVisitor.stereotypeIconDisplay() == StereotypeIcon::DisplayIcon;
             }
         }
         if (lollipopDisplay) {
             m_arrow->setShaft(ArrowItem::ShaftSolid);
             m_arrow->setEndHead(ArrowItem::HeadNone);
-        } else if (baseIsInterface || inheritance->stereotypes().contains(QStringLiteral("realize"))) {
+        } else if (baseIsInterface || inheritance->stereotypes().contains("realize")) {
             m_arrow->setShaft(ArrowItem::ShaftDashed);
             m_arrow->setEndHead(ArrowItem::HeadTriangle);
         } else {
@@ -99,7 +102,7 @@ public:
     {
         ArrowItem::Head endAHead = ArrowItem::HeadNone;
         ArrowItem::Head endBHead = ArrowItem::HeadNone;
-        bool isRealization = dependency->stereotypes().contains(QStringLiteral("realize"));
+        bool isRealization = dependency->stereotypes().contains("realize");
         switch (dependency->direction()) {
         case MDependency::AToB:
             endBHead = isRealization ? ArrowItem::HeadTriangle : ArrowItem::HeadOpen;
@@ -166,9 +169,49 @@ public:
         m_arrow->setPoints(m_points);
     }
 
+    void visitDConnection(const DConnection *connection)
+    {
+
+        ArrowItem::Shaft shaft = ArrowItem::ShaftSolid;
+        ArrowItem::Head endAHead = ArrowItem::HeadNone;
+        ArrowItem::Head endBHead = ArrowItem::HeadNone;
+
+        CustomRelation customRelation = m_diagramSceneModel->stereotypeController()->findCustomRelation(connection->customRelationId());
+        if (!customRelation.isNull()) {
+            // TODO support custom shapes
+            static const QHash<CustomRelation::ShaftPattern, ArrowItem::Shaft> shaft2shaft = {
+                { CustomRelation::ShaftPattern::Solid, ArrowItem::ShaftSolid },
+                { CustomRelation::ShaftPattern::Dash, ArrowItem::ShaftDashed },
+                { CustomRelation::ShaftPattern::Dot, ArrowItem::ShaftDot },
+                { CustomRelation::ShaftPattern::DashDot, ArrowItem::ShaftDashDot },
+                { CustomRelation::ShaftPattern::DashDotDot, ArrowItem::ShaftDashDotDot },
+            };
+            static const QHash<CustomRelation::Head, ArrowItem::Head> head2head = {
+                { CustomRelation::Head::None, ArrowItem::HeadNone },
+                { CustomRelation::Head::Shape, ArrowItem::HeadNone },
+                { CustomRelation::Head::Arrow, ArrowItem::HeadOpen },
+                { CustomRelation::Head::Triangle, ArrowItem::HeadTriangle },
+                { CustomRelation::Head::FilledTriangle, ArrowItem::HeadFilledTriangle },
+                { CustomRelation::Head::Diamond, ArrowItem::HeadDiamond },
+                { CustomRelation::Head::FilledDiamond, ArrowItem::HeadFilledDiamond },
+            };
+            shaft = shaft2shaft.value(customRelation.shaftPattern());
+            endAHead = head2head.value(customRelation.endA().head());
+            endBHead = head2head.value(customRelation.endB().head());
+            // TODO color
+        }
+
+        m_arrow->setShaft(shaft);
+        m_arrow->setArrowSize(12.0);
+        m_arrow->setDiamondSize(12.0);
+        m_arrow->setStartHead(endAHead);
+        m_arrow->setEndHead(endBHead);
+        m_arrow->setPoints(m_points);
+    }
+
 private:
-    DiagramSceneModel *m_diagramSceneModel = 0;
-    ArrowItem *m_arrow = 0;
+    DiagramSceneModel *m_diagramSceneModel = nullptr;
+    ArrowItem *m_arrow = nullptr;
     QList<QPointF> m_points;
 };
 
@@ -273,6 +316,18 @@ void RelationItem::setFocusSelected(bool focusSelected)
     }
 }
 
+QRectF RelationItem::getSecondarySelectionBoundary()
+{
+    return QRectF();
+}
+
+void RelationItem::setBoundarySelected(const QRectF &boundary, bool secondary)
+{
+    // TODO make individual intermediate points selectable
+    Q_UNUSED(boundary)
+    Q_UNUSED(secondary)
+}
+
 QPointF RelationItem::grabHandle(int index)
 {
     if (index == 0) {
@@ -289,7 +344,7 @@ QPointF RelationItem::grabHandle(int index)
     } else {
         QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->intermediatePoints();
         --index;
-        QMT_CHECK(index >= 0 && index < intermediatePoints.size());
+        QMT_ASSERT(index >= 0 && index < intermediatePoints.size(), return QPointF());
         return intermediatePoints.at(index).pos();
     }
 }
@@ -337,7 +392,7 @@ void RelationItem::setHandlePos(int index, const QPointF &pos)
     } else {
         QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->intermediatePoints();
         --index;
-        QMT_CHECK(index >= 0 && index < intermediatePoints.size());
+        QMT_ASSERT(index >= 0 && index < intermediatePoints.size(), return);
         intermediatePoints[index].setPos(pos);
 
         m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UpdateMinor);
@@ -361,7 +416,7 @@ void RelationItem::dropHandle(int index, double rasterWidth, double rasterHeight
     } else {
         QList<DRelation::IntermediatePoint> intermediatePoints = m_relation->intermediatePoints();
         --index;
-        QMT_CHECK(index >= 0 && index < intermediatePoints.size());
+        QMT_ASSERT(index >= 0 && index < intermediatePoints.size(), return);
 
         QPointF pos = intermediatePoints.at(index).pos();
         double x = qRound(pos.x() / rasterWidth) * rasterWidth;
@@ -424,7 +479,7 @@ void RelationItem::update(const Style *style)
     } else if (m_name) {
         m_name->scene()->removeItem(m_name);
         delete m_name;
-        m_name = 0;
+        m_name = nullptr;
     }
 
     if (!m_relation->stereotypes().isEmpty()) {
@@ -437,7 +492,7 @@ void RelationItem::update(const Style *style)
     } else if (m_stereotypes) {
         m_stereotypes->scene()->removeItem(m_stereotypes);
         delete m_stereotypes;
-        m_stereotypes = 0;
+        m_stereotypes = nullptr;
     }
 
     if (isSelected() || isSecondarySelected()) {
@@ -449,7 +504,7 @@ void RelationItem::update(const Style *style)
         if (m_selectionHandles->scene())
             m_selectionHandles->scene()->removeItem(m_selectionHandles);
         delete m_selectionHandles;
-        m_selectionHandles = 0;
+        m_selectionHandles = nullptr;
     }
 
     setZValue((isSelected() || isSecondarySelected()) ? RELATION_ITEMS_ZVALUE_SELECTED : RELATION_ITEMS_ZVALUE);
@@ -486,7 +541,7 @@ QPointF RelationItem::calcEndPoint(const Uid &end, const Uid &otherEnd, int near
         // otherEndPos will not be used
     } else {
         DObject *endOtherObject = m_diagramSceneModel->diagramController()->findElement<DObject>(otherEnd, m_diagramSceneModel->diagram());
-        QMT_CHECK(endOtherObject);
+        QMT_ASSERT(endOtherObject, return QPointF());
         if (endOtherObject)
             otherEndPos = endOtherObject->pos();
     }
@@ -502,7 +557,7 @@ QPointF RelationItem::calcEndPoint(const Uid &end, const QPointF &otherEndPos, i
     QPointF endPos;
     if (endObjectItem) {
         DObject *endObject = m_diagramSceneModel->diagramController()->findElement<DObject>(end, m_diagramSceneModel->diagram());
-        QMT_CHECK(endObject);
+        QMT_ASSERT(endObject, return QPointF());
         bool preferAxis = false;
         QPointF otherPos;
         if (nearestIntermediatePointIndex >= 0 && nearestIntermediatePointIndex < m_relation->intermediatePoints().size()) {

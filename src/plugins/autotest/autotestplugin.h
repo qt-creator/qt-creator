@@ -33,7 +33,11 @@ namespace Autotest {
 namespace Internal {
 
 class TestFrameworkManager;
+class TestNavigationWidgetFactory;
+class TestResultsPane;
 struct TestSettings;
+class TestSettingsPage;
+enum class TestRunMode;
 
 class AutotestPlugin : public ExtensionSystem::IPlugin
 {
@@ -44,23 +48,26 @@ public:
     AutotestPlugin();
     ~AutotestPlugin();
 
-    static AutotestPlugin *instance();
-
-    QSharedPointer<TestSettings> settings() const;
-
     bool initialize(const QStringList &arguments, QString *errorString) override;
     void extensionsInitialized() override;
     ShutdownFlag aboutToShutdown() override;
+
+    static QSharedPointer<TestSettings> settings();
+    static void updateMenuItemsEnabledState();
 
 private:
     bool checkLicense();
     void initializeMenuEntries();
     void onRunAllTriggered();
     void onRunSelectedTriggered();
-    void updateMenuItemsEnabledState();
+    void onRunFileTriggered();
+    void onRunUnderCursorTriggered(TestRunMode mode);
     QList<QObject *> createTestObjects() const override;
     const QSharedPointer<TestSettings> m_settings;
-    TestFrameworkManager *m_frameworkManager = 0;
+    TestFrameworkManager *m_frameworkManager = nullptr;
+    TestSettingsPage *m_testSettingPage = nullptr;
+    TestNavigationWidgetFactory *m_navigationWidgetFactory = nullptr;
+    TestResultsPane *m_resultsPane = nullptr;
 };
 
 } // namespace Internal

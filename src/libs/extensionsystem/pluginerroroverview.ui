@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Qt Creator - Plugin loader messages</string>
+   <string>Plugin Loader Messages</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

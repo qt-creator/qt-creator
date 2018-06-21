@@ -34,9 +34,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/iversioncontrol.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/vcsmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
@@ -271,8 +269,8 @@ void StateListener::slotStateChanged()
 
         if (currentFi.exists()) {
             // Quick check: Does it look like a patch?
-            const bool isPatch = state.currentFile.endsWith(QLatin1String(".patch"))
-                    || state.currentFile.endsWith(QLatin1String(".diff"));
+            const bool isPatch = state.currentFile.endsWith(".patch")
+                    || state.currentFile.endsWith(".diff");
             if (isPatch) {
                 // Patch: Figure out a name to display. If it is a temp file, it could be
                 // Codepaster. Use the display name of the editor.
@@ -552,9 +550,10 @@ VcsBasePlugin::~VcsBasePlugin()
 
 void VcsBasePlugin::initializeVcs(IVersionControl *vc, const Context &context)
 {
+    QTC_ASSERT(vc, return);
+
     d->m_versionControl = vc;
     d->m_context = context;
-    addAutoReleasedObject(vc);
 
     Internal::VcsPlugin *plugin = Internal::VcsPlugin::instance();
     connect(plugin, &Internal::VcsPlugin::submitEditorAboutToClose,
@@ -640,6 +639,16 @@ bool VcsBasePlugin::enableMenuAction(ActionState as, QAction *menuAction) const
         break;
     }
     return true;
+}
+
+QString VcsBasePlugin::commitDisplayName() const
+{
+    return tr("commit", "name of \"commit\" action of the VCS.");
+}
+
+bool VcsBasePlugin::promptBeforeCommit()
+{
+    return DocumentManager::saveAllModifiedDocuments(tr("Save before %1?").arg(commitDisplayName()));
 }
 
 void VcsBasePlugin::promptToDeleteCurrentFile()
@@ -777,10 +786,12 @@ void VcsBasePlugin::setProcessEnvironment(QProcessEnvironment *e,
                                           bool forceCLocale,
                                           const QString &sshPromptBinary)
 {
-    if (forceCLocale)
-        e->insert(QLatin1String("LANG"), QString(QLatin1Char('C')));
+    if (forceCLocale) {
+        e->insert("LANG", "C");
+        e->insert("LANGUAGE", "C");
+    }
     if (!sshPromptBinary.isEmpty())
-        e->insert(QLatin1String("SSH_ASKPASS"), sshPromptBinary);
+        e->insert("SSH_ASKPASS", sshPromptBinary);
 }
 
 // Run a process synchronously, returning Utils::SynchronousProcessResponse

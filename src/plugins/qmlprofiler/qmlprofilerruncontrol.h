@@ -27,42 +27,58 @@
 
 #include "qmlprofilerstatemanager.h"
 
-#include <debugger/analyzer/analyzerruncontrol.h>
+#include <projectexplorer/runconfiguration.h>
+
 #include <utils/outputformat.h>
+#include <utils/port.h>
+
+#include <qmldebug/qmloutputparser.h>
 
 namespace QmlProfiler {
+namespace Internal {
 
-namespace Internal { class QmlProfilerTool; }
-
-class QmlProfilerRunControl : public Debugger::AnalyzerRunControl
+class QmlProfilerTool;
+class QmlProfilerRunner : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 
 public:
-    QmlProfilerRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
-                          Internal::QmlProfilerTool *tool);
-    ~QmlProfilerRunControl() override;
+    QmlProfilerRunner(ProjectExplorer::RunControl *runControl);
+    ~QmlProfilerRunner() override;
+
+    void setServerUrl(const QUrl &serverUrl);
+    QUrl serverUrl() const;
 
     void registerProfilerStateManager( QmlProfilerStateManager *profilerState );
 
-    void notifyRemoteSetupDone(Utils::Port port) override;
-    void notifyRemoteSetupFailed(const QString &errorMessage) override;
-    void start() override;
-    StopResult stop() override;
-    bool isRunning() const override;
     void cancelProcess();
-    void notifyRemoteFinished() override;
-    bool supportsReRunning() const override { return false; }
+    void notifyRemoteFinished();
 
 signals:
-    void processRunning(Utils::Port port);
+    void starting(QmlProfilerRunner *self);
 
 private:
-    void wrongSetupMessageBoxFinished(int);
+    void start() override;
+    void stop() override;
+
     void profilerStateChanged();
 
-    class QmlProfilerRunControlPrivate;
-    QmlProfilerRunControlPrivate *d;
+    class QmlProfilerRunnerPrivate;
+    QmlProfilerRunnerPrivate *d;
 };
 
+class LocalQmlProfilerSupport : public ProjectExplorer::SimpleTargetRunner
+{
+    Q_OBJECT
+
+public:
+    LocalQmlProfilerSupport(QmlProfilerTool *profilerTool, ProjectExplorer::RunControl *runControl);
+    LocalQmlProfilerSupport(QmlProfilerTool *profilerTool, ProjectExplorer::RunControl *runControl,
+                            const QUrl &serverUrl);
+
+private:
+    QmlProfilerRunner *m_profiler;
+};
+
+} // namespace Internal
 } // namespace QmlProfiler

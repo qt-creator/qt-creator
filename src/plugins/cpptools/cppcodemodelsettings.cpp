@@ -52,11 +52,23 @@ static QString clangDiagnosticConfigsArrayIdKey()
 static QString clangDiagnosticConfigsArrayDisplayNameKey()
 { return QLatin1String("displayName"); }
 
-static QString clangDiagnosticConfigsArrayOptionsKey()
+static QString clangDiagnosticConfigsArrayWarningsKey()
 { return QLatin1String("diagnosticOptions"); }
+
+static QString clangDiagnosticConfigsArrayClangTidyChecksKey()
+{ return QLatin1String("clangTidyChecks"); }
+
+static QString clangDiagnosticConfigsArrayClangTidyModeKey()
+{ return QLatin1String("clangTidyMode"); }
+
+static QString clangDiagnosticConfigsArrayClazyChecksKey()
+{ return QLatin1String("clazyChecks"); }
 
 static QString pchUsageKey()
 { return QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_PCH_USAGE); }
+
+static QString interpretAmbiguousHeadersAsCHeadersKey()
+{ return QLatin1String(Constants::CPPTOOLS_INTERPRET_AMBIGIUOUS_HEADERS_AS_C_HEADERS); }
 
 static QString skipIndexingBigFilesKey()
 { return QLatin1String(Constants::CPPTOOLS_SKIP_INDEXING_BIG_FILES); }
@@ -64,9 +76,12 @@ static QString skipIndexingBigFilesKey()
 static QString indexerFileSizeLimitKey()
 { return QLatin1String(Constants::CPPTOOLS_INDEXER_FILE_SIZE_LIMIT); }
 
-void CppCodeModelSettings::fromSettings(QSettings *s)
+static ClangDiagnosticConfigs customDiagnosticConfigsFromSettings(QSettings *s)
 {
-    s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
+    QTC_ASSERT(s->group() == QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP),
+               return ClangDiagnosticConfigs());
+
+    ClangDiagnosticConfigs configs;
 
     const int size = s->beginReadArray(clangDiagnosticConfigsArrayKey());
     for (int i = 0; i < size; ++i) {
@@ -75,18 +90,40 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
         ClangDiagnosticConfig config;
         config.setId(Core::Id::fromSetting(s->value(clangDiagnosticConfigsArrayIdKey())));
         config.setDisplayName(s->value(clangDiagnosticConfigsArrayDisplayNameKey()).toString());
-        config.setCommandLineOptions(s->value(clangDiagnosticConfigsArrayOptionsKey()).toStringList());
-        m_clangCustomDiagnosticConfigs.append(config);
+        config.setClangOptions(s->value(clangDiagnosticConfigsArrayWarningsKey()).toStringList());
+        config.setClangTidyMode(static_cast<ClangDiagnosticConfig::TidyMode>(
+                                    s->value(clangDiagnosticConfigsArrayClangTidyModeKey()).toInt()));
+        config.setClangTidyChecks(
+                    s->value(clangDiagnosticConfigsArrayClangTidyChecksKey()).toString());
+        config.setClazyChecks(s->value(clangDiagnosticConfigsArrayClazyChecksKey()).toString());
+        configs.append(config);
     }
     s->endArray();
 
-    const Core::Id diagnosticConfigId = Core::Id::fromSetting(
-                                            s->value(clangDiagnosticConfigKey(),
-                                                     initialClangDiagnosticConfigId().toSetting()));
-    setClangDiagnosticConfigId(diagnosticConfigId);
+    return configs;
+}
+
+static Core::Id clangDiagnosticConfigIdFromSettings(QSettings *s)
+{
+    QTC_ASSERT(s->group() == QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP), return Core::Id());
+
+    return Core::Id::fromSetting(
+        s->value(clangDiagnosticConfigKey(), initialClangDiagnosticConfigId().toSetting()));
+}
+
+void CppCodeModelSettings::fromSettings(QSettings *s)
+{
+    s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
+
+    setClangCustomDiagnosticConfigs(customDiagnosticConfigsFromSettings(s));
+    setClangDiagnosticConfigId(clangDiagnosticConfigIdFromSettings(s));
 
     const QVariant pchUsageVariant = s->value(pchUsageKey(), initialPchUsage());
     setPCHUsage(static_cast<PCHUsage>(pchUsageVariant.toInt()));
+
+    const QVariant interpretAmbiguousHeadersAsCHeaders
+            = s->value(interpretAmbiguousHeadersAsCHeadersKey(), false);
+    setInterpretAmbigiousHeadersAsCHeaders(interpretAmbiguousHeadersAsCHeaders.toBool());
 
     const QVariant skipIndexingBigFiles = s->value(skipIndexingBigFilesKey(), true);
     setSkipIndexingBigFiles(skipIndexingBigFiles.toBool());
@@ -102,6 +139,8 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
 void CppCodeModelSettings::toSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
+    const ClangDiagnosticConfigs previousConfigs = customDiagnosticConfigsFromSettings(s);
+    const Core::Id previousConfigId = clangDiagnosticConfigIdFromSettings(s);
 
     s->beginWriteArray(clangDiagnosticConfigsArrayKey());
     for (int i = 0, size = m_clangCustomDiagnosticConfigs.size(); i < size; ++i) {
@@ -110,17 +149,33 @@ void CppCodeModelSettings::toSettings(QSettings *s)
         s->setArrayIndex(i);
         s->setValue(clangDiagnosticConfigsArrayIdKey(), config.id().toSetting());
         s->setValue(clangDiagnosticConfigsArrayDisplayNameKey(), config.displayName());
-        s->setValue(clangDiagnosticConfigsArrayOptionsKey(), config.commandLineOptions());
+        s->setValue(clangDiagnosticConfigsArrayWarningsKey(), config.clangOptions());
+        s->setValue(clangDiagnosticConfigsArrayClangTidyModeKey(),
+                    static_cast<int>(config.clangTidyMode()));
+        s->setValue(clangDiagnosticConfigsArrayClangTidyChecksKey(),
+                    config.clangTidyChecks());
+        s->setValue(clangDiagnosticConfigsArrayClazyChecksKey(), config.clazyChecks());
     }
     s->endArray();
 
     s->setValue(clangDiagnosticConfigKey(), clangDiagnosticConfigId().toSetting());
     s->setValue(pchUsageKey(), pchUsage());
+
+    s->setValue(interpretAmbiguousHeadersAsCHeadersKey(), interpretAmbigiousHeadersAsCHeaders());
     s->setValue(skipIndexingBigFilesKey(), skipIndexingBigFiles());
     s->setValue(indexerFileSizeLimitKey(), indexerFileSizeLimitInMb());
 
     s->endGroup();
 
+    QVector<Core::Id> invalidated
+        = ClangDiagnosticConfigsModel::changedOrRemovedConfigs(previousConfigs,
+                                                               m_clangCustomDiagnosticConfigs);
+
+    if (previousConfigId != clangDiagnosticConfigId() && !invalidated.contains(previousConfigId))
+        invalidated.append(previousConfigId);
+
+    if (!invalidated.isEmpty())
+        emit clangDiagnosticConfigsInvalidated(invalidated);
     emit changed();
 }
 
@@ -161,9 +216,14 @@ void CppCodeModelSettings::setPCHUsage(CppCodeModelSettings::PCHUsage pchUsage)
     m_pchUsage = pchUsage;
 }
 
-void CppCodeModelSettings::emitChanged()
+bool CppCodeModelSettings::interpretAmbigiousHeadersAsCHeaders() const
 {
-    emit changed();
+    return m_interpretAmbigiousHeadersAsCHeaders;
+}
+
+void CppCodeModelSettings::setInterpretAmbigiousHeadersAsCHeaders(bool yesno)
+{
+    m_interpretAmbigiousHeadersAsCHeaders = yesno;
 }
 
 bool CppCodeModelSettings::skipIndexingBigFiles() const

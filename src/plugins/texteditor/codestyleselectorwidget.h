@@ -29,14 +29,6 @@
 
 #include <QWidget>
 
-QT_BEGIN_NAMESPACE
-class QHBoxLayout;
-class QComboBox;
-class QLabel;
-class QCheckBox;
-class QPushButton;
-QT_END_NAMESPACE
-
 namespace TextEditor {
 
 namespace Internal { namespace Ui { class CodeStyleSelectorWidget; } }
@@ -48,8 +40,8 @@ class TEXTEDITOR_EXPORT CodeStyleSelectorWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit CodeStyleSelectorWidget(ICodeStylePreferencesFactory *factory, QWidget *parent = 0);
-    ~CodeStyleSelectorWidget();
+    explicit CodeStyleSelectorWidget(ICodeStylePreferencesFactory *factory, QWidget *parent = nullptr);
+    ~CodeStyleSelectorWidget() override;
 
     void setCodeStyle(TextEditor::ICodeStylePreferences *codeStyle);
 

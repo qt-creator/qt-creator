@@ -45,7 +45,10 @@ void SCUtilsProvider::checkInitialState(const QList<QGraphicsItem*> &items, Scxm
         if (parentTag->hasChild(Initial)) {
             parentTag->setAttribute("initial", QString());
         } else {
+            QString restoredInitial = parentTag->editorInfo("removedInitial");
             QString id = parentTag->attribute("initial");
+            if (id.isEmpty())
+                id = restoredInitial;
 
             // 2. If no initial-state available, try to find state with initial-attribute
             if (!id.isEmpty()) {
@@ -59,8 +62,13 @@ void SCUtilsProvider::checkInitialState(const QList<QGraphicsItem*> &items, Scxm
                     }
                 }
 
-                if (!initialStateTag)
+                if (!initialStateTag) {
+                    parentTag->setEditorInfo("removedInitial", id);
                     parentTag->setAttribute("initial", QString());
+                } else if (id == restoredInitial) {
+                    parentTag->setAttribute("initial", id);
+                    parentTag->setEditorInfo("removedInitial", QString());
+                }
             }
 
             // 3. If we still cant find initial-state, we must select first

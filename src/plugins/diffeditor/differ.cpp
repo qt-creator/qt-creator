@@ -34,6 +34,7 @@ publication by Neil Fraser: http://neil.fraser.name/writing/diff/
 #include "differ.h"
 
 #include <QList>
+#include <QRegularExpression>
 #include <QStringList>
 #include <QMap>
 #include <QPair>
@@ -84,15 +85,14 @@ static int commonOverlap(const QString &text1, const QString &text2)
     return 0;
 }
 
-static QList<Diff> decode(const QList<Diff> &diffList,
-                                  const QStringList &lines)
+static QList<Diff> decode(const QList<Diff> &diffList, const QStringList &lines)
 {
     QList<Diff> newDiffList;
-    for (int i = 0; i < diffList.count(); i++) {
-        Diff diff = diffList.at(i);
+    newDiffList.reserve(diffList.count());
+    for (Diff diff : diffList) {
         QString text;
-        for (int j = 0; j < diff.text.count(); j++) {
-            const int idx = static_cast<ushort>(diff.text.at(j).unicode());
+        for (QChar c : diff.text) {
+            const int idx = static_cast<ushort>(c.unicode());
             text += lines.value(idx);
         }
         diff.text = text;
@@ -168,7 +168,7 @@ static QList<Diff> cleanupOverlaps(const QList<Diff> &diffList)
                 if (delInsOverlap > thisDiff.text.count() / 2
                         || delInsOverlap > nextDiff.text.count() / 2) {
                     thisDiff.text = thisDiff.text.left(thisDiff.text.count() - delInsOverlap);
-                    Diff equality = Diff(Diff::Equal, nextDiff.text.left(delInsOverlap));
+                    const Diff equality(Diff::Equal, nextDiff.text.left(delInsOverlap));
                     nextDiff.text = nextDiff.text.mid(delInsOverlap);
                     newDiffList.append(thisDiff);
                     newDiffList.append(equality);
@@ -181,7 +181,7 @@ static QList<Diff> cleanupOverlaps(const QList<Diff> &diffList)
                 if (insDelOverlap > thisDiff.text.count() / 2
                         || insDelOverlap > nextDiff.text.count() / 2) {
                     nextDiff.text = nextDiff.text.left(nextDiff.text.count() - insDelOverlap);
-                    Diff equality = Diff(Diff::Equal, thisDiff.text.left(insDelOverlap));
+                    const Diff equality(Diff::Equal, thisDiff.text.left(insDelOverlap));
                     thisDiff.text = thisDiff.text.mid(insDelOverlap);
                     newDiffList.append(nextDiff);
                     newDiffList.append(equality);
@@ -202,9 +202,9 @@ static QList<Diff> cleanupOverlaps(const QList<Diff> &diffList)
 
 static int cleanupSemanticsScore(const QString &text1, const QString &text2)
 {
-    const QRegExp blankLineEnd = QRegExp(QLatin1String("\\n\\r?\\n$"));
-    const QRegExp blankLineStart = QRegExp(QLatin1String("^\\r?\\n\\r?\\n"));
-    const QRegExp sentenceEnd = QRegExp(QLatin1String("\\. $"));
+    const QRegularExpression blankLineEnd("\\n\\r?\\n$");
+    const QRegularExpression blankLineStart("^\\r?\\n\\r?\\n");
+    const QRegularExpression sentenceEnd("\\. $");
 
     if (!text1.count() || !text2.count()) // Edges
         return 6;
@@ -217,14 +217,14 @@ static int cleanupSemanticsScore(const QString &text1, const QString &text2)
     const bool whitespace2 = nonAlphaNumeric2 && char2.isSpace();
     const bool lineBreak1 = whitespace1 && char1.category() == QChar::Other_Control;
     const bool lineBreak2 = whitespace2 && char2.category() == QChar::Other_Control;
-    const bool blankLine1 = lineBreak1 && blankLineEnd.indexIn(text1) != -1;
-    const bool blankLine2 = lineBreak2 && blankLineStart.indexIn(text2) != -1;
+    const bool blankLine1 = lineBreak1 && blankLineEnd.match(text1).hasMatch();
+    const bool blankLine2 = lineBreak2 && blankLineStart.match(text2).hasMatch();
 
     if (blankLine1 || blankLine2) // Blank lines
       return 5;
     if (lineBreak1 || lineBreak2) // Line breaks
       return 4;
-    if (sentenceEnd.indexIn(text1) != -1) // End of sentence
+    if (sentenceEnd.match(text1).hasMatch()) // End of sentence
       return 3;
     if (whitespace1 || whitespace2) // Whitespaces
       return 2;
@@ -236,14 +236,14 @@ static int cleanupSemanticsScore(const QString &text1, const QString &text2)
 
 static bool isWhitespace(const QChar &c)
 {
-    if (c == QLatin1Char(' ') || c == QLatin1Char('\t'))
+    if (c == ' ' || c == '\t')
         return true;
     return false;
 }
 
 static bool isNewLine(const QChar &c)
 {
-    if (c == QLatin1Char('\n'))
+    if (c == '\n')
         return true;
     return false;
 }
@@ -263,9 +263,7 @@ void Differ::splitDiffList(const QList<Diff> &diffList,
     leftDiffList->clear();
     rightDiffList->clear();
 
-    for (int i = 0; i < diffList.count(); i++) {
-        const Diff diff = diffList.at(i);
-
+    for (const Diff &diff : diffList) {
         if (diff.command != Diff::Delete)
             rightDiffList->append(diff);
         if (diff.command != Diff::Insert)
@@ -304,7 +302,7 @@ QList<Diff> Differ::moveWhitespaceIntoEqualities(const QList<Diff> &input)
                     }
                     if (j > 0) {
                         // diff starts with j whitespaces, move them to the previous diff
-                        previousDiff.text.append(diff.text.left(j));
+                        previousDiff.text.append(diff.text.leftRef(j));
                         diff.text = diff.text.mid(j);
                     }
                 }
@@ -364,7 +362,7 @@ static QString encodeReducedWhitespace(const QString &input,
         QChar c = input.at(inputIndex);
 
         if (isWhitespace(c)) {
-            output.append(QLatin1Char(' '));
+            output.append(' ');
             codeMap->insert(outputIndex, QString(c));
             ++inputIndex;
 
@@ -398,10 +396,9 @@ static QList<Diff> decodeReducedWhitespace(const QList<Diff> &input,
     QList<Diff> output;
 
     int counter = 0;
-    QMap<int, QString>::const_iterator it = codeMap.constBegin();
-    const QMap<int, QString>::const_iterator itEnd = codeMap.constEnd();
-    for (int i = 0; i < input.count(); i++) {
-        Diff diff = input.at(i);
+    auto it = codeMap.constBegin();
+    const auto itEnd = codeMap.constEnd();
+    for (Diff diff : input) {
         const int diffCount = diff.text.count();
         while ((it != itEnd) && (it.key() < counter + diffCount)) {
             const int reversePosition = diffCount + counter - it.key();
@@ -437,8 +434,8 @@ void Differ::diffWithWhitespaceReduced(const QString &leftInput,
 
     QMap<int, QString> leftCodeMap;
     QMap<int, QString> rightCodeMap;
-    const QString leftString = encodeReducedWhitespace(leftInput, &leftCodeMap);
-    const QString rightString = encodeReducedWhitespace(rightInput, &rightCodeMap);
+    const QString &leftString = encodeReducedWhitespace(leftInput, &leftCodeMap);
+    const QString &rightString = encodeReducedWhitespace(rightInput, &rightCodeMap);
 
     Differ differ;
     QList<Diff> diffList = differ.diff(leftString, rightString);
@@ -473,11 +470,11 @@ void Differ::unifiedDiffWithWhitespaceReduced(const QString &leftInput,
 
     QMap<int, QString> leftCodeMap;
     QMap<int, QString> rightCodeMap;
-    const QString leftString = encodeReducedWhitespace(leftInput, &leftCodeMap);
-    const QString rightString = encodeReducedWhitespace(rightInput, &rightCodeMap);
+    const QString &leftString = encodeReducedWhitespace(leftInput, &leftCodeMap);
+    const QString &rightString = encodeReducedWhitespace(rightInput, &rightCodeMap);
 
     Differ differ;
-    QList<Diff> diffList = differ.unifiedDiff(leftString, rightString);
+    const QList<Diff> &diffList = differ.unifiedDiff(leftString, rightString);
 
     QList<Diff> leftDiffList;
     QList<Diff> rightDiffList;
@@ -567,7 +564,7 @@ static QString encodeExpandedWhitespace(const QString &leftEquality,
         if (leftWhitespaces.count() && rightWhitespaces.count()) {
             const int replacementPosition = output.count();
             const int replacementSize = qMax(leftWhitespaces.count(), rightWhitespaces.count());
-            const QString replacement(replacementSize, QLatin1Char(' '));
+            const QString replacement(replacementSize, ' ');
             leftCodeMap->insert(replacementPosition,
                                 qMakePair(replacementSize, leftWhitespaces));
             rightCodeMap->insert(replacementPosition,
@@ -604,10 +601,9 @@ static QList<Diff> decodeExpandedWhitespace(const QList<Diff> &input,
     QList<Diff> output;
 
     int counter = 0;
-    QMap<int, QPair<int, QString> >::const_iterator it = codeMap.constBegin();
-    const QMap<int, QPair<int, QString> >::const_iterator itEnd = codeMap.constEnd();
-    for (int i = 0; i < input.count(); i++) {
-        Diff diff = input.at(i);
+    auto it = codeMap.constBegin();
+    const auto itEnd = codeMap.constEnd();
+    for (Diff diff : input) {
         const int diffCount = diff.text.count();
         while ((it != itEnd) && (it.key() < counter + diffCount)) {
             const int replacementSize = it.value().first;
@@ -665,15 +661,15 @@ static bool diffWithWhitespaceExpandedInEqualities(const QList<Diff> &leftInput,
     QMap<int, QPair<int, QString> > commonRightCodeMap;
 
     while (l <= leftCount && r <= rightCount) {
-        Diff leftDiff = l < leftCount ? leftInput.at(l) : Diff(Diff::Equal);
-        Diff rightDiff = r < rightCount ? rightInput.at(r) : Diff(Diff::Equal);
+        const Diff leftDiff = l < leftCount ? leftInput.at(l) : Diff(Diff::Equal);
+        const Diff rightDiff = r < rightCount ? rightInput.at(r) : Diff(Diff::Equal);
 
         if (leftDiff.command == Diff::Equal && rightDiff.command == Diff::Equal) {
             QMap<int, QPair<int, QString> > leftCodeMap;
             QMap<int, QPair<int, QString> > rightCodeMap;
 
             bool ok = false;
-            QString commonEquality = encodeExpandedWhitespace(leftDiff.text,
+            const QString &commonEquality = encodeExpandedWhitespace(leftDiff.text,
                                           rightDiff.text,
                                           &leftCodeMap,
                                           &rightCodeMap,
@@ -682,18 +678,11 @@ static bool diffWithWhitespaceExpandedInEqualities(const QList<Diff> &leftInput,
                 return false;
 
             // join code map positions with common maps
-            QMapIterator<int, QPair<int, QString> > itLeft(leftCodeMap);
-            while (itLeft.hasNext()) {
-                itLeft.next();
-                commonLeftCodeMap.insert(leftText.count() + itLeft.key(),
-                                         itLeft.value());
-            }
-            QMapIterator<int, QPair<int, QString> > itRight(rightCodeMap);
-            while (itRight.hasNext()) {
-                itRight.next();
-                commonRightCodeMap.insert(rightText.count() + itRight.key(),
-                                          itRight.value());
-            }
+            for (auto it = leftCodeMap.cbegin(), end = leftCodeMap.cend(); it != end; ++it)
+                commonLeftCodeMap.insert(leftText.count() + it.key(), it.value());
+
+            for (auto it = rightCodeMap.cbegin(), end = rightCodeMap.cend(); it != end; ++it)
+                commonRightCodeMap.insert(rightText.count() + it.key(), it.value());
 
             leftText.append(commonEquality);
             rightText.append(commonEquality);
@@ -713,7 +702,7 @@ static bool diffWithWhitespaceExpandedInEqualities(const QList<Diff> &leftInput,
     }
 
     Differ differ;
-    QList<Diff> diffList = differ.cleanupSemantics(
+    const QList<Diff> &diffList = differ.cleanupSemantics(
                 differ.diff(leftText, rightText));
 
     QList<Diff> leftDiffList;
@@ -788,16 +777,16 @@ void Differ::ignoreWhitespaceBetweenEqualities(const QList<Diff> &leftInput,
     int r = 0;
 
     while (l <= leftCount && r <= rightCount) {
-        Diff leftDiff = l < leftCount
+        const Diff leftDiff = l < leftCount
                 ? leftInput.at(l)
                 : Diff(Diff::Equal);
-        Diff rightDiff = r < rightCount
+        const Diff rightDiff = r < rightCount
                 ? rightInput.at(r)
                 : Diff(Diff::Equal);
 
         if (leftDiff.command == Diff::Equal && rightDiff.command == Diff::Equal) {
-            Diff previousLeftDiff = l > 0 ? leftInput.at(l - 1) : Diff(Diff::Equal);
-            Diff previousRightDiff = r > 0 ? rightInput.at(r - 1) : Diff(Diff::Equal);
+            const Diff previousLeftDiff = l > 0 ? leftInput.at(l - 1) : Diff(Diff::Equal);
+            const Diff previousRightDiff = r > 0 ? rightInput.at(r - 1) : Diff(Diff::Equal);
 
             if (previousLeftDiff.command == Diff::Delete
                     && previousRightDiff.command == Diff::Insert) {
@@ -885,22 +874,22 @@ void Differ::diffBetweenEqualities(const QList<Diff> &leftInput,
     int r = 0;
 
     while (l <= leftCount && r <= rightCount) {
-        Diff leftDiff = l < leftCount
+        const Diff leftDiff = l < leftCount
                 ? leftInput.at(l)
                 : Diff(Diff::Equal);
-        Diff rightDiff = r < rightCount
+        const Diff rightDiff = r < rightCount
                 ? rightInput.at(r)
                 : Diff(Diff::Equal);
 
         if (leftDiff.command == Diff::Equal && rightDiff.command == Diff::Equal) {
-            Diff previousLeftDiff = l > 0 ? leftInput.at(l - 1) : Diff(Diff::Equal);
-            Diff previousRightDiff = r > 0 ? rightInput.at(r - 1) : Diff(Diff::Equal);
+            const Diff previousLeftDiff = l > 0 ? leftInput.at(l - 1) : Diff(Diff::Equal);
+            const Diff previousRightDiff = r > 0 ? rightInput.at(r - 1) : Diff(Diff::Equal);
 
             if (previousLeftDiff.command == Diff::Delete
                     && previousRightDiff.command == Diff::Insert) {
                 Differ differ;
                 differ.setDiffMode(Differ::CharMode);
-                QList<Diff> commonOutput = differ.cleanupSemantics(
+                const QList<Diff> commonOutput = differ.cleanupSemantics(
                             differ.diff(previousLeftDiff.text, previousRightDiff.text));
 
                 QList<Diff> outputLeftDiffList;
@@ -979,17 +968,14 @@ QString Diff::toString() const
 {
     QString prettyText = text;
     // Replace linebreaks with pretty char
-    prettyText.replace(QLatin1Char('\n'), QLatin1Char('\xb6'));
-    return commandString(command) + QLatin1String(" \"")
-            + prettyText + QLatin1String("\"");
+    prettyText.replace('\n', '\xb6');
+    return commandString(command) + " \"" + prettyText + "\"";
 }
 
 ///////////////
 
 Differ::Differ(QFutureInterfaceBase *jobController)
-    : m_diffMode(Differ::LineMode),
-      m_currentDiffMode(Differ::LineMode),
-      m_jobController(jobController)
+    : m_jobController(jobController)
 {
 
 }
@@ -1006,7 +992,7 @@ QList<Diff> Differ::unifiedDiff(const QString &text1, const QString &text2)
     QString encodedText2;
     QStringList subtexts = encode(text1, text2, &encodedText1, &encodedText2);
 
-    DiffMode diffMode = m_currentDiffMode;
+    const DiffMode diffMode = m_currentDiffMode;
     m_currentDiffMode = CharMode;
 
     // Each different subtext is a separate symbol
@@ -1221,8 +1207,8 @@ QList<Diff> Differ::diffMyersSplit(
     const QString text21 = text2.left(y);
     const QString text22 = text2.mid(y);
 
-    QList<Diff> diffList1 = preprocess1AndDiff(text11, text21);
-    QList<Diff> diffList2 = preprocess1AndDiff(text12, text22);
+    const QList<Diff> &diffList1 = preprocess1AndDiff(text11, text21);
+    const QList<Diff> &diffList2 = preprocess1AndDiff(text12, text22);
     return diffList1 + diffList2;
 }
 
@@ -1286,7 +1272,7 @@ QStringList Differ::encode(const QString &text1,
                                   QString *encodedText2)
 {
     QStringList lines;
-    lines.append(QLatin1String("")); // don't use code: 0
+    lines.append(QString()); // don't use code: 0
     QMap<QString, int> lineToCode;
 
     *encodedText1 = encode(text1, &lines, &lineToCode);
@@ -1299,7 +1285,7 @@ int Differ::findSubtextEnd(const QString &text,
                                   int subtextStart)
 {
     if (m_currentDiffMode == Differ::LineMode) {
-        int subtextEnd = text.indexOf(QLatin1Char('\n'), subtextStart);
+        int subtextEnd = text.indexOf('\n', subtextStart);
         if (subtextEnd == -1)
             subtextEnd = text.count() - 1;
         return ++subtextEnd;
@@ -1329,8 +1315,7 @@ QString Differ::encode(const QString &text,
         subtextStart = subtextEnd;
 
         if (lineToCode->contains(line)) {
-            int code = lineToCode->value(line);
-            codes += QChar(static_cast<ushort>(code));
+            codes += QChar(static_cast<ushort>(lineToCode->value(line)));
         } else {
             lines->append(line);
             lineToCode->insert(line, lines->count() - 1);
@@ -1427,7 +1412,7 @@ QList<Diff> Differ::cleanupSemantics(const QList<Diff> &diffList)
     // equality index, equality data
     QList<EqualityData> equalities;
     for (int i = 0; i <= diffList.count(); i++) {
-        Diff diff = i < diffList.count()
+        const Diff diff = i < diffList.count()
                   ? diffList.at(i)
                   : Diff(Diff::Equal); // dummy, ensure we process to the end
                                        // even when diffList doesn't end with equality
@@ -1459,7 +1444,7 @@ QList<Diff> Differ::cleanupSemantics(const QList<Diff> &diffList)
     QMap<int, bool> equalitiesToBeSplit;
     int i = 0;
     while (i < equalities.count()) {
-        const EqualityData data = equalities.at(i);
+        const EqualityData &data = equalities.at(i);
         if (data.textCount <= qMax(data.deletesBefore, data.insertsBefore)
                 && data.textCount <= qMax(data.deletesAfter, data.insertsAfter)) {
             if (i > 0) {

@@ -24,8 +24,7 @@
 **
 ****************************************************************************/
 
-#ifndef MYBACKENDOBJECT_H
-#define MYBACKENDOBJECT_H
+#pragma once
 
 #include <QObject>
 
@@ -43,5 +42,3 @@ public:
 
 public slots:
 };
-
-#endif // MYBACKENDOBJECT_H

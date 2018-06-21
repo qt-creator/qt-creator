@@ -12,7 +12,6 @@ QtcPlugin {
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
-    Depends { name: "QmakeProjectManager" }
     Depends { name: "RemoteLinux" }
 
     files: [
@@ -24,27 +23,17 @@ QtcPlugin {
         "qnxtoolchain.cpp",
         "qnxtoolchain.h",
         "qnx.qrc",
-        "qnxattachdebugsupport.cpp",
-        "qnxattachdebugsupport.h",
-        "qnxattachdebugdialog.cpp",
-        "qnxattachdebugdialog.h",
         "qnxbaseqtconfigwidget.cpp",
         "qnxbaseqtconfigwidget.h",
         "qnxconstants.h",
         "qnxconfiguration.cpp",
         "qnxconfiguration.h",
-        "qnxabstractrunsupport.cpp",
-        "qnxabstractrunsupport.h",
         "qnxanalyzesupport.cpp",
         "qnxanalyzesupport.h",
         "qnxdebugsupport.cpp",
         "qnxdebugsupport.h",
         "qnxdeployconfiguration.cpp",
         "qnxdeployconfiguration.h",
-        "qnxdeployconfigurationfactory.cpp",
-        "qnxdeployconfigurationfactory.h",
-        "qnxdeploystepfactory.cpp",
-        "qnxdeploystepfactory.h",
         "qnxdevice.cpp",
         "qnxdevice.h",
         "qnxdevicefactory.cpp",
@@ -76,12 +65,6 @@ QtcPlugin {
         "qnxqtversionfactory.h",
         "qnxrunconfiguration.cpp",
         "qnxrunconfiguration.h",
-        "qnxrunconfigurationfactory.cpp",
-        "qnxrunconfigurationfactory.h",
-        "qnxruncontrol.cpp",
-        "qnxruncontrol.h",
-        "qnxruncontrolfactory.cpp",
-        "qnxruncontrolfactory.h",
         "qnxutils.cpp",
         "qnxutils.h",
         "qnx_export.h",

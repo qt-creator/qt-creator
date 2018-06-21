@@ -47,7 +47,8 @@
 //    qlalr --no-debug --no-lines --qt qmljs.g
 //
 
-#pragma once
+#ifndef QMLJSPARSER_P_H
+#define QMLJSPARSER_P_H
 
 #include "qmljsglobal_p.h"
 #include "qmljsgrammar_p.h"
@@ -110,6 +111,7 @@ public:
       AST::UiArrayMemberList *UiArrayMemberList;
       AST::UiQualifiedId *UiQualifiedId;
       AST::UiQualifiedPragmaId *UiQualifiedPragmaId;
+      AST::UiEnumMemberList *UiEnumMemberList;
     };
 
 public:
@@ -159,7 +161,7 @@ public:
 
     inline DiagnosticMessage diagnosticMessage() const
     {
-        foreach (const DiagnosticMessage &d, diagnostic_messages) {
+        for (const DiagnosticMessage &d : diagnostic_messages) {
             if (d.kind != Severity::Warning)
                 return d;
         }
@@ -231,8 +233,12 @@ protected:
 
 
 
-#define J_SCRIPT_REGEXPLITERAL_RULE1 88
+#define J_SCRIPT_REGEXPLITERAL_RULE1 96
 
-#define J_SCRIPT_REGEXPLITERAL_RULE2 89
+#define J_SCRIPT_REGEXPLITERAL_RULE2 97
 
 QT_QML_END_NAMESPACE
+
+
+
+#endif // QMLJSPARSER_P_H

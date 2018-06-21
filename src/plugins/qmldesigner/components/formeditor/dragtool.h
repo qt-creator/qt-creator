@@ -40,7 +40,7 @@ class DragTool : public AbstractFormEditorTool
 {
 public:
     DragTool(FormEditorView *editorView);
-    virtual ~DragTool();
+    ~DragTool() override;
 
     void mousePressEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) override;
     void mouseMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) override;
@@ -81,7 +81,7 @@ protected:
     void abort();
     void createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, const QmlItemNode &parentNode, const QPointF &scenePos);
     void createQmlItemNodeFromImage(const QString &imageName, const QmlItemNode &parentNode, const QPointF &scenePos);
-    FormEditorItem *targetContainerOrRootItem(const QList<QGraphicsItem*> &itemList, FormEditorItem *urrentItem = 0);
+    FormEditorItem *targetContainerOrRootItem(const QList<QGraphicsItem*> &itemList, FormEditorItem *urrentItem = nullptr);
     void begin(QPointF scenePos);
     void end();
     void end(Snapper::Snapping useSnapping);
@@ -92,7 +92,7 @@ protected:
 private:
     MoveManipulator m_moveManipulator;
     SelectionIndicator m_selectionIndicator;
-    QPointer<FormEditorItem> m_movingItem;
+    FormEditorItem *m_movingItem = nullptr;
     RewriterTransaction m_rewriterTransaction;
     QmlItemNode m_dragNode;
     bool m_blockMove;

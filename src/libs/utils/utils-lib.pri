@@ -1,4 +1,4 @@
-contains(CONFIG, dll) {
+shared {
     DEFINES += UTILS_LIBRARY
 } else {
     DEFINES += QTCREATOR_UTILS_STATIC_LIB
@@ -21,16 +21,21 @@ win32: LIBS += -luser32 -lshell32
 # PortsGatherer
 win32: LIBS += -liphlpapi -lws2_32
 
-SOURCES += $$PWD/environment.cpp \
+SOURCES += \
+    $$PWD/benchmarker.cpp \
+    $$PWD/environment.cpp \
     $$PWD/environmentmodel.cpp \
     $$PWD/environmentdialog.cpp \
     $$PWD/qtcprocess.cpp \
     $$PWD/reloadpromptutils.cpp \
+    $$PWD/settingsaccessor.cpp \
     $$PWD/shellcommand.cpp \
     $$PWD/shellcommandpage.cpp \
     $$PWD/settingsselector.cpp \
     $$PWD/stringutils.cpp \
     $$PWD/templateengine.cpp \
+    $$PWD/temporarydirectory.cpp \
+    $$PWD/temporaryfile.cpp \
     $$PWD/textfieldcheckbox.cpp \
     $$PWD/textfieldcombobox.cpp \
     $$PWD/filesearch.cpp \
@@ -45,7 +50,6 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/codegeneration.cpp \
     $$PWD/newclasswidget.cpp \
     $$PWD/classnamevalidatinglineedit.cpp \
-    $$PWD/linecolumnlabel.cpp \
     $$PWD/fancylineedit.cpp \
     $$PWD/qtcolorbutton.cpp \
     $$PWD/savedaction.cpp \
@@ -80,11 +84,11 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/completingtextedit.cpp \
     $$PWD/json.cpp \
     $$PWD/portlist.cpp \
+    $$PWD/processhandle.cpp \
     $$PWD/appmainwindow.cpp \
     $$PWD/basetreeview.cpp \
     $$PWD/qtcassert.cpp \
     $$PWD/elfreader.cpp \
-    $$PWD/bracematcher.cpp \
     $$PWD/proxyaction.cpp \
     $$PWD/elidinglabel.cpp \
     $$PWD/hostosinfo.cpp \
@@ -110,23 +114,35 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/port.cpp \
     $$PWD/runextensions.cpp \
     $$PWD/utilsicons.cpp \
-    $$PWD/guard.cpp
+    $$PWD/guard.cpp \
+    $$PWD/highlightingitemdelegate.cpp \
+    $$PWD/fuzzymatcher.cpp \
+    $$PWD/textutils.cpp \
+    $$PWD/url.cpp \
+    $$PWD/filecrumblabel.cpp \
+    $$PWD/fixedsizeclicklabel.cpp \
+    $$PWD/removefiledialog.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
 
 HEADERS += \
+    $$PWD/benchmarker.h \
     $$PWD/environment.h \
     $$PWD/environmentmodel.h \
     $$PWD/environmentdialog.h \
+    $$PWD/pointeralgorithm.h \
     $$PWD/qtcprocess.h \
     $$PWD/utils_global.h \
     $$PWD/reloadpromptutils.h \
+    $$PWD/settingsaccessor.h \
     $$PWD/settingsselector.h \
     $$PWD/shellcommand.h \
     $$PWD/shellcommandpage.h \
     $$PWD/stringutils.h \
     $$PWD/templateengine.h \
+    $$PWD/temporarydirectory.h \
+    $$PWD/temporaryfile.h \
     $$PWD/textfieldcheckbox.h \
     $$PWD/textfieldcombobox.h \
     $$PWD/filesearch.h \
@@ -142,7 +158,6 @@ HEADERS += \
     $$PWD/codegeneration.h \
     $$PWD/newclasswidget.h \
     $$PWD/classnamevalidatinglineedit.h \
-    $$PWD/linecolumnlabel.h \
     $$PWD/fancylineedit.h \
     $$PWD/qtcolorbutton.h \
     $$PWD/savedaction.h \
@@ -181,10 +196,10 @@ HEADERS += \
     $$PWD/json.h \
     $$PWD/runextensions.h \
     $$PWD/portlist.h \
+    $$PWD/processhandle.h \
     $$PWD/appmainwindow.h \
     $$PWD/basetreeview.h \
     $$PWD/elfreader.h \
-    $$PWD/bracematcher.h \
     $$PWD/proxyaction.h \
     $$PWD/hostosinfo.h \
     $$PWD/osspecificaspects.h \
@@ -228,12 +243,28 @@ HEADERS += \
     $$PWD/smallstringlayout.h \
     $$PWD/sizedarray.h \
     $$PWD/smallstringio.h \
-    $$PWD/guard.h
+    $$PWD/guard.h \
+    $$PWD/smallstringfwd.h \
+    $$PWD/optional.h \
+    $$PWD/../3rdparty/optional/optional.hpp \
+    $$PWD/variant.h \
+    $$PWD/../3rdparty/variant/variant.hpp \
+    $$PWD/highlightingitemdelegate.h \
+    $$PWD/fuzzymatcher.h \
+    $$PWD/textutils.h \
+    $$PWD/predicates.h \
+    $$PWD/url.h \
+    $$PWD/filecrumblabel.h \
+    $$PWD/linecolumn.h \
+    $$PWD/link.h \
+    $$PWD/fixedsizeclicklabel.h \
+    $$PWD/removefiledialog.h
 
 FORMS += $$PWD/filewizardpage.ui \
-    $$PWD/projectintropage.ui \
     $$PWD/newclasswidget.ui \
-    $$PWD/proxycredentialsdialog.ui
+    $$PWD/projectintropage.ui \
+    $$PWD/proxycredentialsdialog.ui \
+    $$PWD/removefiledialog.ui
 
 RESOURCES += $$PWD/utils.qrc
 
@@ -241,8 +272,9 @@ osx {
     HEADERS += \
         $$PWD/fileutils_mac.h
     OBJECTIVE_SOURCES += \
-        $$PWD/fileutils_mac.mm
-    LIBS += -framework Foundation
+        $$PWD/fileutils_mac.mm \
+        $$PWD/processhandle_mac.mm
+    LIBS += -framework Foundation -framework AppKit
 }
 
 include(mimetypes/mimetypes.pri)

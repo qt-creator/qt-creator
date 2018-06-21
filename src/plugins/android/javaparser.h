@@ -28,6 +28,8 @@
 #include <projectexplorer/ioutputparser.h>
 #include <utils/fileutils.h>
 
+#include <QRegExp>
+
 namespace Android {
 namespace Internal {
 

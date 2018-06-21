@@ -12,6 +12,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
+    Depends { name: "app_version_header" }
 
     pluginTestDepends: [
         "CppEditor",
@@ -24,17 +25,11 @@ QtcPlugin {
         "genericbuildconfiguration.h",
         "genericmakestep.cpp",
         "genericmakestep.h",
-        "genericmakestep.ui",
         "genericproject.cpp",
         "genericproject.h",
-        "genericproject.qrc",
         "genericprojectconstants.h",
         "genericprojectfileseditor.cpp",
         "genericprojectfileseditor.h",
-        "genericprojectmanager.cpp",
-        "genericprojectmanager.h",
-        "genericprojectnodes.cpp",
-        "genericprojectnodes.h",
         "genericprojectplugin.cpp",
         "genericprojectplugin.h",
         "genericprojectwizard.cpp",

@@ -28,9 +28,12 @@
 #include "modelsmanager.h"
 #include "openelementvisitor.h"
 #include "modeleditor_plugin.h"
+#include "componentviewcontroller.h"
 
 #include "qmt/diagram/delement.h"
+#include "qmt/diagram/dpackage.h"
 #include "qmt/document_controller/documentcontroller.h"
+#include "qmt/infrastructure/contextmenuaction.h"
 #include "qmt/model/melement.h"
 #include "qmt/model/mclass.h"
 #include "qmt/model/mdiagram.h"
@@ -49,16 +52,20 @@
 #include <coreplugin/locator/ilocatorfilter.h>
 #include <utils/qtcassert.h>
 
+#include <QMenu>
+
 namespace ModelEditor {
 namespace Internal {
 
 class ElementTasks::ElementTasksPrivate {
 public:
-    qmt::DocumentController *documentController = 0;
+    qmt::DocumentController *documentController = nullptr;
+    ComponentViewController *componentViewController = nullptr;
 };
 
-ElementTasks::ElementTasks()
-    : d(new ElementTasksPrivate)
+ElementTasks::ElementTasks(QObject *parent)
+    : QObject(parent),
+      d(new ElementTasksPrivate)
 {
 }
 
@@ -70,6 +77,11 @@ ElementTasks::~ElementTasks()
 void ElementTasks::setDocumentController(qmt::DocumentController *documentController)
 {
     d->documentController = documentController;
+}
+
+void ElementTasks::setComponentViewController(ComponentViewController *componentViewController)
+{
+    d->componentViewController = componentViewController;
 }
 
 void ElementTasks::openElement(const qmt::MElement *element)
@@ -94,7 +106,7 @@ bool ElementTasks::hasClassDefinition(const qmt::MElement *element) const
     if (auto klass = dynamic_cast<const qmt::MClass *>(element)) {
         QString qualifiedClassName = klass->umlNamespace().isEmpty()
                 ? klass->name()
-                : klass->umlNamespace() + QStringLiteral("::") + klass->name();
+                : klass->umlNamespace() + "::" + klass->name();
 
         CppTools::CppClassesFilter *classesFilter = ExtensionSystem::PluginManager::getObject<CppTools::CppClassesFilter>();
         if (!classesFilter)
@@ -130,7 +142,7 @@ void ElementTasks::openClassDefinition(const qmt::MElement *element)
     if (auto klass = dynamic_cast<const qmt::MClass *>(element)) {
         QString qualifiedClassName = klass->umlNamespace().isEmpty()
                 ? klass->name()
-                : klass->umlNamespace() + QStringLiteral("::") + klass->name();
+                : klass->umlNamespace() + "::" + klass->name();
 
         CppTools::CppClassesFilter *classesFilter = ExtensionSystem::PluginManager::getObject<CppTools::CppClassesFilter>();
         if (!classesFilter)
@@ -262,7 +274,7 @@ bool ElementTasks::hasDiagram(const qmt::MElement *element) const
     qmt::FindDiagramVisitor visitor;
     element->accept(&visitor);
     const qmt::MDiagram *diagram = visitor.diagram();
-    return diagram != 0;
+    return diagram != nullptr;
 }
 
 bool ElementTasks::hasDiagram(const qmt::DElement *element, const qmt::MDiagram *diagram) const
@@ -361,7 +373,7 @@ void ElementTasks::openParentDiagram(const qmt::DElement *element, const qmt::ME
 
 bool ElementTasks::mayCreateDiagram(const qmt::MElement *element) const
 {
-    return dynamic_cast<const qmt::MPackage *>(element) != 0;
+    return dynamic_cast<const qmt::MPackage *>(element) != nullptr;
 }
 
 bool ElementTasks::mayCreateDiagram(const qmt::DElement *element,
@@ -389,7 +401,7 @@ void ElementTasks::createAndOpenDiagram(const qmt::MElement *element)
             auto newDiagram = new qmt::MCanvasDiagram();
             newDiagram->setName(package->name());
             qmt::MPackage *parentPackage = d->documentController->modelController()->findObject<qmt::MPackage>(package->uid());
-            QTC_ASSERT(parentPackage, delete newDiagram; return);
+            QMT_ASSERT(parentPackage, delete newDiagram; return);
             d->documentController->modelController()->addObject(parentPackage, newDiagram);
             ModelEditorPlugin::modelsManager()->openDiagram(
                         d->documentController->projectController()->project()->uid(),
@@ -406,6 +418,27 @@ void ElementTasks::createAndOpenDiagram(const qmt::DElement *element, const qmt:
     if (!melement)
         return;
     createAndOpenDiagram(melement);
+}
+
+bool ElementTasks::extendContextMenu(const qmt::DElement *delement, const qmt::MDiagram *, QMenu *menu)
+{
+    bool extended = false;
+    if (dynamic_cast<const qmt::DPackage *>(delement)) {
+        menu->addAction(new qmt::ContextMenuAction(tr("Update Include Dependencies"), "updateIncludeDependencies", menu));
+        extended = true;
+    }
+    return extended;
+}
+
+bool ElementTasks::handleContextMenuAction(const qmt::DElement *element, const qmt::MDiagram *, const QString &id)
+{
+    if (id == "updateIncludeDependencies") {
+        qmt::MPackage *mpackage = d->documentController->modelController()->findElement<qmt::MPackage>(element->modelUid());
+        if (mpackage)
+            d->componentViewController->updateIncludeDependencies(mpackage);
+        return true;
+    }
+    return false;
 }
 
 } // namespace Internal

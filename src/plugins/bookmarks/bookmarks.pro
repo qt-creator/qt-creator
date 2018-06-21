@@ -1,10 +1,14 @@
 include(../../qtcreatorplugin.pri)
 
-HEADERS += bookmarksplugin.h \
-           bookmark.h \
-           bookmarkmanager.h \
-           bookmarks_global.h
+HEADERS += \
+    bookmark.h \
+    bookmarkfilter.h \
+    bookmarkmanager.h \
+    bookmarks_global.h \
+    bookmarksplugin.h
 
-SOURCES += bookmarksplugin.cpp \
-           bookmark.cpp \
-           bookmarkmanager.cpp
+SOURCES += \
+    bookmark.cpp \
+    bookmarkfilter.cpp \
+    bookmarkmanager.cpp \
+    bookmarksplugin.cpp

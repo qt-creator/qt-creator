@@ -52,10 +52,17 @@
 
 #include <QGraphicsView>
 
+QT_FORWARD_DECLARE_CLASS(QImage)
+
 namespace ImageViewer {
 namespace Internal {
 
 class ImageViewerFile;
+
+struct ExportData {
+    QString fileName;
+    QSize size;
+};
 
 class ImageView : public QGraphicsView
 {
@@ -68,12 +75,8 @@ public:
     void reset();
     void createScene();
 
-signals:
-    void scaleFactorChanged(qreal factor);
-    void imageSizeChanged(const QSize &size);
-
-public slots:
     void exportImage();
+    void exportMultiImages();
     void setViewBackground(bool enable);
     void setViewOutline(bool enable);
     void zoomIn();
@@ -81,17 +84,21 @@ public slots:
     void resetToOriginalSize();
     void fitToScreen();
 
-private slots:
-    void emitScaleFactor();
+signals:
+    void scaleFactorChanged(qreal factor);
+    void imageSizeChanged(const QSize &size);
 
-protected:
+private:
+    void emitScaleFactor();
+    void doScale(qreal factor);
+    QSize svgSize() const;
+    QImage renderSvg(const QSize &imageSize) const;
+    bool exportSvg(const ExportData &ed);
+
     void drawBackground(QPainter *p, const QRectF &rect);
     void hideEvent(QHideEvent *event);
     void showEvent(QShowEvent *event);
     void wheelEvent(QWheelEvent *event);
-
-private:
-    void doScale(qreal factor);
 
     ImageViewerFile *m_file;
     QGraphicsItem *m_imageItem = 0;

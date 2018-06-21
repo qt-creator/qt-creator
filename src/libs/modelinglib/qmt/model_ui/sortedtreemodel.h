@@ -39,7 +39,7 @@ class QMT_EXPORT SortedTreeModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    explicit SortedTreeModel(QObject *parent = 0);
+    explicit SortedTreeModel(QObject *parent = nullptr);
     ~SortedTreeModel() override;
 
     TreeModel *treeModel() const { return m_treeModel; }
@@ -55,7 +55,7 @@ private:
 
     void startDelayedSortTimer();
 
-    TreeModel *m_treeModel;
+    TreeModel *m_treeModel = nullptr;
     QTimer m_delayedSortTimer;
 };
 

@@ -44,13 +44,22 @@ QmlDesignerIconProvider::QmlDesignerIconProvider()
 
 static QString iconPath()
 {
-    return Core::ICore::resourcePath() + QLatin1String("/qmldesigner/propertyEditorQmlSources/HelperWidgets/images/");
+    return Core::ICore::resourcePath() + QLatin1String("/qmldesigner/propertyEditorQmlSources/imports/HelperWidgets/images/");
 }
 
 QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
     Q_UNUSED(requestedSize)
 
+    QPixmap result = getPixmap(id);
+
+    if (size)
+        *size = result.size();
+    return result;
+}
+
+QPixmap QmlDesignerIconProvider::getPixmap(const QString &id)
+{
     using namespace Utils;
 
     QPixmap result;
@@ -180,8 +189,6 @@ QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id, QSize *size, c
     else
         qWarning() << Q_FUNC_INFO << "Image not found:" << id;
 
-    if (size)
-        *size = result.size();
     return result;
 }
 

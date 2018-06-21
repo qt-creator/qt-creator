@@ -26,7 +26,7 @@
 #pragma once
 
 #include "cppprojectfile.h"
-#include "projectpartbuilder.h"
+#include "cpprawprojectpart.h"
 
 #include <QString>
 #include <QVector>
@@ -36,7 +36,7 @@ namespace CppTools {
 class ProjectFileCategorizer
 {
 public:
-    using FileClassifier = ProjectPartBuilder::FileClassifier;
+    using FileClassifier = RawProjectPart::FileClassifier;
 
 public:
     ProjectFileCategorizer(const QString &projectPartName,

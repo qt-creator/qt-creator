@@ -39,7 +39,7 @@ class TEXTEDITOR_EXPORT IAssistProvider : public QObject
     Q_OBJECT
 
 public:
-    IAssistProvider(QObject *parent = 0) : QObject(parent) {}
+    IAssistProvider(QObject *parent = nullptr) : QObject(parent) {}
 
     enum RunType {
         Synchronous,
@@ -48,7 +48,6 @@ public:
     };
 
     virtual RunType runType() const = 0;
-    virtual bool supportsEditor(Core::Id editorId) const = 0;
     virtual IAssistProcessor *createProcessor() const = 0;
 };
 

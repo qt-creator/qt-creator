@@ -37,9 +37,8 @@
 
     \title Using External Tools
 
-    You can use external tools directly from \QC. Qt Linguist,
-    QML preview tools, the
-    default text editor for your system, and the \c sort tool are preconfigured
+    You can use external tools directly from \QC. Qt Linguist, QML preview
+    tools, and the default text editor for your system are preconfigured
     for use. You can change their default configurations and configure new
     tools.
 
@@ -92,16 +91,6 @@
 
     \QC looks for the editor path in the PATH environment variable
     of your operating system.
-
-    \section1 Sorting Text Alphabetically
-
-    To sort selected text alphabetically, select \uicontrol {Tools > External > Text
-    > Sort Selection}. The \c sort tool takes the selected text as input and
-    returns it in alphabetic order. By default, the output replaces the
-    original selection in the code editor.
-
-    To change the default configuration, select \uicontrol {Tools > External >
-    Configure}.
 
     \section1 Configuring External Tools
 

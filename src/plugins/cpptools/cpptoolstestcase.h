@@ -28,9 +28,9 @@
 #include "cpptools_global.h"
 
 #include <cplusplus/CppDocument.h>
+#include <utils/temporarydirectory.h>
 
 #include <QStringList>
-#include <QTemporaryDir>
 
 namespace CPlusPlus {
 class Document;
@@ -138,7 +138,7 @@ public:
     QString createFile(const QByteArray &relativePath, const QByteArray &contents);
 
 protected:
-    QTemporaryDir m_temporaryDir;
+    Utils::TemporaryDirectory m_temporaryDir;
     bool m_isValid;
 };
 
@@ -170,17 +170,6 @@ public:
 private:
     const QString m_filePath;
     bool m_writtenSuccessfully;
-};
-
-// Normally the proposal is deleted by the ProcessorRunner or the
-// GenericProposalWidget, but in tests we usually don't make use of them.
-class CPPTOOLS_EXPORT IAssistProposalScopedPointer
-{
-public:
-    IAssistProposalScopedPointer(TextEditor::IAssistProposal *proposal);
-    ~IAssistProposalScopedPointer();
-
-    QScopedPointer<TextEditor::IAssistProposal> d;
 };
 
 } // namespace Tests

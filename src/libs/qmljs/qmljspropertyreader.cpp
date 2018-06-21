@@ -200,9 +200,6 @@ QLinearGradient PropertyReader::parseGradient(const QString &propertyName,  bool
 
         if (UiObjectBinding* objectBinding = cast<UiObjectBinding *>(member)) {
             UiObjectInitializer *initializer = objectBinding->initializer;
-            const QString astValue = cleanupSemicolon(textAt(m_doc,
-                                                             initializer->lbraceToken,
-                                                             initializer->rbraceToken));
             const QString objectPropertyName = objectBinding->qualifiedId->name.toString();
             const QStringRef typeName = objectBinding->qualifiedTypeNameId->name;
             if (objectPropertyName == propertyName && typeName.contains(QLatin1String("Gradient"))) {

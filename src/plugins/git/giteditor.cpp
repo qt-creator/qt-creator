@@ -38,12 +38,13 @@
 #include <vcsbase/vcsoutputwindow.h>
 #include <texteditor/textdocument.h>
 
+#include <utils/temporaryfile.h>
+
 #include <QMenu>
 
 #include <QFileInfo>
 #include <QRegExp>
 #include <QSet>
-#include <QTemporaryFile>
 #include <QTextCodec>
 #include <QDir>
 
@@ -212,12 +213,12 @@ void GitEditorWidget::revertChange()
 void GitEditorWidget::logChange()
 {
     GitPlugin::client()->log(
-                sourceWorkingDirectory(), QString(), false, { m_currentChange });
+                sourceWorkingDirectory(), QString(), false, {m_currentChange});
 }
 
 void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
 {
-    QTemporaryFile patchFile;
+    Utils::TemporaryFile patchFile("git-apply-chunk");
     if (!patchFile.open())
         return;
 
@@ -226,7 +227,7 @@ void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
     patchFile.write(chunk.chunk);
     patchFile.close();
 
-    QStringList args = { "--cached" };
+    QStringList args = {"--cached"};
     if (revert)
         args << "--reverse";
     QString errorMessage;

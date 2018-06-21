@@ -84,8 +84,6 @@ private:
     void onTargetsBuilt(Project *project);
     void onEditorChanged(Core::IEditor *editor);
     void onEditorAboutToClose(Core::IEditor *editor);
-    void onActiveTargetChanged();
-    void onActiveBuildConfigurationChanged();
     void setDirty();
     // This method may not block!
     virtual void run(const QByteArray &sourceContent) = 0;
@@ -101,7 +99,7 @@ public:
 
     ProcessExtraCompiler(const Project *project, const Utils::FileName &source,
                          const Utils::FileNameList &targets, QObject *parent = nullptr);
-    ~ProcessExtraCompiler();
+    ~ProcessExtraCompiler() override;
 
 protected:
     // This will run a process in a thread, if
@@ -143,6 +141,7 @@ class PROJECTEXPLORER_EXPORT ExtraCompilerFactory : public QObject
     Q_OBJECT
 public:
     explicit ExtraCompilerFactory(QObject *parent = nullptr);
+    ~ExtraCompilerFactory() override;
 
     virtual FileType sourceType() const = 0;
     virtual QString sourceTag() const = 0;
@@ -150,7 +149,6 @@ public:
     virtual ExtraCompiler *create(const Project *project, const Utils::FileName &source,
                                   const Utils::FileNameList &targets) = 0;
 
-    static void registerExtraCompilerFactory(ExtraCompilerFactory *factory);
     static QList<ExtraCompilerFactory *> extraCompilerFactories();
 };
 

@@ -45,7 +45,7 @@ ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin) :
 {
     setId(RESOURCEEDITOR_ID);
     setMimeTypes(QStringList(QLatin1String(C_RESOURCE_MIMETYPE)));
-    setDisplayName(qApp->translate("OpenWith::Editors", C_RESOURCEEDITOR_DISPLAY_NAME));
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", C_RESOURCEEDITOR_DISPLAY_NAME));
 
     Core::FileIconProvider::registerIconOverlayForSuffix(
                 ProjectExplorer::Constants::FILEOVERLAY_QRC, "qrc");

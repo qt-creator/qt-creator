@@ -28,12 +28,17 @@
 
 #include "sessiondialog.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/id.h>
+
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/stringutils.h>
 
 #include <QFileInfo>
 #include <QDir>
+
+using namespace Core;
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -146,6 +151,11 @@ QVariant SessionModel::data(const QModelIndex &index, int role) const
         case ProjectsDisplayRole:
             result = pathsToBaseNames(SessionManager::projectsForSessionName(sessionName));
             break;
+        case ShortcutRole: {
+            const Id sessionBase = SESSION_BASE_ID;
+            if (Command *cmd = ActionManager::command(sessionBase.withSuffix(index.row() + 1)))
+                result = cmd->keySequence().toString(QKeySequence::NativeText);
+        } break;
         } // switch (role)
     }
 
@@ -176,16 +186,25 @@ void SessionModel::resetSessions()
     endResetModel();
 }
 
-void SessionModel::newSession()
+void SessionModel::newSession(QWidget *parent)
 {
-    runNewSessionDialog("", [](const QString &newName) {
+    SessionNameInputDialog sessionInputDialog(parent);
+    sessionInputDialog.setWindowTitle(tr("New Session Name"));
+    sessionInputDialog.setActionText(tr("&Create"), tr("Create and &Open"));
+
+    runSessionNameInputDialog(&sessionInputDialog, [](const QString &newName) {
         SessionManager::createSession(newName);
     });
 }
 
-void SessionModel::cloneSession(const QString &session)
+void SessionModel::cloneSession(QWidget *parent, const QString &session)
 {
-    runNewSessionDialog(session + " (2)", [session](const QString &newName) {
+    SessionNameInputDialog sessionInputDialog(parent);
+    sessionInputDialog.setWindowTitle(tr("New Session Name"));
+    sessionInputDialog.setActionText(tr("&Clone"), tr("Clone and &Open"));
+    sessionInputDialog.setValue(session + " (2)");
+
+    runSessionNameInputDialog(&sessionInputDialog, [session](const QString &newName) {
         SessionManager::cloneSession(session, newName);
     });
 }
@@ -199,9 +218,14 @@ void SessionModel::deleteSession(const QString &session)
     endResetModel();
 }
 
-void SessionModel::renameSession(const QString &session)
+void SessionModel::renameSession(QWidget *parent, const QString &session)
 {
-    runNewSessionDialog(session, [session](const QString &newName) {
+    SessionNameInputDialog sessionInputDialog(parent);
+    sessionInputDialog.setWindowTitle(tr("Rename Session"));
+    sessionInputDialog.setActionText(tr("&Rename"), tr("Rename and &Open"));
+    sessionInputDialog.setValue(session);
+
+    runSessionNameInputDialog(&sessionInputDialog, [session](const QString &newName) {
         SessionManager::renameSession(session, newName);
     });
 }
@@ -212,21 +236,17 @@ void SessionModel::switchToSession(const QString &session)
     emit sessionSwitched();
 }
 
-void SessionModel::runNewSessionDialog(const QString &suggestedName, std::function<void(const QString &)> createSession)
+void SessionModel::runSessionNameInputDialog(SessionNameInputDialog *sessionInputDialog, std::function<void(const QString &)> createSession)
 {
-    SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), nullptr);
-    newSessionInputDialog.setWindowTitle(tr("New Session Name"));
-    newSessionInputDialog.setValue(suggestedName);
-
-    if (newSessionInputDialog.exec() == QDialog::Accepted) {
-        QString newSession = newSessionInputDialog.value();
+    if (sessionInputDialog->exec() == QDialog::Accepted) {
+        QString newSession = sessionInputDialog->value();
         if (newSession.isEmpty() || SessionManager::sessions().contains(newSession))
             return;
         beginResetModel();
         createSession(newSession);
         endResetModel();
 
-        if (newSessionInputDialog.isSwitchToRequested())
+        if (sessionInputDialog->isSwitchToRequested())
             switchToSession(newSession);
         emit sessionCreated(newSession);
     }

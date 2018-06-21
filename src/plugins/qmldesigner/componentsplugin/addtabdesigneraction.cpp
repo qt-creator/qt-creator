@@ -57,7 +57,7 @@ bool isTabAndParentIsTabView(const ModelNode &modelNode)
 AddTabDesignerAction::AddTabDesignerAction()
     : AbstractAction(QCoreApplication::translate("TabViewToolAction","Add Tab..."))
 {
-    connect(action(), SIGNAL(triggered()), this, SLOT(addNewTab()));
+    connect(action(), &QAction::triggered, this, &AddTabDesignerAction::addNewTab);
 }
 
 QByteArray AddTabDesignerAction::category() const
@@ -77,7 +77,7 @@ int AddTabDesignerAction::priority() const
 
 ActionInterface::Type AddTabDesignerAction::type() const
 {
-    return Action;
+    return ContextMenuAction;
 }
 
 bool AddTabDesignerAction::isVisible(const SelectionContext &selectionContext) const

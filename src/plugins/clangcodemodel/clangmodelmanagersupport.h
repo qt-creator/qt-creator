@@ -33,16 +33,27 @@
 #include <QObject>
 #include <QScopedPointer>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QMenu;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Core { class IDocument; }
+namespace Core {
+class IDocument;
+class Id;
+} // namespace Core
 namespace TextEditor { class TextEditorWidget; }
+namespace CppTools {
+class FollowSymbolInterface;
+class RefactoringEngineInterface;
+} // namespace CppTools
 
 namespace ClangCodeModel {
 namespace Internal {
+
+class ClangProjectSettings;
 
 class ModelManagerSupportClang:
         public QObject,
@@ -52,15 +63,21 @@ class ModelManagerSupportClang:
 
 public:
     ModelManagerSupportClang();
-    ~ModelManagerSupportClang();
+    ~ModelManagerSupportClang() override;
 
     CppTools::CppCompletionAssistProvider *completionAssistProvider() override;
-    CppTools::BaseEditorDocumentProcessor *editorDocumentProcessor(
+    TextEditor::BaseHoverHandler *createHoverHandler() override;
+    CppTools::BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) override;
+    CppTools::FollowSymbolInterface &followSymbolInterface() override;
+    CppTools::RefactoringEngineInterface &refactoringEngineInterface() override;
+    std::unique_ptr<CppTools::AbstractOverviewModel> createOverviewModel() override;
 
-    IpcCommunicator &ipcCommunicator();
+    BackendCommunicator &communicator();
     QString dummyUiHeaderOnDiskDirPath() const;
     QString dummyUiHeaderOnDiskPath(const QString &filePath) const;
+
+    ClangProjectSettings &projectSettings(ProjectExplorer::Project *project) const;
 
     static ModelManagerSupportClang *instance();
 
@@ -84,10 +101,15 @@ private:
                                         int lineNumber,
                                         QMenu *menu);
 
+    void onProjectAdded(ProjectExplorer::Project *project);
+    void onAboutToRemoveProject(ProjectExplorer::Project *project);
+
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
     void onProjectPartsRemoved(const QStringList &projectPartIds);
 
-    void unregisterTranslationUnitsWithProjectParts(const QStringList &projectPartIds);
+    void onDiagnosticConfigsInvalidated(const QVector<Core::Id> &configIds);
+
+    void closeBackendDocumentsWithProjectParts(const QStringList &projectPartIds);
 
     void connectTextDocumentToTranslationUnit(TextEditor::TextDocument *textDocument);
     void connectTextDocumentToUnsavedFiles(TextEditor::TextDocument *textDocument);
@@ -98,8 +120,12 @@ private:
 
 private:
     UiHeaderOnDiskManager m_uiHeaderOnDiskManager;
-    IpcCommunicator m_ipcCommunicator;
+    BackendCommunicator m_communicator;
     ClangCompletionAssistProvider m_completionAssistProvider;
+    std::unique_ptr<CppTools::FollowSymbolInterface> m_followSymbol;
+    std::unique_ptr<CppTools::RefactoringEngineInterface> m_refactoringEngine;
+
+    QHash<ProjectExplorer::Project *, ClangProjectSettings *> m_projectSettings;
 };
 
 class ModelManagerSupportProviderClang : public CppTools::ModelManagerSupportProvider

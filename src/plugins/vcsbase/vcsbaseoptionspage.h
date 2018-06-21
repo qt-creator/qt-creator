@@ -42,7 +42,7 @@ namespace VcsBase {
 class VCSBASE_EXPORT VcsBaseOptionsPage : public Core::IOptionsPage
 {
 public:
-    explicit VcsBaseOptionsPage(QObject *parent = 0);
+    explicit VcsBaseOptionsPage(QObject *parent = nullptr);
     ~VcsBaseOptionsPage() override;
 };
 
@@ -53,7 +53,7 @@ class VCSBASE_EXPORT VcsClientOptionsPageWidget : public QWidget
     Q_OBJECT
 
 public:
-    VcsClientOptionsPageWidget(QWidget *parent = 0);
+    VcsClientOptionsPageWidget(QWidget *parent = nullptr);
 
     virtual void setSettings(const VcsBaseClientSettings &s) = 0;
     virtual VcsBaseClientSettings settings() const = 0;
@@ -66,11 +66,11 @@ class VCSBASE_EXPORT VcsClientOptionsPage : public VcsBaseOptionsPage
 public:
     using WidgetFactory = std::function<VcsClientOptionsPageWidget *()>;
 
-    explicit VcsClientOptionsPage(Core::IVersionControl *control, VcsBaseClientImpl *client, QObject *parent = 0);
+    explicit VcsClientOptionsPage(Core::IVersionControl *control, VcsBaseClientImpl *client, QObject *parent = nullptr);
 
     VcsClientOptionsPageWidget *widget() override;
-    virtual void apply() override;
-    virtual void finish() override;
+    void apply() override;
+    void finish() override;
 
 signals:
     void settingsChanged();

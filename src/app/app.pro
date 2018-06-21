@@ -12,14 +12,19 @@ HEADERS += ../tools/qtcreatorcrashhandler/crashhandlersetup.h
 SOURCES += main.cpp ../tools/qtcreatorcrashhandler/crashhandlersetup.cpp
 
 include(../rpath.pri)
+include(../libs/qt-breakpad/qtbreakpad.pri)
 
 LIBS *= -l$$qtLibraryName(ExtensionSystem) -l$$qtLibraryName(Aggregation) -l$$qtLibraryName(Utils)
 
-QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
-!isEmpty(QT_BREAKPAD_ROOT_PATH) {
-    include($$QT_BREAKPAD_ROOT_PATH/qtbreakpad.pri)
-}
 win32 {
+    # We need the version in two separate formats for the .rc file
+    #  RC_VERSION=4,3,82,0 (quadruple)
+    #  RC_VERSION_STRING="4.4.0-beta1" (free text)
+    # Also, we need to replace space with \x20 to be able to work with both rc and windres
+    COPYRIGHT = "2008-$${QTCREATOR_COPYRIGHT_YEAR} The Qt Company Ltd"
+    DEFINES += RC_VERSION=$$replace(QTCREATOR_VERSION, "\\.", ","),0 \
+        RC_VERSION_STRING=\"$${QTCREATOR_DISPLAY_VERSION}\" \
+        RC_COPYRIGHT=\"$$replace(COPYRIGHT, " ", "\\x20")\"
     RC_FILE = qtcreator.rc
 } else:macx {
     LIBS += -framework CoreFoundation
@@ -38,7 +43,7 @@ win32 {
                 --app-icon qtcreator \
                 --output-partial-info-plist $$shell_quote($(TMPDIR)/qtcreator.Info.plist) \
                 --platform macosx \
-                --minimum-deployment-target 10.7 \
+                --minimum-deployment-target $$QMAKE_MACOSX_DEPLOYMENT_TARGET \
                 --compile $$shell_quote($$IDE_DATA_PATH) \
                 $$shell_quote($$PWD/qtcreator.xcassets) > /dev/null
             ASSETCATALOG.input = ASSETCATALOG.files
@@ -53,7 +58,14 @@ win32 {
             INSTALLS += icns
         }
     }
-    QMAKE_INFO_PLIST = Info.plist
+
+    infoplist = $$cat($$PWD/app-Info.plist, blob)
+    infoplist = $$replace(infoplist, @MACOSX_DEPLOYMENT_TARGET@, $$QMAKE_MACOSX_DEPLOYMENT_TARGET)
+    infoplist = $$replace(infoplist, @QTCREATOR_COPYRIGHT_YEAR@, $$QTCREATOR_COPYRIGHT_YEAR)
+    infoplist = $$replace(infoplist, @PRODUCT_BUNDLE_IDENTIFIER@, $$PRODUCT_BUNDLE_IDENTIFIER)
+    write_file($$OUT_PWD/Info.plist, infoplist)
+
+    QMAKE_INFO_PLIST = $$OUT_PWD/Info.plist
 }
 
 target.path = $$INSTALL_APP_PATH

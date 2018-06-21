@@ -49,7 +49,7 @@ template<class BaseT>
 class View : public BaseT
 {
 public:
-    View(QWidget *parent = 0)
+    View(QWidget *parent = nullptr)
         : BaseT(parent)
     {}
     void setActivationMode(ActivationMode mode)
@@ -68,7 +68,7 @@ public:
         return v.toBool() ? SingleClickActivation : DoubleClickActivation;
     }
 
-    void keyPressEvent(QKeyEvent *event)
+    void keyPressEvent(QKeyEvent *event) override
     {
         // Note: This always eats the event
         // whereas QAbstractItemView never eats it
@@ -89,7 +89,7 @@ class QTCREATOR_UTILS_EXPORT TreeView : public View<QTreeView>
 {
     Q_OBJECT
 public:
-    TreeView(QWidget *parent = 0)
+    TreeView(QWidget *parent = nullptr)
         : View<QTreeView>(parent)
     {}
 };
@@ -98,7 +98,7 @@ class QTCREATOR_UTILS_EXPORT TreeWidget : public View<QTreeWidget>
 {
     Q_OBJECT
 public:
-    TreeWidget(QWidget *parent = 0)
+    TreeWidget(QWidget *parent = nullptr)
         : View<QTreeWidget>(parent)
     {}
 };
@@ -107,7 +107,7 @@ class QTCREATOR_UTILS_EXPORT ListView : public View<QListView>
 {
     Q_OBJECT
 public:
-    ListView(QWidget *parent = 0)
+    ListView(QWidget *parent = nullptr)
         : View<QListView>(parent)
     {}
 };
@@ -116,7 +116,7 @@ class QTCREATOR_UTILS_EXPORT ListWidget : public View<QListWidget>
 {
     Q_OBJECT
 public:
-    ListWidget(QWidget *parent = 0)
+    ListWidget(QWidget *parent = nullptr)
         : View<QListWidget>(parent)
     {}
 };

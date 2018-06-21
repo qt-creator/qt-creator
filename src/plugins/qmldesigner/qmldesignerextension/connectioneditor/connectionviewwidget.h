@@ -59,8 +59,8 @@ public:
         InvalidTab
     };
 
-    explicit ConnectionViewWidget(QWidget *parent = 0);
-    ~ConnectionViewWidget();
+    explicit ConnectionViewWidget(QWidget *parent = nullptr);
+    ~ConnectionViewWidget() override;
 
     void setBindingModel(BindingModel *model);
     void setConnectionModel(ConnectionModel *model);
@@ -79,7 +79,6 @@ public:
     QTableView *dynamicPropertiesTableView() const;
     QTableView *backendView() const;
 
-public slots:
     void bindingTableViewSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
     void connectionTableViewSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
     void dynamicPropertiesTableViewSelectionChanged(const QModelIndex &current, const QModelIndex &previous);
@@ -89,7 +88,7 @@ signals:
     void setEnabledAddButton(bool enabled);
     void setEnabledRemoveButton(bool enabled);
 
-private slots:
+private:
     void handleTabChanged(int i);
     void removeButtonClicked();
     void addButtonClicked();

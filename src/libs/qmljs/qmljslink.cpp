@@ -33,8 +33,6 @@
 #include "qmljsqrcparser.h"
 #include "qmljsconstants.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <QDir>
 
 using namespace LanguageUtils;
@@ -212,12 +210,9 @@ Context::ImportsPerDocument LinkPrivate::linkImports()
         Imports *imports = new Imports(valueOwner);
 
         // Add custom imports for the opened document
-        if (ExtensionSystem::PluginManager::instance()) {
-            auto providers = ExtensionSystem::PluginManager::getObjects<CustomImportsProvider>();
-            foreach (const auto &provider, providers)
-                foreach (const auto &import, provider->imports(valueOwner, document.data()))
-                    importCache.insert(ImportCacheKey(import.info), import);
-        }
+        for (const auto &provider : CustomImportsProvider::allProviders())
+            foreach (const auto &import, provider->imports(valueOwner, document.data()))
+                importCache.insert(ImportCacheKey(import.info), import);
 
         populateImportedTypes(imports, document);
         importsPerDocument.insert(document.data(), QSharedPointer<Imports>(imports));
@@ -397,6 +392,15 @@ Import LinkPrivate::importNonFile(Document::Ptr doc, const ImportInfo &importInf
         import.object->setPrototype(valueOwner->cppQmlTypes().objectByCppName(moduleApi.cppName));
     }
 
+    // TODO: at the moment there is not any types information on Qbs imports.
+    // Just check that tha the import is listed in the Qbs bundle.
+    if (doc->language() == Dialect::QmlQbs) {
+        QmlBundle qbs = ModelManagerInterface::instance()
+                ->activeBundles().bundleForLanguage(Dialect::QmlQbs);
+        if (qbs.supportedImports().contains(importInfo.name()))
+            importFound = true;
+    }
+
     if (!importFound && importInfo.ast()) {
         import.valid = false;
         error(doc, locationFromRange(importInfo.ast()->firstSourceLocation(),
@@ -453,8 +457,9 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
                 }
             }
             if (errorLoc.isValid()) {
-                warning(doc, errorLoc,
-                        Link::tr("QML module contains C++ plugins, currently reading type information..."));
+                appendDiagnostic(doc, DiagnosticMessage(Severity::ReadingTypeInfoWarning,
+                                                        errorLoc,
+                                                        Link::tr("QML module contains C++ plugins, currently reading type information...")));
                 import->valid = false;
             }
         } else if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::DumpError

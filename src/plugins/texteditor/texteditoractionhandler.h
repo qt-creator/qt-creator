@@ -29,6 +29,8 @@
 
 #include <QObject>
 
+#include <functional>
+
 namespace Core {
 class Id;
 class IEditor;
@@ -54,12 +56,13 @@ public:
         FollowSymbolUnderCursor = 8,
         JumpToFileUnderCursor = 16
     };
+    using TextEditorWidgetResolver = std::function<TextEditorWidget *(Core::IEditor *)>;
 
-    explicit TextEditorActionHandler(QObject *parent, Core::Id contextId, uint optionalActions = None);
-    ~TextEditorActionHandler();
+    explicit TextEditorActionHandler(QObject *parent, Core::Id editorId, Core::Id contextId,
+                                     uint optionalActions = None);
+    ~TextEditorActionHandler() override;
 
-protected:
-    virtual TextEditorWidget *resolveTextEditorWidget(Core::IEditor *editor) const;
+    void setTextEditorWidgetResolver(const TextEditorWidgetResolver &resolver);
 
 private:
     friend class Internal::TextEditorActionHandlerPrivate;

@@ -38,6 +38,10 @@ WinRtPackageDeploymentStepWidget::WinRtPackageDeploymentStepWidget(WinRtPackageD
     m_ui->setupUi(this);
     m_ui->leArguments->setText(m_step->winDeployQtArguments());
     m_ui->btnRestoreDefaultArgs->setIcon(Utils::Icons::RESET.icon());
+    connect(m_ui->btnRestoreDefaultArgs, &QToolButton::pressed,
+            this, &WinRtPackageDeploymentStepWidget::restoreDefaultArguments);
+    connect(m_ui->leArguments, &QLineEdit::textChanged,
+            m_step, &WinRtPackageDeploymentStep::setWinDeployQtArguments);
 }
 
 WinRtPackageDeploymentStepWidget::~WinRtPackageDeploymentStepWidget()
@@ -55,14 +59,9 @@ QString WinRtPackageDeploymentStepWidget::displayName() const
     return m_step->displayName();
 }
 
-void WinRtPackageDeploymentStepWidget::on_btnRestoreDefaultArgs_clicked()
+void WinRtPackageDeploymentStepWidget::restoreDefaultArguments()
 {
     m_ui->leArguments->setText(m_step->defaultWinDeployQtArguments());
-}
-
-void WinRtPackageDeploymentStepWidget::on_leArguments_textChanged(QString str)
-{
-    m_step->setWinDeployQtArguments(str);
 }
 
 } // namespace Internal

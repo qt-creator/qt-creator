@@ -36,14 +36,13 @@
 #include "xmlprotocol/status.h"
 #include "xmlprotocol/threadedparser.h"
 #include "xmlprotocol/parser.h"
-#include "memcheck/memcheckrunner.h"
+#include "valgrindrunner.h"
 
 QT_BEGIN_NAMESPACE
 class QTcpServer;
 class QTcpSocket;
 class QProcess;
 QT_END_NAMESPACE
-
 
 namespace Valgrind {
 namespace Test {
@@ -54,14 +53,13 @@ class Recorder : public QObject
 {
     Q_OBJECT
 public:
-    explicit Recorder(Valgrind::XmlProtocol::Parser *parser, QObject *parent = 0)
-    : QObject(parent)
+    explicit Recorder(XmlProtocol::Parser *parser)
     {
-        connect(parser, &Valgrind::XmlProtocol::Parser::error,
+        connect(parser, &XmlProtocol::Parser::error,
                 this, &Recorder::error);
-        connect(parser, &Valgrind::XmlProtocol::Parser::errorCount,
+        connect(parser, &XmlProtocol::Parser::errorCount,
                 this, &Recorder::errorCount);
-        connect(parser, &Valgrind::XmlProtocol::Parser::suppressionCount,
+        connect(parser, &XmlProtocol::Parser::suppressionCount,
                 this, &Recorder::suppressionCount);
     }
 
@@ -69,7 +67,7 @@ public:
     QVector<QPair<qint64,qint64> > errorcounts;
     QVector<QPair<QString,qint64> > suppcounts;
 
-public Q_SLOTS:
+public:
     void error(const Valgrind::XmlProtocol::Error &err)
     {
         errors.append(err);
@@ -92,23 +90,20 @@ class RunnerDumper : public QObject
     Q_OBJECT
 
 public:
-    explicit RunnerDumper(Valgrind::Memcheck::MemcheckRunner *runner, Valgrind::XmlProtocol::ThreadedParser *parser)
-        : QObject()
-        , m_errorReceived(false)
+    explicit RunnerDumper(ValgrindRunner *runner)
     {
-        connect(parser, &Valgrind::XmlProtocol::ThreadedParser::error,
+        connect(runner->parser(), &XmlProtocol::ThreadedParser::error,
                 this, &RunnerDumper::error);
-        connect(parser, &Valgrind::XmlProtocol::ThreadedParser::internalError,
+        connect(runner->parser(), &XmlProtocol::ThreadedParser::internalError,
                 this, &RunnerDumper::internalError);
-        connect(parser, &Valgrind::XmlProtocol::ThreadedParser::status,
+        connect(runner->parser(), &XmlProtocol::ThreadedParser::status,
                 this, &RunnerDumper::status);
-        connect(runner, &Valgrind::Memcheck::MemcheckRunner::logMessageReceived,
+        connect(runner, &ValgrindRunner::logMessageReceived,
                 this, &RunnerDumper::logMessageReceived);
-        connect(runner, &Valgrind::ValgrindRunner::processErrorReceived,
+        connect(runner, &ValgrindRunner::processErrorReceived,
                 this, &RunnerDumper::processErrorReceived);
     }
 
-public slots:
     void error(const Valgrind::XmlProtocol::Error &e)
     {
         qDebug() << "error received";
@@ -134,15 +129,14 @@ public slots:
     }
 
 public:
-    bool m_errorReceived;
-
+    bool m_errorReceived = false;
 };
 
 class ValgrindMemcheckParserTest : public QObject
 {
     Q_OBJECT
 
-private Q_SLOTS:
+private slots:
     void initTestCase();
     void cleanup();
 
@@ -161,11 +155,11 @@ private Q_SLOTS:
     void testValgrindStartError();
 
 private:
-    void initTest(const QLatin1String &testfile, const QStringList &otherArgs = QStringList());
+    void initTest(const QString &testfile, const QStringList &otherArgs = QStringList());
 
-    QTcpServer *m_server = 0;
-    QProcess *m_process = 0;
-    QTcpSocket *m_socket = 0;
+    QTcpServer *m_server = nullptr;
+    QProcess *m_process = nullptr;
+    QTcpSocket *m_socket = nullptr;
 };
 
 } // namespace Test

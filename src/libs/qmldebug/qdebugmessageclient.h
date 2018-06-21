@@ -46,9 +46,8 @@ class QMLDEBUG_EXPORT QDebugMessageClient : public QmlDebugClient
 public:
     explicit QDebugMessageClient(QmlDebugConnection *client);
 
-protected:
-    virtual void stateChanged(State state);
-    virtual void messageReceived(const QByteArray &);
+    void stateChanged(State state) override;
+    void messageReceived(const QByteArray &) override;
 
 signals:
     void newState(QmlDebug::QmlDebugClient::State);

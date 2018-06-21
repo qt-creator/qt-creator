@@ -75,7 +75,7 @@ public:
 
     static QString withExecutableSuffix(const QString &executable)
     {
-        return hostOsAspects().withExecutableSuffix(executable);
+        return OsSpecificAspects::withExecutableSuffix(hostOs(), executable);
     }
 
     static void setOverrideFileNameCaseSensitivity(Qt::CaseSensitivity sensitivity);
@@ -85,24 +85,22 @@ public:
     {
         return m_useOverrideFileNameCaseSensitivity
                 ? m_overrideFileNameCaseSensitivity
-                : hostOsAspects().fileNameCaseSensitivity();
+                : OsSpecificAspects::fileNameCaseSensitivity(hostOs());
     }
 
     static QChar pathListSeparator()
     {
-        return hostOsAspects().pathListSeparator();
+        return OsSpecificAspects::pathListSeparator(hostOs());
     }
 
     static Qt::KeyboardModifier controlModifier()
     {
-        return hostOsAspects().controlModifier();
+        return OsSpecificAspects::controlModifier(hostOs());
     }
 
     static bool canCreateOpenGLContext(QString *errorMessage);
 
 private:
-    static OsSpecificAspects hostOsAspects() { return OsSpecificAspects(hostOs()); }
-
     static Qt::CaseSensitivity m_overrideFileNameCaseSensitivity;
     static bool m_useOverrideFileNameCaseSensitivity;
 };

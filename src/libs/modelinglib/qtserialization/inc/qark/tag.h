@@ -73,7 +73,7 @@ public:
     T *object() const { return m_object; }
 
 private:
-    T *m_object = 0;
+    T *m_object = nullptr;
 };
 
 inline Tag tag(const QString &qualifiedName)

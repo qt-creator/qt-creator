@@ -56,7 +56,7 @@ class FormTemplateWizardPage : public Utils::WizardPage
     Q_OBJECT
 
 public:
-    explicit FormTemplateWizardPage(QWidget * parent = 0);
+    explicit FormTemplateWizardPage(QWidget *parent = nullptr);
 
     bool isComplete () const override;
     bool validatePage() override;
@@ -68,13 +68,12 @@ public:
 signals:
     void templateActivated();
 
-private slots:
+private:
     void slotCurrentTemplateChanged(bool);
 
-private:
     QString m_templateContents;
-    QDesignerNewFormWidgetInterface *m_newFormWidget;
-    bool m_templateSelected;
+    QDesignerNewFormWidgetInterface *m_newFormWidget = nullptr;
+    bool m_templateSelected = false;
 };
 
 } // namespace Internal

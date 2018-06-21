@@ -34,11 +34,7 @@ namespace AutotoolsProjectManager {
 namespace Constants {
     const char MAKEFILE_MIMETYPE[] = "text/x-makefile";
 
-//BuildConfiguration
-    const char AUTOTOOLS_BC_ID[] = "AutotoolsProjectManager.AutotoolsBuildConfiguration";
-
 //Project
     const char AUTOTOOLS_PROJECT_ID[] = "AutotoolsProjectManager.AutotoolsProject";
-    const char PROJECT_CONTEXT[] = "AutotoolsProject.ProjectContext";
 } // namespace Constants
 } // namespace AutotoolsProjectManager

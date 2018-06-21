@@ -8,40 +8,8 @@
    <valuemap type="QVariantMap" key="DefaultDevices">
     <value type="QString" key="Desktop">Desktop Device</value>
     <value type="QString" key="GenericLinuxOsType">{7c5a3673-e300-4286-9666-0f86d3e3dc38}</value>
-    <value type="QString" key="HarmattanOsType">{1a0985cf-ad32-487c-8af8-85ee532ac19c}</value>
-    <value type="QString" key="Maemo5OsType">{68a75dff-5ec6-40cb-884f-8f383ed2ebb2}</value>
    </valuemap>
    <valuelist type="QVariantList" key="DeviceList">
-    <valuemap type="QVariantMap">
-     <value type="int" key="Authentication">1</value>
-     <value type="QString" key="FreePortsSpec">10000-10100</value>
-     <value type="QString" key="Host">192.168.2.15</value>
-     <value type="QByteArray" key="InternalId">{68a75dff-5ec6-40cb-884f-8f383ed2ebb2}</value>
-     <value type="QString" key="KeyFile"></value>
-     <value type="QString" key="Name">Maemo5/Fremantle Device</value>
-     <value type="int" key="Origin">0</value>
-     <value type="QString" key="OsType">Maemo5OsType</value>
-     <value type="QString" key="Password"></value>
-     <value type="int" key="SshPort">22</value>
-     <value type="int" key="Timeout">10</value>
-     <value type="int" key="Type">0</value>
-     <value type="QString" key="Uname">developer</value>
-    </valuemap>
-    <valuemap type="QVariantMap">
-     <value type="int" key="Authentication">1</value>
-     <value type="QString" key="FreePortsSpec">10000-10100</value>
-     <value type="QString" key="Host">192.168.2.15</value>
-     <value type="QByteArray" key="InternalId">{1a0985cf-ad32-487c-8af8-85ee532ac19c}</value>
-     <value type="QString" key="KeyFile"></value>
-     <value type="QString" key="Name">MeeGo 1.2 Harmattan Device</value>
-     <value type="int" key="Origin">0</value>
-     <value type="QString" key="OsType">HarmattanOsType</value>
-     <value type="QString" key="Password"></value>
-     <value type="int" key="SshPort">22</value>
-     <value type="int" key="Timeout">10</value>
-     <value type="int" key="Type">0</value>
-     <value type="QString" key="Uname">developer</value>
-    </valuemap>
     <valuemap type="QVariantMap">
      <value type="int" key="Authentication">1</value>
      <value type="QString" key="FreePortsSpec"></value>

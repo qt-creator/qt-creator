@@ -24,44 +24,165 @@
 ****************************************************************************/
 
 #include "androidrunconfiguration.h"
+
+#include "androidconstants.h"
 #include "androidglobal.h"
 #include "androidtoolchain.h"
 #include "androidmanager.h"
+#include "adbcommandswidget.h"
 
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
+#include <utils/utilsicons.h>
 
+#include <QFormLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QSpacerItem>
+#include <QWidget>
+
+using namespace Android::Internal;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Android {
 
-AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, Core::Id id)
-    : RunConfiguration(parent, id)
+BaseStringListAspect::BaseStringListAspect(RunConfiguration *runConfig,
+                                           const QString &settingsKey,
+                                           Core::Id id)
+    : IRunConfigurationAspect(runConfig)
 {
+    setSettingsKey(settingsKey);
+    setId(id);
 }
 
-AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, AndroidRunConfiguration *source)
-    : RunConfiguration(parent, source)
+BaseStringListAspect::~BaseStringListAspect() = default;
+
+void BaseStringListAspect::addToConfigurationLayout(QFormLayout *layout)
 {
+    QTC_CHECK(!m_widget);
+    m_widget = new AdbCommandsWidget(layout->parentWidget());
+    m_widget->setCommandList(m_value);
+    m_widget->setTitleText(m_label);
+    layout->addRow(m_widget);
+    connect(m_widget.data(), &AdbCommandsWidget::commandsChanged, this, [this] {
+        m_value = m_widget->commandsList();
+        emit changed();
+    });
+}
+
+void BaseStringListAspect::fromMap(const QVariantMap &map)
+{
+    m_value = map.value(settingsKey()).toStringList();
+}
+
+void BaseStringListAspect::toMap(QVariantMap &data) const
+{
+    data.insert(settingsKey(), m_value);
+}
+
+QStringList BaseStringListAspect::value() const
+{
+    return m_value;
+}
+
+void BaseStringListAspect::setValue(const QStringList &value)
+{
+    m_value = value;
+    if (m_widget)
+        m_widget->setCommandList(m_value);
+}
+
+void BaseStringListAspect::setLabel(const QString &label)
+{
+    m_label = label;
+}
+
+
+AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id)
+{
+    auto amStartArgsAspect = new BaseStringAspect(this);
+    amStartArgsAspect->setId(Constants::ANDROID_AMSTARTARGS);
+    amStartArgsAspect->setSettingsKey("Android.AmStartArgsKey");
+    amStartArgsAspect->setLabelText(tr("Activity manager start options:"));
+    amStartArgsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    amStartArgsAspect->setHistoryCompleter("Android.AmStartArgs.History");
+    addExtraAspect(amStartArgsAspect);
+
+    auto preStartShellCmdAspect = new BaseStringListAspect(this);
+    preStartShellCmdAspect->setId(Constants::ANDROID_PRESTARTSHELLCMDLIST);
+    preStartShellCmdAspect->setSettingsKey("Android.PreStartShellCmdListKey");
+    preStartShellCmdAspect->setLabel(tr("Shell commands to run on Android device before application launch."));
+    addExtraAspect(preStartShellCmdAspect);
+
+    auto postStartShellCmdAspect = new BaseStringListAspect(this);
+    postStartShellCmdAspect->setId(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
+    postStartShellCmdAspect->setSettingsKey("Android.PostStartShellCmdListKey");
+    postStartShellCmdAspect->setLabel(tr("Shell commands to run on Android device after application quits."));
+    addExtraAspect(postStartShellCmdAspect);
+
+    setOutputFormatter<QtSupport::QtOutputFormatter>();
+    connect(target->project(), &Project::parsingFinished, this, [this] {
+        updateTargetInformation();
+    });
 }
 
 QWidget *AndroidRunConfiguration::createConfigurationWidget()
 {
-    return 0;// no special running configurations
+    auto widget = new QWidget;
+    auto layout = new QFormLayout(widget);
+
+    extraAspect(Constants::ANDROID_AMSTARTARGS)->addToConfigurationLayout(layout);
+
+    auto warningIconLabel = new QLabel;
+    warningIconLabel->setPixmap(Utils::Icons::WARNING.pixmap());
+
+    auto warningLabel = new QLabel(tr("If the \"am start\" options conflict, the application might not start."));
+    layout->addRow(warningIconLabel, warningLabel);
+
+    extraAspect(Constants::ANDROID_PRESTARTSHELLCMDLIST)->addToConfigurationLayout(layout);
+    extraAspect(Constants::ANDROID_POSTFINISHSHELLCMDLIST)->addToConfigurationLayout(layout);
+
+    auto wrapped = wrapWidget(widget);
+    auto detailsWidget = qobject_cast<DetailsWidget *>(wrapped);
+    QTC_ASSERT(detailsWidget, return wrapped);
+    detailsWidget->setState(DetailsWidget::Expanded);
+    detailsWidget->setSummaryText(tr("Android run settings"));
+    return detailsWidget;
 }
 
-Utils::OutputFormatter *AndroidRunConfiguration::createOutputFormatter() const
+void AndroidRunConfiguration::updateTargetInformation()
 {
-    return new QtSupport::QtOutputFormatter(target()->project());
+    const BuildTargetInfo bti = buildTargetInfo();
+    setDisplayName(bti.displayName);
+    setDefaultDisplayName(bti.displayName);
 }
 
-const QString AndroidRunConfiguration::remoteChannel() const
+QString AndroidRunConfiguration::disabledReason() const
 {
-    return QLatin1String(":5039");
+    const BuildTargetInfo bti = buildTargetInfo();
+    const QString projectFileName = bti.projectFilePath.toString();
+
+    if (project()->isParsing())
+        return tr("The project file \"%1\" is currently being parsed.").arg(projectFileName);
+
+    if (!project()->hasParsingData()) {
+        if (!bti.projectFilePath.exists())
+            return tr("The project file \"%1\" does not exist.").arg(projectFileName);
+
+        return tr("The project file \"%1\" could not be parsed.").arg(projectFileName);
+    }
+
+    return QString();
 }
 
 } // namespace Android

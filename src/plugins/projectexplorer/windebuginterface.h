@@ -54,11 +54,11 @@ private:
 
     static WinDebugInterface *m_instance;
 
-    qint64 m_creatorPid;
-    Qt::HANDLE m_waitHandles[HandleCount];
-    Qt::HANDLE m_bufferReadyEvent;
-    Qt::HANDLE m_sharedFile;
-    void *m_sharedMem;
+    qint64 m_creatorPid = -1;
+    Qt::HANDLE m_waitHandles[HandleCount] = {};
+    Qt::HANDLE m_bufferReadyEvent = nullptr;
+    Qt::HANDLE m_sharedFile = nullptr;
+    void *m_sharedMem = nullptr;
 };
 
 } // namespace Internal

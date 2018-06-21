@@ -51,7 +51,7 @@ VersionDialog::VersionDialog(QWidget *parent)
     if (Utils::HostOsInfo::isLinuxHost())
         setWindowIcon(Icons::QTCREATORLOGO_BIG.icon());
 
-    setWindowTitle(tr("About Qt Creator"));
+    setWindowTitle(tr("About %1").arg(Core::Constants::IDE_DISPLAY_NAME));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     QGridLayout *layout = new QGridLayout(this);
     layout->setSizeConstraint(QLayout::SetFixedSize);

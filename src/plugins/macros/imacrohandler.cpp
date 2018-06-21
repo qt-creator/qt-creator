@@ -67,55 +67,31 @@ using namespace Macros::Internal;
     the macro event.
 */
 
-class IMacroHandler::IMacroHandlerPrivate
-{
-public:
-    IMacroHandlerPrivate();
-
-    Macro *currentMacro;
-};
-
-IMacroHandler::IMacroHandlerPrivate::IMacroHandlerPrivate() :
-    currentMacro(0)
-{
-}
-
-
 // ---------- IMacroHandler ------------
-
-IMacroHandler::IMacroHandler():
-    d(new IMacroHandlerPrivate)
-{
-}
-
-IMacroHandler::~IMacroHandler()
-{
-    delete d;
-}
 
 void IMacroHandler::startRecording(Macro* macro)
 {
-    d->currentMacro = macro;
+    m_currentMacro = macro;
 }
 
 void IMacroHandler::endRecordingMacro(Macro* macro)
 {
     Q_UNUSED(macro)
-    d->currentMacro = 0;
+    m_currentMacro = nullptr;
 }
 
 void IMacroHandler::addMacroEvent(const MacroEvent& event)
 {
-    if (d->currentMacro)
-        d->currentMacro->append(event);
+    if (m_currentMacro)
+        m_currentMacro->append(event);
 }
 
 void IMacroHandler::setCurrentMacro(Macro *macro)
 {
-    d->currentMacro = macro;
+    m_currentMacro = macro;
 }
 
 bool IMacroHandler::isRecording() const
 {
-    return d->currentMacro != 0;
+    return m_currentMacro != nullptr;
 }

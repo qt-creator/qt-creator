@@ -30,7 +30,6 @@
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
-#include "debuggerstartparameters.h"
 #include "disassemblerlines.h"
 #include "sourceutils.h"
 
@@ -45,6 +44,7 @@
 
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
+#include <utils/savedaction.h>
 
 #include <QTextBlock>
 #include <QDir>
@@ -66,7 +66,7 @@ class DisassemblerBreakpointMarker : public TextMark
 {
 public:
     DisassemblerBreakpointMarker(const Breakpoint &bp, int lineNumber)
-        : TextMark(QString(), lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_bp(bp)
+        : TextMark(Utils::FileName(), lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_bp(bp)
     {
         setIcon(bp.icon());
         setPriority(TextMark::NormalPriority);
@@ -136,7 +136,7 @@ public:
 DisassemblerAgentPrivate::DisassemblerAgentPrivate(DebuggerEngine *engine)
   : document(0),
     engine(engine),
-    locationMark(engine, QString(), 0),
+    locationMark(engine, Utils::FileName(), 0),
     mimeType("text/x-qtcreator-generic-asm"),
     resetLocationScheduled(false)
 {}
@@ -175,7 +175,10 @@ int DisassemblerAgentPrivate::lineForAddress(quint64 address) const
 
 DisassemblerAgent::DisassemblerAgent(DebuggerEngine *engine)
     : d(new DisassemblerAgentPrivate(engine))
-{}
+{
+    connect(action(IntelFlavor), &Utils::SavedAction::valueChanged,
+            this, &DisassemblerAgent::reload);
+}
 
 DisassemblerAgent::~DisassemblerAgent()
 {
@@ -255,8 +258,7 @@ void DisassemblerAgentPrivate::configureMimeType()
 
     document->setMimeType(mimeType);
 
-    Utils::MimeDatabase mdb;
-    Utils::MimeType mtype = mdb.mimeTypeForName(mimeType);
+    Utils::MimeType mtype = Utils::mimeTypeForName(mimeType);
     if (mtype.isValid()) {
         foreach (IEditor *editor, DocumentModel::editorsForDocument(document))
             if (TextEditorWidget *widget = qobject_cast<TextEditorWidget *>(editor->widget()))
@@ -329,8 +331,8 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
     d->document->setPreferredDisplayName(QString("Disassembler (%1)")
         .arg(d->location.functionName()));
 
-    Breakpoints bps = breakHandler()->engineBreakpoints(d->engine);
-    foreach (Breakpoint bp, bps)
+    const Breakpoints bps = breakHandler()->engineBreakpoints(d->engine);
+    for (Breakpoint bp : bps)
         updateBreakpointMarker(bp);
 
     updateLocationMarker();

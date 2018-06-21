@@ -209,7 +209,7 @@ void SuppressionDialog::accept()
 
     // Add file to project if there is a project containing this file on the file system.
     if (!ProjectExplorer::SessionManager::projectForFile(Utils::FileName::fromString(path))) {
-        foreach (ProjectExplorer::Project *p, ProjectExplorer::SessionManager::projects()) {
+        for (ProjectExplorer::Project *p : ProjectExplorer::SessionManager::projects()) {
             if (path.startsWith(p->projectDirectory().toString())) {
                 p->rootProjectNode()->addFiles(QStringList() << path);
                 break;

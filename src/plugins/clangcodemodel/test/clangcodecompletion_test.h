@@ -45,7 +45,7 @@ private slots:
     void testCompleteGlobals();
     void testCompleteMembers();
     void testCompleteFunctions();
-    void testCompleteConstructorAndFallbackToGlobalCompletion();
+    void testCompleteConstructor();
 
     void testCompleteWithDotToArrowCorrection();
     void testDontCompleteWithDotToArrowCorrectionForFloats();
@@ -58,8 +58,6 @@ private slots:
     void testCompleteAfterModifyingIncludedHeaderByRefactoringActions();
     void testCompleteAfterChangingIncludedAndOpenHeaderExternally();
     void testCompleteAfterChangingIncludedAndNotOpenHeaderExternally();
-
-    void testUpdateBackendAfterRestart();
 };
 
 } // namespace Tests

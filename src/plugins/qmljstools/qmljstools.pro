@@ -2,7 +2,7 @@ include(../../qtcreatorplugin.pri)
 
 DEFINES += QMLJSTOOLS_LIBRARY
 
-!contains(CONFIG, dll) {
+!shared {
     DEFINES += QMLJSTOOLS_STATIC
 }
 

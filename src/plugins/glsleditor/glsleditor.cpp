@@ -27,7 +27,6 @@
 #include "glsleditorconstants.h"
 #include "glsleditorplugin.h"
 #include "glslhighlighter.h"
-#include "glslhoverhandler.h"
 #include "glslautocompleter.h"
 #include "glslcompletionassist.h"
 #include "glslindenter.h"
@@ -209,14 +208,14 @@ void GlslEditorWidget::updateDocumentNow()
         Scope *globalScope = new Namespace();
         doc->_globalScope = globalScope;
         const GlslEditorPlugin::InitFile *file = GlslEditorPlugin::shaderInit(variant);
-        sem.translationUnit(file->ast, globalScope, file->engine);
+        sem.translationUnit(file->ast(), globalScope, file->engine());
         if (variant & Lexer::Variant_VertexShader) {
             file = GlslEditorPlugin::vertexShaderInit(variant);
-            sem.translationUnit(file->ast, globalScope, file->engine);
+            sem.translationUnit(file->ast(), globalScope, file->engine());
         }
         if (variant & Lexer::Variant_FragmentShader) {
             file = GlslEditorPlugin::fragmentShaderInit(variant);
-            sem.translationUnit(file->ast, globalScope, file->engine);
+            sem.translationUnit(file->ast(), globalScope, file->engine());
         }
         sem.translationUnit(ast, globalScope, doc->_engine);
 
@@ -312,7 +311,7 @@ AssistInterface *GlslEditorWidget::createAssistInterface(
 GlslEditorFactory::GlslEditorFactory()
 {
     setId(Constants::C_GLSLEDITOR_ID);
-    setDisplayName(qApp->translate("OpenWith::Editors", Constants::C_GLSLEDITOR_DISPLAY_NAME));
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::C_GLSLEDITOR_DISPLAY_NAME));
     addMimeType(Constants::GLSL_MIMETYPE);
     addMimeType(Constants::GLSL_MIMETYPE_VERT);
     addMimeType(Constants::GLSL_MIMETYPE_FRAG);
@@ -323,17 +322,14 @@ GlslEditorFactory::GlslEditorFactory()
     setEditorWidgetCreator([]() { return new GlslEditorWidget; });
     setIndenterCreator([]() { return new GlslIndenter; });
     setSyntaxHighlighterCreator([]() { return new GlslHighlighter; });
-    setCommentStyle(Utils::CommentDefinition::CppStyle);
+    setCommentDefinition(Utils::CommentDefinition::CppStyle);
     setCompletionAssistProvider(new GlslCompletionAssistProvider);
     setParenthesesMatchingEnabled(true);
-    setMarksVisible(true);
     setCodeFoldingSupported(true);
 
     setEditorActionHandlers(TextEditorActionHandler::Format
                           | TextEditorActionHandler::UnCommentSelection
                           | TextEditorActionHandler::UnCollapseAll);
-
-    addHoverHandler(new GlslHoverHandler);
 }
 
 } // namespace Internal

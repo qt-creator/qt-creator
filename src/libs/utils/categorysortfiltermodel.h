@@ -34,7 +34,7 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT CategorySortFilterModel : public QSortFilterProxyModel
 {
 public:
-    CategorySortFilterModel(QObject *parent = 0);
+    CategorySortFilterModel(QObject *parent = nullptr);
 
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;

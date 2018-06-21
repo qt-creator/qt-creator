@@ -36,6 +36,7 @@
 #include <QPainter>
 #include <QPaintEngine>
 #include <QWidget>
+#include <QDebug>
 
 namespace Utils {
 
@@ -67,7 +68,12 @@ static MasksAndColors masksAndColors(const Icon &icon, int dpr)
         const QColor color = creatorTheme()->color(i.second);
         const QString dprFileName = StyleHelper::availableImageResolutions(i.first).contains(dpr) ?
                     StyleHelper::imageFileWithResolution(fileName, dpr) : fileName;
-        result.append(qMakePair(QPixmap(dprFileName), color));
+        QPixmap pixmap;
+        if (!pixmap.load(dprFileName)) {
+            pixmap = QPixmap(1, 1);
+            qWarning() << "Could not load image: " << dprFileName;
+        }
+        result.append({pixmap, color});
     }
     return result;
 }
@@ -148,18 +154,6 @@ static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedM
     return result;
 }
 
-static QPixmap combinedPlainPixmaps(const QVector<IconMaskAndColor> &images)
-{
-    QPixmap result(StyleHelper::dpiSpecificImageFile(images.first().first));
-    auto pixmap = images.constBegin();
-    pixmap++;
-    for (;pixmap != images.constEnd(); ++pixmap) {
-        const QPixmap overlay(StyleHelper::dpiSpecificImageFile((*pixmap).first));
-        result.paintEngine()->painter()->drawPixmap(0, 0, overlay);
-    }
-    return result;
-}
-
 Icon::Icon()
 {
 }
@@ -181,7 +175,7 @@ QIcon Icon::icon() const
     if (isEmpty()) {
         return QIcon();
     } else if (m_style == None) {
-        return QIcon(combinedPlainPixmaps(*this));
+        return QIcon(constFirst().first);
     } else {
         QIcon result;
         const int maxDpr = qRound(qApp->devicePixelRatio());
@@ -197,17 +191,19 @@ QIcon Icon::icon() const
     }
 }
 
-QPixmap Icon::pixmap() const
+QPixmap Icon::pixmap(QIcon::Mode iconMode) const
 {
     if (isEmpty()) {
         return QPixmap();
     } else if (m_style == None) {
-        return combinedPlainPixmaps(*this);
+        return QPixmap(StyleHelper::dpiSpecificImageFile(constFirst().first));
     } else {
         const MasksAndColors masks =
                 masksAndColors(*this, qRound(qApp->devicePixelRatio()));
         const QPixmap combinedMask = Utils::combinedMask(masks, m_style);
-        return masksToIcon(masks, combinedMask, m_style);
+        return iconMode == QIcon::Disabled
+                ? maskToColorAndAlpha(combinedMask, creatorTheme()->color(Theme::IconsDisabledColor))
+                : masksToIcon(masks, combinedMask, m_style);
     }
 }
 

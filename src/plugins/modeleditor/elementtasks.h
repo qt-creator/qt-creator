@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <QObject>
 #include "qmt/tasks/ielementtasks.h"
 
 namespace qmt { class DocumentController; }
@@ -32,16 +33,21 @@ namespace qmt { class DocumentController; }
 namespace ModelEditor {
 namespace Internal {
 
+class ComponentViewController;
+
 class ElementTasks :
-        public qmt::IElementTasks
+        public QObject, public qmt::IElementTasks
 {
+    Q_OBJECT
+
     class ElementTasksPrivate;
 
 public:
-    ElementTasks();
+    ElementTasks(QObject *parent = nullptr);
     ~ElementTasks();
 
     void setDocumentController(qmt::DocumentController *documentController);
+    void setComponentViewController(ComponentViewController *componentViewController);
 
     void openElement(const qmt::MElement *element) override;
     void openElement(const qmt::DElement *element, const qmt::MDiagram *diagram) override;
@@ -81,6 +87,9 @@ public:
                           const qmt::MDiagram *diagram) const override;
     void createAndOpenDiagram(const qmt::MElement *element) override;
     void createAndOpenDiagram(const qmt::DElement *element, const qmt::MDiagram *diagram) override;
+
+    bool extendContextMenu(const qmt::DElement *delement, const qmt::MDiagram *, QMenu *menu) override;
+    bool handleContextMenuAction(const qmt::DElement *element, const qmt::MDiagram *, const QString &id) override;
 
 private:
     ElementTasksPrivate *d;

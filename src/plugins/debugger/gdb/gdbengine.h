@@ -33,68 +33,67 @@
 #include <debugger/watchutils.h>
 #include <debugger/debuggeritem.h>
 #include <debugger/debuggertooltipmanager.h>
+#include <debugger/outputcollector.h>
 
 #include <coreplugin/id.h>
 
-#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/qtcprocess.h>
 
 #include <QProcess>
 #include <QTextCodec>
-#include <QTime>
 #include <QTimer>
-
-#include <functional>
 
 namespace Debugger {
 namespace Internal {
 
-class GdbProcess;
+class BreakpointParameters;
+class BreakpointResponse;
 class DebugInfoTask;
 class DebugInfoTaskHandler;
 class DebuggerResponse;
+class DisassemblerAgentCookie;
 class GdbMi;
 class MemoryAgentCookie;
-class BreakpointParameters;
-class BreakpointResponse;
 
-class DisassemblerAgentCookie;
-class DisassemblerLines;
+struct CoreInfo
+{
+    QString rawStringFromCore;
+    QString foundExecutableName; // empty if no corresponding exec could be found
+    bool isCore = false;
+
+    static CoreInfo readExecutableNameFromCore(const ProjectExplorer::Runnable &debugger,
+                                               const QString &coreFile);
+};
 
 class GdbEngine : public DebuggerEngine
 {
     Q_OBJECT
 
 public:
-    explicit GdbEngine(const DebuggerRunParameters &runParameters);
-    ~GdbEngine() override;
+    GdbEngine();
+    ~GdbEngine() final;
 
 private: ////////// General Interface //////////
-    DebuggerEngine *cppEngine() override { return this; }
+    DebuggerEngine *cppEngine() final { return this; }
 
-    virtual void handleGdbStartFailed();
-    void notifyInferiorSetupFailed() override;
-    void prepareForRestart() override;
+    void handleGdbStartFailed();
+    void prepareForRestart() final;
 
-    bool hasCapability(unsigned) const override;
-    void detachDebugger() override;
-    void shutdownInferior() override;
-    void abortDebugger() override;
-    void resetInferior() override;
+    bool hasCapability(unsigned) const final;
+    void detachDebugger() final;
+    void shutdownInferior() final;
+    void abortDebuggerProcess() final;
+    void resetInferior() final;
 
-    bool acceptsDebuggerCommands() const override;
-    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) override;
+    bool acceptsDebuggerCommands() const final;
+    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) final;
 
-private: ////////// General State //////////
+    ////////// General State //////////
 
-    DebuggerStartMode startMode() const;
-    void reloadLocals();
+    bool m_registerNamesListed = false;
 
-    bool m_registerNamesListed;
+    ////////// Gdb Process Management //////////
 
-protected: ////////// Gdb Process Management //////////
-
-    void startGdb(const QStringList &args = QStringList());
     void handleInferiorShutdown(const DebuggerResponse &response);
     void handleGdbExit(const DebuggerResponse &response);
     void setLinuxOsAbi();
@@ -115,20 +114,9 @@ protected: ////////// Gdb Process Management //////////
 
     void handleDebugInfoLocation(const DebuggerResponse &response);
 
-    // The adapter is still running just fine, but it failed to acquire a debuggee.
-    void notifyInferiorSetupFailed(const QString &msg);
+    // The engine is still running just fine, but it failed to acquire a debuggee.
+    void notifyInferiorSetupFailedHelper(const QString &msg);
 
-    void notifyAdapterShutdownOk();
-    void notifyAdapterShutdownFailed();
-
-    // Something went wrong with the adapter *after* adapterStarted() was emitted.
-    // Make sure to clean up everything before emitting this signal.
-    void handleAdapterCrashed(const QString &msg);
-
-private:
-    friend class GdbPlainEngine;
-    friend class GdbCoreEngine;
-    void handleInterruptDeviceInferior(const QString &error);
     void handleGdbFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void handleGdbError(QProcess::ProcessError error);
     void readGdbStandardOutput();
@@ -141,17 +129,16 @@ private:
     QTextCodec::ConverterState m_inferiorOutputCodecState;
 
     QByteArray m_inbuffer;
-    bool m_busy;
+    bool m_busy = false;
 
     // Name of the convenience variable containing the last
     // known function return value.
     QString m_resultVarName;
 
-protected: ////////// Gdb Command Management //////////
+    ////////// Gdb Command Management //////////
 
-    void runCommand(const DebuggerCommand &command) override;
+    void runCommand(const DebuggerCommand &command) final;
 
-private:
     void commandTimeout();
     void setTokenBarrier();
 
@@ -169,19 +156,17 @@ private:
     // This contains the first token number for the current round
     // of evaluation. Responses with older tokens are considers
     // out of date and discarded.
-    int m_oldestAcceptableToken;
-    int m_nonDiscardableCount;
-
-    int m_pendingBreakpointRequests; // Watch updating commands in flight
+    int m_oldestAcceptableToken = -1;
+    int m_nonDiscardableCount = 0;
 
     typedef void (GdbEngine::*CommandsDoneCallback)();
     // This function is called after all previous responses have been received.
-    CommandsDoneCallback m_commandsDoneCallback;
+    CommandsDoneCallback m_commandsDoneCallback = nullptr;
 
-    bool m_rerunPending;
+    bool m_rerunPending = false;
 
-private: ////////// Gdb Output, State & Capability Handling //////////
-protected:
+    ////////// Gdb Output, State & Capability Handling //////////
+
     Q_INVOKABLE void handleResponse(const QString &buff);
     void handleAsyncOutput(const QString &asyncClass, const GdbMi &result);
     void handleStopResponse(const GdbMi &data);
@@ -191,42 +176,41 @@ protected:
     void handleStop3();
     void resetCommandQueue();
 
-    bool isSynchronous() const override { return true; }
+    bool isSynchronous() const final { return true; }
 
     // Gdb initialization sequence
     void handleShowVersion(const DebuggerResponse &response);
     void handleListFeatures(const DebuggerResponse &response);
     void handlePythonSetup(const DebuggerResponse &response);
 
-    int m_gdbVersion;    // 7.6.1 is 70601
-    int m_pythonVersion; // 2.7.2 is 20702
-    bool m_isQnxGdb;
+    int m_gdbVersion = 100;    // 7.6.1 is 70601
+    int m_pythonVersion = 0; // 2.7.2 is 20702
+    bool m_isQnxGdb = false;
 
-private: ////////// Inferior Management //////////
+    ////////// Inferior Management //////////
 
     // This should be always the last call in a function.
-    bool stateAcceptsBreakpointChanges() const override;
-    bool acceptsBreakpoint(Breakpoint bp) const override;
-    void insertBreakpoint(Breakpoint bp) override;
-    void removeBreakpoint(Breakpoint bp) override;
-    void changeBreakpoint(Breakpoint bp) override;
+    bool stateAcceptsBreakpointChanges() const final;
+    bool acceptsBreakpoint(Breakpoint bp) const final;
+    void insertBreakpoint(Breakpoint bp) final;
+    void removeBreakpoint(Breakpoint bp) final;
+    void changeBreakpoint(Breakpoint bp) final;
+    void enableSubBreakpoint(const QString &locId, bool on) final;
 
-    void executeStep() override;
-    void executeStepOut() override;
-    void executeNext() override;
-    void executeStepI() override;
-    void executeNextI() override;
+    void executeStep() final;
+    void executeStepOut() final;
+    void executeNext() final;
+    void executeStepI() final;
+    void executeNextI() final;
 
-    protected:
     void continueInferiorInternal();
-    void continueInferior() override;
-    void interruptInferior() override;
-    virtual void interruptInferior2() {}
+    void continueInferior() final;
+    void interruptInferior() final;
 
-    void executeRunToLine(const ContextData &data) override;
-    void executeRunToFunction(const QString &functionName) override;
-    void executeJumpToLine(const ContextData &data) override;
-    void executeReturn() override;
+    void executeRunToLine(const ContextData &data) final;
+    void executeRunToFunction(const QString &functionName) final;
+    void executeJumpToLine(const ContextData &data) final;
+    void executeReturn() final;
 
     void handleExecuteContinue(const DebuggerResponse &response);
     void handleExecuteStep(const DebuggerResponse &response);
@@ -235,14 +219,12 @@ private: ////////// Inferior Management //////////
     void handleExecuteJumpToLine(const DebuggerResponse &response);
     void handleExecuteRunToLine(const DebuggerResponse &response);
 
-    void maybeHandleInferiorPidChanged(const QString &pid);
-    void handleInfoProc(const DebuggerResponse &response);
     QString msgPtraceError(DebuggerStartMode sm);
 
-private: ////////// View & Data Stuff //////////
+    ////////// View & Data Stuff //////////
 
-    void selectThread(ThreadId threadId) override;
-    void activateFrame(int index) override;
+    void selectThread(ThreadId threadId) final;
+    void activateFrame(int index) final;
     void handleAutoContinueInferior();
 
     //
@@ -270,14 +252,13 @@ private: ////////// View & Data Stuff //////////
     //
     // Modules specific stuff
     //
-    protected:
-    void loadSymbols(const QString &moduleName) override;
-    void loadAllSymbols() override;
-    void loadSymbolsForStack() override;
-    void requestModuleSymbols(const QString &moduleName) override;
-    void requestModuleSections(const QString &moduleName) override;
-    void reloadModules() override;
-    void examineModules() override;
+    void loadSymbols(const QString &moduleName) final;
+    void loadAllSymbols() final;
+    void loadSymbolsForStack() final;
+    void requestModuleSymbols(const QString &moduleName) final;
+    void requestModuleSections(const QString &moduleName) final;
+    void reloadModules() final;
+    void examineModules() final;
 
     void reloadModulesInternal();
     void handleModulesList(const DebuggerResponse &response);
@@ -286,14 +267,14 @@ private: ////////// View & Data Stuff //////////
     //
     // Snapshot specific stuff
     //
-    virtual void createSnapshot() override;
+    void createSnapshot() final;
     void handleMakeSnapshot(const DebuggerResponse &response, const QString &coreFile);
 
     //
     // Register specific stuff
     //
-    void reloadRegisters() override;
-    void setRegisterValue(const QString &name, const QString &value) override;
+    void reloadRegisters() final;
+    void setRegisterValue(const QString &name, const QString &value) final;
     void handleRegisterListNames(const DebuggerResponse &response);
     void handleRegisterListing(const DebuggerResponse &response);
     void handleRegisterListValues(const DebuggerResponse &response);
@@ -304,7 +285,7 @@ private: ////////// View & Data Stuff //////////
     // Disassembler specific stuff
     //
     // Chain of fallbacks: PointMixed -> PointPlain -> RangeMixed -> RangePlain.
-    void fetchDisassembler(DisassemblerAgent *agent) override;
+    void fetchDisassembler(DisassemblerAgent *agent) final;
     void fetchDisassemblerByCliPointMixed(const DisassemblerAgentCookie &ac);
     void fetchDisassemblerByCliRangeMixed(const DisassemblerAgentCookie &ac);
     void fetchDisassemblerByCliRangePlain(const DisassemblerAgentCookie &ac);
@@ -313,7 +294,7 @@ private: ////////// View & Data Stuff //////////
     //
     // Source file specific stuff
     //
-    void reloadSourceFiles() override;
+    void reloadSourceFiles() final;
     void reloadSourceFilesInternal();
     void handleQuerySources(const DebuggerResponse &response);
 
@@ -325,13 +306,12 @@ private: ////////// View & Data Stuff //////////
     QMap<QString, QString> m_fullToShortName;
     QMultiMap<QString, QString> m_baseNameToFullName;
 
-    bool m_sourcesListUpdating;
+    bool m_sourcesListUpdating = false;
 
     //
     // Stack specific stuff
     //
-protected:
-    void updateAll() override;
+    void updateAll() final;
     void handleStackListFrames(const DebuggerResponse &response, bool isFull);
     void handleStackSelectThread(const DebuggerResponse &response);
     void handleThreadListIds(const DebuggerResponse &response);
@@ -339,20 +319,21 @@ protected:
     void handleThreadNames(const DebuggerResponse &response);
     DebuggerCommand stackCommand(int depth);
     void reloadStack();
-    void reloadFullStack() override;
-    void loadAdditionalQmlStack() override;
+    void reloadFullStack() final;
+    void loadAdditionalQmlStack() final;
     int currentFrame() const;
 
     //
     // Watch specific stuff
     //
-    virtual void assignValueInDebugger(WatchItem *item,
-        const QString &expr, const QVariant &value) override;
+    void reloadLocals();
+    void assignValueInDebugger(WatchItem *item,
+        const QString &expr, const QVariant &value) final;
 
-    void fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length) override;
+    void fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length) final;
     void fetchMemoryHelper(const MemoryAgentCookie &cookie);
     void handleChangeMemory(const DebuggerResponse &response);
-    void changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray &data) override;
+    void changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray &data) final;
     void handleFetchMemory(const DebuggerResponse &response, MemoryAgentCookie ac);
 
     void showToolTip();
@@ -363,7 +344,7 @@ protected:
 
     void createFullBacktrace();
 
-    void doUpdateLocals(const UpdateParameters &parameters) override;
+    void doUpdateLocals(const UpdateParameters &parameters) final;
     void handleFetchVariables(const DebuggerResponse &response);
 
     void setLocals(const QList<GdbMi> &locals);
@@ -371,29 +352,26 @@ protected:
     //
     // Dumper Management
     //
-    void reloadDebuggingHelpers() override;
+    void reloadDebuggingHelpers() final;
 
     //
     // Convenience Functions
     //
-    QString errorMessage(QProcess::ProcessError error);
     void showExecutionError(const QString &message);
     QString failedToStartMessage();
 
-    static QString tooltipIName(const QString &exp);
-
     // For short-circuiting stack and thread list evaluation.
-    bool m_stackNeeded;
+    bool m_stackNeeded = false;
 
     // For suppressing processing *stopped and *running responses
     // while updating locals.
-    bool m_inUpdateLocals;
+    bool m_inUpdateLocals = false;
 
     // HACK:
     QString m_currentThread;
     QString m_lastWinException;
     QString m_lastMissingDebugInfo;
-    bool m_terminalTrap;
+    bool m_expectTerminalTrap = false;
     bool usesExecInterrupt() const;
     bool usesTargetAsync() const;
 
@@ -402,16 +380,7 @@ protected:
     QHash<int, QString> m_scheduledTestResponses;
     QSet<int> m_testCases;
 
-    // Debug information
-    friend class DebugInfoTaskHandler;
-    void requestDebugInformation(const DebugInfoTask &task);
-    DebugInfoTaskHandler *m_debugInfoTaskHandler;
-
-    // Indicates whether we had at least one full attempt to load
-    // debug information.
-    bool attemptQuickStart() const;
-    bool m_fullStartDone;
-    bool m_systemDumpersLoaded;
+    bool m_systemDumpersLoaded = false;
 
     static QString msgGdbStopFailed(const QString &why);
     static QString msgInferiorStopFailed(const QString &why);
@@ -420,20 +389,53 @@ protected:
     static QString msgInferiorRunOk();
     static QString msgConnectRemoteServerFailed(const QString &why);
 
-    void debugLastCommand() override;
+    void debugLastCommand() final;
     DebuggerCommand m_lastDebuggableCommand;
 
-protected:
-    virtual void write(const QByteArray &data);
+    bool isPlainEngine() const;
+    bool isCoreEngine() const;
+    bool isRemoteEngine() const;
+    bool isAttachEngine() const;
+    bool isTermEngine() const;
 
-protected:
-    bool prepareCommand();
+    void setupEngine() final;
+    void runEngine() final;
+    void shutdownEngine() final;
+
+    void interruptInferior2();
+
+    // Plain
+    void handleExecRun(const DebuggerResponse &response);
+    void handleFileExecAndSymbols(const DebuggerResponse &response);
+
+    // Attach
+    void handleAttach(const DebuggerResponse &response);
+
+    // Remote
+    void callTargetRemote();
+    void handleSetTargetAsync(const DebuggerResponse &response);
+    void handleTargetRemote(const DebuggerResponse &response);
+    void handleTargetExtendedRemote(const DebuggerResponse &response);
+    void handleTargetExtendedAttach(const DebuggerResponse &response);
+    void handleTargetQnx(const DebuggerResponse &response);
+    void handleSetNtoExecutable(const DebuggerResponse &response);
+    void handleInterruptInferior(const DebuggerResponse &response);
     void interruptLocalInferior(qint64 pid);
 
-protected:
+    // Terminal
+    void handleStubAttached(const DebuggerResponse &response, qint64 mainThreadId);
+
+    // Core
+    void handleTargetCore(const DebuggerResponse &response);
+    void handleCoreRoundTrip(const DebuggerResponse &response);
+    QString coreFileName() const;
+
+    QString mainFunction() const;
+    void setupInferior();
+
     Utils::QtcProcess m_gdbProc;
+    OutputCollector m_outputCollector;
     QString m_errorString;
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr m_signalOperation;
 };
 
 } // namespace Internal

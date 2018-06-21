@@ -51,9 +51,8 @@
 
     \list 1
 
-        \li In \uicontrol Projects, select a project.
-
-        \li Click \uicontrol Dependencies.
+        \li Select \uicontrol Projects > \uicontrol {Project Settings} >
+            \uicontrol Dependencies.
 
         \li Select projects that must be built before the current project is
             built.

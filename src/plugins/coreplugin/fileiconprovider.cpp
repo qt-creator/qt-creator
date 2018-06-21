@@ -68,7 +68,7 @@ class FileIconProviderImplementation : public QFileIconProvider
 {
 public:
     FileIconProviderImplementation()
-        : m_unknownFileIcon(qApp->style()->standardIcon(QStyle::SP_FileIcon))
+        : m_unknownFileIcon(QApplication::style()->standardIcon(QStyle::SP_FileIcon))
     {}
 
     QIcon icon(const QFileInfo &info) const override;
@@ -184,7 +184,7 @@ QPixmap overlayIcon(const QPixmap &baseIcon, const QIcon &overlayIcon)
   */
 QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlay, const QSize &size)
 {
-    return overlayIcon(qApp->style()->standardIcon(baseIcon).pixmap(size), overlay);
+    return overlayIcon(QApplication::style()->standardIcon(baseIcon).pixmap(size), overlay);
 }
 
 /*!
@@ -201,8 +201,7 @@ void registerIconOverlayForSuffix(const QString &path, const QString &suffix)
   */
 void registerIconOverlayForMimeType(const QIcon &icon, const QString &mimeType)
 {
-    Utils::MimeDatabase mdb;
-    instance()->registerIconOverlayForMimeType(icon, mdb.mimeTypeForName(mimeType));
+    instance()->registerIconOverlayForMimeType(icon, Utils::mimeTypeForName(mimeType));
 }
 
 /*!
@@ -210,13 +209,25 @@ void registerIconOverlayForMimeType(const QIcon &icon, const QString &mimeType)
  */
 void registerIconOverlayForMimeType(const QString &path, const QString &mimeType)
 {
-    Utils::MimeDatabase mdb;
-    instance()->registerIconOverlayForMimeType(QIcon(path), mdb.mimeTypeForName(mimeType));
+    instance()->registerIconOverlayForMimeType(QIcon(path), Utils::mimeTypeForName(mimeType));
 }
 
 void registerIconOverlayForFilename(const QString &path, const QString &filename)
 {
     instance()->registerIconOverlayForFilename(QIcon(path), filename);
+}
+
+// Return a standard directory icon with the specified overlay:
+QIcon directoryIcon(const QString &overlay)
+{
+    // Overlay the SP_DirIcon with the custom icons
+    const QSize desiredSize = QSize(16, 16);
+
+    const QPixmap dirPixmap = QApplication::style()->standardIcon(QStyle::SP_DirIcon).pixmap(desiredSize);
+    const QIcon overlayIcon(overlay);
+    QIcon result;
+    result.addPixmap(Core::FileIconProvider::overlayIcon(dirPixmap, overlayIcon));
+    return result;
 }
 
 } // namespace FileIconProvider

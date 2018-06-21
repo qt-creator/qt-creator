@@ -11,6 +11,8 @@ QtcPlugin {
     Depends { name: "VcsBase" }
     Depends { name: "DiffEditor" }
 
+    cpp.defines: base.concat(["QT_NO_FOREACH"])
+
     files: [
         "annotationhighlighter.cpp",
         "annotationhighlighter.h",
@@ -25,6 +27,8 @@ QtcPlugin {
         "branchdialog.ui",
         "branchmodel.cpp",
         "branchmodel.h",
+        "branchutils.cpp",
+        "branchutils.h",
         "changeselectiondialog.cpp",
         "changeselectiondialog.h",
         "changeselectiondialog.ui",
@@ -75,10 +79,14 @@ QtcPlugin {
         name: "Gerrit"
         prefix: "gerrit/"
         files: [
+            "authenticationdialog.cpp",
+            "authenticationdialog.h",
+            "authenticationdialog.ui",
             "branchcombobox.cpp",
             "branchcombobox.h",
             "gerritdialog.cpp",
             "gerritdialog.h",
+            "gerritdialog.ui",
             "gerritmodel.cpp",
             "gerritmodel.h",
             "gerritoptionspage.cpp",
@@ -87,6 +95,10 @@ QtcPlugin {
             "gerritparameters.h",
             "gerritplugin.cpp",
             "gerritplugin.h",
+            "gerritremotechooser.cpp",
+            "gerritremotechooser.h",
+            "gerritserver.cpp",
+            "gerritserver.h",
             "gerritpushdialog.cpp",
             "gerritpushdialog.h",
             "gerritpushdialog.ui",

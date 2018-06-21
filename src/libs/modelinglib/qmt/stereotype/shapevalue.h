@@ -80,9 +80,9 @@ public:
                       qreal actualSize) const;
 
 private:
-    qreal m_value;
-    Unit m_unit;
-    Origin m_origin;
+    qreal m_value = 0.0;
+    Unit m_unit = UnitRelative;
+    Origin m_origin = OriginSmart;
 };
 
 class QMT_EXPORT ShapePointF

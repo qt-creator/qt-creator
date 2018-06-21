@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "qmlprofilernotesmodel.h"
-#include "qmlprofilerdatamodel.h"
 
+#include <tracing/timelinemodel.h>
 #include <utils/algorithm.h>
 
 namespace QmlProfiler {
@@ -84,20 +84,21 @@ int QmlProfilerNotesModel::addQmlNote(int typeId, int collapsedRow, qint64 start
 }
 
 
-void QmlProfilerNotesModel::loadData()
+void QmlProfilerNotesModel::restore()
 {
-    blockSignals(true);
-    for (int i = 0; i != m_notes.size(); ++i) {
-        QmlNote &note = m_notes[i];
-        note.setLoaded(addQmlNote(note.typeIndex(), note.collapsedRow(), note.startTime(),
-                                  note.duration(), note.text()) != -1);
+    {
+        QSignalBlocker blocker(this);
+        for (int i = 0; i != m_notes.size(); ++i) {
+            QmlNote &note = m_notes[i];
+            note.setLoaded(addQmlNote(note.typeIndex(), note.collapsedRow(), note.startTime(),
+                                      note.duration(), note.text()) != -1);
+        }
+        resetModified();
     }
-    resetModified();
-    blockSignals(false);
     emit changed(-1, -1, -1);
 }
 
-void QmlProfilerNotesModel::saveData()
+void QmlProfilerNotesModel::stash()
 {
     // Keep notes that are outside the given range, overwrite the ones inside the range.
     m_notes = Utils::filtered(m_notes, [](const QmlNote &note) {
@@ -110,14 +111,16 @@ void QmlProfilerNotesModel::saveData()
             continue;
 
         int index = timelineIndex(i);
-        QmlNote save = {
-            model->typeId(index),
-            model->collapsedRow(index),
-            model->startTime(index),
-            model->duration(index),
-            text(i)
-        };
-        m_notes.append(save);
+        if (index < model->count()) {
+            QmlNote save = {
+                model->typeId(index),
+                model->collapsedRow(index),
+                model->startTime(index),
+                model->duration(index),
+                text(i)
+            };
+            m_notes.append(save);
+        }
     }
     resetModified();
 }
@@ -130,6 +133,11 @@ const QVector<QmlNote> &QmlProfilerNotesModel::notes() const
 void QmlProfilerNotesModel::setNotes(const QVector<QmlNote> &notes)
 {
     m_notes = notes;
+}
+
+void QmlProfilerNotesModel::addNote(const QmlNote &note)
+{
+    m_notes.append(note);
 }
 
 void QmlProfilerNotesModel::clear()

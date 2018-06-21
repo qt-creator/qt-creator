@@ -99,8 +99,5 @@ linux*:QMAKE_LFLAGS += $$QMAKE_LFLAGS_NOUNDEF
 target.path = $$INSTALL_PLUGIN_PATH
 INSTALLS += target
 
-MIMETYPES = $$_PRO_FILE_PWD_/$${TARGET}.mimetypes.xml
-exists($$MIMETYPES):DISTFILES += $$MIMETYPES
-
 TARGET = $$qtLibraryTargetName($$TARGET)
 

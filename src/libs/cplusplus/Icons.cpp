@@ -107,6 +107,8 @@ Icons::IconType Icons::iconTypeForSymbol(const Symbol *symbol)
         return NamespaceIconType;
     } else if (symbol->isTypenameArgument()) {
         return ClassIconType;
+    } else if (symbol->isQtPropertyDeclaration() || symbol->isObjCPropertyDeclaration()) {
+        return PropertyIconType;
     } else if (symbol->isUsingNamespaceDirective() ||
                symbol->isUsingDeclaration()) {
         // TODO: Might be nice to have a different icons for these things
@@ -136,6 +138,10 @@ QIcon Icons::iconForType(IconType type)
         QLatin1String(":/codemodel/images/signal.png"), Theme::IconsCodeModelFunctionColor};
     static const IconMaskAndColor slotIcon {
         QLatin1String(":/codemodel/images/slot.png"), Theme::IconsCodeModelFunctionColor};
+    static const IconMaskAndColor propertyIcon {
+        QLatin1String(":/codemodel/images/property.png"), Theme::IconsCodeModelOverlayForegroundColor};
+    static const IconMaskAndColor propertyBackgroundIcon {
+        QLatin1String(":/codemodel/images/propertybackground.png"), Theme::IconsCodeModelOverlayBackgroundColor};
     static const IconMaskAndColor protectedIcon {
         QLatin1String(":/codemodel/images/protected.png"), Theme::IconsCodeModelOverlayForegroundColor};
     static const IconMaskAndColor protectedBackgroundIcon {
@@ -288,6 +294,12 @@ QIcon Icons::iconForType(IconType type)
     case MacroIconType: {
         const static QIcon icon(Icon({
             {QLatin1String(":/codemodel/images/macro.png"), Theme::IconsCodeModelMacroColor}
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case PropertyIconType: {
+        const static QIcon icon(Icon({
+            variableIcon, propertyBackgroundIcon, propertyIcon
         }, Icon::Tint).icon());
         return icon;
     }

@@ -35,6 +35,9 @@
 #include <QQmlComponent>
 #include <QFileInfo>
 
+#include <private/qabstractfileengine_p.h>
+#include <private/qfsfileengine_p.h>
+
 #include <private/qquickdesignersupport_p.h>
 #include <private/qquickdesignersupportmetainfo_p.h>
 #include <private/qquickdesignersupportitems_p.h>
@@ -87,6 +90,13 @@ QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumb
     return QQuickDesignerSupportItems::createPrimitive(typeName, majorNumber, minorNumber, context);
 }
 
+static QString qmlDesignerRCPath()
+{
+    static const QString qmlDesignerRcPathsString = QString::fromLocal8Bit(
+        qgetenv("QMLDESIGNER_RC_PATHS"));
+    return qmlDesignerRcPathsString;
+}
+
 QVariant fixResourcePaths(const QVariant &value)
 {
     if (value.type() == QVariant::Url)
@@ -94,15 +104,14 @@ QVariant fixResourcePaths(const QVariant &value)
         const QUrl url = value.toUrl();
         if (url.scheme() == QLatin1String("qrc")) {
             const QString path = QLatin1String("qrc:") +  url.path();
-            QString qrcSearchPath = QString::fromLocal8Bit(qgetenv("QMLDESIGNER_RC_PATHS"));
-            if (!qrcSearchPath.isEmpty()) {
-                const QStringList searchPaths = qrcSearchPath.split(QLatin1Char(';'));
+            if (!qmlDesignerRCPath().isEmpty()) {
+                const QStringList searchPaths = qmlDesignerRCPath().split(QLatin1Char(';'));
                 foreach (const QString &qrcPath, searchPaths) {
                     const QStringList qrcDefintion = qrcPath.split(QLatin1Char('='));
                     if (qrcDefintion.count() == 2) {
                         QString fixedPath = path;
                         fixedPath.replace(QLatin1String("qrc:") + qrcDefintion.first(), qrcDefintion.last() + QLatin1Char('/'));
-                        if (QFileInfo(fixedPath).exists()) {
+                        if (QFileInfo::exists(fixedPath)) {
                             fixedPath.replace(QLatin1String("//"), QLatin1String("/"));
                             fixedPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
                             return QUrl::fromLocalFile(fixedPath);
@@ -115,15 +124,14 @@ QVariant fixResourcePaths(const QVariant &value)
     if (value.type() == QVariant::String) {
         const QString str = value.toString();
         if (str.contains(QLatin1String("qrc:"))) {
-            QString qrcSearchPath = QString::fromLocal8Bit(qgetenv("QMLDESIGNER_RC_PATHS"));
-            if (!qrcSearchPath.isEmpty()) {
-                const QStringList searchPaths = qrcSearchPath.split(QLatin1Char(';'));
+            if (!qmlDesignerRCPath().isEmpty()) {
+                const QStringList searchPaths = qmlDesignerRCPath().split(QLatin1Char(';'));
                 foreach (const QString &qrcPath, searchPaths) {
                     const QStringList qrcDefintion = qrcPath.split(QLatin1Char('='));
                     if (qrcDefintion.count() == 2) {
                         QString fixedPath = str;
                         fixedPath.replace(QLatin1String("qrc:") + qrcDefintion.first(), qrcDefintion.last() + QLatin1Char('/'));
-                        if (QFileInfo(fixedPath).exists()) {
+                        if (QFileInfo::exists(fixedPath)) {
                             fixedPath.replace(QLatin1String("//"), QLatin1String("/"));
                             fixedPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
                             return QUrl::fromLocalFile(fixedPath);
@@ -135,26 +143,6 @@ QVariant fixResourcePaths(const QVariant &value)
     }
     return value;
 }
-
-
-void fixResourcePathsForObject(QObject *object)
-{
-    if (qgetenv("QMLDESIGNER_RC_PATHS").isEmpty())
-        return;
-
-    PropertyNameList propertyNameList = propertyNameListForWritableProperties(object);
-
-    foreach (const PropertyName &propertyName, propertyNameList) {
-        QQmlProperty property(object, QString::fromUtf8(propertyName), QQmlEngine::contextForObject(object));
-
-        const QVariant value  = property.read();
-        const QVariant fixedValue = fixResourcePaths(value);
-        if (value != fixedValue) {
-            property.write(fixedValue);
-        }
-    }
-}
-
 
 QObject *createComponent(const QUrl &componentUrl, QQmlContext *context)
 {
@@ -415,9 +403,60 @@ ComponentCompleteDisabler::~ComponentCompleteDisabler()
     DesignerSupport::enableComponentComplete();
 }
 
+class QrcEngineHandler : public QAbstractFileEngineHandler
+{
+public:
+    QAbstractFileEngine *create(const QString &fileName) const;
+};
+
+QAbstractFileEngine *QrcEngineHandler::create(const QString &fileName) const
+{
+    if (fileName.startsWith(":/qt-project.org"))
+        return nullptr;
+
+    if (fileName.startsWith(":/qtquickplugin"))
+        return nullptr;
+
+    if (fileName.startsWith(":/")) {
+        const QStringList searchPaths = qmlDesignerRCPath().split(';');
+        foreach (const QString &qrcPath, searchPaths) {
+            const QStringList qrcDefintion = qrcPath.split('=');
+            if (qrcDefintion.count() == 2) {
+                QString fixedPath = fileName;
+                fixedPath.replace(":" + qrcDefintion.first(), qrcDefintion.last() + '/');
+
+                if (fileName == fixedPath)
+                    return nullptr;
+
+                if (QFileInfo::exists(fixedPath)) {
+                    fixedPath.replace("//", "/");
+                    fixedPath.replace('\\', '/');
+                    return new QFSFileEngine(fixedPath);
+                }
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+static QrcEngineHandler* s_qrcEngineHandler = nullptr;
+
+class EngineHandlerDeleter
+{
+public:
+    EngineHandlerDeleter()
+    {}
+    ~EngineHandlerDeleter()
+    { delete s_qrcEngineHandler; }
+};
+
 void registerFixResourcePathsForObjectCallBack()
 {
-    QQuickDesignerSupportItems::registerFixResourcePathsForObjectCallBack(&fixResourcePathsForObject);
+    static EngineHandlerDeleter deleter;
+
+    if (!s_qrcEngineHandler)
+        s_qrcEngineHandler = new QrcEngineHandler();
 }
 
 } // namespace QmlPrivateGate

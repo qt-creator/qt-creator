@@ -15,7 +15,7 @@ include (../../../../share/qtcreator/qml/qmlpuppet/types/types.pri)
 
 SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/rewriterview.cpp \
-    $$PWD/model/rewritererror.cpp \
+    $$PWD/model/documentmessage.cpp \
     $$PWD/metainfo/metainfo.cpp \
     $$PWD/metainfo/metainforeader.cpp \
     $$PWD/metainfo/nodemetainfo.cpp \
@@ -78,13 +78,15 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/signalhandlerproperty.cpp \
     $$PWD/model/internalsignalhandlerproperty.cpp \
     $$PWD/model/anchorline.cpp \
-    $$PWD/instances/puppetdialog.cpp
+    $$PWD/instances/puppetdialog.cpp \
+    $$PWD/model/qmltimeline.cpp \
+    $$PWD/model/qmltimelinekeyframegroup.cpp
 
 HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/include/abstractview.h \
     $$PWD/include/nodeinstanceview.h \
     $$PWD/include/rewriterview.h \
-    $$PWD/include/rewritererror.h \
+    $$PWD/include/documentmessage.h \
     $$PWD/include/metainfo.h \
     $$PWD/include/metainforeader.h \
     $$PWD/include/nodemetainfo.h \
@@ -152,7 +154,9 @@ HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/include/signalhandlerproperty.h \
     $$PWD/model/internalsignalhandlerproperty.h \
     $$PWD/include/anchorline.h \
-    $$PWD/instances/puppetdialog.h
+    $$PWD/instances/puppetdialog.h \
+    $$PWD/include/qmltimeline.h \
+    $$PWD/include/qmltimelinekeyframegroup.h
 
 FORMS += \
     $$PWD/instances/puppetdialog.ui

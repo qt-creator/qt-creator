@@ -38,11 +38,11 @@ class SnippetsSettingsPage : public TextEditorOptionsPage
 
 public:
     SnippetsSettingsPage(Core::Id id, QObject *parent);
-    ~SnippetsSettingsPage();
+    ~SnippetsSettingsPage() override;
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     SnippetsSettingsPagePrivate *d;

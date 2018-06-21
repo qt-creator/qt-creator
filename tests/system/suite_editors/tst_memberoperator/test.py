@@ -27,35 +27,30 @@ source("../../shared/qtcreator.py")
 
 def main():
     for useClang in [False, True]:
-        if not startCreator(useClang):
-            continue
-        createProject_Qt_Console(tempDir(), "SquishProject")
-        checkCodeModelSettings(useClang)
-        selectFromLocator("main.cpp")
-        cppwindow = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
+        with TestSection(getCodeModelString(useClang)):
+            if not startCreator(useClang):
+                continue
+            createProject_Qt_Console(tempDir(), "SquishProject")
+            checkCodeModelSettings(useClang)
+            selectFromLocator("main.cpp")
+            cppwindow = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
 
-        for record in testData.dataset("usages.tsv"):
-            include = testData.field(record, "include")
-            if include:
-                placeCursorToLine(cppwindow, "#include <QCoreApplication>")
-                typeLines(cppwindow, ("", "#include " + include))
-            placeCursorToLine(cppwindow, "return a.exec();")
-            typeLines(cppwindow, ("<Up>", testData.field(record, "declaration")))
-            type(cppwindow, testData.field(record, "usage"))
-            snooze(1) # maybe find something better
-            if useClang and JIRA.isBugStillOpen(15639):
-                snooze(1)
-            type(cppwindow, testData.field(record, "operator"))
-            waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", 1500)
-            found = str(lineUnderCursor(cppwindow)).strip()
-            exp = testData.field(record, "expected")
-            if (useClang and exp.endswith("->") and JIRA.isBugStillOpen(16336)
-                and platform.system() in ('Windows', 'Microsoft')):
-                test.xcompare(found, exp)
-            else:
+            for record in testData.dataset("usages.tsv"):
+                include = testData.field(record, "include")
+                if include:
+                    placeCursorToLine(cppwindow, "#include <QCoreApplication>")
+                    typeLines(cppwindow, ("", "#include " + include))
+                placeCursorToLine(cppwindow, "return a.exec();")
+                typeLines(cppwindow, ("<Up>", testData.field(record, "declaration")))
+                type(cppwindow, testData.field(record, "usage"))
+                snooze(1) # maybe find something better
+                type(cppwindow, testData.field(record, "operator"))
+                waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", 1500)
+                found = str(lineUnderCursor(cppwindow)).strip()
+                exp = testData.field(record, "expected")
                 test.compare(found, exp)
-            invokeMenuItem("File", 'Revert "main.cpp" to Saved')
-            clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
-        snooze(1)
-        invokeMenuItem("File", "Close All")
-        invokeMenuItem("File", "Exit")
+                invokeMenuItem("File", 'Revert "main.cpp" to Saved')
+                clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
+            snooze(1)
+            invokeMenuItem("File", "Close All")
+            invokeMenuItem("File", "Exit")

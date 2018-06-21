@@ -34,6 +34,8 @@
 
 #include <functional>
 
+namespace Utils { class ProcessHandle; }
+
 namespace Debugger {
 namespace Internal {
 
@@ -82,8 +84,8 @@ public:
         ExitRequest = 32,
         // Auto-set inferior shutdown related states.
         LosesChild = 64,
-        // Trigger breakpoint model rebuild when no such commands are pending anymore.
-        RebuildBreakpointModel = 128,
+        // This is a native (non-Python) command that's handled directly by the backend.
+        NativeCommand = 256,
         // This is a command that needs to be wrapped into -interpreter-exec console
         ConsoleCommand = 512,
         // This is the UpdateLocals commannd during which we ignore notifications
@@ -151,7 +153,9 @@ public:
 
     QString toString(bool multiline = false, int indent = 0) const;
     qulonglong toAddress() const;
+    Utils::ProcessHandle toProcessHandle() const;
     int toInt() const { return m_data.toInt(); }
+    qint64 toLongLong() const { return m_data.toLongLong(); }
     void fromString(const QString &str);
     void fromStringMultiple(const QString &str);
 

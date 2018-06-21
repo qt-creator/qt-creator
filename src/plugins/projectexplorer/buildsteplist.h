@@ -41,9 +41,10 @@ class PROJECTEXPLORER_EXPORT BuildStepList : public ProjectConfiguration
     Q_OBJECT
 
 public:
-    BuildStepList(QObject *parent, Core::Id id);
-    BuildStepList(QObject *parent, BuildStepList *source);
+    explicit BuildStepList(QObject *parent, Core::Id id);
     ~BuildStepList() override;
+
+    void clear();
 
     QList<BuildStep *> steps() const;
     QList<BuildStep *> steps(const std::function<bool(const BuildStep *)> &filter) const;
@@ -78,10 +79,12 @@ public:
     BuildStep *at(int position);
 
     Target *target() const;
+    Project *project() const override;
 
-    virtual QVariantMap toMap() const override;
-    virtual bool fromMap(const QVariantMap &map) override;
-    void cloneSteps(BuildStepList *source);
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &map) override;
+
+    bool isActive() const override;
 
 signals:
     void stepInserted(int position);

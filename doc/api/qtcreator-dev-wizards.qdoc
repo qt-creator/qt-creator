@@ -34,8 +34,8 @@
     is not sufficient for your case, you can write wizards in code.
 
     A wizard in \QC is an instance of a class implementing
-    the Core::IWizardFactory interface that is registered with
-    ExtensionSystem::PluginManager.
+    the Core::IWizardFactory interface that has a creator function registered
+    with IWizardFactory::registerFactoryCreator.
 
     Implementing wizards requires:
     \list

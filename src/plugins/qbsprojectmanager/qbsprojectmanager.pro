@@ -23,18 +23,20 @@ HEADERS = \
     propertyprovider.h \
     qbsbuildconfiguration.h \
     qbsbuildconfigurationwidget.h \
+    qbsbuildinfo.h \
     qbsbuildstep.h \
     qbscleanstep.h \
     qbsdeployconfigurationfactory.h \
-    qbsinfopage.h \
+    qbskitinformation.h \
     qbsinstallstep.h \
     qbslogsink.h \
     qbsnodes.h \
+    qbsnodetreebuilder.h \
     qbsparser.h \
     qbspmlogging.h \
     qbsprofilessettingspage.h \
     qbsproject.h \
-    qbsprojectfile.h \
+    qbsprojectimporter.h \
     qbsprojectmanager.h \
     qbsprojectmanager_global.h \
     qbsprojectmanagerconstants.h \
@@ -48,18 +50,20 @@ SOURCES = \
     defaultpropertyprovider.cpp \
     qbsbuildconfiguration.cpp \
     qbsbuildconfigurationwidget.cpp \
+    qbsbuildinfo.cpp \
     qbsbuildstep.cpp \
     qbscleanstep.cpp \
     qbsdeployconfigurationfactory.cpp \
-    qbsinfopage.cpp \
     qbsinstallstep.cpp \
+    qbskitinformation.cpp \
     qbslogsink.cpp \
     qbsnodes.cpp \
+    qbsnodetreebuilder.cpp \
     qbsparser.cpp \
     qbspmlogging.cpp \
     qbsprofilessettingspage.cpp \
     qbsproject.cpp \
-    qbsprojectfile.cpp \
+    qbsprojectimporter.cpp \
     qbsprojectmanager.cpp \
     qbsprojectmanagerplugin.cpp \
     qbsprojectmanagersettings.cpp \
@@ -70,7 +74,6 @@ FORMS = \
     customqbspropertiesdialog.ui \
     qbsbuildstepconfigwidget.ui \
     qbscleanstepconfigwidget.ui \
-    qbsinfowidget.ui \
     qbsinstallstepconfigwidget.ui \
     qbsprofilessettingswidget.ui
 

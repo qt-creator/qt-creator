@@ -40,13 +40,13 @@ class QTCREATOR_UTILS_EXPORT FileWizardPage : public WizardPage
     Q_PROPERTY(QString fileName READ fileName WRITE setFileName DESIGNABLE true)
 
 public:
-    explicit FileWizardPage(QWidget *parent = 0);
-    ~FileWizardPage();
+    explicit FileWizardPage(QWidget *parent = nullptr);
+    ~FileWizardPage() override;
 
     QString fileName() const;
     QString path() const;
 
-    bool isComplete() const;
+    bool isComplete() const override;
 
     void setFileNameLabel(const QString &label);
     void setPathLabel(const QString &label);
@@ -55,7 +55,7 @@ public:
     void setForceFirstCapitalLetterForFileName(bool b);
 
     // Validate a base name entry field (potentially containing extension)
-    static bool validateBaseName(const QString &name, QString *errorMessage = 0);
+    static bool validateBaseName(const QString &name, QString *errorMessage = nullptr);
 
 signals:
     void activated();

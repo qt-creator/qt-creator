@@ -43,9 +43,9 @@ public:
     const DObject *endB() const { return m_endB; }
 
 private:
-    const DRelation *m_relation;
-    const DObject *m_endA;
-    const DObject *m_endB;
+    const DRelation *m_relation = nullptr;
+    const DObject *m_endA = nullptr;
+    const DObject *m_endB = nullptr;
 };
 
 } // namespace qmt

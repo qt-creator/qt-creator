@@ -33,10 +33,12 @@
 #include <utils/environment.h>
 
 QT_BEGIN_NAMESPACE
+class QCheckBox;
 class QComboBox;
 class QLabel;
 class QPlainTextEdit;
 class QPushButton;
+class QVBoxLayout;
 QT_END_NAMESPACE
 
 namespace Utils { class PathChooser; }
@@ -96,13 +98,13 @@ public:
 
 private:
     void manageToolChains();
-    void currentToolChainChanged(ToolChain::Language l, int idx);
+    void currentToolChainChanged(Core::Id language, int idx);
 
     int indexOf(QComboBox *cb, const ToolChain *tc);
 
-    QWidget *m_mainWidget;
-    QPushButton *m_manageButton;
-    QHash<ToolChain::Language, QComboBox *> m_languageComboboxMap;
+    QWidget *m_mainWidget = nullptr;
+    QPushButton *m_manageButton = nullptr;
+    QHash<Core::Id, QComboBox *> m_languageComboboxMap;
     bool m_ignoreChanges = false;
     bool m_isReadOnly = false;
 };
@@ -182,8 +184,12 @@ private:
     void editEnvironmentChanges();
     QList<Utils::EnvironmentItem> currentEnvironment() const;
 
+    void initMSVCOutputSwitch(QVBoxLayout *layout);
+
     QLabel *m_summaryLabel;
     QPushButton *m_manageButton;
+    QCheckBox *m_vslangCheckbox;
+    QWidget *m_mainWidget;
 };
 
 } // namespace Internal

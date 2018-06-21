@@ -85,7 +85,7 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
 {
     d->m_ui.setupUi(this);
     hideStatusLabel();
-    d->m_ui.nameLineEdit->setInitialText(tr("<Enter_Name>"));
+    d->m_ui.nameLineEdit->setPlaceholderText(tr("Enter project name"));
     d->m_ui.nameLineEdit->setFocus();
     d->m_ui.nameLineEdit->setValidationFunction([this](FancyLineEdit *edit, QString *errorString) {
         return validateProjectName(edit->text(), errorString);
@@ -178,13 +178,13 @@ bool ProjectIntroPage::validate()
         return false;
     }
 
-    // Name valid? Ignore 'DisplayingInitialText' state.
+    // Name valid? Ignore 'DisplayingPlaceholderText' state.
     bool nameValid = false;
     switch (d->m_ui.nameLineEdit->state()) {
     case FancyLineEdit::Invalid:
         displayStatusMessage(Error, d->m_ui.nameLineEdit->errorMessage());
         return false;
-    case FancyLineEdit::DisplayingInitialText:
+    case FancyLineEdit::DisplayingPlaceholderText:
         break;
     case FancyLineEdit::Valid:
         nameValid = true;

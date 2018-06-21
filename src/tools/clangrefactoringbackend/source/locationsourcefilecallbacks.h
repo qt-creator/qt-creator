@@ -25,23 +25,10 @@
 
 #pragma once
 
+#include <filepathcachingfwd.h>
 #include <sourcelocationscontainer.h>
 
-#if defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#elif defined(_MSC_VER)
-#    pragma warning(push)
-#    pragma warning( disable : 4100 )
-#endif
-
 #include <clang/Tooling/Tooling.h>
-
-#if defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#    pragma warning(pop)
-#endif
 
 namespace llvm {
 class StringRef;
@@ -59,10 +46,9 @@ class SourceLocationsContainer;
 class LocationSourceFileCallbacks : public clang::tooling::SourceFileCallbacks
 {
 public:
-    LocationSourceFileCallbacks(uint line, uint column);
+    LocationSourceFileCallbacks(uint line, uint column, FilePathCachingInterface &filePathCache);
 
-    bool handleBeginSource(clang::CompilerInstance &compilerInstance,
-                           llvm::StringRef fileName) override;
+    bool handleBeginSource(clang::CompilerInstance &compilerInstance) override;
 
     SourceLocationsContainer takeSourceLocations();
     Utils::SmallString takeSymbolName();
@@ -70,11 +56,12 @@ public:
     bool hasSourceLocations() const;
 
 private:
-    SourceLocationsContainer sourceLocationsContainer;
-    Utils::SmallString symbolName;
-    MacroPreprocessorCallbacks *macroPreprocessorCallbacks;
-    uint line;
-    uint column;
+    SourceLocationsContainer m_sourceLocationsContainer;
+    Utils::SmallString m_symbolName;
+    MacroPreprocessorCallbacks *m_macroPreprocessorCallbacks;
+    FilePathCachingInterface &m_filePathCache;
+    uint m_line;
+    uint m_column;
 };
 
 } // namespace ClangBackEnd

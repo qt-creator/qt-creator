@@ -28,7 +28,27 @@
 
 #include <texteditor/tabsettings.h>
 
+#include <algorithm>
+
 namespace PythonEditor {
+
+static bool isEmptyLine(const QString &t)
+{
+    return std::all_of(t.cbegin(), t.cend(), [] (QChar c) { return c.isSpace(); });
+}
+
+static inline bool isEmptyLine(const QTextBlock &block)
+{
+    return isEmptyLine(block.text());
+}
+
+static QTextBlock previousNonEmptyBlock(const QTextBlock &block)
+{
+    QTextBlock result = block;
+    while (result.isValid() && isEmptyLine(result))
+        result = result.previous();
+    return result;
+}
 
 /**
  * @brief Does given character change indentation level?
@@ -45,6 +65,15 @@ int PythonIndenter::indentFor(const QTextBlock &block, const TextEditor::TabSett
     QTextBlock previousBlock = block.previous();
     if (!previousBlock.isValid())
         return 0;
+
+    // When pasting in actual code, try to skip back past empty lines to an
+    // actual code line to find a suitable indentation. This prevents code from
+    // not being indented when pasting below an empty line.
+    if (!isEmptyLine(block)) {
+        const QTextBlock previousNonEmpty = previousNonEmptyBlock(previousBlock);
+        if (previousNonEmpty.isValid())
+            previousBlock = previousNonEmpty;
+    }
 
     QString previousLine = previousBlock.text();
     int indentation = tabSettings.indentationColumn(previousLine);

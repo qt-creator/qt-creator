@@ -60,14 +60,6 @@ def main():
     ensureChecked("{container=':Qt Creator.scrollArea_QScrollArea' text='Enable QML' "
                   "type='QCheckBox' unnamed='1' visible='1'}")
     switchViewTo(ViewConstants.EDIT)
-    if platform.system() in ('Microsoft', 'Windows'):
-        qmake = getQtInformationForQmlProject()[3]
-        if qmake == None:
-            earlyExit("Could not figure out which qmake is used.")
-            return
-        qmlScenePath = os.path.abspath(os.path.dirname(qmake))
-        qmlScene = "qmlscene.exe"
-        allowAppThroughWinFW(qmlScenePath, qmlScene, None)
     clickButton(fancyDebugButton)
     locAndExprTV = waitForObject(":Locals and Expressions_Debugger::Internal::WatchTreeView")
     # Locals and Expressions populates treeview only on demand - so the tree must be expanded
@@ -96,8 +88,6 @@ def main():
             subItem = items
         checkForExpectedValues(subItem, current[2], current[3])
     clickButton(waitForObject(':Debugger Toolbar.Exit Debugger_QToolButton', 5000))
-    if platform.system() in ('Microsoft', 'Windows'):
-        deleteAppFromWinFW(qmlScenePath, qmlScene)
     invokeMenuItem("File", "Exit")
 
 def __unfoldTree__():

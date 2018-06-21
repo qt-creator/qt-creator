@@ -120,7 +120,7 @@ void ErrorWidget::createUi()
     m_exportWarnings = new QToolButton;
     m_exportWarnings->setIcon(Utils::Icons::SAVEFILE_TOOLBAR.icon());
     m_showErrors = new QToolButton;
-    m_showErrors->setIcon(Utils::Icons::ERROR_TOOLBAR.icon());
+    m_showErrors->setIcon(Utils::Icons::CRITICAL_TOOLBAR.icon());
     m_showErrors->setCheckable(true);
     m_showWarnings = new QToolButton;
     m_showWarnings->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
@@ -203,7 +203,7 @@ QString ErrorWidget::modifyExportedValue(const QString &val)
 
 void ErrorWidget::exportWarnings()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Export To File"), QString(), tr("CSV files (*.csv)"));
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Export to File"), QString(), tr("CSV files (*.csv)"));
     if (fileName.isEmpty())
         return;
 

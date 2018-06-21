@@ -136,7 +136,7 @@ Console::Console()
     m_showErrorButtonAction->setToolTip(tr("Show error messages."));
     m_showErrorButtonAction->setCheckable(true);
     m_showErrorButtonAction->setChecked(true);
-    m_showErrorButtonAction->setIcon(Utils::Icons::ERROR_TOOLBAR.icon());
+    m_showErrorButtonAction->setIcon(Utils::Icons::CRITICAL_TOOLBAR.icon());
     connect(m_showErrorButtonAction, &Utils::SavedAction::toggled,
             proxyModel, &ConsoleProxyModel::setShowErrors);
     m_showErrorButton->setDefaultAction(m_showErrorButtonAction);
@@ -164,8 +164,8 @@ QWidget *Console::outputWidget(QWidget *)
 
 QList<QWidget *> Console::toolBarWidgets() const
 {
-     return { m_showDebugButton, m_showWarningButton, m_showErrorButton,
-              m_spacer, m_statusLabel };
+     return {m_showDebugButton, m_showWarningButton, m_showErrorButton,
+             m_spacer, m_statusLabel};
 }
 
 int Console::priorityInStatusBar() const
@@ -249,8 +249,14 @@ void Console::writeSettings() const
 void Console::setScriptEvaluator(const ScriptEvaluator &evaluator)
 {
     m_scriptEvaluator = evaluator;
+    m_consoleItemModel->setCanFetchMore(bool(m_scriptEvaluator));
     if (!m_scriptEvaluator)
         setContext(QString());
+}
+
+void Console::populateFileFinder()
+{
+    m_consoleView->populateFileFinder();
 }
 
 void Console::printItem(ConsoleItem::ItemType itemType, const QString &text)
@@ -282,10 +288,19 @@ void Console::evaluate(const QString &expression)
     }
 }
 
+static Console *theConsole = nullptr;
+
 Console *debuggerConsole()
 {
-    static Console *theConsole = new Console;
+    if (!theConsole)
+        theConsole = new Console;
     return theConsole;
+}
+
+void destroyDebuggerConsole()
+{
+    delete theConsole;
+    theConsole = nullptr;
 }
 
 } // Internal

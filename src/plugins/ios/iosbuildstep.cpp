@@ -26,7 +26,6 @@
 #include "iosbuildstep.h"
 #include "iosconstants.h"
 #include "ui_iosbuildstep.h"
-#include "iosmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/target.h>
@@ -60,45 +59,23 @@ const char BUILD_ARGUMENTS_KEY[] = "Ios.IosBuildStep.XcodeArguments";
 const char CLEAN_KEY[] = "Ios.IosBuildStep.Clean";
 
 IosBuildStep::IosBuildStep(BuildStepList *parent) :
-    AbstractProcessStep(parent, Id(IOS_BUILD_STEP_ID)),
-    m_useDefaultArguments(true),
-    m_clean(false)
-{
-    ctor();
-}
-
-IosBuildStep::IosBuildStep(BuildStepList *parent, const Id id) :
-    AbstractProcessStep(parent, id),
-    m_useDefaultArguments(true),
-    m_clean(false)
-{
-    ctor();
-}
-
-IosBuildStep::IosBuildStep(BuildStepList *parent, IosBuildStep *bs) :
-    AbstractProcessStep(parent, bs),
-    m_baseBuildArguments(bs->m_baseBuildArguments),
-    m_useDefaultArguments(bs->m_useDefaultArguments),
-    m_clean(bs->m_clean)
-{
-    ctor();
-}
-
-void IosBuildStep::ctor()
+    AbstractProcessStep(parent, IOS_BUILD_STEP_ID)
 {
     setDefaultDisplayName(QCoreApplication::translate("GenericProjectManager::Internal::IosBuildStep",
                                                       IOS_BUILD_STEP_DISPLAY_NAME));
+    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
+        m_clean = true;
+        setExtraArguments(QStringList("clean"));
+    }
 }
 
 bool IosBuildStep::init(QList<const BuildStep *> &earlierSteps)
 {
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
-        bc = target()->activeBuildConfiguration();
-    if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
-    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ToolChain::Language::Cxx);
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!tc)
         emit addTask(Task::compilerMissingTask());
 
@@ -131,32 +108,22 @@ bool IosBuildStep::init(QList<const BuildStep *> &earlierSteps)
     return AbstractProcessStep::init(earlierSteps);
 }
 
-void IosBuildStep::setClean(bool clean)
-{
-    m_clean = clean;
-}
-
-bool IosBuildStep::isClean() const
-{
-    return m_clean;
-}
-
 QVariantMap IosBuildStep::toMap() const
 {
     QVariantMap map(AbstractProcessStep::toMap());
 
-    map.insert(QLatin1String(BUILD_ARGUMENTS_KEY), m_baseBuildArguments);
-    map.insert(QLatin1String(BUILD_USE_DEFAULT_ARGS_KEY), m_useDefaultArguments);
-    map.insert(QLatin1String(CLEAN_KEY), m_clean);
+    map.insert(BUILD_ARGUMENTS_KEY, m_baseBuildArguments);
+    map.insert(BUILD_USE_DEFAULT_ARGS_KEY, m_useDefaultArguments);
+    map.insert(CLEAN_KEY, m_clean);
     return map;
 }
 
 bool IosBuildStep::fromMap(const QVariantMap &map)
 {
-    QVariant bArgs = map.value(QLatin1String(BUILD_ARGUMENTS_KEY));
+    QVariant bArgs = map.value(BUILD_ARGUMENTS_KEY);
     m_baseBuildArguments = bArgs.toStringList();
-    m_useDefaultArguments = map.value(QLatin1String(BUILD_USE_DEFAULT_ARGS_KEY)).toBool();
-    m_clean = map.value(QLatin1String(CLEAN_KEY)).toBool();
+    m_useDefaultArguments = map.value(BUILD_USE_DEFAULT_ARGS_KEY).toBool();
+    m_clean = map.value(CLEAN_KEY).toBool();
 
     return BuildStep::fromMap(map);
 }
@@ -170,20 +137,20 @@ QStringList IosBuildStep::defaultArguments() const
 {
     QStringList res;
     Kit *kit = target()->kit();
-    ToolChain *tc = ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx);
-    switch (target()->activeBuildConfiguration()->buildType()) {
+    ToolChain *tc = ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    switch (buildConfiguration()->buildType()) {
     case BuildConfiguration::Debug :
-        res << QLatin1String("-configuration") << QLatin1String("Debug");
+        res << "-configuration" << "Debug";
         break;
     case BuildConfiguration::Release :
     case BuildConfiguration::Profile :
-        res << QLatin1String("-configuration") << QLatin1String("Release");
+        res << "-configuration" << "Release";
         break;
     case BuildConfiguration::Unknown :
         break;
     default:
         qCWarning(iosLog) << "IosBuildStep had an unknown buildType "
-                          << target()->activeBuildConfiguration()->buildType();
+                          << buildConfiguration()->buildType();
     }
     if (tc->typeId() == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
             || tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
@@ -191,14 +158,14 @@ QStringList IosBuildStep::defaultArguments() const
         res << gtc->platformCodeGenFlags();
     }
     if (!SysRootKitInformation::sysRoot(kit).isEmpty())
-        res << QLatin1String("-sdk") << SysRootKitInformation::sysRoot(kit).toString();
-    res << QLatin1String("SYMROOT=") + IosManager::resDirForTarget(target());
+        res << "-sdk" << SysRootKitInformation::sysRoot(kit).toString();
+    res << "SYMROOT=" + buildConfiguration()->buildDirectory().toString();
     return res;
 }
 
 QString IosBuildStep::buildCommand() const
 {
-    return QLatin1String("xcodebuild"); // add path?
+    return QString("xcodebuild"); // add path?
 }
 
 void IosBuildStep::run(QFutureInterface<bool> &fi)
@@ -264,7 +231,15 @@ IosBuildStepConfigWidget::IosBuildStepConfigWidget(IosBuildStep *buildStep)
             this, &IosBuildStepConfigWidget::updateDetails);
     connect(m_buildStep->target(), &Target::kitChanged,
             this, &IosBuildStepConfigWidget::updateDetails);
-    connect(pro, &Project::environmentChanged, this, &IosBuildStepConfigWidget::updateDetails);
+    pro->subscribeSignal(&BuildConfiguration::environmentChanged, this, [this]() {
+        if (static_cast<BuildConfiguration *>(sender())->isActive())
+            updateDetails();
+    });
+    connect(pro, &Project::activeProjectConfigurationChanged,
+            this, [this](ProjectConfiguration *pc) {
+        if (pc && pc->isActive())
+            updateDetails();
+    });
 }
 
 IosBuildStepConfigWidget::~IosBuildStepConfigWidget()
@@ -280,8 +255,6 @@ QString IosBuildStepConfigWidget::displayName() const
 void IosBuildStepConfigWidget::updateDetails()
 {
     BuildConfiguration *bc = m_buildStep->buildConfiguration();
-    if (!bc)
-        bc = m_buildStep->target()->activeBuildConfiguration();
 
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
@@ -319,49 +292,20 @@ void IosBuildStepConfigWidget::extraArgumentsChanged()
     m_buildStep->setExtraArguments(Utils::QtcProcess::splitArgs(
                                        m_ui->extraArgumentsLineEdit->text()));
 }
+
 //
 // IosBuildStepFactory
 //
 
-IosBuildStepFactory::IosBuildStepFactory(QObject *parent) :
-    IBuildStepFactory(parent)
+IosBuildStepFactory::IosBuildStepFactory()
 {
-}
-
-BuildStep *IosBuildStepFactory::create(BuildStepList *parent, const Id id)
-{
-    Q_UNUSED(id);
-    IosBuildStep *step = new IosBuildStep(parent);
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
-        step->setClean(true);
-        step->setExtraArguments(QStringList(QLatin1String("clean")));
-    } else if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD) {
-        // nomal setup
-    }
-    return step;
-}
-
-BuildStep *IosBuildStepFactory::clone(BuildStepList *parent, BuildStep *source)
-{
-    IosBuildStep *old = qobject_cast<IosBuildStep *>(source);
-    Q_ASSERT(old);
-    return new IosBuildStep(parent, old);
-}
-
-QList<BuildStepInfo> IosBuildStepFactory::availableSteps(BuildStepList *parent) const
-{
-    Id deviceType = DeviceTypeKitInformation::deviceTypeId(parent->target()->kit());
-    if (deviceType != Constants::IOS_DEVICE_TYPE
-            && deviceType != Constants::IOS_SIMULATOR_TYPE)
-        return {};
-
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_CLEAN
-            && parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        return {};
-
-    return {{ IOS_BUILD_STEP_ID,
-              QCoreApplication::translate("GenericProjectManager::Internal::IosBuildStep",
-                                         IOS_BUILD_STEP_DISPLAY_NAME) }};
+    registerStep<IosBuildStep>(IOS_BUILD_STEP_ID);
+    setSupportedDeviceTypes({Constants::IOS_DEVICE_TYPE,
+                             Constants::IOS_SIMULATOR_TYPE});
+    setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_CLEAN,
+                           ProjectExplorer::Constants::BUILDSTEPS_BUILD});
+    setDisplayName(QCoreApplication::translate("GenericProjectManager::Internal::IosBuildStep",
+                                               IOS_BUILD_STEP_DISPLAY_NAME));
 }
 
 } // namespace Internal

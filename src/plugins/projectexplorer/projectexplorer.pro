@@ -1,4 +1,4 @@
-QT += quick qml
+QT += qml
 
 include(../../qtcreatorplugin.pri)
 include(customwizard/customwizard.pri)
@@ -14,13 +14,14 @@ HEADERS += projectexplorer.h \
     environmentaspectwidget.h \
     gcctoolchain.h \
     importwidget.h \
-    runnables.h \
+    userfileaccessor.h \
     localenvironmentaspect.h \
     osparser.h \
     projectexplorer_export.h \
     projectimporter.h \
     projectwindow.h \
     removetaskhandler.h \
+    subscription.h \
     targetsetuppage.h \
     targetsetupwidget.h \
     kit.h \
@@ -33,11 +34,11 @@ HEADERS += projectexplorer.h \
     kitmanagerconfigwidget.h \
     kitmodel.h \
     kitoptionspage.h \
+    projectconfigurationmodel.h \
     buildmanager.h \
     buildsteplist.h \
     compileoutputwindow.h \
     deployconfiguration.h \
-    deployconfigurationmodel.h \
     namedwidget.h \
     target.h \
     targetsettingspanel.h \
@@ -59,7 +60,7 @@ HEADERS += projectexplorer.h \
     projectexplorerconstants.h \
     projectexplorersettings.h \
     project.h \
-    iprojectmanager.h \
+    projectmanager.h \
     currentprojectfilter.h \
     allprojectsfind.h \
     buildstep.h \
@@ -80,14 +81,13 @@ HEADERS += projectexplorer.h \
     sessionview.h \
     projectwizardpage.h \
     buildstepspage.h \
-    nodesvisitor.h \
     projectmodels.h \
     currentprojectfind.h \
     toolchain.h \
     toolchainconfigwidget.h \
     toolchainmanager.h \
     toolchainoptionspage.h \
-    cesdkhandler.h \
+    toolchainsettingsaccessor.h \
     gccparser.h \
     projectexplorersettingspage.h \
     baseprojectwizarddialog.h \
@@ -96,17 +96,13 @@ HEADERS += projectexplorer.h \
     ldparser.h \
     linuxiccparser.h \
     runconfigurationaspects.h \
-    runconfigurationmodel.h \
-    buildconfigurationmodel.h \
     processparameters.h \
     abstractprocessstep.h \
     taskhub.h \
-    localapplicationruncontrol.h \
     headerpath.h \
     gcctoolchainfactories.h \
     appoutputpane.h \
     codestylesettingspropertiespage.h \
-    settingsaccessor.h \
     deployablefile.h \
     devicesupport/idevice.h \
     devicesupport/desktopdevice.h \
@@ -125,7 +121,6 @@ HEADERS += projectexplorer.h \
     devicesupport/devicesettingspage.h \
     devicesupport/devicetestdialog.h \
     devicesupport/deviceusedportsgatherer.h \
-    devicesupport/deviceapplicationrunner.h \
     devicesupport/localprocesslist.h \
     devicesupport/sshdeviceprocess.h \
     devicesupport/sshdeviceprocesslist.h \
@@ -140,6 +135,7 @@ HEADERS += projectexplorer.h \
     customparser.h \
     customparserconfigdialog.h \
     ipotentialkit.h \
+    msvcparser.h \
     selectablefilesmodel.h \
     xcodebuildparser.h \
     panelswidget.h \
@@ -152,8 +148,9 @@ HEADERS += projectexplorer.h \
     projectexplorericons.h \
     projectexplorer_global.h \
     extracompiler.h \
-    customexecutableconfigurationwidget.h \
-    customexecutablerunconfiguration.h
+    customexecutablerunconfiguration.h \
+    projectmacro.h \
+    makestep.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -166,12 +163,14 @@ SOURCES += projectexplorer.cpp \
     environmentaspectwidget.cpp \
     gcctoolchain.cpp \
     importwidget.cpp \
-    runnables.cpp \
+    projectconfigurationmodel.cpp \
+    userfileaccessor.cpp \
     localenvironmentaspect.cpp \
     osparser.cpp \
     projectimporter.cpp \
     projectwindow.cpp \
     removetaskhandler.cpp \
+    subscription.cpp \
     targetsetuppage.cpp \
     targetsetupwidget.cpp \
     kit.cpp \
@@ -187,7 +186,6 @@ SOURCES += projectexplorer.cpp \
     buildsteplist.cpp \
     compileoutputwindow.cpp \
     deployconfiguration.cpp \
-    deployconfigurationmodel.cpp \
     namedwidget.cpp \
     target.cpp \
     targetsettingspanel.cpp \
@@ -227,14 +225,13 @@ SOURCES += projectexplorer.cpp \
     sessionview.cpp \
     projectwizardpage.cpp \
     buildstepspage.cpp \
-    nodesvisitor.cpp \
     projectmodels.cpp \
     currentprojectfind.cpp \
     toolchain.cpp \
     toolchainconfigwidget.cpp \
     toolchainmanager.cpp \
     toolchainoptionspage.cpp \
-    cesdkhandler.cpp \
+    toolchainsettingsaccessor.cpp \
     gccparser.cpp \
     projectexplorersettingspage.cpp \
     baseprojectwizarddialog.cpp \
@@ -243,14 +240,10 @@ SOURCES += projectexplorer.cpp \
     ldparser.cpp \
     linuxiccparser.cpp \
     runconfigurationaspects.cpp \
-    runconfigurationmodel.cpp \
-    buildconfigurationmodel.cpp \
     taskhub.cpp \
     processparameters.cpp \
-    localapplicationruncontrol.cpp \
     appoutputpane.cpp \
     codestylesettingspropertiespage.cpp \
-    settingsaccessor.cpp \
     devicesupport/idevice.cpp \
     devicesupport/desktopdevice.cpp \
     devicesupport/desktopdevicefactory.cpp \
@@ -267,7 +260,6 @@ SOURCES += projectexplorer.cpp \
     devicesupport/devicesettingspage.cpp \
     devicesupport/devicetestdialog.cpp \
     devicesupport/deviceusedportsgatherer.cpp \
-    devicesupport/deviceapplicationrunner.cpp \
     devicesupport/localprocesslist.cpp \
     devicesupport/sshdeviceprocess.cpp \
     devicesupport/sshdeviceprocesslist.cpp \
@@ -280,6 +272,7 @@ SOURCES += projectexplorer.cpp \
     projectmacroexpander.cpp \
     customparser.cpp \
     customparserconfigdialog.cpp \
+    msvcparser.cpp \
     selectablefilesmodel.cpp \
     xcodebuildparser.cpp \
     panelswidget.cpp \
@@ -291,8 +284,9 @@ SOURCES += projectexplorer.cpp \
     waitforstopdialog.cpp \
     projectexplorericons.cpp \
     extracompiler.cpp \
-    customexecutableconfigurationwidget.cpp \
-    customexecutablerunconfiguration.cpp
+    customexecutablerunconfiguration.cpp \
+    projectmacro.cpp \
+    makestep.cpp
 
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
@@ -305,21 +299,18 @@ FORMS += processstep.ui \
     devicesupport/devicesettingswidget.ui \
     devicesupport/devicetestdialog.ui \
     devicesupport/desktopdeviceconfigurationwidget.ui \
-    customparserconfigdialog.ui
+    customparserconfigdialog.ui \
+    makestep.ui
 
 WINSOURCES += \
     windebuginterface.cpp \
-    msvcparser.cpp \
     msvctoolchain.cpp \
-    abstractmsvctoolchain.cpp \
-    wincetoolchain.cpp
+    abstractmsvctoolchain.cpp
 
 WINHEADERS += \
     windebuginterface.h \
-    msvcparser.h \
     msvctoolchain.h \
-    abstractmsvctoolchain.h \
-    wincetoolchain.h
+    abstractmsvctoolchain.h
 
 win32|equals(TEST, 1) {
     SOURCES += $$WINSOURCES
@@ -340,15 +331,6 @@ journald {
     LIBS += -lsystemd
 }
 
-macx:LIBS += -framework Carbon
-
 RESOURCES += projectexplorer.qrc
-
-# Some way to override the architecture used in Abi:
-!isEmpty($$(QTC_CPU)) {
-    DEFINES += QTC_CPU=$$(QTC_CPU)
-} else {
-    DEFINES += QTC_CPU=X86Architecture
-}
 
 DEFINES += PROJECTEXPLORER_LIBRARY

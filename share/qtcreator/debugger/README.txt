@@ -1,7 +1,7 @@
 
 While the primary intention of this pretty printing implementation is
-to provide what Qt Creator needs, it can be used in a plain commandline
-GDB session, too.
+to provide what Qt Creator needs, it can be used in a plain GDB and LLDB
+session, too.
 
 With
 
@@ -65,6 +65,11 @@ With code like
     ss =
        <QString> = {"Hello"}
 
+Or for LLDB (.lldbinit or directly in the LLDB interpreter):
+
+      command script import <path/to/qtcreator>/share/qtcreator/debugger/lldbbridge.py
+
+This will add LLDB summary providers for all the Qt types in a new type category named 'Qt'.
 
 
 

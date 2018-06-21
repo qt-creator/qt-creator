@@ -49,8 +49,8 @@ public:
 private:
     QString m_name;
     QString m_cardinality;
-    MAssociationEnd::Kind m_kind;
-    bool m_isNavigable;
+    MAssociationEnd::Kind m_kind = MAssociationEnd::Association;
+    bool m_isNavigable = false;
 
 };
 

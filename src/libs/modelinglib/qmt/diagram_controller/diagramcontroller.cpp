@@ -55,7 +55,7 @@ class DiagramController::Clone
 public:
     Uid m_elementKey;
     int m_indexOfElement = -1;
-    DElement *m_clonedElement = 0;
+    DElement *m_clonedElement = nullptr;
 };
 
 class DiagramController::DiagramUndoCommand : public UndoCommand
@@ -84,7 +84,7 @@ protected:
     }
 
 private:
-    DiagramController *m_diagramController = 0;
+    DiagramController *m_diagramController = nullptr;
     Uid m_diagramKey;
 };
 
@@ -119,7 +119,7 @@ public:
             return false;
         }
         // join other elements into this command
-        foreach (const DElement *otherElement, otherUpdateCommand->m_clonedElements.values()) {
+        foreach (const DElement *otherElement, otherUpdateCommand->m_clonedElements) {
             if (!m_clonedElements.contains(otherElement->uid())) {
                 DCloneVisitor visitor;
                 otherElement->accept(&visitor);
@@ -151,7 +151,7 @@ private:
         MDiagram *diagram = this->diagram();
         foreach (DElement *clonedElement, m_clonedElements) {
             DElement *activeElement = diagramController->findElement(clonedElement->uid(), diagram);
-            QMT_CHECK(activeElement);
+            QMT_ASSERT(activeElement, return);
             int row = diagram->diagramElements().indexOf(activeElement);
             emit diagramController->beginUpdateElement(row, diagram);
             // clone active element
@@ -198,9 +198,9 @@ protected:
             Clone &clone = m_clonedElements[i];
             QMT_CHECK(!clone.m_clonedElement);
             DElement *activeElement = diagramController->findElement(clone.m_elementKey, diagram);
-            QMT_CHECK(activeElement);
+            QMT_ASSERT(activeElement, return);
             clone.m_indexOfElement = diagram->diagramElements().indexOf(activeElement);
-            QMT_CHECK(clone.m_indexOfElement >= 0);
+            QMT_ASSERT(clone.m_indexOfElement >= 0, return);
             emit diagramController->beginRemoveElement(clone.m_indexOfElement, diagram);
             DCloneDeepVisitor cloneVisitor;
             activeElement->accept(&cloneVisitor);
@@ -221,11 +221,11 @@ protected:
         bool inserted = false;
         for (int i = m_clonedElements.count() - 1; i >= 0; --i) {
             Clone &clone = m_clonedElements[i];
-            QMT_CHECK(clone.m_clonedElement);
+            QMT_ASSERT(clone.m_clonedElement, return);
             QMT_CHECK(clone.m_clonedElement->uid() == clone.m_elementKey);
             emit diagramController->beginInsertElement(clone.m_indexOfElement, diagram);
             diagram->insertDiagramElement(clone.m_indexOfElement, clone.m_clonedElement);
-            clone.m_clonedElement = 0;
+            clone.m_clonedElement = nullptr;
             emit diagramController->endInsertElement(clone.m_indexOfElement, diagram);
             inserted = true;
         }
@@ -287,7 +287,7 @@ public:
         DCloneDeepVisitor visitor;
         element->accept(&visitor);
         clone.m_clonedElement = visitor.cloned();
-        QMT_CHECK(clone.m_clonedElement);
+        QMT_ASSERT(clone.m_clonedElement, return);
         m_clonedElements.append(clone);
     }
 
@@ -321,13 +321,11 @@ public:
     }
 
 private:
-    QList<MDiagram *> *m_allDiagrams = 0;
+    QList<MDiagram *> *m_allDiagrams = nullptr;
 };
 
 DiagramController::DiagramController(QObject *parent)
-    : QObject(parent),
-      m_modelController(0),
-      m_undoController(0)
+    : QObject(parent)
 {
 }
 
@@ -338,8 +336,8 @@ DiagramController::~DiagramController()
 void DiagramController::setModelController(ModelController *modelController)
 {
     if (m_modelController) {
-        disconnect(m_modelController, 0, this, 0);
-        m_modelController = 0;
+        disconnect(m_modelController, nullptr, this, nullptr);
+        m_modelController = nullptr;
     }
     if (modelController) {
         m_modelController = modelController;
@@ -424,7 +422,7 @@ void DiagramController::removeElement(DElement *element, MDiagram *diagram)
 
 DElement *DiagramController::findElement(const Uid &key, const MDiagram *diagram) const
 {
-    QMT_CHECK(diagram);
+    QMT_ASSERT(diagram, return nullptr);
 
     return diagram->findDiagramElement(key);
 }
@@ -432,7 +430,7 @@ DElement *DiagramController::findElement(const Uid &key, const MDiagram *diagram
 bool DiagramController::hasDelegate(const MElement *modelElement, const MDiagram *diagram) const
 {
     // PERFORM smarter implementation after map is introduced
-    return findDelegate(modelElement, diagram) != 0;
+    return findDelegate(modelElement, diagram) != nullptr;
 }
 
 DElement *DiagramController::findDelegate(const MElement *modelElement, const MDiagram *diagram) const
@@ -442,7 +440,7 @@ DElement *DiagramController::findDelegate(const MElement *modelElement, const MD
         if (diagramElement->modelUid().isValid() && diagramElement->modelUid() == modelElement->uid())
             return diagramElement;
     }
-    return 0;
+    return nullptr;
 }
 
 void DiagramController::startUpdateElement(DElement *element, MDiagram *diagram, UpdateAction updateAction)
@@ -476,7 +474,7 @@ DContainer DiagramController::cutElements(const DSelection &diagramSelection, MD
 
 DContainer DiagramController::copyElements(const DSelection &diagramSelection, const MDiagram *diagram)
 {
-    QMT_CHECK(diagram);
+    QMT_ASSERT(diagram, return DContainer());
 
     DReferences simplifiedSelection = simplify(diagramSelection, diagram);
     DContainer copiedElements;
@@ -489,9 +487,9 @@ DContainer DiagramController::copyElements(const DSelection &diagramSelection, c
     return copiedElements;
 }
 
-void DiagramController::pasteElements(const DContainer &diagramContainer, MDiagram *diagram)
+void DiagramController::pasteElements(const DReferences &diagramContainer, MDiagram *diagram)
 {
-    QMT_CHECK(diagram);
+    QMT_ASSERT(diagram, return);
 
     // clone all elements and renew their keys
     QHash<Uid, Uid> renewedKeys;
@@ -593,7 +591,7 @@ void DiagramController::onBeginUpdateObject(int row, const MObject *parent)
 void DiagramController::onEndUpdateObject(int row, const MObject *parent)
 {
     MObject *modelObject = m_modelController->object(row, parent);
-    QMT_CHECK(modelObject);
+    QMT_ASSERT(modelObject, return);
     auto modelPackage = dynamic_cast<MPackage *>(modelObject);
     foreach (MDiagram *diagram, m_allDiagrams) {
         DObject *object = findDelegate<DObject>(modelObject, diagram);
@@ -622,7 +620,7 @@ void DiagramController::onBeginInsertObject(int row, const MObject *owner)
 
 void DiagramController::onEndInsertObject(int row, const MObject *owner)
 {
-    QMT_CHECK(owner);
+    QMT_ASSERT(owner, return);
 
     MObject *modelObject = m_modelController->object(row, owner);
     if (auto modelDiagram = dynamic_cast<MDiagram *>(modelObject)) {
@@ -634,7 +632,7 @@ void DiagramController::onEndInsertObject(int row, const MObject *owner)
 
 void DiagramController::onBeginRemoveObject(int row, const MObject *parent)
 {
-    QMT_CHECK(parent);
+    QMT_ASSERT(parent, return);
 
     MObject *modelObject = m_modelController->object(row, parent);
     removeObjects(modelObject);
@@ -658,7 +656,7 @@ void DiagramController::onEndMoveObject(int row, const MObject *owner)
 
     // if diagram was moved update all elements because of changed context
     MObject *modelObject = m_modelController->object(row, owner);
-    QMT_CHECK(modelObject);
+    QMT_ASSERT(modelObject, return);
     auto modelDiagram = dynamic_cast<MDiagram *>(modelObject);
     if (modelDiagram) {
         emit beginResetDiagram(modelDiagram);
@@ -691,7 +689,7 @@ void DiagramController::onEndUpdateRelation(int row, const MObject *owner)
 
 void DiagramController::onBeginRemoveRelation(int row, const MObject *owner)
 {
-    QMT_CHECK(owner);
+    QMT_ASSERT(owner, return);
 
     MRelation *modelRelation = owner->relations().at(row);
     removeRelations(modelRelation);
@@ -719,7 +717,7 @@ void DiagramController::onEndMoveRelation(int row, const MObject *owner)
 void DiagramController::deleteElements(const DSelection &diagramSelection, MDiagram *diagram,
                                        const QString &commandLabel)
 {
-    QMT_CHECK(diagram);
+    QMT_ASSERT(diagram, return);
 
     DReferences simplifiedSelection = simplify(diagramSelection, diagram);
     if (simplifiedSelection.elements().isEmpty())
@@ -757,7 +755,7 @@ DElement *DiagramController::findElementOnAnyDiagram(const Uid &uid)
         if (element)
             return element;
     }
-    return 0;
+    return nullptr;
 }
 
 void DiagramController::removeObjects(MObject *modelObject)
@@ -766,13 +764,13 @@ void DiagramController::removeObjects(MObject *modelObject)
         DElement *diagramElement = findDelegate(modelObject, diagram);
         if (diagramElement)
             removeElement(diagramElement, diagram);
-        foreach (const Handle<MRelation> &relation, modelObject->relations()) {
+        for (const Handle<MRelation> &relation : modelObject->relations()) {
             DElement *diagramElement = findDelegate(relation.target(), diagram);
             if (diagramElement)
                 removeElement(diagramElement, diagram);
         }
     }
-    foreach (const Handle<MObject> &object, modelObject->children()) {
+    for (const Handle<MObject> &object : modelObject->children()) {
         if (object.hasTarget())
             removeObjects(object.target());
     }
@@ -818,7 +816,7 @@ void DiagramController::removeRelations(DElement *element, MDiagram *diagram)
 
 void DiagramController::renewElementKey(DElement *element, QHash<Uid, Uid> *renewedKeys)
 {
-    QMT_CHECK(renewedKeys);
+    QMT_ASSERT(renewedKeys, return);
 
     if (element) {
         DElement *existingElementOnDiagram = findElementOnAnyDiagram(element->uid());
@@ -850,7 +848,7 @@ void DiagramController::updateElementFromModel(DElement *element, const MDiagram
     DUpdateVisitor visitor(element, diagram);
 
     MElement *melement = m_modelController->findElement(element->modelUid());
-    QMT_CHECK(melement);
+    QMT_ASSERT(melement, return);
 
     if (emitUpdateSignal) {
         visitor.setCheckNeedsUpdate(true);
@@ -890,7 +888,7 @@ DReferences DiagramController::simplify(const DSelection &diagramSelection, cons
 MElement *DiagramController::delegatedElement(const DElement *element) const
 {
     if (!element->modelUid().isValid())
-        return 0;
+        return nullptr;
     return m_modelController->findElement(element->modelUid());
 }
 
@@ -925,7 +923,7 @@ void DiagramController::verifyDiagramsIntegrity()
             FindDiagramsVisitor visitor(&allDiagrams);
             m_modelController->rootPackage()->accept(&visitor);
         }
-        QMT_CHECK(allDiagrams == m_allDiagrams);
+        QMT_ASSERT(allDiagrams == m_allDiagrams, return);
         foreach (const MDiagram *diagram, allDiagrams)
             verifyDiagramIntegrity(diagram);
     }
@@ -936,27 +934,27 @@ void DiagramController::verifyDiagramIntegrity(const MDiagram *diagram)
     QHash<Uid, const DElement *> delementsMap;
     foreach (const DElement *delement, diagram->diagramElements()) {
         delementsMap.insert(delement->uid(), delement);
-        if (dynamic_cast<const DObject *>(delement) != 0 || dynamic_cast<const DRelation *>(delement) != 0) {
-            QMT_CHECK(delement->modelUid().isValid());
-            QMT_CHECK(m_modelController->findElement(delement->modelUid()) != 0);
-            if (!delement->modelUid().isValid() || m_modelController->findElement(delement->modelUid()) == 0) {
+        if (dynamic_cast<const DObject *>(delement) || dynamic_cast<const DRelation *>(delement)) {
+            QMT_ASSERT(delement->modelUid().isValid(), return);
+            QMT_ASSERT(m_modelController->findElement(delement->modelUid()), return);
+            if (!delement->modelUid().isValid() || !m_modelController->findElement(delement->modelUid())) {
                 if (const DObject *dobject = dynamic_cast<const DObject *>(delement))
                     qWarning() << "Diagram" << diagram->name() << diagram->uid().toString() << ": object" << dobject->name() << dobject->uid().toString() << "has invalid reference to model element.";
                 else if (const DRelation *drelation = dynamic_cast<const DRelation *>(delement))
                     qWarning() << "Diagram" << diagram->name() << diagram->uid().toString() << ": relation" << drelation->uid().toString() << "has invalid refeference to model element.";
             }
         } else {
-            QMT_CHECK(!delement->modelUid().isValid());
+            QMT_ASSERT(!delement->modelUid().isValid(), return);
         }
     }
     foreach (const DElement *delement, diagram->diagramElements()) {
         if (const DRelation *drelation = dynamic_cast<const DRelation *>(delement)) {
-            QMT_CHECK(drelation->endAUid().isValid());
-            QMT_CHECK(delementsMap.contains(drelation->endAUid()));
+            QMT_ASSERT(drelation->endAUid().isValid(), return);
+            QMT_ASSERT(delementsMap.contains(drelation->endAUid()), return);
             if (!drelation->endAUid().isValid() || !delementsMap.contains(drelation->endAUid()))
                 qWarning() << "Diagram" << diagram->name() << diagram->uid().toString() << ": relation" << drelation->uid().toString() << "has invalid end A.";
-            QMT_CHECK(drelation->endBUid().isValid());
-            QMT_CHECK(delementsMap.contains(drelation->endBUid()));
+            QMT_ASSERT(drelation->endBUid().isValid(), return);
+            QMT_ASSERT(delementsMap.contains(drelation->endBUid()), return);
             if (!drelation->endBUid().isValid() || !delementsMap.contains(drelation->endBUid()))
                 qWarning() << "Diagram" << diagram->name() << diagram->uid().toString() << ": relation" << drelation->uid().toString() << "has invalid end B.";
         }

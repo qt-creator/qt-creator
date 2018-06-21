@@ -26,10 +26,20 @@
 #include "navigatorview.h"
 #include "navigatortreemodel.h"
 #include "navigatorwidget.h"
-#include "nameitemdelegate.h"
-#include "iconcheckboxitemdelegate.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignericons.h"
+
+#include "nameitemdelegate.h"
+#include "iconcheckboxitemdelegate.h"
+
+#include <bindingproperty.h>
+#include <designmodecontext.h>
+#include <designersettings.h>
+#include <nodeproperty.h>
+#include <nodelistproperty.h>
+#include <variantproperty.h>
+#include <qmlitemnode.h>
+#include <rewritingexception.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -37,13 +47,8 @@
 #include <utils/icon.h>
 #include <utils/utilsicons.h>
 
-#include <bindingproperty.h>
-#include <designmodecontext.h>
-#include <nodeproperty.h>
-#include <nodelistproperty.h>
-#include <variantproperty.h>
 #include <QHeaderView>
-#include <qmlitemnode.h>
+
 
 static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPointF &pos)
 {
@@ -64,54 +69,58 @@ static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPo
 namespace QmlDesigner {
 
 NavigatorView::NavigatorView(QObject* parent) :
-        AbstractView(parent),
-        m_blockSelectionChangedSignal(false),
-        m_widget(new NavigatorWidget(this)),
-        m_treeModel(new NavigatorTreeModel(this))
+    AbstractView(parent),
+    m_blockSelectionChangedSignal(false),
+    m_widget(new NavigatorWidget(this)),
+    m_treeModel(new NavigatorTreeModel(this))
 {
+#ifndef QMLDESIGNER_TEST
     Internal::NavigatorContext *navigatorContext = new Internal::NavigatorContext(m_widget.data());
     Core::ICore::addContextObject(navigatorContext);
+#endif
 
+    m_treeModel->setView(this);
     m_widget->setTreeModel(m_treeModel.data());
+    m_currentModelInterface = m_treeModel;
 
-    connect(treeWidget()->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(changeSelection(QItemSelection,QItemSelection)));
+    connect(treeWidget()->selectionModel(), &QItemSelectionModel::selectionChanged, this, &NavigatorView::changeSelection);
 
-    connect(m_widget.data(), SIGNAL(leftButtonClicked()), this, SLOT(leftButtonClicked()));
-    connect(m_widget.data(), SIGNAL(rightButtonClicked()), this, SLOT(rightButtonClicked()));
-    connect(m_widget.data(), SIGNAL(downButtonClicked()), this, SLOT(downButtonClicked()));
-    connect(m_widget.data(), SIGNAL(upButtonClicked()), this, SLOT(upButtonClicked()));
+    connect(m_widget.data(), &NavigatorWidget::leftButtonClicked, this, &NavigatorView::leftButtonClicked);
+    connect(m_widget.data(), &NavigatorWidget::rightButtonClicked, this, &NavigatorView::rightButtonClicked);
+    connect(m_widget.data(), &NavigatorWidget::downButtonClicked, this, &NavigatorView::downButtonClicked);
+    connect(m_widget.data(), &NavigatorWidget::upButtonClicked, this, &NavigatorView::upButtonClicked);
+    connect(m_widget.data(), &NavigatorWidget::filterToggled, this, &NavigatorView::filterToggled);
 
-    treeWidget()->setIndentation(treeWidget()->indentation() * 0.5);
-
-    NameItemDelegate *idDelegate = new NameItemDelegate(this,
-                                                        m_treeModel.data());
+#ifndef QMLDESIGNER_TEST
+    NameItemDelegate *idDelegate = new NameItemDelegate(this);
     IconCheckboxItemDelegate *showDelegate =
             new IconCheckboxItemDelegate(this,
-                                         Utils::Icons::EYE_OPEN_TOOLBAR.pixmap(),
-                                         Utils::Icons::EYE_CLOSED_TOOLBAR.pixmap(),
-                                         m_treeModel.data());
+                                         Utils::Icons::EYE_OPEN_TOOLBAR.icon(),
+                                         Utils::Icons::EYE_CLOSED_TOOLBAR.icon());
 
     IconCheckboxItemDelegate *exportDelegate =
             new IconCheckboxItemDelegate(this,
-                                         Icons::EXPORT_CHECKED.pixmap(),
-                                         Icons::EXPORT_UNCHECKED.pixmap(),
-                                         m_treeModel.data());
+                                         Icons::EXPORT_CHECKED.icon(),
+                                         Icons::EXPORT_UNCHECKED.icon());
 
 #ifdef _LOCK_ITEMS_
-    IconCheckboxItemDelegate *lockDelegate = new IconCheckboxItemDelegate(this,":/qmldesigner/images/lock.png",
-                                                          ":/qmldesigner/images/hole.png",m_treeModel.data());
+    IconCheckboxItemDelegate *lockDelegate =
+            new IconCheckboxItemDelegate(this,
+                                         Utils::Icons::LOCKED_TOOLBAR.icon(),
+                                         Utils::Icons::UNLOCKED_TOOLBAR.icon());
 #endif
 
 
-    treeWidget()->setItemDelegateForColumn(0,idDelegate);
+    treeWidget()->setItemDelegateForColumn(0, idDelegate);
 #ifdef _LOCK_ITEMS_
     treeWidget()->setItemDelegateForColumn(1,lockDelegate);
     treeWidget()->setItemDelegateForColumn(2,showDelegate);
 #else
-    treeWidget()->setItemDelegateForColumn(1,exportDelegate);
-    treeWidget()->setItemDelegateForColumn(2,showDelegate);
+    treeWidget()->setItemDelegateForColumn(1, exportDelegate);
+    treeWidget()->setItemDelegateForColumn(2, showDelegate);
 #endif
 
+#endif //QMLDESIGNER_TEST
 }
 
 NavigatorView::~NavigatorView()
@@ -138,14 +147,14 @@ void NavigatorView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
 
-    m_treeModel->setView(this);
+    m_currentModelInterface->setFilter(
+                DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool());
 
     QTreeView *treeView = treeWidget();
     treeView->expandAll();
 
     treeView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     treeView->header()->resizeSection(1,26);
-    treeView->setRootIsDecorated(false);
     treeView->setIndentation(20);
 #ifdef _LOCK_ITEMS_
     treeView->header()->resizeSection(2,20);
@@ -154,8 +163,6 @@ void NavigatorView::modelAttached(Model *model)
 
 void NavigatorView::modelAboutToBeDetached(Model *model)
 {
-    m_treeModel->removeSubTree(rootModelNode());
-    m_treeModel->clearView();
     AbstractView::modelAboutToBeDetached(model);
 }
 
@@ -166,129 +173,159 @@ void NavigatorView::importsChanged(const QList<Import> &/*addedImports*/, const 
 
 void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & propertyList, PropertyChangeFlags /*propertyChange*/)
 {
-    foreach (const BindingProperty &bindingProperty, propertyList) {
+    for (const BindingProperty &bindingProperty : propertyList) {
         /* If a binding property that exports an item using an alias property has
          * changed, we have to update the affected item.
          */
+
         if (bindingProperty.isAliasExport())
-            m_treeModel->updateItemRow(modelNodeForId(bindingProperty.expression()));
+            m_currentModelInterface->notifyDataChanged(modelNodeForId(bindingProperty.expression()));
     }
 }
 
-void NavigatorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
+void NavigatorView::handleChangedExport(const ModelNode &modelNode, bool exported)
 {
-    m_treeModel->removeSubTree(removedNode);
-}
+    const ModelNode rootNode = rootModelNode();
+    Q_ASSERT(rootNode.isValid());
+    const PropertyName modelNodeId = modelNode.id().toUtf8();
+    if (rootNode.hasProperty(modelNodeId))
+        rootNode.removeProperty(modelNodeId);
+    if (exported) {
+        try {
+            RewriterTransaction transaction =
+                    beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel:exportItem"));
 
-void NavigatorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty & newPropertyParent, const NodeAbstractProperty & /*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
-{
-    bool blocked = blockSelectionChangedSignal(true);
-
-    m_treeModel->removeSubTree(node);
-
-    if (node.isInHierarchy())
-        m_treeModel->addSubTree(node);
-
-    // make sure selection is in sync again
-    updateItemSelection();
-
-    if (newPropertyParent.parentModelNode().isValid()) {
-        QModelIndex index = m_treeModel->indexForNode(newPropertyParent.parentModelNode());
-        treeWidget()->expand(index);
-    }
-
-    blockSelectionChangedSignal(blocked);
-}
-
-void NavigatorView::nodeIdChanged(const ModelNode& node, const QString & /*newId*/, const QString & /*oldId*/)
-{
-    if (m_treeModel->isInTree(node))
-        m_treeModel->updateItemRow(node);
-}
-
-void NavigatorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
-{
-    foreach (const AbstractProperty &property, propertyList) {
-        if (property.isNodeAbstractProperty()) {
-            NodeAbstractProperty nodeAbstractProperty(property.toNodeListProperty());
-            foreach (const ModelNode &childNode, nodeAbstractProperty.directSubNodes()) {
-                m_treeModel->removeSubTree(childNode);
-            }
+            QmlObjectNode qmlObjectNode(modelNode);
+            qmlObjectNode.ensureAliasExport();
+            transaction.commit();
+        }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
+            exception.showException();
         }
     }
+}
+
+bool NavigatorView::isNodeInvisible(const ModelNode &modelNode) const
+{
+    return modelNode.auxiliaryData("invisible").toBool();
+}
+
+void NavigatorView::disableWidget()
+{
+    if (m_widget)
+        m_widget->disableNavigator();
+}
+
+void NavigatorView::enableWidget()
+{
+    if (m_widget)
+        m_widget->enableNavigator();
+}
+
+ModelNode NavigatorView::modelNodeForIndex(const QModelIndex &modelIndex) const
+{
+    return modelIndex.model()->data(modelIndex, ModelNodeRole).value<ModelNode>();
+}
+
+void NavigatorView::nodeAboutToBeRemoved(const ModelNode & /*removedNode*/)
+{
+}
+
+void NavigatorView::nodeRemoved(const ModelNode &removedNode,
+                                const NodeAbstractProperty & /*parentProperty*/,
+                                AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+    m_currentModelInterface->notifyModelNodesRemoved({removedNode});
+}
+
+void NavigatorView::nodeReparented(const ModelNode &modelNode,
+                                   const NodeAbstractProperty & /*newPropertyParent*/,
+                                   const NodeAbstractProperty & oldPropertyParent,
+                                   AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+    if (!oldPropertyParent.isValid())
+        m_currentModelInterface->notifyModelNodesInserted({modelNode});
+    else
+        m_currentModelInterface->notifyModelNodesMoved({modelNode});
+    treeWidget()->expand(indexForModelNode(modelNode));
+}
+
+void NavigatorView::nodeIdChanged(const ModelNode& modelNode, const QString & /*newId*/, const QString & /*oldId*/)
+{
+    m_currentModelInterface->notifyDataChanged(modelNode);
+}
+
+void NavigatorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& /*propertyList*/)
+{
 }
 
 void NavigatorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
 {
+    QList<ModelNode> modelNodes;
     for (const AbstractProperty &property : propertyList) {
-        ModelNode node = property.parentModelNode();
-        /* Update export alias state if property from root note was removed and the root node was not selected. */
-        /* The check for the selection is an optimization to reduce updates. */
-        if (node.isRootNode() && !selectedModelNodes().isEmpty() && !selectedModelNodes().first().isRootNode()) {
-
-            foreach (const ModelNode &modelNode, node.allSubModelNodes())
-                m_treeModel->updateItemRow(modelNode);
+        if (property.isNodeAbstractProperty()) {
+            NodeAbstractProperty nodeAbstractProperty(property.toNodeListProperty());
+            modelNodes.append(nodeAbstractProperty.directSubNodes());
         }
     }
+
+    m_currentModelInterface->notifyModelNodesRemoved(modelNodes);
 }
 
 void NavigatorView::rootNodeTypeChanged(const QString & /*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
-    if (m_treeModel->isInTree(rootModelNode()))
-        m_treeModel->updateItemRow(rootModelNode());
+    m_currentModelInterface->notifyDataChanged(rootModelNode());
 }
 
-void NavigatorView::nodeTypeChanged(const ModelNode &node, const TypeName &, int , int)
+void NavigatorView::nodeTypeChanged(const ModelNode &modelNode, const TypeName &, int , int)
 {
-    if (m_treeModel->isInTree(node))
-        m_treeModel->updateItemRow(node);
+    m_currentModelInterface->notifyDataChanged(modelNode);
 }
 
-void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode, const PropertyName & name, const QVariant & /*data*/)
+void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode,
+                                         const PropertyName & /*name*/,
+                                         const QVariant & /*data*/)
 {
-    if (name == "invisible" && m_treeModel->isInTree(modelNode))
-    {
-        // update model
-        m_treeModel->updateItemRow(modelNode);
-
-        // repaint row (id and icon)
-        foreach (const ModelNode &currentModelNode, modelNode.allSubModelNodesAndThisNode()) {
-            QModelIndex index = m_treeModel->indexForNode(currentModelNode);
-            treeWidget()->update(index);
-            treeWidget()->update(index.sibling(index.row(),index.column()+1));
-        }
-    }
+    m_currentModelInterface->notifyDataChanged(modelNode);
 }
 
 void NavigatorView::instanceErrorChanged(const QVector<ModelNode> &errorNodeList)
 {
-    foreach (const ModelNode &currentModelNode, errorNodeList)
-        m_treeModel->updateItemRow(currentModelNode);
+    foreach (const ModelNode &modelNode, errorNodeList)
+        m_currentModelInterface->notifyDataChanged(modelNode);
 }
 
-void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int /*oldIndex*/)
+void NavigatorView::nodeOrderChanged(const NodeListProperty & listProperty,
+                                     const ModelNode & /*node*/,
+                                     int /*oldIndex*/)
 {
-    if (m_treeModel->isInTree(node)) {
-        m_treeModel->removeSubTree(listProperty.parentModelNode());
+    bool blocked = blockSelectionChangedSignal(true);
 
-        if (node.isInHierarchy())
-            m_treeModel->addSubTree(listProperty.parentModelNode());
+    m_currentModelInterface->notifyModelNodesMoved(listProperty.directSubNodes());
 
-        if (listProperty.parentModelNode().isValid()) {
-            QModelIndex index = m_treeModel->indexForNode(listProperty.parentModelNode());
-            treeWidget()->expand(index);
-        }
-    }
+    // make sure selection is in sync again
+    updateItemSelection();
+
+    blockSelectionChangedSignal(blocked);
 }
 
 void NavigatorView::changeToComponent(const QModelIndex &index)
 {
-    if (index.isValid() && m_treeModel->data(index, Qt::UserRole).isValid()) {
-        ModelNode doubleClickNode = m_treeModel->nodeForIndex(index);
+    if (index.isValid() && currentModel()->data(index, Qt::UserRole).isValid()) {
+        const ModelNode doubleClickNode = modelNodeForIndex(index);
         if (doubleClickNode.metaInfo().isFileComponent())
             Core::EditorManager::openEditor(doubleClickNode.metaInfo().componentFileName(),
                                             Core::Id(), Core::EditorManager::DoNotMakeVisible);
     }
+}
+
+QModelIndex NavigatorView::indexForModelNode(const ModelNode &modelNode) const
+{
+    return m_currentModelInterface->indexForModelNode(modelNode);
+}
+
+QAbstractItemModel *NavigatorView::currentModel() const
+{
+    return treeWidget()->model();
 }
 
 void NavigatorView::leftButtonClicked()
@@ -302,14 +339,15 @@ void NavigatorView::leftButtonClicked()
         if (!node.isRootNode() && !node.parentProperty().parentModelNode().isRootNode()) {
             if (QmlItemNode::isValidQmlItemNode(node)) {
                 QPointF scenePos = QmlItemNode(node).instanceScenePosition();
-                node.parentProperty().parentProperty().reparentHere(node);
+                reparentAndCatch(node.parentProperty().parentProperty(), node);
                 if (!scenePos.isNull())
                     setScenePos(node, scenePos);
             } else {
-                node.parentProperty().parentProperty().reparentHere(node);
+                reparentAndCatch(node.parentProperty().parentProperty(), node);
             }
         }
     }
+
     updateItemSelection();
     blockSelectionChangedSignal(blocked);
 }
@@ -331,12 +369,12 @@ void NavigatorView::rightButtonClicked()
                         && QmlItemNode::isValidQmlItemNode(newParent)
                         && !newParent.metaInfo().defaultPropertyIsComponent()) {
                     QPointF scenePos = QmlItemNode(node).instanceScenePosition();
-                    newParent.nodeAbstractProperty(newParent.metaInfo().defaultPropertyName()).reparentHere(node);
+                    reparentAndCatch(newParent.nodeAbstractProperty(newParent.metaInfo().defaultPropertyName()), node);
                     if (!scenePos.isNull())
                         setScenePos(node, scenePos);
                 } else {
                     if (newParent.metaInfo().isValid() && !newParent.metaInfo().defaultPropertyIsComponent())
-                        newParent.nodeAbstractProperty(newParent.metaInfo().defaultPropertyName()).reparentHere(node);
+                        reparentAndCatch(newParent.nodeAbstractProperty(newParent.metaInfo().defaultPropertyName()), node);
                 }
             }
         }
@@ -379,14 +417,25 @@ void NavigatorView::downButtonClicked()
     blockSelectionChangedSignal(blocked);
 }
 
+void NavigatorView::filterToggled(bool flag)
+{
+    m_currentModelInterface->setFilter(flag);
+    treeWidget()->expandAll();
+    DesignerSettings::setValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS, flag);
+}
+
 void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, const QItemSelection &/*deselected*/)
 {
     if (m_blockSelectionChangedSignal)
         return;
+
     QSet<ModelNode> nodeSet;
-    foreach (const QModelIndex &index, treeWidget()->selectionModel()->selectedIndexes()) {
-        if (m_treeModel->data(index, Qt::UserRole).isValid())
-            nodeSet.insert(m_treeModel->nodeForIndex(index));
+
+    for (const QModelIndex &index : treeWidget()->selectionModel()->selectedIndexes()) {
+
+        const ModelNode modelNode = modelNodeForIndex(index);
+        if (modelNode.isValid())
+            nodeSet.insert(modelNode);
     }
 
     bool blocked = blockSelectionChangedSignal(true);
@@ -403,10 +452,10 @@ void NavigatorView::updateItemSelection()
 {
     QItemSelection itemSelection;
     foreach (const ModelNode &node, selectedModelNodes()) {
-        const QModelIndex index = m_treeModel->indexForNode(node);
+        const QModelIndex index = indexForModelNode(node);
         if (index.isValid()) {
-            const QModelIndex beginIndex(m_treeModel->index(index.row(), 0, index.parent()));
-            const QModelIndex endIndex(m_treeModel->index(index.row(), m_treeModel->columnCount(index.parent()) - 1, index.parent()));
+            const QModelIndex beginIndex(currentModel()->index(index.row(), 0, index.parent()));
+            const QModelIndex endIndex(currentModel()->index(index.row(), currentModel()->columnCount(index.parent()) - 1, index.parent()));
             if (beginIndex.isValid() && endIndex.isValid())
                 itemSelection.select(beginIndex, endIndex);
         }
@@ -417,7 +466,7 @@ void NavigatorView::updateItemSelection()
     blockSelectionChangedSignal(blocked);
 
     if (!selectedModelNodes().isEmpty())
-        treeWidget()->scrollTo(m_treeModel->indexForNode(selectedModelNodes().first()));
+        treeWidget()->scrollTo(indexForModelNode(selectedModelNodes().constFirst()));
 
     // make sure selected nodes a visible
     foreach (const QModelIndex &selectedIndex, itemSelection.indexes()) {
@@ -426,7 +475,7 @@ void NavigatorView::updateItemSelection()
     }
 }
 
-QTreeView *NavigatorView::treeWidget()
+QTreeView *NavigatorView::treeWidget() const
 {
     if (m_widget)
         return m_widget->treeView();
@@ -453,6 +502,15 @@ void NavigatorView::expandRecursively(const QModelIndex &index)
         if (!treeWidget()->isExpanded(currentIndex))
             treeWidget()->expand(currentIndex);
         currentIndex = currentIndex.parent();
+    }
+}
+
+void NavigatorView::reparentAndCatch(NodeAbstractProperty property, const ModelNode &modelNode)
+{
+    try {
+        property.reparentHere(modelNode);
+    }  catch (Exception &exception) {
+        exception.showException();
     }
 }
 

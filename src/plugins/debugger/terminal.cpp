@@ -25,11 +25,16 @@
 
 #include "terminal.h"
 
+#include "debuggerruncontrol.h"
+
 #include <QDebug>
 #include <QIODevice>
 #include <QSocketNotifier>
 
+#include <coreplugin/icore.h>
+
 #include <utils/qtcassert.h>
+#include <utils/hostosinfo.h>
 
 #ifdef Q_OS_UNIX
 #   define DEBUGGER_USE_TERMINAL
@@ -45,6 +50,10 @@
 #   include <sys/stat.h>
 #endif
 
+using namespace Core;
+using namespace ProjectExplorer;
+using namespace Utils;
+
 namespace Debugger {
 namespace Internal {
 
@@ -55,7 +64,7 @@ static QString currentError()
 }
 
 Terminal::Terminal(QObject *parent)
-   : QObject(parent), m_isUsable(false), m_masterFd(-1), m_masterReader(0)
+   : QObject(parent)
 {
 }
 
@@ -157,6 +166,60 @@ void Terminal::onSlaveReaderActivated(int fd)
 #else
     Q_UNUSED(fd);
 #endif
+}
+
+TerminalRunner::TerminalRunner(DebuggerRunTool *debugger)
+    : RunWorker(debugger->runControl())
+{
+    setDisplayName("TerminalRunner");
+
+    const DebuggerRunParameters &rp = debugger->runParameters();
+    m_stubRunnable = rp.inferior;
+
+    connect(&m_stubProc, &ConsoleProcess::processError,
+            this, &TerminalRunner::stubError);
+    connect(&m_stubProc, &ConsoleProcess::processStarted,
+            this, &TerminalRunner::stubStarted);
+    connect(&m_stubProc, &ConsoleProcess::processStopped,
+            this, [this] { reportDone(); });
+}
+
+void TerminalRunner::start()
+{
+    m_stubProc.setEnvironment(m_stubRunnable.environment);
+    m_stubProc.setWorkingDirectory(m_stubRunnable.workingDirectory);
+
+    if (HostOsInfo::isWindowsHost()) {
+        // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win
+        if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA)
+            m_stubProc.setMode(ConsoleProcess::Suspend);
+        else
+            m_stubProc.setMode(ConsoleProcess::Debug);
+    } else {
+        m_stubProc.setMode(ConsoleProcess::Debug);
+        m_stubProc.setSettings(Core::ICore::settings());
+    }
+
+    // Error message for user is delivered via a signal.
+    m_stubProc.start(m_stubRunnable.executable, m_stubRunnable.commandLineArguments);
+}
+
+void TerminalRunner::stop()
+{
+    m_stubProc.stop();
+    reportStopped();
+}
+
+void TerminalRunner::stubStarted()
+{
+    m_applicationPid = m_stubProc.applicationPID();
+    m_applicationMainThreadId = m_stubProc.applicationMainThreadID();
+    reportStarted();
+}
+
+void TerminalRunner::stubError(const QString &msg)
+{
+    reportFailure(msg);
 }
 
 } // namespace Internal

@@ -31,6 +31,8 @@
 #include "pluginmanager.h"
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -277,6 +279,11 @@ bool PluginSpec::isRequired() const
     return d->required;
 }
 
+bool PluginSpec::isHiddenByDefault() const
+{
+    return d->hiddenByDefault;
+}
+
 /*!
     Returns whether the plugin has its experimental flag set.
 */
@@ -353,6 +360,11 @@ bool PluginSpec::isForceDisabled() const
 QVector<PluginDependency> PluginSpec::dependencies() const
 {
     return d->dependencies;
+}
+
+QJsonObject PluginSpec::metaData() const
+{
+    return d->metaData;
 }
 
 /*!
@@ -474,6 +486,11 @@ bool PluginSpec::requiresAny(const QSet<PluginSpec *> &plugins) const
     });
 }
 
+void PluginSpec::setEnabledBySettings(bool value)
+{
+    d->setEnabledBySettings(value);
+}
+
 //==========PluginSpecPrivate==================
 
 namespace {
@@ -482,6 +499,7 @@ namespace {
     const char PLUGIN_VERSION[] = "Version";
     const char PLUGIN_COMPATVERSION[] = "CompatVersion";
     const char PLUGIN_REQUIRED[] = "Required";
+    const char PLUGIN_HIDDEN_BY_DEFAULT[] = "HiddenByDefault";
     const char PLUGIN_EXPERIMENTAL[] = "Experimental";
     const char PLUGIN_DISABLED_BY_DEFAULT[] = "DisabledByDefault";
     const char VENDOR[] = "Vendor";
@@ -507,17 +525,7 @@ namespace {
     \internal
 */
 PluginSpecPrivate::PluginSpecPrivate(PluginSpec *spec)
-    : required(false),
-      experimental(false),
-      enabledByDefault(true),
-      enabledBySettings(true),
-      enabledIndirectly(false),
-      forceEnabled(false),
-      forceDisabled(false),
-      plugin(0),
-      state(PluginSpec::Invalid),
-      hasError(false),
-      q(spec)
+    : q(spec)
 {
 }
 
@@ -543,6 +551,7 @@ bool PluginSpecPrivate::read(const QString &fileName)
     hasError = false;
     errorString.clear();
     dependencies.clear();
+    metaData = QJsonObject();
     QFileInfo fileInfo(fileName);
     location = fileInfo.absolutePath();
     filePath = fileInfo.absoluteFilePath();
@@ -628,37 +637,14 @@ static inline QString msgInvalidFormat(const char *key, const QString &content)
             .arg(QLatin1String(key), content);
 }
 
-static inline bool readMultiLineString(const QJsonValue &value, QString *out)
-{
-    if (!out) {
-        qCWarning(pluginLog) << Q_FUNC_INFO << "missing output parameter";
-        return false;
-    }
-    if (value.isString()) {
-        *out = value.toString();
-    } else if (value.isArray()) {
-        QJsonArray array = value.toArray();
-        QStringList lines;
-        foreach (const QJsonValue &v, array) {
-            if (!v.isString())
-                return false;
-            lines.append(v.toString());
-        }
-        *out = lines.join(QLatin1Char('\n'));
-    } else {
-        return false;
-    }
-    return true;
-}
-
 /*!
     \internal
 */
-bool PluginSpecPrivate::readMetaData(const QJsonObject &metaData)
+bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
 {
-    qCDebug(pluginLog) << "MetaData:" << QJsonDocument(metaData).toJson();
+    qCDebug(pluginLog) << "MetaData:" << QJsonDocument(pluginMetaData).toJson();
     QJsonValue value;
-    value = metaData.value(QLatin1String("IID"));
+    value = pluginMetaData.value(QLatin1String("IID"));
     if (!value.isString()) {
         qCDebug(pluginLog) << "Not a plugin (no string IID found)";
         return false;
@@ -668,19 +654,19 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &metaData)
         return false;
     }
 
-    value = metaData.value(QLatin1String(PLUGIN_METADATA));
+    value = pluginMetaData.value(QLatin1String(PLUGIN_METADATA));
     if (!value.isObject())
         return reportError(tr("Plugin meta data not found"));
-    QJsonObject pluginInfo = value.toObject();
+    metaData = value.toObject();
 
-    value = pluginInfo.value(QLatin1String(PLUGIN_NAME));
+    value = metaData.value(QLatin1String(PLUGIN_NAME));
     if (value.isUndefined())
         return reportError(msgValueMissing(PLUGIN_NAME));
     if (!value.isString())
         return reportError(msgValueIsNotAString(PLUGIN_NAME));
     name = value.toString();
 
-    value = pluginInfo.value(QLatin1String(PLUGIN_VERSION));
+    value = metaData.value(QLatin1String(PLUGIN_VERSION));
     if (value.isUndefined())
         return reportError(msgValueMissing(PLUGIN_VERSION));
     if (!value.isString())
@@ -689,26 +675,32 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &metaData)
     if (!isValidVersion(version))
         return reportError(msgInvalidFormat(PLUGIN_VERSION, version));
 
-    value = pluginInfo.value(QLatin1String(PLUGIN_COMPATVERSION));
+    value = metaData.value(QLatin1String(PLUGIN_COMPATVERSION));
     if (!value.isUndefined() && !value.isString())
         return reportError(msgValueIsNotAString(PLUGIN_COMPATVERSION));
     compatVersion = value.toString(version);
     if (!value.isUndefined() && !isValidVersion(compatVersion))
         return reportError(msgInvalidFormat(PLUGIN_COMPATVERSION, compatVersion));
 
-    value = pluginInfo.value(QLatin1String(PLUGIN_REQUIRED));
+    value = metaData.value(QLatin1String(PLUGIN_REQUIRED));
     if (!value.isUndefined() && !value.isBool())
         return reportError(msgValueIsNotABool(PLUGIN_REQUIRED));
     required = value.toBool(false);
     qCDebug(pluginLog) << "required =" << required;
 
-    value = pluginInfo.value(QLatin1String(PLUGIN_EXPERIMENTAL));
+    value = metaData.value(QLatin1String(PLUGIN_HIDDEN_BY_DEFAULT));
+    if (!value.isUndefined() && !value.isBool())
+        return reportError(msgValueIsNotABool(PLUGIN_HIDDEN_BY_DEFAULT));
+    hiddenByDefault = value.toBool(false);
+    qCDebug(pluginLog) << "hiddenByDefault =" << hiddenByDefault;
+
+    value = metaData.value(QLatin1String(PLUGIN_EXPERIMENTAL));
     if (!value.isUndefined() && !value.isBool())
         return reportError(msgValueIsNotABool(PLUGIN_EXPERIMENTAL));
     experimental = value.toBool(false);
     qCDebug(pluginLog) << "experimental =" << experimental;
 
-    value = pluginInfo.value(QLatin1String(PLUGIN_DISABLED_BY_DEFAULT));
+    value = metaData.value(QLatin1String(PLUGIN_DISABLED_BY_DEFAULT));
     if (!value.isUndefined() && !value.isBool())
         return reportError(msgValueIsNotABool(PLUGIN_DISABLED_BY_DEFAULT));
     enabledByDefault = !value.toBool(false);
@@ -718,35 +710,35 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &metaData)
         enabledByDefault = false;
     enabledBySettings = enabledByDefault;
 
-    value = pluginInfo.value(QLatin1String(VENDOR));
+    value = metaData.value(QLatin1String(VENDOR));
     if (!value.isUndefined() && !value.isString())
         return reportError(msgValueIsNotAString(VENDOR));
     vendor = value.toString();
 
-    value = pluginInfo.value(QLatin1String(COPYRIGHT));
+    value = metaData.value(QLatin1String(COPYRIGHT));
     if (!value.isUndefined() && !value.isString())
         return reportError(msgValueIsNotAString(COPYRIGHT));
     copyright = value.toString();
 
-    value = pluginInfo.value(QLatin1String(DESCRIPTION));
-    if (!value.isUndefined() && !readMultiLineString(value, &description))
+    value = metaData.value(QLatin1String(DESCRIPTION));
+    if (!value.isUndefined() && !Utils::readMultiLineString(value, &description))
         return reportError(msgValueIsNotAString(DESCRIPTION));
 
-    value = pluginInfo.value(QLatin1String(URL));
+    value = metaData.value(QLatin1String(URL));
     if (!value.isUndefined() && !value.isString())
         return reportError(msgValueIsNotAString(URL));
     url = value.toString();
 
-    value = pluginInfo.value(QLatin1String(CATEGORY));
+    value = metaData.value(QLatin1String(CATEGORY));
     if (!value.isUndefined() && !value.isString())
         return reportError(msgValueIsNotAString(CATEGORY));
     category = value.toString();
 
-    value = pluginInfo.value(QLatin1String(LICENSE));
-    if (!value.isUndefined() && !readMultiLineString(value, &license))
+    value = metaData.value(QLatin1String(LICENSE));
+    if (!value.isUndefined() && !Utils::readMultiLineString(value, &license))
         return reportError(msgValueIsNotAMultilineString(LICENSE));
 
-    value = pluginInfo.value(QLatin1String(PLATFORM));
+    value = metaData.value(QLatin1String(PLATFORM));
     if (!value.isUndefined() && !value.isString())
         return reportError(msgValueIsNotAString(PLATFORM));
     const QString platformSpec = value.toString().trimmed();
@@ -757,7 +749,7 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &metaData)
                                .arg(platformSpec, platformSpecification.errorString()));
     }
 
-    value = pluginInfo.value(QLatin1String(DEPENDENCIES));
+    value = metaData.value(QLatin1String(DEPENDENCIES));
     if (!value.isUndefined() && !value.isArray())
         return reportError(msgValueIsNotAObjectArray(DEPENDENCIES));
     if (!value.isUndefined()) {
@@ -793,7 +785,7 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &metaData)
                 } else if (typeValue.toLower() == QLatin1String(DEPENDENCY_TYPE_TEST)) {
                     dep.type = PluginDependency::Test;
                 } else {
-                    return reportError(tr("Dependency: \"%1\" must be \"%2\" or \"%3\" (is \"%4\")")
+                    return reportError(tr("Dependency: \"%1\" must be \"%2\" or \"%3\" (is \"%4\").")
                                        .arg(QLatin1String(DEPENDENCY_TYPE),
                                             QLatin1String(DEPENDENCY_TYPE_HARD),
                                             QLatin1String(DEPENDENCY_TYPE_SOFT),
@@ -804,7 +796,7 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &metaData)
         }
     }
 
-    value = pluginInfo.value(QLatin1String(ARGUMENTS));
+    value = metaData.value(QLatin1String(ARGUMENTS));
     if (!value.isUndefined() && !value.isArray())
         return reportError(msgValueIsNotAObjectArray(ARGUMENTS));
     if (!value.isUndefined()) {
@@ -930,19 +922,25 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
     return true;
 }
 
-void PluginSpecPrivate::enableDependenciesIndirectly()
+// returns the plugins that it actually indirectly enabled
+QList<PluginSpec *> PluginSpecPrivate::enableDependenciesIndirectly(bool enableTestDependencies)
 {
     if (!q->isEffectivelyEnabled()) // plugin not enabled, nothing to do
-        return;
+        return {};
+    QList<PluginSpec *> enabled;
     QHashIterator<PluginDependency, PluginSpec *> it(dependencySpecs);
     while (it.hasNext()) {
         it.next();
-        if (it.key().type != PluginDependency::Required)
+        if (it.key().type != PluginDependency::Required
+                && (!enableTestDependencies || it.key().type != PluginDependency::Test))
             continue;
         PluginSpec *dependencySpec = it.value();
-        if (!dependencySpec->isEffectivelyEnabled())
+        if (!dependencySpec->isEffectivelyEnabled()) {
             dependencySpec->d->enabledIndirectly = true;
+            enabled << dependencySpec;
+        }
     }
+    return enabled;
 }
 
 /*!

@@ -85,12 +85,25 @@
 
 using namespace Core;
 
+static QList<INavigationWidgetFactory *> g_navigationWidgetFactories;
+
 /*!
     Creates a \l{Core::NavigationViewFactory}.
 */
 INavigationWidgetFactory::INavigationWidgetFactory()
     : m_priority(0)
 {
+    g_navigationWidgetFactories.append(this);
+}
+
+INavigationWidgetFactory::~INavigationWidgetFactory()
+{
+    g_navigationWidgetFactories.removeOne(this);
+}
+
+const QList<INavigationWidgetFactory *> INavigationWidgetFactory::allNavigationFactories()
+{
+    return g_navigationWidgetFactories;
 }
 
 /*!
@@ -147,7 +160,7 @@ QKeySequence INavigationWidgetFactory::activationSequence() const
 
     \sa INavigationWidgetFactory::restoreSettings()
 */
-void INavigationWidgetFactory::saveSettings(int /* position */, QWidget * /* widget */)
+void INavigationWidgetFactory::saveSettings(QSettings * /* settings */, int /* position */, QWidget * /* widget */)
 {
 }
 
@@ -157,6 +170,6 @@ void INavigationWidgetFactory::saveSettings(int /* position */, QWidget * /* wid
 
     \sa INavigationWidgetFactory::saveSettings()
 */
-void INavigationWidgetFactory::restoreSettings(int /* position */, QWidget * /* widget */)
+void INavigationWidgetFactory::restoreSettings(QSettings * /* settings */, int /* position */, QWidget * /* widget */)
 {
 }

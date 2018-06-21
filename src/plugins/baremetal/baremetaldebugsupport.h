@@ -25,48 +25,22 @@
 
 #pragma once
 
-#include <QObject>
-#include <QPointer>
-
-namespace Debugger { class DebuggerRunControl; }
-
-namespace ProjectExplorer { class DeviceApplicationRunner; }
+#include <debugger/debuggerruncontrol.h>
 
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalDebugSupport : public QObject
+class BareMetalDebugSupport : public Debugger::DebuggerRunTool
 {
     Q_OBJECT
 
 public:
-    explicit BareMetalDebugSupport(Debugger::DebuggerRunControl *runControl);
-    ~BareMetalDebugSupport();
-
-private slots:
-    void remoteSetupRequested();
-    void debuggingFinished();
-    void remoteOutputMessage(const QByteArray &output);
-    void remoteErrorOutputMessage(const QByteArray &output);
-    void remoteProcessStarted();
-    void appRunnerFinished(bool success);
-    void progressReport(const QString &progressOutput);
-    void appRunnerError(const QString &error);
+    BareMetalDebugSupport(ProjectExplorer::RunControl *runControl);
 
 private:
-    enum State { Inactive, StartingRunner, Running };
+    void start() override;
 
-    void adapterSetupDone();
-    void adapterSetupFailed(const QString &error);
-
-    void startExecution();
-    void setFinished();
-    void reset();
-    void showMessage(const QString &msg, int channel);
-
-    ProjectExplorer::DeviceApplicationRunner *m_appRunner;
-    const QPointer<Debugger::DebuggerRunControl> m_runControl;
-    BareMetalDebugSupport::State m_state;
+    ProjectExplorer::SimpleTargetRunner *m_gdbServer = nullptr;
 };
 
 } // namespace Internal

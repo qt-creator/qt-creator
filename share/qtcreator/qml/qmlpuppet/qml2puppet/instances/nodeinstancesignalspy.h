@@ -46,7 +46,7 @@ public:
 
     void setObjectNodeInstance(const ObjectNodeInstancePointer &nodeInstance);
 
-    virtual int qt_metacall(QMetaObject::Call, int, void **);
+    int qt_metacall(QMetaObject::Call, int, void **) override;
 
 protected:
     void registerObject(QObject *spiedObject);

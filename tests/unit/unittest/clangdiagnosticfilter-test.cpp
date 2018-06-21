@@ -63,22 +63,22 @@ DiagnosticContainer createDiagnostic(const QString &text,
 
 const QString mainFileHeaderPath = QString::fromUtf8(TESTDATA_DIR "/someHeader.h");
 const QString mainFilePath = QString::fromUtf8(TESTDATA_DIR "/diagnostic_erroneous_source.cpp");
-const QString includedFilePath = QString::fromUtf8(TESTDATA_DIR "/diagnostic_erroneous_header.cpp");
+const QString headerFilePath = QString::fromUtf8(TESTDATA_DIR "/diagnostic_erroneous_header.cpp");
 
-DiagnosticContainer warningFromIncludedFile()
+DiagnosticContainer warningFromHeader()
 {
     return createDiagnostic(
                 QStringLiteral("warning: control reaches end of non-void function"),
                 ClangBackEnd::DiagnosticSeverity::Warning,
-                includedFilePath);
+                headerFilePath);
 }
 
-DiagnosticContainer errorFromIncludedFile()
+DiagnosticContainer errorFromHeader()
 {
     return createDiagnostic(
                 QStringLiteral("C++ requires a type specifier for all declarations"),
                 ClangBackEnd::DiagnosticSeverity::Error,
-                includedFilePath);
+                headerFilePath);
 }
 
 DiagnosticContainer warningFromMainFile()
@@ -144,9 +144,9 @@ DiagnosticContainer warningFromMainFileWithFixits()
     return createDiagnosticWithFixIt(mainFilePath);
 }
 
-DiagnosticContainer warningFromIncludedFileWithFixits()
+DiagnosticContainer warningFromHeaderFileWithFixits()
 {
-    return createDiagnosticWithFixIt(includedFilePath);
+    return createDiagnosticWithFixIt(headerFilePath);
 }
 
 class ClangDiagnosticFilter : public ::testing::Test
@@ -162,11 +162,11 @@ TEST_F(ClangDiagnosticFilter, WarningsFromMainFileAreLetThrough)
     ASSERT_THAT(clangDiagnosticFilter.takeWarnings(),Contains(warningFromMainFile()));
 }
 
-TEST_F(ClangDiagnosticFilter, WarningsFromIncludedFileAreIgnored)
+TEST_F(ClangDiagnosticFilter, WarningsFromHeaderAreIgnored)
 {
-    clangDiagnosticFilter.filter({warningFromIncludedFile()});
+    clangDiagnosticFilter.filter({warningFromHeader()});
 
-    ASSERT_THAT(clangDiagnosticFilter.takeWarnings(), Not(Contains(warningFromIncludedFile())));
+    ASSERT_THAT(clangDiagnosticFilter.takeWarnings(), Not(Contains(warningFromHeader())));
 }
 
 TEST_F(ClangDiagnosticFilter, ErrorsFromMainFileAreLetThrough)
@@ -176,11 +176,11 @@ TEST_F(ClangDiagnosticFilter, ErrorsFromMainFileAreLetThrough)
     ASSERT_THAT(clangDiagnosticFilter.takeErrors(), Contains(errorFromMainFile()));
 }
 
-TEST_F(ClangDiagnosticFilter, ErrorsFromIncludedFileAreIgnored)
+TEST_F(ClangDiagnosticFilter, ErrorsFromHeaderAreIgnored)
 {
-    clangDiagnosticFilter.filter({errorFromIncludedFile()});
+    clangDiagnosticFilter.filter({errorFromHeader()});
 
-    ASSERT_THAT(clangDiagnosticFilter.takeErrors(), Not(Contains(errorFromIncludedFile())));
+    ASSERT_THAT(clangDiagnosticFilter.takeErrors(), Not(Contains(errorFromHeader())));
 }
 
 TEST_F(ClangDiagnosticFilter, FixItsFromMainFileAreLetThrough)
@@ -190,12 +190,12 @@ TEST_F(ClangDiagnosticFilter, FixItsFromMainFileAreLetThrough)
     ASSERT_THAT(clangDiagnosticFilter.takeFixIts(), Contains(warningFromMainFileWithFixits()));
 }
 
-TEST_F(ClangDiagnosticFilter, FixItsFromIncludedFileAreIgnored)
+TEST_F(ClangDiagnosticFilter, FixItsFromHeaderAreIgnored)
 {
-    clangDiagnosticFilter.filter({warningFromIncludedFileWithFixits()});
+    clangDiagnosticFilter.filter({warningFromHeaderFileWithFixits()});
 
     ASSERT_THAT(clangDiagnosticFilter.takeFixIts(),
-                Not(Contains(warningFromIncludedFileWithFixits())));
+                Not(Contains(warningFromHeaderFileWithFixits())));
 }
 
 TEST_F(ClangDiagnosticFilter, WarningsAreEmptyAfterTaking)

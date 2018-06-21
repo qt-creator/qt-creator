@@ -61,7 +61,14 @@ class QMT_EXPORT ModelController : public QObject
     class MoveRelationCommand;
 
 public:
-    explicit ModelController(QObject *parent = 0);
+
+    enum PasteOption {
+        PasteAlwaysWithNewKeys,
+        PasteAlwaysAndKeepKeys,
+        PasteOnlyNewElements
+    };
+
+    explicit ModelController(QObject *parent = nullptr);
     ~ModelController() override;
 
 signals:
@@ -93,8 +100,9 @@ public:
     UndoController *undoController() const { return m_undoController; }
     void setUndoController(UndoController *undoController);
 
+    Uid ownerKey(const Uid &key) const;
     Uid ownerKey(const MElement *element) const;
-    MElement *findElement(const Uid &key);
+    MElement *findElement(const Uid &key) const;
     template<class T>
     T *findElement(const Uid &key) { return dynamic_cast<T *>(findElement(key)); }
 
@@ -124,7 +132,7 @@ public:
 
     MContainer cutElements(const MSelection &modelSelection);
     MContainer copyElements(const MSelection &modelSelection);
-    void pasteElements(MObject *owner, const MContainer &modelContainer);
+    void pasteElements(MObject *owner, const MReferences &modelContainer, PasteOption option);
     void deleteElements(const MSelection &modelSelection);
 
 private:
@@ -151,12 +159,12 @@ private:
                               QHash<Uid, const MRelation *> *relationsMap,
                               QMultiHash<Uid, MRelation *> *objectRelationsMap) const;
 
-    MPackage *m_rootPackage;
-    UndoController *m_undoController;
+    MPackage *m_rootPackage = nullptr;
+    UndoController *m_undoController = nullptr;
     QHash<Uid, MObject *> m_objectsMap;
     QHash<Uid, MRelation *> m_relationsMap;
     QMultiHash<Uid, MRelation *> m_objectRelationsMap;
-    bool m_isResettingModel;
+    bool m_isResettingModel = false;
     QString m_oldPackageName;
 };
 

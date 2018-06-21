@@ -24,52 +24,49 @@
 ****************************************************************************/
 
 #include "inputeventsmodel_test.h"
-#include "timeline/timelinemodel_p.h"
-#include "timeline/timelineformattime.h"
+
+#include <tracing/timelinemodel_p.h>
+#include <tracing/timelineformattime.h>
 
 #include <QtTest>
 
 namespace QmlProfiler {
 namespace Internal {
 
-InputEventsModelTest::InputEventsModelTest(QObject *parent) :
-    QObject(parent), manager(nullptr), model(&manager)
+static InputEventType inputType(int i)
 {
-    keyTypeId = manager.qmlModel()->addEventType(QmlEventType(Event, MaximumRangeType, Key));
-    mouseTypeId = manager.qmlModel()->addEventType(QmlEventType(Event, MaximumRangeType, Mouse));
+    return static_cast<InputEventType>(i % (MaximumInputEventType + 1));
+}
+
+InputEventsModelTest::InputEventsModelTest(QObject *parent) :
+    QObject(parent), model(&manager, &aggregator)
+{
+    keyTypeId = manager.appendEventType(QmlEventType(Event, MaximumRangeType, Key));
+    mouseTypeId = manager.appendEventType(QmlEventType(Event, MaximumRangeType, Mouse));
 }
 
 void InputEventsModelTest::initTestCase()
 {
-    manager.startAcquiring();
-    QmlEvent event;
+    manager.initialize();
 
     for (int i = 0; i < 10; ++i) {
+        QmlEvent event;
         event.setTimestamp(i);
-        InputEventType type = static_cast<InputEventType>(i % MaximumInputEventType);
+        InputEventType type = inputType(i);
         event.setTypeIndex(type <= InputKeyUnknown ? keyTypeId : mouseTypeId);
         event.setNumbers({static_cast<qint32>(type),
                           (i * 32) % 256,
                           static_cast<qint32>((i * 0x02000000) & Qt::KeyboardModifierMask)});
-        manager.qmlModel()->addEvent(event);
+        manager.appendEvent(std::move(event));
     }
-    manager.acquiringDone();
-    QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
-}
 
-void InputEventsModelTest::testAccepted()
-{
-    QVERIFY(!model.accepted(QmlEventType()));
-    QVERIFY(!model.accepted(QmlEventType(Event)));
-    QVERIFY(!model.accepted(QmlEventType(Event, MaximumRangeType)));
-    QVERIFY(model.accepted(QmlEventType(Event, MaximumRangeType, Key)));
-    QVERIFY(model.accepted(QmlEventType(Event, MaximumRangeType, Mouse)));
+    manager.finalize();
 }
 
 void InputEventsModelTest::testTypeId()
 {
     for (int i = 0; i < 10; ++i) {
-        InputEventType type = static_cast<InputEventType>(i % MaximumInputEventType);
+        InputEventType type = inputType(i);
         QCOMPARE(model.typeId(i), type <= InputKeyUnknown ? keyTypeId : mouseTypeId);
     }
 }
@@ -79,7 +76,7 @@ void InputEventsModelTest::testColor()
     QRgb keyColor = 0;
     QRgb mouseColor = 0;
     for (int i = 0; i < 10; ++i) {
-        InputEventType type = static_cast<InputEventType>(i % MaximumInputEventType);
+        InputEventType type = inputType(i);
         int selectionId = (type <= InputKeyUnknown ? Key : Mouse);
         QCOMPARE(selectionId, model.selectionId(i));
 
@@ -110,7 +107,7 @@ void InputEventsModelTest::testDetails()
         QCOMPARE(details[model.tr("Timestamp")].toString(), Timeline::formatTime(i));
         QString displayName = details[QString("displayName")].toString();
         QVERIFY(!displayName.isEmpty());
-        switch (static_cast<InputEventType>(i % MaximumInputEventType)) {
+        switch (inputType(i)) {
         case InputKeyPress:
             QCOMPARE(displayName, model.tr("Key Press"));
             if (i == 0) {
@@ -175,7 +172,7 @@ void InputEventsModelTest::testDetails()
             QVERIFY(!details.contains(model.tr("Result")));
             break;
         default:
-            Q_UNREACHABLE();
+            QCOMPARE(displayName, model.tr("Unknown"));
             break;
         }
     }
@@ -184,7 +181,7 @@ void InputEventsModelTest::testDetails()
 void InputEventsModelTest::testExpandedRow()
 {
     for (int i = 0; i < 10; ++i) {
-        InputEventType type = static_cast<InputEventType>(i % MaximumInputEventType);
+        InputEventType type = inputType(i);
         QCOMPARE(model.expandedRow(i), (type <= InputKeyUnknown ? 2 : 1));
     }
 }

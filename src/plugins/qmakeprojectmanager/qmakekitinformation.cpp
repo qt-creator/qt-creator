@@ -26,12 +26,16 @@
 #include "qmakekitinformation.h"
 
 #include "qmakekitconfigwidget.h"
+#include "qmakeprojectmanagerconstants.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/qtkitinformation.h>
+
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -59,10 +63,10 @@ QList<Task> QmakeKitInformation::validate(const Kit *k) const
     FileName mkspec = QmakeKitInformation::mkspec(k);
     if (!version && !mkspec.isEmpty())
         result << Task(Task::Warning, tr("No Qt version set, so mkspec is ignored."),
-                       FileName(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM);
+                       FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     if (version && !version->hasMkspec(mkspec))
         result << Task(Task::Error, tr("Mkspec not found for Qt version."),
-                       FileName(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM);
+                       FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     return result;
 }
 
@@ -72,28 +76,42 @@ void QmakeKitInformation::setup(Kit *k)
     if (!version)
         return;
 
-    if (version->type() == "Boot2Qt.QtVersionType") // HACK: Ignore boot2Qt kits!
+    // HACK: Ignore Boot2Qt kits!
+    if (version->type() == "Boot2Qt.QtVersionType" || version->type() == "Qdb.EmbeddedLinuxQt")
         return;
 
     FileName spec = QmakeKitInformation::mkspec(k);
     if (spec.isEmpty())
         spec = version->mkspec();
 
-
-    ToolChain *tc = ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx);
+    ToolChain *tc = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     if (!tc || (!tc->suggestedMkspecList().empty() && !tc->suggestedMkspecList().contains(spec))) {
-        ToolChain *possibleTc = nullptr;
-        foreach (ToolChain *current, ToolChainManager::toolChains()) {
-            if (current->language() == ToolChain::Language::Cxx
-                    && version->qtAbis().contains(current->targetAbi())) {
-                possibleTc = current;
-                if (current->suggestedMkspecList().contains(spec))
-                    break;
+        const QList<ToolChain *> possibleTcs = ToolChainManager::toolChains(
+                    [version](const ToolChain *t) {
+            return t->isValid()
+                && t->language() == Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID)
+                && version->qtAbis().contains(t->targetAbi());
+        });
+        if (!possibleTcs.isEmpty()) {
+            const QList<ToolChain *> goodTcs = Utils::filtered(possibleTcs,
+                                                               [&spec](const ToolChain *t) {
+                return t->suggestedMkspecList().contains(spec);
+            });
+            // Hack to prefer a tool chain from PATH (e.g. autodetected) over other matches.
+            // This improves the situation a bit if a cross-compilation tool chain has the
+            // same ABI as the host.
+            const Environment systemEnvironment = Environment::systemEnvironment();
+            ToolChain *bestTc = Utils::findOrDefault(goodTcs,
+                                                     [&systemEnvironment](const ToolChain *t) {
+                return systemEnvironment.path().contains(t->compilerCommand().parentDir());
+            });
+            if (!bestTc) {
+                bestTc = goodTcs.isEmpty() ? possibleTcs.last() : goodTcs.last();
             }
+            if (bestTc)
+                ToolChainKitInformation::setAllToolChainsToMatch(k, bestTc);
         }
-        if (possibleTc)
-            ToolChainKitInformation::setToolChain(k, possibleTc);
     }
 }
 
@@ -110,14 +128,14 @@ KitInformation::ItemList QmakeKitInformation::toUserOutput(const Kit *k) const
 void QmakeKitInformation::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     expander->registerVariable("Qmake:mkspec", tr("Mkspec configured for qmake by the Kit."),
-                [this, kit]() -> QString {
+                [kit]() -> QString {
                     return QmakeKitInformation::mkspec(kit).toUserOutput();
                 });
 }
 
 Core::Id QmakeKitInformation::id()
 {
-    return "QtPM4.mkSpecInformation";
+    return Constants::KIT_INFORMATION_ID;
 }
 
 FileName QmakeKitInformation::mkspec(const Kit *k)
@@ -139,6 +157,7 @@ FileName QmakeKitInformation::effectiveMkspec(const Kit *k)
 
 void QmakeKitInformation::setMkspec(Kit *k, const FileName &fn)
 {
+    QTC_ASSERT(k, return);
     k->setValue(QmakeKitInformation::id(), fn == defaultMkspec(k) ? QString() : fn.toString());
 }
 
@@ -148,7 +167,8 @@ FileName QmakeKitInformation::defaultMkspec(const Kit *k)
     if (!version) // No version, so no qmake
         return FileName();
 
-    return version->mkspecFor(ToolChainKitInformation::toolChain(k, ToolChain::Language::Cxx));
+    return version->mkspecFor(ToolChainKitInformation::toolChain(k,
+                        ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 }
 
 } // namespace QmakeProjectManager

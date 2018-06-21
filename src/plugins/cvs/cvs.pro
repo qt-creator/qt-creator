@@ -21,5 +21,3 @@ SOURCES += annotationhighlighter.cpp \
     cvsutils.cpp
 
 FORMS += settingspage.ui
-
-RESOURCES += cvs.qrc

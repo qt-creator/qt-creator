@@ -34,7 +34,7 @@ class TestTreeItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    explicit TestTreeItemDelegate(QObject *parent = 0);
+    explicit TestTreeItemDelegate(QObject *parent = nullptr);
     ~TestTreeItemDelegate();
 
 public:

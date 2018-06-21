@@ -28,19 +28,31 @@
 #include "clangconstants.h"
 #include "clangeditordocumentprocessor.h"
 #include "clangutils.h"
+#include "clangfollowsymbol.h"
+#include "clanghoverhandler.h"
+#include "clangprojectsettings.h"
+#include "clangrefactoringengine.h"
+#include "clangcurrentdocumentfilter.h"
+#include "clangoverviewmodel.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <cpptools/cppcodemodelsettings.h>
+#include <cpptools/cppfollowsymbolundercursor.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <cpptools/editordocumenthandle.h>
 #include <cpptools/projectinfo.h>
 
 #include <texteditor/quickfix.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
 
-#include <clangbackendipc/cmbregisterprojectsforeditormessage.h>
-#include <clangbackendipc/filecontainer.h>
-#include <clangbackendipc/projectpartcontainer.h>
+#include <clangsupport/filecontainer.h>
+#include <clangsupport/projectpartcontainer.h>
+#include <clangsupport/projectpartsupdatedmessage.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -58,20 +70,23 @@ static CppTools::CppModelManager *cppModelManager()
 }
 
 ModelManagerSupportClang::ModelManagerSupportClang()
-    : m_completionAssistProvider(m_ipcCommunicator)
+    : m_completionAssistProvider(m_communicator)
+    , m_followSymbol(new ClangFollowSymbol)
+    , m_refactoringEngine(new RefactoringEngine)
 {
     QTC_CHECK(!m_instance);
     m_instance = this;
+
+    CppTools::CppModelManager::instance()->setCurrentDocumentFilter(
+                std::make_unique<ClangCurrentDocumentFilter>());
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::editorOpened,
             this, &ModelManagerSupportClang::onEditorOpened);
     connect(editorManager, &Core::EditorManager::currentEditorChanged,
-            this, &ModelManagerSupportClang::onCurrentEditorChanged,
-            Qt::QueuedConnection);
+            this, &ModelManagerSupportClang::onCurrentEditorChanged);
     connect(editorManager, &Core::EditorManager::editorsClosed,
-            this, &ModelManagerSupportClang::onEditorClosed,
-            Qt::QueuedConnection);
+            this, &ModelManagerSupportClang::onEditorClosed);
 
     CppTools::CppModelManager *modelManager = cppModelManager();
     connect(modelManager, &CppTools::CppModelManager::abstractEditorSupportContentsUpdated,
@@ -83,11 +98,22 @@ ModelManagerSupportClang::ModelManagerSupportClang()
     connect(modelManager, &CppTools::CppModelManager::projectPartsRemoved,
             this, &ModelManagerSupportClang::onProjectPartsRemoved);
 
-    m_ipcCommunicator.registerFallbackProjectPart();
+    auto *sessionManager = ProjectExplorer::SessionManager::instance();
+    connect(sessionManager, &ProjectExplorer::SessionManager::projectAdded,
+            this, &ModelManagerSupportClang::onProjectAdded);
+    connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
+            this, &ModelManagerSupportClang::onAboutToRemoveProject);
+
+    CppTools::CppCodeModelSettings *settings = CppTools::codeModelSettings().data();
+    connect(settings, &CppTools::CppCodeModelSettings::clangDiagnosticConfigsInvalidated,
+            this, &ModelManagerSupportClang::onDiagnosticConfigsInvalidated);
+
+    m_communicator.projectPartsUpdatedForFallback();
 }
 
 ModelManagerSupportClang::~ModelManagerSupportClang()
 {
+    QTC_CHECK(m_projectSettings.isEmpty());
     m_instance = 0;
 }
 
@@ -96,15 +122,44 @@ CppTools::CppCompletionAssistProvider *ModelManagerSupportClang::completionAssis
     return &m_completionAssistProvider;
 }
 
-CppTools::BaseEditorDocumentProcessor *ModelManagerSupportClang::editorDocumentProcessor(
-        TextEditor::TextDocument *baseTextDocument)
+TextEditor::BaseHoverHandler *ModelManagerSupportClang::createHoverHandler()
 {
-    return new ClangEditorDocumentProcessor(m_ipcCommunicator, baseTextDocument);
+    return new Internal::ClangHoverHandler;
 }
 
-void ModelManagerSupportClang::onCurrentEditorChanged(Core::IEditor *)
+CppTools::FollowSymbolInterface &ModelManagerSupportClang::followSymbolInterface()
 {
-    m_ipcCommunicator.updateTranslationUnitVisiblity();
+    return *m_followSymbol;
+}
+
+CppTools::RefactoringEngineInterface &ModelManagerSupportClang::refactoringEngineInterface()
+{
+    return *m_refactoringEngine;
+}
+
+std::unique_ptr<CppTools::AbstractOverviewModel> ModelManagerSupportClang::createOverviewModel()
+{
+    return std::make_unique<OverviewModel>();
+}
+
+CppTools::BaseEditorDocumentProcessor *ModelManagerSupportClang::createEditorDocumentProcessor(
+        TextEditor::TextDocument *baseTextDocument)
+{
+    return new ClangEditorDocumentProcessor(m_communicator, baseTextDocument);
+}
+
+void ModelManagerSupportClang::onCurrentEditorChanged(Core::IEditor *editor)
+{
+    m_communicator.documentVisibilityChanged();
+
+    // Update task hub issues for current CppEditorDocument
+    ClangEditorDocumentProcessor::clearTaskHubIssues();
+    if (!editor || !editor->document() || !cppModelManager()->isCppEditor(editor))
+        return;
+
+    const ::Utils::FileName filePath = editor->document()->filePath();
+    if (auto processor = ClangEditorDocumentProcessor::get(filePath.toString()))
+        processor->generateTaskHubIssues();
 }
 
 void ModelManagerSupportClang::connectTextDocumentToTranslationUnit(TextEditor::TextDocument *textDocument)
@@ -177,7 +232,7 @@ void ModelManagerSupportClang::onEditorOpened(Core::IEditor *editor)
 
 void ModelManagerSupportClang::onEditorClosed(const QList<Core::IEditor *> &)
 {
-    m_ipcCommunicator.updateTranslationUnitVisiblity();
+    m_communicator.documentVisibilityChanged();
 }
 
 void ModelManagerSupportClang::onCppDocumentAboutToReloadOnTranslationUnit()
@@ -192,7 +247,7 @@ void ModelManagerSupportClang::onCppDocumentReloadFinishedOnTranslationUnit(bool
     if (success) {
         TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
         connectToTextDocumentContentsChangedForTranslationUnit(textDocument);
-        m_ipcCommunicator.updateTranslationUnitWithRevisionCheck(textDocument);
+        m_communicator.documentsChangedWithRevisionCheck(textDocument);
     }
 }
 
@@ -211,9 +266,9 @@ void ModelManagerSupportClang::onCppDocumentContentsChangedOnTranslationUnit(int
 {
     Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
 
-    m_ipcCommunicator.updateChangeContentStartPosition(document->filePath().toString(),
+    m_communicator.updateChangeContentStartPosition(document->filePath().toString(),
                                                        position);
-    m_ipcCommunicator.updateTranslationUnitIfNotCurrentDocument(document);
+    m_communicator.documentsChangedIfNotCurrentDocument(document);
 
     clearDiagnosticFixIts(document->filePath().toString());
 }
@@ -230,14 +285,14 @@ void ModelManagerSupportClang::onCppDocumentReloadFinishedOnUnsavedFile(bool suc
     if (success) {
         TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(sender());
         connectToTextDocumentContentsChangedForUnsavedFile(textDocument);
-        m_ipcCommunicator.updateUnsavedFile(textDocument);
+        m_communicator.unsavedFilesUpdated(textDocument);
     }
 }
 
 void ModelManagerSupportClang::onCppDocumentContentsChangedOnUnsavedFile()
 {
     Core::IDocument *document = qobject_cast<Core::IDocument *>(sender());
-    m_ipcCommunicator.updateUnsavedFile(document);
+    m_communicator.unsavedFilesUpdated(document);
 }
 
 void ModelManagerSupportClang::onAbstractEditorSupportContentsUpdated(const QString &filePath,
@@ -246,7 +301,7 @@ void ModelManagerSupportClang::onAbstractEditorSupportContentsUpdated(const QStr
     QTC_ASSERT(!filePath.isEmpty(), return);
 
     const QString mappedPath = m_uiHeaderOnDiskManager.createIfNeeded(filePath);
-    m_ipcCommunicator.updateUnsavedFile(mappedPath, content, 0);
+    m_communicator.unsavedFilesUpdated(mappedPath, content, 0);
 }
 
 void ModelManagerSupportClang::onAbstractEditorSupportRemoved(const QString &filePath)
@@ -256,7 +311,7 @@ void ModelManagerSupportClang::onAbstractEditorSupportRemoved(const QString &fil
     if (!cppModelManager()->cppEditorDocument(filePath)) {
         const QString mappedPath = m_uiHeaderOnDiskManager.remove(filePath);
         const QString projectPartId = Utils::projectPartIdForFile(filePath);
-        m_ipcCommunicator.unregisterUnsavedFilesForEditor({{mappedPath, projectPartId}});
+        m_communicator.unsavedFilesRemoved({{mappedPath, projectPartId}});
     }
 }
 
@@ -304,48 +359,98 @@ void ModelManagerSupportClang::onTextMarkContextMenuRequested(TextEditor::TextEd
     }
 }
 
+using ClangEditorDocumentProcessors = QVector<ClangEditorDocumentProcessor *>;
+static ClangEditorDocumentProcessors clangProcessors()
+{
+    ClangEditorDocumentProcessors result;
+    foreach (auto *editorDocument, cppModelManager()->cppEditorDocuments())
+        result.append(qobject_cast<ClangEditorDocumentProcessor *>(editorDocument->processor()));
+
+    return result;
+}
+
+static ClangEditorDocumentProcessors
+clangProcessorsWithProject(const ProjectExplorer::Project *project)
+{
+    return ::Utils::filtered(clangProcessors(), [project](ClangEditorDocumentProcessor *p) {
+        return p->hasProjectPart() && p->projectPart()->project == project;
+    });
+}
+
+static void updateProcessors(const ClangEditorDocumentProcessors &processors)
+{
+    CppTools::CppModelManager *modelManager = cppModelManager();
+    for (ClangEditorDocumentProcessor *processor : processors)
+        modelManager->cppEditorDocument(processor->filePath())->resetProcessor();
+    modelManager->updateCppEditorDocuments(/*projectsUpdated=*/ false);
+}
+
+void ModelManagerSupportClang::onProjectAdded(ProjectExplorer::Project *project)
+{
+    QTC_ASSERT(!m_projectSettings.value(project), return);
+
+    auto *settings = new Internal::ClangProjectSettings(project);
+    connect(settings, &Internal::ClangProjectSettings::changed, [project]() {
+        updateProcessors(clangProcessorsWithProject(project));
+    });
+
+    m_projectSettings.insert(project, settings);
+}
+
+void ModelManagerSupportClang::onAboutToRemoveProject(ProjectExplorer::Project *project)
+{
+    ClangProjectSettings * const settings = m_projectSettings.value(project);
+    QTC_ASSERT(settings, return);
+    m_projectSettings.remove(project);
+    delete settings;
+}
+
 void ModelManagerSupportClang::onProjectPartsUpdated(ProjectExplorer::Project *project)
 {
     QTC_ASSERT(project, return);
     const CppTools::ProjectInfo projectInfo = cppModelManager()->projectInfo(project);
     QTC_ASSERT(projectInfo.isValid(), return);
 
-    m_ipcCommunicator.registerProjectsParts(projectInfo.projectParts());
-    m_ipcCommunicator.registerFallbackProjectPart();
+    m_communicator.projectPartsUpdated(projectInfo.projectParts());
+    m_communicator.projectPartsUpdatedForFallback();
 }
 
 void ModelManagerSupportClang::onProjectPartsRemoved(const QStringList &projectPartIds)
 {
     if (!projectPartIds.isEmpty()) {
-        unregisterTranslationUnitsWithProjectParts(projectPartIds);
-        m_ipcCommunicator.unregisterProjectPartsForEditor(projectPartIds);
-        m_ipcCommunicator.registerFallbackProjectPart();
+        closeBackendDocumentsWithProjectParts(projectPartIds);
+        m_communicator.projectPartsRemoved(projectPartIds);
+        m_communicator.projectPartsUpdatedForFallback();
     }
 }
 
-static QVector<ClangEditorDocumentProcessor *>
+static ClangEditorDocumentProcessors clangProcessorsWithDiagnosticConfig(
+    const QVector<Core::Id> &configIds)
+{
+    return ::Utils::filtered(clangProcessors(), [configIds](ClangEditorDocumentProcessor *p) {
+        return configIds.contains(p->diagnosticConfigId());
+    });
+}
+
+void ModelManagerSupportClang::onDiagnosticConfigsInvalidated(const QVector<Core::Id> &configIds)
+{
+    updateProcessors(clangProcessorsWithDiagnosticConfig(configIds));
+}
+
+static ClangEditorDocumentProcessors
 clangProcessorsWithProjectParts(const QStringList &projectPartIds)
 {
-    QVector<ClangEditorDocumentProcessor *> result;
-
-    foreach (auto *editorDocument, cppModelManager()->cppEditorDocuments()) {
-        auto *processor = editorDocument->processor();
-        auto *clangProcessor = qobject_cast<ClangEditorDocumentProcessor *>(processor);
-        if (clangProcessor && clangProcessor->hasProjectPart()) {
-            if (projectPartIds.contains(clangProcessor->projectPart()->id()))
-                result.append(clangProcessor);
-        }
-    }
-
-    return result;
+    return ::Utils::filtered(clangProcessors(), [projectPartIds](ClangEditorDocumentProcessor *p) {
+        return p->hasProjectPart() && projectPartIds.contains(p->projectPart()->id());
+    });
 }
 
-void ModelManagerSupportClang::unregisterTranslationUnitsWithProjectParts(
+void ModelManagerSupportClang::closeBackendDocumentsWithProjectParts(
         const QStringList &projectPartIds)
 {
     const auto processors = clangProcessorsWithProjectParts(projectPartIds);
     foreach (ClangEditorDocumentProcessor *processor, processors) {
-        m_ipcCommunicator.unregisterTranslationUnitsForEditor({processor->fileContainerWithArguments()});
+        processor->closeBackendDocument();
         processor->clearProjectPart();
         processor->run();
     }
@@ -356,14 +461,20 @@ ModelManagerSupportClang *ModelManagerSupportClang::instance()
     return m_instance;
 }
 
-IpcCommunicator &ModelManagerSupportClang::ipcCommunicator()
+BackendCommunicator &ModelManagerSupportClang::communicator()
 {
-    return m_ipcCommunicator;
+    return m_communicator;
 }
 
 QString ModelManagerSupportClang::dummyUiHeaderOnDiskPath(const QString &filePath) const
 {
     return m_uiHeaderOnDiskManager.mapPath(filePath);
+}
+
+ClangProjectSettings &ModelManagerSupportClang::projectSettings(
+    ProjectExplorer::Project *project) const
+{
+    return *m_projectSettings.value(project);
 }
 
 QString ModelManagerSupportClang::dummyUiHeaderOnDiskDirPath() const

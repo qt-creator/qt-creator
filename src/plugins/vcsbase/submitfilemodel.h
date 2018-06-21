@@ -44,7 +44,7 @@ class VCSBASE_EXPORT SubmitFileModel : public QStandardItemModel
 {
     Q_OBJECT
 public:
-    explicit SubmitFileModel(QObject *parent = 0);
+    explicit SubmitFileModel(QObject *parent = nullptr);
 
     const QString &repositoryRoot() const;
     void setRepositoryRoot(const QString &repoRoot);

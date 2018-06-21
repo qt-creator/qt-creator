@@ -23,14 +23,15 @@
 **
 ****************************************************************************/
 
-#ifndef DesignDocument_h
-#define DesignDocument_h
+#pragma once
 
 #include <model.h>
 #include <rewriterview.h>
 #include <basetexteditmodifier.h>
 #include <componenttextmodifier.h>
 #include <subcomponentmanager.h>
+
+#include <coreplugin/icontext.h>
 
 #include <QObject>
 #include <QString>
@@ -59,8 +60,8 @@ class QMLDESIGNERCORE_EXPORT DesignDocument: public QObject
 {
     Q_OBJECT
 public:
-    DesignDocument(QObject *parent = 0);
-    ~DesignDocument();
+    DesignDocument(QObject *parent = nullptr);
+    ~DesignDocument() override;
 
     QString displayName() const;
     QString simplfiedDisplayName() const;
@@ -76,10 +77,10 @@ public:
     Model *currentModel() const;
     Model *documentModel() const;
 
-    QString contextHelpId() const;
-    QList<RewriterError> qmlParseWarnings() const;
+    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
+    QList<DocumentMessage> qmlParseWarnings() const;
     bool hasQmlParseWarnings() const;
-    QList<RewriterError> qmlParseErrors() const;
+    QList<DocumentMessage> qmlParseErrors() const;
     bool hasQmlParseErrors() const;
 
     RewriterView *rewriterView() const;
@@ -104,9 +105,9 @@ signals:
     void undoAvailable(bool isAvailable);
     void redoAvailable(bool isAvailable);
     void designDocumentClosed();
-    void qmlErrorsChanged(const QList<RewriterError> &errors);
+    void qmlErrorsChanged(const QList<DocumentMessage> &errors);
 
-public slots:
+public:
     void deleteSelected();
     void copySelected();
     void cutSelected();
@@ -119,10 +120,9 @@ public slots:
     void changeToSubComponent(const ModelNode &componentNode);
     void changeToMaster();
 
-private slots:
+private: // functions
     void updateFileName(const Utils::FileName &oldFileName, const Utils::FileName &newFileName);
 
-private: // functions
     void changeToInFileComponentModel(ComponentTextModifier *textModifer);
 
     void updateQrcFiles();
@@ -156,6 +156,3 @@ private: // variables
 };
 
 } // namespace QmlDesigner
-
-
-#endif // DesignDocument_h

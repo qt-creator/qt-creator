@@ -25,11 +25,12 @@
 ****************************************************************************/
 
 #include "keyword.h"
+#include <utils/theme/theme.h>
 
 namespace Todo {
 namespace Internal {
 
-Keyword::Keyword() : color(Qt::white)
+Keyword::Keyword() : color(Utils::creatorTheme()->color(Utils::Theme::TextColorNormal))
 {
 }
 

@@ -28,6 +28,7 @@
 #include <qmldesignercorelib_global.h>
 #include "qmlmodelnodefacade.h"
 #include "qmlstate.h"
+#include "qmltimeline.h"
 #include "qmlchangeset.h"
 
 #include <nodeinstance.h>
@@ -47,7 +48,7 @@ public:
     QmlObjectNode(const ModelNode &modelNode);
 
     static bool isValidQmlObjectNode(const ModelNode &modelNode);
-    bool isValid() const;
+    bool isValid() const override;
 
     bool hasError() const;
     QString error() const;
@@ -63,6 +64,7 @@ public:
     QString validId();
 
     QmlModelState currentState() const;
+    QmlTimeline currentTimeline() const;
     void setVariantProperty(const PropertyName &name, const QVariant &value);
     void setBindingProperty(const PropertyName &name, const QString &expression);
     NodeAbstractProperty nodeAbstractProperty(const PropertyName &name) const;
@@ -83,6 +85,7 @@ public:
     QString stripedTranslatableText(const PropertyName &name) const;
     QString expression(const PropertyName &name) const;
     bool isInBaseState() const;
+    bool timelineIsActive() const;
     QmlPropertyChanges propertyChangeForCurrentState() const;
 
     virtual bool instanceCanReparent() const;

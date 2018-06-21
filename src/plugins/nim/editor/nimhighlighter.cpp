@@ -35,7 +35,7 @@ namespace Nim {
 
 NimHighlighter::NimHighlighter()
 {
-    initTextFormats();
+    setDefaultTextFormatCategories();
 }
 
 void NimHighlighter::highlightBlock(const QString &text)
@@ -43,56 +43,36 @@ void NimHighlighter::highlightBlock(const QString &text)
     setCurrentBlockState(highlightLine(text, previousBlockState()));
 }
 
-void NimHighlighter::initTextFormats()
-{
-    static QMap<Category, TextEditor::TextStyle> categoryStyle = {
-        {TextCategory, TextEditor::C_TEXT},
-        {KeywordCategory, TextEditor::C_KEYWORD},
-        {CommentCategory, TextEditor::C_COMMENT},
-        {DocumentationCategory, TextEditor::C_DOXYGEN_COMMENT},
-        {TypeCategory, TextEditor::C_TYPE},
-        {StringCategory, TextEditor::C_STRING},
-        {NumberCategory, TextEditor::C_NUMBER},
-        {OperatorCategory, TextEditor::C_OPERATOR},
-        {FunctionCategory, TextEditor::C_FUNCTION},
-    };
-
-    QVector<TextEditor::TextStyle> formats;
-    for (const auto &category : categoryStyle.keys())
-        formats << categoryStyle[category];
-    setTextFormatCategories(formats);
-}
-
-NimHighlighter::Category NimHighlighter::categoryForToken(const NimLexer::Token &token,
-                                                          const QString &tokenValue)
+TextEditor::TextStyle NimHighlighter::styleForToken(const NimLexer::Token &token,
+                                                    const QString &tokenValue)
 {
     switch (token.type) {
     case NimLexer::TokenType::Keyword:
-        return KeywordCategory;
+        return TextEditor::C_KEYWORD;
     case NimLexer::TokenType::Identifier:
-        return categoryForIdentifier(token, tokenValue);
+        return styleForIdentifier(token, tokenValue);
     case NimLexer::TokenType::Comment:
-        return CommentCategory;
+        return TextEditor::C_COMMENT;
     case NimLexer::TokenType::Documentation:
-        return DocumentationCategory;
+        return TextEditor::C_DOXYGEN_COMMENT;
     case NimLexer::TokenType::StringLiteral:
-        return StringCategory;
+        return TextEditor::C_STRING;
     case NimLexer::TokenType::MultiLineStringLiteral:
-        return StringCategory;
+        return TextEditor::C_STRING;
     case NimLexer::TokenType::Operator:
-        return OperatorCategory;
+        return TextEditor::C_OPERATOR;
     case NimLexer::TokenType::Number:
-        return NumberCategory;
+        return TextEditor::C_NUMBER;
     default:
-        return TextCategory;
+        return TextEditor::C_TEXT;
     }
 }
 
-NimHighlighter::Category NimHighlighter::categoryForIdentifier(const NimLexer::Token &token,
-                                                               const QString &tokenValue)
+TextEditor::TextStyle NimHighlighter::styleForIdentifier(const NimLexer::Token &token,
+                                                         const QString &tokenValue)
 {
     Q_UNUSED(token)
-    QTC_ASSERT(token.type == NimLexer::TokenType::Identifier, return TextCategory);
+    QTC_ASSERT(token.type == NimLexer::TokenType::Identifier, return TextEditor::C_TEXT);
 
     static QSet<QString> nimBuiltInValues {
         "true", "false"
@@ -111,12 +91,12 @@ NimHighlighter::Category NimHighlighter::categoryForIdentifier(const NimLexer::T
     };
 
     if (nimBuiltInFunctions.contains(tokenValue))
-        return TypeCategory;
+        return TextEditor::C_TYPE;
     if (nimBuiltInValues.contains(tokenValue))
-        return KeywordCategory;
+        return TextEditor::C_KEYWORD;
     if (nimBuiltInTypes.contains(tokenValue))
-        return TypeCategory;
-    return TextCategory;
+        return TextEditor::C_TYPE;
+    return TextEditor::C_TEXT;
 }
 
 int NimHighlighter::highlightLine(const QString &text, int initialState)
@@ -127,8 +107,8 @@ int NimHighlighter::highlightLine(const QString &text, int initialState)
 
     NimLexer::Token tk;
     while ((tk = lexer.next()).type != NimLexer::TokenType::EndOfText) {
-        int category = categoryForToken(tk, text.mid(tk.begin, tk.length));
-        setFormat(tk.begin, tk.length, formatForCategory(category));
+        TextEditor::TextStyle style = styleForToken(tk, text.mid(tk.begin, tk.length));
+        setFormat(tk.begin, tk.length, formatForCategory(style));
     }
 
     return lexer.state();

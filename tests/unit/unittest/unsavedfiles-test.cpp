@@ -46,8 +46,8 @@ namespace {
 
 bool operator==(const ClangBackEnd::FileContainer &fileContainer, const UnsavedFile &unsavedFile)
 {
-    return fileContainer.filePath() == unsavedFile.filePath()
-        && fileContainer.unsavedFileContent() == unsavedFile.fileContent();
+    return fileContainer.filePath == unsavedFile.filePath()
+        && fileContainer.unsavedFileContent == unsavedFile.fileContent();
 }
 
 bool fileContainersContainsItemMatchingToCxUnsavedFile(const QVector<FileContainer> &fileContainers, const UnsavedFile &unsavedFile)

@@ -1,0 +1,154 @@
+import QtQuick.tooling 1.0
+
+Module {
+    Component {
+        name: "AndroidApk"
+        exports: ["qbs/AndroidApk 1.0"]
+        prototype: "Product"
+        Property { name: "packageName"; type: "string"}
+        Property { name: "automaticSources"; type: "bool"}
+        Property { name: "legacyLayout"; type: "bool"}
+        Property { name: "sourceSetDir"; type: "string"}
+        Property { name: "resourceDir"; type: "string"}
+        Property { name: "assetsDir"; type: "string"}
+        Property { name: "sourcesDir"; type: "string"}
+        Property { name: "manifestFile"; type: "string"}
+        Property { name: "defaultManifestFile"; type: "string"; isReadonly: true }
+    }
+    Component {
+        name: "AppleApplicationDiskImage"
+        exports: ["qbs/AppleApplicationDiskImage 1.0"]
+        prototype: "AppleDiskImage"
+        Property { name: "sourceBase"; type: "string" }
+        Property { name: "absoluteSourceBase"; type: "string"; isReadonly: true}
+        Property { name: "symlinks"; type: "string"; isList: true }
+        Property { name: "stageDirectory"; type: "string"; isReadonly: true}
+
+    }
+    Component {
+        name: "AppleDiskImage"
+        exports: ["qbs/AppleDiskImage 1.0"]
+        prototype: "Product"
+    }
+    Component {
+        name: "ApplicationExtension"
+        exports: ["qbs/ApplicationExtension 1.0"]
+        prototype: "XPCService"
+        Property { name: "_useLegacyExtensionLibraries"; type: "bool" }
+        Property { name: "extensionAttributes"; type: "QVariant" }
+        Property { name: "extensionPointIdentifier"; type: "string" }
+        Property { name: "extensionPrincipalClass"; type: "string" }
+    }
+    Component {
+        name: "Application"
+        exports: ["qbs/Application 1.0"]
+        prototype: "NativeBinary"
+    }
+    Component {
+        name: "AutotestRunner"
+        exports: ["qbs/AutotestRunner 1.0"]
+        prototype: "Product"
+    }
+    Component {
+        name: "CppApplication"
+        exports: ["qbs/CppApplication 1.0"]
+        prototype: "Application"
+    }
+    Component {
+        name: "DynamicLibrary"
+        exports: ["qbs/DynamicLibrary 1.0"]
+        prototype: "Library"
+    }
+    Component {
+        name: "InnoSetup"
+        exports: ["qbs/InnoSetup 1.0"]
+        prototype: "Installer"
+    }
+    Component {
+        name: "Installer"
+        exports: ["qbs/Installer 1.0"]
+        prototype: "Product"
+        Property { name: "dependsOnInstallables"; type: "bool" }
+        Property { name: "auxiliaryInputs"; type: "string"; isList: true }
+    }
+    Component {
+        name: "InstallPackage"
+        exports: ["qbs/InstallPackage 1.0"]
+        prototype: "Product"
+    }
+    Component {
+        name: "JavaClassCollection"
+        exports: ["qbs/InstallPackage 1.0"]
+        prototype: "Product"
+    }
+    Component {
+        name: "JavaJarFile"
+        exports: ["qbs/JavaJarFile 1.0"]
+        prototype: "Product"
+        Property { name: "entryPoint"; type: "string" }
+    }
+    Component {
+        name: "Library"
+        exports: ["qbs/Library 1.0"]
+        prototype: "NativeBinary"
+    }
+    Component {
+        name: "LoadableModule"
+        exports: ["qbs/LoadableModule 1.0"]
+        prototype: "DynamicLibrary"
+    }
+    Component {
+        name: "NativeBinary"
+        exports: ["qbs/NativeBinary 1.0"]
+        prototype: "Product"
+        Property { name: "isForAndroid"; type: "bool" }
+        Property { name: "isForDarwin"; type: "bool" }
+    }
+    Component {
+        name: "NetModule"
+        exports: ["qbs/NetModule 1.0"]
+        prototype: "Product"
+    }
+    Component {
+        name: "NodeJSApplication"
+        exports: ["qbs/NodeJSApplication 1.0"]
+        prototype: "Product"
+    }
+    Component {
+        name: "NSISSetup"
+        exports: ["qbs/NSISSetup 1.0"]
+        prototype: "Installer"
+    }
+    Component {
+        name: "QtApplication"
+        exports: ["qbs/QtApplication 1.0"]
+        prototype: "CppApplication"
+    }
+    Component {
+        name: "QtGuiApplication"
+        exports: ["qbs/QtGuiApplication 1.0"]
+        prototype: "CppApplication"
+        Property { name: "linkDefaultQpaPlugin"; type: "bool" }
+    }
+    Component {
+        name: "StaticLibrary"
+        exports: ["qbs/StaticLibrary 1.0"]
+        prototype: "Library"
+    }
+    Component {
+        name: "WindowsInstallerPackage"
+        exports: ["qbs/WindowsInstallerPackage 1.0"]
+        prototype: "Installer"
+    }
+    Component {
+        name: "WindowsSetupPackage"
+        exports: ["qbs/WindowsSetupPackage 1.0"]
+        prototype: "Product"
+    }
+    Component {
+        name: "XPCService"
+        exports: ["qbs/XPCService 1.0"]
+        prototype: "Application"
+        Property { name: "xpcServiceType"; type: "string" }
+    }
+}

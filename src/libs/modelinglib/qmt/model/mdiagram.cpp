@@ -71,7 +71,7 @@ DElement *MDiagram::findDiagramElement(const Uid &key) const
         if (element->uid() == key)
             return element;
     }
-    return 0;
+    return nullptr;
 }
 
 void MDiagram::setDiagramElements(const QList<DElement *> &elements)
@@ -81,21 +81,21 @@ void MDiagram::setDiagramElements(const QList<DElement *> &elements)
 
 void MDiagram::addDiagramElement(DElement *element)
 {
-    QMT_CHECK(element);
+    QMT_ASSERT(element, return);
 
     m_elements.append(element);
 }
 
 void MDiagram::insertDiagramElement(int beforeElement, DElement *element)
 {
-    QMT_CHECK(beforeElement >= 0 && beforeElement <= m_elements.size());
+    QMT_ASSERT(beforeElement >= 0 && beforeElement <= m_elements.size(), return);
 
     m_elements.insert(beforeElement, element);
 }
 
 void MDiagram::removeDiagramElement(int index)
 {
-    QMT_CHECK(index >= 0 && index < m_elements.size());
+    QMT_ASSERT(index >= 0 && index < m_elements.size(), return);
 
     delete m_elements.at(index);
     m_elements.removeAt(index);
@@ -103,7 +103,7 @@ void MDiagram::removeDiagramElement(int index)
 
 void MDiagram::removeDiagramElement(DElement *element)
 {
-    QMT_CHECK(element);
+    QMT_ASSERT(element, return);
 
     removeDiagramElement(m_elements.indexOf(element));
 }

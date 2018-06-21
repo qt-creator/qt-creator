@@ -223,6 +223,10 @@ int main(int argc, char *argv[])
         }
         fseek(envFd, 0, SEEK_END);
         size = ftell(envFd);
+        if (size < 0) {
+            perror("Failed to get size of env file");
+            doExit(1);
+        }
         rewind(envFd);
         envdata = malloc(size);
         if (fread(envdata, 1, size, envFd) != (size_t)size) {
@@ -309,7 +313,9 @@ int main(int argc, char *argv[])
             execvp(argv[ArgExe], argv + ArgExe);
             /* Only expected error: no such file or direcotry, i.e. executable not found */
             errNo = errno;
-            write(chldPipe[1], &errNo, sizeof(errNo)); /* Only realistic error case is SIGPIPE */
+            /* Only realistic error case is SIGPIPE */
+            if (write(chldPipe[1], &errNo, sizeof(errNo)) != sizeof(errNo))
+                perror("Error passing errno to child");
             _exit(0);
         default:
             for (;;) {

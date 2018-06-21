@@ -30,23 +30,17 @@
 #include <utils/treemodel.h>
 
 #include <QWidget>
-#include <QSet>
-#include <QHash>
-
-QT_BEGIN_NAMESPACE
-class QSortFilterProxyModel;
-QT_END_NAMESPACE
 
 namespace Utils { class TreeView; }
 
 namespace ExtensionSystem {
 
-class PluginManager;
 class PluginSpec;
 
 namespace Internal {
-class PluginItem;
 class CollectionItem;
+class PluginFilterModel;
+class PluginItem;
 } // Internal
 
 class EXTENSIONSYSTEM_EXPORT PluginView : public QWidget
@@ -54,11 +48,13 @@ class EXTENSIONSYSTEM_EXPORT PluginView : public QWidget
     Q_OBJECT
 
 public:
-    explicit PluginView(QWidget *parent = 0);
-    ~PluginView();
+    explicit PluginView(QWidget *parent = nullptr);
+    ~PluginView() override;
 
     PluginSpec *currentPlugin() const;
     void setFilter(const QString &filter);
+    void setShowHidden(bool showHidden);
+    bool isShowingHidden() const;
 
 signals:
     void currentPluginChanged(ExtensionSystem::PluginSpec *spec);
@@ -72,7 +68,7 @@ private:
 
     Utils::TreeView *m_categoryView;
     Utils::TreeModel<Utils::TreeItem, Internal::CollectionItem, Internal::PluginItem> *m_model;
-    QSortFilterProxyModel *m_sortModel;
+    Internal::PluginFilterModel *m_sortModel;
 
     friend class Internal::CollectionItem;
     friend class Internal::PluginItem;

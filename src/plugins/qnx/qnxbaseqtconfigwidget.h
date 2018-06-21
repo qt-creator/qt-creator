@@ -42,11 +42,11 @@ public:
     explicit QnxBaseQtConfigWidget(QnxQtVersion *version);
 
 private slots:
-    void updateSdkPath(const QString &path);
+    void updateSdpPath(const QString &path);
 
 private:
     QnxQtVersion *m_version;
-    Utils::PathChooser *m_sdkPathChooser;
+    Utils::PathChooser *m_sdpPathChooser;
 };
 
 } // namespace Internal

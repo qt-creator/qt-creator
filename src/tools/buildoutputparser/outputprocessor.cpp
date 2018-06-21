@@ -28,14 +28,12 @@
 #include <projectexplorer/clangparser.h>
 #include <projectexplorer/gccparser.h>
 #include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/msvcparser.h>
 #include <projectexplorer/osparser.h>
 #include <qmakeprojectmanager/qmakeparser.h>
 #include <qtsupport/qtparser.h>
 #include <utils/fileutils.h>
 
-#ifdef HAS_MSVC_PARSER
-#include <projectexplorer/msvcparser.h>
-#endif
 
 #include <QIODevice>
 #include <QTextStream>
@@ -67,18 +65,16 @@ void CompilerOutputProcessor::start()
     case CompilerTypeClang:
         parser.appendOutputParser(new ProjectExplorer::ClangParser);
         break;
-#ifdef HAS_MSVC_PARSER
     case CompilerTypeMsvc:
         parser.appendOutputParser(new ProjectExplorer::MsvcParser);
         break;
-#endif
     }
 
     connect(&parser, &ProjectExplorer::IOutputParser::addTask,
             this, &CompilerOutputProcessor::handleTask);
     while (!m_source.atEnd())
         parser.stdError(QString::fromLocal8Bit(m_source.readLine().trimmed()));
-    qApp->quit();
+    QCoreApplication::quit();
 }
 
 void CompilerOutputProcessor::handleTask(const ProjectExplorer::Task &task)

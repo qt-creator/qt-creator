@@ -28,6 +28,9 @@
 #include <QObject>
 #include <QTextEdit>
 
+#include <functional>
+#include <vector>
+
 namespace FakeVim {
 namespace Internal {
 
@@ -78,6 +81,25 @@ enum MessageLevel
     MessageWarning, // warning
     MessageError,   // error
     MessageShowCmd  // partial command
+};
+
+template <typename Type>
+class Signal
+{
+public:
+    using Callable = std::function<Type>;
+
+    void connect(const Callable &callable) { m_callables.push_back(callable); }
+
+    template <typename ...Args>
+    void operator()(Args ...args) const
+    {
+        for (const Callable &callable : m_callables)
+            callable(args...);
+   }
+
+private:
+    std::vector<Callable> m_callables;
 };
 
 class FakeVimHandler : public QObject
@@ -131,32 +153,33 @@ public:
 
     bool eventFilter(QObject *ob, QEvent *ev);
 
-signals:
-    void commandBufferChanged(const QString &msg, int cursorPos, int anchorPos,
-                              int messageLevel, FakeVimHandler *eventFilter);
-    void statusDataChanged(const QString &msg);
-    void extraInformationChanged(const QString &msg);
-    void selectionChanged(const QList<QTextEdit::ExtraSelection> &selection);
-    void highlightMatches(const QString &needle);
-    void writeAllRequested(QString *error);
-    void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
-    void checkForElectricCharacter(bool *result, QChar c);
-    void indentRegion(int beginLine, int endLine, QChar typedChar);
-    void completionRequested();
-    void simpleCompletionRequested(const QString &needle, bool forward);
-    void windowCommandRequested(const QString &key, int count);
-    void findRequested(bool reverse);
-    void findNextRequested(bool reverse);
-    void handleExCommandRequested(bool *handled, const ExCommand &cmd);
-    void requestDisableBlockSelection();
-    void requestSetBlockSelection(const QTextCursor&);
-    void requestBlockSelection(QTextCursor*);
-    void requestHasBlockSelection(bool *on);
-    void foldToggle(int depth);
-    void foldAll(bool fold);
-    void fold(int depth, bool fold);
-    void foldGoTo(int count, bool current);
-    void jumpToGlobalMark(QChar mark, bool backTickMode, const QString &fileName);
+    Signal<void(const QString &msg, int cursorPos, int anchorPos, int messageLevel)> commandBufferChanged;
+    Signal<void(const QString &msg)> statusDataChanged;
+    Signal<void(const QString &msg)> extraInformationChanged;
+    Signal<void(const QList<QTextEdit::ExtraSelection> &selection)> selectionChanged;
+    Signal<void(const QString &needle)>  highlightMatches;
+    Signal<void(QString *error)> writeAllRequested;
+    Signal<void(bool *moved, bool *forward, QTextCursor *cursor)> moveToMatchingParenthesis;
+    Signal<void(bool *result, QChar c)> checkForElectricCharacter;
+    Signal<void(int beginLine, int endLine, QChar typedChar)> indentRegion;
+    Signal<void(const QString &needle, bool forward)> simpleCompletionRequested;
+    Signal<void(const QString &key, int count)> windowCommandRequested;
+    Signal<void(bool reverse)> findRequested;
+    Signal<void(bool reverse)> findNextRequested;
+    Signal<void(bool *handled, const ExCommand &cmd)> handleExCommandRequested;
+    Signal<void()> requestDisableBlockSelection;
+    Signal<void(const QTextCursor &cursor)> requestSetBlockSelection;
+    Signal<void(QTextCursor *cursor)> requestBlockSelection;
+    Signal<void(bool *on)> requestHasBlockSelection;
+    Signal<void(int depth)> foldToggle;
+    Signal<void(bool fold)> foldAll;
+    Signal<void(int depth, bool dofold)> fold;
+    Signal<void(int count, bool current)> foldGoTo;
+    Signal<void(QChar mark, bool backTickMode, const QString &fileName)> requestJumpToLocalMark;
+    Signal<void(QChar mark, bool backTickMode, const QString &fileName)> requestJumpToGlobalMark;
+    Signal<void()> completionRequested;
+    Signal<void()> tabPreviousRequested;
+    Signal<void()> tabNextRequested;
 
 public:
     class Private;

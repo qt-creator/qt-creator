@@ -39,7 +39,8 @@ def main():
                     ":FormEditorStack_qdesigner_internal::FormWindow", 20, widgets[current], Qt.CopyAction)
     connections = []
     for record in testData.dataset("connections.tsv"):
-        connections.append([testData.field(record, col) for col in ["widget", "signal", "slot"]])
+        connections.append([testData.field(record, col) for col in ["widget", "baseclass",
+                                                                    "signal", "slot"]])
     for con in connections:
         selectFromLocator("mainwindow.ui")
         openContextMenu(waitForObject(con[0]), 5, 5, 0)
@@ -49,13 +50,21 @@ def main():
             waitFor("macHackActivateContextMenuItem('Go to slot...', con[0])", 6000)
         else:
             activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Go to slot..."))
-        waitForObjectItem(":Select signal.signalList_QTreeWidget", con[1])
-        clickItem(":Select signal.signalList_QTreeWidget", con[1], 5, 5, 0, Qt.LeftButton)
+        try:
+            # Creator built with Qt <= 5.9
+            signalWidgetObject = waitForObject(":Select signal.signalList_QTreeWidget", 5000)
+            signalName = con[2]
+        except:
+            # Creator built with Qt >= 5.10
+            signalWidgetObject = waitForObject(":Select signal.signalList_QTreeView")
+            signalName = con[1] + "." + con[2]
+        waitForObjectItem(signalWidgetObject, signalName)
+        clickItem(signalWidgetObject, signalName, 5, 5, 0, Qt.LeftButton)
         clickButton(waitForObject(":Go to slot.OK_QPushButton"))
         editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
         type(editor, "<Up>")
         type(editor, "<Up>")
-        test.verify(waitFor('str(lineUnderCursor(editor)).strip() == con[2]', 1000),
-                    'Comparing line "%s" to expected "%s"' % (lineUnderCursor(editor), con[2]))
+        test.verify(waitFor('str(lineUnderCursor(editor)).strip() == con[3]', 1000),
+                    'Comparing line "%s" to expected "%s"' % (lineUnderCursor(editor), con[3]))
     invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")

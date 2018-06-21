@@ -26,7 +26,6 @@
 #include "genericprojectplugin.h"
 
 #include "genericbuildconfiguration.h"
-#include "genericprojectmanager.h"
 #include "genericprojectwizard.h"
 #include "genericprojectconstants.h"
 #include "genericprojectfileseditor.h"
@@ -39,15 +38,14 @@
 #include <coreplugin/actionmanager/command.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/selectablefilesmodel.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
-#include <utils/mimetypes/mimedatabase.h>
 
-#include <QtPlugin>
-#include <QDebug>
+#include <QAction>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -55,42 +53,56 @@ using namespace ProjectExplorer;
 namespace GenericProjectManager {
 namespace Internal {
 
-bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage)
+class GenericProjectPluginPrivate : public QObject
 {
-    Q_UNUSED(errorMessage)
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":genericproject/GenericProjectManager.mimetypes.xml"));
+public:
+    GenericProjectPluginPrivate();
 
-    addAutoReleasedObject(new Manager);
-    addAutoReleasedObject(new ProjectFilesFactory);
-    addAutoReleasedObject(new GenericMakeStepFactory);
-    addAutoReleasedObject(new GenericBuildConfigurationFactory);
+    ProjectFilesFactory projectFilesFactory;
+    GenericMakeAllStepFactory makeAllStepFactory;
+    GenericMakeCleanStepFactory makeCleanStepFactory;
+    GenericBuildConfigurationFactory buildConfigFactory;
 
-    IWizardFactory::registerFactoryCreator([]() { return QList<IWizardFactory *>() << new GenericProjectWizard; });
+    QAction editFilesAction{GenericProjectPluginPrivate::tr("Edit Files..."), nullptr};
+};
+
+static GenericProjectPluginPrivate *dd = nullptr;
+
+GenericProjectPlugin::~GenericProjectPlugin()
+{
+    delete dd;
+}
+
+bool GenericProjectPlugin::initialize(const QStringList &, QString *)
+{
+    dd = new GenericProjectPluginPrivate;
+    return true;
+}
+
+GenericProjectPluginPrivate::GenericProjectPluginPrivate()
+{
+    ProjectManager::registerProjectType<GenericProject>(Constants::GENERICMIMETYPE);
+
+    IWizardFactory::registerFactoryCreator([] { return QList<IWizardFactory *>{new GenericProjectWizard}; });
 
     ActionContainer *mproject =
             ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
 
-    auto editFilesAction = new QAction(tr("Edit Files..."), this);
-    Command *command = ActionManager::registerAction(editFilesAction,
-        "GenericProjectManager.EditFiles", Context(Constants::PROJECTCONTEXT));
+    Command *command = ActionManager::registerAction(&editFilesAction,
+        "GenericProjectManager.EditFiles", Context(Constants::GENERICPROJECT_ID));
     command->setAttribute(Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_FILES);
 
-    connect(editFilesAction, &QAction::triggered, this, &GenericProjectPlugin::editFiles);
-
-    return true;
-}
-
-void GenericProjectPlugin::editFiles()
-{
-    auto genericProject = qobject_cast<GenericProject *>(ProjectTree::currentProject());
-    if (!genericProject)
-        return;
-    SelectableFilesDialogEditFiles sfd(genericProject->projectDirectory(),
-                                       Utils::transform(genericProject->files(), [](const QString &f) { return Utils::FileName::fromString(f); }),
-                                       ICore::mainWindow());
-    if (sfd.exec() == QDialog::Accepted)
-        genericProject->setFiles(Utils::transform(sfd.selectedFiles(), &Utils::FileName::toString));
+    connect(&editFilesAction, &QAction::triggered, this, [] {
+        auto genericProject = qobject_cast<GenericProject *>(ProjectTree::currentProject());
+        if (!genericProject)
+            return;
+        SelectableFilesDialogEditFiles sfd(genericProject->projectDirectory(),
+                                           genericProject->files(Project::AllFiles),
+                                           ICore::mainWindow());
+        if (sfd.exec() == QDialog::Accepted)
+            genericProject->setFiles(Utils::transform(sfd.selectedFiles(), &Utils::FileName::toString));
+    });
 }
 
 } // namespace Internal

@@ -32,6 +32,7 @@
 
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseclientsettings.h>
+#include <vcsbase/vcscommand.h>
 
 #include <utils/fileutils.h>
 

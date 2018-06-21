@@ -28,6 +28,7 @@
 #include "kitmodel.h"
 #include "kit.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorericons.h"
 #include "kitmanagerconfigwidget.h"
 #include "kitmanager.h"
 
@@ -234,14 +235,17 @@ QModelIndex KitOptionsPageWidget::currentIndex() const
 // KitOptionsPage:
 // --------------------------------------------------------------------------
 
+static KitOptionsPage *theKitOptionsPage = nullptr;
+
 KitOptionsPage::KitOptionsPage()
 {
+    theKitOptionsPage = this;
     setId(Constants::KITS_SETTINGS_PAGE_ID);
     setDisplayName(tr("Kits"));
-    setCategory(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
-                                       Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
+    setCategory(Constants::KITS_SETTINGS_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer", "Kits"));
+    setCategoryIcon(Utils::Icon({{":/projectexplorer/images/settingscategory_kits.png",
+                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }
 
 QWidget *KitOptionsPage::widget()
@@ -278,6 +282,11 @@ void KitOptionsPage::showKit(Kit *k)
                                 | QItemSelectionModel::SelectCurrent
                                 | QItemSelectionModel::Rows);
     m_widget->m_kitsView->scrollTo(index);
+}
+
+KitOptionsPage *KitOptionsPage::instance()
+{
+    return theKitOptionsPage;
 }
 
 } // namespace ProjectExplorer

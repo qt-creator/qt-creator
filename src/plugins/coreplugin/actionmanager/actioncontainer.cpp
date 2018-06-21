@@ -403,6 +403,7 @@ void MenuActionContainer::insertAction(QAction *before, QAction *action)
 
 void MenuActionContainer::insertMenu(QAction *before, QMenu *menu)
 {
+    menu->setParent(m_menu, menu->windowFlags()); // work around issues with Qt Wayland (QTBUG-68636)
     m_menu->insertMenu(before, menu);
 }
 
@@ -509,6 +510,7 @@ void MenuBarActionContainer::insertAction(QAction *before, QAction *action)
 
 void MenuBarActionContainer::insertMenu(QAction *before, QMenu *menu)
 {
+    menu->setParent(m_menuBar, menu->windowFlags()); // work around issues with Qt Wayland (QTBUG-68636)
     m_menuBar->insertMenu(before, menu);
 }
 

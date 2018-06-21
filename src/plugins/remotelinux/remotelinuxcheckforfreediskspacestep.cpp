@@ -91,31 +91,18 @@ public:
 } // namespace Internal
 
 
-RemoteLinuxCheckForFreeDiskSpaceStep::RemoteLinuxCheckForFreeDiskSpaceStep(BuildStepList *bsl, Core::Id id)
-        : AbstractRemoteLinuxDeployStep(bsl, id)
+RemoteLinuxCheckForFreeDiskSpaceStep::RemoteLinuxCheckForFreeDiskSpaceStep(BuildStepList *bsl)
+        : AbstractRemoteLinuxDeployStep(bsl, stepId())
 {
-    ctor();
-    setPathToCheck(QLatin1String("/"));
+    d = new Internal::RemoteLinuxCheckForFreeDiskSpaceStepPrivate;
+    setDefaultDisplayName(displayName());
+    setPathToCheck("/");
     setRequiredSpaceInBytes(5*1024*1024);
-}
-
-RemoteLinuxCheckForFreeDiskSpaceStep::RemoteLinuxCheckForFreeDiskSpaceStep(BuildStepList *bsl,
-        RemoteLinuxCheckForFreeDiskSpaceStep *other) : AbstractRemoteLinuxDeployStep(bsl, other)
-{
-    ctor();
-    setPathToCheck(other->pathToCheck());
-    setRequiredSpaceInBytes(other->requiredSpaceInBytes());
 }
 
 RemoteLinuxCheckForFreeDiskSpaceStep::~RemoteLinuxCheckForFreeDiskSpaceStep()
 {
     delete d;
-}
-
-void RemoteLinuxCheckForFreeDiskSpaceStep::ctor()
-{
-    d = new Internal::RemoteLinuxCheckForFreeDiskSpaceStepPrivate;
-    setDefaultDisplayName(stepDisplayName());
 }
 
 void RemoteLinuxCheckForFreeDiskSpaceStep::setPathToCheck(const QString &path)
@@ -178,7 +165,7 @@ Core::Id RemoteLinuxCheckForFreeDiskSpaceStep::stepId()
     return "RemoteLinux.CheckForFreeDiskSpaceStep";
 }
 
-QString RemoteLinuxCheckForFreeDiskSpaceStep::stepDisplayName()
+QString RemoteLinuxCheckForFreeDiskSpaceStep::displayName()
 {
     return tr("Check for free disk space");
 }

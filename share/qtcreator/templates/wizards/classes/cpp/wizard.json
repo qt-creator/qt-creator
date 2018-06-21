@@ -6,6 +6,7 @@
     "trDescription": "Creates a C++ header and a source file for a new class that you can add to a C++ project.",
     "trDisplayName": "C++ Class",
     "trDisplayCategory": "C++",
+    "iconText": "h/cpp",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('CppEditor') >= 0}",
 
     "options":
@@ -130,8 +131,7 @@
                 },
                 {
                     "name": "Sp2",
-                    "type": "Spacer",
-                    "data": { "size": 12 }
+                    "type": "Spacer"
                 },
 
                 {

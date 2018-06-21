@@ -21,6 +21,7 @@ splitter=ff06080A
 textColorLink=ff007af4
 textColorLinkVisited=ffa57aff
 backgroundColorDisabled=ff444444
+qmlDesignerButtonColor=ff4c4e50
 
 [Colors]
 BackgroundColorAlternate=alternateBackground
@@ -108,7 +109,7 @@ MiniProjectTargetSelectorBorderColor=shadowBackground
 MiniProjectTargetSelectorSummaryBackgroundColor=shadowBackground
 MiniProjectTargetSelectorTextColor=fancyBarsNormalTextColor
 PanelStatusBarBackgroundColor=shadowBackground
-PanelsWidgetSeparatorLineColor=0
+PanelsWidgetSeparatorLineColor=000000
 PanelTextColorDark=text
 PanelTextColorMid=ffa0a0a0
 PanelTextColorLight=text
@@ -121,10 +122,10 @@ SplitterColor=splitter
 TextColorDisabled=textDisabled
 TextColorError=ffff4040
 TextColorHighlight=ffff0000
+TextColorHighlightBackground=8a7f2c
 TextColorLink=textColorLink
 TextColorLinkVisited=textColorLinkVisited
 TextColorNormal=text
-TodoItemTextColor=ff000000
 ToggleButtonBackgroundColor=shadowBackground
 ToolBarBackgroundColor=shadowBackground
 TreeViewArrowColorNormal=hoverBackground
@@ -155,7 +156,7 @@ Debugger_LogWindow_LogTime=ffbf0303
 
 Debugger_WatchItem_ValueNormal=text
 Debugger_WatchItem_ValueInvalid=textDisabled
-Debugger_WatchItem_ValueChanged=ffbf0303
+Debugger_WatchItem_ValueChanged=ffff6666
 
 Debugger_Breakpoint_TextMarkColor=ffff4040
 
@@ -167,6 +168,7 @@ Welcome_ButtonBackgroundColor=normalBackground
 Welcome_DividerColor=ff555555
 Welcome_HoverColor=ff444444
 Welcome_LinkColor=ff7fc63c
+Welcome_DisabledLinkColor=textDisabled
 
 Timeline_TextColor=text
 Timeline_BackgroundColor1=normalBackground
@@ -193,20 +195,32 @@ TextEditor_CurrentLine_ScrollBarColor=ffffffff
 ProjectExplorer_TaskError_TextMarkColor=error
 ProjectExplorer_TaskWarn_TextMarkColor=warning
 
-ClangCodeModel_Error_TextMarkColor=error
-ClangCodeModel_Warning_TextMarkColor=warning
+CodeModel_Error_TextMarkColor=error
+CodeModel_Warning_TextMarkColor=warning
 
-QmlDesigner_BackgroundColor=ff4c4e50
+QmlDesigner_BackgroundColor=qmlDesignerButtonColor
 QmlDesigner_HighlightColor=ff3f91c4
+QmlDesigner_FormEditorSelectionColor=ff4ba2ff
+QmlDesigner_FormEditorForegroundColor=ffffffff
+QmlDesigner_BackgroundColorDarkAlternate=qmlDesignerButtonColor
+QmlDesigner_BackgroundColorDarker=ff262728
+QmlDesigner_BorderColor=splitter
+QmlDesigner_ButtonColor=ff595b5c
+QmlDesigner_TabDark=shadowBackground
+QmlDesigner_TabLight=text
+QmlDesigner_FormeditorBackgroundColor=qmlDesignerButtonColor
+QmlDesigner_AlternateBackgroundColor=qmlDesignerButtonColor
+QmlDesigner_ScrollBarHandleColor=ff595b5c
 
 PaletteWindow=normalBackground
 PaletteWindowText=text
 PaletteBase=normalBackground
 PaletteAlternateBase=alternateBackground
 PaletteButton=shadowBackground
-PaletteBrightText=ffff0000
+PaletteBrightText=ffff3333
 PaletteText=text
 PaletteButtonText=text
+PaletteButtonTextDisabled=textDisabled
 PaletteToolTipBase=selectedBackground
 PaletteHighlight=selectedBackground
 PaletteDark=shadowBackground
@@ -236,6 +250,6 @@ ToolBarIconShadow=true
 WindowColorAsBase=false
 
 [Gradients]
-DetailsWidgetHeaderGradient\1\color=0
+DetailsWidgetHeaderGradient\1\color=00000000
 DetailsWidgetHeaderGradient\1\pos=1
 DetailsWidgetHeaderGradient\size=1

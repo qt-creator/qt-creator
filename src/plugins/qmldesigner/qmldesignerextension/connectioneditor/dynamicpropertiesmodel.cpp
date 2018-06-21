@@ -128,11 +128,8 @@ void DynamicPropertiesModel::resetModel()
 {
     beginResetModel();
     clear();
-    setHorizontalHeaderLabels(QStringList()
-                              << tr("Item")
-                              << tr("Property")
-                              << tr("Property Type")
-                              << tr("Property Value"));
+    setHorizontalHeaderLabels(QStringList({ tr("Item"), tr("Property"), tr("Property Type"),
+                                            tr("Property Value") }));
 
     foreach (const ModelNode modelNode, m_selectedModelNodes)
         addModelNode(modelNode);
@@ -268,13 +265,13 @@ QStringList DynamicPropertiesModel::possibleTargetProperties(const BindingProper
 void DynamicPropertiesModel::addDynamicPropertyForCurrentNode()
 {
     if (connectionView()->selectedModelNodes().count() == 1) {
-        ModelNode modelNode = connectionView()->selectedModelNodes().first();
+        const ModelNode modelNode = connectionView()->selectedModelNodes().constFirst();
         if (modelNode.isValid()) {
             try {
                 modelNode.variantProperty(unusedProperty(modelNode)).setDynamicTypeNameAndValue("string", QLatin1String("none.none"));
             } catch (RewritingException &e) {
                 m_exceptionError = e.description();
-                QTimer::singleShot(200, this, SLOT(handleException()));
+                QTimer::singleShot(200, this, &DynamicPropertiesModel::handleException);
             }
         }
     } else {
@@ -295,7 +292,7 @@ QStringList DynamicPropertiesModel::possibleSourceProperties(const BindingProper
         qWarning() << " BindingModel::possibleSourcePropertiesForRow no meta info for target node";
     }
 
-    const QString id = stringlist.first();
+    const QString &id = stringlist.constFirst();
 
     ModelNode modelNode = getNodeByIdOrParent(id, bindingProperty.parentModelNode());
 
@@ -428,10 +425,6 @@ void DynamicPropertiesModel::updateValue(int row)
     BindingProperty bindingProperty = bindingPropertyForRow(row);
 
     if (bindingProperty.isBindingProperty()) {
-
-        const QString sourceNode = data(index(row, PropertyTypeRow)).toString();
-        const QString sourceProperty = data(index(row, PropertyValueRow)).toString();
-
         const QString expression = data(index(row, PropertyValueRow)).toString();
 
         RewriterTransaction transaction = connectionView()->beginRewriterTransaction(QByteArrayLiteral("DynamicPropertiesModel::updateValue"));
@@ -440,7 +433,7 @@ void DynamicPropertiesModel::updateValue(int row)
             transaction.commit(); //committing in the try block
         } catch (Exception &e) {
             m_exceptionError = e.description();
-            QTimer::singleShot(200, this, SLOT(handleException()));
+            QTimer::singleShot(200, this, &DynamicPropertiesModel::handleException);
         }
         return;
     }
@@ -456,7 +449,7 @@ void DynamicPropertiesModel::updateValue(int row)
             transaction.commit(); //committing in the try block
         } catch (Exception &e) {
             m_exceptionError = e.description();
-            QTimer::singleShot(200, this, SLOT(handleException()));
+            QTimer::singleShot(200, this, &DynamicPropertiesModel::handleException);
         }
     }
 }
@@ -624,7 +617,7 @@ bool DynamicPropertiesModel::getExpressionStrings(const BindingProperty &binding
     if (true) {
         const QStringList stringList = expression.split(QLatin1String("."));
 
-        *sourceNode = stringList.first();
+        *sourceNode = stringList.constFirst();
 
         QString propertyName;
 

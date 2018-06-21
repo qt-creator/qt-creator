@@ -39,8 +39,8 @@ class CORE_EXPORT IMode : public IContext
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
 
 public:
-    IMode(QObject *parent = 0);
-    ~IMode();
+    IMode(QObject *parent = nullptr);
+    ~IMode() override;
 
     QString displayName() const { return m_displayName; }
     QIcon icon() const { return m_icon; }

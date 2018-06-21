@@ -25,45 +25,21 @@
 
 #include "iosdeploystepfactory.h"
 
+#include "iosconstants.h"
 #include "iosdeploystep.h"
-#include "iosmanager.h"
 
-#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
-#include <qtsupport/qtsupportconstants.h>
-#include <qtsupport/qtkitinformation.h>
-
-#include <QCoreApplication>
-
-using namespace ProjectExplorer;
 
 namespace Ios {
 namespace Internal {
 
-IosDeployStepFactory::IosDeployStepFactory(QObject *parent)
-    : IBuildStepFactory(parent)
+IosDeployStepFactory::IosDeployStepFactory()
 {
-}
-
-QList<BuildStepInfo> IosDeployStepFactory::availableSteps(BuildStepList *parent) const
-{
-    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY
-            && IosManager::supportsIos(parent->target())
-            && !parent->contains(IosDeployStep::Id))
-        return {{ IosDeployStep::Id, tr("Deploy to iOS device or emulator") }};
-    return {};
-}
-
-BuildStep *IosDeployStepFactory::create(BuildStepList *parent, Core::Id id)
-{
-    Q_UNUSED(id);
-    return new IosDeployStep(parent);
-}
-
-BuildStep *IosDeployStepFactory::clone(BuildStepList *parent, BuildStep *product)
-{
-    return new IosDeployStep(parent, static_cast<IosDeployStep *>(product));
+    registerStep<IosDeployStep>(IosDeployStep::Id);
+    setDisplayName(IosDeployStep::tr("Deploy to iOS device or emulator"));
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    setSupportedDeviceTypes({Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE});
+    setRepeatable(false);
 }
 
 } // namespace Internal

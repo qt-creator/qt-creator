@@ -47,8 +47,8 @@ public:
 
 private:
     QString m_variety;
-    bool m_isVarietyEditable;
-    bool m_isShapeEditable;
+    bool m_isVarietyEditable = true;
+    bool m_isShapeEditable = false;
 };
 
 } // namespace qmt

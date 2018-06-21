@@ -26,7 +26,7 @@
 #include "sshdeviceprocess.h"
 
 #include "idevice.h"
-#include "../runnables.h"
+#include "../runconfiguration.h"
 
 #include <ssh/sshconnection.h>
 #include <ssh/sshconnectionmanager.h>
@@ -45,18 +45,18 @@ public:
     SshDeviceProcessPrivate(SshDeviceProcess *q) : q(q) {}
 
     SshDeviceProcess * const q;
-    bool serverSupportsSignals;
-    QSsh::SshConnection *connection;
+    bool serverSupportsSignals = false;
+    QSsh::SshConnection *connection = nullptr;
     QSsh::SshRemoteProcess::Ptr process;
-    StandardRunnable runnable;
+    Runnable runnable;
     QString errorMessage;
     QSsh::SshRemoteProcess::ExitStatus exitStatus;
     DeviceProcessSignalOperation::Ptr killOperation;
     QTimer killTimer;
     QByteArray stdOut;
     QByteArray stdErr;
-    int exitCode;
-    enum State { Inactive, Connecting, Connected, ProcessRunning } state;
+    int exitCode = -1;
+    enum State { Inactive, Connecting, Connected, ProcessRunning } state = Inactive;
 
     void setState(State newState);
     void doSignal(QSsh::SshRemoteProcess::Signal signal);
@@ -65,9 +65,6 @@ public:
 SshDeviceProcess::SshDeviceProcess(const IDevice::ConstPtr &device, QObject *parent)
     : DeviceProcess(device, parent), d(new SshDeviceProcessPrivate(this))
 {
-    d->connection = 0;
-    d->state = SshDeviceProcessPrivate::Inactive;
-    setSshServerSupportsSignals(false);
     connect(&d->killTimer, &QTimer::timeout, this, &SshDeviceProcess::handleKillOperationTimeout);
 }
 
@@ -80,16 +77,11 @@ SshDeviceProcess::~SshDeviceProcess()
 void SshDeviceProcess::start(const Runnable &runnable)
 {
     QTC_ASSERT(d->state == SshDeviceProcessPrivate::Inactive, return);
-    if (!runnable.is<StandardRunnable>()) {
-        d->errorMessage = tr("Internal error");
-        error(QProcess::FailedToStart);
-        return;
-    }
     d->setState(SshDeviceProcessPrivate::Connecting);
 
     d->errorMessage.clear();
     d->exitCode = -1;
-    d->runnable = runnable.as<StandardRunnable>();
+    d->runnable = runnable;
     d->connection = QSsh::acquireConnection(device()->sshParameters());
     connect(d->connection, &QSsh::SshConnection::error,
             this, &SshDeviceProcess::handleConnectionError);
@@ -283,7 +275,7 @@ void SshDeviceProcess::handleKillOperationTimeout()
     emit finished();
 }
 
-QString SshDeviceProcess::fullCommandLine(const StandardRunnable &runnable) const
+QString SshDeviceProcess::fullCommandLine(const Runnable &runnable) const
 {
     QString cmdLine = runnable.executable;
     if (!runnable.commandLineArguments.isEmpty())

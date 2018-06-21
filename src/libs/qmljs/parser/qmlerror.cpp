@@ -29,6 +29,8 @@
 #include <QtCore/qdebug.h>
 #include <QtCore/qfile.h>
 #include <QtCore/qstringlist.h>
+#include <QtCore/qvector.h>
+#include <QtCore/qpointer.h>
 
 
 
@@ -76,11 +78,12 @@ public:
     QString description;
     quint16 line;
     quint16 column;
-    QObject *object;
+    QtMsgType messageType;
+    QPointer<QObject> object;
 };
 
 QmlErrorPrivate::QmlErrorPrivate()
-: line(0), column(0), object()
+: line(0), column(0), messageType(QtMsgType::QtWarningMsg), object()
 {
 }
 
@@ -110,12 +113,14 @@ QmlError &QmlError::operator=(const QmlError &other)
         delete d;
         d = 0;
     } else {
-        if (!d) d = new QmlErrorPrivate;
+        if (!d)
+            d = new QmlErrorPrivate;
         d->url = other.d->url;
         d->description = other.d->description;
         d->line = other.d->line;
         d->column = other.d->column;
         d->object = other.d->object;
+        d->messageType = other.d->messageType;
     }
     return *this;
 }
@@ -141,8 +146,9 @@ bool QmlError::isValid() const
 */
 QUrl QmlError::url() const
 {
-    if (d) return d->url;
-    else return QUrl();
+    if (d)
+        return d->url;
+    return QUrl();
 }
 
 /*!
@@ -150,7 +156,8 @@ QUrl QmlError::url() const
 */
 void QmlError::setUrl(const QUrl &url)
 {
-    if (!d) d = new QmlErrorPrivate;
+    if (!d)
+        d = new QmlErrorPrivate;
     d->url = url;
 }
 
@@ -159,8 +166,9 @@ void QmlError::setUrl(const QUrl &url)
 */
 QString QmlError::description() const
 {
-    if (d) return d->description;
-    else return QString();
+    if (d)
+        return d->description;
+    return QString();
 }
 
 /*!
@@ -168,7 +176,8 @@ QString QmlError::description() const
 */
 void QmlError::setDescription(const QString &description)
 {
-    if (!d) d = new QmlErrorPrivate;
+    if (!d)
+        d = new QmlErrorPrivate;
     d->description = description;
 }
 
@@ -177,8 +186,9 @@ void QmlError::setDescription(const QString &description)
 */
 int QmlError::line() const
 {
-    if (d) return qmlSourceCoordinate(d->line);
-    else return -1;
+    if (d)
+        return qmlSourceCoordinate(d->line);
+    return -1;
 }
 
 /*!
@@ -186,7 +196,8 @@ int QmlError::line() const
 */
 void QmlError::setLine(int line)
 {
-    if (!d) d = new QmlErrorPrivate;
+    if (!d)
+        d = new QmlErrorPrivate;
     d->line = qmlSourceCoordinate(line);
 }
 
@@ -195,8 +206,9 @@ void QmlError::setLine(int line)
 */
 int QmlError::column() const
 {
-    if (d) return qmlSourceCoordinate(d->column);
-    else return -1;
+    if (d)
+        return qmlSourceCoordinate(d->column);
+    return -1;
 }
 
 /*!
@@ -204,7 +216,8 @@ int QmlError::column() const
 */
 void QmlError::setColumn(int column)
 {
-    if (!d) d = new QmlErrorPrivate;
+    if (!d)
+        d = new QmlErrorPrivate;
     d->column = qmlSourceCoordinate(column);
 }
 
@@ -216,8 +229,9 @@ void QmlError::setColumn(int column)
  */
 QObject *QmlError::object() const
 {
-    if (d) return d->object;
-    else return 0;
+    if (d)
+        return d->object;
+    return 0;
 }
 
 /*!
@@ -225,8 +239,34 @@ QObject *QmlError::object() const
  */
 void QmlError::setObject(QObject *object)
 {
-    if (!d) d = new QmlErrorPrivate;
+    if (!d)
+        d = new QmlErrorPrivate;
     d->object = object;
+}
+
+/*!
+    \since 5.9
+
+    Returns the message type.
+ */
+QtMsgType QmlError::messageType() const
+{
+    if (d)
+        return d->messageType;
+    return QtMsgType::QtWarningMsg;
+}
+
+/*!
+    \since 5.9
+
+    Sets the \a messageType for this message. The message type determines which
+    QDebug handlers are responsible for recieving the message.
+ */
+void QmlError::setMessageType(QtMsgType messageType)
+{
+    if (!d)
+        d = new QmlErrorPrivate;
+    d->messageType = messageType;
 }
 
 /*!
@@ -240,9 +280,9 @@ QString QmlError::toString() const
     int l(line());
 
     if (u.isEmpty() || (u.isLocalFile() && u.path().isEmpty()))
-        rv = QLatin1String("<Unknown File>");
+        rv += QLatin1String("<Unknown File>");
     else
-        rv = u.toString();
+        rv += u.toString();
 
     if (l != -1) {
         rv += QLatin1Char(':') + QString::number(l);
@@ -276,15 +316,15 @@ QDebug operator<<(QDebug debug, const QmlError &error)
         if (f.open(QIODevice::ReadOnly)) {
             QByteArray data = f.readAll();
             QTextStream stream(data, QIODevice::ReadOnly);
-#ifndef QT_NO_TEXTCODEC
+#if QT_CONFIG(textcodec)
             stream.setCodec("UTF-8");
 #endif
             const QString code = stream.readAll();
-            const QStringList lines = code.split(QLatin1Char('\n'));
+            const auto lines = code.splitRef(QLatin1Char('\n'));
 
             if (lines.count() >= error.line()) {
-                const QString &line = lines.at(error.line() - 1);
-                debug << "\n    " << qPrintable(line);
+                const QStringRef &line = lines.at(error.line() - 1);
+                debug << "\n    " << line.toLocal8Bit().constData();
 
                 if (error.column() > 0) {
                     int column = qMax(0, error.column() - 1);

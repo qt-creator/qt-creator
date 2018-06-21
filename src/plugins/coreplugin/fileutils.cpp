@@ -31,15 +31,14 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/consoleprocess.h>
+#include <utils/environment.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcprocess.h>
 #include <utils/unixutils.h>
 
 #include <QApplication>
 #include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
-#include <QProcess>
 #include <QPushButton>
 #include <QWidget>
 
@@ -110,27 +109,11 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
 
 void FileUtils::openTerminal(const QString &path)
 {
-    // Get terminal application
-    QString terminalEmulator;
-    QStringList args;
-    const OsType hostOs = HostOsInfo::hostOs();
-    if (hostOs == OsTypeWindows) {
-        terminalEmulator = ConsoleProcess::defaultTerminalEmulator();
-    } else if (hostOs == OsTypeMac) {
-        terminalEmulator = ICore::resourcePath()
-            + QLatin1String("/scripts/openTerminal.command");
-    } else {
-        args = QtcProcess::splitArgs(ConsoleProcess::terminalEmulator(ICore::settings()), hostOs);
-        terminalEmulator = args.takeFirst();
-        args.append(QString::fromLocal8Bit(qgetenv("SHELL")));
-    }
-
-    // Launch terminal with working directory set.
     const QFileInfo fileInfo(path);
     const QString pwd = QDir::toNativeSeparators(fileInfo.isDir() ?
                                                  fileInfo.absoluteFilePath() :
                                                  fileInfo.absolutePath());
-    QProcess::startDetached(terminalEmulator, args, pwd);
+    ConsoleProcess::startTerminalEmulator(ICore::settings(), pwd);
 }
 
 QString FileUtils::msgFindInDirectory()

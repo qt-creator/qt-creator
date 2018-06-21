@@ -35,8 +35,7 @@ namespace qmt {
 PaletteBox::PaletteBox(QWidget *parent)
     : QWidget(parent),
       m_brushes(6),
-      m_pens(6),
-      m_currentIndex(-1)
+      m_pens(6)
 {
     setFocusPolicy(Qt::StrongFocus);
 }
@@ -47,13 +46,13 @@ PaletteBox::~PaletteBox()
 
 QBrush PaletteBox::brush(int index) const
 {
-    QMT_CHECK(index >= 0 && index <= m_brushes.size());
+    QMT_ASSERT(index >= 0 && index <= m_brushes.size(), return QBrush());
     return m_brushes.at(index);
 }
 
 void PaletteBox::setBrush(int index, const QBrush &brush)
 {
-    QMT_CHECK(index >= 0 && index <= m_brushes.size());
+    QMT_ASSERT(index >= 0 && index <= m_brushes.size(), return);
     if (m_brushes[index] != brush) {
         m_brushes[index] = brush;
         update();
@@ -62,13 +61,13 @@ void PaletteBox::setBrush(int index, const QBrush &brush)
 
 QPen PaletteBox::linePen(int index) const
 {
-    QMT_CHECK(index >= 0 && index <= m_pens.size());
+    QMT_ASSERT(index >= 0 && index <= m_pens.size(), return QPen());
     return m_pens.at(index);
 }
 
 void PaletteBox::setLinePen(int index, const QPen &pen)
 {
-    QMT_CHECK(index >= 0 && index <= m_pens.size());
+    QMT_ASSERT(index >= 0 && index <= m_pens.size(), return);
     if (m_pens[index] != pen) {
         m_pens[index] = pen;
         update();
@@ -125,7 +124,7 @@ void PaletteBox::mousePressEvent(QMouseEvent *event)
     qreal w = static_cast<qreal>(width()) / static_cast<qreal>(m_brushes.size());
 
     int i = static_cast<int>((event->x() / w));
-    QMT_CHECK(i >= 0 && i < m_brushes.size());
+    QMT_ASSERT(i >= 0 && i < m_brushes.size(), return);
     setCurrentIndex(i);
     if (m_currentIndex >= 0 && m_currentIndex < m_brushes.size())
         emit activated(m_currentIndex);

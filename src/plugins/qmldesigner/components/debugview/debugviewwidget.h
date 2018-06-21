@@ -37,15 +37,15 @@ class DebugViewWidget : public QWidget
 {
     Q_OBJECT
 public:
-    DebugViewWidget(QWidget *parent = 0);
+    DebugViewWidget(QWidget *parent = nullptr);
 
     void addLogMessage(const QString &topic, const QString &message, bool highlight = false);
     void addErrorMessage(const QString &topic, const QString &message);
     void addLogInstanceMessage(const QString &topic, const QString &message, bool highlight = false);
+    void setPuppetStatus(const QString &text);
 
     void setDebugViewEnabled(bool b);
 
-public slots:
     void enabledCheckBoxToggled(bool b);
 
 private:

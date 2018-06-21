@@ -26,6 +26,7 @@
 #pragma once
 
 #include "functiontraits.h"
+#include "optional.h"
 #include "utils_global.h"
 
 #include <QCoreApplication>
@@ -53,10 +54,13 @@ static testCallOperatorNo testCallOperator(...);
 template<typename T>
 struct hasCallOperator
 {
-    static const bool value = (sizeof(testCallOperator<T>(0)) == sizeof(testCallOperatorYes));
+    static const bool value = (sizeof(testCallOperator<T>(nullptr)) == sizeof(testCallOperatorYes));
 };
 
 namespace Utils {
+
+using StackSizeInBytes = Utils::optional<uint>;
+
 namespace Internal {
 
 /*
@@ -140,7 +144,7 @@ struct resultTypeIsFunctionLike<Function, false>
 
 template <typename Function>
 struct resultTypeHasCallOperator<Function, false>
-        : public resultTypeIsFunctionLike<Function, std::is_function<typename std::remove_pointer<typename std::decay<Function>::type>::type>::value>
+        : public resultTypeIsFunctionLike<Function, std::is_function<std::remove_pointer_t<std::decay_t<Function>>>::value>
 {
 };
 
@@ -257,15 +261,14 @@ void runAsyncQFutureInterfaceDispatch(std::true_type, QFutureInterface<ResultTyp
 template <typename ResultType, typename Function, typename... Args>
 void runAsyncQFutureInterfaceDispatch(std::false_type, QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
 {
-    runAsyncReturnVoidDispatch(std::is_void<typename std::result_of<Function(Args...)>::type>(),
+    runAsyncReturnVoidDispatch(std::is_void<std::result_of_t<Function(Args...)>>(),
                                futureInterface, std::forward<Function>(function), std::forward<Args>(args)...);
 }
 
 // function, function pointer, or other callable object that is no member pointer
 template <typename ResultType, typename Function, typename... Args,
-          typename = typename std::enable_if<
-                !std::is_member_pointer<typename std::decay<Function>::type>::value
-              >::type>
+          typename = std::enable_if_t<!std::is_member_pointer<std::decay_t<Function>>::value>
+         >
 void runAsyncMemberDispatch(QFutureInterface<ResultType> futureInterface, Function &&function, Args&&... args)
 {
     runAsyncQFutureInterfaceDispatch(functionTakesArgument<Function, 0, QFutureInterface<ResultType>&>(),
@@ -274,14 +277,13 @@ void runAsyncMemberDispatch(QFutureInterface<ResultType> futureInterface, Functi
 
 // Function = member function
 template <typename ResultType, typename Function, typename Obj, typename... Args,
-          typename = typename std::enable_if<
-                std::is_member_pointer<typename std::decay<Function>::type>::value
-              >::type>
+          typename = std::enable_if_t<std::is_member_pointer<std::decay_t<Function>>::value>
+         >
 void runAsyncMemberDispatch(QFutureInterface<ResultType> futureInterface, Function &&function, Obj &&obj, Args&&... args)
 {
     // Wrap member function with object into callable
     runAsyncImpl(futureInterface,
-                 MemberCallable<typename std::decay<Function>::type>(std::forward<Function>(function), std::forward<Obj>(obj)),
+                 MemberCallable<std::decay_t<Function>>(std::forward<Function>(function), std::forward<Obj>(obj)),
                  std::forward<Args>(args)...);
 }
 
@@ -306,16 +308,8 @@ void runAsyncImpl(QFutureInterface<ResultType> futureInterface,
    arguments that are passed to it when it is run in a thread.
 */
 
-// can be replaced with std::(make_)index_sequence with C++14
-template <std::size_t...>
-struct indexSequence { };
-template <std::size_t N, std::size_t... S>
-struct makeIndexSequence : makeIndexSequence<N-1, N-1, S...> { };
-template <std::size_t... S>
-struct makeIndexSequence<0, S...> { typedef indexSequence<S...> type; };
-
 template <class T>
-typename std::decay<T>::type
+std::decay_t<T>
 decayCopy(T&& v)
 {
     return std::forward<T>(v);
@@ -335,7 +329,7 @@ public:
         futureInterface.reportStarted();
     }
 
-    ~AsyncJob()
+    ~AsyncJob() override
     {
         // QThreadPool can delete runnables even if they were never run (e.g. QThreadPool::clear).
         // Since we reported them as started, we make sure that we always report them as finished.
@@ -355,7 +349,7 @@ public:
             futureInterface.reportFinished();
             return;
         }
-        runHelper(typename makeIndexSequence<std::tuple_size<Data>::value>::type());
+        runHelper(std::make_index_sequence<std::tuple_size<Data>::value>());
     }
 
     void setThreadPool(QThreadPool *pool)
@@ -369,10 +363,10 @@ public:
     }
 
 private:
-    using Data = std::tuple<typename std::decay<Function>::type, typename std::decay<Args>::type...>;
+    using Data = std::tuple<std::decay_t<Function>, std::decay_t<Args>...>;
 
     template <std::size_t... index>
-    void runHelper(indexSequence<index...>)
+    void runHelper(std::index_sequence<index...>)
     {
         // invalidates data, which is moved into the call
         runAsyncImpl(futureInterface, std::move(std::get<index>(data))...);
@@ -389,14 +383,42 @@ private:
 class QTCREATOR_UTILS_EXPORT RunnableThread : public QThread
 {
 public:
-    explicit RunnableThread(QRunnable *runnable, QObject *parent = 0);
+    explicit RunnableThread(QRunnable *runnable, QObject *parent = nullptr);
 
 protected:
-    void run();
+    void run() override;
 
 private:
     QRunnable *m_runnable;
 };
+
+template<typename Function,
+         typename... Args,
+         typename ResultType = typename Internal::resultType<Function>::type>
+QFuture<ResultType> runAsync_internal(QThreadPool *pool,
+                                      StackSizeInBytes stackSize,
+                                      QThread::Priority priority,
+                                      Function &&function,
+                                      Args &&... args)
+{
+    Q_ASSERT(!(pool && stackSize)); // stack size cannot be changed once a thread is started
+    auto job = new Internal::AsyncJob<ResultType,Function,Args...>
+            (std::forward<Function>(function), std::forward<Args>(args)...);
+    job->setThreadPriority(priority);
+    QFuture<ResultType> future = job->future();
+    if (pool) {
+        job->setThreadPool(pool);
+        pool->start(job);
+    } else {
+        auto thread = new Internal::RunnableThread(job);
+        if (stackSize)
+            thread->setStackSize(stackSize.value());
+        thread->moveToThread(qApp->thread()); // make sure thread gets deleteLater on main thread
+        QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+        thread->start(priority);
+    }
+    return future;
+}
 
 } // Internal
 
@@ -428,20 +450,11 @@ template <typename Function, typename... Args,
 QFuture<ResultType>
 runAsync(QThreadPool *pool, QThread::Priority priority, Function &&function, Args&&... args)
 {
-    auto job = new Internal::AsyncJob<ResultType,Function,Args...>
-            (std::forward<Function>(function), std::forward<Args>(args)...);
-    job->setThreadPriority(priority);
-    QFuture<ResultType> future = job->future();
-    if (pool) {
-        job->setThreadPool(pool);
-        pool->start(job);
-    } else {
-        auto thread = new Internal::RunnableThread(job);
-        thread->moveToThread(qApp->thread()); // make sure thread gets deleteLater on main thread
-        QObject::connect(thread, &QThread::finished, thread, &QObject::deleteLater);
-        thread->start(priority);
-    }
-    return future;
+    return Internal::runAsync_internal(pool,
+                                       StackSizeInBytes(),
+                                       priority,
+                                       std::forward<Function>(function),
+                                       std::forward<Args>(args)...);
 }
 
 /*!
@@ -459,15 +472,56 @@ runAsync(QThread::Priority priority, Function &&function, Args&&... args)
 }
 
 /*!
+    Runs \a function with \a args in a new thread with given thread \a stackSize and
+    thread priority QThread::InheritPriority .
+    \sa runAsync(QThreadPool*,QThread::Priority,Function&&,Args&&...)
+    \sa QThread::Priority
+    \sa QThread::setStackSize
+*/
+template<typename Function,
+         typename... Args,
+         typename ResultType = typename Internal::resultType<Function>::type>
+QFuture<ResultType> runAsync(Utils::StackSizeInBytes stackSize, Function &&function, Args &&... args)
+{
+    return Internal::runAsync_internal(static_cast<QThreadPool *>(nullptr),
+                                       stackSize,
+                                       QThread::InheritPriority,
+                                       std::forward<Function>(function),
+                                       std::forward<Args>(args)...);
+}
+
+/*!
+    Runs \a function with \a args in a new thread with given thread \a stackSize and
+    given thread \a priority.
+    \sa runAsync(QThreadPool*,QThread::Priority,Function&&,Args&&...)
+    \sa QThread::Priority
+    \sa QThread::setStackSize
+*/
+template<typename Function,
+         typename... Args,
+         typename ResultType = typename Internal::resultType<Function>::type>
+QFuture<ResultType> runAsync(Utils::StackSizeInBytes stackSize,
+                             QThread::Priority priority,
+                             Function &&function,
+                             Args &&... args)
+{
+    return Internal::runAsync_internal(static_cast<QThreadPool *>(nullptr),
+                                       stackSize,
+                                       priority,
+                                       std::forward<Function>(function),
+                                       std::forward<Args>(args)...);
+}
+
+/*!
     Runs \a function with \a args in a new thread with thread priority QThread::InheritPriority.
     \sa runAsync(QThreadPool*,QThread::Priority,Function&&,Args&&...)
     \sa QThread::Priority
  */
 template <typename Function, typename... Args,
-          typename = typename std::enable_if<
-                !std::is_same<typename std::decay<Function>::type, QThreadPool>::value
-                && !std::is_same<typename std::decay<Function>::type, QThread::Priority>::value
-              >::type,
+          typename = std::enable_if_t<
+                !std::is_same<std::decay_t<Function>, QThreadPool>::value
+                && !std::is_same<std::decay_t<Function>, QThread::Priority>::value
+              >,
           typename ResultType = typename Internal::resultType<Function>::type>
 QFuture<ResultType>
 runAsync(Function &&function, Args&&... args)
@@ -483,9 +537,7 @@ runAsync(Function &&function, Args&&... args)
     \sa QThread::Priority
  */
 template <typename Function, typename... Args,
-          typename = typename std::enable_if<
-                !std::is_same<typename std::decay<Function>::type, QThread::Priority>::value
-              >::type,
+          typename = std::enable_if_t<!std::is_same<std::decay_t<Function>, QThread::Priority>::value>,
           typename ResultType = typename Internal::resultType<Function>::type>
 QFuture<ResultType>
 runAsync(QThreadPool *pool, Function &&function, Args&&... args)

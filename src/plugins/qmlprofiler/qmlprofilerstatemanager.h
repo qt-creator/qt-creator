@@ -40,8 +40,8 @@ public:
         AppDying,
     };
 
-    explicit QmlProfilerStateManager(QObject *parent = 0);
-    ~QmlProfilerStateManager();
+    explicit QmlProfilerStateManager(QObject *parent = nullptr);
+    ~QmlProfilerStateManager() override;
 
     QmlProfilerState currentState();
     bool clientRecording();
@@ -51,19 +51,18 @@ public:
 
     QString currentStateAsString();
 
+    void setCurrentState(QmlProfilerState newState);
+    void setClientRecording(bool recording);
+    void setServerRecording(bool recording);
+    void setRequestedFeatures(quint64 features);
+    void setRecordedFeatures(quint64 features);
+
 signals:
     void stateChanged();
     void clientRecordingChanged(bool);
     void serverRecordingChanged(bool);
     void requestedFeaturesChanged(quint64);
     void recordedFeaturesChanged(quint64);
-
-public slots:
-    void setCurrentState(QmlProfilerState newState);
-    void setClientRecording(bool recording);
-    void setServerRecording(bool recording);
-    void setRequestedFeatures(quint64 features);
-    void setRecordedFeatures(quint64 features);
 
 private:
     class QmlProfilerStateManagerPrivate;

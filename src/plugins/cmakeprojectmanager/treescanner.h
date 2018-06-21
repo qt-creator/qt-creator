@@ -36,6 +36,8 @@
 
 #include <functional>
 
+namespace Core { class IVersionControl; }
+
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -53,6 +55,7 @@ public:
     using FileTypeFactory = std::function<ProjectExplorer::FileType(const Utils::MimeType &, const Utils::FileName &)>;
 
     explicit TreeScanner(QObject *parent = nullptr);
+    ~TreeScanner();
 
     // Start scanning in given directory
     bool asyncScanForFiles(const Utils::FileName& directory);
@@ -85,7 +88,8 @@ signals:
 
 private:
     static void scanForFiles(FutureInterface *fi, const Utils::FileName &directory,
-                             const FileFilter &filter, const FileTypeFactory &factory);
+                             const FileFilter &filter, const FileTypeFactory &factory,
+                             QList<Core::IVersionControl *> &versionControls);
 
 private:
     FileFilter m_filter;
@@ -93,6 +97,7 @@ private:
 
     FutureWatcher m_futureWatcher;
     Future m_scanFuture;
+    QList<Core::IVersionControl *> m_versionControls;
 };
 
 } // namespace Internal

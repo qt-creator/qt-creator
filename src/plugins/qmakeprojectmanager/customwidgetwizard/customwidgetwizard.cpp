@@ -47,7 +47,7 @@ CustomWidgetWizard::CustomWidgetWizard()
     setDisplayName(tr("Qt Custom Designer Widget"));
     setDescription(tr("Creates a Qt Custom Designer Widget or a Custom Widget Collection."));
     setIcon(QIcon(QLatin1String(":/wizards/images/gui.png")));
-    setRequiredFeatures({ QtSupport::Constants::FEATURE_QWIDGETS });
+    setRequiredFeatures({QtSupport::Constants::FEATURE_QWIDGETS});
 }
 
 Core::BaseFileWizard *CustomWidgetWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const

@@ -23,12 +23,16 @@
 **
 ****************************************************************************/
 
+#include "designeractionmanager.h"
 #include "formeditorwidget.h"
+#include "formeditorscene.h"
 #include "qmldesignerplugin.h"
 #include "designersettings.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignericons.h"
-#include <theming.h>
+#include "viewmanager.h"
+#include <model.h>
+#include <theme.h>
 
 #include <QWheelEvent>
 #include <QVBoxLayout>
@@ -41,8 +45,13 @@
 #include <lineeditaction.h>
 #include <backgroundaction.h>
 
+#include <coreplugin/icore.h>
+
 #include <utils/fileutils.h>
 #include <utils/utilsicons.h>
+
+#include <QFileDialog>
+#include <QPainter>
 
 namespace QmlDesigner {
 
@@ -50,7 +59,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     : QWidget(),
     m_formEditorView(view)
 {
-    setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/formeditorstylesheet.css")))));
+    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/formeditorstylesheet.css")))));
 
     QVBoxLayout *fillLayout = new QVBoxLayout(this);
     fillLayout->setMargin(0);
@@ -98,7 +107,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_showBoundingRectAction->setShortcut(Qt::Key_A);
     m_showBoundingRectAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_showBoundingRectAction->setCheckable(true);
-    m_showBoundingRectAction->setChecked(true);
+    m_showBoundingRectAction->setChecked(false);
     m_showBoundingRectAction->setIcon(Utils::Icons::BOUNDING_RECT.icon());
 
     addAction(m_showBoundingRectAction.data());
@@ -111,18 +120,22 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     m_rootWidthAction = new LineEditAction(tr("Override Width"), this);
     m_rootWidthAction->setToolTip(tr("Override width of root item."));
-    connect(m_rootWidthAction.data(), SIGNAL(textChanged(QString)), this, SLOT(changeRootItemWidth(QString)));
+    connect(m_rootWidthAction.data(), &LineEditAction::textChanged,
+            this, &FormEditorWidget::changeRootItemWidth);
     addAction(m_rootWidthAction.data());
     upperActions.append(m_rootWidthAction.data());
 
     m_rootHeightAction =  new LineEditAction(tr("Override Height"), this);
     m_rootHeightAction->setToolTip(tr("Override height of root item."));
-    connect(m_rootHeightAction.data(), SIGNAL(textChanged(QString)), this, SLOT(changeRootItemHeight(QString)));
+    connect(m_rootHeightAction.data(), &LineEditAction::textChanged,
+            this, &FormEditorWidget::changeRootItemHeight);
     addAction(m_rootHeightAction.data());
     upperActions.append(m_rootHeightAction.data());
 
     m_toolBox = new ToolBox(this);
     fillLayout->addWidget(m_toolBox.data());
+
+
     m_toolBox->setLeftSideActions(upperActions);
 
     m_backgroundAction = new BackgroundAction(m_toolActionGroup.data());
@@ -132,7 +145,8 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_toolBox->addRightSideAction(m_backgroundAction.data());
 
     m_zoomAction = new ZoomAction(m_toolActionGroup.data());
-    connect(m_zoomAction.data(), SIGNAL(zoomLevelChanged(double)), SLOT(setZoomLevel(double)));
+    connect(m_zoomAction.data(), &ZoomAction::zoomLevelChanged,
+            this, &FormEditorWidget::setZoomLevel);
     addAction(m_zoomAction.data());
     upperActions.append(m_zoomAction.data());
     m_toolBox->addRightSideAction(m_zoomAction.data());
@@ -141,7 +155,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_resetAction->setShortcut(Qt::Key_R);
     m_resetAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_resetAction->setIcon(Utils::Icons::RESET_TOOLBAR.icon());
-    connect(m_resetAction.data(), SIGNAL(triggered(bool)), this, SLOT(resetNodeInstanceView()));
+    connect(m_resetAction.data(), &QAction::triggered, this, &FormEditorWidget::resetNodeInstanceView);
     addAction(m_resetAction.data());
     upperActions.append(m_resetAction.data());
     m_toolBox->addRightSideAction(m_resetAction.data());
@@ -149,7 +163,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_graphicsView = new FormEditorGraphicsView(this);
 
     fillLayout->addWidget(m_graphicsView.data());
-    m_graphicsView.data()->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
+    m_graphicsView.data()->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
 }
 
 void FormEditorWidget::changeTransformTool(bool checked)
@@ -241,6 +255,32 @@ void FormEditorWidget::setFocus()
     m_graphicsView->setFocus(Qt::OtherFocusReason);
 }
 
+void FormEditorWidget::showErrorMessageBox(const QList<DocumentMessage> &errors)
+{
+    errorWidget()->setErrors(errors);
+    errorWidget()->setVisible(true);
+    m_graphicsView->setDisabled(true);
+    m_toolBox->setDisabled(true);
+}
+
+void FormEditorWidget::hideErrorMessageBox()
+{
+    if (!m_documentErrorWidget.isNull())
+        errorWidget()->setVisible(false);
+
+    m_graphicsView->setDisabled(false);
+    m_toolBox->setDisabled(false);
+}
+
+void FormEditorWidget::showWarningMessageBox(const QList<DocumentMessage> &warnings)
+{
+      if (!errorWidget()->warningsEnabled())
+          return;
+
+    errorWidget()->setWarnings(warnings);
+    errorWidget()->setVisible(true);
+}
+
 ZoomAction *FormEditorWidget::zoomAction() const
 {
     return m_zoomAction.data();
@@ -285,23 +325,21 @@ ToolBox *FormEditorWidget::toolBox() const
 
 double FormEditorWidget::spacing() const
 {
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.value(DesignerSettingsKey::ITEMSPACING).toDouble();
+    return DesignerSettings::getValue(DesignerSettingsKey::ITEMSPACING).toDouble();
 }
 
 double FormEditorWidget::containerPadding() const
 {
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.value(DesignerSettingsKey::CONTAINERPADDING).toDouble();
+    return DesignerSettings::getValue(DesignerSettingsKey::CONTAINERPADDING).toDouble();
 }
 
 
-QString FormEditorWidget::contextHelpId() const
+void FormEditorWidget::contextHelpId(const Core::IContext::HelpIdCallback &callback) const
 {
     if (m_formEditorView)
-        return m_formEditorView->contextHelpId();
-
-    return QString();
+        m_formEditorView->contextHelpId(callback);
+    else
+        callback(QString());
 }
 
 void FormEditorWidget::setRootItemRect(const QRectF &rect)
@@ -313,6 +351,47 @@ QRectF FormEditorWidget::rootItemRect() const
 {
     return m_graphicsView->rootItemRect();
 }
+
+void FormEditorWidget::exportAsImage(const QRectF &boundingRect)
+{
+    QString proposedFileName = m_formEditorView->model()->fileUrl().toLocalFile();
+    proposedFileName.chop(4);
+    if (proposedFileName.endsWith(".ui"))
+        proposedFileName.chop(3);
+    proposedFileName.append(".png");
+    const QString fileName = QFileDialog::getSaveFileName(Core::ICore::dialogParent(),
+                                                          tr("Export Current QML File as Image"),
+                                                          proposedFileName,
+                                                          tr("PNG (*.png);;JPG (*.jpg)"));
+
+    if (!fileName.isNull()) {
+        QImage image(boundingRect.size().toSize(), QImage::Format_ARGB32);
+        QPainter painter(&image);
+        QTransform viewportTransform = m_graphicsView->viewportTransform();
+        m_graphicsView->render(&painter,
+                               QRectF(0, 0, image.width(), image.height()),
+                               viewportTransform.mapRect(boundingRect).toRect());
+        image.save(fileName);
+    }
+}
+
+FormEditorGraphicsView *FormEditorWidget::graphicsView() const
+{
+    return m_graphicsView;
+}
+
+DocumentWarningWidget *FormEditorWidget::errorWidget()
+{
+    if (m_documentErrorWidget.isNull()) {
+        m_documentErrorWidget = new DocumentWarningWidget(this);
+        connect(m_documentErrorWidget.data(), &DocumentWarningWidget::gotoCodeClicked, [=]
+            (const QString &, int codeLine, int codeColumn) {
+            m_formEditorView->gotoError(codeLine, codeColumn);
+        });
+    }
+    return m_documentErrorWidget;
+}
+
 
 }
 

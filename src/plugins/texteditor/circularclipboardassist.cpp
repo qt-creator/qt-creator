@@ -94,6 +94,7 @@ public:
         QIcon icon = QIcon::fromTheme(QLatin1String("edit-paste"), Utils::Icons::PASTE.icon()).pixmap(16);
         CircularClipboard * clipboard = CircularClipboard::instance();
         QList<AssistProposalItemInterface *> items;
+        items.reserve(clipboard->size());
         for (int i = 0; i < clipboard->size(); ++i) {
             QSharedPointer<const QMimeData> data = clipboard->next();
 
@@ -110,11 +111,6 @@ public:
 IAssistProvider::RunType ClipboardAssistProvider::runType() const
 {
     return Synchronous;
-}
-
-bool ClipboardAssistProvider::supportsEditor(Core::Id /*editorId*/) const
-{
-    return true;
 }
 
 IAssistProcessor *ClipboardAssistProvider::createProcessor() const

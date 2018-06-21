@@ -52,11 +52,11 @@ public:
     void setDepth(int depth);
 
 private:
-    DObject::VisualPrimaryRole m_visualPrimaryRole;
-    DObject::VisualSecondaryRole m_visualSecondaryRole;
-    bool m_isEmphasized;
+    DObject::VisualPrimaryRole m_visualPrimaryRole = DObject::PrimaryRoleNormal;
+    DObject::VisualSecondaryRole m_visualSecondaryRole = DObject::SecondaryRoleNone;
+    bool m_isEmphasized = false;
     QColor m_baseColor;
-    int m_depth;
+    int m_depth = 0;
 };
 
 bool operator==(const ObjectVisuals &lhs, const ObjectVisuals &rhs);

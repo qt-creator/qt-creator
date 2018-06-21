@@ -251,7 +251,7 @@ std::string SymbolGroup::debug(const std::string &iname,
 
 typedef std::pair<unsigned, std::string> InamePathEntry;
 
-struct InamePathEntryLessThan : public std::binary_function<InamePathEntry, InamePathEntry, bool> {
+struct InamePathEntryLessThan {
     bool operator()(const InamePathEntry &i1, const InamePathEntry& i2) const
     {
         if (i1.first < i2.first)
@@ -465,8 +465,11 @@ bool SymbolGroup::assign(const std::string &nodeName,
         return false;
     }
 
-    return (node->dumperType() & KT_Editable) ? // Edit complex types
-        assignType(node, valueEncoding, value, ctx, errorMessage) :
+    int kt = node->dumperType();
+    if (kt < 0)
+        kt = knownType(node->type(), KnownTypeAutoStripPointer | KnownTypeHasClassPrefix);
+    return (kt & KT_Editable) ? // Edit complex types
+        assignType(node, kt, valueEncoding, value, ctx, errorMessage) :
         node->assign(value, errorMessage);
 }
 

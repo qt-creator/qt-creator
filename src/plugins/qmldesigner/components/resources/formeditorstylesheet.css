@@ -1,23 +1,19 @@
 
 QStackedWidget {
     border: 0px;
-    background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
 }
 
 QGraphicsView {
     padding: 2px;
     border: 0px;
-    background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
-}
-
-QGraphicsView:focus {
-    background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+    background-color: creatorTheme.QmlDesigner_FormeditorBackgroundColor;
 }
 
 QLineEdit
 {
     color: creatorTheme.PanelTextColorLight;
-    border: 1px solid creatorTheme.QmlDesignerBackgroundColorDarker;
+    border: 1px solid creatorTheme.QmlDesigner_BackgroundColorDarker;
     padding: 2px 8px;
     margin: 2px;
     background-color: creatorTheme.FancyToolButtonSelectedColor;

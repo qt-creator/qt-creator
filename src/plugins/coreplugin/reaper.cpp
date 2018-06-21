@@ -26,6 +26,7 @@
 #include "reaper.h"
 #include "reaper_p.h"
 
+#include <utils/qtcprocess.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -35,6 +36,24 @@ namespace Core {
 namespace Internal {
 
 static ReaperPrivate *d = nullptr;
+
+namespace {
+void killProcess(QProcess *process)
+{
+    if (Utils::QtcProcess *qtcProcess = qobject_cast<Utils::QtcProcess*>(process))
+        qtcProcess->kill();
+    else
+        process->kill();
+}
+
+void terminateProcess(QProcess *process)
+{
+    if (Utils::QtcProcess *qtcProcess = qobject_cast<Utils::QtcProcess*>(process))
+        qtcProcess->terminate();
+    else
+        process->terminate();
+}
+} // namespace
 
 ProcessReaper::ProcessReaper(QProcess *p, int timeoutMs) : m_process(p)
 {
@@ -79,12 +98,12 @@ void ProcessReaper::nextIteration()
 
     if (state == QProcess::Starting) {
         if (m_lastState == QProcess::Starting)
-            m_process->kill();
+            killProcess(m_process);
     } else if (state == QProcess::Running) {
         if (m_lastState == QProcess::Running)
-            m_process->kill();
+            killProcess(m_process);
         else
-            m_process->terminate();
+            terminateProcess(m_process);
     }
 
     m_lastState = state;

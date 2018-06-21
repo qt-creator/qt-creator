@@ -111,13 +111,9 @@ protected:
 
     ParserTreeItem::ConstPtr findItemByRoot(const QStandardItem *item, bool skipRoot = false) const;
 
-    QStringList addProjectNode(const ParserTreeItem::Ptr &item,
-                               const ProjectExplorer::ProjectNode *node);
-    QStringList getAllFiles(const ProjectExplorer::ProjectNode *node);
-    void addFlatTree(const ParserTreeItem::Ptr &item,
-                               const ProjectExplorer::ProjectNode *node);
-
-    QStringList projectNodeFileList(const ProjectExplorer::FolderNode *node) const;
+    QStringList addProjectTree(const ParserTreeItem::Ptr &item, const ProjectExplorer::Project *project);
+    QStringList getAllFiles(const ProjectExplorer::Project *project);
+    void addFlatTree(const ParserTreeItem::Ptr &item, const ProjectExplorer::Project *project);
 
 private:
     //! Private class data pointer

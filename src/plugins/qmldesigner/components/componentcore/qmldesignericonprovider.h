@@ -34,6 +34,7 @@ class QmlDesignerIconProvider : public QQuickImageProvider
 public:
     QmlDesignerIconProvider();
     QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize) override;
+    static QPixmap getPixmap(const QString &id);
 };
 
 } // namespace QmlDesigner

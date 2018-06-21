@@ -34,9 +34,9 @@
 #include <stdlib.h>
 
 #else
+#include <utils/temporaryfile.h>
 
 #include <QSocketNotifier>
-#include <QTemporaryFile>
 #include <QVarLengthArray>
 
 #include <sys/ioctl.h>
@@ -54,15 +54,6 @@
 
 namespace Debugger {
 namespace Internal {
-
-OutputCollector::OutputCollector(QObject *parent)
-        : QObject(parent)
-{
-#ifdef Q_OS_WIN
-    m_server = 0;
-    m_socket = 0;
-#endif
-}
 
 OutputCollector::~OutputCollector()
 {
@@ -85,7 +76,7 @@ bool OutputCollector::listen()
     QByteArray codedServerPath;
     forever {
         {
-            QTemporaryFile tf;
+            Utils::TemporaryFile tf("outputcollector");
             if (!tf.open()) {
                 m_errorString = tr("Cannot create temporary file: %1").arg(tf.errorString());
                 m_serverPath.clear();
@@ -120,8 +111,8 @@ void OutputCollector::shutdown()
 {
 #ifdef Q_OS_WIN
     delete m_server; // Deletes socket as well (QObject parent)
-    m_server = 0;
-    m_socket = 0;
+    m_server = nullptr;
+    m_socket = nullptr;
 #else
     if (!m_serverPath.isEmpty()) {
         ::close(m_serverFd);

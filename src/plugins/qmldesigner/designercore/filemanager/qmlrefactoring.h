@@ -38,6 +38,7 @@ class QmlRefactoring
 
 public:
     enum PropertyType {
+        Invalid = -1,
         ArrayBinding = 1,
         ObjectBinding = 2,
         ScriptBinding = 3

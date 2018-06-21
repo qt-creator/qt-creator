@@ -25,13 +25,12 @@
 
 #include "qmlprofilerrangemodel.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilerdatamodel.h"
 #include "qmlprofilerbindingloopsrenderpass.h"
 
-#include "timeline/timelinenotesrenderpass.h"
-#include "timeline/timelineitemsrenderpass.h"
-#include "timeline/timelineselectionrenderpass.h"
-#include "timeline/timelineformattime.h"
+#include <tracing/timelinenotesrenderpass.h>
+#include <tracing/timelineitemsrenderpass.h>
+#include <tracing/timelineselectionrenderpass.h>
+#include <tracing/timelineformattime.h>
 
 #include <QCoreApplication>
 #include <QVector>
@@ -44,7 +43,7 @@ namespace QmlProfiler {
 namespace Internal {
 
 QmlProfilerRangeModel::QmlProfilerRangeModel(QmlProfilerModelManager *manager, RangeType range,
-                                             QObject *parent) :
+                                             Timeline::TimelineModelAggregator *parent) :
     QmlProfilerTimelineModel(manager, MaximumMessage, range, featureFromRangeType(range), parent)
 {
     m_expandedRowTypes << -1;
@@ -71,7 +70,7 @@ void QmlProfilerRangeModel::loadEvent(const QmlEvent &event, const QmlEventType 
     if (event.rangeStage() == RangeStart) {
         int index = insertStart(event.timestamp(), event.typeIndex());
         m_stack.append(index);
-        m_data.insert(index, QmlRangeEventStartInstance());
+        m_data.insert(index, Item());
     } else if (event.rangeStage() == RangeEnd) {
         if (!m_stack.isEmpty()) {
             int index = m_stack.pop();
@@ -86,7 +85,7 @@ void QmlProfilerRangeModel::finalize()
 {
     if (!m_stack.isEmpty()) {
         qWarning() << "End times for some events are missing.";
-        const qint64 endTime = modelManager()->traceTime()->endTime();
+        const qint64 endTime = modelManager()->traceEnd();
         do {
             int index = m_stack.pop();
             insertEnd(index, endTime - startTime(index));
@@ -104,6 +103,8 @@ void QmlProfilerRangeModel::finalize()
 
     if (supportsBindingLoops())
         findBindingLoops();
+
+    QmlProfilerTimelineModel::finalize();
 }
 
 void QmlProfilerRangeModel::computeNestingContracted()
@@ -203,13 +204,14 @@ QVariantList QmlProfilerRangeModel::labels() const
 {
     QVariantList result;
 
-    const QVector<QmlEventType> &types = modelManager()->qmlModel()->eventTypes();
+    const QmlProfilerModelManager *manager = modelManager();
     for (int i = 1; i < expandedRowCount(); i++) { // Ignore the -1 for the first row
         QVariantMap element;
-        int typeId = m_expandedRowTypes[i];
-        element.insert(QLatin1String("displayName"), QVariant(types[typeId].displayName()));
-        element.insert(QLatin1String("description"), QVariant(types[typeId].data()));
-        element.insert(QLatin1String("id"), QVariant(typeId));
+        const int typeId = m_expandedRowTypes[i];
+        const QmlEventType &type = manager->eventType(typeId);
+        element.insert(QLatin1String("displayName"), type.displayName());
+        element.insert(QLatin1String("description"), type.data());
+        element.insert(QLatin1String("id"), typeId);
         result << element;
     }
 
@@ -220,14 +222,14 @@ QVariantMap QmlProfilerRangeModel::details(int index) const
 {
     QVariantMap result;
     int id = selectionId(index);
-    const QVector<QmlEventType> &types = modelManager()->qmlModel()->eventTypes();
 
     result.insert(QStringLiteral("displayName"),
                   tr(QmlProfilerModelManager::featureName(mainFeature())));
     result.insert(tr("Duration"), Timeline::formatTime(duration(index)));
 
-    result.insert(tr("Details"), types[id].data());
-    result.insert(tr("Location"), types[id].displayName());
+    const QmlEventType &type = modelManager()->eventType(id);
+    result.insert(tr("Details"), type.data());
+    result.insert(tr("Location"), type.displayName());
     return result;
 }
 

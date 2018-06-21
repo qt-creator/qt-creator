@@ -30,6 +30,7 @@
 #include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
+class QAuthenticator;
 class QNetworkReply;
 class QWidget;
 QT_END_NAMESPACE
@@ -107,12 +108,20 @@ class NetworkProtocol : public Protocol
     Q_OBJECT
 
 public:
+    NetworkProtocol();
+
     ~NetworkProtocol() override;
 
-protected:
-    QNetworkReply *httpGet(const QString &url);
+signals:
+    void authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator);
 
-    QNetworkReply *httpPost(const QString &link, const QByteArray &data);
+protected:
+    void requestAuthentication(const QUrl &url, QNetworkReply *reply, QAuthenticator *authenticator);
+
+    QNetworkReply *httpGet(const QString &url, bool handleCookies = false);
+
+    QNetworkReply *httpPost(const QString &link, const QByteArray &data,
+                            bool handleCookies = false);
 
     // Check connectivity of host, displaying a message box.
     bool httpStatus(QString url, QString *errorMessage, bool useHttps = false);

@@ -51,7 +51,6 @@ void NavigatorSlider::zoomOut()
 
 void NavigatorSlider::setSliderValue(int val)
 {
-    m_ui.m_slider->blockSignals(true);
+    QSignalBlocker blocker(m_ui.m_slider);
     m_ui.m_slider->setValue(val);
-    m_ui.m_slider->blockSignals(false);
 }

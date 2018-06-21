@@ -97,7 +97,7 @@ void ProFileReader::aboutToEval(ProFile *parent, ProFile *pro, EvalFileType type
 {
     if (m_ignoreLevel || (type != EvalProjectFile && type != EvalIncludeFile)) {
         m_ignoreLevel++;
-    } else {
+    } else if (parent) {  // Skip the actual .pro file, as nobody needs that.
         QVector<ProFile *> &children = m_includeFiles[parent];
         if (!children.contains(pro)) {
             children.append(pro);
@@ -168,14 +168,14 @@ void ProFileCacheManager::clear()
     m_cache = 0;
 }
 
-void ProFileCacheManager::discardFiles(const QString &prefix)
+void ProFileCacheManager::discardFiles(const QString &prefix, QMakeVfs *vfs)
 {
     if (m_cache)
-        m_cache->discardFiles(prefix);
+        m_cache->discardFiles(prefix, vfs);
 }
 
-void ProFileCacheManager::discardFile(const QString &fileName)
+void ProFileCacheManager::discardFile(const QString &fileName, QMakeVfs *vfs)
 {
     if (m_cache)
-        m_cache->discardFile(fileName);
+        m_cache->discardFile(fileName, vfs);
 }

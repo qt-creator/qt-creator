@@ -109,8 +109,8 @@ private:
                    QMap<QString, int> *lineToCode);
     int findSubtextEnd(const QString &text,
                        int subTextStart);
-    DiffMode m_diffMode;
-    DiffMode m_currentDiffMode;
+    DiffMode m_diffMode = Differ::LineMode;
+    DiffMode m_currentDiffMode = Differ::LineMode;
     QFutureInterfaceBase *m_jobController = nullptr;
 };
 

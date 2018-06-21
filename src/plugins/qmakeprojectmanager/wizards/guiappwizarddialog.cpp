@@ -32,12 +32,6 @@
 namespace QmakeProjectManager {
 namespace Internal {
 
-GuiAppParameters::GuiAppParameters()
-    : designerForm(true),
-      isMobileApplication(false)
-{
-}
-
 GuiAppWizardDialog::GuiAppWizardDialog(const Core::BaseFileWizardFactory *factory,
                                        const QString &templateName,
                                        const QIcon &icon, QWidget *parent,
@@ -106,10 +100,6 @@ GuiAppParameters GuiAppWizardDialog::parameters() const
         rc.isMobileApplication = true;
         rc.widgetWidth = 800;
         rc.widgetHeight = 480;
-    } else {
-        rc.isMobileApplication = false;
-        rc.widgetWidth = 400;
-        rc.widgetHeight = 300;
     }
     return rc;
 }

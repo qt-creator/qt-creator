@@ -54,6 +54,8 @@ namespace CppTools {
 BaseEditorDocumentParser::BaseEditorDocumentParser(const QString &filePath)
     : m_filePath(filePath)
 {
+    static int meta = qRegisterMetaType<ProjectPartInfo>("CppTools::ProjectPartInfo");
+    Q_UNUSED(meta);
 }
 
 BaseEditorDocumentParser::~BaseEditorDocumentParser()
@@ -102,9 +104,9 @@ void BaseEditorDocumentParser::setState(const State &state)
     m_state = state;
 }
 
-ProjectPart::Ptr BaseEditorDocumentParser::projectPart() const
+ProjectPartInfo BaseEditorDocumentParser::projectPartInfo() const
 {
-    return state().projectPart;
+    return state().projectPartInfo;
 }
 
 BaseEditorDocumentParser::Ptr BaseEditorDocumentParser::get(const QString &filePath)
@@ -117,12 +119,13 @@ BaseEditorDocumentParser::Ptr BaseEditorDocumentParser::get(const QString &fileP
     return BaseEditorDocumentParser::Ptr();
 }
 
-ProjectPart::Ptr BaseEditorDocumentParser::determineProjectPart(
+ProjectPartInfo BaseEditorDocumentParser::determineProjectPart(
         const QString &filePath,
-        const Configuration &config,
-        const State &state,
+        const QString &preferredProjectPartId,
+        const ProjectPartInfo &currentProjectPartInfo,
         const ProjectExplorer::Project *activeProject,
-        bool hasActiveProjectChanged)
+        Language languagePreference,
+        bool projectsUpdated)
 {
     Internal::ProjectPartChooser chooser;
     chooser.setFallbackProjectPart([](){
@@ -136,12 +139,15 @@ ProjectPart::Ptr BaseEditorDocumentParser::determineProjectPart(
         return CppModelManager::instance()->projectPartFromDependencies(fileName);
     });
 
-    return chooser.choose(filePath,
-                          state.projectPart,
-                          config.manuallySetProjectPart,
-                          config.stickToPreviousProjectPart,
-                          activeProject,
-                          hasActiveProjectChanged);
+    const ProjectPartInfo chooserResult
+            = chooser.choose(filePath,
+                             currentProjectPartInfo,
+                             preferredProjectPartId,
+                             activeProject,
+                             languagePreference,
+                             projectsUpdated);
+
+    return chooserResult;
 }
 
 } // namespace CppTools

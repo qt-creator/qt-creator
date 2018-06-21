@@ -322,7 +322,7 @@ protected:
 
     virtual bool visit(AST::UiPublicMember *node)
     {
-        if (node->memberType == _name){
+        if (node->memberTypeName() == _name){
             const ObjectValue * tVal = _context->lookupType(_doc.data(), QStringList(_name));
             if (tVal == _typeValue)
                 _usages.append(node->typeToken);
@@ -583,8 +583,8 @@ protected:
     virtual bool visit(UiPublicMember *node)
     {
         if (containsOffset(node->typeToken)){
-            if (!node->memberType.isEmpty()) {
-                _name = node->memberType.toString();
+            if (node->isValid()) {
+                _name = node->memberTypeName().toString();
                 _targetValue = _scopeChain->context()->lookupType(_doc.data(), QStringList(_name));
                 _scope = 0;
                 _typeKind = TypeKind;
@@ -683,7 +683,7 @@ static QString matchingLine(unsigned position, const QString &source)
     return source.mid(start, end - start);
 }
 
-class ProcessFile: public std::unary_function<QString, QList<FindReferences::Usage> >
+class ProcessFile
 {
     ContextPtr context;
     typedef FindReferences::Usage Usage;
@@ -692,6 +692,10 @@ class ProcessFile: public std::unary_function<QString, QList<FindReferences::Usa
     QFutureInterface<Usage> *future;
 
 public:
+    // needed by QtConcurrent
+    using argument_type = const QString &;
+    using result_type = QList<Usage>;
+
     ProcessFile(const ContextPtr &context,
                 QString name,
                 const ObjectValue *scope,
@@ -721,7 +725,7 @@ public:
     }
 };
 
-class SearchFileForType: public std::unary_function<QString, QList<FindReferences::Usage> >
+class SearchFileForType
 {
     ContextPtr context;
     typedef FindReferences::Usage Usage;
@@ -730,6 +734,10 @@ class SearchFileForType: public std::unary_function<QString, QList<FindReference
     QFutureInterface<Usage> *future;
 
 public:
+    // needed by QtConcurrent
+    using argument_type = const QString &;
+    using result_type = QList<Usage>;
+
     SearchFileForType(const ContextPtr &context,
                       QString name,
                       const ObjectValue *scope,
@@ -759,12 +767,17 @@ public:
     }
 };
 
-class UpdateUI: public std::binary_function<QList<FindReferences::Usage> &, QList<FindReferences::Usage>, void>
+class UpdateUI
 {
     typedef FindReferences::Usage Usage;
     QFutureInterface<Usage> *future;
 
 public:
+    // needed by QtConcurrent
+    using first_argument_type = QList<Usage> &;
+    using second_argument_type = const QList<Usage> &;
+    using result_type = void;
+
     UpdateUI(QFutureInterface<Usage> *future): future(future) {}
 
     void operator()(QList<Usage> &, const QList<Usage> &usages)
@@ -959,7 +972,9 @@ void FindReferences::displayResults(int first, int last)
                     this, &FindReferences::onReplaceButtonClicked);
         }
         connect(m_currentSearch.data(), &SearchResult::activated,
-                this, &FindReferences::openEditor);
+                [](const Core::SearchResultItem& item) {
+                    Core::EditorManager::openEditorAtSearchResult(item);
+                });
         connect(m_currentSearch.data(), &SearchResult::cancelled, this, &FindReferences::cancel);
         connect(m_currentSearch.data(), &SearchResult::paused, this, &FindReferences::setPaused);
         SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch | IOutputPane::WithFocus));
@@ -1003,17 +1018,6 @@ void FindReferences::setPaused(bool paused)
 {
     if (!paused || m_watcher.isRunning()) // guard against pausing when the search is finished
         m_watcher.setPaused(paused);
-}
-
-void FindReferences::openEditor(const SearchResultItem &item)
-{
-    if (item.path.size() > 0) {
-        EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
-                                    item.mainRange.begin.line,
-                                    item.mainRange.begin.column);
-    } else {
-        EditorManager::openEditor(QDir::fromNativeSeparators(item.text));
-    }
 }
 
 void FindReferences::onReplaceButtonClicked(const QString &text, const QList<SearchResultItem> &items, bool preserveCase)

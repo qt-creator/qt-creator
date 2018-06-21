@@ -27,11 +27,12 @@
 
 #include <texteditor/texteditor_global.h>
 
+#include <QSharedPointer>
+
 QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace TextEditor {
 
-class AssistProposalItem;
 
 class TEXTEDITOR_EXPORT IAssistProposalModel
 {
@@ -43,5 +44,7 @@ public:
     virtual int size() const = 0;
     virtual QString text(int index) const = 0;
 };
+
+using ProposalModelPtr = QSharedPointer<IAssistProposalModel>;
 
 } // TextEditor

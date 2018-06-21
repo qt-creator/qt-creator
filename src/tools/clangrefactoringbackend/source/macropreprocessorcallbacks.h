@@ -27,26 +27,13 @@
 
 #include "sourcelocationsutils.h"
 
+#include <filepathcachingfwd.h>
 #include <sourcelocationscontainer.h>
-
-#if defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#elif defined(_MSC_VER)
-#    pragma warning(push)
-#    pragma warning( disable : 4100 )
-#endif
 
 #include <clang/Basic/SourceManager.h>
 #include <clang/Lex/PPCallbacks.h>
 #include <clang/Lex/Preprocessor.h>
 #include <clang/Lex/MacroInfo.h>
-
-#if defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#    pragma warning(pop)
-#endif
 
 #include <QDebug>
 
@@ -67,18 +54,19 @@ struct MacroDirectiveToken
 class MacroPreprocessorCallbacks : public clang::PPCallbacks
 {
 public:
-    MacroPreprocessorCallbacks(SourceLocationsContainer &sourceLocationsContainer,
-                               Utils::SmallString &symbolName,
-                               clang::Preprocessor &preprocessor,
-                               uint line,
-                               uint column);
+    MacroPreprocessorCallbacks(SourceLocationsContainer &m_sourceLocationsContainer,
+                               Utils::SmallString &m_symbolName,
+                               clang::Preprocessor &m_preprocessor,
+                               FilePathCachingInterface &filePathCache,
+                               uint m_line,
+                               uint m_column);
 
     void FileChanged(clang::SourceLocation location,
                      FileChangeReason reason,
                      clang::SrcMgr::CharacteristicKind /*fileType*/,
                      clang::FileID /*previousFileIdentifier*/) final
     {
-        if (!isMainFileEntered) {
+        if (!m_isMainFileEntered) {
             updateLocations();
             updateIsMainFileEntered(location, reason);
         }
@@ -88,9 +76,9 @@ public:
     {
         if (isInMainFile(token)) {
             if (includesCursorPosition(token)) {
-                sourceLocations.push_back(token.getLocation());
-                cursorMacroDirective = macroDirective;
-                symbolName = Utils::SmallString(token.getIdentifierInfo()->getNameStart(),
+                m_sourceLocations.push_back(token.getLocation());
+                m_cursorMacroDirective = macroDirective;
+                m_symbolName = Utils::SmallString(token.getIdentifierInfo()->getNameStart(),
                                                 token.getIdentifierInfo()->getLength());
             }
         }
@@ -103,59 +91,60 @@ public:
     {
         if (includesCursorPosition(token)) {
             appendSourceLocations(token, macroDefinition);
-            cursorMacroDirective = macroDefinition.getLocalDirective();
-            symbolName = Utils::SmallString(token.getIdentifierInfo()->getNameStart(),
+            m_cursorMacroDirective = macroDefinition.getLocalDirective();
+            m_symbolName = Utils::SmallString(token.getIdentifierInfo()->getNameStart(),
                                             token.getIdentifierInfo()->getLength());
         } else if (isCurrentTokenExpansion(macroDefinition)) {
-            sourceLocations.push_back(token.getLocation());
+            m_sourceLocations.push_back(token.getLocation());
         } else if (isBeforeCursorSourceLocation()) {
-            preCursorMacroDirectiveTokens.emplace_back(macroDefinition.getLocalDirective(), token);
+            m_preCursorMacroDirectiveTokens.emplace_back(macroDefinition.getLocalDirective(), token);
         }
     }
 
     void EndOfMainFile() final
     {
-        appendSourceLocationsToSourceLocationsContainer(sourceLocationsContainer,
-                                                        sourceLocations,
-                                                        sourceManager());
+        appendSourceLocationsToSourceLocationsContainer(m_sourceLocationsContainer,
+                                                        m_sourceLocations,
+                                                        sourceManager(),
+                                                        m_filePathCache);
     }
 
 private:
     void appendSourceLocations(const clang::Token &token,
                                const clang::MacroDefinition &macroDefinition)
     {
-        sourceLocations.push_back(macroDefinition.getLocalDirective()->getLocation());
-        for (const auto &macroDirectiveToken : preCursorMacroDirectiveTokens) {
+        m_sourceLocations.push_back(macroDefinition.getLocalDirective()->getLocation());
+        for (const auto &macroDirectiveToken : m_preCursorMacroDirectiveTokens) {
             if (macroDirectiveToken.macroDirective == macroDefinition.getLocalDirective())
-                sourceLocations.push_back(macroDirectiveToken.token.getLocation());
+                m_sourceLocations.push_back(macroDirectiveToken.token.getLocation());
         }
-        sourceLocations.push_back(token.getLocation());
+        m_sourceLocations.push_back(token.getLocation());
     }
 
     void updateLocations()
     {
-        if (mainFileSourceLocation.isInvalid()) {
-            mainFileSourceLocation = sourceManager().getLocForStartOfFile(sourceManager().getMainFileID());
-            cursorSourceLocation = sourceManager().translateLineCol(sourceManager().getMainFileID(),
-                                                                    line,
-                                                                    column);
+        if (m_mainFileSourceLocation.isInvalid()) {
+            m_mainFileSourceLocation = sourceManager().getLocForStartOfFile(sourceManager().getMainFileID());
+            m_cursorSourceLocation = sourceManager().translateLineCol(sourceManager().getMainFileID(),
+                                                                    m_line,
+                                                                    m_column);
         }
     }
 
     void updateIsMainFileEntered(clang::SourceLocation location, FileChangeReason reason)
     {
-        if (location == mainFileSourceLocation && reason == PPCallbacks::EnterFile)
-          isMainFileEntered = true;
+        if (location == m_mainFileSourceLocation && reason == PPCallbacks::EnterFile)
+          m_isMainFileEntered = true;
     }
 
     const clang::SourceManager &sourceManager() const
     {
-        return preprocessor.getSourceManager();
+        return m_preprocessor.getSourceManager();
     }
 
     bool isInMainFile(const clang::Token &token)
     {
-        return isMainFileEntered && sourceManager().isWrittenInMainFile(token.getLocation());
+        return m_isMainFileEntered && sourceManager().isWrittenInMainFile(token.getLocation());
     }
 
     bool includesCursorPosition(const clang::Token &token)
@@ -163,35 +152,36 @@ private:
         auto start = token.getLocation();
         auto end = token.getEndLoc();
 
-        return cursorSourceLocation == start
-            || cursorSourceLocation == end
-            || (sourceManager().isBeforeInTranslationUnit(start, cursorSourceLocation) &&
-                sourceManager().isBeforeInTranslationUnit(cursorSourceLocation, end));
+        return m_cursorSourceLocation == start
+            || m_cursorSourceLocation == end
+            || (sourceManager().isBeforeInTranslationUnit(start, m_cursorSourceLocation) &&
+                sourceManager().isBeforeInTranslationUnit(m_cursorSourceLocation, end));
     }
 
     bool isCurrentTokenExpansion(const clang::MacroDefinition &macroDefinition)
     {
-        return cursorMacroDirective
-            && cursorMacroDirective == macroDefinition.getLocalDirective();
+        return m_cursorMacroDirective
+            && m_cursorMacroDirective == macroDefinition.getLocalDirective();
     }
 
     bool isBeforeCursorSourceLocation() const
     {
-        return !cursorMacroDirective;
+        return !m_cursorMacroDirective;
     }
 
 private:
-    std::vector<clang::SourceLocation> sourceLocations;
-    std::vector<MacroDirectiveToken> preCursorMacroDirectiveTokens;
-    SourceLocationsContainer &sourceLocationsContainer;
-    Utils::SmallString &symbolName;
-    clang::Preprocessor &preprocessor;
-    const clang::MacroDirective *cursorMacroDirective = nullptr;
-    clang::SourceLocation mainFileSourceLocation;
-    clang::SourceLocation cursorSourceLocation;
-    uint line;
-    uint column;
-    bool isMainFileEntered = false;
+    std::vector<clang::SourceLocation> m_sourceLocations;
+    std::vector<MacroDirectiveToken> m_preCursorMacroDirectiveTokens;
+    SourceLocationsContainer &m_sourceLocationsContainer;
+    Utils::SmallString &m_symbolName;
+    clang::Preprocessor &m_preprocessor;
+    const clang::MacroDirective *m_cursorMacroDirective = nullptr;
+    clang::SourceLocation m_mainFileSourceLocation;
+    clang::SourceLocation m_cursorSourceLocation;
+    FilePathCachingInterface &m_filePathCache;
+    uint m_line;
+    uint m_column;
+    bool m_isMainFileEntered = false;
 };
 
 } // namespace ClangBackEnd

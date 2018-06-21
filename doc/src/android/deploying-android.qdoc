@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -44,23 +44,13 @@
             The Ministro tool downloads the necessary Qt libraries from a
             repository of your choice.
 
-        \li As an incomplete APK that is suitable for testing and debugging
-            applications on a device connected to the development host. The APK
-            relies on the device containing the Qt libraries in the correct
-            location. \QC copies the libraries to that location the first time
-            you deploy the application.
-
     \endlist
 
     To specify settings for application packages, select \uicontrol Projects >
     \uicontrol {Build Android APK} > \uicontrol Details.
 
-    \section1 Creating Distributable APK Packages
-
-    To copy Qt libraries and files to the project directory and to bundle them
-    as part of the APK, select the \uicontrol {Bundle Qt libraries in APK} option.
-
-    \note Android 5 devices support only this option.
+    For more information about options that you have for running applications,
+    see \l {Specifying Run Settings for Android Devices}.
 
     \section1 Using Ministro to Install Qt Libraries
 
@@ -78,22 +68,6 @@
 
     To use Ministro to install the Qt libraries, select the
     \uicontrol {Use Ministro service to install Qt} option.
-
-    \section1 Deploying Qt Libraries for Debugging
-
-    To test your application on a device that is physically connected to the
-    development host (or on an emulator), you can copy the Qt libraries into a
-    temporary directory on your device and run the application against them.
-
-    An APK built in this way is not distributable, since it relies on the device
-    containing the Qt libraries in the correct location. However, as the Qt
-    libraries are only copied into the device once, this method provides a fast
-    turn-around time, and is therefore convenient for testing the application
-    during development.
-
-    Select the \uicontrol {Deploy local Qt libraries to temporary directory} option to
-    deploy Qt libraries to the \c{/data/local/tmp/qt} folder on the device and
-    to run the application against them.
 
     \section1 Packaging Applications
 
@@ -128,8 +102,9 @@
 
     \endlist
 
-    The Gradle wrappers and scripts are bundled only if you use
-    \l{Selecting the APK Build Tool}{Gradle} to build the application packages.
+    The Gradle wrappers and scripts are bundled only if you use Gradle to build
+    the application packages. For more information, see
+    \l{Connecting Android Devices}.
 
     To view the packages that the \c androiddeployqt tool created, select the
     \uicontrol {Open package location after build} check box.

@@ -32,12 +32,23 @@
 namespace ProjectExplorer {
 namespace Internal {
 
+const char SESSION_BASE_ID[] = "Welcome.OpenSession";
+
+class SessionNameInputDialog;
+
 class SessionModel : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    enum { DefaultSessionRole = Qt::UserRole+1, LastSessionRole, ActiveSessionRole, ProjectsPathRole, ProjectsDisplayRole };
+    enum {
+        DefaultSessionRole = Qt::UserRole+1,
+        LastSessionRole,
+        ActiveSessionRole,
+        ProjectsPathRole,
+        ProjectsDisplayRole,
+        ShortcutRole
+    };
 
     explicit SessionModel(QObject *parent = nullptr);
 
@@ -59,14 +70,14 @@ signals:
 
 public slots:
     void resetSessions();
-    void newSession();
-    void cloneSession(const QString &session);
+    void newSession(QWidget *parent);
+    void cloneSession(QWidget *parent, const QString &session);
     void deleteSession(const QString &session);
-    void renameSession(const QString &session);
+    void renameSession(QWidget *parent, const QString &session);
     void switchToSession(const QString &session);
 
 private:
-    void runNewSessionDialog(const QString &suggestedName, std::function<void(const QString &)> createSession);
+    void runSessionNameInputDialog(ProjectExplorer::Internal::SessionNameInputDialog *sessionInputDialog, std::function<void(const QString &)> createSession);
 };
 
 } // namespace Internal

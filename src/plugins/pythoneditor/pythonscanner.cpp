@@ -50,7 +50,7 @@ FormatToken Scanner::read()
 {
     setAnchor();
     if (isEnd())
-        return FormatToken(Format_EndOfBlock, anchor(), 0);
+        return FormatToken();
 
     State state;
     QChar saved;
@@ -202,7 +202,7 @@ FormatToken Scanner::readIdentifier()
 
     // List of python built-in functions and objects
     static const QSet<QString> builtins = {
-        "range", "xrange", "int", "float", "long", "hex", "oct" "chr", "ord",
+        "range", "xrange", "int", "float", "long", "hex", "oct", "chr", "ord",
         "len", "abs", "None", "True", "False"
     };
 

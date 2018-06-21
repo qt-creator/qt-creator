@@ -52,9 +52,7 @@
                     "trDisplayName": "Customize header row",
                     "type": "CheckBox",
                     "data": {
-                        "checked": true,
-                        "checkedValue": true,
-                        "uncheckedValue": false
+                        "checked": true
                     }
                 },
                 {
@@ -62,9 +60,7 @@
                     "trDisplayName": "Items are editable",
                     "type": "CheckBox",
                     "data": {
-                        "checked": false,
-                        "checkedValue": true,
-                        "uncheckedValue": false
+                        "checked": false
                     }
                 },
                 {
@@ -72,18 +68,14 @@
                     "trDisplayName": "Rows and columns can be added",
                     "type": "CheckBox",
                     "data": {
-                        "checked": false,
-                        "checkedValue": true,
-                        "uncheckedValue": false
+                        "checked": false
                     }
                 },                {
                     "name": "RemoveData",
                     "trDisplayName": "Rows and columns can be removed",
                     "type": "CheckBox",
                     "data": {
-                        "checked": false,
-                        "checkedValue": true,
-                        "uncheckedValue": false
+                        "checked": false
                     }
                 },
                 {
@@ -91,9 +83,7 @@
                     "trDisplayName": "Fetch data dynamically",
                     "type": "CheckBox",
                     "data": {
-                        "checked": false,
-                        "checkedValue": true,
-                        "uncheckedValue": false
+                        "checked": false
                     }
                 },
 

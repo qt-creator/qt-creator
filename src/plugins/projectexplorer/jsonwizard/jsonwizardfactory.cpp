@@ -70,6 +70,7 @@ static const char CATEGORY_KEY[] = "category";
 static const char CATEGORY_NAME_KEY[] = "trDisplayCategory";
 static const char DISPLAY_NAME_KEY[] = "trDisplayName";
 static const char ICON_KEY[] = "icon";
+static const char ICON_TEXT_KEY[] = "iconText";
 static const char IMAGE_KEY[] = "image";
 static const char DESCRIPTION_KEY[] = "trDescription";
 static const char REQUIRED_FEATURES_KEY[] = "featuresRequired";
@@ -154,8 +155,8 @@ static JsonWizardFactory::Page parsePage(const QVariant &value, QString *errorMe
         return p;
     }
 
-    QVariantMap data = value.toMap();
-    QString strVal = data.value(QLatin1String(TYPE_ID_KEY)).toString();
+    const QVariantMap data = value.toMap();
+    const QString strVal = data.value(QLatin1String(TYPE_ID_KEY)).toString();
     if (strVal.isEmpty()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizardFactory", "Page has no typeId set.");
         return p;
@@ -172,9 +173,9 @@ static JsonWizardFactory::Page parsePage(const QVariant &value, QString *errorMe
         return p;
     }
 
-    QString title = JsonWizardFactory::localizedString(data.value(QLatin1String(DISPLAY_NAME_KEY)));
-    QString subTitle = JsonWizardFactory::localizedString(data.value(QLatin1String(PAGE_SUB_TITLE_KEY)));
-    QString shortTitle = JsonWizardFactory::localizedString(data.value(QLatin1String(PAGE_SHORT_TITLE_KEY)));
+    const QString title = JsonWizardFactory::localizedString(data.value(QLatin1String(DISPLAY_NAME_KEY)));
+    const QString subTitle = JsonWizardFactory::localizedString(data.value(QLatin1String(PAGE_SUB_TITLE_KEY)));
+    const QString shortTitle = JsonWizardFactory::localizedString(data.value(QLatin1String(PAGE_SHORT_TITLE_KEY)));
 
     bool ok;
     int index = data.value(QLatin1String(PAGE_INDEX_KEY), -1).toInt(&ok);
@@ -235,8 +236,8 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
                 QFile configFile(current.absoluteFilePath(wizardFileName));
                 configFile.open(QIODevice::ReadOnly);
                 QJsonParseError error;
-                QByteArray fileData = configFile.readAll();
-                QJsonDocument json = QJsonDocument::fromJson(fileData, &error);
+                const QByteArray fileData = configFile.readAll();
+                const QJsonDocument json = QJsonDocument::fromJson(fileData, &error);
                 configFile.close();
 
                 if (error.error != QJsonParseError::NoError) {
@@ -558,6 +559,10 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
         }
         setIcon(QIcon(strVal));
     }
+
+    strVal = data.value(QLatin1String(ICON_TEXT_KEY)).toString();
+    if (!strVal.isEmpty())
+        setIconText(strVal);
 
     strVal = data.value(QLatin1String(IMAGE_KEY)).toString();
     if (!strVal.isEmpty()) {

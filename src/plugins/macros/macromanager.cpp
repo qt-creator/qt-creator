@@ -96,8 +96,8 @@ public:
     MacroManager *q;
     QMap<QString, Macro *> macros;
     QMap<QString, QAction *> actions;
-    Macro *currentMacro;
-    bool isRecording;
+    Macro *currentMacro = nullptr;
+    bool isRecording = false;
 
     QList<IMacroHandler*> handlers;
 
@@ -115,9 +115,7 @@ public:
 };
 
 MacroManager::MacroManagerPrivate::MacroManagerPrivate(MacroManager *qq):
-    q(qq),
-    currentMacro(0),
-    isRecording(false)
+    q(qq)
 {
     // Load existing macros
     initialize();
@@ -179,7 +177,7 @@ void MacroManager::MacroManagerPrivate::removeMacro(const QString &name)
     // Remove macro from the map
     Macro *macro = macros.take(name);
     if (macro == currentMacro)
-        currentMacro = 0;
+        currentMacro = nullptr;
     delete macro;
 }
 
@@ -243,7 +241,7 @@ void MacroManager::MacroManagerPrivate::showSaveDialog()
 
 
 // ---------- MacroManager ------------
-MacroManager *MacroManager::m_instance = 0;
+MacroManager *MacroManager::m_instance = nullptr;
 
 MacroManager::MacroManager(QObject *parent) :
     QObject(parent),
@@ -287,10 +285,9 @@ void MacroManager::startMacro()
     QString executeShortcut = Core::ActionManager::command(Constants::EXECUTE_LAST_MACRO)->keySequence().toString();
     QString help = tr("Macro mode. Type \"%1\" to stop recording and \"%2\" to play the macro.")
         .arg(endShortcut).arg(executeShortcut);
-    Core::EditorManager::showEditorStatusBar(
-                QLatin1String(Constants::M_STATUS_BUFFER),
-                help,
-                tr("Stop Recording Macro"), this, SLOT(endMacro()));
+    Core::EditorManager::showEditorStatusBar(Constants::M_STATUS_BUFFER, help,
+                                             tr("Stop Recording Macro"),
+                                             this, [this] { endMacro(); });
 }
 
 void MacroManager::endMacro()

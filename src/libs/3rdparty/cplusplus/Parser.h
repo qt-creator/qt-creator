@@ -119,6 +119,7 @@ public:
     bool parseNestedNameSpecifierOpt(NestedNameSpecifierListAST *&name, bool acceptTemplateId);
     bool parseStaticAssertDeclaration(DeclarationAST *&node);
     bool parseNamespace(DeclarationAST *&node);
+    bool parseNestedNamespace(DeclarationAST *&node);
     bool parseNamespaceAliasDefinition(DeclarationAST *&node);
     bool parseNewArrayDeclarator(NewArrayDeclaratorListAST *&node);
     bool parseNewExpression(ExpressionAST *&node);
@@ -332,6 +333,8 @@ private:
 private:
     Parser(const Parser& source);
     void operator =(const Parser& source);
+
+    bool isNestedNamespace() const;
 };
 
 } // namespace CPlusPlus

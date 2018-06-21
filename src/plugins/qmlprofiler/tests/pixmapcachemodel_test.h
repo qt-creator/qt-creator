@@ -48,6 +48,7 @@ private slots:
 
 private:
     QmlProfilerModelManager manager;
+    Timeline::TimelineModelAggregator aggregator;
     PixmapCacheModel model;
 
     int eventTypeIndices[2 * MaximumPixmapEventType];

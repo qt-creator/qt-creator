@@ -30,7 +30,7 @@ Project {
 
         Properties {
             condition: qbs.targetOS.contains("macos")
-            cpp.frameworks: ["Foundation"]
+            cpp.frameworks: ["Foundation", "AppKit"]
         }
 
         Depends { name: "Qt"; submodules: ["concurrent", "network", "qml", "widgets"] }
@@ -47,8 +47,8 @@ Project {
             "appmainwindow.h",
             "basetreeview.cpp",
             "basetreeview.h",
-            "bracematcher.cpp",
-            "bracematcher.h",
+            "benchmarker.cpp",
+            "benchmarker.h",
             "buildablehelperlibrary.cpp",
             "buildablehelperlibrary.h",
             "categorysortfiltermodel.cpp",
@@ -98,6 +98,8 @@ Project {
             "fancylineedit.h",
             "fancymainwindow.cpp",
             "fancymainwindow.h",
+            "filecrumblabel.cpp",
+            "filecrumblabel.h",
             "fileinprojectfinder.cpp",
             "fileinprojectfinder.h",
             "filenamevalidatinglineedit.cpp",
@@ -111,11 +113,17 @@ Project {
             "filewizardpage.cpp",
             "filewizardpage.h",
             "filewizardpage.ui",
+            "fixedsizeclicklabel.cpp",
+            "fixedsizeclicklabel.h",
             "flowlayout.cpp",
             "flowlayout.h",
             "functiontraits.h",
+            "fuzzymatcher.cpp",
+            "fuzzymatcher.h",
             "guard.cpp",
             "guard.h",
+            "highlightingitemdelegate.cpp",
+            "highlightingitemdelegate.h",
             "historycompleter.cpp",
             "historycompleter.h",
             "hostosinfo.h",
@@ -128,8 +136,8 @@ Project {
             "itemviews.h",
             "json.cpp",
             "json.h",
-            "linecolumnlabel.cpp",
-            "linecolumnlabel.h",
+            "linecolumn.h",
+            "link.h",
             "listutils.h",
             "macroexpander.cpp",
             "macroexpander.h",
@@ -141,6 +149,8 @@ Project {
             "newclasswidget.cpp",
             "newclasswidget.h",
             "newclasswidget.ui",
+            "optional.h",
+            "../3rdparty/optional/optional.hpp",
             "osspecificaspects.h",
             "outputformat.h",
             "outputformatter.cpp",
@@ -155,10 +165,14 @@ Project {
             "pathlisteditor.h",
             "persistentsettings.cpp",
             "persistentsettings.h",
+            "predicates.h",
+            "pointeralgorithm.h",
             "port.cpp",
             "port.h",
             "portlist.cpp",
             "portlist.h",
+            "processhandle.cpp",
+            "processhandle.h",
             "progressindicator.cpp",
             "progressindicator.h",
             "projectintropage.cpp",
@@ -177,6 +191,7 @@ Project {
             "qtcprocess.h",
             "reloadpromptutils.cpp",
             "reloadpromptutils.h",
+            "removefiledialog.cpp", "removefiledialog.h", "removefiledialog.ui",
             "runextensions.cpp",
             "runextensions.h",
             "savedaction.cpp",
@@ -184,6 +199,8 @@ Project {
             "savefile.cpp",
             "savefile.h",
             "scopedswap.h",
+            "settingsaccessor.cpp",
+            "settingsaccessor.h",
             "settingsselector.cpp",
             "settingsselector.h",
             "settingsutils.h",
@@ -211,12 +228,18 @@ Project {
             "synchronousprocess.h",
             "templateengine.cpp",
             "templateengine.h",
+            "temporarydirectory.cpp",
+            "temporarydirectory.h",
+            "temporaryfile.cpp",
+            "temporaryfile.h",
             "textfieldcheckbox.cpp",
             "textfieldcheckbox.h",
             "textfieldcombobox.cpp",
             "textfieldcombobox.h",
             "textfileformat.cpp",
             "textfileformat.h",
+            "textutils.cpp",
+            "textutils.h",
             "treemodel.cpp",
             "treemodel.h",
             "treeviewcombobox.cpp",
@@ -227,10 +250,14 @@ Project {
             "uncommentselection.h",
             "unixutils.cpp",
             "unixutils.h",
+            "url.cpp",
+            "url.h",
             "utils.qrc",
             "utils_global.h",
             "utilsicons.h",
             "utilsicons.cpp",
+            "variant.h",
+            "../3rdparty/variant/variant.hpp",
             "winutils.cpp",
             "winutils.h",
             "wizard.cpp",
@@ -284,6 +311,14 @@ Project {
             condition: qbs.targetOS.contains("macos")
             files: [
                 "fileutils_mac.h", "fileutils_mac.mm",
+            ]
+        }
+
+        Group {
+            name: "ProcessHandle_macos"
+            condition: qbs.targetOS.contains("macos")
+            files: [
+                "processhandle_mac.mm",
             ]
         }
 

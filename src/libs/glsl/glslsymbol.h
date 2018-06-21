@@ -72,7 +72,7 @@ public:
     virtual void add(Symbol *symbol) = 0;
     virtual Symbol *find(const QString &name) const = 0;
 
-    virtual Scope *asScope() { return this; }
+    Scope *asScope() override { return this; }
 };
 
 } // namespace GLSL

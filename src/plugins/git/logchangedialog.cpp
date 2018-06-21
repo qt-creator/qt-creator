@@ -161,7 +161,8 @@ bool LogChangeWidget::populateLog(const QString &repository, const QString &comm
     QString output;
     if (!GitPlugin::client()->synchronousLog(repository, arguments, &output, 0, VcsCommand::NoOutput))
         return false;
-    foreach (const QString &line, output.split('\n')) {
+    const QStringList lines = output.split('\n');
+    for (const QString &line : lines) {
         const int colonPos = line.indexOf(':');
         if (colonPos != -1) {
             QList<QStandardItem *> row;

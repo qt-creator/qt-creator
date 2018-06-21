@@ -8,12 +8,12 @@ uri = %Uri%
 
 # Input
 SOURCES += \
-    %ProjectName:l%_plugin.%CppSourceSuffix% \
-    %ObjectName:l%.%CppSourceSuffix%
+        %ProjectName:l%_plugin.%CppSourceSuffix% \
+        %ObjectName:l%.%CppSourceSuffix%
 
 HEADERS += \
-    %ProjectName:l%_plugin.%CppHeaderSuffix% \
-    %ObjectName:l%.%CppHeaderSuffix%
+        %ProjectName:l%_plugin.%CppHeaderSuffix% \
+        %ObjectName:l%.%CppHeaderSuffix%
 
 DISTFILES = qmldir
 

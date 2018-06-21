@@ -3,7 +3,7 @@
     \"Version\" : \"$$QTCREATOR_VERSION\",
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
     \"Vendor\" : \"The Qt Company Ltd\",
-    \"Copyright\" : \"(C) 2016 The Qt Company Ltd\",
+    \"Copyright\" : \"(C) $$QTCREATOR_COPYRIGHT_YEAR The Qt Company Ltd\",
     \"License\" : [ \"Commercial Usage\",
                   \"\",
                   \"Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.\",
@@ -15,6 +15,16 @@
     \"Category\" : \"Modeling\",
     \"Description\" : \"Visual Editor for SCXML (State Chart XML) files.\",
     \"Url\" : \"http://www.qt.io\",
-    \"Experimental\" : true,
-    $$dependencyList
+    $$dependencyList,
+
+    \"Mimetypes\" : [
+        \"<?xml version=\'1.0\'?>\",
+        \"<mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>\",
+        \"    <mime-type type=\'application/scxml+xml\'>\",
+        \"        <sub-class-of type=\'text/xml\'/>\",
+        \"        <comment>SCXML file</comment>\",
+        \"        <glob pattern=\'*.scxml\'/>\",
+        \"    </mime-type>\",
+        \"</mime-info>\"
+    ]
 }

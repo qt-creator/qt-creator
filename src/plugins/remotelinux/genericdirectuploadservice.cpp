@@ -191,6 +191,8 @@ void GenericDirectUploadService::handleUploadFinished(SftpJobId jobId, const QSt
                     this, &GenericDirectUploadService::handleStdOutData);
             connect(d->chmodProc.data(), &SshRemoteProcess::readyReadStandardError,
                     this, &GenericDirectUploadService::handleStdErrData);
+            connect(d->chmodProc.data(), &SshRemoteProcess::readChannelFinished,
+                    this, &GenericDirectUploadService::handleReadChannelFinished);
             d->chmodProc->start();
         } else {
             uploadNextFile();
@@ -275,6 +277,8 @@ void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
                      this, &GenericDirectUploadService::handleStdOutData);
              connect(d->lnProc.data(), &SshRemoteProcess::readyReadStandardError,
                      this, &GenericDirectUploadService::handleStdErrData);
+             connect(d->lnProc.data(), &SshRemoteProcess::readChannelFinished,
+                     this, &GenericDirectUploadService::handleReadChannelFinished);
              d->lnProc->start();
         } else {
             const SftpJobId job = d->uploader->uploadFile(df.localFilePath().toString(),
@@ -308,6 +312,13 @@ void GenericDirectUploadService::handleStdErrData()
     SshRemoteProcess * const process = qobject_cast<SshRemoteProcess *>(sender());
     if (process)
         emit stdErrData(QString::fromUtf8(process->readAllStandardError()));
+}
+
+void GenericDirectUploadService::handleReadChannelFinished()
+{
+    SshRemoteProcess * const process = qobject_cast<SshRemoteProcess *>(sender());
+    if (process && process->atEnd())
+        process->close();
 }
 
 void GenericDirectUploadService::stopDeployment()
@@ -383,6 +394,8 @@ void GenericDirectUploadService::uploadNextFile()
             this, &GenericDirectUploadService::handleStdOutData);
     connect(d->mkdirProc.data(), &SshRemoteProcess::readyReadStandardError,
             this, &GenericDirectUploadService::handleStdErrData);
+    connect(d->mkdirProc.data(), &SshRemoteProcess::readChannelFinished,
+            this, &GenericDirectUploadService::handleReadChannelFinished);
     emit progressMessage(tr("Uploading file \"%1\"...")
         .arg(df.localFilePath().toUserOutput()));
     d->mkdirProc->start();

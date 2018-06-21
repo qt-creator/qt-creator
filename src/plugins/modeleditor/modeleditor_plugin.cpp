@@ -43,8 +43,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/jsexpander.h>
 
-#include <utils/mimetypes/mimedatabase.h>
-
 #include <QAction>
 #include <QApplication>
 #include <QMessageBox>
@@ -59,15 +57,15 @@
 namespace ModelEditor {
 namespace Internal {
 
-ModelEditorPlugin *pluginInstance = 0;
+ModelEditorPlugin *pluginInstance = nullptr;
 
 class ModelEditorPlugin::ModelEditorPluginPrivate
 {
 public:
-    ModelsManager *modelsManager = 0;
-    UiController *uiController = 0;
-    ModelEditorFactory *modelFactory = 0;
-    SettingsController *settingsController = 0;
+    ModelsManager *modelsManager = nullptr;
+    UiController *uiController = nullptr;
+    ModelEditorFactory *modelFactory = nullptr;
+    SettingsController *settingsController = nullptr;
 };
 
 ModelEditorPlugin::ModelEditorPlugin()
@@ -89,19 +87,10 @@ bool ModelEditorPlugin::initialize(const QStringList &arguments, QString *errorS
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
 
-    Utils::MimeDatabase::addMimeTypes(QStringLiteral(":/modeleditor/modeleditor.mimetypes.xml"));
-
     d->modelsManager = new ModelsManager(this);
-    addAutoReleasedObject(d->modelsManager);
-
     d->uiController = new UiController(this);
-    addAutoReleasedObject(d->uiController);
-
     d->modelFactory = new ModelEditorFactory(d->uiController, this);
-    addAutoReleasedObject(d->modelFactory);
-
     d->settingsController = new SettingsController(this);
-    addAutoReleasedObject(d->settingsController);
 
     Core::JsExpander::registerQObjectForJs(QLatin1String("Modeling"), new JsExtension(this));
 

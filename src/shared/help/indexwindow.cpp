@@ -198,12 +198,7 @@ void IndexWindow::open(const QModelIndex &index, bool newPage)
 {
     QString keyword = m_filteredIndexModel->data(index, Qt::DisplayRole).toString();
     QMap<QString, QUrl> links = LocalHelpManager::helpEngine().indexModel()->linksForKeyword(keyword);
-
-    if (links.size() == 1) {
-        emit linkActivated(links.first(), newPage);
-    } else if (links.size() > 1) {
-        emit linksActivated(links, keyword, newPage);
-    }
+    emit linksActivated(links, keyword, newPage);
 }
 
 Qt::DropActions IndexFilterModel::supportedDragActions() const

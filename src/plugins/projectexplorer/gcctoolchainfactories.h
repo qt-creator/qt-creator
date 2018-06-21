@@ -49,12 +49,13 @@ class GccToolChainFactory : public ToolChainFactory
 
 public:
     GccToolChainFactory();
-    QSet<ToolChain::Language> supportedLanguages() const override;
+    QSet<Core::Id> supportedLanguages() const override;
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
+    QList<ToolChain *> autoDetect(const Utils::FileName &compilerPath, const Core::Id &language) override;
 
     bool canCreate() override;
-    ToolChain *create(ToolChain::Language l) override;
+    ToolChain *create(Core::Id language) override;
 
     bool canRestore(const QVariantMap &data) override;
     ToolChain *restore(const QVariantMap &data) override;
@@ -62,8 +63,10 @@ public:
 protected:
     virtual GccToolChain *createToolChain(bool autoDetect);
     QList<ToolChain *> autoDetectToolchains(const QString &compiler, const Abi &requiredAbi,
-                                            ToolChain::Language l, const Core::Id requiredTypeId,
+                                            Core::Id language, const Core::Id requiredTypeId,
                                             const QList<ToolChain *> &alreadyKnown);
+    QList<ToolChain *> autoDetectToolChain(const Utils::FileName &compilerPath, const Core::Id language,
+                                           const Abi &requiredAbi = Abi());
 };
 
 // --------------------------------------------------------------------------
@@ -96,7 +99,7 @@ private:
     AbiWidget *m_abiWidget;
 
     bool m_isReadOnly = false;
-    QByteArray m_macros;
+    ProjectExplorer::Macros m_macros;
 };
 
 // --------------------------------------------------------------------------
@@ -109,9 +112,10 @@ class ClangToolChainFactory : public GccToolChainFactory
 
 public:
     ClangToolChainFactory();
-    QSet<ToolChain::Language> supportedLanguages() const override;
+    QSet<Core::Id> supportedLanguages() const override;
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
+    QList<ToolChain *> autoDetect(const Utils::FileName &compilerPath, const Core::Id &language) final;
 
     bool canRestore(const QVariantMap &data) override;
 
@@ -129,9 +133,10 @@ class MingwToolChainFactory : public GccToolChainFactory
 
 public:
     MingwToolChainFactory();
-    QSet<ToolChain::Language> supportedLanguages() const override;
+    QSet<Core::Id> supportedLanguages() const override;
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
+    QList<ToolChain *> autoDetect(const Utils::FileName &compilerPath, const Core::Id &language) final;
 
     bool canRestore(const QVariantMap &data) override;
 
@@ -149,9 +154,10 @@ class LinuxIccToolChainFactory : public GccToolChainFactory
 
 public:
     LinuxIccToolChainFactory();
-    QSet<ToolChain::Language> supportedLanguages() const override;
+    QSet<Core::Id> supportedLanguages() const override;
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
+    QList<ToolChain *> autoDetect(const Utils::FileName &compilerPath, const Core::Id &language) final;
 
     bool canRestore(const QVariantMap &data) override;
 

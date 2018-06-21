@@ -143,6 +143,14 @@
 */
 
 /*!
+    \fn bool showSearchTermInput() const
+    Returns whether the find filter wants to show the search term line edit.
+
+    The default value is \c true, override this function to return \c false, if
+    your find filter does not want to show the search term line edit.
+*/
+
+/*!
     \fn void IFindFilter::findAll(const QString &txt, Core::FindFlags findFlags)
     This function is called when the user selected this find scope and
     initiated a search.
@@ -219,6 +227,23 @@
 
 namespace Core {
 
+static QList<IFindFilter *> g_findFilters;
+
+IFindFilter::IFindFilter()
+{
+    g_findFilters.append(this);
+}
+
+IFindFilter::~IFindFilter()
+{
+    g_findFilters.removeOne(this);
+}
+
+const QList<IFindFilter *> IFindFilter::allFindFilters()
+{
+    return g_findFilters;
+}
+
 QKeySequence IFindFilter::defaultShortcut() const
 {
     return QKeySequence();
@@ -227,7 +252,8 @@ QKeySequence IFindFilter::defaultShortcut() const
 FindFlags IFindFilter::supportedFindFlags() const
 {
     return FindCaseSensitively
-            | FindRegularExpression | FindWholeWords;
+         | FindRegularExpression
+         | FindWholeWords;
 }
 
 QPixmap IFindFilter::pixmapForFindFlags(FindFlags flags)

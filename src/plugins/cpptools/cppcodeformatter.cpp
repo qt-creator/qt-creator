@@ -40,18 +40,6 @@ using namespace CppTools;
 using namespace TextEditor;
 using namespace CppTools::Internal;
 
-CodeFormatter::BlockData::BlockData()
-    : m_blockRevision(-1)
-{
-}
-
-CodeFormatter::CodeFormatter()
-    : m_indentDepth(0)
-    , m_paddingDepth(0)
-    , m_tabSize(4)
-{
-}
-
 CodeFormatter::~CodeFormatter()
 {
 }
@@ -860,7 +848,7 @@ bool CodeFormatter::tryDeclaration()
                 return true;
             }
         }
-        // fallthrough
+        Q_FALLTHROUGH();
     case T_CHAR:
     case T_CHAR16_T:
     case T_CHAR32_T:
@@ -1243,7 +1231,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     case assign_open:
         if (parentState.type == assign_open_or_initializer)
             break;
-        // fallthrough
+        Q_FALLTHROUGH();
     case assign_open_or_initializer:
         if (!lastToken && m_styleSettings.alignAssignments)
             *paddingDepth = nextTokenPosition-*indentDepth;

@@ -60,7 +60,7 @@ void SftpTest::run()
     connect(m_connection, &SshConnection::error, this, &SftpTest::handleError);
     connect(m_connection, &SshConnection::disconnected, this, &SftpTest::handleDisconnected);
     std::cout << "Connecting to host '"
-        << qPrintable(m_parameters.sshParams.host) << "'..." << std::endl;
+        << qPrintable(m_parameters.sshParams.host()) << "'..." << std::endl;
     m_state = Connecting;
     m_connection->connectToHost();
 }
@@ -105,7 +105,7 @@ void SftpTest::handleDisconnected()
     else
         std::cout << "No errors encountered.";
     std::cout << std::endl;
-    qApp->exit(m_error ? EXIT_FAILURE : EXIT_SUCCESS);
+    QCoreApplication::exit(m_error ? EXIT_FAILURE : EXIT_SUCCESS);
 }
 
 void SftpTest::handleError()
@@ -114,7 +114,7 @@ void SftpTest::handleError()
         << qPrintable(m_connection->errorString()) << "." << std::endl;
     m_error = true;
     m_state = Disconnecting;
-    qApp->exit(EXIT_FAILURE);
+    QCoreApplication::exit(EXIT_FAILURE);
 }
 
 void SftpTest::handleChannelInitialized()

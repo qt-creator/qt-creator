@@ -171,7 +171,7 @@ bool ExternalToolModel::dropMimeData(const QMimeData *data,
 
 QStringList ExternalToolModel::mimeTypes() const
 {
-    return QStringList() << QLatin1String("application/qtcreator-externaltool-config");
+    return QStringList("application/qtcreator-externaltool-config");
 }
 
 QModelIndex ExternalToolModel::index(int row, int column, const QModelIndex &parent) const
@@ -184,7 +184,7 @@ QModelIndex ExternalToolModel::index(int row, int column, const QModelIndex &par
             if (row < items.count())
                 return createIndex(row, 0, items.at(row));
         }
-    } else if (column == 0 && row < m_tools.keys().count()) {
+    } else if (column == 0 && row < m_tools.size()) {
         return createIndex(row, 0);
     }
     return QModelIndex();
@@ -208,7 +208,7 @@ QModelIndex ExternalToolModel::parent(const QModelIndex &child) const
 int ExternalToolModel::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
-        return m_tools.keys().count();
+        return m_tools.size();
     if (toolForIndex(parent))
         return 0;
     bool found;
@@ -550,9 +550,10 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
     ui->modifiesDocumentCheckbox->setChecked(tool->modifiesCurrentDocument());
     m_environment = tool->environment();
 
-    bool blocked = ui->inputText->blockSignals(true);
-    ui->inputText->setPlainText(tool->input());
-    ui->inputText->blockSignals(blocked);
+    {
+        QSignalBlocker blocker(ui->inputText);
+        ui->inputText->setPlainText(tool->input());
+    }
 
     ui->description->setCursorPosition(0);
     ui->arguments->setCursorPosition(0);

@@ -40,54 +40,50 @@
 
 #include <qbs.h>
 
-#include <QFuture>
 #include <QHash>
 #include <QTimer>
 
 namespace Core { class IDocument; }
-namespace ProjectExplorer { class BuildConfiguration; }
+namespace CppTools { class CppProjectUpdater; }
 
 namespace QbsProjectManager {
 namespace Internal {
-class QbsBaseProjectNode;
-class QbsProjectNode;
+
 class QbsProjectParser;
-class QbsBuildConfiguration;
 
 class QbsProject : public ProjectExplorer::Project
 {
     Q_OBJECT
 
 public:
-    QbsProject(QbsManager *manager, const QString &filename);
+    explicit QbsProject(const Utils::FileName &filename);
     ~QbsProject() override;
 
-    QString displayName() const override;
-    QbsManager *projectManager() const override;
-    QbsRootProjectNode *rootProjectNode() const override;
-
-    QStringList files(FilesMode fileMode) const override;
     QStringList filesGeneratedFrom(const QString &sourceFile) const override;
 
     bool isProjectEditable() const;
-    bool addFilesToProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
-                           const qbs::ProductData &productData, const qbs::GroupData &groupData,
-                           QStringList *notAdded);
-    bool removeFilesFromProduct(QbsBaseProjectNode *node, const QStringList &filePaths,
-            const qbs::ProductData &productData, const qbs::GroupData &groupData,
+    // qbs::ProductData and qbs::GroupData are held by the nodes in the project tree.
+    // These methods change those trees and invalidate the lot, so pass in copies of
+    // the data we are interested in!
+    // The overhead is not as big as it seems at first glance: These all are handles
+    // for shared data.
+    bool addFilesToProduct(const QStringList &filePaths, const qbs::ProductData productData,
+                           const qbs::GroupData groupData, QStringList *notAdded);
+    bool removeFilesFromProduct(const QStringList &filePaths,
+            const qbs::ProductData productData, const qbs::GroupData groupData,
             QStringList *notRemoved);
-    bool renameFileInProduct(QbsBaseProjectNode *node, const QString &oldPath,
-            const QString &newPath, const qbs::ProductData &productData,
-            const qbs::GroupData &groupData);
+    bool renameFileInProduct(const QString &oldPath,
+            const QString &newPath, const qbs::ProductData productData,
+            const qbs::GroupData groupData);
 
     qbs::BuildJob *build(const qbs::BuildOptions &opts, QStringList products, QString &error);
-    qbs::CleanJob *clean(const qbs::CleanOptions &opts);
+    qbs::CleanJob *clean(const qbs::CleanOptions &opts, const QStringList &productNames,
+                         QString &error);
     qbs::InstallJob *install(const qbs::InstallOptions &opts);
 
     static ProjectExplorer::FileType fileTypeFor(const QSet<QString> &tags);
 
     QString profileForTarget(const ProjectExplorer::Target *t) const;
-    bool isParsing() const;
     bool hasParseResult() const;
     void parseCurrentBuildConfiguration();
     void scheduleParsing() { m_parsingScheduled = true; }
@@ -103,35 +99,29 @@ public:
     bool needsSpecialDeployment() const override;
     void generateErrors(const qbs::ErrorInfo &e);
 
-    static QString productDisplayName(const qbs::Project &project,
-                                      const qbs::ProductData &product);
     static QString uniqueProductName(const qbs::ProductData &product);
 
-public:
-    void invalidate();
+    void configureAsExampleProject(const QSet<Core::Id> &platforms) final;
+
     void delayParsing();
 
 signals:
-    void projectParsingStarted();
-    void projectParsingDone(bool);
+    void dataChanged();
 
 private:
     void handleQbsParsingDone(bool success);
 
-    void targetWasAdded(ProjectExplorer::Target *t);
-    void targetWasRemoved(ProjectExplorer::Target *t);
+    void rebuildProjectTree();
+
     void changeActiveTarget(ProjectExplorer::Target *t);
-    void buildConfigurationChanged(ProjectExplorer::BuildConfiguration *bc);
     void startParsing();
 
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
-
-    void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir);
+    void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir,
+               const QString &configName);
 
     void prepareForParsing();
     void updateDocuments(const QSet<QString> &files);
     void updateCppCodeModel();
-    void updateCppCompilerCallData();
     void updateQmlJsCodeModel();
     void updateApplicationTargets();
     void updateDeploymentInfo();
@@ -139,17 +129,21 @@ private:
     void handleRuleExecutionDone();
     bool checkCancelStatus();
     void updateAfterParse();
+    void delayedUpdateAfterParse();
+    void updateProjectNodes();
+    Utils::FileName installRoot();
+
     void projectLoaded() override;
+    ProjectExplorer::ProjectImporter *projectImporter() const override;
 
     static bool ensureWriteableQbsFile(const QString &file);
 
-    qbs::GroupData reRetrieveGroupData(const qbs::ProductData &oldProduct,
-                                       const qbs::GroupData &oldGroup);
+    template<typename Options> qbs::AbstractJob *buildOrClean(const Options &opts,
+            const QStringList &productNames, QString &error);
 
-    const QString m_projectName;
     QHash<ProjectExplorer::Target *, qbs::Project> m_qbsProjects;
-    qbs::Project m_qbsProject;
-    qbs::ProjectData m_projectData;
+    qbs::Project m_qbsProject; // for activeTarget()
+    qbs::ProjectData m_projectData; // Cached m_qbsProject.projectData()
     QSet<Core::IDocument *> m_qbsDocuments;
 
     QbsProjectParser *m_qbsProjectParser;
@@ -163,10 +157,10 @@ private:
         CancelStatusCancelingAltoghether
     } m_cancelStatus;
 
-    QFuture<void> m_codeModelFuture;
-    CppTools::ProjectInfo m_codeModelProjectInfo;
+    CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
+    CppTools::ProjectInfo m_cppCodeModelProjectInfo;
 
-    QbsBuildConfiguration *m_currentBc;
+    mutable ProjectExplorer::ProjectImporter *m_importer = nullptr;
 
     QTimer m_parsingDelay;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;

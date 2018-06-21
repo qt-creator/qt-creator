@@ -29,13 +29,14 @@
 #include "propertyeditortransaction.h"
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
+#include <qmltimeline.h>
 
 #include <qmlobjectnode.h>
 #include <nodemetainfo.h>
 #include <variantproperty.h>
 #include <bindingproperty.h>
 
-#include <theming.h>
+#include <theme.h>
 
 #include <coreplugin/icore.h>
 #include <qmljs/qmljssimplereader.h>
@@ -46,6 +47,9 @@
 #include <QDir>
 #include <QFileInfo>
 
+#include <QLoggingCategory>
+
+static Q_LOGGING_CATEGORY(propertyEditorBenchmark, "qtc.propertyeditor.load")
 
 static QmlJS::SimpleReaderNode::Ptr s_templateConfiguration = QmlJS::SimpleReaderNode::Ptr();
 
@@ -91,21 +95,18 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
         m_view(new Quick2PropertyEditorView), m_propertyEditorTransaction(new PropertyEditorTransaction(propertyEditor)), m_dummyPropertyEditorValue(new PropertyEditorValue()),
         m_contextObject(new PropertyEditorContextObject())
 {
-    Q_ASSERT(QFileInfo(QLatin1String(":/images/button_normal.png")).exists());
-
     m_view->engine()->setOutputWarningsToStandardError(QmlDesignerPlugin::instance()
         ->settings().value(DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS).toBool());
 
-    m_view->engine()->addImportPath(propertyEditorResourcesPath());
+    m_view->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_dummyPropertyEditorValue->setValue(QLatin1String("#000000"));
     context()->setContextProperty(QLatin1String("dummyBackendValue"), m_dummyPropertyEditorValue.data());
     m_contextObject->setBackendValues(&m_backendValuesPropertyMap);
     m_contextObject->setModel(propertyEditor->model());
     m_contextObject->insertInQmlContext(context());
 
-    context()->setContextProperty(QLatin1String("creatorTheme"), Theming::theme());
-
-    QObject::connect(&m_backendValuesPropertyMap, &DesignerPropertyMap::valueChanged, propertyEditor, &PropertyEditorView::changeValue);
+    QObject::connect(&m_backendValuesPropertyMap, &DesignerPropertyMap::valueChanged,
+                     propertyEditor, &PropertyEditorView::changeValue);
 }
 
 PropertyEditorQmlBackend::~PropertyEditorQmlBackend()
@@ -269,6 +270,15 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         return;
 
     if (qmlObjectNode.isValid()) {
+
+        m_contextObject->setModel(propertyEditor->model());
+
+        qCInfo(propertyEditorBenchmark) << Q_FUNC_INFO;
+
+        QTime time;
+        if (propertyEditorBenchmark().isInfoEnabled())
+            time.start();
+
         foreach (const PropertyName &propertyName, qmlObjectNode.modelNode().metaInfo().propertyNames())
             createPropertyEditorValue(qmlObjectNode, propertyName, qmlObjectNode.instanceValue(propertyName), propertyEditor);
 
@@ -301,11 +311,17 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 
         context()->setContextProperty(QLatin1String("transaction"), m_propertyEditorTransaction.data());
 
+        qCInfo(propertyEditorBenchmark) << "anchors:" << time.elapsed();
+
         // model node
         m_backendModelNode.setup(qmlObjectNode.modelNode());
         context()->setContextProperty(QLatin1String("modelNodeBackend"), &m_backendModelNode);
 
+        qCInfo(propertyEditorBenchmark) << "context:" << time.elapsed();
+
         contextObject()->setSpecificsUrl(qmlSpecificsFile);
+
+        qCInfo(propertyEditorBenchmark) << "specifics:" << time.elapsed();
 
         contextObject()->setStateName(stateName);
         if (!qmlObjectNode.isValid())
@@ -315,6 +331,9 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         contextObject()->setIsBaseState(qmlObjectNode.isInBaseState());
 
         contextObject()->setHasAliasExport(qmlObjectNode.isAliasExported());
+
+        contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(qmlObjectNode.view()));
+
         contextObject()->setSelectionChanged(false);
 
         contextObject()->setSelectionChanged(false);
@@ -333,6 +352,8 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 
         contextObject()->setMajorQtQuickVersion(qmlObjectNode.view()->majorQtQuickVersion());
         contextObject()->setMinorQtQuickVersion(qmlObjectNode.view()->minorQtQuickVersion());
+
+        qCInfo(propertyEditorBenchmark) << "final:" << time.elapsed();
     } else {
         qWarning() << "PropertyEditor: invalid node for setup";
     }
@@ -487,7 +508,8 @@ QString PropertyEditorQmlBackend::fileFromUrl(const QUrl &url)
 
 bool PropertyEditorQmlBackend::checkIfUrlExists(const QUrl &url)
 {
-    return QFileInfo::exists(fileFromUrl(url));
+    const QString &file = fileFromUrl(url);
+    return !file.isEmpty() && QFileInfo::exists(file);
 }
 
 void PropertyEditorQmlBackend::emitSelectionToBeChanged()
@@ -510,11 +532,7 @@ void PropertyEditorQmlBackend::setValueforLayoutAttachedProperties(const QmlObje
 QUrl PropertyEditorQmlBackend::getQmlUrlForModelNode(const ModelNode &modelNode, TypeName &className)
 {
     if (modelNode.isValid()) {
-        QList<NodeMetaInfo> hierarchy;
-        hierarchy.append(modelNode.metaInfo());
-        hierarchy.append(modelNode.metaInfo().superClasses());
-
-        foreach (const NodeMetaInfo &info, hierarchy) {
+        foreach (const NodeMetaInfo &info, modelNode.metaInfo().classHierarchy()) {
             QUrl fileUrl = fileToUrl(locateQmlFile(info, QString::fromUtf8(qmlFileName(info))));
             if (fileUrl.isValid()) {
                 className = info.typeName();
@@ -527,50 +545,41 @@ QUrl PropertyEditorQmlBackend::getQmlUrlForModelNode(const ModelNode &modelNode,
 
 QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const QString &relativePath)
 {
-    QDir fileSystemDir(PropertyEditorQmlBackend::propertyEditorResourcesPath());
+    static const QDir fileSystemDir(PropertyEditorQmlBackend::propertyEditorResourcesPath());
 
-    static QDir resourcesDir(QStringLiteral(":/propertyEditorQmlSources"));
-    QDir importDir(info.importDirectoryPath() + QLatin1String(Constants::QML_DESIGNER_SUBFOLDER));
-    QDir importDirVersion(info.importDirectoryPath() + QStringLiteral(".") + QString::number(info.majorVersion()) + QLatin1String(Constants::QML_DESIGNER_SUBFOLDER));
+    const QDir resourcesDir(QStringLiteral(":/propertyEditorQmlSources"));
+    const QDir importDir(info.importDirectoryPath() + Constants::QML_DESIGNER_SUBFOLDER);
+    const QDir importDirVersion(info.importDirectoryPath() + QStringLiteral(".") + QString::number(info.majorVersion()) + Constants::QML_DESIGNER_SUBFOLDER);
 
-    const QString versionString = QStringLiteral("_") + QString::number(info.majorVersion())
-            + QStringLiteral("_")
-            + QString::number(info.minorVersion());
-
-    QString relativePathWithoutEnding = relativePath;
-    relativePathWithoutEnding.chop(4);
-    const QString relativePathWithVersion = relativePathWithoutEnding + versionString + QStringLiteral(".qml");
+    const QString relativePathWithoutEnding = relativePath.left(relativePath.count() - 4);
+    const QString relativePathWithVersion = QString("%1_%2_%3.qml").arg(relativePathWithoutEnding
+        ).arg(info.majorVersion()).arg(info.minorVersion());
 
     //Check for qml files with versions first
-    const QString withoutDirWithVersion = relativePathWithVersion.split(QStringLiteral("/")).last();
 
-    const QString withoutDir = relativePath.split(QStringLiteral("/")).last();
+    const QString withoutDir = relativePath.split(QStringLiteral("/")).constLast();
 
     if (importDirVersion.exists(withoutDir))
         return importDirVersion.absoluteFilePath(withoutDir);
 
+    const QString withoutDirWithVersion = relativePathWithVersion.split(QStringLiteral("/")).constLast();
 
+    const QStringList possiblePaths = {
+        importDir.absoluteFilePath(relativePathWithVersion),
+        //Since we are in a subfolder of the import we do not require the directory
+        importDir.absoluteFilePath(withoutDirWithVersion),
+        fileSystemDir.absoluteFilePath(relativePathWithVersion),
+        resourcesDir.absoluteFilePath(relativePathWithVersion),
 
-    if (importDir.exists(relativePathWithVersion))
-        return importDir.absoluteFilePath(relativePathWithVersion);
-    if (importDir.exists(withoutDirWithVersion)) //Since we are in a subfolder of the import we do not require the directory
-        return importDir.absoluteFilePath(withoutDirWithVersion);
-    if (fileSystemDir.exists(relativePathWithVersion))
-        return fileSystemDir.absoluteFilePath(relativePathWithVersion);
-    if (resourcesDir.exists(relativePathWithVersion))
-        return resourcesDir.absoluteFilePath(relativePathWithVersion);
-
-
-    if (importDir.exists(relativePath))
-        return importDir.absoluteFilePath(relativePath);
-    if (importDir.exists(withoutDir)) //Since we are in a subfolder of the import we do not require the directory
-        return importDir.absoluteFilePath(withoutDir);
-    if (fileSystemDir.exists(relativePath))
-        return fileSystemDir.absoluteFilePath(relativePath);
-    if (resourcesDir.exists(relativePath))
-        return resourcesDir.absoluteFilePath(relativePath);
-
-    return QString();
+        importDir.absoluteFilePath(relativePath),
+        //Since we are in a subfolder of the import we do not require the directory
+        importDir.absoluteFilePath(withoutDir),
+        fileSystemDir.absoluteFilePath(relativePath),
+        resourcesDir.absoluteFilePath(relativePath)
+    };
+    return Utils::findOrDefault(possiblePaths, [](const QString &possibleFilePath) {
+        return QFile::exists(possibleFilePath);
+    });
 }
 
 

@@ -25,32 +25,92 @@
 
 #pragma once
 
-#include "columndefinition.h"
-#include "utf8string.h"
+#include "sqliteglobal.h"
 
-#include <QObject>
+#include <utils/smallstring.h>
 
-class SQLITE_EXPORT SqliteColumn : public QObject
+#include <functional>
+
+namespace Sqlite {
+
+class Column
 {
-    Q_OBJECT
 public:
-    SqliteColumn();
+    Column() = default;
 
-    void clear();
+    Column(Utils::SmallString &&name,
+           ColumnType type = ColumnType::Numeric,
+           Contraint constraint = Contraint::NoConstraint)
+        : m_name(std::move(name)),
+          m_type(type),
+          m_constraint(constraint)
+    {}
 
-    void setName(const Utf8String &newName);
-    const Utf8String &name() const;
+    void clear()
+    {
+        m_name.clear();
+        m_type = ColumnType::Numeric;
+        m_constraint = Contraint::NoConstraint;
+    }
 
-    void setType(ColumnType newType);
-    ColumnType type() const;
+    void setName(Utils::SmallString &&newName)
+    {
+        m_name = newName;
+    }
 
-    void setIsPrimaryKey(bool isPrimaryKey);
-    bool isPrimaryKey() const;
+    const Utils::SmallString &name() const
+    {
+        return m_name;
+    }
 
-    Internal::ColumnDefinition columnDefintion() const;
+    void setType(ColumnType newType)
+    {
+        m_type = newType;
+    }
+
+    ColumnType type() const
+    {
+        return m_type;
+    }
+
+    void setContraint(Contraint constraint)
+    {
+        m_constraint = constraint;
+    }
+
+    Contraint constraint() const
+    {
+        return m_constraint;
+    }
+
+    Utils::SmallString typeString() const
+    {
+        switch (m_type) {
+            case ColumnType::None: return {};
+            case ColumnType::Numeric: return "NUMERIC";
+            case ColumnType::Integer: return "INTEGER";
+            case ColumnType::Real: return "REAL";
+            case ColumnType::Text: return "TEXT";
+        }
+
+        Q_UNREACHABLE();
+    }
+
+    friend bool operator==(const Column &first, const Column &second)
+    {
+        return first.m_name == second.m_name
+            && first.m_type == second.m_type
+            && first.m_constraint == second.m_constraint;
+    }
 
 private:
-    Utf8String name_;
-    ColumnType type_;
-    bool isPrimaryKey_;
+    Utils::SmallString m_name;
+    ColumnType m_type = ColumnType::Numeric;
+    Contraint m_constraint = Contraint::NoConstraint;
 };
+
+using SqliteColumns = std::vector<Column>;
+using SqliteColumnConstReference = std::reference_wrapper<const Column>;
+using SqliteColumnConstReferences = std::vector<SqliteColumnConstReference>;
+
+} // namespace Sqlite

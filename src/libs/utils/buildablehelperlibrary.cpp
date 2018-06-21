@@ -30,6 +30,7 @@
 #include <QDir>
 #include <QDateTime>
 #include <QDebug>
+#include <QRegExp>
 
 namespace Utils {
 
@@ -50,7 +51,7 @@ QString BuildableHelperLibrary::qtChooserToQmakePath(const QString &path)
     int pos = output.indexOf(toolDir);
     if (pos == -1)
         return QString();
-    pos += toolDir.count() - 1;
+    pos += toolDir.count();
     int end = output.indexOf('\"', pos);
     if (end == -1)
         return QString();
@@ -65,19 +66,20 @@ static bool isQmake(const QString &path)
     QFileInfo fi(path);
     if (BuildableHelperLibrary::isQtChooser(fi))
         fi.setFile(BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget()));
-
+    if (!fi.exists() || fi.isDir())
+        return false;
     return !BuildableHelperLibrary::qtVersionForQMake(fi.absoluteFilePath()).isEmpty();
 }
 
 FileName BuildableHelperLibrary::findSystemQt(const Environment &env)
 {
     const QString qmake = QLatin1String("qmake");
-    QStringList paths = env.path();
-    foreach (const QString &path, paths) {
+    FileNameList paths = env.path();
+    foreach (const FileName &path, paths) {
         if (path.isEmpty())
             continue;
 
-        QDir dir(path);
+        QDir dir(path.toString());
 
         if (dir.exists(qmake)) {
             const QString qmakePath = dir.absoluteFilePath(qmake);
@@ -153,7 +155,7 @@ QStringList BuildableHelperLibrary::possibleQMakeCommands()
     // On Unix some distributions renamed qmake with a postfix to avoid clashes
     // On OS X, Qt 4 binary packages also has renamed qmake. There are also symbolic links that are
     // named "qmake", but the file dialog always checks against resolved links (native Cocoa issue)
-    return QStringList(QLatin1String("qmake*"));
+    return QStringList(HostOsInfo::withExecutableSuffix("qmake*"));
 }
 
 // Copy helper source files to a target directory, replacing older files.

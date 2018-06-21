@@ -27,6 +27,7 @@ HEADERS += \
     $$PWD/diagram/dboundary.h \
     $$PWD/diagram/dclass.h \
     $$PWD/diagram/dcomponent.h \
+    $$PWD/diagram/dconnection.h \
     $$PWD/diagram/dconstvisitor.h \
     $$PWD/diagram/ddependency.h \
     $$PWD/diagram/ddiagram.h \
@@ -55,6 +56,7 @@ HEADERS += \
     $$PWD/diagram_scene/items/boundaryitem.h \
     $$PWD/diagram_scene/items/classitem.h \
     $$PWD/diagram_scene/items/componentitem.h \
+    $$PWD/diagram_scene/items/connectionitem.h \
     $$PWD/diagram_scene/items/diagramitem.h \
     $$PWD/diagram_scene/items/itemitem.h \
     $$PWD/diagram_scene/items/objectitem.h \
@@ -103,6 +105,7 @@ HEADERS += \
     $$PWD/model/mclass.h \
     $$PWD/model/mclassmember.h \
     $$PWD/model/mcomponent.h \
+    $$PWD/model/mconnection.h \
     $$PWD/model/mconstvisitor.h \
     $$PWD/model/mdependency.h \
     $$PWD/model/mdiagram.h \
@@ -130,6 +133,7 @@ HEADERS += \
     $$PWD/serializer/infrastructureserializer.h \
     $$PWD/serializer/modelserializer.h \
     $$PWD/serializer/projectserializer.h \
+    $$PWD/stereotype/customrelation.h \
     $$PWD/stereotype/iconshape.h \
     $$PWD/stereotype/shape.h \
     $$PWD/stereotype/shapepaintvisitor.h \
@@ -155,7 +159,9 @@ HEADERS += \
     $$PWD/tasks/ielementtasks.h \
     $$PWD/tasks/isceneinspector.h \
     $$PWD/tasks/voidelementtasks.h \
-    $$PWD/infrastructure/qmtassert.h
+    $$PWD/infrastructure/qmtassert.h \
+    $$PWD/diagram_scene/items/swimlaneitem.h \
+    $$PWD/diagram/dswimlane.h
 
 SOURCES += \
     $$PWD/config/configcontroller.cpp \
@@ -179,6 +185,7 @@ SOURCES += \
     $$PWD/diagram/dboundary.cpp \
     $$PWD/diagram/dclass.cpp \
     $$PWD/diagram/dcomponent.cpp \
+    $$PWD/diagram/dconnection.cpp \
     $$PWD/diagram/ddependency.cpp \
     $$PWD/diagram/ddiagram.cpp \
     $$PWD/diagram/delement.cpp \
@@ -195,6 +202,7 @@ SOURCES += \
     $$PWD/diagram_scene/items/boundaryitem.cpp \
     $$PWD/diagram_scene/items/classitem.cpp \
     $$PWD/diagram_scene/items/componentitem.cpp \
+    $$PWD/diagram_scene/items/connectionitem.cpp \
     $$PWD/diagram_scene/items/diagramitem.cpp \
     $$PWD/diagram_scene/items/itemitem.cpp \
     $$PWD/diagram_scene/items/objectitem.cpp \
@@ -234,6 +242,7 @@ SOURCES += \
     $$PWD/model/mclass.cpp \
     $$PWD/model/mclassmember.cpp \
     $$PWD/model/mcomponent.cpp \
+    $$PWD/model/mconnection.cpp \
     $$PWD/model/mdependency.cpp \
     $$PWD/model/mdiagram.cpp \
     $$PWD/model/melement.cpp \
@@ -258,6 +267,7 @@ SOURCES += \
     $$PWD/serializer/infrastructureserializer.cpp \
     $$PWD/serializer/modelserializer.cpp \
     $$PWD/serializer/projectserializer.cpp \
+    $$PWD/stereotype/customrelation.cpp \
     $$PWD/stereotype/iconshape.cpp \
     $$PWD/stereotype/shapepaintvisitor.cpp \
     $$PWD/stereotype/shapes.cpp \
@@ -277,7 +287,9 @@ SOURCES += \
     $$PWD/tasks/diagramscenecontroller.cpp \
     $$PWD/tasks/finddiagramvisitor.cpp \
     $$PWD/tasks/findrootdiagramvisitor.cpp \
-    $$PWD/tasks/voidelementtasks.cpp
+    $$PWD/tasks/voidelementtasks.cpp \
+    $$PWD/diagram_scene/items/swimlaneitem.cpp \
+    $$PWD/diagram/dswimlane.cpp
 
 RESOURCES += \
     $$PWD/resources/resources.qrc

@@ -43,6 +43,7 @@
 #include <qtsupport/qtsupportconstants.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <utils/algorithm.h>
 
 #include <QCoreApplication>
 #include <QVariant>
@@ -55,7 +56,7 @@ using namespace QtSupport;
 // -------------------- QtWizard
 QtWizard::QtWizard()
 {
-    setSupportedProjectTypes({ Constants::QMAKEPROJECT_ID });
+    setSupportedProjectTypes({Constants::QMAKEPROJECT_ID});
 }
 
 QString QtWizard::sourceSuffix()
@@ -199,13 +200,13 @@ int BaseQmakeProjectWizardDialog::addTargetSetupPage(int id)
 {
     m_targetSetupPage = new ProjectExplorer::TargetSetupPage;
     const Core::Id platform = selectedPlatform();
-    QSet<Core::Id> features = { QtSupport::Constants::FEATURE_DESKTOP };
+    QSet<Core::Id> features = {QtSupport::Constants::FEATURE_DESKTOP};
     if (!platform.isValid())
-        m_targetSetupPage->setPreferredKitMatcher(QtKitInformation::qtVersionMatcher(features));
+        m_targetSetupPage->setPreferredKitPredicate(QtKitInformation::qtVersionPredicate(features));
     else
-        m_targetSetupPage->setPreferredKitMatcher(QtKitInformation::platformMatcher(platform));
+        m_targetSetupPage->setPreferredKitPredicate(QtKitInformation::platformPredicate(platform));
 
-    m_targetSetupPage->setRequiredKitMatcher(QtKitInformation::qtVersionMatcher(requiredFeatures()));
+    m_targetSetupPage->setRequiredKitPredicate(QtKitInformation::qtVersionPredicate(requiredFeatures()));
 
     resize(900, 450);
     if (id >= 0)
@@ -255,10 +256,7 @@ bool BaseQmakeProjectWizardDialog::writeUserFile(const QString &proFileName) con
     if (!m_targetSetupPage)
         return false;
 
-    QmakeManager *manager = ExtensionSystem::PluginManager::getObject<QmakeManager>();
-    Q_ASSERT(manager);
-
-    QmakeProject *pro = new QmakeProject(manager, proFileName);
+    QmakeProject *pro = new QmakeProject(Utils::FileName::fromString(proFileName));
     bool success = m_targetSetupPage->setupProject(pro);
     if (success)
         pro->saveSettings();
@@ -270,11 +268,8 @@ bool BaseQmakeProjectWizardDialog::isQtPlatformSelected(Core::Id platform) const
 {
     QList<Core::Id> selectedKitList = selectedKits();
 
-    foreach (Kit *k, KitManager::matchingKits(QtKitInformation::platformMatcher(platform)))
-        if (selectedKitList.contains(k->id()))
-            return true;
-
-    return false;
+    return Utils::contains(KitManager::kits(QtKitInformation::platformPredicate(platform)),
+                           [selectedKitList](const Kit *k) { return selectedKitList.contains(k->id()); });
 }
 
 QList<Core::Id> BaseQmakeProjectWizardDialog::selectedKits() const

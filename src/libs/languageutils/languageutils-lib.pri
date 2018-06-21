@@ -1,4 +1,4 @@
-contains(CONFIG, dll) {
+shared {
     DEFINES += LANGUAGEUTILS_LIBRARY
 } else {
     DEFINES += LANGUAGEUTILS_BUILD_STATIC_LIB

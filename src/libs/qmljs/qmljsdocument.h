@@ -97,6 +97,8 @@ public:
     QString path() const;
     QString componentName() const;
 
+    QList<AST::SourceLocation> jsDirectives() const;
+
 private:
     bool parse_helper(int kind);
 
@@ -109,6 +111,7 @@ private:
     QString _path;
     QString _componentName;
     QString _source;
+    QList<AST::SourceLocation> _jsdirectives;
     QWeakPointer<Document> _ptr;
     QByteArray _fingerprint;
     int _editorRevision;

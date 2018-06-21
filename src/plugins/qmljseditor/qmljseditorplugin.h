@@ -26,32 +26,14 @@
 #pragma once
 
 #include <extensionsystem/iplugin.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/id.h>
-
-#include <QPointer>
-
-QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace Utils { class JsonSchemaManager; }
 
-namespace Core {
-class Command;
-class ActionContainer;
-class IDocument;
-class IEditor;
-}
-
-namespace QmlJS { class ModelManagerInterface; }
-
 namespace QmlJSEditor {
-
-class QmlJSEditorDocument;
-
+class QuickToolBar;
 namespace Internal {
 
 class QmlJSQuickFixAssistProvider;
-class QmlTaskManager;
 
 class QmlJSEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -60,44 +42,18 @@ class QmlJSEditorPlugin : public ExtensionSystem::IPlugin
 
 public:
     QmlJSEditorPlugin();
-    virtual ~QmlJSEditorPlugin();
+    ~QmlJSEditorPlugin() final;
 
-    // IPlugin
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
-
-    static QmlJSEditorPlugin *instance()
-    { return m_instance; }
-
-    QmlJSQuickFixAssistProvider *quickFixAssistProvider() const;
-
-    Utils::JsonSchemaManager *jsonManager() const;
-
-    void findUsages();
-    void renameUsages();
-    void reformatFile();
-    void showContextPane();
+    static QmlJSQuickFixAssistProvider *quickFixAssistProvider();
+    static Utils::JsonSchemaManager *jsonManager();
+    static QuickToolBar *quickToolBar();
 
 private:
-    void currentEditorChanged(Core::IEditor *editor);
-    void runSemanticScan();
-    void checkCurrentEditorSemanticInfoUpToDate();
-    void autoFormatOnSave(Core::IDocument *document);
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
+    ShutdownFlag aboutToShutdown() final;
 
-    Core::Command *addToolAction(QAction *a, Core::Context &context, Core::Id id,
-                                 Core::ActionContainer *c1, const QString &keySequence);
-
-    static QmlJSEditorPlugin *m_instance;
-
-    QmlJS::ModelManagerInterface *m_modelManager;
-    QmlJSQuickFixAssistProvider *m_quickFixAssistProvider;
-    QmlTaskManager *m_qmlTaskManager;
-
-    QAction *m_reformatFileAction;
-
-    QPointer<QmlJSEditorDocument> m_currentDocument;
-    QScopedPointer<Utils::JsonSchemaManager> m_jsonManager;
+    class QmlJSEditorPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal

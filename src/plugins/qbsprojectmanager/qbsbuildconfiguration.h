@@ -27,19 +27,16 @@
 
 #include "qbsprojectmanager_global.h"
 
+#include "qbsproject.h"
+
 #include <projectexplorer/buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 
-namespace ProjectExplorer {
-class BuildStep;
-class FileNode;
-}
+namespace ProjectExplorer { class BuildStep; }
 
 namespace QbsProjectManager {
-
 namespace Internal {
 
-class QbsBuildConfigurationFactory;
 class QbsBuildConfigurationWidget;
 class QbsBuildStep;
 class QbsProject;
@@ -48,15 +45,17 @@ class QbsBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
 
-public:
-    explicit QbsBuildConfiguration(ProjectExplorer::Target *target);
+    friend class ProjectExplorer::IBuildConfigurationFactory;
+    QbsBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
+public:
+    void initialize(const ProjectExplorer::BuildInfo *info) override;
     ProjectExplorer::NamedWidget *createConfigWidget() override;
 
     QbsBuildStep *qbsStep() const;
     QVariantMap qbsConfiguration() const;
 
-    Internal::QbsProject *project() const;
+    Internal::QbsProject *project() const override;
 
     ProjectExplorer::IOutputParser *createOutputParser() const;
 
@@ -76,32 +75,25 @@ public:
 
     void emitBuildTypeChanged();
 
-    static QString equivalentCommandLine(const ProjectExplorer::BuildStep *buildStep);
+    void setConfigurationName(const QString &configName);
+    QString configurationName() const;
+
+    QString equivalentCommandLine(const ProjectExplorer::BuildStep *buildStep) const;
 
 signals:
     void qbsConfigurationChanged();
 
-protected:
-    QbsBuildConfiguration(ProjectExplorer::Target *target, QbsBuildConfiguration *source);
-    QbsBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
-    bool fromMap(const QVariantMap &map) override;
-
 private:
-    void buildStepInserted(int pos);
+    bool fromMap(const QVariantMap &map) override;
+    QVariantMap toMap() const override;
 
-    static QbsBuildConfiguration *setup(ProjectExplorer::Target *t,
-                                        const QString &defaultDisplayName,
-                                        const QString &displayName,
-                                        const QVariantMap &buildData,
-                                        const Utils::FileName &directory);
-
-    bool m_isParsing;
-    bool m_parsingError;
+    bool m_isParsing = true;
+    bool m_parsingError = false;
     QStringList m_changedFiles;
     QStringList m_activeFileTags;
     QStringList m_products;
+    QString m_configurationName;
 
-    friend class QbsBuildConfigurationFactory;
     friend class QbsBuildConfigurationWidget;
 };
 
@@ -110,23 +102,13 @@ class QbsBuildConfigurationFactory : public ProjectExplorer::IBuildConfiguration
     Q_OBJECT
 
 public:
-    explicit QbsBuildConfigurationFactory(QObject *parent = 0);
+    QbsBuildConfigurationFactory();
 
-    int priority(const ProjectExplorer::Target *parent) const override;
     QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const override;
-    int priority(const ProjectExplorer::Kit *k, const QString &projectPath) const override;
     QList<ProjectExplorer::BuildInfo *> availableSetups(const ProjectExplorer::Kit *k,
                                                         const QString &projectPath) const override;
-    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent,
-                                                const ProjectExplorer::BuildInfo *info) const override;
-
-    bool canClone(const ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const override;
-    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) override;
-    bool canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const override;
-    ProjectExplorer::BuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map) override;
 
 private:
-    bool canHandle(const ProjectExplorer::Target *t) const;
     ProjectExplorer::BuildInfo *createBuildInfo(const ProjectExplorer::Kit *k,
                                                 ProjectExplorer::BuildConfiguration::BuildType type) const;
 };

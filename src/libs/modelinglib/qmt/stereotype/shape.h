@@ -35,7 +35,7 @@ class IShape
 public:
     virtual ~IShape() { }
 
-    virtual IShape *Clone() const = 0;
+    virtual IShape *clone() const = 0;
     virtual void accept(ShapeVisitor *visitor) = 0;
     virtual void accept(ShapeConstVisitor *visitor) const = 0;
 };

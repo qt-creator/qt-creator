@@ -28,12 +28,15 @@
 #include "projectexplorer_export.h"
 
 #include <coreplugin/id.h>
-#include <texteditor/textmark.h>
 #include <utils/fileutils.h>
 
 #include <QIcon>
 #include <QMetaType>
 #include <QTextLayout>
+
+namespace TextEditor {
+class TextMark;
+}
 
 namespace ProjectExplorer {
 
@@ -43,16 +46,24 @@ class TaskHub;
 class PROJECTEXPLORER_EXPORT Task
 {
 public:
-    enum TaskType {
+    enum TaskType : char {
         Unknown,
         Error,
         Warning
     };
 
+    enum Option : char {
+        NoOptions   = 0,
+        AddTextMark = 1 << 0,
+        FlashWorthy = 1 << 1,
+    };
+    using Options = char;
+
     Task() = default;
     Task(TaskType type, const QString &description,
          const Utils::FileName &file, int line, Core::Id category,
-         const Utils::FileName &iconName = Utils::FileName());
+         const QIcon &icon = QIcon(),
+         Options options = AddTextMark | FlashWorthy);
 
     static Task compilerMissingTask();
     static Task buildConfigurationMissingTask();
@@ -62,6 +73,7 @@ public:
 
     unsigned int taskId = 0;
     TaskType type = Unknown;
+    Options options = AddTextMark | FlashWorthy;
     QString description;
     Utils::FileName file;
     int line = -1;
@@ -69,7 +81,7 @@ public:
     Core::Id category;
     QIcon icon;
 
-    // Having a QList<QTextLayout::FormatRange> in Task isn't that great
+    // Having a container of QTextLayout::FormatRange in Task isn't that great
     // It would be cleaner to split up the text into
     // the logical hunks and then assemble them again
     // (That is different consumers of tasks could show them in
@@ -92,6 +104,9 @@ bool PROJECTEXPLORER_EXPORT operator==(const Task &t1, const Task &t2);
 uint PROJECTEXPLORER_EXPORT qHash(const Task &task);
 
 bool PROJECTEXPLORER_EXPORT operator<(const Task &a, const Task &b);
+
+QString PROJECTEXPLORER_EXPORT toHtml(const QList<Task> &issues);
+bool PROJECTEXPLORER_EXPORT containsType(const QList<Task> &issues, Task::TaskType);
 
 } //namespace ProjectExplorer
 

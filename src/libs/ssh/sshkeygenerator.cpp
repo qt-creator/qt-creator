@@ -83,7 +83,7 @@ bool SshKeyGenerator::generateKeys(KeyType type, PrivateKeyFormat format, int ke
             generateOpenSslPublicKeyString(key);
         }
         return true;
-    } catch (const Exception &e) {
+    } catch (const std::exception &e) {
         m_error = tr("Error generating key: %1").arg(QString::fromLatin1(e.what()));
         return false;
     }

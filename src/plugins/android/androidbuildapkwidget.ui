@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>819</width>
-    <height>390</height>
+    <width>641</width>
+    <height>349</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string/>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="1" column="0" colspan="2">
@@ -117,37 +117,6 @@
         </item>
        </layout>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
-        <item>
-         <widget class="QLabel" name="signingDebugDeployErrorIcon">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="signingDebugDeployError">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Signing an APK that uses &quot;Deploy local Qt libraries&quot; is not allowed.
-Deploying local Qt libraries is incompatible with Android 5.</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
      </layout>
     </widget>
    </item>
@@ -170,73 +139,46 @@ Deploying local Qt libraries is incompatible with Android 5.</string>
      </layout>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="2" column="0" colspan="2">
     <widget class="QGroupBox" name="advancedActions">
      <property name="title">
       <string>Advanced Actions</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="verboseOutputCheckBox">
-        <property name="text">
-         <string>Verbose output</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
+      <item row="0" column="0" colspan="2">
        <widget class="QCheckBox" name="openPackageLocationCheckBox">
         <property name="text">
          <string>Open package location after build</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="useGradleCheckBox">
+      <item row="2" column="0" colspan="2">
+       <widget class="QCheckBox" name="addDebuggerCheckBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Packages debug server with the APK to enable debugging. For the signed APK this option is unchecked by default.</string>
+        </property>
         <property name="text">
-         <string>Use Gradle</string>
+         <string>Add debug server</string>
         </property>
        </widget>
       </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QGroupBox" name="qtDeployment">
-     <property name="title">
-      <string>Qt Deployment</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QRadioButton" name="ministroOption">
+      <item row="1" column="0" colspan="2">
+       <widget class="QCheckBox" name="verboseOutputCheckBox">
+        <property name="text">
+         <string>Verbose output</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <widget class="QCheckBox" name="ministroOption">
         <property name="toolTip">
          <string>Uses the external Ministro application to download and maintain Qt libraries.</string>
         </property>
         <property name="text">
          <string>Use Ministro service to install Qt</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="bundleQtOption">
-        <property name="toolTip">
-         <string>Creates a standalone APK.</string>
-        </property>
-        <property name="text">
-         <string>Bundle Qt libraries in APK</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="temporaryQtOption">
-        <property name="toolTip">
-         <string>Pushes local Qt libraries to device. You must have Qt libraries compiled for that platform.
-The APK will not be usable on any other device.</string>
-        </property>
-        <property name="text">
-         <string>Deploy local Qt libraries to temporary directory</string>
         </property>
        </widget>
       </item>
@@ -254,5 +196,22 @@ The APK will not be usable on any other device.</string>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>signPackageCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>addDebuggerCheckBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>113</x>
+     <y>178</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>510</x>
+     <y>452</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

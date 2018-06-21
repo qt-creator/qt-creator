@@ -48,7 +48,10 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
     ui->setupUi(this);
     ui->useHomeFile->setText(ui->useHomeFile->text().replace(
                                  "HOME", QDir::toNativeSeparators(QDir::home().absolutePath())));
+    ui->specificConfigFile->setExpectedKind(Utils::PathChooser::File);
+    ui->specificConfigFile->setPromptDialogFilter(tr("AStyle (*.astylerc)"));
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    ui->command->setCommandVersionArguments({"--version"});
     ui->command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
                                           ArtisticStyle::tr(Constants::ArtisticStyle::DISPLAY_NAME)));
     connect(ui->command, &Utils::PathChooser::validChanged, ui->options, &QWidget::setEnabled);
@@ -65,6 +68,8 @@ void ArtisticStyleOptionsPageWidget::restore()
     ui->command->setPath(m_settings->command());
     ui->mime->setText(m_settings->supportedMimeTypesAsString());
     ui->useOtherFiles->setChecked(m_settings->useOtherFiles());
+    ui->useSpecificConfigFile->setChecked(m_settings->useSpecificConfigFile());
+    ui->specificConfigFile->setFileName(m_settings->specificConfigFile());
     ui->useHomeFile->setChecked(m_settings->useHomeFile());
     ui->useCustomStyle->setChecked(m_settings->useCustomStyle());
     ui->configurations->setCurrentConfiguration(m_settings->customStyle());
@@ -75,6 +80,8 @@ void ArtisticStyleOptionsPageWidget::apply()
     m_settings->setCommand(ui->command->path());
     m_settings->setSupportedMimeTypes(ui->mime->text());
     m_settings->setUseOtherFiles(ui->useOtherFiles->isChecked());
+    m_settings->setUseSpecificConfigFile(ui->useSpecificConfigFile->isChecked());
+    m_settings->setSpecificConfigFile(ui->specificConfigFile->fileName());
     m_settings->setUseHomeFile(ui->useHomeFile->isChecked());
     m_settings->setUseCustomStyle(ui->useCustomStyle->isChecked());
     m_settings->setCustomStyle(ui->configurations->currentConfiguration());
@@ -91,8 +98,6 @@ ArtisticStyleOptionsPage::ArtisticStyleOptionsPage(ArtisticStyleSettings *settin
     setId(Constants::ArtisticStyle::OPTION_ID);
     setDisplayName(tr("Artistic Style"));
     setCategory(Constants::OPTION_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::OPTION_CATEGORY_ICON));
 }
 
 QWidget *ArtisticStyleOptionsPage::widget()

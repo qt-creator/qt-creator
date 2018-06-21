@@ -28,44 +28,20 @@
 #include <projectexplorer/deployconfiguration.h>
 
 namespace QbsProjectManager {
-
-
 namespace Internal {
-
-class QbsDeployConfigurationFactory;
-class QbsInstallStep;
 
 class QbsDeployConfiguration : public ProjectExplorer::DeployConfiguration
 {
     Q_OBJECT
 
 public:
-    QbsInstallStep *qbsInstallStep() const;
-
-private:
     QbsDeployConfiguration(ProjectExplorer::Target *target, Core::Id id);
-    QbsDeployConfiguration(ProjectExplorer::Target *target,
-                           ProjectExplorer::DeployConfiguration *source);
-
-    friend class QbsDeployConfigurationFactory;
 };
 
 class QbsDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
 {
-    Q_OBJECT
-
 public:
-    explicit QbsDeployConfigurationFactory(QObject *parent = 0);
-
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const override;
-    QString displayNameForId(Core::Id id) const override;
-    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const override;
-    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, Core::Id id) override;
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const override;
-    ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map) override;
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *product) const override;
-    ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,
-                                                ProjectExplorer::DeployConfiguration *product) override;
+    QbsDeployConfigurationFactory();
 };
 
 } // namespace Internal

@@ -47,7 +47,7 @@ class QMT_EXPORT LatchController : public QObject
     Q_OBJECT
 
 public:
-    explicit LatchController(QObject *parent = 0);
+    explicit LatchController(QObject *parent = nullptr);
     ~LatchController() override;
 
     void setDiagramSceneModel(DiagramSceneModel *diagramSceneModel);
@@ -67,15 +67,15 @@ private:
     void applyLatches();
 
 private:
-    DiagramSceneModel *m_diagramSceneModel;
-    AlignLineItem *m_horizontalAlignLine;
-    AlignLineItem *m_verticalAlignLine;
-    bool m_foundHorizontalLatch;
+    DiagramSceneModel *m_diagramSceneModel = nullptr;
+    AlignLineItem *m_horizontalAlignLine = nullptr;
+    AlignLineItem *m_verticalAlignLine = nullptr;
+    bool m_foundHorizontalLatch = false;
     ILatchable::Latch m_horizontalLatch;
-    qreal m_horizontalDist;
-    bool m_foundVerticalLatch;
+    qreal m_horizontalDist = 0.0;
+    bool m_foundVerticalLatch = false;
     ILatchable::Latch m_verticalLatch;
-    qreal m_verticalDist;
+    qreal m_verticalDist = 0.0;
 };
 
 } // namespace qmt

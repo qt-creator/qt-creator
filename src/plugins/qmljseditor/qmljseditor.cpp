@@ -35,13 +35,14 @@
 #include "qmljshoverhandler.h"
 #include "qmljsquickfixassist.h"
 #include "qmloutlinemodel.h"
+#include "quicktoolbar.h"
 
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsevaluate.h>
-#include <qmljs/qmljsicontextpane.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsutils.h>
 
+#include <qmljstools/qmljsindenter.h>
 #include <qmljstools/qmljstoolsconstants.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -67,6 +68,7 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/texteditoractionhandler.h>
+#include <texteditor/textmark.h>
 
 #include <utils/annotateditemdelegate.h>
 #include <utils/changeset.h>
@@ -105,10 +107,7 @@ namespace Internal {
 
 QmlJSEditorWidget::QmlJSEditorWidget()
 {
-    m_outlineCombo = 0;
-    m_contextPane = 0;
     m_findReferences = new FindReferences(this);
-
     setLanguageSettingsId(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
 }
 
@@ -130,7 +129,7 @@ void QmlJSEditorWidget::finalizeInitialization()
     textDocument()->setCodec(QTextCodec::codecForName("UTF-8")); // qml files are defined to be utf-8
 
     m_modelManager = ModelManagerInterface::instance();
-    m_contextPane = ExtensionSystem::PluginManager::getObject<IContextPane>();
+    m_contextPane = QmlJSEditorPlugin::quickToolBar();
 
     m_modelManager->activateScan();
 
@@ -142,7 +141,6 @@ void QmlJSEditorWidget::finalizeInitialization()
                 &m_contextPaneTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
         connect(m_contextPane, &IContextPane::closed, this, &QmlJSEditorWidget::showTextMarker);
     }
-    m_oldCursorPosition = -1;
 
     connect(this->document(), &QTextDocument::modificationChanged,
             this, &QmlJSEditorWidget::modificationChanged);
@@ -161,7 +159,6 @@ QModelIndex QmlJSEditorWidget::outlineModelIndex()
 {
     if (!m_outlineModelIndex.isValid()) {
         m_outlineModelIndex = indexForPosition(position());
-        emit outlineModelIndexChanged(m_outlineModelIndex);
     }
     return m_outlineModelIndex;
 }
@@ -223,6 +220,11 @@ void QmlJSEditorWidget::modificationChanged(bool changed)
         m_modelManager->fileChangedOnDisk(textDocument()->filePath().toString());
 }
 
+bool QmlJSEditorWidget::isOutlineCursorChangesBlocked()
+{
+    return hasFocus();
+}
+
 void QmlJSEditorWidget::jumpToOutlineElement(int /*index*/)
 {
     QModelIndex index = m_outlineCombo->view()->currentIndex();
@@ -253,16 +255,15 @@ void QmlJSEditorWidget::updateOutlineIndexNow()
 
     m_outlineModelIndex = QModelIndex(); // invalidate
     QModelIndex comboIndex = outlineModelIndex();
+    emit outlineModelIndexChanged(m_outlineModelIndex);
 
     if (comboIndex.isValid()) {
-        bool blocked = m_outlineCombo->blockSignals(true);
+        QSignalBlocker blocker(m_outlineCombo);
 
         // There is no direct way to select a non-root item
         m_outlineCombo->setRootModelIndex(comboIndex.parent());
         m_outlineCombo->setCurrentIndex(comboIndex.row());
         m_outlineCombo->setRootModelIndex(QModelIndex());
-
-        m_outlineCombo->blockSignals(blocked);
     }
 }
 } // namespace Internal
@@ -504,18 +505,6 @@ QString QmlJSEditorWidget::wordUnderCursor() const
     return word;
 }
 
-bool QmlJSEditorWidget::isClosingBrace(const QList<Token> &tokens) const
-{
-
-    if (tokens.size() == 1) {
-        const Token firstToken = tokens.first();
-
-        return firstToken.is(Token::RightBrace) || firstToken.is(Token::RightBracket);
-    }
-
-    return false;
-}
-
 void QmlJSEditorWidget::createToolBar()
 {
     m_outlineCombo = new QComboBox;
@@ -546,8 +535,6 @@ void QmlJSEditorWidget::createToolBar()
             this, &QmlJSEditorWidget::jumpToOutlineElement);
     connect(m_qmlJsEditorDocument->outlineModel(), &QmlOutlineModel::updated,
             static_cast<QTreeView *>(m_outlineCombo->view()), &QTreeView::expandAll);
-    connect(m_qmlJsEditorDocument->outlineModel(), &QmlOutlineModel::updated,
-            this, &QmlJSEditorWidget::updateOutlineIndexNow);
 
     connect(this, &QmlJSEditorWidget::cursorPositionChanged,
             &m_updateOutlineIndexTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
@@ -668,8 +655,16 @@ static QString inspectCppComponent(const CppComponentValue *cppValue)
     const int enumeratorCount = cppValue->metaObject()->enumeratorCount();
     for (int index = cppValue->metaObject()->enumeratorOffset(); index < enumeratorCount; ++index) {
         LanguageUtils::FakeMetaEnum enumerator = cppValue->metaObject()->enumerator(index);
-        bufWriter << "    // Enum " << enumerator.name() << " { " <<
-                     enumerator.keys().join(QLatin1Char(',')) << " }" << endl;
+        bufWriter << "    enum " << enumerator.name() << " {" << endl;
+        const QStringList keys = enumerator.keys();
+        const int keysCount = keys.size();
+        for (int i = 0; i < keysCount; ++i) {
+            bufWriter << "        " << keys.at(i);
+            if (i != keysCount - 1)
+                bufWriter << ',';
+            bufWriter << endl;
+        }
+        bufWriter << "    }" << endl;
     }
 
     bufWriter << "}" << endl;
@@ -688,17 +683,19 @@ void QmlJSEditorWidget::inspectElementUnderCursor() const
     const CppComponentValue *cppValue = findCppComponentToInspect(semanticInfo, cursorPosition);
     if (!cppValue) {
         QString title = tr("Code Model Not Available");
-        const QString nothingToShow = QStringLiteral("nothingToShow");
+        const QString documentId = Constants::QML_JS_EDITOR_PLUGIN + QStringLiteral(".NothingToShow");
         EditorManager::openEditorWithContents(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title,
-                                              tr("Code model not available.").toUtf8(), nothingToShow,
+                                              tr("Code model not available.").toUtf8(), documentId,
                                               EditorManager::IgnoreNavigationHistory);
         return;
     }
 
     QString title = tr("Code Model of %1").arg(cppValue->metaObject()->className());
+    const QString documentId = Constants::QML_JS_EDITOR_PLUGIN + QStringLiteral(".Class.")
+            + cppValue->metaObject()->className();
     IEditor *outputEditor = EditorManager::openEditorWithContents(
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, QByteArray(),
-                cppValue->metaObject()->className(), EditorManager::IgnoreNavigationHistory);
+                documentId, EditorManager::IgnoreNavigationHistory);
 
     if (!outputEditor)
         return;
@@ -715,48 +712,53 @@ void QmlJSEditorWidget::inspectElementUnderCursor() const
     widget->textDocument()->setPlainText(buf);
 }
 
-TextEditorWidget::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                                             bool /*resolveTarget*/,
-                                                             bool /*inNextSplit*/)
+void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
+                                   Utils::ProcessLinkCallback &&processLinkCallback,
+                                   bool /*resolveTarget*/,
+                                   bool /*inNextSplit*/)
 {
     const SemanticInfo semanticInfo = m_qmlJsEditorDocument->semanticInfo();
     if (! semanticInfo.isValid())
-        return Link();
+        return processLinkCallback(Utils::Link());
 
     const unsigned cursorPosition = cursor.position();
 
     AST::Node *node = semanticInfo.astNodeAt(cursorPosition);
-    QTC_ASSERT(node, return Link());
+    QTC_ASSERT(node, return;);
 
     if (AST::UiImport *importAst = cast<AST::UiImport *>(node)) {
         // if it's a file import, link to the file
         foreach (const ImportInfo &import, semanticInfo.document->bind()->imports()) {
             if (import.ast() == importAst && import.type() == ImportType::File) {
-                TextEditorWidget::Link link(import.path());
+                Utils::Link link(import.path());
                 link.linkTextStart = importAst->firstSourceLocation().begin();
                 link.linkTextEnd = importAst->lastSourceLocation().end();
-                return link;
+                processLinkCallback(Utils::Link());
+                return;
             }
         }
-        return Link();
+        processLinkCallback(Utils::Link());
+        return;
     }
 
     // string literals that could refer to a file link to them
     if (StringLiteral *literal = cast<StringLiteral *>(node)) {
         const QString &text = literal->value.toString();
-        TextEditorWidget::Link link;
+        Utils::Link link;
         link.linkTextStart = literal->literalToken.begin();
         link.linkTextEnd = literal->literalToken.end();
         if (semanticInfo.snapshot.document(text)) {
             link.targetFileName = text;
-            return link;
+            processLinkCallback(link);
+            return;
         }
         const QString relative = QString::fromLatin1("%1/%2").arg(
                     semanticInfo.document->path(),
                     text);
         if (semanticInfo.snapshot.document(relative)) {
             link.targetFileName = relative;
-            return link;
+            processLinkCallback(link);
+            return;
         }
     }
 
@@ -768,9 +770,9 @@ TextEditorWidget::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
     int line = 0, column = 0;
 
     if (! (value && value->getSourceLocation(&fileName, &line, &column)))
-        return Link();
+        return processLinkCallback(Utils::Link());
 
-    TextEditorWidget::Link link;
+    Utils::Link link;
     link.targetFileName = fileName;
     link.targetLine = line;
     link.targetColumn = column - 1; // adjust the column
@@ -780,22 +782,25 @@ TextEditorWidget::Link QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
             if (! tail->next && cursorPosition <= tail->identifierToken.end()) {
                 link.linkTextStart = tail->identifierToken.begin();
                 link.linkTextEnd = tail->identifierToken.end();
-                return link;
+                processLinkCallback(link);
+                return;
             }
         }
 
     } else if (AST::IdentifierExpression *id = AST::cast<AST::IdentifierExpression *>(node)) {
         link.linkTextStart = id->firstSourceLocation().begin();
         link.linkTextEnd = id->lastSourceLocation().end();
-        return link;
+        processLinkCallback(link);
+        return;
 
     } else if (AST::FieldMemberExpression *mem = AST::cast<AST::FieldMemberExpression *>(node)) {
         link.linkTextStart = mem->lastSourceLocation().begin();
         link.linkTextEnd = mem->lastSourceLocation().end();
-        return link;
+        processLinkCallback(link);
+        return;
     }
 
-    return Link();
+    processLinkCallback(Utils::Link());
 }
 
 void QmlJSEditorWidget::findUsages()
@@ -832,17 +837,16 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         AssistInterface *interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
         if (interface) {
             QScopedPointer<IAssistProcessor> processor(
-                        QmlJSEditorPlugin::instance()->quickFixAssistProvider()->createProcessor());
+                        QmlJSEditorPlugin::quickFixAssistProvider()->createProcessor());
             QScopedPointer<IAssistProposal> proposal(processor->perform(interface));
             if (!proposal.isNull()) {
-                GenericProposalModel *model = static_cast<GenericProposalModel *>(proposal->model());
+                GenericProposalModelPtr model = proposal->model().staticCast<GenericProposalModel>();
                 for (int index = 0; index < model->size(); ++index) {
                     AssistProposalItem *item = static_cast<AssistProposalItem *>(model->proposalItem(index));
                     QuickFixOperation::Ptr op = item->data().value<QuickFixOperation::Ptr>();
                     QAction *action = refactoringMenu->addAction(op->description());
                     connect(action, &QAction::triggered, this, [op]() { op->perform(); });
                 }
-                delete model;
             }
         }
     }
@@ -1015,7 +1019,7 @@ QString QmlJSEditorWidget::foldReplacementText(const QTextBlock &block) const
 
 QmlJSEditor::QmlJSEditor()
 {
-    addContext(ProjectExplorer::Constants::LANG_QMLJS);
+    addContext(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID);
 }
 
 bool QmlJSEditor::isDesignModePreferred() const
@@ -1039,9 +1043,10 @@ bool QmlJSEditor::isDesignModePreferred() const
 QmlJSEditorFactory::QmlJSEditorFactory()
 {
     setId(Constants::C_QMLJSEDITOR_ID);
-    setDisplayName(qApp->translate("OpenWith::Editors", Constants::C_QMLJSEDITOR_DISPLAY_NAME));
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::C_QMLJSEDITOR_DISPLAY_NAME));
 
     addMimeType(QmlJSTools::Constants::QML_MIMETYPE);
+    addMimeType(QmlJSTools::Constants::QMLUI_MIMETYPE);
     addMimeType(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);
     addMimeType(QmlJSTools::Constants::QBS_MIMETYPE);
     addMimeType(QmlJSTools::Constants::QMLTYPES_MIMETYPE);
@@ -1052,9 +1057,8 @@ QmlJSEditorFactory::QmlJSEditorFactory()
     setEditorWidgetCreator([]() { return new QmlJSEditorWidget; });
     setEditorCreator([]() { return new QmlJSEditor; });
     setAutoCompleterCreator([]() { return new AutoCompleter; });
-    setCommentStyle(Utils::CommentDefinition::CppStyle);
+    setCommentDefinition(Utils::CommentDefinition::CppStyle);
     setParenthesesMatchingEnabled(true);
-    setMarksVisible(true);
     setCodeFoldingSupported(true);
 
     addHoverHandler(new QmlJSHoverHandler);
@@ -1063,7 +1067,14 @@ QmlJSEditorFactory::QmlJSEditorFactory()
     setEditorActionHandlers(TextEditorActionHandler::Format
         | TextEditorActionHandler::UnCommentSelection
         | TextEditorActionHandler::UnCollapseAll
-        | TextEditorActionHandler::FollowSymbolUnderCursor);
+                            | TextEditorActionHandler::FollowSymbolUnderCursor);
+}
+
+void QmlJSEditorFactory::decorateEditor(TextEditorWidget *editor)
+{
+    editor->textDocument()->setSyntaxHighlighter(new QmlJSHighlighter);
+    editor->textDocument()->setIndenter(new Indenter);
+    editor->setAutoCompleter(new AutoCompleter);
 }
 
 } // namespace Internal

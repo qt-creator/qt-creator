@@ -26,6 +26,7 @@
 #include "cppincludesfilter.h"
 
 #include "cppmodelmanager.h"
+#include "cpptoolsconstants.h"
 
 #include <cplusplus/CppDocument.h>
 #include <coreplugin/editormanager/documentmodel.h>
@@ -117,7 +118,8 @@ void CppIncludesIterator::fetchMore()
         CPlusPlus::Document::Ptr doc = m_snapshot.document(filePath);
         if (!doc)
             continue;
-        foreach (const QString &includedPath, doc->includedFiles()) {
+        const QStringList includedFiles = doc->includedFiles();
+        for (const QString &includedPath : includedFiles ) {
             if (!m_allResultPaths.contains(includedPath)) {
                 m_allResultPaths.insert(includedPath);
                 m_queuedPaths.insert(includedPath);
@@ -128,11 +130,10 @@ void CppIncludesIterator::fetchMore()
 }
 
 CppIncludesFilter::CppIncludesFilter()
-    : m_needsUpdate(true)
 {
-    setId("All Included C/C++ Files");
-    setDisplayName(tr("All Included C/C++ Files"));
-    setShortcutString(QString(QLatin1Char('a')));
+    setId(Constants::INCLUDES_FILTER_ID);
+    setDisplayName(Constants::INCLUDES_FILTER_DISPLAY_NAME);
+    setShortcutString("ai");
     setIncludedByDefault(true);
     setPriority(ILocatorFilter::Low);
 
@@ -158,11 +159,13 @@ void CppIncludesFilter::prepareSearch(const QString &entry)
     if (m_needsUpdate) {
         m_needsUpdate = false;
         QSet<QString> seedPaths;
-        foreach (Project *project, SessionManager::projects()) {
-            foreach (const QString &filePath, project->files(Project::AllFiles))
-                seedPaths.insert(filePath);
+        for (Project *project : SessionManager::projects()) {
+            const Utils::FileNameList allFiles = project->files(Project::AllFiles);
+            for (const Utils::FileName &filePath : allFiles )
+                seedPaths.insert(filePath.toString());
         }
-        foreach (DocumentModel::Entry *entry, DocumentModel::entries()) {
+        const QList<DocumentModel::Entry *> entries = DocumentModel::entries();
+        for (DocumentModel::Entry *entry : entries) {
             if (entry)
                 seedPaths.insert(entry->fileName().toString());
         }

@@ -217,7 +217,7 @@ void BookmarkDialog::customContextMenuRequested(const QPoint &point)
     if (!index.isValid())
         return;
 
-    QMenu menu(QLatin1String(""), this);
+    QMenu menu(this);
 
     QAction *removeItem = menu.addAction(tr("Delete Folder"));
     QAction *renameItem = menu.addAction(tr("Rename Folder"));
@@ -322,7 +322,7 @@ void BookmarkWidget::filterChanged()
         regExp.setPattern(searchField->text());
         filterBookmarkModel->setSourceModel(bookmarkManager->listBookmarkModel());
     } else {
-        regExp.setPattern(QLatin1String(""));
+        regExp.setPattern(QString());
         filterBookmarkModel->setSourceModel(bookmarkManager->treeBookmarkModel());
     }
 
@@ -366,7 +366,7 @@ void BookmarkWidget::customContextMenuRequested(const QPoint &point)
     QAction *renameItem = 0;
     QAction *showItemNewTab = 0;
 
-    QMenu menu(QLatin1String(""), this);
+    QMenu menu(this);
     QString data = index.data(Qt::UserRole + 10).toString();
     if (data == QLatin1String("Folder")) {
         removeItem = menu.addAction(tr("Delete Folder"));
@@ -443,6 +443,10 @@ void BookmarkWidget::setup()
     treeView->setDropIndicatorShown(true);
     treeView->viewport()->installEventFilter(this);
     treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    // work around crash on Windows with drag & drop
+    // in combination with proxy model and ResizeToContents section resize mode
+    treeView->header()->setSectionResizeMode(QHeaderView::Stretch);
+
 
     connect(treeView, &TreeView::expanded, this, &BookmarkWidget::expand);
     connect(treeView, &TreeView::collapsed, this, &BookmarkWidget::expand);
@@ -592,6 +596,8 @@ BookmarkModel* BookmarkManager::listBookmarkModel() const
 
 void BookmarkManager::saveBookmarks()
 {
+    if (!m_isModelSetup)
+        return;
     QByteArray bookmarks;
     QDataStream stream(&bookmarks, QIODevice::WriteOnly);
 
@@ -704,6 +710,7 @@ void BookmarkManager::itemChanged(QStandardItem *item)
 
 void BookmarkManager::setupBookmarkModels()
 {
+    m_isModelSetup = true;
     treeModel->clear();
     listModel->clear();
 
@@ -715,13 +722,7 @@ void BookmarkManager::setupBookmarkModels()
 
     QByteArray ba;
     QSettings *settings = Core::ICore::settings();
-    if (settings->contains(QLatin1String(kBookmarksKey))) {
-        ba = settings->value(QLatin1String(kBookmarksKey)).toByteArray();
-    } else {
-        // read old settings from help engine
-        // TODO remove some time after Qt Creator 3.5
-        ba = LocalHelpManager::helpEngine().customValue(QLatin1String("Bookmarks")).toByteArray();
-    }
+    ba = settings->value(QLatin1String(kBookmarksKey)).toByteArray();
     QDataStream stream(ba);
     while (!stream.atEnd()) {
         stream >> depth >> name >> type >> expanded;

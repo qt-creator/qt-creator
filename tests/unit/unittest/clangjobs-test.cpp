@@ -56,10 +56,7 @@ protected:
     void TearDown() override;
 
     bool waitUntilAllJobsFinished(int timeOutInMs = 10000) const;
-    bool waitUntilJobChainFinished(int timeOutInMs = 10000) const;
-
-    JobRequest createJobRequest(const Utf8String &filePath,
-                                JobRequest::Type type) const;
+    bool waitUntilJobChainFinished(int timeOutInMs = 10000);
 
 protected:
     ClangBackEnd::ProjectParts projects;
@@ -74,6 +71,8 @@ protected:
     ClangBackEnd::Jobs jobs{documents, unsavedFiles, projects, dummyClientInterface};
 };
 
+using JobsSlowTest = Jobs;
+
 TEST_F(Jobs, ProcessEmptyQueue)
 {
     const JobRequests jobsStarted = jobs.process();
@@ -82,9 +81,9 @@ TEST_F(Jobs, ProcessEmptyQueue)
     ASSERT_TRUE(jobs.runningJobs().isEmpty());
 }
 
-TEST_F(Jobs, ProcessQueueWithSingleJob)
+TEST_F(JobsSlowTest, ProcessQueueWithSingleJob)
 {
-    jobs.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
+    jobs.add(document, JobRequest::Type::UpdateAnnotations);
 
     const JobRequests jobsStarted = jobs.process();
 
@@ -92,20 +91,20 @@ TEST_F(Jobs, ProcessQueueWithSingleJob)
     ASSERT_THAT(jobs.runningJobs().size(), Eq(1));
 }
 
-TEST_F(Jobs, ProcessQueueUntilEmpty)
+TEST_F(JobsSlowTest, ProcessQueueUntilEmpty)
 {
-    jobs.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    jobs.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
-    jobs.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
+    jobs.add(document, JobRequest::Type::UpdateAnnotations);
+    jobs.add(document, JobRequest::Type::UpdateAnnotations);
+    jobs.add(document, JobRequest::Type::UpdateAnnotations);
 
     jobs.process();
 
     waitUntilJobChainFinished();
 }
 
-TEST_F(Jobs, IsJobRunning)
+TEST_F(JobsSlowTest, IsJobRunning)
 {
-    jobs.add(createJobRequest(filePath1, JobRequest::Type::UpdateDocumentAnnotations));
+    jobs.add(document, JobRequest::Type::UpdateAnnotations);
     jobs.process();
 
     const bool isJobRunning = jobs.isJobRunningForTranslationUnit(document.translationUnit().id());
@@ -135,28 +134,13 @@ bool Jobs::waitUntilAllJobsFinished(int timeOutInMs) const
     return ProcessEventUtilities::processEventsUntilTrue(noJobsRunningAnymore, timeOutInMs);
 }
 
-bool Jobs::waitUntilJobChainFinished(int timeOutInMs) const
+bool Jobs::waitUntilJobChainFinished(int timeOutInMs)
 {
     const auto noJobsRunningAnymore = [this]() {
         return jobs.runningJobs().isEmpty() && jobs.queue().isEmpty();
     };
 
     return ProcessEventUtilities::processEventsUntilTrue(noJobsRunningAnymore, timeOutInMs);
-}
-
-JobRequest Jobs::createJobRequest(const Utf8String &filePath,
-                                  JobRequest::Type type) const
-{
-    JobRequest jobRequest;
-    jobRequest.type = type;
-    jobRequest.requirements = JobRequest::requirementsForType(type);
-    jobRequest.filePath = filePath;
-    jobRequest.projectPartId = projectPartId;
-    jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();
-    jobRequest.documentRevision = document.documentRevision();
-    jobRequest.projectChangeTimePoint = projects.project(projectPartId).lastChangeTimePoint();
-
-    return jobRequest;
 }
 
 } // anonymous

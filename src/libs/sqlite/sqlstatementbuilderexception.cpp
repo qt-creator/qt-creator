@@ -25,7 +25,10 @@
 
 #include "sqlstatementbuilderexception.h"
 
-SqlStatementBuilderException::SqlStatementBuilderException(const char *whatErrorHasHappen, const char *errorMessage)
-    : SqliteException(whatErrorHasHappen, errorMessage)
-{
-}
+namespace Sqlite {
+
+
+
+
+
+} // namespace Sqlite

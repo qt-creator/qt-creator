@@ -160,7 +160,7 @@ public:
     void addMagicMatcher(const MimeMagicRuleMatcher &matcher);
 
     // Qt Creator additions
-    void addFile(const QString &filePath);
+    void addData(const QString &id, const QByteArray &data);
     QMap<int, QList<MimeMagicRule> > magicRulesForMimeType(const MimeType &mimeType);
     void setGlobPatternsForMimeType(const MimeType &mimeType, const QStringList &patterns);
     void setMagicRulesForMimeType(const MimeType &mimeType, const QMap<int, QList<MimeMagicRule> > &rules);
@@ -182,10 +182,9 @@ private:
     MimeAllGlobPatterns m_mimeTypeGlobs;
 
     QList<MimeMagicRuleMatcher> m_magicMatchers;
-    QStringList m_allFiles;
 
     // Qt Creator additions
-    QStringList m_additionalFiles;
+    QHash<QString, QByteArray> m_additionalData; // id -> data
 };
 
 } // Internal

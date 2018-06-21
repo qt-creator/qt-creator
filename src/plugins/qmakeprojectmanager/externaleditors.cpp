@@ -84,7 +84,7 @@ static ExternalQtEditor::LaunchData createMacOpenCommand(const ExternalQtEditor:
     const int appFolderIndex = data.binary.lastIndexOf(QLatin1String("/Contents/MacOS/"));
     if (appFolderIndex != -1) {
         openData.binary = "open";
-        openData.arguments = QStringList({ QString("-a"), data.binary.left(appFolderIndex) })
+        openData.arguments = QStringList({QString("-a"), data.binary.left(appFolderIndex)})
                 + data.arguments;
     }
     return openData;

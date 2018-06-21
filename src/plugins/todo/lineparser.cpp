@@ -50,11 +50,7 @@ QList<TodoItem> LineParser::parse(const QString &line)
 
 bool LineParser::isKeywordSeparator(const QChar &ch)
 {
-    return ch.isSpace()
-        || (ch == QLatin1Char(':'))
-        || (ch == QLatin1Char('/'))
-        || (ch == QLatin1Char('*'))
-        || (ch == QLatin1Char('('));
+    return ch.isSpace() || (ch == ':') || (ch == '/') || (ch == '*') || (ch == '(');
 }
 
 LineParser::KeywordEntryCandidates LineParser::findKeywordEntryCandidates(const QString &line)

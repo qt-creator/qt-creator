@@ -25,7 +25,7 @@
 
 #include "cppselectionchanger.h"
 
-#include <texteditor/convenience.h>
+#include <utils/textutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -34,7 +34,7 @@
 #include <QTextDocument>
 
 using namespace CPlusPlus;
-using namespace TextEditor::Convenience;
+using namespace Utils::Text;
 
 enum {
     debug = false

@@ -42,12 +42,12 @@ public:
 
 protected:
     void sendEndCommand() override;
-    void resetCounter() override;
-    QString connectionName() const override;
+    void resetState() override;
     QString outputName() const override;
+    void newConnectedServer(QIODevice *ioDevice) override;
 
 private:
-    RefactoringServerProxy serverProxy_;
+    RefactoringServerProxy m_serverProxy;
 };
 
 } // namespace ClangBackEnd

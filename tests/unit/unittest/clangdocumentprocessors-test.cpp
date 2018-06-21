@@ -23,6 +23,8 @@
 **
 ****************************************************************************/
 
+#include "googletest.h"
+
 #include "clangiasyncjob.h"
 #include "dummyclangipcclient.h"
 #include "processevents-utilities.h"
@@ -37,11 +39,6 @@
 #include <projects.h>
 #include <unsavedfiles.h>
 
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
-#include "gtest-qt-printing.h"
-
 using testing::Eq;
 
 using namespace ClangBackEnd;
@@ -53,8 +50,6 @@ class DocumentProcessors : public ::testing::Test
 protected:
     void SetUp() override;
     void TearDown() override;
-
-    ClangBackEnd::JobRequest createJobRequest(ClangBackEnd::JobRequest::Type type) const;
 
     bool waitUntilAllJobsFinished(int timeOutInMs = 10000) const;
 
@@ -77,6 +72,8 @@ protected:
                                                         projects,
                                                         dummyIpcClient};
 };
+
+using DocumentProcessorsSlowTest = DocumentProcessors;
 
 TEST_F(DocumentProcessors, HasNoItemsInitially)
 {
@@ -129,6 +126,19 @@ TEST_F(DocumentProcessors, Remove)
     ASSERT_TRUE(documentProcessors.processors().empty());
 }
 
+TEST_F(DocumentProcessors, ResetTakesOverJobsInQueue)
+{
+    documentProcessors.create(document);
+    documentProcessors.processor(document).addJob(JobRequest::Type::RequestReferences);
+    documents.remove({document.fileContainer()});
+    const auto newDocument = *documents.create({document.fileContainer()}).begin();
+
+    documentProcessors.reset(document, newDocument);
+
+    ASSERT_THAT(documentProcessors.processor(document).queue().first().type,
+                JobRequest::Type::RequestReferences);
+}
+
 TEST_F(DocumentProcessors, RemoveThrowsForNotExisting)
 {
     ASSERT_THROW(documentProcessors.remove(document),
@@ -144,11 +154,10 @@ TEST_F(DocumentProcessors, ProcessEmpty)
     ASSERT_TRUE(jobsStarted.isEmpty());
 }
 
-TEST_F(DocumentProcessors, ProcessSingle)
+TEST_F(DocumentProcessorsSlowTest, ProcessSingle)
 {
     DocumentProcessor documentProcessor = documentProcessors.create(document);
-    const JobRequest jobRequest = createJobRequest(JobRequest::Type::UpdateDocumentAnnotations);
-    documentProcessor.addJob(jobRequest);
+    documentProcessor.addJob(JobRequest::Type::UpdateAnnotations);
 
     const JobRequests jobsStarted = documentProcessors.process();
 
@@ -168,20 +177,6 @@ void DocumentProcessors::SetUp()
 void DocumentProcessors::TearDown()
 {
     ASSERT_TRUE(waitUntilAllJobsFinished()); // QFuture/QFutureWatcher is implemented with events
-}
-
-JobRequest DocumentProcessors::createJobRequest(JobRequest::Type type) const
-{
-    JobRequest jobRequest;
-    jobRequest.type = type;
-    jobRequest.requirements = JobRequest::requirementsForType(type);
-    jobRequest.filePath = filePath;
-    jobRequest.projectPartId = projectPartId;
-    jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();
-    jobRequest.documentRevision = document.documentRevision();
-    jobRequest.projectChangeTimePoint = projects.project(projectPartId).lastChangeTimePoint();
-
-    return jobRequest;
 }
 
 bool DocumentProcessors::waitUntilAllJobsFinished(int timeOutInMs) const

@@ -27,17 +27,18 @@
 
 #include "cpptools_global.h"
 
-#include "cppmodelmanagersupport.h"
+#include "refactoringengineinterface.h"
 #include "projectinfo.h"
 #include "projectpart.h"
 #include "projectpartheaderpath.h"
 
 #include <cplusplus/cppmodelmanagerbase.h>
+#include <coreplugin/find/ifindfilter.h>
+#include <coreplugin/locator/ilocatorfilter.h>
 
 #include <QFuture>
 #include <QObject>
 #include <QStringList>
-
 
 namespace Core {
 class IDocument;
@@ -45,29 +46,43 @@ class IEditor;
 }
 namespace CPlusPlus { class LookupContext; }
 namespace ProjectExplorer { class Project; }
-namespace TextEditor { class TextDocument; }
+namespace TextEditor {
+class BaseHoverHandler;
+class TextDocument;
+} // namespace TextEditor
 
 namespace CppTools {
 
 class AbstractEditorSupport;
+class AbstractOverviewModel;
 class BaseEditorDocumentProcessor;
 class CppCompletionAssistProvider;
 class CppEditorDocumentHandle;
 class CppIndexingSupport;
-class RefactoringEngineInterface;
+class ModelManagerSupportProvider;
+class FollowSymbolInterface;
 class SymbolFinder;
 class WorkingCopy;
 
 namespace Internal {
 class CppSourceProcessor;
 class CppModelManagerPrivate;
+class CppToolsPlugin;
 }
 
 namespace Tests {
 class ModelManagerTestHelper;
 }
 
-class CPPTOOLS_EXPORT CppModelManager : public CPlusPlus::CppModelManagerBase
+enum class RefactoringEngineType : int
+{
+    BuiltIn = 0,
+    ClangCodeModel = 1,
+    ClangRefactoring = 2
+};
+
+class CPPTOOLS_EXPORT CppModelManager final : public CPlusPlus::CppModelManagerBase,
+        public RefactoringEngineInterface
 {
     Q_OBJECT
 
@@ -75,10 +90,11 @@ public:
     typedef CPlusPlus::Document Document;
 
 public:
-    CppModelManager(QObject *parent = 0);
-    ~CppModelManager();
+    CppModelManager();
+    ~CppModelManager() override;
 
     static CppModelManager *instance();
+    static void createCppModelManager(Internal::CppToolsPlugin *parent);
 
      // Documented in source file.
      enum ProgressNotificationMode {
@@ -87,16 +103,19 @@ public:
     };
 
     QFuture<void> updateSourceFiles(const QSet<QString> &sourceFiles,
-        ProgressNotificationMode mode = ReservedProgressNotification);
-    void updateCppEditorDocuments(bool hasActiveProjectChanged = false) const;
+                                    ProgressNotificationMode mode = ReservedProgressNotification);
+    QFuture<void> updateSourceFiles(const QFutureInterface<void> &superFuture,
+                                    const QSet<QString> &sourceFiles,
+                                    ProgressNotificationMode mode = ReservedProgressNotification);
+    void updateCppEditorDocuments(bool projectsUpdated = false) const;
     WorkingCopy workingCopy() const;
     QByteArray codeModelConfiguration() const;
 
     QList<ProjectInfo> projectInfos() const;
     ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
     QFuture<void> updateProjectInfo(const ProjectInfo &newProjectInfo);
-    ProjectInfo updateCompilerCallDataForProject(ProjectExplorer::Project *project,
-                                                 ProjectInfo::CompilerCallData &compilerCallData);
+    QFuture<void> updateProjectInfo(QFutureInterface<void> &futureInterface,
+                                    const ProjectInfo &newProjectInfo);
 
     /// \return The project part with the given project file
     ProjectPart::Ptr projectPartForId(const QString &projectPartId) const;
@@ -111,7 +130,7 @@ public:
     ///         all loaded projects.
     ProjectPart::Ptr fallbackProjectPart();
 
-    CPlusPlus::Snapshot snapshot() const;
+    CPlusPlus::Snapshot snapshot() const override;
     Document::Ptr document(const QString &fileName) const;
     bool replaceDocument(Document::Ptr newDoc);
 
@@ -134,6 +153,20 @@ public:
 
     QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
+    void startLocalRenaming(const CursorInEditor &data,
+                            CppTools::ProjectPart *projectPart,
+                            RenameCallback &&renameSymbolsCallback) final;
+    void globalRename(const CursorInEditor &data, UsagesCallback &&renameCallback,
+                      const QString &replacement) final;
+    void findUsages(const CppTools::CursorInEditor &data,
+                    UsagesCallback &&showUsagesCallback) const final;
+    void globalFollowSymbol(const CursorInEditor &data,
+                            Utils::ProcessLinkCallback &&processLinkCallback,
+                            const CPlusPlus::Snapshot &snapshot,
+                            const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
+                            SymbolFinder *symbolFinder,
+                            bool inNextSplit) const final;
+
     void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
                       const QString &replacement = QString());
     void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
@@ -145,8 +178,11 @@ public:
 
     void activateClangCodeModel(ModelManagerSupportProvider *modelManagerSupportProvider);
     CppCompletionAssistProvider *completionAssistProvider() const;
-    BaseEditorDocumentProcessor *editorDocumentProcessor(
-        TextEditor::TextDocument *baseTextDocument) const;
+    BaseEditorDocumentProcessor *createEditorDocumentProcessor(
+                    TextEditor::TextDocument *baseTextDocument) const;
+    TextEditor::BaseHoverHandler *createHoverHandler() const;
+    FollowSymbolInterface &followSymbolInterface() const;
+    std::unique_ptr<AbstractOverviewModel> createOverviewModel() const;
 
     void setIndexingSupport(CppIndexingSupport *indexingSupport);
     CppIndexingSupport *indexingSupport();
@@ -158,7 +194,7 @@ public:
     // Use this *only* for auto tests
     void setHeaderPaths(const ProjectPartHeaderPaths &headerPaths);
 
-    QByteArray definedMacros();
+    ProjectExplorer::Macros definedMacros();
 
     void enableGarbageCollector(bool enable);
 
@@ -172,8 +208,18 @@ public:
     static QString configurationFileName();
     static QString editorConfigurationFileName();
 
-    static void setRefactoringEngine(RefactoringEngineInterface *refactoringEngine);
-    static RefactoringEngineInterface *refactoringEngine();
+    static void addRefactoringEngine(RefactoringEngineType type,
+                                     RefactoringEngineInterface *refactoringEngine);
+    static void removeRefactoringEngine(RefactoringEngineType type);
+
+    void setLocatorFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
+    void setClassesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
+    void setIncludesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
+    void setFunctionsFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
+    void setSymbolsFindFilter(std::unique_ptr<Core::IFindFilter> &&filter);
+    void setCurrentDocumentFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
+
+    void renameIncludes(const QString &oldFileName, const QString &newFileName);
 
 signals:
     /// Project data might be locked while this is emitted.
@@ -200,7 +246,6 @@ private:
     // This should be executed in the GUI thread.
     friend class Tests::ModelManagerTestHelper;
     void onAboutToLoadSession();
-    void renameIncludes(const QString &oldFileName, const QString &newFileName);
     void onProjectAdded(ProjectExplorer::Project *project);
     void onAboutToRemoveProject(ProjectExplorer::Project *project);
     void onActiveProjectChanged(ProjectExplorer::Project *project);
@@ -211,7 +256,8 @@ private:
     void initializeBuiltinModelManagerSupport();
     void delayedGC();
     void recalculateProjectPartMappings();
-    void watchForCanceledProjectIndexer(QFuture<void> future, ProjectExplorer::Project *project);
+    void watchForCanceledProjectIndexer(const QVector<QFuture<void> > &futures,
+                                        ProjectExplorer::Project *project);
 
     void replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot);
     void removeFilesFromSnapshot(const QSet<QString> &removedFiles);
@@ -222,9 +268,10 @@ private:
     void ensureUpdated();
     QStringList internalProjectFiles() const;
     ProjectPartHeaderPaths internalHeaderPaths() const;
-    QByteArray internalDefinedMacros() const;
+    ProjectExplorer::Macros internalDefinedMacros() const;
 
     void dumpModelManagerConfiguration(const QString &logFileId);
+    void initCppTools();
 
 private:
     Internal::CppModelManagerPrivate *d;

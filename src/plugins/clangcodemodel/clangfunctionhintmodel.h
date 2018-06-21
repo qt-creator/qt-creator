@@ -40,6 +40,7 @@ public:
     void reset() override;
     int size() const override;
     QString text(int index) const override;
+    QString id(int index) const override;
     int activeArgument(const QString &prefix) const override;
 
 private:

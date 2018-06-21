@@ -3,7 +3,7 @@
     \"Version\" : \"$$QTCREATOR_VERSION\",
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
     \"Vendor\" : \"The Qt Company Ltd\",
-    \"Copyright\" : \"(C) 2016 The Qt Company Ltd\",
+    \"Copyright\" : \"(C) $$QTCREATOR_COPYRIGHT_YEAR The Qt Company Ltd\",
     \"License\" : [ \"Commercial Usage\",
                   \"\",
                   \"Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.\",
@@ -15,5 +15,29 @@
     \"Category\" : \"Version Control\",
     \"Description\" : \"Git integration.\",
     \"Url\" : \"http://www.qt.io\",
-    $$dependencyList
+    \"Arguments\" : [
+        {
+            \"Name\" : \"-git-show\",
+            \"Parameter\" : \"git commit hash\",
+            \"Description\" : \"Show given commit hash\"
+        }
+    ],
+    $$dependencyList,
+
+    \"Mimetypes\" : [
+        \"<?xml version=\'1.0\'?>\",
+        \"<mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>\",
+        \"    <mime-type type=\'text/vnd.qtcreator.git.commit\'>\",
+        \"        <sub-class-of type=\'text/plain\'/>\",
+        \"        <comment>Git Commit File</comment>\",
+        \"        <glob pattern=\'COMMIT_MSG\'/>\",
+        \"        <glob pattern=\'COMMIT_EDITMSG\'/>\",
+        \"    </mime-type>\",
+        \"    <mime-type type=\'text/vnd.qtcreator.git.rebase\'>\",
+        \"        <sub-class-of type=\'text/plain\'/>\",
+        \"        <comment>Git Commit File</comment>\",
+        \"        <glob pattern=\'git-rebase-todo\'/>\",
+        \"    </mime-type>\",
+        \"</mime-info>\"
+    ]
 }

@@ -33,22 +33,21 @@ namespace Core { class Id; }
 namespace TextEditor {
 
 class ICodeStylePreferences;
-class CodeStylePool;
 class Indenter;
-class ISnippetProvider;
+class SnippetProvider;
 
 class TEXTEDITOR_EXPORT ICodeStylePreferencesFactory : public QObject
 {
     Q_OBJECT
 public:
-    explicit ICodeStylePreferencesFactory(QObject *parent = 0);
+    explicit ICodeStylePreferencesFactory(QObject *parent = nullptr);
 
     virtual Core::Id languageId() = 0;
     virtual QString displayName() = 0;
     virtual ICodeStylePreferences *createCodeStyle() const = 0;
     virtual QWidget *createEditor(ICodeStylePreferences *preferences, QWidget *parent) const = 0;
     virtual TextEditor::Indenter *createIndenter() const = 0;
-    virtual ISnippetProvider *snippetProvider() const = 0;
+    virtual QString snippetProviderGroupId() const = 0;
     virtual QString previewText() const = 0;
 };
 

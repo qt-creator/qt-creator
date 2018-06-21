@@ -82,7 +82,7 @@ public:
     void flush();
 
 private:
-    void updateWordWrapMode();
+    void updateFromSettings();
     void updateZoomEnabled();
 
     CompileOutputTextEdit *m_outputWindow;

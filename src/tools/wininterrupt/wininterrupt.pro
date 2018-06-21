@@ -8,12 +8,14 @@ include(../../qtcreatortool.pri)
 # TODO: No effect, currently?
 
 msvc {
-    QMAKE_CXXFLAGS_RELEASE    -= -MD
-    QMAKE_CXXFLAGS_DEBUG      -= -MDd
-    QMAKE_CXXFLAGS_RELEASE    += -MT
-    QMAKE_CXXFLAGS_DEBUG      += -MT
+    QMAKE_CFLAGS_RELEASE    -= -MD
+    QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO -= -MD
+    QMAKE_CFLAGS_DEBUG      -= -MDd
+    QMAKE_CFLAGS_RELEASE    += -MT
+    QMAKE_CFLAGS_DEBUG      += -MT
+    QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO += -MT
 } else {
-    QMAKE_CXXFLAGS            += -static
+    QMAKE_CFLAGS            += -static
 }
 
 SOURCES = wininterrupt.c
@@ -23,11 +25,14 @@ build_all:!build_pass {
     CONFIG += release
 }
 
-ENV_CPU=$$(CPU)
+# Check for VSCMD_ARG_TGT_ARCH (VS 17) or Platform=X64 (VS 13, 15)
+# For older versions, fall back to hacky check on LIBPATH
+ENV_TARGET_ARCH=$$(VSCMD_ARG_TGT_ARCH)
+isEmpty(ENV_TARGET_ARCH):ENV_TARGET_ARCH = $$(Platform)
 ENV_LIBPATH=$$(LIBPATH)
-contains(ENV_CPU, ^AMD64$) {
+contains(ENV_TARGET_ARCH, .*64$) {
     TARGET = win64interrupt
-} else:isEmpty(ENV_CPU):contains(ENV_LIBPATH, ^.*amd64.*$) {
+} else:isEmpty(ENV_TARGET_ARCH):contains(ENV_LIBPATH, ^.*amd64.*$) {
     TARGET = win64interrupt
 } else {
     TARGET = win32interrupt

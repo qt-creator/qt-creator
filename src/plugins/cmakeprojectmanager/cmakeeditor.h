@@ -32,14 +32,13 @@ namespace CMakeProjectManager {
 namespace Internal {
 
 class CMakeEditorWidget;
-class CMakeSettingsPage;
 
 class CMakeEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 
 public:
-    QString contextHelpId() const override;
+    void contextHelpId(const HelpIdCallback &callback) const override;
 
     friend class CMakeEditorWidget;
 };

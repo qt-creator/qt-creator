@@ -32,6 +32,8 @@
 #include "project.h"
 #include "projectexplorerconstants.h"
 #include "target.h"
+#include "toolchain.h"
+#include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>
 
@@ -70,7 +72,11 @@ static bool hasOtherUsers(Core::Id id, const QVariant &v, Kit *k)
 }
 
 ProjectImporter::ProjectImporter(const Utils::FileName &path) : m_projectPath(path)
-{ }
+{
+    useTemporaryKitInformation(ToolChainKitInformation::id(),
+                               [this](Kit *k, const QVariantList &vl) { cleanupTemporaryToolChains(k, vl); },
+                               [this](Kit *k, const QVariantList &vl) { persistTemporaryToolChains(k, vl); });
+}
 
 ProjectImporter::~ProjectImporter()
 {
@@ -186,6 +192,7 @@ void ProjectImporter::markKitAsTemporary(Kit *k) const
 
 void ProjectImporter::makePersistent(Kit *k) const
 {
+    QTC_ASSERT(k, return);
     if (!k->hasValue(KIT_IS_TEMPORARY))
         return;
 
@@ -223,6 +230,7 @@ void ProjectImporter::makePersistent(Kit *k) const
 
 void ProjectImporter::cleanupKit(Kit *k) const
 {
+    QTC_ASSERT(k, return);
     foreach (const TemporaryInformationHandler &tih, m_temporaryHandlers) {
         const Core::Id fid = fullId(tih.id);
         const QVariantList temporaryValues
@@ -242,6 +250,7 @@ void ProjectImporter::cleanupKit(Kit *k) const
 
 void ProjectImporter::addProject(Kit *k) const
 {
+    QTC_ASSERT(k, return);
     if (!k->hasValue(KIT_IS_TEMPORARY))
         return;
 
@@ -253,6 +262,7 @@ void ProjectImporter::addProject(Kit *k) const
 
 void ProjectImporter::removeProject(Kit *k) const
 {
+    QTC_ASSERT(k, return);
     if (!k->hasValue(KIT_IS_TEMPORARY))
         return;
 
@@ -270,6 +280,7 @@ void ProjectImporter::removeProject(Kit *k) const
 
 bool ProjectImporter::isTemporaryKit(Kit *k) const
 {
+    QTC_ASSERT(k, return false);
     return k->hasValue(KIT_IS_TEMPORARY);
 }
 
@@ -302,16 +313,44 @@ bool ProjectImporter::findTemporaryHandler(Core::Id id) const
     return Utils::contains(m_temporaryHandlers, [id](const TemporaryInformationHandler &ch) { return ch.id == id; });
 }
 
+static ToolChain *toolChainFromVariant(const QVariant &v)
+{
+    const QByteArray tcId = v.toByteArray();
+    return ToolChainManager::findToolChain(tcId);
+}
+
+void ProjectImporter::cleanupTemporaryToolChains(Kit *k, const QVariantList &vl)
+{
+    for (const QVariant &v : vl) {
+        ToolChain *tc = toolChainFromVariant(v);
+        QTC_ASSERT(tc, continue);
+        ToolChainManager::deregisterToolChain(tc);
+        ToolChainKitInformation::setToolChain(k, nullptr);
+    }
+}
+
+void ProjectImporter::persistTemporaryToolChains(Kit *k, const QVariantList &vl)
+{
+    for (const QVariant &v : vl) {
+        ToolChain *tmpTc = toolChainFromVariant(v);
+        QTC_ASSERT(tmpTc, continue);
+        ToolChain *actualTc = ToolChainKitInformation::toolChain(k, tmpTc->language());
+        if (tmpTc && actualTc != tmpTc)
+            ToolChainManager::deregisterToolChain(tmpTc);
+    }
+}
+
 void ProjectImporter::useTemporaryKitInformation(Core::Id id,
                                                  ProjectImporter::CleanupFunction cleanup,
                                                  ProjectImporter::PersistFunction persist)
 {
     QTC_ASSERT(!findTemporaryHandler(id), return);
-    m_temporaryHandlers.append({ id, cleanup, persist });
+    m_temporaryHandlers.append({id, cleanup, persist});
 }
 
 void ProjectImporter::addTemporaryData(Core::Id id, const QVariant &cleanupData, Kit *k) const
 {
+    QTC_ASSERT(k, return);
     QTC_ASSERT(findTemporaryHandler(id), return);
     const Core::Id fid = fullId(id);
 
@@ -328,6 +367,46 @@ bool ProjectImporter::hasKitWithTemporaryData(Core::Id id, const QVariant &data)
     return Utils::contains(KitManager::kits(), [data, fid](Kit *k) {
         return k->value(fid).toList().contains(data);
     });
+}
+
+static ProjectImporter::ToolChainData
+createToolChains(const Utils::FileName &toolChainPath, const Core::Id &language)
+{
+    ProjectImporter::ToolChainData data;
+
+    for (ToolChainFactory *factory : ToolChainFactory::allToolChainFactories()) {
+        data.tcs = factory->autoDetect(toolChainPath, language);
+        if (data.tcs.isEmpty())
+            continue;
+
+        for (ToolChain *tc : data.tcs)
+            ToolChainManager::registerToolChain(tc);
+
+        data.areTemporary = true;
+        break;
+    }
+
+    return data;
+}
+
+ProjectImporter::ToolChainData
+ProjectImporter::findOrCreateToolChains(const Utils::FileName &toolChainPath,
+                                        const Core::Id &language) const
+{
+    ToolChainData result;
+    result.tcs = ToolChainManager::toolChains([toolChainPath, language](const ToolChain *tc) {
+        return tc->language() == language && tc->compilerCommand() == toolChainPath;
+    });
+    for (const ToolChain *tc : result.tcs) {
+        const QByteArray tcId = tc->id();
+        result.areTemporary = result.areTemporary ? true : hasKitWithTemporaryData(ToolChainKitInformation::id(), tcId);
+    }
+    if (!result.tcs.isEmpty())
+        return result;
+
+    // Create a new toolchain:
+    UpdateGuard guard(*this);
+    return createToolChains(toolChainPath, language);
 }
 
 } // namespace ProjectExplorer

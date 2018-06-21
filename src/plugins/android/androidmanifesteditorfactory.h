@@ -35,7 +35,7 @@ class AndroidManifestEditorFactory : public Core::IEditorFactory
     Q_OBJECT
 
 public:
-    explicit AndroidManifestEditorFactory(QObject *parent = 0);
+    AndroidManifestEditorFactory();
 
     Core::IEditor *createEditor();
 };

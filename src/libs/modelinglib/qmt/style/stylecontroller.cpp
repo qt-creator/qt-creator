@@ -47,15 +47,14 @@ public:
     }
 
 private:
-    StyleController *m_styleController = 0;
+    StyleController *m_styleController = nullptr;
 };
 
 StyleController::StyleController(QObject *parent)
     : QObject(parent),
       m_defaultStyle(new DefaultStyle),
       m_relationStarterStyle(new RelationStarterStyle),
-      m_defaultStyleEngine(new DefaultStyleEngine),
-      m_suppressGradients(false)
+      m_defaultStyleEngine(new DefaultStyleEngine)
 {
 }
 
@@ -102,6 +101,12 @@ const Style *StyleController::adaptBoundaryStyle(const DBoundary *boundary)
 {
     Parameters parameters(this);
     return m_defaultStyleEngine->applyBoundaryStyle(m_defaultStyle.data(), boundary, &parameters);
+}
+
+const Style *StyleController::adaptSwimlaneStyle(const DSwimlane *swimlane)
+{
+    Parameters parameters(this);
+    return m_defaultStyleEngine->applySwimlaneStyle(m_defaultStyle.data(), swimlane, &parameters);
 }
 
 const Style *StyleController::relationStarterStyle()

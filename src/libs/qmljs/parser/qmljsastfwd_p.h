@@ -166,7 +166,10 @@ class UiArrayMemberList;
 class UiQualifiedId;
 class UiQualifiedPragmaId;
 class UiHeaderItemList;
+class UiEnumDeclaration;
+class UiEnumMemberList;
 
 } } // namespace AST
 
 QT_QML_END_NAMESPACE
+

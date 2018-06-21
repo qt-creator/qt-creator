@@ -33,6 +33,7 @@
 
 #include <QColor>
 #include <QDir>
+#include <QRegExp>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -123,7 +124,7 @@ public:
                             fileName.prepend(QLatin1Char('/'));
                             fileName.prepend(_doc->path());
                         }
-                        if (!QFileInfo(fileName).exists())
+                        if (!QFileInfo::exists(fileName))
                             setMessage(WarnFileOrDirectoryDoesNotExist);
                     }
                 }
@@ -323,7 +324,7 @@ protected:
 class MarkUnreachableCode : protected ReachesEndCheck
 {
     QList<Message> _messages;
-    bool _emittedWarning;
+    bool _emittedWarning = false;
 
 public:
     QList<Message> operator()(Node *ast)
@@ -492,34 +493,34 @@ private:
 class IdsThatShouldNotBeUsedInDesigner  : public QStringList
 {
 public:
-    IdsThatShouldNotBeUsedInDesigner() : QStringList({ "top",
-                                                   "bottom",
-                                                   "left",
-                                                   "right",
-                                                   "width",
-                                                   "height",
-                                                   "x",
-                                                   "y",
-                                                   "opacity",
-                                                   "parent",
-                                                   "item",
-                                                   "flow",
-                                                   "color",
-                                                   "margin",
-                                                   "padding",
-                                                   "border",
-                                                   "font",
-                                                   "text",
-                                                   "source",
-                                                   "state",
-                                                   "visible",
-                                                   "focus",
-                                                   "data",
-                                                   "clip",
-                                                   "layer",
-                                                   "scale",
-                                                   "enabled",
-                                                   "anchors"})
+    IdsThatShouldNotBeUsedInDesigner() : QStringList({"top",
+                                                      "bottom",
+                                                      "left",
+                                                      "right",
+                                                      "width",
+                                                      "height",
+                                                      "x",
+                                                      "y",
+                                                      "opacity",
+                                                      "parent",
+                                                      "item",
+                                                      "flow",
+                                                      "color",
+                                                      "margin",
+                                                      "padding",
+                                                      "border",
+                                                      "font",
+                                                      "text",
+                                                      "source",
+                                                      "state",
+                                                      "visible",
+                                                      "focus",
+                                                      "data",
+                                                      "clip",
+                                                      "layer",
+                                                      "scale",
+                                                      "enabled",
+                                                      "anchors"})
     {
     }
 
@@ -550,13 +551,12 @@ class UnsupportedTypesByVisualDesigner : public QStringList
 {
 public:
     UnsupportedTypesByVisualDesigner() : QStringList({"Transform",
-                                                     "Timer",
-                                                     "Rotation",
-                                                     "Scale",
-                                                     "Translate",
-                                                     "Package",
-                                                     "Particles",
-                                                     "Dialog"})
+                                                      "Timer",
+                                                      "Rotation",
+                                                      "Scale",
+                                                      "Translate",
+                                                      "Package",
+                                                      "Particles"})
     {
 
     }
@@ -566,18 +566,16 @@ class UnsupportedTypesByQmlUi : public QStringList
 {
 public:
     UnsupportedTypesByQmlUi() : QStringList({"Binding",
-                                            "ShaderEffect",
-                                            "ShaderEffectSource",
-                                            "Component",
-                                            "Loader",
-                                            "Transition",
-                                            "PropertyAnimation",
-                                            "SequentialAnimation",
-                                            "PropertyAnimation",
-                                            "SequentialAnimation",
-                                            "ParallelAnimation",
-                                            "NumberAnimation",
-                                            "Drawer"})
+                                             "ShaderEffect",
+                                             "ShaderEffectSource",
+                                             "Component",
+                                             "Transition",
+                                             "PropertyAnimation",
+                                             "SequentialAnimation",
+                                             "PropertyAnimation",
+                                             "SequentialAnimation",
+                                             "ParallelAnimation",
+                                             "Drawer"})
     {
         append(UnsupportedTypesByVisualDesigner());
     }
@@ -678,7 +676,6 @@ void Check::enableQmlDesignerChecks()
     enableMessage(WarnImperativeCodeNotEditableInVisualDesigner);
     enableMessage(WarnUnsupportedTypeInVisualDesigner);
     enableMessage(WarnReferenceToParentItemNotSupportedByVisualDesigner);
-    enableMessage(WarnAboutQtQuick1InsteadQtQuick2);
     enableMessage(ErrUnsupportedRootTypeInVisualDesigner);
     enableMessage(ErrInvalidIdeInVisualDesigner);
     //## triggers too often ## check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
@@ -856,6 +853,10 @@ static bool checkTopLevelBindingForParentReference(ExpressionStatement *expStmt,
 void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
                            UiObjectInitializer *initializer)
 {
+    // TODO: currently Qbs checks are not working properly
+    if (_doc->language() == Dialect::QmlQbs)
+        return;
+
     // Don't do type checks if it's a grouped property binding.
     // For instance: anchors { ... }
     if (_doc->bind()->isGroupedPropertyBinding(ast)) {
@@ -908,12 +909,6 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
             if (iter.error() != PrototypeIterator::NoError)
                 typeError = true;
             const ObjectValue *lastPrototype = prototypes.last();
-            foreach (const ObjectValue *objectValue, prototypes) {
-                if (objectValue->className() == QLatin1String("QGraphicsObject")
-                        && _isQtQuick2) {
-                    addMessage(WarnAboutQtQuick1InsteadQtQuick2, typeErrorLocation);
-                }
-            }
 
             if (iter.error() == PrototypeIterator::ReferenceResolutionError) {
                 if (const QmlPrototypeReference *ref =
@@ -1044,17 +1039,21 @@ bool Check::visit(UiArrayBinding *ast)
 bool Check::visit(UiPublicMember *ast)
 {
     if (ast->type == UiPublicMember::Property) {
-        // check if the member type is valid
-        if (!ast->memberType.isEmpty()) {
-            const QStringRef name = ast->memberType;
-            if (!name.isEmpty() && name.at(0).isLower()) {
-                const QString nameS = name.toString();
-                if (!isValidBuiltinPropertyType(nameS))
-                    addMessage(ErrInvalidPropertyType, ast->typeToken, nameS);
+        if (ast->isValid()) {
+            const QStringRef typeName = ast->memberTypeName();
+            if (!typeName.isEmpty() && typeName.at(0).isLower()) {
+                const QString typeNameS = typeName.toString();
+                if (!isValidBuiltinPropertyType(typeNameS))
+                    addMessage(ErrInvalidPropertyType, ast->typeToken, typeNameS);
             }
 
+            const QStringRef name = ast->name;
+
+            if (name == "data")
+                addMessage(ErrInvalidPropertyName, ast->identifierToken, name.toString());
+
             // warn about dubious use of var/variant
-            if (name == QLatin1String("variant") || name == QLatin1String("var")) {
+            if (typeName == QLatin1String("variant") || typeName == QLatin1String("var")) {
                 Evaluate evaluator(&_scopeChain);
                 const Value *init = evaluator(ast->statement);
                 QString preferredType;
@@ -1398,11 +1397,11 @@ bool Check::visit(CaseBlock *ast)
 {
     QList< QPair<SourceLocation, StatementList *> > clauses;
     for (CaseClauses *it = ast->clauses; it; it = it->next)
-        clauses += qMakePair(it->clause->caseToken, it->clause->statements);
+        clauses += {it->clause->caseToken, it->clause->statements};
     if (ast->defaultClause)
-        clauses += qMakePair(ast->defaultClause->defaultToken, ast->defaultClause->statements);
+        clauses += {ast->defaultClause->defaultToken, ast->defaultClause->statements};
     for (CaseClauses *it = ast->moreClauses; it; it = it->next)
-        clauses += qMakePair(it->clause->caseToken, it->clause->statements);
+        clauses += {it->clause->caseToken, it->clause->statements};
 
     // check all but the last clause for fallthrough
     for (int i = 0; i < clauses.size() - 1; ++i) {
@@ -1625,11 +1624,14 @@ bool Check::visit(CallExpression *ast)
 
     const QString namespaceName = functionNamespace(ast->base);
 
-    // We have to allow the qsTr function for translation.
+    // We have to allow the translation functions
 
-    const bool isTranslationFunction = (name == QLatin1String("qsTr") || name == QLatin1String("qsTrId"));
+    const QStringList translationFunctions = {"qsTr", "qsTrId", "qsTranslate",
+                                              "qsTrNoOp", "qsTrIdNoOp", "qsTranslateNoOp"};
+
+    const bool isTranslationFunction = translationFunctions.contains(name);
+
     // We allow the Math. functions
-
     const bool isMathFunction = namespaceName == "Math";
     // allow adding connections with the help of the qt quick designer ui
     bool isDirectInConnectionsScope =
@@ -1708,12 +1710,24 @@ bool Check::visit(TypeOfExpression *ast)
 /// ### Maybe put this into the context as a helper function.
 const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 {
+
     if (!_importsOk)
         return 0;
 
     QList<const ObjectValue *> scopeObjects = _scopeChain.qmlScopeObjects();
     if (scopeObjects.isEmpty())
         return 0;
+
+    const auto getAttachedTypes = [this, &scopeObjects](const QString &propertyName) {
+        bool isAttachedProperty = false;
+        if (! propertyName.isEmpty() && propertyName[0].isUpper()) {
+            isAttachedProperty = true;
+            if (const ObjectValue *qmlTypes = _scopeChain.qmlTypes())
+                scopeObjects += qmlTypes;
+        }
+        return isAttachedProperty;
+    };
+
 
     if (! id)
         return 0; // ### error?
@@ -1727,12 +1741,7 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
         return 0; // ### should probably be a special value
 
     // attached properties
-    bool isAttachedProperty = false;
-    if (! propertyName.isEmpty() && propertyName[0].isUpper()) {
-        isAttachedProperty = true;
-        if (const ObjectValue *qmlTypes = _scopeChain.qmlTypes())
-            scopeObjects += qmlTypes;
-    }
+    bool isAttachedProperty = getAttachedTypes(propertyName);
 
     if (scopeObjects.isEmpty())
         return 0;
@@ -1774,12 +1783,18 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 
         idPart = idPart->next;
         propertyName = idPart->name.toString();
+        isAttachedProperty = getAttachedTypes(propertyName);
+        if (isAttachedProperty)
+            return 0;
 
         value = objectValue->lookupMember(propertyName, _context);
         if (! value) {
             addMessage(ErrInvalidMember, idPart->identifierToken, propertyName, objectValue->className());
             return 0;
         }
+        // resolve references
+        if (const Reference *ref = value->asReference())
+            value = _context->lookupReference(ref);
     }
 
     return value;

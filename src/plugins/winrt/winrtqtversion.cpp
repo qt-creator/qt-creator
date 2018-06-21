@@ -67,12 +67,12 @@ QSet<Core::Id> WinRtQtVersion::availableFeatures() const
 
 QList<ProjectExplorer::Abi> WinRtQtVersion::detectQtAbis() const
 {
-    return qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));
+    return qtAbisFromLibrary(qtCorePaths());
 }
 
 QSet<Core::Id> WinRtQtVersion::targetDeviceTypes() const
 {
-    return { Constants::WINRT_DEVICE_TYPE_LOCAL, Constants::WINRT_DEVICE_TYPE_EMULATOR };
+    return {Constants::WINRT_DEVICE_TYPE_LOCAL, Constants::WINRT_DEVICE_TYPE_EMULATOR};
 }
 
 } // Internal

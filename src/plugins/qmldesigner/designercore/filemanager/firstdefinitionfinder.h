@@ -40,15 +40,15 @@ public:
 protected:
     using QmlJS::AST::Visitor::visit;
 
-    virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
-    virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
+    bool visit(QmlJS::AST::UiObjectBinding *ast) override;
+    bool visit(QmlJS::AST::UiObjectDefinition *ast) override;
 
     void extractFirstObjectDefinition(QmlJS::AST::UiObjectInitializer* ast);
 
 private:
     QmlJS::Document::MutablePtr m_doc;
     quint32 m_offset;
-    QmlJS::AST::UiObjectDefinition *m_firstObjectDefinition;
+    QmlJS::AST::UiObjectDefinition *m_firstObjectDefinition = nullptr;
 
 };
 

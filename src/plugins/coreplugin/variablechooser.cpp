@@ -26,7 +26,7 @@
 #include "variablechooser.h"
 #include "coreconstants.h"
 
-#include <utils/fancylineedit.h> // IconButton
+#include <utils/fancylineedit.h>
 #include <utils/headerviewstretcher.h> // IconButton
 #include <utils/macroexpander.h>
 #include <utils/treemodel.h>
@@ -80,6 +80,24 @@ private:
     VariableChooserPrivate *m_target;
 };
 
+class VariableSortFilterProxyModel : public QSortFilterProxyModel
+{
+public:
+    explicit VariableSortFilterProxyModel(QObject *parent) : QSortFilterProxyModel(parent) {}
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override
+    {
+        const QModelIndex index = sourceModel()->index(sourceRow, filterKeyColumn(), sourceParent);
+        if (!index.isValid())
+            return false;
+
+        const QRegExp regexp = filterRegExp();
+        if (regexp.isEmpty() || sourceModel()->rowCount(index) > 0)
+            return true;
+
+        const QString displayText = index.data(Qt::DisplayRole).toString();
+        return displayText.contains(regexp);
+    }
+};
 
 class VariableChooserPrivate : public QObject
 {
@@ -89,7 +107,7 @@ public:
     void createIconButton()
     {
         m_iconButton = new IconButton;
-        m_iconButton->setPixmap(Utils::Icons::REPLACE.pixmap());
+        m_iconButton->setIcon(Utils::Icons::REPLACE.icon());
         m_iconButton->setToolTip(VariableChooser::tr("Insert Variable"));
         m_iconButton->hide();
         connect(m_iconButton.data(), static_cast<void(QAbstractButton::*)(bool)>(&QAbstractButton::clicked),
@@ -101,6 +119,7 @@ public:
     void handleItemActivated(const QModelIndex &index);
     void insertText(const QString &variable);
     void updatePositionAndShow(bool);
+    void updateFilter(const QString &filterText);
 
     QWidget *currentWidget();
 
@@ -116,6 +135,7 @@ public:
     QPointer<QPlainTextEdit> m_plainTextEdit;
     QPointer<IconButton> m_iconButton;
 
+    Utils::FancyLineEdit *m_variableFilter;
     VariableTreeView *m_variableTree;
     QLabel *m_variableDescription;
     QSortFilterProxyModel *m_sortModel;
@@ -183,9 +203,7 @@ public:
 
         if (role == Qt::ToolTipRole) {
             QString description = m_expander->variableDescription(m_variable);
-            QString value;
-            if (!m_expander->isPrefixVariable(m_variable))
-                value = m_expander->value(m_variable).toHtmlEscaped();
+            const QString value = m_expander->value(m_variable).toHtmlEscaped();
             if (!value.isEmpty())
                 description += QLatin1String("<p>") + VariableChooser::tr("Current Value: %1").arg(value);
             return description;
@@ -251,18 +269,25 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
       m_textEdit(0),
       m_plainTextEdit(0),
       m_iconButton(0),
+      m_variableFilter(0),
       m_variableTree(0),
       m_variableDescription(0)
 {
     m_defaultDescription = VariableChooser::tr("Select a variable to insert.");
 
+    m_variableFilter = new Utils::FancyLineEdit(q);
     m_variableTree = new VariableTreeView(q, this);
     m_variableDescription = new QLabel(q);
 
-    m_sortModel = new QSortFilterProxyModel(this);
+    m_variableFilter->setFiltering(true);
+
+    m_sortModel = new VariableSortFilterProxyModel(this);
     m_sortModel->setSourceModel(&m_model);
     m_sortModel->sort(0);
+    m_sortModel->setFilterKeyColumn(0);
+    m_sortModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_variableTree->setModel(m_sortModel);
+
     m_variableDescription->setText(m_defaultDescription);
     m_variableDescription->setMinimumSize(QSize(0, 60));
     m_variableDescription->setAlignment(Qt::AlignLeft|Qt::AlignTop);
@@ -272,14 +297,17 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(q);
     verticalLayout->setContentsMargins(3, 3, 3, 12);
+    verticalLayout->addWidget(m_variableFilter);
     verticalLayout->addWidget(m_variableTree);
     verticalLayout->addWidget(m_variableDescription);
 
+    connect(m_variableFilter, &QLineEdit::textChanged,
+            this, &VariableChooserPrivate::updateFilter);
     connect(m_variableTree, &QTreeView::activated,
             this, &VariableChooserPrivate::handleItemActivated);
     connect(qobject_cast<QApplication *>(qApp), &QApplication::focusChanged,
             this, &VariableChooserPrivate::updateCurrentEditor);
-    updateCurrentEditor(0, qApp->focusWidget());
+    updateCurrentEditor(0, QApplication::focusWidget());
 }
 
 void VariableGroupItem::populateGroup(MacroExpander *expander)
@@ -368,6 +396,7 @@ VariableChooser::VariableChooser(QWidget *parent) :
     setWindowFlags(Qt::Tool);
     setFocusPolicy(Qt::StrongFocus);
     setFocusProxy(d->m_variableTree);
+    setGeometry(QRect(0, 0, 400, 500));
     addMacroExpanderProvider([]() { return globalMacroExpander(); });
 }
 
@@ -426,11 +455,7 @@ void VariableChooserPrivate::updateDescription(const QModelIndex &index)
  */
 int VariableChooserPrivate::buttonMargin() const
 {
-    int margin = m_iconButton->pixmap().width() + 8;
-    if (q->style()->inherits("OxygenStyle"))
-        margin = qMax(24, margin);
-
-    return margin;
+    return 24;
 }
 
 void VariableChooserPrivate::updateButtonGeometry()
@@ -468,7 +493,7 @@ void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
     m_textEdit = 0;
     m_plainTextEdit = 0;
     QWidget *chooser = widget->property(kVariableSupportProperty).value<QWidget *>();
-    m_currentVariableName = widget->property(kVariableNameProperty).value<QByteArray>();
+    m_currentVariableName = widget->property(kVariableNameProperty).toByteArray();
     bool supportsVariables = chooser == q;
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget))
         m_lineEdit = (supportsVariables ? lineEdit : 0);
@@ -516,6 +541,12 @@ void VariableChooserPrivate::updatePositionAndShow(bool)
     q->show();
     q->raise();
     q->activateWindow();
+    m_variableTree->expandAll();
+}
+
+void VariableChooserPrivate::updateFilter(const QString &filterText)
+{
+    m_sortModel->setFilterWildcard(filterText);
     m_variableTree->expandAll();
 }
 

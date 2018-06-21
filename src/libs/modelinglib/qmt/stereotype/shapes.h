@@ -49,7 +49,7 @@ public:
     ShapePointF pos1() const { return m_pos1; }
     ShapePointF pos2() const { return m_pos2; }
 
-    IShape *Clone() const override;
+    IShape *clone() const override;
     void accept(ShapeVisitor *visitor) override;
     void accept(ShapeConstVisitor *visitor) const override;
 
@@ -72,7 +72,7 @@ public:
     ShapePointF pos() const { return m_pos; }
     ShapeSizeF size() const { return m_size; }
 
-    IShape *Clone() const override;
+    IShape *clone() const override;
     void accept(ShapeVisitor *visitor) override;
     void accept(ShapeConstVisitor *visitor) const override;
 
@@ -97,7 +97,7 @@ public:
     ShapeSizeF size() const { return m_size; }
     ShapeValueF radius() const { return m_radius; }
 
-    IShape *Clone() const override;
+    IShape *clone() const override;
     void accept(ShapeVisitor *visitor) override;
     void accept(ShapeConstVisitor *visitor) const override;
 
@@ -121,7 +121,7 @@ public:
     ShapePointF center() const { return m_center; }
     ShapeValueF radius() const { return m_radius; }
 
-    IShape *Clone() const override;
+    IShape *clone() const override;
     void accept(ShapeVisitor *visitor) override;
     void accept(ShapeConstVisitor *visitor) const override;
 
@@ -144,13 +144,65 @@ public:
     ShapePointF center() const { return m_center; }
     ShapeSizeF radius() const { return m_radius; }
 
-    IShape *Clone() const override;
+    IShape *clone() const override;
     void accept(ShapeVisitor *visitor) override;
     void accept(ShapeConstVisitor *visitor) const override;
 
 private:
     ShapePointF m_center;
     ShapeSizeF m_radius;
+};
+
+class QMT_EXPORT DiamondShape : public IShape
+{
+public:
+    DiamondShape() = default;
+
+    DiamondShape(const ShapePointF &center, const ShapeSizeF &size, bool filled)
+        : m_center(center),
+          m_size(size),
+          m_filled(filled)
+    {
+    }
+
+    ShapePointF center() const { return m_center; }
+    ShapeSizeF size() const { return m_size; }
+    bool filled() const { return m_filled; }
+
+    IShape *clone() const override;
+    void accept(ShapeVisitor *visitor) override;
+    void accept(ShapeConstVisitor *visitor) const override;
+
+private:
+    ShapePointF m_center;
+    ShapeSizeF m_size;
+    bool m_filled = false;
+};
+
+class QMT_EXPORT TriangleShape : public IShape
+{
+public:
+    TriangleShape() = default;
+
+    TriangleShape(const ShapePointF &center, const ShapeSizeF &size, bool filled)
+        : m_center(center),
+          m_size(size),
+          m_filled(filled)
+    {
+    }
+
+    ShapePointF center() const { return m_center; }
+    ShapeSizeF size() const { return m_size; }
+    bool filled() const { return m_filled; }
+
+    IShape *clone() const override;
+    void accept(ShapeVisitor *visitor) override;
+    void accept(ShapeConstVisitor *visitor) const override;
+
+private:
+    ShapePointF m_center;
+    ShapeSizeF m_size;
+    bool m_filled = false;
 };
 
 class QMT_EXPORT ArcShape : public IShape
@@ -171,15 +223,15 @@ public:
     qreal startAngle() const { return m_startAngle; }
     qreal spanAngle() const { return m_spanAngle; }
 
-    IShape *Clone() const override;
+    IShape *clone() const override;
     void accept(ShapeVisitor *visitor) override;
     void accept(ShapeConstVisitor *visitor) const override;
 
 private:
     ShapePointF m_center;
     ShapeSizeF m_radius;
-    qreal m_startAngle;
-    qreal m_spanAngle;
+    qreal m_startAngle = 0.0;
+    qreal m_spanAngle = 0.0;
 };
 
 class QMT_EXPORT PathShape : public IShape
@@ -214,7 +266,7 @@ public:
 
     QList<Element> elements() const { return m_elements; }
 
-    IShape *Clone() const override;
+    IShape *clone() const override;
     void accept(ShapeVisitor *visitor) override;
     void accept(ShapeConstVisitor *visitor) const override;
 

@@ -50,38 +50,15 @@ public:
     static PluginManager *instance();
 
     PluginManager();
-    ~PluginManager();
+    ~PluginManager() override;
 
     // Object pool operations
     static void addObject(QObject *obj);
     static void removeObject(QObject *obj);
     static QList<QObject *> allObjects();
     static QReadWriteLock *listLock();
-    template <typename T> static QList<T *> getObjects()
-    {
-        QReadLocker lock(listLock());
-        QList<T *> results;
-        QList<QObject *> all = allObjects();
-        foreach (QObject *obj, all) {
-            T *result = qobject_cast<T *>(obj);
-            if (result)
-                results += result;
-        }
-        return results;
-    }
-    template <typename T, typename Predicate>
-    static QList<T *> getObjects(Predicate predicate)
-    {
-        QReadLocker lock(listLock());
-        QList<T *> results;
-        QList<QObject *> all = allObjects();
-        foreach (QObject *obj, all) {
-            T *result = qobject_cast<T *>(obj);
-            if (result && predicate(result))
-                results += result;
-        }
-        return results;
-    }
+
+    // This is useful for soft dependencies using pure interfaces.
     template <typename T> static T *getObject()
     {
         QReadLocker lock(listLock());
@@ -90,7 +67,7 @@ public:
             if (T *result = qobject_cast<T *>(obj))
                 return result;
         }
-        return 0;
+        return nullptr;
     }
     template <typename T, typename Predicate> static T *getObject(Predicate predicate)
     {
@@ -105,7 +82,6 @@ public:
     }
 
     static QObject *getObjectByName(const QString &name);
-    static QObject *getObjectByClassName(const QString &className);
 
     // Plugin operations
     static QList<PluginSpec *> loadQueue();
@@ -141,7 +117,7 @@ public:
 
     static bool testRunRequested();
 
-    static void profilingReport(const char *what, const PluginSpec *spec = 0);
+    static void profilingReport(const char *what, const PluginSpec *spec = nullptr);
 
     static QString platformName();
 

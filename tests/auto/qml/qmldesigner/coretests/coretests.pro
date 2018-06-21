@@ -2,7 +2,6 @@ QTC_LIB_DEPENDS += \
     utils \
     qmljs \
     qmleditorwidgets
-include(../qttest.pri)
 
 QTC_LIB_DEPENDS += \
     utils \
@@ -14,6 +13,8 @@ QTC_PLUGIN_DEPENDS += \
     coreplugin \
     qmljseditor \
     qmakeprojectmanager
+
+CONFIG -= qtquickcompiler
 
 include(../../../qttest.pri)
 

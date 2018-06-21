@@ -40,13 +40,12 @@ public:
     quint32 setBindingForObject(int objectDebugId, const QString &propertyName,
                                 const QVariant &bindingExpression,
                                 bool isLiteralValue,
-                                QString source, int line);
-    quint32 resetBindingForObject(int objectDebugId, const QString &propertyName);
+                                QString source, int line) override;
+    quint32 resetBindingForObject(int objectDebugId, const QString &propertyName) override;
     quint32 setMethodBody(int objectDebugId, const QString &methodName,
-                          const QString &methodBody);
+                          const QString &methodBody) override;
 
-protected:
-    void messageReceived(const QByteArray &data);
+    void messageReceived(const QByteArray &data) override;
 };
 
 } // namespace QmlDebug

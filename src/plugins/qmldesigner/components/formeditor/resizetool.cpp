@@ -58,7 +58,7 @@ void ResizeTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
         if (itemList.isEmpty())
             return;
 
-        ResizeHandleItem *resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.first());
+        ResizeHandleItem *resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.constFirst());
         if (resizeHandle && resizeHandle->resizeController().isValid()) {
             m_resizeManipulator.setHandle(resizeHandle);
             m_resizeManipulator.begin(event->scenePos());
@@ -85,7 +85,7 @@ void ResizeTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
        return;
     }
 
-    ResizeHandleItem* resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.first());
+    ResizeHandleItem* resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.constFirst());
     if (resizeHandle && resizeHandle->resizeController().isValid()) {
         m_resizeManipulator.setHandle(resizeHandle);
     } else {
@@ -161,9 +161,6 @@ void ResizeTool::keyReleaseEvent(QKeyEvent * keyEvent)
             keyEvent->setAccepted(false);
             return;
     }
-
-//     if (!keyEvent->isAutoRepeat())
-//         m_resizeManipulator.clear();
 }
 
 void ResizeTool::itemsAboutToRemoved(const QList<FormEditorItem*> & /*itemList*/)

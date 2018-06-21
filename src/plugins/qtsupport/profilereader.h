@@ -44,12 +44,12 @@ class QTSUPPORT_EXPORT ProMessageHandler : public QObject, public QMakeHandler
 
 public:
     ProMessageHandler(bool verbose = true, bool exact = true);
-    virtual ~ProMessageHandler() {}
+    ~ProMessageHandler() override {}
 
-    virtual void aboutToEval(ProFile *, ProFile *, EvalFileType) {}
-    virtual void doneWithEval(ProFile *) {}
-    virtual void message(int type, const QString &msg, const QString &fileName, int lineNo);
-    virtual void fileMessage(int type, const QString &msg);
+    void aboutToEval(ProFile *, ProFile *, EvalFileType) override {}
+    void doneWithEval(ProFile *) override {}
+    void message(int type, const QString &msg, const QString &fileName, int lineNo) override;
+    void fileMessage(int type, const QString &msg) override;
 
     void setVerbose(bool on) { m_verbose = on; }
     void setExact(bool on) { m_exact = on; }
@@ -69,14 +69,14 @@ class QTSUPPORT_EXPORT ProFileReader : public ProMessageHandler, public QMakePar
 
 public:
     ProFileReader(QMakeGlobals *option, QMakeVfs *vfs);
-    ~ProFileReader();
+    ~ProFileReader() override;
 
     void setCumulative(bool on);
 
     QHash<ProFile *, QVector<ProFile *> > includeFiles() const;
 
-    virtual void aboutToEval(ProFile *parent, ProFile *proFile, EvalFileType type);
-    virtual void doneWithEval(ProFile *parent);
+    void aboutToEval(ProFile *parent, ProFile *proFile, EvalFileType type) override;
+    void doneWithEval(ProFile *parent) override;
 
 private:
     // Tree of ProFiles, mapping from parent to children
@@ -93,14 +93,14 @@ class QTSUPPORT_EXPORT ProFileCacheManager : public QObject
 public:
     static ProFileCacheManager *instance() { return s_instance; }
     ProFileCache *cache();
-    void discardFiles(const QString &prefix);
-    void discardFile(const QString &fileName);
+    void discardFiles(const QString &prefix, QMakeVfs *vfs);
+    void discardFile(const QString &fileName, QMakeVfs *vfs);
     void incRefCount();
     void decRefCount();
 
 private:
     ProFileCacheManager(QObject *parent);
-    ~ProFileCacheManager();
+    ~ProFileCacheManager() override;
     void clear();
     ProFileCache *m_cache;
     int m_refCount;

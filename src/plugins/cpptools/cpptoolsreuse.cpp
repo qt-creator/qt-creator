@@ -32,11 +32,11 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagemanager.h>
-#include <texteditor/convenience.h>
 
 #include <cplusplus/Overview.h>
 #include <cplusplus/LookupContext.h>
 #include <utils/algorithm.h>
+#include <utils/textutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -216,7 +216,7 @@ const Macro *findCanonicalMacro(const QTextCursor &cursor, Document::Ptr documen
     QTC_ASSERT(document, return 0);
 
     int line, column;
-    TextEditor::Convenience::convertPosition(cursor.document(), cursor.position(), &line, &column);
+    Utils::Text::convertPosition(cursor.document(), cursor.position(), &line, &column);
 
     if (const Macro *macro = document->findMacroDefinitionAt(line)) {
         QTextCursor macroCursor = cursor;
@@ -228,28 +228,6 @@ const Macro *findCanonicalMacro(const QTextCursor &cursor, Document::Ptr documen
     }
 
     return 0;
-}
-
-TextEditor::TextEditorWidget::Link linkToSymbol(Symbol *symbol)
-{
-    typedef TextEditor::TextEditorWidget::Link Link;
-
-    if (!symbol)
-        return Link();
-
-    const QString filename = QString::fromUtf8(symbol->fileName(),
-                                               symbol->fileNameLength());
-
-    unsigned line = symbol->line();
-    unsigned column = symbol->column();
-
-    if (column)
-        --column;
-
-    if (symbol->isGenerated())
-        column = 0;
-
-    return Link(filename, line, column);
 }
 
 QSharedPointer<CppCodeModelSettings> codeModelSettings()

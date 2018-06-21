@@ -25,112 +25,93 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include "expanddata.h"
+#include "projectnodes.h"
 
-#include <QAbstractItemModel>
+#include <utils/fileutils.h>
+#include <utils/treemodel.h>
+
+#include <QPointer>
 #include <QSet>
+#include <QTimer>
+#include <QTreeView>
 
 namespace ProjectExplorer {
 
 class Node;
-class FileNode;
 class FolderNode;
+class Project;
 class ProjectNode;
-class SessionNode;
 
 namespace Internal {
 
-class FlatModel : public QAbstractItemModel
+class WrapperNode : public Utils::TypedTreeItem<WrapperNode>
+{
+public:
+    explicit WrapperNode(Node *node) : m_node(node) {}
+    Node *m_node = nullptr;
+};
+
+class FlatModel : public Utils::TreeModel<WrapperNode, WrapperNode>
 {
     Q_OBJECT
 
 public:
-    FlatModel(SessionNode *rootNode, QObject *parent);
+    FlatModel(QObject *parent);
 
     // QAbstractItemModel
-    QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex &index) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
-
-    int rowCount(const QModelIndex & parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex & parent = QModelIndex()) const override;
-    bool hasChildren(const QModelIndex & parent = QModelIndex()) const override;
-
-    bool canFetchMore(const QModelIndex & parent) const override;
-    void fetchMore(const QModelIndex & parent) override;
-
-    void reset();
 
     Qt::DropActions supportedDragActions() const override;
     QStringList mimeTypes() const override;
     QMimeData *mimeData(const QModelIndexList &indexes) const override;
 
-    void setStartupProject(ProjectNode *projectNode);
-
     Node *nodeForIndex(const QModelIndex &index) const;
+    WrapperNode *wrapperForNode(const Node *node) const;
     QModelIndex indexForNode(const Node *node) const;
 
     bool projectFilterEnabled();
     bool generatedFilesFilterEnabled();
     void setProjectFilterEnabled(bool filter);
     void setGeneratedFilesFilterEnabled(bool filter);
+    void setTrimEmptyDirectories(bool filter);
+
+    void onExpanded(const QModelIndex &idx);
+    void onCollapsed(const QModelIndex &idx);
 
 signals:
     void renamed(const Utils::FileName &oldName, const Utils::FileName &newName);
+    void requestExpansion(const QModelIndex &index);
 
 private:
-    void aboutToShowInSimpleTreeChanged(ProjectExplorer::FolderNode *node);
-    void showInSimpleTreeChanged(ProjectExplorer::FolderNode *node);
-    void foldersAboutToBeAdded(FolderNode *parentFolder, const QList<FolderNode*> &newFolders);
-    void foldersAdded();
-
-    void foldersAboutToBeRemoved(FolderNode *parentFolder, const QList<FolderNode*> &staleFolders);
-    void foldersRemoved();
-
-    // files
-    void filesAboutToBeAdded(FolderNode *folder, const QList<FileNode*> &newFiles);
-    void filesAdded();
-
-    void filesAboutToBeRemoved(FolderNode *folder, const QList<FileNode*> &staleFiles);
-    void filesRemoved();
-
-    void nodeSortKeyAboutToChange(Node *node);
-    void nodeSortKeyChanged();
-
-    void nodeUpdated(ProjectExplorer::Node *node);
-
-    void added(FolderNode* folderNode, const QList<Node*> &newNodeList);
-    void removed(FolderNode* parentNode, const QList<Node*> &newNodeList);
-    void removeFromCache(QList<FolderNode *> list);
-    void changedSortKey(FolderNode *folderNode, Node *node);
-    void fetchMore(FolderNode *foldernode) const;
-
-    void recursiveAddFolderNodes(FolderNode *startNode, QList<Node *> *list, const QSet<Node *> &blackList = QSet<Node*>()) const;
-    void recursiveAddFolderNodesImpl(FolderNode *startNode, QList<Node *> *list, const QSet<Node *> &blackList = QSet<Node*>()) const;
-    void recursiveAddFileNodes(FolderNode *startNode, QList<Node *> *list, const QSet<Node *> &blackList = QSet<Node*>()) const;
-    QList<Node*> childNodes(FolderNode *parentNode, const QSet<Node*> &blackList = QSet<Node*>()) const;
-
-    FolderNode *visibleFolderNode(FolderNode *node) const;
-    bool filter(Node *node) const;
-
     bool m_filterProjects = false;
     bool m_filterGeneratedFiles = true;
-
-    SessionNode *m_rootNode;
-    mutable QHash<FolderNode*, QList<Node*> > m_childNodes;
-    ProjectNode *m_startupProject = nullptr;
-
-    FolderNode *m_parentFolderForChange = nullptr;
-    Node *m_nodeForSortKeyChange = nullptr;
+    bool m_trimEmptyDirectories = true;
 
     static const QLoggingCategory &logger();
 
-    friend class FlatModelManager;
-};
+    void updateSubtree(FolderNode *node);
+    void rebuildModel();
+    void addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<Node *> *seen);
+    bool trimEmptyDirectories(WrapperNode *parent);
 
-int caseFriendlyCompare(const QString &a, const QString &b);
+    ExpandData expandDataForNode(const Node *node) const;
+    void loadExpandData();
+    void saveExpandData();
+    void handleProjectAdded(Project *project);
+    void handleProjectRemoved(Project *project);
+    WrapperNode *nodeForProject(const Project *project) const;
+    void addOrRebuildProjectModel(Project *project);
+
+    void parsingStateChanged(Project *project);
+
+    QTimer m_timer;
+    QSet<ExpandData> m_toExpand;
+    QColor m_enabledTextColor;
+    QColor m_disabledTextColor;
+};
 
 } // namespace Internal
 } // namespace ProjectExplorer

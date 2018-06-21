@@ -60,6 +60,7 @@ public:
     void onContentsChangeOfEditorWidgetDocument(int position, int charsRemoved, int charsAdded);
 
     void updateSelectionsForVariableUnderCursor(const QList<QTextEdit::ExtraSelection> &selections);
+    bool isSameSelection(int cursorPosition) const;
 
 signals:
     void finished();

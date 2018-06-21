@@ -24,13 +24,14 @@
 ****************************************************************************/
 
 #include "gerritmodel.h"
-#include "gerritparameters.h"
 #include "../gitplugin.h"
 #include "../gitclient.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <vcsbase/vcsoutputwindow.h>
+
+#include <utils/algorithm.h>
 #include <utils/synchronousprocess.h>
 
 #include <QJsonArray>
@@ -48,6 +49,7 @@
 #include <QTimer>
 #include <QApplication>
 #include <QFutureWatcher>
+#include <QUrl>
 
 enum { debug = 0 };
 
@@ -58,7 +60,7 @@ namespace Internal {
 
 QDebug operator<<(QDebug d, const GerritApproval &a)
 {
-    d.nospace() << a.reviewer << " :" << a.approval << " ("
+    d.nospace() << a.reviewer.fullName << ": " << a.approval << " ("
                 << a.type << ", " << a.description << ')';
     return d;
 }
@@ -66,7 +68,7 @@ QDebug operator<<(QDebug d, const GerritApproval &a)
 // Sort approvals by type and reviewer
 bool gerritApprovalLessThan(const GerritApproval &a1, const GerritApproval &a2)
 {
-    return a1.type.compare(a2.type) < 0 || a1.reviewer.compare(a2.reviewer) < 0;
+    return a1.type.compare(a2.type) < 0 || a1.reviewer.fullName.compare(a2.reviewer.fullName) < 0;
 }
 
 QDebug operator<<(QDebug d, const GerritPatchSet &p)
@@ -78,16 +80,18 @@ QDebug operator<<(QDebug d, const GerritPatchSet &p)
 
 QDebug operator<<(QDebug d, const GerritChange &c)
 {
-    d.nospace() << c.title << " by " << c.email
+    d.nospace() << c.fullTitle() << " by " << c.owner.email
                 << ' ' << c.lastUpdated << ' ' <<  c.currentPatchSet;
     return d;
 }
 
 // Format default Url for a change
-static inline QString defaultUrl(const QSharedPointer<GerritParameters> &p, int gerritNumber)
+static inline QString defaultUrl(const QSharedPointer<GerritParameters> &p,
+                                 const GerritServer &server,
+                                 int gerritNumber)
 {
     QString result = QLatin1String(p->https ? "https://" : "http://");
-    result += p->host;
+    result += server.host;
     result += '/';
     result += QString::number(gerritNumber);
     return result;
@@ -104,7 +108,7 @@ QString GerritPatchSet::approvalsToHtml() const
     QString result;
     QTextStream str(&result);
     QString lastType;
-    foreach (const GerritApproval &a, approvals) {
+    for (const GerritApproval &a : approvals) {
         if (a.type != lastType) {
             if (!lastType.isEmpty())
                 str << "</tr>\n";
@@ -115,9 +119,9 @@ QString GerritPatchSet::approvalsToHtml() const
         } else {
             str << ", ";
         }
-        str << a.reviewer;
-        if (!a.email.isEmpty())
-            str << " <a href=\"mailto:" << a.email << "\">" << a.email << "</a>";
+        str << a.reviewer.fullName;
+        if (!a.reviewer.email.isEmpty())
+            str << " <a href=\"mailto:" << a.reviewer.email << "\">" << a.reviewer.email << "</a>";
         str << ": " << forcesign << a.approval << noforcesign;
     }
     str << "</tr>\n";
@@ -145,7 +149,7 @@ QString GerritPatchSet::approvalsColumn() const
         return result;
 
     TypeReviewMap reviews; // Sort approvals into a map by type character
-    foreach (const GerritApproval &a, approvals) {
+    for (const GerritApproval &a : approvals) {
         if (a.type != "STGN") { // Qt-Project specific: Ignore "STGN" (Staged)
             const QChar typeChar = a.type.at(0);
             TypeReviewMapIterator it = reviews.find(typeChar);
@@ -165,18 +169,17 @@ QString GerritPatchSet::approvalsColumn() const
     return result;
 }
 
-bool GerritPatchSet::hasApproval(const QString &userName) const
+bool GerritPatchSet::hasApproval(const GerritUser &user) const
 {
-    foreach (const GerritApproval &a, approvals)
-        if (a.reviewer == userName)
-            return true;
-    return false;
+    return Utils::contains(approvals, [&user](const GerritApproval &a) {
+        return a.reviewer.isSameAs(user);
+    });
 }
 
 int GerritPatchSet::approvalLevel() const
 {
     int value = 0;
-    foreach (const GerritApproval &a, approvals)
+    for (const GerritApproval &a : approvals)
         applyApproval(a.approval, &value);
     return value;
 }
@@ -185,23 +188,29 @@ QString GerritChange::filterString() const
 {
     const QChar blank = ' ';
     QString result = QString::number(number) + blank + title + blank
-            + owner + blank + project + blank
+            + owner.fullName + blank + project + blank
             + branch + blank + status;
-    foreach (const GerritApproval &a, currentPatchSet.approvals) {
+    for (const GerritApproval &a : currentPatchSet.approvals) {
         result += blank;
-        result += a.reviewer;
+        result += a.reviewer.fullName;
     }
     return result;
 }
 
-QStringList GerritChange::gitFetchArguments(const QSharedPointer<GerritParameters> &p) const
+QStringList GerritChange::gitFetchArguments(const GerritServer &server) const
 {
-    QStringList arguments;
-    const QString url = "ssh://" + p->sshHostArgument()
-            + ':' + QString::number(p->port) + '/'
-            + project;
-    arguments << "fetch" << url << currentPatchSet.ref;
-    return arguments;
+    const QString url = currentPatchSet.url.isEmpty()
+            ? server.url(GerritServer::UrlWithHttpUser) + '/' + project
+            : currentPatchSet.url;
+    return {"fetch", url, currentPatchSet.ref};
+}
+
+QString GerritChange::fullTitle() const
+{
+    QString res = title;
+    if (status == "DRAFT")
+        res += GerritModel::tr(" (Draft)");
+    return res;
 }
 
 // Helper class that runs ssh gerrit queries from a list of query argument
@@ -213,73 +222,75 @@ QStringList GerritChange::gitFetchArguments(const QSharedPointer<GerritParameter
 class QueryContext : public QObject {
     Q_OBJECT
 public:
-    QueryContext(const QStringList &queries,
+    QueryContext(const QString &query,
                  const QSharedPointer<GerritParameters> &p,
-                 QObject *parent = 0);
+                 const GerritServer &server,
+                 QObject *parent = nullptr);
 
     ~QueryContext();
-
-    int currentQuery() const { return m_currentQuery; }
-
-public slots:
     void start();
+    void terminate();
 
 signals:
-    void queryFinished(const QByteArray &);
+    void resultRetrieved(const QByteArray &);
+    void errorText(const QString &text);
     void finished();
 
 private:
     void processError(QProcess::ProcessError);
     void processFinished(int exitCode, QProcess::ExitStatus);
-    void readyReadStandardError();
-    void readyReadStandardOutput();
     void timeout();
 
-    void startQuery(const QString &query);
     void errorTermination(const QString &msg);
-    void terminate();
 
-    const QSharedPointer<GerritParameters> m_parameters;
-    const QStringList m_queries;
     QProcess m_process;
     QTimer m_timer;
     QString m_binary;
     QByteArray m_output;
-    int m_currentQuery;
+    QString m_error;
     QFutureInterface<void> m_progress;
     QFutureWatcher<void> m_watcher;
-    QStringList m_baseArguments;
+    QStringList m_arguments;
 };
 
 enum { timeOutMS = 30000 };
 
-QueryContext::QueryContext(const QStringList &queries,
+QueryContext::QueryContext(const QString &query,
                            const QSharedPointer<GerritParameters> &p,
+                           const GerritServer &server,
                            QObject *parent)
     : QObject(parent)
-    , m_parameters(p)
-    , m_queries(queries)
-    , m_currentQuery(0)
-    , m_baseArguments(p->baseCommandArguments())
 {
-    connect(&m_process, &QProcess::readyReadStandardError,
-            this, &QueryContext::readyReadStandardError);
-    connect(&m_process, &QProcess::readyReadStandardOutput,
-            this, &QueryContext::readyReadStandardOutput);
+    if (server.type == GerritServer::Ssh) {
+        m_binary = p->ssh;
+        if (server.port)
+            m_arguments << p->portFlag << QString::number(server.port);
+        m_arguments << server.hostArgument() << "gerrit"
+                    << "query" << "--dependencies"
+                    << "--current-patch-set"
+                    << "--format=JSON" << query;
+    } else {
+        m_binary = p->curl;
+        const QString url = server.url(GerritServer::RestUrl) + "/changes/?q="
+                + QString::fromUtf8(QUrl::toPercentEncoding(query))
+                + "&o=CURRENT_REVISION&o=DETAILED_LABELS&o=DETAILED_ACCOUNTS";
+        m_arguments = server.curlArguments() << url;
+    }
+    connect(&m_process, &QProcess::readyReadStandardError, this, [this] {
+        const QString text = QString::fromLocal8Bit(m_process.readAllStandardError());
+        VcsOutputWindow::appendError(text);
+        m_error.append(text);
+    });
+    connect(&m_process, &QProcess::readyReadStandardOutput, this, [this] {
+        m_output.append(m_process.readAllStandardOutput());
+    });
     connect(&m_process, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             this, &QueryContext::processFinished);
     connect(&m_process, &QProcess::errorOccurred, this, &QueryContext::processError);
     connect(&m_watcher, &QFutureWatcherBase::canceled, this, &QueryContext::terminate);
     m_watcher.setFuture(m_progress.future());
     m_process.setProcessEnvironment(Git::Internal::GitPlugin::client()->processEnvironment());
-    m_progress.setProgressRange(0, m_queries.size());
-
-    // Determine binary and common command line arguments.
-    m_baseArguments << "query" << "--dependencies"
-                    << "--current-patch-set"
-                    << "--format=JSON";
-    m_binary = m_baseArguments.front();
-    m_baseArguments.pop_front();
+    m_progress.setProgressRange(0, 1);
 
     m_timer.setInterval(timeOutMS);
     m_timer.setSingleShot(true);
@@ -302,17 +313,11 @@ void QueryContext::start()
                                            "gerrit-query");
     fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);
     m_progress.reportStarted();
-    startQuery(m_queries.front()); // Order: synchronous call to  error handling if something goes wrong.
-}
-
-void QueryContext::startQuery(const QString &query)
-{
-    QStringList arguments = m_baseArguments;
-    arguments.push_back(query);
+    // Order: synchronous call to error handling if something goes wrong.
     VcsOutputWindow::appendCommand(
-                m_process.workingDirectory(), Utils::FileName::fromString(m_binary), arguments);
+                m_process.workingDirectory(), Utils::FileName::fromString(m_binary), m_arguments);
     m_timer.start();
-    m_process.start(m_binary, arguments);
+    m_process.start(m_binary, m_arguments);
     m_process.closeWriteChannel();
 }
 
@@ -343,6 +348,7 @@ void QueryContext::processFinished(int exitCode, QProcess::ExitStatus es)
 {
     if (m_timer.isActive())
         m_timer.stop();
+    emit errorText(m_error);
     if (es != QProcess::NormalExit) {
         errorTermination(tr("%1 crashed.").arg(m_binary));
         return;
@@ -350,26 +356,9 @@ void QueryContext::processFinished(int exitCode, QProcess::ExitStatus es)
         errorTermination(tr("%1 returned %2.").arg(m_binary).arg(exitCode));
         return;
     }
-    emit queryFinished(m_output);
-    m_output.clear();
-
-    if (++m_currentQuery >= m_queries.size()) {
-        m_progress.reportFinished();
-        emit finished();
-    } else {
-        m_progress.setProgressValue(m_currentQuery);
-        startQuery(m_queries.at(m_currentQuery));
-    }
-}
-
-void QueryContext::readyReadStandardError()
-{
-    VcsOutputWindow::appendError(QString::fromLocal8Bit(m_process.readAllStandardError()));
-}
-
-void QueryContext::readyReadStandardOutput()
-{
-    m_output.append(m_process.readAllStandardOutput());
+    emit resultRetrieved(m_output);
+    m_progress.reportFinished();
+    emit finished();
 }
 
 void QueryContext::timeout()
@@ -442,7 +431,7 @@ QString GerritModel::dependencyHtml(const QString &header, const int changeNumbe
     str << "<tr><td>" << header << "</td><td><a href="
         << serverPrefix << "r/" << changeNumber << '>' << changeNumber << "</a>";
     if (const QStandardItem *item = itemForNumber(changeNumber))
-        str << " (" << changeFromItem(item)->title << ')';
+        str << " (" << changeFromItem(item)->fullTitle() << ')';
     str << "</td></tr>";
     return res;
 }
@@ -466,10 +455,10 @@ QString GerritModel::toHtml(const QModelIndex& index) const
     QString result;
     QTextStream str(&result);
     str << "<html><head/><body><table>"
-        << "<tr><td>" << subjectHeader << "</td><td>" << c->title << "</td></tr>"
+        << "<tr><td>" << subjectHeader << "</td><td>" << c->fullTitle() << "</td></tr>"
         << "<tr><td>" << numberHeader << "</td><td><a href=\"" << c->url << "\">" << c->number << "</a></td></tr>"
-        << "<tr><td>" << ownerHeader << "</td><td>" << c->owner << ' '
-        << "<a href=\"mailto:" << c->email << "\">" << c->email << "</a></td></tr>"
+        << "<tr><td>" << ownerHeader << "</td><td>" << c->owner.fullName << ' '
+        << "<a href=\"mailto:" << c->owner.email << "\">" << c->owner.email << "</a></td></tr>"
         << "<tr><td>" << projectHeader << "</td><td>" << c->project << " (" << c->branch << ")</td></tr>"
         << dependencyHtml(dependsOnHeader, c->dependsOnNumber, serverPrefix)
         << dependencyHtml(neededByHeader, c->neededByNumber, serverPrefix)
@@ -491,50 +480,40 @@ static QStandardItem *numberSearchRecursion(QStandardItem *item, int number)
         if (QStandardItem *i = numberSearchRecursion(item->child(r, 0), number))
             return i;
     }
-    return 0;
+    return nullptr;
 }
 
 QStandardItem *GerritModel::itemForNumber(int number) const
 {
     if (!number)
-        return 0;
+        return nullptr;
     const int numRows = rowCount();
     for (int r = 0; r < numRows; ++r) {
         if (QStandardItem *i = numberSearchRecursion(item(r, 0), number))
             return i;
     }
-    return 0;
+    return nullptr;
 }
 
-void GerritModel::refresh(const QString &query)
+void GerritModel::refresh(const QSharedPointer<GerritServer> &server, const QString &query)
 {
-    if (m_query) {
-        qWarning("%s: Another query is still running", Q_FUNC_INFO);
-        return;
-    }
+    if (m_query)
+        m_query->terminate();
     clearData();
+    m_server = server;
 
-    // Assemble list of queries
-
-    QStringList queries;
-    if (!query.trimmed().isEmpty())
-        queries.push_back(query);
-    else
-    {
-        const QString statusOpenQuery = "status:open";
-        if (m_parameters->user.isEmpty()) {
-            queries.push_back(statusOpenQuery);
-        } else {
-            // Owned by:
-            queries.push_back(statusOpenQuery + " owner:" + m_parameters->user);
-            // For Review by:
-            queries.push_back(statusOpenQuery + " reviewer:" + m_parameters->user);
-        }
+    QString realQuery = query.trimmed();
+    if (realQuery.isEmpty()) {
+        realQuery = "status:open";
+        const QString user = m_server->user.userName;
+        if (!user.isEmpty())
+            realQuery += QString(" (owner:%1 OR reviewer:%1)").arg(user);
     }
 
-    m_query = new QueryContext(queries, m_parameters, this);
-    connect(m_query, &QueryContext::queryFinished, this, &GerritModel::queryFinished);
-    connect(m_query, &QueryContext::finished, this, &GerritModel::queriesFinished);
+    m_query = new QueryContext(realQuery, m_parameters, *m_server, this);
+    connect(m_query, &QueryContext::resultRetrieved, this, &GerritModel::resultRetrieved);
+    connect(m_query, &QueryContext::errorText, this, &GerritModel::errorText);
+    connect(m_query, &QueryContext::finished, this, &GerritModel::queryFinished);
     emit refreshStateChanged(true);
     m_query->start();
     setState(Running);
@@ -552,6 +531,23 @@ void GerritModel::setState(GerritModel::QueryState s)
         return;
     m_state = s;
     emit stateChanged();
+}
+
+// {"name":"Hans Mustermann","email":"hm@acme.com","username":"hansm"}
+static GerritUser parseGerritUser(const QJsonObject &object)
+{
+    GerritUser user;
+    user.userName = object.value("username").toString();
+    user.fullName = object.value("name").toString();
+    user.email = object.value("email").toString();
+    return user;
+}
+
+static int numberValue(const QJsonObject &object)
+{
+    const QJsonValue number = object.value("number");
+    // Since Gerrit 2.14 (commits fa92467dc and b0cfe1401) the change and patch set numbers are int
+    return number.isString() ? number.toString().toInt() : number.toInt();
 }
 
 /* Parse gerrit query Json output.
@@ -572,117 +568,272 @@ void GerritModel::setState(GerritModel::QueryState s)
 \endcode
 */
 
+static GerritChangePtr parseSshOutput(const QJsonObject &object)
+{
+    GerritChangePtr change(new GerritChange);
+    // Read current patch set.
+    const QJsonObject patchSet = object.value("currentPatchSet").toObject();
+    change->currentPatchSet.patchSetNumber = qMax(1, numberValue(patchSet));
+    change->currentPatchSet.ref = patchSet.value("ref").toString();
+    const QJsonArray approvalsJ = patchSet.value("approvals").toArray();
+    const int ac = approvalsJ.size();
+    for (int a = 0; a < ac; ++a) {
+        const QJsonObject ao = approvalsJ.at(a).toObject();
+        GerritApproval approval;
+        approval.reviewer = parseGerritUser(ao.value("by").toObject());
+        approval.approval = ao.value("value").toString().toInt();
+        approval.type = ao.value("type").toString();
+        approval.description = ao.value("description").toString();
+        change->currentPatchSet.approvals.push_back(approval);
+    }
+    std::stable_sort(change->currentPatchSet.approvals.begin(),
+                     change->currentPatchSet.approvals.end(),
+                     gerritApprovalLessThan);
+    // Remaining
+    change->number = numberValue(object);
+    change->url = object.value("url").toString();
+    change->title = object.value("subject").toString();
+    change->owner = parseGerritUser(object.value("owner").toObject());
+    change->project = object.value("project").toString();
+    change->branch = object.value("branch").toString();
+    change->status =  object.value("status").toString();
+    if (const int timeT = object.value("lastUpdated").toInt())
+        change->lastUpdated = QDateTime::fromTime_t(uint(timeT));
+    // Read out dependencies
+    const QJsonValue dependsOnValue = object.value("dependsOn");
+    if (dependsOnValue.isArray()) {
+        const QJsonArray dependsOnArray = dependsOnValue.toArray();
+        if (!dependsOnArray.isEmpty()) {
+            const QJsonValue first = dependsOnArray.at(0);
+            if (first.isObject())
+                change->dependsOnNumber = numberValue(first.toObject());
+        }
+    }
+    // Read out needed by
+    const QJsonValue neededByValue = object.value("neededBy");
+    if (neededByValue.isArray()) {
+        const QJsonArray neededByArray = neededByValue.toArray();
+        if (!neededByArray.isEmpty()) {
+            const QJsonValue first = neededByArray.at(0);
+            if (first.isObject())
+                change->neededByNumber = numberValue(first.toObject());
+        }
+    }
+    return change;
+}
+
+/*
+  {
+    "kind": "gerritcodereview#change",
+    "id": "qt-creator%2Fqt-creator~master~Icc164b9d84abe4efc34deaa5d19dca167fdb14e1",
+    "project": "qt-creator/qt-creator",
+    "branch": "master",
+    "change_id": "Icc164b9d84abe4efc34deaa5d19dca167fdb14e1",
+    "subject": "WIP: Gerrit: Support REST query for HTTP servers",
+    "status": "NEW",
+    "created": "2017-02-22 21:23:39.403000000",
+    "updated": "2017-02-23 21:03:51.055000000",
+    "reviewed": true,
+    "mergeable": false,
+    "_sortkey": "004368cf0002d84f",
+    "_number": 186447,
+    "owner": {
+      "_account_id": 1000534,
+      "name": "Orgad Shaneh",
+      "email": "orgads@gmail.com"
+    },
+    "labels": {
+      "Code-Review": {
+        "all": [
+          {
+            "value": 0,
+            "_account_id": 1000009,
+            "name": "Tobias Hunger",
+            "email": "tobias.hunger@qt.io"
+          },
+          {
+            "value": 0,
+            "_account_id": 1000528,
+            "name": "Andre Hartmann",
+            "email": "aha_1980@gmx.de"
+          },
+          {
+            "value": 0,
+            "_account_id": 1000049,
+            "name": "Qt Sanity Bot",
+            "email": "qt_sanitybot@qt-project.org"
+          }
+        ],
+        "values": {
+          "-2": "This shall not be merged",
+          "-1": "I would prefer this is not merged as is",
+          " 0": "No score",
+          "+1": "Looks good to me, but someone else must approve",
+          "+2": "Looks good to me, approved"
+        }
+      },
+      "Sanity-Review": {
+        "all": [
+          {
+            "value": 0,
+            "_account_id": 1000009,
+            "name": "Tobias Hunger",
+            "email": "tobias.hunger@qt.io"
+          },
+          {
+            "value": 0,
+            "_account_id": 1000528,
+            "name": "Andre Hartmann",
+            "email": "aha_1980@gmx.de"
+          },
+          {
+            "value": 1,
+            "_account_id": 1000049,
+            "name": "Qt Sanity Bot",
+            "email": "qt_sanitybot@qt-project.org"
+          }
+        ],
+        "values": {
+          "-2": "Major sanity problems found",
+          "-1": "Sanity problems found",
+          " 0": "No sanity review",
+          "+1": "Sanity review passed"
+        }
+      }
+    },
+    "permitted_labels": {
+      "Code-Review": [
+        "-2",
+        "-1",
+        " 0",
+        "+1",
+        "+2"
+      ],
+      "Sanity-Review": [
+        "-2",
+        "-1",
+        " 0",
+        "+1"
+      ]
+    },
+    "current_revision": "87916545e2974913d56f56c9f06fc3822a876aca",
+    "revisions": {
+      "87916545e2974913d56f56c9f06fc3822a876aca": {
+        "draft": true,
+        "_number": 2,
+        "fetch": {
+          "http": {
+            "url": "https://codereview.qt-project.org/qt-creator/qt-creator",
+            "ref": "refs/changes/47/186447/2"
+          },
+          "ssh": {
+            "url": "ssh:// *:29418/qt-creator/qt-creator",
+            "ref": "refs/changes/47/186447/2"
+          }
+        }
+      }
+    }
+  }
+*/
+
+static int restNumberValue(const QJsonObject &object)
+{
+    return object.value("_number").toInt();
+}
+
+static GerritChangePtr parseRestOutput(const QJsonObject &object, const GerritServer &server)
+{
+    GerritChangePtr change(new GerritChange);
+    change->number = restNumberValue(object);
+    change->url = QString("%1/%2").arg(server.url()).arg(change->number);
+    change->title = object.value("subject").toString();
+    change->owner = parseGerritUser(object.value("owner").toObject());
+    change->project = object.value("project").toString();
+    change->branch = object.value("branch").toString();
+    change->status =  object.value("status").toString();
+    change->lastUpdated = QDateTime::fromString(object.value("updated").toString() + "Z",
+                                                Qt::DateFormat::ISODate).toLocalTime();
+    // Read current patch set.
+    const QJsonObject patchSet = object.value("revisions").toObject().begin().value().toObject();
+    change->currentPatchSet.patchSetNumber = qMax(1, restNumberValue(patchSet));
+    const QJsonObject fetchInfo = patchSet.value("fetch").toObject().value("http").toObject();
+    change->currentPatchSet.ref = fetchInfo.value("ref").toString();
+    // Replace * in ssh://*:29418/qt-creator/qt-creator with the hostname
+    change->currentPatchSet.url = fetchInfo.value("url").toString().replace('*', server.host);
+    const QJsonObject labels = object.value("labels").toObject();
+    for (auto it = labels.constBegin(), end = labels.constEnd(); it != end; ++it) {
+        const QJsonArray all = it.value().toObject().value("all").toArray();
+        for (const QJsonValue &av : all) {
+            const QJsonObject ao = av.toObject();
+            const int value = ao.value("value").toInt();
+            if (!value)
+                continue;
+            GerritApproval approval;
+            approval.reviewer = parseGerritUser(ao);
+            approval.approval = value;
+            approval.type = it.key();
+            change->currentPatchSet.approvals.push_back(approval);
+        }
+    }
+    std::stable_sort(change->currentPatchSet.approvals.begin(),
+                     change->currentPatchSet.approvals.end(),
+                     gerritApprovalLessThan);
+    return change;
+}
+
 static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
+                        const GerritServer &server,
                         const QByteArray &output,
                         QList<GerritChangePtr> &result)
 {
-    // The output consists of separate lines containing a document each
-    const QString typeKey = "type";
-    const QString dependsOnKey = "dependsOn";
-    const QString neededByKey = "neededBy";
-    const QString branchKey = "branch";
-    const QString numberKey = "number";
-    const QString ownerKey = "owner";
-    const QString ownerNameKey = "name";
-    const QString ownerEmailKey = "email";
-    const QString statusKey = "status";
-    const QString projectKey = "project";
-    const QString titleKey = "subject";
-    const QString urlKey = "url";
-    const QString patchSetKey = "currentPatchSet";
-    const QString refKey = "ref";
-    const QString approvalsKey = "approvals";
-    const QString approvalsValueKey = "value";
-    const QString approvalsByKey = "by";
-    const QString lastUpdatedKey = "lastUpdated";
-    const QList<QByteArray> lines = output.split('\n');
-    const QString approvalsTypeKey = "type";
-    const QString approvalsDescriptionKey = "description";
-
+    QByteArray adaptedOutput;
+    if (server.type == GerritServer::Ssh) {
+        // The output consists of separate lines containing a document each
+        // Add a comma after each line (except the last), and enclose it as an array
+        adaptedOutput = '[' + output + ']';
+        adaptedOutput.replace('\n', ',');
+        const int lastComma = adaptedOutput.lastIndexOf(',');
+        if (lastComma >= 0)
+            adaptedOutput[lastComma] = '\n';
+    } else {
+        adaptedOutput = output;
+        // Strip first line, which is )]}'
+        if (adaptedOutput.startsWith(')'))
+            adaptedOutput.remove(0, adaptedOutput.indexOf("\n"));
+    }
     bool res = true;
-    result.clear();
-    result.reserve(lines.size());
 
-    foreach (const QByteArray &line, lines) {
-        if (line.isEmpty())
-            continue;
-        QJsonParseError error;
-        const QJsonDocument doc = QJsonDocument::fromJson(line, &error);
-        if (doc.isNull()) {
-            QString errorMessage = GerritModel::tr("Parse error: \"%1\" -> %2")
-                    .arg(QString::fromLocal8Bit(line))
-                    .arg(error.errorString());
-            qWarning() << errorMessage;
-            VcsOutputWindow::appendError(errorMessage);
-            res = false;
-            continue;
-        }
-        GerritChangePtr change(new GerritChange);
-        const QJsonObject object = doc.object();
+    QJsonParseError error;
+    const QJsonDocument doc = QJsonDocument::fromJson(adaptedOutput, &error);
+    if (doc.isNull()) {
+        QString errorMessage = GerritModel::tr("Parse error: \"%1\" -> %2")
+                .arg(QString::fromUtf8(output))
+                .arg(error.errorString());
+        qWarning() << errorMessage;
+        VcsOutputWindow::appendError(errorMessage);
+        res = false;
+    }
+    const QJsonArray rootArray = doc.array();
+    result.clear();
+    result.reserve(rootArray.count());
+    for (const QJsonValue &value : rootArray) {
+        const QJsonObject object = value.toObject();
         // Skip stats line: {"type":"stats","rowCount":9,"runTimeMilliseconds":13}
-        if (!object.value(typeKey).toString().isEmpty())
+        if (object.contains("type"))
             continue;
-        // Read current patch set.
-        const QJsonObject patchSet = object.value(patchSetKey).toObject();
-        change->currentPatchSet.patchSetNumber = qMax(1, patchSet.value(numberKey).toString().toInt());
-        change->currentPatchSet.ref = patchSet.value(refKey).toString();
-        const QJsonArray approvalsJ = patchSet.value(approvalsKey).toArray();
-        const int ac = approvalsJ.size();
-        for (int a = 0; a < ac; ++a) {
-            const QJsonObject ao = approvalsJ.at(a).toObject();
-            GerritApproval approval;
-            const QJsonObject approverO = ao.value(approvalsByKey).toObject();
-            approval.reviewer = approverO.value(ownerNameKey).toString();
-            approval.email = approverO.value(ownerEmailKey).toString();
-            approval.approval = ao.value(approvalsValueKey).toString().toInt();
-            approval.type = ao.value(approvalsTypeKey).toString();
-            approval.description = ao.value(approvalsDescriptionKey).toString();
-            change->currentPatchSet.approvals.push_back(approval);
-        }
-        std::stable_sort(change->currentPatchSet.approvals.begin(),
-                         change->currentPatchSet.approvals.end(),
-                         gerritApprovalLessThan);
-        // Remaining
-        change->number = object.value(numberKey).toString().toInt();
-        change->url = object.value(urlKey).toString();
-        if (change->url.isEmpty()) //  No "canonicalWebUrl" is in gerrit.config.
-            change->url = defaultUrl(parameters, change->number);
-        change->title = object.value(titleKey).toString();
-        const QJsonObject ownerJ = object.value(ownerKey).toObject();
-        change->owner = ownerJ.value(ownerNameKey).toString();
-        change->email = ownerJ.value(ownerEmailKey).toString();
-        change->project = object.value(projectKey).toString();
-        change->branch = object.value(branchKey).toString();
-        change->status =  object.value(statusKey).toString();
-        if (const int timeT = qRound(object.value(lastUpdatedKey).toDouble()))
-            change->lastUpdated = QDateTime::fromTime_t(timeT);
+        GerritChangePtr change =
+                (server.type == GerritServer::Ssh ? parseSshOutput(object)
+                                                  : parseRestOutput(object, server));
         if (change->isValid()) {
+            if (change->url.isEmpty()) //  No "canonicalWebUrl" is in gerrit.config.
+                change->url = defaultUrl(parameters, server, change->number);
             result.push_back(change);
         } else {
-            qWarning("%s: Parse error: '%s'.", Q_FUNC_INFO, line.constData());
+            const QByteArray jsonObject = QJsonDocument(object).toJson();
+            qWarning("%s: Parse error: '%s'.", Q_FUNC_INFO, jsonObject.constData());
             VcsOutputWindow::appendError(GerritModel::tr("Parse error: \"%1\"")
-                                  .arg(QString::fromLocal8Bit(line)));
+                                  .arg(QString::fromUtf8(jsonObject)));
             res = false;
-        }
-        // Read out dependencies
-        const QJsonValue dependsOnValue = object.value(dependsOnKey);
-        if (dependsOnValue.isArray()) {
-            const QJsonArray dependsOnArray = dependsOnValue.toArray();
-            if (!dependsOnArray.isEmpty()) {
-                const QJsonValue first = dependsOnArray.at(0);
-                if (first.isObject())
-                    change->dependsOnNumber = first.toObject()[numberKey].toString().toInt();
-            }
-        }
-        // Read out needed by
-        const QJsonValue neededByValue = object.value(neededByKey);
-        if (neededByValue.isArray()) {
-            const QJsonArray neededByArray = neededByValue.toArray();
-            if (!neededByArray.isEmpty()) {
-                const QJsonValue first = neededByArray.at(0);
-                if (first.isObject())
-                    change->neededByNumber = first.toObject()[numberKey].toString().toInt();
-            }
         }
     }
     return res;
@@ -701,8 +852,8 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
         row.append(item);
     }
     row[NumberColumn]->setData(c->number, Qt::DisplayRole);
-    row[TitleColumn]->setText(c->title);
-    row[OwnerColumn]->setText(c->owner);
+    row[TitleColumn]->setText(c->fullTitle());
+    row[OwnerColumn]->setText(c->owner.fullName);
     // Shorten columns: Display time if it is today, else date
     const QString dateString = c->lastUpdated.date() == QDate::currentDate() ?
                 c->lastUpdated.time().toString(Qt::SystemLocaleShortDate) :
@@ -718,11 +869,11 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
     row[ApprovalsColumn]->setText(c->currentPatchSet.approvalsColumn());
     // Mark changes awaiting action using a bold font.
     bool bold = false;
-    if (c->owner == m_userName) { // Owned changes: Review != 0,1. Submit or amend.
+    if (c->owner.isSameAs(m_server->user)) { // Owned changes: Review != 0,1. Submit or amend.
         const int level = c->currentPatchSet.approvalLevel();
         bold = level != 0 && level != 1;
-    } else if (m_query->currentQuery() == 1) { // Changes pending for review: No review yet.
-        bold = !m_userName.isEmpty() && !c->currentPatchSet.hasApproval(m_userName);
+    } else { // Changes pending for review: No review yet.
+        bold = !c->currentPatchSet.hasApproval(m_server->user);
     }
     if (bold) {
         QFont font = row.first()->font();
@@ -738,13 +889,13 @@ bool gerritChangeLessThan(const GerritChangePtr &c1, const GerritChangePtr &c2)
 {
     if (c1->depth != c2->depth)
         return c1->depth < c2->depth;
-    return c1->lastUpdated < c2->lastUpdated;
+    return c1->lastUpdated > c2->lastUpdated;
 }
 
-void GerritModel::queryFinished(const QByteArray &output)
+void GerritModel::resultRetrieved(const QByteArray &output)
 {
     QList<GerritChangePtr> changes;
-    setState(parseOutput(m_parameters, output, changes) ? Ok : Error);
+    setState(parseOutput(m_parameters, *m_server, output, changes) ? Ok : Error);
 
     // Populate a hash with indices for faster access.
     QHash<int, int> numberIndexHash;
@@ -781,14 +932,10 @@ void GerritModel::queryFinished(const QByteArray &output)
     std::stable_sort(changes.begin(), changes.end(), gerritChangeLessThan);
     numberIndexHash.clear();
 
-    foreach (const GerritChangePtr &c, changes) {
+    for (const GerritChangePtr &c : qAsConst(changes)) {
         // Avoid duplicate entries for example in the (unlikely)
         // case people do self-reviews.
         if (!itemForNumber(c->number)) {
-            // Determine the verbose user name from the owner of the first query.
-            // It used for marking the changes pending for review in bold.
-            if (m_userName.isEmpty() && !m_query->currentQuery())
-                m_userName = c->owner;
             const QList<QStandardItem *> newRow = changeToRow(c);
             if (c->depth) {
                 QStandardItem *parent = itemForNumber(c->dependsOnNumber);
@@ -807,10 +954,10 @@ void GerritModel::queryFinished(const QByteArray &output)
     }
 }
 
-void GerritModel::queriesFinished()
+void GerritModel::queryFinished()
 {
     m_query->deleteLater();
-    m_query = 0;
+    m_query = nullptr;
     setState(Idle);
     emit refreshStateChanged(false);
 }

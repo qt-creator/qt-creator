@@ -27,6 +27,7 @@
 
 #include "abi.h"
 #include "headerpath.h"
+#include "projectexplorerconstants.h"
 #include "toolchainmanager.h"
 #include "task.h"
 
@@ -39,7 +40,8 @@
 static const char ID_KEY[] = "ProjectExplorer.ToolChain.Id";
 static const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ToolChain.DisplayName";
 static const char AUTODETECT_KEY[] = "ProjectExplorer.ToolChain.Autodetect";
-static const char LANGUAGE_KEY[] = "ProjectExplorer.ToolChain.Language";
+static const char LANGUAGE_KEY_V1[] = "ProjectExplorer.ToolChain.Language"; // For QtCreator <= 4.2
+static const char LANGUAGE_KEY_V2[] = "ProjectExplorer.ToolChain.LanguageV2"; // For QtCreator > 4.2
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -63,14 +65,48 @@ public:
     }
 
     QByteArray m_id;
-    QSet<ToolChain::Language> m_supportedLanguages;
+    QSet<Core::Id> m_supportedLanguages;
     mutable QString m_displayName;
     Core::Id m_typeId;
-    ToolChain::Language m_language = ToolChain::Language::None;
+    Core::Id m_language;
     Detection m_detection;
 };
 
+
+// Deprecated used from QtCreator <= 4.2
+
+Core::Id fromLanguageV1(int language)
+{
+    switch (language)
+    {
+    case Deprecated::Toolchain::C :
+        return Core::Id(Constants::C_LANGUAGE_ID);
+    case Deprecated::Toolchain::Cxx:
+        return Core::Id(Constants::CXX_LANGUAGE_ID);
+    case Deprecated::Toolchain::None:
+    default:
+        return Core::Id();
+    }
+}
+
 } // namespace Internal
+
+namespace Deprecated {
+namespace Toolchain {
+QString languageId(Language l)
+{
+    switch (l) {
+    case Language::None:
+        return QStringLiteral("None");
+    case Language::C:
+        return QStringLiteral("C");
+    case Language::Cxx:
+        return QStringLiteral("Cxx");
+    };
+    return QString();
+}
+} // namespace Toolchain
+} // namespace Deprecated
 
 /*!
     \class ProjectExplorer::ToolChain
@@ -95,12 +131,13 @@ ToolChain::ToolChain(const ToolChain &other) :
             .arg(other.displayName());
 }
 
-void ToolChain::setLanguage(const ToolChain::Language &l)
+void ToolChain::setLanguage(Core::Id language)
 {
-    QTC_ASSERT(d->m_language == Language::None, return);
-    QTC_ASSERT(l != Language::None, return);
+    QTC_ASSERT(!d->m_language.isValid() || isAutoDetected(), return);
+    QTC_ASSERT(language.isValid(), return);
+    QTC_ASSERT(ToolChainManager::isLanguageSupported(language), return);
 
-    d->m_language = l;
+    d->m_language = language;
 }
 
 ToolChain::~ToolChain()
@@ -151,42 +188,10 @@ Core::Id ToolChain::typeId() const
 
 QList<Abi> ToolChain::supportedAbis() const
 {
-    return { targetAbi() };
+    return {targetAbi()};
 }
 
-const QSet<ToolChain::Language> &ToolChain::allLanguages()
-{
-    static QSet<Language> languages({ Language::C, Language::Cxx });
-    return languages;
-}
-
-QString ToolChain::languageDisplayName(Language language)
-{
-    switch (language) {
-    case Language::None:
-        return QCoreApplication::translate("ProjectExplorer::ToolChain", "None");
-    case Language::C:
-        return QCoreApplication::translate("ProjectExplorer::ToolChain", "C");
-    case Language::Cxx:
-        return QCoreApplication::translate("ProjectExplorer::ToolChain", "C++");
-    };
-    return QString();
-}
-
-QString ToolChain::languageId(ToolChain::Language l)
-{
-    switch (l) {
-    case Language::None:
-        return QStringLiteral("None");
-    case Language::C:
-        return QStringLiteral("C");
-    case Language::Cxx:
-        return QStringLiteral("Cxx");
-    };
-    return QString();
-}
-
-ToolChain::Language ToolChain::language() const
+Core::Id ToolChain::language() const
 {
     return d->m_language;
 }
@@ -220,8 +225,16 @@ QVariantMap ToolChain::toMap() const
     result.insert(QLatin1String(ID_KEY), idToSave);
     result.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
     result.insert(QLatin1String(AUTODETECT_KEY), isAutoDetected());
-    result.insert(QLatin1String(LANGUAGE_KEY), static_cast<int>(language()));
-
+    // <Compatibility with QtC 4.2>
+    int oldLanguageId = -1;
+    if (language() == ProjectExplorer::Constants::C_LANGUAGE_ID)
+        oldLanguageId = 1;
+    else if (language() == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
+        oldLanguageId = 2;
+    if (oldLanguageId >= 0)
+        result.insert(LANGUAGE_KEY_V1, oldLanguageId);
+    // </Compatibility>
+    result.insert(QLatin1String(LANGUAGE_KEY_V2), language().toSetting());
     return result;
 }
 
@@ -258,12 +271,21 @@ bool ToolChain::fromMap(const QVariantMap &data)
     const bool autoDetect = data.value(QLatin1String(AUTODETECT_KEY), false).toBool();
     d->m_detection = autoDetect ? AutoDetectionFromSettings : ManualDetection;
 
-    bool ok;
-    d->m_language
-            = static_cast<Language>(data.value(QLatin1String(LANGUAGE_KEY),
-                                               static_cast<int>(Language::Cxx)).toInt(&ok));
-    if (!ok)
-        d->m_language = Language::Cxx;
+    if (data.contains(LANGUAGE_KEY_V2)) {
+        // remove hack to trim language id in 4.4: This is to fix up broken language
+        // ids that happened in 4.3 master branch
+        const QString langId = data.value(QLatin1String(LANGUAGE_KEY_V2)).toString();
+        const int pos = langId.lastIndexOf('.');
+        if (pos >= 0)
+            d->m_language = Core::Id::fromString(langId.mid(pos + 1));
+        else
+            d->m_language = Core::Id::fromString(langId);
+    } else if (data.contains(LANGUAGE_KEY_V1)) { // Import from old settings
+        d->m_language = Internal::fromLanguageV1(data.value(QLatin1String(LANGUAGE_KEY_V1)).toInt());
+    }
+
+    if (!d->m_language.isValid())
+        d->m_language = Core::Id(Constants::CXX_LANGUAGE_ID);
 
     return true;
 }
@@ -300,9 +322,33 @@ QList<Task> ToolChain::validateKit(const Kit *) const
     Used by the tool chain manager to restore user-generated tool chains.
 */
 
+static QList<ToolChainFactory *> g_toolChainFactories;
+
+ToolChainFactory::ToolChainFactory()
+{
+    g_toolChainFactories.append(this);
+}
+
+ToolChainFactory::~ToolChainFactory()
+{
+    g_toolChainFactories.removeOne(this);
+}
+
+const QList<ToolChainFactory *> ToolChainFactory::allToolChainFactories()
+{
+    return g_toolChainFactories;
+}
+
 QList<ToolChain *> ToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
     Q_UNUSED(alreadyKnown);
+    return QList<ToolChain *>();
+}
+
+QList<ToolChain *> ToolChainFactory::autoDetect(const Utils::FileName &compilerPath, const Core::Id &language)
+{
+    Q_UNUSED(compilerPath);
+    Q_UNUSED(language);
     return QList<ToolChain *>();
 }
 
@@ -311,7 +357,7 @@ bool ToolChainFactory::canCreate()
     return false;
 }
 
-ToolChain *ToolChainFactory::create(ToolChain::Language l)
+ToolChain *ToolChainFactory::create(Core::Id l)
 {
     Q_UNUSED(l);
     return nullptr;

@@ -25,34 +25,28 @@
 
 #pragma once
 
+#include "androidrunner.h"
+
 #include <projectexplorer/runconfiguration.h>
 
 namespace Android {
-class AndroidRunConfiguration;
-
 namespace Internal {
+
 class AndroidRunner;
 
-class AndroidRunControl : public ProjectExplorer::RunControl
+class AndroidRunSupport : public AndroidRunner
 {
     Q_OBJECT
 
 public:
-    explicit AndroidRunControl(AndroidRunConfiguration *runConfig);
-    ~AndroidRunControl() override;
+    explicit AndroidRunSupport(ProjectExplorer::RunControl *runControl,
+                               const QString &intentName = QString(),
+                               const QString &extraAppParams = QString(),
+                               const Utils::Environment &extraEnvVars = Utils::Environment());
+    ~AndroidRunSupport() override;
 
     void start() override;
-    StopResult stop() override;
-    bool isRunning() const override;
-    QString displayName() const override;
-
-private:
-    void handleRemoteProcessFinished(const QString &error);
-    void handleRemoteOutput(const QString &output);
-    void handleRemoteErrorOutput(const QString &output);
-
-    AndroidRunner *const m_runner;
-    bool m_running;
+    void stop() override;
 };
 
 } // namespace Internal

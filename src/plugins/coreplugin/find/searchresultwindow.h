@@ -39,11 +39,9 @@ QT_END_NAMESPACE
 
 namespace Core {
 namespace Internal {
-    class SearchResultTreeView;
     class SearchResultWindowPrivate;
     class SearchResultWidget;
 }
-class Find;
 class SearchResultWindow;
 
 class CORE_EXPORT SearchResult : public QObject
@@ -61,6 +59,7 @@ public:
     QString textToReplace() const;
     int count() const;
     void setSearchAgainSupported(bool supported);
+    QWidget *additionalReplaceWidget() const;
 
 public slots:
     void addResult(const QString &fileName,
@@ -116,24 +115,24 @@ public:
 
 
     SearchResultWindow(QWidget *newSearchPanel);
-    virtual ~SearchResultWindow();
+    ~SearchResultWindow() override;
     static SearchResultWindow *instance();
 
-    QWidget *outputWidget(QWidget *);
-    QList<QWidget*> toolBarWidgets() const;
+    QWidget *outputWidget(QWidget *) override;
+    QList<QWidget*> toolBarWidgets() const override;
 
-    QString displayName() const { return tr("Search Results"); }
-    int priorityInStatusBar() const;
-    void visibilityChanged(bool visible);
-    bool hasFocus() const;
-    bool canFocus() const;
-    void setFocus();
+    QString displayName() const override { return tr("Search Results"); }
+    int priorityInStatusBar() const override;
+    void visibilityChanged(bool visible) override;
+    bool hasFocus() const override;
+    bool canFocus() const override;
+    void setFocus() override;
 
-    bool canNext() const;
-    bool canPrevious() const;
-    void goToNext();
-    void goToPrev();
-    bool canNavigate() const;
+    bool canNext() const override;
+    bool canPrevious() const override;
+    void goToNext() override;
+    void goToPrev() override;
+    bool canNavigate() const override;
 
     void setTextEditorFont(const QFont &font,
                            const QColor &textForegroundColor,
@@ -155,7 +154,7 @@ public:
                                  const QString &cfgGroup = QString());
 
 public slots:
-    void clearContents();
+    void clearContents() override;
 
 public: // Used by plugin, do not use
     void writeSettings();

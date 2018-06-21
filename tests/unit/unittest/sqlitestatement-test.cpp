@@ -24,540 +24,667 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "mocksqlitestatement.h"
+#include "sqliteteststatement.h"
 
-#include <sqlitedatabasebackend.h>
+#include <sqlitedatabase.h>
 #include <sqlitereadstatement.h>
 #include <sqlitereadwritestatement.h>
 #include <sqlitewritestatement.h>
-#include <utf8string.h>
 
-#include <QByteArray>
+#include <utils/smallstringio.h>
+
 #include <QDir>
-#include <QMap>
-#include <QString>
-#include <QStringList>
-#include <QVariant>
+
+#include <vector>
 
 namespace {
+
+using Sqlite::JournalMode;
+using Sqlite::Exception;
+using Sqlite::Database;
+using Sqlite::ReadStatement;
+using Sqlite::ReadWriteStatement;
+using Sqlite::WriteStatement;
+
+MATCHER_P3(HasValues, value1, value2, rowid,
+           std::string(negation ? "isn't" : "is")
+           + PrintToString(value1)
+           + ", " + PrintToString(value2)
+           + " and " + PrintToString(rowid)
+           )
+{
+    Database &database = arg.database();
+
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE rowid=?", database);
+    statement.bind(1, rowid);
+
+    statement.next();
+
+    return statement.fetchSmallStringViewValue(0) == value1
+        && statement.fetchSmallStringViewValue(1) == value2;
+}
+
 class SqliteStatement : public ::testing::Test
 {
 protected:
      void SetUp() override;
      void TearDown() override;
 
-    SqliteDatabaseBackend databaseBackend;
+protected:
+     Database database{":memory:", Sqlite::JournalMode::Memory};
 };
 
-TEST_F(SqliteStatement, PrepareFailure)
+struct Output
 {
-    ASSERT_THROW(SqliteReadStatement(Utf8StringLiteral("blah blah blah")), SqliteException);
-    ASSERT_THROW(SqliteWriteStatement(Utf8StringLiteral("blah blah blah")), SqliteException);
-    ASSERT_THROW(SqliteReadStatement(Utf8StringLiteral("INSERT INTO test(name, number) VALUES (?, ?)")), SqliteException);
-    ASSERT_THROW(SqliteWriteStatement(Utf8StringLiteral("SELECT name, number FROM test '")), SqliteException);
+    Output(Utils::SmallStringView name, Utils::SmallStringView number, long long value)
+        : name(name), number(number), value(value)
+    {}
+
+    Utils::SmallString name;
+    Utils::SmallString number;
+    long long value;
+    friend bool operator==(const Output &f, const Output &s)
+    {
+        return f.name == s.name && f.number == s.number && f.value == s.value;
+    }
+    friend std::ostream &operator<<(std::ostream &out, const Output &o)
+    {
+        return out << "(" << o.name << ", " << ", " << o.number<< ", " << o.value<< ")";
+    }
+};
+
+TEST_F(SqliteStatement, ThrowsStatementHasErrorForWrongSqlStatement)
+{
+    ASSERT_THROW(ReadStatement("blah blah blah", database), Sqlite::StatementHasError);
+}
+
+TEST_F(SqliteStatement, ThrowsNotReadOnlySqlStatementForWritableSqlStatementInReadStatement)
+{
+    ASSERT_THROW(ReadStatement("INSERT INTO test(name, number) VALUES (?, ?)", database),
+                 Sqlite::NotReadOnlySqlStatement);
+}
+
+TEST_F(SqliteStatement, ThrowsNotReadonlySqlStatementForWritableSqlStatementInReadStatement)
+{
+    ASSERT_THROW(WriteStatement("SELECT name, number FROM test", database),
+                 Sqlite::NotWriteSqlStatement);
 }
 
 TEST_F(SqliteStatement, CountRows)
 {
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT * FROM test"));
+    SqliteTestStatement statement("SELECT * FROM test", database);
     int nextCount = 0;
     while (statement.next())
         ++nextCount;
 
-    int sqlCount = SqliteReadStatement::toValue<int>(Utf8StringLiteral("SELECT count(*) FROM test"));
+    int sqlCount = ReadStatement::toValue<int>("SELECT count(*) FROM test", database);
 
     ASSERT_THAT(nextCount, sqlCount);
 }
 
 TEST_F(SqliteStatement, Value)
 {
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test ORDER BY name"));
+    SqliteTestStatement statement("SELECT name, number FROM test ORDER BY name", database);
+    statement.next();
 
     statement.next();
 
-    ASSERT_THAT(statement.value<QVariant>(1).type(), QVariant::ByteArray);
-
-    statement.next();
-
-    ASSERT_THAT(statement.value<int>(0), 0);
-    ASSERT_THAT(statement.value<qint64>(0), 0);
-    ASSERT_THAT(statement.value<double>(0), 0.0);
-    ASSERT_THAT(statement.value<QString>(0), QStringLiteral("foo"));
-    ASSERT_THAT(statement.value<Utf8String>(0), Utf8StringLiteral("foo"));
-    ASSERT_THAT(statement.value<QVariant>(0), QVariant::fromValue(QStringLiteral("foo")));
-    ASSERT_THAT(statement.value<QVariant>(0).type(), QVariant::String);
-
-    ASSERT_THAT(statement.value<int>(1), 23);
-    ASSERT_THAT(statement.value<qint64>(1), 23);
-    ASSERT_THAT(statement.value<double>(1), 23.3);
-    ASSERT_THAT(statement.value<QString>(1), QStringLiteral("23.3"));
-    ASSERT_THAT(statement.value<Utf8String>(1), Utf8StringLiteral("23.3"));
-    ASSERT_THAT(statement.value<QVariant>(1), QVariant::fromValue(23.3));
-    ASSERT_THAT(statement.value<QVariant>(1).type(), QVariant::Double);
-
-    statement.next();
-
-    ASSERT_THAT(statement.value<QVariant>(1).type(), QVariant::LongLong);
+    ASSERT_THAT(statement.fetchValue<int>(0), 0);
+    ASSERT_THAT(statement.fetchValue<int64_t>(0), 0);
+    ASSERT_THAT(statement.fetchValue<double>(0), 0.0);
+    ASSERT_THAT(statement.fetchValue<Utils::SmallString>(0), "foo");
+    ASSERT_THAT(statement.fetchValue<Utils::PathString>(0), "foo");
+    ASSERT_THAT(statement.fetchSmallStringViewValue(0), "foo");
+    ASSERT_THAT(statement.fetchValue<int>(1), 23);
+    ASSERT_THAT(statement.fetchValue<int64_t>(1), 23);
+    ASSERT_THAT(statement.fetchValue<double>(1), 23.3);
+    ASSERT_THAT(statement.fetchValue<Utils::SmallString>(1), "23.3");
+    ASSERT_THAT(statement.fetchValue<Utils::PathString>(1), "23.3");
+    ASSERT_THAT(statement.fetchSmallStringViewValue(1), "23.3");
 }
 
-TEST_F(SqliteStatement, ValueFailure)
+TEST_F(SqliteStatement, ThrowNoValuesToFetchForNotSteppedStatement)
 {
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test"));
-    ASSERT_THROW(statement.value<int>(0), SqliteException);
+    SqliteTestStatement statement("SELECT name, number FROM test", database);
 
-    statement.reset();
+    ASSERT_THROW(statement.fetchValue<int>(0), Sqlite::NoValuesToFetch);
+}
 
+TEST_F(SqliteStatement, ThrowNoValuesToFetchForDoneStatement)
+{
+    SqliteTestStatement statement("SELECT name, number FROM test", database);
     while (statement.next()) {}
-    ASSERT_THROW(statement.value<int>(0), SqliteException);
 
-    statement.reset();
+    ASSERT_THROW(statement.fetchValue<int>(0), Sqlite::NoValuesToFetch);
+}
 
+TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForNegativeColumn)
+{
+    SqliteTestStatement statement("SELECT name, number FROM test", database);
     statement.next();
-    ASSERT_THROW(statement.value<int>(-1), SqliteException);
-    ASSERT_THROW(statement.value<int>(2), SqliteException);
+
+    ASSERT_THROW(statement.fetchValue<int>(-1), Sqlite::InvalidColumnFetched);
+}
+
+TEST_F(SqliteStatement, ThrowInvalidColumnFetchedForNotExistingColumn)
+{
+    SqliteTestStatement statement("SELECT name, number FROM test", database);
+    statement.next();
+
+    ASSERT_THROW(statement.fetchValue<int>(2), Sqlite::InvalidColumnFetched);
 }
 
 TEST_F(SqliteStatement, ToIntergerValue)
 {
-    ASSERT_THAT(SqliteReadStatement::toValue<int>(Utf8StringLiteral("SELECT number FROM test WHERE name='foo'")), 23);
+    auto value = ReadStatement::toValue<int>("SELECT number FROM test WHERE name='foo'", database);
+
+    ASSERT_THAT(value, 23);
 }
 
 TEST_F(SqliteStatement, ToLongIntergerValue)
 {
-    ASSERT_THAT(SqliteReadStatement::toValue<qint64>(Utf8StringLiteral("SELECT number FROM test WHERE name='foo'")), 23LL);
+    ASSERT_THAT(ReadStatement::toValue<qint64>("SELECT number FROM test WHERE name='foo'", database), Eq(23));
 }
 
 TEST_F(SqliteStatement, ToDoubleValue)
 {
-    ASSERT_THAT(SqliteReadStatement::toValue<double>(Utf8StringLiteral("SELECT number FROM test WHERE name='foo'")), 23.3);
+    ASSERT_THAT(ReadStatement::toValue<double>("SELECT number FROM test WHERE name='foo'", database), 23.3);
 }
 
-TEST_F(SqliteStatement, ToQStringValue)
+TEST_F(SqliteStatement, ToStringValue)
 {
-    ASSERT_THAT(SqliteReadStatement::toValue<QString>(Utf8StringLiteral("SELECT name FROM test WHERE name='foo'")), QStringLiteral("foo"));
-}
-
-TEST_F(SqliteStatement, ToUtf8StringValue)
-{
-    ASSERT_THAT(SqliteReadStatement::toValue<Utf8String>(Utf8StringLiteral("SELECT name FROM test WHERE name='foo'")), Utf8StringLiteral("foo"));
-}
-
-TEST_F(SqliteStatement, ToQByteArrayValueIsNull)
-{
-    ASSERT_TRUE(SqliteReadStatement::toValue<QByteArray>(Utf8StringLiteral("SELECT name FROM test WHERE name='foo'")).isNull());
-}
-
-TEST_F(SqliteStatement, ToQVariantValue)
-{
-    ASSERT_THAT(SqliteReadStatement::toValue<QVariant>(Utf8StringLiteral("SELECT name FROM test WHERE name='foo'")), QVariant::fromValue(QStringLiteral("foo")));
-}
-
-TEST_F(SqliteStatement, Utf8Values)
-{
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test ORDER by name"));
-
-    Utf8StringVector values = statement.values<Utf8StringVector>();
-    ASSERT_THAT(values.count(), 3);
-    ASSERT_THAT(values.at(0), Utf8StringLiteral("bar"));
-    ASSERT_THAT(values.at(1), Utf8StringLiteral("foo"));
-    ASSERT_THAT(values.at(2), Utf8StringLiteral("poo"));
-}
-TEST_F(SqliteStatement, DoubleValues)
-{
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test ORDER by name"));
-
-    QVector<double> values = statement.values<QVector<double>>(1);
-
-    ASSERT_THAT(values.count(), 3);
-    ASSERT_THAT(values.at(0), 0.0);
-    ASSERT_THAT(values.at(1), 23.3);
-    ASSERT_THAT(values.at(2), 40.0);
-}
-
-TEST_F(SqliteStatement, QVariantValues)
-{
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test ORDER by name"));
-
-    QVector<QVariant> values = statement.values<QVector<QVariant>>(QVector<int>() << 0 << 1);
-
-    ASSERT_THAT(values.count(), 6);
-    ASSERT_THAT(values.at(0), QVariant::fromValue(QStringLiteral("bar")));
-    ASSERT_THAT(values.at(1), QVariant::fromValue(QByteArray::fromHex("0500")));
-    ASSERT_THAT(values.at(2), QVariant::fromValue(QStringLiteral("foo")));
-    ASSERT_THAT(values.at(3), QVariant::fromValue(23.3));
-    ASSERT_THAT(values.at(4), QVariant::fromValue(QStringLiteral("poo")));
-    ASSERT_THAT(values.at(5), QVariant::fromValue(40));
-}
-
-TEST_F(SqliteStatement, RowColumnValueMapCountForValidRow)
-{
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE rowid=1"));
-
-    QMap<QString, QVariant> values = statement.rowColumnValueMap();
-
-    ASSERT_THAT(values.count(), 2);
-}
-
-TEST_F(SqliteStatement, RowColumnValueMapCountForInvalidRow)
-{
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE rowid=100"));
-
-    QMap<QString, QVariant> values = statement.rowColumnValueMap();
-
-    ASSERT_THAT(values.count(), 0);
-}
-
-TEST_F(SqliteStatement, RowColumnValueMapValues)
-{
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE rowid=2"));
-
-    QMap<QString, QVariant> values = statement.rowColumnValueMap();
-
-    ASSERT_THAT(values.value(QStringLiteral("name")).toString(), QStringLiteral("foo"));
-    ASSERT_THAT(values.value(QStringLiteral("number")).toDouble(), 23.3);
-}
-
-TEST_F(SqliteStatement, TwoColumnValueMapCount)
-{
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test"));
-
-    QMap<QString, QVariant> values = statement.twoColumnValueMap();
-
-    ASSERT_THAT(values.count(), 3);
-}
-
-TEST_F(SqliteStatement, TwoColumnValueMapValues)
-{
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test"));
-
-    QMap<QString, QVariant> values = statement.twoColumnValueMap();
-
-    ASSERT_THAT(values.value(QStringLiteral("foo")).toDouble(), 23.3);
-}
-
-TEST_F(SqliteStatement, ValuesFailure)
-{
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test"));
-
-    ASSERT_THROW(statement.values<QVector<QVariant>>(QVector<int>() << 1 << 2);, SqliteException);
-    ASSERT_THROW(statement.values<QVector<QVariant>>(QVector<int>() << -1 << 1);, SqliteException);
+    ASSERT_THAT(ReadStatement::toValue<Utils::SmallString>("SELECT name FROM test WHERE name='foo'", database), "foo");
 }
 
 TEST_F(SqliteStatement, ColumnNames)
 {
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test"));
+    SqliteTestStatement statement("SELECT name, number FROM test", database);
 
-    Utf8StringVector columnNames = statement.columnNames();
+    auto columnNames = statement.columnNames();
 
-    ASSERT_THAT(columnNames.count(), statement.columnCount());
-
-    ASSERT_THAT(columnNames.at(0), Utf8StringLiteral("name"));
-    ASSERT_THAT(columnNames.at(1), Utf8StringLiteral("number"));
+    ASSERT_THAT(columnNames, ElementsAre("name", "number"));
 }
 
-TEST_F(SqliteStatement, BindQString)
+TEST_F(SqliteStatement, BindString)
 {
 
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE name=?"));
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE name=?", database);
 
-    statement.bind(1, QStringLiteral("foo"));
+    statement.bind(1, "foo");
 
     statement.next();
 
-    ASSERT_THAT(statement.value<QString>(0), QStringLiteral("foo"));
-    ASSERT_THAT(statement.value<double>(1), 23.3);
+    ASSERT_THAT(statement.fetchSmallStringViewValue(0), "foo");
+    ASSERT_THAT(statement.fetchValue<double>(1), 23.3);
 }
 
 TEST_F(SqliteStatement, BindInteger)
 {
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE number=?"));
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=?", database);
 
     statement.bind(1, 40);
     statement.next();
 
-    ASSERT_THAT(statement.value<QString>(0), QStringLiteral("poo"));
+    ASSERT_THAT(statement.fetchSmallStringViewValue(0),"poo");
 }
 
 TEST_F(SqliteStatement, BindLongInteger)
 {
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE number=?"));
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=?", database);
 
-    statement.bind(1, qint64(40));
+    statement.bind(1, int64_t(40));
     statement.next();
 
-    ASSERT_THAT(statement.value<QString>(0), QStringLiteral("poo"));
-}
-
-TEST_F(SqliteStatement, BindByteArray)
-{
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE number=?"));
-
-    statement.bind(1, QByteArray::fromHex("0500"));
-    statement.next();
-
-    ASSERT_THAT(statement.value<QString>(0), QStringLiteral("bar"));
+    ASSERT_THAT(statement.fetchSmallStringViewValue(0), "poo");
 }
 
 TEST_F(SqliteStatement, BindDouble)
 {
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE number=?"));
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=?", database);
 
     statement.bind(1, 23.3);
     statement.next();
 
-    ASSERT_THAT(statement.value<QString>(0), QStringLiteral("foo"));
-}
-
-TEST_F(SqliteStatement, BindIntergerQVariant)
-{
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE number=?"));
-
-    statement.bind(1, QVariant::fromValue(40));
-    statement.next();
-
-    ASSERT_THAT(statement.value<QString>(0), QStringLiteral("poo"));
-}
-
-TEST_F(SqliteStatement, BindLongIntergerQVariant)
-{
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE number=?"));
-
-    statement.bind(1, QVariant::fromValue(qint64(40)));
-    statement.next();
-    ASSERT_THAT(statement.value<QString>(0), QStringLiteral("poo"));
-}
-
-TEST_F(SqliteStatement, BindDoubleQVariant)
-{
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE number=?"));
-
-    statement.bind(1, QVariant::fromValue(23.3));
-    statement.next();
-
-    ASSERT_THAT(statement.value<QString>(0), QStringLiteral("foo"));
- }
-
-TEST_F(SqliteStatement, BindByteArrayQVariant)
-{
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE number=?"));
-
-    statement.bind(1, QVariant::fromValue(QByteArray::fromHex("0500")));
-    statement.next();
-
-    ASSERT_THAT(statement.value<QString>(0), QStringLiteral("bar"));
+    ASSERT_THAT(statement.fetchSmallStringViewValue(0), "foo");
 }
 
 TEST_F(SqliteStatement, BindIntegerByParameter)
 {
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE number=@number"));
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=@number", database);
 
-    statement.bind(Utf8StringLiteral("@number"), 40);
+    statement.bind("@number", 40);
     statement.next();
 
-    ASSERT_THAT(statement.value<QString>(0), QStringLiteral("poo"));
+    ASSERT_THAT(statement.fetchSmallStringViewValue(0), "poo");
 }
 
 TEST_F(SqliteStatement, BindLongIntegerByParameter)
 {
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE number=@number"));
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=@number", database);
 
-    statement.bind(Utf8StringLiteral("@number"), qint64(40));
+    statement.bind("@number", int64_t(40));
     statement.next();
 
-    ASSERT_THAT(statement.value<QString>(0), QStringLiteral("poo"));
-}
-
-TEST_F(SqliteStatement, BindByteArrayByParameter)
-{
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE number=@number"));
-
-    statement.bind(Utf8StringLiteral("@number"), QByteArray::fromHex("0500"));
-    statement.next();
-
-    ASSERT_THAT(statement.value<QString>(0), QStringLiteral("bar"));
+    ASSERT_THAT(statement.fetchSmallStringViewValue(0), "poo");
 }
 
 TEST_F(SqliteStatement, BindDoubleByIndex)
 {
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE number=@number"));
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=@number", database);
 
-    statement.bind(statement.bindingIndexForName(Utf8StringLiteral("@number")), 23.3);
+    statement.bind(statement.bindingIndexForName("@number"), 23.3);
     statement.next();
 
-    ASSERT_THAT(statement.value<QString>(0), QStringLiteral("foo"));
+    ASSERT_THAT(statement.fetchSmallStringViewValue(0), "foo");
 }
 
-TEST_F(SqliteStatement, BindQVariantByIndex)
+TEST_F(SqliteStatement, BindIndexIsZeroIsThrowingBindingIndexIsOutOfBound)
 {
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE number=@number"));
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=$1", database);
 
-    statement.bind(statement.bindingIndexForName(Utf8StringLiteral("@number")), QVariant::fromValue((40)));
-    statement.next();
-
-    ASSERT_THAT(statement.value<QString>(0), QStringLiteral("poo"));
-
+    ASSERT_THROW(statement.bind(0, 40), Sqlite::BindingIndexIsOutOfRange);
 }
 
-TEST_F(SqliteStatement, BindFailure)
+TEST_F(SqliteStatement, BindIndexIsTpLargeIsThrowingBindingIndexIsOutOfBound)
 {
-    SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE number=@number"));
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=$1", database);
 
-    ASSERT_THROW(statement.bind(0, 40), SqliteException);
-    ASSERT_THROW(statement.bind(2, 40), SqliteException);
-    ASSERT_THROW(statement.bind(Utf8StringLiteral("@name"), 40), SqliteException);
+    ASSERT_THROW(statement.bind(2, 40), Sqlite::BindingIndexIsOutOfRange);
 }
 
-TEST_F(SqliteStatement, RequestBindingNamesFromStatement)
+TEST_F(SqliteStatement, WrongBindingNameThrowingBindingIndexIsOutOfBound)
 {
-    Utf8StringVector expectedValues({Utf8StringLiteral("name"), Utf8StringLiteral("number"), Utf8StringLiteral("id")});
+    SqliteTestStatement statement("SELECT name, number FROM test WHERE number=@name", database);
 
-    SqliteWriteStatement statement(Utf8StringLiteral("UPDATE test SET name=@name, number=@number WHERE rowid=@id"));
-
-    ASSERT_THAT(statement.bindingColumnNames(), expectedValues);
+    ASSERT_THROW(statement.bind("@name2", 40), Sqlite::WrongBindingName);
 }
 
-TEST_F(SqliteStatement, WriteUpdateWidthUnamedParameter)
+TEST_F(SqliteStatement, BindValues)
 {
-    {
-        int startTotalCount = databaseBackend.totalChangesCount();
-        RowDictionary firstValueMap;
-        firstValueMap.insert(Utf8StringLiteral("name"), QStringLiteral("foo"));
-        firstValueMap.insert(Utf8StringLiteral("number"), 66.6);
+    SqliteTestStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
 
-        RowDictionary secondValueMap;
-        secondValueMap.insert(Utf8StringLiteral("name"), QStringLiteral("bar"));
-        secondValueMap.insert(Utf8StringLiteral("number"), 77.7);
+    statement.bindValues("see", 7.23, 1);
+    statement.execute();
 
-        SqliteWriteStatement statement(Utf8StringLiteral("UPDATE test SET number=? WHERE name=?"));
-        statement.setBindingColumnNames(Utf8StringVector() << Utf8StringLiteral("number") << Utf8StringLiteral("name"));
-
-        statement.write(firstValueMap);
-
-        ASSERT_THAT(databaseBackend.totalChangesCount(), startTotalCount + 1);
-
-        statement.write(firstValueMap);
-
-        ASSERT_THAT(databaseBackend.totalChangesCount(), startTotalCount + 2);
-
-        statement.write(secondValueMap);
-
-        ASSERT_THAT(databaseBackend.totalChangesCount(), startTotalCount + 3);
-    }
-
-    {
-        SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE name='foo'"));
-
-        statement.next();
-
-        ASSERT_THAT(statement.value<double>(1), 66.6);
-    }
+    ASSERT_THAT(statement, HasValues("see", "7.23", 1));
 }
 
-TEST_F(SqliteStatement, WriteUpdateWidthNamedParameter)
+TEST_F(SqliteStatement, WriteValues)
 {
-    {
-        int startTotalCount = databaseBackend.totalChangesCount();
-        RowDictionary firstValueMap;
-        firstValueMap.insert(Utf8StringLiteral("name"), QStringLiteral("foo"));
-        firstValueMap.insert(Utf8StringLiteral("number"), 99.9);
+    WriteStatement statement("UPDATE test SET name=?, number=? WHERE rowid=?", database);
 
-        SqliteWriteStatement statement(Utf8StringLiteral("UPDATE test SET number=@number WHERE name=@name"));
-        statement.write(firstValueMap);
-        ASSERT_THAT(databaseBackend.totalChangesCount(), startTotalCount + 1);
-    }
+    statement.write("see", 7.23, 1);
 
-    {
-        SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE name='foo'"));
-        statement.next();
-        ASSERT_THAT(statement.value<double>(1), 99.9);
-    }
+    ASSERT_THAT(statement, HasValues("see", "7.23", 1));
 }
 
-TEST_F(SqliteStatement, WriteUpdateWidthNamedParameterAndBindNotAllParameter)
+TEST_F(SqliteStatement, BindNamedValues)
 {
-    {
-        int startTotalCount = databaseBackend.totalChangesCount();
-        RowDictionary firstValueMap;
-        firstValueMap.insert(Utf8StringLiteral("name"), QStringLiteral("foo"));
+    SqliteTestStatement statement("UPDATE test SET name=@name, number=@number WHERE rowid=@id", database);
 
-        SqliteWriteStatement statement(Utf8StringLiteral("UPDATE test SET number=@number WHERE name=@name"));
-        statement.writeUnchecked(firstValueMap);
-        ASSERT_THAT(databaseBackend.totalChangesCount(), startTotalCount + 1);
-    }
+    statement.bindNameValues("@name", "see", "@number", 7.23, "@id", 1);
+    statement.execute();
 
-    {
-        SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE name='foo'"));
-        statement.next();
-        ASSERT_THAT(statement.value<double>(1), 0.0);
-    }
+    ASSERT_THAT(statement, HasValues("see", "7.23", 1));
 }
 
-TEST_F(SqliteStatement, WriteInsert)
+TEST_F(SqliteStatement, WriteNamedValues)
 {
-    {
-        int startTotalCount = databaseBackend.totalChangesCount();
+    WriteStatement statement("UPDATE test SET name=@name, number=@number WHERE rowid=@id", database);
 
-        RowDictionary valueMap;
-        valueMap.insert(Utf8StringLiteral("name"), QStringLiteral("jane"));
-        valueMap.insert(Utf8StringLiteral("number"), 232.3);
+    statement.writeNamed("@name", "see", "@number", 7.23, "@id", 1);
 
-        SqliteWriteStatement statement(Utf8StringLiteral("INSERT OR IGNORE INTO test(name, number) VALUES (?, ?)"));
-        statement.setBindingColumnNames(Utf8StringVector() << Utf8StringLiteral("name") << Utf8StringLiteral("number"));
-        statement.write(valueMap);
-        ASSERT_THAT(databaseBackend.totalChangesCount(), startTotalCount + 1);
-        statement.write(valueMap);
-        ASSERT_THAT(databaseBackend.totalChangesCount(), startTotalCount + 1);
-    }
-
-    {
-        SqliteReadStatement statement(Utf8StringLiteral("SELECT name, number FROM test WHERE name='jane'"));
-        statement.next();
-        ASSERT_THAT(statement.value<double>(1), 232.3);
-    }
+    ASSERT_THAT(statement, HasValues("see", "7.23", 1));
 }
 
-TEST_F(SqliteStatement, WriteFailure)
+TEST_F(SqliteStatement, CannotWriteToClosedDatabase)
 {
-    {
-        RowDictionary valueMap;
-        valueMap.insert(Utf8StringLiteral("name"), QStringLiteral("foo"));
-        valueMap.insert(Utf8StringLiteral("number"), 323.3);
+    database.close();
 
-        SqliteWriteStatement statement(Utf8StringLiteral("INSERT INTO test(name, number) VALUES (?, ?)"));
-        statement.setBindingColumnNames(Utf8StringVector() << Utf8StringLiteral("name") << Utf8StringLiteral("number"));
-        ASSERT_THROW(statement.write(valueMap), SqliteException);
-    }
-
-    {
-        RowDictionary valueMap;
-        valueMap.insert(Utf8StringLiteral("name"), QStringLiteral("bar"));
-
-        SqliteWriteStatement statement(Utf8StringLiteral("INSERT OR IGNORE INTO test(name, number) VALUES (?, ?)"));
-        statement.setBindingColumnNames(Utf8StringVector() << Utf8StringLiteral("name") << Utf8StringLiteral("number"));
-        ASSERT_THROW(statement.write(valueMap), SqliteException);
-    }
+    ASSERT_THROW(WriteStatement("INSERT INTO test(name, number) VALUES (?, ?)", database),
+                 Sqlite::DatabaseIsNotOpen);
 }
 
-TEST_F(SqliteStatement, ClosedDatabase)
+TEST_F(SqliteStatement, CannotReadFromClosedDatabase)
 {
-    databaseBackend.close();
-    ASSERT_THROW(SqliteWriteStatement(Utf8StringLiteral("INSERT INTO test(name, number) VALUES (?, ?)")), SqliteException);
-    ASSERT_THROW(SqliteReadStatement(Utf8StringLiteral("SELECT * FROM test")), SqliteException);
-    ASSERT_THROW(SqliteReadWriteStatement(Utf8StringLiteral("INSERT INTO test(name, number) VALUES (?, ?)")), SqliteException);
-    databaseBackend.open(QDir::tempPath() + QStringLiteral("/SqliteStatementTest.db"));
+    database.close();
+
+    ASSERT_THROW(ReadStatement("SELECT * FROM test", database),
+                 Sqlite::DatabaseIsNotOpen);
+}
+
+TEST_F(SqliteStatement, GetTupleValuesWithoutArguments)
+{
+    using Tuple = std::tuple<Utils::SmallString, double, int>;
+    ReadStatement statement("SELECT name, number, value FROM test", database);
+
+    auto values = statement.values<Tuple, 3>(3);
+
+    ASSERT_THAT(values, ElementsAre(Tuple{"bar", 0, 1},
+                                    Tuple{"foo", 23.3, 2},
+                                    Tuple{"poo", 40.0, 3}));
+}
+
+TEST_F(SqliteStatement, GetSingleValuesWithoutArguments)
+{
+    ReadStatement statement("SELECT name FROM test", database);
+
+    std::vector<Utils::SmallString> values = statement.values<Utils::SmallString>(3);
+
+    ASSERT_THAT(values, ElementsAre("bar", "foo", "poo"));
+}
+
+TEST_F(SqliteStatement, GetStructValuesWithoutArguments)
+{
+    ReadStatement statement("SELECT name, number, value FROM test", database);
+
+    auto values = statement.values<Output, 3>(3);
+
+    ASSERT_THAT(values, ElementsAre(Output{"bar", "blah", 1},
+                                    Output{"foo", "23.3", 2},
+                                    Output{"poo", "40", 3}));
+}
+
+TEST_F(SqliteStatement, GetValuesForSingleOutputWithBindingMultipleTimes)
+{
+    ReadStatement statement("SELECT name FROM test WHERE number=?", database);
+    statement.values<Utils::SmallString>(3, 40);
+
+    std::vector<Utils::SmallString> values = statement.values<Utils::SmallString>(3, 40);
+
+    ASSERT_THAT(values, ElementsAre("poo"));
+}
+
+TEST_F(SqliteStatement, GetValuesForMultipleOutputValuesAndContainerQueryValues)
+{
+    using Tuple = std::tuple<Utils::SmallString, double, double>;
+    std::vector<double> queryValues = {40, 23.3};
+    ReadStatement statement("SELECT name, number, value FROM test WHERE number=?", database);
+
+    auto values = statement.values<Tuple, 3>(3, queryValues);
+
+    ASSERT_THAT(values, ElementsAre(Tuple{"poo", 40, 3.},
+                                    Tuple{"foo", 23.3, 2.}));
+}
+
+TEST_F(SqliteStatement, GetValuesForSingleOutputValuesAndContainerQueryValues)
+{
+    std::vector<double> queryValues = {40, 23.3};
+    ReadStatement statement("SELECT name, number FROM test WHERE number=?", database);
+
+    std::vector<Utils::SmallString> values = statement.values<Utils::SmallString>(3, queryValues);
+
+    ASSERT_THAT(values, ElementsAre("poo", "foo"));
+}
+
+TEST_F(SqliteStatement, GetValuesForMultipleOutputValuesAndContainerQueryTupleValues)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, int>;
+    using ResultTuple = std::tuple<Utils::SmallString, double, int>;
+    std::vector<Tuple> queryValues = {{"poo", "40", 3}, {"bar", "blah", 1}};
+    ReadStatement statement("SELECT name, number, value FROM test WHERE name= ? AND number=? AND value=?", database);
+
+    auto values = statement.values<ResultTuple, 3>(3, queryValues);
+
+    ASSERT_THAT(values, ElementsAre(ResultTuple{"poo", 40, 3},
+                                    ResultTuple{"bar", 0, 1}));
+}
+
+TEST_F(SqliteStatement, GetValuesForSingleOutputValuesAndContainerQueryTupleValues)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString>;
+    std::vector<Tuple> queryValues = {{"poo", "40"}, {"bar", "blah"}};
+    ReadStatement statement("SELECT name, number FROM test WHERE name= ? AND number=?", database);
+
+    std::vector<Utils::SmallString> values = statement.values<Utils::SmallString>(3, queryValues);
+
+    ASSERT_THAT(values, ElementsAre("poo", "bar"));
+}
+
+TEST_F(SqliteStatement, GetValuesForMultipleOutputValuesAndMultipleQueryValue)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
+    ReadStatement statement("SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
+
+    auto values = statement.values<Tuple, 3>(3, "bar", "blah", 1);
+
+    ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
+}
+
+TEST_F(SqliteStatement, CallGetValuesForMultipleOutputValuesAndMultipleQueryValueMultipleTimes)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
+    ReadStatement statement("SELECT name, number, value FROM test WHERE name=? AND number=?", database);
+    statement.values<Tuple, 3>(3, "bar", "blah");
+
+    auto values = statement.values<Tuple, 3>(3, "bar", "blah");
+
+    ASSERT_THAT(values, ElementsAre(Tuple{"bar", "blah", 1}));
+}
+
+TEST_F(SqliteStatement, GetStructOutputValuesAndMultipleQueryValue)
+{
+    ReadStatement statement("SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
+
+    auto values = statement.values<Output, 3>(3, "bar", "blah", 1);
+
+    ASSERT_THAT(values, ElementsAre(Output{"bar", "blah", 1}));
+}
+
+TEST_F(SqliteStatement, GetStructOutputValuesAndContainerQueryValues)
+{
+    std::vector<double> queryValues = {40, 23.3};
+    ReadStatement statement("SELECT name, number, value FROM test WHERE number=?", database);
+
+    auto values = statement.values<Output, 3>(3, queryValues);
+
+    ASSERT_THAT(values, ElementsAre(Output{"poo", "40", 3},
+                                    Output{"foo", "23.3", 2}));
+}
+
+TEST_F(SqliteStatement, GetStructOutputValuesAndContainerQueryTupleValues)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, int>;
+    std::vector<Tuple> queryValues = {{"poo", "40", 3}, {"bar", "blah", 1}};
+    ReadStatement statement("SELECT name, number, value FROM test WHERE name= ? AND number=? AND value=?", database);
+
+    auto values = statement.values<Output, 3>(3, queryValues);
+
+    ASSERT_THAT(values, ElementsAre(Output{"poo", "40", 3},
+                                    Output{"bar", "blah", 1}));
+}
+
+TEST_F(SqliteStatement, GetOptionalSingleValueAndMultipleQueryValue)
+{
+    ReadStatement statement("SELECT name FROM test WHERE name=? AND number=? AND value=?", database);
+
+    auto value = statement.value<Utils::SmallString>("bar", "blah", 1);
+
+    ASSERT_THAT(value.value(), Eq("bar"));
+}
+
+TEST_F(SqliteStatement, GetOptionalOutputValueAndMultipleQueryValue)
+{
+    ReadStatement statement("SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
+
+    auto value = statement.value<Output, 3>("bar", "blah", 1);
+
+    ASSERT_THAT(value.value(), Eq(Output{"bar", "blah", 1}));
+}
+
+TEST_F(SqliteStatement, GetOptionalTupleValueAndMultipleQueryValue)
+{
+    using Tuple = std::tuple<Utils::SmallString, Utils::SmallString, long long>;
+    ReadStatement statement("SELECT name, number, value FROM test WHERE name=? AND number=? AND value=?", database);
+
+    auto value = statement.value<Tuple, 3>("bar", "blah", 1);
+
+    ASSERT_THAT(value.value(), Eq(Tuple{"bar", "blah", 1}));
+}
+
+TEST_F(SqliteStatement, GetOptionalValueCallsReset)
+{
+    MockSqliteStatement mockStatement;
+
+    EXPECT_CALL(mockStatement, reset());
+
+    mockStatement.value<int>("bar");
+}
+
+TEST_F(SqliteStatement, GetOptionalValueCallsResetIfExceptionIsThrown)
+{
+    MockSqliteStatement mockStatement;
+    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+
+    EXPECT_CALL(mockStatement, reset());
+
+    EXPECT_THROW(mockStatement.value<int>("bar"), Sqlite::StatementHasError);
+}
+
+TEST_F(SqliteStatement, GetValuesWithoutArgumentsCallsReset)
+{
+    MockSqliteStatement mockStatement;
+
+    EXPECT_CALL(mockStatement, reset());
+
+    mockStatement.values<int>(3);
+}
+
+TEST_F(SqliteStatement, GetValuesWithoutArgumentsCallsResetIfExceptionIsThrown)
+{
+    MockSqliteStatement mockStatement;
+    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+
+    EXPECT_CALL(mockStatement, reset());
+
+    EXPECT_THROW(mockStatement.values<int>(3), Sqlite::StatementHasError);
+}
+
+TEST_F(SqliteStatement, GetValuesWithSimpleArgumentsCallsReset)
+{
+    MockSqliteStatement mockStatement;
+
+    EXPECT_CALL(mockStatement, reset());
+
+    mockStatement.values<int>(3, "foo", "bar");
+}
+
+TEST_F(SqliteStatement, GetValuesWithSimpleArgumentsCallsResetIfExceptionIsThrown)
+{
+    MockSqliteStatement mockStatement;
+    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+
+    EXPECT_CALL(mockStatement, reset());
+
+    EXPECT_THROW(mockStatement.values<int>(3, "foo", "bar"), Sqlite::StatementHasError);
+}
+
+TEST_F(SqliteStatement, GetValuesWithVectorArgumentsCallsReset)
+{
+    MockSqliteStatement mockStatement;
+
+    EXPECT_CALL(mockStatement, reset()).Times(2);
+
+    mockStatement.values<int>(3, std::vector<Utils::SmallString>{"bar", "foo"});
+}
+
+TEST_F(SqliteStatement, GetValuesWithVectorArgumentCallsResetIfExceptionIsThrown)
+{
+    MockSqliteStatement mockStatement;
+    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+
+    EXPECT_CALL(mockStatement, reset());
+
+    EXPECT_THROW(mockStatement.values<int>(3, std::vector<Utils::SmallString>{"bar", "foo"}),
+                 Sqlite::StatementHasError);
+}
+
+TEST_F(SqliteStatement, GetValuesWithTupleArgumentsCallsReset)
+{
+    MockSqliteStatement mockStatement;
+
+    EXPECT_CALL(mockStatement, reset()).Times(2);
+
+    mockStatement.values<int>(3, std::vector<std::tuple<int>>{{1}, {2}});
+}
+
+TEST_F(SqliteStatement, GetValuesWithTupleArgumentsCallsResetIfExceptionIsThrown)
+{
+    MockSqliteStatement mockStatement;
+    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+
+    EXPECT_CALL(mockStatement, reset());
+
+    EXPECT_THROW(mockStatement.values<int>(3, std::vector<std::tuple<int>>{{1}, {2}}),
+                 Sqlite::StatementHasError);
+}
+
+TEST_F(SqliteStatement, DoubleThrowExceptionsInReset)
+{
+    MockSqliteStatement mockStatement;
+    ON_CALL(mockStatement, next()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+    ON_CALL(mockStatement, reset()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+
+    ASSERT_THROW(mockStatement.values<int>(3, std::vector<std::tuple<int>>{{1}, {2}}),
+                 Sqlite::StatementHasError);
+}
+
+TEST_F(SqliteStatement, ThrowExceptionOnlyInReset)
+{
+    MockSqliteStatement mockStatement;
+    ON_CALL(mockStatement, reset()).WillByDefault(Throw(Sqlite::StatementHasError("")));
+
+    ASSERT_THROW(mockStatement.values<int>(3, std::vector<std::tuple<int>>{{1}, {2}}),
+                 Sqlite::StatementHasError);
+}
+
+TEST_F(SqliteStatement, ResetIfWriteIsThrowingException)
+{
+    MockSqliteStatement mockStatement;
+
+    EXPECT_CALL(mockStatement, bind(1, TypedEq<Utils::SmallStringView>("bar")))
+            .WillOnce(Throw(Sqlite::StatementIsBusy("")));
+    EXPECT_CALL(mockStatement, reset());
+
+    ASSERT_ANY_THROW(mockStatement.write("bar"));
+}
+
+TEST_F(SqliteStatement, ResetIfWriteNamedIsThrowingException)
+{
+    MockSqliteStatement mockStatement;
+
+    EXPECT_CALL(mockStatement, bindingIndexForName(TypedEq<Utils::SmallStringView>("@foo")))
+            .WillOnce(Return(1));
+    EXPECT_CALL(mockStatement, bind(1, TypedEq<Utils::SmallStringView>("bar")))
+            .WillOnce(Throw(Sqlite::StatementIsBusy("")));
+    EXPECT_CALL(mockStatement, reset());
+
+    ASSERT_ANY_THROW(mockStatement.writeNamed("@foo", "bar"));
+}
+
+TEST_F(SqliteStatement, ResetIfExecuteThrowsException)
+{
+    MockSqliteStatement mockStatement;
+
+    EXPECT_CALL(mockStatement, next()).WillOnce(Throw(Sqlite::StatementIsBusy("")));
+    EXPECT_CALL(mockStatement, reset());
+
+    ASSERT_ANY_THROW(mockStatement.execute());
 }
 
 void SqliteStatement::SetUp()
 {
-    databaseBackend.open(QStringLiteral(":memory:"));
-    SqliteWriteStatement::execute(Utf8StringLiteral("CREATE TABLE test(name TEXT UNIQUE, number NUMERIC)"));
-    SqliteWriteStatement::execute(Utf8StringLiteral("INSERT INTO  test VALUES ('bar', x'0500')"));
-    SqliteWriteStatement::execute(Utf8StringLiteral("INSERT INTO  test VALUES ('foo', 23.3)"));
-    SqliteWriteStatement::execute(Utf8StringLiteral("INSERT INTO  test VALUES ('poo', 40)"));
+    database.execute("CREATE TABLE test(name TEXT UNIQUE, number NUMERIC, value NUMERIC)");
+    database.execute("INSERT INTO  test VALUES ('bar', 'blah', 1)");
+    database.execute("INSERT INTO  test VALUES ('foo', 23.3, 2)");
+    database.execute("INSERT INTO  test VALUES ('poo', 40, 3)");
 }
 
 void SqliteStatement::TearDown()
 {
-    databaseBackend.close();
+    if (database.isOpen())
+        database.close();
 }
 
 }

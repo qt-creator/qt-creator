@@ -25,9 +25,16 @@
 
 #include "qmlprofilerdetailsrewriter.h"
 
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/runconfiguration.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljsmodelmanager.h>
+#include <qtsupport/baseqtversion.h>
 
 #include <utils/qtcassert.h>
 
@@ -36,84 +43,89 @@ namespace Internal {
 
 class PropertyVisitor: protected QmlJS::AST::Visitor
 {
-    QmlJS::AST::Node * _lastValidNode;
-    unsigned _line;
-    unsigned _col;
 public:
-    QmlJS::AST::Node * operator()(QmlJS::AST::Node *node, unsigned line, unsigned col)
+    QmlJS::AST::Node *operator()(QmlJS::AST::Node *node, int line, int column)
     {
-        _line = line;
-        _col = col;
-        _lastValidNode = 0;
-        accept(node);
-        return _lastValidNode;
+        QTC_ASSERT(line >= 0, return nullptr);
+        QTC_ASSERT(column >= 0, return nullptr);
+        QTC_ASSERT(node, return nullptr);
+        m_line = line;
+        m_column = column;
+        m_lastValidNode = nullptr;
+        node->accept(this);
+        return m_lastValidNode;
     }
 
 protected:
     using QmlJS::AST::Visitor::visit;
 
-    void accept(QmlJS::AST::Node *node)
-    {
-        if (node)
-            node->accept(this);
-    }
-
-    bool containsLocation(QmlJS::AST::SourceLocation start, QmlJS::AST::SourceLocation end)
-    {
-        return (_line > start.startLine || (_line == start.startLine && _col >= start.startColumn))
-                && (_line < end.startLine || (_line == end.startLine && _col <= end.startColumn));
-    }
-
-
-    virtual bool preVisit(QmlJS::AST::Node *node)
+    bool preVisit(QmlJS::AST::Node *node) override
     {
         if (QmlJS::AST::cast<QmlJS::AST::UiQualifiedId *>(node))
             return false;
         return containsLocation(node->firstSourceLocation(), node->lastSourceLocation());
     }
 
-    virtual bool visit(QmlJS::AST::UiScriptBinding *ast)
+    bool visit(QmlJS::AST::UiScriptBinding *ast) override
     {
-        _lastValidNode = ast;
+        m_lastValidNode = ast;
         return true;
     }
 
-    virtual bool visit(QmlJS::AST::UiPublicMember *ast)
+    bool visit(QmlJS::AST::UiPublicMember *ast) override
     {
-        _lastValidNode = ast;
+        m_lastValidNode = ast;
         return true;
+    }
+
+private:
+    QmlJS::AST::Node *m_lastValidNode = nullptr;
+    quint32 m_line = 0;
+    quint32 m_column = 0;
+
+    bool containsLocation(QmlJS::AST::SourceLocation start, QmlJS::AST::SourceLocation end)
+    {
+        return (m_line > start.startLine
+                    || (m_line == start.startLine && m_column >= start.startColumn))
+                && (m_line < end.startLine
+                    || (m_line == end.startLine && m_column <= end.startColumn));
     }
 };
 
-QmlProfilerDetailsRewriter::QmlProfilerDetailsRewriter(Utils::FileInProjectFinder *fileFinder,
-                                                       QObject *parent)
-    : QObject(parent), m_projectFinder(fileFinder)
+QmlProfilerDetailsRewriter::QmlProfilerDetailsRewriter(QObject *parent)
+    : QObject(parent)
 {
 }
 
 void QmlProfilerDetailsRewriter::requestDetailsForLocation(int typeId,
                                                            const QmlEventLocation &location)
 {
-    QString localFile;
-    const QString locationFile = location.filename();
-    if (!m_filesCache.contains(locationFile)) {
-        localFile = m_projectFinder->findFile(locationFile);
-        m_filesCache[locationFile] = localFile;
-    } else {
-        localFile = m_filesCache[locationFile];
-    }
-    QFileInfo fileInfo(localFile);
-    if (!fileInfo.exists() || !fileInfo.isReadable())
+    const QString localFile = getLocalFile(location.filename());
+    if (localFile.isEmpty())
         return;
-    if (!QmlJS::ModelManagerInterface::guessLanguageOfFile(localFile).isQmlLikeLanguage())
-        return;
-
-    localFile = fileInfo.canonicalFilePath();
 
     if (m_pendingEvents.isEmpty())
         connectQmlModel();
 
     m_pendingEvents.insert(localFile, {location, typeId});
+}
+
+QString QmlProfilerDetailsRewriter::getLocalFile(const QString &remoteFile)
+{
+    QString localFile;
+    if (!m_filesCache.contains(remoteFile)) {
+        localFile = m_projectFinder.findFile(remoteFile);
+        m_filesCache[remoteFile] = localFile;
+    } else {
+        localFile = m_filesCache[remoteFile];
+    }
+    QFileInfo fileInfo(localFile);
+    if (!fileInfo.exists() || !fileInfo.isReadable())
+        return QString();
+    if (!QmlJS::ModelManagerInterface::guessLanguageOfFile(localFile).isQmlLikeOrJsLanguage())
+        return QString();
+
+    return fileInfo.canonicalFilePath();
 }
 
 void QmlProfilerDetailsRewriter::reloadDocuments()
@@ -137,7 +149,6 @@ void QmlProfilerDetailsRewriter::rewriteDetailsForLocation(
 {
     PropertyVisitor propertyVisitor;
     QmlJS::AST::Node *node = propertyVisitor(doc->ast(), location.line(), location.column());
-
     if (!node)
         return;
 
@@ -163,7 +174,7 @@ void QmlProfilerDetailsRewriter::disconnectQmlModel()
     }
 }
 
-void QmlProfilerDetailsRewriter::clearRequests()
+void QmlProfilerDetailsRewriter::clear()
 {
     m_filesCache.clear();
     m_pendingEvents.clear();
@@ -194,6 +205,12 @@ void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
         emit eventDetailsChanged();
         m_filesCache.clear();
     }
+}
+
+void QmlProfilerDetailsRewriter::populateFileFinder(const ProjectExplorer::Target *target)
+{
+    QtSupport::BaseQtVersion::populateQmlFileFinder(&m_projectFinder, target);
+    m_filesCache.clear();
 }
 
 } // namespace Internal

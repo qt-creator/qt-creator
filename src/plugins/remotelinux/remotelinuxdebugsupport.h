@@ -25,42 +25,16 @@
 
 #pragma once
 
-#include "abstractremotelinuxrunsupport.h"
-
-namespace Debugger { class DebuggerRunControl; }
+#include <debugger/debuggerruncontrol.h>
 
 namespace RemoteLinux {
+namespace Internal {
 
-namespace Internal { class LinuxDeviceDebugSupportPrivate; }
-
-class REMOTELINUX_EXPORT LinuxDeviceDebugSupport : public AbstractRemoteLinuxRunSupport
+class LinuxDeviceDebugSupport : public Debugger::DebuggerRunTool
 {
-    Q_OBJECT
-
 public:
-    LinuxDeviceDebugSupport(ProjectExplorer::RunConfiguration *runConfig,
-            Debugger::DebuggerRunControl *runControl);
-    ~LinuxDeviceDebugSupport();
-
-protected:
-    void startExecution();
-    void handleAdapterSetupFailed(const QString &error);
-    void handleAdapterSetupDone();
-
-private:
-    void handleRemoteSetupRequested();
-    void handleAppRunnerError(const QString &error);
-    void handleRemoteOutput(const QByteArray &output);
-    void handleRemoteErrorOutput(const QByteArray &output);
-    void handleAppRunnerFinished(bool success);
-    void handleProgressReport(const QString &progressOutput);
-
-    void handleRemoteProcessStarted();
-    void handleDebuggingFinished();
-
-    void showMessage(const QString &msg, int channel);
-
-    Internal::LinuxDeviceDebugSupportPrivate * const d;
+    LinuxDeviceDebugSupport(ProjectExplorer::RunControl *runControl);
 };
 
+} // namespace Internal
 } // namespace RemoteLinux

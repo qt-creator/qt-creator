@@ -66,7 +66,7 @@ static IWidgetPlugin *instance(WidgetPluginData &p)
             p.failed = true;
             p.errorMessage = QCoreApplication::translate("WidgetPluginManager",
                                                          "Failed to create instance of file "
-                                                         "'%1': %2").arg(p.path).arg(p.errorMessage);
+                                                         "\"%1\": %2").arg(p.path).arg(p.errorMessage);
             qWarning() << p.errorMessage;
             return 0;
         }
@@ -74,7 +74,7 @@ static IWidgetPlugin *instance(WidgetPluginData &p)
         if (!object) {
             p.failed = true;
             p.errorMessage = QCoreApplication::translate("WidgetPluginManager",
-                                                         "Failed to create instance of file '%1'."
+                                                         "Failed to create instance of file \"%1\"."
                                                          ).arg(p.path);
             qWarning() << p.errorMessage;
             return 0;
@@ -83,7 +83,7 @@ static IWidgetPlugin *instance(WidgetPluginData &p)
         if (!iplugin) {
             p.failed = true;
             p.errorMessage = QCoreApplication::translate("WidgetPluginManager",
-                                                         "File '%1' is not a QmlDesigner plugin."
+                                                         "File \"%1\" is not a Qt Quick Designer plugin."
                                                          ).arg(p.path);
             qWarning() << p.errorMessage;
             delete object;

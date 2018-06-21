@@ -38,7 +38,7 @@ ExecuteFilter::ExecuteFilter()
 {
     setId("Execute custom commands");
     setDisplayName(tr("Execute Custom Commands"));
-    setShortcutString(QString(QLatin1Char('!')));
+    setShortcutString("!");
     setPriority(High);
     setIncludedByDefault(false);
 
@@ -60,23 +60,31 @@ QList<LocatorFilterEntry> ExecuteFilter::matchesFor(QFutureInterface<LocatorFilt
     if (!entry.isEmpty()) // avoid empty entry
         value.append(LocatorFilterEntry(this, entry, QVariant()));
     QList<LocatorFilterEntry> others;
-    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
-    foreach (const QString &i, m_commandHistory) {
+    const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
+    for (const QString &cmd : qAsConst(m_commandHistory)) {
         if (future.isCanceled())
             break;
-        if (i == entry) // avoid repeated entry
+        if (cmd == entry) // avoid repeated entry
             continue;
-        if (i.startsWith(entry, caseSensitivityForPrefix))
-            value.append(LocatorFilterEntry(this, i, QVariant()));
-        else
-            others.append(LocatorFilterEntry(this, i, QVariant()));
+        LocatorFilterEntry filterEntry(this, cmd, QVariant());
+        const int index = cmd.indexOf(entry, 0, entryCaseSensitivity);
+        if (index >= 0) {
+            filterEntry.highlightInfo = {index, entry.length()};
+            value.append(filterEntry);
+        } else {
+            others.append(filterEntry);
+        }
     }
     value.append(others);
     return value;
 }
 
-void ExecuteFilter::accept(LocatorFilterEntry selection) const
+void ExecuteFilter::accept(LocatorFilterEntry selection,
+                           QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     ExecuteFilter *p = const_cast<ExecuteFilter *>(this);
 
     const QString value = selection.displayName.trimmed();
@@ -93,7 +101,7 @@ void ExecuteFilter::accept(LocatorFilterEntry selection) const
 
     ExecuteData d;
     d.workingDirectory = workingDirectory;
-    const int pos = value.indexOf(QLatin1Char(' '));
+    const int pos = value.indexOf(' ');
     if (pos == -1) {
         d.executable = value;
     } else {
@@ -179,6 +187,5 @@ QString ExecuteFilter::headCommand() const
     const ExecuteData &data = m_taskQueue.head();
     if (data.arguments.isEmpty())
         return data.executable;
-    else
-        return data.executable + QLatin1Char(' ') + data.arguments;
+    return data.executable + ' ' + data.arguments;
 }

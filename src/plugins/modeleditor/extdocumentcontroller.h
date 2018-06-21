@@ -40,13 +40,13 @@ class ExtDocumentController :
     class ExtDocumentControllerPrivate;
 
 public:
-    explicit ExtDocumentController(QObject *parent = 0);
+    explicit ExtDocumentController(QObject *parent = nullptr);
     ~ExtDocumentController();
 
     ElementTasks *elementTasks() const;
     PxNodeController *pxNodeController() const;
 
-private slots:
+private:
     void onProjectFileNameChanged(const QString &fileName);
 
 private:

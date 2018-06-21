@@ -41,7 +41,7 @@ class Qt5NodeInstanceServer : public NodeInstanceServer
     Q_OBJECT
 public:
     Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
-    ~Qt5NodeInstanceServer();
+    ~Qt5NodeInstanceServer() override;
 
     QQuickView *quickView() const override;
     QQmlView *declarativeView() const override;

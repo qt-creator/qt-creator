@@ -46,16 +46,12 @@
 using namespace Core;
 using namespace Help::Internal;
 
-OpenPagesManager *OpenPagesManager::m_instance = 0;
+OpenPagesManager *OpenPagesManager::m_instance = nullptr;
 
 // -- OpenPagesManager
 
 OpenPagesManager::OpenPagesManager(QObject *parent)
     : QObject(parent)
-    , m_comboBox(0)
-    , m_model(0)
-    , m_openPagesWidget(0)
-    , m_openPagesSwitcher(0)
 {
     Q_ASSERT(!m_instance);
 
@@ -79,7 +75,7 @@ OpenPagesManager::OpenPagesManager(QObject *parent)
 
 OpenPagesManager ::~OpenPagesManager()
 {
-    m_instance = 0;
+    m_instance = nullptr;
     delete m_openPagesSwitcher;
 }
 
@@ -180,7 +176,7 @@ HelpViewer *OpenPagesManager::createPage()
 HelpViewer *OpenPagesManager::createPage(const QUrl &url)
 {
     if (url.isValid() && HelpViewer::launchWithExternalApp(url))
-        return 0;
+        return nullptr;
 
     m_model->addPage(url);
 

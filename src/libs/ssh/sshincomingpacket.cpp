@@ -296,6 +296,23 @@ SshUserAuthInfoRequestPacket SshIncomingPacket::extractUserAuthInfoRequest() con
     }
 }
 
+SshUserAuthPkOkPacket SshIncomingPacket::extractUserAuthPkOk() const
+{
+    Q_ASSERT(isComplete());
+    Q_ASSERT(type() == SSH_MSG_USERAUTH_PK_OK);
+
+    try {
+        SshUserAuthPkOkPacket msg;
+        quint32 offset = TypeOffset + 1;
+        msg.algoName= SshPacketParser::asString(m_data, &offset);
+        msg.keyBlob = SshPacketParser::asString(m_data, &offset);
+        return msg;
+    } catch (const SshPacketParseException &) {
+        throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Invalid SSH_MSG_USERAUTH_PK_OK.");
+    }
+}
+
 SshDebug SshIncomingPacket::extractDebug() const
 {
     Q_ASSERT(isComplete());

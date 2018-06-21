@@ -34,7 +34,7 @@ leave room for the Qt 4 target page.
         class="qmakeproject" firstpage="10"
         id="R.QtCreatorPlugin" category="G.Library"
         featuresRequired="QtSupport.Wizards.FeatureQt,QtSupport.Wizards.FeatureDesktop">
-    <icon>qtcreator_logo_24.png</icon>
+    <icon>qtcreatorplugin.png</icon>
     <description>Creates a custom Qt Creator plugin.</description>
     <displayname>Qt Creator Plugin</displayname>;
     <displaycategory>Library</displaycategory>

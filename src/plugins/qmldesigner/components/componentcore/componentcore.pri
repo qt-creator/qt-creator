@@ -1,7 +1,9 @@
 VPATH += $$PWD
 
 SOURCES += modelnodecontextmenu.cpp
-SOURCES += theming.cpp
+SOURCES += addimagesdialog.cpp
+SOURCES += changestyleaction.cpp
+SOURCES += theme.cpp
 SOURCES += findimplementation.cpp
 SOURCES += addsignalhandlerdialog.cpp
 SOURCES += layoutingridlayout.cpp
@@ -14,9 +16,12 @@ SOURCES += designeractionmanager.cpp
 SOURCES += modelnodeoperations.cpp
 SOURCES += crumblebar.cpp
 SOURCES += qmldesignericonprovider.cpp
+SOURCES += zoomaction.cpp
 
 HEADERS += modelnodecontextmenu.h
-HEADERS += theming.h
+HEADERS += addimagesdialog.h
+HEADERS += changestyleaction.h
+HEADERS += theme.h
 HEADERS += findimplementation.h
 HEADERS += addsignalhandlerdialog.h
 HEADERS += layoutingridlayout.h
@@ -31,7 +36,11 @@ HEADERS += modelnodeoperations.h
 HEADERS += actioninterface.h
 HEADERS += crumblebar.h
 HEADERS += qmldesignericonprovider.h
+HEADERS += zoomaction.h
 
 FORMS += \
     $$PWD/addsignalhandlerdialog.ui
+
+RESOURCES += \
+    $$PWD/componentcore.qrc
 

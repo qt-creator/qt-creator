@@ -80,8 +80,8 @@
         \li In the \uicontrol Projects mode, select a \l{glossary-buildandrun-kit}
             {kit} with Qt version 4.7.4 or later.
 
-            \note To profile applications on devices, you must install Qt 4.7.4
-            or later libraries on them.
+            \note To profile applications on \l{glossary-device}{devices}, you
+            must install Qt 4.7.4 or later libraries on them.
 
         \li Select \uicontrol {Analyze > QML Profiler} to profile the current
             application.
@@ -574,6 +574,9 @@
     To view the the number of memory allocations performed by the functions in
     the \uicontrol {Visualize Allocations} view, select \uicontrol Allocations
     in the drop-down menu.
+
+    Double-click an item in a view to zoom into it. Double-click an empty
+    area in the view to zoom out again.
 
     Unlike the
     \uicontrol Timeline view, the \uicontrol {Flame Graph} view does not show the

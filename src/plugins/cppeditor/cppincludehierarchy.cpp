@@ -26,15 +26,16 @@
 #include "cppincludehierarchy.h"
 
 #include "cppeditor.h"
+#include "cppeditorwidget.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
-#include "cppelementevaluator.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/find/itemviewfind.h>
 
 #include <cpptools/baseeditordocumentprocessor.h>
+#include <cpptools/cppelementevaluator.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsbridge.h>
 #include <cpptools/editordocumenthandle.h>
@@ -155,7 +156,7 @@ private:
 
     Qt::ItemFlags flags(int) const override
     {
-        TextEditorWidget::Link link(m_filePath, m_line);
+        Utils::Link link(m_filePath, m_line);
         if (link.hasValidTarget())
             return Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
@@ -192,7 +193,7 @@ QVariant CppIncludeHierarchyItem::data(int column, int role) const
         case Qt::DecorationRole:
             return FileIconProvider::icon(QFileInfo(m_filePath));
         case LinkRole:
-            return QVariant::fromValue(TextEditorWidget::Link(m_filePath, m_line));
+            return QVariant::fromValue(Utils::Link(m_filePath, m_line));
     }
 
     return QVariant();
@@ -200,7 +201,7 @@ QVariant CppIncludeHierarchyItem::data(int column, int role) const
 
 bool CppIncludeHierarchyItem::canFetchMore() const
 {
-    if (m_isCyclic || m_checkedForChildren || !children().isEmpty())
+    if (m_isCyclic || m_checkedForChildren || childCount() > 0)
         return false;
 
     return !model()->m_searching || !model()->m_seen.contains(m_filePath);
@@ -273,7 +274,7 @@ QMimeData *CppIncludeHierarchyModel::mimeData(const QModelIndexList &indexes) co
 {
     auto data = new DropMimeData;
     foreach (const QModelIndex &index, indexes) {
-        auto link = index.data(LinkRole).value<TextEditorWidget::Link>();
+        auto link = index.data(LinkRole).value<Utils::Link>();
         if (link.hasValidTarget())
             data->addFile(link.targetFileName, link.targetLine, link.targetColumn);
     }
@@ -314,10 +315,18 @@ public:
     {}
 
 private:
-    Result findIncremental(const QString &txt, FindFlags findFlags)
+    Result findIncremental(const QString &txt, FindFlags findFlags) override
     {
         m_model->setSearching(true);
         Result result = ItemViewFind::findIncremental(txt, findFlags);
+        m_model->setSearching(false);
+        return result;
+    }
+
+    Result findStep(const QString &txt, FindFlags findFlags) override
+    {
+        m_model->setSearching(true);
+        Result result = ItemViewFind::findStep(txt, findFlags);
         m_model->setSearching(false);
         return result;
     }
@@ -397,9 +406,9 @@ void CppIncludeHierarchyWidget::perform()
     m_model.buildHierarchy(document);
 
     m_inspectedFile->setText(m_editor->textDocument()->displayName());
-    m_inspectedFile->setLink(TextEditorWidget::Link(document));
+    m_inspectedFile->setLink(Utils::Link(document));
 
-    // expand "Includes" adn "Included by"
+    // expand "Includes" and "Included by"
     m_treeView->expand(m_model.index(0, 0));
     m_treeView->expand(m_model.index(1, 0));
 
@@ -408,7 +417,7 @@ void CppIncludeHierarchyWidget::perform()
 
 void CppIncludeHierarchyWidget::onItemActivated(const QModelIndex &index)
 {
-    const auto link = index.data(LinkRole).value<TextEditorWidget::Link>();
+    const auto link = index.data(LinkRole).value<Utils::Link>();
     if (link.hasValidTarget())
         EditorManager::openEditorAt(link.targetFileName,
                                     link.targetLine,

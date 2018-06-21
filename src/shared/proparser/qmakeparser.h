@@ -75,7 +75,6 @@ public:
     enum ParseFlag {
         ParseDefault = 0,
         ParseUseCache = 1,
-        ParseOnlyCached = 2,
         ParseReportMissing = 4,
 #ifdef PROEVALUATOR_DUAL_VFS
         ParseCumulative = 8
@@ -90,10 +89,10 @@ public:
     enum SubGrammar { FullGrammar, TestGrammar, ValueGrammar };
     // fileName is expected to be absolute and cleanPath()ed.
     ProFile *parsedProFile(const QString &fileName, ParseFlags flags = ParseDefault);
-    ProFile *parsedProBlock(const QStringRef &contents, const QString &name, int line = 0,
+    ProFile *parsedProBlock(const QStringRef &contents, int id, const QString &name, int line = 0,
                             SubGrammar grammar = FullGrammar);
 
-    void discardFileFromCache(const QString &fileName);
+    void discardFileFromCache(int id);
 
 #ifdef PROPARSER_DEBUG
     static QString formatProBlock(const QString &block);
@@ -132,7 +131,7 @@ private:
         ushort terminator; // '}' if replace function call is braced, ':' if test function
     };
 
-    bool readFile(const QString &fn, QMakeVfs::VfsFlags vfsFlags, QMakeParser::ParseFlags flags, QString *contents);
+    bool readFile(int id, QMakeParser::ParseFlags flags, QString *contents);
     void read(ProFile *pro, const QStringRef &content, int line, SubGrammar grammar);
 
     ALWAYS_INLINE void putTok(ushort *&tokPtr, ushort tok);
@@ -198,11 +197,12 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QMakeParser::ParseFlags)
 class QMAKE_EXPORT ProFileCache
 {
 public:
-    ProFileCache() {}
+    ProFileCache();
     ~ProFileCache();
 
-    void discardFile(const QString &fileName);
-    void discardFiles(const QString &prefix);
+    void discardFile(int id);
+    void discardFile(const QString &fileName, QMakeVfs *vfs);
+    void discardFiles(const QString &prefix, QMakeVfs *vfs);
 
 private:
     struct Entry {
@@ -218,7 +218,7 @@ private:
 #endif
     };
 
-    QHash<QString, Entry> parsed_files;
+    QHash<int, Entry> parsed_files;
 #ifdef PROPARSER_THREAD_SAFE
     QMutex mutex;
 #endif

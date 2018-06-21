@@ -49,7 +49,7 @@ class PathSelectionItem : public QGraphicsItem
     };
 
 public:
-    explicit PathSelectionItem(IWindable *windable, QGraphicsItem *parent = 0);
+    explicit PathSelectionItem(IWindable *windable, QGraphicsItem *parent = nullptr);
     ~PathSelectionItem() override;
 
     QRectF boundingRect() const override;
@@ -72,11 +72,11 @@ private:
                     HandleQualifier handleQualifier);
     void keyPressed(int pointIndex, QKeyEvent *event, const QPointF &pos);
 
-    IWindable *m_windable = 0;
+    IWindable *m_windable = nullptr;
     QSizeF m_pointSize;
     bool m_isSecondarySelected = false;
     QList<GraphicsHandleItem *> m_handles;
-    GraphicsHandleItem *m_focusHandleItem = 0;
+    GraphicsHandleItem *m_focusHandleItem = nullptr;
     QPointF m_originalHandlePos;
 };
 

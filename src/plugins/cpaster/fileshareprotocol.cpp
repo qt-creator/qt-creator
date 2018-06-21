@@ -56,6 +56,7 @@ FileShareProtocol::FileShareProtocol() :
 
 FileShareProtocol::~FileShareProtocol()
 {
+    delete m_settingsPage;
 }
 
 QString FileShareProtocol::name() const
@@ -80,7 +81,7 @@ Core::IOptionsPage *FileShareProtocol::settingsPage() const
 
 static bool parse(const QString &fileName,
                   QString *errorMessage,
-                  QString *user = 0, QString *description = 0, QString *text = 0)
+                  QString *user = nullptr, QString *description = nullptr, QString *text = nullptr)
 {
     unsigned elementCount = 0;
 

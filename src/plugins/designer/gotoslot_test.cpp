@@ -120,7 +120,7 @@ protected:
     {
         QString declaration = m_overview.prettyName(symbol->name());
         if (!m_currentClass.isEmpty())
-            declaration = m_currentClass + QLatin1String("::") + declaration;
+            declaration = m_currentClass + "::" + declaration;
         if (m_referenceFunction == declaration)
             m_result = true;
         return false;
@@ -153,7 +153,7 @@ public:
         QCOMPARE(files.size(), 3);
 
         QList<TextEditor::BaseTextEditor *> editors;
-        foreach (const QString &file, files) {
+        for (const QString &file : files) {
             IEditor *editor = EditorManager::openEditor(file);
             TextEditor::BaseTextEditor *e = qobject_cast<TextEditor::BaseTextEditor *>(editor);
             QVERIFY(e);
@@ -165,19 +165,18 @@ public:
         const QString hFile = files.at(1);
 
         QCOMPARE(DocumentModel::openedDocuments().size(), files.size());
-        waitForFilesInGlobalSnapshot(QStringList() << cppFile << hFile);
+        waitForFilesInGlobalSnapshot({cppFile, hFile});
 
         // Execute "Go To Slot"
         QDesignerIntegrationInterface *integration = FormEditorW::designerEditor()->integration();
         QVERIFY(integration);
-        integration->emitNavigateToSlot(QLatin1String("pushButton"), QLatin1String("clicked()"),
-                                        QStringList());
+        integration->emitNavigateToSlot("pushButton", "clicked()", QStringList());
 
         QCOMPARE(EditorManager::currentDocument()->filePath().toString(), cppFile);
         QVERIFY(EditorManager::currentDocument()->isModified());
 
         // Wait for updated documents
-        foreach (TextEditor::BaseTextEditor *editor, editors) {
+        for (TextEditor::BaseTextEditor *editor : qAsConst(editors)) {
             const QString filePath = editor->document()->filePath().toString();
             if (auto parser = BuiltinEditorDocumentParser::get(filePath)) {
                 forever {
@@ -201,10 +200,8 @@ public:
         const Document::Ptr hDocument = hDocumentParser->document();
         QVERIFY(checkDiagsnosticMessages(hDocument));
 
-        QVERIFY(documentContainsFunctionDefinition(cppDocument,
-            QLatin1String("Form::on_pushButton_clicked")));
-        QVERIFY(documentContainsMemberFunctionDeclaration(hDocument,
-            QLatin1String("Form::on_pushButton_clicked")));
+        QVERIFY(documentContainsFunctionDefinition(cppDocument, "Form::on_pushButton_clicked"));
+        QVERIFY(documentContainsMemberFunctionDeclaration(hDocument, "Form::on_pushButton_clicked"));
     }
 
     static bool checkDiagsnosticMessages(const Document::Ptr &document)
@@ -214,11 +211,11 @@ public:
 
         // Since no project is opened and the ui_*.h is not generated,
         // the following diagnostic messages will be ignored.
-        const QStringList ignoreList = QStringList()
-            << QLatin1String("ui_form.h: No such file or directory")
-            << QLatin1String("QWidget: No such file or directory");
+        const QStringList ignoreList = QStringList({"ui_form.h: No such file or directory",
+                                                    "QWidget: No such file or directory"});
         QList<Document::DiagnosticMessage> cleanedDiagnosticMessages;
-        foreach (const Document::DiagnosticMessage &message, document->diagnosticMessages()) {
+        const auto diagnosticMessages = document->diagnosticMessages();
+        for (const Document::DiagnosticMessage &message : diagnosticMessages) {
             if (!ignoreList.contains(message.text()))
                 cleanedDiagnosticMessages << message;
         }
@@ -247,10 +244,9 @@ void FormEditorPlugin::test_gotoslot_data()
 
     MyTestDataDir testDataDirWithoutProject(_("gotoslot_withoutProject"));
     QTest::newRow("withoutProject")
-        << (QStringList()
-            << testDataDirWithoutProject.file(_("form.cpp"))
-            << testDataDirWithoutProject.file(_("form.h"))
-            << testDataDirWithoutProject.file(_("form.ui")));
+        << QStringList({testDataDirWithoutProject.file(_("form.cpp")),
+                        testDataDirWithoutProject.file(_("form.h")),
+                        testDataDirWithoutProject.file(_("form.ui"))});
 
     // Finding the right class for inserting definitions/declarations is based on
     // finding a class with a member whose type is the class from the "ui_xxx.h" header.
@@ -261,24 +257,18 @@ void FormEditorPlugin::test_gotoslot_data()
 
     testDataDir = MyTestDataDir(_("gotoslot_insertIntoCorrectClass_pointer"));
     QTest::newRow("insertIntoCorrectClass_pointer")
-        << (QStringList()
-            << testDataDir.file(_("form.cpp"))
-            << testDataDir.file(_("form.h"))
-            << testDataDirWithoutProject.file(_("form.ui"))); // reuse
+        << QStringList({testDataDir.file(_("form.cpp")), testDataDir.file(_("form.h")),
+                        testDataDirWithoutProject.file(_("form.ui"))}); // reuse
 
     testDataDir = MyTestDataDir(_("gotoslot_insertIntoCorrectClass_non-pointer"));
     QTest::newRow("insertIntoCorrectClass_non-pointer")
-        << (QStringList()
-            << testDataDir.file(_("form.cpp"))
-            << testDataDir.file(_("form.h"))
-            << testDataDirWithoutProject.file(_("form.ui"))); // reuse
+        << QStringList({testDataDir.file(_("form.cpp")), testDataDir.file(_("form.h")),
+                        testDataDirWithoutProject.file(_("form.ui"))}); // reuse
 
     testDataDir = MyTestDataDir(_("gotoslot_insertIntoCorrectClass_pointer_ns_using"));
     QTest::newRow("insertIntoCorrectClass_pointer_ns_using")
-        << (QStringList()
-            << testDataDir.file(_("form.cpp"))
-            << testDataDir.file(_("form.h"))
-            << testDataDir.file(_("form.ui")));
+        << QStringList({testDataDir.file(_("form.cpp")), testDataDir.file(_("form.h")),
+                        testDataDir.file(_("form.ui"))});
 }
 
 } // namespace Internal

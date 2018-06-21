@@ -29,7 +29,9 @@
 #include <projectexplorer/devicesupport/desktopprocesssignaloperation.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
+#include <utils/portlist.h>
 
 #include <QFileInfo>
 #include <QCoreApplication>
@@ -42,16 +44,27 @@ namespace Internal {
 
 WinRtDevice::WinRtDevice() : m_deviceId(-1)
 {
+    initFreePorts();
 }
 
 WinRtDevice::WinRtDevice(Core::Id type, MachineType machineType, Core::Id internalId, int deviceId)
     : IDevice(type, AutoDetected, machineType, internalId), m_deviceId(deviceId)
 {
+    initFreePorts();
 }
 
 WinRtDevice::WinRtDevice(const WinRtDevice &other)
     : IDevice(other), m_deviceId(other.m_deviceId)
 {
+    initFreePorts();
+}
+
+void WinRtDevice::initFreePorts()
+{
+    Utils::PortList portList;
+    portList.addRange(Utils::Port(ProjectExplorer::Constants::DESKTOP_PORT_START),
+                      Utils::Port(ProjectExplorer::Constants::DESKTOP_PORT_END));
+    setFreePorts(portList);
 }
 
 QString WinRtDevice::displayType() const
@@ -104,6 +117,11 @@ QVariantMap WinRtDevice::toMap() const
     QVariantMap map = IDevice::toMap();
     map.insert(QStringLiteral("WinRtRunnerDeviceId"), m_deviceId);
     return map;
+}
+
+Utils::OsType WinRtDevice::osType() const
+{
+    return Utils::OsTypeWindows;
 }
 
 IDevice::Ptr WinRtDevice::clone() const

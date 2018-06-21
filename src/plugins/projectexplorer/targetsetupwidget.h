@@ -58,11 +58,9 @@ class TargetSetupWidget : public QWidget
 
 public:
     TargetSetupWidget(Kit *k,
-                      const QString &projectPath,
-                      const QList<BuildInfo *> &infoList);
-    ~TargetSetupWidget() override;
+                      const QString &projectPath);
 
-    Kit *kit();
+    Kit *kit() const;
     void clearKit();
 
     bool isKitSelected() const;
@@ -78,6 +76,8 @@ signals:
     void selectedToggled() const;
 
 private:
+    static QList<BuildInfo *> buildInfoList(const Kit *k, const QString &projectPath);
+
     void handleKitUpdate(ProjectExplorer::Kit *k);
 
     void checkBoxToggled(bool b);
@@ -95,14 +95,27 @@ private:
     Utils::DetailsWidget *m_detailsWidget;
     QPushButton *m_manageButton;
     QGridLayout *m_newBuildsLayout;
-    QList<QCheckBox *> m_checkboxes;
-    QList<Utils::PathChooser *> m_pathChoosers;
-    QList<BuildInfo *> m_infoList;
-    QList<bool> m_enabled;
-    QList<QLabel *> m_reportIssuesLabels;
-    QList<bool> m_issues;
+
+    struct BuildInfoStore {
+        ~BuildInfoStore();
+        BuildInfoStore() = default;
+        BuildInfoStore(const BuildInfoStore &other) = delete;
+        BuildInfoStore(BuildInfoStore &&other);
+        BuildInfoStore &operator=(const BuildInfoStore &other) = delete;
+        BuildInfoStore &operator=(BuildInfoStore &&other) = delete;
+
+        BuildInfo *buildInfo = nullptr;
+        QCheckBox *checkbox = nullptr;
+        QLabel *label = nullptr;
+        QLabel *issuesLabel = nullptr;
+        Utils::PathChooser *pathChooser = nullptr;
+        bool isEnabled = false;
+        bool hasIssues = false;
+    };
+    std::vector<BuildInfoStore> m_infoStore;
+
     bool m_ignoreChange = false;
-    int m_selected = 0; // Number of selected buildconfiguartions
+    int m_selected = 0; // Number of selected "buildconfiguartions"
 };
 
 } // namespace Internal

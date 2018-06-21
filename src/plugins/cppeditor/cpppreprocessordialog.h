@@ -25,9 +25,8 @@
 
 #pragma once
 
-#include <cpptools/cppmodelmanager.h>
-
 #include <QDialog>
+#include <QString>
 
 namespace CppEditor {
 namespace Internal {
@@ -38,27 +37,17 @@ class CppPreProcessorDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit CppPreProcessorDialog(QWidget *parent, const QString &filePath,
-                                   const QList<CppTools::ProjectPart::Ptr> &projectParts);
+    explicit CppPreProcessorDialog(const QString &filePath, QWidget *parent);
     ~CppPreProcessorDialog();
 
     int exec();
 
-    CppTools::ProjectPart::Ptr projectPart() const;
-    QString additionalPreProcessorDirectives() const;
+    QString extraPreprocessorDirectives() const;
 
 private:
-    void projectChanged(int index);
-    void textChanged();
-
-    struct ProjectPartAddition {
-        CppTools::ProjectPart::Ptr projectPart;
-        QString additionalDirectives;
-    };
-
     Ui::CppPreProcessorDialog *m_ui;
-    QList<ProjectPartAddition> m_partAdditions;
-    QString m_filePath;
+    const QString m_filePath;
+    const QString m_projectPartId;
 };
 
 } // namespace Internal

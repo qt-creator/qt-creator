@@ -30,6 +30,7 @@
 
 #include <utils/pathchooser.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/temporarydirectory.h>
 
 #include "symbolpathsdialog.h"
 
@@ -139,7 +140,7 @@ CdbSymbolPathListEditor::CdbSymbolPathListEditor(QWidget *parent) :
 bool CdbSymbolPathListEditor::promptCacheDirectory(QWidget *parent, QString *cacheDirectory)
 {
     CacheDirectoryDialog dialog(parent);
-    dialog.setPath(QDir::tempPath() + QDir::separator() + QLatin1String("symbolcache"));
+    dialog.setPath(Utils::TemporaryDirectory::masterDirectoryPath() + "/symbolcache");
     if (dialog.exec() != QDialog::Accepted)
         return false;
     *cacheDirectory = dialog.path();
@@ -165,7 +166,7 @@ void CdbSymbolPathListEditor::setupSymbolPaths()
     if (path.isEmpty() && indexOfSymbolCache != -1)
         path = currentPaths.at(indexOfSymbolCache);
     if (path.isEmpty())
-        path = QDir::tempPath() + QDir::separator() + QLatin1String("symbolcache");
+        path = Utils::TemporaryDirectory::masterDirectoryPath() + "/symbolcache";
 
     bool useSymbolServer = true;
     bool useSymbolCache = true;
@@ -196,7 +197,7 @@ QString CdbSymbolPathListEditor::symbolPath(const QString &cacheDir,
     return s;
 }
 
-bool CdbSymbolPathListEditor::isSymbolServerPath(const QString &path, QString *cacheDir /*  = 0 */)
+bool CdbSymbolPathListEditor::isSymbolServerPath(const QString &path, QString *cacheDir /*  = nullptr */)
 {
     if (!path.startsWith(QLatin1String(symbolServerPrefixC)) || !path.endsWith(QLatin1String(symbolServerPostfixC)))
         return false;
@@ -225,7 +226,7 @@ bool CdbSymbolPathListEditor::isSymbolCachePath(const QString &path, QString *ca
 
 int CdbSymbolPathListEditor::indexOfSymbolPath(const QStringList &paths,
                                                CdbSymbolPathListEditor::SymbolPathMode mode,
-                                               QString *cacheDir /*  = 0 */)
+                                               QString *cacheDir /*  = nullptr */)
 {
     const int count = paths.size();
     for (int i = 0; i < count; i++) {

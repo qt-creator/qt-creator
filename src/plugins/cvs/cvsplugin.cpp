@@ -56,7 +56,6 @@
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/fileutils.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/stringutils.h>
 
 #include <QDebug>
@@ -199,18 +198,16 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     Context context(CVS_CONTEXT);
 
-    initializeVcs(new CvsControl(this), context);
+    initializeVcs<CvsControl>(context, this);
 
     m_cvsPluginInstance = this;
 
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.cvs/CVS.mimetypes.xml"));
-
     m_client = new CvsClient;
 
-    addAutoReleasedObject(new SettingsPage(versionControl()));
+    new SettingsPage(versionControl(), this);
 
-    addAutoReleasedObject(new VcsSubmitEditorFactory(&submitParameters,
-        []() { return new CvsSubmitEditor(&submitParameters); }));
+    new VcsSubmitEditorFactory(&submitParameters,
+        []() { return new CvsSubmitEditor(&submitParameters); }, this);
 
     const auto describeFunc = [this](const QString &source, const QString &changeNr) {
         QString errorMessage;
@@ -220,11 +217,10 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     const int editorCount = sizeof(editorParameters) / sizeof(editorParameters[0]);
     const auto widgetCreator = []() { return new CvsEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc));
+        new VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc, this);
 
     const QString prefix = QLatin1String("cvs");
-    m_commandLocator = new CommandLocator("CVS", prefix, prefix);
-    addAutoReleasedObject(m_commandLocator);
+    m_commandLocator = new CommandLocator("CVS", prefix, prefix, this);
 
     // Register actions
     ActionContainer *toolsContainer = ActionManager::actionContainer(M_TOOLS);
@@ -240,7 +236,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     command = ActionManager::registerAction(m_diffCurrentAction,
         CMD_ID_DIFF_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+D") : tr("Alt+C,Alt+D")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+C,Meta+D") : tr("Alt+C,Alt+D")));
     connect(m_diffCurrentAction, &QAction::triggered, this, &CvsPlugin::diffCurrentFile);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -267,7 +263,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     command = ActionManager::registerAction(m_addAction, CMD_ID_ADD,
         context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+A") : tr("Alt+C,Alt+A")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+C,Meta+A") : tr("Alt+C,Alt+A")));
     connect(m_addAction, &QAction::triggered, this, &CvsPlugin::addCurrentFile);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -276,7 +272,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     command = ActionManager::registerAction(m_commitCurrentAction,
         CMD_ID_COMMIT_CURRENT, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+C") : tr("Alt+C,Alt+C")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+C,Meta+C") : tr("Alt+C,Alt+C")));
     connect(m_commitCurrentAction, &QAction::triggered, this, &CvsPlugin::startCommitCurrentFile);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -654,6 +650,9 @@ void CvsPlugin::startCommitAll()
  * commit will start. */
 void CvsPlugin::startCommit(const QString &workingDir, const QString &file)
 {
+    if (!promptBeforeCommit())
+        return;
+
     if (raiseSubmitEditor())
         return;
     if (isCommitEditorOpen()) {

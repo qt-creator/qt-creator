@@ -47,23 +47,30 @@ Q_DECLARE_METATYPE(Core::IWizardFactory*)
 
 namespace {
 
-const int ICON_SIZE = 22;
+const int ICON_SIZE = 48;
 const char LAST_CATEGORY_KEY[] = "Core/NewDialog/LastCategory";
 const char LAST_PLATFORM_KEY[] = "Core/NewDialog/LastPlatform";
+const char ALLOW_ALL_TEMPLATES[] = "Core/NewDialog/AllowAllTemplates";
+const char SHOW_PLATOFORM_FILTER[] = "Core/NewDialog/ShowPlatformFilter";
+const char BLACKLISTED_CATEGORIES_KEY[] = "Core/NewDialog/BlacklistedCategories";
+const char ALTERNATIVE_WIZARD_STYLE[] = "Core/NewDialog/AlternativeWizardStyle";
+
+using namespace Core;
+using namespace Core::Internal;
 
 class WizardFactoryContainer
 {
 public:
-    WizardFactoryContainer() : wizard(0), wizardOption(0) {}
+    WizardFactoryContainer() : wizard(nullptr), wizardOption(0) {}
     WizardFactoryContainer(Core::IWizardFactory *w, int i): wizard(w), wizardOption(i) {}
     Core::IWizardFactory *wizard;
     int wizardOption;
 };
 
-inline Core::IWizardFactory *factoryOfItem(const QStandardItem *item = 0)
+inline Core::IWizardFactory *factoryOfItem(const QStandardItem *item = nullptr)
 {
     if (!item)
-        return 0;
+        return nullptr;
     return item->data(Qt::UserRole).value<WizardFactoryContainer>().wizard;
 }
 
@@ -71,7 +78,11 @@ class PlatformFilterProxyModel : public QSortFilterProxyModel
 {
 //    Q_OBJECT
 public:
-    PlatformFilterProxyModel(QObject *parent = 0): QSortFilterProxyModel(parent) {}
+    PlatformFilterProxyModel(QObject *parent = nullptr): QSortFilterProxyModel(parent)
+    {
+        m_blacklistedCategories =
+                        Id::fromStringList(ICore::settings()->value(BLACKLISTED_CATEGORIES_KEY).toStringList());
+    }
 
     void setPlatform(Core::Id platform)
     {
@@ -79,65 +90,40 @@ public:
         invalidateFilter();
     }
 
-    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+    void manualReset()
+    {
+        beginResetModel();
+        endResetModel();
+    }
+
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override
     {
         if (!sourceParent.isValid())
             return true;
 
+        if (!sourceParent.parent().isValid()) { // category
+            const QModelIndex sourceCategoryIndex = sourceModel()->index(sourceRow, 0, sourceParent);
+            for (int i = 0; i < sourceModel()->rowCount(sourceCategoryIndex); ++i)
+                if (filterAcceptsRow(i, sourceCategoryIndex))
+                    return true;
+            return false;
+        }
+
         QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, sourceParent);
-        Core::IWizardFactory *wizard = factoryOfItem(qobject_cast<QStandardItemModel*>(sourceModel())->itemFromIndex(sourceIndex));
-        if (wizard)
+        Core::IWizardFactory *wizard =
+                factoryOfItem(qobject_cast<QStandardItemModel*>(sourceModel())->itemFromIndex(sourceIndex));
+
+        if (wizard) {
+            if (m_blacklistedCategories.contains(Core::Id::fromString(wizard->category())))
+                return false;
             return wizard->isAvailable(m_platform);
+        }
 
         return true;
     }
 private:
     Core::Id m_platform;
-};
-
-class TwoLevelProxyModel : public QAbstractProxyModel
-{
-//    Q_OBJECT
-public:
-    TwoLevelProxyModel(QObject *parent = 0): QAbstractProxyModel(parent) {}
-
-    QModelIndex index(int row, int column, const QModelIndex &parent) const
-    {
-        QModelIndex ourModelIndex = sourceModel()->index(row, column, mapToSource(parent));
-        return createIndex(row, column, ourModelIndex.internalPointer());
-    }
-
-    QModelIndex parent(const QModelIndex &index) const
-    {
-        return mapFromSource(mapToSource(index).parent());
-    }
-
-    int rowCount(const QModelIndex &index) const
-    {
-        if (index.isValid() && index.parent().isValid() && !index.parent().parent().isValid())
-            return 0;
-        else
-            return sourceModel()->rowCount(mapToSource(index));
-    }
-
-    int columnCount(const QModelIndex &index) const
-    {
-        return sourceModel()->columnCount(mapToSource(index));
-    }
-
-    QModelIndex	mapFromSource (const QModelIndex &index) const
-    {
-        if (!index.isValid())
-            return QModelIndex();
-        return createIndex(index.row(), index.column(), index.internalPointer());
-    }
-
-    QModelIndex	mapToSource (const QModelIndex &index) const
-    {
-        if (!index.isValid())
-            return QModelIndex();
-        return static_cast<TwoLevelProxyModel*>(sourceModel())->createIndex(index.row(), index.column(), index.internalPointer());
-    }
+    QSet<Id> m_blacklistedCategories;
 };
 
 #define ROW_HEIGHT 24
@@ -145,10 +131,10 @@ public:
 class FancyTopLevelDelegate : public QItemDelegate
 {
 public:
-    FancyTopLevelDelegate(QObject *parent = 0)
+    FancyTopLevelDelegate(QObject *parent = nullptr)
         : QItemDelegate(parent) {}
 
-    void drawDisplay(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect, const QString &text) const
+    void drawDisplay(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect, const QString &text) const override
     {
         QStyleOptionViewItem newoption = option;
         if (!(option.state & QStyle::State_Enabled)) {
@@ -168,10 +154,9 @@ public:
         QItemDelegate::drawDisplay(painter, newoption, rect, text);
     }
 
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
         QSize size = QItemDelegate::sizeHint(option, index);
-
 
         size = size.expandedTo(QSize(0, ROW_HEIGHT));
 
@@ -191,7 +176,7 @@ QWidget *NewDialog::m_currentDialog = nullptr;
 NewDialog::NewDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::NewDialog),
-    m_okButton(0)
+    m_okButton(nullptr)
 {
     QTC_CHECK(m_currentDialog == nullptr);
 
@@ -210,17 +195,31 @@ NewDialog::NewDialog(QWidget *parent) :
     m_okButton->setText(tr("Choose..."));
 
     m_model = new QStandardItemModel(this);
-    m_twoLevelProxyModel = new TwoLevelProxyModel(this);
-    m_twoLevelProxyModel->setSourceModel(m_model);
+
     m_filterProxyModel = new PlatformFilterProxyModel(this);
     m_filterProxyModel->setSourceModel(m_model);
 
-    m_ui->templateCategoryView->setModel(m_twoLevelProxyModel);
+    m_ui->templateCategoryView->setModel(m_filterProxyModel);
     m_ui->templateCategoryView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_ui->templateCategoryView->setItemDelegate(new FancyTopLevelDelegate);
 
     m_ui->templatesView->setModel(m_filterProxyModel);
     m_ui->templatesView->setIconSize(QSize(ICON_SIZE, ICON_SIZE));
+
+    const bool alternativeWizardStyle = ICore::settings()->value(ALTERNATIVE_WIZARD_STYLE, false).toBool();
+
+    if (alternativeWizardStyle) {
+        m_ui->templatesView->setGridSize(QSize(256, 128));
+        m_ui->templatesView->setIconSize(QSize(96, 96));
+        m_ui->templatesView->setSpacing(4);
+
+        m_ui->templatesView->setViewMode(QListView::IconMode);
+        m_ui->templatesView->setMovement(QListView::Static);
+        m_ui->templatesView->setResizeMode(QListView::Adjust);
+        m_ui->templatesView->setSelectionRectVisible(false);
+        m_ui->templatesView->setWrapping(true);
+        m_ui->templatesView->setWordWrap(true);
+    }
 
     connect(m_ui->templateCategoryView->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &NewDialog::currentCategoryChanged);
@@ -267,10 +266,13 @@ void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
     parentItem->appendRow(filesKindItem);
 
     if (m_dummyIcon.isNull())
-        m_dummyIcon = Utils::Icons::NEWFILE.icon();
+        m_dummyIcon = QIcon(":/utils/images/wizardicon-file.png");
 
     QSet<Id> availablePlatforms = IWizardFactory::allAvailablePlatforms();
-    m_ui->comboBox->addItem(tr("All Templates"), Id().toSetting());
+
+    const bool allowAllTemplates = ICore::settings()->value(ALLOW_ALL_TEMPLATES, true).toBool();
+    if (allowAllTemplates)
+        m_ui->comboBox->addItem(tr("All Templates"), Id().toSetting());
 
     foreach (Id platform, availablePlatforms) {
         const QString displayNameForPlatform = IWizardFactory::displayNameForPlatform(platform);
@@ -279,6 +281,10 @@ void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
 
     m_ui->comboBox->setCurrentIndex(0); // "All templates"
     m_ui->comboBox->setEnabled(!availablePlatforms.isEmpty());
+
+    const bool showPlatformFilter = ICore::settings()->value(SHOW_PLATOFORM_FILTER, true).toBool();
+    if (!showPlatformFilter)
+        m_ui->comboBox->hide();
 
     foreach (IWizardFactory *factory, factories) {
         QStandardItem *kindItem;
@@ -310,21 +316,23 @@ void NewDialog::showDialog()
             m_ui->comboBox->setCurrentIndex(index);
     }
 
+    static_cast<PlatformFilterProxyModel*>(m_filterProxyModel)->manualReset();
+
     if (!lastCategory.isEmpty())
         foreach (QStandardItem* item, m_categoryItems) {
             if (item->data(Qt::UserRole) == lastCategory)
-                idx = m_twoLevelProxyModel->mapToSource(m_model->indexFromItem(item));
+                idx = m_filterProxyModel->mapFromSource(m_model->indexFromItem(item));
     }
     if (!idx.isValid())
-        idx = m_twoLevelProxyModel->index(0,0, m_twoLevelProxyModel->index(0,0));
+        idx = m_filterProxyModel->index(0,0, m_filterProxyModel->index(0,0));
 
     m_ui->templateCategoryView->setCurrentIndex(idx);
 
     // We need to set ensure that the category has default focus
     m_ui->templateCategoryView->setFocus(Qt::NoFocusReason);
 
-    for (int row = 0; row < m_twoLevelProxyModel->rowCount(); ++row)
-        m_ui->templateCategoryView->setExpanded(m_twoLevelProxyModel->index(row, 0), true);
+    for (int row = 0; row < m_filterProxyModel->rowCount(); ++row)
+        m_ui->templateCategoryView->setExpanded(m_filterProxyModel->index(row, 0), true);
 
     // Ensure that item description is visible on first show
     currentItemChanged(m_ui->templatesView->rootIndex().child(0,0));
@@ -370,10 +378,32 @@ IWizardFactory *NewDialog::currentWizardFactory() const
     return factoryOfItem(m_model->itemFromIndex(index));
 }
 
+static QIcon iconWithText(const QIcon &icon, const QString &text)
+{
+    if (text.isEmpty())
+        return icon;
+    QIcon iconWithText;
+    for (const QSize &pixmapSize : icon.availableSizes()) {
+        QPixmap pixmap = icon.pixmap(pixmapSize);
+        const int fontSize = pixmap.height() / 4;
+        const int margin = pixmap.height() / 8;
+        QFont font;
+        font.setPixelSize(fontSize);
+        font.setStretch(85);
+        QPainter p(&pixmap);
+        p.setFont(font);
+        QTextOption textOption(Qt::AlignHCenter | Qt::AlignBottom);
+        textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+        p.drawText(pixmap.rect().adjusted(margin, margin, -margin, -margin), text, textOption);
+        iconWithText.addPixmap(pixmap);
+    }
+    return iconWithText;
+}
+
 void NewDialog::addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *factory)
 {
     const QString categoryName = factory->category();
-    QStandardItem *categoryItem = 0;
+    QStandardItem *categoryItem = nullptr;
     for (int i = 0; i < topLevelCategoryItem->rowCount(); i++) {
         if (topLevelCategoryItem->child(i, 0)->data(Qt::UserRole) == categoryName)
             categoryItem = topLevelCategoryItem->child(i, 0);
@@ -395,7 +425,7 @@ void NewDialog::addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *fac
         wizardIcon = m_dummyIcon;
     else
         wizardIcon = factory->icon();
-    wizardItem->setIcon(wizardIcon);
+    wizardItem->setIcon(iconWithText(wizardIcon, factory->iconText()));
     wizardItem->setData(QVariant::fromValue(WizardFactoryContainer(factory, 0)), Qt::UserRole);
     wizardItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
     categoryItem->appendRow(wizardItem);
@@ -405,7 +435,7 @@ void NewDialog::addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *fac
 void NewDialog::currentCategoryChanged(const QModelIndex &index)
 {
     if (index.parent() != m_model->invisibleRootItem()->index()) {
-        QModelIndex sourceIndex = m_twoLevelProxyModel->mapToSource(index);
+        QModelIndex sourceIndex = m_filterProxyModel->mapToSource(index);
         sourceIndex = m_filterProxyModel->mapFromSource(sourceIndex);
         m_ui->templatesView->setRootIndex(sourceIndex);
         // Focus the first item by default
@@ -451,8 +481,9 @@ void NewDialog::currentItemChanged(const QModelIndex &index)
 
 void NewDialog::saveState()
 {
-    QModelIndex idx = m_ui->templateCategoryView->currentIndex();
-    QStandardItem *currentItem = m_model->itemFromIndex(m_twoLevelProxyModel->mapToSource(idx));
+    const QModelIndex filterIdx = m_ui->templateCategoryView->currentIndex();
+    const QModelIndex idx = m_filterProxyModel->mapToSource(filterIdx);
+    QStandardItem *currentItem = m_model->itemFromIndex(idx);
     if (currentItem)
         ICore::settings()->setValue(QLatin1String(LAST_CATEGORY_KEY),
                                     currentItem->data(Qt::UserRole));

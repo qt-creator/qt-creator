@@ -19,7 +19,6 @@ Product {
 
     property string versionTag: qtc.qtcreator_version.replace(/\.|-/g, "")
     Qt.core.qdocEnvironment: [
-        "QTC_LICENSE_TYPE=" + project.licenseType,
         "QTC_VERSION=" + qtc.qtcreator_version,
         "QTC_VERSION_TAG=" + qtc.qtcreator_version,
         "SRCDIR=" + sourceDirectory,

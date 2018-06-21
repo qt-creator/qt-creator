@@ -1,25 +1,25 @@
 QPushButton, QComboBox[editable="false"],
 QComboBox[editable="true"] {
-    background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
     border-width: 3;
-    font-size: 11px;
+    font-size: creatorTheme.captionFontPixelSize;
 }
 
 QPushButton:hover, QComboBox[editable="false"]:hover,
 QComboBox[editable="true"]:hover, QMenuBar::item:hover {
-    background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
     border-width: 3;
 }
 
 QPushButton:pressed, QComboBox[editable="false"]:on,
 QComboBox[editable="true"]:on, QMenuBar::item:on {
-    background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+    background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
     border-width: 3;
 }
 
 QComboBox
 {
-    font-size: 11px;
+    font-size: creatorTheme.captionFontPixelSize;
     color: white;
     min-width: 60px;
 }

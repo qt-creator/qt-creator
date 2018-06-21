@@ -30,30 +30,52 @@
 
 #include <valgrind/callgrind/callgrindcontroller.h>
 #include <valgrind/callgrind/callgrindparser.h>
+#include <valgrind/valgrindrunner.h>
 
 #include <debugger/analyzer/analyzermanager.h>
 
 #include <utils/qtcassert.h>
 
-using namespace Debugger;
-using namespace Valgrind;
-using namespace Valgrind::Internal;
+using namespace ProjectExplorer;
+using namespace Valgrind::Callgrind;
 
-CallgrindRunControl::CallgrindRunControl(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode)
-    : ValgrindRunControl(runConfiguration, runMode)
-    , m_markAsPaused(false)
+namespace Valgrind {
+namespace Internal {
+
+void setupCallgrindRunner(CallgrindToolRunner *);
+
+CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
+    : ValgrindToolRunner(runControl)
 {
-    connect(&m_runner, &Callgrind::CallgrindRunner::finished,
-            this, &CallgrindRunControl::slotFinished);
-    connect(m_runner.parser(), &Callgrind::Parser::parserDataReady,
-            this, &CallgrindRunControl::slotFinished);
-    connect(&m_runner, &Callgrind::CallgrindRunner::statusMessage,
-            this, &Debugger::showPermanentStatusMessage);
+    setDisplayName("CallgrindToolRunner");
+
+    connect(&m_runner, &ValgrindRunner::finished,
+            this, &CallgrindToolRunner::slotFinished);
+    connect(&m_parser, &Callgrind::Parser::parserDataReady,
+            this, &CallgrindToolRunner::slotFinished);
+
+    connect(&m_controller, &CallgrindController::finished,
+            this, &CallgrindToolRunner::controllerFinished);
+    connect(&m_controller, &CallgrindController::localParseDataAvailable,
+            this, &CallgrindToolRunner::localParseDataAvailable);
+    connect(&m_controller, &CallgrindController::statusMessage,
+            this, &CallgrindToolRunner::showStatusMessage);
+
+    connect(&m_runner, &ValgrindRunner::valgrindStarted,
+            &m_controller, &CallgrindController::setValgrindPid);
+
+    connect(&m_runner, &ValgrindRunner::extraProcessFinished, this, [this] {
+        triggerParse();
+    });
+
+    m_controller.setValgrindRunnable(runnable());
+
+    setupCallgrindRunner(this);
 }
 
-QStringList CallgrindRunControl::toolArguments() const
+QStringList CallgrindToolRunner::toolArguments() const
 {
-    QStringList arguments;
+    QStringList arguments = {"--tool=callgrind"};
 
     QTC_ASSERT(m_settings, return arguments);
 
@@ -79,28 +101,23 @@ QStringList CallgrindRunControl::toolArguments() const
     return arguments;
 }
 
-QString CallgrindRunControl::progressTitle() const
+QString CallgrindToolRunner::progressTitle() const
 {
     return tr("Profiling");
 }
 
-ValgrindRunner * CallgrindRunControl::runner()
+void CallgrindToolRunner::start()
 {
-    return &m_runner;
+    appendMessage(tr("Profiling %1").arg(executable()), Utils::NormalMessageFormat);
+    return ValgrindToolRunner::start();
 }
 
-void CallgrindRunControl::start()
+void CallgrindToolRunner::dump()
 {
-    appendMessage(tr("Profiling %1").arg(executable()) + QLatin1Char('\n'), Utils::NormalMessageFormat);
-    return ValgrindRunControl::start();
+    m_controller.run(CallgrindController::Dump);
 }
 
-void CallgrindRunControl::dump()
-{
-    m_runner.controller()->run(Callgrind::CallgrindController::Dump);
-}
-
-void CallgrindRunControl::setPaused(bool paused)
+void CallgrindToolRunner::setPaused(bool paused)
 {
     if (m_markAsPaused == paused)
         return;
@@ -108,15 +125,13 @@ void CallgrindRunControl::setPaused(bool paused)
     m_markAsPaused = paused;
 
     // call controller only if it is attached to a valgrind process
-    if (m_runner.controller()->valgrindProcess()) {
-        if (paused)
-            pause();
-        else
-            unpause();
-    }
+    if (paused)
+        pause();
+    else
+        unpause();
 }
 
-void CallgrindRunControl::setToggleCollectFunction(const QString &toggleCollectFunction)
+void CallgrindToolRunner::setToggleCollectFunction(const QString &toggleCollectFunction)
 {
     if (toggleCollectFunction.isEmpty())
         return;
@@ -124,27 +139,72 @@ void CallgrindRunControl::setToggleCollectFunction(const QString &toggleCollectF
     m_argumentForToggleCollect = QLatin1String("--toggle-collect=") + toggleCollectFunction;
 }
 
-void CallgrindRunControl::reset()
+void CallgrindToolRunner::reset()
 {
-    m_runner.controller()->run(Callgrind::CallgrindController::ResetEventCounters);
+    m_controller.run(Callgrind::CallgrindController::ResetEventCounters);
 }
 
-void CallgrindRunControl::pause()
+void CallgrindToolRunner::pause()
 {
-    m_runner.controller()->run(Callgrind::CallgrindController::Pause);
+    m_controller.run(Callgrind::CallgrindController::Pause);
 }
 
-void CallgrindRunControl::unpause()
+void CallgrindToolRunner::unpause()
 {
-    m_runner.controller()->run(Callgrind::CallgrindController::UnPause);
+    m_controller.run(Callgrind::CallgrindController::UnPause);
 }
 
-Callgrind::ParseData *CallgrindRunControl::takeParserData()
+Callgrind::ParseData *CallgrindToolRunner::takeParserData()
 {
-    return m_runner.parser()->takeData();
+    return m_parser.takeData();
 }
 
-void CallgrindRunControl::slotFinished()
+void CallgrindToolRunner::slotFinished()
 {
     emit parserDataReady(this);
 }
+
+void CallgrindToolRunner::showStatusMessage(const QString &message)
+{
+    Debugger::showPermanentStatusMessage(message);
+}
+
+void CallgrindToolRunner::triggerParse()
+{
+    m_controller.getLocalDataFile();
+}
+
+void CallgrindToolRunner::localParseDataAvailable(const QString &file)
+{
+    // parse the callgrind file
+    QTC_ASSERT(!file.isEmpty(), return);
+    QFile outputFile(file);
+    QTC_ASSERT(outputFile.exists(), return);
+    if (outputFile.open(QIODevice::ReadOnly)) {
+        showStatusMessage(tr("Parsing Profile Data..."));
+        m_parser.parse(&outputFile);
+    } else {
+        qWarning() << "Could not open file for parsing:" << outputFile.fileName();
+    }
+}
+
+void CallgrindToolRunner::controllerFinished(CallgrindController::Option option)
+{
+    switch (option)
+    {
+    case CallgrindController::Pause:
+        m_paused = true;
+        break;
+    case CallgrindController::UnPause:
+        m_paused = false;
+        break;
+    case CallgrindController::Dump:
+        triggerParse();
+        break;
+    default:
+        break; // do nothing
+    }
+}
+
+} // Internal
+} // Valgrind

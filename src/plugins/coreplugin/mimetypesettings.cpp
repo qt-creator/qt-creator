@@ -31,6 +31,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
+
 #include <utils/algorithm.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/mimetypes/mimedatabase.h>
@@ -84,11 +85,11 @@ public:
         : QAbstractTableModel(parent) {}
     virtual ~MimeTypeSettingsModel() {}
 
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    virtual QVariant headerData(int section, Qt::Orientation orientation,
-                                int role = Qt::DisplayRole) const override;
-    virtual QVariant data(const QModelIndex &modelIndex, int role = Qt::DisplayRole) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
+    QVariant data(const QModelIndex &modelIndex, int role = Qt::DisplayRole) const override;
 
     void load();
 
@@ -136,8 +137,7 @@ QVariant MimeTypeSettingsModel::data(const QModelIndex &modelIndex, int role) co
 void MimeTypeSettingsModel::load()
 {
     beginResetModel();
-    Utils::MimeDatabase mdb;
-    m_mimeTypes = mdb.allMimeTypes();
+    m_mimeTypes = Utils::allMimeTypes();
     Utils::sort(m_mimeTypes, [](const Utils::MimeType &a, const Utils::MimeType &b) {
         return a.name().compare(b.name(), Qt::CaseInsensitive) < 0;
     });
@@ -271,7 +271,7 @@ void MimeTypeSettingsPrivate::syncData(const QModelIndex &current,
 
         QMap<int, QList<Utils::Internal::MimeMagicRule> > rules =
                 modifiedType.isValid() ? modifiedType.rules
-                                       : Utils::MimeDatabase::magicRulesForMimeType(currentMimeType);
+                                       : Utils::magicRulesForMimeType(currentMimeType);
         for (auto it = rules.constBegin(); it != rules.constEnd(); ++it) {
             int priority = it.key();
             foreach (const Utils::Internal::MimeMagicRule &rule, it.value()) {
@@ -401,7 +401,7 @@ void MimeTypeSettingsPrivate::resetMimeTypes()
     m_userModifiedMimeTypes.clear(); // settings file will be removed with next settings-save
     QMessageBox::information(ICore::dialogParent(),
                              tr("Reset MIME Types"),
-                             tr("Changes will take effect after Qt Creator restart."));
+                             tr("Changes will take effect after restart."));
 }
 
 void MimeTypeSettingsPrivate::setFilterPattern(const QString &pattern)
@@ -417,7 +417,7 @@ void MimeTypeSettingsPrivate::ensurePendingMimeType(const Utils::MimeType &mimeT
         UserMimeType userMt;
         userMt.name = mimeType.name();
         userMt.globPatterns = mimeType.globPatterns();
-        userMt.rules = Utils::MimeDatabase::magicRulesForMimeType(mimeType);
+        userMt.rules = Utils::magicRulesForMimeType(mimeType);
         m_pendingModifiedMimeTypes.insert(userMt.name, userMt);
     }
 }
@@ -544,14 +544,13 @@ MimeTypeSettingsPrivate::UserMimeTypeHash MimeTypeSettingsPrivate::readUserModif
 void MimeTypeSettingsPrivate::applyUserModifiedMimeTypes(const UserMimeTypeHash &mimeTypes)
 {
     // register in mime data base, and remember for later
-    Utils::MimeDatabase mdb;
     for (auto it = mimeTypes.constBegin(); it != mimeTypes.constEnd(); ++it) {
-        Utils::MimeType mt = mdb.mimeTypeForName(it.key());
+        Utils::MimeType mt = Utils::mimeTypeForName(it.key());
         if (!mt.isValid()) // loaded from settings
             continue;
         m_userModifiedMimeTypes.insert(it.key(), it.value());
-        Utils::MimeDatabase::setGlobPatternsForMimeType(mt, it.value().globPatterns);
-        Utils::MimeDatabase::setMagicRulesForMimeType(mt, it.value().rules);
+        Utils::setGlobPatternsForMimeType(mt, it.value().globPatterns);
+        Utils::setMagicRulesForMimeType(mt, it.value().rules);
     }
 }
 
@@ -563,9 +562,6 @@ MimeTypeSettings::MimeTypeSettings(QObject *parent)
     setId(Constants::SETTINGS_ID_MIMETYPES);
     setDisplayName(tr("MIME Types"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core",
-        Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 MimeTypeSettings::~MimeTypeSettings()

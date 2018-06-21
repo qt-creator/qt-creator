@@ -41,7 +41,7 @@ class UiController :
     class UiControllerPrivate;
 
 public:
-    explicit UiController(QObject *parent = 0);
+    explicit UiController(QObject *parent = nullptr);
     ~UiController();
 
 signals:
@@ -54,7 +54,6 @@ public:
     bool hasRightHorizSplitterState() const;
     QByteArray rightHorizSplitterState() const;
 
-public slots:
     void onRightSplitterChanged(const QByteArray &state);
     void onRightHorizSplitterChanged(const QByteArray &state);
     void saveSettings(QSettings *settings);

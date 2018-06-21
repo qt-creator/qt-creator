@@ -25,6 +25,7 @@
 
 #include "selectabletexteditorwidget.h"
 #include <texteditor/textdocument.h>
+#include <texteditor/textdocumentlayout.h>
 
 #include <QPainter>
 #include <QTextBlock>
@@ -75,15 +76,10 @@ static QList<DiffSelection> subtractSelection(
 void SelectableTextEditorWidget::setSelections(const QMap<int, QList<DiffSelection> > &selections)
 {
     m_diffSelections.clear();
-    QMapIterator<int, QList<DiffSelection> > itBlock(selections);
-    while (itBlock.hasNext()) {
-        itBlock.next();
-
-        const QList<DiffSelection> diffSelections = itBlock.value();
+    for (auto it = selections.cbegin(), end = selections.cend(); it != end; ++it) {
+        const QList<DiffSelection> diffSelections = it.value();
         QList<DiffSelection> workingList;
-        for (int i = 0; i < diffSelections.count(); i++) {
-            const DiffSelection &diffSelection = diffSelections.at(i);
-
+        for (const DiffSelection &diffSelection : diffSelections) {
             if (diffSelection.start == -1 && diffSelection.end == 0)
                 continue;
 
@@ -100,26 +96,14 @@ void SelectableTextEditorWidget::setSelections(const QMap<int, QList<DiffSelecti
             }
             workingList.append(diffSelection);
         }
-        const int blockNumber = itBlock.key();
-        QVector<QTextLayout::FormatRange> selList;
-        for (int i = 0; i < workingList.count(); i++) {
-            const DiffSelection &diffSelection = workingList.at(i);
-            if (diffSelection.format) {
-                QTextLayout::FormatRange formatRange;
-                formatRange.start = diffSelection.start;
-                if (formatRange.start < 0)
-                    formatRange.start = 0;
-                formatRange.length = diffSelection.end < 0
-                        ? INT_MAX
-                        : diffSelection.end - diffSelection.start;
-                formatRange.format = *diffSelection.format;
-                if (diffSelection.end < 0)
-                    formatRange.format.setProperty(QTextFormat::FullWidthSelection, true);
-                selList.append(formatRange);
-            }
-        }
-        m_diffSelections.insert(blockNumber, workingList);
+        m_diffSelections.insert(it.key(), workingList);
     }
+}
+
+void SelectableTextEditorWidget::setFoldingIndent(const QTextBlock &block, int indent)
+{
+    if (TextEditor::TextBlockUserData *userData = TextEditor::TextDocumentLayout::userData(block))
+         userData->setFoldingIndent(indent);
 }
 
 void SelectableTextEditorWidget::paintBlock(QPainter *painter,
@@ -132,8 +116,7 @@ void SelectableTextEditorWidget::paintBlock(QPainter *painter,
     QList<DiffSelection> diffs = m_diffSelections.value(blockNumber);
 
     QVector<QTextLayout::FormatRange> newSelections;
-    for (int i = 0; i < diffs.count(); i++) {
-        const DiffSelection &diffSelection = diffs.at(i);
+    for (const DiffSelection &diffSelection : diffs) {
         if (diffSelection.format) {
             QTextLayout::FormatRange formatRange;
             formatRange.start = qMax(0, diffSelection.start);

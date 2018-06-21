@@ -1,10 +1,11 @@
 import qbs 1.0
+import qbs.FileInfo
 import QtcFunctions
 
 QtcProduct {
     type: ["dynamiclibrary", "dynamiclibrary_symlink", "qtc.dev-module"]
     installDir: qtc.ide_library_path
-    installTags: ["dynamiclibrary", "dynamiclibrary_symlink"]
+    installTags: ["dynamiclibrary", "dynamiclibrary_symlink", "debuginfo_dll"]
     useNonGuiPchFile: true
     Depends {
         condition: qtc.testsEnabled
@@ -12,7 +13,7 @@ QtcProduct {
     }
 
     targetName: QtcFunctions.qtLibraryName(qbs, name)
-    destinationDirectory: qtc.ide_library_path
+    destinationDirectory: FileInfo.joinPaths(project.buildDirectory, qtc.ide_library_path)
 
     cpp.linkerFlags: {
         var flags = base;

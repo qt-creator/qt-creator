@@ -27,6 +27,8 @@
 
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
+#include <app/app_version.h>
+
 #include <coreplugin/basefilewizard.h>
 #include <coreplugin/icore.h>
 
@@ -129,21 +131,15 @@ void FilesSelectionWizardPage::initializePage()
 
 SimpleProjectWizard::SimpleProjectWizard()
 {
-    setSupportedProjectTypes({ Constants::PROJECT_ID });
-    // TODO do something about the ugliness of standard icons in sizes different than 16, 32, 64, 128
-    {
-        QPixmap icon(22, 22);
-        icon.fill(Qt::transparent);
-        QPainter p(&icon);
-        p.drawPixmap(3, 3, 16, 16, qApp->style()->standardIcon(QStyle::SP_DirIcon).pixmap(16));
-        setIcon(icon);
-    }
+    setSupportedProjectTypes({Constants::QMAKEPROJECT_ID});
+    setIcon(QIcon(QLatin1String(":/qmakeprojectmanager/images/qmakeprojectmanager.png")));
     setDisplayName(tr("Import as qmake Project (Limited Functionality)"));
     setId("Z.DummyProFile");
     setDescription(tr("Imports existing projects that do not use qmake, CMake or Autotools.<p>"
-                      "This creates a qmake .pro file that allows you to use Qt Creator as a code editor "
+                      "This creates a qmake .pro file that allows you to use %1 as a code editor "
                       "and as a launcher for debugging and analyzing tools. "
-                      "If you want to build the project, you might need to edit the generated .pro file."));
+                      "If you want to build the project, you might need to edit the generated .pro file.")
+                   .arg(Core::Constants::IDE_DISPLAY_NAME));
     setCategory(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY);
     setDisplayCategory(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY);
     setFlags(IWizardFactory::PlatformIndependent);
@@ -173,8 +169,7 @@ GeneratedFiles SimpleProjectWizard::generateFiles(const QWizard *w,
     const QString proFileName = QFileInfo(dir, projectName + ".pro").absoluteFilePath();
     const QStringList paths = Utils::transform(wizard->selectedPaths(), &FileName::toString);
 
-    MimeDatabase mdb;
-    MimeType headerType = mdb.mimeTypeForName("text/x-chdr");
+    MimeType headerType = Utils::mimeTypeForName("text/x-chdr");
 
     QStringList nameFilters = headerType.globPatterns();
 
@@ -194,7 +189,7 @@ GeneratedFiles SimpleProjectWizard::generateFiles(const QWizard *w,
 
     for (const FileName &fileName : wizard->selectedFiles()) {
         QString source = dir.relativeFilePath(fileName.toString());
-        MimeType mimeType = mdb.mimeTypeForFile(fileName.toFileInfo());
+        MimeType mimeType = Utils::mimeTypeForFile(fileName.toFileInfo());
         if (mimeType.matchesName("text/x-chdr") || mimeType.matchesName("text/x-c++hdr"))
             proHeaders += "   $$PWD/" + source + " \\\n";
         else
@@ -208,7 +203,8 @@ GeneratedFiles SimpleProjectWizard::generateFiles(const QWizard *w,
     GeneratedFile generatedProFile(proFileName);
     generatedProFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     generatedProFile.setContents(
-        "# Created by and for Qt Creator. This file was created for editing the project sources only.\n"
+        "# Created by and for " + QLatin1String(Core::Constants::IDE_DISPLAY_NAME)
+        + " This file was created for editing the project sources only.\n"
         "# You may attempt to use it for building too, by modifying this file here.\n\n"
         "#TARGET = " + projectName + "\n\n"
         + proHeaders + "\n\n"
@@ -217,7 +213,7 @@ GeneratedFiles SimpleProjectWizard::generateFiles(const QWizard *w,
         "#DEFINES = \n\n"
     );
 
-    return GeneratedFiles { generatedProFile };
+    return GeneratedFiles{generatedProFile};
 }
 
 bool SimpleProjectWizard::postGenerateFiles(const QWizard *w, const GeneratedFiles &l,

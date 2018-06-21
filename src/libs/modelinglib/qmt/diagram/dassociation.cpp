@@ -31,8 +31,6 @@
 namespace qmt {
 
 DAssociationEnd::DAssociationEnd()
-    : m_kind(MAssociationEnd::Association),
-      m_isNavigable(false)
 {
 }
 

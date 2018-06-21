@@ -74,8 +74,6 @@ for my $file (@files) {
             $inif = 0;
             $skipping = 0;
             $define_skip = "";
-        } elsif (keys(%title2page) == 1 && /^\h*\\section1 Table Of Contents/) {
-            $havetoc = 1;
         } elsif ($havetoc && /^\h*\\list/) {
             $intoc++;
         } elsif ($intoc) {
@@ -110,7 +108,11 @@ for my $file (@files) {
                 }
                 $title2type{$1} = $curtype;
                 $title2page{$1} = $curpage;
-                $doctitle = $1 if (!$doctitle);
+                if ($1 eq "Qt Creator TOC") {
+                    $havetoc = 1;
+                } elsif (!$doctitle) {
+                    $doctitle = $1;
+                }
                 $curpage = "";
                 $inhdr = 0;
             }
@@ -131,7 +133,8 @@ my %next = ();
 my $last = $doctitle;
 my $lastpage = $title2page{$last};
 for my $title (@toc) {
-    my $page = $title2page{$title};
+    my $type = $title2type{$title};
+    my $page = ($type eq "page") ? $title2page{$title} : "{$title}\n";
     defined($page) or die "TOC refers to unknown page/example '$title'.\n";
     $next{$last} = $page;
     $prev{$title} = $lastpage;

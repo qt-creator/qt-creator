@@ -25,13 +25,12 @@
 
 #pragma once
 
-
-
 #include <QtCore/qurl.h>
 #include <QtCore/qstring.h>
 
 QT_BEGIN_NAMESPACE
 
+// ### Qt 6: should this be called QmlMessage, since it can have a message type?
 class QDebug;
 class QmlErrorPrivate;
 class QmlError
@@ -54,6 +53,8 @@ public:
     void setColumn(int);
     QObject *object() const;
     void setObject(QObject *);
+    QtMsgType messageType() const;
+    void setMessageType(QtMsgType messageType);
 
     QString toString() const;
 private:
@@ -65,3 +66,4 @@ QDebug operator<<(QDebug debug, const QmlError &error);
 Q_DECLARE_TYPEINFO(QmlError, Q_MOVABLE_TYPE);
 
 QT_END_NAMESPACE
+

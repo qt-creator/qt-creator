@@ -26,7 +26,6 @@
 #pragma once
 
 #include "cpptools_global.h"
-#include "stringtable.h"
 
 #include <projectexplorer/projectexplorer.h>
 
@@ -47,6 +46,7 @@ class CppCodeModelSettings;
 namespace Internal {
 
 struct CppFileSettings;
+class CppToolsPluginPrivate;
 
 class CppToolsPlugin : public ExtensionSystem::IPlugin
 {
@@ -55,7 +55,7 @@ class CppToolsPlugin : public ExtensionSystem::IPlugin
 
 public:
     CppToolsPlugin();
-    ~CppToolsPlugin();
+    ~CppToolsPlugin() final;
 
     static CppToolsPlugin *instance();
     static const QStringList &headerSearchPaths();
@@ -66,13 +66,11 @@ public:
     static Utils::FileName licenseTemplatePath();
     static QString licenseTemplate();
 
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
 
     QSharedPointer<CppCodeModelSettings> codeModelSettings() const;
 
-    static StringTable &stringTable();
 public slots:
     void switchHeaderSource();
     void switchHeaderSourceInNextSplit();
@@ -179,10 +177,9 @@ private slots:
 #endif
 
 private:
+    friend class CppToolsPluginPrivate;
+    CppToolsPluginPrivate *d = nullptr;
     QSharedPointer<CppFileSettings> m_fileSettings;
-    QSharedPointer<CppCodeModelSettings> m_codeModelSettings;
-    CppToolsSettings *m_settings = nullptr;
-    StringTable m_stringTable;
 };
 
 } // namespace Internal

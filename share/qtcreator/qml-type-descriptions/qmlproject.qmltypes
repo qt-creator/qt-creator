@@ -11,6 +11,7 @@ Module {
             "QmlProject/Project 1.1"
         ]
         Property { name: "sourceDirectory"; type: "string" }
+        Property { name: "targetDirectory"; type: "string" }
         Property { name: "mainFile"; type: "string" }
         Property { name: "importPaths"; type: "string"; isList: true }
         Property { name: "content"; type: "QmlProjectItem"; isList: true }
@@ -68,5 +69,8 @@ Module {
             "QmlProject/Files 1.1"
         ]
         Property { name: "filter"; type: "string" }
+    }
+    Component {
+        name: "Environment"
     }
 }

@@ -28,8 +28,6 @@
 #include <projectexplorer/projectnodes.h>
 
 namespace CMakeProjectManager {
-class CMakeProject;
-
 namespace Internal {
 
 class CMakeInputsNode : public ProjectExplorer::ProjectNode
@@ -37,10 +35,9 @@ class CMakeInputsNode : public ProjectExplorer::ProjectNode
 public:
     CMakeInputsNode(const Utils::FileName &cmakeLists);
 
-    static Utils::FileName inputsPathFromCMakeListsPath(const Utils::FileName &cmakeLists);
+    static QByteArray generateId(const Utils::FileName &inputFile);
 
     bool showInSimpleTree() const final;
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const final;
 };
 
 class CMakeListsNode : public ProjectExplorer::ProjectNode
@@ -49,7 +46,8 @@ public:
     CMakeListsNode(const Utils::FileName &cmakeListPath);
 
     bool showInSimpleTree() const final;
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const final;
+    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
+    virtual Utils::optional<Utils::FileName> visibleAfterAddFileAction() const override;
 };
 
 class CMakeProjectNode : public ProjectExplorer::ProjectNode
@@ -59,19 +57,25 @@ public:
 
     bool showInSimpleTree() const final;
     QString tooltip() const final;
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const final;
+
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
 };
 
 class CMakeTargetNode : public ProjectExplorer::ProjectNode
 {
 public:
-    CMakeTargetNode(const Utils::FileName &directory);
+    CMakeTargetNode(const Utils::FileName &directory, const QString &target);
+
+    static QByteArray generateId(const Utils::FileName &directory, const QString &target);
 
     void setTargetInformation(const QList<Utils::FileName> &artifacts, const QString &type);
 
     bool showInSimpleTree() const final;
     QString tooltip() const final;
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const final;
+
+    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
+    virtual Utils::optional<Utils::FileName> visibleAfterAddFileAction() const override;
 
 private:
     QString m_tooltip;

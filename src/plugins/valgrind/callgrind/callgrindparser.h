@@ -50,18 +50,16 @@ class Parser : public QObject
     Q_OBJECT
 
 public:
-    explicit Parser(QObject *parent = 0);
-    ~Parser();
+    explicit Parser(QObject *parent = nullptr);
+    ~Parser() override;
 
     // get and take ownership of the parsing results. If this function is not called the repository
     // will be destroyed when the parser is destroyed. Subsequent calls return null.
     ParseData *takeData();
+    void parse(QIODevice *stream);
 
 signals:
     void parserDataReady();
-
-public Q_SLOTS:
-    void parse(QIODevice *stream);
 
 private:
     class Private;

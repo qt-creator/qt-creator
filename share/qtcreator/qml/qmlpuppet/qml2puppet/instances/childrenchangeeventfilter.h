@@ -41,7 +41,7 @@ signals:
     void childrenChanged(QObject *object);
 
 protected:
-    bool eventFilter(QObject *object, QEvent *event);
+    bool eventFilter(QObject *object, QEvent *event) override;
 
 };
 

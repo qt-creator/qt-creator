@@ -46,6 +46,7 @@ public:
     void visitMDependency(MDependency *dependency) override;
     void visitMInheritance(MInheritance *inheritance) override;
     void visitMAssociation(MAssociation *association) override;
+    void visitMConnection(MConnection *connection) override;
 };
 
 class QMT_EXPORT MVoidConstVisitor : public MConstVisitor
@@ -63,6 +64,7 @@ public:
     void visitMDependency(const MDependency *dependency) override;
     void visitMInheritance(const MInheritance *inheritance) override;
     void visitMAssociation(const MAssociation *association) override;
+    void visitMConnection(const MConnection *connection) override;
 };
 
 } // namespace qmt

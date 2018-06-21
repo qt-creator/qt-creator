@@ -92,16 +92,11 @@ public:
 
 } // namespace Internal
 
-GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Core::Id id)
-    : AbstractRemoteLinuxDeployStep(bsl, id)
+GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl)
+    : AbstractRemoteLinuxDeployStep(bsl, stepId())
 {
-    ctor();
-}
-
-GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, GenericDirectUploadStep *other)
-    : AbstractRemoteLinuxDeployStep(bsl, other)
-{
-    ctor();
+    d = new Internal::GenericDirectUploadStepPrivate;
+    setDefaultDisplayName(displayName());
 }
 
 GenericDirectUploadStep::~GenericDirectUploadStep()
@@ -142,12 +137,6 @@ QVariantMap GenericDirectUploadStep::toMap() const
     map.insert(QLatin1String(Internal::IncrementalKey), incrementalDeployment());
     map.insert(QLatin1String(Internal::IgnoreMissingFilesKey), ignoreMissingFiles());
     return map;
-}
-
-void GenericDirectUploadStep::ctor()
-{
-    setDefaultDisplayName(displayName());
-    d = new Internal::GenericDirectUploadStepPrivate;
 }
 
 void GenericDirectUploadStep::setIncrementalDeployment(bool incremental)

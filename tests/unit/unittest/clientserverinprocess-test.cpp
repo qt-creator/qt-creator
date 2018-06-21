@@ -30,25 +30,10 @@
 
 #include <clangcodemodelclientproxy.h>
 #include <clangcodemodelserverproxy.h>
-#include <projectpartsdonotexistmessage.h>
 
-#include <cmbalivemessage.h>
-#include <cmbcodecompletedmessage.h>
-#include <cmbcompletecodemessage.h>
-#include <cmbechomessage.h>
-#include <cmbendmessage.h>
-#include <cmbregisterprojectsforeditormessage.h>
-#include <cmbregistertranslationunitsforeditormessage.h>
-#include <cmbunregisterprojectsforeditormessage.h>
-#include <cmbunregistertranslationunitsforeditormessage.h>
-#include <documentannotationschangedmessage.h>
+#include <clangcodemodelservermessages.h>
+
 #include <readmessageblock.h>
-#include <registerunsavedfilesforeditormessage.h>
-#include <requestdocumentannotations.h>
-#include <translationunitdoesnotexistmessage.h>
-#include <unregisterunsavedfilesforeditormessage.h>
-#include <updatetranslationunitsforeditormessage.h>
-#include <updatevisibletranslationunitsmessage.h>
 #include <writemessageblock.h>
 
 #include <QBuffer>
@@ -110,162 +95,140 @@ TEST_F(ClientServerInProcess, SendAliveMessage)
     scheduleClientMessages();
 }
 
-TEST_F(ClientServerInProcess, SendRegisterTranslationUnitForEditorMessage)
+TEST_F(ClientServerInProcess, SendDocumentsOpenedMessage)
 {
-    ClangBackEnd::RegisterTranslationUnitForEditorMessage message({fileContainer},
-                                                                  filePath,
-                                                                  {filePath});
+    ClangBackEnd::DocumentsOpenedMessage message({fileContainer}, filePath, {filePath});
 
-    EXPECT_CALL(mockClangCodeModelServer, registerTranslationUnitsForEditor(message))
+    EXPECT_CALL(mockClangCodeModelServer, documentsOpened(message))
         .Times(1);
 
-    serverProxy.registerTranslationUnitsForEditor(message);
+    serverProxy.documentsOpened(message);
     scheduleServerMessages();
 }
 
 TEST_F(ClientServerInProcess, SendUpdateTranslationUnitsForEditorMessage)
 {
-    ClangBackEnd::UpdateTranslationUnitsForEditorMessage message({fileContainer});
+    ClangBackEnd::DocumentsChangedMessage message({fileContainer});
 
-    EXPECT_CALL(mockClangCodeModelServer, updateTranslationUnitsForEditor(message))
+    EXPECT_CALL(mockClangCodeModelServer, documentsChanged(message))
         .Times(1);
 
-    serverProxy.updateTranslationUnitsForEditor(message);
+    serverProxy.documentsChanged(message);
     scheduleServerMessages();
 }
 
-TEST_F(ClientServerInProcess, SendUnregisterTranslationUnitsForEditorMessage)
+TEST_F(ClientServerInProcess, SendDocumentsClosedMessage)
 {
-    ClangBackEnd::UnregisterTranslationUnitsForEditorMessage message({fileContainer});
+    ClangBackEnd::DocumentsClosedMessage message({fileContainer});
 
-    EXPECT_CALL(mockClangCodeModelServer, unregisterTranslationUnitsForEditor(message))
+    EXPECT_CALL(mockClangCodeModelServer, documentsClosed(message))
         .Times(1);
 
-    serverProxy.unregisterTranslationUnitsForEditor(message);
+    serverProxy.documentsClosed(message);
     scheduleServerMessages();
 }
 
 TEST_F(ClientServerInProcess, SendRegisterUnsavedFilesForEditorMessage)
 {
-    ClangBackEnd::RegisterUnsavedFilesForEditorMessage message({fileContainer});
+    ClangBackEnd::UnsavedFilesUpdatedMessage message({fileContainer});
 
-    EXPECT_CALL(mockClangCodeModelServer, registerUnsavedFilesForEditor(message))
+    EXPECT_CALL(mockClangCodeModelServer, unsavedFilesUpdated(message))
         .Times(1);
 
-    serverProxy.registerUnsavedFilesForEditor(message);
+    serverProxy.unsavedFilesUpdated(message);
     scheduleServerMessages();
 }
 
 TEST_F(ClientServerInProcess, SendUnregisterUnsavedFilesForEditorMessage)
 {
-    ClangBackEnd::UnregisterUnsavedFilesForEditorMessage message({fileContainer});
+    ClangBackEnd::UnsavedFilesRemovedMessage message({fileContainer});
 
-    EXPECT_CALL(mockClangCodeModelServer, unregisterUnsavedFilesForEditor(message))
+    EXPECT_CALL(mockClangCodeModelServer, unsavedFilesRemoved(message))
         .Times(1);
 
-    serverProxy.unregisterUnsavedFilesForEditor(message);
+    serverProxy.unsavedFilesRemoved(message);
     scheduleServerMessages();
 }
 
 TEST_F(ClientServerInProcess, SendCompleteCodeMessage)
 {
-    ClangBackEnd::CompleteCodeMessage message(Utf8StringLiteral("foo.cpp"), 24, 33, Utf8StringLiteral("do what I want"));
+    ClangBackEnd::RequestCompletionsMessage message(Utf8StringLiteral("foo.cpp"), 24, 33, Utf8StringLiteral("do what I want"));
 
-    EXPECT_CALL(mockClangCodeModelServer, completeCode(message))
+    EXPECT_CALL(mockClangCodeModelServer, requestCompletions(message))
         .Times(1);
 
-    serverProxy.completeCode(message);
+    serverProxy.requestCompletions(message);
     scheduleServerMessages();
 }
 
-TEST_F(ClientServerInProcess, SendRequestDocumentAnnotationsMessage)
+TEST_F(ClientServerInProcess, SendRequestAnnotationsMessage)
 {
-    ClangBackEnd::RequestDocumentAnnotationsMessage message({Utf8StringLiteral("foo.cpp"),
-                                                             Utf8StringLiteral("projectId")});
+    ClangBackEnd::RequestAnnotationsMessage message(
+        {Utf8StringLiteral("foo.cpp"), Utf8StringLiteral("projectId")});
 
-    EXPECT_CALL(mockClangCodeModelServer, requestDocumentAnnotations(message))
+    EXPECT_CALL(mockClangCodeModelServer, requestAnnotations(message))
         .Times(1);
 
-    serverProxy.requestDocumentAnnotations(message);
+    serverProxy.requestAnnotations(message);
     scheduleServerMessages();
 }
 
-TEST_F(ClientServerInProcess, SendCodeCompletedMessage)
+TEST_F(ClientServerInProcess, SendCompletionsMessage)
 {
     ClangBackEnd::CodeCompletions codeCompletions({Utf8StringLiteral("newFunction()")});
-    ClangBackEnd::CodeCompletedMessage message(codeCompletions,
-                                               ClangBackEnd::CompletionCorrection::NoCorrection,
-                                               1);
+    ClangBackEnd::CompletionsMessage message(codeCompletions,
+                                             ClangBackEnd::CompletionCorrection::NoCorrection,
+                                             1);
 
-    EXPECT_CALL(mockClangCodeModelClient, codeCompleted(message))
+    EXPECT_CALL(mockClangCodeModelClient, completions(message))
         .Times(1);
 
-    clientProxy.codeCompleted(message);
+    clientProxy.completions(message);
     scheduleClientMessages();
 }
 
-TEST_F(ClientServerInProcess, SendRegisterProjectPartsForEditorMessage)
+TEST_F(ClientServerInProcess, SendProjectPartsUpdatedMessage)
 {
     ClangBackEnd::ProjectPartContainer projectContainer(Utf8StringLiteral(TESTDATA_DIR"/complete.pro"));
-    ClangBackEnd::RegisterProjectPartsForEditorMessage message({projectContainer});
+    ClangBackEnd::ProjectPartsUpdatedMessage message({projectContainer});
 
-    EXPECT_CALL(mockClangCodeModelServer, registerProjectPartsForEditor(message))
+    EXPECT_CALL(mockClangCodeModelServer, projectPartsUpdated(message))
         .Times(1);
 
-    serverProxy.registerProjectPartsForEditor(message);
+    serverProxy.projectPartsUpdated(message);
     scheduleServerMessages();
 }
 
-TEST_F(ClientServerInProcess, SendUnregisterProjectPartsForEditorMessage)
+TEST_F(ClientServerInProcess, SendProjectPartsRemovedMessage)
 {
-    ClangBackEnd::UnregisterProjectPartsForEditorMessage message({Utf8StringLiteral(TESTDATA_DIR"/complete.pro")});
+    ClangBackEnd::ProjectPartsRemovedMessage message({Utf8StringLiteral(TESTDATA_DIR"/complete.pro")});
 
-    EXPECT_CALL(mockClangCodeModelServer, unregisterProjectPartsForEditor(message))
+    EXPECT_CALL(mockClangCodeModelServer, projectPartsRemoved(message))
         .Times(1);
 
-    serverProxy.unregisterProjectPartsForEditor(message);
+    serverProxy.projectPartsRemoved(message);
     scheduleServerMessages();
 }
 
-TEST_F(ClientServerInProcess, UpdateVisibleTranslationUnitsMessage)
+TEST_F(ClientServerInProcess, DocumentVisibilityChangedMessage)
 {
-    ClangBackEnd::UpdateVisibleTranslationUnitsMessage message(Utf8StringLiteral(TESTDATA_DIR"/fileone.cpp"),
-                                                               {Utf8StringLiteral(TESTDATA_DIR"/fileone.cpp"),
-                                                                Utf8StringLiteral(TESTDATA_DIR"/filetwo.cpp")});
+    ClangBackEnd::DocumentVisibilityChangedMessage
+        message(Utf8StringLiteral(TESTDATA_DIR "/fileone.cpp"),
+                {Utf8StringLiteral(TESTDATA_DIR "/fileone.cpp"),
+                 Utf8StringLiteral(TESTDATA_DIR "/filetwo.cpp")});
 
-    EXPECT_CALL(mockClangCodeModelServer, updateVisibleTranslationUnits(message))
+    EXPECT_CALL(mockClangCodeModelServer, documentVisibilityChanged(message))
         .Times(1);
 
-    serverProxy.updateVisibleTranslationUnits(message);
+    serverProxy.documentVisibilityChanged(message);
     scheduleServerMessages();
 }
 
-TEST_F(ClientServerInProcess, SendTranslationUnitDoesNotExistMessage)
+TEST_F(ClientServerInProcess, SendAnnotationsMessage)
 {
-    ClangBackEnd::TranslationUnitDoesNotExistMessage message(fileContainer);
-
-    EXPECT_CALL(mockClangCodeModelClient, translationUnitDoesNotExist(message))
-        .Times(1);
-
-    clientProxy.translationUnitDoesNotExist(message);
-    scheduleClientMessages();
-}
-
-
-TEST_F(ClientServerInProcess, SendProjectPartDoesNotExistMessage)
-{
-    ClangBackEnd::ProjectPartsDoNotExistMessage message({Utf8StringLiteral("projectId")});
-
-    EXPECT_CALL(mockClangCodeModelClient, projectPartsDoNotExist(message))
-        .Times(1);
-
-    clientProxy.projectPartsDoNotExist(message);
-    scheduleClientMessages();
-}
-
-TEST_F(ClientServerInProcess, SendDocumentAnnotationsChangedMessage)
-{
-    ClangBackEnd::HighlightingMarkContainer highlightingMark(1, 1, 1, ClangBackEnd::HighlightingType::Keyword);
+    ClangBackEnd::HighlightingTypes types;
+    types.mainHighlightingType = ClangBackEnd::HighlightingType::Keyword;
+    ClangBackEnd::TokenInfoContainer tokenInfo(1, 1, 1, types);
     ClangBackEnd::DiagnosticContainer diagnostic(Utf8StringLiteral("don't do that"),
                                                 Utf8StringLiteral("warning"),
                                                 {Utf8StringLiteral("-Wpadded"), Utf8StringLiteral("-Wno-padded")},
@@ -275,18 +238,16 @@ TEST_F(ClientServerInProcess, SendDocumentAnnotationsChangedMessage)
                                                 {},
                                                 {});
 
-    ClangBackEnd::DocumentAnnotationsChangedMessage message(fileContainer,
-                                                            {diagnostic},
-                                                            {},
-                                                            {highlightingMark},
-                                                            QVector<SourceRangeContainer>());
+    ClangBackEnd::AnnotationsMessage message(fileContainer,
+                                             {diagnostic},
+                                             {},
+                                             {tokenInfo},
+                                             QVector<SourceRangeContainer>());
 
-
-
-    EXPECT_CALL(mockClangCodeModelClient, documentAnnotationsChanged(message))
+    EXPECT_CALL(mockClangCodeModelClient, annotations(message))
         .Times(1);
 
-    clientProxy.documentAnnotationsChanged(message);
+    clientProxy.annotations(message);
     scheduleClientMessages();
 }
 

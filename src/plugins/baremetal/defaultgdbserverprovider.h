@@ -36,19 +36,19 @@ class DefaultGdbServerProviderFactory;
 class DefaultGdbServerProvider : public GdbServerProvider
 {
 public:
-    QString typeDisplayName() const;
+    QString typeDisplayName() const final;
 
-    QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &data);
+    QVariantMap toMap() const final;
+    bool fromMap(const QVariantMap &data) final;
 
-    bool operator==(const GdbServerProvider &) const;
+    bool operator==(const GdbServerProvider &) const final;
 
-    GdbServerProviderConfigWidget *configurationWidget();
-    GdbServerProvider *clone() const;
+    GdbServerProviderConfigWidget *configurationWidget() final;
+    GdbServerProvider *clone() const final;
 
-    QString channel() const;
+    QString channel() const final;
 
-    bool isValid() const;
+    bool isValid() const final;
 
     QString host() const;
     void setHost(const QString &host);
@@ -75,10 +75,10 @@ class DefaultGdbServerProviderFactory : public GdbServerProviderFactory
 public:
     explicit DefaultGdbServerProviderFactory();
 
-    GdbServerProvider *create();
+    GdbServerProvider *create() final;
 
-    bool canRestore(const QVariantMap &data);
-    GdbServerProvider *restore(const QVariantMap &data);
+    bool canRestore(const QVariantMap &data) const final;
+    GdbServerProvider *restore(const QVariantMap &data) final;
 
     GdbServerProviderConfigWidget *configurationWidget(GdbServerProvider *);
 };
@@ -91,8 +91,8 @@ public:
     explicit DefaultGdbServerProviderConfigWidget(DefaultGdbServerProvider *);
 
 private:
-    void applyImpl();
-    void discardImpl();
+    void applyImpl() final;
+    void discardImpl() final;
 
     void setFromProvider();
 

@@ -37,8 +37,6 @@ class StatesEditorModel : public QAbstractListModel
 {
     Q_OBJECT
 
-    Q_PROPERTY(int count READ count NOTIFY countChanged)
-
     enum {
         StateNameRole = Qt::DisplayRole,
         StateImageSourceRole = Qt::UserRole,
@@ -51,10 +49,10 @@ public:
     StatesEditorModel(StatesEditorView *view);
 
     int count() const;
-    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QHash<int, QByteArray> roleNames() const;
+    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    QHash<int, QByteArray> roleNames() const override;
 
     void insertState(int stateIndex);
     void removeState(int stateIndex);
@@ -68,7 +66,6 @@ public:
 
 
 signals:
-    void countChanged();
     void changedToState(int n);
 
 private:

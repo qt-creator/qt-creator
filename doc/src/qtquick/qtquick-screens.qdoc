@@ -39,30 +39,18 @@
     \title Creating Screens
 
     You can use predefined QML types and your own components to create
-    screens. Typically, the main qml file in a Qt Quick project specifies the
+    screens. Typically, the main QML file in a Qt Quick project specifies the
     main window of an application.
 
     The QML files in the project folder are displayed in \uicontrol {QML Components}
     in the \uicontrol Library.
 
-    You can also use ready-made Qt Quick 1 Components (for Qt 4) to create
-    screens with a native look and feel for a particular target platform.
-    Since Qt 5.1, Qt Quick Controls, Dialogs, and Layouts are available for
-    creating classic desktop-style user interfaces using Qt Quick 2.1. You can
-    use the Qt Quick Controls Styles to customize Qt Quick Controls.
-
-    Since Qt 5.7, \l {Qt Quick Controls 2} replace Qt Quick Controls 1 and
-    Qt Labs Controls. These controls provide lightweight QML types for creating
-    performant user interfaces for embedded and mobile devices. These controls
-    achieve improved efficiency by employing a simplified styling architecture
-    when compared to Qt Quick Controls, on which the module is based. These
-    types work in conjunction with Qt Quick and Qt Quick Layouts.
-
     \section1 Adding Components to Screens
 
     \list 1
 
-        \li Drag and drop components from the \uicontrol Library to the editor.
+        \li Drag and drop components from the \uicontrol Library to the
+            \uicontrol Navigator or \uicontrol {Form Editor}.
 
         \li Select components in the \uicontrol Navigator to edit their
             properties in the \uicontrol Properties pane.
@@ -71,6 +59,8 @@
 
     \endlist
 
+    For more information about the ready-made components available, see
+    \l {Using Qt Quick Controls}.
 
     \section1 Using Data Models
 
@@ -92,8 +82,9 @@
     \l{PathView}{Path View}, the ListModel and the delegate component that
     creates an instance for each item in the model are added automatically.
     You can edit item properties in the \uicontrol Properties pane or
-    in the code editor. You can also replace the default model and
-    delegate with other, more complex models and delegates in the code editor.
+    in the \uicontrol {Text Editor}. You can also replace the default model and
+    delegate with other, more complex models and delegates in the
+    \uicontrol {Text Editor}.
 
     \section1 Positioning Items on Screens
 
@@ -170,8 +161,14 @@
 
     \image qmldesigner-anchor-buttons.png "Anchor buttons"
 
+    For convenience, you can click the \inlineimage anchor_fill.png
+    (\uicontrol {Fill to Parent}) toolbar button to apply fill anchors to an
+    item and the \inlineimage qtcreator-anchors-reset-icon.png
+    (\uicontrol {Reset Anchors}) button to reset the anchors to their saved
+    state.
+
     Specifying the baseline anchor in \QMLD is not supported. You can specify it
-    using the code editor.
+    in the \uicontrol {Text Editor}.
 
     For performance reasons, you can only anchor an item to its siblings and
     direct parent. By default, an item is anchored to its parent when you
@@ -258,16 +255,44 @@
         \li \l{GridLayout}{Grid Layout} provides a way of dynamically arranging
             items in a grid.
 
+        \li \l{StackLayout}{Stack Layout} provides a stack of items where only
+            one item is visible at a time.
+
     \endlist
 
-    To lay out several items in a \uicontrol {Column Layout}, \uicontrol {Row Layout}, or
-    \uicontrol {Grid Layout}, select the items on the canvas, and then select
-    \uicontrol Layout in the context menu.
+    To lay out several items in a \uicontrol {Column Layout}, \uicontrol {Row Layout},
+    \uicontrol {Grid Layout}, or \uicontrol {Stack Layout}, select the items in
+    the \uicontrol {Form Editor}, and then select \uicontrol Layout in the
+    context menu.
+
+    You can also click the \inlineimage column.png
+    (\uicontrol {Column Layout}), \inlineimage row.png
+    (\uicontrol {Row Layout}), and \inlineimage grid.png
+    (\uicontrol {Grid Layout}) toolbar buttons to apply layouts to the selected
+    items.
 
     To make an item within a layout as wide as possible while respecting the
     given constraints, select the item on the canvas and then select
     \uicontrol Layout > \uicontrol {Fill Width} in the context menu. To make the item as
     high as possible, select \uicontrol {Fill Height}.
+
+    \section3 Editing Stack Layouts
+
+    \image qtquick-designer-stacked-view.png
+
+    To add items to a \uicontrol {Stack Layout}, select the
+    \inlineimage plus.png
+    button next to the type name in the \uicontrol {Form Editor}. To move
+    between items, select the \inlineimage prev.png
+    (\uicontrol Previous) and \inlineimage next.png
+    (\uicontrol Next) buttons.
+
+    To add a tab bar to a stack layout, select \uicontrol {Stacked Container} >
+    \uicontrol {Add Tab Bar}.
+
+    To raise or lower the stacking order of an item, select
+    \uicontrol {Stacked Container} > \uicontrol {Increase Index} or
+    \uicontrol {Decrease Index}.
 
     \section2 Organizing Items
 
@@ -302,13 +327,13 @@
     example, you can use states to create two screens.
 
     To add states, click the empty slot in the \uicontrol States pane. Then modify the
-    new state in the visual editor.
+    new state in the \uicontrol {Form Editor} or the \uicontrol Properties pane.
 
     \image qmldesigner-states.png "States pane"
 
     The properties that you change in a state are highlighted with blue color.
-    In the code editor, you can see the changes recorded as changes to the base
-    state.
+    In the \uicontrol {Text Editor}, you can see the changes recorded as changes
+    to the base state.
 
     To keep the QML code clean, you should create a base state that contains all
     the types you will need in the application. You can then create states,
@@ -355,8 +380,8 @@
             or opacity of the items in the screen.
 
         \li To determine which view opens when the application starts, use the
-            code editor to set the state of the root item of the .qml file, as
-            specified by the following code snippet:
+            \uicontrol {Text Editor} to set the state of the root item of the
+           .qml file, as specified by the following code snippet:
 
             \qml
             Item {
@@ -365,6 +390,18 @@
             \endqml
 
         \endlist
+
+    \section2 Using SCXML State Machines
+
+    To use QML and \QMLD together with an SCXML state machine, add states and
+    bind them to the state machine in the \uicontrol Backends tab, as described
+    in \l {Managing C++ Backend Objects}.
+
+    In the \uicontrol States pane, you can edit the \c when condition of states
+    to map QML states to the states of the SCXML state machine. For an example,
+    see \l {Qt SCXML Traffic Light QML Example (Dynamic)}.
+
+    \image qmldesigner-states-when-condition.png
 
     \section1 Animating Screens
 
@@ -378,8 +415,8 @@
     the same time. Or use the \c SequentialAnimation type to run them one
     after another.
 
-    You can use the code editor to specify transitions. For more information,
-    see \l{Transition}.
+    You can use the \uicontrol {Text Editor} to specify transitions. For more
+    information, see \l{Transition}.
 
     \section1 Adding User Interaction Methods
 

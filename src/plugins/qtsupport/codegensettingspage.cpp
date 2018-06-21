@@ -97,8 +97,6 @@ CodeGenSettingsPage::CodeGenSettingsPage(QObject *parent) :
     setId(Constants::CODEGEN_SETTINGS_PAGE_ID);
     setDisplayName(QCoreApplication::translate("QtSupport", Constants::CODEGEN_SETTINGS_PAGE_NAME));
     setCategory(CppTools::Constants::CPP_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("CppTools", CppTools::Constants::CPP_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(CppTools::Constants::SETTINGS_CATEGORY_CPP_ICON));
 }
 
 QWidget *CodeGenSettingsPage::widget()

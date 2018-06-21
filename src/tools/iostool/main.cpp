@@ -172,7 +172,7 @@ public:
     void stopRelayServers(int errorCode = 0);
     void writeMaybeBin(const QString &extraMsg, const char *msg, quintptr len);
     void errorMsg(const QString &msg);
-    void stopGdbRunner();
+    Q_INVOKABLE void stopGdbRunner();
 private:
     void stopGdbRunner2();
     void isTransferringApp(const QString &bundlePath, const QString &deviceId, int progress,

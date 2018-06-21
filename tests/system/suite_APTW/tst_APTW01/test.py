@@ -27,7 +27,9 @@ source("../../shared/qtcreator.py")
 
 # test New Qt Gui Application build and run for release and debug option
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    # Start Creator with built-in code model, to avoid having
+    # warnings from the clang code model in "issues" view
+    startCreator(False)
     if not startedWithoutPluginError():
         return
     checkedTargets = createProject_Qt_GUI(tempDir(), "SampleApp")

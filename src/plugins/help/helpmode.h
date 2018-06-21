@@ -36,7 +36,7 @@ namespace Internal {
 class HelpMode : public Core::IMode
 {
 public:
-    explicit HelpMode(QObject *parent = 0);
+    explicit HelpMode(QObject *parent = nullptr);
 };
 
 } // namespace Internal

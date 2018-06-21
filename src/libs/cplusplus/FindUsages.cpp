@@ -42,14 +42,11 @@ using namespace CPlusPlus;
 
 FindUsages::FindUsages(const QByteArray &originalSource, Document::Ptr doc, const Snapshot &snapshot)
     : ASTVisitor(doc->translationUnit()),
-      _id(0),
-      _declSymbol(0),
       _doc(doc),
       _snapshot(snapshot),
       _context(doc, snapshot),
       _originalSource(originalSource),
-      _source(_doc->utf8Source()),
-      _currentScope(0)
+      _source(_doc->utf8Source())
 {
     _snapshot.insert(_doc);
     typeofExpression.init(_doc, _snapshot, _context.bindings());
@@ -59,14 +56,11 @@ FindUsages::FindUsages(const QByteArray &originalSource, Document::Ptr doc, cons
 
 FindUsages::FindUsages(const LookupContext &context)
     : ASTVisitor(context.thisDocument()->translationUnit()),
-      _id(0),
-      _declSymbol(0),
       _doc(context.thisDocument()),
       _snapshot(context.snapshot()),
       _context(context),
       _originalSource(_doc->utf8Source()),
-      _source(_doc->utf8Source()),
-      _currentScope(0)
+      _source(_doc->utf8Source())
 {
     typeofExpression.init(_doc, _snapshot, _context.bindings());
 
@@ -176,7 +170,7 @@ void FindUsages::reportResult(unsigned tokenIndex)
 
     const int len = tk.utf16chars();
 
-    const Usage u(_doc->fileName(), lineText, line, col, len);
+    const Usage u(Utils::FileName::fromString(_doc->fileName()), lineText, line, col, len);
     _usages.append(u);
     _references.append(tokenIndex);
 }

@@ -88,6 +88,10 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FileName &fi
         if (importPathsProperty.isValid())
             projectItem->setImportPaths(importPathsProperty.toStringList());
 
+        const QVariant targetDirectoryPropery = rootNode->property("targetDirectory");
+        if (targetDirectoryPropery.isValid())
+            projectItem->setTargetDirectory(targetDirectoryPropery.toString());
+
         if (debug)
             qDebug() << "importPath:" << importPathsProperty << "mainFile:" << mainFileProperty;
 
@@ -123,6 +127,13 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FileName &fi
                 OtherFileFilterItem *otherFileFilterItem = new OtherFileFilterItem(projectItem);
                 setupFileFilterItem(otherFileFilterItem, childNode);
                 projectItem->appendContent(otherFileFilterItem);
+            } else if (childNode->name() == "Environment") {
+                const auto properties = childNode->properties();
+                auto i = properties.constBegin();
+                while (i != properties.constEnd()) {
+                    projectItem->addToEnviroment(i.key(), i.value().toString());
+                    ++i;
+                }
             } else {
                 qWarning() << "Unknown type:" << childNode->name();
             }

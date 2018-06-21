@@ -85,6 +85,11 @@ int IAssistProposal::basePosition() const
     return m_basePosition;
 }
 
+bool IAssistProposal::isFragile() const
+{
+    return m_isFragile;
+}
+
 /*!
     \fn bool TextEditor::IAssistProposal::isCorrective() const
 
@@ -93,8 +98,9 @@ int IAssistProposal::basePosition() const
     is displayed.
 */
 
-bool IAssistProposal::isCorrective() const
+bool IAssistProposal::isCorrective(TextEditorWidget *editorWidget) const
 {
+    Q_UNUSED(editorWidget);
     return false;
 }
 
@@ -107,6 +113,11 @@ bool IAssistProposal::isCorrective() const
 void IAssistProposal::makeCorrection(TextEditorWidget *editorWidget)
 {
     Q_UNUSED(editorWidget);
+}
+
+void IAssistProposal::setFragile(bool fragile)
+{
+    m_isFragile = fragile;
 }
 
 /*!

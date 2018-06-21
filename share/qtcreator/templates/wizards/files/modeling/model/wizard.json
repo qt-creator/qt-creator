@@ -1,0 +1,72 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ ],
+    "id": "SA.Model",
+    "category": "O.Model",
+    "trDescription": "Creates a new empty model with an empty diagram.",
+    "trDisplayName": "Model",
+    "trDisplayCategory": "Modeling",
+    "iconText": "qmodel",
+    "platformIndependent": true,
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('ModelEditor') >= 0}",
+
+    "options":
+    [
+        { "key": "TargetPath", "value": "%{JS: Util.fileName('%{Location}/%{FileName}', '%{JS: Util.preferredSuffix('text/vnd.qtcreator.model')}')}" },
+        { "key": "FileName", "value": "%{JS: Modeling.elementNameToFileName('%{Name}')}" }
+    ],
+
+    "pages" :
+    [
+        {
+            "trDisplayName": "Model Name and Location",
+            "trShortTitle": "Location",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "Name",
+                    "trDisplayName": "Model name:",
+                    "mandatory": true,
+                    "type": "LineEdit"
+                },
+                {
+                    "name": "Location",
+                    "trDisplayName": "Location:",
+                    "type": "PathChooser",
+                    "isComplete": "%{JS: '%{Location}' === '' || !Util.exists('%{TargetPath}')}",
+                    "trIncompleteMessage": "\"%{JS: Util.toNativeSeparators('%{TargetPath}')}\" exists in the filesystem.",
+                    "data":
+                    {
+                        "kind": "existingDirectory",
+                        "basePath": "%{InitialPath}",
+                        "path": "%{InitialPath}"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.qmodel",
+                "target": "%{TargetPath}",
+                "openInEditor": true,
+                "options":
+                [
+                    { "key": "UUID1", "value": "%{UUID}", "evaluate": true },
+                    { "key": "UUID2", "value": "%{UUID}", "evaluate": true },
+                    { "key": "UUID3", "value": "%{UUID}", "evaluate": true }
+                ]
+            }
+        }
+    ]
+}

@@ -24,11 +24,11 @@
 ****************************************************************************/
 
 #include "locatorsettingspage.h"
-#include "locatorconstants.h"
 
-#include "locator.h"
-#include "ilocatorfilter.h"
 #include "directoryfilter.h"
+#include "ilocatorfilter.h"
+#include "locator.h"
+#include "locatorconstants.h"
 
 #include <coreplugin/coreconstants.h>
 #include <utils/categorysortfiltermodel.h>
@@ -64,7 +64,7 @@ public:
     ILocatorFilter *filter() const;
 
 private:
-    ILocatorFilter *m_filter;
+    ILocatorFilter *m_filter = nullptr;
 };
 
 class CategoryItem : public TreeItem
@@ -76,7 +76,7 @@ public:
 
 private:
     QString m_name;
-    int m_order;
+    int m_order = 0;
 };
 
 } // Internal
@@ -166,14 +166,12 @@ LocatorSettingsPage::LocatorSettingsPage(Locator *plugin)
     setId(Constants::FILTER_OPTIONS_PAGE);
     setDisplayName(QCoreApplication::translate("Locator", Constants::FILTER_OPTIONS_PAGE));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 QWidget *LocatorSettingsPage::widget()
 {
     if (!m_widget) {
-        m_filters = m_plugin->filters();
+        m_filters = Locator::filters();
         m_customFilters = m_plugin->customFilters();
 
         m_widget = new QWidget;
@@ -269,32 +267,33 @@ void LocatorSettingsPage::setFilter(const QString &text)
 void LocatorSettingsPage::saveFilterStates()
 {
     m_filterStates.clear();
-    foreach (ILocatorFilter *filter, m_filters)
+    for (ILocatorFilter *filter : qAsConst(m_filters))
         m_filterStates.insert(filter, filter->saveState());
 }
 
 void LocatorSettingsPage::restoreFilterStates()
 {
-    foreach (ILocatorFilter *filter, m_filterStates.keys())
+    const QList<ILocatorFilter *> filterStatesKeys = m_filterStates.keys();
+    for (ILocatorFilter *filter : filterStatesKeys)
         filter->restoreState(m_filterStates.value(filter));
 }
 
 void LocatorSettingsPage::initializeModel()
 {
-    m_model->setHeader(QStringList({ tr("Name"), tr("Prefix"), tr("Default") }));
-    m_model->setHeaderToolTip(QStringList({
+    m_model->setHeader({tr("Name"), tr("Prefix"), tr("Default")});
+    m_model->setHeaderToolTip({
         QString(),
         ILocatorFilter::msgPrefixToolTip(),
         ILocatorFilter::msgIncludeByDefaultToolTip()
-    }));
+    });
     m_model->clear();
     QSet<ILocatorFilter *> customFilterSet = m_customFilters.toSet();
     auto builtIn = new CategoryItem(tr("Built-in"), 0/*order*/);
-    foreach (ILocatorFilter *filter, m_filters)
+    for (ILocatorFilter *filter : qAsConst(m_filters))
         if (!filter->isHidden() && !customFilterSet.contains(filter))
             builtIn->appendChild(new FilterItem(filter));
     m_customFilterRoot = new CategoryItem(tr("Custom"), 1/*order*/);
-    foreach (ILocatorFilter *customFilter, m_customFilters)
+    for (ILocatorFilter *customFilter : qAsConst(m_customFilters))
         m_customFilterRoot->appendChild(new FilterItem(customFilter));
 
     m_model->rootItem()->appendChild(builtIn);
@@ -305,7 +304,7 @@ void LocatorSettingsPage::updateButtonStates()
 {
     const QModelIndex currentIndex = m_proxyModel->mapToSource(m_ui.filterList->currentIndex());
     bool selected = currentIndex.isValid();
-    ILocatorFilter *filter = 0;
+    ILocatorFilter *filter = nullptr;
     if (selected) {
         auto item = dynamic_cast<FilterItem *>(m_model->itemForIndex(currentIndex));
         if (item)

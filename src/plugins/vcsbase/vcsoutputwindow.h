@@ -32,14 +32,14 @@
 namespace Utils { class FileName; }
 namespace VcsBase {
 
+namespace Internal { class VcsPlugin; }
+
 class VCSBASE_EXPORT VcsOutputWindow : public Core::IOutputPane
 {
     Q_OBJECT
     Q_PROPERTY(QString repository READ repository WRITE setRepository)
 
 public:
-    ~VcsOutputWindow() override;
-
     QWidget *outputWidget(QWidget *parent) override;
     QList<QWidget *> toolBarWidgets() const override;
     QString displayName() const override;
@@ -115,7 +115,11 @@ public slots:
     static void appendMessage(const QString &text);
 
 private:
+    friend class Internal::VcsPlugin;
+    static void destroy();
+
     VcsOutputWindow();
+    ~VcsOutputWindow() override;
 };
 
 } // namespace VcsBase

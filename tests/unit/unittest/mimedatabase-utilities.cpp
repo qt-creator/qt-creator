@@ -25,10 +25,14 @@
 
 #include "mimedatabase-utilities.h"
 
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QString>
-#include <QFileInfo>
 
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/stringutils.h>
 
 namespace MimeDataBaseUtilities
 {
@@ -39,10 +43,16 @@ bool addCppToolsMimeTypes()
     if (alreadyAdded)
         return true;
 
-    const QString filePath
-            = TESTDATA_DIR "/../../../../src/plugins/cpptools/CppTools.mimetypes.xml";
-    if (QFileInfo::exists(filePath)) {
-        Utils::MimeDatabase::addMimeTypes(filePath);
+    const QString filePath = CPPTOOLS_JSON;
+    QFile file(filePath);
+    if (file.open(QIODevice::ReadOnly)) {
+        auto doc = QJsonDocument::fromJson(file.readAll());
+        QJsonValue mimetypes = doc.object().value("Mimetypes");
+
+        QString mimetypeString;
+        if (!Utils::readMultiLineString(mimetypes, &mimetypeString))
+            return false;
+        Utils::addMimeTypes(filePath, mimetypeString.trimmed().toUtf8());
         alreadyAdded = true;
         return true;
     }

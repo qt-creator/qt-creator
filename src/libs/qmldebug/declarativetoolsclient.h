@@ -35,17 +35,16 @@ class QMLDEBUG_EXPORT DeclarativeToolsClient : public BaseToolsClient
 public:
     DeclarativeToolsClient(QmlDebugConnection *client);
 
-    void setDesignModeBehavior(bool inDesignMode);
-    void changeToSelectTool();
-    void changeToSelectMarqueeTool();
-    void changeToZoomTool();
-    void showAppOnTop(bool showOnTop);
+    void setDesignModeBehavior(bool inDesignMode) override;
+    void changeToSelectTool() override;
+    void changeToSelectMarqueeTool() override;
+    void changeToZoomTool() override;
+    void showAppOnTop(bool showOnTop) override;
 
     // ### Qt 4.8: remove if we can have access to qdeclarativecontextdata or id's
-    void setObjectIdList(const QList<ObjectReference> &objectRoots);
+    void setObjectIdList(const QList<ObjectReference> &objectRoots) override;
 
-protected:
-    void messageReceived(const QByteArray &);
+    void messageReceived(const QByteArray &) override;
 
 private:
     void log(LogDirection direction,

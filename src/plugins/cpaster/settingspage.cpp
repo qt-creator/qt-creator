@@ -62,15 +62,15 @@ Settings SettingsWidget::settings()
     return rc;
 }
 
-SettingsPage::SettingsPage(const QSharedPointer<Settings> &settings) :
-    m_settings(settings), m_widget(0)
+SettingsPage::SettingsPage(const QSharedPointer<Settings> &settings, QObject *parent)
+    : Core::IOptionsPage(parent), m_settings(settings), m_widget(nullptr)
 {
     setId("A.CodePaster.General");
     setDisplayName(tr("General"));
     setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("CodePaster",
-        Constants::CPASTER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_CPASTER_ICON));
+    setDisplayCategory(QCoreApplication::translate("CodePaster", "Code Pasting"));
+    setCategoryIcon(Utils::Icon({{":/cpaster/images/settingscategory_cpaster.png",
+                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }
 
 SettingsPage::~SettingsPage()

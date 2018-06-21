@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "cpplocatordata.h"
-#include "cpptoolsplugin.h"
+#include "stringtable.h"
 
 using namespace CppTools;
 using namespace CppTools::Internal;
@@ -32,9 +32,7 @@ using namespace CppTools::Internal;
 enum { MaxPendingDocuments = 10 };
 
 CppLocatorData::CppLocatorData()
-    : m_strings(&CppToolsPlugin::stringTable())
-    , m_search(CppToolsPlugin::stringTable())
-    , m_pendingDocumentsMutex(QMutex::Recursive)
+    : m_pendingDocumentsMutex(QMutex::Recursive)
 {
     m_search.setSymbolsToSearchFor(SymbolSearcher::Enums |
                                    SymbolSearcher::Classes |
@@ -55,7 +53,7 @@ void CppLocatorData::onDocumentUpdated(const CPlusPlus::Document::Ptr &document)
         }
     }
 
-    if (i == ei && QFileInfo(document->fileName()).suffix() != QLatin1String("moc"))
+    if (i == ei && QFileInfo(document->fileName()).suffix() != "moc")
         m_pendingDocuments.append(document);
 
     flushPendingDocument(false);
@@ -79,7 +77,7 @@ void CppLocatorData::onAboutToRemoveFiles(const QStringList &files)
         }
     }
 
-    m_strings->scheduleGC();
+    StringTable::scheduleGC();
     flushPendingDocument(false);
 }
 
@@ -93,7 +91,7 @@ void CppLocatorData::flushPendingDocument(bool force) const
         return;
 
     foreach (CPlusPlus::Document::Ptr doc, m_pendingDocuments)
-        m_infosByFile.insert(findOrInsertFilePath(doc->fileName()), m_search(doc));
+        m_infosByFile.insert(StringTable::insert(doc->fileName()), m_search(doc));
 
     m_pendingDocuments.clear();
     m_pendingDocuments.reserve(MaxPendingDocuments);

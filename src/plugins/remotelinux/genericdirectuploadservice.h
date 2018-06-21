@@ -43,21 +43,21 @@ class REMOTELINUX_EXPORT GenericDirectUploadService : public AbstractRemoteLinux
 {
     Q_OBJECT
 public:
-    GenericDirectUploadService(QObject *parent = 0);
-    ~GenericDirectUploadService();
+    GenericDirectUploadService(QObject *parent = nullptr);
+    ~GenericDirectUploadService() override;
 
     void setDeployableFiles(const QList<ProjectExplorer::DeployableFile> &deployableFiles);
     void setIncrementalDeployment(bool incremental);
     void setIgnoreMissingFiles(bool ignoreMissingFiles);
 
   protected:
-    bool isDeploymentNecessary() const;
+    bool isDeploymentNecessary() const override;
 
-    void doDeviceSetup();
-    void stopDeviceSetup();
+    void doDeviceSetup() override;
+    void stopDeviceSetup() override;
 
-    void doDeploy();
-    void stopDeployment();
+    void doDeploy() override;
+    void stopDeployment() override;
 
 private:
     void handleSftpInitialized();
@@ -68,6 +68,7 @@ private:
     void handleChmodFinished(int exitStatus);
     void handleStdOutData();
     void handleStdErrData();
+    void handleReadChannelFinished();
 
     void checkDeploymentNeeded(const ProjectExplorer::DeployableFile &file) const;
     void setFinished();

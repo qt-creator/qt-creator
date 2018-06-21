@@ -84,9 +84,9 @@ void BindingProperty::setExpression(const QString &expression)
     }
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isBindingProperty())
-        model()->d->removeProperty(internalNode()->property(name()));
+        privateModel()->removeProperty(internalNode()->property(name()));
 
-    model()->d->setBindingProperty(internalNode(), name(), expression);
+    privateModel()->setBindingProperty(internalNode(), name(), expression);
 }
 
 QString BindingProperty::expression() const
@@ -161,7 +161,7 @@ AbstractProperty BindingProperty::resolveToProperty() const
     ModelNode node = parentModelNode();
     QString element;
     if (binding.contains(QLatin1Char('.'))) {
-        element = binding.split(QLatin1Char('.')).last();
+        element = binding.split(QLatin1Char('.')).constLast();
         QString nodeBinding = binding;
         nodeBinding.chop(element.length());
         node = resolveBinding(nodeBinding, parentModelNode(), view());
@@ -239,9 +239,9 @@ void BindingProperty::setDynamicTypeNameAndExpression(const TypeName &typeName, 
     }
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isBindingProperty())
-        model()->d->removeProperty(internalNode()->property(name()));
+        privateModel()->removeProperty(internalNode()->property(name()));
 
-     model()->d->setDynamicBindingProperty(internalNode(), name(), typeName, expression);
+     privateModel()->setDynamicBindingProperty(internalNode(), name(), typeName, expression);
 }
 
 QDebug operator<<(QDebug debug, const BindingProperty &property)

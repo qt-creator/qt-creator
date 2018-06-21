@@ -49,10 +49,6 @@ const char ABIS[] = "Abis";
 const char BINARY[] = "Binary";
 const char ENGINE_TYPE[] = "EngineType";
 
-AddDebuggerOperation::AddDebuggerOperation()
-    : m_engine(0)
-{ }
-
 QString AddDebuggerOperation::name() const
 {
     return QLatin1String("addDebugger");
@@ -60,7 +56,7 @@ QString AddDebuggerOperation::name() const
 
 QString AddDebuggerOperation::helpText() const
 {
-    return QLatin1String("add a debugger to Qt Creator");
+    return QLatin1String("add a debugger");
 }
 
 QString AddDebuggerOperation::argumentsHelpText() const
@@ -75,8 +71,6 @@ QString AddDebuggerOperation::argumentsHelpText() const
 
 bool AddDebuggerOperation::setArguments(const QStringList &args)
 {
-    m_engine = 0;
-
     for (int i = 0; i < args.count(); ++i) {
         const QString current = args.at(i);
         const QString next = ((i + 1) < args.count()) ? args.at(i + 1) : QString();

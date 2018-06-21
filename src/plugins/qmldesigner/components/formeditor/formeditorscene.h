@@ -51,7 +51,7 @@ class QMLDESIGNERCORE_EXPORT FormEditorScene : public QGraphicsScene
 
 public:
     FormEditorScene(FormEditorWidget *widget, FormEditorView *editorView);
-    ~FormEditorScene();
+    ~FormEditorScene() override;
     FormEditorItem *addFormEditorItem(const QmlItemNode &qmlItemNode);
 
     FormEditorItem* itemForQmlItemNode(const QmlItemNode &qmlItemNode) const;
@@ -84,7 +84,6 @@ public:
 
     void highlightBoundingRect(FormEditorItem *formEditorItem);
 
-public slots:
     void setShowBoundingRects(bool show);
     bool showBoundingRects() const;
 

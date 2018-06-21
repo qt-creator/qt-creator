@@ -47,7 +47,7 @@
             is installed automatically and you should be ready to start
             debugging after you create a new project. However, you can
             change the setup to use debugging tools for Windows, for
-            example. You can connect embedded or mobile devices to your
+            example. You can connect \l{glossary-device}{devices} to your
             development host and debug processes running on the devices.
 
         \li \l{Analyzing Code}

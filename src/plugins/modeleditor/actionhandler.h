@@ -25,9 +25,10 @@
 
 #pragma once
 
-#include <QObject>
-
 #include <coreplugin/icontext.h>
+
+#include <QIcon>
+#include <QObject>
 
 #include <functional>
 
@@ -43,6 +44,8 @@ class Command;
 namespace ModelEditor {
 namespace Internal {
 
+class ModelEditor;
+
 class ActionHandler :
         public QObject
 {
@@ -50,7 +53,7 @@ class ActionHandler :
     class ActionHandlerPrivate;
 
 public:
-    ActionHandler(const Core::Context &context, QObject *parent = 0);
+    ActionHandler(const Core::Context &context, QObject *parent = nullptr);
     ~ActionHandler();
 
 public:
@@ -65,34 +68,21 @@ public:
     QAction *openParentDiagramAction() const;
     QAction *synchronizeBrowserAction() const;
     QAction *exportDiagramAction() const;
+    QAction *exportSelectedElementsAction() const;
     QAction *zoomInAction() const;
     QAction *zoomOutAction() const;
     QAction *resetZoom() const;
 
     void createActions();
 
-private slots:
-    void undo();
-    void redo();
-    void cut();
-    void copy();
-    void paste();
-    void removeSelectedElements();
-    void deleteSelectedElements();
-    void selectAll();
-    void openParentDiagram();
+private:
     void onEditProperties();
     void onEditItem();
-    void exportDiagram();
-    void zoomIn();
-    void zoomOut();
-    void resetZoom();
 
-private:
-    Core::Command *registerCommand(const Core::Id &id, const std::function<void()> &slot,
-                                   const Core::Context &context,
-                                   bool scriptable = true, const QString &title = QString(),
-                                   const QKeySequence &keySequence = QKeySequence());
+    Core::Command *registerCommand(const Core::Id &id, void (ModelEditor::*function)(),
+                                   const Core::Context &context, const QString &title = QString(),
+                                   const QKeySequence &keySequence = QKeySequence(),
+                                   const QIcon &icon = QIcon());
 
 private:
     ActionHandlerPrivate *d;

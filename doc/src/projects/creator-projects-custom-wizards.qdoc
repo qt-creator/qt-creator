@@ -82,6 +82,9 @@
 
     \endlist
 
+    \note If you installed \QC on \macos, you can find the wizards in
+    \c {Qt Creator.app/Contents/Resources/templates/wizards}.
+
     \section1 Tips for Wizard Development
 
     \QC has some actions that can improve the wizard development process. These

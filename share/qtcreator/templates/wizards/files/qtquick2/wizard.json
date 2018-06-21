@@ -6,6 +6,7 @@
     "trDescription": "Creates a QML file with boilerplate code, starting with \"import QtQuick 2.0\".",
     "trDisplayName": "QML File (Qt Quick 2)",
     "trDisplayCategory": "Qt",
+    "iconText": "qml",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('QmlJSEditor') >= 0}",
 
     "pages" :

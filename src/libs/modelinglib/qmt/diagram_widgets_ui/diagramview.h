@@ -51,6 +51,8 @@ protected:
     void dropEvent(QDropEvent *event) override;
 
 private:
+    void onSceneRectChanged(const QRectF &sceneRect);
+
     QPointer<DiagramSceneModel> m_diagramSceneModel;
 };
 

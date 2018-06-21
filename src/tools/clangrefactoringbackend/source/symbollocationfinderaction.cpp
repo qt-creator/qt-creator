@@ -28,6 +28,8 @@
 #include "sourcelocationsutils.h"
 #include "findlocationsofusrs.h"
 
+#include <filepathcachingfwd.h>
+
 #include <clang/AST/ASTConsumer.h>
 #include <clang/AST/ASTContext.h>
 
@@ -38,8 +40,10 @@ namespace ClangBackEnd {
 class FindingSymbolsASTConsumer : public clang::ASTConsumer
 {
 public:
-  FindingSymbolsASTConsumer(std::vector<USRName> &unifiedSymbolResolutions)
-      : unifiedSymbolResolutions(unifiedSymbolResolutions)
+  FindingSymbolsASTConsumer(std::vector<USRName> &unifiedSymbolResolutions,
+                            FilePathCachingInterface &filePathCache)
+      : m_unifiedSymbolResolutions(unifiedSymbolResolutions),
+        m_filePathCache(filePathCache)
   {
   }
 
@@ -48,7 +52,7 @@ public:
     std::vector<clang::SourceLocation> sourceLocations;
 
 
-    auto &&sourceLocationsOfUsr = takeLocationsOfUSRs(unifiedSymbolResolutions, context.getTranslationUnitDecl());
+    auto &&sourceLocationsOfUsr = takeLocationsOfUSRs(m_unifiedSymbolResolutions, context.getTranslationUnitDecl());
     sourceLocations.insert(sourceLocations.end(),
                            sourceLocationsOfUsr.begin(),
                            sourceLocationsOfUsr.end());
@@ -65,24 +69,29 @@ public:
   void updateSourceLocations(const std::vector<clang::SourceLocation> &sourceLocations,
                              const clang::SourceManager &sourceManager)
   {
-      appendSourceLocationsToSourceLocationsContainer(*sourceLocationsContainer, sourceLocations, sourceManager);
+      appendSourceLocationsToSourceLocationsContainer(*m_sourceLocationsContainer,
+                                                      sourceLocations,
+                                                      sourceManager,
+                                                      m_filePathCache);
   }
 
   void setSourceLocations(ClangBackEnd::SourceLocationsContainer *sourceLocations)
   {
-      sourceLocationsContainer = sourceLocations;
+      m_sourceLocationsContainer = sourceLocations;
   }
 
 private:
-  ClangBackEnd::SourceLocationsContainer *sourceLocationsContainer = nullptr;
-  std::vector<USRName> &unifiedSymbolResolutions;
+  ClangBackEnd::SourceLocationsContainer *m_sourceLocationsContainer = nullptr;
+  std::vector<USRName> &m_unifiedSymbolResolutions;
+  FilePathCachingInterface &m_filePathCache;
 };
 
 std::unique_ptr<clang::ASTConsumer> SymbolLocationFinderAction::newASTConsumer()
 {
-  auto consumer = std::unique_ptr<FindingSymbolsASTConsumer>(new FindingSymbolsASTConsumer(unifiedSymbolResolutions_));
+  auto consumer = std::make_unique<FindingSymbolsASTConsumer>(m_unifiedSymbolResolutions_,
+                                                              m_filePathCache);
 
-  consumer->setSourceLocations(&sourceLocations);
+  consumer->setSourceLocations(&m_sourceLocations);
 
   return std::move(consumer);
 }

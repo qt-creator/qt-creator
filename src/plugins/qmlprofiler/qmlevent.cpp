@@ -29,20 +29,6 @@
 
 namespace QmlProfiler {
 
-bool operator==(const QmlEvent &event1, const QmlEvent &event2)
-{
-    if (event1.timestamp() != event2.timestamp() || event1.typeIndex() != event2.typeIndex())
-        return false;
-
-    // This is not particularly efficient, but we also don't need to do this very often.
-    return event1.numbers<QVarLengthArray<qint64>>() == event2.numbers<QVarLengthArray<qint64>>();
-}
-
-bool operator!=(const QmlEvent &event1, const QmlEvent &event2)
-{
-    return !(event1 == event2);
-}
-
 enum SerializationType {
     OneByte    = 0,
     TwoByte    = 1,
@@ -100,8 +86,8 @@ QDataStream &operator>>(QDataStream &stream, QmlEvent &event)
     qint8 type;
     stream >> type;
 
-    event.m_timestamp = readNumber<qint64>(stream, (type >> TimestampOffset) & TypeMask);
-    event.m_typeIndex = readNumber<qint32>(stream, (type >> TypeIndexOffset) & TypeMask);
+    event.setTimestamp(readNumber<qint64>(stream, (type >> TimestampOffset) & TypeMask));
+    event.setTypeIndex(readNumber<qint32>(stream, (type >> TypeIndexOffset) & TypeMask));
     event.m_dataLength = readNumber<qint16>(stream, (type >> DataLengthOffset) & TypeMask);
 
     quint8 bytesPerNumber = 1 << ((type >> DataOffset) & TypeMask);
@@ -224,14 +210,14 @@ static inline void writeNumber(QDataStream &stream, Number number, qint8 type)
 
 QDataStream &operator<<(QDataStream &stream, const QmlEvent &event)
 {
-    qint8 type = minimumType(event.m_timestamp) << TimestampOffset;
-    type |= minimumType(event.m_typeIndex) << TypeIndexOffset;
+    qint8 type = minimumType(event.timestamp()) << TimestampOffset;
+    type |= minimumType(event.typeIndex()) << TypeIndexOffset;
     type |= minimumType(event.m_dataLength) << DataLengthOffset;
     type |= minimumType(event, event.m_dataLength, event.m_dataType) << DataOffset;
     stream << type;
 
-    writeNumber(stream, event.m_timestamp, (type >> TimestampOffset) & TypeMask);
-    writeNumber(stream, event.m_typeIndex, (type >> TypeIndexOffset) & TypeMask);
+    writeNumber(stream, event.timestamp(), (type >> TimestampOffset) & TypeMask);
+    writeNumber(stream, event.typeIndex(), (type >> TypeIndexOffset) & TypeMask);
     writeNumber(stream, event.m_dataLength, (type >> DataLengthOffset) & TypeMask);
 
     switch ((type >> DataOffset) & TypeMask) {

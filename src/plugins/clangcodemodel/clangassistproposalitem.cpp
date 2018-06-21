@@ -29,12 +29,15 @@
 
 #include <cplusplus/Icons.h>
 #include <cplusplus/MatchingText.h>
+#include <cplusplus/SimpleLexer.h>
 #include <cplusplus/Token.h>
 
 #include <texteditor/completionsettings.h>
-#include <texteditor/textdocument.h>
-#include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
+
+#include <QTextCursor>
+
+#include <utils/algorithm.h>
 
 using namespace CPlusPlus;
 using namespace ClangBackEnd;
@@ -50,7 +53,7 @@ bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedCharacter) co
         applies = QString::fromLatin1("(,").contains(typedCharacter);
     else if (m_completionOperator == T_STRING_LITERAL || m_completionOperator == T_ANGLE_STRING_LITERAL)
         applies = (typedCharacter == QLatin1Char('/')) && text().endsWith(QLatin1Char('/'));
-    else if (codeCompletion().completionKind() == CodeCompletion::ObjCMessageCompletionKind)
+    else if (codeCompletion().completionKind == CodeCompletion::ObjCMessageCompletionKind)
         applies = QString::fromLatin1(";.,").contains(typedCharacter);
     else
         applies = QString::fromLatin1(";.,:(").contains(typedCharacter);
@@ -63,7 +66,52 @@ bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedCharacter) co
 
 bool ClangAssistProposalItem::implicitlyApplies() const
 {
-    return false;
+    return true;
+}
+
+static void moveToPrevChar(TextEditor::TextDocumentManipulatorInterface &manipulator,
+                           QTextCursor &cursor)
+{
+    cursor.movePosition(QTextCursor::PreviousCharacter);
+    while (manipulator.characterAt(cursor.position()).isSpace())
+        cursor.movePosition(QTextCursor::PreviousCharacter);
+}
+
+static QString textUntilPreviousStatement(TextEditor::TextDocumentManipulatorInterface &manipulator,
+                                          int startPosition)
+{
+    static const QString stopCharacters(";{}#");
+
+    int endPosition = 0;
+    for (int i = startPosition; i >= 0 ; --i) {
+        if (stopCharacters.contains(manipulator.characterAt(i))) {
+            endPosition = i + 1;
+            break;
+        }
+    }
+
+    return manipulator.textAt(endPosition, startPosition - endPosition);
+}
+
+// 7.3.3: using typename(opt) nested-name-specifier unqualified-id ;
+static bool isAtUsingDeclaration(TextEditor::TextDocumentManipulatorInterface &manipulator,
+                                 int basePosition)
+{
+    SimpleLexer lexer;
+    lexer.setLanguageFeatures(LanguageFeatures::defaultFeatures());
+    const QString textToLex = textUntilPreviousStatement(manipulator, basePosition);
+    const Tokens tokens = lexer(textToLex);
+    if (tokens.empty())
+        return false;
+
+    // The nested-name-specifier always ends with "::", so check for this first.
+    const Token lastToken = tokens[tokens.size() - 1];
+    if (lastToken.kind() != T_COLON_COLON)
+        return false;
+
+    return Utils::contains(tokens, [](const Token &token) {
+        return token.kind() == T_USING;
+    });
 }
 
 void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
@@ -76,94 +124,98 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
     int extraLength = 0;
     int cursorOffset = 0;
     bool setAutoCompleteSkipPos = false;
+    int currentPosition = manipulator.currentPosition();
 
-    bool autoParenthesesEnabled = true;
     if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
         extraCharacters += QLatin1Char(')');
         if (m_typedCharacter == QLatin1Char('(')) // Eat the opening parenthesis
             m_typedCharacter = QChar();
-    } else  if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind) {
+    } else if (ccr.completionKind == CodeCompletion::KeywordCompletionKind) {
         CompletionChunksToTextConverter converter;
         converter.setupForKeywords();
 
-        converter.parseChunks(ccr.chunks());
+        converter.parseChunks(ccr.chunks);
 
         textToBeInserted = converter.text();
         if (converter.hasPlaceholderPositions())
             cursorOffset = converter.placeholderPositions().at(0) - converter.text().size();
-    } else if (ccr.completionKind() == CodeCompletion::NamespaceCompletionKind) {
+    } else if (ccr.completionKind == CodeCompletion::NamespaceCompletionKind) {
         CompletionChunksToTextConverter converter;
 
-        converter.parseChunks(ccr.chunks()); // Appends "::" after name space name
+        converter.parseChunks(ccr.chunks); // Appends "::" after name space name
 
         textToBeInserted = converter.text();
-    } else if (!ccr.text().isEmpty()) {
+    } else if (!ccr.text.isEmpty()) {
         const TextEditor::CompletionSettings &completionSettings =
                 TextEditor::TextEditorSettings::instance()->completionSettings();
         const bool autoInsertBrackets = completionSettings.m_autoInsertBrackets;
 
         if (autoInsertBrackets &&
-                (ccr.completionKind() == CodeCompletion::FunctionCompletionKind
-                 || ccr.completionKind() == CodeCompletion::DestructorCompletionKind
-                 || ccr.completionKind() == CodeCompletion::SignalCompletionKind
-                 || ccr.completionKind() == CodeCompletion::SlotCompletionKind)) {
+                (ccr.completionKind == CodeCompletion::FunctionCompletionKind
+                 || ccr.completionKind == CodeCompletion::DestructorCompletionKind
+                 || ccr.completionKind == CodeCompletion::SignalCompletionKind
+                 || ccr.completionKind == CodeCompletion::SlotCompletionKind)) {
             // When the user typed the opening parenthesis, he'll likely also type the closing one,
             // in which case it would be annoying if we put the cursor after the already automatically
             // inserted closing parenthesis.
             const bool skipClosingParenthesis = m_typedCharacter != QLatin1Char('(');
+            QTextCursor cursor = manipulator.textCursorAt(basePosition);
+            cursor.movePosition(QTextCursor::PreviousWord);
+            while (manipulator.characterAt(cursor.position()) == ':')
+                cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::MoveAnchor, 2);
 
-            if (completionSettings.m_spaceAfterFunctionName)
-                extraCharacters += QLatin1Char(' ');
-            extraCharacters += QLatin1Char('(');
-            if (m_typedCharacter == QLatin1Char('('))
-                m_typedCharacter = QChar();
-
-            // If the function doesn't return anything, automatically place the semicolon,
-            // unless we're doing a scope completion (then it might be function definition).
-            const QChar characterAtCursor = manipulator.characterAt(manipulator.currentPosition());
-            bool endWithSemicolon = m_typedCharacter == QLatin1Char(';')/*
-                                            || (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON)*/; //###
-            const QChar semicolon = m_typedCharacter.isNull() ? QLatin1Char(';') : m_typedCharacter;
-
-            if (endWithSemicolon && characterAtCursor == semicolon) {
-                endWithSemicolon = false;
-                m_typedCharacter = QChar();
+            // Move to the last character in the previous word
+            cursor.movePosition(QTextCursor::NextWord);
+            moveToPrevChar(manipulator, cursor);
+            bool abandonParen = false;
+            if (manipulator.characterAt(cursor.position()) == '&') {
+                moveToPrevChar(manipulator, cursor);
+                const QChar prevChar = manipulator.characterAt(cursor.position());
+                abandonParen = QString("(;,{}").contains(prevChar);
             }
+            if (!abandonParen)
+                abandonParen = isAtUsingDeclaration(manipulator, basePosition);
+            if (!abandonParen) {
+                if (completionSettings.m_spaceAfterFunctionName)
+                    extraCharacters += QLatin1Char(' ');
+                extraCharacters += QLatin1Char('(');
+                if (m_typedCharacter == QLatin1Char('('))
+                    m_typedCharacter = QChar();
 
-            // If the function takes no arguments, automatically place the closing parenthesis
-            if (!isOverloaded() && !ccr.hasParameters() && skipClosingParenthesis) {
-                extraCharacters += QLatin1Char(')');
-                if (endWithSemicolon) {
-                    extraCharacters += semicolon;
+                // If the function doesn't return anything, automatically place the semicolon,
+                // unless we're doing a scope completion (then it might be function definition).
+                const QChar characterAtCursor = manipulator.characterAt(currentPosition);
+                bool endWithSemicolon = m_typedCharacter == QLatin1Char(';')/*
+                                                || (function->returnType()->isVoidType() && m_completionOperator != T_COLON_COLON)*/; //###
+                const QChar semicolon = m_typedCharacter.isNull() ? QLatin1Char(';') : m_typedCharacter;
+
+                if (endWithSemicolon && characterAtCursor == semicolon) {
+                    endWithSemicolon = false;
                     m_typedCharacter = QChar();
                 }
-            } else if (autoParenthesesEnabled) {
-                const QChar lookAhead = manipulator.characterAt(manipulator.currentPosition() + 1);
-                if (MatchingText::shouldInsertMatchingText(lookAhead)) {
+
+                // If the function takes no arguments, automatically place the closing parenthesis
+                if (!hasOverloadsWithParameters() && !ccr.hasParameters && skipClosingParenthesis) {
                     extraCharacters += QLatin1Char(')');
-                    --cursorOffset;
-                    setAutoCompleteSkipPos = true;
                     if (endWithSemicolon) {
                         extraCharacters += semicolon;
-                        --cursorOffset;
                         m_typedCharacter = QChar();
+                    }
+                } else {
+                    const QChar lookAhead = manipulator.characterAt(manipulator.currentPosition() + 1);
+                    if (MatchingText::shouldInsertMatchingText(lookAhead)) {
+                        extraCharacters += QLatin1Char(')');
+                        --cursorOffset;
+                        setAutoCompleteSkipPos = true;
+                        if (endWithSemicolon) {
+                            extraCharacters += semicolon;
+                            --cursorOffset;
+                            m_typedCharacter = QChar();
+                        }
                     }
                 }
             }
         }
-
-#if 0
-        if (autoInsertBrackets && data().canConvert<CompleteFunctionDeclaration>()) {
-            if (m_typedChar == QLatin1Char('('))
-                m_typedChar = QChar();
-
-            // everything from the closing parenthesis on are extra chars, to
-            // make sure an auto-inserted ")" gets replaced by ") const" if necessary
-            int closingParen = toInsert.lastIndexOf(QLatin1Char(')'));
-            extraChars = toInsert.mid(closingParen);
-            toInsert.truncate(closingParen);
-        }
-#endif
     }
 
     // Append an unhandled typed character, adjusting cursor offset when it had been adjusted before
@@ -174,20 +226,19 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
     }
 
     // Avoid inserting characters that are already there
-    const int endsPosition = manipulator.positionAt(TextEditor::EndOfLinePosition);
-    const QString existingText = manipulator.textAt(manipulator.currentPosition(), endsPosition - manipulator.currentPosition());
-    int existLength = 0;
-    if (!existingText.isEmpty() && ccr.completionKind() != CodeCompletion::KeywordCompletionKind) {
-        // Calculate the exist length in front of the extra chars
-        existLength = textToBeInserted.length() - (manipulator.currentPosition() - basePosition);
-        while (!existingText.startsWith(textToBeInserted.right(existLength))) {
-            if (--existLength == 0)
-                break;
-        }
+    QTextCursor cursor = manipulator.textCursorAt(basePosition);
+    cursor.movePosition(QTextCursor::EndOfWord);
+    const QString textAfterCursor = manipulator.textAt(currentPosition,
+                                                       cursor.position() - currentPosition);
+
+    if (textToBeInserted != textAfterCursor
+            && textToBeInserted.indexOf(textAfterCursor, currentPosition - basePosition) >= 0) {
+        currentPosition = cursor.position();
     }
+
     for (int i = 0; i < extraCharacters.length(); ++i) {
         const QChar a = extraCharacters.at(i);
-        const QChar b = manipulator.characterAt(manipulator.currentPosition() + i + existLength);
+        const QChar b = manipulator.characterAt(currentPosition + i);
         if (a == b)
             ++extraLength;
         else
@@ -196,16 +247,17 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
 
     textToBeInserted += extraCharacters;
 
-    const int length = manipulator.currentPosition() - basePosition + existLength + extraLength;
+    const int length = currentPosition - basePosition + extraLength;
 
     const bool isReplaced = manipulator.replace(basePosition, length, textToBeInserted);
+    manipulator.setCursorPosition(basePosition + textToBeInserted.length());
     if (isReplaced) {
         if (cursorOffset)
             manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
         if (setAutoCompleteSkipPos)
             manipulator.setAutoCompleteSkipPosition(manipulator.currentPosition());
 
-        if (ccr.completionKind() == CodeCompletion::KeywordCompletionKind)
+        if (ccr.completionKind == CodeCompletion::KeywordCompletionKind)
             manipulator.autoIndent(basePosition, textToBeInserted.size());
     }
 }
@@ -226,7 +278,7 @@ QIcon ClangAssistProposalItem::icon() const
     static const char SNIPPET_ICON_PATH[] = ":/texteditor/images/snippet.png";
     static const QIcon snippetIcon = QIcon(QLatin1String(SNIPPET_ICON_PATH));
 
-    switch (m_codeCompletion.completionKind()) {
+    switch (m_codeCompletion.completionKind) {
         case CodeCompletion::ClassCompletionKind:
         case CodeCompletion::TemplateClassCompletionKind:
         case CodeCompletion::TypeAliasCompletionKind:
@@ -240,7 +292,7 @@ QIcon ClangAssistProposalItem::icon() const
         case CodeCompletion::FunctionCompletionKind:
         case CodeCompletion::TemplateFunctionCompletionKind:
         case CodeCompletion::ObjCMessageCompletionKind:
-            switch (m_codeCompletion.availability()) {
+            switch (m_codeCompletion.availability) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
                     return Icons::iconForType(Icons::FuncPublicIconType);
@@ -250,7 +302,7 @@ QIcon ClangAssistProposalItem::icon() const
         case CodeCompletion::SignalCompletionKind:
             return Icons::iconForType(Icons::SignalIconType);
         case CodeCompletion::SlotCompletionKind:
-            switch (m_codeCompletion.availability()) {
+            switch (m_codeCompletion.availability) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
                     return Icons::iconForType(Icons::SlotPublicIconType);
@@ -258,12 +310,13 @@ QIcon ClangAssistProposalItem::icon() const
                 case CodeCompletion::NotAvailable:
                     return Icons::iconForType(Icons::SlotPrivateIconType);
             }
+            break;
         case CodeCompletion::NamespaceCompletionKind:
             return Icons::iconForType(Icons::NamespaceIconType);
         case CodeCompletion::PreProcessorCompletionKind:
             return Icons::iconForType(Icons::MacroIconType);
         case CodeCompletion::VariableCompletionKind:
-            switch (m_codeCompletion.availability()) {
+            switch (m_codeCompletion.availability) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
                     return Icons::iconForType(Icons::VarPublicIconType);
@@ -276,6 +329,8 @@ QIcon ClangAssistProposalItem::icon() const
             return snippetIcon;
         case CodeCompletion::Other:
             return Icons::iconForType(Icons::UnknownIconType);
+        default:
+            break;
     }
 
     return QIcon();
@@ -283,10 +338,11 @@ QIcon ClangAssistProposalItem::icon() const
 
 QString ClangAssistProposalItem::detail() const
 {
-    QString detail = CompletionChunksToTextConverter::convertToToolTipWithHtml(m_codeCompletion.chunks());
+    QString detail = CompletionChunksToTextConverter::convertToToolTipWithHtml(
+                m_codeCompletion.chunks, m_codeCompletion.completionKind);
 
-    if (!m_codeCompletion.briefComment().isEmpty())
-        detail += QStringLiteral("\n\n") + m_codeCompletion.briefComment().toString();
+    if (!m_codeCompletion.briefComment.isEmpty())
+        detail += QStringLiteral("\n\n") + m_codeCompletion.briefComment.toString();
 
     return detail;
 }
@@ -306,19 +362,19 @@ quint64 ClangAssistProposalItem::hash() const
     return 0;
 }
 
+bool ClangAssistProposalItem::hasOverloadsWithParameters() const
+{
+    return m_hasOverloadsWithParameters;
+}
+
+void ClangAssistProposalItem::setHasOverloadsWithParameters(bool hasOverloadsWithParameters)
+{
+    m_hasOverloadsWithParameters = hasOverloadsWithParameters;
+}
+
 void ClangAssistProposalItem::keepCompletionOperator(unsigned compOp)
 {
     m_completionOperator = compOp;
-}
-
-bool ClangAssistProposalItem::isOverloaded() const
-{
-    return !m_overloads.isEmpty();
-}
-
-void ClangAssistProposalItem::addOverload(const CodeCompletion &ccr)
-{
-    m_overloads.append(ccr);
 }
 
 void ClangAssistProposalItem::setCodeCompletion(const CodeCompletion &codeCompletion)
@@ -333,4 +389,3 @@ const ClangBackEnd::CodeCompletion &ClangAssistProposalItem::codeCompletion() co
 
 } // namespace Internal
 } // namespace ClangCodeModel
-

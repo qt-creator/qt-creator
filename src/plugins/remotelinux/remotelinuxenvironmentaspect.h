@@ -30,7 +30,6 @@
 #include <projectexplorer/environmentaspect.h>
 
 namespace RemoteLinux {
-class RemoteLinuxEnvironmentAspectWidget;
 
 class REMOTELINUX_EXPORT RemoteLinuxEnvironmentAspect : public ProjectExplorer::EnvironmentAspect
 {
@@ -38,24 +37,19 @@ class REMOTELINUX_EXPORT RemoteLinuxEnvironmentAspect : public ProjectExplorer::
 
 public:
     RemoteLinuxEnvironmentAspect(ProjectExplorer::RunConfiguration *rc);
-    RemoteLinuxEnvironmentAspect *create(ProjectExplorer::RunConfiguration *parent) const;
-    ProjectExplorer::RunConfigWidget *createConfigurationWidget();
 
-    QList<int> possibleBaseEnvironments() const;
-    QString baseEnvironmentDisplayName(int base) const;
-    Utils::Environment baseEnvironment() const;
+    Utils::Environment baseEnvironment() const override;
 
     Utils::Environment remoteEnvironment() const;
     void setRemoteEnvironment(const Utils::Environment &env);
 
     QString userEnvironmentChangesAsString() const;
 
-private:
-    enum BaseEnvironmentBase {
-        CleanBaseEnvironment = 0,
-        RemoteBaseEnvironment = 1
-    };
+protected:
+    void fromMap(const QVariantMap &map) override;
+    void toMap(QVariantMap &map) const override;
 
+private:
     Utils::Environment m_remoteEnvironment;
 };
 

@@ -45,12 +45,13 @@ class PxNodeUtilities :
     class PxNodeUtilitiesPrivate;
 
 public:
-    explicit PxNodeUtilities(QObject *parent = 0);
+    explicit PxNodeUtilities(QObject *parent = nullptr);
     ~PxNodeUtilities();
 
     void setDiagramSceneController(qmt::DiagramSceneController *diagramSceneController);
 
     QString calcRelativePath(const ProjectExplorer::Node *node, const QString &anchorFolder);
+    QString calcRelativePath(const QString &filePath, const QString &anchorFolder);
     qmt::MPackage *createBestMatchingPackagePath(qmt::MPackage *suggestedParentPackage,
                                                  const QStringList &relativeElements);
     qmt::MObject *findSameObject(const QStringList &relativeElements,

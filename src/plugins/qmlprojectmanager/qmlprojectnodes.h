@@ -27,11 +27,6 @@
 
 #include <projectexplorer/projectnodes.h>
 
-#include <QStringList>
-#include <QHash>
-
-namespace Core { class IDocument; }
-
 namespace QmlProjectManager {
 
 class QmlProject;
@@ -42,17 +37,12 @@ class QmlProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
     QmlProjectNode(QmlProject *project);
-    ~QmlProjectNode() override;
 
-    virtual bool showInSimpleTree() const override;
-
-    virtual QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
-
-    virtual bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
-    virtual bool deleteFiles(const QStringList &filePaths) override;
-    virtual bool renameFile(const QString &filePath, const QString &newFilePath) override;
-
-    void refresh();
+    bool showInSimpleTree() const override;
+    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) override;
+    bool deleteFiles(const QStringList &filePaths) override;
+    bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
 private:
     QmlProject *m_project;

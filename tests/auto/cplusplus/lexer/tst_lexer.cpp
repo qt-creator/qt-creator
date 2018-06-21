@@ -366,6 +366,14 @@ void tst_SimpleLexer::literals_data()
                             << T_RAW_STRING_LITERAL
                                ;
     QTest::newRow("raw-string-literals") << source << expectedTokenKindList;
+
+    source = "R\"\\" ;
+    expectedTokenKindList = TokenKindList() << T_ERROR;
+    QTest::newRow("invalid-raw-string-literals1") << source << expectedTokenKindList;
+
+    source = "R\")" ;
+    expectedTokenKindList = TokenKindList() << T_ERROR;
+    QTest::newRow("invalid-raw-string-literals2") << source << expectedTokenKindList;
 }
 
 void tst_SimpleLexer::preprocessor()
@@ -765,6 +773,22 @@ void tst_SimpleLexer::incremental_data()
     QTest::newRow("token_after_escaped_string_literal_2")
             << _("bar\";")
             << (TokenKindList() << T_STRING_LITERAL << T_SEMICOLON);
+
+    QTest::newRow("multiline_raw_string_literal_1")
+            << _("R\"delim(foo")
+            << (TokenKindList() << T_RAW_STRING_LITERAL);
+
+    QTest::newRow("multiline_raw_string_literal_2")
+            << _("bar)delim\"")
+            << (TokenKindList() << T_RAW_STRING_LITERAL);
+
+    QTest::newRow("token_after_raw_string_literal_1")
+            << _("R\"delim( )delim\"")
+            << (TokenKindList() << T_RAW_STRING_LITERAL);
+
+    QTest::newRow("token_after_raw_string_literal_2")
+            << _(";")
+            << (TokenKindList() << T_SEMICOLON);
 
     QTest::newRow("simple_cpp_comment")
             << _("//foo")

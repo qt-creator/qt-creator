@@ -27,11 +27,12 @@
 
 #include "cppeditorconstants.h"
 #include "cppeditor.h"
-#include "cppelementevaluator.h"
+#include "cppeditorwidget.h"
 #include "cppeditorplugin.h"
 
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <cpptools/cppelementevaluator.h>
 #include <utils/algorithm.h>
 #include <utils/annotateditemdelegate.h>
 #include <utils/navigationtreeview.h>
@@ -45,6 +46,7 @@
 #include <QVBoxLayout>
 
 using namespace CppEditor;
+using namespace CppTools;
 using namespace CppEditor::Internal;
 using namespace Utils;
 
@@ -64,7 +66,7 @@ QStandardItem *itemForClass(const CppClass &cppClass)
         item->setData(cppClass.qualifiedName, AnnotationRole);
     item->setData(cppClass.icon, Qt::DecorationRole);
     QVariant link;
-    link.setValue(CppEditorWidget::Link(cppClass.link));
+    link.setValue(Utils::Link(cppClass.link));
     item->setData(link, LinkRole);
     return item;
 }
@@ -87,11 +89,7 @@ namespace Internal {
 
 // CppTypeHierarchyWidget
 CppTypeHierarchyWidget::CppTypeHierarchyWidget() :
-    QWidget(0),
-    m_treeView(0),
-    m_model(0),
-    m_delegate(0),
-    m_noTypeHierarchyAvailableLabel(0)
+    QWidget(0)
 {
     m_inspectedClass = new TextEditor::TextEditorLinkLabel(this);
     m_inspectedClass->setMargin(5);
@@ -156,7 +154,7 @@ void CppTypeHierarchyWidget::perform()
     if (evaluator.identifiedCppElement()) {
         const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
         CppElement *element = cppElement.data();
-        if (CppClass *cppClass = dynamic_cast<CppClass *>(element)) {
+        if (CppClass *cppClass = element->toCppClass()) {
             m_inspectedClass->setText(cppClass->name);
             m_inspectedClass->setLink(cppClass->link);
             QStandardItem *bases = new QStandardItem(tr("Bases"));
@@ -202,7 +200,7 @@ void CppTypeHierarchyWidget::clearTypeHierarchy()
 
 void CppTypeHierarchyWidget::onItemActivated(const QModelIndex &index)
 {
-    auto link = index.data(LinkRole).value<TextEditor::TextEditorWidget::Link>();
+    auto link = index.data(LinkRole).value<Utils::Link>();
     if (link.hasValidTarget())
         Core::EditorManager::openEditorAt(link.targetFileName,
                                           link.targetLine,
@@ -249,7 +247,7 @@ QMimeData *CppTypeHierarchyModel::mimeData(const QModelIndexList &indexes) const
     auto data = new DropMimeData;
     data->setOverrideFileDropAction(Qt::CopyAction); // do not remove the item from the model
     foreach (const QModelIndex &index, indexes) {
-        auto link = index.data(LinkRole).value<TextEditor::TextEditorWidget::Link>();
+        auto link = index.data(LinkRole).value<Utils::Link>();
         if (link.hasValidTarget())
             data->addFile(link.targetFileName, link.targetLine, link.targetColumn);
     }

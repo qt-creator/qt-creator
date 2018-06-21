@@ -94,7 +94,7 @@ protected:
     {
     public:
         Program() {}
-        Program(QTextBlock begin, QTextBlock end)
+        Program(const QTextBlock &begin, const QTextBlock &end)
             : begin(begin), end(end) {}
 
         QTextBlock firstBlock() const { return begin; }

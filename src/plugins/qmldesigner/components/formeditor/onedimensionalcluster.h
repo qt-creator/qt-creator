@@ -39,7 +39,7 @@ private:
 
     OneDimensionalCluster(const QList<double> & coordinateList );
     double mean() const;
-    double first() const;
+    double constFirst() const;
 
     static QList<OneDimensionalCluster> createOneDimensionalClusterList(const QList<double> & oneDimensionalCoordinateList);
     static QList<OneDimensionalCluster> reduceOneDimensionalClusterList(const QList<OneDimensionalCluster> & unreducedClusterList, double maximumDistance);

@@ -27,6 +27,9 @@
 
 #include <qmlprofiler/flamegraphview.h>
 #include <qmlprofiler/qmlprofilermodelmanager.h>
+
+#include <tracing/timelinemodelaggregator.h>
+
 #include <QObject>
 
 namespace QmlProfiler {
@@ -45,8 +48,8 @@ private slots:
     void cleanupTestCase();
 
 private:
-    Utils::FileInProjectFinder finder;
     QmlProfilerModelManager manager;
+    Timeline::TimelineModelAggregator aggregator;
     FlameGraphView view;
 };
 

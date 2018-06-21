@@ -64,18 +64,6 @@ AbstractRemoteLinuxPackageInstaller *UploadAndInstallTarPackageService::packageI
 UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bsl)
     : AbstractRemoteLinuxDeployStep(bsl, stepId())
 {
-    ctor();
-}
-
-UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bsl,
-        UploadAndInstallTarPackageStep *other)
-    : AbstractRemoteLinuxDeployStep(bsl, other)
-{
-    ctor();
-}
-
-void UploadAndInstallTarPackageStep::ctor()
-{
     m_deployService = new UploadAndInstallTarPackageService(this);
     setDefaultDisplayName(displayName());
 }

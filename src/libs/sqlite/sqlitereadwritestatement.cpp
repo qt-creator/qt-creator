@@ -25,8 +25,12 @@
 
 #include "sqlitereadwritestatement.h"
 
-SqliteReadWriteStatement::SqliteReadWriteStatement(const Utf8String &sqlStatementUft8)
-    : SqliteStatement(sqlStatementUft8)
+namespace Sqlite {
+
+ReadWriteStatement::ReadWriteStatement(Utils::SmallStringView sqlStatement,
+                                       Database &database)
+    : StatementImplementation(sqlStatement, database)
 {
 }
 
+} // namespace Sqlite

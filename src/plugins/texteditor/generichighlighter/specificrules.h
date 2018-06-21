@@ -107,15 +107,14 @@ private:
     virtual void doReplaceExpressions(const QStringList &captures);
 
     QString m_string;
-    int m_length;
-    Qt::CaseSensitivity m_caseSensitivity;
+    int m_length = 0;
+    Qt::CaseSensitivity m_caseSensitivity = Qt::CaseSensitive;
 };
 
 class RegExprRule : public DynamicRule
 {
 public:
-    RegExprRule() : m_onlyBegin(false), m_isCached(false) {}
-    virtual ~RegExprRule() {}
+    virtual ~RegExprRule();
 
     void setPattern(const QString &pattern);
     void setInsensitive(const QString &insensitive);
@@ -125,18 +124,19 @@ private:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
                                 ProgressData *progress);
-    virtual RegExprRule *doClone() const { return new RegExprRule(*this); }
+    virtual RegExprRule *doClone() const;
     virtual void doReplaceExpressions(const QStringList &captures);
     virtual void doProgressFinished();
 
     bool isExactMatch(ProgressData *progress);
 
-    bool m_onlyBegin;
-    bool m_isCached;
-    int m_offset;
-    int m_length;
+    bool m_onlyBegin = false;
+    bool m_isCached = false;
+    int m_offset = 0;
+    int m_length = 0;
     QStringList m_captures;
     QRegExp m_expression;
+    ProgressData *m_progress = nullptr;
 };
 
 class KeywordRule : public Rule

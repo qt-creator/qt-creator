@@ -178,6 +178,13 @@ TEST_F(ClangCompletionContextAnalyzer, AfterSpace)
     ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText));
 }
 
+TEST_F(ClangCompletionContextAnalyzer, AfterQualification)
+{
+    auto analyzer = runAnalyzer(" Foo::@");
+
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText));
+}
+
 TEST_F(ClangCompletionContextAnalyzer, AtEndOfDotMember)
 {
     auto analyzer = runAnalyzer("o.mem@");
@@ -234,32 +241,32 @@ TEST_F(ClangCompletionContextAnalyzer, AtBeginOfArrowWithSpaceInside)
     ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText));
 }
 
-TEST_F(ClangCompletionContextAnalyzer, ParameteOneAtCall)
+TEST_F(ClangCompletionContextAnalyzer, ArgumentOneAtCall)
 {
     auto analyzer = runAnalyzer("f(@");
 
-    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -2, 0, positionInText));
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, 0, 0, positionInText));
 }
 
-TEST_F(ClangCompletionContextAnalyzer, ParameteTwoAtCall)
+TEST_F(ClangCompletionContextAnalyzer, ArgumentTwoAtCall)
 {
     auto analyzer = runAnalyzer("f(1,@");
 
-    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -4, -2, positionInText));
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -2, -2, positionInText));
 }
 
-TEST_F(ClangCompletionContextAnalyzer, ParameteTwoWithSpaceAtCall)
+TEST_F(ClangCompletionContextAnalyzer, ArgumentTwoWithSpaceAtCall)
 {
     auto analyzer = runAnalyzer("f(1, @");
 
-    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -5, -3, positionInText));
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -3, -3, positionInText));
 }
 
 TEST_F(ClangCompletionContextAnalyzer, WhitespaceAfterFunctionName)
 {
     auto analyzer = runAnalyzer("foo (@");
 
-    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -5, 0, positionInText));
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, 0, 0, positionInText));
 }
 
 TEST_F(ClangCompletionContextAnalyzer, AfterOpeningParenthesis)
@@ -269,28 +276,28 @@ TEST_F(ClangCompletionContextAnalyzer, AfterOpeningParenthesis)
     ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText));
 }
 
-TEST_F(ClangCompletionContextAnalyzer, ParameteOneAtSignal)
+TEST_F(ClangCompletionContextAnalyzer, ArgumentOneAtSignal)
 {
     auto analyzer = runAnalyzer("SIGNAL(@");
 
     ASSERT_THAT(analyzer, HasResult(CCA::CompleteSignal, 0, 0, positionInText));
 }
 
-TEST_F(ClangCompletionContextAnalyzer, ParameteOneWithLettersAtSignal)
+TEST_F(ClangCompletionContextAnalyzer, ArgumentOneWithLettersAtSignal)
 {
     auto analyzer = runAnalyzer("SIGNAL(foo@");
 
     ASSERT_THAT(analyzer, HasResult(CCA::CompleteSignal, -3, -3, positionInText));
 }
 
-TEST_F(ClangCompletionContextAnalyzer, ParameteOneAtSlot)
+TEST_F(ClangCompletionContextAnalyzer, ArgumentOneAtSlot)
 {
     auto analyzer = runAnalyzer("SLOT(@");
 
     ASSERT_THAT(analyzer, HasResult(CCA::CompleteSlot, -0, 0, positionInText));
 }
 
-TEST_F(ClangCompletionContextAnalyzer, ParameteOneWithLettersAtSlot)
+TEST_F(ClangCompletionContextAnalyzer, ArgumentOneWithLettersAtSlot)
 {
     auto analyzer = runAnalyzer("SLOT(foo@");
 
@@ -488,6 +495,29 @@ TEST_F(ClangCompletionContextAnalyzer, AsteriskLeftParen)
     auto analyzer = runAnalyzer("*(@");
 
     ASSERT_THAT(analyzer, IsPassThroughToClang());
+}
+
+TEST_F(ClangCompletionContextAnalyzer, TemplatedFunctionSecondArgument)
+{
+    auto analyzer = runAnalyzer("f < decltype(bar -> member) > (1, @");
+
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -3, -3, positionInText));
+}
+
+TEST_F(ClangCompletionContextAnalyzer, FunctionNameStartPosition)
+{
+    auto analyzer = runAnalyzer(" f<Bar>(1, @");
+    int functionNameStartPosition = analyzer.functionNameStart();
+
+    ASSERT_THAT(functionNameStartPosition, 1);
+}
+
+TEST_F(ClangCompletionContextAnalyzer, QualifiedFunctionNameStartPosition)
+{
+    auto analyzer = runAnalyzer(" Namespace::f<Bar>(1, @");
+    int functionNameStartPosition = analyzer.functionNameStart();
+
+    ASSERT_THAT(functionNameStartPosition, 1);
 }
 
 }

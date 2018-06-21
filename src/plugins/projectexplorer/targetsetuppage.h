@@ -27,8 +27,9 @@
 
 #include "projectexplorer_export.h"
 
-#include "projectimporter.h"
 #include "kitinformation.h"
+#include "kitmanager.h"
+#include "projectimporter.h"
 
 #include <utils/wizardpage.h>
 
@@ -43,7 +44,6 @@ namespace Utils { class FileName; }
 
 namespace ProjectExplorer {
 class Kit;
-class KitMatcher;
 class Project;
 
 namespace Internal {
@@ -66,8 +66,10 @@ public:
     void initializePage() override;
 
     // Call these before initializePage!
-    void setRequiredKitMatcher(const KitMatcher &matcher);
-    void setPreferredKitMatcher(const KitMatcher &matcher);
+    void setRequiredKitPredicate(const ProjectExplorer::Kit::Predicate &predicate);
+    void setPreferredKitPredicate(const ProjectExplorer::Kit::Predicate &predicate);
+    void setProjectPath(const QString &dir);
+    void setProjectImporter(ProjectImporter *importer);
 
     /// Sets whether the targetsetupage uses a scrollarea
     /// to host the widgets from the factories
@@ -76,11 +78,7 @@ public:
 
     bool isComplete() const override;
     bool setupProject(Project *project);
-    bool isKitSelected(Core::Id id) const;
-    void setKitSelected(Core::Id id, bool selected);
     QList<Core::Id> selectedKits() const;
-    void setProjectPath(const QString &dir);
-    void setProjectImporter(ProjectImporter *importer);
 
     /// Overrides the summary text of the targetsetuppage
     void setNoteText(const QString &text);
@@ -89,6 +87,8 @@ public:
     void openOptions();
     void changeAllKitsSelections();
 
+    void kitFilterChanged(const QString &filterText);
+
 private:
     void handleKitAddition(ProjectExplorer::Kit *k);
     void handleKitRemoval(ProjectExplorer::Kit *k);
@@ -96,25 +96,32 @@ private:
     void updateVisibility();
 
     void kitSelectionChanged();
+    static QList<Kit *> sortedKitList(const Kit::Predicate &predicate);
 
     bool isUpdating() const;
     void selectAtLeastOneKit();
-    void removeWidget(Kit *k);
+    void removeWidget(Kit *k) { removeWidget(widget(k)); }
+    void removeWidget(Internal::TargetSetupWidget *w);
     Internal::TargetSetupWidget *addWidget(Kit *k);
 
     void setupImports();
     void import(const Utils::FileName &path, bool silent = false);
 
-    void setupWidgets();
+    void setupWidgets(const QString &filterText = QString());
     void reset();
 
-    KitMatcher m_requiredMatcher;
-    KitMatcher m_preferredMatcher;
+    Internal::TargetSetupWidget *widget(Kit *k, Internal::TargetSetupWidget *fallback = nullptr) const
+    { return widget(k->id(), fallback); }
+    Internal::TargetSetupWidget *widget(const Core::Id kitId,
+                                        Internal::TargetSetupWidget *fallback = nullptr) const;
+
+    ProjectExplorer::Kit::Predicate m_requiredPredicate;
+    ProjectExplorer::Kit::Predicate m_preferredPredicate;
     QPointer<ProjectImporter> m_importer = nullptr;
     QLayout *m_baseLayout = nullptr;
     QString m_projectPath;
     QString m_defaultShadowBuildLocation;
-    QMap<Core::Id, Internal::TargetSetupWidget *> m_widgets;
+    std::vector<Internal::TargetSetupWidget *> m_widgets;
     Internal::TargetSetupWidget *m_firstWidget = nullptr;
 
     Internal::TargetSetupPageUi *m_ui;
@@ -124,6 +131,7 @@ private:
     QList<QWidget *> m_potentialWidgets;
 
     bool m_forceOptionHint = false;
+    bool m_widgetsWereSetUp = false;
 };
 
 } // namespace ProjectExplorer

@@ -40,15 +40,16 @@ class RelationStarter : public QGraphicsRectItem
 {
 public:
     RelationStarter(IRelationable *owner, DiagramSceneModel *diagramSceneModel,
-                    QGraphicsItem *parent = 0);
+                    QGraphicsItem *parent = nullptr);
     ~RelationStarter() override;
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-               QWidget *widget = 0) override;
+               QWidget *widget = nullptr) override;
 
-    void addArrow(const QString &id, ArrowItem::Shaft shaft, ArrowItem::Head endHead,
-                  ArrowItem::Head startHead = ArrowItem::HeadNone);
+    void addArrow(const QString &id, ArrowItem::Shaft shaft, ArrowItem::Head startHead,
+                  ArrowItem::Head endHead,
+                  const QString &toolTip = QString());
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
@@ -60,11 +61,11 @@ protected:
 private:
     void updateCurrentPreviewArrow(const QPointF &headPoint);
 
-    IRelationable *m_owner = 0;
-    DiagramSceneModel *m_diagramSceneModel = 0;
+    IRelationable *m_owner = nullptr;
+    DiagramSceneModel *m_diagramSceneModel = nullptr;
     QList<ArrowItem *> m_arrows;
     QHash<ArrowItem *, QString> m_arrowIds;
-    ArrowItem *m_currentPreviewArrow = 0;
+    ArrowItem *m_currentPreviewArrow = nullptr;
     QString m_currentPreviewArrowId;
     QList<QPointF> m_currentPreviewArrowIntermediatePoints;
 };

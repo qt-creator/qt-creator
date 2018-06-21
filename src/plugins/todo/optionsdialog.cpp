@@ -75,7 +75,7 @@ void OptionsDialog::addToKeywordsList(const Keyword &keyword)
     QListWidgetItem *item = new QListWidgetItem(
                 icon(keyword.iconType), keyword.name);
     item->setData(Qt::UserRole, static_cast<int>(keyword.iconType));
-    item->setBackgroundColor(keyword.color);
+    item->setTextColor(keyword.color);
     ui->keywordsList->addItem(item);
 }
 
@@ -98,9 +98,9 @@ Settings OptionsDialog::settings()
 void OptionsDialog::addKeywordButtonClicked()
 {
     Keyword keyword;
-    KeywordDialog *keywordDialog = new KeywordDialog(keyword, keywordNames(), this);
-    if (keywordDialog->exec() == QDialog::Accepted) {
-        keyword = keywordDialog->keyword();
+    KeywordDialog keywordDialog(keyword, keywordNames(), this);
+    if (keywordDialog.exec() == QDialog::Accepted) {
+        keyword = keywordDialog.keyword();
         addToKeywordsList(keyword);
     }
 }
@@ -116,18 +116,18 @@ void OptionsDialog::editKeyword(QListWidgetItem *item)
     Keyword keyword;
     keyword.name = item->text();
     keyword.iconType = static_cast<IconType>(item->data(Qt::UserRole).toInt());
-    keyword.color = item->backgroundColor();
+    keyword.color = item->textColor();
 
     QSet<QString> keywordNamesButThis = keywordNames();
     keywordNamesButThis.remove(keyword.name);
 
-    KeywordDialog *keywordDialog = new KeywordDialog(keyword, keywordNamesButThis, this);
-    if (keywordDialog->exec() == QDialog::Accepted) {
-        keyword = keywordDialog->keyword();
+    KeywordDialog keywordDialog(keyword, keywordNamesButThis, this);
+    if (keywordDialog.exec() == QDialog::Accepted) {
+        keyword = keywordDialog.keyword();
         item->setIcon(icon(keyword.iconType));
         item->setText(keyword.name);
         item->setData(Qt::UserRole, static_cast<int>(keyword.iconType));
-        item->setBackgroundColor(keyword.color);
+        item->setTextColor(keyword.color);
     }
 }
 
@@ -179,7 +179,7 @@ Settings OptionsDialog::settingsFromUi()
         Keyword keyword;
         keyword.name = item->text();
         keyword.iconType = static_cast<IconType>(item->data(Qt::UserRole).toInt());
-        keyword.color = item->backgroundColor();
+        keyword.color = item->textColor();
 
         settings.keywords << keyword;
     }

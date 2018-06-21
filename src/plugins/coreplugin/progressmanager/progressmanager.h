@@ -52,9 +52,9 @@ public:
     static ProgressManager *instance();
 
     static FutureProgress *addTask(const QFuture<void> &future, const QString &title,
-                                   Id type, ProgressFlags flags = 0);
+                                   Id type, ProgressFlags flags = nullptr);
     static FutureProgress *addTimedTask(const QFutureInterface<void> &fi, const QString &title,
-                                   Id type, int expectedSeconds, ProgressFlags flags = 0);
+                                   Id type, int expectedSeconds, ProgressFlags flags = nullptr);
     static void setApplicationLabel(const QString &text);
 
 public slots:
@@ -66,7 +66,7 @@ signals:
 
 private:
     ProgressManager();
-    ~ProgressManager();
+    ~ProgressManager() override;
 
     friend class Core::Internal::ProgressManagerPrivate;
 };
@@ -75,7 +75,7 @@ class CORE_EXPORT ProgressTimer : public QObject
 {
 public:
     ProgressTimer(const QFutureInterfaceBase &futureInterface, int expectedSeconds,
-                  QObject *parent = 0);
+                  QObject *parent = nullptr);
 
 private:
     void handleTimeout();

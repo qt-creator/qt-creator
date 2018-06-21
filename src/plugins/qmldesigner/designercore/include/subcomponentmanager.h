@@ -45,19 +45,18 @@ class QMLDESIGNERCORE_EXPORT SubComponentManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit SubComponentManager(Model *model, QObject *parent = 0);
+    explicit SubComponentManager(Model *model, QObject *parent = nullptr);
 
     void update(const QUrl &fileUrl, const QList<Import> &imports);
 
     QStringList qmlFiles() const;
     QStringList directories() const;
 
-private slots:
+private: // functions
     void parseDirectory(const QString &canonicalDirPath,  bool addToLibrary = true, const TypeName &qualification = TypeName());
     void parseFile(const QString &canonicalFilePath,  bool addToLibrary, const QString&);
     void parseFile(const QString &canonicalFilePath);
 
-private: // functions
     void addImport(int pos, const Import &import);
     void removeImport(int pos);
     void parseDirectories();

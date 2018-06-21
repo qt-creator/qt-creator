@@ -61,7 +61,7 @@ namespace Internal {
 // CMakeEditor
 //
 
-QString CMakeEditor::contextHelpId() const
+void CMakeEditor::contextHelpId(const HelpIdCallback &callback) const
 {
     int pos = position();
 
@@ -71,8 +71,10 @@ QString CMakeEditor::contextHelpId() const
         if (pos < 0)
             break;
         chr = characterAt(pos);
-        if (chr == QLatin1Char('('))
-            return QString();
+        if (chr == QLatin1Char('(')) {
+            callback(QString());
+            return;
+        }
     } while (chr.unicode() != QChar::ParagraphSeparator);
 
     ++pos;
@@ -95,11 +97,13 @@ QString CMakeEditor::contextHelpId() const
     }
 
     // Not a command
-    if (chr != QLatin1Char('('))
-        return QString();
+    if (chr != QLatin1Char('(')) {
+        callback(QString());
+        return;
+    }
 
     QString command = textAt(begin, end - begin).toLower();
-    return QLatin1String("command/") + command;
+    callback(QLatin1String("command/") + command);
 }
 
 //
@@ -113,7 +117,10 @@ public:
 
 private:
     bool save(const QString &fileName = QString());
-    Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true, bool inNextSplit = false) override;
+    void findLinkAt(const QTextCursor &cursor,
+                    Utils::ProcessLinkCallback &&processLinkCallback,
+                    bool resolveTarget = true,
+                    bool inNextSplit = false) override;
     void contextMenuEvent(QContextMenuEvent *e) override;
 };
 
@@ -132,10 +139,12 @@ static bool isValidFileNameChar(const QChar &c)
             || c == QLatin1Char('\\');
 }
 
-CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
-                                                      bool/* resolveTarget*/, bool /*inNextSplit*/)
+void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
+                                   Utils::ProcessLinkCallback &&processLinkCallback,
+                                   bool/* resolveTarget*/,
+                                   bool /*inNextSplit*/)
 {
-    Link link;
+    Utils::Link link;
 
     int lineNumber = 0, positionInBlock = 0;
     convertPosition(cursor.position(), &lineNumber, &positionInBlock);
@@ -145,7 +154,7 @@ CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     // check if the current position is commented out
     const int hashPos = block.indexOf(QLatin1Char('#'));
     if (hashPos >= 0 && hashPos < positionInBlock)
-        return link;
+        return processLinkCallback(link);
 
     // find the beginning of a filename
     QString buffer;
@@ -173,7 +182,7 @@ CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     }
 
     if (buffer.isEmpty())
-        return link;
+        return processLinkCallback(link);
 
     // TODO: Resolve variables
 
@@ -187,13 +196,13 @@ CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
             if (QFileInfo::exists(subProject))
                 fileName = subProject;
             else
-                return link;
+                return processLinkCallback(link);
         }
         link.targetFileName = fileName;
         link.linkTextStart = cursor.position() - positionInBlock + beginPos + 1;
         link.linkTextEnd = cursor.position() - positionInBlock + endPos;
     }
-    return link;
+    processLinkCallback(link);
 }
 
 static TextDocument *createCMakeDocument()
@@ -220,7 +229,7 @@ CMakeEditorFactory::CMakeEditorFactory()
     setDocumentCreator(createCMakeDocument);
     setIndenterCreator([]() { return new CMakeIndenter; });
     setUseGenericHighlighter(true);
-    setCommentStyle(Utils::CommentDefinition::HashStyle);
+    setCommentDefinition(Utils::CommentDefinition::HashStyle);
     setCodeFoldingSupported(true);
 
     setCompletionAssistProvider(new CMakeFileCompletionAssistProvider);

@@ -25,26 +25,27 @@
 
 #pragma once
 
-#include <valgrind/valgrindengine.h>
+#include "valgrindengine.h"
+#include "valgrindrunner.h"
 
-#include <valgrind/callgrind/callgrindrunner.h>
-#include <valgrind/callgrind/callgrindparsedata.h>
+#include "callgrind/callgrindparsedata.h"
+#include "callgrind/callgrindparser.h"
+#include "callgrind/callgrindcontroller.h"
 
 namespace Valgrind {
 namespace Internal {
 
-class CallgrindRunControl : public ValgrindRunControl
+class CallgrindToolRunner : public ValgrindToolRunner
 {
     Q_OBJECT
 
 public:
-    CallgrindRunControl(ProjectExplorer::RunConfiguration *runConfiguration, Core::Id runMode);
+    explicit CallgrindToolRunner(ProjectExplorer::RunControl *runControl);
 
     void start() override;
 
     Valgrind::Callgrind::ParseData *takeParserData();
 
-public slots:
     /// controller actions
     void dump();
     void reset();
@@ -60,16 +61,22 @@ public slots:
 protected:
     QStringList toolArguments() const override;
     QString progressTitle() const override;
-    Valgrind::ValgrindRunner *runner() override;
 
 signals:
-    void parserDataReady(CallgrindRunControl *engine);
+    void parserDataReady(CallgrindToolRunner *engine);
 
 private:
     void slotFinished();
+    void showStatusMessage(const QString &message);
 
-    Valgrind::Callgrind::CallgrindRunner m_runner;
-    bool m_markAsPaused;
+    void triggerParse();
+    void localParseDataAvailable(const QString &file);
+    void controllerFinished(Callgrind::CallgrindController::Option option);
+
+    bool m_markAsPaused = false;
+    Callgrind::CallgrindController m_controller;
+    Callgrind::Parser m_parser;
+    bool m_paused = false;
 
     QString m_argumentForToggleCollect;
 };

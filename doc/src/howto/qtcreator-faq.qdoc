@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -39,106 +39,13 @@
 
     \section1 General Questions
 
-    \b {\QC only shows a blank window, a dialog complaining about missing OpenGL support, or crashes on startup. What's going wrong?}
-
-    Some parts of \QC use Qt Quick 2, which relies on OpenGL API for
-    drawing. The most prominent use of Qt Quick 2 is in the Welcome mode, but it's
-    also used for the \QMLD, and the QML Profiler.
-
-    Unfortunately the use of OpenGL can cause problems, especially in remote setups
-    and with outdated drivers. You can quickly check whether this is your problem by:
-
-    \list
-
-      \li Launching \QC with Welcome mode disabled ( \c{-noload Welcome} on
-          command line).
-
-      \li Checking the console or the Windows debugger log for OpenGL-related error messages.
-
-    \endlist
-
-    The fixes and workarounds differ, depending on your setup. As a last resort you
-    can disable the affected plugins.
-
-    \e{Virtual Machines}
-
-    Try to enable \e{3D acceleration} in your virtual machine's settings. For VirtualBox,
-    also make sure you have installed the Guest Addons, including experimental
-    \e{Direct3D support}.
-
-    \e{Windows}
-
-    Check whether \QC has been compiled with OpenGL/Desktop, or ANGLE as
-    a backend. The official binaries are always built with ANGLE (a library that
-    maps OpenGL ES API to DirectX).
-
-    \list
-
-      \li ANGLE backend: This requires a Windows version newer than Windows XP. If you
-          have problems, try updating your graphics drivers or update your
-          DirectX version. Run \c dxdiag.exe to check whether \e{Direct3D Acceleration}
-          is indeed enabled.
-
-      \li OpenGL backend: Make sure your graphics driver supports OpenGL 2.1 or newer.
-          Try to update your graphics driver.
-
-    \endlist
-
-    \e{Unix}
-
-    Run \c glxgears for a quick check whether OpenGL works in general. Check output of
-    \c glxinfo to get more details like the OpenGL driver and renderer (search for 'OpenGL'
-    in the application's output).
-
-    If you are using the Mesa driver, you can force OpenGL to be rendered in software
-    by setting the \c LIBGL_ALWAYS_SOFTWARE environment variable.
-
-    \e{Disabling plugins}
-
-    You can disable the \QC plugins, at the expense of losing functionality:
-
-    \list
-
-      \li Launch \QC from command line, with
-          \c {-noload Welcome -noload QmlProfiler -noload QuickDesigner} arguments.
-
-      \li Disable the plugins permanently by selecting \uicontrol Help > \uicontrol{About Plugins}.
-
-    \endlist
 
     \b {How do I reset all \QC settings?}
 
-    \QC creates the following files and directories:
+    Remove the settings files created by \QC.
 
-    \list
-
-        \li QtCreator.db
-
-        \li QtCreator.ini
-
-        \li qtversion.xml
-
-        \li toolChains.xml
-
-        \li qtcreator
-
-        \li qtc-qmldump
-
-    \endlist
-
-    The location depends on the platform. On Linux and other Unix platforms, the files
-    are located in \c {~/.config/QtProject} and \c {~/.local/share/data/QtProject/qtcreator}.
-
-    On \macos, the files are located in \c {~/.config/QtProject} and
-    \c {~/Library/Application Support/QtProject/Qt Creator}.
-
-    On Windows XP, the files are located in
-    \c {%SystemDrive%\Documents and Settings\%USERNAME%\Application Data\QtProject} and
-    \c {%SystemDrive%\Documents and Settings\%USERNAME%\Local Settings\Application Data\QtProject}.
-
-    On Windows Vista and Windows 7, the files are located in
-    \c {%SystemDrive%\Users\%USERNAME%\AppData\Roaming\QtProject} and
-    \c {%SystemDrive%\Users\%USERNAME%\AppData\Local\QtProject}.
+    For more information about where the files are located on each supported
+    platform, see \l {Location of Settings Files}.
 
     \b {\QC comes with MinGW, should I use this version with Qt?}
 
@@ -168,7 +75,90 @@
     You can look up any issue in the
     \l{https://bugreports.qt.io/}{Qt bug tracker}.
 
-    \include widgets/creator-faq-qtdesigner.qdocinc
+    \include widgets/creator-faq-qtdesigner.qdocinc qt designer faq
+
+    \section1 QML and Qt Quick Questions
+
+    \b {Why is there a red line below my QML import, even though I have the module?}
+
+    By default, \QC looks in the QML import path of Qt for QML modules.
+    Sometimes, it does not get it right and you need to tell it where the
+    modules are by specifying the \c{QML_IMPORT_PATH} in the \c{.pro} file of
+    your application.
+
+    This also enables code completion of QML code and removes error messages.
+
+    The following example illustrates how to specify the import path so that
+    it works when switching between build and run kits for different target
+    platforms:
+
+    \code
+    TEMPNAME = $${QMAKE_QMAKE}
+    MY_QTPATH = $$dirname(TEMPNAME)
+    QML_IMPORT_PATH += $$MY_QTPATH/../qml
+    message("my QML Import Path: "$$QML_IMPORT_PATH)
+    \endcode
+
+    For more information about how to set the import path when using CMake, see
+    \l {Importing QML Modules}.
+
+    \b {What should I do when \QC complains about missing OpenGL support?}
+
+    Some parts of \QC, such as \QMLD and QML Profiler, use Qt Quick 2, which
+    relies on OpenGL API for drawing. Unfortunately, the use of OpenGL can cause
+    problems, especially in remote setups and with outdated drivers. In these
+    cases, \QC displays OpenGL-related error messages on the console or records
+    them in the Windows debugger log.
+
+    The fixes and workarounds differ, depending on your setup. As a last resort,
+    you can disable the affected plugins.
+
+    \e{Virtual Machines}
+
+    Try to enable \e{3D acceleration} in your virtual machine's settings. For
+    VirtualBox, also make sure you have installed the Guest Addons, including
+    experimental \e{Direct3D support}.
+
+    \e{Windows}
+
+    Check whether \QC has been compiled with OpenGL/Desktop, or ANGLE as
+    a backend. The official binaries are always built with ANGLE (a library that
+    maps OpenGL ES API to DirectX).
+
+    \list
+
+      \li ANGLE backend: This requires a Windows version newer than Windows XP.
+          If you have problems, try updating your graphics drivers or update
+          your DirectX version. Run \c dxdiag.exe to check whether
+          \e{Direct3D Acceleration} is indeed enabled.
+
+      \li OpenGL backend: Make sure your graphics driver supports OpenGL 2.1 or
+          newer. Try to update your graphics driver.
+
+    \endlist
+
+    \e{Unix}
+
+    Run \c glxgears for a quick check whether OpenGL works in general. Check the
+    output of \c glxinfo to get more details like the OpenGL driver and renderer
+    (search for \e OpenGL in the application's output).
+
+    If you are using the Mesa driver, you can force OpenGL to be rendered in
+    software by setting the \c LIBGL_ALWAYS_SOFTWARE environment variable.
+
+    \e{Disabling plugins}
+
+    You can disable the \QC plugins, at the expense of losing functionality:
+
+    \list
+
+      \li Launch \QC from command line, with the
+          \c {-noload QmlProfiler -noload QuickDesigner} arguments.
+
+      \li Disable the plugins permanently by selecting \uicontrol Help >
+          \uicontrol{About Plugins}.
+
+    \endlist
 
     \section1 Help Questions
 

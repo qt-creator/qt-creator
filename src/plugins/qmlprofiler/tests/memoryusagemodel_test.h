@@ -49,11 +49,11 @@ private slots:
     void testCollapsedRow();
     void testLocation();
     void testRelativeHeight();
-    void testAccepted();
     void cleanupTestCase();
 
 private:
     QmlProfilerModelManager manager;
+    Timeline::TimelineModelAggregator aggregator;
     MemoryUsageModel model;
 
     int heapPageTypeId = -1;

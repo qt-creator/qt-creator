@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -26,32 +26,39 @@
 #pragma once
 
 #include "iosconfigurations.h"
-
-#include <QList>
-#include <QString>
+#include "simulatorcontrol.h"
 #include <QWidget>
-#include <QAbstractTableModel>
 
 namespace Ios {
 namespace Internal {
 
 namespace Ui { class IosSettingsWidget; }
+class SimulatorInfoModel;
+using SimulatorInfoList = QList<SimulatorInfo>;
 
 class IosSettingsWidget : public QWidget
 {
     Q_OBJECT
+
 public:
-    // Todo: This would be so much simpler if it just used Utils::PathChooser!!!
     IosSettingsWidget(QWidget *parent = 0);
     ~IosSettingsWidget();
 
     void saveSettings();
 
 private:
-    void initGui();
+    void onStart();
+    void onCreate();
+    void onReset();
+    void onRename();
+    void onDelete();
+    void onScreenshot();
+    void onSelectionChanged();
 
-    Ui::IosSettingsWidget *m_ui;
-    bool m_saveSettingsRequested;
+private:
+    Ui::IosSettingsWidget *m_ui = nullptr;
+    bool m_saveSettingsRequested = false;
+    SimulatorControl *m_simControl = nullptr;
 };
 
 } // namespace Internal

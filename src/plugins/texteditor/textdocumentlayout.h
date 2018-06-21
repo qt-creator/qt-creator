@@ -41,12 +41,12 @@ struct TEXTEDITOR_EXPORT Parenthesis
 {
     enum Type : char { Opened, Closed };
 
-    inline Parenthesis() : pos(-1), type(Opened)  {}
+    inline Parenthesis() = default;
     inline Parenthesis(Type t, QChar c, int position)
         : pos(position), chr(c), type(t) {}
-    int pos;
+    int pos = -1;
     QChar chr;
-    Type type;
+    Type type = Opened;
 };
 
 class TEXTEDITOR_EXPORT CodeFormatterData
@@ -61,23 +61,23 @@ public:
 
     inline TextBlockUserData()
         : m_foldingIndent(0)
+        , m_lexerState(0)
         , m_folded(false)
         , m_ifdefedOut(false)
-        , m_lexerState(0)
         , m_foldingStartIncluded(false)
         , m_foldingEndIncluded(false)
-        , m_codeFormatterData(0)
+        , m_codeFormatterData(nullptr)
     {}
-    ~TextBlockUserData();
+    ~TextBlockUserData() override;
 
     inline TextMarks marks() const { return m_marks; }
     void addMark(TextMark *mark);
     inline bool removeMark(TextMark *mark) { return m_marks.removeAll(mark); }
 
     inline TextMarks documentClosing() {
-        TextMarks marks = m_marks;
-        foreach (TextMark *mrk, m_marks)
-            mrk->setBaseTextDocument(0);
+        const TextMarks marks = m_marks;
+        for (TextMark *mrk : marks)
+            mrk->setBaseTextDocument(nullptr);
         m_marks.clear();
         return marks;
     }
@@ -124,8 +124,11 @@ public:
     inline void setFoldingEndIncluded(bool included) { m_foldingEndIncluded = included; }
     inline bool foldingEndIncluded() const { return m_foldingEndIncluded; }
     inline int lexerState() const { return m_lexerState; }
-    inline void setLexerState(int state) {m_lexerState = state; }
+    inline void setLexerState(int state) { m_lexerState = state; }
 
+    inline void setAdditionalAnnotationHeight(int annotationHeight)
+    { m_additionalAnnotationHeight = annotationHeight; }
+    inline int additionalAnnotationHeight() const { return m_additionalAnnotationHeight; }
 
     CodeFormatterData *codeFormatterData() const { return m_codeFormatterData; }
     void setCodeFormatterData(CodeFormatterData *data);
@@ -133,11 +136,12 @@ public:
 private:
     TextMarks m_marks;
     int m_foldingIndent : 16;
+    int m_lexerState : 8;
     uint m_folded : 1;
     uint m_ifdefedOut : 1;
-    uint m_lexerState : 8;
     uint m_foldingStartIncluded : 1;
     uint m_foldingEndIncluded : 1;
+    int m_additionalAnnotationHeight = 0;
     Parentheses m_parentheses;
     CodeFormatterData *m_codeFormatterData;
 };
@@ -149,7 +153,7 @@ class TEXTEDITOR_EXPORT TextDocumentLayout : public QPlainTextDocumentLayout
 
 public:
     TextDocumentLayout(QTextDocument *doc);
-    ~TextDocumentLayout();
+    ~TextDocumentLayout() override;
 
     static void setParentheses(const QTextBlock &block, const Parentheses &parentheses);
     static void clearParentheses(const QTextBlock &block) { setParentheses(block, Parentheses());}
@@ -175,17 +179,15 @@ public:
     class TEXTEDITOR_EXPORT FoldValidator
     {
     public:
-        FoldValidator();
-
         void setup(TextDocumentLayout *layout);
         void reset();
         void process(QTextBlock block);
         void finalize();
 
     private:
-        TextDocumentLayout *m_layout;
-        bool m_requestDocUpdate;
-        int m_insideFold;
+        TextDocumentLayout *m_layout = nullptr;
+        bool m_requestDocUpdate = false;
+        int m_insideFold = 0;
     };
 
     static TextBlockUserData *testUserData(const QTextBlock &block) {
@@ -202,15 +204,15 @@ public:
 
     void emitDocumentSizeChanged() { emit documentSizeChanged(documentSize()); }
 
-    int lastSaveRevision;
-    bool hasMarks;
-    double maxMarkWidthFactor;
-
-    int m_requiredWidth;
+    int lastSaveRevision = 0;
+    bool hasMarks = false;
+    double maxMarkWidthFactor = 1.0;
+    int m_requiredWidth = 0;
 
     void setRequiredWidth(int width);
 
-    QSizeF documentSize() const;
+    QSizeF documentSize() const override;
+    QRectF blockBoundingRect(const QTextBlock &block) const override;
 
     TextMarks documentClosing();
     void documentReloaded(TextMarks marks, TextDocument *baseextDocument);
@@ -219,6 +221,7 @@ public:
 
 signals:
     void updateExtraArea();
+    void foldChanged(const int blockNumber, bool folded);
 };
 
 } // namespace TextEditor

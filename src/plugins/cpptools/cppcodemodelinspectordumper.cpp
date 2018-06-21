@@ -31,8 +31,10 @@
 #include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <cpptools/cppprojectfile.h>
+#include <projectexplorer/projectmacro.h>
 #include <projectexplorer/project.h>
 #include <utils/algorithm.h>
+#include <utils/temporarydirectory.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Token.h>
@@ -143,7 +145,8 @@ QString Utils::toString(ProjectPart::QtVersion qtVersion)
     switch (qtVersion) {
     CASE_QTVERSION(UnknownQt);
     CASE_QTVERSION(NoQt);
-    CASE_QTVERSION(Qt4);
+    CASE_QTVERSION(Qt4_8_6AndOlder);
+    CASE_QTVERSION(Qt4Latest);
     CASE_QTVERSION(Qt5);
     // no default to get a compiler warning if anything is added
     }
@@ -151,26 +154,21 @@ QString Utils::toString(ProjectPart::QtVersion qtVersion)
     return QString();
 }
 
+QString Utils::toString(ProjectPart::BuildTargetType buildTargetType)
+{
+#define CASE_BUILDTARGETTYPE(x) case ProjectPart::x: return QLatin1String(#x)
+    switch (buildTargetType) {
+    CASE_BUILDTARGETTYPE(Unknown);
+    CASE_BUILDTARGETTYPE(Executable);
+    CASE_BUILDTARGETTYPE(Library);
+    }
+#undef CASE_BUILDTARGETTYPE
+    return QString();
+}
+
 QString Utils::toString(ProjectFile::Kind kind)
 {
-#define CASE_PROFECTFILEKIND(x) case ProjectFile::x: return QLatin1String(#x)
-    switch (kind) {
-    CASE_PROFECTFILEKIND(Unclassified);
-    CASE_PROFECTFILEKIND(CHeader);
-    CASE_PROFECTFILEKIND(CSource);
-    CASE_PROFECTFILEKIND(CXXHeader);
-    CASE_PROFECTFILEKIND(CXXSource);
-    CASE_PROFECTFILEKIND(ObjCHeader);
-    CASE_PROFECTFILEKIND(ObjCSource);
-    CASE_PROFECTFILEKIND(ObjCXXHeader);
-    CASE_PROFECTFILEKIND(ObjCXXSource);
-    CASE_PROFECTFILEKIND(CudaSource);
-    CASE_PROFECTFILEKIND(OpenCLSource);
-    CASE_PROFECTFILEKIND(AmbiguousHeader);
-    // no default to get a compiler warning if anything is added
-    }
-#undef CASE_PROFECTFILEKIND
-    return QString();
+    return QString::fromLatin1(projectFileKindToText(kind));
 }
 
 QString Utils::toString(CPlusPlus::Kind kind)
@@ -445,9 +443,10 @@ Dumper::Dumper(const CPlusPlus::Snapshot &globalSnapshot, const QString &logFile
     QString logFileId_ = logFileId;
     if (!logFileId_.isEmpty())
         logFileId_.prepend(QLatin1Char('_'));
-    const QString logFileName = QDir::tempPath() + QString::fromLatin1("/qtc-codemodelinspection")
+    const QString logFileName = ::Utils::TemporaryDirectory::masterDirectoryPath()
+            + "/qtc-codemodelinspection"
             + ideRevision_
-            + QDateTime::currentDateTime().toString(QLatin1String("_yyMMdd_hhmmss"))
+            + QDateTime::currentDateTime().toString("_yyMMdd_hhmmss")
             + logFileId_
             + QLatin1String(".txt");
 
@@ -496,6 +495,7 @@ void Dumper::dumpProjectInfos( const QList<ProjectInfo> &projectInfos)
             m_out << i3 << "Project Name         : " << projectName << "\n";
             m_out << i3 << "Project File         : " << projectFilePath << "\n";
             m_out << i3 << "Selected For Building: " << part->selectedForBuilding << "\n";
+            m_out << i3 << "Build Target Type    : " << Utils::toString(part->buildTargetType) << "\n";
             m_out << i3 << "Lanugage Version     : " << Utils::toString(part->languageVersion)<<"\n";
             m_out << i3 << "Lanugage Extensions  : " << Utils::toString(part->languageExtensions)
                   << "\n";
@@ -509,15 +509,17 @@ void Dumper::dumpProjectInfos( const QList<ProjectInfo> &projectInfos)
                 }
             }
 
-            if (!part->toolchainDefines.isEmpty()) {
+            if (!part->toolChainMacros.isEmpty()) {
                 m_out << i3 << "Toolchain Defines:{{{4\n";
-                const QList<QByteArray> defineLines = part->toolchainDefines.split('\n');
+                const QList<QByteArray> defineLines =
+                        ProjectExplorer::Macro::toByteArray(part->toolChainMacros).split('\n');
                 foreach (const QByteArray &defineLine, defineLines)
                     m_out << i4 << defineLine << "\n";
             }
-            if (!part->projectDefines.isEmpty()) {
+            if (!part->projectMacros.isEmpty()) {
                 m_out << i3 << "Project Defines:{{{4\n";
-                const QList<QByteArray> defineLines = part->projectDefines.split('\n');
+                const QList<QByteArray> defineLines =
+                        ProjectExplorer::Macro::toByteArray(part->projectMacros).split('\n');
                 foreach (const QByteArray &defineLine, defineLines)
                     m_out << i4 << defineLine << "\n";
             }

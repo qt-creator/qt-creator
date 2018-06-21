@@ -2,6 +2,8 @@
 <!-- Copyright (C) 2016 The Qt Company Ltd. Contact: https://www.qt.io/licensing/ -->
 <component type="desktop">
  <id>org.qt-project.qtcreator.desktop</id>
+ <name>Qt Creator</name>
+ <summary>Provides a cross-platform, complete integrated development environment (IDE) for application developers to create applications for multiple platforms and devices</summary>
  <metadata_license>CC0-1.0</metadata_license>
  <project_license>GPL-3.0</project_license>
  <description>
@@ -22,6 +24,6 @@
   </p>
  </description>
 
- <url type="homepage">https://qt.io/ide/</url>
+ <url type="homepage">https://www.qt.io/ide/</url>
  <project_group>Qt</project_group>
 </component>

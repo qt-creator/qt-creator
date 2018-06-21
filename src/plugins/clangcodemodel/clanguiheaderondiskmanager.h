@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <QTemporaryDir>
+#include <utils/temporarydirectory.h>
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -43,7 +43,7 @@ public:
     QString directoryPath() const;
 
 private:
-    QTemporaryDir m_temporaryDir;
+    ::Utils::TemporaryDirectory m_temporaryDir;
 };
 
 } // namespace Internal

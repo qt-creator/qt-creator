@@ -46,7 +46,7 @@ const char CMAKETOOL_COUNT_KEY[] = "CMakeTools.Count";
 const char CMAKETOOL_DEFAULT_KEY[] = "CMakeTools.Default";
 const char CMAKETOOL_DATA_KEY[] = "CMakeTools.";
 const char CMAKETOOL_FILE_VERSION_KEY[] = "Version";
-const char CMAKETOOL_FILENAME[] = "/qtcreator/cmaketools.xml";
+const char CMAKETOOL_FILENAME[] = "/cmaketools.xml";
 
 class CMakeToolManagerPrivate
 {
@@ -58,21 +58,9 @@ public:
 };
 static CMakeToolManagerPrivate *d = nullptr;
 
-static void addCMakeTool(CMakeTool *item)
-{
-    QTC_ASSERT(item->id().isValid(), return);
-
-    d->m_cmakeTools.append(item);
-
-    //set the first registered cmake tool as default if there is not already one
-    if (!d->m_defaultCMake.isValid())
-        CMakeToolManager::setDefaultCMakeTool(item->id());
-}
-
 static FileName userSettingsFileName()
 {
-    QFileInfo settingsLocation(ICore::settings()->fileName());
-    return FileName::fromString(settingsLocation.absolutePath() + QLatin1String(CMAKETOOL_FILENAME));
+    return FileName::fromString(ICore::userResourcePath() + CMAKETOOL_FILENAME);
 }
 
 static QList<CMakeTool *> readCMakeTools(const FileName &fileName, Core::Id *defaultId, bool fromSDK)
@@ -146,26 +134,38 @@ static void readAndDeleteLegacyCMakeSettings ()
 
 static QList<CMakeTool *> autoDetectCMakeTools()
 {
-    FileNameList suspects;
-
     Utils::Environment env = Environment::systemEnvironment();
 
-    QStringList path = env.path();
-    path.removeDuplicates();
+    Utils::FileNameList path = env.path();
+    path = Utils::filteredUnique(path);
 
-    QStringList execs = env.appendExeExtensions(QLatin1String("cmake"));
+    if (HostOsInfo::isWindowsHost()) {
+        const QString progFiles = QLatin1String(qgetenv("ProgramFiles"));
+        path.append(Utils::FileName::fromString(progFiles + "/CMake"));
+        path.append(Utils::FileName::fromString(progFiles + "/CMake/bin"));
+        const QString progFilesX86 = QLatin1String(qgetenv("ProgramFiles(x86)"));
+        if (!progFilesX86.isEmpty()) {
+            path.append(Utils::FileName::fromString(progFilesX86 + "/CMake"));
+            path.append(Utils::FileName::fromString(progFilesX86 + "/CMake/bin"));
+        }
+    }
 
-    foreach (QString base, path) {
-        const QChar slash = QLatin1Char('/');
+    if (HostOsInfo::isMacHost()) {
+        path.append(Utils::FileName::fromString("/Applications/CMake.app/Contents/bin"));
+        path.append(Utils::FileName::fromString("/usr/local/bin"));
+        path.append(Utils::FileName::fromString("/opt/local/bin"));
+    }
+
+    const QStringList execs = env.appendExeExtensions(QLatin1String("cmake"));
+
+    FileNameList suspects;
+    foreach (const Utils::FileName &base, path) {
         if (base.isEmpty())
             continue;
-        // Avoid turning '/' into '//' on Windows which triggers Windows to check
-        // for network drives!
-        if (!base.endsWith(slash))
-            base += slash;
 
-        foreach (const QString &exec, execs) {
-            QFileInfo fi(base + exec);
+        QFileInfo fi;
+        for (const QString &exec : execs) {
+            fi.setFile(base.toString(), exec);
             if (fi.exists() && fi.isFile() && fi.isExecutable())
                 suspects << FileName::fromString(fi.absoluteFilePath());
         }
@@ -232,7 +232,6 @@ Id CMakeToolManager::registerOrFindCMakeTool(const FileName &command)
     cmake->setDisplayName(tr("CMake at %1").arg(command.toUserOutput()));
 
     addCMakeTool(cmake);
-    emit m_instance->cmakeAdded(cmake->id());
     return cmake->id();
 }
 
@@ -250,7 +249,6 @@ bool CMakeToolManager::registerCMakeTool(CMakeTool *tool)
     }
 
     addCMakeTool(tool);
-    emit m_instance->cmakeAdded(tool->id());
     return true;
 }
 
@@ -313,9 +311,8 @@ void CMakeToolManager::restoreCMakeTools()
 {
     Core::Id defaultId;
 
-    QFileInfo systemSettingsFile(ICore::settings(QSettings::SystemScope)->fileName());
-    FileName sdkSettingsFile = FileName::fromString(systemSettingsFile.absolutePath()
-                                                    + QLatin1String(CMAKETOOL_FILENAME));
+    FileName sdkSettingsFile = FileName::fromString(ICore::installerResourcePath()
+                                                    + CMAKETOOL_FILENAME);
 
     QList<CMakeTool *> toolsToRegister = readCMakeTools(sdkSettingsFile, &defaultId, true);
 
@@ -411,6 +408,19 @@ void CMakeToolManager::saveCMakeTools()
     }
     data.insert(QLatin1String(CMAKETOOL_COUNT_KEY), count);
     d->m_writer->save(data, ICore::mainWindow());
+}
+
+void CMakeToolManager::addCMakeTool(CMakeTool *item)
+{
+    QTC_ASSERT(item->id().isValid(), return);
+
+    d->m_cmakeTools.append(item);
+
+    emit CMakeToolManager::m_instance->cmakeAdded(item->id());
+
+    //set the first registered cmake tool as default if there is not already one
+    if (!d->m_defaultCMake.isValid())
+        CMakeToolManager::setDefaultCMakeTool(item->id());
 }
 
 } // namespace CMakeProjectManager

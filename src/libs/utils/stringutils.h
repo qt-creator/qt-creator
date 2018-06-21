@@ -27,8 +27,11 @@
 
 #include "utils_global.h"
 
+#include <QList>
+#include <QString>
+
 QT_BEGIN_NAMESPACE
-class QStringList;
+class QJsonValue;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -50,6 +53,16 @@ QTCREATOR_UTILS_EXPORT QString commonPath(const QStringList &files);
 // If path is not sub of home path, or when running on Windows, returns the input
 QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path);
 
+// Removes first unescaped ampersand in text
+QTCREATOR_UTILS_EXPORT QString stripAccelerator(const QString &text);
+// Quotes all ampersands
+QTCREATOR_UTILS_EXPORT QString quoteAmpersands(const QString &text);
+
+QTCREATOR_UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString *out);
+
+// Compare case insensitive and use case sensitive comparison in case of that being equal.
+QTCREATOR_UTILS_EXPORT int caseFriendlyCompare(const QString &a, const QString &b);
+
 class QTCREATOR_UTILS_EXPORT AbstractMacroExpander
 {
 public:
@@ -65,12 +78,28 @@ public:
     //! \param name The name of the expando
     //! \param ret Replacement string on output
     //! \return True if the expando was found
-    virtual bool resolveMacro(const QString &name, QString *ret) = 0;
+    virtual bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander *> &seen) = 0;
 private:
     bool expandNestedMacros(const QString &str, int *pos, QString *ret);
 };
 
 QTCREATOR_UTILS_EXPORT void expandMacros(QString *str, AbstractMacroExpander *mx);
 QTCREATOR_UTILS_EXPORT QString expandMacros(const QString &str, AbstractMacroExpander *mx);
+
+QTCREATOR_UTILS_EXPORT int parseUsedPortFromNetstatOutput(const QByteArray &line);
+
+template<typename T, typename Container>
+T makeUniquelyNumbered(const T &preferred, const Container &reserved)
+{
+    if (!reserved.contains(preferred))
+        return preferred;
+    int i = 2;
+    T tryName = preferred + QString::number(i);
+    while (reserved.contains(tryName))
+        tryName = preferred + QString::number(++i);
+    return tryName;
+}
+
+
 
 } // namespace Utils

@@ -46,10 +46,10 @@ public:
 
 private:
     QString m_text;
-    int m_sourceId;
-    int m_index;
-    int m_lineNumber;
-    int m_columnNumber;
+    int m_sourceId = -1;
+    int m_index = -1;
+    int m_lineNumber = -1;
+    int m_columnNumber = -1;
 };
 
 } // namespace qmt

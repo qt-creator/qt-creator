@@ -25,34 +25,65 @@
 
 #pragma once
 
-#include "symbolgroup.h"
+#include <string>
+#include <memory>
 
 #include <Python.h>
-#include "structmember.h"
 
-#include <string>
+#include "pyfield.h"
 
-struct Type
+class PyType
+{
+public:
+    PyType() = default;
+    PyType(ULONG64 module, unsigned long typeId,
+           const std::string &name = std::string(), int tag = -1);
+    PyType(const PyType &other) = default;
+
+    std::string name(bool withModule = false) const;
+    ULONG64 bitsize() const;
+    int code() const;
+    PyType target() const;
+    std::string targetName() const;
+    PyFields fields() const;
+    std::string module() const;
+    ULONG64 moduleId() const;
+    int arrayElements() const;
+
+    struct TemplateArgument
+    {
+        TemplateArgument() = default;
+        TemplateArgument(int numericValue) : numeric(true), numericValue(numericValue) {}
+        TemplateArgument(const std::string &typeName)
+            : numeric(true), numericValue(0), typeName(typeName) {}
+        bool numeric = true;
+        int numericValue = 0;
+        std::string typeName;
+    };
+    using TemplateArguments = std::vector<TemplateArgument>;
+
+    TemplateArguments templateArguments();
+
+    unsigned long getTypeId() const;
+    bool isValid() const;
+
+    static PyType lookupType(const std::string &typeName, ULONG64 module = 0);
+
+private:
+    static PyType createUnresolvedType(const std::string &typeName);
+
+    unsigned long           m_typeId = 0;
+    ULONG64                 m_module = 0;
+    bool                    m_resolved = false;
+    mutable std::string     m_name;
+    mutable int             m_tag = -1;
+};
+
+struct TypePythonObject
 {
     PyObject_HEAD
-    ULONG m_typeId;
-    ULONG64 m_module;
-    ULONG m_arraySize;
-    Type *m_targetType;
-    bool m_resolved;
-    char *m_name;       // owned
+    PyType *impl;
 };
 
 PyTypeObject *type_pytype();
-char *getTypeName(ULONG64 module, ULONG typeId);
-const char *getTypeName(Type *type, const bool withModule = false);
-
-PyObject *lookupType(const std::string &typeName);
-
-PyObject *createType(ULONG64 module, ULONG typeId, const std::string &name = std::string());
-PyObject *createUnresolvedType(const std::string &name);
-PyObject *createArrayType(ULONG arraySize, Type *targetType);
-PyObject *createPointerType(Type *targetType);
-
-bool isPointerType(const std::string &typeName);
-std::string &stripPointerType(std::string &typeName);
+PyObject *createPythonObject(PyType typeClass);

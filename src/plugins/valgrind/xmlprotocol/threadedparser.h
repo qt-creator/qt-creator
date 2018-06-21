@@ -56,14 +56,13 @@ public:
     bool waitForFinished();
     bool isRunning() const;
 
-public Q_SLOTS:
     ///@warning will move @p stream to a different thread and take ownership of it
     void parse(QIODevice *stream);
 
-private Q_SLOTS:
+private:
     void slotInternalError(const QString &errorString);
 
-Q_SIGNALS:
+signals:
     void status(const Valgrind::XmlProtocol::Status &status);
     void error(const Valgrind::XmlProtocol::Error &error);
     void internalError(const QString &errorString);

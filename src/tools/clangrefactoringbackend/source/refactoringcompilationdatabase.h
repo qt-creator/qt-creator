@@ -25,21 +25,7 @@
 
 #pragma once
 
-#if defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#elif defined(_MSC_VER)
-#    pragma warning(push)
-#    pragma warning( disable : 4100 )
-#endif
-
 #include "clang/Tooling/CompilationDatabase.h"
-
-#if defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#    pragma warning(pop)
-#endif
 
 namespace ClangBackEnd {
 
@@ -54,11 +40,11 @@ public:
     std::vector<clang::tooling::CompileCommand> getAllCompileCommands() const override;
 
     void addFile(const std::string &directory,
-                            const std::string &fileName,
-                            const std::vector<std::string> &commandLine);
+                 const std::string &fileName,
+                 const std::vector<std::string> &commandLine);
 
 private:
-    std::vector<clang::tooling::CompileCommand> compileCommands;
+    std::vector<clang::tooling::CompileCommand> m_compileCommands;
 };
 
 } // namespace ClangBackEnd

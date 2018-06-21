@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "snippetscollection.h"
-#include "isnippetprovider.h"
+#include "snippetprovider.h"
 #include "reuse.h"
 
 #include <coreplugin/icore.h>
@@ -43,6 +43,13 @@
 
 using namespace TextEditor;
 using namespace Internal;
+
+/*  TRANSLATOR TextEditor::Internal::Snippets
+
+    Snippets are text fragments that can be inserted into an editor via the usual completion
+    mechanics using a trigger text. The translated text (trigger variant) is used to
+    disambiguate between snippets with the same trigger.
+*/
 
 namespace {
 
@@ -359,7 +366,10 @@ QList<Snippet> SnippetsCollection::readXML(const QString &fileName, const QStrin
                         if (isGroupKnown(groupId) && (snippetId.isEmpty() || snippetId == id)) {
                             Snippet snippet(groupId, id);
                             snippet.setTrigger(atts.value(kTrigger).toString());
-                            snippet.setComplement(atts.value(kComplement).toString());
+                            snippet.setComplement(QCoreApplication::translate(
+                                                      "TextEditor::Internal::Snippets",
+                                                      atts.value(kComplement).toString().toLatin1(),
+                                                      atts.value(kId).toString().toLatin1()));
                             snippet.setIsRemoved(toBool(atts.value(kRemoved).toString()));
                             snippet.setIsModified(toBool(atts.value(kModified).toString()));
 
@@ -409,11 +419,9 @@ int SnippetsCollection::groupIndex(const QString &groupId) const
 
 void SnippetsCollection::identifyGroups()
 {
-    const QList<ISnippetProvider *> &providers =
-        ExtensionSystem::PluginManager::getObjects<ISnippetProvider>();
-    foreach (ISnippetProvider *provider, providers) {
+    for (const SnippetProvider &provider : SnippetProvider::snippetProviders()) {
         const int groupIndex = m_groupIndexById.size();
-        m_groupIndexById.insert(provider->groupId(), groupIndex);
+        m_groupIndexById.insert(provider.groupId(), groupIndex);
         m_snippets.resize(groupIndex + 1);
         m_activeSnippetsEnd.resize(groupIndex + 1);
         m_activeSnippetsEnd[groupIndex] = m_snippets[groupIndex].end();

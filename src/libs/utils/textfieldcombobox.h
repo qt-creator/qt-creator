@@ -33,10 +33,10 @@ namespace Utils {
 
 // Documentation inside.
 class QTCREATOR_UTILS_EXPORT TextFieldComboBox : public QComboBox {
-    Q_PROPERTY(QString text READ text WRITE setText)
+    Q_PROPERTY(QString indexText READ text WRITE setText)
     Q_OBJECT
 public:
-    explicit TextFieldComboBox(QWidget *parent = 0);
+    explicit TextFieldComboBox(QWidget *parent = nullptr);
 
     QString text() const;
     void setText(const QString &s);

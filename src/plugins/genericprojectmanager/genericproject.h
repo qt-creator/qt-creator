@@ -25,41 +25,20 @@
 
 #pragma once
 
-#include "genericprojectmanager.h"
-#include "genericprojectnodes.h"
-
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectnodes.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/buildconfiguration.h>
-#include <coreplugin/idocument.h>
 
-#include <QFuture>
+namespace CppTools { class CppProjectUpdater; }
 
 namespace GenericProjectManager {
 namespace Internal {
-
-class GenericProjectFile;
 
 class GenericProject : public ProjectExplorer::Project
 {
     Q_OBJECT
 
 public:
-    GenericProject(Manager *manager, const QString &filename);
+    explicit GenericProject(const Utils::FileName &filename);
     ~GenericProject() override;
-
-    QString filesFileName() const;
-    QString includesFileName() const;
-    QString configFileName() const;
-
-    QString displayName() const override;
-    Manager *projectManager() const override;
-
-    QStringList files(FilesMode fileMode) const override;
-
-    QStringList buildTargets() const;
 
     bool addFiles(const QStringList &filePaths);
     bool removeFiles(const QStringList &filePaths);
@@ -74,9 +53,6 @@ public:
 
     void refresh(RefreshOptions options);
 
-    QStringList projectIncludePaths() const;
-    QStringList files() const;
-
 protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
@@ -85,37 +61,27 @@ private:
     bool saveRawList(const QStringList &rawList, const QString &fileName);
     void parseProject(RefreshOptions options);
     QStringList processEntries(const QStringList &paths,
-                               QHash<QString, QString> *map = 0) const;
+                               QHash<QString, QString> *map = nullptr) const;
 
     void refreshCppCodeModel();
+    void activeTargetWasChanged();
+    void activeBuildConfigurationWasChanged();
 
     QString m_filesFileName;
     QString m_includesFileName;
     QString m_configFileName;
-    QString m_projectName;
-    GenericProjectFile *m_filesIDocument;
-    GenericProjectFile *m_includesIDocument;
-    GenericProjectFile *m_configIDocument;
+    ProjectExplorer::ProjectDocument *m_filesIDocument;
+    ProjectExplorer::ProjectDocument *m_includesIDocument;
+    ProjectExplorer::ProjectDocument *m_configIDocument;
     QStringList m_rawFileList;
     QStringList m_files;
     QHash<QString, QString> m_rawListEntries;
     QStringList m_rawProjectIncludePaths;
     QStringList m_projectIncludePaths;
 
-    QFuture<void> m_codeModelFuture;
-};
+    CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
 
-class GenericProjectFile : public Core::IDocument
-{
-public:
-    GenericProjectFile(GenericProject *parent, QString fileName, GenericProject::RefreshOptions options);
-
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
-
-private:
-    GenericProject *m_project;
-    GenericProject::RefreshOptions m_options;
+    ProjectExplorer::Target *m_activeTarget = nullptr;
 };
 
 } // namespace Internal

@@ -38,14 +38,13 @@ class MacrosPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Macros.json")
 
 public:
-    MacrosPlugin();
     ~MacrosPlugin();
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 
 private:
-    MacroManager *m_macroManager;
+    MacroManager *m_macroManager = nullptr;
 };
 
 } // namespace Internal

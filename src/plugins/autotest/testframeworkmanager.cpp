@@ -27,7 +27,6 @@
 #include "autotestconstants.h"
 #include "autotestplugin.h"
 #include "iframeworksettings.h"
-#include "itestframework.h"
 #include "itestparser.h"
 #include "itestsettingspage.h"
 #include "testrunner.h"
@@ -46,7 +45,7 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.frameworkmanager")
 namespace Autotest {
 namespace Internal {
 
-TestFrameworkManager *s_instance = 0;
+static TestFrameworkManager *s_instance = nullptr;
 
 TestFrameworkManager::TestFrameworkManager()
 {
@@ -66,6 +65,8 @@ TestFrameworkManager::~TestFrameworkManager()
 {
     delete m_testRunner;
     delete m_testTreeModel;
+    qDeleteAll(m_frameworkSettingsPages);
+    m_frameworkSettingsPages.clear();
     for (ITestFramework *framework : m_registeredFrameworks.values())
         delete framework;
 }
@@ -79,13 +80,11 @@ bool TestFrameworkManager::registerTestFramework(ITestFramework *framework)
     qCDebug(LOG) << "Registering" << id;
     m_registeredFrameworks.insert(id, framework);
 
-    AutotestPlugin *plugin = AutotestPlugin::instance();
-
     if (framework->hasFrameworkSettings()) {
         QSharedPointer<IFrameworkSettings> frameworkSettings(framework->createFrameworkSettings());
         m_frameworkSettings.insert(id, frameworkSettings);
         if (auto page = framework->createSettingsPage(frameworkSettings))
-            plugin->addAutoReleasedObject(page);
+            m_frameworkSettingsPages.append(page);
     }
     return true;
 }
@@ -94,13 +93,15 @@ void TestFrameworkManager::activateFrameworksFromSettings(QSharedPointer<TestSet
 {
     FrameworkIterator it = m_registeredFrameworks.begin();
     FrameworkIterator end = m_registeredFrameworks.end();
-    for ( ; it != end; ++it)
+    for ( ; it != end; ++it) {
         it.value()->setActive(settings->frameworks.value(it.key(), false));
+        it.value()->setGrouping(settings->frameworksGrouping.value(it.key(), false));
+    }
 }
 
 QString TestFrameworkManager::frameworkNameForId(const Core::Id &id) const
 {
-    ITestFramework *framework = m_registeredFrameworks.value(id, 0);
+    ITestFramework *framework = m_registeredFrameworks.value(id, nullptr);
     return framework ? QString::fromLatin1(framework->name()) : QString();
 }
 
@@ -143,15 +144,15 @@ QVector<Core::Id> TestFrameworkManager::sortedActiveFrameworkIds() const
 
 TestTreeItem *TestFrameworkManager::rootNodeForTestFramework(const Core::Id &frameworkId) const
 {
-    ITestFramework *framework = m_registeredFrameworks.value(frameworkId, 0);
-    return framework ? framework->rootNode() : 0;
+    ITestFramework *framework = m_registeredFrameworks.value(frameworkId, nullptr);
+    return framework ? framework->rootNode() : nullptr;
 }
 
 ITestParser *TestFrameworkManager::testParserForTestFramework(const Core::Id &frameworkId) const
 {
-    ITestFramework *framework = m_registeredFrameworks.value(frameworkId, 0);
+    ITestFramework *framework = m_registeredFrameworks.value(frameworkId, nullptr);
     if (!framework)
-        return 0;
+        return nullptr;
     ITestParser *testParser = framework->testParser();
     qCDebug(LOG) << "Setting" << frameworkId << "as Id for test parser";
     testParser->setId(frameworkId);
@@ -167,7 +168,7 @@ QSharedPointer<IFrameworkSettings> TestFrameworkManager::settingsForTestFramewor
 
 void TestFrameworkManager::synchronizeSettings(QSettings *s)
 {
-    AutotestPlugin::instance()->settings()->fromSettings(s);
+    AutotestPlugin::settings()->fromSettings(s);
     for (const Core::Id &id : m_frameworkSettings.keys()) {
         QSharedPointer<IFrameworkSettings> fSettings = settingsForTestFramework(id);
         if (!fSettings.isNull())
@@ -179,6 +180,25 @@ bool TestFrameworkManager::isActive(const Core::Id &frameworkId) const
 {
     ITestFramework *framework = m_registeredFrameworks.value(frameworkId);
     return framework ? framework->active() : false;
+}
+
+bool TestFrameworkManager::groupingEnabled(const Core::Id &frameworkId) const
+{
+    ITestFramework *framework = m_registeredFrameworks.value(frameworkId);
+    return framework ? framework->grouping() : false;
+}
+
+void TestFrameworkManager::setGroupingEnabledFor(const Core::Id &frameworkId, bool enabled)
+{
+    if (ITestFramework *framework = m_registeredFrameworks.value(frameworkId))
+        framework->setGrouping(enabled);
+}
+
+QString TestFrameworkManager::groupingToolTip(const Core::Id &frameworkId) const
+{
+    if (ITestFramework *framework = m_registeredFrameworks.value(frameworkId))
+        return framework->groupingToolTip();
+    return QString();
 }
 
 bool TestFrameworkManager::hasActiveFrameworks() const

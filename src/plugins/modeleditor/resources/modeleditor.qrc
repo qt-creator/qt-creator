@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/modeleditor">
-        <file>modeleditor.mimetypes.xml</file>
         <file>up.png</file>
     </qresource>
 </RCC>

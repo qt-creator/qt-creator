@@ -230,6 +230,7 @@ bool ConnectableItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
             else
                 newTag = new ScxmlTag(Transition, tag()->document());
             newTag->setAttribute("type", "external");
+            newTag->setAttribute("event", tag()->document()->nextUniqueId("Transition"));
             m_newTransition->init(newTag);
 
             tag()->document()->addTag(tag(), newTag);
@@ -490,7 +491,7 @@ QVariant ConnectableItem::itemChange(GraphicsItemChange change, const QVariant &
     case ItemParentHasChanged:
         updateTransitions(true);
         updateTransitionAttributes(true);
-        // FIXME: intended fallthrough?
+        Q_FALLTHROUGH();
     case ItemPositionHasChanged:
         if (!m_releasedFromParent && !blockUpdates())
             checkParentBoundingRect();

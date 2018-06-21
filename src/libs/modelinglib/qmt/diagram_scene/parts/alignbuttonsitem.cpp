@@ -85,8 +85,8 @@ public:
 private:
     IAlignable::AlignType m_alignType = IAlignable::AlignLeft;
     QString m_identifier;
-    IAlignable *m_alignable = 0;
-    QGraphicsPixmapItem *m_pixmapItem = 0;
+    IAlignable *m_alignable = nullptr;
+    QGraphicsPixmapItem *m_pixmapItem = nullptr;
 };
 
 AlignButtonsItem::AlignButtonsItem(IAlignable *alignable, QGraphicsItem *parent)
@@ -124,42 +124,42 @@ void AlignButtonsItem::addButton(IAlignable::AlignType alignType, const QString 
     switch (alignType) {
     case IAlignable::AlignLeft:
     {
-        static const QPixmap alignLeftPixmap = QPixmap(QStringLiteral(":/modelinglib/25x25/align-left.png")).scaled(NormalPixmapWidth, NormalPixmapHeight, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        static const QPixmap alignLeftPixmap = QPixmap(":/modelinglib/25x25/align-left.png").scaled(NormalPixmapWidth, NormalPixmapHeight, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         item->setPixmap(alignLeftPixmap);
         item->setPos(pos - InnerBorder - 3.0, 0); // subtract additional shift of image within pixmap
         break;
     }
     case IAlignable::AlignRight:
     {
-        static const QPixmap alignRightPixmap = QPixmap(QStringLiteral(":/modelinglib/25x25/align-right.png")).scaled(NormalPixmapWidth, NormalPixmapHeight, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        static const QPixmap alignRightPixmap = QPixmap(":/modelinglib/25x25/align-right.png").scaled(NormalPixmapWidth, NormalPixmapHeight, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         item->setPixmap(alignRightPixmap);
         item->setPos(pos - item->boundingRect().width() + InnerBorder + 3.0, 0);
         break;
     }
     case IAlignable::AlignTop:
     {
-        static const QPixmap alignTopPixmap = QPixmap(QStringLiteral(":/modelinglib/25x25/align-top.png")).scaled(NormalPixmapWidth, NormalPixmapHeight, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        static const QPixmap alignTopPixmap = QPixmap(":/modelinglib/25x25/align-top.png").scaled(NormalPixmapWidth, NormalPixmapHeight, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         item->setPixmap(alignTopPixmap);
         item->setPos(0, pos - InnerBorder - 3.0);
         break;
     }
     case IAlignable::AlignBottom:
     {
-        static const QPixmap alignBottomPixmap = QPixmap(QStringLiteral(":/modelinglib/25x25/align-bottom.png")).scaled(NormalPixmapWidth, NormalPixmapHeight, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        static const QPixmap alignBottomPixmap = QPixmap(":/modelinglib/25x25/align-bottom.png").scaled(NormalPixmapWidth, NormalPixmapHeight, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         item->setPixmap(alignBottomPixmap);
         item->setPos(0, pos - item->boundingRect().height() + InnerBorder + 3.0);
         break;
     }
     case IAlignable::AlignHcenter:
     {
-        static const QPixmap alignHorizontalPixmap = QPixmap(QStringLiteral(":/modelinglib/25x25/align-horizontal.png")).scaled(NormalPixmapWidth, NormalPixmapHeight, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        static const QPixmap alignHorizontalPixmap = QPixmap(":/modelinglib/25x25/align-horizontal.png").scaled(NormalPixmapWidth, NormalPixmapHeight, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         item->setPixmap(alignHorizontalPixmap);
         item->setPos(pos - item->boundingRect().center().x(), 0);
         break;
     }
     case IAlignable::AlignVcenter:
     {
-        static const QPixmap alignVerticalPixmap = QPixmap(QStringLiteral(":/modelinglib/25x25/align-vertical.png")).scaled(NormalPixmapWidth, NormalPixmapHeight, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        static const QPixmap alignVerticalPixmap = QPixmap(":/modelinglib/25x25/align-vertical.png").scaled(NormalPixmapWidth, NormalPixmapHeight, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         item->setPixmap(alignVerticalPixmap);
         item->setPos(0, pos - item->boundingRect().center().y());
         break;

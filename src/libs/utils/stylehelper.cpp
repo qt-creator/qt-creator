@@ -34,6 +34,7 @@
 #include <QFileInfo>
 #include <QCommonStyle>
 #include <QStyleOption>
+#include <QWindow>
 #include <qmath.h>
 
 // Clamps float color values within (0, 255)
@@ -83,7 +84,7 @@ qreal StyleHelper::sidebarFontSize()
 
 QColor StyleHelper::notTooBrightHighlightColor()
 {
-    QColor highlightColor = qApp->palette().highlight().color();
+    QColor highlightColor = QApplication::palette().highlight().color();
     if (0.5 * highlightColor.saturationF() + 0.75 - highlightColor.valueF() < 0)
         highlightColor.setHsvF(highlightColor.hsvHueF(), 0.1 + highlightColor.saturationF() * 2.0, highlightColor.valueF());
     return highlightColor;
@@ -101,7 +102,6 @@ QPalette StyleHelper::sidebarFontPalette(const QPalette &original)
 
 QColor StyleHelper::panelTextColor(bool lightColored)
 {
-    //qApp->palette().highlightedText().color();
     if (!lightColored)
         return Qt::white;
     else
@@ -114,16 +114,10 @@ QColor StyleHelper::m_requestedBaseColor;
 
 QColor StyleHelper::baseColor(bool lightColored)
 {
+    static const QColor windowColor = QApplication::palette().color(QPalette::Window);
     static const bool windowColorAsBase = creatorTheme()->flag(Theme::WindowColorAsBase);
-    if (windowColorAsBase) {
-        static const QColor windowColor = QApplication::palette().color(QPalette::Window);
-        return windowColor;
-    }
 
-    if (!lightColored)
-        return m_baseColor;
-    else
-        return m_baseColor.lighter(230);
+    return (lightColored || windowColorAsBase) ? windowColor : m_baseColor;
 }
 
 QColor StyleHelper::highlightColor(bool lightColored)
@@ -398,7 +392,9 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
                                      QPainter *p, QIcon::Mode iconMode, int dipRadius, const QColor &color, const QPoint &dipOffset)
 {
     QPixmap cache;
-    QString pixmapName = QString::fromLatin1("icon %0 %1 %2").arg(icon.cacheKey()).arg(iconMode).arg(rect.height());
+    const int devicePixelRatio = p->device()->devicePixelRatio();
+    QString pixmapName = QString::fromLatin1("icon %0 %1 %2 %3")
+            .arg(icon.cacheKey()).arg(iconMode).arg(rect.height()).arg(devicePixelRatio);
 
     if (!QPixmapCache::find(pixmapName, cache)) {
         // High-dpi support: The in parameters (rect, radius, offset) are in
@@ -406,9 +402,8 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
         // return a high-dpi pixmap, which will in that case have a devicePixelRatio
         // different than 1. The shadow drawing caluculations are done in device
         // pixels.
-        QWindow *window = QApplication::allWidgets().first()->windowHandle();
+        QWindow *window = dynamic_cast<QWidget*>(p->device())->window()->windowHandle();
         QPixmap px = icon.pixmap(window, rect.size(), iconMode);
-        int devicePixelRatio = qCeil(px.devicePixelRatio());
         int radius = dipRadius * devicePixelRatio;
         QPoint offset = dipOffset * devicePixelRatio;
         cache = QPixmap(px.size() + QSize(radius * 2, radius * 2));
@@ -416,7 +411,8 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
 
         QPainter cachePainter(&cache);
         if (iconMode == QIcon::Disabled) {
-            const bool hasDisabledState = icon.availableSizes(QIcon::Disabled).contains(px.size());
+            const bool hasDisabledState =
+                    icon.availableSizes().count() == icon.availableSizes(QIcon::Disabled).count();
             if (!hasDisabledState)
                 px = disabledSideBarIcon(icon.pixmap(window, rect.size()));
         } else if (creatorTheme()->flag(Theme::ToolBarIconShadow)) {
@@ -455,6 +451,7 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
 
         // Draw the actual pixmap...
         cachePainter.drawPixmap(QRect(QPoint(radius, radius) + offset, QSize(px.width(), px.height())), px);
+        cachePainter.end();
         cache.setDevicePixelRatio(devicePixelRatio);
         QPixmapCache::insert(pixmapName, cache);
     }

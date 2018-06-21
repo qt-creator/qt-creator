@@ -25,6 +25,7 @@
 
 #include "gitgrep.h"
 #include "gitclient.h"
+#include "gitconstants.h"
 #include "gitplugin.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -34,6 +35,7 @@
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsbaseconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
 #include <utils/filesearch.h>
 #include <utils/fileutils.h>
@@ -118,7 +120,7 @@ public:
             QRegularExpressionMatch regexpMatch = regexp.match(line);
             single.regexpCapturedTexts = regexpMatch.capturedTexts();
         }
-        foreach (auto match, matches) {
+        for (auto match : qAsConst(matches)) {
             single.matchStart = match.first;
             single.matchLength = match.second;
             resultList->append(single);
@@ -138,11 +140,12 @@ public:
 
     void exec()
     {
-        QStringList arguments;
-        arguments << "-c" << "color.grep.match=bold red"
-                  << "grep" << "-zn"
-                  << "--no-full-name"
-                  << "--color=always";
+        GitClient *client = GitPlugin::client();
+        QStringList arguments = {
+            "-c", "color.grep.match=bold red",
+            "-c", "color.grep=always",
+            "grep", "-zn", "--no-full-name"
+        };
         if (!(m_parameters.flags & FindCaseSensitively))
             arguments << "-i";
         if (m_parameters.flags & FindWholeWords)
@@ -151,14 +154,23 @@ public:
             arguments << "-P";
         else
             arguments << "-F";
-        arguments << m_parameters.text;
+        if (client->gitVersion() >= 0x021300)
+            arguments << "--recurse-submodules";
+        arguments << "-e" << m_parameters.text;
         GitGrepParameters params = m_parameters.searchEngineParameters.value<GitGrepParameters>();
         if (!params.ref.isEmpty()) {
             arguments << params.ref;
             m_ref = params.ref + ':';
         }
-        arguments << "--" << m_parameters.nameFilters;
-        QScopedPointer<VcsCommand> command(GitPlugin::client()->createCommand(m_directory));
+        const QStringList filterArgs =
+                m_parameters.nameFilters.isEmpty() ? QStringList("*") // needed for exclusion filters
+                                                   : m_parameters.nameFilters;
+        const QStringList exclusionArgs =
+                Utils::transform(m_parameters.exclusionFilters, [](const QString &filter) {
+                    return QString(":!" + filter);
+                });
+        arguments << "--" << filterArgs << exclusionArgs;
+        QScopedPointer<VcsCommand> command(client->createCommand(m_directory));
         command->addFlags(VcsCommand::SilentOutput | VcsCommand::SuppressFailMessage);
         command->setProgressiveOutput(true);
         QFutureWatcher<FileSearchResultList> watcher;
@@ -166,7 +178,7 @@ public:
         connect(&watcher, &QFutureWatcher<FileSearchResultList>::canceled,
                 command.data(), &VcsCommand::cancel);
         connect(command.data(), &VcsCommand::stdOutText, this, &GitGrepRunner::read);
-        SynchronousProcessResponse resp = command->runCommand(GitPlugin::client()->vcsBinary(), arguments, 0);
+        SynchronousProcessResponse resp = command->runCommand(client->vcsBinary(), arguments, 0);
         switch (resp.result) {
         case SynchronousProcessResponse::TerminatedAbnormally:
         case SynchronousProcessResponse::StartFailed:
@@ -205,7 +217,8 @@ static bool isGitDirectory(const QString &path)
     return gitVc == VcsManager::findVersionControlForDirectory(path, 0);
 }
 
-GitGrep::GitGrep()
+GitGrep::GitGrep(QObject *parent)
+    : SearchEngine(parent)
 {
     m_widget = new QWidget;
     auto layout = new QHBoxLayout(m_widget);
@@ -294,8 +307,12 @@ IEditor *GitGrep::openEditor(const SearchResultItem &item,
         if (fileContent == content)
             return nullptr; // open the file for read/write
     }
+
+    const QString documentId = QLatin1String(Git::Constants::GIT_PLUGIN)
+            + QLatin1String(".GitShow.") + params.ref
+            + QLatin1String(".") + relativePath;
     QString title = tr("Git Show %1:%2").arg(params.ref).arg(relativePath);
-    IEditor *editor = EditorManager::openEditorWithContents(Id(), &title, content, title,
+    IEditor *editor = EditorManager::openEditorWithContents(Id(), &title, content, documentId,
                                                             EditorManager::DoNotSwitchToDesignMode);
     editor->gotoLine(item.mainRange.begin.line, item.mainRange.begin.column);
     editor->document()->setTemporary(true);

@@ -24,31 +24,75 @@
 ****************************************************************************/
 
 #include "locatormanager.h"
+
+#include "ilocatorfilter.h"
+#include "locator.h"
 #include "locatorwidget.h"
 
+#include <aggregation/aggregate.h>
+#include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
+using namespace Core::Internal;
+
 namespace Core {
 
-static Internal::LocatorWidget *m_locatorWidget = 0;
-
-LocatorManager::LocatorManager(Internal::LocatorWidget *locatorWidget)
-  : QObject(locatorWidget)
+LocatorManager::LocatorManager()
 {
-    m_locatorWidget = locatorWidget;
 }
 
-LocatorManager::~LocatorManager()
+static LocatorWidget *locatorWidget()
 {
-    ExtensionSystem::PluginManager::removeObject(this);
+    static QPointer<LocatorPopup> popup;
+    QWidget *window = ICore::dialogParent()->window();
+    if (auto *widget = Aggregation::query<LocatorWidget>(window)) {
+        if (popup)
+            popup->close();
+        return widget;
+    }
+    if (!popup) {
+        popup = createLocatorPopup(Locator::instance(), window);
+        popup->show();
+    }
+    return popup->inputWidget();
+}
+
+void LocatorManager::showFilter(ILocatorFilter *filter)
+{
+    QTC_ASSERT(filter, return);
+    QString searchText = tr("<type here>");
+    const QString currentText = locatorWidget()->currentText().trimmed();
+    // add shortcut string at front or replace existing shortcut string
+    if (!currentText.isEmpty()) {
+        searchText = currentText;
+        const QList<ILocatorFilter *> allFilters = Locator::filters();
+        for (ILocatorFilter *otherfilter : allFilters) {
+            if (currentText.startsWith(otherfilter->shortcutString() + ' ')) {
+                searchText = currentText.mid(otherfilter->shortcutString().length() + 1);
+                break;
+            }
+        }
+    }
+    show(filter->shortcutString() + ' ' + searchText,
+         filter->shortcutString().length() + 1,
+         searchText.length());
 }
 
 void LocatorManager::show(const QString &text,
                           int selectionStart, int selectionLength)
 {
-    QTC_ASSERT(m_locatorWidget, return);
-    m_locatorWidget->show(text, selectionStart, selectionLength);
+    locatorWidget()->showText(text, selectionStart, selectionLength);
 }
 
-} // namespace Internal
+QWidget *LocatorManager::createLocatorInputWidget(QWidget *window)
+{
+    auto locatorWidget = createStaticLocatorWidget(Locator::instance());
+    // register locator widget for this window
+    auto agg = new Aggregation::Aggregate;
+    agg->add(window);
+    agg->add(locatorWidget);
+    return locatorWidget;
+}
+
+} // namespace Core

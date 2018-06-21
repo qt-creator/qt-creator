@@ -37,70 +37,70 @@ namespace GLSL {
 class GLSL_EXPORT ScalarType: public Type
 {
 public:
-    virtual const ScalarType *asScalarType() const { return this; }
+    const ScalarType *asScalarType() const override { return this; }
 };
 
 class GLSL_EXPORT UndefinedType: public Type
 {
 public:
-    virtual QString toString() const { return QLatin1String("undefined"); }
-    virtual const UndefinedType *asUndefinedType() const { return this; }
-    virtual bool isEqualTo(const Type *other) const;
-    virtual bool isLessThan(const Type *other) const;
+    QString toString() const override { return QLatin1String("undefined"); }
+    const UndefinedType *asUndefinedType() const override { return this; }
+    bool isEqualTo(const Type *other) const override;
+    bool isLessThan(const Type *other) const override;
 };
 
 class GLSL_EXPORT VoidType: public Type
 {
 public:
-    virtual QString toString() const { return QLatin1String("void"); }
-    virtual const VoidType *asVoidType() const { return this; }
-    virtual bool isEqualTo(const Type *other) const;
-    virtual bool isLessThan(const Type *other) const;
+    QString toString() const override { return QLatin1String("void"); }
+    const VoidType *asVoidType() const override { return this; }
+    bool isEqualTo(const Type *other) const override;
+    bool isLessThan(const Type *other) const override;
 };
 
 class GLSL_EXPORT BoolType: public ScalarType
 {
 public:
-    virtual QString toString() const { return QLatin1String("bool"); }
-    virtual const BoolType *asBoolType() const { return this; }
-    virtual bool isEqualTo(const Type *other) const;
-    virtual bool isLessThan(const Type *other) const;
+    QString toString() const override { return QLatin1String("bool"); }
+    const BoolType *asBoolType() const override { return this; }
+    bool isEqualTo(const Type *other) const override;
+    bool isLessThan(const Type *other) const override;
 };
 
 class GLSL_EXPORT IntType: public ScalarType
 {
 public:
-    virtual QString toString() const { return QLatin1String("int"); }
-    virtual const IntType *asIntType() const { return this; }
-    virtual bool isEqualTo(const Type *other) const;
-    virtual bool isLessThan(const Type *other) const;
+    QString toString() const override { return QLatin1String("int"); }
+    const IntType *asIntType() const override { return this; }
+    bool isEqualTo(const Type *other) const override;
+    bool isLessThan(const Type *other) const override;
 };
 
 class GLSL_EXPORT UIntType: public ScalarType
 {
 public:
-    virtual QString toString() const { return QLatin1String("uint"); }
-    virtual const UIntType *asUIntType() const { return this; }
-    virtual bool isEqualTo(const Type *other) const;
-    virtual bool isLessThan(const Type *other) const;
+    QString toString() const override { return QLatin1String("uint"); }
+    const UIntType *asUIntType() const override { return this; }
+    bool isEqualTo(const Type *other) const override;
+    bool isLessThan(const Type *other) const override;
 };
 
 class GLSL_EXPORT FloatType: public ScalarType
 {
 public:
-    virtual QString toString() const { return QLatin1String("float"); }
-    virtual const FloatType *asFloatType() const { return this; }
-    virtual bool isEqualTo(const Type *other) const;
-    virtual bool isLessThan(const Type *other) const;
+    QString toString() const override { return QLatin1String("float"); }
+    const FloatType *asFloatType() const override { return this; }
+    bool isEqualTo(const Type *other) const override;
+    bool isLessThan(const Type *other) const override;
 };
 
 class GLSL_EXPORT DoubleType: public ScalarType
 {
 public:
-    virtual QString toString() const { return QLatin1String("double"); }
-    virtual const DoubleType *asDoubleType() const { return this; }
-    virtual bool isEqualTo(const Type *other) const;
-    virtual bool isLessThan(const Type *other) const;
+    QString toString() const override { return QLatin1String("double"); }
+    const DoubleType *asDoubleType() const override { return this; }
+    bool isEqualTo(const Type *other) const override;
+    bool isLessThan(const Type *other) const override;
 };
 
 // Type that can be indexed with the [] operator.
@@ -111,7 +111,7 @@ public:
 
     const Type *indexElementType() const { return _indexElementType; }
 
-    virtual const IndexType *asIndexType() const { return this; }
+    const IndexType *asIndexType() const override { return this; }
 
 private:
     const Type *_indexElementType;
@@ -123,19 +123,19 @@ public:
     VectorType(const Type *elementType, int dimension)
         : IndexType(elementType), _dimension(dimension) {}
 
-    virtual QString toString() const;
+    QString toString() const override;
     const Type *elementType() const { return indexElementType(); }
     int dimension() const { return _dimension; }
 
-    QList<Symbol *> members() const { return _members.values(); }
+    QList<Symbol *> members() const override { return _members.values(); }
 
-    virtual void add(Symbol *symbol);
-    virtual Symbol *find(const QString &name) const;
-    virtual const Type *type() const { return this; }
+    void add(Symbol *symbol) override;
+    Symbol *find(const QString &name) const override;
+    const Type *type() const override { return this; }
 
-    virtual const VectorType *asVectorType() const { return this; }
-    virtual bool isEqualTo(const Type *other) const;
-    virtual bool isLessThan(const Type *other) const;
+    const VectorType *asVectorType() const override { return this; }
+    bool isEqualTo(const Type *other) const override;
+    bool isLessThan(const Type *other) const override;
 
 private:
     int _dimension;
@@ -158,10 +158,10 @@ public:
     int columns() const { return _columns; }
     int rows() const { return _rows; }
 
-    virtual QString toString() const;
-    virtual const MatrixType *asMatrixType() const { return this; }
-    virtual bool isEqualTo(const Type *other) const;
-    virtual bool isLessThan(const Type *other) const;
+    QString toString() const override;
+    const MatrixType *asMatrixType() const override { return this; }
+    bool isEqualTo(const Type *other) const override;
+    bool isLessThan(const Type *other) const override;
 
 private:
     const Type *_elementType;
@@ -177,10 +177,10 @@ public:
 
     const Type *elementType() const { return indexElementType(); }
 
-    virtual QString toString() const;
-    virtual const ArrayType *asArrayType() const { return this; }
-    virtual bool isEqualTo(const Type *other) const;
-    virtual bool isLessThan(const Type *other) const;
+    QString toString() const override;
+    const ArrayType *asArrayType() const override { return this; }
+    bool isEqualTo(const Type *other) const override;
+    bool isLessThan(const Type *other) const override;
 };
 
 class GLSL_EXPORT Struct: public Type, public Scope
@@ -189,19 +189,19 @@ public:
     Struct(Scope *scope = 0)
         : Scope(scope) {}
 
-    QList<Symbol *> members() const;
-    virtual void add(Symbol *member);
-    virtual Symbol *find(const QString &name) const;
+    QList<Symbol *> members() const override;
+    void add(Symbol *member) override;
+    Symbol *find(const QString &name) const override;
 
     // as Type
-    virtual QString toString() const { return name(); }
-    virtual const Struct *asStructType() const { return this; }
-    virtual bool isEqualTo(const Type *other) const;
-    virtual bool isLessThan(const Type *other) const;
+    QString toString() const override { return name(); }
+    const Struct *asStructType() const override { return this; }
+    bool isEqualTo(const Type *other) const override;
+    bool isLessThan(const Type *other) const override;
 
     // as Symbol
-    virtual Struct *asStruct() { return this; } // as Symbol
-    virtual const Type *type() const { return this; }
+    Struct *asStruct() override { return this; } // as Symbol
+    const Type *type() const override { return this; }
 
 private:
     QVector<Symbol *> _members;
@@ -222,20 +222,20 @@ public:
     Argument *argumentAt(int index) const;
 
     // as Type
-    QString prettyPrint(int currentArgument) const;
-    virtual QString toString() const;
-    virtual const Function *asFunctionType() const { return this; }
-    virtual bool isEqualTo(const Type *other) const;
-    virtual bool isLessThan(const Type *other) const;
+    QString prettyPrint() const;
+    QString toString() const override;
+    const Function *asFunctionType() const override { return this; }
+    bool isEqualTo(const Type *other) const override;
+    bool isLessThan(const Type *other) const override;
 
     // as Symbol
-    virtual Function *asFunction() { return this; }
-    virtual const Type *type() const { return this; }
+    Function *asFunction() override { return this; }
+    const Type *type() const override { return this; }
 
-    virtual Symbol *find(const QString &name) const;
+    Symbol *find(const QString &name) const override;
 
-    virtual QList<Symbol *> members() const;
-    virtual void add(Symbol *symbol) {
+    QList<Symbol *> members() const override;
+    void add(Symbol *symbol) override {
         if (! symbol)
             return;
         else if (Argument *arg = symbol->asArgument())
@@ -255,10 +255,10 @@ public:
     // Kind of sampler as a token code; e.g. T_SAMPLER2D.
     int kind() const { return _kind; }
 
-    virtual QString toString() const;
-    virtual const SamplerType *asSamplerType() const { return this; }
-    virtual bool isEqualTo(const Type *other) const;
-    virtual bool isLessThan(const Type *other) const;
+    QString toString() const override;
+    const SamplerType *asSamplerType() const override { return this; }
+    bool isEqualTo(const Type *other) const override;
+    bool isLessThan(const Type *other) const override;
 
 private:
     int _kind;
@@ -273,16 +273,16 @@ public:
     void addFunction(Function *function);
 
     // as symbol
-    virtual OverloadSet *asOverloadSet() { return this; }
-    virtual const Type *type() const;
-    virtual Symbol *find(const QString &name) const;
-    virtual void add(Symbol *symbol);
+    OverloadSet *asOverloadSet() override { return this; }
+    const Type *type() const override;
+    Symbol *find(const QString &name) const override;
+    void add(Symbol *symbol) override;
 
     // as type
-    virtual QString toString() const { return QLatin1String("overload"); }
-    virtual const OverloadSet *asOverloadSetType() const { return this; }
-    virtual bool isEqualTo(const Type *other) const;
-    virtual bool isLessThan(const Type *other) const;
+    QString toString() const override { return QLatin1String("overload"); }
+    const OverloadSet *asOverloadSetType() const override { return this; }
+    bool isEqualTo(const Type *other) const override;
+    bool isLessThan(const Type *other) const override;
 
 private:
     QVector<Function *> _functions;

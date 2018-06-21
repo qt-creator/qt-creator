@@ -65,7 +65,7 @@ int ExpressionUnderCursor::startOfExpression(BackwardsScanner &tk, int index)
             break;
 
         default:
-            if (tok.isOperator())
+            if (tok.isPunctuationOrOperator())
                 return startOfExpression(tk, index - 1);
 
             break;

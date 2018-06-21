@@ -37,6 +37,7 @@
 #include <QMouseEvent>
 #include <QScrollArea>
 #include <QSlider>
+#include <QStyle>
 #include <QToolButton>
 #include <QDebug>
 #include <QtWidgets>
@@ -68,7 +69,7 @@ bool WheelFilter::eventFilter(QObject *obj, QEvent *event)
 
 ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage) :
     QWidget(parent),
-    ui(0), uiBorderImage(0), previewWasVisible(false)
+    ui(nullptr), uiBorderImage(nullptr), previewWasVisible(false)
 {
     LabelFilter *labelFilter = new LabelFilter(this);
 
@@ -483,7 +484,7 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
 
     if (m_borderImage) {
         QString localFileName(fileName);
-        if (QFile(fileName).exists()) {
+        if (QFileInfo::exists(fileName)) {
             if (fileName.endsWith(QLatin1String("sci"))) {
                 QString pixmapFileName;
                 int left = 0;
@@ -528,7 +529,7 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
         }
         uiBorderImage->label->setPixmap(pix);
     } else {
-        if (QFile(fileName).exists()) {
+        if (QFileInfo::exists(fileName)) {
             QPixmap source(fileName);
             previewDialog()->setPixmap(source, 1);
             ui->sizeLabel->setText(QString::number(source.width()) + QLatin1Char('x') + QString::number(source.height()));
@@ -665,7 +666,7 @@ void PreviewLabel::paintEvent(QPaintEvent *event)
         p.setBackgroundMode(Qt::TransparentMode);
         {
             QPen pen(Qt::SolidLine);
-            pen.setColor("#F0F0F0");
+            pen.setColor(QColor(0xf0, 0xf0, 0xf0));
             p.setPen(pen);
 
             if (m_left >= 0)
@@ -680,9 +681,9 @@ void PreviewLabel::paintEvent(QPaintEvent *event)
 
         {
             QBrush brush(Qt::Dense4Pattern);
-            brush.setColor("#101010");
+            brush.setColor(QColor(0x10, 0x10, 0x10));
             QPen pen(brush, 1, Qt::DotLine);
-            pen.setColor("#101010");
+            pen.setColor(QColor(0x10, 0x10, 0x10));
             p.setPen(pen);
 
             if (m_left >= 0)
@@ -704,8 +705,10 @@ static inline bool rangeCheck(int target, int pos)
 
 void PreviewLabel::mousePressEvent(QMouseEvent * event)
 {
-    if (!m_borderImage)
-        return QLabel::mouseMoveEvent(event);
+    if (!m_borderImage) {
+        QLabel::mouseMoveEvent(event);
+        return;
+    }
 
     bool bottom = false;
 
@@ -791,8 +794,10 @@ static inline int limitPositive(int i)
 
 void PreviewLabel::mouseMoveEvent(QMouseEvent * event)
 {
-    if (!m_borderImage)
-        return QLabel::mouseMoveEvent(event);
+    if (!m_borderImage) {
+        QLabel::mouseMoveEvent(event);
+        return;
+    }
 
     QPoint p = event->pos();
     bool bottom = false;

@@ -172,6 +172,12 @@ bool StringDetectRule::doMatchSucceed(const QString &text,
 }
 
 // RegExpr
+RegExprRule::~RegExprRule()
+{
+    if (m_progress)
+        m_progress->unTrackRule(this);
+}
+
 void RegExprRule::setPattern(const QString &pattern)
 {
     if (pattern.startsWith(QLatin1Char('^')))
@@ -194,6 +200,7 @@ void RegExprRule::doReplaceExpressions(const QStringList &captures)
 
 void RegExprRule::doProgressFinished()
 {
+    m_progress = nullptr;
     m_isCached = false;
 }
 
@@ -234,9 +241,18 @@ bool RegExprRule::doMatchSucceed(const QString &text,
         return true;
 
     m_isCached = true;
+    m_progress = progress;
     progress->trackRule(this);
 
     return false;
+}
+
+RegExprRule *RegExprRule::doClone() const
+{
+    auto clone = new RegExprRule(*this);
+    if (m_progress)
+        m_progress->trackRule(clone);
+    return clone;
 }
 
 // Keyword
@@ -265,6 +281,9 @@ bool KeywordRule::doMatchSucceed(const QString &text,
                                  const int length,
                                  ProgressData *progress)
 {
+    if (m_list.isNull()) // Happens if a keyword rule points to a none existing keyword list
+        return false;
+
     int current = progress->offset();
 
     if (current > 0 && !definition()->isDelimiter(text.at(current - 1)))

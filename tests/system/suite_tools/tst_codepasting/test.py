@@ -26,115 +26,167 @@
 source("../../shared/qtcreator.py")
 import random
 
+# Be careful with Pastebin.Com, there are only 10 pastes per 24h
+# for all machines using the same IP-address like you.
+skipPastingToPastebinCom = True
+
+NAME_KDE = "Paste.KDE.Org"
+NAME_PBCA = "Pastebin.Ca"
+NAME_PBCOM = "Pastebin.Com"
+
+serverProblems = "Server side problems."
+
 def invalidPasteId(protocol):
-    if protocol == 'Paste.KDE.Org':
+    if protocol == NAME_KDE:
         return None
     else:
         return -1
+
+def pasteFile(sourceFile, protocol):
+    def resetFiles():
+        clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
+        invokeMenuItem('File', 'Revert "main.cpp" to Saved')
+        clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
+        snooze(1) # "Close All" might be disabled
+        invokeMenuItem("File", "Close All")
+    aut = currentApplicationContext()
+    invokeMenuItem("File", "Open File or Project...")
+    selectFromFileDialog(sourceFile)
+    editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
+    type(editor, "<Up>")
+    typeLines(editor, "// tst_codepasting %s" % datetime.utcnow())
+    sourceText = editor.plainText
+    invokeMenuItem("Tools", "Code Pasting", "Paste Snippet...")
+    selectFromCombo(":Send to Codepaster.protocolBox_QComboBox", protocol)
+    pasteEditor = waitForObject(":stackedWidget.plainTextEdit_QPlainTextEdit")
+    test.compare(pasteEditor.plainText, sourceText, "Verify that dialog shows text from the editor")
+    description = "Description %s" % datetime.utcnow()
+    type(waitForObject(":uiDescription_QLineEdit"), description)
+    typeLines(pasteEditor, "// tst_codepasting %s" % datetime.utcnow())
+    pastedText = str(pasteEditor.plainText)
+    expiry = waitForObject(":Send to Codepaster.qt_spinbox_lineedit_QLineEdit")
+    expiryDays = random.randint(1, 10)
+    replaceEditorContent(expiry, "%d" % expiryDays)
+    test.log("Using expiry of %d days." % expiryDays)
+    # make sure to read all former errors (they won't get read twice)
+    aut.readStderr()
+    clickButton(waitForObject(":Send to Codepaster.Paste_QPushButton"))
+    outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
+    waitFor("'https://' in str(outputWindow.plainText)", 20000)
+    try:
+        output = str(outputWindow.plainText).splitlines()[-1]
+    except:
+        output = ""
+    stdErrOut = aut.readStderr()
+    match = re.search("^%s protocol error: (.*)$" % protocol, stdErrOut, re.MULTILINE)
+    if match:
+        pasteId = invalidPasteId(protocol)
+        if "Internal Server Error" in match.group(1):
+            test.warning("Server Error - trying to continue...")
+        else:
+            test.fail("%s protocol error: %s" % (protocol, match.group(1)))
+    elif output.strip() == "":
+        pasteId = invalidPasteId(protocol)
+    elif "FAIL:There was an error communicating with the database" in output:
+        resetFiles()
+        raise Exception(serverProblems)
+    elif "Post limit, maximum pastes per 24h reached" in output:
+        test.warning("Maximum pastes per day exceeded.")
+        pasteId = None
+    else:
+        pasteId = output.rsplit("/", 1)[1]
+    resetFiles()
+    return pasteId, description, pastedText
+
+def fetchSnippet(protocol, description, pasteId, skippedPasting):
+    foundSnippet = True
+    invokeMenuItem("Tools", "Code Pasting", "Fetch Snippet...")
+    selectFromCombo(":PasteSelectDialog.protocolBox_QComboBox", protocol)
+    pasteModel = waitForObject(":PasteSelectDialog.listWidget_QListWidget").model()
+    waitFor("pasteModel.rowCount() > 1", 20000)
+    if (not skippedPasting and not protocol == NAME_PBCA
+        and not any(map(lambda str:pasteId in str, dumpItems(pasteModel)))):
+        test.warning("Fetching too fast for server of %s - waiting 3s and trying to refresh." % protocol)
+        snooze(3)
+        clickButton("{text='Refresh' type='QPushButton' unnamed='1' visible='1' "
+            "window=':PasteSelectDialog_CodePaster::PasteSelectDialog'}")
+        waitFor("pasteModel.rowCount() == 1", 1000)
+        waitFor("pasteModel.rowCount() > 1", 20000)
+    if protocol == NAME_PBCA:
+        description = description[:32]
+    if pasteId == -1:
+        try:
+            pasteLine = filter(lambda str:description in str, dumpItems(pasteModel))[0]
+            pasteId = pasteLine.split(" ", 1)[0]
+        except:
+            test.fail("Could not find description line in list of pastes from %s" % protocol)
+            clickButton(waitForObject(":PasteSelectDialog.Cancel_QPushButton"))
+            return pasteId
+    else:
+        try:
+            pasteLine = filter(lambda str:pasteId in str, dumpItems(pasteModel))[0]
+            if protocol in (NAME_PBCA, NAME_PBCOM):
+                test.verify(description in pasteLine,
+                            "Verify that line in list of pastes contains the description")
+        except:
+            if protocol == NAME_PBCA:
+                test.xfail("%s does not list the pasted snippet on time" % NAME_PBCA)
+            elif not skippedPasting:
+                test.fail("Could not find id '%s' in list of pastes from %s" % (pasteId, protocol))
+            foundSnippet = False
+            replaceEditorContent(waitForObject(":PasteSelectDialog.pasteEdit_QLineEdit"), pasteId)
+    if foundSnippet:
+        pasteLine = pasteLine.replace(".", "\\.")
+        waitForObjectItem(":PasteSelectDialog.listWidget_QListWidget", pasteLine)
+        clickItem(":PasteSelectDialog.listWidget_QListWidget", pasteLine, 5, 5, 0, Qt.LeftButton)
+    clickButton(waitForObject(":PasteSelectDialog.OK_QPushButton"))
+    return pasteId
 
 def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    protocolsToTest = ["Paste.KDE.Org"]  # , "Pastebin.Ca"]
-    # Be careful with Pastebin.Com, there are only 10 pastes per 24h
-    # for all machines using the same IP-address like you.
-    # protocolsToTest += ["Pastebin.Com"]
+    protocolsToTest = [NAME_KDE, NAME_PBCA, NAME_PBCOM]
     sourceFile = os.path.join(os.getcwd(), "testdata", "main.cpp")
-    aut = currentApplicationContext()
     # make sure General Messages is open
     openGeneralMessages()
+    clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     for protocol in protocolsToTest:
-        invokeMenuItem("File", "Open File or Project...")
-        selectFromFileDialog(sourceFile)
-        editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
-        type(editor, "<Up>")
-        typeLines(editor, "// tst_codepasting %s" % datetime.utcnow())
-        sourceText = editor.plainText
-        invokeMenuItem("Tools", "Code Pasting", "Paste Snippet...")
-        selectFromCombo(":Send to Codepaster.protocolBox_QComboBox", protocol)
-        pasteEditor = waitForObject(":stackedWidget.plainTextEdit_QPlainTextEdit")
-        test.compare(pasteEditor.plainText, sourceText, "Verify that dialog shows text from the editor")
-        description = "Description %s" % datetime.utcnow()
-        type(waitForObject(":uiDescription_QLineEdit"), description)
-        typeLines(pasteEditor, "// tst_codepasting %s" % datetime.utcnow())
-        pastedText = str(pasteEditor.plainText)
-        expiry = waitForObject(":Send to Codepaster.qt_spinbox_lineedit_QLineEdit")
-        expiryDays = random.randint(1, 10)
-        replaceEditorContent(expiry, "%d" % expiryDays)
-        test.log("Using expiry of %d days." % expiryDays)
-        # make sure to read all former errors (they won't get read twice)
-        aut.readStderr()
-        clickButton(waitForObject(":Send to Codepaster.Paste_QPushButton"))
-        outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
-        waitFor("'http://' in str(outputWindow.plainText)", 20000)
-        try:
-            output = str(outputWindow.plainText).splitlines()[-1]
-        except:
-            output = ""
-        stdErrOut = aut.readStderr()
-        match = re.search("^%s protocol error: (.*)$" % protocol, stdErrOut, re.MULTILINE)
-        if match:
-            pasteId = invalidPasteId(protocol)
-            if "Internal Server Error" in match.group(1):
-                test.warning("Server Error - trying to continue...")
-            else:
-                test.fail("%s protocol error: %s" % (protocol, match.group(1)))
-        elif output.strip() == "":
-            pasteId = invalidPasteId(protocol)
-        elif "Post limit, maximum pastes per 24h reached" in output:
-            test.warning("Maximum pastes per day exceeded.")
-            pasteId = None
+        skippedPasting = True
+        description = "Paste from 2017-05-11"
+        if protocol == NAME_KDE:
+            pasteId = "pysjk6n2i"
+            pastedText = readFile(os.path.join(os.getcwd(), "testdata", "main-prepasted.cpp"))
+        elif skipPastingToPastebinCom and protocol == NAME_PBCOM:
+            pasteId = "8XHP0ZgH"
+            pastedText = readFile(os.path.join(os.getcwd(), "testdata", "main-prepasted.cpp"))
         else:
-            pasteId = output.rsplit("/", 1)[1]
-        clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
-        invokeMenuItem('File', 'Revert "main.cpp" to Saved')
-        clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
-        snooze(1)   # "Close All" might be disabled
-        invokeMenuItem("File", "Close All")
-        if not pasteId:
-            test.fatal("Could not get id of paste to %s" % protocol)
-            continue
-        invokeMenuItem("Tools", "Code Pasting", "Fetch Snippet...")
-        selectFromCombo(":CodePaster__Internal__PasteSelectDialog.protocolBox_QComboBox", protocol)
-        pasteModel = waitForObject(":CodePaster__Internal__PasteSelectDialog.listWidget_QListWidget").model()
-        waitFor("pasteModel.rowCount() > 1", 20000)
-        if (pasteId not in dumpItems(pasteModel)):
-            test.warning("Fetching too fast for server of %s - waiting 3s and trying to refresh."
-                         % protocol)
-            snooze(3)
-            clickButton("{text='Refresh' type='QPushButton' unnamed='1' visible='1' "
-                        "window=':CodePaster__Internal__PasteSelectDialog_CodePaster::PasteSelectDialog'}")
-            waitFor("pasteModel.rowCount() == 1", 1000)
-            waitFor("pasteModel.rowCount() > 1", 20000)
-        if protocol == 'Pastebin.Ca':
-            description = description[:32]
+            skippedPasting = False
+            try:
+                pasteId, description, pastedText = pasteFile(sourceFile, protocol)
+            except Exception as e:
+                if e.message == serverProblems:
+                    test.warning("Ignoring server side issues")
+                    continue
+                else: # if it was not our own exception re-raise
+                    raise e
+            if not pasteId:
+                test.fatal("Could not get id of paste to %s" % protocol)
+                continue
+        pasteId = fetchSnippet(protocol, description, pasteId, skippedPasting)
         if pasteId == -1:
-            try:
-                pasteLine = filter(lambda str: description in str, dumpItems(pasteModel))[0]
-                pasteId = pasteLine.split(" ", 1)[0]
-            except:
-                test.fail("Could not find description line in list of pastes from %s" % protocol)
-                clickButton(waitForObject(":CodePaster__Internal__PasteSelectDialog.Cancel_QPushButton"))
-                continue
-        else:
-            try:
-                pasteLine = filter(lambda str: pasteId in str, dumpItems(pasteModel))[0]
-            except:
-                test.fail("Could not find id '%s' in list of pastes from %s" % (pasteId, protocol))
-                clickButton(waitForObject(":CodePaster__Internal__PasteSelectDialog.Cancel_QPushButton"))
-                continue
-            if protocol.startswith("Pastebin."):
-                test.verify(description in pasteLine, "Verify that line in list of pastes contains the description")
-        pasteLine = pasteLine.replace(".", "\\.")
-        waitForObjectItem(":CodePaster__Internal__PasteSelectDialog.listWidget_QListWidget", pasteLine)
-        clickItem(":CodePaster__Internal__PasteSelectDialog.listWidget_QListWidget", pasteLine, 5, 5, 0, Qt.LeftButton)
-        clickButton(waitForObject(":CodePaster__Internal__PasteSelectDialog.OK_QPushButton"))
+            continue
         filenameCombo = waitForObject(":Qt Creator_FilenameQComboBox")
         waitFor("not filenameCombo.currentText.isEmpty()", 20000)
-        editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
+        try:
+            editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
+        except:
+            outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
+            test.fail("Could not find editor with snippet", str(outputWindow.plainText))
+            clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
+            continue
         test.compare(filenameCombo.currentText, "%s: %s" % (protocol, pasteId), "Verify title of editor")
-        if protocol == "Pastebin.Com" and pastedText.endswith("\n"):
+        if protocol in (NAME_KDE, NAME_PBCOM) and pastedText.endswith("\n"):
             pastedText = pastedText[:-1]
         test.compare(editor.plainText, pastedText, "Verify that pasted and fetched texts are the same")
         invokeMenuItem("File", "Close All")

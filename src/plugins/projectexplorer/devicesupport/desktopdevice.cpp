@@ -32,16 +32,19 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runnables.h>
 
 #include <ssh/sshconnection.h>
 
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 #include <utils/portlist.h>
+#include <utils/stringutils.h>
+#include <utils/url.h>
 
 #include <QCoreApplication>
 
 using namespace ProjectExplorer::Constants;
+using namespace Utils;
 
 namespace ProjectExplorer {
 
@@ -137,9 +140,60 @@ DeviceEnvironmentFetcher::Ptr DesktopDevice::environmentFetcher() const
     return DeviceEnvironmentFetcher::Ptr(new DesktopDeviceEnvironmentFetcher());
 }
 
-Connection DesktopDevice::toolControlChannel(const ControlChannelHint &) const
+class DesktopPortsGatheringMethod : public PortsGatheringMethod
 {
-    return HostName("localhost");
+    Runnable runnable(QAbstractSocket::NetworkLayerProtocol protocol) const override
+    {
+        // We might encounter the situation that protocol is given IPv6
+        // but the consumer of the free port information decides to open
+        // an IPv4(only) port. As a result the next IPv6 scan will
+        // report the port again as open (in IPv6 namespace), while the
+        // same port in IPv4 namespace might still be blocked, and
+        // re-use of this port fails.
+        // GDBserver behaves exactly like this.
+
+        Q_UNUSED(protocol)
+
+        Runnable runnable;
+        if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost()) {
+            runnable.executable = "netstat";
+            runnable.commandLineArguments =  "-a -n";
+        } else if (HostOsInfo::isLinuxHost()) {
+            runnable.executable = "/bin/sh";
+            runnable.commandLineArguments = "-c 'cat /proc/net/tcp*'";
+        }
+        return runnable;
+    }
+
+    QList<Utils::Port> usedPorts(const QByteArray &output) const override
+    {
+        QList<Utils::Port> ports;
+        const QList<QByteArray> lines = output.split('\n');
+        for (const QByteArray &line : lines) {
+            const Port port(Utils::parseUsedPortFromNetstatOutput(line));
+            if (port.isValid() && !ports.contains(port))
+                ports.append(port);
+        }
+        return ports;
+    }
+};
+
+PortsGatheringMethod::Ptr DesktopDevice::portsGatheringMethod() const
+{
+    return DesktopPortsGatheringMethod::Ptr(new DesktopPortsGatheringMethod);
+}
+
+QUrl DesktopDevice::toolControlChannel(const ControlChannelHint &) const
+{
+    QUrl url;
+    url.setScheme(Utils::urlTcpScheme());
+    url.setHost("localhost");
+    return url;
+}
+
+Utils::OsType DesktopDevice::osType() const
+{
+    return Utils::HostOsInfo::hostOs();
 }
 
 IDevice::Ptr DesktopDevice::clone() const

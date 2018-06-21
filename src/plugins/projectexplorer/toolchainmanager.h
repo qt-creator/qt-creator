@@ -27,16 +27,22 @@
 
 #include "projectexplorer_export.h"
 
+#include "toolchain.h"
+
+#include <coreplugin/id.h>
+
 #include <QList>
 #include <QObject>
+#include <QSet>
 #include <QString>
+
+#include <functional>
 
 namespace Utils { class FileName; }
 
 namespace ProjectExplorer {
 
 class ProjectExplorerPlugin;
-class ToolChain;
 class Abi;
 
 // --------------------------------------------------------------------------
@@ -51,7 +57,8 @@ public:
     static ToolChainManager *instance();
     ~ToolChainManager() override;
 
-    static QList<ToolChain *> toolChains();
+    static QList<ToolChain *> toolChains(const ToolChain::Predicate &predicate = ToolChain::Predicate());
+    static ToolChain *toolChain(const ToolChain::Predicate &predicate);
     static QList<ToolChain *> findToolChains(const Abi &abi);
     static ToolChain *findToolChain(const QByteArray &id);
 
@@ -61,6 +68,11 @@ public:
 
     static bool registerToolChain(ToolChain *tc);
     static void deregisterToolChain(ToolChain *tc);
+
+    static QSet<Core::Id> allLanguages();
+    static bool registerLanguage(const Core::Id &language, const QString &displayName);
+    static QString displayNameOfLanguageId(const Core::Id &id);
+    static bool isLanguageSupported(const Core::Id &id);
 
     void saveToolChains();
 

@@ -38,6 +38,19 @@ MessageManager *MessageManager::instance()
     return m_instance;
 }
 
+void MessageManager::showOutputPane(Core::MessageManager::PrintToOutputPaneFlags flags)
+{
+    if (!m_messageOutputWindow)
+        return;
+    if (flags & Flash) {
+        m_messageOutputWindow->flash();
+    } else if (flags & Silent) {
+        // Do nothing
+    } else {
+        m_messageOutputWindow->popup(IOutputPane::Flag(int(flags)));
+    }
+}
+
 MessageManager::MessageManager()
 {
     m_instance = this;
@@ -60,24 +73,11 @@ void MessageManager::init()
     ExtensionSystem::PluginManager::addObject(m_messageOutputWindow);
 }
 
-void MessageManager::showOutputPane()
-{
-    if (m_messageOutputWindow)
-        m_messageOutputWindow->popup(IOutputPane::ModeSwitch);
-}
-
 void MessageManager::write(const QString &text, PrintToOutputPaneFlags flags)
 {
     if (!m_messageOutputWindow)
         return;
-    if (flags & Flash) {
-        m_messageOutputWindow->flash();
-    } else if (flags & Silent) {
-        // Do nothing
-    } else {
-        m_messageOutputWindow->popup(IOutputPane::Flag(int(flags)));
-    }
-
+    showOutputPane(flags);
     m_messageOutputWindow->append(text + QLatin1Char('\n'));
 }
 

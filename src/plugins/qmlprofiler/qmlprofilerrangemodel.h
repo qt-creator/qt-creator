@@ -26,7 +26,6 @@
 #pragma once
 
 #include "qmlprofilertimelinemodel.h"
-#include "qmlprofilerdatamodel.h"
 #include "qmlprofilereventtypes.h"
 #include "qmleventlocation.h"
 #include "qmlprofilerconstants.h"
@@ -45,8 +44,8 @@ class QmlProfilerRangeModel : public QmlProfilerTimelineModel
     Q_OBJECT
 public:
 
-    struct QmlRangeEventStartInstance {
-        QmlRangeEventStartInstance() :
+    struct Item {
+        Item() :
                 displayRowExpanded(1),
                 displayRowCollapsed(Constants::QML_MIN_LEVEL),
                 bindingLoopHead(-1) {}
@@ -57,7 +56,8 @@ public:
         int bindingLoopHead;
     };
 
-    QmlProfilerRangeModel(QmlProfilerModelManager *manager, RangeType range, QObject *parent = 0);
+    QmlProfilerRangeModel(QmlProfilerModelManager *manager, RangeType range,
+                          Timeline::TimelineModelAggregator *parent);
 
     Q_INVOKABLE int expandedRow(int index) const override;
     Q_INVOKABLE int collapsedRow(int index) const override;
@@ -70,7 +70,7 @@ public:
 
     int typeId(int index) const override;
 
-    virtual QList<const Timeline::TimelineRenderPass *> supportedRenderPasses() const override;
+    QList<const Timeline::TimelineRenderPass *> supportedRenderPasses() const override;
 
 protected:
     void loadEvent(const QmlEvent &event, const QmlEventType &type) override;
@@ -84,7 +84,7 @@ private:
     void computeExpandedLevels();
     void findBindingLoops();
 
-    QVector<QmlRangeEventStartInstance> m_data;
+    QVector<Item> m_data;
     QStack<int> m_stack;
     QVector<int> m_expandedRowTypes;
 };

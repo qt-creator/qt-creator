@@ -223,7 +223,7 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
 {
     HANDLE hFile = NULL;
     HANDLE hFileMap = NULL;
-    void *fileMemory = 0;
+    void *fileMemory = nullptr;
     bool success = false;
 
     rc->clear();

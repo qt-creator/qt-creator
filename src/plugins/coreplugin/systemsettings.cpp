@@ -31,6 +31,7 @@
 #include "patchtool.h"
 #include "vcsmanager.h"
 
+#include <app/app_version.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/consoleprocess.h>
 #include <utils/environment.h>
@@ -49,13 +50,11 @@ namespace Core {
 namespace Internal {
 
 SystemSettings::SystemSettings()
-    : m_page(0), m_dialog(0)
+    : m_page(nullptr), m_dialog(0)
 {
     setId(Constants::SETTINGS_ID_SYSTEM);
     setDisplayName(tr("System"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_CORE_ICON));
 
     connect(VcsManager::instance(), &VcsManager::configurationChanged,
             this, &SystemSettings::updatePath);
@@ -97,6 +96,11 @@ QWidget *SystemSettings::widget()
         m_page->patchChooser->setHistoryCompleter(QLatin1String("General.PatchCommand.History"));
         m_page->patchChooser->setPath(PatchTool::patchCommand());
         m_page->autoSaveCheckBox->setChecked(EditorManagerPrivate::autoSaveEnabled());
+        m_page->autoSaveCheckBox->setToolTip(tr("Automatically creates temporary copies of "
+                                                "modified files. If %1 is restarted after "
+                                                "a crash or power failure, it asks whether to "
+                                                "recover the auto-saved content.")
+                                             .arg(Constants::IDE_DISPLAY_NAME));
         m_page->autoSaveInterval->setValue(EditorManagerPrivate::autoSaveInterval());
         m_page->autoSuspendCheckBox->setChecked(EditorManagerPrivate::autoSuspendEnabled());
         m_page->autoSuspendMinDocumentCount->setValue(EditorManagerPrivate::autoSuspendMinDocumentCount());
@@ -117,7 +121,7 @@ QWidget *SystemSettings::widget()
 
         if (HostOsInfo::isMacHost()) {
             Qt::CaseSensitivity defaultSensitivity
-                    = OsSpecificAspects(HostOsInfo::hostOs()).fileNameCaseSensitivity();
+                    = OsSpecificAspects::fileNameCaseSensitivity(HostOsInfo::hostOs());
             if (defaultSensitivity == Qt::CaseSensitive) {
                 m_page->fileSystemCaseSensitivityChooser->addItem(tr("Case Sensitive (Default)"),
                                                                   Qt::CaseSensitive);
@@ -169,7 +173,7 @@ void SystemSettings::apply()
 
     if (HostOsInfo::isMacHost()) {
         Qt::CaseSensitivity defaultSensitivity
-                = OsSpecificAspects(HostOsInfo::hostOs()).fileNameCaseSensitivity();
+                = OsSpecificAspects::fileNameCaseSensitivity(HostOsInfo::hostOs());
         Qt::CaseSensitivity selectedSensitivity = Qt::CaseSensitivity(
                 m_page->fileSystemCaseSensitivityChooser->currentData().toInt());
         if (defaultSensitivity == selectedSensitivity)

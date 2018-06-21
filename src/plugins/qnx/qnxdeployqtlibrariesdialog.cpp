@@ -26,12 +26,15 @@
 #include "qnxdeployqtlibrariesdialog.h"
 #include "ui_qnxdeployqtlibrariesdialog.h"
 
+#include "qnxconstants.h"
 #include "qnxqtversion.h"
 
 #include <projectexplorer/deployablefile.h>
 #include <qtsupport/qtversionmanager.h>
 #include <remotelinux/genericdirectuploadservice.h>
 #include <ssh/sshremoteprocessrunner.h>
+
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -54,14 +57,12 @@ QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const IDevice::ConstPtr &
 {
     m_ui->setupUi(this);
 
-    QList<BaseQtVersion*> qtVersions = QtVersionManager::validVersions();
-    foreach (BaseQtVersion *qtVersion, qtVersions) {
-        QnxQtVersion *qnxQt = dynamic_cast<QnxQtVersion *>(qtVersion);
-        if (!qnxQt)
-            continue;
-
-        m_ui->qtLibraryCombo->addItem(qnxQt->displayName(), qnxQt->uniqueId());
-    }
+    const QList<BaseQtVersion*> qtVersions
+            = QtVersionManager::sortVersions(
+                QtVersionManager::versions(BaseQtVersion::isValidPredicate(Utils::equal(&BaseQtVersion::type,
+                                                                                        QString::fromLatin1(Constants::QNX_QNX_QT)))));
+    for (BaseQtVersion *v : qtVersions)
+        m_ui->qtLibraryCombo->addItem(v->displayName(), v->uniqueId());
 
     m_ui->basePathLabel->setText(QString());
     m_ui->remoteDirectory->setText(QLatin1String("/qt"));
@@ -233,18 +234,17 @@ QList<DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles()
     QTC_ASSERT(qtVersion, return result);
 
     if (Utils::HostOsInfo::isWindowsHost()) {
-        result.append(gatherFiles(qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_LIBS")),
-                    QString(), QStringList() << QLatin1String("*.so.?")));
-        result.append(gatherFiles(qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_LIBS"))
-                    + QLatin1String("/fonts")));
+        result.append(gatherFiles(qtVersion->qmakeProperty("QT_INSTALL_LIBS"),
+                                  QString(), QStringList() << QLatin1String("*.so.?")));
+        result.append(gatherFiles(qtVersion->qmakeProperty("QT_INSTALL_LIBS")
+                                  + QLatin1String("/fonts")));
     } else {
-        result.append(gatherFiles(
-                    qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_LIBS"))));
+        result.append(gatherFiles(qtVersion->qmakeProperty("QT_INSTALL_LIBS")));
     }
 
-    result.append(gatherFiles(qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_PLUGINS"))));
-    result.append(gatherFiles(qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_IMPORTS"))));
-    result.append(gatherFiles(qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_QML"))));
+    result.append(gatherFiles(qtVersion->qmakeProperty("QT_INSTALL_PLUGINS")));
+    result.append(gatherFiles(qtVersion->qmakeProperty("QT_INSTALL_IMPORTS")));
+    result.append(gatherFiles(qtVersion->qmlPath().toString()));
 
     return result;
 }

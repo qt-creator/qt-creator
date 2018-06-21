@@ -20,6 +20,7 @@ Project {
         Depends { name: "ProjectExplorer" }
         Depends { name: "QtSupport" }
         Depends { name: "TextEditor" }
+        Depends { name: "app_version_header" }
 
         pluginTestDepends: [
             "QmakeProjectManager"
@@ -53,13 +54,11 @@ Project {
                 "debuggerkitconfigwidget.cpp", "debuggerkitconfigwidget.h",
                 "debuggerkitinformation.cpp", "debuggerkitinformation.h",
                 "debuggermainwindow.cpp", "debuggermainwindow.h",
-                "debuggeroptionspage.cpp", "debuggeroptionspage.h",
                 "debuggerplugin.cpp", "debuggerplugin.h",
                 "debuggerprotocol.cpp", "debuggerprotocol.h",
                 "debuggerrunconfigurationaspect.cpp", "debuggerrunconfigurationaspect.h",
                 "debuggerruncontrol.cpp", "debuggerruncontrol.h",
                 "debuggersourcepathmappingwidget.cpp", "debuggersourcepathmappingwidget.h",
-                "debuggerstartparameters.h",
                 "debuggertooltipmanager.cpp", "debuggertooltipmanager.h",
                 "disassembleragent.cpp", "disassembleragent.h",
                 "disassemblerlines.cpp", "disassemblerlines.h",
@@ -109,14 +108,8 @@ Project {
             name: "gdb"
             prefix: "gdb/"
             files: [
-                "attachgdbadapter.cpp", "attachgdbadapter.h",
-                "coregdbadapter.cpp", "coregdbadapter.h",
                 "gdbengine.cpp", "gdbengine.h",
                 "gdboptionspage.cpp",
-                "gdbplainengine.cpp", "gdbplainengine.h",
-                "remotegdbserveradapter.cpp", "remotegdbserveradapter.h",
-                "startgdbserverdialog.cpp", "startgdbserverdialog.h",
-                "termgdbadapter.cpp", "termgdbadapter.h"
             ]
         }
 
@@ -237,12 +230,10 @@ Project {
             files: [
                 "analyzerbase.qrc",
                 "analyzerconstants.h",
+                "analyzericons.h",
                 "analyzermanager.h",
                 "analyzerrunconfigwidget.cpp",
                 "analyzerrunconfigwidget.h",
-                "analyzerruncontrol.cpp",
-                "analyzerruncontrol.h",
-                "analyzerstartparameters.h",
                 "analyzerutils.cpp",
                 "analyzerutils.h",
                 "detailederrorview.cpp",

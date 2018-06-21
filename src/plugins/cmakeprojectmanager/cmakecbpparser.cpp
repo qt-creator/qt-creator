@@ -30,6 +30,7 @@
 #include <utils/fileutils.h>
 #include <utils/stringutils.h>
 #include <utils/algorithm.h>
+#include <projectexplorer/projectmacro.h>
 #include <projectexplorer/projectnodes.h>
 
 #include <QLoggingCategory>
@@ -47,7 +48,7 @@ namespace Internal {
 namespace {
 int distance(const FileName &targetDirectory, const FileName &fileName)
 {
-    const QString commonParent = commonPath(QStringList({ targetDirectory.toString(), fileName.toString() }));
+    const QString commonParent = commonPath(QStringList({targetDirectory.toString(), fileName.toString()}));
     return targetDirectory.toString().mid(commonParent.size()).count('/')
             + fileName.toString().mid(commonParent.size()).count('/');
 }
@@ -60,19 +61,20 @@ int distance(const FileName &targetDirectory, const FileName &fileName)
 void CMakeCbpParser::sortFiles()
 {
     QLoggingCategory log("qtc.cmakeprojectmanager.filetargetmapping");
-    FileNameList fileNames = transform(m_fileList, &FileNode::filePath);
+    FileNameList fileNames = transform<QList>(m_fileList, &FileNode::filePath);
 
     sort(fileNames);
 
-    CMakeBuildTarget *last = 0;
+    CMakeBuildTarget *last = nullptr;
     FileName parentDirectory;
 
     qCDebug(log) << "###############";
     qCDebug(log) << "# Pre Dump    #";
     qCDebug(log) << "###############";
     foreach (const CMakeBuildTarget &target, m_buildTargets)
-        qCDebug(log) << target.title << target.sourceDirectory <<
-                 target.includeFiles << target.defines << target.files << "\n";
+        qCDebug(log) << target.title << target.sourceDirectory << target.includeFiles
+                     << ProjectExplorer::Macro::toByteArray(target.macros)
+                     << target.files << "\n";
 
     // find a good build target to fall back
     int fallbackIndex = 0;
@@ -153,7 +155,9 @@ void CMakeCbpParser::sortFiles()
     qCDebug(log) << "# After Dump  #";
     qCDebug(log) << "###############";
     foreach (const CMakeBuildTarget &target, m_buildTargets)
-        qCDebug(log) << target.title << target.sourceDirectory << target.includeFiles << target.defines << target.files << "\n";
+        qCDebug(log) << target.title << target.sourceDirectory << target.includeFiles
+                     << ProjectExplorer::Macro::toByteArray(target.macros)
+                     << target.files << "\n";
 }
 
 bool CMakeCbpParser::parseCbpFile(CMakeTool::PathMapper mapper, const FileName &fileName,
@@ -179,15 +183,6 @@ bool CMakeCbpParser::parseCbpFile(CMakeTool::PathMapper mapper, const FileName &
         sortFiles();
 
         fi.close();
-
-        // There is always a clean target:
-        CMakeBuildTarget cleanTarget;
-        cleanTarget.title = "clean";
-        cleanTarget.targetType = UtilityType;
-        cleanTarget.workingDirectory = m_buildDirectory;
-        cleanTarget.sourceDirectory = m_sourceDirectory;
-
-        m_buildTargets.append(cleanTarget);
 
         return true;
     }
@@ -406,12 +401,8 @@ void CMakeCbpParser::parseAdd()
         m_buildTarget.compilerOptions.append(compilerOption);
         int macroNameIndex = compilerOption.indexOf("-D") + 2;
         if (macroNameIndex != 1) {
-            int assignIndex = compilerOption.indexOf('=', macroNameIndex);
-            if (assignIndex != -1)
-                compilerOption[assignIndex] = ' ';
-            m_buildTarget.defines.append("#define ");
-            m_buildTarget.defines.append(compilerOption.mid(macroNameIndex).toUtf8());
-            m_buildTarget.defines.append('\n');
+            const QString keyValue = compilerOption.mid(macroNameIndex);
+            m_buildTarget.macros.append(ProjectExplorer::Macro::fromKeyValue(keyValue));
         }
     }
 
@@ -437,7 +428,8 @@ void CMakeCbpParser::parseUnit()
             if (!fileName.endsWith(".rule") && !m_processedUnits.contains(fileName)) {
                 // Now check whether we found a virtual element beneath
                 if (m_parsingCMakeUnit) {
-                    m_cmakeFileList.append( new FileNode(fileName, FileType::Project, false));
+                    m_cmakeFileList.emplace_back(
+                                std::make_unique<FileNode>(fileName, FileType::Project, false));
                 } else {
                     bool generated = false;
                     QString onlyFileName = fileName.fileName();
@@ -446,10 +438,15 @@ void CMakeCbpParser::parseUnit()
                         || (onlyFileName.startsWith("qrc_") && onlyFileName.endsWith(".cxx")))
                         generated = true;
 
-                    if (fileName.endsWith(".qrc"))
-                        m_fileList.append( new FileNode(fileName, FileType::Resource, generated));
-                    else
-                        m_fileList.append( new FileNode(fileName, FileType::Source, generated));
+                    if (fileName.endsWith(".qrc")) {
+                        m_fileList.emplace_back(
+                                    std::make_unique<FileNode>(fileName, FileType::Resource,
+                                                               generated));
+                    } else {
+                        m_fileList.emplace_back(
+                                    std::make_unique<FileNode>(fileName, FileType::Source,
+                                                               generated));
+                    }
                 }
                 m_unitTargetMap.insert(fileName, m_unitTargets);
                 m_processedUnits.insert(fileName);
@@ -497,19 +494,9 @@ void CMakeCbpParser::parseUnknownElement()
     }
 }
 
-QList<FileNode *> CMakeCbpParser::fileList()
-{
-    return m_fileList;
-}
-
-QList<FileNode *> CMakeCbpParser::cmakeFileList()
-{
-    return m_cmakeFileList;
-}
-
 bool CMakeCbpParser::hasCMakeFiles()
 {
-    return !m_cmakeFileList.isEmpty();
+    return m_cmakeFileList.size() > 0;
 }
 
 QList<CMakeBuildTarget> CMakeCbpParser::buildTargets()

@@ -34,9 +34,8 @@ class QmlProfilerSettings : public ProjectExplorer::ISettingsAspect
 {
     Q_OBJECT
 public:
-    QmlProfilerSettings();
-    QWidget *createConfigWidget(QWidget *parent);
-    ProjectExplorer::ISettingsAspect *create() const;
+    QmlProfilerSettings(ProjectExplorer::RunConfiguration *runConfiguration = nullptr);
+    QWidget *createConfigWidget(QWidget *parent) override;
 
     bool flushEnabled() const;
     void setFlushEnabled(bool flushEnabled);
@@ -56,8 +55,8 @@ signals:
     void changed();
 
 protected:
-    void toMap(QVariantMap &map) const;
-    void fromMap(const QVariantMap &map);
+    void toMap(QVariantMap &map) const override;
+    void fromMap(const QVariantMap &map) override;
 
 private:
     bool m_flushEnabled;

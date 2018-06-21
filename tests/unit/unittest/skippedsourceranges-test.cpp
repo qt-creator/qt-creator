@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "testenvironment.h"
 
 #include <cursor.h>
 #include <clangdocument.h>
@@ -94,8 +95,8 @@ struct Data {
     Utf8String filePath = Utf8StringLiteral(TESTDATA_DIR"/skippedsourceranges.cpp");
     Document document{filePath,
                       ProjectPart(Utf8StringLiteral("projectPartId"),
-                                 {Utf8StringLiteral("-std=c++11"),
-                                  Utf8StringLiteral("-DBLAH")}),
+                                 TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++11"),
+                                                                        Utf8StringLiteral("-DBLAH")})),
                       {},
                       documents};
     TranslationUnit translationUnit{filePath,
@@ -114,10 +115,27 @@ protected:
     static Data *d;
     const TranslationUnit &translationUnit = d->translationUnit;
     const Utf8String &filePath = d->filePath;
-    const ::SkippedSourceRanges skippedSourceRanges{d->translationUnit.skippedSourceRanges()};
+    ::SkippedSourceRanges skippedSourceRanges{d->translationUnit.skippedSourceRanges()};
+    ::SkippedSourceRanges otherSkippedSourceRanges{d->translationUnit.skippedSourceRanges()};
 };
 
 Data *SkippedSourceRanges::d;
+
+TEST_F(SkippedSourceRanges, MoveConstructor)
+{
+    const auto other = std::move(skippedSourceRanges);
+
+    ASSERT_TRUE(skippedSourceRanges.isNull());
+    ASSERT_FALSE(other.isNull());
+}
+
+TEST_F(SkippedSourceRanges, MoveAssignment)
+{
+    skippedSourceRanges = std::move(otherSkippedSourceRanges);
+
+    ASSERT_TRUE(otherSkippedSourceRanges.isNull());
+    ASSERT_FALSE(skippedSourceRanges.isNull());
+}
 
 TEST_F(SkippedSourceRanges, RangeWithZero)
 {
@@ -130,16 +148,16 @@ TEST_F(SkippedSourceRanges, DISABLED_ON_WINDOWS(RangeOne))
 {
     auto ranges = skippedSourceRanges.sourceRanges();
 
-    ASSERT_THAT(ranges[0].start(), IsSourceLocation(filePath, 1, 2, 1));
-    ASSERT_THAT(ranges[0].end(), IsSourceLocation(filePath, 5, 7, 24));
+    ASSERT_THAT(ranges[0].start(), IsSourceLocation(filePath, 1, 1, 0));
+    ASSERT_THAT(ranges[0].end(), IsSourceLocation(filePath, 5, 1, 18));
 }
 
 TEST_F(SkippedSourceRanges, DISABLED_ON_WINDOWS(RangeTwo))
 {
     auto ranges = skippedSourceRanges.sourceRanges();
 
-    ASSERT_THAT(ranges[1].start(), IsSourceLocation(filePath, 7, 2, 27));
-    ASSERT_THAT(ranges[1].end(), IsSourceLocation(filePath, 12, 7, 63));
+    ASSERT_THAT(ranges[1].start(), IsSourceLocation(filePath, 7, 1, 26));
+    ASSERT_THAT(ranges[1].end(), IsSourceLocation(filePath, 12, 1, 57));
 }
 
 TEST_F(SkippedSourceRanges, RangeContainerSize)

@@ -29,7 +29,6 @@
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
-class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Valgrind {
@@ -57,17 +56,14 @@ public:
 
     void setMinimumInclusiveCostRatio(double ratio);
 
-public slots:
     void setText(const QString &message);
 
 signals:
     void functionActivated(const Valgrind::Callgrind::Function *);
     void functionSelected(const Valgrind::Callgrind::Function *);
 
-protected slots:
-    void populateScene();
-
 protected:
+    void populateScene();
     void mousePressEvent(QMouseEvent *event);
     void mouseDoubleClickEvent(QMouseEvent *event);
     void resizeEvent(QResizeEvent *event);

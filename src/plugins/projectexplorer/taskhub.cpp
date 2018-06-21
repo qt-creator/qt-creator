@@ -28,10 +28,20 @@
 
 #include <coreplugin/coreicons.h>
 #include <coreplugin/ioutputpane.h>
+#include <texteditor/textmark.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 
-using namespace ProjectExplorer;
+#include <QApplication>
+
+using namespace Utils;
+
+namespace ProjectExplorer {
+
+// Task mark categories
+const char TASK_MARK_WARNING[] = "Task.Mark.Warning";
+const char TASK_MARK_ERROR[] = "Task.Mark.Error";
 
 static TaskHub *m_instance = nullptr;
 QVector<Core::Id> TaskHub::m_registeredCategories;
@@ -40,9 +50,9 @@ static Core::Id categoryForType(Task::TaskType type)
 {
     switch (type) {
     case Task::Error:
-        return Constants::TASK_MARK_ERROR;
+        return TASK_MARK_ERROR;
     case Task::Warning:
-        return Constants::TASK_MARK_WARNING;
+        return TASK_MARK_WARNING;
     default:
         return Core::Id();
     }
@@ -51,18 +61,25 @@ static Core::Id categoryForType(Task::TaskType type)
 class TaskMark : public TextEditor::TextMark
 {
 public:
-    TaskMark(unsigned int id, const QString &fileName, int lineNumber,
-             Task::TaskType type, bool visible) :
-        TextMark(fileName, lineNumber, categoryForType(type)),
-        m_id(id)
+    TaskMark(const Task &task) :
+        TextMark(task.file, task.line, categoryForType(task.type)),
+        m_id(task.taskId)
     {
-        setVisible(visible);
+        setColor(task.type == Task::Error ? Utils::Theme::ProjectExplorer_TaskError_TextMarkColor
+                                          : Utils::Theme::ProjectExplorer_TaskWarn_TextMarkColor);
+        setDefaultToolTip(task.type == Task::Error ? QApplication::translate("TaskHub", "Error")
+                                                   : QApplication::translate("TaskHub", "Warning"));
+        setPriority(task.type == Task::Error ? TextEditor::TextMark::NormalPriority
+                                             : TextEditor::TextMark::LowPriority);
+        setToolTip(task.description);
+        setIcon(task.icon);
+        setVisible(!task.icon.isNull());
     }
 
     bool isClickable() const;
     void clicked();
 
-    void updateFileName(const QString &fileName);
+    void updateFileName(const FileName &fileName);
     void updateLineNumber(int lineNumber);
     void removedFromEditor();
 private:
@@ -75,10 +92,10 @@ void TaskMark::updateLineNumber(int lineNumber)
     TextMark::updateLineNumber(lineNumber);
 }
 
-void TaskMark::updateFileName(const QString &fileName)
+void TaskMark::updateFileName(const FileName &fileName)
 {
-    TaskHub::updateTaskFileName(m_id, fileName);
-    TextMark::updateFileName(fileName);
+    TaskHub::updateTaskFileName(m_id, fileName.toString());
+    TextMark::updateFileName(FileName::fromString(fileName.toString()));
 }
 
 void TaskMark::removedFromEditor()
@@ -101,12 +118,6 @@ TaskHub::TaskHub()
     m_instance = this;
     qRegisterMetaType<ProjectExplorer::Task>("ProjectExplorer::Task");
     qRegisterMetaType<QList<ProjectExplorer::Task> >("QList<ProjectExplorer::Task>");
-    TaskMark::setCategoryColor(Constants::TASK_MARK_ERROR,
-                               Utils::Theme::ProjectExplorer_TaskError_TextMarkColor);
-    TaskMark::setCategoryColor(Constants::TASK_MARK_WARNING,
-                               Utils::Theme::ProjectExplorer_TaskWarn_TextMarkColor);
-    TaskMark::setDefaultToolTip(Constants::TASK_MARK_ERROR, tr("Error"));
-    TaskMark::setDefaultToolTip(Constants::TASK_MARK_WARNING, tr("Warning"));
 }
 
 TaskHub::~TaskHub()
@@ -143,13 +154,8 @@ void TaskHub::addTask(Task task)
         task.line = -1;
     task.movedLine = task.line;
 
-    if (task.line != -1) {
-        auto mark = new TaskMark(task.taskId, task.file.toString(), task.line, task.type, !task.icon.isNull());
-        mark->setIcon(task.icon);
-        mark->setPriority(TextEditor::TextMark::LowPriority);
-        mark->setToolTip(task.description);
-        task.setMark(mark);
-    }
+    if ((task.options & Task::AddTextMark) && task.line != -1)
+        task.setMark(new TaskMark(task));
     emit m_instance->taskAdded(task);
 }
 
@@ -194,3 +200,5 @@ void TaskHub::requestPopup()
 {
     emit m_instance->popupRequested(Core::IOutputPane::NoModeSwitch);
 }
+
+} // namespace ProjectExplorer

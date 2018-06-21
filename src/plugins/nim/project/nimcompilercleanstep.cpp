@@ -29,6 +29,7 @@
 
 #include "../nimconstants.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -63,24 +64,24 @@ bool NimCompilerCleanStep::init(QList<const BuildStep *> &)
 void NimCompilerCleanStep::run(QFutureInterface<bool> &fi)
 {
     if (!m_buildDir.exists()) {
-        emit addOutput(tr("Build directory \"%1\" does not exist.").arg(m_buildDir.toUserOutput()), BuildStep::ErrorMessageOutput);
+        emit addOutput(tr("Build directory \"%1\" does not exist.").arg(m_buildDir.toUserOutput()), BuildStep::OutputFormat::ErrorMessage);
         reportRunResult(fi, false);
         return;
     }
 
     if (!removeCacheDirectory()) {
-        emit addOutput(tr("Failed to delete the cache directory."), BuildStep::ErrorMessageOutput);
+        emit addOutput(tr("Failed to delete the cache directory."), BuildStep::OutputFormat::ErrorMessage);
         reportRunResult(fi, false);
         return;
     }
 
     if (!removeOutFilePath()) {
-        emit addOutput(tr("Failed to delete the out file."), BuildStep::ErrorMessageOutput);
+        emit addOutput(tr("Failed to delete the out file."), BuildStep::OutputFormat::ErrorMessage);
         reportRunResult(fi, false);
         return;
     }
 
-    emit addOutput(tr("Clean step completed successfully."), BuildStep::NormalOutput);
+    emit addOutput(tr("Clean step completed successfully."), BuildStep::OutputFormat::NormalMessage);
     reportRunResult(fi, true);
 }
 
@@ -107,5 +108,16 @@ bool NimCompilerCleanStep::removeOutFilePath()
     return QFile(bc->outFilePath().toFileInfo().absoluteFilePath()).remove();
 }
 
+// NimCompilerCleanStepFactory
+
+NimCompilerCleanStepFactory::NimCompilerCleanStepFactory()
+{
+    registerStep<NimCompilerCleanStep>(Constants::C_NIMCOMPILERCLEANSTEP_ID);
+    setFlags(BuildStepInfo::Unclonable);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+    setSupportedConfiguration(Constants::C_NIMBUILDCONFIGURATION_ID);
+    setRepeatable(false);
+    setDisplayName(NimCompilerCleanStep::tr(Nim::Constants::C_NIMCOMPILERCLEANSTEP_DISPLAY));
 }
 
+} // Nim

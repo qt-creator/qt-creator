@@ -53,7 +53,7 @@ class CdbBreakEventWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit CdbBreakEventWidget(QWidget *parent = 0);
+    explicit CdbBreakEventWidget(QWidget *parent = nullptr);
 
     void setBreakEvents(const QStringList &l);
     QStringList breakEvents() const;
@@ -71,7 +71,7 @@ class CdbOptionsPageWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit CdbOptionsPageWidget(QWidget *parent = 0);
+    explicit CdbOptionsPageWidget(QWidget *parent = nullptr);
     QStringList breakEvents() const;
 
     Utils::SavedActionSet group;

@@ -36,9 +36,15 @@ namespace ClangRefactoring {
 class SearchInterface
 {
 public:
-    virtual ~SearchInterface();
+    SearchInterface() = default;
+    SearchInterface(const SearchInterface &) = delete;
+    SearchInterface &operator=(const SearchInterface &) = delete;
+
     virtual std::unique_ptr<SearchHandle> startNewSearch(const QString &searchLabel,
-                                                                  const QString &searchTerm) = 0;
+                                                         const QString &searchTerm) = 0;
+
+protected:
+    ~SearchInterface() = default;
 };
 
 } // namespace ClangRefactoring

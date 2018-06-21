@@ -57,7 +57,7 @@ public:
     void accept(MConstVisitor *visitor) const override;
 
 private:
-    Direction m_direction;
+    Direction m_direction = AToB;
 };
 
 } // namespace qmt

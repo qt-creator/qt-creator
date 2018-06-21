@@ -32,8 +32,6 @@
 #include "osparser.h"
 #include "projectexplorerconstants.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/icon.h>
@@ -114,7 +112,7 @@ public:
     int m_nestedBlockingLevel = 0;
     bool m_autodetected = false;
     bool m_sdkProvided = false;
-    bool m_isValid = true;
+    bool m_hasError = false;
     bool m_hasWarning = false;
     bool m_hasValidityInfo = false;
     bool m_mustNotify = false;
@@ -211,7 +209,7 @@ Kit *Kit::clone(bool keepName) const
     k->d->m_autodetected = false;
     k->d->m_data = d->m_data;
     // Do not clone m_fileSystemFriendlyName, needs to be unique
-    k->d->m_isValid = d->m_isValid;
+    k->d->m_hasError = d->m_hasError;
     k->d->m_cachedIcon = d->m_cachedIcon;
     k->d->m_iconPath = d->m_iconPath;
     k->d->m_sticky = d->m_sticky;
@@ -242,7 +240,7 @@ bool Kit::isValid() const
     if (!d->m_hasValidityInfo)
         validate();
 
-    return d->m_isValid;
+    return !d->m_hasError;
 }
 
 bool Kit::hasWarning() const
@@ -257,18 +255,13 @@ QList<Task> Kit::validate() const
 {
     QList<Task> result;
     QList<KitInformation *> infoList = KitManager::kitInformation();
-    d->m_isValid = true;
-    d->m_hasWarning = false;
-    foreach (KitInformation *i, infoList) {
+    for (KitInformation *i : infoList) {
         QList<Task> tmp = i->validate(this);
-        foreach (const Task &t, tmp) {
-            if (t.type == Task::Error)
-                d->m_isValid = false;
-            if (t.type == Task::Warning)
-                d->m_hasWarning = true;
-        }
         result.append(tmp);
     }
+    d->m_hasError = containsType(result, Task::TaskType::Error);
+    d->m_hasWarning = containsType(result, Task::TaskType::Warning);
+
     Utils::sort(result);
     d->m_hasValidityInfo = true;
     return result;
@@ -369,7 +362,7 @@ Id Kit::id() const
 
 static QIcon iconForDeviceType(Core::Id deviceType)
 {
-    const IDeviceFactory *factory = ExtensionSystem::PluginManager::getObject<IDeviceFactory>(
+    const IDeviceFactory *factory = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(),
         [&deviceType](const IDeviceFactory *factory) {
             return factory->availableCreationIds().contains(deviceType);
         });
@@ -381,7 +374,7 @@ QIcon Kit::icon() const
     if (!d->m_cachedIcon.isNull())
         return d->m_cachedIcon;
 
-    if (d->m_iconPath.exists()) {
+    if (!d->m_iconPath.isEmpty() && d->m_iconPath.exists()) {
         d->m_cachedIcon = QIcon(d->m_iconPath.toString());
         return d->m_cachedIcon;
     }
@@ -534,34 +527,15 @@ IOutputParser *Kit::createOutputParser() const
 
 QString Kit::toHtml(const QList<Task> &additional) const
 {
-    QString rc;
-    QTextStream str(&rc);
+    QString result;
+    QTextStream str(&result);
     str << "<html><body>";
     str << "<h3>" << displayName() << "</h3>";
+
+    if (!isValid() || hasWarning() || !additional.isEmpty())
+        str << "<p>" << ProjectExplorer::toHtml(additional + validate()) << "</p>";
+
     str << "<table>";
-
-    if (!isValid() || hasWarning() || !additional.isEmpty()) {
-        QList<Task> issues = additional;
-        issues.append(validate());
-        str << "<p>";
-        foreach (const Task &t, issues) {
-            str << "<b>";
-            switch (t.type) {
-            case Task::Error:
-                str << QCoreApplication::translate("ProjectExplorer::Kit", "Error:") << " ";
-                break;
-            case Task::Warning:
-                str << QCoreApplication::translate("ProjectExplorer::Kit", "Warning:") << " ";
-                break;
-            case Task::Unknown:
-            default:
-                break;
-            }
-            str << "</b>" << t.description << "<br>";
-        }
-        str << "</p>";
-    }
-
     QList<KitInformation *> infoList = KitManager::kitInformation();
     foreach (KitInformation *ki, infoList) {
         KitInformation::ItemList list = ki->toUserOutput(this);
@@ -578,23 +552,29 @@ QString Kit::toHtml(const QList<Task> &additional) const
         }
     }
     str << "</table></body></html>";
-    return rc;
+    return result;
 }
 
 void Kit::setAutoDetected(bool detected)
 {
+    if (d->m_autodetected == detected)
+        return;
     d->m_autodetected = detected;
     kitUpdated();
 }
 
 void Kit::setAutoDetectionSource(const QString &autoDetectionSource)
 {
+    if (d->m_autoDetectionSource == autoDetectionSource)
+        return;
     d->m_autoDetectionSource = autoDetectionSource;
     kitUpdated();
 }
 
 void Kit::setSdkProvided(bool sdkProvided)
 {
+    if (d->m_sdkProvided == sdkProvided)
+        return;
     d->m_sdkProvided = sdkProvided;
     kitUpdated();
 }
@@ -609,6 +589,9 @@ void Kit::makeSticky()
 
 void Kit::setSticky(Id id, bool b)
 {
+    if (d->m_sticky.contains(id) == b)
+        return;
+
     if (b)
         d->m_sticky.insert(id);
     else
@@ -618,12 +601,17 @@ void Kit::setSticky(Id id, bool b)
 
 void Kit::makeUnSticky()
 {
+    if (d->m_sticky.isEmpty())
+        return;
     d->m_sticky.clear();
     kitUpdated();
 }
 
 void Kit::setMutable(Id id, bool b)
 {
+    if (d->m_mutable.contains(id) == b)
+        return;
+
     if (b)
         d->m_mutable.insert(id);
     else

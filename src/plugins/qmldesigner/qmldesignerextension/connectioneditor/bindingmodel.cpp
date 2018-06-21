@@ -52,11 +52,8 @@ void BindingModel::resetModel()
 {
     beginResetModel();
     clear();
-    setHorizontalHeaderLabels(QStringList()
-                              << tr("Item")
-                              << tr("Property")
-                              << tr("Source Item")
-                              << tr("Source Property"));
+    setHorizontalHeaderLabels(QStringList({ tr("Item"), tr("Property"), tr("Source Item"),
+                                            tr("Source Property") }));
 
     foreach (const ModelNode modelNode, m_selectedModelNodes)
         addModelNode(modelNode);
@@ -163,7 +160,7 @@ QStringList BindingModel::possibleSourceProperties(const BindingProperty &bindin
         qWarning() << " BindingModel::possibleSourcePropertiesForRow no meta info for target node";
     }
 
-    const QString id = stringlist.first();
+    const QString &id = stringlist.constFirst();
 
     ModelNode modelNode = getNodeByIdOrParent(id, bindingProperty.parentModelNode());
 
@@ -225,13 +222,13 @@ static PropertyName unusedProperty(const ModelNode &modelNode)
 void BindingModel::addBindingForCurrentNode()
 {
     if (connectionView()->selectedModelNodes().count() == 1) {
-        ModelNode modelNode = connectionView()->selectedModelNodes().first();
+        const ModelNode modelNode = connectionView()->selectedModelNodes().constFirst();
         if (modelNode.isValid()) {
             try {
                 modelNode.bindingProperty(unusedProperty(modelNode)).setExpression(QLatin1String("none.none"));
             } catch (RewritingException &e) {
                 m_exceptionError = e.description();
-                QTimer::singleShot(200, this, SLOT(handleException()));
+                QTimer::singleShot(200, this, &BindingModel::handleException);
             }
         }
     } else {
@@ -312,7 +309,7 @@ void BindingModel::updateExpression(int row)
         transaction.commit(); //committing in the try block
     } catch (Exception &e) {
         m_exceptionError = e.description();
-        QTimer::singleShot(200, this, SLOT(handleException()));
+        QTimer::singleShot(200, this, &BindingModel::handleException);
     }
 }
 
@@ -338,7 +335,7 @@ void BindingModel::updatePropertyName(int rowNumber)
             transaction.commit(); //committing in the try block
         } catch (Exception &e) { //better save then sorry
             m_exceptionError = e.description();
-            QTimer::singleShot(200, this, SLOT(handleException()));
+            QTimer::singleShot(200, this, &BindingModel::handleException);
         }
 
         QStandardItem* idItem = item(rowNumber, 0);
@@ -389,7 +386,7 @@ bool BindingModel::getExpressionStrings(const BindingProperty &bindingProperty, 
     if (true) {
         const QStringList stringList = expression.split(QLatin1String("."));
 
-        *sourceNode = stringList.first();
+        *sourceNode = stringList.constFirst();
 
         QString propertyName;
 

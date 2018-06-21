@@ -26,14 +26,12 @@
 #include "jsonkitspage.h"
 #include "jsonwizard.h"
 
-#include "../iprojectmanager.h"
 #include "../kit.h"
 #include "../project.h"
 #include "../projectexplorer.h"
+#include "../projectmanager.h"
 
 #include <coreplugin/featureprovider.h>
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/macroexpander.h>
@@ -63,8 +61,10 @@ void JsonKitsPage::initializePage()
     const QSet<Id> required
             = evaluate(m_requiredFeatures, wiz->value(QLatin1String("RequiredFeatures")), wiz);
 
-    setRequiredKitMatcher(KitMatcher([required](const Kit *k) { return k->hasFeatures(required); }));
-    setPreferredKitMatcher(KitMatcher([platform, preferred](const Kit *k) { return k->supportedPlatforms().contains(platform) && k->hasFeatures(preferred); }));
+    setRequiredKitPredicate([required](const Kit *k) { return k->hasFeatures(required); });
+    setPreferredKitPredicate([platform, preferred](const Kit *k) {
+        return k->supportedPlatforms().contains(platform) && k->hasFeatures(preferred);
+    });
     setProjectPath(wiz->expander()->expand(unexpandedProjectPath()));
 
     TargetSetupPage::initializePage();
@@ -102,27 +102,16 @@ void JsonKitsPage::setPreferredFeatures(const QVariant &data)
 
 void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
 {
-    Project *project = nullptr;
-    QList<IProjectManager *> managerList = ExtensionSystem::PluginManager::getObjects<IProjectManager>();
-
-    foreach (const JsonWizard::GeneratorFile &f, files) {
+    for (const JsonWizard::GeneratorFile &f : files) {
         if (f.file.attributes() & GeneratedFile::OpenProjectAttribute) {
-            QString errorMessage;
             const QFileInfo fi(f.file.path());
             const QString path = fi.absoluteFilePath();
-
-            Utils::MimeDatabase mdb;
-            Utils::MimeType mt = mdb.mimeTypeForFile(fi);
-            if (!mt.isValid())
-                continue;
-
-            auto manager = Utils::findOrDefault(managerList, Utils::equal(&IProjectManager::mimeType, mt.name()));
-            project = manager ? manager->openProject(path, &errorMessage) : nullptr;
+            Project *project = ProjectManager::openProject(Utils::mimeTypeForFile(fi),
+                                                           Utils::FileName::fromString(path));
             if (project) {
                 if (setupProject(project))
                     project->saveSettings();
                 delete project;
-                project = nullptr;
             }
         }
     }

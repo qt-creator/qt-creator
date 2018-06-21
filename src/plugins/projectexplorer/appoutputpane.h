@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <QPointer>
 #include <QVector>
 
 #include <coreplugin/ioutputpane.h>
@@ -87,16 +88,10 @@ public:
     void setBehaviorOnOutput(RunControl *rc, BehaviorOnOutput mode);
 
     bool aboutToClose() const;
-    bool closeTabs(CloseTabMode mode);
+    void closeTabs(CloseTabMode mode);
 
     QList<RunControl *> allRunControls() const;
 
-signals:
-     void allRunControlsFinished();
-     void runControlStarted(ProjectExplorer::RunControl *rc);
-     void runControlFinished(ProjectExplorer::RunControl *rc);
-
-public:
     // ApplicationOutput specifics
     void projectRemoved();
 
@@ -109,7 +104,7 @@ private:
     void attachToRunControl();
     void tabChanged(int);
     void contextMenuRequested(const QPoint &pos, int index);
-    void slotRunControlStarted();
+    void slotRunControlChanged();
     void slotRunControlFinished();
     void slotRunControlFinished2(ProjectExplorer::RunControl *sender);
 
@@ -120,21 +115,18 @@ private:
     void zoomIn();
     void zoomOut();
 
-    void enableButtons(const RunControl *rc, bool isRunning);
+    void enableButtons(const RunControl *rc);
 
     class RunControlTab {
     public:
         explicit RunControlTab(RunControl *runControl = nullptr,
                                Core::OutputWindow *window = nullptr);
-        RunControl *runControl;
-        Core::OutputWindow *window;
-        // Is the run control stopping asynchronously, close the tab once it finishes
-        bool asyncClosing = false;
+        QPointer<RunControl> runControl;
+        QPointer<Core::OutputWindow> window;
         BehaviorOnOutput behaviorOnOutput = Flash;
     };
 
-    bool isRunning() const;
-    bool closeTab(int index, CloseTabMode cm = CloseTabWithPrompt);
+    void closeTab(int index, CloseTabMode cm = CloseTabWithPrompt);
     bool optionallyPromptToStop(RunControl *runControl);
 
     int indexOf(const RunControl *) const;
@@ -151,6 +143,7 @@ private:
     QWidget *m_mainWidget;
     TabWidget *m_tabWidget;
     QVector<RunControlTab> m_runControlTabs;
+    int m_runControlCount = 0;
     QAction *m_stopAction;
     QAction *m_closeCurrentTabAction;
     QAction *m_closeAllTabsAction;
@@ -160,6 +153,7 @@ private:
     QToolButton *m_attachButton;
     QToolButton *m_zoomInButton;
     QToolButton *m_zoomOutButton;
+    QWidget *m_formatterWidget;
     float m_zoom;
 };
 

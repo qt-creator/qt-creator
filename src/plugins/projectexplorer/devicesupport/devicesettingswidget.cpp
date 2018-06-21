@@ -38,7 +38,7 @@
 #include <projectexplorer/projectexplorericons.h>
 
 #include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
+
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>
 
@@ -111,10 +111,8 @@ void DeviceSettingsWidget::initGui()
     m_ui->configurationComboBox->setModel(m_deviceManagerModel);
     m_ui->nameLineEdit->setValidator(m_nameValidator);
 
-    const QList<IDeviceFactory *> &factories
-        = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
-
-    bool hasDeviceFactories = Utils::anyOf(factories, &IDeviceFactory::canCreate);
+    bool hasDeviceFactories = Utils::anyOf(IDeviceFactory::allDeviceFactories(),
+                                           &IDeviceFactory::canCreate);
 
     m_ui->addConfigButton->setEnabled(hasDeviceFactories);
 

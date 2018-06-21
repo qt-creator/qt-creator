@@ -28,12 +28,13 @@
 #include "cmaketoolmanager.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <coreplugin/icore.h>
 #include <utils/environment.h>
 #include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/treemodel.h>
 
 #include <QCheckBox>
@@ -66,13 +67,13 @@ public:
 
     CMakeToolTreeItem *cmakeToolItem(const Core::Id &id) const;
     CMakeToolTreeItem *cmakeToolItem(const QModelIndex &index) const;
-    QModelIndex addCMakeTool(const QString &name, const FileName &executable, const bool autoRun, const bool isAutoDetected);
+    QModelIndex addCMakeTool(const QString &name, const FileName &executable, const bool autoRun, const bool autoCreate, const bool isAutoDetected);
     void addCMakeTool(const CMakeTool *item, bool changed);
     TreeItem *autoGroupItem() const;
     TreeItem *manualGroupItem() const;
     void reevaluateChangedFlag(CMakeToolTreeItem *item) const;
     void updateCMakeTool(const Core::Id &id, const QString &displayName, const FileName &executable,
-                         bool autoRun);
+                         bool autoRun, bool autoCreate);
     void removeCMakeTool(const Core::Id &id);
     void apply();
 
@@ -95,16 +96,18 @@ public:
         m_name(item->displayName()),
         m_executable(item->cmakeExecutable()),
         m_isAutoRun(item->isAutoRun()),
+        m_autoCreateBuildDirectory(item->autoCreateBuildDirectory()),
         m_autodetected(item->isAutoDetected()),
         m_changed(changed)
     {}
 
     CMakeToolTreeItem(const QString &name, const Utils::FileName &executable,
-                      bool autoRun, bool autodetected) :
+                      bool autoRun, bool autoCreate, bool autodetected) :
         m_id(Core::Id::fromString(QUuid::createUuid().toString())),
         m_name(name),
         m_executable(executable),
         m_isAutoRun(autoRun),
+        m_autoCreateBuildDirectory(autoCreate),
         m_autodetected(autodetected),
         m_changed(true)
     {}
@@ -124,8 +127,10 @@ public:
                     name += tr(" (Default)");
                 return name;
             }
-            case 1: return m_executable.toUserOutput();
+            case 1:
+                return m_executable.toUserOutput();
             }
+            break;
 
         case Qt::FontRole: {
             QFont font;
@@ -141,6 +146,7 @@ public:
     QString  m_name;
     FileName m_executable;
     bool m_isAutoRun = true;
+    bool m_autoCreateBuildDirectory = false;
     bool m_autodetected = false;
     bool m_changed = true;
 };
@@ -164,9 +170,10 @@ CMakeToolItemModel::CMakeToolItemModel()
 }
 
 QModelIndex CMakeToolItemModel::addCMakeTool(const QString &name, const FileName &executable,
-                                             const bool autoRun, const bool isAutoDetected)
+                                             const bool autoRun, const bool autoCreate,
+                                             const bool isAutoDetected)
 {
-    CMakeToolTreeItem *item = new CMakeToolTreeItem(name, executable, autoRun, isAutoDetected);
+    CMakeToolTreeItem *item = new CMakeToolTreeItem(name, executable, autoRun, autoCreate, isAutoDetected);
     if (isAutoDetected)
         autoGroupItem()->appendChild(item);
     else
@@ -217,7 +224,8 @@ void CMakeToolItemModel::reevaluateChangedFlag(CMakeToolTreeItem *item) const
 }
 
 void CMakeToolItemModel::updateCMakeTool(const Core::Id &id, const QString &displayName,
-                                         const FileName &executable, bool autoRun)
+                                         const FileName &executable, bool autoRun,
+                                         bool autoCreate)
 {
     CMakeToolTreeItem *treeItem = cmakeToolItem(id);
     QTC_ASSERT(treeItem, return);
@@ -225,6 +233,7 @@ void CMakeToolItemModel::updateCMakeTool(const Core::Id &id, const QString &disp
     treeItem->m_name = displayName;
     treeItem->m_executable = executable;
     treeItem->m_isAutoRun = autoRun;
+    treeItem->m_autoCreateBuildDirectory = autoCreate;
 
     reevaluateChangedFlag(treeItem);
 }
@@ -241,6 +250,9 @@ CMakeToolTreeItem *CMakeToolItemModel::cmakeToolItem(const QModelIndex &index) c
 
 void CMakeToolItemModel::removeCMakeTool(const Core::Id &id)
 {
+    if (m_removedItems.contains(id))
+        return; // Item has already been removed in the model!
+
     CMakeToolTreeItem *treeItem = cmakeToolItem(id);
     QTC_ASSERT(treeItem, return);
 
@@ -260,6 +272,7 @@ void CMakeToolItemModel::apply()
             cmake->setDisplayName(item->m_name);
             cmake->setCMakeExecutable(item->m_executable);
             cmake->setAutorun(item->m_isAutoRun);
+            cmake->setAutoCreateBuildDirectory(item->m_autoCreateBuildDirectory);
         } else {
             toRegister.append(item);
         }
@@ -307,7 +320,7 @@ QString CMakeToolItemModel::uniqueDisplayName(const QString &base) const
 {
     QStringList names;
     forItemsAtLevel<2>([&names](CMakeToolTreeItem *item) { names << item->m_name; });
-    return ProjectExplorer::Project::makeUnique(base, names);
+    return Utils::makeUniquelyNumbered(base, names);
 }
 
 // -----------------------------------------------------------------------
@@ -327,6 +340,7 @@ private:
     CMakeToolItemModel *m_model;
     QLineEdit *m_displayNameLineEdit;
     QCheckBox *m_autoRunCheckBox;
+    QCheckBox *m_autoCreateBuildDirectoryCheckBox;
     PathChooser *m_binaryChooser;
     Core::Id m_id;
     bool m_loadingItem;
@@ -341,17 +355,22 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
     m_binaryChooser->setExpectedKind(PathChooser::ExistingCommand);
     m_binaryChooser->setMinimumWidth(400);
     m_binaryChooser->setHistoryCompleter(QLatin1String("Cmake.Command.History"));
-    m_binaryChooser->setCommandVersionArguments({ "--version" });
+    m_binaryChooser->setCommandVersionArguments({"--version"});
 
     m_autoRunCheckBox = new QCheckBox;
     m_autoRunCheckBox->setText(tr("Autorun CMake"));
     m_autoRunCheckBox->setToolTip(tr("Automatically run CMake after changes to CMake project files."));
+
+    m_autoCreateBuildDirectoryCheckBox = new QCheckBox;
+    m_autoCreateBuildDirectoryCheckBox->setText(tr("Auto-create build directories"));
+    m_autoCreateBuildDirectoryCheckBox->setToolTip(tr("Automatically create build directories for CMake projects."));
 
     QFormLayout *formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     formLayout->addRow(new QLabel(tr("Name:")), m_displayNameLineEdit);
     formLayout->addRow(new QLabel(tr("Path:")), m_binaryChooser);
     formLayout->addRow(m_autoRunCheckBox);
+    formLayout->addRow(m_autoCreateBuildDirectoryCheckBox);
 
     connect(m_binaryChooser, &PathChooser::rawPathChanged,
             this, &CMakeToolItemConfigWidget::store);
@@ -359,13 +378,16 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
             this, &CMakeToolItemConfigWidget::store);
     connect(m_autoRunCheckBox, &QCheckBox::toggled,
             this, &CMakeToolItemConfigWidget::store);
+    connect(m_autoCreateBuildDirectoryCheckBox, &QCheckBox::toggled,
+            this, &CMakeToolItemConfigWidget::store);
 }
 
 void CMakeToolItemConfigWidget::store() const
 {
     if (!m_loadingItem && m_id.isValid())
         m_model->updateCMakeTool(m_id, m_displayNameLineEdit->text(), m_binaryChooser->fileName(),
-                                 m_autoRunCheckBox->checkState() == Qt::Checked);
+                                 m_autoRunCheckBox->checkState() == Qt::Checked,
+                                 m_autoCreateBuildDirectoryCheckBox->checkState() == Qt::Checked);
 }
 
 void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
@@ -385,6 +407,7 @@ void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
     m_binaryChooser->setFileName(item->m_executable);
 
     m_autoRunCheckBox->setChecked(item->m_isAutoRun);
+    m_autoCreateBuildDirectoryCheckBox->setChecked(item->m_autoCreateBuildDirectory);
 
     m_id = item->m_id;
     m_loadingItem = false;
@@ -490,7 +513,8 @@ void CMakeToolConfigWidget::cloneCMakeTool()
 
     QModelIndex newItem = m_model.addCMakeTool(tr("Clone of %1").arg(m_currentItem->m_name),
                                                m_currentItem->m_executable,
-                                               m_currentItem->m_isAutoRun, false);
+                                               m_currentItem->m_isAutoRun,
+                                               m_currentItem->m_autoCreateBuildDirectory, false);
 
     m_cmakeToolsView->setCurrentIndex(newItem);
 }
@@ -498,7 +522,7 @@ void CMakeToolConfigWidget::cloneCMakeTool()
 void CMakeToolConfigWidget::addCMakeTool()
 {
     QModelIndex newItem = m_model.addCMakeTool(m_model.uniqueDisplayName(tr("New CMake")),
-                                               FileName(), true, false);
+                                               FileName(), true, false, false);
 
     m_cmakeToolsView->setCurrentIndex(newItem);
 }
@@ -552,10 +576,7 @@ CMakeSettingsPage::CMakeSettingsPage()
 {
     setId(Constants::CMAKE_SETTINGSPAGE_ID);
     setDisplayName(tr("CMake"));
-    setCategory(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
-       ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
+    setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
 }
 
 QWidget *CMakeSettingsPage::widget()

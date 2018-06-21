@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QmlAnchorBindingProxy_h
-#define QmlAnchorBindingProxy_h
+#pragma once
 
 #include <QObject>
 #include <modelnode.h>
@@ -86,8 +85,8 @@ public:
 
     //only enable if node has parent
 
-    QmlAnchorBindingProxy(QObject *parent = 0);
-    ~QmlAnchorBindingProxy();
+    QmlAnchorBindingProxy(QObject *parent = nullptr);
+    ~QmlAnchorBindingProxy() override;
 
     void setup(const QmlItemNode &itemNode);
     void invalidate(const QmlItemNode &itemNode);
@@ -248,6 +247,3 @@ private:
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-
-#endif //QmlAnchorBindingProxy

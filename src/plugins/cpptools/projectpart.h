@@ -31,6 +31,7 @@
 #include "projectpartheaderpath.h"
 
 #include <projectexplorer/projectexplorer_global.h>
+#include <projectexplorer/projectmacro.h>
 
 #include <coreplugin/id.h>
 
@@ -80,7 +81,8 @@ public:
     enum QtVersion {
         UnknownQt = -1,
         NoQt,
-        Qt4,
+        Qt4_8_6AndOlder,
+        Qt4Latest,
         Qt5
     };
 
@@ -89,10 +91,17 @@ public:
         WordWidth64Bit,
     };
 
+    enum BuildTargetType {
+        Unknown,
+        Executable,
+        Library
+    };
+
     using Ptr = QSharedPointer<ProjectPart>;
 
 public:
     QString id() const;
+    QString projectFileLocation() const;
 
     Ptr copy() const;
     void updateLanguageFeatures();
@@ -105,14 +114,18 @@ public:
     QString displayName;
 
     QString projectFile;
+    int projectFileLine = -1;
+    int projectFileColumn = -1;
     QString projectConfigFile; // currently only used by the Generic Project Manager
+    QString callGroupId;
+    QString buildSystemTarget;
 
     ProjectFiles files;
 
     QStringList precompiledHeaders;
     ProjectPartHeaderPaths headerPaths;
 
-    QByteArray projectDefines;
+    ProjectExplorer::Macros projectMacros;
 
     LanguageVersion languageVersion = LatestCxxVersion;
     LanguageExtensions languageExtensions = NoExtensions;
@@ -124,9 +137,11 @@ public:
 
     Core::Id toolchainType;
     bool isMsvc2015Toolchain = false;
-    QByteArray toolchainDefines;
+    ProjectExplorer::Macros toolChainMacros;
     ToolChainWordWidth toolChainWordWidth = WordWidth32Bit;
     QString toolChainTargetTriple;
+    QStringList extraCodeModelFlags;
+    BuildTargetType buildTargetType = Unknown;
 };
 
 } // namespace CppTools

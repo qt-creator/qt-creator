@@ -41,11 +41,8 @@ class CPPTOOLS_EXPORT TestProject: public ProjectExplorer::Project
 
 public:
     TestProject(const QString &name, QObject *parent);
-    ~TestProject() override;
 
-    QString displayName() const override { return m_name; }
-
-    QStringList files(FilesMode fileMode) const override { Q_UNUSED(fileMode); return QStringList(); }
+    bool needsConfiguration() const final { return false; }
 
 private:
     QString m_name;
@@ -58,7 +55,7 @@ class CPPTOOLS_EXPORT ModelManagerTestHelper: public QObject
 public:
     typedef ProjectExplorer::Project Project;
 
-    explicit ModelManagerTestHelper(QObject *parent = 0,
+    explicit ModelManagerTestHelper(QObject *parent = nullptr,
                                     bool testOnlyForCleanedProjects = true);
     ~ModelManagerTestHelper() override;
 

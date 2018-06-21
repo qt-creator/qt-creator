@@ -29,74 +29,27 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-#include <QStringList>
-
-namespace Utils {
-class Environment;
-class PortList;
-}
-
 namespace RemoteLinux {
-class RemoteLinuxRunConfigurationWidget;
-class RemoteLinuxDeployConfiguration;
-
-namespace Internal {
-class RemoteLinuxRunConfigurationPrivate;
-class RemoteLinuxRunConfigurationFactory;
-} // namespace Internal
 
 class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
-    Q_DISABLE_COPY(RemoteLinuxRunConfiguration)
-    friend class Internal::RemoteLinuxRunConfigurationFactory;
-    friend class RemoteLinuxRunConfigurationWidget;
 
 public:
-    RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
-                                const QString &targetName);
-    ~RemoteLinuxRunConfiguration() override;
-
-    bool isEnabled() const override;
-    QWidget *createConfigurationWidget() override;
-    Utils::OutputFormatter *createOutputFormatter() const override;
-
-    ProjectExplorer::Runnable runnable() const override;
-
-    QString localExecutableFilePath() const;
-    QString defaultRemoteExecutableFilePath() const;
-    QString remoteExecutableFilePath() const;
-    QString arguments() const;
-    void setArguments(const QString &args);
-    QString workingDirectory() const;
-    void setWorkingDirectory(const QString &wd);
-    void setAlternateRemoteExecutable(const QString &exe);
-    QString alternateRemoteExecutable() const;
-    void setUseAlternateExecutable(bool useAlternate);
-    bool useAlternateExecutable() const;
-
-    QVariantMap toMap() const override;
-
+    RemoteLinuxRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
     static const char *IdPrefix;
 
-signals:
-    void deploySpecsChanged();
-    void targetInformationChanged() const;
-
-protected:
-    RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent,
-        RemoteLinuxRunConfiguration *source);
-    bool fromMap(const QVariantMap &map) override;
-    QString defaultDisplayName();
-
-protected:
-    void updateEnabledState() { emit enabledChanged(); }
-
 private:
-    void handleBuildSystemDataUpdated();
-    void init();
+    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
 
-    Internal::RemoteLinuxRunConfigurationPrivate * const d;
+    QString defaultDisplayName() const;
+    void updateTargetInformation();
+};
+
+class RemoteLinuxRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
+{
+public:
+    RemoteLinuxRunConfigurationFactory();
 };
 
 } // namespace RemoteLinux

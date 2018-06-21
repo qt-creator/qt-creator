@@ -1,0 +1,77 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+
+PROJECT(%{TestCaseName}
+        LANGUAGES CXX)
+
+@if "%{TestFrameWork}" == "QtTest"
+
+find_package(Qt5Test REQUIRED)
+@if "%{RequireGUI}" == "true"
+find_package(Qt5Gui REQUIRED)
+@endif
+
+SET(CMAKE_AUTOMOC ON)
+SET(CMAKE_INCLUDE_CURRENT_DIR ON)
+SET(CMAKE_CXX_STANDARD 11)
+SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+ENABLE_TESTING()
+
+add_executable(${PROJECT_NAME} %{TestCaseFileWithCppSuffix})
+add_test(${PROJECT_NAME} COMMAND ${PROJECT_NAME})
+
+@if "%{RequireGUI}" == "true"
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Gui Qt5::Test)
+@else
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Test)
+@endif
+
+@endif
+@if "%{TestFrameWork}" == "QtQuickTest"
+find_package(Qt5QuickTest REQUIRED)
+
+SET(CMAKE_AUTOMOC ON)
+SET(CMAKE_INCLUDE_CURRENT_DIR ON)
+SET(CMAKE_CXX_STANDARD 11)
+SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+ENABLE_TESTING()
+
+# no need to copy around qml test files for shadow builds - just set the respective define
+add_definitions(-DQUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+
+add_executable(${PROJECT_NAME} %{MainCppName})
+add_test(${PROJECT_NAME} COMMAND ${PROJECT_NAME})
+
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::QuickTest)
+
+@endif
+@if  "%{TestFrameWork}" == "GTest"
+
+@if "%{GTestCXX11}" == "true"
+add_definitions(-DGTEST_LANGUAGE_CXX11)
+@endif
+
+find_package(Threads REQUIRED)
+
+if ($ENV{GOOGLETEST_DIR})
+    SET(GOOGLETEST_DIR $ENV{GOOGLETEST_DIR})
+else ()
+    message(WARNING "Using googletest src dir specified at Qt Creator wizard")
+    SET(GOOGLETEST_DIR "%{GTestRepository}")
+endif ()
+if (EXISTS ${GOOGLETEST_DIR})
+    SET(GTestSrc ${GOOGLETEST_DIR}/googletest)
+    SET(GMockSrc ${GOOGLETEST_DIR}/googlemock)
+else ()
+    message( FATAL_ERROR "No googletest src dir found - set GOOGLETEST_DIR to enable!")
+endif ()
+
+
+include_directories(${GTestSrc} ${GTestSrc}/include ${GMockSrc} ${GMockSrc}/include)
+
+add_executable(${PROJECT_NAME} %{MainCppName} %{TestCaseFileWithHeaderSuffix}
+               ${GTestSrc}/src/gtest-all.cc
+               ${GMockSrc}/src/gmock-all.cc)
+add_test(${PROJECT_NAME} COMMAND ${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
+
+@endif

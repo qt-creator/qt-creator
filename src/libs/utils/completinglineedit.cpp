@@ -62,7 +62,7 @@ void CompletingLineEdit::keyPressEvent(QKeyEvent *e)
                 comp->complete();
         }
     }
-    return QLineEdit::keyPressEvent(e);
+    QLineEdit::keyPressEvent(e);
 }
 
 } // namespace Utils

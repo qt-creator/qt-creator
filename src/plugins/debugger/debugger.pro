@@ -25,12 +25,10 @@ HEADERS += \
     debuggerdialogs.h \
     debuggerengine.h \
     debuggermainwindow.h \
-    debuggeroptionspage.h \
     debuggerplugin.h \
     debuggerprotocol.h \
     debuggerrunconfigurationaspect.h \
     debuggerruncontrol.h \
-    debuggerstartparameters.h \
     debuggerkitconfigwidget.h \
     debuggerkitinformation.h \
     disassembleragent.h \
@@ -79,7 +77,6 @@ SOURCES += \
     debuggerprotocol.cpp \
     debuggerrunconfigurationaspect.cpp \
     debuggerruncontrol.cpp \
-    debuggeroptionspage.cpp \
     debuggerkitconfigwidget.cpp \
     debuggerkitinformation.cpp \
     disassembleragent.cpp \

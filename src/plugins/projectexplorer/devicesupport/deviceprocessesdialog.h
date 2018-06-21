@@ -43,7 +43,7 @@ class PROJECTEXPLORER_EXPORT DeviceProcessesDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit DeviceProcessesDialog(QWidget *parent = 0);
+    explicit DeviceProcessesDialog(QWidget *parent = nullptr);
     ~DeviceProcessesDialog() override;
     void addAcceptButton(const QString &label);
     void addCloseButton();

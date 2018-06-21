@@ -35,7 +35,7 @@ class EditableTextItem : public QGraphicsTextItem
 
 public:
     explicit EditableTextItem(QGraphicsItem *parent);
-    ~EditableTextItem();
+    ~EditableTextItem() override;
 
 signals:
     void returnKeyPressed();
@@ -54,6 +54,9 @@ protected:
     void keyReleaseEvent(QKeyEvent *event) override;
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
     void focusOutEvent(QFocusEvent *event) override;
+
+private:
+    bool isReturnKey(QKeyEvent *event) const;
 
 private:
     bool m_showFocus = false;

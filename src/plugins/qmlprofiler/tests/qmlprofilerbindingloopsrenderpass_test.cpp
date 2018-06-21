@@ -28,8 +28,8 @@
 
 #include <qmlprofiler/qmlprofilerbindingloopsrenderpass.h>
 #include <qmlprofiler/qmlprofilerrangemodel.h>
-#include <timeline/timelineabstractrenderer.h>
-#include <timeline/runscenegraphtest.h>
+#include <tracing/timelineabstractrenderer.h>
+#include <tracing/runscenegraphtest.h>
 #include <QtTest>
 
 namespace QmlProfiler {
@@ -37,30 +37,30 @@ namespace Internal {
 
 class DummyModel : public QmlProfilerRangeModel {
 public:
-    DummyModel(QmlProfilerModelManager *manager);
+    DummyModel(QmlProfilerModelManager *manager, Timeline::TimelineModelAggregator *aggregator);
     void loadData();
 };
 
-DummyModel::DummyModel(QmlProfilerModelManager *manager) :
-    QmlProfilerRangeModel(manager, Binding)
+DummyModel::DummyModel(QmlProfilerModelManager *manager,
+                       Timeline::TimelineModelAggregator *aggregator) :
+    QmlProfilerRangeModel(manager, Binding, aggregator)
 {
 }
 
 void DummyModel::loadData()
 {
-    QmlProfilerDataModel *dataModel = modelManager()->qmlModel();
     QmlEventType type(MaximumMessage, Binding);
-
-    dataModel->addEventType(type);
+    const int typeIndex = modelManager()->appendEventType(QmlEventType(type));
+    QCOMPARE(typeIndex, 0);
 
     for (int i = 0; i < 10; ++i) {
-        QmlEvent event(i, 0, {});
+        QmlEvent event(i, typeIndex, {});
         event.setRangeStage(RangeStart);
         loadEvent(event, type);
     }
 
     for (int i = 10; i < 20; ++i) {
-        QmlEvent event(i, 0, {});
+        QmlEvent event(i, typeIndex, {});
         event.setRangeStage(RangeEnd);
         loadEvent(event, type);
     }
@@ -92,8 +92,9 @@ void QmlProfilerBindingLoopsRenderPassTest::testUpdate()
             inst->update(&renderer, &parentState, 0, 0, 0, true, 1);
     QCOMPARE(result, nullState);
 
-    QmlProfilerModelManager manager(nullptr);
-    DummyModel model(&manager);
+    QmlProfilerModelManager manager;
+    Timeline::TimelineModelAggregator aggregator;
+    DummyModel model(&manager, &aggregator);
     renderer.setModel(&model);
     result = inst->update(&renderer, &parentState, 0, 0, 0, true, 1);
     QCOMPARE(result, nullState);

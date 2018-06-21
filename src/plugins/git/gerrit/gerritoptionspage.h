@@ -47,7 +47,7 @@ class GerritOptionsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit GerritOptionsWidget(QWidget *parent = 0);
+    explicit GerritOptionsWidget(QWidget *parent = nullptr);
 
     GerritParameters parameters() const;
     void setParameters(const GerritParameters &);
@@ -56,6 +56,7 @@ private:
     QLineEdit *m_hostLineEdit;
     QLineEdit *m_userLineEdit;
     Utils::PathChooser *m_sshChooser;
+    Utils::PathChooser *m_curlChooser;
     QSpinBox *m_portSpinBox;
     QCheckBox *m_httpsCheckBox;
 };
@@ -65,8 +66,7 @@ class GerritOptionsPage : public VcsBase::VcsBaseOptionsPage
     Q_OBJECT
 
 public:
-    GerritOptionsPage(const QSharedPointer<GerritParameters> &p,
-                      QObject *parent = 0);
+    GerritOptionsPage(const QSharedPointer<GerritParameters> &p, QObject *parent = nullptr);
     ~GerritOptionsPage();
 
     QWidget *widget() override;

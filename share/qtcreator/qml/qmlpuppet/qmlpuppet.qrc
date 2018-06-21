@@ -4,6 +4,7 @@
         <file>html/welcome.html</file>
         <file>images/webkit.png</file>
         <file>mockfiles/Window.qml</file>
+        <file>mockfiles/SwipeView.qml</file>
         <file>mockfiles/GenericBackend.qml</file>
     </qresource>
 </RCC>

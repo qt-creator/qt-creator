@@ -28,12 +28,10 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QPointer>
-#include <QtPlugin>
+#include <QKeySequence>
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QKeySequence;
 QT_END_NAMESPACE
 
 namespace Core { class Id; }
@@ -41,23 +39,20 @@ namespace Core { class Id; }
 namespace ImageViewer {
 namespace Internal {
 
-class ImageViewerFactory;
-
 class ImageViewerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ImageViewer.json")
 
 public:
-    ImageViewerPlugin() {}
-
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
+    ImageViewerPlugin() = default;
 
 private:
-    QAction *registerNewAction(Core::Id id, const QString &title, const QKeySequence &key);
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
 
-    QPointer<ImageViewerFactory> m_factory;
+    QAction *registerNewAction(Core::Id id, const QString &title = QString(),
+                               const QKeySequence &key = QKeySequence());
 };
 
 } // namespace Internal

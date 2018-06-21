@@ -40,6 +40,7 @@ enum {
 
 const QString rootElementName = QStringLiteral("MetaInfo");
 const QString typeElementName = QStringLiteral("Type");
+const QString importsElementName = QStringLiteral("Imports");
 const QString ItemLibraryEntryElementName = QStringLiteral("ItemLibraryEntry");
 const QString HintsElementName = QStringLiteral("Hints");
 const QString QmlSourceElementName = QStringLiteral("QmlSource");
@@ -95,7 +96,7 @@ void MetaInfoReader::elementStart(const QString &name)
     case ParsingHints:
     case Finished:
     case Undefined: setParserState(Error);
-        addError(tr("Illegal state while parsing"), currentSourceLocation());
+        addError(tr("Illegal state while parsing."), currentSourceLocation());
     case Error:
     default: return;
     }
@@ -106,6 +107,7 @@ void MetaInfoReader::elementEnd()
     switch (parserState()) {
     case ParsingMetaInfo: setParserState(Finished); break;
     case ParsingType: setParserState(ParsingMetaInfo); break;
+    case ParsingImports: setParserState(ParsingMetaInfo); break;
     case ParsingItemLibrary: keepCurrentItemLibraryEntry(); setParserState((ParsingType)); break;
     case ParsingHints: setParserState(ParsingType); break;
     case ParsingProperty: insertProperty(); setParserState(ParsingItemLibrary);  break;
@@ -113,7 +115,7 @@ void MetaInfoReader::elementEnd()
     case ParsingDocument:
     case Finished:
     case Undefined: setParserState(Error);
-        addError(tr("Illegal state while parsing"), currentSourceLocation());
+        addError(tr("Illegal state while parsing."), currentSourceLocation());
     case Error:
     default: return;
     }
@@ -123,15 +125,16 @@ void MetaInfoReader::propertyDefinition(const QString &name, const QVariant &val
 {
     switch (parserState()) {
     case ParsingType: readTypeProperty(name, value); break;
+    case ParsingImports: readImportsProperty(name, value); break;
     case ParsingItemLibrary: readItemLibraryEntryProperty(name, value); break;
     case ParsingProperty: readPropertyProperty(name, value); break;
     case ParsingQmlSource: readQmlSourceProperty(name, value); break;
-    case ParsingMetaInfo: addError(tr("No property definition allowed"), currentSourceLocation()); break;
+    case ParsingMetaInfo: addError(tr("No property definition allowed."), currentSourceLocation()); break;
     case ParsingDocument:
     case ParsingHints: readHint(name, value); break;
     case Finished:
     case Undefined: setParserState(Error);
-        addError(tr("Illegal state while parsing"), currentSourceLocation());
+        addError(tr("Illegal state while parsing."), currentSourceLocation());
     case Error:
     default: return;
     }
@@ -154,7 +157,10 @@ MetaInfoReader::ParserSate MetaInfoReader::readMetaInfoRootElement(const QString
     if (name == typeElementName) {
         m_currentClassName.clear();
         m_currentIcon.clear();
+        m_currentHints.clear();
         return ParsingType;
+    } else if (name == importsElementName) {
+        return ParsingImports;
     } else {
         addErrorInvalidType(name);
         return Error;
@@ -206,6 +212,20 @@ MetaInfoReader::ParserSate MetaInfoReader::readQmlSourceElement(const QString &n
     return Error;
 }
 
+void MetaInfoReader::readImportsProperty(const QString &name, const QVariant &value)
+{
+    const auto values = value.toStringList();
+
+    if (name == "blacklistImports" && !values.isEmpty()) {
+        m_metaInfo.itemLibraryInfo()->addBlacklistImports(values);
+    } else if (name == "showTagsForImports" && !values.isEmpty()) {
+        m_metaInfo.itemLibraryInfo()->addShowTagsForImports(values);
+    } else {
+        addError(tr("Unknown property for Imports %1").arg(name), currentSourceLocation());
+        setParserState(Error);
+    }
+}
+
 void MetaInfoReader::readTypeProperty(const QString &name, const QVariant &value)
 {
     if (name == QLatin1String("name")) {
@@ -241,7 +261,7 @@ void MetaInfoReader::readItemLibraryEntryProperty(const QString &name, const QVa
 void MetaInfoReader::readPropertyProperty(const QString &name, const QVariant &value)
 {
     if (name == QStringLiteral("name")) {
-       m_currentPropertyName = value.toByteArray();
+        m_currentPropertyName = value.toByteArray();
     } else if (name == QStringLiteral("type")) {
         m_currentPropertyType = value.toString();
     } else if (name == QStringLiteral("value")) {
@@ -277,9 +297,9 @@ void MetaInfoReader::setVersion(const QString &versionNumber)
         int val;
         bool ok;
         if (versionNumber.contains(QLatin1Char('.'))) {
-            val = versionNumber.split(QLatin1Char('.')).first().toInt(&ok);
+            val = versionNumber.split(QLatin1Char('.')).constFirst().toInt(&ok);
             major = ok ? val : major;
-            val = versionNumber.split(QLatin1Char('.')).last().toInt(&ok);
+            val = versionNumber.split(QLatin1Char('.')).constLast().toInt(&ok);
             minor = ok ? val : minor;
         } else {
             val = versionNumber.toInt(&ok);

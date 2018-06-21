@@ -26,6 +26,9 @@
 #pragma once
 
 #include <qmldesignercorelib_global.h>
+
+#include <documentmessage.h>
+
 #include <QObject>
 #include <QPair>
 
@@ -37,7 +40,10 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-namespace Internal { class ModelPrivate; }
+namespace Internal {
+class ModelPrivate;
+class WriteLocker;
+} //Internal
 
 class AnchorLine;
 class ModelNode;
@@ -58,21 +64,19 @@ typedef QList<QPair<PropertyName, QVariant> > PropertyListType;
 class QMLDESIGNERCORE_EXPORT Model : public QObject
 {
     friend class QmlDesigner::ModelNode;
-    friend class QmlDesigner::NodeState;
-    friend class QmlDesigner::ModelState;
-    friend class QmlDesigner::NodeAnchors;
     friend class QmlDesigner::AbstractProperty;
     friend class QmlDesigner::AbstractView;
     friend class Internal::ModelPrivate;
+    friend class Internal::WriteLocker;
 
     Q_OBJECT
 
 public:
     enum ViewNotification { NotifyView, DoNotNotifyView };
 
-    virtual ~Model();
+    ~Model() override;
 
-    static Model *create(TypeName type, int major = 1, int minor = 1, Model *metaInfoPropxyModel = 0);
+    static Model *create(TypeName type, int major = 1, int minor = 1, Model *metaInfoPropxyModel = nullptr);
 
     QUrl fileUrl() const;
     void setFileUrl(const QUrl &url);
@@ -95,8 +99,10 @@ public:
     void setPossibleImports(const QList<Import> &possibleImports);
     void setUsedImports(const QList<Import> &usedImports);
     bool hasImport(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false);
+    bool isImportPossible(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false);
     QString pathForImport(const Import &import);
     QStringList importPaths() const;
+    Import highestPossibleImport(const QString &importPath);
 
     RewriterView *rewriterView() const;
     void setRewriterView(RewriterView *rewriterView);
@@ -108,11 +114,12 @@ public:
 
     TextModifier *textModifier() const;
     void setTextModifier(TextModifier *textModifier);
+    void setDocumentMessages(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings);
 
 protected:
     Model();
 
-public:
+private:
     Internal::ModelPrivate *d;
 };
 

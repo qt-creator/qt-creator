@@ -33,9 +33,7 @@
 #include <string>
 #include <cstdio> // for putchar
 
-#if defined(_MSC_VER) && (_MSC_VER < 1800)
-#    define va_copy(dst, src) ((dst) = (src))
-#elif defined(__INTEL_COMPILER) && !defined(va_copy)
+#if defined(__INTEL_COMPILER) && !defined(va_copy)
 #    define va_copy __va_copy
 #endif
 
@@ -444,7 +442,7 @@ bool Parser::skipUntilStatement()
             case T_AT_THROW:
                 if (_languageFeatures.objCEnabled)
                     return true;
-
+                Q_FALLTHROUGH();
             default:
                 consumeToken();
         }
@@ -863,7 +861,8 @@ bool Parser::parseStaticAssertDeclaration(DeclarationAST *&node)
 bool Parser::parseNamespace(DeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
-    if (LA() != T_NAMESPACE && !(_languageFeatures.cxx11Enabled && LA() == T_INLINE && LA(2) == T_NAMESPACE))
+    if (LA() != T_NAMESPACE && !(_languageFeatures.cxx11Enabled && LA() == T_INLINE && LA(2) == T_NAMESPACE)
+            && !isNestedNamespace())
         return false;
 
     unsigned inline_token = 0;
@@ -892,7 +891,9 @@ bool Parser::parseNamespace(DeclarationAST *&node)
     if (LA() == T_IDENTIFIER)
         ast->identifier_token = consumeToken();
     parseOptionalAttributeSpecifierSequence(ast->attribute_list);
-    if (LA() == T_LBRACE) {
+    if (isNestedNamespace()) {
+        parseNestedNamespace(ast->linkage_body);
+    } else if (LA() == T_LBRACE) {
         parseLinkageBody(ast->linkage_body);
     } else { // attempt to do error recovery
         unsigned pos = cursor();
@@ -921,6 +922,22 @@ bool Parser::parseNamespace(DeclarationAST *&node)
     }
     node = ast;
     return true;
+}
+
+bool Parser::isNestedNamespace() const
+{
+    return _languageFeatures.cxx11Enabled && LA() == T_COLON_COLON && LA(2) == T_IDENTIFIER;
+}
+
+bool Parser::parseNestedNamespace(DeclarationAST *&node)
+{
+    DEBUG_THIS_RULE();
+    DeclarationAST *ast = 0;
+    if (isNestedNamespace() && parseNamespace(ast)) {
+        node = ast;
+        return true;
+    }
+    return false;
 }
 
 bool Parser::parseUsing(DeclarationAST *&node)
@@ -2565,7 +2582,7 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node, ClassSpecifierAST *
     case T_STATIC_ASSERT:
         if (_languageFeatures.cxx11Enabled)
             CACHE_AND_RETURN(cacheKey, parseStaticAssertDeclaration(node));
-        // fall-through
+        Q_FALLTHROUGH();
 
     default:
         CACHE_AND_RETURN(cacheKey, parseSimpleDeclaration(node, declaringClass));
@@ -3830,7 +3847,7 @@ bool Parser::parseBlockDeclaration(DeclarationAST *&node)
     case T_STATIC_ASSERT:
         if (_languageFeatures.cxx11Enabled)
             return parseStaticAssertDeclaration(node);
-        // fall-through
+        Q_FALLTHROUGH();
 
     default:
         return parseSimpleDeclaration(node);
@@ -3914,7 +3931,7 @@ bool Parser::lookAtStorageClassSpecifier() const
     case T_CONSTEXPR:
         if (_languageFeatures.cxx11Enabled)
             return true;
-        // fall-through
+        Q_FALLTHROUGH();
     default:
         return false;
     }
@@ -4514,7 +4531,7 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
     case T_NULLPTR:
         if (_languageFeatures.cxx11Enabled)
             return parsePointerLiteral(node);
-        // fall-through
+        Q_FALLTHROUGH();
 
     case T_CHAR_LITERAL: // ### FIXME don't use NumericLiteral for chars
     case T_WIDE_CHAR_LITERAL:
@@ -4981,7 +4998,7 @@ bool Parser::parseNameId(NameAST *&name)
         return parseName(name, false);
 
     default:
-        if (tok().isLiteral() || tok().isOperator()) {
+        if (tok().isLiteral() || tok().isPunctuationOrOperator()) {
             rewind(start);
             return parseName(name, false);
         }

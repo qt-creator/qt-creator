@@ -40,7 +40,7 @@ class DebuggerPlugin : public ExtensionSystem::IPlugin
 
 public:
     DebuggerPlugin();
-    ~DebuggerPlugin();
+    ~DebuggerPlugin() override;
 
     static DebuggerPlugin *instance();
 
@@ -55,6 +55,9 @@ private:
 
     // Called from AppOutputPane::attachToRunControl().
     Q_SLOT void attachExternalApplication(ProjectExplorer::RunControl *rc);
+
+    // Called from GammaRayIntegration
+    Q_SLOT void getEnginesState(QByteArray *json) const;
 
     QList<QObject *> createTestObjects() const override;
 };

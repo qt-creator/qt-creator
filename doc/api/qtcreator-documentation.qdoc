@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -68,8 +68,9 @@
 
     QDoc finds the new topics automatically, when you place them as \c {.qdoc}
     files in the correct folder. However, to make the topics accessible to
-    readers, you must also add them to the table of contents and fix the next
-    page and previous page links to them from other topics.
+    readers, you must also add them to the table of contents
+    (\c {doc\src\qtcreator-toc.qdoc}) and fix the next page and previous page
+    links to them from other topics.
 
     \section2 Creating Folders and Files
 
@@ -110,9 +111,11 @@
     commands to the topic, with dummy values (for example,
     \c {\nextpage=anything.html}).
 
-    \note The script creates the links according to the TOC on the front page.
-    If your topics are not listed in the TOC, the script removes the
-    \c {\nextpage} and \c {\previouspage} commands from them.
+    \note The script creates the links according to the TOC in the topic set as
+    the value of the \c indexTitle configuration parameter
+    (\c {doc\src\qtcreator-toc.qdoc}). If your topics are not listed in the TOC,
+    the script removes the \c {\nextpage} and \c {\previouspage} commands from
+    them.
 
     To run the script, you must have Perl installed. If you build Qt yourself,
     you should already have it. Otherwise, download and install
@@ -192,6 +195,31 @@
             save space.
     \endlist
 
+    \section2 Hightlighting Parts of the Screen
+
+    You can use number icons in screenshots to highlight parts of the screenshot
+    (instead of using red arrows or borders, or something similar). You can then
+    refer to the numbers in text. For and example, see the
+    \l{http://doc.qt.io/qt-5/topics-app-development.html}{Development Tools}
+    topic in the Qt reference documentation.
+
+    This improves the consistency of the look and feel of Qt documentation,
+    and eliminates the need to describe parts of the UI in the text, because
+    you can just insert the number of the element you are referring to in
+    brackets.
+
+    You can find a set of images that show the numbers from 1 to 10  in the
+    \c doc\images\numbers directory (or in the \c qtdoc module sources in
+    \c doc\images\numbers).
+
+    To use the numbers:
+
+    \list
+        \li Take a screenshot as described above.
+        \li After resizing the screenshot, copy-paste the number images on
+            the screenshot to the places that you want to refer to from text.
+    \endlist
+
     \section2 Optimizing Images
 
     Save images in the PNG format in the \QC project folder in the
@@ -238,12 +266,29 @@
 
     You can also see the sizes of the initial and optimized image.
 
+    \section3 Using OptiPNG
+
+    Download and install \l{https://sourceforge.net/projects/optipng/}{OptiPNG}.
+
+    OptiPNG is a command-line tool that you can invoke from the \QC project
+    folder (or any folder that contains your project). To optimize a screenshot,
+    enter the following command (here, from the \QC project folder):
+
+    \code
+    optipng -o 7 -strip all doc/images/<screenshot_name>
+    \endcode
+
     \section1 Building Documentation
 
     You use QDoc to build the documentation. Build the documentation from time
     to time, to check its structure and the validity of the QDoc commands.
     The error messages that QDoc issues are generally very useful for
     troubleshooting.
+
+    For more information about setting up the build environment if you do not
+    want to build the whole Qt, see
+    \l{https://wiki.qt.io/Building_Qt_Documentation}{Building Qt Documentation}
+    on the Qt wiki.
 
     The content and formatting of documentation are separated in QDoc.
     The documentation configuration, style sheets, and templates have
@@ -266,9 +311,8 @@
     running it on a web server.
 
     \note If the styles look wrong to you when reading help files in \QC or \QA,
-    you might be looking at them in the QTextBrowser instead of the WebKit
-    browser. This happens if you build \QC and \QA with a self-built Qt and did
-    not build Qt WebKit.
+    you might be looking at them in the QTextBrowser instead of the Qr WebEngine
+    browser. This happens if you do not have Qt WebEngine installed.
 
     To build documentation for the sources from the qtcreator master branch, use
     build scripts defined in the doc.pri file. To build all \QC docs in the
@@ -281,9 +325,9 @@
         \li  make docs (on Linux and \macos)
     \endlist
 
-    The \QC Manual HTML files are generated in the \c {doc/html} directory.
+    The \QC Manual HTML files are generated in the \c {doc/qtcreator} directory.
     The Extending \QC Manual files are generated in the
-    \c {doc/html-dev} directory. The help files (\c {.qch}) are generated in the
+    \c {doc/qtcreator-dev} directory. The help files (\c {.qch}) are generated in the
     \c {share/doc/qtcreator} directory in the \QC build directory on Windows and
     Linux, and in the \c {bin/Qt Creator.app/Contents/Resources/app} directory
     on \macos. You can view the HTML files in a browser and the help files in

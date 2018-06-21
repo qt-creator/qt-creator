@@ -62,7 +62,7 @@ private:
             void (U::*setter() const)(V) { return m_setter; }
         private:
             U &m_object;
-            void (U::*m_setter)(V) = 0;
+            void (U::*m_setter)(V) = nullptr;
         };
 
     public:
@@ -92,7 +92,7 @@ private:
         template<typename V>
         bool visit(RefNode<V> *node, int *index)
         {
-            V v = 0;
+            V v = nullptr;
             if (!scan(&v, index))
                 return false;
             node->ref() = v;

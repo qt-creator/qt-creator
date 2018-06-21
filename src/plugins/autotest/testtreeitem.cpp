@@ -24,13 +24,15 @@
 ****************************************************************************/
 
 #include "autotestconstants.h"
-#include "autotest_utils.h"
 #include "itestparser.h"
 #include "testconfiguration.h"
 #include "testtreeitem.h"
 
 #include <cplusplus/Icons.h>
+#include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <texteditor/texteditor.h>
+#include <utils/utilsicons.h>
 
 #include <QIcon>
 
@@ -42,20 +44,31 @@ TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type ty
       m_filePath(filePath),
       m_type(type)
 {
-    m_checked = (m_type == TestCase || m_type == TestFunctionOrSet) ? Qt::Checked : Qt::Unchecked;
+    switch (m_type) {
+    case Root:
+    case GroupNode:
+    case TestCase:
+    case TestFunctionOrSet:
+        m_checked = Qt::Checked;
+        break;
+    default:
+        m_checked = Qt::Unchecked;
+        break;
+    }
 }
 
 static QIcon testTreeIcon(TestTreeItem::Type type)
 {
     static QIcon icons[] = {
         QIcon(),
+        Utils::Icons::OPENFILE.icon(),
         CPlusPlus::Icons::iconForType(CPlusPlus::Icons::ClassIconType),
         CPlusPlus::Icons::iconForType(CPlusPlus::Icons::SlotPrivateIconType),
-        QIcon(QLatin1String(":/images/data.png"))
+        QIcon(":/autotest/images/data.png")
     };
 
     if (int(type) >= int(sizeof icons / sizeof *icons))
-        return icons[2];
+        return icons[3];
     return icons[type];
 }
 
@@ -74,8 +87,10 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
     case Qt::CheckStateRole:
         return QVariant();
     case LinkRole: {
+        if (m_type == GroupNode)
+            return QVariant();
         QVariant itemLink;
-        itemLink.setValue(TextEditor::TextEditorWidget::Link(m_filePath, m_line, m_column));
+        itemLink.setValue(Utils::Link(m_filePath, m_line, m_column));
         return itemLink;
     }
     case ItalicRole:
@@ -91,9 +106,9 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
 bool TestTreeItem::setData(int /*column*/, const QVariant &data, int role)
 {
     if (role == Qt::CheckStateRole) {
-        Qt::CheckState old = checked();
-        setChecked((Qt::CheckState)data.toInt());
-        return checked() != old;
+        Qt::CheckState old = m_checked;
+        m_checked = (Qt::CheckState)data.toInt();
+        return m_checked != old;
     }
     return false;
 }
@@ -103,7 +118,8 @@ Qt::ItemFlags TestTreeItem::flags(int /*column*/) const
     static const Qt::ItemFlags defaultFlags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     switch (m_type) {
     case Root:
-        return Qt::ItemIsEnabled;
+    case GroupNode:
+        return Qt::ItemIsEnabled | Qt::ItemIsAutoTristate | Qt::ItemIsUserCheckable;
     case TestCase:
         return defaultFlags | Qt::ItemIsAutoTristate | Qt::ItemIsUserCheckable;
     case TestFunctionOrSet:
@@ -116,73 +132,47 @@ Qt::ItemFlags TestTreeItem::flags(int /*column*/) const
     }
 }
 
-bool TestTreeItem::modifyTestCaseContent(const QString &name, unsigned line, unsigned column)
+bool TestTreeItem::modifyTestCaseContent(const TestParseResult *result)
 {
-    bool hasBeenModified = modifyName(name);
-    hasBeenModified |= modifyLineAndColumn(line, column);
+    bool hasBeenModified = modifyName(result->name);
+    hasBeenModified |= modifyLineAndColumn(result);
     return hasBeenModified;
 }
 
 bool TestTreeItem::modifyTestFunctionContent(const TestParseResult *result)
 {
     bool hasBeenModified = modifyFilePath(result->fileName);
-    hasBeenModified |= modifyLineAndColumn(result->line, result->column);
+    hasBeenModified |= modifyLineAndColumn(result);
     return hasBeenModified;
 }
 
-// TODO pass TestParseResult * to all modifyXYZ() OR remove completely if possible
-bool TestTreeItem::modifyDataTagContent(const QString &name, const QString &fileName,
-                                        unsigned line, unsigned column)
+bool TestTreeItem::modifyDataTagContent(const TestParseResult *result)
 {
-    bool hasBeenModified = modifyFilePath(fileName);
-    hasBeenModified |= modifyName(name);
-    hasBeenModified |= modifyLineAndColumn(line, column);
+
+    bool hasBeenModified = modifyTestFunctionContent(result);
+    hasBeenModified |= modifyName(result->name);
     return hasBeenModified;
 }
 
-bool TestTreeItem::modifyLineAndColumn(unsigned line, unsigned column)
+bool TestTreeItem::modifyLineAndColumn(const TestParseResult *result)
 {
     bool hasBeenModified = false;
-    if (m_line != line) {
-        m_line = line;
+    if (m_line != result->line) {
+        m_line = result->line;
         hasBeenModified = true;
     }
-    if (m_column != column) {
-        m_column = column;
+    if (m_column != result->column) {
+        m_column = result->column;
         hasBeenModified = true;
     }
     return hasBeenModified;
-}
-
-void TestTreeItem::setChecked(const Qt::CheckState checkState)
-{
-    switch (m_type) {
-    case TestDataTag: {
-        m_checked = (checkState == Qt::Unchecked ? Qt::Unchecked : Qt::Checked);
-        if (auto parent = parentItem())
-            parent->revalidateCheckState();
-        break;
-    }
-    case TestFunctionOrSet:
-    case TestCase: {
-        Qt::CheckState usedState = (checkState == Qt::Unchecked ? Qt::Unchecked : Qt::Checked);
-        for (int row = 0, count = childCount(); row < count; ++row)
-            childItem(row)->setChecked(usedState);
-        m_checked = usedState;
-        if (m_type == TestFunctionOrSet) {
-            if (auto parent = parentItem())
-                parent->revalidateCheckState();
-        }
-        break;
-    }
-    default:
-        return;
-    }
 }
 
 Qt::CheckState TestTreeItem::checked() const
 {
     switch (m_type) {
+    case Root:
+    case GroupNode:
     case TestCase:
     case TestFunctionOrSet:
     case TestDataTag:
@@ -201,19 +191,17 @@ void TestTreeItem::markForRemovalRecursively(bool mark)
 {
     markForRemoval(mark);
     for (int row = 0, count = childCount(); row < count; ++row)
-        childItem(row)->markForRemovalRecursively(mark);
+        childAt(row)->markForRemovalRecursively(mark);
 }
 
 void TestTreeItem::markForRemovalRecursively(const QString &filePath)
 {
-    if (m_filePath == filePath) {
-        markForRemovalRecursively(true);
-    } else {
-        for (int row = 0, count = childCount(); row < count; ++row) {
-            TestTreeItem *child = childItem(row);
-            child->markForRemovalRecursively(filePath);
-        }
-    }
+    bool mark = m_filePath == filePath;
+    forFirstLevelChildren([&mark, &filePath](TestTreeItem *child) {
+        child->markForRemovalRecursively(filePath);
+        mark &= child->markedForRemoval();
+    });
+    markForRemoval(mark);
 }
 
 TestTreeItem *TestTreeItem::parentItem() const
@@ -221,30 +209,44 @@ TestTreeItem *TestTreeItem::parentItem() const
     return static_cast<TestTreeItem *>(parent());
 }
 
-TestTreeItem *TestTreeItem::childItem(int row) const
-{
-    return static_cast<TestTreeItem *>(childAt(row));
-}
-
 TestTreeItem *TestTreeItem::findChildByName(const QString &name)
 {
-    return findChildBy([name](const TestTreeItem *other) -> bool {
-        return other->name() == name;
-    });
+    return findFirstLevelChild([name](const TestTreeItem *other) { return other->name() == name; });
 }
 
 TestTreeItem *TestTreeItem::findChildByFile(const QString &filePath)
 {
-    return findChildBy([filePath](const TestTreeItem *other) -> bool {
+    return findFirstLevelChild([filePath](const TestTreeItem *other) {
         return other->filePath() == filePath;
+    });
+}
+
+TestTreeItem *TestTreeItem::findChildByFileAndType(const QString &filePath, Type tType)
+{
+    return findFirstLevelChild([filePath, tType](const TestTreeItem *other) {
+        return other->type() == tType && other->filePath() == filePath;
     });
 }
 
 TestTreeItem *TestTreeItem::findChildByNameAndFile(const QString &name, const QString &filePath)
 {
-    return findChildBy([name, filePath](const TestTreeItem *other) -> bool {
+    return findFirstLevelChild([name, filePath](const TestTreeItem *other) {
         return other->filePath() == filePath && other->name() == name;
     });
+}
+
+TestConfiguration *TestTreeItem::asConfiguration(TestRunMode mode) const
+{
+    switch (mode) {
+    case TestRunMode::Run:
+    case TestRunMode::RunWithoutDeploy:
+        return testConfiguration();
+    case TestRunMode::Debug:
+    case TestRunMode::DebugWithoutDeploy:
+        return debugConfiguration();
+    default:
+        return nullptr;
+    }
 }
 
 QList<TestConfiguration *> TestTreeItem::getAllTestConfigurations() const
@@ -253,6 +255,11 @@ QList<TestConfiguration *> TestTreeItem::getAllTestConfigurations() const
 }
 
 QList<TestConfiguration *> TestTreeItem::getSelectedTestConfigurations() const
+{
+    return QList<TestConfiguration *>();
+}
+
+QList<TestConfiguration *> TestTreeItem::getTestConfigurationsForFile(const Utils::FileName &) const
 {
     return QList<TestConfiguration *>();
 }
@@ -268,10 +275,11 @@ bool TestTreeItem::lessThan(const TestTreeItem *other, SortMode mode) const
             return index().row() > other->index().row();
         return lhs > rhs;
     case Naturally: {
-        const TextEditor::TextEditorWidget::Link &leftLink =
-                data(0, LinkRole).value<TextEditor::TextEditorWidget::Link>();
-        const TextEditor::TextEditorWidget::Link &rightLink =
-                other->data(0, LinkRole).value<TextEditor::TextEditorWidget::Link>();
+        if (m_type == GroupNode && other->type() == GroupNode)
+            return m_filePath > other->filePath();
+
+        const Utils::Link &leftLink = data(0, LinkRole).value<Utils::Link>();
+        const Utils::Link &rightLink = other->data(0, LinkRole).value<Utils::Link>();
         if (leftLink.targetFileName == rightLink.targetFileName) {
             return leftLink.targetLine == rightLink.targetLine
                     ? leftLink.targetColumn > rightLink.targetColumn
@@ -284,39 +292,44 @@ bool TestTreeItem::lessThan(const TestTreeItem *other, SortMode mode) const
     }
 }
 
-void TestTreeItem::revalidateCheckState()
+bool TestTreeItem::isGroupNodeFor(const TestTreeItem *other) const
 {
-    const Type ttiType = type();
-    if (ttiType != TestCase && ttiType != TestFunctionOrSet)
-        return;
-    if (childCount() == 0) // can this happen? (we're calling revalidateCS() on parentItem()
-        return;
-    bool foundChecked = false;
-    bool foundUnchecked = false;
-    bool foundPartiallyChecked = false;
-    for (int row = 0, count = childCount(); row < count; ++row) {
-        TestTreeItem *child = childItem(row);
-        switch (child->type()) {
-        case TestDataFunction:
-        case TestSpecialFunction:
-            continue;
-        default:
-            break;
-        }
+    QTC_ASSERT(other, return false);
+    if (type() != TestTreeItem::GroupNode)
+        return false;
 
-        foundChecked |= (child->checked() == Qt::Checked);
-        foundUnchecked |= (child->checked() == Qt::Unchecked);
-        foundPartiallyChecked |= (child->checked() == Qt::PartiallyChecked);
-        if (foundPartiallyChecked || (foundChecked && foundUnchecked)) {
-            m_checked = Qt::PartiallyChecked;
-            if (ttiType == TestFunctionOrSet)
-                parentItem()->revalidateCheckState();
-            return;
-        }
+    // for now there's only the possibility to have 'Folder' nodes
+    return QFileInfo(other->filePath()).absolutePath() == filePath();
+}
+
+QSet<QString> TestTreeItem::internalTargets() const
+{
+    auto cppMM = CppTools::CppModelManager::instance();
+    const QList<CppTools::ProjectPart::Ptr> projectParts = cppMM->projectPart(m_filePath);
+    // if we have no project parts it's most likely a header with declarations only and CMake based
+    if (projectParts.isEmpty())
+        return TestTreeItem::dependingInternalTargets(cppMM, m_filePath);
+    QSet<QString> targets;
+    for (const CppTools::ProjectPart::Ptr part : projectParts) {
+        targets.insert(part->buildSystemTarget);
+        if (part->buildTargetType != CppTools::ProjectPart::Executable)
+            targets.unite(TestTreeItem::dependingInternalTargets(cppMM, m_filePath));
     }
-    m_checked = (foundUnchecked ? Qt::Unchecked : Qt::Checked);
-    if (ttiType == TestFunctionOrSet)
-        parentItem()->revalidateCheckState();
+    return targets;
+}
+
+void TestTreeItem::copyBasicDataFrom(const TestTreeItem *other)
+{
+    if (!other)
+        return;
+    m_name = other->m_name;
+    m_filePath = other->m_filePath;
+    m_type = other->m_type;
+    m_checked = other->m_checked;
+    m_line = other->m_line;
+    m_column = other->m_column;
+    m_proFile = other->m_proFile;
+    m_status = other->m_status;
 }
 
 inline bool TestTreeItem::modifyFilePath(const QString &filePath)
@@ -337,14 +350,27 @@ inline bool TestTreeItem::modifyName(const QString &name)
     return false;
 }
 
-TestTreeItem *TestTreeItem::findChildBy(CompareFunction compare) const
+/*
+ * try to find build system target that depends on the given file - if the file is no header
+ * try to find the corresponding header and use this instead to find the respective target
+ */
+QSet<QString> TestTreeItem::dependingInternalTargets(CppTools::CppModelManager *cppMM,
+                                                     const QString &file)
 {
-    for (int row = 0, count = childCount(); row < count; ++row) {
-        TestTreeItem *child = childItem(row);
-        if (compare(child))
-            return child;
+    QSet<QString> result;
+    QTC_ASSERT(cppMM, return result);
+    const CPlusPlus::Snapshot snapshot = cppMM->snapshot();
+    QTC_ASSERT(snapshot.contains(file), return result);
+    bool wasHeader;
+    const QString correspondingFile
+            = CppTools::correspondingHeaderOrSource(file, &wasHeader, CppTools::CacheUsage::ReadOnly);
+    const Utils::FileNameList dependingFiles = snapshot.filesDependingOn(
+                wasHeader ? file : correspondingFile);
+    for (const Utils::FileName &fn : dependingFiles) {
+        for (const CppTools::ProjectPart::Ptr part : cppMM->projectPart(fn))
+            result.insert(part->buildSystemTarget);
     }
-    return 0;
+    return result;
 }
 
 } // namespace Internal

@@ -57,12 +57,12 @@ void SftpFsWindow::connectToHost()
 {
     m_ui->connectButton->setEnabled(false);
     SshConnectionParameters sshParams;
-    sshParams.host = m_ui->hostLineEdit->text();
-    sshParams.userName = m_ui->userLineEdit->text();
+    sshParams.setHost(m_ui->hostLineEdit->text());
+    sshParams.setUserName(m_ui->userLineEdit->text());
     sshParams.authenticationType
             = SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods;
-    sshParams.password = m_ui->passwordLineEdit->text();
-    sshParams.port = m_ui->portSpinBox->value();
+    sshParams.setPassword(m_ui->passwordLineEdit->text());
+    sshParams.setPort(m_ui->portSpinBox->value());
     sshParams.timeout = 10;
     m_fsModel = new SftpFileSystemModel(this);
     if (m_ui->useModelTesterCheckBox->isChecked())
@@ -82,7 +82,7 @@ void SftpFsWindow::downloadFile()
     const QModelIndexList selectedIndexes = m_ui->fsView->selectionModel()->selectedIndexes();
     if (selectedIndexes.count() != 2)
         return;
-    const QString targetFilePath = QFileDialog::getSaveFileName(this, tr("Choose target file"),
+    const QString targetFilePath = QFileDialog::getSaveFileName(this, tr("Choose Target File"),
         QDir::tempPath());
     if (targetFilePath.isEmpty())
         return;
@@ -114,5 +114,5 @@ void SftpFsWindow::handleConnectionError(const QString &errorMessage)
 {
     QMessageBox::warning(this, tr("Connection Error"),
         tr("Fatal SSH error: %1").arg(errorMessage));
-    qApp->quit();
+    QCoreApplication::quit();
 }

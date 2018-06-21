@@ -27,8 +27,12 @@
 
 #include "cpptools_global.h"
 
+#include "abstractoverviewmodel.h"
+
 #include <QModelIndex>
 #include <QObject>
+
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -36,7 +40,6 @@ class QSortFilterProxyModel;
 class QTimer;
 QT_END_NAMESPACE
 
-namespace CPlusPlus { class OverviewModel; }
 namespace TextEditor { class TextEditorWidget; }
 namespace Utils { class TreeViewComboBox; }
 
@@ -51,7 +54,7 @@ public:
 
     void update();
 
-    CPlusPlus::OverviewModel *model() const;
+    AbstractOverviewModel *model() const;
     QModelIndex modelIndex();
 
     QWidget *widget() const; // Must be deleted by client.
@@ -76,10 +79,12 @@ private:
                                  const QModelIndex &rootIndex = QModelIndex()) const;
 
 private:
+    QSharedPointer<CPlusPlus::Document> m_document;
+    std::unique_ptr<AbstractOverviewModel> m_model;
+
     TextEditor::TextEditorWidget *m_editorWidget;
 
     Utils::TreeViewComboBox *m_combo; // Not owned
-    CPlusPlus::OverviewModel *m_model;
     QSortFilterProxyModel *m_proxyModel;
     QModelIndex m_modelIndex;
     QAction *m_sortAction;

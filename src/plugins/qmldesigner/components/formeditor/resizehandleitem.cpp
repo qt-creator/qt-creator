@@ -35,6 +35,7 @@ ResizeHandleItem::ResizeHandleItem(QGraphicsItem *parent, const ResizeController
 {
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
+    setAcceptedMouseButtons(Qt::NoButton);
 }
 
 ResizeHandleItem::~ResizeHandleItem()
@@ -49,12 +50,16 @@ void ResizeHandleItem::setHandlePosition(const QPointF & globalPosition, const Q
 
 QRectF ResizeHandleItem::boundingRect() const
 {
-    return QRectF(- 3., - 3., 7., 7.);
+    return QRectF(- 5., - 5., 9., 9.);
 }
 
 void ResizeHandleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /* option */, QWidget * /* widget */)
 {
     painter->save();
+    QPen pen = painter->pen();
+    pen.setWidth(1);
+    pen.setCosmetic(true);
+    painter->setPen(pen);
     painter->setRenderHint(QPainter::Antialiasing, false);
     painter->setBrush(QColor(255, 255, 255));
     painter->drawRect(QRectF(-2., -2., 4., 4.));

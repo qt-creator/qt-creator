@@ -29,9 +29,10 @@
 #include <QPointer>
 
 namespace Debugger {
-namespace Internal {
 
-class DebuggerEngine;
+class DebuggerRunTool;
+
+namespace Internal {
 
 class SnapshotHandler : public QAbstractTableModel
 {
@@ -45,11 +46,11 @@ public:
     void removeAll();
     QAbstractItemModel *model() { return this; }
     int currentIndex() const { return m_currentIndex; }
-    void appendSnapshot(DebuggerEngine *engine);
-    void removeSnapshot(DebuggerEngine *engine);
+    void appendSnapshot(DebuggerRunTool *runTool);
+    void removeSnapshot(DebuggerRunTool *runTool);
     void setCurrentIndex(int index);
     int size() const { return m_snapshots.size(); }
-    DebuggerEngine *at(int index) const;
+    DebuggerRunTool *at(int index) const;
 
     void createSnapshot(int index);
     void activateSnapshot(int index);
@@ -64,7 +65,7 @@ private:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     int m_currentIndex;
-    QList< QPointer<DebuggerEngine> > m_snapshots;
+    QList< QPointer<DebuggerRunTool> > m_snapshots;
 };
 
 } // namespace Internal

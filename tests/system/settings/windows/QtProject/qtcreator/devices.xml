@@ -7,25 +7,8 @@
   <valuemap type="QVariantMap">
    <valuemap type="QVariantMap" key="DefaultDevices">
     <value type="QString" key="Desktop">Desktop Device</value>
-    <value type="QString" key="HarmattanOsType">{3260da4e-2949-43b8-b464-1f34d0a47c04}</value>
-    <value type="QString" key="Maemo5OsType">{0d112162-56a5-40cb-a911-e0545489da5c}</value>
    </valuemap>
    <valuelist type="QVariantList" key="DeviceList">
-    <valuemap type="QVariantMap">
-     <value type="int" key="Authentication">1</value>
-     <value type="QString" key="FreePortsSpec">10000-10100</value>
-     <value type="QString" key="Host">192.168.2.15</value>
-     <value type="QByteArray" key="InternalId">{0d112162-56a5-40cb-a911-e0545489da5c}</value>
-     <value type="QString" key="KeyFile"></value>
-     <value type="QString" key="Name">Maemo5/Fremantle Device</value>
-     <value type="int" key="Origin">0</value>
-     <value type="QString" key="OsType">Maemo5OsType</value>
-     <value type="QString" key="Password"></value>
-     <value type="int" key="SshPort">22</value>
-     <value type="int" key="Timeout">10</value>
-     <value type="int" key="Type">0</value>
-     <value type="QString" key="Uname">developer</value>
-    </valuemap>
     <valuemap type="QVariantMap">
      <value type="int" key="Authentication">1</value>
      <value type="QString" key="FreePortsSpec"></value>
@@ -40,21 +23,6 @@
      <value type="int" key="Timeout">0</value>
      <value type="int" key="Type">0</value>
      <value type="QString" key="Uname"></value>
-    </valuemap>
-    <valuemap type="QVariantMap">
-     <value type="int" key="Authentication">1</value>
-     <value type="QString" key="FreePortsSpec">10000-10100</value>
-     <value type="QString" key="Host">192.168.2.15</value>
-     <value type="QByteArray" key="InternalId">{3260da4e-2949-43b8-b464-1f34d0a47c04}</value>
-     <value type="QString" key="KeyFile"></value>
-     <value type="QString" key="Name">MeeGo 1.2 Harmattan Device</value>
-     <value type="int" key="Origin">0</value>
-     <value type="QString" key="OsType">HarmattanOsType</value>
-     <value type="QString" key="Password"></value>
-     <value type="int" key="SshPort">22</value>
-     <value type="int" key="Timeout">10</value>
-     <value type="int" key="Type">0</value>
-     <value type="QString" key="Uname">developer</value>
     </valuemap>
    </valuelist>
   </valuemap>

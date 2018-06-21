@@ -37,7 +37,7 @@ class NumberSeriesAction : public QWidgetAction
 {
 Q_OBJECT
 public:
-    explicit NumberSeriesAction(QObject *parent = 0);
+    explicit NumberSeriesAction(QObject *parent = nullptr);
 
     void addEntry(const QString &text, const QVariant &value);
     void setCurrentEntryIndex(int index);
@@ -45,12 +45,12 @@ public:
     QVariant currentValue() const;
 
 protected:
-    QWidget *createWidget(QWidget *parent);
+    QWidget *createWidget(QWidget *parent) override;
 
 signals:
     void valueChanged(const QVariant &value);
 
-private slots:
+private:
     void emitValueChanged(int index);
 
 private:

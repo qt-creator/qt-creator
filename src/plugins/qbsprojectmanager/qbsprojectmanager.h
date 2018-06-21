@@ -27,31 +27,20 @@
 
 #include "qbsprojectmanager_global.h"
 
-#include <projectexplorer/iprojectmanager.h>
-
 #include <QList>
-
-namespace qbs {
-class Settings;
-class Preferences;
-} // namespace qbs
-
 #include <QString>
 #include <QVariantMap>
 
-namespace ProjectExplorer {
-class Kit;
-class Project;
-class ProjectExplorerPlugin;
-} // namespace ProjectExplorer
+namespace qbs { class Settings; }
+
+namespace ProjectExplorer { class Kit; }
 
 namespace QbsProjectManager {
 namespace Internal {
 class DefaultPropertyProvider;
 class QbsLogSink;
-class QbsProject;
 
-class QbsManager : public ProjectExplorer::IProjectManager
+class QbsManager : public QObject
 {
     Q_OBJECT
 
@@ -59,20 +48,15 @@ public:
     QbsManager();
     ~QbsManager();
 
-    QString mimeType() const override;
-    ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString) override;
-
     // QBS profiles management:
-    QString profileForKit(const ProjectExplorer::Kit *k);
-    void setProfileForKit(const QString &name, const ProjectExplorer::Kit *k);
-
-    void updateProfileIfNecessary(const ProjectExplorer::Kit *kit);
+    static QString profileForKit(const ProjectExplorer::Kit *k);
+    static void updateProfileIfNecessary(const ProjectExplorer::Kit *kit);
 
     static qbs::Settings *settings();
-    static Internal::QbsLogSink *logSink() { return m_logSink; }
-    static QbsManager *instance() { return m_instance; }
+    static Internal::QbsLogSink *logSink();
 
 private:
+    void setProfileForKit(const QString &name, const ProjectExplorer::Kit *k);
     void addProfile(const QString &name, const QVariantMap &data);
     void addQtProfileFromKit(const QString &profileName, const ProjectExplorer::Kit *k);
     void addProfileFromKit(const ProjectExplorer::Kit *k);
@@ -81,12 +65,8 @@ private:
     void handleKitUpdate(ProjectExplorer::Kit *kit);
     void handleKitRemoval(ProjectExplorer::Kit *kit);
 
-    static QbsLogSink *m_logSink;
-    static qbs::Settings *m_settings;
-
     DefaultPropertyProvider *m_defaultPropertyProvider;
     QList<ProjectExplorer::Kit *> m_kitsToBeSetupForQbs;
-    static QbsManager *m_instance;
 };
 
 } // namespace Internal

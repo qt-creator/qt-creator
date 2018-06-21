@@ -25,21 +25,33 @@
 
 #pragma once
 
+#include <utils/hostosinfo.h>
+#include <utils/smallstring.h>
+
 #include <string>
 
 // use std::filesystem::path if it is supported by all compilers
-#ifdef _WIN32
-const char nativeSeperator = '\\';
-#else
-const char nativeSeperator = '/';
-#endif
+static const char nativeSeparator = Utils::HostOsInfo::isWindowsHost() ? '\\' : '/';
+
+
+template <std::size_t Size>
+std::string toNativePath(const char (&text)[Size])
+{
+    std::string path = text;
+
+    if (Utils::HostOsInfo::isWindowsHost())
+        std::replace(path.begin(), path.end(), '/', '\\');
+
+    return path;
+}
 
 inline
-std::string toNativePath(std::string &&path)
+std::string toNativePath(const QString &qStringPath)
 {
-#ifdef _WIN32
-    std::replace(path.begin(), path.end(), '/', '\\');
-#endif
+    auto path = qStringPath.toStdString();
 
-    return std::move(path);
+    if (Utils::HostOsInfo::isWindowsHost())
+        std::replace(path.begin(), path.end(), '/', '\\');
+
+    return path;
 }

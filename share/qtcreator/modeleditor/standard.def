@@ -2,9 +2,12 @@
 //
 // Language syntax and commands:
 //
+//
+// An Icon defines an icon of an element selected by stereotype:
+//
 // Icon {
 //     id: <id>
-//     title: <a UI title. Defaults to the id of the icon.>
+//     title: <the UI title. Defaults to the id of the icon.>
 //     elements: <comma-separated list of element types the
 //                definiton applies to: class, component, package, diagram, item.
 //                Default applies definition to all element types.>
@@ -12,6 +15,7 @@
 //     display: <default display of element.
 //               One of: none, label, decoration, icon, smart.
 //               Default is smart.>
+//     name: <Name of new element. Defaults to  "New <Toolbar entry title>".>
 //     width: <width of icon in pixels. The width defines the width of the icon as decoration.>
 //     height: <height of icon in pixels. The height defines the height of the icon as decoration.>
 //     minwidth: <minimum width of custom icon in pixels.>
@@ -19,9 +23,9 @@
 //     lockSize: <lock resizing.
 //                One of: none, width, height, size, ratio.
 //                Default is none.>
-//     textAlignment: <alignment of text.
-//                     One of: top, center, below.
-//                     Defaults to center.>
+//     textAlignment: <alignment of text (stereotype label, name and context).
+//                     One of: top, center, below, none.
+//                     Defaults to below. None means no text will be displayed.>
 //     baseColor: <color #rrggbb>
 //     Shape {
 //         Line { x1: <x1>; y1: <y1>; x2:<x2>; y2: <y2> }
@@ -29,6 +33,8 @@
 //         RoundedRect { x: <x>; y: <y>; width: <width>; height: <height>; radius: <radius> }
 //         Circle { x: <center_x>; y: <center_y>; radius: <radius> }
 //         Ellipse { x: <center_x>; y: <center_y>; radiusX: <radius_x>; radiusY: <radius_y> }
+//         Diamond { x: <center_x>; y: <center_y>; width: <width>; height: <height; filled: <yes or no or true or false> }
+//         Triangle { x: <center_x>; y: <center_y>; width: <width>; height: <height; filled: <yes or no or true or false> }
 //         Arc { x: <center_x>; y: <center_y>; radiusX: <radius_x>; radiusY: <radius_y>; start: <start_angle>; span: <span_angle> }
 //         MoveTo { x: <x>; y: <y> }
 //         LineTo { x: <x>; y: <y> }
@@ -38,12 +44,94 @@
 //     }
 // }
 //
+//
+// A Relation defines a new relation between two items:
+//
+// Relation {
+//     id: <id>
+//     title: <UI title. Defaults to the id of the icon.>
+//     elements: <A list of elements that may be the start or end element of the relation. Can be one of
+//                class, component, package, diagram, item or any id of an Icon definition. Must be given.>
+//     stereotype: <Stereotype as a string. Defaults to nothing.>
+//     name: <Name of the relation. Defaults to nothing.>
+//     direction: <One of AtoB, BtoA or Bi. Defaults to nothing.>
+//     pattern: <The pattern used for the relation shaft.
+//               One of solid, dash, dot, dashdot, dashdotdot. Defaults to solid.>
+//     color: <The color of the relation. One of A or B (uses the color of the respective end element) or
+//             any valid color (#rrggbb or a color name). Defaults to A.>
+//     End {
+//         end: <One of A or B. Defines the settings of the relations end.>
+//         elements: <Overrides the elements property of parent.>
+//         role: <The role of the end. A string that defaults to nothing.>
+//         cardinality: <An integer or a string defining the cardinality of the end. Defaults to nothing.>
+//         navigable: <If the end is navigable. One of Yes, No, True, False. Defaults to nothing.>
+//         head: <Predefined shapes. One of none, arrow, triangle, filledtriangle, diamond, filleddiamond.
+//                Defaults to none.>
+//     }
+// }
+//
+//
+// A Dependency defines settings of a dependency specialization:
+//
+// Dependency {
+//     id: <id>
+//     title: <UI title. Defaults to the id of the icon.>
+//     elements: <A list of elements that provides this specialization in its menu. Can be one of
+//                class, component, package, diagram, item or any id of an Icon definition. Must be given.>
+//     stereotype: <Stereotype as a string. Defaults to nothing.>
+//     name: <Name of the relation. Defaults to nothing.>
+//     direction: <One of AtoB, BtoA or Bi. Defaults to nothing.>
+// }
+//
+//
+// An Inheritance defines settings of an inheritance specialization:
+//
+// Inheritance {
+//     id: <id>
+//     title: <UI title. Defaults to the id of the icon.>
+//     elements: <A list of elements that provides this specialization in its menu. Can be one of
+//                class or any id of an Icon definition for classes. Defaults to class.>
+//     stereotype: <Stereotype as a string. Defaults to nothing.>
+//     name: <Name of the relation. Defaults to nothing.>
+// }
+//
+//
+// An Association defines settings of an association specialization:
+//
+// Association {
+//     id: <id>
+//     title: <UI title. Defaults to the id of the icon.>
+//     elements: <A list of elements that provides this specialization in its menu. Can be one of
+//                class or any id of an Icon definition for classes. Defaults to class.>
+//     stereotype: <Stereotype as a string. Defaults to nothing.>
+//     name: <Name of the relation. Defaults to nothing.>
+//     End {
+//         end: <One of A or B. Defines the settings of the relations end. Both ends may be defined.>
+//         role: <The role of the end. A string that defaults to nothing.>
+//         cardinality: <An integer or a string defining the cardinality of the end. Defaults to nothing.>
+//         navigable: <If the end is navigable. One of yes, no, true or false. Defaults to nothing.>
+//         relationship: <One of Association, Aggregation, Composition. Defaults to Association.>
+//     }
+// }
+//
+//
+// A toolbar of icons. If no toolbar is defined the standard toolbar is shown.
+//
 // Toolbar {
 //     id: <id>
-//     title: <a Ui title. Defaults to the id of the toolbar>
-//     priority: <priority number which decides about the position of toolbar in toolbox. Defaults to 0>
+//     title: <Ui title. Defaults to the id of the toolbar.>
+//     element: <List of elements the toolbar is assigned to. Each element can be one of package, component,
+//               class, item or any Icon definition. Default to nothing which defines an object toolbar for
+//               diagrams.>
+//     priority: <priority number which decides about the position of toolbar in toolbox. Defaults to 0.>
 //     Tools {
-//         Tool { title: <Ui title>; element: <element type>; stereotype: <stereotype, defaults to nothing> }
+//         Tool {
+//             title: <Ui title>
+//             element: <element type; one of package, class, component, item, annotation, boundary or swimlane
+//                       for object toolbars. One of dependency, inheritance or association for element toolbars.
+//                       Must be given>
+//             stereotype: <stereotype, defaults to nothing.>
+//         }
 //         Separator
 //     }
 // }
@@ -104,6 +192,54 @@ Icon {
     }
 }
 
+Association {
+    id: Aggregation
+    title: "Aggregation"
+    End {
+        end: A
+        cardinality: "*"
+        navigable: yes
+        relationship: aggregation
+    }
+}
+
+Association {
+    id: Composition
+    title: "Composition"
+    End {
+        end: A
+        cardinality: "1"
+        navigable: yes
+        relationship: composition
+    }
+}
+
+// ********************
+// ** Class Toolbars **
+// ********************
+
+Toolbar {
+    id: ClassToolbar
+    element: class
+    Tools {
+        Tool { element: dependency }
+        Tool { element: inheritance }
+        Tool { element: association }
+        Tool { element: Aggregation }
+        Tool { element: Composition }
+    }
+}
+
+Toolbar {
+    id: InterfaceToolbar
+    element: Interface
+    Tools {
+        Tool { element: dependency }
+        Tool { element: inheritance }
+    }
+}
+
+
 // ****************
 // ** Components **
 // ****************
@@ -152,6 +288,7 @@ Icon {
     elements: item
     stereotype: 'usecase'
     display: icon
+    textAlignment: center
     width: 40
     height: 20
     baseColor: #5fb4f0
@@ -178,6 +315,29 @@ Icon {
     }
 }
 
+Relation {
+    id: Communication
+    elements: UseCase, Actor
+    pattern: solid
+    color: A
+    End {
+        end: A
+    }
+    End {
+        end: B
+    }
+}
+
+Toolbar {
+    id: UseCaseToolbar
+    element: UseCase, Actor
+    Tools {
+        Tool { element: Communication }
+        Tool { element: dependency }
+    }
+}
+
+
 // ****************
 // ** Activities **
 // ****************
@@ -187,6 +347,8 @@ Icon {
     elements: item
     stereotype: 'start'
     display: icon
+    name: ""
+    textAlignment: none
     width: 20
     height: 20
     lockSize: ratio
@@ -201,6 +363,7 @@ Icon {
     elements: item
     stereotype: 'activity'
     display: icon
+    textAlignment: center
     width: 40
     height: 20
     baseColor: #81d657
@@ -233,6 +396,8 @@ Icon {
     elements: item
     stereotype: 'horizontalbar'
     display: icon
+    name: ""
+    textAlignment: none
     width: 20
     height: 5
     minWidth: 20
@@ -250,6 +415,8 @@ Icon {
     elements: item
     stereotype: 'verticalbar'
     display: icon
+    name: ""
+    textAlignment: none
     width: 5
     height: 20
     minWidth: 5
@@ -266,6 +433,8 @@ Icon {
     elements: item
     stereotype: 'termination'
     display: icon
+    name: ""
+    textAlignment: none
     width: 20
     height: 20
     lockSize: ratio
@@ -273,6 +442,406 @@ Icon {
     Shape {
         Circle { x: 10; y: 10; radius: 10 }
         Circle { x: 10; y: 10; radius: 7 }
+    }
+}
+
+Relation {
+    id: Controlflow
+    pattern: solid
+    color: A
+    End {
+        end: A
+        elements: Start, Activity, Condition, HorizontalBar, VerticalBar
+    }
+    End {
+        end: B
+        elements: Activity, Condition, HorizontalBar, VerticalBar, Termination
+        head: arrow
+    }
+}
+
+Toolbar {
+    id: ActivityToolbar
+    element: Start, Activity, Condition, HorizontalBar, VerticalBar
+    Tools {
+        Tool { element: Controlflow }
+        Tool { element: dependency }
+    }
+}
+
+// ***************
+// ** Sequences **
+// ***************
+
+Icon {
+    id: Instance
+    elements: item
+    stereotype: 'instance'
+    display: icon
+    textAlignment: center
+    width: 40
+    height: 20
+    baseColor: #81d657
+    Shape {
+        Rect { x: 0; y: 0; width: 40; height: 20 }
+    }
+}
+
+Icon {
+    id: Activation
+    elements: item
+    stereotype: 'activation'
+    display: icon
+    name: ""
+    textAlignment: none
+    width: 10
+    height: 40
+    minWidth: 10
+    minHeight: 20
+    lockSize: width
+    baseColor: #81d657
+    Shape {
+        Rect { x: 0; y: 0; width: 10; height: 40 }
+    }
+}
+
+Icon {
+    id: Destruction
+    elements: item
+    stereotype: 'destruction'
+    display: icon
+    name: ""
+    textAlignment: none
+    width: 10
+    height: 10
+    minWidth: 10
+    minHeight: 10
+    lockSize: size
+    baseColor: #000000
+    Shape {
+        Line { x0: 0; y0: 0; x1: 10; y1: 10 }
+        Line { x0: 0; y0: 10; x1: 10; y1: 0 }
+    }
+}
+
+Icon {
+    id: EndLifeline
+    elements: item
+    stereotype: 'endlifeline'
+    display: icon
+    name: ""
+    textAlignment: none
+    width: 10
+    height: 10
+    minWidth: 10
+    minHeight: 10
+    lockSize: size
+    baseColor: #000000
+    Shape {
+        Circle { x: 5; y: 5; radius: 5 }
+    }
+}
+
+Relation {
+    id: Lifeline
+    pattern: dash
+    color: A
+    End { end: A; elements: Instance, Activation }
+    End { end: B; elements: Activation, EndLifeline, Destruction }
+}
+
+Relation {
+    id: Message
+    pattern: solid
+    color: A
+    End { end: A; elements: Activation }
+    End { end: B; elements: Activation, Destruction; navigable: true; head: filledtriangle }
+}
+
+Toolbar {
+    id: InstanceToolbar
+    element: Instance
+    Tools {
+        Tool { element: Lifeline }
+    }
+}
+
+Toolbar {
+    id: ActivationToolbar
+    element: Activation
+    Tools {
+        Tool { element: Lifeline }
+        Tool { element: Message }
+    }
+}
+
+Toolbar {
+    id: EndToolbar
+    element: Destruction, EndLifeline
+    Tools {
+    }
+}
+
+// ****************
+// ** Deployment **
+// ****************
+
+Icon {
+    id: Node
+    elements: item, package
+    stereotype: 'node'
+    display: icon
+    textAlignment: top
+    width: 20
+    height: 20
+    baseColor: #7ccad1
+    Shape {
+        MoveTo { x: 0; y: 0 }
+        LineTo { x: 3; y: -3 }
+        LineTo { x: 23; y: -3 }
+        LineTo { x: 23; y: 17 }
+        LineTo { x: 20; y: 20 }
+        LineTo { x: 0; y: 20 }
+        Close
+        Line { x0: 0; y0: 0; x1: 20; y1: 0 }
+        Line { x0: 20; y0: 0; x1: 23; y1: -3 }
+        Line { x0: 20; y0: 0; x1: 20; y1: 20 }
+    }
+}
+
+Icon {
+    id: NodeInstance
+    elements: item, package
+    stereotype: 'nodeinstance'
+    display: icon
+    textAlignment: top
+    width: 20
+    height: 20
+    baseColor: #7ccad1
+    Shape {
+        MoveTo { x: 0; y: 0 }
+        LineTo { x: 3; y: -3 }
+        LineTo { x: 23; y: -3 }
+        LineTo { x: 23; y: 17 }
+        LineTo { x: 20; y: 20 }
+        LineTo { x: 0; y: 20 }
+        Close
+        Line { x0: 0; y0: 0; x1: 20; y1: 0 }
+        Line { x0: 20; y0: 0; x1: 23; y1: -3 }
+        Line { x0: 20; y0: 0; x1: 20; y1: 20 }
+    }
+}
+
+Icon {
+    id: Artifact
+    elements: item
+    stereotype: 'artifact'
+    display: icon
+    width: 40
+    height: 20
+    baseColor: #7ccad1
+    Shape {
+        Rect { x: 0; y: 0; width: 40; height: 20 }
+    }
+}
+
+Icon {
+    id: DocumentArtifact
+    elements: item
+    stereotype: 'document'
+    display: icon
+    width: 40
+    height: 60
+    minWidth: 40
+    minHeight: 60
+    lockSize: ratio
+    baseColor: #7ccad1
+    Shape {
+        MoveTo { x: 0; y: 0 }
+        LineTo { x: 24; y: 0 }
+        LineTo { x: 40; y: 16 }
+        LineTo { x: 40; y: 60 }
+        LineTo { x: 0; y: 60 }
+        Close
+        Line { x0: 24; y0: 0; x1: 24; y1: 16 }
+        Line { x0: 24; y0: 16; x1: 40; y1: 16 }
+    }
+}
+
+Icon {
+    id: CDArtifact
+    elements: item
+    stereotype: 'cd'
+    display: icon
+    width: 40
+    height: 40
+    lockSize: ratio
+    baseColor: #7ccad1
+    Shape {
+        MoveTo { x: 40; y: 20 }
+        ArcTo { x: 20; y: 20; radiusX: 20; radiusY: 20; start: 0; span: 360 }
+        MoveTo { x: 28; y: 20 }
+        ArcTo { x: 20; y: 20; radiusX: 8; radiusY: 8; start: 0; span: 360 }
+        ArcTo { x: 20; y: 20; radiusX: 8; radiusY: 8; start: 0; span: 360 }
+        MoveTo { x: 24; y: 20 }
+        ArcTo { x: 20; y: 20; radiusX: 4; radiusY: 4; start: 0; span: 360 }
+        Close
+
+        Line { x0: 22.736; y0: 27.518; x1: 26.840; y1: 38.794 }
+        Line { x0: 27.518; y0: 22.736; x1: 38.794; y1: 26.840 }
+        Line { x0: 17.264; y0: 12.482; x1: 13.160; y1: 1.206 }
+        Line { x0: 12.482; y0: 17.264; x1: 1.206; y1: 13.160 }
+     }
+ }
+
+Icon {
+    id: PCNode
+    elements: item
+    stereotype: 'pc'
+    display: icon
+    width: 20
+    height: 40
+    minWidth: 40
+    locksize: ratio
+    baseColor: #7ccad1
+    Shape {
+        MoveTo { x: 6; y: -6 }
+        LineTo { x: 20; y: -6 }
+        ArcTo { x: 21; y: -1; radiusX: 5; radiusY: 5; start: 90; span: -90 }
+        LineTo { x: 26; y: 34 }
+        LineTo { x: 20; y: 40 }
+        LineTo { x: 0; y: 40 }
+        LineTo { x: 0; y: 0 }
+        LineTo { x: 6; y: -6 }
+        Close
+
+        Line { x0: 0; y0: 0; x1: 14; y1: 0 }
+        Arc { x: 14; y: 6; radiusX: 6; radiusY: 6; start: 90; span: -90 }
+        Line { x0: 20; y0: 6; x1: 20; y1: 40 }
+
+        Line { x0: 22; y0: 28; x1: 24; y1: 26 }
+        Line { x0: 22; y0: 30; x1: 24; y1: 28 }
+        Line { x0: 22; y0: 32; x1: 24; y1: 30 }
+        Line { x0: 22; y0: 34; x1: 24; y1: 32 }
+
+        Circle { x: 10; y: 32; radius: 2 }
+        Line { x0: 4; y0: 10; x1: 16; y1: 10 }
+        Line { x0: 4; y0: 13; x1: 16; y1: 13 }
+    }
+}
+
+Icon {
+    id: MobileNode
+    elements: item
+    stereotype: 'mobile'
+    display: icon
+    width: 20
+    height: 40
+    minWidth: 40
+    lockSize: ratio
+    baseColor: #7ccad1
+    Shape {
+        MoveTo { x: 4; y: -2 }
+        LineTo { x: 19; y: -2 }
+        ArcTo { x: 19; y: 1; radiusX: 3; radiusY: 3; start: 90; span: -90 }
+        LineTo { x: 22; y: 33 }
+        ArcTo { x: 17; y: 33; radiusX: 5; radiusY: 7; start: 0; span: -90 }
+        LineTo { x: 3; y: 40 }
+        ArcTo { x: 3; y: 37; radiusX: 3; radiusY: 3; start: 270; span: -90 }
+        LineTo { x: 0; y: 3 }
+        ArcTo { x: 4; y: 3; radiusX: 4; radiusY: 5; start: 180; span: -90 }
+        Close
+
+        Line { x0: 3; y0: 0; x1: 17; y1: 0 }
+        Arc { x: 17; y: 3; radiusX: 3; radiusY: 3; start: 90; span: -90 }
+        Line { x0: 20; y0: 3; x1: 20; y1: 37 }
+        Arc { x: 17; y: 37; radiusX: 3; radiusY: 3; start:0; span: -90 }
+        Arc{ x: 3; y: 3; radiusX: 3; radiusY: 3; start: 180; span: -90 }
+
+        Rect { x: 3; y: 8; width: 14; height: 24 }
+        Line { x0: 6; y0: 4; x1: 14; y1: 4 }
+        Circle { x: 10; y: 36; radius: 2 }
+    }
+}
+
+Icon {
+    id: TabletNode
+    elements: item
+    stereotype: 'tablet'
+    display: icon
+    width: 40
+    height: 30
+    minWidth: 80
+    lockSize: ratio
+    baseColor: #7ccad1
+    Shape {
+        MoveTo { x: 4; y: -2 }
+        LineTo { x: 39; y: -2 }
+        ArcTo { x: 39; y: 1; radiusX: 3; radiusY: 3; start: 90; span: -90 }
+        LineTo { x: 42; y: 23 }
+        ArcTo { x: 37; y: 23; radiusX: 5; radiusY: 7; start: 0; span: -90 }
+        LineTo { x: 3; y: 30 }
+        ArcTo { x: 3; y: 27; radiusX: 3; radiusY: 3; start: 270; span: -90 }
+        LineTo { x: 0; y: 3 }
+        ArcTo { x: 4; y: 3; radiusX: 4; radiusY: 5; start: 180; span: -90 }
+        Close
+
+        Line { x0: 3; y0: 0; x1: 37; y1: 0 }
+        Arc { x: 37; y: 3; radiusX: 3; radiusY: 3; start: 90; span: -90 }
+        Line { x0: 40; y0: 3; x1: 40; y1: 27 }
+        Arc { x: 37; y: 27; radiusX: 3; radiusY: 3; start:0; span: -90 }
+        Arc{ x: 3; y: 3; radiusX: 3; radiusY: 3; start: 180; span: -90 }
+
+        Rect { x: 4; y: 4; width: 32; height: 19 }
+        Circle { x: 20; y: 26.5; radius: 2 }
+    }
+}
+
+Icon {
+    id: ServerNode
+    elements: item
+    stereotype: 'server'
+    display: icon
+    width: 40
+    height: 15
+    minWIdth: 80
+    lockSize: ratio
+    baseColor: #7ccad1
+    Shape {
+        LineTo { x: 6; y: -6 }
+        LineTo { x: 46; y: -6 }
+        LineTo { x: 46; y: 9 }
+        LineTo { x: 40; y: 15 }
+        LineTo { x: 0; y: 15 }
+        Close
+        Line { x0: 0; y0: 0; x1: 40; y1: 0 }
+        Line { x0: 40; y0: 0; x1: 46; y1: -6 }
+        Line { x0: 40; y0: 0; x1: 40; y1: 15 }
+
+        Line { x0: 4; y0: 5; x1: 4; y1: 10 }
+        Line { x0: 6; y0: 5; x1: 6; y1: 10 }
+        Line { x0: 8; y0: 5; x1: 8; y1: 10 }
+        Line { x0: 10; y0: 5; x1: 10; y1: 10 }
+        Line { x0: 12; y0: 5; x1: 12; y1: 10 }
+        Line { x0: 14; y0: 5; x1: 14; y1: 10 }
+        Line { x0: 16; y0: 5; x1: 16; y1: 10 }
+        Rect { x: 31; y: 5; width: 5; height: 5 }
+        Rect { x: 24; y: 5; width: 5; height: 5 }
+    }
+}
+
+Relation {
+    id: NodeAssoziation
+    title: 'Assoziation'
+    elements: Node, NodeInstance, Artifact, DocumentArtifact, CDArtifact, PCNode, MobileNode, TabletNode, ServerNode
+    pattern: solid
+}
+
+Toolbar {
+    id: DeploymentToolbar
+    element: Node, NodeInstance, Artifact, DocumentArtifact, CDArtifact, PCNode, MobileNode, TabletNode, ServerNode
+    Tools {
+        Tool { element: NodeAssoziation }
     }
 }
 
@@ -292,6 +861,7 @@ Toolbar {
         Separator
         Tool { title: "Annotation"; element: annotation }
         Tool { title: "Boundary"; element: boundary }
+        Tool { title: "Swimlane"; element: swimlane }
     }
 }
 
@@ -304,6 +874,7 @@ Toolbar {
         Separator
         Tool { title: "Annotation"; element: annotation }
         Tool { title: "Boundary"; element: boundary }
+        Tool { title: "Swimlane"; element: swimlane }
     }
 }
 
@@ -316,6 +887,7 @@ Toolbar {
         Separator
         Tool { title: "Annotation"; element: annotation }
         Tool { title: "Boundary"; element: boundary }
+        Tool { title: "Swimlane"; element: swimlane }
     }
 }
 
@@ -331,5 +903,39 @@ Toolbar {
         Separator
         Tool { title: "Annotation"; element: annotation }
         Tool { title: "Boundary"; element: boundary }
+        Tool { title: "Swimlane"; element: swimlane }
+    }
+}
+
+Toolbar {
+    id: Sequences
+    Tools {
+        Tool { title: "Instance"; element: item; stereotype: "instance" }
+        Tool { title: "Activation"; element: item; stereotype: "activation" }
+        Tool { title: "Destruction"; element: item; stereotype: "destruction" }
+        Tool { title: "EndLifeline"; element: item; stereotype: "endlifeline" }
+        Separator
+        Tool { title: "Annotation"; element: annotation }
+        Tool { title: "Boundary"; element: boundary }
+        Tool { title: "Swimlane"; element: swimlane }
+    }
+}
+
+Toolbar {
+    id: Deployment
+    Tools {
+        Tool { title: "Node"; element: item; stereotype: "node" }
+        Tool { title: "Instance"; element: item; stereotype: "nodeinstance" }
+        Tool { title: "Artifact"; element: item; stereotype: "artifact" }
+        Tool { title: "Document"; element: item; stereotype: "document" }
+        Tool { title: "CD"; element: item; stereotype: "cd" }
+        Tool { title: "PC"; element: item; stereotype: "pc" }
+        Tool { title: "Mobile"; element: item; stereotype: "mobile" }
+        Tool { title: "Tablet"; element: item; stereotype: "tablet" }
+        Tool { title: "Server"; element: item; stereotype: "server" }
+        Separator
+        Tool { title: "Annotation"; element: annotation }
+        Tool { title: "Boundary"; element: boundary }
+        Tool { title: "Swimlane"; element: swimlane }
     }
 }

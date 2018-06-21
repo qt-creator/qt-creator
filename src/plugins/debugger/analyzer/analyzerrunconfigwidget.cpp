@@ -48,10 +48,10 @@ AnalyzerRunConfigWidget::AnalyzerRunConfigWidget(ProjectExplorer::IRunConfigurat
     globalSettingLayout->setContentsMargins(0, 0, 0, 0);
 
     m_settingsCombo = new QComboBox(globalSetting);
-    m_settingsCombo->addItems(QStringList()
-                            << QApplication::translate("ProjectExplorer::Internal::EditorSettingsPropertiesPage", "Global")
-                            << QApplication::translate("ProjectExplorer::Internal::EditorSettingsPropertiesPage", "Custom")
-                            );
+    m_settingsCombo->addItems(QStringList({
+            QApplication::translate("ProjectExplorer::Internal::EditorSettingsPropertiesPage", "Global"),
+            QApplication::translate("ProjectExplorer::Internal::EditorSettingsPropertiesPage", "Custom")
+            }));
     globalSettingLayout->addWidget(m_settingsCombo);
     connect(m_settingsCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
             this, &AnalyzerRunConfigWidget::chooseSettings);

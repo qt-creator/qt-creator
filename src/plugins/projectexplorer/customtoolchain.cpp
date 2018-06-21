@@ -32,6 +32,7 @@
 #include "customparser.h"
 #include "customparserconfigdialog.h"
 #include "projectexplorerconstants.h"
+#include "projectmacro.h"
 #include "toolchainmanager.h"
 
 #include <utils/algorithm.h>
@@ -82,12 +83,12 @@ static const char warningExampleKeyC[] = "ProjectExplorer.CustomToolChain.Warnin
 
 CustomToolChain::CustomToolChain(Detection d) :
     ToolChain(Constants::CUSTOM_TOOLCHAIN_TYPEID, d),
-    m_outputParser(Gcc)
+    m_outputParserId(GccParser::id())
 { }
 
-CustomToolChain::CustomToolChain(Language l, Detection d) : CustomToolChain(d)
+CustomToolChain::CustomToolChain(Core::Id language, Detection d) : CustomToolChain(d)
 {
-    setLanguage(l);
+    setLanguage(language);
 }
 
 
@@ -115,38 +116,32 @@ bool CustomToolChain::isValid() const
     return true;
 }
 
-QByteArray CustomToolChain::predefinedMacros(const QStringList &cxxflags) const
+ToolChain::PredefinedMacrosRunner CustomToolChain::createPredefinedMacrosRunner() const
 {
-    QByteArray result;
-    QStringList macros = m_predefinedMacros;
-    foreach (const QString &cxxFlag, cxxflags) {
-        if (cxxFlag.startsWith(QLatin1String("-D"))) {
-            macros << cxxFlag.mid(2).trimmed();
-        } else if (cxxFlag.startsWith(QLatin1String("-U"))) {
-            const QString &removedName = cxxFlag.mid(2).trimmed();
-            for (int i = macros.size() - 1; i >= 0; --i) {
-                const QString &m = macros.at(i);
-                if (m.left(m.indexOf(QLatin1Char('='))) == removedName)
-                    macros.removeAt(i);
-            }
+    const Macros theMacros = m_predefinedMacros;
+
+    // This runner must be thread-safe!
+    return [theMacros](const QStringList &cxxflags){
+        Macros macros = theMacros;
+        for (const QString &cxxFlag : cxxflags) {
+            if (cxxFlag.startsWith(QLatin1String("-D")))
+                macros.append(Macro::fromKeyValue(cxxFlag.mid(2).trimmed()));
+             else if (cxxFlag.startsWith(QLatin1String("-U")) && !cxxFlag.contains('='))
+                macros.append({cxxFlag.mid(2).trimmed().toUtf8(), MacroType::Undefine});
+
         }
-    }
-    foreach (const QString &str, macros) {
-        QByteArray ba = str.toUtf8();
-        int equals = ba.indexOf('=');
-        if (equals == -1) {
-            result += "#define " + ba.trimmed() + '\n';
-        } else {
-            result += "#define " + ba.left(equals).trimmed() + ' '
-                    + ba.mid(equals + 1).trimmed() + '\n';
-        }
-    }
-    return result;
+        return macros;
+    };
+}
+
+Macros CustomToolChain::predefinedMacros(const QStringList &cxxflags) const
+{
+    return createPredefinedMacrosRunner()(cxxflags);
 }
 
 ToolChain::CompilerFlags CustomToolChain::compilerFlags(const QStringList &cxxflags) const
 {
-    foreach (const QString &cxx11Flag, m_cxx11Flags)
+    for (const QString &cxx11Flag : m_cxx11Flags)
         if (cxxflags.contains(cxx11Flag))
             return StandardCxx11;
     return NoFlags;
@@ -158,28 +153,39 @@ WarningFlags CustomToolChain::warningFlags(const QStringList &cxxflags) const
     return WarningFlags::Default;
 }
 
-const QStringList &CustomToolChain::rawPredefinedMacros() const
+const Macros &CustomToolChain::rawPredefinedMacros() const
 {
     return m_predefinedMacros;
 }
 
-void CustomToolChain::setPredefinedMacros(const QStringList &list)
+void CustomToolChain::setPredefinedMacros(const Macros &macros)
 {
-    if (m_predefinedMacros == list)
+    if (m_predefinedMacros == macros)
         return;
-    m_predefinedMacros = list;
+    m_predefinedMacros = macros;
     toolChainUpdated();
 }
 
-QList<HeaderPath> CustomToolChain::systemHeaderPaths(const QStringList &cxxFlags, const FileName &) const
+ToolChain::SystemHeaderPathsRunner CustomToolChain::createSystemHeaderPathsRunner() const
 {
-    QList<HeaderPath> flagHeaderPaths;
-    foreach (const QString &cxxFlag, cxxFlags) {
-        if (cxxFlag.startsWith(QLatin1String("-I")))
-            flagHeaderPaths << HeaderPath(cxxFlag.mid(2).trimmed(), HeaderPath::GlobalHeaderPath);
-    }
+    const QList<HeaderPath> systemHeaderPaths = m_systemHeaderPaths;
 
-    return m_systemHeaderPaths + flagHeaderPaths;
+    // This runner must be thread-safe!
+    return [systemHeaderPaths](const QStringList &cxxFlags, const QString &) {
+        QList<HeaderPath> flagHeaderPaths;
+        for (const QString &cxxFlag : cxxFlags) {
+            if (cxxFlag.startsWith(QLatin1String("-I")))
+                flagHeaderPaths << HeaderPath(cxxFlag.mid(2).trimmed(), HeaderPath::GlobalHeaderPath);
+        }
+
+        return systemHeaderPaths + flagHeaderPaths;
+    };
+}
+
+QList<HeaderPath> CustomToolChain::systemHeaderPaths(const QStringList &cxxFlags,
+                                                     const FileName &fileName) const
+{
+    return createSystemHeaderPathsRunner()(cxxFlags, fileName.toString());
 }
 
 void CustomToolChain::addToEnvironment(Environment &env) const
@@ -200,16 +206,17 @@ FileNameList CustomToolChain::suggestedMkspecList() const
 
 IOutputParser *CustomToolChain::outputParser() const
 {
-    switch (m_outputParser) {
-    case Gcc: return new GccParser;
-    case Clang: return new ClangParser;
-    case LinuxIcc: return new LinuxIccParser;
-#if defined(Q_OS_WIN)
-    case Msvc: return new MsvcParser;
-#endif
-    case Custom: return new CustomParser(m_customParserSettings);
-    default: return nullptr;
-    }
+    if (m_outputParserId == GccParser::id())
+        return new GccParser;
+    if (m_outputParserId == ClangParser::id())
+        return new ClangParser;
+    if (m_outputParserId == LinuxIccParser::id())
+        return new LinuxIccParser;
+    if (m_outputParserId == MsvcParser::id())
+        return new MsvcParser;
+    if (m_outputParserId == CustomParser::id())
+        return new CustomParser(m_customParserSettings);
+    return nullptr;
 }
 
 QStringList CustomToolChain::headerPathsList() const
@@ -283,7 +290,7 @@ void CustomToolChain::setMkspecs(const QString &specs)
 QString CustomToolChain::mkspecs() const
 {
     QString list;
-    foreach (const FileName &spec, m_mkspecs)
+    for (const FileName &spec : m_mkspecs)
         list.append(spec.toString() + QLatin1Char(','));
     list.chop(1);
     return list;
@@ -300,11 +307,12 @@ QVariantMap CustomToolChain::toMap() const
     data.insert(QLatin1String(compilerCommandKeyC), m_compilerCommand.toString());
     data.insert(QLatin1String(makeCommandKeyC), m_makeCommand.toString());
     data.insert(QLatin1String(targetAbiKeyC), m_targetAbi.toString());
-    data.insert(QLatin1String(predefinedMacrosKeyC), m_predefinedMacros);
+    QStringList macros = Utils::transform<QList>(m_predefinedMacros, [](const Macro &m) { return QString::fromUtf8(m.toByteArray()); });
+    data.insert(QLatin1String(predefinedMacrosKeyC), macros);
     data.insert(QLatin1String(headerPathsKeyC), headerPathsList());
     data.insert(QLatin1String(cxx11FlagsKeyC), m_cxx11Flags);
     data.insert(QLatin1String(mkspecsKeyC), mkspecs());
-    data.insert(QLatin1String(outputParserKeyC), m_outputParser);
+    data.insert(QLatin1String(outputParserKeyC), m_outputParserId.toSetting());
     data.insert(QLatin1String(errorPatternKeyC), m_customParserSettings.error.pattern());
     data.insert(QLatin1String(errorFileNameCapKeyC), m_customParserSettings.error.fileNameCap());
     data.insert(QLatin1String(errorLineNumberCapKeyC), m_customParserSettings.error.lineNumberCap());
@@ -328,12 +336,13 @@ bool CustomToolChain::fromMap(const QVariantMap &data)
 
     m_compilerCommand = FileName::fromString(data.value(QLatin1String(compilerCommandKeyC)).toString());
     m_makeCommand = FileName::fromString(data.value(QLatin1String(makeCommandKeyC)).toString());
-    m_targetAbi = Abi(data.value(QLatin1String(targetAbiKeyC)).toString());
-    m_predefinedMacros = data.value(QLatin1String(predefinedMacrosKeyC)).toStringList();
+    m_targetAbi = Abi::fromString(data.value(QLatin1String(targetAbiKeyC)).toString());
+    const QStringList macros = data.value(QLatin1String(predefinedMacrosKeyC)).toStringList();
+    m_predefinedMacros = Macro::toMacros(macros.join('\n').toUtf8());
     setHeaderPaths(data.value(QLatin1String(headerPathsKeyC)).toStringList());
     m_cxx11Flags = data.value(QLatin1String(cxx11FlagsKeyC)).toStringList();
     setMkspecs(data.value(QLatin1String(mkspecsKeyC)).toString());
-    m_outputParser = (OutputParser)data.value(QLatin1String(outputParserKeyC)).toInt();
+    setOutputParserId(Core::Id::fromSetting(data.value(QLatin1String(outputParserKeyC))));
     m_customParserSettings.error.setPattern(data.value(QLatin1String(errorPatternKeyC)).toString());
     m_customParserSettings.error.setFileNameCap(data.value(QLatin1String(errorFileNameCapKeyC)).toInt());
     m_customParserSettings.error.setLineNumberCap(data.value(QLatin1String(errorLineNumberCapKeyC)).toInt());
@@ -348,8 +357,6 @@ bool CustomToolChain::fromMap(const QVariantMap &data)
     m_customParserSettings.warning.setChannel(
                 static_cast<CustomParserExpression::CustomParserChannel>(data.value(QLatin1String(warningChannelKeyC)).toInt()));
     m_customParserSettings.warning.setExample(data.value(QLatin1String(warningExampleKeyC)).toString());
-
-    QTC_ASSERT(m_outputParser >= Gcc && m_outputParser < OutputParserCount, return false);
 
     return true;
 }
@@ -367,16 +374,16 @@ bool CustomToolChain::operator ==(const ToolChain &other) const
             && m_systemHeaderPaths == customTc->m_systemHeaderPaths;
 }
 
-CustomToolChain::OutputParser CustomToolChain::outputParserType() const
+Core::Id CustomToolChain::outputParserId() const
 {
-    return m_outputParser;
+    return m_outputParserId;
 }
 
-void CustomToolChain::setOutputParserType(CustomToolChain::OutputParser parser)
+void CustomToolChain::setOutputParserId(Core::Id parserId)
 {
-    if (m_outputParser == parser)
+    if (m_outputParserId == parserId)
         return;
-    m_outputParser = parser;
+    m_outputParserId = parserId;
     toolChainUpdated();
 }
 
@@ -393,18 +400,16 @@ void CustomToolChain::setCustomParserSettings(const CustomParserSettings &settin
     toolChainUpdated();
 }
 
-QString CustomToolChain::parserName(CustomToolChain::OutputParser parser)
+QList<CustomToolChain::Parser> CustomToolChain::parsers()
 {
-    switch (parser) {
-    case Gcc: return tr("GCC");
-    case Clang: return tr("Clang");
-    case LinuxIcc: return tr("ICC");
-#if defined(Q_OS_WIN)
-    case Msvc: return tr("MSVC");
-#endif
-    case Custom: return tr("Custom");
-    default: return QString();
-    }
+    QList<CustomToolChain::Parser> result;
+    result.append({GccParser::id(),      tr("GCC")});
+    result.append({ClangParser::id(),    tr("Clang")});
+    result.append({LinuxIccParser::id(), tr("ICC")});
+    result.append({MsvcParser::id(),     tr("MSVC")});
+    result.append({CustomParser::id(),   tr("Custom")});
+
+    return result;
 }
 
 ToolChainConfigWidget *CustomToolChain::configurationWidget()
@@ -423,9 +428,9 @@ CustomToolChainFactory::CustomToolChainFactory()
     setDisplayName(tr("Custom"));
 }
 
-QSet<ToolChain::Language> CustomToolChainFactory::supportedLanguages() const
+QSet<Core::Id> CustomToolChainFactory::supportedLanguages() const
 {
-    return ToolChain::allLanguages();
+    return ToolChainManager::allLanguages();
 }
 
 bool CustomToolChainFactory::canCreate()
@@ -433,9 +438,9 @@ bool CustomToolChainFactory::canCreate()
     return true;
 }
 
-ToolChain *CustomToolChainFactory::create(ToolChain::Language l)
+ToolChain *CustomToolChainFactory::create(Core::Id language)
 {
-    return new CustomToolChain(l, ToolChain::ManualDetection);
+    return new CustomToolChain(language, ToolChain::ManualDetection);
 }
 
 // Used by the ToolChainManager to restore user-generated tool chains
@@ -472,9 +477,14 @@ public:
         return static_cast<QPlainTextEdit *>(widget());
     }
 
-    inline QStringList entries() const
+    QStringList entries() const
     {
         return textEditWidget()->toPlainText().split(QLatin1Char('\n'), QString::SkipEmptyParts);
+    }
+
+    QString text() const
+    {
+        return textEditWidget()->toPlainText();
     }
 
     // not accurate, counts empty lines (except last)
@@ -514,12 +524,14 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
 {
     Q_ASSERT(tc);
 
-    for (int i = 0; i < CustomToolChain::OutputParserCount; ++i)
-        m_errorParserComboBox->addItem(CustomToolChain::parserName((CustomToolChain::OutputParser)i));
+    const QList<CustomToolChain::Parser> parsers = CustomToolChain::parsers();
+    for (auto parser : parsers)
+        m_errorParserComboBox->addItem(parser.displayName, parser.parserId.toString());
 
     auto parserLayoutWidget = new QWidget;
     auto parserLayout = new QHBoxLayout(parserLayoutWidget);
     parserLayout->setContentsMargins(0, 0, 0, 0);
+    m_predefinedMacros->setPlaceholderText(tr("MACRO[=VALUE]"));
     m_predefinedMacros->setTabChangesFocus(true);
     m_predefinedMacros->setToolTip(tr("Each line defines a macro. Format is MACRO[=VALUE]."));
     m_headerPaths->setTabChangesFocus(true);
@@ -559,7 +571,7 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
             this, &CustomToolChainConfigWidget::errorParserChanged);
     connect(m_customParserSettingsButton, &QAbstractButton::clicked,
             this, &CustomToolChainConfigWidget::openCustomParserSettingsDialog);
-    errorParserChanged(m_errorParserComboBox->currentIndex());
+    errorParserChanged();
 }
 
 void CustomToolChainConfigWidget::updateSummaries()
@@ -571,9 +583,10 @@ void CustomToolChainConfigWidget::updateSummaries()
     emit dirty();
 }
 
-void CustomToolChainConfigWidget::errorParserChanged(int index)
+void CustomToolChainConfigWidget::errorParserChanged(int )
 {
-    m_customParserSettingsButton->setEnabled(index == m_errorParserComboBox->count() - 1);
+    const auto currentId = Core::Id::fromSetting(m_errorParserComboBox->currentData());
+    m_customParserSettingsButton->setEnabled(currentId == CustomParser::id());
     emit dirty();
 }
 
@@ -600,30 +613,41 @@ void CustomToolChainConfigWidget::applyImpl()
     tc->setCompilerCommand(m_compilerCommand->fileName());
     tc->setMakeCommand(m_makeCommand->fileName());
     tc->setTargetAbi(m_abiWidget->currentAbi());
-    tc->setPredefinedMacros(m_predefinedDetails->entries());
+    Macros macros = Utils::transform<QVector>(
+                m_predefinedDetails->text().split('\n', QString::SkipEmptyParts),
+                [](const QString &m) {
+        return Macro::fromKeyValue(m);
+    });
+    tc->setPredefinedMacros(macros);
     tc->setHeaderPaths(m_headerDetails->entries());
     tc->setCxx11Flags(m_cxx11Flags->text().split(QLatin1Char(',')));
     tc->setMkspecs(m_mkspecs->text());
     tc->setDisplayName(displayName); // reset display name
-    tc->setOutputParserType((CustomToolChain::OutputParser)m_errorParserComboBox->currentIndex());
+    tc->setOutputParserId(Core::Id::fromSetting(m_errorParserComboBox->currentData()));
     tc->setCustomParserSettings(m_customParserSettings);
+
+    setFromToolchain(); // Refresh with actual data from the toolchain. This shows what e.g. the
+                        // macro parser did with the input.
 }
 
 void CustomToolChainConfigWidget::setFromToolchain()
 {
     // subwidgets are not yet connected!
-    bool blocked = blockSignals(true);
+    QSignalBlocker blocker(this);
     auto tc = static_cast<CustomToolChain *>(toolChain());
     m_compilerCommand->setFileName(tc->compilerCommand());
     m_makeCommand->setFileName(FileName::fromString(tc->makeCommand(Environment())));
     m_abiWidget->setAbis(QList<Abi>(), tc->targetAbi());
-    m_predefinedMacros->setPlainText(tc->rawPredefinedMacros().join(QLatin1Char('\n')));
-    m_headerPaths->setPlainText(tc->headerPathsList().join(QLatin1Char('\n')));
+    const QStringList macroLines = Utils::transform<QList>(tc->rawPredefinedMacros(), [](const Macro &m) {
+        return QString::fromUtf8(m.toKeyValue(QByteArray()));
+    });
+    m_predefinedMacros->setPlainText(macroLines.join('\n'));
+    m_headerPaths->setPlainText(tc->headerPathsList().join('\n'));
     m_cxx11Flags->setText(tc->cxx11Flags().join(QLatin1Char(',')));
     m_mkspecs->setText(tc->mkspecs());
-    m_errorParserComboBox->setCurrentIndex(tc->outputParserType());
+    int index = m_errorParserComboBox->findData(tc->outputParserId().toSetting());
+    m_errorParserComboBox->setCurrentIndex(index);
     m_customParserSettings = tc->customParserSettings();
-    blockSignals(blocked);
 }
 
 bool CustomToolChainConfigWidget::isDirtyImpl() const
@@ -633,11 +657,11 @@ bool CustomToolChainConfigWidget::isDirtyImpl() const
     return m_compilerCommand->fileName() != tc->compilerCommand()
             || m_makeCommand->path() != tc->makeCommand(Environment())
             || m_abiWidget->currentAbi() != tc->targetAbi()
-            || m_predefinedDetails->entries() != tc->rawPredefinedMacros()
+            || Macro::toMacros(m_predefinedDetails->text().toUtf8()) != tc->rawPredefinedMacros()
             || m_headerDetails->entries() != tc->headerPathsList()
             || m_cxx11Flags->text().split(QLatin1Char(',')) != tc->cxx11Flags()
             || m_mkspecs->text() != tc->mkspecs()
-            || m_errorParserComboBox->currentIndex() == tc->outputParserType()
+            || Core::Id::fromSetting(m_errorParserComboBox->currentData()) == tc->outputParserId()
             || m_customParserSettings != tc->customParserSettings();
 }
 

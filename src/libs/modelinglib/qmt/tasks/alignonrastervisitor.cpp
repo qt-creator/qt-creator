@@ -31,6 +31,7 @@
 #include "qmt/diagram/dboundary.h"
 #include "qmt/diagram/dclass.h"
 #include "qmt/diagram/dcomponent.h"
+#include "qmt/diagram/dconnection.h"
 #include "qmt/diagram/ddependency.h"
 #include "qmt/diagram/ddiagram.h"
 #include "qmt/diagram/ditem.h"
@@ -39,6 +40,7 @@
 #include "qmt/diagram/dobject.h"
 #include "qmt/diagram/dpackage.h"
 #include "qmt/diagram/drelation.h"
+#include "qmt/diagram/dswimlane.h"
 #include "qmt/diagram_scene/capabilities/moveable.h"
 #include "qmt/diagram_scene/capabilities/resizable.h"
 #include "qmt/diagram_scene/diagramsceneconstants.h"
@@ -47,9 +49,6 @@
 namespace qmt {
 
 AlignOnRasterVisitor::AlignOnRasterVisitor()
-    : m_diagramController(0),
-      m_sceneInspector(0),
-      m_diagram(0)
 {
 }
 
@@ -135,6 +134,11 @@ void AlignOnRasterVisitor::visitDAssociation(DAssociation *association)
     visitDRelation(association);
 }
 
+void AlignOnRasterVisitor::visitDConnection(DConnection *connection)
+{
+    visitDRelation(connection);
+}
+
 void AlignOnRasterVisitor::visitDAnnotation(DAnnotation *annotation)
 {
     IMoveable *moveable = m_sceneInspector->moveable(annotation, m_diagram);
@@ -149,6 +153,13 @@ void AlignOnRasterVisitor::visitDBoundary(DBoundary *boundary)
         resizable->alignItemSizeToRaster(IResizable::SideRightOrBottom, IResizable::SideRightOrBottom,
                                          2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);
     IMoveable *moveable = m_sceneInspector->moveable(boundary, m_diagram);
+    if (moveable)
+        moveable->alignItemPositionToRaster(RASTER_WIDTH, RASTER_HEIGHT);
+}
+
+void AlignOnRasterVisitor::visitDSwimlane(DSwimlane *swimlane)
+{
+    IMoveable *moveable = m_sceneInspector->moveable(swimlane, m_diagram);
     if (moveable)
         moveable->alignItemPositionToRaster(RASTER_WIDTH, RASTER_HEIGHT);
 }

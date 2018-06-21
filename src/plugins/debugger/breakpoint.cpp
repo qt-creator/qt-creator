@@ -228,8 +228,8 @@ bool BreakpointParameters::isCppBreakpoint() const
         if (qmlExtensionString.isEmpty())
             qmlExtensionString = ".qml;.js";
 
-        auto qmlFileExtensions = qmlExtensionString.splitRef(QLatin1Char(';'), QString::SkipEmptyParts);
-        foreach (QStringRef extension, qmlFileExtensions) {
+        const auto qmlFileExtensions = qmlExtensionString.splitRef(';', QString::SkipEmptyParts);
+        for (QStringRef extension : qmlFileExtensions) {
             if (fileName.endsWith(extension, Qt::CaseInsensitive))
                 return false;
         }

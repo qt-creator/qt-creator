@@ -33,6 +33,7 @@
 
 #include <QFileInfo>
 #include <QDir>
+#include <QRegExp>
 #include <QSet>
 
 static QString headerGuard(const QString &header)

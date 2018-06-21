@@ -6,6 +6,7 @@
     "trDescription": "Creates a fragment shader in the Desktop OpenGL Shading Language (GLSL). Fragment shaders generate the final pixel colors for triangles, points and lines rendered with OpenGL.",
     "trDisplayName": "Fragment Shader (Desktop OpenGL)",
     "trDisplayCategory": "GLSL",
+    "iconText": "frag",
     "platformIndependent": true,
     "enabled": "%{JS: [ %{Plugins} ].indexOf('GLSLEditor') >= 0}",
 

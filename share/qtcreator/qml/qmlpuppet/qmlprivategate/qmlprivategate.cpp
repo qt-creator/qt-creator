@@ -235,9 +235,17 @@ static void allSubObject(QObject *object, QObjectList &objectList)
     }
 }
 
+static QString qmlDesignerRCPath()
+{
+    static const QString qmlDesignerRcPathsString = QString::fromLocal8Bit(
+        qgetenv("QMLDESIGNER_RC_PATHS"));
+    return qmlDesignerRcPathsString;
+}
+
 static void fixResourcePathsForObject(QObject *object)
 {
-    if (qgetenv("QMLDESIGNER_RC_PATHS").isEmpty())
+    static const bool qmlDesignerRcPathsIsEmpty = qmlDesignerRCPath().isEmpty();
+    if (qmlDesignerRcPathsIsEmpty)
         return;
 
     PropertyNameList propertyNameList = propertyNameListForWritableProperties(object);
@@ -376,20 +384,18 @@ QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumb
 
 QVariant fixResourcePaths(const QVariant &value)
 {
-    if (value.type() == QVariant::Url)
-    {
+    if (value.type() == QVariant::Url) {
         const QUrl url = value.toUrl();
         if (url.scheme() == QLatin1String("qrc")) {
             const QString path = QLatin1String("qrc:") +  url.path();
-            QString qrcSearchPath = QString::fromLocal8Bit(qgetenv("QMLDESIGNER_RC_PATHS"));
-            if (!qrcSearchPath.isEmpty()) {
-                const QStringList searchPaths = qrcSearchPath.split(QLatin1Char(';'));
+            if (!qmlDesignerRCPath().isEmpty()) {
+                const QStringList searchPaths = qmlDesignerRCPath().split(QLatin1Char(';'));
                 foreach (const QString &qrcPath, searchPaths) {
                     const QStringList qrcDefintion = qrcPath.split(QLatin1Char('='));
                     if (qrcDefintion.count() == 2) {
                         QString fixedPath = path;
                         fixedPath.replace(QLatin1String("qrc:") + qrcDefintion.first(), qrcDefintion.last() + QLatin1Char('/'));
-                        if (QFileInfo(fixedPath).exists()) {
+                        if (QFileInfo::exists(fixedPath)) {
                             fixedPath.replace(QLatin1String("//"), QLatin1String("/"));
                             fixedPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
                             return QUrl::fromLocalFile(fixedPath);
@@ -402,15 +408,14 @@ QVariant fixResourcePaths(const QVariant &value)
     if (value.type() == QVariant::String) {
         const QString str = value.toString();
         if (str.contains(QLatin1String("qrc:"))) {
-            QString qrcSearchPath = QString::fromLocal8Bit(qgetenv("QMLDESIGNER_RC_PATHS"));
-            if (!qrcSearchPath.isEmpty()) {
-                const QStringList searchPaths = qrcSearchPath.split(QLatin1Char(';'));
+            if (!qmlDesignerRCPath().isEmpty()) {
+                const QStringList searchPaths = qmlDesignerRCPath().split(QLatin1Char(';'));
                 foreach (const QString &qrcPath, searchPaths) {
                     const QStringList qrcDefintion = qrcPath.split(QLatin1Char('='));
                     if (qrcDefintion.count() == 2) {
                         QString fixedPath = str;
                         fixedPath.replace(QLatin1String("qrc:") + qrcDefintion.first(), qrcDefintion.last() + QLatin1Char('/'));
-                        if (QFileInfo(fixedPath).exists()) {
+                        if (QFileInfo::exists(fixedPath)) {
                             fixedPath.replace(QLatin1String("//"), QLatin1String("/"));
                             fixedPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
                             return fixedPath;

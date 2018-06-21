@@ -30,9 +30,7 @@
 #include "qmljseditorplugin.h"
 #include "qmljshighlighter.h"
 #include "qmljsoutline.h"
-#include "qmljspreviewrunner.h"
 #include "qmljsquickfixassist.h"
-#include "qmljssnippetprovider.h"
 #include "qmltaskmanager.h"
 #include "quicktoolbar.h"
 
@@ -53,16 +51,13 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/tabsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/json.h>
 
-#include <QtPlugin>
-#include <QSettings>
-#include <QDir>
-#include <QCoreApplication>
 #include <QTextDocument>
-#include <QTimer>
 #include <QMenu>
 #include <QAction>
 
@@ -70,56 +65,87 @@ using namespace QmlJSEditor::Constants;
 using namespace ProjectExplorer;
 using namespace Core;
 
-enum {
-    QUICKFIX_INTERVAL = 20
+namespace QmlJSEditor {
+namespace Internal {
+
+class QmlJSEditorPluginPrivate : public QObject
+{
+public:
+    QmlJSEditorPluginPrivate();
+
+    void currentEditorChanged(IEditor *editor);
+    void runSemanticScan();
+    void checkCurrentEditorSemanticInfoUpToDate();
+    void autoFormatOnSave(IDocument *document);
+
+    Command *addToolAction(QAction *a, Context &context, Id id,
+                           ActionContainer *c1, const QString &keySequence);
+
+    void findUsages();
+    void renameUsages();
+    void reformatFile();
+    void showContextPane();
+
+    QmlJSQuickFixAssistProvider m_quickFixAssistProvider;
+    QmlTaskManager m_qmlTaskManager;
+
+    QAction *m_reformatFileAction = nullptr;
+
+    QPointer<QmlJSEditorDocument> m_currentDocument;
+
+    Utils::JsonSchemaManager m_jsonManager{{ICore::userResourcePath() + "/json/",
+                                            ICore::resourcePath() + "/json/"}};
+    QmlJSEditorFactory m_qmlJSEditorFactory;
+    QmlJSOutlineWidgetFactory m_qmlJSOutlineWidgetFactory;
+    QuickToolBar m_quickToolBar;
+    QmlJsEditingSettingsPage m_qmJSEditingSettingsPage;
 };
 
-namespace QmlJSEditor {
-using namespace Internal;
+static QmlJSEditorPlugin *m_instance = nullptr;
 
-void registerQuickFixes(ExtensionSystem::IPlugin *plugIn);
-
-QmlJSEditorPlugin *QmlJSEditorPlugin::m_instance = 0;
-
-QmlJSEditorPlugin::QmlJSEditorPlugin() :
-        m_modelManager(0),
-    m_quickFixAssistProvider(0),
-    m_reformatFileAction(0),
-    m_currentDocument(0),
-    m_jsonManager(new Utils::JsonSchemaManager(
-            QStringList() << ICore::userResourcePath() + QLatin1String("/json/")
-                          << ICore::resourcePath() + QLatin1String("/json/")))
+QmlJSEditorPlugin::QmlJSEditorPlugin()
 {
     m_instance = this;
 }
 
 QmlJSEditorPlugin::~QmlJSEditorPlugin()
 {
-    m_instance = 0;
+    delete d;
+    d = nullptr;
+    m_instance = nullptr;
 }
 
-bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
+bool QmlJSEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    m_modelManager = QmlJS::ModelManagerInterface::instance();
-    addAutoReleasedObject(new QmlJSSnippetProvider);
+    Q_UNUSED(arguments);
+    Q_UNUSED(errorMessage);
+
+    d = new QmlJSEditorPluginPrivate;
+
+    return true;
+}
+
+QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
+{
+    TextEditor::SnippetProvider::registerGroup(Constants::QML_SNIPPETS_GROUP_ID,
+                                               QmlJSEditorPlugin::tr("QML", "SnippetProvider"),
+                                               &QmlJSEditorFactory::decorateEditor);
+
+    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
 
     // QML task updating manager
-    m_qmlTaskManager = new QmlTaskManager;
-    addAutoReleasedObject(m_qmlTaskManager);
-    connect(m_modelManager, &QmlJS::ModelManagerInterface::documentChangedOnDisk,
-            m_qmlTaskManager, &QmlTaskManager::updateMessages);
+    connect(modelManager, &QmlJS::ModelManagerInterface::documentChangedOnDisk,
+            &m_qmlTaskManager, &QmlTaskManager::updateMessages);
     // recompute messages when information about libraries changes
-    connect(m_modelManager, &QmlJS::ModelManagerInterface::libraryInfoUpdated,
-            m_qmlTaskManager, &QmlTaskManager::updateMessages);
+    connect(modelManager, &QmlJS::ModelManagerInterface::libraryInfoUpdated,
+            &m_qmlTaskManager, &QmlTaskManager::updateMessages);
     // recompute messages when project data changes (files added or removed)
-    connect(m_modelManager, &QmlJS::ModelManagerInterface::projectInfoUpdated,
-            m_qmlTaskManager, &QmlTaskManager::updateMessages);
-    connect(m_modelManager, &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
-            m_qmlTaskManager, &QmlTaskManager::documentsRemoved);
+    connect(modelManager, &QmlJS::ModelManagerInterface::projectInfoUpdated,
+            &m_qmlTaskManager, &QmlTaskManager::updateMessages);
+    connect(modelManager, &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
+            &m_qmlTaskManager, &QmlTaskManager::documentsRemoved);
 
     Context context(Constants::C_QMLJSEDITOR_ID);
-
-    addAutoReleasedObject(new QmlJSEditorFactory);
 
     ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
     ActionContainer *qmlToolsMenu = ActionManager::actionContainer(Id(QmlJSTools::Constants::M_TOOLS_QMLJS));
@@ -131,32 +157,32 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
-    QAction *findUsagesAction = new QAction(tr("Find Usages"), this);
+    QAction *findUsagesAction = new QAction(QmlJSEditorPlugin::tr("Find Usages"), this);
     cmd = ActionManager::registerAction(findUsagesAction, Constants::FIND_USAGES, context);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+U")));
-    connect(findUsagesAction, &QAction::triggered, this, &QmlJSEditorPlugin::findUsages);
+    cmd->setDefaultKeySequence(QKeySequence(QmlJSEditorPlugin::tr("Ctrl+Shift+U")));
+    connect(findUsagesAction, &QAction::triggered, this, &QmlJSEditorPluginPrivate::findUsages);
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
-    QAction *renameUsagesAction = new QAction(tr("Rename Symbol Under Cursor"), this);
+    QAction *renameUsagesAction = new QAction(QmlJSEditorPlugin::tr("Rename Symbol Under Cursor"), this);
     cmd = ActionManager::registerAction(renameUsagesAction, Constants::RENAME_USAGES, context);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+R")));
-    connect(renameUsagesAction, &QAction::triggered, this, &QmlJSEditorPlugin::renameUsages);
+    cmd->setDefaultKeySequence(QKeySequence(QmlJSEditorPlugin::tr("Ctrl+Shift+R")));
+    connect(renameUsagesAction, &QAction::triggered, this, &QmlJSEditorPluginPrivate::renameUsages);
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
-    QAction *semanticScan = new QAction(tr("Run Checks"), this);
+    QAction *semanticScan = new QAction(QmlJSEditorPlugin::tr("Run Checks"), this);
     cmd = ActionManager::registerAction(semanticScan, Id(Constants::RUN_SEMANTIC_SCAN));
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+C")));
-    connect(semanticScan, &QAction::triggered, this, &QmlJSEditorPlugin::runSemanticScan);
+    cmd->setDefaultKeySequence(QKeySequence(QmlJSEditorPlugin::tr("Ctrl+Shift+C")));
+    connect(semanticScan, &QAction::triggered, this, &QmlJSEditorPluginPrivate::runSemanticScan);
     qmlToolsMenu->addAction(cmd);
 
-    m_reformatFileAction = new QAction(tr("Reformat File"), this);
+    m_reformatFileAction = new QAction(QmlJSEditorPlugin::tr("Reformat File"), this);
     cmd = ActionManager::registerAction(m_reformatFileAction, Id(Constants::REFORMAT_FILE), context);
-    connect(m_reformatFileAction, &QAction::triggered, this, &QmlJSEditorPlugin::reformatFile);
+    connect(m_reformatFileAction, &QAction::triggered, this, &QmlJSEditorPluginPrivate::reformatFile);
     qmlToolsMenu->addAction(cmd);
 
-    QAction *inspectElementAction = new QAction(tr("Inspect API for Element Under Cursor"), this);
+    QAction *inspectElementAction = new QAction(QmlJSEditorPlugin::tr("Inspect API for Element Under Cursor"), this);
     cmd = ActionManager::registerAction(inspectElementAction,
                                               Id(Constants::INSPECT_ELEMENT_UNDER_CURSOR), context);
     connect(inspectElementAction, &QAction::triggered, [] {
@@ -165,11 +191,11 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     });
     qmlToolsMenu->addAction(cmd);
 
-    QAction *showQuickToolbar = new QAction(tr("Show Qt Quick Toolbar"), this);
+    QAction *showQuickToolbar = new QAction(QmlJSEditorPlugin::tr("Show Qt Quick Toolbar"), this);
     cmd = ActionManager::registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
-    cmd->setDefaultKeySequence(UseMacShortcuts ? QKeySequence(Qt::META + Qt::ALT + Qt::Key_Space)
+    cmd->setDefaultKeySequence(useMacShortcuts ? QKeySequence(Qt::META + Qt::ALT + Qt::Key_Space)
                                                      : QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Space));
-    connect(showQuickToolbar, &QAction::triggered, this, &QmlJSEditorPlugin::showContextPane);
+    connect(showQuickToolbar, &QAction::triggered, this, &QmlJSEditorPluginPrivate::showContextPane);
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
@@ -184,26 +210,13 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     cmd = ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
-    m_quickFixAssistProvider = new QmlJSQuickFixAssistProvider(this);
-
-    errorMessage->clear();
-
     FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_QML, "qml");
 
-    registerQuickFixes(this);
-
-    addAutoReleasedObject(new QmlJSOutlineWidgetFactory);
-
-    addAutoReleasedObject(new QuickToolBar);
-    addAutoReleasedObject(new QmlJsEditingSettingsPage);
-
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
-            this, &QmlJSEditorPlugin::currentEditorChanged);
+            this, &QmlJSEditorPluginPrivate::currentEditorChanged);
 
-    connect(EditorManager::instance(), &Core::EditorManager::aboutToSave,
-            this, &QmlJSEditorPlugin::autoFormatOnSave);
-
-    return true;
+    connect(EditorManager::instance(), &EditorManager::aboutToSave,
+            this, &QmlJSEditorPluginPrivate::autoFormatOnSave);
 }
 
 void QmlJSEditorPlugin::extensionsInitialized()
@@ -219,24 +232,30 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlJSEditorPlugin::aboutToShutdown()
     return IPlugin::aboutToShutdown();
 }
 
-Utils::JsonSchemaManager *QmlJSEditorPlugin::jsonManager() const
+Utils::JsonSchemaManager *QmlJSEditorPlugin::jsonManager()
 {
-    return m_jsonManager.data();
+    return &m_instance->d->m_jsonManager;
 }
 
-void QmlJSEditorPlugin::findUsages()
+QuickToolBar *QmlJSEditorPlugin::quickToolBar()
+{
+    QTC_ASSERT(m_instance && m_instance->d, return new QuickToolBar());
+    return &m_instance->d->m_quickToolBar;
+}
+
+void QmlJSEditorPluginPrivate::findUsages()
 {
     if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
         editor->findUsages();
 }
 
-void QmlJSEditorPlugin::renameUsages()
+void QmlJSEditorPluginPrivate::renameUsages()
 {
     if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
         editor->renameUsages();
 }
 
-void QmlJSEditorPlugin::reformatFile()
+void QmlJSEditorPluginPrivate::reformatFile()
 {
     if (m_currentDocument) {
         QmlJS::Document::Ptr document = m_currentDocument->semanticInfo().document;
@@ -257,23 +276,40 @@ void QmlJSEditorPlugin::reformatFile()
         if (!document->isParsedCorrectly())
             return;
 
-        const QString &newText = QmlJS::reformat(document);
-        QTextCursor tc(m_currentDocument->document());
-        tc.movePosition(QTextCursor::Start);
-        tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-        tc.insertText(newText);
+        TextEditor::TabSettings tabSettings = m_currentDocument->tabSettings();
+        const QString &newText = QmlJS::reformat(document,
+                                                 tabSettings.m_indentSize,
+                                                 tabSettings.m_tabSize);
+
+        //  QTextDocument::setPlainText cannot be used, as it would reset undo/redo history
+        const auto setNewText = [this, &newText]() {
+            QTextCursor tc(m_currentDocument->document());
+            tc.movePosition(QTextCursor::Start);
+            tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+            tc.insertText(newText);
+        };
+
+        IEditor *ed = EditorManager::currentEditor();
+        if (ed) {
+            int line = ed->currentLine();
+            int column = ed->currentColumn();
+            setNewText();
+            ed->gotoLine(line, column);
+        } else {
+            setNewText();
+        }
     }
 }
 
-void QmlJSEditorPlugin::showContextPane()
+void QmlJSEditorPluginPrivate::showContextPane()
 {
     if (QmlJSEditorWidget *editor = qobject_cast<QmlJSEditorWidget*>(EditorManager::currentEditor()->widget()))
         editor->showContextPane();
 }
 
-Command *QmlJSEditorPlugin::addToolAction(QAction *a,
-                                          Context &context, Id id,
-                                          ActionContainer *c1, const QString &keySequence)
+Command *QmlJSEditorPluginPrivate::addToolAction(QAction *a,
+                                                 Context &context, Id id,
+                                                 ActionContainer *c1, const QString &keySequence)
 {
     Command *command = ActionManager::registerAction(a, id, context);
     if (!keySequence.isEmpty())
@@ -282,14 +318,14 @@ Command *QmlJSEditorPlugin::addToolAction(QAction *a,
     return command;
 }
 
-QmlJSQuickFixAssistProvider *QmlJSEditorPlugin::quickFixAssistProvider() const
+QmlJSQuickFixAssistProvider *QmlJSEditorPlugin::quickFixAssistProvider()
 {
-    return m_quickFixAssistProvider;
+    return &m_instance->d->m_quickFixAssistProvider;
 }
 
-void QmlJSEditorPlugin::currentEditorChanged(IEditor *editor)
+void QmlJSEditorPluginPrivate::currentEditorChanged(IEditor *editor)
 {
-    QmlJSEditorDocument *document = 0;
+    QmlJSEditorDocument *document = nullptr;
     if (editor)
         document = qobject_cast<QmlJSEditorDocument *>(editor->document());
 
@@ -298,26 +334,26 @@ void QmlJSEditorPlugin::currentEditorChanged(IEditor *editor)
     m_currentDocument = document;
     if (document) {
         connect(document->document(), &QTextDocument::contentsChanged,
-                this, &QmlJSEditorPlugin::checkCurrentEditorSemanticInfoUpToDate);
+                this, &QmlJSEditorPluginPrivate::checkCurrentEditorSemanticInfoUpToDate);
         connect(document, &QmlJSEditorDocument::semanticInfoUpdated,
-                this, &QmlJSEditorPlugin::checkCurrentEditorSemanticInfoUpToDate);
+                this, &QmlJSEditorPluginPrivate::checkCurrentEditorSemanticInfoUpToDate);
     }
 }
 
-void QmlJSEditorPlugin::runSemanticScan()
+void QmlJSEditorPluginPrivate::runSemanticScan()
 {
-    m_qmlTaskManager->updateSemanticMessagesNow();
+    m_qmlTaskManager.updateSemanticMessagesNow();
     TaskHub::setCategoryVisibility(Constants::TASK_CATEGORY_QML_ANALYSIS, true);
     TaskHub::requestPopup();
 }
 
-void QmlJSEditorPlugin::checkCurrentEditorSemanticInfoUpToDate()
+void QmlJSEditorPluginPrivate::checkCurrentEditorSemanticInfoUpToDate()
 {
     const bool semanticInfoUpToDate = m_currentDocument && !m_currentDocument->isSemanticInfoOutdated();
     m_reformatFileAction->setEnabled(semanticInfoUpToDate);
 }
 
-void QmlJSEditorPlugin::autoFormatOnSave(Core::IDocument *document)
+void QmlJSEditorPluginPrivate::autoFormatOnSave(IDocument *document)
 {
     if (!QmlJsEditingSettings::get().autoFormatOnSave())
         return;
@@ -328,14 +364,13 @@ void QmlJSEditorPlugin::autoFormatOnSave(Core::IDocument *document)
 
     // Check if file is contained in the current project (if wished)
     if (QmlJsEditingSettings::get().autoFormatOnlyCurrentProject()) {
-        const ProjectExplorer::Project *pro = ProjectExplorer::ProjectTree::currentProject();
-        if (!pro || !pro->files(ProjectExplorer::Project::SourceFiles).contains(
-                    document->filePath().toString())) {
+        const Project *pro = ProjectTree::currentProject();
+        if (!pro || !pro->files(Project::SourceFiles).contains(document->filePath()))
             return;
-        }
     }
 
     reformatFile();
 }
 
+} // namespace Internal
 } // namespace QmlJSEditor

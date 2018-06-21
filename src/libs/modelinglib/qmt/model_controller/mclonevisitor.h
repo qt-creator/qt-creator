@@ -51,9 +51,10 @@ public:
     void visitMDependency(const MDependency *dependency) override;
     void visitMInheritance(const MInheritance *inheritance) override;
     void visitMAssociation(const MAssociation *association) override;
+    void visitMConnection(const MConnection *connection) override;
 
 private:
-    MElement *m_cloned;
+    MElement *m_cloned = nullptr;
 };
 
 class QMT_EXPORT MCloneDeepVisitor : public MConstVisitor
@@ -75,9 +76,10 @@ public:
     void visitMDependency(const MDependency *dependency) override;
     void visitMInheritance(const MInheritance *inheritance) override;
     void visitMAssociation(const MAssociation *association) override;
+    void visitMConnection(const MConnection *connection) override;
 
 private:
-    MElement *m_cloned;
+    MElement *m_cloned = nullptr;
 };
 
 } // namespace qmt

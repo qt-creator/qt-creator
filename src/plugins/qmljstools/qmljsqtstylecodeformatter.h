@@ -41,11 +41,11 @@ public:
     explicit CreatorCodeFormatter(const TextEditor::TabSettings &tabSettings);
 
 protected:
-    virtual void saveBlockData(QTextBlock *block, const BlockData &data) const;
-    virtual bool loadBlockData(const QTextBlock &block, BlockData *data) const;
+    void saveBlockData(QTextBlock *block, const BlockData &data) const override;
+    bool loadBlockData(const QTextBlock &block, BlockData *data) const override;
 
-    virtual void saveLexerState(QTextBlock *block, int state) const;
-    virtual int loadLexerState(const QTextBlock &block) const;
+    void saveLexerState(QTextBlock *block, int state) const override;
+    int loadLexerState(const QTextBlock &block) const override;
 
 private:
     class QmlJSCodeFormatterData: public TextEditor::CodeFormatterData

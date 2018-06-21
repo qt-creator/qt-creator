@@ -39,10 +39,7 @@ QT_FORWARD_DECLARE_CLASS(QTreeView)
 
 namespace ProjectExplorer {
 
-class Project;
 class Node;
-class FolderNode;
-class FileNode;
 
 namespace Internal {
 
@@ -65,7 +62,6 @@ public:
     void showMessage(ProjectExplorer::Node *node, const QString &message);
 
     static Node *nodeForFile(const Utils::FileName &fileName);
-    static Node *mostExpandedNode(const QList<Node*> &nodes);
 
     void toggleAutoSynchronization();
     void editCurrentItem();
@@ -74,36 +70,28 @@ public:
 private:
     void setProjectFilter(bool filter);
     void setGeneratedFilesFilter(bool filter);
+    void setTrimEmptyDirectories(bool filter);
 
     void handleCurrentItemChange(const QModelIndex &current);
     void showContextMenu(const QPoint &pos);
     void openItem(const QModelIndex &mainIndex);
-    void handleProjectAdded(ProjectExplorer::Project *project);
-    void startupProjectChanged(ProjectExplorer::Project *project);
-    void initView();
-
-    void loadExpandData();
-    void saveExpandData();
-    void disableAutoExpand();
 
     void setCurrentItem(ProjectExplorer::Node *node);
-    void recursiveLoadExpandData(const QModelIndex &index, QSet<ExpandData> &data);
-    void recursiveSaveExpandData(const QModelIndex &index, QList<QVariant> *data);
     static int expandedCount(Node *node);
     void rowsInserted(const QModelIndex &parent, int start, int end);
     void renamed(const Utils::FileName &oldPath, const Utils::FileName &newPath);
 
-    QSet<ExpandData> m_toExpand;
+    void syncFromDocumentManager();
+
     QTreeView *m_view = nullptr;
     FlatModel *m_model = nullptr;
     QAction *m_filterProjectsAction = nullptr;
-    QAction *m_filterGeneratedFilesAction;
-    QToolButton *m_toggleSync;
+    QAction *m_filterGeneratedFilesAction = nullptr;
+    QAction *m_trimEmptyDirectoriesAction = nullptr;
+    QToolButton *m_toggleSync = nullptr;
 
-    QModelIndex m_subIndex;
     QString m_modelId;
-    bool m_autoSync = false;
-    bool m_autoExpand = true;
+    bool m_autoSync = true;
     Utils::FileName m_delayedRename;
 
     static QList<ProjectTreeWidget *> m_projectTreeWidgets;
@@ -117,8 +105,8 @@ public:
     ProjectTreeWidgetFactory();
 
     Core::NavigationView createWidget();
-    void restoreSettings(int position, QWidget *widget);
-    void saveSettings(int position, QWidget *widget);
+    void restoreSettings(QSettings *settings, int position, QWidget *widget);
+    void saveSettings(QSettings *settings, int position, QWidget *widget);
 };
 
 } // namespace Internal

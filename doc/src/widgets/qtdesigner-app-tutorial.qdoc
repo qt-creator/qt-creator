@@ -70,9 +70,9 @@
         \li Select build and run \l{glossary-buildandrun-kit}{kits} for your project,
             and click \uicontrol Next or \uicontrol Continue.
 
-            \note If only one kit is specified in \uicontrol Tools > \uicontrol Options >
-            \uicontrol {Build & Run} > \uicontrol Kits (on Windows and Linux) or in
-            \uicontrol {Qt Creator} > \uicontrol Preferences \uicontrol {Build & Run} > \uicontrol Kits
+            \note If only one kit is specified in \uicontrol Tools >
+            \uicontrol Options > \uicontrol Kits (on Windows and Linux) or in
+            \uicontrol {Qt Creator} > \uicontrol Preferences > \uicontrol Kits
             (on \macos), this dialog is skipped.
 
             The \uicontrol{Class Information} dialog opens.

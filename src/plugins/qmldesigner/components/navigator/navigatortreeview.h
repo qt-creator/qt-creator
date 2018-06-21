@@ -32,8 +32,10 @@ namespace QmlDesigner {
 
 class NavigatorTreeView : public QTreeView
 {
+    Q_OBJECT
+
 public:
-    NavigatorTreeView(QWidget *parent = 0);
+    NavigatorTreeView(QWidget *parent = nullptr);
     static void drawSelectionBackground(QPainter *painter, const QStyleOption &option);
 };
 }

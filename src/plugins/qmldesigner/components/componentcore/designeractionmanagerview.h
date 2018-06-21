@@ -26,6 +26,7 @@
 #pragma once
 
 #include <abstractview.h>
+#include <selectioncontext.h>
 
 #include "designeractionmanager.h"
 
@@ -60,17 +61,21 @@ public:
     void nodeOrderChanged(const NodeListProperty &, const ModelNode &, int ) override;
     void importsChanged(const QList<Import> &, const QList<Import> &) override;
     void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/) override;
+    void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChangeFlag) override;
+    void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChangeFlag) override;
 
-    void setDesignerActionList(const QList<ActionInterface* > &designerActionList);
+    void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
+
     DesignerActionManager &designerActionManager();
     const DesignerActionManager &designerActionManager() const;
+    void emitSelectionChanged();
+    void setupContext(SelectionContext::UpdateMode updateMode = SelectionContext::UpdateMode::Normal);
 
-protected:
-    void setupContext();
+signals:
+    void selectionChanged(bool itemsSelected, bool rootItemIsSelected);
 
 private:
     DesignerActionManager m_designerActionManager;
-    QList<ActionInterface* > m_designerActionList;
     bool m_isInRewriterTransaction;
     bool m_setupContextDirty;
 };

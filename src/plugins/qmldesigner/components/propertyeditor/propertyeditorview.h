@@ -44,14 +44,15 @@ class CollapseButton;
 class PropertyEditorWidget;
 class PropertyEditorView;
 class PropertyEditorQmlBackend;
+class ModelNode;
 
 class PropertyEditorView: public AbstractView
 {
     Q_OBJECT
 
 public:
-    PropertyEditorView(QWidget *parent = 0);
-    ~PropertyEditorView();
+    PropertyEditorView(QWidget *parent = nullptr);
+    ~PropertyEditorView() override;
 
     bool hasWidget() const override;
     WidgetInfo widgetInfo() override;
@@ -65,8 +66,6 @@ public:
     void modelAttached(Model *model) override;
 
     void modelAboutToBeDetached(Model *model) override;
-
-    ModelState modelState() const;
 
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) override;
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) override;
@@ -87,23 +86,24 @@ public:
                         const NodeAbstractProperty &oldPropertyParent,
                         AbstractView::PropertyChangeFlags propertyChange) override;
 
-public slots:
     void changeValue(const QString &name);
     void changeExpression(const QString &name);
     void exportPopertyAsAlias(const QString &name);
     void removeAliasExport(const QString &name);
+
+    bool locked() const;
+
+    void nodeCreated(const ModelNode &createdNode) override;
 
 protected:
     void timerEvent(QTimerEvent *event) override;
     void setupPane(const TypeName &typeName);
     void setValue(const QmlObjectNode &fxObjectNode, const PropertyName &name, const QVariant &value);
 
-private slots:
+private: //functions
     void reloadQml();
     void updateSize();
     void setupPanes();
-
-private: //functions
 
     void select(const ModelNode& node);
 

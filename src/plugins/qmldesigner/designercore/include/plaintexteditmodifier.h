@@ -47,9 +47,7 @@ private:
 
 public:
     PlainTextEditModifier(QPlainTextEdit *textEdit);
-    ~PlainTextEditModifier();
-
-    virtual void save(QIODevice *device);
+    ~PlainTextEditModifier() override;
 
     QTextDocument *textDocument() const override;
     QString text() const override;
@@ -82,10 +80,8 @@ protected:
     QPlainTextEdit *plainTextEdit() const
     { return m_textEdit; }
 
-private slots:
-    void textEditChanged();
-
 private:
+    void textEditChanged();
     void runRewriting(Utils::ChangeSet *writer);
 
 private:

@@ -98,7 +98,7 @@ void ColorThemes::updateColorThemeMenu()
     for (const QString &key: keys) {
         const QString actionText = key == Constants::C_COLOR_SCHEME_DEFAULT
                 ? tr("Factory Default") : key == Constants::C_COLOR_SCHEME_SCXMLDOCUMENT
-                  ? tr("Colors from SCXML-document")
+                  ? tr("Colors from SCXML Document")
                   : key;
         QAction *action = m_menu->addAction(actionText, this, [this, key]() {
             selectColorTheme(key);

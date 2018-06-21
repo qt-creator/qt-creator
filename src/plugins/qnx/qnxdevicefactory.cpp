@@ -30,6 +30,7 @@
 #include "qnxdevice.h"
 
 #include <utils/qtcassert.h>
+#include <utils/icon.h>
 
 #include <QIcon>
 
@@ -43,19 +44,25 @@ QnxDeviceFactory::QnxDeviceFactory(QObject *parent) :
 
 QString QnxDeviceFactory::displayNameForId(Core::Id type) const
 {
-    Q_UNUSED(type);
+    QTC_ASSERT(type == Constants::QNX_QNX_OS_TYPE, return QString());
     return tr("QNX Device");
 }
 
 QList<Core::Id> QnxDeviceFactory::availableCreationIds() const
 {
-    return { Constants::QNX_QNX_OS_TYPE };
+    return {Constants::QNX_QNX_OS_TYPE};
 }
 
 QIcon QnxDeviceFactory::iconForId(Core::Id type) const
 {
     Q_UNUSED(type)
-    return QIcon();
+    using namespace Utils;
+    static const QIcon icon =
+            Icon::combinedIcon({Icon({{":/qnx/images/qnxdevicesmall.png",
+                                       Theme::PanelTextColorDark}}, Icon::Tint),
+                                Icon({{":/qnx/images/qnxdevice.png",
+                                       Theme::IconsBaseColor}})});
+    return icon;
 }
 
 bool QnxDeviceFactory::canCreate() const

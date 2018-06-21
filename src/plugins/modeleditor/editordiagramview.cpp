@@ -40,7 +40,7 @@ namespace Internal {
 
 class EditorDiagramView::EditorDiagramViewPrivate {
 public:
-    PxNodeController *pxNodeController = 0;
+    PxNodeController *pxNodeController = nullptr;
 };
 
 EditorDiagramView::EditorDiagramView(QWidget *parent)
@@ -49,8 +49,10 @@ EditorDiagramView::EditorDiagramView(QWidget *parent)
 {
     auto droputils = new Utils::DropSupport(
                 this,
-                [this](QDropEvent *event, Utils::DropSupport *dropSupport)
-            -> bool { return dropSupport->isValueDrop(event); });
+                [](QDropEvent *event, Utils::DropSupport *dropSupport)
+            -> bool { return dropSupport->isFileDrop(event) || dropSupport->isValueDrop(event); });
+    connect(droputils, &Utils::DropSupport::filesDropped,
+            this, &EditorDiagramView::dropFiles);
     connect(droputils, &Utils::DropSupport::valuesDropped,
             this, &EditorDiagramView::dropProjectExplorerNodes);
 }
@@ -78,14 +80,29 @@ void EditorDiagramView::wheelEvent(QWheelEvent *wheelEvent)
 
 void EditorDiagramView::dropProjectExplorerNodes(const QList<QVariant> &values, const QPoint &pos)
 {
-    foreach (const QVariant &value, values) {
+    for (const auto &value : values) {
         if (value.canConvert<ProjectExplorer::Node *>()) {
             auto node = value.value<ProjectExplorer::Node *>();
             QPointF scenePos = mapToScene(pos);
-            d->pxNodeController->addExplorerNode(
-                        node, diagramSceneModel()->findTopmostElement(scenePos),
-                        scenePos, diagramSceneModel()->diagram());
+            auto folderNode = dynamic_cast<ProjectExplorer::FolderNode *>(node);
+            if (folderNode) {
+                d->pxNodeController->addFileSystemEntry(
+                            folderNode->filePath().toString(), -1, -1,
+                            diagramSceneModel()->findTopmostElement(scenePos),
+                            scenePos, diagramSceneModel()->diagram());
+            }
         }
+    }
+}
+
+void EditorDiagramView::dropFiles(const QList<Utils::DropSupport::FileSpec> &files, const QPoint &pos)
+{
+    for (const auto &fileSpec : files) {
+        QPointF scenePos = mapToScene(pos);
+        d->pxNodeController->addFileSystemEntry(
+                    fileSpec.filePath, fileSpec.line, fileSpec.column,
+                    diagramSceneModel()->findTopmostElement(scenePos),
+                    scenePos, diagramSceneModel()->diagram());
     }
 }
 

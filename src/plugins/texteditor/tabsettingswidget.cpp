@@ -59,12 +59,11 @@ TabSettingsWidget::~TabSettingsWidget()
 
 void TabSettingsWidget::setTabSettings(const TextEditor::TabSettings& s)
 {
-    const bool wasBlocked = blockSignals(true);
+    QSignalBlocker blocker(this);
     ui->tabPolicy->setCurrentIndex(s.m_tabPolicy);
     ui->tabSize->setValue(s.m_tabSize);
     ui->indentSize->setValue(s.m_indentSize);
     ui->continuationAlignBehavior->setCurrentIndex(s.m_continuationAlignBehavior);
-    blockSignals(wasBlocked);
 }
 
 TabSettings TabSettingsWidget::tabSettings() const

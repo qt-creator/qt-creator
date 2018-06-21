@@ -106,6 +106,11 @@ Internal::InternalNodePointer AbstractProperty::internalNode() const
     return m_internalNode;
 }
 
+Internal::ModelPrivate *AbstractProperty::privateModel() const
+{
+    return m_model ? m_model->d : nullptr;
+}
+
 Model *AbstractProperty::model() const
 {
     return m_model.data();
@@ -143,6 +148,13 @@ bool AbstractProperty::isValid() const
             !m_propertyName.isEmpty() &&
             !m_propertyName.contains(' ') &&
             m_propertyName != "id";
+}
+
+bool AbstractProperty::exists() const
+{
+    if (!isValid())
+        return false;
+    return parentModelNode().hasProperty(name());
 }
 
  /*!

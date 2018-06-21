@@ -39,7 +39,7 @@ namespace Utils {
 QFile::Permissions SaveFile::m_umask = 0;
 
 SaveFile::SaveFile(const QString &filename) :
-    m_finalFileName(filename), m_finalized(true), m_backup(false)
+    m_finalFileName(filename), m_finalized(true)
 {
 }
 
@@ -50,7 +50,7 @@ SaveFile::~SaveFile()
 
 bool SaveFile::open(OpenMode flags)
 {
-    QTC_ASSERT(!m_finalFileName.isEmpty() && fileName().isEmpty(), return false);
+    QTC_ASSERT(!m_finalFileName.isEmpty(), return false);
 
     QFile ofi(m_finalFileName);
     // Check whether the existing file is writable
@@ -59,9 +59,13 @@ bool SaveFile::open(OpenMode flags)
         return false;
     }
 
-    setAutoRemove(false);
-    setFileTemplate(m_finalFileName);
-    if (!QTemporaryFile::open(flags))
+    m_tempFile = std::make_unique<QTemporaryFile>(m_finalFileName);
+    m_tempFile->setAutoRemove(false);
+    if (!m_tempFile->open())
+        return false;
+    setFileName(m_tempFile->fileName());
+
+    if (!QFile::open(flags))
         return false;
 
     m_finalized = false; // needs clean up in the end
@@ -84,17 +88,20 @@ bool SaveFile::open(OpenMode flags)
 
 void SaveFile::rollback()
 {
-    remove();
+    close();
+    if (m_tempFile)
+        m_tempFile->remove();
     m_finalized = true;
 }
 
 bool SaveFile::commit()
 {
-    QTC_ASSERT(!m_finalized, return false);
+    QTC_ASSERT(!m_finalized && m_tempFile, return false;);
     m_finalized = true;
 
     if (!flush()) {
-        remove();
+        close();
+        m_tempFile->remove();
         return false;
     }
 #ifdef Q_OS_WIN
@@ -105,24 +112,74 @@ bool SaveFile::commit()
     fsync(handle());
 #endif
     close();
+    m_tempFile->close();
     if (error() != NoError) {
-        remove();
+        m_tempFile->remove();
         return false;
     }
 
     QString finalFileName
             = FileUtils::resolveSymlinks(FileName::fromString(m_finalFileName)).toString();
-    QString bakname = finalFileName + QLatin1Char('~');
-    QFile::remove(bakname); // Kill old backup
-    QFile::rename(finalFileName, bakname); // Backup current file
-    if (!rename(finalFileName)) { // Replace current file
-        QFile::rename(bakname, finalFileName); // Rollback to current file
-        return false;
-    }
-    if (!m_backup)
-        QFile::remove(bakname);
 
-    return true;
+#ifdef Q_OS_WIN
+    // Release the file lock
+    m_tempFile.reset();
+    bool result = ReplaceFile(finalFileName.toStdWString().data(),
+                              fileName().toStdWString().data(),
+                              nullptr, 0, nullptr, nullptr);
+    if (!result) {
+        const DWORD replaceErrorCode = GetLastError();
+        QString errorStr;
+        if (!QFile::exists(finalFileName)) {
+            // Replace failed because finalFileName does not exist, try rename.
+            if (!(result = rename(finalFileName)))
+                errorStr = errorString();
+        } else {
+            wchar_t messageBuffer[256];
+            FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                           nullptr, replaceErrorCode,
+                           MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                           messageBuffer, sizeof(messageBuffer), nullptr);
+            errorStr = QString::fromWCharArray(messageBuffer);
+        }
+        if (!result) {
+            remove();
+            setErrorString(errorStr);
+        }
+    }
+
+    return result;
+#else
+    const QString backupName = finalFileName + '~';
+
+    // Back up current file.
+    // If it's opened by another application, the lock follows the move.
+    if (QFile::exists(finalFileName)) {
+        // Kill old backup. Might be useful if creator crashed before removing backup.
+        QFile::remove(backupName);
+        QFile finalFile(finalFileName);
+        if (!finalFile.rename(backupName)) {
+            m_tempFile->remove();
+            setErrorString(finalFile.errorString());
+            return false;
+        }
+    }
+
+    bool result = true;
+    if (!m_tempFile->rename(finalFileName)) {
+        // The case when someone else was able to create finalFileName after we've renamed it.
+        // Higher level call may try to save this file again but here we do nothing and
+        // return false while keeping the error string from last rename call.
+        const QString &renameError = m_tempFile->errorString();
+        m_tempFile->remove();
+        setErrorString(renameError);
+        result = false;
+    }
+
+    QFile::remove(backupName);
+
+    return result;
+#endif
 }
 
 void SaveFile::initializeUmask()

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "qmldumptool.h"
+#include "qtkitinformation.h"
 #include "qtsupportconstants.h"
 #include "qtversionmanager.h"
 
@@ -32,7 +33,6 @@
 
 #include <projectexplorer/project.h>
 #include <utils/runextensions.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
@@ -55,7 +55,7 @@ static inline QStringList validPrebuiltFilenames(bool debugBuild)
     return list;
 }
 
-QString QmlDumpTool::toolForVersion(BaseQtVersion *version, bool debugDump)
+QString QmlDumpTool::toolForVersion(const BaseQtVersion *version, bool debugDump)
 {
     if (version) {
         const QString qtInstallBins = version->qmakeProperty("QT_INSTALL_BINS");
@@ -79,9 +79,13 @@ QString QmlDumpTool::toolForQtPaths(const QString &qtInstallBins,
     return QString();
 }
 
-void QmlDumpTool::pathAndEnvironment(BaseQtVersion *version,
-                                     bool preferDebug, QString *dumperPath, Utils::Environment *env)
+void QmlDumpTool::pathAndEnvironment(const ProjectExplorer::Kit *k, bool preferDebug,
+                                     QString *dumperPath, Utils::Environment *env)
 {
+    if (!k)
+        return;
+
+    const BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     if (version && !version->hasQmlDump())
         return;
 
@@ -104,7 +108,7 @@ void QmlDumpTool::pathAndEnvironment(BaseQtVersion *version,
 
     if (!path.isEmpty() && version && dumperPath && env) {
         *dumperPath = path;
-        *env = version->qmlToolsEnvironment();
+        k->addToEnvironment(*env);
     }
 }
 

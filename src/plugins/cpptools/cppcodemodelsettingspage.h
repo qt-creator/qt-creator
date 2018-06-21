@@ -37,8 +37,6 @@ QT_FORWARD_DECLARE_CLASS(QSettings)
 
 namespace CppTools {
 
-class ClangDiagnosticConfigsWidget;
-
 namespace Internal {
 
 namespace Ui { class CppCodeModelSettingsPage; }
@@ -49,23 +47,20 @@ class CppCodeModelSettingsWidget: public QWidget
 
 public:
     explicit CppCodeModelSettingsWidget(QWidget *parent = 0);
-    ~CppCodeModelSettingsWidget();
+    ~CppCodeModelSettingsWidget() override;
 
     void setSettings(const QSharedPointer<CppCodeModelSettings> &s);
     void applyToSettings() const;
 
 private:
+    void setupGeneralWidgets();
     void setupClangCodeModelWidgets();
-    void setupPchCheckBox() const;
-    void setupSkipIndexingFilesWidgets();
 
+    bool applyGeneralWidgetsToSettings() const;
     bool applyClangCodeModelWidgetsToSettings() const;
-    bool applyPchCheckBoxToSettings() const;
-    bool applySkipIndexingFilesWidgets() const;
 
 private:
-    Ui::CppCodeModelSettingsPage *m_ui;
-    QPointer<ClangDiagnosticConfigsWidget> m_clangDiagnosticConfigsWidget;
+    Ui::CppCodeModelSettingsPage *m_ui = nullptr;
     QSharedPointer<CppCodeModelSettings> m_settings;
 };
 

@@ -30,12 +30,9 @@
 #include "kitfeatureprovider.h"
 #include "kitmanagerconfigwidget.h"
 #include "project.h"
-#include "projectexplorerconstants.h"
 #include "task.h"
 
 #include <coreplugin/icore.h>
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
@@ -56,12 +53,11 @@ const char KIT_DATA_KEY[] = "Profile.";
 const char KIT_COUNT_KEY[] = "Profile.Count";
 const char KIT_FILE_VERSION_KEY[] = "Version";
 const char KIT_DEFAULT_KEY[] = "Profile.Default";
-const char KIT_FILENAME[] = "/qtcreator/profiles.xml";
+const char KIT_FILENAME[] = "/profiles.xml";
 
 static FileName settingsFileName()
 {
-    QFileInfo settingsLocation(ICore::settings()->fileName());
-    return FileName::fromString(settingsLocation.absolutePath() + QLatin1String(KIT_FILENAME));
+    return FileName::fromString(ICore::userResourcePath() + KIT_FILENAME);
 }
 
 // --------------------------------------------------------------------------
@@ -134,8 +130,7 @@ void KitManager::restoreKits()
     QList<Kit *> sdkKits;
 
     // read all kits from SDK
-    QFileInfo systemSettingsFile(ICore::settings(QSettings::SystemScope)->fileName());
-    QFileInfo kitFile(systemSettingsFile.absolutePath() + QLatin1String(KIT_FILENAME));
+    QFileInfo kitFile(ICore::installerResourcePath() + KIT_FILENAME);
     if (kitFile.exists()) {
         KitList system = restoreKits(FileName(kitFile));
         // make sure we mark these as autodetected and run additional setup logic
@@ -162,7 +157,7 @@ void KitManager::restoreKits()
             kitsToRegister.append(k);
     }
 
-    Kit *toStore = 0;
+    Kit *toStore = nullptr;
     foreach (Kit *current, kitsToValidate) {
         toStore = current;
         toStore->upgrade();
@@ -213,7 +208,7 @@ void KitManager::restoreKits()
         setDefaultKit(defaultKit);
     }
 
-    Kit *k = find(userKits.defaultKit);
+    Kit *k = kit(userKits.defaultKit);
     if (!k && !defaultKit())
         k = Utils::findOrDefault(kitsToRegister + sdkKits, &Kit::isValid);
     if (k)
@@ -268,6 +263,7 @@ void KitManager::registerKitInformation(KitInformation *ki)
 {
     QTC_CHECK(!isLoaded());
     QTC_ASSERT(!d->m_informationList.contains(ki), return);
+    QTC_ASSERT(ki->id().isValid(), return);
 
     auto it = std::lower_bound(d->m_informationList.begin(), d->m_informationList.end(),
                                ki, greaterPriority);
@@ -326,7 +322,7 @@ QList<Kit *> KitManager::sortKits(const QList<Kit *> kits)
             return a.second < b.second;
         return a. first < b.first;
     });
-    return Utils::transform(sortList, [](const QPair<QString, Kit *> &a) { return a.second; });
+    return Utils::transform(sortList, &QPair<QString, Kit *>::second);
 }
 
 KitManager::KitList KitManager::restoreKits(const FileName &fileName)
@@ -378,33 +374,24 @@ KitManager::KitList KitManager::restoreKits(const FileName &fileName)
     return result;
 }
 
-QList<Kit *> KitManager::kits()
+QList<Kit *> KitManager::kits(const Kit::Predicate &predicate)
 {
+    if (predicate)
+        return Utils::filtered(d->m_kitList, predicate);
     return d->m_kitList;
 }
 
-QList<Kit *> KitManager::matchingKits(const KitMatcher &matcher)
-{
-    QList<Kit *> result;
-    foreach (Kit *k, d->m_kitList)
-        if (matcher.matches(k))
-            result.append(k);
-    return result;
-}
-
-Kit *KitManager::find(Id id)
+Kit *KitManager::kit(Id id)
 {
     if (!id.isValid())
-        return 0;
+        return nullptr;
 
     return Utils::findOrDefault(kits(), Utils::equal(&Kit::id, id));
 }
 
-Kit *KitManager::find(const KitMatcher &matcher)
+Kit *KitManager::kit(const Kit::Predicate &predicate)
 {
-    return Utils::findOrDefault(d->m_kitList, [&matcher](Kit *k) {
-        return matcher.matches(k);
-    });
+    return Utils::findOrDefault(d->m_kitList, predicate);
 }
 
 Kit *KitManager::defaultKit()
@@ -519,7 +506,7 @@ void KitInformation::addToEnvironment(const Kit *k, Environment &env) const
 IOutputParser *KitInformation::createOutputParser(const Kit *k) const
 {
     Q_UNUSED(k);
-    return 0;
+    return nullptr;
 }
 
 QString KitInformation::displayNamePostfix(const Kit *k) const
@@ -570,10 +557,12 @@ QSet<Id> KitFeatureProvider::availablePlatforms() const
 
 QString KitFeatureProvider::displayNameForPlatform(Id id) const
 {
-    foreach (IDeviceFactory *f, ExtensionSystem::PluginManager::getObjects<IDeviceFactory>()) {
-        const QString dn = f->displayNameForId(id);
-        if (!dn.isEmpty())
+    for (IDeviceFactory *f : IDeviceFactory::allDeviceFactories()) {
+        if (f->availableCreationIds().contains(id)) {
+            const QString dn = f->displayNameForId(id);
+            QTC_ASSERT(!dn.isEmpty(), continue);
             return dn;
+        }
     }
     return QString();
 }

@@ -36,6 +36,8 @@
 
 #include <ctype.h>
 
+#include <utils/processhandle.h>
+
 #define QTC_ASSERT_STRINGIFY_HELPER(x) #x
 #define QTC_ASSERT_STRINGIFY(x) QTC_ASSERT_STRINGIFY_HELPER(x)
 #define QTC_ASSERT_STRING(cond) qDebug("SOFT ASSERT: \"" cond"\" in file " __FILE__ ", line " QTC_ASSERT_STRINGIFY(__LINE__))
@@ -385,6 +387,11 @@ qulonglong GdbMi::toAddress() const
     return ba.toULongLong(0, 0);
 }
 
+Utils::ProcessHandle GdbMi::toProcessHandle() const
+{
+    return Utils::ProcessHandle(m_data.toULongLong());
+}
+
 //////////////////////////////////////////////////////////////////////////////////
 //
 // GdbResponse
@@ -431,7 +438,8 @@ void extractGdbVersion(const QString &msg,
     const QChar dot(QLatin1Char('.'));
 
     const bool ignoreParenthesisContent = msg.contains(QLatin1String("rubenvb"))
-                                       || msg.contains(QLatin1String("openSUSE"));
+                                       || msg.contains(QLatin1String("openSUSE"))
+                                       || msg.contains(QLatin1String("SUSE Linux Enterprise"));
 
     const QChar parOpen(QLatin1Char('('));
     const QChar parClose(QLatin1Char(')'));
@@ -440,7 +448,7 @@ void extractGdbVersion(const QString &msg,
     QString build;
     bool inClean = true;
     bool inParenthesis = false;
-    foreach (QChar c, msg) {
+    for (QChar c : msg) {
         if (inClean && !cleaned.isEmpty() && c != dot && (c.isPunct() || c.isSpace()))
             inClean = false;
         if (ignoreParenthesisContent) {
@@ -512,7 +520,7 @@ static QTime timeFromData(int ms)
 }
 
 // Stolen and adapted from qdatetime.cpp
-static void getDateTime(qint64 msecs, int status, QDate *date, QTime *time)
+static void getDateTime(qint64 msecs, int status, QDate *date, QTime *time, int tiVersion)
 {
     enum {
         SECS_PER_DAY = 86400,
@@ -554,8 +562,8 @@ static void getDateTime(qint64 msecs, int status, QDate *date, QTime *time)
         ds = msecs;
     }
 
-    *date = (status & NullDate) ? QDate() : QDate::fromJulianDay(jd);
-    *time = (status & NullTime) ? QTime() : QTime::fromMSecsSinceStartOfDay(ds);
+    *date = ((status & NullDate) && tiVersion < 14) ? QDate() : QDate::fromJulianDay(jd);
+    *time = ((status & NullTime) && tiVersion < 14) ? QTime() : QTime::fromMSecsSinceStartOfDay(ds);
 }
 
 QString decodeData(const QString &ba, const QString &encoding)
@@ -646,13 +654,14 @@ QString decodeData(const QString &ba, const QString &encoding)
         case DebuggerEncoding::HexEncodedFloat: {
             const QByteArray s = QByteArray::fromHex(ba.toUtf8());
             if (enc.size == 4) {
-                union { char c[4]; float f; } u = { { s[3], s[2], s[1], s[0] } };
+                union { char c[4]; float f; } u = {{s[3], s[2], s[1], s[0]}};
                 return QString::number(u.f);
             }
             if (enc.size == 8) {
-                union { char c[8]; double d; } u = { { s[7], s[6], s[5], s[4], s[3], s[2], s[1], s[0] } };
+                union { char c[8]; double d; } u = {{s[7], s[6], s[5], s[4], s[3], s[2], s[1], s[0]}};
                 return QString::number(u.d);
             }
+            break;
         }
         case DebuggerEncoding::IPv6AddressAndHexScopeId: { // 16 hex-encoded bytes, "%" and the string-encoded scope
             const int p = ba.indexOf('%');
@@ -671,6 +680,7 @@ QString decodeData(const QString &ba, const QString &encoding)
             int p1 = ba.indexOf('/', p0 + 1);
             int p2 = ba.indexOf('/', p1 + 1);
             int p3 = ba.indexOf('/', p2 + 1);
+            int p4 = ba.indexOf('/', p3 + 1);
 
             qint64 msecs = ba.left(p0).toLongLong();
             ++p0;
@@ -680,11 +690,13 @@ QString decodeData(const QString &ba, const QString &encoding)
             ++p2;
             QByteArray timeZoneId = QByteArray::fromHex(ba.mid(p2, p3 - p2).toUtf8());
             ++p3;
-            int status = ba.mid(p3).toInt();
+            int status = ba.mid(p3, p4 - p3).toInt();
+            ++p4;
+            int tiVersion = ba.mid(p4).toInt();
 
             QDate date;
             QTime time;
-            getDateTime(msecs, status, &date, &time);
+            getDateTime(msecs, status, &date, &time, tiVersion);
 
             QDateTime dateTime;
             if (spec == Qt::OffsetFromUTC) {
@@ -887,7 +899,7 @@ QString DebuggerEncoding::toString() const
 
 QString fromHex(const QString &str)
 {
-    return QString::fromLatin1(QByteArray::fromHex(str.toUtf8()));
+    return QString::fromUtf8(QByteArray::fromHex(str.toUtf8()));
 }
 
 QString toHex(const QString &str)

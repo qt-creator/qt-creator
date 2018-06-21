@@ -86,7 +86,7 @@ public:
 
     bool contains(const T *t) const
     {
-        QMT_CHECK(t);
+        QMT_ASSERT(t, return false);
         return contains(t->uid());
     }
 
@@ -96,18 +96,18 @@ public:
             if (handle.uid() == uid)
                 return handle.target();
         }
-        return 0;
+        return nullptr;
     }
 
     T *at(int index) const
     {
-        QMT_CHECK(index >= 0 && index < m_handleList.size());
+        QMT_ASSERT(index >= 0 && index < m_handleList.size(), return nullptr);
         return m_handleList.at(index).target();
     }
 
     T *at(int index)
     {
-        QMT_CHECK(index >= 0 && index < m_handleList.size());
+        QMT_ASSERT(index >= 0 && index < m_handleList.size(), return nullptr);
         return m_handleList.at(index);
     }
 
@@ -124,7 +124,7 @@ public:
 
     int indexOf(const T *t) const
     {
-        QMT_CHECK(t);
+        QMT_ASSERT(t, return -1);
         return indexOf(t->uid());
     }
 
@@ -164,27 +164,27 @@ public:
 
     void add(T *t)
     {
-        QMT_CHECK(t);
+        QMT_ASSERT(t, return);
         m_handleList.append(Handle<T>(t));
     }
 
     void insert(int beforeIndex, const Uid &uid)
     {
-        QMT_CHECK(beforeIndex >= 0 && beforeIndex <= m_handleList.size());
-        QMT_CHECK(uid.isValid());
+        QMT_ASSERT(beforeIndex >= 0 && beforeIndex <= m_handleList.size(), return);
+        QMT_ASSERT(uid.isValid(), return);
         m_handleList.insert(beforeIndex, Handle<T>(uid));
     }
 
     void insert(int beforeIndex, T *t)
     {
-        QMT_CHECK(beforeIndex >= 0 && beforeIndex <= m_handleList.size());
-        QMT_CHECK(t);
+        QMT_ASSERT(beforeIndex >= 0 && beforeIndex <= m_handleList.size(), return);
+        QMT_ASSERT(t, return);
         m_handleList.insert(beforeIndex, Handle<T>(t));
     }
 
     void remove(int index)
     {
-        QMT_CHECK(index >= 0 && index < size());
+        QMT_ASSERT(index >= 0 && index < size(), return);
         if (m_takesOwnership) {
             T *t = m_handleList.at(index).target();
             m_handleList.removeAt(index);
@@ -201,13 +201,13 @@ public:
 
     void remove(T *t)
     {
-        QMT_CHECK(t);
+        QMT_ASSERT(t, return);
         remove(indexOf(t));
     }
 
     T * take(int index)
     {
-        QMT_CHECK(index >= 0 && index < size());
+        QMT_ASSERT(index >= 0 && index < size(), return nullptr);
         T *t = m_handleList.at(index).target();
         m_handleList.removeAt(index);
         return t;
@@ -220,7 +220,7 @@ public:
 
     T *take(T *t)
     {
-        QMT_CHECK(t);
+        QMT_ASSERT(t, return nullptr);
         return take(indexOf(t));
     }
 

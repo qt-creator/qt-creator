@@ -43,7 +43,6 @@ class QbsInstallStep : public ProjectExplorer::BuildStep
 
 public:
     explicit QbsInstallStep(ProjectExplorer::BuildStepList *bsl);
-    QbsInstallStep(ProjectExplorer::BuildStepList *bsl, const QbsInstallStep *other);
     ~QbsInstallStep() override;
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
@@ -60,7 +59,6 @@ public:
 
     qbs::InstallOptions installOptions() const;
     QString installRoot() const;
-    QString absoluteInstallRoot() const;
     bool removeFirst() const;
     bool dryRun() const;
     bool keepGoing() const;
@@ -69,6 +67,7 @@ signals:
     void changed();
 
 private:
+    const QbsBuildConfiguration *buildConfig() const;
     void installDone(bool success);
     void handleTaskStarted(const QString &desciption, int max);
     void handleProgress(int value);
@@ -76,18 +75,18 @@ private:
     void createTaskAndOutput(ProjectExplorer::Task::TaskType type,
                              const QString &message, const QString &file, int line);
 
-    void setInstallRoot(const QString &ir);
     void setRemoveFirst(bool rf);
     void setDryRun(bool dr);
     void setKeepGoing(bool kg);
+    void handleBuildConfigChanged();
 
     qbs::InstallOptions m_qbsInstallOptions;
 
-    QFutureInterface<bool> *m_fi;
-    qbs::InstallJob *m_job;
+    QFutureInterface<bool> *m_fi = nullptr;
+    qbs::InstallJob *m_job = nullptr;
     int m_progressBase;
-    bool m_showCompilerOutput;
-    ProjectExplorer::IOutputParser *m_parser;
+    bool m_showCompilerOutput = true;
+    ProjectExplorer::IOutputParser *m_parser = nullptr;
 
     friend class QbsInstallStepConfigWidget;
 };
@@ -106,7 +105,6 @@ public:
 private:
     void updateState();
 
-    void changeInstallRoot();
     void changeRemoveFirst(bool rf);
     void changeDryRun(bool dr);
     void changeKeepGoing(bool kg);
@@ -119,18 +117,10 @@ private:
     bool m_ignoreChange;
 };
 
-class QbsInstallStepFactory : public ProjectExplorer::IBuildStepFactory
+class QbsInstallStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
-    explicit QbsInstallStepFactory(QObject *parent = 0);
-
-    QList<ProjectExplorer::BuildStepInfo>
-        availableSteps(ProjectExplorer::BuildStepList *parent) const override;
-
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) override;
+    QbsInstallStepFactory();
 };
 
 } // namespace Internal

@@ -26,9 +26,9 @@
 #include "statusbarmanager.h"
 
 #include "mainwindow.h"
-#include "statusbarwidget.h"
+#include "minisplitter.h"
 
-#include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
 
 #include <QHBoxLayout>
 #include <QLabel>
@@ -36,13 +36,16 @@
 #include <QSplitter>
 #include <QStatusBar>
 
-static const char kSettingsGroup[] = "StatusBar";
-static const char kLeftSplitWidthKey[] = "LeftSplitWidth";
+namespace Core {
 
-using namespace Core;
-using namespace Core::Internal;
+const char kSettingsGroup[] = "StatusBar";
+const char kLeftSplitWidthKey[] = "LeftSplitWidth";
 
-static QWidget *createWidget(QWidget *parent = 0)
+static QPointer<QSplitter> m_splitter;
+static QList<QPointer<QWidget>> m_statusBarWidgets;
+static QList<QPointer<IContext>> m_contexts;
+
+static QWidget *createWidget(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
     w->setLayout(new QHBoxLayout);
@@ -51,11 +54,10 @@ static QWidget *createWidget(QWidget *parent = 0)
     return w;
 }
 
-StatusBarManager::StatusBarManager(MainWindow *mainWnd)
-  : QObject(mainWnd),
-    m_mainWnd(mainWnd)
+static void createStatusBarManager()
 {
-    QStatusBar *bar = m_mainWnd->statusBar();
+    QStatusBar *bar = ICore::statusBar();
+
     m_splitter = new NonResizingSplitter(bar);
     bar->insertPermanentWidget(0, m_splitter, 10);
     m_splitter->setChildrenCollapsible(false);
@@ -82,52 +84,56 @@ StatusBarManager::StatusBarManager(MainWindow *mainWnd)
     QWidget *rightCornerWidget = createWidget(bar);
     bar->insertPermanentWidget(1, rightCornerWidget);
     m_statusBarWidgets.append(rightCornerWidget);
+
+    QObject::connect(ICore::instance(), &ICore::saveSettingsRequested, [] {
+        QSettings *s = ICore::settings();
+        s->beginGroup(QLatin1String(kSettingsGroup));
+        s->setValue(QLatin1String(kLeftSplitWidthKey), m_splitter->sizes().at(0));
+        s->endGroup();
+    });
+
+    QObject::connect(ICore::instance(), &ICore::coreAboutToClose, [] {
+        // This is the catch-all on rampdown. Individual items may
+        // have been removed earlier by destroyStatusBarWidget().
+        for (const QPointer<IContext> &context : m_contexts) {
+            ICore::removeContextObject(context);
+            delete context;
+        }
+        m_contexts.clear();
+    });
 }
 
-StatusBarManager::~StatusBarManager()
+void StatusBarManager::addStatusBarWidget(QWidget *widget,
+                                          StatusBarPosition position,
+                                          const Context &ctx)
 {
+    if (!m_splitter)
+        createStatusBarManager();
+
+    QTC_ASSERT(widget, return);
+    QTC_CHECK(widget->parent() == nullptr); // We re-parent, so user code does need / should not set it.
+    m_statusBarWidgets.at(position)->layout()->addWidget(widget);
+
+    auto context = new IContext;
+    context->setWidget(widget);
+    context->setContext(ctx);
+    m_contexts.append(context);
+
+    ICore::addContextObject(context);
 }
 
-void StatusBarManager::init()
+void StatusBarManager::destroyStatusBarWidget(QWidget *widget)
 {
-    connect(ExtensionSystem::PluginManager::instance(), &ExtensionSystem::PluginManager::objectAdded,
-            this, &StatusBarManager::objectAdded);
-    connect(ExtensionSystem::PluginManager::instance(), &ExtensionSystem::PluginManager::aboutToRemoveObject,
-            this, &StatusBarManager::aboutToRemoveObject);
-    connect(ICore::instance(), &ICore::saveSettingsRequested, this, &StatusBarManager::saveSettings);
-}
-
-void StatusBarManager::objectAdded(QObject *obj)
-{
-    StatusBarWidget *view = qobject_cast<StatusBarWidget *>(obj);
-    if (!view)
-        return;
-
-    QWidget *viewWidget = 0;
-    viewWidget = view->widget();
-    m_statusBarWidgets.at(view->position())->layout()->addWidget(viewWidget);
-
-    m_mainWnd->addContextObject(view);
-}
-
-void StatusBarManager::aboutToRemoveObject(QObject *obj)
-{
-    StatusBarWidget *view = qobject_cast<StatusBarWidget *>(obj);
-    if (!view)
-        return;
-    m_mainWnd->removeContextObject(view);
-}
-
-void StatusBarManager::saveSettings()
-{
-    QSettings *s = ICore::settings();
-    s->beginGroup(QLatin1String(kSettingsGroup));
-    s->setValue(QLatin1String(kLeftSplitWidthKey), m_splitter->sizes().at(0));
-    s->endGroup();
-}
-
-void StatusBarManager::extensionsInitalized()
-{
+    QTC_ASSERT(widget, return);
+    for (const QPointer<IContext> &context : m_contexts) {
+        if (context->widget() == widget) {
+            ICore::removeContextObject(context);
+            m_contexts.removeAll(context);
+            break;
+        }
+    }
+    widget->setParent(nullptr);
+    delete widget;
 }
 
 void StatusBarManager::restoreSettings()
@@ -146,16 +152,4 @@ void StatusBarManager::restoreSettings()
     m_splitter->setSizes(QList<int>() << leftSplitWidth << (sum - leftSplitWidth));
 }
 
-NonResizingSplitter::NonResizingSplitter(QWidget *parent)
-    : MiniSplitter(parent, Light)
-{
-}
-
-void NonResizingSplitter::resizeEvent(QResizeEvent *ev)
-{
-    // bypass QSplitter magic
-    int leftSplitWidth = qMin(sizes().at(0), ev->size().width());
-    int rightSplitWidth = qMax(0, ev->size().width() - leftSplitWidth);
-    setSizes(QList<int>() << leftSplitWidth << rightSplitWidth);
-    return QWidget::resizeEvent(ev);
-}
+} // Core

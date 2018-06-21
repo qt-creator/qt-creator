@@ -82,7 +82,7 @@ def main():
 #    Creator should show the declaration of the function again.
     selectFromLocator("dummy.cpp")
     mainWin = findObject(":Qt Creator_Core::Internal::MainWindow")
-    if not waitFor("'dummy.cpp ' in str(mainWin.windowTitle) and ' - cplusplus-tools - ' in str(mainWin.windowTitle)", 5000):
+    if not waitFor("str(mainWin.windowTitle).startswith('dummy.cpp ') and ' @ cplusplus-tools ' in str(mainWin.windowTitle)", 5000):
         test.warning("Opening dummy.cpp seems to have failed")
     # Reset cursor to the start of the document
     if platform.system() == 'Darwin':

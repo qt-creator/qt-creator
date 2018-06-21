@@ -29,6 +29,7 @@
 
 #include <sqlitedatabase.h>
 #include <sqlitetable.h>
+#include <sqlitewritestatement.h>
 #include <utf8string.h>
 
 #include <QSignalSpy>
@@ -36,15 +37,37 @@
 
 namespace {
 
+using testing::Contains;
+
+using Sqlite::ColumnType;
+using Sqlite::JournalMode;
+using Sqlite::OpenMode;
+using Sqlite::Table;
+
 class SqliteDatabase : public ::testing::Test
 {
 protected:
-    void SetUp() override;
-    void TearDown() override;
+    void SetUp() override
+    {
+        database.setJournalMode(JournalMode::Memory);
+        database.setDatabaseFilePath(databaseFilePath);
+        auto &table = database.addTable();
+        table.setName("test");
+        table.addColumn("name");
+
+        database.open();
+    }
+
+    void TearDown() override
+    {
+        if (database.isOpen())
+            database.close();
+    }
 
     SpyDummy spyDummy;
-    QString databaseFilePath = QStringLiteral(":memory:");
-    ::SqliteDatabase database;
+    QString databaseFilePath{":memory:"};
+    Sqlite::Database database;
+    Sqlite::TransactionInterface &transactionInterface = database;
 };
 
 TEST_F(SqliteDatabase, SetDatabaseFilePath)
@@ -59,46 +82,112 @@ TEST_F(SqliteDatabase, SetJournalMode)
     ASSERT_THAT(database.journalMode(), JournalMode::Memory);
 }
 
+TEST_F(SqliteDatabase, SetOpenlMode)
+{
+    database.setOpenMode(OpenMode::ReadOnly);
+
+    ASSERT_THAT(database.openMode(), OpenMode::ReadOnly);
+}
+
 TEST_F(SqliteDatabase, OpenDatabase)
 {
     database.close();
-    QSignalSpy signalSpy(&spyDummy, &SpyDummy::databaseIsOpened);
+
     database.open();
 
-    ASSERT_TRUE(signalSpy.wait(100000));
     ASSERT_TRUE(database.isOpen());
 }
 
 TEST_F(SqliteDatabase, CloseDatabase)
 {
-    QSignalSpy signalSpy(&spyDummy, &SpyDummy::databaseIsClosed);
-
     database.close();
 
-    ASSERT_TRUE(signalSpy.wait(100000));
     ASSERT_FALSE(database.isOpen());
 }
 
 TEST_F(SqliteDatabase, AddTable)
 {
-    SqliteTable *sqliteTable = new SqliteTable;
+    auto sqliteTable = database.addTable();
 
-    database.addTable(sqliteTable);
-
-    ASSERT_THAT(database.tables().first(), sqliteTable);
+    ASSERT_THAT(database.tables(), Contains(sqliteTable));
 }
 
-void SqliteDatabase::SetUp()
+TEST_F(SqliteDatabase, GetChangesCount)
 {
-    QObject::connect(&database, &::SqliteDatabase::databaseIsOpened, &spyDummy, &SpyDummy::databaseIsOpened);
-    QObject::connect(&database, &::SqliteDatabase::databaseIsClosed, &spyDummy, &SpyDummy::databaseIsClosed);
+    Sqlite::WriteStatement statement("INSERT INTO test(name) VALUES (?)", database);
+    statement.write(42);
 
-    database.setJournalMode(JournalMode::Memory);
-    database.setDatabaseFilePath(databaseFilePath);
+    ASSERT_THAT(database.changesCount(), 1);
 }
 
-void SqliteDatabase::TearDown()
+TEST_F(SqliteDatabase, GetTotalChangesCount)
+{
+    Sqlite::WriteStatement statement("INSERT INTO test(name) VALUES (?)", database);
+    statement.write(42);
+
+    ASSERT_THAT(database.lastInsertedRowId(), 1);
+}
+
+TEST_F(SqliteDatabase, GetLastInsertedRowId)
+{
+    Sqlite::WriteStatement statement("INSERT INTO test(name) VALUES (?)", database);
+    statement.write(42);
+
+    ASSERT_THAT(database.lastInsertedRowId(), 1);
+}
+
+TEST_F(SqliteDatabase, TableIsReadyAfterOpenDatabase)
 {
     database.close();
+    auto &table = database.addTable();
+    table.setName("foo");
+    table.addColumn("name");
+
+    database.open();
+
+    ASSERT_TRUE(table.isReady());
 }
+
+TEST_F(SqliteDatabase, LastRowId)
+{
+    database.setLastInsertedRowId(42);
+
+    ASSERT_THAT(database.lastInsertedRowId(), 42);
+}
+
+TEST_F(SqliteDatabase, DeferredBegin)
+{
+    ASSERT_NO_THROW(transactionInterface.deferredBegin());
+
+    transactionInterface.commit();
+}
+
+TEST_F(SqliteDatabase, ImmediateBegin)
+{
+    ASSERT_NO_THROW(transactionInterface.immediateBegin());
+
+    transactionInterface.commit();
+}
+
+TEST_F(SqliteDatabase, ExclusiveBegin)
+{
+    ASSERT_NO_THROW(transactionInterface.exclusiveBegin());
+
+    transactionInterface.commit();
+}
+
+TEST_F(SqliteDatabase, Commit)
+{
+    transactionInterface.deferredBegin();
+
+    ASSERT_NO_THROW(transactionInterface.commit());
+}
+
+TEST_F(SqliteDatabase, Rollback)
+{
+    transactionInterface.deferredBegin();
+
+    ASSERT_NO_THROW(transactionInterface.rollback());
+}
+
 }

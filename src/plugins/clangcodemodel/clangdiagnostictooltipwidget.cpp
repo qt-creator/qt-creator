@@ -28,19 +28,30 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <cpptools/cpptoolsconstants.h>
+
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 
 #include <QApplication>
+#include <QDesktopServices>
 #include <QDesktopWidget>
 #include <QFileInfo>
 #include <QHash>
 #include <QLabel>
+#include <QUrl>
 
 using namespace ClangCodeModel;
 using Internal::ClangDiagnosticWidget;
 
 namespace {
+
+// CLANG-UPGRADE-CHECK: Checks/update URLs.
+//
+// Once it gets dedicated documentation pages for released versions,
+// use them instead of pointing to master, as checks might vanish.
+const char CLAZY_DOCUMENTATION_URL_TEMPLATE[]
+    = "https://github.com/KDE/clazy/blob/master/docs/checks/README-%1.md";
 
 const char LINK_ACTION_GOTO_LOCATION[] = "#gotoLocation";
 const char LINK_ACTION_APPLY_FIX[] = "#applyFix";
@@ -48,7 +59,7 @@ const char LINK_ACTION_APPLY_FIX[] = "#applyFix";
 QString fileNamePrefix(const QString &mainFilePath,
                        const ClangBackEnd::SourceLocationContainer &location)
 {
-    const QString filePath = location.filePath().toString();
+    const QString filePath = location.filePath.toString();
     if (filePath != mainFilePath)
         return QFileInfo(filePath).fileName() + QLatin1Char(':');
 
@@ -57,23 +68,23 @@ QString fileNamePrefix(const QString &mainFilePath,
 
 QString locationToString(const ClangBackEnd::SourceLocationContainer &location)
 {
-    return QString::number(location.line())
+    return QString::number(location.line)
          + QStringLiteral(":")
-         + QString::number(location.column());
+         + QString::number(location.column);
 }
 
 void openEditorAt(const ClangBackEnd::DiagnosticContainer &diagnostic)
 {
-    const ClangBackEnd::SourceLocationContainer location = diagnostic.location();
+    const ClangBackEnd::SourceLocationContainer &location = diagnostic.location;
 
-    Core::EditorManager::openEditorAt(location.filePath().toString(),
-                                      int(location.line()),
-                                      int(location.column() - 1));
+    Core::EditorManager::openEditorAt(location.filePath.toString(),
+                                      int(location.line),
+                                      int(location.column - 1));
 }
 
 void applyFixit(const ClangBackEnd::DiagnosticContainer &diagnostic)
 {
-    ClangCodeModel::ClangFixItOperation operation(Utf8String(), diagnostic.fixIts());
+    ClangCodeModel::ClangFixItOperation operation(Utf8String(), diagnostic.fixIts);
 
     operation.perform();
 }
@@ -112,10 +123,16 @@ private:
         label->setTextFormat(Qt::RichText);
         label->setText(text);
         label->setTextInteractionFlags(Qt::TextBrowserInteraction);
-        // Using "setWordWrap(true)" alone will wrap the text already for small
-        // widths, so do not require word wrapping until we hit limits.
-        if (m_displayHints.limitWidth && label->sizeHint().width() > widthLimit()) {
-            label->setMaximumWidth(widthLimit());
+
+        if (m_displayHints.limitWidth) {
+            const int limit = widthLimit();
+            // Using "setWordWrap(true)" alone will wrap the text already for small
+            // widths, so do not require word wrapping until we hit limits.
+            if (label->sizeHint().width() > limit) {
+                label->setMaximumWidth(limit);
+                label->setWordWrap(true);
+            }
+        } else {
             label->setWordWrap(true);
         }
 
@@ -124,12 +141,15 @@ private:
         QObject::connect(label, &QLabel::linkActivated, [table, hideToolTipAfterLinkActivation]
                          (const QString &action) {
             const ClangBackEnd::DiagnosticContainer diagnostic = table.value(action);
-            QTC_ASSERT(diagnostic != ClangBackEnd::DiagnosticContainer(), return);
 
-            if (action.startsWith(LINK_ACTION_APPLY_FIX))
+            if (diagnostic == ClangBackEnd::DiagnosticContainer())
+                QDesktopServices::openUrl(QUrl(action));
+            else if (action.startsWith(LINK_ACTION_GOTO_LOCATION))
+                openEditorAt(diagnostic);
+            else if (action.startsWith(LINK_ACTION_APPLY_FIX))
                 applyFixit(diagnostic);
             else
-                openEditorAt(diagnostic);
+                QTC_CHECK(!"Link target cannot be handled.");
 
             if (hideToolTipAfterLinkActivation)
                 Utils::ToolTip::hideImmediately();
@@ -141,7 +161,7 @@ private:
     QString htmlText(const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics)
     {
         // For debugging, add: style='border-width:1px;border-color:black'
-        QString text = "<table cellspacing='0' cellpadding='0'>";
+        QString text = "<table cellspacing='0' cellpadding='0' width='100%'>";
 
         foreach (const ClangBackEnd::DiagnosticContainer &diagnostic, diagnostics)
             text.append(tableRows(diagnostic));
@@ -151,20 +171,127 @@ private:
         return text;
     }
 
+    static bool isClazyOption(const QString &option) { return option.startsWith("-Wclazy"); }
+
+    class DiagnosticTextInfo
+    {
+    public:
+        DiagnosticTextInfo(const QString &text)
+            : m_text(text)
+            , m_squareBracketStartIndex(text.lastIndexOf('['))
+        {}
+
+        QString textWithoutOption() const
+        {
+            if (m_squareBracketStartIndex == -1)
+                return m_text;
+
+            return m_text.mid(0, m_squareBracketStartIndex - 1);
+        }
+
+        QString option() const
+        {
+            if (m_squareBracketStartIndex == -1)
+                return QString();
+
+            const int index = m_squareBracketStartIndex + 1;
+            return m_text.mid(index, m_text.count() - index - 1);
+        }
+
+        QString category() const
+        {
+            if (m_squareBracketStartIndex == -1)
+                return QString();
+
+            const int index = m_squareBracketStartIndex + 1;
+            if (isClazyOption(m_text.mid(index)))
+                return QCoreApplication::translate("ClangDiagnosticWidget", "Clazy Issue");
+            else
+                return QCoreApplication::translate("ClangDiagnosticWidget", "Clang-Tidy Issue");
+        }
+
+    private:
+        const QString m_text;
+        const int m_squareBracketStartIndex;
+    };
+
+    // Diagnostics from clazy/tidy do not have any category or option set but
+    // we will conclude them from the diagnostic message.
+    //
+    // Ideally, libclang should provide the correct category/option by default.
+    // However, tidy and clazy diagnostics use "custom diagnostic ids" and
+    // clang's static diagnostic table does not know anything about them.
+    //
+    // For clazy/tidy diagnostics, we expect something like "some text [some option]", e.g.:
+    //  * clazy: "Use the static QFileInfo::exists() instead. It's documented to be faster. [-Wclazy-qfileinfo-exists]"
+    //  * tidy:  "use emplace_back instead of push_back [modernize-use-emplace]"
+    static ClangBackEnd::DiagnosticContainer supplementedDiagnostic(
+        const ClangBackEnd::DiagnosticContainer &diagnostic)
+    {
+        if (!diagnostic.category.isEmpty())
+            return diagnostic; // OK, diagnostics from clang itself have this set.
+
+        ClangBackEnd::DiagnosticContainer supplementedDiagnostic = diagnostic;
+
+        DiagnosticTextInfo info(diagnostic.text);
+        supplementedDiagnostic.enableOption = info.option();
+        supplementedDiagnostic.category = info.category();
+        supplementedDiagnostic.text = info.textWithoutOption();
+
+        for (auto &child : supplementedDiagnostic.children)
+            child.text = DiagnosticTextInfo(diagnostic.text.toString()).textWithoutOption();
+
+        return supplementedDiagnostic;
+    }
+
     QString tableRows(const ClangBackEnd::DiagnosticContainer &diagnostic)
     {
         m_mainFilePath = m_displayHints.showFileNameInMainDiagnostic
                 ? Utf8String()
-                : diagnostic.location().filePath();
+                : diagnostic.location.filePath;
+
+        const ClangBackEnd::DiagnosticContainer diag = supplementedDiagnostic(diagnostic);
 
         QString text;
-
         if (m_displayHints.showCategoryAndEnableOption)
-            text.append(diagnosticCategoryAndEnableOptionRow(diagnostic));
-        text.append(diagnosticRow(diagnostic, IndentMode::DoNotIndent));
-        text.append(diagnosticRowsForChildren(diagnostic));
+            text.append(diagnosticCategoryAndEnableOptionRow(diag));
+        text.append(diagnosticRow(diag, IndentMode::DoNotIndent));
+        text.append(diagnosticRowsForChildren(diag));
 
         return text;
+    }
+
+    static QString documentationUrlForOption(const Utf8String &optionAsUtf8String)
+    {
+        if (optionAsUtf8String.isEmpty())
+            return QString();
+
+        QString option = optionAsUtf8String.toString();
+
+        // Clazy
+        if (isClazyOption(option)) {
+            option = optionAsUtf8String.mid(8); // Remove "-Wclazy-" prefix.
+            return QString::fromUtf8(CLAZY_DOCUMENTATION_URL_TEMPLATE).arg(option);
+        }
+
+        // Clang itself
+        if (option.startsWith("-W"))
+            return QString();
+
+        // Clang-Tidy
+        return QString::fromUtf8(CppTools::Constants::TIDY_DOCUMENTATION_URL_TEMPLATE).arg(option);
+    }
+
+    static QString maybeClickableOption(const Utf8String &option)
+    {
+        if (option.isEmpty())
+            return option;
+
+        const QString link = documentationUrlForOption(option);
+        if (link.isEmpty())
+            return option;
+
+        return wrapInLink(option.toString(), link);
     }
 
     static QString diagnosticCategoryAndEnableOptionRow(
@@ -173,9 +300,9 @@ private:
         const QString text = QString::fromLatin1(
             "  <tr>"
             "    <td align='left'><b>%1</b></td>"
-            "    <td align='right'><font color='gray'>%2</font></td>"
+            "    <td align='right'>&nbsp;<font color='gray'>%2</font></td>"
             "  </tr>")
-            .arg(diagnostic.category(), diagnostic.enableOption());
+            .arg(diagnostic.category, maybeClickableOption(diagnostic.enableOption));
 
         return text;
     }
@@ -183,17 +310,9 @@ private:
     QString diagnosticText(const ClangBackEnd::DiagnosticContainer &diagnostic)
     {
         const bool hasFixit = m_displayHints.enableClickableFixits
-                && !diagnostic.fixIts().isEmpty();
-        const QString diagnosticText = diagnostic.text().toString().toHtmlEscaped();
-
-        // For debugging, add to <table>: style='border-width:1px;border-color:red'
-        const QString text = QString::fromLatin1(
-            "<table cellspacing='0' cellpadding='0'>"
-            "  <tr>"
-            "    <td>%1:&nbsp;</td>"
-            "    <td width='100%'>%2</td>"
-            "  </tr>"
-            "</table>")
+                && !diagnostic.fixIts.isEmpty();
+        const QString diagnosticText = diagnostic.text.toString().toHtmlEscaped();
+        const QString text = QString::fromLatin1("%1: %2")
             .arg(clickableLocation(diagnostic, m_mainFilePath),
                  clickableFixIt(diagnostic, diagnosticText, hasFixit));
 
@@ -215,7 +334,7 @@ private:
 
     QString diagnosticRowsForChildren(const ClangBackEnd::DiagnosticContainer &diagnostic)
     {
-        const QVector<ClangBackEnd::DiagnosticContainer> children = diagnostic.children();
+        const QVector<ClangBackEnd::DiagnosticContainer> &children = diagnostic.children;
         QString text;
 
         if (children.size() <= 10) {
@@ -244,7 +363,7 @@ private:
     QString clickableLocation(const ClangBackEnd::DiagnosticContainer &diagnostic,
                               const QString &mainFilePath)
     {
-        const ClangBackEnd::SourceLocationContainer location = diagnostic.location();
+        const ClangBackEnd::SourceLocationContainer &location = diagnostic.location;
 
         const QString filePrefix = fileNamePrefix(mainFilePath, location);
         const QString lineColumn = locationToString(location);

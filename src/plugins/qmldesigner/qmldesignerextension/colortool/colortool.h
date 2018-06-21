@@ -39,7 +39,7 @@ class ColorTool : public QObject, public AbstractCustomTool
     Q_OBJECT
 public:
     ColorTool();
-    ~ColorTool();
+    ~ColorTool() override;
 
     void mousePressEvent(const QList<QGraphicsItem*> &itemList,
                          QGraphicsSceneMouseEvent *event) override;
@@ -75,14 +75,14 @@ public:
 
     QString name() const override;
 
-private slots:
+private:
     void colorDialogAccepted();
     void colorDialogRejected();
     void currentColorChanged(const QColor &color);
 
 private:
     QPointer<QColorDialog> m_colorDialog;
-    QPointer<FormEditorItem> m_formEditorItem;
+    FormEditorItem *m_formEditorItem = nullptr;
     QColor m_oldColor;
 };
 

@@ -50,21 +50,10 @@ def main():
         overrideStartApplication()
         startApplication("qtcreator" + SettingsPath)
         try:
-            if platform.system() == 'Darwin':
-                try:
-                    fileMenu = waitForObjectItem(":Qt Creator.QtCreator.MenuBar_QMenuBar",
-                                                 testData.field(lang, "File"))
-                    activateItem(fileMenu)
-                    obj = waitForObject("{type='QMenu' visible='1'}")
-                    test.compare(str(obj.objectName), 'QtCreator.Menu.File',
-                                 "Creator was running in %s translation" % languageName)
-                    activateItem(fileMenu)
-                except:
-                    test.fail("Creator seems to be missing %s translation" % languageName)
-                nativeType("<Command+q>")
-            else:
-                invokeMenuItem(testData.field(lang, "File"), testData.field(lang, "Exit"))
-                test.passes("Creator was running in %s translation." % languageName)
+            # Use Locator for menu items which wouldn't work on macOS
+            exitCommand = testData.field(lang, "Exit")
+            selectFromLocator("t %s" % exitCommand.rstrip("(X)"), exitCommand)
+            test.passes("Creator was running in %s translation." % languageName)
         except:
             test.fail("Creator seems to be missing %s translation" % languageName)
             sendEvent("QCloseEvent", ":Qt Creator_Core::Internal::MainWindow")

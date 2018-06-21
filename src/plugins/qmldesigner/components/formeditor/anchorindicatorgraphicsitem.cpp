@@ -31,7 +31,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 
-static const int AngleDegree = 16;
+const int AngleDegree = 16;
 
 namespace QmlDesigner {
 
@@ -63,7 +63,7 @@ void AnchorIndicatorGraphicsItem::paint(QPainter *painter, const QStyleOptionGra
 
     QPen linePen(QColor(0, 0, 0, 150));
     linePen.setCosmetic(true);
-    linePen.setDashPattern(QVector<double>() << 3. << 2.);
+    linePen.setDashPattern({3., 2.});
 
     painter->setPen(linePen);
 
@@ -72,7 +72,7 @@ void AnchorIndicatorGraphicsItem::paint(QPainter *painter, const QStyleOptionGra
     painter->drawLine(m_secondControlPoint, m_endPoint);
 
     linePen.setColor(QColor(255, 255, 255, 150));
-    linePen.setDashPattern(QVector<double>() << 2. << 3.);
+    linePen.setDashPattern({2., 3.});
     linePen.setDashOffset(2.);
 
     painter->setPen(linePen);

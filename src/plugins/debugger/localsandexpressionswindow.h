@@ -28,27 +28,18 @@
 #include <QWidget>
 #include <QTimer>
 
-QT_BEGIN_NAMESPACE
-class QSplitter;
-class QStackedWidget;
-QT_END_NAMESPACE
-
 namespace Debugger {
 namespace Internal {
 
-class LocalsAndExpressionsWindow : public QWidget
+class LocalsAndInspectorWindow : public QWidget
 {
-    Q_OBJECT
-
 public:
-    LocalsAndExpressionsWindow(QWidget *locals, QWidget *inspector,
-                               QWidget *returnWidget, QWidget *watchers);
+    LocalsAndInspectorWindow(QWidget *locals, QWidget *inspector,
+                             QWidget *returnWidget);
 
     void setShowLocals(bool showLocals);
 
 private:
-    QSplitter *m_splitter;
-    QStackedWidget *m_localsAndInspector;
     QTimer m_timer;
     bool m_showLocals;
 };

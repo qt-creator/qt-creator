@@ -29,8 +29,10 @@
 namespace VcsBase {
 
 VcsSubmitEditorFactory::VcsSubmitEditorFactory
-        (const VcsBaseSubmitEditorParameters *parameters, const EditorCreator &editorCreator)
-    : m_editorCreator(editorCreator)
+        (const VcsBaseSubmitEditorParameters *parameters,
+         const EditorCreator &editorCreator,
+         QObject *parent)
+    : IEditorFactory(parent), m_editorCreator(editorCreator)
 {
     setId(parameters->id);
     setDisplayName(QLatin1String(parameters->displayName));

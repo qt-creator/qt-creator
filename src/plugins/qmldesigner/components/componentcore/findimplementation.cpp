@@ -84,7 +84,7 @@ protected:
 
     virtual bool visit(AST::UiPublicMember *node)
     {
-        if (node->memberType == m_typeName){
+        if (node->memberTypeName() == m_typeName){
             const ObjectValue * objectValue = m_context->lookupType(m_document.data(), QStringList(m_typeName));
             if (objectValue == m_typeValue)
                 m_implemenations.append(node->typeToken);
@@ -130,7 +130,7 @@ protected:
         if (m_insideObject) {
             QStringList stringList = textAt(node->qualifiedId->firstSourceLocation(),
                                             node->qualifiedId->lastSourceLocation()).split(QLatin1String("."));
-            const QString itemid = stringList.isEmpty() ? QString() : stringList.first();
+            const QString itemid = stringList.isEmpty() ? QString() : stringList.constFirst();
 
             if (itemid == m_itemId) {
                 m_implemenations.append(node->statement->firstSourceLocation());
@@ -231,7 +231,7 @@ private:
 
     QString m_typeName;
     QString m_itemId;
-    const ObjectValue *m_typeValue;
+    const ObjectValue *m_typeValue = nullptr;
     bool m_insideObject = false;
 };
 

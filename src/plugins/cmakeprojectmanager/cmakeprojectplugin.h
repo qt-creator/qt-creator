@@ -25,22 +25,10 @@
 
 #pragma once
 
+#include "cmakespecificsettingspage.h"
 #include <extensionsystem/iplugin.h>
-
-#include <QObject>
-
-namespace ProjectExplorer {
-class Node;
-class Project;
-} // namespace ProjectExplorer
-
-namespace Utils { class ParameterAction; }
-
+#include <memory>
 namespace CMakeProjectManager {
-
-class CMakeProject;
-class CMakeToolManager;
-
 namespace Internal {
 
 class CMakeProjectPlugin : public ExtensionSystem::IPlugin
@@ -49,9 +37,8 @@ class CMakeProjectPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CMakeProjectManager.json")
 
 public:
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
-
-    void extensionsInitialized() override;
+    static CMakeSpecificSettings *projectTypeSpecificSettings();
+    ~CMakeProjectPlugin() override;
 
 #ifdef WITH_TESTS
 private slots:
@@ -60,14 +47,25 @@ private slots:
 
     void testCMakeSplitValue_data();
     void testCMakeSplitValue();
+
+    void testCMakeProjectImporterQt_data();
+    void testCMakeProjectImporterQt();
+
+    void testCMakeProjectImporterToolChain_data();
+    void testCMakeProjectImporterToolChain();
+
+    void testServerModeReaderProgress_data();
+    void testServerModeReaderProgress();
 #endif
 
 private:
-    void updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void extensionsInitialized() override;
 
-    Utils::ParameterAction *m_buildTargetContextAction = nullptr;
-    QMetaObject::Connection m_actionConnect;
+    void updateContextActions();
+
+    class CMakeProjectPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal
-} // namespace CMakeProject
+} // namespace CMakeProjectManager

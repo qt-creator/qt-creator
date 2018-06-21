@@ -34,7 +34,11 @@ namespace ProjectExplorer {
 class PROJECTEXPLORER_EXPORT IPotentialKit : public QObject
 {
     Q_OBJECT
+
 public:
+    IPotentialKit();
+    ~IPotentialKit() override;
+
     virtual QString displayName() const = 0;
     virtual void executeFromMenu() = 0;
     virtual QWidget *createWidget(QWidget *parent) const = 0;

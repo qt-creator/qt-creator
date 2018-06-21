@@ -279,11 +279,20 @@ QString CMakeGeneratorKitConfigWidget::toolTip() const
 void CMakeGeneratorKitConfigWidget::changeGenerator()
 {
     QPointer<QDialog> changeDialog = new QDialog(m_changeButton);
+
+    // Disable help button in titlebar on windows:
+    Qt::WindowFlags flags = changeDialog->windowFlags();
+    flags &= ~Qt::WindowContextHelpButtonHint;
+    flags |= Qt::MSWindowsFixedSizeDialogHint;
+    changeDialog->setWindowFlags(flags);
+
     changeDialog->setWindowTitle(tr("CMake Generator"));
 
     auto *layout = new QGridLayout(changeDialog);
+    layout->setSizeConstraint(QLayout::SetFixedSize);
 
     auto *cmakeLabel = new QLabel;
+    cmakeLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     auto *generatorCombo = new QComboBox;
     auto *extraGeneratorCombo = new QComboBox;
@@ -325,7 +334,7 @@ void CMakeGeneratorKitConfigWidget::changeGenerator()
     for (auto it = generatorList.constBegin(); it != generatorList.constEnd(); ++it)
         generatorCombo->addItem(it->name);
 
-    auto updateDialog = [this, &generatorList, generatorCombo, extraGeneratorCombo,
+    auto updateDialog = [&generatorList, generatorCombo, extraGeneratorCombo,
             platformEdit, toolsetEdit](const QString &name) {
         auto it = std::find_if(generatorList.constBegin(), generatorList.constEnd(),
                                [name](const CMakeTool::Generator &g) { return g.name == name; });

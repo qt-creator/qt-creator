@@ -25,8 +25,17 @@
 
 #include "selectionindicator.h"
 
+#include <designeractionmanager.h>
+
 #include <QPen>
 #include <QGraphicsScene>
+#include <QGraphicsTextItem>
+
+#include <abstractview.h>
+
+#include <designeractionmanager.h>
+
+#include <utils/theme/theme.h>
 
 namespace QmlDesigner {
 
@@ -60,23 +69,30 @@ void SelectionIndicator::clear()
             delete item;
         }
     }
+    m_labelItem.reset(nullptr);
     m_indicatorShapeHash.clear();
 }
 
-//static void alignVertices(QPolygonF &polygon, double factor)
-//{
-//    QMutableVectorIterator<QPointF> iterator(polygon);
-//    while (iterator.hasNext()) {
-//        QPointF &vertex = iterator.next();
-//        vertex.setX(std::floor(vertex.x()) + factor);
-//        vertex.setY(std::floor(vertex.y()) + factor);
-//    }
-//
-//}
+static QPolygonF boundingRectInLayerItemSpaceForItem(FormEditorItem *item, QGraphicsItem *layerItem)
+{
+     QPolygonF boundingRectInSceneSpace(item->mapToScene(item->qmlItemNode().instanceBoundingRect()));
+     return layerItem->mapFromScene(boundingRectInSceneSpace);
+}
+
+static bool checkSingleSelection(const QList<FormEditorItem*> &itemList)
+{
+    return !itemList.isEmpty()
+            && itemList.constFirst()
+            && itemList.constFirst()->qmlItemNode().view()->singleSelectedModelNode().isValid();
+}
+
+const int labelHeight = 18;
 
 void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
 {
     clear();
+
+    static QColor selectionColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_FormEditorSelectionColor);
 
     foreach (FormEditorItem *item, itemList) {
         if (!item->qmlItemNode().isValid())
@@ -84,33 +100,73 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
 
         QGraphicsPolygonItem *newSelectionIndicatorGraphicsItem = new QGraphicsPolygonItem(m_layerItem.data());
         m_indicatorShapeHash.insert(item, newSelectionIndicatorGraphicsItem);
-        QPolygonF boundingRectInSceneSpace(item->mapToScene(item->qmlItemNode().instanceBoundingRect()));
-        //        alignVertices(boundingRectInSceneSpace, 0.5 / item->formEditorView()->widget()->zoomAction()->zoomLevel());
-        QPolygonF boundingRectInLayerItemSpace = m_layerItem->mapFromScene(boundingRectInSceneSpace);
-        newSelectionIndicatorGraphicsItem->setPolygon(boundingRectInLayerItemSpace);
+        newSelectionIndicatorGraphicsItem->setPolygon(boundingRectInLayerItemSpaceForItem(item, m_layerItem.data()));
         newSelectionIndicatorGraphicsItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
 
         QPen pen;
         pen.setCosmetic(true);
+        pen.setWidth(2);
         pen.setJoinStyle(Qt::MiterJoin);
-        pen.setColor(QColor(108, 141, 221));
+        pen.setColor(selectionColor);
         newSelectionIndicatorGraphicsItem->setPen(pen);
-        newSelectionIndicatorGraphicsItem->setCursor(m_cursor);
+    }
+
+    if (checkSingleSelection(itemList)) {
+        FormEditorItem *selectedItem = itemList.constFirst();
+        m_labelItem.reset(new QGraphicsPolygonItem(m_layerItem.data()));
+
+        QGraphicsWidget *toolbar = DesignerActionManager::instance().createFormEditorToolBar(m_labelItem.get());
+        toolbar->setPos(1, -1);
+
+        ModelNode modelNode = selectedItem->qmlItemNode().modelNode();
+        QGraphicsTextItem *textItem = new QGraphicsTextItem(modelNode.simplifiedTypeName(), m_labelItem.get());
+
+        if (modelNode.hasId())
+            textItem->setPlainText(modelNode.id());
+
+        static QColor textColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_FormEditorForegroundColor);
+
+        textItem->setDefaultTextColor(textColor);
+        QPolygonF labelPolygon = boundingRectInLayerItemSpaceForItem(selectedItem, m_layerItem.data());
+        QRectF labelRect = labelPolygon.boundingRect();
+        labelRect.setHeight(labelHeight);
+        labelRect.setWidth(textItem->boundingRect().width() + toolbar->size().width());
+        QPointF pos = labelRect.topLeft();
+        labelRect.moveTo(0, 0);
+        m_labelItem->setPolygon(labelRect);
+        m_labelItem->setPos(pos + QPointF(0, -labelHeight));
+        const int offset = (labelHeight - textItem->boundingRect().height()) / 2;
+        textItem->setPos(QPointF(toolbar->size().width(), offset));
+        m_labelItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
+        QPen pen;
+        pen.setCosmetic(true);
+        pen.setWidth(2);
+        pen.setCapStyle(Qt::RoundCap);
+        pen.setJoinStyle(Qt::BevelJoin);
+        pen.setColor(selectionColor);
+        m_labelItem->setPen(pen);
+        m_labelItem->setBrush(selectionColor);
+        m_labelItem->update();
     }
 }
-
-
 
 void SelectionIndicator::updateItems(const QList<FormEditorItem*> &itemList)
 {
     foreach (FormEditorItem *item, itemList) {
         if (m_indicatorShapeHash.contains(item)) {
             QGraphicsPolygonItem *indicatorGraphicsItem =  m_indicatorShapeHash.value(item);
-            QPolygonF boundingRectInSceneSpace(item->mapToScene(item->qmlItemNode().instanceBoundingRect()));
-//            alignVertices(boundingRectInSceneSpace, 0.5 / item->formEditorView()->widget()->zoomAction()->zoomLevel());
-            QPolygonF boundingRectInLayerItemSpace = m_layerItem->mapFromScene(boundingRectInSceneSpace);
-            indicatorGraphicsItem->setPolygon(boundingRectInLayerItemSpace);
+            indicatorGraphicsItem->setPolygon(boundingRectInLayerItemSpaceForItem(item, m_layerItem.data()));
         }
+    }
+
+    if (checkSingleSelection(itemList)
+            && m_labelItem) {
+        FormEditorItem *selectedItem = itemList.constFirst();
+        QPolygonF labelPolygon = boundingRectInLayerItemSpaceForItem(selectedItem, m_layerItem.data());
+        QRectF labelRect = labelPolygon.boundingRect();
+        QPointF pos = labelRect.topLeft();
+        m_labelItem->setPos(pos + QPointF(0, -labelHeight));
+        m_layerItem->update();
     }
 }
 

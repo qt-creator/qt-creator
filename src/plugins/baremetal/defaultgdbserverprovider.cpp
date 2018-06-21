@@ -148,7 +148,7 @@ GdbServerProvider *DefaultGdbServerProviderFactory::create()
     return new DefaultGdbServerProvider;
 }
 
-bool DefaultGdbServerProviderFactory::canRestore(const QVariantMap &data)
+bool DefaultGdbServerProviderFactory::canRestore(const QVariantMap &data) const
 {
     const auto id = idFromMap(data);
     return id.startsWith(QLatin1String(Constants::DEFAULT_PROVIDER_ID)
@@ -217,12 +217,11 @@ void DefaultGdbServerProviderConfigWidget::setFromProvider()
     const auto p = static_cast<DefaultGdbServerProvider *>(provider());
     Q_ASSERT(p);
 
-    const auto b = blockSignals(true);
+    QSignalBlocker blocker(this);
     m_hostWidget->setHost(p->m_host);
     m_hostWidget->setPort(p->m_port);
     m_initCommandsTextEdit->setPlainText(p->initCommands());
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());
-    blockSignals(b);
 }
 
 } // namespace Internal

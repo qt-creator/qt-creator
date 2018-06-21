@@ -42,7 +42,7 @@ class ResourceEditorFactory : public Core::IEditorFactory
 public:
     explicit ResourceEditorFactory(ResourceEditorPlugin *plugin);
 
-    Core::IEditor *createEditor();
+    Core::IEditor *createEditor() override;
 
 private:
     ResourceEditorPlugin *m_plugin;

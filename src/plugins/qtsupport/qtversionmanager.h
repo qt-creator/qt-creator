@@ -39,23 +39,24 @@ class QTSUPPORT_EXPORT QtVersionManager : public QObject
 public:
     static QtVersionManager *instance();
     QtVersionManager();
-    ~QtVersionManager();
+    ~QtVersionManager() override;
     static void initialized();
 
     static bool isLoaded();
 
     // This will *always* return at least one (Qt in Path), even if that is
-    // unconfigured.
-    static QList<BaseQtVersion *> versions();
-    static QList<BaseQtVersion *> validVersions();
-
-    // Sorting is slow due to needing to potentially run qmake --query for each version
-    static QList<BaseQtVersion *> unsortedVersions();
-
-    // Note: DO NOT STORE THIS POINTER!
-    //       The QtVersionManager will delete it at random times and you will
+    // unconfigured. The lists here are in load-time order! Use sortVersions(...) if you
+    // need a list sorted by Qt Version number.
+    //
+    // Note: DO NOT STORE THESE POINTERS!
+    //       The QtVersionManager may delete them at random times and you will
     //       need to get a new pointer by calling this function again!
+    static QList<BaseQtVersion *> versions(const BaseQtVersion::Predicate &predicate = BaseQtVersion::Predicate());
     static BaseQtVersion *version(int id);
+    static BaseQtVersion *version(const BaseQtVersion::Predicate &predicate);
+
+    // Sorting is potentially expensive since it might require qmake --query to run for each version!
+    static QList<BaseQtVersion *> sortVersions(const QList<BaseQtVersion *> &input);
 
     static BaseQtVersion *qtVersionForQMakeBinary(const Utils::FileName &qmakePath);
 

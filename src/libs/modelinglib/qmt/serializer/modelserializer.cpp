@@ -41,6 +41,7 @@
 #include "qmt/model/mdependency.h"
 #include "qmt/model/massociation.h"
 #include "qmt/model/minheritance.h"
+#include "qmt/model/mconnection.h"
 
 #include "qmt/diagram/delement.h"
 
@@ -79,8 +80,8 @@ inline void Access<Archive, MSourceExpansion>::serialize(Archive &archive, MSour
 {
     archive || tag(sourceExpansion)
             || base<MExpansion>(sourceExpansion)
-            || attr(QStringLiteral("source"), sourceExpansion, &MSourceExpansion::sourceId, &MSourceExpansion::setSourceId)
-            || attr(QStringLiteral("transient"), sourceExpansion, &MSourceExpansion::isTransient, &MSourceExpansion::setTransient)
+            || attr("source", sourceExpansion, &MSourceExpansion::sourceId, &MSourceExpansion::setSourceId)
+            || attr("transient", sourceExpansion, &MSourceExpansion::isTransient, &MSourceExpansion::setTransient)
             || end;
 }
 
@@ -95,10 +96,10 @@ template<class Archive>
 inline void Access<Archive, MElement>::serialize(Archive &archive, MElement &element)
 {
     archive || tag(element)
-            || attr(QStringLiteral("uid"), element, &MElement::uid, &MElement::setUid)
-            || attr(QStringLiteral("flags"), element, &MElement::flags, &MElement::setFlags)
-            || attr(QStringLiteral("expansion"), element, &MElement::expansion, &MElement::setExpansion)
-            || attr(QStringLiteral("stereotypes"), element, &MElement::stereotypes, &MElement::setStereotypes)
+            || attr("uid", element, &MElement::uid, &MElement::setUid)
+            || attr("flags", element, &MElement::flags, &MElement::setFlags)
+            || attr("expansion", element, &MElement::expansion, &MElement::setExpansion)
+            || attr("stereotypes", element, &MElement::stereotypes, &MElement::setStereotypes)
             || end;
 }
 
@@ -115,9 +116,9 @@ inline void Access<Archive, MObject>::serialize(Archive &archive, MObject &objec
 {
     archive || tag(object)
             || base<MElement>(object)
-            || attr(QStringLiteral("name"), object, &MObject::name, &MObject::setName)
-            || attr(QStringLiteral("children"), object, &MObject::children, &MObject::setChildren)
-            || attr(QStringLiteral("relations"), object, &MObject::relations, &MObject::setRelations)
+            || attr("name", object, &MObject::name, &MObject::setName)
+            || attr("children", object, &MObject::children, &MObject::setChildren)
+            || attr("relations", object, &MObject::relations, &MObject::setRelations)
             || end;
 }
 
@@ -152,9 +153,9 @@ inline void Access<Archive, MClass>::serialize(Archive &archive, MClass &klass)
 {
     archive || tag(klass)
             || base<MObject>(klass)
-            || attr(QStringLiteral("namespace"), klass, &MClass::umlNamespace, &MClass::setUmlNamespace)
-            || attr(QStringLiteral("template"), klass, &MClass::templateParameters, &MClass::setTemplateParameters)
-            || attr(QStringLiteral("members"), klass, &MClass::members, &MClass::setMembers)
+            || attr("namespace", klass, &MClass::umlNamespace, &MClass::setUmlNamespace)
+            || attr("template", klass, &MClass::templateParameters, &MClass::setTemplateParameters)
+            || attr("members", klass, &MClass::members, &MClass::setMembers)
             || end;
 }
 
@@ -169,13 +170,13 @@ template<class Archive>
 inline void Access<Archive, MClassMember>::serialize(Archive &archive, MClassMember &member)
 {
     archive || tag(member)
-            || attr(QStringLiteral("uid"), member, &MClassMember::uid, &MClassMember::setUid)
-            || attr(QStringLiteral("stereotypes"), member, &MClassMember::stereotypes, &MClassMember::setStereotypes)
-            || attr(QStringLiteral("group"), member, &MClassMember::group, &MClassMember::setGroup)
-            || attr(QStringLiteral("visibility"), member, &MClassMember::visibility, &MClassMember::setVisibility)
-            || attr(QStringLiteral("type"), member, &MClassMember::memberType, &MClassMember::setMemberType)
-            || attr(QStringLiteral("properties"), member, &MClassMember::properties, &MClassMember::setProperties)
-            || attr(QStringLiteral("declaration"), member, &MClassMember::declaration, &MClassMember::setDeclaration)
+            || attr("uid", member, &MClassMember::uid, &MClassMember::setUid)
+            || attr("stereotypes", member, &MClassMember::stereotypes, &MClassMember::setStereotypes)
+            || attr("group", member, &MClassMember::group, &MClassMember::setGroup)
+            || attr("visibility", member, &MClassMember::visibility, &MClassMember::setVisibility)
+            || attr("type", member, &MClassMember::memberType, &MClassMember::setMemberType)
+            || attr("properties", member, &MClassMember::properties, &MClassMember::setProperties)
+            || attr("declaration", member, &MClassMember::declaration, &MClassMember::setDeclaration)
             || end;
 }
 
@@ -210,9 +211,9 @@ inline void Access<Archive, MDiagram>::serialize(Archive &archive, MDiagram &dia
 {
     archive || tag(diagram)
             || base<MObject>(diagram)
-            || attr(QStringLiteral("elements"), diagram, &MDiagram::diagramElements, &MDiagram::setDiagramElements)
-            || attr(QStringLiteral("last-modified"), diagram, &MDiagram::lastModified, &MDiagram::setLastModified)
-            || attr(QStringLiteral("toolbarid"), diagram, &MDiagram::toolbarId, &MDiagram::setToolbarId)
+            || attr("elements", diagram, &MDiagram::diagramElements, &MDiagram::setDiagramElements)
+            || attr("last-modified", diagram, &MDiagram::lastModified, &MDiagram::setLastModified)
+            || attr("toolbarid", diagram, &MDiagram::toolbarId, &MDiagram::setToolbarId)
             || end;
 }
 
@@ -248,9 +249,9 @@ inline void Access<Archive, MItem>::serialize(Archive &archive, MItem &item)
 {
     archive || tag(item)
             || base<MObject>(item)
-            || attr(QStringLiteral("variety-editable"), item, &MItem::isVarietyEditable, &MItem::setVarietyEditable)
-            || attr(QStringLiteral("variety"), item, &MItem::variety, &MItem::setVariety)
-            || attr(QStringLiteral("shape-editable"), item, &MItem::isShapeEditable, &MItem::setShapeEditable)
+            || attr("variety-editable", item, &MItem::isVarietyEditable, &MItem::setVarietyEditable)
+            || attr("variety", item, &MItem::variety, &MItem::setVariety)
+            || attr("shape-editable", item, &MItem::isShapeEditable, &MItem::setShapeEditable)
             || end;
 }
 
@@ -267,9 +268,9 @@ inline void Access<Archive, MRelation>::serialize(Archive &archive, MRelation &r
 {
     archive || tag(relation)
             || base<MElement>(relation)
-            || attr(QStringLiteral("name"), relation, &MRelation::name, &MRelation::setName)
-            || attr(QStringLiteral("a"), relation, &MRelation::endAUid, &MRelation::setEndAUid)
-            || attr(QStringLiteral("b"), relation, &MRelation::endBUid, &MRelation::setEndBUid)
+            || attr("name", relation, &MRelation::name, &MRelation::setName)
+            || attr("a", relation, &MRelation::endAUid, &MRelation::setEndAUid)
+            || attr("b", relation, &MRelation::endBUid, &MRelation::setEndBUid)
             || end;
 }
 
@@ -304,7 +305,7 @@ inline void Access<Archive, MDependency>::serialize(Archive &archive, MDependenc
 {
     archive || tag(dependency)
             || base<MRelation>(dependency)
-            || attr(QStringLiteral("direction"), dependency, &MDependency::direction, &MDependency::setDirection)
+            || attr("direction", dependency, &MDependency::direction, &MDependency::setDirection)
             || end;
 }
 
@@ -319,10 +320,10 @@ template<class Archive>
 inline void Access<Archive, MAssociationEnd>::serialize(Archive &archive, MAssociationEnd &associationEnd)
 {
     archive || tag(associationEnd)
-            || attr(QStringLiteral("name"), associationEnd, &MAssociationEnd::name, &MAssociationEnd::setName)
-            || attr(QStringLiteral("cardinality"), associationEnd, &MAssociationEnd::cardinality, &MAssociationEnd::setCardinality)
-            || attr(QStringLiteral("navigable"), associationEnd, &MAssociationEnd::isNavigable, &MAssociationEnd::setNavigable)
-            || attr(QStringLiteral("kind"), associationEnd, &MAssociationEnd::kind, &MAssociationEnd::setKind)
+            || attr("name", associationEnd, &MAssociationEnd::name, &MAssociationEnd::setName)
+            || attr("cardinality", associationEnd, &MAssociationEnd::cardinality, &MAssociationEnd::setCardinality)
+            || attr("navigable", associationEnd, &MAssociationEnd::isNavigable, &MAssociationEnd::setNavigable)
+            || attr("kind", associationEnd, &MAssociationEnd::kind, &MAssociationEnd::setKind)
             || end;
 }
 
@@ -336,12 +337,45 @@ inline void Access<Archive, MAssociation>::serialize(Archive &archive, MAssociat
 {
     archive || tag(association)
             || base<MRelation>(association)
-            || attr(QStringLiteral("class"), association, &MAssociation::assoicationClassUid, &MAssociation::setAssociationClassUid)
-            || attr(QStringLiteral("a"), association, &MAssociation::endA, &MAssociation::setEndA)
-            || attr(QStringLiteral("b"), association, &MAssociation::endB, &MAssociation::setEndB)
+            || attr("class", association, &MAssociation::assoicationClassUid, &MAssociation::setAssociationClassUid)
+            || attr("a", association, &MAssociation::endA, &MAssociation::setEndA)
+            || attr("b", association, &MAssociation::endB, &MAssociation::setEndB)
             || end;
 }
 
 QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MAssociation)
+
+// MConnection
+
+QARK_REGISTER_TYPE_NAME(MConnectionEnd, "MConnectionEnd")
+QARK_ACCESS_SERIALIZE(MConnectionEnd)
+
+template<class Archive>
+inline void Access<Archive, MConnectionEnd>::serialize(Archive &archive, MConnectionEnd &connectionEnd)
+{
+    archive || tag(connectionEnd)
+            || attr("name", connectionEnd, &MConnectionEnd::name, &MConnectionEnd::setName)
+            || attr("cardinality", connectionEnd, &MConnectionEnd::cardinality, &MConnectionEnd::setCardinality)
+            || attr("navigable", connectionEnd, &MConnectionEnd::isNavigable, &MConnectionEnd::setNavigable)
+            || end;
+}
+
+QARK_REGISTER_TYPE_NAME(MConnection, "MConnection")
+QARK_REGISTER_DERIVED_CLASS(QXmlInArchive, QXmlOutArchive, MConnection, MElement)
+QARK_REGISTER_DERIVED_CLASS(QXmlInArchive, QXmlOutArchive, MConnection, MRelation)
+QARK_ACCESS_SERIALIZE(MConnection)
+
+template<class Archive>
+inline void Access<Archive, MConnection>::serialize(Archive &archive, MConnection &connection)
+{
+    archive || tag(connection)
+            || base<MRelation>(connection)
+            || attr("custom-relation", connection, &MConnection::customRelationId, &MConnection::setCustomRelationId)
+            || attr("a", connection, &MConnection::endA, &MConnection::setEndA)
+            || attr("b", connection, &MConnection::endB, &MConnection::setEndB)
+            || end;
+}
+
+QARK_ACCESS_SPECIALIZE(QXmlInArchive, QXmlOutArchive, MConnection)
 
 } // namespace qark

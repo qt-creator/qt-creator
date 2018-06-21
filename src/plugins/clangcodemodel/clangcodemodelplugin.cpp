@@ -29,6 +29,7 @@
 #include "clangprojectsettingswidget.h"
 
 #ifdef WITH_TESTS
+#  include "test/clangbatchfileprocessor.h"
 #  include "test/clangcodecompletion_test.h"
 #endif
 
@@ -37,6 +38,7 @@
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/taskhub.h>
 
 #include <texteditor/textmark.h>
 
@@ -44,20 +46,6 @@ namespace ClangCodeModel {
 namespace Internal {
 
 namespace {
-
-void initializeTextMarks()
-{
-    TextEditor::TextMark::setCategoryColor(Core::Id(Constants::CLANG_WARNING),
-                                           Utils::Theme::ClangCodeModel_Warning_TextMarkColor);
-    TextEditor::TextMark::setCategoryColor(Core::Id(Constants::CLANG_ERROR),
-                                           Utils::Theme::ClangCodeModel_Error_TextMarkColor);
-    TextEditor::TextMark::setDefaultToolTip(Core::Id(Constants::CLANG_WARNING),
-                                            QApplication::translate("Clang Code Model Marks",
-                                                                    "Code Model Warning"));
-    TextEditor::TextMark::setDefaultToolTip(Core::Id(Constants::CLANG_ERROR),
-                                            QApplication::translate("Clang Code Model Marks",
-                                                                    "Code Model Error"));
-}
 
 void addProjectPanelWidget()
 {
@@ -74,12 +62,19 @@ void addProjectPanelWidget()
 
 bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
+    Q_UNUSED(arguments);
+    Q_UNUSED(errorMessage);
+
+    ProjectExplorer::TaskHub::addCategory(Constants::TASK_CATEGORY_DIAGNOSTICS,
+                                          tr("Clang Code Model"));
+
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
+            &ProjectExplorer::ProjectExplorerPlugin::finishedInitialization,
+            this,
+            &ClangCodeModelPlugin::maybeHandleBatchFileAndExit);
 
     CppTools::CppModelManager::instance()->activateClangCodeModel(&m_modelManagerSupportProvider);
 
-    initializeTextMarks();
     addProjectPanelWidget();
 
     return true;
@@ -87,6 +82,18 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
 
 void ClangCodeModelPlugin::extensionsInitialized()
 {
+}
+
+// For e.g. creation of profile-guided optimization builds.
+void ClangCodeModelPlugin::maybeHandleBatchFileAndExit() const
+{
+#ifdef WITH_TESTS
+    const QString batchFilePath = QString::fromLocal8Bit(qgetenv("QTC_CLANG_BATCH"));
+    if (!batchFilePath.isEmpty() && QTC_GUARD(QFileInfo::exists(batchFilePath))) {
+        const bool runSucceeded = runClangBatchFile(batchFilePath);
+        QCoreApplication::exit(!runSucceeded);
+    }
+#endif
 }
 
 #ifdef WITH_TESTS

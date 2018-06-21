@@ -28,13 +28,6 @@
 #include <QtGlobal>
 
 namespace Qnx {
-
-enum QnxArchitecture {
-    X86,
-    ArmLeV7,
-    UnknownArch
-};
-
 namespace Constants {
 
 const char QNX_TARGET_KEY[] = "QNX_TARGET";
@@ -44,9 +37,9 @@ const char QNX_QNX_QT[] = "Qt4ProjectManager.QtVersion.QNX.QNX";
 
 const char QNX_QNX_FEATURE[] = "QtSupport.Wizards.FeatureQNX";
 
-const char QNX_QNX_DEPLOYCONFIGURATION_ID[] = "Qt4ProjectManager.QNX.QNXDeployConfiguration";
-
 const char QNX_QNX_RUNCONFIGURATION_PREFIX[] = "Qt4ProjectManager.QNX.QNXRunConfiguration.";
+
+const char QNX_QNX_DEPLOYCONFIGURATION_ID[] = "Qt4ProjectManager.QNX.QNXDeployConfiguration";
 
 const char QNX_QNX_OS_TYPE[] = "QnxOsType";
 
@@ -55,7 +48,6 @@ const char QNX_DEBUG_EXECUTABLE[] = "pdebug";
 const char QNX_TOOLCHAIN_ID[] = "Qnx.QccToolChain";
 
 // QNX settings constants
-const char QNX_CATEGORY_ICON[] = ":/qnx/images/qnx-target.png";
 const char QNX_SETTINGS_ID[] = "DD.Qnx Configuration";
 
 const char QNX_CONFIGS_FILENAME[] = "qnxconfigurations.xml";

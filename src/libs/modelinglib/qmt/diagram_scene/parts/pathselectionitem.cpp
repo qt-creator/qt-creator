@@ -130,7 +130,7 @@ private:
         }
     }
 
-    PathSelectionItem *m_owner = 0;
+    PathSelectionItem *m_owner = nullptr;
     int m_pointIndex = -1;
     QSizeF m_pointSize;
     Selection m_selection = NotSelected;
@@ -207,10 +207,10 @@ QList<QPointF> PathSelectionItem::points() const
 
 void PathSelectionItem::setPoints(const QList<QPointF> &points)
 {
-    QMT_CHECK(points.size() >= 2);
+    QMT_ASSERT(points.size() >= 2, return);
     prepareGeometryChange();
 
-    GraphicsHandleItem *focusEndBItem = 0;
+    GraphicsHandleItem *focusEndBItem = nullptr;
     if (!m_handles.isEmpty() && m_focusHandleItem == m_handles.last()) {
         focusEndBItem = m_focusHandleItem;
         m_handles.removeLast();
@@ -222,7 +222,7 @@ void PathSelectionItem::setPoints(const QList<QPointF> &points)
             handle = focusEndBItem;
             handle->setPointIndex(pointIndex);
             m_handles.insert(pointIndex, handle);
-            focusEndBItem = 0;
+            focusEndBItem = nullptr;
         } else if (pointIndex >= m_handles.size()) {
             handle = new GraphicsHandleItem(pointIndex, this);
             handle->setPointSize(m_pointSize);
@@ -297,7 +297,7 @@ void PathSelectionItem::moveHandle(int pointIndex, const QPointF &deltaMove, Han
         m_windable->setHandlePos(pointIndex, newPos);
         if (handleStatus == Release) {
             m_windable->dropHandle(pointIndex, RASTER_WIDTH, RASTER_HEIGHT);
-            m_focusHandleItem = 0;
+            m_focusHandleItem = nullptr;
         }
         break;
     }

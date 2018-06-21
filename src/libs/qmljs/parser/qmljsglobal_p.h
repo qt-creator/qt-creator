@@ -62,3 +62,4 @@
 #    define QML_PARSER_EXPORT Q_DECL_IMPORT
 #  endif
 #endif // QT_CREATOR
+

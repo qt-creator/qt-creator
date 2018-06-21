@@ -23,8 +23,9 @@
 **
 ****************************************************************************/
 
-#include "locator.h"
 #include "locatorfiltersfilter.h"
+
+#include "locator.h"
 #include "locatorwidget.h"
 
 #include <utils/qtcassert.h>
@@ -35,10 +36,7 @@ using namespace Core::Internal;
 
 Q_DECLARE_METATYPE(ILocatorFilter*)
 
-LocatorFiltersFilter::LocatorFiltersFilter(Locator *plugin,
-                                               LocatorWidget *locatorWidget):
-    m_plugin(plugin),
-    m_locatorWidget(locatorWidget),
+LocatorFiltersFilter::LocatorFiltersFilter():
     m_icon(Utils::Icons::NEXT.icon())
 {
     setId("FiltersFilter");
@@ -57,12 +55,13 @@ void LocatorFiltersFilter::prepareSearch(const QString &entry)
         return;
 
     QMap<QString, ILocatorFilter *> uniqueFilters;
-    foreach (ILocatorFilter *filter, m_plugin->filters()) {
-        const QString filterId = filter->shortcutString() + QLatin1Char(',') + filter->displayName();
+    const QList<ILocatorFilter *> allFilters = Locator::filters();
+    for (ILocatorFilter *filter : allFilters) {
+        const QString filterId = filter->shortcutString() + ',' + filter->displayName();
         uniqueFilters.insert(filterId, filter);
     }
 
-    foreach (ILocatorFilter *filter, uniqueFilters) {
+    for (ILocatorFilter *filter : qAsConst(uniqueFilters)) {
         if (!filter->shortcutString().isEmpty() && !filter->isHidden() && filter->isEnabled()) {
             m_filterShortcutStrings.append(filter->shortcutString());
             m_filterDisplayNames.append(filter->displayName());
@@ -87,15 +86,18 @@ QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Loca
     return entries;
 }
 
-void LocatorFiltersFilter::accept(LocatorFilterEntry selection) const
+void LocatorFiltersFilter::accept(LocatorFilterEntry selection,
+                                  QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(selectionLength)
     bool ok;
     int index = selection.internalData.toInt(&ok);
     QTC_ASSERT(ok && index >= 0 && index < m_filterShortcutStrings.size(), return);
     const QString shortcutString = m_filterShortcutStrings.at(index);
-    if (!shortcutString.isEmpty())
-        m_locatorWidget->show(shortcutString + QLatin1Char(' '),
-                              shortcutString.length() + 1);
+    if (!shortcutString.isEmpty()) {
+        *newText = shortcutString + ' ';
+        *selectionStart = shortcutString.length() + 1;
+    }
 }
 
 void LocatorFiltersFilter::refresh(QFutureInterface<void> &future)

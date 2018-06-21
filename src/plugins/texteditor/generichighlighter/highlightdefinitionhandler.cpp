@@ -25,12 +25,16 @@
 
 #include "highlightdefinitionhandler.h"
 #include "highlightdefinition.h"
+#include "highlighterexception.h"
 #include "specificrules.h"
 #include "itemdata.h"
 #include "keywordlist.h"
 #include "context.h"
 #include "manager.h"
 
+#include <coreplugin/messagemanager.h>
+
+#include <QCoreApplication>
 #include <QLatin1String>
 
 using namespace TextEditor;
@@ -342,7 +346,15 @@ void HighlightDefinitionHandler::regExprStarted(const QXmlAttributes &atts)
 void HighlightDefinitionHandler::keywordStarted(const QXmlAttributes &atts)
 {
     KeywordRule *rule = new KeywordRule(m_definition);
-    rule->setList(atts.value(kString));
+    try {
+        rule->setList(atts.value(kString));
+    } catch (const HighlighterException &e) {
+        // Handle broken files. makefile.xml references an invalid list.
+        Core::MessageManager::write(
+                    QCoreApplication::translate("GenericHighlighter",
+                                                "Generic highlighter warning: %1")
+                                                .arg(e.message()));
+    }
     rule->setInsensitive(atts.value(kInsensitive));
     ruleElementStarted(atts, QSharedPointer<Rule>(rule));
 }

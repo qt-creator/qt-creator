@@ -72,7 +72,7 @@ private:
 
     void reset();
 
-    bool m_debug;
+    bool m_debug = false;
 
     QString m_receivedStdErrChildLine;
     QString m_receivedStdOutChildLine;
@@ -93,7 +93,7 @@ public:
     void stdError(const QString &line) override;
 
 private:
-    OutputParserTester *m_tester;
+    OutputParserTester *m_tester = nullptr;
 };
 
 } // namespace ProjectExplorer

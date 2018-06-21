@@ -28,9 +28,13 @@
 #include <qmljs/parser/qmljsast_p.h>
 
 #include <QDebug>
+#include <QLoggingCategory>
 #include <QTextBlock>
 
 #include <typeinfo>
+
+
+static Q_LOGGING_CATEGORY(qmlRewriter, "qtc.rewriter.qmlrewriter")
 
 using namespace QmlDesigner::Internal;
 
@@ -330,9 +334,9 @@ QmlJS::AST::UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(QmlJS::AS
 
 void QMLRewriter::dump(const ASTPath &path)
 {
-    qDebug() << "AST path with" << path.size() << "node(s):";
+    qCDebug(qmlRewriter) << "AST path with" << path.size() << "node(s):";
     for (int i = 0; i < path.size(); ++i) {
         auto node = path.at(i);
-        qDebug().noquote() << QString(i + 1, QLatin1Char('-')) << typeid(*node).name();
+        qCDebug(qmlRewriter).noquote() << QString(i + 1, QLatin1Char('-')) << typeid(*node).name();
     }
 }

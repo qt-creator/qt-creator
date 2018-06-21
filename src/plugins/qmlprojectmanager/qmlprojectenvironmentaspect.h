@@ -35,17 +35,8 @@ class QmlProjectEnvironmentAspect : public ProjectExplorer::EnvironmentAspect
 
 public:
     QmlProjectEnvironmentAspect(ProjectExplorer::RunConfiguration *rc);
-    QmlProjectEnvironmentAspect *create(ProjectExplorer::RunConfiguration *parent) const;
 
-    QList<int> possibleBaseEnvironments() const;
-    QString baseEnvironmentDisplayName(int base) const;
-    Utils::Environment baseEnvironment() const;
-
-private:
-    enum BaseEnvironmentBase {
-        SystemEnvironmentBase = 0,
-        KitEnvironmentBase
-    };
+    Utils::Environment baseEnvironment() const override;
 };
 
 } // namespace QmlProjectManager

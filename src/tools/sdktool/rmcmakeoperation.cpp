@@ -48,7 +48,7 @@ QString RmCMakeOperation::name() const
 
 QString RmCMakeOperation::helpText() const
 {
-    return QString("remove a cmake tool from Qt Creator");
+    return QString("remove a cmake tool");
 }
 
 QString RmCMakeOperation::argumentsHelpText() const
@@ -98,7 +98,7 @@ bool RmCMakeOperation::test() const
     // Add cmakes:
     QVariantMap map = AddCMakeOperation::initializeCMake();
     map = AddCMakeOperation::addCMake(map, "testId", "name", "/tmp/test",
-                                      KeyValuePairList({ KeyValuePair("ExtraKey", QVariant("ExtraValue")) }));
+                                      KeyValuePairList({KeyValuePair("ExtraKey", QVariant("ExtraValue"))}));
     map = AddCMakeOperation::addCMake(map, "testId2", "other name", "/tmp/test2", KeyValuePairList());
 
     QVariantMap result = rmCMake(QVariantMap(), "nonexistent");

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -59,6 +59,8 @@
     Select the build configuration to edit in the
     \uicontrol {Edit build configuration} field.
 
+    \section2 qmake Build Configuration
+
     \image qtcreator-projectpane.png
 
     By default, \QC builds projects in a separate directory from the source
@@ -72,6 +74,8 @@
     \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
     \uicontrol General, and enter a period (.) in the
     \uicontrol {Default build directory} field.
+
+    \include creator-projects-cmake-building.qdocinc cmake build configuration
 
     \section1 Starting External Processes
 
@@ -140,8 +144,12 @@
 
     \section1 Build Steps
 
-    The build system of \QC is built on qmake and make. In \uicontrol{Build Steps} you
-    can change the settings for qmake and make. \QC runs the make command using
+    In \uicontrol{Build Steps} you can change the settings for the build system
+    selected for building the project: qmake, CMake, or Qbs.
+
+    \section2 qmake Build Steps
+
+    \QC builds qmake projects by running the \c make or \c nmake command from
     the Qt version defined for the current build configuration.
 
     \image qtcreator-build-steps.png "Build steps"
@@ -154,17 +162,22 @@
     select the \uicontrol {Generate separate debug info} check box. For more
     information, see \l{Using the CPU Usage Analyzer}.
 
-    \QC is integrated to \l{http://doc.qt.io/QtQuickCompiler/}
-    {Qt Quick Compiler} (commercial only) that enables you to compile QML source
-    code into the final binary. This
-    improves the startup time of the application and eliminates the need to
-    deploy QML files together with the application. \QC new project wizards
-    create projects that the Qt Quick Compiler can compile, because they are
-    set up to use the Qt Resource System. To compile Qt Quick projects, select
-    the \uicontrol {Enable Qt Quick Compiler} check box.
+    \section3 Compiling QML
 
-    \note For more information about the build steps when using Qbs, see
-    \l{Building Applications with Qbs}.
+    Since Qt 5.11, you can compile QML source code into the final binary. This
+    improves the startup time of the application and eliminates the need to
+    deploy QML files together with the application. For more information, see
+    \l{Compiling QML Ahead of Time}.
+
+    \QC new project wizards create Qt Quick projects that can be compiled,
+    because they are set up to use the Qt Resource System. To compile Qt Quick
+    projects, select the \uicontrol {Enable Qt Quick Compiler} check box.
+
+    \note In earlier Qt versions, this was a commercial feature. For more
+    information, see \l{http://doc.qt.io/QtQuickCompiler/}{Qt Quick Compiler}.
+
+    \include creator-projects-cmake-building.qdocinc cmake build steps
+    \include creator-projects-settings-build-qbs.qdocinc qbs build steps
 
     \section2 Adding Custom Build Steps
 
@@ -191,7 +204,7 @@
 
     \image qtcreator-clean-steps.png "Clean steps"
 
-    You can define the cleaning steps for your builds in the \uicontrol{Clean Steps}:
+    You can define the cleaning steps for your builds in the \uicontrol{Clean Steps}.
 
     \list
 
@@ -208,8 +221,8 @@
             (\uicontrol {Move Down}).
     \endlist
 
-    \note For more information about the cleaning steps when using Qbs, see
-    \l{Building Applications with Qbs}.
+    \include creator-projects-cmake-building.qdocinc cmake clean steps
+    \include creator-projects-settings-build-qbs.qdocinc qbs clean steps
 
     \section1 Build Environment
 

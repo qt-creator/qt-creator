@@ -1,4 +1,4 @@
-contains(CONFIG, dll) {
+shared {
     DEFINES += CPLUSPLUS_BUILD_LIB
 } else {
     DEFINES += CPLUSPLUS_BUILD_STATIC_LIB
@@ -17,15 +17,13 @@ HEADERS += \
     $$PWD/Icons.h \
     $$PWD/ExpressionUnderCursor.h \
     $$PWD/BackwardsScanner.h \
-    $$PWD/MatchingText.h \
-    $$PWD/OverviewModel.h
+    $$PWD/MatchingText.h
 
 SOURCES += \
     $$PWD/Icons.cpp \
     $$PWD/ExpressionUnderCursor.cpp \
     $$PWD/BackwardsScanner.cpp \
-    $$PWD/MatchingText.cpp \
-    $$PWD/OverviewModel.cpp
+    $$PWD/MatchingText.cpp
 }
 
 HEADERS += \

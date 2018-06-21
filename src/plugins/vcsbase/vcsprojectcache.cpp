@@ -74,9 +74,9 @@ VcsProjectCache::VcsProjectCache()
     m_instance = this;
 
     connect(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::projectAdded,
-            this, [this]() { VcsProjectCache::invalidate(); });
+            this, []() { VcsProjectCache::invalidate(); });
     connect(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::projectRemoved,
-            this, [this]() { VcsProjectCache::invalidate(); });
+            this, []() { VcsProjectCache::invalidate(); });
 }
 
 VcsProjectCache::~VcsProjectCache()
@@ -125,7 +125,7 @@ ProjectExplorer::Project *VcsProjectCache::projectForToplevel(const Utils::FileN
 {
     PathMatcher parentMatcher;
     PathMatcher childMatcher;
-    foreach (ProjectExplorer::Project *project, ProjectExplorer::SessionManager::projects()) {
+    for (ProjectExplorer::Project *project : ProjectExplorer::SessionManager::projects()) {
         const Utils::FileName projectDir = project->projectDirectory();
         if (projectDir == vcsTopLevel)
             return project;

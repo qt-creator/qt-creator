@@ -38,9 +38,9 @@ class DataProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    explicit DataProxyModel(QObject *parent = 0);
+    explicit DataProxyModel(QObject *parent = nullptr);
 
-    virtual void setSourceModel(QAbstractItemModel *sourceModel);
+    void setSourceModel(QAbstractItemModel *sourceModel) override;
 
     QString filterBaseDir() const { return m_baseDir; }
     const Function *filterFunction() const;
@@ -49,7 +49,6 @@ public:
     /// Only functions with an inclusive cost ratio above this minimum will be shown in the model
     double minimumInclusiveCostRatio() const { return m_minimumInclusiveCostRatio; }
 
-public Q_SLOTS:
     /// This will filter out all entries that are not located within \param baseDir
     void setFilterBaseDir(const QString& baseDir);
     void setFilterFunction(const Function *call);
@@ -59,12 +58,12 @@ public Q_SLOTS:
     /// by this model. If @c 0 is passed as argument, all rows will be shown.
     void setMinimumInclusiveCostRatio(double minimumInclusiveCost);
 
-Q_SIGNALS:
+signals:
     void filterFunctionChanged(const Function *previous, const Function *current);
     void filterMaximumRowsChanged(int rows);
 
 protected:
-    virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
 
 private:
     DataModel *dataModel() const;

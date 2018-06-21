@@ -50,7 +50,7 @@ class UnstartedAppWatcherDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit UnstartedAppWatcherDialog(QWidget *parent = 0);
+    explicit UnstartedAppWatcherDialog(QWidget *parent = nullptr);
 
     ProjectExplorer::Kit *currentKit() const;
     ProjectExplorer::DeviceProcessItem currentProcess() const;

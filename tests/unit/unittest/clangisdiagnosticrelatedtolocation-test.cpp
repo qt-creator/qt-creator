@@ -137,7 +137,7 @@ TEST_F(ClangIsDiagnosticRelatedToLocation, DoNoMatchAfterRangeEnd)
 
 TEST_F(ClangIsDiagnosticRelatedToLocation, MatchInAdditionalRange)
 {
-    const QVector<SourceRangeContainer> additionalRanges{ createRange(5, 5, 5, 10) };
+    const QVector<SourceRangeContainer> additionalRanges{createRange(5, 5, 5, 10)};
     const DiagnosticContainer diagnostic = createDiagnosticWithLocation(1, 1);
 
     ASSERT_TRUE(isDiagnosticRelatedToLocation(diagnostic, additionalRanges, 5, 7));

@@ -53,9 +53,20 @@ def main():
     switchViewTo(ViewConstants.HELP)
     manualQModelIndex = getQModelIndexStr("text?='Qt Creator Manual *'",
                                           ":Qt Creator_QHelpContentWidget")
-    doubleClick(manualQModelIndex, 5, 5, 0, Qt.LeftButton)
+    manualQMIObj = waitForObject(manualQModelIndex)
+    doubleClick(manualQMIObj, 5, 5, 0, Qt.LeftButton)
+    if not waitFor("not manualQMIObj.collapsed", 2000):
+        test.warning("It takes more than two seconds to expand the help content tree.")
+    gettingStartedQModelIndex = getQModelIndexStr("text='Getting Started'", manualQModelIndex)
+    doubleClick(gettingStartedQModelIndex, 5, 5, 0, Qt.LeftButton)
     mouseClick(waitForObject(getQModelIndexStr("text='Building and Running an Example'",
-                                               manualQModelIndex)), 5, 5, 0, Qt.LeftButton)
+                                               gettingStartedQModelIndex)))
+    helpSelector = waitForObject(":Qt Creator_HelpSelector_QComboBox")
+    pageOpened = "str(helpSelector.currentText).startswith('Building and Running an Example')"
+    if not waitFor(pageOpened, 10000):
+        test.fatal("Help page is not opened after ten seconds. Giving up.")
+        invokeMenuItem("File", "Exit")
+        return
     # open bookmarks window
     clickButton(waitForObject(":Qt Creator.Add Bookmark_QToolButton"))
     clickButton(waitForObject(":Add Bookmark.ExpandBookmarksList_QToolButton"))

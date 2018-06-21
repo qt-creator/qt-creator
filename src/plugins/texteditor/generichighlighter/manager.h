@@ -38,7 +38,6 @@
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
-class QStringList;
 class QIODevice;
 template <class> class QFutureInterface;
 QT_END_NAMESPACE
@@ -58,7 +57,7 @@ class Manager : public QObject
 {
     Q_OBJECT
 public:
-    virtual ~Manager();
+    ~Manager() override;
     static Manager *instance();
 
     QString definitionIdByName(const QString &name) const;

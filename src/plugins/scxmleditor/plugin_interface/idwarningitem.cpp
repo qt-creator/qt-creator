@@ -33,8 +33,8 @@ IdWarningItem::IdWarningItem(QGraphicsItem *parent)
 {
     setSeverity(OutputPane::Warning::ErrorType);
     setTypeName(tr("State"));
-    setDescription(tr("Each State has to be unique ID."));
-    setReason(tr("Missing ID"));
+    setDescription(tr("Each state must have a unique ID."));
+    setReason(tr("Missing ID."));
     setX(-boundingRect().width());
 }
 
@@ -54,7 +54,7 @@ void IdWarningItem::setId(const QString &text)
 
     // Check new id
     if (m_id.isEmpty()) {
-        setReason(tr("Missing ID"));
+        setReason(tr("Missing ID."));
         setWarningActive(true);
     } else
         checkDuplicates(m_id);
@@ -78,7 +78,7 @@ void IdWarningItem::checkDuplicates(const QString &id)
             foundItems[0]->setWarningActive(false);
         } else {
             for (int i = 0; i < foundItems.count(); ++i) {
-                foundItems[i]->setReason(tr("Duplicate ID (%1)").arg(id));
+                foundItems[i]->setReason(tr("Duplicate ID (%1).").arg(id));
                 foundItems[i]->setWarningActive(true);
             }
         }

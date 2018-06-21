@@ -36,15 +36,20 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
 
     stream >> time >> messageType;
 
+    if (messageType < 0 || messageType > MaximumMessage)
+        messageType = MaximumMessage;
+
     RangeType rangeType = MaximumRangeType;
     if (!stream.atEnd()) {
         stream >> subtype;
         rangeType = static_cast<RangeType>(subtype);
+        if (rangeType < 0 || rangeType > MaximumRangeType)
+            rangeType = MaximumRangeType;
     } else {
         subtype = -1;
     }
 
-    event.event.setTimestamp(time);
+    event.event.setTimestamp(time > 0 ? time : 0);
     event.event.setTypeIndex(-1);
     event.serverTypeId = 0;
 
@@ -180,6 +185,7 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
         break;
     }
     default:
+        event.event.setNumbers<char>({});
         event.type = QmlEventType(static_cast<Message>(messageType), MaximumRangeType, subtype);
         break;
     }

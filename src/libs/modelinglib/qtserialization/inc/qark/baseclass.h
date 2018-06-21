@@ -87,13 +87,13 @@ Base<BASE, DERIVED> base(const QString &qualifiedName, DERIVED *&obj, const Para
 template<class BASE, class DERIVED>
 Base<BASE, DERIVED> base(DERIVED &obj)
 {
-    return Base<BASE, DERIVED>(QString(QStringLiteral("base-%1")).arg(typeUid<BASE>()), obj);
+    return Base<BASE, DERIVED>(QString("base-%1").arg(typeUid<BASE>()), obj);
 }
 
 template<class BASE, class DERIVED>
 Base<BASE, DERIVED> base(DERIVED &obj, const Parameters &parameters)
 {
-    return Base<BASE, DERIVED>(QString(QStringLiteral("base-%1")).arg(typeUid<BASE>()),
+    return Base<BASE, DERIVED>(QString("base-%1").arg(typeUid<BASE>()),
                                obj, parameters);
 }
 

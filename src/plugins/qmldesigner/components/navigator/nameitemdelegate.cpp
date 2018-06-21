@@ -29,10 +29,15 @@
 
 #include "navigatorview.h"
 #include "navigatortreeview.h"
-#include "navigatortreemodel.h"
 #include "qproxystyle.h"
 
-#include "metainfo.h"
+#include <metainfo.h>
+#include <modelnodecontextmenu.h>
+#include <qmlobjectnode.h>
+
+#include <coreplugin/messagebox.h>
+#include <utils/qtcassert.h>
+
 #include <QLineEdit>
 #include <QPen>
 #include <QPixmapCache>
@@ -98,36 +103,34 @@ static QPixmap getWavyPixmap(qreal maxRadius, const QPen &pen)
     return pixmap;
 }
 
-NameItemDelegate::NameItemDelegate(QObject *parent, NavigatorTreeModel *treeModel)
-    : QStyledItemDelegate(parent),
-      m_navigatorTreeModel(treeModel)
+NameItemDelegate::NameItemDelegate(QObject *parent)
+    : QStyledItemDelegate(parent)
 {
 }
 
 static int drawIcon(QPainter *painter, const QStyleOptionViewItem &styleOption, const QModelIndex &modelIndex)
 {
     QIcon icon = modelIndex.data(Qt::DecorationRole).value<QIcon>();
-    int pixmapSize = 16;
+
+    const int pixmapSize = icon.isNull() ? 4 : 16;
 
     QPixmap pixmap = icon.pixmap(pixmapSize, pixmapSize);
+
     painter->drawPixmap(styleOption.rect.x() + 1 , styleOption.rect.y() + 2, pixmap);
 
     return pixmapSize;
 }
 
 static QRect drawText(QPainter *painter,
-                     const QStyleOptionViewItem &styleOption,
-                     const QModelIndex &modelIndex,
-                     int iconOffset)
+                      const QStyleOptionViewItem &styleOption,
+                      const QModelIndex &modelIndex,
+                      int iconOffset)
 {
     QString displayString = modelIndex.data(Qt::DisplayRole).toString();
     if (displayString.isEmpty())
-        displayString = modelIndex.data(NavigatorTreeModel::SimplifiedTypeNameRole).toString();
+        displayString = modelIndex.data(Qt::DisplayRole).toString();
     QPoint displayStringOffset;
     int width = 0;
-
-    if (modelIndex.data(NavigatorTreeModel::InvisibleRole).toBool())
-        painter->setOpacity(0.5);
 
     // Check text length does not exceed available space
     int extraSpace = 12 + iconOffset;
@@ -144,6 +147,16 @@ static QRect drawText(QPainter *painter,
     textFrame.setWidth(width);
 
     return textFrame;
+}
+
+static bool isVisible(const QModelIndex &modelIndex)
+{
+    return modelIndex.model()->data(modelIndex, ItemIsVisibleRole).toBool();
+}
+
+static ModelNode getModelNode(const QModelIndex &modelIndex)
+{
+    return modelIndex.model()->data(modelIndex, ModelNodeRole).value<ModelNode>();
 }
 
 static void drawRedWavyUnderLine(QPainter *painter,
@@ -171,20 +184,30 @@ void NameItemDelegate::paint(QPainter *painter,
 
     int iconOffset = drawIcon(painter, styleOption, modelIndex);
 
+    if (!isVisible(modelIndex))
+        painter->setOpacity(0.5);
+
     QRect textFrame = drawText(painter, styleOption, modelIndex, iconOffset);
 
-    if (modelIndex.data(NavigatorTreeModel::ErrorRole).toBool())
+    if (QmlObjectNode(getModelNode(modelIndex)).hasError())
         drawRedWavyUnderLine(painter, styleOption, textFrame);
 
     painter->restore();
 }
 
-bool NameItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *, const QStyleOptionViewItem &, const QModelIndex &)
+static void openContextMenu(const QModelIndex &index, const QPoint &pos)
+{
+    const ModelNode modelNode = getModelNode(index);
+    QTC_ASSERT(modelNode.isValid(), return);
+    ModelNodeContextMenu::showContextMenu(modelNode.view(), pos, QPoint(), false);
+}
+
+bool NameItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *, const QStyleOptionViewItem &, const QModelIndex &index)
 {
     if (event->type() == QEvent::MouseButtonRelease) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         if (mouseEvent->button() == Qt::RightButton) {
-            m_navigatorTreeModel->openContextMenu(mouseEvent->globalPos());
+            openContextMenu(index, mouseEvent->globalPos());
             mouseEvent->accept();
             return true;
         }
@@ -196,7 +219,7 @@ QWidget *NameItemDelegate::createEditor(QWidget *parent,
                                         const QStyleOptionViewItem & /*option*/,
                                         const QModelIndex &index) const
 {
-    if (!m_navigatorTreeModel->hasNodeForIndex(index))
+    if (!getModelNode(index).isValid())
         return 0;
 
     return new QLineEdit(parent);
@@ -204,18 +227,40 @@ QWidget *NameItemDelegate::createEditor(QWidget *parent,
 
 void NameItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    ModelNode node = m_navigatorTreeModel->nodeForIndex(index);
-    QString value = node.id();
+    const ModelNode node = getModelNode(index);
+    const QString value = node.id();
 
     QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
     lineEdit->setText(value);
 }
 
+static void setId(const QModelIndex &index, const QString &newId)
+{
+    ModelNode modelNode = getModelNode(index);
+
+    if (!modelNode.isValid())
+        return;
+
+    if (modelNode.id() == newId)
+        return;
+
+    if (!modelNode.isValidId(newId)) {
+        Core::AsynchronousMessageBox::warning(NavigatorTreeView::tr("Invalid Id"),
+                                              NavigatorTreeView::tr("%1 is an invalid id.").arg(newId));
+    } else if (modelNode.view()->hasId(newId)) {
+        Core::AsynchronousMessageBox::warning(NavigatorTreeView::tr("Invalid Id"),
+                                              NavigatorTreeView::tr("%1 already exists.").arg(newId));
+    } else  {
+        modelNode.setIdWithRefactoring(newId);
+    }
+}
+
+
 void NameItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
     Q_UNUSED(model);
     QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
-    m_navigatorTreeModel->setId(index,lineEdit->text());
+    setId(index,lineEdit->text());
     lineEdit->clearFocus();
 }
 

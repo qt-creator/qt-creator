@@ -24,14 +24,24 @@
 ****************************************************************************/
 
 #include "qttestresult.h"
+#include "../testframeworkmanager.h"
+#include "../testtreeitem.h"
+#include "../quick/quicktestframework.h" // FIXME BAD! - but avoids declaring QuickTestResult
 
+#include <coreplugin/id.h>
 #include <utils/qtcassert.h>
 
 namespace Autotest {
 namespace Internal {
 
-QtTestResult::QtTestResult(const QString &className)
-    : TestResult(className)
+QtTestResult::QtTestResult(const QString &projectFile, TestType type, const QString &className)
+    : TestResult(className), m_projectFile(projectFile), m_type(type)
+{
+}
+
+QtTestResult::QtTestResult(const QString &id, const QString &projectFile, TestType type,
+                           const QString &className)
+    : TestResult(id, className), m_projectFile(projectFile), m_type(type)
 {
 }
 
@@ -78,7 +88,8 @@ bool QtTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermed
     if (!TestResult::isDirectParentOf(other, needsIntermediate))
         return false;
     const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
-    if (result() == Result::MessageTestCaseStart || result() == Result::MessageIntermediate) {
+
+    if (TestResult::isMessageCaseStart(result())) {
         if (qtOther->isDataTag()) {
             if (qtOther->m_function == m_function) {
                 if (m_dataTag.isEmpty()) {
@@ -100,19 +111,103 @@ bool QtTestResult::isIntermediateFor(const TestResult *other) const
     QTC_ASSERT(other, return false);
     const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
     return m_dataTag == qtOther->m_dataTag && m_function == qtOther->m_function
-            && name() == qtOther->name();
+            && name() == qtOther->name() && id() == qtOther->id()
+            && m_projectFile == qtOther->m_projectFile;
 }
 
 TestResult *QtTestResult::createIntermediateResultFor(const TestResult *other)
 {
-    QTC_ASSERT(other, return 0);
+    QTC_ASSERT(other, return nullptr);
     const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
-    QtTestResult *intermediate = new QtTestResult(qtOther->name());
+    QtTestResult *intermediate = new QtTestResult(qtOther->id(), qtOther->m_projectFile,
+                                                  m_type, qtOther->name());
     intermediate->m_function = qtOther->m_function;
     intermediate->m_dataTag = qtOther->m_dataTag;
     // intermediates will be needed only for data tags
     intermediate->setDescription("Data tag: " + qtOther->m_dataTag);
+    const auto correspondingItem = intermediate->findTestTreeItem();
+    if (correspondingItem && correspondingItem->line()) {
+        intermediate->setFileName(correspondingItem->filePath());
+        intermediate->setLine(static_cast<int>(correspondingItem->line()));
+    }
     return intermediate;
+}
+
+const TestTreeItem *QtTestResult::findTestTreeItem() const
+{
+    Core::Id id;
+    if (m_type == TestType::QtTest)
+        id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
+    else
+        id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QuickTest::Constants::FRAMEWORK_NAME);
+    const TestTreeItem *rootNode = TestFrameworkManager::instance()->rootNodeForTestFramework(id);
+    QTC_ASSERT(rootNode, return nullptr);
+
+    const auto item = rootNode->findAnyChild([this](const Utils::TreeItem *item) {
+        const TestTreeItem *treeItem = static_cast<const TestTreeItem *>(item);
+        return treeItem && matches(treeItem);
+    });
+    return static_cast<const TestTreeItem *>(item);
+}
+
+bool QtTestResult::matches(const TestTreeItem *item) const
+{
+    QTC_ASSERT(item, return false);
+    TestTreeItem *parentItem = item->parentItem();
+    QTC_ASSERT(parentItem, return false);
+
+    TestTreeItem::Type type = item->type();
+    switch (type) {
+    case TestTreeItem::TestCase:
+        if (!isTestCase())
+            return false;
+        if (item->proFile() != m_projectFile)
+            return false;
+        return matchesTestCase(item);
+    case TestTreeItem::TestFunctionOrSet:
+    case TestTreeItem::TestSpecialFunction:
+        if (!isTestFunction())
+            return false;
+        if (parentItem->proFile() != m_projectFile)
+            return false;
+        return matchesTestFunction(item);
+    case TestTreeItem::TestDataTag: {
+        if (!isDataTag())
+            return false;
+        TestTreeItem *grandParentItem = parentItem->parentItem();
+        QTC_ASSERT(grandParentItem, return false);
+        if (grandParentItem->proFile() != m_projectFile)
+            return false;
+        return matchesTestFunction(item);
+    }
+    default:
+        break;
+    }
+
+    return false;
+}
+
+bool QtTestResult::matchesTestCase(const TestTreeItem *item) const
+{
+    // FIXME this will never work for Quick Tests
+    if (item->name() == name())
+        return true;
+    return false;
+}
+
+bool QtTestResult::matchesTestFunction(const TestTreeItem *item) const
+{
+    TestTreeItem *parentItem = item->parentItem();
+    TestTreeItem::Type type = item->type();
+    if (m_type == TestType::QuickTest) { // Quick tests have slightly different layout // BAD/WRONG!
+        const QStringList tmp = m_function.split("::");
+        return tmp.size() == 2 && item->name() == tmp.last() && parentItem->name() == tmp.first();
+    }
+    if (type == TestTreeItem::TestDataTag) {
+        TestTreeItem *grandParentItem = parentItem->parentItem();
+        return parentItem->name() == m_function && grandParentItem->name() == name();
+    }
+    return item->name() == m_function && parentItem->name() == name();
 }
 
 } // namespace Internal

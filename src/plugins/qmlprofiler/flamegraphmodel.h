@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "qmlprofilerdatamodel.h"
 #include "qmlprofilernotesmodel.h"
 #include "qmlprofilereventtypes.h"
 #include "qmleventlocation.h"
@@ -39,7 +38,7 @@ namespace QmlProfiler {
 namespace Internal {
 
 struct FlameGraphData {
-    FlameGraphData(FlameGraphData *parent = 0, int typeIndex = -1, qint64 duration = 0);
+    FlameGraphData(FlameGraphData *parent = nullptr, int typeIndex = -1, qint64 duration = 0);
     ~FlameGraphData();
 
     qint64 duration;
@@ -69,7 +68,6 @@ public:
         ColumnRole,
         NoteRole,
         TimePerCallRole,
-        TimeInPercentRole,
         RangeTypeRole,
         LocationRole,
         AllocationsRole,
@@ -77,7 +75,7 @@ public:
         MaxRole
     };
 
-    FlameGraphModel(QmlProfilerModelManager *modelManager, QObject *parent = 0);
+    FlameGraphModel(QmlProfilerModelManager *modelManager, QObject *parent = nullptr);
 
     QModelIndex index(int row, int column,
                       const QModelIndex &parent = QModelIndex()) const override;
@@ -88,12 +86,15 @@ public:
     QHash<int, QByteArray> roleNames() const override;
     QmlProfilerModelManager *modelManager() const;
 
-public slots:
     void loadEvent(const QmlEvent &event, const QmlEventType &type);
     void finalize();
-    void onModelManagerStateChanged();
+    void onTypeDetailsFinished();
+    void restrictToFeatures(quint64 visibleFeatures);
     void loadNotes(int typeId, bool emitSignal);
     void clear();
+
+signals:
+    void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
 
 private:
     QVariant lookup(const FlameGraphData &data, int role) const;
@@ -106,7 +107,7 @@ private:
     FlameGraphData *m_callStackTop;
     FlameGraphData *m_compileStackTop;
 
-    int m_modelId;
+    quint64 m_acceptedFeatures;
     QmlProfilerModelManager *m_modelManager;
 
     QSet<int> m_typeIdsWithNotes;

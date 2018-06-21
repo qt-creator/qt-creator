@@ -36,11 +36,14 @@ class PythonEditorPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "PythonEditor.json")
 
 public:
-    PythonEditorPlugin();
-    ~PythonEditorPlugin() override;
+    PythonEditorPlugin() = default;
+    ~PythonEditorPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
-    void extensionsInitialized() override;
+private:
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
+
+    class PythonEditorPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal

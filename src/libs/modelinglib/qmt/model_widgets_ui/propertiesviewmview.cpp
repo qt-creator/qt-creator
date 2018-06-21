@@ -43,6 +43,7 @@
 #include "qmt/model/mdependency.h"
 #include "qmt/model/minheritance.h"
 #include "qmt/model/massociation.h"
+#include "qmt/model/mconnection.h"
 
 #include "qmt/diagram/delement.h"
 #include "qmt/diagram/dobject.h"
@@ -55,12 +56,15 @@
 #include "qmt/diagram/dinheritance.h"
 #include "qmt/diagram/ddependency.h"
 #include "qmt/diagram/dassociation.h"
+#include "qmt/diagram/dconnection.h"
 #include "qmt/diagram/dannotation.h"
 #include "qmt/diagram/dboundary.h"
+#include "qmt/diagram/dswimlane.h"
 
 // TODO move into better place
 #include "qmt/diagram_scene/items/stereotypedisplayvisitor.h"
 #include "qmt/stereotype/stereotypecontroller.h"
+#include "qmt/stereotype/customrelation.h"
 #include "qmt/style/stylecontroller.h"
 #include "qmt/style/style.h"
 #include "qmt/style/objectvisuals.h"
@@ -102,7 +106,7 @@ static MDependency::Direction translateIndexToDirection(int index)
     static const MDependency::Direction map[] = {
         MDependency::AToB, MDependency::BToA, MDependency::Bidirectional
     };
-    QMT_CHECK(isValidDirectionIndex(index));
+    QMT_ASSERT(isValidDirectionIndex(index), return MDependency::AToB);
     return map[index];
 }
 
@@ -129,7 +133,7 @@ static MAssociationEnd::Kind translateIndexToAssociationKind(int index)
     static const MAssociationEnd::Kind map[] = {
         MAssociationEnd::Association, MAssociationEnd::Aggregation, MAssociationEnd::Composition
     };
-    QMT_CHECK(isValidAssociationKindIndex(index));
+    QMT_ASSERT(isValidAssociationKindIndex(index), return MAssociationEnd::Association);
     return map[index];
 }
 
@@ -164,7 +168,7 @@ static DObject::VisualPrimaryRole translateIndexToVisualPrimaryRole(int index)
         DObject::PrimaryRoleCustom1, DObject::PrimaryRoleCustom2, DObject::PrimaryRoleCustom3,
         DObject::PrimaryRoleCustom4, DObject::PrimaryRoleCustom5
     };
-    QMT_CHECK(index >= 0 && index <= 5);
+    QMT_ASSERT(index >= 0 && index <= 5, return DObject::PrimaryRoleNormal);
     return map[index];
 }
 
@@ -181,6 +185,8 @@ static int translateVisualSecondaryRoleToIndex(DObject::VisualSecondaryRole visu
         return 3;
     case DObject::SecondaryRoleOutline:
         return 4;
+    case DObject::SecondaryRoleFlat:
+        return 5;
     }
     return 0;
 }
@@ -190,9 +196,10 @@ static DObject::VisualSecondaryRole translateIndexToVisualSecondaryRole(int inde
     static const DObject::VisualSecondaryRole map[] = {
         DObject::SecondaryRoleNone,
         DObject::SecondaryRoleLighter, DObject::SecondaryRoleDarker,
-        DObject::SecondaryRoleSoften, DObject::SecondaryRoleOutline
+        DObject::SecondaryRoleSoften, DObject::SecondaryRoleOutline,
+        DObject::SecondaryRoleFlat
     };
-    QMT_CHECK(index >= 0 && index <= 4);
+    QMT_ASSERT(index >= 0 && index <= 5, return DObject::SecondaryRoleNone);
     return map[index];
 }
 
@@ -222,7 +229,7 @@ static DObject::StereotypeDisplay translateIndexToStereotypeDisplay(int index)
         DObject::StereotypeDecoration,
         DObject::StereotypeIcon
     };
-    QMT_CHECK(index >= 0 && index <= 4);
+    QMT_ASSERT(index >= 0 && index <= 4, return DObject::StereotypeSmart);
     return map[index];
 }
 
@@ -246,7 +253,7 @@ static DClass::TemplateDisplay translateIndexToTemplateDisplay(int index)
         DClass::TemplateBox,
         DClass::TemplateName
     };
-    QMT_CHECK(index >= 0 && index <= 2);
+    QMT_ASSERT(index >= 0 && index <= 2, return DClass::TemplateSmart);
     return map[index];
 }
 
@@ -275,56 +282,13 @@ static DAnnotation::VisualRole translateIndexToAnnotationVisualRole(int index)
         DAnnotation::RoleNormal, DAnnotation::RoleTitle, DAnnotation::RoleSubtitle,
         DAnnotation::RoleEmphasized, DAnnotation::RoleSoften, DAnnotation::RoleFootnote
     };
-    QMT_CHECK(index >= 0 && index <= 5);
+    QMT_ASSERT(index >= 0 && index <= 5, return DAnnotation::RoleNormal);
     return map[index];
 }
 
 PropertiesView::MView::MView(PropertiesView *propertiesView)
     : m_propertiesView(propertiesView),
-      m_diagram(0),
-      m_stereotypesController(new StereotypesController(this)),
-      m_topWidget(0),
-      m_topLayout(0),
-      m_stereotypeElement(StereotypeIcon::ElementAny),
-      m_classNameLabel(0),
-      m_stereotypeComboBox(0),
-      m_reverseEngineeredLabel(0),
-      m_elementNameLineEdit(0),
-      m_childrenLabel(0),
-      m_relationsLabel(0),
-      m_namespaceLineEdit(0),
-      m_templateParametersLineEdit(0),
-      m_classMembersStatusLabel(0),
-      m_classMembersParseButton(0),
-      m_classMembersEdit(0),
-      m_diagramsLabel(0),
-      m_itemVarietyEdit(0),
-      m_endALabel(0),
-      m_endBLabel(0),
-      m_directionSelector(0),
-      m_endAEndName(0),
-      m_endACardinality(0),
-      m_endANavigable(0),
-      m_endAKind(0),
-      m_endBEndName(0),
-      m_endBCardinality(0),
-      m_endBNavigable(0),
-      m_endBKind(0),
-      m_separatorLine(0),
-      m_styleElementType(StyleEngine::TypeOther),
-      m_posRectLabel(0),
-      m_autoSizedCheckbox(0),
-      m_visualPrimaryRoleSelector(0),
-      m_visualSecondaryRoleSelector(0),
-      m_visualEmphasizedCheckbox(0),
-      m_stereotypeDisplaySelector(0),
-      m_depthLabel(0),
-      m_templateDisplaySelector(0),
-      m_showAllMembersCheckbox(0),
-      m_plainShapeCheckbox(0),
-      m_itemShapeEdit(0),
-      m_annotationAutoWidthCheckbox(0),
-      m_annotationVisualRoleSelector(0)
+      m_stereotypesController(new StereotypesController(this))
 {
 }
 
@@ -334,18 +298,18 @@ PropertiesView::MView::~MView()
 
 void PropertiesView::MView::update(QList<MElement *> &modelElements)
 {
-    QMT_CHECK(modelElements.size() > 0);
+    QMT_ASSERT(modelElements.size() > 0, return);
 
     m_modelElements = modelElements;
     m_diagramElements.clear();
-    m_diagram = 0;
+    m_diagram = nullptr;
     modelElements.at(0)->accept(this);
 }
 
 void PropertiesView::MView::update(QList<DElement *> &diagramElements, MDiagram *diagram)
 {
-    QMT_CHECK(diagramElements.size() > 0);
-    QMT_CHECK(diagram);
+    QMT_ASSERT(diagramElements.size() > 0, return);
+    QMT_ASSERT(diagram, return);
 
     m_diagramElements = diagramElements;
     m_diagram = diagram;
@@ -361,7 +325,7 @@ void PropertiesView::MView::update(QList<DElement *> &diagramElements, MDiagram 
         }
         if (!appendedMelement) {
             // ensure that indices within m_diagramElements match indices into m_modelElements
-            m_modelElements.append(0);
+            m_modelElements.append(nullptr);
         }
     }
     diagramElements.at(0)->accept(this);
@@ -380,7 +344,7 @@ void PropertiesView::MView::visitMElement(const MElement *element)
     Q_UNUSED(element);
 
     prepare();
-    if (m_stereotypeComboBox == 0) {
+    if (!m_stereotypeComboBox) {
         m_stereotypeComboBox = new QComboBox(m_topWidget);
         m_stereotypeComboBox->setEditable(true);
         m_stereotypeComboBox->setInsertPolicy(QComboBox::NoInsert);
@@ -404,7 +368,7 @@ void PropertiesView::MView::visitMElement(const MElement *element)
         }
     }
 #ifdef SHOW_DEBUG_PROPERTIES
-    if (m_reverseEngineeredLabel == 0) {
+    if (!m_reverseEngineeredLabel) {
         m_reverseEngineeredLabel = new QLabel(m_topWidget);
         addRow(tr("Reverse engineered:"), m_reverseEngineeredLabel, "reverse engineered");
     }
@@ -418,7 +382,7 @@ void PropertiesView::MView::visitMObject(const MObject *object)
     visitMElement(object);
     QList<MObject *> selection = filter<MObject>(m_modelElements);
     bool isSingleSelection = selection.size() == 1;
-    if (m_elementNameLineEdit == 0) {
+    if (!m_elementNameLineEdit) {
         m_elementNameLineEdit = new QLineEdit(m_topWidget);
         addRow(tr("Name:"), m_elementNameLineEdit, "name");
         connect(m_elementNameLineEdit, &QLineEdit::textChanged,
@@ -434,12 +398,12 @@ void PropertiesView::MView::visitMObject(const MObject *object)
         m_elementNameLineEdit->setEnabled(isSingleSelection);
 
 #ifdef SHOW_DEBUG_PROPERTIES
-    if (m_childrenLabel == 0) {
+    if (!m_childrenLabel) {
         m_childrenLabel = new QLabel(m_topWidget);
         addRow(tr("Children:"), m_childrenLabel, "children");
     }
     m_childrenLabel->setText(QString::number(object->children().size()));
-    if (m_relationsLabel == 0) {
+    if (!m_relationsLabel) {
         m_relationsLabel = new QLabel(m_topWidget);
         addRow(tr("Relations:"), m_relationsLabel, "relations");
     }
@@ -462,7 +426,7 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
     visitMObject(klass);
     QList<MClass *> selection = filter<MClass>(m_modelElements);
     bool isSingleSelection = selection.size() == 1;
-    if (m_namespaceLineEdit == 0) {
+    if (!m_namespaceLineEdit) {
         m_namespaceLineEdit = new QLineEdit(m_topWidget);
         addRow(tr("Namespace:"), m_namespaceLineEdit, "namespace");
         connect(m_namespaceLineEdit, &QLineEdit::textEdited,
@@ -479,7 +443,7 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
             m_namespaceLineEdit->setEnabled(false);
         }
     }
-    if (m_templateParametersLineEdit == 0) {
+    if (!m_templateParametersLineEdit) {
         m_templateParametersLineEdit = new QLineEdit(m_topWidget);
         addRow(tr("Template:"), m_templateParametersLineEdit, "template");
         connect(m_templateParametersLineEdit, &QLineEdit::textChanged,
@@ -496,7 +460,7 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
     }
     if (m_templateParametersLineEdit->isEnabled() != isSingleSelection)
         m_templateParametersLineEdit->setEnabled(isSingleSelection);
-    if (m_classMembersStatusLabel == 0) {
+    if (!m_classMembersStatusLabel) {
         QMT_CHECK(!m_classMembersParseButton);
         m_classMembersStatusLabel = new QLabel(m_topWidget);
         m_classMembersParseButton = new QPushButton(tr("Clean Up"), m_topWidget);
@@ -505,13 +469,13 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
         layout->addWidget(m_classMembersParseButton);
         layout->setStretch(0, 1);
         layout->setStretch(1, 0);
-        addRow(QStringLiteral(""), layout, "members status");
+        addRow("", layout, "members status");
         connect(m_classMembersParseButton, &QAbstractButton::clicked,
                 this, &PropertiesView::MView::onParseClassMembers);
     }
     if (m_classMembersParseButton->isEnabled() != isSingleSelection)
         m_classMembersParseButton->setEnabled(isSingleSelection);
-    if (m_classMembersEdit == 0) {
+    if (!m_classMembersEdit) {
         m_classMembersEdit = new ClassMembersEdit(m_topWidget);
         m_classMembersEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
         addRow(tr("Members:"), m_classMembersEdit, "members");
@@ -541,7 +505,7 @@ void PropertiesView::MView::visitMDiagram(const MDiagram *diagram)
     setTitle<MDiagram>(m_modelElements, tr("Diagram"), tr("Diagrams"));
     visitMObject(diagram);
 #ifdef SHOW_DEBUG_PROPERTIES
-    if (m_diagramsLabel == 0) {
+    if (!m_diagramsLabel) {
         m_diagramsLabel = new QLabel(m_topWidget);
         addRow(tr("Elements:"), m_diagramsLabel, "elements");
     }
@@ -562,7 +526,7 @@ void PropertiesView::MView::visitMItem(const MItem *item)
     QList<MItem *> selection = filter<MItem>(m_modelElements);
     bool isSingleSelection = selection.size() == 1;
     if (item->isVarietyEditable()) {
-        if (m_itemVarietyEdit == 0) {
+        if (!m_itemVarietyEdit) {
             m_itemVarietyEdit = new QLineEdit(m_topWidget);
             addRow(tr("Variety:"), m_itemVarietyEdit, "variety");
             connect(m_itemVarietyEdit, &QLineEdit::textChanged,
@@ -584,7 +548,7 @@ void PropertiesView::MView::visitMRelation(const MRelation *relation)
     visitMElement(relation);
     QList<MRelation *> selection = filter<MRelation>(m_modelElements);
     bool isSingleSelection = selection.size() == 1;
-    if (m_elementNameLineEdit == 0) {
+    if (!m_elementNameLineEdit) {
         m_elementNameLineEdit = new QLineEdit(m_topWidget);
         addRow(tr("Name:"), m_elementNameLineEdit, "name");
         connect(m_elementNameLineEdit, &QLineEdit::textChanged,
@@ -599,10 +563,10 @@ void PropertiesView::MView::visitMRelation(const MRelation *relation)
     if (m_elementNameLineEdit->isEnabled() != isSingleSelection)
         m_elementNameLineEdit->setEnabled(isSingleSelection);
     MObject *endAObject = m_propertiesView->modelController()->findObject(relation->endAUid());
-    QMT_CHECK(endAObject);
+    QMT_ASSERT(endAObject, return);
     setEndAName(tr("End A: %1").arg(endAObject->name()));
     MObject *endBObject = m_propertiesView->modelController()->findObject(relation->endBUid());
-    QMT_CHECK(endBObject);
+    QMT_ASSERT(endBObject, return);
     setEndBName(tr("End B: %1").arg(endBObject->name()));
 }
 
@@ -612,10 +576,9 @@ void PropertiesView::MView::visitMDependency(const MDependency *dependency)
     visitMRelation(dependency);
     QList<MDependency *> selection = filter<MDependency>(m_modelElements);
     bool isSingleSelection = selection.size() == 1;
-    if (m_directionSelector == 0) {
+    if (!m_directionSelector) {
         m_directionSelector = new QComboBox(m_topWidget);
-        m_directionSelector->addItems(QStringList()
-                                      << QStringLiteral("->") << QStringLiteral("<-") << QStringLiteral("<->"));
+        m_directionSelector->addItems(QStringList({ "->", "<-", "<->" }));
         addRow(tr("Direction:"), m_directionSelector, "direction");
         connect(m_directionSelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
                 this, &PropertiesView::MView::onDependencyDirectionChanged);
@@ -637,9 +600,10 @@ void PropertiesView::MView::visitMInheritance(const MInheritance *inheritance)
 {
     setTitle<MInheritance>(m_modelElements, tr("Inheritance"), tr("Inheritances"));
     MObject *derivedClass = m_propertiesView->modelController()->findObject(inheritance->derived());
-    QMT_CHECK(derivedClass);
+    QMT_ASSERT(derivedClass, return);
     setEndAName(tr("Derived class: %1").arg(derivedClass->name()));
     MObject *baseClass = m_propertiesView->modelController()->findObject(inheritance->base());
+    QMT_ASSERT(baseClass, return);
     setEndBName(tr("Base class: %1").arg(baseClass->name()));
     visitMRelation(inheritance);
 }
@@ -650,11 +614,11 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
     visitMRelation(association);
     QList<MAssociation *> selection = filter<MAssociation>(m_modelElements);
     bool isSingleSelection = selection.size() == 1;
-    if (m_endALabel == 0) {
-        m_endALabel = new QLabel(QStringLiteral("<b>") + m_endAName + QStringLiteral("</b>"));
+    if (!m_endALabel) {
+        m_endALabel = new QLabel("<b>" + m_endAName + "</b>");
         addRow(m_endALabel, "end a");
     }
-    if (m_endAEndName == 0) {
+    if (!m_endAEndName) {
         m_endAEndName = new QLineEdit(m_topWidget);
         addRow(tr("Role:"), m_endAEndName, "role a");
         connect(m_endAEndName, &QLineEdit::textChanged,
@@ -668,7 +632,7 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
     }
     if (m_endAEndName->isEnabled() != isSingleSelection)
         m_endAEndName->setEnabled(isSingleSelection);
-    if (m_endACardinality == 0) {
+    if (!m_endACardinality) {
         m_endACardinality = new QLineEdit(m_topWidget);
         addRow(tr("Cardinality:"), m_endACardinality, "cardinality a");
         connect(m_endACardinality, &QLineEdit::textChanged,
@@ -682,7 +646,7 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
     }
     if (m_endACardinality->isEnabled() != isSingleSelection)
         m_endACardinality->setEnabled(isSingleSelection);
-    if (m_endANavigable == 0) {
+    if (!m_endANavigable) {
         m_endANavigable = new QCheckBox(tr("Navigable"), m_topWidget);
         addRow(QString(), m_endANavigable, "navigable a");
         connect(m_endANavigable, &QAbstractButton::clicked,
@@ -696,9 +660,9 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
     }
     if (m_endANavigable->isEnabled() != isSingleSelection)
         m_endANavigable->setEnabled(isSingleSelection);
-    if (m_endAKind == 0) {
+    if (!m_endAKind) {
         m_endAKind = new QComboBox(m_topWidget);
-        m_endAKind->addItems(QStringList() << tr("Association") << tr("Aggregation") << tr("Composition"));
+        m_endAKind->addItems({ tr("Association"), tr("Aggregation"), tr("Composition") });
         addRow(tr("Relationship:"), m_endAKind, "relationship a");
         connect(m_endAKind, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
                 this, &PropertiesView::MView::onAssociationEndAKindChanged);
@@ -715,11 +679,11 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
     if (m_endAKind->isEnabled() != isSingleSelection)
         m_endAKind->setEnabled(isSingleSelection);
 
-    if (m_endBLabel == 0) {
-        m_endBLabel = new QLabel(QStringLiteral("<b>") + m_endBName + QStringLiteral("</b>"));
+    if (!m_endBLabel) {
+        m_endBLabel = new QLabel("<b>" + m_endBName + "</b>");
         addRow(m_endBLabel, "end b");
     }
-    if (m_endBEndName == 0) {
+    if (!m_endBEndName) {
         m_endBEndName = new QLineEdit(m_topWidget);
         addRow(tr("Role:"), m_endBEndName, "role b");
         connect(m_endBEndName, &QLineEdit::textChanged,
@@ -733,7 +697,7 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
     }
     if (m_endBEndName->isEnabled() != isSingleSelection)
         m_endBEndName->setEnabled(isSingleSelection);
-    if (m_endBCardinality == 0) {
+    if (!m_endBCardinality) {
         m_endBCardinality = new QLineEdit(m_topWidget);
         addRow(tr("Cardinality:"), m_endBCardinality, "cardinality b");
         connect(m_endBCardinality, &QLineEdit::textChanged,
@@ -747,7 +711,7 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
     }
     if (m_endBCardinality->isEnabled() != isSingleSelection)
         m_endBCardinality->setEnabled(isSingleSelection);
-    if (m_endBNavigable == 0) {
+    if (!m_endBNavigable) {
         m_endBNavigable = new QCheckBox(tr("Navigable"), m_topWidget);
         addRow(QString(), m_endBNavigable, "navigable b");
         connect(m_endBNavigable, &QAbstractButton::clicked,
@@ -761,15 +725,15 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
     }
     if (m_endBNavigable->isEnabled() != isSingleSelection)
         m_endBNavigable->setEnabled(isSingleSelection);
-    if (m_endBKind == 0) {
+    if (!m_endBKind) {
         m_endBKind = new QComboBox(m_topWidget);
-        m_endBKind->addItems(QStringList() << tr("Association") << tr("Aggregation") << tr("Composition"));
+        m_endBKind->addItems({ tr("Association"), tr("Aggregation"), tr("Composition") });
         addRow(tr("Relationship:"), m_endBKind, "relationship b");
         connect(m_endBKind, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
                 this, &PropertiesView::MView::onAssociationEndBKindChanged);
     }
     if (isSingleSelection) {
-        if ((!isValidAssociationKindIndex(m_endAKind->currentIndex())
+        if ((!isValidAssociationKindIndex(m_endBKind->currentIndex())
              || association->endB().kind() != translateIndexToAssociationKind(m_endBKind->currentIndex()))
                 && !m_endBKind->hasFocus()) {
             m_endBKind->setCurrentIndex(translateAssociationKindToIndex(association->endB().kind()));
@@ -781,6 +745,107 @@ void PropertiesView::MView::visitMAssociation(const MAssociation *association)
         m_endBKind->setEnabled(isSingleSelection);
 }
 
+void PropertiesView::MView::visitMConnection(const MConnection *connection)
+{
+    setTitle<MConnection>(connection, m_modelElements, tr("Connection"), tr("Connections"));
+    visitMRelation(connection);
+    QList<MConnection *> selection = filter<MConnection>(m_modelElements);
+    const bool isSingleSelection = selection.size() == 1;
+    if (!m_endALabel) {
+        m_endALabel = new QLabel("<b>" + m_endAName + "</b>");
+        addRow(m_endALabel, "end a");
+    }
+    if (!m_endAEndName) {
+        m_endAEndName = new QLineEdit(m_topWidget);
+        addRow(tr("Role:"), m_endAEndName, "role a");
+        connect(m_endAEndName, &QLineEdit::textChanged,
+                this, &PropertiesView::MView::onConnectionEndANameChanged);
+    }
+    if (isSingleSelection) {
+        if (connection->endA().name() != m_endAEndName->text() && !m_endAEndName->hasFocus())
+            m_endAEndName->setText(connection->endA().name());
+    } else {
+        m_endAEndName->clear();
+    }
+    if (m_endAEndName->isEnabled() != isSingleSelection)
+        m_endAEndName->setEnabled(isSingleSelection);
+    if (!m_endACardinality) {
+        m_endACardinality = new QLineEdit(m_topWidget);
+        addRow(tr("Cardinality:"), m_endACardinality, "cardinality a");
+        connect(m_endACardinality, &QLineEdit::textChanged,
+                this, &PropertiesView::MView::onConnectionEndACardinalityChanged);
+    }
+    if (isSingleSelection) {
+        if (connection->endA().cardinality() != m_endACardinality->text() && !m_endACardinality->hasFocus())
+            m_endACardinality->setText(connection->endA().cardinality());
+    } else {
+        m_endACardinality->clear();
+    }
+    if (m_endACardinality->isEnabled() != isSingleSelection)
+        m_endACardinality->setEnabled(isSingleSelection);
+    if (!m_endANavigable) {
+        m_endANavigable = new QCheckBox(tr("Navigable"), m_topWidget);
+        addRow(QString(), m_endANavigable, "navigable a");
+        connect(m_endANavigable, &QAbstractButton::clicked,
+                this, &PropertiesView::MView::onConnectionEndANavigableChanged);
+    }
+    if (isSingleSelection) {
+        if (connection->endA().isNavigable() != m_endANavigable->isChecked())
+            m_endANavigable->setChecked(connection->endA().isNavigable());
+    } else {
+        m_endANavigable->setChecked(false);
+    }
+    if (m_endANavigable->isEnabled() != isSingleSelection)
+        m_endANavigable->setEnabled(isSingleSelection);
+
+    if (!m_endBLabel) {
+        m_endBLabel = new QLabel("<b>" + m_endBName + "</b>");
+        addRow(m_endBLabel, "end b");
+    }
+    if (!m_endBEndName) {
+        m_endBEndName = new QLineEdit(m_topWidget);
+        addRow(tr("Role:"), m_endBEndName, "role b");
+        connect(m_endBEndName, &QLineEdit::textChanged,
+                this, &PropertiesView::MView::onConnectionEndBNameChanged);
+    }
+    if (isSingleSelection) {
+        if (connection->endB().name() != m_endBEndName->text() && !m_endBEndName->hasFocus())
+            m_endBEndName->setText(connection->endB().name());
+    } else {
+        m_endBEndName->clear();
+    }
+    if (m_endBEndName->isEnabled() != isSingleSelection)
+        m_endBEndName->setEnabled(isSingleSelection);
+    if (!m_endBCardinality) {
+        m_endBCardinality = new QLineEdit(m_topWidget);
+        addRow(tr("Cardinality:"), m_endBCardinality, "cardinality b");
+        connect(m_endBCardinality, &QLineEdit::textChanged,
+                this, &PropertiesView::MView::onConnectionEndBCardinalityChanged);
+    }
+    if (isSingleSelection) {
+        if (connection->endB().cardinality() != m_endBCardinality->text() && !m_endBCardinality->hasFocus())
+            m_endBCardinality->setText(connection->endB().cardinality());
+    } else {
+        m_endBCardinality->clear();
+    }
+    if (m_endBCardinality->isEnabled() != isSingleSelection)
+        m_endBCardinality->setEnabled(isSingleSelection);
+    if (!m_endBNavigable) {
+        m_endBNavigable = new QCheckBox(tr("Navigable"), m_topWidget);
+        addRow(QString(), m_endBNavigable, "navigable b");
+        connect(m_endBNavigable, &QAbstractButton::clicked,
+                this, &PropertiesView::MView::onConnectionEndBNavigableChanged);
+    }
+    if (isSingleSelection) {
+        if (connection->endB().isNavigable() != m_endBNavigable->isChecked())
+            m_endBNavigable->setChecked(connection->endB().isNavigable());
+    } else {
+        m_endBNavigable->setChecked(false);
+    }
+    if (m_endBNavigable->isEnabled() != isSingleSelection)
+        m_endBNavigable->setEnabled(isSingleSelection);
+}
+
 void PropertiesView::MView::visitDElement(const DElement *element)
 {
     Q_UNUSED(element);
@@ -789,7 +854,7 @@ void PropertiesView::MView::visitDElement(const DElement *element)
         m_propertiesTitle.clear();
         m_modelElements.at(0)->accept(this);
 #ifdef SHOW_DEBUG_PROPERTIES
-        if (m_separatorLine == 0) {
+        if (!m_separatorLine) {
             m_separatorLine = new QFrame(m_topWidget);
             m_separatorLine->setFrameShape(QFrame::StyledPanel);
             m_separatorLine->setLineWidth(2);
@@ -806,11 +871,11 @@ void PropertiesView::MView::visitDObject(const DObject *object)
 {
     visitDElement(object);
 #ifdef SHOW_DEBUG_PROPERTIES
-    if (m_posRectLabel == 0) {
+    if (!m_posRectLabel) {
         m_posRectLabel = new QLabel(m_topWidget);
         addRow(tr("Position and size:"), m_posRectLabel, "position and size");
     }
-    m_posRectLabel->setText(QString(QStringLiteral("(%1,%2):(%3,%4)-(%5,%6)"))
+    m_posRectLabel->setText(QString("(%1,%2):(%3,%4)-(%5,%6)")
                              .arg(object->pos().x())
                              .arg(object->pos().y())
                              .arg(object->rect().left())
@@ -818,7 +883,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
                              .arg(object->rect().right())
                              .arg(object->rect().bottom()));
 #endif
-    if (m_autoSizedCheckbox == 0) {
+    if (!m_autoSizedCheckbox) {
         m_autoSizedCheckbox = new QCheckBox(tr("Auto sized"), m_topWidget);
         addRow(QString(), m_autoSizedCheckbox, "auto size");
         connect(m_autoSizedCheckbox, &QAbstractButton::clicked,
@@ -831,7 +896,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
         else
             m_autoSizedCheckbox->setChecked(false);
     }
-    if (m_visualPrimaryRoleSelector == 0) {
+    if (!m_visualPrimaryRoleSelector) {
         m_visualPrimaryRoleSelector = new PaletteBox(m_topWidget);
         setPrimaryRolePalette(m_styleElementType, DObject::PrimaryRoleCustom1, QColor());
         setPrimaryRolePalette(m_styleElementType, DObject::PrimaryRoleCustom2, QColor());
@@ -860,11 +925,10 @@ void PropertiesView::MView::visitDObject(const DObject *object)
         else
             m_visualPrimaryRoleSelector->setCurrentIndex(-1);
     }
-    if (m_visualSecondaryRoleSelector == 0) {
+    if (!m_visualSecondaryRoleSelector) {
         m_visualSecondaryRoleSelector = new QComboBox(m_topWidget);
-        m_visualSecondaryRoleSelector->addItems(QStringList() << tr("Normal")
-                                                  << tr("Lighter") << tr("Darker")
-                                                  << tr("Soften") << tr("Outline"));
+        m_visualSecondaryRoleSelector->addItems({ tr("Normal"), tr("Lighter"), tr("Darker"),
+                                                  tr("Soften"), tr("Outline"), tr("Flat") });
         addRow(tr("Role:"), m_visualSecondaryRoleSelector, "role");
         connect(m_visualSecondaryRoleSelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
                 this, &PropertiesView::MView::onVisualSecondaryRoleChanged);
@@ -876,7 +940,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
         else
             m_visualSecondaryRoleSelector->setCurrentIndex(-1);
     }
-    if (m_visualEmphasizedCheckbox == 0) {
+    if (!m_visualEmphasizedCheckbox) {
         m_visualEmphasizedCheckbox = new QCheckBox(tr("Emphasized"), m_topWidget);
         addRow(QString(), m_visualEmphasizedCheckbox, "emphasized");
         connect(m_visualEmphasizedCheckbox, &QAbstractButton::clicked,
@@ -889,10 +953,10 @@ void PropertiesView::MView::visitDObject(const DObject *object)
         else
             m_visualEmphasizedCheckbox->setChecked(false);
     }
-    if (m_stereotypeDisplaySelector == 0) {
+    if (!m_stereotypeDisplaySelector) {
         m_stereotypeDisplaySelector = new QComboBox(m_topWidget);
-        m_stereotypeDisplaySelector->addItems(QStringList() << tr("Smart") << tr("None") << tr("Label")
-                                               << tr("Decoration") << tr("Icon"));
+        m_stereotypeDisplaySelector->addItems({ tr("Smart"), tr("None"), tr("Label"),
+                                                tr("Decoration"), tr("Icon") });
         addRow(tr("Stereotype display:"), m_stereotypeDisplaySelector, "stereotype display");
         connect(m_stereotypeDisplaySelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
                 this, &PropertiesView::MView::onStereotypeDisplayChanged);
@@ -905,7 +969,7 @@ void PropertiesView::MView::visitDObject(const DObject *object)
             m_stereotypeDisplaySelector->setCurrentIndex(-1);
     }
 #ifdef SHOW_DEBUG_PROPERTIES
-    if (m_depthLabel == 0) {
+    if (!m_depthLabel) {
         m_depthLabel = new QLabel(m_topWidget);
         addRow(tr("Depth:"), m_depthLabel, "depth");
     }
@@ -927,9 +991,9 @@ void PropertiesView::MView::visitDClass(const DClass *klass)
     setStereotypeIconElement(StereotypeIcon::ElementClass);
     setStyleElementType(StyleEngine::TypeClass);
     visitDObject(klass);
-    if (m_templateDisplaySelector == 0) {
+    if (!m_templateDisplaySelector) {
         m_templateDisplaySelector = new QComboBox(m_topWidget);
-        m_templateDisplaySelector->addItems(QStringList() << tr("Smart") << tr("Box") << tr("Angle Brackets"));
+        m_templateDisplaySelector->addItems({ tr("Smart"), tr("Box"), tr("Angle Brackets") });
         addRow(tr("Template display:"), m_templateDisplaySelector, "template display");
         connect(m_templateDisplaySelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
                 this, &PropertiesView::MView::onTemplateDisplayChanged);
@@ -941,7 +1005,7 @@ void PropertiesView::MView::visitDClass(const DClass *klass)
         else
             m_templateDisplaySelector->setCurrentIndex(-1);
     }
-    if (m_showAllMembersCheckbox == 0) {
+    if (!m_showAllMembersCheckbox) {
         m_showAllMembersCheckbox = new QCheckBox(tr("Show members"), m_topWidget);
         addRow(QString(), m_showAllMembersCheckbox, "show members");
         connect(m_showAllMembersCheckbox, &QAbstractButton::clicked,
@@ -962,7 +1026,7 @@ void PropertiesView::MView::visitDComponent(const DComponent *component)
     setStereotypeIconElement(StereotypeIcon::ElementComponent);
     setStyleElementType(StyleEngine::TypeComponent);
     visitDObject(component);
-    if (m_plainShapeCheckbox == 0) {
+    if (!m_plainShapeCheckbox) {
         m_plainShapeCheckbox = new QCheckBox(tr("Plain shape"), m_topWidget);
         addRow(QString(), m_plainShapeCheckbox, "plain shape");
         connect(m_plainShapeCheckbox, &QAbstractButton::clicked,
@@ -993,7 +1057,7 @@ void PropertiesView::MView::visitDItem(const DItem *item)
     QList<DItem *> selection = filter<DItem>(m_diagramElements);
     bool isSingleSelection = selection.size() == 1;
     if (item->isShapeEditable()) {
-        if (m_itemShapeEdit == 0) {
+        if (!m_itemShapeEdit) {
             m_itemShapeEdit = new QLineEdit(m_topWidget);
             addRow(tr("Shape:"), m_itemShapeEdit, "shape");
             connect(m_itemShapeEdit, &QLineEdit::textChanged,
@@ -1033,11 +1097,17 @@ void PropertiesView::MView::visitDAssociation(const DAssociation *association)
     visitDRelation(association);
 }
 
+void PropertiesView::MView::visitDConnection(const DConnection *connection)
+{
+    setTitle<DConnection>(m_diagramElements, tr("Connection"), tr("Connections"));
+    visitDRelation(connection);
+}
+
 void PropertiesView::MView::visitDAnnotation(const DAnnotation *annotation)
 {
     setTitle<DAnnotation>(m_diagramElements, tr("Annotation"), tr("Annotations"));
     visitDElement(annotation);
-    if (m_annotationAutoWidthCheckbox == 0) {
+    if (!m_annotationAutoWidthCheckbox) {
         m_annotationAutoWidthCheckbox = new QCheckBox(tr("Auto width"), m_topWidget);
         addRow(QString(), m_annotationAutoWidthCheckbox, "auto width");
         connect(m_annotationAutoWidthCheckbox, &QAbstractButton::clicked,
@@ -1050,11 +1120,11 @@ void PropertiesView::MView::visitDAnnotation(const DAnnotation *annotation)
         else
             m_annotationAutoWidthCheckbox->setChecked(false);
     }
-    if (m_annotationVisualRoleSelector == 0) {
+    if (!m_annotationVisualRoleSelector) {
         m_annotationVisualRoleSelector = new QComboBox(m_topWidget);
-        m_annotationVisualRoleSelector->addItems(QStringList()
-                                                 << tr("Normal") << tr("Title") << tr("Subtitle")
-                                                 << tr("Emphasized") << tr("Soften") << tr("Footnote"));
+        m_annotationVisualRoleSelector->addItems(QStringList({ tr("Normal"), tr("Title"),
+                                                               tr("Subtitle"), tr("Emphasized"),
+                                                               tr("Soften"), tr("Footnote") }));
         addRow(tr("Role:"), m_annotationVisualRoleSelector, "visual role");
         connect(m_annotationVisualRoleSelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
                 this, &PropertiesView::MView::onAnnotationVisualRoleChanged);
@@ -1072,6 +1142,12 @@ void PropertiesView::MView::visitDBoundary(const DBoundary *boundary)
 {
     setTitle<DBoundary>(m_diagramElements, tr("Boundary"), tr("Boundaries"));
     visitDElement(boundary);
+}
+
+void PropertiesView::MView::visitDSwimlane(const DSwimlane *swimlane)
+{
+    setTitle<DSwimlane>(m_diagramElements, tr("Swimlane"), tr("Swimlanes"));
+    visitDElement(swimlane);
 }
 
 void PropertiesView::MView::onStereotypesChanged(const QString &stereotypes)
@@ -1104,7 +1180,7 @@ void PropertiesView::MView::onClassMembersStatusChanged(bool valid)
     if (valid)
         m_classMembersStatusLabel->clear();
     else
-        m_classMembersStatusLabel->setText(tr("<font color=red>Invalid syntax.</font>"));
+        m_classMembersStatusLabel->setText("<font color=red>" + tr("Invalid syntax.") + "</font>");
 }
 
 void PropertiesView::MView::onParseClassMembers()
@@ -1208,6 +1284,48 @@ void PropertiesView::MView::onAssociationEndBKindChanged(int kindIndex)
                 &MAssociationEnd::kind, &MAssociationEnd::setKind);
 }
 
+void PropertiesView::MView::onConnectionEndANameChanged(const QString &name)
+{
+    assignEmbeddedModelElement<MConnection, MConnectionEnd, QString>(
+                m_modelElements, SelectionSingle, name, &MConnection::endA, &MConnection::setEndA,
+                &MConnectionEnd::name, &MConnectionEnd::setName);
+}
+
+void PropertiesView::MView::onConnectionEndACardinalityChanged(const QString &cardinality)
+{
+    assignEmbeddedModelElement<MConnection, MConnectionEnd, QString>(
+                m_modelElements, SelectionSingle, cardinality, &MConnection::endA, &MConnection::setEndA,
+                &MConnectionEnd::cardinality, &MConnectionEnd::setCardinality);
+}
+
+void PropertiesView::MView::onConnectionEndANavigableChanged(bool navigable)
+{
+    assignEmbeddedModelElement<MConnection, MConnectionEnd, bool>(
+                m_modelElements, SelectionSingle, navigable, &MConnection::endA, &MConnection::setEndA,
+                &MConnectionEnd::isNavigable, &MConnectionEnd::setNavigable);
+}
+
+void PropertiesView::MView::onConnectionEndBNameChanged(const QString &name)
+{
+    assignEmbeddedModelElement<MConnection, MConnectionEnd, QString>(
+                m_modelElements, SelectionSingle, name, &MConnection::endB, &MConnection::setEndB,
+                &MConnectionEnd::name, &MConnectionEnd::setName);
+}
+
+void PropertiesView::MView::onConnectionEndBCardinalityChanged(const QString &cardinality)
+{
+    assignEmbeddedModelElement<MConnection, MConnectionEnd, QString>(
+                m_modelElements, SelectionSingle, cardinality, &MConnection::endB, &MConnection::setEndB,
+                &MConnectionEnd::cardinality, &MConnectionEnd::setCardinality);
+}
+
+void PropertiesView::MView::onConnectionEndBNavigableChanged(bool navigable)
+{
+    assignEmbeddedModelElement<MConnection, MConnectionEnd, bool>(
+                m_modelElements, SelectionSingle, navigable, &MConnection::endB, &MConnection::setEndB,
+                &MConnectionEnd::isNavigable, &MConnectionEnd::setNavigable);
+}
+
 void PropertiesView::MView::onAutoSizedChanged(bool autoSized)
 {
     assignModelElement<DObject, bool>(m_diagramElements, SelectionMulti, autoSized,
@@ -1285,17 +1403,17 @@ void PropertiesView::MView::onAnnotationVisualRoleChanged(int visualRoleIndex)
 void PropertiesView::MView::prepare()
 {
     QMT_CHECK(!m_propertiesTitle.isEmpty());
-    if (m_topWidget == 0) {
+    if (!m_topWidget) {
         m_topWidget = new QWidget();
         m_topLayout = new QFormLayout(m_topWidget);
         m_topWidget->setLayout(m_topLayout);
     }
-    if (m_classNameLabel == 0) {
+    if (!m_classNameLabel) {
         m_classNameLabel = new QLabel();
         m_topLayout->addRow(m_classNameLabel);
         m_rowToId.append("title");
     }
-    QString title(QStringLiteral("<b>") + m_propertiesTitle + QStringLiteral("</b>"));
+    QString title("<b>" + m_propertiesTitle + "</b>");
     if (m_classNameLabel->text() != title)
         m_classNameLabel->setText(title);
 }
@@ -1373,25 +1491,54 @@ template<typename T, typename V>
 void PropertiesView::MView::setTitle(const MItem *item, const QList<V *> &elements,
                                      const QString &singularTitle, const QString &pluralTitle)
 {
-    if (m_propertiesTitle.isEmpty()) {
-        QList<T *> filtered = filter<T>(elements);
-        if (filtered.size() == elements.size()) {
-            if (elements.size() == 1) {
-                if (item && !item->isVarietyEditable()) {
-                    QString stereotypeIconId = m_propertiesView->stereotypeController()->findStereotypeIconId(StereotypeIcon::ElementItem, QStringList() << item->variety());
-                    if (!stereotypeIconId.isEmpty()) {
-                        StereotypeIcon stereotypeIcon = m_propertiesView->stereotypeController()->findStereotypeIcon(stereotypeIconId);
-                        m_propertiesTitle = stereotypeIcon.title();
-                    }
+    if (!m_propertiesTitle.isEmpty())
+        return;
+    QList<T *> filtered = filter<T>(elements);
+    if (filtered.size() == elements.size()) {
+        if (elements.size() == 1) {
+            if (item && !item->isVarietyEditable()) {
+                QString stereotypeIconId = m_propertiesView->stereotypeController()
+                        ->findStereotypeIconId(StereotypeIcon::ElementItem, QStringList(item->variety()));
+                if (!stereotypeIconId.isEmpty()) {
+                    StereotypeIcon stereotypeIcon = m_propertiesView->stereotypeController()->findStereotypeIcon(stereotypeIconId);
+                    m_propertiesTitle = stereotypeIcon.title();
                 }
-                if (m_propertiesTitle.isEmpty())
-                    m_propertiesTitle = singularTitle;
-            } else {
-                m_propertiesTitle = pluralTitle;
             }
+            if (m_propertiesTitle.isEmpty())
+                m_propertiesTitle = singularTitle;
         } else {
-            m_propertiesTitle = QCoreApplication::translate("qmt::PropertiesView::MView", "Multi-Selection");
+            m_propertiesTitle = pluralTitle;
         }
+    } else {
+        m_propertiesTitle = QCoreApplication::translate("qmt::PropertiesView::MView", "Multi-Selection");
+    }
+}
+
+template<typename T, typename V>
+void PropertiesView::MView::setTitle(const MConnection *connection, const QList<V *> &elements,
+                                     const QString &singularTitle, const QString &pluralTitle)
+{
+    if (!m_propertiesTitle.isEmpty())
+        return;
+    QList<T *> filtered = filter<T>(elements);
+    if (filtered.size() == elements.size()) {
+        if (elements.size() == 1) {
+            if (connection) {
+                CustomRelation customRelation = m_propertiesView->stereotypeController()
+                        ->findCustomRelation(connection->customRelationId());
+                if (!customRelation.isNull()) {
+                    m_propertiesTitle = customRelation.title();
+                    if (m_propertiesTitle.isEmpty())
+                        m_propertiesTitle = connection->customRelationId();
+                }
+            }
+            if (m_propertiesTitle.isEmpty())
+                m_propertiesTitle = singularTitle;
+        } else {
+            m_propertiesTitle = pluralTitle;
+        }
+    } else {
+        m_propertiesTitle = QCoreApplication::translate("qmt::PropertiesView::MView", "Multi-Selection");
     }
 }
 
@@ -1445,7 +1592,7 @@ QString PropertiesView::MView::formatTemplateParameters(const QList<QString> &te
     bool first = true;
     foreach (const QString &parameter, templateParametersList) {
         if (!first)
-            templateParamters += QStringLiteral(", ");
+            templateParamters += ", ";
         templateParamters += parameter;
         first = false;
     }

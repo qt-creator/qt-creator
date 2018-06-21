@@ -28,6 +28,7 @@
 #include <QDialog>
 #include <QMultiMap>
 #include <QDate>
+#include <QSharedPointer>
 
 namespace Git {
 namespace Internal { class GitClient; }
@@ -36,6 +37,8 @@ namespace Internal { class GitClient; }
 namespace Gerrit {
 namespace Internal {
 
+class GerritParameters;
+
 namespace Ui { class GerritPushDialog; }
 
 class GerritPushDialog : public QDialog
@@ -43,19 +46,22 @@ class GerritPushDialog : public QDialog
     Q_OBJECT
 
 public:
-    GerritPushDialog(const QString &workingDir, const QString &reviewerList, QWidget *parent);
+    GerritPushDialog(const QString &workingDir, const QString &reviewerList,
+                     QSharedPointer<GerritParameters> parameters, QWidget *parent);
     ~GerritPushDialog();
 
     QString selectedCommit() const;
     QString selectedRemoteName() const;
     QString selectedRemoteBranchName() const;
-    QString selectedPushType() const;
     QString selectedTopic() const;
     QString reviewers() const;
-    bool isValid() const;
+    QString initErrorMessage() const;
+    QString pushTarget() const;
+    void storeTopic();
 
 private:
     void setChangeRange();
+    void onRemoteChanged(bool force = false);
     void setRemoteBranches(bool includeOld = false);
     void updateCommits(int index);
     void validate();
@@ -68,10 +74,11 @@ private:
     QString calculateChangeRange(const QString &branch);
     QString m_workingDir;
     QString m_suggestedRemoteBranch;
+    QString m_initErrorMessage;
     Ui::GerritPushDialog *m_ui;
     RemoteBranchesMap m_remoteBranches;
-    bool m_isValid = false;
     bool m_hasLocalCommits = false;
+    bool m_currentSupportsWip = false;
 };
 
 

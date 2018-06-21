@@ -41,13 +41,12 @@ class QmlProfilerConfigWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit QmlProfilerConfigWidget(QmlProfilerSettings *settings, QWidget *parent = 0);
-    ~QmlProfilerConfigWidget();
-
-private slots:
-    void updateUi();
+    explicit QmlProfilerConfigWidget(QmlProfilerSettings *settings, QWidget *parent = nullptr);
+    ~QmlProfilerConfigWidget() override;
 
 private:
+    void updateUi();
+
     Ui::QmlProfilerConfigWidget *m_ui;
     QmlProfilerSettings *m_settings;
 };

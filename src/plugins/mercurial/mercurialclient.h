@@ -30,7 +30,6 @@
 
 namespace Mercurial {
 namespace Internal {
-class MercurialDiffParameters;
 
 class MercurialClient : public VcsBase::VcsBaseClient
 {

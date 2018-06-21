@@ -30,30 +30,15 @@
 #include "symbollocationfinderaction.h"
 #include "locationsourcefilecallbacks.h"
 
+#include <filepathcachingfwd.h>
 #include <sourcelocationscontainer.h>
-
-#if defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#elif defined(_MSC_VER)
-#    pragma warning(push)
-#    pragma warning( disable : 4100 )
-#endif
-
-#include "clang/Tooling/Refactoring.h"
-
-#if defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#    pragma warning(pop)
-#endif
 
 namespace ClangBackEnd {
 
 class SymbolFinder : public ClangTool
 {
 public:
-    SymbolFinder(uint line, uint column);
+    SymbolFinder(uint line, uint column, FilePathCachingInterface &filePathCache);
 
     void findSymbol();
 
@@ -63,12 +48,11 @@ public:
     SourceLocationsContainer takeSourceLocations();
 
 private:
-    Utils::SmallString symbolName;
-    USRFindingAction usrFindingAction;
-    SymbolLocationFinderAction symbolLocationFinderAction;
-    LocationSourceFileCallbacks sourceFileCallbacks;
-
-    ClangBackEnd::SourceLocationsContainer sourceLocations_;
+    Utils::SmallString m_symbolName;
+    USRFindingAction m_usrFindingAction;
+    SymbolLocationFinderAction m_symbolLocationFinderAction;
+    LocationSourceFileCallbacks m_sourceFileCallbacks;
+    ClangBackEnd::SourceLocationsContainer m_sourceLocations_;
 };
 
 } // namespace ClangBackEnd

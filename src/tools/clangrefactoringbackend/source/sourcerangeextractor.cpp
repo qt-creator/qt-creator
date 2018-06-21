@@ -28,14 +28,7 @@
 #include "sourcelocationsutils.h"
 
 #include <sourcerangescontainer.h>
-
-#if defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#elif defined(_MSC_VER)
-#    pragma warning(push)
-#    pragma warning( disable : 4100 )
-#endif
+#include <filepathcachinginterface.h>
 
 #include <clang/Basic/SourceManager.h>
 #include <clang/Lex/Lexer.h>
@@ -43,19 +36,16 @@
 #include <llvm/Support/FileUtilities.h>
 #include <llvm/ADT/SmallVector.h>
 
-#if defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#    pragma warning(pop)
-#endif
-
 namespace ClangBackEnd {
 
-SourceRangeExtractor::SourceRangeExtractor(const clang::SourceManager &sourceManager,
-                                           const clang::LangOptions &languageOptions,
-                                           SourceRangesContainer &sourceRangesContainer)
+SourceRangeExtractor::SourceRangeExtractor(
+        const clang::SourceManager &sourceManager,
+        const clang::LangOptions &languageOptions,
+        FilePathCachingInterface &filePathCache,
+        SourceRangesContainer &sourceRangesContainer)
     : sourceManager(sourceManager),
       languageOptions(languageOptions),
+      filePathCache(filePathCache),
       sourceRangesContainer(sourceRangesContainer)
 {
 }
@@ -66,6 +56,7 @@ std::reverse_iterator<Iterator> make_reverse_iterator(Iterator iterator)
 {
     return std::reverse_iterator<Iterator>(iterator);
 }
+
 }
 
 const char *SourceRangeExtractor::findStartOfLineInBuffer(llvm::StringRef buffer, uint startOffset)
@@ -123,19 +114,14 @@ const clang::SourceRange SourceRangeExtractor::extendSourceRangeToLastTokenEnd(c
     return {sourceRange.getBegin(), endLocation};
 }
 
-void SourceRangeExtractor::insertSourceRange(uint fileHash,
-                                             Utils::SmallString &&directoryPath,
-                                             Utils::SmallString &&fileName,
+void SourceRangeExtractor::insertSourceRange(FilePathId filePathId,
                                              const clang::FullSourceLoc &startLocation,
                                              uint startOffset,
                                              const clang::FullSourceLoc &endLocation,
                                              uint endOffset,
                                              Utils::SmallString &&lineSnippet)
 {
-    sourceRangesContainer.insertFilePath(fileHash,
-                                         std::move(directoryPath),
-                                         std::move(fileName));
-    sourceRangesContainer.insertSourceRange(fileHash,
+    sourceRangesContainer.insertSourceRange(filePathId,
                                             startLocation.getSpellingLineNumber(),
                                             startLocation.getSpellingColumnNumber(),
                                             startOffset,
@@ -143,6 +129,17 @@ void SourceRangeExtractor::insertSourceRange(uint fileHash,
                                             endLocation.getSpellingColumnNumber(),
                                             endOffset,
                                             std::move(lineSnippet));
+}
+
+FilePathId SourceRangeExtractor::findFileId(clang::FileID fileId, const clang::FileEntry *fileEntry) const
+{
+    auto found = m_fileIdMapping.find(fileId.getHashValue());
+    if (found != m_fileIdMapping.end()) {
+       return found->second;
+    }
+
+    auto filePath = absolutePath(fileEntry->getName());
+    return filePathCache.filePathId(FilePath::fromNativeFilePath(filePath));
 }
 
 void SourceRangeExtractor::addSourceRange(const clang::SourceRange &sourceRange)
@@ -158,21 +155,17 @@ void SourceRangeExtractor::addSourceRange(const clang::SourceRange &sourceRange)
         const auto startOffset = startDecomposedLoction.second;
         const auto endOffset = endDecomposedLoction.second;
         const auto fileEntry = sourceManager.getFileEntryForID(fileId);
-        auto filePath = absolutePath(fileEntry->getName());
-        const auto fileName = llvm::sys::path::filename(filePath);
-        llvm::sys::path::remove_filename(filePath);
+
         Utils::SmallString lineSnippet = getExpandedText(startSourceLocation.getBufferData(),
                                                          startOffset,
                                                          endOffset);
-        insertSourceRange(fileId.getHashValue(),
-                          fromNativePath(filePath),
-                          {fileName.data(), fileName.size()},
+
+        insertSourceRange(findFileId(fileId, fileEntry),
                           startSourceLocation,
                           startOffset,
                           endSourceLocation,
                           endOffset,
                           std::move(lineSnippet));
-
     }
 }
 
@@ -186,7 +179,7 @@ void SourceRangeExtractor::addSourceRanges(const std::vector<clang::SourceRange>
 
 const std::vector<SourceRangeWithTextContainer> &SourceRangeExtractor::sourceRangeWithTextContainers() const
 {
-    return sourceRangesContainer.sourceRangeWithTextContainers();
+    return sourceRangesContainer.sourceRangeWithTextContainers;
 }
 
 } // namespace ClangBackEnd

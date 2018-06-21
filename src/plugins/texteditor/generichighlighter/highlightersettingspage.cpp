@@ -59,7 +59,7 @@ HighlighterSettingsPagePrivate(Core::Id id) :
     m_id(id),
     m_displayName(tr("Generic Highlighter")),
     m_settingsPrefix(QLatin1String("Text")),
-    m_page(0)
+    m_page(nullptr)
 {}
 
 void HighlighterSettingsPage::HighlighterSettingsPagePrivate::ensureInitialized()

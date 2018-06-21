@@ -27,7 +27,6 @@ QtcAutotest {
         name: "Other files from plugin"
         prefix: product.pluginDir + "/"
         files: [
-            "valgrindprocess.h", "valgrindprocess.cpp",
             "valgrindrunner.h", "valgrindrunner.cpp",
         ]
     }

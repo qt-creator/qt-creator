@@ -26,7 +26,7 @@
 #pragma once
 
 #include <utils/faketooltip.h>
-#include <rewritererror.h>
+#include <documentmessage.h>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -36,7 +36,6 @@ QT_END_NAMESPACE
 
 
 namespace QmlDesigner {
-namespace Internal {
 
 class DocumentWarningWidget : public Utils::FakeToolTip
 {
@@ -50,19 +49,19 @@ class DocumentWarningWidget : public Utils::FakeToolTip
 public:
     explicit DocumentWarningWidget(QWidget *parent);
 
-    void setErrors(const QList<RewriterError> &errors);
-    void setWarnings(const QList<RewriterError> &warnings);
+    void setErrors(const QList<DocumentMessage> &errors);
+    void setWarnings(const QList<DocumentMessage> &warnings);
 
     bool warningsEnabled() const;
     bool gotoCodeWasClicked();
-    void emitGotoCodeClicked(const RewriterError &message);
+    void emitGotoCodeClicked(const DocumentMessage &message);
 signals:
     void gotoCodeClicked(const QString filePath, int codeLine, int codeColumn);
 protected:
     bool eventFilter(QObject *object, QEvent *event) override;
     void showEvent(QShowEvent *event) override;
 private:
-    void setMessages(const QList<RewriterError> &messages);
+    void setMessages(const QList<DocumentMessage> &messages);
     void moveToParentCenter();
     void refreshContent();
     QString generateNavigateLinks();
@@ -73,11 +72,10 @@ private:
     QLabel *m_navigateLabel;
     QCheckBox *m_ignoreWarningsCheckBox;
     QPushButton *m_continueButton;
-    QList<RewriterError> m_messages;
+    QList<DocumentMessage> m_messages;
     int m_currentMessage = 0;
     Mode m_mode = NoMode;
     bool m_gotoCodeWasClicked = false;
 };
 
-} // namespace Internal
 } // namespace Designer

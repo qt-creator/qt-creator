@@ -69,11 +69,11 @@ void AutoTestUnitTests::initTestCase()
     else
         QSKIP("Could not figure out which Qt version is used for default kit.");
     const ToolChain * const toolchain = ToolChainKitInformation::toolChain(allKits.first(),
-                                                                           ToolChain::Language::Cxx);
+                                                                           ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!toolchain)
         QSKIP("This test requires that there is a kit with a toolchain.");
 
-    m_tmpDir = new CppTools::Tests::TemporaryCopiedDir(QLatin1String(":/unit_test"));
+    m_tmpDir = new CppTools::Tests::TemporaryCopiedDir(":/unit_test");
 }
 
 void AutoTestUnitTests::cleanupTestCase()
@@ -117,17 +117,17 @@ void AutoTestUnitTests::testCodeParser_data()
 
 
     QTest::newRow("plainAutoTest")
-            << QString(m_tmpDir->path() + QLatin1String("/plain/plain.pro"))
+            << QString(m_tmpDir->path() + "/plain/plain.pro")
             << 1 << 0 << 0 << 0;
     QTest::newRow("mixedAutoTestAndQuickTests")
-            << QString(m_tmpDir->path() + QLatin1String("/mixed_atp/mixed_atp.pro"))
-            << 3 << 5 << 3 << 8;
+            << QString(m_tmpDir->path() + "/mixed_atp/mixed_atp.pro")
+            << 4 << 7 << 3 << 10;
     QTest::newRow("plainAutoTestQbs")
-            << QString(m_tmpDir->path() + QLatin1String("/plain/plain.qbs"))
+            << QString(m_tmpDir->path() + "/plain/plain.qbs")
             << 1 << 0 << 0 << 0;
     QTest::newRow("mixedAutoTestAndQuickTestsQbs")
-            << QString(m_tmpDir->path() + QLatin1String("/mixed_atp/mixed_atp.qbs"))
-            << 3 << 5 << 3 << 8;
+            << QString(m_tmpDir->path() + "/mixed_atp/mixed_atp.qbs")
+            << 4 << 7 << 3 << 10;
 }
 
 void AutoTestUnitTests::testCodeParserSwitchStartup()
@@ -167,16 +167,15 @@ void AutoTestUnitTests::testCodeParserSwitchStartup_data()
     QTest::addColumn<QList<int> >("expectedUnnamedQuickTestsCount");
     QTest::addColumn<QList<int> >("expectedDataTagsCount");
 
-    QStringList projects = QStringList()
-            << QString(m_tmpDir->path() + QLatin1String("/plain/plain.pro"))
-            << QString(m_tmpDir->path() + QLatin1String("/mixed_atp/mixed_atp.pro"))
-            << QString(m_tmpDir->path() + QLatin1String("/plain/plain.qbs"))
-            << QString(m_tmpDir->path() + QLatin1String("/mixed_atp/mixed_atp.qbs"));
+    QStringList projects = QStringList({m_tmpDir->path() + "/plain/plain.pro",
+            m_tmpDir->path() + "/mixed_atp/mixed_atp.pro",
+            m_tmpDir->path() + "/plain/plain.qbs",
+            m_tmpDir->path() + "/mixed_atp/mixed_atp.qbs"});
 
-    QList<int> expectedAutoTests = QList<int>()         << 1 << 3 << 1 << 3;
-    QList<int> expectedNamedQuickTests = QList<int>()   << 0 << 5 << 0 << 5;
+    QList<int> expectedAutoTests = QList<int>()         << 1 << 4 << 1 << 4;
+    QList<int> expectedNamedQuickTests = QList<int>()   << 0 << 7 << 0 << 7;
     QList<int> expectedUnnamedQuickTests = QList<int>() << 0 << 3 << 0 << 3;
-    QList<int> expectedDataTagsCount = QList<int>()     << 0 << 8 << 0 << 8;
+    QList<int> expectedDataTagsCount = QList<int>()     << 0 << 10 << 0 << 10;
 
     QTest::newRow("loadMultipleProjects")
             << projects << expectedAutoTests << expectedNamedQuickTests
@@ -211,7 +210,7 @@ void AutoTestUnitTests::testCodeParserGTest()
 
     QMultiMap<QString, int> foundNamesAndSets = m_model->gtestNamesAndSets();
     QCOMPARE(expectedNamesAndSets.size(), foundNamesAndSets.size());
-    foreach (const QString &name, expectedNamesAndSets.keys())
+    for (const QString &name : expectedNamesAndSets.keys())
         QCOMPARE(expectedNamesAndSets.values(name), foundNamesAndSets.values(name));
 
     // check also that no Qt related tests have been found
@@ -225,9 +224,9 @@ void AutoTestUnitTests::testCodeParserGTest_data()
 {
     QTest::addColumn<QString>("projectFilePath");
     QTest::newRow("simpleGoogletest")
-        << QString(m_tmpDir->path() + QLatin1String("/simple_gt/simple_gt.pro"));
+        << QString(m_tmpDir->path() + "/simple_gt/simple_gt.pro");
     QTest::newRow("simpleGoogletestQbs")
-        << QString(m_tmpDir->path() + QLatin1String("/simple_gt/simple_gt.qbs"));
+        << QString(m_tmpDir->path() + "/simple_gt/simple_gt.qbs");
 }
 
 } // namespace Internal

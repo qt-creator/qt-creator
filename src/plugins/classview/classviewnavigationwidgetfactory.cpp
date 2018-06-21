@@ -70,33 +70,29 @@ Core::NavigationView NavigationWidgetFactory::createWidget()
 */
 static QString settingsPrefix(int position)
 {
-    return QString::fromLatin1("ClassView/Treewidget.%1/FlatMode").arg(position);
+    return QString::fromLatin1("ClassView.Treewidget.%1.FlatMode").arg(position);
 }
 
 //! Flat mode settings
 
-void NavigationWidgetFactory::saveSettings(int position, QWidget *widget)
+void NavigationWidgetFactory::saveSettings(QSettings *settings, int position, QWidget *widget)
 {
     NavigationWidget *pw = qobject_cast<NavigationWidget *>(widget);
     QTC_ASSERT(pw, return);
 
     // .beginGroup is not used - to prevent simultaneous access
-    QString group = settingsPrefix(position);
-
-    // Save settings
-    Core::ICore::settings()->setValue(group, pw->flatMode());
+    QString settingsGroup = settingsPrefix(position);
+    settings->setValue(settingsGroup, pw->flatMode());
 }
 
-void NavigationWidgetFactory::restoreSettings(int position, QWidget *widget)
+void NavigationWidgetFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
 {
     NavigationWidget *pw = qobject_cast<NavigationWidget *>(widget);
     QTC_ASSERT(pw, return);
 
     // .beginGroup is not used - to prevent simultaneous access
-    QString group = settingsPrefix(position);
-
-    // Load settings
-    pw->setFlatMode(Core::ICore::settings()->value(group, false).toBool());
+    QString settingsGroup = settingsPrefix(position);
+    pw->setFlatMode(settings->value(settingsGroup, false).toBool());
 }
 
 } // namespace Internal

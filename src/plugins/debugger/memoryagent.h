@@ -74,7 +74,7 @@ class MemoryAgent : public QObject
 
 public:
     MemoryAgent(const MemoryViewSetupData &data, DebuggerEngine *engine);
-    ~MemoryAgent();
+    ~MemoryAgent() override;
 
     void updateContents();
     void addData(quint64 address, const QByteArray &data);

@@ -323,8 +323,8 @@ protected:
 
     bool visit(UiPublicMember *ast)
     {
-        if (ast->typeToken.isValid() && !ast->memberType.isEmpty()) {
-            if (m_scopeChain.context()->lookupType(m_scopeChain.document().data(), QStringList(ast->memberType.toString())))
+        if (ast->typeToken.isValid() && ast->isValid()) {
+            if (m_scopeChain.context()->lookupType(m_scopeChain.document().data(), QStringList(ast->memberTypeName().toString())))
                 addUse(ast->typeToken, SemanticHighlighter::QmlTypeType);
         }
         if (ast->identifierToken.isValid())
@@ -436,7 +436,9 @@ protected:
             const TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::instance()->fontSettings();
 
             QTextCharFormat format;
-            if (d.severity == Severity::Warning || d.severity == Severity::MaybeWarning) {
+            if (d.severity == Severity::Warning
+                    || d.severity == Severity::MaybeWarning
+                    || d.severity == Severity::ReadingTypeInfoWarning) {
                 format = fontSettings.toTextCharFormat(TextEditor::C_WARNING);
             } else if (d.severity == Severity::Error || d.severity == Severity::MaybeError) {
                 format = fontSettings.toTextCharFormat(TextEditor::C_ERROR);

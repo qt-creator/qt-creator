@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -119,6 +119,9 @@
        <widget class="QSpinBox" name="timeout">
         <property name="suffix">
          <string>s</string>
+        </property>
+        <property name="maximum">
+         <number>360</number>
         </property>
         <property name="value">
          <number>30</number>

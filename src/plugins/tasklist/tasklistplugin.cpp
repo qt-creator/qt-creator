@@ -35,12 +35,10 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
-#include <utils/mimetypes/mimedatabase.h>
 
 #include <QDir>
 #include <QMessageBox>
 #include <QStringList>
-#include <QtPlugin>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -52,6 +50,14 @@ namespace TaskList {
 namespace Internal {
 
 static TaskListPlugin *m_instance;
+
+class TaskListPluginPrivate
+{
+public:
+    QList<TaskFile *> m_openFiles;
+    Core::IDocumentFactory m_fileFactory;
+    StopMonitoringHandler m_stopMonitoringHandler;
+};
 
 static Task::TaskType typeFrom(const QString &typeName)
 {
@@ -159,7 +165,7 @@ static bool parseTaskFile(QString *errorString, const FileName &name)
 
 IDocument *TaskListPlugin::openTasks(const FileName &fileName)
 {
-    foreach (TaskFile *doc, m_openFiles) {
+    foreach (TaskFile *doc, d->m_openFiles) {
         if (doc->filePath() == fileName)
             return doc;
     }
@@ -170,10 +176,10 @@ IDocument *TaskListPlugin::openTasks(const FileName &fileName)
     if (!file->load(&errorString, fileName)) {
         QMessageBox::critical(ICore::mainWindow(), tr("File Error"), errorString);
         delete file;
-        return 0;
+        return nullptr;
     }
 
-    m_openFiles.append(file);
+    d->m_openFiles.append(file);
 
     // Register with filemanager:
     DocumentManager::addDocument(file);
@@ -186,24 +192,26 @@ TaskListPlugin::TaskListPlugin()
     m_instance = this;
 }
 
+TaskListPlugin::~TaskListPlugin()
+{
+    delete d;
+    m_instance = nullptr;
+}
+
 bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
+    d = new TaskListPluginPrivate;
+
     //: Category under which tasklist tasks are listed in Issues view
     TaskHub::addCategory(Constants::TASKLISTTASK_ID, tr("My Tasks"));
 
-    MimeDatabase::addMimeTypes(QLatin1String(":tasklist/TaskList.mimetypes.xml"));
-
-    m_fileFactory = new IDocumentFactory;
-    m_fileFactory->addMimeType(QLatin1String("text/x-tasklist"));
-    m_fileFactory->setOpener([this](const QString &fileName) {
+    d->m_fileFactory.addMimeType(QLatin1String("text/x-tasklist"));
+    d->m_fileFactory.setOpener([this](const QString &fileName) {
         return openTasks(FileName::fromString(fileName));
     });
-
-    addAutoReleasedObject(m_fileFactory);
-    addAutoReleasedObject(new StopMonitoringHandler);
 
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
             this, &TaskListPlugin::loadDataFromSession);
@@ -228,9 +236,9 @@ void TaskListPlugin::stopMonitoring()
 {
     SessionManager::setValue(QLatin1String(SESSION_FILE_KEY), QString());
 
-    foreach (TaskFile *document, m_instance->m_openFiles)
+    foreach (TaskFile *document, m_instance->d->m_openFiles)
         document->deleteLater();
-    m_instance->m_openFiles.clear();
+    m_instance->d->m_openFiles.clear();
 }
 
 void TaskListPlugin::clearTasks()

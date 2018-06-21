@@ -49,55 +49,21 @@ using namespace ProjectExplorer;
 const char AUTORECONF_STEP_ID[] = "AutotoolsProjectManager.AutoreconfStep";
 const char AUTORECONF_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.AutoreconfStep.AdditionalArguments";
 
-////////////////////////////////
+
 // AutoreconfStepFactory class
-////////////////////////////////
-AutoreconfStepFactory::AutoreconfStepFactory(QObject *parent) : IBuildStepFactory(parent)
-{ }
 
-QList<BuildStepInfo> AutoreconfStepFactory::availableSteps(BuildStepList *parent) const
+AutoreconfStepFactory::AutoreconfStepFactory()
 {
-    if (parent->target()->project()->id() != Constants::AUTOTOOLS_PROJECT_ID
-            || parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        return {};
-
-    QString display = tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id.");
-    return {{ AUTORECONF_STEP_ID, display }};
+    registerStep<AutoreconfStep>(AUTORECONF_STEP_ID);
+    setDisplayName(AutoreconfStep::tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id."));
+    setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
 }
 
-BuildStep *AutoreconfStepFactory::create(BuildStepList *parent, Core::Id id)
-{
-    Q_UNUSED(id);
-    return new AutoreconfStep(parent);
-}
 
-BuildStep *AutoreconfStepFactory::clone(BuildStepList *parent, BuildStep *source)
-{
-    return new AutoreconfStep(parent, static_cast<AutoreconfStep *>(source));
-}
-
-/////////////////////////
 // AutoreconfStep class
-/////////////////////////
-AutoreconfStep::AutoreconfStep(BuildStepList *bsl) :
-    AbstractProcessStep(bsl, Core::Id(AUTORECONF_STEP_ID))
-{
-    ctor();
-}
 
-AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Core::Id id) : AbstractProcessStep(bsl, id)
-{
-    ctor();
-}
-
-AutoreconfStep::AutoreconfStep(BuildStepList *bsl, AutoreconfStep *bs) :
-    AbstractProcessStep(bsl, bs),
-    m_additionalArguments(bs->additionalArguments())
-{
-    ctor();
-}
-
-void AutoreconfStep::ctor()
+AutoreconfStep::AutoreconfStep(BuildStepList *bsl) : AbstractProcessStep(bsl, AUTORECONF_STEP_ID)
 {
     setDefaultDisplayName(tr("Autoreconf"));
 }
@@ -111,7 +77,7 @@ bool AutoreconfStep::init(QList<const BuildStep *> &earlierSteps)
     pp->setEnvironment(bc->environment());
     const QString projectDir(bc->target()->project()->projectDirectory().toString());
     pp->setWorkingDirectory(projectDir);
-    pp->setCommand(QLatin1String("autoreconf"));
+    pp->setCommand("autoreconf");
     pp->setArguments(additionalArguments());
     pp->resolveAll();
 
@@ -125,11 +91,11 @@ void AutoreconfStep::run(QFutureInterface<bool> &fi)
     // Check whether we need to run autoreconf
     const QString projectDir(bc->target()->project()->projectDirectory().toString());
 
-    if (!QFileInfo::exists(projectDir + QLatin1String("/configure")))
+    if (!QFileInfo::exists(projectDir + "/configure"))
         m_runAutoreconf = true;
 
     if (!m_runAutoreconf) {
-        emit addOutput(tr("Configuration unchanged, skipping autoreconf step."), BuildStep::MessageOutput);
+        emit addOutput(tr("Configuration unchanged, skipping autoreconf step."), BuildStep::OutputFormat::NormalMessage);
         reportRunResult(fi, true);
         return;
     }
@@ -168,13 +134,13 @@ QVariantMap AutoreconfStep::toMap() const
 {
     QVariantMap map = AbstractProcessStep::toMap();
 
-    map.insert(QLatin1String(AUTORECONF_ADDITIONAL_ARGUMENTS_KEY), m_additionalArguments);
+    map.insert(AUTORECONF_ADDITIONAL_ARGUMENTS_KEY, m_additionalArguments);
     return map;
 }
 
 bool AutoreconfStep::fromMap(const QVariantMap &map)
 {
-    m_additionalArguments = map.value(QLatin1String(AUTORECONF_ADDITIONAL_ARGUMENTS_KEY)).toString();
+    m_additionalArguments = map.value(AUTORECONF_ADDITIONAL_ARGUMENTS_KEY).toString();
 
     return BuildStep::fromMap(map);
 }
@@ -221,7 +187,7 @@ void AutoreconfStepConfigWidget::updateDetails()
     param.setEnvironment(bc->environment());
     const QString projectDir(bc->target()->project()->projectDirectory().toString());
     param.setWorkingDirectory(projectDir);
-    param.setCommand(QLatin1String("autoreconf"));
+    param.setCommand("autoreconf");
     param.setArguments(m_autoreconfStep->additionalArguments());
     m_summaryText = param.summary(displayName());
     emit updateSummary();

@@ -35,7 +35,14 @@ class DebugMessagesModel : public QmlProfilerTimelineModel
     Q_OBJECT
 
 public:
-    DebugMessagesModel(QmlProfilerModelManager *manager, QObject *parent = 0);
+    struct Item {
+        Item(const QString &text = QString(), int typeId = -1) :
+            text(text), typeId(typeId) {}
+        QString text;
+        int typeId;
+    };
+
+    DebugMessagesModel(QmlProfilerModelManager *manager, Timeline::TimelineModelAggregator *parent);
 
     int typeId(int index) const override;
     QRgb color(int index) const override;
@@ -51,15 +58,8 @@ public:
 private:
     static QString messageType(uint i);
 
-    struct MessageData {
-        MessageData(const QString &text = QString(), int typeId = -1) :
-            text(text), typeId(typeId) {}
-        QString text;
-        int typeId;
-    };
-
     int m_maximumMsgType;
-    QVector<MessageData> m_data;
+    QVector<Item> m_data;
 };
 
 } // namespace Internal

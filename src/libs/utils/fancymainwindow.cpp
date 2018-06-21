@@ -27,6 +27,7 @@
 
 #include "algorithm.h"
 #include "qtcassert.h"
+#include "stringutils.h"
 
 #include <QAbstractButton>
 #include <QApplication>
@@ -250,13 +251,17 @@ DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable)
     setWidget(inner);
     setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable);
     setObjectName(inner->objectName() + QLatin1String("DockWidget"));
-    setWindowTitle(inner->windowTitle());
     setMouseTracking(true);
+
+    QString title = inner->windowTitle();
+    toggleViewAction()->setProperty("original_title", title);
+    title = Utils::stripAccelerator(title);
+    setWindowTitle(title);
 
     QStyleOptionDockWidget opt;
     initStyleOption(&opt);
     m_titleBar = new TitleBarWidget(this, opt);
-    m_titleBar->m_titleLabel->setText(inner->windowTitle());
+    m_titleBar->m_titleLabel->setText(title);
     setTitleBarWidget(m_titleBar);
 
     if (immutable)
@@ -526,13 +531,15 @@ void FancyMainWindow::addDockActionsToMenu(QMenu *menu)
         QDockWidget *dockWidget = dockwidgets.at(i);
         if (dockWidget->property("managed_dockwidget").isNull()
                 && dockWidget->parentWidget() == this) {
-            actions.append(dockwidgets.at(i)->toggleViewAction());
+            QAction *action = dockWidget->toggleViewAction();
+            action->setText(action->property("original_title").toString());
+            actions.append(action);
         }
     }
     Utils::sort(actions, [](const QAction *action1, const QAction *action2) {
         QTC_ASSERT(action1, return true);
         QTC_ASSERT(action2, return false);
-        return action1->text().toLower() < action2->text().toLower();
+        return stripAccelerator(action1->text()).toLower() < stripAccelerator(action2->text()).toLower();
     });
     foreach (QAction *action, actions)
         menu->addAction(action);

@@ -32,7 +32,7 @@
     \contentspage {Qt Creator Manual}
     \previouspage creator-developing-ios.html
     \page creator-developing-qnx.html
-    \nextpage creator-developing-winrt.html
+    \nextpage creator-build-process-customizing.html
 
     \title Connecting QNX Devices
 

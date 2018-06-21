@@ -1246,8 +1246,7 @@ void generateASTVisitor_H(const Snapshot &, const QDir &cplusplusDir,
   QTextStream out(&file);
   out << copyrightHeader <<
 "\n"
-"#ifndef CPLUSPLUS_ASTVISITOR_H\n"
-"#define CPLUSPLUS_ASTVISITOR_H\n"
+"#pragma once\n"
 "\n"
 "#include \"CPlusPlusForwardDeclarations.h\"\n"
 "#include \"ASTfwd.h\"\n"
@@ -1317,9 +1316,7 @@ void generateASTVisitor_H(const Snapshot &, const QDir &cplusplusDir,
 "   TranslationUnit *_translationUnit;\n"
 "};\n"
 "\n"
-"} // namespace CPlusPlus\n"
-"\n"
-"#endif // CPLUSPLUS_ASTVISITOR_H\n";
+"} // namespace CPlusPlus\n";
 
   closeAndPrintFilePath(file);
 }
@@ -1339,8 +1336,7 @@ void generateASTMatcher_H(const Snapshot &, const QDir &cplusplusDir,
   QTextStream out(&file);
   out << copyrightHeader <<
 "\n"
-"#ifndef ASTMATCHER_H\n"
-"#define ASTMATCHER_H\n"
+"#pragma once\n"
 "\n"
 "#include \"ASTfwd.h\"\n"
 "\n"
@@ -1360,9 +1356,7 @@ void generateASTMatcher_H(const Snapshot &, const QDir &cplusplusDir,
   out <<
 "};\n"
 "\n"
-"} // namespace CPlusPlus\n"
-"\n"
-"#endif // CPLUSPLUS_ASTMATCHER_H\n";
+"} // namespace CPlusPlus\n";
 
   closeAndPrintFilePath(file);
 }
@@ -1574,8 +1568,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
     out
             << copyrightHeader
             << generatedHeader
-            << "#ifndef CPLUSPLUS_AST_PATTERN_BUILDER_H" << endl
-            << "#define CPLUSPLUS_AST_PATTERN_BUILDER_H" << endl
+            << "#pragma once" << endl
             << endl
             << "#include \"CPlusPlusForwardDeclarations.h\"" << endl
             << "#include \"AST.h\"" << endl
@@ -1683,16 +1676,14 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
     out
             << "};" << endl
             << endl
-            << "} // end of namespace CPlusPlus" << endl
-            << endl
-            << "#endif // CPLUSPLUS_AST_PATTERN_BUILDER_H" << endl;
+            << "} // end of namespace CPlusPlus" << endl;
 
     closeAndPrintFilePath(file);
 }
 
 void printUsage()
 {
-    const QByteArray executable = QFileInfo(qApp->arguments().first()).fileName().toLatin1();
+    const QByteArray executable = QFileInfo(QCoreApplication::arguments().first()).fileName().toLatin1();
     std::cout << "Usage: " << executable.constData() << "\n"
               << "       " << executable.constData() << " <frontend-dir> <dumpers-file>"
               << "\n\n"

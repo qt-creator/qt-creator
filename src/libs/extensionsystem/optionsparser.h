@@ -60,6 +60,7 @@ private:
     bool checkForPluginOption();
     bool checkForProfilingOption();
     bool checkForUnknownOption();
+    void forceDisableAllPluginsExceptTestedAndForceEnabled();
 
     enum TokenType { OptionalToken, RequiredToken };
     bool nextToken(TokenType type = OptionalToken);

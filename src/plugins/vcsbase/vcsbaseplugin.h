@@ -27,6 +27,8 @@
 
 #include "vcsbase_global.h"
 
+#include <coreplugin/iversioncontrol.h>
+#include <coreplugin/vcsmanager.h>
 #include <extensionsystem/iplugin.h>
 
 #include <QList>
@@ -128,7 +130,14 @@ class VCSBASE_EXPORT VcsBasePlugin : public ExtensionSystem::IPlugin
 protected:
     explicit VcsBasePlugin();
 
-    void initializeVcs(Core::IVersionControl *vc, const Core::Context &context);
+    template<class T, typename... Args>
+    T *initializeVcs(const Core::Context &context, Args&&... args)
+    {
+        T *vc = Core::VcsManager::registerVersionControl<T>(std::forward<Args>(args)...);
+        initializeVcs(vc, context);
+        return vc;
+    }
+
     void extensionsInitialized() override;
 
 public:
@@ -165,10 +174,15 @@ public:
                                                     const QStringList &arguments,
                                                     int timeOutS,
                                                     unsigned flags = 0,
-                                                    QTextCodec *outputCodec = 0,
+                                                    QTextCodec *outputCodec = nullptr,
                                                     const QProcessEnvironment &env = QProcessEnvironment());
 
 protected:
+    // Display name of the commit action:
+    virtual QString commitDisplayName() const;
+    // Prompt to save all files before commit:
+    bool promptBeforeCommit();
+
     // Convenience slot for "Delete current file" action. Prompts to
     // delete the file via VcsManager.
     void promptToDeleteCurrentFile();
@@ -203,6 +217,8 @@ protected:
 private:
     void slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor, bool *result);
     void slotStateChanged(const VcsBase::Internal::State &s, Core::IVersionControl *vc);
+
+    void initializeVcs(Core::IVersionControl *vc, const Core::Context &context);
 
     VcsBasePluginPrivate *d;
 };

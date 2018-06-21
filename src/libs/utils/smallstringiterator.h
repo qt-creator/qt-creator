@@ -28,11 +28,6 @@
 #include <cstddef>
 #include <iterator>
 
-#pragma push_macro("noexcept")
-#ifndef __cpp_noexcept
-#define noexcept
-#endif
-
 namespace Utils {
 
 namespace Internal {
@@ -44,9 +39,11 @@ template <class Category,
           typename Reference = Type&>
 struct SmallStringIterator : public  std::iterator<Category, Type, DistanceType, Pointer, Reference>
 {
+    constexpr
     SmallStringIterator() noexcept = default;
 
-    SmallStringIterator(Pointer ptr) : pointer_(ptr) noexcept
+    constexpr
+    SmallStringIterator(Pointer ptr) noexcept : pointer_(ptr)
     {
     }
 
@@ -54,6 +51,7 @@ struct SmallStringIterator : public  std::iterator<Category, Type, DistanceType,
     {
         return ++pointer_;
     }
+
     SmallStringIterator operator++(int) noexcept
     {
         return pointer_++;
@@ -124,22 +122,30 @@ struct SmallStringIterator : public  std::iterator<Category, Type, DistanceType,
         return pointer_;
     }
 
+    constexpr
     bool operator==(SmallStringIterator other) const noexcept
     {
         return pointer_ == other.pointer_;
     }
 
+    constexpr
     bool operator!=(SmallStringIterator other) const noexcept
     {
         return pointer_ != other.pointer_;
     }
 
+    constexpr
     bool operator<(SmallStringIterator other) const noexcept
     {
         return pointer_ < other.pointer_;
     }
 
     Pointer data() noexcept
+    {
+        return pointer_;
+    }
+
+    const Pointer data() const noexcept
     {
         return pointer_;
     }
@@ -151,5 +157,3 @@ private:
 } // namespace Internal
 
 } // namespace Utils
-
-#pragma pop_macro("noexcept")

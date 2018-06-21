@@ -32,19 +32,12 @@ class QAction;
 class QMenu;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
-class Node;
-class Project;
-}
-
 namespace Utils { class ParameterAction; }
 
 namespace ResourceEditor {
 namespace Internal {
 
 class ResourceEditorW;
-class ResourceWizard;
-class ResourceEditorFactory;
 
 class ResourceEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -55,8 +48,8 @@ public:
     ResourceEditorPlugin();
 
     // IPlugin
-    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    void extensionsInitialized();
+    bool initialize(const QStringList &arguments, QString *errorMessage = nullptr) override;
+    void extensionsInitialized() override;
 
 private slots:
     void onUndo();
@@ -75,7 +68,7 @@ private slots:
     void copyPathContextMenu();
     void copyUrlContextMenu();
 
-    void updateContextActions(ProjectExplorer::Node*,ProjectExplorer::Project*);
+    void updateContextActions();
 
 public:
     void onUndoStackChanged(ResourceEditorW const *editor, bool canUndo, bool canRedo);

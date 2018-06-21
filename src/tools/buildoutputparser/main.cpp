@@ -25,32 +25,41 @@
 
 #include "outputprocessor.h"
 
-#include <QCoreApplication>
+#include <utils/theme/theme_p.h>
+
+#include <QGuiApplication>
 #include <QFile>
 #include <QMetaObject>
 #include <QFileInfo>
 #include <QStringList>
+#include <QTimer>
 
 #include <stdio.h>
 #include <stdlib.h>
+
+class DummyTheme : public Utils::Theme
+{
+public:
+    DummyTheme() : Utils::Theme(QLatin1String("dummy"))
+    {
+        const QPair<QColor, QString> colorEntry(QColor(Qt::red), QLatin1String("red"));
+        for (int i = 0; i < d->colors.count(); ++i)
+            d->colors[i] = colorEntry;
+    }
+};
 
 static void printUsage()
 {
     fprintf(stderr, "Usage: %s [--type <compiler type>] <file>\n",
             qPrintable(QFileInfo(QCoreApplication::applicationFilePath()).fileName()));
-    fprintf(stderr, "Possible compiler types: gcc, clang%s. Default is gcc.\n",
-#ifdef HAS_MSVC_PARSER
-            ", msvc"
-#else
-            ""
-#endif
-    );
+    fprintf(stderr, "Possible compiler types: gcc, clang, msvc. Default is gcc.\n");
 }
-
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
+    DummyTheme dummyTheme;
+    Utils::setCreatorTheme(&dummyTheme);
 
     QStringList args = app.arguments().mid(1);
     QString filePath;
@@ -68,10 +77,8 @@ int main(int argc, char *argv[])
                 compilerType = CompilerTypeGcc;
             } else if (typeString == QLatin1String("clang")) {
                 compilerType = CompilerTypeClang;
-#ifdef HAS_MSVC_PARSER
             } else if (typeString == QLatin1String("msvc")) {
                 compilerType = CompilerTypeMsvc;
-#endif
             } else {
                 fprintf(stderr, "Invalid compiler type '%s'.\n", qPrintable(typeString));
                 printUsage();
@@ -98,6 +105,6 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     CompilerOutputProcessor cop(compilerType, compilerOutputFile);
-    QMetaObject::invokeMethod(&cop, "start", Qt::QueuedConnection);
+    QTimer::singleShot(0, &cop, &CompilerOutputProcessor::start);
     return app.exec();
 }

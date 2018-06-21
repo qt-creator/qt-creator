@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "cppeditor.h"
-
 #include <cpptools/cpptoolstestcase.h>
 
 #include <QVector>

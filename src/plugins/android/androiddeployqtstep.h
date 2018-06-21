@@ -41,18 +41,10 @@ QT_END_NAMESPACE
 namespace Android {
 namespace Internal {
 
-class AndroidDeployQtStepFactory : public ProjectExplorer::IBuildStepFactory
+class AndroidDeployQtStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
 public:
-    explicit AndroidDeployQtStepFactory(QObject *parent = 0);
-
-    QList<ProjectExplorer::BuildStepInfo>
-        availableSteps(ProjectExplorer::BuildStepList *parent) const override;
-
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, Core::Id id) override;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
-                                      ProjectExplorer::BuildStep *product) override;
+    AndroidDeployQtStepFactory();
 };
 
 class AndroidDeployQtStep : public ProjectExplorer::BuildStep
@@ -66,7 +58,8 @@ class AndroidDeployQtStep : public ProjectExplorer::BuildStep
         InconsistentCertificates = 0x0001,
         UpdateIncompatible = 0x0002,
         PermissionModelDowngrade = 0x0004,
-        Failure = 0x0008
+        VersionDowngrade = 0x0008,
+        Failure = 0x0010
     };
 
 public:
@@ -94,8 +87,6 @@ signals:
     void setSerialNumber(const QString &serialNumber);
 
 private:
-    AndroidDeployQtStep(ProjectExplorer::BuildStepList *bc, AndroidDeployQtStep *other);
-    void ctor();
     void runCommand(const QString &program, const QStringList &arguments);
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
@@ -121,24 +112,22 @@ private:
 
     Utils::FileName m_manifestName;
     QString m_serialNumber;
-    QString m_buildDirectory;
     QString m_avdName;
     QString m_apkPath;
-    QStringList m_appProcessBinaries;
-    QString m_libdir;
+    QMap<QString, QString> m_filesToPull;
 
     QString m_targetArch;
-    bool m_uninstallPreviousPackage;
-    bool m_uninstallPreviousPackageRun;
-    bool m_useAndroiddeployqt;
-    bool m_askForUinstall;
+    bool m_uninstallPreviousPackage = false;
+    bool m_uninstallPreviousPackageRun = false;
+    bool m_useAndroiddeployqt = false;
+    bool m_askForUninstall = false;
     static const Core::Id Id;
     QString m_androiddeployqtArgs;
     QString m_adbPath;
     QString m_command;
     QString m_workingDirectory;
     Utils::Environment m_environment;
-    Utils::QtcProcess *m_process;
+    Utils::QtcProcess *m_process = nullptr;
     AndroidDeviceInfo m_deviceInfo;
 };
 

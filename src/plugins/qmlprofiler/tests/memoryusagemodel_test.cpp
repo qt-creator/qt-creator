@@ -30,73 +30,73 @@ namespace QmlProfiler {
 namespace Internal {
 
 MemoryUsageModelTest::MemoryUsageModelTest(QObject *parent) : QObject(parent),
-    manager(nullptr), model(&manager)
+    model(&manager, &aggregator)
 {
 }
 
 void MemoryUsageModelTest::initTestCase()
 {
-    manager.startAcquiring();
+    manager.initialize();
     qint64 timestamp = 0;
 
 
-    heapPageTypeId = manager.qmlModel()->addEventType(
-                QmlEventType(MemoryAllocation, MaximumRangeType, HeapPage));
-    smallItemTypeId = manager.qmlModel()->addEventType(
-                QmlEventType(MemoryAllocation, MaximumRangeType, SmallItem));
-    largeItemTypeId = manager.qmlModel()->addEventType(
-                QmlEventType(MemoryAllocation, MaximumRangeType, LargeItem));
+    heapPageTypeId = manager.numEventTypes();
+    manager.appendEventType(QmlEventType(MemoryAllocation, MaximumRangeType, HeapPage));
+    smallItemTypeId = manager.numEventTypes();
+    manager.appendEventType(QmlEventType(MemoryAllocation, MaximumRangeType, SmallItem));
+    largeItemTypeId = manager.numEventTypes();
+    manager.appendEventType(QmlEventType(MemoryAllocation, MaximumRangeType, LargeItem));
 
     auto addMemoryEvents = [&]() {
         QmlEvent event;
         event.setTimestamp(++timestamp);
         event.setTypeIndex(heapPageTypeId);
         event.setNumbers({2048});
-        manager.qmlModel()->addEvent(event);
-        manager.qmlModel()->addEvent(event); // allocate two of them and make the model summarize
+        manager.appendEvent(QmlEvent(event));
+        manager.appendEvent(QmlEvent(event)); // allocate two of them and make the model summarize
 
         event.setTimestamp(++timestamp);
         event.setTypeIndex(smallItemTypeId);
         event.setNumbers({32});
-        manager.qmlModel()->addEvent(event);
+        manager.appendEvent(QmlEvent(event));
 
         event.setTimestamp(++timestamp);
         event.setTypeIndex(largeItemTypeId);
         event.setNumbers({1024});
-        manager.qmlModel()->addEvent(event);
+        manager.appendEvent(QmlEvent(event));
 
         event.setTimestamp(++timestamp);
         event.setTypeIndex(smallItemTypeId);
         event.setNumbers({-32});
-        manager.qmlModel()->addEvent(event);
+        manager.appendEvent(std::move(event));
     };
 
     addMemoryEvents();
-    rangeTypeId = manager.qmlModel()->addEventType(
-                QmlEventType(MaximumMessage, Javascript, -1,
-                             QmlEventLocation(QString("somefile.js"), 10, 20),
-                             QString("funcfunc")));
+
+    rangeTypeId = manager.numEventTypes();
+    manager.appendEventType(QmlEventType(MaximumMessage, Javascript, -1,
+                                         QmlEventLocation(QString("somefile.js"), 10, 20),
+                                         QString("funcfunc")));
 
     QmlEvent event;
     event.setRangeStage(RangeStart);
     event.setTimestamp(++timestamp);
     event.setTypeIndex(rangeTypeId);
-    manager.qmlModel()->addEvent(event);
+    manager.appendEvent(QmlEvent(event));
 
     addMemoryEvents();
     addMemoryEvents(); // twice to also trigger summary in first row
 
     event.setRangeStage(RangeEnd);
     event.setTimestamp(++timestamp);
-    manager.qmlModel()->addEvent(event);
+    manager.appendEvent(QmlEvent(event));
 
     event.setTimestamp(++timestamp);
     event.setTypeIndex(largeItemTypeId);
     event.setNumbers({-1024});
-    manager.qmlModel()->addEvent(event);
+    manager.appendEvent(std::move(event));
 
-    manager.acquiringDone();
-    QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
+    manager.finalize();
     QCOMPARE(model.count(), 11);
 }
 
@@ -149,33 +149,39 @@ void MemoryUsageModelTest::testDetails()
 {
     const QVariantMap allocated = model.details(0);
     QCOMPARE(allocated[QString("displayName")].toString(), model.tr("Memory Allocated"));
-    QCOMPARE(allocated[model.tr("Total")].toString(), model.tr("%1 bytes").arg(4096));
-    QCOMPARE(allocated[model.tr("Allocated")].toString(), model.tr("%1 bytes").arg(4096));
+    QCOMPARE(allocated[model.tr("Total")].toString(),
+            model.tr("%1 byte(s)", nullptr, 4096).arg(4096));
+    QCOMPARE(allocated[model.tr("Allocated")].toString(),
+            model.tr("%1 byte(s)", nullptr, 4096).arg(4096));
     QCOMPARE(allocated[model.tr("Allocations")].toString(), QString::number(2));
     QCOMPARE(allocated[model.tr("Type")].toString(), model.tr("Heap Allocation"));
-    QCOMPARE(allocated[model.tr("Location")].toString(), QmlProfilerDataModel::tr("<bytecode>"));
+    QCOMPARE(allocated[model.tr("Location")].toString(), QmlProfilerModelManager::tr("<bytecode>"));
 
     QVERIFY(!allocated.contains(model.tr("Deallocated")));
     QVERIFY(!allocated.contains(model.tr("Deallocations")));
 
     const QVariantMap large = model.details(2);
     QCOMPARE(large[QString("displayName")].toString(), model.tr("Memory Allocated"));
-    QCOMPARE(large[model.tr("Total")].toString(), model.tr("%1 bytes").arg(5120));
-    QCOMPARE(large[model.tr("Allocated")].toString(), model.tr("%1 bytes").arg(1024));
+    QCOMPARE(large[model.tr("Total")].toString(),
+            model.tr("%1 byte(s)", nullptr, 5120).arg(5120));
+    QCOMPARE(large[model.tr("Allocated")].toString(),
+            model.tr("%1 byte(s)", nullptr, 1024).arg(1024));
     QCOMPARE(large[model.tr("Allocations")].toString(), QString::number(1));
     QCOMPARE(large[model.tr("Type")].toString(), model.tr("Large Item Allocation"));
-    QCOMPARE(large[model.tr("Location")].toString(), QmlProfilerDataModel::tr("<bytecode>"));
+    QCOMPARE(large[model.tr("Location")].toString(), QmlProfilerModelManager::tr("<bytecode>"));
 
     QVERIFY(!large.contains(model.tr("Deallocated")));
     QVERIFY(!large.contains(model.tr("Deallocations")));
 
     const QVariantMap freed = model.details(9);
     QCOMPARE(freed[QString("displayName")].toString(), model.tr("Memory Freed"));
-    QCOMPARE(freed[model.tr("Total")].toString(), model.tr("%1 bytes").arg(2048));
-    QCOMPARE(freed[model.tr("Deallocated")].toString(), model.tr("%1 bytes").arg(1024));
+    QCOMPARE(freed[model.tr("Total")].toString(),
+            model.tr("%1 byte(s)", nullptr, 2048).arg(2048));
+    QCOMPARE(freed[model.tr("Deallocated")].toString(),
+            model.tr("%1 byte(s)", nullptr, 1024).arg(1024));
     QCOMPARE(freed[model.tr("Deallocations")].toString(), QString::number(1));
     QCOMPARE(freed[model.tr("Type")].toString(), model.tr("Heap Usage"));
-    QCOMPARE(freed[model.tr("Location")].toString(), QmlProfilerDataModel::tr("<bytecode>"));
+    QCOMPARE(freed[model.tr("Location")].toString(), QmlProfilerModelManager::tr("<bytecode>"));
 
     QVERIFY(!freed.contains(model.tr("Allocated")));
     QVERIFY(!freed.contains(model.tr("Allocations")));
@@ -222,17 +228,9 @@ void MemoryUsageModelTest::testRelativeHeight()
         QCOMPARE(model.relativeHeight(i), heights[i]);
 }
 
-void MemoryUsageModelTest::testAccepted()
-{
-    QVERIFY(!model.accepted(QmlEventType()));
-    QVERIFY(!model.accepted(QmlEventType(MaximumMessage, MaximumRangeType, HeapPage)));
-    QVERIFY(model.accepted(QmlEventType(MemoryAllocation, MaximumRangeType, HeapPage)));
-    QVERIFY(model.accepted(QmlEventType(MaximumMessage, Javascript)));
-}
-
 void MemoryUsageModelTest::cleanupTestCase()
 {
-    manager.clear();
+    manager.clearAll();
     QCOMPARE(model.count(), 0);
 }
 

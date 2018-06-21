@@ -40,11 +40,9 @@ using namespace AutotoolsProjectManager::Internal;
 //////////////////////////////////////
 // AutotoolsOpenProjectWizard class
 //////////////////////////////////////
-AutotoolsOpenProjectWizard::AutotoolsOpenProjectWizard(AutotoolsManager *manager,
-                                                       const QString &sourceDirectory,
+AutotoolsOpenProjectWizard::AutotoolsOpenProjectWizard(const QString &sourceDirectory,
                                                        QWidget *parent) :
     Utils::Wizard(parent),
-    m_manager(manager),
     m_sourceDirectory(sourceDirectory)
 {
     QDir dir(m_sourceDirectory);
@@ -54,11 +52,6 @@ AutotoolsOpenProjectWizard::AutotoolsOpenProjectWizard(AutotoolsManager *manager
 
     setStartId(BuildPathPageId);
     setWindowTitle(tr("Autotools Wizard"));
-}
-
-AutotoolsManager *AutotoolsOpenProjectWizard::autotoolsManager() const
-{
-    return m_manager;
 }
 
 QString AutotoolsOpenProjectWizard::buildDirectory() const
@@ -88,7 +81,7 @@ BuildPathPage::BuildPathPage(AutotoolsOpenProjectWizard *w) : QWizardPage(w),
     QLabel *label = new QLabel(this);
     label->setWordWrap(true);
     label->setText(tr("Please enter the directory in which you want to build your project. "
-                      "Qt Creator recommends to not use the source directory for building. "
+                      "It is not recommended to use the source directory for building. "
                       "This ensures that the source directory remains clean and enables multiple builds "
                       "with different settings."));
     fl->addWidget(label);

@@ -46,6 +46,7 @@ const char CMAKE_INFORMATION_ID[] = "Id";
 const char CMAKE_INFORMATION_COMMAND[] = "Binary";
 const char CMAKE_INFORMATION_DISPLAYNAME[] = "DisplayName";
 const char CMAKE_INFORMATION_AUTORUN[] = "AutoRun";
+const char CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY[] = "AutoCreateBuildDirectory";
 const char CMAKE_INFORMATION_AUTODETECTED[] = "AutoDetected";
 
 
@@ -68,6 +69,7 @@ CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) : m_isAutoDetected(fr
     m_id = Core::Id::fromSetting(map.value(CMAKE_INFORMATION_ID));
     m_displayName = map.value(CMAKE_INFORMATION_DISPLAYNAME).toString();
     m_isAutoRun = map.value(CMAKE_INFORMATION_AUTORUN, true).toBool();
+    m_autoCreateBuildDirectory = map.value(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, false).toBool();
 
     //loading a CMakeTool from SDK is always autodetection
     if (!fromSdk)
@@ -99,6 +101,15 @@ void CMakeTool::setAutorun(bool autoRun)
         return;
 
     m_isAutoRun = autoRun;
+    CMakeToolManager::notifyAboutUpdate(this);
+}
+
+void CMakeTool::setAutoCreateBuildDirectory(bool autoBuildDir)
+{
+    if (m_autoCreateBuildDirectory == autoBuildDir)
+        return;
+
+    m_autoCreateBuildDirectory = autoBuildDir;
     CMakeToolManager::notifyAboutUpdate(this);
 }
 
@@ -142,6 +153,7 @@ QVariantMap CMakeTool::toMap() const
     data.insert(CMAKE_INFORMATION_ID, m_id.toSetting());
     data.insert(CMAKE_INFORMATION_COMMAND, m_executable.toString());
     data.insert(CMAKE_INFORMATION_AUTORUN, m_isAutoRun);
+    data.insert(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, m_autoCreateBuildDirectory);
     data.insert(CMAKE_INFORMATION_AUTODETECTED, m_isAutoDetected);
     return data;
 }
@@ -162,6 +174,11 @@ bool CMakeTool::isAutoRun() const
     return m_isAutoRun;
 }
 
+bool CMakeTool::autoCreateBuildDirectory() const
+{
+    return m_autoCreateBuildDirectory;
+}
+
 QList<CMakeTool::Generator> CMakeTool::supportedGenerators() const
 {
     readInformation(QueryType::GENERATORS);
@@ -172,19 +189,19 @@ TextEditor::Keywords CMakeTool::keywords()
 {
     if (m_functions.isEmpty()) {
         Utils::SynchronousProcessResponse response;
-        response = run({ "--help-command-list" });
+        response = run({"--help-command-list"});
         if (response.result == Utils::SynchronousProcessResponse::Finished)
             m_functions = response.stdOut().split('\n');
 
-        response = run({ "--help-commands" });
+        response = run({"--help-commands"});
         if (response.result == Utils::SynchronousProcessResponse::Finished)
             parseFunctionDetailsOutput(response.stdOut());
 
-        response = run({ "--help-property-list" });
+        response = run({"--help-property-list"});
         if (response.result == Utils::SynchronousProcessResponse::Finished)
             m_variables = parseVariableOutput(response.stdOut());
 
-        response = run({ "--help-variable-list" });
+        response = run({"--help-variable-list"});
         if (response.result == Utils::SynchronousProcessResponse::Finished) {
             m_variables.append(parseVariableOutput(response.stdOut()));
             m_variables = Utils::filteredUnique(m_variables);
@@ -354,7 +371,7 @@ QStringList CMakeTool::parseVariableOutput(const QString &output)
 
 void CMakeTool::fetchGeneratorsFromHelp() const
 {
-    Utils::SynchronousProcessResponse response = run({ "--help" });
+    Utils::SynchronousProcessResponse response = run({"--help"});
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return;
 
@@ -406,11 +423,11 @@ void CMakeTool::fetchGeneratorsFromHelp() const
 
 void CMakeTool::fetchVersionFromVersionOutput() const
 {
-    Utils::SynchronousProcessResponse response = run({ "--version" });
+    Utils::SynchronousProcessResponse response = run({"--version" });
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return;
 
-    QRegularExpression versionLine("^cmake version ((\\d+).(\\d+).(\\d+).*)$");
+    QRegularExpression versionLine("^cmake.* version ((\\d+).(\\d+).(\\d+).*)$");
     const QString responseText = response.stdOut();
     for (const QStringRef &line : responseText.splitRef(QLatin1Char('\n'))) {
         QRegularExpressionMatch match = versionLine.match(line);
@@ -427,7 +444,7 @@ void CMakeTool::fetchVersionFromVersionOutput() const
 
 void CMakeTool::fetchFromCapabilities() const
 {
-    Utils::SynchronousProcessResponse response = run({ "-E", "capabilities" }, true);
+    Utils::SynchronousProcessResponse response = run({"-E", "capabilities" }, true);
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return;
 

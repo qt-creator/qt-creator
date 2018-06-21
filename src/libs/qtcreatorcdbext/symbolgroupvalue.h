@@ -230,6 +230,8 @@ struct QtInfo
                                                  const std::string &module,
                                                  const std::string &nameSpace);
 
+    static int qtTypeInfoVersion(const SymbolGroupValueContext &ctx);
+
     std::string moduleName(Module m) const;
 
     int version = 0;
@@ -284,7 +286,7 @@ enum AssignEncoding
     AssignHexEncodedUtf16
 };
 
-bool assignType(SymbolGroupNode  *n, int valueEncoding, const std::string &value,
+bool assignType(SymbolGroupNode  *n, int knownType, int valueEncoding, const std::string &value,
                 const SymbolGroupValueContext &ctx,
                 std::string *errorMessage);
 

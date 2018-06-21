@@ -36,14 +36,15 @@
 #include "qmt/diagram/dinheritance.h"
 #include "qmt/diagram/ddependency.h"
 #include "qmt/diagram/dassociation.h"
+#include "qmt/diagram/dconnection.h"
 #include "qmt/diagram/dannotation.h"
 #include "qmt/diagram/dboundary.h"
+#include "qmt/diagram/dswimlane.h"
 #include "qmt/infrastructure/qmtassert.h"
 
 namespace qmt {
 
 DCloneVisitor::DCloneVisitor()
-    : m_cloned(0)
 {
 }
 
@@ -122,6 +123,13 @@ void DCloneVisitor::visitDAssociation(const DAssociation *association)
     visitDRelation(association);
 }
 
+void DCloneVisitor::visitDConnection(const DConnection *connection)
+{
+    if (!m_cloned)
+        m_cloned = new DConnection(*connection);
+    visitDRelation(connection);
+}
+
 void DCloneVisitor::visitDAnnotation(const DAnnotation *annotation)
 {
     if (!m_cloned)
@@ -136,8 +144,15 @@ void DCloneVisitor::visitDBoundary(const DBoundary *boundary)
     visitDElement(boundary);
 }
 
+void DCloneVisitor::visitDSwimlane(const DSwimlane *swimlane)
+{
+    if (!m_cloned)
+        m_cloned = new DSwimlane(*swimlane);
+    visitDElement(swimlane);
+}
+
+
 DCloneDeepVisitor::DCloneDeepVisitor()
-    : m_cloned(0)
 {
 }
 
@@ -215,6 +230,13 @@ void DCloneDeepVisitor::visitDAssociation(const DAssociation *association)
     visitDRelation(association);
 }
 
+void DCloneDeepVisitor::visitDConnection(const DConnection *connection)
+{
+    if (!m_cloned)
+        m_cloned = new DConnection(*connection);
+    visitDRelation(connection);
+}
+
 void DCloneDeepVisitor::visitDAnnotation(const DAnnotation *annotation)
 {
     if (!m_cloned)
@@ -227,6 +249,13 @@ void DCloneDeepVisitor::visitDBoundary(const DBoundary *boundary)
     if (!m_cloned)
         m_cloned = new DBoundary(*boundary);
     visitDElement(boundary);
+}
+
+void DCloneDeepVisitor::visitDSwimlane(const DSwimlane *swimlane)
+{
+    if (!m_cloned)
+        m_cloned = new DSwimlane(*swimlane);
+    visitDElement(swimlane);
 }
 
 } // namespace qmt

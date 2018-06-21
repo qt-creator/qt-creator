@@ -53,7 +53,9 @@ public:
     void generateUserAuthByPasswordRequestPacket(const QByteArray &user,
         const QByteArray &service, const QByteArray &pwd);
     void generateUserAuthByPublicKeyRequestPacket(const QByteArray &user,
-        const QByteArray &service);
+        const QByteArray &service, const QByteArray &key, const QByteArray &signature);
+    void generateQueryPublicKeyPacket(const QByteArray &user, const QByteArray &service,
+                                      const QByteArray &publicKey);
     void generateUserAuthByKeyboardInteractiveRequestPacket(const QByteArray &user,
         const QByteArray &service);
     void generateUserAuthInfoResponsePacket(const QStringList &responses);

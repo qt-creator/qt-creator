@@ -3,7 +3,7 @@
  <class>TextEditor::Internal::SnippetsSettingsPage</class>
  <widget class="QWidget" name="TextEditor::Internal::SnippetsSettingsPage">
   <property name="windowTitle">
-   <string>Form</string>
+   <string/>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0">

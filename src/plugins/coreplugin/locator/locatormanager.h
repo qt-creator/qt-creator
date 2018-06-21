@@ -31,17 +31,19 @@
 
 namespace Core {
 
-namespace Internal { class LocatorWidget; }
+class ILocatorFilter;
 
 class CORE_EXPORT LocatorManager : public QObject
 {
     Q_OBJECT
 
 public:
-    LocatorManager(Internal::LocatorWidget *locatorWidget);
-    ~LocatorManager();
+    LocatorManager();
 
+    static void showFilter(ILocatorFilter *filter);
     static void show(const QString &text, int selectionStart = -1, int selectionLength = 0);
+
+    static QWidget *createLocatorInputWidget(QWidget *window);
 };
 
 } // namespace Core

@@ -43,7 +43,7 @@ namespace Internal {
 FormEditorFactory::FormEditorFactory()
 {
     setId(K_DESIGNER_XML_EDITOR_ID);
-    setDisplayName(qApp->translate("Designer", C_DESIGNER_XML_DISPLAY_NAME));
+    setDisplayName(QCoreApplication::translate("Designer", C_DESIGNER_XML_DISPLAY_NAME));
     addMimeType(FORM_MIMETYPE);
 
     FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_UI, "ui");

@@ -42,7 +42,7 @@ public:
     void accept(DConstVisitor *visitor) const override;
 
 private:
-    bool m_isPlainShape;
+    bool m_isPlainShape = false;
 };
 
 } // namespace qmt

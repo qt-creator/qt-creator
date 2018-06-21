@@ -50,7 +50,11 @@ UncrustifyOptionsPageWidget::UncrustifyOptionsPageWidget(UncrustifySettings *set
     ui->setupUi(this);
     ui->useHomeFile->setText(ui->useHomeFile->text().replace(
                                  "HOME", QDir::toNativeSeparators(QDir::home().absolutePath())));
+    ui->uncrusifyFilePath->setExpectedKind(Utils::PathChooser::File);
+    ui->uncrusifyFilePath->setPromptDialogFilter(tr("Uncrustify file (*.cfg)"));
+
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    ui->command->setCommandVersionArguments({"--version"});
     ui->command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
                                           Uncrustify::tr(Constants::Uncrustify::DISPLAY_NAME)));
     connect(ui->command, &Utils::PathChooser::validChanged, ui->options, &QWidget::setEnabled);
@@ -68,6 +72,8 @@ void UncrustifyOptionsPageWidget::restore()
     ui->mime->setText(m_settings->supportedMimeTypesAsString());
     ui->useOtherFiles->setChecked(m_settings->useOtherFiles());
     ui->useHomeFile->setChecked(m_settings->useHomeFile());
+    ui->useSpecificFile->setChecked(m_settings->useSpecificConfigFile());
+    ui->uncrusifyFilePath->setFileName(m_settings->specificConfigFile());
     ui->useCustomStyle->setChecked(m_settings->useCustomStyle());
     ui->configurations->setCurrentConfiguration(m_settings->customStyle());
     ui->formatEntireFileFallback->setChecked(m_settings->formatEntireFileFallback());
@@ -79,6 +85,8 @@ void UncrustifyOptionsPageWidget::apply()
     m_settings->setSupportedMimeTypes(ui->mime->text());
     m_settings->setUseOtherFiles(ui->useOtherFiles->isChecked());
     m_settings->setUseHomeFile(ui->useHomeFile->isChecked());
+    m_settings->setUseSpecificConfigFile(ui->useSpecificFile->isChecked());
+    m_settings->setSpecificConfigFile(ui->uncrusifyFilePath->fileName());
     m_settings->setUseCustomStyle(ui->useCustomStyle->isChecked());
     m_settings->setCustomStyle(ui->configurations->currentConfiguration());
     m_settings->setFormatEntireFileFallback(ui->formatEntireFileFallback->isChecked());
@@ -95,8 +103,6 @@ UncrustifyOptionsPage::UncrustifyOptionsPage(UncrustifySettings *settings, QObje
     setId(Constants::Uncrustify::OPTION_ID);
     setDisplayName(tr("Uncrustify"));
     setCategory(Constants::OPTION_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::OPTION_CATEGORY_ICON));
 }
 
 QWidget *UncrustifyOptionsPage::widget()

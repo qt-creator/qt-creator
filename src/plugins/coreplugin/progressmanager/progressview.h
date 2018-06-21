@@ -43,8 +43,8 @@ class ProgressView : public QWidget
     Q_OBJECT
 
 public:
-    ProgressView(QWidget *parent = 0);
-    ~ProgressView();
+    ProgressView(QWidget *parent = nullptr);
+    ~ProgressView() override;
 
     void addProgressWidget(QWidget *widget);
     void removeProgressWidget(QWidget *widget);
@@ -54,8 +54,8 @@ public:
     void setReferenceWidget(QWidget *widget);
 
 protected:
-    bool event(QEvent *event);
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool event(QEvent *event) override;
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 signals:
     void hoveredChanged(bool hovered);

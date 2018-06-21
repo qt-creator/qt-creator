@@ -39,7 +39,7 @@ class QMT_EXPORT ClassMembersEdit : public QPlainTextEdit
     class ClassMembersEditPrivate;
 
 public:
-    explicit ClassMembersEdit(QWidget *parent = 0);
+    explicit ClassMembersEdit(QWidget *parent = nullptr);
     ~ClassMembersEdit() override;
 
 signals:

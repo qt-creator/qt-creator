@@ -49,21 +49,104 @@ QMakeVfs::QMakeVfs()
 #ifndef QT_NO_TEXTCODEC
     m_textCodec = 0;
 #endif
+    ref();
 }
 
-bool QMakeVfs::writeFile(const QString &fn, QIODevice::OpenMode mode, VfsFlags flags,
+QMakeVfs::~QMakeVfs()
+{
+    deref();
+}
+
+void QMakeVfs::ref()
+{
+#ifdef PROEVALUATOR_THREAD_SAFE
+    QMutexLocker locker(&s_mutex);
+#endif
+    ++s_refCount;
+}
+
+void QMakeVfs::deref()
+{
+#ifdef PROEVALUATOR_THREAD_SAFE
+    QMutexLocker locker(&s_mutex);
+#endif
+    if (!--s_refCount) {
+        s_fileIdCounter = 0;
+        s_fileIdMap.clear();
+        s_idFileMap.clear();
+    }
+}
+
+#ifdef PROPARSER_THREAD_SAFE
+QMutex QMakeVfs::s_mutex;
+#endif
+int QMakeVfs::s_refCount;
+QAtomicInt QMakeVfs::s_fileIdCounter;
+QHash<QString, int> QMakeVfs::s_fileIdMap;
+QHash<int, QString> QMakeVfs::s_idFileMap;
+
+int QMakeVfs::idForFileName(const QString &fn, VfsFlags flags)
+{
+#ifdef PROEVALUATOR_DUAL_VFS
+    {
+# ifdef PROPARSER_THREAD_SAFE
+        QMutexLocker locker(&m_vmutex);
+# endif
+        int idx = (flags & VfsCumulative) ? 1 : 0;
+        if (flags & VfsCreate) {
+            int &id = m_virtualFileIdMap[idx][fn];
+            if (!id) {
+                id = ++s_fileIdCounter;
+                m_virtualIdFileMap[id] = fn;
+            }
+            return id;
+        }
+        int id = m_virtualFileIdMap[idx].value(fn);
+        if (id || (flags & VfsCreatedOnly))
+            return id;
+    }
+#endif
+    if (!(flags & VfsAccessedOnly)) {
+#ifdef PROPARSER_THREAD_SAFE
+        QMutexLocker locker(&s_mutex);
+#endif
+        int &id = s_fileIdMap[fn];
+        if (!id) {
+            id = ++s_fileIdCounter;
+            s_idFileMap[id] = fn;
+        }
+        return id;
+    }
+    return s_fileIdMap.value(fn);
+}
+
+QString QMakeVfs::fileNameForId(int id)
+{
+#ifdef PROEVALUATOR_DUAL_VFS
+    {
+# ifdef PROPARSER_THREAD_SAFE
+        QMutexLocker locker(&m_vmutex);
+# endif
+        const QString &fn = m_virtualIdFileMap.value(id);
+        if (!fn.isEmpty())
+            return fn;
+    }
+#endif
+#ifdef PROPARSER_THREAD_SAFE
+    QMutexLocker locker(&s_mutex);
+#endif
+    return s_idFileMap.value(id);
+}
+
+bool QMakeVfs::writeFile(int id, QIODevice::OpenMode mode, VfsFlags flags,
                          const QString &contents, QString *errStr)
 {
 #ifndef PROEVALUATOR_FULL
 # ifdef PROEVALUATOR_THREAD_SAFE
     QMutexLocker locker(&m_mutex);
 # endif
-#ifdef PROEVALUATOR_DUAL_VFS
-    QString *cont = &m_files[((flags & VfsCumulative) ? '-' : '+') + fn];
-#else
-    QString *cont = &m_files[fn];
+    QString *cont = &m_files[id];
     Q_UNUSED(flags)
-#endif
     if (mode & QIODevice::Append)
         *cont += contents;
     else
@@ -71,13 +154,13 @@ bool QMakeVfs::writeFile(const QString &fn, QIODevice::OpenMode mode, VfsFlags f
     Q_UNUSED(errStr)
     return true;
 #else
-    QFileInfo qfi(fn);
+    QFileInfo qfi(fileNameForId(id));
     if (!QDir::current().mkpath(qfi.path())) {
         *errStr = fL1S("Cannot create parent directory");
         return false;
     }
     QByteArray bytes = contents.toLocal8Bit();
-    QFile cfile(fn);
+    QFile cfile(qfi.filePath());
     if (!(mode & QIODevice::Append) && cfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         if (cfile.readAll() == bytes) {
             if (flags & VfsExecutable) {
@@ -108,53 +191,13 @@ bool QMakeVfs::writeFile(const QString &fn, QIODevice::OpenMode mode, VfsFlags f
 #endif
 }
 
-#ifndef PROEVALUATOR_FULL
-bool QMakeVfs::readVirtualFile(const QString &fn, VfsFlags flags, QString *contents)
-{
-# ifdef PROEVALUATOR_THREAD_SAFE
-    QMutexLocker locker(&m_mutex);
-# endif
-    QHash<QString, QString>::ConstIterator it;
-# ifdef PROEVALUATOR_DUAL_VFS
-    it = m_files.constFind(((flags & VfsCumulative) ? '-' : '+') + fn);
-    if (it != m_files.constEnd()) {
-        *contents = *it;
-        return true;
-    }
-# else
-    it = m_files.constFind(fn);
-    if (it != m_files.constEnd()
-        && it->constData() != m_magicMissing.constData()
-        && it->constData() != m_magicExisting.constData()) {
-        *contents = *it;
-        return true;
-    }
-    Q_UNUSED(flags)
-# endif
-    return false;
-}
-#endif
-
-QMakeVfs::ReadResult QMakeVfs::readFile(
-        const QString &fn, VfsFlags flags, QString *contents, QString *errStr)
+QMakeVfs::ReadResult QMakeVfs::readFile(int id, QString *contents, QString *errStr)
 {
 #ifndef PROEVALUATOR_FULL
 # ifdef PROEVALUATOR_THREAD_SAFE
     QMutexLocker locker(&m_mutex);
 # endif
-    QHash<QString, QString>::ConstIterator it;
-# ifdef PROEVALUATOR_DUAL_VFS
-    if (!(flags & VfsNoVirtual)) {
-        it = m_files.constFind(((flags & VfsCumulative) ? '-' : '+') + fn);
-        if (it != m_files.constEnd()) {
-            *contents = *it;
-            return ReadOk;
-        }
-    }
-# else
-    Q_UNUSED(flags)
-# endif
-    it = m_files.constFind(fn);
+    auto it = m_files.constFind(id);
     if (it != m_files.constEnd()) {
         if (it->constData() == m_magicMissing.constData()) {
             *errStr = fL1S("No such file or directory");
@@ -165,15 +208,13 @@ QMakeVfs::ReadResult QMakeVfs::readFile(
             return ReadOk;
         }
     }
-#else
-    Q_UNUSED(flags)
 #endif
 
-    QFile file(fn);
+    QFile file(fileNameForId(id));
     if (!file.open(QIODevice::ReadOnly)) {
         if (!file.exists()) {
 #ifndef PROEVALUATOR_FULL
-            m_files[fn] = m_magicMissing;
+            m_files[id] = m_magicMissing;
 #endif
             *errStr = fL1S("No such file or directory");
             return ReadNotFound;
@@ -182,7 +223,7 @@ QMakeVfs::ReadResult QMakeVfs::readFile(
         return ReadOtherError;
     }
 #ifndef PROEVALUATOR_FULL
-    m_files[fn] = m_magicExisting;
+    m_files[id] = m_magicExisting;
 #endif
 
     QByteArray bcont = file.readAll();
@@ -205,15 +246,8 @@ bool QMakeVfs::exists(const QString &fn, VfsFlags flags)
 # ifdef PROEVALUATOR_THREAD_SAFE
     QMutexLocker locker(&m_mutex);
 # endif
-    QHash<QString, QString>::ConstIterator it;
-# ifdef PROEVALUATOR_DUAL_VFS
-    it = m_files.constFind(((flags & VfsCumulative) ? '-' : '+') + fn);
-    if (it != m_files.constEnd())
-        return true;
-# else
-    Q_UNUSED(flags)
-# endif
-    it = m_files.constFind(fn);
+    int id = idForFileName(fn, flags);
+    auto it = m_files.constFind(id);
     if (it != m_files.constEnd())
         return it->constData() != m_magicMissing.constData();
 #else
@@ -221,7 +255,7 @@ bool QMakeVfs::exists(const QString &fn, VfsFlags flags)
 #endif
     bool ex = IoUtils::fileType(fn) == IoUtils::FileIsRegular;
 #ifndef PROEVALUATOR_FULL
-    m_files[fn] = ex ? m_magicExisting : m_magicMissing;
+    m_files[id] = ex ? m_magicExisting : m_magicMissing;
 #endif
     return ex;
 }
@@ -233,7 +267,7 @@ void QMakeVfs::invalidateCache()
 # ifdef PROEVALUATOR_THREAD_SAFE
     QMutexLocker locker(&m_mutex);
 # endif
-    QHash<QString, QString>::Iterator it = m_files.begin(), eit = m_files.end();
+    auto it = m_files.begin(), eit = m_files.end();
     while (it != eit) {
         if (it->constData() == m_magicMissing.constData()
                 ||it->constData() == m_magicExisting.constData())

@@ -54,7 +54,7 @@ static unsigned completionOptions()
             : 0;
 }
 
-TEST(ClangCodeCompleteResults, GetData)
+TEST(ClangCodeCompleteResultsSlowTest, GetData)
 {
     ProjectPart projectPart(Utf8StringLiteral("projectPartId"));
     ClangBackEnd::ProjectParts projects;
@@ -86,7 +86,7 @@ TEST(ClangCodeCompleteResults, GetInvalidData)
     ASSERT_THAT(codeCompleteResults.data(), cxCodeCompleteResults);
 }
 
-TEST(ClangCodeCompleteResults, MoveClangCodeCompleteResults)
+TEST(ClangCodeCompleteResultsSlowTest, MoveClangCodeCompleteResults)
 {
     ProjectPart projectPart(Utf8StringLiteral("projectPartId"));
     ClangBackEnd::ProjectParts projects;

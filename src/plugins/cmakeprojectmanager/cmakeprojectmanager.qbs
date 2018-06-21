@@ -12,12 +12,15 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "QtSupport" }
+    Depends { name: "app_version_header" }
 
     pluginRecommends: [
         "Designer"
     ]
 
     files: [
+        "builddirparameters.cpp",
+        "builddirparameters.h",
         "builddirmanager.cpp",
         "builddirmanager.h",
         "builddirreader.cpp",
@@ -30,6 +33,8 @@ QtcPlugin {
         "cmakebuildsettingswidget.h",
         "cmakebuildstep.cpp",
         "cmakebuildstep.h",
+        "cmakebuildtarget.cpp",
+        "cmakebuildtarget.h",
         "cmakecbpparser.cpp",
         "cmakecbpparser.h",
         "cmakeconfigitem.cpp",
@@ -49,6 +54,8 @@ QtcPlugin {
         "cmakeproject.cpp",
         "cmakeproject.h",
         "cmakeproject.qrc",
+        "cmakeprojectimporter.cpp",
+        "cmakeprojectimporter.h",
         "cmakeprojectconstants.h",
         "cmakeprojectmanager.cpp",
         "cmakeprojectmanager.h",
@@ -64,12 +71,15 @@ QtcPlugin {
         "cmaketoolmanager.h",
         "cmakesettingspage.h",
         "cmakesettingspage.cpp",
-        "cmakesnippetprovider.cpp",
-        "cmakesnippetprovider.h",
         "cmakeindenter.h",
         "cmakeindenter.cpp",
         "cmakeautocompleter.h",
         "cmakeautocompleter.cpp",
+        "cmakespecificsettings.h",
+        "cmakespecificsettings.cpp",
+        "cmakespecificsettingspage.h",
+        "cmakespecificsettingspage.cpp",
+        "cmakespecificsettingspage.ui",
         "configmodel.cpp",
         "configmodel.h",
         "configmodelitemdelegate.cpp",

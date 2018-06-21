@@ -30,6 +30,7 @@
 #include "TypeOfExpression.h"
 
 #include <cplusplus/ASTVisitor.h>
+#include <utils/fileutils.h>
 
 #include <QSet>
 
@@ -38,18 +39,16 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT Usage
 {
 public:
-    Usage()
-        : line(0), col(0), len(0) {}
-
-    Usage(const QString &path, const QString &lineText, int line, int col, int len)
+    Usage() = default;
+    Usage(const Utils::FileName &path, const QString &lineText, int line, int col, int len)
         : path(path), lineText(lineText), line(line), col(col), len(len) {}
 
 public:
-    QString path;
+    Utils::FileName path;
     QString lineText;
-    int line;
-    int col;
-    int len;
+    int line = 0;
+    int col = 0;
+    int len = 0;
 };
 
 class CPLUSPLUS_EXPORT FindUsages: protected ASTVisitor
@@ -286,8 +285,8 @@ private:
     QString fetchLine(unsigned lineNr) const;
 
 private:
-    const Identifier *_id;
-    Symbol *_declSymbol;
+    const Identifier *_id = nullptr;
+    Symbol *_declSymbol = nullptr;
     QList<const Name *> _declSymbolFullyQualifiedName;
     Document::Ptr _doc;
     Snapshot _snapshot;
@@ -299,7 +298,7 @@ private:
     QList<Usage> _usages;
     QSet<unsigned> _processed;
     TypeOfExpression typeofExpression;
-    Scope *_currentScope;
+    Scope *_currentScope = nullptr;
 };
 
 } // namespace CPlusPlus

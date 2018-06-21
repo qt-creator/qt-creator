@@ -25,25 +25,11 @@
 
 #pragma once
 
-#if defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#elif defined(_MSC_VER)
-#    pragma warning(push)
-#    pragma warning( disable : 4100 )
-#endif
-
 #include <clang/AST/AST.h>
 #include <clang/AST/ASTContext.h>
 #include <clang/AST/RecursiveASTVisitor.h>
 #include <clang/Index/USRGeneration.h>
 #include <llvm/ADT/SmallVector.h>
-
-#if defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#    pragma warning(pop)
-#endif
 
 #include <vector>
 
@@ -54,8 +40,8 @@ class FindNamedDeclarationASTVisitor : public clang::RecursiveASTVisitor<FindNam
 public:
     explicit FindNamedDeclarationASTVisitor(const clang::SourceManager &sourceManager,
                                             const clang::SourceLocation cursorSourceLocation)
-        : sourceManager(sourceManager),
-          cursorSourceLocation(cursorSourceLocation)
+        : m_sourceManager(sourceManager),
+          m_cursorSourceLocation(cursorSourceLocation)
     {
     }
 
@@ -96,7 +82,7 @@ public:
 
     std::vector<const clang::NamedDecl*> takeNamedDecl()
     {
-        return std::move(namedDeclarations);
+        return std::move(m_namedDeclarations);
     }
 
 private:
@@ -138,7 +124,7 @@ private:
         bool isValid = isValidLocationWithCursorInside(startLocation, endLocation);
 
         if (isValid)
-            namedDeclarations.push_back(declaration);
+            m_namedDeclarations.push_back(declaration);
 
         return !isValid;
     }
@@ -153,20 +139,20 @@ private:
     bool isCursorLocationBetween(const clang::SourceLocation startLocation,
                                  const clang::SourceLocation endLocation)
     {
-        return cursorSourceLocation == startLocation
-            || cursorSourceLocation == endLocation
-            || (sourceManager.isBeforeInTranslationUnit(startLocation, cursorSourceLocation)
-             && sourceManager.isBeforeInTranslationUnit(cursorSourceLocation, endLocation));
+        return m_cursorSourceLocation == startLocation
+            || m_cursorSourceLocation == endLocation
+            || (m_sourceManager.isBeforeInTranslationUnit(startLocation, m_cursorSourceLocation)
+             && m_sourceManager.isBeforeInTranslationUnit(m_cursorSourceLocation, endLocation));
     }
 
-    std::vector<const clang::NamedDecl*> namedDeclarations;
-    const clang::SourceManager &sourceManager;
-    const clang::SourceLocation cursorSourceLocation;
+    std::vector<const clang::NamedDecl*> m_namedDeclarations;
+    const clang::SourceManager &m_sourceManager;
+    const clang::SourceLocation m_cursorSourceLocation;
 };
 
 inline
 std::vector<const clang::NamedDecl *> namedDeclarationsAt(const clang::ASTContext &Context,
-                                                             const clang::SourceLocation cursorSourceLocation)
+                                                          const clang::SourceLocation cursorSourceLocation)
 {
     const auto &sourceManager = Context.getSourceManager();
     const auto currentFile = sourceManager.getFilename(cursorSourceLocation);

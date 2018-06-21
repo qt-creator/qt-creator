@@ -51,7 +51,7 @@ class CPPTOOLS_EXPORT CppToolsSettings : public QObject
 
 public:
     explicit CppToolsSettings(QObject *parent);
-    ~CppToolsSettings();
+    ~CppToolsSettings() override;
 
     static CppToolsSettings *instance();
 
@@ -66,9 +66,13 @@ public:
     bool showHeaderErrorInfoBar() const;
     void setShowHeaderErrorInfoBar(bool show);
 
+    bool showNoProjectInfoBar() const;
+    void setShowNoProjectInfoBar(bool show);
+
 signals:
     void editorDocumentOutlineSortingChanged(bool isSorted);
     void showHeaderErrorInfoBarChanged(bool isShown);
+    void showNoProjectInfoBarChanged(bool isShown);
 
 private:
     Internal::CppToolsSettingsPrivate *d;

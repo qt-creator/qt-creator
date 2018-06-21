@@ -31,9 +31,6 @@
 namespace qmt {
 
 MItem::MItem()
-    : MObject(),
-      m_isVarietyEditable(true),
-      m_isShapeEditable(false)
 {
 }
 

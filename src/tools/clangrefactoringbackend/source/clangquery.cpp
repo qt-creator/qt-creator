@@ -30,26 +30,14 @@
 
 #include <sourcerangescontainer.h>
 
-#include <QTime>
+#include <stringcache.h>
 
-#if defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#elif defined(_MSC_VER)
-#    pragma warning(push)
-#    pragma warning( disable : 4100 )
-#endif
+#include <QTime>
 
 #include <clang/ASTMatchers/ASTMatchers.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/ASTMatchers/Dynamic/Diagnostics.h>
 #include <clang/ASTMatchers/Dynamic/Parser.h>
-
-#if defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#    pragma warning(pop)
-#endif
 
 using clang::ast_matchers::dynamic::Diagnostics;
 using clang::ast_matchers::dynamic::Parser;
@@ -66,14 +54,16 @@ struct CollectBoundNodes : MatchFinder::MatchCallback {
   }
 };
 
-ClangQuery::ClangQuery(Utils::SmallString &&query)
-    : query(std::move(query))
+ClangQuery::ClangQuery(FilePathCachingInterface &filePathCache,
+                       Utils::SmallString &&query)
+    : m_query(std::move(query)),
+      m_filePathCache(filePathCache)
 {
 }
 
 void ClangQuery::setQuery(Utils::SmallString &&query)
 {
-    this->query = std::move(query);
+    this->m_query = std::move(query);
 }
 
 void ClangQuery::findLocations()
@@ -88,7 +78,7 @@ void ClangQuery::findLocations()
                    std::make_move_iterator(asts.end()),
                    [&] (std::unique_ptr<clang::ASTUnit> &&ast) {
         Diagnostics diagnostics;
-        auto optionalMatcher = Parser::parseMatcherExpression({query.data(), query.size()},
+        auto optionalMatcher = Parser::parseMatcherExpression({m_query.data(), m_query.size()},
                                                               nullptr,
                                                               &diagnostics);
         parseDiagnostics(diagnostics);
@@ -99,19 +89,19 @@ void ClangQuery::findLocations()
 
 SourceRangesContainer ClangQuery::takeSourceRanges()
 {
-    return std::move(sourceRangesContainer);
+    return std::move(m_sourceRangesContainer);
 }
 
-std::vector<DynamicASTMatcherDiagnosticContainer> ClangQuery::takeDiagnosticContainers()
+DynamicASTMatcherDiagnosticContainers ClangQuery::takeDiagnosticContainers()
 {
-    return std::move(diagnosticContainers_);
+    return std::move(m_diagnosticContainers_);
 }
 
 namespace {
 
 V2::SourceRangeContainer convertToContainer(const clang::ast_matchers::dynamic::SourceRange sourceRange)
 {
-    return V2::SourceRangeContainer(0,
+    return V2::SourceRangeContainer({1, 0},
                                     sourceRange.Start.Line,
                                     sourceRange.Start.Column,
                                     0,
@@ -142,7 +132,7 @@ ClangQueryDiagnosticErrorType convertToErrorType(Diagnostics::ErrorType clangErr
        ERROR_RETURN_CASE(ParserInvalidToken)
        ERROR_RETURN_CASE(ParserMalformedBindExpr)
        ERROR_RETURN_CASE(ParserTrailingCode)
-       ERROR_RETURN_CASE(ParserUnsignedError)
+       ERROR_RETURN_CASE(ParserNumberError)
        ERROR_RETURN_CASE(ParserOverloadedType)
     }
 
@@ -169,8 +159,8 @@ void ClangQuery::parseDiagnostics(const clang::ast_matchers::dynamic::Diagnostic
     auto errors = diagnostics.errors();
 
     for (const auto &errorContent : errors) {
-        diagnosticContainers_.emplace_back();
-        DynamicASTMatcherDiagnosticContainer &diagnosticContainer = diagnosticContainers_.back();
+        m_diagnosticContainers_.emplace_back();
+        DynamicASTMatcherDiagnosticContainer &diagnosticContainer = m_diagnosticContainers_.back();
 
         for (const auto &message : errorContent.Messages) {
             diagnosticContainer.insertMessage(convertToContainer(message.Range),
@@ -226,7 +216,8 @@ void ClangQuery::matchLocation(
 
         SourceRangeExtractor extractor(ast->getSourceManager(),
                                        ast->getLangOpts(),
-                                       sourceRangesContainer);
+                                       m_filePathCache,
+                                       m_sourceRangesContainer);
         extractor.addSourceRanges(sourceRanges);
 
     }

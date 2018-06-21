@@ -25,8 +25,9 @@
 
 #include "googletest.h"
 #include "diagnosticcontainer-matcher.h"
+#include "testenvironment.h"
 
-#include <clangbackendipc_global.h>
+#include <clangsupport_global.h>
 #include <clangdocument.h>
 #include <diagnosticcontainer.h>
 #include <diagnosticset.h>
@@ -63,7 +64,8 @@ const Utf8String headerFilePath = Utf8StringLiteral(TESTDATA_DIR"/diagnostic_dia
 class DiagnosticSet : public ::testing::Test
 {
 protected:
-    ProjectPart projectPart{Utf8StringLiteral("projectPartId"), {Utf8StringLiteral("-pedantic")}};
+    ProjectPart projectPart{Utf8StringLiteral("projectPartId"),
+                TestEnvironment::addPlatformArguments({Utf8StringLiteral("-pedantic")})};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{projects, unsavedFiles};
@@ -81,7 +83,9 @@ protected:
     DiagnosticContainer expectedDiagnostic(ChildMode childMode) const;
 };
 
-TEST_F(DiagnosticSet, SetHasContent)
+using DiagnosticSetSlowTest = DiagnosticSet;
+
+TEST_F(DiagnosticSetSlowTest, SetHasContent)
 {
     document.parse();
     const auto set = document.translationUnit().diagnostics();
@@ -89,7 +93,7 @@ TEST_F(DiagnosticSet, SetHasContent)
     ASSERT_THAT(set.size(), 1);
 }
 
-TEST_F(DiagnosticSet, MoveConstructor)
+TEST_F(DiagnosticSetSlowTest, MoveConstructor)
 {
     document.parse();
     auto set = document.translationUnit().diagnostics();
@@ -100,7 +104,7 @@ TEST_F(DiagnosticSet, MoveConstructor)
     ASSERT_FALSE(set2.isNull());
 }
 
-TEST_F(DiagnosticSet, MoveAssigment)
+TEST_F(DiagnosticSetSlowTest, MoveAssigment)
 {
     document.parse();
     auto set = document.translationUnit().diagnostics();
@@ -112,7 +116,7 @@ TEST_F(DiagnosticSet, MoveAssigment)
     ASSERT_FALSE(set.isNull());
 }
 
-TEST_F(DiagnosticSet, MoveSelfAssigment)
+TEST_F(DiagnosticSetSlowTest, MoveSelfAssigment)
 {
     document.parse();
     auto set = document.translationUnit().diagnostics();
@@ -122,7 +126,7 @@ TEST_F(DiagnosticSet, MoveSelfAssigment)
     ASSERT_FALSE(set.isNull());
 }
 
-TEST_F(DiagnosticSet, FirstElementEqualBegin)
+TEST_F(DiagnosticSetSlowTest, FirstElementEqualBegin)
 {
     document.parse();
     auto set = document.translationUnit().diagnostics();
@@ -130,7 +134,7 @@ TEST_F(DiagnosticSet, FirstElementEqualBegin)
     ASSERT_TRUE(set.front() == *set.begin());
 }
 
-TEST_F(DiagnosticSet, BeginIsUnequalEnd)
+TEST_F(DiagnosticSetSlowTest, BeginIsUnequalEnd)
 {
     document.parse();
     auto set = document.translationUnit().diagnostics();
@@ -138,7 +142,7 @@ TEST_F(DiagnosticSet, BeginIsUnequalEnd)
     ASSERT_TRUE(set.begin() != set.end());
 }
 
-TEST_F(DiagnosticSet, BeginPlusOneIsEqualEnd)
+TEST_F(DiagnosticSetSlowTest, BeginPlusOneIsEqualEnd)
 {
     document.parse();
     auto set = document.translationUnit().diagnostics();
@@ -146,7 +150,7 @@ TEST_F(DiagnosticSet, BeginPlusOneIsEqualEnd)
     ASSERT_TRUE(++set.begin() == set.end());
 }
 
-TEST_F(DiagnosticSet, ToDiagnosticContainersLetThroughByDefault)
+TEST_F(DiagnosticSetSlowTest, ToDiagnosticContainersLetThroughByDefault)
 {
     const auto diagnosticContainerWithoutChild = expectedDiagnostic(WithChild);
     documentMainFile.parse();
@@ -156,7 +160,7 @@ TEST_F(DiagnosticSet, ToDiagnosticContainersLetThroughByDefault)
     ASSERT_THAT(diagnostics, Contains(IsDiagnosticContainer(diagnosticContainerWithoutChild)));
 }
 
-TEST_F(DiagnosticSet, ToDiagnosticContainersFiltersOutTopLevelItem)
+TEST_F(DiagnosticSetSlowTest, ToDiagnosticContainersFiltersOutTopLevelItem)
 {
     documentMainFile.parse();
     const ::DiagnosticSet diagnosticSetWithChildren{documentMainFile.translationUnit().diagnostics()};

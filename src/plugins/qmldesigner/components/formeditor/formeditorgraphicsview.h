@@ -32,17 +32,17 @@ class FormEditorGraphicsView : public QGraphicsView
 {
 Q_OBJECT
 public:
-    explicit FormEditorGraphicsView(QWidget *parent = 0);
+    explicit FormEditorGraphicsView(QWidget *parent = nullptr);
 
     void setRootItemRect(const QRectF &rect);
     QRectF rootItemRect() const;
 
     void activateCheckboardBackground();
     void activateColoredBackground(const QColor &color);
+    void drawBackground(QPainter *painter, const QRectF &rect) override;
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
-    void drawBackground(QPainter *painter, const QRectF &rect) override;
     void wheelEvent(QWheelEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;

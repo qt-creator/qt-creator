@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorDebuggers>
-<!-- Written by QtCreator 3.3.81, 2015-02-17T18:11:11. -->
+<!-- Written by QtCreator 4.2.2, 2017-02-10T17:36:35. -->
 <qtcreator>
  <data>
   <variable>DebuggerItem.0</variable>
   <valuemap type="QVariantMap">
    <valuelist type="QVariantList" key="Abis">
-    <value type="QString">x86-windows-msvc2010-pe-64bit</value>
+    <value type="QString">x86-windows-msvc2015-pe-SQUISH_DEBUGGER_BITNESSbit</value>
    </valuelist>
    <value type="bool" key="AutoDetected">true</value>
    <value type="QString" key="AutoDetectionSource"></value>
-   <value type="QString" key="Binary">C:/Program Files/Debugging Tools for Windows (x64)/cdb.exe</value>
-   <value type="QString" key="DisplayName">Auto-detected CDB at C:\Program Files\Debugging Tools for Windows (x64)\cdb.exe</value>
+   <value type="QString" key="Binary">C:/Program Files (x86)/Windows Kits/10/Debuggers/SQUISH_DEBUGGER_ARCHITECTURE/cdb.exe</value>
+   <value type="QString" key="DisplayName">Auto-detected CDB at C:\Program Files (x86)\Windows Kits\10\Debuggers\SQUISH_DEBUGGER_ARCHITECTURE\cdb.exe</value>
    <value type="int" key="EngineType">4</value>
-   <value type="QString" key="Id">{811977c9-ea95-4616-bc28-c66d1935ff65}</value>
+   <value type="QString" key="Id">{1b25f20a-d584-4fb7-85b3-74dd15b82f6f}</value>
+   <value type="QDateTime" key="LastModified"></value>
    <value type="QString" key="Version"></value>
+   <value type="QString" key="WorkingDirectory"></value>
   </valuemap>
  </data>
  <data>
@@ -33,23 +35,8 @@
   </valuemap>
  </data>
  <data>
-  <variable>DebuggerItem.2</variable>
-  <valuemap type="QVariantMap">
-   <valuelist type="QVariantList" key="Abis">
-    <value type="QString">arm-linux-generic-elf-32bit</value>
-   </valuelist>
-   <value type="bool" key="AutoDetected">true</value>
-   <value type="QString" key="AutoDetectionSource"></value>
-   <value type="QString" key="Binary">C:/QtSDK/pythongdb/python_2.7based/gdb-arm-none-linux-gnueabi.exe</value>
-   <value type="QString" key="DisplayName">Extracted from Kit Fremantle</value>
-   <value type="int" key="EngineType">1</value>
-   <value type="QString" key="Id">{5ad1d623-7300-41b4-ba32-99e11bfcb988}</value>
-   <value type="QString" key="Version"></value>
-  </valuemap>
- </data>
- <data>
   <variable>DebuggerItem.Count</variable>
-  <value type="int">3</value>
+  <value type="int">2</value>
  </data>
  <data>
   <variable>Version</variable>

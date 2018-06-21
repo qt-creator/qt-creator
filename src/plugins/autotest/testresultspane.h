@@ -38,6 +38,8 @@ class QKeyEvent;
 class QLabel;
 class QModelIndex;
 class QMenu;
+class QPlainTextEdit;
+class QStackedWidget;
 class QToolButton;
 QT_END_NAMESPACE
 
@@ -50,12 +52,14 @@ namespace Internal {
 
 class TestResultModel;
 class TestResultFilterModel;
+class TestResult;
+class TestEditorMark;
 
 class ResultsTreeView : public Utils::TreeView
 {
     Q_OBJECT
 public:
-    explicit ResultsTreeView(QWidget *parent = 0);
+    explicit ResultsTreeView(QWidget *parent = nullptr);
 
 signals:
     void copyShortcutTriggered();
@@ -88,9 +92,11 @@ public:
     void goToPrev() override;
 
     void addTestResult(const TestResultPtr &result);
+    void addOutput(const QByteArray &output);
+    void showTestResult(const QModelIndex &index);
 
 private:
-    explicit TestResultsPane(QObject *parent = 0);
+    explicit TestResultsPane(QObject *parent = nullptr);
 
     void onItemActivated(const QModelIndex &index);
     void onRunAllTriggered();
@@ -104,14 +110,19 @@ private:
     void onTestRunStarted();
     void onTestRunFinished();
     void onScrollBarRangeChanged(int, int max);
-    void updateRunActions();
     void onCustomContextMenuRequested(const QPoint &pos);
-    void onCopyItemTriggered(const QModelIndex &idx);
+    const TestResult *getTestResult(const QModelIndex &idx);
+    void onCopyItemTriggered(const TestResult *result);
     void onCopyWholeTriggered();
     void onSaveWholeTriggered();
+    void onRunThisTestTriggered(TestRunMode runMode, const TestResult *result);
+    void toggleOutputStyle();
     QString getWholeOutput(const QModelIndex &parent = QModelIndex());
 
-    QWidget *m_outputWidget;
+    void createMarks(const QModelIndex& parent = QModelIndex());
+    void clearMarks();
+
+    QStackedWidget *m_outputWidget;
     QFrame *m_summaryWidget;
     QLabel *m_summaryLabel;
     ResultsTreeView *m_treeView;
@@ -121,13 +132,16 @@ private:
     QToolButton *m_expandCollapse;
     QToolButton *m_runAll;
     QToolButton *m_runSelected;
+    QToolButton *m_runFile;
     QToolButton *m_stopTestRun;
     QToolButton *m_filterButton;
+    QToolButton *m_outputToggleButton;
+    QPlainTextEdit *m_textOutput;
     QMenu *m_filterMenu;
-    bool m_wasVisibleBefore = false;
     bool m_autoScroll = false;
     bool m_atEnd = false;
     bool m_testRunning = false;
+    QVector<TestEditorMark *> m_marks;
 };
 
 } // namespace Internal

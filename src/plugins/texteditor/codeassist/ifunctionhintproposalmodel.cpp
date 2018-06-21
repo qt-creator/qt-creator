@@ -25,6 +25,8 @@
 
 #include "ifunctionhintproposalmodel.h"
 
+#include <QString>
+
 using namespace TextEditor;
 
 IFunctionHintProposalModel::IFunctionHintProposalModel()
@@ -32,3 +34,8 @@ IFunctionHintProposalModel::IFunctionHintProposalModel()
 
 IFunctionHintProposalModel::~IFunctionHintProposalModel()
 {}
+
+QString IFunctionHintProposalModel::id(int /*index*/) const
+{
+    return QString();
+}

@@ -49,11 +49,14 @@ class Engine;
 class DiagnosticMessage;
 
 class QML_PARSER_EXPORT Directives {
+
 public:
     virtual ~Directives() {}
 
-    virtual void pragmaLibrary()
+    virtual void pragmaLibrary(int line, int column)
     {
+        Q_UNUSED(line);
+        Q_UNUSED(column);
     }
 
     virtual void importFile(const QString &jsfile, const QString &module, int line, int column)
@@ -84,7 +87,6 @@ public:
         T_CHAR = T_RESERVED_WORD,
         T_CLASS = T_RESERVED_WORD,
         T_DOUBLE = T_RESERVED_WORD,
-        T_ENUM = T_RESERVED_WORD,
         T_EXPORT = T_RESERVED_WORD,
         T_EXTENDS = T_RESERVED_WORD,
         T_FINAL = T_RESERVED_WORD,
@@ -237,3 +239,4 @@ private:
 } // end of namespace QmlJS
 
 QT_QML_END_NAMESPACE
+

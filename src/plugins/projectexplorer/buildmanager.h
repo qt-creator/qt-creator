@@ -50,9 +50,9 @@ public:
     static bool isBuilding();
     static bool tasksAvailable();
 
-    static bool buildLists(QList<BuildStepList *> bsls, const QStringList &stepListNames,
-                    const QStringList &preambelMessage = QStringList());
-    static bool buildList(BuildStepList *bsl, const QString &stepListName);
+    static bool buildLists(QList<BuildStepList *> bsls,
+                           const QStringList &preambelMessage = QStringList());
+    static bool buildList(BuildStepList *bsl);
 
     static bool isBuilding(const Project *p);
     static bool isBuilding(const Target *t);
@@ -95,7 +95,7 @@ private:
     static void startBuildQueue();
     static void nextStep();
     static void clearBuildQueue();
-    static bool buildQueueAppend(QList<BuildStep *> steps, QStringList names, const QStringList &preambleMessage = QStringList());
+    static bool buildQueueAppend(const QList<BuildStep *> &steps, QStringList names, const QStringList &preambleMessage = QStringList());
     static void incrementActiveBuildSteps(BuildStep *bs);
     static void decrementActiveBuildSteps(BuildStep *bs);
     static void disconnectOutput(BuildStep *bs);

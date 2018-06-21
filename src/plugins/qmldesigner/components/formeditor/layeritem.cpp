@@ -36,6 +36,7 @@ LayerItem::LayerItem(FormEditorScene* scene)
     scene->addItem(this);
     setZValue(1);
     setFlag(QGraphicsItem::ItemIsMovable, false);
+    setAcceptedMouseButtons(Qt::NoButton);
 }
 
 LayerItem::~LayerItem()

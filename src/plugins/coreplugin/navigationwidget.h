@@ -33,7 +33,6 @@
 QT_BEGIN_NAMESPACE
 class QSettings;
 class QAbstractItemModel;
-class QStandardItemModel;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -43,22 +42,31 @@ class NavigationWidget;
 struct NavigationWidgetPrivate;
 namespace Internal { class NavigationSubWidget; }
 
+enum class Side {
+    Left,
+    Right
+};
+
 class CORE_EXPORT NavigationWidgetPlaceHolder : public QWidget
 {
     Q_OBJECT
     friend class Core::NavigationWidget;
 
 public:
-    explicit NavigationWidgetPlaceHolder(Id mode, QWidget *parent = 0);
-    virtual ~NavigationWidgetPlaceHolder();
-    static NavigationWidgetPlaceHolder* current();
-    void applyStoredSize(int width);
+    explicit NavigationWidgetPlaceHolder(Id mode, Side side, QWidget *parent = nullptr);
+    ~NavigationWidgetPlaceHolder() override;
+    static NavigationWidgetPlaceHolder *current(Side side);
+    static void setCurrent(Side side, NavigationWidgetPlaceHolder *navWidget);
+    void applyStoredSize();
 
 private:
     void currentModeAboutToChange(Id mode);
+    int storedWidth() const;
 
     Id m_mode;
-    static NavigationWidgetPlaceHolder* m_current;
+    Side m_side;
+    static NavigationWidgetPlaceHolder *s_currentLeft;
+    static NavigationWidgetPlaceHolder *s_currentRight;
 };
 
 class CORE_EXPORT NavigationWidget : public MiniSplitter
@@ -72,24 +80,23 @@ public:
         FactoryPriorityRole
     };
 
-    explicit NavigationWidget(QAction *toggleSideBarAction);
-    virtual ~NavigationWidget();
+    explicit NavigationWidget(QAction *toggleSideBarAction, Side side);
+    ~NavigationWidget() override;
 
     void setFactories(const QList<INavigationWidgetFactory*> &factories);
 
+    QString settingsGroup() const;
     void saveSettings(QSettings *settings);
     void restoreSettings(QSettings *settings);
 
-    QWidget *activateSubWidget(Id factoryId);
+    QWidget *activateSubWidget(Id factoryId, int preferredPosition);
     void closeSubWidgets();
 
     bool isShown() const;
     void setShown(bool b);
 
-    bool isSuppressed() const;
-    void setSuppressed(bool b);
-
-    static NavigationWidget* instance();
+    static NavigationWidget *instance(Side side);
+    static QWidget *activateSubWidget(Id factoryId, Side fallbackSide);
 
     int storedWidth();
 
@@ -100,14 +107,16 @@ public:
     QAbstractItemModel *factoryModel() const;
 
 protected:
-    void resizeEvent(QResizeEvent *);
+    void resizeEvent(QResizeEvent *) override;
 
 private:
     void splitSubWidget(int factoryIndex);
     void closeSubWidget();
     void updateToggleText();
-    Internal::NavigationSubWidget *insertSubItem(int position, int index);
+    Internal::NavigationSubWidget *insertSubItem(int position, int factoryIndex);
     int factoryIndex(Id id);
+    QString settingsKey(const QString &key) const;
+    void onSubWidgetFactoryIndexChanged(int factoryIndex);
 
     NavigationWidgetPrivate *d;
 };

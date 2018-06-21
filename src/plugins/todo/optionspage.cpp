@@ -49,7 +49,8 @@ OptionsPage::OptionsPage(const Settings &settings, QObject *parent) :
     setDisplayName(tr("To-Do"));
     setCategory("To-Do");
     setDisplayCategory(tr("To-Do"));
-    setCategoryIcon(Utils::Icon(Constants::ICON_TODO));
+    setCategoryIcon(Utils::Icon({{":/todoplugin/images/settingscategory_todo.png",
+                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }
 
 void OptionsPage::setSettings(const Settings &settings)
@@ -69,6 +70,9 @@ QWidget *OptionsPage::widget()
 void OptionsPage::apply()
 {
     Settings newSettings = m_widget->settings();
+
+    // "apply" itself is interpreted as "use these keywords, also for other themes".
+    newSettings.keywordsEdited = true;
 
     if (newSettings != m_settings) {
         m_settings = newSettings;

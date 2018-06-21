@@ -55,7 +55,7 @@ WaitForStopDialog::WaitForStopDialog(QList<ProjectExplorer::RunControl *> runCon
     updateProgressText();
 
     foreach (RunControl *rc, runControls)
-        connect(rc, &RunControl::finished, this, &WaitForStopDialog::runControlFinished);
+        connect(rc, &RunControl::stopped, this, &WaitForStopDialog::runControlFinished);
 
     m_timer.start();
 }

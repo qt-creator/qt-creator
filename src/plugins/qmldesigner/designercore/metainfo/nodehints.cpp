@@ -46,33 +46,47 @@
 
 #include <QJSEngine>
 
+#include <memory>
+#include <mutex>
+
 namespace QmlDesigner {
 
 
+static bool isSwipeView(const ModelNode &node)
+{
+    if (node.metaInfo().isValid()
+            && node.metaInfo().isSubclassOf("QtQuick.Controls.SwipeView"))
+        return true;
+
+    return false;
+}
+
 namespace Internal {
 
-static QJSEngine *s_qJSEngine= nullptr;
+static std::once_flag s_singletonFlag;
+static std::unique_ptr<QJSEngine> s_qJSEngine;
 static JSObject *s_jsObject = nullptr;
 
-static QVariant evaluateExpression(const QString &expression, const ModelNode &modelNode)
+static QVariant evaluateExpression(const QString &expression, const ModelNode &modelNode, const ModelNode &otherNode)
 {
-    if (!s_qJSEngine) {
-        s_qJSEngine = new QJSEngine;
-        s_jsObject = new JSObject(s_qJSEngine);
+    std::call_once(s_singletonFlag, []() {
+        s_qJSEngine.reset(new QJSEngine);
+        s_jsObject = new JSObject(s_qJSEngine.get());
         QJSValue jsValue = s_qJSEngine->newQObject(s_jsObject);
         s_qJSEngine->globalObject().setProperty("model", jsValue);
-    }
+    });
 
     s_jsObject->setModelNode(modelNode);
+    s_jsObject->setOtherNode(otherNode);
+
+    QJSValue value = s_qJSEngine->evaluate(expression);
+
+    if (value.isError())
+        return expression;
     return s_qJSEngine->evaluate(expression).toVariant();
 }
 
 } //Internal
-
-QmlDesigner::NodeHints::NodeHints()
-{
-
-}
 
 QmlDesigner::NodeHints::NodeHints(const ModelNode &node) : m_modelNode(node)
 {
@@ -80,11 +94,18 @@ QmlDesigner::NodeHints::NodeHints(const ModelNode &node) : m_modelNode(node)
         const ItemLibraryInfo *libraryInfo = model()->metaInfo().itemLibraryInfo();
         QList <ItemLibraryEntry> itemLibraryEntryList = libraryInfo->entriesForType(
                     modelNode().type(), modelNode().majorVersion(), modelNode().minorVersion());
-        m_hints =  itemLibraryEntryList.first().hints();
+
+        if (!itemLibraryEntryList.isEmpty())
+            m_hints = itemLibraryEntryList.constFirst().hints();
     }
 }
 
-bool NodeHints::canBeContainer() const
+NodeHints::NodeHints(const ItemLibraryEntry &entry)
+{
+    m_hints = entry.hints();
+}
+
+bool NodeHints::canBeContainerFor(const ModelNode &potenialChild) const
 {
     /* The default is true for now to avoid confusion. Once our .metaInfo files in Qt
        use the feature we can change the default to false. */
@@ -92,13 +113,16 @@ bool NodeHints::canBeContainer() const
     if (!isValid())
         return true;
 
-    return evaluateBooleanExpression("canBeContainer", true);
+    return evaluateBooleanExpression("canBeContainer", true, potenialChild);
 }
 
 bool NodeHints::forceClip() const
 {
     if (!isValid())
         return false;
+
+    if (isSwipeView(modelNode()))
+        return true;
 
     return evaluateBooleanExpression("forceClip", false);
 }
@@ -108,23 +132,20 @@ bool NodeHints::doesLayoutChildren() const
     if (!isValid())
         return false;
 
+    if (isSwipeView(modelNode()))
+        return true;
+
     return evaluateBooleanExpression("doesLayoutChildren", false);
 }
 
 bool NodeHints::canBeDroppedInFormEditor() const
 {
-    if (!isValid())
-        return false;
-
-    return evaluateBooleanExpression("canBeDroppedInFormEditor", false);
+    return evaluateBooleanExpression("canBeDroppedInFormEditor", true);
 }
 
 bool NodeHints::canBeDroppedInNavigator() const
 {
-    if (!isValid())
-        return false;
-
-    return evaluateBooleanExpression("canBeDroppedInNavigator", false);
+    return evaluateBooleanExpression("canBeDroppedInNavigator", true);
 }
 
 bool NodeHints::isMovable() const
@@ -135,12 +156,28 @@ bool NodeHints::isMovable() const
     return evaluateBooleanExpression("isMovable", true);
 }
 
+bool NodeHints::isResizable() const
+{
+    return evaluateBooleanExpression("isResizable", true);
+}
+
 bool NodeHints::isStackedContainer() const
 {
     if (!isValid())
         return false;
 
+    if (isSwipeView(modelNode()))
+        return true;
+
     return evaluateBooleanExpression("isStackedContainer", false);
+}
+
+bool NodeHints::canBeReparentedTo(const ModelNode &potenialParent)
+{
+    if (!isValid())
+        return true;
+
+    return evaluateBooleanExpression("canBeReparented", true, potenialParent);
 }
 
 QString NodeHints::indexPropertyForStackedContainer() const
@@ -153,12 +190,30 @@ QString NodeHints::indexPropertyForStackedContainer() const
     if (expression.isEmpty())
         return QString();
 
-    return Internal::evaluateExpression(expression, modelNode()).toString();
+    return Internal::evaluateExpression(expression, modelNode(), ModelNode()).toString();
+}
+
+bool NodeHints::takesOverRenderingOfChildren() const
+{
+    if (!isValid())
+        return false;
+
+    return evaluateBooleanExpression("takesOverRenderingOfChildren", false);
 }
 
 QHash<QString, QString> NodeHints::hints() const
 {
     return m_hints;
+}
+
+NodeHints NodeHints::fromModelNode(const ModelNode &modelNode)
+{
+    return NodeHints(modelNode);
+}
+
+NodeHints NodeHints::fromItemLibraryEntry(const ItemLibraryEntry &entry)
+{
+    return NodeHints(entry);
 }
 
 ModelNode NodeHints::modelNode() const
@@ -176,14 +231,14 @@ Model *NodeHints::model() const
     return modelNode().model();
 }
 
-bool NodeHints::evaluateBooleanExpression(const QString &hintName, bool defaultValue) const
+bool NodeHints::evaluateBooleanExpression(const QString &hintName, bool defaultValue, const ModelNode otherNode) const
 {
     const QString expression = m_hints.value(hintName);
 
     if (expression.isEmpty())
         return defaultValue;
 
-    return Internal::evaluateExpression(expression, modelNode()).toBool();
+    return Internal::evaluateExpression(expression, modelNode(), otherNode).toBool();
 }
 
 namespace Internal {
@@ -197,6 +252,12 @@ void JSObject::setModelNode(const ModelNode &node)
 {
     m_modelNode = node;
     emit modelNodeChanged();
+}
+
+void JSObject::setOtherNode(const ModelNode &node)
+{
+    m_otherNode = node;
+    emit otherNodeChanged();
 }
 
 bool JSObject::hasParent() const
@@ -215,6 +276,16 @@ bool JSObject::currentParentIsRoot() const
     return m_modelNode.hasParentProperty()
             && m_modelNode.parentProperty().isValid()
             && m_modelNode.parentProperty().parentModelNode().isRootNode();
+}
+
+bool JSObject::potentialParentIsRoot() const
+{
+    return m_otherNode.isValid() && m_otherNode.isRootNode();
+}
+
+bool JSObject::potentialChildIsRoot() const
+{
+    return m_otherNode.isValid() && m_otherNode.isRootNode();
 }
 
 bool JSObject::isSubclassOf(const QString &typeName)
@@ -239,12 +310,32 @@ bool JSObject::rootItemIsSubclassOf(const QString &typeName)
 
 bool JSObject::currentParentIsSubclassOf(const QString &typeName)
 {
-    if ( m_modelNode.hasParentProperty()
-         && m_modelNode.parentProperty().isValid()) {
+    if (m_modelNode.hasParentProperty()
+            && m_modelNode.parentProperty().isValid()) {
         NodeMetaInfo metaInfo =  m_modelNode.parentProperty().parentModelNode().metaInfo();
         if (metaInfo.isValid())
             return metaInfo.isSubclassOf(typeName.toUtf8());
     }
+    return false;
+}
+
+bool JSObject::potentialParentIsSubclassOf(const QString &typeName)
+{
+    NodeMetaInfo metaInfo = m_otherNode.metaInfo();
+
+    if (metaInfo.isValid())
+        return metaInfo.isSubclassOf(typeName.toUtf8());
+
+    return false;
+}
+
+bool JSObject::potentialChildIsSubclassOf(const QString &typeName)
+{
+    NodeMetaInfo metaInfo = m_otherNode.metaInfo();
+
+    if (metaInfo.isValid())
+        return metaInfo.isSubclassOf(typeName.toUtf8());
+
     return false;
 }
 

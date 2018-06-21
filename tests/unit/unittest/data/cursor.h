@@ -39,4 +39,6 @@ struct NonFinalStruct
 {
     virtual void FinalVirtualMethod() final;
     void function();
+protected:
+    void ProtectedMethodAccessSpecifier();
 };

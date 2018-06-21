@@ -28,7 +28,6 @@
 namespace GenericProjectManager {
 namespace Constants {
 
-const char PROJECTCONTEXT[]     = "GenericProject.ProjectContext";
 const char GENERICMIMETYPE[]    = "text/x-generic-project"; // ### FIXME
 
 // Contexts

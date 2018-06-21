@@ -55,6 +55,21 @@ QString AddSignalHandlerDialog::signal() const
     return m_signal;
 }
 
+bool checkForPropertyChanges(const QString &signal)
+{
+    static const QStringList importantProperties = {"pressed","position","value",
+                                             "checked","currentIndex","index",
+                                             "text","currentText", "currentItem"};
+    if (!signal.endsWith("Changed"))
+        return true;
+
+    QString property = signal;
+    property.chop(7);
+
+    /* Some important property changes we keep */
+    return importantProperties.contains(property);
+}
+
 void AddSignalHandlerDialog::updateComboBox()
 {
     m_ui->comboBox->clear();
@@ -62,12 +77,10 @@ void AddSignalHandlerDialog::updateComboBox()
         if (m_ui->all->isChecked()) {
             m_ui->comboBox->addItem(signal);
         } else if (m_ui->properties->isChecked()) {
-            if (signal.contains(QLatin1String("Changed")))
+            if (signal.endsWith("Changed"))
                 m_ui->comboBox->addItem(signal);
-        } else {
-            if (!signal.contains(QLatin1String("Changed")))
-                m_ui->comboBox->addItem(signal);
-        }
+        } else if (checkForPropertyChanges(signal))
+            m_ui->comboBox->addItem(signal);
     }
 }
 

@@ -53,7 +53,7 @@ void RemoveItemFocusDelegate::paint(QPainter* painter, const QStyleOptionViewIte
 }
 
 SessionView::SessionView(QWidget *parent)
-    : QTreeView(parent)
+    : Utils::TreeView(parent)
 {
     setItemDelegate(new RemoveItemFocusDelegate(this));
     setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -63,12 +63,15 @@ SessionView::SessionView(QWidget *parent)
 
     setModel(&m_sessionModel);
 
+    // Ensure that the full session name is visible.
+    header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+
     QItemSelection firstRow(m_sessionModel.index(0,0), m_sessionModel.index(
         0, m_sessionModel.columnCount() - 1));
     selectionModel()->select(firstRow, QItemSelectionModel::QItemSelectionModel::
         SelectCurrent);
 
-    connect(this, &QTreeView::activated, [this](const QModelIndex &index){
+    connect(this, &Utils::TreeView::activated, [this](const QModelIndex &index){
         emit activated(m_sessionModel.sessionAt(index.row()));
     });
     connect(selectionModel(), &QItemSelectionModel::currentRowChanged, [this]
@@ -86,7 +89,7 @@ SessionView::SessionView(QWidget *parent)
 
 void SessionView::createNewSession()
 {
-    m_sessionModel.newSession();
+    m_sessionModel.newSession(this);
 }
 
 void SessionView::deleteCurrentSession()
@@ -96,12 +99,12 @@ void SessionView::deleteCurrentSession()
 
 void SessionView::cloneCurrentSession()
 {
-    m_sessionModel.cloneSession(currentSession());
+    m_sessionModel.cloneSession(this, currentSession());
 }
 
 void SessionView::renameCurrentSession()
 {
-    m_sessionModel.renameSession(currentSession());
+    m_sessionModel.renameSession(this, currentSession());
 }
 
 void SessionView::switchToCurrentSession()
@@ -133,7 +136,7 @@ void SessionView::selectSession(const QString &sessionName)
 
 void SessionView::showEvent(QShowEvent *event)
 {
-    QTreeView::showEvent(event);
+    Utils::TreeView::showEvent(event);
     selectActiveSession();
     setFocus();
 }

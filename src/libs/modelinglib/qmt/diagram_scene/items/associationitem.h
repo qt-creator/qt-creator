@@ -40,7 +40,7 @@ class AssociationItem : public RelationItem
 {
 public:
     AssociationItem(DAssociation *association, DiagramSceneModel *diagramSceneModel,
-                    QGraphicsItem *parent = 0);
+                    QGraphicsItem *parent = nullptr);
     ~AssociationItem() override;
 
 protected:
@@ -54,11 +54,11 @@ private:
                         QGraphicsItem *endCardinality,
                         QGraphicsItem *endItem, double headLength);
 
-    DAssociation *m_association = 0;
-    QGraphicsSimpleTextItem *m_endAName = 0;
-    QGraphicsSimpleTextItem *m_endACardinality = 0;
-    QGraphicsSimpleTextItem *m_endBName = 0;
-    QGraphicsSimpleTextItem *m_endBCardinality = 0;
+    DAssociation *m_association = nullptr;
+    QGraphicsSimpleTextItem *m_endAName = nullptr;
+    QGraphicsSimpleTextItem *m_endACardinality = nullptr;
+    QGraphicsSimpleTextItem *m_endBName = nullptr;
+    QGraphicsSimpleTextItem *m_endBCardinality = nullptr;
 };
 
 } // namespace qmt

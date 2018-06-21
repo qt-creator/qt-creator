@@ -505,9 +505,13 @@ bool ExtensionContext::call(const std::string &functionCall,
     const bool crashed = output->find(L"This exception may be expected and handled.") != std::string::npos;
     if (crashed && !callFlags) {
         m_stopReason.clear();
-        hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, goCommandForCall(CallWithExceptionsNotHandled), DEBUG_EXECUTE_ECHO);
-        m_control->WaitForEvent(0, INFINITE);
         *errorMessage = "A crash occurred while calling: " + functionCall;
+        hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, goCommandForCall(CallWithExceptionsNotHandled), DEBUG_EXECUTE_ECHO);
+        startRecordingOutput();
+        m_control->WaitForEvent(0, INFINITE);
+        // if we encounter a second chance exception while calling reset the call stack
+        if (stopRecordingOutput().find(L"!!! second chance !!!") != std::string::npos)
+            m_control->Execute(DEBUG_OUTCTL_IGNORE, ".call /C", DEBUG_EXECUTE_ECHO);
         return false;
     }
     return true;

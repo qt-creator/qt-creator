@@ -26,6 +26,7 @@
 #pragma once
 
 #include "qmt/infrastructure/qmt_global.h"
+#include "qmt/infrastructure/uid.h"
 
 #include <QString>
 #include <QPen>
@@ -45,6 +46,7 @@ public:
     explicit Style(Type type);
     virtual ~Style();
 
+    Uid uid() const { return m_uid; }
     Type type() const { return m_type; }
     QPen linePen() const { return m_linePen; }
     void setLinePen(const QPen &pen);
@@ -68,6 +70,7 @@ public:
     void setHeaderFont(const QFont &font);
 
 private:
+    Uid m_uid;
     Type m_type;
     QPen m_linePen;
     QPen m_outerLinePen;

@@ -68,6 +68,7 @@ public:
     QString osVersion() const;
     Utils::Port nextPort() const;
     bool canAutoDetectPorts() const override;
+    Utils::OsType osType() const override;
 
     static QString name();
 
@@ -77,7 +78,7 @@ protected:
     IosDevice();
     IosDevice(const IosDevice &other);
     Dict m_extraInfo;
-    bool m_ignoreDevice;
+    bool m_ignoreDevice = false;
     mutable quint16 m_lastPort;
 };
 

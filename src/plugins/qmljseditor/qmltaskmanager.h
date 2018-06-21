@@ -43,7 +43,7 @@ class QmlTaskManager : public QObject
 {
     Q_OBJECT
 public:
-    QmlTaskManager(QObject *parent = 0);
+    QmlTaskManager();
 
     void extensionsInitialized();
 
@@ -77,7 +77,7 @@ private:
     QHash<QString, QList<ProjectExplorer::Task> > m_docsWithTasks;
     QFutureWatcher<FileErrorMessages> m_messageCollector;
     QTimer m_updateDelay;
-    bool m_updatingSemantic;
+    bool m_updatingSemantic = false;
 };
 
 } // Internal

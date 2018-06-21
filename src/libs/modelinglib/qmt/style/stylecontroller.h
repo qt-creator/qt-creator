@@ -47,7 +47,7 @@ class QMT_EXPORT StyleController : public QObject
     class Parameters;
 
 public:
-    explicit StyleController(QObject *parent = 0);
+    explicit StyleController(QObject *parent = nullptr);
     ~StyleController() override;
 
     bool suppressGradients() const { return m_suppressGradients; }
@@ -60,13 +60,14 @@ public:
     const Style *adaptRelationStyle(const StyledRelation &relation);
     const Style *adaptAnnotationStyle(const DAnnotation *annotation);
     const Style *adaptBoundaryStyle(const DBoundary *boundary);
+    const Style *adaptSwimlaneStyle(const DSwimlane *swimlane);
     const Style *relationStarterStyle();
 
 private:
     QScopedPointer<Style> m_defaultStyle;
     QScopedPointer<Style> m_relationStarterStyle;
     QScopedPointer<StyleEngine> m_defaultStyleEngine;
-    bool m_suppressGradients;
+    bool m_suppressGradients = false;
 };
 
 } // namespace qmt

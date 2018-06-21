@@ -14,8 +14,7 @@ HEADERS += \
     $$PWD/callgrindcontroller.h \
     $$PWD/callgrindcycledetection.h \
     $$PWD/callgrindproxymodel.h \
-    $$PWD/callgrindstackbrowser.h \
-    $$PWD/callgrindrunner.h
+    $$PWD/callgrindstackbrowser.h
 
 SOURCES += \
     $$PWD/callgrindparser.cpp \
@@ -29,5 +28,4 @@ SOURCES += \
     $$PWD/callgrindcontroller.cpp \
     $$PWD/callgrindcycledetection.cpp \
     $$PWD/callgrindproxymodel.cpp \
-    $$PWD/callgrindrunner.cpp \
     $$PWD/callgrindstackbrowser.cpp

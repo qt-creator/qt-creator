@@ -25,27 +25,21 @@
 
 #pragma once
 
-#include "sqlitestatement.h"
+#include "sqlitebasestatement.h"
 
-class SQLITE_EXPORT SqliteReadStatement final : private SqliteStatement
+namespace Sqlite {
+
+class SQLITE_EXPORT ReadStatement final : protected StatementImplementation<BaseStatement>
 {
 public:
-    explicit SqliteReadStatement(const Utf8String &sqlStatementUtf8);
+    explicit ReadStatement(Utils::SmallStringView sqlStatement, Database &database);
 
-    using SqliteStatement::next;
-    using SqliteStatement::reset;
-    using SqliteStatement::value;
-    using SqliteStatement::values;
-    using SqliteStatement::rowColumnValueMap;
-    using SqliteStatement::twoColumnValueMap;
-    using SqliteStatement::columnCount;
-    using SqliteStatement::columnNames;
-    using SqliteStatement::bind;
-    using SqliteStatement::bindingIndexForName;
-    using SqliteStatement::setBindingColumnNames;
-    using SqliteStatement::bindingColumnNames;
-    using SqliteStatement::toValue;
+    using StatementImplementation::value;
+    using StatementImplementation::values;
+    using StatementImplementation::toValue;
 
 protected:
     void checkIsReadOnlyStatement();
 };
+
+} // namespace Sqlite

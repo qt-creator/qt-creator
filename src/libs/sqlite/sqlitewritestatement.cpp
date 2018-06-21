@@ -25,14 +25,19 @@
 
 #include "sqlitewritestatement.h"
 
-SqliteWriteStatement::SqliteWriteStatement(const Utf8String &sqlStatementUtf8)
-    : SqliteStatement(sqlStatementUtf8)
+namespace Sqlite {
+
+WriteStatement::WriteStatement(Utils::SmallStringView sqlStatement,
+                                           Database &database)
+    : StatementImplementation(sqlStatement, database)
 {
     checkIsWritableStatement();
 }
 
-void SqliteWriteStatement::checkIsWritableStatement()
+void WriteStatement::checkIsWritableStatement()
 {
     if (isReadOnlyStatement())
-        throwException("SqliteStatement::SqliteWriteStatement: is not a writable statement!");
+        throw NotWriteSqlStatement("SqliteStatement::SqliteWriteStatement: is not a writable statement!");
 }
+
+} // namespace Sqlite

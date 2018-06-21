@@ -43,12 +43,16 @@
 #include <utils/completingtextedit.h>
 #include <utils/synchronousprocess.h>
 #include <utils/fileutils.h>
+#include <utils/icon.h>
+#include <utils/theme/theme.h>
 #include <utils/qtcassert.h>
+#include <utils/temporarydirectory.h>
 #include <coreplugin/find/basetextfind.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -409,10 +413,15 @@ void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *model)
 {
     QTC_ASSERT(model, return);
     SubmitFileModel *oldModel = d->m_widget->fileModel();
-    if (oldModel)
+    QList<int> selected;
+    if (oldModel) {
         model->updateSelections(oldModel);
+        selected = d->m_widget->selectedRows();
+    }
     d->m_widget->setFileModel(model);
     delete oldModel;
+    if (!selected.isEmpty())
+        d->m_widget->setSelectedRows(selected);
 
     QSet<QString> uniqueSymbols;
     const CPlusPlus::Snapshot cppSnapShot = CppTools::CppModelManager::instance()->snapshot();
@@ -659,12 +668,7 @@ static inline QString msgCheckScript(const QString &workingDir, const QString &c
 bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript, QString *errorMessage) const
 {
     // Write out message
-    QString tempFilePattern = QDir::tempPath();
-    const QChar slash = QLatin1Char('/');
-    if (!tempFilePattern.endsWith(slash))
-        tempFilePattern += slash;
-    tempFilePattern += QLatin1String("msgXXXXXX.txt");
-    TempFileSaver saver(tempFilePattern);
+    TempFileSaver saver(Utils::TemporaryDirectory::masterDirectoryPath() + "/msgXXXXXX.txt");
     saver.write(fileContents());
     if (!saver.finalize(errorMessage))
         return false;
@@ -713,12 +717,20 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
 
 QIcon VcsBaseSubmitEditor::diffIcon()
 {
-    return QIcon(QLatin1String(":/vcsbase/images/diff.png"));
+    using namespace Utils;
+    return Icon({
+        {":/vcsbase/images/diff_documents.png", Theme::PanelTextColorDark},
+        {":/vcsbase/images/diff_arrows.png", Theme::IconsStopColor}
+    }, Icon::Tint).icon();
 }
 
 QIcon VcsBaseSubmitEditor::submitIcon()
 {
-    return QIcon(QLatin1String(":/vcsbase/images/submit.png"));
+    using namespace Utils;
+    return Icon({
+        {":/vcsbase/images/submit_db.png", Theme::PanelTextColorDark},
+        {":/vcsbase/images/submit_arrow.png", Theme::IconsRunColor}
+    }, Icon::Tint | Icon::PunchEdges).icon();
 }
 
 // Reduce a list of untracked files reported by a VCS down to the files
@@ -726,22 +738,10 @@ QIcon VcsBaseSubmitEditor::submitIcon()
 void VcsBaseSubmitEditor::filterUntrackedFilesOfProject(const QString &repositoryDirectory,
                                                         QStringList *untrackedFiles)
 {
-    if (untrackedFiles->empty())
-        return;
-
-    ProjectExplorer::Project *vcsProject = VcsProjectCache::projectFor(repositoryDirectory);
-    if (!vcsProject)
-        return;
-
-    const QSet<QString> projectFiles
-            = QSet<QString>::fromList(vcsProject->files(ProjectExplorer::Project::SourceFiles));
-
-    if (projectFiles.empty())
-        return;
     const QDir repoDir(repositoryDirectory);
     for (QStringList::iterator it = untrackedFiles->begin(); it != untrackedFiles->end(); ) {
         const QString path = repoDir.absoluteFilePath(*it);
-        if (projectFiles.contains(path))
+        if (ProjectExplorer::SessionManager::projectForFile(FileName::fromString(path)))
             ++it;
         else
             it = untrackedFiles->erase(it);

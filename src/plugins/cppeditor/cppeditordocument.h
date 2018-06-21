@@ -25,6 +25,9 @@
 
 #pragma once
 
+#include "cppminimizableinfobars.h"
+#include "cppparsecontext.h"
+
 #include <cpptools/baseeditordocumentprocessor.h>
 #include <cpptools/cppcompletionassistprovider.h>
 #include <cpptools/cppmodelmanager.h>
@@ -50,22 +53,24 @@ public:
 
     bool isObjCEnabled() const;
     TextEditor::CompletionAssistProvider *completionAssistProvider() const override;
-    TextEditor::QuickFixAssistProvider *quickFixAssistProvider() const override;
+    TextEditor::IAssistProvider *quickFixAssistProvider() const override;
 
     void recalculateSemanticInfoDetached();
     CppTools::SemanticInfo recalculateSemanticInfo(); // TODO: Remove me
 
-    void setPreprocessorSettings(const CppTools::ProjectPart::Ptr &projectPart,
-                                 const QByteArray &defines);
+    void setPreferredParseContext(const QString &parseContextId);
+    void setExtraPreprocessorDirectives(const QByteArray &directives);
+
     void scheduleProcessDocument();
 
-public:
-    using HeaderErrorDiagnosticWidgetCreator = std::function<QWidget*()>;
+    const MinimizableInfoBars &minimizableInfoBars() const;
+    ParseContextModel &parseContextModel();
+
+    QFuture<CppTools::CursorInfo> cursorInfo(const CppTools::CursorInfoParams &params);
 
 signals:
     void codeWarningsUpdated(unsigned contentsRevision,
                              const QList<QTextEdit::ExtraSelection> selections,
-                             const HeaderErrorDiagnosticWidgetCreator &creator,
                              const TextEditor::RefactorMarkers &refactorMarkers);
 
     void ifdefedOutBlocksUpdated(unsigned contentsRevision,
@@ -87,6 +92,8 @@ private:
     void onAboutToReload();
     void onReloadFinished();
 
+    void reparseWithPreferredParseContext(const QString &id);
+
     void processDocument();
 
     QByteArray contentsText() const;
@@ -94,8 +101,11 @@ private:
 
     CppTools::BaseEditorDocumentProcessor *processor();
     void resetProcessor();
-    void updatePreprocessorSettings();
+    void applyPreferredParseContextFromSettings();
+    void applyExtraPreprocessorDirectivesFromSettings();
     void releaseResources();
+
+    void showHideInfoBarAboutMultipleParseContexts(bool show);
 
     void initializeTimer();
 
@@ -116,6 +126,9 @@ private:
 
     // (Un)Registration in CppModelManager
     QScopedPointer<CppTools::CppEditorDocumentHandle> m_editorDocumentHandle;
+
+    MinimizableInfoBars m_minimizableInfoBars;
+    ParseContextModel m_parseContextModel;
 };
 
 } // namespace Internal

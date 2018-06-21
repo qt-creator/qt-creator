@@ -84,7 +84,7 @@ QList<StackFrame> StackFrame::parseFrames(const GdbMi &data, const DebuggerRunPa
 {
     StackFrames frames;
     frames.reserve(data.children().size());
-    foreach (const GdbMi &item, data.children())
+    for (const GdbMi &item : data.children())
         frames.append(parseFrame(item, rp));
     return frames;
 }

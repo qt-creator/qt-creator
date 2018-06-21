@@ -272,10 +272,7 @@ bool SshEncryptionFacility::createAuthenticationKeyFromPKCS8(const QByteArray &p
                       Q_FUNC_INFO);
             return false;
         }
-    } catch (const Exception &ex) {
-        error = QLatin1String(ex.what());
-        return false;
-    } catch (const Decoding_Error &ex) {
+    } catch (const std::exception &ex) {
         error = QLatin1String(ex.what());
         return false;
     }
@@ -360,10 +357,7 @@ bool SshEncryptionFacility::createAuthenticationKeyFromOpenSSL(const QByteArray 
 
         sequence.discard_remaining();
         sequence.verify_end();
-    } catch (const Exception &ex) {
-        error = QLatin1String(ex.what());
-        return false;
-    } catch (const Decoding_Error &ex) {
+    } catch (const std::exception &ex) {
         error = QLatin1String(ex.what());
         return false;
     }

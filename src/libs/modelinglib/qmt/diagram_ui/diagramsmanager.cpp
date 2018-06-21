@@ -64,12 +64,7 @@ DiagramsManager::ManagedDiagram::~ManagedDiagram()
 }
 
 DiagramsManager::DiagramsManager(QObject *parent)
-    : QObject(parent),
-      m_diagramsView(0),
-      m_diagramController(0),
-      m_diagramSceneController(0),
-      m_styleController(0),
-      m_stereotypeController(0)
+    : QObject(parent)
 {
 }
 
@@ -81,7 +76,7 @@ DiagramsManager::~DiagramsManager()
 void DiagramsManager::setModel(TreeModel *model)
 {
     if (m_model)
-        connect(m_model, 0, this, 0);
+        connect(m_model, nullptr, this, nullptr);
     m_model = model;
     if (model) {
         connect(model, &QAbstractItemModel::dataChanged,
@@ -97,7 +92,7 @@ void DiagramsManager::setDiagramsView(DiagramsViewInterface *diagramsView)
 void DiagramsManager::setDiagramController(DiagramController *diagramController)
 {
     if (m_diagramController)
-        connect(m_diagramController, 0, this, 0);
+        connect(m_diagramController, nullptr, this, nullptr);
     m_diagramController = diagramController;
     if (diagramController) {
         connect(diagramController, &DiagramController::diagramAboutToBeRemoved,
@@ -142,13 +137,13 @@ DiagramSceneModel *DiagramsManager::bindDiagramSceneModel(MDiagram *diagram)
 DiagramSceneModel *DiagramsManager::diagramSceneModel(const MDiagram *diagram) const
 {
     const ManagedDiagram *managedDiagram = m_diagramUidToManagedDiagramMap.value(diagram->uid());
-    QMT_CHECK(managedDiagram);
+    QMT_ASSERT(managedDiagram, return nullptr);
     return managedDiagram->diagramSceneModel();
 }
 
 void DiagramsManager::unbindDiagramSceneModel(const MDiagram *diagram)
 {
-    QMT_CHECK(diagram);
+    QMT_ASSERT(diagram, return);
     ManagedDiagram *managedDiagram = m_diagramUidToManagedDiagramMap.take(diagram->uid());
     QMT_CHECK(managedDiagram);
     delete managedDiagram;

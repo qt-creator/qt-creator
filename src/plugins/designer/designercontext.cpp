@@ -45,10 +45,10 @@ DesignerContext::DesignerContext(const Core::Context &context,
     setWidget(widget);
 }
 
-QString DesignerContext::contextHelpId() const
+void DesignerContext::contextHelpId(const HelpIdCallback &callback) const
 {
     const QDesignerFormEditorInterface *core = FormEditorW::designerEditor();
-    return core->integration()->contextHelpId();
+    callback(core->integration()->contextHelpId());
 }
 
 } // namespace Internal

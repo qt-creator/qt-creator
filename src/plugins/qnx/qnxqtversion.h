@@ -39,7 +39,7 @@ class QnxQtVersion : public QtSupport::BaseQtVersion
 {
 public:
     QnxQtVersion();
-    QnxQtVersion(QnxArchitecture arch, const Utils::FileName &path,
+    QnxQtVersion(const Utils::FileName &path,
                  bool isAutoDetected = false,
                  const QString &autoDetectionSource = QString());
     QnxQtVersion *clone() const override;
@@ -54,8 +54,7 @@ public:
     QString qnxHost() const;
     QString qnxTarget() const;
 
-    QnxArchitecture architecture() const;
-    QString archString() const;
+    QString cpuDir() const;
 
     QVariantMap toMap() const override;
     void fromMap(const QVariantMap &map) override;
@@ -70,17 +69,20 @@ public:
     bool isValid() const override;
     QString invalidReason() const override;
 
-    QString sdkPath() const;
-    void setSdkPath(const QString &sdkPath);
+    QString sdpPath() const;
+    void setSdpPath(const QString &sdpPath);
+
+protected:
+   void parseMkSpec(ProFileEvaluator *) const override;
 
 private:
     void updateEnvironment() const;
 
     QList<Utils::EnvironmentItem> environment() const;
 
-    QnxArchitecture m_arch;
-    QString m_sdkPath;
+    QString m_sdpPath;
 
+    mutable QString m_cpuDir;
     mutable bool m_environmentUpToDate = false;
     mutable QList<Utils::EnvironmentItem> m_qnxEnv;
 };

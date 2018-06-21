@@ -31,6 +31,8 @@
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
+#include <QFileInfo>
+#include <QSettings>
 #include <QTimer>
 
 #include <sys/stat.h>
@@ -99,9 +101,8 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
             return false;
         }
         pcmd = QLatin1String("/bin/sh");
-        pargs = QtcProcess::Arguments::createUnixArgs(QStringList()
-                    << QLatin1String("-c")
-                    << (QtcProcess::quoteArg(program) + QLatin1Char(' ') + args));
+        pargs = QtcProcess::Arguments::createUnixArgs(
+                    QStringList({"-c", (QtcProcess::quoteArg(program) + ' ' + args)}));
     }
 
     QtcProcess::SplitError qerr;
@@ -352,14 +353,14 @@ static const Terminal knownTerminals[] =
     {"urxvt", "-e"},
     {"xfce4-terminal", "-x"},
     {"konsole", "-e"},
-    {"gnome-terminal", "-x"}
+    {"gnome-terminal", "--"}
 };
 
 QString ConsoleProcess::defaultTerminalEmulator()
 {
     if (HostOsInfo::isMacHost()) {
         QString termCmd = QCoreApplication::applicationDirPath() + QLatin1String("/../Resources/scripts/openTerminal.command");
-        if (QFile(termCmd).exists())
+        if (QFileInfo::exists(termCmd))
             return termCmd.replace(QLatin1Char(' '), QLatin1String("\\ "));
         return QLatin1String("/usr/X11/bin/xterm");
     }
@@ -393,6 +394,27 @@ QStringList ConsoleProcess::availableTerminalEmulators()
         result.append(defaultTerminalEmulator());
     result.sort();
     return result;
+}
+
+QString ConsoleProcess::terminalEmulator(const QSettings *settings, bool nonEmpty)
+{
+    if (settings) {
+        const QString value = settings->value(QLatin1String("General/TerminalEmulator")).toString();
+        if (!nonEmpty || !value.isEmpty())
+            return value;
+    }
+    return defaultTerminalEmulator();
+}
+
+void ConsoleProcess::setTerminalEmulator(QSettings *settings, const QString &term)
+{
+    settings->setValue(QLatin1String("General/TerminalEmulator"), term);
+}
+
+bool ConsoleProcess::startTerminalEmulator(QSettings *settings, const QString &workingDir)
+{
+    const QString emu = QtcProcess::splitArgs(terminalEmulator(settings)).takeFirst();
+    return QProcess::startDetached(emu, QStringList(), workingDir);
 }
 
 } // namespace Utils

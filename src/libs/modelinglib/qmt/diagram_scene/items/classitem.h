@@ -27,7 +27,6 @@
 
 #include "objectitem.h"
 
-#include "qmt/diagram_scene/capabilities/relationable.h"
 #include "qmt/diagram/dclass.h"
 
 QT_BEGIN_NAMESPACE
@@ -43,15 +42,14 @@ class DiagramSceneModel;
 class CustomIconItem;
 class ContextLabelItem;
 class TemplateParameterBox;
-class RelationStarter;
 class Style;
 
-class ClassItem : public ObjectItem, public IRelationable
+class ClassItem : public ObjectItem
 {
     Q_DECLARE_TR_FUNCTIONS(qmt::ClassItem)
 
 public:
-    ClassItem(DClass *klass, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
+    ClassItem(DClass *klass, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = nullptr);
     ~ClassItem() override;
 
     void update() override;
@@ -61,15 +59,17 @@ public:
 
     QSizeF minimumSize() const override;
 
-    QPointF relationStartPos() const override;
-    void relationDrawn(const QString &id, const QPointF &toScenePos,
+    void relationDrawn(const QString &id, ObjectItem *targetElement,
                        const QList<QPointF> &intermediatePoints) override;
 
 protected:
     bool extendContextMenu(QMenu *menu) override;
-    bool handleSelectedContextMenuAction(QAction *action) override;
+    bool handleSelectedContextMenuAction(const QString &id) override;
     QString buildDisplayName() const override;
     void setFromDisplayName(const QString &displayName) override;
+    void addRelationStarterTool(const QString &id) override;
+    void addRelationStarterTool(const CustomRelation &customRelation) override;
+    void addStandardRelationStarterTools() override;
 
 private:
     DClass::TemplateDisplay templateDisplay() const;
@@ -77,18 +77,17 @@ private:
     void updateGeometry();
     void updateMembers(const Style *style);
 
-    CustomIconItem *m_customIcon = 0;
-    QGraphicsRectItem *m_shape = 0;
-    QGraphicsSimpleTextItem *m_namespace = 0;
-    ContextLabelItem *m_contextLabel = 0;
-    QGraphicsLineItem *m_attributesSeparator = 0;
+    CustomIconItem *m_customIcon = nullptr;
+    QGraphicsRectItem *m_shape = nullptr;
+    QGraphicsSimpleTextItem *m_namespace = nullptr;
+    ContextLabelItem *m_contextLabel = nullptr;
+    QGraphicsLineItem *m_attributesSeparator = nullptr;
     QString m_attributesText;
-    QGraphicsTextItem *m_attributes = 0;
-    QGraphicsLineItem *m_methodsSeparator = 0;
+    QGraphicsTextItem *m_attributes = nullptr;
+    QGraphicsLineItem *m_methodsSeparator = nullptr;
     QString m_methodsText;
-    QGraphicsTextItem *m_methods = 0;
-    TemplateParameterBox *m_templateParameterBox = 0;
-    RelationStarter *m_relationStarter = 0;
+    QGraphicsTextItem *m_methods = nullptr;
+    TemplateParameterBox *m_templateParameterBox = nullptr;
 };
 
 } // namespace qmt

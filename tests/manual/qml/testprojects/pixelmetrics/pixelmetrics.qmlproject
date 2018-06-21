@@ -1,0 +1,9 @@
+import QmlProject 1.1
+
+Project {
+    mainFile: "pixelmetrics.qml"
+
+    QmlFiles {
+        directory: "."
+    }
+}

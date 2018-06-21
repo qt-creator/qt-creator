@@ -40,7 +40,6 @@ public:
 
 private slots:
     void initTestCase();
-    void testAccepted();
     void testTypeId();
     void testColor();
     void testLabels();
@@ -51,6 +50,7 @@ private slots:
 
 private:
     QmlProfilerModelManager manager;
+    Timeline::TimelineModelAggregator aggregator;
     InputEventsModel model;
 
     int mouseTypeId = -1;

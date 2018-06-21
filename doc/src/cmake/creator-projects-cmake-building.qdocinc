@@ -1,0 +1,92 @@
+/****************************************************************************
+**
+** Copyright (C) 2017 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+//! [cmake build configuration]
+
+    \section2 CMake Build Configuration
+
+    \image qtcreator-cmake-build-settings.png
+
+    Setting names with a common prefix (up to the first underscore character)
+    are grouped under the prefix. To view all settings, select the
+    \uicontrol Advanced check box.
+
+    To add build settings, select \uicontrol Add, and then select the type of
+    the setting that you are adding: \uicontrol Boolean, \uicontrol String,
+    \uicontrol Directory, or \uicontrol File.
+
+    To change the type of the selected setting, select
+    \uicontrol {Force to bool}, \uicontrol {Force to file},
+    \uicontrol {Force to directory}, or \uicontrol {Force to string}.
+
+    To modify the value of a build setting, double-click it, or select it,
+    and then select \uicontrol Edit. To save the changes, select
+    \uicontrol {Apply Configuration Changes}. Keep in mind that a
+    configuration change might trigger a follow-up configuration change.
+
+    To remove a setting, select \uicontrol Unset.
+
+    To reset the changes that you made, select \uicontrol Reset.
+
+//! [cmake build configuration]
+
+
+//! [cmake build steps]
+
+    \section2 CMake Build Steps
+
+    \QC builds CMake projects by running \c {cmake . --build}, which then runs
+    run whatever is needed based on how the project was configured: \c make,
+    \c mingw32-make, \c nmake, or \c ninja, for example.
+
+    You can add arguments and targets for the build command in
+    \uicontrol {Build Steps}.
+
+    \image qtcreator-cmake-build-steps.png
+
+//! [cmake build steps]
+
+
+//! [cmake clean steps]
+
+    \section2 CMake Clean Steps
+
+    When building with CMake, you can add arguments and targets for the clean
+    command in \uicontrol {Clean Steps}.
+
+    \image qtcreator-cmake-clean-steps.png
+
+    The build errors and warnings are parsed and displayed in the
+    \uicontrol Issues output pane.
+
+//! [cmake clean steps]
+*/

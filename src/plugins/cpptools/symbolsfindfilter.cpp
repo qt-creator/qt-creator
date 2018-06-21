@@ -36,6 +36,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
+#include <utils/algorithm.h>
 #include <utils/runextensions.h>
 #include <utils/qtcassert.h>
 
@@ -68,12 +69,12 @@ SymbolsFindFilter::SymbolsFindFilter(CppModelManager *manager)
 
 QString SymbolsFindFilter::id() const
 {
-    return QLatin1String("CppSymbols");
+    return QLatin1String(Constants::SYMBOLS_FIND_FILTER_ID);
 }
 
 QString SymbolsFindFilter::displayName() const
 {
-    return tr("C++ Symbols");
+    return QString(Constants::SYMBOLS_FIND_FILTER_DISPLAY_NAME);
 }
 
 bool SymbolsFindFilter::isEnabled() const
@@ -98,11 +99,6 @@ void SymbolsFindFilter::setPaused(bool paused)
     QTC_ASSERT(watcher, return);
     if (!paused || watcher->isRunning()) // guard against pausing when the search is finished
         watcher->setPaused(paused);
-}
-
-FindFlags SymbolsFindFilter::supportedFindFlags() const
-{
-    return FindCaseSensitively | FindRegularExpression | FindWholeWords;
 }
 
 void SymbolsFindFilter::findAll(const QString &txt, FindFlags findFlags)
@@ -132,8 +128,8 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
     SymbolSearcher::Parameters parameters = search->userData().value<SymbolSearcher::Parameters>();
     QSet<QString> projectFileNames;
     if (parameters.scope == SymbolSearcher::SearchProjectsOnly) {
-        foreach (ProjectExplorer::Project *project, ProjectExplorer::SessionManager::projects())
-            projectFileNames += project->files(ProjectExplorer::Project::AllFiles).toSet();
+        for (ProjectExplorer::Project *project : ProjectExplorer::SessionManager::projects())
+            projectFileNames += Utils::transform(project->files(ProjectExplorer::Project::AllFiles), &Utils::FileName::toString).toSet();
     }
 
     QFutureWatcher<SearchResultItem> *watcher = new QFutureWatcher<SearchResultItem>();

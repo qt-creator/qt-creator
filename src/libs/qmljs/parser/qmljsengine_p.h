@@ -110,3 +110,4 @@ double integerFromString(const char *buf, int size, int radix);
 } // end of namespace QmlJS
 
 QT_QML_END_NAMESPACE
+

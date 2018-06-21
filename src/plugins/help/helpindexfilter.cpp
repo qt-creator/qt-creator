@@ -27,12 +27,11 @@
 
 #include "centralwidget.h"
 #include "helpicons.h"
+#include "topicchooser.h"
 
-#include <topicchooser.h>
-
-#include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
 #include <utils/utilsicons.h>
 
@@ -48,12 +47,11 @@ using namespace Help;
 using namespace Help::Internal;
 
 HelpIndexFilter::HelpIndexFilter()
-    : m_needsUpdate(true)
 {
     setId("HelpIndexFilter");
     setDisplayName(tr("Help Index"));
     setIncludedByDefault(false);
-    setShortcutString(QString(QLatin1Char('?')));
+    setShortcutString("?");
 
     m_icon = Utils::Icons::BOOKMARK.icon();
     connect(HelpManager::instance(), &HelpManager::setupFinished,
@@ -72,9 +70,7 @@ void HelpIndexFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
     QStringList namespaces = HelpManager::registeredNamespaces();
-    m_helpDatabases = Utils::transform(namespaces, [](const QString &ns) {
-        return HelpManager::fileFromNamespace(ns);
-    });
+    m_helpDatabases = Utils::transform(namespaces, &HelpManager::fileFromNamespace);
 }
 
 QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
@@ -87,7 +83,7 @@ QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFi
             || !entry.contains(m_searchTermCache)) {
         int limit = entry.size() < 2 ? 200 : INT_MAX;
         QSet<QString> results;
-        foreach (const QString &filePath, m_helpDatabases) {
+        for (const QString &filePath : qAsConst(m_helpDatabases)) {
             if (future.isCanceled())
                 return QList<LocatorFilterEntry>();
             QSet<QString> result;
@@ -112,7 +108,7 @@ QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFi
     keywords.reserve(m_keywordCache.size());
     unsortedKeywords.reserve(m_keywordCache.size());
     QSet<QString> allresults;
-    foreach (const QString &keyword, m_keywordCache) {
+    for (const QString &keyword : qAsConst(m_keywordCache)) {
         if (future.isCanceled())
             return QList<LocatorFilterEntry>();
         if (keyword.startsWith(entry, cs)) {
@@ -127,21 +123,25 @@ QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFi
     keywords << unsortedKeywords;
     m_keywordCache = allresults;
     m_searchTermCache = entry;
-    foreach (const QString &keyword, keywords)
-        entries.append(LocatorFilterEntry(this, keyword, QVariant(), m_icon));
+    for (const QString &keyword : qAsConst(keywords)) {
+        const int index = keyword.indexOf(entry, 0, cs);
+        LocatorFilterEntry filterEntry(this, keyword, QVariant(), m_icon);
+        filterEntry.highlightInfo = {index, entry.length()};
+        entries.append(filterEntry);
+    }
 
     return entries;
 }
 
-void HelpIndexFilter::accept(LocatorFilterEntry selection) const
+void HelpIndexFilter::accept(LocatorFilterEntry selection,
+                             QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     const QString &key = selection.displayName;
     const QMap<QString, QUrl> &links = HelpManager::linksForKeyword(key);
-
-    if (links.size() == 1)
-        emit linkActivated(links.begin().value());
-    else
-        emit linksActivated(links, key);
+    emit linksActivated(links, key);
 }
 
 void HelpIndexFilter::refresh(QFutureInterface<void> &future)

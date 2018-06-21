@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/smallstringfwd.h>
+
 #include <QtGlobal>
 
 #if defined(BUILD_SQLITE_LIBRARY)
@@ -35,12 +37,10 @@
 #  define SQLITE_EXPORT Q_DECL_IMPORT
 #endif
 
-
 namespace Sqlite {
-SQLITE_EXPORT void registerTypes();
-}
 
-enum class ColumnType {
+enum class ColumnType : char
+{
     Numeric,
     Integer,
     Real,
@@ -48,11 +48,20 @@ enum class ColumnType {
     None
 };
 
-enum class ColumnConstraint {
+enum class Contraint : char
+{
+    NoConstraint,
+    PrimaryKey,
+    Unique
+};
+
+enum class ColumnConstraint : char
+{
     PrimaryKey
 };
 
-enum class JournalMode {
+enum class JournalMode : char
+{
     Delete,
     Truncate,
     Persist,
@@ -60,7 +69,14 @@ enum class JournalMode {
     Wal
 };
 
-enum TextEncoding {
+enum class OpenMode : char
+{
+    ReadOnly,
+    ReadWrite
+};
+
+enum TextEncoding : char
+{
     Utf8,
     Utf16le,
     Utf16be,
@@ -72,16 +88,4 @@ enum TextEncoding {
 
 };
 
-QT_BEGIN_NAMESPACE
-template <typename T> class QVector;
-template <typename T> class QSet;
-template <class Key, class T> class QHash;
-template <class Key, class T> class QMap;
-class QVariant;
-QT_END_NAMESPACE
-
-class Utf8String;
-class Utf8StringVector;
-
-typedef QMap<Utf8String, QVariant> RowDictionary;
-typedef QVector<RowDictionary> RowDictionaries;
+} // namespace Sqlite

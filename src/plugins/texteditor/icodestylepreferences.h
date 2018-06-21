@@ -47,8 +47,8 @@ class TEXTEDITOR_EXPORT ICodeStylePreferences : public QObject
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
 public:
     // pool is a pool which will be used by this preferences for setting delegates
-    explicit ICodeStylePreferences(QObject *parentObject = 0);
-    virtual ~ICodeStylePreferences();
+    explicit ICodeStylePreferences(QObject *parentObject = nullptr);
+    ~ICodeStylePreferences() override;
 
     QByteArray id() const;
     void setId(const QByteArray &name);

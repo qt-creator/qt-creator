@@ -45,6 +45,8 @@ public:
     void setExpectedResultCount(uint count) override;
     void setResultCounter(uint counter) override;
 
+    void cancel() override;
+
     void finishSearch() override;
 
 private:

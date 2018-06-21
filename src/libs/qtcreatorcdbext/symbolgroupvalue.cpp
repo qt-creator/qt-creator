@@ -902,6 +902,20 @@ std::string QtInfo::prependModuleAndNameSpace(const std::string &type,
     return rc;
 }
 
+int QtInfo::qtTypeInfoVersion(const SymbolGroupValueContext &ctx)
+{
+    const QtInfo qtInfo = QtInfo::get(ctx);
+    const std::string &hookDataSymbolName = qtInfo.prependQtCoreModule("qtHookData");
+    ULONG64 offset = 0;
+    if (FAILED(ctx.symbols->GetOffsetByName(hookDataSymbolName.c_str(), &offset)))
+        return 0;
+    ULONG64 hookVer = SymbolGroupValue::readPointerValue(ctx.dataspaces, offset);
+    if (hookVer < 3)
+        return 0;
+    offset += 6 * SymbolGroupValue::pointerSize();
+    return static_cast<int>(SymbolGroupValue::readPointerValue(ctx.dataspaces, offset));
+}
+
 std::ostream &operator<<(std::ostream &os, const QtInfo &i)
 {
     os << "Qt Info: Version: " << i.version << " Modules '"
@@ -1241,8 +1255,22 @@ static KnownType knownClassTypeHelper(const std::string &type,
             case 8:
                 if (!type.compare(hPos, 8, "multimap"))
                     return KT_StdMultiMap;
+                if (!type.compare(hPos, 8, "multiset"))
+                    return KT_StdMultiSet;
                 if (!type.compare(hPos, 8, "valarray"))
                     return KT_StdValArray;
+                break;
+            case 13:
+                if (!type.compare(hPos, 13, "unordered_map"))
+                    return KT_StdUnorderedMap;
+                if (!type.compare(hPos, 13, "unordered_set"))
+                    return KT_StdUnorderedSet;
+                break;
+            case 18:
+                if (!type.compare(hPos, 18, "unordered_multimap"))
+                    return KT_StdUnorderedMultiMap;
+                if (!type.compare(hPos, 18, "unordered_multiset"))
+                    return KT_StdUnorderedMultiSet;
                 break;
             }
         }
@@ -1546,6 +1574,7 @@ static KnownType knownClassTypeHelper(const std::string &type,
     case 29:
         if (!type.compare(qPos, 29, "QXmlStreamNotationDeclaration"))
             return KT_QXmlStreamNotationDeclaration;
+        break;
     case 30:
         if (!type.compare(qPos, 30, "QPatternist::SequenceType::Ptr"))
             return KT_QPatternist_SequenceType_Ptr;
@@ -2390,33 +2419,61 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str, std::st
 {
     // QDate is 64bit starting from Qt 5 which is always aligned 64bit.
     if (QtInfo::get(v.context()).version == 5) {
-        // the dumper on the creator side expects msecs/spec/offset/tz/status
+        // the dumper on the creator side expects msecs/spec/offset/tz/status/type info version
         const char separator = '/';
-        const ULONG64 msecsAddr = addressOfQPrivateMember(v, QPDM_None, 0);
-        if (!msecsAddr)
-            return false;
+        LONG64 msecs = 0;
+        int spec = 0;
+        int offset  = 0;
+        std::wstring timeZoneString;
+        int status = 0;
+        int tiVersion = QtInfo::qtTypeInfoVersion(v.context());
+        if (tiVersion > 10) {
+            const ULONG64 address =
+                    SymbolGroupValue::isPointerType(v.type()) ? v.pointerValue() : v.address();
+            const ULONG64 data = SymbolGroupValue::readUnsignedValue(
+                        v.context().dataspaces, address, 8, 0);
+            status = data & 0xFF;
+            ULONG64 timeZone = 0;
+            if (status & 0x01) {
+                msecs = data >> 8;
+                spec = (status & 0x30) >> 4;
+            } else {
+                ULONG64 addr = SymbolGroupValue::readPointerValue(v.context().dataspaces, address);
+                msecs = SymbolGroupValue::readSignedValue(v.context().dataspaces, addr, 8, 0);
 
-        int addrOffset = 8 /*QSharedData + padded*/;
-        const LONG64 msecs = SymbolGroupValue::readSignedValue(
-                    v.context().dataspaces, msecsAddr + addrOffset, 8, 0);
+                addr += 8 /*int64*/;
+                status = SymbolGroupValue::readIntValue(v.context().dataspaces, addr);
 
-        addrOffset += 8 /*int64*/;
-        const int spec = SymbolGroupValue::readIntValue(
-                    v.context().dataspaces, msecsAddr + addrOffset);
+                addr += SymbolGroupValue::intSize();
+                offset = SymbolGroupValue::readIntValue(v.context().dataspaces, addr);
 
-        addrOffset += SymbolGroupValue::sizeOf("Qt::TimeSpec");
-        const int offset = SymbolGroupValue::readIntValue(
-                    v.context().dataspaces, msecsAddr + addrOffset);
+                addr += 2 * SymbolGroupValue::intSize();
+                timeZone = SymbolGroupValue::readPointerValue(v.context().dataspaces, addr);
+            }
+            timeZoneString = std::to_wstring(timeZone);
+        } else {
+            const ULONG64 msecsAddr = addressOfQPrivateMember(v, QPDM_None, 0);
+            if (!msecsAddr)
+                return false;
 
-        addrOffset += SymbolGroupValue::intSize();
-        std::wostringstream timeZoneStream;
-        dumpQTimeZoneFromQPrivateClass(v, QPDM_None, addrOffset, timeZoneStream, 0);
-        const std::wstring &timeZoneString = timeZoneStream.str();
+            int addrOffset = 8 /*QSharedData + padded*/;
+            msecs = SymbolGroupValue::readSignedValue(
+                        v.context().dataspaces, msecsAddr + addrOffset, 8, 0);
 
-        addrOffset += SymbolGroupValue::sizeOf("QTimeZone");
-        const int status = SymbolGroupValue::readIntValue(
-                    v.context().dataspaces, msecsAddr + addrOffset);
+            addrOffset += 8 /*int64*/;
+            spec = SymbolGroupValue::readIntValue(v.context().dataspaces, msecsAddr + addrOffset);
 
+            addrOffset += SymbolGroupValue::sizeOf("Qt::TimeSpec");
+            offset = SymbolGroupValue::readIntValue(v.context().dataspaces, msecsAddr + addrOffset);
+
+            addrOffset += SymbolGroupValue::intSize();
+            std::wostringstream timeZoneStream;
+            dumpQTimeZoneFromQPrivateClass(v, QPDM_None, addrOffset, timeZoneStream, 0);
+            timeZoneString = timeZoneStream.str();
+
+            addrOffset += SymbolGroupValue::sizeOf("QTimeZone");
+            status = SymbolGroupValue::readIntValue(v.context().dataspaces, msecsAddr + addrOffset);
+        }
         enum StatusFlag {
             ValidDate = 0x04,
             ValidTime = 0x08,
@@ -2426,12 +2483,12 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str, std::st
             str << L"(invalid)";
             return true;
         }
-
         str << msecs << separator
             << spec << separator
             << offset << separator
             << timeZoneString << separator
-            << status;
+            << status << separator
+            << tiVersion;
 
         if (encoding)
             *encoding = "datetimeinternal";
@@ -3168,7 +3225,7 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
             break;
         }
     }
-    if (rc != SymbolGroupNode::SimpleDumperFailed && SymbolGroupValue::isPointerType(v.type()))
+    if (rc != SymbolGroupNode::SimpleDumperFailed && SymbolGroupValue::isPointerType(v.type()) && encoding->empty())
         str << L" @" << std::showbase << std::hex << v.pointerValue() << std::dec << std::noshowbase;
 
     if (rc == SymbolGroupNode::SimpleDumperOk)
@@ -3448,17 +3505,20 @@ static inline int assignStdStringI(SymbolGroupNode  *n, int type,
      * or an allocated array is used. */
 
     const SymbolGroupValue v(n, ctx);
-    SymbolGroupValue bx = v[unsigned(0)]["_Bx"];
-    SymbolGroupValue size;
-    int reserved = 0;
-    if (bx) { // MSVC2010
-        size = v[unsigned(0)]["_Mysize"];
-        reserved = v[unsigned(0)]["_Myres"].intValue();
-    } else { // MSVC2008
-        bx = v["_Bx"];
-        size = v["_Mysize"];
-        reserved = v["_Myres"].intValue();
+    SymbolGroupValue base = v;
+    SymbolGroupValue bx = base["_Bx"];
+    if (!bx) {
+        base = base[unsigned(0)];
+        bx = base["_Bx"];
     }
+    if (!bx) {
+        base = base[unsigned(0)][unsigned(1)];
+        bx = base["_Bx"];
+    }
+    if (!bx)
+        return 24;
+    SymbolGroupValue size = base["_Mysize"];
+    int reserved = base["_Myres"].intValue();
     if (reserved < 0 || !size || !bx)
         return 42;
     if (reserved <= (int)data.stringLength)
@@ -3496,17 +3556,17 @@ static inline bool assignStdString(SymbolGroupNode  *n,
     return true;
 }
 
-bool assignType(SymbolGroupNode  *n, int valueEncoding, const std::string &value,
+bool assignType(SymbolGroupNode *n, int knownType, int valueEncoding, const std::string &value,
                 const SymbolGroupValueContext &ctx, std::string *errorMessage)
 {
-    switch (n->dumperType()) {
+    switch (knownType) {
     case KT_QString:
         return assignQString(n, valueEncoding, value, ctx, errorMessage);
     case KT_QByteArray:
         return assignQByteArray(n, valueEncoding, value, ctx, errorMessage);
     case KT_StdString:
     case KT_StdWString:
-        return assignStdString(n, n->dumperType(), valueEncoding, value, ctx, errorMessage);
+        return assignStdString(n, knownType, valueEncoding, value, ctx, errorMessage);
     default:
         break;
     }

@@ -44,7 +44,7 @@
 
 using namespace CPlusPlus;
 
-static const bool debug = ! qgetenv("QTC_LOOKUPCONTEXT_DEBUG").isEmpty();
+static const bool debug = qEnvironmentVariableIsSet("QTC_LOOKUPCONTEXT_DEBUG");
 
 static void addNames(const Name *name, QList<const Name *> *names, bool addAllNames = false)
 {
@@ -230,6 +230,32 @@ static bool symbolIdentical(Symbol *s1, Symbol *s2)
     return QByteArray(s1->fileName()) == QByteArray(s2->fileName());
 }
 
+static const Name *toName(const QList<const Name *> &names, Control *control)
+{
+    const Name *n = 0;
+    for (int i = names.size() - 1; i >= 0; --i) {
+        if (! n)
+            n = names.at(i);
+        else
+            n = control->qualifiedNameId(names.at(i), n);
+    }
+
+    return n;
+}
+
+static bool isInlineNamespace(ClassOrNamespace *con, const Name *name)
+{
+    const QList<LookupItem> items = con->find(name);
+    if (!items.isEmpty()) {
+        if (const Symbol *declaration = items.first().declaration() ) {
+            if (const Namespace *ns = declaration->asNamespace())
+                return ns->isInline();
+        }
+    }
+
+    return false;
+}
+
 const Name *LookupContext::minimalName(Symbol *symbol, ClassOrNamespace *target, Control *control)
 {
     const Name *n = 0;
@@ -245,8 +271,17 @@ const Name *LookupContext::minimalName(Symbol *symbol, ClassOrNamespace *target,
         if (target) {
             const QList<LookupItem> tresults = target->lookup(n);
             foreach (const LookupItem &tr, tresults) {
-                if (symbolIdentical(tr.declaration(), symbol))
-                    return n;
+                if (symbolIdentical(tr.declaration(), symbol)) {
+                    // eliminate inline namespaces
+                    QList<const Name *> minimal = names.mid(i);
+                    for (int i = minimal.size() - 2; i >= 0; --i) {
+                        const Name *candidate = toName(minimal.mid(0, i + 1), control);
+                        if (isInlineNamespace(target, candidate))
+                            minimal.removeAt(i);
+                    }
+
+                    return toName(minimal, control);
+                }
             }
         }
     }
@@ -917,7 +952,7 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
                     return this;
             }
 
-            if (ClassOrNamespace *e = nestedType(name, origin))
+            if (ClassOrNamespace *e = nestedType(name, processed, origin))
                 return e;
 
             if (_templateId) {
@@ -1039,7 +1074,9 @@ ClassOrNamespace *ClassOrNamespace::findOrCreateNestedAnonymousType(
     }
 }
 
-ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespace *origin)
+ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
+                                               QSet<ClassOrNamespace *> *processed,
+                                               ClassOrNamespace *origin)
 {
     Q_ASSERT(name != 0);
     Q_ASSERT(name->isNameId() || name->isTemplateNameId() || name->isAnonymousNameId());
@@ -1149,11 +1186,11 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
             instantiation->_name = templId;
         instantiation->_templateId = templId;
 
-        QSet<ClassOrNamespace *> processed;
+        QSet<ClassOrNamespace *> otherProcessed;
         while (!origin->_symbols.isEmpty() && origin->_symbols[0]->isBlock()) {
-            if (processed.contains(origin))
+            if (otherProcessed.contains(origin))
                 break;
-            processed.insert(origin);
+            otherProcessed.insert(origin);
             origin = origin->parent();
         }
 
@@ -1275,7 +1312,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                         // Another template that uses the dependent name.
                         // Ex.: template <class T> class A : public B<T> {};
                         if (baseTemplId->identifier() != templId->identifier())
-                            baseBinding = nestedType(baseName, origin);
+                            baseBinding = nestedType(baseName, processed, origin);
                     } else if (const QualifiedNameId *qBaseName = baseName->asQualifiedNameId()) {
                         // Qualified names in general.
                         // Ex.: template <class T> class A : public B<T>::Type {};
@@ -1326,7 +1363,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         }
 
         if (binding) {
-            ClassOrNamespace * baseBinding = binding->lookupType(baseName);
+            ClassOrNamespace * baseBinding
+                    = binding->lookupType_helper(baseName, processed, true, this);
             if (baseBinding && !knownUsings.contains(baseBinding))
                 reference->addUsing(baseBinding);
         }
@@ -1349,6 +1387,8 @@ void ClassOrNamespace::instantiateNestedClasses(ClassOrNamespace *enclosingTempl
 void ClassOrNamespace::NestedClassInstantiator::instantiate(ClassOrNamespace *enclosingTemplateClass,
                                                 ClassOrNamespace *enclosingTemplateClassInstantiation)
 {
+    if (_alreadyConsideredNestedClassInstantiations.size() >= 3)
+        return;
     if (_alreadyConsideredNestedClassInstantiations.contains(enclosingTemplateClass))
         return;
     _alreadyConsideredNestedClassInstantiations.insert(enclosingTemplateClass);
@@ -1483,7 +1523,8 @@ ClassOrNamespace *ClassOrNamespace::findOrCreateType(const Name *name, ClassOrNa
         return findOrCreateType(q->base(), origin)->findOrCreateType(q->name(), origin, clazz);
 
     } else if (name->isNameId() || name->isTemplateNameId() || name->isAnonymousNameId()) {
-        ClassOrNamespace *e = nestedType(name, origin);
+        QSet<ClassOrNamespace *> processed;
+        ClassOrNamespace *e = nestedType(name, &processed, origin);
 
         if (! e) {
             e = _factory->allocClassOrNamespace(this);

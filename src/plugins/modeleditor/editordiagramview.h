@@ -26,6 +26,7 @@
 #pragma once
 
 #include "qmt/diagram_widgets_ui/diagramview.h"
+#include "utils/dropsupport.h"
 
 namespace ModelEditor {
 namespace Internal {
@@ -39,7 +40,7 @@ class EditorDiagramView :
     class EditorDiagramViewPrivate;
 
 public:
-    explicit EditorDiagramView(QWidget *parent = 0);
+    explicit EditorDiagramView(QWidget *parent = nullptr);
     ~EditorDiagramView() override;
 
 signals:
@@ -54,6 +55,7 @@ protected:
 
 private:
     void dropProjectExplorerNodes(const QList<QVariant> &values, const QPoint &pos);
+    void dropFiles(const QList<Utils::DropSupport::FileSpec> &files, const QPoint &pos);
 
     EditorDiagramViewPrivate *d;
 };

@@ -5,7 +5,12 @@ QtcAutotest {
     Depends { name: "bundle" }
     Depends { name: "qtcjson" }
 
-    bundle.isBundle: false
+    consoleApplication: true
+
+    cpp.defines: base.filter(function(d) {
+        return d !== "QT_USE_FAST_OPERATOR_PLUS"
+            && d !== "QT_USE_FAST_CONCATENATION";
+    })
 
     Group {
         name: "test data"

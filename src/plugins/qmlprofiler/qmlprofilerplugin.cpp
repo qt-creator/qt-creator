@@ -24,10 +24,13 @@
 ****************************************************************************/
 
 #include "qmlprofilerplugin.h"
-#include "qmlprofilerruncontrolfactory.h"
+#include "qmlprofilerrunconfigurationaspect.h"
 #include "qmlprofileroptionspage.h"
+#include "qmlprofilerruncontrol.h"
+#include "qmlprofilersettings.h"
 #include "qmlprofilertool.h"
 #include "qmlprofilertimelinemodel.h"
+#include "qmlprofileractions.h"
 
 #ifdef WITH_TESTS
 
@@ -47,6 +50,10 @@
 #include "tests/qmlprofilerbindingloopsrenderpass_test.h"
 #include "tests/qmlprofilerclientmanager_test.h"
 #include "tests/qmlprofilerconfigwidget_test.h"
+#include "tests/qmlprofilerdetailsrewriter_test.h"
+#include "tests/qmlprofilertool_test.h"
+#include "tests/qmlprofilertraceclient_test.h"
+#include "tests/qmlprofilertraceview_test.h"
 
 // Force QML Debugging to be enabled, so that we can selftest the profiler
 #define QT_QML_DEBUG_NO_WARNING
@@ -57,14 +64,29 @@
 #endif // WITH_TESTS
 
 #include <extensionsystem/pluginmanager.h>
-#include <utils/hostosinfo.h>
 
-#include <QtPlugin>
+#include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/target.h>
+
+#include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
+
+using namespace ProjectExplorer;
 
 namespace QmlProfiler {
 namespace Internal {
 
 Q_GLOBAL_STATIC(QmlProfilerSettings, qmlProfilerGlobalSettings)
+
+class QmlProfilerPluginPrivate
+{
+public:
+    QmlProfilerTool m_profilerTool;
+    QmlProfilerOptionsPage m_profilerOptionsPage;
+    QmlProfilerActions m_actions;
+};
 
 bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
@@ -78,14 +100,38 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
 
 void QmlProfilerPlugin::extensionsInitialized()
 {
-    (void) new QmlProfilerTool(this);
+    d = new QmlProfilerPluginPrivate;
+    d->m_actions.attachToTool(&d->m_profilerTool);
+    d->m_actions.registerActions();
 
-    addAutoReleasedObject(new QmlProfilerRunControlFactory());
-    addAutoReleasedObject(new Internal::QmlProfilerOptionsPage());
+    RunConfiguration::registerAspect<QmlProfilerRunConfigurationAspect>();
+
+    auto constraint = [](RunConfiguration *runConfiguration) {
+        Target *target = runConfiguration ? runConfiguration->target() : nullptr;
+        Kit *kit = target ? target->kit() : nullptr;
+        return DeviceTypeKitInformation::deviceTypeId(kit)
+                == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+    };
+
+    RunControl::registerWorkerCreator(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE,
+                                      [this](RunControl *runControl) {
+        QmlProfilerRunner *runner = new QmlProfilerRunner(runControl);
+        connect(runner, &QmlProfilerRunner::starting,
+                &d->m_profilerTool, &QmlProfilerTool::finalizeRunControl);
+        return runner;
+    });
+
+    RunControl::registerWorker(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE,
+                               [this](ProjectExplorer::RunControl *runControl) {
+        return new LocalQmlProfilerSupport(&d->m_profilerTool, runControl);
+    }, constraint);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()
 {
+    delete d;
+    d = nullptr;
+
     // Save settings.
     // Disconnect from signals that are not needed during shutdown
     // Hide UI (if you add UI that is not in the main window directly)
@@ -117,6 +163,10 @@ QList<QObject *> QmlProfiler::Internal::QmlProfilerPlugin::createTestObjects() c
     tests << new QmlProfilerBindingLoopsRenderPassTest;
     tests << new QmlProfilerClientManagerTest;
     tests << new QmlProfilerConfigWidgetTest;
+    tests << new QmlProfilerDetailsRewriterTest;
+    tests << new QmlProfilerToolTest;
+    tests << new QmlProfilerTraceClientTest;
+    tests << new QmlProfilerTraceViewTest;
 
     tests << new QQmlEngine; // Trigger debug connector to be started
 #endif

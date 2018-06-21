@@ -41,7 +41,7 @@ class ModelDocument :
     class ModelDocumentPrivate;
 
 public:
-    explicit ModelDocument(QObject *parent = 0);
+    explicit ModelDocument(QObject *parent = nullptr);
     ~ModelDocument();
 
 signals:

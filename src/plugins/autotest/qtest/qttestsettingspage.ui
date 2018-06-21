@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -28,6 +28,38 @@
          </property>
          <property name="checked">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="useXMLOutputCB">
+         <property name="toolTip">
+          <string>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.
+
+Warning: Plain text misses some information, such as duration.</string>
+         </property>
+         <property name="text">
+          <string>Use XML output</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="verboseBenchmarksCB">
+         <property name="text">
+          <string>Verbose benchmarks</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="logSignalsAndSlotsCB">
+         <property name="toolTip">
+          <string>Log every signal emission and resulting slot invocations.</string>
+         </property>
+         <property name="text">
+          <string>Log signals and slots</string>
          </property>
         </widget>
        </item>

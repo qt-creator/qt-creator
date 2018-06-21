@@ -38,10 +38,11 @@ public:
     BuiltinIndexingSupport();
     ~BuiltinIndexingSupport();
 
-    virtual QFuture<void> refreshSourceFiles(const QSet<QString> &sourceFiles,
-        CppModelManager::ProgressNotificationMode mode);
-    virtual SymbolSearcher *createSymbolSearcher(SymbolSearcher::Parameters parameters,
-                                                 QSet<QString> fileNames);
+    QFuture<void> refreshSourceFiles(const QFutureInterface<void> &superFuture,
+                                     const QSet<QString> &sourceFiles,
+                                     CppModelManager::ProgressNotificationMode mode) override;
+    SymbolSearcher *createSymbolSearcher(SymbolSearcher::Parameters parameters,
+                                         QSet<QString> fileNames)  override;
 
 public:
     static bool isFindErrorsIndexingActive();

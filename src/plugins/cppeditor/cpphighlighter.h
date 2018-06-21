@@ -27,13 +27,14 @@
 
 #include <texteditor/syntaxhighlighter.h>
 
+#include <cplusplus/Token.h>
+
 #include <QTextCharFormat>
 
 namespace CppEditor {
 
 namespace Internal {
 
-class CppEditorWidget;
 
 class CppHighlighter : public TextEditor::SyntaxHighlighter
 {
@@ -42,17 +43,19 @@ class CppHighlighter : public TextEditor::SyntaxHighlighter
 public:
     CppHighlighter(QTextDocument *document = 0);
 
-    virtual void highlightBlock(const QString &text);
+    void setLanguageFeatures(const CPlusPlus::LanguageFeatures &languageFeatures);
+    void highlightBlock(const QString &text) override;
 
 private:
     void highlightWord(QStringRef word, int position, int length);
-    void highlightLine(const QString &line, int position, int length,
-                       const QTextCharFormat &format);
 
     void highlightDoxygenComment(const QString &text, int position,
                                  int length);
 
     bool isPPKeyword(const QStringRef &text) const;
+
+private:
+    CPlusPlus::LanguageFeatures m_languageFeatures = CPlusPlus::LanguageFeatures::defaultFeatures();
 };
 
 } // namespace Internal

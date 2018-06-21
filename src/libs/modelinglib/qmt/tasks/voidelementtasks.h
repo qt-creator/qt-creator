@@ -68,10 +68,13 @@ public:
     void openParentDiagram(const MElement *) override;
     void openParentDiagram(const DElement *, const MElement *) override;
 
-    bool mayCreateDiagram(const qmt::MElement *) const override;
-    bool mayCreateDiagram(const qmt::DElement *, const qmt::MDiagram *) const override;
-    void createAndOpenDiagram(const qmt::MElement *) override;
-    void createAndOpenDiagram(const qmt::DElement *, const qmt::MDiagram *) override;
+    bool mayCreateDiagram(const MElement *) const override;
+    bool mayCreateDiagram(const DElement *, const MDiagram *) const override;
+    void createAndOpenDiagram(const MElement *) override;
+    void createAndOpenDiagram(const DElement *, const MDiagram *) override;
+
+    bool extendContextMenu(const DElement *, const MDiagram *, QMenu *) override;
+    bool handleContextMenuAction(const DElement *, const MDiagram *, const QString &) override;
 };
 
 } // namespace qmt

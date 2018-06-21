@@ -54,8 +54,13 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
 {
     QStringList arguments;
     arguments << "mergetool" << "-y" << files;
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert("LANG", "C");
+    env.insert("LANGUAGE", "C");
     m_process = new QProcess(this);
     m_process->setWorkingDirectory(workingDirectory);
+    m_process->setProcessEnvironment(env);
+    m_process->setReadChannelMode(QProcess::MergedChannels);
     const Utils::FileName binary = GitPlugin::client()->vcsBinary();
     VcsOutputWindow::appendCommand(workingDirectory, binary, arguments);
     m_process->start(binary.toString(), arguments);
@@ -64,7 +69,7 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
         connect(m_process, &QIODevice::readyRead, this, &MergeTool::readData);
     } else {
         delete m_process;
-        m_process = 0;
+        m_process = nullptr;
         return false;
     }
     return true;
@@ -212,6 +217,7 @@ void MergeTool::readData()
             m_mergeType = mergeType(m_line.left(index));
             int quote = m_line.indexOf('\'');
             m_fileName = QString::fromLocal8Bit(m_line.mid(quote + 1, m_line.lastIndexOf('\'') - quote - 1));
+            m_line.clear();
         } else if (m_line.startsWith("  {local}")) {
             waitForFurtherInput = !hasLine;
             if (waitForFurtherInput)
@@ -229,7 +235,18 @@ void MergeTool::readData()
             prompt(tr("Unchanged File"), tr("Was the merge successful?"));
         } else if (m_line.startsWith("Continue merging")) {
             prompt(tr("Continue Merging"), tr("Continue merging other unresolved paths?"));
+        } else if (m_line.startsWith("Hit return")) {
+            QMessageBox::warning(
+                        Core::ICore::dialogParent(), tr("Merge Tool"),
+                        tr("<html><body><p>Merge tool is not configured.</p>\n"
+                           "<p>Run git config --global merge.tool &lt;tool&gt; to configure it, "
+                           "then try again</p></body></html>"));
+            m_process->kill();
+        } else if (m_line.endsWith('\n')) {
+            // Skip unidentified lines
+            m_line.clear();
         }
+
     }
     if (!waitForFurtherInput)
         m_line.clear();

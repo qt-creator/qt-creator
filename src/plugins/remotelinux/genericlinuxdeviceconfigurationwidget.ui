@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string/>
   </property>
   <layout class="QFormLayout" name="formLayout">
    <property name="fieldGrowthPolicy">
@@ -62,6 +62,13 @@
        <widget class="QRadioButton" name="keyButton">
         <property name="text">
          <string>&amp;Key</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="agentButton">
+        <property name="text">
+         <string>Key via ssh-agent</string>
         </property>
        </widget>
       </item>

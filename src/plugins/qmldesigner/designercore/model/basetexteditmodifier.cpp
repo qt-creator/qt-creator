@@ -132,7 +132,7 @@ bool BaseTextEditModifier::moveToComponent(int nodeOffset)
             if (!object)
                 return false;
 
-            QmlJSEditor::ComponentFromObjectDef::perform(document->filePath().toString(), object);
+            QmlJSEditor::performComponentFromObjectDef(document->filePath().toString(), object);
             return true;
         }
     }

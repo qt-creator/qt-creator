@@ -1,0 +1,25 @@
+
+ aa
+!
+*
+-
+12,345
+12.345
+1A
+1a
+1a
+?
+AAA
+_
+a
+a | ls
+aa
+aa a
+aaa
+aaa1
+aaa2
+ab 
+aba
+b > nul
+bbb
+c >> dir

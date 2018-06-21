@@ -25,6 +25,8 @@
 
 #include "submitfieldwidget.h"
 
+#include <utils/utilsicons.h>
+
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -42,9 +44,8 @@ enum { spacing = 2 };
 
 static void inline setComboBlocked(QComboBox *cb, int index)
 {
-    const bool blocked = cb->blockSignals(true);
+    QSignalBlocker blocker(cb);
     cb->setCurrentIndex(index);
-    cb->blockSignals(blocked);
 }
 
 /*!
@@ -139,7 +140,7 @@ struct SubmitFieldWidgetPrivate {
 };
 
 SubmitFieldWidgetPrivate::SubmitFieldWidgetPrivate() :
-        removeFieldIcon(QLatin1String(":/vcsbase/images/removesubmitfield.png")),
+        removeFieldIcon(Utils::Icons::BROKEN.icon()),
         completer(0),
         hasBrowseButton(false),
         allowDuplicateFields(false),

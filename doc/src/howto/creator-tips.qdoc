@@ -132,13 +132,19 @@
 
     For more information, see \l{Using Command Line Options}.
 
-    \section1 Showing and Hiding the Sidebar
+    \section1 Showing and Hiding Sidebars
 
-    To toggle the sidebar in the \uicontrol Edit and \uicontrol Debug modes, click
-    \inlineimage sidebaricon.png
-    or press \key Alt+0 (\key Cmd+0 on \macos).
+    You can toggle the left and right sidebar in some \QC modes.
 
-    For more information on using the sidebar, see
+    To toggle the left sidebar, click \inlineimage leftsidebaricon.png
+    (\uicontrol {Hide Left Sidebar/Show Left Sidebar}) or press \key Alt+0
+    (\key Cmd+0 on \macos).
+
+    To toggle the right sidebar, click \inlineimage rightsidebaricon.png
+    (\uicontrol {Hide Right Sidebar/Show Right Sidebar}) or press
+    \key Alt+Shift+0 (\key Cmd+Shift+0 on \macos).
+
+    For more information on using the sidebars, see
     \l {Browsing Project Contents}.
 
     \section1 Moving To Symbols
@@ -162,15 +168,14 @@
     If an instance of a class is derived from QObject, and you would like to
     find all other objects connected to one of your object's slots using
     Qt's signals and slots mechanism, select \uicontrol Tools > \uicontrol Options
-    > \uicontrol{Debugger} > \uicontrol{Locals and Expressions} >
-    \uicontrol{Use Debugging Helper}.
+    > \uicontrol{Debugger} > \uicontrol{Locals} > \uicontrol{Use Debugging Helper}.
 
-    In the \uicontrol{Locals and Expressions} view, expand the object's entry and open
+    In the \uicontrol{Locals} view, expand the object's entry and open
     the slot in the \e slots subitem. The objects connected to this slot are
     shown as children of the slot. This method works with signals too.
 
-    For more information about the \uicontrol{Locals and Expressions} view, see
-    \l{Locals and Expressions}.
+    For more information about the \uicontrol{Locals} view, see
+    \l{Local Variables and Function Parameters}.
 
     \section1 Displaying Low Level Data
 
@@ -182,7 +187,7 @@
     \list 1
 
         \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
-            \uicontrol{Locals and Expressions}.
+            \uicontrol{Locals}.
 
         \li Uncheck the \uicontrol{Use Debugging Helper} checkbox.
 
@@ -210,8 +215,8 @@
     \image qtcreator-pin-tooltip.png
 
     Pinned tooltips are stored in the session. To close all pinned tooltips,
-    select \uicontrol {Close Editor Tooltips} in the context menu in the \uicontrol {Locals
-    and Expressions} view.
+    select \uicontrol {Close Editor Tooltips} in the context menu in the
+    \uicontrol {Locals} view.
 
     \section1 Locating Files
 
@@ -249,5 +254,12 @@
 
     \QC stores copied text in clipboard history. To retrieve clips from the
     history, press \key {Ctrl+Shift+V} until the clip appears.
+    The number of clips in the history is fixed to 10.
+
+    \section1 Sorting Lines Alphabetically
+
+    To sort selected lines alphabetically, select \uicontrol Edit >
+    \uicontrol Advanced > \uicontrol {Sort Selected Lines} or press
+    \key {Alt+Shift+S} (or \key Ctrl+Shift+S on \macos).
 
 */

@@ -35,6 +35,7 @@
 #include <cpptools/symbolfinder.h>
 
 #include <QMap>
+#include <QSet>
 
 namespace Autotest {
 namespace Internal {
@@ -44,7 +45,9 @@ class TestVisitor : public CPlusPlus::SymbolVisitor
 public:
     explicit TestVisitor(const QString &fullQualifiedClassName, const CPlusPlus::Snapshot &snapshot);
 
-    QMap<QString, TestCodeLocationAndType> privateSlots() const { return m_privSlots; }
+    void setInheritedMode(bool inherited) { m_inherited = inherited; }
+    QMap<QString, QtTestCodeLocationAndType> privateSlots() const { return m_privSlots; }
+    QSet<QString> baseClasses() const { return m_baseClasses; }
     bool resultValid() const { return m_valid; }
 
     bool visit(CPlusPlus::Class *symbol);
@@ -53,8 +56,10 @@ private:
     CppTools::SymbolFinder m_symbolFinder;
     QString m_className;
     CPlusPlus::Snapshot m_snapshot;
-    QMap<QString, TestCodeLocationAndType> m_privSlots;
+    QMap<QString, QtTestCodeLocationAndType> m_privSlots;
     bool m_valid = false;
+    bool m_inherited = false;
+    QSet<QString> m_baseClasses;
 };
 
 class TestAstVisitor : public CPlusPlus::ASTVisitor
@@ -69,7 +74,7 @@ public:
 
 private:
     QString m_className;
-    CPlusPlus::Scope *m_currentScope = 0;
+    CPlusPlus::Scope *m_currentScope = nullptr;
     CPlusPlus::Document::Ptr m_currentDoc;
     CPlusPlus::Snapshot m_snapshot;
 };
@@ -84,7 +89,7 @@ public:
     bool visit(CPlusPlus::CallAST *ast);
     bool preVisit(CPlusPlus::AST *ast);
     void postVisit(CPlusPlus::AST *ast);
-    QMap<QString, TestCodeLocationList> dataTags() const { return m_dataTags; }
+    QMap<QString, QtTestCodeLocationList> dataTags() const { return m_dataTags; }
 
 private:
     QString extractNameFromAST(CPlusPlus::StringLiteralAST *ast, bool *ok) const;
@@ -93,8 +98,8 @@ private:
     CPlusPlus::Document::Ptr m_currentDoc;
     CPlusPlus::Overview m_overview;
     QString m_currentFunction;
-    QMap<QString, TestCodeLocationList> m_dataTags;
-    TestCodeLocationList m_currentTags;
+    QMap<QString, QtTestCodeLocationList> m_dataTags;
+    QtTestCodeLocationList m_currentTags;
     unsigned m_currentAstDepth = 0;
     unsigned m_insideUsingQTestDepth = 0;
     bool m_insideUsingQTest = false;

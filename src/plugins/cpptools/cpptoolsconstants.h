@@ -50,11 +50,15 @@ const char LOWERCASE_CPPFILES_KEY[] = "LowerCaseFiles";
 enum { lowerCaseFilesDefault = 1 };
 const char CPPTOOLS_SORT_EDITOR_DOCUMENT_OUTLINE[] = "SortedMethodOverview";
 const char CPPTOOLS_SHOW_INFO_BAR_FOR_HEADER_ERRORS[] = "ShowInfoBarForHeaderErrors";
+const char CPPTOOLS_SHOW_INFO_BAR_FOR_FOR_NO_PROJECT[] = "ShowInfoBarForNoProject";
 const char CPPTOOLS_MODEL_MANAGER_PCH_USAGE[] = "PCHUsage";
+const char CPPTOOLS_INTERPRET_AMBIGIUOUS_HEADERS_AS_C_HEADERS[]
+    = "InterpretAmbiguousHeadersAsCHeaders";
 const char CPPTOOLS_SKIP_INDEXING_BIG_FILES[] = "SkipIndexingBigFiles";
 const char CPPTOOLS_INDEXER_FILE_SIZE_LIMIT[] = "IndexerFileSizeLimit";
 
-const char CPP_CLANG_BUILTIN_CONFIG_ID_EVERYTHING_WITH_EXCEPTIONS[] = "Builtin.EverythingWithExceptions";
+const char CPP_CLANG_BUILTIN_CONFIG_ID_EVERYTHING_WITH_EXCEPTIONS[]
+    = "Builtin.EverythingWithExceptions";
 
 const char CPP_CODE_STYLE_SETTINGS_ID[] = "A.Cpp.Code Style";
 const char CPP_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "Code Style");
@@ -62,14 +66,40 @@ const char CPP_FILE_SETTINGS_ID[] = "B.Cpp.File Naming";
 const char CPP_FILE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "File Naming");
 const char CPP_CODE_MODEL_SETTINGS_ID[] = "C.Cpp.Code Model";
 const char CPP_CODE_MODEL_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "Code Model");
+const char CPP_DIAGNOSTIC_CONFIG_SETTINGS_ID[] = "C.Cpp.Diagnostic Config";
+const char CPP_DIAGNOSTIC_CONFIG_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "Diagnostic Configurations");
 const char CPP_SETTINGS_CATEGORY[] = "I.C++";
-const char CPP_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("CppTools", "C++");
-const char SETTINGS_CATEGORY_CPP_ICON[] = ":/cpptools/images/category_cpp.png";
 
 const char CPP_CLANG_FIXIT_AVAILABLE_MARKER_ID[] = "ClangFixItAvailableMarker";
 
 const char CPP_SETTINGS_ID[] = "Cpp";
 const char CPP_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++");
+
+const char CURRENT_DOCUMENT_FILTER_ID[] = "Methods in current Document";
+const char CURRENT_DOCUMENT_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++ Symbols in Current Document");
+
+const char CLASSES_FILTER_ID[] = "Classes";
+const char CLASSES_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++ Classes");
+
+const char FUNCTIONS_FILTER_ID[] = "Methods";
+const char FUNCTIONS_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++ Functions");
+
+const char INCLUDES_FILTER_ID[] = "All Included C/C++ Files";
+const char INCLUDES_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "All Included C/C++ Files");
+
+const char LOCATOR_FILTER_ID[] = "Classes and Methods";
+const char LOCATOR_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++ Classes, Enums and Functions");
+
+const char SYMBOLS_FIND_FILTER_ID[] = "Symbols";
+const char SYMBOLS_FIND_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++ Symbols");
+
+// CLANG-UPGRADE-CHECK: Checks/update URLs.
+//
+// Upgrade the version in the URL. Note that we cannot use the macro
+// CLANG_VERSION here because it might denote a version that was not yet
+// released (e.g. 6.0.1, but only 6.0.0 was released).
+constexpr const char TIDY_DOCUMENTATION_URL_TEMPLATE[]
+    = "https://releases.llvm.org/6.0.0/tools/clang/tools/extra/docs/clang-tidy/checks/%1.html";
 
 } // namespace Constants
 } // namespace CppTools

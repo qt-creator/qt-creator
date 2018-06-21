@@ -32,13 +32,13 @@
 
     \title Connecting iOS Devices
 
-    You can connect iOS devices to a Mac computer with a USB cable to
-    build and run applications on them from \QC.
+    You can connect iOS devices to your local machine with a USB cable to
+    run applications built for them from \QC.
 
     To be able to use \QC on \macos, you must install Xcode, and therefore,
     you already have the tool chain for building applications for iOS. \QC
     automatically detects the tool chain and creates the necessary
-    \l{glossary-buildandrun-kit}{kits} for building and running applications on
+    \l{glossary-buildandrun-kit}{kits} to build applications for and run them on
     configured iOS devices.
 
     You only need Qt libraries that are built for iOS. You can install them as
@@ -52,7 +52,7 @@
     {enroll in the Apple Developer Program}. The certificate is copied to
     the device when you configure the device.
 
-    The first time you connect the device to the Mac, you are asked to enable
+    The first time you connect the device to your local machine, you are asked to enable
     developer mode on the device. The next time you connect the device, \QC
     detects it automatically. To disable automatic connections to a device that
     you do not use for development, select \uicontrol Preferences >
@@ -69,7 +69,7 @@
 
         \li Make sure that you have Xcode and Qt for iOS installed.
 
-        \li Connect the device to the Mac computer with a USB cable.
+        \li Connect the device to your local machine with a USB cable.
 
         \li Start Xcode to configure the device.
 
@@ -85,9 +85,21 @@
                 device.
 
             \li Select \uicontrol Projects > \uicontrol {Build & Run} to select
-                the kit for building and running applications on iOS.
+                the kit for building applications for and running them on iOS.
 
                 \image qtcreator-ios-add-kit.png "Build & Run Settings"
+
+            \li In \uicontrol {iOS Settings}, select the development team to use
+                for signing and provisioning applications. You must configure
+                development teams and provisioning profiles in Xcode using an
+                Apple developer account.
+
+                \image qtcreator-build-settings-ios.png "iOS build settings"
+
+            \li Select the \uicontrol {Automatically manage signing} check box
+                to automatically select the provisioning profile and signing
+                certificate on your local machine that matches the entitlements
+                and the bundle identifier of the iOS device.
 
         \endlist
 
@@ -105,13 +117,13 @@
 
     \note If you cannot deploy applications, because a provisioning profile is
     missing, check that provisioning profiles are listed in Xcode by selecting
-    \uicontrol Xcode > \uicontrol Preferences > \uicontrol Accounts >
-    \uicontrol {View Details}. For more information about how to acquire and
-    install a provisioning profile, see Apple documentation.
+    \uicontrol Xcode > \uicontrol Preferences > \uicontrol Accounts. For more
+    information about how to acquire and install a provisioning profile, see
+    Apple documentation.
 
     \section1 Viewing Device Connection Status
 
-    When you connect an iOS device to a Mac computer with USB, \QC
+    When you connect an iOS device to your local machine with USB, \QC
     automatically detects the device if you have configured it by using Xcode.
     To view information about the connected device, select \uicontrol Preferences >
     \uicontrol Devices.
@@ -121,20 +133,82 @@
     If the current device state is \uicontrol Connected, (the traffic light icon is
     orange), you need to configure the device using Xcode.
 
-    \section1 Testing on iOS Simulator
+    \section1 Specifying Supported iOS Versions
+
+    Qt 5 applications can be built for the latest iOS version and deployed to
+    previous versions. For the most part, this works automatically. However,
+    you must take care when you manually set your own target version. If you set
+    it to a value higher than what Qt requires and supply your own \c Info.plist
+    file, you must add an \c LSMinimumSystemVersion entry to the \c Info.plist
+    that matches the value of \c QMAKE_IOS_DEPLOYMENT_TARGET (when using qmake)
+    or \c cpp.minimumIosVersion (when using Qbs), because iOS (and the
+    App Store) will use the \c LSMinimumSystemVersion value as the authoritative
+    one.
+
+    If you specify a deployment target value lower than what Qt requires, your
+    application will almost certainly crash somewhere in the Qt libraries when
+    run on an older version than Qt supports. Therefore, make sure that the
+    actual build system code reflects the minimum iOS version that is actually
+    required.
+
+    For more information, see \l{Expressing Supported iOS Versions}.
+
+    \section1 Testing on Simulator
 
     If you do not have an iOS device or you do not want to create an account,
     you can test applications on
     \l{http://developer.apple.com/library/ios/documentation/IDEs/Conceptual/iOS_Simulator_Guide/Introduction/Introduction.html}
-    {iOS Simulator}, which is installed as part of Xcode. Each Xcode version
+    {Simulator}, which is installed as part of Xcode. Each Xcode version
     simulates a predefined set of hardware devices and software versions.
 
     You can change the simulated hardware and software version in the run
     settings for the project. Select \uicontrol Projects > \uicontrol Run, and then select
     the device to simulate in the \uicontrol {Device type} field.
 
-    \QC uses the Xcode version set as current on the Mac computer.
-    To check the version, enter the following command:
+    \image qtcreator-ios-simulator-deploy.png
+
+    The simulator is started automatically when you run the application.
+    To start the simulator manually, select \uicontrol Preferences >
+    \uicontrol Devices > \uicontrol iOS > \uicontrol Start.
+
+    To take screenshots of the simulator, select \uicontrol Preferences >
+    \uicontrol Devices > \uicontrol iOS > \uicontrol Screenshot. The screenshots
+    are stored in the directory specified in the
+    \uicontrol {Screenshot directory} field.
+
+    \section2 Managing Simulators
+
+    The available simulators are listed in \uicontrol Preferences >
+    \uicontrol Devices > \uicontrol iOS.
+
+    \image qtcreator-ios-preferences.png
+
+    To create a new simulator instance:
+
+    \list
+
+        \li Select \uicontrol Create.
+
+        \li In the \uicontrol {Device type} field, select the device type from
+            a list of devices supported by the Xcode version set as current on
+            your local machine.
+
+        \li In the \uicontrol {OS version} field, select an OS version from a
+            list of OS versions supported by the selected device and the current
+            Xcode version.
+
+    \endlist
+
+    To rename the selected simulator, select \uicontrol Rename.
+
+    To reset the contents and settings of the selected simulators, select
+    \uicontrol Reset.
+
+    To delete the selected simulator, select \uicontrol Delete.
+
+    \section2 Checking Current Xcode Version
+
+    To check the current Xcode version, enter the following command:
 
     \c {xcode-select --print-path}
 

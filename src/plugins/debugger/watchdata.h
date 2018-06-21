@@ -39,7 +39,7 @@ namespace Internal {
 
 class GdbMi;
 
-class WatchItem : public Utils::TypedTreeItem<WatchItem>
+class WatchItem : public Utils::TypedTreeItem<WatchItem, WatchItem>
 {
 public:
     WatchItem();
@@ -57,8 +57,6 @@ public:
 
     QVariant editValue() const;
     int editType() const;
-
-    WatchItem *parentItem() const;
 
     static const qint64 InvalidId = -1;
 

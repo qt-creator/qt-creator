@@ -215,12 +215,12 @@ QString simplifyType(const QString &typeIn)
                 type.replace(setRE.cap(0), QString::fromLatin1("set<%1>").arg(inner));
 
             // std::unordered_set
-            QRegExp unorderedSetRE(QString::fromLatin1("unordered_set<%1, ?std::hash<%2>, ?std::equal_to<%3>, ?%4\\s*>")
+            QRegExp unorderedSetRE(QString::fromLatin1("unordered_(multi)?set<%1, ?std::hash<%2>, ?std::equal_to<%3>, ?%4\\s*>")
                 .arg(innerEsc, innerEsc, innerEsc, allocEsc));
             unorderedSetRE.setMinimal(true);
             QTC_ASSERT(unorderedSetRE.isValid(), return typeIn);
             if (unorderedSetRE.indexIn(type) != -1)
-                type.replace(unorderedSetRE.cap(0), QString::fromLatin1("unordered_set<%1>").arg(inner));
+                type.replace(unorderedSetRE.cap(0), QString::fromLatin1("unordered_%1set<%2>").arg(unorderedSetRE.cap(1), inner));
 
             // boost::unordered_set
             QRegExp boostUnorderedSetRE(QString::fromLatin1("unordered_set<%1, ?boost::hash<%2>, ?std::equal_to<%3>, ?%4\\s*>")
@@ -287,12 +287,12 @@ QString simplifyType(const QString &typeIn)
                     pos++;
                 const QString value = inner.mid(pos, inner.size() - pos - 1).trimmed();
                 const QString valueEsc = QRegExp::escape(value);
-                QRegExp mapRE1(QString::fromLatin1("unordered_map<%1, ?%2, ?std::hash<%3 ?>, ?std::equal_to<%4 ?>, ?%5\\s*>")
+                QRegExp mapRE1(QString::fromLatin1("unordered_(multi)?map<%1, ?%2, ?std::hash<%3 ?>, ?std::equal_to<%4 ?>, ?%5\\s*>")
                                .arg(keyEsc, valueEsc, keyEsc, keyEsc, allocEsc));
                 mapRE1.setMinimal(true);
                 QTC_ASSERT(mapRE1.isValid(), return typeIn);
                 if (mapRE1.indexIn(type) != -1)
-                    type.replace(mapRE1.cap(0), QString::fromLatin1("unordered_map<%1, %2>").arg(key, value));
+                    type.replace(mapRE1.cap(0), QString::fromLatin1("unordered_%1map<%2, %3>").arg(mapRE1.cap(1), key, value));
 
                 if (isLibCpp) {
                     QRegExp mapRE2(QString::fromLatin1("unordered_map<std::string, ?%1, "

@@ -28,12 +28,7 @@
 #include "qmljsquickfix.h"
 
 namespace QmlJSEditor {
-namespace Internal {
 
-class WrapInLoader: public QmlJSQuickFixFactory
-{
-    void match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result);
-};
+void matchWrapInLoaderQuickFix(const QmlJSQuickFixInterface &interface, QuickFixOperations &result);
 
-} // namespace Internal
 } // namespace QmlJSEditor

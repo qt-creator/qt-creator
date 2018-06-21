@@ -180,7 +180,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     auto buttonLayout = new QVBoxLayout();
 
     d->m_editButton = new QPushButton(this);
-    d->m_editButton->setText(tr("&Edit"));
+    d->m_editButton->setText(tr("Ed&it"));
     buttonLayout->addWidget(d->m_editButton);
 
     d->m_addButton = new QPushButton(this);
@@ -242,6 +242,16 @@ void EnvironmentWidget::focusIndex(const QModelIndex &index)
 {
     d->m_environmentView->setCurrentIndex(index);
     d->m_environmentView->setFocus();
+    // When the current item changes as a result of the call above,
+    // QAbstractItemView::currentChanged() is called. That calls scrollTo(current),
+    // using the default EnsureVisible scroll hint, whereas we want PositionAtTop,
+    // because it ensures that the user doesn't have to scroll down when they've
+    // added a new environment variable and want to edit its value; they'll be able
+    // to see its value as they're typing it.
+    // This only helps to a certain degree - variables whose names start with letters
+    // later in the alphabet cause them fall within the "end" of the view's range,
+    // making it impossible to position them at the top of the view.
+    d->m_environmentView->scrollTo(index, QAbstractItemView::PositionAtTop);
 }
 
 void EnvironmentWidget::setBaseEnvironment(const Utils::Environment &env)
@@ -275,7 +285,7 @@ void EnvironmentWidget::updateSummaryText()
     foreach (const Utils::EnvironmentItem &item, list) {
         if (item.name != Utils::EnvironmentModel::tr("<VARIABLE>")) {
             text.append(QLatin1String("<br>"));
-            if (item.unset)
+            if (item.operation == Utils::EnvironmentItem::Unset)
                 text.append(tr("Unset <a href=\"%1\"><b>%1</b></a>").arg(item.name.toHtmlEscaped()));
             else
                 text.append(tr("Set <a href=\"%1\"><b>%1</b></a> to <b>%2</b>").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));

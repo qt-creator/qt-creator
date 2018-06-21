@@ -62,6 +62,7 @@ public:
     static quint64 asUint64(const QByteArray &data, quint32 *offset);
     static quint32 asUint32(const QByteArray &data, quint32 offset);
     static quint32 asUint32(const QByteArray &data, quint32 *offset);
+    static QByteArray asString(const QByteArray &data, quint32 offset);
     static QByteArray asString(const QByteArray &data, quint32 *offset);
     static QString asUserString(const QByteArray &data, quint32 *offset);
     static SshNameList asNameList(const QByteArray &data, quint32 *offset);

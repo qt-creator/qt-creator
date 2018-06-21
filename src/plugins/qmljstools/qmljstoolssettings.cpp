@@ -46,8 +46,7 @@ const char idKey[] = "QmlJSGlobal";
 
 static SimpleCodeStylePreferences *m_globalCodeStyle = 0;
 
-QmlJSToolsSettings::QmlJSToolsSettings(QObject *parent)
-    : QObject(parent)
+QmlJSToolsSettings::QmlJSToolsSettings()
 {
     QTC_ASSERT(!m_globalCodeStyle, return);
 
@@ -131,6 +130,7 @@ QmlJSToolsSettings::QmlJSToolsSettings(QObject *parent)
 
     // mimetypes to be handled
     TextEditorSettings::registerMimeTypeForLanguageId(Constants::QML_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(Constants::QMLUI_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
     TextEditorSettings::registerMimeTypeForLanguageId(Constants::QBS_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
     TextEditorSettings::registerMimeTypeForLanguageId(Constants::QMLPROJECT_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
     TextEditorSettings::registerMimeTypeForLanguageId(Constants::QMLTYPES_MIMETYPE, Constants::QML_JS_SETTINGS_ID);

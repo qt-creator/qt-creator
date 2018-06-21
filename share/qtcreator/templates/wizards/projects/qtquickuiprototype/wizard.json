@@ -1,0 +1,144 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "QmlProjectManager.QmlProject" ],
+    "id": "QA.QtQuickUi",
+    "category": "H.Project",
+    "trDescription": "Creates a Qt Quick 2 UI project with a QML entry point. To use it, you need to have a QML runtime environment such as qmlscene set up.\n\nUse this only if you are prototyping. You cannot create a full application with this. Consider using a Qt Quick Application project instead.",
+    "trDisplayName": "Qt Quick UI Prototype",
+    "trDisplayCategory": "Other Project",
+    "icon": "qtquickuiprototype.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmlProjectManager') >= 0}",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQtQuickProject", "QtSupport.Wizards.FeatureQt" ],
+
+    "options":
+    [
+        { "key": "QmlProjectFileName", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'qmlproject')}" },
+        { "key": "MainQmlFileName", "value": "%{JS: Util.fileName('%{ProjectName}', 'qml')}" },
+        { "key": "QtQuickVersion", "value": "%{JS: %{QtVersion}.QtQuickVersion}" },
+        { "key": "QtQuickWindowVersion", "value": "%{JS: %{QtVersion}.QtQuickWindowVersion}" },
+        { "key": "QtQuickVirtualKeyboardImport", "value": "%{JS: %{QtVersion}.QtQuickVirtualKeyboardImport}" },
+        { "key": "QtQuickFeature", "value": "QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}" },
+        { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: [ %{Plugins} ].indexOf('Boot2Qt') >= 0 || [ %{Plugins} ].indexOf('Boot2QtQdb') >= 0}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project"
+        },
+        {
+            "trDisplayName": "Define Project Details",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "QtVersion",
+                    "trDisplayName": "Minimal required Qt version:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 2,
+                        "items":
+                        [
+                            {
+                                "trKey": "Qt 5.11",
+                                "value":
+                                "{
+                                    'QtQuickVersion': '2.11',
+                                    'QtQuickWindowVersion': '2.11',
+                                    'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.3'
+                                }"
+                            },
+                            {
+                                "trKey": "Qt 5.10",
+                                "value":
+                                "{
+                                    'QtQuickVersion': '2.10',
+                                    'QtQuickWindowVersion': '2.10',
+                                    'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.3'
+                                }"
+                            },
+                            {
+                                "trKey": "Qt 5.9",
+                                "value":
+                                "{
+                                    'QtQuickVersion': '2.9',
+                                    'QtQuickWindowVersion': '2.3',
+                                    'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.2'
+                                }"
+                            },
+                            {
+                                "trKey": "Qt 5.8",
+                                "value":
+                                "{
+                                    'QtQuickVersion': '2.8',
+                                    'QtQuickWindowVersion': '2.2',
+                                    'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.1'
+                                }"
+                            },
+                            {
+                                "trKey": "Qt 5.7",
+                                "value":
+                                "{
+                                    'QtQuickVersion': '2.7',
+                                    'QtQuickWindowVersion': '2.2',
+                                    'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.1'
+                                }"
+                            },
+                            {
+                                "trKey": "Qt 5.6",
+                                "value":
+                                "{
+                                    'QtQuickVersion': '2.6',
+                                    'QtQuickWindowVersion': '2.2',
+                                    'QtQuickVirtualKeyboardImport': 'QtQuick.Enterprise.VirtualKeyboard 2.0'
+                                }"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "UseVirtualKeyboard",
+                    "trDisplayName": "Use Qt Virtual Keyboard",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checked": "%{JS: %{UseVirtualKeyboardByDefault}}"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "app.qmlproject",
+                    "target": "%{QmlProjectFileName}",
+                    "openAsProject": true
+                },
+                {
+                    "source": "../qtquickapplication/empty/main.qml.tpl",
+                    "target": "%{ProjectDirectory}/%{MainQmlFileName}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "../git.ignore",
+                    "target": "%{ProjectDirectory}/.gitignore",
+                    "condition": "%{JS: !%{IsSubproject} && '%{VersionControl}' === 'G.Git'}"
+                }
+            ]
+        }
+    ]
+}

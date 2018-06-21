@@ -47,7 +47,6 @@ ConfigurationSyntaxHighlighter::ConfigurationSyntaxHighlighter(QTextDocument *pa
     m_formatComment = fs.toTextCharFormat(TextEditor::C_COMMENT);
 
     m_expressionComment.setPattern("#[^\\n]*");
-    m_expressionComment.setMinimal(false);
 }
 
 void ConfigurationSyntaxHighlighter::setKeywords(const QStringList &keywords)
@@ -59,35 +58,29 @@ void ConfigurationSyntaxHighlighter::setKeywords(const QStringList &keywords)
     QStringList pattern;
     for (const QString &word : keywords) {
         if (!word.isEmpty())
-            pattern << QRegExp::escape(word);
+            pattern << QRegularExpression::escape(word);
     }
 
     m_expressionKeyword.setPattern("(?:\\s|^)(" + pattern.join('|') + ")(?=\\s|\\:|\\=|\\,|$)");
 }
 
-void ConfigurationSyntaxHighlighter::setCommentExpression(const QRegExp &rx)
+void ConfigurationSyntaxHighlighter::setCommentExpression(const QRegularExpression &rx)
 {
     m_expressionComment = rx;
 }
 
 void ConfigurationSyntaxHighlighter::highlightBlock(const QString &text)
 {
-    int pos = 0;
-    if (!m_expressionKeyword.isEmpty()) {
-        while ((pos = m_expressionKeyword.indexIn(text, pos)) != -1) {
-            const int length = m_expressionKeyword.matchedLength();
-            setFormat(pos, length, m_formatKeyword);
-            pos += length;
-        }
+    QRegularExpressionMatchIterator it = m_expressionKeyword.globalMatch(text);
+    while (it.hasNext()) {
+        const QRegularExpressionMatch match = it.next();
+        setFormat(match.capturedStart(), match.capturedLength(), m_formatKeyword);
     }
 
-    if (!m_expressionComment.isEmpty()) {
-        pos = 0;
-        while ((pos = m_expressionComment.indexIn(text, pos)) != -1) {
-            const int length = m_expressionComment.matchedLength();
-            setFormat(pos, length, m_formatComment);
-            pos += length;
-        }
+    it = m_expressionComment.globalMatch(text);
+    while (it.hasNext()) {
+        const QRegularExpressionMatch match = it.next();
+        setFormat(match.capturedStart(), match.capturedLength(), m_formatComment);
     }
 }
 
@@ -123,7 +116,7 @@ void ConfigurationEditor::setSettings(AbstractSettings *settings)
     m_model->setStringList(keywords);
 }
 
-void ConfigurationEditor::setCommentExpression(const QRegExp &rx)
+void ConfigurationEditor::setCommentExpression(const QRegularExpression &rx)
 {
     m_highlighter->setCommentExpression(rx);
 }

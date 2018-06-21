@@ -285,6 +285,11 @@ QString RefactoringFile::textOf(const Range &range) const
     return textOf(range.start, range.end);
 }
 
+ChangeSet RefactoringFile::changeSet() const
+{
+    return m_changes;
+}
+
 void RefactoringFile::setChangeSet(const ChangeSet &changeSet)
 {
     if (m_fileName.isEmpty())
@@ -316,7 +321,7 @@ void RefactoringFile::setOpenEditor(bool activate, int pos)
     m_editorCursorPosition = pos;
 }
 
-void RefactoringFile::apply()
+bool RefactoringFile::apply()
 {
     // test file permissions
     if (!QFileInfo(fileName()).isWritable()) {
@@ -326,7 +331,7 @@ void RefactoringFile::apply()
                                                                 "Refactoring cannot be applied.");
         roDialog.setShowFailWarning(true, failDetailText);
         if (roDialog.exec() == ReadOnlyFilesDialog::RO_Cancel)
-            return;
+            return false;
     }
 
     // open / activate / goto position
@@ -339,6 +344,8 @@ void RefactoringFile::apply()
         m_activateEditor = false;
         m_editorCursorPosition = -1;
     }
+
+    bool result = true;
 
     // apply changes, if any
     if (m_data && !(m_indentRanges.isEmpty() && m_changes.isEmpty())) {
@@ -369,10 +376,12 @@ void RefactoringFile::apply()
 
             // if this document doesn't have an editor, write the result to a file
             if (!m_editor && m_textFileFormat.codec) {
-                QTC_ASSERT(!m_fileName.isEmpty(), return);
+                QTC_ASSERT(!m_fileName.isEmpty(), return false);
                 QString error;
-                if (!m_textFileFormat.writeFile(m_fileName, doc->toPlainText(), &error))
+                if (!m_textFileFormat.writeFile(m_fileName, doc->toPlainText(), &error)) {
                     qWarning() << "Could not apply changes to" << m_fileName << ". Error: " << error;
+                    result = false;
+                }
             }
 
             fileChanged();
@@ -380,6 +389,7 @@ void RefactoringFile::apply()
     }
 
     m_appliedOnce = true;
+    return result;
 }
 
 void RefactoringFile::indentOrReindent(void (RefactoringChangesData::*mf)(const QTextCursor &,

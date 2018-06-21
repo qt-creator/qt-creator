@@ -29,14 +29,17 @@
 #include "qnxrunconfiguration.h"
 #include "slog2inforunner.h"
 
-#include <debugger/analyzer/analyzerruncontrol.h>
-#include <projectexplorer/devicesupport/deviceapplicationrunner.h>
+#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+
 #include <qmldebug/qmldebugcommandlinearguments.h>
+#include <qmldebug/qmloutputparser.h>
+
+#include <ssh/sshconnection.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -44,129 +47,41 @@ using namespace Utils;
 namespace Qnx {
 namespace Internal {
 
-QnxAnalyzeSupport::QnxAnalyzeSupport(QnxRunConfiguration *runConfig,
-                                     Debugger::AnalyzerRunControl *runControl)
-    : QnxAbstractRunSupport(runConfig, runControl)
-    , m_runnable(runConfig->runnable().as<StandardRunnable>())
-    , m_runControl(runControl)
-    , m_qmlPort(-1)
+QnxQmlProfilerSupport::QnxQmlProfilerSupport(RunControl *runControl)
+    : SimpleTargetRunner(runControl)
 {
-    const DeviceApplicationRunner *runner = appRunner();
-    connect(runner, &DeviceApplicationRunner::reportError,
-            this, &QnxAnalyzeSupport::handleError);
-    connect(runner, &DeviceApplicationRunner::remoteProcessStarted,
-            this, &QnxAbstractRunSupport::handleRemoteProcessStarted);
-    connect(runner, &DeviceApplicationRunner::finished,
-            this, &QnxAnalyzeSupport::handleRemoteProcessFinished);
-    connect(runner, &DeviceApplicationRunner::reportProgress,
-            this, &QnxAnalyzeSupport::handleProgressReport);
-    connect(runner, &DeviceApplicationRunner::remoteStdout,
-            this, &QnxAnalyzeSupport::handleRemoteOutput);
-    connect(runner, &DeviceApplicationRunner::remoteStderr,
-            this, &QnxAnalyzeSupport::handleRemoteOutput);
+    setDisplayName("QnxQmlProfilerSupport");
+    appendMessage(tr("Preparing remote side..."), Utils::LogMessageFormat);
 
-    connect(m_runControl, &Debugger::AnalyzerRunControl::starting,
-            this, &QnxAnalyzeSupport::handleAdapterSetupRequested);
-    connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
-            this, &QnxAnalyzeSupport::remoteIsRunning);
+    m_portsGatherer = new PortsGatherer(runControl);
+    addStartDependency(m_portsGatherer);
 
-    IDevice::ConstPtr dev = DeviceKitInformation::device(runConfig->target()->kit());
-    QnxDevice::ConstPtr qnxDevice = dev.dynamicCast<const QnxDevice>();
+    auto slog2InfoRunner = new Slog2InfoRunner(runControl);
+    addStartDependency(slog2InfoRunner);
 
-    const QString applicationId = FileName::fromString(runConfig->remoteExecutableFilePath()).fileName();
-    m_slog2Info = new Slog2InfoRunner(applicationId, qnxDevice, this);
-    connect(m_slog2Info, &Slog2InfoRunner::output,
-            this, &QnxAnalyzeSupport::showMessage);
-    connect(runner, &DeviceApplicationRunner::remoteProcessStarted,
-            m_slog2Info, &Slog2InfoRunner::start);
-    if (qnxDevice->qnxVersion() > 0x060500)
-        connect(m_slog2Info, &Slog2InfoRunner::commandMissing,
-                this, &QnxAnalyzeSupport::printMissingWarning);
+    m_profiler = runControl->createWorker(runControl->runMode());
+    m_profiler->addStartDependency(this);
+    addStopDependency(m_profiler);
 }
 
-void QnxAnalyzeSupport::handleAdapterSetupRequested()
+void QnxQmlProfilerSupport::start()
 {
-    QTC_ASSERT(state() == Inactive, return);
+    Port qmlPort = m_portsGatherer->findPort();
 
-    showMessage(tr("Preparing remote side...") + QLatin1Char('\n'), NormalMessageFormat);
-    QnxAbstractRunSupport::handleAdapterSetupRequested();
-}
+    QUrl serverUrl;
+    serverUrl.setHost(device()->sshParameters().host());
+    serverUrl.setPort(qmlPort.number());
+    serverUrl.setScheme("tcp");
+    m_profiler->recordData("QmlServerUrl", serverUrl);
 
-void QnxAnalyzeSupport::startExecution()
-{
-    if (state() == Inactive)
-        return;
+    Runnable r = runnable();
+    QtcProcess::addArg(&r.commandLineArguments,
+                       QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, qmlPort),
+                       device()->osType());
 
-    if (!setPort(m_qmlPort) && !m_qmlPort.isValid())
-        return;
+    setRunnable(r);
 
-    setState(StartingRemoteProcess);
-
-    StandardRunnable r = m_runnable;
-    if (!r.commandLineArguments.isEmpty())
-        r.commandLineArguments += QLatin1Char(' ');
-    r.commandLineArguments += QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices,
-                                                             m_qmlPort);
-    appRunner()->start(device(), r);
-}
-
-void QnxAnalyzeSupport::handleRemoteProcessFinished(bool success)
-{
-    if (!m_runControl)
-        return;
-
-    if (!success)
-        showMessage(tr("The %1 process closed unexpectedly.").arg(m_runnable.executable),
-                    NormalMessageFormat);
-    m_runControl->notifyRemoteFinished();
-
-    m_slog2Info->stop();
-}
-
-void QnxAnalyzeSupport::handleProfilingFinished()
-{
-    setFinished();
-}
-
-void QnxAnalyzeSupport::handleProgressReport(const QString &progressOutput)
-{
-    showMessage(progressOutput + QLatin1Char('\n'), NormalMessageFormat);
-}
-
-void QnxAnalyzeSupport::handleRemoteOutput(const QByteArray &output)
-{
-    QTC_ASSERT(state() == Inactive || state() == Running, return);
-
-    showMessage(QString::fromUtf8(output), StdOutFormat);
-}
-
-void QnxAnalyzeSupport::handleError(const QString &error)
-{
-    if (state() == Running) {
-        showMessage(error, ErrorMessageFormat);
-    } else if (state() != Inactive) {
-        showMessage(tr("Initial setup failed: %1").arg(error), NormalMessageFormat);
-        setFinished();
-    }
-}
-
-void QnxAnalyzeSupport::remoteIsRunning()
-{
-    if (m_runControl)
-        m_runControl->notifyRemoteSetupDone(m_qmlPort);
-}
-
-void QnxAnalyzeSupport::showMessage(const QString &msg, OutputFormat format)
-{
-    if (state() != Inactive && m_runControl)
-        m_runControl->appendMessage(msg, format);
-    m_outputParser.processOutput(msg);
-}
-
-void QnxAnalyzeSupport::printMissingWarning()
-{
-    showMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available."),
-                ErrorMessageFormat);
+    SimpleTargetRunner::start();
 }
 
 } // namespace Internal

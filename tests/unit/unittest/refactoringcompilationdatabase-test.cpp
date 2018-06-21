@@ -69,7 +69,7 @@ TEST_F(RefactoringCompilationDatabase, GetAllFilesContainsTranslationUnit)
 {
     auto filePaths = database.getAllFiles();
 
-    ASSERT_THAT(filePaths, Contains(temporarySourceFilePath));
+    ASSERT_THAT(filePaths, Contains(std::string(temporarySourceFilePath)));
 }
 
 TEST_F(RefactoringCompilationDatabase, CompileCommandForFilePath)
@@ -94,12 +94,12 @@ TEST_F(RefactoringCompilationDatabase, FilePaths)
 {
     auto filePaths = database.getAllFiles();
 
-    ASSERT_THAT(filePaths, Contains(temporarySourceFilePath));
+    ASSERT_THAT(filePaths, Contains(std::string(temporarySourceFilePath)));
 }
 
 void RefactoringCompilationDatabase::SetUp()
 {
-    database.addFile(temporaryDirectoryPath, "data.cpp", {"cc", "data.cpp", "-DNO_DEBUG"});
+    database.addFile(std::string(temporaryDirectoryPath), "data.cpp", {"cc", "data.cpp", "-DNO_DEBUG"});
 }
 
 }

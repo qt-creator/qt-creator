@@ -41,7 +41,7 @@ class SelectionTool : public AbstractFormEditorTool
 {
 public:
     SelectionTool(FormEditorView* editorView);
-    ~SelectionTool();
+    ~SelectionTool() override;
 
     void mousePressEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) override;
     void mouseMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) override;
@@ -89,6 +89,7 @@ private:
     ContentNotEditableIndicator m_contentNotEditableIndicator;
     QTime m_mousePressTimer;
     QCursor m_cursor;
+    bool m_itemAlreadySelected = false;
 };
 
 } // namespace QmlDesigner

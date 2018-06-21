@@ -27,105 +27,108 @@
 
 #include <sqlstatementbuilderexception.h>
 #include <sqlstatementbuilder.h>
-#include <utf8stringvector.h>
-
-#include <QString>
 
 using namespace ::testing;
 
+using Sqlite::ColumnType;
+using Sqlite::SqlStatementBuilder;
+using Sqlite::SqlStatementBuilderException;
+
+using SV = Utils::SmallStringVector;
+
 TEST(SqlStatementBuilder, Bind)
 {
-    SqlStatementBuilder sqlStatementBuilder(Utf8StringLiteral("SELECT $columns FROM $table WHERE $column = 'foo' AND rowid=$row AND rowid IN ($rows)"));
+    SqlStatementBuilder sqlStatementBuilder("SELECT $columns FROM $table WHERE $column = 'foo' AND rowid=$row AND rowid IN ($rows)");
 
-    sqlStatementBuilder.bind(Utf8StringLiteral("$columns"), Utf8StringVector() << Utf8StringLiteral("name") << Utf8StringLiteral("number"));
-    sqlStatementBuilder.bind(Utf8StringLiteral("$column"), Utf8StringLiteral("name"));
-    sqlStatementBuilder.bind(Utf8StringLiteral("$table"), Utf8StringLiteral("test"));
-    sqlStatementBuilder.bind(Utf8StringLiteral("$row"), 20);
-    sqlStatementBuilder.bind(Utf8StringLiteral("$rows"), QVector<int>() << 1 << 2 << 3);
+    sqlStatementBuilder.bind("$columns", SV{"name", "number"});
+    sqlStatementBuilder.bind("$column", "name");
+    sqlStatementBuilder.bind("$table", "test");
+    sqlStatementBuilder.bind("$row", 20);
+    sqlStatementBuilder.bind("$rows", {1, 2, 3});
 
-    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), Utf8StringLiteral("SELECT name, number FROM test WHERE name = 'foo' AND rowid=20 AND rowid IN (1, 2, 3)"));
+    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), "SELECT name, number FROM test WHERE name = 'foo' AND rowid=20 AND rowid IN (1, 2, 3)");
 }
 
 TEST(SqlStatementBuilder, BindEmpty)
 {
-    SqlStatementBuilder sqlStatementBuilder(Utf8StringLiteral("SELECT $columns FROM $table$emptyPart"));
-    sqlStatementBuilder.bind(Utf8StringLiteral("$columns"), Utf8StringVector() << Utf8StringLiteral("name") << Utf8StringLiteral("number"));
-    sqlStatementBuilder.bind(Utf8StringLiteral("$table"), Utf8StringLiteral("test"));
+    SqlStatementBuilder sqlStatementBuilder("SELECT $columns FROM $table$emptyPart");
+    sqlStatementBuilder.bind("$columns", SV{"name", "number"});
+    sqlStatementBuilder.bind("$table", "test");
 
-    sqlStatementBuilder.bindEmptyText(Utf8StringLiteral("$emptyPart"));
+    sqlStatementBuilder.bindEmptyText("$emptyPart");
 
-    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), Utf8StringLiteral("SELECT name, number FROM test"));
+    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), "SELECT name, number FROM test");
 }
 
 TEST(SqlStatementBuilder, BindFailure)
 {
-    SqlStatementBuilder sqlStatementBuilder(Utf8StringLiteral("SELECT $columns FROM $table"));
+    SqlStatementBuilder sqlStatementBuilder("SELECT $columns FROM $table");
 
-    Utf8StringVector columns;
+    Utils::SmallStringVector columns;
 
-    ASSERT_THROW(sqlStatementBuilder.bind(Utf8StringLiteral("$columns"), Utf8StringLiteral("")), SqlStatementBuilderException);
-    ASSERT_THROW(sqlStatementBuilder.bind(Utf8StringLiteral("columns"), Utf8StringLiteral("test")), SqlStatementBuilderException);
-    ASSERT_THROW(sqlStatementBuilder.bind(Utf8StringLiteral("$columns"), columns), SqlStatementBuilderException);
-    ASSERT_THROW(sqlStatementBuilder.bindWithInsertTemplateParameters(Utf8StringLiteral("$columns"), columns), SqlStatementBuilderException);
-    ASSERT_THROW(sqlStatementBuilder.bindWithUpdateTemplateParameters(Utf8StringLiteral("$columns"), columns), SqlStatementBuilderException);
+    ASSERT_THROW(sqlStatementBuilder.bind("$columns", ""), SqlStatementBuilderException);
+    ASSERT_THROW(sqlStatementBuilder.bind("columns", "test"), SqlStatementBuilderException);
+    ASSERT_THROW(sqlStatementBuilder.bind("$columns", columns), SqlStatementBuilderException);
+    ASSERT_THROW(sqlStatementBuilder.bindWithInsertTemplateParameters("$columns", columns), SqlStatementBuilderException);
+    ASSERT_THROW(sqlStatementBuilder.bindWithUpdateTemplateParameters("$columns", columns), SqlStatementBuilderException);
 }
 
 TEST(SqlStatementBuilder, BindWithInsertTemplateParameters)
 {
-    Utf8StringVector columns({Utf8StringLiteral("name"), Utf8StringLiteral("number")});
+    Utils::SmallStringVector columns = {"name", "number"};
 
-    SqlStatementBuilder sqlStatementBuilder(Utf8StringLiteral("INSERT OR IGNORE INTO $table ($columns) VALUES ($values)"));
-    sqlStatementBuilder.bind(Utf8StringLiteral("$table"), Utf8StringLiteral("test"));
-    sqlStatementBuilder.bind(Utf8StringLiteral("$columns"), columns);
-    sqlStatementBuilder.bindWithInsertTemplateParameters(Utf8StringLiteral("$values"), columns);
+    SqlStatementBuilder sqlStatementBuilder("INSERT OR IGNORE INTO $table ($columns) VALUES ($values)");
+    sqlStatementBuilder.bind("$table", "test");
+    sqlStatementBuilder.bind("$columns", columns);
+    sqlStatementBuilder.bindWithInsertTemplateParameters("$values", columns);
 
-    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), Utf8StringLiteral("INSERT OR IGNORE INTO test (name, number) VALUES (?, ?)"));
+    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), "INSERT OR IGNORE INTO test (name, number) VALUES (?, ?)");
 }
 
 TEST(SqlStatementBuilder, BindWithUpdateTemplateParameters)
 {
-    Utf8StringVector columns({Utf8StringLiteral("name"), Utf8StringLiteral("number")});
+    Utils::SmallStringVector columns = {"name", "number"};
 
-    SqlStatementBuilder sqlStatementBuilder(Utf8StringLiteral("UPDATE $table SET $columnValues WHERE id=?"));
-    sqlStatementBuilder.bind(Utf8StringLiteral("$table"), Utf8StringLiteral("test"));
-    sqlStatementBuilder.bindWithUpdateTemplateParameters(Utf8StringLiteral("$columnValues"), columns);
+    SqlStatementBuilder sqlStatementBuilder("UPDATE $table SET $columnValues WHERE id=?");
+    sqlStatementBuilder.bind("$table", "test");
+    sqlStatementBuilder.bindWithUpdateTemplateParameters("$columnValues", columns);
 
-    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), Utf8StringLiteral("UPDATE test SET name=?, number=? WHERE id=?"));
+    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), "UPDATE test SET name=?, number=? WHERE id=?");
 }
 
 TEST(SqlStatementBuilder, BindWithUpdateTemplateNames)
 {
-    Utf8StringVector columns({Utf8StringLiteral("name"), Utf8StringLiteral("number")});
+    Utils::SmallStringVector columns = {"name", "number"};
 
-    SqlStatementBuilder sqlStatementBuilder(Utf8StringLiteral("UPDATE $table SET $columnValues WHERE id=@id"));
-    sqlStatementBuilder.bind(Utf8StringLiteral("$table"), Utf8StringLiteral("test"));
-    sqlStatementBuilder.bindWithUpdateTemplateNames(Utf8StringLiteral("$columnValues"), columns);
+    SqlStatementBuilder sqlStatementBuilder("UPDATE $table SET $columnValues WHERE id=@id");
+    sqlStatementBuilder.bind("$table", "test");
+    sqlStatementBuilder.bindWithUpdateTemplateNames("$columnValues", columns);
 
-    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), Utf8StringLiteral("UPDATE test SET name=@name, number=@number WHERE id=@id"));
+    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), "UPDATE test SET name=@name, number=@number WHERE id=@id");
 }
 
 TEST(SqlStatementBuilder, ClearOnRebinding)
 {
-    SqlStatementBuilder sqlStatementBuilder(Utf8StringLiteral("SELECT $columns FROM $table"));
+    SqlStatementBuilder sqlStatementBuilder("SELECT $columns FROM $table");
 
-    sqlStatementBuilder.bind(Utf8StringLiteral("$columns"), Utf8StringLiteral("name, number"));
-    sqlStatementBuilder.bind(Utf8StringLiteral("$table"), Utf8StringLiteral("test"));
+    sqlStatementBuilder.bind("$columns", "name, number");
+    sqlStatementBuilder.bind("$table", "test");
 
-    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), Utf8StringLiteral("SELECT name, number FROM test"));
+    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), "SELECT name, number FROM test");
 
-    sqlStatementBuilder.bind(Utf8StringLiteral("$table"), Utf8StringLiteral("test2"));
+    sqlStatementBuilder.bind("$table", "test2");
 
-    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), Utf8StringLiteral("SELECT name, number FROM test2"));
+    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), "SELECT name, number FROM test2");
 }
 
 TEST(SqlStatementBuilder, ClearBinding)
 {
-    SqlStatementBuilder sqlStatementBuilder(Utf8StringLiteral("SELECT $columns FROM $table"));
+    SqlStatementBuilder sqlStatementBuilder("SELECT $columns FROM $table");
 
-    sqlStatementBuilder.bind(Utf8StringLiteral("$columns"), Utf8StringLiteral("name, number"));
-    sqlStatementBuilder.bind(Utf8StringLiteral("$table"), Utf8StringLiteral("test"));
+    sqlStatementBuilder.bind("$columns", "name, number");
+    sqlStatementBuilder.bind("$table", "test");
 
-    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), Utf8StringLiteral("SELECT name, number FROM test"));
+    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), "SELECT name, number FROM test");
 
     sqlStatementBuilder.clear();
 
@@ -134,32 +137,32 @@ TEST(SqlStatementBuilder, ClearBinding)
 
 TEST(SqlStatementBuilder, ColumnType)
 {
-    ASSERT_THAT(SqlStatementBuilder::columnTypeToString(ColumnType::Numeric), Utf8StringLiteral("NUMERIC"));
-    ASSERT_THAT(SqlStatementBuilder::columnTypeToString(ColumnType::Integer), Utf8StringLiteral("INTEGER"));
-    ASSERT_THAT(SqlStatementBuilder::columnTypeToString(ColumnType::Real), Utf8StringLiteral("REAL"));
-    ASSERT_THAT(SqlStatementBuilder::columnTypeToString(ColumnType::Text), Utf8StringLiteral("TEXT"));
+    ASSERT_THAT(SqlStatementBuilder::columnTypeToString(ColumnType::Numeric), "NUMERIC");
+    ASSERT_THAT(SqlStatementBuilder::columnTypeToString(ColumnType::Integer), "INTEGER");
+    ASSERT_THAT(SqlStatementBuilder::columnTypeToString(ColumnType::Real), "REAL");
+    ASSERT_THAT(SqlStatementBuilder::columnTypeToString(ColumnType::Text), "TEXT");
     ASSERT_TRUE(SqlStatementBuilder::columnTypeToString(ColumnType::None).isEmpty());
 }
 
 TEST(SqlStatementBuilder, SqlStatementFailure)
 {
-    SqlStatementBuilder sqlStatementBuilder(Utf8StringLiteral("SELECT $columns FROM $table"));
+    SqlStatementBuilder sqlStatementBuilder("SELECT $columns FROM $table");
 
-    sqlStatementBuilder.bind(Utf8StringLiteral("$columns"), Utf8StringLiteral("name, number"));
+    sqlStatementBuilder.bind("$columns", "name, number");
 
     ASSERT_THROW(sqlStatementBuilder.sqlStatement(), SqlStatementBuilderException);
 }
 
 TEST(SqlStatementBuilder, IsBuild)
 {
-    SqlStatementBuilder sqlStatementBuilder(Utf8StringLiteral("SELECT $columns FROM $table"));
+    SqlStatementBuilder sqlStatementBuilder("SELECT $columns FROM $table");
 
-    sqlStatementBuilder.bind(Utf8StringLiteral("$columns"), Utf8StringLiteral("name, number"));
-    sqlStatementBuilder.bind(Utf8StringLiteral("$table"), Utf8StringLiteral("test"));
+    sqlStatementBuilder.bind("$columns", "name, number");
+    sqlStatementBuilder.bind("$table", "test");
 
     ASSERT_FALSE(sqlStatementBuilder.isBuild());
 
-    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), Utf8StringLiteral("SELECT name, number FROM test"));
+    ASSERT_THAT(sqlStatementBuilder.sqlStatement(), "SELECT name, number FROM test");
 
     ASSERT_TRUE(sqlStatementBuilder.isBuild());
 

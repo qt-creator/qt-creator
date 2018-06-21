@@ -145,4 +145,13 @@ TEST(SizedArray, ConstREndIteratorIsOneAfterRBeginForOneSizedArray)
     ASSERT_THAT(std::next(array.crbegin(), 1), array.crend());
 }
 
+TEST(SizedArray, InitializerListSize)
+{
+    SizedArray<char, 8> array{'a', 'b'};
+
+    auto size = array.size();
+
+    ASSERT_THAT(size, 2);
+}
+
 } // anonymous namespace

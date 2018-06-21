@@ -59,7 +59,7 @@ MATCHER_P3(IsDocument, filePath, projectPartId, documentRevision,
            )
 {
     return arg.filePath() == filePath
-        && arg.projectPartId() == projectPartId
+        && arg.projectPart().id() == projectPartId
         && arg.documentRevision() == documentRevision;
 }
 
@@ -82,6 +82,8 @@ protected:
     const ClangBackEnd::FileContainer fileContainer{filePath, projectPartId};
     const ClangBackEnd::FileContainer headerContainer{headerPath, projectPartId};
 };
+
+using DocumentsSlowTest = Documents;
 
 TEST_F(Documents, ThrowForGettingWithWrongFilePath)
 {
@@ -131,7 +133,7 @@ TEST_F(Documents, CreateWithUnsavedContentSetsDependenciesDirty)
 
     documents.create({fileContainerWithUnsavedContent});
 
-    ASSERT_TRUE(dependentDocument.isNeedingReparse());
+    ASSERT_TRUE(dependentDocument.isDirty());
 }
 
 TEST_F(Documents, AddAndTestCreatedTranslationUnit)
@@ -199,7 +201,7 @@ TEST_F(Documents, UpdateMultiple)
                 IsDocument(filePath, otherProjectPartId, 75u));
 }
 
-TEST_F(Documents, UpdateUnsavedFileAndCheckForReparse)
+TEST_F(DocumentsSlowTest, UpdateUnsavedFileAndCheckForReparse)
 {
     ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
     ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, Utf8StringVector(), 74u);
@@ -210,10 +212,10 @@ TEST_F(Documents, UpdateUnsavedFileAndCheckForReparse)
 
     documents.update({headerContainerWithUnsavedContent});
 
-    ASSERT_TRUE(documents.document(filePath, projectPartId).isNeedingReparse());
+    ASSERT_TRUE(documents.document(filePath, projectPartId).isDirty());
 }
 
-TEST_F(Documents, RemoveFileAndCheckForReparse)
+TEST_F(DocumentsSlowTest, RemoveFileAndCheckForReparse)
 {
     ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
     ClangBackEnd::FileContainer headerContainer(headerPath, projectPartId, Utf8StringVector(), 74u);
@@ -224,7 +226,7 @@ TEST_F(Documents, RemoveFileAndCheckForReparse)
 
     documents.remove({headerContainerWithUnsavedContent});
 
-    ASSERT_TRUE(documents.document(filePath, projectPartId).isNeedingReparse());
+    ASSERT_TRUE(documents.document(filePath, projectPartId).isDirty());
 }
 
 TEST_F(Documents, DontGetNewerFileContainerIfRevisionIsTheSame)
@@ -398,6 +400,41 @@ TEST_F(Documents, IsNotVisibleEditorAfterBeingVisible)
     documents.setVisibleInEditors({headerPath});
 
     ASSERT_FALSE(document.isVisibleInEditor());
+}
+
+TEST_F(Documents, SetDocumentsDirtyIfProjectPartChanged)
+{
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
+    const auto createdDocuments = documents.create({fileContainer});
+    ClangBackEnd::FileContainer fileContainerWithOtherProject(filePath, otherProjectPartId, Utf8StringVector(), 74u);
+    documents.create({fileContainerWithOtherProject});
+    projects.createOrUpdate({ProjectPartContainer(projectPartId)});
+
+    const auto affectedDocuments = documents.setDocumentsDirtyIfProjectPartChanged();
+
+    ASSERT_THAT(affectedDocuments, createdDocuments);
+}
+
+TEST_F(Documents, SetDocumentsDirtyIfProjectPartChanged_EvenIfAlreadyDirty)
+{
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
+    auto createdDocuments = documents.create({fileContainer});
+    projects.createOrUpdate({ProjectPartContainer(projectPartId)});
+    documents.setDocumentsDirtyIfProjectPartChanged(); // Make already dirty
+
+    const auto affectedDocuments = documents.setDocumentsDirtyIfProjectPartChanged();
+
+    ASSERT_THAT(affectedDocuments, createdDocuments);
+}
+
+TEST_F(Documents, SetDocumentsDirtyIfProjectPartChanged_ReturnsEmpty)
+{
+    ClangBackEnd::FileContainer fileContainer(filePath, projectPartId, Utf8StringVector(), 74u);
+    documents.create({fileContainer});
+
+    const auto affectedDocuments = documents.setDocumentsDirtyIfProjectPartChanged();
+
+    ASSERT_TRUE(affectedDocuments.empty());
 }
 
 void Documents::SetUp()

@@ -27,8 +27,6 @@
 
 #include "objectitem.h"
 
-#include "qmt/diagram_scene/capabilities/relationable.h"
-
 QT_BEGIN_NAMESPACE
 class QGraphicsRectItem;
 class QGraphicsSimpleTextItem;
@@ -43,10 +41,10 @@ class CustomIconItem;
 class ContextLabelItem;
 class RelationStarter;
 
-class ItemItem : public ObjectItem, public IRelationable
+class ItemItem : public ObjectItem
 {
 public:
-    ItemItem(DItem *item, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
+    ItemItem(DItem *item, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = nullptr);
     ~ItemItem() override;
 
     void update() override;
@@ -59,18 +57,13 @@ public:
     QList<Latch> horizontalLatches(Action action, bool grabbedItem) const override;
     QList<Latch> verticalLatches(Action action, bool grabbedItem) const override;
 
-    QPointF relationStartPos() const override;
-    void relationDrawn(const QString &id, const QPointF &toScenePos,
-                       const QList<QPointF> &intermediatePoints) override;
-
 private:
     QSizeF calcMinimumGeometry() const;
     void updateGeometry();
 
-    CustomIconItem *m_customIcon = 0;
-    QGraphicsRectItem *m_shape = 0;
-    ContextLabelItem *m_contextLabel = 0;
-    RelationStarter *m_relationStarter = 0;
+    CustomIconItem *m_customIcon = nullptr;
+    QGraphicsRectItem *m_shape = nullptr;
+    ContextLabelItem *m_contextLabel = nullptr;
 };
 
 } // namespace qmt

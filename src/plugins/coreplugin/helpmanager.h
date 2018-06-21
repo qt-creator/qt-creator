@@ -32,6 +32,7 @@
 #include <QVariant>
 #include <QMap>
 #include <QHash>
+#include <QFutureInterface>
 
 QT_FORWARD_DECLARE_CLASS(QUrl)
 
@@ -86,6 +87,8 @@ public:
     static void removeUserDefinedFilter(const QString &filter);
     static void addUserDefinedFilter(const QString &filter, const QStringList &attr);
 
+    static void aboutToShutdown();
+
 public slots:
     static void handleHelpRequest(const QUrl &url,
                                   Core::HelpManager::HelpViewerLocation location = HelpModeAlways);
@@ -99,10 +102,12 @@ signals:
     void helpRequested(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
 
 private:
-    explicit HelpManager(QObject *parent = 0);
-    ~HelpManager();
+    explicit HelpManager(QObject *parent = nullptr);
+    ~HelpManager() override;
 
     static void setupHelpManager();
+    static void registerDocumentationNow(QFutureInterface<bool> &futureInterface,
+                                         const QStringList &fileNames);
     friend class Core::Internal::CorePlugin; // setupHelpManager
     friend class Core::Internal::MainWindow; // constructor/destructor
 };

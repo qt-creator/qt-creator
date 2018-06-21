@@ -44,8 +44,7 @@ namespace Internal {
 
 FormClassWizardPage::FormClassWizardPage(QWidget * parent) :
     QWizardPage(parent),
-    m_ui(new Ui::FormClassWizardPage),
-    m_isValid(false)
+    m_ui(new Ui::FormClassWizardPage)
 {
     m_ui->setupUi(this);
 
@@ -69,9 +68,9 @@ FormClassWizardPage::~FormClassWizardPage()
 // Retrieve settings of CppTools plugin.
 bool FormClassWizardPage::lowercaseHeaderFiles()
 {
-    QString lowerCaseSettingsKey = QLatin1String(CppTools::Constants::CPPTOOLS_SETTINGSGROUP);
-    lowerCaseSettingsKey += QLatin1Char('/');
-    lowerCaseSettingsKey += QLatin1String(CppTools::Constants::LOWERCASE_CPPFILES_KEY);
+    QString lowerCaseSettingsKey = CppTools::Constants::CPPTOOLS_SETTINGSGROUP;
+    lowerCaseSettingsKey += '/';
+    lowerCaseSettingsKey += CppTools::Constants::LOWERCASE_CPPFILES_KEY;
     const bool lowerCaseDefault = CppTools::Constants::lowerCaseFilesDefault;
     return Core::ICore::settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }
@@ -79,13 +78,10 @@ bool FormClassWizardPage::lowercaseHeaderFiles()
 // Set up new class widget from settings
 void FormClassWizardPage::initFileGenerationSettings()
 {
-    Utils::MimeDatabase mdb;
     m_ui->newClassWidget->setHeaderExtension(
-                mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE))
-                .preferredSuffix());
+                Utils::mimeTypeForName(CppTools::Constants::CPP_HEADER_MIMETYPE).preferredSuffix());
     m_ui->newClassWidget->setSourceExtension(
-                mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE))
-                .preferredSuffix());
+                Utils::mimeTypeForName(CppTools::Constants::CPP_SOURCE_MIMETYPE).preferredSuffix());
     m_ui->newClassWidget->setLowerCaseFiles(lowercaseHeaderFiles());
 }
 

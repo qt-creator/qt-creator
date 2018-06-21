@@ -65,8 +65,8 @@ void OptionsPageWidget::setSettings(const VcsBaseClientSettings &s)
     m_ui.timeout->setValue(s.intValue(BazaarSettings::timeoutKey));
 }
 
-OptionsPage::OptionsPage(Core::IVersionControl *control) :
-    VcsClientOptionsPage(control, BazaarPlugin::instance()->client())
+OptionsPage::OptionsPage(Core::IVersionControl *control, QObject *parent) :
+    VcsClientOptionsPage(control, BazaarPlugin::instance()->client(), parent)
 {
     setId(VcsBase::Constants::VCS_ID_BAZAAR);
     setDisplayName(tr("Bazaar"));

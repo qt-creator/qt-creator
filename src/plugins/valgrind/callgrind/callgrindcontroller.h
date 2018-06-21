@@ -25,18 +25,15 @@
 
 #pragma once
 
-#include <QObject>
-
-#include <qprocess.h>
-
-#include <ssh/sshconnection.h>
 #include <ssh/sshremoteprocess.h>
 #include <ssh/sftpchannel.h>
+#include <ssh/sshconnection.h>
+
+#include <projectexplorer/runconfiguration.h>
+
+#include <QProcess>
 
 namespace Valgrind {
-
-class ValgrindProcess;
-
 namespace Callgrind {
 
 class CallgrindController : public QObject
@@ -49,16 +46,14 @@ public:
         Unknown,
         Dump,
         ResetEventCounters,
-        Pause, UnPause
+        Pause,
+        UnPause
     };
 
-    explicit CallgrindController(QObject *parent = 0);
-    virtual ~CallgrindController();
+    CallgrindController();
+    ~CallgrindController() override;
 
-    void run(Valgrind::Callgrind::CallgrindController::Option option);
-
-    void setValgrindProcess(ValgrindProcess *process);
-    ValgrindProcess *valgrindProcess() { return m_valgrindProc; }
+    void run(Option option);
 
     /**
      * Make data file available locally, triggers @c localParseDataAvailable.
@@ -67,38 +62,38 @@ public:
      * downloads the data file first and returns a local path.
      */
     void getLocalDataFile();
+    void setValgrindPid(qint64 pid);
+    void setValgrindRunnable(const ProjectExplorer::Runnable &runnable);
 
-Q_SIGNALS:
+signals:
     void finished(Valgrind::Callgrind::CallgrindController::Option option);
-
     void localParseDataAvailable(const QString &file);
-
     void statusMessage(const QString &msg);
 
-private Q_SLOTS:
-    void processError(QProcess::ProcessError);
-    void processFinished(int, QProcess::ExitStatus);
+private:
+    void handleControllerProcessError(QProcess::ProcessError);
 
     void foundRemoteFile();
     void sftpInitialized();
     void sftpJobFinished(QSsh::SftpJobId job, const QString &error);
-
-private:
     void cleanupTempFile();
 
-    // callgrind_control process
-    Valgrind::ValgrindProcess *m_process;
-    // valgrind process
-    Valgrind::ValgrindProcess *m_valgrindProc;
+    void controllerProcessFinished(int, QProcess::ExitStatus);
+    void controllerProcessError(QProcess::ProcessError);
+    void controllerProcessClosed(bool success);
 
-    Option m_lastOption;
+    ProjectExplorer::ApplicationLauncher *m_controllerProcess = nullptr;
+    ProjectExplorer::Runnable m_valgrindRunnable;
+    qint64 m_pid = 0;
+
+    Option m_lastOption = Unknown;
 
     // remote callgrind support
-    QSsh::SshConnection *m_ssh;
+    QSsh::SshConnection *m_ssh = nullptr;
     QString m_tempDataFile;
     QSsh::SshRemoteProcess::Ptr m_findRemoteFile;
     QSsh::SftpChannel::Ptr m_sftp;
-    QSsh::SftpJobId m_downloadJob;
+    QSsh::SftpJobId m_downloadJob = 0;
     QByteArray m_remoteFile;
 };
 

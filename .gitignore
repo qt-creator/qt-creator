@@ -29,6 +29,7 @@
 .DS_Store
 /.qmake.cache
 /.qmake.stash
+/.clang-format
 Makefile*
 Thumbs.db
 core
@@ -51,6 +52,7 @@ wrapper.sh
 /src/app/Info.plist
 /src/plugins/**/*.json
 /src/plugins/coreplugin/ide_version.h
+/src/libs/qt-breakpad/bin
 app_version.h
 phony.c
 
@@ -110,9 +112,9 @@ phony.c
 /dist/gdb/qtcreator-*/
 /dist/gdb/source/
 /dist/gdb/staging/
-/doc/api/html/
-/doc/html-dev/
-/doc/html/
+/doc/qbs/
+/doc/qtcreator/
+/doc/qtcreator-dev/
 /doc/pluginhowto/html/
 /lib/
 /lib64/
@@ -156,8 +158,6 @@ tmp/
 /tests/auto/aggregation/tst_aggregation
 /tests/auto/algorithm/tst_algorithm
 /tests/auto/changeset/tst_changeset
-/tests/auto/clangstaticanalyzer/clangstaticanalyzerlogfilereader/tst_clangstaticanalyzerlogfilereader
-/tests/auto/clangstaticanalyzer/clangstaticanalyzerrunner/tst_clangstaticanalyzerrunnertest
 /tests/auto/cplusplus/ast/tst_ast
 /tests/auto/cplusplus/c99/tst_c99
 /tests/auto/cplusplus/checksymbols/tst_checksymbols

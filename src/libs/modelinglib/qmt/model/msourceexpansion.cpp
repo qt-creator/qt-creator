@@ -30,8 +30,6 @@
 namespace qmt {
 
 MSourceExpansion::MSourceExpansion()
-    : MExpansion(),
-      m_isTransient(false)
 {
 }
 
@@ -58,7 +56,7 @@ MSourceExpansion &MSourceExpansion::operator=(const MSourceExpansion &rhs)
 MSourceExpansion *MSourceExpansion::clone(const MElement &rhs) const
 {
     auto rightExpansion = dynamic_cast<MSourceExpansion *>(rhs.expansion());
-    QMT_CHECK(rightExpansion);
+    QMT_ASSERT(rightExpansion, return nullptr);
     auto expansion = new MSourceExpansion(*rightExpansion);
     return expansion;
 }

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -38,9 +38,9 @@
     \title Adding Kits
 
     \QC groups settings used for building and running projects as kits
-    to make cross-platform and cross-configuration
-    development easier. Each kit consists of a set of values that define one
-    environment, such as a device, compiler, Qt version, and debugger command
+    to make cross-platform and cross-configuration development easier. Each kit
+    consists of a set of values that define one environment, such as a
+    \l{glossary-device}{device}, compiler, Qt version, and debugger command
     to use, and some metadata, such as an icon and a name for the kit. Once
     you have defined kits, you can select them to build and run projects.
 
@@ -67,14 +67,22 @@
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run}
-            > \uicontrol Kits > \uicontrol Add.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+            \uicontrol Add.
 
             \image qtcreator-kits.png
 
             To clone the selected kit, select \uicontrol Clone.
 
-        \li In the \uicontrol Name column, double-click the kit name to change it.
+        \li In the \uicontrol Name column, enter a name for the kit.
+
+        \li Select the \inlineimage qtcreator-desktopdevice-button.png
+            button to select an image to use as an icon for the kit.
+
+        \li In the \uicontrol {File system name} field, enter a name for the kit
+            to use as a part of directory names. This value is used for the
+            \e CurrentKit:FileSystemName variable, which determines the name of
+            the shadow build directory, for example.
 
         \li In the \uicontrol{Device type} field, select the type of the device.
 
@@ -101,11 +109,19 @@
             the \uicontrol {Edit Environment Changes} dialog. For more information
             about how to add and remove variable values, see \l{Batch Editing}.
 
+        \li Select the \uicontrol {Force UTF-8 MSVC compiler output} check box
+            to either switch the language of MSVC to English or to keep the
+            language setting and just force UTF-8 output, depending on the
+            MSVC compiler used.
+
         \li In the \uicontrol Debugger field, select the debugger to debug the project
             on the target platform. \QC automatically detects available
             debuggers and displays a suitable debugger in the field. You can
             add debuggers to the list. For more information, see
             \l{Adding Debuggers}.
+
+            For Android kits, the \uicontrol {Android GDB server} field will
+            display the path to GDB server executable.
 
         \li In the \uicontrol {Qt version} field, select the Qt version to use for
             building the project. You can add Qt versions to the list if they
@@ -126,7 +142,8 @@
             CMake tools to the list. For more information, see
             \l{Adding CMake Tools}.
 
-        \li In the \uicontrol {CMake Generator} field, select the CMake
+        \li In the \uicontrol {CMake generator} field, select \uicontrol Change
+            to edit the CMake
             Generator to use for producing project files. Only the generators
             with names beginning with the string \uicontrol CodeBlocks produce
             all the necessary data for the \QC code model. \QC displays a
@@ -136,10 +153,48 @@
             \uicontrol Change to edit the variables of the CMake configuration
             for the kit.
 
+        \li In the \uicontrol {Additional Qbs profile settings} field, select
+            \uicontrol Change to add settings to Qbs build profiles. For more
+            information, see \l {Editing Qbs Profiles}.
+
     \endlist
 
     \QC uses the \e {default kit} if it does not have enough information to
     choose the kit to use. To set the selected kit as the default kit,
     select \uicontrol {Make Default}.
+
+    \section1 Editing Qbs Profiles
+
+    To view the Qbs profile associated with the kit, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Kits > \uicontrol Qbs.
+
+    You can add keys and values to the profile or remove them from it, as well
+    as modify existing values. For a list of available keys and values, see
+    \l{http://doc.qt.io/qbs/list-of-modules.html}{List of Modules} in the Qbs
+    Manual.
+
+    To edit the Qbs profile associated with the kit:
+
+    \list 1
+
+        \li Select \uicontrol Change next to the
+            \uicontrol {Additional Qbs Profile Settings} field.
+
+            \image qtcreator-qbs-profile-settings.
+
+        \li Select \uicontrol Add.
+
+        \li In the \uicontrol Key column, spefify the key to add or modify as:
+            \c <module_name>.<property_name>.
+
+        \li In the \uicontrol Value column, specify a value as a JSON literal.
+
+        \li Click \uicontrol OK.
+
+    \endlist
+
+    To modify an existing value, double-click it in the \uicontrol Value field.
+
+    To remove the selected property, select \uicontrol Remove.
 
 */

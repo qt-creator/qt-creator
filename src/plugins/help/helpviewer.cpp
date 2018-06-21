@@ -30,13 +30,12 @@
 #include <coreplugin/icore.h>
 
 #include <utils/fileutils.h>
+#include <utils/temporarydirectory.h>
 
 #include <QFileInfo>
-#include <QStringBuilder>
-#include <QDir>
 #include <QUrl>
 
-#include <QApplication>
+#include <QGuiApplication>
 #include <QDesktopServices>
 #include <QMouseEvent>
 
@@ -47,43 +46,50 @@ using namespace Help::Internal;
 struct ExtensionMap {
     const char *extension;
     const char *mimeType;
-} extensionMap[] = {
-    { ".bmp", "image/bmp" },
-    { ".css", "text/css" },
-    { ".gif", "image/gif" },
-    { ".html", "text/html" },
-    { ".htm", "text/html" },
-    { ".ico", "image/x-icon" },
-    { ".jpeg", "image/jpeg" },
-    { ".jpg", "image/jpeg" },
-    { ".js", "application/x-javascript" },
-    { ".mng", "video/x-mng" },
-    { ".pbm", "image/x-portable-bitmap" },
-    { ".pgm", "image/x-portable-graymap" },
-    { ".pdf", "application/pdf" },
-    { ".png", "image/png" },
-    { ".ppm", "image/x-portable-pixmap" },
-    { ".rss", "application/rss+xml" },
-    { ".svg", "image/svg+xml" },
-    { ".svgz", "image/svg+xml" },
-    { ".text", "text/plain" },
-    { ".tif", "image/tiff" },
-    { ".tiff", "image/tiff" },
-    { ".txt", "text/plain" },
-    { ".xbm", "image/x-xbitmap" },
-    { ".xml", "text/xml" },
-    { ".xpm", "image/x-xpm" },
-    { ".xsl", "text/xsl" },
-    { ".xhtml", "application/xhtml+xml" },
-    { ".wml", "text/vnd.wap.wml" },
-    { ".wmlc", "application/vnd.wap.wmlc" },
-    { "about:blank", 0 },
-    { 0, 0 }
+};
+
+static ExtensionMap extensionMap[] = {
+    {".bmp", "image/bmp"},
+    {".css", "text/css"},
+    {".gif", "image/gif"},
+    {".html", "text/html"},
+    {".htm", "text/html"},
+    {".ico", "image/x-icon"},
+    {".jpeg", "image/jpeg"},
+    {".jpg", "image/jpeg"},
+    {".js", "application/x-javascript"},
+    {".mng", "video/x-mng"},
+    {".pbm", "image/x-portable-bitmap"},
+    {".pgm", "image/x-portable-graymap"},
+    {".pdf", "application/pdf"},
+    {".png", "image/png"},
+    {".ppm", "image/x-portable-pixmap"},
+    {".rss", "application/rss+xml"},
+    {".svg", "image/svg+xml"},
+    {".svgz", "image/svg+xml"},
+    {".text", "text/plain"},
+    {".tif", "image/tiff"},
+    {".tiff", "image/tiff"},
+    {".txt", "text/plain"},
+    {".xbm", "image/x-xbitmap"},
+    {".xml", "text/xml"},
+    {".xpm", "image/x-xpm"},
+    {".xsl", "text/xsl"},
+    {".xhtml", "application/xhtml+xml"},
+    {".wml", "text/vnd.wap.wml"},
+    {".wmlc", "application/vnd.wap.wmlc"},
+    {"about:blank", nullptr},
+    {nullptr, nullptr}
 };
 
 HelpViewer::HelpViewer(QWidget *parent)
     : QWidget(parent)
 {
+}
+
+HelpViewer::~HelpViewer()
+{
+    restoreOverrideCursor();
 }
 
 void HelpViewer::setActionVisible(Action action, bool visible)
@@ -135,7 +141,7 @@ bool HelpViewer::launchWithExternalApp(const QUrl &url)
 
         const QString& path = resolvedUrl.path();
         if (!canOpenPage(path)) {
-            Utils::TempFileSaver saver(QDir::tempPath()
+            Utils::TempFileSaver saver(Utils::TemporaryDirectory::masterDirectoryPath()
                 + "/qtchelp_XXXXXX." + QFileInfo(path).completeSuffix());
             saver.setAutoRemove(false);
             if (!saver.hasError())
@@ -157,14 +163,23 @@ void HelpViewer::home()
 
 void HelpViewer::slotLoadStarted()
 {
-    qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
+    ++m_loadOverrideStack;
+    QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 }
 
 void HelpViewer::slotLoadFinished()
 {
-    qApp->restoreOverrideCursor();
+    restoreOverrideCursor();
     emit sourceChanged(source());
     emit loadFinished();
+}
+
+void HelpViewer::restoreOverrideCursor()
+{
+    while (m_loadOverrideStack > 0) {
+        --m_loadOverrideStack;
+        QGuiApplication::restoreOverrideCursor();
+    }
 }
 
 bool HelpViewer::handleForwardBackwardMouseButtons(QMouseEvent *event)

@@ -33,15 +33,26 @@ namespace Internal {
 class GTestResult : public TestResult
 {
 public:
-    explicit GTestResult(const QString &name = QString());
+    explicit GTestResult(const QString &projectFile, const QString &name = QString());
+    GTestResult(const QString &id, const QString &projectFile, const QString &name);
     const QString outputString(bool selected) const override;
 
     void setTestSetName(const QString &testSetName) { m_testSetName = testSetName; }
+    void setIteration(int iteration) { m_iteration = iteration; }
     bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override;
+    virtual const TestTreeItem *findTestTreeItem() const override;
+
 private:
     bool isTest() const { return m_testSetName.isEmpty(); }
     bool isTestSet() const { return !m_testSetName.isEmpty(); }
+
+    bool matches(const TestTreeItem *item) const;
+    bool matchesTestFunctionOrSet(const TestTreeItem *treeItem) const;
+    bool matchesTestCase(const TestTreeItem *treeItem) const;
+
     QString m_testSetName;
+    QString m_projectFile;
+    int m_iteration = 1;
 };
 
 } // namespace Internal

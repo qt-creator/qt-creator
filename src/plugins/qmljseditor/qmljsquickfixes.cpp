@@ -33,13 +33,14 @@
 #include <extensionsystem/pluginmanager.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
+#include <texteditor/codeassist/assistinterface.h>
 
 #include <QApplication>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJSTools;
-using TextEditor::RefactoringChanges;
+using namespace TextEditor;
 
 namespace QmlJSEditor {
 
@@ -57,125 +58,125 @@ namespace {
         width: 10
     }
 */
-class SplitInitializerOp: public QmlJSQuickFixFactory
+class SplitInitializerOperation: public QmlJSQuickFixOperation
 {
-    void match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result)
+    UiObjectInitializer *_objectInitializer;
+
+public:
+    SplitInitializerOperation(const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,
+              UiObjectInitializer *objectInitializer)
+        : QmlJSQuickFixOperation(interface, 0)
+        , _objectInitializer(objectInitializer)
     {
-        UiObjectInitializer *objectInitializer = 0;
-
-        const int pos = interface->currentFile()->cursor().position();
-
-        if (Node *member = interface->semanticInfo().rangeAt(pos)) {
-            if (UiObjectBinding *b = AST::cast<UiObjectBinding *>(member)) {
-                if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine)
-                    objectInitializer = b->initializer;
-
-            } else if (UiObjectDefinition *b = AST::cast<UiObjectDefinition *>(member)) {
-                if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine)
-                    objectInitializer = b->initializer;
-            }
-        }
-
-        if (objectInitializer)
-            result << new Operation(interface, objectInitializer);
+        setDescription(QApplication::translate("QmlJSEditor::QuickFix",
+                                               "Split Initializer"));
     }
 
-    class Operation: public QmlJSQuickFixOperation
+    void performChanges(QmlJSRefactoringFilePtr currentFile,
+                        const QmlJSRefactoringChanges &)
     {
-        UiObjectInitializer *_objectInitializer;
+        Q_ASSERT(_objectInitializer != 0);
 
-    public:
-        Operation(const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,
-                  UiObjectInitializer *objectInitializer)
-            : QmlJSQuickFixOperation(interface, 0)
-            , _objectInitializer(objectInitializer)
-        {
-            setDescription(QApplication::translate("QmlJSEditor::QuickFix",
-                                                   "Split Initializer"));
-        }
+        Utils::ChangeSet changes;
 
-        void performChanges(QmlJSRefactoringFilePtr currentFile,
-                                    const QmlJSRefactoringChanges &)
-        {
-            Q_ASSERT(_objectInitializer != 0);
+        for (UiObjectMemberList *it = _objectInitializer->members; it; it = it->next) {
+            if (UiObjectMember *member = it->member) {
+                const SourceLocation loc = member->firstSourceLocation();
 
-            Utils::ChangeSet changes;
-
-            for (UiObjectMemberList *it = _objectInitializer->members; it; it = it->next) {
-                if (UiObjectMember *member = it->member) {
-                    const SourceLocation loc = member->firstSourceLocation();
-
-                    // insert a newline at the beginning of this binding
-                    changes.insert(currentFile->startOf(loc), QLatin1String("\n"));
-                }
+                // insert a newline at the beginning of this binding
+                changes.insert(currentFile->startOf(loc), QLatin1String("\n"));
             }
-
-            // insert a newline before the closing brace
-            changes.insert(currentFile->startOf(_objectInitializer->rbraceToken),
-                           QLatin1String("\n"));
-
-            currentFile->setChangeSet(changes);
-            currentFile->appendIndentRange(Range(currentFile->startOf(_objectInitializer->lbraceToken),
-                                      currentFile->startOf(_objectInitializer->rbraceToken)));
-            currentFile->apply();
         }
-    };
+
+        // insert a newline before the closing brace
+        changes.insert(currentFile->startOf(_objectInitializer->rbraceToken),
+                       QLatin1String("\n"));
+
+        currentFile->setChangeSet(changes);
+        currentFile->appendIndentRange(Range(currentFile->startOf(_objectInitializer->lbraceToken),
+                                             currentFile->startOf(_objectInitializer->rbraceToken)));
+        currentFile->apply();
+    }
 };
+
+void matchSplitInitializerQuickFix(const QmlJSQuickFixInterface &interface, QuickFixOperations &result)
+{
+    UiObjectInitializer *objectInitializer = 0;
+
+    const int pos = interface->currentFile()->cursor().position();
+
+    if (Node *member = interface->semanticInfo().rangeAt(pos)) {
+        if (UiObjectBinding *b = AST::cast<UiObjectBinding *>(member)) {
+            if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine)
+                objectInitializer = b->initializer;
+
+        } else if (UiObjectDefinition *b = AST::cast<UiObjectDefinition *>(member)) {
+            if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine)
+                objectInitializer = b->initializer;
+        }
+    }
+
+    if (objectInitializer)
+        result << new SplitInitializerOperation(interface, objectInitializer);
+}
 
 /*
   Adds a comment to suppress a static analysis message
 */
-class AddAnalysisMessageSuppressionComment: public QmlJSQuickFixFactory
+class AnalysizeMessageSuppressionOperation: public QmlJSQuickFixOperation
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJSEditor::AddAnalysisMessageSuppressionComment)
-public:
-    void match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result)
-    {
-        const QList<StaticAnalysis::Message> &messages = interface->semanticInfo().staticAnalysisMessages;
+    StaticAnalysis::Message _message;
 
-        foreach (const StaticAnalysis::Message &message, messages) {
-            if (interface->currentFile()->isCursorOn(message.location)) {
-                result << new Operation(interface, message);
-                return;
-            }
-        }
+    Q_DECLARE_TR_FUNCTIONS(AddAnalysisMessageSuppressionComment)
+
+public:
+    AnalysizeMessageSuppressionOperation(const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,
+                                         const StaticAnalysis::Message &message)
+        : QmlJSQuickFixOperation(interface, 0)
+        , _message(message)
+    {
+        setDescription(tr("Add a Comment to Suppress This Message"));
     }
 
-private:
-    class Operation: public QmlJSQuickFixOperation
+    virtual void performChanges(QmlJSRefactoringFilePtr currentFile,
+                                const QmlJSRefactoringChanges &)
     {
-        StaticAnalysis::Message _message;
-
-    public:
-        Operation(const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,
-                  const StaticAnalysis::Message &message)
-            : QmlJSQuickFixOperation(interface, 0)
-            , _message(message)
-        {
-            setDescription(AddAnalysisMessageSuppressionComment::tr("Add a Comment to Suppress This Message"));
-        }
-
-        virtual void performChanges(QmlJSRefactoringFilePtr currentFile,
-                                    const QmlJSRefactoringChanges &)
-        {
-            Utils::ChangeSet changes;
-            const int insertLoc = _message.location.begin() - _message.location.startColumn + 1;
-            changes.insert(insertLoc, QString::fromLatin1("// %1\n").arg(_message.suppressionString()));
-            currentFile->setChangeSet(changes);
-            currentFile->appendIndentRange(Range(insertLoc, insertLoc + 1));
-            currentFile->apply();
-        }
-    };
+        Utils::ChangeSet changes;
+        const int insertLoc = _message.location.begin() - _message.location.startColumn + 1;
+        changes.insert(insertLoc, QString::fromLatin1("// %1\n").arg(_message.suppressionString()));
+        currentFile->setChangeSet(changes);
+        currentFile->appendIndentRange(Range(insertLoc, insertLoc + 1));
+        currentFile->apply();
+    }
 };
+
+void matchAddAnalysisMessageSuppressionCommentQuickFix(const QmlJSQuickFixInterface &interface, QuickFixOperations &result)
+{
+    const QList<StaticAnalysis::Message> &messages = interface->semanticInfo().staticAnalysisMessages;
+
+    foreach (const StaticAnalysis::Message &message, messages) {
+        if (interface->currentFile()->isCursorOn(message.location)) {
+            result << new AnalysizeMessageSuppressionOperation(interface, message);
+            return;
+        }
+    }
+}
 
 } // end of anonymous namespace
 
-void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
+QuickFixOperations findQmlJSQuickFixes(const AssistInterface *interface)
 {
-    plugIn->addAutoReleasedObject(new SplitInitializerOp);
-    plugIn->addAutoReleasedObject(new ComponentFromObjectDef);
-    plugIn->addAutoReleasedObject(new WrapInLoader);
-    plugIn->addAutoReleasedObject(new AddAnalysisMessageSuppressionComment);
+    QSharedPointer<const AssistInterface> assistInterface(interface);
+    auto qmlJSInterface = assistInterface.staticCast<const QmlJSQuickFixAssistInterface>();
+
+    QuickFixOperations quickFixes;
+
+    matchSplitInitializerQuickFix(qmlJSInterface, quickFixes);
+    matchComponentFromObjectDefQuickFix(qmlJSInterface, quickFixes);
+    matchWrapInLoaderQuickFix(qmlJSInterface, quickFixes);
+    matchAddAnalysisMessageSuppressionCommentQuickFix(qmlJSInterface, quickFixes);
+
+    return quickFixes;
 }
 
 } // namespace QmlJSEditor

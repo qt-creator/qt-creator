@@ -361,7 +361,7 @@ void StackHandler::saveTaskFile()
     }
 
     QTextStream str(&file);
-    foreach (const StackFrame &frame, frames()) {
+    for (const StackFrame &frame : frames()) {
         if (frame.isUsable())
             str << frame.file << '\t' << frame.line << "\tstack\tFrame #" << frame.level << '\n';
     }
@@ -418,7 +418,7 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
                    });
 
         addAction(menu, tr("Disassemble Function..."), true,
-                  [this, address] {
+                  [this] {
                         const StackFrame frame = inputFunctionForDisassembly();
                         if (!frame.function.isEmpty())
                             m_engine->openDisassemblerView(Location(frame));

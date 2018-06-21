@@ -44,7 +44,7 @@ class PdbEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    explicit PdbEngine(const DebuggerRunParameters &runParameters);
+    PdbEngine();
 
 private:
     // DebuggerEngine implementation
@@ -55,7 +55,6 @@ private:
     void executeNextI() override;
 
     void setupEngine() override;
-    void setupInferior() override;
     void runEngine() override;
     void shutdownInferior() override;
     void shutdownEngine() override;

@@ -31,10 +31,10 @@
 #include "navigatortreemodel.h"
 #include "qproxystyle.h"
 
-#include "metainfo.h"
+#include <metainfo.h>
 
-#include <utils/stylehelper.h>
-#include <utils/theme/theme.h>
+#include <utils/icon.h>
+#include <utils/utilsicons.h>
 
 #include <QLineEdit>
 #include <QPen>
@@ -51,10 +51,10 @@ namespace {
 // This style basically allows us to span the entire row
 // including the arrow indicators which would otherwise not be
 // drawn by the delegate
-class TreeViewStyle : public QProxyStyle
+class TableViewStyle : public QProxyStyle
 {
 public:
-    TreeViewStyle(QObject *parent) : QProxyStyle(QStyleFactory::create("fusion"))
+    TableViewStyle(QObject *parent) : QProxyStyle(QStyleFactory::create("fusion"))
     {
         setParent(parent);
         baseStyle()->setParent(parent);
@@ -67,17 +67,9 @@ public:
             if (option->state & QStyle::State_MouseOver)
                 mouseOverStateSavedFrameRectangle = option->rect;
 
-            if (option->state & QStyle::State_Selected) {
+            if (option->state & QStyle::State_Selected)
                 NavigatorTreeView::drawSelectionBackground(painter, *option);
-            } else {
-//                // 3D shadows
-//                painter->save();
-//                painter->setPen(QColor(255, 255, 255, 15));
-//                painter->drawLine(option->rect.topLeft(), option->rect.topRight());
-//                painter->setPen(QColor(0, 0, 0, 25));
-//                painter->drawLine(option->rect.bottomLeft(),option->rect.bottomRight());
-//                painter->restore();
-            }
+
         } else if (element == PE_IndicatorItemViewItemDrop) {
             // between elements and on elements we have a width
             if (option->rect.width() > 0) {
@@ -169,7 +161,10 @@ private: // variables
 NavigatorTreeView::NavigatorTreeView(QWidget *parent)
     : QTreeView(parent)
 {
-    setStyle(new TreeViewStyle(this));
+    setStyle(new TableViewStyle(this));
+    setMinimumWidth(240);
+    setRootIsDecorated(false);
+    setIndentation(indentation() * 0.5);
 }
 
 void NavigatorTreeView::drawSelectionBackground(QPainter *painter, const QStyleOption &option)

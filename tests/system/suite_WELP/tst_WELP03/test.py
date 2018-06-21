@@ -40,8 +40,24 @@ def handlePackagingMessageBoxes():
         except:
             break
 
+def openExample(examplesLineEdit, input, exampleRegex, exampleName):
+    replaceEditorContent(examplesLineEdit, input)
+    tableView = waitForObject("{type='QTableView' unnamed='1' visible='1' "
+                              "window=':Qt Creator_Core::Internal::MainWindow'}")
+    waitFor('findExampleOrTutorial(tableView, exampleRegex) is not None', 3000)
+    example = findExampleOrTutorial(tableView, exampleRegex, True)
+    if test.verify(example is not None, "Verifying: Example (%s) is shown." % exampleName):
+        mouseClick(example)
+        handlePackagingMessageBoxes()
+        helpWidget = waitForObject(":Help Widget_Help::Internal::HelpWidget")
+        test.verify(waitFor('exampleName in str(helpWidget.windowTitle)', 5000),
+                    "Verifying: The example application is opened inside Help.")
+        sendEvent("QCloseEvent", helpWidget)
+        # assume the correct kit is selected, hit Configure Project
+        clickButton(waitForObject(":Qt Creator.Configure Project_QPushButton"))
+    return example
+
 def main():
-    welcomePage = ":Qt Creator.WelcomePage_QQuickWidget"
     # open Qt Creator
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
@@ -50,55 +66,51 @@ def main():
     for p in Qt5Path.getPaths(Qt5Path.DOCS):
         qchs.extend([os.path.join(p, "qtopengl.qch"), os.path.join(p, "qtwidgets.qch")])
     addHelpDocumentation(qchs)
-    setAlwaysStartFullHelp()
-    getStartedNow = getQmlItem("Button", welcomePage, False,
-                               "text='Get Started Now' id='gettingStartedButton'")
-    if not test.verify(checkIfObjectExists(getStartedNow),
+    setFixedHelpViewer(HelpViewer.HELPMODE)
+    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Get Started Now')
+    if not test.verify(all((wsButtonFrame, wsButtonLabel)),
                        "Verifying: Qt Creator displays Welcome Page with Getting Started."):
         test.fatal("Something's wrong - leaving test.")
         invokeMenuItem("File", "Exit")
         return
     # select "Examples" topic
-    mouseClick(waitForObject(getQmlItem("Button", welcomePage, False, "text='Examples'")),
-               5, 5, 0, Qt.LeftButton)
-    test.verify(checkIfObjectExists(getQmlItem("Text", welcomePage, False, "text='Examples'")),
+    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Examples')
+    if all((wsButtonFrame, wsButtonLabel)):
+        mouseClick(wsButtonLabel)
+    expect = (("QTableView", "unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'",
+               "examples list"),
+              ("QLineEdit", "placeholderText='Search in Examples...'", "examples search line edit"),
+              ("QComboBox", "currentText~='.*Qt.*' visible='1'", "Qt version combo box"))
+    search = "{type='%s' %s}"
+    test.verify(all(map(checkIfObjectExists, (search % (exp[0], exp[1]) for exp in expect))),
                 "Verifying: 'Examples' topic is opened and the examples are shown.")
+
+    examplesLineEdit = waitForObject(search % (expect[1][0], expect[1][1]))
+    mouseClick(examplesLineEdit)
+    combo = waitForObject(search % (expect[2][0], expect[2][1]))
+    test.log("Using examples from Kit %s." % str(combo.currentText))
+    replaceEditorContent(examplesLineEdit, "qwerty")
+    tableView = waitForObject(search % (expect[0][0], expect[0][1]))
+    waitFor('findExampleOrTutorial(tableView, ".*") is None', 3000)
+    example = findExampleOrTutorial(tableView, ".*", True)
+    test.verify(example is None, "Verifying: No example is shown.")
+
     proFiles = map(lambda p: os.path.join(p, "opengl", "2dpainting", "2dpainting.pro"),
                    Qt5Path.getPaths(Qt5Path.EXAMPLES))
     cleanUpUserFiles(proFiles)
     for p in proFiles:
         removePackagingDirectory(os.path.dirname(p))
-    examplesLineEdit = getQmlItem("TextField", welcomePage,
-                                  False, "id='lineEdit' placeholderText='Search in Examples...'")
-    mouseClick(waitForObject(examplesLineEdit), 5, 5, 0, Qt.LeftButton)
-    test.log("Using examples from Kit %s."
-             % (waitForObject(getQmlItem("ComboBox", welcomePage,
-                                         False, "id='comboBox'")).currentText))
-    replaceEditorContent(waitForObject(examplesLineEdit), "qwerty")
-    test.verify(checkIfObjectExists(getQmlItem("Delegate", welcomePage,
-                                               False, "id='delegate' radius='0' caption~='.*'"),
-                                    False), "Verifying: No example is shown.")
-    replaceEditorContent(waitForObject(examplesLineEdit), "2d painting")
-    twoDPainting = getQmlItem("Delegate", welcomePage,
-                              False, "id='delegate' radius='0' caption~='2D Painting.*'")
-    test.verify(checkIfObjectExists(twoDPainting),
-                "Verifying: Example (2D Painting) is shown.")
-    mouseClick(waitForObject(twoDPainting), 5, 5, 0, Qt.LeftButton)
-    handlePackagingMessageBoxes()
-    helpWidget = waitForObject(":Help Widget_Help::Internal::HelpWidget")
-    test.verify(waitFor('"2D Painting Example" in str(helpWidget.windowTitle)', 5000),
-                "Verifying: The example application is opened inside Help.")
-    sendEvent("QCloseEvent", helpWidget)
-    # assume the correct kit is selected, hit Configure Project
-    clickButton(waitForObject(":Qt Creator.Configure Project_QPushButton"))
-    test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
-                                    " text='2dpainting' type='QModelIndex'}"),
-                "Verifying: The project is shown in 'Edit' mode.")
-    invokeContextMenuOnProject('2dpainting', 'Close Project "2dpainting"')
-    navTree = waitForObject(":Qt Creator_Utils::NavigationTreeView")
-    res = waitFor("navTree.model().rowCount(navTree.rootIndex()) == 0", 2000)
-    test.verify(not checkIfObjectItemExists(":Qt Creator_Utils::NavigationTreeView", "2dpainting"),
-                "Verifying: The first example is closed.")
+
+    example = openExample(examplesLineEdit, "2d painting", "2D Painting.*", "2D Painting Example")
+    if example is not None:
+        test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
+                                        " text='2dpainting' type='QModelIndex'}"),
+                    "Verifying: The project is shown in 'Edit' mode.")
+        invokeContextMenuOnProject('2dpainting', 'Close Project "2dpainting"')
+        navTree = waitForObject(":Qt Creator_Utils::NavigationTreeView")
+        res = waitFor("navTree.model().rowCount(navTree.rootIndex()) == 0", 2000)
+        test.verify(not checkIfObjectItemExists(":Qt Creator_Utils::NavigationTreeView", "2dpainting"),
+                    "Verifying: The first example is closed.")
     # clean up created packaging directories
     for p in proFiles:
         removePackagingDirectory(os.path.dirname(p))
@@ -110,31 +122,21 @@ def main():
     cleanUpUserFiles(proFiles)
     for p in proFiles:
         removePackagingDirectory(os.path.dirname(p))
-    examplesLineEditWidget = waitForObject(examplesLineEdit)
-    mouseClick(examplesLineEditWidget)
-    replaceEditorContent(examplesLineEditWidget, "address book")
-    addressBook = getQmlItem("Delegate", welcomePage,
-                              False, "id='delegate' radius='0' caption~='Address Book.*'")
-    test.verify(checkIfObjectExists(addressBook), "Verifying: Example (address book) is shown.")
-    mouseClick(waitForObject(addressBook), 5, 5, 0, Qt.LeftButton)
-    handlePackagingMessageBoxes()
-    helpWidget = waitForObject(":Help Widget_Help::Internal::HelpWidget")
-    test.verify(waitFor('"Address Book Example" in str(helpWidget.windowTitle)', 5000),
-                "Verifying: The example application is opened inside Help.")
-    sendEvent("QCloseEvent", helpWidget)
-    # assume the correct kit is selected, hit Configure Project
-    clickButton(waitForObject(":Qt Creator.Configure Project_QPushButton"))
-    # close second example application
-    test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
-                                    " text='propertyanimation' type='QModelIndex'}", False) and
-                checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
-                                    " text='addressbook' type='QModelIndex'}"),
-                "Verifying: The project is shown in 'Edit' mode while old project isn't.")
-    invokeContextMenuOnProject('addressbook', 'Close Project "addressbook"')
-    navTree = waitForObject(":Qt Creator_Utils::NavigationTreeView")
-    res = waitFor("navTree.model().rowCount(navTree.rootIndex()) == 0", 2000)
-    test.verify(not checkIfObjectItemExists(":Qt Creator_Utils::NavigationTreeView", "addressbook"),
-                "Verifying: The second example is closed.")
+    examplesLineEdit = waitForObject(search %(expect[1][0], expect[1][1]))
+    example = openExample(examplesLineEdit, "address book", "(0000 )?Address Book.*",
+                          "Address Book Example")
+    if example is not None:
+        # close second example application
+        test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
+                                        " text='propertyanimation' type='QModelIndex'}", False) and
+                    checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
+                                        " text='addressbook' type='QModelIndex'}"),
+                    "Verifying: The project is shown in 'Edit' mode while old project isn't.")
+        invokeContextMenuOnProject('addressbook', 'Close Project "addressbook"')
+        navTree = waitForObject(":Qt Creator_Utils::NavigationTreeView")
+        res = waitFor("navTree.model().rowCount(navTree.rootIndex()) == 0", 2000)
+        test.verify(not checkIfObjectItemExists(":Qt Creator_Utils::NavigationTreeView", "addressbook"),
+                    "Verifying: The second example is closed.")
     # clean up created packaging directories
     for p in proFiles:
         removePackagingDirectory(os.path.dirname(p))

@@ -35,13 +35,13 @@ class PropertyEditorWidget : public QStackedWidget
 Q_OBJECT
 
 public:
-    PropertyEditorWidget(QWidget *parent = 0);
+    PropertyEditorWidget(QWidget *parent = nullptr);
 
 signals:
     void resized();
 
 protected:
-    void resizeEvent(QResizeEvent * event);
+    void resizeEvent(QResizeEvent * event) override;
 };
 
 } //QmlDesigner

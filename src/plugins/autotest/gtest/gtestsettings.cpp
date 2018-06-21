@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "gtestsettings.h"
+#include "gtest_utils.h"
 
 namespace Autotest {
 namespace Internal {
@@ -35,6 +36,8 @@ static const char runDisabledKey[]      = "RunDisabled";
 static const char seedKey[]             = "Seed";
 static const char shuffleKey[]          = "Shuffle";
 static const char throwOnFailureKey[]   = "ThrowOnFailure";
+static const char groupModeKey[]        = "GroupMode";
+static const char gtestFilterKey[]      = "GTestFilter";
 
 QString GTestSettings::name() const
 {
@@ -50,6 +53,13 @@ void GTestSettings::fromFrameworkSettings(const QSettings *s)
     seed = s->value(seedKey, 0).toInt();
     breakOnFailure = s->value(breakOnFailureKey, true).toBool();
     throwOnFailure = s->value(throwOnFailureKey, false).toBool();
+    // avoid problems if user messes around with the settings file
+    bool ok = false;
+    const int tmp = s->value(groupModeKey, GTest::Constants::Directory).toInt(&ok);
+    groupMode = ok ? static_cast<GTest::Constants::GroupMode>(tmp) : GTest::Constants::Directory;
+    gtestFilter = s->value(gtestFilterKey, GTest::Constants::DEFAULT_FILTER).toString();
+    if (!GTestUtils::isValidGTestFilter(gtestFilter))
+        gtestFilter = GTest::Constants::DEFAULT_FILTER;
 }
 
 void GTestSettings::toFrameworkSettings(QSettings *s) const
@@ -61,6 +71,8 @@ void GTestSettings::toFrameworkSettings(QSettings *s) const
     s->setValue(seedKey, seed);
     s->setValue(breakOnFailureKey, breakOnFailure);
     s->setValue(throwOnFailureKey, throwOnFailure);
+    s->setValue(groupModeKey, groupMode);
+    s->setValue(gtestFilterKey, gtestFilter);
 }
 
 } // namespace Internal

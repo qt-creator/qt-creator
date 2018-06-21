@@ -26,6 +26,7 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.0
+import QtQuickDesignerTheme 1.0
 
 Item {
     Rectangle {
@@ -33,7 +34,7 @@ Item {
         anchors.topMargin: 1
         anchors.fill: parent
 
-        color: creatorTheme.QmlDesignerButtonColor
+        color: Theme.qmlDesignerButtonColor()
 
         Image {
             id: itemIcon // to be set by model
@@ -49,7 +50,7 @@ Item {
 
         Text {
             id: text
-            font.pixelSize: 9
+            font.pixelSize: Theme.smallFontPixelSize()
             elide: Text.ElideMiddle
             wrapMode: Text.WordWrap
             anchors.top: itemIcon.bottom
@@ -64,7 +65,7 @@ Item {
             verticalAlignment: Qt.AlignVCenter
             horizontalAlignment: Qt.AlignHCenter
             text: itemName  // to be set by model
-            color: creatorTheme.PanelTextColorLight
+            color: Theme.color(Theme.PanelTextColorLight)
             renderType: Text.NativeRendering
         }
 
@@ -72,12 +73,8 @@ Item {
             id: mouseRegion
             anchors.fill: parent
 
-            property bool reallyPressed: false
-            property int pressedX
-            property int pressedY
-
             onPressed: {
-                rootView.startDragAndDrop(itemLibraryEntry)
+                rootView.startDragAndDrop(mouseRegion, itemLibraryEntry)
             }
         }
     }

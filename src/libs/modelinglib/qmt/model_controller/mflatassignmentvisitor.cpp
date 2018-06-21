@@ -34,6 +34,7 @@
 #include "qmt/model/mdependency.h"
 #include "qmt/model/minheritance.h"
 #include "qmt/model/massociation.h"
+#include "qmt/model/mconnection.h"
 
 namespace qmt {
 
@@ -54,7 +55,7 @@ void MFlatAssignmentVisitor::visitMObject(const MObject *object)
 {
     visitMElement(object);
     auto targetObject = dynamic_cast<MObject *>(m_target);
-    QMT_CHECK(targetObject);
+    QMT_ASSERT(targetObject, return);
     targetObject->setName(object->name());
 }
 
@@ -67,7 +68,7 @@ void MFlatAssignmentVisitor::visitMClass(const MClass *klass)
 {
     visitMObject(klass);
     auto targetClass = dynamic_cast<MClass *>(m_target);
-    QMT_CHECK(targetClass);
+    QMT_ASSERT(targetClass, return);
     targetClass->setUmlNamespace(klass->umlNamespace());
     targetClass->setTemplateParameters(klass->templateParameters());
     targetClass->setMembers(klass->members());
@@ -82,7 +83,7 @@ void MFlatAssignmentVisitor::visitMDiagram(const MDiagram *diagram)
 {
     visitMObject(diagram);
     auto targetDiagram = dynamic_cast<MDiagram *>(m_target);
-    QMT_CHECK(targetDiagram);
+    QMT_ASSERT(targetDiagram, return);
     targetDiagram->setToolbarId(diagram->toolbarId());
 }
 
@@ -95,7 +96,7 @@ void MFlatAssignmentVisitor::visitMItem(const MItem *item)
 {
     visitMObject(item);
     auto targetItem = dynamic_cast<MItem *>(m_target);
-    QMT_CHECK(targetItem);
+    QMT_ASSERT(targetItem, return);
     targetItem->setVarietyEditable(item->isVarietyEditable());
     targetItem->setVariety(item->variety());
     targetItem->setShapeEditable(item->isShapeEditable());
@@ -105,7 +106,7 @@ void MFlatAssignmentVisitor::visitMRelation(const MRelation *relation)
 {
     visitMElement(relation);
     auto targetRelation = dynamic_cast<MRelation *>(m_target);
-    QMT_CHECK(targetRelation);
+    QMT_ASSERT(targetRelation, return);
     targetRelation->setName(relation->name());
     targetRelation->setEndAUid(relation->endAUid());
     targetRelation->setEndBUid(relation->endBUid());
@@ -115,7 +116,7 @@ void MFlatAssignmentVisitor::visitMDependency(const MDependency *dependency)
 {
     visitMRelation(dependency);
     auto targetDependency = dynamic_cast<MDependency *>(m_target);
-    QMT_CHECK(targetDependency);
+    QMT_ASSERT(targetDependency, return);
     targetDependency->setDirection(dependency->direction());
 }
 
@@ -128,9 +129,20 @@ void MFlatAssignmentVisitor::visitMAssociation(const MAssociation *association)
 {
     visitMRelation(association);
     auto targetAssociation = dynamic_cast<MAssociation *>(m_target);
-    QMT_CHECK(targetAssociation);
+    QMT_ASSERT(targetAssociation, return);
     targetAssociation->setEndA(association->endA());
     targetAssociation->setEndB(association->endB());
+    // TODO assign association class UID?
+}
+
+void MFlatAssignmentVisitor::visitMConnection(const MConnection *connection)
+{
+    visitMRelation(connection);
+    auto targetConnection = dynamic_cast<MConnection *>(m_target);
+    QMT_ASSERT(targetConnection, return);
+    targetConnection->setCustomRelationId(connection->customRelationId());
+    targetConnection->setEndA(connection->endA());
+    targetConnection->setEndB(connection->endB());
 }
 
 } // namespace qmt

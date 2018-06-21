@@ -29,6 +29,8 @@
 
 #include <QString>
 
+#include <algorithm>
+
 #define QTC_WIN_EXE_SUFFIX ".exe"
 
 namespace Utils {
@@ -36,32 +38,43 @@ namespace Utils {
 // Add more as needed.
 enum OsType { OsTypeWindows, OsTypeLinux, OsTypeMac, OsTypeOtherUnix, OsTypeOther };
 
-class QTCREATOR_UTILS_EXPORT OsSpecificAspects
+namespace OsSpecificAspects {
+
+QTCREATOR_UTILS_EXPORT inline QString withExecutableSuffix(OsType osType, const QString &executable)
 {
-public:
-    OsSpecificAspects(OsType osType) : m_osType(osType) { }
+    QString finalName = executable;
+    if (osType == OsTypeWindows)
+        finalName += QLatin1String(QTC_WIN_EXE_SUFFIX);
+    return finalName;
+}
 
-    QString withExecutableSuffix(const QString &executable) const {
-        QString finalName = executable;
-        if (m_osType == OsTypeWindows)
-            finalName += QLatin1String(QTC_WIN_EXE_SUFFIX);
-        return finalName;
+QTCREATOR_UTILS_EXPORT inline Qt::CaseSensitivity fileNameCaseSensitivity(OsType osType)
+{
+    return osType == OsTypeWindows || osType == OsTypeMac ? Qt::CaseInsensitive : Qt::CaseSensitive;
+}
+
+QTCREATOR_UTILS_EXPORT inline QChar pathListSeparator(OsType osType)
+{
+    return QLatin1Char(osType == OsTypeWindows ? ';' : ':');
+}
+
+QTCREATOR_UTILS_EXPORT inline Qt::KeyboardModifier controlModifier(OsType osType)
+{
+    return osType == OsTypeMac ? Qt::MetaModifier : Qt::ControlModifier;
+}
+
+QTCREATOR_UTILS_EXPORT inline QString pathWithNativeSeparators(OsType osType, const QString &pathName)
+{
+    if (osType == OsTypeWindows) {
+        const int pos = pathName.indexOf('/');
+        if (pos >= 0) {
+            QString n = pathName;
+            std::replace(std::begin(n) + pos, std::end(n), '/', '\\');
+            return n;
+        }
     }
+    return pathName;
+}
 
-    Qt::CaseSensitivity fileNameCaseSensitivity() const {
-        return m_osType == OsTypeWindows || m_osType == OsTypeMac ? Qt::CaseInsensitive : Qt::CaseSensitive;
-    }
-
-    QChar pathListSeparator() const {
-        return QLatin1Char(m_osType == OsTypeWindows ? ';' : ':');
-    }
-
-    Qt::KeyboardModifier controlModifier() const {
-        return m_osType == OsTypeMac ? Qt::MetaModifier : Qt::ControlModifier;
-    }
-
-private:
-    const OsType m_osType;
-};
-
+} // namespace OsSpecificAspects
 } // namespace Utils

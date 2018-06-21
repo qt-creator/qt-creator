@@ -32,6 +32,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QRegExp>
 #include <QTextStream>
 #include <QLoggingCategory>
 
@@ -243,7 +244,6 @@ void MakeFileParse::parseAssignments(QList<QMakeAssignment> *assignments)
 
 static FileName findQMakeBinaryFromMakefile(const QString &makefile)
 {
-    bool debugAdding = false;
     QFile fi(makefile);
     if (fi.exists() && fi.open(QFile::ReadOnly)) {
         QTextStream ts(&fi);
@@ -251,8 +251,6 @@ static FileName findQMakeBinaryFromMakefile(const QString &makefile)
         while (!ts.atEnd()) {
             QString line = ts.readLine();
             if (r1.exactMatch(line)) {
-                if (debugAdding)
-                    qDebug()<<"#~~ QMAKE is:"<<r1.cap(1).trimmed();
                 QFileInfo qmake(r1.cap(1).trimmed());
                 QString qmakePath = qmake.filePath();
                 if (!QString::fromLatin1(QTC_HOST_EXE_SUFFIX).isEmpty()

@@ -26,6 +26,7 @@
 #include "qnxversionnumber.h"
 
 #include <QDir>
+#include <QRegExp>
 
 namespace Qnx {
 namespace Internal {
@@ -86,11 +87,6 @@ QString QnxVersionNumber::segment(int index) const
         return m_segments.at(index);
 
     return QString();
-}
-
-QnxVersionNumber QnxVersionNumber::fromNdkEnvFileName(const QString &ndkEnvFileName)
-{
-    return fromFileName(ndkEnvFileName, QRegExp(QLatin1String("^bbndk-env_(.*)$")));
 }
 
 QnxVersionNumber QnxVersionNumber::fromTargetName(const QString &targetName)

@@ -48,8 +48,8 @@ class QTCREATOR_UTILS_EXPORT Theme : public QObject
     Q_ENUMS(WidgetStyle)
 
 public:
-    Theme(const QString &id, QObject *parent = 0);
-    ~Theme();
+    Theme(const QString &id, QObject *parent = nullptr);
+    ~Theme() override;
 
     enum Color {
         BackgroundColorAlternate,
@@ -116,10 +116,10 @@ public:
         TextColorDisabled,
         TextColorError,
         TextColorHighlight,
+        TextColorHighlightBackground,
         TextColorLink,
         TextColorLinkVisited,
         TextColorNormal,
-        TodoItemTextColor,
         ToggleButtonBackgroundColor,
         ToolBarBackgroundColor,
         TreeViewArrowColorNormal,
@@ -212,6 +212,11 @@ public:
         IconsCodeModelOverlayBackgroundColor,
         IconsCodeModelOverlayForegroundColor,
 
+        /* Code model text marks */
+
+        CodeModel_Error_TextMarkColor,
+        CodeModel_Warning_TextMarkColor,
+
         /* Output panes */
 
         OutputPanes_DebugTextColor,
@@ -252,6 +257,7 @@ public:
         Welcome_DividerColor,
         Welcome_LinkColor,
         Welcome_HoverColor,
+        Welcome_DisabledLinkColor,
 
         /* Timeline Library */
         Timeline_TextColor,
@@ -286,13 +292,20 @@ public:
         ProjectExplorer_TaskError_TextMarkColor,
         ProjectExplorer_TaskWarn_TextMarkColor,
 
-        /* ClangCodeModel Plugin */
-        ClangCodeModel_Error_TextMarkColor,
-        ClangCodeModel_Warning_TextMarkColor,
-
-        /* QmlDesigner */
+        /* QmlDesigner Plugin */
         QmlDesigner_BackgroundColor,
-        QmlDesigner_HighlightColor
+        QmlDesigner_HighlightColor,
+        QmlDesigner_FormEditorSelectionColor,
+        QmlDesigner_FormEditorForegroundColor,
+        QmlDesigner_BackgroundColorDarker,
+        QmlDesigner_BackgroundColorDarkAlternate,
+        QmlDesigner_TabLight,
+        QmlDesigner_TabDark,
+        QmlDesigner_ButtonColor,
+        QmlDesigner_BorderColor,
+        QmlDesigner_FormeditorBackgroundColor,
+        QmlDesigner_AlternateBackgroundColor,
+        QmlDesigner_ScrollBarHandleColor
     };
 
     enum Gradient {
@@ -340,14 +353,12 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &displayName);
 
-    const QVariantMap &values() const;
-
     void readSettings(QSettings &settings);
 
     static QPalette initialPalette();
 
 protected:
-    Theme(ThemePrivate &dd, QObject *parent = nullptr);
+    Theme(Theme *originTheme, QObject *parent = nullptr);
     ThemePrivate *d;
 
 private:

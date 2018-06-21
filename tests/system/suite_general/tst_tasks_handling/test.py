@@ -99,7 +99,7 @@ def main():
     model = waitForObject(":Qt Creator.Issues_QListView").model()
     test.verify(model.rowCount() == 0, 'Got an empty issue list to start from.')
     invokeMenuItem("File", "Open File or Project...")
-    selectFromFileDialog(tasksFile)
+    selectFromFileDialog(tasksFile, False, True)
     starttime = datetime.utcnow()
     waitFor("model.rowCount() == expectedNo", 10000)
     endtime = datetime.utcnow()

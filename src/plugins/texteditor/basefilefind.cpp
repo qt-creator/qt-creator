@@ -36,6 +36,7 @@
 #include <coreplugin/find/ifindsupport.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/refactoringchanges.h>
+#include <utils/algorithm.h>
 #include <utils/fadingindicator.h>
 #include <utils/filesearch.h>
 #include <utils/qtcassert.h>
@@ -63,7 +64,7 @@ class InternalEngine : public TextEditor::SearchEngine
 public:
     InternalEngine() : m_widget(new QWidget) {}
     ~InternalEngine() override { delete m_widget;}
-    QString title() const override { return tr("Internal"); }
+    QString title() const override { return TextEditor::SearchEngine::tr("Internal"); }
     QString toolTip() const override { return QString(); }
     QWidget *widget() const override { return m_widget; }
     QVariant parameters() const override { return QVariant(); }
@@ -78,7 +79,8 @@ public:
                 : Utils::findInFiles;
 
         return func(parameters.text,
-                    baseFileFind->files(parameters.nameFilters, parameters.additionalParameters),
+                    baseFileFind->files(parameters.nameFilters, parameters.exclusionFilters,
+                                        parameters.additionalParameters),
                     textDocumentFlagsForFindFlags(parameters.flags),
                     TextDocument::openedTextDocumentContents());
 
@@ -114,9 +116,14 @@ public:
     QPointer<IFindSupport> m_currentFindSupport;
 
     QLabel *m_resultLabel = 0;
+    // models in native path format
     QStringListModel m_filterStrings;
+    QStringListModel m_exclusionStrings;
+    // current filter in portable path format
     QString m_filterSetting;
+    QString m_exclusionSetting;
     QPointer<QComboBox> m_filterCombo;
+    QPointer<QComboBox> m_exclusionCombo;
     QVector<SearchEngine *> m_searchEngines;
     SearchEngine *m_internalSearchEngine;
     int m_currentSearchEngineIndex = -1;
@@ -128,9 +135,10 @@ static void syncComboWithSettings(QComboBox *combo, const QString &setting)
 {
     if (!combo)
         return;
-    int index = combo->findText(setting);
+    const QString &nativeSettings = QDir::toNativeSeparators(setting);
+    int index = combo->findText(nativeSettings);
     if (index < 0)
-        combo->setEditText(setting);
+        combo->setEditText(nativeSettings);
     else
         combo->setCurrentIndex(index);
 }
@@ -149,8 +157,8 @@ static void updateComboEntries(QComboBox *combo, bool onTop)
 
 using namespace Internal;
 
-SearchEngine::SearchEngine()
-    : d(new SearchEnginePrivate)
+SearchEngine::SearchEngine(QObject *parent)
+    : QObject(parent), d(new SearchEnginePrivate)
 {
 }
 
@@ -190,16 +198,16 @@ bool BaseFileFind::isEnabled() const
 
 QStringList BaseFileFind::fileNameFilters() const
 {
-    QStringList filters;
-    if (d->m_filterCombo && !d->m_filterCombo->currentText().isEmpty()) {
-        const QStringList parts = d->m_filterCombo->currentText().split(',');
-        foreach (const QString &part, parts) {
-            const QString filter = part.trimmed();
-            if (!filter.isEmpty())
-                filters << filter;
-        }
-    }
-    return filters;
+    if (d->m_filterCombo)
+        return splitFilterUiText(d->m_filterCombo->currentText());
+    return QStringList();
+}
+
+QStringList BaseFileFind::fileExclusionFilters() const
+{
+    if (d->m_exclusionCombo)
+        return splitFilterUiText(d->m_exclusionCombo->currentText());
+    return QStringList();
 }
 
 SearchEngine *BaseFileFind::currentSearchEngine() const
@@ -248,6 +256,8 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
     d->m_currentFindSupport = 0;
     if (d->m_filterCombo)
         updateComboEntries(d->m_filterCombo, true);
+    if (d->m_exclusionCombo)
+        updateComboEntries(d->m_exclusionCombo, true);
     QString tooltip = toolTip();
 
     SearchResult *search = SearchResultWindow::instance()->startNewSearch(
@@ -261,6 +271,7 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
     parameters.text = txt;
     parameters.flags = findFlags;
     parameters.nameFilters = fileNameFilters();
+    parameters.exclusionFilters = fileExclusionFilters();
     parameters.additionalParameters = additionalParameters();
     parameters.searchEngineParameters = currentSearchEngine()->parameters();
     parameters.searchEngineIndex = d->m_currentSearchEngineIndex;
@@ -340,45 +351,90 @@ void BaseFileFind::doReplace(const QString &text,
     }
 }
 
-QWidget *BaseFileFind::createPatternWidget()
+static QComboBox *createCombo(QAbstractItemModel *model)
 {
-    QString filterToolTip = tr("List of comma separated wildcard filters");
-    d->m_filterCombo = new QComboBox;
-    d->m_filterCombo->setEditable(true);
-    d->m_filterCombo->setModel(&d->m_filterStrings);
-    d->m_filterCombo->setMaxCount(10);
-    d->m_filterCombo->setMinimumContentsLength(10);
-    d->m_filterCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
-    d->m_filterCombo->setInsertPolicy(QComboBox::InsertAtBottom);
-    d->m_filterCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    d->m_filterCombo->setToolTip(filterToolTip);
+    auto combo = new QComboBox;
+    combo->setEditable(true);
+    combo->setModel(model);
+    combo->setMaxCount(10);
+    combo->setMinimumContentsLength(10);
+    combo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    combo->setInsertPolicy(QComboBox::InsertAtBottom);
+    combo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    return combo;
+}
+
+static QLabel *createLabel(const QString &text)
+{
+    auto filePatternLabel = new QLabel(text);
+    filePatternLabel->setMinimumWidth(80);
+    filePatternLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    filePatternLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    return filePatternLabel;
+}
+
+QList<QPair<QWidget *, QWidget *>> BaseFileFind::createPatternWidgets()
+{
+    QLabel *filterLabel = createLabel(msgFilePatternLabel());
+    d->m_filterCombo = createCombo(&d->m_filterStrings);
+    d->m_filterCombo->setToolTip(msgFilePatternToolTip());
+    filterLabel->setBuddy(d->m_filterCombo);
     syncComboWithSettings(d->m_filterCombo, d->m_filterSetting);
-    return d->m_filterCombo;
+    QLabel *exclusionLabel = createLabel(msgExclusionPatternLabel());
+    d->m_exclusionCombo = createCombo(&d->m_exclusionStrings);
+    d->m_exclusionCombo->setToolTip(msgFilePatternToolTip());
+    exclusionLabel->setBuddy(d->m_exclusionCombo);
+    syncComboWithSettings(d->m_exclusionCombo, d->m_exclusionSetting);
+    return { qMakePair(filterLabel,    d->m_filterCombo),
+             qMakePair(exclusionLabel, d->m_exclusionCombo) };
 }
 
 void BaseFileFind::writeCommonSettings(QSettings *settings)
 {
-    settings->setValue("filters", d->m_filterStrings.stringList());
+    std::function<QStringList(const QStringList &)> fromNativeSeparators = [](const QStringList &files) {
+        return Utils::transform(files, &QDir::fromNativeSeparators);
+    };
+
+    settings->setValue("filters", fromNativeSeparators(d->m_filterStrings.stringList()));
     if (d->m_filterCombo)
-        settings->setValue("currentFilter", d->m_filterCombo->currentText());
+        settings->setValue("currentFilter",
+                           QDir::fromNativeSeparators(d->m_filterCombo->currentText()));
+    settings->setValue("exclusionFilters", fromNativeSeparators(d->m_exclusionStrings.stringList()));
+    if (d->m_exclusionCombo)
+        settings->setValue("currentExclusionFilter",
+                           QDir::fromNativeSeparators(d->m_exclusionCombo->currentText()));
 
     foreach (SearchEngine *searchEngine, d->m_searchEngines)
         searchEngine->writeSettings(settings);
     settings->setValue("currentSearchEngineIndex", d->m_currentSearchEngineIndex);
 }
 
-void BaseFileFind::readCommonSettings(QSettings *settings, const QString &defaultFilter)
+void BaseFileFind::readCommonSettings(QSettings *settings, const QString &defaultFilter,
+                                      const QString &defaultExclusionFilter)
 {
+    std::function<QStringList(const QStringList &)> toNativeSeparators = [](const QStringList &files) {
+        return Utils::transform(files, &QDir::toNativeSeparators);
+    };
+
     QStringList filters = settings->value("filters").toStringList();
-    const QVariant currentFilter = settings->value("currentFilter");
-    d->m_filterSetting = currentFilter.toString();
     if (filters.isEmpty())
         filters << defaultFilter;
-    if (!currentFilter.isValid())
-        d->m_filterSetting = filters.first();
-    d->m_filterStrings.setStringList(filters);
+    const QVariant currentFilter = settings->value("currentFilter");
+    d->m_filterSetting = currentFilter.isValid() ? currentFilter.toString()
+                                                 : filters.first();
+    d->m_filterStrings.setStringList(toNativeSeparators(filters));
     if (d->m_filterCombo)
         syncComboWithSettings(d->m_filterCombo, d->m_filterSetting);
+
+    QStringList exclusionFilters = settings->value("exclusionFilters").toStringList();
+    if (exclusionFilters.isEmpty())
+        exclusionFilters << defaultExclusionFilter;
+    const QVariant currentExclusionFilter = settings->value("currentExclusionFilter");
+    d->m_exclusionSetting = currentExclusionFilter.isValid() ? currentExclusionFilter.toString()
+                                                          : exclusionFilters.first();
+    d->m_exclusionStrings.setStringList(toNativeSeparators(exclusionFilters));
+    if (d->m_exclusionCombo)
+        syncComboWithSettings(d->m_exclusionCombo, d->m_exclusionSetting);
 
     foreach (SearchEngine* searchEngine, d->m_searchEngines)
         searchEngine->readSettings(settings);
@@ -392,16 +448,8 @@ void BaseFileFind::openEditor(const SearchResultItem &item)
     FileFindParameters parameters = result->userData().value<FileFindParameters>();
     IEditor *openedEditor =
             d->m_searchEngines[parameters.searchEngineIndex]->openEditor(item, parameters);
-    if (!openedEditor) {
-        if (item.path.size() > 0) {
-            openedEditor = EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
-                                                       item.mainRange.begin.line,
-                                                       item.mainRange.begin.column, Id(),
-                                                       EditorManager::DoNotSwitchToDesignMode);
-        } else {
-            openedEditor = EditorManager::openEditor(QDir::fromNativeSeparators(item.text));
-        }
-    }
+    if (!openedEditor)
+        EditorManager::openEditorAtSearchResult(item, EditorManager::DoNotSwitchToDesignMode);
     if (d->m_currentFindSupport)
         d->m_currentFindSupport->clearHighlights();
     d->m_currentFindSupport = 0;
@@ -533,7 +581,7 @@ CountingLabel::CountingLabel()
 
 void CountingLabel::updateCount(int count)
 {
-    setText(BaseFileFind::tr("%n found", nullptr, count));
+    setText(BaseFileFind::tr("%n found.", nullptr, count));
 }
 
 } // namespace Internal

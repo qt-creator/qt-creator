@@ -33,67 +33,80 @@ namespace QmlProfiler {
 namespace Internal {
 
 FlameGraphModelTest::FlameGraphModelTest(QObject *parent) :
-    QObject(parent), manager(&finder), model(&manager)
+    QObject(parent), model(&manager)
 {
 }
 
-void FlameGraphModelTest::generateData(QmlProfilerModelManager *manager)
+int FlameGraphModelTest::generateData(QmlProfilerModelManager *manager,
+                                      Timeline::TimelineModelAggregator *aggregator)
 {
     // Notes only work with timeline models
-    QmlProfilerRangeModel *rangeModel = new QmlProfilerRangeModel(manager, Javascript, manager);
+    QmlProfilerRangeModel *rangeModel = new QmlProfilerRangeModel(manager, Javascript, aggregator);
+    int rangeModelId = rangeModel->modelId();
     manager->notesModel()->addTimelineModel(rangeModel);
 
-    manager->startAcquiring();
-    QmlEvent event;
+    manager->initialize();
 
-    event.setTypeIndex(-1);
     QStack<int> typeIndices;
 
     int i = 0;
+    int typeIndex = -1;
     while (i < 10) {
-        int typeIndex = -1;
+        QmlEvent event;
         if (i < 5) {
-            QmlEventType type(MaximumMessage,
-                              static_cast<RangeType>(static_cast<int>(Javascript) - i),
-                              -1, QmlEventLocation("somefile.js", i, 20 - i), QString("funcfunc"));
-            typeIndex = manager->qmlModel()->addEventType(type);
+            typeIndex = manager->appendEventType(
+                        QmlEventType(MaximumMessage,
+                                     static_cast<RangeType>(static_cast<int>(Javascript) - i), -1,
+                                     QmlEventLocation("somefile.js", i, 20 - i),
+                                     QString("funcfunc")));
         } else {
             typeIndex = typeIndices[i - 5];
         }
         event.setTypeIndex(typeIndex);
         event.setTimestamp(++i);
         event.setRangeStage(RangeStart);
-        manager->qmlModel()->addEvent(event);
+        manager->appendEvent(std::move(event));
         typeIndices.push(typeIndex);
     }
 
+    QmlEvent event;
+    event.setTypeIndex(typeIndex);
     event.setRangeStage(RangeEnd);
+    event.setTypeIndex(typeIndices.pop());
     event.setTimestamp(++i);
-    manager->qmlModel()->addEvent(event);
+    manager->appendEvent(QmlEvent(event));
 
     event.setRangeStage(RangeStart);
+    event.setTypeIndex(0); // Have it accepted by the JavaScript range model above
+    typeIndices.push(0);
     event.setTimestamp(++i);
-    manager->qmlModel()->addEvent(event);
+    manager->appendEvent(std::move(event));
 
-    for (int j = 0; !typeIndices.isEmpty(); ++j) {
-        event.setTimestamp(i + j);
+    while (!typeIndices.isEmpty()) {
+        QmlEvent event;
+        event.setTimestamp(++i);
         event.setRangeStage(RangeEnd);
         event.setTypeIndex(typeIndices.pop());
-        manager->qmlModel()->addEvent(event);
+        manager->appendEvent(std::move(event));
     }
 
-    manager->acquiringDone();
+    manager->finalize();
 
-    manager->notesModel()->setNotes(QVector<QmlNote>({QmlNote(0, 2, 1, 20, "dings")}));
-    manager->notesModel()->loadData();
+    static_cast<QmlProfilerNotesModel *>(manager->notesModel())
+            ->setNotes(QVector<QmlNote>({
+                                            // row 2 on purpose to test the range heuristic
+                                            QmlNote(0, 2, 1, 21, "dings"),
+                                            QmlNote(0, 3, 12, 1, "weg")
+                                        }));
+    manager->notesModel()->restore();
 
-    QCOMPARE(manager->state(), QmlProfilerModelManager::Done);
+    return rangeModelId;
 }
 
 void FlameGraphModelTest::initTestCase()
 {
     QCOMPARE(model.modelManager(), &manager);
-    generateData(&manager);
+    rangeModelId = generateData(&manager, &aggregator);
 }
 
 void FlameGraphModelTest::testIndex()
@@ -134,8 +147,8 @@ void FlameGraphModelTest::testData()
              FlameGraphModel::tr("JavaScript"));
     QCOMPARE(model.data(index2, FlameGraphModel::TypeRole).toString(),
              FlameGraphModel::tr("Compile"));
-    QCOMPARE(model.data(index, FlameGraphModel::DurationRole).toLongLong(), 20);
-    QCOMPARE(model.data(index2, FlameGraphModel::DurationRole).toLongLong(), 12);
+    QCOMPARE(model.data(index, FlameGraphModel::DurationRole).toLongLong(), 21);
+    QCOMPARE(model.data(index2, FlameGraphModel::DurationRole).toLongLong(), 13);
     QCOMPARE(model.data(index, FlameGraphModel::CallCountRole).toInt(), 1);
     QCOMPARE(model.data(index2, FlameGraphModel::CallCountRole).toInt(), 1);
     QCOMPARE(model.data(index, FlameGraphModel::DetailsRole).toString(),
@@ -150,12 +163,14 @@ void FlameGraphModelTest::testData()
     QCOMPARE(model.data(index2, FlameGraphModel::LineRole).toInt(), 4);
     QCOMPARE(model.data(index, FlameGraphModel::ColumnRole).toInt(), 20);
     QCOMPARE(model.data(index2, FlameGraphModel::ColumnRole).toInt(), 16);
-    QCOMPARE(model.data(index, FlameGraphModel::NoteRole).toString(), QString("dings"));
+
+    // The flame graph model does not know that one of the notes belongs to row 2, and the
+    // other one to row 3. It will show both of them for all indexes with that type ID.
+    QCOMPARE(model.data(index, FlameGraphModel::NoteRole).toString(), QString("dings\nweg"));
+
     QCOMPARE(model.data(index2, FlameGraphModel::NoteRole).toString(), QString());
-    QCOMPARE(model.data(index, FlameGraphModel::TimePerCallRole).toLongLong(), 20);
-    QCOMPARE(model.data(index2, FlameGraphModel::TimePerCallRole).toLongLong(), 12);
-    QCOMPARE(model.data(index, FlameGraphModel::TimeInPercentRole).toInt(), 62);
-    QCOMPARE(model.data(index2, FlameGraphModel::TimeInPercentRole).toInt(), 37);
+    QCOMPARE(model.data(index, FlameGraphModel::TimePerCallRole).toLongLong(), 21);
+    QCOMPARE(model.data(index2, FlameGraphModel::TimePerCallRole).toLongLong(), 13);
     QCOMPARE(model.data(index, FlameGraphModel::RangeTypeRole).toInt(),
              static_cast<int>(Javascript));
     QCOMPARE(model.data(index2, FlameGraphModel::RangeTypeRole).toInt(),
@@ -168,12 +183,12 @@ void FlameGraphModelTest::testData()
     QVERIFY(!model.data(index2, -10).isValid());
     QVERIFY(!model.data(QModelIndex(), FlameGraphModel::LineRole).isValid());
 
-    for (int i = 1; i < 8; ++i) {
+    for (int i = 1; i < 9; ++i) {
         index = model.index(0, 0, index);
         QCOMPARE(model.data(index, FlameGraphModel::TypeRole).toString(),
                  typeRoles[i % typeRoles.length()]);
         QCOMPARE(model.data(index, FlameGraphModel::NoteRole).toString(),
-                 (i % typeRoles.length() == 0) ? QString("dings") : QString());
+                 (i % typeRoles.length() == 0) ? QString("dings\nweg") : QString());
     }
     QCOMPARE(model.data(index, FlameGraphModel::CallCountRole).toInt(), 1);
 
@@ -181,7 +196,7 @@ void FlameGraphModelTest::testData()
     QCOMPARE(model.data(index2, FlameGraphModel::TypeRole).toString(),
              FlameGraphModel::tr("Compile"));
     QCOMPARE(model.data(index2, FlameGraphModel::NoteRole).toString(), QString());
-    QCOMPARE(model.data(index2, FlameGraphModel::CallCountRole).toInt(), 2);
+    QCOMPARE(model.data(index2, FlameGraphModel::CallCountRole).toInt(), 1);
 }
 
 void FlameGraphModelTest::testRoleNames()
@@ -197,15 +212,17 @@ void FlameGraphModelTest::testRoleNames()
     QCOMPARE(names[FlameGraphModel::ColumnRole],        QByteArray("column"));
     QCOMPARE(names[FlameGraphModel::NoteRole],          QByteArray("note"));
     QCOMPARE(names[FlameGraphModel::TimePerCallRole],   QByteArray("timePerCall"));
-    QCOMPARE(names[FlameGraphModel::TimeInPercentRole], QByteArray("timeInPercent"));
     QCOMPARE(names[FlameGraphModel::RangeTypeRole],     QByteArray("rangeType"));
 }
 
 void FlameGraphModelTest::testNotes()
 {
-    manager.notesModel()->add(2, 1, QString("blubb"));
+    manager.notesModel()->add(rangeModelId, 1, QString("blubb"));
     QCOMPARE(model.data(model.index(0, 0), FlameGraphModel::NoteRole).toString(),
-             QString("dings\nblubb"));
+             QString("dings\nweg\nblubb"));
+    manager.notesModel()->remove(0);
+    QCOMPARE(model.data(model.index(0, 0), FlameGraphModel::NoteRole).toString(),
+             QString("weg\nblubb"));
     manager.notesModel()->remove(0);
     QCOMPARE(model.data(model.index(0, 0), FlameGraphModel::NoteRole).toString(),
              QString("blubb"));
@@ -216,7 +233,7 @@ void FlameGraphModelTest::testNotes()
 
 void FlameGraphModelTest::cleanupTestCase()
 {
-    manager.clear();
+    manager.clearAll();
     QCOMPARE(model.rowCount(), 0);
 }
 

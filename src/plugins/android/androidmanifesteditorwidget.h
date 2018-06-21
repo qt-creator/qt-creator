@@ -77,6 +77,10 @@ class AndroidManifestTextEditorWidget : public TextEditor::TextEditorWidget
 {
 public:
     explicit AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent);
+    ~AndroidManifestTextEditorWidget();
+
+private:
+    Core::IContext *m_context;
 };
 
 class AndroidManifestEditorWidget : public QStackedWidget
@@ -108,6 +112,7 @@ signals:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
+    void focusInEvent(QFocusEvent *event);
 
 private:
     void setLDPIIcon();

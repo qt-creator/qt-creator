@@ -559,7 +559,7 @@ public:
     QString m_annotateRevisionTextFormat;
     QString m_annotatePreviousRevisionTextFormat;
     QString m_copyRevisionTextFormat;
-    bool m_configurationAdded = false;
+    VcsBaseEditorConfig *m_config = nullptr;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
     QPointer<VcsCommand> m_command;
     VcsBaseEditorWidget::DescribeFunc m_describeFunc = nullptr;
@@ -943,9 +943,8 @@ void VcsBaseEditorWidget::slotCursorPositionChanged()
     if (section != -1) {
         QComboBox *entriesComboBox = d->entriesComboBox();
         if (entriesComboBox->currentIndex() != section) {
-            const bool blocked = entriesComboBox->blockSignals(true);
+            QSignalBlocker blocker(entriesComboBox);
             entriesComboBox->setCurrentIndex(section);
-            entriesComboBox->blockSignals(blocked);
         }
     }
 }
@@ -1257,7 +1256,7 @@ static QTextCodec *findProjectCodec(const QString &dir)
                     return codec;
                 }
     }
-    return 0;
+    return nullptr;
 }
 
 QTextCodec *VcsBaseEditor::getCodec(const QString &source)
@@ -1304,14 +1303,14 @@ int VcsBaseEditor::lineNumberOfCurrentEditor(const QString &currentFile)
     const BaseTextEditor *eda = qobject_cast<const BaseTextEditor *>(ed);
     if (!eda)
         return -1;
-    const int cursorLine = eda->currentLine();
+    const int cursorLine = eda->textCursor().blockNumber();
     auto const edw = qobject_cast<const TextEditorWidget *>(ed->widget());
     if (edw) {
-        const int firstLine = edw->firstVisibleLine();
-        const int lastLine = edw->lastVisibleLine();
+        const int firstLine = edw->firstVisibleBlockNumber();
+        const int lastLine = edw->lastVisibleBlockNumber();
         if (firstLine <= cursorLine && cursorLine < lastLine)
             return cursorLine;
-        return edw->centerVisibleLine();
+        return edw->centerVisibleBlockNumber();
     }
     return cursorLine;
 }
@@ -1380,14 +1379,14 @@ QString VcsBaseEditor::getTitleId(const QString &workingDirectory,
     return rc;
 }
 
-void VcsBaseEditorWidget::setConfigurationAdded()
+void VcsBaseEditorWidget::setEditorConfig(VcsBaseEditorConfig *config)
 {
-    d->m_configurationAdded = true;
+    d->m_config = config;
 }
 
-bool VcsBaseEditorWidget::configurationAdded() const
+VcsBaseEditorConfig *VcsBaseEditorWidget::editorConfig() const
 {
-    return d->m_configurationAdded;
+    return d->m_config;
 }
 
 void VcsBaseEditorWidget::setCommand(VcsCommand *command)
@@ -1398,7 +1397,7 @@ void VcsBaseEditorWidget::setCommand(VcsCommand *command)
     }
     d->m_command = command;
     if (command) {
-        d->m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicator::Large);
+        d->m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Large);
         d->m_progressIndicator->attachToWidget(this);
         connect(command, &VcsCommand::finished, this, &VcsBaseEditorWidget::reportCommandFinished);
         QTimer::singleShot(100, this, &VcsBaseEditorWidget::showProgressIndicator);

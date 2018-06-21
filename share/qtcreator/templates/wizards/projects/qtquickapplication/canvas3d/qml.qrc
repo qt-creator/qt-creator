@@ -1,0 +1,10 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>glcode.js</file>
+@if %{ThreeJs}
+        <file>three.js</file>
+@endif
+    </qresource>
+</RCC>

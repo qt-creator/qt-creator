@@ -1,4 +1,4 @@
-contains(CONFIG, dll) {
+shared {
     DEFINES += QMLJS_LIBRARY
 } else {
     DEFINES += QML_BUILD_STATIC_LIB
@@ -76,9 +76,6 @@ SOURCES += \
     $$PWD/qmljsviewercontext.cpp \
     $$PWD/qmljsdescribevalue.cpp \
     $$PWD/qmljsdialect.cpp
-
-DISTFILES += \
-    $$PWD/parser/qmljs.g
 
 contains(QT, gui) {
     SOURCES += \

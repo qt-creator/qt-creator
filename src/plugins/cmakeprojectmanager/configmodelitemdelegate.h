@@ -18,20 +18,30 @@
 
 #pragma once
 
+#include <QComboBox>
 #include <QStyledItemDelegate>
+
+#include <utils/fileutils.h>
 
 namespace CMakeProjectManager {
 
 class ConfigModelItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
-public:
-    ConfigModelItemDelegate(QObject* parent=0);
-    ~ConfigModelItemDelegate();
 
-    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-    void setEditorData(QWidget* editor, const QModelIndex& index) const override;
-    void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
+public:
+    ConfigModelItemDelegate(const Utils::FileName &base, QObject *parent = nullptr);
+
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                          const QModelIndex &index) const final;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const final;
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+                      const QModelIndex &index) const final;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const final;
+
+private:
+    Utils::FileName m_base;
+    QComboBox m_measurement;
 };
 
 } // namespace CMakeProjectManager

@@ -42,8 +42,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/navigationtreeview.h>
@@ -178,7 +176,7 @@ public:
         if (role == ItemActivatedFromBelowRole) {
             TreeItem *item = data.value<TreeItem *>();
             QTC_ASSERT(item, return false);
-            m_currentPanelIndex = children().indexOf(item);
+            m_currentPanelIndex = indexOf(item);
             QTC_ASSERT(m_currentPanelIndex != -1, return false);
             parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(this)),
                               ItemActivatedFromBelowRole);
@@ -251,9 +249,9 @@ public:
         }
 
         if (role == ItemActivatedFromBelowRole) {
-            TreeItem *item = dat.value<TreeItem *>();
+            const TreeItem *item = dat.value<TreeItem *>();
             QTC_ASSERT(item, return false);
-            int res = children().indexOf(item);
+            int res = indexOf(item);
             QTC_ASSERT(res >= 0, return false);
             m_currentChildIndex = res;
             announceChange();
@@ -365,11 +363,11 @@ public:
     ProjectWindowPrivate(ProjectWindow *parent)
         : q(parent)
     {
-        m_projectsModel.setHeader({ ProjectWindow::tr("Projects") });
+        m_projectsModel.setHeader({ProjectWindow::tr("Projects")});
 
         m_selectorTree = new SelectorTree;
         m_selectorTree->setModel(&m_projectsModel);
-        m_selectorTree->setItemDelegate(new SelectorDelegate);
+        m_selectorTree->setItemDelegate(&m_selectorDelegate);
         m_selectorTree->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(m_selectorTree, &QAbstractItemView::activated,
                 this, &ProjectWindowPrivate::itemActivated);
@@ -421,10 +419,10 @@ public:
         innerLayout->setSpacing(10);
         innerLayout->setContentsMargins(14, innerLayout->spacing(), 14, 0);
         innerLayout->addWidget(m_manageKits);
-        innerLayout->addWidget(m_importBuild);
         innerLayout->addSpacerItem(new QSpacerItem(10, 30, QSizePolicy::Maximum, QSizePolicy::Maximum));
         innerLayout->addWidget(activeLabel);
         innerLayout->addWidget(m_projectSelection);
+        innerLayout->addWidget(m_importBuild);
         innerLayout->addWidget(m_selectorTree);
 
         auto selectorLayout = new QVBoxLayout(selectorView);
@@ -439,6 +437,8 @@ public:
     void updatePanel()
     {
         ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0);
+        if (!projectItem)
+            return;
         setPanel(projectItem->data(0, PanelWidgetRole).value<QWidget *>());
 
         QModelIndex activeIndex = projectItem->activeIndex();
@@ -529,8 +529,8 @@ public:
     void handleManageKits()
     {
         if (ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0)) {
-            if (KitOptionsPage *page = ExtensionSystem::PluginManager::getObject<KitOptionsPage>())
-                page->showKit(KitManager::find(Id::fromSetting(projectItem->data(0, KitIdRole))));
+            if (auto kitPage = KitOptionsPage::instance())
+                kitPage->showKit(KitManager::kit(Id::fromSetting(projectItem->data(0, KitIdRole))));
         }
         ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, ICore::mainWindow());
     }
@@ -544,25 +544,36 @@ public:
 
         QString dir = project->projectDirectory().toString();
         QString importDir = QFileDialog::getExistingDirectory(ICore::mainWindow(),
-                                                              ProjectWindow::tr("Import directory"),
+                                                              ProjectWindow::tr("Import Directory"),
                                                               dir);
         FileName path = FileName::fromString(importDir);
 
+        Target *lastTarget = nullptr;
+        BuildConfiguration *lastBc = nullptr;
         const QList<BuildInfo *> toImport = projectImporter->import(path, false);
         for (BuildInfo *info : toImport) {
             Target *target = project->target(info->kitId);
             if (!target) {
-                target = project->createTarget(KitManager::find(info->kitId));
-                if (target)
-                    project->addTarget(target);
+                std::unique_ptr<Target> newTarget = project->createTarget(KitManager::kit(info->kitId));
+                target = newTarget.get();
+                if (newTarget)
+                    project->addTarget(std::move(newTarget));
             }
             if (target) {
                 projectImporter->makePersistent(target->kit());
                 BuildConfiguration *bc = info->factory()->create(target, info);
                 QTC_ASSERT(bc, continue);
                 target->addBuildConfiguration(bc);
+
+                lastTarget = target;
+                lastBc = bc;
             }
         }
+        if (lastTarget && lastBc) {
+            SessionManager::setActiveBuildConfiguration(lastTarget, lastBc, SetActive::Cascade);
+            SessionManager::setActiveTarget(project, lastTarget, SetActive::Cascade);
+        }
+
         qDeleteAll(toImport);
     }
 
@@ -583,6 +594,7 @@ public:
     ProjectWindow *q;
     ProjectsModel m_projectsModel;
     ComboBoxModel m_comboBoxModel;
+    SelectorDelegate m_selectorDelegate;
     QComboBox *m_projectSelection;
     SelectorTree *m_selectorTree;
     QPushButton *m_importBuild;
@@ -614,7 +626,13 @@ QSize SelectorDelegate::sizeHint(const QStyleOptionViewItem &option, const QMode
     auto model = static_cast<const ProjectsModel *>(index.model());
     if (TreeItem *item = model->itemForIndex(index)) {
         switch (item->level()) {
-        case 2: s = QSize(s.width(), 3 * s.height()); break;
+        case 2:
+            s = QSize(s.width(), 3 * s.height());
+            break;
+        case 3:
+        case 4:
+            s = QSize(s.width(), s.height() * 1.2);
+            break;
         }
     }
     return s;

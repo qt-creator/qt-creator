@@ -28,14 +28,15 @@
 #include "gitclient.h"
 #include "gitplugin.h"
 #include "remotemodel.h"
-#include "stashdialog.h" // for messages
 #include "ui_remotedialog.h"
 #include "ui_remoteadditiondialog.h"
 
+#include <utils/fancylineedit.h>
 #include <utils/headerviewstretcher.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QMessageBox>
+#include <QRegularExpression>
 
 namespace Git {
 namespace Internal {
@@ -44,34 +45,76 @@ namespace Internal {
 // RemoteAdditionDialog:
 // --------------------------------------------------------------------------
 
-RemoteAdditionDialog::RemoteAdditionDialog(QWidget *parent) :
-    QDialog(parent),
-    m_ui(new Ui::RemoteAdditionDialog)
+class RemoteAdditionDialog : public QDialog
 {
-    m_ui->setupUi(this);
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-}
+public:
+    RemoteAdditionDialog(const QStringList &remoteNames) :
+        m_invalidRemoteNameChars(GitPlugin::invalidBranchAndRemoteNamePattern()),
+        m_remoteNames(remoteNames)
+    {
+        m_ui.setupUi(this);
+        setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+        m_ui.nameEdit->setValidationFunction([this](Utils::FancyLineEdit *edit, QString *errorMessage) {
+            if (!edit)
+                return false;
 
-RemoteAdditionDialog::~RemoteAdditionDialog()
-{
-    delete m_ui;
-}
+            QString input = edit->text();
+            edit->setText(input.replace(m_invalidRemoteNameChars, "_"));
 
-QString RemoteAdditionDialog::remoteName() const
-{
-    return m_ui->nameEdit->text();
-}
+            // "Intermediate" patterns, may change to Acceptable when user edits further:
 
-QString RemoteAdditionDialog::remoteUrl() const
-{
-    return m_ui->urlEdit->text();
-}
+            if (input.endsWith(".lock")) //..may not end with ".lock"
+                return false;
 
-void RemoteAdditionDialog::clear()
-{
-    m_ui->nameEdit->clear();
-    m_ui->urlEdit->clear();
-}
+            if (input.endsWith('.')) // no dot at the end (but allowed in the middle)
+                return false;
+
+            if (input.endsWith('/')) // no slash at the end (but allowed in the middle)
+                return false;
+
+            if (m_remoteNames.contains(input)) {
+                if (errorMessage)
+                    *errorMessage = RemoteDialog::tr("A remote with the name \"%1\" already exists.").arg(input);
+                return false;
+            }
+
+            // is a valid remote name
+            return !input.isEmpty();
+        });
+        connect(m_ui.nameEdit, &QLineEdit::textChanged, [this]() {
+            m_ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(m_ui.nameEdit->isValid());
+        });
+
+        m_ui.urlEdit->setValidationFunction([](Utils::FancyLineEdit *edit, QString *errorMessage) {
+            if (!edit || edit->text().isEmpty())
+                return false;
+
+            const GitRemote r(edit->text());
+            if (!r.isValid && errorMessage)
+                *errorMessage = RemoteDialog::tr("The URL may not be valid.");
+
+            return r.isValid;
+        });
+
+        m_ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    }
+
+    QString remoteName() const
+    {
+        return m_ui.nameEdit->text();
+    }
+
+    QString remoteUrl() const
+    {
+        return m_ui.urlEdit->text();
+    }
+
+private:
+    Ui::RemoteAdditionDialog m_ui;
+    const QRegularExpression m_invalidRemoteNameChars;
+    QStringList m_remoteNames;
+};
+
 
 // --------------------------------------------------------------------------
 // RemoteDialog:
@@ -114,7 +157,7 @@ void RemoteDialog::refresh(const QString &repository, bool force)
     if (m_remoteModel->workingDirectory() == repository && !force)
         return;
     // Refresh
-    m_ui->repositoryLabel->setText(StashDialog::msgRepositoryLabel(repository));
+    m_ui->repositoryLabel->setText(GitPlugin::msgRepositoryLabel(repository));
     if (repository.isEmpty()) {
         m_remoteModel->clear();
     } else {
@@ -131,20 +174,17 @@ void RemoteDialog::refreshRemotes()
 
 void RemoteDialog::addRemote()
 {
-    if (!m_addDialog)
-        m_addDialog = new RemoteAdditionDialog;
-    m_addDialog->clear();
-
-    if (m_addDialog->exec() != QDialog::Accepted)
+    RemoteAdditionDialog addDialog(m_remoteModel->allRemoteNames());
+    if (addDialog.exec() != QDialog::Accepted)
         return;
 
-    m_remoteModel->addRemote(m_addDialog->remoteName(), m_addDialog->remoteUrl());
+    m_remoteModel->addRemote(addDialog.remoteName(), addDialog.remoteUrl());
 }
 
 void RemoteDialog::removeRemote()
 {
     const QModelIndexList indexList = m_ui->remoteView->selectionModel()->selectedIndexes();
-    if (indexList.count() == 0)
+    if (indexList.isEmpty())
         return;
 
     int row = indexList.at(0).row();
@@ -160,18 +200,18 @@ void RemoteDialog::removeRemote()
 void RemoteDialog::pushToRemote()
 {
     const QModelIndexList indexList = m_ui->remoteView->selectionModel()->selectedIndexes();
-    if (indexList.count() == 0)
+    if (indexList.isEmpty())
         return;
 
     const int row = indexList.at(0).row();
     const QString remoteName = m_remoteModel->remoteName(row);
-    GitPlugin::client()->push(m_remoteModel->workingDirectory(), { remoteName });
+    GitPlugin::client()->push(m_remoteModel->workingDirectory(), {remoteName});
 }
 
 void RemoteDialog::fetchFromRemote()
 {
     const QModelIndexList indexList = m_ui->remoteView->selectionModel()->selectedIndexes();
-    if (indexList.count() == 0)
+    if (indexList.isEmpty())
         return;
 
     int row = indexList.at(0).row();

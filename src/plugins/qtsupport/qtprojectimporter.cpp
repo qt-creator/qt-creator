@@ -36,6 +36,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/temporarydirectory.h>
 
 #include <QFileInfo>
 #include <QList>
@@ -47,20 +48,15 @@ namespace QtSupport {
 QtProjectImporter::QtProjectImporter(const Utils::FileName &path) : ProjectImporter(path)
 {
     useTemporaryKitInformation(QtKitInformation::id(),
-                               [this](Kit *k, const QVariantList &vl) { cleanupTemporaryQt(k, vl); },
-                               [this](Kit *k, const QVariantList &vl) { persistTemporaryQt(k, vl); });
+                               [this](Kit *k, const QVariantList &vl) {cleanupTemporaryQt(k, vl);},
+                               [this](Kit *k, const QVariantList &vl) {persistTemporaryQt(k, vl);});
 }
 
 QtProjectImporter::QtVersionData
 QtProjectImporter::findOrCreateQtVersion(const Utils::FileName &qmakePath) const
 {
     QtVersionData result;
-    result.qt
-            = Utils::findOrDefault(QtVersionManager::unsortedVersions(),
-                                  [&qmakePath](BaseQtVersion *v) -> bool {
-                                      return qmakePath == v->qmakeCommand();
-                                  });
-
+    result.qt = QtVersionManager::version(Utils::equal(&BaseQtVersion::qmakeCommand, qmakePath));
     if (result.qt) {
         // Check if version is a temporary qt
         const int qtId = result.qt->uniqueId();
@@ -179,7 +175,7 @@ public:
 
     QStringList importCandidates() override;
 
-    bool allDeleted() const { return m_deletedTestData.count() == m_testData.count(); }
+    bool allDeleted() const { return m_deletedTestData.count() == m_testData.count();}
 
 protected:
     QList<void *> examineDirectory(const Utils::FileName &importPath) const override;
@@ -226,7 +222,7 @@ Kit *TestQtProjectImporter::createKit(void *directoryData) const
     const DirectoryData *dd = static_cast<const DirectoryData *>(directoryData);
     assert(dd->importPath == m_path);
 
-    if (KitManager::instance()->find(dd->kit->id())) // known kit
+    if (KitManager::instance()->kit(dd->kit->id())) // known kit
         return dd->kit;
 
     // New temporary kit:
@@ -247,6 +243,7 @@ Kit *TestQtProjectImporter::createKit(void *directoryData) const
 
 QList<BuildInfo *> TestQtProjectImporter::buildInfoListForKit(const Kit *k, void *directoryData) const
 {
+    Q_UNUSED(directoryData);
     assert(m_testData.contains(directoryData));
     assert(!m_deletedTestData.contains(directoryData));
     assert(static_cast<const DirectoryData *>(directoryData)->importPath == m_path);
@@ -258,7 +255,7 @@ QList<BuildInfo *> TestQtProjectImporter::buildInfoListForKit(const Kit *k, void
     info->kitId = k->id();
     info->buildType = BuildConfiguration::Debug;
 
-    return { info };
+    return {info};
 }
 
 void TestQtProjectImporter::deleteDirectoryData(void *directoryData) const
@@ -297,64 +294,64 @@ void QtSupportPlugin::testQtProjectImporter_oneProject_data()
             << QList<bool>() << QList<bool>();
 
     QTest::newRow("existing kit, cleanup")
-            << QList<int>({ 0 }) << QList<int>({ 0 }) << QList<bool>({ false })
-            << QList<bool>({ true }) << QList<bool>({ true });
+            << QList<int>({0}) << QList<int>({0}) << QList<bool>({false})
+            << QList<bool>({true}) << QList<bool>({true});
     QTest::newRow("existing kit, persist")
-            << QList<int>({ 0 }) << QList<int>({ 0 }) << QList<bool>({ true })
-            << QList<bool>({ true }) << QList<bool>({ true });
+            << QList<int>({0}) << QList<int>({0}) << QList<bool>({true})
+            << QList<bool>({true}) << QList<bool>({true});
 
     QTest::newRow("new kit, existing Qt, cleanup")
-            << QList<int>({ 1 }) << QList<int>({ 0 }) << QList<bool>({ false })
-            << QList<bool>({ false }) << QList<bool>({ true });
+            << QList<int>({1}) << QList<int>({0}) << QList<bool>({false})
+            << QList<bool>({false}) << QList<bool>({true});
     QTest::newRow("new kit, existing Qt, persist")
-            << QList<int>({ 1 }) << QList<int>({ 0 }) << QList<bool>({ true })
-            << QList<bool>({ true }) << QList<bool>({ true });
+            << QList<int>({1}) << QList<int>({0}) << QList<bool>({true})
+            << QList<bool>({true}) << QList<bool>({true});
 
     QTest::newRow("new kit, new Qt, cleanup")
-            << QList<int>({ 1 }) << QList<int>({ 1 }) << QList<bool>({ false })
-            << QList<bool>({ false }) << QList<bool>({ false });
+            << QList<int>({1}) << QList<int>({1}) << QList<bool>({false})
+            << QList<bool>({false}) << QList<bool>({false});
     QTest::newRow("new kit, new Qt, persist")
-            << QList<int>({ 1 }) << QList<int>({ 1 }) << QList<bool>({ true })
-            << QList<bool>({ true }) << QList<bool>({ true });
+            << QList<int>({1}) << QList<int>({1}) << QList<bool>({true})
+            << QList<bool>({true}) << QList<bool>({true});
 
     QTest::newRow("2 new kit, same existing Qt, cleanup-cleanup")
-            << QList<int>({ 1, 2 }) << QList<int>({ 0, 0 }) << QList<bool>({ false, false })
-            << QList<bool>({ false, false }) << QList<bool>({ true, true });
+            << QList<int>({1, 2}) << QList<int>({0, 0}) << QList<bool>({false, false})
+            << QList<bool>({false, false}) << QList<bool>({true, true});
     QTest::newRow("2 new kit, same existing Qt, persist-cleanup")
-            << QList<int>({ 1, 2 }) << QList<int>({ 0, 0 }) << QList<bool>({ true, false })
-            << QList<bool>({ true, false }) << QList<bool>({ true, true });
+            << QList<int>({1, 2}) << QList<int>({0, 0}) << QList<bool>({true, false})
+            << QList<bool>({true, false}) << QList<bool>({true, true});
     QTest::newRow("2 new kit, same existing Qt, cleanup-persist")
-            << QList<int>({ 1, 2 }) << QList<int>({ 0, 0 }) << QList<bool>({ false, true })
-            << QList<bool>({ false, true }) << QList<bool>({ true, true });
+            << QList<int>({1, 2}) << QList<int>({0, 0}) << QList<bool>({false, true})
+            << QList<bool>({false, true}) << QList<bool>({true, true});
     QTest::newRow("2 new kit, same existing Qt, persist-persist")
-            << QList<int>({ 1, 2 }) << QList<int>({ 0, 0 }) << QList<bool>({ true, true })
-            << QList<bool>({ true, true }) << QList<bool>({ true, true });
+            << QList<int>({1, 2}) << QList<int>({0, 0}) << QList<bool>({true, true})
+            << QList<bool>({true, true}) << QList<bool>({true, true});
 
     QTest::newRow("2 new kit, same new Qt, cleanup-cleanup")
-            << QList<int>({ 1, 2 }) << QList<int>({ 1, 1 }) << QList<bool>({ false, false })
-            << QList<bool>({ false, false }) << QList<bool>({ true, false });
+            << QList<int>({1, 2}) << QList<int>({1, 1}) << QList<bool>({false, false})
+            << QList<bool>({false, false}) << QList<bool>({true, false});
     QTest::newRow("2 new kit, same new Qt, persist-cleanup")
-            << QList<int>({ 1, 2 }) << QList<int>({ 1, 1 }) << QList<bool>({ true, false })
-            << QList<bool>({ true, false }) << QList<bool>({ true, true });
+            << QList<int>({1, 2}) << QList<int>({1, 1}) << QList<bool>({true, false})
+            << QList<bool>({true, false}) << QList<bool>({true, true});
     QTest::newRow("2 new kit, same new Qt, cleanup-persist")
-            << QList<int>({ 1, 2 }) << QList<int>({ 1, 1 }) << QList<bool>({ false, true })
-            << QList<bool>({ false, true }) << QList<bool>({ true, true });
+            << QList<int>({1, 2}) << QList<int>({1, 1}) << QList<bool>({false, true})
+            << QList<bool>({false, true}) << QList<bool>({true, true});
     QTest::newRow("2 new kit, same new Qt, persist-persist")
-            << QList<int>({ 1, 2 }) << QList<int>({ 1, 1 }) << QList<bool>({ true, true })
-            << QList<bool>({ true, true }) << QList<bool>({ true, true });
+            << QList<int>({1, 2}) << QList<int>({1, 1}) << QList<bool>({true, true})
+            << QList<bool>({true, true}) << QList<bool>({true, true});
 
     QTest::newRow("2 new kit, 2 new Qt, cleanup-cleanup")
-            << QList<int>({ 1, 2 }) << QList<int>({ 1, 2 }) << QList<bool>({ false, false })
-            << QList<bool>({ false, false }) << QList<bool>({ false, false });
+            << QList<int>({1, 2}) << QList<int>({1, 2}) << QList<bool>({false, false})
+            << QList<bool>({false, false}) << QList<bool>({false, false});
     QTest::newRow("2 new kit, 2 new Qt, persist-cleanup")
-            << QList<int>({ 1, 2 }) << QList<int>({ 1, 2 }) << QList<bool>({ true, false })
-            << QList<bool>({ true, false }) << QList<bool>({ true, false });
+            << QList<int>({1, 2}) << QList<int>({1, 2}) << QList<bool>({true, false})
+            << QList<bool>({true, false}) << QList<bool>({true, false});
     QTest::newRow("2 new kit, 2 new Qt, cleanup-persist")
-            << QList<int>({ 1, 2 }) << QList<int>({ 1, 2 }) << QList<bool>({ false, true })
-            << QList<bool>({ false, true }) << QList<bool>({ false, true });
+            << QList<int>({1, 2}) << QList<int>({1, 2}) << QList<bool>({false, true})
+            << QList<bool>({false, true}) << QList<bool>({false, true});
     QTest::newRow("2 new kit, 2 new Qt, persist-persist")
-            << QList<int>({ 1, 2 }) << QList<int>({ 1, 2 }) << QList<bool>({ true, true })
-            << QList<bool>({ true, true }) << QList<bool>({ true, true });
+            << QList<int>({1, 2}) << QList<int>({1, 2}) << QList<bool>({true, true})
+            << QList<bool>({true, true}) << QList<bool>({true, true});
 }
 
 void QtSupportPlugin::testQtProjectImporter_oneProject()
@@ -369,28 +366,25 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
     BaseQtVersion *defaultQt = QtKitInformation::qtVersion(defaultKit);
     QVERIFY(defaultQt);
 
-    const QTemporaryDir tempDir1;
-    const QTemporaryDir tempDir2;
+    const Utils::TemporaryDirectory tempDir1("tmp1");
+    const Utils::TemporaryDirectory tempDir2("tmp2");
 
     const QString appDir = QCoreApplication::applicationDirPath();
 
     // Templates referrenced by test data:
-    QVector<Kit *> kitTemplates = { defaultKit, defaultKit->clone(), defaultKit->clone() };
+    QVector<Kit *> kitTemplates = {defaultKit, defaultKit->clone(), defaultKit->clone()};
     // Customize kit numbers 1 and 2:
     QtKitInformation::setQtVersion(kitTemplates[1], nullptr);
     QtKitInformation::setQtVersion(kitTemplates[2], nullptr);
     SysRootKitInformation::setSysRoot(kitTemplates[1], Utils::FileName::fromString("/some/path"));
     SysRootKitInformation::setSysRoot(kitTemplates[2], Utils::FileName::fromString("/some/other/path"));
 
-    QVector<Utils::FileName> qmakePaths = { defaultQt->qmakeCommand(),
-                                            setupQmake(defaultQt, tempDir1.path()),
-                                            setupQmake(defaultQt, tempDir2.path()) };
+    QVector<Utils::FileName> qmakePaths = {defaultQt->qmakeCommand(),
+                                           setupQmake(defaultQt, tempDir1.path()),
+                                           setupQmake(defaultQt, tempDir2.path())};
 
-    for (int i = 1; i < qmakePaths.count(); ++i) {
-        const Utils::FileName qp = qmakePaths.at(i);
-        QVERIFY(!Utils::contains(QtVersionManager::versions(),
-                                 [qp](BaseQtVersion *qt) { return qt->qmakeCommand() == qp; }));
-    }
+    for (int i = 1; i < qmakePaths.count(); ++i)
+        QVERIFY(!QtVersionManager::version(Utils::equal(&BaseQtVersion::qmakeCommand, qmakePaths.at(i))));
 
     QList<DirectoryData *> testData;
 
@@ -449,7 +443,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
             QCOMPARE(bi->kitId, defaultKit->id());
 
         // VALIDATE: Kit is registered with the KitManager
-        Kit *newKit = KitManager::find(bi->kitId);
+        Kit *newKit = KitManager::kit(bi->kitId);
         QVERIFY(newKit);
 
         const int newQtId = QtKitInformation::qtVersionId(newKit);
@@ -553,7 +547,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
             }
 
             // VALIDATE: DefaultKit is still visible in KitManager
-            QVERIFY(KitManager::find(newKit->id()));
+            QVERIFY(KitManager::kit(newKit->id()));
         } else {
             // Validate that the kit was cleaned up.
 
@@ -584,8 +578,8 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
             QVERIFY(QtKitInformation::qtVersionId(newKit) == -1);
 
             // VALIDATE: New kit is still visible in KitManager
-            QVERIFY(KitManager::find(newKitId)); // Cleanup Kit does not unregister Kits, so it does
-                                                 // not matter here whether the kit is new or not.
+            QVERIFY(KitManager::kit(newKitId)); // Cleanup Kit does not unregister Kits, so it does
+                                                // not matter here whether the kit is new or not.
 
             // VALIDATE: Qt was cleaned up (new Qt!)
             QVERIFY(!QtVersionManager::version(qtId));

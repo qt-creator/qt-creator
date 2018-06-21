@@ -57,8 +57,8 @@ public:
     double snapLeftOffset(const QRectF &boundingRect) const;
     double snapBottomOffset(const QRectF &boundingRect) const;
 
-    QList<QLineF> horizontalSnappedLines(const QRectF &boundingRect, QList<QRectF> *boundingRects = 0) const;
-    QList<QLineF> verticalSnappedLines(const QRectF &boundingRect, QList<QRectF> *boundingRects = 0) const;
+    QList<QLineF> horizontalSnappedLines(const QRectF &boundingRect, QList<QRectF> *boundingRects = nullptr) const;
+    QList<QLineF> verticalSnappedLines(const QRectF &boundingRect, QList<QRectF> *boundingRects = nullptr) const;
 
     void setSnappingDistance(double snappingDistance);
     double snappingDistance() const;
@@ -90,14 +90,14 @@ protected:
                          double snapLine,
                          double lowerLimit,
                          double upperLimit,
-                         QList<QRectF> *boundingRects = 0) const;
+                         QList<QRectF> *boundingRects = nullptr) const;
 
     QList<QLineF> findSnappingOffsetLines(const SnapLineMap &snappingOffsetMap,
                                     Qt::Orientation orientation,
                                     double snapLine,
                                     double lowerLimit,
                                     double upperLimit,
-                                    QList<QRectF> *boundingRects = 0) const;
+                                    QList<QRectF> *boundingRects = nullptr) const;
 
     QLineF createSnapLine(Qt::Orientation orientation,
                          double snapLine,

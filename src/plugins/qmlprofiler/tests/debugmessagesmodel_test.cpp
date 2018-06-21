@@ -25,7 +25,7 @@
 
 #include "debugmessagesmodel_test.h"
 
-#include <timeline/timelineformattime.h>
+#include <tracing/timelineformattime.h>
 
 #include <QtTest>
 
@@ -33,26 +33,25 @@ namespace QmlProfiler {
 namespace Internal {
 
 DebugMessagesModelTest::DebugMessagesModelTest(QObject *parent) :
-    QObject(parent), manager(nullptr), model(&manager)
+    QObject(parent), model(&manager, &aggregator)
 {
 }
 
 void DebugMessagesModelTest::initTestCase()
 {
-    manager.startAcquiring();
-    QmlEvent event;
-    event.setTypeIndex(-1);
+    manager.initialize();
 
     for (int i = 0; i < 10; ++i) {
+        QmlEvent event;
         event.setTimestamp(i);
         event.setString(QString::fromLatin1("message %1").arg(i));
         QmlEventType type(DebugMessage, MaximumRangeType, i % (QtMsgType::QtInfoMsg + 1),
                           QmlEventLocation("somefile.js", i, 10 - i));
-        event.setTypeIndex(manager.qmlModel()->addEventType(type));
-        manager.qmlModel()->addEvent(event);
+        event.setTypeIndex(manager.numEventTypes());
+        manager.appendEventType(std::move(type));
+        manager.appendEvent(std::move(event));
     }
-    manager.acquiringDone();
-    QCOMPARE(manager.state(), QmlProfilerModelManager::Done);
+    manager.finalize();
 }
 
 void DebugMessagesModelTest::testTypeId()

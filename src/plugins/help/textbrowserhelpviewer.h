@@ -41,39 +41,39 @@ class TextBrowserHelpViewer : public HelpViewer
     Q_OBJECT
 
 public:
-    explicit TextBrowserHelpViewer(QWidget *parent = 0);
-    ~TextBrowserHelpViewer();
+    explicit TextBrowserHelpViewer(QWidget *parent = nullptr);
+    ~TextBrowserHelpViewer() override;
 
-    QFont viewerFont() const;
-    void setViewerFont(const QFont &font);
+    QFont viewerFont() const override;
+    void setViewerFont(const QFont &font) override;
 
-    qreal scale() const;
-    void setScale(qreal scale);
+    qreal scale() const override;
+    void setScale(qreal scale) override;
 
-    QString title() const;
+    QString title() const override;
 
-    QUrl source() const;
-    void setSource(const QUrl &url);
+    QUrl source() const override;
+    void setSource(const QUrl &url) override;
 
-    void setHtml(const QString &html);
+    void setHtml(const QString &html) override;
 
-    QString selectedText() const;
-    bool isForwardAvailable() const;
-    bool isBackwardAvailable() const;
-    void addBackHistoryItems(QMenu *backMenu);
-    void addForwardHistoryItems(QMenu *forwardMenu);
+    QString selectedText() const override;
+    bool isForwardAvailable() const override;
+    bool isBackwardAvailable() const override;
+    void addBackHistoryItems(QMenu *backMenu) override;
+    void addForwardHistoryItems(QMenu *forwardMenu) override;
 
     bool findText(const QString &text, Core::FindFlags flags,
-                  bool incremental, bool fromSearch, bool *wrapped = 0);
+                  bool incremental, bool fromSearch, bool *wrapped = nullptr) override;
 
-    void scaleUp();
-    void scaleDown();
-    void resetScale();
-    void copy();
-    void stop();
-    void forward();
-    void backward();
-    void print(QPrinter *printer);
+    void scaleUp() override;
+    void scaleDown() override;
+    void resetScale() override;
+    void copy() override;
+    void stop() override;
+    void forward() override;
+    void backward() override;
+    void print(QPrinter *printer) override;
 
 private:
     void goToHistoryItem();
@@ -88,19 +88,19 @@ class TextBrowserHelpWidget : public QTextBrowser
 public:
     TextBrowserHelpWidget(TextBrowserHelpViewer *parent);
 
-    QVariant loadResource(int type, const QUrl &name);
+    QVariant loadResource(int type, const QUrl &name) override;
 
     void scaleUp();
     void scaleDown();
 
-    void setSource(const QUrl &name);
+    void setSource(const QUrl &name) override;
 
 protected:
-    void contextMenuEvent(QContextMenuEvent *event);
-    bool eventFilter(QObject *obj, QEvent *event);
-    void wheelEvent(QWheelEvent *e);
-    void mousePressEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
+    void contextMenuEvent(QContextMenuEvent *event) override;
+    bool eventFilter(QObject *obj, QEvent *event) override;
+    void wheelEvent(QWheelEvent *e) override;
+    void mousePressEvent(QMouseEvent *e) override;
+    void mouseReleaseEvent(QMouseEvent *e) override;
 
 private:
     QString linkAt(const QPoint& pos);

@@ -30,7 +30,6 @@
 QT_BEGIN_NAMESPACE
 class QSortFilterProxyModel;
 class QPushButton;
-class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Git {
@@ -51,8 +50,6 @@ class StashDialog : public QDialog
 public:
     explicit StashDialog(QWidget *parent = 0);
     ~StashDialog() override;
-
-    static QString msgRepositoryLabel(const QString &repository);
 
     void refresh(const QString &repository, bool force);
 

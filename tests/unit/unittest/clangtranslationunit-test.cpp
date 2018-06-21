@@ -23,17 +23,14 @@
 **
 ****************************************************************************/
 
+#include "googletest.h"
+
 #include <clangtranslationunit.h>
 #include <clangtranslationunitupdater.h>
 #include <diagnosticcontainer.h>
 #include <utf8string.h>
 
 #include <clang-c/Index.h>
-
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
-#include "gtest-qt-printing.h"
 
 using ClangBackEnd::DiagnosticContainer;
 using ClangBackEnd::TranslationUnit;
@@ -73,7 +70,9 @@ protected:
     QVector<DiagnosticContainer> extractedMainFileDiagnostics;
 };
 
-TEST_F(TranslationUnit, HasExpectedMainFileDiagnostics)
+using TranslationUnitSlowTest = TranslationUnit;
+
+TEST_F(TranslationUnitSlowTest, HasExpectedMainFileDiagnostics)
 {
     translationUnit.extractDiagnostics(extractedFirstHeaderErrorDiagnostic,
                                        extractedMainFileDiagnostics);
@@ -81,7 +80,7 @@ TEST_F(TranslationUnit, HasExpectedMainFileDiagnostics)
     ASSERT_THAT(extractedMainFileDiagnostics, ContainerEq(diagnosticsFromMainFile()));
 }
 
-TEST_F(TranslationUnit, HasExpectedMainFileDiagnosticsAfterReparse)
+TEST_F(TranslationUnitSlowTest, HasExpectedMainFileDiagnosticsAfterReparse)
 {
     reparse();
 
@@ -91,7 +90,7 @@ TEST_F(TranslationUnit, HasExpectedMainFileDiagnosticsAfterReparse)
     ASSERT_THAT(extractedMainFileDiagnostics, ContainerEq(diagnosticsFromMainFile()));
 }
 
-TEST_F(TranslationUnit, HasErrorDiagnosticsInHeaders)
+TEST_F(TranslationUnitSlowTest, HasErrorDiagnosticsInHeaders)
 {
     translationUnit.extractDiagnostics(extractedFirstHeaderErrorDiagnostic,
                                        extractedMainFileDiagnostics);
@@ -100,7 +99,7 @@ TEST_F(TranslationUnit, HasErrorDiagnosticsInHeaders)
                 Eq(errorDiagnosticsFromHeaders().first()));
 }
 
-TEST_F(TranslationUnit, HasErrorDiagnosticsInHeadersAfterReparse)
+TEST_F(TranslationUnitSlowTest, HasErrorDiagnosticsInHeadersAfterReparse)
 {
     reparse();
 

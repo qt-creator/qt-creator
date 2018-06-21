@@ -45,12 +45,12 @@ class CPPTOOLS_EXPORT CheckSymbols:
 {
     Q_OBJECT
 public:
-    virtual ~CheckSymbols();
+    ~CheckSymbols() override;
 
     typedef TextEditor::HighlightingResult Result;
     typedef SemanticHighlighter::Kind Kind;
 
-    virtual void run();
+    void run() override;
 
     typedef QFuture<Result> Future;
 
@@ -118,7 +118,7 @@ protected:
     bool maybeFunction(const CPlusPlus::Name *name) const;
 
     void checkNamespace(CPlusPlus::NameAST *name);
-    void checkName(CPlusPlus::NameAST *ast, CPlusPlus::Scope *scope = 0);
+    void checkName(CPlusPlus::NameAST *ast, CPlusPlus::Scope *scope = nullptr);
     CPlusPlus::ClassOrNamespace *checkNestedName(CPlusPlus::QualifiedNameAST *ast);
 
     void addUse(const Result &use);
@@ -141,44 +141,44 @@ protected:
     CPlusPlus::FunctionDefinitionAST *enclosingFunctionDefinition(bool skipTopOfStack = false) const;
     CPlusPlus::TemplateDeclarationAST *enclosingTemplateDeclaration() const;
 
-    virtual bool preVisit(CPlusPlus::AST *);
-    virtual void postVisit(CPlusPlus::AST *);
+    bool preVisit(CPlusPlus::AST *) override;
+    void postVisit(CPlusPlus::AST *) override;
 
-    virtual bool visit(CPlusPlus::NamespaceAST *);
-    virtual bool visit(CPlusPlus::UsingDirectiveAST *);
-    virtual bool visit(CPlusPlus::SimpleDeclarationAST *);
-    virtual bool visit(CPlusPlus::TypenameTypeParameterAST *ast);
-    virtual bool visit(CPlusPlus::TemplateTypeParameterAST *ast);
-    virtual bool visit(CPlusPlus::FunctionDefinitionAST *ast);
-    virtual bool visit(CPlusPlus::ParameterDeclarationAST *ast);
+    bool visit(CPlusPlus::NamespaceAST *) override;
+    bool visit(CPlusPlus::UsingDirectiveAST *) override;
+    bool visit(CPlusPlus::SimpleDeclarationAST *) override;
+    bool visit(CPlusPlus::TypenameTypeParameterAST *ast) override;
+    bool visit(CPlusPlus::TemplateTypeParameterAST *ast) override;
+    bool visit(CPlusPlus::FunctionDefinitionAST *ast) override;
+    bool visit(CPlusPlus::ParameterDeclarationAST *ast) override;
 
-    virtual bool visit(CPlusPlus::ElaboratedTypeSpecifierAST *ast);
+    bool visit(CPlusPlus::ElaboratedTypeSpecifierAST *ast) override;
 
-    virtual bool visit(CPlusPlus::ObjCProtocolDeclarationAST *ast);
-    virtual bool visit(CPlusPlus::ObjCProtocolForwardDeclarationAST *ast);
-    virtual bool visit(CPlusPlus::ObjCClassDeclarationAST *ast);
-    virtual bool visit(CPlusPlus::ObjCClassForwardDeclarationAST *ast);
-    virtual bool visit(CPlusPlus::ObjCProtocolRefsAST *ast);
+    bool visit(CPlusPlus::ObjCProtocolDeclarationAST *ast) override;
+    bool visit(CPlusPlus::ObjCProtocolForwardDeclarationAST *ast) override;
+    bool visit(CPlusPlus::ObjCClassDeclarationAST *ast) override;
+    bool visit(CPlusPlus::ObjCClassForwardDeclarationAST *ast) override;
+    bool visit(CPlusPlus::ObjCProtocolRefsAST *ast) override;
 
-    virtual bool visit(CPlusPlus::SimpleNameAST *ast);
-    virtual bool visit(CPlusPlus::DestructorNameAST *ast);
-    virtual bool visit(CPlusPlus::QualifiedNameAST *ast);
-    virtual bool visit(CPlusPlus::TemplateIdAST *ast);
+    bool visit(CPlusPlus::SimpleNameAST *ast) override;
+    bool visit(CPlusPlus::DestructorNameAST *ast) override;
+    bool visit(CPlusPlus::QualifiedNameAST *ast) override;
+    bool visit(CPlusPlus::TemplateIdAST *ast) override;
 
-    virtual bool visit(CPlusPlus::MemberAccessAST *ast);
-    virtual bool visit(CPlusPlus::CallAST *ast);
-    virtual bool visit(CPlusPlus::ObjCSelectorArgumentAST *ast);
-    virtual bool visit(CPlusPlus::NewExpressionAST *ast);
+    bool visit(CPlusPlus::MemberAccessAST *ast) override;
+    bool visit(CPlusPlus::CallAST *ast) override;
+    bool visit(CPlusPlus::ObjCSelectorArgumentAST *ast) override;
+    bool visit(CPlusPlus::NewExpressionAST *ast) override;
 
-    virtual bool visit(CPlusPlus::GotoStatementAST *ast);
-    virtual bool visit(CPlusPlus::LabeledStatementAST *ast);
-    virtual bool visit(CPlusPlus::SimpleSpecifierAST *ast);
-    virtual bool visit(CPlusPlus::ClassSpecifierAST *ast);
+    bool visit(CPlusPlus::GotoStatementAST *ast) override;
+    bool visit(CPlusPlus::LabeledStatementAST *ast) override;
+    bool visit(CPlusPlus::SimpleSpecifierAST *ast) override;
+    bool visit(CPlusPlus::ClassSpecifierAST *ast) override;
 
-    virtual bool visit(CPlusPlus::MemInitializerAST *ast);
-    virtual bool visit(CPlusPlus::EnumeratorAST *ast);
+    bool visit(CPlusPlus::MemInitializerAST *ast) override;
+    bool visit(CPlusPlus::EnumeratorAST *ast) override;
 
-    virtual bool visit(CPlusPlus::DotDesignatorAST *ast);
+    bool visit(CPlusPlus::DotDesignatorAST *ast) override;
 
     CPlusPlus::NameAST *declaratorId(CPlusPlus::DeclaratorAST *ast) const;
 

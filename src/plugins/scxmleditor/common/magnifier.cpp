@@ -48,7 +48,7 @@ void Magnifier::resizeEvent(QResizeEvent *e)
 {
     QWidget::resizeEvent(e);
 
-    qreal radius = width() / 2;
+    qreal radius = width() / 2.0;
     m_gradientBrush.setCenter(radius, radius);
     m_gradientBrush.setFocalPoint(radius, radius);
     m_gradientBrush.setRadius(radius);

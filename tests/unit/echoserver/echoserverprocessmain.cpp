@@ -25,8 +25,8 @@
 
 #include "echoclangcodemodelserver.h"
 
-#include <clangbackendipc/clangcodemodelclientproxy.h>
-#include <clangbackendipc/connectionserver.h>
+#include <clangsupport/clangcodemodelclientproxy.h>
+#include <clangsupport/connectionserver.h>
 
 #include <QCoreApplication>
 
@@ -43,15 +43,18 @@ int main(int argc, char *argv[])
 
     QCoreApplication application(argc, argv);
 
-    if (application.arguments().count() != 2) {
-        qWarning() << "wrong argument count";
+
+    if (application.arguments().count() < 2)
         return 1;
-    }
+    else if (application.arguments().count() == 3)
+        *(int*)0 = 0;
+    else if (application.arguments().contains("connectionName"))
+        return 0;
 
     EchoClangCodeModelServer echoClangCodeModelServer;
-    ConnectionServer<EchoClangCodeModelServer, ClangCodeModelClientProxy> connectionServer(application.arguments()[1]);
-    connectionServer.start();
+    ConnectionServer<EchoClangCodeModelServer, ClangCodeModelClientProxy> connectionServer;
     connectionServer.setServer(&echoClangCodeModelServer);
+    connectionServer.start(application.arguments()[1]);
 
     return application.exec();
 }

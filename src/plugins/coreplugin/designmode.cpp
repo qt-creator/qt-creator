@@ -29,18 +29,17 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreicons.h>
 
-#include <coreplugin/editormanager/ieditor.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QPointer>
 #include <QStringList>
 #include <QDebug>
 
 #include <QStackedWidget>
-
-static Core::DesignMode *m_instance = 0;
 
 namespace Core {
 
@@ -60,17 +59,14 @@ public:
 
 public:
     QPointer<IEditor> m_currentEditor;
-    bool m_isActive;
-    bool m_isRequired;
+    bool m_isActive = false;
     QList<DesignEditorInfo*> m_editors;
     QStackedWidget *m_stackWidget;
     Context m_activeContext;
 };
 
 DesignModePrivate::DesignModePrivate()
-    : m_isActive(false),
-      m_isRequired(false),
-      m_stackWidget(new QStackedWidget)
+    : m_stackWidget(new QStackedWidget)
 {}
 
 DesignModePrivate::~DesignModePrivate()
@@ -78,11 +74,11 @@ DesignModePrivate::~DesignModePrivate()
     delete m_stackWidget;
 }
 
-DesignMode::DesignMode()
-    : d(new DesignModePrivate)
-{
-    m_instance = this;
+static DesignMode *m_instance = nullptr;
+static DesignModePrivate *d = nullptr;
 
+DesignMode::DesignMode()
+{
     ICore::addPreCloseListener([]() -> bool {
         m_instance->currentEditorChanged(0);
         return true;
@@ -108,7 +104,6 @@ DesignMode::DesignMode()
 DesignMode::~DesignMode()
 {
     qDeleteAll(d->m_editors);
-    delete d;
 }
 
 DesignMode *DesignMode::instance()
@@ -118,20 +113,9 @@ DesignMode *DesignMode::instance()
 
 void DesignMode::setDesignModeIsRequired()
 {
-    d->m_isRequired = true;
-}
-
-bool DesignMode::designModeIsRequired() const
-{
-    return d->m_isRequired;
-}
-
-QStringList DesignMode::registeredMimeTypes() const
-{
-    QStringList rc;
-    foreach (const DesignEditorInfo *i, d->m_editors)
-        rc += i->mimeTypes;
-    return rc;
+    // d != nullptr indicates "isRequired".
+    if (!d)
+        d = new DesignModePrivate;
 }
 
 /**
@@ -234,6 +218,23 @@ void DesignMode::setActiveContext(const Context &context)
         ICore::updateAdditionalContexts(d->m_activeContext, context);
 
     d->m_activeContext = context;
+}
+
+void DesignMode::createModeIfRequired()
+{
+    if (d) {
+        m_instance = new DesignMode;
+        ExtensionSystem::PluginManager::addObject(m_instance);
+    }
+}
+
+void DesignMode::destroyModeIfRequired()
+{
+    if (m_instance) {
+        ExtensionSystem::PluginManager::removeObject(m_instance);
+        delete m_instance;
+    }
+    delete d;
 }
 
 } // namespace Core

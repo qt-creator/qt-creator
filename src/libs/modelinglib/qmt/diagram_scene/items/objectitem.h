@@ -32,6 +32,7 @@
 #include "qmt/diagram_scene/capabilities/moveable.h"
 #include "qmt/diagram_scene/capabilities/selectable.h"
 #include "qmt/diagram_scene/capabilities/latchable.h"
+#include "qmt/diagram_scene/capabilities/relationable.h"
 #include "qmt/diagram_scene/capabilities/alignable.h"
 #include "qmt/diagram_scene/capabilities/editable.h"
 
@@ -45,12 +46,15 @@ QT_END_NAMESPACE
 
 namespace qmt {
 
+class DElement;
 class DObject;
 class DiagramSceneModel;
 class StereotypesItem;
 class CustomIconItem;
+class CustomRelation;
 class EditableTextItem;
 class RectangularSelectionItem;
+class RelationStarter;
 class AlignButtonsItem;
 class Style;
 
@@ -66,6 +70,7 @@ class ObjectItem :
         public IMoveable,
         public ISelectable,
         public ILatchable,
+        public IRelationable,
         public IAlignable,
         public IEditable
 {
@@ -81,9 +86,10 @@ protected:
     };
 
 public:
-    ObjectItem(DObject *object, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = 0);
+    ObjectItem(const QString &elementType, DObject *object, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent = nullptr);
     ~ObjectItem() override;
 
+    QString elementType() const { return m_elementType; }
     DObject *object() const { return m_object; }
     DiagramSceneModel *diagramSceneModel() const { return m_diagramSceneModel; }
 
@@ -107,11 +113,19 @@ public:
     void setSecondarySelected(bool secondarySelected) override;
     bool isFocusSelected() const override;
     void setFocusSelected(bool focusSelected) override;
+    QRectF getSecondarySelectionBoundary() override;
+    void setBoundarySelected(const QRectF &boundary, bool secondary) override;
 
     Action horizontalLatchAction() const override;
     Action verticalLatchAction() const override;
     QList<Latch> horizontalLatches(Action action, bool grabbedItem) const override;
     QList<Latch> verticalLatches(Action action, bool grabbedItem) const override;
+
+    QPointF relationStartPos() const override;
+    void relationDrawn(const QString &id, const QPointF &toScenePos,
+                       const QList<QPointF> &intermediatePoints) override;
+    virtual void relationDrawn(const QString &id, ObjectItem *targetElement,
+                               const QList<QPointF> &intermediatePoints);
 
     void align(AlignType alignType, const QString &identifier) override;
 
@@ -122,13 +136,15 @@ protected:
     void updateStereotypeIconDisplay();
     QString stereotypeIconId() const { return m_stereotypeIconId; }
     QString shapeIconId() const { return m_shapeIconId; }
+    StereotypeIcon shapeIcon() const { return m_shapeIcon; }
     StereotypeIcon::Display stereotypeIconDisplay() const { return m_stereotypeIconDisplay; }
     void updateStereotypes(const QString &stereotypeIconId,
                            StereotypeIcon::Display stereotypeDisplay, const Style *style);
-    StereotypesItem *stereotypesItem() const { return m_stereotypes; }
+    StereotypesItem *stereotypesItem() const { return m_stereotypesItem; }
     CustomIconItem *stereotypeIconItem() const { return m_stereotypeIcon; }
     QSizeF stereotypeIconMinimumSize(const StereotypeIcon &stereotypeIcon, qreal minimumWidth,
                                      qreal minimumHeight) const;
+    bool suppressTextDisplay() const;
     void updateNameItem(const Style *style);
     EditableTextItem *nameItem() const { return m_nameItem; }
     virtual QString buildDisplayName() const;
@@ -139,6 +155,12 @@ protected:
     void updateSelectionMarker(CustomIconItem *customIconItem);
     void updateSelectionMarker(ResizeFlags resizeFlags);
     void updateSelectionMarkerGeometry(const QRectF &objectRect);
+    void updateRelationStarter();
+    RelationStarter *relationStarter() const { return m_relationStarter; }
+    virtual void addRelationStarterTool(const QString &id);
+    virtual void addRelationStarterTool(const CustomRelation &customRelation);
+    virtual void addStandardRelationStarterTools();
+    void updateRelationStarterGeometry(const QRectF &objectRect);
     void updateAlignmentButtons();
     void updateAlignmentButtonsGeometry(const QRectF &objectRect);
 
@@ -147,7 +169,7 @@ protected:
     bool showContext() const;
 
     virtual bool extendContextMenu(QMenu *menu);
-    virtual bool handleSelectedContextMenuAction(QAction *action);
+    virtual bool handleSelectedContextMenuAction(const QString &id);
 
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
@@ -158,19 +180,22 @@ protected:
 private:
     QSizeF minimumSize(const QSet<QGraphicsItem *> &items) const;
 
-    DObject *m_object = 0;
-    DiagramSceneModel *m_diagramSceneModel = 0;
+    QString m_elementType;
+    DObject *m_object = nullptr;
+    DiagramSceneModel *m_diagramSceneModel = nullptr;
     bool m_isSecondarySelected = false;
     bool m_isFocusSelected = false;
     QString m_stereotypeIconId;
     QString m_shapeIconId;
+    StereotypeIcon m_shapeIcon;
     StereotypeIcon::Display m_stereotypeIconDisplay = StereotypeIcon::DisplayLabel;
-    StereotypesItem *m_stereotypes = 0;
-    CustomIconItem *m_stereotypeIcon = 0;
-    EditableTextItem *m_nameItem = 0;
-    RectangularSelectionItem *m_selectionMarker = 0;
-    AlignButtonsItem *m_horizontalAlignButtons = 0;
-    AlignButtonsItem *m_verticalAlignButtons = 0;
+    StereotypesItem *m_stereotypesItem = nullptr;
+    CustomIconItem *m_stereotypeIcon = nullptr;
+    EditableTextItem *m_nameItem = nullptr;
+    RectangularSelectionItem *m_selectionMarker = nullptr;
+    RelationStarter *m_relationStarter = nullptr;
+    AlignButtonsItem *m_horizontalAlignButtons = nullptr;
+    AlignButtonsItem *m_verticalAlignButtons = nullptr;
 };
 
 } // namespace qmt

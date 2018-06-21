@@ -6,8 +6,9 @@
     "trDescription": "Creates a new empty state chart.",
     "trDisplayName": "State Chart",
     "trDisplayCategory": "Modeling",
+    "iconText": "scxml",
     "platformIndependent": true,
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('QtSupport') >= 0}",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('ScxmlEditor') >= 0}",
 
     "options":
     [

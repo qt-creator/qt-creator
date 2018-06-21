@@ -33,37 +33,16 @@ namespace Internal {
 class IosDeployConfiguration : public ProjectExplorer::DeployConfiguration
 {
     Q_OBJECT
-    friend class IosDeployConfigurationFactory;
 
 public:
     IosDeployConfiguration(ProjectExplorer::Target *parent, Core::Id id);
-
-protected:
-    IosDeployConfiguration(ProjectExplorer::Target *parent,
-                           ProjectExplorer::DeployConfiguration *source);
-
+    void initialize() override;
 };
 
 class IosDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
 {
-    Q_OBJECT
-
 public:
-    explicit IosDeployConfigurationFactory(QObject *parent = 0);
-
-    bool canCreate(ProjectExplorer::Target *parent, Core::Id id) const override;
-    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, Core::Id id) override;
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const override;
-    ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent,
-                                                  const QVariantMap &map) override;
-    bool canClone(ProjectExplorer::Target *parent,
-                  ProjectExplorer::DeployConfiguration *source) const override;
-    ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,
-                                                ProjectExplorer::DeployConfiguration *source) override;
-
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const override;
-    // used to translate the ids to names to display to the user
-    QString displayNameForId(Core::Id id) const override;
+    IosDeployConfigurationFactory();
 };
 
 } // namespace Internal

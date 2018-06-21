@@ -47,11 +47,11 @@ public:
     virtual const char *name() const = 0;
     virtual unsigned priority() const = 0;          // should this be modifyable?
     virtual bool hasFrameworkSettings() const { return false; }
-    virtual IFrameworkSettings *createFrameworkSettings() const { return 0; }
+    virtual IFrameworkSettings *createFrameworkSettings() const { return nullptr; }
     virtual ITestSettingsPage *createSettingsPage(QSharedPointer<IFrameworkSettings> settings) const
     {
         Q_UNUSED(settings);
-        return 0;
+        return nullptr;
     }
 
     TestTreeItem *rootNode()
@@ -69,15 +69,19 @@ public:
 
     bool active() const { return m_active; }
     void setActive(bool active) { m_active = active; }
-
+    bool grouping() const { return m_grouping; }
+    void setGrouping(bool group) { m_grouping = group; }
+    // framework specific tool tip to be displayed on the general settings page
+    virtual QString groupingToolTip() const { return QString(); }
 protected:
     virtual ITestParser *createTestParser() const = 0;
     virtual TestTreeItem *createRootNode() const = 0;
 
 private:
-    TestTreeItem *m_rootNode = 0;
-    ITestParser *m_testParser = 0;
+    TestTreeItem *m_rootNode = nullptr;
+    ITestParser *m_testParser = nullptr;
     bool m_active = false;
+    bool m_grouping = false;
 };
 
 } // namespace Internal

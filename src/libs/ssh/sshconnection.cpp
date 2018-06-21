@@ -27,6 +27,7 @@
 #include "sshconnection_p.h"
 
 #include "sftpchannel.h"
+#include "sshagent_p.h"
 #include "sshcapabilities_p.h"
 #include "sshchannelmanager_p.h"
 #include "sshcryptofacility_p.h"
@@ -62,21 +63,21 @@ namespace QSsh {
 const QByteArray ClientId("SSH-2.0-QtCreator\r\n");
 
 SshConnectionParameters::SshConnectionParameters() :
-    timeout(0),  authenticationType(AuthenticationTypePublicKey), port(0),
+    timeout(0), authenticationType(AuthenticationTypePublicKey),
     hostKeyCheckingMode(SshHostKeyCheckingNone)
 {
+    url.setPort(0);
     options |= SshIgnoreDefaultProxy;
     options |= SshEnableStrictConformanceChecks;
 }
 
 static inline bool equals(const SshConnectionParameters &p1, const SshConnectionParameters &p2)
 {
-    return p1.host == p2.host && p1.userName == p2.userName
+    return p1.url == p2.url
             && p1.authenticationType == p2.authenticationType
-            && (p1.authenticationType == SshConnectionParameters::AuthenticationTypePassword ?
-                    p1.password == p2.password : p1.privateKeyFile == p2.privateKeyFile)
+            && p1.privateKeyFile == p2.privateKeyFile
             && p1.hostKeyCheckingMode == p2.hostKeyCheckingMode
-            && p1.timeout == p2.timeout && p1.port == p2.port;
+            && p1.timeout == p2.timeout;
 }
 
 bool operator==(const SshConnectionParameters &p1, const SshConnectionParameters &p2)
@@ -199,7 +200,7 @@ int SshConnection::closeAllChannels()
 {
     try {
         return d->m_channelManager->closeAllChannels(Internal::SshChannelManager::CloseAllRegular);
-    } catch (const Botan::Exception &e) {
+    } catch (const std::exception &e) {
         qCWarning(Internal::sshLog, "%s: %s", Q_FUNC_INFO, e.what());
         return -1;
     }
@@ -270,6 +271,7 @@ void SshConnectionPrivate::setupPacketHandlers()
         setupPacketHandler(SSH_MSG_USERAUTH_INFO_REQUEST, authReqList,
                 &This::handleUserAuthInfoRequestPacket);
     }
+    setupPacketHandler(SSH_MSG_USERAUTH_PK_OK, authReqList, &This::handleUserAuthKeyOkPacket);
 
     const StateList connectedList
         = StateList() << ConnectionEstablished;
@@ -299,7 +301,7 @@ void SshConnectionPrivate::setupPacketHandlers()
     setupPacketHandler(SSH_MSG_CHANNEL_CLOSE, connectedOrClosedList,
         &This::handleChannelClose);
 
-    setupPacketHandler(SSH_MSG_DISCONNECT, StateList() << SocketConnected
+    setupPacketHandler(SSH_MSG_DISCONNECT, StateList() << SocketConnected << WaitingForAgentKeys
         << UserAuthServiceRequested << UserAuthRequested
         << ConnectionEstablished, &This::handleDisconnect);
 
@@ -344,7 +346,7 @@ void SshConnectionPrivate::handleIncomingData()
     } catch (const SshClientException &e) {
         closeConnection(SSH_DISCONNECT_BY_APPLICATION, e.error, "",
             e.errorString);
-    } catch (const Botan::Exception &e) {
+    } catch (const std::exception &e) {
         closeConnection(SSH_DISCONNECT_BY_APPLICATION, SshInternalError, "",
             tr("Botan library exception: %1").arg(QString::fromLatin1(e.what())));
     }
@@ -519,16 +521,26 @@ void SshConnectionPrivate::handleServiceAcceptPacket()
         m_triedAllPasswordBasedMethods = false;
         // Fall-through.
     case SshConnectionParameters::AuthenticationTypePassword:
-        m_sendFacility.sendUserAuthByPasswordRequestPacket(m_connParams.userName.toUtf8(),
-                SshCapabilities::SshConnectionService, m_connParams.password.toUtf8());
+        m_sendFacility.sendUserAuthByPasswordRequestPacket(m_connParams.userName().toUtf8(),
+                SshCapabilities::SshConnectionService, m_connParams.password().toUtf8());
         break;
     case SshConnectionParameters::AuthenticationTypeKeyboardInteractive:
-        m_sendFacility.sendUserAuthByKeyboardInteractiveRequestPacket(m_connParams.userName.toUtf8(),
+        m_sendFacility.sendUserAuthByKeyboardInteractiveRequestPacket(m_connParams.userName().toUtf8(),
                 SshCapabilities::SshConnectionService);
         break;
     case SshConnectionParameters::AuthenticationTypePublicKey:
-        m_sendFacility.sendUserAuthByPublicKeyRequestPacket(m_connParams.userName.toUtf8(),
-                SshCapabilities::SshConnectionService);
+        authenticateWithPublicKey();
+        break;
+    case SshConnectionParameters::AuthenticationTypeAgent:
+        if (SshAgent::publicKeys().isEmpty()) {
+            if (m_agentKeysUpToDate)
+                throw SshClientException(SshAuthenticationError, tr("ssh-agent has no keys."));
+            qCDebug(sshLog) << "agent has no keys yet, waiting";
+            m_state = WaitingForAgentKeys;
+            return;
+        } else {
+            tryAllAgentKeys();
+        }
         break;
     }
     m_state = UserAuthRequested;
@@ -563,7 +575,7 @@ void SshConnectionPrivate::handleUserAuthInfoRequestPacket()
 
     // Not very interactive, admittedly, but we don't want to be for now.
     for (int i = 0;  i < requestPacket.prompts.count(); ++i)
-        responses << m_connParams.password;
+        responses << m_connParams.password();
     m_sendFacility.sendUserAuthInfoResponsePacket(responses);
 }
 
@@ -596,22 +608,69 @@ void SshConnectionPrivate::handleUserAuthSuccessPacket()
 
 void SshConnectionPrivate::handleUserAuthFailurePacket()
 {
+    if (!m_pendingKeyChecks.isEmpty()) {
+        const QByteArray key = m_pendingKeyChecks.dequeue();
+        SshAgent::removeDataToSign(key, tokenForAgent());
+        qCDebug(sshLog) << "server rejected one of the keys supplied by the agent,"
+                        << m_pendingKeyChecks.count() << "keys remaining";
+        if (m_pendingKeyChecks.isEmpty() && m_agentKeyToUse.isEmpty()) {
+            throw SshClientException(SshAuthenticationError, tr("The server rejected all keys "
+                                                                "known to the ssh-agent."));
+        }
+        return;
+    }
+
     // TODO: Evaluate "authentications that can continue" field and act on it.
     if (m_connParams.authenticationType
             == SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods
         && !m_triedAllPasswordBasedMethods) {
         m_triedAllPasswordBasedMethods = true;
         m_sendFacility.sendUserAuthByKeyboardInteractiveRequestPacket(
-                    m_connParams.userName.toUtf8(),
+                    m_connParams.userName().toUtf8(),
                     SshCapabilities::SshConnectionService);
         return;
     }
 
     m_timeoutTimer.stop();
-    const QString errorMsg = m_connParams.authenticationType == SshConnectionParameters::AuthenticationTypePublicKey
-        ? tr("Server rejected key.") : tr("Server rejected password.");
+    QString errorMsg;
+    switch (m_connParams.authenticationType) {
+    case SshConnectionParameters::AuthenticationTypePublicKey:
+    case SshConnectionParameters::AuthenticationTypeAgent:
+        errorMsg = tr("Server rejected key.");
+        break;
+    default:
+        errorMsg = tr("Server rejected password.");
+        break;
+    }
     throw SshClientException(SshAuthenticationError, errorMsg);
 }
+
+void SshConnectionPrivate::handleUserAuthKeyOkPacket()
+{
+    const SshUserAuthPkOkPacket &msg = m_incomingPacket.extractUserAuthPkOk();
+    qCDebug(sshLog) << "server accepted key of type" << msg.algoName;
+
+    if (m_pendingKeyChecks.isEmpty()) {
+        throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR, "Unexpected packet",
+                                 tr("Server sent unexpected SSH_MSG_USERAUTH_PK_OK packet."));
+    }
+    const QByteArray key = m_pendingKeyChecks.dequeue();
+    if (key != msg.keyBlob) {
+        // The server must answer the requests in the order we sent them.
+        throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR, "Unexpected packet content",
+                tr("Server sent unexpected key in SSH_MSG_USERAUTH_PK_OK packet."));
+    }
+    const uint token = tokenForAgent();
+    if (!m_agentKeyToUse.isEmpty()) {
+        qCDebug(sshLog) << "another key has already been accepted, ignoring this one";
+        SshAgent::removeDataToSign(key, token);
+        return;
+    }
+    m_agentKeyToUse = key;
+    qCDebug(sshLog) << "requesting signature from agent";
+    SshAgent::requestSignature(key, token);
+}
+
 void SshConnectionPrivate::handleDebugPacket()
 {
     const SshDebug &msg = m_incomingPacket.extractDebug();
@@ -710,6 +769,11 @@ void SshConnectionPrivate::sendData(const QByteArray &data)
         m_socket->write(data);
 }
 
+uint SshConnectionPrivate::tokenForAgent() const
+{
+    return qHash(m_sendFacility.sessionId());
+}
+
 void SshConnectionPrivate::handleSocketDisconnected()
 {
     closeConnection(SSH_DISCONNECT_CONNECTION_LOST, SshClosedByServerError,
@@ -727,8 +791,10 @@ void SshConnectionPrivate::handleSocketError()
 
 void SshConnectionPrivate::handleTimeout()
 {
-    closeConnection(SSH_DISCONNECT_BY_APPLICATION, SshTimeoutError, "",
-        tr("Timeout waiting for reply from server."));
+    const QString errorMessage = m_state == WaitingForAgentKeys
+            ? tr("Timeout waiting for keys from ssh-agent.")
+            : tr("Timeout waiting for reply from server.");
+    closeConnection(SSH_DISCONNECT_BY_APPLICATION, SshTimeoutError, "", errorMessage);
 }
 
 void SshConnectionPrivate::sendKeepAlivePacket()
@@ -745,6 +811,66 @@ void SshConnectionPrivate::sendKeepAlivePacket()
     m_timeoutTimer.start();
 }
 
+void SshConnectionPrivate::handleAgentKeysUpdated()
+{
+    m_agentKeysUpToDate = true;
+    if (m_state == WaitingForAgentKeys) {
+        m_state = UserAuthRequested;
+        tryAllAgentKeys();
+    }
+}
+
+void SshConnectionPrivate::handleSignatureFromAgent(const QByteArray &key,
+                                                    const QByteArray &signature, uint token)
+{
+    if (token != tokenForAgent()) {
+        qCDebug(sshLog) << "signature is for different connection, ignoring";
+        return;
+    }
+    QSSH_ASSERT(key == m_agentKeyToUse);
+    m_agentSignature = signature;
+    authenticateWithPublicKey();
+}
+
+void SshConnectionPrivate::tryAllAgentKeys()
+{
+    const QList<QByteArray> &keys = SshAgent::publicKeys();
+    if (keys.isEmpty())
+        throw SshClientException(SshAuthenticationError, tr("ssh-agent has no keys."));
+    qCDebug(sshLog) << "trying authentication with" << keys.count()
+                    << "public keys received from agent";
+    foreach (const QByteArray &key, keys) {
+        m_sendFacility.sendQueryPublicKeyPacket(m_connParams.userName().toUtf8(),
+                                                SshCapabilities::SshConnectionService, key);
+        m_pendingKeyChecks.enqueue(key);
+    }
+}
+
+void SshConnectionPrivate::authenticateWithPublicKey()
+{
+    qCDebug(sshLog) << "sending actual authentication request";
+
+    QByteArray key;
+    QByteArray signature;
+    if (m_connParams.authenticationType == SshConnectionParameters::AuthenticationTypeAgent) {
+        // Agent is not needed anymore after this point.
+        disconnect(&SshAgent::instance(), 0, this, 0);
+
+        key = m_agentKeyToUse;
+        signature = m_agentSignature;
+    }
+
+    m_sendFacility.sendUserAuthByPublicKeyRequestPacket(m_connParams.userName().toUtf8(),
+            SshCapabilities::SshConnectionService, key, signature);
+}
+
+void SshConnectionPrivate::setAgentError()
+{
+    m_error = SshAgentError;
+    m_errorString = SshAgent::errorString();
+    emit error(m_error);
+}
+
 void SshConnectionPrivate::connectToHost()
 {
     QSSH_ASSERT_AND_RETURN(m_state == SocketUnconnected);
@@ -757,15 +883,37 @@ void SshConnectionPrivate::connectToHost()
     m_errorString.clear();
     m_serverId.clear();
     m_serverHasSentDataBeforeId = false;
+    m_agentSignature.clear();
+    m_agentKeysUpToDate = false;
+    m_pendingKeyChecks.clear();
+    m_agentKeyToUse.clear();
 
-    try {
-        if (m_connParams.authenticationType == SshConnectionParameters::AuthenticationTypePublicKey)
+    switch (m_connParams.authenticationType) {
+    case SshConnectionParameters::AuthenticationTypePublicKey:
+        try {
             createPrivateKey();
-    } catch (const SshClientException &ex) {
-        m_error = ex.error;
-        m_errorString = ex.errorString;
-        emit error(m_error);
-        return;
+            break;
+        } catch (const SshClientException &ex) {
+            m_error = ex.error;
+            m_errorString = ex.errorString;
+            emit error(m_error);
+            return;
+        }
+    case SshConnectionParameters::AuthenticationTypeAgent:
+        if (SshAgent::hasError()) {
+            setAgentError();
+            return;
+        }
+        connect(&SshAgent::instance(), &SshAgent::errorOccurred,
+                this, &SshConnectionPrivate::setAgentError);
+        connect(&SshAgent::instance(), &SshAgent::keysUpdated,
+                this, &SshConnectionPrivate::handleAgentKeysUpdated);
+        SshAgent::refreshKeys();
+        connect(&SshAgent::instance(), &SshAgent::signatureAvailable,
+                this, &SshConnectionPrivate::handleSignatureFromAgent);
+        break;
+    default:
+        break;
     }
 
     connect(m_socket, &QAbstractSocket::connected,
@@ -781,7 +929,7 @@ void SshConnectionPrivate::connectToHost()
     m_state = SocketConnecting;
     m_keyExchangeState = NoKeyExchange;
     m_timeoutTimer.start();
-    m_socket->connectToHost(m_connParams.host, m_connParams.port);
+    m_socket->connectToHost(m_connParams.host(), m_connParams.port());
 }
 
 void SshConnectionPrivate::closeConnection(SshErrorCode sshError,
@@ -802,7 +950,7 @@ void SshConnectionPrivate::closeConnection(SshErrorCode sshError,
     try {
         m_channelManager->closeAllChannels(SshChannelManager::CloseAllAndReset);
         m_sendFacility.sendDisconnectPacket(sshError, serverErrorString);
-    } catch (const Botan::Exception &) {}  // Nothing sensible to be done here.
+    } catch (...) {}  // Nothing sensible to be done here.
     if (m_error != SshNoError)
         emit error(userError);
     if (m_state == ConnectionEstablished)

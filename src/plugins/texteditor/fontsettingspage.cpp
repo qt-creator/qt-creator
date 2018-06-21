@@ -172,7 +172,7 @@ FontSettingsPagePrivate::FontSettingsPagePrivate(const FormatDescriptions &fd,
     m_displayName(displayName),
     m_settingsGroup(Utils::settingsKey(category)),
     m_descriptions(fd),
-    m_ui(0),
+    m_ui(nullptr),
     m_schemeListModel(new SchemeListModel),
     m_refreshingSchemeList(false)
 {
@@ -349,7 +349,7 @@ QWidget *FontSettingsPage::widget()
         d_ptr->m_ui = new Ui::FontSettingsPage;
         d_ptr->m_ui->setupUi(d_ptr->m_widget);
         d_ptr->m_ui->colorSchemeGroupBox->setTitle(
-                    tr("Color Scheme for Qt Creator Theme \"%1\"")
+                    tr("Color Scheme for Theme \"%1\"")
                     .arg(Utils::creatorTheme()->displayName()));
         d_ptr->m_ui->schemeComboBox->setModel(d_ptr->m_schemeListModel);
 
@@ -554,7 +554,7 @@ void FontSettingsPage::maybeSaveColorScheme()
     if (d_ptr->m_value.colorScheme() == d_ptr->m_ui->schemeEdit->colorScheme())
         return;
 
-    QMessageBox *messageBox = new QMessageBox(QMessageBox::Warning,
+    QMessageBox messageBox(QMessageBox::Warning,
                                               tr("Color Scheme Changed"),
                                               tr("The color scheme \"%1\" was modified, do you want to save the changes?")
                                                   .arg(d_ptr->m_ui->schemeEdit->colorScheme().displayName()),
@@ -562,12 +562,12 @@ void FontSettingsPage::maybeSaveColorScheme()
                                               d_ptr->m_ui->schemeComboBox->window());
 
     // Change the text of the discard button
-    QPushButton *discardButton = static_cast<QPushButton*>(messageBox->button(QMessageBox::Discard));
+    QPushButton *discardButton = static_cast<QPushButton*>(messageBox.button(QMessageBox::Discard));
     discardButton->setText(tr("Discard"));
-    messageBox->addButton(discardButton, QMessageBox::DestructiveRole);
-    messageBox->setDefaultButton(QMessageBox::Save);
+    messageBox.addButton(discardButton, QMessageBox::DestructiveRole);
+    messageBox.setDefaultButton(QMessageBox::Save);
 
-    if (messageBox->exec() == QMessageBox::Save) {
+    if (messageBox.exec() == QMessageBox::Save) {
         const ColorScheme &scheme = d_ptr->m_ui->schemeEdit->colorScheme();
         scheme.save(d_ptr->m_value.colorSchemeFileName(), Core::ICore::mainWindow());
     }

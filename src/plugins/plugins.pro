@@ -4,7 +4,7 @@ TEMPLATE  = subdirs
 
 SUBDIRS   = \
     autotest \
-    clangstaticanalyzer \
+    clangtools \
     coreplugin \
     texteditor \
     cppeditor \
@@ -22,13 +22,11 @@ SUBDIRS   = \
     qtsupport \
     qmakeprojectmanager \
     debugger \
-    help \
     cpaster \
     cmakeprojectmanager \
     autotoolsprojectmanager \
     fakevim \
     emacskeys \
-    designer \
     resourceeditor \
     genericprojectmanager \
     qmljseditor \
@@ -54,16 +52,48 @@ SUBDIRS   = \
     modeleditor \
     qmakeandroidsupport \
     winrt \
-    qmlprofiler \
     updateinfo \
     scxmleditor \
-    welcome
+    welcome \
+    silversearcher
+
+qtHaveModule(serialport) {
+    SUBDIRS += serialterminal
+} else {
+    warning("SerialTerminal plugin has been disabled since the Qt SerialPort module is not available.")
+}
+
+qtHaveModule(quick) {
+    SUBDIRS += qmlprofiler
+} else {
+    warning("QmlProfiler plugin has been disabled since the Qt Quick module is not available.")
+}
+
+qtHaveModule(help) {
+    SUBDIRS += help
+} else {
+    warning("Help plugin has been disabled since the Qt Help module is not available.")
+}
+
+qtHaveModule(designercomponents_private) {
+    SUBDIRS += designer
+} else {
+    warning("Qt Widget Designer plugin has been disabled since the Qt Designer module is not available.")
+}
 
 DO_NOT_BUILD_QMLDESIGNER = $$(DO_NOT_BUILD_QMLDESIGNER)
-isEmpty(DO_NOT_BUILD_QMLDESIGNER) {
-    SUBDIRS += qmldesigner
+isEmpty(DO_NOT_BUILD_QMLDESIGNER):qtHaveModule(quick-private) {
+    exists($$[QT_INSTALL_QML]/QtQuick/Controls/qmldir) {
+       SUBDIRS += qmldesigner
+    } else {
+        warning("QmlDesigner plugin has been disabled since Qt Quick Controls 1 are not installed.")
+    }
 } else {
-    warning("QmlDesigner plugin has been disabled.")
+    !qtHaveModule(quick-private) {
+        warning("QmlDesigner plugin has been disabled since the Qt Quick module is not available.")
+    } else {
+        warning("QmlDesigner plugin has been disabled since DO_NOT_BUILD_QMLDESIGNER is set.")
+    }
 }
 
 
@@ -72,21 +102,15 @@ exists(../shared/qbs/qbs.pro)|!isEmpty(QBS_INSTALL_DIR): \
     SUBDIRS += \
         qbsprojectmanager
 
-# prefer qmake variable set on command line over env var
-isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
-exists($$LLVM_INSTALL_DIR) {
-    SUBDIRS += clangcodemodel
+SUBDIRS += \
+    clangcodemodel
 
-    QTC_NO_CLANG_LIBTOOLING=$$(QTC_NO_CLANG_LIBTOOLING)
-    win32-msvc2015:lessThan(QT_CL_PATCH_VERSION, 24210): QTC_NO_CLANG_LIBTOOLING = 1
-    isEmpty(QTC_NO_CLANG_LIBTOOLING) {
-        SUBDIRS += clangrefactoring
-    } else {
-        warning("Building the Clang refactoring plugin is disabled.")
-    }
+QTC_NO_CLANG_LIBTOOLING=$$(QTC_NO_CLANG_LIBTOOLING)
+isEmpty(QTC_NO_CLANG_LIBTOOLING) {
+    SUBDIRS += clangrefactoring
+    SUBDIRS += clangpchmanager
 } else {
-    warning("Set LLVM_INSTALL_DIR to build the Clang Code Model. " \
-            "For details, see doc/src/editors/creator-clang-codemodel.qdoc.")
+    warning("Not building the clang refactoring plugin and the pch manager plugin.")
 }
 
 isEmpty(IDE_PACKAGE_MODE) {

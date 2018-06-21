@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -65,7 +65,7 @@
 
 
         \li To view the base classes and data members of the TextFinder class,
-            go to the \uicontrol {Locals and Expressions} view.
+            go to the \uicontrol Locals view.
 
             \image qtcreator-watcher.png
 

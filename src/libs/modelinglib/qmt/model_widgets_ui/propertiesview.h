@@ -55,7 +55,7 @@ class QMT_EXPORT PropertiesView : public QObject
 public:
     class MView;
 
-    explicit PropertiesView(QObject *parent = 0);
+    explicit PropertiesView(QObject *parent = nullptr);
     ~PropertiesView() override;
 
     ModelController *modelController() const { return m_modelController; }
@@ -116,16 +116,16 @@ private:
     void beginUpdate(DElement *diagramElement);
     void endUpdate(DElement *diagramElement, bool cancelled);
 
-    ModelController *m_modelController;
-    DiagramController *m_diagramController;
-    StereotypeController *m_stereotypeController;
-    StyleController *m_styleController;
-    std::function<MView *(PropertiesView *)> m_viewFactory;
+    ModelController *m_modelController = nullptr;
+    DiagramController *m_diagramController = nullptr;
+    StereotypeController *m_stereotypeController = nullptr;
+    StyleController *m_styleController = nullptr;
+    std::function<MView *(PropertiesView *)> m_viewFactory = nullptr;
     QList<MElement *> m_selectedModelElements;
     QList<DElement *> m_selectedDiagramElements;
-    MDiagram *m_selectedDiagram;
+    MDiagram *m_selectedDiagram = nullptr;
     QScopedPointer<MView> m_mview;
-    QWidget *m_widget;
+    QWidget *m_widget = nullptr;
 };
 
 } // namespace qmt

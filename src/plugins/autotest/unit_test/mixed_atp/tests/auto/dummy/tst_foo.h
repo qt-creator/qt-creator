@@ -22,8 +22,8 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-#ifndef FOO_H_INCLUDED
-#define FOO_H_INCLUDED
+
+#pragma once
 
 #include <QObject>
 
@@ -46,5 +46,3 @@ private slots:
     void test_case4();
     void test_case5() {}
 };
-
-#endif

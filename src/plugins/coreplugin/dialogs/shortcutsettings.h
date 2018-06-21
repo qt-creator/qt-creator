@@ -36,7 +36,6 @@
 
 QT_BEGIN_NAMESPACE
 class QGroupBox;
-class QKeyEvent;
 class QLabel;
 QT_END_NAMESPACE
 
@@ -47,7 +46,6 @@ class Command;
 namespace Internal {
 
 class ActionManagerPrivate;
-class MainWindow;
 
 struct ShortcutItem
 {
@@ -60,15 +58,15 @@ class ShortcutButton : public QPushButton
 {
     Q_OBJECT
 public:
-    ShortcutButton(QWidget *parent = 0);
+    ShortcutButton(QWidget *parent = nullptr);
 
-    QSize sizeHint() const;
+    QSize sizeHint() const override;
 
 signals:
     void keySequenceChanged(const QKeySequence &sequence);
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *evt);
+    bool eventFilter(QObject *obj, QEvent *evt) override;
 
 private:
     void updateText();
@@ -86,7 +84,7 @@ class ShortcutSettingsWidget : public CommandMappings
     Q_OBJECT
 
 public:
-    ShortcutSettingsWidget(QWidget *parent = 0);
+    ShortcutSettingsWidget(QWidget *parent = nullptr);
     ~ShortcutSettingsWidget() override;
 
     void apply();
@@ -118,7 +116,7 @@ class ShortcutSettings : public IOptionsPage
     Q_OBJECT
 
 public:
-    ShortcutSettings(QObject *parent = 0);
+    ShortcutSettings(QObject *parent = nullptr);
 
     QWidget *widget() override;
     void apply() override;

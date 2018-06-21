@@ -68,6 +68,7 @@ class FunctionDeclDefLink
 {
     Q_DECLARE_TR_FUNCTIONS(CppEditor::Internal::FunctionDeclDefLink)
     Q_DISABLE_COPY(FunctionDeclDefLink)
+    FunctionDeclDefLink() = default;
 public:
     class Marker {};
 
@@ -88,26 +89,24 @@ public:
     // The 'source' prefix denotes information about the original state
     // of the function before the user did any edits.
     CPlusPlus::Document::Ptr sourceDocument;
-    CPlusPlus::Function *sourceFunction;
-    CPlusPlus::DeclarationAST *sourceDeclaration;
-    CPlusPlus::FunctionDeclaratorAST *sourceFunctionDeclarator;
+    CPlusPlus::Function *sourceFunction = nullptr;
+    CPlusPlus::DeclarationAST *sourceDeclaration = nullptr;
+    CPlusPlus::FunctionDeclaratorAST *sourceFunctionDeclarator = nullptr;
 
     // The 'target' prefix denotes information about the remote declaration matching
     // the 'source' declaration, where we will try to apply the user changes.
     // 1-based line and column
-    unsigned targetLine;
-    unsigned targetColumn;
+    unsigned targetLine = 0;
+    unsigned targetColumn = 0;
     QString targetInitial;
 
     CppTools::CppRefactoringFileConstPtr targetFile;
-    CPlusPlus::Function *targetFunction;
-    CPlusPlus::DeclarationAST *targetDeclaration;
-    CPlusPlus::FunctionDeclaratorAST *targetFunctionDeclarator;
+    CPlusPlus::Function *targetFunction = nullptr;
+    CPlusPlus::DeclarationAST *targetDeclaration = nullptr;
+    CPlusPlus::FunctionDeclaratorAST *targetFunctionDeclarator = nullptr;
 
 private:
-    FunctionDeclDefLink();
-
-    bool hasMarker;
+    bool hasMarker = false;
 
     friend class FunctionDeclDefLinkFinder;
 };

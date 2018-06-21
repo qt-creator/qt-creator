@@ -28,7 +28,24 @@
 #include <QList>
 #include <QQueue>
 
+#include <cstring>
+
 namespace QmlProfiler {
+
+static inline bool operator==(const QmlEvent &event1, const QmlEvent &event2)
+{
+    if (event1.timestamp() != event2.timestamp() || event1.typeIndex() != event2.typeIndex())
+        return false;
+
+    // This is not particularly efficient, but we also don't need to do this very often.
+    return event1.numbers<QVarLengthArray<qint64>>() == event2.numbers<QVarLengthArray<qint64>>();
+}
+
+static inline bool operator!=(const QmlEvent &event1, const QmlEvent &event2)
+{
+    return !(event1 == event2);
+}
+
 namespace Internal {
 
 QmlEventTest::QmlEventTest(QObject *parent) : QObject(parent)
@@ -114,6 +131,22 @@ void QmlEventTest::testNumbers()
     QCOMPARE(event.number<qint32>(3), 0xffffff);
     QCOMPARE(event.number<qint64>(4), std::numeric_limits<qint64>::max());
     QCOMPARE(event.number<qint64>(5), 0LL);
+}
+
+void QmlEventTest::testMaxSize()
+{
+    const qint8 marker1 = qint8(0xee);
+    const qint8 marker2 = qint8(0xbb);
+    QmlEvent event;
+    QVarLengthArray<qint8> numbers(1 << 17);
+    std::memset(numbers.data(), 0, (1 << 17));
+    numbers[0] = marker1;
+    numbers[(1 << 16) - 2] = marker2;
+    event.setNumbers<QVarLengthArray<qint8>, qint8>(numbers);
+    const auto result = event.numbers<QVarLengthArray<qint8>, qint8>();
+    QCOMPARE(result.size(), (1 << 16) - 1);
+    QCOMPARE(result[0], marker1);
+    QCOMPARE(result[(1 << 16) - 2], marker2);
 }
 
 void QmlEventTest::testStreamOps()

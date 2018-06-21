@@ -118,6 +118,7 @@ class ModulesHandler : public QObject
 
 public:
     explicit ModulesHandler(DebuggerEngine *engine);
+    ~ModulesHandler() override;
 
     QAbstractItemModel *model() const;
 
@@ -128,7 +129,7 @@ public:
     void endUpdateAll();
 
     void removeAll();
-    Modules modules() const;
+    const Modules modules() const;
 
 private:
     ModuleItem *moduleFromPath(const QString &modulePath) const;

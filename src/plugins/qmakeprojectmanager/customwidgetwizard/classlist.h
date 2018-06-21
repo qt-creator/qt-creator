@@ -40,7 +40,7 @@ class ClassList : public QListView
     Q_OBJECT
 
 public:
-    explicit ClassList(QWidget *parent = 0);
+    explicit ClassList(QWidget *parent = nullptr);
 
     QString className(int row) const;
 
@@ -59,7 +59,7 @@ private:
     void slotCurrentRowChanged(const QModelIndex &,const QModelIndex &);
 
 protected:
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     ClassModel *m_model;

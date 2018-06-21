@@ -54,26 +54,38 @@ public:
     void prependChild(TreeItem *item);
     void appendChild(TreeItem *item);
     void insertChild(int pos, TreeItem *item);
+    void insertOrderedChild(TreeItem *item,
+        const std::function<bool(const TreeItem *, const TreeItem *)> &cmp);
+
+    void removeChildAt(int pos);
     void removeChildren();
     void sortChildren(const std::function<bool(const TreeItem *, const TreeItem *)> &cmp);
     void update();
     void updateAll();
     void updateColumn(int column);
     void expand();
+    void collapse();
     TreeItem *firstChild() const;
     TreeItem *lastChild() const;
     int level() const;
 
+    using const_iterator = QVector<TreeItem *>::const_iterator;
+    using value_type = TreeItem *;
     int childCount() const { return m_children.size(); }
     int indexInParent() const;
     TreeItem *childAt(int index) const;
-    QVector<TreeItem *> children() const { return m_children; }
+    int indexOf(const TreeItem *item) const;
+    const_iterator begin() const { return m_children.begin(); }
+    const_iterator end() const { return m_children.end(); }
     QModelIndex index() const;
     QAbstractItemModel *model() const;
 
     void forSelectedChildren(const std::function<bool(TreeItem *)> &pred) const;
     void forAllChildren(const std::function<void(TreeItem *)> &pred) const;
     TreeItem *findAnyChild(const std::function<bool(TreeItem *)> &pred) const;
+    // like findAnyChild() but processes children in exact reverse order
+    // (bottom to top, most inner children first)
+    TreeItem *reverseFindAnyChild(const std::function<bool(TreeItem *)> &pred) const;
 
     // Levels are 1-based: Child at Level 1 is an immediate child.
     void forChildrenAtLevel(int level, const std::function<void(TreeItem *)> &pred) const;
@@ -84,6 +96,7 @@ private:
     void operator=(const TreeItem &) = delete;
 
     void clear();
+    void removeItemAt(int pos);
     void propagateModel(BaseTreeModel *m);
 
     TreeItem *m_parent; // Not owned.
@@ -127,6 +140,14 @@ public:
     ParentType *parent() const {
         return static_cast<ParentType *>(TreeItem::parent());
     }
+
+    void insertOrderedChild(ChildType *item, const std::function<bool(const ChildType *, const ChildType *)> &cmp)
+    {
+        const auto cmp0 = [cmp](const TreeItem *lhs, const TreeItem *rhs) {
+            return cmp(static_cast<const ChildType *>(lhs), static_cast<const ChildType *>(rhs));
+        };
+        TreeItem::insertOrderedChild(item, cmp0);
+    }
 };
 
 class QTCREATOR_UTILS_EXPORT StaticTreeItem : public TreeItem
@@ -149,8 +170,8 @@ class QTCREATOR_UTILS_EXPORT BaseTreeModel : public QAbstractItemModel
     Q_OBJECT
 
 protected:
-    explicit BaseTreeModel(QObject *parent = 0);
-    explicit BaseTreeModel(TreeItem *root, QObject *parent = 0);
+    explicit BaseTreeModel(QObject *parent = nullptr);
+    explicit BaseTreeModel(TreeItem *root, QObject *parent = nullptr);
     ~BaseTreeModel() override;
 
     void setHeader(const QStringList &displays);
@@ -169,6 +190,7 @@ protected:
     QVariant data(const QModelIndex &idx, int role) const override;
     QModelIndex index(int, int, const QModelIndex &idx = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex &idx) const override;
+    QModelIndex sibling(int row, int column, const QModelIndex &idx) const override;
     Qt::ItemFlags flags(const QModelIndex &idx) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     bool hasChildren(const QModelIndex &idx) const override;
@@ -181,6 +203,7 @@ protected:
 
 signals:
     void requestExpansion(QModelIndex);
+    void requestCollapse(QModelIndex);
 
 protected:
     friend class TreeItem;
@@ -246,16 +269,19 @@ public:
     using RootItem = typename Internal::SelectType<0, LevelItemTypes...>::Type;
     using BestItem = typename Internal::BestItemType<LevelItemTypes...>::Type;
 
-    explicit TreeModel(QObject *parent = 0) : BaseTreeModel(new RootItem, parent) {}
-    explicit TreeModel(RootItem *root, QObject *parent = 0) : BaseTreeModel(root, parent) {}
+    explicit TreeModel(QObject *parent = nullptr) : BaseTreeModel(new RootItem, parent) {}
+    explicit TreeModel(RootItem *root, QObject *parent = nullptr) : BaseTreeModel(root, parent) {}
 
+    using BaseTreeModel::canFetchMore;
     using BaseTreeModel::clear;
     using BaseTreeModel::columnCount;
     using BaseTreeModel::data;
     using BaseTreeModel::destroyItem;
+    using BaseTreeModel::fetchMore;
     using BaseTreeModel::hasChildren;
     using BaseTreeModel::index;
     using BaseTreeModel::indexForItem;
+    using BaseTreeModel::parent;
     using BaseTreeModel::rowCount;
     using BaseTreeModel::setData;
     using BaseTreeModel::setHeader;
@@ -281,18 +307,21 @@ public:
     }
 
     template<int Level>
-    typename Internal::SelectType<Level, LevelItemTypes...>::Type *itemForIndexAtLevel(const QModelIndex &idx) const {
-       TreeItem *item = BaseTreeModel::itemForIndex(idx);
-        return item && item->level() == Level ? static_cast<typename Internal::SelectType<Level, LevelItemTypes...>::Type *>(item) : 0;
+    typename Internal::SelectType<Level, LevelItemTypes...>::Type *itemForIndexAtLevel(
+            const QModelIndex &idx) const {
+        TreeItem *item = BaseTreeModel::itemForIndex(idx);
+        return item && item->level() == Level
+                ? static_cast<typename Internal::SelectType<Level, LevelItemTypes...>::Type *>(item)
+                : nullptr;
     }
 
     BestItem *nonRootItemForIndex(const QModelIndex &idx) const {
         TreeItem *item = BaseTreeModel::itemForIndex(idx);
-        return item && item->parent() ? static_cast<BestItem *>(item) : 0;
+        return item && item->parent() ? static_cast<BestItem *>(item) : nullptr;
     }
 
     template <class Predicate>
-    BestItem *findNonRooItem(const Predicate &pred) const {
+    BestItem *findNonRootItem(const Predicate &pred) const {
         const auto pred0 = [pred](TreeItem *treeItem) -> bool { return pred(static_cast<BestItem *>(treeItem)); };
         return static_cast<BestItem *>(m_root->findAnyChild(pred0));
     }

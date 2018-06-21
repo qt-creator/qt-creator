@@ -12,13 +12,13 @@ HEADERS += \
     androidmanager.h \
     androidrunconfiguration.h \
     androidruncontrol.h \
-    androidrunfactories.h \
     androidsettingspage.h \
     androidsettingswidget.h \
     androidtoolchain.h \
     androiderrormessage.h \
     androidglobal.h \
     androidrunner.h \
+    androidrunnerworker.h \
     androiddebugsupport.h \
     androidqtversionfactory.h \
     androidqtversion.h \
@@ -29,7 +29,7 @@ HEADERS += \
     androiddevicefactory.h \
     androiddevice.h \
     androidgdbserverkitinformation.h \
-    androidanalyzesupport.h \
+    androidqmltoolingsupport.h \
     androidmanifesteditorfactory.h \
     androidmanifesteditor.h \
     androidmanifesteditorwidget.h \
@@ -42,24 +42,30 @@ HEADERS += \
     androidsignaloperation.h \
     javaeditor.h \
     javaindenter.h \
-    javacompletionassistprovider.h \
     avddialog.h \
     android_global.h \
     androidbuildapkstep.h \
     androidbuildapkwidget.h \
-    androidrunnable.h
+    androidtoolmanager.h \
+    androidsdkmanager.h \
+    androidavdmanager.h \
+    adbcommandswidget.h \
+    androidsdkpackage.h \
+    androidsdkmodel.h \
+    androidsdkmanagerwidget.h \
+    androidpackageinstallationstep.h
 
 SOURCES += \
     androidconfigurations.cpp \
     androidmanager.cpp \
     androidrunconfiguration.cpp \
     androidruncontrol.cpp \
-    androidrunfactories.cpp \
     androidsettingspage.cpp \
     androidsettingswidget.cpp \
     androidtoolchain.cpp \
     androiderrormessage.cpp \
     androidrunner.cpp \
+    androidrunnerworker.cpp \
     androiddebugsupport.cpp \
     androidqtversionfactory.cpp \
     androidqtversion.cpp \
@@ -70,7 +76,7 @@ SOURCES += \
     androiddevicefactory.cpp \
     androiddevice.cpp \
     androidgdbserverkitinformation.cpp \
-    androidanalyzesupport.cpp \
+    androidqmltoolingsupport.cpp \
     androidmanifesteditorfactory.cpp \
     androidmanifesteditor.cpp \
     androidmanifesteditorwidget.cpp \
@@ -83,12 +89,18 @@ SOURCES += \
     androidsignaloperation.cpp \
     javaeditor.cpp \
     javaindenter.cpp \
-    javacompletionassistprovider.cpp \
     avddialog.cpp \
     androidbuildapkstep.cpp \
     androidbuildapkwidget.cpp \
     androidqtsupport.cpp \
-    androidrunnable.cpp
+    androidtoolmanager.cpp \
+    androidsdkmanager.cpp \
+    androidavdmanager.cpp \
+    adbcommandswidget.cpp \
+    androidsdkpackage.cpp \
+    androidsdkmodel.cpp \
+    androidsdkmanagerwidget.cpp \
+    androidpackageinstallationstep.cpp
 
 FORMS += \
     androidsettingswidget.ui \
@@ -96,7 +108,9 @@ FORMS += \
     androidcreatekeystorecertificate.ui \
     androiddevicedialog.ui \
     androiddeployqtwidget.ui \
-    androidbuildapkwidget.ui
+    androidbuildapkwidget.ui \
+    adbcommandswidget.ui \
+    androidsdkmanagerwidget.ui
 
 RESOURCES = android.qrc
 

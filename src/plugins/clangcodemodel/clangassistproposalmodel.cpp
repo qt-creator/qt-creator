@@ -34,7 +34,7 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-const int SORT_LIMIT = 30000;
+constexpr int SORT_LIMIT = 30000;
 
 ClangAssistProposalModel::ClangAssistProposalModel(
         ClangBackEnd::CompletionCorrection neededCorrection)
@@ -58,9 +58,13 @@ void ClangAssistProposalModel::sort(const QString &/*prefix*/)
 
     auto currentItemsCompare = [](AssistProposalItemInterface *first,
                                   AssistProposalItemInterface *second) {
+        if (first->prefixMatch() != second->prefixMatch()) {
+            return static_cast<int>(first->prefixMatch())
+                    < static_cast<int>(second->prefixMatch());
+        }
         return (first->order() > 0
                 && (first->order() < second->order()
-                     || (first->order() == second->order() && first->text() < second->text())));
+                    || (first->order() == second->order() && first->text() < second->text())));
     };
 
     std::sort(m_currentItems.begin(), m_currentItems.end(), currentItemsCompare);

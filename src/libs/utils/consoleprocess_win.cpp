@@ -373,20 +373,31 @@ QString ConsoleProcess::createWinCommandline(const QString &program, const QStri
     return programName;
 }
 
-QString ConsoleProcess::defaultTerminalEmulator()
+bool ConsoleProcess::startTerminalEmulator(QSettings *, const QString &workingDir)
 {
-    return QString::fromLocal8Bit(qgetenv("COMSPEC"));
-}
+    STARTUPINFO si;
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
 
-QStringList ConsoleProcess::availableTerminalEmulators()
-{
-    return QStringList(ConsoleProcess::defaultTerminalEmulator());
-}
+    PROCESS_INFORMATION pinfo;
+    ZeroMemory(&pinfo, sizeof(pinfo));
 
-void ConsoleProcess::setSettings(QSettings *settings)
-{
-    Q_UNUSED(settings)
-    // Not used on Windows
+    QString cmdLine = createWinCommandline(
+                QString::fromLocal8Bit(qgetenv("COMSPEC")), QString());
+    // cmdLine is assumed to be detached -
+    // https://blogs.msdn.microsoft.com/oldnewthing/20090601-00/?p=18083
+
+    bool success = CreateProcessW(0, (WCHAR *)cmdLine.utf16(),
+                                  0, 0, FALSE, CREATE_NEW_CONSOLE,
+                                  0, workingDir.isEmpty() ? 0 : (WCHAR *)workingDir.utf16(),
+                                  &si, &pinfo);
+
+    if (success) {
+        CloseHandle(pinfo.hThread);
+        CloseHandle(pinfo.hProcess);
+    }
+
+    return success;
 }
 
 } // namespace Utils

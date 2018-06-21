@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "commitdata.h"
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -44,6 +45,7 @@ void GitSubmitEditorPanelData::clear()
     email.clear();
     bypassHooks = false;
     pushAction = NoPush;
+    signOff = false;
 }
 
 QString GitSubmitEditorPanelData::authorString() const
@@ -163,7 +165,7 @@ bool CommitData::parseFilesFromStatus(const QString &output)
 {
     const QStringList lines = output.split('\n');
 
-    foreach (const QString &line, lines) {
+    for (const QString &line : lines) {
         if (line.isEmpty())
             continue;
 
@@ -186,7 +188,7 @@ bool CommitData::parseFilesFromStatus(const QString &output)
 QStringList CommitData::filterFiles(const FileStates &state) const
 {
     QStringList result;
-    foreach (const StateFilePair &p, files) {
+    for (const StateFilePair &p : files) {
         if (state == (p.first & ~(UnmergedFile | UnmergedUs | UnmergedThem)))
             result.append(p.second);
     }

@@ -38,9 +38,7 @@
 namespace qmt {
 
 TreeModelManager::TreeModelManager(QObject *parent) :
-    QObject(parent),
-    m_treeModel(0),
-    m_modelTreeView(0)
+    QObject(parent)
 {
 }
 
@@ -70,7 +68,7 @@ bool TreeModelManager::isRootPackageSelected() const
 
 MObject *TreeModelManager::selectedObject() const
 {
-    MObject *object = 0;
+    MObject *object = nullptr;
     if (m_modelTreeView->currentSourceModelIndex().isValid()) {
         MElement *element = m_treeModel->element(m_modelTreeView->currentSourceModelIndex());
         if (element)
@@ -84,7 +82,7 @@ MPackage *TreeModelManager::selectedPackage() const
     if (m_modelTreeView->currentSourceModelIndex().isValid())
     {
         MElement *element = m_treeModel->element(m_modelTreeView->currentSourceModelIndex());
-        QMT_CHECK(element);
+        QMT_ASSERT(element, return nullptr);
         if (auto package = dynamic_cast<MPackage *>(element)) {
             return package;
         } else if (auto object = dynamic_cast<MObject *>(element)) {

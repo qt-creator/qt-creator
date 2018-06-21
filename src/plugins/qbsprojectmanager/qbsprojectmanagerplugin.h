@@ -25,54 +25,49 @@
 
 #pragma once
 
+#include <coreplugin/id.h>
 #include <extensionsystem/iplugin.h>
 #include <utils/parameteraction.h>
 
-#include <QObject>
-
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
-
-namespace ProjectExplorer {
-class Project;
-class ProjectExplorerPlugin;
-class Node;
-class Target;
-} // namespace ProjectExplorer
+namespace ProjectExplorer { class Project; }
 
 namespace QbsProjectManager {
 namespace Internal {
 
 class QbsProject;
+class QbsProjectManagerPluginPrivate;
 
 class QbsProjectManagerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QbsProjectManager.json")
 
-public:
-    QbsProjectManagerPlugin();
+    ~QbsProjectManagerPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage);
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
 
-    void extensionsInitialized();
-
-private:
     void projectWasAdded(ProjectExplorer::Project *project);
-    void currentProjectWasChanged(ProjectExplorer::Project *project);
-    void projectWasRemoved();
-    void nodeSelectionChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
-    void buildStateChanged(ProjectExplorer::Project *project);
-    void parsingStateChanged();
-    void currentEditorChanged();
+    void projectChanged();
 
     void buildFileContextMenu();
     void buildFile();
     void buildProductContextMenu();
+    void cleanProductContextMenu();
+    void rebuildProductContextMenu();
+    void runStepsForProductContextMenu(const QList<Core::Id> &stepTypes);
     void buildProduct();
+    void cleanProduct();
+    void rebuildProduct();
+    void runStepsForProduct(const QList<Core::Id> &stepTypes);
     void buildSubprojectContextMenu();
+    void cleanSubprojectContextMenu();
+    void rebuildSubprojectContextMenu();
+    void runStepsForSubprojectContextMenu(const QList<Core::Id> &stepTypes);
     void buildSubproject();
+    void cleanSubproject();
+    void rebuildSubproject();
+    void runStepsForSubproject(const QList<Core::Id> &stepTypes);
 
     void reparseSelectedProject();
     void reparseCurrentProject();
@@ -85,24 +80,27 @@ private:
     void buildFiles(QbsProject *project, const QStringList &files,
                     const QStringList &activeFileTags);
     void buildSingleFile(QbsProject *project, const QString &file);
-    void buildProducts(QbsProject *project, const QStringList &products);
 
-    QAction *m_reparseQbs;
-    QAction *m_reparseQbsCtx;
-    QAction *m_buildFileCtx;
-    QAction *m_buildProductCtx;
-    QAction *m_buildSubprojectCtx;
-    Utils::ParameterAction *m_buildFile;
-    Utils::ParameterAction *m_buildProduct;
-    Utils::ParameterAction *m_buildSubproject;
+    void runStepsForProducts(QbsProject *project, const QStringList &products,
+                                  const QList<Core::Id> &stepTypes);
 
-    Internal::QbsProject *m_selectedProject;
-    ProjectExplorer::Node *m_selectedNode;
-
-    Internal::QbsProject *m_currentProject;
-
-    Internal::QbsProject *m_editorProject;
-    ProjectExplorer::Node *m_editorNode;
+    QbsProjectManagerPluginPrivate *d = nullptr;
+    QAction *m_reparseQbs = nullptr;
+    QAction *m_reparseQbsCtx = nullptr;
+    QAction *m_buildFileCtx = nullptr;
+    QAction *m_buildProductCtx = nullptr;
+    QAction *m_cleanProductCtx = nullptr;
+    QAction *m_rebuildProductCtx = nullptr;
+    QAction *m_buildSubprojectCtx = nullptr;
+    QAction *m_cleanSubprojectCtx = nullptr;
+    QAction *m_rebuildSubprojectCtx = nullptr;
+    Utils::ParameterAction *m_buildFile = nullptr;
+    Utils::ParameterAction *m_buildProduct = nullptr;
+    Utils::ParameterAction *m_cleanProduct = nullptr;
+    Utils::ParameterAction *m_rebuildProduct = nullptr;
+    Utils::ParameterAction *m_buildSubproject = nullptr;
+    Utils::ParameterAction *m_cleanSubproject = nullptr;
+    Utils::ParameterAction *m_rebuildSubproject = nullptr;
 };
 
 } // namespace Internal

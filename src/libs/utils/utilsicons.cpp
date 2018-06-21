@@ -28,6 +28,11 @@
 namespace Utils {
 namespace Icons {
 
+
+const Icon HOME({
+        {QLatin1String(":/utils/images/home.png"), Utils::Theme::PanelTextColorDark}}, Icon::Tint);
+const Icon HOME_TOOLBAR({
+        {QLatin1String(":/utils/images/home.png"), Utils::Theme::IconsBaseColor}});
 const Icon EDIT_CLEAR({
         {QLatin1String(":/utils/images/editclear.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon EDIT_CLEAR_TOOLBAR({
@@ -46,6 +51,8 @@ const Icon PREV({
         {QLatin1String(":/utils/images/prev.png"), Theme::IconsWarningColor}}, Icon::MenuTintedStyle);
 const Icon PREV_TOOLBAR({
         {QLatin1String(":/utils/images/prev.png"), Theme::IconsNavigationArrowsColor}});
+const Icon PROJECT({
+        {QLatin1String(":/utils/images/project.png"), Theme::PanelTextColorDark}}, Icon::Tint);
 const Icon ZOOM({
         {QLatin1String(":/utils/images/zoom.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon ZOOM_TOOLBAR({
@@ -64,7 +71,7 @@ const Icon NOTLOADED({
         {QLatin1String(":/utils/images/notloaded.png"), Theme::IconsErrorColor}}, Icon::Tint);
 const Icon BROKEN({
         {QLatin1String(":/utils/images/broken.png"), Theme::IconsErrorColor}}, Icon::Tint);
-const Icon ERROR({
+const Icon CRITICAL({
         {QLatin1String(":/utils/images/warningfill.png"), Theme::BackgroundColorNormal},
         {QLatin1String(":/utils/images/error.png"), Theme::IconsErrorColor}}, Icon::Tint);
 const Icon BOOKMARK({
@@ -75,15 +82,26 @@ const Icon BOOKMARK_TEXTEDITOR({
         {QLatin1String(":/utils/images/bookmark.png"), Theme::Bookmarks_TextMarkColor}}, Icon::Tint);
 const Icon SNAPSHOT_TOOLBAR({
         {QLatin1String(":/utils/images/snapshot.png"), Theme::IconsBaseColor}});
+const Icon NEWSEARCH_TOOLBAR({
+        {QLatin1String(":/utils/images/zoom.png"), Theme::IconsBaseColor},
+        {QLatin1String(":/utils/images/iconoverlay_add_small.png"), Theme::IconsRunColor}});
 
 const Icon NEWFILE({
         {QLatin1String(":/utils/images/filenew.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon OPENFILE({
         {QLatin1String(":/utils/images/fileopen.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon OPENFILE_TOOLBAR({
+        {QLatin1String(":/utils/images/fileopen.png"), Theme::IconsBaseColor}});
 const Icon SAVEFILE({
         {QLatin1String(":/utils/images/filesave.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon SAVEFILE_TOOLBAR({
         {QLatin1String(":/utils/images/filesave.png"), Theme::IconsBaseColor}});
+
+const Icon EXPORTFILE_TOOLBAR({
+        {QLatin1String(":/utils/images/fileexport.png"), Theme::IconsBaseColor}});
+const Icon MULTIEXPORTFILE_TOOLBAR({
+        {QLatin1String(":/utils/images/filemultiexport.png"), Theme::IconsBaseColor}});
+
 const Icon UNDO({
         {QLatin1String(":/utils/images/undo.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon UNDO_TOOLBAR({
@@ -104,14 +122,10 @@ const Icon CUT({
         {QLatin1String(":/utils/images/editcut.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon CUT_TOOLBAR({
         {QLatin1String(":/utils/images/editcut.png"), Theme::IconsBaseColor}});
-const Icon DIR(
-        QLatin1String(":/utils/images/dir.png"));
 const Icon RESET({
         {QLatin1String(":/utils/images/reset.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon RESET_TOOLBAR({
         {QLatin1String(":/utils/images/reset.png"), Theme::IconsBaseColor}});
-const Icon DARK_CLOSE(
-        QLatin1String(":/utils/images/darkclose.png"));
 
 const Icon ARROW_UP({
         {QLatin1String(":/utils/images/arrowup.png"), Theme::IconsBaseColor}});
@@ -131,10 +145,14 @@ const Icon CLEAN_TOOLBAR({
         {QLatin1String(":/utils/images/clean_pane_small.png"), Theme::IconsBaseColor}});
 const Icon RELOAD({
         {QLatin1String(":/utils/images/reload_gray.png"), Theme::IconsBaseColor}});
-const Icon TOGGLE_SIDEBAR({
-        {QLatin1String(":/utils/images/sidebaricon.png"), Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
-const Icon TOGGLE_SIDEBAR_TOOLBAR({
-        {QLatin1String(":/utils/images/sidebaricon.png"), Theme::IconsBaseColor}});
+const Icon TOGGLE_LEFT_SIDEBAR({
+        {QLatin1String(":/utils/images/leftsidebaricon.png"), Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
+const Icon TOGGLE_LEFT_SIDEBAR_TOOLBAR({
+        {QLatin1String(":/utils/images/leftsidebaricon.png"), Theme::IconsBaseColor}});
+const Icon TOGGLE_RIGHT_SIDEBAR({
+        {QLatin1String(":/utils/images/rightsidebaricon.png"), Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
+const Icon TOGGLE_RIGHT_SIDEBAR_TOOLBAR({
+        {QLatin1String(":/utils/images/rightsidebaricon.png"), Theme::IconsBaseColor}});
 const Icon CLOSE_TOOLBAR({
         {QLatin1String(":/utils/images/close.png"), Theme::IconsBaseColor}});
 const Icon CLOSE_FOREGROUND({
@@ -160,13 +178,15 @@ const Icon CLOSE_SPLIT_RIGHT({
 const Icon FILTER({
         {QLatin1String(":/utils/images/filtericon.png"), Theme::IconsBaseColor}});
 const Icon LINK({
+        {QLatin1String(":/utils/images/linkicon.png"), Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon LINK_TOOLBAR({
         {QLatin1String(":/utils/images/linkicon.png"), Theme::IconsBaseColor}});
 const Icon WARNING({
         {QLatin1String(":/utils/images/warningfill.png"), Theme::BackgroundColorNormal},
         {QLatin1String(":/utils/images/warning.png"), Theme::IconsWarningColor}}, Icon::Tint);
 const Icon WARNING_TOOLBAR({
         {QLatin1String(":/utils/images/warning.png"), Theme::IconsWarningToolBarColor}});
-const Icon ERROR_TOOLBAR({
+const Icon CRITICAL_TOOLBAR({
         {QLatin1String(":/utils/images/error.png"), Theme::IconsErrorToolBarColor}});
 const Icon ERROR_TASKBAR({
         {QLatin1String(":/utils/images/compile_error_taskbar.png"), Theme::IconsErrorColor}}, Icon::Tint);
@@ -208,7 +228,10 @@ const Icon COLLAPSE({
         {QLatin1String(":/utils/images/collapse.png"), Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon COLLAPSE_TOOLBAR({
         {QLatin1String(":/utils/images/collapse.png"), Theme::IconsBaseColor}});
+const Icon PAN_TOOLBAR({
+        {QLatin1String(":/utils/images/pan.png"), Theme::IconsBaseColor}});
 const Icon EMPTY14(":/utils/images/empty14.png");
+const Icon EMPTY16(":/utils/images/empty16.png");
 const Icon OVERLAY_ADD({
         {":/utils/images/iconoverlay_add_background.png", Theme::BackgroundColorNormal},
         {":/utils/images/iconoverlay_add.png", Theme::IconsRunColor}}, Icon::Tint);
@@ -218,6 +241,18 @@ const Icon OVERLAY_WARNING({
 const Icon OVERLAY_ERROR({
         {":/utils/images/iconoverlay_error_background.png", Theme::BackgroundColorNormal},
         {":/utils/images/iconoverlay_error.png", Theme::IconsErrorColor}}, Icon::Tint);
+
+const Icon CODEMODEL_ERROR({
+        {":/utils/images/codemodelerror.png", Theme::IconsErrorColor}}, Icon::Tint);
+const Icon CODEMODEL_WARNING({
+        {":/utils/images/codemodelwarning.png", Theme::IconsWarningColor}}, Icon::Tint);
+const Icon CODEMODEL_DISABLED_ERROR({
+        {":/utils/images/codemodelerror.png", Theme::IconsDisabledColor}}, Icon::Tint);
+const Icon CODEMODEL_DISABLED_WARNING({
+        {":/utils/images/codemodelwarning.png", Theme::IconsDisabledColor}}, Icon::Tint);
+const Icon CODEMODEL_FIXIT({
+        {":/utils/images/lightbulbcap.png", Theme::PanelTextColorMid},
+        {":/utils/images/lightbulb.png", Theme::IconsWarningColor}}, Icon::Tint);
 
 } // namespace Icons
 } // namespace Utils

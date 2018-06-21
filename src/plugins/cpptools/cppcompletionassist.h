@@ -77,6 +77,8 @@ public:
     QSharedPointer<CPlusPlus::TypeOfExpression> m_typeOfExpression;
 };
 
+using CppAssistProposalModelPtr = QSharedPointer<CppAssistProposalModel>;
+
 class InternalCompletionAssistProvider : public CppCompletionAssistProvider
 {
     Q_OBJECT
@@ -158,7 +160,7 @@ private:
     };
 
     QScopedPointer<const CppCompletionAssistInterface> m_interface;
-    QScopedPointer<CppAssistProposalModel> m_model;
+    CppAssistProposalModelPtr m_model;
 };
 
 class CppCompletionAssistInterface : public TextEditor::AssistInterface

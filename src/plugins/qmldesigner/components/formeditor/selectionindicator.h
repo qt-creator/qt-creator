@@ -31,6 +31,8 @@
 #include <QPointer>
 #include <QGraphicsPolygonItem>
 
+#include <memory>
+
 namespace QmlDesigner {
 
 class SelectionIndicator
@@ -53,7 +55,7 @@ private:
     QHash<FormEditorItem*, QGraphicsPolygonItem *> m_indicatorShapeHash;
     QPointer<LayerItem> m_layerItem;
     QCursor m_cursor;
-
+    std::unique_ptr<QGraphicsPolygonItem> m_labelItem;
 };
 
 } // namespace QmlDesigner

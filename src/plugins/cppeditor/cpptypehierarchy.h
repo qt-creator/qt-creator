@@ -37,11 +37,8 @@ class QLabel;
 class QModelIndex;
 class QStackedLayout;
 class QStandardItem;
-template <class> class QVector;
 template <class> class QList;
 QT_END_NAMESPACE
-
-namespace Core { class IEditor; }
 
 namespace TextEditor { class TextEditorLinkLabel; }
 
@@ -50,12 +47,12 @@ class NavigationTreeView;
 class AnnotatedItemDelegate;
 }
 
+namespace CppTools { class CppClass; }
+
 namespace CppEditor {
 namespace Internal {
 
 class CppEditorWidget;
-class CppClass;
-class CppClassLabel;
 
 class CppTypeHierarchyModel : public QStandardItemModel
 {
@@ -79,22 +76,22 @@ public:
     void perform();
 
 private:
-    typedef QList<CppClass> CppClass::*HierarchyMember;
-    void buildHierarchy(const CppClass &cppClass, QStandardItem *parent,
+    typedef QList<CppTools::CppClass> CppTools::CppClass::*HierarchyMember;
+    void buildHierarchy(const CppTools::CppClass &cppClass, QStandardItem *parent,
                         bool isRoot, HierarchyMember member);
     void showNoTypeHierarchyLabel();
     void showTypeHierarchy();
     void clearTypeHierarchy();
     void onItemActivated(const QModelIndex &index);
 
-    CppEditorWidget *m_cppEditor;
-    Utils::NavigationTreeView *m_treeView;
-    QWidget *m_hierarchyWidget;
-    QStackedLayout *m_stackLayout;
-    QStandardItemModel *m_model;
-    Utils::AnnotatedItemDelegate *m_delegate;
-    TextEditor::TextEditorLinkLabel *m_inspectedClass;
-    QLabel *m_noTypeHierarchyAvailableLabel;
+    CppEditorWidget *m_cppEditor = nullptr;
+    Utils::NavigationTreeView *m_treeView = nullptr;
+    QWidget *m_hierarchyWidget = nullptr;
+    QStackedLayout *m_stackLayout = nullptr;
+    QStandardItemModel *m_model = nullptr;
+    Utils::AnnotatedItemDelegate *m_delegate = nullptr;
+    TextEditor::TextEditorLinkLabel *m_inspectedClass = nullptr;
+    QLabel *m_noTypeHierarchyAvailableLabel = nullptr;
 };
 
 class CppTypeHierarchyFactory : public Core::INavigationWidgetFactory
@@ -104,7 +101,7 @@ class CppTypeHierarchyFactory : public Core::INavigationWidgetFactory
 public:
     CppTypeHierarchyFactory();
 
-    virtual Core::NavigationView createWidget();
+    Core::NavigationView createWidget()  override;
 };
 
 } // namespace Internal

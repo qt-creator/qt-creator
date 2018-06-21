@@ -28,6 +28,8 @@
 #include "qmltextgenerator.h"
 #include "rewriteactioncompressor.h"
 
+#include <customnotifications.h>
+
 #include <rewriterview.h>
 #include <abstractproperty.h>
 #include <nodeproperty.h>
@@ -80,8 +82,6 @@ void ModelToTextMerger::propertiesRemoved(const QList<AbstractProperty>& propert
 void ModelToTextMerger::propertiesChanged(const QList<AbstractProperty>& propertyList, PropertyChangeFlags propertyChange)
 {
     foreach (const AbstractProperty &property, propertyList) {
-        if (!isInHierarchy(property))
-            continue;
 
         ModelNode containedModelNode;
         const int indentDepth = m_rewriterView->textModifier()->indentDepth();
@@ -113,7 +113,7 @@ void ModelToTextMerger::propertiesChanged(const QList<AbstractProperty>& propert
             break;
 
         default:
-            Q_ASSERT(!"Unknown PropertyChangeFlags");
+            Q_ASSERT(false); //Unknown PropertyChange flag
         }
     }
 }
@@ -178,7 +178,7 @@ void ModelToTextMerger::nodeReparented(const ModelNode &node, const NodeAbstract
             break;
 
         default:
-            Q_ASSERT(!"Unknown PropertyChange value");
+            Q_ASSERT(false); //Unknown PropertyChange value
         }
     } else {
         // old is outside of hierarchy, new is outside of hierarchy, so who cares?
@@ -198,7 +198,7 @@ void ModelToTextMerger::nodeSlidAround(const ModelNode &movingNode, const ModelN
     if (!inFrontOfNode.isValid() || movingNode.parentProperty() == inFrontOfNode.parentProperty())
         schedule(new MoveNodeRewriteAction(movingNode, inFrontOfNode));
     else
-        Q_ASSERT(!"Nodes do not belong to the same containing property");
+        Q_ASSERT(false); //Nodes do not belong to the same containing property
 }
 
 RewriterView *ModelToTextMerger::view()
@@ -219,6 +219,8 @@ void ModelToTextMerger::applyChanges()
     if (m_rewriteActions.isEmpty())
         return;
 
+    m_rewriterView->emitCustomNotification(StartRewriterApply);
+
     Document::MutablePtr tmpDocument(Document::create(QStringLiteral("<ModelToTextMerger>"), Dialect::Qml));
     tmpDocument->setSource(m_rewriterView->textModifier()->text());
     if (!tmpDocument->parseQml()) {
@@ -227,7 +229,7 @@ void ModelToTextMerger::applyChanges()
 
         QString errorMessage = QStringLiteral("Error while rewriting");
         if (!tmpDocument->diagnosticMessages().isEmpty())
-            errorMessage = tmpDocument->diagnosticMessages().first().message;
+            errorMessage = tmpDocument->diagnosticMessages().constFirst().message;
 
         m_rewriterView->enterErrorState(errorMessage);
         return;
@@ -270,7 +272,7 @@ void ModelToTextMerger::applyChanges()
             if (!success) {
                 m_rewriterView->enterErrorState(QStringLiteral("Error rewriting document"));
 
-                if (true || DebugRewriteActions) {
+                if (DebugRewriteActions) {
                     qDebug() << "*** QML source code: ***";
                     qDebug() << qPrintable(textModifier->text());
                     qDebug() << "*** End of QML source code. ***";
@@ -299,6 +301,8 @@ void ModelToTextMerger::applyChanges()
         textModifier->commitGroup();
         textModifier->reactivateChangeSignals();
     }
+
+    m_rewriterView->emitCustomNotification(EndRewriterApply);
 }
 
 void ModelToTextMerger::reindent(const QMap<int, int> &dirtyAreas) const
@@ -344,8 +348,8 @@ QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractPrope
     else if (property.isVariantProperty())
         return QmlRefactoring::ScriptBinding;
 
-    Q_ASSERT(!"cannot convert property type");
-    return (QmlRefactoring::PropertyType) -1;
+    Q_ASSERT(false); //Cannot convert property type
+    return QmlRefactoring::Invalid;
 }
 
 PropertyNameList ModelToTextMerger::propertyOrder()

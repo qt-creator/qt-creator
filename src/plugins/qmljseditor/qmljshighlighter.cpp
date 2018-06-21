@@ -42,10 +42,7 @@ QmlJSHighlighter::QmlJSHighlighter(QTextDocument *parent)
       m_inMultilineComment(false)
 {
     m_currentBlockParentheses.reserve(20);
-    static const QVector<TextStyle> categories({
-        C_NUMBER, C_STRING, C_TYPE, C_KEYWORD, C_FIELD, C_COMMENT, C_VISUAL_WHITESPACE
-    });
-    setTextFormatCategories(categories);
+    setDefaultTextFormatCategories();
 }
 
 QmlJSHighlighter::~QmlJSHighlighter()
@@ -72,11 +69,11 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
 
         switch (token.kind) {
             case Token::Keyword:
-                setFormat(token.offset, token.length, formatForCategory(KeywordFormat));
+                setFormat(token.offset, token.length, formatForCategory(C_KEYWORD));
                 break;
 
             case Token::String:
-                setFormat(token.offset, token.length, formatForCategory(StringFormat));
+                setFormat(token.offset, token.length, formatForCategory(C_STRING));
                 break;
 
             case Token::Comment:
@@ -89,11 +86,11 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
                     onOpeningParenthesis(QLatin1Char('+'), token.offset, index == 0);
                     m_inMultilineComment = true;
                 }
-                setFormat(token.offset, token.length, formatForCategory(CommentFormat));
+                setFormat(token.offset, token.length, formatForCategory(C_COMMENT));
                 break;
 
             case Token::RegExp:
-                setFormat(token.offset, token.length, formatForCategory(StringFormat));
+                setFormat(token.offset, token.length, formatForCategory(C_STRING));
                 break;
 
             case Token::LeftParenthesis:
@@ -130,15 +127,30 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
                     // check the previous token
                     if (index == 0 || tokens.at(index - 1).isNot(Token::Dot)) {
                         if (index + 1 == tokens.size() || tokens.at(index + 1).isNot(Token::Colon)) {
-                            setFormat(token.offset, token.length, formatForCategory(KeywordFormat));
+                            setFormat(token.offset, token.length, formatForCategory(C_KEYWORD));
                             break;
                         }
                     }
+                    if (text.midRef(token.offset, token.length) == QLatin1String("enum")) {
+                        setFormat(token.offset, token.length, formatForCategory(C_KEYWORD));
+                        break;
+                    }
                 } else if (index > 0 && maybeQmlBuiltinType(spell)) {
                     const Token &previousToken = tokens.at(index - 1);
-                    if (previousToken.is(Token::Identifier) && text.at(previousToken.offset) == QLatin1Char('p')
-                        && text.midRef(previousToken.offset, previousToken.length) == QLatin1String("property")) {
-                        setFormat(token.offset, token.length, formatForCategory(KeywordFormat));
+                    if (previousToken.is(Token::Identifier)
+                            && text.at(previousToken.offset) == QLatin1Char('p')
+                            && text.midRef(previousToken.offset, previousToken.length)
+                            == QLatin1String("property")) {
+                        setFormat(token.offset, token.length, formatForCategory(C_KEYWORD));
+                        break;
+                    }
+                } else if (index == 1) {
+                    const Token &previousToken = tokens.at(0);
+                    if (previousToken.is(Token::Identifier)
+                            && text.at(previousToken.offset) == QLatin1Char('e')
+                            && text.midRef(previousToken.offset, previousToken.length)
+                            == QLatin1String("enum")) {
+                        setFormat(token.offset, token.length, formatForCategory(C_ENUMERATION));
                         break;
                     }
                 }
@@ -157,7 +169,7 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
     int previousTokenEnd = 0;
     for (int index = 0; index < tokens.size(); ++index) {
         const Token &token = tokens.at(index);
-        setFormat(previousTokenEnd, token.begin() - previousTokenEnd, formatForCategory(VisualWhitespace));
+        setFormat(previousTokenEnd, token.begin() - previousTokenEnd, formatForCategory(C_VISUAL_WHITESPACE));
 
         switch (token.kind) {
         case Token::Comment:
@@ -171,7 +183,7 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
                     do {
                         ++i;
                     } while (i < e && text.at(i).isSpace());
-                    setFormat(start, i - start, formatForCategory(VisualWhitespace));
+                    setFormat(start, i - start, formatForCategory(C_VISUAL_WHITESPACE));
                 } else {
                     ++i;
                 }
@@ -185,7 +197,7 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
         previousTokenEnd = token.end();
     }
 
-    setFormat(previousTokenEnd, text.length() - previousTokenEnd, formatForCategory(VisualWhitespace));
+    setFormat(previousTokenEnd, text.length() - previousTokenEnd, formatForCategory(C_VISUAL_WHITESPACE));
 
     setCurrentBlockState(m_scanner.state());
     onBlockEnd(m_scanner.state());
@@ -203,13 +215,13 @@ bool QmlJSHighlighter::maybeQmlKeyword(const QStringRef &text) const
         return true;
     else if (ch == QLatin1Char('s') && text == QLatin1String("signal"))
         return true;
-    else if (ch == QLatin1Char('p') && text == QLatin1String("property"))
-        return true;
     else if (ch == QLatin1Char('r') && text == QLatin1String("readonly"))
         return true;
     else if (ch == QLatin1Char('i') && text == QLatin1String("import"))
         return true;
     else if (ch == QLatin1Char('o') && text == QLatin1String("on"))
+        return true;
+    else if (ch == QLatin1Char('e') && text == QLatin1String("enum"))
         return true;
     else
         return false;

@@ -28,6 +28,7 @@
 #include "beautifierconstants.h"
 
 #include <coreplugin/icore.h>
+#include <utils/algorithm.h>
 #include <utils/mimetypes/mimedatabase.h>
 
 namespace Beautifier {
@@ -99,11 +100,7 @@ QList<Utils::MimeType> GeneralSettings::autoFormatMime() const
 
 QString GeneralSettings::autoFormatMimeAsString() const
 {
-    QStringList types;
-    types.reserve(m_autoFormatMime.count());
-    for (auto t : m_autoFormatMime)
-        types << t.name();
-    return types.join("; ");
+    return Utils::transform(m_autoFormatMime, &Utils::MimeType::name).join("; ");
 }
 
 void GeneralSettings::setAutoFormatMime(const QList<Utils::MimeType> &autoFormatMime)
@@ -116,10 +113,9 @@ void GeneralSettings::setAutoFormatMime(const QString &mimeList)
     const QStringList stringTypes = mimeList.split(';');
     QList<Utils::MimeType> types;
     types.reserve(stringTypes.count());
-    const Utils::MimeDatabase mdb;
     for (QString t : stringTypes) {
         t = t.trimmed();
-        const Utils::MimeType mime = mdb.mimeTypeForName(t);
+        const Utils::MimeType mime = Utils::mimeTypeForName(t);
         if (mime.isValid())
             types << mime;
     }

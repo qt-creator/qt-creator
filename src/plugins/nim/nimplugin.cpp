@@ -28,36 +28,43 @@
 #include "nimconstants.h"
 #include "editor/nimeditorfactory.h"
 #include "editor/nimhighlighter.h"
-#include "project/nimbuildconfigurationfactory.h"
-#include "project/nimcompilerbuildstepfactory.h"
-#include "project/nimcompilercleanstepfactory.h"
-#include "project/nimprojectmanager.h"
-#include "project/nimrunconfigurationfactory.h"
-#include "project/nimruncontrolfactory.h"
+#include "project/nimbuildconfiguration.h"
+#include "project/nimcompilerbuildstep.h"
+#include "project/nimcompilercleanstep.h"
+#include "project/nimproject.h"
+#include "project/nimrunconfiguration.h"
+#include "project/nimtoolchainfactory.h"
 #include "settings/nimcodestylepreferencesfactory.h"
 #include "settings/nimcodestylesettingspage.h"
 #include "settings/nimsettings.h"
-#include "settings/nimsnippetprovider.h"
 
 #include <coreplugin/fileiconprovider.h>
-#include <utils/mimetypes/mimedatabase.h>
-
-#include <QtPlugin>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/toolchainmanager.h>
+#include <texteditor/snippets/snippetprovider.h>
 
 using namespace Utils;
+using namespace ProjectExplorer;
 
 namespace Nim {
 
-static NimPlugin *m_instance = 0;
-
-NimPlugin::NimPlugin()
+class NimPluginPrivate
 {
-    m_instance = this;
-}
+public:
+    NimSettings settings;
+    NimEditorFactory editorFactory;
+    NimBuildConfigurationFactory buildConfigFactory;
+    NimRunConfigurationFactory runConfigFactory;
+    NimCompilerBuildStepFactory buildStepFactory;
+    NimCompilerCleanStepFactory cleanStepFactory;
+    NimCodeStyleSettingsPage codeStyleSettingsPage;
+    NimCodeStylePreferencesFactory codeStylePreferencesPage;
+    NimToolChainFactory toolChainFactory;
+};
 
 NimPlugin::~NimPlugin()
 {
-    m_instance = 0;
+    delete d;
 }
 
 bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -65,28 +72,28 @@ bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    MimeDatabase::addMimeTypes(QLatin1String(":/Nim.mimetypes.xml"));
+    d = new NimPluginPrivate;
 
-    addAutoReleasedObject(new NimSettings);
-    addAutoReleasedObject(new NimSnippetProvider);
-    addAutoReleasedObject(new NimEditorFactory);
-    addAutoReleasedObject(new NimProjectManager);
-    addAutoReleasedObject(new NimBuildConfigurationFactory);
-    addAutoReleasedObject(new NimRunConfigurationFactory);
-    addAutoReleasedObject(new NimCompilerBuildStepFactory);
-    addAutoReleasedObject(new NimCompilerCleanStepFactory);
-    addAutoReleasedObject(new NimRunControlFactory);
-    addAutoReleasedObject(new NimCodeStyleSettingsPage);
-    addAutoReleasedObject(new NimCodeStylePreferencesFactory);
+    ToolChainManager::registerLanguage(Constants::C_NIMLANGUAGE_ID, Constants::C_NIMLANGUAGE_NAME);
 
+    TextEditor::SnippetProvider::registerGroup(Constants::C_NIMSNIPPETSGROUP_ID,
+                                               tr("Nim", "SnippetProvider"),
+                                               &NimEditorFactory::decorateEditor);
+
+    ProjectManager::registerProjectType<NimProject>(Constants::C_NIM_PROJECT_MIMETYPE);
+
+    return true;
+}
+
+void NimPlugin::extensionsInitialized()
+{
     // Add MIME overlay icons (these icons displayed at Project dock panel)
-    const QIcon icon((QLatin1String(Constants::C_NIM_ICON_PATH)));
+    const QIcon icon = Utils::Icon({{":/nim/images/settingscategory_nim.png",
+                                     Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint).icon();
     if (!icon.isNull()) {
         Core::FileIconProvider::registerIconOverlayForMimeType(icon, Constants::C_NIM_MIMETYPE);
         Core::FileIconProvider::registerIconOverlayForMimeType(icon, Constants::C_NIM_SCRIPT_MIMETYPE);
     }
-
-    return true;
 }
 
 } // namespace Nim

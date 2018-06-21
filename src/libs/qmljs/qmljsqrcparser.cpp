@@ -487,7 +487,7 @@ QrcParser::Ptr QrcCachePrivate::addPath(const QString &path, const QString &cont
     QPair<QrcParser::Ptr,int> currentValue;
     {
         QMutexLocker l(&m_mutex);
-        currentValue = m_cache.value(path, qMakePair(QrcParser::Ptr(0), 0));
+        currentValue = m_cache.value(path, {QrcParser::Ptr(0), 0});
         currentValue.second += 1;
         if (currentValue.second > 1) {
             m_cache.insert(path, currentValue);
@@ -499,7 +499,7 @@ QrcParser::Ptr QrcCachePrivate::addPath(const QString &path, const QString &cont
         qCWarning(qmljsLog) << "adding invalid qrc " << path << " to the cache:" << newParser->errorMessages();
     {
         QMutexLocker l(&m_mutex);
-        QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, qMakePair(QrcParser::Ptr(0), 0));
+        QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, {QrcParser::Ptr(0), 0});
         if (currentValue.first.isNull())
             currentValue.first = newParser;
         currentValue.second += 1;
@@ -513,7 +513,7 @@ void QrcCachePrivate::removePath(const QString &path)
     QPair<QrcParser::Ptr,int> currentValue;
     {
         QMutexLocker l(&m_mutex);
-        currentValue = m_cache.value(path, qMakePair(QrcParser::Ptr(0), 0));
+        currentValue = m_cache.value(path, {QrcParser::Ptr(0), 0});
         if (currentValue.second == 1) {
             m_cache.remove(path);
         } else if (currentValue.second > 1) {
@@ -530,7 +530,7 @@ QrcParser::Ptr QrcCachePrivate::updatePath(const QString &path, const QString &c
     QrcParser::Ptr newParser = QrcParser::parseQrcFile(path, contents);
     {
         QMutexLocker l(&m_mutex);
-        QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, qMakePair(QrcParser::Ptr(0), 0));
+        QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, {QrcParser::Ptr(0), 0});
         currentValue.first = newParser;
         if (currentValue.second == 0)
             currentValue.second = 1; // add qrc files that are not in the resources of a project
@@ -542,7 +542,7 @@ QrcParser::Ptr QrcCachePrivate::updatePath(const QString &path, const QString &c
 QrcParser::Ptr QrcCachePrivate::parsedPath(const QString &path)
 {
     QMutexLocker l(&m_mutex);
-    QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, qMakePair(QrcParser::Ptr(0), 0));
+    QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, {QrcParser::Ptr(0), 0});
     return currentValue.first;
 }
 

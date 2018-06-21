@@ -32,8 +32,8 @@
 #include <QAbstractItemModel>
 #include <QFileInfo>
 #include <QMutexLocker>
+#include <QRegularExpression>
 
-using namespace Core;
 using namespace Core;
 using namespace Core::Internal;
 using namespace Utils;
@@ -42,7 +42,7 @@ OpenDocumentsFilter::OpenDocumentsFilter()
 {
     setId("Open documents");
     setDisplayName(tr("Open Documents"));
-    setShortcutString(QString(QLatin1Char('o')));
+    setShortcutString("o");
     setPriority(High);
     setIncludedByDefault(true);
 
@@ -54,33 +54,35 @@ OpenDocumentsFilter::OpenDocumentsFilter()
             this, &OpenDocumentsFilter::refreshInternally);
 }
 
-QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
+QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
+                                                          const QString &entry)
 {
     QList<LocatorFilterEntry> goodEntries;
     QList<LocatorFilterEntry> betterEntries;
     const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
-    const QChar asterisk = QLatin1Char('*');
-    QString pattern = QString(asterisk);
-    pattern += fp.filePath;
-    pattern += asterisk;
-    QRegExp regexp(pattern, Qt::CaseInsensitive, QRegExp::Wildcard);
+
+    const QRegularExpression regexp = createRegExp(fp.filePath);
     if (!regexp.isValid())
         return goodEntries;
-    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(fp.filePath);
-    foreach (const Entry &editorEntry, editors()) {
+
+    const QList<Entry> editorEntries = editors();
+    for (const Entry &editorEntry : editorEntries) {
         if (future.isCanceled())
             break;
         QString fileName = editorEntry.fileName.toString();
         if (fileName.isEmpty())
             continue;
         QString displayName = editorEntry.displayName;
-        if (regexp.exactMatch(displayName)) {
-            LocatorFilterEntry fiEntry(this, displayName, QString(fileName + fp.postfix));
-            fiEntry.extraInfo = FileUtils::shortNativePath(FileName::fromString(fileName));
-            fiEntry.fileName = fileName;
-            QList<LocatorFilterEntry> &category = displayName.startsWith(fp.filePath, caseSensitivityForPrefix)
-                    ? betterEntries : goodEntries;
-            category.append(fiEntry);
+        const QRegularExpressionMatch match = regexp.match(displayName);
+        if (match.hasMatch()) {
+            LocatorFilterEntry filterEntry(this, displayName, QString(fileName + fp.postfix));
+            filterEntry.extraInfo = FileUtils::shortNativePath(FileName::fromString(fileName));
+            filterEntry.fileName = fileName;
+            filterEntry.highlightInfo = highlightInfo(match);
+            if (match.capturedStart() == 0)
+                betterEntries.append(filterEntry);
+            else
+                goodEntries.append(filterEntry);
         }
     }
     betterEntries.append(goodEntries);
@@ -91,7 +93,8 @@ void OpenDocumentsFilter::refreshInternally()
 {
     QMutexLocker lock(&m_mutex); Q_UNUSED(lock)
     m_editors.clear();
-    foreach (DocumentModel::Entry *e, DocumentModel::entries()) {
+    const QList<DocumentModel::Entry *> documentEntries = DocumentModel::entries();
+    for (DocumentModel::Entry *e : documentEntries) {
         Entry entry;
         // create copy with only the information relevant to use
         // to avoid model deleting entries behind our back
@@ -113,8 +116,12 @@ void OpenDocumentsFilter::refresh(QFutureInterface<void> &future)
     QMetaObject::invokeMethod(this, "refreshInternally", Qt::BlockingQueuedConnection);
 }
 
-void OpenDocumentsFilter::accept(LocatorFilterEntry selection) const
+void OpenDocumentsFilter::accept(LocatorFilterEntry selection,
+                                 QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     EditorManager::openEditor(selection.internalData.toString(), Id(),
                               EditorManager::CanContainLineAndColumnNumber);
 }

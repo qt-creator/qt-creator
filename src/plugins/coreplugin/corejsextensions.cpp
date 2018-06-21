@@ -110,8 +110,7 @@ bool UtilsJsExtension::isFile(const QString &in) const
 
 QString UtilsJsExtension::preferredSuffix(const QString &mimetype) const
 {
-    Utils::MimeDatabase mdb;
-    Utils::MimeType mt = mdb.mimeTypeForName(mimetype);
+    Utils::MimeType mt = Utils::mimeTypeForName(mimetype);
     if (mt.isValid())
         return mt.preferredSuffix();
     return QString();
@@ -140,6 +139,18 @@ QString UtilsJsExtension::mktemp(const QString &pattern) const
     QTC_ASSERT(file.open(), return QString());
     file.close();
     return file.fileName();
+}
+
+QString UtilsJsExtension::asciify(const QString &input) const
+{
+    QString result;
+    for (const QChar &c : input) {
+        if (c.isPrint() && c.unicode() < 128)
+            result.append(c);
+        else
+            result.append(QString::fromLatin1("u%1").arg(c.unicode(), 4, 16, QChar('0')));
+    }
+    return result;
 }
 
 } // namespace Internal

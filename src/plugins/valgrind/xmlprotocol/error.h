@@ -37,7 +37,6 @@ QT_END_NAMESPACE
 namespace Valgrind {
 namespace XmlProtocol {
 
-class Frame;
 class Stack;
 class Suppression;
 

@@ -205,7 +205,7 @@ static bool createMagicMatchRule(const QXmlStreamAttributes &atts,
 }
 #endif
 
-bool MimeTypeParserBase::parse(QIODevice *dev, const QString &fileName, QString *errorMessage)
+bool MimeTypeParserBase::parse(const QByteArray &content, const QString &fileName, QString *errorMessage)
 {
 #ifdef QT_NO_XMLSTREAMREADER
     if (errorMessage)
@@ -216,7 +216,7 @@ bool MimeTypeParserBase::parse(QIODevice *dev, const QString &fileName, QString 
     int priority = 50;
     QStack<MimeMagicRule *> currentRules; // stack for the nesting of rules
     QList<MimeMagicRule> rules; // toplevel rules
-    QXmlStreamReader reader(dev);
+    QXmlStreamReader reader(content);
     ParseState ps = ParseBeginning;
     QXmlStreamAttributes atts;
     bool ignoreCurrentMimeType = false;

@@ -28,7 +28,8 @@
 
 #include <coreplugin/icore.h>
 
-#include <QDir>
+#include <utils/temporarydirectory.h>
+
 #include <QSettings>
 #include <QCoreApplication>
 
@@ -39,7 +40,7 @@ static const char displayCountKeyC[] = "DisplayCount";
 namespace CodePaster {
 
 FileShareProtocolSettings::FileShareProtocolSettings() :
-        path(QDir::tempPath()), displayCount(10)
+        path(Utils::TemporaryDirectory::masterDirectoryPath()), displayCount(10)
 {
 }
 
@@ -92,12 +93,11 @@ FileShareProtocolSettings FileShareProtocolSettingsWidget::settings() const
 // ----------FileShareProtocolSettingsPage
 FileShareProtocolSettingsPage::FileShareProtocolSettingsPage(const QSharedPointer<FileShareProtocolSettings> &s,
                                                              QObject *parent) :
-    Core::IOptionsPage(parent), m_settings(s), m_widget(0)
+    Core::IOptionsPage(parent), m_settings(s), m_widget(nullptr)
 {
     setId("X.CodePaster.FileSharePaster");
     setDisplayName(tr("Fileshare"));
     setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("CodePaster", Constants::CPASTER_SETTINGS_TR_CATEGORY));
 }
 
 QWidget *FileShareProtocolSettingsPage::widget()

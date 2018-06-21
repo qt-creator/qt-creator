@@ -46,6 +46,9 @@ QtTestSettingsWidget::QtTestSettingsWidget(QWidget *parent)
 void QtTestSettingsWidget::setSettings(const QtTestSettings &settings)
 {
     m_ui.disableCrashhandlerCB->setChecked(settings.noCrashHandler);
+    m_ui.useXMLOutputCB->setChecked(settings.useXMLOutput);
+    m_ui.verboseBenchmarksCB->setChecked(settings.verboseBench);
+    m_ui.logSignalsAndSlotsCB->setChecked(settings.logSignalsSlots);
     switch (settings.metrics) {
     case MetricsType::Walltime:
         m_ui.walltimeRB->setChecked(true);
@@ -72,6 +75,9 @@ QtTestSettings QtTestSettingsWidget::settings() const
     QtTestSettings result;
 
     result.noCrashHandler = m_ui.disableCrashhandlerCB->isChecked();
+    result.useXMLOutput = m_ui.useXMLOutputCB->isChecked();
+    result.verboseBench = m_ui.verboseBenchmarksCB->isChecked();
+    result.logSignalsSlots = m_ui.logSignalsAndSlotsCB->isChecked();
     if (m_ui.walltimeRB->isChecked())
         result.metrics = MetricsType::Walltime;
     else if (m_ui.tickcounterRB->isChecked())
@@ -89,8 +95,7 @@ QtTestSettings QtTestSettingsWidget::settings() const
 QtTestSettingsPage::QtTestSettingsPage(QSharedPointer<IFrameworkSettings> settings,
                                        const ITestFramework *framework)
     : ITestSettingsPage(framework),
-      m_settings(qSharedPointerCast<QtTestSettings>(settings)),
-      m_widget(0)
+      m_settings(qSharedPointerCast<QtTestSettings>(settings))
 {
     setDisplayName(QCoreApplication::translate("QtTestFramework",
                                                QtTest::Constants::FRAMEWORK_SETTINGS_CATEGORY));

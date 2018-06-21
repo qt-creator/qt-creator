@@ -37,19 +37,13 @@ QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(
         ProjectExplorer::RunConfiguration *parent) :
     ProjectExplorer::IRunConfigurationAspect(parent)
 {
-    setProjectSettings(new QmlProfilerSettings());
+    setProjectSettings(new QmlProfilerSettings(parent));
     setGlobalSettings(QmlProfilerPlugin::globalSettings());
     setId(Constants::SETTINGS);
     setDisplayName(QCoreApplication::translate("QmlProfilerRunConfiguration", "QML Profiler Settings"));
     setUsingGlobalSettings(true);
     resetProjectToGlobalSettings();
     setRunConfigWidgetCreator([this] { return new Debugger::AnalyzerRunConfigWidget(this); });
-}
-
-ProjectExplorer::IRunConfigurationAspect *QmlProfilerRunConfigurationAspect::create(
-        ProjectExplorer::RunConfiguration *runConfig) const
-{
-    return new QmlProfilerRunConfigurationAspect(runConfig);
 }
 
 } // Internal

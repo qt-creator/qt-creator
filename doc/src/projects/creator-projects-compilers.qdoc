@@ -40,8 +40,8 @@
     Qt is supported on a variety of 32-bit and 64-bit platforms, and can
     usually be built on each platform with GCC, a vendor-supplied compiler, or
     a third party compiler. In \QC, a \l{glossary-buildandrun-kit}{kit}
-    specifies the compiler and other necessary tools for building and running an
-    application on a particular platform.
+    specifies the compiler and other necessary tools for building an application
+    for and running it on a particular platform.
 
     \QC automatically detects the compilers that are registered by your system
     or by an installer. You can add compilers to build applications by using other
@@ -64,6 +64,8 @@
         \li Clang is a C, C++, Objective C, and Objective C++ front-end for the
             LLVM compiler for Windows, Linux, and \macos.
 
+        \li Nim is the Nim Compiler for Windows, Linux, and \macos.
+
         \li QCC is the interface for compiling C++ applications for QNX.
 
     \endlist
@@ -75,14 +77,14 @@
     For QCC, also specify the path to the QNX Software Development Platform (SDP).
 
     You specify the compiler to use for each kit in \uicontrol Tools >
-    \uicontrol Options > \uicontrol {Build & Run} > \uicontrol Kits.
+    \uicontrol Options > \uicontrol Kits.
 
-    To add compilers:
+    To add C or C++ compilers:
 
     \list 1
 
         \li Select \uicontrol Tools > \uicontrol Options >
-            \uicontrol {Build & Run} > \uicontrol Compilers > \uicontrol Add,
+            \uicontrol Kits > \uicontrol Compilers > \uicontrol Add,
             then select a compiler in the list, and then select \uicontrol C or
             \uicontrol C++ to add a C or C++ compiler.
 
@@ -112,6 +114,13 @@
 
     \endlist
 
+    \section1 Adding Nim Compilers
+
+    To build an application using the Nim Compiler, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Kits > \uicontrol Compilers >
+    \uicontrol Add > \uicontrol Nim, and specify the path to the directory where
+    the compiler is located.
+
     \section1 Adding Custom Compilers
 
     To add a compiler that is not listed above or a remote compiler, use the
@@ -124,7 +133,7 @@
 
     \list 1
 
-        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol {Build & Run} >
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
             \uicontrol Compilers > \uicontrol Add > \uicontrol Custom >
             \uicontrol C or \uicontrol C++.
 

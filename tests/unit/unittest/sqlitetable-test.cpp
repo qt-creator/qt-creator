@@ -27,89 +27,104 @@
 #include "spydummy.h"
 
 #include <sqlitecolumn.h>
-#include <sqlitedatabase.h>
+#include <mocksqlitedatabase.h>
 #include <sqlitetable.h>
-#include <utf8string.h>
-
-#include <QSignalSpy>
-#include <QVariant>
 
 namespace {
+
+using Sqlite::ColumnType;
+using Sqlite::JournalMode;
+using Sqlite::OpenMode;
+using Sqlite::Column;
+using Sqlite::Database;
 
 class SqliteTable : public ::testing::Test
 {
 protected:
-    void SetUp() override;
-    void TearDown() override;
-
-    SqliteColumn *addColumn(const Utf8String &columnName);
-
-    SpyDummy spyDummy;
-    SqliteDatabase *database = nullptr;
-    ::SqliteTable *table = nullptr;
-    Utf8String tableName = Utf8StringLiteral("testTable");
+    NiceMock<MockSqliteDatabase> mockDatabase;
+    Sqlite::Table table;
+    Utils::SmallString tableName = "testTable";
 };
 
 
 TEST_F(SqliteTable, ColumnIsAddedToTable)
 {
-    table->setUseWithoutRowId(true);
+    table.setUseWithoutRowId(true);
 
-    ASSERT_TRUE(table->useWithoutRowId());
+    ASSERT_TRUE(table.useWithoutRowId());
 }
 
 TEST_F(SqliteTable, SetTableName)
 {
-    table->setName(tableName);
+    table.setName(tableName.clone());
 
-    ASSERT_THAT(table->name(), tableName);
+    ASSERT_THAT(table.name(), tableName);
 }
 
 TEST_F(SqliteTable, SetUseWithoutRowid)
 {
-    table->setUseWithoutRowId(true);
+    table.setUseWithoutRowId(true);
 
-    ASSERT_TRUE(table->useWithoutRowId());
+    ASSERT_TRUE(table.useWithoutRowId());
 }
 
-TEST_F(SqliteTable, TableIsReadyAfterOpenDatabase)
+TEST_F(SqliteTable, AddIndex)
 {
-    QSignalSpy signalSpy(&spyDummy, &SpyDummy::tableIsReady);
-    table->setName(tableName);
-    addColumn(Utf8StringLiteral("name"));
+    table.setName(tableName.clone());
+    auto &column = table.addColumn("name");
+    auto &column2 = table.addColumn("value");
 
-    database->open();
+    auto index = table.addIndex({column, column2});
 
-    ASSERT_TRUE(signalSpy.wait(100000));
+    ASSERT_THAT(Utils::SmallStringView(index.sqlStatement()),
+                Eq("CREATE INDEX IF NOT EXISTS index_testTable_name_value ON testTable(name, value)"));
 }
 
-void SqliteTable::SetUp()
+TEST_F(SqliteTable, InitializeTable)
 {
-    table = new ::SqliteTable;
-    QObject::connect(table, &::SqliteTable::tableIsReady, &spyDummy, &SpyDummy::tableIsReady);
+    table.setName(tableName.clone());
+    table.setUseIfNotExists(true);
+    table.setUseTemporaryTable(true);
+    table.setUseWithoutRowId(true);
+    table.addColumn("name");
+    table.addColumn("value");
 
-    database = new SqliteDatabase;
-    database->setJournalMode(JournalMode::Memory);
-    database->setDatabaseFilePath( QStringLiteral(":memory:"));
-    database->addTable(table);
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TEMPORARY TABLE IF NOT EXISTS testTable(name NUMERIC, value NUMERIC) WITHOUT ROWID")));
+
+    table.initialize(mockDatabase);
 }
 
-void SqliteTable::TearDown()
+TEST_F(SqliteTable, InitializeTableWithIndex)
 {
-    database->close();
-    delete database;
-    database = nullptr;
-    table = nullptr;
+    InSequence sequence;
+    table.setName(tableName.clone());
+    auto &column = table.addColumn("name");
+    auto &column2 = table.addColumn("value");
+    table.addIndex({column});
+    table.addIndex({column2});
+
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE testTable(name NUMERIC, value NUMERIC)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_testTable_name ON testTable(name)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_testTable_value ON testTable(value)")));
+
+    table.initialize(mockDatabase);
 }
 
-SqliteColumn *SqliteTable::addColumn(const Utf8String &columnName)
+
+TEST_F(SqliteTable, InitializeTableWithUniqueIndex)
 {
-    SqliteColumn *newSqliteColum = new SqliteColumn;
+    InSequence sequence;
+    table.setName(tableName.clone());
+    auto &column = table.addColumn("name");
+    auto &column2 = table.addColumn("value");
+    table.addUniqueIndex({column});
+    table.addIndex({column2});
 
-    newSqliteColum->setName(columnName);
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE testTable(name NUMERIC, value NUMERIC)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_testTable_name ON testTable(name)")));
+    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_testTable_value ON testTable(value)")));
 
-    table->addColumn(newSqliteColum);
-
-    return newSqliteColum;
+    table.initialize(mockDatabase);
 }
+
 }

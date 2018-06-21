@@ -27,6 +27,7 @@
 
 #include "qnxconstants.h"
 
+#include <projectexplorer/abi.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
@@ -53,22 +54,30 @@ public:
                 && !target.isEmpty() && !version.isEmpty() && !installationXmlFilePath.isEmpty(); }
 };
 
+class QnxTarget
+{
+public:
+    QnxTarget(const Utils::FileName &path, const ProjectExplorer::Abi &abi) :
+        m_path(path), m_abi(abi)
+    {
+    }
+    Utils::FileName m_path;
+    ProjectExplorer::Abi m_abi;
+};
+
 class QnxUtils
 {
 public:
     static QString addQuotes(const QString &string);
-    static Qnx::QnxArchitecture cpudirToArch(const QString &cpuDir);
-    static QStringList searchPaths(Qnx::Internal::QnxQtVersion *qtVersion);
+    static QString cpuDirShortDescription(const QString &cpuDir);
     static QList<Utils::EnvironmentItem> qnxEnvironmentFromEnvFile(const QString &fileName);
-    static QString envFilePath(const QString & ndkPath, const QString& targetVersion = QString());
-    static QString bbDataDirPath();
-    static QString bbqConfigPath();
-    static QString defaultTargetVersion(const QString& ndkPath);
+    static QString envFilePath(const QString &sdpPath);
+    static QString defaultTargetVersion(const QString &sdpPath);
     static QList<ConfigInstallInformation> installedConfigs(const QString &configPath = QString());
-    static QString sdkInstallerPath(const QString& ndkPath);
-    static QString qdeInstallProcess(const QString& ndkPath, const QString &target,
-                                     const QString &option, const QString &version = QString());
-    static QList<Utils::EnvironmentItem> qnxEnvironment(const QString &ndk);
+    static QList<Utils::EnvironmentItem> qnxEnvironment(const QString &sdpPath);
+    static QList<QnxTarget> findTargets(const Utils::FileName &basePath);
+    static ProjectExplorer::Abi convertAbi(const ProjectExplorer::Abi &abi);
+    static QList<ProjectExplorer::Abi> convertAbis(const QList<ProjectExplorer::Abi> &abis);
 };
 
 } // namespace Internal

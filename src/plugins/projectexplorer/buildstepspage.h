@@ -115,16 +115,14 @@ private:
     void updateBuildStepButtonsState();
     void addBuildStepWidget(int pos, BuildStep *step);
 
-    BuildStepList *m_buildStepList;
+    BuildStepList *m_buildStepList = nullptr;
 
     QList<Internal::BuildStepsWidgetData *> m_buildStepsData;
 
-    QVBoxLayout *m_vbox;
+    QVBoxLayout *m_vbox = nullptr;
 
-    QLabel *m_noStepsLabel;
-    QPushButton *m_addButton;
-
-    int m_leftMargin;
+    QLabel *m_noStepsLabel = nullptr;
+    QPushButton *m_addButton = nullptr;
 };
 
 namespace Ui { class BuildStepsPage; }

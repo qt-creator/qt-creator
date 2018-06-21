@@ -43,6 +43,9 @@
 #include <QToolButton>
 
 #include <aggregation/aggregate.h>
+
+#include <app/app_version.h>
+
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/find/basetextfind.h>
@@ -347,7 +350,7 @@ public:
 LogWindow::LogWindow(QWidget *parent)
   : QWidget(parent)
 {
-    setWindowTitle(tr("Debugger Log"));
+    setWindowTitle(tr("Debugger &Log"));
     setObjectName(QLatin1String("Log"));
 
     m_ignoreNextInputEcho = false;
@@ -430,14 +433,16 @@ LogWindow::LogWindow(QWidget *parent)
     setMinimumHeight(60);
 
     showOutput(LogWarning,
-        tr("NOTE: This log contains possibly confidential information about your machine, "
+        tr("Note: This log contains possibly confidential information about your machine, "
            "environment variables, in-memory data of the processes you are debugging, and more. "
-           "It is never transferred over the internet by Qt Creator, and only stored "
+           "It is never transferred over the internet by %1, and only stored "
            "to disk if you manually use the respective option from the context menu, or through "
-           "mechanisms that are not under Qt Creator's control, for instance in swap files.\n"
+           "mechanisms that are not under the control of %1's Debugger plugin, "
+           "for instance in swap files, or other plugins you might use.\n"
            "You may be asked to share the contents of this log when reporting bugs related "
            "to debugger operation. In this case, make sure your submission does not "
-           "contain data you do not want to or you are not allowed to share.\n\n"));
+           "contain data you do not want to or you are not allowed to share.\n\n")
+               .arg(Core::Constants::IDE_DISPLAY_NAME));
 }
 
 void LogWindow::executeLine()

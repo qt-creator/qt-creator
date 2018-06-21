@@ -70,7 +70,7 @@ public:
 
     Type type() const
     {
-        return Action;
+        return FormEditorAction;
     }
 
 protected:
@@ -159,7 +159,7 @@ void ColorTool::itemsAboutToRemoved(const QList<FormEditorItem*> &removedItemLis
     if (m_colorDialog.isNull())
         return;
 
-    if (removedItemList.contains(m_formEditorItem.data()))
+    if (removedItemList.contains(m_formEditorItem))
         view()->changeToSelectionTool();
 }
 
@@ -167,20 +167,20 @@ void ColorTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
 {
     if (m_colorDialog.data()
             && m_oldColor.isValid())
-        m_formEditorItem.data()->qmlItemNode().setVariantProperty("color", m_oldColor);
+        m_formEditorItem->qmlItemNode().setVariantProperty("color", m_oldColor);
 
     if (!itemList.isEmpty()
-            && itemList.first()->qmlItemNode().modelNode().metaInfo().hasProperty("color")) {
-        m_formEditorItem = itemList.first();
-        m_oldColor =  m_formEditorItem.data()->qmlItemNode().modelValue("color").value<QColor>();
+            && itemList.constFirst()->qmlItemNode().modelNode().metaInfo().hasProperty("color")) {
+        m_formEditorItem = itemList.constFirst();
+        m_oldColor =  m_formEditorItem->qmlItemNode().modelValue("color").value<QColor>();
 
         if (m_colorDialog.isNull()) {
             m_colorDialog = new QColorDialog(view()->formEditorWidget()->parentWidget());
             m_colorDialog.data()->setCurrentColor(m_oldColor);
 
-            connect(m_colorDialog.data(), SIGNAL(accepted()), SLOT(colorDialogAccepted()));
-            connect(m_colorDialog.data(), SIGNAL(rejected()), SLOT(colorDialogRejected()));
-            connect(m_colorDialog.data(), SIGNAL(currentColorChanged(QColor)), SLOT(currentColorChanged(QColor)));
+            connect(m_colorDialog.data(), &QDialog::accepted, this, &ColorTool::colorDialogAccepted);
+            connect(m_colorDialog.data(), &QDialog::rejected, this, &ColorTool::colorDialogRejected);
+            connect(m_colorDialog.data(), &QColorDialog::currentColorChanged, this, &ColorTool::currentColorChanged);
 
             m_colorDialog.data()->exec();
         }
@@ -227,9 +227,9 @@ void ColorTool::colorDialogRejected()
 {
     if (m_formEditorItem) {
         if (m_oldColor.isValid())
-            m_formEditorItem.data()->qmlItemNode().setVariantProperty("color", m_oldColor);
+            m_formEditorItem->qmlItemNode().setVariantProperty("color", m_oldColor);
         else
-            m_formEditorItem.data()->qmlItemNode().removeProperty("color");
+            m_formEditorItem->qmlItemNode().removeProperty("color");
 
     }
 
@@ -239,7 +239,7 @@ void ColorTool::colorDialogRejected()
 void ColorTool::currentColorChanged(const QColor &color)
 {
     if (m_formEditorItem) {
-        m_formEditorItem.data()->qmlItemNode().setVariantProperty("color", color);
+        m_formEditorItem->qmlItemNode().setVariantProperty("color", color);
     }
 }
 

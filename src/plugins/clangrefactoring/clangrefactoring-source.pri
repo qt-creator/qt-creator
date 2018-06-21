@@ -1,19 +1,34 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
-    $$PWD/refactoringengine.h \
-    $$PWD/refactoringconnectionclient.h \
-    $$PWD/refactoringclient.h \
-    $$PWD/searchinterface.h \
-    $$PWD/searchhandleinterface.h \
+    $$PWD/clangqueryexamplehighlighter.h \
+    $$PWD/clangqueryexamplehighlightmarker.h \
+    $$PWD/clangqueryhighlighter.h \
+    $$PWD/clangqueryhighlightmarker.h \
+    $$PWD/clangqueryprojectsfindfilter.h \
     $$PWD/projectpartutilities.h \
-    $$PWD/clangqueryprojectsfindfilter.h
+    $$PWD/refactoringclient.h \
+    $$PWD/refactoringconnectionclient.h \
+    $$PWD/refactoringengine.h \
+    $$PWD/refactoringprojectupdater.h \
+    $$PWD/searchinterface.h \
+    $$PWD/searchhandle.h \
+    $$PWD/symbolsfindfilter.h \
+    $$PWD/symbolqueryinterface.h \
+    $$PWD/symbol.h \
+    $$PWD/projectpartproviderinterface.h \
+    $$PWD/editormanagerinterface.h \
+    $$PWD/locatorfilter.h
 
 SOURCES += \
-    $$PWD/refactoringengine.cpp \
-    $$PWD/refactoringconnectionclient.cpp \
-    $$PWD/refactoringclient.cpp \
-    $$PWD/searchinterface.cpp \
-    $$PWD/searchhandleinterface.cpp \
+    $$PWD/clangqueryexamplehighlighter.cpp \
+    $$PWD/clangqueryhighlighter.cpp \
+    $$PWD/clangqueryprojectsfindfilter.cpp \
     $$PWD/projectpartutilities.cpp \
-    $$PWD/clangqueryprojectsfindfilter.cpp
+    $$PWD/refactoringclient.cpp \
+    $$PWD/refactoringconnectionclient.cpp \
+    $$PWD/refactoringengine.cpp \
+    $$PWD/refactoringprojectupdater.cpp \
+    $$PWD/searchhandle.cpp \
+    $$PWD/symbolsfindfilter.cpp \
+    $$PWD/locatorfilter.cpp

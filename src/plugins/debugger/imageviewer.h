@@ -43,15 +43,13 @@ class ImageViewer : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ImageViewer(QWidget *parent = 0);
+    explicit ImageViewer(QWidget *parent = nullptr);
 
     void setImage(const QImage &image);
     void setInfo(const QString &description);
 
-protected:
-    void contextMenuEvent(QContextMenuEvent *);
-
 private:
+    void contextMenuEvent(QContextMenuEvent *) final;
     void clicked(const QString &);
 
     QScrollArea *m_scrollArea;
@@ -64,13 +62,13 @@ class PlotViewer : public QWidget
 {
     Q_OBJECT
 public:
-    explicit PlotViewer(QWidget *parent = 0);
+    explicit PlotViewer(QWidget *parent = nullptr);
 
     typedef std::vector<double> Data;
     void setData(const Data &data);
     void setInfo(const QString &description);
 
-    void paintEvent(QPaintEvent *ev);
+    void paintEvent(QPaintEvent *ev) final;
 
 private:
     Data m_data;

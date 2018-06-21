@@ -3,7 +3,7 @@
     \"Version\" : \"$$QTCREATOR_VERSION\",
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
     \"Vendor\" : \"The Qt Company Ltd\",
-    \"Copyright\" : \"(C) 2016 The Qt Company Ltd\",
+    \"Copyright\" : \"(C) $$QTCREATOR_COPYRIGHT_YEAR The Qt Company Ltd\",
     \"License\" : [ \"Commercial Usage\",
                   \"\",
                   \"Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.\",
@@ -15,5 +15,17 @@
     \"Category\" : \"Qt Quick\",
     \"Description\" : \"Qt Quick support\",
     \"Url\" : \"http://www.qt.io\",
-    $$dependencyList
+    $$dependencyList,
+
+    \"Mimetypes\" : [
+        \"<?xml version=\'1.0\'?>\",
+
+        \"<mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>\",
+        \"  <mime-type type=\'application/x-qmlproject\'>\",
+        \"    <sub-class-of type=\'text/x-qml\'/>\",
+        \"    <comment>QML Project file</comment>\",
+        \"    <glob pattern=\'*.qmlproject\'/>\",
+        \"  </mime-type>\",
+        \"</mime-info>\"
+    ]
 }

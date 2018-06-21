@@ -231,12 +231,12 @@ QPalette ManhattanStyle::standardPalette() const
 
 void ManhattanStyle::polish(QApplication *app)
 {
-    return QProxyStyle::polish(app);
+    QProxyStyle::polish(app);
 }
 
 void ManhattanStyle::unpolish(QApplication *app)
 {
-    return QProxyStyle::unpolish(app);
+    QProxyStyle::unpolish(app);
 }
 
 QPalette panelPalette(const QPalette &oldPalette, bool lightColored = false)
@@ -288,6 +288,12 @@ void ManhattanStyle::polish(QWidget *widget)
         } else if (qobject_cast<QStatusBar*>(widget)) {
             widget->setFixedHeight(StyleHelper::navigationWidgetHeight() + 2);
         } else if (qobject_cast<QComboBox*>(widget)) {
+            const bool isLightColored = lightColored(widget);
+            QPalette palette = panelPalette(widget->palette(), isLightColored);
+            if (!isLightColored)
+                palette.setBrush(QPalette::All, QPalette::Foreground,
+                                 creatorTheme()->color(Theme::ComboBoxTextColor));
+            widget->setPalette(palette);
             widget->setMaximumHeight(StyleHelper::navigationWidgetHeight() - 2);
             widget->setAttribute(Qt::WA_Hover);
         }
@@ -381,8 +387,10 @@ int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const 
 void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option,
                                    QPainter *painter, const QWidget *widget) const
 {
-    if (!panelWidget(widget))
-        return QProxyStyle::drawPrimitive(element, option, painter, widget);
+    if (!panelWidget(widget)) {
+        QProxyStyle::drawPrimitive(element, option, painter, widget);
+        return;
+    }
 
     bool animating = (option->state & State_Animating);
     int state = option->state;
@@ -614,30 +622,12 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
 void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *option,
                                  QPainter *painter, const QWidget *widget) const
 {
-    if (!panelWidget(widget) && !qobject_cast<const QMenu *>(widget))
-        return QProxyStyle::drawControl(element, option, painter, widget);
+    if (!panelWidget(widget) && !qobject_cast<const QMenu *>(widget)) {
+        QProxyStyle::drawControl(element, option, painter, widget);
+        return;
+    }
 
     switch (element) {
-    case CE_TabBarTabShape:
-        // Most styles draw a single dark outline. This looks rather ugly when combined with our
-        // single pixel dark separator so we adjust the first tab to compensate for this
-
-        if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
-            QStyleOptionTab adjustedTab = *tab;
-            if (tab->cornerWidgets == QStyleOptionTab::NoCornerWidgets && (
-                    tab->position == QStyleOptionTab::Beginning ||
-                    tab->position == QStyleOptionTab::OnlyOneTab))
-            {
-                if (option->direction == Qt::LeftToRight)
-                    adjustedTab.rect = adjustedTab.rect.adjusted(-1, 0, 0, 0);
-                else
-                    adjustedTab.rect = adjustedTab.rect.adjusted(0, 0, 1 ,0);
-            }
-            QProxyStyle::drawControl(element, &adjustedTab, painter, widget);
-            return;
-        }
-        break;
-
     case CE_MenuItem:
         painter->save();
         if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
@@ -746,9 +736,9 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                     painter->setPen(StyleHelper::toolBarDropShadowColor());
                     painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, text);
                 }
-                painter->setPen(creatorTheme()->color((option->state & State_Enabled)
-                                                      ? Theme::ComboBoxTextColor
-                                                      : Theme::IconsDisabledColor));
+                painter->setPen((option->state & State_Enabled)
+                                  ? option->palette.color(QPalette::Foreground)
+                                  : creatorTheme()->color(Theme::IconsDisabledColor));
                 painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, text);
 
                 painter->restore();

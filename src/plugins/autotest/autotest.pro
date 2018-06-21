@@ -49,7 +49,8 @@ SOURCES += \
     quick/quicktestvisitors.cpp \
     quick/quicktestframework.cpp \
     quick/quicktest_utils.cpp \
-    testframeworkmanager.cpp
+    testframeworkmanager.cpp \
+    testeditormark.cpp
 
 
 HEADERS += \
@@ -59,7 +60,6 @@ HEADERS += \
     testcodeparser.h \
     autotestplugin.h \
     autotest_global.h \
-    autotest_utils.h \
     autotestconstants.h \
     testrunner.h \
     testconfiguration.h \
@@ -106,7 +106,8 @@ HEADERS += \
     quick/quicktestframework.h \
     testframeworkmanager.h \
     testrunconfiguration.h \
-    itestsettingspage.h
+    itestsettingspage.h \
+    testeditormark.h
 
 RESOURCES += \
     autotest.qrc

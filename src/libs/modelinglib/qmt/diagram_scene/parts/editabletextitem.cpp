@@ -76,7 +76,7 @@ void EditableTextItem::selectAll()
 
 void EditableTextItem::keyPressEvent(QKeyEvent *event)
 {
-    if ((event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) && m_filterReturnKey) {
+    if (isReturnKey(event) && m_filterReturnKey) {
         event->accept();
         emit returnKeyPressed();
     } else if (event->key() == Qt::Key_Tab && m_filterTabKey) {
@@ -88,8 +88,7 @@ void EditableTextItem::keyPressEvent(QKeyEvent *event)
 
 void EditableTextItem::keyReleaseEvent(QKeyEvent *event)
 {
-    if (((event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) && m_filterReturnKey)
-            || (event->key() == Qt::Key_Tab && m_filterTabKey))
+    if (isReturnKey(event) && m_filterReturnKey)
         event->accept();
     else
         QGraphicsTextItem::keyReleaseEvent(event);
@@ -109,6 +108,12 @@ void EditableTextItem::focusOutEvent(QFocusEvent *event)
     QTextCursor cursor = textCursor();
     cursor.clearSelection();
     setTextCursor(cursor);
+}
+
+bool EditableTextItem::isReturnKey(QKeyEvent *event) const
+{
+    return (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
+            && (event->modifiers() & (Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier)) == 0;
 }
 
 } // namespace qmt

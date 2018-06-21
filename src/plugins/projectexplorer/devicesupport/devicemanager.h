@@ -85,9 +85,8 @@ private:
 
     void load();
     static const IDeviceFactory *restoreFactory(const QVariantMap &map);
-    QList<IDevice::Ptr> fromMap(const QVariantMap &map);
+    QList<IDevice::Ptr> fromMap(const QVariantMap &map, QHash<Core::Id, Core::Id> *defaultDevices);
     QVariantMap toMap() const;
-    void ensureOneDefaultDevicePerType();
 
     // For SettingsWidget.
     IDevice::Ptr mutableDevice(Core::Id id) const;
@@ -95,10 +94,6 @@ private:
     static DeviceManager *cloneInstance();
     static void replaceInstance();
     static void removeClonedInstance();
-
-    // For IDevice.
-    IDevice::Ptr fromRawPointer(IDevice *device) const;
-    IDevice::ConstPtr fromRawPointer(const IDevice *device) const;
 
     static QString hostKeysFilePath();
     QSharedPointer<QSsh::SshHostKeyDatabase> hostKeyDatabase() const;
@@ -112,6 +107,7 @@ private:
 
     friend class Internal::DeviceManagerPrivate;
     friend class ProjectExplorerPlugin;
+    friend class ProjectExplorerPluginPrivate;
 };
 
 } // namespace ProjectExplorer

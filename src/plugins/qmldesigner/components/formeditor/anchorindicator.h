@@ -52,7 +52,7 @@ public:
 
 private:
     QPointer<LayerItem> m_layerItem;
-    QPointer<FormEditorItem> m_formEditorItem;
+    FormEditorItem *m_formEditorItem = nullptr;
     QPointer<AnchorIndicatorGraphicsItem> m_indicatorTopShape;
     QPointer<AnchorIndicatorGraphicsItem> m_indicatorBottomShape;
     QPointer<AnchorIndicatorGraphicsItem> m_indicatorLeftShape;

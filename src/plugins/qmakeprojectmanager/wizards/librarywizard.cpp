@@ -51,7 +51,7 @@ LibraryWizard::LibraryWizard()
                 "<li>a shared C++ library for use with <tt>QPluginLoader</tt> and runtime (Plugins)</li>"
                 "<li>a shared or static C++ library for use with another project at linktime</li></ul>"));
     setIcon(QIcon(QLatin1String(":/wizards/images/lib.png")));
-    setRequiredFeatures({ QtSupport::Constants::FEATURE_QT_PREFIX });
+    setRequiredFeatures({QtSupport::Constants::FEATURE_QT_PREFIX});
 }
 
 Core::BaseFileWizard *LibraryWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
@@ -132,12 +132,14 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
         QTextStream proStr(&profileContents);
         QtProjectParameters::writeProFileHeader(proStr);
         projectParams.writeProFile(proStr);
-        proStr << "\nSOURCES += " << Utils::FileName::fromString(source.path()).fileName()
-               << "\n\nHEADERS += " << headerFileName;
+        proStr << "\nSOURCES +="
+               << " \\\n        " << Utils::FileName::fromString(source.path()).fileName()
+               << "\n\nHEADERS +="
+               << " \\\n        " << headerFileName;
         if (!globalHeaderFileName.isEmpty())
-            proStr << "\\\n        " << globalHeaderFileName << '\n';
+            proStr << " \\\n        " << globalHeaderFileName << " \n";
         if (!pluginJsonFileName.isEmpty())
-            proStr << "\nDISTFILES += " << pluginJsonFileName << '\n';
+            proStr << "\nDISTFILES += " << pluginJsonFileName << " \n";
         writeLinuxProFile(proStr);
     }
     profile.setContents(profileContents);

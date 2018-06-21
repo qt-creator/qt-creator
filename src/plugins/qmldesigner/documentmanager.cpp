@@ -34,15 +34,18 @@
 #include <bindingproperty.h>
 #include <variantproperty.h>
 
+#include <utils/qtcassert.h>
 #include <utils/textfileformat.h>
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projecttree.h>
+#include <projectexplorer/session.h>
 
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <qmakeprojectmanager/qmakeproject.h>
@@ -80,6 +83,7 @@ static inline QHash<PropertyName, QVariant> getProperties(const ModelNode &node)
             propertyHash.remove("opacity");
         }
     }
+
     return propertyHash;
 }
 
@@ -137,7 +141,7 @@ static void openComponentSourcePropertyOfLoader(const ModelNode &modelNode)
      * the default property is always implcitly a NodeListProperty. This is something that has to be fixed.
      */
 
-        componentModelNode = modelNode.nodeListProperty("component").toModelNodeList().first();
+        componentModelNode = modelNode.nodeListProperty("component").toModelNodeList().constFirst();
     }
 
     Core::EditorManager::openEditor(componentModelNode.metaInfo().componentFileName(), Core::Id(), Core::EditorManager::DoNotMakeVisible);
@@ -148,9 +152,9 @@ static void openSourcePropertyOfLoader(const ModelNode &modelNode)
     QmlDesignerPlugin::instance()->viewManager().nextFileIsCalledInternally();
 
     QString componentFileName = modelNode.variantProperty("source").value().toString();
-    QString componentFilePath = modelNode.model()->fileUrl().resolved(QUrl::fromLocalFile(componentFileName)).toLocalFile();
 
-    Core::EditorManager::openEditor(componentFilePath, Core::Id(), Core::EditorManager::DoNotMakeVisible);
+    QFileInfo fileInfo(modelNode.model()->fileUrl().toLocalFile());
+    Core::EditorManager::openEditor(fileInfo.absolutePath() + "/" + componentFileName, Core::Id(), Core::EditorManager::DoNotMakeVisible);
 }
 
 
@@ -325,9 +329,24 @@ Utils::FileName DocumentManager::currentFilePath()
     return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName();
 }
 
+Utils::FileName DocumentManager::currentProjectDirPath()
+{
+    QTC_ASSERT(QmlDesignerPlugin::instance(), return {});
+
+    if (!QmlDesignerPlugin::instance()->currentDesignDocument())
+        return {};
+
+    Utils::FileName qmlFileName = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(qmlFileName);
+    if (!project)
+        return {};
+
+    return project->projectDirectory();
+}
+
 QStringList DocumentManager::isoIconsQmakeVariableValue(const QString &proPath)
 {
-    ProjectExplorer::Node *node = ProjectExplorer::SessionManager::nodeForFile(Utils::FileName::fromString(proPath));
+    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FileName::fromString(proPath));
     if (!node) {
         qCWarning(documentManagerLog) << "No node for .pro:" << proPath;
         return QStringList();
@@ -345,12 +364,12 @@ QStringList DocumentManager::isoIconsQmakeVariableValue(const QString &proPath)
         return QStringList();
     }
 
-    return proNode->variableValue(QmakeProjectManager::IsoIconsVar);
+    return proNode->variableValue(QmakeProjectManager::Variable::IsoIcons);
 }
 
 bool DocumentManager::setIsoIconsQmakeVariableValue(const QString &proPath, const QStringList &value)
 {
-    ProjectExplorer::Node *node = ProjectExplorer::SessionManager::nodeForFile(Utils::FileName::fromString(proPath));
+    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FileName::fromString(proPath));
     if (!node) {
         qCWarning(documentManagerLog) << "No node for .pro:" << proPath;
         return false;
@@ -369,7 +388,10 @@ bool DocumentManager::setIsoIconsQmakeVariableValue(const QString &proPath, cons
     }
 
     int flags = QmakeProjectManager::Internal::ProWriter::ReplaceValues | QmakeProjectManager::Internal::ProWriter::MultiLine;
-    return proNode->setProVariable("ISO_ICONS", value, QString(), flags);
+    QmakeProjectManager::QmakeProFile *pro = proNode->proFile();
+    if (pro)
+        return pro->setProVariable("ISO_ICONS", value, QString(), flags);
+    return false;
 }
 
 void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, QString *resourceFilePath,
@@ -377,7 +399,7 @@ void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, 
 {
     Utils::FileName qmlFileName = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(qmlFileName);
-    ProjectExplorer::Node *node = ProjectExplorer::SessionManager::nodeForFile(qmlFileName)->parentFolderNode();
+    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(qmlFileName)->parentFolderNode();
     ProjectExplorer::Node *iconQrcFileNode = nullptr;
 
     while (node && !iconQrcFileNode) {
@@ -416,11 +438,11 @@ void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, 
         *resourceFilePath = project->projectDirectory().toString() + "/" + isoIconsQrcFile;
 
         // We assume that the .pro containing the QML file is an acceptable place to add the .qrc file.
-        ProjectExplorer::ProjectNode *projectNode = ProjectExplorer::SessionManager::nodeForFile(qmlFileName)->parentProjectNode();
+        ProjectExplorer::ProjectNode *projectNode = ProjectExplorer::ProjectTree::nodeForFile(qmlFileName)->parentProjectNode();
         *resourceFileProPath = projectNode->filePath().toString();
     } else {
         // We found the QRC file that we want.
-        QString projectDirectory = ProjectExplorer::SessionManager::projectForNode(iconQrcFileNode)->projectDirectory().toString();
+        QString projectDirectory = ProjectExplorer::ProjectTree::projectForNode(iconQrcFileNode)->projectDirectory().toString();
         *resourceFilePath = projectDirectory + "/" + isoIconsQrcFile;
     }
 
@@ -429,11 +451,13 @@ void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, 
 
 bool DocumentManager::isoProFileSupportsAddingExistingFiles(const QString &resourceFileProPath)
 {
-    ProjectExplorer::Node *node = ProjectExplorer::SessionManager::nodeForFile(Utils::FileName::fromString(resourceFileProPath));
+    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FileName::fromString(resourceFileProPath));
     if (!node || !node->parentFolderNode())
         return false;
     ProjectExplorer::ProjectNode *projectNode = node->parentFolderNode()->asProjectNode();
-    if (!projectNode || !projectNode->supportedActions(projectNode).contains(ProjectExplorer::AddExistingFile)) {
+    if (!projectNode)
+        return false;
+    if (!projectNode->supportsAction(ProjectExplorer::AddExistingFile, projectNode)) {
         qCWarning(documentManagerLog) << "Project" << projectNode->displayName() << "does not support adding existing files";
         return false;
     }
@@ -443,18 +467,35 @@ bool DocumentManager::isoProFileSupportsAddingExistingFiles(const QString &resou
 
 bool DocumentManager::addResourceFileToIsoProject(const QString &resourceFileProPath, const QString &resourceFilePath)
 {
-    ProjectExplorer::Node *node = ProjectExplorer::SessionManager::nodeForFile(Utils::FileName::fromString(resourceFileProPath));
+    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FileName::fromString(resourceFileProPath));
     if (!node || !node->parentFolderNode())
         return false;
     ProjectExplorer::ProjectNode *projectNode = node->parentFolderNode()->asProjectNode();
     if (!projectNode)
         return false;
 
-    if (!projectNode->addFiles(QStringList() << resourceFilePath)) {
+    if (!projectNode->addFiles({resourceFilePath})) {
         qCWarning(documentManagerLog) << "Failed to add resource file to" << projectNode->displayName();
         return false;
     }
     return true;
+}
+
+bool DocumentManager::belongsToQmakeProject()
+{
+    QTC_ASSERT(QmlDesignerPlugin::instance(), return false);
+
+    if (!QmlDesignerPlugin::instance()->currentDesignDocument())
+        return false;
+
+    Utils::FileName qmlFileName = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(qmlFileName);
+    if (!project)
+        return false;
+
+    ProjectExplorer::Node *rootNode = project->rootProjectNode();
+    QmakeProjectManager::QmakeProFileNode *proNode = dynamic_cast<QmakeProjectManager::QmakeProFileNode*>(rootNode);
+    return proNode;
 }
 
 

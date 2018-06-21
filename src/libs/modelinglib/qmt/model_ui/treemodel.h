@@ -68,7 +68,7 @@ public:
         RoleItemType = Qt::UserRole + 1
     };
 
-    explicit TreeModel(QObject *parent = 0);
+    explicit TreeModel(QObject *parent = nullptr);
     ~TreeModel() override;
 
     ModelController *modelController() const { return m_modelController; }
@@ -111,6 +111,7 @@ private:
     ModelItem *createItem(const MElement *element);
     void createChildren(const MObject *parentObject, ModelItem *parentItem);
     void removeObjectFromItemMap(const MObject *object);
+    QString filterLabel(const QString &label) const;
     QString createObjectLabel(const MObject *object);
     QString createRelationLabel(const MRelation *relation);
     QIcon createIcon(StereotypeIcon::Element stereotypeIconElement,

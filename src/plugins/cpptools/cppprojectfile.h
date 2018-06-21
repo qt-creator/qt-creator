@@ -36,6 +36,7 @@ class CPPTOOLS_EXPORT ProjectFile
 public:
     enum Kind {
         Unclassified,
+        Unsupported,
         AmbiguousHeader,
         CHeader,
         CSource,
@@ -55,6 +56,9 @@ public:
     static bool isHeader(Kind kind);
     static bool isAmbiguousHeader(const QString &filePath);
 
+    bool isHeader() const;
+    bool isSource() const;
+
 public:
     ProjectFile() = default;
     ProjectFile(const QString &filePath, Kind kind);
@@ -67,6 +71,7 @@ public:
 
 using ProjectFiles = QVector<ProjectFile>;
 
+const char *projectFileKindToText(ProjectFile::Kind kind);
 QDebug operator<<(QDebug stream, const CppTools::ProjectFile &projectFile);
 
 } // namespace CppTools

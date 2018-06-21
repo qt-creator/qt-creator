@@ -75,12 +75,12 @@ MimeProviderBase::MimeProviderBase(MimeDatabasePrivate *db)
 {
 }
 
-int qmime_secondsBetweenChecks = 5;
+static int mime_secondsBetweenChecks = 5;
 
 bool MimeProviderBase::shouldCheck()
 {
     const QDateTime now = QDateTime::currentDateTime();
-    if (m_lastCheck.isValid() && m_lastCheck.secsTo(now) < qmime_secondsBetweenChecks)
+    if (m_lastCheck.isValid() && m_lastCheck.secsTo(now) < mime_secondsBetweenChecks)
         return false;
     m_lastCheck = now;
     return true;
@@ -782,16 +782,16 @@ void MimeXMLProvider::setMagicRulesForMimeType(const MimeType &mimeType, const Q
 void MimeXMLProvider::ensureLoaded()
 {
     if (!m_loaded /*|| shouldCheck()*/) {
+        m_loaded = true;
 //        bool fdoXmlFound = false;
-        // add custom mime types first, which overrides any default from freedesktop.org.xml
-        QStringList allFiles = m_additionalFiles;
+        QStringList allFiles;
 
 //        const QStringList packageDirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QLatin1String("mime/packages"), QStandardPaths::LocateDirectory);
 //        //qDebug() << "packageDirs=" << packageDirs;
-//        foreach (const QString &packageDir, packageDirs) {
+//        for (const QString &packageDir : packageDirs) {
 //            QDir dir(packageDir);
 //            const QStringList files = dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
-//            //qDebug() << static_cast<const void *>(this) << Q_FUNC_INFO << packageDir << files;
+//            //qDebug() << static_cast<const void *>(this) << packageDir << files;
 //            if (!fdoXmlFound)
 //                fdoXmlFound = files.contains(QLatin1String("freedesktop.org.xml"));
 //            QStringList::const_iterator endIt(files.constEnd());
@@ -802,13 +802,18 @@ void MimeXMLProvider::ensureLoaded()
 
 //        if (!fdoXmlFound) {
 //            // We could instead install the file as part of installing Qt?
+<<<<<<< HEAD
             // allFiles.append(QLatin1String(":/qt-project.org/qmime/freedesktop.org.xml"));
             allFiles.append(QLatin1String("/opt/Qt/Current/Src/qtbase/src/corelib/mimetypes/mime/packages/freedesktop.org.xml"));
+=======
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+              const char freedesktopOrgXml[] = ":/qt-project.org/qmime/packages/freedesktop.org.xml";
+#else
+              const char freedesktopOrgXml[] = ":/qt-project.org/qmime/freedesktop.org.xml";
+#endif
+            allFiles.prepend(QLatin1String(freedesktopOrgXml));
+>>>>>>> 10d4792c855dabe2ac26a4c1f417fca08f0b442c
 //        }
-
-        if (m_allFiles == allFiles)
-            return;
-        m_allFiles = allFiles;
 
         m_nameMimeTypeMap.clear();
         m_aliases.clear();
@@ -818,6 +823,17 @@ void MimeXMLProvider::ensureLoaded()
 
         //qDebug() << "Loading" << m_allFiles;
 
+        // add custom mime types first, which override any default from freedesktop.org.xml
+        MimeTypeParser parser(*this);
+        QHashIterator<QString, QByteArray> it(m_additionalData);
+        while (it.hasNext()) {
+            it.next();
+            QString errorMessage;
+            if (!parser.parse(it.value(), it.key(), &errorMessage)) {
+                qWarning("MimeDatabase: Error loading %s\n%s", qPrintable(it.key()),
+                         qPrintable(errorMessage));
+            }
+        }
         foreach (const QString &file, allFiles)
             load(file);
     }
@@ -844,8 +860,9 @@ bool MimeXMLProvider::load(const QString &fileName, QString *errorMessage)
     if (errorMessage)
         errorMessage->clear();
 
+    const QByteArray content = file.readAll();
     MimeTypeParser parser(*this);
-    return parser.parse(&file, fileName, errorMessage);
+    return parser.parse(content, fileName, errorMessage);
 }
 
 void MimeXMLProvider::addGlobPattern(const MimeGlobPattern &glob)
@@ -904,8 +921,10 @@ void MimeXMLProvider::addMagicMatcher(const MimeMagicRuleMatcher &matcher)
     m_magicMatchers.append(matcher);
 }
 
-void MimeXMLProvider::addFile(const QString &filePath)
+void MimeXMLProvider::addData(const QString &id, const QByteArray &data)
 {
-    m_additionalFiles.append(filePath);
+    if (m_additionalData.contains(id))
+        qWarning("Overwriting data in mime database, id '%s'", qPrintable(id));
+    m_additionalData.insert(id, data);
     m_loaded = false; // force reload to ensure correct load order for overridden mime types
 }

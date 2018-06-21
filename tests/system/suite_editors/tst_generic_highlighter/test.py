@@ -131,7 +131,8 @@ def addHighlighterDefinition(language):
             clickItem(table, "%d/0" % row, 5, 5, 0, Qt.LeftButton)
             clickButton("{name='downloadButton' text='Download Selected Definitions' "
                         "type='QPushButton' visible='1'}")
-            # downloading happens asynchronously
+            # downloading happens asynchronously but may take a little time
+            progressBarWait(10000)
             languageFile = os.path.join(tmpSettingsDir, "QtProject", "qtcreator",
                                         "generic-highlighter", "%s.xml"
                                         % language.lower().replace(" ", "-"))

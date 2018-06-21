@@ -30,6 +30,7 @@
 #include <coreplugin/helpmanager.h>
 #include <texteditor/texteditor.h>
 #include <utils/htmldocextractor.h>
+#include <utils/executeondestruction.h>
 
 #include <QTextBlock>
 #include <QUrl>
@@ -39,13 +40,17 @@ using namespace Core;
 namespace QmakeProjectManager {
 namespace Internal {
 
-ProFileHoverHandler::ProFileHoverHandler(const TextEditor::Keywords &keywords)
-    : m_keywords(keywords)
+ProFileHoverHandler::ProFileHoverHandler()
+    : m_keywords(qmakeKeywords())
 {
 }
 
-void ProFileHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget, int pos)
+void ProFileHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
+                                        int pos,
+                                        ReportPriority report)
 {
+    Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
+
     m_docFragment.clear();
     m_manualKind = UnknownManual;
     if (!editorWidget->extraSelectionTooltip(pos).isEmpty()) {

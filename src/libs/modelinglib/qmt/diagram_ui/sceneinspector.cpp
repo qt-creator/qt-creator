@@ -38,8 +38,7 @@
 namespace qmt {
 
 SceneInspector::SceneInspector(QObject *parent)
-    : QObject(parent),
-      m_diagramsManager(0)
+    : QObject(parent)
 {
 }
 
@@ -86,7 +85,7 @@ IMoveable *SceneInspector::moveable(const DElement *element, const MDiagram *dia
         }
     }
     QMT_CHECK(false);
-    return 0;
+    return nullptr;
 }
 
 IResizable *SceneInspector::resizable(const DElement *element, const MDiagram *diagram) const
@@ -102,7 +101,7 @@ IResizable *SceneInspector::resizable(const DElement *element, const MDiagram *d
         }
     }
     QMT_CHECK(false);
-    return 0;
+    return nullptr;
 }
 
 } // namespace qmt

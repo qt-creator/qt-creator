@@ -26,9 +26,6 @@
 #pragma once
 
 #include <projectexplorer/namedwidget.h>
-
-#include <utils/progressindicator.h>
-
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
@@ -39,6 +36,12 @@ class QTreeView;
 class QSortFilterProxyModel;
 class QMenu;
 QT_END_NAMESPACE
+
+namespace Utils {
+class CategorySortFilterModel;
+class FancyLineEdit;
+class ProgressIndicator;
+} // namespace Utils
 
 namespace CMakeProjectManager {
 
@@ -60,19 +63,29 @@ public:
 private:
     void updateButtonState();
     void updateAdvancedCheckBox();
+    void updateFromKit();
+
+    void setConfigurationForCMake();
+    void updateSelection(const QModelIndex &current, const QModelIndex &previous);
+    QAction *createForceAction(int type, const QModelIndex &idx);
+
+    bool eventFilter(QObject *target, QEvent *event);
 
     CMakeBuildConfiguration *m_buildConfiguration;
     QTreeView *m_configView;
     ConfigModel *m_configModel;
-    QSortFilterProxyModel *m_configFilterModel;
+    Utils::CategorySortFilterModel *m_configFilterModel;
+    Utils::CategorySortFilterModel *m_configTextFilterModel;
     Utils::ProgressIndicator *m_progressIndicator;
     QPushButton *m_addButton;
     QMenu *m_addButtonMenu;
     QPushButton *m_editButton;
+    QPushButton *m_unsetButton;
     QPushButton *m_resetButton;
     QCheckBox *m_showAdvancedCheckBox;
     QPushButton *m_reconfigureButton;
     QTimer m_showProgressTimer;
+    Utils::FancyLineEdit *m_filterEdit;
     QLabel *m_errorLabel;
     QLabel *m_warningLabel;
     QLabel *m_errorMessageLabel;

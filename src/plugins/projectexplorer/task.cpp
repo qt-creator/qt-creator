@@ -25,19 +25,25 @@
 
 #include "task.h"
 
+#include "projectexplorerconstants.h"
+
+#include <app/app_version.h>
+#include <texteditor/textmark.h>
+
+#include <utils/algorithm.h>
 #include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
 
-#include "projectexplorerconstants.h"
+#include <QTextStream>
 
 namespace ProjectExplorer
 {
 
 static QIcon taskTypeIcon(Task::TaskType t)
 {
-    static QIcon icons[3] = { QIcon(),
-                              Utils::Icons::ERROR.icon(),
-                              Utils::Icons::WARNING.icon()};
+    static QIcon icons[3] = {QIcon(),
+                             Utils::Icons::CRITICAL.icon(),
+                             Utils::Icons::WARNING.icon()};
 
     if (t < 0 || t > 2)
         t = Task::Unknown;
@@ -55,10 +61,10 @@ unsigned int Task::s_nextId = 1;
 
 Task::Task(TaskType type_, const QString &description_,
            const Utils::FileName &file_, int line_, Core::Id category_,
-           const Utils::FileName &iconFile) :
-    taskId(s_nextId), type(type_), description(description_),
+           const QIcon &icon, Options options) :
+    taskId(s_nextId), type(type_), options(options), description(description_),
     file(file_), line(line_), movedLine(line_), category(category_),
-    icon(iconFile.isEmpty() ? taskTypeIcon(type_) : QIcon(iconFile.toString()))
+    icon(icon.isNull() ? taskTypeIcon(type_) : icon)
 {
     ++s_nextId;
 }
@@ -67,8 +73,9 @@ Task Task::compilerMissingTask()
 {
     return Task(Task::Error,
                 QCoreApplication::translate("ProjectExplorer::Task",
-                                            "Qt Creator needs a compiler set up to build. "
-                                            "Configure a compiler in the kit options."),
+                                            "%1 needs a compiler set up to build. "
+                                            "Configure a compiler in the kit options.")
+                .arg(Core::Constants::IDE_DISPLAY_NAME),
                 Utils::FileName(), -1,
                 Constants::TASK_CATEGORY_BUILDSYSTEM);
 }
@@ -77,8 +84,9 @@ Task Task::buildConfigurationMissingTask()
 {
     return Task(Task::Error,
                 QCoreApplication::translate("ProjectExplorer::Task",
-                                            "Qt Creator needs a build configuration set up to build. "
-                                            "Configure a build configuration in the project settings."),
+                                            "%1 needs a build configuration set up to build. "
+                                            "Configure a build configuration in the project settings.")
+                .arg(Core::Constants::IDE_DISPLAY_NAME),
                 Utils::FileName(), -1,
                 Constants::TASK_CATEGORY_BUILDSYSTEM);
 }
@@ -143,6 +151,34 @@ bool operator<(const Task &a, const Task &b)
 uint qHash(const Task &task)
 {
     return task.taskId;
+}
+
+QString toHtml(const QList<Task> &issues)
+{
+    QString result;
+    QTextStream str(&result);
+
+    for (const Task &t : issues) {
+        str << "<b>";
+        switch (t.type) {
+        case Task::Error:
+            str << QCoreApplication::translate("ProjectExplorer::Kit", "Error:") << " ";
+            break;
+        case Task::Warning:
+            str << QCoreApplication::translate("ProjectExplorer::Kit", "Warning:") << " ";
+            break;
+        case Task::Unknown:
+        default:
+            break;
+        }
+        str << "</b>" << t.description << "<br>";
+    }
+    return result;
+}
+
+bool containsType(const QList<Task> &issues, Task::TaskType type)
+{
+    return Utils::contains(issues, [type](const Task &t) { return t.type == type; });
 }
 
 } // namespace ProjectExplorer

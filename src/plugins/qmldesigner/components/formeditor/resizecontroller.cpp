@@ -44,7 +44,7 @@ public:
 
 
     QPointer<LayerItem> layerItem;
-    QPointer<FormEditorItem> formEditorItem;
+    FormEditorItem *formEditorItem = nullptr;
     QSharedPointer<ResizeHandleItem> topLeftItem;
     QSharedPointer<ResizeHandleItem> topRightItem;
     QSharedPointer<ResizeHandleItem> bottomLeftItem;
@@ -262,7 +262,7 @@ void ResizeController::updatePosition()
 
 FormEditorItem* ResizeController::formEditorItem() const
 {
-    return m_data->formEditorItem.data();
+    return m_data->formEditorItem;
 }
 
 bool ResizeController::isTopLeftHandle(const ResizeHandleItem *handle) const

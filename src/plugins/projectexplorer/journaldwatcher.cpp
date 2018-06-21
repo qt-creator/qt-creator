@@ -163,7 +163,7 @@ bool JournaldWatcher::subscribe(QObject *subscriber, const Subscription &subscri
                              [subscriber](const JournaldWatcherPrivate::SubscriberInformation &info) {
                                  return info.subscriber == subscriber;
                              });
-    QTC_ASSERT(pos >= 0, return false);
+    QTC_ASSERT(pos < 0, return false);
 
     d->m_subscriptions.append(JournaldWatcherPrivate::SubscriberInformation(subscriber, subscription));
     connect(subscriber, &QObject::destroyed, m_instance, &JournaldWatcher::unsubscribe);
@@ -214,20 +214,6 @@ void JournaldWatcher::handleEntry()
 
         foreach (const JournaldWatcherPrivate::SubscriberInformation &info, d->m_subscriptions)
             info.subscription(logEntry);
-
-        if (logEntry.value(QByteArrayLiteral("_MACHINE_ID")) != machineId())
-            continue;
-
-        const QByteArray pid = logEntry.value(QByteArrayLiteral("_PID"));
-        if (pid.isEmpty())
-            continue;
-
-        quint64 pidNum = QString::fromLatin1(pid).toInt();
-
-        QString message = QString::fromUtf8(logEntry.value(QByteArrayLiteral("MESSAGE")));
-        message.append(QLatin1Char('\n')); // Add newline.
-
-        emit journaldOutput(pidNum, message);
     }
 }
 

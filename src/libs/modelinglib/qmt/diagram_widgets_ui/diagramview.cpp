@@ -60,10 +60,15 @@ DiagramSceneModel *DiagramView::diagramSceneModel() const
 
 void DiagramView::setDiagramSceneModel(DiagramSceneModel *diagramSceneModel)
 {
-    setScene(0);
+    setScene(nullptr);
     m_diagramSceneModel = diagramSceneModel;
-    if (diagramSceneModel)
+    if (diagramSceneModel) {
         setScene(m_diagramSceneModel->graphicsScene());
+        connect(m_diagramSceneModel, &DiagramSceneModel::sceneRectChanged,
+                this, &DiagramView::onSceneRectChanged, Qt::QueuedConnection);
+        // Signal is connected after diagram is updated. Enforce setting of scene rect.
+        onSceneRectChanged(m_diagramSceneModel->sceneRect());
+    }
 }
 
 void DiagramView::dragEnterEvent(QDragEnterEvent *event)
@@ -110,14 +115,17 @@ void DiagramView::dragMoveEvent(QDragMoveEvent *event)
 void DiagramView::dropEvent(QDropEvent *event)
 {
     event->setDropAction(Qt::MoveAction);
+    DiagramSceneController *diagramSceneController = m_diagramSceneModel->diagramSceneController();
     if (event->mimeData()->hasFormat(QLatin1String(MIME_TYPE_MODEL_ELEMENTS))) {
         QDataStream dataStream(event->mimeData()->data(QLatin1String(MIME_TYPE_MODEL_ELEMENTS)));
         while (dataStream.status() == QDataStream::Ok) {
             QString key;
             dataStream >> key;
             if (!key.isEmpty()) {
-                if (m_diagramSceneModel->diagramSceneController()->isAddingAllowed(Uid(key), m_diagramSceneModel->diagram()))
-                    m_diagramSceneModel->diagramSceneController()->addExistingModelElement(Uid(key), mapToScene(event->pos()), m_diagramSceneModel->diagram());
+                if (diagramSceneController->isAddingAllowed(Uid(key), m_diagramSceneModel->diagram())) {
+                    diagramSceneController->addExistingModelElement(Uid(key), mapToScene(event->pos()),
+                                                                    m_diagramSceneModel->diagram());
+                }
             }
         }
         event->accept();
@@ -130,13 +138,21 @@ void DiagramView::dropEvent(QDropEvent *event)
             dataStream >> newElementId >> name >> stereotype;
             if (!newElementId.isEmpty()) {
                 QPointF pos = mapToScene(event->pos());
-                m_diagramSceneModel->diagramSceneController()->dropNewElement(newElementId, name, stereotype, m_diagramSceneModel->findTopmostElement(pos), pos, m_diagramSceneModel->diagram());
+                diagramSceneController->dropNewElement(
+                            newElementId, name, stereotype, m_diagramSceneModel->findTopmostElement(pos),
+                            pos, m_diagramSceneModel->diagram(), event->pos(), size());
             }
         }
         event->accept();
     } else  {
         event->ignore();
     }
+}
+
+void DiagramView::onSceneRectChanged(const QRectF &sceneRect)
+{
+    // TODO add some adjustment to all 4 sides?
+    setSceneRect(sceneRect);
 }
 
 } // namespace qmt

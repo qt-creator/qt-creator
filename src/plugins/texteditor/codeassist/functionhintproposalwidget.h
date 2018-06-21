@@ -38,13 +38,13 @@ class TEXTEDITOR_EXPORT FunctionHintProposalWidget : public IAssistProposalWidge
 
 public:
     FunctionHintProposalWidget();
-    ~FunctionHintProposalWidget();
+    ~FunctionHintProposalWidget() override;
 
     void setAssistant(CodeAssistant *assistant) override;
     void setReason(AssistReason reason) override;
     void setKind(AssistKind kind) override;
     void setUnderlyingWidget(const QWidget *underlyingWidget) override;
-    void setModel(IAssistProposalModel *model) override;
+    void setModel(ProposalModelPtr model) override;
     void setDisplayRect(const QRect &rect) override;
     void setIsSynchronized(bool isSync) override;
 
@@ -62,6 +62,9 @@ private:
     void updateContent();
     void updatePosition();
     void abort();
+
+    int loadSelectedHint() const;
+    void storeSelectedHint();
 
 private:
     FunctionHintProposalWidgetPrivate *d;

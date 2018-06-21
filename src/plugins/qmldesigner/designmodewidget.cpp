@@ -24,8 +24,10 @@
 ****************************************************************************/
 
 #include "designmodewidget.h"
+#include "switchsplittabwidget.h"
 
-#include <coreplugin/outputpane.h>
+#include <designeractionmanager.h>
+
 #include "qmldesignerplugin.h"
 #include "crumblebar.h"
 #include "documentwarningwidget.h"
@@ -33,8 +35,9 @@
 #include <texteditor/textdocument.h>
 #include <nodeinstanceview.h>
 #include <itemlibrarywidget.h>
-#include <theming.h>
+#include <theme.h>
 
+#include <coreplugin/outputpane.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
@@ -45,7 +48,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/inavigationwidgetfactory.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -68,6 +70,12 @@ enum {
 const char SB_PROJECTS[] = "Projects";
 const char SB_FILESYSTEM[] = "FileSystem";
 const char SB_OPENDOCUMENTS[] = "OpenDocuments";
+
+static void hideToolButtons(QList<QToolButton*> &buttons)
+{
+    foreach (QToolButton *button, buttons)
+        button->hide();
+}
 
 namespace QmlDesigner {
 namespace Internal {
@@ -125,17 +133,10 @@ QList<QToolButton *> DesignerSideBarItem::createToolBarWidgets()
 }
 
 // ---------- DesignModeWidget
-DesignModeWidget::DesignModeWidget(QWidget *parent)
-    : QWidget(parent)
-    , m_toolBar(new Core::EditorToolBar(this))
+DesignModeWidget::DesignModeWidget()
+    : m_toolBar(new Core::EditorToolBar(this))
     , m_crumbleBar(new CrumbleBar(this))
 {
-    connect(viewManager().nodeInstanceView(), &NodeInstanceView::qmlPuppetCrashed,
-        [=]() {
-            RewriterError error(tr("Qt Quick emulation layer crashed"));
-            updateErrorStatus(QList<RewriterError>() << error);
-        }
-    );
 }
 
 DesignModeWidget::~DesignModeWidget()
@@ -172,19 +173,30 @@ void DesignModeWidget::toggleRightSidebar()
         m_rightSideBar->setVisible(!m_rightSideBar->isVisible());
 }
 
-void DesignModeWidget::toggleSidebars()
+QWidget *DesignModeWidget::createProjectExplorerWidget(QWidget *parent)
 {
-    if (m_initStatus == Initializing)
-        return;
+    const QList<Core::INavigationWidgetFactory *> factories =
+            Core::INavigationWidgetFactory::allNavigationFactories();
 
-    m_showSidebars = !m_showSidebars;
+    Core::NavigationView navigationView;
+    navigationView.widget = nullptr;
 
-    if (m_leftSideBar)
-        m_leftSideBar->setVisible(m_showSidebars);
-    if (m_rightSideBar)
-        m_rightSideBar->setVisible(m_showSidebars);
-    if (m_topSideBar)
-        m_topSideBar->setVisible(m_showSidebars);
+    foreach (Core::INavigationWidgetFactory *factory, factories) {
+        if (factory->id() == "Projects") {
+            navigationView = factory->createWidget();
+            hideToolButtons(navigationView.dockToolBarWidgets);
+        }
+    }
+
+    if (navigationView.widget) {
+        QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
+        sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
+        sheet += "QLabel { background-color: #4f4f4f; }";
+        navigationView.widget->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
+        navigationView.widget->setParent(parent);
+    }
+
+    return navigationView.widget;
 }
 
 void DesignModeWidget::readSettings()
@@ -217,10 +229,8 @@ void DesignModeWidget::enableWidgets()
 {
     if (debug)
         qDebug() << Q_FUNC_INFO;
-    hideWarningWidget();
+
     viewManager().enableWidgets();
-    m_leftSideBar->setEnabled(true);
-    m_rightSideBar->setEnabled(true);
     m_isDisabled = false;
 }
 
@@ -230,39 +240,26 @@ void DesignModeWidget::disableWidgets()
         qDebug() << Q_FUNC_INFO;
 
     viewManager().disableWidgets();
-    m_leftSideBar->setEnabled(false);
-    m_rightSideBar->setEnabled(false);
     m_isDisabled = true;
 }
 
-void DesignModeWidget::showTextEdit()
+void DesignModeWidget::switchTextOrForm()
 {
-    m_centralTabWidget->setCurrentIndex(m_centralTabWidget->currentIndex() == 0 ? 1 : 0);
-}
-
-void DesignModeWidget::updateErrorStatus(const QList<RewriterError> &errors)
-{
-    if (debug)
-        qDebug() << Q_FUNC_INFO << errors.count();
-
-    if (m_isDisabled && errors.isEmpty()) {
-        enableWidgets();
-     } else if (!errors.isEmpty()) {
-        disableWidgets();
-        showErrorMessageBox(errors);
-    }
-}
-
-static void hideToolButtons(QList<QToolButton*> &buttons)
-{
-    foreach (QToolButton *button, buttons)
-        button->hide();
+    if (m_centralTabWidget->currentWidget() == viewManager().widget("TextEditor"))
+        m_centralTabWidget->switchTo(viewManager().widget("FormEditor"));
+    else
+        m_centralTabWidget->switchTo(viewManager().widget("TextEditor"));
 }
 
 void DesignModeWidget::setup()
 {
+    auto &actionManager = viewManager().designerActionManager();
+    actionManager.createDefaultDesignerActions();
+    actionManager.createDefaultAddResourceHandler();
+    actionManager.polishActions();
+
     QList<Core::INavigationWidgetFactory *> factories =
-            ExtensionSystem::PluginManager::getObjects<Core::INavigationWidgetFactory>();
+            Core::INavigationWidgetFactory::allNavigationFactories();
 
     QWidget *openDocumentsWidget = nullptr;
     QWidget *projectsExplorer = nullptr;
@@ -292,14 +289,20 @@ void DesignModeWidget::setup()
             QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
             sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
             sheet += "QLabel { background-color: #4f4f4f; }";
-            navigationView.widget->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(sheet)));
+            navigationView.widget->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
         }
     }
 
     QToolBar *toolBar = new QToolBar;
     toolBar->addAction(viewManager().componentViewAction());
     toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    m_toolBar->addCenterToolBar(toolBar);
+    DesignerActionToolBar *designerToolBar = QmlDesignerPlugin::instance()->viewManager().designerActionManager().createToolBar(m_toolBar);
+
+    designerToolBar->layout()->addWidget(toolBar);
+
+    m_toolBar->addCenterToolBar(designerToolBar);
+
+    m_toolBar->setMinimumWidth(320);
 
     m_mainSplitter = new MiniSplitter(this);
     m_mainSplitter->setObjectName("mainSplitter");
@@ -373,7 +376,7 @@ void DesignModeWidget::setup()
 
     // Finishing touches:
     m_mainSplitter->setStretchFactor(1, 1);
-    m_mainSplitter->setSizes(QList<int>() << 150 << 300 << 150);
+    m_mainSplitter->setSizes({150, 300, 150});
 
     QLayout *mainLayout = new QBoxLayout(QBoxLayout::RightToLeft, this);
     mainLayout->setMargin(0);
@@ -455,55 +458,57 @@ static QTabWidget *createWidgetsInTabWidget(const QList<WidgetInfo> &widgetInfos
     return tabWidget;
 }
 
-static QWidget *createTopSideBarWidget(const QList<WidgetInfo> &widgetInfos)
+static QWidget *createbottomSideBarWidget(const QList<WidgetInfo> &widgetInfos)
 {
     //### we now own these here
     QList<WidgetInfo> topWidgetInfos;
     foreach (const WidgetInfo &widgetInfo, widgetInfos) {
-        if (widgetInfo.placementHint == widgetInfo.TopPane)
+        if (widgetInfo.placementHint == widgetInfo.BottomPane)
             topWidgetInfos.append(widgetInfo);
     }
 
-    if (topWidgetInfos.count() == 1)
-        return topWidgetInfos.first().widget;
-    else
-        return createWidgetsInTabWidget(topWidgetInfos);
+    QWidget *widget = topWidgetInfos.constFirst().widget;
+    if (topWidgetInfos.count() > 1) {
+        QWidget *background = new QWidget();
+        background->setProperty("designerBackgroundColor", true);
+
+        QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"));
+        sheet.prepend("QWidget[designerBackgroundColor=\"true\"] {background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;}");
+
+        background->setStyleSheet(Theme::replaceCssColors(sheet));
+        background->setLayout(new QVBoxLayout);
+        background->layout()->setContentsMargins(0, 0, 0, 0);
+
+        background->layout()->addWidget(createWidgetsInTabWidget(topWidgetInfos));
+        widget = background;
+    }
+    return widget;
 }
 
 static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widgetInfos)
 {
-    QList<WidgetInfo> centralWidgetInfos;
-    foreach (const WidgetInfo &widgetInfo, widgetInfos) {
-        if (widgetInfo.placementHint == widgetInfo.CentralPane)
-            centralWidgetInfos.append(widgetInfo);
-    }
-
     // editor and output panes
     Core::MiniSplitter *outputPlaceholderSplitter = new Core::MiniSplitter;
-    outputPlaceholderSplitter->setStretchFactor(0, 10);
-    outputPlaceholderSplitter->setStretchFactor(1, 0);
     outputPlaceholderSplitter->setOrientation(Qt::Vertical);
 
+    SwitchSplitTabWidget *switchSplitTabWidget = new SwitchSplitTabWidget();
+
+    foreach (const WidgetInfo &widgetInfo, widgetInfos) {
+        if (widgetInfo.placementHint == widgetInfo.CentralPane)
+            switchSplitTabWidget->addTab(widgetInfo.widget, widgetInfo.tabName);
+    }
+
+    outputPlaceholderSplitter->addWidget(switchSplitTabWidget);
+
+    QWidget *bottomSideBar = createbottomSideBarWidget(widgetInfos);
+    bottomSideBar->setObjectName("bottomSideBar");
+    outputPlaceholderSplitter->addWidget(bottomSideBar);
+
     auto outputPanePlaceholder = new Core::OutputPanePlaceHolder(Core::Constants::MODE_DESIGN, outputPlaceholderSplitter);
-
-    QTabWidget* tabWidget = createWidgetsInTabWidget(centralWidgetInfos);
-    tabWidget->setObjectName("centralTabWidget");
-    tabWidget->setTabPosition(QTabWidget::East);
-    tabWidget->tabBar()->setObjectName("centralTabBar");
-    tabWidget->setTabBarAutoHide(true);
-
-    QWidget *backgroundWidget = new QWidget();
-    backgroundWidget->setObjectName("backgroundWidget");
-    backgroundWidget->setLayout(new QVBoxLayout());
-    backgroundWidget->layout()->setMargin(0);
-    backgroundWidget->layout()->addWidget(tabWidget);
-
-    QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/centerwidget.css");
-    backgroundWidget->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(sheet)));
-
-    outputPlaceholderSplitter->addWidget(backgroundWidget);
     outputPlaceholderSplitter->addWidget(outputPanePlaceholder);
 
+    outputPlaceholderSplitter->setStretchFactor(0, 10);
+    outputPlaceholderSplitter->setStretchFactor(1, 1);
     return outputPlaceholderSplitter;
 }
 
@@ -518,12 +523,13 @@ QWidget *DesignModeWidget::createCenterWidget()
     horizontalLayout->addWidget(m_toolBar);
     horizontalLayout->addWidget(createCrumbleBarFrame());
 
-    m_topSideBar = createTopSideBarWidget(viewManager().widgetInfos());
-    horizontalLayout->addWidget(m_topSideBar.data());
-
     Core::MiniSplitter *centralSplitter = createCentralSplitter(viewManager().widgetInfos());
-    m_centralTabWidget = centralSplitter->findChild<QTabWidget*>("centralTabWidget");
+    m_centralTabWidget = centralSplitter->findChild<SwitchSplitTabWidget*>();
     Q_ASSERT(m_centralTabWidget);
+    m_centralTabWidget->switchTo(viewManager().widget("FormEditor"));
+
+    m_bottomSideBar = centralSplitter->findChild<QWidget*>("bottomSideBar");
+    Q_ASSERT(m_bottomSideBar);
     horizontalLayout->addWidget(centralSplitter);
 
     return centerWidget;
@@ -531,61 +537,14 @@ QWidget *DesignModeWidget::createCenterWidget()
 
 QWidget *DesignModeWidget::createCrumbleBarFrame()
 {
-    QFrame *frame = new QFrame(this);
-    frame->setStyleSheet("background-color: #4e4e4e;");
-    frame->setFrameShape(QFrame::NoFrame);
+    auto *frame = new Utils::StyledBar(this);
+    frame->setSingleRow(false);
     QHBoxLayout *layout = new QHBoxLayout(frame);
     layout->setMargin(0);
     layout->setSpacing(0);
-    frame->setLayout(layout);
     layout->addWidget(m_crumbleBar->crumblePath());
-    frame->setProperty("panelwidget", true);
-    frame->setProperty("panelwidget_singlerow", false);
 
     return frame;
-}
-
-DocumentWarningWidget *DesignModeWidget::warningWidget()
-{
-    if (m_warningWidget.isNull()) {
-        m_warningWidget = new DocumentWarningWidget(this);
-        connect(m_warningWidget.data(), &DocumentWarningWidget::gotoCodeClicked, [=]
-            (const QString &filePath, int codeLine, int codeColumn) {
-            Q_UNUSED(filePath);
-
-            if (currentDesignDocument() && currentDesignDocument()->textEditor())
-                currentDesignDocument()->textEditor()->gotoLine(codeLine, codeColumn);
-            Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
-        });
-    }
-    return m_warningWidget;
-}
-
-void DesignModeWidget::hideWarningWidget()
-{
-    if (m_warningWidget)
-        m_warningWidget->setVisible(false);
-}
-
-void DesignModeWidget::showErrorMessageBox(const QList<RewriterError> &errors)
-{
-    Q_ASSERT(!errors.isEmpty());
-    warningWidget()->setErrors(errors);
-    warningWidget()->setVisible(true);
-}
-
-void DesignModeWidget::showWarningMessageBox(const QList<RewriterError> &warnings)
-{
-    Q_ASSERT(!warnings.isEmpty());
-    warningWidget()->setWarnings(warnings);
-    warningWidget()->setVisible(true);
-}
-
-bool DesignModeWidget::gotoCodeWasClicked()
-{
-    if (m_warningWidget)
-        return warningWidget()->gotoCodeWasClicked();
-    return false;
 }
 
 CrumbleBar *DesignModeWidget::crumbleBar() const
@@ -593,16 +552,17 @@ CrumbleBar *DesignModeWidget::crumbleBar() const
     return m_crumbleBar;
 }
 
-QTabWidget *DesignModeWidget::centralTabWidget() const
+void DesignModeWidget::showInternalTextEditor()
 {
-    return m_centralTabWidget;
+    m_centralTabWidget->switchTo(viewManager().widget("TextEditor"));
 }
 
-QString DesignModeWidget::contextHelpId() const
+void DesignModeWidget::contextHelpId(const Core::IContext::HelpIdCallback &callback) const
 {
     if (currentDesignDocument())
-        return currentDesignDocument()->contextHelpId();
-    return QString();
+        currentDesignDocument()->contextHelpId(callback);
+    else
+        callback(QString());
 }
 
 void DesignModeWidget::initialize()

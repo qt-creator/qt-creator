@@ -38,7 +38,7 @@ class MoveTool : public AbstractFormEditorTool
 {
 public:
     MoveTool(FormEditorView* editorView);
-    ~MoveTool();
+    ~MoveTool() override;
 
     void mousePressEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) override;
     void mouseMoveEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event) override;
@@ -64,6 +64,7 @@ public:
     void beginWithPoint(const QPointF &beginPoint);
 
     void clear() override;
+    void start() override;
 
     void formEditorItemsChanged(const QList<FormEditorItem*> &itemList) override;
 

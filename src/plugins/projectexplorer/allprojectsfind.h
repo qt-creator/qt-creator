@@ -53,8 +53,10 @@ public:
 
 protected:
     Utils::FileIterator *files(const QStringList &nameFilters,
+                               const QStringList &exclusionFilters,
                                const QVariant &additionalParameters) const override;
     Utils::FileIterator *filesForProjects(const QStringList &nameFilters,
+                                          const QStringList &exclusionFilters,
                                           const QList<Project *> &projects) const;
 
     QVariant additionalParameters() const override;

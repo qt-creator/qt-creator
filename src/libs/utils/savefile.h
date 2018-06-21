@@ -29,27 +29,29 @@
 
 #include <QTemporaryFile>
 
+#include <memory>
+
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT SaveFile : public QTemporaryFile
+class QTCREATOR_UTILS_EXPORT SaveFile : public QFile
 {
+    Q_OBJECT
+
 public:
     explicit SaveFile(const QString &filename);
-    virtual ~SaveFile();
+    ~SaveFile() override;
 
-    bool open(OpenMode flags = QIODevice::WriteOnly);
+    bool open(OpenMode flags = QIODevice::WriteOnly) override;
 
     void rollback();
     bool commit();
-
-    void setBackup(bool backup) { m_backup = backup; }
 
     static void initializeUmask();
 
 private:
     const QString m_finalFileName;
+    std::unique_ptr<QTemporaryFile> m_tempFile;
     bool m_finalized;
-    bool m_backup;
     static QFile::Permissions m_umask;
 };
 

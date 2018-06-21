@@ -25,15 +25,12 @@
 
 #include "baremetalrunconfiguration.h"
 
-#include "baremetalrunconfigurationwidget.h"
+#include "baremetalconstants.h"
 
-#include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/buildtargetinfo.h>
-#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
-#include <qtsupport/qtoutputformatter.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -41,132 +38,46 @@ using namespace Utils;
 namespace BareMetal {
 namespace Internal {
 
-const char ProFileKey[] = "Qt4ProjectManager.MaemoRunConfiguration.ProFile";
-const char WorkingDirectoryKey[] = "BareMetal.RunConfig.WorkingDirectory";
+// BareMetalRunConfiguration
 
-
-BareMetalRunConfiguration::BareMetalRunConfiguration(Target *parent, BareMetalRunConfiguration *other)
-    : RunConfiguration(parent, other),
-      m_projectFilePath(other->m_projectFilePath),
-      m_workingDirectory(other->m_workingDirectory)
+BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id)
 {
-    init();
+    auto exeAspect = new ExecutableAspect(this);
+    exeAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
+    exeAspect->setPlaceHolderText(tr("Unknown"));
+    addExtraAspect(exeAspect);
+
+    addExtraAspect(new ArgumentsAspect(this, "Qt4ProjectManager.MaemoRunConfiguration.Arguments"));
+    addExtraAspect(new WorkingDirectoryAspect(this, "BareMetal.RunConfig.WorkingDirectory"));
+
+    connect(target, &Target::deploymentDataChanged,
+            this, &BareMetalRunConfiguration::updateTargetInformation);
+    connect(target, &Target::applicationTargetsChanged,
+            this, &BareMetalRunConfiguration::updateTargetInformation);
+    connect(target, &Target::kitChanged,
+            this, &BareMetalRunConfiguration::updateTargetInformation); // Handles device changes, etc.
+    connect(target->project(), &Project::parsingFinished,
+            this, &BareMetalRunConfiguration::updateTargetInformation);
 }
 
-BareMetalRunConfiguration::BareMetalRunConfiguration(Target *parent,
-                                                     const Core::Id id,
-                                                     const QString &projectFilePath)
-    : RunConfiguration(parent, id),
-      m_projectFilePath(projectFilePath)
+void BareMetalRunConfiguration::updateTargetInformation()
 {
-    addExtraAspect(new ArgumentsAspect(this, QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.Arguments")));
-    init();
+    const BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
+    extraAspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
+    emit enabledChanged();
 }
 
-void BareMetalRunConfiguration::init()
+const char *BareMetalRunConfiguration::IdPrefix = "BareMetalCustom";
+
+// BareMetalRunConfigurationFactory
+
+BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory()
 {
-    setDefaultDisplayName(defaultDisplayName());
-
-    connect(target(), &Target::deploymentDataChanged,
-            this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated);
-    connect(target(), &Target::applicationTargetsChanged,
-            this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated);
-    connect(target(), &Target::kitChanged,
-            this, &BareMetalRunConfiguration::handleBuildSystemDataUpdated); // Handles device changes, etc.
+    registerRunConfiguration<BareMetalRunConfiguration>(BareMetalRunConfiguration::IdPrefix);
+    setDecorateDisplayNames(true);
+    addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
 }
-
-bool BareMetalRunConfiguration::isEnabled() const
-{
-    m_disabledReason.clear(); // FIXME: Check this makes sense.
-    return true;
-}
-
-QString BareMetalRunConfiguration::disabledReason() const
-{
-    return m_disabledReason;
-}
-
-QWidget *BareMetalRunConfiguration::createConfigurationWidget()
-{
-    return new BareMetalRunConfigurationWidget(this);
-}
-
-OutputFormatter *BareMetalRunConfiguration::createOutputFormatter() const
-{
-    return new QtSupport::QtOutputFormatter(target()->project());
-}
-
-QVariantMap BareMetalRunConfiguration::toMap() const
-{
-    QVariantMap map(RunConfiguration::toMap());
-    const QDir dir = QDir(target()->project()->projectDirectory().toString());
-    map.insert(QLatin1String(ProFileKey), dir.relativeFilePath(m_projectFilePath));
-    map.insert(QLatin1String(WorkingDirectoryKey), m_workingDirectory);
-    return map;
-}
-
-bool BareMetalRunConfiguration::fromMap(const QVariantMap &map)
-{
-    if (!RunConfiguration::fromMap(map))
-        return false;
-
-    const QDir dir = QDir(target()->project()->projectDirectory().toString());
-    m_projectFilePath
-            = QDir::cleanPath(dir.filePath(map.value(QLatin1String(ProFileKey)).toString()));
-    m_workingDirectory = map.value(QLatin1String(WorkingDirectoryKey)).toString();
-
-    setDefaultDisplayName(defaultDisplayName());
-
-    return true;
-}
-
-QString BareMetalRunConfiguration::defaultDisplayName()
-{
-    if (!m_projectFilePath.isEmpty())
-        //: %1 is the name of the project run via hardware debugger
-        return tr("%1 (via GDB server or hardware debugger)").arg(QFileInfo(m_projectFilePath).completeBaseName());
-    //: Bare Metal run configuration default run name
-    return tr("Run on GDB server or hardware debugger");
-}
-
-QString BareMetalRunConfiguration::localExecutableFilePath() const
-{
-    return target()->applicationTargets()
-            .targetForProject(FileName::fromString(m_projectFilePath)).toString();
-}
-
-QString BareMetalRunConfiguration::arguments() const
-{
-    return extraAspect<ArgumentsAspect>()->arguments();
-}
-
-QString BareMetalRunConfiguration::workingDirectory() const
-{
-    return m_workingDirectory;
-}
-
-void BareMetalRunConfiguration::setWorkingDirectory(const QString &wd)
-{
-    m_workingDirectory = wd;
-}
-
-QString BareMetalRunConfiguration::projectFilePath() const
-{
-    return m_projectFilePath;
-}
-
-void BareMetalRunConfiguration::setDisabledReason(const QString &reason) const
-{
-    m_disabledReason = reason;
-}
-
-void BareMetalRunConfiguration::handleBuildSystemDataUpdated()
-{
-    emit targetInformationChanged();
-    updateEnableState();
-}
-
-const char *BareMetalRunConfiguration::IdPrefix = "BareMetal";
 
 } // namespace Internal
 } // namespace BareMetal

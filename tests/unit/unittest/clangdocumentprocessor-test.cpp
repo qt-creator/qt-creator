@@ -23,6 +23,8 @@
 **
 ****************************************************************************/
 
+#include "googletest.h"
+
 #include "clangiasyncjob.h"
 #include "dummyclangipcclient.h"
 #include "processevents-utilities.h"
@@ -35,11 +37,6 @@
 #include <projects.h>
 #include <unsavedfiles.h>
 
-#include <gmock/gmock.h>
-#include <gmock/gmock-matchers.h>
-#include <gtest/gtest.h>
-#include "gtest-qt-printing.h"
-
 using namespace ClangBackEnd;
 
 namespace {
@@ -49,54 +46,50 @@ class DocumentProcessor : public ::testing::Test
 protected:
     void SetUp() override;
     void TearDown() override;
-
-    ClangBackEnd::JobRequest createJobRequest(ClangBackEnd::JobRequest::Type type) const;
-
     bool waitUntilAllJobsFinished(int timeOutInMs = 10000) const;
 
 protected:
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{projects, unsavedFiles};
-    ClangBackEnd::Document document;
 
     DummyIpcClient dummyIpcClient;
 
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp")};
     Utf8String projectPartId{Utf8StringLiteral("/path/to/projectfile")};
-
-    ClangBackEnd::DocumentProcessor documentProcessor{document,
-                                                      documents,
-                                                      unsavedFiles,
-                                                      projects,
-                                                      dummyIpcClient};
+    std::unique_ptr<ClangBackEnd::DocumentProcessor> documentProcessor;
 };
+
+using DocumentProcessorSlowTest = DocumentProcessor;
 
 TEST_F(DocumentProcessor, ProcessEmpty)
 {
-    const JobRequests jobsStarted = documentProcessor.process();
+    const JobRequests jobsStarted = documentProcessor->process();
 
     ASSERT_THAT(jobsStarted.size(), 0);
 }
 
-TEST_F(DocumentProcessor, ProcessSingleJob)
+TEST_F(DocumentProcessorSlowTest, ProcessSingleJob)
 {
-    const JobRequest jobRequest = createJobRequest(JobRequest::Type::UpdateDocumentAnnotations);
-    documentProcessor.addJob(jobRequest);
+    const JobRequest jobRequest
+            = documentProcessor->createJobRequest(JobRequest::Type::UpdateAnnotations);
+    documentProcessor->addJob(jobRequest);
 
-    const JobRequests jobsStarted = documentProcessor.process();
+    const JobRequests jobsStarted = documentProcessor->process();
 
     ASSERT_THAT(jobsStarted.size(), 1);
 }
 
 void DocumentProcessor::SetUp()
 {
-    projects.createOrUpdate({ProjectPartContainer(projectPartId)});
-
     const QVector<FileContainer> fileContainer{FileContainer(filePath, projectPartId)};
-    document = documents.create(fileContainer).front();
+
+    projects.createOrUpdate({ProjectPartContainer(projectPartId)});
+    ClangBackEnd::Document document = {documents.create(fileContainer).front()};
     documents.setVisibleInEditors({filePath});
     documents.setUsedByCurrentEditor(filePath);
+    documentProcessor = std::make_unique<ClangBackEnd::DocumentProcessor>(
+                document, documents, unsavedFiles, projects, dummyIpcClient);
 }
 
 void DocumentProcessor::TearDown()
@@ -104,23 +97,9 @@ void DocumentProcessor::TearDown()
     ASSERT_TRUE(waitUntilAllJobsFinished()); // QFuture/QFutureWatcher is implemented with events
 }
 
-JobRequest DocumentProcessor::createJobRequest(JobRequest::Type type) const
-{
-    JobRequest jobRequest;
-    jobRequest.type = type;
-    jobRequest.requirements = JobRequest::requirementsForType(type);
-    jobRequest.filePath = filePath;
-    jobRequest.projectPartId = projectPartId;
-    jobRequest.unsavedFilesChangeTimePoint = unsavedFiles.lastChangeTimePoint();
-    jobRequest.documentRevision = document.documentRevision();
-    jobRequest.projectChangeTimePoint = projects.project(projectPartId).lastChangeTimePoint();
-
-    return jobRequest;
-}
-
 bool DocumentProcessor::waitUntilAllJobsFinished(int timeOutInMs) const
 {
-    const auto noJobsRunningAnymore = [this](){ return documentProcessor.runningJobs().isEmpty(); };
+    const auto noJobsRunningAnymore = [this](){ return documentProcessor->runningJobs().isEmpty(); };
 
     return ProcessEventUtilities::processEventsUntilTrue(noJobsRunningAnymore, timeOutInMs);
 }

@@ -27,8 +27,9 @@
 
 #include "qmlprofiler_global.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilerdatamodel.h"
-#include "timeline/timelinemodel.h"
+
+#include <tracing/timelinemodel.h>
+#include <tracing/timelinemodelaggregator.h>
 
 namespace QmlProfiler {
 
@@ -40,7 +41,8 @@ class QMLPROFILER_EXPORT QmlProfilerTimelineModel : public Timeline::TimelineMod
 
 public:
     QmlProfilerTimelineModel(QmlProfilerModelManager *modelManager, Message message,
-                             RangeType rangeType, ProfileFeature mainFeature, QObject *parent);
+                             RangeType rangeType, ProfileFeature mainFeature,
+                             Timeline::TimelineModelAggregator *parent);
 
     QmlProfilerModelManager *modelManager() const;
 
@@ -48,22 +50,17 @@ public:
     Message message() const;
     ProfileFeature mainFeature() const;
 
-    virtual bool accepted(const QmlEventType &type) const;
-    bool handlesTypeId(int typeId) const;
+    bool handlesTypeId(int typeId) const override;
 
     QVariantMap locationFromTypeId(int index) const;
 
     virtual void loadEvent(const QmlEvent &event, const QmlEventType &type) = 0;
-    virtual void finalize() = 0;
-
-private slots:
-    void dataChanged();
-    void onVisibleFeaturesChanged(quint64 features);
-
-protected:
-    void announceFeatures(quint64 features);
+    virtual void initialize();
+    virtual void finalize();
 
 private:
+    void onVisibleFeaturesChanged(quint64 features);
+
     const Message m_message;
     const RangeType m_rangeType;
     const ProfileFeature m_mainFeature;

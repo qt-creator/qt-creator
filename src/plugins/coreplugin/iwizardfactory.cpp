@@ -33,6 +33,7 @@
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/wizard.h>
 
@@ -159,7 +160,7 @@ QWidget *s_currentWizard = nullptr;
 class NewItemDialogData
 {
 public:
-    void setData(const QString t, const QList<IWizardFactory *> f,
+    void setData(const QString &t, const QList<IWizardFactory *> &f,
                  const QString &dl, const QVariantMap &ev)
     {
         QTC_ASSERT(!hasData(), return);
@@ -255,9 +256,9 @@ QString IWizardFactory::runPath(const QString &defaultPath)
             // Project wizards: Check for projects directory or
             // use last visited directory of file dialog. Never start
             // at current.
-            path = DocumentManager::useProjectsDirectory() ?
-                       DocumentManager::projectsDirectory() :
-                       DocumentManager::fileDialogLastVisitedDirectory();
+            path = DocumentManager::useProjectsDirectory()
+                       ? DocumentManager::projectsDirectory().toString()
+                       : DocumentManager::fileDialogLastVisitedDirectory();
             break;
         default:
             path = DocumentManager::fileDialogInitialDirectory();
@@ -279,7 +280,8 @@ Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, I
     if (wizard) {
         s_currentWizard = wizard;
         // Connect while wizard exists:
-        connect(m_action, &QAction::triggered, wizard, [wizard]() { ICore::raiseWindow(wizard); });
+        if (m_action)
+            connect(m_action, &QAction::triggered, wizard, [wizard]() { ICore::raiseWindow(wizard); });
         connect(s_inspectWizardAction, &QAction::triggered,
                 wizard, [wizard]() { wizard->showVariables(); });
         connect(wizard, &Utils::Wizard::finished, this, [wizard](int result) {
@@ -287,7 +289,7 @@ Utils::Wizard *IWizardFactory::runWizard(const QString &path, QWidget *parent, I
                 s_reopenData.clear();
             wizard->deleteLater();
         });
-        connect(wizard, &QObject::destroyed, this, [wizard]() {
+        connect(wizard, &QObject::destroyed, this, []() {
             s_isWizardRunning = false;
             s_currentWizard = nullptr;
             s_inspectWizardAction->setEnabled(false);

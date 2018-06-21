@@ -27,9 +27,9 @@
 
 #include "qmlprofilerrangemodel.h"
 
-#include "timeline/timelineabstractrenderer.h"
-#include "timeline/timelinerenderpass.h"
-#include "timeline/timelinerenderstate.h"
+#include <tracing/timelineabstractrenderer.h>
+#include <tracing/timelinerenderpass.h>
+#include <tracing/timelinerenderstate.h>
 
 #include <QSGMaterial>
 
@@ -43,7 +43,7 @@ public:
     State *update(const Timeline::TimelineAbstractRenderer *renderer,
                   const Timeline::TimelineRenderState *parentState,
                   State *oldState, int indexFrom, int indexTo, bool stateChanged,
-                  qreal spacing) const;
+                  float spacing) const override;
 protected:
     QmlProfilerBindingLoopsRenderPass();
 };

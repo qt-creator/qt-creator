@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "appmainwindow.h"
+#include "theme/theme_p.h"
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -60,11 +61,14 @@ void AppMainWindow::raiseWindow()
 #ifdef Q_OS_WIN
 bool AppMainWindow::event(QEvent *event)
 {
-    if (event->type() == m_deviceEventId) {
+    const QEvent::Type type = event->type();
+    if (type == m_deviceEventId) {
         event->accept();
         emit deviceChange();
         return true;
     }
+    if (type == QEvent::ThemeChange)
+        setThemeApplicationPalette();
     return QMainWindow::event(event);
 }
 

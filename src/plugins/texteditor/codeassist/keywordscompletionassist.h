@@ -28,7 +28,10 @@
 #include "iassistprocessor.h"
 #include "assistproposalitem.h"
 #include "ifunctionhintproposalmodel.h"
+#include "completionassistprovider.h"
 #include "../snippets/snippetassistcollector.h"
+
+#include "texteditor/texteditorconstants.h"
 
 namespace TextEditor {
 
@@ -38,8 +41,8 @@ class TEXTEDITOR_EXPORT Keywords
 {
 public:
     Keywords() = default;
-    Keywords(const QStringList &variables, const QStringList &functions,
-             const QMap<QString, QStringList> &functionArgs);
+    Keywords(const QStringList &variables, const QStringList &functions = QStringList(),
+             const QMap<QString, QStringList> &functionArgs = QMap<QString, QStringList>());
     bool isVariable(const QString &word) const;
     bool isFunction(const QString &word) const;
 
@@ -79,6 +82,21 @@ private:
     QStringList m_functionSymbols;
 };
 
+class TEXTEDITOR_EXPORT KeywordsCompletionAssistProvider : public CompletionAssistProvider
+{
+public:
+    KeywordsCompletionAssistProvider(const Keywords &keyWords = Keywords(),
+            const QString &snippetGroup = QString(Constants::TEXT_SNIPPET_GROUP_ID));
+
+    // IAssistProvider interface
+    RunType runType() const override;
+    IAssistProcessor *createProcessor() const override;
+
+private:
+    Keywords m_keyWords;
+    QString m_snippetGroup;
+};
+
 class TEXTEDITOR_EXPORT KeywordsCompletionAssistProcessor : public IAssistProcessor
 {
 public:
@@ -86,7 +104,6 @@ public:
     ~KeywordsCompletionAssistProcessor() override = default;
 
     IAssistProposal *perform(const AssistInterface *interface) override;
-    QChar startOfCommentChar() const;
 
     void setSnippetGroup(const QString &id);
 
@@ -94,15 +111,10 @@ protected:
     void setKeywords (Keywords keywords);
 
 private:
-    bool acceptsIdleEditor();
-    int findStartOfName(int pos = -1);
-    bool isInComment() const;
+    bool isInComment(const AssistInterface *interface) const;
     QList<AssistProposalItemInterface *> generateProposalList(const QStringList &words, const QIcon &icon);
 
-    int m_startPosition = -1;
     TextEditor::SnippetAssistCollector m_snippetCollector;
-    QString m_word;
-    QScopedPointer<const AssistInterface> m_interface;
     const QIcon m_variableIcon;
     const QIcon m_functionIcon;
     Keywords m_keywords;

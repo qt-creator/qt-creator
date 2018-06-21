@@ -13,9 +13,7 @@ HEADERS += \
     winrtqtversion.h \
     winrtqtversionfactory.h \
     winrtrunconfiguration.h \
-    winrtrunconfigurationwidget.h \
     winrtruncontrol.h \
-    winrtrunfactories.h \
     winrtrunnerhelper.h
 
 SOURCES += \
@@ -30,9 +28,7 @@ SOURCES += \
     winrtqtversion.cpp \
     winrtqtversionfactory.cpp \
     winrtrunconfiguration.cpp \
-    winrtrunconfigurationwidget.cpp \
     winrtruncontrol.cpp \
-    winrtrunfactories.cpp \
     winrtrunnerhelper.cpp
 
 DEFINES += WINRT_LIBRARY

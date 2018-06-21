@@ -26,20 +26,14 @@
 
 #pragma once
 
+#include "xmlprotocol/error.h"
+
 #include <QObject>
 #include <QStringList>
 
-#include "xmlprotocol/error.h"
-
 namespace Valgrind {
 
-namespace XmlProtocol {
-class ThreadedParser;
-}
-
-namespace Memcheck {
-class MemcheckRunner;
-}
+class ValgrindRunner;
 
 namespace Test {
 
@@ -77,8 +71,7 @@ private slots:
 private:
     QString runTestBinary(const QString &binary, const QStringList &vArgs = QStringList());
 
-    XmlProtocol::ThreadedParser *m_parser = 0;
-    Memcheck::MemcheckRunner *m_runner = 0;
+    ValgrindRunner *m_runner = nullptr;
     QList<QByteArray> m_logMessages;
     QList<XmlProtocol::Error> m_errors;
     bool m_expectCrash = false;

@@ -237,7 +237,7 @@ void SshKeyExchange::checkHostKey(const QByteArray &hostKey)
 {
     if (m_connParams.hostKeyCheckingMode == SshHostKeyCheckingNone) {
         if (m_connParams.hostKeyDatabase)
-            m_connParams.hostKeyDatabase->insertHostKey(m_connParams.host, hostKey);
+            m_connParams.hostKeyDatabase->insertHostKey(m_connParams.host(), hostKey);
         return;
     }
 
@@ -247,7 +247,7 @@ void SshKeyExchange::checkHostKey(const QByteArray &hostKey)
                                         "if host key checking is enabled."));
     }
 
-    switch (m_connParams.hostKeyDatabase->matchHostKey(m_connParams.host, hostKey)) {
+    switch (m_connParams.hostKeyDatabase->matchHostKey(m_connParams.host(), hostKey)) {
     case SshHostKeyDatabase::KeyLookupMatch:
         return; // Nothing to do.
     case SshHostKeyDatabase::KeyLookupMismatch:
@@ -259,14 +259,14 @@ void SshKeyExchange::checkHostKey(const QByteArray &hostKey)
             throwHostKeyException();
         break;
     }
-    m_connParams.hostKeyDatabase->insertHostKey(m_connParams.host, hostKey);
+    m_connParams.hostKeyDatabase->insertHostKey(m_connParams.host(), hostKey);
 }
 
 void SshKeyExchange::throwHostKeyException()
 {
     throw SshServerException(SSH_DISCONNECT_HOST_KEY_NOT_VERIFIABLE, "Host key changed",
                              SSH_TR("Host key of machine \"%1\" has changed.")
-                             .arg(m_connParams.host));
+                             .arg(m_connParams.host()));
 }
 
 } // namespace Internal

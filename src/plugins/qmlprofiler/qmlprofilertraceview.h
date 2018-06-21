@@ -26,10 +26,7 @@
 #pragma once
 
 #include "qmlprofilermodelmanager.h"
-
 #include <coreplugin/find/ifindsupport.h>
-
-#include <QTimer>
 #include <QWidget>
 
 namespace QmlProfiler {
@@ -49,15 +46,15 @@ class QmlProfilerTraceView : public QWidget
 public:
     explicit QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManager *container,
                                   QmlProfilerModelManager *modelManager);
-    ~QmlProfilerTraceView();
+    ~QmlProfilerTraceView() override;
 
     bool hasValidSelection() const;
     qint64 selectionStart() const;
     qint64 selectionEnd() const;
     void showContextMenu(QPoint position);
     bool isUsable() const;
+    bool isSuspended() const;
 
-public slots:
     void clear();
     void selectByTypeId(int typeId);
     void selectByEventIndex(int modelId, int eventIndex);

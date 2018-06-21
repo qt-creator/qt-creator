@@ -34,10 +34,7 @@ class REMOTELINUX_EXPORT RemoteLinuxCheckForFreeDiskSpaceStep : public AbstractR
 {
     Q_OBJECT
 public:
-    explicit RemoteLinuxCheckForFreeDiskSpaceStep(ProjectExplorer::BuildStepList *bsl,
-            Core::Id id = stepId());
-    RemoteLinuxCheckForFreeDiskSpaceStep(ProjectExplorer::BuildStepList *bsl,
-            RemoteLinuxCheckForFreeDiskSpaceStep *other);
+    explicit RemoteLinuxCheckForFreeDiskSpaceStep(ProjectExplorer::BuildStepList *bsl);
     ~RemoteLinuxCheckForFreeDiskSpaceStep() override;
 
     void setPathToCheck(const QString &path);
@@ -47,7 +44,7 @@ public:
     quint64 requiredSpaceInBytes() const;
 
     static Core::Id stepId();
-    static QString stepDisplayName();
+    static QString displayName();
 
 protected:
     bool fromMap(const QVariantMap &map) override;
@@ -58,8 +55,6 @@ protected:
     AbstractRemoteLinuxDeployService *deployService() const override;
 
 private:
-    void ctor();
-
     Internal::RemoteLinuxCheckForFreeDiskSpaceStepPrivate *d;
 };
 

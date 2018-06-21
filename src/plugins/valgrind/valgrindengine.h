@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <debugger/analyzer/analyzerruncontrol.h>
+#include <projectexplorer/runconfiguration.h>
 #include <utils/environment.h>
 #include <valgrind/valgrindrunner.h>
 #include <valgrind/valgrindsettings.h>
@@ -37,28 +37,25 @@
 namespace Valgrind {
 namespace Internal {
 
-class ValgrindRunControl : public Debugger::AnalyzerRunControl
+class ValgrindToolRunner : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 
 public:
-    ValgrindRunControl(ProjectExplorer::RunConfiguration *runConfiguration,
-                       Core::Id runMode);
+    explicit ValgrindToolRunner(ProjectExplorer::RunControl *runControl);
 
     void start() override;
-    StopResult stop() override;
-    bool isRunning() const override;
-    bool supportsReRunning() const override { return false; }
+    void stop() override;
 
     QString executable() const;
 
 protected:
     virtual QString progressTitle() const = 0;
     virtual QStringList toolArguments() const = 0;
-    virtual Valgrind::ValgrindRunner *runner() = 0;
 
     ValgrindBaseSettings *m_settings = 0;
     QFutureInterface<void> m_progress;
+    ValgrindRunner m_runner;
 
 private:
     void handleProgressCanceled();
@@ -71,7 +68,6 @@ private:
     QStringList genericToolArguments() const;
 
 private:
-    bool m_isRunning = false;
     bool m_isStopping = false;
 };
 

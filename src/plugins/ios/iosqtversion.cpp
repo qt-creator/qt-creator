@@ -26,7 +26,6 @@
 #include "iosqtversion.h"
 #include "iosconstants.h"
 #include "iosconfigurations.h"
-#include "iosmanager.h"
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -82,11 +81,11 @@ QString IosQtVersion::invalidReason() const
 
 QList<Abi> IosQtVersion::detectQtAbis() const
 {
-    QList<Abi> abis = qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));
+    QList<Abi> abis = qtAbisFromLibrary(qtCorePaths());
     for (int i = 0; i < abis.count(); ++i) {
         abis[i] = Abi(abis.at(i).architecture(),
                       abis.at(i).os(),
-                      Abi::GenericDarwinFlavor,
+                      Abi::GenericFlavor,
                       abis.at(i).binaryFormat(),
                       abis.at(i).wordWidth());
     }
@@ -117,5 +116,5 @@ QSet<Core::Id> IosQtVersion::availableFeatures() const
 QSet<Core::Id> IosQtVersion::targetDeviceTypes() const
 {
     // iOS Qt version supports ios devices as well as simulator.
-    return { Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE };
+    return {Constants::IOS_DEVICE_TYPE, Constants::IOS_SIMULATOR_TYPE};
 }

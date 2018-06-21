@@ -70,7 +70,6 @@ class JIRA:
     # Helper class
     class Bug:
         CREATOR = 'QTCREATORBUG'
-        SIMULATOR = 'QTSIM'
         SDK = 'QTSDK'
         QT = 'QTBUG'
         QT_QUICKCOMPONENTS = 'QTCOMPONENTS'
@@ -156,7 +155,7 @@ class JIRA:
                 test.warning("Resolution of bug is '%s' - assuming 'Open' for now." % self._resolution,
                              "Please check the bugreport manually and update this test.")
                 return True
-            return self._resolution != 'Done'
+            return self._resolution not in ('Done', 'Fixed')
 
         # this function tries to fetch the resolution from JIRA for the given bug
         # if this isn't possible or the lookup is disabled it does only check the internal
@@ -256,15 +255,9 @@ class JIRA:
         # for later lookup which function to call for which bug
         # ALWAYS update this dict when adding a new function for a workaround!
         def __initBugDict__(self):
-            self.__bugs__= {
-                            'QTCREATORBUG-6853':self._workaroundCreator6853_,
-                            }
+            self.__bugs__= {}
         # helper function - will be called if no workaround for the requested bug is deposited
         def _exitFatal_(self, bugType, number):
             test.fatal("No workaround found for bug %s-%d" % (bugType, number))
 
 ############### functions that hold workarounds #################################
-
-        def _workaroundCreator6853_(self, *args):
-            if "Release" in args[0] and platform.system() == "Linux":
-                snooze(2)

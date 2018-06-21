@@ -61,10 +61,10 @@ public:
     bool enforceNewline = false;
     bool scrollToBottom = true;
     bool linksActive = true;
-    bool mousePressed = false;
+    Qt::MouseButton mouseButtonPressed = Qt::NoButton;
     bool m_zoomEnabled = false;
     float m_originalFontSize = 0.;
-    int maxLineCount = 100000;
+    int maxLineCount = Core::Constants::DEFAULT_MAX_LINE_COUNT;
     QTextCursor cursor;
 };
 
@@ -134,15 +134,13 @@ OutputWindow::~OutputWindow()
 
 void OutputWindow::mousePressEvent(QMouseEvent * e)
 {
-    d->mousePressed = true;
+    d->mouseButtonPressed = e->button();
     QPlainTextEdit::mousePressEvent(e);
 }
 
 void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 {
-    d->mousePressed = false;
-
-    if (d->linksActive) {
+    if (d->linksActive && d->mouseButtonPressed == Qt::LeftButton) {
         const QString href = anchorAt(e->pos());
         if (d->formatter)
             d->formatter->handleLink(href);
@@ -150,6 +148,7 @@ void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 
     // Mouse was released, activate links again
     d->linksActive = true;
+    d->mouseButtonPressed = Qt::NoButton;
 
     QPlainTextEdit::mouseReleaseEvent(e);
 }
@@ -157,7 +156,7 @@ void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 void OutputWindow::mouseMoveEvent(QMouseEvent *e)
 {
     // Cursor was dragged to make a selection, deactivate links
-    if (d->mousePressed && textCursor().hasSelection())
+    if (d->mouseButtonPressed != Qt::NoButton && textCursor().hasSelection())
         d->linksActive = false;
 
     if (!d->linksActive || anchorAt(e->pos()).isEmpty())
@@ -196,7 +195,8 @@ OutputFormatter *OutputWindow::formatter() const
 void OutputWindow::setFormatter(OutputFormatter *formatter)
 {
     d->formatter = formatter;
-    d->formatter->setPlainTextEdit(this);
+    if (d->formatter)
+        d->formatter->setPlainTextEdit(this);
 }
 
 void OutputWindow::showEvent(QShowEvent *e)
@@ -286,9 +286,8 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
     const bool atBottom = isScrollbarAtBottom() || m_scrollTimer.isActive();
 
     if (format == ErrorMessageFormat || format == NormalMessageFormat) {
-
-        d->formatter->appendMessage(doNewlineEnforcement(out), format);
-
+        if (d->formatter)
+            d->formatter->appendMessage(doNewlineEnforcement(out), format);
     } else {
 
         bool sameLine = format == StdOutFormatSameLine
@@ -304,7 +303,7 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
             if (!enforceNewline) {
                 newline = out.indexOf(QLatin1Char('\n'));
                 moveCursor(QTextCursor::End);
-                if (newline != -1)
+                if (newline != -1 && d->formatter)
                     d->formatter->appendMessage(out.left(newline), format);// doesn't enforce new paragraph like appendPlainText
             }
 
@@ -316,10 +315,12 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
                     d->enforceNewline = true;
                     s.chop(1);
                 }
-                d->formatter->appendMessage(QLatin1Char('\n') + s, format);
+                if (d->formatter)
+                    d->formatter->appendMessage(QLatin1Char('\n') + s, format);
             }
         } else {
-            d->formatter->appendMessage(doNewlineEnforcement(out), format);
+            if (d->formatter)
+                d->formatter->appendMessage(doNewlineEnforcement(out), format);
         }
     }
 
@@ -368,6 +369,8 @@ void OutputWindow::clear()
 {
     d->enforceNewline = false;
     QPlainTextEdit::clear();
+    if (d->formatter)
+        d->formatter->clear();
 }
 
 void OutputWindow::scrollToBottom()

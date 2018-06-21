@@ -32,28 +32,27 @@
 #include <QSharedPointer>
 #include <QPair>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
-
 namespace Core {
 class ActionContainer;
 class Command;
 class CommandLocator;
 }
 
+namespace VcsBase { class VcsBasePluginState; }
+
 namespace Gerrit {
 namespace Internal {
 
 class GerritChange;
-class GerritParameters;
 class GerritDialog;
+class GerritParameters;
+class GerritServer;
 
 class GerritPlugin : public QObject
 {
     Q_OBJECT
 public:
-    explicit GerritPlugin(QObject *parent = 0);
+    explicit GerritPlugin(QObject *parent = nullptr);
     ~GerritPlugin();
 
     bool initialize(Core::ActionContainer *ac);
@@ -63,10 +62,7 @@ public:
     void addToLocator(Core::CommandLocator *locator);
     void push(const QString &topLevel);
 
-    void fetchDisplay(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
-    void fetchCherryPick(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
-    void fetchCheckout(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
-    void updateActions(bool hasTopLevel);
+    void updateActions(const VcsBase::VcsBasePluginState &state);
 
 signals:
     void fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
@@ -80,9 +76,10 @@ private:
     void fetch(const QSharedPointer<GerritChange> &change, int mode);
 
     QSharedPointer<GerritParameters> m_parameters;
+    QSharedPointer<GerritServer> m_server;
     QPointer<GerritDialog> m_dialog;
-    Core::Command *m_gerritCommand;
-    Core::Command *m_pushToGerritCommand;
+    Core::Command *m_gerritCommand = nullptr;
+    Core::Command *m_pushToGerritCommand = nullptr;
     QString m_reviewers;
 };
 

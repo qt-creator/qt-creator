@@ -25,25 +25,22 @@
 
 #pragma once
 
-#include <QAbstractListModel>
-
 #include <coreplugin/iwelcomepage.h>
 
-QT_BEGIN_NAMESPACE
-class QQmlEngine;
-QT_END_NAMESPACE
+#include <QAbstractListModel>
 
 namespace ProjectExplorer {
 namespace Internal {
 
 class SessionModel;
+class SessionsPage;
 
 class ProjectModel : public QAbstractListModel
 {
     Q_OBJECT
 
 public:
-    enum { FilePathRole = Qt::UserRole+1, PrettyFilePathRole };
+    enum { FilePathRole = Qt::UserRole+1, PrettyFilePathRole, ShortcutRole };
 
     ProjectModel(QObject *parent = nullptr);
     int rowCount(const QModelIndex &parent) const override;
@@ -58,16 +55,14 @@ class ProjectWelcomePage : public Core::IWelcomePage
 {
     Q_OBJECT
 public:
-    ProjectWelcomePage() = default;
+    ProjectWelcomePage();
 
-    void facilitateQml(QQmlEngine *engine) override;
-    QUrl pageLocation() const override;
-    QWidget *page() { return nullptr; }
     QString title() const override { return tr("Projects"); }
     int priority() const override { return 20; }
     Core::Id id() const override;
+    QWidget *createWidget() const override;
 
-    void reloadWelcomeScreenData();
+    void reloadWelcomeScreenData() const;
 
 public slots:
     void newProject();
@@ -78,6 +73,10 @@ signals:
     void manageSessions();
 
 private:
+    void openSessionAt(int index);
+    void openProjectAt(int index);
+
+    friend class SessionsPage;
     SessionModel *m_sessionModel = nullptr;
     ProjectModel *m_projectModel = nullptr;
 };

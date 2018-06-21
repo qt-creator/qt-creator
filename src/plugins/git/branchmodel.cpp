@@ -27,9 +27,10 @@
 #include "gitclient.h"
 #include "gitconstants.h"
 
-#include <utils/qtcassert.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcscommand.h>
+
+#include <utils/qtcassert.h>
 
 #include <QDateTime>
 #include <QFont>
@@ -53,13 +54,12 @@ class BranchNode
 {
 public:
     BranchNode() :
-        parent(0),
         name("<ROOT>")
     { }
 
     BranchNode(const QString &n, const QString &s = QString(), const QString &t = QString(),
                const QDateTime &dt = QDateTime()) :
-        parent(0), name(n), sha(s), tracking(t), dateTime(dt)
+        name(n), sha(s), tracking(t), dateTime(dt)
     { }
 
     ~BranchNode()
@@ -118,7 +118,7 @@ public:
             if (children.at(i)->name == name)
                 return children.at(i);
         }
-        return 0;
+        return nullptr;
     }
 
     QStringList fullName(bool includePrefix = false) const
@@ -137,7 +137,7 @@ public:
             fn.append(nodes.first()->sha);
         nodes.removeFirst();
 
-        foreach (const BranchNode *n, nodes)
+        for (const BranchNode *n : qAsConst(nodes))
             fn.append(n->name);
 
         return fn;
@@ -167,12 +167,12 @@ public:
     {
         if (children.count() > 0) {
             QStringList names;
-            foreach (BranchNode *n, children) {
+            for (BranchNode *n : children) {
                 names.append(n->childrenNames());
             }
             return names;
         }
-        return { fullName().join('/') };
+        return {fullName().join('/')};
     }
 
     int rowOf(BranchNode *node)
@@ -180,7 +180,7 @@ public:
         return children.indexOf(node);
     }
 
-    BranchNode *parent;
+    BranchNode *parent = nullptr;
     QList<BranchNode *> children;
 
     QString name;
@@ -271,7 +271,7 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
         return res;
     }
     case Qt::EditRole:
-        return index.column() == 0 ? node->name : QVariant();
+        return index.column() == 0 ? node->fullName().join('/') : QVariant();
     case Qt::ToolTipRole:
         if (!node->isLeaf())
             return QVariant();
@@ -306,24 +306,11 @@ bool BranchModel::setData(const QModelIndex &index, const QVariant &value, int r
     if (newName.isEmpty())
         return false;
 
-    if (node->name == newName)
-        return true;
-
-    QStringList oldFullName = node->fullName();
-    node->name = newName;
-    QStringList newFullName = node->fullName();
-
-    QString output;
-    QString errorMessage;
-    if (!m_client->synchronousBranchCmd(m_workingDirectory,
-                                        { "-m", oldFullName.last(), newFullName.last() },
-                                        &output, &errorMessage)) {
-        node->name = oldFullName.last();
-        VcsOutputWindow::appendError(errorMessage);
+    const QString oldName = node->fullName().join('/');
+    if (oldName == newName)
         return false;
-    }
 
-    emit dataChanged(index, index);
+    renameBranch(oldName, newName);
     return true;
 }
 
@@ -340,13 +327,14 @@ Qt::ItemFlags BranchModel::flags(const QModelIndex &index) const
 
 void BranchModel::clear()
 {
-    foreach (BranchNode *root, m_rootNode->children)
+    for (BranchNode *root : qAsConst(m_rootNode->children)) {
         while (root->count())
             delete root->children.takeLast();
+    }
     if (hasTags())
         m_rootNode->children.takeLast();
 
-    m_currentBranch = 0;
+    m_currentBranch = nullptr;
     m_obsoleteLocalBranches.clear();
 }
 
@@ -360,20 +348,20 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
     }
 
     m_currentSha = m_client->synchronousTopRevision(workingDirectory);
-    const QStringList args = { "--format=%(objectname)\t%(refname)\t%(upstream:short)\t"
-                               "%(*objectname)\t%(committerdate:raw)\t%(*committerdate:raw)" };
+    const QStringList args = {"--format=%(objectname)\t%(refname)\t%(upstream:short)\t"
+                              "%(*objectname)\t%(committerdate:raw)\t%(*committerdate:raw)"};
     QString output;
     if (!m_client->synchronousForEachRefCmd(workingDirectory, args, &output, errorMessage))
         VcsOutputWindow::appendError(*errorMessage);
 
     m_workingDirectory = workingDirectory;
     const QStringList lines = output.split('\n');
-    foreach (const QString &l, lines)
+    for (const QString &l : lines)
         parseOutputLine(l);
 
     if (m_currentBranch) {
-        if (m_currentBranch->parent == m_rootNode->children.at(LocalBranches))
-            m_currentBranch = 0;
+        if (m_currentBranch->isLocal())
+            m_currentBranch = nullptr;
         setCurrentBranch();
     }
 
@@ -389,18 +377,20 @@ void BranchModel::setCurrentBranch()
         return;
 
     BranchNode *local = m_rootNode->children.at(LocalBranches);
-    int pos = 0;
-    for (pos = 0; pos < local->count(); ++pos) {
-        if (local->children.at(pos)->name == currentBranch)
-            m_currentBranch = local->children[pos];
+    const QStringList branchParts = currentBranch.split('/');
+    for (const QString &branchPart : branchParts) {
+        local = local->childOfName(branchPart);
+        if (!local)
+            return;
     }
+    m_currentBranch = local;
 }
 
 void BranchModel::renameBranch(const QString &oldName, const QString &newName)
 {
     QString errorMessage;
     QString output;
-    if (!m_client->synchronousBranchCmd(m_workingDirectory, { "-m", oldName,  newName },
+    if (!m_client->synchronousBranchCmd(m_workingDirectory, {"-m", oldName,  newName},
                                         &output, &errorMessage))
         VcsOutputWindow::appendError(errorMessage);
     else
@@ -411,9 +401,9 @@ void BranchModel::renameTag(const QString &oldName, const QString &newName)
 {
     QString errorMessage;
     QString output;
-    if (!m_client->synchronousTagCmd(m_workingDirectory, { newName, oldName },
+    if (!m_client->synchronousTagCmd(m_workingDirectory, {newName, oldName},
                                      &output, &errorMessage)
-            || !m_client->synchronousTagCmd(m_workingDirectory, { "-d", oldName },
+            || !m_client->synchronousTagCmd(m_workingDirectory, {"-d", oldName},
                                             &output, &errorMessage)) {
         VcsOutputWindow::appendError(errorMessage);
     } else {
@@ -445,8 +435,7 @@ QString BranchModel::fullName(const QModelIndex &idx, bool includePrefix) const
     BranchNode *node = indexToNode(idx);
     if (!node || !node->isLeaf())
         return QString();
-    QStringList path = node->fullName(includePrefix);
-    return path.join('/');
+    return node->fullName(includePrefix).join('/');
 }
 
 QStringList BranchModel::localBranchNames() const
@@ -510,7 +499,7 @@ void BranchModel::removeBranch(const QModelIndex &idx)
     QString errorMessage;
     QString output;
 
-    if (!m_client->synchronousBranchCmd(m_workingDirectory, { "-D", branch }, &output, &errorMessage)) {
+    if (!m_client->synchronousBranchCmd(m_workingDirectory, {"-D", branch}, &output, &errorMessage)) {
         VcsOutputWindow::appendError(errorMessage);
         return;
     }
@@ -526,7 +515,7 @@ void BranchModel::removeTag(const QModelIndex &idx)
     QString errorMessage;
     QString output;
 
-    if (!m_client->synchronousTagCmd(m_workingDirectory, { "-d", tag }, &output, &errorMessage)) {
+    if (!m_client->synchronousTagCmd(m_workingDirectory, {"-d", tag}, &output, &errorMessage)) {
         VcsOutputWindow::appendError(errorMessage);
         return;
     }
@@ -553,13 +542,13 @@ bool BranchModel::branchIsMerged(const QModelIndex &idx)
     QString errorMessage;
     QString output;
 
-    if (!m_client->synchronousBranchCmd(m_workingDirectory, { "-a", "--contains", sha(idx) },
+    if (!m_client->synchronousBranchCmd(m_workingDirectory, {"-a", "--contains", sha(idx)},
                                         &output, &errorMessage)) {
         VcsOutputWindow::appendError(errorMessage);
     }
 
-    QStringList lines = output.split('\n', QString::SkipEmptyParts);
-    foreach (const QString &l, lines) {
+    const QStringList lines = output.split('\n', QString::SkipEmptyParts);
+    for (const QString &l : lines) {
         QString currentBranch = l.mid(2); // remove first letters (those are either
                                           // "  " or "* " depending on whether it is
                                           // the currently checked out branch or not)
@@ -591,7 +580,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     QString errorMessage;
     QDateTime branchDateTime;
 
-    QStringList args = { QLatin1String(track ? "--track" : "--no-track"), name };
+    QStringList args = {QLatin1String(track ? "--track" : "--no-track"), name};
     if (!fullTrackedBranch.isEmpty()) {
         args << fullTrackedBranch;
         startSha = sha(startPoint);
@@ -620,7 +609,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     if (slash != -1) {
         const QString nodeName = name.left(slash);
         int pos = positionForName(local, nodeName);
-        BranchNode *child = (pos == local->count()) ? 0 : local->children.at(pos);
+        BranchNode *child = (pos == local->count()) ? nullptr : local->children.at(pos);
         if (!child || child->name != nodeName) {
             child = new BranchNode(nodeName);
             beginInsertRows(nodeToIndex(local, 0), pos, pos);
@@ -694,7 +683,7 @@ void BranchModel::parseOutputLine(const QString &line)
     QStringList nameParts = fullName.split('/');
     nameParts.removeFirst(); // remove refs...
 
-    BranchNode *root = 0;
+    BranchNode *root = nullptr;
     if (nameParts.first() == "heads") {
         root = m_rootNode->children.at(LocalBranches);
     } else if (nameParts.first() == "remotes") {
@@ -728,7 +717,7 @@ void BranchModel::parseOutputLine(const QString &line)
 BranchNode *BranchModel::indexToNode(const QModelIndex &index) const
 {
     if (index.column() > 1)
-        return 0;
+        return nullptr;
     if (!index.isValid())
         return m_rootNode;
     return static_cast<BranchNode *>(index.internalPointer());

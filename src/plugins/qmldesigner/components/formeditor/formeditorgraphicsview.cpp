@@ -32,6 +32,8 @@
 #include <QGraphicsProxyWidget>
 #include <QCoreApplication>
 
+#include <QTimer>
+
 namespace QmlDesigner {
 
 FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent) :
@@ -44,7 +46,6 @@ FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent) :
     setViewportUpdateMode(QGraphicsView::MinimalViewportUpdate);
     setOptimizationFlags(QGraphicsView::DontSavePainterState);
     setRenderHint(QPainter::Antialiasing, false);
-    setRenderHint(QPainter::SmoothPixmapTransform, true);
 
     setFrameShape(QFrame::NoFrame);
 
@@ -102,7 +103,7 @@ void FormEditorGraphicsView::mousePressEvent(QMouseEvent *event)
 void FormEditorGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
     // not sure why buttons() are empty here, but we have that information from the enum
-    if (/*event->buttons().testFlag(Qt::MiddleButton) && */m_isPanning == Panning::MouseWheelStarted)
+    if (m_isPanning == Panning::MouseWheelStarted)
         stopPanning(event);
     else
         QGraphicsView::mouseReleaseEvent(event);

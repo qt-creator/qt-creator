@@ -25,8 +25,11 @@
 
 #include "baseeditordocumentprocessor.h"
 
+#include "cppcodemodelsettings.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsbridge.h"
+#include "cpptoolsreuse.h"
+#include "cpptools_utils.h"
 #include "editordocumenthandle.h"
 
 #include <projectexplorer/session.h>
@@ -53,11 +56,16 @@ BaseEditorDocumentProcessor::~BaseEditorDocumentProcessor()
 {
 }
 
-void BaseEditorDocumentProcessor::run(bool hasActiveProjectChanged)
+void BaseEditorDocumentProcessor::run(bool projectsUpdated)
 {
+    const Language languagePreference = codeModelSettings()->interpretAmbigiousHeadersAsCHeaders()
+            ? Language::C
+            : Language::Cxx;
+
     runImpl({CppModelManager::instance()->workingCopy(),
              ProjectExplorer::SessionManager::startupProject(),
-             hasActiveProjectChanged});
+             languagePreference,
+             projectsUpdated});
 }
 
 TextEditor::QuickFixOperations
@@ -77,6 +85,23 @@ void BaseEditorDocumentProcessor::addDiagnosticToolTipToLayout(uint, uint, QLayo
 
 void BaseEditorDocumentProcessor::editorDocumentTimerRestarted()
 {
+}
+
+void BaseEditorDocumentProcessor::invalidateDiagnostics()
+{
+}
+
+void BaseEditorDocumentProcessor::setParserConfig(
+        const BaseEditorDocumentParser::Configuration config)
+{
+    parser()->setConfiguration(config);
+}
+
+QFuture<ToolTipInfo> BaseEditorDocumentProcessor::toolTipInfo(const QByteArray &/*codecName*/,
+                                                              int /*line*/,
+                                                              int /*column*/)
+{
+    return QFuture<ToolTipInfo>();
 }
 
 void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,

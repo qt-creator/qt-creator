@@ -40,15 +40,20 @@ class TestSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TestSettingsWidget(QWidget *parent = 0);
+    explicit TestSettingsWidget(QWidget *parent = nullptr);
 
     void setSettings(const TestSettings &settings);
     TestSettings settings() const;
 
 private:
     void populateFrameworksListWidget(const QHash<Core::Id, bool> &frameworks);
-    QHash<Core::Id, bool> frameworks() const;
+    void populateFiltersWidget(const QStringList &filters);
+    void frameworkSettings(TestSettings &settings) const;
+    QStringList filters() const;
     void onFrameworkItemChanged();
+    void onAddFilterClicked();
+    void onEditFilterClicked();
+    void onRemoveFilterClicked();
     Ui::TestSettingsPage m_ui;
 
 };

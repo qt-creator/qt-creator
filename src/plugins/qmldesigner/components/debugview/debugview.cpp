@@ -31,6 +31,7 @@
 #include <bindingproperty.h>
 #include <signalhandlerproperty.h>
 #include <nodeabstractproperty.h>
+#include <nodelistproperty.h>
 #include <variantproperty.h>
 
 #include <qmlitemnode.h>
@@ -40,13 +41,13 @@ const QString lineBreak = QStringLiteral("<br>");
 
 bool isDebugViewEnabled()
 {
-    return QmlDesigner::QmlDesignerPlugin::instance()->settings().value(
+    return QmlDesigner::DesignerSettings::getValue(
         QmlDesigner::DesignerSettingsKey::ENABLE_DEBUGVIEW).toBool();
 }
 
 bool isDebugViewShown()
 {
-    return QmlDesigner::QmlDesignerPlugin::instance()->settings().value(
+    return QmlDesigner::DesignerSettings::getValue(
         QmlDesigner::DesignerSettingsKey::SHOW_DEBUGVIEW).toBool();
 }
 
@@ -264,6 +265,25 @@ void DebugView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &
     }
 }
 
+void DebugView::documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings)
+{
+     if (isDebugViewEnabled()) {
+         QTextStream message;
+         QString string;
+         message.setString(&string);
+
+         foreach (const DocumentMessage &error, errors) {
+             message << error.toString();
+         }
+
+         foreach (const DocumentMessage &warning, warnings) {
+             message << warning.toString();
+         }
+
+         log("::documentMessageChanged:", string);
+     }
+}
+
 void DebugView::rewriterBeginTransaction()
 {
     if (isDebugViewEnabled())
@@ -375,7 +395,10 @@ void DebugView::instancesChildrenChanged(const QVector<ModelNode> & nodeList)
 
 void DebugView::customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
-    if (isDebugViewEnabled()) {
+    if (identifier == "PuppetStatus" && data.count() == 1) {
+        m_debugViewWidget->setPuppetStatus(data.constFirst().toString());
+
+    } else if (isDebugViewEnabled()) {
         QTextStream message;
         QString string;
         message.setString(&string);
@@ -436,9 +459,18 @@ void DebugView::currentStateChanged(const ModelNode &/*node*/)
 
 }
 
-void DebugView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode &/*movedNode*/, int /*oldIndex*/)
+void DebugView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex)
 {
+    if (isDebugViewEnabled()) {
+        QTextStream message;
+        QString string;
+        message.setString(&string);
 
+        message << movedNode << listProperty;
+        message << oldIndex << "to" << listProperty.indexOf(movedNode);
+
+        log("::nodeSlide:", string);
+    }
 }
 
 void DebugView::log(const QString &title, const QString &message, bool highlight)

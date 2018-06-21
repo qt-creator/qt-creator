@@ -31,8 +31,6 @@
 
 #include <coreplugin/id.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <QPushButton>
 
 namespace ProjectExplorer {
@@ -44,9 +42,7 @@ DeviceFactorySelectionDialog::DeviceFactorySelectionDialog(QWidget *parent) :
     ui->setupUi(this);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start Wizard"));
 
-    const QList<IDeviceFactory *> &factories
-        = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
-    foreach (const IDeviceFactory * const factory, factories) {
+    for (const IDeviceFactory * const factory : IDeviceFactory::allDeviceFactories()) {
         if (!factory->canCreate())
             continue;
         foreach (Core::Id id, factory->availableCreationIds()) {

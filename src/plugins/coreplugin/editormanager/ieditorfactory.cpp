@@ -27,9 +27,24 @@
 
 #include <utils/qtcassert.h>
 
-Core::IEditorFactory::IEditorFactory(QObject *parent)
+namespace Core {
+
+static QList<IEditorFactory *> g_editorFactories;
+
+IEditorFactory::IEditorFactory(QObject *parent)
     : QObject(parent)
 {
-
+    g_editorFactories.append(this);
 }
 
+IEditorFactory::~IEditorFactory()
+{
+    g_editorFactories.removeOne(this);
+}
+
+const QList<IEditorFactory *> IEditorFactory::allEditorFactories()
+{
+    return g_editorFactories;
+}
+
+} // Core

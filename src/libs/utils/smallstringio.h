@@ -33,14 +33,10 @@
 #include <iterator>
 #include <ostream>
 
-#ifdef UNIT_TESTS
-#include <gtest/gtest.h>
-#endif
-
 namespace Utils {
 
-inline
-QDataStream &operator<<(QDataStream &out, const SmallString &string)
+template <uint Size>
+QDataStream &operator<<(QDataStream &out, const BasicSmallString<Size> &string)
 {
    if (string.isEmpty())
        out << quint32(0);
@@ -50,8 +46,8 @@ QDataStream &operator<<(QDataStream &out, const SmallString &string)
    return out;
 }
 
-inline
-QDataStream &operator>>(QDataStream &in, SmallString &string)
+template <uint Size>
+QDataStream &operator>>(QDataStream &in, BasicSmallString<Size> &string)
 {
     quint32 size;
 
@@ -62,46 +58,47 @@ QDataStream &operator>>(QDataStream &in, SmallString &string)
 
         char *data = string.data();
 
-        in.readRawData(data, size);
+        in.readRawData(data, int(size));
     }
 
     return in;
 }
 
-inline
-QDebug &operator<<(QDebug &debug, const SmallString &string)
+template <typename String>
+QDebug &operator<<(QDebug &debug, const String &string)
 {
     using QT_PREPEND_NAMESPACE(operator<<);
 
-    debug.nospace() << "\"" << string.data() << "\"";
+    debug.nospace().quote() << QByteArray::fromRawData(string.data(), int(string.size()));
 
     return debug;
 }
 
 template <uint Size>
-std::ostream &operator<<(std::ostream &stream, const BasicSmallString<Size> &string)
+std::ostream &operator<<(std::ostream &out, const BasicSmallString<Size> &string)
 {
-    using std::operator<<;
-
-    return stream << std::string(string.data(), string.size());
-}
-
-template <uint Size>
-void PrintTo(const BasicSmallString<Size> &string, ::std::ostream *os)
-{
-    Utils::SmallString formatedString = string.clone();
+    BasicSmallString<Size> formatedString = string.clone();
 
     formatedString.replace("\n", "\\n");
     formatedString.replace("\t", "\\t");
 
-    *os << "'";
+    out << "\"";
 
-    os->write(formatedString.data(), formatedString.size());
+    out.write(formatedString.data(), std::streamsize(formatedString.size()));
 
-    *os<< "'";
+    out << "\"";
+
+    return out;
 }
 
-inline QDataStream &operator<<(QDataStream &out, const SmallStringVector &stringVector)
+inline
+std::ostream &operator<<(std::ostream &out, SmallStringView string)
+{
+    return out << PathString(string);
+}
+
+template <typename String>
+QDataStream &operator<<(QDataStream &out, const BasicSmallStringVector<String>  &stringVector)
 {
     out << quint64(stringVector.size());
 
@@ -111,8 +108,8 @@ inline QDataStream &operator<<(QDataStream &out, const SmallStringVector &string
     return out;
 }
 
-inline
-QDataStream &operator>>(QDataStream &in, SmallStringVector &stringVector)
+template <typename String>
+QDataStream &operator>>(QDataStream &in, BasicSmallStringVector<String>  &stringVector)
 {
     stringVector.clear();
 
@@ -123,7 +120,7 @@ QDataStream &operator>>(QDataStream &in, SmallStringVector &stringVector)
     stringVector.reserve(size);
 
     for (quint64 i = 0; i < size; ++i) {
-        SmallString string;
+        String string;
 
         in >> string;
 
@@ -133,18 +130,18 @@ QDataStream &operator>>(QDataStream &in, SmallStringVector &stringVector)
     return in;
 }
 
-inline
-QDebug operator<<(QDebug debug, const SmallStringVector &stringVector)
+template <typename String>
+QDebug operator<<(QDebug debug, const BasicSmallStringVector<String> &stringVector)
 {
-    debug << "StringVector(" << stringVector.join(Utils::SmallString(", ")).constData() << ")";
+    debug << "StringVector(" << stringVector.join(", ").constData() << ")";
 
     return debug;
 }
 
-inline
-void PrintTo(const SmallStringVector &textVector, ::std::ostream* os)
+template <typename String>
+std::ostream &operator<<(std::ostream &out, const BasicSmallStringVector<String> &textVector)
 {
-    *os << "[" << textVector.join(Utils::SmallString(", ")).constData() << "]";
+    return out << "[" << textVector.join("\", \"") << "]";
 }
 
 } // namespace Utils
@@ -234,22 +231,6 @@ QDataStream &operator>>(QDataStream &in, vector<Type> &vector)
     return in;
 }
 
-#ifdef UNIT_TESTS
-template <typename T>
-ostream &operator<<(ostream &out, const vector<T> &vector)
-{
-    out << "[";
-
-    ostream_iterator<string> outIterator(out, ", ");
-
-    for (const auto &entry : vector)
-        outIterator = ::testing::PrintToString(entry);
-
-    out << "]";
-
-    return out;
-}
-#else
 template <typename T>
 ostream &operator<<(ostream &out, const vector<T> &vector)
 {
@@ -261,7 +242,6 @@ ostream &operator<<(ostream &out, const vector<T> &vector)
 
     return out;
 }
-#endif
 
 } // namespace std
 

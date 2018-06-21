@@ -41,7 +41,7 @@ class QMT_EXPORT TreeModelManager : public QObject
     Q_OBJECT
 
 public:
-    explicit TreeModelManager(QObject *parent = 0);
+    explicit TreeModelManager(QObject *parent = nullptr);
     ~TreeModelManager() override;
 
     TreeModel *treeModel() const { return m_treeModel; }
@@ -55,8 +55,8 @@ public:
     MSelection selectedObjects() const;
 
 private:
-    TreeModel *m_treeModel;
-    ModelTreeViewInterface *m_modelTreeView;
+    TreeModel *m_treeModel = nullptr;
+    ModelTreeViewInterface *m_modelTreeView = nullptr;
 };
 
 } // namespace qmt

@@ -52,18 +52,18 @@ public:
 
     explicit ItemViewFind(QAbstractItemView *view, int role = Qt::DisplayRole,
             FetchOption option = DoNotFetchMoreWhileSearching);
-    virtual ~ItemViewFind();
+    ~ItemViewFind() override;
 
-    bool supportsReplace() const;
-    FindFlags supportedFindFlags() const;
-    void resetIncrementalSearch();
-    void clearHighlights();
-    QString currentFindString() const;
-    QString completedFindString() const;
+    bool supportsReplace() const override;
+    FindFlags supportedFindFlags() const override;
+    void resetIncrementalSearch() override;
+    void clearHighlights() override;
+    QString currentFindString() const override;
+    QString completedFindString() const override;
 
-    virtual void highlightAll(const QString &txt, FindFlags findFlags);
-    Result findIncremental(const QString &txt, FindFlags findFlags);
-    Result findStep(const QString &txt, FindFlags findFlags);
+    void highlightAll(const QString &txt, FindFlags findFlags) override;
+    Result findIncremental(const QString &txt, FindFlags findFlags) override;
+    Result findStep(const QString &txt, FindFlags findFlags) override;
 
     static QFrame *createSearchableWrapper(QAbstractItemView *treeView, ColorOption colorOption = DarkColored,
                                            FetchOption option = DoNotFetchMoreWhileSearching);

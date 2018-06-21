@@ -49,9 +49,9 @@ source("../../shared/build_utils.py")
 source("../../shared/project.py")
 source("../../shared/editor_utils.py")
 source("../../shared/project_explorer.py")
-source("../../shared/hook_utils.py")
 source("../../shared/debugger.py")
 source("../../shared/clang.py")
+source("../../shared/welcome.py")
 source("../../shared/workarounds.py") # include this at last
 
 # ATTENTION: if a test case calls startApplication("qtcreator...") for several times this
@@ -185,6 +185,30 @@ def substituteDefaultCompiler(settingsDir):
         __substitute__(qtversion, "SQUISH_DEFAULT_COMPILER", compiler)
         test.log("Injected default compiler '%s' to qtversion.xml..." % compiler)
 
+def substituteCdb(settingsDir):
+    def canUse32bitCdb():
+        try:
+            serverIni = readFile(os.path.join(os.getenv("APPDATA"), "froglogic",
+                                              "Squish", "ver1", "server.ini"))
+            autLine = filter(lambda line: "AUT/qtcreator" in line, serverIni.splitlines())[0]
+            autPath = autLine.split("\"")[1]
+            return os.path.exists(os.path.join(autPath, "..", "lib", "qtcreatorcdbext32"))
+        except:
+            test.fatal("Something went wrong when determining debugger bitness",
+                       "Did Squish's file structure change? Guessing 32-bit cdb can be used...")
+            return True
+
+    if canUse32bitCdb():
+        architecture = "x86"
+        bitness = "32"
+    else:
+        architecture = "x64"
+        bitness = "64"
+    debuggers = os.path.join(settingsDir, "QtProject", 'qtcreator', 'debuggers.xml')
+    __substitute__(debuggers, "SQUISH_DEBUGGER_ARCHITECTURE", architecture)
+    __substitute__(debuggers, "SQUISH_DEBUGGER_BITNESS", bitness)
+    test.log("Injected architecture '%s' and bitness '%s' in cdb path..." % (architecture, bitness))
+
 def __guessABI__(supportedABIs, use64Bit):
     if platform.system() == 'Linux':
         supportedABIs = filter(lambda x: 'linux' in x, supportedABIs)
@@ -276,21 +300,24 @@ def copySettingsToTmpDir(destination=None, omitFiles=[]):
     if platform.system() in ('Linux', 'Darwin'):
         substituteTildeWithinToolchains(tmpSettingsDir)
         substituteDefaultCompiler(tmpSettingsDir)
+    elif platform.system() in ('Windows', 'Microsoft'):
+        substituteCdb(tmpSettingsDir)
     substituteUnchosenTargetABIs(tmpSettingsDir)
     SettingsPath = ' -settingspath "%s"' % tmpSettingsDir
 
 # current dir is directory holding qtcreator.py
 origSettingsDir = os.path.abspath(os.path.join(os.getcwd(), "..", "..", "settings"))
-sdkPath = os.path.expanduser("~/QtSDK")
+qt4Path = os.path.expanduser("~/Qt4.8.7")
 
 if platform.system() in ('Windows', 'Microsoft'):
-    sdkPath = "C:\\QtSDK"
+    qt4Path = "C:\\Qt\\Qt4.8.7"
     origSettingsDir = os.path.join(origSettingsDir, "windows")
 elif platform.system() == 'Darwin':
     origSettingsDir = os.path.join(origSettingsDir, "mac")
 else:
     origSettingsDir = os.path.join(origSettingsDir, "unix")
-srcPath = os.getenv("SYSTEST_SRCPATH", os.path.join(sdkPath, "src"))
+
+srcPath = os.getenv("SYSTEST_SRCPATH", os.path.expanduser(os.path.join("~", "squish-data")))
 
 overrideStartApplication()
 

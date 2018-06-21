@@ -42,17 +42,15 @@ class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizardSetupPage : public
     Q_OBJECT
 
 public:
-    explicit GenericLinuxDeviceConfigurationWizardSetupPage(QWidget *parent = 0);
-    ~GenericLinuxDeviceConfigurationWizardSetupPage();
+    explicit GenericLinuxDeviceConfigurationWizardSetupPage(QWidget *parent = nullptr);
+    ~GenericLinuxDeviceConfigurationWizardSetupPage() override;
 
-    void initializePage();
-    bool isComplete() const;
+    void initializePage() override;
+    bool isComplete() const override;
 
     QString configurationName() const;
-    QString hostName() const;
-    QString userName() const;
+    QUrl url() const;
     QSsh::SshConnectionParameters::AuthenticationType authenticationType() const;
-    QString password() const;
     QString privateKeyFilePath() const;
 
     virtual QString defaultConfigurationName() const;
@@ -72,9 +70,9 @@ class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizardFinalPage : public
     Q_OBJECT
 public:
     GenericLinuxDeviceConfigurationWizardFinalPage(QWidget *parent);
-    ~GenericLinuxDeviceConfigurationWizardFinalPage();
+    ~GenericLinuxDeviceConfigurationWizardFinalPage() override;
 
-    void initializePage();
+    void initializePage() override;
 
 protected:
     virtual QString infoText() const;

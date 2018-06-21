@@ -25,23 +25,25 @@
 
 #pragma once
 
-#include <remotelinux/remotelinuxdeployconfiguration.h>
+#include <projectexplorer/deployconfiguration.h>
 
 namespace Qnx {
 namespace Internal {
 
-class QnxDeployConfiguration : public RemoteLinux::RemoteLinuxDeployConfiguration
+class QnxDeployConfiguration : public ProjectExplorer::DeployConfiguration
 {
     Q_OBJECT
+
 public:
-    QnxDeployConfiguration(ProjectExplorer::Target *target, Core::Id id,
-                           const QString &defaultDisplayName);
+    QnxDeployConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    void initialize() override;
+    ProjectExplorer::NamedWidget *createConfigWidget() override;
+};
 
-    QnxDeployConfiguration(ProjectExplorer::Target *target,
-                           QnxDeployConfiguration *source);
-
-private:
-    friend class QnxDeployConfigurationFactory;
+class QnxDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
+{
+public:
+    QnxDeployConfigurationFactory();
 };
 
 } // namespace Internal

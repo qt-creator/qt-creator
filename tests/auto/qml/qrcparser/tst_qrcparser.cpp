@@ -162,18 +162,10 @@ void tst_QrcParser::simpleTest()
     QrcParser::Ptr p = QrcParser::parseQrcFile(QString::fromLatin1(TESTSRCDIR).append(QLatin1String("/simple.qrc")), QString());
     QStringList paths = allPaths(p);
     paths.sort();
-    QVERIFY(paths == QStringList()
-            << QLatin1String("/")
-            << QLatin1String("/cut.jpg")
-            << QLatin1String("/images/")
-            << QLatin1String("/images/copy.png")
-            << QLatin1String("/images/cut.png")
-            << QLatin1String("/images/new.png")
-            << QLatin1String("/images/open.png")
-            << QLatin1String("/images/paste.png")
-            << QLatin1String("/images/save.png")
-            << QLatin1String("/myresources/")
-            << QLatin1String("/myresources/cut-img.png"));
+    QVERIFY(paths == QStringList({ "/", "/cut.jpg", "/images/", "/images/copy.png",
+                                   "/images/cut.png", "/images/new.png", "/images/open.png",
+                                   "/images/paste.png", "/images/save.png", "/myresources/",
+                                   "/myresources/cut-img.png" }));
     QString frPath = p->firstFileAtPath(QLatin1String("/cut.jpg"), QLocale(QLatin1String("fr_FR")));
     QString refFrPath = QString::fromLatin1(TESTSRCDIR).append(QLatin1String("/cut_fr.jpg"));
     QCOMPARE(frPath, refFrPath);

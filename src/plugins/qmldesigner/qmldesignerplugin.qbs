@@ -12,8 +12,7 @@ Project {
         Depends {
             name: "Qt";
             submodules: [
-                "core-private", "gui-private", "quick-private", "quickwidgets", "quickwidgets-private",
-                "widgets", "widgets-private"
+                "core-private", "quickwidgets"
             ]
         }
         Depends { name: "Core" }
@@ -26,6 +25,7 @@ Project {
         Depends { name: "ProjectExplorer" }
         Depends { name: "LanguageUtils" }
         Depends { name: "QtSupport" }
+        Depends { name: "app_version_header" }
 
         cpp.defines: base.concat("DESIGNER_CORE_LIBRARY")
         cpp.enableExceptions: true
@@ -272,7 +272,7 @@ Project {
                 "include/qmlobjectnode.h",
                 "include/qmlstate.h",
                 "include/removebasestateexception.h",
-                "include/rewritererror.h",
+                "include/documentmessage.h",
                 "include/rewriterview.h",
                 "include/rewritingexception.h",
                 "include/signalhandlerproperty.h",
@@ -280,6 +280,8 @@ Project {
                 "include/subcomponentmanager.h",
                 "include/textmodifier.h",
                 "include/variantproperty.h",
+                "include/qmltimelinekeyframegroup.h",
+                "include/qmltimeline.h",
                 "instances/nodeinstance.cpp",
                 "instances/nodeinstanceserverproxy.cpp",
                 "instances/nodeinstanceserverproxy.h",
@@ -349,7 +351,7 @@ Project {
                 "model/rewriteaction.h",
                 "model/rewriteactioncompressor.cpp",
                 "model/rewriteactioncompressor.h",
-                "model/rewritererror.cpp",
+                "model/documentmessage.cpp",
                 "model/rewriterview.cpp",
                 "model/signalhandlerproperty.cpp",
                 "model/textmodifier.cpp",
@@ -357,6 +359,8 @@ Project {
                 "model/texttomodelmerger.h",
                 "model/variantproperty.cpp",
                 "model/viewmanager.cpp",
+                "model/qmltimelinekeyframegroup.cpp",
+                "model/qmltimeline.cpp",
                 "pluginmanager/widgetpluginmanager.cpp",
                 "pluginmanager/widgetpluginmanager.h",
                 "pluginmanager/widgetpluginpath.cpp",
@@ -367,6 +371,8 @@ Project {
         Group {
             prefix: "components/"
             files: [
+                "componentcore/addimagesdialog.cpp",
+                "componentcore/addimagesdialog.h",
                 "componentcore/abstractaction.cpp",
                 "componentcore/abstractaction.h",
                 "componentcore/abstractactiongroup.cpp",
@@ -386,8 +392,8 @@ Project {
                 "componentcore/findimplementation.h",
                 "componentcore/layoutingridlayout.cpp",
                 "componentcore/layoutingridlayout.h",
-                "componentcore/theming.cpp",
-                "componentcore/theming.h",
+                "componentcore/theme.cpp",
+                "componentcore/theme.h",
                 "componentcore/modelnodecontextmenu.cpp",
                 "componentcore/modelnodecontextmenu.h",
                 "componentcore/modelnodecontextmenu_helper.cpp",
@@ -398,8 +404,17 @@ Project {
                 "componentcore/selectioncontext.h",
                 "componentcore/qmldesignericonprovider.cpp",
                 "componentcore/qmldesignericonprovider.h",
+                "componentcore/componentcore.qrc",
+                "componentcore/zoomaction.cpp",
+                "componentcore/zoomaction.h",
+                "texteditor/texteditorstatusbar.cpp",
+                "texteditor/texteditorstatusbar.h",
+                "componentcore/changestyleaction.cpp",
+                "componentcore/changestyleaction.h",
                 "texteditor/texteditorview.cpp",
                 "texteditor/texteditorview.h",
+                "texteditor/texteditorwidget.cpp",
+                "texteditor/texteditorwidget.h",
                 "debugview/debugview.cpp",
                 "debugview/debugview.h",
                 "debugview/debugviewwidget.cpp",
@@ -480,8 +495,8 @@ Project {
                 "formeditor/snappinglinecreator.h",
                 "formeditor/toolbox.cpp",
                 "formeditor/toolbox.h",
-                "formeditor/zoomaction.cpp",
-                "formeditor/zoomaction.h",
+                "formeditor/formeditortoolbutton.cpp",
+                "formeditor/formeditortoolbutton.h",
                 "importmanager/importlabel.cpp",
                 "importmanager/importlabel.h",
                 "importmanager/importmanagercombobox.cpp",
@@ -504,8 +519,6 @@ Project {
                 "integration/stackedutilitypanelcontroller.h",
                 "integration/utilitypanelcontroller.cpp",
                 "integration/utilitypanelcontroller.h",
-                "integration/xuifiledialog.cpp",
-                "integration/xuifiledialog.h",
                 "itemlibrary/itemlibrary.qrc",
                 "itemlibrary/itemlibraryimageprovider.cpp",
                 "itemlibrary/itemlibraryimageprovider.h",
@@ -517,14 +530,14 @@ Project {
                 "itemlibrary/itemlibrarysection.h",
                 "itemlibrary/itemlibrarysectionmodel.cpp",
                 "itemlibrary/itemlibrarysectionmodel.h",
-                "itemlibrary/itemlibrarytreeview.cpp",
-                "itemlibrary/itemlibrarytreeview.h",
+                "itemlibrary/itemlibraryresourceview.cpp",
+                "itemlibrary/itemlibraryresourceview.h",
                 "itemlibrary/itemlibraryview.cpp",
                 "itemlibrary/itemlibraryview.h",
                 "itemlibrary/itemlibrarywidget.cpp",
                 "itemlibrary/itemlibrarywidget.h",
-                "itemlibrary/resourceitemdelegate.cpp",
-                "itemlibrary/resourceitemdelegate.h",
+                "itemlibrary/customfilesystemmodel.cpp",
+                "itemlibrary/customfilesystemmodel.h",
                 "navigator/iconcheckboxitemdelegate.cpp",
                 "navigator/iconcheckboxitemdelegate.h",
                 "navigator/nameitemdelegate.cpp",
@@ -544,7 +557,6 @@ Project {
                 "propertyeditor/fileresourcesmodel.h",
                 "propertyeditor/gradientmodel.cpp",
                 "propertyeditor/gradientmodel.h",
-                "propertyeditor/propertyeditor.qrc",
                 "propertyeditor/propertyeditorcontextobject.cpp",
                 "propertyeditor/propertyeditorcontextobject.h",
                 "propertyeditor/propertyeditortransaction.cpp",
@@ -633,6 +645,8 @@ Project {
             "designmodecontext.h",
             "designmodewidget.cpp",
             "designmodewidget.h",
+            "switchsplittabwidget.cpp",
+            "switchsplittabwidget.h",
             "documentmanager.cpp",
             "documentmanager.h",
             "documentwarningwidget.cpp",

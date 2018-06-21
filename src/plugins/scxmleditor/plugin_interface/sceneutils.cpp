@@ -414,6 +414,15 @@ ScxmlTag *addChild(ScxmlTag *tag, const QVariantMap &data, GraphicsScene *scene)
     return nullptr;
 }
 
+ScxmlTag *addSibling(ScxmlTag *tag, const QVariantMap &data, GraphicsScene *scene)
+{
+    TagType newTagType = (TagType)data.value(Constants::C_SCXMLTAG_TAGTYPE, 0).toInt();
+    if (newTagType >= UnknownTag) {
+        return addNewTag(tag->parentTag(), newTagType, scene);
+    }
+    return nullptr;
+}
+
 } // namespace SceneUtils
 } // namespace PluginInterface
 } // namespace ScxmlEditor

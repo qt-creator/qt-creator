@@ -48,7 +48,7 @@ public:
         VerticalDistanceToObejct = HorizontalDistanceToObject
     };
 
-    explicit AlignButtonsItem(IAlignable *alignable, QGraphicsItem *parent = 0);
+    explicit AlignButtonsItem(IAlignable *alignable, QGraphicsItem *parent = nullptr);
     ~AlignButtonsItem() override;
 
     QRectF boundingRect() const override;
@@ -58,7 +58,7 @@ public:
     void addButton(IAlignable::AlignType alignType, const QString &identifier, qreal pos);
 
 private:
-    IAlignable *m_alignable = 0;
+    IAlignable *m_alignable = nullptr;
     QList<AlignButtonItem *> m_alignItems;
 };
 

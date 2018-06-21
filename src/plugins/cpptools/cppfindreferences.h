@@ -40,6 +40,10 @@ class SearchResultItem;
 class SearchResult;
 } // namespace Core
 
+namespace ProjectExplorer {
+class Node;
+}
+
 namespace CppTools {
 class CppModelManager;
 
@@ -50,6 +54,8 @@ class CppFindReferencesParameters
 public:
     QList<QByteArray> symbolId;
     QByteArray symbolFileName;
+    QString prettySymbolName;
+    QVector<ProjectExplorer::Node *> filesToRename;
 };
 
 class CppFindReferences: public QObject
@@ -71,7 +77,6 @@ public:
     void renameMacroUses(const CPlusPlus::Macro &macro, const QString &replacement = QString());
 
 private:
-    void openEditor(const Core::SearchResultItem &item);
     void onReplaceButtonClicked(const QString &text, const QList<Core::SearchResultItem> &items, bool preserveCase);
     void searchAgain();
 

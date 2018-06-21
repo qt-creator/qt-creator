@@ -27,6 +27,7 @@
 #include "itemlibrarywidget.h"
 #include <import.h>
 #include <importmanagerview.h>
+#include <rewriterview.h>
 
 namespace QmlDesigner {
 
@@ -69,6 +70,7 @@ void ItemLibraryView::modelAttached(Model *model)
     m_widget->setModel(model);
     updateImports();
     model->attachView(m_importManagerView);
+    m_hasErrors = !rewriterView()->errors().isEmpty();
 }
 
 void ItemLibraryView::modelAboutToBeDetached(Model *model)
@@ -91,6 +93,15 @@ void ItemLibraryView::setResourcePath(const QString &resourcePath)
         m_widget = new ItemLibraryWidget;
 
     m_widget->setResourcePath(resourcePath);
+}
+
+void ItemLibraryView::documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &)
+{
+    if (m_hasErrors && errors.isEmpty())
+        /* For some reason we have to call update from the event loop */
+        QTimer::singleShot(0, m_widget, &ItemLibraryWidget::updateModel);
+
+     m_hasErrors = !errors.isEmpty();
 }
 
 void ItemLibraryView::updateImports()

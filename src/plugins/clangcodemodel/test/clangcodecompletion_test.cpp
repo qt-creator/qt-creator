@@ -25,7 +25,7 @@
 
 #include "clangcodecompletion_test.h"
 
-#include "../clangbackendipcintegration.h"
+#include "clangautomationutils.h"
 #include "../clangcompletionassistinterface.h"
 #include "../clangmodelmanagersupport.h"
 
@@ -38,23 +38,13 @@
 #include <cpptools/cpptoolstestcase.h>
 #include <cpptools/modelmanagertesthelper.h>
 #include <cpptools/projectinfo.h>
-#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/assistproposalitem.h>
-#include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
-#include <texteditor/codeassist/iassistprocessor.h>
-#include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
-#include <clangbackendipc/cmbcompletecodemessage.h>
-#include <clangbackendipc/cmbendmessage.h>
-#include <clangbackendipc/cmbregisterprojectsforeditormessage.h>
-#include <clangbackendipc/cmbregistertranslationunitsforeditormessage.h>
-#include <clangbackendipc/cmbunregisterprojectsforeditormessage.h>
-#include <clangbackendipc/cmbunregistertranslationunitsforeditormessage.h>
-#include <clangbackendipc/registerunsavedfilesforeditormessage.h>
-#include <clangbackendipc/updatetranslationunitsforeditormessage.h>
+#include <clangsupport/clangcodemodelservermessages.h>
+
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
 
@@ -67,91 +57,14 @@ using namespace ClangCodeModel::Internal;
 
 namespace {
 
-QString _(const char text[])
-{ return QString::fromUtf8(text); }
-
 QString qrcPath(const QByteArray relativeFilePath)
 { return QLatin1String(":/unittests/ClangCodeModel/") + QString::fromUtf8(relativeFilePath); }
-
-QString fileName(const QString &filePath)
-{ return QFileInfo(filePath).fileName(); }
 
 CppTools::Tests::TemporaryDir *globalTemporaryDir()
 {
     static CppTools::Tests::TemporaryDir dir;
     QTC_CHECK(dir.isValid());
     return &dir;
-}
-
-struct LogOutput
-{
-    LogOutput(const QString &text) : text(text.toUtf8()) {}
-    LogOutput(const char text[]) : text(text) {}
-    QByteArray text;
-};
-
-void printRawLines(QTextStream &out, const QList<QByteArray> &lines)
-{
-    foreach (const QByteArray &line, lines) {
-        QByteArray rawLine = line;
-        rawLine.prepend("\"");
-        rawLine.append("\\n\"\n");
-        out << rawLine;
-    }
-}
-
-void printDifference(const LogOutput &actual, const LogOutput &expected)
-{
-    QTextStream out(stderr);
-
-    const QList<QByteArray> actualLines = actual.text.split('\n');
-    const QList<QByteArray> expectedLines = expected.text.split('\n');
-
-    out << "-- ACTUAL:\n";
-    printRawLines(out, actualLines);
-    out << "-- EXPECTED:\n";
-    printRawLines(out, expectedLines);
-
-    if (actualLines.size() != expectedLines.size()) {
-        out << "-- DIFFERENCE IN LINE COUNT:\n"
-            << "    actual lines:" << actualLines.size() << '\n'
-            << "  expected lines:" << expectedLines.size() << '\n';
-    }
-
-    out << "-- FIRST LINE THAT DIFFERS:\n";
-    auto actualLineIt = actualLines.cbegin();
-    auto expectedLineIt = expectedLines.cbegin();
-    int line = 1;
-    forever {
-        if (actualLineIt == actualLines.cend() && expectedLineIt != expectedLines.cend()) {
-            out << "      line: " << line << '\n';
-            out << "    actual: <none>\n";
-            out << "  expected: \"" << *expectedLineIt << "\"\n";
-        } else if (actualLineIt != actualLines.cend() && expectedLineIt == expectedLines.cend()) {
-            out << "      line: " << line << '\n';
-            out << "    actual: \"" << *actualLineIt << "\"\n";
-            out << "  expected: <none>\n";
-        } else {
-            if (*actualLineIt != *expectedLineIt) {
-                out << "      line: " << line << '\n';
-                out << "    actual: \"" << *actualLineIt << "\"\n";
-                out << "  expected: \"" << *expectedLineIt << "\"\n";
-                return;
-            }
-        }
-
-        ++line;
-        ++actualLineIt;
-        ++expectedLineIt;
-    }
-}
-
-bool compare(const LogOutput &actual, const LogOutput &expected)
-{
-    const bool isEqual = actual.text == expected.text;
-    if (!isEqual)
-        printDifference(actual, expected);
-    return isEqual;
 }
 
 QByteArray readFile(const QString &filePath)
@@ -180,53 +93,6 @@ void insertTextAtTopOfEditor(TextEditor::BaseTextEditor *editor, const QByteArra
     cs.apply(&textCursor);
 }
 
-class WaitForAsyncCompletions
-{
-public:
-    enum WaitResult { GotResults, GotInvalidResults, Timeout };
-    WaitResult wait(TextEditor::IAssistProcessor *processor,
-                    TextEditor::AssistInterface *assistInterface);
-
-    TextEditor::IAssistProposalModel *proposalModel;
-};
-
-WaitForAsyncCompletions::WaitResult WaitForAsyncCompletions::wait(
-        TextEditor::IAssistProcessor *processor,
-        TextEditor::AssistInterface *assistInterface)
-{
-    QTC_ASSERT(processor, return Timeout);
-    QTC_ASSERT(assistInterface, return Timeout);
-
-    bool gotResults = false;
-
-    processor->setAsyncCompletionAvailableHandler(
-                [this, &gotResults] (TextEditor::IAssistProposal *proposal) {
-        QTC_ASSERT(proposal, return);
-        proposalModel = proposal->model();
-        delete proposal;
-        gotResults = true;
-    });
-
-    // Are there any immediate results?
-    if (TextEditor::IAssistProposal *proposal = processor->perform(assistInterface)) {
-        delete processor;
-        proposalModel = proposal->model();
-        delete proposal;
-        QTC_ASSERT(proposalModel, return GotInvalidResults);
-        return GotResults;
-    }
-
-    // There are not any, so wait for async results.
-    QElapsedTimer timer; timer.start();
-    while (!gotResults) {
-        if (timer.elapsed() >= 30 * 1000)
-            return Timeout;
-        QCoreApplication::processEvents();
-    }
-
-    return proposalModel ? GotResults : GotInvalidResults;
-}
-
 class ChangeDocumentReloadSetting
 {
 public:
@@ -244,227 +110,6 @@ public:
 private:
    Core::IDocument::ReloadSetting m_previousValue;
 };
-
-class ChangeIpcSender
-{
-public:
-    ChangeIpcSender(IpcSenderInterface *ipcSender)
-    {
-        auto &ipc = ModelManagerSupportClang::instance()->ipcCommunicator();
-        m_previousSender = ipc.setIpcSender(ipcSender);
-    }
-
-    ~ChangeIpcSender()
-    {
-        auto &ipc = ModelManagerSupportClang::instance()->ipcCommunicator();
-        ipc.setIpcSender(m_previousSender);
-    }
-
-private:
-    IpcSenderInterface *m_previousSender;
-};
-
-QString toString(const FileContainer &fileContainer)
-{
-    QString out;
-    QTextStream ts(&out);
-    ts << "  Path: " << fileName(fileContainer.filePath().toString())
-       << " ProjectPart: " << fileName(fileContainer.projectPartId().toString()) << "\n";
-    return out;
-}
-
-QString toString(const QVector<FileContainer> &fileContainers)
-{
-    QString out;
-    QTextStream ts(&out);
-    foreach (const FileContainer &fileContainer, fileContainers)
-        ts << toString(fileContainer);
-    return out;
-}
-
-QString toString(const ProjectPartContainer &projectPartContainer)
-{
-    QString out;
-    QTextStream ts(&out);
-    ts << "  ProjectPartContainer"
-       << " id: " << fileName(projectPartContainer.projectPartId().toString());
-    return out;
-}
-
-QString toString(const QVector<ProjectPartContainer> &projectPartContainers)
-{
-    QString out;
-    QTextStream ts(&out);
-    foreach (const ProjectPartContainer &projectPartContainer, projectPartContainers)
-        ts << toString(projectPartContainer);
-    return out;
-}
-
-QString toString(const EndMessage &)
-{
-    return QLatin1String("EndMessage\n");
-}
-
-QString toString(const RegisterTranslationUnitForEditorMessage &message)
-{
-    QString out;
-    QTextStream ts(&out);
-
-    ts << "RegisterTranslationUnitForEditorMessage\n"
-       << toString(message.fileContainers());
-    return out;
-}
-
-QString toString(const UpdateTranslationUnitsForEditorMessage &message)
-{
-    QString out;
-    QTextStream ts(&out);
-
-    ts << "UpdateTranslationUnitForEditorMessage\n"
-       << toString(message.fileContainers());
-    return out;
-}
-
-QString toString(const UnregisterTranslationUnitsForEditorMessage &)
-{
-    return QLatin1String("UnregisterTranslationUnitsForEditorMessage\n");
-}
-
-QString toString(const RegisterProjectPartsForEditorMessage &message)
-{
-    QString out;
-    QTextStream ts(&out);
-
-    ts << "RegisterProjectPartsForEditorMessage\n"
-       << toString(message.projectContainers()) << "\n";
-    return out;
-}
-
-QString toString(const UnregisterProjectPartsForEditorMessage &message)
-{
-    QString out;
-    QTextStream ts(&out);
-
-    ts << "UnregisterProjectPartsForEditorMessage\n"
-       << message.projectPartIds().join(Utf8String::fromUtf8(",")).toByteArray() << "\n";
-    return out;
-}
-
-QString toString(const RegisterUnsavedFilesForEditorMessage &message)
-{
-    QString out;
-    QTextStream ts(&out);
-
-    ts << "RegisterUnsavedFilesForEditorMessage\n"
-       << toString(message.fileContainers());
-    return out;
-}
-
-QString toString(const UnregisterUnsavedFilesForEditorMessage &)
-{
-    return QLatin1String("UnregisterUnsavedFilesForEditorMessage\n");
-}
-
-QString toString(const CompleteCodeMessage &)
-{
-    return QLatin1String("CompleteCodeMessage\n");
-}
-
-QString toString(const RequestDocumentAnnotationsMessage &)
-{
-    return QStringLiteral("RequestDocumentAnnotationsMessage\n");
-}
-
-
-QString toString(const UpdateVisibleTranslationUnitsMessage &)
-{
-    return QStringLiteral("UpdateVisibleTranslationUnitsMessage\n");
-}
-
-class IpcSenderSpy : public IpcSenderInterface
-{
-public:
-    void end() override
-    { senderLog.append(toString(EndMessage())); }
-
-    void registerTranslationUnitsForEditor(const RegisterTranslationUnitForEditorMessage &message) override
-    { senderLog.append(toString(message)); }
-
-    void updateTranslationUnitsForEditor(const UpdateTranslationUnitsForEditorMessage &message) override
-    { senderLog.append(toString(message)); }
-
-    void unregisterTranslationUnitsForEditor(const UnregisterTranslationUnitsForEditorMessage &message) override
-    { senderLog.append(toString(message)); }
-
-    void registerProjectPartsForEditor(const RegisterProjectPartsForEditorMessage &message) override
-    { senderLog.append(toString(message)); }
-
-    void unregisterProjectPartsForEditor(const UnregisterProjectPartsForEditorMessage &message) override
-    { senderLog.append(toString(message)); }
-
-    void registerUnsavedFilesForEditor(const RegisterUnsavedFilesForEditorMessage &message) override
-    { senderLog.append(toString(message)); }
-
-    void unregisterUnsavedFilesForEditor(const UnregisterUnsavedFilesForEditorMessage &message) override
-    { senderLog.append(toString(message)); }
-
-    void completeCode(const CompleteCodeMessage &message) override
-    { senderLog.append(toString(message)); }
-
-    void requestDocumentAnnotations(const RequestDocumentAnnotationsMessage &message) override
-    { senderLog.append(toString(message)); }
-
-    void updateVisibleTranslationUnits(const UpdateVisibleTranslationUnitsMessage &message) override
-    { senderLog.append(toString(message)); }
-
-public:
-    QString senderLog;
-};
-
-const CppTools::ProjectPartHeaderPaths toHeaderPaths(const QStringList &paths)
-{
-    using namespace CppTools;
-
-    ProjectPartHeaderPaths result;
-    foreach (const QString &path, paths)
-        result << ProjectPartHeaderPath(path, ProjectPartHeaderPath::IncludePath);
-    return result;
-}
-
-using ProposalModel = QSharedPointer<TextEditor::IAssistProposalModel>;
-
-ProposalModel completionResults(
-        TextEditor::BaseTextEditor *textEditor,
-        const QStringList &includePaths = QStringList())
-{
-    using namespace TextEditor;
-
-    TextEditorWidget *textEditorWidget = qobject_cast<TextEditorWidget *>(textEditor->widget());
-    QTC_ASSERT(textEditorWidget, return ProposalModel());
-    AssistInterface *assistInterface = textEditorWidget->createAssistInterface(
-                TextEditor::Completion, TextEditor::ExplicitlyInvoked);
-    QTC_ASSERT(assistInterface, return ProposalModel());
-    if (!includePaths.isEmpty()) {
-        auto clangAssistInterface = static_cast<ClangCompletionAssistInterface *>(assistInterface);
-        clangAssistInterface->setHeaderPaths(toHeaderPaths(includePaths));
-    }
-
-    CompletionAssistProvider *assistProvider
-            = textEditor->textDocument()->completionAssistProvider();
-    QTC_ASSERT(qobject_cast<ClangCompletionAssistProvider *>(assistProvider),
-               return ProposalModel());
-    QTC_ASSERT(assistProvider, return ProposalModel());
-    QTC_ASSERT(assistProvider->runType() == IAssistProvider::Asynchronous, return ProposalModel());
-
-    IAssistProcessor *processor = assistProvider->createProcessor();
-    QTC_ASSERT(processor, return ProposalModel());
-
-    WaitForAsyncCompletions waitForCompletions;
-    const WaitForAsyncCompletions::WaitResult result = waitForCompletions.wait(processor,
-                                                                               assistInterface);
-    QTC_ASSERT(result == WaitForAsyncCompletions::GotResults, return ProposalModel());
-    return QSharedPointer<TextEditor::IAssistProposalModel>(waitForCompletions.proposalModel);
-}
 
 class TestDocument
 {
@@ -537,9 +182,11 @@ OpenEditorAtCursorPosition::OpenEditorAtCursorPosition(const TestDocument &testD
     Core::IEditor *coreEditor = Core::EditorManager::openEditor(testDocument.filePath);
     m_editor = qobject_cast<TextEditor::BaseTextEditor *>(coreEditor);
     QTC_CHECK(m_editor);
-    if (m_editor && testDocument.hasValidCursorPosition())
-        m_editor->setCursorPosition(testDocument.cursorPosition);
-    m_backendIsNotified = waitUntilBackendIsNotified();
+    if (m_editor) {
+        if (testDocument.hasValidCursorPosition())
+            m_editor->setCursorPosition(testDocument.cursorPosition);
+        m_backendIsNotified = waitUntilBackendIsNotified();
+    }
     QTC_CHECK(m_backendIsNotified);
 }
 
@@ -598,7 +245,7 @@ bool OpenEditorAtCursorPosition::waitUntil(const std::function<bool ()> &conditi
 }
 
 CppTools::ProjectPart::Ptr createProjectPart(const QStringList &files,
-                                             const QString &defines)
+                                             const ProjectExplorer::Macros &macros)
 {
     using namespace CppTools;
 
@@ -607,19 +254,19 @@ CppTools::ProjectPart::Ptr createProjectPart(const QStringList &files,
     foreach (const QString &file, files)
         projectPart->files.append(ProjectFile(file, ProjectFile::classify(file)));
     projectPart->qtVersion = ProjectPart::NoQt;
-    projectPart->projectDefines = defines.toUtf8();
+    projectPart->projectMacros = macros;
 
     return projectPart;
 }
 
 CppTools::ProjectInfo createProjectInfo(ProjectExplorer::Project *project,
                                         const QStringList &files,
-                                        const QString &defines)
+                                        const ProjectExplorer::Macros &macros)
 {
     using namespace CppTools;
     QTC_ASSERT(project, return ProjectInfo());
 
-    const CppTools::ProjectPart::Ptr projectPart = createProjectPart(files, defines);
+    const CppTools::ProjectPart::Ptr projectPart = createProjectPart(files, macros);
     ProjectInfo projectInfo = ProjectInfo(project);
     projectInfo.appendProjectPart(projectPart);
     return projectInfo;
@@ -629,11 +276,11 @@ class ProjectLoader
 {
 public:
     ProjectLoader(const QStringList &projectFiles,
-                  const QString &projectDefines,
+                  const ProjectExplorer::Macros &projectMacros,
                   bool testOnlyForCleanedProjects = false)
         : m_project(0)
         , m_projectFiles(projectFiles)
-        , m_projectDefines(projectDefines)
+        , m_projectMacros(projectMacros)
         , m_helper(0, testOnlyForCleanedProjects)
     {
     }
@@ -643,17 +290,17 @@ public:
         m_project = m_helper.createProject(QLatin1String("testProject"));
         const CppTools::ProjectInfo projectInfo = createProjectInfo(m_project,
                                                                     m_projectFiles,
-                                                                    m_projectDefines);
+                                                                    m_projectMacros);
         const QSet<QString> filesIndexedAfterLoading = m_helper.updateProjectInfo(projectInfo);
         return m_projectFiles.size() == filesIndexedAfterLoading.size();
     }
 
-    bool updateProject(const QString &updatedProjectDefines)
+    bool updateProject(const ProjectExplorer::Macros &updatedProjectMacros)
     {
         QTC_ASSERT(m_project, return false);
         const CppTools::ProjectInfo updatedProjectInfo = createProjectInfo(m_project,
                                                                            m_projectFiles,
-                                                                           updatedProjectDefines);
+                                                                           updatedProjectMacros);
         return updateProjectInfo(updatedProjectInfo);
 
     }
@@ -667,7 +314,7 @@ private:
 
     ProjectExplorer::Project *m_project;
     QStringList m_projectFiles;
-    QString m_projectDefines;
+    ProjectExplorer::Macros m_projectMacros;
     CppTools::Tests::ModelManagerTestHelper m_helper;
 };
 
@@ -689,13 +336,13 @@ public:
         if (!textToInsert.isEmpty())
             openEditor.editor()->insert(textToInsert);
 
-        proposal = completionResults(openEditor.editor(), includePaths);
+        proposal = completionResults(openEditor.editor(), includePaths, 15000);
     }
 
-    ProposalModel proposal;
+    TextEditor::ProposalModelPtr proposal;
 };
 
-int indexOfItemWithText(ProposalModel model, const QByteArray &text)
+int indexOfItemWithText(TextEditor::ProposalModelPtr model, const QByteArray &text)
 {
     if (!model)
         return -1;
@@ -709,12 +356,12 @@ int indexOfItemWithText(ProposalModel model, const QByteArray &text)
     return -1;
 }
 
-bool hasItem(ProposalModel model, const QByteArray &text)
+bool hasItem(TextEditor::ProposalModelPtr model, const QByteArray &text)
 {
     return indexOfItemWithText(model, text) != -1;
 }
 
-bool hasItem(ProposalModel model, const QByteArray &text, const QByteArray &detail)
+bool hasItem(TextEditor::ProposalModelPtr model, const QByteArray &text, const QByteArray &detail)
 {
     const int index = indexOfItemWithText(model, text);
     if (index != -1 && index < model->size()) {
@@ -727,7 +374,7 @@ bool hasItem(ProposalModel model, const QByteArray &text, const QByteArray &deta
     return false;
 }
 
-bool hasSnippet(ProposalModel model, const QByteArray &text)
+bool hasSnippet(TextEditor::ProposalModelPtr model, const QByteArray &text)
 {
     if (!model)
         return false;
@@ -885,7 +532,7 @@ void ClangCodeCompletionTest::testCompleteGlobals()
     ProjectLessCompletionTest t("globalCompletion.cpp");
 
     QVERIFY(hasItem(t.proposal, "globalVariable", "int globalVariable"));
-    QVERIFY(hasItem(t.proposal, "globalFunction", "void globalFunction ()"));
+    QVERIFY(hasItem(t.proposal, "globalFunction", "void globalFunction()"));
     QVERIFY(hasItem(t.proposal, "GlobalClass", "GlobalClass"));
     QVERIFY(hasItem(t.proposal, "class", "class"));    // Keyword
     QVERIFY(hasSnippet(t.proposal, "class")); // Snippet
@@ -908,19 +555,20 @@ void ClangCodeCompletionTest::testCompleteFunctions()
     QVERIFY(hasItem(t.proposal, "void f()"));
     QVERIFY(hasItem(t.proposal, "void f(int a)"));
     QVERIFY(hasItem(t.proposal, "void f(const QString &amp;s)"));
-    QVERIFY(hasItem(t.proposal, "void f(char c<i>, int optional</i>)")); // TODO: No default argument?
-    QVERIFY(hasItem(t.proposal, "void f(char c<i>, int optional1, int optional2</i>)")); // TODO: No default argument?
+    QVERIFY(hasItem(t.proposal, "void f(char c<i>, int optional = 3</i>)"));
+    QVERIFY(hasItem(t.proposal, "void f(char c<i>, int optional1 = 3, int optional2 = 3</i>)"));
     QVERIFY(hasItem(t.proposal, "void f(const TType&lt;QString&gt; *t)"));
     QVERIFY(hasItem(t.proposal, "TType&lt;QString&gt; f(bool)"));
 }
 
-void ClangCodeCompletionTest::testCompleteConstructorAndFallbackToGlobalCompletion()
+void ClangCodeCompletionTest::testCompleteConstructor()
 {
     ProjectLessCompletionTest t("constructorCompletion.cpp");
 
-    QVERIFY(hasItem(t.proposal, "globalVariable"));
-    QVERIFY(hasItem(t.proposal, "GlobalClassWithCustomConstructor"));
-    QVERIFY(!hasSnippet(t.proposal, "class"));
+    QVERIFY(!hasItem(t.proposal, "globalVariable"));
+    QVERIFY(!hasItem(t.proposal, "class"));
+    QVERIFY(hasItem(t.proposal, "Foo(int)"));
+    QVERIFY(hasItem(t.proposal, "Foo(int, double)"));
 }
 
 // Explicitly Inserting The Dot
@@ -950,14 +598,13 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCode()
     const TestDocument testDocument("completionWithProject.cpp");
     QVERIFY(testDocument.isCreatedAndHasValidCursorPosition());
 
-    ProjectLoader projectLoader(QStringList(testDocument.filePath),
-                                _("#define PROJECT_CONFIGURATION_1\n"));
+    ProjectLoader projectLoader(QStringList(testDocument.filePath), {{"PROJECT_CONFIGURATION_1"}});
     QVERIFY(projectLoader.load());
 
     OpenEditorAtCursorPosition openEditor(testDocument);
     QVERIFY(openEditor.succeeded());
 
-    ProposalModel proposal = completionResults(openEditor.editor());
+    TextEditor::ProposalModelPtr proposal = completionResults(openEditor.editor());
     QVERIFY(hasItem(proposal, "projectConfiguration1"));
 }
 
@@ -970,13 +617,13 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCodeAfterChangingProje
     QVERIFY(openEditor.succeeded());
 
     // Check completion without project
-    ProposalModel proposal = completionResults(openEditor.editor());
+    TextEditor::ProposalModelPtr proposal = completionResults(openEditor.editor());
     QVERIFY(hasItem(proposal, "noProjectConfigurationDetected"));
 
     {
         // Check completion with project configuration 1
         ProjectLoader projectLoader(QStringList(testDocument.filePath),
-                                    _("#define PROJECT_CONFIGURATION_1\n"),
+                                    {{"PROJECT_CONFIGURATION_1"}},
                                     /* testOnlyForCleanedProjects= */ true);
         QVERIFY(projectLoader.load());
         openEditor.waitUntilProjectPartChanged(QLatin1String("myproject.project"));
@@ -987,7 +634,7 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCodeAfterChangingProje
         QVERIFY(!hasItem(proposal, "projectConfiguration2"));
 
         // Check completion with project configuration 2
-        QVERIFY(projectLoader.updateProject(_("#define PROJECT_CONFIGURATION_2\n")));
+        QVERIFY(projectLoader.updateProject({{"PROJECT_CONFIGURATION_2"}}));
         proposal = completionResults(openEditor.editor());
 
         QVERIFY(!hasItem(proposal, "projectConfiguration1"));
@@ -1022,7 +669,7 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCodeInGeneratedUiFile(
     QVERIFY(openSource.succeeded());
 
     // ...and check comletions
-    ProposalModel proposal = completionResults(openSource.editor());
+    TextEditor::ProposalModelPtr proposal = completionResults(openSource.editor());
     QVERIFY(hasItem(proposal, "menuBar"));
     QVERIFY(hasItem(proposal, "statusBar"));
     QVERIFY(hasItem(proposal, "centralWidget"));
@@ -1042,7 +689,7 @@ void ClangCodeCompletionTest::testCompleteAfterModifyingIncludedHeaderInOtherEdi
     // Test that declarations from header file are visible in source file
     OpenEditorAtCursorPosition openSource(sourceDocument);
     QVERIFY(openSource.succeeded());
-    ProposalModel proposal = completionResults(openSource.editor());
+    TextEditor::ProposalModelPtr proposal = completionResults(openSource.editor());
     QVERIFY(hasItem(proposal, "globalFromHeader"));
 
     // Open header and insert a new declaration
@@ -1075,7 +722,7 @@ void ClangCodeCompletionTest::testCompleteAfterModifyingIncludedHeaderByRefactor
     // Open source and test that declaration from header file is visible in source file
     OpenEditorAtCursorPosition openSource(sourceDocument);
     QVERIFY(openSource.succeeded());
-    ProposalModel proposal = completionResults(openSource.editor());
+    TextEditor::ProposalModelPtr proposal = completionResults(openSource.editor());
     QVERIFY(hasItem(proposal, "globalFromHeader"));
 
     // Modify header document without switching to its editor.
@@ -1110,7 +757,7 @@ void ClangCodeCompletionTest::testCompleteAfterChangingIncludedAndOpenHeaderExte
     // Open source and test completions
     OpenEditorAtCursorPosition openSource(sourceDocument);
     QVERIFY(openSource.succeeded());
-    ProposalModel proposal = completionResults(openSource.editor());
+    TextEditor::ProposalModelPtr proposal = completionResults(openSource.editor());
     QVERIFY(hasItem(proposal, "globalFromHeader"));
 
     // Simulate external modification and wait for reload
@@ -1138,7 +785,7 @@ void ClangCodeCompletionTest::testCompleteAfterChangingIncludedAndNotOpenHeaderE
     // Open source and test completions
     OpenEditorAtCursorPosition openSource(sourceDocument);
     QVERIFY(openSource.succeeded());
-    ProposalModel proposal = completionResults(openSource.editor());
+    TextEditor::ProposalModelPtr proposal = completionResults(openSource.editor());
     QVERIFY(hasItem(proposal, "globalFromHeader"));
 
     // Simulate external modification, e.g version control checkout
@@ -1147,85 +794,6 @@ void ClangCodeCompletionTest::testCompleteAfterChangingIncludedAndNotOpenHeaderE
     // Retrigger completion and check if its updated
     proposal = completionResults(openSource.editor());
     QVERIFY(hasItem(proposal, "globalFromHeaderReloaded"));
-}
-
-void ClangCodeCompletionTest::testUpdateBackendAfterRestart()
-{
-    QSKIP("Must be rewritten with a more robust approach instead of sender log!");
-    IpcSenderSpy spy;
-    ChangeIpcSender changeIpcSender(&spy);
-
-    CppTools::Tests::TemporaryCopiedDir testDir(qrcPath("qt-widgets-app"));
-    QVERIFY(testDir.isValid());
-
-    // Open file not part of any project...
-    const TestDocument headerDocument("myheader.h", &testDir);
-    QVERIFY(headerDocument.isCreated());
-    OpenEditorAtCursorPosition openHeader(headerDocument);
-    QVERIFY(openHeader.succeeded());
-    // ... and modify it, so we have an unsaved file.
-    insertTextAtTopOfEditor(openHeader.editor(), "int someGlobal;\n");
-    // Open project ...
-    MonitorGeneratedUiFile monitorGeneratedUiFile;
-    const QString projectFilePath = testDir.absolutePath("qt-widgets-app.pro");
-    CppTools::Tests::ProjectOpenerAndCloser projectManager;
-    const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
-    QVERIFY(projectInfo.isValid());
-    QVERIFY(monitorGeneratedUiFile.waitUntilGenerated());
-    // ...and a file of the project
-    const QString completionFile = testDir.absolutePath("mainwindow.cpp");
-    const TestDocument testDocument = TestDocument::fromExistingFile(completionFile);
-    QVERIFY(testDocument.isCreatedAndHasValidCursorPosition());
-    OpenEditorAtCursorPosition openSource(testDocument);
-    QVERIFY(openSource.succeeded());
-
-    // Check messages that would have been sent
-    QVERIFY(compare(LogOutput(spy.senderLog),
-                    LogOutput(
-                        "RegisterTranslationUnitForEditorMessage\n"
-                        "  Path: myheader.h ProjectPart: \n"
-                        "RegisterTranslationUnitForEditorMessage\n"
-                        "  Path: myheader.h ProjectPart: \n"
-                        "RequestDiagnosticsMessage\n"
-                        "  ProjectPartContainer id: qt-widgets-app.pro qt-widgets-app\n"
-                        "RegisterTranslationUnitForEditorMessage\n"
-                        "  Path: myheader.h ProjectPart: \n"
-                        "RequestDiagnosticsMessage\n"
-                        "RegisterTranslationUnitForEditorMessage\n"
-                        "  Path: myheader.h ProjectPart: \n"
-                        "RequestDiagnosticsMessage\n"
-                        "RegisterTranslationUnitForEditorMessage\n"
-                        "  Path: ui_mainwindow.h ProjectPart: \n"
-                        "RegisterTranslationUnitForEditorMessage\n"
-                        "  Path: myheader.h ProjectPart: \n"
-                        "RegisterTranslationUnitForEditorMessage\n"
-                        "  Path: mainwindow.cpp ProjectPart: qt-widgets-app.pro qt-widgets-app\n"
-                        "RegisterTranslationUnitForEditorMessage\n"
-                        "  Path: mainwindow.cpp ProjectPart: qt-widgets-app.pro qt-widgets-app\n"
-                        "RequestDiagnosticsMessage\n"
-
-                    )));
-    spy.senderLog.clear();
-
-    // Kill backend process...
-    auto &ipcCommunicator = ModelManagerSupportClang::instance()->ipcCommunicator();
-    ipcCommunicator.killBackendProcess();
-    QSignalSpy waitForReinitializedBackend(&ipcCommunicator,
-                                           SIGNAL(backendReinitialized()));
-    QVERIFY(waitForReinitializedBackend.wait());
-
-    // ...and check if code model backend would have been provided with current data
-    QVERIFY(compare(LogOutput(spy.senderLog),
-                    LogOutput(
-                        "RegisterProjectPartsForEditorMessage\n"
-                        "  ProjectPartContainer id: \n"
-                        "RegisterProjectPartsForEditorMessage\n"
-                        "  ProjectPartContainer id: qt-widgets-app.pro qt-widgets-app\n"
-                        "RegisterTranslationUnitForEditorMessage\n"
-                        "  Path: myheader.h ProjectPart: \n"
-                        "RegisterTranslationUnitForEditorMessage\n"
-                        "  Path: ui_mainwindow.h ProjectPart: \n"
-                    )));
 }
 
 } // namespace Tests

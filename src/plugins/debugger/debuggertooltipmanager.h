@@ -75,7 +75,7 @@ class DebuggerToolTipManager : public QObject
 
 public:
     DebuggerToolTipManager();
-    ~DebuggerToolTipManager();
+    ~DebuggerToolTipManager() override;
 
     static void registerEngine(DebuggerEngine *engine);
     static void deregisterEngine(DebuggerEngine *engine);
@@ -84,7 +84,7 @@ public:
 
     static DebuggerToolTipContexts pendingTooltips(DebuggerEngine *engine);
 
-    virtual bool eventFilter(QObject *, QEvent *);
+    bool eventFilter(QObject *, QEvent *) override;
 
     void debugModeEntered();
     void leavingDebugMode();

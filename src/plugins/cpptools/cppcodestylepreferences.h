@@ -37,18 +37,18 @@ class CPPTOOLS_EXPORT CppCodeStylePreferences : public TextEditor::ICodeStylePre
     Q_OBJECT
 public:
     explicit CppCodeStylePreferences(
-        QObject *parent = 0);
+        QObject *parent = nullptr);
 
-    virtual QVariant value() const;
-    virtual void setValue(const QVariant &);
+    QVariant value() const override;
+    void setValue(const QVariant &) override;
 
     CppCodeStyleSettings codeStyleSettings() const;
 
     // tracks parent hierarchy until currentParentSettings is null
     CppCodeStyleSettings currentCodeStyleSettings() const;
 
-    virtual void toMap(const QString &prefix, QVariantMap *map) const;
-    virtual void fromMap(const QString &prefix, const QVariantMap &map);
+    void toMap(const QString &prefix, QVariantMap *map) const override;
+    void fromMap(const QString &prefix, const QVariantMap &map) override;
 
 public slots:
     void setCodeStyleSettings(const CppTools::CppCodeStyleSettings &data);
@@ -58,7 +58,7 @@ signals:
     void currentCodeStyleSettingsChanged(const CppTools::CppCodeStyleSettings &);
 
 protected:
-    virtual QString settingsSuffix() const;
+    QString settingsSuffix() const override;
 
 private:
     void slotCurrentValueChanged(const QVariant &);

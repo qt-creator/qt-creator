@@ -25,10 +25,12 @@
 
 #include "branchadddialog.h"
 #include "ui_branchadddialog.h"
+#include "gitplugin.h"
 
 #include <utils/hostosinfo.h>
 
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QValidator>
 
 namespace Git {
@@ -46,20 +48,7 @@ class BranchNameValidator : public QValidator
 public:
     BranchNameValidator(const QStringList &localBranches, QObject *parent = 0) :
         QValidator(parent),
-        m_invalidChars(
-            "\\s"     // no whitespace
-            "|~"      // no "~"
-            "|\\^"    // no "^"
-            "|\\["    // no "["
-            "|\\.\\." // no ".."
-            "|/\\."   // no slashdot
-            "|:"      // no ":"
-            "|@\\{"   // no "@{" sequence
-            "|\\\\"   // no backslash
-            "|//"     // no double slash
-            "|^[/-]"  // no leading slash or dash
-            "|\""     // no quotes
-        ),
+        m_invalidChars(GitPlugin::invalidBranchAndRemoteNamePattern()),
         m_localBranches(localBranches)
     {
     }
@@ -67,6 +56,9 @@ public:
     State validate(QString &input, int &pos) const override
     {
         Q_UNUSED(pos)
+
+        if (input.isEmpty())
+            return Intermediate;
 
         input.replace(m_invalidChars, "_");
 
@@ -91,7 +83,7 @@ public:
     }
 
 private:
-    const QRegExp m_invalidChars;
+    const QRegularExpression m_invalidChars;
     QStringList m_localBranches;
 };
 

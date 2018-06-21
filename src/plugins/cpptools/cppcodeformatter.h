@@ -48,7 +48,6 @@ class CPPTOOLS_EXPORT CodeFormatter
 {
     Q_GADGET
 public:
-    CodeFormatter();
     virtual ~CodeFormatter();
 
     // updates all states up until block if necessary
@@ -73,13 +72,11 @@ protected:
     class BlockData
     {
     public:
-        BlockData();
-
         QStack<State> m_beginState;
         QStack<State> m_endState;
-        int m_indentDepth;
-        int m_paddingDepth;
-        int m_blockRevision;
+        int m_indentDepth = 0;
+        int m_paddingDepth = 0;
+        int m_blockRevision = -1;
     };
 
     virtual void saveBlockData(QTextBlock *block, const BlockData &data) const = 0;
@@ -220,7 +217,7 @@ private:
 
     QStringRef currentTokenText() const;
 
-    int tokenizeBlock(const QTextBlock &block, bool *endedJoined = 0);
+    int tokenizeBlock(const QTextBlock &block, bool *endedJoined = nullptr);
 
     void turnInto(int newState);
 
@@ -242,12 +239,12 @@ private:
     CPlusPlus::Tokens m_tokens;
     QString m_currentLine;
     CPlusPlus::Token m_currentToken;
-    int m_tokenIndex;
+    int m_tokenIndex = 0;
 
-    int m_indentDepth;
-    int m_paddingDepth;
+    int m_indentDepth = 0;
+    int m_paddingDepth = 0;
 
-    int m_tabSize;
+    int m_tabSize = 4;
 
     friend class Internal::CppCodeFormatterData;
 };
@@ -263,14 +260,14 @@ public:
     void setCodeStyleSettings(const CppCodeStyleSettings &settings);
 
 protected:
-    virtual void onEnter(int newState, int *indentDepth, int *savedIndentDepth, int *paddingDepth, int *savedPaddingDepth) const;
-    virtual void adjustIndent(const CPlusPlus::Tokens &tokens, int lexerState, int *indentDepth, int *paddingDepth) const;
+    void onEnter(int newState, int *indentDepth, int *savedIndentDepth, int *paddingDepth, int *savedPaddingDepth) const override;
+    void adjustIndent(const CPlusPlus::Tokens &tokens, int lexerState, int *indentDepth, int *paddingDepth) const override;
 
-    virtual void saveBlockData(QTextBlock *block, const BlockData &data) const;
-    virtual bool loadBlockData(const QTextBlock &block, BlockData *data) const;
+    void saveBlockData(QTextBlock *block, const BlockData &data) const override;
+    bool loadBlockData(const QTextBlock &block, BlockData *data) const override;
 
-    virtual void saveLexerState(QTextBlock *block, int state) const;
-    virtual int loadLexerState(const QTextBlock &block) const;
+    void saveLexerState(QTextBlock *block, int state) const override;
+    int loadLexerState(const QTextBlock &block) const override;
 
     static bool shouldClearPaddingOnEnter(int state);
 

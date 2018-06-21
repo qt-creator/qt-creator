@@ -50,7 +50,6 @@ public:
     Token();
     Token(Type type, const QString &text, const SourcePos &sourcePos);
     Token(Type type, int subtype, const QString &text, const SourcePos &sourcePos);
-    ~Token();
 
     Type type() const { return m_type; }
     void setType(Type type);

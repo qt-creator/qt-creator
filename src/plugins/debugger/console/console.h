@@ -54,28 +54,29 @@ class Console : public Core::IOutputPane
 
 public:
     Console();
-    ~Console();
+    ~Console() override;
 
-    QWidget *outputWidget(QWidget *);
-    QList<QWidget *> toolBarWidgets() const;
-    QString displayName() const { return tr("Debugger Console"); }
-    int priorityInStatusBar() const;
-    void clearContents();
-    void visibilityChanged(bool visible);
-    bool canFocus() const;
-    bool hasFocus() const;
-    void setFocus();
+    QWidget *outputWidget(QWidget *) override;
+    QList<QWidget *> toolBarWidgets() const override;
+    QString displayName() const override { return tr("Debugger Console"); }
+    int priorityInStatusBar() const override;
+    void clearContents() override;
+    void visibilityChanged(bool visible) override;
+    bool canFocus() const override;
+    bool hasFocus() const override;
+    void setFocus() override;
 
-    bool canNext() const;
-    bool canPrevious() const;
-    void goToNext();
-    void goToPrev();
-    bool canNavigate() const;
+    bool canNext() const override;
+    bool canPrevious() const override;
+    void goToNext() override;
+    void goToPrev() override;
+    bool canNavigate() const override;
 
     void readSettings();
     void setContext(const QString &context);
 
     void setScriptEvaluator(const ScriptEvaluator &evaluator);
+    void populateFileFinder();
 
     void evaluate(const QString &expression);
     void printItem(ConsoleItem *item);
@@ -99,6 +100,7 @@ private:
 };
 
 Console *debuggerConsole();
+void destroyDebuggerConsole();
 
 } // namespace Internal
 } // namespace Debugger

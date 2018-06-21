@@ -26,6 +26,7 @@
 #include "searchresultwindow.h"
 #include "searchresultwidget.h"
 #include "searchresultcolor.h"
+#include "textfindconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -90,6 +91,7 @@ namespace Internal {
         SearchResultWindow *q;
         QList<Internal::SearchResultWidget *> m_searchResultWidgets;
         QToolButton *m_expandCollapseButton;
+        QToolButton *m_newSearchButton;
         QAction *m_expandCollapseAction;
         static const bool m_initiallyExpand = false;
         QWidget *m_spacer;
@@ -137,9 +139,17 @@ namespace Internal {
 
         m_expandCollapseAction->setCheckable(true);
         m_expandCollapseAction->setIcon(Utils::Icons::EXPAND_ALL_TOOLBAR.icon());
+        m_expandCollapseAction->setEnabled(false);
         Command *cmd = ActionManager::registerAction(m_expandCollapseAction, "Find.ExpandAll");
         cmd->setAttribute(Command::CA_UpdateText);
         m_expandCollapseButton->setDefaultAction(cmd->action());
+
+        QAction *newSearchAction = new QAction(tr("New Search"), this);
+        newSearchAction->setIcon(Utils::Icons::NEWSEARCH_TOOLBAR.icon());
+        cmd = ActionManager::command(Constants::ADVANCED_FIND);
+        m_newSearchButton = Command::toolButtonWithAppendedShortcut(newSearchAction, cmd);
+        if (QTC_GUARD(cmd && cmd->action()))
+            connect(m_newSearchButton, &QToolButton::triggered, cmd->action(), &QAction::trigger);
 
         connect(m_expandCollapseAction, &QAction::toggled,
                 this, &SearchResultWindowPrivate::handleExpandCollapseToolButton);
@@ -156,12 +166,12 @@ namespace Internal {
         if (!isSearchVisible()) {
             if (focus)
                 m_widget->currentWidget()->setFocus();
-            m_expandCollapseButton->setEnabled(false);
+            m_expandCollapseAction->setEnabled(false);
         } else {
             if (focus)
                 m_searchResultWidgets.at(visibleSearchIndex())->setFocusInternally();
             m_searchResultWidgets.at(visibleSearchIndex())->notifyVisibilityChanged(true);
-            m_expandCollapseButton->setEnabled(true);
+            m_expandCollapseAction->setEnabled(true);
         }
         q->navigateStateChanged();
     }
@@ -340,8 +350,8 @@ QWidget *SearchResultWindow::outputWidget(QWidget *)
 */
 QList<QWidget*> SearchResultWindow::toolBarWidgets() const
 {
-    return { d->m_expandCollapseButton, d->m_spacer,
-             d->m_historyLabel, d->m_spacer2, d->m_recentSearchesBox };
+    return {d->m_expandCollapseButton, d->m_newSearchButton, d->m_spacer,
+            d->m_historyLabel, d->m_spacer2, d->m_recentSearchesBox};
 }
 
 /*!
@@ -424,7 +434,7 @@ void SearchResultWindow::clearContents()
 
     d->m_currentIndex = 0;
     d->m_widget->currentWidget()->setFocus();
-    d->m_expandCollapseButton->setEnabled(false);
+    d->m_expandCollapseAction->setEnabled(false);
     navigateStateChanged();
 }
 
@@ -641,6 +651,11 @@ int SearchResult::count() const
 void SearchResult::setSearchAgainSupported(bool supported)
 {
     m_widget->setSearchAgainSupported(supported);
+}
+
+QWidget *SearchResult::additionalReplaceWidget() const
+{
+    return m_widget->additionalReplaceWidget();
 }
 
 /*!

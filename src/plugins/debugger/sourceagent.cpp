@@ -69,7 +69,7 @@ public:
 
 SourceAgentPrivate::SourceAgentPrivate()
   : editor(0)
-  , locationMark(0)
+  , locationMark(nullptr)
   , producer(QLatin1String("remote"))
 {
 }
@@ -91,7 +91,7 @@ SourceAgent::SourceAgent(DebuggerEngine *engine)
 SourceAgent::~SourceAgent()
 {
     delete d;
-    d = 0;
+    d = nullptr;
 }
 
 void SourceAgent::setSourceProducerName(const QString &name)
@@ -139,7 +139,7 @@ void SourceAgent::updateLocationMarker()
     if (d->engine->stackHandler()->currentFrame().file == d->path) {
         int lineNumber = d->engine->stackHandler()->currentFrame().line;
 
-        d->locationMark = new TextMark(QString(), lineNumber,
+        d->locationMark = new TextMark(Utils::FileName(), lineNumber,
                                        Constants::TEXT_MARK_CATEGORY_LOCATION);
         d->locationMark->setIcon(Icons::LOCATION.icon());
         d->locationMark->setPriority(TextMark::HighPriority);

@@ -98,6 +98,10 @@ void tst_gdb::version_data()
         << "GNU gdb (GDB) SUSE (6.8.91.20090930-2.4)"
         << 60891 << 20090930 << false << false;
 
+    QTest::newRow("SLES")
+        << "GNU gdb (GDB; SUSE Linux Enterprise 10) 7.9.1"
+        << 70901 << 0 << false << false;
+
     QTest::newRow("Apple")
         << "GNU gdb 6.3.50-20050815 (Apple version gdb-1461.2)"
         << 60350 << 1461 << true << false;
@@ -121,6 +125,14 @@ void tst_gdb::version_data()
     QTest::newRow("openSUSE 13.2")
         << "GNU gdb (GDB; openSUSE 13.2) 7.8"
         << 70800 << 0 << false << false;
+
+    QTest::newRow("Fedora 26")
+        << "GNU gdb (GDB) Fedora 8.0-13.fc26"
+        << 80000 << 13 << false << false;
+
+    QTest::newRow("Debian 7.12 git")
+        << "GNU gdb (Debian 7.12-6) 7.12.0.20161007-git"
+        << 71200 << 6 << false << false;
 }
 
 static QString chopConst(QString type)

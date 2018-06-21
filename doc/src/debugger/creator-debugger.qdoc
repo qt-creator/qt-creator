@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -639,8 +639,9 @@
 
     \endlist
 
-    If the address is displayed in the \uicontrol {Locals and Expressions} view,
-    you can select \uicontrol {Add Data Breakpoint at Object's Address} in the
+    If the address is displayed in the \uicontrol {Locals} or
+    \uicontrol {Expressions} view, you can select
+    \uicontrol {Add Data Breakpoint at Object's Address} in the
     context menu to set the data breakpoint.
 
     Data breakpoints will be disabled when the debugged program exits, as it
@@ -665,8 +666,8 @@
     corresponding source locations are grayed out in the \uicontrol Stack view.
 
     If you click a frame with a known source location, the text editor jumps to
-    the corresponding location and updates the
-    \uicontrol {Locals and Expressions} view, making it seem like the program
+    the corresponding location and updates the \uicontrol {Locals} and
+    \uicontrol {Expressions} views, making it seem like the program
     was interrupted before entering the function.
 
     To find out which QML file is causing a Qt Quick 2 application to crash,
@@ -676,30 +677,32 @@
     should it find any. You can click a frame in the QML stack to open the QML
     file in the editor.
 
-    \section1 Locals and Expressions
+    \section1 Local Variables and Function Parameters
 
-    The Locals and Expressions view consists of three parts: the
-    \uicontrol Locals pane at the top, the \uicontrol {Return Value} pane in
-    the middle, and the \uicontrol Expressions pane at the bottom. The
-    \uicontrol {Return Value} and \uicontrol Expression panes are only visible
-    if they are not empty.
+    The Locals view consists of the \uicontrol Locals pane and the
+    \uicontrol {Return Value} pane (hidden when empty).
 
-    \image qtcreator-locals-expressions.png "Locals and Expressions view"
+    \image qtcreator-locals.png "Locals view"
 
     Whenever a program stops under the control of the debugger, it retrieves
     information about the topmost stack frame and displays it in the
-    \uicontrol {Locals and Expressions} view. The \uicontrol Locals pane shows
+    \uicontrol {Locals} view. The \uicontrol Locals pane shows
     information about parameters of the function in that frame as well as the
     local variables. If the last operation in the debugger was returning from a
     function after pressing \key {Shift+F11}, the \uicontrol {Return Value}
     pane displays the value returned by the function.
 
+
+    \section1 Evaluating Expressions
+
     To compute values of arithmetic expressions or function calls, use
-    expression evaluators in the \uicontrol Expressions pane. To insert a new
+    expression evaluators in the \uicontrol Expressions view. To insert a new
     expression evaluator, either double-click on an empty part of the
-    \uicontrol {Locals and Expressions} view, or select
+    \uicontrol {Expressions} or \uicontrol {Locals} view, or select
     \uicontrol {Add New Expression Evaluator} from the context menu, or drag and
     drop an expression from the code editor.
+
+    \image qtcreator-debugger-expressions.png
 
     \note Expression evaluators are powerful, but slow down debugger operation
     significantly. It is advisable to not use them excessively, and to remove
@@ -734,8 +737,8 @@
             \li GDB and LLDB, and therefore \QC's debugger, also work for optimized
                 builds on Linux and \macos. Optimization can lead to re-ordering
                 of instructions or removal of some local variables, causing the
-                \uicontrol {Locals and Expressions} view to show unexpected
-                data.
+                \uicontrol {Locals} and \uicontrol {Expressions} view to show
+                unexpected data.
         \row
             \li The debug information provided by GCC does not include enough
                 information about the time when a variable is initialized.
@@ -747,8 +750,8 @@
     \endtable
 
 
-    The \uicontrol {Locals and Expressions} view also provides access to the
-    most powerful feature of the debugger: comprehensive display of data
+    The \uicontrol {Locals} and \uicontrol {Expressions} views also provide access
+    to the most powerful feature of the debugger: comprehensive display of data
     belonging to Qt's basic objects. For example, in case of QObject, instead of
     displaying a pointer to some private data structure, you see a list of
     children, signals and slots.
@@ -758,8 +761,8 @@
     debugger displays access data for QFileInfo and provides access to the
     "real" contents of QVariant.
 
-    Right-click in the \uicontrol {Locals and Expressions} view to open a
-    context menu that provides additional options for viewing data. The
+    Right-click in the \uicontrol {Locals} or the \uicontrol {Expressions} view
+    to open a context menu that provides additional options for viewing data. The
     available options depend on the type of the current items, and are provided
     by the \l{Using Debugging Helpers}{Debugging Helpers}. Typically,
     string-like data, such as \c{QByteArray} and \c{std::string}, offer a
@@ -770,8 +773,8 @@
     example, to expand all the values of QMap, select
     \uicontrol {Change Value Display Format} > \uicontrol Compact.
 
-    You can use the \uicontrol {Locals and Expressions} view to change the
-    contents of variables of simple data types, for example, \c int, \c float,
+    You can use the \uicontrol {Locals} and \uicontrol {Expressions} view to change
+    the contents of variables of simple data types, for example, \c int, \c float,
     \c QString and \c std::string when the program is interrupted. To do so,
     click the \uicontrol Value column, modify the value with the inplace editor,
     and press \key Enter (or \key Return).
@@ -798,7 +801,7 @@
     \note Usually, you do not need this feature, because \QC provides you
     with better ways to handle the task. For example, instead of using the GDB
     \c print command from the command line, you can evaluate an expression in
-    the \uicontrol {Locals and Expressions} view.
+    the \uicontrol {Expressions} view.
 
     \section1 Debugging C++ Based Applications
 
@@ -932,8 +935,8 @@
 
     \title Using Debugging Helpers
 
-    Structured data, such as objects of \c class, \c struct, or \c union
-    types, is displayed in the \uicontrol {Locals and Expressions} view as part
+    Structured data, such as objects of \c class, \c struct, or \c union types,
+    is displayed in the \uicontrol {Locals} and \uicontrol {Expressions} views as part
     of a tree. To access sub-structures of the objects, expand the tree nodes.
     The sub-structures are presented in their in-memory order, unless the
     \uicontrol {Sort Members of Classes and Structs Alphabetically} option
@@ -970,8 +973,8 @@
 
     \QC uses Python scripts to translate raw memory contents and type information
     data from native debugger backends (GDB, LLDB, and CDB are currently supported)
-    into the form presented to the user in the  \uicontrol {Locals and Expressions}
-    view.
+    into the form presented to the user in the  \uicontrol {Locals} and
+    \uicontrol {Expressions} views.
 
     Unlike GDB's
     \l{https://sourceware.org/gdb/onlinedocs/gdb/Pretty-Printing.html#Pretty-Printing}
@@ -980,6 +983,8 @@
     native debugging backend. That is, the same code can be used with GDB on
     Linux, LLDB on macOS, and CDB on Windows, or any other platform on which at
     least one of the three supported backends is available.
+
+    \section2 Adding Custom Debugging Helpers
 
     To add debugging helpers for your own types, no compilation is required,
     just adding a few lines of Python. The scripts can address multiple versions
@@ -991,13 +996,73 @@
     \uicontrol {Additional Startup Commands} in \uicontrol Tools >
     \uicontrol Options > \uicontrol Debugger > \uicontrol GDB.
 
+    To get started with implementing debugging helpers for your own data types,
+    you can put their implementation into the file
+    \c share/qtcreator/debugger/personaltypes.py in your Qt installation or
+    stand-alone \QC installation. On \macos, the file is bundled into the
+    \QC application package, where it is located in the
+    \c Contents/resources/debugger folder.
+
+    The \c personaltypes.py file contains one example implementation:
+
+    \quotefromfile ../../share/qtcreator/debugger/personaltypes.py
+    \skipto qdump__
+    \printuntil d.putItem
+
+    To add debugging helpers:
+
+    \list 1
+
+        \li Open the \c share/qtcreator/debugger/personaltypes.py file for
+            editing. For example, if your Qt installation is located in the
+            \c Qt5 directory on Windows, look in
+            \c C:\Qt5\Tools\QtCreator\share\qtcreator\debugger. On \macos, look
+            in \c {Qt5/Qt Creator.app/Contents/resources/debugger}.
+
+        \li Add your dumper implementation to the end of the \c personaltypes.py
+            file.  For more information about implementing debugging helpers,
+            see the following sections.
+
+        \li To prevent \c personaltypes.py from being overwritten when you
+            update your \QC installation (when updating your Qt installation,
+            for example), copy it to a safe location outside the \QC
+            installation in your file system and specify the location in
+            \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
+            \uicontrol {Locals & Expressions} >
+            \uicontrol {Extra Debugging Helpers}.
+
+            \image qtcreator-debugging-helper-options.png
+
+    \endlist
+
+    The custom debugging helpers will be automatically picked up from
+    \c personaltypes.py when you start a debugging session in \QC or select
+    \uicontrol {Reload Debugging Helpers} from the context menu of the
+    \uicontrol {Debugger Log} view.
+
     \section2 Debugging Helper Overview
 
     The implementation of a debugging helper typically consists of a single
     Python function, which needs to be named \c{qdump__NS__Foo}, where
     \c{NS::Foo} is the class or class template to be examined. Note that the
     \c{::} scope resolution operator is replaced by double underscores: \c{__}.
-    Nested namespaces are possible.
+    Nested namespaces are possible. Template arguments are not used for
+    the construction of the function name.
+
+    Examples:
+
+    \list
+
+        \li The name for the function implementing a debugging helper for the type
+            \c{namespace Project { template<typename T> struct Foo {... } } } is
+            \c{qdump__Project__Foo}.
+
+        \li The name for the function implementing a debugging helper
+            for the type \c{std::__1::vector<T>::iterator} is
+            \c{qdump__std____1__vector__iterator}.
+
+    \endlist
+
 
     \QC's debugger plugin calls this function whenever you want to display an
     object of this type. The function is passed the following parameters:
@@ -1006,7 +1071,7 @@
 
         \li \c d of type \c Dumper, an object containing the current settings and
             providing facilities to build up an object representing a part of
-            the \uicontrol {Locals and Expressions} view.
+            the \uicontrol Locals and \uicontrol Expressions views.
 
         \li \c value of type \c Value, wrapping either a
             \l{https://sourceware.org/gdb/onlinedocs/gdb/Values-From-Inferior.html}
@@ -1018,7 +1083,7 @@
 
     The \c{qdump__*} function has to feed the Dumper object with certain
     information that is used to build up the object and its children's display
-    in the \uicontrol {Locals and Expressions} view.
+    in the \uicontrol Locals and \uicontrol Expressions views.
 
     Example:
 
@@ -1028,12 +1093,22 @@
         size = value["_size"].integer()
         d.putItemCount(size)
         if d.isExpanded():
-            d.putArrayData(value.type[0], value["_array"], size)
+            d.putArrayData(value["_array"], size, value.type[0])
     \endcode
 
     \note To create dumper functions usable with both LLDB and GDB backends,
     avoid direct access to the \c gdb.* and \c lldb.* namespaces and use the
     functions of the \c Dumper class instead.
+
+    To get to the base instance of the object in the debugging helper, use the
+    \c value.base() function or the following example code:
+
+    \code
+    def qdump__A(d, value):
+       t = value.members(True)[0].type
+       dptr, base_v = value.split('p{%s}' % t.name)
+       d.putItem(base_v)
+    \endcode
 
     Debugging helpers can be set up to be called whenever a type name matches
     a regular expression. To do so, the debugging helper's function name must
@@ -1058,8 +1133,9 @@
     A debugging helper creates a description of the displayed data item
     in a format that is similar to GDB/MI and JSON.
 
-    For each line in the \uicontrol {Locals and Expressions} view, a string like
-    the following needs to be created and channeled to the debugger plugin.
+    For each line in the \uicontrol Locals and \uicontrol Expressions views, a
+    string like the following needs to be created and channeled to the debugger
+    plugin.
 
     \code
     { iname='some internal name',           # optional
@@ -1149,7 +1225,7 @@
 
             \endlist
 
-        \li \c{putArrayData(self, type, address, itemCount)} - Creates the
+        \li \c{putArrayData(self, address, itemCount, type)} - Creates the
             number of children specified by \c itemCount of the type \c type of
             an array-like object located at \c address.
 
@@ -1475,6 +1551,10 @@
     \l{http://www.avira.com/en/support-for-business-knowledgebase-detail/kbid/805}
     {Restricted Usability of IDE/Debuggers since 2010-12-08}.
 
+    On some devices, such as Wacom Tablets, running processes might stop the
+    debugger from launching. Stop all running processes and then relaunch the
+    debugger.
+
     \section1 Debugger Does Not Hit Breakpoints
 
     You might have created a release build that does not contain debug
@@ -1507,18 +1587,18 @@
 
     \section1 Pointer Variable Members Are Not Displayed Directly
 
-    When you use the \uicontrol {Locals and Expressions} view to inspect a
+    When you use the \uicontrol Locals and \uicontrol Expressions views to inspect a
     pointer variable and expand the variable tree item, another tree item level
     is displayed. To directly display the members of the pointer variable,
     select \uicontrol {Dereference Pointers Automatically} in the context
-    menu in the \uicontrol {Locals and Expressions} view.
+    menu in the \uicontrol Locals and \uicontrol Expressions views.
 
     \section1 Structure Members Are Not Sorted According to Structure Layout
 
     By default, structure members are displayed in alphabetic order. To inspect
     the real layout in memory, deselect
     \uicontrol {Sort Members of Classes and Structs Alphabetically} in the
-    context menu in the \uicontrol {Locals and Expressions} view.
+    context menu in the \uicontrol Locals and \uicontrol Expressions views.
 
     \section1 Built-in Debugger Is Slow During Startup and Runtime
 

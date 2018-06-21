@@ -42,16 +42,22 @@ class PROJECTEXPLORER_EXPORT ProjectConfiguration : public QObject
 {
     Q_OBJECT
 
+protected:
+    explicit ProjectConfiguration(QObject *parent, Core::Id id);
+
 public:
-    // ctors are protected
-    ~ProjectConfiguration() = default;
+    ~ProjectConfiguration() override = default;
 
     Core::Id id() const;
+
     QString displayName() const;
 
     bool usesDefaultDisplayName() const;
     void setDisplayName(const QString &name);
     void setDefaultDisplayName(const QString &name);
+
+    void setToolTip(const QString &text);
+    QString toolTip() const;
 
     // Note: Make sure subclasses call the superclasses' fromMap() function!
     virtual bool fromMap(const QVariantMap &map);
@@ -62,22 +68,48 @@ public:
     Utils::MacroExpander *macroExpander() { return &m_macroExpander; }
     const Utils::MacroExpander *macroExpander() const { return &m_macroExpander; }
 
+    virtual Project *project() const = 0;
+
+    virtual bool isActive() const = 0;
+
+    static QString settingsIdKey();
+
 signals:
     void displayNameChanged();
-
-protected:
-    ProjectConfiguration(QObject *parent, Core::Id id);
-    ProjectConfiguration(QObject *parent, const ProjectConfiguration *source);
+    void toolTipChanged();
 
 private:
-    Core::Id m_id;
+    const Core::Id m_id;
     QString m_displayName;
     QString m_defaultDisplayName;
+    QString m_toolTip;
     Utils::MacroExpander m_macroExpander;
 };
 
-// helper functions:
+class PROJECTEXPLORER_EXPORT StatefulProjectConfiguration : public ProjectConfiguration
+{
+    Q_OBJECT
+
+public:
+    StatefulProjectConfiguration() = default;
+
+    bool isEnabled() const;
+
+    virtual QString disabledReason() const = 0;
+
+signals:
+    void enabledChanged();
+
+protected:
+    StatefulProjectConfiguration(QObject *parent, Core::Id id);
+
+    void setEnabled(bool enabled);
+
+private:
+    bool m_isEnabled = false;
+};
+
+// helper function:
 PROJECTEXPLORER_EXPORT Core::Id idFromMap(const QVariantMap &map);
-PROJECTEXPLORER_EXPORT QString displayNameFromMap(const QVariantMap &map);
 
 } // namespace ProjectExplorer

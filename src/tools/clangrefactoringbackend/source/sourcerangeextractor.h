@@ -25,15 +25,17 @@
 
 #pragma once
 
+#include <filepathcachingfwd.h>
+
+#include <filepath.h>
+#include <filepathid.h>
+
+#include <utils/smallstringfwd.h>
+
 #include <vector>
+#include <unordered_map>
 
 using uint = unsigned int;
-
-namespace Utils {
-template <uint Size>
-class BasicSmallString;
-using SmallString = BasicSmallString<31>;
-}
 
 namespace llvm {
 class StringRef;
@@ -44,6 +46,8 @@ class SourceManager;
 class LangOptions;
 class SourceRange;
 class FullSourceLoc;
+class FileID;
+class FileEntry;
 }
 
 namespace ClangBackEnd {
@@ -56,6 +60,7 @@ class SourceRangeExtractor
 public:
     SourceRangeExtractor(const clang::SourceManager &sourceManager,
                          const clang::LangOptions &languageOptions,
+                         FilePathCachingInterface &filePathCache,
                          SourceRangesContainer &sourceRangesContainer);
 
     void addSourceRange(const clang::SourceRange &sourceRange);
@@ -70,18 +75,20 @@ public:
     const clang::SourceRange extendSourceRangeToLastTokenEnd(const clang::SourceRange sourceRange);
 
 private:
-    void insertSourceRange(uint fileHash,
-                           Utils::SmallString &&directoryPath,
-                           Utils::SmallString &&fileName,
+    void insertSourceRange(FilePathId filePathId,
                            const clang::FullSourceLoc &startLocation,
                            uint startOffset,
                            const clang::FullSourceLoc &endLocation,
                            uint endOffset,
                            Utils::SmallString &&lineSnippet);
 
+    FilePathId findFileId(clang::FileID fileId, const clang::FileEntry *fileEntry) const;
+
 private:
+    mutable std::unordered_map<uint, FilePathId> m_fileIdMapping;
     const clang::SourceManager &sourceManager;
     const clang::LangOptions &languageOptions;
+    FilePathCachingInterface &filePathCache;
     SourceRangesContainer &sourceRangesContainer;
 };
 

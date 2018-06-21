@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "cmakeprojectmanager.h"
-#include "builddirmanager.h"
 #include "cmakebuildconfiguration.h"
 #include "cmakekitinformation.h"
 #include "cmakeprojectconstants.h"
@@ -43,9 +42,6 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
-#include <utils/qtcprocess.h>
-#include <utils/synchronousprocess.h>
-
 #include <QAction>
 #include <QDateTime>
 #include <QIcon>
@@ -57,7 +53,7 @@ CMakeManager::CMakeManager() :
     m_runCMakeAction(new QAction(QIcon(), tr("Run CMake"), this)),
     m_clearCMakeCacheAction(new QAction(QIcon(), tr("Clear CMake Configuration"), this)),
     m_runCMakeActionContextMenu(new QAction(QIcon(), tr("Run CMake"), this)),
-    m_rescanProjectAction(new QAction(QIcon(), tr("Rescan project"), this))
+    m_rescanProjectAction(new QAction(QIcon(), tr("Rescan Project"), this))
 {
     Core::ActionContainer *mbuild =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
@@ -66,7 +62,7 @@ CMakeManager::CMakeManager() :
     Core::ActionContainer *msubproject =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
 
-    const Core::Context projectContext(CMakeProjectManager::Constants::PROJECTCONTEXT);
+    const Core::Context projectContext(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     const Core::Context globalContext(Core::Constants::C_GLOBAL);
 
     Core::Command *command = Core::ActionManager::registerAction(m_runCMakeAction,
@@ -121,19 +117,15 @@ void CMakeManager::updateCmakeActions()
 
 void CMakeManager::clearCMakeCache(Project *project)
 {
-    if (!project || !project->activeTarget())
-        return;
-    auto bc = qobject_cast<CMakeBuildConfiguration *>(project->activeTarget()->activeBuildConfiguration());
-    if (!bc)
+    CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(project);
+    if (!cmakeProject || !cmakeProject->activeTarget() || !cmakeProject->activeTarget()->activeBuildConfiguration())
         return;
 
-    bc->clearCache();
+    cmakeProject->clearCMakeCache();
 }
 
 void CMakeManager::runCMake(Project *project)
 {
-    if (!project)
-        return;
     CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(project);
     if (!cmakeProject || !cmakeProject->activeTarget() || !cmakeProject->activeTarget()->activeBuildConfiguration())
         return;
@@ -146,73 +138,9 @@ void CMakeManager::runCMake(Project *project)
 
 void CMakeManager::rescanProject(Project *project)
 {
-    if (!project)
-        return;
     CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(project);
     if (!cmakeProject || !cmakeProject->activeTarget() || !cmakeProject->activeTarget()->activeBuildConfiguration())
         return;
 
-    cmakeProject->scanProjectTree();
-    cmakeProject->runCMake(); // by my experience: every rescan run requires cmake run too
-}
-
-Project *CMakeManager::openProject(const QString &fileName, QString *errorString)
-{
-    Utils::FileName file = Utils::FileName::fromString(fileName);
-    if (!file.toFileInfo().isFile()) {
-        if (errorString)
-            *errorString = tr("Failed opening project \"%1\": Project is not a file")
-                .arg(file.toUserOutput());
-        return 0;
-    }
-
-    return new CMakeProject(this, file);
-}
-
-QString CMakeManager::mimeType() const
-{
-    return QLatin1String(Constants::CMAKEPROJECTMIMETYPE);
-}
-
-// need to refactor this out
-// we probably want the process instead of this function
-// cmakeproject then could even run the cmake process in the background, adding the files afterwards
-// sounds like a plan
-void CMakeManager::createXmlFile(Utils::QtcProcess *proc, const QString &executable,
-                                 const QString &arguments, const QString &sourceDirectory,
-                                 const QDir &buildDirectory, const Utils::Environment &env)
-{
-    QString buildDirectoryPath = buildDirectory.absolutePath();
-    buildDirectory.mkpath(buildDirectoryPath);
-    proc->setWorkingDirectory(buildDirectoryPath);
-    proc->setEnvironment(env);
-
-    const QString srcdir = buildDirectory.exists(QLatin1String("CMakeCache.txt")) ?
-                QString(QLatin1Char('.')) : sourceDirectory;
-    QString args;
-    Utils::QtcProcess::addArg(&args, srcdir);
-    Utils::QtcProcess::addArgs(&args, arguments);
-
-    proc->setCommand(executable, args);
-    proc->start();
-}
-
-QString CMakeManager::findCbpFile(const QDir &directory)
-{
-    // Find the cbp file
-    //   the cbp file is named like the project() command in the CMakeList.txt file
-    //   so this function below could find the wrong cbp file, if the user changes the project()
-    //   2name
-    QDateTime t;
-    QString file;
-    foreach (const QString &cbpFile , directory.entryList()) {
-        if (cbpFile.endsWith(QLatin1String(".cbp"))) {
-            QFileInfo fi(directory.path() + QLatin1Char('/') + cbpFile);
-            if (t.isNull() || fi.lastModified() > t) {
-                file = directory.path() + QLatin1Char('/') + cbpFile;
-                t = fi.lastModified();
-            }
-        }
-    }
-    return file;
+    cmakeProject->runCMakeAndScanProjectTree();// by my experience: every rescan run requires cmake run too
 }

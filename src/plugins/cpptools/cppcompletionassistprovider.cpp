@@ -41,11 +41,6 @@ CppCompletionAssistProvider::CppCompletionAssistProvider(QObject *parent)
     : TextEditor::CompletionAssistProvider(parent)
 {}
 
-bool CppCompletionAssistProvider::supportsEditor(Core::Id editorId) const
-{
-    return editorId == CppEditor::Constants::CPPEDITOR_ID;
-}
-
 int CppCompletionAssistProvider::activationCharSequenceLength() const
 {
     return 3;

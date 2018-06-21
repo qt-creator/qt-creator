@@ -53,7 +53,6 @@ namespace VcsBase {
 }
 
 namespace DiffEditor {
-class DiffEditorDocument;
 class DiffEditorController;
 }
 
@@ -113,10 +112,10 @@ public:
         void stashPrompt(const QString &command, const QString &statusOutput, QString *errorMessage);
         void executeStash(const QString &command, QString *errorMessage);
 
-        StashResult m_stashResult;
+        StashResult m_stashResult = NotStashed;
         QString m_message;
         QString m_workingDir;
-        StashFlag m_flags;
+        StashFlag m_flags = Default;
         PushAction m_pushAction = NoPush;
     };
 
@@ -125,7 +124,9 @@ public:
     Utils::FileName vcsBinary() const override;
     unsigned gitVersion(QString *errorMessage = nullptr) const;
 
-    VcsBase::VcsCommand *vcsExecAbortable(const QString &workingDirectory, const QStringList &arguments);
+    VcsBase::VcsCommand *vcsExecAbortable(const QString &workingDirectory,
+                                          const QStringList &arguments,
+                                          bool createProgressParser = false);
 
     QString findRepositoryForDirectory(const QString &dir) const;
     QString findGitDirForRepository(const QString &repositoryDir) const;
@@ -150,6 +151,7 @@ public:
             const QString &workingDir, const QString &file, const QString &revision = QString(),
             int lineNumber = -1, const QStringList &extraOptions = QStringList()) override;
     void reset(const QString &workingDirectory, const QString &argument, const QString &commit = QString());
+    void recoverDeletedFiles(const QString &workingDirectory);
     void addFile(const QString &workingDirectory, const QString &fileName);
     bool synchronousLog(const QString &workingDirectory, const QStringList &arguments,
                         QString *output, QString *errorMessage = nullptr,
@@ -273,6 +275,8 @@ public:
 
     QString readGitVar(const QString &workingDirectory, const QString &configVar) const;
     QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
+    void setConfigValue(const QString &workingDirectory, const QString &configVar,
+                        const QString &value) const;
 
     QTextCodec *encoding(const QString &workingDirectory, const QString &configVar) const;
     bool readDataFromCommit(const QString &repoDirectory, const QString &commit,
@@ -325,12 +329,10 @@ public:
 
 private:
     void finishSubmoduleUpdate();
-    void slotChunkActionsRequested(QMenu *menu, bool isValid);
-    void slotStageChunk();
-    void slotUnstageChunk();
-    void branchesForCommit(const QString &revision);
+    void chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex);
 
-    void stage(const QString &patch, bool revert);
+    void stage(DiffEditor::DiffEditorController *diffController,
+               const QString &patch, bool revert);
 
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
     QTextCodec *codecFor(CodecType codecType, const QString &source = QString()) const;
@@ -374,8 +376,19 @@ private:
     QMap<QString, StashInfo> m_stashInfo;
     QStringList m_updatedSubmodules;
     bool m_disableEditor;
-    QPointer<DiffEditor::DiffEditorController> m_contextController;
     QFutureSynchronizer<void> m_synchronizer; // for commit updates
+};
+
+class GitRemote {
+public:
+    GitRemote(const QString &url);
+
+    QString protocol;
+    QString userName;
+    QString host;
+    QString path;
+    quint16 port = 0;
+    bool    isValid = false;
 };
 
 } // namespace Internal

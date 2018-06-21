@@ -1,11 +1,7 @@
-# Currently there are no tests for the project explorer plugin, but we include
-# headers from it that needs to have the export/import adapted for Windows.
-contains(CONFIG, dll) {
+shared {
     DEFINES += CPPTOOLS_LIBRARY
-    DEFINES += PROJECTEXPLORER_LIBRARY
 } else {
     DEFINES += CPPTOOLS_STATIC_LIBRARY
-    DEFINES += PROJECTEXPLORER_STATIC_LIBRARY
 }
 
 HEADERS += \
@@ -14,10 +10,8 @@ HEADERS += \
     $$PWD/projectpart.h \
     $$PWD/compileroptionsbuilder.h \
     $$PWD/cppprojectfilecategorizer.h \
-    $$PWD/clangcompileroptionsbuilder.h \
-    $$PWD/cppbaseprojectpartbuilder.h \
     $$PWD/projectinfo.h \
-    $$PWD/cppprojectinterface.h \
+    $$PWD/cppprojectinfogenerator.cpp \
     $$PWD/cppprojectpartchooser.h \
 
 SOURCES += \
@@ -26,7 +20,6 @@ SOURCES += \
     $$PWD/projectpart.cpp \
     $$PWD/compileroptionsbuilder.cpp \
     $$PWD/cppprojectfilecategorizer.cpp \
-    $$PWD/clangcompileroptionsbuilder.cpp \
-    $$PWD/cppbaseprojectpartbuilder.cpp \
     $$PWD/projectinfo.cpp \
+    $$PWD/cppprojectinfogenerator.cpp \
     $$PWD/cppprojectpartchooser.cpp \

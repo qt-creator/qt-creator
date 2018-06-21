@@ -47,6 +47,7 @@ class ScxmlTag;
 namespace SceneUtils {
 
 ScxmlTag *addChild(ScxmlTag *tag, const QVariantMap &data, GraphicsScene *scene);
+ScxmlTag *addSibling(ScxmlTag *tag, const QVariantMap &data, GraphicsScene *scene);
 ScxmlTag *addNewTag(ScxmlTag *parent, TagType type, GraphicsScene *scene);
 ConnectableItem *createItem(ItemType type, const QPointF &pos = QPointF());
 ConnectableItem *createItemByTagType(TagType type, const QPointF &pos = QPointF());

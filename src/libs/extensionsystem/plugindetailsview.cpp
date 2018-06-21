@@ -32,6 +32,8 @@
 #include <utils/algorithm.h>
 
 #include <QDir>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QRegExp>
 
 /*!
@@ -65,6 +67,16 @@ PluginDetailsView::~PluginDetailsView()
     delete m_ui;
 }
 
+// TODO: make API in PluginSpec
+static QString getSpecRevision(PluginSpec *spec)
+{
+    const QJsonObject metaData = spec->metaData();
+    const QJsonValue revision = metaData.value("Revision");
+    if (revision.isString())
+        return revision.toString();
+    return QString();
+}
+
 /*!
     Reads the given \a spec and displays its values
     in this PluginDetailsView.
@@ -72,7 +84,10 @@ PluginDetailsView::~PluginDetailsView()
 void PluginDetailsView::update(PluginSpec *spec)
 {
     m_ui->name->setText(spec->name());
-    m_ui->version->setText(spec->version());
+    const QString revision = getSpecRevision(spec);
+    const QString versionString = spec->version() + (revision.isEmpty() ? QString()
+                                                                        : " (" + revision + ")");
+    m_ui->version->setText(versionString);
     m_ui->compatVersion->setText(spec->compatVersion());
     m_ui->vendor->setText(spec->vendor());
     const QString link = QString::fromLatin1("<a href=\"%1\">%1</a>").arg(spec->url());

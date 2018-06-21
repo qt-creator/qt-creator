@@ -44,7 +44,7 @@ void doSleep(int msec) { ::Sleep(msec); }
 #include <unistd.h>
 void doSleep(int msec)
 {
-    struct timespec ts = { msec / 1000, (msec % 1000) * 1000000 };
+    struct timespec ts = {msec / 1000, (msec % 1000) * 1000000};
     ::nanosleep(&ts, NULL);
 }
 #endif

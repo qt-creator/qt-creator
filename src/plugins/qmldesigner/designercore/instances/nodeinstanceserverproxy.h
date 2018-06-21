@@ -30,6 +30,7 @@
 #include <QPointer>
 #include <QProcess>
 #include <QFile>
+#include <QTime>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
@@ -64,23 +65,24 @@ public:
                                      RunModus runModus,
                                      ProjectExplorer::Kit *kit,
                                      ProjectExplorer::Project *project);
-    ~NodeInstanceServerProxy();
-    void createInstances(const CreateInstancesCommand &command);
-    void changeFileUrl(const ChangeFileUrlCommand &command);
-    void createScene(const CreateSceneCommand &command);
-    void clearScene(const ClearSceneCommand &command);
-    void removeInstances(const RemoveInstancesCommand &command);
-    void removeProperties(const RemovePropertiesCommand &command);
-    void changePropertyBindings(const ChangeBindingsCommand &command);
-    void changePropertyValues(const ChangeValuesCommand &command);
-    void changeAuxiliaryValues(const ChangeAuxiliaryCommand &command);
-    void reparentInstances(const ReparentInstancesCommand &command);
-    void changeIds(const ChangeIdsCommand &command);
-    void changeState(const ChangeStateCommand &command);
-    void completeComponent(const CompleteComponentCommand &command);
-    void changeNodeSource(const ChangeNodeSourceCommand &command);
-    void token(const TokenCommand &command);
-    void removeSharedMemory(const RemoveSharedMemoryCommand &command);
+    ~NodeInstanceServerProxy() override;
+    void createInstances(const CreateInstancesCommand &command) override;
+    void changeFileUrl(const ChangeFileUrlCommand &command) override;
+    void createScene(const CreateSceneCommand &command) override;
+    void clearScene(const ClearSceneCommand &command) override;
+    void removeInstances(const RemoveInstancesCommand &command) override;
+    void removeProperties(const RemovePropertiesCommand &command) override;
+    void changePropertyBindings(const ChangeBindingsCommand &command) override;
+    void changePropertyValues(const ChangeValuesCommand &command) override;
+    void changeAuxiliaryValues(const ChangeAuxiliaryCommand &command) override;
+    void reparentInstances(const ReparentInstancesCommand &command) override;
+    void changeIds(const ChangeIdsCommand &command) override;
+    void changeState(const ChangeStateCommand &command) override;
+    void completeComponent(const CompleteComponentCommand &command) override;
+    void changeNodeSource(const ChangeNodeSourceCommand &command) override;
+    void token(const TokenCommand &command) override;
+    void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
+    void benchmark(const QString &message) override;
 
 protected:
     void writeCommand(const QVariant &command);
@@ -102,6 +104,7 @@ private slots:
     void printEditorProcessOutput();
     void printPreviewProcessOutput();
     void printRenderProcessOutput();
+    void showCannotConnectToPuppetWarningAndSwitchToEditMode();
 private:
     QFile m_captureFileForTest;
     QTimer m_firstTimer;
@@ -115,15 +118,17 @@ private:
     QPointer<QProcess> m_qmlPuppetEditorProcess;
     QPointer<QProcess> m_qmlPuppetPreviewProcess;
     QPointer<QProcess> m_qmlPuppetRenderProcess;
-    quint32 m_firstBlockSize;
-    quint32 m_secondBlockSize;
-    quint32 m_thirdBlockSize;
-    quint32 m_writeCommandCounter;
-    quint32 m_firstLastReadCommandCounter;
-    quint32 m_secondLastReadCommandCounter;
-    quint32 m_thirdLastReadCommandCounter;
+    quint32 m_firstBlockSize = 0;
+    quint32 m_secondBlockSize = 0;
+    quint32 m_thirdBlockSize = 0;
+    quint32 m_writeCommandCounter = 0;
+    quint32 m_firstLastReadCommandCounter = 0;
+    quint32 m_secondLastReadCommandCounter = 0;
+    quint32 m_thirdLastReadCommandCounter = 0;
     RunModus m_runModus;
-    int m_synchronizeId;
+    int m_synchronizeId = -1;
+    QTime m_benchmarkTimer;
+    bool m_destructing = false;
 };
 
 } // namespace QmlDesigner

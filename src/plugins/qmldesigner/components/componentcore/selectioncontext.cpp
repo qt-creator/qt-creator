@@ -30,15 +30,10 @@
 namespace QmlDesigner {
 
 
-SelectionContext::SelectionContext() :
-    m_toggled(false)
-{
-
-}
+SelectionContext::SelectionContext() = default;
 
 SelectionContext::SelectionContext(AbstractView *view) :
-    m_view(view),
-    m_toggled(false)
+    m_view(view)
 {
 }
 
@@ -120,6 +115,16 @@ bool SelectionContext::toggled() const
 bool SelectionContext::isValid() const
 {
     return view() && view()->model();
+}
+
+bool SelectionContext::fastUpdate() const
+{
+    return m_updateMode == UpdateMode::Fast;
+}
+
+void SelectionContext::setUpdateMode(UpdateMode mode)
+{
+    m_updateMode = mode;
 }
 
 } //QmlDesigner

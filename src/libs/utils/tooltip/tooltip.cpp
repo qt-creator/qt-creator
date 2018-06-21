@@ -34,7 +34,7 @@
 
 #include <QString>
 #include <QColor>
-#include <QApplication>
+#include <QGuiApplication>
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QWidget>
@@ -296,7 +296,7 @@ void ToolTip::placeTip(const QPoint &pos, QWidget *w)
 bool ToolTip::eventFilter(QObject *o, QEvent *event)
 {
     if (m_tip && event->type() == QEvent::ApplicationStateChange
-            && qApp->applicationState() != Qt::ApplicationActive) {
+            && QGuiApplication::applicationState() != Qt::ApplicationActive) {
         hideTipImmediately();
     }
 
@@ -305,9 +305,11 @@ bool ToolTip::eventFilter(QObject *o, QEvent *event)
 
     switch (event->type()) {
     case QEvent::KeyPress:
-    case QEvent::KeyRelease:
+    case QEvent::KeyRelease: {
+        int key = static_cast<QKeyEvent *>(event)->key();
+        if (key == Qt::Key_Escape)
+            hideTipImmediately();
         if (HostOsInfo::isMacHost()) {
-            int key = static_cast<QKeyEvent *>(event)->key();
             Qt::KeyboardModifiers mody = static_cast<QKeyEvent *>(event)->modifiers();
             if (!(mody & Qt::KeyboardModifierMask)
                 && key != Qt::Key_Shift && key != Qt::Key_Control
@@ -315,8 +317,9 @@ bool ToolTip::eventFilter(QObject *o, QEvent *event)
                 hideTipWithDelay();
         }
         break;
+    }
     case QEvent::Leave:
-        if (o == m_tip && !m_tip->isAncestorOf(qApp->focusWidget()))
+        if (o == m_tip && !m_tip->isAncestorOf(QApplication::focusWidget()))
             hideTipWithDelay();
         break;
     case QEvent::Enter:

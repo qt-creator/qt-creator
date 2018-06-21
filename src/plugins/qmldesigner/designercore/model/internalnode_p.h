@@ -40,8 +40,6 @@
 
 namespace QmlDesigner {
 
-class Model;
-
 namespace Internal {
 
 class InternalProperty;
@@ -150,7 +148,7 @@ private:
     QStringList m_scriptFunctionList;
 
     QString m_nodeSource;
-    int m_nodeSourceType;
+    int m_nodeSourceType = 0;
 };
 
 uint qHash(const InternalNodePointer& node);

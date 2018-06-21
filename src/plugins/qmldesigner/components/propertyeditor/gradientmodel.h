@@ -41,12 +41,12 @@ class GradientModel : public QAbstractListModel
     Q_PROPERTY(bool hasGradient READ hasGradient NOTIFY hasGradientChanged)
 
 public:
-    explicit GradientModel(QObject *parent = 0);
+    explicit GradientModel(QObject *parent = nullptr);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
-    QHash<int, QByteArray> roleNames() const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QHash<int, QByteArray> roleNames() const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     Q_INVOKABLE int addStop(qreal position, const QColor &color);
     Q_INVOKABLE void addGradient();
@@ -69,8 +69,6 @@ signals:
     void anchorBackendChanged();
     void hasGradientChanged();
 
-public slots:
-
 private:
     void setupModel();
     void setAnchorBackend(const QVariant &anchorBackend);
@@ -78,11 +76,12 @@ private:
     QString gradientPropertyName() const;
     void setGradientPropertyName(const QString &name);
     bool hasGradient() const;
+    bool locked() const;
 
 private:
     QmlDesigner::QmlItemNode m_itemNode;
     QString m_gradientPropertyName;
-    bool m_lock;
+    bool m_locked;
 
 };
 

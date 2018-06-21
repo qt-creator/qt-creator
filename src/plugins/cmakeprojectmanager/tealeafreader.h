@@ -46,19 +46,18 @@ public:
     TeaLeafReader();
     ~TeaLeafReader() final;
 
-    bool isCompatible(const Parameters &p) final;
+    bool isCompatible(const BuildDirParameters &p) final;
     void resetData() final;
-    void parse(bool force) final;
+    void parse(bool forceConfiguration) final;
     void stop() final;
 
     bool isParsing() const final;
-    bool hasData() const final;
 
-    QList<CMakeBuildTarget> buildTargets() const final;
+    QList<CMakeBuildTarget> takeBuildTargets() final;
     CMakeConfig takeParsedConfiguration() final;
-    void generateProjectTree(CMakeListsNode *root,
+    void generateProjectTree(CMakeProjectNode *root,
                              const QList<const ProjectExplorer::FileNode *> &allFiles) final;
-    QSet<Core::Id> updateCodeModel(CppTools::ProjectPartBuilder &ppBuilder) final;
+    void updateCodeModel(CppTools::RawProjectParts &rpps) final;
 
 private:
     void cleanUpProcess();
@@ -70,9 +69,9 @@ private:
     void processCMakeOutput();
     void processCMakeError();
 
-    QStringList getFlagsFor(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, ProjectExplorer::ToolChain::Language lang);
-    bool extractFlagsFromMake(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, ProjectExplorer::ToolChain::Language lang);
-    bool extractFlagsFromNinja(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, ProjectExplorer::ToolChain::Language lang);
+    QStringList getFlagsFor(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang);
+    bool extractFlagsFromMake(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang);
+    bool extractFlagsFromNinja(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang);
 
     Utils::QtcProcess *m_cmakeProcess = nullptr;
 
@@ -80,12 +79,10 @@ private:
     ProjectExplorer::IOutputParser *m_parser = nullptr;
     QFutureInterface<void> *m_future = nullptr;
 
-    bool m_hasData = false;
-
     QSet<Utils::FileName> m_cmakeFiles;
     QString m_projectName;
     QList<CMakeBuildTarget> m_buildTargets;
-    QList<ProjectExplorer::FileNode *> m_files;
+    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> m_files;
     QSet<Internal::CMakeFile *> m_watchedFiles;
 
     // RegExps for function-like macrosses names fixups

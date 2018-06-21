@@ -27,7 +27,7 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilereventtypes.h"
 
-#include <timeline/timelineformattime.h>
+#include <tracing/timelineformattime.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -76,7 +76,7 @@ Q_STATIC_ASSERT(sizeof(StageLabels) ==
                 SceneGraphTimelineModel::MaximumSceneGraphStage * sizeof(const char *));
 
 SceneGraphTimelineModel::SceneGraphTimelineModel(QmlProfilerModelManager *manager,
-                                                 QObject *parent) :
+                                                 Timeline::TimelineModelAggregator *parent) :
     QmlProfilerTimelineModel(manager, SceneGraphFrame, MaximumRangeType, ProfileSceneGraph, parent)
 {
 }
@@ -219,6 +219,7 @@ void SceneGraphTimelineModel::finalize()
 {
     computeNesting();
     flattenLoads();
+    QmlProfilerTimelineModel::finalize();
 }
 
 void SceneGraphTimelineModel::flattenLoads()
@@ -229,7 +230,7 @@ void SceneGraphTimelineModel::flattenLoads()
     QVector <qint64> eventEndTimes;
 
     for (int i = 0; i < count(); i++) {
-        SceneGraphEvent &event = m_data[i];
+        Item &event = m_data[i];
         int stage = selectionId(i);
         // Don't try to put render thread events in GUI row and vice versa.
         // Rows below those are free for all.
@@ -271,7 +272,7 @@ qint64 SceneGraphTimelineModel::insert(qint64 start, qint64 duration, int typeIn
         return 0;
 
     m_data.insert(QmlProfilerTimelineModel::insert(start, duration, stage),
-                  SceneGraphEvent(typeIndex, glyphCount));
+                  Item(typeIndex, glyphCount));
     return duration;
 }
 
@@ -292,7 +293,7 @@ void SceneGraphTimelineModel::clear()
     QmlProfilerTimelineModel::clear();
 }
 
-SceneGraphTimelineModel::SceneGraphEvent::SceneGraphEvent(int typeId, int glyphCount) :
+SceneGraphTimelineModel::Item::Item(int typeId, int glyphCount) :
     typeId(typeId), rowNumberCollapsed(-1), glyphCount(glyphCount)
 {
 }

@@ -59,7 +59,9 @@ protected:
     Utf8String filePath = Utf8StringLiteral(TESTDATA_DIR"/translationunits.cpp");
 };
 
-TEST_F(TranslationUnitUpdater, ParsesIfNeeded)
+using TranslationUnitUpdaterSlowTest = TranslationUnitUpdater;
+
+TEST_F(TranslationUnitUpdaterSlowTest, ParsesIfNeeded)
 {
     ::TranslationUnitUpdater updater = createUpdater(createInput());
 
@@ -69,7 +71,7 @@ TEST_F(TranslationUnitUpdater, ParsesIfNeeded)
     ASSERT_FALSE(result.hasReparsed());
 }
 
-TEST_F(TranslationUnitUpdater, ReparsesIfNeeded)
+TEST_F(TranslationUnitUpdaterSlowTest, ReparsesIfNeeded)
 {
     ::TranslationUnitUpdater updater = createUpdater(createInput(SetReparseNeeded));
 
@@ -78,7 +80,7 @@ TEST_F(TranslationUnitUpdater, ReparsesIfNeeded)
     ASSERT_TRUE(result.hasReparsed());
 }
 
-TEST_F(TranslationUnitUpdater, PropagatesTranslationUnitId)
+TEST_F(TranslationUnitUpdaterSlowTest, PropagatesTranslationUnitId)
 {
     const Utf8String translationUnitId = Utf8StringLiteral("myId");
     ::TranslationUnitUpdater updater = createUpdater(createInput(SetReparseNeeded), translationUnitId);
@@ -88,7 +90,7 @@ TEST_F(TranslationUnitUpdater, PropagatesTranslationUnitId)
     ASSERT_THAT(result.translationUnitId, Eq(translationUnitId));
 }
 
-TEST_F(TranslationUnitUpdater, UpdatesParseTimePoint)
+TEST_F(TranslationUnitUpdaterSlowTest, UpdatesParseTimePoint)
 {
     ::TranslationUnitUpdater updater = createUpdater(createInput());
     const TimePoint now = Clock::now();
@@ -99,7 +101,7 @@ TEST_F(TranslationUnitUpdater, UpdatesParseTimePoint)
     ASSERT_THAT(result.parseTimePoint, Gt(now));
 }
 
-TEST_F(TranslationUnitUpdater, NotUpdatingParseTimePointForReparseOnly)
+TEST_F(TranslationUnitUpdaterSlowTest, NotUpdatingParseTimePointForReparseOnly)
 {
     ::TranslationUnitUpdater updater = createUpdater(createInput());
     TranslationUnitUpdateResult result = updater.update(::TranslationUnitUpdater::UpdateMode::AsNeeded);
@@ -111,7 +113,7 @@ TEST_F(TranslationUnitUpdater, NotUpdatingParseTimePointForReparseOnly)
     ASSERT_FALSE(result.hasParsed());
 }
 
-TEST_F(TranslationUnitUpdater, UpdatesDependendOnFilesOnParse)
+TEST_F(TranslationUnitUpdaterSlowTest, UpdatesDependendOnFilesOnParse)
 {
     ::TranslationUnitUpdater updater = createUpdater(createInput());
 

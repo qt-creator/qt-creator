@@ -29,10 +29,10 @@
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/temporarydirectory.h>
 
 #include <QtTest>
 #include <QDebug>
-#include <QDir>
 
 /*!
     Tests for various parts of the code generation. Well, okay, currently it only
@@ -527,7 +527,7 @@ void CppToolsPlugin::test_codegen_definition_middle_member()
             "\n"
             "}\n"
             "\n"
-            "int y;\n").arg(QDir::tempPath()).toLatin1();
+            "int y;\n").arg(Utils::TemporaryDirectory::masterDirectoryPath()).toLatin1();
 
     Document::Ptr sourceDocument = createDocumentAndFile(&temporaryDir, "file.cpp", sourceText, 4U);
     QVERIFY(sourceDocument);

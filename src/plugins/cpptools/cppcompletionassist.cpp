@@ -38,11 +38,11 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 #include <texteditor/codeassist/functionhintproposal.h>
-#include <texteditor/convenience.h>
 #include <texteditor/snippets/snippet.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 
+#include <utils/textutils.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
@@ -83,9 +83,6 @@ struct CompleteFunctionDeclaration
 class CppAssistProposalItem final : public AssistProposalItem
 {
 public:
-    CppAssistProposalItem() :
-        m_isOverloaded(false) {}
-
     ~CppAssistProposalItem() Q_DECL_NOEXCEPT {}
     bool prematurelyApplies(const QChar &c) const override;
     void applyContextualContent(TextDocumentManipulatorInterface &manipulator, int basePosition) const override;
@@ -101,9 +98,9 @@ public:
 
 private:
     QSharedPointer<TypeOfExpression> m_typeOfExpression;
-    unsigned m_completionOperator;
+    unsigned m_completionOperator = T_EOF_SYMBOL;
     mutable QChar m_typedChar;
-    bool m_isOverloaded;
+    bool m_isOverloaded = false;
 };
 
 } // Internal
@@ -312,28 +309,20 @@ void CppAssistProposalItem::applyContextualContent(TextDocumentManipulatorInterf
             --cursorOffset;
     }
 
-    // Determine the length of characters that should just be kept on the editor, but do
-    // not consider content that ends as an identifier (which could be undesired).
-    const int lineEnd = manipulator.positionAt(EndOfLinePosition);
-    const QString inEditor = manipulator.textAt(manipulator.currentPosition(),
-                                                lineEnd - manipulator.currentPosition());
-    int preserveLength = 0;
-    if (!inEditor.isEmpty()) {
-        preserveLength = toInsert.length() - (manipulator.currentPosition() - basePosition);
-        const int inEditorLength = inEditor.length();
-        while (preserveLength > 0) {
-            if (inEditor.startsWith(toInsert.right(preserveLength))
-                    && (inEditorLength == preserveLength
-                        || !CppTools::isValidIdentifierChar(inEditor.at(preserveLength)))) {
-                break;
-            }
-            --preserveLength;
-        }
+    // Avoid inserting characters that are already there
+    int currentPosition = manipulator.currentPosition();
+    QTextCursor cursor = manipulator.textCursorAt(basePosition);
+    cursor.movePosition(QTextCursor::EndOfWord);
+    const QString textAfterCursor = manipulator.textAt(currentPosition,
+                                                       cursor.position() - currentPosition);
+    if (toInsert != textAfterCursor
+            && toInsert.indexOf(textAfterCursor, currentPosition - basePosition) >= 0) {
+        currentPosition = cursor.position();
     }
 
     for (int i = 0; i < extraChars.length(); ++i) {
         const QChar a = extraChars.at(i);
-        const QChar b = manipulator.characterAt(manipulator.currentPosition() + i + preserveLength);
+        const QChar b = manipulator.characterAt(currentPosition + i);
         if (a == b)
             ++extraLength;
         else
@@ -343,8 +332,9 @@ void CppAssistProposalItem::applyContextualContent(TextDocumentManipulatorInterf
     toInsert += extraChars;
 
     // Insert the remainder of the name
-    const int length = manipulator.currentPosition() - basePosition + preserveLength + extraLength;
+    const int length = currentPosition - basePosition + extraLength;
     manipulator.replace(basePosition, length, toInsert);
+    manipulator.setCursorPosition(basePosition + toInsert.length());
     if (cursorOffset)
         manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
     if (setAutoCompleteSkipPos)
@@ -453,12 +443,12 @@ AssistInterface *InternalCompletionAssistProvider::createAssistInterface(const Q
 class CppAssistProposal : public GenericProposal
 {
 public:
-    CppAssistProposal(int cursorPos, GenericProposalModel *model)
+    CppAssistProposal(int cursorPos, GenericProposalModelPtr model)
         : GenericProposal(cursorPos, model)
-        , m_replaceDotForArrow(static_cast<CppAssistProposalModel *>(model)->m_replaceDotForArrow)
+        , m_replaceDotForArrow(model.staticCast<CppAssistProposalModel>()->m_replaceDotForArrow)
     {}
 
-    bool isCorrective() const override { return m_replaceDotForArrow; }
+    bool isCorrective(TextEditorWidget *) const override { return m_replaceDotForArrow; }
     void makeCorrection(TextEditorWidget *editorWidget) override;
 
 private:
@@ -932,16 +922,15 @@ IAssistProposal *InternalCppCompletionAssistProcessor::createContentProposal()
     }
 
     m_model->loadContent(m_completions);
-    return new CppAssistProposal(m_positionForProposal, m_model.take());
+    return new CppAssistProposal(m_positionForProposal, m_model);
 }
 
 IAssistProposal *InternalCppCompletionAssistProcessor::createHintProposal(
     QList<Function *> functionSymbols) const
 {
-    IFunctionHintProposalModel *model =
-            new CppFunctionHintModel(functionSymbols, m_model->m_typeOfExpression);
-    IAssistProposal *proposal = new FunctionHintProposal(m_positionForProposal, model);
-    return proposal;
+    FunctionHintProposalModelPtr model(new CppFunctionHintModel(functionSymbols,
+                                                                m_model->m_typeOfExpression));
+    return new FunctionHintProposal(m_positionForProposal, model);
 }
 
 int InternalCppCompletionAssistProcessor::startOfOperator(int positionInDocument,
@@ -1101,7 +1090,7 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
     }
 
     int line = 0, column = 0;
-    Convenience::convertPosition(m_interface->textDocument(), startOfExpression, &line, &column);
+    Utils::Text::convertPosition(m_interface->textDocument(), startOfExpression, &line, &column);
     const QString fileName = m_interface->fileName();
     return startCompletionInternal(fileName, line, column, expression, endOfExpression);
 }
@@ -1134,7 +1123,8 @@ bool InternalCppCompletionAssistProcessor::tryObjCCompletion()
     m_model->m_typeOfExpression->init(thisDocument, m_interface->snapshot());
 
     int line = 0, column = 0;
-    Convenience::convertPosition(m_interface->textDocument(), m_interface->position(), &line, &column);
+    Utils::Text::convertPosition(m_interface->textDocument(), m_interface->position(), &line,
+                                 &column);
     Scope *scope = thisDocument->scopeAt(line, column);
     if (!scope)
         return false;
@@ -1274,8 +1264,7 @@ bool InternalCppCompletionAssistProcessor::completeInclude(const QTextCursor &cu
     if (!headerPaths.contains(currentFilePath))
         headerPaths.append(currentFilePath);
 
-    Utils::MimeDatabase mdb;
-    const QStringList suffixes = mdb.mimeTypeForName(QLatin1String("text/x-c++hdr")).suffixes();
+    const QStringList suffixes = Utils::mimeTypeForName(QLatin1String("text/x-c++hdr")).suffixes();
 
     foreach (const ProjectPartHeaderPath &headerPath, headerPaths) {
         QString realPath = headerPath.path;
@@ -1324,8 +1313,7 @@ bool InternalCppCompletionAssistProcessor::objcKeywordsWanted() const
 
     const QString fileName = m_interface->fileName();
 
-    Utils::MimeDatabase mdb;
-    const Utils::MimeType mt = mdb.mimeTypeForFile(fileName);
+    const Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
     return mt.matchesName(QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE))
             || mt.matchesName(QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
 }
@@ -1914,7 +1902,7 @@ void InternalCppCompletionAssistProcessor::addMacros_helper(const Snapshot &snap
     foreach (const Document::Include &i, doc->resolvedIncludes())
         addMacros_helper(snapshot, i.resolvedFileName(), processed, definedMacros);
 
-    foreach (const Macro &macro, doc->definedMacros()) {
+    foreach (const CPlusPlus::Macro &macro, doc->definedMacros()) {
         const QString macroName = macro.nameToQString();
         if (!macro.isHidden())
             definedMacros->insert(macroName);
@@ -2026,7 +2014,8 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
 
         // get current line and column
         int lineSigned = 0, columnSigned = 0;
-        Convenience::convertPosition(m_interface->textDocument(), m_interface->position(), &lineSigned, &columnSigned);
+        Utils::Text::convertPosition(m_interface->textDocument(), m_interface->position(),
+                                     &lineSigned, &columnSigned);
         unsigned line = lineSigned, column = columnSigned;
 
         // find a scope that encloses the current location, starting from the lastVisibileSymbol
@@ -2122,7 +2111,10 @@ void CppCompletionAssistInterface::getCppSpecifics() const
     m_gotCppSpecifics = true;
 
     if (m_parser) {
-        m_parser->update({CppTools::CppModelManager::instance()->workingCopy(), nullptr, false});
+        m_parser->update({CppTools::CppModelManager::instance()->workingCopy(),
+                          nullptr,
+                          Language::Cxx,
+                          false});
         m_snapshot = m_parser->snapshot();
         m_headerPaths = m_parser->headerPaths();
     }

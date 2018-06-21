@@ -43,6 +43,8 @@ public:
     void stdError(const QString &line) override;
     void stdOutput(const QString &line) override;
 
+    static Core::Id id();
+
 protected:
     void newTask(const Task &task);
     void doFlush() override;

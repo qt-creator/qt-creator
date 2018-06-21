@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <coreplugin/icontext.h>
+
 #include <QFrame>
 #include <QPointer>
 
@@ -46,13 +48,17 @@ public:
     void setTreeModel(QAbstractItemModel *model);
     QTreeView *treeView() const;
     QList<QToolButton *> createToolBarWidgets();
-    QString contextHelpId() const;
+    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
+
+    void disableNavigator();
+    void enableNavigator();
 
 signals:
     void leftButtonClicked();
     void rightButtonClicked();
     void upButtonClicked();
     void downButtonClicked();
+    void filterToggled(bool);
 
 private: // functions
     NavigatorView *navigatorView() const;

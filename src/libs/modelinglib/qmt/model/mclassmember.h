@@ -69,10 +69,6 @@ public:
     Q_DECLARE_FLAGS(Properties, Property)
 
     explicit MClassMember(MemberType memberType = MemberUndefined);
-    MClassMember(const MClassMember &rhs);
-    ~MClassMember();
-
-    MClassMember &operator=(const MClassMember &rhs);
 
     Uid uid() const { return m_uid; }
     void setUid(const Uid &uid);
@@ -95,8 +91,8 @@ private:
     QList<QString> m_stereotypes;
     QString m_group;
     QString m_declaration;
-    Visibility m_visibility;
-    MemberType m_memberType;
+    Visibility m_visibility = VisibilityUndefined;
+    MemberType m_memberType = MemberUndefined;
     Properties m_properties;
 };
 

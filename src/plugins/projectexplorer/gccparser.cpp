@@ -144,6 +144,11 @@ void GccParser::stdOutput(const QString &line)
     IOutputParser::stdOutput(line);
 }
 
+Core::Id GccParser::id()
+{
+    return Core::Id("ProjectExplorer.OutputParser.Gcc");
+}
+
 void GccParser::newTask(const Task &task)
 {
     doFlush();
@@ -854,6 +859,18 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                 << Task(Task::Error,
                         QLatin1String("collect2: error: ld returned 1 exit status"),
                         Utils::FileName(), -1,
+                        categoryCompile)
+                )
+            << QString();
+
+    QTest::newRow("ld: undefined member function reference")
+            << "obj/gtest-clang-printing.o:gtest-clang-printing.cpp:llvm::VerifyDisableABIBreakingChecks: error: undefined reference to 'llvm::DisableABIBreakingChecks'"
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Error,
+                        QLatin1String("error: undefined reference to 'llvm::DisableABIBreakingChecks'"),
+                        Utils::FileName::fromString("gtest-clang-printing.cpp"), -1,
                         categoryCompile)
                 )
             << QString();

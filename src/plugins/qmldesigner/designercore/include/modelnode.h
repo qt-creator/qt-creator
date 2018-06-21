@@ -93,6 +93,7 @@ public:
     ModelNode& operator=(const ModelNode &other);
     TypeName type() const;
     QString simplifiedTypeName() const;
+    QString displayName() const;
     int minorVersion() const;
     int majorVersion() const;
 
@@ -190,6 +191,7 @@ public:
 
     bool isComponent() const;
     bool isSubclassOf(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
+    QIcon typeIcon() const;
 
 private: // functions
     Internal::InternalNodePointer internalNode() const;

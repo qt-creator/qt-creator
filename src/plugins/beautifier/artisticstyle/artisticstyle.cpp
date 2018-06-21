@@ -54,10 +54,8 @@ namespace Beautifier {
 namespace Internal {
 namespace ArtisticStyle {
 
-ArtisticStyle::ArtisticStyle(BeautifierPlugin *parent) :
-    BeautifierAbstractTool(parent),
-    m_beautifierPlugin(parent),
-    m_settings(new ArtisticStyleSettings)
+ArtisticStyle::ArtisticStyle()
+    : m_settings(new ArtisticStyleSettings)
 {
 }
 
@@ -69,7 +67,7 @@ ArtisticStyle::~ArtisticStyle()
 bool ArtisticStyle::initialize()
 {
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::ArtisticStyle::MENU_ID);
-    menu->menu()->setTitle(tr(Constants::ArtisticStyle::DISPLAY_NAME));
+    menu->menu()->setTitle(tr("&Artistic Style"));
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     menu->addAction(Core::ActionManager::registerAction(m_formatFile,
@@ -80,6 +78,8 @@ bool ArtisticStyle::initialize()
 
     connect(m_settings, &ArtisticStyleSettings::supportedMimeTypesChanged,
             [this] { updateActions(Core::EditorManager::currentEditor()); });
+
+    new ArtisticStyleOptionsPage(m_settings, this);
 
     return true;
 }
@@ -94,11 +94,6 @@ void ArtisticStyle::updateActions(Core::IEditor *editor)
     m_formatFile->setEnabled(editor && m_settings->isApplicable(editor->document()));
 }
 
-QList<QObject *> ArtisticStyle::autoReleaseObjects()
-{
-    return {new ArtisticStyleOptionsPage(m_settings, this)};
-}
-
 void ArtisticStyle::formatFile()
 {
     const QString cfgFileName = configurationFile();
@@ -106,7 +101,7 @@ void ArtisticStyle::formatFile()
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
                                         tr(Constants::ArtisticStyle::DISPLAY_NAME)));
     } else {
-        m_beautifierPlugin->formatCurrentFile(command(cfgFileName));
+        BeautifierPlugin::formatCurrentFile(command(cfgFileName));
     }
 }
 
@@ -118,15 +113,21 @@ QString ArtisticStyle::configurationFile() const
     if (m_settings->useOtherFiles()) {
         if (const ProjectExplorer::Project *project
                 = ProjectExplorer::ProjectTree::currentProject()) {
-            const QStringList files = project->files(ProjectExplorer::Project::AllFiles);
-            for (const QString &file : files) {
+            const Utils::FileNameList files = project->files(ProjectExplorer::Project::AllFiles);
+            for (const Utils::FileName &file : files) {
                 if (!file.endsWith(".astylerc"))
                     continue;
-                const QFileInfo fi(file);
+                const QFileInfo fi = file.toFileInfo();
                 if (fi.isReadable())
-                    return file;
+                    return file.toString();
             }
         }
+    }
+
+    if (m_settings->useSpecificConfigFile()) {
+        const Utils::FileName file = m_settings->specificConfigFile();
+        if (file.exists())
+            return file.toUserOutput();
     }
 
     if (m_settings->useHomeFile()) {
@@ -160,10 +161,13 @@ Command ArtisticStyle::command(const QString &cfgFile) const
     command.addOption("-q");
     command.addOption("--options=" + cfgFile);
 
-    if (m_settings->version() > ArtisticStyleSettings::Version_2_03) {
+    const int version = m_settings->version();
+    if (version > ArtisticStyleSettings::Version_2_03) {
         command.setProcessing(Command::PipeProcessing);
-        command.setPipeAddsNewline(true);
+        if (version == ArtisticStyleSettings::Version_2_04)
+            command.setPipeAddsNewline(true);
         command.setReturnsCRLF(Utils::HostOsInfo::isWindowsHost());
+        command.addOption("-z2");
     } else {
         command.addOption("%file");
     }

@@ -26,25 +26,8 @@
 #pragma once
 
 #include <extensionsystem/iplugin.h>
-#include <coreplugin/icontext.h>
-
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
-
-namespace ProjectExplorer {
-class Node;
-class Project;
-class KitInformation;
-class Target;
-}
-namespace Utils { class ParameterAction; }
 
 namespace QmakeProjectManager {
-
-class QmakeManager;
-class QmakeProject;
-
 namespace Internal {
 
 class QmakeProjectManagerPlugin : public ExtensionSystem::IPlugin
@@ -53,9 +36,7 @@ class QmakeProjectManagerPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmakeProjectManager.json")
 
 public:
-    ~QmakeProjectManagerPlugin();
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
+    ~QmakeProjectManagerPlugin() final;
 
 #ifdef WITH_TESTS
 private slots:
@@ -66,31 +47,10 @@ private slots:
 #endif
 
 private:
-    void projectChanged();
-    void activeTargetChanged();
-    void updateRunQMakeAction();
-    void updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
-    void buildStateChanged(ProjectExplorer::Project *pro);
-    void updateBuildFileAction();
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final {}
 
-    QmakeManager *m_qmakeProjectManager = nullptr;
-    QmakeProject *m_previousStartupProject = nullptr;
-    ProjectExplorer::Target *m_previousTarget = nullptr;
-
-    QAction *m_runQMakeAction = nullptr;
-    QAction *m_runQMakeActionContextMenu = nullptr;
-    Utils::ParameterAction *m_buildSubProjectContextMenu = nullptr;
-    QAction *m_subProjectRebuildSeparator = nullptr;
-    QAction *m_rebuildSubProjectContextMenu = nullptr;
-    QAction *m_cleanSubProjectContextMenu = nullptr;
-    QAction *m_buildFileContextMenu = nullptr;
-    Utils::ParameterAction *m_buildSubProjectAction = nullptr;
-    Utils::ParameterAction *m_rebuildSubProjectAction = nullptr;
-    Utils::ParameterAction *m_cleanSubProjectAction = nullptr;
-    Utils::ParameterAction *m_buildFileAction = nullptr;
-    QAction *m_addLibraryAction = nullptr;
-    QAction *m_addLibraryActionContextMenu = nullptr;
-    Core::Context m_projectContext;
+    class QmakeProjectManagerPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal

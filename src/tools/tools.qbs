@@ -5,6 +5,8 @@ Project {
     references: [
         "buildoutputparser/buildoutputparser.qbs",
         "clangbackend/clangbackend.qbs",
+        "clangpchmanagerbackend/clangpchmanagerbackend.qbs",
+        "clangrefactoringbackend/clangrefactoringbackend.qbs",
         "cplusplustools.qbs",
         "qml2puppet/qml2puppet.qbs",
         "qtcdebugger/qtcdebugger.qbs",

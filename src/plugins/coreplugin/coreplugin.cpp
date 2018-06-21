@@ -26,12 +26,12 @@
 #include "coreplugin.h"
 #include "designmode.h"
 #include "editmode.h"
-#include "idocument.h"
 #include "helpmanager.h"
-#include "mainwindow.h"
-#include "modemanager.h"
+#include "idocument.h"
 #include "infobar.h"
 #include "iwizardfactory.h"
+#include "mainwindow.h"
+#include "modemanager.h"
 #include "reaper_p.h"
 #include "themechooser.h"
 
@@ -44,19 +44,24 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/fileutils.h>
 
+#include <app/app_version.h>
 #include <extensionsystem/pluginerroroverview.h>
 #include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 #include <utils/algorithm.h>
 #include <utils/pathchooser.h>
 #include <utils/macroexpander.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <utils/savefile.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 #include <utils/theme/theme_p.h>
 
 #include <QtPlugin>
-#include <QDebug>
+
 #include <QDateTime>
+#include <QDebug>
+#include <QDir>
 #include <QMenu>
 #include <QUuid>
 
@@ -65,10 +70,9 @@ using namespace Core::Internal;
 using namespace Utils;
 
 CorePlugin::CorePlugin()
-  : m_mainWindow(0)
-  , m_editMode(0)
-  , m_designMode(0)
-  , m_locator(0)
+  : m_mainWindow(nullptr)
+  , m_editMode(nullptr)
+  , m_locator(nullptr)
 {
     qRegisterMetaType<Id>();
     qRegisterMetaType<Core::Search::TextPosition>();
@@ -80,20 +84,12 @@ CorePlugin::~CorePlugin()
     Find::destroy();
 
     delete m_locator;
+    delete m_editMode;
 
-    if (m_editMode) {
-        removeObject(m_editMode);
-        delete m_editMode;
-    }
-
-    if (m_designMode) {
-        if (m_designMode->designModeIsRequired())
-            removeObject(m_designMode);
-        delete m_designMode;
-    }
+    DesignMode::destroyModeIfRequired();
 
     delete m_mainWindow;
-    setCreatorTheme(0);
+    setCreatorTheme(nullptr);
 }
 
 struct CoreArguments {
@@ -123,6 +119,17 @@ CoreArguments parseArguments(const QStringList &arguments)
 
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
+    // register all mime types from all plugins
+    for (ExtensionSystem::PluginSpec *plugin : ExtensionSystem::PluginManager::plugins()) {
+        if (!plugin->isEffectivelyEnabled())
+            continue;
+        const QJsonObject metaData = plugin->metaData();
+        const QJsonValue mimetypes = metaData.value("Mimetypes");
+        QString mimetypeString;
+        if (Utils::readMultiLineString(mimetypes, &mimetypeString))
+            Utils::addMimeTypes(plugin->name() + ".mimetypes", mimetypeString.trimmed().toUtf8());
+    }
+
     if (ThemeEntry::availableThemes().isEmpty()) {
         *errorMessage = tr("No themes found in installation.");
         return false;
@@ -139,14 +146,10 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
         m_mainWindow->setOverrideColor(args.overrideColor);
     m_locator = new Locator;
     qsrand(QDateTime::currentDateTime().toTime_t());
-    const bool success = m_mainWindow->init(errorMessage);
-    if (success) {
-        m_editMode = new EditMode;
-        addObject(m_editMode);
-        ModeManager::activateMode(m_editMode->id());
-        m_designMode = new DesignMode;
-        InfoBar::initializeGloballySuppressed();
-    }
+    m_mainWindow->init();
+    m_editMode = new EditMode;
+    ModeManager::activateMode(m_editMode->id());
+    InfoBar::initialize(ICore::settings(), creatorTheme());
 
     IWizardFactory::initialize();
 
@@ -154,7 +157,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     SaveFile::initializeUmask();
 
     Find::initialize();
-    m_locator->initialize(this, arguments, errorMessage);
+    m_locator->initialize();
 
     MacroExpander *expander = Utils::globalMacroExpander();
     expander->registerVariable("CurrentDate:ISO", tr("The current date (ISO)."),
@@ -170,17 +173,32 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     expander->registerVariable("CurrentTime:Locale", tr("The current time (Locale)."),
                                []() { return QTime::currentTime().toString(Qt::DefaultLocaleShortDate); });
     expander->registerVariable("Config:DefaultProjectDirectory", tr("The configured default directory for projects."),
-                               []() { return DocumentManager::projectsDirectory(); });
+                               []() { return DocumentManager::projectsDirectory().toString(); });
     expander->registerVariable("Config:LastFileDialogDirectory", tr("The directory last visited in a file dialog."),
                                []() { return DocumentManager::fileDialogLastVisitedDirectory(); });
-    expander->registerVariable("HostOs:isWindows", tr("Is Qt Creator running on Windows?"),
+    expander->registerVariable("HostOs:isWindows",
+                               tr("Is %1 running on Windows?").arg(Constants::IDE_DISPLAY_NAME),
                                []() { return QVariant(Utils::HostOsInfo::isWindowsHost()).toString(); });
-    expander->registerVariable("HostOs:isOSX", tr("Is Qt Creator running on OS X?"),
+    expander->registerVariable("HostOs:isOSX",
+                               tr("Is %1 running on OS X?").arg(Constants::IDE_DISPLAY_NAME),
                                []() { return QVariant(Utils::HostOsInfo::isMacHost()).toString(); });
-    expander->registerVariable("HostOs:isLinux", tr("Is Qt Creator running on Linux?"),
+    expander->registerVariable("HostOs:isLinux",
+                               tr("Is %1 running on Linux?").arg(Constants::IDE_DISPLAY_NAME),
                                []() { return QVariant(Utils::HostOsInfo::isLinuxHost()).toString(); });
-    expander->registerVariable("HostOs:isUnix", tr("Is Qt Creator running on any unix-based platform?"),
+    expander->registerVariable("HostOs:isUnix",
+                               tr("Is %1 running on any unix-based platform?")
+                                   .arg(Constants::IDE_DISPLAY_NAME),
                                []() { return QVariant(Utils::HostOsInfo::isAnyUnixHost()).toString(); });
+    expander->registerVariable("HostOs:PathListSeparator",
+                               tr("Return the path list separator for the platform."),
+                               []() { return QString(Utils::HostOsInfo::pathListSeparator()); });
+    expander->registerVariable("HostOs:ExecutableSuffix",
+                               tr("Return the platform executable suffix."),
+                               []() { return QString(Utils::HostOsInfo::withExecutableSuffix("")); });
+    expander->registerVariable("IDE:ResourcePath",
+                               tr("The directory where %1 finds its pre-installed resources.")
+                                   .arg(Constants::IDE_DISPLAY_NAME),
+                               []() { return ICore::resourcePath(); });
     expander->registerPrefix("CurrentDate:", tr("The current date (QDate formatstring)."),
                              [](const QString &fmt) { return QDate::currentDate().toString(fmt); });
     expander->registerPrefix("CurrentTime:", tr("The current time (QTime formatstring)."),
@@ -188,20 +206,16 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     expander->registerVariable("UUID", tr("Generate a new UUID."),
                                []() { return QUuid::createUuid().toString(); });
 
-    expander->registerPrefix("#:", tr("A comment."), [](const QString &) { return QStringLiteral(""); });
-
-    // Make sure all wizards are there when the user might access the keyboard shortcuts:
-    connect(ICore::instance(), &ICore::optionsDialogRequested, []() { IWizardFactory::allWizardFactories(); });
+    expander->registerPrefix("#:", tr("A comment."), [](const QString &) { return QString(); });
 
     Utils::PathChooser::setAboutToShowContextMenuHandler(&CorePlugin::addToPathChooserContextMenu);
 
-    return success;
+    return true;
 }
 
 void CorePlugin::extensionsInitialized()
 {
-    if (m_designMode->designModeIsRequired())
-        addObject(m_designMode);
+    DesignMode::createModeIfRequired();
     Find::extensionsInitialized();
     m_locator->extensionsInitialized();
     m_mainWindow->extensionsInitialized();
@@ -249,17 +263,27 @@ void CorePlugin::addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QM
     QList<QAction*> actions = menu->actions();
     QAction *firstAction = actions.isEmpty() ? nullptr : actions.first();
 
-    auto *showInGraphicalShell = new QAction(Core::FileUtils::msgGraphicalShellAction(), menu);
-    connect(showInGraphicalShell, &QAction::triggered, pathChooser, [pathChooser]() {
-        Core::FileUtils::showInGraphicalShell(pathChooser, pathChooser->path());
-    });
-    menu->insertAction(firstAction, showInGraphicalShell);
+    if (QDir().exists(pathChooser->path())) {
+        auto *showInGraphicalShell = new QAction(Core::FileUtils::msgGraphicalShellAction(), menu);
+        connect(showInGraphicalShell, &QAction::triggered, pathChooser, [pathChooser]() {
+            Core::FileUtils::showInGraphicalShell(pathChooser, pathChooser->path());
+        });
+        menu->insertAction(firstAction, showInGraphicalShell);
 
-    auto *showInTerminal = new QAction(Core::FileUtils::msgTerminalAction(), menu);
-    connect(showInTerminal, &QAction::triggered, pathChooser, [pathChooser]() {
-        Core::FileUtils::openTerminal(pathChooser->path());
-    });
-    menu->insertAction(firstAction, showInTerminal);
+        auto *showInTerminal = new QAction(Core::FileUtils::msgTerminalAction(), menu);
+        connect(showInTerminal, &QAction::triggered, pathChooser, [pathChooser]() {
+            Core::FileUtils::openTerminal(pathChooser->path());
+        });
+        menu->insertAction(firstAction, showInTerminal);
+
+    } else {
+        auto *mkPathAct = new QAction(tr("Create Folder"), menu);
+        connect(mkPathAct, &QAction::triggered, pathChooser, [pathChooser]() {
+            QDir().mkpath(pathChooser->path());
+            pathChooser->triggerChanged();
+        });
+        menu->insertAction(firstAction, mkPathAct);
+    }
 
     if (firstAction)
         menu->insertSeparator(firstAction);
@@ -269,5 +293,6 @@ ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
 {
     Find::aboutToShutdown();
     m_mainWindow->aboutToShutdown();
+    HelpManager::aboutToShutdown();
     return SynchronousShutdown;
 }

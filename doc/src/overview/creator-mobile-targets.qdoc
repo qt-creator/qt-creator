@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -35,12 +35,13 @@
     \page creator-connecting-mobile.html
     \nextpage creator-developing-android.html
 
-    \title Connecting Mobile Devices
+    \title Connecting Devices
 
-    You can connect mobile devices to the development PC to build, run, debug,
-    and analyze applications on them from \QC. When you install Qt for a
-    target platform, such as Android or QNX, the build and run settings for the
-    development targets might be set up automatically in \QC.
+    You can connect \l{glossary-device}{devices} to the development PC to run, debug,
+    and analyze applications built for them from \QC. When you install Qt for a
+    target platform, such as Android, QNX, or Universal Windows Platform (UWP),
+    the build and run settings for the development targets might be set up
+    automatically in \QC.
 
     You can connect the device to the development PC using a USB connection.
     Additionally, you can connect Linux-based devices by using a WLAN
@@ -82,12 +83,18 @@
             supported for QNX Neutrino devices, and requires the QNX SDK to be
             installed on the development PC.
 
-        \li \l{Connecting Windows Runtime Devices}
-
-            You can build Windows Store Apps and run them on Windows Phones, the
-            Windows Phone Emulator, or the Windows computer in Modern UI mode.
-            You can install the necessary tool chains as part of Qt 5.3.
-
     \endlist
 
+    \section1 Related Topics
+
+    \list
+
+        \li \l{http://doc.qt.io/qtcreator/creator-overview-qtasam.html}
+            {Qt Application Manager}
+
+            You can use the experimental Qt Application Manager plugin
+            (commercial only) to deploy, run, and debug applications on the
+            local Linux PC, remote generic SSH Linux targets, or
+            \l{Embedded Devices}{embedded devices}.
+    \endlist
 */

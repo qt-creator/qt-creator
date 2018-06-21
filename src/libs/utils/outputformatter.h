@@ -49,7 +49,7 @@ class QTCREATOR_UTILS_EXPORT OutputFormatter : public QObject
 
 public:
     OutputFormatter();
-    virtual ~OutputFormatter();
+    ~OutputFormatter() override;
 
     QPlainTextEdit *plainTextEdit() const;
     virtual void setPlainTextEdit(QPlainTextEdit *plainText);
@@ -59,6 +59,8 @@ public:
     virtual void appendMessage(const QString &text, OutputFormat format);
     virtual void appendMessage(const QString &text, const QTextCharFormat &format);
     virtual void handleLink(const QString &href);
+    virtual QList<QWidget *> toolbarWidgets() const { return {}; }
+    virtual void clear() {}
 
 protected:
     void initFormats();

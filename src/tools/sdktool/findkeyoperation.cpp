@@ -34,7 +34,7 @@ QString FindKeyOperation::name() const
 
 QString FindKeyOperation::helpText() const
 {
-    return QLatin1String("find a key in the settings of Qt Creator");
+    return QLatin1String("find a key in the settings");
 }
 
 QString FindKeyOperation::argumentsHelpText() const

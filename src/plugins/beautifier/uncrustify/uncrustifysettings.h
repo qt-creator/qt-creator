@@ -26,7 +26,7 @@
 #pragma once
 
 #include "../abstractsettings.h"
-
+#include <utils/fileutils.h>
 #include <QProcess>
 
 namespace Beautifier {
@@ -59,6 +59,12 @@ public:
     void createDocumentationFile() const override;
 
     void updateVersion() override;
+
+    Utils::FileName specificConfigFile() const;
+    void setSpecificConfigFile(const Utils::FileName &filePath);
+
+    bool useSpecificConfigFile() const;
+    void setUseSpecificConfigFile(bool useConfigFile);
 
 private:
     QProcess m_versionProcess;

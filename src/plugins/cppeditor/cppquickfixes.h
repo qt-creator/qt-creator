@@ -28,22 +28,6 @@
 #include "cppeditor_global.h"
 #include "cppquickfix.h"
 
-#include <cpptools/cpprefactoringchanges.h>
-#include <extensionsystem/iplugin.h>
-
-#include <QDialog>
-
-#include <functional>
-
-QT_BEGIN_NAMESPACE
-class QByteArray;
-template <class> class QList;
-QT_END_NAMESPACE
-
-using namespace CppTools;
-using namespace CPlusPlus;
-using namespace TextEditor;
-
 ///
 /// Adding New Quick Fixes
 ///
@@ -55,7 +39,8 @@ using namespace TextEditor;
 namespace CppEditor {
 namespace Internal {
 
-void registerQuickFixes(ExtensionSystem::IPlugin *plugIn);
+void createCppQuickFixes();
+void destroyCppQuickFixes();
 
 class ExtraRefactoringOperations : public CppQuickFixFactory
 {
@@ -71,7 +56,7 @@ public:
 class AddIncludeForUndefinedIdentifier : public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 // Exposed for tests
@@ -98,7 +83,7 @@ private:
 class FlipLogicalOperands: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 /*!
@@ -112,7 +97,7 @@ public:
 class InverseLogicalComparison: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 /*!
@@ -127,10 +112,7 @@ public:
 class RewriteLogicalAnd: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
-
-private:
-    ASTMatcher matcher;
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 /*!
@@ -147,7 +129,7 @@ private:
 class ConvertCStringToNSString: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 /*!
@@ -172,7 +154,7 @@ public:
 class ConvertNumericLiteral: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 /*!
@@ -191,7 +173,7 @@ public:
 class TranslateStringLiteral: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 /*!
@@ -213,40 +195,7 @@ public:
 class WrapStringLiteral: public CppQuickFixFactory
 {
 public:
-    enum ActionFlags {
-        EncloseInQLatin1CharAction = 0x1,
-        EncloseInQLatin1StringAction = 0x2,
-        EncloseInQStringLiteralAction = 0x4,
-        EncloseActionMask = EncloseInQLatin1CharAction
-            | EncloseInQLatin1StringAction | EncloseInQStringLiteralAction,
-        TranslateTrAction = 0x8,
-        TranslateQCoreApplicationAction = 0x10,
-        TranslateNoopAction = 0x20,
-        TranslationMask = TranslateTrAction
-            | TranslateQCoreApplicationAction | TranslateNoopAction,
-        RemoveObjectiveCAction = 0x40,
-        ConvertEscapeSequencesToCharAction = 0x100,
-        ConvertEscapeSequencesToStringAction = 0x200,
-        SingleQuoteAction = 0x400,
-        DoubleQuoteAction = 0x800
-    };
-
-    enum Type { TypeString, TypeObjCString, TypeChar, TypeNone };
-
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
-
-    static QString replacement(unsigned actions);
-    static QByteArray stringToCharEscapeSequences(const QByteArray &content);
-    static QByteArray charToStringEscapeSequences(const QByteArray &content);
-
-    static ExpressionAST *analyze(const QList<AST *> &path, const CppRefactoringFilePtr &file,
-                                  Type *type,
-                                  QByteArray *enclosingFunction = 0,
-                                  CallAST **enclosingFunctionCall = 0);
-
-private:
-    static QString msgQtStringLiteralDescription(const QString &replacement, int qtVersion);
-    static QString msgQtStringLiteralDescription(const QString &replacement);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 /*!
@@ -258,7 +207,7 @@ private:
 class ConvertToCamelCase : public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 /*!
@@ -274,7 +223,7 @@ public:
 class MoveDeclarationOutOfIf: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 /*!
@@ -290,7 +239,7 @@ public:
 class MoveDeclarationOutOfWhile: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 /*!
@@ -319,7 +268,7 @@ public:
 class SplitIfStatement: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 /*!
@@ -335,10 +284,7 @@ public:
 class SplitSimpleDeclaration: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
-
-private:
-    static bool checkDeclaration(SimpleDeclarationAST *declaration);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 /*!
@@ -355,7 +301,7 @@ private:
 class AddLocalDeclaration: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 /*!
@@ -374,7 +320,7 @@ public:
 class AddBracesToIf: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 /*!
@@ -386,7 +332,7 @@ public:
 class RearrangeParamDeclarationList : public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 /*!
@@ -401,7 +347,7 @@ public:
 class ReformatPointerDeclaration : public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 /*!
@@ -410,7 +356,7 @@ public:
 class CompleteSwitchCaseStatement: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
 /*!
@@ -419,7 +365,7 @@ public:
 class InsertDeclFromDef: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
 /*!
@@ -428,7 +374,7 @@ public:
 class InsertDefFromDecl: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
 /*!
@@ -440,7 +386,7 @@ public:
     typedef std::function<QString ()> FunctionNameGetter;
 
     ExtractFunction(FunctionNameGetter functionNameGetter = FunctionNameGetter());
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 
 private:
     FunctionNameGetter m_functionNameGetter; // For tests to avoid GUI pop-up.
@@ -454,7 +400,7 @@ private:
 class ExtractLiteralAsParameter : public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
 /*!
@@ -465,7 +411,7 @@ public:
 class ConvertFromAndToPointer : public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
 /*!
@@ -474,7 +420,7 @@ public:
 class GenerateGetterSetter : public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
 /*!
@@ -483,7 +429,7 @@ public:
 class InsertQtPropertyMembers : public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
 /*!
@@ -492,7 +438,7 @@ public:
 class ConvertQt4Connect : public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
 /*!
@@ -501,7 +447,7 @@ public:
 class ApplyDeclDefLinkChanges: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
 /*!
@@ -511,7 +457,7 @@ public:
 class MoveFuncDefOutside: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
 /*!
@@ -520,7 +466,7 @@ public:
 class MoveAllFuncDefOutside: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
 /*!
@@ -529,7 +475,7 @@ public:
 class MoveFuncDefToDecl: public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
 /*!
@@ -538,7 +484,7 @@ public:
 class AssignToLocalVariable : public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
 /*!
@@ -548,7 +494,7 @@ public:
 class OptimizeForLoop : public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
 /*!
@@ -561,7 +507,7 @@ public:
 class EscapeStringLiteral : public CppQuickFixFactory
 {
 public:
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
 } // namespace Internal

@@ -6,6 +6,7 @@
     "trDescription": "Creates a simple Nim application.",
     "trDisplayName": "Nim Application",
     "trDisplayCategory": "Non-Qt Project",
+    "featuresRequired": [ "ToolChain.Nim.NimToolChain" ],
     "icon": "icon.png",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('Nim') >= 0 }",
 
@@ -13,8 +14,7 @@
     [
         { "key": "ProjectFile", "value": "%{JS: '%{NimProjectFile}'}" },
         { "key": "NimProjectFile", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'nimproject')}" },
-        { "key": "NimFileName", "value": "%{JS: 'main.nim'}" },
-        { "key": "IsTopLevelProject", "value": "%{JS: !'%{Exists:ProjectExplorer.Profile.Ids}'}" }
+        { "key": "NimFileName", "value": "%{JS: 'main.nim'}" }
     ],
 
     "pages":
@@ -28,7 +28,7 @@
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
-            "enabled": "%{IsTopLevelProject}",
+            "enabled": "%{JS: ! %{IsSubproject}}",
             "data": { "projectFilePath": "%{ProjectFile}" }
         },
         {

@@ -50,17 +50,15 @@ public:
     void setSuppressions(const QStringList &files);
     QStringList suppressions() const;
 
-public Q_SLOTS:
     void slotAddSuppression();
     void slotRemoveSuppression();
     void slotSuppressionsRemoved(const QStringList &files);
     void slotSuppressionsAdded(const QStringList &files);
     void slotSuppressionSelectionChanged();
 
-private slots:
+private:
     void updateUi();
 
-private:
     ValgrindBaseSettings *m_settings;
     Ui::ValgrindConfigWidget *m_ui;
     QStandardItemModel *m_model;

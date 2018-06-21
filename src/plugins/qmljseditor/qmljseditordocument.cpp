@@ -32,6 +32,7 @@
 #include "qmljsquickfixassist.h"
 #include "qmljssemantichighlighter.h"
 #include "qmljssemanticinfoupdater.h"
+#include "qmljstextmark.h"
 #include "qmloutlinemodel.h"
 
 #include <coreplugin/coreconstants.h>
@@ -455,12 +456,9 @@ namespace QmlJSEditor {
 namespace Internal {
 
 QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *parent)
-    : q(parent),
-      m_semanticInfoDocRevision(-1),
-      m_semanticHighlighter(new SemanticHighlighter(parent)),
-      m_semanticHighlightingNecessary(false),
-      m_outlineModelNeedsUpdate(false),
-      m_outlineModel(new QmlOutlineModel(parent))
+    : q(parent)
+    , m_semanticHighlighter(new SemanticHighlighter(parent))
+    , m_outlineModel(new QmlOutlineModel(parent))
 {
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
@@ -501,6 +499,10 @@ QmlJSEditorDocumentPrivate::~QmlJSEditorDocumentPrivate()
 {
     m_semanticInfoUpdater->abort();
     m_semanticInfoUpdater->wait();
+    // clean up all marks, otherwise a callback could try to access deleted members.
+    // see QTCREATORBUG-20199
+    cleanDiagnosticMarks();
+    cleanSemanticMarks();
 }
 
 void QmlJSEditorDocumentPrivate::invalidateFormatterCache()
@@ -524,10 +526,13 @@ void QmlJSEditorDocumentPrivate::onDocumentUpdated(Document::Ptr doc)
     if (doc->editorRevision() != q->document()->revision())
         return;
 
+    cleanDiagnosticMarks();
     if (doc->ast()) {
         // got a correctly parsed (or recovered) file.
         m_semanticInfoDocRevision = doc->editorRevision();
         m_semanticInfoUpdater->update(doc, ModelManagerInterface::instance()->snapshot());
+    } else if (doc->language().isFullySupportedLanguage()) {
+        createTextMarks(doc->diagnosticMessages());
     }
     emit q->updateCodeWarnings(doc);
 }
@@ -576,6 +581,7 @@ void QmlJSEditorDocumentPrivate::acceptNewSemanticInfo(const SemanticInfo &seman
         }
     }
 
+    createTextMarks(m_semanticInfo);
     emit q->semanticInfoUpdated(m_semanticInfo); // calls triggerPendingUpdates as necessary
 }
 
@@ -585,6 +591,64 @@ void QmlJSEditorDocumentPrivate::updateOutlineModel()
         return; // outline update will be retriggered when semantic info is updated
 
     m_outlineModel->update(m_semanticInfo);
+}
+
+static void cleanMarks(QVector<TextEditor::TextMark *> *marks, TextEditor::TextDocument *doc)
+{
+    // if doc is null, this method is improperly called, so better do nothing that leave an
+    // inconsistent state where marks are cleared but not removed from doc.
+    if (!marks || !doc)
+        return;
+    for (TextEditor::TextMark *mark : *marks) {
+        doc->removeMark(mark);
+        delete mark;
+    }
+    marks->clear();
+}
+
+void QmlJSEditorDocumentPrivate::createTextMarks(const QList<DiagnosticMessage> &diagnostics)
+{
+    for (const DiagnosticMessage &diagnostic : diagnostics) {
+        const auto onMarkRemoved = [this](QmlJSTextMark *mark) {
+            m_diagnosticMarks.removeAll(mark);
+            delete mark;
+         };
+
+        auto mark = new QmlJSTextMark(q->filePath(), diagnostic, onMarkRemoved);
+        m_diagnosticMarks.append(mark);
+        q->addMark(mark);
+    }
+}
+
+void QmlJSEditorDocumentPrivate::cleanDiagnosticMarks()
+{
+    cleanMarks(&m_diagnosticMarks, q);
+}
+
+void QmlJSEditorDocumentPrivate::createTextMarks(const SemanticInfo &info)
+{
+    cleanSemanticMarks();
+    const auto onMarkRemoved = [this](QmlJSTextMark *mark) {
+        m_semanticMarks.removeAll(mark);
+        delete mark;
+    };
+    for (const DiagnosticMessage &diagnostic : qAsConst(info.semanticMessages)) {
+        auto mark = new QmlJSTextMark(q->filePath(),
+                                      diagnostic, onMarkRemoved);
+        m_semanticMarks.append(mark);
+        q->addMark(mark);
+    }
+    for (const QmlJS::StaticAnalysis::Message &message : qAsConst(info.staticAnalysisMessages)) {
+        auto mark = new QmlJSTextMark(q->filePath(),
+                                      message, onMarkRemoved);
+        m_semanticMarks.append(mark);
+        q->addMark(mark);
+    }
+}
+
+void QmlJSEditorDocumentPrivate::cleanSemanticMarks()
+{
+    cleanMarks(&m_semanticMarks, q);
 }
 
 } // Internal
@@ -624,9 +688,9 @@ Internal::QmlOutlineModel *QmlJSEditorDocument::outlineModel() const
     return d->m_outlineModel;
 }
 
-TextEditor::QuickFixAssistProvider *QmlJSEditorDocument::quickFixAssistProvider() const
+TextEditor::IAssistProvider *QmlJSEditorDocument::quickFixAssistProvider() const
 {
-    return Internal::QmlJSEditorPlugin::instance()->quickFixAssistProvider();
+    return Internal::QmlJSEditorPlugin::quickFixAssistProvider();
 }
 
 void QmlJSEditorDocument::setDiagnosticRanges(const QVector<QTextLayout::FormatRange> &ranges)

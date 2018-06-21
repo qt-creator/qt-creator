@@ -32,6 +32,12 @@
 namespace QmakeProjectManager {
 namespace Internal {
 
+// Determine name for Q_EXPORT_PLUGIN
+static inline QString createPluginName(const QString &prefix)
+{
+    return prefix.toLower() + QLatin1String("plugin");
+}
+
 CustomWidgetPluginWizardPage::CustomWidgetPluginWizardPage(QWidget *parent) :
     QWizardPage(parent),
     m_ui(new Ui::CustomWidgetPluginWizardPage),
@@ -39,8 +45,19 @@ CustomWidgetPluginWizardPage::CustomWidgetPluginWizardPage(QWidget *parent) :
     m_complete(false)
 {
     m_ui->setupUi(this);
-    connect(m_ui->collectionClassEdit, &QLineEdit::textEdited, this, &CustomWidgetPluginWizardPage::slotCheckCompleteness);
-    connect(m_ui->pluginNameEdit, &QLineEdit::textEdited, this, &CustomWidgetPluginWizardPage::slotCheckCompleteness);
+    connect(m_ui->collectionClassEdit, &QLineEdit::textEdited,
+            this, &CustomWidgetPluginWizardPage::slotCheckCompleteness);
+    connect(m_ui->collectionClassEdit, &QLineEdit::textChanged,
+            this, [this](const QString &collectionClass) {
+        m_ui->collectionHeaderEdit->setText(m_fileNamingParameters.headerFileName(collectionClass));
+        m_ui->pluginNameEdit->setText(createPluginName(collectionClass));
+    });
+    connect(m_ui->pluginNameEdit, &QLineEdit::textEdited,
+            this, &CustomWidgetPluginWizardPage::slotCheckCompleteness);
+    connect(m_ui->collectionHeaderEdit, &QLineEdit::textChanged,
+            this, [this](const QString &text) {
+        m_ui->collectionSourceEdit->setText(m_fileNamingParameters.headerToSourceFileName(text));
+    });
 
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Plugin Details"));
 }
@@ -58,12 +75,6 @@ QString CustomWidgetPluginWizardPage::collectionClassName() const
 QString CustomWidgetPluginWizardPage::pluginName() const
 {
     return m_ui->pluginNameEdit->text();
-}
-
-// Determine name for Q_EXPORT_PLUGIN
-static inline QString createPluginName(const QString &prefix)
-{
-    return prefix.toLower() + QLatin1String("plugin");
 }
 
 void CustomWidgetPluginWizardPage::init(const CustomWidgetWidgetsWizardPage *widgetsPage)
@@ -92,18 +103,6 @@ void CustomWidgetPluginWizardPage::setCollectionEnabled(bool enColl)
     m_ui->collectionHeaderEdit->setEnabled(enColl);
     m_ui->collectionSourceLabel->setEnabled(enColl);
     m_ui->collectionSourceEdit->setEnabled(enColl);
-}
-
-void CustomWidgetPluginWizardPage::on_collectionClassEdit_textChanged()
-{
-    const QString collectionClass = collectionClassName();
-    m_ui->collectionHeaderEdit->setText(m_fileNamingParameters.headerFileName(collectionClass));
-    m_ui->pluginNameEdit->setText(createPluginName(collectionClass));
-}
-
-void CustomWidgetPluginWizardPage::on_collectionHeaderEdit_textChanged()
-{
-    m_ui->collectionSourceEdit->setText(m_fileNamingParameters.headerToSourceFileName(m_ui->collectionHeaderEdit->text()));
 }
 
 QSharedPointer<PluginOptions> CustomWidgetPluginWizardPage::basicPluginOptions() const

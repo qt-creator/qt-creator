@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
-    <mime-type type="text/vnd.qtcreator.model">
-        <sub-class-of type="text/xml"/>
-        <comment>Qt Creator Model File</comment>
-        <glob pattern="*.qmodel"/>
-    </mime-type>
-</mime-info>

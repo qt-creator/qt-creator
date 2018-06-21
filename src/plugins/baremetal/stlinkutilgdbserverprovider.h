@@ -43,22 +43,22 @@ class StLinkUtilGdbServerProvider : public GdbServerProvider
 {
 public:
     enum TransportLayer { ScsiOverUsb = 1, RawUsb = 2 };
-    QString typeDisplayName() const;
+    QString typeDisplayName() const final;
 
-    QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &data);
+    QVariantMap toMap() const final;
+    bool fromMap(const QVariantMap &data) final;
 
-    bool operator==(const GdbServerProvider &) const;
+    bool operator==(const GdbServerProvider &) const final;
 
-    GdbServerProviderConfigWidget *configurationWidget();
-    GdbServerProvider *clone() const;
+    GdbServerProviderConfigWidget *configurationWidget() final;
+    GdbServerProvider *clone() const final;
 
-    QString channel() const;
-    QString executable() const;
-    QStringList arguments() const;
+    QString channel() const final;
+    QString executable() const final;
+    QStringList arguments() const final;
 
-    bool canStartupMode(StartupMode mode) const;
-    bool isValid() const;
+    bool canStartupMode(StartupMode mode) const final;
+    bool isValid() const final;
 
 private:
     explicit StLinkUtilGdbServerProvider();
@@ -86,10 +86,10 @@ class StLinkUtilGdbServerProviderFactory : public GdbServerProviderFactory
 public:
     explicit StLinkUtilGdbServerProviderFactory();
 
-    GdbServerProvider *create();
+    GdbServerProvider *create() final;
 
-    bool canRestore(const QVariantMap &data);
-    GdbServerProvider *restore(const QVariantMap &data);
+    bool canRestore(const QVariantMap &data) const final;
+    GdbServerProvider *restore(const QVariantMap &data) final;
 
     GdbServerProviderConfigWidget *configurationWidget(GdbServerProvider *);
 };
@@ -101,12 +101,11 @@ class StLinkUtilGdbServerProviderConfigWidget : public GdbServerProviderConfigWi
 public:
     explicit StLinkUtilGdbServerProviderConfigWidget(StLinkUtilGdbServerProvider *);
 
-private slots:
+private:
     void startupModeChanged();
 
-private:
-    void applyImpl();
-    void discardImpl();
+    void applyImpl() final;
+    void discardImpl() final;
 
     StLinkUtilGdbServerProvider::TransportLayer transportLayerFromIndex(int idx) const;
     StLinkUtilGdbServerProvider::TransportLayer transportLayer() const;

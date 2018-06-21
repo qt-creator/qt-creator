@@ -82,8 +82,8 @@ public:
 private:
     void updateThreadBox();
 
-    void sort(int column, Qt::SortOrder order);
-    bool setData(const QModelIndex &idx, const QVariant &data, int role);
+    void sort(int column, Qt::SortOrder order) override;
+    bool setData(const QModelIndex &idx, const QVariant &data, int role) override;
 
     DebuggerEngine *m_engine;
     ThreadId m_currentId;

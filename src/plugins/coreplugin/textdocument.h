@@ -40,7 +40,7 @@ class CORE_EXPORT BaseTextDocument : public IDocument
 public:
     typedef Utils::TextFileFormat::ReadResult ReadResult;
 
-    explicit BaseTextDocument(QObject *parent = 0);
+    explicit BaseTextDocument(QObject *parent = nullptr);
     ~BaseTextDocument() override;
 
     Utils::TextFileFormat format() const;

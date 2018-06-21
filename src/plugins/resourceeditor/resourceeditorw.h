@@ -48,7 +48,7 @@ class ResourceEditorDocument
     Q_PROPERTY(QString plainText READ plainText STORED false) // For access by code pasters
 
 public:
-    ResourceEditorDocument(QObject *parent = 0);
+    ResourceEditorDocument(QObject *parent = nullptr);
 
     //IDocument
     OpenResult open(QString *errorString, const QString &fileName,
@@ -85,14 +85,14 @@ class ResourceEditorW : public Core::IEditor
 public:
     ResourceEditorW(const Core::Context &context,
                    ResourceEditorPlugin *plugin,
-                   QWidget *parent = 0);
+                   QWidget *parent = nullptr);
     ~ResourceEditorW() override;
 
     // IEditor
     Core::IDocument *document() override { return m_resourceDocument; }
     QWidget *toolBar() override;
 
-private slots:
+private:
     void onUndoStackChanged(bool canUndo, bool canRedo);
     void showContextMenu(const QPoint &globalPoint, const QString &fileName);
     void openCurrentFile();
@@ -100,7 +100,6 @@ private slots:
     void renameCurrentFile();
     void copyCurrentResourcePath();
 
-private:
     const QString m_extension;
     const QString m_fileFilter;
     QString m_displayName;
@@ -114,10 +113,8 @@ private:
     QAction *m_renameAction;
     QAction *m_copyFileNameAction;
 
-public slots:
-    void onRefresh();
-
 public:
+    void onRefresh();
     void onUndo();
     void onRedo();
 

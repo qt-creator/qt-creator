@@ -26,23 +26,72 @@
 #include "quicktestvisitors.h"
 
 #include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/qmljsbind.h>
+#include <qmljs/qmljslink.h>
+#include <qmljs/qmljsutils.h>
+#include <utils/algorithm.h>
 
 namespace Autotest {
 namespace Internal {
 
-static QStringList specialFunctions({ "initTestCase", "cleanupTestCase", "init", "cleanup" });
+static QStringList specialFunctions({"initTestCase", "cleanupTestCase", "init", "cleanup"});
 
-TestQmlVisitor::TestQmlVisitor(QmlJS::Document::Ptr doc)
+TestQmlVisitor::TestQmlVisitor(QmlJS::Document::Ptr doc, const QmlJS::Snapshot &snapshot)
     : m_currentDoc(doc)
+    , m_snapshot(snapshot)
 {
+}
+
+static bool documentImportsQtTest(const QmlJS::Document *doc)
+{
+    if (const QmlJS::Bind *bind = doc->bind()) {
+        return Utils::anyOf(bind->imports(), [] (const QmlJS::ImportInfo &info) {
+            return info.isValid() && info.name() == "QtTest";
+        });
+    }
+    return false;
+}
+
+static bool isDerivedFromTestCase(QmlJS::AST::UiQualifiedId *id, const QmlJS::Document::Ptr &doc,
+                                  const QmlJS::Snapshot &snapshot)
+{
+    if (!id)
+        return false;
+    QmlJS::Link link(snapshot, QmlJS::ViewerContext(), QmlJS::LibraryInfo());
+    const QmlJS::ContextPtr context = link();
+
+    const QmlJS::ObjectValue *value = context->lookupType(doc.data(), id);
+    if (!value)
+        return false;
+
+    QmlJS::PrototypeIterator protoIterator(value, context);
+    const QList<const QmlJS::ObjectValue *> prototypes = protoIterator.all();
+    for (const QmlJS::ObjectValue *val : prototypes) {
+        if (auto prototype = val->prototype()) {
+            if (auto qmlPrototypeRef = prototype->asQmlPrototypeReference()) {
+                if (auto qmlTypeName = qmlPrototypeRef->qmlTypeName()) {
+                    if (qmlTypeName->name == "TestCase") {
+                        if (auto astObjVal = val->asAstObjectValue())
+                            return documentImportsQtTest(astObjVal->document());
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }
 
 bool TestQmlVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
     const QStringRef name = ast->qualifiedTypeNameId->name;
-    if (name != "TestCase")
+    if (name != "TestCase") {
+        if (!isDerivedFromTestCase(ast->qualifiedTypeNameId, m_currentDoc, m_snapshot))
+            return true;
+    } else if (!documentImportsQtTest(m_currentDoc.data())) {
         return true; // find nested TestCase items as well
+    }
 
+    m_typeIsTestCase = true;
     m_currentTestCaseName.clear();
     const auto sourceLocation = ast->firstSourceLocation();
     m_testCaseLocation.m_name = m_currentDoc->fileName();
@@ -90,7 +139,8 @@ bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
 
 bool TestQmlVisitor::visit(QmlJS::AST::StringLiteral *ast)
 {
-    m_currentTestCaseName = ast->value.toString();
+    if (m_typeIsTestCase)
+        m_currentTestCaseName = ast->value.toString();
     return false;
 }
 

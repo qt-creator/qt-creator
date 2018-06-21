@@ -30,6 +30,7 @@
 #include "propertyeditortransaction.h"
 
 #include <qmldesignerconstants.h>
+#include <qmltimeline.h>
 #include <nodemetainfo.h>
 
 #include <invalididexception.h>
@@ -40,7 +41,7 @@
 
 #include <nodeabstractproperty.h>
 
-#include <theming.h>
+#include <theme.h>
 
 #include <coreplugin/icore.h>
 #include <utils/fileutils.h>
@@ -80,13 +81,13 @@ PropertyEditorView::PropertyEditorView(QWidget *parent) :
     m_qmlDir = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 
     m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F3), m_stackedWidget);
-    connect(m_updateShortcut, SIGNAL(activated()), this, SLOT(reloadQml()));
+    connect(m_updateShortcut, &QShortcut::activated, this, &PropertyEditorView::reloadQml);
 
-    m_stackedWidget->setStyleSheet(Theming::replaceCssColors(
+    m_stackedWidget->setStyleSheet(Theme::replaceCssColors(
             QString::fromUtf8(Utils::FileReader::fetchQrc(QStringLiteral(":/qmldesigner/stylesheet.css")))));
     m_stackedWidget->setMinimumWidth(320);
     m_stackedWidget->move(0, 0);
-    connect(m_stackedWidget, SIGNAL(resized()), this, SLOT(updateSize()));
+    connect(m_stackedWidget, &PropertyEditorWidget::resized, this, &PropertyEditorView::updateSize);
 
     m_stackedWidget->insertWidget(0, new QWidget(m_stackedWidget));
 
@@ -135,10 +136,10 @@ void PropertyEditorView::changeValue(const QString &name)
     if (propertyName.isNull())
         return;
 
-    if (m_locked)
+    if (locked())
         return;
 
-    if (propertyName == "type")
+    if (propertyName == "className")
         return;
 
     if (!m_selectedNode.isValid())
@@ -194,7 +195,8 @@ void PropertyEditorView::changeValue(const QString &name)
         if (qmlObjectNode.modelNode().metaInfo().propertyTypeName(propertyName) == "QUrl"
                 || qmlObjectNode.modelNode().metaInfo().propertyTypeName(propertyName) == "url") { //turn absolute local file paths into relative paths
                 QString filePath = castedValue.toUrl().toString();
-            if (QFileInfo(filePath).exists() && QFileInfo(filePath).isAbsolute()) {
+            QFileInfo fi(filePath);
+            if (fi.exists() && fi.isAbsolute()) {
                 QDir fileDir(QFileInfo(model()->fileUrl().toLocalFile()).absolutePath());
                 castedValue = QUrl(fileDir.relativeFilePath(filePath));
             }
@@ -231,7 +233,7 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
     if (name.isNull())
         return;
 
-    if (m_locked)
+    if (locked())
         return;
 
     if (!m_selectedNode.isValid())
@@ -278,7 +280,7 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
                 }
             } else if (qmlObjectNode.modelNode().metaInfo().propertyTypeName(name) == "qreal") {
                 bool ok;
-                qreal realValue = value->expression().toFloat(&ok);
+                qreal realValue = value->expression().toDouble(&ok);
                 if (ok) {
                     qmlObjectNode.setVariantProperty(name, realValue);
                     transaction.commit(); //committing in the try block
@@ -306,7 +308,7 @@ void PropertyEditorView::exportPopertyAsAlias(const QString &name)
     if (name.isNull())
         return;
 
-    if (m_locked)
+    if (locked())
         return;
 
     if (!m_selectedNode.isValid())
@@ -340,7 +342,7 @@ void PropertyEditorView::removeAliasExport(const QString &name)
     if (name.isNull())
         return;
 
-    if (m_locked)
+    if (locked())
         return;
 
     if (!m_selectedNode.isValid())
@@ -359,6 +361,19 @@ void PropertyEditorView::removeAliasExport(const QString &name)
         transaction.commit(); //committing in the try block
     } catch (const RewritingException &e) {
         e.showException();
+    }
+}
+
+bool PropertyEditorView::locked() const
+{
+    return m_locked;
+}
+
+void PropertyEditorView::nodeCreated(const ModelNode &modelNode)
+{
+    if (!m_qmlBackEndForCurrentType->contextObject()->hasActiveTimeline()
+            && QmlTimeline::isValidQmlTimeline(modelNode)) {
+        m_qmlBackEndForCurrentType->contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(this));
     }
 }
 
@@ -384,8 +399,9 @@ void PropertyEditorView::setupPanes()
 
 void PropertyEditorView::delayedResetView()
 {
-    if (m_timerId == 0)
-        m_timerId = startTimer(100);
+    if (m_timerId)
+        killTimer(m_timerId);
+    m_timerId = startTimer(50);
 }
 
 void PropertyEditorView::timerEvent(QTimerEvent *timerEvent)
@@ -433,11 +449,7 @@ void PropertyEditorView::setupQmlBackend()
     TypeName diffClassName;
     if (m_selectedNode.isValid()) {
         diffClassName = m_selectedNode.metaInfo().typeName();
-        QList<NodeMetaInfo> hierarchy;
-        hierarchy << m_selectedNode.metaInfo();
-        hierarchy << m_selectedNode.metaInfo().superClasses();
-
-        foreach (const NodeMetaInfo &metaInfo, hierarchy) {
+        foreach (const NodeMetaInfo &metaInfo, m_selectedNode.metaInfo().classHierarchy()) {
             if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsFile))
                 break;
             qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName() + "Specifics", metaInfo);
@@ -507,8 +519,8 @@ void PropertyEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNo
 
     if (selectedNodeList.isEmpty() || selectedNodeList.count() > 1)
         select(ModelNode());
-    else if (m_selectedNode != selectedNodeList.first())
-        select(selectedNodeList.first());
+    else if (m_selectedNode != selectedNodeList.constFirst())
+        select(selectedNodeList.constFirst());
 }
 
 void PropertyEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
@@ -526,15 +538,16 @@ void PropertyEditorView::modelAttached(Model *model)
 
     m_locked = true;
 
-    resetView();
     if (!m_setupCompleted) {
         m_singleShotTimer->setSingleShot(true);
         m_singleShotTimer->setInterval(100);
-        connect(m_singleShotTimer, SIGNAL(timeout()), this, SLOT(setupPanes()));
+        connect(m_singleShotTimer, &QTimer::timeout, this, &PropertyEditorView::setupPanes);
         m_singleShotTimer->start();
     }
 
     m_locked = false;
+
+    resetView();
 }
 
 void PropertyEditorView::modelAboutToBeDetached(Model *model)
@@ -717,7 +730,7 @@ void PropertyEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Pr
 
 void PropertyEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
-    // TODO: we should react to this case
+    delayedResetView();
 }
 
 void PropertyEditorView::nodeTypeChanged(const ModelNode &node, const TypeName &, int, int)

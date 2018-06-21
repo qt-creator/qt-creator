@@ -30,8 +30,6 @@
 namespace Core {
 class IEditor;
 
-namespace Internal { class DesignModeCoreListener; }
-
 /**
   * A global mode for Design pane - used by Bauhaus (QML Designer) and
   * Qt Designer. Other plugins can register themselves by registerDesignWidget()
@@ -39,40 +37,35 @@ namespace Internal { class DesignModeCoreListener; }
   * to the main editor widget itself.
   */
 
-class DesignModePrivate;
-
 class CORE_EXPORT DesignMode : public IMode
 {
     Q_OBJECT
 
 public:
-    explicit DesignMode();
-    virtual ~DesignMode();
-
     static DesignMode *instance();
 
-    void setDesignModeIsRequired();
-    bool designModeIsRequired() const;
+    static void setDesignModeIsRequired();
 
-    void registerDesignWidget(QWidget *widget,
-                              const QStringList &mimeTypes,
-                              const Context &context);
-    void unregisterDesignWidget(QWidget *widget);
+    static void registerDesignWidget(QWidget *widget,
+                                     const QStringList &mimeTypes,
+                                     const Context &context);
+    static void unregisterDesignWidget(QWidget *widget);
 
-    QStringList registeredMimeTypes() const;
+    static void createModeIfRequired();
+    static void destroyModeIfRequired();
 
 signals:
     void actionsUpdated(Core::IEditor *editor);
 
 private:
+    DesignMode();
+    ~DesignMode() final;
+
     void updateActions();
 
     void currentEditorChanged(IEditor *editor);
     void updateContext(Id newMode, Id oldMode);
     void setActiveContext(const Context &context);
-
-    DesignModePrivate *d;
-    friend class Internal::DesignModeCoreListener;
 };
 
 } // namespace Core

@@ -35,8 +35,6 @@ namespace TextEditor {
 class TextDocument;
 
 namespace Internal {
-class TextEditorOverlay;
-class ClipboardAssistProvider;
 
 class TEXTEDITOR_EXPORT TextBlockSelection
 {

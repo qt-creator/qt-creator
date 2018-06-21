@@ -70,7 +70,9 @@ CppLocalRenaming::CppLocalRenaming(TextEditor::TextEditorWidget *editorWidget)
 void CppLocalRenaming::updateSelectionsForVariableUnderCursor(
         const QList<QTextEdit::ExtraSelection> &selections)
 {
-    QTC_ASSERT(!isActive(), return);
+    if (isActive())
+        return;
+
     m_selections = selections;
 }
 
@@ -238,6 +240,15 @@ void CppLocalRenaming::forgetRenamingSelection()
 bool CppLocalRenaming::isWithinRenameSelection(int position)
 {
     return renameSelectionBegin() <= position && position <= renameSelectionEnd();
+}
+
+bool CppLocalRenaming::isSameSelection(int cursorPosition) const
+{
+    if (!isActive())
+        return false;
+
+    const QTextEdit::ExtraSelection &sel = m_selections[m_renameSelectionIndex];
+    return (sel.cursor.position() <= cursorPosition && cursorPosition <= sel.cursor.anchor());
 }
 
 bool CppLocalRenaming::findRenameSelection(int cursorPosition)

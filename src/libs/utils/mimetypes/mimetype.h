@@ -121,6 +121,8 @@ protected:
     QExplicitlySharedDataPointer<Internal::MimeTypePrivate> d;
 };
 
+inline uint QTCREATOR_UTILS_EXPORT qHash(const MimeType &mime) { return qHash(mime.name()); }
+
 } // Utils
 
 //Q_DECLARE_SHARED(Utils::MimeType)
@@ -131,3 +133,4 @@ class QDebug;
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug debug, const Utils::MimeType &mime);
 QT_END_NAMESPACE
 #endif
+

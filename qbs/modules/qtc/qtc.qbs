@@ -4,21 +4,30 @@ import qbs.FileInfo
 import "qtc.js" as HelperFunctions
 
 Module {
+    property string qtcreator_display_version: '4.8.0-beta1'
     property string ide_version_major: '4'
-    property string ide_version_minor: '2'
+    property string ide_version_minor: '7'
     property string ide_version_release: '82'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.'
                                        + ide_version_release
 
     property string ide_compat_version_major: '4'
-    property string ide_compat_version_minor: '2'
+    property string ide_compat_version_minor: '7'
     property string ide_compat_version_release: '82'
     property string qtcreator_compat_version: ide_compat_version_major + '.'
             + ide_compat_version_minor + '.' + ide_compat_version_release
 
+    property string qtcreator_copyright_year: '2018'
+    property string qtcreator_copyright_string: "(C) " + qtcreator_copyright_year + " The Qt Company Ltd"
+
+    property string ide_display_name: 'Qt Creator'
+    property string ide_id: 'qtcreator'
+    property string ide_cased_id: 'QtCreator'
+    property string ide_bundle_identifier: 'org.qt-project.qtcreator'
+
     property string libDirName: "lib"
     property string ide_app_path: qbs.targetOS.contains("macos") ? "" : "bin"
-    property string ide_app_target: qbs.targetOS.contains("macos") ? "Qt Creator" : "qtcreator"
+    property string ide_app_target: qbs.targetOS.contains("macos") ? ide_display_name : ide_id
     property string ide_library_path: {
         if (qbs.targetOS.contains("macos"))
             return ide_app_target + ".app/Contents/Frameworks"
@@ -73,7 +82,10 @@ Module {
         "QT_NO_CAST_TO_ASCII",
         "QT_RESTRICTED_CAST_FROM_ASCII",
         "QT_DISABLE_DEPRECATED_BEFORE=0x050600",
+        "QT_USE_FAST_OPERATOR_PLUS",
+        "QT_USE_FAST_CONCATENATION",
     ].concat(testsEnabled ? ["WITH_TESTS"] : [])
+     .concat(qbs.toolchain.contains("msvc") ? ["_CRT_SECURE_NO_WARNINGS"] : [])
 
     Rule {
         condition: make_dev_package

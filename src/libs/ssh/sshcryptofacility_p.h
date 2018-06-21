@@ -45,13 +45,13 @@ public:
     QByteArray generateMac(const QByteArray &data, quint32 dataSize) const;
     quint32 cipherBlockSize() const { return m_cipherBlockSize; }
     quint32 macLength() const { return m_macLength; }
+    QByteArray sessionId() const { return m_sessionId; }
 
 protected:
     enum Mode { CbcMode, CtrMode };
 
     SshAbstractCryptoFacility();
     void convert(QByteArray &data, quint32 offset, quint32 dataSize) const;
-    QByteArray sessionId() const { return m_sessionId; }
     Botan::Keyed_Filter *makeCtrCipherMode(Botan::BlockCipher *cipher,
         const Botan::InitializationVector &iv, const Botan::SymmetricKey &key);
 

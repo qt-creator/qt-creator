@@ -31,9 +31,9 @@
 
 #include <utils/persistentsettings.h>
 
+#include <QDateTime>
 #include <QString>
 #include <QStringList>
-#include <QDateTime>
 
 namespace Core { class IEditor; }
 
@@ -43,9 +43,6 @@ class Project;
 class Target;
 class BuildConfiguration;
 class DeployConfiguration;
-class Node;
-class SessionNode;
-
 enum class SetActive { Cascade, NoCascade };
 
 class PROJECTEXPLORER_EXPORT SessionManager : public QObject
@@ -79,7 +76,7 @@ public:
 
     static void addProject(Project *project);
     static void removeProject(Project *project);
-    static void removeProjects(QList<Project *> remove);
+    static void removeProjects(const QList<Project *> &remove);
 
     static void setStartupProject(Project *startupProject);
 
@@ -99,8 +96,9 @@ public:
     static Utils::FileName sessionNameToFileName(const QString &session);
     static Project *startupProject();
 
-    static QList<Project *> projects();
+    static const QList<Project *> projects();
     static bool hasProjects();
+    static bool hasProject(Project *p);
 
     static bool isDefaultVirgin();
     static bool isDefaultSession(const QString &session);
@@ -110,13 +108,8 @@ public:
     static QVariant value(const QString &name);
 
     // NBS rewrite projectOrder (dependency management)
-    static QList<Project *> projectOrder(const Project *project = 0);
+    static QList<Project *> projectOrder(const Project *project = nullptr);
 
-    static SessionNode *sessionNode();
-
-    static Project *projectForNode(Node *node);
-    static QList<Node *> nodesForFile(const Utils::FileName &fileName);
-    static Node *nodeForFile(const Utils::FileName &fileName);
     static Project *projectForFile(const Utils::FileName &fileName);
 
     static QStringList projectsForSessionName(const QString &session);
@@ -125,8 +118,7 @@ public:
     static bool loadingSession();
 
 signals:
-    void projectAdded(ProjectExplorer::Project *project);
-    void aboutToRemoveProject(ProjectExplorer::Project *project);
+    void projectAdded(ProjectExplorer::Project *project); void aboutToRemoveProject(ProjectExplorer::Project *project);
     void projectDisplayNameChanged(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);
 
@@ -143,9 +135,8 @@ signals: // for tests only
 
 private:
     static void saveActiveMode(Core::Id mode);
-    void clearProjectFileCache();
     static void configureEditor(Core::IEditor *editor, const QString &fileName);
-    static void markSessionFileDirty(bool makeDefaultVirginDirty = true);
+    static void markSessionFileDirty();
     static void configureEditors(Project *project);
 };
 

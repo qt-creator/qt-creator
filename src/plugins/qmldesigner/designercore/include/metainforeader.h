@@ -55,9 +55,9 @@ public:
     void setQualifcation(const TypeName &qualification);
 
 protected:
-    virtual void elementStart(const QString &name);
-    virtual void elementEnd();
-    virtual void propertyDefinition(const QString &name, const QVariant &value);
+    void elementStart(const QString &name) override;
+    void elementEnd() override;
+    void propertyDefinition(const QString &name, const QVariant &value) override;
 
 private:
     enum ParserSate { Error,
@@ -66,6 +66,7 @@ private:
                       ParsingDocument,
                       ParsingMetaInfo,
                       ParsingType,
+                      ParsingImports,
                       ParsingItemLibrary,
                       ParsingHints,
                       ParsingProperty,
@@ -81,6 +82,7 @@ private:
     ParserSate readQmlSourceElement(const QString &name);
 
     void readTypeProperty(const QString &name, const QVariant &value);
+    void readImportsProperty(const QString &name, const QVariant &value);
     void readItemLibraryEntryProperty(const QString &name, const QVariant &value);
     void readPropertyProperty(const QString &name, const QVariant &value);
     void readQmlSourceProperty(const QString &name, const QVariant &value);

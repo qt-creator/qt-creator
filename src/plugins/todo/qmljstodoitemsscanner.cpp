@@ -83,7 +83,7 @@ void QmlJsTodoItemsScanner::processDocument(QmlJS::Document::Ptr doc)
 
         // Process every line
         // TODO: Do not create QStringList, just iterate through a string tracking line endings.
-        QStringList commentLines = source.split(QLatin1Char('\n'), QString::SkipEmptyParts);
+        QStringList commentLines = source.split('\n', QString::SkipEmptyParts);
         quint32 startLine = sourceLocation.startLine;
         for (int j = 0; j < commentLines.count(); ++j) {
             const QString &commentLine = commentLines.at(j);

@@ -44,7 +44,6 @@ namespace ProjectExplorer {
 EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWidget *additionalWidget) :
     RunConfigWidget(),
     m_aspect(aspect),
-    m_ignoreChange(false),
     m_additionalWidget(additionalWidget)
 {
     QTC_CHECK(m_aspect);

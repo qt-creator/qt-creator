@@ -362,8 +362,7 @@ private:
 static void createImageFromDot(const QString &inputFile, const QString &outputFile, bool verbose)
 {
     const QString command = CplusplusToolsUtils::portableExecutableName(QLatin1String("dot"));
-    const QStringList arguments = QStringList()
-            << QLatin1String("-Tpng") << QLatin1String("-o") <<  outputFile << inputFile;
+    const QStringList arguments = QStringList({"-Tpng", "-o", outputFile, inputFile});
     CplusplusToolsUtils::executeCommand(command, arguments, QString(), verbose);
 }
 
@@ -379,7 +378,7 @@ static QString example()
 #else
     QString::fromLatin1("$ echo \"int foo() {}\" | ./%1 && xdg-open %2.ast.png")
 #endif
-    .arg(QFileInfo(qApp->arguments().at(0)).fileName(), QLatin1String(PATH_STDIN_FILE));
+    .arg(QFileInfo(QCoreApplication::arguments().at(0)).fileName(), QLatin1String(PATH_STDIN_FILE));
 }
 
 static QString parseModeToString(Document::ParseMode parseMode)
@@ -422,7 +421,7 @@ public:
         if (! m_errorString)
             return;
 
-        static const char *const pretty[] = { "warning", "error", "fatal" };
+        static const char *const pretty[] = {"warning", "error", "fatal"};
 
         QString str;
         str.sprintf("%s:%d:%d: When parsing as %s: %s: ", fileName->chars(), line, column,
@@ -475,7 +474,7 @@ static Document::Ptr parse(const QString &fileName, const QByteArray &source,
 
 static void printUsage()
 {
-    std::cout << "Usage: " << qPrintable(QFileInfo(qApp->arguments().at(0)).fileName())
+    std::cout << "Usage: " << qPrintable(QFileInfo(QCoreApplication::arguments().at(0)).fileName())
               << " [-v] [-p ast] <file1> <file2> ...\n\n";
 
     std::cout

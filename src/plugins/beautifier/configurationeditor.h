@@ -26,7 +26,7 @@
 #pragma once
 
 #include <QPlainTextEdit>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QString>
 #include <QStringList>
 #include <QSyntaxHighlighter>
@@ -50,14 +50,14 @@ class ConfigurationSyntaxHighlighter : public QSyntaxHighlighter
 public:
     explicit ConfigurationSyntaxHighlighter(QTextDocument *parent);
     void setKeywords(const QStringList &keywords);
-    void setCommentExpression(const QRegExp &rx);
+    void setCommentExpression(const QRegularExpression &rx);
 
 protected:
     void highlightBlock(const QString &text) override;
 
 private:
-    QRegExp m_expressionKeyword;
-    QRegExp m_expressionComment;
+    QRegularExpression m_expressionKeyword;
+    QRegularExpression m_expressionComment;
     QTextCharFormat m_formatKeyword;
     QTextCharFormat m_formatComment;
 };
@@ -69,7 +69,7 @@ class ConfigurationEditor : public QPlainTextEdit
 public:
     explicit ConfigurationEditor(QWidget *parent = nullptr);
     void setSettings(AbstractSettings *settings);
-    void setCommentExpression(const QRegExp &rx);
+    void setCommentExpression(const QRegularExpression &rx);
 
 protected:
     bool eventFilter(QObject *object, QEvent *event) override;

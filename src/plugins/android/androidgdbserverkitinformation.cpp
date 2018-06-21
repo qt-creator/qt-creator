@@ -29,6 +29,7 @@
 
 #include <utils/pathchooser.h>
 #include <utils/elidinglabel.h>
+#include <utils/qtcassert.h>
 
 #include <QDialogButtonBox>
 #include <QLabel>
@@ -37,6 +38,8 @@
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QFormLayout>
+
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
@@ -71,6 +74,7 @@ KitInformation::ItemList AndroidGdbServerKitInformation::toUserOutput(const Kit 
 
 KitConfigWidget *AndroidGdbServerKitInformation::createConfigWidget(Kit *kit) const
 {
+    QTC_ASSERT(kit, return nullptr);
     return new AndroidGdbServerKitInformationWidget(kit, this);
 }
 
@@ -82,7 +86,7 @@ Core::Id AndroidGdbServerKitInformation::id()
 bool AndroidGdbServerKitInformation::isAndroidKit(const Kit *kit)
 {
     QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(kit);
-    ToolChain *tc = ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx);
+    ToolChain *tc = ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (qt && tc)
         return qt->type() == QLatin1String(Constants::ANDROIDQT)
                 && tc->typeId() == Constants::ANDROID_TOOLCHAIN_ID;
@@ -92,17 +96,19 @@ bool AndroidGdbServerKitInformation::isAndroidKit(const Kit *kit)
 
 FileName AndroidGdbServerKitInformation::gdbServer(const Kit *kit)
 {
+    QTC_ASSERT(kit, return FileName());
     return FileName::fromString(kit->value(AndroidGdbServerKitInformation::id()).toString());
 }
 
 void AndroidGdbServerKitInformation::setGdbSever(Kit *kit, const FileName &gdbServerCommand)
 {
+    QTC_ASSERT(kit, return);
     kit->setValue(AndroidGdbServerKitInformation::id(), gdbServerCommand.toString());
 }
 
 FileName AndroidGdbServerKitInformation::autoDetect(const Kit *kit)
 {
-    ToolChain *tc = ToolChainKitInformation::toolChain(kit, ToolChain::Language::Cxx);
+    ToolChain *tc = ToolChainKitInformation::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!tc || tc->typeId() != Constants::ANDROID_TOOLCHAIN_ID)
         return FileName();
     auto atc = static_cast<AndroidToolChain *>(tc);

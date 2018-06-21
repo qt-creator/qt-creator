@@ -29,8 +29,9 @@ import QtQuick.Controls.Styles 1.0
 import "../common"
 
 import QtQuick.Layouts 1.0
-import "../propertyEditorQmlSources/HelperWidgets"
+import HelperWidgets 2.0
 
+import QtQuickDesignerTheme 1.0
 
 /* The view displaying the item grid.
 
@@ -64,11 +65,11 @@ ScrollView {
 
     Item {
         id: styleConstants
-        readonly property color backgroundColor: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
-        readonly property color lighterBackgroundColor: creatorTheme.FancyToolBarSeparatorColor
+        readonly property color backgroundColor: Theme.qmlDesignerBackgroundColorDarkAlternate()
+        readonly property color lighterBackgroundColor: Theme.color(Theme.FancyToolBarSeparatorColor)
 
         property int textWidth: 58
-        property int textHeight: 22
+        property int textHeight: Theme.smallFontPixelSize() * 2
 
         property int cellHorizontalMargin: 1
         property int cellVerticalSpacing: 2
@@ -103,6 +104,8 @@ ScrollView {
                     topPadding: 2
                     leftPadding: 2
                     rightPadding: 1
+                    expanded: sectionExpanded
+                    onExpandedChanged: itemLibraryModel.setExpanded(expanded, sectionName);
                     Grid {
                         id: itemGrid
 

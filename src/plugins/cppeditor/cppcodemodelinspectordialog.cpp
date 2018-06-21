@@ -25,7 +25,7 @@
 
 #include "cppcodemodelinspectordialog.h"
 #include "ui_cppcodemodelinspectordialog.h"
-#include "cppeditor.h"
+#include "cppeditorwidget.h"
 #include "cppeditordocument.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -35,6 +35,7 @@
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsbridge.h>
 #include <cpptools/cppworkingcopy.h>
+#include <projectexplorer/projectmacro.h>
 #include <projectexplorer/project.h>
 
 #include <cplusplus/CppDocument.h>
@@ -49,6 +50,7 @@
 #include <QSortFilterProxyModel>
 
 #include <algorithm>
+#include <numeric>
 
 using namespace CPlusPlus;
 using namespace CppTools;
@@ -756,7 +758,7 @@ class MacrosModel : public QAbstractListModel
     Q_OBJECT
 public:
     MacrosModel(QObject *parent);
-    void configure(const QList<Macro> &macros);
+    void configure(const QList<CPlusPlus::Macro> &macros);
     void clear();
 
     enum Columns { LineNumberColumn, MacroColumn, ColumnCount };
@@ -767,14 +769,14 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
 private:
-    QList<Macro> m_macros;
+    QList<CPlusPlus::Macro> m_macros;
 };
 
 MacrosModel::MacrosModel(QObject *parent) : QAbstractListModel(parent)
 {
 }
 
-void MacrosModel::configure(const QList<Macro> &macros)
+void MacrosModel::configure(const QList<CPlusPlus::Macro> &macros)
 {
     emit layoutAboutToBeChanged();
     m_macros = macros;
@@ -802,7 +804,7 @@ QVariant MacrosModel::data(const QModelIndex &index, int role) const
 {
     const int column = index.column();
     if (role == Qt::DisplayRole || (role == Qt::ToolTipRole && column == MacroColumn)) {
-        const Macro macro = m_macros.at(index.row());
+        const CPlusPlus::Macro macro = m_macros.at(index.row());
         if (column == LineNumberColumn)
             return macro.line();
         else if (column == MacroColumn)
@@ -1580,7 +1582,7 @@ void CppCodeModelInspectorDialog::refresh()
 
     // Project Parts
     const ProjectPart::Ptr editorsProjectPart = cppEditorDocument
-        ? cppEditorDocument->processor()->parser()->projectPart()
+        ? cppEditorDocument->processor()->parser()->projectPartInfo().projectPart
         : ProjectPart::Ptr();
 
     const QList<ProjectInfo> projectInfos = cmmi->projectInfos();
@@ -1614,7 +1616,8 @@ void CppCodeModelInspectorDialog::refresh()
     }
 
     // Merged entities
-    dumper.dumpMergedEntities(cmmi->headerPaths(), cmmi->definedMacros());
+    dumper.dumpMergedEntities(cmmi->headerPaths(),
+                              ProjectExplorer::Macro::toByteArray(cmmi->definedMacros()));
 }
 
 enum DocumentTabs {
@@ -1670,24 +1673,16 @@ void CppCodeModelInspectorDialog::updateDocumentData(const Document::Ptr &docume
     QTC_ASSERT(document, return);
 
     // General
-    KeyValueModel::Table table = KeyValueModel::Table()
-        << qMakePair(QString::fromLatin1("File Path"),
-                     QDir::toNativeSeparators(document->fileName()))
-        << qMakePair(QString::fromLatin1("Last Modified"),
-                     CMI::Utils::toString(document->lastModified()))
-        << qMakePair(QString::fromLatin1("Revision"),
-                     CMI::Utils::toString(document->revision()))
-        << qMakePair(QString::fromLatin1("Editor Revision"),
-                     CMI::Utils::toString(document->editorRevision()))
-        << qMakePair(QString::fromLatin1("Check Mode"),
-                     CMI::Utils::toString(document->checkMode()))
-        << qMakePair(QString::fromLatin1("Tokenized"),
-                     CMI::Utils::toString(document->isTokenized()))
-        << qMakePair(QString::fromLatin1("Parsed"),
-                     CMI::Utils::toString(document->isParsed()))
-        << qMakePair(QString::fromLatin1("Project Parts"),
-                     CMI::Utils::partsForFile(document->fileName()))
-        ;
+    const KeyValueModel::Table table = {
+        {QString::fromLatin1("File Path"), QDir::toNativeSeparators(document->fileName())},
+        {QString::fromLatin1("Last Modified"), CMI::Utils::toString(document->lastModified())},
+        {QString::fromLatin1("Revision"), CMI::Utils::toString(document->revision())},
+        {QString::fromLatin1("Editor Revision"), CMI::Utils::toString(document->editorRevision())},
+        {QString::fromLatin1("Check Mode"), CMI::Utils::toString(document->checkMode())},
+        {QString::fromLatin1("Tokenized"), CMI::Utils::toString(document->isTokenized())},
+        {QString::fromLatin1("Parsed"), CMI::Utils::toString(document->isParsed())},
+        {QString::fromLatin1("Project Parts"), CMI::Utils::partsForFile(document->fileName())}
+    };
     m_docGenericInfoModel->configure(table);
     resizeColumns<KeyValueModel>(m_ui->docGeneralView);
 
@@ -1766,6 +1761,15 @@ void CppCodeModelInspectorDialog::clearProjectPartData()
                                      partTabName(ProjectPartPrecompiledHeadersTab));
 }
 
+static int defineCount(const ProjectExplorer::Macros &macros)
+{
+    using ProjectExplorer::Macro;
+    return int(std::count_if(
+                   macros.begin(),
+                   macros.end(),
+                   [](const Macro &macro) { return macro.type == ProjectExplorer::MacroType::Define; }));
+}
+
 void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &part)
 {
     QTC_ASSERT(part, return);
@@ -1777,24 +1781,32 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
         projectName = project->displayName();
         projectFilePath = project->projectFilePath().toUserOutput();
     }
-    KeyValueModel::Table table = KeyValueModel::Table()
-        << qMakePair(QString::fromLatin1("Project Part Name"), part->displayName)
-        << qMakePair(QString::fromLatin1("Project Part File"),
-                     QDir::toNativeSeparators(part->projectFile))
-        << qMakePair(QString::fromLatin1("Project Name"), projectName)
-        << qMakePair(QString::fromLatin1("Project File"), projectFilePath)
-        << qMakePair(QString::fromLatin1("Selected For Building"),
-                     CMI::Utils::toString(part->selectedForBuilding))
-        << qMakePair(QString::fromLatin1("Language Version"),
-                     CMI::Utils::toString(part->languageVersion))
-        << qMakePair(QString::fromLatin1("Language Extensions"),
-                     CMI::Utils::toString(part->languageExtensions))
-        << qMakePair(QString::fromLatin1("Qt Version"),
-                     CMI::Utils::toString(part->qtVersion))
-        ;
+    const QString callGroupId = part->callGroupId.isEmpty() ? QString::fromLatin1("<None>")
+                                                            : part->callGroupId;
+    const QString buildSystemTarget
+            = part->buildSystemTarget.isEmpty() ? QString::fromLatin1("<None>")
+                                                : part->buildSystemTarget;
+
+    const QString precompiledHeaders = part->precompiledHeaders.isEmpty()
+            ? QString::fromLatin1("<None>")
+            : part->precompiledHeaders.join(',');
+
+    KeyValueModel::Table table = {
+        {QString::fromLatin1("Project Part Name"), part->displayName},
+        {QString::fromLatin1("Project Part File"), part->projectFileLocation()},
+        {QString::fromLatin1("Project Name"), projectName},
+        {QString::fromLatin1("Project File"), projectFilePath},
+        {QString::fromLatin1("Buildsystem Target"), buildSystemTarget},
+        {QString::fromLatin1("Callgroup Id"), callGroupId},
+        {QString::fromLatin1("Precompiled Headers"), precompiledHeaders},
+        {QString::fromLatin1("Selected For Building"), CMI::Utils::toString(part->selectedForBuilding)},
+        {QString::fromLatin1("Build Target Type"), CMI::Utils::toString(part->buildTargetType)},
+        {QString::fromLatin1("Language Version"), CMI::Utils::toString(part->languageVersion)},
+        {QString::fromLatin1("Language Extensions"), CMI::Utils::toString(part->languageExtensions)},
+        {QString::fromLatin1("Qt Version"), CMI::Utils::toString(part->qtVersion)}
+    };
     if (!part->projectConfigFile.isEmpty())
-        table.prepend(qMakePair(QString::fromLatin1("Project Config File"),
-                                part->projectConfigFile));
+        table.prepend({QString::fromLatin1("Project Config File"), part->projectConfigFile});
     m_partGenericInfoModel->configure(table);
     resizeColumns<KeyValueModel>(m_ui->partGeneralView);
 
@@ -1803,16 +1815,10 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
     m_ui->projectPartTab->setTabText(ProjectPartFilesTab,
         partTabName(ProjectPartFilesTab, part->files.size()));
 
-    // Defines
-    const QList<QByteArray> defineLines = part->toolchainDefines.split('\n')
-        + part->projectDefines.split('\n');
-    int numberOfDefines = 0;
-    foreach (const QByteArray &line, defineLines) {
-        if (line.startsWith("#define "))
-            ++numberOfDefines;
-    }
-    m_ui->partToolchainDefinesEdit->setPlainText(QString::fromUtf8(part->toolchainDefines));
-    m_ui->partProjectDefinesEdit->setPlainText(QString::fromUtf8(part->projectDefines));
+    int numberOfDefines = defineCount(part->toolChainMacros) + defineCount(part->projectMacros);
+
+    m_ui->partToolchainDefinesEdit->setPlainText(QString::fromUtf8(ProjectExplorer::Macro::toByteArray(part->toolChainMacros)));
+    m_ui->partProjectDefinesEdit->setPlainText(QString::fromUtf8(ProjectExplorer::Macro::toByteArray(part->projectMacros)));
     m_ui->projectPartTab->setTabText(ProjectPartDefinesTab,
         partTabName(ProjectPartDefinesTab, numberOfDefines));
 

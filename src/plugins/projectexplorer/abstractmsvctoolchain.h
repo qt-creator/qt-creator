@@ -29,6 +29,8 @@
 #include "abi.h"
 #include "headerpath.h"
 
+#include <QMutex>
+
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 
@@ -38,17 +40,23 @@ namespace Internal {
 class PROJECTEXPLORER_EXPORT AbstractMsvcToolChain : public ToolChain
 {
 public:
-    explicit AbstractMsvcToolChain(Core::Id typeId, const Language &l, Detection d,
+    explicit AbstractMsvcToolChain(Core::Id typeId, Core::Id l, Detection d,
                                    const Abi &abi, const QString& vcvarsBat);
     explicit AbstractMsvcToolChain(Core::Id typeId, Detection d);
+    AbstractMsvcToolChain(const AbstractMsvcToolChain &other);
+    ~AbstractMsvcToolChain();
 
     Abi targetAbi() const override;
 
     bool isValid() const override;
 
-    QByteArray predefinedMacros(const QStringList &cxxflags) const override;
+    QString originalTargetTriple() const override;
+
+    PredefinedMacrosRunner createPredefinedMacrosRunner() const override;
+    Macros predefinedMacros(const QStringList &cxxflags) const override;
     CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cflags) const override;
+    SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override;
     QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags,
                                         const Utils::FileName &sysRoot) const override;
     void addToEnvironment(Utils::Environment &env) const override;
@@ -63,7 +71,7 @@ public:
 
     bool operator ==(const ToolChain &) const override;
 
-    static bool generateEnvironmentSettings(Utils::Environment &env,
+    static bool generateEnvironmentSettings(const Utils::Environment &env,
                                             const QString &batchFile,
                                             const QString &batchArgs,
                                             QMap<QString, QString> &envPairs);
@@ -71,10 +79,10 @@ public:
 protected:
     class WarningFlagAdder
     {
-        int m_warningCode;
+        int m_warningCode = 0;
         WarningFlags &m_flags;
-        bool m_doesEnable;
-        bool m_triggered;
+        bool m_doesEnable = false;
+        bool m_triggered = false;
     public:
         WarningFlagAdder(const QString &flag, WarningFlags &flags);
         void operator ()(int warningCode, WarningFlags flagsSet);
@@ -83,15 +91,18 @@ protected:
     };
 
     static void inferWarningsForLevel(int warningLevel, WarningFlags &flags);
-    virtual Utils::Environment readEnvironmentSetting(Utils::Environment& env) const = 0;
-    virtual QByteArray msvcPredefinedMacros(const QStringList cxxflags,
-                                            const Utils::Environment& env) const;
+    virtual Utils::Environment readEnvironmentSetting(const Utils::Environment& env) const = 0;
+    // Function must be thread-safe!
+    virtual Macros msvcPredefinedMacros(const QStringList cxxflags,
+                                        const Utils::Environment& env) const = 0;
 
 
     Utils::FileName m_debuggerCommand;
-    mutable QByteArray m_predefinedMacros;
+    mutable QMutex *m_predefinedMacrosMutex = nullptr;
+    mutable Macros m_predefinedMacros;
     mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.
     mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC
+    mutable QMutex *m_headerPathsMutex = nullptr;
     mutable QList<HeaderPath> m_headerPaths;
     Abi m_abi;
 

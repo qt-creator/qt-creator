@@ -80,6 +80,8 @@ private:
     void addSubWidget(RunConfigWidget *subWidget);
     void removeSubWidgets();
 
+    void updateEnabledState();
+
     Target *m_target;
     RunConfigurationModel *m_runConfigurationsModel;
     DeployConfigurationModel *m_deployConfigurationModel;
@@ -105,6 +107,8 @@ private:
     QPushButton *m_removeRunToolButton;
     QPushButton *m_renameRunButton;
     QPushButton *m_renameDeployButton;
+    QLabel *m_disabledIcon;
+    QLabel *m_disabledText;
 };
 
 } // namespace Internal

@@ -44,7 +44,7 @@ protected:
     bool isVisible(const SelectionContext &selectionContext) const;
     bool isEnabled(const SelectionContext &selectionContext) const;
 
-private slots:
+private:
     void addNewTab();
 };
 

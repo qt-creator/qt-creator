@@ -29,6 +29,7 @@
 #include "cppfilesettingspage.h"
 
 #include <utils/fileutils.h>
+#include <utils/temporarydirectory.h>
 
 #include <QDir>
 #include <QtTest>
@@ -45,7 +46,7 @@ static void createTempFile(const QString &fileName)
 
 static QString baseTestDir()
 {
-    return QDir::tempPath() + _("/qtc_cppheadersource/");
+    return Utils::TemporaryDirectory::masterDirectoryPath() + "/qtc_cppheadersource/";
 }
 
 namespace CppTools {

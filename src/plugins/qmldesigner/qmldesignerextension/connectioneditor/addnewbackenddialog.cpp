@@ -54,14 +54,13 @@ AddNewBackendDialog::~AddNewBackendDialog()
 
 void AddNewBackendDialog::setupPossibleTypes(const QList<CppTypeData> &types)
 {
-    bool block = blockSignals(true);
+    QSignalBlocker blocker(this);
     m_typeData = types;
     for (const CppTypeData &typeData : types)
         m_ui->comboBox->addItem(typeData.typeName);
 
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(m_ui->comboBox->count() > 0);
     invalidate();
-    blockSignals(block);
 }
 
 QString AddNewBackendDialog::importString() const

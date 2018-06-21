@@ -207,8 +207,8 @@ public:
 
     EditorContentType contentType() const;
 
-    void setConfigurationAdded();
-    bool configurationAdded() const;
+    void setEditorConfig(VcsBaseEditorConfig *config);
+    VcsBaseEditorConfig *editorConfig() const;
 
     void setCommand(VcsCommand *command);
 
@@ -252,7 +252,7 @@ protected:
     virtual BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const = 0;
     // Returns a local file name from the diff file specification
     // (text cursor at position above change hunk)
-    QString fileNameFromDiffSpecification(const QTextBlock &inBlock, QString *header = 0) const;
+    QString fileNameFromDiffSpecification(const QTextBlock &inBlock, QString *header = nullptr) const;
 
     // Implement to return decorated annotation change for "Annotate version"
     virtual QString decorateVersion(const QString &revision) const;

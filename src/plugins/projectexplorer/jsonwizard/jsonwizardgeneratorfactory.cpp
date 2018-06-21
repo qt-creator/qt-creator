@@ -86,8 +86,7 @@ bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *fi
     if (file->isBinary() || file->contents().isEmpty())
         return true; // nothing to do
 
-    Utils::MimeDatabase mdb;
-    Id languageId = TextEditorSettings::languageId(mdb.mimeTypeForFile(file->path()).name());
+    Id languageId = TextEditorSettings::languageId(Utils::mimeTypeForFile(file->path()).name());
 
     if (!languageId.isValid())
         return true; // don't modify files like *.ui, *.pro
@@ -213,18 +212,15 @@ JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(Jso
     if (overwriteDialog.exec() != QDialog::Accepted)
         return OverwriteCanceled;
 
-    const QStringList existingFilesToKeep = overwriteDialog.uncheckedFiles();
+    const QSet<QString> existingFilesToKeep = QSet<QString>::fromList(overwriteDialog.uncheckedFiles());
     if (existingFilesToKeep.size() == files->size()) // All exist & all unchecked->Cancel.
         return OverwriteCanceled;
 
     // Set 'keep' attribute in files
-    foreach (const QString &keepFile, existingFilesToKeep) {
-        JsonWizard::GeneratorFile file
-                = Utils::findOr(*files, JsonWizard::GeneratorFile(),
-                                [&keepFile](const JsonWizard::GeneratorFile &f)
-                                { return f.file.path() == keepFile; });
-        if (!file.isValid())
-            return OverwriteCanceled;
+    for (JsonWizard::GeneratorFile &file : *files) {
+        if (!existingFilesToKeep.contains(file.file.path()))
+            continue;
+
         file.file.setAttributes(file.file.attributes() | GeneratedFile::KeepExistingFileAttribute);
     }
     return OverwriteOk;

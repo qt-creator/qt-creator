@@ -94,7 +94,6 @@ public:
     ObjectValue *_globalObject;
     ObjectValue *_mathObject;
     ObjectValue *_qtObject;
-    ObjectValue *_qmlKeysObject;
     ObjectValue *_qmlFontObject;
     ObjectValue *_qmlPointObject;
     ObjectValue *_qmlSizeObject;
@@ -481,6 +480,7 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
     _qmlFontObject = newObject(/*prototype =*/ 0);
     _qmlFontObject->setClassName(QLatin1String("font"));
     _qmlFontObject->setMember(QLatin1String("family"), stringValue());
+    _qmlFontObject->setMember(QLatin1String("styleName"), stringValue());
     _qmlFontObject->setMember(QLatin1String("weight"), unknownValue()); // ### make me an object
     _qmlFontObject->setMember(QLatin1String("capitalization"), unknownValue()); // ### make me an object
     _qmlFontObject->setMember(QLatin1String("bold"), booleanValue());
@@ -492,6 +492,9 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
     _qmlFontObject->setMember(QLatin1String("pixelSize"), intValue());
     _qmlFontObject->setMember(QLatin1String("letterSpacing"), realValue());
     _qmlFontObject->setMember(QLatin1String("wordSpacing"), realValue());
+    _qmlFontObject->setMember(QLatin1String("hintingPreference"), unknownValue());
+    _qmlFontObject->setMember(QLatin1String("kerning"), booleanValue());
+    _qmlFontObject->setMember(QLatin1String("preferShaping"), booleanValue());
 
     _qmlPointObject = newObject(/*prototype =*/ 0);
     _qmlPointObject->setClassName(QLatin1String("Point"));
@@ -886,11 +889,6 @@ Function *ValueOwner::addFunction(ObjectValue *object, const QString &name, int 
     function->setOptionalNamedArgumentCount(optionalCount);
     object->setMember(name, function);
     return function;
-}
-
-const ObjectValue *ValueOwner::qmlKeysObject()
-{
-    return _shared->_qmlKeysObject;
 }
 
 const ObjectValue *ValueOwner::qmlFontObject()

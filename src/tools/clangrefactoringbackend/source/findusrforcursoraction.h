@@ -29,21 +29,7 @@
 
 #include <utils/smallstring.h>
 
-#if defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#elif defined(_MSC_VER)
-#    pragma warning(push)
-#    pragma warning( disable : 4100 )
-#endif
-
-#include "clang/Frontend/FrontendAction.h"
-
-#if defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#    pragma warning(pop)
-#endif
+#include <clang/Frontend/FrontendAction.h>
 
 namespace clang {
 class ASTConsumer;
@@ -57,8 +43,8 @@ class USRFindingAction
 {
 public:
     USRFindingAction(uint line, uint column)
-      : line(line),
-        column(column)
+      : m_line(line),
+        m_column(column)
   {
   }
 
@@ -66,19 +52,19 @@ public:
 
   std::string takeSymbolName()
   {
-    return std::move(symbolName);
+    return std::string(m_symbolName);
   }
 
   std::vector<USRName> takeUnifiedSymbolResolutions()
   {
-    return std::move(unifiedSymbolResolutions_);
+    return std::move(m_unifiedSymbolResolutions);
   }
 
 private:
-  Utils::SmallString symbolName;
-  std::vector<USRName> unifiedSymbolResolutions_;
-  uint line;
-  uint column;
+  Utils::SmallString m_symbolName;
+  std::vector<USRName> m_unifiedSymbolResolutions;
+  uint m_line;
+  uint m_column;
 };
 
 } // namespace ClangBackEnd

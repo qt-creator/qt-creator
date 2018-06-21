@@ -25,7 +25,17 @@
 
 #include "remotelinuxdeployconfiguration.h"
 
+#include "genericdirectuploadstep.h"
+#include "remotelinuxcheckforfreediskspacestep.h"
+#include "remotelinuxkillappstep.h"
+#include "remotelinux_constants.h"
+
+#include <projectexplorer/abi.h>
 #include <projectexplorer/deploymentdataview.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
+
+#include <QCoreApplication>
 
 using namespace ProjectExplorer;
 
@@ -33,21 +43,37 @@ namespace RemoteLinux {
 
 using namespace Internal;
 
-RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(Target *target,
-        const Core::Id id, const QString &defaultDisplayName)
+RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(Target *target, Core::Id id)
     : DeployConfiguration(target, id)
-{
-    setDefaultDisplayName(defaultDisplayName);
-}
+{}
 
-RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(Target *target,
-        RemoteLinuxDeployConfiguration *source)
-    : DeployConfiguration(target, source)
-{ }
+void RemoteLinuxDeployConfiguration::initialize()
+{
+    stepList()->appendStep(new RemoteLinuxCheckForFreeDiskSpaceStep(stepList()));
+    stepList()->appendStep(new RemoteLinuxKillAppStep(stepList()));
+    stepList()->appendStep(new GenericDirectUploadStep(stepList()));
+}
 
 NamedWidget *RemoteLinuxDeployConfiguration::createConfigWidget()
 {
     return new DeploymentDataView(target());
 }
 
+Core::Id RemoteLinuxDeployConfiguration::genericDeployConfigurationId()
+{
+    return "DeployToGenericLinux";
+}
+
+namespace Internal {
+
+RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
+{
+    registerDeployConfiguration<RemoteLinuxDeployConfiguration>
+            (RemoteLinuxDeployConfiguration::genericDeployConfigurationId());
+    addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+    setDefaultDisplayName(QCoreApplication::translate("RemoteLinux",
+                                                      "Deploy to Remote Linux Host"));
+}
+
+} // namespace Internal
 } // namespace RemoteLinux

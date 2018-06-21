@@ -28,7 +28,9 @@
 #include "core_global.h"
 #include "id.h"
 
+#include <QMainWindow>
 #include <QObject>
+#include <QRect>
 #include <QSettings>
 
 #include <functional>
@@ -44,9 +46,7 @@ namespace Core {
 class IWizardFactory;
 class Context;
 class IContext;
-class ProgressManager;
 class SettingsDatabase;
-class VcsManager;
 
 namespace Internal { class MainWindow; }
 
@@ -58,7 +58,7 @@ class CORE_EXPORT ICore : public QObject
     friend class IWizardFactory;
 
     explicit ICore(Internal::MainWindow *mw);
-    ~ICore();
+    ~ICore() override;
 
 public:
     enum class ContextPriority {
@@ -78,14 +78,14 @@ public:
                                   const QString &defaultLocation = QString(),
                                   const QVariantMap &extraVariables = QVariantMap());
 
-    static bool showOptionsDialog(Id page, QWidget *parent = 0);
+    static bool showOptionsDialog(Id page, QWidget *parent = nullptr);
     static QString msgShowOptionsDialog();
     static QString msgShowOptionsDialogToolTip();
 
     static bool showWarningWithOptions(const QString &title, const QString &text,
                                        const QString &details = QString(),
                                        Id settingsId = Id(),
-                                       QWidget *parent = 0);
+                                       QWidget *parent = nullptr);
 
     static QSettings *settings(QSettings::Scope scope = QSettings::UserScope);
     static SettingsDatabase *settingsDatabase();
@@ -94,19 +94,21 @@ public:
 
     static QString resourcePath();
     static QString userResourcePath();
+    static QString installerResourcePath();
     static QString documentationPath();
     static QString libexecPath();
 
     static QString versionString();
     static QString buildCompatibilityString();
 
-    static QWidget *mainWindow();
+    static QMainWindow *mainWindow();
     static QWidget *dialogParent();
     static QStatusBar *statusBar();
     /* Raises and activates the window for the widget. This contains workarounds for X11. */
     static void raiseWindow(QWidget *widget);
 
     static IContext *currentContextObject();
+    static QWidget *currentContextWidget();
     // Adds and removes additional active contexts, these contexts are appended
     // to the currently active contexts.
     static void updateAdditionalContexts(const Context &remove, const Context &add,
@@ -132,6 +134,7 @@ public:
     static void addPreCloseListener(const std::function<bool()> &listener);
 
     static QString systemInformation();
+    static void setupScreenShooter(const QString &name, QWidget *w, const QRect &rc = QRect());
 
 public slots:
     static void saveSettings();
@@ -141,7 +144,6 @@ signals:
     void coreOpened();
     void newItemDialogStateChanged();
     void saveSettingsRequested();
-    void optionsDialogRequested();
     void coreAboutToClose();
     void contextAboutToChange(const QList<Core::IContext *> &context);
     void contextChanged(const Core::Context &context);

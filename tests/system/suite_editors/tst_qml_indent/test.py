@@ -42,24 +42,43 @@ def prepareQmlFile():
         test.fatal("Could not open main.qml")
         return None
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
+    isDarwin = platform.system() == 'Darwin'
     for i in range(3):
         content = "%s" % editor.plainText
-        start = content.find("MouseArea {")
-        if not placeCursorToLine(editor, "MouseArea {"):
+        if not placeCursorToLine(editor, 'title: qsTr("Hello World")'):
             test.fatal("Couldn't find line(s) I'm looking for - QML file seems to "
                        "have changed!\nLeaving test...")
             return None
+        # add some copyable code
+        if i == 0:
+            code = ["", "MouseArea {", "anchors.fill: parent", "onClicked: {",
+                    "console.log(parent.title)"]
+            typeLines(editor, code)
+            # avoid having 'correctly' indented empty line
+            if isDarwin:
+                type(editor, "<Command+Shift+Left>")
+            else:
+                type(editor, "<Shift+Home>")
+            type(editor, "<Delete>")
+            # get back to the first entered line
+            for _ in range(5):
+                type(editor, "<Up>")
+            if isDarwin:
+                type(editor, "<Command+Right>")
+            else:
+                type(editor, "<End>")
+        else:
+            type(editor, "<Up>")
         type(editor, "<Right>")
-        type(editor, "<Up>")
         # mark until the end of file
-        if platform.system() == 'Darwin':
+        if isDarwin:
             markText(editor, "End")
         else:
             markText(editor, "Ctrl+End")
         # unmark the closing brace
         type(editor, "<Shift+Up>")
         type(editor, "<Ctrl+c>")
-        for j in range(10):
+        for _ in range(11):
             type(editor, "<Ctrl+v>")
     # assume the current editor content to be indented correctly
     originalText = "%s" % editor.plainText
@@ -71,13 +90,12 @@ def prepareQmlFile():
 
 def testReIndent(originalText):
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
-    correctIndented = len(originalText)
-    incorrectIndented = correctIndented + 4004
     type(editor, "<Ctrl+a>")
+    filenameCombo = waitForObject(":Qt Creator_FilenameQComboBox")
     test.log("calling re-indent")
     starttime = datetime.utcnow()
     type(editor, "<Ctrl+i>")
-    waitFor("len(str(editor.plainText)) in (incorrectIndented, correctIndented)", 25000)
+    waitFor("str(filenameCombo.currentText).endswith('*')", 25000)
     endtime = datetime.utcnow()
     test.xverify(originalText == str(editor.plainText),
                  "Verify that indenting restored the original text. "

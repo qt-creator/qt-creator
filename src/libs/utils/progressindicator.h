@@ -30,44 +30,74 @@
 #include <QTimer>
 #include <QWidget>
 
+#include <functional>
+#include <memory>
+
 namespace Utils {
 
 namespace Internal { class ProgressIndicatorPrivate; }
+
+enum class ProgressIndicatorSize
+{
+    Small,
+    Medium,
+    Large
+};
+
+class QTCREATOR_UTILS_EXPORT ProgressIndicatorPainter
+{
+public:
+    using UpdateCallback = std::function<void()>;
+
+    ProgressIndicatorPainter(ProgressIndicatorSize size);
+    virtual ~ProgressIndicatorPainter() = default;
+
+    virtual void setIndicatorSize(ProgressIndicatorSize size);
+    ProgressIndicatorSize indicatorSize() const;
+
+    void setUpdateCallback(const UpdateCallback &cb);
+
+    QSize size() const;
+
+    void paint(QPainter &painter, const QRect &rect) const;
+
+    void startAnimation();
+    void stopAnimation();
+
+protected:
+    void nextAnimationStep();
+
+private:
+    ProgressIndicatorSize m_size = ProgressIndicatorSize::Small;
+    int m_rotationStep = 45;
+    int m_rotation = 0;
+    QTimer m_timer;
+    QPixmap m_pixmap;
+    UpdateCallback m_callback;
+};
 
 class QTCREATOR_UTILS_EXPORT ProgressIndicator : public QWidget
 {
     Q_OBJECT
 public:
-    enum IndicatorSize {
-        Small,
-        Medium,
-        Large
-    };
+    explicit ProgressIndicator(ProgressIndicatorSize size, QWidget *parent = nullptr);
 
-    explicit ProgressIndicator(IndicatorSize size, QWidget *parent = 0);
+    void setIndicatorSize(ProgressIndicatorSize size);
 
-    void setIndicatorSize(IndicatorSize size);
-    IndicatorSize indicatorSize() const;
-
-    QSize sizeHint() const;
+    QSize sizeHint() const final;
 
     void attachToWidget(QWidget *parent);
 
 protected:
-    void paintEvent(QPaintEvent *);
-    void showEvent(QShowEvent *);
-    void hideEvent(QHideEvent *);
-    bool eventFilter(QObject *obj, QEvent *ev);
+    void paintEvent(QPaintEvent *) final;
+    void showEvent(QShowEvent *) final;
+    void hideEvent(QHideEvent *) final;
+    bool eventFilter(QObject *obj, QEvent *ev) final;
 
 private:
-    void step();
     void resizeToParent();
 
-    ProgressIndicator::IndicatorSize m_size;
-    int m_rotationStep;
-    int m_rotation;
-    QTimer m_timer;
-    QPixmap m_pixmap;
+    ProgressIndicatorPainter m_paint;
 };
 
 } // Utils

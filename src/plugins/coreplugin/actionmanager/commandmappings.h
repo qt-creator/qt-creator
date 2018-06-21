@@ -30,7 +30,6 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QLineEdit;
 class QTreeWidget;
 class QTreeWidgetItem;
 QT_END_NAMESPACE
@@ -46,8 +45,8 @@ class CORE_EXPORT CommandMappings : public QWidget
     Q_OBJECT
 
 public:
-    CommandMappings(QWidget *parent = 0);
-    ~CommandMappings();
+    CommandMappings(QWidget *parent = nullptr);
+    ~CommandMappings() override;
 
 signals:
     void currentCommandChanged(QTreeWidgetItem *current);

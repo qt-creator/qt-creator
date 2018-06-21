@@ -34,6 +34,10 @@ namespace ClangRefactoring {
 class SearchHandle
 {
 public:
+    SearchHandle() = default;
+    SearchHandle(const SearchHandle &) = delete;
+    SearchHandle &operator=(const SearchHandle &) = delete;
+
     virtual ~SearchHandle();
 
     virtual void addResult(const QString &fileName,
@@ -45,7 +49,7 @@ public:
 
     virtual void finishSearch() = 0;
 
-    void cancel();
+    virtual void cancel();
 
     void setRefactoringServer(ClangBackEnd::RefactoringServerInterface *server);
 

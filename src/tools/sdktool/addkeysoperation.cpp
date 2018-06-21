@@ -34,7 +34,7 @@ QString AddKeysOperation::name() const
 
 QString AddKeysOperation::helpText() const
 {
-    return QLatin1String("add settings to Qt Creator configuration");
+    return QLatin1String("add arbitrary settings to configuration");
 }
 
 QString AddKeysOperation::argumentsHelpText() const

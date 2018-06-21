@@ -28,10 +28,13 @@
 #include "qmldesignercorelib_global.h"
 #include "exception.h"
 #include "abstractview.h"
-#include "rewritererror.h"
+#include "documentmessage.h"
 
 #include <QScopedPointer>
+#include <QTimer>
 #include <QUrl>
+
+#include <functional>
 
 namespace QmlJS {
 class Document;
@@ -72,7 +75,7 @@ public:
 
 public:
     RewriterView(DifferenceHandling differenceHandling, QObject *parent);
-    ~RewriterView();
+    ~RewriterView() override;
 
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;
@@ -108,12 +111,14 @@ public:
 
     Internal::ModelNodePositionStorage *positionStorage() const;
 
-    QList<RewriterError> warnings() const;
-    QList<RewriterError> errors() const;
+    QList<DocumentMessage> warnings() const;
+    QList<DocumentMessage> errors() const;
     void clearErrorAndWarnings();
-    void setErrors(const QList<RewriterError> &errors);
-    void setWarnings(const QList<RewriterError> &warnings);
-    void addError(const RewriterError &error);
+    void setErrors(const QList<DocumentMessage> &errors);
+    void setWarnings(const QList<DocumentMessage> &warnings);
+    void setIncompleteTypeInformation(bool b);
+    bool hasIncompleteTypeInformation() const;
+    void addError(const DocumentMessage &error);
 
     void enterErrorState(const QString &errorMessage);
     bool inErrorState() const { return !m_rewritingErrorMessage.isEmpty(); }
@@ -153,12 +158,16 @@ public:
 
     QList<CppTypeData> getCppTypes();
 
-signals:
-    void errorsChanged(const QList<RewriterError> &errors);
+    void setWidgetStatusCallback(std::function<void(bool)> setWidgetStatusCallback);
 
-public slots:
     void qmlTextChanged();
     void delayedSetup();
+
+    void writeAuxiliaryData();
+    void restoreAuxiliaryData();
+
+    QString getRawAuxiliaryData() const;
+    QString auxiliaryDataAsQML() const;
 
 protected: // functions
     void importAdded(const Import &import);
@@ -170,8 +179,12 @@ protected: // functions
     void setModificationGroupActive(bool active);
     void applyModificationGroupChanges();
     void applyChanges();
+    void amendQmlText();
+    void notifyErrorsAndWarnings(const QList<DocumentMessage> &errors);
 
 private: //variables
+    ModelNode nodeAtTextCursorPositionRekursive(const ModelNode &root, int cursorPosition) const;
+
     TextModifier *m_textModifier = nullptr;
     int transactionLevel = 0;
     bool m_modificationGroupActive = false;
@@ -181,11 +194,15 @@ private: //variables
     QScopedPointer<Internal::ModelNodePositionStorage> m_positionStorage;
     QScopedPointer<Internal::ModelToTextMerger> m_modelToTextMerger;
     QScopedPointer<Internal::TextToModelMerger> m_textToModelMerger;
-    QList<RewriterError> m_errors;
-    QList<RewriterError> m_warnings;
+    QList<DocumentMessage> m_errors;
+    QList<DocumentMessage> m_warnings;
     RewriterTransaction m_removeDefaultPropertyTransaction;
     QString m_rewritingErrorMessage;
-    QString lastCorrectQmlSource;
+    QString m_lastCorrectQmlSource;
+    QTimer m_amendTimer;
+    bool m_instantQmlTextUpdate = false;
+    std::function<void(bool)> m_setWidgetStatusCallback;
+    bool m_hasIncompleteTypeInformation = false;
 };
 
 } //QmlDesigner

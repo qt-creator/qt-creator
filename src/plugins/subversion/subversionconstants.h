@@ -30,6 +30,8 @@
 namespace Subversion {
 namespace Constants {
 
+const char SUBVERSION_PLUGIN[] = "SubversionPlugin";
+
 const char NON_INTERACTIVE_OPTION[] = "--non-interactive";
 enum { debug = 0 };
 

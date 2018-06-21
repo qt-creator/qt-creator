@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 {
     int pid = -1;
     const size_t maxPipeNameSize = 256;
-    wchar_t pipeName[maxPipeNameSize] = { 0 };
+    wchar_t pipeName[maxPipeNameSize] = {0};
 
     for (int i = 0; i < argc - 1; ++i) {
         if (!strcmp(argv[i], "-t")) {

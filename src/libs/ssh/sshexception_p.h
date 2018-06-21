@@ -31,6 +31,8 @@
 #include <QCoreApplication>
 #include <QString>
 
+#include <exception>
+
 namespace QSsh {
 namespace Internal {
 
@@ -57,25 +59,28 @@ enum SshErrorCode {
 #define SSH_SERVER_EXCEPTION(error, errorString)                              \
     SshServerException((error), (errorString), SSH_TR(errorString))
 
-struct SshServerException
+struct SshServerException : public std::exception
 {
     SshServerException(SshErrorCode error, const QByteArray &errorStringServer,
         const QString &errorStringUser)
         : error(error), errorStringServer(errorStringServer),
           errorStringUser(errorStringUser) {}
+    const char *what() const noexcept override { return errorStringServer.constData(); }
 
     const SshErrorCode error;
     const QByteArray errorStringServer;
     const QString errorStringUser;
 };
 
-struct SshClientException
+struct SshClientException : public std::exception
 {
     SshClientException(SshError error, const QString &errorString)
-        : error(error), errorString(errorString) {}
+        : error(error), errorString(errorString), errorStringPrintable(errorString.toLocal8Bit()) {}
+    const char *what() const noexcept override { return errorStringPrintable.constData(); }
 
     const SshError error;
     const QString errorString;
+    const QByteArray errorStringPrintable;
 };
 
 } // namespace Internal

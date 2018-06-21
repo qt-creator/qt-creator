@@ -1127,8 +1127,11 @@ class QMLJS_EXPORT CustomImportsProvider : public QObject
 {
     Q_OBJECT
 public:
-    explicit CustomImportsProvider(QObject *parent = 0) : QObject(parent) {}
-    virtual ~CustomImportsProvider() {}
+    explicit CustomImportsProvider(QObject *parent = nullptr);
+    virtual ~CustomImportsProvider();
+
+    static const QList<CustomImportsProvider *> allProviders();
+
     virtual QList<Import> imports(ValueOwner *valueOwner, const Document *context) const = 0;
 };
 

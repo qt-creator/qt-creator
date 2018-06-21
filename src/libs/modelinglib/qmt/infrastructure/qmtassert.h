@@ -27,7 +27,7 @@
 
 #include "utils/qtcassert.h"
 
-// TODO extend with parameter action
 #define QMT_CHECK(condition) QTC_CHECK(condition)
+#define QMT_ASSERT(condition, action) QTC_ASSERT(condition, action)
 // TODO implement logging of where and what
-#define QMT_CHECK_X(condition, where, what) QTC_CHECK(condition)
+#define QMT_CHECK_X(condition, where, what) QMT_CHECK(condition)

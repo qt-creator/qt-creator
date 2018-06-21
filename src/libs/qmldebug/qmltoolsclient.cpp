@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "qmltoolsclient.h"
+#include "qmldebugconnection.h"
 #include <qmldebug/qpacketprotocol.h>
 #include <QStringList>
 
@@ -55,7 +56,7 @@ QmlToolsClient::QmlToolsClient(QmlDebugConnection *client)
 
 void QmlToolsClient::messageReceived(const QByteArray &message)
 {
-    QPacket ds(connection()->currentDataStreamVersion(), message);
+    QPacket ds(dataStreamVersion(), message);
 
     QByteArray type;
     int requestId;
@@ -98,7 +99,7 @@ void QmlToolsClient::setObjectIdList(const QList<ObjectReference> &objectRoots)
     foreach (const ObjectReference &object, objectRoots)
         debugIds << object.debugId();
 
-    QPacket ds(connection()->currentDataStreamVersion());
+    QPacket ds(dataStreamVersion());
     ds << QByteArray(REQUEST) << m_requestId++ << QByteArray(SELECT) << debugIds;
     sendMessage(ds.data());
 }
@@ -108,7 +109,7 @@ void QmlToolsClient::setDesignModeBehavior(bool inDesignMode)
     if (!m_connection || !m_connection->isConnected())
         return;
 
-    QPacket ds(connection()->currentDataStreamVersion());
+    QPacket ds(dataStreamVersion());
     ds << QByteArray(REQUEST) << m_requestId++;
     if (inDesignMode)
         ds << QByteArray(ENABLE);
@@ -140,7 +141,7 @@ void QmlToolsClient::showAppOnTop(bool showOnTop)
     if (!m_connection || !m_connection->isConnected())
         return;
 
-    QPacket ds(connection()->currentDataStreamVersion());
+    QPacket ds(dataStreamVersion());
     ds << QByteArray(REQUEST) << m_requestId++
        << QByteArray(SHOW_APP_ON_TOP) << showOnTop;
 

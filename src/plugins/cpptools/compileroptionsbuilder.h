@@ -39,35 +39,44 @@ public:
         Use
     };
 
-    CompilerOptionsBuilder(const ProjectPart &projectPart);
+    CompilerOptionsBuilder(const ProjectPart &projectPart,
+                           const QString &clangVersion = QString(),
+                           const QString &clangResourceDirectory = QString());
     virtual ~CompilerOptionsBuilder() {}
 
+    virtual void addTargetTriple();
+    virtual void addExtraCodeModelFlags();
+    virtual void enableExceptions();
+    virtual void addPredefinedHeaderPathsOptions();
+    virtual void addLanguageOption(ProjectFile::Kind fileKind);
+    virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);
+
+    virtual void addExtraOptions() {}
+
+    QStringList build(ProjectFile::Kind fileKind,
+                      PchUsage pchUsage);
     QStringList options() const;
 
     // Add custom options
     void add(const QString &option);
-    void addDefine(const QByteArray &defineDirective);
+    void addDefine(const ProjectExplorer::Macro &marco);
 
     // Add options based on project part
     void addWordWidth();
-    virtual void addTargetTriple();
-    virtual void enableExceptions();
     void addHeaderPathOptions();
     void addPrecompiledHeaderOptions(PchUsage pchUsage);
-    void addToolchainAndProjectDefines();
-    void addDefines(const QByteArray &defineDirectives);
-    virtual void addLanguageOption(ProjectFile::Kind fileKind);
-    virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);
-
-    void addDefineToAvoidIncludingGccOrMinGwIntrinsics();
+    virtual void addToolchainAndProjectMacros();
+    void addMacros(const ProjectExplorer::Macros &macros);
 
     void addMsvcCompatibilityVersion();
     void undefineCppLanguageFeatureMacrosForMsvc2015();
+    void addDefineFunctionMacrosMsvc();
 
-    void addDefineFloat128ForMingw();
+    void addProjectConfigFileInclude();
+    void undefineClangVersionMacrosForMsvc();
 
 protected:
-    virtual bool excludeDefineDirective(const QByteArray &defineDirective) const;
+    virtual bool excludeDefineDirective(const ProjectExplorer::Macro &macro) const;
     virtual bool excludeHeaderPath(const QString &headerPath) const;
 
     virtual QString defineOption() const;
@@ -78,9 +87,25 @@ protected:
     const ProjectPart m_projectPart;
 
 private:
-    QString defineDirectiveToDefineOption(const QByteArray &defineDirective);
+    QByteArray macroOption(const ProjectExplorer::Macro &macro) const;
+    QByteArray toDefineOption(const ProjectExplorer::Macro &macro) const;
+    QString defineDirectiveToDefineOption(const ProjectExplorer::Macro &marco) const;
+    void addClangIncludeFolder();
 
     QStringList m_options;
+    QString m_clangVersion;
+    QString m_clangResourceDirectory;
 };
+
+QString CPPTOOLS_EXPORT clangExecutable(const QString &clangBinDirectory);
+
+QString CPPTOOLS_EXPORT clangIncludeDirectory(const QString &clangVersion,
+                                              const QString &clangResourceDirectory);
+
+template<class T>
+T clangIncludePath(const T &clangVersion)
+{
+    return "/lib/clang/" + clangVersion + "/include";
+}
 
 } // namespace CppTools

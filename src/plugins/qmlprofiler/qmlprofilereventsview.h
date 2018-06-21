@@ -37,17 +37,15 @@ class QMLPROFILER_EXPORT QmlProfilerEventsView : public QWidget
 {
     Q_OBJECT
 public:
-    QmlProfilerEventsView(QWidget *parent = 0) : QWidget(parent) {}
-    virtual void clear() {}
+    QmlProfilerEventsView(QWidget *parent = nullptr) : QWidget(parent) {}
+
+    virtual void selectByTypeId(int typeIndex) = 0;
+    virtual void onVisibleFeaturesChanged(quint64 features) = 0;
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
     void typeSelected(int typeIndex);
     void showFullRange();
-
-public slots:
-    virtual void selectByTypeId(int typeIndex) = 0;
-    virtual void onVisibleFeaturesChanged(quint64 features) = 0;
 };
 
 } // namespace QmlProfiler

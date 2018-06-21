@@ -24,6 +24,10 @@
 ****************************************************************************/
 #pragma once
 
+#include <documentwarningwidget.h>
+
+#include <coreplugin/icontext.h>
+
 #include <QWidget>
 #include <QPointer>
 
@@ -60,7 +64,7 @@ public:
     double spacing() const;
     double containerPadding() const;
 
-    QString contextHelpId() const;
+    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
 
     void setRootItemRect(const QRectF &rect);
     QRectF rootItemRect() const;
@@ -72,11 +76,21 @@ public:
 
     void setFocus();
 
-protected:
-    void wheelEvent(QWheelEvent *event);
-    QActionGroup *toolActionGroup() const;
+    void showErrorMessageBox(const QList<DocumentMessage> &errors);
+    void hideErrorMessageBox();
 
-private slots:
+    void showWarningMessageBox(const QList<DocumentMessage> &warnings);
+
+    void exportAsImage(const QRectF &boundingRect);
+
+    FormEditorGraphicsView *graphicsView() const;
+
+protected:
+    void wheelEvent(QWheelEvent *event) override;
+    QActionGroup *toolActionGroup() const;
+    DocumentWarningWidget *errorWidget();
+
+private:
     void changeTransformTool(bool checked);
     void setZoomLevel(double zoomLevel);
     void changeRootItemWidth(const QString &widthText);
@@ -99,6 +113,7 @@ private:
     QPointer<LineEditAction> m_rootHeightAction;
     QPointer<BackgroundAction> m_backgroundAction;
     QPointer<QAction> m_resetAction;
+    QPointer<DocumentWarningWidget> m_documentErrorWidget;
 };
 
 } // namespace QmlDesigner

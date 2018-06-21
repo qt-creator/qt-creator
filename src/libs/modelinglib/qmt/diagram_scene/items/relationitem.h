@@ -54,7 +54,7 @@ class RelationItem :
 
 public:
     RelationItem(DRelation *relation, DiagramSceneModel *diagramSceneModel,
-                 QGraphicsItem *parent = 0);
+                 QGraphicsItem *parent = nullptr);
     ~RelationItem() override;
 
     DRelation *relation() const { return m_relation; }
@@ -70,6 +70,8 @@ public:
     void setSecondarySelected(bool secondarySelected) override;
     bool isFocusSelected() const override;
     void setFocusSelected(bool focusSelected) override;
+    QRectF getSecondarySelectionBoundary() override;
+    void setBoundarySelected(const QRectF &boundary, bool secondary) override;
 
     QPointF grabHandle(int index) override;
     void insertHandle(int beforeIndex, const QPointF &pos, double rasterWidth, double rasterHeight) override;
@@ -92,16 +94,16 @@ private:
     QPointF calcEndPoint(const Uid &end, const QPointF &otherEndPos,
                          int nearestIntermediatePointIndex);
 
-    DRelation *m_relation = 0;
+    DRelation *m_relation = nullptr;
 
 protected:
-    DiagramSceneModel *m_diagramSceneModel = 0;
+    DiagramSceneModel *m_diagramSceneModel = nullptr;
     bool m_isSecondarySelected = false;
     bool m_isFocusSelected = false;
-    ArrowItem *m_arrow = 0;
-    QGraphicsSimpleTextItem *m_name = 0;
-    StereotypesItem *m_stereotypes = 0;
-    PathSelectionItem *m_selectionHandles = 0;
+    ArrowItem *m_arrow = nullptr;
+    QGraphicsSimpleTextItem *m_name = nullptr;
+    StereotypesItem *m_stereotypes = nullptr;
+    PathSelectionItem *m_selectionHandles = nullptr;
     static bool m_grabbedEndA;
     static bool m_grabbedEndB;
     static QPointF m_grabbedEndPos;

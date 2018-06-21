@@ -38,20 +38,13 @@ namespace Android {
 class ANDROID_EXPORT AndroidBuildApkStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
+
+protected:
+    AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, Core::Id id);
+
 public:
-    AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, const Core::Id id);
-
-    enum AndroidDeployAction
-    {
-        MinistroDeployment, // use ministro
-        DebugDeployment,
-        BundleLibrariesDeployment
-    };
-
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
-
-    AndroidDeployAction deployAction() const;
 
     // signing
     Utils::FileName keystorePath();
@@ -70,38 +63,32 @@ public:
     bool verboseOutput() const;
     void setVerboseOutput(bool verbose);
 
-    bool useGradle() const;
-    void setUseGradle(bool b);
+    bool useMinistro() const;
+    void setUseMinistro(bool b);
+
+    bool addDebugger() const;
+    void setAddDebugger(bool debug);
 
     QString buildTargetSdk() const;
     void setBuildTargetSdk(const QString &sdk);
 
-    virtual Utils::FileName androidPackageSourceDir() const = 0;
-    void setDeployAction(AndroidDeployAction deploy);
-
-signals:
-    void useGradleChanged();
-
 protected:
     Q_INVOKABLE void showInGraphicalShell();
-
-    AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc,
-        AndroidBuildApkStep *other);
-    bool keystorePassword();
-    bool certificatePassword();
 
     bool init(QList<const BuildStep *> &earlierSteps) override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool immutable() const override { return true; }
     void processFinished(int exitCode, QProcess::ExitStatus status) override;
+    bool verifyKeystorePassword();
+    bool verifyCertificatePassword();
 
 protected:
-    AndroidDeployAction m_deployAction = BundleLibrariesDeployment;
     bool m_signPackage = false;
     bool m_verbose = false;
-    bool m_useGradle = false;
+    bool m_useMinistro = false;
     bool m_openPackageLocation = false;
     bool m_openPackageLocationForRun = false;
+    bool m_addDebugger = true;
     QString m_buildTargetSdk;
 
     Utils::FileName m_keystorePath;

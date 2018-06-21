@@ -79,7 +79,7 @@ static bool isElectricInLine(const QChar ch, const QString &text)
             return true;
         }
 
-        // fall-through
+        Q_FALLTHROUGH();
         // lines that start with : might have a constructor initializer list
     case '<':
     case '>': {

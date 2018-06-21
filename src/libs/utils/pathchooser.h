@@ -62,8 +62,8 @@ class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
 public:
     static QString browseButtonLabel();
 
-    explicit PathChooser(QWidget *parent = 0);
-    virtual ~PathChooser();
+    explicit PathChooser(QWidget *parent = nullptr);
+    ~PathChooser() override;
 
     enum Kind {
         ExistingDirectory,
@@ -172,7 +172,7 @@ public slots:
     void setOkColor(const QColor &okColor);
 
 private:
-    PathChooserPrivate *d;
+    PathChooserPrivate *d = nullptr;
     static AboutToShowContextMenuHandler s_aboutToShowContextMenuHandler;
 };
 

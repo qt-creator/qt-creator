@@ -24,27 +24,22 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "sourcerangecontainer-matcher.h"
 #include "testclangtool.h"
 
+#include <refactoringdatabaseinitializer.h>
 #include <sourcerangeextractor.h>
 #include <sourcerangescontainer.h>
+#include <filepathcaching.h>
 
-#if defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#elif defined(_MSC_VER)
-#    pragma warning(push)
-#    pragma warning( disable : 4100 )
-#endif
+#include <sqlitedatabase.h>
 
 #include <clang/Basic/SourceManager.h>
 #include <clang/Lex/Lexer.h>
 
-#if defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#elif defined(_MSC_VER)
-#    pragma warning(pop)
-#endif
+#include <QDir>
+
+#include <mutex>
 
 using testing::Contains;
 using ::testing::Eq;
@@ -65,30 +60,36 @@ protected:
     TestClangTool clangTool{TESTDATA_DIR, "sourcerangeextractor_location.cpp", "",  {"cc", "sourcerangeextractor_location.cpp"}};
     ClangBackEnd::SourceRangesContainer sourceRangesContainer;
     const clang::SourceManager &sourceManager{clangTool.sourceManager()};
-    ClangBackEnd::SourceRangeExtractor extractor{sourceManager, clangTool.languageOptions(), sourceRangesContainer};
+    Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+    ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
+    ClangBackEnd::FilePathCaching filePathCache{database};
+    ClangBackEnd::SourceRangeExtractor extractor{sourceManager, clangTool.languageOptions(), filePathCache, sourceRangesContainer};
     clang::SourceLocation startLocation = sourceManager.getLocForStartOfFile(sourceManager.getMainFileID());
     clang::SourceLocation endLocation = sourceManager.getLocForStartOfFile(sourceManager.getMainFileID()).getLocWithOffset(4);
     clang::SourceRange sourceRange{startLocation, endLocation};
     clang::SourceRange extendedSourceRange{startLocation, endLocation.getLocWithOffset(5)};
 };
 
-TEST_F(SourceRangeExtractor, ExtractSourceRangeContainer)
+using SourceRangeExtractorSlowTest = SourceRangeExtractor;
+
+TEST_F(SourceRangeExtractorSlowTest, ExtractSourceRangeContainer)
 {
-    SourceRangeWithTextContainer sourceRangeContainer{1, 1, 1, 0, 1, 10, 9, Utils::SmallString("int value;")};
+    SourceRangeWithTextContainer sourceRangeContainer{{1, 1}, 1, 1, 0, 1, 10, 9, Utils::SmallString("int value;")};
 
     extractor.addSourceRange(sourceRange);
 
-    ASSERT_THAT(extractor.sourceRangeWithTextContainers(), Contains(sourceRangeContainer));
+    ASSERT_THAT(extractor.sourceRangeWithTextContainers(),
+                Contains(IsSourceRangeWithText(1, 1, 1, 10, "int value;")));
 }
 
-TEST_F(SourceRangeExtractor, ExtendedSourceRange)
+TEST_F(SourceRangeExtractorSlowTest, ExtendedSourceRange)
 {
     auto range = extractor.extendSourceRangeToLastTokenEnd(sourceRange);
 
     ASSERT_THAT(range, extendedSourceRange);
 }
 
-TEST_F(SourceRangeExtractor, FindStartOfLineInEmptyBuffer)
+TEST_F(SourceRangeExtractorSlowTest, FindStartOfLineInEmptyBuffer)
 {
     clang::StringRef text = "";
 
@@ -97,7 +98,7 @@ TEST_F(SourceRangeExtractor, FindStartOfLineInEmptyBuffer)
     ASSERT_THAT(found, StrEq(""));
 }
 
-TEST_F(SourceRangeExtractor, FindStartOfLineInBufferInFirstLine)
+TEST_F(SourceRangeExtractorSlowTest, FindStartOfLineInBufferInFirstLine)
 {
     clang::StringRef text = "first line";
 
@@ -106,7 +107,7 @@ TEST_F(SourceRangeExtractor, FindStartOfLineInBufferInFirstLine)
     ASSERT_THAT(found, StrEq("first line"));
 }
 
-TEST_F(SourceRangeExtractor, FindStartOfNewLineInBufferInSecondLine)
+TEST_F(SourceRangeExtractorSlowTest, FindStartOfNewLineInBufferInSecondLine)
 {
     clang::StringRef text = "first line\nsecond line";
 
@@ -115,7 +116,7 @@ TEST_F(SourceRangeExtractor, FindStartOfNewLineInBufferInSecondLine)
     ASSERT_THAT(found, StrEq("second line"));
 }
 
-TEST_F(SourceRangeExtractor, FindStartOfCarriageReturnInBufferInSecondLine)
+TEST_F(SourceRangeExtractorSlowTest, FindStartOfCarriageReturnInBufferInSecondLine)
 {
     clang::StringRef text = "first line\rsecond line";
 
@@ -124,7 +125,7 @@ TEST_F(SourceRangeExtractor, FindStartOfCarriageReturnInBufferInSecondLine)
     ASSERT_THAT(found, StrEq("second line"));
 }
 
-TEST_F(SourceRangeExtractor, FindStartOfNewLineCarriageReturnInBufferInSecondLine)
+TEST_F(SourceRangeExtractorSlowTest, FindStartOfNewLineCarriageReturnInBufferInSecondLine)
 {
     clang::StringRef text = "first line\n\rsecond line";
 
@@ -133,7 +134,7 @@ TEST_F(SourceRangeExtractor, FindStartOfNewLineCarriageReturnInBufferInSecondLin
     ASSERT_THAT(found, StrEq("second line"));
 }
 
-TEST_F(SourceRangeExtractor, FindEndOfLineInEmptyBuffer)
+TEST_F(SourceRangeExtractorSlowTest, FindEndOfLineInEmptyBuffer)
 {
     clang::StringRef text = "";
 
@@ -142,7 +143,7 @@ TEST_F(SourceRangeExtractor, FindEndOfLineInEmptyBuffer)
     ASSERT_THAT(found, StrEq(""));
 }
 
-TEST_F(SourceRangeExtractor, FindEndOfLineInBuffer)
+TEST_F(SourceRangeExtractorSlowTest, FindEndOfLineInBuffer)
 {
     clang::StringRef text = "first line";
 
@@ -151,7 +152,7 @@ TEST_F(SourceRangeExtractor, FindEndOfLineInBuffer)
     ASSERT_THAT(found, StrEq(""));
 }
 
-TEST_F(SourceRangeExtractor, FindEndOfLineInBufferInFirstLineWithNewLine)
+TEST_F(SourceRangeExtractorSlowTest, FindEndOfLineInBufferInFirstLineWithNewLine)
 {
     clang::StringRef text = "first line\nsecond line\nthird line";
 
@@ -160,7 +161,7 @@ TEST_F(SourceRangeExtractor, FindEndOfLineInBufferInFirstLineWithNewLine)
     ASSERT_THAT(found, StrEq("\nthird line"));
 }
 
-TEST_F(SourceRangeExtractor, FindEndOfLineInBufferInFirstLineWithCarriageReturn)
+TEST_F(SourceRangeExtractorSlowTest, FindEndOfLineInBufferInFirstLineWithCarriageReturn)
 {
     clang::StringRef text = "first line\rsecond line\rthird line";
 
@@ -169,13 +170,13 @@ TEST_F(SourceRangeExtractor, FindEndOfLineInBufferInFirstLineWithCarriageReturn)
     ASSERT_THAT(found, StrEq("\rthird line"));
 }
 
-TEST_F(SourceRangeExtractor, EpandText)
+TEST_F(SourceRangeExtractorSlowTest, EpandText)
 {
     clang::StringRef text = "first line\nsecond line\nthird line\nforth line";
 
     auto expandedText = ::SourceRangeExtractor::getExpandedText(text, 15, 25);
 
-    ASSERT_THAT(expandedText, StrEq("second line\nthird line"));
+    ASSERT_THAT(expandedText, Eq("second line\nthird line"));
 }
 
 void SourceRangeExtractor::SetUp()

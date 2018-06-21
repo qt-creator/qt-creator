@@ -41,19 +41,19 @@ MATCHER_P5(HasDiagnosticMessage, errorTypeText, startLine, startColumn, endLine,
            + ")}"
            )
 {
-    if (!arg.empty() && arg.front().messages().empty()) {
+    if (!arg.empty() && arg.front().messages.empty()) {
         *result_listener << "no messages";
         return  false;
     }
 
-    auto message = arg.front().messages().front();
-    auto sourceRange = message.sourceRange();
+    auto message = arg.front().messages.front();
+    auto sourceRange = message.sourceRange;
 
     return message.errorTypeText() == errorTypeText
-        && sourceRange.start().line() == uint(startLine)
-        && sourceRange.start().column() == uint(startColumn)
-        && sourceRange.end().line() == uint(endLine)
-        && sourceRange.end().column() == uint(endColumn);
+        && sourceRange.start.line == uint(startLine)
+        && sourceRange.start.column == uint(startColumn)
+        && sourceRange.end.line == uint(endLine)
+        && sourceRange.end.column == uint(endColumn);
 }
 
 MATCHER_P5(HasDiagnosticContext, contextTypeText, startLine, startColumn, endLine, endColumn,
@@ -66,19 +66,19 @@ MATCHER_P5(HasDiagnosticContext, contextTypeText, startLine, startColumn, endLin
            + ")}"
            )
 {
-    if (!arg.empty() && arg.front().messages().empty()) {
+    if (!arg.empty() && arg.front().messages.empty()) {
         *result_listener << "no context";
         return  false;
     }
 
-    auto context = arg.front().contexts().front();
-    auto sourceRange = context.sourceRange();
+    auto context = arg.front().contexts.front();
+    auto sourceRange = context.sourceRange;
 
     return context.contextTypeText() == contextTypeText
-        && sourceRange.start().line() == uint(startLine)
-        && sourceRange.start().column() == uint(startColumn)
-        && sourceRange.end().line() == uint(endLine)
-        && sourceRange.end().column() == uint(endColumn);
+        && sourceRange.start.line == uint(startLine)
+        && sourceRange.start.column == uint(startColumn)
+        && sourceRange.end.line == uint(endLine)
+        && sourceRange.end.column == uint(endColumn);
 }
 
 }

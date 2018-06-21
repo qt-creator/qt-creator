@@ -2,9 +2,11 @@ DEFINES += %PluginName:u%_LIBRARY
 
 # %PluginName% files
 
-SOURCES += %PluginName:l%plugin.%CppSourceSuffix%
+SOURCES += \
+        %PluginName:l%plugin.%CppSourceSuffix%
 
-HEADERS += %PluginName:l%plugin.%CppHeaderSuffix% \
+HEADERS += \
+        %PluginName:l%plugin.%CppHeaderSuffix% \
         %PluginName:l%_global.%CppHeaderSuffix% \
         %PluginName:l%constants.%CppHeaderSuffix%
 

@@ -27,6 +27,8 @@
 
 #include "localprocesslist.h"
 
+#include <app/app_version.h>
+
 #include <utils/winutils.h>
 
 #include <QCoreApplication>
@@ -165,7 +167,7 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
                                      + Utils::winErrorMessage(GetLastError()));
             break;
         }
-        bool creatorIs64Bit = Utils::is64BitWindowsBinary(qApp->applicationFilePath());
+        bool creatorIs64Bit = Utils::is64BitWindowsBinary(QCoreApplication::applicationFilePath());
         if (!is64BitSystem
                 || si == NoSpecialInterrupt
                 || (si == Win64Interrupt && creatorIs64Bit)
@@ -180,10 +182,11 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
                     ? QLatin1String("/win32interrupt.exe")
                     : QLatin1String("/win64interrupt.exe");
             if (!QFile::exists(executable)) {
-                appendMsgCannotInterrupt(pid, tr( "%1 does not exist. If you built Qt Creator "
+                appendMsgCannotInterrupt(pid, tr( "%1 does not exist. If you built %2 "
                                                   "yourself, check out https://code.qt.io/cgit/"
                                                   "qt-creator/binary-artifacts.git/.").
-                                         arg(QDir::toNativeSeparators(executable)));
+                                         arg(QDir::toNativeSeparators(executable),
+                                             Core::Constants::IDE_DISPLAY_NAME));
             }
             switch (QProcess::execute(executable, QStringList(QString::number(pid)))) {
             case -2:

@@ -29,7 +29,9 @@
 
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
+
 #include <utils/detailswidget.h>
+#include <utils/algorithm.h>
 
 #include <QDebug>
 #include <QSize>
@@ -47,10 +49,8 @@ namespace Internal {
 DependenciesModel::DependenciesModel(Project *project, QObject *parent)
     : QAbstractListModel(parent)
     , m_project(project)
-    , m_projects(SessionManager::projects())
 {
-    // We can't select ourselves as a dependency
-    m_projects.removeAll(m_project);
+    resetModel();
 
     SessionManager *sessionManager = SessionManager::instance();
     connect(sessionManager, &SessionManager::projectRemoved,
@@ -59,7 +59,6 @@ DependenciesModel::DependenciesModel(Project *project, QObject *parent)
             this, &DependenciesModel::resetModel);
     connect(sessionManager, &SessionManager::sessionLoaded,
             this, &DependenciesModel::resetModel);
-//    qDebug()<<"Dependencies Model"<<this<<"for project"<<project<<"("<<project->file()->fileName()<<")";
 }
 
 void DependenciesModel::resetModel()
@@ -67,6 +66,9 @@ void DependenciesModel::resetModel()
     beginResetModel();
     m_projects = SessionManager::projects();
     m_projects.removeAll(m_project);
+    Utils::sort(m_projects, [](Project *a, Project *b) {
+        return a->displayName() < b->displayName();
+    });
     endResetModel();
 }
 
@@ -92,6 +94,8 @@ QVariant DependenciesModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::DisplayRole:
         return p->displayName();
+    case Qt::ToolTipRole:
+        return p->projectFilePath().toUserOutput();
     case Qt::CheckStateRole:
         return SessionManager::hasDependency(m_project, p) ? Qt::Checked : Qt::Unchecked;
     case Qt::DecorationRole:
@@ -105,7 +109,7 @@ bool DependenciesModel::setData(const QModelIndex &index, const QVariant &value,
 {
     if (role == Qt::CheckStateRole) {
         Project *p = m_projects.at(index.row());
-        auto c = static_cast<const Qt::CheckState>(value.toInt());
+        const auto c = static_cast<Qt::CheckState>(value.toInt());
 
         if (c == Qt::Checked) {
             if (SessionManager::addDependency(m_project, p)) {

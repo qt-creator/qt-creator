@@ -5,6 +5,7 @@ QtcProduct {
     type: ["application"]
     consoleApplication: true
     installDir:  qtc.ide_libexec_path
+    installTags: base.concat(["debuginfo_app"])
     useNonGuiPchFile: true
 
     cpp.rpaths: {

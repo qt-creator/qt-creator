@@ -39,7 +39,6 @@ class ProgressBar : public QWidget
 
 public:
     explicit ProgressBar(QWidget *parent = 0);
-    ~ProgressBar();
 
     QString title() const;
     void setTitle(const QString &title);
@@ -77,16 +76,16 @@ private:
 
     QString m_text;
     QString m_title;
-    bool m_titleVisible;
-    bool m_separatorVisible;
-    bool m_cancelEnabled;
-    int m_progressHeight;
-    int m_minimum;
-    int m_maximum;
-    int m_value;
-    float m_cancelButtonFader;
-    bool m_finished;
-    bool m_error;
+    bool m_titleVisible = true;
+    bool m_separatorVisible = true;
+    bool m_cancelEnabled = true;
+    bool m_finished = false;
+    bool m_error = false;
+    float m_cancelButtonFader = 0.0;
+    int m_progressHeight = 0;
+    int m_minimum = 1;
+    int m_maximum = 100;
+    int m_value = 1;
     QRect m_cancelRect;
 };
 

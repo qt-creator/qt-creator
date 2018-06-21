@@ -40,9 +40,9 @@ class FilterSettingsPage : public Core::IOptionsPage
 public:
     FilterSettingsPage();
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 signals:
     void filtersChanged();

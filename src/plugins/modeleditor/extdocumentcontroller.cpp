@@ -38,17 +38,18 @@ namespace Internal {
 
 class ExtDocumentController::ExtDocumentControllerPrivate {
 public:
-    ElementTasks *elementTasks = 0;
-    PxNodeController *pxNodeController = 0;
+    ElementTasks *elementTasks = nullptr;
+    PxNodeController *pxNodeController = nullptr;
 };
 
 ExtDocumentController::ExtDocumentController(QObject *parent)
     : qmt::DocumentController(parent),
       d(new ExtDocumentControllerPrivate)
 {
-    d->elementTasks = new ElementTasks;
+    d->elementTasks = new ElementTasks(this);
     d->pxNodeController = new PxNodeController(this);
     d->elementTasks->setDocumentController(this);
+    d->elementTasks->setComponentViewController(d->pxNodeController->componentViewController());
     diagramSceneController()->setElementTasks(d->elementTasks);
 
     d->pxNodeController->setDiagramSceneController(diagramSceneController());
@@ -59,7 +60,6 @@ ExtDocumentController::ExtDocumentController(QObject *parent)
 
 ExtDocumentController::~ExtDocumentController()
 {
-    delete d->elementTasks;
     delete d;
 }
 

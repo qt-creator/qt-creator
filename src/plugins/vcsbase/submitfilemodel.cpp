@@ -39,7 +39,7 @@ namespace VcsBase {
 // Helpers:
 // --------------------------------------------------------------------------
 
-enum { stateColumn = 0, fileColumn = 1 };
+enum { StateColumn = 0, FileColumn = 1 };
 
 static QBrush fileStatusTextForeground(SubmitFileModel::FileStatusHint statusHint)
 {
@@ -61,7 +61,7 @@ static QBrush fileStatusTextForeground(SubmitFileModel::FileStatusHint statusHin
     case SubmitFileModel::FileRenamed:
         statusTextColor = Theme::VcsBase_FileRenamed_TextColor;
         break;
-    case VcsBase::SubmitFileModel::FileUnmerged:
+    case SubmitFileModel::FileUnmerged:
         statusTextColor = Theme::VcsBase_FileUnmerged_TextColor;
         break;
     }
@@ -84,17 +84,16 @@ static QList<QStandardItem *> createFileRow(const QString &repositoryRoot,
     statusItem->setFlags(flags);
     statusItem->setData(v);
     auto fileItem = new QStandardItem(fileName);
-    fileItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+    fileItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     // For some reason, Windows (at least) requires a valid (existing) file path to the icon, so
     // the repository root is needed here.
     // Note: for "overlaid" icons in Core::FileIconProvider a valid file path is not required
     const QFileInfo fi(repositoryRoot + QLatin1Char('/') + fileName);
     fileItem->setIcon(Core::FileIconProvider::icon(fi));
-    QList<QStandardItem *> row;
-    row << statusItem << fileItem;
+    const QList<QStandardItem *> row{statusItem, fileItem};
     if (statusHint != SubmitFileModel::FileStatusUnknown) {
         const QBrush textForeground = fileStatusTextForeground(statusHint);
-        foreach (QStandardItem *item, row)
+        for (QStandardItem *item : row)
             item->setForeground(textForeground);
     }
     return row;
@@ -116,10 +115,7 @@ static QList<QStandardItem *> createFileRow(const QString &repositoryRoot,
 SubmitFileModel::SubmitFileModel(QObject *parent) :
     QStandardItemModel(0, 2, parent)
 {
-    // setColumnCount(2);
-    QStringList headerLabels;
-    headerLabels << tr("State") << tr("File");
-    setHorizontalHeaderLabels(headerLabels);
+    setHorizontalHeaderLabels({tr("State"), tr("File")});
 }
 
 const QString &SubmitFileModel::repositoryRoot() const
@@ -154,7 +150,7 @@ QString SubmitFileModel::file(int row) const
 {
     if (row < 0 || row >= rowCount())
         return QString();
-    return item(row, fileColumn)->text();
+    return item(row, FileColumn)->text();
 }
 
 bool SubmitFileModel::isCheckable(int row) const
@@ -249,7 +245,7 @@ void SubmitFileModel::setFileStatusQualifier(FileStatusQualifier &&func)
     const int topLevelRowCount = rowCount();
     const int topLevelColCount = columnCount();
     for (int row = 0; row < topLevelRowCount; ++row) {
-        const QStandardItem *statusItem = item(row, stateColumn);
+        const QStandardItem *statusItem = item(row, StateColumn);
         const FileStatusHint statusHint =
                 func ? func(statusItem->text(), statusItem->data()) : FileStatusUnknown;
         const QBrush textForeground = fileStatusTextForeground(statusHint);

@@ -10,7 +10,6 @@ glsleditorplugin.h \
 glslhighlighter.h \
 glslautocompleter.h \
 glslindenter.h \
-glslhoverhandler.h \
 glslcompletionassist.h
 
 SOURCES += \
@@ -19,7 +18,6 @@ glsleditorplugin.cpp \
 glslhighlighter.cpp \
 glslautocompleter.cpp \
 glslindenter.cpp \
-glslhoverhandler.cpp \
 glslcompletionassist.cpp
 
 RESOURCES += glsleditor.qrc

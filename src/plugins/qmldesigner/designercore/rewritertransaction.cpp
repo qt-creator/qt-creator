@@ -25,6 +25,7 @@
 
 #include "rewritertransaction.h"
 #include <abstractview.h>
+#include <rewritingexception.h>
 #include <rewriterview.h>
 
 #include <utils/qtcassert.h>
@@ -41,7 +42,7 @@ namespace QmlDesigner {
 
 
 QList<QByteArray> RewriterTransaction::m_identifierList;
-bool RewriterTransaction::m_activeIdentifier = !qgetenv("QML_DESIGNER_TRACE_REWRITER_TRANSACTION").isEmpty();
+bool RewriterTransaction::m_activeIdentifier = qEnvironmentVariableIsSet("QML_DESIGNER_TRACE_REWRITER_TRANSACTION");
 
 RewriterTransaction::RewriterTransaction() : m_valid(false)
 {
@@ -67,7 +68,12 @@ RewriterTransaction::RewriterTransaction(AbstractView *_view, const QByteArray &
 
 RewriterTransaction::~RewriterTransaction()
 {
-    commit();
+    try {
+        commit();
+    } catch (const RewritingException &e) {
+        QTC_ASSERT(false, ;);
+        e.showException();
+    }
 }
 
 bool RewriterTransaction::isValid() const

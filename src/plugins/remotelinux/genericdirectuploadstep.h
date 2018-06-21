@@ -37,12 +37,11 @@ class REMOTELINUX_EXPORT GenericDirectUploadStep : public AbstractRemoteLinuxDep
     Q_OBJECT
 
 public:
-    GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
-    GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, GenericDirectUploadStep *other);
+    explicit GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl);
     ~GenericDirectUploadStep() override;
 
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-    bool initInternal(QString *error = 0) override;
+    bool initInternal(QString *error = nullptr) override;
 
     void setIncrementalDeployment(bool incremental);
     bool incrementalDeployment() const;
@@ -57,8 +56,6 @@ private:
     GenericDirectUploadService *deployService() const override;
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
-
-    void ctor();
 
     Internal::GenericDirectUploadStepPrivate *d;
 };

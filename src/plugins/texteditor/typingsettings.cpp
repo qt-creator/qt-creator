@@ -80,7 +80,7 @@ bool TypingSettings::equals(const TypingSettings &ts) const
         && m_smartBackspaceBehavior == ts.m_smartBackspaceBehavior;
 }
 
-bool TypingSettings::tabShouldIndent(const QTextDocument *document, QTextCursor cursor, int *suggestedPosition) const
+bool TypingSettings::tabShouldIndent(const QTextDocument *document, const QTextCursor &cursor, int *suggestedPosition) const
 {
     if (m_tabKeyBehavior == TabNeverIndents)
         return false;

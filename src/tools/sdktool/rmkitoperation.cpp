@@ -57,7 +57,7 @@ QString RmKitOperation::name() const
 
 QString RmKitOperation::helpText() const
 {
-    return QString("remove a Kit from Qt Creator");
+    return QString("remove a Kit");
 }
 
 QString RmKitOperation::argumentsHelpText() const
@@ -201,7 +201,7 @@ QVariantMap RmKitOperation::rmKit(const QVariantMap &map, const QString &id)
         defaultKit = (count > 1) ? 0 : -1;
 
     // remove data:
-    result = RmKeysOperation::rmKeys(result, { COUNT, DEFAULT });
+    result = RmKeysOperation::rmKeys(result, {COUNT, DEFAULT});
 
     // insert data:
     KeyValuePairList data;

@@ -196,7 +196,7 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
     addAction(menu, tr("Show Dependencies of \"%1\"").arg(moduleName),
               tr("Show Dependencies"),
               moduleNameValid && !moduleName.isEmpty() && HostOsInfo::isWindowsHost(),
-              [this, modulePath] { QProcess::startDetached("depends", { modulePath }); });
+              [modulePath] { QProcess::startDetached("depends", {modulePath}); });
 
     addAction(menu, tr("Load Symbols for All Modules"),
               enabled && canLoadSymbols,
@@ -258,6 +258,11 @@ ModulesHandler::ModulesHandler(DebuggerEngine *engine)
     m_proxyModel->setSourceModel(m_model);
 }
 
+ModulesHandler::~ModulesHandler()
+{
+    delete m_model;
+}
+
 QAbstractItemModel *ModulesHandler::model() const
 {
     return m_proxyModel;
@@ -276,7 +281,7 @@ void ModulesHandler::removeAll()
     m_model->clear();
 }
 
-Modules ModulesHandler::modules() const
+const Modules ModulesHandler::modules() const
 {
     Modules mods;
     m_model->forItemsAtLevel<1>([&mods](ModuleItem *item) { mods.append(item->module); });
@@ -327,7 +332,8 @@ void ModulesHandler::endUpdateAll()
         if (!item->updated)
             toDestroy.append(item);
     });
-    qDeleteAll(toDestroy);
+    for (TreeItem *item : toDestroy)
+        m_model->destroyItem(item);
 }
 
 } // namespace Internal

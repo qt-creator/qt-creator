@@ -57,7 +57,6 @@ AndroidManifestEditor::AndroidManifestEditor(AndroidManifestEditorWidget *editor
 
     generalAction->setChecked(true);
 
-    setContext(Core::Context(Constants::ANDROID_MANIFEST_EDITOR_CONTEXT));
     setWidget(editorWidget);
 }
 

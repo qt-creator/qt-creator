@@ -41,90 +41,14 @@
 #include <QHeaderView>
 #include <QMenu>
 #include <QPainter>
-#include <QSharedPointer>
-#include <QTextDocument>
 
 namespace Debugger {
-namespace Internal {
-
-class DetailedErrorDelegate : public QStyledItemDelegate
-{
-    Q_OBJECT
-
-public:
-    DetailedErrorDelegate(QTreeView *parent) : QStyledItemDelegate(parent) { }
-
-private:
-    QString actualText(const QModelIndex &index) const
-    {
-        const auto location = index.model()->data(index, DetailedErrorView::LocationRole)
-                .value<DiagnosticLocation>();
-        return location.isValid()
-                ? QString::fromLatin1("<a href=\"file://%1\">%2:%3")
-                      .arg(location.filePath, QFileInfo(location.filePath).fileName())
-                      .arg(location.line)
-                : QString();
-    }
-
-    using DocConstPtr = QSharedPointer<const QTextDocument>;
-    DocConstPtr document(const QStyleOptionViewItem &option) const
-    {
-        const auto doc = QSharedPointer<QTextDocument>::create();
-        doc->setHtml(option.text);
-        doc->setTextWidth(option.rect.width());
-        doc->setDocumentMargin(0);
-        return doc;
-    }
-
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
-    {
-        QStyleOptionViewItem opt = option;
-        opt.text = actualText(index);
-        initStyleOption(&opt, index);
-
-        const DocConstPtr doc = document(opt);
-        return QSize(doc->idealWidth(), doc->size().height());
-    }
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const override
-    {
-        QStyleOptionViewItem opt = option;
-        initStyleOption(&opt, index);
-
-        QStyle *style = opt.widget? opt.widget->style() : QApplication::style();
-
-        // Painting item without text
-        opt.text.clear();
-        style->drawControl(QStyle::CE_ItemViewItem, &opt, painter);
-        opt.text = actualText(index);
-
-        QAbstractTextDocumentLayout::PaintContext ctx;
-
-        // Highlighting text if item is selected
-        if (opt.state & QStyle::State_Selected) {
-            ctx.palette.setColor(QPalette::Text, opt.palette.color(QPalette::Active,
-                                                                   QPalette::HighlightedText));
-        }
-
-        QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &opt);
-        painter->save();
-        painter->translate(textRect.topLeft());
-        painter->setClipRect(textRect.translated(-textRect.topLeft()));
-        document(opt)->documentLayout()->draw(painter, ctx);
-        painter->restore();
-    }
-};
-
-} // namespace Internal
-
 
 DetailedErrorView::DetailedErrorView(QWidget *parent) :
     QTreeView(parent),
     m_copyAction(new QAction(this))
 {
     header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    setItemDelegateForColumn(LocationColumn, new Internal::DetailedErrorDelegate(this));
 
     m_copyAction->setText(tr("Copy"));
     m_copyAction->setIcon(Utils::Icons::COPY.icon());
@@ -186,6 +110,31 @@ void DetailedErrorView::goBack()
     setCurrentRow(prevRow >= 0 ? prevRow : rowCount() - 1);
 }
 
+QVariant DetailedErrorView::locationData(int role, const DiagnosticLocation &location)
+{
+    switch (role) {
+    case Debugger::DetailedErrorView::LocationRole:
+        return QVariant::fromValue(location);
+    case Qt::DisplayRole:
+        return location.isValid() ? QString::fromLatin1("%1:%2:%3")
+                               .arg(QFileInfo(location.filePath).fileName())
+                               .arg(location.line)
+                               .arg(location.column)
+                         : QString();
+    case Qt::ToolTipRole:
+        return location.filePath.isEmpty() ? QVariant() : QVariant(location.filePath);
+    case Qt::FontRole: {
+        QFont font = QApplication::font();
+        font.setUnderline(true);
+        return font;
+    }
+    case Qt::ForegroundRole:
+        return QApplication::palette().link().color();
+    default:
+        return QVariant();
+    }
+}
+
 int DetailedErrorView::rowCount() const
 {
     return model() ? model()->rowCount() : 0;
@@ -217,5 +166,3 @@ void DetailedErrorView::setCurrentRow(int row)
 }
 
 } // namespace Debugger
-
-#include "detailederrorview.moc"

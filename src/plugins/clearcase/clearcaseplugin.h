@@ -40,8 +40,6 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QComboBox;
-class QDir;
 template <typename T>
 class QFutureInterface;
 class QMutex;
@@ -199,6 +197,7 @@ private:
     void syncSlot();
     Q_INVOKABLE void updateStatusActions();
 
+    QString commitDisplayName() const final;
     void checkOutCurrentFile();
     void addCurrentFile();
     void undoCheckOutCurrent();

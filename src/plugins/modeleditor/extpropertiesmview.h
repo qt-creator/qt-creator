@@ -49,9 +49,9 @@ private:
     void onConfigPathChanged(const QString &path);
 
 private:
-    qmt::ProjectController *m_projectController = 0;
-    Utils::PathChooser *m_configPath = 0;
-    QLabel *m_configPathInfo = 0;
+    qmt::ProjectController *m_projectController = nullptr;
+    Utils::PathChooser *m_configPath = nullptr;
+    QLabel *m_configPathInfo = nullptr;
 };
 
 } // namespace Interal

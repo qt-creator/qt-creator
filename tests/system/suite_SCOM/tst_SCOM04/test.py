@@ -31,7 +31,8 @@ def main():
     # expected error texts - for different compilers
     expectedErrorAlternatives = ["'SyntaxError' was not declared in this scope",
                                  "\xe2\x80\x98SyntaxError\xe2\x80\x99 was not declared in this scope",
-                                 "'SyntaxError' : undeclared identifier",
+                                 "'SyntaxError' : undeclared identifier", # MSVC2013
+                                 "'SyntaxError': undeclared identifier", # MSVC2015
                                  "use of undeclared identifier 'SyntaxError'",
                                  "unknown type name 'SyntaxError'"]
     startApplication("qtcreator" + SettingsPath)

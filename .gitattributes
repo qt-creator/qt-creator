@@ -1,0 +1,1 @@
+dist/clang/patches/*.patch -diff -merge -text

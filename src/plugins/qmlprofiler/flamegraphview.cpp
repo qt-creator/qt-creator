@@ -27,8 +27,8 @@
 #include "qmlprofilerconstants.h"
 #include "qmlprofilertool.h"
 
-#include <flamegraph/flamegraph.h>
-#include <timeline/timelinetheme.h>
+#include <tracing/flamegraph.h>
+#include <tracing/timelinetheme.h>
 #include <utils/theme/theme.h>
 
 #include <QQmlEngine>
@@ -67,10 +67,9 @@ FlameGraphView::FlameGraphView(QmlProfilerModelManager *manager, QWidget *parent
     layout->addWidget(m_content);
     setLayout(layout);
 
-    connect(m_content->rootObject(), SIGNAL(typeSelected(int)),
-            this, SIGNAL(typeSelected(int)));
-    connect(m_content->rootObject(), SIGNAL(gotoSourceLocation(QString,int,int)),
-            this, SIGNAL(gotoSourceLocation(QString,int,int)));
+    connect(m_content->rootObject(), SIGNAL(typeSelected(int)), this, SIGNAL(typeSelected(int)));
+    connect(m_model, &FlameGraphModel::gotoSourceLocation,
+            this, &FlameGraphView::gotoSourceLocation);
 }
 
 void FlameGraphView::selectByTypeId(int typeIndex)
@@ -80,18 +79,13 @@ void FlameGraphView::selectByTypeId(int typeIndex)
 
 void FlameGraphView::onVisibleFeaturesChanged(quint64 features)
 {
-    int rangeTypeMask = 0;
-    for (int rangeType = 0; rangeType < MaximumRangeType; ++rangeType) {
-        if (features & (1ULL << featureFromRangeType(RangeType(rangeType))))
-            rangeTypeMask |= (1 << rangeType);
-    }
-    m_content->rootObject()->setProperty("visibleRangeTypes", rangeTypeMask);
+    m_model->restrictToFeatures(features);
 }
 
 void FlameGraphView::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
-    QAction *getGlobalStatsAction = 0;
+    QAction *getGlobalStatsAction = nullptr;
 
     QPoint position = ev->globalPos();
 

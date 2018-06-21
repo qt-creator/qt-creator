@@ -43,13 +43,13 @@ class QTCREATOR_UTILS_EXPORT HistoryCompleter : public QCompleter
 
 public:
     static void setSettings(QSettings *settings);
-    HistoryCompleter(const QString &historyKey, QObject *parent = 0);
+    HistoryCompleter(const QString &historyKey, QObject *parent = nullptr);
     bool removeHistoryItem(int index);
     QString historyItem() const;
     static bool historyExistsFor(const QString &historyKey);
 
 private:
-    ~HistoryCompleter();
+    ~HistoryCompleter() override;
     int historySize() const;
     int maximalHistorySize() const;
     void setMaximalHistorySize(int numberOfEntries);

@@ -34,10 +34,8 @@
 #include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
-class QIcon;
 class QWizard;
 class QWizardPage;
-class QDebug;
 QT_END_NAMESPACE
 
 namespace Utils { class Wizard; }
@@ -58,7 +56,7 @@ public:
 
     explicit WizardDialogParameters(const QString &defaultPath, Id platform,
                                     const QSet<Id> &requiredFeatures, DialogParameterFlags flags,
-                                    QVariantMap extraValues)
+                                    const QVariantMap &extraValues)
         : m_defaultPath(defaultPath),
           m_selectedPlatform(platform),
           m_requiredFeatures(requiredFeatures),
@@ -113,7 +111,7 @@ protected:
     enum OverwriteResult { OverwriteOk,  OverwriteError,  OverwriteCanceled };
     OverwriteResult promptOverwrite(GeneratedFiles *files,
                                     QString *errorMessage) const;
-    static bool postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage = 0);
+    static bool postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage = nullptr);
 
 private:
     // IWizard

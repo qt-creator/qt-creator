@@ -56,6 +56,7 @@ public:
     void executeAction(Core::Id actionId, QWidget *parent) override;
 
     QString displayType() const override;
+    Utils::OsType osType() const override;
 
     int qnxVersion() const;
 

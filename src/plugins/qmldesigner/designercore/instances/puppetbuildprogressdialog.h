@@ -40,7 +40,7 @@ class PuppetBuildProgressDialog : public QDialog
 
 public:
     explicit PuppetBuildProgressDialog();
-    ~PuppetBuildProgressDialog();
+    ~PuppetBuildProgressDialog() override;
 
     void setProgress(int progress);
     void newBuildOutput(const QByteArray &standardOutput);
@@ -48,7 +48,7 @@ public:
     void setErrorOutputFile(const QString &filePath);
     void setErrorMessage(const QString &message);
 
-private slots:
+private:
     void setUseFallbackPuppet();
 
 private:

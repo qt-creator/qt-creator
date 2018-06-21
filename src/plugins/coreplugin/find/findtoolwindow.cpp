@@ -47,7 +47,7 @@ static bool validateRegExp(Utils::FancyLineEdit *edit, QString *errorMessage)
 {
     if (edit->text().isEmpty()) {
         if (errorMessage)
-            *errorMessage = FindToolWindow::tr("Empty search term");
+            *errorMessage = FindToolWindow::tr("Empty search term.");
         return false;
     }
     if (Find::hasFindFlag(FindRegularExpression)) {
@@ -83,6 +83,9 @@ FindToolWindow::FindToolWindow(QWidget *parent)
     m_findCompleter->setModel(Find::findCompletionModel());
     m_ui.searchTerm->setSpecialCompleter(m_findCompleter);
     m_ui.searchTerm->installEventFilter(this);
+    connect(m_findCompleter,
+            static_cast<void (QCompleter::*)(const QModelIndex &)>(&QCompleter::activated),
+            this, &FindToolWindow::findCompleterActivated);
 
     m_ui.searchTerm->setValidationFunction(validateRegExp);
     connect(Find::instance(), &Find::findFlagsChanged,
@@ -140,12 +143,20 @@ bool FindToolWindow::eventFilter(QObject *obj, QEvent *event)
 void FindToolWindow::updateButtonStates()
 {
     bool filterEnabled = m_currentFilter && m_currentFilter->isEnabled();
-    bool enabled = m_ui.searchTerm->isValid() && filterEnabled && m_currentFilter->isValid();
+    bool enabled = filterEnabled && (!m_currentFilter->showSearchTermInput()
+                                     || m_ui.searchTerm->isValid()) && m_currentFilter->isValid();
     m_ui.searchButton->setEnabled(enabled);
     m_ui.replaceButton->setEnabled(m_currentFilter
                                    && m_currentFilter->isReplaceSupported() && enabled);
     if (m_configWidget)
         m_configWidget->setEnabled(filterEnabled);
+
+    if (m_currentFilter) {
+        m_ui.searchTerm->setVisible(m_currentFilter->showSearchTermInput());
+        m_ui.searchLabel->setVisible(m_currentFilter->showSearchTermInput());
+        m_ui.optionsWidget->setVisible(m_currentFilter->supportedFindFlags()
+                                       & (FindCaseSensitively | FindWholeWords | FindRegularExpression));
+    }
 
     m_ui.matchCase->setEnabled(filterEnabled
                                && (m_currentFilter->supportedFindFlags() & FindCaseSensitively));
@@ -256,17 +267,17 @@ void FindToolWindow::setCurrentFilter(int index)
 
 void FindToolWindow::acceptAndGetParameters(QString *term, IFindFilter **filter)
 {
-    if (filter)
-        *filter = 0;
+    QTC_ASSERT(filter, return);
+    *filter = 0;
     Find::updateFindCompletion(m_ui.searchTerm->text());
     int index = m_ui.filterList->currentIndex();
     QString searchTerm = m_ui.searchTerm->text();
+    if (index >= 0)
+        *filter = m_filters.at(index);
     if (term)
         *term = searchTerm;
-    if (searchTerm.isEmpty() || index < 0)
-        return;
-    if (filter)
-        *filter = m_filters.at(index);
+    if (searchTerm.isEmpty() && *filter && !(*filter)->isValid())
+        *filter = 0;
 }
 
 void FindToolWindow::search()
@@ -309,4 +320,15 @@ void FindToolWindow::readSettings()
             setCurrentFilter(i);
     }
     settings->endGroup();
+}
+
+void FindToolWindow::findCompleterActivated(const QModelIndex &index)
+{
+    const int findFlagsI = index.data(Find::CompletionModelFindFlagsRole).toInt();
+    const FindFlags findFlags(findFlagsI);
+    Find::setCaseSensitive(findFlags.testFlag(FindCaseSensitively));
+    Find::setBackward(findFlags.testFlag(FindBackward));
+    Find::setWholeWord(findFlags.testFlag(FindWholeWords));
+    Find::setRegularExpression(findFlags.testFlag(FindRegularExpression));
+    Find::setPreserveCase(findFlags.testFlag(FindPreserveCase));
 }

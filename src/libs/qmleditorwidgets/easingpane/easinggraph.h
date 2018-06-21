@@ -50,7 +50,7 @@ class EasingGraph: public QWidget
 
 public:
     EasingGraph(QWidget *parent=0);
-    ~EasingGraph();
+    ~EasingGraph() override;
 
     QEasingCurve::Type easingType() const;
     QEasingCurve easingCurve() const;
@@ -77,7 +77,7 @@ public:
 
     QRectF boundingRect() const;
     //void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
-    void paintEvent(QPaintEvent *);
+    void paintEvent(QPaintEvent *) override;
 
 signals:
     void easingShapeChanged();

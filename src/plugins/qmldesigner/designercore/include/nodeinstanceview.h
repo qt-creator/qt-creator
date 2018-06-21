@@ -77,8 +77,8 @@ class QMLDESIGNERCORE_EXPORT NodeInstanceView : public AbstractView, public Node
 public:
     typedef QWeakPointer<NodeInstanceView> Pointer;
 
-    explicit NodeInstanceView(QObject *parent = 0, NodeInstanceServerInterface::RunModus runModus = NodeInstanceServerInterface::NormalModus);
-    ~NodeInstanceView();
+    explicit NodeInstanceView(QObject *parent = nullptr, NodeInstanceServerInterface::RunModus runModus = NodeInstanceServerInterface::NormalModus);
+    ~NodeInstanceView() override;
 
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;
@@ -133,10 +133,6 @@ public:
 
     void sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector);
 
-signals:
-    void qmlPuppetCrashed();
-    void qmlPuppetError(const QString &errorMessage);
-
 protected:
     void timerEvent(QTimerEvent *event) override;
 
@@ -187,8 +183,8 @@ private: // functions
     void restartProcess();
     void delayedRestartProcess();
 
-private slots:
-    void handleChrash();
+private:
+    void handleCrash();
 
 private: //variables
     NodeInstance m_rootNodeInstance;
@@ -197,7 +193,6 @@ private: //variables
     QHash<ModelNode, NodeInstance> m_nodeInstanceHash;
     QHash<ModelNode, QImage> m_statePreviewImage;
 
-    uint m_blockUpdates;
     QPointer<NodeInstanceServerInterface> m_nodeInstanceServer;
     QImage m_baseStatePreviewImage;
     QTime m_lastCrashTime;

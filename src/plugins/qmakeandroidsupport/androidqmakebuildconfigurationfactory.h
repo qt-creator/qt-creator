@@ -33,31 +33,20 @@ namespace Internal {
 class AndroidQmakeBuildConfigurationFactory : public QmakeProjectManager::QmakeBuildConfigurationFactory
 {
 public:
-    explicit AndroidQmakeBuildConfigurationFactory(QObject *parent = 0)
-        : QmakeBuildConfigurationFactory(parent)
-    { }
-
-    int priority(const ProjectExplorer::Kit *k, const QString &projectPath) const override;
-    int priority(const ProjectExplorer::Target *parent) const override;
-
-    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent,
-                                                const ProjectExplorer::BuildInfo *info) const override;
-    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) override;
-    ProjectExplorer::BuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map) override;
+    AndroidQmakeBuildConfigurationFactory();
 };
 
 class AndroidQmakeBuildConfiguration : public QmakeProjectManager::QmakeBuildConfiguration
 {
-    friend class AndroidQmakeBuildConfigurationFactory;
     Q_OBJECT
+
 public:
-    explicit AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target);
-    AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target, AndroidQmakeBuildConfiguration *source);
     AndroidQmakeBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
+
+    void initialize(const ProjectExplorer::BuildInfo *info) override;
     void addToEnvironment(Utils::Environment &env) const override;
     void manifestSaved();
 
-    using BuildConfiguration::emitEnvironmentChanged;
 private:
     mutable QString m_androidNdkPlatform;
 };

@@ -3,7 +3,7 @@
 
 using namespace std;
 
-int main(int argc, char *argv[])
+int main()
 {
     cout << "Hello World!" << endl;
     return 0;

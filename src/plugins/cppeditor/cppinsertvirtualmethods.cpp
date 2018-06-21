@@ -197,12 +197,12 @@ public:
     Qt::ItemFlags flags() const;
     Qt::CheckState checkState() const { return checked ? Qt::Checked : Qt::Unchecked; }
 
-    const Function *function;
-    InsertionPointLocator::AccessSpec accessSpec;
-    bool reimplemented;
-    bool alreadyFound;
-    bool checked;
-    FunctionItem *nextOverride;
+    const Function *function = nullptr;
+    InsertionPointLocator::AccessSpec accessSpec = InsertionPointLocator::Invalid;
+    bool reimplemented = false;
+    bool alreadyFound = false;
+    bool checked = false;
+    FunctionItem *nextOverride = nullptr;
 
 private:
     QString name;
@@ -256,9 +256,6 @@ void ClassItem::removeFunction(int row)
 FunctionItem::FunctionItem(const Function *func, const QString &functionName, ClassItem *parent) :
     InsertVirtualMethodsItem(parent),
     function(func),
-    reimplemented(false),
-    alreadyFound(false),
-    checked(false),
     nextOverride(this)
 {
     name = functionName;
@@ -591,7 +588,8 @@ public:
             for (Scope::iterator it = clazz->memberBegin(); it != clazz->memberEnd(); ++it) {
                 if (const Function *func = (*it)->type()->asFunctionType()) {
                     // Filter virtual destructors
-                    if (func->name()->asDestructorNameId())
+                    const Name *name = func->name();
+                    if (!name || name->asDestructorNameId())
                         continue;
 
                     const Function *firstVirtual = 0;

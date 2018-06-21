@@ -24,77 +24,25 @@
 ****************************************************************************/
 
 #include "qmlprofilerstatisticsview.h"
-#include "qmlprofilerviewmanager.h"
 #include "qmlprofilertool.h"
 
 #include <coreplugin/minisplitter.h>
 #include <utils/qtcassert.h>
-#include <timeline/timelineformattime.h>
+#include <tracing/timelineformattime.h>
 
-#include <QUrl>
-#include <QHash>
-#include <QStandardItem>
 #include <QHeaderView>
 #include <QApplication>
 #include <QClipboard>
-#include <QContextMenuEvent>
 #include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QMenu>
+#include <QSortFilterProxyModel>
 
 #include <functional>
 
 namespace QmlProfiler {
 namespace Internal {
 
-struct Colors {
-    Colors () : noteBackground(QColor("orange")), defaultBackground(QColor("white")) {}
-    QColor noteBackground;
-    QColor defaultBackground;
-};
-
-struct RootEventType : public QmlEventType {
-    RootEventType() : QmlEventType(MaximumMessage, MaximumRangeType, -1,
-                                   QmlEventLocation("<program>", 1, 1),
-                                   QmlProfilerStatisticsMainView::tr("Main Program"),
-                                   QmlProfilerStatisticsMainView::tr("<program>"))
-    {
-    }
-};
-
-Q_GLOBAL_STATIC(Colors, colors)
-Q_GLOBAL_STATIC(RootEventType, rootEventType)
-
-class StatisticsViewItem : public QStandardItem
-{
-public:
-    StatisticsViewItem(const QString &text, const QVariant &sort) : QStandardItem(text)
-    {
-        setData(sort, SortRole);
-    }
-
-    virtual bool operator<(const QStandardItem &other) const
-    {
-        if (data(SortRole).type() == QVariant::String) {
-            // Strings should be case-insensitive compared
-            return data(SortRole).toString().compare(other.data(SortRole).toString(),
-                                                      Qt::CaseInsensitive) < 0;
-        } else {
-            // For everything else the standard comparison should be OK
-            return QStandardItem::operator<(other);
-        }
-    }
-};
-
-class QmlProfilerStatisticsView::QmlProfilerStatisticsViewPrivate
-{
-public:
-    QmlProfilerStatisticsMainView *m_statsTree;
-    QmlProfilerStatisticsRelativesView *m_statsChildren;
-    QmlProfilerStatisticsRelativesView *m_statsParents;
-
-    QmlProfilerStatisticsModel *model;
-};
+const int DEFAULT_SORT_COLUMN = MainTimeInPercent;
 
 static void setViewDefaults(Utils::TreeView *view)
 {
@@ -105,93 +53,50 @@ static void setViewDefaults(Utils::TreeView *view)
     header->setMinimumSectionSize(50);
 }
 
-static QString displayHeader(Fields header)
-{
-    static const char ctxt[] = "QmlProfiler::Internal::QmlProfilerEventsMainView";
-
-    switch (header) {
-    case Callee:
-        return QCoreApplication::translate(ctxt, "Callee");
-    case CalleeDescription:
-        return QCoreApplication::translate(ctxt, "Callee Description");
-    case Caller:
-        return QCoreApplication::translate(ctxt, "Caller");
-    case CallerDescription:
-        return QCoreApplication::translate(ctxt, "Caller Description");
-    case CallCount:
-        return QCoreApplication::translate(ctxt, "Calls");
-    case Details:
-        return QCoreApplication::translate(ctxt, "Details");
-    case Location:
-        return QCoreApplication::translate(ctxt, "Location");
-    case MaxTime:
-        return QCoreApplication::translate(ctxt, "Longest Time");
-    case TimePerCall:
-        return QCoreApplication::translate(ctxt, "Mean Time");
-    case SelfTime:
-        return QCoreApplication::translate(ctxt, "Self Time");
-    case SelfTimeInPercent:
-        return QCoreApplication::translate(ctxt, "Self Time in Percent");
-    case MinTime:
-        return QCoreApplication::translate(ctxt, "Shortest Time");
-    case TimeInPercent:
-        return QCoreApplication::translate(ctxt, "Time in Percent");
-    case TotalTime:
-        return QCoreApplication::translate(ctxt, "Total Time");
-    case Type:
-        return QCoreApplication::translate(ctxt, "Type");
-    case MedianTime:
-        return QCoreApplication::translate(ctxt, "Median Time");
-    default:
-        return QString();
-    }
-}
-
-static void getSourceLocation(QStandardItem *infoItem,
+static void getSourceLocation(const QModelIndex &index,
                               std::function<void (const QString &, int, int)> receiver)
 {
-    int line = infoItem->data(LineRole).toInt();
-    int column = infoItem->data(ColumnRole).toInt();
-    QString fileName = infoItem->data(FilenameRole).toString();
+    const int line = index.data(LineRole).toInt();
+    const int column = index.data(ColumnRole).toInt();
+    const QString fileName = index.data(FilenameRole).toString();
     if (line != -1 && !fileName.isEmpty())
         receiver(fileName, line, column);
 }
 
 QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *profilerModelManager,
                                                      QWidget *parent)
-    : QmlProfilerEventsView(parent), d(new QmlProfilerStatisticsViewPrivate)
+    : QmlProfilerEventsView(parent)
 {
     setObjectName(QLatin1String("QmlProfiler.Statistics.Dock"));
     setWindowTitle(tr("Statistics"));
 
-    d->model = new QmlProfilerStatisticsModel(profilerModelManager, this);
+    QmlProfilerStatisticsModel *model = new QmlProfilerStatisticsModel(profilerModelManager);
+    m_mainView.reset(new QmlProfilerStatisticsMainView(model));
+    connect(m_mainView.get(), &QmlProfilerStatisticsMainView::gotoSourceLocation,
+            this, &QmlProfilerStatisticsView::gotoSourceLocation);
 
-    d->m_statsTree = new QmlProfilerStatisticsMainView(this, d->model);
-    connect(d->m_statsTree, &QmlProfilerStatisticsMainView::gotoSourceLocation,
-            this, &QmlProfilerStatisticsView::gotoSourceLocation);
-    connect(d->m_statsTree, &QmlProfilerStatisticsMainView::typeSelected,
-            this, &QmlProfilerStatisticsView::typeSelected);
+    connect(m_mainView.get(), &QmlProfilerStatisticsMainView::typeClicked,
+            this, [this, profilerModelManager](int typeIndex) {
+        // Statistics view has an extra type for "whole program". Translate that into "invalid" for
+        // others.
+        emit typeSelected((typeIndex < profilerModelManager->numEventTypes())
+                          ? typeIndex : QmlProfilerStatisticsModel::s_invalidTypeId);
+    });
 
-    d->m_statsChildren = new QmlProfilerStatisticsRelativesView(
-                new QmlProfilerStatisticsRelativesModel(profilerModelManager, d->model,
-                                                        QmlProfilerStatisticsChilden, this),
-                this);
-    d->m_statsParents = new QmlProfilerStatisticsRelativesView(
-                new QmlProfilerStatisticsRelativesModel(profilerModelManager, d->model,
-                                                        QmlProfilerStatisticsParents, this),
-                this);
-    connect(d->m_statsTree, &QmlProfilerStatisticsMainView::typeSelected,
-            d->m_statsChildren, &QmlProfilerStatisticsRelativesView::displayType);
-    connect(d->m_statsTree, &QmlProfilerStatisticsMainView::typeSelected,
-            d->m_statsParents, &QmlProfilerStatisticsRelativesView::displayType);
-    connect(d->m_statsChildren, &QmlProfilerStatisticsRelativesView::typeClicked,
-            d->m_statsTree, &QmlProfilerStatisticsMainView::selectType);
-    connect(d->m_statsParents, &QmlProfilerStatisticsRelativesView::typeClicked,
-            d->m_statsTree, &QmlProfilerStatisticsMainView::selectType);
-    connect(d->m_statsChildren, &QmlProfilerStatisticsRelativesView::gotoSourceLocation,
-            this, &QmlProfilerStatisticsView::gotoSourceLocation);
-    connect(d->m_statsParents, &QmlProfilerStatisticsRelativesView::gotoSourceLocation,
-            this, &QmlProfilerStatisticsView::gotoSourceLocation);
+    m_calleesView.reset(new QmlProfilerStatisticsRelativesView(
+                new QmlProfilerStatisticsRelativesModel(profilerModelManager, model,
+                                                        QmlProfilerStatisticsCallees)));
+    m_callersView.reset(new QmlProfilerStatisticsRelativesView(
+                new QmlProfilerStatisticsRelativesModel(profilerModelManager, model,
+                                                        QmlProfilerStatisticsCallers)));
+    connect(m_calleesView.get(), &QmlProfilerStatisticsRelativesView::typeClicked,
+            m_mainView.get(), &QmlProfilerStatisticsMainView::jumpToItem);
+    connect(m_callersView.get(), &QmlProfilerStatisticsRelativesView::typeClicked,
+            m_mainView.get(), &QmlProfilerStatisticsMainView::jumpToItem);
+    connect(m_mainView.get(), &QmlProfilerStatisticsMainView::propagateTypeIndex,
+            m_calleesView.get(), &QmlProfilerStatisticsRelativesView::displayType);
+    connect(m_mainView.get(), &QmlProfilerStatisticsMainView::propagateTypeIndex,
+            m_callersView.get(), &QmlProfilerStatisticsRelativesView::displayType);
 
     // widget arrangement
     QVBoxLayout *groupLayout = new QVBoxLayout;
@@ -199,10 +104,10 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *pr
     groupLayout->setSpacing(0);
 
     Core::MiniSplitter *splitterVertical = new Core::MiniSplitter;
-    splitterVertical->addWidget(d->m_statsTree);
+    splitterVertical->addWidget(m_mainView.get());
     Core::MiniSplitter *splitterHorizontal = new Core::MiniSplitter;
-    splitterHorizontal->addWidget(d->m_statsParents);
-    splitterHorizontal->addWidget(d->m_statsChildren);
+    splitterHorizontal->addWidget(m_callersView.get());
+    splitterHorizontal->addWidget(m_calleesView.get());
     splitterHorizontal->setOrientation(Qt::Horizontal);
     splitterVertical->addWidget(splitterHorizontal);
     splitterVertical->setOrientation(Qt::Vertical);
@@ -212,31 +117,23 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *pr
     setLayout(groupLayout);
 }
 
-QmlProfilerStatisticsView::~QmlProfilerStatisticsView()
+QString QmlProfilerStatisticsView::summary(const QVector<int> &typeIds) const
 {
-    delete d->model;
-    delete d;
+    return m_mainView->summary(typeIds);
 }
 
-void QmlProfilerStatisticsView::clear()
+QStringList QmlProfilerStatisticsView::details(int typeId) const
 {
-    d->m_statsTree->clear();
-    d->m_statsChildren->clear();
-    d->m_statsParents->clear();
-}
-
-QModelIndex QmlProfilerStatisticsView::selectedModelIndex() const
-{
-    return d->m_statsTree->selectedModelIndex();
+    return m_mainView->details(typeId);
 }
 
 void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
-    QAction *copyRowAction = 0;
-    QAction *copyTableAction = 0;
-    QAction *showExtendedStatsAction = 0;
-    QAction *getGlobalStatsAction = 0;
+    QAction *copyRowAction = nullptr;
+    QAction *copyTableAction = nullptr;
+    QAction *showExtendedStatsAction = nullptr;
+    QAction *getGlobalStatsAction = nullptr;
 
     QPoint position = ev->globalPos();
 
@@ -246,458 +143,174 @@ void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
 
     if (mouseOnTable(position)) {
         menu.addSeparator();
-        if (selectedModelIndex().isValid())
+        if (m_mainView->selectedModelIndex().isValid())
             copyRowAction = menu.addAction(tr("Copy Row"));
         copyTableAction = menu.addAction(tr("Copy Table"));
 
         showExtendedStatsAction = menu.addAction(tr("Extended Event Statistics"));
         showExtendedStatsAction->setCheckable(true);
-        showExtendedStatsAction->setChecked(showExtendedStatistics());
+        showExtendedStatsAction->setChecked(m_mainView->showExtendedStatistics());
     }
 
     menu.addSeparator();
     getGlobalStatsAction = menu.addAction(tr("Show Full Range"));
-    if (!d->model->modelManager()->isRestrictedToRange())
+    if (!m_mainView->isRestrictedToRange())
         getGlobalStatsAction->setEnabled(false);
 
     QAction *selectedAction = menu.exec(position);
 
     if (selectedAction) {
         if (selectedAction == copyRowAction)
-            copyRowToClipboard();
+            m_mainView->copyRowToClipboard();
         if (selectedAction == copyTableAction)
-            copyTableToClipboard();
+            m_mainView->copyTableToClipboard();
         if (selectedAction == getGlobalStatsAction)
             emit showFullRange();
         if (selectedAction == showExtendedStatsAction)
-            setShowExtendedStatistics(!showExtendedStatistics());
+            m_mainView->setShowExtendedStatistics(m_mainView->showExtendedStatistics());
     }
 }
 
 bool QmlProfilerStatisticsView::mouseOnTable(const QPoint &position) const
 {
-    QPoint tableTopLeft = d->m_statsTree->mapToGlobal(QPoint(0,0));
-    QPoint tableBottomRight = d->m_statsTree->mapToGlobal(QPoint(d->m_statsTree->width(), d->m_statsTree->height()));
-    return (position.x() >= tableTopLeft.x() && position.x() <= tableBottomRight.x() && position.y() >= tableTopLeft.y() && position.y() <= tableBottomRight.y());
-}
-
-void QmlProfilerStatisticsView::copyTableToClipboard() const
-{
-    d->m_statsTree->copyTableToClipboard();
-}
-
-void QmlProfilerStatisticsView::copyRowToClipboard() const
-{
-    d->m_statsTree->copyRowToClipboard();
+    QPoint tableTopLeft = m_mainView->mapToGlobal(QPoint(0,0));
+    QPoint tableBottomRight = m_mainView->mapToGlobal(QPoint(m_mainView->width(),
+                                                             m_mainView->height()));
+    return position.x() >= tableTopLeft.x() && position.x() <= tableBottomRight.x()
+            && position.y() >= tableTopLeft.y() && position.y() <= tableBottomRight.y();
 }
 
 void QmlProfilerStatisticsView::selectByTypeId(int typeIndex)
 {
-    if (d->m_statsTree->selectedTypeId() != typeIndex)
-        d->m_statsTree->selectType(typeIndex);
+    // Other models cannot discern between "nothing" and "Main Program". So don't propagate invalid
+    // typeId, if we already have whole program selected.
+    if (typeIndex >= 0
+            || m_mainView->currentIndex().data(TypeIdRole).toInt()
+            != QmlProfilerStatisticsModel::s_mainEntryTypeId) {
+        m_mainView->displayTypeIndex(typeIndex);
+    }
 }
 
 void QmlProfilerStatisticsView::onVisibleFeaturesChanged(quint64 features)
 {
-    d->model->restrictToFeatures(features);
+    m_mainView->restrictToFeatures(features);
 }
 
-void QmlProfilerStatisticsView::setShowExtendedStatistics(bool show)
-{
-    d->m_statsTree->setShowExtendedStatistics(show);
-}
-
-bool QmlProfilerStatisticsView::showExtendedStatistics() const
-{
-    return d->m_statsTree->showExtendedStatistics();
-}
-
-class QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainViewPrivate
-{
-public:
-    QmlProfilerStatisticsMainViewPrivate(QmlProfilerStatisticsMainView *qq) : q(qq) {}
-
-    int getFieldCount();
-
-    QString textForItem(QStandardItem *item, bool recursive = false) const;
-
-
-    QmlProfilerStatisticsMainView *q;
-
-    QmlProfilerStatisticsModel *model;
-    QStandardItemModel *m_model;
-    QList<bool> m_fieldShown;
-    QHash<int, int> m_columnIndex; // maps field enum to column index
-    bool m_showExtendedStatistics;
-    int m_firstNumericColumn;
-};
-
-QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainView(
-        QWidget *parent, QmlProfilerStatisticsModel *model) :
-    Utils::TreeView(parent), d(new QmlProfilerStatisticsMainViewPrivate(this))
+QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainView(QmlProfilerStatisticsModel *model) :
+    m_model(model)
 {
     setViewDefaults(this);
     setObjectName(QLatin1String("QmlProfilerEventsTable"));
 
-    setSortingEnabled(false);
+    auto sortModel = new QSortFilterProxyModel(this);
+    sortModel->setSourceModel(model);
+    sortModel->setSortRole(SortRole);
+    sortModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+    sortModel->setFilterRole(FilterRole);
+    sortModel->setFilterKeyColumn(MainType);
+    sortModel->setFilterFixedString("+");
 
-    d->m_model = new QStandardItemModel(this);
-    d->m_model->setSortRole(SortRole);
-    setModel(d->m_model);
-    connect(this, &QAbstractItemView::activated, this, &QmlProfilerStatisticsMainView::jumpToItem);
+    setModel(sortModel);
 
-    d->model = model;
-    connect(d->model, &QmlProfilerStatisticsModel::dataAvailable,
-            this, &QmlProfilerStatisticsMainView::buildModel);
-    connect(d->model, &QmlProfilerStatisticsModel::notesAvailable,
-            this, &QmlProfilerStatisticsMainView::updateNotes);
-    d->m_firstNumericColumn = 0;
-    d->m_showExtendedStatistics = false;
+    connect(this, &QAbstractItemView::activated, this, [this](const QModelIndex &index) {
+        jumpToItem(index.data(TypeIdRole).toInt());
+    });
 
-    setFieldViewable(Name, true);
-    setFieldViewable(Type, true);
-    setFieldViewable(TimeInPercent, true);
-    setFieldViewable(TotalTime, true);
-    setFieldViewable(SelfTimeInPercent, true);
-    setFieldViewable(SelfTime, true);
-    setFieldViewable(CallCount, true);
-    setFieldViewable(TimePerCall, true);
-    setFieldViewable(MaxTime, true);
-    setFieldViewable(MinTime, true);
-    setFieldViewable(MedianTime, true);
-    setFieldViewable(Details, true);
+    setSortingEnabled(true);
+    sortByColumn(DEFAULT_SORT_COLUMN, Qt::DescendingOrder);
 
-    buildModel();
+    setShowExtendedStatistics(m_showExtendedStatistics);
+    setRootIsDecorated(false);
+
+    resizeColumnToContents(MainLocation);
+    resizeColumnToContents(MainType);
 }
 
 QmlProfilerStatisticsMainView::~QmlProfilerStatisticsMainView()
 {
-    clear();
-    delete d->m_model;
-    delete d;
-}
-
-void QmlProfilerStatisticsMainView::setFieldViewable(Fields field, bool show)
-{
-    if (field < MaxFields) {
-        int length = d->m_fieldShown.count();
-        if (field >= length) {
-            for (int i=length; i<MaxFields; i++)
-                d->m_fieldShown << false;
-        }
-        d->m_fieldShown[field] = show;
-    }
-}
-
-
-void QmlProfilerStatisticsMainView::setHeaderLabels()
-{
-    int fieldIndex = 0;
-    d->m_firstNumericColumn = 0;
-
-    d->m_columnIndex.clear();
-    if (d->m_fieldShown[Name]) {
-        d->m_columnIndex[Name] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(Location)));
-        d->m_firstNumericColumn++;
-    }
-    if (d->m_fieldShown[Type]) {
-        d->m_columnIndex[Type] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(Type)));
-        d->m_firstNumericColumn++;
-    }
-    if (d->m_fieldShown[TimeInPercent]) {
-        d->m_columnIndex[TimeInPercent] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(TimeInPercent)));
-    }
-    if (d->m_fieldShown[TotalTime]) {
-        d->m_columnIndex[TotalTime] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(TotalTime)));
-    }
-    if (d->m_fieldShown[SelfTimeInPercent]) {
-        d->m_columnIndex[Type] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(SelfTimeInPercent)));
-    }
-    if (d->m_fieldShown[SelfTime]) {
-        d->m_columnIndex[SelfTime] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(SelfTime)));
-    }
-    if (d->m_fieldShown[CallCount]) {
-        d->m_columnIndex[CallCount] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(CallCount)));
-    }
-    if (d->m_fieldShown[TimePerCall]) {
-        d->m_columnIndex[TimePerCall] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(TimePerCall)));
-    }
-    if (d->m_fieldShown[MedianTime]) {
-        d->m_columnIndex[MedianTime] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(MedianTime)));
-    }
-    if (d->m_fieldShown[MaxTime]) {
-        d->m_columnIndex[MaxTime] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(MaxTime)));
-    }
-    if (d->m_fieldShown[MinTime]) {
-        d->m_columnIndex[MinTime] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(MinTime)));
-    }
-    if (d->m_fieldShown[Details]) {
-        d->m_columnIndex[Details] = fieldIndex;
-        d->m_model->setHeaderData(fieldIndex++, Qt::Horizontal, QVariant(displayHeader(Details)));
-    }
 }
 
 void QmlProfilerStatisticsMainView::setShowExtendedStatistics(bool show)
 {
     // Not checking if already set because we don't want the first call to skip
-    d->m_showExtendedStatistics = show;
+    m_showExtendedStatistics = show;
     if (show) {
-        if (d->m_fieldShown[MedianTime])
-            showColumn(d->m_columnIndex[MedianTime]);
-        if (d->m_fieldShown[MaxTime])
-            showColumn(d->m_columnIndex[MaxTime]);
-        if (d->m_fieldShown[MinTime])
-            showColumn(d->m_columnIndex[MinTime]);
-    } else{
-        if (d->m_fieldShown[MedianTime])
-            hideColumn(d->m_columnIndex[MedianTime]);
-        if (d->m_fieldShown[MaxTime])
-            hideColumn(d->m_columnIndex[MaxTime]);
-        if (d->m_fieldShown[MinTime])
-            hideColumn(d->m_columnIndex[MinTime]);
+        showColumn(MainMedianTime);
+        showColumn(MainMaxTime);
+        showColumn(MainMinTime);
+    } else {
+        hideColumn(MainMedianTime);
+        hideColumn(MainMaxTime);
+        hideColumn(MainMinTime);
     }
 }
 
 bool QmlProfilerStatisticsMainView::showExtendedStatistics() const
 {
-    return d->m_showExtendedStatistics;
+    return m_showExtendedStatistics;
 }
 
-void QmlProfilerStatisticsMainView::clear()
+void QmlProfilerStatisticsMainView::restrictToFeatures(quint64 features)
 {
-    d->m_model->clear();
-    d->m_model->setColumnCount(d->getFieldCount());
-
-    setHeaderLabels();
-    setSortingEnabled(false);
+    m_model->restrictToFeatures(features);
 }
 
-int QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainViewPrivate::getFieldCount()
+bool QmlProfilerStatisticsMainView::isRestrictedToRange() const
 {
-    int count = 0;
-    for (int i=0; i < m_fieldShown.count(); ++i)
-        if (m_fieldShown[i])
-            count++;
-    return count;
+    return m_model->isRestrictedToRange();
 }
 
-void QmlProfilerStatisticsMainView::buildModel()
+QString QmlProfilerStatisticsMainView::summary(const QVector<int> &typeIds) const
 {
-    clear();
-    parseModel();
-    setShowExtendedStatistics(d->m_showExtendedStatistics);
-
-    setRootIsDecorated(false);
-    setSortingEnabled(true);
-    sortByColumn(d->m_firstNumericColumn,Qt::DescendingOrder);
-
-    expandAll();
-    if (d->m_fieldShown[Name])
-        resizeColumnToContents(0);
-
-    if (d->m_fieldShown[Type])
-        resizeColumnToContents(d->m_fieldShown[Name]?1:0);
-    collapseAll();
+    return m_model->summary(typeIds);
 }
 
-void QmlProfilerStatisticsMainView::updateNotes(int typeIndex)
+QStringList QmlProfilerStatisticsMainView::details(int typeId) const
 {
-    const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &eventList = d->model->getData();
-    const QHash<int, QString> &noteList = d->model->getNotes();
-    QStandardItem *parentItem = d->m_model->invisibleRootItem();
-
-    for (int rowIndex = 0; rowIndex < parentItem->rowCount(); ++rowIndex) {
-        int rowType = parentItem->child(rowIndex, 0)->data(TypeIdRole).toInt();
-        if (rowType != typeIndex && typeIndex != -1)
-            continue;
-        const QmlProfilerStatisticsModel::QmlEventStats &stats = eventList[rowType];
-
-        for (int columnIndex = 0; columnIndex < parentItem->columnCount(); ++columnIndex) {
-            QStandardItem *item = parentItem->child(rowIndex, columnIndex);
-            QHash<int, QString>::ConstIterator it = noteList.find(rowType);
-            if (it != noteList.end()) {
-                item->setBackground(colors()->noteBackground);
-                item->setToolTip(it.value());
-            } else if (stats.isBindingLoop) {
-                item->setBackground(colors()->noteBackground);
-                item->setToolTip(tr("Binding loop detected."));
-            } else if (!item->toolTip().isEmpty()){
-                item->setBackground(colors()->defaultBackground);
-                item->setToolTip(QString());
-            }
-        }
-    }
+    return m_model->details(typeId);
 }
 
-void QmlProfilerStatisticsMainView::parseModel()
+void QmlProfilerStatisticsMainView::jumpToItem(int typeIndex)
 {
-    const QHash<int, QmlProfilerStatisticsModel::QmlEventStats> &eventList = d->model->getData();
-    const QVector<QmlEventType> &typeList = d->model->getTypes();
+    displayTypeIndex(typeIndex);
 
-    QHash<int, QmlProfilerStatisticsModel::QmlEventStats>::ConstIterator it;
-    for (it = eventList.constBegin(); it != eventList.constEnd(); ++it) {
-        int typeIndex = it.key();
-        const QmlProfilerStatisticsModel::QmlEventStats &stats = it.value();
-        const QmlEventType &type = (typeIndex != -1 ? typeList[typeIndex] : *rootEventType());
-        QStandardItem *parentItem = d->m_model->invisibleRootItem();
-        QList<QStandardItem *> newRow;
+    QSortFilterProxyModel *sortModel = qobject_cast<QSortFilterProxyModel *>(model());
+    QTC_ASSERT(sortModel, return);
 
-        if (d->m_fieldShown[Name])
-            newRow << new StatisticsViewItem(
-                          type.displayName().isEmpty() ? tr("<bytecode>") : type.displayName(),
-                          type.displayName());
-
-        if (d->m_fieldShown[Type]) {
-            QString typeString = QmlProfilerStatisticsMainView::nameForType(type.rangeType());
-            newRow << new StatisticsViewItem(typeString, typeString);
-        }
-
-        if (d->m_fieldShown[TimeInPercent]) {
-            newRow << new StatisticsViewItem(QString::number(stats.percentOfTime, 'f', 2)
-                                             + QLatin1String(" %"), stats.percentOfTime);
-        }
-
-        if (d->m_fieldShown[TotalTime]) {
-            newRow << new StatisticsViewItem(Timeline::formatTime(stats.duration),
-                                             stats.duration);
-        }
-
-        if (d->m_fieldShown[SelfTimeInPercent]) {
-            newRow << new StatisticsViewItem(QString::number(stats.percentSelf, 'f', 2)
-                                             + QLatin1String(" %"), stats.percentSelf);
-        }
-
-        if (d->m_fieldShown[SelfTime]) {
-            newRow << new StatisticsViewItem(Timeline::formatTime(stats.durationSelf),
-                                             stats.durationSelf);
-        }
-
-        if (d->m_fieldShown[CallCount])
-            newRow << new StatisticsViewItem(QString::number(stats.calls), stats.calls);
-
-        if (d->m_fieldShown[TimePerCall]) {
-            newRow << new StatisticsViewItem(Timeline::formatTime(stats.timePerCall),
-                                             stats.timePerCall);
-        }
-
-        if (d->m_fieldShown[MedianTime]) {
-            newRow << new StatisticsViewItem(Timeline::formatTime(stats.medianTime),
-                                             stats.medianTime);
-        }
-
-        if (d->m_fieldShown[MaxTime]) {
-            newRow << new StatisticsViewItem(Timeline::formatTime(stats.maxTime),
-                                             stats.maxTime);
-        }
-
-        if (d->m_fieldShown[MinTime]) {
-            newRow << new StatisticsViewItem(Timeline::formatTime(stats.minTime),
-                                             stats.minTime);
-        }
-
-        if (d->m_fieldShown[Details]) {
-            newRow << new StatisticsViewItem(type.data().isEmpty() ? tr("Source code not available")
-                                                                   : type.data(), type.data());
-        }
-
-
-
-        if (!newRow.isEmpty()) {
-            // no edit
-            foreach (QStandardItem *item, newRow)
-                item->setEditable(false);
-
-            // metadata
-            QStandardItem *first = newRow.at(0);
-            first->setData(typeIndex, TypeIdRole);
-            const QmlEventLocation location(type.location());
-            first->setData(location.filename(), FilenameRole);
-            first->setData(location.line(), LineRole);
-            first->setData(location.column(), ColumnRole);
-
-            // append
-            parentItem->appendRow(newRow);
-        }
-    }
-}
-
-QStandardItem *QmlProfilerStatisticsMainView::itemFromIndex(const QModelIndex &index) const
-{
-    QStandardItem *indexItem = d->m_model->itemFromIndex(index);
-    if (indexItem->parent())
-        return indexItem->parent()->child(indexItem->row(), 0);
-    else
-        return d->m_model->item(index.row(), 0);
-
-}
-
-QString QmlProfilerStatisticsMainView::nameForType(RangeType typeNumber)
-{
-    switch (typeNumber) {
-    case Painting: return QmlProfilerStatisticsMainView::tr("Painting");
-    case Compiling: return QmlProfilerStatisticsMainView::tr("Compiling");
-    case Creating: return QmlProfilerStatisticsMainView::tr("Creating");
-    case Binding: return QmlProfilerStatisticsMainView::tr("Binding");
-    case HandlingSignal: return QmlProfilerStatisticsMainView::tr("Handling Signal");
-    case Javascript: return QmlProfilerStatisticsMainView::tr("JavaScript");
-    default: return QString();
-    }
-}
-
-int QmlProfilerStatisticsMainView::selectedTypeId() const
-{
-    QModelIndex index = selectedModelIndex();
-    if (!index.isValid())
-        return -1;
-    QStandardItem *item = d->m_model->item(index.row(), 0);
-    return item->data(TypeIdRole).toInt();
-}
-
-void QmlProfilerStatisticsMainView::jumpToItem(const QModelIndex &index)
-{
-    QStandardItem *infoItem = itemFromIndex(index);
+    QAbstractItemModel *sourceModel = sortModel->sourceModel();
+    QTC_ASSERT(sourceModel, return);
 
     // show in editor
-    getSourceLocation(infoItem, [this](const QString &fileName, int line, int column) {
+    getSourceLocation(sourceModel->index(typeIndex, MainLocation),
+                      [this](const QString &fileName, int line, int column) {
         emit gotoSourceLocation(fileName, line, column);
     });
 
+    emit typeClicked(typeIndex);
+}
+
+void QmlProfilerStatisticsMainView::displayTypeIndex(int typeIndex)
+{
+    if (typeIndex < 0) {
+        setCurrentIndex(QModelIndex());
+    } else {
+        QSortFilterProxyModel *sortModel = qobject_cast<QSortFilterProxyModel *>(model());
+        QTC_ASSERT(sortModel, return);
+
+        QAbstractItemModel *sourceModel = sortModel->sourceModel();
+        QTC_ASSERT(sourceModel, return);
+
+        QModelIndex sourceIndex = sourceModel->index(qMin(typeIndex, sourceModel->rowCount() - 1),
+                                                     MainCallCount);
+        QTC_ASSERT(sourceIndex.data(TypeIdRole).toInt() == typeIndex, return);
+
+        setCurrentIndex(sourceIndex.data(SortRole).toInt() > 0
+                        ? sortModel->mapFromSource(sourceIndex)
+                        : QModelIndex());
+    }
+
     // show in callers/callees subwindow
-    emit typeSelected(infoItem->data(TypeIdRole).toInt());
-}
-
-void QmlProfilerStatisticsMainView::selectItem(const QStandardItem *item)
-{
-    // If the same item is already selected, don't reselect it.
-    QModelIndex index = d->m_model->indexFromItem(item);
-    if (index != currentIndex()) {
-        setCurrentIndex(index);
-
-        // show in callers/callees subwindow
-        emit typeSelected(itemFromIndex(index)->data(TypeIdRole).toInt());
-    }
-}
-
-void QmlProfilerStatisticsMainView::selectType(int typeIndex)
-{
-    for (int i=0; i<d->m_model->rowCount(); i++) {
-        QStandardItem *infoItem = d->m_model->item(i, 0);
-        if (infoItem->data(TypeIdRole).toInt() == typeIndex) {
-            selectItem(infoItem);
-            return;
-        }
-    }
+    emit propagateTypeIndex(typeIndex);
 }
 
 QModelIndex QmlProfilerStatisticsMainView::selectedModelIndex() const
@@ -709,34 +322,18 @@ QModelIndex QmlProfilerStatisticsMainView::selectedModelIndex() const
         return sel.first();
 }
 
-QString QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainViewPrivate::textForItem(
-        QStandardItem *item, bool recursive) const
+QString QmlProfilerStatisticsMainView::textForItem(const QModelIndex &index) const
 {
     QString str;
 
-    if (recursive) {
-        // indentation
-        QStandardItem *itemParent = item->parent();
-        while (itemParent) {
-            str += QLatin1String("    ");
-            itemParent = itemParent->parent();
-        }
-    }
-
     // item's data
-    int colCount = m_model->columnCount();
+    const int colCount = model()->columnCount();
     for (int j = 0; j < colCount; ++j) {
-        QStandardItem *colItem = item->parent() ? item->parent()->child(item->row(),j) :
-                                                  m_model->item(item->row(),j);
-        str += colItem->data(Qt::DisplayRole).toString();
+        const QModelIndex cellIndex = model()->index(index.row(), j);
+        str += cellIndex.data(Qt::DisplayRole).toString();
         if (j < colCount-1) str += QLatin1Char('\t');
     }
     str += QLatin1Char('\n');
-
-    // recursively print children
-    if (recursive && item->child(0))
-        for (int j = 0; j != item->rowCount(); j++)
-            str += textForItem(item->child(j));
 
     return str;
 }
@@ -744,20 +341,24 @@ QString QmlProfilerStatisticsMainView::QmlProfilerStatisticsMainViewPrivate::tex
 void QmlProfilerStatisticsMainView::copyTableToClipboard() const
 {
     QString str;
+
+    const QAbstractItemModel *itemModel = model();
+
     // headers
-    int columnCount = d->m_model->columnCount();
+    const int columnCount = itemModel->columnCount();
     for (int i = 0; i < columnCount; ++i) {
-        str += d->m_model->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString();
+        str += itemModel->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString();
         if (i < columnCount - 1)
             str += QLatin1Char('\t');
         else
             str += QLatin1Char('\n');
     }
+
     // data
-    int rowCount = d->m_model->rowCount();
-    for (int i = 0; i != rowCount; ++i) {
-        str += d->textForItem(d->m_model->item(i));
-    }
+    const int rowCount = itemModel->rowCount();
+    for (int i = 0; i != rowCount; ++i)
+        str += textForItem(itemModel->index(i, 0));
+
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(str, QClipboard::Selection);
     clipboard->setText(str, QClipboard::Clipboard);
@@ -765,168 +366,45 @@ void QmlProfilerStatisticsMainView::copyTableToClipboard() const
 
 void QmlProfilerStatisticsMainView::copyRowToClipboard() const
 {
-    QString str;
-    str = d->textForItem(d->m_model->itemFromIndex(selectedModelIndex()), false);
-
+    QString str = textForItem(selectedModelIndex());
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(str, QClipboard::Selection);
     clipboard->setText(str, QClipboard::Clipboard);
 }
 
-class QmlProfilerStatisticsRelativesView::QmlProfilerStatisticsRelativesViewPrivate
-{
-public:
-    QmlProfilerStatisticsRelativesViewPrivate(QmlProfilerStatisticsRelativesView *qq):q(qq) {}
-    ~QmlProfilerStatisticsRelativesViewPrivate() {}
-
-    QmlProfilerStatisticsRelativesModel *model;
-
-    QmlProfilerStatisticsRelativesView *q;
-};
-
 QmlProfilerStatisticsRelativesView::QmlProfilerStatisticsRelativesView(
-        QmlProfilerStatisticsRelativesModel *model, QWidget *parent) :
-    Utils::TreeView(parent), d(new QmlProfilerStatisticsRelativesViewPrivate(this))
+        QmlProfilerStatisticsRelativesModel *model) :
+    m_model(model)
 {
     setViewDefaults(this);
-    setSortingEnabled(false);
-    d->model = model;
-    QStandardItemModel *itemModel = new QStandardItemModel(this);
-    itemModel->setSortRole(SortRole);
-    setModel(itemModel);
+    auto sortModel = new QSortFilterProxyModel(this);
+    sortModel->setSourceModel(model);
+    sortModel->setSortRole(SortRole);
+    sortModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+    setModel(sortModel);
     setRootIsDecorated(false);
-    updateHeader();
 
-    connect(this, &QAbstractItemView::activated,
-            this, &QmlProfilerStatisticsRelativesView::jumpToItem);
+    setSortingEnabled(true);
+    sortByColumn(DEFAULT_SORT_COLUMN, Qt::DescendingOrder);
 
-    // Clear when new data available as the selection may be invalid now.
-    connect(d->model, &QmlProfilerStatisticsRelativesModel::dataAvailable,
-            this, &QmlProfilerStatisticsRelativesView::clear);
+    connect(this, &QAbstractItemView::activated, this, [this](const QModelIndex &index) {
+        jumpToItem(index.data(TypeIdRole).toInt());
+    });
 }
 
 QmlProfilerStatisticsRelativesView::~QmlProfilerStatisticsRelativesView()
 {
-    delete d;
 }
 
 void QmlProfilerStatisticsRelativesView::displayType(int typeIndex)
 {
-    rebuildTree(d->model->getData(typeIndex));
-
-    updateHeader();
-    resizeColumnToContents(0);
-    setSortingEnabled(true);
-    sortByColumn(2);
+    model()->setData(QModelIndex(), typeIndex, TypeIdRole);
+    resizeColumnToContents(RelativeLocation);
 }
 
-void QmlProfilerStatisticsRelativesView::rebuildTree(
-        const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesMap &map)
+void QmlProfilerStatisticsRelativesView::jumpToItem(int typeIndex)
 {
-    Q_ASSERT(treeModel());
-    treeModel()->clear();
-
-    QStandardItem *topLevelItem = treeModel()->invisibleRootItem();
-    const QVector<QmlEventType> &typeList = d->model->getTypes();
-
-    QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesMap::const_iterator it;
-    for (it = map.constBegin(); it != map.constEnd(); ++it) {
-        const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesData &stats = it.value();
-        int typeIndex = it.key();
-        const QmlEventType &type = (typeIndex != -1 ? typeList[typeIndex] : *rootEventType());
-        QList<QStandardItem *> newRow;
-
-        // ToDo: here we were going to search for the data in the other model
-        // maybe we should store the data in this model and get it here
-        // no indirections at this level of abstraction!
-        newRow << new StatisticsViewItem(
-                      type.displayName().isEmpty() ? tr("<bytecode>") : type.displayName(),
-                      type.displayName());
-        const QString typeName = QmlProfilerStatisticsMainView::nameForType(type.rangeType());
-        newRow << new StatisticsViewItem(typeName, typeName);
-        newRow << new StatisticsViewItem(Timeline::formatTime(stats.duration),
-                                         stats.duration);
-        newRow << new StatisticsViewItem(QString::number(stats.calls), stats.calls);
-        newRow << new StatisticsViewItem(type.data().isEmpty() ? tr("Source code not available") :
-                                                                 type.data(), type.data());
-
-        QStandardItem *first = newRow.at(0);
-        first->setData(typeIndex, TypeIdRole);
-        const QmlEventLocation location(type.location());
-        first->setData(location.filename(), FilenameRole);
-        first->setData(location.line(), LineRole);
-        first->setData(location.column(), ColumnRole);
-
-        newRow.at(1)->setData(QmlProfilerStatisticsMainView::nameForType(type.rangeType()));
-        newRow.at(2)->setData(stats.duration);
-        newRow.at(3)->setData(stats.calls);
-        newRow.at(4)->setData(type.data());
-
-        if (stats.isBindingLoop) {
-            foreach (QStandardItem *item, newRow) {
-                item->setBackground(colors()->noteBackground);
-                item->setToolTip(tr("Part of binding loop."));
-            }
-        }
-
-        foreach (QStandardItem *item, newRow)
-            item->setEditable(false);
-
-        topLevelItem->appendRow(newRow);
-    }
-}
-
-void QmlProfilerStatisticsRelativesView::clear()
-{
-    if (treeModel()) {
-        treeModel()->clear();
-        updateHeader();
-    }
-}
-
-void QmlProfilerStatisticsRelativesView::updateHeader()
-{
-    bool calleesView = d->model->relation() == QmlProfilerStatisticsChilden;
-
-    if (treeModel()) {
-        treeModel()->setColumnCount(5);
-
-        int columnIndex = 0;
-        if (calleesView)
-            treeModel()->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(displayHeader(Callee)));
-        else
-            treeModel()->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(displayHeader(Caller)));
-
-        treeModel()->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(displayHeader(Type)));
-
-        treeModel()->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(displayHeader(TotalTime)));
-
-        treeModel()->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(displayHeader(CallCount)));
-
-
-        if (calleesView)
-            treeModel()->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(displayHeader(CalleeDescription)));
-        else
-            treeModel()->setHeaderData(columnIndex++, Qt::Horizontal, QVariant(displayHeader(CallerDescription)));
-    }
-}
-
-QStandardItemModel *QmlProfilerStatisticsRelativesView::treeModel()
-{
-    return qobject_cast<QStandardItemModel *>(model());
-}
-
-void QmlProfilerStatisticsRelativesView::jumpToItem(const QModelIndex &index)
-{
-    if (treeModel()) {
-        QStandardItem *infoItem = treeModel()->item(index.row(), 0);
-        // show in editor
-        getSourceLocation(infoItem, [this](const QString &fileName, int line, int column) {
-            emit gotoSourceLocation(fileName, line, column);
-        });
-
-        emit typeClicked(infoItem->data(TypeIdRole).toInt());
-    }
+    emit typeClicked(typeIndex);
 }
 
 } // namespace Internal

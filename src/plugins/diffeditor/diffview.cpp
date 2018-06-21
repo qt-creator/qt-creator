@@ -25,6 +25,8 @@
 
 #include "diffview.h"
 
+#include "diffeditorconstants.h"
+#include "diffeditordocument.h"
 #include "diffeditoricons.h"
 #include "unifieddiffeditorwidget.h"
 #include "sidebysidediffeditorwidget.h"
@@ -36,7 +38,7 @@
 namespace DiffEditor {
 namespace Internal {
 
-IDiffView::IDiffView(QObject *parent) : QObject(parent), m_supportsSync(false)
+IDiffView::IDiffView(QObject *parent) : QObject(parent)
 { }
 
 QIcon IDiffView::icon() const
@@ -89,14 +91,19 @@ void IDiffView::setSyncToolTip(const QString &text)
     m_syncToolTip = text;
 }
 
-UnifiedView::UnifiedView() : m_widget(0)
+UnifiedView::UnifiedView()
 {
-    setId(UNIFIED_VIEW_ID);
+    setId(Constants::UNIFIED_VIEW_ID);
     setIcon(Icons::UNIFIED_DIFF.icon());
     setToolTip(QCoreApplication::translate("DiffEditor::UnifiedView", "Switch to Unified Diff Editor"));
 }
 
 QWidget *UnifiedView::widget()
+{
+    return textEditorWidget();
+}
+
+TextEditor::TextEditorWidget *UnifiedView::textEditorWidget()
 {
     if (!m_widget) {
         m_widget = new UnifiedDiffEditorWidget;
@@ -110,12 +117,27 @@ void UnifiedView::setDocument(DiffEditorDocument *document)
 {
     QTC_ASSERT(m_widget, return);
     m_widget->setDocument(document);
+    if (!document)
+        return;
+
+    switch (document->state()) {
+    case DiffEditorDocument::Reloading:
+        m_widget->clear(tr("Waiting for data..."));
+        break;
+    case DiffEditorDocument::LoadFailed:
+        m_widget->clear(tr("Retrieving data failed."));
+        break;
+    default:
+        break;
+    }
 }
 
 void UnifiedView::beginOperation()
 {
     QTC_ASSERT(m_widget, return);
-    m_widget->saveState();
+    DiffEditorDocument *document = m_widget->diffDocument();
+    if (document && document->state() == DiffEditorDocument::LoadOK)
+        m_widget->saveState();
     m_widget->clear(tr("Waiting for data..."));
 }
 
@@ -131,7 +153,7 @@ void UnifiedView::endOperation(bool success)
     if (success)
         m_widget->restoreState();
     else
-        m_widget->clear(tr("Failed"));
+        m_widget->clear(tr("Retrieving data failed."));
 }
 
 void UnifiedView::setCurrentDiffFileIndex(int index)
@@ -145,9 +167,10 @@ void UnifiedView::setSync(bool sync)
     Q_UNUSED(sync);
 }
 
-SideBySideView::SideBySideView() : m_widget(0)
+SideBySideView::SideBySideView()
+    : m_widget(nullptr)
 {
-    setId(SIDE_BY_SIDE_VIEW_ID);
+    setId(Constants::SIDE_BY_SIDE_VIEW_ID);
     setIcon(Icons::SIDEBYSIDE_DIFF.icon());
     setToolTip(QCoreApplication::translate("DiffEditor::SideBySideView",
                                            "Switch to Side By Side Diff Editor"));
@@ -165,16 +188,43 @@ QWidget *SideBySideView::widget()
     return m_widget;
 }
 
+TextEditor::TextEditorWidget *SideBySideView::leftEditorWidget()
+{
+    widget(); // ensure widget creation
+    return m_widget->leftEditorWidget();
+}
+
+TextEditor::TextEditorWidget *SideBySideView::rightEditorWidget()
+{
+    widget(); // ensure widget creation
+    return m_widget->rightEditorWidget();
+}
+
 void SideBySideView::setDocument(DiffEditorDocument *document)
 {
     QTC_ASSERT(m_widget, return);
     m_widget->setDocument(document);
+    if (!document)
+        return;
+
+    switch (document->state()) {
+    case DiffEditorDocument::Reloading:
+        m_widget->clear(tr("Waiting for data..."));
+        break;
+    case DiffEditorDocument::LoadFailed:
+        m_widget->clear(tr("Retrieving data failed."));
+        break;
+    default:
+        break;
+    }
 }
 
 void SideBySideView::beginOperation()
 {
     QTC_ASSERT(m_widget, return);
-    m_widget->saveState();
+    DiffEditorDocument *document = m_widget->diffDocument();
+    if (document && document->state() == DiffEditorDocument::LoadOK)
+        m_widget->saveState();
     m_widget->clear(tr("Waiting for data..."));
 }
 
@@ -196,7 +246,7 @@ void SideBySideView::endOperation(bool success)
     if (success)
         m_widget->restoreState();
     else
-        m_widget->clear(tr("Failed"));
+        m_widget->clear(tr("Retrieving data failed."));
 }
 
 void SideBySideView::setSync(bool sync)

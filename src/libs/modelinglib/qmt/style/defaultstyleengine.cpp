@@ -40,7 +40,6 @@
 #include <utils/algorithm.h>
 
 #include <QSet>
-#include <QDebug>
 
 namespace {
 
@@ -158,6 +157,26 @@ bool operator==(const BoundaryStyleKey &lhs, const BoundaryStyleKey &rhs)
     return true;
 }
 
+// TODO remove class if no attributes needed even with future extensions
+class SwimlaneStyleKey
+{
+};
+
+uint qHash(const SwimlaneStyleKey &styleKey)
+{
+    Q_UNUSED(styleKey);
+
+    return 1;
+}
+
+bool operator==(const SwimlaneStyleKey &lhs, const SwimlaneStyleKey &rhs)
+{
+    Q_UNUSED(lhs);
+    Q_UNUSED(rhs);
+
+    return true;
+}
+
 DefaultStyleEngine::DefaultStyleEngine()
 {
 }
@@ -190,6 +209,8 @@ const Style *DefaultStyleEngine::applyStyle(const Style *baseStyle, StyleEngine:
                     parameters);
     case TypeOther:
         break;
+    case TypeSwimlane:
+        return applySwimlaneStyle(baseStyle, parameters);
     }
     return baseStyle;
 }
@@ -225,6 +246,8 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, StyleE
         style->setTextBrush(QBrush(textColor));
         if (objectVisuals.visualSecondaryRole() == DObject::SecondaryRoleOutline) {
             style->setFillBrush(QBrush(Qt::white));
+        } else if (objectVisuals.visualSecondaryRole() == DObject::SecondaryRoleFlat) {
+            style->setFillBrush(QBrush(fillColor));
         } else {
             if (!parameters->suppressGradients()) {
                 QLinearGradient fillGradient(0.0, 0.0, 0.0, 1.0);
@@ -238,6 +261,8 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, StyleE
         }
         if (objectVisuals.visualSecondaryRole() == DObject::SecondaryRoleOutline)
             style->setExtraFillBrush(QBrush(Qt::white));
+        else if (objectVisuals.visualSecondaryRole() == DObject::SecondaryRoleFlat)
+            style->setExtraFillBrush(QBrush(fillColor));
         else
             style->setExtraFillBrush(QBrush(fillColor.darker(120)));
         style->setNormalFont(normalFont);
@@ -371,6 +396,13 @@ const Style *DefaultStyleEngine::applyBoundaryStyle(const Style *baseStyle, cons
     return applyBoundaryStyle(baseStyle, parameters);
 }
 
+const Style *DefaultStyleEngine::applySwimlaneStyle(const Style *baseStyle, const DSwimlane *swimlane, const StyleEngine::Parameters *parameters)
+{
+    Q_UNUSED(swimlane);
+
+    return applySwimlaneStyle(baseStyle, parameters);
+}
+
 const Style *DefaultStyleEngine::applyAnnotationStyle(const Style *baseStyle, DAnnotation::VisualRole visualRole,
                                                       const StyleEngine::Parameters *parameters)
 {
@@ -429,6 +461,22 @@ const Style *DefaultStyleEngine::applyBoundaryStyle(const Style *baseStyle, cons
     return derivedStyle;
 }
 
+const Style *DefaultStyleEngine::applySwimlaneStyle(const Style *baseStyle, const StyleEngine::Parameters *parameters)
+{
+    Q_UNUSED(parameters);
+
+    SwimlaneStyleKey key;
+    const Style *derivedStyle = m_swimlaneStyleMap.value(key);
+    if (!derivedStyle) {
+        auto style = new Style(baseStyle->type());
+        style->setNormalFont(baseStyle->normalFont());
+        style->setTextBrush(baseStyle->textBrush());
+        m_swimlaneStyleMap.insert(key, style);
+        derivedStyle = style;
+    }
+    return derivedStyle;
+}
+
 DefaultStyleEngine::ElementType DefaultStyleEngine::objectType(const DObject *object)
 {
     ElementType elementType;
@@ -454,16 +502,18 @@ bool DefaultStyleEngine::areStackingRoles(DObject::VisualPrimaryRole rhsPrimaryR
     case DObject::SecondaryRoleNone:
     case DObject::SecondaryRoleLighter:
     case DObject::SecondaryRoleDarker:
+    case DObject::SecondaryRoleFlat:
         switch (lhsSecondaryRols) {
         case DObject::SecondaryRoleNone:
         case DObject::SecondaryRoleLighter:
         case DObject::SecondaryRoleDarker:
+        case DObject::SecondaryRoleFlat:
             return lhsPrimaryRole == rhsPrimaryRole;
-            break;
         case DObject::SecondaryRoleSoften:
         case DObject::SecondaryRoleOutline:
             return false;
         }
+        break;
     case DObject::SecondaryRoleSoften:
     case DObject::SecondaryRoleOutline:
         return false;
@@ -495,7 +545,11 @@ QColor DefaultStyleEngine::baseColor(ElementType elementType, ObjectVisuals obje
             case TypeItem:
                 baseColor = QColor("#B995C6");
                 break;
-            default:
+            case TypeRelation:
+            case TypeAnnotation:
+            case TypeBoundary:
+            case TypeSwimlane:
+            case TypeOther:
                 baseColor = QColor("#BF7D65");
                 break;
             }
@@ -510,7 +564,7 @@ QColor DefaultStyleEngine::baseColor(ElementType elementType, ObjectVisuals obje
         };
 
         int index = static_cast<int>(objectVisuals.visualPrimaryRole()) - static_cast<int>(DObject::PrimaryRoleCustom1);
-        QMT_CHECK(index >= 0 && index <= 4);
+        QMT_ASSERT(index >= 0 && index <= 4, return baseColor);
         baseColor = customColors[index];
     }
 
@@ -528,6 +582,8 @@ QColor DefaultStyleEngine::baseColor(ElementType elementType, ObjectVisuals obje
         break;
     case DObject::SecondaryRoleOutline:
         QMT_CHECK(false);
+        break;
+    case DObject::SecondaryRoleFlat:
         break;
     }
 

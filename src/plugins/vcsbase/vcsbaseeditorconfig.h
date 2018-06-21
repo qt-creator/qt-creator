@@ -63,6 +63,7 @@ public:
     QStringList baseArguments() const;
     void setBaseArguments(const QStringList &);
 
+    QAction *addButton(const QString &label, const QIcon &icon);
     QAction *addToggleButton(const QString &option, const QString &label,
                              const QString &tooltip = QString());
     QAction *addToggleButton(const QStringList &options, const QString &label,
@@ -102,6 +103,8 @@ protected:
     void updateMappedSettings();
 
 private:
+    void addAction(QAction *action);
+
     friend class Internal::VcsBaseEditorConfigPrivate;
     Internal::VcsBaseEditorConfigPrivate *const d;
 };

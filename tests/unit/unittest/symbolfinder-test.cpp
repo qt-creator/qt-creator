@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "mockfilepathcaching.h"
 
 #include <clangrefactoringbackend_global.h>
 #include <symbolfinder.h>
@@ -33,11 +34,6 @@
 using ClangBackEnd::SymbolFinder;
 using ClangBackEnd::FileContent;
 
-using testing::PrintToString;
-using testing::AllOf;
-using testing::Contains;
-using testing::Not;
-
 namespace {
 
 MATCHER_P2(IsSourceLocation, line, column,
@@ -46,11 +42,7 @@ MATCHER_P2(IsSourceLocation, line, column,
            + ", column " + PrintToString(column)
            )
 {
-    if (arg.line() != uint(line)
-            || arg.column() != uint(column))
-        return false;
-
-    return true;
+    return arg.line == uint(line) && arg.column == uint(column);
 }
 
 MATCHER_P(StrEq, text,
@@ -61,16 +53,26 @@ MATCHER_P(StrEq, text,
     return std::string(arg.data(), arg.size()) == std::string(text);
 }
 
-TEST(SymbolFinder, FileContentFilePath)
+using Finder = SymbolFinder;
+
+class SymbolFinder : public testing::Test
+{
+protected:
+    NiceMock<MockFilePathCaching> filePathCaching;
+};
+
+using SymbolFinderSlowTest = SymbolFinder;
+
+TEST_F(SymbolFinder, FileContentFilePath)
 {
     FileContent fileContent(toNativePath("/tmp"), "data.cpp", "int variable;", {"cc", "data.cpp"});
 
     ASSERT_THAT(fileContent.filePath, toNativePath("/tmp/data.cpp"));
 }
 
-TEST(SymbolFinder, FindName)
+TEST_F(SymbolFinderSlowTest, FindName)
 {
-    SymbolFinder finder(1, 5);
+    Finder finder(1, 5, filePathCaching);
     finder.addFile(TESTDATA_DIR, "renamevariable.cpp", "int variable;", {"cc", "renamevariable.cpp"});
 
     finder.findSymbol();
@@ -78,9 +80,9 @@ TEST(SymbolFinder, FindName)
     ASSERT_THAT(finder.takeSymbolName(), "variable");
 }
 
-TEST(SymbolFinder, FindNameInUnsavedFile)
+TEST_F(SymbolFinderSlowTest, FindNameInUnsavedFile)
 {
-    SymbolFinder finder(1, 5);
+    Finder finder(1, 5, filePathCaching);
     finder.addFile(TESTDATA_DIR, "renamevariable.cpp", "int newVariable;", {"cc", "renamevariable.cpp"});
 
     finder.findSymbol();
@@ -88,9 +90,9 @@ TEST(SymbolFinder, FindNameInUnsavedFile)
     ASSERT_THAT(finder.takeSymbolName(), "newVariable");
 }
 
-TEST(SymbolFinder, FindUsrs)
+TEST_F(SymbolFinderSlowTest, FindUsrs)
 {
-    SymbolFinder finder(1, 5);
+    Finder finder(1, 5, filePathCaching);
     finder.addFile(TESTDATA_DIR, "renamevariable.cpp", "int variable;", {"cc", "renamevariable.cpp", "-std=c++14"});
 
     finder.findSymbol();
@@ -98,9 +100,9 @@ TEST(SymbolFinder, FindUsrs)
     ASSERT_THAT(finder.unifiedSymbolResolutions().front(), StrEq("c:@variable"));
 }
 
-TEST(SymbolFinder, VariableDeclarationSourceLocations)
+TEST_F(SymbolFinderSlowTest, VariableDeclarationSourceLocations)
 {
-    SymbolFinder finder(1, 5);
+    Finder finder(1, 5, filePathCaching);
     finder.addFile(TESTDATA_DIR, "renamevariable.cpp", "", {"cc", "renamevariable.cpp", "-std=c++14"});
 
     finder.findSymbol();
@@ -110,9 +112,9 @@ TEST(SymbolFinder, VariableDeclarationSourceLocations)
                       Contains(IsSourceLocation(3, 9))));
 }
 
-TEST(SymbolFinder, VariableUsageSourceLocations)
+TEST_F(SymbolFinderSlowTest, VariableUsageSourceLocations)
 {
-    SymbolFinder finder(3, 9);
+    Finder finder(3, 9, filePathCaching);
     finder.addFile(TESTDATA_DIR, "renamevariable.cpp", "", {"cc", "renamevariable.cpp", "-std=c++14"});
 
     finder.findSymbol();
@@ -122,9 +124,9 @@ TEST(SymbolFinder, VariableUsageSourceLocations)
                       Contains(IsSourceLocation(3, 9))));
 }
 
-TEST(SymbolFinder, TemplateMemberVariableDeclarationSourceLocations)
+TEST_F(SymbolFinderSlowTest, TemplateMemberVariableDeclarationSourceLocations)
 {
-    SymbolFinder finder(8, 18);
+    Finder finder(8, 18, filePathCaching);
     finder.addFile(TESTDATA_DIR, "renamevariable.cpp", "", {"cc", "renamevariable.cpp", "-std=c++14"});
 
     finder.findSymbol();
@@ -135,9 +137,9 @@ TEST(SymbolFinder, TemplateMemberVariableDeclarationSourceLocations)
                       Contains(IsSourceLocation(18, 19))));
 }
 
-TEST(SymbolFinder, TemplateMemberVariableUsageSourceLocations)
+TEST_F(SymbolFinderSlowTest, TemplateMemberVariableUsageSourceLocations)
 {
-    SymbolFinder finder(15, 14);
+    Finder finder(15, 14, filePathCaching);
     finder.addFile(TESTDATA_DIR, "renamevariable.cpp", "", {"cc", "renamevariable.cpp", "-std=c++14"});
 
     finder.findSymbol();
@@ -148,9 +150,9 @@ TEST(SymbolFinder, TemplateMemberVariableUsageSourceLocations)
                       Contains(IsSourceLocation(18, 19))));
 }
 
-TEST(SymbolFinder, TemplateMemberVariableUsageInLambdaSourceLocations)
+TEST_F(SymbolFinderSlowTest, TemplateMemberVariableUsageInLambdaSourceLocations)
 {
-    SymbolFinder finder(18, 19);
+    Finder finder(18, 19, filePathCaching);
     finder.addFile(TESTDATA_DIR, "renamevariable.cpp", "", {"cc", "renamevariable.cpp", "-std=c++14"});
 
     finder.findSymbol();
@@ -161,9 +163,9 @@ TEST(SymbolFinder, TemplateMemberVariableUsageInLambdaSourceLocations)
                       Contains(IsSourceLocation(18, 19))));
 }
 
-TEST(SymbolFinder, CursorOverMacroDefintionSymbolName)
+TEST_F(SymbolFinderSlowTest, CursorOverMacroDefintionSymbolName)
 {
-    SymbolFinder finder(1, 9);
+    Finder finder(1, 9, filePathCaching);
     finder.addFile(TESTDATA_DIR, "symbolfinder_macro.cpp", "", {"cc", "symbolfinder_macro.cpp"});
 
     finder.findSymbol();
@@ -171,9 +173,9 @@ TEST(SymbolFinder, CursorOverMacroDefintionSymbolName)
     ASSERT_THAT(finder.takeSymbolName(), "Macro");
 }
 
-TEST(SymbolFinder, CursorOverMacroExpansionSymbolName)
+TEST_F(SymbolFinderSlowTest, CursorOverMacroExpansionSymbolName)
 {
-    SymbolFinder finder(10, 10);
+    Finder finder(10, 10, filePathCaching);
     finder.addFile(TESTDATA_DIR, "symbolfinder_macro.cpp", "", {"cc", "symbolfinder_macro.cpp"});
 
     finder.findSymbol();
@@ -181,9 +183,9 @@ TEST(SymbolFinder, CursorOverMacroExpansionSymbolName)
     ASSERT_THAT(finder.takeSymbolName(), "Macro");
 }
 
-TEST(SymbolFinder, FindMacroDefinition)
+TEST_F(SymbolFinderSlowTest, FindMacroDefinition)
 {
-    SymbolFinder finder(1, 9);
+    Finder finder(1, 9, filePathCaching);
     finder.addFile(TESTDATA_DIR, "symbolfinder_macro.cpp", "", {"cc", "symbolfinder_macro.cpp"});
 
     finder.findSymbol();
@@ -192,9 +194,9 @@ TEST(SymbolFinder, FindMacroDefinition)
                 Contains(IsSourceLocation(1, 9)));
 }
 
-TEST(SymbolFinder, FindMacroExpansion)
+TEST_F(SymbolFinderSlowTest, FindMacroExpansion)
 {
-    SymbolFinder finder(1, 9);
+    Finder finder(1, 9, filePathCaching);
     finder.addFile(TESTDATA_DIR, "symbolfinder_macro.cpp", "", {"cc", "symbolfinder_macro.cpp"});
 
     finder.findSymbol();
@@ -203,9 +205,9 @@ TEST(SymbolFinder, FindMacroExpansion)
                 Contains(IsSourceLocation(5, 17)));
 }
 
-TEST(SymbolFinder, DoNotFindUndedefinedMacroExpansion)
+TEST_F(SymbolFinderSlowTest, DoNotFindUndedefinedMacroExpansion)
 {
-    SymbolFinder finder(1, 9);
+    Finder finder(1, 9, filePathCaching);
     finder.addFile(TESTDATA_DIR, "symbolfinder_macro.cpp", "", {"cc", "symbolfinder_macro.cpp"});
 
     finder.findSymbol();
@@ -214,9 +216,9 @@ TEST(SymbolFinder, DoNotFindUndedefinedMacroExpansion)
                 Not(Contains(IsSourceLocation(10, 10))));
 }
 
-TEST(SymbolFinder, FindMacroDefinitionFromMacroExpansion)
+TEST_F(SymbolFinderSlowTest, FindMacroDefinitionFromMacroExpansion)
 {
-    SymbolFinder finder(10, 10);
+    Finder finder(10, 10, filePathCaching);
     finder.addFile(TESTDATA_DIR, "symbolfinder_macro.cpp", "", {"cc", "symbolfinder_macro.cpp"});
 
     finder.findSymbol();
@@ -226,9 +228,9 @@ TEST(SymbolFinder, FindMacroDefinitionFromMacroExpansion)
 }
 
 
-TEST(SymbolFinder, FindMacroExpansionBeforeMacroExpansionWithCursor)
+TEST_F(SymbolFinderSlowTest, FindMacroExpansionBeforeMacroExpansionWithCursor)
 {
-    SymbolFinder finder(12, 10);
+    Finder finder(12, 10, filePathCaching);
     finder.addFile(TESTDATA_DIR, "symbolfinder_macro.cpp", "", {"cc", "symbolfinder_macro.cpp"});
 
     finder.findSymbol();
@@ -237,9 +239,9 @@ TEST(SymbolFinder, FindMacroExpansionBeforeMacroExpansionWithCursor)
                 Contains(IsSourceLocation(10, 10)));
 }
 
-TEST(SymbolFinder, FindMacroExpansionAfterMacroExpansionWithCursor)
+TEST_F(SymbolFinderSlowTest, FindMacroExpansionAfterMacroExpansionWithCursor)
 {
-    SymbolFinder finder(10, 10);
+    Finder finder(10, 10, filePathCaching);
     finder.addFile(TESTDATA_DIR, "symbolfinder_macro.cpp", "", {"cc", "symbolfinder_macro.cpp"});
 
     finder.findSymbol();

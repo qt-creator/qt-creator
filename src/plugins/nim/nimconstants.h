@@ -34,19 +34,13 @@ namespace Constants {
 const char C_NIMPROJECT_ID[] = "Nim.NimProject";
 const char C_NIMEDITOR_ID[] = "Nim.NimEditor";
 const char C_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Nim Editor");
-const char C_NIM_ICON_PATH[] = ":/images/nim.png";
+
+// NimToolChain
+const char C_NIMTOOLCHAIN_TYPEID[] = "Nim.NimToolChain";
+const char C_NIMTOOLCHAIN_COMPILER_COMMAND_KEY[] = "Nim.NimToolChain.CompilerCommand";
 
 // NimRunConfiguration
-const char C_NIMRUNCONFIGURATION_ID[] = "Nim.NimRunConfiguration";
-const char C_NIMRUNCONFIGURATION_DISPLAY[] = QT_TRANSLATE_NOOP("NimRunConfiguration", "Current Build Target");
-const char C_NIMRUNCONFIGURATION_DEFAULT_DISPLAY[] = QT_TRANSLATE_NOOP("NimRunConfiguration", "Current Build Target");
 const QString C_NIMRUNCONFIGURATION_EXECUTABLE_KEY = QStringLiteral("Nim.NimRunConfiguration.Executable");
-const QString C_NIMRUNCONFIGURATION_WORKINGDIRECTORY_KEY = QStringLiteral("Nim.NimRunConfiguration.WorkingDirectory");
-const QString C_NIMRUNCONFIGURATION_COMMANDLINEARGS_KEY = QStringLiteral("Nim.NimRunConfiguration.CommandlineArgs");
-const QString C_NIMRUNCONFIGURATION_RUNMODE_KEY = QStringLiteral("Nim.NimRunConfiguration.RunMode");
-const QString C_NIMRUNCONFIGURATION_WORKINGDIRECTORYASPECT_ID = QStringLiteral("Nim.NimRunConfiguration.WorkingDirectoryAspect");
-const QString C_NIMRUNCONFIGURATION_ARGUMENTASPECT_ID = QStringLiteral("Nim.NimRunConfiguration.ArgumentAspect");
-const QString C_NIMRUNCONFIGURATION_TERMINALASPECT_ID = QStringLiteral("Nim.NimRunConfiguration.TerminalAspect");
 
 // NimProject
 const char C_NIMPROJECT_EXCLUDEDFILES[] = "Nim.NimProjectExcludedFiles";
@@ -86,7 +80,6 @@ const char C_NIMCODESTYLESETTINGSPAGE_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("Ni
 const char C_NIMLANGUAGE_NAME[] = QT_TRANSLATE_NOOP("NimCodeStylePreferencesFactory", "Nim");
 const char C_NIMGLOBALCODESTYLE_ID[] = "NimGlobal";
 const QString C_NIMSNIPPETSGROUP_ID = QStringLiteral("Nim.NimSnippetsGroup");
-const char C_NIMSNIPPETPROVIDER_DISPLAY[] = QT_TRANSLATE_NOOP("NimSnippetProvider", "Nim");
 
 const char C_NIMCODESTYLEPREVIEWSNIPPET[] =
         "import os\n"

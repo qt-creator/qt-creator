@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "cppeditor.h"
+#include "cppeditorwidget.h"
 #include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
 
@@ -74,7 +75,7 @@ private:
     SelectionList waitForUseSelections(bool *hasTimedOut) const;
 
 private:
-    CppEditorWidget *m_editorWidget;
+    CppEditorWidget *m_editorWidget = nullptr;
 };
 
 UseSelectionsTestCase::UseSelectionsTestCase(TestDocument &testFile,

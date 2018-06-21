@@ -33,22 +33,24 @@
 #include <QMutex>
 
 namespace Help {
-    namespace Internal {
+namespace Internal {
 
 class RemoteHelpFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
 public:
     RemoteHelpFilter();
-    ~RemoteHelpFilter();
+    ~RemoteHelpFilter() final;
 
     // ILocatorFilter
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
-    void accept(Core::LocatorFilterEntry selection) const;
-    void refresh(QFutureInterface<void> &future);
-    QByteArray saveState() const;
-    bool restoreState(const QByteArray &state);
-    bool openConfigDialog(QWidget *parent, bool &needsRefresh);
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
+                                               const QString &entry) override;
+    void accept(Core::LocatorFilterEntry selection,
+                QString *newText, int *selectionStart, int *selectionLength) const override;
+    void refresh(QFutureInterface<void> &future) override;
+    QByteArray saveState() const override;
+    void restoreState(const QByteArray &state) override;
+    bool openConfigDialog(QWidget *parent, bool &needsRefresh) override;
 
     QStringList remoteUrls() const;
 
@@ -67,16 +69,18 @@ class RemoteFilterOptions : public QDialog
     friend class RemoteHelpFilter;
 
 public:
-    explicit RemoteFilterOptions(RemoteHelpFilter *filter, QWidget *parent = 0);
+    explicit RemoteFilterOptions(RemoteHelpFilter *filter, QWidget *parent = nullptr);
 
 private:
     void addNewItem();
     void removeItem();
-    void updateRemoveButton();
+    void moveItemUp();
+    void moveItemDown();
+    void updateActionButtons();
 
-    RemoteHelpFilter *m_filter;
+    RemoteHelpFilter *m_filter = nullptr;
     Ui::RemoteFilterOptions m_ui;
 };
 
-    } // namespace Internal
+} // namespace Internal
 } // namespace Help

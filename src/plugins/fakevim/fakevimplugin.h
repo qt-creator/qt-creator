@@ -31,7 +31,6 @@ namespace FakeVim {
 namespace Internal {
 
 class FakeVimHandler;
-class FakeVimPluginPrivate;
 
 class FakeVimPlugin : public ExtensionSystem::IPlugin
 {
@@ -50,7 +49,6 @@ private:
 
 private:
     friend class FakeVimPluginPrivate;
-    FakeVimPluginPrivate *d;
 
 #ifdef WITH_TESTS
 private slots:

@@ -169,4 +169,14 @@ void VoidElementTasks::createAndOpenDiagram(const DElement *, const MDiagram *)
 {
 }
 
+bool VoidElementTasks::extendContextMenu(const DElement *, const MDiagram *, QMenu *)
+{
+    return false;
+}
+
+bool VoidElementTasks::handleContextMenuAction(const DElement *, const MDiagram *, const QString &)
+{
+    return false;
+}
+
 } // namespace qmt

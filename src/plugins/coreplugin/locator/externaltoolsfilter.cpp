@@ -23,12 +23,12 @@
 **
 ****************************************************************************/
 
+#include "externaltoolsfilter.h"
+
 #include <coreplugin/externaltool.h>
 #include <coreplugin/externaltoolmanager.h>
 #include <coreplugin/messagemanager.h>
 #include <utils/qtcassert.h>
-
-#include "externaltoolsfilter.h"
 
 using namespace Core;
 using namespace Core::Internal;
@@ -37,7 +37,7 @@ ExternalToolsFilter::ExternalToolsFilter()
 {
     setId("Run external tool");
     setDisplayName(tr("Run External Tool"));
-    setShortcutString(QLatin1String("x"));
+    setShortcutString("x");
     setPriority(Medium);
 }
 
@@ -47,8 +47,12 @@ QList<LocatorFilterEntry> ExternalToolsFilter::matchesFor(QFutureInterface<Locat
     return m_results;
 }
 
-void ExternalToolsFilter::accept(LocatorFilterEntry selection) const
+void ExternalToolsFilter::accept(LocatorFilterEntry selection,
+                                 QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     auto tool = selection.internalData.value<ExternalTool *>();
     QTC_ASSERT(tool, return);
 
@@ -64,17 +68,23 @@ void ExternalToolsFilter::refresh(QFutureInterface<void> &)
 void ExternalToolsFilter::prepareSearch(const QString &entry)
 {
     m_results.clear();
-
-    Qt::CaseSensitivity useCaseSensitivity = caseSensitivity(entry);
+    const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
     const QMap<QString, ExternalTool *> externalToolsById = ExternalToolManager::toolsById();
     auto end = externalToolsById.cend();
     for (auto it = externalToolsById.cbegin(); it != end; ++it) {
         ExternalTool *tool = *it;
-        if (tool->description().contains(entry, useCaseSensitivity) ||
-                tool->displayName().contains(entry, useCaseSensitivity)) {
 
+        int index = tool->displayName().indexOf(entry, 0, entryCaseSensitivity);
+        LocatorFilterEntry::HighlightInfo::DataType hDataType = LocatorFilterEntry::HighlightInfo::DisplayName;
+        if (index < 0) {
+            index = tool->description().indexOf(entry, 0, entryCaseSensitivity);
+            hDataType = LocatorFilterEntry::HighlightInfo::ExtraInfo;
+        }
+
+        if (index >= 0) {
             LocatorFilterEntry filterEntry(this, tool->displayName(), QVariant::fromValue(tool));
             filterEntry.extraInfo = tool->description();
+            filterEntry.highlightInfo = LocatorFilterEntry::HighlightInfo(index, entry.length(), hDataType);
             m_results.append(filterEntry);
         }
     }

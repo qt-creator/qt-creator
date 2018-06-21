@@ -32,14 +32,18 @@
 namespace QmlProfiler {
 namespace Internal {
 
-MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager, QObject *parent) :
+MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager,
+                                   Timeline::TimelineModelAggregator *parent) :
     QmlProfilerTimelineModel(manager, MemoryAllocation, MaximumRangeType, ProfileMemory, parent)
 {
-    // Announce additional features. The base class already announces the main feature.
-    announceFeatures(Constants::QML_JS_RANGE_FEATURES ^ (1 << ProfileCompiling));
+    // Register additional features. The base class already registers the main feature.
+    // Don't register initializer, finalizer, or clearer as the base class has done so already.
+    modelManager()->registerFeatures(Constants::QML_JS_RANGE_FEATURES ^ (1 << ProfileCompiling),
+                                     std::bind(&QmlProfilerTimelineModel::loadEvent, this,
+                                               std::placeholders::_1, std::placeholders::_2));
 }
 
-int MemoryUsageModel::rowMaxValue(int rowNumber) const
+qint64 MemoryUsageModel::rowMaxValue(int rowNumber) const
 {
     Q_UNUSED(rowNumber);
     return m_maxSize;
@@ -93,24 +97,36 @@ QVariantList MemoryUsageModel::labels() const
     return result;
 }
 
+static int toSameSignedInt(qint64 number)
+{
+    if (number > std::numeric_limits<int>::max())
+        return std::numeric_limits<int>::max();
+    if (number < std::numeric_limits<int>::min())
+        return std::numeric_limits<int>::min();
+    return static_cast<int>(number);
+}
+
 QVariantMap MemoryUsageModel::details(int index) const
 {
     QVariantMap result;
-    const MemoryAllocationItem *ev = &m_data[index];
+    const Item *ev = &m_data[index];
 
     if (ev->allocated >= -ev->deallocated)
         result.insert(QLatin1String("displayName"), tr("Memory Allocated"));
     else
         result.insert(QLatin1String("displayName"), tr("Memory Freed"));
 
-    result.insert(tr("Total"), tr("%n bytes", 0, ev->size));
+    result.insert(tr("Total"), tr("%1 byte(s)", nullptr, toSameSignedInt(ev->size)).arg(ev->size));
     if (ev->allocations > 0) {
-        result.insert(tr("Allocated"), tr("%1 bytes").arg(ev->allocated));
-        result.insert(tr("Allocations"), QString::number(ev->allocations));
+        result.insert(tr("Allocated"), tr("%1 byte(s)", nullptr, toSameSignedInt(ev->allocated))
+                      .arg(ev->allocated));
+        result.insert(tr("Allocations"), ev->allocations);
     }
     if (ev->deallocations > 0) {
-        result.insert(tr("Deallocated"), tr("%1 bytes").arg(-ev->deallocated));
-        result.insert(tr("Deallocations"), QString::number(ev->deallocations));
+        result.insert(tr("Deallocated"),
+                      tr("%1 byte(s)", nullptr, toSameSignedInt(-ev->deallocated))
+                      .arg(-ev->deallocated));
+        result.insert(tr("Deallocations"), ev->deallocations);
     }
     QString memoryTypeName;
     switch (selectionId(index)) {
@@ -121,27 +137,22 @@ QVariantMap MemoryUsageModel::details(int index) const
     }
     result.insert(tr("Type"), memoryTypeName);
 
-    result.insert(tr("Location"),
-                  modelManager()->qmlModel()->eventTypes().at(ev->typeId).displayName());
+    result.insert(tr("Location"), modelManager()->eventType(ev->typeId).displayName());
     return result;
-}
-
-bool MemoryUsageModel::accepted(const QmlEventType &type) const
-{
-    return QmlProfilerTimelineModel::accepted(type)
-            || (type.rangeType() != MaximumRangeType && type.rangeType() != Compiling);
 }
 
 void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
     if (type.message() != MemoryAllocation) {
         if (type.rangeType() != MaximumRangeType) {
+            m_continuation = ContinueNothing;
             if (event.rangeStage() == RangeStart)
                 m_rangeStack.push(RangeStackFrame(event.typeIndex(), event.timestamp()));
-            else if (event.rangeStage() == RangeEnd)
+            else if (event.rangeStage() == RangeEnd) {
+                QTC_ASSERT(!m_rangeStack.isEmpty(), return);
+                QTC_ASSERT(m_rangeStack.top().originTypeIndex == event.typeIndex(), return);
                 m_rangeStack.pop();
-
-            m_continuation = ContinueNothing;
+            }
         }
         return;
     }
@@ -170,7 +181,7 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
             m_data[m_currentUsageIndex].update(event.number<qint64>(0));
             m_currentUsage = m_data[m_currentUsageIndex].size;
         } else {
-            MemoryAllocationItem allocation(
+            Item allocation(
                         m_rangeStack.empty() ? event.typeIndex() :
                                                m_rangeStack.top().originTypeIndex,
                         m_currentUsage);
@@ -201,7 +212,7 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
             m_data[m_currentJSHeapIndex].update(event.number<qint64>(0));
             m_currentSize = m_data[m_currentJSHeapIndex].size;
         } else {
-            MemoryAllocationItem allocation(
+            Item allocation(
                         m_rangeStack.empty() ? event.typeIndex() :
                                                m_rangeStack.top().originTypeIndex,
                         m_currentSize);
@@ -233,17 +244,18 @@ void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type
 
 void MemoryUsageModel::finalize()
 {
-    if (m_currentJSHeapIndex != -1)
-        insertEnd(m_currentJSHeapIndex, modelManager()->traceTime()->endTime() -
-                  startTime(m_currentJSHeapIndex));
+    if (m_currentJSHeapIndex != -1) {
+        insertEnd(m_currentJSHeapIndex,
+                  modelManager()->traceEnd() - startTime(m_currentJSHeapIndex));
+    }
     if (m_currentUsageIndex != -1)
-        insertEnd(m_currentUsageIndex, modelManager()->traceTime()->endTime() -
-                  startTime(m_currentUsageIndex));
+        insertEnd(m_currentUsageIndex, modelManager()->traceEnd() - startTime(m_currentUsageIndex));
 
 
     computeNesting();
     setExpandedRowCount(3);
     setCollapsedRowCount(3);
+    QmlProfilerTimelineModel::finalize();
 }
 
 void MemoryUsageModel::clear()
@@ -267,13 +279,13 @@ bool MemoryUsageModel::handlesTypeId(int typeId) const
     return false;
 }
 
-MemoryUsageModel::MemoryAllocationItem::MemoryAllocationItem(int typeId, qint64 baseAmount) :
+MemoryUsageModel::Item::Item(int typeId, qint64 baseAmount) :
     size(baseAmount), allocated(0), deallocated(0), allocations(0), deallocations(0),
     typeId(typeId)
 {
 }
 
-void MemoryUsageModel::MemoryAllocationItem::update(qint64 amount)
+void MemoryUsageModel::Item::update(qint64 amount)
 {
     size += amount;
     if (amount < 0) {

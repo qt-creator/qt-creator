@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef SIMPLE_DEBUGGER_TEST_H
-#define SIMPLE_DEBUGGER_TEST_H
+#pragma once
 
 namespace breakpoints {
 
@@ -149,5 +148,3 @@ namespace breakpoints {
     }
 
 } // namespace breakpoints
-
-#endif // SIMPLE_DEBUGGER_TEST_H

@@ -35,30 +35,38 @@ namespace Internal {
   */
 class DesignModeContext : public Core::IContext
 {
+    Q_OBJECT
+
 public:
     DesignModeContext(QWidget *widget);
-    QString contextHelpId() const;
+    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const override;
 };
 
 class FormEditorContext : public Core::IContext
 {
+    Q_OBJECT
+
 public:
     FormEditorContext(QWidget *widget);
-    QString contextHelpId() const;
+    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const override;
 };
 
 class NavigatorContext : public Core::IContext
 {
+    Q_OBJECT
+
 public:
     NavigatorContext(QWidget *widget);
-    QString contextHelpId() const;
+    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const override;
 };
 
 class TextEditorContext : public Core::IContext
 {
+    Q_OBJECT
+
 public:
     TextEditorContext(QWidget *widget);
-    QString contextHelpId() const;
+    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const override;
 };
 
 }

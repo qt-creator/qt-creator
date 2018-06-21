@@ -35,20 +35,16 @@
 
 
 namespace Utils { class QtcProcess; }
-namespace ProjectExplorer { class RunControl; }
-namespace Debugger { class DebuggerRunControl; }
+namespace ProjectExplorer { class RunWorker; }
 
 namespace WinRt {
 namespace Internal {
-
-class WinRtRunConfiguration;
 
 class WinRtRunnerHelper : public QObject
 {
     Q_OBJECT
 public:
-    WinRtRunnerHelper(ProjectExplorer::RunControl *runControl);
-    WinRtRunnerHelper(WinRtRunConfiguration *runConfiguration, QString *errormessage);
+    WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QString *errorMessage);
 
     void debug(const QString &debuggerExecutable, const QString &debuggerArguments = QString());
     void start();
@@ -56,7 +52,6 @@ public:
     void stop();
 
     bool waitForStarted(int msecs = 10000);
-    void setDebugRunControl(Debugger::DebuggerRunControl *runControl);
 
 signals:
     void started();
@@ -72,12 +67,9 @@ private:
     void onProcessError(QProcess::ProcessError processError);
 
     void startWinRtRunner(const RunConf &conf);
-    bool init(WinRtRunConfiguration *runConfiguration, QString *errorMessage);
     void appendMessage(const QString &message, Utils::OutputFormat format);
 
-    ProjectExplorer::RunControl *m_messenger;
-    Debugger::DebuggerRunControl *m_debugMessenger;
-    WinRtRunConfiguration *m_runConfiguration;
+    ProjectExplorer::RunWorker *m_worker = nullptr;
     WinRtDevice::ConstPtr m_device;
     Utils::Environment m_environment;
     QString m_runnerFilePath;
@@ -85,8 +77,8 @@ private:
     QString m_debuggerExecutable;
     QString m_debuggerArguments;
     QString m_arguments;
-    bool m_uninstallAfterStop;
-    Utils::QtcProcess *m_process;
+    bool m_uninstallAfterStop = false;
+    Utils::QtcProcess *m_process = nullptr;
 };
 
 } // namespace WinRt

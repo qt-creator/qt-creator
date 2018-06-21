@@ -27,6 +27,9 @@
 
 #include <qmlprofiler/flamegraphmodel.h>
 #include <qmlprofiler/qmlprofilermodelmanager.h>
+
+#include <tracing/timelinemodelaggregator.h>
+
 #include <QObject>
 
 namespace QmlProfiler {
@@ -37,7 +40,8 @@ class FlameGraphModelTest : public QObject
     Q_OBJECT
 public:
     FlameGraphModelTest(QObject *parent = nullptr);
-    static void generateData(QmlProfilerModelManager *manager);
+    static int generateData(QmlProfilerModelManager *manager,
+                            Timeline::TimelineModelAggregator *aggregator);
 
 private slots:
     void initTestCase();
@@ -49,9 +53,10 @@ private slots:
     void cleanupTestCase();
 
 private:
-    Utils::FileInProjectFinder finder;
     QmlProfilerModelManager manager;
+    Timeline::TimelineModelAggregator aggregator;
     FlameGraphModel model;
+    int rangeModelId = -1;
 };
 
 } // namespace Internal

@@ -41,6 +41,7 @@ class MElement;
 class MPackage;
 class MDiagram;
 class DElement;
+class DContainer;
 class DocumentController;
 }
 
@@ -65,7 +66,7 @@ class ModelEditor :
 
 public:
     explicit ModelEditor(UiController *uiController, ActionHandler *actionHandler,
-                         QWidget *parent = 0);
+                         QWidget *parent = nullptr);
     ~ModelEditor();
 
     Core::IDocument *document() override;
@@ -87,6 +88,7 @@ public:
     void editProperties();
     void editSelectedItem();
     void exportDiagram();
+    void exportSelectedElements();
     void zoomIn();
     void zoomOut();
     void resetZoom();
@@ -102,9 +104,9 @@ private:
     void showProperties(qmt::MDiagram *diagram, const QList<qmt::DElement *> &diagramElements);
     void clearProperties();
     void expandModelTreeToDepth(int depth);
-    QToolButton *createToolbarCommandButton(const Core::Id &id, const std::function<void()> &slot,
-                                        const QIcon &icon,
-                                        const QString &toolTipBase, QWidget *parent);
+    QToolButton *createToolbarCommandButton(const Core::Id &id,
+                                            const std::function<void()> &slot,
+                                            QWidget *parent);
     bool updateButtonIconByTheme(QAbstractButton *button, const QString &name);
     void showZoomIndicator();
 
@@ -140,6 +142,8 @@ private:
 
     void onContentSet();
 
+    void setDiagramClipboard(const qmt::DContainer &dcontainer);
+
     void addDiagramToSelector(const qmt::MDiagram *diagram);
     void updateDiagramSelector();
     void onDiagramSelectorSelected(int index);
@@ -154,6 +158,8 @@ private:
     bool isSyncDiagramWithBrowser() const;
     void synchronizeDiagramWithBrowser();
     void synchronizeBrowserWithDiagram(const qmt::MDiagram *diagram);
+
+    void exportToImage(bool selectedElements);
 
 private:
     ModelEditorPrivate *d;

@@ -45,14 +45,14 @@ void Core::Internal::runSearch(QFutureInterface<Core::LocatorFilterEntry> &futur
 {
     QSet<LocatorFilterEntry> alreadyAdded;
     const bool checkDuplicates = (filters.size() > 1);
-    foreach (ILocatorFilter *filter, filters) {
+    for (ILocatorFilter *filter : filters) {
         if (future.isCanceled())
             break;
 
-        QList<LocatorFilterEntry> filterResults = filter->matchesFor(future, searchText);
+        const QList<LocatorFilterEntry> filterResults = filter->matchesFor(future, searchText);
         QVector<LocatorFilterEntry> uniqueFilterResults;
         uniqueFilterResults.reserve(filterResults.size());
-        foreach (const LocatorFilterEntry &entry, filterResults) {
+        for (const LocatorFilterEntry &entry : filterResults) {
             if (checkDuplicates && alreadyAdded.contains(entry))
                 continue;
             uniqueFilterResults.append(entry);

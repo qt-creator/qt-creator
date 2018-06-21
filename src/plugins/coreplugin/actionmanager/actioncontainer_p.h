@@ -46,24 +46,24 @@ class ActionContainerPrivate : public ActionContainer
 
 public:
     ActionContainerPrivate(Id id);
-    ~ActionContainerPrivate() {}
+    ~ActionContainerPrivate() override {}
 
-    void setOnAllDisabledBehavior(OnAllDisabledBehavior behavior);
-    ActionContainer::OnAllDisabledBehavior onAllDisabledBehavior() const;
+    void setOnAllDisabledBehavior(OnAllDisabledBehavior behavior) override;
+    ActionContainer::OnAllDisabledBehavior onAllDisabledBehavior() const override;
 
-    QAction *insertLocation(Id groupId) const;
-    void appendGroup(Id id);
-    void insertGroup(Id before, Id groupId);
-    void addAction(Command *action, Id group = Id());
-    void addMenu(ActionContainer *menu, Id group = Id());
-    void addMenu(ActionContainer *before, ActionContainer *menu, Id group = Id());
-    Command *addSeparator(const Context &context, Id group = Id(), QAction **outSeparator = 0);
-    virtual void clear();
+    QAction *insertLocation(Id groupId) const override;
+    void appendGroup(Id id) override;
+    void insertGroup(Id before, Id groupId) override;
+    void addAction(Command *action, Id group = Id()) override;
+    void addMenu(ActionContainer *menu, Id group = Id()) override;
+    void addMenu(ActionContainer *before, ActionContainer *menu, Id group = Id()) override;
+    Command *addSeparator(const Context &context, Id group = Id(), QAction **outSeparator = nullptr) override;
+    void clear() override;
 
-    Id id() const;
+    Id id() const override;
 
-    QMenu *menu() const;
-    QMenuBar *menuBar() const;
+    QMenu *menu() const override;
+    QMenuBar *menuBar() const override;
 
     virtual void insertAction(QAction *before, QAction *action) = 0;
     virtual void insertMenu(QAction *before, QMenu *menu) = 0;
@@ -98,19 +98,19 @@ class MenuActionContainer : public ActionContainerPrivate
 {
 public:
     explicit MenuActionContainer(Id id);
-    ~MenuActionContainer();
+    ~MenuActionContainer() override;
 
-    QMenu *menu() const;
+    QMenu *menu() const override;
 
-    void insertAction(QAction *before, QAction *action);
-    void insertMenu(QAction *before, QMenu *menu);
+    void insertAction(QAction *before, QAction *action) override;
+    void insertMenu(QAction *before, QMenu *menu) override;
 
-    void removeAction(QAction *action);
-    void removeMenu(QMenu *menu);
+    void removeAction(QAction *action) override;
+    void removeMenu(QMenu *menu) override;
 
 protected:
-    bool canBeAddedToMenu() const;
-    bool updateInternal();
+    bool canBeAddedToMenu() const override;
+    bool updateInternal() override;
 
 private:
     QPointer<QMenu> m_menu;
@@ -122,17 +122,17 @@ public:
     explicit MenuBarActionContainer(Id id);
 
     void setMenuBar(QMenuBar *menuBar);
-    QMenuBar *menuBar() const;
+    QMenuBar *menuBar() const override;
 
-    void insertAction(QAction *before, QAction *action);
-    void insertMenu(QAction *before, QMenu *menu);
+    void insertAction(QAction *before, QAction *action) override;
+    void insertMenu(QAction *before, QMenu *menu) override;
 
-    void removeAction(QAction *action);
-    void removeMenu(QMenu *menu);
+    void removeAction(QAction *action) override;
+    void removeMenu(QMenu *menu) override;
 
 protected:
-    bool canBeAddedToMenu() const;
-    bool updateInternal();
+    bool canBeAddedToMenu() const override;
+    bool updateInternal() override;
 
 private:
     QMenuBar *m_menuBar;

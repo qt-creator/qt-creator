@@ -33,7 +33,6 @@
 #include "cmakeprojectnodes.h"
 #include "cmakebuildconfiguration.h"
 #include "cmakerunconfiguration.h"
-#include "cmakesnippetprovider.h"
 #include "cmakeprojectconstants.h"
 #include "cmakelocatorfilter.h"
 #include "cmakesettingspage.h"
@@ -43,35 +42,67 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/fileiconprovider.h>
-
+#include <coreplugin/icore.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
+#include <texteditor/snippets/snippetprovider.h>
 
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/parameteraction.h>
 
-using namespace CMakeProjectManager::Internal;
 using namespace Core;
 using namespace ProjectExplorer;
+
+namespace CMakeProjectManager {
+namespace Internal {
+
+class CMakeProjectPluginPrivate
+{
+public:
+    Utils::ParameterAction *m_buildTargetContextAction = nullptr;
+    QMetaObject::Connection m_actionConnect;
+
+    CMakeSettingsPage settingsPage;
+    static const std::unique_ptr<CMakeSpecificSettings> projectTypeSpecificSettings;
+    CMakeManager manager;
+    CMakeBuildStepFactory buildStepFactory;
+    CMakeRunConfigurationFactory runConfigFactory;
+    CMakeBuildConfigurationFactory buildConfigFactory;
+    CMakeEditorFactory editorFactor;
+    CMakeLocatorFilter locatorFiler;
+};
+
+const std::unique_ptr<CMakeSpecificSettings>
+CMakeProjectPluginPrivate::projectTypeSpecificSettings{std::make_unique<CMakeSpecificSettings>()};
+
+CMakeSpecificSettings *CMakeProjectPlugin::projectTypeSpecificSettings()
+{
+    return CMakeProjectPluginPrivate::projectTypeSpecificSettings.get();
+}
+
+CMakeProjectPlugin::~CMakeProjectPlugin()
+{
+    delete d;
+}
 
 bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
-    const Context projectContext(Constants::PROJECTCONTEXT);
 
-    Utils::MimeDatabase::addMimeTypes(QLatin1String(":cmakeproject/CMakeProjectManager.mimetypes.xml"));
+    d = new CMakeProjectPluginPrivate;
+    CMakeProjectPluginPrivate::projectTypeSpecificSettings->fromSettings(ICore::settings());
+    new CMakeSpecificSettingsPage(CMakeProjectPluginPrivate::projectTypeSpecificSettings.get(),
+                                  this); //do not store as this will be cleaned after program close
+
+    const Context projectContext(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
 
     Core::FileIconProvider::registerIconOverlayForSuffix(Constants::FILEOVERLAY_CMAKE, "cmake");
-    Core::FileIconProvider::registerIconOverlayForFilename(Constants::FILEOVERLAY_CMAKE, "CMakeLists.txt");
+    Core::FileIconProvider::registerIconOverlayForFilename(Constants::FILEOVERLAY_CMAKE,
+                                                           "CMakeLists.txt");
 
-    addAutoReleasedObject(new Internal::CMakeSnippetProvider);
-    addAutoReleasedObject(new CMakeSettingsPage);
-    addAutoReleasedObject(new CMakeManager);
-    addAutoReleasedObject(new CMakeBuildStepFactory);
-    addAutoReleasedObject(new CMakeRunConfigurationFactory);
-    addAutoReleasedObject(new CMakeBuildConfigurationFactory);
-    addAutoReleasedObject(new CMakeEditorFactory);
-    addAutoReleasedObject(new CMakeLocatorFilter);
+    TextEditor::SnippetProvider::registerGroup(Constants::CMAKE_SNIPPETS_GROUP_ID,
+                                               tr("CMake", "SnippetProvider"));
+    ProjectManager::registerProjectType<CMakeProject>(Constants::CMAKEPROJECTMIMETYPE);
 
     new CMakeToolManager(this);
 
@@ -86,13 +117,14 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     //register actions
     Command *command = nullptr;
 
-    m_buildTargetContextAction = new Utils::ParameterAction(tr("Build"), tr("Build \"%1\""),
-                                                            Utils::ParameterAction::AlwaysEnabled/*handled manually*/,
-                                                            this);
-    command = ActionManager::registerAction(m_buildTargetContextAction, Constants::BUILD_TARGET_CONTEXTMENU, projectContext);
+    d->m_buildTargetContextAction = new Utils::ParameterAction(tr("Build"), tr("Build \"%1\""),
+                                                               Utils::ParameterAction::AlwaysEnabled/*handled manually*/,
+                                                               this);
+    command = ActionManager::registerAction(d->m_buildTargetContextAction,
+                                            Constants::BUILD_TARGET_CONTEXTMENU, projectContext);
     command->setAttribute(Command::CA_Hide);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDescription(m_buildTargetContextAction->text());
+    command->setDescription(d->m_buildTargetContextAction->text());
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
 
     // Wire up context menu updates:
@@ -108,21 +140,28 @@ void CMakeProjectPlugin::extensionsInitialized()
     CMakeToolManager::restoreCMakeTools();
 }
 
-void CMakeProjectPlugin::updateContextActions(ProjectExplorer::Node *node,
-                                              ProjectExplorer::Project *project)
+void CMakeProjectPlugin::updateContextActions()
 {
-    CMakeTargetNode *targetNode = dynamic_cast<CMakeTargetNode *>(node);
+    Project *project = ProjectTree::currentProject();
+    const Node *node = ProjectTree::findCurrentNode();
+    const CMakeTargetNode *targetNode = dynamic_cast<const CMakeTargetNode *>(node);
     // as targetNode can be deleted while the menu is open, we keep only the
     const QString targetDisplayName = targetNode ? targetNode->displayName() : QString();
     CMakeProject *cmProject = dynamic_cast<CMakeProject *>(project);
 
     // Build Target:
-    disconnect(m_actionConnect);
-    m_buildTargetContextAction->setParameter(targetDisplayName);
-    m_buildTargetContextAction->setEnabled(targetNode);
-    m_buildTargetContextAction->setVisible(targetNode);
+    disconnect(d->m_actionConnect);
+    d->m_buildTargetContextAction->setParameter(targetDisplayName);
+    d->m_buildTargetContextAction->setEnabled(targetNode);
+    d->m_buildTargetContextAction->setVisible(targetNode);
     if (cmProject && targetNode) {
-        m_actionConnect = connect(m_buildTargetContextAction, &Utils::ParameterAction::triggered,
-            cmProject, [cmProject, targetDisplayName]() { cmProject->buildCMakeTarget(targetDisplayName); });
+        d->m_actionConnect = connect(d->m_buildTargetContextAction, &Utils::ParameterAction::triggered,
+        cmProject, [cmProject, targetDisplayName]() {
+            cmProject->buildCMakeTarget(targetDisplayName);
+        });
     }
 }
+
+} // Internal
+} // CMakeProjectManager
+

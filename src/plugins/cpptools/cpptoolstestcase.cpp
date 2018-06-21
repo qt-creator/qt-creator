@@ -43,6 +43,7 @@
 #include <cplusplus/CppDocument.h>
 #include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
+#include <utils/temporarydirectory.h>
 
 #include <QtTest>
 
@@ -83,7 +84,7 @@ QString TestDocument::filePath() const
         return QDir::cleanPath(m_baseDirectory + QLatin1Char('/') + m_fileName);
 
     if (!QFileInfo(m_fileName).isAbsolute())
-        return QDir::tempPath() + QLatin1Char('/') + m_fileName;
+        return Utils::TemporaryDirectory::masterDirectoryPath() + '/' + m_fileName;
 
     return m_fileName;
 }
@@ -301,8 +302,7 @@ ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile, bool config
 }
 
 TemporaryDir::TemporaryDir()
-    : m_temporaryDir(QFileInfo(QDir::tempPath()).canonicalFilePath()
-                        + QLatin1String("/qtcreator-tests-XXXXXX"))
+    : m_temporaryDir("qtcreator-tests-XXXXXX")
     , m_isValid(m_temporaryDir.isValid())
 {
 }
@@ -395,16 +395,6 @@ FileWriterAndRemover::~FileWriterAndRemover()
     }
 }
 
-IAssistProposalScopedPointer::IAssistProposalScopedPointer(TextEditor::IAssistProposal *proposal)
-    : d(proposal)
-{}
-
-IAssistProposalScopedPointer::~IAssistProposalScopedPointer()
-{
-    if (d && d->model())
-        delete d->model();
-}
-
 VerifyCleanCppModelManager::VerifyCleanCppModelManager()
 {
     QVERIFY(isClean());
@@ -423,8 +413,11 @@ bool VerifyCleanCppModelManager::isClean(bool testOnlyForCleanedProjects)
     RETURN_FALSE_IF_NOT(mm->headerPaths().isEmpty());
     RETURN_FALSE_IF_NOT(mm->definedMacros().isEmpty());
     RETURN_FALSE_IF_NOT(mm->projectFiles().isEmpty());
-    if (!testOnlyForCleanedProjects)
+    if (!testOnlyForCleanedProjects) {
         RETURN_FALSE_IF_NOT(mm->snapshot().isEmpty());
+        RETURN_FALSE_IF_NOT(mm->workingCopy().size() == 1);
+        RETURN_FALSE_IF_NOT(mm->workingCopy().contains(mm->configurationFileName()));
+    }
     return true;
 }
 

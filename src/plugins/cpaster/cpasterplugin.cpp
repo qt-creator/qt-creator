@@ -46,12 +46,12 @@
 #include <utils/fileutils.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
+#include <utils/temporarydirectory.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
 #include <QtPlugin>
 #include <QDebug>
-#include <QDir>
 #include <QAction>
 #include <QApplication>
 #include <QClipboard>
@@ -94,7 +94,7 @@ void CodePasterServiceImpl::postClipboard()
 }
 
 // ---------- CodepasterPlugin
-CodepasterPlugin *CodepasterPlugin::m_instance = 0;
+CodepasterPlugin *CodepasterPlugin::m_instance = nullptr;
 
 CodepasterPlugin::CodepasterPlugin() :
     m_settings(new Settings)
@@ -106,7 +106,7 @@ CodepasterPlugin::~CodepasterPlugin()
 {
     delete m_urlOpen;
     qDeleteAll(m_protocols);
-    CodepasterPlugin::m_instance = 0;
+    CodepasterPlugin::m_instance = nullptr;
 }
 
 bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -116,22 +116,19 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     // Create the settings Page
     m_settings->fromSettings(ICore::settings());
-    SettingsPage *settingsPage = new SettingsPage(m_settings);
-    addAutoReleasedObject(settingsPage);
+    SettingsPage *settingsPage = new SettingsPage(m_settings, this);
 
     // Create the protocols and append them to the Settings
-    Protocol *protos[] =  { new PasteBinDotComProtocol,
-                            new PasteBinDotCaProtocol,
-                            new KdePasteProtocol,
-                            new FileShareProtocol
-                           };
+    Protocol *protos[] =  {new PasteBinDotComProtocol,
+                           new PasteBinDotCaProtocol,
+                           new KdePasteProtocol,
+                           new FileShareProtocol
+                          };
     const int count = sizeof(protos) / sizeof(Protocol *);
     for (int i = 0; i < count; ++i) {
         connect(protos[i], &Protocol::pasteDone, this, &CodepasterPlugin::finishPost);
         connect(protos[i], &Protocol::fetchDone, this, &CodepasterPlugin::finishFetch);
         settingsPage->addProtocol(protos[i]->name());
-        if (protos[i]->hasSettings())
-            addAutoReleasedObject(protos[i]->settingsPage());
         m_protocols.append(protos[i]);
     }
 
@@ -152,13 +149,13 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     m_postEditorAction = new QAction(tr("Paste Snippet..."), this);
     command = ActionManager::registerAction(m_postEditorAction, "CodePaster.Post");
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+P") : tr("Alt+C,Alt+P")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+C,Meta+P") : tr("Alt+C,Alt+P")));
     connect(m_postEditorAction, &QAction::triggered, this, &CodepasterPlugin::pasteSnippet);
     cpContainer->addAction(command);
 
     m_fetchAction = new QAction(tr("Fetch Snippet..."), this);
     command = ActionManager::registerAction(m_fetchAction, "CodePaster.Fetch");
-    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+F") : tr("Alt+C,Alt+F")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+C,Meta+F") : tr("Alt+C,Alt+F")));
     connect(m_fetchAction, &QAction::triggered, this, &CodepasterPlugin::fetch);
     cpContainer->addAction(command);
 
@@ -167,7 +164,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     connect(m_fetchUrlAction, &QAction::triggered, this, &CodepasterPlugin::fetchUrl);
     cpContainer->addAction(command);
 
-    addAutoReleasedObject(new CodePasterServiceImpl);
+    new CodePasterServiceImpl(this);
 
     return true;
 }
@@ -241,7 +238,7 @@ void CodepasterPlugin::post(PasteSources pasteSources)
         textFromCurrentEditor(&data, &mimeType);
     if (data.isEmpty() && (pasteSources & PasteClipboard)) {
         QString subType = QStringLiteral("plain");
-        data = qApp->clipboard()->text(subType, QClipboard::Clipboard);
+        data = QGuiApplication::clipboard()->text(subType, QClipboard::Clipboard);
     }
     post(data, mimeType);
 }
@@ -335,7 +332,7 @@ static inline QString filePrefixFromTitle(const QString &title)
 static inline QString tempFilePattern(const QString &prefix, const QString &extension)
 {
     // Get directory
-    QString pattern = QDir::tempPath();
+    QString pattern = Utils::TemporaryDirectory::masterDirectoryPath();
     const QChar slash = QLatin1Char('/');
     if (!pattern.endsWith(slash))
         pattern.append(slash);
@@ -366,8 +363,7 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     // Default to "txt".
     QByteArray byteContent = content.toUtf8();
     QString suffix;
-    Utils::MimeDatabase mdb;
-    const Utils::MimeType mimeType = mdb.mimeTypeForData(byteContent);
+    const Utils::MimeType mimeType = Utils::mimeTypeForData(byteContent);
     if (mimeType.isValid())
         suffix = mimeType.preferredSuffix();
     if (suffix.isEmpty())

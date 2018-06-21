@@ -39,7 +39,8 @@ const char DOCKWIDGET_SNAPSHOTS[]     = "Debugger.Docks.Snapshots";
 const char DOCKWIDGET_STACK[]         = "Debugger.Docks.Stack";
 const char DOCKWIDGET_SOURCE_FILES[]  = "Debugger.Docks.SourceFiles";
 const char DOCKWIDGET_THREADS[]       = "Debugger.Docks.Threads";
-const char DOCKWIDGET_WATCHERS[]      = "Debugger.Docks.LocalsAndWatchers";
+const char DOCKWIDGET_LOCALS_AND_INSPECTOR[] = "Debugger.Docks.LocalsAndInspector";
+const char DOCKWIDGET_WATCHERS[]      = "Debugger.Docks.Watchers";
 
 } // namespace Internal
 
@@ -47,8 +48,6 @@ namespace Constants {
 
 const char DEBUGGER_COMMON_SETTINGS_ID[]   = "A.Debugger.General";
 const char DEBUGGER_SETTINGS_CATEGORY[]    = "O.Debugger";
-const char DEBUGGER_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Debugger", "Debugger");
-const char DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON[] = ":/debugger/images/category_debug.png";
 
 namespace Internal {
     enum { debug = 0 };

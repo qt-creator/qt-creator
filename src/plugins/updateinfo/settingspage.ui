@@ -42,7 +42,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Qt Creator automatically runs a scheduled check for updates on a time interval basis. If Qt Creator is not in use on the scheduled date, the automatic check for updates will be performed next time Qt Creator starts.</string>
+         <string>Automatically runs a scheduled check for updates on a time interval basis. The automatic check for updates will be performed at the scheduled date, or the next startup following it.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>

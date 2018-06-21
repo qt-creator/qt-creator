@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "rundocumentparse-utility.h"
 
 #include <diagnostic.h>
 #include <diagnosticset.h>
@@ -67,28 +68,8 @@ MATCHER_P4(IsSourceLocation, filePath, line, column, offset,
     return true;
 }
 
-struct FixItData
-{
-    FixItData(TranslationUnit &translationUnit)
-        : diagnosticSet{translationUnit.diagnostics()}
-        , diagnostic{diagnosticSet.front()}
-        , fixIt{diagnostic.fixIts().front()}
-    {
-    }
-
-    DiagnosticSet diagnosticSet;
-    Diagnostic diagnostic;
-    ::FixIt fixIt;
-};
-
 struct Data
 {
-    Data()
-    {
-        document.parse();
-        d.reset(new FixItData(translationUnit));
-    }
-
     ProjectPart projectPart{Utf8StringLiteral("projectPartId")};
     ClangBackEnd::ProjectParts projects;
     ClangBackEnd::UnsavedFiles unsavedFiles;
@@ -97,8 +78,11 @@ struct Data
                       projectPart,
                       Utf8StringVector(),
                       documents};
+    UnitTest::RunDocumentParse _1{document};
     TranslationUnit translationUnit{document.translationUnit()};
-    std::unique_ptr<FixItData> d;
+    DiagnosticSet diagnosticSet{translationUnit.diagnostics()};
+    Diagnostic diagnostic{diagnosticSet.front()};
+    ClangBackEnd::FixIt fixIt{diagnostic.fixIts().front()};
 };
 
 class FixIt : public ::testing::Test
@@ -108,10 +92,12 @@ public:
     static void TearDownTestCase();
 
 protected:
-    static Data *d;
-    ::Diagnostic &diagnostic = d->d->diagnostic;
-    ::FixIt &fixIt = d->d->fixIt;
+    static  std::unique_ptr<const Data> data;
+    const Diagnostic &diagnostic{data->diagnostic};
+    const ClangBackEnd::FixIt &fixIt{data->fixIt};
 };
+
+std::unique_ptr<const Data> FixIt::data;
 
 TEST_F(FixIt, Size)
 {
@@ -140,17 +126,14 @@ TEST_F(FixIt, DISABLED_ON_WINDOWS(End))
                                                       29u));
 }
 
-Data *FixIt::d;
-
 void FixIt::SetUpTestCase()
 {
-    d = new Data;
+    data = std::make_unique<const Data>();
 }
 
 void FixIt::TearDownTestCase()
 {
-    delete d;
-    d = nullptr;
+    data.reset();
 }
 
 } // anonymous

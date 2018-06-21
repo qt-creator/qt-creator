@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/qmljstools">
-        <file>images/category_qml.png</file>
-        <file>images/prompt.png</file>
-        <file>QmlJSTools.mimetypes.xml</file>
+        <file>images/settingscategory_qml.png</file>
+        <file>images/settingscategory_qml@2x.png</file>
     </qresource>
 </RCC>

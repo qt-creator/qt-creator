@@ -45,13 +45,11 @@ enum State { Inactive, Connecting, RunningUname, TestingPorts };
 class GenericLinuxDeviceTesterPrivate
 {
 public:
-    GenericLinuxDeviceTesterPrivate() : connection(0), state(Inactive) {}
-
     IDevice::ConstPtr deviceConfiguration;
-    SshConnection *connection;
+    SshConnection *connection = nullptr;
     SshRemoteProcess::Ptr process;
     DeviceUsedPortsGatherer portsGatherer;
-    State state;
+    State state = Inactive;
 };
 
 } // namespace Internal
@@ -103,11 +101,6 @@ void GenericLinuxDeviceTester::stopTest()
     }
 
     setFinished(TestFailure);
-}
-
-DeviceUsedPortsGatherer *GenericLinuxDeviceTester::usedPortsGatherer() const
-{
-    return &d->portsGatherer;
 }
 
 void GenericLinuxDeviceTester::handleConnected()

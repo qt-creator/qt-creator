@@ -34,17 +34,19 @@
 namespace QmlProfiler {
 namespace Internal {
 
-FlameGraphViewTest::FlameGraphViewTest(QObject *parent) : QObject(parent), manager(&finder),
-    view(&manager)
+FlameGraphViewTest::FlameGraphViewTest(QObject *parent)
+    : QObject(parent), view(&manager)
 {
 }
 
 void FlameGraphViewTest::initTestCase()
 {
-    FlameGraphModelTest::generateData(&manager);
+    connect(&view, &QmlProfilerEventsView::showFullRange,
+            this, [this](){ manager.restrictToRange(-1, -1); });
+    FlameGraphModelTest::generateData(&manager, &aggregator);
     view.resize(500, 500);
     view.show();
-    QTest::qWaitForWindowExposed(&view);
+    QVERIFY(QTest::qWaitForWindowExposed(&view));
 }
 
 void FlameGraphViewTest::testSelection()
@@ -56,8 +58,9 @@ void FlameGraphViewTest::testSelection()
         QCOMPARE(file, QLatin1String("somefile.js"));
     });
 
-    auto con2 = connect(&view, &QmlProfilerEventsView::typeSelected, [](int selected) {
-        QCOMPARE(selected, 0);
+    int expectedType = 0;
+    auto con2 = connect(&view, &QmlProfilerEventsView::typeSelected, [&](int selected) {
+        QCOMPARE(selected, expectedType);
     });
 
     QSignalSpy spy(&view, SIGNAL(typeSelected(int)));
@@ -69,12 +72,13 @@ void FlameGraphViewTest::testSelection()
     view.selectByTypeId(1);
     QCOMPARE(spy.count(), 1);
 
-    // Click in empty area shouldn't change anything, either
+    // Click in empty area deselects
+    expectedType = -1;
     QTest::mouseClick(view.childAt(250, 250), Qt::LeftButton, Qt::NoModifier, QPoint(495, 50));
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 2);
 
     view.onVisibleFeaturesChanged(1 << ProfileBinding);
-    QCOMPARE(spy.count(), 1); // External event: still doesn't change anything
+    QCOMPARE(spy.count(), 2); // External event: still doesn't change anything
 
     disconnect(con1);
     disconnect(con2);
@@ -108,7 +112,7 @@ void FlameGraphViewTest::testContextMenu()
         testMenu.addActions(QmlProfilerTool::profilerContextMenuActions());
         testMenu.addSeparator();
         testMenu.show();
-        QTest::qWaitForWindowExposed(testMenu.window());
+        QVERIFY(QTest::qWaitForWindowExposed(testMenu.window()));
         targetWidth = testMenu.width() / 2;
         int prevHeight = testMenu.height();
         QAction dummy(QString("target"), this);
@@ -116,43 +120,48 @@ void FlameGraphViewTest::testContextMenu()
         targetHeight = (testMenu.height() + prevHeight) / 2;
     }
 
-    QTimer timer;
-    timer.setInterval(50);
-    timer.start();
-
-    connect(&timer, &QTimer::timeout, this, [&]() {
-        auto activePopup = qApp->activePopupWidget();
-        if (!activePopup || !activePopup->windowHandle()->isExposed())
-            return;
-        QTest::mouseMove(activePopup, QPoint(targetWidth, targetHeight));
-        QTest::mouseClick(activePopup, Qt::LeftButton, Qt::NoModifier,
-                          QPoint(targetWidth, targetHeight));
-
-        if (!manager.isRestrictedToRange()) {
-            // click somewhere else to remove the menu and return to outer function
-            QTest::mouseClick(qApp->activePopupWidget(), Qt::LeftButton, Qt::NoModifier,
-                              QPoint(500, 500));
-        }
-    });
-
     QTest::mouseMove(&view, QPoint(250, 250));
     QSignalSpy spy(&view, SIGNAL(showFullRange()));
 
-    QContextMenuEvent event(QContextMenuEvent::Mouse, QPoint(250, 250));
-    QVERIFY(qApp->notify(&view, &event));
+    QTimer timer;
+    timer.setInterval(500);
+    int menuClicks = 0;
+
+    connect(&timer, &QTimer::timeout, this, [&]() {
+        auto activePopup = QApplication::activePopupWidget();
+        if (!activePopup || !activePopup->windowHandle()->isExposed()) {
+            QContextMenuEvent *event = new QContextMenuEvent(QContextMenuEvent::Mouse,
+                                                             QPoint(250, 250));
+            QCoreApplication::postEvent(&view, event);
+            return;
+        }
+
+        QTest::mouseMove(activePopup, QPoint(targetWidth, targetHeight));
+        QTest::mouseClick(activePopup, Qt::LeftButton, Qt::NoModifier,
+                          QPoint(targetWidth, targetHeight));
+        ++menuClicks;
+
+        if (!manager.isRestrictedToRange()) {
+            // click somewhere else to remove the menu and return to outer function
+            QTest::mouseMove(activePopup, QPoint(-10, -10));
+            QTest::mouseClick(activePopup, Qt::LeftButton, Qt::NoModifier, QPoint(-10, -10));
+        }
+    });
+
+    timer.start();
+    QTRY_VERIFY(menuClicks > 0);
     QCOMPARE(spy.count(), 0);
-
     manager.restrictToRange(1, 10);
-
-    QVERIFY(qApp->notify(&view, &event));
-
-    if (spy.count() != 1)
-        QTRY_COMPARE(spy.count(), 1);
+    QVERIFY(manager.isRestrictedToRange());
+    QTRY_COMPARE(spy.count(), 1);
+    QVERIFY(menuClicks > 1);
+    QVERIFY(!manager.isRestrictedToRange());
+    timer.stop();
 }
 
 void FlameGraphViewTest::cleanupTestCase()
 {
-    manager.clear();
+    manager.clearAll();
 }
 
 } // namespace Internal

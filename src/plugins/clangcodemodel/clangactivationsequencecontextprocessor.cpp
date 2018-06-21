@@ -243,13 +243,40 @@ static bool isValidIdentifierChar(const QChar &character)
 
 int ActivationSequenceContextProcessor::findStartOfName(
         const TextEditor::AssistInterface *assistInterface,
-        int startPosition)
+        int startPosition,
+        NameCategory category)
 {
     int position = startPosition;
     QChar character;
+
+    if (category == NameCategory::Function
+            && position > 2 && assistInterface->characterAt(position - 1) == '>'
+            && assistInterface->characterAt(position - 2) != '-') {
+        uint unbalancedLessGreater = 1;
+        --position;
+        while (unbalancedLessGreater > 0 && position > 2) {
+            character = assistInterface->characterAt(--position);
+            // Do not count -> usage inside temlate argument list
+            if (character == '<')
+                --unbalancedLessGreater;
+            else if (character == '>' && assistInterface->characterAt(position-1) != '-')
+                ++unbalancedLessGreater;
+        }
+        position = skipPrecedingWhitespace(assistInterface, position) - 1;
+    }
+
     do {
         character = assistInterface->characterAt(--position);
     } while (isValidIdentifierChar(character));
+
+    int prevPosition = skipPrecedingWhitespace(assistInterface, position);
+    if (category == NameCategory::Function
+            && assistInterface->characterAt(prevPosition) == ':'
+            && assistInterface->characterAt(prevPosition - 1) == ':') {
+        // Handle :: case - go recursive
+        prevPosition = skipPrecedingWhitespace(assistInterface, prevPosition - 2);
+        return findStartOfName(assistInterface, prevPosition + 1, category);
+    }
 
     return position + 1;
 }

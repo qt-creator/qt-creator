@@ -24,7 +24,11 @@
 ****************************************************************************/
 #pragma once
 
+#include <coreplugin/icontext.h>
+
 #include <abstractview.h>
+
+#include <memory>
 
 namespace TextEditor { class BaseTextEditor; }
 
@@ -32,13 +36,19 @@ namespace Utils { class CrumblePath; }
 
 namespace QmlDesigner {
 
+namespace Internal {
+class TextEditorContext;
+}
+
+class TextEditorWidget;
+
 class QMLDESIGNERCORE_EXPORT TextEditorView : public AbstractView
 {
     Q_OBJECT
 
 public:
-    TextEditorView(QObject *parent = 0);
-    ~TextEditorView();
+    TextEditorView(QObject *parent = nullptr);
+    ~TextEditorView() override;
 
     // AbstractView
     void modelAttached(Model *model) override;
@@ -55,10 +65,13 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
+    void documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings) override;
 
     // TextEditorView
     WidgetInfo widgetInfo() override;
-    QString contextHelpId() const override;
+    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const override;
+
+    void qmlJSEditorHelpId(const Core::IContext::HelpIdCallback &callback) const;
 
     TextEditor::BaseTextEditor *textEditor();
 
@@ -83,9 +96,13 @@ public:
 
     void deActivateItemCreator();
 
+    void gotoCursorPosition(int line, int column);
+
+    void reformatFile();
+
 private:
-    QPointer<TextEditor::BaseTextEditor> m_textEditor;
-    QWidget *m_dummyWidget = 0;
+    QPointer<TextEditorWidget> m_widget;
+    Internal::TextEditorContext *m_textEditorContext;
 };
 
 } // namespace QmlDesigner

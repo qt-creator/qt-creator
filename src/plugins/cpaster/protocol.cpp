@@ -24,6 +24,9 @@
 ****************************************************************************/
 
 #include "protocol.h"
+#ifdef CPASTER_PLUGIN_GUI
+#include "authenticationdialog.h"
+#endif
 
 #include <utils/networkaccessmanager.h>
 
@@ -35,6 +38,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QNetworkCookie>
+#include <QNetworkCookieJar>
 #include <QNetworkRequest>
 #include <QNetworkReply>
 
@@ -45,6 +50,7 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QPushButton>
+#include <QAuthenticator>
 
 namespace CodePaster {
 
@@ -93,6 +99,7 @@ Protocol::ContentType Protocol::contentType(const QString &mt)
         || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE))
         return Cpp;
     if (mt == QLatin1String(QmlJSTools::Constants::QML_MIMETYPE)
+        || mt == QLatin1String(QmlJSTools::Constants::QMLUI_MIMETYPE)
         || mt == QLatin1String(QmlJSTools::Constants::QMLPROJECT_MIMETYPE)
         || mt == QLatin1String(QmlJSTools::Constants::QBS_MIMETYPE)
         || mt == QLatin1String(QmlJSTools::Constants::JS_MIMETYPE)
@@ -161,7 +168,7 @@ bool Protocol::showConfigurationError(const Protocol *p,
         parent = Core::ICore::mainWindow();
     const QString title = tr("%1 - Configuration Error").arg(p->name());
     QMessageBox mb(QMessageBox::Warning, title, message, QMessageBox::Cancel, parent);
-    QPushButton *settingsButton = 0;
+    QPushButton *settingsButton = nullptr;
     if (showConfig)
         settingsButton = mb.addButton(Core::ICore::msgShowOptionsDialog(), QMessageBox::AcceptRole);
     mb.exec();
@@ -173,24 +180,64 @@ bool Protocol::showConfigurationError(const Protocol *p,
 
 // --------- NetworkProtocol
 
-QNetworkReply *NetworkProtocol::httpGet(const QString &link)
+static void addCookies(QNetworkRequest &request)
+{
+    auto accessMgr = Utils::NetworkAccessManager::instance();
+    const QList<QNetworkCookie> cookies = accessMgr->cookieJar()->cookiesForUrl(request.url());
+    for (const QNetworkCookie &cookie : cookies)
+        request.setHeader(QNetworkRequest::CookieHeader, QVariant::fromValue(cookie));
+}
+
+QNetworkReply *NetworkProtocol::httpGet(const QString &link, bool handleCookies)
 {
     QUrl url(link);
     QNetworkRequest r(url);
+    if (handleCookies)
+        addCookies(r);
     return Utils::NetworkAccessManager::instance()->get(r);
 }
 
-QNetworkReply *NetworkProtocol::httpPost(const QString &link, const QByteArray &data)
+QNetworkReply *NetworkProtocol::httpPost(const QString &link, const QByteArray &data,
+                                         bool handleCookies)
 {
     QUrl url(link);
     QNetworkRequest r(url);
+    if (handleCookies)
+        addCookies(r);
     r.setHeader(QNetworkRequest::ContentTypeHeader,
                 QVariant(QByteArray("application/x-www-form-urlencoded")));
     return Utils::NetworkAccessManager::instance()->post(r, data);
 }
 
+NetworkProtocol::NetworkProtocol()
+    : Protocol()
+{
+    connect(Utils::NetworkAccessManager::instance(), &QNetworkAccessManager::authenticationRequired,
+            this, &NetworkProtocol::authenticationRequired);
+}
+
 NetworkProtocol::~NetworkProtocol()
 {
+}
+
+void NetworkProtocol::requestAuthentication(const QUrl &url, QNetworkReply *reply, QAuthenticator *authenticator)
+{
+#ifdef CPASTER_PLUGIN_GUI
+    if (reply->request().url().host() == url.host()) {
+        const QString details = tr("Pasting needs authentication.<br/>"
+                                   "Enter your identity credentials to continue.");
+        AuthenticationDialog authDialog(details, Core::ICore::dialogParent());
+        authDialog.setWindowTitle(tr("Authenticate for Paster"));
+        if (authDialog.exec() == QDialog::Accepted) {
+            authenticator->setUser(authDialog.userName());
+            authenticator->setPassword(authDialog.password());
+        }
+    }
+#else
+    Q_UNUSED(url);
+    Q_UNUSED(reply);
+    Q_UNUSED(authenticator);
+#endif
 }
 
 bool NetworkProtocol::httpStatus(QString url, QString *errorMessage, bool useHttps)

@@ -30,6 +30,8 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
 
+#include <utils/temporaryfile.h>
+
 #include <QAction>
 #include <QLabel>
 #include <QMenu>
@@ -41,14 +43,13 @@
 #include <QApplication>
 #include <QPainter>
 #include <QDir>
-#include <QTemporaryFile>
 
 // Widget showing the image in a 1-pixel frame with context menu.
 class ImageWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ImageWidget(QWidget *parent = 0) : QWidget(parent) {}
+    ImageWidget() {}
 
     void setImage(const QImage &image);
     const QImage &image() const { return  m_image; }
@@ -131,12 +132,9 @@ void ImageViewer::clicked(const QString &message)
 // Open Qt Creator's image viewer
 static void openImageViewer(const QImage &image)
 {
-    QString fileName = QDir::tempPath();
-    if (!fileName.endsWith(QLatin1Char('/')))
-        fileName += QLatin1Char('/');
-    fileName += QLatin1String("qtcreatorXXXXXX.png");
+    QString fileName;
     {
-        QTemporaryFile temporaryFile(fileName);
+        Utils::TemporaryFile temporaryFile("qtcreatorXXXXXX.png");
         temporaryFile.setAutoRemove(false);
         image.save(&temporaryFile);
         fileName = temporaryFile.fileName();

@@ -91,6 +91,7 @@ bool FindMacroHandler::executeEvent(const MacroEvent &macroEvent)
         currentFind->replace(macroEvent.value(BEFORE).toString(),
                              macroEvent.value(AFTER).toString(),
                              (Core::FindFlags)macroEvent.value(FLAGS).toInt());
+        break;
     case REPLACESTEP:
         currentFind->replaceStep(macroEvent.value(BEFORE).toString(),
                               macroEvent.value(AFTER).toString(),

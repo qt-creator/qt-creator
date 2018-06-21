@@ -26,6 +26,7 @@
 #include "googletest.h"
 
 #include "clangcompareoperators.h"
+#include "testenvironment.h"
 
 #include <clangdocument.h>
 #include <clangdocuments.h>
@@ -56,6 +57,7 @@ using testing::AllOf;
 using testing::Not;
 using testing::IsEmpty;
 using testing::StrEq;
+using testing::Eq;
 
 namespace {
 
@@ -66,7 +68,7 @@ struct Data {
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/cursor.cpp")};
     Document document{filePath,
                       ProjectPart(Utf8StringLiteral("projectPartId"),
-                                 {Utf8StringLiteral("-std=c++11")}),
+                                  TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++11")})),
                       {},
                       documents};
     TranslationUnit translationUnit{filePath,
@@ -136,14 +138,14 @@ TEST_F(Cursor, UnifiedSymbolResolution)
 {
      ::Cursor cursor;
 
-     ASSERT_TRUE(cursor.unifiedSymbolResolution().isEmpty());
+     ASSERT_FALSE(cursor.unifiedSymbolResolution().hasContent());
 }
 
 TEST_F(Cursor, GetCursorAtLocation)
 {
     auto cursor = translationUnit.cursorAt(3, 6);
 
-    ASSERT_THAT(cursor.unifiedSymbolResolution(), Utf8StringLiteral("c:@F@function#I#"));
+    ASSERT_THAT(cursor.unifiedSymbolResolution(), Eq("c:@F@function#I#"));
 }
 
 TEST_F(Cursor, GetCursoSourceLocation)
@@ -165,14 +167,12 @@ TEST_F(Cursor, Mangling)
 {
     auto cursor = translationUnit.cursorAt(3, 6);
 
-
-    ASSERT_THAT(cursor.mangling().isEmpty(), false);
+    ASSERT_TRUE(cursor.mangling().hasContent());
 }
 
 TEST_F(Cursor, Spelling)
 {
     auto cursor = translationUnit.cursorAt(3, 6);
-
 
     ASSERT_THAT(cursor.spelling().cString(), StrEq("function"));
 }
@@ -181,24 +181,21 @@ TEST_F(Cursor, DisplayName)
 {
     auto cursor = translationUnit.cursorAt(3, 6);
 
-
-    ASSERT_THAT(cursor.displayName(), Utf8StringLiteral("function(int)"));
+    ASSERT_THAT(cursor.displayName(), Eq("function(int)"));
 }
 
 TEST_F(Cursor, BriefComment)
 {
     auto cursor = translationUnit.cursorAt(Utf8StringLiteral(TESTDATA_DIR"/cursor.h"), 10, 7);
 
-
-    ASSERT_THAT(cursor.briefComment(), Utf8StringLiteral("A brief comment"));
+    ASSERT_THAT(cursor.briefComment(), Eq("A brief comment"));
 }
 
 TEST_F(Cursor, DISABLED_ON_WINDOWS(RawComment))
 {
     auto cursor = translationUnit.cursorAt(Utf8StringLiteral(TESTDATA_DIR"/cursor.h"), 10, 7);
 
-
-    ASSERT_THAT(cursor.rawComment(), Utf8StringLiteral("/**\n * A brief comment\n */"));
+    ASSERT_THAT(cursor.rawComment(), Eq("/**\n * A brief comment\n */"));
 }
 
 TEST_F(Cursor, CommentRange)
@@ -395,7 +392,7 @@ TEST_F(Cursor, IsLocalVariableInStaticFunction)
     ASSERT_TRUE(cursor.isLocalVariable());
 }
 
-TEST_F(Cursor, DISABLED_ON_WINDOWS(IsLocalVariableInTemplateFunction))
+TEST_F(Cursor, IsLocalVariableInTemplateFunction)
 {
     auto cursor = translationUnit.cursorAt(52, 7);
 
@@ -497,7 +494,7 @@ TEST_F(Cursor, HasOutputValues)
 
     auto outputArgumentLocations = callExpressionCursor.outputArgumentRanges();
 
-    ASSERT_THAT(outputArgumentLocations.size(), 2);
+    ASSERT_THAT(outputArgumentLocations.size(), 1);
     ASSERT_THAT(outputArgumentLocations[0], outputArgumentExpectedSourceLocation);
 }
 
@@ -752,13 +749,13 @@ TEST_F(Cursor, PointerIsNotRefencingConstant)
     ASSERT_FALSE(argument.isReferencingConstant());
 }
 
-TEST_F(Cursor, PointerIsOutputArgument)
+TEST_F(Cursor, PointerIsNotOutputArgument)
 {
     auto callExpressionCursor = translationUnit.cursorAt(127, 13);
 
     auto argument = callExpressionCursor.type().argument(0);
 
-    ASSERT_TRUE(argument.isOutputArgument());
+    ASSERT_FALSE(argument.isOutputArgument());
 }
 
 TEST_F(Cursor, ConstantReferenceIsNotOutputArgument)
@@ -785,7 +782,7 @@ TEST_F(Cursor, ConstantPointerIsNotOutputArgument)
 
     auto argument = callExpressionCursor.type().argument(0);
 
-    ASSERT_TRUE(argument.isOutputArgument());
+    ASSERT_FALSE(argument.isOutputArgument());
 }
 
 TEST_F(Cursor, ReferenceIsOutputArgument)
@@ -804,6 +801,96 @@ TEST_F(Cursor, ConstReferenceIsNotOutputArgument)
     auto argument = callExpressionCursor.type().argument(0);
 
     ASSERT_FALSE(argument.isOutputArgument());
+}
+
+TEST_F(Cursor, ResultType)
+{
+    auto methodCursor = translationUnit.cursorAt(31, 18);
+
+    Utf8String resultType = methodCursor.type().resultType().spelling();
+
+    ASSERT_THAT(resultType, Utf8String("bool", 4));
+}
+
+TEST_F(Cursor, PrivateMethodAccessSpecifier)
+{
+    auto methodCursor = translationUnit.cursorAt(16, 17);
+
+    auto accessSpecifier = methodCursor.accessSpecifier();
+
+    ASSERT_THAT(accessSpecifier, ClangBackEnd::AccessSpecifier::Private);
+}
+
+TEST_F(Cursor, PublicMethodAccessSpecifier)
+{
+    auto methodCursor = translationUnit.cursorAt(79, 25);
+
+    auto accessSpecifier = methodCursor.accessSpecifier();
+
+    ASSERT_THAT(accessSpecifier, ClangBackEnd::AccessSpecifier::Public);
+}
+
+TEST_F(Cursor, ProtectedMethodAccessSpecifier)
+{
+    auto methodCursor = translationUnit.cursorAt(131, 22);
+
+    auto accessSpecifier = methodCursor.accessSpecifier();
+
+    ASSERT_THAT(accessSpecifier, ClangBackEnd::AccessSpecifier::Protected);
+}
+
+TEST_F(Cursor, PrivateFieldAccessSpecifier)
+{
+    auto fieldCursor = translationUnit.cursorAt(21, 12);
+
+    auto accessSpecifier = fieldCursor.accessSpecifier();
+
+    ASSERT_THAT(accessSpecifier, ClangBackEnd::AccessSpecifier::Private);
+}
+
+TEST_F(Cursor, InvalidAccessSpecifier)
+{
+    auto localVarCursor = translationUnit.cursorAt(62, 9);
+
+    auto accessSpecifier = localVarCursor.accessSpecifier();
+
+    ASSERT_THAT(accessSpecifier, ClangBackEnd::AccessSpecifier::Invalid);
+}
+
+TEST_F(Cursor, NoStorageClass)
+{
+    auto localVarCursor = translationUnit.cursorAt(62, 9);
+
+    auto storageClass = localVarCursor.storageClass();
+
+    ASSERT_THAT(storageClass, ClangBackEnd::StorageClass::None);
+}
+
+TEST_F(Cursor, ExternVarStorageClass)
+{
+    auto externalVarCursor = translationUnit.cursorAt(133, 12);
+
+    auto storageClass = externalVarCursor.storageClass();
+
+    ASSERT_THAT(storageClass, ClangBackEnd::StorageClass::Extern);
+}
+
+TEST_F(Cursor, StaticMethodStorageClass)
+{
+    auto methodCursor = translationUnit.cursorAt(135, 13);
+
+    auto storageClass = methodCursor.storageClass();
+
+    ASSERT_THAT(storageClass, ClangBackEnd::StorageClass::Static);
+}
+
+TEST_F(Cursor, InvalidStorageClass)
+{
+    auto functionTemplateCursor = translationUnit.cursorAt(137, 28);
+
+    auto storageClass = functionTemplateCursor.storageClass();
+
+    ASSERT_THAT(storageClass, ClangBackEnd::StorageClass::Invalid);
 }
 
 Data *Cursor::d;

@@ -65,8 +65,8 @@ private:
     QList<QString> m_templateParameters;
     QList<MClassMember> m_members;
     QSet<Uid> m_visibleMembers;
-    TemplateDisplay m_templateDisplay;
-    bool m_showAllMembers;
+    TemplateDisplay m_templateDisplay = TemplateSmart;
+    bool m_showAllMembers = false;
 };
 
 } // namespace qmt

@@ -51,7 +51,7 @@ QString StereotypesController::toString(const QList<QString> &stereotypes)
     bool first = true;
     foreach (const QString &stereotype, stereotypes) {
         if (!first)
-            s += QStringLiteral(", ");
+            s += ", ";
         s += stereotype;
         first = false;
     }

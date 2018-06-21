@@ -25,35 +25,17 @@
 
 #pragma once
 
+#include <cpptools/cppcursorinfo.h>
 #include <cpptools/cppsemanticinfo.h>
-#include <texteditor/texteditorconstants.h>
-
-#include <cplusplus/CppDocument.h>
 
 #include <QFutureWatcher>
 #include <QTextEdit>
 #include <QTimer>
 
-QT_BEGIN_NAMESPACE
-class QTextCharFormat;
-class QTextCursor;
-QT_END_NAMESPACE
-
 namespace TextEditor { class TextEditorWidget; }
 
 namespace CppEditor {
 namespace Internal {
-
-typedef QList<QTextEdit::ExtraSelection> ExtraSelections;
-typedef QList<CppTools::SemanticInfo::Use> SemanticUses;
-
-struct UseSelectionsResult
-{
-    CppTools::SemanticInfo::LocalUseMap localUses;
-    SemanticUses selectionsForLocalVariableUnderCursor;
-    SemanticUses selectionsForLocalUnusedVariables;
-    QList<int> references;
-};
 
 class CppUseSelectionsUpdater : public QObject
 {
@@ -62,50 +44,42 @@ class CppUseSelectionsUpdater : public QObject
 
 public:
     explicit CppUseSelectionsUpdater(TextEditor::TextEditorWidget *editorWidget);
-
-    enum CallType { Synchronous, Asynchronous };
+    ~CppUseSelectionsUpdater();
 
     void scheduleUpdate();
     void abortSchedule();
-    void update(CallType callType = Asynchronous);
+
+    enum class CallType { Synchronous, Asynchronous };
+    enum class RunnerInfo { AlreadyUpToDate, Started, FailedToStart, Invalid }; // For async case.
+    RunnerInfo update(CallType callType = CallType::Asynchronous);
 
 signals:
-    void finished(CppTools::SemanticInfo::LocalUseMap localUses);
+    void finished(CppTools::SemanticInfo::LocalUseMap localUses, bool success);
     void selectionsForVariableUnderCursorUpdated(const QList<QTextEdit::ExtraSelection> &);
 
 private:
     CppUseSelectionsUpdater();
-
+    bool isSameIdentifierAsBefore(const QTextCursor &cursorAtWordStart) const;
+    void processResults(const CppTools::CursorInfo &result);
     void onFindUsesFinished();
-    bool handleMacroCase(const CPlusPlus::Document::Ptr document);
-    void handleSymbolCaseAsynchronously(const CPlusPlus::Document::Ptr document,
-                                        const CPlusPlus::Snapshot &snapshot);
-    void handleSymbolCaseSynchronously(const CPlusPlus::Document::Ptr document,
-                                       const CPlusPlus::Snapshot &snapshot);
-
-    void processSymbolCaseResults(const UseSelectionsResult &result);
-
-    ExtraSelections toExtraSelections(const SemanticUses &uses, TextEditor::TextStyle style) const;
-    ExtraSelections toExtraSelections(const QList<int> &references,
-                                      TextEditor::TextStyle style) const;
 
     // Convenience
+    using ExtraSelections = QList<QTextEdit::ExtraSelection>;
+    using CursorInfo = CppTools::CursorInfo;
+    ExtraSelections toExtraSelections(const CursorInfo::Ranges &ranges,
+                                      TextEditor::TextStyle style);
     ExtraSelections currentUseSelections() const;
-    void updateUseSelections(const ExtraSelections &selections);
-    void updateUnusedSelections(const ExtraSelections &selections);
-    QTextCharFormat textCharFormat(TextEditor::TextStyle category) const;
-    QTextDocument *textDocument() const;
+    ExtraSelections updateUseSelections(const CursorInfo::Ranges &selections);
+    void updateUnusedSelections(const CursorInfo::Ranges &selections);
 
 private:
     TextEditor::TextEditorWidget *m_editorWidget;
 
     QTimer m_timer;
 
-    CPlusPlus::Document::Ptr m_document;
-
-    QScopedPointer<QFutureWatcher<UseSelectionsResult>> m_findUsesWatcher;
-    int m_findUsesRevision;
-    int m_findUsesCursorPosition;
+    QScopedPointer<QFutureWatcher<CppTools::CursorInfo>> m_runnerWatcher;
+    int m_runnerRevision = -1;
+    int m_runnerWordStartPosition = -1;
 };
 
 } // namespace Internal

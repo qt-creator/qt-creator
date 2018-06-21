@@ -56,7 +56,7 @@ class QMLJS_EXPORT ImportMatchStrength
 {
 public:
     explicit ImportMatchStrength() {}
-    ImportMatchStrength(QList<int> match);
+    ImportMatchStrength(const QList<int> &match);
 
     int compareMatch(const ImportMatchStrength &o) const;
 
@@ -127,7 +127,7 @@ class QMLJS_EXPORT Export
 public:
     static QString libraryTypeName();
     Export();
-    Export(ImportKey exportName, QString pathRequired, bool intrinsic = false,
+    Export(ImportKey exportName, const QString &pathRequired, bool intrinsic = false,
            const QString &typeName = libraryTypeName());
     ImportKey exportName;
     QString pathRequired;
@@ -209,8 +209,6 @@ public:
     void removeExport(const QString &importId, const ImportKey &importKey,
                       const QString &requiredPath, const QString &typeName = Export::libraryTypeName());
 
-    void iterateOnCoreImports(const ViewerContext &vContext,
-                              std::function<bool(const CoreImport &)> const &iterF) const;
     void iterateOnLibraryImports(const ViewerContext &vContext,
                                  std::function<bool(const ImportMatchStrength &,
                                                       const Export &,

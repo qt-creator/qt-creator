@@ -31,6 +31,7 @@
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/completionsettings.h>
 #include <texteditor/texteditorsettings.h>
+#include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
@@ -168,34 +169,52 @@ KeywordsCompletionAssistProcessor::KeywordsCompletionAssistProcessor(Keywords ke
 
 IAssistProposal *KeywordsCompletionAssistProcessor::perform(const AssistInterface *interface)
 {
-    m_interface.reset(interface);
-
-    if (isInComment())
+    QScopedPointer<const AssistInterface> assistInterface(interface);
+    if (isInComment(interface))
         return nullptr;
 
-    if (interface->reason() == IdleEditor && !acceptsIdleEditor())
-        return nullptr;
+    int pos = interface->position();
 
-    if (m_startPosition == -1)
-        m_startPosition = findStartOfName();
+    // Find start position
+    QChar chr = interface->characterAt(pos - 1);
+    if (chr == '(')
+        --pos;
+    // Skip to the start of a name
+    do {
+        chr = interface->characterAt(--pos);
+    } while (chr.isLetterOrNumber() || chr == '_');
 
-    int nextCharPos = m_startPosition + m_word.length();
-    if (m_keywords.isFunction(m_word)
-        && m_interface->characterAt(nextCharPos) == QLatin1Char('(')) {
-        QStringList functionSymbols = m_keywords.argsForFunction(m_word);
-        IFunctionHintProposalModel *model = new KeywordsFunctionHintModel(functionSymbols);
-        return new FunctionHintProposal(m_startPosition, model);
+    ++pos;
+
+    int startPosition = pos;
+
+    if (interface->reason() == IdleEditor) {
+        QChar characterUnderCursor = interface->characterAt(interface->position());
+        if (characterUnderCursor.isLetterOrNumber())
+            return nullptr;
+        if (interface->position() - startPosition < 3)
+            return 0;
+    }
+
+    // extract word
+    QString word;
+    do {
+        word += interface->characterAt(pos);
+        chr = interface->characterAt(++pos);
+    } while ((chr.isLetterOrNumber() || chr == '_') && chr != '(');
+
+    if (m_keywords.isFunction(word) && interface->characterAt(pos) == '(') {
+        QStringList functionSymbols = m_keywords.argsForFunction(word);
+        if (functionSymbols.size() == 0)
+            return nullptr;
+        FunctionHintProposalModelPtr model(new KeywordsFunctionHintModel(functionSymbols));
+        return new FunctionHintProposal(startPosition, model);
     } else {
         QList<AssistProposalItemInterface *> items = m_snippetCollector.collect();
         items.append(generateProposalList(m_keywords.variables(), m_variableIcon));
-        items.append(generateProposalList(m_keywords.variables(), m_variableIcon));
-        return new GenericProposal(m_startPosition, items);
+        items.append(generateProposalList(m_keywords.functions(), m_functionIcon));
+        return new GenericProposal(startPosition, items);
     }
-}
-
-QChar KeywordsCompletionAssistProcessor::startOfCommentChar() const
-{
-    return QLatin1Char('#');
 }
 
 void KeywordsCompletionAssistProcessor::setSnippetGroup(const QString &id)
@@ -208,49 +227,12 @@ void KeywordsCompletionAssistProcessor::setKeywords(Keywords keywords)
     m_keywords = keywords;
 }
 
-bool KeywordsCompletionAssistProcessor::acceptsIdleEditor()
+bool KeywordsCompletionAssistProcessor::isInComment(const AssistInterface *interface) const
 {
-    const int pos = m_interface->position();
-    const QChar characterUnderCursor = m_interface->characterAt(pos);
-    if (!characterUnderCursor.isLetterOrNumber()) {
-        m_startPosition = findStartOfName();
-        if (pos - m_startPosition >= 3 && !isInComment())
-            return true;
-    }
-    return false;
-}
-
-int KeywordsCompletionAssistProcessor::findStartOfName(int pos)
-{
-    if (pos == -1)
-        pos = m_interface->position();
-
-    QChar chr = m_interface->characterAt(pos-1);
-    if (chr == QLatin1Char('('))
-        --pos;
-    // Skip to the start of a name
-    do {
-        chr = m_interface->characterAt(--pos);
-    } while (chr.isLetterOrNumber() || chr == QLatin1Char('_'));
-
-    const int start = ++pos;
-    m_word.clear();
-    do {
-        m_word += m_interface->characterAt(pos);
-        chr = m_interface->characterAt(++pos);
-    } while ((chr.isLetterOrNumber() || chr == QLatin1Char('_'))
-             && chr != QLatin1Char('('));
-
-    return start;
-}
-
-bool KeywordsCompletionAssistProcessor::isInComment() const
-{
-    QTextCursor tc(m_interface->textDocument());
-    tc.setPosition(m_interface->position());
+    QTextCursor tc(interface->textDocument());
+    tc.setPosition(interface->position());
     tc.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
-    const QString &lineBeginning = tc.selectedText();
-    return lineBeginning.contains(startOfCommentChar());
+    return tc.selectedText().contains('#');
 }
 
 QList<AssistProposalItemInterface *>
@@ -262,6 +244,24 @@ KeywordsCompletionAssistProcessor::generateProposalList(const QStringList &words
         item->setIcon(icon);
         return item;
     });
+}
+
+KeywordsCompletionAssistProvider::KeywordsCompletionAssistProvider(const Keywords &keyWords,
+                                                                   const QString &snippetGroup)
+    : m_keyWords(keyWords)
+    , m_snippetGroup(snippetGroup)
+{ }
+
+IAssistProvider::RunType KeywordsCompletionAssistProvider::runType() const
+{
+    return Synchronous;
+}
+
+IAssistProcessor *KeywordsCompletionAssistProvider::createProcessor() const
+{
+    auto processor = new KeywordsCompletionAssistProcessor(m_keyWords);
+    processor->setSnippetGroup(m_snippetGroup);
+    return processor;
 }
 
 } // namespace TextEditor

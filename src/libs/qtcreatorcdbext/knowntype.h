@@ -173,8 +173,14 @@ enum KnownType
     KT_StdStack =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 3,
     KT_StdDeque =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 4,
     KT_StdSet =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 5,
-    KT_StdMap =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 6,
-    KT_StdMultiMap =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 7,
-    KT_StdArray =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 8,
-    KT_StdValArray =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 9
+    KT_StdMultiSet =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 6,
+    KT_StdUnorderedSet =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 7,
+    KT_StdUnorderedMultiSet =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 8,
+    KT_StdMap =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 9,
+    KT_StdMultiMap =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 10,
+    KT_StdUnorderedMap =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 11,
+    KT_StdUnorderedMultiMap =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 12,
+    KT_StdArray =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 13,
+    KT_StdValArray =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 14
+
 };

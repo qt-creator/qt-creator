@@ -36,7 +36,7 @@ class BareMetalDeviceConfigurationFactory
     Q_OBJECT
 
 public:
-   BareMetalDeviceConfigurationFactory(QObject *parent = 0);
+   BareMetalDeviceConfigurationFactory();
 
    QString displayNameForId(Core::Id type) const;
    QList<Core::Id> availableCreationIds() const;

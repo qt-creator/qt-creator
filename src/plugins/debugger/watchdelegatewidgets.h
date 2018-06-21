@@ -43,13 +43,13 @@ class WatchLineEdit : public QLineEdit
     Q_PROPERTY(QString text READ text WRITE setText USER false)
     Q_PROPERTY(QVariant modelData READ modelData WRITE setModelData DESIGNABLE false USER true)
 public:
-    explicit WatchLineEdit(QWidget *parent = 0);
+    explicit WatchLineEdit(QWidget *parent = nullptr);
 
     // Ready-made accessors for item views passing QVariants around
     virtual QVariant modelData() const;
     virtual void setModelData(const QVariant &);
 
-    static WatchLineEdit *create(QVariant::Type t, QWidget *parent = 0);
+    static WatchLineEdit *create(QVariant::Type t, QWidget *parent = nullptr);
 };
 
 /* Watch delegate line edit for integer numbers based on quint64/qint64.
@@ -63,11 +63,10 @@ class IntegerWatchLineEdit : public WatchLineEdit
     Q_PROPERTY(bool Signed READ isSigned WRITE setSigned DESIGNABLE true)
     Q_PROPERTY(bool bigInt READ isBigInt WRITE setBigInt DESIGNABLE true)
 public:
-    explicit IntegerWatchLineEdit(QWidget *parent = 0);
+    explicit IntegerWatchLineEdit(QWidget *parent = nullptr);
 
-    // Ready-made accessors for item views passing QVariants around
-    virtual QVariant modelData() const;
-    virtual void setModelData(const QVariant &);
+    QVariant modelData() const final;
+    void setModelData(const QVariant &) final;
 
     int base() const;
     void setBase(int b);
@@ -88,10 +87,10 @@ private:
 class FloatWatchLineEdit : public WatchLineEdit
 {
 public:
-    explicit FloatWatchLineEdit(QWidget *parent = 0);
+    explicit FloatWatchLineEdit(QWidget *parent = nullptr);
 
-    virtual QVariant modelData() const;
-    virtual void setModelData(const QVariant &);
+    QVariant modelData() const final;
+    void setModelData(const QVariant &) final;
 };
 
 /* Combo box for booleans */
@@ -100,7 +99,7 @@ class BooleanComboBox : public QComboBox
     Q_OBJECT
     Q_PROPERTY(QVariant modelData READ modelData WRITE setModelData DESIGNABLE false USER true)
 public:
-    explicit BooleanComboBox(QWidget *parent = 0);
+    explicit BooleanComboBox(QWidget *parent = nullptr);
 
     virtual QVariant modelData() const;
     virtual void setModelData(const QVariant &);

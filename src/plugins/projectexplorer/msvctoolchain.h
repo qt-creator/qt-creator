@@ -29,6 +29,8 @@
 #include "abi.h"
 #include "toolchainconfigwidget.h"
 
+#include <QFutureWatcher>
+
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QVersionNumber)
 
@@ -56,7 +58,8 @@ public:
 
     explicit MsvcToolChain(const QString &name, const Abi &abi,
                            const QString &varsBat, const QString &varsBatArg,
-                           const Language &l, Detection d = ManualDetection);
+                           Core::Id l, Detection d = ManualDetection);
+    MsvcToolChain(const MsvcToolChain &other);
     MsvcToolChain();
 
     Utils::FileNameList suggestedMkspecList() const override;
@@ -77,14 +80,23 @@ public:
 protected:
     explicit MsvcToolChain(Core::Id typeId, const QString &name, const Abi &abi,
                            const QString &varsBat, const QString &varsBatArg,
-                           const Language &l, Detection d);
+                           Core::Id l, Detection d);
     explicit MsvcToolChain(Core::Id typeId);
 
-    Utils::Environment readEnvironmentSetting(Utils::Environment& env) const override;
-    QByteArray msvcPredefinedMacros(const QStringList cxxflags,
-                                    const Utils::Environment &env) const override;
+    Utils::Environment readEnvironmentSetting(const Utils::Environment& env) const final;
+    // Function must be thread-safe!
+    Macros msvcPredefinedMacros(const QStringList cxxflags,
+                                const Utils::Environment &env) const override;
 
 private:
+    static void environmentModifications(QFutureInterface<QList<Utils::EnvironmentItem> > &future,
+                                         QString vcvarsBat, QString varsBatArg);
+    void initEnvModWatcher(const QFuture<QList<Utils::EnvironmentItem>> &future);
+    void updateEnvironmentModifications(QList<Utils::EnvironmentItem> modifications);
+
+    mutable QList<Utils::EnvironmentItem> m_environmentModifications;
+    mutable QFutureWatcher<QList<Utils::EnvironmentItem>> m_envModWatcher;
+
     QString m_varsBatArg; // Argument
 };
 
@@ -94,7 +106,7 @@ public:
     explicit ClangClToolChain(const QString &name, const QString &llvmDir,
                               const Abi &abi,
                               const QString &varsBat, const QString &varsBatArg,
-                              const Language &l,
+                              Core::Id language,
                               Detection d = ManualDetection);
     ClangClToolChain();
 
@@ -102,7 +114,7 @@ public:
     QString typeDisplayName() const override;
     QList<Utils::FileName> suggestedMkspecList() const override;
     void addToEnvironment(Utils::Environment &env) const override;
-    Utils::FileName compilerCommand() const override { return m_compiler; }
+    Utils::FileName compilerCommand() const override;
     IOutputParser *outputParser() const override;
     ToolChain *clone() const override;
     QVariantMap toMap() const override;
@@ -113,7 +125,6 @@ public:
 
 private:
     QString m_llvmDir;
-    Utils::FileName m_compiler;
 };
 
 // --------------------------------------------------------------------------
@@ -126,7 +137,7 @@ class MsvcToolChainFactory : public ToolChainFactory
 
 public:
     MsvcToolChainFactory();
-    QSet<ToolChain::Language> supportedLanguages() const override;
+    QSet<Core::Id> supportedLanguages() const override;
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 

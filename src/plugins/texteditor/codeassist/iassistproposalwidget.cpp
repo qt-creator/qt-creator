@@ -55,6 +55,16 @@ IAssistProposalWidget::IAssistProposalWidget()
 IAssistProposalWidget::~IAssistProposalWidget()
 {}
 
+int IAssistProposalWidget::basePosition() const
+{
+    return m_basePosition;
+}
+
+void IAssistProposalWidget::setBasePosition(int basePosition)
+{
+    m_basePosition = basePosition;
+}
+
 /*!
     \fn void TextEditor::IAssistProposalWidget::setAssistant(CodeAssistant *assistant)
 

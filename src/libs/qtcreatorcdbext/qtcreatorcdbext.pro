@@ -4,6 +4,7 @@ TEMPLATE = lib
 include(../../../qtcreator.pri)
 include(cdb_detect.pri)
 
+isEmpty(QTC_KEEP_CDBEXT_DEFAULT_CONFIG): CONFIG += release
 
 VERSION =
 CONFIG -= precompile_header
@@ -119,9 +120,26 @@ exists($$PYTHON_INSTALL_DIR) {
         pytype.h \
         pyvalue.h
 
-    #TODO: parse version number for a generic approach
-    CONFIG(release, debug|release): LIBS += -L$$PYTHON_INSTALL_DIR/libs -lpython35
-    else:CONFIG(debug, debug|release): LIBS += -L$$PYTHON_INSTALL_DIR/libs -lpython35_d
+    CONFIG(release, debug|release): ABS_PYTHON_DLL = $$files($${PYTHON_INSTALL_DIR}/python??.dll)
+    CONFIG(debug, debug|release): ABS_PYTHON_DLL = $$files($${PYTHON_INSTALL_DIR}/python??_d.dll)
+    PYTHON_DLL = $$basename(ABS_PYTHON_DLL)
+    PYTHON_BASE_NAME = $$replace(PYTHON_DLL, .dll$, )
+
+    LIBS += -L$${PYTHON_INSTALL_DIR}/libs -l$$PYTHON_BASE_NAME
+
+    inst_python.files = $$ABS_PYTHON_DLL
+    inst_python.files += $$files($${PYTHON_INSTALL_DIR}/python??.zip)
+    inst_python.path = $$QTC_PREFIX/lib/$${DIRNAME}
+    inst_python.CONFIG += no_check_exist no_default_install
+    INSTALLS += inst_python
+
+    build_pass: deploy_python.depends = install_inst_python
+    deploy_python.CONFIG = recursive
+    CONFIG(release, debug|release): deploy_python.recurse = Release
+    CONFIG(debug, debug|release): deploy_python.recurse = Debug
+    QMAKE_EXTRA_TARGETS += deploy_python
+} else {
+    message("Set PYTHON_INSTALL_DIR pointing to Python 3.5 or greater to enable the python dumpers for cdb.")
 }
 
 target.path = $$QTC_PREFIX/lib/$${DIRNAME} # TODO this should go to INSTALL_LIBRARY_PATH/$${DIRNAME}

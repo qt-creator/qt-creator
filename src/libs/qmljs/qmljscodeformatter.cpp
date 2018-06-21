@@ -41,7 +41,8 @@ CodeFormatter::BlockData::BlockData()
 }
 
 CodeFormatter::CodeFormatter()
-    : m_indentDepth(0)
+    : m_tokenIndex(0)
+    , m_indentDepth(0)
     , m_tabSize(4)
 {
 }
@@ -176,6 +177,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case Property:      enter(property_start); break;
             case Function:      enter(function_start); break;
             case Signal:        enter(signal_start); break;
+            case Enum:          enter(enum_start); break;
             case On:
             case As:
             case List:
@@ -212,6 +214,11 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             switch (kind) {
             case Colon:         turnInto(binding_assignment); break;
             default:            leave(true); continue;
+            } break;
+
+        case enum_start:
+            switch (kind) {
+            case LeftBrace: enter(objectliteral_open); break;
             } break;
 
         case signal_start:
@@ -277,13 +284,13 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
                 enter(expression_continuation);
                 break;
             }
-            // fallthrough
+            Q_FALLTHROUGH();
         case ternary_op_after_colon:
         case expression:
             if (tryInsideExpression())
                 break;
             switch (kind) {
-            case Comma:
+            case Comma:             leave(true); break;
             case Delimiter:         enter(expression_continuation); break;
             case RightBracket:
             case RightParenthesis:  leave(); continue;
@@ -335,11 +342,11 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             if (tryInsideExpression())
                 break;
             switch (kind) {
+            case Comma:             leave(); break;
             case Delimiter:         enter(expression_continuation); break;
             case RightBracket:
             case RightParenthesis:  leave(); continue; // error recovery
             case RightBrace:        leave(); continue; // so we also leave objectliteral_open
-            case Comma:             leave(); break;
             } break;
 
         case bracket_element_start:
@@ -930,6 +937,8 @@ CodeFormatter::TokenKind CodeFormatter::extendedTokenKind(const QmlJS::Token &to
             return On;
         if (text == QLatin1String("list"))
             return List;
+        if (text == QLatin1String("enum"))
+            return Enum;
     } else if (kind == Keyword) {
         const char char1 = text.at(0).toLatin1();
         const char char2 = text.at(1).toLatin1();
@@ -1141,7 +1150,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
             *savedIndentDepth = parentState.savedIndentDepth;
             break;
         }
-        // fallthrough
+        Q_FALLTHROUGH();
     case substatement_open:
         // special case for "foo: {" and "property int foo: {"
         if (parentState.type == binding_assignment)

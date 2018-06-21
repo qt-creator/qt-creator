@@ -70,16 +70,18 @@ void RelationStarter::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 }
 
 void RelationStarter::addArrow(const QString &id, ArrowItem::Shaft shaft,
-                               ArrowItem::Head endHead, ArrowItem::Head startHead)
+                               ArrowItem::Head startHead, ArrowItem::Head endHead,
+                               const QString &toolTip)
 {
     QMT_CHECK(!id.isEmpty());
     prepareGeometryChange();
     auto arrow = new ArrowItem(this);
     arrow->setArrowSize(10.0);
-    arrow->setDiamondSize(15.0);
+    arrow->setDiamondSize(8.0);
     arrow->setShaft(shaft);
     arrow->setStartHead(startHead);
     arrow->setEndHead(endHead);
+    arrow->setToolTip(toolTip.isEmpty() ? id : toolTip);
     arrow->setPoints(QList<QPointF>() << QPointF(0.0, 10.0) << QPointF(15.0, 0.0));
     arrow->setPos(6.0, m_arrows.size() * 20.0 + 8.0);
     arrow->update(m_diagramSceneModel->styleController()->relationStarterStyle());
@@ -99,6 +101,9 @@ void RelationStarter::mousePressEvent(QGraphicsSceneMouseEvent *event)
             m_currentPreviewArrowId = m_arrowIds.value(item);
             QMT_CHECK(!m_currentPreviewArrowId.isEmpty());
             m_currentPreviewArrow = new ArrowItem(*item);
+            // TODO use constants for sizes (in relationitem.h also)
+            m_currentPreviewArrow->setArrowSize(12.0);
+            m_currentPreviewArrow->setDiamondSize(12.0);
             m_currentPreviewArrow->setPoints(QList<QPointF>() << m_owner->relationStartPos() << mapToScene(event->pos()));
             m_currentPreviewArrow->update(m_diagramSceneModel->styleController()->relationStarterStyle());
             m_currentPreviewArrow->setZValue(PREVIEW_RELATION_ZVALUE);
@@ -123,7 +128,7 @@ void RelationStarter::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                                m_currentPreviewArrowIntermediatePoints);
         m_currentPreviewArrow->scene()->removeItem(m_currentPreviewArrow);
         delete m_currentPreviewArrow;
-        m_currentPreviewArrow = 0;
+        m_currentPreviewArrow = nullptr;
         m_currentPreviewArrowIntermediatePoints.clear();
     }
 }
@@ -152,7 +157,7 @@ void RelationStarter::focusOutEvent(QFocusEvent *event)
     if (m_currentPreviewArrow) {
         m_currentPreviewArrow->scene()->removeItem(m_currentPreviewArrow);
         delete m_currentPreviewArrow;
-        m_currentPreviewArrow = 0;
+        m_currentPreviewArrow = nullptr;
         m_currentPreviewArrowIntermediatePoints.clear();
     }
 }

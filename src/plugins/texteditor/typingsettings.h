@@ -56,7 +56,7 @@ public:
 
     TypingSettings();
 
-    bool tabShouldIndent(const QTextDocument *document, QTextCursor cursor, int *suggestedPosition) const;
+    bool tabShouldIndent(const QTextDocument *document, const QTextCursor &cursor, int *suggestedPosition) const;
 
     void toSettings(const QString &category, QSettings *s) const;
     void fromSettings(const QString &category, const QSettings *s);

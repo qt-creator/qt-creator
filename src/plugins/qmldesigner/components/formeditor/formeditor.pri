@@ -26,7 +26,6 @@ SOURCES += formeditoritem.cpp \
     resizehandleitem.cpp \
     dragtool.cpp \
     toolbox.cpp \
-    zoomaction.cpp \
     formeditorgraphicsview.cpp \
     numberseriesaction.cpp \
     lineeditaction.cpp \
@@ -36,7 +35,9 @@ SOURCES += formeditoritem.cpp \
     bindingindicator.cpp \
     bindingindicatorgraphicsitem.cpp \
     contentnoteditableindicator.cpp \
-    backgroundaction.cpp
+    backgroundaction.cpp \
+    formeditortoolbutton.cpp
+
 HEADERS += formeditorscene.h \
     formeditorwidget.h \
     formeditoritem.h \
@@ -64,7 +65,6 @@ HEADERS += formeditorscene.h \
     resizehandleitem.h \
     dragtool.h \
     toolbox.h \
-    zoomaction.h \
     formeditorgraphicsview.h \
     numberseriesaction.h \
     lineeditaction.h \
@@ -74,5 +74,7 @@ HEADERS += formeditorscene.h \
     bindingindicator.h \
     bindingindicatorgraphicsitem.h \
     contentnoteditableindicator.h \
-    backgroundaction.h
+    backgroundaction.h \
+    formeditortoolbutton.h
+
 RESOURCES += formeditor.qrc

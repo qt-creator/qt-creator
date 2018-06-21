@@ -97,7 +97,7 @@ void DeploymentTimeInfo::saveDeploymentTimeStamp(const DeployableFile &deployabl
         systemRoot = SysRootKitInformation::sysRoot(kit).toString();
 
     const IDevice::ConstPtr deviceConfiguration = DeviceKitInformation::device(kit);
-    const QString host = deviceConfiguration->sshParameters().host;
+    const QString host = deviceConfiguration->sshParameters().host();
 
     d->lastDeployed.insert(
                 DeployParameters(deployableFile, host, systemRoot),
@@ -115,7 +115,7 @@ bool DeploymentTimeInfo::hasChangedSinceLastDeployment(const DeployableFile &dep
         systemRoot = SysRootKitInformation::sysRoot(kit).toString();
 
     const IDevice::ConstPtr deviceConfiguration = DeviceKitInformation::device(kit);
-    const QString host = deviceConfiguration->sshParameters().host;
+    const QString host = deviceConfiguration->sshParameters().host();
 
     const DeployParameters dp(deployableFile, host, systemRoot);
 

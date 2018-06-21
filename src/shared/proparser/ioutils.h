@@ -60,6 +60,12 @@ public:
 #else
         { return shellQuoteWin(arg); }
 #endif
+#if defined(PROEVALUATOR_FULL)
+    static bool touchFile(const QString &targetFileName, const QString &referenceFileName, QString *errorString);
+# if defined(QT_BUILD_QMAKE) && defined(Q_OS_UNIX)
+    static bool readLinkTarget(const QString &symlinkPath, QString *target);
+# endif
+#endif
 };
 
 } // namespace ProFileEvaluatorInternal

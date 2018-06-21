@@ -53,6 +53,7 @@ public:
     ~SearchResultWidget();
 
     void setInfo(const QString &label, const QString &toolTip, const QString &term);
+    QWidget *additionalReplaceWidget() const;
 
     void addResult(const QString &fileName,
                    const QString &lineText,
@@ -118,27 +119,28 @@ private:
     QList<SearchResultItem> checkedItems() const;
     void updateMatchesFoundLabel();
 
-    SearchResultTreeView *m_searchResultTreeView;
-    int m_count;
+    SearchResultTreeView *m_searchResultTreeView = nullptr;
+    int m_count = 0;
     QString m_dontAskAgainGroup;
-    QFrame *m_messageWidget;
+    QFrame *m_messageWidget = nullptr;
     InfoBar m_infoBar;
     InfoBarDisplay m_infoBarDisplay;
-    QWidget *m_topReplaceWidget;
-    QLabel *m_replaceLabel;
-    QLineEdit *m_replaceTextEdit;
-    QToolButton *m_replaceButton;
-    QToolButton *m_searchAgainButton;
-    QCheckBox *m_preserveCaseCheck;
-    QWidget *m_descriptionContainer;
-    QLabel *m_label;
-    QLabel *m_searchTerm;
-    QToolButton *m_cancelButton;
-    QLabel *m_matchesFoundLabel;
-    bool m_preserveCaseSupported;
-    bool m_isShowingReplaceUI;
-    bool m_searchAgainSupported;
-    bool m_replaceSupported;
+    QWidget *m_topReplaceWidget = nullptr;
+    QLabel *m_replaceLabel = nullptr;
+    QLineEdit *m_replaceTextEdit = nullptr;
+    QToolButton *m_replaceButton = nullptr;
+    QToolButton *m_searchAgainButton = nullptr;
+    QCheckBox *m_preserveCaseCheck = nullptr;
+    QCheckBox *m_renameFilesCheckBox = nullptr;
+    QWidget *m_descriptionContainer = nullptr;
+    QLabel *m_label = nullptr;
+    QLabel *m_searchTerm = nullptr;
+    QToolButton *m_cancelButton = nullptr;
+    QLabel *m_matchesFoundLabel = nullptr;
+    bool m_preserveCaseSupported = true;
+    bool m_isShowingReplaceUI = false;
+    bool m_searchAgainSupported = false;
+    bool m_replaceSupported = false;
 };
 
 } // Internal

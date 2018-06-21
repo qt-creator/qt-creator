@@ -25,23 +25,26 @@
 
 #pragma once
 
-#include "qmlprojectmanager_global.h"
-
 #include <extensionsystem/iplugin.h>
 
 namespace QmlProjectManager {
+namespace Internal {
 
-class QMLPROJECTMANAGER_EXPORT QmlProjectPlugin: public ExtensionSystem::IPlugin
+class QmlProjectPlugin: public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProjectManager.json")
 
 public:
-    QmlProjectPlugin();
-    ~QmlProjectPlugin();
+    QmlProjectPlugin() = default;
+    ~QmlProjectPlugin() final;
 
-    virtual bool initialize(const QStringList &arguments, QString *errorString);
-    virtual void extensionsInitialized();
+private:
+    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void extensionsInitialized() final {}
+
+    class QmlProjectRunConfigurationFactory *m_rcFactory = nullptr;
 };
 
+} // namespace Internal
 } // namespace QmlProject

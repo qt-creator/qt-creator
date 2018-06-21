@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -57,14 +57,9 @@
     the necessary files for you. You can add your own custom wizards to
     standardize the way subprojects and classes are added to a project.
 
-    Most wizards create projects that use the Qt build tool, qmake. It is a
-    cross-platform system for build automation that helps simplify the build
-    process for development projects across different platforms. qmake
-    automates the generation of build configurations so that only a few lines
-    of information are needed to create each configuration. For more
-    information about qmake, see the \l{qmake Manual}.
-    You can modify the build and run settings for qmake projects in the
-    \uicontrol Projects mode.
+    Most \QC project wizards enable you to choose the build system to use for
+    building the project: qmake, CMake, or Qbs. If you are not presented with a
+    choice, the project is set up to use qmake.
 
     You can use wizards also to create plain C or C++ projects that use
     qmake, Qbs, or CMake, but do not use the Qt library.
@@ -73,11 +68,13 @@
     use qmake, Qbs, or CMake. This enables you to use \QC as a code editor and
     to fully control the steps and commands used to build the project.
 
-    You can install tools for mobile devices as part of Qt distributions.
+    You can install tools for \l{glossary-device}{devices} as part of Qt distributions.
     The \l{glossary-buildandrun-kit}{kits} and build and run settings for the
     installed device types are set up automatically. However, you might need to
     install and configure some additional software on the devices to be able to
     connect to them from the development PC.
+
+    \include creator-projects-build-systems.qdocinc build systems
 
     \section1 Using Project Wizards
 
@@ -110,18 +107,20 @@
                 Use \QD forms to design a Qt widget based user interface for the
                 desktop and C++ to implement the application logic
 
-            \li Qt Quick Application
+            \li Qt Quick Application - Empty
 
-                Create a Qt Quick application that contains both QML and C++
-                code. The project includes a QQuickView.
+                Create an empty Qt Quick application that uses Qt Quick 2 types.
+
                 You can build the application and deploy it to desktop,
                 embedded, and mobile target platforms.
 
-            \li Qt Quick Controls 2 Application
+            \li Qt Quick Application - Scroll, Stack, or Swipe
 
-                Create a Qt Quick application using
+                Create a Qt Quick application that uses
                 \l{http://doc.qt.io/qt-5/qtquickcontrols2-index.html}
-                {Qt Quick Controls 2} (requires Qt 5.7 or later)
+                {Qt Quick Controls 2} to implement a scrollable list (requires
+                Qt 5.9 or later) or a set of pages with a stack-based or
+                swipe-based navigation model (requires Qt 5.7 or later).
 
             \li Qt Canvas 3D Application
 
@@ -143,12 +142,6 @@
 
                 Shared or static C++ library based on qmake
 
-            \li Qt Quick 1 Extension Plugin
-
-                C++ plugin that makes it possible to offer extensions that can
-                be loaded dynamically into Qt Quick 1 applications by using the
-                QDeclarativeEngine class
-
             \li Qt Quick 2 Extension Plugin
 
                 C++ plugin that makes it possible to offer extensions that can
@@ -164,20 +157,19 @@
 
         \list
 
-            \li Qt Unit Test
-
-                Qt unit tests for features or classes
-
             \li Auto Test Project
 
                 Projects with boilerplate code for a Qt or Google test. For more
                 information, see \l {Creating Tests}.
 
-            \li Qt Quick UI
+            \li Qt Quick UI Prototype
 
                 Use a single QML file that contains the main view. You can
-                review Qt Quick UI projects in a \l{Previewing QML Files}
-                {preview tool} and you need not build them.
+                review \l{Creating Qt Quick UI Projects}{Qt Quick UI prototypes}
+                in a \l{Previewing QML Files}{preview tool} and you need not
+                build them. Qt Quick UI prototypes cannot be deployed to embedded
+                or mobile target platforms. For those platforms, create a
+                Qt Quick application instead.
 
             \li Qt Custom Designer Widgets
 
@@ -263,13 +255,6 @@
     For more information about creating Qt Quick projects, see
     \l {Creating Qt Quick Projects}.
 
-    To change the location of the project directory, and to specify settings
-    for building and running projects, select \uicontrol{Tools} > \uicontrol{Options} >
-    \uicontrol{Build & Run} > \uicontrol{General}.
-
-    To specify build and run settings for different target platforms,
-    select \uicontrol Projects.
-
     \section1 Adding Files to Projects
 
     You can use wizards also to add individual files to your projects.
@@ -333,7 +318,7 @@
 
         \list
 
-            \li Text files
+            \li Empty files
 
             \li Scratch buffers that use temporary files. You can create this
                 type of files for temporarily storing information that you do
@@ -386,6 +371,41 @@
 
     You can create your own project and class wizards. For more information,
     see \l{Adding New Custom Wizards}.
+
+    \section2 Creating Resource Files
+
+    \QC supports the \l{The Qt Resource System}{Qt Resource System}, which is a
+    platform-independent mechanism for storing files in the application's
+    executable.
+
+    \image qtcreator-add-resource-wizard.png "New File or Project dialog"
+
+    The wizard creates a resource collection file (.qrc) that you can manage in
+    the resource editor.
+
+    \image qtcreator-add-resource.png "Editing resource files"
+
+    Select \uicontrol Add > \uicontrol {Add Files} to locate and add individual
+    files.
+
+    By default, resources are accessible in the application under the same file
+    name as they have in the source tree, with a \c{:/} prefix, or by a URL with
+    a \c qrc scheme. To specify a path prefix for all files in the \c .qrc file,
+    select \uicontrol Add > \uicontrol {Add Prefix} or enter the prefix in the
+    \uicontrol Prefix field.
+
+    Some resources need to change based on the user's locale, such as
+    translation files or icons. You can specify a locale in the
+    \uicontrol Language field.
+
+    Select \uicontrol Remove to remove the selected file from the resource
+    collection. In the \uicontrol {Remove File} dialog, select the
+    \uicontrol {Delete file permanently} check box to remove the file from
+    the file system. To remove files that cannot be found in the file system,
+    select \uicontrol {Remove Missing Files}.
+
+    The above functions are also available in the context menu in the
+    \uicontrol Projects view.
 
     \section2 Creating OpenGL Fragment and Vertex Shaders
 

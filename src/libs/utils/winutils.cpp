@@ -26,10 +26,10 @@
 #include "winutils.h"
 #include "qtcassert.h"
 
-// Enable WinAPI Windows XP and later
+// Enable WinAPI Windows Vista and later
 #ifdef Q_OS_WIN
 #undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501
+#define _WIN32_WINNT 0x0600 // Needed for QueryFullProcessImageName
 #include <windows.h>
 #endif
 
@@ -166,6 +166,25 @@ QTCREATOR_UTILS_EXPORT bool is64BitWindowsBinary(const QString &binaryIn)
 #else
         return false;
 #endif
+}
+
+QTCREATOR_UTILS_EXPORT QString imageName(quint32 processId)
+{
+    QString result;
+#ifdef Q_OS_WIN
+    HANDLE handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processId);
+    if (handle == NULL)
+        return result;
+
+    wchar_t path[MAX_PATH];
+    DWORD pathLen = MAX_PATH;
+    if (QueryFullProcessImageName(handle, 0, path, &pathLen))
+        result = QString::fromUtf16(reinterpret_cast<const ushort*>(path));
+    CloseHandle(handle);
+#else
+    Q_UNUSED(processId);
+#endif
+    return result;
 }
 
 WindowsCrashDialogBlocker::WindowsCrashDialogBlocker()

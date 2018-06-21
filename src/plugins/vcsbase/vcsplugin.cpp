@@ -48,7 +48,6 @@
 
 #include <utils/macroexpander.h>
 
-#include <QtPlugin>
 #include <QDebug>
 
 using namespace Core;
@@ -57,11 +56,16 @@ using namespace ProjectExplorer;
 namespace VcsBase {
 namespace Internal {
 
-VcsPlugin *VcsPlugin::m_instance = 0;
+class VcsPluginPrivate
+{
+public:
+    CommonOptionsPage m_settingsPage;
+    QStandardItemModel *m_nickNameModel = nullptr;
+};
 
-VcsPlugin::VcsPlugin() :
-    m_settingsPage(0),
-    m_nickNameModel(0)
+static VcsPlugin *m_instance = nullptr;
+
+VcsPlugin::VcsPlugin()
 {
     m_instance = this;
 }
@@ -69,13 +73,16 @@ VcsPlugin::VcsPlugin() :
 VcsPlugin::~VcsPlugin()
 {
     VcsProjectCache::destroy();
-    m_instance = 0;
+    VcsOutputWindow::destroy();
+    m_instance = nullptr;
 }
 
 bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
+
+    d = new VcsPluginPrivate;
 
     EditorManager::addCloseEditorListener([this](IEditor *editor) -> bool {
         bool result = true;
@@ -84,12 +91,9 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
         return result;
     });
 
-    m_settingsPage = new CommonOptionsPage;
-    addAutoReleasedObject(m_settingsPage);
-    addAutoReleasedObject(VcsOutputWindow::instance());
-    connect(m_settingsPage, &CommonOptionsPage::settingsChanged,
+    connect(&d->m_settingsPage, &CommonOptionsPage::settingsChanged,
             this, &VcsPlugin::settingsChanged);
-    connect(m_settingsPage, &CommonOptionsPage::settingsChanged,
+    connect(&d->m_settingsPage, &CommonOptionsPage::settingsChanged,
             this, &VcsPlugin::slotSettingsChanged);
     slotSettingsChanged();
 
@@ -126,6 +130,9 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
             return QString();
         });
 
+    // Just touch VCS Output Pane before initialization
+    VcsOutputWindow::instance();
+
     return true;
 }
 
@@ -141,24 +148,24 @@ VcsPlugin *VcsPlugin::instance()
 
 CommonVcsSettings VcsPlugin::settings() const
 {
-    return m_settingsPage->settings();
+    return d->m_settingsPage.settings();
 }
 
 /* Delayed creation/update of the nick name model. */
 QStandardItemModel *VcsPlugin::nickNameModel()
 {
-    if (!m_nickNameModel) {
-        m_nickNameModel = NickNameDialog::createModel(this);
+    if (!d->m_nickNameModel) {
+        d->m_nickNameModel = NickNameDialog::createModel(this);
         populateNickNameModel();
     }
-    return m_nickNameModel;
+    return d->m_nickNameModel;
 }
 
 void VcsPlugin::populateNickNameModel()
 {
     QString errorMessage;
     if (!NickNameDialog::populateModelFromMailCapFile(settings().nickNameMailMap,
-                                                      m_nickNameModel,
+                                                      d->m_nickNameModel,
                                                       &errorMessage)) {
         qWarning("%s", qPrintable(errorMessage));
     }
@@ -166,7 +173,7 @@ void VcsPlugin::populateNickNameModel()
 
 void VcsPlugin::slotSettingsChanged()
 {
-    if (m_nickNameModel)
+    if (d->m_nickNameModel)
         populateNickNameModel();
 }
 

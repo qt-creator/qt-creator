@@ -40,7 +40,7 @@ namespace ProjectExplorer {
 // --------------------------------------------------------------------
 
 EnvironmentAspect::EnvironmentAspect(RunConfiguration *runConfig) :
-    IRunConfigurationAspect(runConfig), m_base(-1)
+    IRunConfigurationAspect(runConfig)
 {
     setDisplayName(tr("Run Environment"));
     setId("EnvironmentAspect");
@@ -49,13 +49,6 @@ EnvironmentAspect::EnvironmentAspect(RunConfiguration *runConfig) :
 
 int EnvironmentAspect::baseEnvironmentBase() const
 {
-    if (m_base == -1) {
-        QList<int> bases = possibleBaseEnvironments();
-        QTC_ASSERT(!bases.isEmpty(), return -1);
-        foreach (int i, bases)
-            QTC_CHECK(i >= 0);
-        m_base = bases.at(0);
-    }
     return m_base;
 }
 
@@ -84,6 +77,29 @@ Utils::Environment EnvironmentAspect::environment() const
     Utils::Environment env = baseEnvironment();
     env.modify(m_changes);
     return env;
+}
+
+QList<int> EnvironmentAspect::possibleBaseEnvironments() const
+{
+    return m_displayNames.keys();
+}
+
+QString EnvironmentAspect::baseEnvironmentDisplayName(int base) const
+{
+    return m_displayNames[base];
+}
+
+void EnvironmentAspect::addSupportedBaseEnvironment(int base, const QString &displayName)
+{
+    m_displayNames[base] = displayName;
+    if (m_base == -1)
+        m_base = base;
+}
+
+void EnvironmentAspect::addPreferredBaseEnvironment(int base, const QString &displayName)
+{
+    m_displayNames[base] = displayName;
+    m_base = base;
 }
 
 void EnvironmentAspect::fromMap(const QVariantMap &map)

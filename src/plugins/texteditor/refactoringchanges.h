@@ -74,11 +74,12 @@ public:
     QString textOf(int start, int end) const;
     QString textOf(const Range &range) const;
 
+    Utils::ChangeSet changeSet() const;
     void setChangeSet(const Utils::ChangeSet &changeSet);
     void appendIndentRange(const Range &range);
     void appendReindentRange(const Range &range);
     void setOpenEditor(bool activate = false, int pos = -1);
-    void apply();
+    bool apply();
 
 protected:
     // users may only get const access to RefactoringFiles created through

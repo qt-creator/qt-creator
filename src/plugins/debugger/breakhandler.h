@@ -177,9 +177,9 @@ public:
     void appendBreakpoint(const BreakpointParameters &data);
     void handleAlienBreakpoint(const BreakpointResponse &response, DebuggerEngine *engine);
 
-    Breakpoints allBreakpoints() const;
-    Breakpoints engineBreakpoints(DebuggerEngine *engine) const;
-    Breakpoints unclaimedBreakpoints() const;
+    const Breakpoints allBreakpoints() const;
+    const Breakpoints engineBreakpoints(DebuggerEngine *engine) const;
+    const Breakpoints unclaimedBreakpoints() const;
     QStringList engineBreakpointPaths(DebuggerEngine *engine) const;
 
     // Find a breakpoint matching approximately the data in needle.

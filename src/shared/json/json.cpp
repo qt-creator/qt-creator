@@ -51,7 +51,6 @@
 
 #include "json.h"
 
-
 //#define PARSER_DEBUG
 #ifdef PARSER_DEBUG
 static int indent = 0;
@@ -4607,8 +4606,8 @@ bool Parser::parseString()
 
 namespace Internal {
 
-static const Base emptyArray = { sizeof(Base), { 0 }, 0 };
-static const Base emptyObject = { sizeof(Base), { 0 }, 0 };
+static const Base emptyArray = {sizeof(Base), {0}, 0};
+static const Base emptyObject = {sizeof(Base), {0}, 0};
 
 
 void Data::compact()

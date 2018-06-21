@@ -47,7 +47,7 @@ class NavigationSubWidget : public QWidget
 {
     Q_OBJECT
 public:
-    NavigationSubWidget(NavigationWidget *parentWidget, int position, int index);
+    NavigationSubWidget(NavigationWidget *parentWidget, int position, int factoryIndex);
     virtual ~NavigationSubWidget();
 
     INavigationWidgetFactory *factory();
@@ -71,6 +71,7 @@ public:
 signals:
     void splitMe(int factoryIndex);
     void closeMe();
+    void factoryIndexChanged(int factoryIndex);
 
 private:
     void comboBoxIndexChanged(int);

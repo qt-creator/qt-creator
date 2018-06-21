@@ -8,5 +8,3 @@ HEADERS += tasklistplugin.h \
 SOURCES += tasklistplugin.cpp \
     stopmonitoringhandler.cpp \
     taskfile.cpp \
-
-RESOURCES += tasklist.qrc

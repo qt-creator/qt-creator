@@ -26,6 +26,7 @@
 #pragma once
 
 #include "assistenums.h"
+#include "iassistproposalmodel.h"
 
 #include <texteditor/texteditor_global.h>
 
@@ -34,7 +35,6 @@
 namespace TextEditor {
 
 class CodeAssistant;
-class IAssistProposalModel;
 class AssistProposalItemInterface;
 
 class TEXTEDITOR_EXPORT IAssistProposalWidget  : public QFrame
@@ -43,13 +43,13 @@ class TEXTEDITOR_EXPORT IAssistProposalWidget  : public QFrame
 
 public:
     IAssistProposalWidget();
-    virtual ~IAssistProposalWidget();
+    ~IAssistProposalWidget() override;
 
     virtual void setAssistant(CodeAssistant *assistant) = 0;
     virtual void setReason(AssistReason reason) = 0;
     virtual void setKind(AssistKind kind) = 0;
     virtual void setUnderlyingWidget(const QWidget *underlyingWidget) = 0;
-    virtual void setModel(IAssistProposalModel *model) = 0;
+    virtual void setModel(ProposalModelPtr model) = 0;
     virtual void setDisplayRect(const QRect &rect) = 0;
     virtual void setIsSynchronized(bool isSync) = 0;
 
@@ -57,10 +57,16 @@ public:
     virtual void updateProposal(const QString &prefix) = 0;
     virtual void closeProposal() = 0;
 
+    int basePosition() const;
+    void setBasePosition(int basePosition);
+
 signals:
     void prefixExpanded(const QString &newPrefix);
     void proposalItemActivated(AssistProposalItemInterface *proposalItem);
     void explicitlyAborted();
+
+protected:
+    int m_basePosition = -1;
 };
 
 } // TextEditor

@@ -44,7 +44,9 @@ class VCSBASE_EXPORT VcsSubmitEditorFactory : public Core::IEditorFactory
 public:
     typedef std::function<VcsBaseSubmitEditor *()> EditorCreator;
 
-    VcsSubmitEditorFactory(const VcsBaseSubmitEditorParameters *parameters, const EditorCreator &editorCreator);
+    VcsSubmitEditorFactory(const VcsBaseSubmitEditorParameters *parameters,
+                           const EditorCreator &editorCreator,
+                           QObject *parent = nullptr);
 
     Core::IEditor *createEditor() override;
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -57,13 +57,6 @@
 
             Learn how to create a Qt Quick application using Qt Quick Controls 2
             for Android and iOS devices.
-
-       \li \l{Using Qt Quick UI Forms}
-
-            Learn how to develop a Qt Quick application by using UI forms.
-            UI forms are split into \e .qml and \e .js files that contain the
-            business logic, and \e .ui.qml files that only contain the purely
-            declarative description of the UI.
 
     \endlist
 

@@ -131,7 +131,31 @@ bool AbstractFormEditorTool::topSelectedItemIsMovable(const QList<QGraphicsItem*
     }
 
     return false;
+}
 
+bool AbstractFormEditorTool::selectedItemCursorInMovableArea(const QPointF &pos)
+{
+    if (!view()->hasSingleSelectedModelNode())
+        return false;
+
+    const ModelNode selectedNode = view()->singleSelectedModelNode();
+
+    FormEditorItem *item = scene()->itemForQmlItemNode(selectedNode);
+
+    if (!item)
+        return false;
+
+     if (!topSelectedItemIsMovable({item}))
+         return false;
+
+    const QPolygonF boundingRectInSceneSpace(item->mapToScene(item->qmlItemNode().instanceBoundingRect()));
+    QRectF boundingRect = boundingRectInSceneSpace.boundingRect();
+    QRectF innerRect = boundingRect;
+
+    innerRect.adjust(2, 2, -2, -2);
+    boundingRect.adjust(-2, -20, 2, 2);
+
+    return !innerRect.contains(pos) && boundingRect.contains(pos);
 }
 
 bool AbstractFormEditorTool::topItemIsResizeHandle(const QList<QGraphicsItem*> &/*itemList*/)
@@ -174,11 +198,17 @@ FormEditorItem* AbstractFormEditorTool::nearestFormEditorItem(const QPointF &poi
         if (!formEditorItem || !formEditorItem->qmlItemNode().isValid())
             continue;
 
+        if (formEditorItem->parentItem() && !formEditorItem->parentItem()->isContentVisible())
+            continue;
+
         if (!nearestItem)
             nearestItem = formEditorItem;
         else if (formEditorItem->selectionWeigth(point, 1) < nearestItem->selectionWeigth(point, 0))
             nearestItem = formEditorItem;
     }
+
+    if (nearestItem && nearestItem->qmlItemNode().isInStackedContainer())
+        return nearestItem->parentItem();
 
     return nearestItem;
 }
@@ -235,7 +265,7 @@ void AbstractFormEditorTool::mouseReleaseEvent(const QList<QGraphicsItem*> & ite
         QmlItemNode currentSelectedNode;
 
         if (view()->selectedModelNodes().count() == 1) {
-            currentSelectedNode = view()->selectedModelNodes().first();
+            currentSelectedNode = view()->selectedModelNodes().constFirst();
 
             if (!containsItemNode(itemList, currentSelectedNode)) {
                 QmlItemNode selectedNode;
@@ -310,7 +340,8 @@ FormEditorItem *AbstractFormEditorTool::containerFormEditorItem(const QList<QGra
         if (formEditorItem
                 && !selectedItemList.contains(formEditorItem)
                 && isNotAncestorOfItemInList(formEditorItem, selectedItemList)
-                && formEditorItem->isContainer())
+                && formEditorItem->isContainer()
+                && formEditorItem->isContentVisible())
             return formEditorItem;
     }
 
@@ -320,5 +351,10 @@ FormEditorItem *AbstractFormEditorTool::containerFormEditorItem(const QList<QGra
 void AbstractFormEditorTool::clear()
 {
     m_itemList.clear();
+}
+
+void AbstractFormEditorTool::start()
+{
+
 }
 }

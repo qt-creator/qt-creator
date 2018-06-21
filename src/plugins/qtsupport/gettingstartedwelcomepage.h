@@ -27,46 +27,33 @@
 
 #include <coreplugin/iwelcomepage.h>
 
-#include <QStringList>
-
 QT_BEGIN_NAMESPACE
-class QQmlEngine;
 class QFileInfo;
+class QStringList;
 QT_END_NAMESPACE
 
 namespace QtSupport {
 namespace Internal {
 
-class ExamplesListModel;
+class ExampleItem;
 
 class ExamplesWelcomePage : public Core::IWelcomePage
 {
     Q_OBJECT
 
 public:
-    ExamplesWelcomePage();
+    explicit ExamplesWelcomePage(bool showExamples);
 
-    void setShowExamples(bool showExamples);
-    QUrl pageLocation() const;
-    QString title() const;
-    int priority() const;
-    bool hasSearchBar() const;
-    void facilitateQml(QQmlEngine *);
-    Core::Id id() const;
-    Q_INVOKABLE void openUrl(const QUrl &url);
+    QString title() const final;
+    int priority() const final;
+    Core::Id id() const final;
+    QWidget *createWidget() const final;
 
-public slots:
-    void openHelpInExtraWindow(const QUrl &help);
-    void openHelp(const QUrl &help);
-    void openProject(const QString& projectFile, const QStringList& additionalFilesToOpen,
-                     const QString &mainFile, const QUrl& help, const QStringList &dependencies,
-                     const QStringList &platforms);
+    static void openProject(const ExampleItem &item);
 
 private:
-    ExamplesListModel *examplesModel() const;
-    QString copyToAlternativeLocation(const QFileInfo &fileInfo, QStringList &filesToOpen, const QStringList &dependencies);
-    QQmlEngine *m_engine;
-    bool m_showExamples;
+    static QString copyToAlternativeLocation(const QFileInfo &fileInfo, QStringList &filesToOpen, const QStringList &dependencies);
+    const bool m_showExamples;
 };
 
 } // namespace Internal

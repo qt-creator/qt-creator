@@ -32,8 +32,6 @@
 namespace Git {
 namespace Internal {
 
-class GitClient;
-
 class RemoteModel : public QAbstractTableModel {
     Q_OBJECT
 public:
@@ -42,6 +40,7 @@ public:
     void clear();
     bool refresh(const QString &workingDirectory, QString *errorMessage);
 
+    QStringList allRemoteNames() const;
     QString remoteName(int row) const;
     QString remoteUrl(int row) const;
 

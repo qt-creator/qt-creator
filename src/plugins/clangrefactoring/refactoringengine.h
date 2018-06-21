@@ -25,6 +25,10 @@
 
 #pragma once
 
+#include "symbolqueryinterface.h"
+
+#include <clangsupport/filepathcachingfwd.h>
+
 #include <cpptools/refactoringengineinterface.h>
 
 namespace ClangBackEnd {
@@ -32,25 +36,50 @@ class RefactoringClientInterface;
 class RefactoringServerInterface;
 }
 
+namespace CppTools { class SymbolFinder; }
+
 namespace ClangRefactoring {
 
 class RefactoringEngine : public CppTools::RefactoringEngineInterface
 {
 public:
     RefactoringEngine(ClangBackEnd::RefactoringServerInterface &server,
-                      ClangBackEnd::RefactoringClientInterface &client);
-    void startLocalRenaming(const QTextCursor &textCursor,
-                            const Utils::FileName &filePath,
-                            int revision,
+                      ClangBackEnd::RefactoringClientInterface &client,
+                      ClangBackEnd::FilePathCachingInterface &filePathCache,
+                      SymbolQueryInterface &symbolQuery);
+    ~RefactoringEngine() override;
+
+    void startLocalRenaming(const CppTools::CursorInEditor &data,
                             CppTools::ProjectPart *projectPart,
                             RenameCallback &&renameSymbolsCallback) override;
+    void globalRename(const CppTools::CursorInEditor &data,
+                      CppTools::UsagesCallback &&renameUsagesCallback,
+                      const QString &) override;
+    void findUsages(const CppTools::CursorInEditor &data,
+                    CppTools::UsagesCallback &&showUsagesCallback) const override;
+    void globalFollowSymbol(const CppTools::CursorInEditor &data,
+                            Utils::ProcessLinkCallback &&processLinkCallback,
+                            const CPlusPlus::Snapshot &,
+                            const CPlusPlus::Document::Ptr &,
+                            CppTools::SymbolFinder *,
+                            bool) const override;
 
-    bool isUsable() const override;
-    void setUsable(bool isUsable);
+    bool isRefactoringEngineAvailable() const override;
+    void setRefactoringEngineAvailable(bool isAvailable);
+
+    const ClangBackEnd::FilePathCachingInterface &filePathCache() const
+    {
+        return m_filePathCache;
+    }
 
 private:
-    ClangBackEnd::RefactoringServerInterface &server;
-    ClangBackEnd::RefactoringClientInterface &client;
+    CppTools::Usages locationsAt(const CppTools::CursorInEditor &data) const;
+
+    ClangBackEnd::RefactoringServerInterface &m_server;
+    ClangBackEnd::RefactoringClientInterface &m_client;
+    ClangBackEnd::FilePathCachingInterface &m_filePathCache;
+
+    SymbolQueryInterface &m_symbolQuery;
 };
 
 } // namespace ClangRefactoring

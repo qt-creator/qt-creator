@@ -27,8 +27,6 @@
 
 #include "objectitem.h"
 
-#include "qmt/diagram_scene/capabilities/relationable.h"
-
 QT_BEGIN_NAMESPACE
 class QGraphicsRectItem;
 class QGraphicsSimpleTextItem;
@@ -43,11 +41,11 @@ class CustomIconItem;
 class ContextLabelItem;
 class RelationStarter;
 
-class ComponentItem : public ObjectItem, public IRelationable
+class ComponentItem : public ObjectItem
 {
 public:
     ComponentItem(DComponent *component, DiagramSceneModel *diagramSceneModel,
-                  QGraphicsItem *parent = 0);
+                  QGraphicsItem *parent = nullptr);
     ~ComponentItem() override;
 
     void update() override;
@@ -60,21 +58,16 @@ public:
     QList<Latch> horizontalLatches(Action action, bool grabbedItem) const override;
     QList<Latch> verticalLatches(Action action, bool grabbedItem) const override;
 
-    QPointF relationStartPos() const override;
-    void relationDrawn(const QString &id, const QPointF &toScenePos, const
-                       QList<QPointF> &intermediatePoints) override;
-
 private:
     bool hasPlainShape() const;
     QSizeF calcMinimumGeometry() const;
     void updateGeometry();
 
-    CustomIconItem *m_customIcon = 0;
-    QGraphicsRectItem *m_shape = 0;
-    QGraphicsRectItem *m_upperRect = 0;
-    QGraphicsRectItem *m_lowerRect = 0;
-    ContextLabelItem *m_contextLabel = 0;
-    RelationStarter *m_relationStarter = 0;
+    CustomIconItem *m_customIcon = nullptr;
+    QGraphicsRectItem *m_shape = nullptr;
+    QGraphicsRectItem *m_upperRect = nullptr;
+    QGraphicsRectItem *m_lowerRect = nullptr;
+    ContextLabelItem *m_contextLabel = nullptr;
 };
 
 } // namespace qmt

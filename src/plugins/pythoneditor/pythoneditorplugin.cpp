@@ -35,31 +35,30 @@
 #include <coreplugin/id.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
-#include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/runnables.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/iprojectmanager.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/task.h>
+#include <projectexplorer/taskhub.h>
 
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/algorithm.h>
-#include <utils/detailswidget.h>
-#include <utils/mimetypes/mimedatabase.h>
-#include <utils/pathchooser.h>
+#include <utils/outputformatter.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
-#include <QtPlugin>
-#include <QCoreApplication>
-#include <QFormLayout>
+#include <QDir>
+#include <QRegExp>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+#include <QTextCursor>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -69,61 +68,32 @@ using namespace Utils;
 namespace PythonEditor {
 namespace Internal {
 
-const char PythonRunConfigurationPrefix[] = "PythonEditor.RunConfiguration.";
-const char InterpreterKey[] = "PythonEditor.RunConfiguation.Interpreter";
-const char MainScriptKey[] = "PythonEditor.RunConfiguation.MainScript";
 const char PythonMimeType[] = "text/x-python-project"; // ### FIXME
 const char PythonProjectId[] = "PythonProject";
-const char PythonProjectContext[] = "PythonProjectContext";
-
-class PythonRunConfiguration;
-class PythonProjectFile;
-class PythonProject;
-
-static QString scriptFromId(Core::Id id)
-{
-    return id.suffixAfter(PythonRunConfigurationPrefix);
-}
-
-static Core::Id idFromScript(const QString &target)
-{
-    return Core::Id(PythonRunConfigurationPrefix).withSuffix(target);
-}
-
-class PythonProjectManager : public IProjectManager
-{
-    Q_OBJECT
-public:
-    QString mimeType() const override { return QLatin1String(PythonMimeType); }
-    Project *openProject(const QString &fileName, QString *errorString) override;
-
-    void registerProject(PythonProject *project) { m_projects.append(project); }
-    void unregisterProject(PythonProject *project) { m_projects.removeAll(project); }
-
-private:
-    QList<PythonProject *> m_projects;
-};
+const char PythonErrorTaskCategory[] = "Task.Category.Python";
 
 class PythonProject : public Project
 {
+    Q_OBJECT
 public:
-    PythonProject(PythonProjectManager *manager, const QString &filename);
-    ~PythonProject() override;
-
-    QString displayName() const override { return m_projectName; }
-    PythonProjectManager *projectManager() const override;
-
-    QStringList files(FilesMode) const override { return m_files; }
-    QStringList files() const { return m_files; }
+    explicit PythonProject(const Utils::FileName &filename);
 
     bool addFiles(const QStringList &filePaths);
     bool removeFiles(const QStringList &filePaths);
     bool setFiles(const QStringList &filePaths);
     bool renameFile(const QString &filePath, const QString &newFilePath);
-    void refresh();
+    void refresh(Target *target = nullptr);
+
+    bool needsConfiguration() const final { return false; }
+    bool needsBuildConfigurations() const final { return false; }
 
 private:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
+    bool setupTarget(Target *t) override
+    {
+        refresh(t);
+        return Project::setupTarget(t);
+    }
 
     bool saveRawFileList(const QStringList &rawFileList);
     bool saveRawList(const QStringList &rawList, const QString &fileName);
@@ -131,41 +101,9 @@ private:
     QStringList processEntries(const QStringList &paths,
                                QHash<QString, QString> *map = 0) const;
 
-    QString m_projectName;
     QStringList m_rawFileList;
     QStringList m_files;
     QHash<QString, QString> m_rawListEntries;
-};
-
-class PythonProjectFile : public Core::IDocument
-{
-public:
-    PythonProjectFile(PythonProject *parent, QString fileName) : m_project(parent)
-    {
-        setId("Generic.ProjectFile");
-        setMimeType(PythonMimeType);
-        setFilePath(FileName::fromString(fileName));
-    }
-
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override
-    {
-        Q_UNUSED(state)
-        Q_UNUSED(type)
-        return BehaviorSilent;
-    }
-
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override
-    {
-        Q_UNUSED(errorString)
-        Q_UNUSED(flag)
-        if (type == TypePermissions)
-            return true;
-        m_project->refresh();
-        return true;
-    }
-
-private:
-    PythonProject *m_project;
 };
 
 class PythonProjectNode : public ProjectNode
@@ -174,29 +112,112 @@ public:
     PythonProjectNode(PythonProject *project);
 
     bool showInSimpleTree() const override;
-
-    QList<ProjectAction> supportedActions(Node *node) const override;
-
     QString addFileFilter() const override;
-
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
 private:
     PythonProject *m_project;
 };
 
-class PythonRunConfigurationWidget : public QWidget
+static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QString &href)
 {
-    Q_OBJECT
+    QTextCharFormat result = inputFormat;
+    result.setForeground(creatorTheme()->color(Theme::TextColorLink));
+    result.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+    result.setAnchor(true);
+    result.setAnchorHref(href);
+    return result;
+}
+
+class PythonOutputFormatter : public OutputFormatter
+{
 public:
-    PythonRunConfigurationWidget(PythonRunConfiguration *runConfiguration, QWidget *parent = 0);
-    void setInterpreter(const QString &interpreter);
+    PythonOutputFormatter(Project *)
+        // Note that moc dislikes raw string literals.
+        : filePattern("^(\\s*)(File \"([^\"]+)\", line (\\d+), .*$)")
+    {
+        TaskHub::clearTasks(PythonErrorTaskCategory);
+    }
 
 private:
-    PythonRunConfiguration *m_runConfiguration;
-    DetailsWidget *m_detailsContainer;
-    FancyLineEdit *m_interpreterChooser;
-    QLabel *m_scriptLabel;
+    void appendMessage(const QString &text, OutputFormat format) final
+    {
+        const bool isTrace = (format == StdErrFormat
+                              || format == StdErrFormatSameLine)
+                          && (text.startsWith("Traceback (most recent call last):")
+                              || text.startsWith("\nTraceback (most recent call last):"));
+
+        if (!isTrace) {
+            OutputFormatter::appendMessage(text, format);
+            return;
+        }
+
+        const QTextCharFormat frm = charFormat(format);
+        const Core::Id id(PythonErrorTaskCategory);
+        QVector<Task> tasks;
+        const QStringList lines = text.split('\n');
+        unsigned taskId = unsigned(lines.size());
+
+        for (const QString &line : lines) {
+            const QRegularExpressionMatch match = filePattern.match(line);
+            if (match.hasMatch()) {
+                QTextCursor tc = plainTextEdit()->textCursor();
+                tc.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+                tc.insertText('\n' + match.captured(1));
+                tc.insertText(match.captured(2), linkFormat(frm, match.captured(2)));
+
+                const auto fileName = FileName::fromString(match.captured(3));
+                const int lineNumber = match.capturedRef(4).toInt();
+                Task task(Task::Warning,
+                                           QString(), fileName, lineNumber, id);
+                task.taskId = --taskId;
+                tasks.append(task);
+            } else {
+                if (!tasks.isEmpty()) {
+                    Task &task = tasks.back();
+                    if (!task.description.isEmpty())
+                        task.description += ' ';
+                    task.description += line.trimmed();
+                }
+                OutputFormatter::appendMessage('\n' + line, format);
+            }
+        }
+        if (!tasks.isEmpty()) {
+            tasks.back().type = Task::Error;
+            for (auto rit = tasks.crbegin(), rend = tasks.crend(); rit != rend; ++rit)
+                TaskHub::addTask(*rit);
+        }
+    }
+
+    void handleLink(const QString &href) final
+    {
+        const QRegularExpressionMatch match = filePattern.match(href);
+        if (!match.hasMatch())
+            return;
+        const QString fileName = match.captured(3);
+        const int lineNumber = match.capturedRef(4).toInt();
+        Core::EditorManager::openEditorAt(fileName, lineNumber);
+    }
+
+    const QRegularExpression filePattern;
+};
+
+////////////////////////////////////////////////////////////////
+
+class InterpreterAspect : public BaseStringAspect
+{
+    Q_OBJECT
+
+public:
+    explicit InterpreterAspect(RunConfiguration *rc) : BaseStringAspect(rc) {}
+};
+
+class MainScriptAspect : public BaseStringAspect
+{
+    Q_OBJECT
+
+public:
+    explicit MainScriptAspect(RunConfiguration *rc) : BaseStringAspect(rc) {}
 };
 
 class PythonRunConfiguration : public RunConfiguration
@@ -209,274 +230,96 @@ class PythonRunConfiguration : public RunConfiguration
     Q_PROPERTY(QString arguments READ arguments)
 
 public:
-    PythonRunConfiguration(Target *parent, Core::Id id);
+    PythonRunConfiguration(Target *target, Core::Id id);
 
-    QWidget *createConfigurationWidget() override;
-    QVariantMap toMap() const override;
-    bool fromMap(const QVariantMap &map) override;
-    bool isEnabled() const override { return m_enabled; }
-    QString disabledReason() const override;
+private:
+    void doAdditionalSetup(const RunConfigurationCreationInfo &) final { updateTargetInformation(); }
+    void fillConfigurationLayout(QFormLayout *layout) const final;
+    Runnable runnable() const final;
 
     bool supportsDebugger() const { return true; }
-    QString mainScript() const { return m_mainScript; }
-    QString arguments() const;
-    QString interpreter() const { return m_interpreter; }
-    void setInterpreter(const QString &interpreter) { m_interpreter = interpreter; }
-    void setEnabled(bool b);
+    QString mainScript() const { return extraAspect<MainScriptAspect>()->value(); }
+    QString arguments() const { return extraAspect<ArgumentsAspect>()->arguments(); }
+    QString interpreter() const { return extraAspect<InterpreterAspect>()->value(); }
 
-private:
-    friend class PythonRunConfigurationFactory;
-    PythonRunConfiguration(Target *parent, PythonRunConfiguration *source);
-    QString defaultDisplayName() const;
-
-    QString m_interpreter;
-    QString m_mainScript;
-    bool m_enabled;
+    void updateTargetInformation();
 };
 
-class PythonRunControl : public RunControl
+PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
+    : RunConfiguration(target, id)
 {
-    Q_OBJECT
-public:
-    PythonRunControl(PythonRunConfiguration *runConfiguration, Core::Id mode);
-
-    void start() override;
-    StopResult stop() override;
-    bool isRunning() const override { return m_running; }
-
-private:
-    void processStarted();
-    void processExited(int exitCode, QProcess::ExitStatus status);
-    void slotAppendMessage(const QString &err, Utils::OutputFormat isError);
-
-    ApplicationLauncher m_applicationLauncher;
-    QString m_interpreter;
-    QString m_mainScript;
-    QString m_commandLineArguments;
-    Utils::Environment m_environment;
-    ApplicationLauncher::Mode m_runMode;
-    bool m_running;
-};
-
-////////////////////////////////////////////////////////////////
-
-PythonRunConfiguration::PythonRunConfiguration(Target *parent, Core::Id id) :
-    RunConfiguration(parent, id),
-    m_mainScript(scriptFromId(id)),
-    m_enabled(true)
-{
-    Environment sysEnv = Environment::systemEnvironment();
+    const Environment sysEnv = Environment::systemEnvironment();
     const QString exec = sysEnv.searchInPath("python").toString();
-    m_interpreter = exec.isEmpty() ? "python" : exec;
+
+    auto interpreterAspect = new InterpreterAspect(this);
+    interpreterAspect->setSettingsKey("PythonEditor.RunConfiguation.Interpreter");
+    interpreterAspect->setLabelText(tr("Interpreter:"));
+    interpreterAspect->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    interpreterAspect->setHistoryCompleter("PythonEditor.Interpreter.History");
+    interpreterAspect->setValue(exec.isEmpty() ? "python" : exec);
+    addExtraAspect(interpreterAspect);
+
+    auto scriptAspect = new MainScriptAspect(this);
+    scriptAspect->setSettingsKey("PythonEditor.RunConfiguation.Script");
+    scriptAspect->setLabelText(tr("Script:"));
+    scriptAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
+    addExtraAspect(scriptAspect);
 
     addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
     addExtraAspect(new ArgumentsAspect(this, "PythonEditor.RunConfiguration.Arguments"));
     addExtraAspect(new TerminalAspect(this, "PythonEditor.RunConfiguration.UseTerminal"));
-    setDefaultDisplayName(defaultDisplayName());
+
+    setOutputFormatter<PythonOutputFormatter>();
+
+    connect(target, &Target::applicationTargetsChanged,
+            this, &PythonRunConfiguration::updateTargetInformation);
+    connect(target->project(), &Project::parsingFinished,
+            this, &PythonRunConfiguration::updateTargetInformation);
 }
 
-PythonRunConfiguration::PythonRunConfiguration(Target *parent, PythonRunConfiguration *source) :
-    RunConfiguration(parent, source),
-    m_interpreter(source->interpreter()),
-    m_mainScript(source->m_mainScript),
-    m_enabled(source->m_enabled)
+void PythonRunConfiguration::updateTargetInformation()
 {
-    setDefaultDisplayName(defaultDisplayName());
+    const BuildTargetInfo bti = buildTargetInfo();
+    const QString script = bti.targetFilePath.toString();
+    setDefaultDisplayName(tr("Run %1").arg(script));
+    extraAspect<MainScriptAspect>()->setValue(script);
 }
 
-QVariantMap PythonRunConfiguration::toMap() const
+void PythonRunConfiguration::fillConfigurationLayout(QFormLayout *layout) const
 {
-    QVariantMap map(RunConfiguration::toMap());
-    map.insert(MainScriptKey, m_mainScript);
-    map.insert(InterpreterKey, m_interpreter);
-    return map;
+    extraAspect<InterpreterAspect>()->addToConfigurationLayout(layout);
+    extraAspect<MainScriptAspect>()->addToConfigurationLayout(layout);
+    extraAspect<ArgumentsAspect>()->addToConfigurationLayout(layout);
+    extraAspect<TerminalAspect>()->addToConfigurationLayout(layout);
 }
 
-bool PythonRunConfiguration::fromMap(const QVariantMap &map)
+Runnable PythonRunConfiguration::runnable() const
 {
-    m_mainScript = map.value(MainScriptKey).toString();
-    m_interpreter = map.value(InterpreterKey).toString();
-    return RunConfiguration::fromMap(map);
+    Runnable r;
+    QtcProcess::addArg(&r.commandLineArguments, mainScript());
+    QtcProcess::addArgs(&r.commandLineArguments, extraAspect<ArgumentsAspect>()->arguments());
+    r.executable = extraAspect<InterpreterAspect>()->value();
+    r.environment = extraAspect<EnvironmentAspect>()->environment();
+    return r;
 }
 
-QString PythonRunConfiguration::defaultDisplayName() const
-{
-    QString result = tr("Run %1").arg(m_mainScript);
-    if (!m_enabled)
-        result += ' ' + tr("(disabled)");
-    return result;
-}
-
-QWidget *PythonRunConfiguration::createConfigurationWidget()
-{
-    return new PythonRunConfigurationWidget(this);
-}
-
-void PythonRunConfiguration::setEnabled(bool b)
-{
-    if (m_enabled == b)
-        return;
-    m_enabled = b;
-    emit enabledChanged();
-    setDefaultDisplayName(defaultDisplayName());
-}
-
-QString PythonRunConfiguration::disabledReason() const
-{
-    if (!m_enabled)
-        return tr("The script is currently disabled.");
-    return QString();
-}
-
-QString PythonRunConfiguration::arguments() const
-{
-    auto aspect = extraAspect<ArgumentsAspect>();
-    QTC_ASSERT(aspect, return QString());
-    return aspect->arguments();
-}
-
-PythonRunConfigurationWidget::PythonRunConfigurationWidget(PythonRunConfiguration *runConfiguration, QWidget *parent)
-    : QWidget(parent), m_runConfiguration(runConfiguration)
-{
-    auto fl = new QFormLayout();
-    fl->setMargin(0);
-    fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-
-    m_interpreterChooser = new FancyLineEdit(this);
-    m_interpreterChooser->setText(runConfiguration->interpreter());
-    connect(m_interpreterChooser, &QLineEdit::textChanged,
-            this, &PythonRunConfigurationWidget::setInterpreter);
-
-    m_scriptLabel = new QLabel(this);
-    m_scriptLabel->setText(runConfiguration->mainScript());
-
-    fl->addRow(tr("Interpreter: "), m_interpreterChooser);
-    fl->addRow(tr("Script: "), m_scriptLabel);
-    runConfiguration->extraAspect<ArgumentsAspect>()->addToMainConfigurationWidget(this, fl);
-    runConfiguration->extraAspect<TerminalAspect>()->addToMainConfigurationWidget(this, fl);
-
-    m_detailsContainer = new DetailsWidget(this);
-    m_detailsContainer->setState(DetailsWidget::NoSummary);
-
-    auto details = new QWidget(m_detailsContainer);
-    m_detailsContainer->setWidget(details);
-    details->setLayout(fl);
-
-    auto vbx = new QVBoxLayout(this);
-    vbx->setMargin(0);
-    vbx->addWidget(m_detailsContainer);
-
-    setEnabled(runConfiguration->isEnabled());
-}
-
-Project *PythonProjectManager::openProject(const QString &fileName, QString *errorString)
-{
-    if (!QFileInfo(fileName).isFile()) {
-        if (errorString)
-            *errorString = tr("Failed opening project \"%1\": Project is not a file.")
-                .arg(fileName);
-        return 0;
-    }
-
-    return new PythonProject(this, fileName);
-}
-
-class PythonRunConfigurationFactory : public IRunConfigurationFactory
+class PythonRunConfigurationFactory : public RunConfigurationFactory
 {
 public:
     PythonRunConfigurationFactory()
     {
-        setObjectName("PythonRunConfigurationFactory");
-    }
-
-    QList<Core::Id> availableCreationIds(Target *parent, CreationMode mode) const override
-    {
-        Q_UNUSED(mode);
-        if (!canHandle(parent))
-            return {};
-        //return { Core::Id(PythonExecutableId) };
-
-        PythonProject *project = static_cast<PythonProject *>(parent->project());
-        QList<Core::Id> allIds;
-        foreach (const QString &file, project->files())
-            allIds.append(idFromScript(file));
-        return allIds;
-    }
-
-    QString displayNameForId(Core::Id id) const override
-    {
-        return scriptFromId(id);
-    }
-
-    bool canCreate(Target *parent, Core::Id id) const override
-    {
-        if (!canHandle(parent))
-            return false;
-        PythonProject *project = static_cast<PythonProject *>(parent->project());
-        return project->files().contains(scriptFromId(id));
-    }
-
-    bool canRestore(Target *parent, const QVariantMap &map) const override
-    {
-        Q_UNUSED(parent);
-        return idFromMap(map).name().startsWith(PythonRunConfigurationPrefix);
-    }
-
-    bool canClone(Target *parent, RunConfiguration *source) const override
-    {
-        if (!canHandle(parent))
-            return false;
-        return source->id().name().startsWith(PythonRunConfigurationPrefix);
-    }
-
-    RunConfiguration *clone(Target *parent, RunConfiguration *source) override
-    {
-        if (!canClone(parent, source))
-            return 0;
-        return new PythonRunConfiguration(parent, static_cast<PythonRunConfiguration*>(source));
-    }
-
-private:
-    bool canHandle(Target *parent) const { return dynamic_cast<PythonProject *>(parent->project()); }
-
-    RunConfiguration *doCreate(Target *parent, Core::Id id) override
-    {
-        return new PythonRunConfiguration(parent, id);
-    }
-
-    RunConfiguration *doRestore(Target *parent, const QVariantMap &map) override
-    {
-        Core::Id id(idFromMap(map));
-        return new PythonRunConfiguration(parent, id);
+        registerRunConfiguration<PythonRunConfiguration>("PythonEditor.RunConfiguration.");
+        addSupportedProjectType(PythonProjectId);
+        addRunWorkerFactory<SimpleTargetRunner>(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     }
 };
 
-PythonProject::PythonProject(PythonProjectManager *manager, const QString &fileName)
+PythonProject::PythonProject(const FileName &fileName) :
+    Project(Constants::C_PY_MIMETYPE, fileName, [this]() { refresh(); })
 {
     setId(PythonProjectId);
-    setProjectManager(manager);
-    setDocument(new PythonProjectFile(this, fileName));
-    DocumentManager::addDocument(document());
-    setRootProjectNode(new PythonProjectNode(this));
-
-    setProjectContext(Context(PythonProjectContext));
-    setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
-
-    QFileInfo fileInfo = projectFilePath().toFileInfo();
-
-    m_projectName = fileInfo.completeBaseName();
-
-    projectManager()->registerProject(this);
-}
-
-PythonProject::~PythonProject()
-{
-    projectManager()->unregisterProject(this);
-}
-
-PythonProjectManager *PythonProject::projectManager() const
-{
-    return static_cast<PythonProjectManager *>(Project::projectManager());
+    setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+    setDisplayName(fileName.toFileInfo().completeBaseName());
 }
 
 static QStringList readLines(const QString &absoluteFileName)
@@ -588,7 +431,6 @@ void PythonProject::parseProject()
     m_rawFileList = readLines(projectFilePath().toString());
     m_rawFileList << projectFilePath().fileName();
     m_files = processEntries(m_rawFileList, &m_rawListEntries);
-    emit fileListChanged();
 }
 
 /**
@@ -597,8 +439,9 @@ void PythonProject::parseProject()
 class PythonFileNode : public FileNode
 {
 public:
-    PythonFileNode(const Utils::FileName &filePath, const QString &nodeDisplayName)
-        : FileNode(filePath, FileType::Source, false)
+    PythonFileNode(const Utils::FileName &filePath, const QString &nodeDisplayName,
+                   FileType fileType = FileType::Source)
+        : FileNode(filePath, fileType, false)
         , m_displayName(nodeDisplayName)
     {}
 
@@ -607,20 +450,35 @@ private:
     QString m_displayName;
 };
 
-void PythonProject::refresh()
+void PythonProject::refresh(Target *target)
 {
+    emitParsingStarted();
     parseProject();
 
     QDir baseDir(projectDirectory().toString());
-
-    QList<FileNode *> fileNodes
-            = Utils::transform(m_files, [baseDir](const QString &f) -> FileNode * {
+    BuildTargetInfoList appTargets;
+    auto newRoot = std::make_unique<PythonProjectNode>(this);
+    for (const QString &f : m_files) {
         const QString displayName = baseDir.relativeFilePath(f);
-        return new PythonFileNode(FileName::fromString(f), displayName);
-    });
-    rootProjectNode()->buildTree(fileNodes);
+        FileType fileType = f.endsWith(".pyqtc") ? FileType::Project : FileType::Source;
+        newRoot->addNestedNode(std::make_unique<PythonFileNode>(FileName::fromString(f),
+                                                                displayName, fileType));
+        if (fileType == FileType::Source) {
+            BuildTargetInfo bti;
+            bti.buildKey = f;
+            bti.targetFilePath = FileName::fromString(f);
+            bti.projectFilePath = projectFilePath();
+            appTargets.list.append(bti);
+        }
+    }
+    setRootProjectNode(std::move(newRoot));
 
-    emit parsingFinished();
+    if (!target)
+        target = activeTarget();
+    if (target)
+        target->setApplicationTargets(appTargets);
+
+    emitParsingFinished(true);
 }
 
 /**
@@ -682,31 +540,11 @@ Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *e
 {
     Project::RestoreResult res = Project::fromMap(map, errorMessage);
     if (res == RestoreResult::Ok) {
+        refresh();
+
         Kit *defaultKit = KitManager::defaultKit();
         if (!activeTarget() && defaultKit)
             addTarget(createTarget(defaultKit));
-
-        refresh();
-
-        QList<Target *> targetList = targets();
-        foreach (Target *t, targetList) {
-            const QList<RunConfiguration *> runConfigs = t->runConfigurations();
-            foreach (const QString &file, m_files) {
-                // skip the 'project' file
-                if (file.endsWith(".pyqtc"))
-                    continue;
-                const Id id = idFromScript(file);
-                bool alreadyPresent = false;
-                foreach (RunConfiguration *runCfg, runConfigs) {
-                    if (runCfg->id() == id) {
-                        alreadyPresent = true;
-                        break;
-                    }
-                }
-                if (!alreadyPresent)
-                    t->addRunConfiguration(new PythonRunConfiguration(t, id));
-            }
-        }
     }
 
     return res;
@@ -748,13 +586,6 @@ bool PythonProjectNode::showInSimpleTree() const
     return true;
 }
 
-QList<ProjectAction> PythonProjectNode::supportedActions(Node *node) const
-{
-    Q_UNUSED(node);
-    //return { AddNewFile, AddExistingFile, AddExistingDirectory, RemoveFile, Rename };
-    return {};
-}
-
 QString PythonProjectNode::addFileFilter() const
 {
     return QLatin1String("*.py");
@@ -765,132 +596,22 @@ bool PythonProjectNode::renameFile(const QString &filePath, const QString &newFi
     return m_project->renameFile(filePath, newFilePath);
 }
 
-// PythonRunControlFactory
-
-class PythonRunControlFactory : public IRunControlFactory
-{
-public:
-    bool canRun(RunConfiguration *runConfiguration, Core::Id mode) const override;
-    RunControl *create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage) override;
-};
-
-bool PythonRunControlFactory::canRun(RunConfiguration *runConfiguration, Core::Id mode) const
-{
-    return mode == ProjectExplorer::Constants::NORMAL_RUN_MODE
-        && dynamic_cast<PythonRunConfiguration *>(runConfiguration);
-}
-
-RunControl *PythonRunControlFactory::create(RunConfiguration *runConfiguration, Core::Id mode, QString *errorMessage)
-{
-    Q_UNUSED(errorMessage)
-    QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-    return new PythonRunControl(static_cast<PythonRunConfiguration *>(runConfiguration), mode);
-}
-
-// PythonRunControl
-
-PythonRunControl::PythonRunControl(PythonRunConfiguration *rc, Core::Id mode)
-    : RunControl(rc, mode), m_running(false)
-{
-    setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
-
-    m_interpreter = rc->interpreter();
-    m_mainScript = rc->mainScript();
-    m_runMode = rc->extraAspect<TerminalAspect>()->runMode();
-    m_commandLineArguments = rc->extraAspect<ArgumentsAspect>()->arguments();
-    m_environment = rc->extraAspect<EnvironmentAspect>()->environment();
-
-    connect(&m_applicationLauncher, &ApplicationLauncher::appendMessage,
-            this, &PythonRunControl::slotAppendMessage);
-    connect(&m_applicationLauncher, &ApplicationLauncher::processStarted,
-            this, &PythonRunControl::processStarted);
-    connect(&m_applicationLauncher, &ApplicationLauncher::processExited,
-            this, &PythonRunControl::processExited);
-    connect(&m_applicationLauncher, &ApplicationLauncher::bringToForegroundRequested,
-            this, &RunControl::bringApplicationToForeground);
-}
-
-void PythonRunControl::start()
-{
-    emit started();
-    if (m_interpreter.isEmpty()) {
-        appendMessage(tr("No Python interpreter specified.") + '\n', Utils::ErrorMessageFormat);
-        emit finished();
-    }  else if (!QFileInfo::exists(m_interpreter)) {
-        appendMessage(tr("Python interpreter %1 does not exist.").arg(QDir::toNativeSeparators(m_interpreter)) + '\n',
-                      Utils::ErrorMessageFormat);
-        emit finished();
-    } else {
-        m_running = true;
-        QString msg = tr("Starting %1...").arg(QDir::toNativeSeparators(m_interpreter)) + '\n';
-        appendMessage(msg, Utils::NormalMessageFormat);
-
-        StandardRunnable r;
-        QtcProcess::addArg(&r.commandLineArguments, m_mainScript);
-        QtcProcess::addArgs(&r.commandLineArguments, m_commandLineArguments);
-        r.executable = m_interpreter;
-        r.runMode = m_runMode;
-        r.environment = m_environment;
-        m_applicationLauncher.start(r);
-
-        setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
-    }
-}
-
-PythonRunControl::StopResult PythonRunControl::stop()
-{
-    m_applicationLauncher.stop();
-    return StoppedSynchronously;
-}
-
-void PythonRunControl::slotAppendMessage(const QString &err, Utils::OutputFormat format)
-{
-    appendMessage(err, format);
-}
-
-void PythonRunControl::processStarted()
-{
-    // Console processes only know their pid after being started
-    setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
-}
-
-void PythonRunControl::processExited(int exitCode, QProcess::ExitStatus status)
-{
-    m_running = false;
-    setApplicationProcessHandle(ProcessHandle());
-    QString msg;
-    if (status == QProcess::CrashExit) {
-        msg = tr("%1 crashed")
-                .arg(QDir::toNativeSeparators(m_interpreter));
-    } else {
-        msg = tr("%1 exited with code %2")
-                .arg(QDir::toNativeSeparators(m_interpreter)).arg(exitCode);
-    }
-    appendMessage(msg + '\n', Utils::NormalMessageFormat);
-    emit finished();
-}
-
-void PythonRunConfigurationWidget::setInterpreter(const QString &interpreter)
-{
-    m_runConfiguration->setInterpreter(interpreter);
-}
-
 ////////////////////////////////////////////////////////////////////////////////////
 //
 // PythonEditorPlugin
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-static PythonEditorPlugin *m_instance = 0;
-
-PythonEditorPlugin::PythonEditorPlugin()
+class PythonEditorPluginPrivate
 {
-    m_instance = this;
-}
+public:
+    PythonEditorFactory editorFactory;
+    PythonRunConfigurationFactory runConfigFactory;
+};
 
 PythonEditorPlugin::~PythonEditorPlugin()
 {
-    m_instance = 0;
+    delete d;
 }
 
 bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -898,12 +619,9 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    MimeDatabase::addMimeTypes(":/pythoneditor/PythonEditor.mimetypes.xml");
+    d = new PythonEditorPluginPrivate;
 
-    addAutoReleasedObject(new PythonProjectManager);
-    addAutoReleasedObject(new PythonEditorFactory);
-    addAutoReleasedObject(new PythonRunConfigurationFactory);
-    addAutoReleasedObject(new PythonRunControlFactory);
+    ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
 
     return true;
 }
@@ -915,6 +633,8 @@ void PythonEditorPlugin::extensionsInitialized()
     const QIcon icon = QIcon::fromTheme(C_PY_MIME_ICON);
     if (!icon.isNull())
         Core::FileIconProvider::registerIconOverlayForMimeType(icon, C_PY_MIMETYPE);
+
+    TaskHub::addCategory(PythonErrorTaskCategory, "Python", true);
 }
 
 } // namespace Internal

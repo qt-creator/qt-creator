@@ -1,6 +1,6 @@
 QFrame {
    border: 2px;
-   background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+   background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
 }
 
 QLabel {
@@ -13,24 +13,24 @@ QLabel {
 
 QScrollArea {
      border: 0px;
-     background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+     background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
 }
 
 QStackedWidget {
      border: 0px;
-     background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+     background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
 }
 
 QGraphicsView {
      border: 0px;
-     background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+     background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
 }
 
 QLineEdit#itemLibrarySearchInput
 {
     color: creatorTheme.PanelTextColorLight;
-    font-size: 11px;
-    border: 1px solid creatorTheme.QmlDesignerBackgroundColorDarker;
+    font-size: creatorTheme.smallFontPixelSize;
+    border: 1px solid creatorTheme.QmlDesigner_BackgroundColorDarker;
     border-width: 1;
     max-height: 20px;
     min-height: 20px;
@@ -61,36 +61,36 @@ QLineEdit#itemLibrarySearchInput
 
 QTabWidget {
      border: 0px;
-     background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+     background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
 }
 
 QTabWidget::pane { /* The tab widget frame */
      border: 0px;
-     background-color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate;
+     background-color: creatorTheme.QmlDesigner_BackgroundColorDarkAlternate;
 }
 
 QTabBar::tab {
-    width: 80px;
+    width: 92px;
     height: 22px;
 
     border-image: none;
-    background-color: creatorTheme.QmlDesignerTabDark;
-    color: creatorTheme.QmlDesignerTabLight;
+    background-color: creatorTheme.QmlDesigner_TabDark;
+    color: creatorTheme.QmlDesigner_TabLight;
 
     margin-top: 0x;
     margin-bottom: 0px;
     margin-left: 0px;
     margin-right: 0px;
     font: bold;
-    font-size: 11px;
+    font-size: creatorTheme.captionFontPixelSize;
 }
 
 QTabBar::tab:selected {
     border: none; /* no border for a flat push button */
-    background-color: creatorTheme.QmlDesignerTabLight;
-    color: creatorTheme.QmlDesignerTabDark;
+    background-color: creatorTheme.QmlDesigner_TabLight;
+    color: creatorTheme.QmlDesigner_TabDark;
 }
 
 QWidget#itemLibrarySearchInputSpacer {
-    background-color: creatorTheme.QmlDesignerTabLight;
+    background-color: creatorTheme.QmlDesigner_TabLight;
 }

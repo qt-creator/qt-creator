@@ -76,10 +76,12 @@ EditMode::EditMode() :
     splitter->setStretchFactor(0, 3);
     splitter->setStretchFactor(1, 0);
 
-    m_splitter->insertWidget(0, new NavigationWidgetPlaceHolder(Constants::MODE_EDIT));
+    m_splitter->insertWidget(0, new NavigationWidgetPlaceHolder(Constants::MODE_EDIT, Side::Left));
     m_splitter->insertWidget(1, splitter);
+    m_splitter->insertWidget(2, new NavigationWidgetPlaceHolder(Constants::MODE_EDIT, Side::Right));
     m_splitter->setStretchFactor(0, 0);
     m_splitter->setStretchFactor(1, 1);
+    m_splitter->setStretchFactor(2, 0);
 
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &EditMode::grabEditorManager);

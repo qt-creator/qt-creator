@@ -103,7 +103,7 @@ void SshDirectTcpIpTunnel::initialize()
             d->m_originatingHost.toUtf8(), d->m_originatingPort);
         d->setChannelState(AbstractSshChannel::SessionRequested);
         d->m_timeoutTimer.start(d->ReplyTimeout);
-    }  catch (const Botan::Exception &e) { // Won't happen, but let's play it safe.
+    }  catch (const std::exception &e) { // Won't happen, but let's play it safe.
         qCWarning(sshLog, "Botan error: %s", e.what());
         d->closeChannel();
     }

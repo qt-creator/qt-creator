@@ -41,7 +41,6 @@ public:
     QString segment(int index) const;
     QString toString() const;
 
-    static QnxVersionNumber fromNdkEnvFileName(const QString &ndkEnvFileName);
     static QnxVersionNumber fromTargetName(const QString &targetName);
     static QnxVersionNumber fromFileName(const QString &fileName, const QRegExp &regExp);
 

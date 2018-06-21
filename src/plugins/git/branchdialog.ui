@@ -66,6 +66,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QCheckBox" name="includeTagsCheckBox">
+          <property name="text">
+           <string>Include ta&amp;gs</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QCheckBox" name="includeOldCheckBox">
           <property name="text">
            <string>&amp;Include old entries</string>
@@ -108,7 +115,7 @@
           <item>
            <widget class="QPushButton" name="checkoutButton">
             <property name="text">
-             <string>&amp;Checkout</string>
+             <string>C&amp;heckout</string>
             </property>
            </widget>
           </item>
@@ -157,7 +164,7 @@
           <item>
            <widget class="QPushButton" name="resetButton">
             <property name="text">
-             <string>Reset</string>
+             <string>Re&amp;set</string>
             </property>
            </widget>
           </item>
@@ -169,7 +176,7 @@
            <string>Cherry pick top commit from selected branch.</string>
           </property>
           <property name="text">
-           <string>Cherry Pick</string>
+           <string>Cherry &amp;Pick</string>
           </property>
          </widget>
         </item>

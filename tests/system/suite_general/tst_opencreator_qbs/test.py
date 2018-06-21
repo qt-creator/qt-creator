@@ -26,9 +26,6 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    if platform.system() == 'Darwin':
-        test.warning("This needs a Qt 5.4 kit. Skipping it.")
-        return
     pathCreator = os.path.join(srcPath, "creator", "qtcreator.qbs")
     if not neededFilePresent(pathCreator):
         return
@@ -37,17 +34,14 @@ def main():
     if not startedWithoutPluginError():
         return
     openQbsProject(pathCreator)
-    switchViewTo(ViewConstants.PROJECTS)
-    clickButton(waitForObject(":*Qt Creator.Add Kit_QPushButton"))
-    menuItem = Targets.getStringForTarget(Targets.DESKTOP_541_GCC)
-    activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1' "
-                                   "window=':Qt Creator_Core::Internal::MainWindow'}", menuItem))
-    switchToBuildOrRunSettingsFor(2, 1, ProjectSettings.BUILD)
-    switchViewTo(ViewConstants.EDIT)
+    if not addAndActivateKit(Targets.DESKTOP_5_10_1_DEFAULT):
+        test.fatal("Failed to activate '%s'" % Targets.getStringForTarget(Targets.DESKTOP_5_10_1_DEFAULT))
+        invokeMenuItem("File", "Exit")
+        return
     test.log("Start parsing project")
     rootNodeTemplate = "{column='0' container=':Qt Creator_Utils::NavigationTreeView' text~='%s( \[\S+\])?' type='QModelIndex'}"
-    ntwObject = waitForObject(rootNodeTemplate % "qtcreator.qbs")
-    if waitFor("ntwObject.model().rowCount(ntwObject) > 2", 200000):    # No need to wait for C++-parsing
+    ntwObject = waitForObject(rootNodeTemplate % "Qt Creator", 200000)
+    if waitFor("ntwObject.model().rowCount(ntwObject) > 2", 20000):     # No need to wait for C++-parsing
         test.log("Parsing project done")                                # we only need the project
     else:
         test.warning("Parsing project timed out")

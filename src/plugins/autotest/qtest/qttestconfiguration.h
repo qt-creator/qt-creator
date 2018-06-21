@@ -36,7 +36,7 @@ public:
     explicit QtTestConfiguration() {}
     TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
                                    QProcess *app) const override;
-    QStringList argumentsForTestRunner() const override;
+    QStringList argumentsForTestRunner(QStringList *omitted = nullptr) const override;
 };
 
 } // namespace Internal

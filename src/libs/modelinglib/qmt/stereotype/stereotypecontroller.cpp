@@ -25,12 +25,14 @@
 
 #include "stereotypecontroller.h"
 
+#include "customrelation.h"
 #include "stereotypeicon.h"
 #include "shapepaintvisitor.h"
 #include "toolbar.h"
 
 #include "qmt/infrastructure/qmtassert.h"
 #include "qmt/style/style.h"
+#include "utils/algorithm.h"
 
 #include <QHash>
 #include <QPainter>
@@ -41,12 +43,56 @@
 
 namespace qmt {
 
+namespace {
+
+struct IconKey {
+    IconKey(StereotypeIcon::Element element, const QList<QString> &stereotypes, const QString &defaultIconPath,
+            const Uid &styleUid, const QSize &size, const QMarginsF &margins, qreal lineWidth)
+        : m_element(element),
+          m_stereotypes(stereotypes),
+          m_defaultIconPath(defaultIconPath),
+          m_styleUid(styleUid),
+          m_size(size),
+          m_margins(margins),
+          m_lineWidth(lineWidth)
+    {
+    }
+
+    const StereotypeIcon::Element m_element;
+    const QList<QString> m_stereotypes;
+    const QString m_defaultIconPath;
+    const Uid m_styleUid;
+    const QSize m_size;
+    const QMarginsF m_margins;
+    const qreal m_lineWidth;
+};
+
+bool operator==(const IconKey &lhs, const IconKey &rhs) {
+    return lhs.m_element == rhs.m_element
+            && lhs.m_stereotypes == rhs.m_stereotypes
+            && lhs.m_defaultIconPath == rhs.m_defaultIconPath
+            && lhs.m_styleUid == rhs.m_styleUid
+            && lhs.m_size == rhs.m_size
+            && lhs.m_margins == rhs.m_margins
+            && lhs.m_lineWidth == rhs.m_lineWidth;
+}
+
+uint qHash(const IconKey &key) {
+    return ::qHash(key.m_element) + qHash(key.m_stereotypes) + qHash(key.m_defaultIconPath)
+            + qHash(key.m_styleUid) + ::qHash(key.m_size.width()) + ::qHash(key.m_size.height());
+}
+
+}
+
 class StereotypeController::StereotypeControllerPrivate
 {
 public:
     QHash<QPair<StereotypeIcon::Element, QString>, QString> m_stereotypeToIconIdMap;
     QHash<QString, StereotypeIcon> m_iconIdToStereotypeIconsMap;
+    QHash<QString, CustomRelation> m_relationIdToCustomRelationMap;
     QList<Toolbar> m_toolbars;
+    QList<Toolbar> m_elementToolbars;
+    QHash<IconKey, QIcon> m_iconMap;
 };
 
 StereotypeController::StereotypeController(QObject *parent) :
@@ -70,10 +116,17 @@ QList<Toolbar> StereotypeController::toolbars() const
     return d->m_toolbars;
 }
 
+QList<Toolbar> StereotypeController::findToolbars(const QString &elementType) const
+{
+    return Utils::filtered(d->m_elementToolbars, [&elementType](const Toolbar &tb) {
+        return tb.elementTypes().contains(elementType);
+    });
+}
+
 QList<QString> StereotypeController::knownStereotypes(StereotypeIcon::Element stereotypeElement) const
 {
     QSet<QString> stereotypes;
-    foreach (const StereotypeIcon &icon, d->m_iconIdToStereotypeIconsMap.values()) {
+    foreach (const StereotypeIcon &icon, d->m_iconIdToStereotypeIconsMap) {
         if (icon.elements().isEmpty() || icon.elements().contains(stereotypeElement))
             stereotypes += icon.stereotypes();
     }
@@ -105,63 +158,94 @@ QList<QString> StereotypeController::filterStereotypesByIconId(const QString &st
     return filteredStereotypes;
 }
 
-StereotypeIcon StereotypeController::findStereotypeIcon(const QString &stereotypeIconId)
+StereotypeIcon StereotypeController::findStereotypeIcon(const QString &stereotypeIconId) const
 {
     QMT_CHECK(d->m_iconIdToStereotypeIconsMap.contains(stereotypeIconId));
     return d->m_iconIdToStereotypeIconsMap.value(stereotypeIconId);
 }
 
+CustomRelation StereotypeController::findCustomRelation(const QString &customRelationId) const
+{
+    return d->m_relationIdToCustomRelationMap.value(customRelationId);
+}
+
 QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QList<QString> &stereotypes,
                                        const QString &defaultIconPath, const Style *style, const QSize &size,
-                                       const QMarginsF &margins)
+                                       const QMarginsF &margins, qreal lineWidth)
 {
-    // TODO implement cache with key build from element, stereotypes, defaultIconPath, style, size and margins
-    // TODO implement unique id for style which can be used as key
-    // TODO fix rendering of icon which negativ extension of bounding box (e.g. stereotype "component")
-    QIcon icon;
+    IconKey key(element, stereotypes, defaultIconPath, style->uid(), size, margins, lineWidth);
+    QIcon icon = d->m_iconMap.value(key);
+    if (!icon.isNull())
+        return icon;
     QString stereotypeIconId = findStereotypeIconId(element, stereotypes);
     if (!stereotypeIconId.isEmpty()) {
         StereotypeIcon stereotypeIcon = findStereotypeIcon(stereotypeIconId);
 
-        qreal width = size.width() - margins.left() - margins.right();
-        qreal height = size.height() - margins.top() - margins.bottom();
-        qreal ratioWidth = height * stereotypeIcon.width() / stereotypeIcon.height();
-        qreal ratioHeight = width * stereotypeIcon.height() / stereotypeIcon.width();
-        if (ratioWidth > width)
-            height = ratioHeight;
-        else if (ratioHeight > height)
-            width = ratioWidth;
-        QSizeF shapeSize(width, height);
-
+        // calculate bounding rectangle relativ to original icon size
         ShapeSizeVisitor sizeVisitor(QPointF(0.0, 0.0),
-                                           QSizeF(stereotypeIcon.width(), stereotypeIcon.height()),
-                                           shapeSize, shapeSize);
+                                     QSizeF(stereotypeIcon.width(), stereotypeIcon.height()),
+                                     QSizeF(stereotypeIcon.width(), stereotypeIcon.height()),
+                                     QSizeF(stereotypeIcon.width(), stereotypeIcon.height()));
         stereotypeIcon.iconShape().visitShapes(&sizeVisitor);
         QRectF iconBoundingRect = sizeVisitor.boundingRect();
-        QPixmap pixmap(iconBoundingRect.width() + margins.left() + margins.right(),
-                       iconBoundingRect.height() + margins.top() + margins.bottom());
+
+        // calc painting space within margins
+        qreal innerWidth = size.width() - margins.left() - margins.right();
+        qreal innerHeight = size.height() - margins.top() - margins.bottom();
+
+        // calculate width/height ratio from icon size
+        qreal widthRatio = 1.0;
+        qreal heightRatio = 1.0;
+        qreal ratio = stereotypeIcon.width() / stereotypeIcon.height();
+        if (ratio > 1.0)
+            heightRatio /= ratio;
+        else
+            widthRatio *= ratio;
+
+        // calculate inner painting area
+        qreal paintWidth = stereotypeIcon.width() * innerWidth / iconBoundingRect.width() * widthRatio;
+        qreal paintHeight = stereotypeIcon.height() * innerHeight / iconBoundingRect.height() * heightRatio;
+        // icons which renders smaller than their size should not be zoomed
+        if (paintWidth > innerWidth) {
+            paintHeight *= innerWidth / paintHeight;
+            paintWidth = innerWidth;
+        }
+        if (paintHeight > innerHeight) {
+            paintWidth *= innerHeight / paintHeight;
+            paintHeight = innerHeight;
+        }
+
+        // calculate offset of top/left edge
+        qreal paintLeft = iconBoundingRect.left() * paintWidth / stereotypeIcon.width();
+        qreal paintTop = iconBoundingRect.top() * paintHeight / stereotypeIcon.height();
+
+        // calculate total painting size
+        qreal totalPaintWidth = iconBoundingRect.width() * paintWidth / stereotypeIcon.width();
+        qreal totalPaintHeight = iconBoundingRect.height() * paintHeight / stereotypeIcon.height();
+
+        QPixmap pixmap(size);
         pixmap.fill(Qt::transparent);
         QPainter painter(&pixmap);
+        painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
         painter.setBrush(Qt::NoBrush);
-        painter.translate(-iconBoundingRect.topLeft() + QPointF(margins.left(), margins.top()));
+        // set painting origin taking margin, offset and centering into account
+        painter.translate(QPointF(margins.left(), margins.top()) - QPointF(paintLeft, paintTop)
+                          + QPointF((innerWidth - totalPaintWidth) / 2, (innerHeight - totalPaintHeight) / 2));
         QPen linePen = style->linePen();
-        linePen.setWidthF(2.0);
+        linePen.setWidthF(lineWidth);
         painter.setPen(linePen);
         painter.setBrush(style->fillBrush());
+
         ShapePaintVisitor visitor(&painter, QPointF(0.0, 0.0),
-                                       QSizeF(stereotypeIcon.width(), stereotypeIcon.height()),
-                                       shapeSize, shapeSize);
+                                  QSizeF(stereotypeIcon.width(), stereotypeIcon.height()),
+                                  QSizeF(paintWidth, paintHeight), QSizeF(paintWidth, paintHeight));
         stereotypeIcon.iconShape().visitShapes(&visitor);
 
-        QPixmap iconPixmap(size);
-        iconPixmap.fill(Qt::transparent);
-        QPainter iconPainter(&iconPixmap);
-        iconPainter.drawPixmap((iconPixmap.width() - pixmap.width()) / 2,
-                               (iconPixmap.width() - pixmap.height()) / 2, pixmap);
-        icon = QIcon(iconPixmap);
+        icon = QIcon(pixmap);
     }
     if (icon.isNull() && !defaultIconPath.isEmpty())
         icon = QIcon(defaultIconPath);
+    d->m_iconMap.insert(key, icon);
     return icon;
 
 }
@@ -180,9 +264,17 @@ void StereotypeController::addStereotypeIcon(const StereotypeIcon &stereotypeIco
     d->m_iconIdToStereotypeIconsMap.insert(stereotypeIcon.id(), stereotypeIcon);
 }
 
+void StereotypeController::addCustomRelation(const CustomRelation &customRelation)
+{
+    d->m_relationIdToCustomRelationMap.insert(customRelation.id(), customRelation);
+}
+
 void StereotypeController::addToolbar(const Toolbar &toolbar)
 {
-    d->m_toolbars.append(toolbar);
+    if (toolbar.elementTypes().isEmpty())
+        d->m_toolbars.append(toolbar);
+    else
+        d->m_elementToolbars.append(toolbar);
 }
 
 } // namespace qmt

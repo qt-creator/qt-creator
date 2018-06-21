@@ -33,11 +33,13 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
 #include <cpptools/cppmodelmanager.h>
-#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -48,6 +50,8 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <texteditor/textdocument.h>
+
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
 
@@ -59,6 +63,8 @@
 #include <QTextStream>
 #include <QTimer>
 #include <QRegExp>
+#include <QSet>
+#include <QString>
 #include <QLibraryInfo>
 #include <qglobal.h>
 
@@ -74,21 +80,21 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
         Project *project) const
 {
     ModelManagerInterface::ProjectInfo projectInfo(project);
-    Target *activeTarget = 0;
+    projectInfo.qmlDumpEnvironment = Utils::Environment::systemEnvironment();
+    Target *activeTarget = nullptr;
     if (project) {
-        MimeDatabase mdb;
-        QSet<QString> qmlTypeNames;
-        qmlTypeNames << QLatin1String(Constants::QML_MIMETYPE)
-                     << QLatin1String(Constants::QBS_MIMETYPE)
-                     << QLatin1String(Constants::QMLPROJECT_MIMETYPE)
-                     << QLatin1String(Constants::QMLTYPES_MIMETYPE)
-                     << QLatin1String(Constants::QMLUI_MIMETYPE);
-        foreach (const QString &filePath, project->files(Project::SourceFiles)) {
-            if (qmlTypeNames.contains(mdb.mimeTypeForFile(
-                                          filePath, MimeDatabase::MatchExtension).name())) {
-                projectInfo.sourceFiles << filePath;
-            }
-        }
+        const QSet<QString> qmlTypeNames = { Constants::QML_MIMETYPE ,Constants::QBS_MIMETYPE,
+                                             Constants::QMLPROJECT_MIMETYPE,
+                                             Constants::QMLTYPES_MIMETYPE,
+                                             Constants::QMLUI_MIMETYPE };
+        projectInfo.sourceFiles = Utils::transform(project->files([&qmlTypeNames](const Node *n) {
+            if (!Project::SourceFiles(n))
+                return false;
+            const FileNode *fn = n->asFileNode();
+            return fn && fn->fileType() == FileType::QML
+                    && qmlTypeNames.contains(Utils::mimeTypeForFile(fn->filePath().toString(),
+                                                                    MimeMatchMode::MatchExtension).name());
+        }), &FileName::toString);
         activeTarget = project->activeTarget();
     }
     Kit *activeKit = activeTarget ? activeTarget->kit() : KitManager::defaultKit();
@@ -102,13 +108,17 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
         if (BuildConfiguration *bc = activeTarget->activeBuildConfiguration()) {
             preferDebugDump = bc->buildType() == BuildConfiguration::Debug;
             setPreferDump = true;
+            // Append QML2_IMPORT_PATH if it is defined in build configuration.
+            // It enables qmlplugindump to correctly dump custom plugins or other dependent
+            // plugins that are not installed in default Qt qml installation directory.
+            projectInfo.qmlDumpEnvironment.appendOrSet("QML2_IMPORT_PATH", bc->environment().value("QML2_IMPORT_PATH"), ":");
         }
     }
     if (!setPreferDump && qtVersion)
         preferDebugDump = (qtVersion->defaultBuildConfig() & QtSupport::BaseQtVersion::DebugBuild);
     if (qtVersion && qtVersion->isValid()) {
         projectInfo.tryQmlDump = project && qtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT);
-        projectInfo.qtQmlPath = QFileInfo(qtVersion->qmakeProperty("QT_INSTALL_QML")).canonicalFilePath();
+        projectInfo.qtQmlPath = qtVersion->qmlPath().toFileInfo().canonicalFilePath();
         projectInfo.qtImportsPath = QFileInfo(qtVersion->qmakeProperty("QT_INSTALL_IMPORTS")).canonicalFilePath();
         projectInfo.qtVersionString = qtVersion->qtVersionString();
     } else {
@@ -118,7 +128,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
     }
 
     if (projectInfo.tryQmlDump) {
-        QtSupport::QmlDumpTool::pathAndEnvironment(qtVersion,
+        QtSupport::QmlDumpTool::pathAndEnvironment(activeKit,
                                                    preferDebugDump, &projectInfo.qmlDumpPath,
                                                    &projectInfo.qmlDumpEnvironment);
         projectInfo.qmlDumpHasRelocatableFlag = qtVersion->hasQmlDumpWithRelocatableFlag();
@@ -143,25 +153,19 @@ void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &projectInfo)
     replacements.insert(QLatin1String("$(QT_INSTALL_IMPORTS)"), projectInfo.qtImportsPath);
     replacements.insert(QLatin1String("$(QT_INSTALL_QML)"), projectInfo.qtQmlPath);
 
-    QList<IBundleProvider *> bundleProviders =
-            ExtensionSystem::PluginManager::getObjects<IBundleProvider>();
+    for (IBundleProvider *bp : IBundleProvider::allBundleProviders())
+        bp->mergeBundlesForKit(activeKit, projectInfo.activeBundle, replacements);
 
-    foreach (IBundleProvider *bp, bundleProviders) {
-        if (bp)
-            bp->mergeBundlesForKit(activeKit, projectInfo.activeBundle, replacements);
-    }
     projectInfo.extendedBundle = projectInfo.activeBundle;
 
     if (projectInfo.project) {
         QSet<Kit *> currentKits;
         foreach (const Target *t, projectInfo.project->targets())
-            if (t->kit())
-                currentKits.insert(t->kit());
+            currentKits.insert(t->kit());
         currentKits.remove(activeKit);
         foreach (Kit *kit, currentKits) {
-            foreach (IBundleProvider *bp, bundleProviders)
-                if (bp)
-                    bp->mergeBundlesForKit(kit, projectInfo.extendedBundle, replacements);
+            for (IBundleProvider *bp : IBundleProvider::allBundleProviders())
+                bp->mergeBundlesForKit(kit, projectInfo.extendedBundle, replacements);
         }
     }
 }
@@ -174,23 +178,22 @@ QHash<QString,Dialect> ModelManager::initLanguageForSuffix() const
     QHash<QString,Dialect> res = ModelManagerInterface::languageForSuffix();
 
     if (ICore::instance()) {
-        MimeDatabase mdb;
-        MimeType jsSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::JS_MIMETYPE));
+        MimeType jsSourceTy = Utils::mimeTypeForName(Constants::JS_MIMETYPE);
         foreach (const QString &suffix, jsSourceTy.suffixes())
             res[suffix] = Dialect::JavaScript;
-        MimeType qmlSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::QML_MIMETYPE));
+        MimeType qmlSourceTy = Utils::mimeTypeForName(Constants::QML_MIMETYPE);
         foreach (const QString &suffix, qmlSourceTy.suffixes())
             res[suffix] = Dialect::Qml;
-        MimeType qbsSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::QBS_MIMETYPE));
+        MimeType qbsSourceTy = Utils::mimeTypeForName(Constants::QBS_MIMETYPE);
         foreach (const QString &suffix, qbsSourceTy.suffixes())
             res[suffix] = Dialect::QmlQbs;
-        MimeType qmlProjectSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::QMLPROJECT_MIMETYPE));
+        MimeType qmlProjectSourceTy = Utils::mimeTypeForName(Constants::QMLPROJECT_MIMETYPE);
         foreach (const QString &suffix, qmlProjectSourceTy.suffixes())
             res[suffix] = Dialect::QmlProject;
-        MimeType qmlUiSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::QMLUI_MIMETYPE));
+        MimeType qmlUiSourceTy = Utils::mimeTypeForName(Constants::QMLUI_MIMETYPE);
         foreach (const QString &suffix, qmlUiSourceTy.suffixes())
             res[suffix] = Dialect::QmlQtQuick2Ui;
-        MimeType jsonSourceTy = mdb.mimeTypeForName(QLatin1String(Constants::JSON_MIMETYPE));
+        MimeType jsonSourceTy = Utils::mimeTypeForName(Constants::JSON_MIMETYPE);
         foreach (const QString &suffix, jsonSourceTy.suffixes())
             res[suffix] = Dialect::Json;
     }
@@ -203,8 +206,7 @@ QHash<QString,Dialect> ModelManager::languageForSuffix() const
     return res;
 }
 
-ModelManager::ModelManager(QObject *parent):
-        ModelManagerInterface(parent)
+ModelManager::ModelManager()
 {
     qRegisterMetaType<QmlJSTools::SemanticInfo>("QmlJSTools::SemanticInfo");
     loadDefaultQmlTypeDescriptions();
@@ -257,8 +259,11 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopyInternal() const
         const QString key = document->filePath().toString();
         if (TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
             // TODO the language should be a property on the document, not the editor
-            if (DocumentModel::editorsForDocument(document).first()->context().contains(ProjectExplorer::Constants::LANG_QMLJS))
-                workingCopy.insert(key, textDocument->plainText(), textDocument->document()->revision());
+            if (DocumentModel::editorsForDocument(document).first()
+                    ->context().contains(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID)) {
+                workingCopy.insert(key, textDocument->plainText(),
+                                   textDocument->document()->revision());
+            }
         }
     }
 

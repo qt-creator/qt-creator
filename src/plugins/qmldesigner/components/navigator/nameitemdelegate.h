@@ -34,21 +34,18 @@ class NavigatorTreeModel;
 class NameItemDelegate : public QStyledItemDelegate
 {
 public:
-    explicit NameItemDelegate(QObject *parent, NavigatorTreeModel *treeModel);
+    explicit NameItemDelegate(QObject *parent);
 
     void paint(QPainter *painter, const QStyleOptionViewItem &styleOption,
-        const QModelIndex &index) const;
+        const QModelIndex &index) const override;
 
-    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    void setEditorData(QWidget *editor, const QModelIndex &index) const;
-    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
+    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
 
 protected:
-    bool editorEvent ( QEvent * event, QAbstractItemModel * model, const QStyleOptionViewItem & option, const QModelIndex & index );
-    void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-
-private:
-    NavigatorTreeModel *m_navigatorTreeModel;
+    bool editorEvent ( QEvent * event, QAbstractItemModel * model, const QStyleOptionViewItem & option, const QModelIndex & index ) override;
+    void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 };
 
 } // namespace QmlDesigner

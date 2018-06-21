@@ -28,10 +28,8 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QSettings;
 class QToolBar;
 class QAction;
-class QToolButton;
 QT_END_NAMESPACE
 
 namespace Core {

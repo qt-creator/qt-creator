@@ -36,7 +36,8 @@ namespace Internal {
 DebugViewWidget::DebugViewWidget(QWidget *parent) : QWidget(parent)
 {
     m_ui.setupUi(this);
-    connect(m_ui.enabledCheckBox, SIGNAL(toggled(bool)), this, SLOT(enabledCheckBoxToggled(bool)));
+    connect(m_ui.enabledCheckBox, &QAbstractButton::toggled,
+            this, &DebugViewWidget::enabledCheckBoxToggled);
 }
 
 void DebugViewWidget::addLogMessage(const QString &topic, const QString &message, bool highlight)
@@ -86,6 +87,11 @@ void DebugViewWidget::addLogInstanceMessage(const QString &topic, const QString 
     }
 }
 
+void DebugViewWidget::setPuppetStatus(const QString &text)
+{
+    m_ui.instanceStatus->setPlainText(text);
+}
+
 void DebugViewWidget::setDebugViewEnabled(bool b)
 {
     if (m_ui.enabledCheckBox->isChecked() != b)
@@ -94,9 +100,7 @@ void DebugViewWidget::setDebugViewEnabled(bool b)
 
 void DebugViewWidget::enabledCheckBoxToggled(bool b)
 {
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    settings.insert(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER, b);
-    QmlDesignerPlugin::instance()->setSettings(settings);
+    DesignerSettings::setValue(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER, b);
 }
 
 } //namespace Internal

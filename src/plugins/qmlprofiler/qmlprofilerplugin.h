@@ -25,14 +25,12 @@
 
 #pragma once
 
-#include "qmlprofiler_global.h"
-#include "qmlprofilersettings.h"
 #include <extensionsystem/iplugin.h>
-
-#include "qmlprofilertimelinemodel.h"
 
 namespace QmlProfiler {
 namespace Internal {
+
+class QmlProfilerSettings;
 
 class QmlProfilerPlugin : public ExtensionSystem::IPlugin
 {
@@ -40,13 +38,15 @@ class QmlProfilerPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
 
 public:
-    bool initialize(const QStringList &arguments, QString *errorString) override;
-    void extensionsInitialized() override;
-    ShutdownFlag aboutToShutdown() override;
-
     static QmlProfilerSettings *globalSettings();
 
-    QList<QObject *> createTestObjects() const override;
+private:
+    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void extensionsInitialized() final;
+    ShutdownFlag aboutToShutdown() final;
+    QList<QObject *> createTestObjects() const final;
+
+    class QmlProfilerPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal

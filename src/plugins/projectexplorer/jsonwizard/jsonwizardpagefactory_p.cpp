@@ -57,6 +57,7 @@ FieldPageFactory::FieldPageFactory()
     JsonFieldPage::registerFieldFactory(QLatin1String("PathChooser"), []() { return new PathChooserField; });
     JsonFieldPage::registerFieldFactory(QLatin1String("CheckBox"), []() { return new CheckBoxField; });
     JsonFieldPage::registerFieldFactory(QLatin1String("ComboBox"), []() { return new ComboBoxField; });
+    JsonFieldPage::registerFieldFactory(QLatin1String("IconList"), []() { return new IconListField; });
 }
 
 Utils::WizardPage *FieldPageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
@@ -82,7 +83,7 @@ bool FieldPageFactory::validateData(Core::Id typeId, const QVariant &data, QStri
     QList<QVariant> list = JsonWizardFactory::objectOrList(data, errorMessage);
     if (list.isEmpty()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                    "When parsing fields of page '%1': %2")
+                                                    "When parsing fields of page \"%1\": %2")
                 .arg(typeId.toString()).arg(*errorMessage);
         return false;
     }

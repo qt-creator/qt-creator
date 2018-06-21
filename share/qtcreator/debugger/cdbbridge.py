@@ -27,6 +27,7 @@ import inspect
 import os
 import sys
 import cdbext
+import re
 
 sys.path.insert(1, os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
 
@@ -65,6 +66,15 @@ class FakeVoidType(cdbext.Type):
         except:
             return FakeVoidType('void', self.dumper)
 
+    def targetName(self):
+        return self.target().name()
+
+    def arrayElements(self):
+        try:
+            return int(self.typeName[self.typeName.rindex('[') + 1:self.typeName.rindex(']')])
+        except:
+            return 0
+
     def stripTypedef(self):
         return self
 
@@ -84,6 +94,7 @@ class Dumper(DumperBase):
         self.isCdb = True
 
     def fromNativeValue(self, nativeValue):
+        self.check(isinstance(nativeValue, cdbext.Value))
         val = self.Value(self)
         val.name = nativeValue.name()
         val.type = self.fromNativeType(nativeValue.type())
@@ -106,10 +117,14 @@ class Dumper(DumperBase):
                 else:
                     base = 10
                 signed = not val.type.name.startswith('unsigned')
-                val.ldata = int(integerString, base).to_bytes(val.type.size(), \
-                        byteorder='little', signed=signed)
+                try:
+                    val.ldata = int(integerString, base).to_bytes(val.type.size(), \
+                            byteorder='little', signed=signed)
+                except:
+                    # read raw memory in case the integerString can not be interpreted
+                    pass
         val.isBaseClass = val.name == val.type.name
-        val.lIsInScope = True
+        val.nativeValue = nativeValue
         val.laddress = nativeValue.address()
         return val
 
@@ -129,33 +144,47 @@ class Dumper(DumperBase):
 
     def fromNativeType(self, nativeType):
         self.check(isinstance(nativeType, cdbext.Type))
-        code = nativeType.code()
+        typeId = self.nativeTypeId(nativeType)
+        if self.typeData.get(typeId, None) is not None:
+            return self.Type(self, typeId)
 
         if nativeType.name().startswith('void'):
             nativeType = FakeVoidType(nativeType.name(), self)
 
+        code = nativeType.code()
         if code == TypeCodePointer:
-            return self.createPointerType(self.fromNativeType(nativeType.target()))
+            if not nativeType.name().startswith('<function>'):
+                targetType = self.lookupType(nativeType.targetName(), nativeType.moduleId())
+                if targetType is not None:
+                    return self.createPointerType(targetType)
+            code = TypeCodeFunction
 
         if code == TypeCodeArray:
-            targetType = self.fromNativeType(nativeType.target())
-            return self.createArrayType(targetType, nativeType.arrayElements())
+            # cdb reports virtual function tables as arrays those ar handled separetly by
+            # the DumperBase. Declare those types as structs prevents a lookup to a none existing type
+            if not nativeType.name().startswith('__fptr()') and not nativeType.name().startswith('<gentype '):
+                targetType = self.lookupType(nativeType.targetName(), nativeType.moduleId())
+                if targetType is not None:
+                    return self.createArrayType(targetType, nativeType.arrayElements())
+            code = TypeCodeStruct
 
-        typeId = self.nativeTypeId(nativeType)
-        if self.typeData.get(typeId, None) is None:
-            tdata = self.TypeData(self)
-            tdata.name = nativeType.name()
-            tdata.typeId = typeId
-            tdata.lbitsize = nativeType.bitsize()
-            tdata.code = code
-            self.registerType(typeId, tdata) # Prevent recursion in fields.
-            if  code == TypeCodeStruct:
-                tdata.lfields = lambda value : \
-                    self.listFields(nativeType, value)
-                tdata.lalignment = lambda : \
-                    self.nativeStructAlignment(nativeType)
-            tdata.templateArguments = self.listTemplateParameters(nativeType)
-            self.registerType(typeId, tdata) # Fix up fields and template args
+        tdata = self.TypeData(self)
+        tdata.name = nativeType.name()
+        tdata.typeId = typeId
+        tdata.lbitsize = nativeType.bitsize()
+        tdata.code = code
+        tdata.moduleName = nativeType.module()
+        self.registerType(typeId, tdata) # Prevent recursion in fields.
+        if  code == TypeCodeStruct:
+            tdata.lfields = lambda value : \
+                self.listFields(nativeType, value)
+            tdata.lalignment = lambda : \
+                self.nativeStructAlignment(nativeType)
+        if code == TypeCodeEnum:
+            tdata.enumDisplay = lambda intval, addr, form : \
+                self.nativeTypeEnumDisplay(nativeType, addr, form)
+        tdata.templateArguments = self.listTemplateParameters(nativeType.name())
+        self.registerType(typeId, tdata) # Fix up fields and template args
         return self.Type(self, typeId)
 
     def listFields(self, nativeType, value):
@@ -179,23 +208,13 @@ class Dumper(DumperBase):
             align = handleItem(f.type(), align)
         return align
 
-    def listTemplateParameters(self, nativeType):
-        targs = []
-        for targ in nativeType.templateArguments():
-            if isinstance(targ, str):
-                if self.typeData.get(targ, None) is None:
-                    targs.append(self.lookupType(targ))
-                else:
-                    targs.append(self.Type(self, targ))
-            elif isinstance(targ, int):
-                targs.append(targ)
-            else:
-                error('CDBCRAP %s' % type(targ))
-        return targs
-
-    def nativeTypeEnumDisplay(self, nativeType, intval):
-        # TODO: generate fake value
-        return None
+    def nativeTypeEnumDisplay(self, nativeType, addr, form):
+        value = cdbext.createValue(addr, nativeType)
+        if value is None:
+            return ''
+        enumDisplay = value.nativeDebuggerValue()
+        # remove '0n' decimal prefix of the native cdb value output
+        return enumDisplay.replace('(0n', '(')
 
     def enumExpression(self, enumType, enumValue):
         ns = self.qtNamespace()
@@ -206,13 +225,7 @@ class Dumper(DumperBase):
         return None
 
     def parseAndEvaluate(self, exp):
-        val = cdbext.parseAndEvaluate(exp)
-        if val is None:
-            return None
-        value = self.Value(self)
-        value.type = self.lookupType('void *')
-        value.ldata = val.to_bytes(8, sys.byteorder)
-        return value
+        return self.fromNativeValue(cdbext.parseAndEvaluate(exp))
 
     def isWindowsTarget(self):
         return True
@@ -226,54 +239,185 @@ class Dumper(DumperBase):
     def isMsvcTarget(self):
         return True
 
-    def qtHookDataSymbolName(self):
-        return 'Qt5Cored#!qtHookData'
+    def qtCoreModuleName(self):
+        modules = cdbext.listOfModules()
+        # first check for an exact module name match
+        for coreName in ['Qt5Cored', 'Qt5Core', 'QtCored4', 'QtCore4']:
+            if coreName in modules:
+                self.qtCoreModuleName = lambda: coreName
+                return coreName
+        # maybe we have a libinfix build.
+        for pattern in ['Qt5Core.*', 'QtCore.*']:
+            matches = [module for module in modules if re.match(pattern, module)]
+            if matches:
+                coreName = matches[0]
+                self.qtCoreModuleName = lambda: coreName
+                return coreName
+        return None
 
-    def qtVersionAndNamespace(self):
-        return ('', 0x50700) #FIXME: use a general approach in dumper or qttypes
+    def qtDeclarativeModuleName(self):
+        modules = cdbext.listOfModules()
+        for declarativeModuleName in ['Qt5Qmld', 'Qt5Qml']:
+            if declarativeModuleName in modules:
+                self.qtDeclarativeModuleName = lambda: declarativeModuleName
+                return declarativeModuleName
+        matches = [module for module in modules if re.match('Qt5Qml.*', module)]
+        if matches:
+            declarativeModuleName = matches[0]
+            self.qtDeclarativeModuleName = lambda: declarativeModuleName
+            return declarativeModuleName
+        return None
+
+    def qtHookDataSymbolName(self):
+        hookSymbolName = 'qtHookData'
+        coreModuleName = self.qtCoreModuleName()
+        if coreModuleName is not None:
+            hookSymbolName = '%s!%s%s' % (coreModuleName, self.qtNamespace(), hookSymbolName)
+        else:
+            resolved = cdbext.resolveSymbol('*' + hookSymbolName)
+            if resolved:
+                hookSymbolName = resolved[0]
+            else:
+                hookSymbolName = '*%s' % hookSymbolName
+        self.qtHookDataSymbolName = lambda: hookSymbolName
+        return hookSymbolName
+
+    def qtDeclarativeHookDataSymbolName(self):
+        hookSymbolName = 'qtDeclarativeHookData'
+        declarativeModuleName = self.qtDeclarativeModuleName()
+        if declarativeModuleName is not None:
+            hookSymbolName = '%s!%s%s' % (declarativeModuleName, self.qtNamespace(), hookSymbolName)
+        else:
+            resolved = cdbext.resolveSymbol('*' + hookSymbolName)
+            if resolved:
+                hookSymbolName = resolved[0]
+            else:
+                hookSymbolName = '*%s' % hookSymbolName
+
+        self.qtDeclarativeHookDataSymbolName = lambda: hookSymbolName
+        return hookSymbolName
 
     def qtNamespace(self):
-        return self.qtVersionAndNamespace()[0]
+        namespace = ''
+        qstrdupSymbolName = '*qstrdup'
+        coreModuleName = self.qtCoreModuleName()
+        if coreModuleName is not None:
+            qstrdupSymbolName = '%s!%s' % (coreModuleName, qstrdupSymbolName)
+        resolved = cdbext.resolveSymbol(qstrdupSymbolName)
+        if resolved:
+            name = resolved[0].split('!')[1]
+            namespaceIndex = name.find('::')
+            if namespaceIndex > 0:
+                namespace = name[:namespaceIndex + 2]
+        self.qtNamespace = lambda: namespace
+        self.qtCustomEventFunc = self.parseAndEvaluate('%s!%sQObject::customEvent'
+                                        % (self.qtCoreModuleName(), namespace)).address()
+        return namespace
 
     def qtVersion(self):
-        return self.qtVersionAndNamespace()[1]
+        qtVersion = self.parseAndEvaluate('((void**)&%s)[2]' % self.qtHookDataSymbolName()).integer()
+        if qtVersion is None and self.qtCoreModuleName() is not None:
+            try:
+                versionValue = cdbext.call(self.qtCoreModuleName() + '!qVersion()')
+                version = self.extractCString(self.fromNativeValue(versionValue).address())
+                (major, minor, patch) = version.decode('latin1').split('.')
+                qtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
+            except:
+                pass
+        if qtVersion is None:
+            qtVersion = self.fallbackQtVersion
+        self.qtVersion = lambda: qtVersion
+        return qtVersion
+
+    def putVtableItem(self, address):
+        funcName = cdbext.getNameByAddress(address)
+        if funcName is None:
+            self.putItem(self.createPointerValue(address, 'void'))
+        else:
+            self.putValue(funcName)
+            self.putType('void*')
+            self.putAddress(address)
+
+    def putVTableChildren(self, item, itemCount):
+        p = item.address()
+        for i in xrange(itemCount):
+            deref = self.extractPointer(p)
+            if deref == 0:
+                n = i
+                break
+            with SubItem(self, i):
+                self.putVtableItem(deref)
+                p += self.ptrSize()
+        return itemCount
 
     def ptrSize(self):
-        return cdbext.pointerSize()
+        size = cdbext.pointerSize()
+        self.ptrSize = lambda: size
+        return size
 
     def put(self, stuff):
         self.output += stuff
 
-    def lookupType(self, typeName):
-        if len(typeName) == 0:
+    def stripQintTypedefs(self, typeName):
+        if typeName.startswith('qint'):
+            prefix = ''
+            size = typeName[4:]
+        elif typeName.startswith('quint'):
+            prefix = 'unsigned '
+            size = typeName[5:]
+        else:
+            return typeName
+        if size == '8':
+            return '%schar' % prefix
+        elif size == '16':
+            return '%sshort' % prefix
+        elif size == '32':
+            return '%sint' % prefix
+        elif size == '64':
+            return '%sint64' % prefix
+        else:
+            return typeName
+
+    def lookupType(self, typeNameIn, module = 0):
+        if len(typeNameIn) == 0:
             return None
+        typeName = self.stripQintTypedefs(typeNameIn)
         if self.typeData.get(typeName, None) is None:
-            nativeType = self.lookupNativeType(typeName)
-            return None if nativeType is None else self.fromNativeType(nativeType)
+            nativeType = self.lookupNativeType(typeName, module)
+            if nativeType is None:
+                return None
+            type = self.fromNativeType(nativeType)
+            if type.name != typeName:
+                self.registerType(typeName, type.typeData())
+            return type
         return self.Type(self, typeName)
 
-    def lookupNativeType(self, name):
+    def lookupNativeType(self, name, module = 0):
         if name.startswith('void'):
             return FakeVoidType(name, self)
-        return cdbext.lookupType(name)
+        return cdbext.lookupType(name, module)
 
     def reportResult(self, result, args):
-        self.report('result={%s}' % (result))
+        cdbext.reportResult('result={%s}' % result)
 
     def readRawMemory(self, address, size):
         mem = cdbext.readRawMemory(address, size)
         if len(mem) != size:
-            raise Exception("Invalid memory request")
+            raise Exception("Invalid memory request: %d bytes from 0x%x" % (size, address))
         return mem
 
-    def findStaticMetaObject(self, typeName):
-        ptr = self.findValueByExpression('&' + typeName + '::staticMetaObject')
+    def findStaticMetaObject(self, type):
+        typeName = type.name
+        if type.moduleName is not None:
+            typeName = type.moduleName + '!' + typeName
+        ptr = cdbext.getAddressByName(typeName + '::staticMetaObject')
         return ptr
 
     def warn(self, msg):
         self.put('{name="%s",value="",type="",numchild="0"},' % msg)
 
     def fetchVariables(self, args):
+        self.resetStats()
         (ok, res) = self.tryFetchInterpreterVariables(args)
         if ok:
             self.reportResult(res, args)
@@ -289,14 +433,15 @@ class Dumper(DumperBase):
 
         variables = []
         for val in cdbext.listOfLocals(self.partialVariable):
-            value = self.fromNativeValue(val)
-            value.name = val.name()
-            variables.append(value)
+            dumperVal = self.fromNativeValue(val)
+            dumperVal.lIsInScope = not dumperVal.name in self.uninitialized
+            variables.append(dumperVal)
 
         self.handleLocals(variables)
         self.handleWatches(args)
 
         self.put('],partial="%d"' % (len(self.partialVariable) > 0))
+        self.put(',timings=%s' % self.timings)
         self.reportResult(self.output, args)
 
     def report(self, stuff):
@@ -310,10 +455,44 @@ class Dumper(DumperBase):
         return cdbext.parseAndEvaluate(exp)
 
     def nativeDynamicTypeName(self, address, baseType):
-        return None # FIXME: Seems sufficient, no idea why.
+        return None # Does not work with cdb
+
+    def nativeValueDereferenceReference(self, value):
+        return self.nativeValueDereferencePointer(value)
+
+    def nativeValueDereferencePointer(self, value):
+        def nativeVtCastValue(nativeValue):
+            # If we have a pointer to a derived instance of the pointer type cdb adds a
+            # synthetic '__vtcast_<derived type name>' member as the first child
+            if nativeValue.hasChildren():
+                vtcastCandidate = nativeValue.childFromIndex(0)
+                vtcastCandidateName = vtcastCandidate.name()
+                if vtcastCandidateName.startswith('__vtcast_'):
+                    # found a __vtcast member
+                    # make sure that it is not an actual field
+                    for field in nativeValue.type().fields():
+                        if field.name() == vtcastCandidateName:
+                            return None
+                    return vtcastCandidate
+            return None
+
+        nativeValue = value.nativeValue
+        castVal = nativeVtCastValue(nativeValue)
+        if castVal is not None:
+            val = self.fromNativeValue(castVal)
+        else:
+            val = self.Value(self)
+            val.laddress = value.pointer()
+            val.type = value.type.dereference()
+
+        return val
 
     def callHelper(self, rettype, value, function, args):
         raise Exception("cdb does not support calling functions")
+
+    def nameForCoreId(self, id):
+        idName = cdbext.call('Cored4!Core::nameForId(%d)' % id)
+        return self.fromNativeValue(idName)
 
     def putCallItem(self, name, rettype, value, func, *args):
         return

@@ -33,6 +33,7 @@
 namespace ProjectExplorer {
 
 class FolderNode;
+class Node;
 
 // Documentation inside.
 class JsonSummaryPage : public Internal::ProjectWizardPage
@@ -52,6 +53,7 @@ public:
     void summarySettingsHaveChanged();
 
 private:
+    Node *findWizardContextNode(Node *contextNode) const;
     void updateFileList();
     void updateProjectData(FolderNode *node);
 

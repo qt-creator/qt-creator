@@ -26,6 +26,7 @@
 
 #include <abstractview.h>
 
+#include <functional>
 #include <memory>
 
 QT_BEGIN_NAMESPACE
@@ -56,8 +57,8 @@ class QMLDESIGNERCORE_EXPORT FormEditorView : public AbstractView
     Q_OBJECT
 
 public:
-    FormEditorView(QObject *parent = 0);
-    ~FormEditorView();
+    FormEditorView(QObject *parent = nullptr);
+    ~FormEditorView() override;
 
     // AbstractView
     void modelAttached(Model *model) override;
@@ -74,6 +75,9 @@ public:
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
+
+    void documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings) override;
+
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
 
     // FormEditorView
@@ -109,20 +113,22 @@ public:
     double containerPadding() const;
     double spacing() const;
     void deActivateItemCreator();
+    void gotoError(int, int);
+    void setGotoErrorCallback(std::function<void(int, int)> gotoErrorCallback);
+
+    void exportAsImage();
 
 protected:
     void reset();
-
-protected slots:
     void delayedReset();
-    QList<ModelNode> adjustStatesForModelNodes(const QList<ModelNode> &nodeList) const;
-    void updateGraphicsIndicators();
     bool isMoveToolAvailable() const;
 
 private: //functions
     void setupFormEditorItemTree(const QmlItemNode &qmlItemNode);
     void removeNodeFromScene(const QmlItemNode &qmlItemNode);
     void hideNodeFromScene(const QmlItemNode &qmlItemNode);
+    void createFormEditorWidget();
+    void temporaryBlockView();
 
 private: //variables
     QPointer<FormEditorWidget> m_formEditorWidget;
@@ -132,8 +138,9 @@ private: //variables
     std::unique_ptr<SelectionTool> m_selectionTool;
     std::unique_ptr<ResizeTool> m_resizeTool;
     std::unique_ptr<DragTool> m_dragTool;
-    AbstractFormEditorTool *m_currentTool;
-    int m_transactionCounter;
+    AbstractFormEditorTool *m_currentTool = nullptr;
+    int m_transactionCounter = 0;
+    std::function<void(int, int)> m_gotoErrorCallback;
 };
 
 } // namespace QmlDesigner

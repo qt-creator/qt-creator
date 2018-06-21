@@ -43,8 +43,7 @@ ProjectIsModifiedException::ProjectIsModifiedException()
 }
 
 ProjectController::ProjectController(QObject *parent)
-    : QObject(parent),
-      m_isModified(false)
+    : QObject(parent)
 {
 }
 

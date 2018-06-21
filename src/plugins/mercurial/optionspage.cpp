@@ -68,8 +68,8 @@ void OptionsPageWidget::setSettings(const VcsBaseClientSettings &s)
     m_ui.timeout->setValue(s.intValue(MercurialSettings::timeoutKey));
 }
 
-OptionsPage::OptionsPage(Core::IVersionControl *control) :
-    VcsClientOptionsPage(control, MercurialPlugin::client())
+OptionsPage::OptionsPage(Core::IVersionControl *control, QObject *parent) :
+    VcsClientOptionsPage(control, MercurialPlugin::client(), parent)
 {
     setId(VcsBase::Constants::VCS_ID_MERCURIAL);
     setDisplayName(tr("Mercurial"));

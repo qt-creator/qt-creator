@@ -53,8 +53,7 @@ static quint8 AUTOREP = 4;
 static quint8 COUNT = 5;
 
 
-TextEditorMacroHandler::TextEditorMacroHandler():
-    IMacroHandler()
+TextEditorMacroHandler::TextEditorMacroHandler()
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::currentEditorChanged,
@@ -140,5 +139,5 @@ void TextEditorMacroHandler::closeEditor(Core::IEditor *editor)
     Q_UNUSED(editor);
     if (isRecording() && m_currentEditor && m_currentEditor->widget())
         m_currentEditor->widget()->removeEventFilter(this);
-    m_currentEditor = 0;
+    m_currentEditor = nullptr;
 }

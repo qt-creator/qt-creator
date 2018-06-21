@@ -32,80 +32,22 @@ namespace Constants {
 
 // Modes and their priorities
 const char MODE_SESSION[]         = "Project";
-const int  P_MODE_SESSION         = 85;
 
 // Actions
-const char NEWSESSION[]           = "ProjectExplorer.NewSession";
-const char NEWPROJECT[]           = "ProjectExplorer.NewProject";
-const char LOAD[]                 = "ProjectExplorer.Load";
-const char UNLOAD[]               = "ProjectExplorer.Unload";
-const char UNLOADCM[]             = "ProjectExplorer.UnloadCM";
-const char CLEARSESSION[]         = "ProjectExplorer.ClearSession";
-const char BUILDPROJECTONLY[]     = "ProjectExplorer.BuildProjectOnly";
 const char BUILD[]                = "ProjectExplorer.Build";
-const char BUILDCM[]              = "ProjectExplorer.BuildCM";
-const char BUILDDEPENDCM[]        = "ProjectExplorer.BuildDependenciesCM";
-const char BUILDSESSION[]         = "ProjectExplorer.BuildSession";
-const char REBUILDPROJECTONLY[]   = "ProjectExplorer.RebuildProjectOnly";
-const char REBUILD[]              = "ProjectExplorer.Rebuild";
-const char REBUILDCM[]            = "ProjectExplorer.RebuildCM";
-const char REBUILDDEPENDCM[]      = "ProjectExplorer.RebuildDependenciesCM";
-const char REBUILDSESSION[]       = "ProjectExplorer.RebuildSession";
-const char DEPLOYPROJECTONLY[]    = "ProjectExplorer.DeployProjectOnly";
-const char DEPLOY[]               = "ProjectExplorer.Deploy";
-const char DEPLOYCM[]             = "ProjectExplorer.DeployCM";
-const char DEPLOYSESSION[]        = "ProjectExplorer.DeploySession";
-const char PUBLISH[]              = "ProjectExplorer.Publish";
-const char CLEANPROJECTONLY[]     = "ProjectExplorer.CleanProjectOnly";
-const char CLEAN[]                = "ProjectExplorer.Clean";
-const char CLEANCM[]              = "ProjectExplorer.CleanCM";
-const char CLEANDEPENDCM[]        = "ProjectExplorer.CleanDependenciesCM";
-const char CLEANSESSION[]         = "ProjectExplorer.CleanSession";
-const char CANCELBUILD[]          = "ProjectExplorer.CancelBuild";
-const char RUN[]                  = "ProjectExplorer.Run";
-const char RUNWITHOUTDEPLOY[]     = "ProjectExplorer.RunWithoutDeploy";
-const char RUNCONTEXTMENU[]       = "ProjectExplorer.RunContextMenu";
 const char STOP[]                 = "ProjectExplorer.Stop";
 const char ADDNEWFILE[]           = "ProjectExplorer.AddNewFile";
-const char ADDEXISTINGFILES[]     = "ProjectExplorer.AddExistingFiles";
-const char ADDEXISTINGDIRECTORY[] = "ProjectExplorer.AddExistingDirectory";
-const char ADDNEWSUBPROJECT[]     = "ProjectExplorer.AddNewSubproject";
-const char REMOVEPROJECT[]        = "ProjectExplorer.RemoveProject";
-const char OPENFILE[]             = "ProjectExplorer.OpenFile";
-const char SEARCHONFILESYSTEM[]   = "ProjectExplorer.SearchOnFileSystem";
-const char SHOWINGRAPHICALSHELL[] = "ProjectExplorer.ShowInGraphicalShell";
-const char OPENTERMIANLHERE[]     = "ProjectExplorer.OpenTerminalHere";
-const char REMOVEFILE[]           = "ProjectExplorer.RemoveFile";
-const char DUPLICATEFILE[]        = "ProjectExplorer.DuplicateFile";
-const char DELETEFILE[]           = "ProjectExplorer.DeleteFile";
+const char FILEPROPERTIES[]       = "ProjectExplorer.FileProperties";
 const char RENAMEFILE[]           = "ProjectExplorer.RenameFile";
-const char SETSTARTUP[]           = "ProjectExplorer.SetStartup";
-const char PROJECTTREE_COLLAPSE_ALL[] = "ProjectExplorer.CollapseAll";
-
-const char SELECTTARGET[]         = "ProjectExplorer.SelectTarget";
-const char SELECTTARGETQUICK[]    = "ProjectExplorer.SelectTargetQuick";
-
-// Action priorities
-const int  P_ACTION_RUN            = 100;
-const int  P_ACTION_BUILDPROJECT   = 80;
+const char REMOVEFILE[]           = "ProjectExplorer.RemoveFile";
 
 // Context
-const char C_PROJECTEXPLORER[]    = "Project Explorer";
 const char C_PROJECT_TREE[]       = "ProjectExplorer.ProjectTreeContext";
-const char C_APP_OUTPUT[]         = "ProjectExplorer.ApplicationOutput";
-const char C_COMPILE_OUTPUT[]     = "ProjectExplorer.CompileOutput";
-
-// Languages
-const char LANG_CXX[]             = "CXX";
-const char LANG_QMLJS[]           = "QMLJS";
 
 // Menus
-const char M_RECENTPROJECTS[]     = "ProjectExplorer.Menu.Recent";
-const char M_UNLOADPROJECTS[]     = "ProjectExplorer.Menu.Unload";
 const char M_BUILDPROJECT[]       = "ProjectExplorer.Menu.Build";
 const char M_DEBUG[]              = "ProjectExplorer.Menu.Debug";
 const char M_DEBUG_STARTDEBUGGING[] = "ProjectExplorer.Menu.Debug.StartDebugging";
-const char M_SESSION[]            = "ProjectExplorer.Menu.Session";
 
 // Menu groups
 const char G_BUILD_BUILD[]        = "ProjectExplorer.Group.Build";
@@ -137,6 +79,7 @@ const char G_PROJECT_FILES[]      = "Project.Group.Files";
 const char G_PROJECT_TREE[]       = "Project.Group.Tree";
 const char G_PROJECT_LAST[]       = "Project.Group.Last";
 
+const char G_FOLDER_LOCATIONS[]   = "ProjectFolder.Group.Locations";
 const char G_FOLDER_FILES[]       = "ProjectFolder.Group.Files";
 const char G_FOLDER_OTHER[]       = "ProjectFolder.Group.Other";
 const char G_FOLDER_CONFIG[]      = "ProjectFolder.Group.Config";
@@ -144,11 +87,6 @@ const char G_FOLDER_CONFIG[]      = "ProjectFolder.Group.Config";
 const char G_FILE_OPEN[]          = "ProjectFile.Group.Open";
 const char G_FILE_OTHER[]         = "ProjectFile.Group.Other";
 const char G_FILE_CONFIG[]        = "ProjectFile.Group.Config";
-
-const char RUNMENUCONTEXTMENU[]   = "Project.RunMenu";
-
-// File factory
-const char FILE_FACTORY_ID[]      = "ProjectExplorer.FileFactoryId";
 
 // Mime types
 const char C_SOURCE_MIMETYPE[]    = "text/x-csrc";
@@ -158,31 +96,32 @@ const char CPP_HEADER_MIMETYPE[]  = "text/x-c++hdr";
 const char LINGUIST_MIMETYPE[]    = "text/vnd.trolltech.linguist";
 const char FORM_MIMETYPE[]        = "application/x-designer";
 const char QML_MIMETYPE[]         = "text/x-qml"; // separate def also in qmljstoolsconstants.h
+const char QMLUI_MIMETYPE[]       = "application/x-qt.ui+qml";
 const char RESOURCE_MIMETYPE[]    = "application/vnd.qt.xml.resource";
 const char SCXML_MIMETYPE[]       = "application/scxml+xml";
 
-// Settings page
-const char PROJECTEXPLORER_SETTINGS_CATEGORY[]  = "K.ProjectExplorer";
-const char PROJECTEXPLORER_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Build & Run");
-const char PROJECTEXPLORER_SETTINGS_CATEGORY_ICON[]  = ":/projectexplorer/images/category_buildrun.png";
-const char PROJECTEXPLORER_SETTINGS_ID[] = "A.ProjectExplorer.ProjectExplorer";
+// Kits settings category
+const char KITS_SETTINGS_CATEGORY[]  = "A.Kits";
+
+// Kits pages
+const char KITS_SETTINGS_PAGE_ID[] = "D.ProjectExplorer.KitsOptions";
+const char DEVICE_SETTINGS_PAGE_ID[] = "E.ProjectExplorer.DeviceOptions";
 const char TOOLCHAIN_SETTINGS_PAGE_ID[] = "M.ProjectExplorer.ToolChainOptions";
 const char DEBUGGER_SETTINGS_PAGE_ID[] = "N.ProjectExplorer.DebuggerOptions";
-const char KITS_SETTINGS_PAGE_ID[] = "D.ProjectExplorer.KitsOptions";
+
+// Build and Run settings category
+const char BUILD_AND_RUN_SETTINGS_CATEGORY[]  = "K.BuildAndRun";
+
+// Build and Run page
+const char BUILD_AND_RUN_SETTINGS_PAGE_ID[] = "A.ProjectExplorer.BuildAndRunOptions";
 
 // Device settings page
 const char DEVICE_SETTINGS_CATEGORY[] = "XW.Devices";
-const char DEVICE_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Devices");
-const char DEVICE_SETTINGS_PAGE_ID[] = "AA.Device Settings";
 
 // Task categories
 const char TASK_CATEGORY_COMPILE[] = "Task.Category.Compile";
 const char TASK_CATEGORY_BUILDSYSTEM[] = "Task.Category.Buildsystem";
 const char TASK_CATEGORY_DEPLOYMENT[] = "Task.Category.Deploy";
-
-// Task mark categories
-const char TASK_MARK_WARNING[] = "Task.Mark.Warning";
-const char TASK_MARK_ERROR[] = "Task.Mark.Error";
 
 // Wizard categories
 const char QT_PROJECT_WIZARD_CATEGORY[] = "H.Project";
@@ -199,6 +138,8 @@ const char IMPORT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer
 
 // Wizard extra values
 const char PREFERRED_PROJECT_NODE[] = "ProjectExplorer.PreferredProjectNode";
+const char PREFERRED_PROJECT_NODE_PATH[] = "ProjectExplorer.PreferredProjectPath";
+const char PROJECT_POINTER[] = "ProjectExplorer.Project";
 const char PROJECT_KIT_IDS[] = "ProjectExplorer.Profile.Ids";
 
 // Build step lists ids:
@@ -206,8 +147,12 @@ const char BUILDSTEPS_CLEAN[] = "ProjectExplorer.BuildSteps.Clean";
 const char BUILDSTEPS_BUILD[] = "ProjectExplorer.BuildSteps.Build";
 const char BUILDSTEPS_DEPLOY[] = "ProjectExplorer.BuildSteps.Deploy";
 
-// Deploy Configuration id:
-const char DEFAULT_DEPLOYCONFIGURATION_ID[] = "ProjectExplorer.DefaultDeployConfiguration";
+// Language
+
+// Keep these short: These constants are exposed to the MacroExplorer!
+const char C_LANGUAGE_ID[] = "C";
+const char CXX_LANGUAGE_ID[] = "Cxx";
+const char QMLJS_LANGUAGE_ID[] = "QMLJS";
 
 // ToolChain TypeIds
 const char CLANG_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Clang";
@@ -216,7 +161,6 @@ const char LINUXICC_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.LinuxIcc";
 const char MINGW_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Mingw";
 const char MSVC_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Msvc";
 const char CLANG_CL_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.ClangCl";
-const char WINCE_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.WinCE";
 const char CUSTOM_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Custom";
 
 // Default directory to run custom (build) commands in.
@@ -231,26 +175,14 @@ const int DESKTOP_PORT_END = 31000;
 
 // Variable Names:
 const char VAR_CURRENTPROJECT_PREFIX[] = "CurrentProject";
-const char VAR_CURRENTPROJECT_BUILDPATH[] = "CurrentProject:BuildPath";
 const char VAR_CURRENTPROJECT_NAME[] = "CurrentProject:Name";
 const char VAR_CURRENTKIT_NAME[] = "CurrentKit:Name";
 const char VAR_CURRENTKIT_FILESYSTEMNAME[] = "CurrentKit:FileSystemName";
 const char VAR_CURRENTKIT_ID[] = "CurrentKit:Id";
 const char VAR_CURRENTBUILD_NAME[] = "CurrentBuild:Name";
 const char VAR_CURRENTBUILD_TYPE[] = "CurrentBuild:Type";
+const char VAR_CURRENTBUILD_ENV[] = "CurrentBuild:Env";
 const char VAR_CURRENTRUN_NAME[] = "CurrentRun:Name";
-const char VAR_CURRENTRUN_EXECUTABLE_PREFIX[] = "CurrentRun:Executable";
-const char VAR_CURRENTDEVICE_HOSTADDRESS[] = "CurrentDevice:HostAddress";
-const char VAR_CURRENTDEVICE_SSHPORT[] = "CurrentDevice:SshPort";
-const char VAR_CURRENTDEVICE_USERNAME[] = "CurrentDevice:UserName";
-const char VAR_CURRENTDEVICE_PRIVATEKEYFILE[] = "CurrentDevice:PrivateKeyFile";
-
-const char HIDE_FILE_FILTER_SETTING[] = "GenericProject/FileFilter";
-const char HIDE_FILE_FILTER_DEFAULT[] = "Makefile*; *.o; *.lo; *.la; *.obj; *~; *.files;"
-    " *.config; *.creator; *.user*; *.includes; *.autosave";
-
-const char SHOW_FILE_FILTER_SETTING[] = "GenericProject/ShowFileFilter";
-const char SHOW_FILE_FILTER_DEFAULT[] = "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;";
 
 // JsonWizard:
 const char PAGE_ID_PREFIX[] = "PE.Wizard.Page.";
@@ -262,7 +194,7 @@ const char NORMAL_RUN_MODE[]="RunConfiguration.NormalRunMode";
 const char QML_PROFILER_RUN_MODE[]="RunConfiguration.QmlProfilerRunMode";
 const char PERFPROFILER_RUN_MODE[]="PerfProfiler.RunMode";
 const char DEBUG_RUN_MODE[]="RunConfiguration.DebugRunMode";
-const char DEBUG_RUN_MODE_WITH_BREAK_ON_MAIN[]="RunConfiguration.DebugRunModeWithBreakOnMain";
+const char QML_PREVIEW_RUN_MODE[]="RunConfiguration.QmlPreviewRunMode";
 
 // Navigation Widget
 const char PROJECTTREE_ID[] = "Projects";

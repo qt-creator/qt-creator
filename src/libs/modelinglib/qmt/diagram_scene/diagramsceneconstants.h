@@ -27,6 +27,7 @@
 
 namespace qmt {
 
+const int SWIMLANE_ITEMS_ZVALUE = -1100;
 const int BOUNDARY_ITEMS_ZVALUE = -1000;
 // all model objects have z-values from -500 to 500 depending on their depth in the model tree
 const int RELATION_ITEMS_ZVALUE = 1000;

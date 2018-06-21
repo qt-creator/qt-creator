@@ -50,10 +50,9 @@ ProjectFile::Kind ProjectFile::classify(const QString &filePath)
     if (isAmbiguousHeader(filePath))
         return AmbiguousHeader;
 
-    Utils::MimeDatabase mdb;
-    const Utils::MimeType mimeType = mdb.mimeTypeForFile(filePath);
+    const Utils::MimeType mimeType = Utils::mimeTypeForFile(filePath);
     if (!mimeType.isValid())
-        return Unclassified;
+        return Unsupported;
     const QString mt = mimeType.name();
     if (mt == QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE))
         return CSource;
@@ -71,7 +70,7 @@ ProjectFile::Kind ProjectFile::classify(const QString &filePath)
         return CXXSource;
     if (mt == QLatin1String(CppTools::Constants::MOC_MIMETYPE))
         return CXXSource;
-    return Unclassified;
+    return Unsupported;
 }
 
 bool ProjectFile::isAmbiguousHeader(const QString &filePath)
@@ -86,7 +85,7 @@ bool ProjectFile::isHeader(ProjectFile::Kind kind)
     case ProjectFile::CXXHeader:
     case ProjectFile::ObjCHeader:
     case ProjectFile::ObjCXXHeader:
-    case ProjectFile::Unclassified: // no file extension, e.g. stl headers
+    case ProjectFile::Unsupported: // no file extension, e.g. stl headers
     case ProjectFile::AmbiguousHeader:
         return true;
     default:
@@ -109,11 +108,22 @@ bool ProjectFile::isSource(ProjectFile::Kind kind)
     }
 }
 
+bool ProjectFile::isHeader() const
+{
+    return isHeader(kind);
+}
+
+bool ProjectFile::isSource() const
+{
+    return isSource(kind);
+}
+
 #define RETURN_TEXT_FOR_CASE(enumValue) case ProjectFile::enumValue: return #enumValue
-static const char *projectFileKindToText(ProjectFile::Kind kind)
+const char *projectFileKindToText(ProjectFile::Kind kind)
 {
     switch (kind) {
         RETURN_TEXT_FOR_CASE(Unclassified);
+        RETURN_TEXT_FOR_CASE(Unsupported);
         RETURN_TEXT_FOR_CASE(AmbiguousHeader);
         RETURN_TEXT_FOR_CASE(CHeader);
         RETURN_TEXT_FOR_CASE(CSource);

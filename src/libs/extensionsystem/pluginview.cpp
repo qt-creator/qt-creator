@@ -33,7 +33,6 @@
 #include <utils/utilsicons.h>
 #include <utils/itemviews.h>
 #include <utils/qtcassert.h>
-#include <utils/treemodel.h>
 
 #include <QDebug>
 #include <QDir>
@@ -42,7 +41,6 @@
 #include <QItemSelectionModel>
 #include <QMessageBox>
 #include <QSet>
-#include <QSortFilterProxyModel>
 
 /*!
     \class ExtensionSystem::PluginView
@@ -82,10 +80,10 @@ enum Columns { NameColumn, LoadedColumn, VersionColumn, VendorColumn, };
 enum IconIndex { OkIcon, ErrorIcon, NotLoadedIcon };
 
 static const int SortRole = Qt::UserRole + 1;
+static const int HiddenByDefaultRole = Qt::UserRole + 2;
 
 static const QIcon &icon(IconIndex icon)
 {
-    using namespace Utils;
     switch (icon) {
     case OkIcon: {
         static const QIcon ok = Utils::Icons::OK.icon();
@@ -114,9 +112,14 @@ public:
 
     QVariant data(int column, int role) const
     {
+        if (role == HiddenByDefaultRole)
+            return m_spec->isHiddenByDefault() || !m_spec->isAvailableForHostPlatform();
         switch (column) {
         case NameColumn:
-            if (role == Qt::DisplayRole || role == SortRole)
+            if (role == Qt::DisplayRole)
+                return m_spec->isExperimental() ? PluginView::tr("%1 (experimental)").arg(m_spec->name())
+                                                : m_spec->name();
+            if (role == SortRole)
                 return m_spec->name();
             if (role == Qt::ToolTipRole) {
                 QString toolTip;
@@ -195,7 +198,7 @@ public:
 
         if (column == LoadedColumn) {
             if (m_spec->isAvailableForHostPlatform() && !m_spec->isRequired())
-                ret |= Qt::ItemIsEditable | Qt ::ItemIsUserCheckable;
+                ret |= Qt::ItemIsUserCheckable;
         }
 
         return ret;
@@ -220,6 +223,8 @@ public:
 
     QVariant data(int column, int role) const
     {
+        if (role == HiddenByDefaultRole)
+            return false;
         if (column == NameColumn) {
             if (role == Qt::DisplayRole || role == SortRole)
                 return m_name;
@@ -272,7 +277,7 @@ public:
     {
         Qt::ItemFlags ret = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
         if (column == LoadedColumn)
-            ret |= Qt::ItemIsEditable | Qt::ItemIsUserCheckable;
+            ret |= Qt::ItemIsUserCheckable;
         return ret;
     }
 
@@ -280,6 +285,40 @@ public:
     QString m_name;
     QList<PluginSpec *> m_plugins;
     PluginView *m_view; // Not owned.
+};
+
+class PluginFilterModel : public CategorySortFilterModel
+{
+public:
+    PluginFilterModel(QObject *parent = 0) : CategorySortFilterModel(parent) {}
+
+    void setShowHidden(bool show)
+    {
+        if (show == m_showHidden)
+            return;
+        m_showHidden = show;
+        invalidateFilter();
+    }
+
+    bool isShowingHidden() const
+    {
+        return m_showHidden;
+    }
+
+protected:
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override
+    {
+        if (CategorySortFilterModel::filterAcceptsRow(source_row, source_parent)) {
+            if (m_showHidden)
+                return true;
+            const QModelIndex &index = sourceModel()->index(source_row, 0, source_parent);
+            return !sourceModel()->data(index, HiddenByDefaultRole).toBool();
+        }
+        return false;
+    }
+
+private:
+    bool m_showHidden = true;
 };
 
 } // Internal
@@ -309,7 +348,7 @@ PluginView::PluginView(QWidget *parent)
     m_model = new TreeModel<TreeItem, CollectionItem, PluginItem>(this);
     m_model->setHeader({ tr("Name"), tr("Load"), tr("Version"), tr("Vendor") });
 
-    m_sortModel = new CategorySortFilterModel(this);
+    m_sortModel = new PluginFilterModel(this);
     m_sortModel->setSourceModel(m_model);
     m_sortModel->setSortRole(SortRole);
     m_sortModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -357,6 +396,17 @@ void PluginView::setFilter(const QString &filter)
     m_categoryView->expandAll();
 }
 
+void PluginView::setShowHidden(bool showHidden)
+{
+    m_sortModel->setShowHidden(showHidden);
+    m_categoryView->expandAll();
+}
+
+bool PluginView::isShowingHidden() const
+{
+    return m_sortModel->isShowingHidden();
+}
+
 PluginSpec *PluginView::pluginForIndex(const QModelIndex &index) const
 {
     const QModelIndex &sourceIndex = m_sortModel->mapToSource(index);
@@ -371,8 +421,9 @@ void PluginView::updatePlugins()
 
 
     QList<CollectionItem *> collections;
-    auto end = PluginManager::pluginCollections().cend();
-    for (auto it = PluginManager::pluginCollections().cbegin(); it != end; ++it) {
+    const QHash<QString, QList<PluginSpec *>> pluginCollections = PluginManager::pluginCollections();
+    const auto end = pluginCollections.cend();
+    for (auto it = pluginCollections.cbegin(); it != end; ++it) {
         const QString name = it.key().isEmpty() ? tr("Utilities") : it.key();
         collections.append(new CollectionItem(name, it.value(), this));
     }

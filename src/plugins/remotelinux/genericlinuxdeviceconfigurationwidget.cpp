@@ -58,6 +58,8 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
             this, &GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished);
     connect(m_ui->keyButton, &QAbstractButton::toggled,
             this, &GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged);
+    connect(m_ui->agentButton, &QAbstractButton::toggled,
+            this, &GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged);
     connect(m_ui->timeoutSpinBox, &QAbstractSpinBox::editingFinished,
             this, &GenericLinuxDeviceConfigurationWidget::timeoutEditingFinished);
     connect(m_ui->timeoutSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
@@ -76,6 +78,7 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
             this, &GenericLinuxDeviceConfigurationWidget::gdbServerEditingFinished);
     connect(m_ui->hostKeyCheckBox, &QCheckBox::toggled,
             this, &GenericLinuxDeviceConfigurationWidget::hostKeyCheckingChanged);
+    m_ui->gdbServerLineEdit->setToolTip(m_ui->gdbServerLineEdit->placeholderText());
 
     initGui();
 }
@@ -89,27 +92,29 @@ void GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged()
 {
     SshConnectionParameters sshParams = device()->sshParameters();
     const bool usePassword = m_ui->passwordButton->isChecked();
-    sshParams.authenticationType = usePassword
-        ? SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods
-        : SshConnectionParameters::AuthenticationTypePublicKey;
+    const bool useKeyFile = m_ui->keyButton->isChecked();
+    sshParams.authenticationType
+            = usePassword ? SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods
+                          : useKeyFile ? SshConnectionParameters::AuthenticationTypePublicKey
+                                       : SshConnectionParameters::AuthenticationTypeAgent;
     device()->setSshParameters(sshParams);
     m_ui->pwdLineEdit->setEnabled(usePassword);
     m_ui->passwordLabel->setEnabled(usePassword);
-    m_ui->keyFileLineEdit->setEnabled(!usePassword);
-    m_ui->keyLabel->setEnabled(!usePassword);
+    m_ui->keyFileLineEdit->setEnabled(useKeyFile);
+    m_ui->keyLabel->setEnabled(useKeyFile);
 }
 
 void GenericLinuxDeviceConfigurationWidget::hostNameEditingFinished()
 {
     SshConnectionParameters sshParams = device()->sshParameters();
-    sshParams.host = m_ui->hostLineEdit->text().trimmed();
+    sshParams.setHost(m_ui->hostLineEdit->text().trimmed());
     device()->setSshParameters(sshParams);
 }
 
 void GenericLinuxDeviceConfigurationWidget::sshPortEditingFinished()
 {
     SshConnectionParameters sshParams = device()->sshParameters();
-    sshParams.port = m_ui->sshPortSpinBox->value();
+    sshParams.setPort(m_ui->sshPortSpinBox->value());
     device()->setSshParameters(sshParams);
 }
 
@@ -123,14 +128,14 @@ void GenericLinuxDeviceConfigurationWidget::timeoutEditingFinished()
 void GenericLinuxDeviceConfigurationWidget::userNameEditingFinished()
 {
     SshConnectionParameters sshParams = device()->sshParameters();
-    sshParams.userName = m_ui->userLineEdit->text();
+    sshParams.setUserName(m_ui->userLineEdit->text());
     device()->setSshParameters(sshParams);
 }
 
 void GenericLinuxDeviceConfigurationWidget::passwordEditingFinished()
 {
     SshConnectionParameters sshParams = device()->sshParameters();
-    sshParams.password = m_ui->pwdLineEdit->text();
+    sshParams.setPassword(m_ui->pwdLineEdit->text());
     device()->setSshParameters(sshParams);
 }
 
@@ -202,7 +207,7 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
         m_ui->machineTypeValueLabel->setText(tr("Physical Device"));
     else
         m_ui->machineTypeValueLabel->setText(tr("Emulator"));
-    m_ui->portsWarningLabel->setPixmap(Utils::Icons::ERROR.pixmap());
+    m_ui->portsWarningLabel->setPixmap(Utils::Icons::CRITICAL.pixmap());
     m_ui->portsWarningLabel->setToolTip(QLatin1String("<font color=\"red\">")
         + tr("You will need at least one port.") + QLatin1String("</font>"));
     m_ui->keyFileLineEdit->setExpectedKind(PathChooser::File);
@@ -214,21 +219,29 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
 
     const SshConnectionParameters &sshParams = device()->sshParameters();
 
-    if (sshParams.authenticationType != SshConnectionParameters::AuthenticationTypePublicKey)
-        m_ui->passwordButton->setChecked(true);
-    else
+    switch (sshParams.authenticationType) {
+    case SshConnectionParameters::AuthenticationTypePublicKey:
         m_ui->keyButton->setChecked(true);
+        break;
+    case SshConnectionParameters::AuthenticationTypeAgent:
+        m_ui->agentButton->setChecked(true);
+        break;
+    case SshConnectionParameters::AuthenticationTypePassword:
+    case SshConnectionParameters::AuthenticationTypeKeyboardInteractive:
+    case SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods:
+        m_ui->passwordButton->setChecked(true);
+    }
     m_ui->timeoutSpinBox->setValue(sshParams.timeout);
     m_ui->hostLineEdit->setEnabled(!device()->isAutoDetected());
     m_ui->sshPortSpinBox->setEnabled(!device()->isAutoDetected());
     m_ui->hostKeyCheckBox->setChecked(sshParams.hostKeyCheckingMode != SshHostKeyCheckingNone);
 
-    m_ui->hostLineEdit->setText(sshParams.host);
-    m_ui->sshPortSpinBox->setValue(sshParams.port);
+    m_ui->hostLineEdit->setText(sshParams.host());
+    m_ui->sshPortSpinBox->setValue(sshParams.port());
     m_ui->portsLineEdit->setText(device()->freePorts().toString());
     m_ui->timeoutSpinBox->setValue(sshParams.timeout);
-    m_ui->userLineEdit->setText(sshParams.userName);
-    m_ui->pwdLineEdit->setText(sshParams.password);
+    m_ui->userLineEdit->setText(sshParams.userName());
+    m_ui->pwdLineEdit->setText(sshParams.password());
     m_ui->keyFileLineEdit->setPath(sshParams.privateKeyFile);
     m_ui->showPasswordCheckBox->setChecked(false);
     m_ui->gdbServerLineEdit->setText(device()->debugServerPath());

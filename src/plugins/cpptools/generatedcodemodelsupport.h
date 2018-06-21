@@ -49,11 +49,11 @@ public:
     GeneratedCodeModelSupport(CppModelManager *modelmanager,
                               ProjectExplorer::ExtraCompiler *generator,
                               const Utils::FileName &generatedFile);
-    ~GeneratedCodeModelSupport();
+    ~GeneratedCodeModelSupport() override;
 
     /// \returns the contents encoded in UTF-8.
-    QByteArray contents() const;
-    QString fileName() const; // The generated file
+    QByteArray contents() const override;
+    QString fileName() const override; // The generated file
 
     static void update(const QList<ProjectExplorer::ExtraCompiler *> &generators);
 

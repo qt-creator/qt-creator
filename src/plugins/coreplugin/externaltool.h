@@ -52,7 +52,7 @@ public:
 
     ExternalTool();
     explicit ExternalTool(const ExternalTool *other);
-    ~ExternalTool();
+    ~ExternalTool() override;
 
     QString id() const;
     QString description() const;
@@ -75,11 +75,11 @@ public:
     // all tools that are preset (changed or unchanged) have the original value here:
     QSharedPointer<ExternalTool> preset() const;
 
-    static ExternalTool *createFromXml(const QByteArray &xml, QString *errorMessage = 0, const QString &locale = QString());
-    static ExternalTool *createFromFile(const QString &fileName, QString *errorMessage = 0,
+    static ExternalTool *createFromXml(const QByteArray &xml, QString *errorMessage = nullptr, const QString &locale = QString());
+    static ExternalTool *createFromFile(const QString &fileName, QString *errorMessage = nullptr,
                                         const QString &locale = QString());
 
-    bool save(QString *errorMessage = 0) const;
+    bool save(QString *errorMessage = nullptr) const;
 
     bool operator==(const ExternalTool &other) const;
     bool operator!=(const ExternalTool &other) const { return !((*this) == other); }
@@ -123,7 +123,7 @@ class ExternalToolRunner : public QObject
     Q_OBJECT
 public:
     ExternalToolRunner(const ExternalTool *tool);
-    ~ExternalToolRunner();
+    ~ExternalToolRunner() override;
 
     bool hasError() const;
     QString errorString() const;

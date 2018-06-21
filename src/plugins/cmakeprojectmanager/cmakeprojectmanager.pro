@@ -2,11 +2,14 @@ DEFINES += CMAKEPROJECTMANAGER_LIBRARY
 include(../../qtcreatorplugin.pri)
 
 HEADERS = builddirmanager.h \
+    builddirparameters.h \
     builddirreader.h \
     cmakebuildinfo.h \
     cmakebuildstep.h \
+    cmakebuildtarget.h \
     cmakeconfigitem.h \
     cmakeproject.h \
+    cmakeprojectimporter.h \
     cmakeprojectplugin.h \
     cmakeprojectmanager.h \
     cmakeprojectconstants.h \
@@ -19,7 +22,6 @@ HEADERS = builddirmanager.h \
     cmaketool.h \
     cmakeparser.h \
     cmakesettingspage.h \
-    cmakesnippetprovider.h \
     cmaketoolmanager.h \
     cmake_global.h \
     cmakekitinformation.h \
@@ -28,6 +30,8 @@ HEADERS = builddirmanager.h \
     cmakebuildsettingswidget.h \
     cmakeindenter.h \
     cmakeautocompleter.h \
+    cmakespecificsettings.h \
+    cmakespecificsettingspage.h \
     configmodel.h \
     configmodelitemdelegate.h \
     servermode.h \
@@ -36,10 +40,13 @@ HEADERS = builddirmanager.h \
     treescanner.h
 
 SOURCES = builddirmanager.cpp \
+    builddirparameters.cpp \
     builddirreader.cpp \
     cmakebuildstep.cpp \
+    cmakebuildtarget.cpp \
     cmakeconfigitem.cpp \
     cmakeproject.cpp \
+    cmakeprojectimporter.cpp \
     cmakeprojectplugin.cpp \
     cmakeprojectmanager.cpp \
     cmakeprojectnodes.cpp \
@@ -51,7 +58,6 @@ SOURCES = builddirmanager.cpp \
     cmaketool.cpp \
     cmakeparser.cpp \
     cmakesettingspage.cpp \
-    cmakesnippetprovider.cpp \
     cmaketoolmanager.cpp \
     cmakekitinformation.cpp \
     cmakekitconfigwidget.cpp \
@@ -59,11 +65,16 @@ SOURCES = builddirmanager.cpp \
     cmakebuildsettingswidget.cpp \
     cmakeindenter.cpp \
     cmakeautocompleter.cpp \
+    cmakespecificsettings.cpp \
+    cmakespecificsettingspage.cpp \
     configmodel.cpp \
     configmodelitemdelegate.cpp \
     servermode.cpp \
     servermodereader.cpp \
     tealeafreader.cpp \
-    treescanner.cpp
+    treescanner.cpp \
 
 RESOURCES += cmakeproject.qrc
+
+FORMS += \
+    cmakespecificsettingspage.ui

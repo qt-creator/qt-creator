@@ -38,13 +38,13 @@ public:
     NavigationWidgetFactory();
 
     //! \implements Core::INavigationWidgetFactory::createWidget
-    Core::NavigationView createWidget();
+    Core::NavigationView createWidget() override;
 
     //! \implements Core::INavigationWidgetFactory::saveSettings
-    void saveSettings(int position, QWidget *widget);
+    void saveSettings(QSettings *settings, int position, QWidget *widget) override;
 
     //! \implements Core::INavigationWidgetFactory::restoreSettings
-    void restoreSettings(int position, QWidget *widget);
+    void restoreSettings(QSettings *settings, int position, QWidget *widget) override;
 };
 
 } // namespace Internal

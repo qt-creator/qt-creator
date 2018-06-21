@@ -44,20 +44,15 @@ VcsCommand::VcsCommand(const QString &workingDirectory,
         VcsOutputWindow *outputWindow = VcsOutputWindow::instance();
 
         connect(proxy, &Utils::OutputProxy::append,
-                outputWindow, [](const QString &txt) { VcsOutputWindow::append(txt); },
-                Qt::QueuedConnection);
+                outputWindow, [](const QString &txt) { VcsOutputWindow::append(txt); });
         connect(proxy, &Utils::OutputProxy::appendSilently,
-                outputWindow, &VcsOutputWindow::appendSilently,
-                Qt::QueuedConnection);
+                outputWindow, &VcsOutputWindow::appendSilently);
         connect(proxy, &Utils::OutputProxy::appendError,
-                outputWindow, &VcsOutputWindow::appendError,
-                Qt::QueuedConnection);
+                outputWindow, &VcsOutputWindow::appendError);
         connect(proxy, &Utils::OutputProxy::appendCommand,
-                outputWindow, &VcsOutputWindow::appendCommand,
-                Qt::QueuedConnection);
+                outputWindow, &VcsOutputWindow::appendCommand);
         connect(proxy, &Utils::OutputProxy::appendMessage,
-                outputWindow, &VcsOutputWindow::appendMessage,
-                Qt::QueuedConnection);
+                outputWindow, &VcsOutputWindow::appendMessage);
 
         return proxy;
     });

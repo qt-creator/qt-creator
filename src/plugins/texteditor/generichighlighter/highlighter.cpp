@@ -34,6 +34,7 @@
 #include "tabsettings.h"
 
 #include <coreplugin/messagemanager.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 
@@ -45,6 +46,7 @@ namespace {
     static const QLatin1String kPop("#pop");
     static const QLatin1Char kBackSlash('\\');
     static const QLatin1Char kHash('#');
+    static const QLatin1Char kExclamationMark('!');
 }
 
 class HighlighterCodeFormatterData : public CodeFormatterData
@@ -76,6 +78,50 @@ HighlighterCodeFormatterData *formatterData(const QTextBlock &block)
     return data;
 }
 
+static TextStyle styleForFormat(int format)
+{
+    const auto f = Highlighter::TextFormatId(format);
+    switch (f) {
+    case Highlighter::Normal: return C_TEXT;
+    case Highlighter::Keyword: return C_KEYWORD;
+    case Highlighter::DataType: return C_TYPE;
+    case Highlighter::Comment: return C_COMMENT;
+    case Highlighter::Decimal: return C_NUMBER;
+    case Highlighter::BaseN: return C_NUMBER;
+    case Highlighter::Float: return C_NUMBER;
+    case Highlighter::Char: return C_STRING;
+    case Highlighter::SpecialChar: return C_STRING;
+    case Highlighter::String: return C_STRING;
+    case Highlighter::Alert: return C_WARNING;
+    case Highlighter::Information: return C_TEXT;
+    case Highlighter::Warning: return C_WARNING;
+    case Highlighter::Error: return C_ERROR;
+    case Highlighter::Function: return C_FUNCTION;
+    case Highlighter::RegionMarker: return C_TEXT;
+    case Highlighter::BuiltIn: return C_PREPROCESSOR;
+    case Highlighter::Extension: return C_PRIMITIVE_TYPE;
+    case Highlighter::Operator: return C_OPERATOR;
+    case Highlighter::Variable: return C_LOCAL;
+    case Highlighter::Attribute: return C_LABEL;
+    case Highlighter::Annotation: return C_TEXT;
+    case Highlighter::CommentVar: return C_COMMENT;
+    case Highlighter::Import: return C_PREPROCESSOR;
+    case Highlighter::Others: return C_TEXT;
+    case Highlighter::Identifier: return C_LOCAL;
+    case Highlighter::Documentation: return C_DOXYGEN_COMMENT;
+    case Highlighter::ControlFlow: return C_KEYWORD;
+    case Highlighter::Preprocessor: return C_PREPROCESSOR;
+    case Highlighter::VerbatimString: return C_STRING;
+    case Highlighter::SpecialString: return C_STRING;
+    case Highlighter::Constant: return C_KEYWORD;
+    case Highlighter::TextFormatIdCount:
+        QTC_CHECK(false); // should never get here
+        return C_TEXT;
+    }
+    QTC_CHECK(false); // should never get here
+    return C_TEXT;
+}
+
 Highlighter::Highlighter(QTextDocument *parent) :
     SyntaxHighlighter(parent),
     m_regionDepth(0),
@@ -85,38 +131,7 @@ Highlighter::Highlighter(QTextDocument *parent) :
     m_dynamicContextsCounter(0),
     m_isBroken(false)
 {
-    static const QVector<TextStyle> categories({
-        C_TEXT,              // Normal
-        C_VISUAL_WHITESPACE, // VisualWhitespace
-        C_KEYWORD,           // Keyword
-        C_TYPE,              // DataType
-        C_COMMENT,           // Comment
-        C_NUMBER,            // Decimal
-        C_NUMBER,            // BaseN
-        C_NUMBER,            // Float
-        C_STRING,            // Char
-        C_STRING,            // SpecialChar
-        C_STRING,            // String
-        C_WARNING,           // Alert
-        C_TEXT,              // Information
-        C_WARNING,           // Warning
-        C_ERROR,             // Error
-        C_FUNCTION,          // Function
-        C_TEXT,              // RegionMarker
-        C_PREPROCESSOR,      // BuiltIn
-        C_PRIMITIVE_TYPE,    // Extension
-        C_OPERATOR,          // Operator
-        C_LOCAL,             // Variable
-        C_LABEL,             // Attribute
-        C_TEXT,              // Annotation
-        C_COMMENT,           // CommentVar
-        C_PREPROCESSOR,      // Import
-        C_TEXT,              // Others
-        C_LOCAL,             // Identifier
-        C_DOXYGEN_COMMENT    // Documentation
-    });
-
-    setTextFormatCategories(categories);
+    setTextFormatCategories(TextFormatIdCount, styleForFormat);
 }
 
 Highlighter::~Highlighter()
@@ -158,6 +173,11 @@ KateFormatMap::KateFormatMap()
     m_ids.insert(QLatin1String("dsOthers"), Highlighter::Others);
     m_ids.insert(QLatin1String("dsIdentifier"), Highlighter::Identifier);
     m_ids.insert(QLatin1String("dsDocumentation"), Highlighter::Documentation);
+    m_ids.insert(QLatin1String("dsControlFlow"), Highlighter::ControlFlow);
+    m_ids.insert(QLatin1String("dsPreprocessor"), Highlighter::Preprocessor);
+    m_ids.insert(QLatin1String("dsVerbatimString"), Highlighter::VerbatimString);
+    m_ids.insert(QLatin1String("dsSpecialString"), Highlighter::SpecialString);
+    m_ids.insert(QLatin1String("dsConstant"), Highlighter::Constant);
 }
 
 Q_GLOBAL_STATIC(KateFormatMap, kateFormatMap)
@@ -233,13 +253,14 @@ void Highlighter::highlightBlock(const QString &text)
         } catch (const HighlighterException &e) {
             Core::MessageManager::write(
                         QCoreApplication::translate("GenericHighlighter",
-                                                    "Generic highlighter error: ") + e.message(),
-                        Core::MessageManager::WithFocus);
+                                                    "Generic highlighter error: %1")
+                                                    .arg(e.message()),
+                                                    Core::MessageManager::WithFocus);
             m_isBroken = true;
         }
     }
 
-    applyFormatToSpaces(text, formatForCategory(VisualWhitespace));
+    formatSpaces(text);
 }
 
 void Highlighter::setupDataForBlock(const QString &text)
@@ -351,29 +372,33 @@ void Highlighter::iterateThroughRules(const QString &text,
                 progress->clearBracesMatches();
             }
 
+            const QString itemData = rule->itemData();
+            const QSharedPointer<HighlightDefinition> definition = rule->definition();
+            const bool lookAhead = rule->isLookAhead();
             if (progress->isWillContinueLine()) {
                 createWillContinueBlock();
                 progress->setWillContinueLine(false);
             } else {
                 if (rule->hasChildren())
                     iterateThroughRules(text, length, progress, true, rule->children());
-
                 if (!rule->context().isEmpty() && contextChangeRequired(rule->context())) {
                     m_currentCaptures = progress->captures();
-                    changeContext(rule->context(), rule->definition());
+                    changeContext(rule->context(), definition);
                     contextChanged = true;
                 }
             }
 
+            // Do NOT access rule frome here on, because a context change might delete rule
+
             // Format is not applied to child rules directly (but relative to the offset of their
             // parent) nor to look ahead rules.
-            if (!childRule && !rule->isLookAhead()) {
-                if (rule->itemData().isEmpty())
+            if (!childRule && !lookAhead) {
+                if (itemData.isEmpty())
                     applyFormat(startOffset, progress->offset() - startOffset,
                                 m_currentContext->itemData(), m_currentContext->definition());
                 else
-                    applyFormat(startOffset, progress->offset() - startOffset, rule->itemData(),
-                                rule->definition());
+                    applyFormat(startOffset, progress->offset() - startOffset, itemData,
+                                definition);
             }
 
             // When there is a match of one child rule the others should be skipped. Otherwise
@@ -414,8 +439,13 @@ void Highlighter::changeContext(const QString &contextName,
                                 const QSharedPointer<HighlightDefinition> &definition,
                                 const bool assignCurrent)
 {
-    if (contextName.startsWith(kPop)) {
-        const int count = contextName.splitRef(kHash, QString::SkipEmptyParts).size();
+    QString identifier = contextName;
+    if (identifier.startsWith(kPop)) {
+        const QStringList complexOrder = contextName.split(kExclamationMark);
+        const QString orders = complexOrder.first();
+        identifier = complexOrder.size() > 1 ? complexOrder[1] : QString();
+
+        const int count = orders.splitRef(kHash, QString::SkipEmptyParts).size();
         for (int i = 0; i < count; ++i) {
             if (m_contexts.isEmpty()) {
                 throw HighlighterException(
@@ -434,8 +464,9 @@ void Highlighter::changeContext(const QString &contextName,
                 setCurrentBlockState(
                     computeState(m_leadingObservableStates.value(currentSequence)));
         }
-    } else {
-        const QSharedPointer<Context> &context = definition->context(contextName);
+    }
+    if (!identifier.isEmpty()) {
+        const QSharedPointer<Context> &context = definition->context(identifier);
 
         if (context->isDynamic())
             pushDynamicContext(context);

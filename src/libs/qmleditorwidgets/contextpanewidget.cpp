@@ -493,9 +493,8 @@ void ContextPaneWidget::setPinButton()
 
     pinnedChanged(true);
     if (m_resetAction) {
-        m_resetAction->blockSignals(true);
+        QSignalBlocker blocker(m_resetAction);
         m_resetAction->setChecked(true);
-        m_resetAction->blockSignals(false);
     }
 }
 
@@ -511,9 +510,8 @@ void ContextPaneWidget::setLineButton()
 
     pinnedChanged(false);
     if (m_resetAction) {
-        m_resetAction->blockSignals(true);
+        QSignalBlocker blocker(m_resetAction);
         m_resetAction->setChecked(false);
-        m_resetAction->blockSignals(false);
     }
 }
 

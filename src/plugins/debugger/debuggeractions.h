@@ -56,7 +56,7 @@ class DebuggerSettings : public QObject
 
 public:
     explicit DebuggerSettings();
-    ~DebuggerSettings();
+    ~DebuggerSettings() override;
 
     void insertItem(int code, Utils::SavedAction *item);
     Utils::SavedAction *item(int code) const;
@@ -116,12 +116,12 @@ enum DebuggerActionCode
     CdbBreakOnCrtDbgReport,
     UseCdbConsole,
     CdbBreakPointCorrection,
+    CdbUsePythonDumper,
     IgnoreFirstChanceAccessViolation,
 
     // Gdb
     LoadGdbInit,
     LoadGdbDumpers,
-    AttemptQuickStart,
     GdbStartupCommands,
     GdbPostAttachCommands,
     GdbWatchdogTimeout,

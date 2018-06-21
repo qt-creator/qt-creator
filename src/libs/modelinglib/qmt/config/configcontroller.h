@@ -30,6 +30,7 @@
 
 namespace qmt {
 
+class CustomRelation;
 class StereotypeController;
 class StereotypeIcon;
 class Toolbar;
@@ -40,7 +41,7 @@ class QMT_EXPORT ConfigController : public QObject
     class ConfigControllerPrivate;
 
 public:
-    explicit ConfigController(QObject *parent = 0);
+    explicit ConfigController(QObject *parent = nullptr);
     ~ConfigController() override;
 
     void setStereotypeController(StereotypeController *stereotypeController);
@@ -49,6 +50,7 @@ public:
 
 private:
     void onStereotypeIconParsed(const StereotypeIcon &stereotypeIcon);
+    void onRelationParsed(const CustomRelation &customRelation);
     void onToolbarParsed(const Toolbar &toolbar);
 
     ConfigControllerPrivate *d;

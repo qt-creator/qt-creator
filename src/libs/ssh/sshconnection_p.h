@@ -32,6 +32,7 @@
 
 #include <QHash>
 #include <QList>
+#include <QQueue>
 #include <QObject>
 #include <QPair>
 #include <QScopedPointer>
@@ -56,6 +57,7 @@ enum SshStateInternal {
     SocketConnecting, // After connectToHost()
     SocketConnected, // After socket's connected() signal
     UserAuthServiceRequested,
+    WaitingForAgentKeys,
     UserAuthRequested,
     ConnectionEstablished // After service has been started
     // ...
@@ -107,6 +109,12 @@ private:
     void handleTimeout();
     void sendKeepAlivePacket();
 
+    void handleAgentKeysUpdated();
+    void handleSignatureFromAgent(const QByteArray &key, const QByteArray &signature, uint token);
+    void tryAllAgentKeys();
+    void authenticateWithPublicKey();
+    void setAgentError();
+
     void handleServerId();
     void handlePackets();
     void handleCurrentPacket();
@@ -118,6 +126,7 @@ private:
     void handleUserAuthInfoRequestPacket();
     void handleUserAuthSuccessPacket();
     void handleUserAuthFailurePacket();
+    void handleUserAuthKeyOkPacket();
     void handleUserAuthBannerPacket();
     void handleUnexpectedPacket();
     void handleGlobalRequest();
@@ -142,6 +151,8 @@ private:
     void createPrivateKey();
 
     void sendData(const QByteArray &data);
+
+    uint tokenForAgent() const;
 
     typedef void (SshConnectionPrivate::*PacketHandler)();
     typedef QList<SshStateInternal> StateList;
@@ -171,8 +182,12 @@ private:
     SshConnection *m_conn;
     quint64 m_lastInvalidMsgSeqNr;
     QByteArray m_serverId;
+    QByteArray m_agentSignature;
+    QQueue<QByteArray> m_pendingKeyChecks;
+    QByteArray m_agentKeyToUse;
     bool m_serverHasSentDataBeforeId;
     bool m_triedAllPasswordBasedMethods;
+    bool m_agentKeysUpToDate;
 };
 
 } // namespace Internal

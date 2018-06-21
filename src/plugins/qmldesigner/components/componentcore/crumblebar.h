@@ -36,8 +36,8 @@ class CrumbleBar : public QObject
 {
     Q_OBJECT
 public:
-    explicit CrumbleBar(QObject *parent = 0);
-    ~CrumbleBar();
+    explicit CrumbleBar(QObject *parent = nullptr);
+    ~CrumbleBar() override;
 
     void pushFile(const Utils::FileName &fileName);
     void pushInFileComponent(const ModelNode &modelNode);
@@ -46,16 +46,14 @@ public:
 
     Utils::CrumblePath *crumblePath();
 
-private slots:
-    void onCrumblePathElementClicked(const QVariant &data);
-
 private:
+    void onCrumblePathElementClicked(const QVariant &data);
     void updateVisibility();
     void showSaveDialog();
 
 private:
-    bool m_isInternalCalled;
-    Utils::CrumblePath *m_crumblePath;
+    bool m_isInternalCalled = false;
+    Utils::CrumblePath *m_crumblePath = nullptr;
 };
 
 class CrumbleBarInfo {

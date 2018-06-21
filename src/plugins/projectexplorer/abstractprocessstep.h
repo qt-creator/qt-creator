@@ -31,9 +31,12 @@
 #include <projectexplorer/ioutputparser.h>
 
 #include <utils/qtcprocess.h>
+#include <utils/fileutils.h>
 
 #include <QString>
 #include <QTimer>
+#include <QHash>
+#include <QPair>
 
 #include <memory>
 
@@ -50,7 +53,7 @@ class PROJECTEXPLORER_EXPORT AbstractProcessStep : public BuildStep
 public:
     bool init(QList<const BuildStep *> &earlierSteps) override;
     void run(QFutureInterface<bool> &) override;
-    bool runInGuiThread() const  final { return true; }
+    bool runInGuiThread() const final { return true; }
 
     ProcessParameters *processParameters() { return &m_param; }
 
@@ -65,7 +68,6 @@ public:
 
 protected:
     AbstractProcessStep(BuildStepList *bsl, Core::Id id);
-    AbstractProcessStep(BuildStepList *bsl, AbstractProcessStep *bs);
 
     virtual void processStarted();
     virtual void processFinished(int exitCode, QProcess::ExitStatus status);
@@ -82,17 +84,23 @@ private:
     void slotProcessFinished(int, QProcess::ExitStatus);
     void checkForCancel();
 
-    void cleanUp();
+    void cleanUp(QProcess *process);
 
     void taskAdded(const Task &task, int linkedOutputLines = 0, int skipLines = 0);
 
     void outputAdded(const QString &string, BuildStep::OutputFormat format);
+
+    void purgeCache(bool useSoftLimit);
+    void insertInCache(const QString &relativePath, const Utils::FileName &absPath);
 
     QTimer m_timer;
     QFutureInterface<bool> *m_futureInterface = nullptr;
     std::unique_ptr<Utils::QtcProcess> m_process;
     std::unique_ptr<IOutputParser> m_outputParserChain;
     ProcessParameters m_param;
+    QHash<QString, QPair<Utils::FileName, quint64>> m_filesCache;
+    QHash<QString, Utils::FileNameList> m_candidates;
+    quint64 m_cacheCounter = 0;
     bool m_ignoreReturnValue = false;
     bool m_skipFlush = false;
 };

@@ -31,8 +31,6 @@
 namespace qmt {
 
 DClass::DClass()
-    : m_templateDisplay(TemplateSmart),
-      m_showAllMembers(false)
 {
 }
 

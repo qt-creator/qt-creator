@@ -30,25 +30,26 @@
 #include "qnxutils.h"
 
 #include <coreplugin/featureprovider.h>
+#include <proparser/profileevaluator.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
 #include <QDir>
 
+using namespace ProjectExplorer;
+
 namespace Qnx {
 namespace Internal {
 
-static char SDK_PATH_KEY[] = "SDKPath";
-static char ARCH_KEY[] = "Arch";
+static char SDP_PATH_KEY[] = "SDKPath";
 
-QnxQtVersion::QnxQtVersion() : m_arch(UnknownArch)
+QnxQtVersion::QnxQtVersion()
 { }
 
-QnxQtVersion::QnxQtVersion(QnxArchitecture arch, const Utils::FileName &path, bool isAutoDetected,
+QnxQtVersion::QnxQtVersion(const Utils::FileName &path, bool isAutoDetected,
                            const QString &autoDetectionSource) :
-    QtSupport::BaseQtVersion(path, isAutoDetected, autoDetectionSource),
-    m_arch(arch)
+    QtSupport::BaseQtVersion(path, isAutoDetected, autoDetectionSource)
 {
     setUnexpandedDisplayName(defaultUnexpandedDisplayName(path, false));
 }
@@ -66,7 +67,8 @@ QString QnxQtVersion::type() const
 QString QnxQtVersion::description() const
 {
     //: Qt Version is meant for QNX
-    return QCoreApplication::translate("Qnx::Internal::QnxQtVersion", "QNX %1").arg(archString());
+    return QCoreApplication::translate("Qnx::Internal::QnxQtVersion", "QNX %1")
+            .arg(QnxUtils::cpuDirShortDescription(cpuDir()));
 }
 
 QSet<Core::Id> QnxQtVersion::availableFeatures() const
@@ -80,7 +82,7 @@ QSet<Core::Id> QnxQtVersion::availableFeatures() const
 
 QSet<Core::Id> QnxQtVersion::targetDeviceTypes() const
 {
-    return { Constants::QNX_QNX_OS_TYPE };
+    return {Constants::QNX_QNX_OS_TYPE};
 }
 
 QString QnxQtVersion::qnxHost() const
@@ -109,43 +111,35 @@ QString QnxQtVersion::qnxTarget() const
     return QString();
 }
 
-QnxArchitecture QnxQtVersion::architecture() const
+QString QnxQtVersion::cpuDir() const
 {
-    return m_arch;
+    ensureMkSpecParsed();
+    return m_cpuDir;
 }
 
-QString QnxQtVersion::archString() const
+void QnxQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
 {
-    switch (m_arch) {
-    case X86:
-        return QLatin1String("x86");
-    case ArmLeV7:
-        return QLatin1String("ARMle-v7");
-    case UnknownArch:
-        return QString();
-    }
-    return QString();
+    m_cpuDir = evaluator->value(QLatin1String("QNX_CPUDIR"));
+    BaseQtVersion::parseMkSpec(evaluator);
 }
 
 QVariantMap QnxQtVersion::toMap() const
 {
     QVariantMap result = BaseQtVersion::toMap();
-    result.insert(QLatin1String(SDK_PATH_KEY), sdkPath());
-    result.insert(QLatin1String(ARCH_KEY), m_arch);
+    result.insert(QLatin1String(SDP_PATH_KEY), sdpPath());
     return result;
 }
 
 void QnxQtVersion::fromMap(const QVariantMap &map)
 {
     BaseQtVersion::fromMap(map);
-    setSdkPath(QDir::fromNativeSeparators(map.value(QLatin1String(SDK_PATH_KEY)).toString()));
-    m_arch = static_cast<QnxArchitecture>(map.value(QLatin1String(ARCH_KEY), UnknownArch).toInt());
+    setSdpPath(QDir::fromNativeSeparators(map.value(QLatin1String(SDP_PATH_KEY)).toString()));
 }
 
 QList<ProjectExplorer::Abi> QnxQtVersion::detectQtAbis() const
 {
     ensureMkSpecParsed();
-    return qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));
+    return QnxUtils::convertAbis(qtAbisFromLibrary(qtCorePaths()));
 }
 
 void QnxQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const
@@ -154,12 +148,12 @@ void QnxQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Enviro
     updateEnvironment();
     env.modify(m_qnxEnv);
 
-    env.prependOrSetLibrarySearchPath(versionInfo().value(QLatin1String("QT_INSTALL_LIBS")));
+    env.prependOrSetLibrarySearchPath(qmakeProperty("QT_INSTALL_LIBS", PropertyVariantDev));
 }
 
 Utils::Environment QnxQtVersion::qmakeRunEnvironment() const
 {
-    if (!sdkPath().isEmpty())
+    if (!sdpPath().isEmpty())
         updateEnvironment();
 
     Utils::Environment env = Utils::Environment::systemEnvironment();
@@ -175,27 +169,28 @@ QtSupport::QtConfigWidget *QnxQtVersion::createConfigurationWidget() const
 
 bool QnxQtVersion::isValid() const
 {
-    return QtSupport::BaseQtVersion::isValid() && !sdkPath().isEmpty();
+    return QtSupport::BaseQtVersion::isValid() && !sdpPath().isEmpty();
 }
 
 QString QnxQtVersion::invalidReason() const
 {
-    if (sdkPath().isEmpty())
-        return QCoreApplication::translate("Qnx::Internal::QnxQtVersion", "No SDK path was set up.");
+    if (sdpPath().isEmpty())
+        return QCoreApplication::translate("Qnx::Internal::QnxQtVersion",
+                                           "No SDP path was set up.");
     return QtSupport::BaseQtVersion::invalidReason();
 }
 
-QString QnxQtVersion::sdkPath() const
+QString QnxQtVersion::sdpPath() const
 {
-    return m_sdkPath;
+    return m_sdpPath;
 }
 
-void QnxQtVersion::setSdkPath(const QString &sdkPath)
+void QnxQtVersion::setSdpPath(const QString &sdpPath)
 {
-    if (m_sdkPath == sdkPath)
+    if (m_sdpPath == sdpPath)
         return;
 
-    m_sdkPath = sdkPath;
+    m_sdpPath = sdpPath;
     m_environmentUpToDate = false;
 }
 
@@ -209,7 +204,7 @@ void QnxQtVersion::updateEnvironment() const
 
 QList<Utils::EnvironmentItem> QnxQtVersion::environment() const
 {
-    return QnxUtils::qnxEnvironment(sdkPath());
+    return QnxUtils::qnxEnvironment(sdpPath());
 }
 
 } // namespace Internal

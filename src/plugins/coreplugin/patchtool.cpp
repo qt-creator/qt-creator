@@ -88,6 +88,12 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
         return false;
     }
 
+    if (!Utils::FileName::fromString(patch).exists()
+            && !Utils::Environment::systemEnvironment().searchInPath(patch).exists()) {
+        MessageManager::write(QApplication::translate("Core::PatchTool", "The patch-command configured in the general \"Environment\" settings does not exist."));
+        return false;
+    }
+
     QProcess patchProcess;
     if (!workingDirectory.isEmpty())
         patchProcess.setWorkingDirectory(workingDirectory);
@@ -107,7 +113,7 @@ static bool runPatchHelper(const QByteArray &input, const QString &workingDirect
         args << QLatin1String("-R");
     if (withCrlf)
         args << QLatin1String("--binary");
-    MessageManager::write(QApplication::translate("Core::PatchTool", "Executing in %1: %2 %3").
+    MessageManager::write(QApplication::translate("Core::PatchTool", "Running in %1: %2 %3").
                           arg(QDir::toNativeSeparators(workingDirectory),
                               QDir::toNativeSeparators(patch), args.join(QLatin1Char(' '))));
     patchProcess.start(patch, args);

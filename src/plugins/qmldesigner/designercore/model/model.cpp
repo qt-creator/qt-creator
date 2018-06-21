@@ -85,6 +85,7 @@ ModelPrivate::ModelPrivate(Model *model) :
 {
     m_rootInternalNode = createNode("QtQuick.Item", 1, 0, PropertyListType(), PropertyListType(), QString(), ModelNode::NodeWithoutSource,true);
     m_currentStateNode = m_rootInternalNode;
+    m_currentTimelineNode = m_rootInternalNode;
 }
 
 ModelPrivate::~ModelPrivate()
@@ -174,6 +175,12 @@ QUrl ModelPrivate::fileUrl() const
     return m_fileUrl;
 }
 
+void ModelPrivate::setDocumentMessages(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings)
+{
+    foreach (const QPointer<AbstractView> &view, m_viewList)
+        view->documentMessagesChanged(errors, warnings);
+}
+
 void ModelPrivate::setFileUrl(const QUrl &fileUrl)
 {
     QUrl oldPath = m_fileUrl;
@@ -241,6 +248,9 @@ InternalNode::Pointer ModelPrivate::createNode(const TypeName &typeName,
 
     notifyNodeCreated(newInternalNodePointer);
 
+    if (!newInternalNodePointer->propertyNameList().isEmpty())
+        notifyVariantPropertiesChanged(newInternalNodePointer, newInternalNodePointer->propertyNameList(), AbstractView::PropertiesAdded);
+
     return newInternalNodePointer;
 }
 
@@ -250,6 +260,8 @@ void ModelPrivate::removeNodeFromModel(const InternalNodePointer &internalNodePo
 
     internalNodePointer->resetParentProperty();
 
+
+    m_selectedInternalNodeList.removeAll(internalNodePointer);
     if (!internalNodePointer->id().isEmpty())
         m_idNodeHash.remove(internalNodePointer->id());
     internalNodePointer->setValid(false);
@@ -627,6 +639,33 @@ void ModelPrivate::notifyCurrentStateChanged(const ModelNode &node)
 
     if (nodeInstanceView())
         nodeInstanceView()->currentStateChanged(ModelNode(node.internalNode(), model(), nodeInstanceView()));
+
+    if (resetModel)
+        resetModelByRewriter(description);
+}
+
+void ModelPrivate::notifyCurrentTimelineChanged(const ModelNode &node)
+{
+    bool resetModel = false;
+    QString description;
+
+    m_currentTimelineNode = node.internalNode();
+
+    try {
+        if (rewriterView())
+            rewriterView()->currentTimelineChanged(ModelNode(node.internalNode(), model(), rewriterView()));
+    } catch (const RewritingException &e) {
+        description = e.description();
+        resetModel = true;
+    }
+
+    for (const QPointer<AbstractView> &view : m_viewList) {
+        Q_ASSERT(view != 0);
+        view->currentTimelineChanged(ModelNode(node.internalNode(), model(), view.data()));
+    }
+
+    if (nodeInstanceView())
+        nodeInstanceView()->currentTimelineChanged(ModelNode(node.internalNode(), model(), nodeInstanceView()));
 
     if (resetModel)
         resetModelByRewriter(description);
@@ -1482,7 +1521,7 @@ static QList<PropertyPair> toPropertyPairList(const QList<InternalProperty::Poin
     QList<PropertyPair> propertyPairList;
 
     foreach (const InternalProperty::Pointer &property, propertyList)
-        propertyPairList.append(qMakePair(property->propertyOwner(), property->name()));
+        propertyPairList.append({property->propertyOwner(), property->name()});
 
     return propertyPairList;
 
@@ -1490,9 +1529,9 @@ static QList<PropertyPair> toPropertyPairList(const QList<InternalProperty::Poin
 
 void ModelPrivate::removeProperty(const InternalProperty::Pointer &property)
 {
-    notifyPropertiesAboutToBeRemoved(QList<InternalProperty::Pointer>() << property);
+    notifyPropertiesAboutToBeRemoved({property});
 
-    QList<PropertyPair> propertyPairList = toPropertyPairList(QList<InternalProperty::Pointer>() << property);
+    const QList<PropertyPair> propertyPairList = toPropertyPairList({property});
 
     removePropertyWithoutNotification(property);
 
@@ -1509,7 +1548,7 @@ void ModelPrivate::setBindingProperty(const InternalNode::Pointer &internalNodeP
 
     InternalBindingProperty::Pointer bindingProperty = internalNodePointer->bindingProperty(name);
     bindingProperty->setExpression(expression);
-    notifyBindingPropertiesChanged(QList<InternalBindingPropertyPointer>() << bindingProperty, propertyChange);
+    notifyBindingPropertiesChanged({bindingProperty}, propertyChange);
 }
 
 void ModelPrivate::setSignalHandlerProperty(const InternalNodePointer &internalNodePointer, const PropertyName &name, const QString &source)
@@ -1522,7 +1561,7 @@ void ModelPrivate::setSignalHandlerProperty(const InternalNodePointer &internalN
 
     InternalSignalHandlerProperty::Pointer signalHandlerProperty = internalNodePointer->signalHandlerProperty(name);
     signalHandlerProperty->setSource(source);
-    notifySignalHandlerPropertiesChanged(QVector<InternalSignalHandlerPropertyPointer>() << signalHandlerProperty, propertyChange);
+    notifySignalHandlerPropertiesChanged({signalHandlerProperty}, propertyChange);
 }
 
 void ModelPrivate::setVariantProperty(const InternalNode::Pointer &internalNodePointer, const PropertyName &name, const QVariant &value)
@@ -1566,7 +1605,7 @@ void ModelPrivate::setDynamicBindingProperty(const InternalNodePointer &internal
 
     InternalBindingProperty::Pointer bindingProperty = internalNodePointer->bindingProperty(name);
     bindingProperty->setDynamicExpression(dynamicPropertyType, expression);
-    notifyBindingPropertiesChanged(QList<InternalBindingPropertyPointer>() << bindingProperty, propertyChange);
+    notifyBindingPropertiesChanged({bindingProperty}, propertyChange);
 }
 
 void ModelPrivate::reparentNode(const InternalNode::Pointer &newParentNode,
@@ -1696,6 +1735,11 @@ void ModelPrivate::setNodeInstanceView(NodeInstanceView *nodeInstanceView)
 NodeInstanceView *ModelPrivate::nodeInstanceView() const
 {
     return m_nodeInstanceView.data();
+}
+
+InternalNodePointer ModelPrivate::currentTimelineNode() const
+{
+    return m_currentTimelineNode;
 }
 
 InternalNodePointer ModelPrivate::nodeForId(const QString &id) const
@@ -1830,6 +1874,8 @@ void Model::setUsedImports(const QList<Import> &usedImports)
 
 static bool compareVersions(const QString &version1, const QString &version2, bool allowHigherVersion)
 {
+    if (version2.isEmpty())
+        return true;
     if (version1 == version2)
         return true;
     if (!allowHigherVersion)
@@ -1838,17 +1884,17 @@ static bool compareVersions(const QString &version1, const QString &version2, bo
     QStringList version2List = version2.split(QLatin1Char('.'));
     if (version1List.count() == 2 && version2List.count() == 2) {
         bool ok;
-        int major1 = version1List.first().toInt(&ok);
+        int major1 = version1List.constFirst().toInt(&ok);
         if (!ok)
             return false;
-        int major2 = version2List.first().toInt(&ok);
+        int major2 = version2List.constFirst().toInt(&ok);
         if (!ok)
             return false;
         if (major1 >= major2) {
-            int minor1 = version1List.last().toInt(&ok);
+            int minor1 = version1List.constLast().toInt(&ok);
             if (!ok)
                 return false;
-            int minor2 = version2List.last().toInt(&ok);
+            int minor2 = version2List.constLast().toInt(&ok);
             if (!ok)
                 return false;
             if (minor1 >= minor2)
@@ -1877,6 +1923,26 @@ bool Model::hasImport(const Import &import, bool ignoreAlias, bool allowHigherVe
     return false;
 }
 
+bool Model::isImportPossible(const Import &import, bool ignoreAlias, bool allowHigherVersion)
+{
+    if (imports().contains(import))
+        return true;
+    if (!ignoreAlias)
+        return false;
+
+    const auto importList = possibleImports();
+
+    for (const Import &possibleImport : importList) {
+        if (possibleImport.isFileImport() && import.isFileImport())
+            if (possibleImport.file() == import.file())
+                return true;
+        if (possibleImport.isLibraryImport() && import.isLibraryImport())
+            if (possibleImport.url() == import.url()  && compareVersions(possibleImport.version(), import.version(), allowHigherVersion))
+                return true;
+    }
+    return false;
+}
+
 QString Model::pathForImport(const Import &import)
 {
     if (!rewriterView())
@@ -1898,6 +1964,20 @@ QStringList Model::importPaths() const
         importPathList.append(documentDirectoryPath);
 
     return importPathList;
+}
+
+Import Model::highestPossibleImport(const QString &importPath)
+{
+    Import candidate;
+
+    for (const Import &import : possibleImports()) {
+        if (import.url() == importPath) {
+            if (candidate.isEmpty() || compareVersions(import.version(), candidate.version(), true))
+                candidate = import;
+        }
+    }
+
+    return candidate;
 }
 
 RewriterView *Model::rewriterView() const
@@ -1940,6 +2020,11 @@ TextModifier *Model::textModifier() const
 void Model::setTextModifier(TextModifier *textModifier)
 {
     d->m_textModifier = textModifier;
+}
+
+void Model::setDocumentMessages(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings)
+{
+    d->setDocumentMessages(errors, warnings);
 }
 
 /*!

@@ -27,6 +27,7 @@
 
 #include "modeleditor_constants.h"
 
+#include "qmt/infrastructure/exceptions.h"
 #include "qmt/infrastructure/uid.h"
 
 #include "qmt/serializer/projectserializer.h"
@@ -88,7 +89,7 @@ public:
 
 private:
     QString m_file;
-    ProjectExplorer::Project *m_project = 0;
+    ProjectExplorer::Project *m_project = nullptr;
     QDateTime m_lastModified;
 };
 
@@ -214,7 +215,7 @@ ModelIndexer::DiagramsCollectorVisitor::DiagramsCollectorVisitor(IndexedModel *i
 
 void ModelIndexer::DiagramsCollectorVisitor::visitMObject(const qmt::MObject *object)
 {
-    foreach (const qmt::Handle<qmt::MObject> &child, object->children()) {
+    for (const qmt::Handle<qmt::MObject> &child : object->children()) {
         if (child.hasTarget())
             child.target()->accept(this);
     }
@@ -233,12 +234,12 @@ class ModelIndexer::ModelIndexerPrivate
 public:
     ~ModelIndexerPrivate()
     {
-        QTC_CHECK(filesQueue.isEmpty());
-        QTC_CHECK(queuedFilesSet.isEmpty());
-        QTC_CHECK(indexedModels.isEmpty());
-        QTC_CHECK(indexedModelsByUid.isEmpty());
-        QTC_CHECK(indexedDiagramReferences.isEmpty());
-        QTC_CHECK(indexedDiagramReferencesByDiagramUid.isEmpty());
+        QMT_CHECK(filesQueue.isEmpty());
+        QMT_CHECK(queuedFilesSet.isEmpty());
+        QMT_CHECK(indexedModels.isEmpty());
+        QMT_CHECK(indexedModelsByUid.isEmpty());
+        QMT_CHECK(indexedDiagramReferences.isEmpty());
+        QMT_CHECK(indexedDiagramReferencesByDiagramUid.isEmpty());
         delete indexerThread;
     }
 
@@ -254,7 +255,7 @@ public:
     QHash<QString, ModelIndexer::IndexedDiagramReference *> indexedDiagramReferences;
     QHash<qmt::Uid, QSet<ModelIndexer::IndexedDiagramReference *> > indexedDiagramReferencesByDiagramUid;
 
-    ModelIndexer::IndexerThread *indexerThread = 0;
+    ModelIndexer::IndexerThread *indexerThread = nullptr;
 };
 
 void ModelIndexer::IndexerThread::onQuitIndexerThread()
@@ -292,7 +293,12 @@ void ModelIndexer::IndexerThread::onFilesQueued()
             // load model file
             qmt::ProjectSerializer projectSerializer;
             qmt::Project project;
-            projectSerializer.load(queuedFile.file(), &project);
+            try {
+                projectSerializer.load(queuedFile.file(), &project);
+            } catch (const qmt::Exception &e) {
+                qWarning() << e.errorMessage();
+                return;
+            }
             locker.relock();
             indexedModel->setModelUid(project.uid());
             // add indexedModel to set of indexedModelsByUid
@@ -344,7 +350,7 @@ QString ModelIndexer::findModel(const qmt::Uid &modelUid)
     if (indexedModels.isEmpty())
         return QString();
     IndexedModel *indexedModel = *indexedModels.cbegin();
-    QTC_ASSERT(indexedModel, return QString());
+    QMT_ASSERT(indexedModel, return QString());
     return indexedModel->file();
 }
 
@@ -357,8 +363,8 @@ QString ModelIndexer::findDiagram(const qmt::Uid &modelUid, const qmt::Uid &diag
     if (indexedDiagramReferences.isEmpty())
         return QString();
     IndexedDiagramReference *indexedDiagramReference = *indexedDiagramReferences.cbegin();
-    QTC_ASSERT(indexedDiagramReference, return QString());
-    QTC_ASSERT(indexedDiagramReference->modelUid() == modelUid, return QString());
+    QMT_ASSERT(indexedDiagramReference, return QString());
+    QMT_ASSERT(indexedDiagramReference->modelUid() == modelUid, return QString());
     return indexedDiagramReference->file();
 }
 
@@ -371,7 +377,7 @@ void ModelIndexer::onProjectAdded(ProjectExplorer::Project *project)
 
 void ModelIndexer::onAboutToRemoveProject(ProjectExplorer::Project *project)
 {
-    disconnect(project, &ProjectExplorer::Project::fileListChanged, this, 0);
+    disconnect(project, &ProjectExplorer::Project::fileListChanged, this, nullptr);
     forgetProject(project);
 }
 
@@ -382,16 +388,19 @@ void ModelIndexer::onProjectFileListChanged(ProjectExplorer::Project *project)
 
 void ModelIndexer::scanProject(ProjectExplorer::Project *project)
 {
+    if (!project->rootProjectNode())
+        return;
+
     // TODO harmonize following code with findFirstModel()?
-    QStringList files = project->files(ProjectExplorer::Project::SourceFiles);
+    const Utils::FileNameList files = project->files(ProjectExplorer::Project::SourceFiles);
     QQueue<QueuedFile> filesQueue;
     QSet<QueuedFile> filesSet;
 
-    foreach (const QString &file, files) {
-        QFileInfo fileInfo(file);
-        Utils::MimeType mimeType = Utils::MimeDatabase().mimeTypeForFile(fileInfo);
+    for (const Utils::FileName &file : files) {
+        QFileInfo fileInfo = file.toFileInfo();
+        Utils::MimeType mimeType = Utils::mimeTypeForFile(fileInfo);
         if (mimeType.name() == QLatin1String(Constants::MIME_TYPE_MODEL)) {
-            QueuedFile queuedFile(file, project, fileInfo.lastModified());
+            QueuedFile queuedFile(file.toString(), project, fileInfo.lastModified());
             filesQueue.append(queuedFile);
             filesSet.insert(queuedFile);
         }
@@ -431,7 +440,7 @@ void ModelIndexer::scanProject(ProjectExplorer::Project *project)
         while (!filesQueue.isEmpty()) {
             QueuedFile queuedFile = filesQueue.takeFirst();
             if (!d->queuedFilesSet.contains(queuedFile)) {
-                QTC_CHECK(!d->filesQueue.contains(queuedFile));
+                QMT_CHECK(!d->filesQueue.contains(queuedFile));
                 d->filesQueue.append(queuedFile);
                 d->queuedFilesSet.insert(queuedFile);
                 filesAreQueued = true;
@@ -451,8 +460,7 @@ void ModelIndexer::scanProject(ProjectExplorer::Project *project)
 QString ModelIndexer::findFirstModel(ProjectExplorer::FolderNode *folderNode)
 {
     foreach (ProjectExplorer::FileNode *fileNode, folderNode->fileNodes()) {
-        Utils::MimeType mimeType = Utils::MimeDatabase().mimeTypeForFile(
-                    fileNode->filePath().toFileInfo());
+        Utils::MimeType mimeType = Utils::mimeTypeForFile(fileNode->filePath().toFileInfo());
         if (mimeType.name() == QLatin1String(Constants::MIME_TYPE_MODEL))
             return fileNode->filePath().toString();
     }
@@ -466,20 +474,21 @@ QString ModelIndexer::findFirstModel(ProjectExplorer::FolderNode *folderNode)
 
 void ModelIndexer::forgetProject(ProjectExplorer::Project *project)
 {
-    QStringList files = project->files(ProjectExplorer::Project::SourceFiles);
+    const Utils::FileNameList files = project->files(ProjectExplorer::Project::SourceFiles);
 
     QMutexLocker locker(&d->indexerMutex);
-    foreach (const QString &file, files) {
+    for (const Utils::FileName &file : files) {
+        const QString fileString = file.toString();
         // remove file from queue
-        QueuedFile queuedFile(file, project);
+        QueuedFile queuedFile(fileString, project);
         if (d->queuedFilesSet.contains(queuedFile)) {
-            QTC_CHECK(d->filesQueue.contains(queuedFile));
+            QMT_CHECK(d->filesQueue.contains(queuedFile));
             d->filesQueue.removeOne(queuedFile);
-            QTC_CHECK(!d->filesQueue.contains(queuedFile));
+            QMT_CHECK(!d->filesQueue.contains(queuedFile));
             d->queuedFilesSet.remove(queuedFile);
         }
-        removeModelFile(file, project);
-        removeDiagramReferenceFile(file, project);
+        removeModelFile(fileString, project);
+        removeDiagramReferenceFile(fileString, project);
     }
 }
 
@@ -495,9 +504,9 @@ void ModelIndexer::removeModelFile(const QString &file, ProjectExplorer::Project
             d->indexedModels.remove(file);
 
             // remove indexedModel from set of indexedModelsByUid
-            QTC_CHECK(d->indexedModelsByUid.contains(indexedModel->modelUid()));
+            QMT_CHECK(d->indexedModelsByUid.contains(indexedModel->modelUid()));
             QSet<IndexedModel *> indexedModels = d->indexedModelsByUid.value(indexedModel->modelUid());
-            QTC_CHECK(indexedModels.contains(indexedModel));
+            QMT_CHECK(indexedModels.contains(indexedModel));
             indexedModels.remove(indexedModel);
             if (indexedModels.isEmpty())
                 d->indexedModelsByUid.remove(indexedModel->modelUid());
@@ -514,7 +523,7 @@ void ModelIndexer::removeDiagramReferenceFile(const QString &file,
 {
     IndexedDiagramReference *indexedDiagramReference = d->indexedDiagramReferences.value(file);
     if (indexedDiagramReference) {
-        QTC_CHECK(indexedDiagramReference->owningProjects().contains(project));
+        QMT_CHECK(indexedDiagramReference->owningProjects().contains(project));
         qCDebug(logger) << "remove diagram reference file "
                         << file << " from project " << project->displayName();
         indexedDiagramReference->removeOwningProject(project);
@@ -523,9 +532,9 @@ void ModelIndexer::removeDiagramReferenceFile(const QString &file,
             d->indexedDiagramReferences.remove(file);
 
             // remove indexedDiagramReference from set of indexedDiagramReferecesByDiagramUid
-            QTC_CHECK(d->indexedDiagramReferencesByDiagramUid.contains(indexedDiagramReference->diagramUid()));
+            QMT_CHECK(d->indexedDiagramReferencesByDiagramUid.contains(indexedDiagramReference->diagramUid()));
             QSet<IndexedDiagramReference *> indexedDiagramReferences = d->indexedDiagramReferencesByDiagramUid.value(indexedDiagramReference->diagramUid());
-            QTC_CHECK(indexedDiagramReferences.contains(indexedDiagramReference));
+            QMT_CHECK(indexedDiagramReferences.contains(indexedDiagramReference));
             indexedDiagramReferences.remove(indexedDiagramReference);
             if (indexedDiagramReferences.isEmpty()) {
                 d->indexedDiagramReferencesByDiagramUid.remove(

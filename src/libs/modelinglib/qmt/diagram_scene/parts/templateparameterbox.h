@@ -32,7 +32,7 @@ namespace qmt {
 class TemplateParameterBox : public QGraphicsRectItem
 {
 public:
-    explicit TemplateParameterBox(QGraphicsItem *parent = 0);
+    explicit TemplateParameterBox(QGraphicsItem *parent = nullptr);
     ~TemplateParameterBox() override;
 
     void setFont(const QFont &font);
@@ -46,7 +46,7 @@ private:
 
     QList<QString> m_templateParameters;
     bool m_breakLines = false;
-    QGraphicsSimpleTextItem *m_parametersText = 0;
+    QGraphicsSimpleTextItem *m_parametersText = nullptr;
 };
 
 } // namespace qmt

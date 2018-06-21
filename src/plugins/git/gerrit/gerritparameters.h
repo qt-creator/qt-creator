@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "gerritserver.h"
+
 #include <QStringList>
 
 QT_FORWARD_DECLARE_CLASS(QSettings)
@@ -37,8 +39,6 @@ class GerritParameters
 public:
     GerritParameters();
 
-    QStringList baseCommandArguments() const;
-    QString sshHostArgument() const;
     bool isValid() const;
     bool equals(const GerritParameters &rhs) const;
     void toSettings(QSettings *) const;
@@ -46,10 +46,9 @@ public:
     void fromSettings(const QSettings *);
     void setPortFlagBySshType();
 
-    QString host;
-    unsigned short port;
-    QString user;
+    GerritServer server;
     QString ssh;
+    QString curl;
     QStringList savedQueries;
     bool https;
     QString portFlag;

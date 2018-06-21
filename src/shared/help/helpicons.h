@@ -30,8 +30,6 @@
 namespace Help {
 namespace Icons {
 
-const Utils::Icon HOME_TOOLBAR({
-        {QLatin1String(":/help/images/home.png"), Utils::Theme::IconsBaseColor}});
 const Utils::Icon MODE_HELP_CLASSIC(
         QLatin1String(":/help/images/mode_help.png"));
 const Utils::Icon MODE_HELP_FLAT({

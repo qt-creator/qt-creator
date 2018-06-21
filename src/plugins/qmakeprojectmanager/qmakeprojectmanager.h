@@ -27,7 +27,6 @@
 
 #include "qmakeprojectmanager_global.h"
 
-#include <projectexplorer/iprojectmanager.h>
 #include <projectexplorer/projectnodes.h>
 
 namespace Core { class IEditor; }
@@ -41,27 +40,17 @@ class ToolChain;
 
 namespace QmakeProjectManager {
 
-class QmakeProject;
-
-class QMAKEPROJECTMANAGER_EXPORT QmakeManager : public ProjectExplorer::IProjectManager
+class QMAKEPROJECTMANAGER_EXPORT QmakeManager : public QObject
 {
     Q_OBJECT
 
 public:
-    void registerProject(QmakeProject *project);
-    void unregisterProject(QmakeProject *project);
     void notifyChanged(const Utils::FileName &name);
 
-    QString mimeType() const override;
-    ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString) override;
-
     // Context information used in the slot implementations
-    ProjectExplorer::Node *contextNode() const;
-    void setContextNode(ProjectExplorer::Node *node);
-    ProjectExplorer::Project *contextProject() const;
-    void setContextProject(ProjectExplorer::Project *project);
-    ProjectExplorer::FileNode *contextFile() const;
-    void setContextFile(ProjectExplorer::FileNode *file);
+    static ProjectExplorer::Node *contextNode();
+    static ProjectExplorer::Project *contextProject();
+    static ProjectExplorer::FileNode *contextBuildableFileNode();
 
     enum Action { BUILD, REBUILD, CLEAN };
 
@@ -76,18 +65,13 @@ public:
     void buildFile();
 
 private:
-    QList<QmakeProject *> m_projects;
     void handleSubDirContextMenu(Action action, bool isFileBuild);
     void handleSubDirContextMenu(QmakeManager::Action action, bool isFileBuild,
                                  ProjectExplorer::Project *contextProject,
-                                 ProjectExplorer::Node *contextNode,
-                                 ProjectExplorer::FileNode *contextFile);
+                                 ProjectExplorer::Node *contextProFileNode,
+                                 ProjectExplorer::FileNode *buildableFile);
     void addLibraryImpl(const QString &fileName, TextEditor::BaseTextEditor *editor);
     void runQMakeImpl(ProjectExplorer::Project *p, ProjectExplorer::Node *node);
-
-    ProjectExplorer::Node *m_contextNode = nullptr;
-    ProjectExplorer::Project *m_contextProject = nullptr;
-    ProjectExplorer::FileNode *m_contextFile = nullptr;
 };
 
 } // namespace QmakeProjectManager

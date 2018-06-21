@@ -103,7 +103,7 @@ ModelTestWidget::ModelTestWidget(CallgrindWidgetHandler *handler)
     connect(m_handler->flatView(), SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(showViewContextMenu(QPoint)));
 
-    resize(qMin(qApp->desktop()->width(), 1024), 600);
+    resize(qMin(QApplication::desktop()->width(), 1024), 600);
 }
 
 ModelTestWidget::~ModelTestWidget()

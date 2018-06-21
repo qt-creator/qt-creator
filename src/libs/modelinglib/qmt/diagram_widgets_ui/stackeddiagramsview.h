@@ -45,7 +45,7 @@ class QMT_EXPORT StackedDiagramsView : public QStackedWidget, public DiagramsVie
     Q_OBJECT
 
 public:
-    explicit StackedDiagramsView(QWidget *parent = 0);
+    explicit StackedDiagramsView(QWidget *parent = nullptr);
     ~StackedDiagramsView() override;
 
 signals:
@@ -67,7 +67,7 @@ private:
     MDiagram *diagram(int tabIndex) const;
     MDiagram *diagram(DiagramView * diagramView) const;
 
-    DiagramsManager *m_diagramsManager;
+    DiagramsManager *m_diagramsManager = nullptr;
     QHash<Uid, DiagramView *> m_diagramViews;
 };
 

@@ -95,7 +95,7 @@ CrashHandlerSetup::CrashHandlerSetup(const QString &appName,
                                      const QString &executableDirPath)
 {
 #ifdef BUILD_CRASH_HANDLER
-    if (qgetenv("QTC_USE_CRASH_HANDLER").isEmpty())
+    if (qEnvironmentVariableIsEmpty("QTC_USE_CRASH_HANDLER"))
         return;
 
     appNameC = qstrdup(qPrintable(appName));
@@ -104,7 +104,7 @@ CrashHandlerSetup::CrashHandlerSetup(const QString &appName,
         disableRestartOptionC = "--disable-restart";
 
     const QString execDirPath = executableDirPath.isEmpty()
-            ? qApp->applicationDirPath()
+            ? QCoreApplication::applicationDirPath()
             : executableDirPath;
     const QString crashHandlerPath = execDirPath + QLatin1String("/qtcreator_crash_handler");
     crashHandlerPathC = qstrdup(qPrintable(crashHandlerPath));
@@ -139,7 +139,7 @@ CrashHandlerSetup::CrashHandlerSetup(const QString &appName,
     sa.sa_flags = SA_RESETHAND | SA_NODEFER | SA_ONSTACK;
     // See "man 7 signal" for an overview of signals.
     // Do not add SIGPIPE here, QProcess and QTcpSocket use it.
-    const int signalsToHandle[] = { SIGILL, SIGABRT, SIGFPE, SIGSEGV, SIGBUS, 0 };
+    const int signalsToHandle[] = {SIGILL, SIGABRT, SIGFPE, SIGSEGV, SIGBUS, 0};
     for (int i = 0; signalsToHandle[i]; ++i) {
         if (sigaction(signalsToHandle[i], &sa, 0) == -1 ) {
             qWarning("Warning: Failed to install signal handler for signal \"%s\" (%s).",

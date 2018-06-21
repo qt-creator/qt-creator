@@ -58,7 +58,7 @@ ImportKind::Enum toImportKind(ImportType::Enum type)
     return ImportKind::Invalid;
 }
 
-ImportMatchStrength::ImportMatchStrength(QList<int> match)
+ImportMatchStrength::ImportMatchStrength(const QList<int> &match)
     : m_match(match)
 { }
 
@@ -72,7 +72,7 @@ int ImportMatchStrength::compareMatch(const ImportMatchStrength &o) const
         int v2 = o.m_match.at(i);
         if (v1 < v2)
             return -1;
-        if (v2 > v1)
+        if (v1 > v2)
             return 1;
     }
     if (len1 < len2)
@@ -249,6 +249,7 @@ ImportMatchStrength ImportKey::matchImport(const ImportKey &o, const ViewerConte
     case ImportType::QrcFile:
         if (type != ImportType::QrcFile)
             return ImportMatchStrength();
+        break;
     case ImportType::UnknownFile:
     case ImportType::File:
         switch (type) {
@@ -482,7 +483,7 @@ Export::Export()
     : intrinsic(false)
 { }
 
-Export::Export(ImportKey exportName, QString pathRequired, bool intrinsic, const QString &typeName)
+Export::Export(ImportKey exportName, const QString &pathRequired, bool intrinsic, const QString &typeName)
     : exportName(exportName), pathRequired(pathRequired), typeName(typeName), intrinsic(intrinsic)
 { }
 
@@ -818,18 +819,6 @@ void ImportDependencies::removeExport(const QString &importId, const ImportKey &
     }
     qCDebug(importsLog) << "removed export "<< importKey.toString() << " for id " << importId
                         << " (" << requiredPath << ")";
-}
-
-void ImportDependencies::iterateOnCoreImports(
-        const ViewerContext &vContext,
-        std::function<bool (const CoreImport &)> const &iterF) const
-{
-    QMapIterator<QString, CoreImport> i(m_coreImports);
-    while (i.hasNext()) {
-        i.next();
-        if (vContext.languageIsCompatible(i.value().language))
-            iterF(i.value()); // check also that at least one export is visible?
-    }
 }
 
 void ImportDependencies::iterateOnLibraryImports(

@@ -39,9 +39,7 @@
 #include <functional>
 
 QT_BEGIN_NAMESPACE
-class QFile;
 class QAction;
-class QFileInfo;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -61,7 +59,6 @@ namespace Internal {
 
 class GitVersionControl;
 class GitClient;
-class GitSubmitEditor;
 class CommitData;
 class StashDialog;
 class BranchDialog;
@@ -87,10 +84,13 @@ public:
 
     Gerrit::Internal::GerritPlugin *gerritPlugin() const;
     bool isCommitEditorOpen() const;
-
-public slots:
-    void startCommit();
+    static QString msgRepositoryLabel(const QString &repository);
+    static QString invalidBranchAndRemoteNamePattern();
+    void startCommit(CommitType commitType = SimpleCommit);
     void updateBranches(const QString &repository);
+
+    QObject *remoteCommand(const QStringList &options, const QString &workingDirectory,
+                           const QStringList &args) override;
 
 protected:
     void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
@@ -115,6 +115,7 @@ private:
     void logRepository();
     void undoFileChanges(bool revertStaging);
     void resetRepository();
+    void recoverDeletedFiles();
     void startRebase();
     void startChangeRelatedAction(const Core::Id &id);
     void stageFile();
@@ -128,8 +129,6 @@ private:
     void applyCurrentFilePatch();
     void promptApplyPatch();
 
-    void startAmendCommit();
-    void startFixupCommit();
     void stash(bool unstagedOnly = false);
     void stashUnstaged();
     void stashSnapshot();
@@ -160,11 +159,6 @@ private:
                               Core::Id id, const Core::Context &context, bool addToLocator,
                               const std::function<void()> &callback,
                               const QKeySequence &keys = QKeySequence());
-    QAction *createFileAction(Core::ActionContainer *ac,
-                              const QString &defaultText, const QString &parameterText,
-                              Core::Id id, const Core::Context &context, bool addToLocator,
-                              void (GitPlugin::*func)(),
-                              const QKeySequence &keys = QKeySequence());
 
     QAction *createProjectAction(Core::ActionContainer *ac,
                                  const QString &defaultText, const QString &parameterText,
@@ -188,7 +182,6 @@ private:
     void cleanCommitMessageFile();
     void cleanRepository(const QString &directory);
     void applyPatch(const QString &workingDirectory, QString file = QString());
-    void startCommit(CommitType commitType);
     void updateVersionWarning();
 
     Core::CommandLocator *m_commandLocator = nullptr;

@@ -40,7 +40,7 @@ public:
     virtual void updateDeviceFromUi() = 0;
 
 protected:
-    explicit IDeviceWidget(const IDevice::Ptr &device, QWidget *parent = 0) : QWidget(parent),
+    explicit IDeviceWidget(const IDevice::Ptr &device, QWidget *parent = nullptr) : QWidget(parent),
         m_device(device)
     { }
 

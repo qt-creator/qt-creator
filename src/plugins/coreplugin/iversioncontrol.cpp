@@ -140,21 +140,21 @@ namespace Core {
 
 TestVersionControl::~TestVersionControl()
 {
-    VcsManager::instance()->clearVersionControlCache();
+    VcsManager::clearVersionControlCache();
 }
 
 void TestVersionControl::setManagedDirectories(const QHash<QString, QString> &dirs)
 {
     m_managedDirs = dirs;
     m_dirCount = 0;
-    VcsManager::instance()->clearVersionControlCache();
+    VcsManager::clearVersionControlCache();
 }
 
 void TestVersionControl::setManagedFiles(const QSet<QString> &files)
 {
     m_managedFiles = files;
     m_fileCount = 0;
-    VcsManager::instance()->clearVersionControlCache();
+    VcsManager::clearVersionControlCache();
 }
 
 bool TestVersionControl::managesDirectory(const QString &filename, QString *topLevel) const

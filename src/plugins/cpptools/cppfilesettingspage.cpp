@@ -29,6 +29,8 @@
 #include "cpptoolsplugin.h"
 #include <ui_cppfilesettingspage.h>
 
+#include <app/app_version.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <cppeditor/cppeditorconstants.h>
@@ -57,7 +59,7 @@ static const char licenseTemplatePathKeyC[] = "LicenseTemplate";
 
 const char *licenseTemplateTemplate = QT_TRANSLATE_NOOP("CppTools::Internal::CppFileSettingsWidget",
 "/**************************************************************************\n"
-"** Qt Creator license header template\n"
+"** %1 license header template\n"
 "**   Special keywords: %USER% %DATE% %YEAR%\n"
 "**   Environment variables: %$VARIABLE%\n"
 "**   To protect a percent sign, use '%%'.\n"
@@ -87,15 +89,12 @@ void CppFileSettings::toSettings(QSettings *s) const
 
 void CppFileSettings::fromSettings(QSettings *s)
 {
-    const QStringList defaultHeaderSearchPaths = QStringList()
-            << QLatin1String("include")
-            << QLatin1String("Include")
-            << QDir::toNativeSeparators(QLatin1String("../include"))
-            << QDir::toNativeSeparators(QLatin1String("../Include"));
-    const QStringList defaultSourceSearchPaths = QStringList()
-            << QDir::toNativeSeparators(QLatin1String("../src"))
-            << QDir::toNativeSeparators(QLatin1String("../Src"))
-            << QLatin1String("..");
+    const QStringList defaultHeaderSearchPaths
+            = QStringList({"include", "Include", QDir::toNativeSeparators("../include"),
+                           QDir::toNativeSeparators("../Include")});
+    const QStringList defaultSourceSearchPaths
+            = QStringList({QDir::toNativeSeparators("../src"), QDir::toNativeSeparators("../Src"),
+                           ".."});
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
     headerPrefixes = s->value(QLatin1String(headerPrefixesKeyC)).toStringList();
     sourcePrefixes = s->value(QLatin1String(sourcePrefixesKeyC)).toStringList();
@@ -113,13 +112,12 @@ void CppFileSettings::fromSettings(QSettings *s)
 
 bool CppFileSettings::applySuffixesToMimeDB()
 {
-    Utils::MimeDatabase mdb;
     Utils::MimeType mt;
-    mt = mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE));
+    mt = Utils::mimeTypeForName(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE));
     if (!mt.isValid())
         return false;
     mt.setPreferredSuffix(sourceSuffix);
-    mt = mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE));
+    mt = Utils::mimeTypeForName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE));
     if (!mt.isValid())
         return false;
     mt.setPreferredSuffix(headerSuffix);
@@ -262,14 +260,13 @@ CppFileSettingsWidget::CppFileSettingsWidget(QWidget *parent) :
 {
     m_ui->setupUi(this);
     // populate suffix combos
-    Utils::MimeDatabase mdb;
-    const Utils::MimeType sourceMt = mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE));
+    const Utils::MimeType sourceMt = Utils::mimeTypeForName(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE));
     if (sourceMt.isValid()) {
         foreach (const QString &suffix, sourceMt.suffixes())
             m_ui->sourceSuffixComboBox->addItem(suffix);
     }
 
-    const Utils::MimeType headerMt = mdb.mimeTypeForName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE));
+    const Utils::MimeType headerMt = Utils::mimeTypeForName(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE));
     if (headerMt.isValid()) {
         foreach (const QString &suffix, headerMt.suffixes())
             m_ui->headerSuffixComboBox->addItem(suffix);
@@ -344,7 +341,7 @@ void CppFileSettingsWidget::slotEdit()
         if (path.isEmpty())
             return;
         Utils::FileSaver saver(path, QIODevice::Text);
-        saver.write(tr(licenseTemplateTemplate).toUtf8());
+        saver.write(tr(licenseTemplateTemplate).arg(Core::Constants::IDE_DISPLAY_NAME).toUtf8());
         if (!saver.finalize(this))
             return;
         setLicenseTemplatePath(path);
@@ -362,8 +359,6 @@ CppFileSettingsPage::CppFileSettingsPage(QSharedPointer<CppFileSettings> &settin
     setId(Constants::CPP_FILE_SETTINGS_ID);
     setDisplayName(QCoreApplication::translate("CppTools", Constants::CPP_FILE_SETTINGS_NAME));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("CppTools", Constants::CPP_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_CPP_ICON));
 }
 
 QWidget *CppFileSettingsPage::widget()

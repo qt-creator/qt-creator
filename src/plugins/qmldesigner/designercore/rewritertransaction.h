@@ -54,7 +54,7 @@ private:
    QPointer<AbstractView> m_view;
    QByteArray m_identifier;
    mutable bool m_valid;
-   int m_identifierNumber;
+   int m_identifierNumber = 0;
    static QList<QByteArray> m_identifierList;
    static bool m_activeIdentifier;
    bool m_ignoreSemanticChecks = false;

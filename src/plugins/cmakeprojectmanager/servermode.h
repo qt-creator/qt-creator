@@ -28,9 +28,9 @@
 #include <utils/qtcprocess.h>
 
 #include <QLoggingCategory>
-#include <QTemporaryDir>
 #include <QTimer>
 #include <QVariantMap>
+#include <QTemporaryDir>
 
 #include <memory>
 
@@ -85,6 +85,9 @@ private:
 
     void reportError(const QString &msg);
 
+#if defined(Q_OS_UNIX)
+    QTemporaryDir m_socketDir;
+#endif
     std::unique_ptr<Utils::QtcProcess> m_cmakeProcess;
     QLocalSocket *m_cmakeSocket = nullptr;
     QTimer m_connectionTimer;
@@ -113,6 +116,7 @@ private:
     const int m_minorProtocol = -1;
 
     int m_requestCounter = 0;
+
 };
 
 } // namespace Internal

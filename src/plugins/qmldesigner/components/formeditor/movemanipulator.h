@@ -48,6 +48,11 @@ public:
         UseBaseState
     };
 
+    enum ReparentFlag {
+        DoNotEnforceReparent,
+        EnforceReparent
+    };
+
     MoveManipulator(LayerItem *layerItem, FormEditorView *view);
     ~MoveManipulator();
     void setItems(const QList<FormEditorItem*> &itemList);
@@ -57,7 +62,7 @@ public:
 
     void begin(const QPointF& beginPoint);
     void update(const QPointF& updatePoint, Snapper::Snapping useSnapping, State stateToBeManipulated = UseCurrentState);
-    void reparentTo(FormEditorItem *newParent);
+    void reparentTo(FormEditorItem *newParent, ReparentFlag flag = DoNotEnforceReparent);
     void end();
     void end(Snapper::Snapping useSnapping);
 

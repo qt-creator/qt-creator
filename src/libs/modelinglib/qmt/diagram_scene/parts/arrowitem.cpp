@@ -38,6 +38,8 @@
 #include <QPainter>
 #include <QPen>
 
+//#define DEBUG_PAINT_SHAPE
+
 namespace qmt {
 
 class ArrowItem::GraphicsHeadItem : public QGraphicsItem
@@ -110,6 +112,7 @@ public:
         double length = 0.0;
         switch (m_head) {
         case ArrowItem::HeadNone:
+        case ArrowItem::HeadCustom:
             break;
         case ArrowItem::HeadOpen:
         case ArrowItem::HeadTriangle:
@@ -146,6 +149,7 @@ public:
         bool hasDiamond = false;
         switch (m_head) {
         case ArrowItem::HeadNone:
+        case ArrowItem::HeadCustom:
             break;
         case ArrowItem::HeadOpen:
         case ArrowItem::HeadTriangle:
@@ -188,7 +192,7 @@ public:
         } else if (m_arrowItem) {
             m_arrowItem->scene()->removeItem(m_arrowItem);
             delete m_arrowItem;
-            m_arrowItem = 0;
+            m_arrowItem = nullptr;
         }
 
         if (hasDiamond) {
@@ -213,7 +217,7 @@ public:
         } else if (m_diamondItem) {
             m_diamondItem->scene()->removeItem(m_diamondItem);
             delete m_diamondItem;
-            m_diamondItem = 0;
+            m_diamondItem = nullptr;
         }
     }
 
@@ -221,8 +225,8 @@ private:
     ArrowItem::Head m_head = ArrowItem::HeadNone;
     double m_arrowSize = 10.0;
     double m_diamondSize = 15.0;
-    QGraphicsPathItem *m_arrowItem = 0;
-    QGraphicsPathItem *m_diamondItem = 0;
+    QGraphicsPathItem *m_arrowItem = nullptr;
+    QGraphicsPathItem *m_diamondItem = nullptr;
 };
 
 class ArrowItem::GraphicsShaftItem : public QGraphicsPathItem
@@ -236,7 +240,6 @@ public:
 
 ArrowItem::ArrowItem(QGraphicsItem *parent)
     : QGraphicsItem(parent),
-      m_shaft(ShaftSolid),
       m_shaftItem(new GraphicsShaftItem(this))
 {
 }
@@ -248,9 +251,7 @@ ArrowItem::ArrowItem(const ArrowItem &rhs, QGraphicsItem *parent)
       m_arrowSize(rhs.m_arrowSize),
       m_diamondSize(rhs.m_diamondSize),
       m_startHead(rhs.m_startHead),
-      m_startHeadItem(0),
-      m_endHead(rhs.m_endHead),
-      m_endHeadItem(0)
+      m_endHead(rhs.m_endHead)
 {
 }
 
@@ -278,14 +279,36 @@ void ArrowItem::setDiamondSize(double diamondSize)
 
 void ArrowItem::setStartHead(ArrowItem::Head head)
 {
-    if (m_startHead != head)
-        m_startHead = head;
+    m_startHead = head;
+}
+
+void ArrowItem::setStartHead(QGraphicsItem *startHeadItem)
+{
+    deleteHead(&m_startHeadItem);
+    if (!startHeadItem) {
+        m_startHead = HeadNone;
+    } else {
+        QTC_ASSERT(startHeadItem->parentItem() == this, return);
+        m_startHead = HeadCustom;
+        m_startHeadItem = startHeadItem;
+    }
 }
 
 void ArrowItem::setEndHead(ArrowItem::Head head)
 {
-    if (m_endHead != head)
-        m_endHead = head;
+    m_endHead = head;
+}
+
+void ArrowItem::setEndHead(QGraphicsItem *endHeadItem)
+{
+    deleteHead(&m_endHeadItem);
+    if (!endHeadItem) {
+        m_endHead = HeadNone;
+    } else {
+        QTC_ASSERT(endHeadItem->parentItem() == this, return);
+        m_endHead = HeadCustom;
+        m_endHeadItem = endHeadItem;
+    }
 }
 
 void ArrowItem::setPoints(const QList<QPointF> &points)
@@ -346,27 +369,27 @@ QPointF ArrowItem::calcPointAtPercent(double percentage) const
 
 QLineF ArrowItem::firstLineSegment() const
 {
-    QTC_ASSERT(m_points.size() > 1, return QLineF());
+    QMT_ASSERT(m_points.size() > 1, return QLineF());
     return QLineF(m_points.at(0), m_points.at(1));
 }
 
 QLineF ArrowItem::lastLineSegment() const
 {
-    QTC_ASSERT(m_points.size() > 1, return QLineF());
+    QMT_ASSERT(m_points.size() > 1, return QLineF());
     return QLineF(m_points.at(m_points.size() - 1), m_points.at(m_points.size() - 2));
 }
 
 double ArrowItem::startHeadLength() const
 {
     if (m_startHeadItem)
-        return m_startHeadItem->calcHeadLength();
+        return calcHeadLength(m_startHeadItem);
     return 0.0;
 }
 
 double ArrowItem::endHeadLength() const
 {
     if (m_endHeadItem)
-        return m_endHeadItem->calcHeadLength();
+        return calcHeadLength(m_endHeadItem);
     return 0.0;
 }
 
@@ -380,52 +403,89 @@ void ArrowItem::update(const Style *style)
 
 void ArrowItem::updateShaft(const Style *style)
 {
-    QTC_ASSERT(m_shaftItem, return);
+    QMT_ASSERT(m_shaftItem, return);
 
     QPen pen(style->linePen());
-    if (m_shaft == ShaftDashed)
-        pen.setDashPattern(QVector<qreal>() << (4.0 / pen.widthF()) << (4.0 / pen.widthF()));
+    switch (m_shaft) {
+    case ShaftSolid:
+        break;
+    case ShaftDashed:
+        pen.setDashPattern(QVector<qreal>()
+                           << (4.0 / pen.widthF()) << (4.0 / pen.widthF()));
+        break;
+    case ShaftDot:
+        pen.setDashPattern(QVector<qreal>()
+                           << (2.0 / pen.widthF()) << (2.0 / pen.widthF()));
+        break;
+    case ShaftDashDot:
+        pen.setDashPattern(QVector<qreal>()
+                           << (4.0 / pen.widthF()) << (2.0 / pen.widthF())
+                           << (2.0 / pen.widthF()) << (2.0 / pen.widthF()));
+        break;
+    case ShaftDashDotDot:
+        pen.setDashPattern(QVector<qreal>()
+                           << (4.0 / pen.widthF()) << (2.0 / pen.widthF())
+                           << (2.0 / pen.widthF()) << (2.0 / pen.widthF())
+                           << (2.0 / pen.widthF()) << (2.0 / pen.widthF()));
+        break;
+    }
     m_shaftItem->setPen(pen);
 }
 
-void ArrowItem::updateHead(GraphicsHeadItem **headItem, Head head, const Style *style)
+void ArrowItem::deleteHead(QGraphicsItem **headItem)
 {
-    if (head == HeadNone) {
-        if (*headItem) {
-            if ((*headItem)->scene())
-                (*headItem)->scene()->removeItem(*headItem);
-            delete *headItem;
-            *headItem = 0;
-        }
-        return;
+    if (*headItem) {
+        if ((*headItem)->scene())
+            (*headItem)->scene()->removeItem(*headItem);
+        delete *headItem;
+        *headItem = nullptr;
     }
-    if (!*headItem)
-        *headItem = new GraphicsHeadItem(this);
-    (*headItem)->setArrowSize(m_arrowSize);
-    (*headItem)->setDiamondSize(m_diamondSize);
-    (*headItem)->setHead(head);
-    (*headItem)->update(style);
 }
 
-void ArrowItem::updateHeadGeometry(GraphicsHeadItem **headItem, const QPointF &pos, const QPointF &otherPos)
+void ArrowItem::updateHead(QGraphicsItem **headItem, Head head, const Style *style)
 {
-    if (!*headItem)
+    if (head == HeadNone) {
+        deleteHead(headItem);
+    } else if (head == HeadCustom) {
+        // nothing to do
+    } else {
+        QTC_ASSERT(headItem, return);
+        QTC_ASSERT(!*headItem || dynamic_cast<GraphicsHeadItem *>(*headItem), return);
+        GraphicsHeadItem *item;
+        if (!*headItem) {
+            item = new GraphicsHeadItem(this);
+            *headItem = item;
+        } else {
+            item = dynamic_cast<GraphicsHeadItem *>(*headItem);
+            if (!item)
+                return;
+        }
+        item->setArrowSize(m_arrowSize);
+        item->setDiamondSize(m_diamondSize);
+        item->setHead(head);
+        item->update(style);
+    }
+}
+
+void ArrowItem::updateHeadGeometry(QGraphicsItem *headItem, const QPointF &pos, const QPointF &otherPos)
+{
+    if (!headItem)
         return;
 
-    (*headItem)->setPos(pos);
+    headItem->setPos(pos);
 
     QVector2D directionVector(pos - otherPos);
     directionVector.normalize();
     double angle = qAcos(directionVector.x()) * 180.0 / 3.1415926535;
     if (directionVector.y() > 0.0)
         angle = -angle;
-    (*headItem)->setRotation(-angle);
+    headItem->setRotation(-angle);
 }
 
 void ArrowItem::updateGeometry()
 {
-    QTC_ASSERT(m_points.size() > 1, return);
-    QTC_ASSERT(m_shaftItem, return);
+    QMT_ASSERT(m_points.size() > 1, return);
+    QMT_ASSERT(m_shaftItem, return);
 
     prepareGeometryChange();
 
@@ -434,8 +494,8 @@ void ArrowItem::updateGeometry()
     if (m_startHeadItem) {
         QVector2D startDirectionVector(m_points.at(1) - m_points.at(0));
         startDirectionVector.normalize();
-        startDirectionVector *= m_startHeadItem->calcHeadLength();
-        path.moveTo(m_points.at(0) + startDirectionVector.toPointF());
+        startDirectionVector *= calcHeadLength(m_startHeadItem);
+        path.moveTo(m_points[0] + startDirectionVector.toPointF());
     } else {
         path.moveTo(m_points.at(0));
     }
@@ -446,16 +506,24 @@ void ArrowItem::updateGeometry()
     if (m_endHeadItem) {
         QVector2D endDirectionVector(m_points.at(m_points.size() - 1) - m_points.at(m_points.size() - 2));
         endDirectionVector.normalize();
-        endDirectionVector *= m_endHeadItem->calcHeadLength();
-        path.lineTo(m_points.at(m_points.size() - 1) - endDirectionVector.toPointF());
+        endDirectionVector *= calcHeadLength(m_endHeadItem);
+        path.lineTo(m_points[m_points.size() - 1] - endDirectionVector.toPointF());
     } else {
         path.lineTo(m_points.at(m_points.size() - 1));
     }
 
     m_shaftItem->setPath(path);
 
-    updateHeadGeometry(&m_startHeadItem, m_points.at(0), m_points.at(1));
-    updateHeadGeometry(&m_endHeadItem, m_points.at(m_points.size() - 1), m_points.at(m_points.size() - 2));
+    updateHeadGeometry(m_startHeadItem, m_points.at(0), m_points.at(1));
+    updateHeadGeometry(m_endHeadItem, m_points.at(m_points.size() - 1), m_points.at(m_points.size() - 2));
+}
+
+double ArrowItem::calcHeadLength(QGraphicsItem *headItem) const
+{
+    // TODO use an interface
+    if (GraphicsHeadItem *item = dynamic_cast<GraphicsHeadItem *>(headItem))
+        return item->calcHeadLength();
+    return 100.0;
 }
 
 } // namespace qmt

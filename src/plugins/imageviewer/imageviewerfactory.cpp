@@ -40,7 +40,7 @@ ImageViewerFactory::ImageViewerFactory(QObject *parent) :
     Core::IEditorFactory(parent)
 {
     setId(Constants::IMAGEVIEWER_ID);
-    setDisplayName(qApp->translate("OpenWith::Editors", Constants::IMAGEVIEWER_DISPLAY_NAME));
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::IMAGEVIEWER_DISPLAY_NAME));
 
     const QList<QByteArray> supportedMimeTypes = QImageReader::supportedMimeTypes();
     foreach (const QByteArray &format, supportedMimeTypes)

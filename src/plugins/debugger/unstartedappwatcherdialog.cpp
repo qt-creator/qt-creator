@@ -38,7 +38,6 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/runnables.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -116,11 +115,10 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     if (activeTarget) {
         if (RunConfiguration *runConfig = activeTarget->activeRunConfiguration()) {
             const Runnable runnable = runConfig->runnable();
-            if (runnable.is<StandardRunnable>() && isLocal(runConfig)) {
+            if (isLocal(runConfig)) {
                 resetExecutable->setEnabled(true);
-                connect(resetExecutable, &QPushButton::clicked,
-                        this, [this, runnable]() {
-                    m_pathChooser->setPath(runnable.as<StandardRunnable>().executable);
+                connect(resetExecutable, &QPushButton::clicked, this, [this, runnable] {
+                    m_pathChooser->setPath(runnable.executable);
                 });
             }
         }
@@ -198,8 +196,8 @@ void UnstartedAppWatcherDialog::selectExecutable()
     if (activeTarget) {
         if (RunConfiguration *runConfig = activeTarget->activeRunConfiguration()) {
             const Runnable runnable = runConfig->runnable();
-            if (runnable.is<StandardRunnable>() && isLocal(runConfig))
-                path = QFileInfo(runnable.as<StandardRunnable>().executable).path();
+            if (isLocal(runConfig))
+                path = QFileInfo(runnable.executable).path();
         }
     }
 

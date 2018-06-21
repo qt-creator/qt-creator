@@ -58,7 +58,7 @@ public:
     static QStringList mimeTypesForFilePaths();
 
 signals:
-    void filesDropped(const QList<Utils::DropSupport::FileSpec> &files);
+    void filesDropped(const QList<Utils::DropSupport::FileSpec> &files, const QPoint &dropPos);
     void valuesDropped(const QList<QVariant> &values, const QPoint &dropPos);
 
 public:
@@ -66,7 +66,7 @@ public:
     bool isValueDrop(QDropEvent *event) const;
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     void emitFilesDropped();

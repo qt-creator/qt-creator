@@ -111,7 +111,8 @@ int internalMain(QGuiApplication *application)
 
 
 #ifdef ENABLE_QT_BREAKPAD
-    QtSystemExceptionHandler systemExceptionHandler;
+    const QString libexecPath = QCoreApplication::applicationDirPath() + '/' + RELATIVE_LIBEXEC_PATH;
+    QtSystemExceptionHandler systemExceptionHandler(libexecPath);
 #endif
 
     new QmlDesigner::Qt5NodeInstanceClientProxy(application);
@@ -136,7 +137,7 @@ int main(int argc, char *argv[])
 #endif
 
     //If a style different from Desktop is set we have to use QGuiApplication
-    bool useGuiApplication = !qgetenv("QT_QUICK_CONTROLS_STYLE").isEmpty()
+    bool useGuiApplication = qEnvironmentVariableIsSet("QT_QUICK_CONTROLS_STYLE")
             && qgetenv("QT_QUICK_CONTROLS_STYLE") != "Desktop";
 
     if (useGuiApplication) {

@@ -7,7 +7,6 @@ STATIC_OUTPUT_BASE = $$IDE_DATA_PATH
 STATIC_INSTALL_BASE = $$INSTALL_DATA_PATH
 
 DATA_DIRS = \
-    welcomescreen \
     examplebrowser \
     snippets \
     templates \

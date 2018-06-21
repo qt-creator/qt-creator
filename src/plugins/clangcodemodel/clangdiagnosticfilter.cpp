@@ -45,15 +45,30 @@ bool isWarningOrNote(ClangBackEnd::DiagnosticSeverity severity)
     Q_UNREACHABLE();
 }
 
-bool isBlackListedDiagnostic(const ClangBackEnd::DiagnosticContainer &diagnostic,
-                             bool isHeaderFile)
+bool isBlackListedHeaderDiagnostic(const ClangBackEnd::DiagnosticContainer &diagnostic,
+                                   bool isHeaderFile)
 {
-    static const Utf8StringVector blackList {
+    static const Utf8StringVector blackList{
         Utf8StringLiteral("warning: #pragma once in main file"),
         Utf8StringLiteral("warning: #include_next in primary source file")
     };
 
-    return isHeaderFile && blackList.contains(diagnostic.text());
+    return isHeaderFile && blackList.contains(diagnostic.text);
+}
+
+bool isBlackListedQtDiagnostic(const ClangBackEnd::DiagnosticContainer &diagnostic)
+{
+    static const Utf8StringVector blackList{
+        // From Q_OBJECT:
+        Utf8StringLiteral("warning: "
+                          "'metaObject' overrides a member function but is not marked 'override'"),
+        Utf8StringLiteral("warning: "
+                          "'qt_metacast' overrides a member function but is not marked 'override'"),
+        Utf8StringLiteral("warning: "
+                          "'qt_metacall' overrides a member function but is not marked 'override'"),
+    };
+
+    return blackList.contains(diagnostic.text);
 }
 
 template <class Condition>
@@ -96,9 +111,10 @@ void ClangDiagnosticFilter::filterDocumentRelatedWarnings(
 
     const auto isLocalWarning = [this, isHeaderFile]
             (const ClangBackEnd::DiagnosticContainer &diagnostic) {
-        return isWarningOrNote(diagnostic.severity())
-            && !isBlackListedDiagnostic(diagnostic, isHeaderFile)
-            && diagnostic.location().filePath() == m_filePath;
+        return isWarningOrNote(diagnostic.severity)
+            && !isBlackListedHeaderDiagnostic(diagnostic, isHeaderFile)
+            && !isBlackListedQtDiagnostic(diagnostic)
+            && diagnostic.location.filePath == m_filePath;
     };
 
     m_warningDiagnostics = filterDiagnostics(diagnostics, isLocalWarning);
@@ -108,8 +124,8 @@ void ClangDiagnosticFilter::filterDocumentRelatedErrors(
         const QVector<ClangBackEnd::DiagnosticContainer> &diagnostics)
 {
     const auto isLocalWarning = [this] (const ClangBackEnd::DiagnosticContainer &diagnostic) {
-        return !isWarningOrNote(diagnostic.severity())
-            && diagnostic.location().filePath() == m_filePath;
+        return !isWarningOrNote(diagnostic.severity)
+            && diagnostic.location.filePath == m_filePath;
     };
 
     m_errorDiagnostics = filterDiagnostics(diagnostics, isLocalWarning);
@@ -118,7 +134,7 @@ void ClangDiagnosticFilter::filterDocumentRelatedErrors(
 void ClangDiagnosticFilter::filterFixits()
 {
     const auto hasFixIts = [] (const ClangBackEnd::DiagnosticContainer &diagnostic) {
-        return diagnostic.fixIts().size() > 0;
+        return diagnostic.fixIts.size() > 0;
     };
 
     m_fixItdiagnostics.clear();
@@ -126,9 +142,9 @@ void ClangDiagnosticFilter::filterFixits()
     filterDiagnostics(m_errorDiagnostics, hasFixIts, m_fixItdiagnostics);
 
     for (const auto &warningDiagnostic : m_warningDiagnostics)
-        filterDiagnostics(warningDiagnostic.children(), hasFixIts, m_fixItdiagnostics);
+        filterDiagnostics(warningDiagnostic.children, hasFixIts, m_fixItdiagnostics);
     for (const auto &warningDiagnostic : m_errorDiagnostics)
-        filterDiagnostics(warningDiagnostic.children(), hasFixIts, m_fixItdiagnostics);
+        filterDiagnostics(warningDiagnostic.children, hasFixIts, m_fixItdiagnostics);
 }
 
 ClangDiagnosticFilter::ClangDiagnosticFilter(const QString &filePath)

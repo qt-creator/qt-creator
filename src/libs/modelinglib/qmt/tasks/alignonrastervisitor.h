@@ -38,7 +38,7 @@ class QMT_EXPORT AlignOnRasterVisitor : public DVisitor
 {
 public:
     AlignOnRasterVisitor();
-    ~AlignOnRasterVisitor();
+    ~AlignOnRasterVisitor() override;
 
     void setDiagramController(DiagramController *diagramController);
     void setSceneInspector(ISceneInspector *sceneInspector);
@@ -55,13 +55,15 @@ public:
     void visitDInheritance(DInheritance *inheritance) override;
     void visitDDependency(DDependency *dependency) override;
     void visitDAssociation(DAssociation *association) override;
+    void visitDConnection(DConnection *connection) override;
     void visitDAnnotation(DAnnotation *annotation) override;
     void visitDBoundary(DBoundary *boundary) override;
+    void visitDSwimlane(DSwimlane *swimlane) override;
 
 private:
-    DiagramController *m_diagramController;
-    ISceneInspector *m_sceneInspector;
-    MDiagram *m_diagram;
+    DiagramController *m_diagramController = nullptr;
+    ISceneInspector *m_sceneInspector = nullptr;
+    MDiagram *m_diagram = nullptr;
 };
 
 } // namespace qmt

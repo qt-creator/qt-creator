@@ -26,7 +26,6 @@
 #pragma once
 
 #include "qmlprofilertimelinemodel.h"
-#include "qmlprofilerdatamodel.h"
 
 #include <QStringList>
 #include <QColor>
@@ -86,18 +85,18 @@ public:
         MaximumPixmapEventType
     };
 
-    struct PixmapCacheItem {
+    struct Item {
         int typeId = -1;
         PixmapEventType pixmapEventType = MaximumPixmapEventType;
         int urlIndex = -1;
         int sizeIndex = -1;
         int rowNumberCollapsed = -1;
-        qint64 cacheSize = -1;
+        qint64 cacheSize = 0;
     };
 
-    PixmapCacheModel(QmlProfilerModelManager *manager, QObject *parent = 0);
+    PixmapCacheModel(QmlProfilerModelManager *manager, Timeline::TimelineModelAggregator *parent);
 
-    int rowMaxValue(int rowNumber) const override;
+    qint64 rowMaxValue(int rowNumber) const override;
 
     int expandedRow(int index) const override;
     int collapsedRow(int index) const override;
@@ -116,6 +115,7 @@ public:
 #ifdef WITH_TESTS
     LoadState loadState(int index) const;
     CacheState cacheState(int index) const;
+    QString fileName(int index) const;
 #endif
 
 private:
@@ -123,9 +123,9 @@ private:
     void resizeUnfinishedLoads();
     void flattenLoads();
     int updateCacheCount(int m_lastCacheSizeEvent, qint64 startTime, qint64 pixSize,
-                         PixmapCacheItem &newEvent, int typeId);
+                         Item &newEvent, int typeId);
 
-    QVector<PixmapCacheItem> m_data;
+    QVector<Item> m_data;
     QVector<Pixmap> m_pixmaps;
 
     qint64 m_maxCacheSize = 1;

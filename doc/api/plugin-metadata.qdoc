@@ -82,6 +82,13 @@
                 enabled by the user. This should be done for plugins which are not expected
                 to be used by so many people as to justify the additional resource consumption.
         \row
+            \li HiddenByDefault
+            \li Boolean
+            \li Optional. Defaults to \c false.
+                If set, the plugin is not shown in the default view in the
+                \uicontrol {About Plugins...} dialog, but only if the user requests seeing all
+                plugins. It is still shown with the \c{-version} command line option.
+        \row
             \li Required
             \li Boolean
             \li Optional. Defaults to \c false.
@@ -227,8 +234,7 @@
     dependency might be loaded or not, the plugin may also not link against the dependency.
     A common way to access objects from optional dependencies is to get the object from the
     \l{The Plugin Manager, the Object Pool, and Registered Objects}{global object pool}
-    via ExtensionSystem::PluginManager::getObjectByName() or
-    ExtensionSystem::PluginManager::getObjectByClassName(), and use QMetaObject functions to call
+    via ExtensionSystem::PluginManager::getObjectByName() and use QMetaObject functions to call
     functions on it.
 
     \section3 Test Dependencies

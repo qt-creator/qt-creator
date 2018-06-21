@@ -23,21 +23,25 @@
 **
 ****************************************************************************/
 
+#include "googletest.h"
+
 #include <sqliteglobal.h>
+
+#include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
 #include <QLoggingCategory>
 
-#include <gtest/gtest.h>
-#include "gtest-qt-printing.h"
-
 #ifdef WITH_BENCHMARKS
-#include <benchmark/benchmark_api.h>
+#include <benchmark/benchmark.h>
 #endif
 
 int main(int argc, char *argv[])
 {
-    Sqlite::registerTypes();
+    const QString temporayDirectoryPath = QDir::tempPath() +"/QtCreator-UnitTests-XXXXXX";
+    Utils::TemporaryDirectory::setMasterTemporaryDirectory(temporayDirectoryPath);
+    qputenv("TMPDIR", Utils::TemporaryDirectory::masterDirectoryPath().toUtf8());
+    qputenv("TEMP", Utils::TemporaryDirectory::masterDirectoryPath().toUtf8());
 
     QCoreApplication application(argc, argv);
 

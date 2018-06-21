@@ -26,16 +26,16 @@
 #include "buildsettingspropertiespage.h"
 #include "buildinfo.h"
 #include "buildstepspage.h"
-#include "project.h"
 #include "target.h"
 #include "buildconfiguration.h"
-#include "buildconfigurationmodel.h"
+#include "projectconfigurationmodel.h"
 #include "session.h"
 
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
+#include <utils/stringutils.h>
 
 #include <QMargins>
 #include <QCoreApplication>
@@ -218,7 +218,7 @@ void BuildSettingsWidget::updateBuildSettings()
 void BuildSettingsWidget::currentIndexChanged(int index)
 {
     auto model = static_cast<BuildConfigurationModel *>(m_buildConfigurationComboBox->model());
-    BuildConfiguration *buildConfiguration = model->buildConfigurationAt(index);
+    auto buildConfiguration = qobject_cast<BuildConfiguration *>(model->projectConfigurationAt(index));
     SessionManager::setActiveBuildConfiguration(m_target, buildConfiguration, SetActive::Cascade);
 }
 
@@ -269,7 +269,7 @@ QString BuildSettingsWidget::uniqueName(const QString & name)
                 continue;
             bcNames.append(bc->displayName());
         }
-        result = Project::makeUnique(result, bcNames);
+        result = Utils::makeUniquelyNumbered(result, bcNames);
     }
     return result;
 }
@@ -303,7 +303,11 @@ void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfigura
         return;
 
     //: Title of a the cloned BuildConfiguration window, text of the window
-    QString name = uniqueName(QInputDialog::getText(this, tr("Clone Configuration"), tr("New configuration name:")));
+    QString name = uniqueName(QInputDialog::getText(this,
+                                                    tr("Clone Configuration"),
+                                                    tr("New configuration name:"),
+                                                    QLineEdit::Normal,
+                                                    m_buildConfiguration->displayName()));
     if (name.isEmpty())
         return;
 

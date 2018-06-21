@@ -78,7 +78,7 @@ void WatchTreeView::setModel(QAbstractItemModel *model)
     setRootIsDecorated(true);
     if (header()) {
         header()->setDefaultAlignment(Qt::AlignLeft);
-        if (m_type != LocalsType && m_type != InspectType)
+        if (m_type == ReturnType || m_type == TooltipType)
             header()->hide();
     }
 

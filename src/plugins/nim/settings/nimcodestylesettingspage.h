@@ -41,8 +41,8 @@ class NimCodeStyleSettingsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    explicit NimCodeStyleSettingsPage(QWidget *parent = 0);
-    ~NimCodeStyleSettingsPage();
+    explicit NimCodeStyleSettingsPage(QWidget *parent = nullptr);
+    ~NimCodeStyleSettingsPage() override;
 
     QWidget *widget() override;
     void apply() override;

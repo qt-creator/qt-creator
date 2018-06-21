@@ -51,10 +51,10 @@ QARK_REGISTER_TYPE_NAME(Project, "Project")
 template<class Archive>
 void serialize(Archive &archive, Project &project)
 {
-    archive || qark::tag(QStringLiteral("project"), project)
-            || qark::attr(QStringLiteral("uid"), project, &Project::uid, &Project::setUid)
-            || qark::attr(QStringLiteral("root-package"), project, &Project::rootPackage, &Project::setRootPackage)
-            || qark::attr(QStringLiteral("config-path"), project, &Project::configPath, &Project::setConfigPath)
+    archive || qark::tag("project", project)
+            || qark::attr("uid", project, &Project::uid, &Project::setUid)
+            || qark::attr("root-package", project, &Project::rootPackage, &Project::setRootPackage)
+            || qark::attr("config-path", project, &Project::configPath, &Project::setConfigPath)
             || qark::end;
 }
 
@@ -72,7 +72,7 @@ ProjectSerializer::~ProjectSerializer()
 
 void ProjectSerializer::save(const QString &fileName, const Project *project)
 {
-    QMT_CHECK(project);
+    QMT_ASSERT(project, return);
 
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly))
@@ -108,7 +108,7 @@ QByteArray ProjectSerializer::save(const Project *project)
 
 void ProjectSerializer::load(const QString &fileName, Project *project)
 {
-    QMT_CHECK(project);
+    QMT_ASSERT(project, return);
 
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly))
@@ -133,9 +133,9 @@ void ProjectSerializer::load(const QString &fileName, Project *project)
         archive >> qark::end;
         archive.endDocument();
     } catch (const qark::QXmlInArchive::FileFormatException &) {
-        throw FileIOException(QStringLiteral("illegal file format"), fileName);
+        throw FileIOException("illegal file format", fileName);
     } catch (...) {
-        throw FileIOException(QStringLiteral("serialization error"), fileName);
+        throw FileIOException("serialization error", fileName);
     }
 
 #ifdef USE_COMPRESSED_FILES
@@ -157,7 +157,7 @@ void ProjectSerializer::write(QXmlStreamWriter *writer, const Project *project)
         archive << qark::end;
         archive.endDocument();
     } catch (...) {
-        throw IOException(QStringLiteral("serialization error"));
+        throw IOException("serialization error");
     }
 }
 

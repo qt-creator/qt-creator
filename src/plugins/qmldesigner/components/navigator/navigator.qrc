@@ -12,6 +12,5 @@
         <file>export_checked@2x.png</file>
         <file>export_unchecked.png</file>
         <file>export_unchecked@2x.png</file>
-        <file>warning.png</file>
     </qresource>
 </RCC>

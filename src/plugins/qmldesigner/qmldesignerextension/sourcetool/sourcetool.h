@@ -41,7 +41,7 @@ class SourceTool : public QObject, public AbstractCustomTool
     Q_OBJECT
 public:
     SourceTool();
-    ~SourceTool();
+    ~SourceTool() override;
 
     void mousePressEvent(const QList<QGraphicsItem*> &itemList,
                          QGraphicsSceneMouseEvent *event) override;
@@ -83,7 +83,7 @@ private:
 
 
     /* members */
-    QPointer<FormEditorItem> m_formEditorItem;
+    FormEditorItem *m_formEditorItem = nullptr;
     QString m_oldFileName;
 };
 

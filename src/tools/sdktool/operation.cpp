@@ -102,8 +102,6 @@ QVariantMap Operation::load(const QString &file)
         if (!reader.load(path))
             return QVariantMap();
         map = reader.restoreValues();
-    } else {
-        std::cerr << "File " << qPrintable(path.toUserOutput()) << " not found." << std::endl;
     }
 
     return map;
@@ -128,8 +126,18 @@ bool Operation::save(const QVariantMap &map, const QString &file) const
 
     Utils::PersistentSettingsWriter writer(path, QLatin1String("QtCreator")
                                            + file[0].toUpper() + file.mid(1));
-    return writer.save(map, 0)
-            && QFile::setPermissions(path.toString(),
-                                     QFile::ReadOwner | QFile::WriteOwner
-                                     | QFile::ReadGroup | QFile::ReadOther);
+    QString errorMessage;
+    if (!writer.save(map, &errorMessage)) {
+        std::cerr << "Error: Could not save settings " << qPrintable(path.toString())
+                  << "." << std::endl;
+        return false;
+    }
+    if (!QFile::setPermissions(path.toString(),
+                               QFile::ReadOwner | QFile::WriteOwner
+                               | QFile::ReadGroup | QFile::ReadOther)) {
+        std::cerr << "Error: Could not set permissions for " << qPrintable(path.toString())
+                  << "." << std::endl;
+        return false;
+    }
+    return true;
 }

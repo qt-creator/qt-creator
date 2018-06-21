@@ -28,10 +28,10 @@
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/removefiledialog.h>
 #include <coreplugin/vcsmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/fileutils.h>
+#include <utils/removefiledialog.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -564,8 +564,8 @@ void ResourceFile::clearPrefixList()
 ResourceModel::ResourceModel(QObject *parent)
     : QAbstractItemModel(parent), m_dirty(false)
 {
-    m_prefixIcon = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
-        QIcon(QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QRC)), QSize(16, 16));
+    static QIcon resourceFolderIcon = Core::FileIconProvider::directoryIcon(QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QRC));
+    m_prefixIcon = resourceFolderIcon;
 }
 
 void ResourceModel::setDirty(bool b)
@@ -1234,7 +1234,7 @@ EntryBackup * RelativeResourceModel::removeEntry(const QModelIndex &index)
             deleteItem(index);
             return new FileEntryBackup(*this, prefixIndex.row(), index.row(), fileNameBackup, aliasBackup);
         }
-        Core::RemoveFileDialog removeFileDialog(fileNameBackup, Core::ICore::mainWindow());
+        Utils::RemoveFileDialog removeFileDialog(fileNameBackup, Core::ICore::mainWindow());
         if (removeFileDialog.exec() == QDialog::Accepted) {
             deleteItem(index);
             Core::FileUtils::removeFile(fileNameBackup, removeFileDialog.isDeleteFileChecked());

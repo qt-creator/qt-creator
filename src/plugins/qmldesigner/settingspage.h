@@ -47,7 +47,7 @@ class SettingsPageWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit SettingsPageWidget(QWidget *parent = 0);
+    explicit SettingsPageWidget(QWidget *parent = nullptr);
 
     DesignerSettings settings() const;
     void setSettings(const DesignerSettings &settings);
@@ -64,9 +64,9 @@ class SettingsPage : public Core::IOptionsPage
 public:
     SettingsPage();
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     QPointer<SettingsPageWidget> m_widget;

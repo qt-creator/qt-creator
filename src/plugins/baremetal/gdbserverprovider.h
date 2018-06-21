@@ -26,8 +26,8 @@
 #pragma once
 
 #include <QObject>
+#include <QSet>
 #include <QVariantMap>
-
 #include <QWidget>
 
 #include <utils/fileutils.h>
@@ -44,6 +44,7 @@ QT_END_NAMESPACE
 namespace BareMetal {
 namespace Internal {
 
+class BareMetalDevice;
 class GdbServerProviderConfigWidget;
 class GdbServerProviderManager;
 
@@ -85,6 +86,9 @@ public:
     virtual bool isValid() const;
     virtual bool canStartupMode(StartupMode) const;
 
+    void registerDevice(BareMetalDevice *);
+    void unregisterDevice(BareMetalDevice *);
+
 protected:
     explicit GdbServerProvider(const QString &id);
     explicit GdbServerProvider(const GdbServerProvider &);
@@ -103,6 +107,7 @@ private:
     StartupMode m_startupMode;
     QString m_initCommands;
     QString m_resetCommands;
+    QSet<BareMetalDevice *> m_devices;
 
     friend class GdbServerProviderConfigWidget;
 };
@@ -117,7 +122,7 @@ public:
 
     virtual GdbServerProvider *create() = 0;
 
-    virtual bool canRestore(const QVariantMap &data) = 0;
+    virtual bool canRestore(const QVariantMap &data) const = 0;
     virtual GdbServerProvider *restore(const QVariantMap &data) = 0;
 
     static QString idFromMap(const QVariantMap &data);
@@ -145,14 +150,12 @@ public:
 signals:
     void dirty();
 
-protected slots:
-    void setErrorMessage(const QString &);
-    void clearErrorMessage();
-
 protected:
     virtual void applyImpl() = 0;
     virtual void discardImpl() = 0;
 
+    void setErrorMessage(const QString &);
+    void clearErrorMessage();
     void addErrorLabel();
 
     GdbServerProvider::StartupMode startupModeFromIndex(int idx) const;

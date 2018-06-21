@@ -56,11 +56,12 @@ enum Enum {
 namespace Severity {
 enum Enum
 {
-    Hint,         // cosmetic or convention
-    MaybeWarning, // possibly a warning, insufficient information
-    Warning,      // could cause unintended behavior
-    MaybeError,   // possibly an error, insufficient information
-    Error         // definitely an error
+    Hint,                   // cosmetic or convention
+    MaybeWarning,           // possibly a warning, insufficient information
+    Warning,                // could cause unintended behavior
+    ReadingTypeInfoWarning, // currently dumping type information
+    MaybeError,             // possibly an error, insufficient information
+    Error                   // definitely an error
 };
 }
 
@@ -71,7 +72,6 @@ enum Enum
     JavaScript = 1,
     Json = 2,
     Qml = 3,
-    QmlQtQuick1 = 4,
     QmlQtQuick2 = 5,
     QmlQbs = 6,
     QmlProject = 7,

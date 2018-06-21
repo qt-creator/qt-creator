@@ -97,6 +97,13 @@
         </property>
        </widget>
       </item>
+      <item row="3" column="1">
+       <widget class="QCheckBox" name="addLibraryPathsToRunEnvCheckBox">
+        <property name="text">
+         <string>Add linker library search paths to run environment</string>
+        </property>
+       </widget>
+      </item>
       <item row="3" column="0">
        <widget class="QCheckBox" name="showCompileOutputCheckBox">
         <property name="text">
@@ -104,7 +111,7 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="4" column="1">
        <widget class="QWidget" name="widget" native="true">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <property name="leftMargin">
@@ -120,9 +127,64 @@
           <number>0</number>
          </property>
          <item>
+          <widget class="QLabel" name="limitBuildOutputLabel">
+           <property name="text">
+            <string>Limit build output to</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="maxBuildOutputBox">
+           <property name="minimum">
+            <number>500</number>
+           </property>
+           <property name="maximum">
+            <number>1000000</number>
+           </property>
+           <property name="singleStep">
+            <number>500</number>
+           </property>
+           <property name="value">
+            <number>100000</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="limitBuildOutputLabel_2">
+           <property name="text">
+            <string>lines</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="showRunOutputCheckBox">
+        <property name="text">
+         <string>Open Application Output pane on output when running</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QWidget" name="widget_1" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>Limit application output to </string>
+            <string>Limit application output to</string>
            </property>
           </widget>
          </item>
@@ -150,13 +212,6 @@
           </widget>
          </item>
         </layout>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QCheckBox" name="showRunOutputCheckBox">
-        <property name="text">
-         <string>Open Application Output pane on output when running</string>
-        </property>
        </widget>
       </item>
       <item row="5" column="0">

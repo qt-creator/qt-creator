@@ -82,24 +82,23 @@ void KeywordDialog::setupListWidget(IconType selectedIcon)
     ui->listWidget->setViewMode(QListWidget::IconMode);
     ui->listWidget->setDragEnabled(false);
 
-    QListWidgetItem *item =
-            new QListWidgetItem(icon(IconType::Info), QLatin1String("information"));
+    QListWidgetItem *item = new QListWidgetItem(icon(IconType::Info), "information");
     item->setData(Qt::UserRole, static_cast<int>(IconType::Info));
     ui->listWidget->addItem(item);
 
-    item = new QListWidgetItem(icon(IconType::Warning), QLatin1String("warning"));
+    item = new QListWidgetItem(icon(IconType::Warning), "warning");
     item->setData(Qt::UserRole, static_cast<int>(IconType::Warning));
     ui->listWidget->addItem(item);
 
-    item = new QListWidgetItem(icon(IconType::Error), QLatin1String("error"));
+    item = new QListWidgetItem(icon(IconType::Error), "error");
     item->setData(Qt::UserRole, static_cast<int>(IconType::Error));
     ui->listWidget->addItem(item);
 
-    item = new QListWidgetItem(icon(IconType::Bug), QLatin1String("bug"));
+    item = new QListWidgetItem(icon(IconType::Bug), "bug");
     item->setData(Qt::UserRole, static_cast<int>(IconType::Bug));
     ui->listWidget->addItem(item);
 
-    item = new QListWidgetItem(icon(IconType::Todo), QLatin1String("todo"));
+    item = new QListWidgetItem(icon(IconType::Todo), "todo");
     item->setData(Qt::UserRole, static_cast<int>(IconType::Todo));
     ui->listWidget->addItem(item);
 

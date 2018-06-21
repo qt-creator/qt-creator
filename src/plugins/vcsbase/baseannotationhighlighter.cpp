@@ -52,10 +52,6 @@ namespace VcsBase {
 class BaseAnnotationHighlighterPrivate
 {
 public:
-    enum Formats {
-        BackgroundFormat // C_TEXT
-    };
-
     BaseAnnotationHighlighterPrivate(BaseAnnotationHighlighter *q_) : q(q_) { }
 
     void updateOtherFormats();
@@ -67,7 +63,8 @@ public:
 
 void BaseAnnotationHighlighterPrivate::updateOtherFormats()
 {
-    m_background = q->formatForCategory(BackgroundFormat).brushProperty(QTextFormat::BackgroundBrush).color();
+    m_background = q->formatForCategory(TextEditor::C_TEXT)
+            .brushProperty(QTextFormat::BackgroundBrush).color();
     q->setChangeNumbers(m_changeNumberMap.keys().toSet());
 }
 
@@ -76,9 +73,7 @@ BaseAnnotationHighlighter::BaseAnnotationHighlighter(const ChangeNumbers &change
     TextEditor::SyntaxHighlighter(document),
     d(new BaseAnnotationHighlighterPrivate(this))
 {
-    static const QVector<TextEditor::TextStyle> categories({TextEditor::C_TEXT});
-
-    setTextFormatCategories(categories);
+    setDefaultTextFormatCategories();
     d->updateOtherFormats();
 
     setChangeNumbers(changeNumbers);
@@ -116,7 +111,7 @@ void BaseAnnotationHighlighter::highlightBlock(const QString &text)
     const QString change = changeNumber(text);
     const ChangeNumberFormatMap::const_iterator it = d->m_changeNumberMap.constFind(change);
     if (it != d->m_changeNumberMap.constEnd())
-        setFormat(0, text.length(), it.value());
+        setFormatWithSpaces(text, 0, text.length(), it.value());
 }
 
 void BaseAnnotationHighlighter::setFontSettings(const TextEditor::FontSettings &fontSettings)

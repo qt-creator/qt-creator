@@ -98,6 +98,11 @@ quint64 SshPacketParser::asUint64(const QByteArray &data, quint32 *offset)
     return val;
 }
 
+QByteArray SshPacketParser::asString(const QByteArray &data, quint32 offset)
+{
+    return asString(data, &offset);
+}
+
 QByteArray SshPacketParser::asString(const QByteArray &data, quint32 *offset)
 {
     const quint32 length = asUint32(data, offset);

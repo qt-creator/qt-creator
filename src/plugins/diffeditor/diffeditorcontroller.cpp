@@ -39,10 +39,7 @@ namespace DiffEditor {
 
 DiffEditorController::DiffEditorController(Core::IDocument *document) :
     QObject(document),
-    m_document(qobject_cast<Internal::DiffEditorDocument *>(document)),
-    m_isReloading(false),
-    m_diffFileIndex(-1),
-    m_chunkIndex(-1)
+    m_document(qobject_cast<Internal::DiffEditorDocument *>(document))
 {
     QTC_ASSERT(m_document, return);
     m_document->setController(this);
@@ -68,15 +65,11 @@ bool DiffEditorController::ignoreWhitespace() const
     return m_document->ignoreWhitespace();
 }
 
-QString DiffEditorController::revisionFromDescription() const
+QString DiffEditorController::makePatch(int fileIndex, int chunkIndex,
+                                        PatchOptions options) const
 {
-    // TODO: This is specific for git and does not belong here at all!
-    return m_document->description().mid(7, 12);
-}
-
-QString DiffEditorController::makePatch(bool revert, bool addPrefix) const
-{
-    return m_document->makePatch(m_diffFileIndex, m_chunkIndex, revert, addPrefix);
+    return m_document->makePatch(fileIndex, chunkIndex,
+                                 options & Revert, options & AddPrefix);
 }
 
 Core::IDocument *DiffEditorController::findOrCreateDocument(const QString &vcsId,
@@ -85,13 +78,13 @@ Core::IDocument *DiffEditorController::findOrCreateDocument(const QString &vcsId
     QString preferredDisplayName = displayName;
     Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
                 Constants::DIFF_EDITOR_ID, &preferredDisplayName, QByteArray(), vcsId);
-    return editor ? editor->document() : 0;
+    return editor ? editor->document() : nullptr;
 }
 
 DiffEditorController *DiffEditorController::controller(Core::IDocument *document)
 {
     auto doc = qobject_cast<Internal::DiffEditorDocument *>(document);
-    return doc ? doc->controller() : 0;
+    return doc ? doc->controller() : nullptr;
 }
 
 void DiffEditorController::setDiffFiles(const QList<FileData> &diffFileList,
@@ -106,50 +99,9 @@ void DiffEditorController::setDescription(const QString &description)
     m_document->setDescription(description);
 }
 
-void DiffEditorController::informationForCommitReceived(const QString &output)
+QString DiffEditorController::description() const
 {
-    // TODO: Git specific code...
-    const QString branches = prepareBranchesForCommit(output);
-
-    QString tmp = m_document->description();
-    tmp.replace(QLatin1String(Constants::EXPAND_BRANCHES), branches);
-    m_document->setDescription(tmp);
-}
-
-void DiffEditorController::requestMoreInformation()
-{
-    const QString rev = revisionFromDescription();
-    if (!rev.isEmpty())
-        emit requestInformationForCommit(rev);
-}
-
-QString DiffEditorController::prepareBranchesForCommit(const QString &output)
-{
-    // TODO: More git-specific code...
-    QString moreBranches;
-    QString branches;
-    QStringList res;
-    foreach (const QString &branch, output.split(QLatin1Char('\n'))) {
-        const QString b = branch.mid(2).trimmed();
-        if (!b.isEmpty())
-            res << b;
-    }
-    const int branchCount = res.count();
-    // If there are more than 20 branches, list first 10 followed by a hint
-    if (branchCount > 20) {
-        const int leave = 10;
-        //: Displayed after the untranslated message "Branches: branch1, branch2 'and %n more'"
-        //  in git show.
-        moreBranches = QLatin1Char(' ') + tr("and %n more", 0, branchCount - leave);
-        res.erase(res.begin() + leave, res.end());
-    }
-    branches = QLatin1String("Branches: ");
-    if (res.isEmpty())
-        branches += tr("<None>");
-    else
-        branches += res.join(QLatin1String(", ")) + moreBranches;
-
-    return branches;
+    return m_document->description();
 }
 
 /**
@@ -186,11 +138,27 @@ void DiffEditorController::reloadFinished(bool success)
     m_isReloading = false;
 }
 
-void DiffEditorController::requestChunkActions(QMenu *menu, int diffFileIndex, int chunkIndex)
+void DiffEditorController::requestChunkActions(QMenu *menu, int fileIndex, int chunkIndex)
 {
-    m_diffFileIndex = diffFileIndex;
-    m_chunkIndex = chunkIndex;
-    emit chunkActionsRequested(menu, diffFileIndex >= 0 && chunkIndex >= 0);
+    emit chunkActionsRequested(menu, fileIndex, chunkIndex);
+}
+
+bool DiffEditorController::chunkExists(int fileIndex, int chunkIndex) const
+{
+    if (!m_document)
+        return false;
+
+    if (fileIndex < 0 || chunkIndex < 0)
+        return false;
+
+    if (fileIndex >= m_document->diffFiles().count())
+        return false;
+
+    const FileData fileData = m_document->diffFiles().at(fileIndex);
+    if (chunkIndex >= fileData.chunks.count())
+        return false;
+
+    return true;
 }
 
 } // namespace DiffEditor

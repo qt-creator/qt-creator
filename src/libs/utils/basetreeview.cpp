@@ -26,6 +26,7 @@
 #include "basetreeview.h"
 
 #include "progressindicator.h"
+#include "treemodel.h"
 
 #include <utils/qtcassert.h>
 
@@ -47,12 +48,14 @@ const char ColumnKey[] = "Columns";
 
 class BaseTreeViewPrivate : public QObject
 {
-    Q_OBJECT
-
 public:
     explicit BaseTreeViewPrivate(BaseTreeView *parent)
         : q(parent), m_settings(0), m_expectUserChanges(false), m_progressIndicator(0)
-    {}
+    {
+        m_settingsTimer.setSingleShot(true);
+        connect(&m_settingsTimer, &QTimer::timeout,
+                this, &BaseTreeViewPrivate::doSaveState);
+    }
 
     bool eventFilter(QObject *, QEvent *event)
     {
@@ -103,6 +106,12 @@ public:
 
     void saveState()
     {
+        m_settingsTimer.start(2000); // Once per 2 secs should be enough.
+    }
+
+    void doSaveState()
+    {
+        m_settingsTimer.stop();
         if (m_settings && !m_settingsKey.isEmpty()) {
             m_settings->beginGroup(m_settingsKey);
             QVariantList l;
@@ -169,7 +178,7 @@ public:
         return minimum;
     }
 
-    Q_SLOT void resizeColumns() // Needs moc, see BaseTreeView::setModel
+    void resizeColumns()
     {
         QHeaderView *h = q->header();
         QTC_ASSERT(h, return);
@@ -211,6 +220,7 @@ public:
     BaseTreeView *q;
     QMap<int, int> m_userHandled; // column -> width, "not present" means "automatic"
     QSettings *m_settings;
+    QTimer m_settingsTimer;
     QString m_settingsKey;
     bool m_expectUserChanges;
     ProgressIndicator *m_progressIndicator;
@@ -273,35 +283,17 @@ BaseTreeView::~BaseTreeView()
 
 void BaseTreeView::setModel(QAbstractItemModel *m)
 {
-    struct ExtraConnection {
-        const char *signature;
-        const char *qsignal;
-        QObject *receiver;
-        const char *qslot;
-    };
-#define DESC(sign, receiver, slot) { #sign, SIGNAL(sign), receiver, SLOT(slot) }
-    const ExtraConnection c[] = {
-        DESC(columnAdjustmentRequested(), d, resizeColumns()),
-        DESC(requestExpansion(QModelIndex), this, expand(QModelIndex))
-    };
-#undef DESC
-
-    QAbstractItemModel *oldModel = model();
-    if (oldModel) {
-        for (unsigned i = 0; i < sizeof(c) / sizeof(c[0]); ++i) {
-            int index = model()->metaObject()->indexOfSignal(c[i].signature);
-            if (index != -1)
-                disconnect(model(), c[i].qsignal, c[i].receiver, c[i].qslot);
-        }
+    if (BaseTreeModel *oldModel = qobject_cast<BaseTreeModel *>(model())) {
+        disconnect(oldModel, &BaseTreeModel::requestExpansion, this, &BaseTreeView::expand);
+        disconnect(oldModel, &BaseTreeModel::requestCollapse, this, &BaseTreeView::collapse);
     }
 
     TreeView::setModel(m);
 
     if (m) {
-        for (unsigned i = 0; i < sizeof(c) / sizeof(c[0]); ++i) {
-            int index = m->metaObject()->indexOfSignal(c[i].signature);
-            if (index != -1)
-                connect(model(), c[i].qsignal, c[i].receiver, c[i].qslot);
+        if (BaseTreeModel *newModel = qobject_cast<BaseTreeModel *>(m)) {
+            connect(newModel, &BaseTreeModel::requestExpansion, this, &BaseTreeView::expand);
+            connect(newModel, &BaseTreeModel::requestCollapse, this, &BaseTreeView::collapse);
         }
         d->restoreState();
 
@@ -316,10 +308,21 @@ void BaseTreeView::setModel(QAbstractItemModel *m)
 
 void BaseTreeView::mousePressEvent(QMouseEvent *ev)
 {
-    TreeView::mousePressEvent(ev);
-    const QModelIndex mi = indexAt(ev->pos());
-    if (!mi.isValid())
-        d->toggleColumnWidth(columnAt(ev->x()));
+    ItemViewEvent ive(ev, this);
+    if (!model()->setData(ive.index(), QVariant::fromValue(ive), ItemViewEventRole))
+        TreeView::mousePressEvent(ev);
+// Resizing columns by clicking on the empty space seems to be controversial.
+// Let's try without for a while.
+//    const QModelIndex mi = indexAt(ev->pos());
+//    if (!mi.isValid())
+//        d->toggleColumnWidth(columnAt(ev->x()));
+}
+
+void BaseTreeView::mouseReleaseEvent(QMouseEvent *ev)
+{
+    ItemViewEvent ive(ev, this);
+    if (!model()->setData(ive.index(), QVariant::fromValue(ive), ItemViewEventRole))
+        TreeView::mouseReleaseEvent(ev);
 }
 
 void BaseTreeView::contextMenuEvent(QContextMenuEvent *ev)
@@ -378,7 +381,7 @@ void BaseTreeView::showEvent(QShowEvent *ev)
 void BaseTreeView::showProgressIndicator()
 {
     if (!d->m_progressIndicator) {
-        d->m_progressIndicator = new ProgressIndicator(ProgressIndicator::Large);
+        d->m_progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Large);
         d->m_progressIndicator->attachToWidget(this);
     }
     d->m_progressIndicator->show();
@@ -404,6 +407,11 @@ void BaseTreeView::rowActivated(const QModelIndex &index)
 void BaseTreeView::rowClicked(const QModelIndex &index)
 {
     model()->setData(index, QVariant(), ItemClickedRole);
+}
+
+void BaseTreeView::resizeColumns()
+{
+    d->resizeColumns();
 }
 
 void BaseTreeView::setSettings(QSettings *settings, const QByteArray &key)
@@ -454,5 +462,8 @@ QModelIndexList ItemViewEvent::currentOrSelectedRows() const
 }
 
 } // namespace Utils
+<<<<<<< HEAD
 
 #include ".moc/release-shared/basetreeview.moc"
+=======
+>>>>>>> 10d4792c855dabe2ac26a4c1f417fca08f0b442c

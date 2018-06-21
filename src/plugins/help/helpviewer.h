@@ -48,8 +48,8 @@ public:
     };
     Q_DECLARE_FLAGS(Actions, Action)
 
-    explicit HelpViewer(QWidget *parent = 0);
-    ~HelpViewer() { }
+    explicit HelpViewer(QWidget *parent = nullptr);
+    ~HelpViewer() override;
 
     virtual QFont viewerFont() const = 0;
     virtual void setViewerFont(const QFont &font) = 0;
@@ -75,7 +75,7 @@ public:
     bool isActionVisible(Action action);
 
     virtual bool findText(const QString &text, Core::FindFlags flags,
-        bool incremental, bool fromSearch, bool *wrapped = 0) = 0;
+        bool incremental, bool fromSearch, bool *wrapped = nullptr) = 0;
 
     bool handleForwardBackwardMouseButtons(QMouseEvent *e);
 
@@ -109,7 +109,10 @@ protected:
     void slotLoadStarted();
     void slotLoadFinished();
 
+    void restoreOverrideCursor();
+
     Actions m_visibleActions = 0;
+    int m_loadOverrideStack = 0;
 };
 
 }   // namespace Internal

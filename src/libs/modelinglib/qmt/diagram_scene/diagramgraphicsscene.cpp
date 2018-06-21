@@ -33,6 +33,7 @@ DiagramGraphicsScene::DiagramGraphicsScene(DiagramSceneModel *diagramSceneModel,
     : QGraphicsScene(parent),
       m_diagramSceneModel(diagramSceneModel)
 {
+    setBackgroundBrush(Qt::white);
 }
 
 DiagramGraphicsScene::~DiagramGraphicsScene()

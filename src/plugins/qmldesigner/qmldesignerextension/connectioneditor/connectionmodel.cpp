@@ -75,10 +75,7 @@ void ConnectionModel::resetModel()
 {
     beginResetModel();
     clear();
-    setHorizontalHeaderLabels(QStringList()
-                              << tr("Target")
-                              << tr("Signal Handler")
-                              << tr("Action"));
+    setHorizontalHeaderLabels(QStringList({ tr("Target"), tr("Signal Handler"), tr("Action") }));
 
     if (connectionView()->isAttached()) {
         foreach (const ModelNode modelNode, connectionView()->allModelNodes())
@@ -177,7 +174,7 @@ void ConnectionModel::updateSource(int row)
     }
     catch (Exception &e) {
         m_exceptionError = e.description();
-        QTimer::singleShot(200, this, SLOT(handleException()));
+        QTimer::singleShot(200, this, &ConnectionModel::handleException);
     }
 
 }
@@ -273,8 +270,8 @@ void ConnectionModel::addConnection()
                 newNode.signalHandlerProperty("onClicked").setSource(QLatin1String("print(\"clicked\")"));
 
                 if (connectionView()->selectedModelNodes().count() == 1
-                        && !connectionView()->selectedModelNodes().first().id().isEmpty()) {
-                    ModelNode selectedNode = connectionView()->selectedModelNodes().first();
+                        && !connectionView()->selectedModelNodes().constFirst().id().isEmpty()) {
+                    const ModelNode selectedNode = connectionView()->selectedModelNodes().constFirst();
                     newNode.bindingProperty("target").setExpression(selectedNode.id());
                 } else {
                     newNode.bindingProperty("target").setExpression(QLatin1String("parent"));

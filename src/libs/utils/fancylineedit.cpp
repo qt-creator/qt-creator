@@ -38,6 +38,7 @@
 #include <QStylePainter>
 #include <QPropertyAnimation>
 #include <QStyle>
+#include <QWindow>
 
 /*!
     \class Utils::FancyLineEdit
@@ -91,7 +92,6 @@ public:
     HistoryCompleter *m_historyCompleter = 0;
     FancyLineEdit::ValidationFunction m_validationFunction = &FancyLineEdit::validateWithValidator;
     QString m_oldText;
-    QPixmap m_pixmap[2];
     QMenu *m_menu[2];
     FancyLineEdit::State m_state = FancyLineEdit::Invalid;
     bool m_menuTabFocusTrigger[2];
@@ -105,7 +105,6 @@ public:
     QColor m_okTextColor;
     QColor m_errorTextColor = Qt::red;
     QString m_errorMessage;
-    QString m_initialText;
 };
 
 FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
@@ -256,17 +255,17 @@ void FancyLineEdit::resizeEvent(QResizeEvent *)
     updateButtonPositions();
 }
 
-void FancyLineEdit::setButtonPixmap(Side side, const QPixmap &buttonPixmap)
+void FancyLineEdit::setButtonIcon(Side side, const QIcon &icon)
 {
-    d->m_iconbutton[side]->setPixmap(buttonPixmap);
+    d->m_iconbutton[side]->setIcon(icon);
     updateMargins();
     updateButtonPositions();
     update();
 }
 
-QPixmap FancyLineEdit::buttonPixmap(Side side) const
+QIcon FancyLineEdit::buttonIcon(Side side) const
 {
-    return d->m_pixmap[side];
+    return d->m_iconbutton[side]->icon();
 }
 
 void FancyLineEdit::setButtonMenu(Side side, QMenu *buttonMenu)
@@ -360,9 +359,9 @@ void FancyLineEdit::setFiltering(bool on)
                          QLatin1String("edit-clear-locationbar-rtl") :
                          QLatin1String("edit-clear-locationbar-ltr"),
                          QIcon::fromTheme(QLatin1String("edit-clear"),
-                                          Icons::EDIT_CLEAR.pixmap()));
+                                          Icons::EDIT_CLEAR.icon()));
 
-        setButtonPixmap(Right, icon.pixmap(16));
+        setButtonIcon(Right, icon);
         setButtonVisible(Right, true);
         setPlaceholderText(tr("Filter"));
         setButtonToolTip(Right, tr("Clear text"));
@@ -370,20 +369,6 @@ void FancyLineEdit::setFiltering(bool on)
         connect(this, &FancyLineEdit::rightButtonClicked, this, &QLineEdit::clear);
     } else {
         disconnect(this, &FancyLineEdit::rightButtonClicked, this, &QLineEdit::clear);
-    }
-}
-
-QString FancyLineEdit::initialText() const
-{
-    return d->m_initialText;
-}
-
-void FancyLineEdit::setInitialText(const QString &t)
-{
-    if (d->m_initialText != t) {
-        d->m_initialText = t;
-        d->m_firstChange = true;
-        setText(t);
     }
 }
 
@@ -458,13 +443,13 @@ void FancyLineEdit::validate()
     }
 
     d->m_errorMessage.clear();
-    // Are we displaying the initial text?
-    const bool isDisplayingInitialText = !d->m_initialText.isEmpty() && t == d->m_initialText;
-    const State newState = isDisplayingInitialText ?
-                               DisplayingInitialText :
-                               (d->m_validationFunction(this, &d->m_errorMessage) ? Valid : Invalid);
+    // Are we displaying the placeholder text?
+    const bool isDisplayingPlaceholderText = !placeholderText().isEmpty() && t.isEmpty();
+    const bool validates = d->m_validationFunction(this, &d->m_errorMessage);
+    const State newState = isDisplayingPlaceholderText ? DisplayingPlaceholderText
+                                                       : (validates ? Valid : Invalid);
     setToolTip(d->m_errorMessage);
-    // Changed..figure out if valid changed. DisplayingInitialText is not valid,
+    // Changed..figure out if valid changed. DisplayingPlaceholderText is not valid,
     // but should not show error color. Also trigger on the first change.
     if (newState != d->m_state || d->m_firstChange) {
         const bool validHasChanged = (d->m_state == Valid) != (newState == Valid);
@@ -478,14 +463,13 @@ void FancyLineEdit::validate()
         if (validHasChanged)
             emit validChanged(newState == Valid);
     }
-    bool block = blockSignals(true);
     const QString fixedString = fixInputString(t);
     if (t != fixedString) {
         const int cursorPos = cursorPosition();
+        QSignalBlocker blocker(this);
         setText(fixedString);
         setCursorPosition(qMin(cursorPos, fixedString.length()));
     }
-    blockSignals(block);
 
     // Check buttons.
     if (d->m_oldText.isEmpty() || t.isEmpty()) {
@@ -517,15 +501,16 @@ IconButton::IconButton(QWidget *parent)
 
 void IconButton::paintEvent(QPaintEvent *)
 {
-    const qreal pixmapRatio = m_pixmap.devicePixelRatio();
+    QWindow *window = this->window()->windowHandle();
+    const QPixmap iconPixmap = icon().pixmap(window, sizeHint());
     QStylePainter painter(this);
-    QRect pixmapRect = QRect(0, 0, m_pixmap.width()/pixmapRatio, m_pixmap.height()/pixmapRatio);
+    QRect pixmapRect(QPoint(), iconPixmap.size() / window->devicePixelRatio());
     pixmapRect.moveCenter(rect().center());
 
     if (m_autoHide)
         painter.setOpacity(m_iconOpacity);
 
-    painter.drawPixmap(pixmapRect, m_pixmap);
+    painter.drawPixmap(pixmapRect, iconPixmap);
 
     if (hasFocus()) {
         QStyleOptionFocusRect focusOption;
@@ -550,8 +535,8 @@ void IconButton::animateShow(bool visible)
 
 QSize IconButton::sizeHint() const
 {
-    const qreal pixmapRatio = m_pixmap.devicePixelRatio();
-    return QSize(m_pixmap.width()/pixmapRatio, m_pixmap.height()/pixmapRatio);
+    QWindow *window = this->window()->windowHandle();
+    return icon().actualSize(window, QSize(32, 16)); // Find flags icon can be wider than 16px
 }
 
 void IconButton::keyPressEvent(QKeyEvent *ke)

@@ -67,6 +67,6 @@ QString SettingsManager::addPrefix(const QString &name) const
 {
     QString result = name;
     if (Core::ICore::settings()->group().isEmpty())
-        result.prepend(QLatin1String("Designer"));
+        result.prepend("Designer");
     return result;
 }

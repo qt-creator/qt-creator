@@ -101,17 +101,15 @@ QString GdbServerProviderChooser::providerText(const GdbServerProvider *provider
 
 void GdbServerProviderChooser::populate()
 {
-    const bool b = m_chooser->blockSignals(true);
+    QSignalBlocker blocker(m_chooser);
     m_chooser->clear();
     m_chooser->addItem(tr("None"));
 
-    foreach (const GdbServerProvider *p,
-             GdbServerProviderManager::instance()->providers()) {
+    for (const GdbServerProvider *p : GdbServerProviderManager::providers()) {
         if (!providerMatches(p))
             continue;
         m_chooser->addItem(providerText(p), qVariantFromValue(p->id()));
     }
-    m_chooser->blockSignals(b);
 }
 
 } // namespace Internal

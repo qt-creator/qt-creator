@@ -33,37 +33,21 @@ namespace Internal {
 class RemoteLinuxCustomRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
+
 public:
-    RemoteLinuxCustomRunConfiguration(ProjectExplorer::Target *parent);
-    RemoteLinuxCustomRunConfiguration(ProjectExplorer::Target *parent,
-                                      RemoteLinuxCustomRunConfiguration *source);
+    RemoteLinuxCustomRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
-
-    bool isEnabled() const override { return true; }
     bool isConfigured() const override;
     ConfigurationState ensureConfigured(QString *errorMessage) override;
-    QWidget *createConfigurationWidget() override;
-    Utils::OutputFormatter *createOutputFormatter() const override;
-    ProjectExplorer::Runnable runnable() const override;
-    QString localExecutableFilePath() const { return m_localExecutable; }
-
-    void setLocalExecutableFilePath(const QString &executable) { m_localExecutable = executable; }
-    void setRemoteExecutableFilePath(const QString &executable);
-    void setArguments(const QString &args) { m_arguments = args; }
-    void setWorkingDirectory(const QString &wd) { m_workingDirectory = wd; }
 
     static Core::Id runConfigId();
-    static QString runConfigDefaultDisplayName();
+    QString runConfigDefaultDisplayName();
+};
 
-private:
-    void init();
-
-    QString m_localExecutable;
-    QString m_remoteExecutable;
-    QString m_arguments;
-    QString m_workingDirectory;
+class RemoteLinuxCustomRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
+{
+public:
+    RemoteLinuxCustomRunConfigurationFactory();
 };
 
 } // namespace Internal

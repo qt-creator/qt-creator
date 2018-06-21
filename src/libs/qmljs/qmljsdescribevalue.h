@@ -65,7 +65,7 @@ private:
     int m_depth;
     int m_indent;
     int m_indentIncrement;
-    bool m_emptyContext;
+    bool m_emptyContext = false;
     ContextPtr m_context;
     QSet<const Value *> m_visited;
     QString m_description;

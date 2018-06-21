@@ -26,9 +26,10 @@
 
 #include "baremetalplugin.h"
 #include "baremetalconstants.h"
+#include "baremetalcustomrunconfiguration.h"
 #include "baremetaldeviceconfigurationfactory.h"
-#include "baremetalruncontrolfactory.h"
-#include "baremetalrunconfigurationfactory.h"
+#include "baremetaldebugsupport.h"
+#include "baremetalrunconfiguration.h"
 
 #include "gdbserverproviderssettingspage.h"
 #include "gdbserverprovidermanager.h"
@@ -40,14 +41,20 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
 
-#include <QAction>
-#include <QMessageBox>
-#include <QMainWindow>
-#include <QMenu>
-#include <QtPlugin>
+using namespace ProjectExplorer;
 
 namespace BareMetal {
 namespace Internal {
+
+class BareMetalPluginRunData
+{
+public:
+    BareMetalDeviceConfigurationFactory deviceConfigurationFactory;
+    BareMetalRunConfigurationFactory runConfigurationFactory;
+    BareMetalCustomRunConfigurationFactory customRunConfigurationFactory;
+    GdbServerProvidersSettingsPage gdbServerProviderSettinsPage;
+    GdbServerProviderManager gdbServerProviderManager;
+};
 
 BareMetalPlugin::BareMetalPlugin()
 {
@@ -56,19 +63,29 @@ BareMetalPlugin::BareMetalPlugin()
 
 BareMetalPlugin::~BareMetalPlugin()
 {
+    delete m_runData;
 }
 
 bool BareMetalPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
-   Q_UNUSED(arguments)
-   Q_UNUSED(errorString)
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorString)
 
-   addAutoReleasedObject(new BareMetalDeviceConfigurationFactory);
-   addAutoReleasedObject(new BareMetalRunControlFactory);
-   addAutoReleasedObject(new BareMetalRunConfigurationFactory);
-   addAutoReleasedObject(new GdbServerProvidersSettingsPage);
+    m_runData = new BareMetalPluginRunData;
 
-   return true;
+    auto constraint = [](RunConfiguration *runConfig) {
+        const QByteArray idStr = runConfig->id().name();
+        const bool res = idStr.startsWith(BareMetalRunConfiguration::IdPrefix)
+                || idStr == BareMetalCustomRunConfiguration::Id;
+        return res;
+    };
+
+    RunControl::registerWorker<BareMetalDebugSupport>
+            (ProjectExplorer::Constants::NORMAL_RUN_MODE, constraint);
+    RunControl::registerWorker<BareMetalDebugSupport>
+            (ProjectExplorer::Constants::DEBUG_RUN_MODE, constraint);
+
+    return true;
 }
 
 void BareMetalPlugin::extensionsInitialized()

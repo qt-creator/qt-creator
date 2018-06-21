@@ -25,12 +25,13 @@
 
 #include "debugmessagesmodel.h"
 #include "qmlprofilerconstants.h"
-#include <timeline/timelineformattime.h>
+#include <tracing/timelineformattime.h>
 
 namespace QmlProfiler {
 namespace Internal {
 
-DebugMessagesModel::DebugMessagesModel(QmlProfilerModelManager *manager, QObject *parent) :
+DebugMessagesModel::DebugMessagesModel(QmlProfilerModelManager *manager,
+                                       Timeline::TimelineModelAggregator *parent) :
     QmlProfilerTimelineModel(manager, DebugMessage, MaximumRangeType, ProfileDebugMessages, parent),
     m_maximumMsgType(-1)
 {
@@ -75,11 +76,13 @@ QVariantList DebugMessagesModel::labels() const
 
 QVariantMap DebugMessagesModel::details(int index) const
 {
-    const QmlEventType &type = modelManager()->qmlModel()->eventTypes()[m_data[index].typeId];
+    const QmlProfilerModelManager *manager = modelManager();
+    const QmlEventType &type = manager->eventType(m_data[index].typeId);
 
     QVariantMap result;
     result.insert(QLatin1String("displayName"), messageType(type.detailType()));
-    result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index)));
+    result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index),
+                                                        manager->traceDuration()));
     result.insert(tr("Message"), m_data[index].text);
     result.insert(tr("Location"), type.displayName());
     return result;
@@ -99,7 +102,7 @@ int DebugMessagesModel::collapsedRow(int index) const
 void DebugMessagesModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
     m_data.insert(insert(event.timestamp(), 0, type.detailType()),
-                  MessageData(event.string(), event.typeIndex()));
+                  Item(event.string(), event.typeIndex()));
     if (type.detailType() > m_maximumMsgType)
         m_maximumMsgType = type.detailType();
 }
@@ -108,6 +111,7 @@ void DebugMessagesModel::finalize()
 {
     setCollapsedRowCount(Constants::QML_MIN_LEVEL + 1);
     setExpandedRowCount(m_maximumMsgType + 2);
+    QmlProfilerTimelineModel::finalize();
 }
 
 void DebugMessagesModel::clear()

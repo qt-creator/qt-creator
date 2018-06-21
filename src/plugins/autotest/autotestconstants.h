@@ -33,16 +33,29 @@ namespace Constants {
 const char ACTION_SCAN_ID[]             = "AutoTest.ScanAction";
 const char ACTION_RUN_ALL_ID[]          = "AutoTest.RunAll";
 const char ACTION_RUN_SELECTED_ID[]     = "AutoTest.RunSelected";
+const char ACTION_RUN_FILE_ID[]         = "AutoTest.RunFile";
+const char ACTION_RUN_UCURSOR[]         = "AutoTest.RunUnderCursor";
+const char ACTION_RUN_DBG_UCURSOR[]     = "AutoTest.RunDebugUnderCursor";
 const char MENU_ID[]                    = "AutoTest.Menu";
 const char AUTOTEST_ID[]                = "AutoTest.ATP";
 const char AUTOTEST_CONTEXT[]           = "Auto Tests";
 const char TASK_INDEX[]                 = "AutoTest.Task.Index";
 const char TASK_PARSE[]                 = "AutoTest.Task.Parse";
 const char AUTOTEST_SETTINGS_CATEGORY[] = "ZY.Tests";
-const char AUTOTEST_SETTINGS_TR[]       = QT_TRANSLATE_NOOP("AutoTest", "Test Settings");
+const char AUTOTEST_SETTINGS_TR[]       = QT_TRANSLATE_NOOP("AutoTest", "Testing");
 const char FRAMEWORK_PREFIX[]           = "AutoTest.Framework.";
-
 const char SETTINGSPAGE_PREFIX[]        = "A.AutoTest.";
 const char SETTINGSGROUP[]              = "Autotest";
+const char TASK_MARK_ID[]               = "Autotest.TaskMark";
 } // namespace Constants
+
+namespace Internal {
+enum class TestRunMode
+{
+    Run,
+    RunWithoutDeploy,
+    Debug,
+    DebugWithoutDeploy
+};
+} // namespace Internal
 } // namespace Autotest

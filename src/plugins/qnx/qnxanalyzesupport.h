@@ -25,51 +25,24 @@
 
 #pragma once
 
-#include "qnxabstractrunsupport.h"
-
-#include <projectexplorer/runnables.h>
-#include <utils/outputformat.h>
-#include <qmldebug/qmloutputparser.h>
-
-namespace Debugger { class AnalyzerRunControl; }
+#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
+#include <projectexplorer/runconfiguration.h>
 
 namespace Qnx {
 namespace Internal {
 
-class QnxRunConfiguration;
-class Slog2InfoRunner;
-
-class QnxAnalyzeSupport : public QnxAbstractRunSupport
+class QnxQmlProfilerSupport : public ProjectExplorer::SimpleTargetRunner
 {
     Q_OBJECT
+
 public:
-    QnxAnalyzeSupport(QnxRunConfiguration *runConfig, Debugger::AnalyzerRunControl *engine);
-
-public slots:
-    void handleProfilingFinished();
-
-private slots:
-    void handleAdapterSetupRequested() override;
-
-    void handleRemoteProcessFinished(bool success) override;
-    void handleProgressReport(const QString &progressOutput) override;
-    void handleRemoteOutput(const QByteArray &output) override;
-    void handleError(const QString &error) override;
-
-    void showMessage(const QString &, Utils::OutputFormat);
-    void printMissingWarning();
-
-    void remoteIsRunning();
+    explicit QnxQmlProfilerSupport(ProjectExplorer::RunControl *runControl);
 
 private:
-    void startExecution() override;
+    void start() override;
 
-    ProjectExplorer::StandardRunnable m_runnable;
-    Debugger::AnalyzerRunControl *m_runControl;
-    QmlDebug::QmlOutputParser m_outputParser;
-    Utils::Port m_qmlPort;
-
-    Slog2InfoRunner *m_slog2Info;
+    ProjectExplorer::PortsGatherer *m_portsGatherer;
+    ProjectExplorer::RunWorker *m_profiler;
 };
 
 } // namespace Internal

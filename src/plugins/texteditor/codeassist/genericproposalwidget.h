@@ -27,13 +27,14 @@
 
 #include "iassistproposalwidget.h"
 
+#include "genericproposalmodel.h"
+
 #include <texteditor/texteditor_global.h>
 
 
 namespace TextEditor {
 
 class GenericProposalWidgetPrivate;
-class GenericProposalModel;
 
 class TEXTEDITOR_EXPORT GenericProposalWidget : public IAssistProposalWidget
 {
@@ -42,13 +43,13 @@ class TEXTEDITOR_EXPORT GenericProposalWidget : public IAssistProposalWidget
 
 public:
     GenericProposalWidget();
-    ~GenericProposalWidget();
+    ~GenericProposalWidget() override;
 
     void setAssistant(CodeAssistant *assistant) override;
     void setReason(AssistReason reason) override;
     void setKind(AssistKind kind) override;
     void setUnderlyingWidget(const QWidget *underlyingWidget) override;
-    void setModel(IAssistProposalModel *model) override;
+    void setModel(ProposalModelPtr model) override;
     void setDisplayRect(const QRect &rect) override;
     void setIsSynchronized(bool isSync) override;
 
@@ -67,7 +68,7 @@ private:
 protected:
     bool eventFilter(QObject *o, QEvent *e) override;
     bool activateCurrentProposalItem();
-    GenericProposalModel *model();
+    TextEditor::GenericProposalModelPtr model();
 
 private:
     GenericProposalWidgetPrivate *d;

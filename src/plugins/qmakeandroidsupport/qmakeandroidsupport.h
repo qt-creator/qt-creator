@@ -37,13 +37,13 @@ class QmakeAndroidSupport : public Android::AndroidQtSupport
 public:
     bool canHandle(const ProjectExplorer::Target *target) const override;
     QStringList soLibSearchPath(const ProjectExplorer::Target *target) const override;
-    QStringList androidExtraLibs(const ProjectExplorer::Target *target) const override;
     QStringList projectTargetApplications(const ProjectExplorer::Target *target) const override;
-    Utils::FileName androiddeployqtPath(ProjectExplorer::Target *target) const override;
-    Utils::FileName androiddeployJsonPath(ProjectExplorer::Target *target) const override;
+    Utils::FileName androiddeployqtPath(const ProjectExplorer::Target *target) const override;
 
     void manifestSaved(const ProjectExplorer::Target *target) override;
-    Utils::FileName manifestSourcePath(const ProjectExplorer::Target *target) override;
+
+    QString targetDataItem(Core::Id role, const ProjectExplorer::Target *target) const override;
+    QStringList targetData(Core::Id role, const ProjectExplorer::Target *target) const override;
 };
 
 } // namespace Internal

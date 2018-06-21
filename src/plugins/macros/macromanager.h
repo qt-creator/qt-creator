@@ -28,10 +28,6 @@
 #include <QObject>
 #include <QMap>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
-
 namespace Macros {
 namespace Internal {
 
@@ -56,8 +52,6 @@ public:
     void executeLastMacro();
     void saveLastMacro();
     bool executeMacro(const QString &name);
-
-public slots:
     void endMacro();
 
 protected:

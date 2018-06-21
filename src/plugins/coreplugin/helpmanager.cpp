@@ -26,34 +26,44 @@
 #include "helpmanager.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QFutureWatcher>
 #include <QStringList>
+#include <QUrl>
+
+#ifdef QT_HELP_LIB
 
 #include <QHelpEngineCore>
 
+#include <QMutexLocker>
 #include <QSqlDatabase>
 #include <QSqlDriver>
 #include <QSqlError>
 #include <QSqlQuery>
 
 static const char kUserDocumentationKey[] = "Help/UserDocumentation";
+static const char kUpdateDocumentationTask[] = "UpdateDocumentationTask";
 
 namespace Core {
 
 struct HelpManagerPrivate
 {
     HelpManagerPrivate() :
-       m_needsSetup(true), m_helpEngine(0), m_collectionWatcher(0)
+       m_needsSetup(true), m_helpEngine(nullptr), m_collectionWatcher(nullptr)
     {}
 
-    QStringList documentationFromInstaller();
+    ~HelpManagerPrivate();
+
+    const QStringList documentationFromInstaller();
     void readSettings();
     void writeSettings();
     void cleanUpDocumentation();
@@ -68,10 +78,13 @@ struct HelpManagerPrivate
     QHash<QString, QVariant> m_customValues;
 
     QSet<QString> m_userRegisteredFiles;
+
+    QMutex m_helpengineMutex;
+    QFuture<bool> m_registerFuture;
 };
 
-static HelpManager *m_instance = 0;
-static HelpManagerPrivate *d;
+static HelpManager *m_instance = nullptr;
+static HelpManagerPrivate *d = nullptr;
 
 static const char linksForKeyQuery[] = "SELECT d.Title, f.Name, e.Name, "
     "d.Name, a.Anchor FROM IndexTable a, FileNameTable d, FolderTable e, "
@@ -99,11 +112,8 @@ HelpManager::HelpManager(QObject *parent) :
 
 HelpManager::~HelpManager()
 {
-    d->writeSettings();
-    delete d->m_helpEngine;
-    d->m_helpEngine = 0;
-    m_instance = 0;
     delete d;
+    m_instance = nullptr;
 }
 
 HelpManager *HelpManager::instance()
@@ -121,51 +131,77 @@ QString HelpManager::collectionFilePath()
 void HelpManager::registerDocumentation(const QStringList &files)
 {
     if (d->m_needsSetup) {
-        foreach (const QString &filePath, files)
+        for (const QString &filePath : files)
             d->m_filesToRegister.insert(filePath);
         return;
     }
 
+    QFuture<bool> future = Utils::runAsync(&HelpManager::registerDocumentationNow, files);
+    Utils::onResultReady(future, m_instance, [](bool docsChanged){
+        if (docsChanged) {
+            d->m_helpEngine->setupData();
+            emit m_instance->documentationChanged();
+        }
+    });
+    ProgressManager::addTask(future, tr("Update Documentation"),
+                             kUpdateDocumentationTask);
+}
+
+void HelpManager::registerDocumentationNow(QFutureInterface<bool> &futureInterface,
+                                           const QStringList &files)
+{
+    QMutexLocker locker(&d->m_helpengineMutex);
+
+    futureInterface.setProgressRange(0, files.count());
+    futureInterface.setProgressValue(0);
+
+    QHelpEngineCore helpEngine(collectionFilePath());
+    helpEngine.setupData();
     bool docsChanged = false;
-    foreach (const QString &file, files) {
-        const QString &nameSpace = d->m_helpEngine->namespaceName(file);
+    QStringList nameSpaces = helpEngine.registeredDocumentations();
+    for (const QString &file : files) {
+        if (futureInterface.isCanceled())
+            break;
+        futureInterface.setProgressValue(futureInterface.progressValue() + 1);
+        const QString &nameSpace = helpEngine.namespaceName(file);
         if (nameSpace.isEmpty())
             continue;
-        if (!d->m_helpEngine->registeredDocumentations().contains(nameSpace)) {
-            if (d->m_helpEngine->registerDocumentation(file)) {
+        if (!nameSpaces.contains(nameSpace)) {
+            if (helpEngine.registerDocumentation(file)) {
+                nameSpaces.append(nameSpace);
                 docsChanged = true;
             } else {
                 qWarning() << "Error registering namespace '" << nameSpace
-                    << "' from file '" << file << "':" << d->m_helpEngine->error();
+                    << "' from file '" << file << "':" << helpEngine.error();
             }
         } else {
             const QLatin1String key("CreationDate");
-            const QString &newDate = d->m_helpEngine->metaData(file, key).toString();
-            const QString &oldDate = d->m_helpEngine->metaData(
-                d->m_helpEngine->documentationFileName(nameSpace), key).toString();
+            const QString &newDate = helpEngine.metaData(file, key).toString();
+            const QString &oldDate = helpEngine.metaData(
+                helpEngine.documentationFileName(nameSpace), key).toString();
             if (QDateTime::fromString(newDate, Qt::ISODate)
                 > QDateTime::fromString(oldDate, Qt::ISODate)) {
-                if (d->m_helpEngine->unregisterDocumentation(nameSpace)) {
+                if (helpEngine.unregisterDocumentation(nameSpace)) {
                     docsChanged = true;
-                    d->m_helpEngine->registerDocumentation(file);
+                    helpEngine.registerDocumentation(file);
                 }
             }
         }
     }
-    if (docsChanged)
-        emit m_instance->documentationChanged();
+    futureInterface.reportResult(docsChanged);
 }
 
 void HelpManager::unregisterDocumentation(const QStringList &nameSpaces)
 {
     if (d->m_needsSetup) {
-        foreach (const QString &name, nameSpaces)
+        for (const QString &name : nameSpaces)
             d->m_nameSpacesToUnregister.insert(name);
         return;
     }
 
+    QMutexLocker locker(&d->m_helpengineMutex);
     bool docsChanged = false;
-    foreach (const QString &nameSpace, nameSpaces) {
+    for (const QString &nameSpace : nameSpaces) {
         const QString filePath = d->m_helpEngine->documentationFileName(nameSpace);
         if (d->m_helpEngine->unregisterDocumentation(nameSpace)) {
             docsChanged = true;
@@ -176,13 +212,14 @@ void HelpManager::unregisterDocumentation(const QStringList &nameSpaces)
                 << "': " << d->m_helpEngine->error();
         }
     }
+    locker.unlock();
     if (docsChanged)
         emit m_instance->documentationChanged();
 }
 
 void HelpManager::registerUserDocumentation(const QStringList &filePaths)
 {
-    foreach (const QString &filePath, filePaths)
+    for (const QString &filePath : filePaths)
         d->m_userRegisteredFiles.insert(filePath);
     registerDocumentation(filePaths);
 }
@@ -216,7 +253,7 @@ QMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key)
     QSqlDatabase db = QSqlDatabase::addDatabase(sqlite, name);
     if (db.driver() && db.driver()->lastError().type() == QSqlError::NoError) {
         const QStringList &registeredDocs = d->m_helpEngine->registeredDocumentations();
-        foreach (const QString &nameSpace, registeredDocs) {
+        for (const QString &nameSpace : registeredDocs) {
             db.setDatabaseName(d->m_helpEngine->documentationFileName(nameSpace));
             if (db.open()) {
                 QSqlQuery query = QSqlQuery(db);
@@ -305,7 +342,7 @@ HelpManager::Filters HelpManager::filters()
 
     Filters filters;
     const QStringList &customFilters = d->m_helpEngine->customFilters();
-    foreach (const QString &filter, customFilters)
+    for (const QString &filter : customFilters)
         filters.insert(filter, d->m_helpEngine->filterAttributes(filter));
     return filters;
 }
@@ -322,7 +359,7 @@ HelpManager::Filters HelpManager::fixedFilters()
     QSqlDatabase db = QSqlDatabase::addDatabase(sqlite, name);
     if (db.driver() && db.driver()->lastError().type() == QSqlError::NoError) {
         const QStringList &registeredDocs = d->m_helpEngine->registeredDocumentations();
-        foreach (const QString &nameSpace, registeredDocs) {
+        for (const QString &nameSpace : registeredDocs) {
             db.setDatabaseName(d->m_helpEngine->documentationFileName(nameSpace));
             if (db.open()) {
                 QSqlQuery query = QSqlQuery(db);
@@ -365,6 +402,14 @@ void HelpManager::addUserDefinedFilter(const QString &filter, const QStringList 
         emit m_instance->collectionFileChanged();
 }
 
+void HelpManager::aboutToShutdown()
+{
+    if (d && d->m_registerFuture.isRunning()) {
+        d->m_registerFuture.cancel();
+        d->m_registerFuture.waitForFinished();
+    }
+}
+
 // -- private
 
 void HelpManager::setupHelpManager()
@@ -377,11 +422,9 @@ void HelpManager::setupHelpManager()
 
     // create the help engine
     d->m_helpEngine = new QHelpEngineCore(collectionFilePath(), m_instance);
-    d->m_helpEngine->setAutoSaveFilter(false);
-    d->m_helpEngine->setCurrentFilter(tr("Unfiltered"));
     d->m_helpEngine->setupData();
 
-    foreach (const QString &filePath, d->documentationFromInstaller())
+    for (const QString &filePath : d->documentationFromInstaller())
         d->m_filesToRegister.insert(filePath);
 
     d->cleanUpDocumentation();
@@ -408,7 +451,7 @@ void HelpManagerPrivate::cleanUpDocumentation()
     // mark documentation for removal for which there is no documentation file anymore
     // mark documentation for removal that is neither user registered, nor marked for registration
     const QStringList &registeredDocs = m_helpEngine->registeredDocumentations();
-    foreach (const QString &nameSpace, registeredDocs) {
+    for (const QString &nameSpace : registeredDocs) {
         const QString filePath = m_helpEngine->documentationFileName(nameSpace);
         if (!QFileInfo::exists(filePath)
                 || (!m_filesToRegister.contains(filePath)
@@ -418,22 +461,28 @@ void HelpManagerPrivate::cleanUpDocumentation()
     }
 }
 
-QStringList HelpManagerPrivate::documentationFromInstaller()
+HelpManagerPrivate::~HelpManagerPrivate()
+{
+    writeSettings();
+    delete m_helpEngine;
+    m_helpEngine = nullptr;
+}
+
+const QStringList HelpManagerPrivate::documentationFromInstaller()
 {
     QSettings *installSettings = ICore::settings();
-    QStringList documentationPaths = installSettings->value(QLatin1String("Help/InstalledDocumentation"))
+    const QStringList documentationPaths = installSettings->value(QLatin1String("Help/InstalledDocumentation"))
             .toStringList();
     QStringList documentationFiles;
-    foreach (const QString &path, documentationPaths) {
+    for (const QString &path : documentationPaths) {
         QFileInfo pathInfo(path);
         if (pathInfo.isFile() && pathInfo.isReadable()) {
             documentationFiles << pathInfo.absoluteFilePath();
         } else if (pathInfo.isDir()) {
-            QDir dir(path);
-            foreach (const QFileInfo &fileInfo, dir.entryInfoList(QStringList(QLatin1String("*.qch")),
-                                                              QDir::Files | QDir::Readable)) {
+            const QFileInfoList files(QDir(path).entryInfoList(QStringList(QLatin1String("*.qch")),
+                                                               QDir::Files | QDir::Readable));
+            for (const QFileInfo &fileInfo : files)
                 documentationFiles << fileInfo.absoluteFilePath();
-            }
         }
     }
     return documentationFiles;
@@ -452,3 +501,51 @@ void HelpManagerPrivate::writeSettings()
 }
 
 }   // Core
+
+#else // QT_HELP_LIB
+
+namespace Core {
+
+HelpManager *HelpManager::instance() { return 0; }
+
+QString HelpManager::collectionFilePath() { return QString(); }
+
+void HelpManager::registerDocumentation(const QStringList &) {}
+void HelpManager::registerDocumentationNow(QFutureInterface<bool> &, const QStringList &) {}
+void HelpManager::unregisterDocumentation(const QStringList &) {}
+
+void HelpManager::registerUserDocumentation(const QStringList &) {}
+QSet<QString> HelpManager::userDocumentationPaths() { return {}; }
+
+QMap<QString, QUrl> HelpManager::linksForKeyword(const QString &) { return {}; }
+QMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &) { return {}; }
+
+QUrl HelpManager::findFile(const QUrl &) { return QUrl();}
+QByteArray HelpManager::fileData(const QUrl &) { return QByteArray();}
+
+QStringList HelpManager::registeredNamespaces() { return {}; }
+QString HelpManager::namespaceFromFile(const QString &) { return QString(); }
+QString HelpManager::fileFromNamespace(const QString &) { return QString(); }
+
+void HelpManager::setCustomValue(const QString &, const QVariant &) {}
+QVariant HelpManager::customValue(const QString &, const QVariant &) { return QVariant(); }
+
+HelpManager::Filters filters() { return {}; }
+HelpManager::Filters fixedFilters() { return {}; }
+
+HelpManager::Filters userDefinedFilters() { return {}; }
+
+void HelpManager::removeUserDefinedFilter(const QString &) {}
+void HelpManager::addUserDefinedFilter(const QString &, const QStringList &) {}
+
+void HelpManager::handleHelpRequest(const QUrl &, HelpManager::HelpViewerLocation) {}
+void HelpManager::handleHelpRequest(const QString &, HelpViewerLocation) {}
+
+HelpManager::HelpManager(QObject *) {}
+HelpManager::~HelpManager() {}
+void HelpManager::aboutToShutdown() {}
+void HelpManager::setupHelpManager() {}
+
+} // namespace Core
+
+#endif // QT_HELP_LIB

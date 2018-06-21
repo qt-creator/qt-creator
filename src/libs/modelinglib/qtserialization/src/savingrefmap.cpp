@@ -40,13 +40,13 @@ int SavingRefMap::countDanglingReferences()
 
 bool SavingRefMap::hasRef(const void *address, const char *typeName)
 {
-    return m_references.find(KeyType(address, typeName)) != m_references.end();
+    return m_references.constFind(KeyType(address, typeName)) != m_references.constEnd();
 }
 
 bool SavingRefMap::hasDefinedRef(const void *address, const char *typeName)
 {
-    MapType::const_iterator it = m_references.find(KeyType(address, typeName));
-    if (it == m_references.end())
+    const MapType::const_iterator it = m_references.constFind(KeyType(address, typeName));
+    if (it == m_references.constEnd())
         return false;
     return it.value().second;
 }

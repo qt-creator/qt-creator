@@ -26,6 +26,7 @@
 #include "easingcontextpane.h"
 #include "ui_easingcontextpane.h"
 #include <qmljs/qmljspropertyreader.h>
+#include <utils/utilsicons.h>
 
 #include <QGraphicsPixmapItem>
 #include <QGraphicsScene>
@@ -48,7 +49,7 @@ class EasingSimulation : public QObject
 public:
     QGraphicsView *m_g;
     EasingSimulation(QObject *parent=0, QGraphicsView *v=0):QObject(parent) {
-        m_qtLogo = new PixmapItem(QPixmap(QLatin1String(":/qt_logo.png")));
+        m_qtLogo = new PixmapItem(QPixmap(":/qmleditorwidgets/qt_logo.png"));
         m_scene.addItem(m_qtLogo);
         m_scene.setSceneRect(0,0,v->viewport()->width(),m_qtLogo->boundingRect().height());
         m_qtLogo->hide();
@@ -87,7 +88,7 @@ public:
             m_sequential->resume();
         }
     }
-    void animate(int duration, QEasingCurve curve) {
+    void animate(int duration, const QEasingCurve &curve) {
         reset();
         m_sequential = new QSequentialAnimationGroup;
         connect(m_sequential,&QAbstractAnimation::finished,this,&EasingSimulation::finished);
@@ -124,9 +125,7 @@ EasingContextPane::EasingContextPane(QWidget *parent) :
     m_easingGraph->raise();
     setLinear();
 
-    ui->playButton->setIcon(QIcon(QLatin1String(":/playicon.png")));
-
-
+    ui->playButton->setIcon(Utils::Icons::RUN_SMALL.icon());
 
     setGraphDisplayMode(GraphMode);
 
@@ -228,14 +227,14 @@ void EasingContextPane::startAnimation()
         m_simulation->stop();
     } else {
         m_simulation->animate(ui->durationSpinBox->value(), m_easingGraph->easingCurve());
-        ui->playButton->setIcon(QIcon(QLatin1String(":/stopicon.png")));
+        ui->playButton->setIcon(Utils::Icons::STOP_SMALL.icon());
     }
 
 }
 
 void EasingContextPane::switchToGraph()
 {
-    ui->playButton->setIcon(QIcon(QLatin1String(":/playicon.png")));
+    ui->playButton->setIcon(Utils::Icons::RUN_SMALL.icon());
     setGraphDisplayMode(GraphMode);
 }
 
@@ -288,7 +287,7 @@ void QmlEditorWidgets::EasingContextPane::on_durationSpinBox_valueChanged(int ne
     emit propertyChanged(QLatin1String("duration"), newValue);
 }
 
-void QmlEditorWidgets::EasingContextPane::on_easingShapeComboBox_currentIndexChanged(QString newShape)
+void QmlEditorWidgets::EasingContextPane::on_easingShapeComboBox_currentIndexChanged(const QString &newShape)
 {
     if (newShape==QLatin1String("Linear"))
         setLinear();
@@ -312,7 +311,7 @@ void QmlEditorWidgets::EasingContextPane::on_easingShapeComboBox_currentIndexCha
     }
 }
 
-void QmlEditorWidgets::EasingContextPane::on_easingExtremesComboBox_currentIndexChanged(QString newExtremes)
+void QmlEditorWidgets::EasingContextPane::on_easingExtremesComboBox_currentIndexChanged(const QString &newExtremes)
 {
     if (m_easingGraph->easingExtremes() != newExtremes) {
         m_easingGraph->setEasingExtremes(newExtremes);

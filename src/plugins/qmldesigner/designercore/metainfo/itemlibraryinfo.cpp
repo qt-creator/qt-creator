@@ -337,6 +337,33 @@ void ItemLibraryInfo::clearEntries()
     emit entriesChanged();
 }
 
+QStringList ItemLibraryInfo::blacklistImports() const
+{
+    auto list = m_blacklistImports;
+    if (m_baseInfo)
+        list.append(m_baseInfo->m_blacklistImports);
+    return list;
+}
+
+QStringList ItemLibraryInfo::showTagsForImports() const
+{
+    auto list = m_showTagsForImports;
+    if (m_baseInfo)
+        list.append(m_baseInfo->m_showTagsForImports);
+    list.removeDuplicates();
+    return list;
+}
+
+void ItemLibraryInfo::addBlacklistImports(const QStringList &list)
+{
+    m_blacklistImports.append(list);
+}
+
+void ItemLibraryInfo::addShowTagsForImports(const QStringList &list)
+{
+    m_showTagsForImports.append(list);
+}
+
 void ItemLibraryInfo::setBaseInfo(ItemLibraryInfo *baseInfo)
 {
     m_baseInfo = baseInfo;

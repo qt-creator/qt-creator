@@ -48,13 +48,14 @@ public:
     QString predefinedStyle() const;
     void setPredefinedStyle(const QString &predefinedStyle);
 
+    QString fallbackStyle() const;
+    void setFallbackStyle(const QString &fallbackStyle);
+
     QString customStyle() const;
     void setCustomStyle(const QString &customStyle);
 
-    bool formatEntireFileFallback() const;
-    void setFormatEntireFileFallback(bool formatEntireFileFallback);
-
     QStringList predefinedStyles() const;
+    QStringList fallbackStyles() const;
 
     QString styleFileName(const QString &key) const override;
 

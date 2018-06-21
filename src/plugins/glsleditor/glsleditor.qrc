@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/glsleditor">
-        <file>GLSLEditor.mimetypes.xml</file>
         <file>images/glslfile.png</file>
     </qresource>
 </RCC>

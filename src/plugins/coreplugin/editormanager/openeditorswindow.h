@@ -39,7 +39,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class IDocument;
 class IEditor;
 
 namespace Internal {
@@ -51,7 +50,6 @@ public:
     QSize sizeHint() const;
 };
 
-class EditorHistoryItem;
 
 class OpenEditorsWindow : public QFrame
 {

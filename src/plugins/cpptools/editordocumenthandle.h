@@ -40,8 +40,8 @@ public:
 
     enum RefreshReason {
         None,
-        Usual, // e.g. project configuration change or change of editor contents
-        ActiveProjectChange
+        ProjectUpdate,
+        Other,
     };
     RefreshReason refreshReason() const;
     void setRefreshReason(const RefreshReason &refreshReason);

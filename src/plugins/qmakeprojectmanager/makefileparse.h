@@ -29,10 +29,6 @@
 #include <qtsupport/baseqtversion.h>
 #include <qmakeprojectmanager/qmakestep.h>
 
-QT_BEGIN_NAMESPACE
-class QLogggingCategory;
-QT_END_NAMESPACE
-
 namespace QmakeProjectManager {
 namespace Internal {
 

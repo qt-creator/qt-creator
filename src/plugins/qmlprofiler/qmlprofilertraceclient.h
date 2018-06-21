@@ -37,23 +37,26 @@
 
 namespace QmlProfiler {
 
-class QmlProfilerDataModel;
+class QmlProfilerModelManager;
 class QmlProfilerTraceClient : public QmlDebug::QmlDebugClient
 {
     Q_OBJECT
     Q_PROPERTY(bool recording READ isRecording WRITE setRecording NOTIFY recordingChanged)
 
 public:
-    QmlProfilerTraceClient(QmlDebug::QmlDebugConnection *client, QmlProfilerDataModel *model,
+    QmlProfilerTraceClient(QmlDebug::QmlDebugConnection *client,
+                           QmlProfilerModelManager *modelManager,
                            quint64 features);
-    ~QmlProfilerTraceClient();
+    ~QmlProfilerTraceClient() override;
 
     bool isRecording() const;
     void setRecording(bool);
     quint64 recordedFeatures() const;
+    void messageReceived(const QByteArray &) override;
+    void stateChanged(State status) override;
 
-public slots:
-    void clearData();
+    void clearEvents();
+    void clear();
     void sendRecordingStatus(int engineId = -1);
     void setRequestedFeatures(quint64 features);
     void setFlushInterval(quint32 flushInterval);
@@ -67,10 +70,6 @@ signals:
     void recordedFeaturesChanged(quint64 features);
 
     void cleared();
-
-protected:
-    virtual void stateChanged(State status);
-    virtual void messageReceived(const QByteArray &);
 
 private:
     class QmlProfilerTraceClientPrivate *d;

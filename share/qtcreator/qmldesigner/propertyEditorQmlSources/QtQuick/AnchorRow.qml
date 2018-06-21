@@ -27,6 +27,7 @@ import QtQuick 2.0
 import HelperWidgets 2.0
 import QtQuick.Layouts 1.0
 import QtQuick.Controls 1.0 as Controls
+import QtQuickDesignerTheme 1.0
 
 RowLayout {
     id: anchorRow
@@ -58,7 +59,7 @@ RowLayout {
 
     property alias buttonRow: buttonRow
 
-    readonly property color __defaultTextColor: creatorTheme.PanelTextColorLight
+    readonly property color __defaultTextColor: Theme.color(Theme.PanelTextColorLight)
 
     IconLabel {
         id: icon

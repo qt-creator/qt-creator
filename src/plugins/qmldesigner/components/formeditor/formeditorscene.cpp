@@ -27,9 +27,9 @@
 #include "formeditorview.h"
 #include "formeditorwidget.h"
 #include "formeditoritem.h"
-#include "qmldesignerplugin.h"
-#include "designersettings.h"
-
+#include <nodehints.h>
+#include <qmldesignerplugin.h>
+#include <designersettings.h>
 
 #include <QGraphicsSceneDragDropEvent>
 
@@ -43,13 +43,14 @@
 #include <QTime>
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 namespace QmlDesigner {
 
 FormEditorScene::FormEditorScene(FormEditorWidget *view, FormEditorView *editorView)
         : QGraphicsScene(),
         m_editorView(editorView),
-        m_showBoundingRects(true)
+        m_showBoundingRects(false)
 {
     setupScene();
     view->setScene(this);
@@ -85,20 +86,18 @@ void FormEditorScene::resetScene()
 
 FormEditorItem* FormEditorScene::itemForQmlItemNode(const QmlItemNode &qmlItemNode) const
 {
-    Q_ASSERT(qmlItemNode.isValid());
+    QTC_ASSERT(qmlItemNode.isValid(), return 0);
     return m_qmlItemNodeItemHash.value(qmlItemNode);
 }
 
 double FormEditorScene::canvasWidth() const
 {
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.value(DesignerSettingsKey::CANVASWIDTH).toDouble();
+    return DesignerSettings::getValue(DesignerSettingsKey::CANVASWIDTH).toDouble();
 }
 
 double FormEditorScene::canvasHeight() const
 {
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.value(DesignerSettingsKey::CANVASHEIGHT).toDouble();
+    return DesignerSettings::getValue(DesignerSettingsKey::CANVASHEIGHT).toDouble();
 }
 
 QList<FormEditorItem*> FormEditorScene::itemsForQmlItemNodes(const QList<QmlItemNode> &nodeList) const
@@ -171,6 +170,9 @@ void FormEditorScene::synchronizeOtherProperty(FormEditorItem *item, const QByte
     if (propertyName == "clip")
         item->setFlag(QGraphicsItem::ItemClipsChildrenToShape, qmlItemNode.instanceValue("clip").toBool());
 
+    if (NodeHints::fromModelNode(qmlItemNode).forceClip())
+        item->setFlag(QGraphicsItem::ItemClipsChildrenToShape, true);
+
     if (propertyName == "z")
         item->setZValue(qmlItemNode.instanceValue("z").toDouble());
 
@@ -197,8 +199,8 @@ void FormEditorScene::dropEvent(QGraphicsSceneDragDropEvent * event)
 {
     currentTool()->dropEvent(removeLayerItems(itemsAt(event->scenePos())), event);
 
-    if (views().first())
-        views().first()->setFocus();
+    if (views().constFirst())
+        views().constFirst()->setFocus();
 }
 
 void FormEditorScene::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
@@ -234,7 +236,7 @@ QList<QGraphicsItem *> FormEditorScene::itemsAt(const QPointF &pos)
     QTransform transform;
 
     if (!views().isEmpty())
-        transform = views().first()->transform();
+        transform = views().constFirst()->transform();
 
     return items(pos,
                  Qt::IntersectsItemShape,
@@ -244,6 +246,11 @@ QList<QGraphicsItem *> FormEditorScene::itemsAt(const QPointF &pos)
 
 void FormEditorScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+    event->ignore();
+    QGraphicsScene::mousePressEvent(event);
+    if (event->isAccepted())
+        return;
+
     if (editorView() && editorView()->model())
         currentTool()->mousePressEvent(removeLayerItems(itemsAt(event->scenePos())), event);
 }
@@ -259,6 +266,8 @@ void FormEditorScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     static QTime time = staticTimer();
 
+    QGraphicsScene::mouseMoveEvent(event);
+
     if (time.elapsed() > 30) {
         time.restart();
         if (event->buttons())
@@ -272,6 +281,11 @@ void FormEditorScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void FormEditorScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+    event->ignore();
+    QGraphicsScene::mouseReleaseEvent(event);
+    if (event->isAccepted())
+        return;
+
     if (editorView() && editorView()->model()) {
         currentTool()->mouseReleaseEvent(removeLayerItems(itemsAt(event->scenePos())), event);
 
@@ -281,6 +295,11 @@ void FormEditorScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void FormEditorScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
+    event->ignore();
+    QGraphicsScene::mousePressEvent(event);
+    if (event->isAccepted())
+        return;
+
     if (editorView() && editorView()->model()) {
         currentTool()->mouseDoubleClickEvent(removeLayerItems(itemsAt(event->scenePos())), event);
 
@@ -327,18 +346,19 @@ bool FormEditorScene::event(QEvent * event)
     {
         case QEvent::GraphicsSceneHoverEnter :
             hoverEnterEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
-            return true;
+            return QGraphicsScene::event(event);
         case QEvent::GraphicsSceneHoverMove :
             hoverMoveEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
-            return true;
+            return QGraphicsScene::event(event);
         case QEvent::GraphicsSceneHoverLeave :
             hoverLeaveEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
-            return true;
+            return QGraphicsScene::event(event);
         case QEvent::ShortcutOverride :
             if (static_cast<QKeyEvent*>(event)->key() == Qt::Key_Escape) {
                 currentTool()->keyPressEvent(static_cast<QKeyEvent*>(event));
                 return true;
             }
+            Q_FALLTHROUGH();
         default: return QGraphicsScene::event(event);
     }
 
@@ -381,15 +401,16 @@ void FormEditorScene::clearFormEditorItems()
 {
     const QList<QGraphicsItem*> itemList(items());
 
-    foreach (QGraphicsItem *item, itemList) {
-        if (qgraphicsitem_cast<FormEditorItem* >(item))
-            item->setParentItem(0);
-    }
+    const QList<FormEditorItem*> formEditorItemsTransformed =
+            Utils::transform(itemList, [](QGraphicsItem *item) { return qgraphicsitem_cast<FormEditorItem* >(item); });
 
-    foreach (QGraphicsItem *item, itemList) {
-        if (qgraphicsitem_cast<FormEditorItem* >(item))
+    const QList<FormEditorItem*> formEditorItems = Utils::filtered(formEditorItemsTransformed,
+                                                                   [](FormEditorItem *item) { return item; });
+    foreach (FormEditorItem *item, formEditorItems)
+            item->setParentItem(0);
+
+    foreach (FormEditorItem *item, formEditorItems)
             delete item;
-    }
 }
 
 void FormEditorScene::highlightBoundingRect(FormEditorItem *highlighItem)

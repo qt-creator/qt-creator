@@ -30,9 +30,17 @@
 #include "internalnode_p.h"
 #include "nodeinstanceview.h"
 #include <qmlstate.h>
+#include <qmltimeline.h>
+
+#ifndef QMLDESIGNER_TEST
+#include <qmldesignerplugin.h>
+#include <viewmanager.h>
+#endif
 
 #include <coreplugin/helpmanager.h>
 #include <utils/qtcassert.h>
+
+#include <QRegExp>
 
 namespace QmlDesigner {
 
@@ -122,7 +130,8 @@ WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
                                           const QString &uniqueId,
                                           WidgetInfo::PlacementHint placementHint,
                                           int placementPriority,
-                                          const QString &tabName)
+                                          const QString &tabName,
+                                          DesignerWidgetFlags widgetFlags)
 {
     WidgetInfo widgetInfo;
 
@@ -132,6 +141,7 @@ WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
     widgetInfo.placementHint = placementHint;
     widgetInfo.placementPriority = placementPriority;
     widgetInfo.tabName = tabName;
+    widgetInfo.widgetFlags = widgetFlags;
 
     return widgetInfo;
 }
@@ -346,6 +356,15 @@ void AbstractView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStri
 {
 }
 
+void AbstractView::documentMessagesChanged(const QList<DocumentMessage> &/*errors*/, const QList<DocumentMessage> &/*warnings*/)
+{
+}
+
+void AbstractView::currentTimelineChanged(const ModelNode & /*node*/)
+{
+
+}
+
 QList<ModelNode> AbstractView::toModelNodeList(const QList<Internal::InternalNode::Pointer> &nodeList) const
 {
     return QmlDesigner::toModelNodeList(nodeList, const_cast<AbstractView*>(this));
@@ -380,7 +399,7 @@ void AbstractView::setSelectedModelNodes(const QList<ModelNode> &selectedNodeLis
 
 void AbstractView::setSelectedModelNode(const ModelNode &modelNode)
 {
-    setSelectedModelNodes(QList<ModelNode>() << modelNode);
+    setSelectedModelNodes({modelNode});
 }
 
 /*!
@@ -418,7 +437,7 @@ QList<ModelNode> AbstractView::selectedModelNodes() const
 ModelNode AbstractView::firstSelectedModelNode() const
 {
     if (hasSelectedModelNodes())
-        return ModelNode(model()->d->selectedNodes().first(), model(), this);
+        return ModelNode(model()->d->selectedNodes().constFirst(), model(), this);
 
     return ModelNode();
 }
@@ -426,7 +445,7 @@ ModelNode AbstractView::firstSelectedModelNode() const
 ModelNode AbstractView::singleSelectedModelNode() const
 {
     if (hasSingleSelectedModelNode())
-        return ModelNode(model()->d->selectedNodes().first(), model(), this);
+        return ModelNode(model()->d->selectedNodes().constFirst(), model(), this);
 
     return ModelNode();
 }
@@ -542,31 +561,56 @@ WidgetInfo AbstractView::widgetInfo()
     return createWidgetInfo();
 }
 
-QString AbstractView::contextHelpId() const
+void AbstractView::disableWidget()
 {
-    QString helpId;
+    if (hasWidget() && widgetInfo().widgetFlags == DesignerWidgetFlags::DisableOnError)
+        widgetInfo().widget->setEnabled(false);
+}
 
-    if (hasSelectedModelNodes()) {
-        QString className = firstSelectedModelNode().simplifiedTypeName();
-        helpId = QStringLiteral("QML.") + className;
-        if (Core::HelpManager::linksForIdentifier(helpId).isEmpty() && firstSelectedModelNode().metaInfo().isValid()) {
+void AbstractView::enableWidget()
+{
+    if (hasWidget() && widgetInfo().widgetFlags == DesignerWidgetFlags::DisableOnError)
+        widgetInfo().widget->setEnabled(true);
+}
 
-            foreach (className, firstSelectedModelNode().metaInfo().superClassNames()) {
-                helpId = QStringLiteral("QML.") + className;
-                if (Core::HelpManager::linksForIdentifier(helpId).isEmpty())
-                    helpId = QString();
-                else
-                    break;
-            }
-        }
-    }
+void AbstractView::contextHelpId(const Core::IContext::HelpIdCallback &callback) const
+{
+#ifndef QMLDESIGNER_TEST
+    QmlDesignerPlugin::instance()->viewManager().qmlJSEditorHelpId(callback);
+#else
+    callback(QString());
+#endif
+}
 
-    return helpId;
+void AbstractView::activateTimelineRecording(const ModelNode &timeline)
+{
+    Internal::WriteLocker locker(m_model.data());
+    if (model())
+        model()->d->notifyCurrentTimelineChanged(timeline);
+
+}
+
+void AbstractView::deactivateTimelineRecording()
+{
+    Internal::WriteLocker locker(m_model.data());
+    if (model())
+        model()->d->notifyCurrentTimelineChanged(ModelNode());
 }
 
 QList<ModelNode> AbstractView::allModelNodes() const
 {
-   return toModelNodeList(model()->d->allNodes());
+    return toModelNodeList(model()->d->allNodes());
+}
+
+void AbstractView::emitDocumentMessage(const QString &error)
+{
+    emitDocumentMessage({DocumentMessage(error)});
+}
+
+void AbstractView::emitDocumentMessage(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings)
+{
+    if (model())
+        model()->d->setDocumentMessages(errors, warnings);
 }
 
 void AbstractView::emitCustomNotification(const QString &identifier)
@@ -677,13 +721,23 @@ QmlModelState AbstractView::currentState() const
     return QmlModelState(currentStateNode());
 }
 
+QmlTimeline AbstractView::currentTimeline() const
+{
+    if (model())
+        return QmlTimeline(ModelNode(m_model.data()->d->currentTimelineNode(),
+                                            m_model.data(),
+                                            const_cast<AbstractView*>(this)));
+
+    return QmlTimeline();
+}
+
 static int getMinorVersionFromImport(const Model *model)
 {
     foreach (const Import &import, model->imports()) {
         if (import.isLibraryImport() && import.url() == "QtQuick") {
             const QString versionString = import.version();
             if (versionString.contains(".")) {
-                const QString minorVersionString = versionString.split(".").last();
+                const QString minorVersionString = versionString.split(".").constLast();
                 return minorVersionString.toInt();
             }
         }
@@ -698,7 +752,7 @@ static int getMajorVersionFromImport(const Model *model)
         if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick")) {
             const QString versionString = import.version();
             if (versionString.contains(QStringLiteral("."))) {
-                const QString majorVersionString = versionString.split(QStringLiteral(".")).first();
+                const QString majorVersionString = versionString.split(QStringLiteral(".")).constFirst();
                 return majorVersionString.toInt();
             }
         }
@@ -710,12 +764,9 @@ static int getMajorVersionFromImport(const Model *model)
 static int getMajorVersionFromNode(const ModelNode &modelNode)
 {
     if (modelNode.metaInfo().isValid()) {
-        if (modelNode.type() == "QtQuick.QtObject" || modelNode.type() == "QtQuick.Item")
-            return modelNode.majorVersion();
-
-        foreach (const NodeMetaInfo &superClass,  modelNode.metaInfo().superClasses()) {
-            if (modelNode.type() == "QtQuick.QtObject" || modelNode.type() == "QtQuick.Item")
-                return superClass.majorVersion();
+        foreach (const NodeMetaInfo &info,  modelNode.metaInfo().classHierarchy()) {
+            if (info.typeName() == "QtQuick.QtObject" || info.typeName() == "QtQuick.Item")
+                return info.majorVersion();
         }
     }
 
@@ -725,12 +776,9 @@ static int getMajorVersionFromNode(const ModelNode &modelNode)
 static int getMinorVersionFromNode(const ModelNode &modelNode)
 {
     if (modelNode.metaInfo().isValid()) {
-        if (modelNode.type() == "QtQuick.QtObject" || modelNode.type() == "QtQuick.Item")
-            return modelNode.minorVersion();
-
-        foreach (const NodeMetaInfo &superClass,  modelNode.metaInfo().superClasses()) {
-            if (modelNode.type() == "QtQuick.QtObject" || modelNode.type() == "QtQuick.Item")
-                return superClass.minorVersion();
+        foreach (const NodeMetaInfo &info,  modelNode.metaInfo().classHierarchy()) {
+            if (info.typeName() == "QtQuick.QtObject" || info.typeName() == "QtQuick.Item")
+                return info.minorVersion();
         }
     }
 

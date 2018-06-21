@@ -221,7 +221,7 @@ ToolTipWatchItem::ToolTipWatchItem(TreeItem *item)
     valueColor = model->data(idx.sibling(idx.row(), 1), Qt::ForegroundRole).value<QColor>();
     expandable = model->hasChildren(idx);
     expression = model->data(idx.sibling(idx.row(), 0), Qt::EditRole).toString();
-    foreach (TreeItem *child, item->children())
+    for (TreeItem *child : *item)
         appendChild(new ToolTipWatchItem(child));
 }
 
@@ -236,9 +236,9 @@ class ToolTipModel : public TreeModel<ToolTipWatchItem>
 public:
     ToolTipModel()
     {
-        setHeader({ DebuggerToolTipManager::tr("Name"),
-                    DebuggerToolTipManager::tr("Value"),
-                    DebuggerToolTipManager::tr("Type") });
+        setHeader({DebuggerToolTipManager::tr("Name"),
+                   DebuggerToolTipManager::tr("Value"),
+                   DebuggerToolTipManager::tr("Type")});
         m_enabled = true;
         auto item = new ToolTipWatchItem;
         item->expandable = true;
@@ -292,6 +292,7 @@ QVariant ToolTipWatchItem::data(int column, int role) const
                 case 2:
                     return type;
             }
+            break;
         }
 
         case LocalsINameRole:
@@ -946,7 +947,7 @@ void DebuggerToolTipHolder::saveSessionData(QXmlStreamWriter &w) const
     (by file name and function) acquire the engine, others release.
 */
 
-static DebuggerToolTipManager *m_instance = 0;
+static DebuggerToolTipManager *m_instance = nullptr;
 
 DebuggerToolTipManager::DebuggerToolTipManager()
 {
@@ -955,7 +956,7 @@ DebuggerToolTipManager::DebuggerToolTipManager()
 
 DebuggerToolTipManager::~DebuggerToolTipManager()
 {
-    m_instance = 0;
+    m_instance = nullptr;
 }
 
 void DebuggerToolTipManager::updateVisibleToolTips()
@@ -1043,8 +1044,7 @@ void DebuggerToolTipManager::loadSessionData()
     closeAllToolTips();
     const QString data = sessionValue(sessionSettingsKeyC).toString();
     QXmlStreamReader r(data);
-    r.readNextStartElement();
-    if (r.tokenType() == QXmlStreamReader::StartElement && r.name() == QLatin1String(sessionDocumentC)) {
+    if (r.readNextStartElement() && r.name() == QLatin1String(sessionDocumentC)) {
         while (!r.atEnd()) {
             if (readStartElement(r, toolTipElementC)) {
                 const QXmlStreamAttributes attributes = r.attributes();
@@ -1110,7 +1110,7 @@ void DebuggerToolTipManager::saveSessionData()
     w.writeEndDocument();
 
     return; // FIXME
-    setSessionValue(sessionSettingsKeyC, QVariant(data));
+//    setSessionValue(sessionSettingsKeyC, QVariant(data));
 }
 
 void DebuggerToolTipManager::closeAllToolTips()
@@ -1151,7 +1151,7 @@ static void slotTooltipOverrideRequested
                                   &context.function, &context.scopeFromLine, &context.scopeToLine);
     context.expression = fixCppExpression(raw);
     context.isCppEditor = CppTools::ProjectFile::classify(document->filePath().toString())
-                            != CppTools::ProjectFile::Unclassified;
+                            != CppTools::ProjectFile::Unsupported;
 
     if (context.expression.isEmpty()) {
         ToolTip::show(point, DebuggerToolTipManager::tr("No valid expression"),

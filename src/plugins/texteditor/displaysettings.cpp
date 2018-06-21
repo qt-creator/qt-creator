@@ -25,6 +25,12 @@
 
 #include "displaysettings.h"
 
+#include "texteditorconstants.h"
+
+#include <coreplugin/icore.h>
+#include <utils/tooltip/tooltip.h>
+
+#include <QLabel>
 #include <QSettings>
 #include <QString>
 
@@ -42,28 +48,14 @@ static const char centerCursorOnScrollKey[] = "CenterCursorOnScroll";
 static const char openLinksInNextSplitKey[] = "OpenLinksInNextSplitKey";
 static const char displayFileEncodingKey[] = "DisplayFileEncoding";
 static const char scrollBarHighlightsKey[] = "ScrollBarHighlights";
+static const char animateNavigationWithinFileKey[] = "AnimateNavigationWithinFile";
+static const char animateWithinFileTimeMaxKey[] = "AnimateWithinFileTimeMax";
+static const char displayAnnotationsKey[] = "DisplayAnnotations";
+static const char annotationAlignmentKey[] = "AnnotationAlignment";
+static const char minimalAnnotationContentKey[] = "MinimalAnnotationContent";
 static const char groupPostfix[] = "DisplaySettings";
 
 namespace TextEditor {
-
-DisplaySettings::DisplaySettings() :
-    m_displayLineNumbers(true),
-    m_textWrapping(false),
-    m_visualizeWhitespace(false),
-    m_displayFoldingMarkers(true),
-    m_highlightCurrentLine(false),
-    m_highlightBlocks(false),
-    m_animateMatchingParentheses(true),
-    m_highlightMatchingParentheses(true),
-    m_markTextChanges(true),
-    m_autoFoldFirstComment(true),
-    m_centerCursorOnScroll(false),
-    m_openLinksInNextSplit(false),
-    m_forceOpenLinksInNextSplit(false),
-    m_displayFileEncoding(false),
-    m_scrollBarHighlights(true)
-{
-}
 
 void DisplaySettings::toSettings(const QString &category, QSettings *s) const
 {
@@ -85,6 +77,9 @@ void DisplaySettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(openLinksInNextSplitKey), m_openLinksInNextSplit);
     s->setValue(QLatin1String(displayFileEncodingKey), m_displayFileEncoding);
     s->setValue(QLatin1String(scrollBarHighlightsKey), m_scrollBarHighlights);
+    s->setValue(QLatin1String(animateNavigationWithinFileKey), m_animateNavigationWithinFile);
+    s->setValue(QLatin1String(displayAnnotationsKey), m_displayAnnotations);
+    s->setValue(QLatin1String(annotationAlignmentKey), static_cast<int>(m_annotationAlignment));
     s->endGroup();
 }
 
@@ -111,6 +106,13 @@ void DisplaySettings::fromSettings(const QString &category, const QSettings *s)
     m_openLinksInNextSplit = s->value(group + QLatin1String(openLinksInNextSplitKey), m_openLinksInNextSplit).toBool();
     m_displayFileEncoding = s->value(group + QLatin1String(displayFileEncodingKey), m_displayFileEncoding).toBool();
     m_scrollBarHighlights = s->value(group + QLatin1String(scrollBarHighlightsKey), m_scrollBarHighlights).toBool();
+    m_animateNavigationWithinFile = s->value(group + QLatin1String(animateNavigationWithinFileKey), m_animateNavigationWithinFile).toBool();
+    m_animateWithinFileTimeMax = s->value(group + QLatin1String(animateWithinFileTimeMaxKey), m_animateWithinFileTimeMax).toInt();
+    m_displayAnnotations = s->value(group + QLatin1String(displayAnnotationsKey), m_displayAnnotations).toBool();
+    m_annotationAlignment = static_cast<TextEditor::AnnotationAlignment>(
+                s->value(group + QLatin1String(annotationAlignmentKey),
+                         static_cast<int>(m_annotationAlignment)).toInt());
+    m_minimalAnnotationContent = s->value(group + QLatin1String(minimalAnnotationContentKey), m_minimalAnnotationContent).toInt();
 }
 
 bool DisplaySettings::equals(const DisplaySettings &ds) const
@@ -130,7 +132,22 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
         && m_forceOpenLinksInNextSplit == ds.m_forceOpenLinksInNextSplit
         && m_displayFileEncoding == ds.m_displayFileEncoding
         && m_scrollBarHighlights == ds.m_scrollBarHighlights
-        ;
+        && m_animateNavigationWithinFile == ds.m_animateNavigationWithinFile
+        && m_animateWithinFileTimeMax == ds.m_animateWithinFileTimeMax
+        && m_displayAnnotations == ds.m_displayAnnotations
+        && m_annotationAlignment == ds.m_annotationAlignment
+        && m_minimalAnnotationContent == ds.m_minimalAnnotationContent
+            ;
+}
+
+QLabel *DisplaySettings::createAnnotationSettingsLink()
+{
+    auto *label = new QLabel("<i><a href>Annotation Settings</a></i>", Core::ICore::mainWindow());
+    QObject::connect(label, &QLabel::linkActivated, []() {
+        Utils::ToolTip::hideImmediately();
+        Core::ICore::showOptionsDialog(Constants::TEXT_EDITOR_DISPLAY_SETTINGS);
+    });
+    return label;
 }
 
 } // namespace TextEditor

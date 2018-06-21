@@ -28,15 +28,12 @@
 #include "selectabletexteditorwidget.h"
 #include "diffeditorwidgetcontroller.h"
 
+namespace Core { class IContext; }
+
 namespace TextEditor {
 class DisplaySettings;
 class FontSettings;
 }
-
-QT_BEGIN_NAMESPACE
-class QSplitter;
-class QTextCharFormat;
-QT_END_NAMESPACE
 
 namespace DiffEditor {
 
@@ -51,9 +48,11 @@ class UnifiedDiffEditorWidget : public SelectableTextEditorWidget
 {
     Q_OBJECT
 public:
-    UnifiedDiffEditorWidget(QWidget *parent = 0);
+    UnifiedDiffEditorWidget(QWidget *parent = nullptr);
+    ~UnifiedDiffEditorWidget() override;
 
     void setDocument(DiffEditorDocument *document);
+    DiffEditorDocument *diffDocument() const;
 
     void setDiff(const QList<FileData> &diffFileList,
                  const QString &workingDirectory);
@@ -63,25 +62,23 @@ public:
     void restoreState();
 
     void clear(const QString &message = QString());
+    void setDisplaySettings(const TextEditor::DisplaySettings &ds) override;
 
 signals:
     void currentDiffFileIndexChanged(int index);
 
-public slots:
-    void setDisplaySettings(const TextEditor::DisplaySettings &ds) override;
-
 protected:
     void mouseDoubleClickEvent(QMouseEvent *e) override;
+    void keyPressEvent(QKeyEvent *e) override;
     void contextMenuEvent(QContextMenuEvent *e) override;
     QString lineNumber(int blockNumber) const override;
     int lineNumberDigits() const override;
 
-private slots:
+private:
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
 
     void slotCursorPositionChangedInEditor();
 
-private:
     void setLeftLineNumber(int blockNumber, int lineNumber);
     void setRightLineNumber(int blockNumber, int lineNumber);
     void setFileInfo(int blockNumber,
@@ -99,7 +96,7 @@ private:
     int chunkIndexForBlockNumber(int blockNumber) const;
     void jumpToOriginalFile(const QTextCursor &cursor);
     void addContextMenuActions(QMenu *menu,
-                               int diffFileIndex,
+                               int fileIndex,
                                int chunkIndex);
 
     // block number, visual line number.
@@ -116,6 +113,7 @@ private:
     QMap<int, QPair<int, int> > m_chunkInfo;
 
     QByteArray m_state;
+    Core::IContext *m_context = nullptr;
 };
 
 } // namespace Internal

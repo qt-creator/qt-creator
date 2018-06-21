@@ -33,7 +33,6 @@
 #include <QMap>
 
 QT_BEGIN_NAMESPACE
-class QProcess;
 class QTcpSocket;
 QT_END_NAMESPACE
 

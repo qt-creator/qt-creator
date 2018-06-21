@@ -62,10 +62,7 @@ QString NameController::convertFileNameToElementName(const QString &fileName)
             elementName += baseName.at(i).toTitleCase();
             makeTitlecase = false;
         } else {
-            if (insertSpace) {
-                elementName += QLatin1Char(' ');
-                insertSpace = false;
-            }
+            // insertSpace must be false here
             elementName += baseName.at(i);
         }
     }
@@ -138,11 +135,11 @@ QStringList NameController::buildElementsPath(const QString &filePath, bool igno
 {
     QList<QString> relativeElements;
 
-    QStringList splitted = filePath.split(QStringLiteral("/"));
-    QStringList::const_iterator splittedEnd = splitted.end();
-    if (ignoreLastFilePathPart || splitted.last().isEmpty())
-        splittedEnd = --splittedEnd;
-    for (auto it = splitted.cbegin(); it != splittedEnd; ++it) {
+    QStringList split = filePath.split("/");
+    QStringList::const_iterator splitEnd = split.constEnd();
+    if (ignoreLastFilePathPart || split.last().isEmpty())
+        splitEnd = --splitEnd;
+    for (auto it = split.constBegin(); it != splitEnd; ++it) {
         QString packageName = qmt::NameController::convertFileNameToElementName(*it);
         relativeElements.append(packageName);
     }

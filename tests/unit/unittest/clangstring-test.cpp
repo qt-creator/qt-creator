@@ -35,6 +35,7 @@
 namespace {
 
 using ::testing::StrEq;
+using ::testing::Eq;
 
 using ClangBackEnd::ClangString;
 
@@ -88,4 +89,128 @@ TEST(ClangString, SpellingAsCString)
 
     ASSERT_THAT(text.cString(), StrEq("text"));
 }
+
+TEST(ClangString, EqualBetweenClangStrings)
+{
+    ClangString text(CXString{"text", 0});
+    ClangString text2(CXString{"text", 0});
+
+    bool textIsEqual = text == text2;
+
+    ASSERT_TRUE(textIsEqual);
+}
+
+TEST(ClangString, NotEqualBetweenClangStrings)
+{
+    ClangString text(CXString{"text", 0});
+    ClangString text2(CXString{"text ", 0});
+
+    bool textIsNotEqual = text != text2;
+
+    ASSERT_TRUE(textIsNotEqual);
+}
+
+TEST(ClangString, EqualClangStringAndCString)
+{
+    ClangString text(CXString{"text", 0});
+
+    bool textIsEqual = text == "text";
+
+    ASSERT_TRUE(textIsEqual);
+}
+
+TEST(ClangString, NotEqualClangStringAndCString)
+{
+    ClangString text(CXString{"text", 0});
+
+    bool textIsNotEqual = text != "text ";
+
+    ASSERT_TRUE(textIsNotEqual);
+}
+
+TEST(ClangString, EqualCStringAndClangString)
+{
+    ClangString text(CXString{"text", 0});
+
+    bool textIsEqual = "text" == text;
+
+    ASSERT_TRUE(textIsEqual);
+}
+
+TEST(ClangString, NotEqualCStringAndClangString)
+{
+    ClangString text(CXString{"text", 0});
+
+    bool textIsNotEqual = "text " != text;
+
+    ASSERT_TRUE(textIsNotEqual);
+}
+
+TEST(ClangString, EqualClangStringPointerAndCString)
+{
+    ClangString text(CXString{"text", 0});
+    const char *cString = "text";
+
+    bool textIsEqual = cString == text;
+
+    ASSERT_TRUE(textIsEqual);
+}
+
+TEST(ClangString, NotEqualClangStringPointerAndCString)
+{
+    ClangString text(CXString{"text", 0});
+    const char *cString = "text ";
+
+    bool textIsNotEqual = cString != text;
+
+    ASSERT_TRUE(textIsNotEqual);
+}
+
+TEST(ClangString, EqualCStringAndClangStringPointer)
+{
+    ClangString text(CXString{"text", 0});
+    const char *cString = "text";
+
+    bool textIsEqual = text == cString;
+
+    ASSERT_TRUE(textIsEqual);
+}
+
+TEST(ClangString, NotEqualCStringAndClangStringPointer)
+{
+    ClangString text(CXString{"text", 0});
+    const char *cString = "text ";
+
+    bool textIsNotEqual = text != cString;
+
+    ASSERT_TRUE(textIsNotEqual);
+}
+
+TEST(ClangString, NullStringHasNoContent)
+{
+    ClangString text(CXString{nullptr, 0});
+
+    bool hasContent = text.hasContent();
+
+    ASSERT_FALSE(hasContent);
+}
+
+TEST(ClangString, EmptyStringHasNoContent)
+{
+    ClangString text(CXString{"", 0});
+
+    bool hasContent = text.hasContent();
+
+    ASSERT_FALSE(hasContent);
+}
+
+TEST(ClangString, StringHasNoContent)
+{
+    ClangString text(CXString{"text", 0});
+
+    bool hasContent = text.hasContent();
+
+    ASSERT_TRUE(hasContent);
+}
+
 }

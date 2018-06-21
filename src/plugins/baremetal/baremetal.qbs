@@ -10,7 +10,6 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "QtSupport" }
 
     files: [
         "baremetal.qrc",
@@ -24,9 +23,6 @@ QtcPlugin {
         "baremetalgdbcommandsdeploystep.cpp", "baremetalgdbcommandsdeploystep.h",
         "baremetalplugin.cpp", "baremetalplugin.h",
         "baremetalrunconfiguration.cpp", "baremetalrunconfiguration.h",
-        "baremetalrunconfigurationfactory.cpp", "baremetalrunconfigurationfactory.h",
-        "baremetalrunconfigurationwidget.cpp", "baremetalrunconfigurationwidget.h",
-        "baremetalruncontrolfactory.cpp", "baremetalruncontrolfactory.h",
         "baremetaldebugsupport.cpp", "baremetaldebugsupport.h",
         "gdbserverproviderprocess.cpp", "gdbserverproviderprocess.h",
         "gdbserverproviderssettingspage.cpp", "gdbserverproviderssettingspage.h",

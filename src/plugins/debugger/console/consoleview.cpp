@@ -29,6 +29,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/manhattanstyle.h>
+#include <qtsupport/baseqtversion.h>
 #include <utils/hostosinfo.h>
 
 #include <QAction>
@@ -53,14 +54,16 @@ public:
     ConsoleViewStyle(const QString &baseStyleName) : ManhattanStyle(baseStyleName) {}
 
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter,
-                       const QWidget *widget = 0) const
+                       const QWidget *widget = nullptr) const final
     {
         if (element != QStyle::PE_PanelItemViewRow)
             ManhattanStyle::drawPrimitive(element, option, painter, widget);
     }
 
-    int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0,
-                  QStyleHintReturn *returnData = 0) const {
+    int styleHint(StyleHint hint, const QStyleOption *option = nullptr,
+                  const QWidget *widget = nullptr,
+                  QStyleHintReturn *returnData = nullptr) const final
+    {
         if (hint == SH_ItemView_ShowDecorationSelected)
             return 0;
         else
@@ -97,9 +100,7 @@ ConsoleView::ConsoleView(ConsoleItemModel *model, QWidget *parent) :
                                 "QTreeView::branch:open:has-children:!has-siblings,"
                                 "QTreeView::branch:open:has-children:has-siblings  {"
                                 "border-image: none;"
-                                "image: none; }"
-                                "QTreeView {"
-                                "background-color: white; }"));
+                                "image: none; }"));
 
     QString baseName = QApplication::style()->objectName();
     if (Utils::HostOsInfo::isAnyUnixHost() && !Utils::HostOsInfo::isMacHost()
@@ -107,13 +108,6 @@ ConsoleView::ConsoleView(ConsoleItemModel *model, QWidget *parent) :
         // Sometimes we get the standard windows 95 style as a fallback
         if (QStyleFactory::keys().contains(QLatin1String("Fusion"))) {
             baseName = QLatin1String("fusion"); // Qt5
-        } else { // Qt4
-            // e.g. if we are running on a KDE4 desktop
-            QByteArray desktopEnvironment = qgetenv("DESKTOP_SESSION");
-            if (desktopEnvironment == "kde")
-                baseName = QLatin1String("plastique");
-            else
-                baseName = QLatin1String("cleanlooks");
         }
     }
     ConsoleViewStyle *style = new ConsoleViewStyle(baseName);
@@ -133,6 +127,11 @@ void ConsoleView::onScrollToBottom()
     // Keep scrolling to bottom if scroll bar is not at maximum()
     if (verticalScrollBar()->value() != verticalScrollBar()->maximum())
         scrollToBottom();
+}
+
+void ConsoleView::populateFileFinder()
+{
+    QtSupport::BaseQtVersion::populateQmlFileFinder(&m_finder, nullptr);
 }
 
 void ConsoleView::mousePressEvent(QMouseEvent *event)
@@ -219,17 +218,10 @@ void ConsoleView::onRowActivated(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    // See if we have file and line Info
-    QString filePath = model()->data(index, ConsoleItem::FileRole).toString();
-    const QUrl fileUrl = QUrl(filePath);
-    if (fileUrl.isLocalFile())
-        filePath = fileUrl.toLocalFile();
-    if (!filePath.isEmpty()) {
-        QFileInfo fi(filePath);
-        if (fi.exists() && fi.isFile() && fi.isReadable()) {
-            int line = model()->data(index, ConsoleItem::LineRole).toInt();
-            Core::EditorManager::openEditorAt(fi.canonicalFilePath(), line);
-        }
+    const QFileInfo fi(m_finder.findFile(model()->data(index, ConsoleItem::FileRole).toString()));
+    if (fi.exists() && fi.isFile() && fi.isReadable()) {
+        Core::EditorManager::openEditorAt(fi.canonicalFilePath(),
+                                          model()->data(index, ConsoleItem::LineRole).toInt());
     }
 }
 
@@ -257,17 +249,9 @@ bool ConsoleView::canShowItemInTextEditor(const QModelIndex &index)
     if (!index.isValid())
         return false;
 
-    // See if we have file and line Info
-    QString filePath = model()->data(index, ConsoleItem::FileRole).toString();
-    const QUrl fileUrl = QUrl(filePath);
-    if (fileUrl.isLocalFile())
-        filePath = fileUrl.toLocalFile();
-    if (!filePath.isEmpty()) {
-        QFileInfo fi(filePath);
-        if (fi.exists() && fi.isFile() && fi.isReadable())
-            return true;
-    }
-    return false;
+    bool success = false;
+    m_finder.findFile(model()->data(index, ConsoleItem::FileRole).toString(), &success);
+    return success;
 }
 
 } // Internal

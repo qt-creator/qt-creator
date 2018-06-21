@@ -26,71 +26,20 @@
 #include "qmlprojectitem.h"
 #include "filefilteritems.h"
 
-#include <QDebug>
 #include <QDir>
 
 namespace QmlProjectManager {
 
-class QmlProjectItemPrivate : public QObject {
-    Q_OBJECT
-
-public:
-    QString sourceDirectory;
-    QStringList importPaths;
-    QStringList absoluteImportPaths;
-    QString mainFile;
-
-    QList<QmlFileFilterItem*> qmlFileFilters() const;
-
-    // content property
-    QList<QmlProjectContentItem*> content;
-};
-
-QList<QmlFileFilterItem*> QmlProjectItemPrivate::qmlFileFilters() const
-{
-    QList<QmlFileFilterItem*> qmlFilters;
-    for (int i = 0; i < content.size(); ++i) {
-        QmlProjectContentItem *contentElement = content.at(i);
-        QmlFileFilterItem *qmlFileFilter = qobject_cast<QmlFileFilterItem*>(contentElement);
-        if (qmlFileFilter)
-            qmlFilters << qmlFileFilter;
-    }
-    return qmlFilters;
-}
-
-QmlProjectItem::QmlProjectItem(QObject *parent) :
-        QObject(parent),
-        d_ptr(new QmlProjectItemPrivate)
-{
-//    Q_D(QmlProjectItem);
-//
-//    QmlFileFilter *defaultQmlFilter = new QmlFileFilter(this);
-//    d->content.append(defaultQmlFilter);
-}
-
-QmlProjectItem::~QmlProjectItem()
-{
-    delete d_ptr;
-}
-
-QString QmlProjectItem::sourceDirectory() const
-{
-    Q_D(const QmlProjectItem);
-    return d->sourceDirectory;
-}
-
 // kind of initialization
 void QmlProjectItem::setSourceDirectory(const QString &directoryPath)
 {
-    Q_D(QmlProjectItem);
-
-    if (d->sourceDirectory == directoryPath)
+    if (m_sourceDirectory == directoryPath)
         return;
 
-    d->sourceDirectory = directoryPath;
+    m_sourceDirectory = directoryPath;
 
-    for (int i = 0; i < d->content.size(); ++i) {
-        QmlProjectContentItem *contentElement = d->content.at(i);
+    for (int i = 0; i < m_content.size(); ++i) {
+        QmlProjectContentItem *contentElement = m_content.at(i);
         FileFilterBaseItem *fileFilter = qobject_cast<FileFilterBaseItem*>(contentElement);
         if (fileFilter) {
             fileFilter->setDefaultDirectory(directoryPath);
@@ -98,48 +47,26 @@ void QmlProjectItem::setSourceDirectory(const QString &directoryPath)
                     this, &QmlProjectItem::qmlFilesChanged);
         }
     }
-
-    setImportPaths(d->importPaths);
-
-    emit sourceDirectoryChanged();
 }
 
-QStringList QmlProjectItem::importPaths() const
+void QmlProjectItem::setTargetDirectory(const QString &directoryPath)
 {
-    Q_D(const QmlProjectItem);
-    return d->absoluteImportPaths;
+    m_targetDirectory = directoryPath;
 }
 
 void QmlProjectItem::setImportPaths(const QStringList &importPaths)
 {
-    Q_D(QmlProjectItem);
-
-    if (d->importPaths != importPaths)
-        d->importPaths = importPaths;
-
-    // convert to absolute paths
-    QStringList absoluteImportPaths;
-    const QDir sourceDir(sourceDirectory());
-    foreach (const QString &importPath, importPaths)
-        absoluteImportPaths += QDir::cleanPath(sourceDir.absoluteFilePath(importPath));
-
-    if (d->absoluteImportPaths == absoluteImportPaths)
-        return;
-
-    d->absoluteImportPaths = absoluteImportPaths;
-    emit importPathsChanged();
+    if (m_importPaths != importPaths)
+        m_importPaths = importPaths;
 }
 
 /* Returns list of absolute paths */
 QStringList QmlProjectItem::files() const
 {
-    Q_D(const QmlProjectItem);
     QStringList files;
 
-    for (int i = 0; i < d->content.size(); ++i) {
-        QmlProjectContentItem *contentElement = d->content.at(i);
-        FileFilterBaseItem *fileFilter = qobject_cast<FileFilterBaseItem*>(contentElement);
-        if (fileFilter) {
+    for (QmlProjectContentItem *contentElement : m_content) {
+        if (auto fileFilter = qobject_cast<FileFilterBaseItem *>(contentElement)) {
             foreach (const QString &file, fileFilter->files()) {
                 if (!files.contains(file))
                     files << file;
@@ -157,11 +84,8 @@ QStringList QmlProjectItem::files() const
   */
 bool QmlProjectItem::matchesFile(const QString &filePath) const
 {
-    Q_D(const QmlProjectItem);
-    for (int i = 0; i < d->content.size(); ++i) {
-        QmlProjectContentItem *contentElement = d->content.at(i);
-        FileFilterBaseItem *fileFilter = qobject_cast<FileFilterBaseItem*>(contentElement);
-        if (fileFilter) {
+    for (QmlProjectContentItem *contentElement : m_content) {
+        if (auto fileFilter = qobject_cast<FileFilterBaseItem *>(contentElement)) {
             if (fileFilter->matchesFile(filePath))
                 return true;
         }
@@ -169,27 +93,14 @@ bool QmlProjectItem::matchesFile(const QString &filePath) const
     return false;
 }
 
-QString QmlProjectItem::mainFile() const
+QList<Utils::EnvironmentItem> QmlProjectItem::environment() const
 {
-    Q_D(const QmlProjectItem);
-    return d->mainFile;
+    return m_environment;
 }
 
-void QmlProjectItem::setMainFile(const QString &mainFilePath)
+void QmlProjectItem::addToEnviroment(const QString &key, const QString &value)
 {
-    Q_D(QmlProjectItem);
-    if (mainFilePath == d->mainFile)
-        return;
-    d->mainFile = mainFilePath;
-    emit mainFileChanged();
-}
-
-void QmlProjectItem::appendContent(QmlProjectContentItem *contentItem)
-{
-    Q_D(QmlProjectItem);
-    d->content.append(contentItem);
+    m_environment.append(Utils::EnvironmentItem(key, value));
 }
 
 } // namespace QmlProjectManager
-
-#include "qmlprojectitem.moc"

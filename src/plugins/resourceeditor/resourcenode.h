@@ -27,11 +27,6 @@
 
 #include "resource_global.h"
 #include <projectexplorer/projectnodes.h>
-#include <coreplugin/idocument.h>
-
-namespace ProjectExplorer {
-class RunConfiguration;
-}
 
 namespace ResourceEditor {
 namespace Internal { class ResourceFileWatcher; }
@@ -39,13 +34,15 @@ namespace Internal { class ResourceFileWatcher; }
 class RESOURCE_EXPORT ResourceTopLevelNode : public ProjectExplorer::FolderNode
 {
 public:
-    ResourceTopLevelNode(const Utils::FileName &filePath, const QString &contents, FolderNode *parent);
+    ResourceTopLevelNode(const Utils::FileName &filePath, bool generated,
+                         const QString &contents, FolderNode *parent);
     ~ResourceTopLevelNode() override;
-    void update();
+
+    void addInternalNodes();
 
     QString addFileFilter() const override;
 
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
+    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved) override;
 
@@ -54,48 +51,23 @@ public:
 
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
     bool showInSimpleTree() const override;
+    bool showWhenEmpty() const override;
     bool removeNonExistingFiles();
 
+    QString contents() const { return m_contents; }
+
 private:
-    Internal::ResourceFileWatcher *m_document;
+    Internal::ResourceFileWatcher *m_document = nullptr;
     QString m_contents;
 };
 
-namespace Internal {
-
-class PrefixFolderLang
+class RESOURCE_EXPORT ResourceFolderNode : public ProjectExplorer::FolderNode
 {
-public:
-    PrefixFolderLang(QString prefix, QString folder, QString lang)
-        : m_prefix(prefix)
-        , m_folder(folder)
-        , m_lang(lang)
-    {}
-
-    bool operator<(const PrefixFolderLang &other) const
-    {
-        if (m_prefix != other.m_prefix)
-            return m_prefix < other.m_prefix;
-        if (m_folder != other.m_folder)
-            return m_folder < other.m_folder;
-        if (m_lang != other.m_lang)
-            return m_lang < other.m_lang;
-        return false;
-    }
-private:
-    QString m_prefix;
-    QString m_folder;
-    QString m_lang;
-};
-
-class ResourceFolderNode : public ProjectExplorer::FolderNode
-{
-    friend class ResourceEditor::ResourceTopLevelNode; // for updateFiles
 public:
     ResourceFolderNode(const QString &prefix, const QString &lang, ResourceTopLevelNode *parent);
     ~ResourceFolderNode() override;
 
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
+    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
 
     QString displayName() const override;
 
@@ -111,68 +83,25 @@ public:
     QString prefix() const;
     QString lang() const;
     ResourceTopLevelNode *resourceNode() const;
+
 private:
-    void updateFolders(QList<ProjectExplorer::FolderNode *> newList);
-    void updateFiles(QList<ProjectExplorer::FileNode *> newList);
     ResourceTopLevelNode *m_topLevelNode;
     QString m_prefix;
     QString m_lang;
 };
 
-class SimpleResourceFolderNode : public ProjectExplorer::FolderNode
-{
-    friend class ResourceEditor::ResourceTopLevelNode;
-public:
-    QString displayName() const;
-    SimpleResourceFolderNode(const QString &afolderName, const QString &displayName,
-                     const QString &prefix, const QString &lang, Utils::FileName absolutePath,
-                     ResourceTopLevelNode *topLevel, ResourceFolderNode *prefixNode);
-    QList<ProjectExplorer::ProjectAction> supportedActions(ProjectExplorer::Node *node) const;
-    void addFilesAndSubfolders(QMap<PrefixFolderLang, QList<ProjectExplorer::FileNode *>> filesToAdd,
-                               QMap<PrefixFolderLang, QList<ProjectExplorer::FolderNode *>> foldersToAdd,
-                               const QString &prefix, const QString &lang);
-    bool addFiles(const QStringList &filePaths, QStringList *notAdded);
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved);
-    bool renameFile(const QString &filePath, const QString &newFilePath);
-
-    QString prefix() const;
-    ResourceTopLevelNode *resourceNode() const;
-    ResourceFolderNode *prefixNode() const;
-
-private:
-    void updateFiles(QList<ProjectExplorer::FileNode *> newList);
-    void updateFolders(QList<ProjectExplorer::FolderNode *> newList);
-    QString m_folderName;
-    QString m_displayName;
-    QString m_prefix;
-    QString m_lang;
-    ResourceTopLevelNode *m_topLevelNode;
-    ResourceFolderNode *m_prefixNode;
-};
-
-class ResourceFileNode : public ProjectExplorer::FileNode
+class RESOURCE_EXPORT ResourceFileNode : public ProjectExplorer::FileNode
 {
 public:
     ResourceFileNode(const Utils::FileName &filePath, const QString &qrcPath, const QString &displayName);
 
     QString displayName() const override;
     QString qrcPath() const;
-    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const override;
+    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
 
 private:
     QString m_qrcPath;
     QString m_displayName;
 };
 
-class ResourceFileWatcher : public Core::IDocument
-{
-public:
-    ResourceFileWatcher(ResourceTopLevelNode *node);
-
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
-private:
-    ResourceTopLevelNode *m_node;
-};
-} // namespace Internal
 } // namespace ResourceEditor

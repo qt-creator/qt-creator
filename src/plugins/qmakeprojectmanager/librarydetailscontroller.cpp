@@ -25,9 +25,9 @@
 
 #include "librarydetailscontroller.h"
 #include "ui_librarydetailswidget.h"
-#include "findqmakeprofiles.h"
-#include "qmakenodes.h"
 #include "qmakebuildconfiguration.h"
+#include "qmakeparsernodes.h"
+#include "qmakeproject.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -852,7 +852,7 @@ bool PackageLibraryDetailsController::isLinkPackageGenerated() const
     if (!currentProject)
         return false;
 
-    const QStringList configVar = currentProject->variableValue(ConfigVar);
+    const QStringList configVar = currentProject->variableValue(Variable::Config);
     if (configVar.contains(QLatin1String("link_pkgconfig")))
         return true;
 
@@ -941,8 +941,8 @@ AddLibraryWizard::LinkageType InternalLibraryDetailsController::suggestedLinkage
     const int currentIndex = libraryDetailsWidget()->libraryComboBox->currentIndex();
     AddLibraryWizard::LinkageType type = AddLibraryWizard::NoLinkage;
     if (currentIndex >= 0) {
-        QmakeProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
-        const QStringList configVar = proFileNode->variableValue(ConfigVar);
+        QmakeProFile *proFile = m_proFiles.at(currentIndex);
+        const QStringList configVar = proFile->variableValue(Variable::Config);
         if (configVar.contains(QLatin1String("staticlib"))
                 || configVar.contains(QLatin1String("static")))
             type = AddLibraryWizard::StaticLinkage;
@@ -957,8 +957,8 @@ AddLibraryWizard::MacLibraryType InternalLibraryDetailsController::suggestedMacL
     const int currentIndex = libraryDetailsWidget()->libraryComboBox->currentIndex();
     AddLibraryWizard::MacLibraryType type = AddLibraryWizard::NoLibraryType;
     if (currentIndex >= 0) {
-        QmakeProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
-        const QStringList configVar = proFileNode->variableValue(ConfigVar);
+        QmakeProFile *proFile = m_proFiles.at(currentIndex);
+        const QStringList configVar = proFile->variableValue(Variable::Config);
         if (configVar.contains(QLatin1String("lib_bundle")))
             type = AddLibraryWizard::FrameworkType;
         else
@@ -971,8 +971,8 @@ QString InternalLibraryDetailsController::suggestedIncludePath() const
 {
     const int currentIndex = libraryDetailsWidget()->libraryComboBox->currentIndex();
     if (currentIndex >= 0) {
-        QmakeProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
-        return proFileNode->filePath().toFileInfo().absolutePath();
+        QmakeProFile *proFile = m_proFiles.at(currentIndex);
+        return proFile->filePath().toFileInfo().absolutePath();
     }
     return QString();
 }
@@ -988,35 +988,35 @@ void InternalLibraryDetailsController::updateWindowsOptionsEnablement()
 void InternalLibraryDetailsController::updateProFile()
 {
     m_rootProjectPath.clear();
-    m_proFileNodes.clear();
+    m_proFiles.clear();
     libraryDetailsWidget()->libraryComboBox->clear();
 
-    const Project *project = SessionManager::projectForFile(Utils::FileName::fromString(proFile()));
+    const QmakeProject *project
+            = dynamic_cast<QmakeProject *>(SessionManager::projectForFile(Utils::FileName::fromString(proFile())));
     if (!project)
         return;
 
     setIgnoreGuiSignals(true);
 
-    ProjectExplorer::ProjectNode *rootProject = project->rootProjectNode();
-    m_rootProjectPath = rootProject->filePath().toFileInfo().absolutePath();
+    m_rootProjectPath = project->projectDirectory().toString();
+
     QDir rootDir(m_rootProjectPath);
-    FindQmakeProFiles findQt4ProFiles;
-    QList<QmakeProFileNode *> proFiles = findQt4ProFiles(rootProject);
-    foreach (QmakeProFileNode *proFileNode, proFiles) {
-        const QString proFilePath = proFileNode->filePath().toString();
-        QmakeProjectManager::QmakeProjectType type = proFileNode->projectType();
-        if (type == SharedLibraryTemplate || type == StaticLibraryTemplate) {
-            const QStringList configVar = proFileNode->variableValue(ConfigVar);
-            if (!configVar.contains(QLatin1String("plugin"))) {
-                const QString relProFilePath = rootDir.relativeFilePath(proFilePath);
-                TargetInformation targetInfo = proFileNode->targetInformation();
-                const QString itemToolTip = QString::fromLatin1("%1 (%2)").arg(targetInfo.target).arg(relProFilePath);
-                m_proFileNodes.append(proFileNode);
-                libraryDetailsWidget()->libraryComboBox->addItem(targetInfo.target);
-                libraryDetailsWidget()->libraryComboBox->setItemData(
-                            libraryDetailsWidget()->libraryComboBox->count() - 1,
-                            itemToolTip, Qt::ToolTipRole);
-            }
+    foreach (QmakeProFile *proFile, project->rootProFile()->allProFiles()) {
+        QmakeProjectManager::ProjectType type = proFile->projectType();
+        if (type != ProjectType::SharedLibraryTemplate && type != ProjectType::StaticLibraryTemplate)
+            continue;
+
+        const QStringList configVar = proFile->variableValue(Variable::Config);
+        if (!configVar.contains(QLatin1String("plugin"))) {
+            const QString relProFilePath = rootDir.relativeFilePath(proFile->filePath().toString());
+            TargetInformation targetInfo = proFile->targetInformation();
+            const QString itemToolTip = QString::fromLatin1("%1 (%2)").arg(targetInfo.target).arg(relProFilePath);
+            m_proFiles.append(proFile);
+
+            libraryDetailsWidget()->libraryComboBox->addItem(targetInfo.target);
+            libraryDetailsWidget()->libraryComboBox->setItemData(
+                        libraryDetailsWidget()->libraryComboBox->count() - 1,
+                        itemToolTip, Qt::ToolTipRole);
         }
     }
 
@@ -1030,8 +1030,8 @@ void InternalLibraryDetailsController::slotCurrentLibraryChanged()
         libraryDetailsWidget()->libraryComboBox->setToolTip(
                     libraryDetailsWidget()->libraryComboBox->itemData(
                         currentIndex, Qt::ToolTipRole).toString());
-        QmakeProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
-        const QStringList configVar = proFileNode->variableValue(ConfigVar);
+        QmakeProFile *proFile = m_proFiles.at(currentIndex);
+        const QStringList configVar = proFile->variableValue(Variable::Config);
         if (Utils::HostOsInfo::isWindowsHost()) {
             bool useSubfolders = false;
             if (configVar.contains(QLatin1String("debug_and_release"))
@@ -1092,10 +1092,9 @@ QString InternalLibraryDetailsController::snippet() const
     QDir projectSrcDir(fi.absolutePath());
 
     // project node which we want to link against
-    QmakeProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
-    TargetInformation targetInfo = proFileNode->targetInformation();
+    TargetInformation targetInfo = m_proFiles.at(currentIndex)->targetInformation();
 
-    const QString targetRelativePath = appendSeparator(projectBuildDir.relativeFilePath(targetInfo.buildDir));
+    const QString targetRelativePath = appendSeparator(projectBuildDir.relativeFilePath(targetInfo.buildDir.toString()));
     const QString includeRelativePath = projectSrcDir.relativeFilePath(libraryDetailsWidget()->includePathChooser->path());
 
     const bool useSubfolders = libraryDetailsWidget()->useSubfoldersCheckBox->isChecked();

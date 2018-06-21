@@ -69,17 +69,8 @@ static CrumbleBarInfo createCrumbleBarInfoFromModelNode(const ModelNode &modelNo
     return crumbleBarInfo;
 }
 
-CrumbleBar::CrumbleBar(QObject *parent) :
-    QObject(parent),
-    m_isInternalCalled(false),
-    m_crumblePath(new Utils::CrumblePath)
+CrumbleBar::CrumbleBar(QObject *parent) : QObject(parent)
 {
-    connect(m_crumblePath,
-            SIGNAL(elementClicked(QVariant)),
-            this,
-            SLOT(onCrumblePathElementClicked(QVariant)));
-
-    updateVisibility();
 }
 
 CrumbleBar::~CrumbleBar()
@@ -132,14 +123,19 @@ void CrumbleBar::nextFileIsCalledInternally()
 
 Utils::CrumblePath *CrumbleBar::crumblePath()
 {
+    if (m_crumblePath == nullptr) {
+        m_crumblePath = new Utils::CrumblePath;
+        updateVisibility();
+        connect(m_crumblePath, &Utils::CrumblePath::elementClicked,
+            this, &CrumbleBar::onCrumblePathElementClicked);
+    }
+
     return m_crumblePath;
 }
 
 void CrumbleBar::showSaveDialog()
 {
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-
-    if (settings.value(DesignerSettingsKey::ALWAYS_SAFE_IN_CRUMBLEBAR).toBool()) {
+    if (DesignerSettings::getValue(DesignerSettingsKey::ALWAYS_SAFE_IN_CRUMBLEBAR).toBool()) {
         Core::DocumentManager::saveModifiedDocumentSilently(currentDesignDocument()->editor()->document());
     } else {
         bool alwaysSave;
@@ -151,8 +147,7 @@ void CrumbleBar::showSaveDialog()
                                                     tr("Always save when leaving subcomponent"),
                                                     &alwaysSave);
 
-        settings.insert(DesignerSettingsKey::ALWAYS_SAFE_IN_CRUMBLEBAR, alwaysSave);
-        QmlDesignerPlugin::instance()->setSettings(settings);
+        DesignerSettings::setValue(DesignerSettingsKey::ALWAYS_SAFE_IN_CRUMBLEBAR, alwaysSave);
     }
 }
 

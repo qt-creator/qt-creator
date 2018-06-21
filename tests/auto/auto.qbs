@@ -7,7 +7,6 @@ Project {
         "aggregation/aggregation.qbs",
         "algorithm/algorithm.qbs",
         "changeset/changeset.qbs",
-        "clangstaticanalyzer/clangstaticanalyzer.qbs",
         "cplusplus/cplusplus.qbs",
         "debugger/debugger.qbs",
         "diff/diff.qbs",
@@ -15,7 +14,6 @@ Project {
         "extensionsystem/extensionsystem.qbs",
         "externaltool/externaltool.qbs",
         "filesearch/filesearch.qbs",
-        "flamegraph/flamegraph.qbs",
         "generichighlighter/generichighlighter.qbs",
         "json/json.qbs",
         "profilewriter/profilewriter.qbs",
@@ -23,8 +21,9 @@ Project {
         "qtcprocess/qtcprocess.qbs",
         "runextensions/runextensions.qbs",
         "sdktool/sdktool.qbs",
-        "timeline/timeline.qbs",
+        "tracing/tracing.qbs",
         "treeviewfind/treeviewfind.qbs",
+        "toolchaincache/toolchaincache.qbs",
         "utils/utils.qbs",
         "valgrind/valgrind.qbs"
     ].concat(project.additionalAutotests)

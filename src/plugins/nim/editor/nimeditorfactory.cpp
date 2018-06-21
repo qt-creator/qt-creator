@@ -65,16 +65,20 @@ NimEditorFactory::NimEditorFactory()
     setSyntaxHighlighterCreator([]() {
         return new NimHighlighter;
     });
-    setCommentStyle(CommentDefinition::HashStyle);
+    setCommentDefinition(CommentDefinition::HashStyle);
     setParenthesesMatchingEnabled(true);
-    setMarksVisible(false);
     setCodeFoldingSupported(true);
-    setMarksVisible(true);
 }
 
 Core::IEditor *NimEditorFactory::createEditor()
 {
     return TextEditorFactory::createEditor();
+}
+
+void NimEditorFactory::decorateEditor(TextEditorWidget *editor)
+{
+    editor->textDocument()->setSyntaxHighlighter(new NimHighlighter());
+    editor->textDocument()->setIndenter(new NimIndenter());
 }
 
 }

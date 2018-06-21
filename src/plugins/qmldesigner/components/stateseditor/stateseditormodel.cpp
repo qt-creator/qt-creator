@@ -100,7 +100,7 @@ QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case StateNameRole: {
             if (index.row() == 0) {
-                return QString(tr("base state", "Implicit default state"));
+                return tr("base state", "Implicit default state");
             } else {
                 if (stateNode.hasVariantProperty("name"))
                     return stateNode.variantProperty("name").value();
@@ -155,7 +155,6 @@ void StatesEditorModel::insertState(int stateIndex)
         endInsertRows();
 
         emit dataChanged(index(updateIndex, 0), index(updateIndex, 0));
-        emit countChanged();
     }
 }
 
@@ -168,14 +167,11 @@ void StatesEditorModel::updateState(int beginIndex, int endIndex)
 void StatesEditorModel::removeState(int stateIndex)
 {
     if (stateIndex >= 0) {
-        const int updateIndex = stateIndex + 1;
-        beginRemoveRows(QModelIndex(), updateIndex, updateIndex);
-
-
+        beginRemoveRows(QModelIndex(), 0, stateIndex);
         endRemoveRows();
 
-        emit dataChanged(createIndex(updateIndex, 0), createIndex(updateIndex, 0));
-        emit countChanged();
+        beginResetModel();
+        endResetModel();
     }
 }
 

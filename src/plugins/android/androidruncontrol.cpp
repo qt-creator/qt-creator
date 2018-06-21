@@ -38,69 +38,27 @@ using namespace ProjectExplorer;
 namespace Android {
 namespace Internal {
 
-AndroidRunControl::AndroidRunControl(AndroidRunConfiguration *rc)
-    : RunControl(rc, ProjectExplorer::Constants::NORMAL_RUN_MODE)
-    , m_runner(new AndroidRunner(this, rc, ProjectExplorer::Constants::NORMAL_RUN_MODE))
-    , m_running(false)
+AndroidRunSupport::AndroidRunSupport(RunControl *runControl, const QString &intentName,
+                                     const QString &extraAppParams,
+                                     const Utils::Environment &extraEnvVars)
+    : AndroidRunner(runControl, intentName, extraAppParams, extraEnvVars)
 {
-    setRunnable(m_runner->runnable());
-    setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
+    runControl->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
 }
 
-AndroidRunControl::~AndroidRunControl()
+AndroidRunSupport::~AndroidRunSupport()
 {
     stop();
 }
 
-void AndroidRunControl::start()
+void AndroidRunSupport::start()
 {
-    m_running = true;
-    emit started();
-    disconnect(m_runner, 0, this, 0);
-
-    connect(m_runner, &AndroidRunner::remoteErrorOutput,
-        this, &AndroidRunControl::handleRemoteErrorOutput);
-    connect(m_runner, &AndroidRunner::remoteOutput,
-        this, &AndroidRunControl::handleRemoteOutput);
-    connect(m_runner, &AndroidRunner::remoteProcessFinished,
-        this, &AndroidRunControl::handleRemoteProcessFinished);
-    appendMessage(tr("Starting remote process."), Utils::NormalMessageFormat);
-    m_runner->setRunnable(runnable().as<AndroidRunnable>());
-    m_runner->start();
+    AndroidRunner::start();
 }
 
-RunControl::StopResult AndroidRunControl::stop()
+void AndroidRunSupport::stop()
 {
-    m_runner->stop();
-    return StoppedSynchronously;
-}
-
-void AndroidRunControl::handleRemoteProcessFinished(const QString &error)
-{
-    appendMessage(error, Utils::ErrorMessageFormat);
-    disconnect(m_runner, 0, this, 0);
-    m_running = false;
-    emit finished();
-}
-
-void AndroidRunControl::handleRemoteOutput(const QString &output)
-{
-    appendMessage(output, Utils::StdOutFormatSameLine);
-}
-
-void AndroidRunControl::handleRemoteErrorOutput(const QString &output)
-{
-    appendMessage(output, Utils::StdErrFormatSameLine);
-}
-
-bool AndroidRunControl::isRunning() const
-{
-    return m_running;
-}
-
-QString AndroidRunControl::displayName() const
-{
-    return m_runner->displayName();
+    AndroidRunner::stop();
 }
 
 } // namespace Internal

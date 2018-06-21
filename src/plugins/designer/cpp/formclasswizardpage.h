@@ -42,12 +42,14 @@ class FormClassWizardPage : public QWizardPage
     Q_OBJECT
 
 public:
-    explicit FormClassWizardPage(QWidget * parent = 0);
-    ~FormClassWizardPage();
+    explicit FormClassWizardPage(QWidget *parent = nullptr);
+    ~FormClassWizardPage() override;
 
-    virtual bool isComplete () const;
-    virtual bool validatePage();
+    bool isComplete () const override;
+    bool validatePage() override;
 
+    void setClassName(const QString &suggestedClassName);
+    void setPath(const QString &);
     QString path() const;
 
     // Fill out applicable parameters
@@ -58,18 +60,14 @@ public:
 
     static bool lowercaseHeaderFiles();
 
-public slots:
-    void setClassName(const QString &suggestedClassName);
-    void setPath(const QString &);
-
-private slots:
+private:
     void slotValidChanged();
 
 private:
     void initFileGenerationSettings();
 
-    Ui::FormClassWizardPage *m_ui;
-    bool m_isValid;
+    Ui::FormClassWizardPage *m_ui = nullptr;
+    bool m_isValid = false;
 };
 
 } // namespace Internal

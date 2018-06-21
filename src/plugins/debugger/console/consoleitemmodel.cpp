@@ -39,7 +39,7 @@ namespace Internal {
 
 ConsoleItemModel::ConsoleItemModel(QObject *parent) :
     Utils::TreeModel<>(new ConsoleItem, parent),
-    m_maxSizeOfFileName(0)
+    m_maxSizeOfFileName(0), m_canFetchMore(false)
 {
     clear();
 }
@@ -49,6 +49,16 @@ void ConsoleItemModel::clear()
     Utils::TreeModel<>::clear();
     appendItem(new ConsoleItem(ConsoleItem::InputType));
     emit selectEditableRow(index(0, 0, QModelIndex()), QItemSelectionModel::ClearAndSelect);
+}
+
+void ConsoleItemModel::setCanFetchMore(bool canFetchMore)
+{
+    m_canFetchMore = canFetchMore;
+}
+
+bool ConsoleItemModel::canFetchMore(const QModelIndex &parent) const
+{
+    return m_canFetchMore && TreeModel::canFetchMore(parent);
 }
 
 void ConsoleItemModel::appendItem(ConsoleItem *item, int position)

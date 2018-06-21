@@ -286,14 +286,35 @@ Document::~Document()
 {
     delete _translationUnit;
     _translationUnit = 0;
-    delete _control->diagnosticClient();
-    delete _control;
+    if (_control) {
+        delete _control->diagnosticClient();
+        delete _control;
+    }
     _control = 0;
 }
 
 Control *Document::control() const
 {
     return _control;
+}
+
+Control *Document::swapControl(Control *newControl)
+{
+    if (newControl) {
+        const StringLiteral *fileId = newControl->stringLiteral(_translationUnit->fileId()->chars(),
+                                                                _translationUnit->fileId()->size());
+        const auto newTranslationUnit = new TranslationUnit(newControl, fileId);
+        newTranslationUnit->setLanguageFeatures(_translationUnit->languageFeatures());
+        delete _translationUnit;
+        _translationUnit = newTranslationUnit;
+    } else {
+        delete _translationUnit;
+        _translationUnit = 0;
+    }
+
+    Control *oldControl = _control;
+    _control = newControl;
+    return oldControl;
 }
 
 unsigned Document::revision() const
@@ -696,7 +717,8 @@ void Document::releaseSourceAndAST()
     if (!_keepSourceAndASTCount.deref()) {
         _source.clear();
         _translationUnit->release();
-        _control->squeeze();
+        if (_control)
+            _control->squeeze();
     }
 }
 

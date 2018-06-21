@@ -64,21 +64,23 @@ void SnappingLineCreator::clearLines()
 
 void SnappingLineCreator::addLines(const QRectF &rectInSceneSpace, FormEditorItem *item)
 {
-    m_topLineMap.insert(rectInSceneSpace.top(), qMakePair(rectInSceneSpace, item));
-    m_bottomLineMap.insert(rectInSceneSpace.bottom(), qMakePair(rectInSceneSpace, item));
-    m_leftLineMap.insert(rectInSceneSpace.left(), qMakePair(rectInSceneSpace, item));
-    m_rightLineMap.insert(rectInSceneSpace.right(), qMakePair(rectInSceneSpace, item));
-    QPointF centerPoint(rectInSceneSpace.center());
-    m_horizontalCenterLineMap.insert(centerPoint.y(), qMakePair(rectInSceneSpace, item));
-    m_verticalCenterLineMap.insert(centerPoint.x(), qMakePair(rectInSceneSpace, item));
+    const QPair<QRectF, FormEditorItem*> rectInSceneSpaceItemPair = {rectInSceneSpace, item};
+    m_topLineMap.insert(rectInSceneSpace.top(), rectInSceneSpaceItemPair);
+    m_bottomLineMap.insert(rectInSceneSpace.bottom(), rectInSceneSpaceItemPair);
+    m_leftLineMap.insert(rectInSceneSpace.left(), rectInSceneSpaceItemPair);
+    m_rightLineMap.insert(rectInSceneSpace.right(), rectInSceneSpaceItemPair);
+    const QPointF centerPoint(rectInSceneSpace.center());
+    m_horizontalCenterLineMap.insert(centerPoint.y(), rectInSceneSpaceItemPair);
+    m_verticalCenterLineMap.insert(centerPoint.x(), rectInSceneSpaceItemPair);
 }
 
 void SnappingLineCreator::addOffsets(const QRectF &rectInSceneSpace, FormEditorItem *item)
 {
-    m_topOffsetMap.insert(rectInSceneSpace.top() - m_topOffset, qMakePair(rectInSceneSpace, item));
-    m_bottomOffsetMap.insert(rectInSceneSpace.bottom() + m_bottomOffset, qMakePair(rectInSceneSpace, item));
-    m_leftOffsetMap.insert(rectInSceneSpace.left() - m_leftOffset, qMakePair(rectInSceneSpace, item));
-    m_rightOffsetMap.insert(rectInSceneSpace.right() + m_rightOffset, qMakePair(rectInSceneSpace, item));
+    const QPair<QRectF, FormEditorItem*> rectInSceneSpaceItemPair = {rectInSceneSpace, item};
+    m_topOffsetMap.insert(rectInSceneSpace.top() - m_topOffset, rectInSceneSpaceItemPair);
+    m_bottomOffsetMap.insert(rectInSceneSpace.bottom() + m_bottomOffset, rectInSceneSpaceItemPair);
+    m_leftOffsetMap.insert(rectInSceneSpace.left() - m_leftOffset, rectInSceneSpaceItemPair);
+    m_rightOffsetMap.insert(rectInSceneSpace.right() + m_rightOffset, rectInSceneSpaceItemPair);
 }
 
 void SnappingLineCreator::generateLines(const QList<FormEditorItem*> &exceptionList,

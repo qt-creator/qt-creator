@@ -45,6 +45,8 @@ public:
     void visitRoundedRect(const RoundedRectShape *shapeRoundedRect) override;
     void visitCircle(const CircleShape *shapeCircle) override;
     void visitEllipse(const EllipseShape *shapeEllipse) override;
+    void visitDiamond(const DiamondShape *shapeDiamond) override;
+    void visitTriangle(const TriangleShape *shapeTriangle) override;
     void visitArc(const ArcShape *shapeArc) override;
     void visitPath(const PathShape *shapePath) override;
 
@@ -69,6 +71,8 @@ public:
     void visitRoundedRect(const RoundedRectShape *shapeRoundedRect) override;
     void visitCircle(const CircleShape *shapeCircle) override;
     void visitEllipse(const EllipseShape *shapeEllipse) override;
+    void visitDiamond(const DiamondShape *shapeDiamond) override;
+    void visitTriangle(const TriangleShape *shapeTriangle) override;
     void visitArc(const ArcShape *shapeArc) override;
     void visitPath(const PathShape *shapePath) override;
 

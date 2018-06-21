@@ -35,6 +35,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/id.h>
 
+#include <QAction>
 #include <QDir>
 #include <QFileInfo>
 #include <QTreeWidget>

@@ -38,13 +38,25 @@
 #include <customnotifications.h>
 #include <modelnodepositionstorage.h>
 #include <modelnode.h>
+#include <nodeproperty.h>
+
+#ifndef QMLDESIGNER_TEST
+#include <qmldesignerplugin.h>
+#include <viewmanager.h>
+#endif
 
 #include <qmljs/parser/qmljsengine_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljssimplereader.h>
+
+#include <utils/changeset.h>
+#include <utils/qtcassert.h>
 
 using namespace QmlDesigner::Internal;
 
 namespace QmlDesigner {
+
+const char annotationsEscapeSequence[] = "##^##";
 
 RewriterView::RewriterView(DifferenceHandling differenceHandling, QObject *parent):
         AbstractView(parent),
@@ -53,6 +65,8 @@ RewriterView::RewriterView(DifferenceHandling differenceHandling, QObject *paren
         m_modelToTextMerger(new Internal::ModelToTextMerger(this)),
         m_textToModelMerger(new Internal::TextToModelMerger(this))
 {
+    m_amendTimer.setSingleShot(true);
+    connect(&m_amendTimer, &QTimer::timeout, this, &RewriterView::amendQmlText);
 }
 
 RewriterView::~RewriterView()
@@ -79,7 +93,15 @@ void RewriterView::modelAttached(Model *model)
     ModelAmender differenceHandler(m_textToModelMerger.data());
     const QString qmlSource = m_textModifier->text();
     if (m_textToModelMerger->load(qmlSource, differenceHandler))
-        lastCorrectQmlSource = qmlSource;
+        m_lastCorrectQmlSource = qmlSource;
+
+    if (!(m_errors.isEmpty() && m_warnings.isEmpty()))
+        notifyErrorsAndWarnings(m_errors);
+
+    if (hasIncompleteTypeInformation())
+        QTimer::singleShot(1000, this, [this, model](){
+            modelAttached(model);
+        });
 }
 
 void RewriterView::modelAboutToBeDetached(Model * /*model*/)
@@ -338,12 +360,12 @@ TextModifier *RewriterView::textModifier() const
 void RewriterView::setTextModifier(TextModifier *textModifier)
 {
     if (m_textModifier)
-        disconnect(m_textModifier, SIGNAL(textChanged()), this, SLOT(qmlTextChanged()));
+        disconnect(m_textModifier, &TextModifier::textChanged, this, &RewriterView::qmlTextChanged);
 
     m_textModifier = textModifier;
 
     if (m_textModifier)
-        connect(m_textModifier, SIGNAL(textChanged()), this, SLOT(qmlTextChanged()));
+        connect(m_textModifier, &TextModifier::textChanged, this, &RewriterView::qmlTextChanged);
 }
 
 QString RewriterView::textModifierContent() const
@@ -391,7 +413,7 @@ void RewriterView::applyChanges()
     try {
         modelToTextMerger()->applyChanges();
         if (!errors().isEmpty())
-            enterErrorState(errors().first().description());
+            enterErrorState(errors().constFirst().description());
     } catch (const Exception &e) {
         const QString content = textModifierContent();
         qDebug().noquote() << "RewriterException:" << m_rewritingErrorMessage;
@@ -406,9 +428,88 @@ void RewriterView::applyChanges()
         qDebug().noquote() << "RewriterException: " << m_rewritingErrorMessage;
         qDebug().noquote() << "Content: " << content;
         if (!errors().isEmpty())
-            qDebug().noquote() << "Error:" << errors().first().description();
+            qDebug().noquote() << "Error:" << errors().constFirst().description();
         throw RewritingException(__LINE__, __FUNCTION__, __FILE__, qPrintable(m_rewritingErrorMessage), content);
     }
+}
+
+void RewriterView::amendQmlText()
+{
+    emitCustomNotification(StartRewriterAmend);
+
+    const QString newQmlText = m_textModifier->text();
+
+    ModelAmender differenceHandler(m_textToModelMerger.data());
+    if (m_textToModelMerger->load(newQmlText, differenceHandler))
+        m_lastCorrectQmlSource = newQmlText;
+    emitCustomNotification(EndRewriterAmend);
+}
+
+void RewriterView::notifyErrorsAndWarnings(const QList<DocumentMessage> &errors)
+{
+    if (m_setWidgetStatusCallback)
+        m_setWidgetStatusCallback(errors.isEmpty());
+
+    emitDocumentMessage(errors, m_warnings);
+}
+
+static QString replaceIllegalPropertyNameChars(const QString &str)
+{
+    QString ret = str;
+
+    ret.replace("@", "__AT__");
+
+    return ret;
+}
+
+QString RewriterView::auxiliaryDataAsQML() const
+{
+    bool hasAuxData = false;
+
+    QString str = "Designer {\n    ";
+
+    int columnCount = 0;
+    for (const auto node : allModelNodes()) {
+        QHash<PropertyName, QVariant> data = node.auxiliaryData();
+        if (!data.isEmpty()) {
+            hasAuxData = true;
+            if (columnCount > 80) {
+                str += "\n";
+                columnCount = 0;
+            }
+            const int startLen = str.length();
+            str += "D{";
+            str += "i:";
+            str += QString::number(node.internalId());
+            str += ";";
+
+            for (auto i = data.begin(); i != data.end(); ++i) {
+                const QVariant value = i.value();
+                QString strValue = value.toString();
+                if (static_cast<QMetaType::Type>(value.type()) == QMetaType::QString)
+                    strValue = "\"" + strValue + "\"";
+
+                if (!strValue.isEmpty()) {
+                    str += replaceIllegalPropertyNameChars(QString::fromUtf8(i.key())) + ":";
+                    str += strValue;
+                    str += ";";
+                }
+            }
+
+            if (str.endsWith(';'))
+                str.chop(1);
+
+            str += "}";
+            columnCount += str.length() - startLen;
+        }
+    }
+
+    str += "\n}\n";
+
+    if (hasAuxData)
+        return str;
+
+    return {};
 }
 
 Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
@@ -416,12 +517,12 @@ Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
     return m_positionStorage.data();
 }
 
-QList<RewriterError> RewriterView::warnings() const
+QList<DocumentMessage> RewriterView::warnings() const
 {
     return m_warnings;
 }
 
-QList<RewriterError> RewriterView::errors() const
+QList<DocumentMessage> RewriterView::errors() const
 {
     return m_errors;
 }
@@ -430,24 +531,35 @@ void RewriterView::clearErrorAndWarnings()
 {
     m_errors.clear();
     m_warnings.clear();
-    emit errorsChanged(m_errors);
+    notifyErrorsAndWarnings(m_errors);
 }
 
-void RewriterView::setWarnings(const QList<RewriterError> &warnings)
+void RewriterView::setWarnings(const QList<DocumentMessage> &warnings)
 {
     m_warnings = warnings;
+    notifyErrorsAndWarnings(m_errors);
 }
 
-void RewriterView::setErrors(const QList<RewriterError> &errors)
+void RewriterView::setIncompleteTypeInformation(bool b)
+{
+    m_hasIncompleteTypeInformation = b;
+}
+
+bool RewriterView::hasIncompleteTypeInformation() const
+{
+    return m_hasIncompleteTypeInformation;
+}
+
+void RewriterView::setErrors(const QList<DocumentMessage> &errors)
 {
     m_errors = errors;
-    emit errorsChanged(m_errors);
+    notifyErrorsAndWarnings(m_errors);
 }
 
-void RewriterView::addError(const RewriterError &error)
+void RewriterView::addError(const DocumentMessage &error)
 {
     m_errors.append(error);
-    emit errorsChanged(m_errors);
+    notifyErrorsAndWarnings(m_errors);
 }
 
 void RewriterView::enterErrorState(const QString &errorMessage)
@@ -530,24 +642,44 @@ static bool isInNodeDefinition(int nodeTextOffset, int nodeTextLength, int curso
     return (nodeTextOffset <= cursorPosition) && (nodeTextOffset + nodeTextLength > cursorPosition);
 }
 
-ModelNode RewriterView::nodeAtTextCursorPosition(int cursorPosition) const
+ModelNode RewriterView::nodeAtTextCursorPositionRekursive(const ModelNode &root, int cursorPosition) const
 {
-    const QList<ModelNode> allNodes = allModelNodes();
+    ModelNode node = root;
 
-    ModelNode nearestNode;
-    int nearestNodeTextOffset = -1;
+    int lastOffset = -1;
 
-    foreach (const ModelNode &currentNode, allNodes) {
-        const int nodeTextOffset = nodeOffset(currentNode);
-        const int nodeTextLength = nodeLength(currentNode);
-        if (isInNodeDefinition(nodeTextOffset, nodeTextLength, cursorPosition)
-            && (nodeTextOffset > nearestNodeTextOffset)) {
-            nearestNode = currentNode;
-            nearestNodeTextOffset = nodeTextOffset;
+    bool sorted = true;
+
+    if (!root.nodeProperties().isEmpty())
+        sorted = false;
+
+    foreach (const ModelNode &currentNode, node.directSubModelNodes()) {
+        const int offset = nodeOffset(currentNode);
+
+        if (offset < cursorPosition && offset > lastOffset) {
+            node = nodeAtTextCursorPositionRekursive(currentNode, cursorPosition);
+            lastOffset = offset;
+        } else {
+            if (sorted)
+                break;
         }
     }
 
-    return nearestNode;
+    const int nodeTextLength = nodeLength(node);
+    const int nodeTextOffset = nodeOffset(node);
+
+    if (nodeTextLength < 0)
+        return ModelNode();
+
+    if (isInNodeDefinition(nodeTextOffset, nodeTextLength, cursorPosition))
+        return node;
+
+    return root;
+}
+
+ModelNode RewriterView::nodeAtTextCursorPosition(int cursorPosition) const
+{
+    return nodeAtTextCursorPositionRekursive(rootModelNode(), cursorPosition);
 }
 
 bool RewriterView::renameId(const QString& oldId, const QString& newId)
@@ -559,7 +691,12 @@ bool RewriterView::renameId(const QString& oldId, const QString& newId)
                 && rootModelNode().hasBindingProperty(propertyName)
                 && rootModelNode().bindingProperty(propertyName).isAliasExport();
 
+        bool instant = m_instantQmlTextUpdate;
+        m_instantQmlTextUpdate = true;
+
         bool refactoring =  textModifier()->renameId(oldId, newId);
+
+        m_instantQmlTextUpdate = instant;
 
         if (refactoring && hasAliasExport) { //Keep export alias properties
             rootModelNode().removeProperty(propertyName);
@@ -601,7 +738,7 @@ QString RewriterView::convertTypeToImportAlias(const QString &type) const
     if (type.contains('.')) {
         QStringList nameComponents = type.split('.');
         url = getUrlFromType(type);
-        simplifiedType = nameComponents.last();
+        simplifiedType = nameComponents.constLast();
     }
 
     QString alias;
@@ -661,7 +798,12 @@ void RewriterView::moveToComponent(const ModelNode &modelNode)
 {
     int offset = nodeOffset(modelNode);
 
+    bool instant = m_instantQmlTextUpdate;
+    m_instantQmlTextUpdate = true;
+
     textModifier()->moveToComponent(offset);
+
+    m_instantQmlTextUpdate = instant;
 }
 
 QStringList RewriterView::autoComplete(const QString &text, int pos, bool explicitComplete)
@@ -698,6 +840,11 @@ QList<CppTypeData> RewriterView::getCppTypes()
     return cppDataList;
 }
 
+void RewriterView::setWidgetStatusCallback(std::function<void (bool)> setWidgetStatusCallback)
+{
+    m_setWidgetStatusCallback = setWidgetStatusCallback;
+}
+
 void RewriterView::qmlTextChanged()
 {
     getCppTypes();
@@ -714,22 +861,30 @@ void RewriterView::qmlTextChanged()
 #endif
 
         switch (m_differenceHandling) {
-            case Validate: {
-                ModelValidator differenceHandler(m_textToModelMerger.data());
-                if (m_textToModelMerger->load(newQmlText, differenceHandler))
-                    lastCorrectQmlSource = newQmlText;
-                break;
-            }
+        case Validate: {
+            ModelValidator differenceHandler(m_textToModelMerger.data());
+            if (m_textToModelMerger->load(newQmlText, differenceHandler))
+                m_lastCorrectQmlSource = newQmlText;
+            break;
+        }
 
-            case Amend:
-            default: {
-                emitCustomNotification(StartRewriterAmend);
-                ModelAmender differenceHandler(m_textToModelMerger.data());
-                if (m_textToModelMerger->load(newQmlText, differenceHandler))
-                    lastCorrectQmlSource = newQmlText;
-                emitCustomNotification(EndRewriterAmend);
-                break;
+        case Amend: {
+            if (m_instantQmlTextUpdate) {
+                amendQmlText();
+            } else {
+#ifndef QMLDESIGNER_TEST
+                auto &viewManager = QmlDesignerPlugin::instance()->viewManager();
+                if (viewManager.usesRewriterView(this)) {
+                    QmlDesignerPlugin::instance()->viewManager().disableWidgets();
+                    m_amendTimer.start(400);
+                }
+#else
+                /*Keep test synchronous*/
+                amendQmlText();
+#endif
             }
+            break;
+        }
         }
     }
 }
@@ -738,6 +893,121 @@ void RewriterView::delayedSetup()
 {
     if (m_textToModelMerger)
         m_textToModelMerger->delayedSetup();
+}
+
+static QString annotationsEnd()
+{
+    const static QString end = QString(" %1*/\n").arg(annotationsEscapeSequence);
+    return end;
+}
+
+static QString annotationsStart()
+{
+    const static QString start = QString("\n/*%1 ").arg(annotationsEscapeSequence);
+    return start;
+}
+
+QString RewriterView::getRawAuxiliaryData() const
+{
+    QTC_ASSERT(m_textModifier, return {});
+
+    const QString oldText = m_textModifier->text();
+
+    QString newText = oldText;
+
+    int startIndex = newText.indexOf(annotationsStart());
+    int endIndex = newText.indexOf(annotationsEnd());
+
+    if (startIndex > 0 && endIndex > 0)
+        return newText.mid(startIndex, endIndex - startIndex + annotationsEnd().length());
+
+    return {};
+}
+
+void RewriterView::writeAuxiliaryData()
+{
+    QTC_ASSERT(m_textModifier, return);
+
+    const QString oldText = m_textModifier->text();
+
+    QString newText = oldText;
+
+    int startIndex = newText.indexOf(annotationsStart());
+    int endIndex = newText.indexOf(annotationsEnd());
+
+    if (startIndex > 0 && endIndex > 0)
+        newText.remove(startIndex, endIndex - startIndex + annotationsEnd().length());
+
+    QString auxData = auxiliaryDataAsQML();
+
+    if (!auxData.isEmpty()) {
+        auxData.prepend(annotationsStart());
+        auxData.append(annotationsEnd());
+        newText.append(auxData);
+    }
+
+    QTextCursor tc(m_textModifier->textDocument());
+    Utils::ChangeSet changeSet;
+    changeSet.replace(0, oldText.length(), newText);
+    changeSet.apply(&tc);
+}
+
+static void checkNode(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view);
+
+static void checkChildNodes(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view)
+{
+    if (!node)
+        return;
+
+    for (auto child : node->children())
+        checkNode(child, view);
+}
+
+static QString fixUpIllegalChars(const QString &str)
+{
+    QString ret = str;
+    ret.replace("__AT__", "@");
+    return ret;
+}
+
+static void checkNode(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view)
+{
+    if (!node)
+        return;
+
+    if (!node->propertyNames().contains("i"))
+        return;
+
+    const int internalId = node->property("i").toInt();
+    const ModelNode modelNode = view->modelNodeForInternalId(internalId);
+    if (!modelNode.isValid())
+        return;
+
+    auto properties = node->properties();
+
+    for (auto i = properties.begin(); i != properties.end(); ++i) {
+        if (i.key() != "i")
+            modelNode.setAuxiliaryData(fixUpIllegalChars(i.key()).toUtf8(), i.value());
+    }
+
+    checkChildNodes(node, view);
+}
+
+void RewriterView::restoreAuxiliaryData()
+{
+    QTC_ASSERT(m_textModifier, return);
+
+    const QString text = m_textModifier->text();
+
+    int startIndex = text.indexOf(annotationsStart());
+    int endIndex = text.indexOf(annotationsEnd());
+
+    if (startIndex > 0 && endIndex > 0) {
+        const QString auxSource = text.mid(startIndex + annotationsStart().length(),
+                                           endIndex - startIndex - annotationsStart().length());
+        QmlJS::SimpleReader reader;
+        checkChildNodes(reader.readFromSource(auxSource), this);
+    }
 }
 
 } //QmlDesigner

@@ -25,13 +25,7 @@
 
 #pragma once
 
-#if !(__cplusplus > 199711L || __GXX_EXPERIMENTAL_CXX0X__ || _MSC_VER >= 1600 || defined( _LIBCPP_VERSION )) || \
-    (defined(__GNUC_LIBSTD__) && ((__GNUC_LIBSTD__-0) * 100 + __GNUC_LIBSTD_MINOR__-0 <= 402))
-#  include <algorithm>
-#else // C++11
-#  include <utility>
-#endif
-
+#include <utility>
 
 namespace Utils {
 /// RAII object to save a value, and restore it when the scope is left.

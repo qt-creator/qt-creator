@@ -25,12 +25,13 @@
 
 import QtQuick 2.1
 import HelperWidgets 2.0
+import QtQuickDesignerTheme 1.0
 
 Rectangle {
     id: itemPane
     width: 320
     height: 400
-    color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
+    color: Theme.qmlDesignerBackgroundColorDarkAlternate()
 
     Section {
         y: -1

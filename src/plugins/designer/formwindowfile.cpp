@@ -49,7 +49,7 @@ namespace Internal {
 FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent)
   : m_formWindow(form)
 {
-    setMimeType(QLatin1String(Designer::Constants::FORM_MIMETYPE));
+    setMimeType(Designer::Constants::FORM_MIMETYPE);
     setParent(parent);
     setId(Core::Id(Designer::Constants::K_DESIGNER_XML_EDITOR_ID));
     // Designer needs UTF-8 regardless of settings.

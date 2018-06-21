@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string/>
   </property>
   <property name="toolTip">
    <string/>
@@ -193,7 +193,7 @@
         </property>
         <property name="icon">
          <iconset resource="resources.qrc">
-          <normaloff>:/qmldesigner/images/tile-icon-hor - scale.png</normaloff>:/qmldesigner/images/tile-icon-hor - scale.png</iconset>
+          <normaloff>:/qmldesigner/images/tile-icon-hor-scale.png</normaloff>:/qmldesigner/images/tile-icon-hor-scale.png</iconset>
         </property>
         <property name="iconSize">
          <size>

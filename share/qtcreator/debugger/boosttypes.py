@@ -81,10 +81,10 @@ def qdump__boost__container__list(d, value):
                 root = r["root_"]
             except:
                 root = r["m_header"]
-            p = root["next_"]
+            p = root["next_"].extractPointer()
             for i in d.childRange():
-                d.putSubItem(i, d.createValue(p.integer() + offset, innerType))
-                p = p["next_"]
+                d.putSubItem(i, d.createValue(p + offset, innerType))
+                p = d.extractPointer(p)
 
 
 def qdump__boost__gregorian__date(d, value):
@@ -111,8 +111,11 @@ def qdump__boost__unordered__unordered_set(d, value):
         # its followed by size_t maxload, it's # effectively padded to a size_t
         bases, bucketCount, size, mlf, maxload, buckets = value.split('tttttp')
         # Distinguish 1.58 and 1.55. 1.58 used one template argument, 1.55 two.
-        ittype = d.lookupType(value.type.name + '::iterator').target()
-        forward = len(ittype.templateArguments()) == 1
+        try:
+            ittype = d.lookupType(value.type.name + '::iterator').target()
+            forward = len(ittype.templateArguments()) == 1
+        except:
+            forward = True
     else:
         # boost 1.48
         # Values are stored before the next pointers. Determine the offset.
@@ -137,3 +140,12 @@ def qdump__boost__unordered__unordered_set(d, value):
                 yield val
     p = d.extractPointer(buckets + bucketCount * d.ptrSize())
     d.putItems(size, children(p), maxNumChild = 10000)
+
+
+def qdump__boost__variant(d, value):
+    allTypes = value.type.templateArguments()
+    realType = allTypes[value.split('i')[0]]
+    alignment = max([t.alignment() for t in allTypes])
+    dummy, val = value.split('%is{%s}' % (max(4, alignment), realType.name))
+    d.putItem(val)
+    d.putBetterType(value.type)

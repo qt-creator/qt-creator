@@ -211,7 +211,7 @@ void Lexer::scan_helper(Token *tok)
         _state = 0;
         scanCppComment(originalKind);
         return;
-    } else if (isRawStringLiteral(s._tokenKind)) {
+    } else if (!control() && isRawStringLiteral(s._tokenKind)) {
         tok->f.kind = s._tokenKind;
         if (scanUntilRawStringLiteralEndSimple())
             _state = 0;
@@ -748,19 +748,24 @@ void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
 
     int delimLength = -1;
     const char *closingDelimCandidate = 0;
+    bool closed = false;
     while (_yychar) {
         if (_yychar == '(' && delimLength == -1) {
             delimLength = _currentChar - yytext;
             yyinp();
         } else if (_yychar == ')') {
             yyinp();
-            if (delimLength == -1)
-                break;
+            if (delimLength == -1) {
+                tok->f.kind = T_ERROR;
+                return;
+            }
             closingDelimCandidate = _currentChar;
         } else {
             if (delimLength == -1) {
-                if (_yychar == '\\' || std::isspace(_yychar))
-                    break;
+                if (_yychar == '\\' || std::isspace(_yychar)) {
+                    tok->f.kind = T_ERROR;
+                    return;
+                }
                 yyinp();
             } else {
                 if (!closingDelimCandidate) {
@@ -769,6 +774,7 @@ void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
                     if (_yychar == '"') {
                         if (delimLength == _currentChar - closingDelimCandidate) {
                             // Got a matching closing delimiter.
+                            closed = true;
                             break;
                         }
                     }
@@ -802,7 +808,7 @@ void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
     else
         tok->f.kind = T_RAW_STRING_LITERAL;
 
-    if (!_yychar)
+    if (!control() && !closed)
         s._tokenKind = tok->f.kind;
 }
 

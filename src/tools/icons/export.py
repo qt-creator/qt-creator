@@ -72,8 +72,8 @@ for svgElement in svgTreeRoot.iter():
 # with one launch of Inkscape.
 inkscapeShellCommands = ""
 for id in svgIDs:
-    inkscapeShellCommands += "qtcreatoricons.svg --export-id=" + id + " --export-id-only --export-png=" + qtcSourceRoot + id + ".png\n"
-    inkscapeShellCommands += "qtcreatoricons.svg --export-id=" + id + " --export-id-only --export-png=" + qtcSourceRoot + id + "@2x.png --export-dpi=180\n"
+    inkscapeShellCommands += "qtcreatoricons.svg --export-id=" + id + " --export-id-only --export-png=" + qtcSourceRoot + id + ".png --export-dpi=96\n"
+    inkscapeShellCommands += "qtcreatoricons.svg --export-id=" + id + " --export-id-only --export-png=" + qtcSourceRoot + id + "@2x.png --export-dpi=192\n"
 inkscapeShellCommands += "quit\n"
 inkscapeProcess = subprocess.Popen(['inkscape', '--shell'], stdin=subprocess.PIPE, shell=True, cwd=scriptDir)
 inkscapeProcess.communicate(input=inkscapeShellCommands.encode())

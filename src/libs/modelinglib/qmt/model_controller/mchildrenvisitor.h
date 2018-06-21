@@ -45,6 +45,7 @@ public:
     void visitMDependency(MDependency *dependency) override;
     void visitMInheritance(MInheritance *inheritance) override;
     void visitMAssociation(MAssociation *association) override;
+    void visitMConnection(MConnection *connection) override;
 };
 
 } // namespace qmt

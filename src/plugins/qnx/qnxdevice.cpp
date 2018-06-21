@@ -31,10 +31,11 @@
 #include "qnxdeviceprocess.h"
 
 #include <projectexplorer/devicesupport/sshdeviceprocess.h>
-#include <projectexplorer/runnables.h>
+
 #include <ssh/sshconnection.h>
 #include <utils/port.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QApplication>
 #include <QRegExp>
@@ -55,35 +56,23 @@ class QnxPortsGatheringMethod : public PortsGatheringMethod
 {
     // TODO: The command is probably needlessly complicated because the parsing method
     // used to be fixed. These two can now be matched to each other.
-    QByteArray commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const
+    Runnable runnable(QAbstractSocket::NetworkLayerProtocol protocol) const override
     {
         Q_UNUSED(protocol);
-        return "netstat -na "
-                "| sed 's/[a-z]\\+\\s\\+[0-9]\\+\\s\\+[0-9]\\+\\s\\+\\(\\*\\|[0-9\\.]\\+\\)\\.\\([0-9]\\+\\).*/\\2/g' "
-                "| while read line; do "
-                    "if [[ $line != udp* ]] && [[ $line != Active* ]]; then "
-                        "printf '%x\n' $line; "
-                    "fi; "
-                "done";
+        Runnable runnable;
+        runnable.executable = "netstat";
+        runnable.commandLineArguments = "-na";
+        return runnable;
     }
 
-    QList<Port> usedPorts(const QByteArray &output) const
+    QList<Port> usedPorts(const QByteArray &output) const override
     {
-        QList<Port> ports;
-        QList<QByteArray> portStrings = output.split('\n');
-        portStrings.removeFirst();
-        foreach (const QByteArray &portString, portStrings) {
-            if (portString.isEmpty())
-                continue;
-            bool ok;
-            const Port port(portString.toInt(&ok, 16));
-            if (ok) {
-                if (!ports.contains(port))
-                    ports << port;
-            } else {
-                qWarning("%s: Unexpected string '%s' is not a port.",
-                         Q_FUNC_INFO, portString.data());
-            }
+        QList<Utils::Port> ports;
+        const QList<QByteArray> lines = output.split('\n');
+        for (const QByteArray &line : lines) {
+            const Port port(Utils::parseUsedPortFromNetstatOutput(line));
+            if (port.isValid() && !ports.contains(port))
+                ports.append(port);
         }
         return ports;
     }
@@ -122,6 +111,11 @@ QString QnxDevice::displayType() const
     return tr("QNX");
 }
 
+OsType QnxDevice::osType() const
+{
+    return OsTypeOtherUnix;
+}
+
 int QnxDevice::qnxVersion() const
 {
     if (m_versionNumber == 0)
@@ -137,7 +131,7 @@ void QnxDevice::updateVersionNumber() const
     QObject::connect(&versionNumberProcess, &SshDeviceProcess::finished, &eventLoop, &QEventLoop::quit);
     QObject::connect(&versionNumberProcess, &DeviceProcess::error, &eventLoop, &QEventLoop::quit);
 
-    StandardRunnable r;
+    Runnable r;
     r.executable = QLatin1String("uname");
     r.commandLineArguments = QLatin1String("-r");
     versionNumberProcess.start(r);

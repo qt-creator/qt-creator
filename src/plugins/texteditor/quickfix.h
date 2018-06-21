@@ -95,28 +95,6 @@ inline QuickFixOperations &operator<<(QuickFixOperations &list, QuickFixOperatio
 
 typedef QSharedPointer<const AssistInterface> QuickFixInterface;
 
-/*!
-    The QuickFixFactory is responsible for generating QuickFixOperation s which are
-    applicable to the given QuickFixState.
-
-    A QuickFixFactory should not have any state -- it can be invoked multiple times
-    for different QuickFixState objects to create the matching operations, before any
-    of those operations are applied (or released).
-
-    This way, a single factory can be used by multiple editors, and a single editor
-    can have multiple QuickFixCollector objects for different parts of the code.
- */
-class TEXTEDITOR_EXPORT QuickFixFactory: public QObject
-{
-    Q_OBJECT
-
-public:
-    QuickFixFactory(QObject *parent = 0);
-    ~QuickFixFactory();
-
-    virtual void matchingOperations(const QuickFixInterface &interface, QuickFixOperations &result) = 0;
-};
-
 } // namespace TextEditor
 
 Q_DECLARE_METATYPE(TextEditor::QuickFixOperation::Ptr)

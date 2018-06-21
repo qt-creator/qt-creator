@@ -3,14 +3,14 @@ import qbs 1.0
 QtcPlugin {
     name: "Welcome"
 
-    Depends { name: "Qt"; submodules: ["widgets", "network", "quick", "quickwidgets"] }
+    Depends { name: "Qt"; submodules: ["widgets", "network" ] }
     Depends { name: "Utils" }
 
     Depends { name: "Core" }
+    Depends { name: "app_version_header" }
 
     files: [
-        "welcomeplugin.cpp",
-        "welcomeplugin.h",
         "welcome.qrc",
+        "welcomeplugin.cpp",
     ]
 }

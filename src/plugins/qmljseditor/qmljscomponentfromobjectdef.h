@@ -29,12 +29,10 @@
 
 namespace QmlJSEditor {
 
-class QMLJSEDITOR_EXPORT ComponentFromObjectDef : public QmlJSQuickFixFactory
-{
-public:
-    void match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result);
+QMLJSEDITOR_EXPORT void matchComponentFromObjectDefQuickFix
+    (const QmlJSQuickFixInterface &interface, QuickFixOperations &result);
 
-    static void perform(const QString &fileName, QmlJS::AST::UiObjectDefinition *objDef);
-};
+QMLJSEDITOR_EXPORT void performComponentFromObjectDef
+    (const QString &fileName, QmlJS::AST::UiObjectDefinition *objDef);
 
 } // namespace QmlJSEditor

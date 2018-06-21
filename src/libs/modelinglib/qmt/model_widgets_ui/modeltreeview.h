@@ -41,7 +41,7 @@ class QMT_EXPORT ModelTreeView : public QTreeView, public ModelTreeViewInterface
     Q_OBJECT
 
 public:
-    explicit ModelTreeView(QWidget *parent = 0);
+    explicit ModelTreeView(QWidget *parent = nullptr);
     ~ModelTreeView() override;
 
 signals:
@@ -67,8 +67,8 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
-    SortedTreeModel *m_sortedTreeModel;
-    IElementTasks *m_elementTasks;
+    SortedTreeModel *m_sortedTreeModel = nullptr;
+    IElementTasks *m_elementTasks = nullptr;
     QModelIndex m_autoDelayIndex;
     QTime m_autoDelayStartTime;
 };

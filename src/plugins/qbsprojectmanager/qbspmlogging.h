@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef QBSPMLOGGING_P_H
-#define QBSPMLOGGING_P_H
+#pragma once
 
 #include <QLoggingCategory>
 
@@ -33,5 +32,3 @@ namespace Internal {
 Q_DECLARE_LOGGING_CATEGORY(qbsPmLog)
 }
 }
-
-#endif // Include guard

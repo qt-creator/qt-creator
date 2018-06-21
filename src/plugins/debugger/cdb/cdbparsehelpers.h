@@ -66,7 +66,7 @@ QString cdbClearBreakpointCommand(const BreakpointModelId &id);
 // Parse extension command listing breakpoints.
 // Note that not all fields are returned, since file, line, function are encoded
 // in the expression (that is in addition deleted on resolving for a bp-type breakpoint).
-void parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r, QString *expression = 0);
+void parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r, QString *expression = nullptr);
 
 // Write memory (f ...).
 QString cdbWriteMemoryCommand(quint64 addr, const QByteArray &data);

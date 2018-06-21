@@ -27,15 +27,20 @@
 
 #include <cplusplus/MatchingText.h>
 
+#include <texteditor/tabsettings.h>
+
+#include <QTextBlock>
 #include <QTextCursor>
 
 using namespace CppEditor;
 using namespace Internal;
 
 bool CppAutoCompleter::contextAllowsAutoBrackets(const QTextCursor &cursor,
-                                                    const QString &textToInsert) const
+                                                 const QString &textToInsert) const
 {
-    return CPlusPlus::MatchingText::contextAllowsAutoParentheses(cursor, textToInsert);
+    const CPlusPlus::MatchingText::IsNextBlockDeeperIndented isIndented
+            = [this](const QTextBlock &b) { return isNextBlockIndented(b); };
+    return CPlusPlus::MatchingText::contextAllowsAutoParentheses(cursor, textToInsert, isIndented);
 }
 
 bool CppAutoCompleter::contextAllowsAutoQuotes(const QTextCursor &cursor,
@@ -56,7 +61,7 @@ bool CppAutoCompleter::isInComment(const QTextCursor &cursor) const
 
 bool CppAutoCompleter::isInString(const QTextCursor &cursor) const
 {
-    return CPlusPlus::MatchingText::isInStringHelper(cursor);
+    return CPlusPlus::MatchingText::stringKindAtCursor(cursor) != CPlusPlus::T_EOF_SYMBOL;
 }
 
 QString CppAutoCompleter::insertMatchingBrace(const QTextCursor &cursor, const QString &text,
@@ -81,6 +86,7 @@ QString CppAutoCompleter::insertParagraphSeparator(const QTextCursor &cursor) co
 #ifdef WITH_TESTS
 
 #include "cppeditor.h"
+#include "cppeditorwidget.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
 
@@ -131,7 +137,7 @@ static QString fileContent(int fileContent, QChar charToInsert)
         case ']':               return QLatin1String("[[|]");
         default:                return QString();
         }
-    default:                    return QString();
+    default:                    break;
     }
     return QString();
 }
@@ -244,18 +250,17 @@ void CppEditorPlugin::test_autoComplete_data()
             QString expectedText;
             int skippedChar = 0;
 
-            // We always expect to get a closing char in an empty file
-            if (fc == EmptyFile && c != QLatin1Char('{') && isOpeningChar(c))
+            if (fc == EmptyFile && isOpeningChar(c) && c != QLatin1Char('{'))
                 expectedText = closingChar(c);
 
             if (fc == InBetween) {
-                // When we are inside the mathing chars and a closing char is inserted we want
+                // When we are inside the matching chars and a closing char is inserted we want
                 // to skip the already present closing char instead of adding an additional one.
-                if (isClosingChar(c) && c != QLatin1Char('}'))
+                if (isClosingChar(c))
                     ++skippedChar;
                 // If another opening char is inserted we
                 // expect the same behavior as in an empty file
-                else if (isOpeningChar(c) && c != QLatin1Char('{'))
+                else if (isOpeningChar(c))
                     expectedText = closingChar(c);
             }
 
@@ -371,7 +376,7 @@ void CppEditorPlugin::test_autoBackspace_data()
 
         QTest::newRow((QLatin1String("Inside ") + charGroupTestName(c)).toLatin1().data())
                 << fileContent(InBetween, c)
-                << QString("(['\"").contains(c);
+                << QString("({['\"").contains(c);
     }
 }
 
@@ -431,8 +436,10 @@ void CppEditorPlugin::test_insertParagraph()
 
     QVERIFY(!tc.isNull());
 
-    const int blockCount = CppAutoCompleter().paragraphSeparatorAboutToBeInserted(
-                tc, TextEditor::TextEditorSettings::codeStyle()->tabSettings());
+    CppAutoCompleter completer = CppAutoCompleter();
+    completer.setTabSettings(TextEditor::TextEditorSettings::codeStyle()->tabSettings());
+
+    const int blockCount = completer.paragraphSeparatorAboutToBeInserted(tc);
 
     QCOMPARE(blockCount, expectedBlockCount);
 }

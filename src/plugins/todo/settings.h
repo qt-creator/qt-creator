@@ -44,6 +44,8 @@ class Settings {
 public:
     KeywordList keywords;
     ScanningScope scanningScope = ScanningScopeCurrentFile;
+    bool keywordsEdited = false;
+
     void save(QSettings *settings) const;
     void load(QSettings *settings);
     void setDefault();

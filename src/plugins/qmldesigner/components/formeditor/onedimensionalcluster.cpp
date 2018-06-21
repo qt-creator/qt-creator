@@ -53,17 +53,17 @@ double OneDimensionalCluster::mean() const
 
     if (m_coordinateList.size() == 1)
     {
-        return m_coordinateList.first();
+        return m_coordinateList.constFirst();
     }
 
     return sum(m_coordinateList) / m_coordinateList.size();
 }
 
-double OneDimensionalCluster::first() const
+double OneDimensionalCluster::constFirst() const
 {
     Q_ASSERT(!m_coordinateList.isEmpty());
 
-    return m_coordinateList.first();
+    return m_coordinateList.constFirst();
 }
 
 QList<OneDimensionalCluster> OneDimensionalCluster::createOneDimensionalClusterList(const QList<double> & oneDimensionalCoordinateList)
@@ -136,7 +136,7 @@ QList<double> OneDimensionalCluster::reduceLines(const QList<double> & oneDimens
 
     QList<double> lineList;
     foreach (const OneDimensionalCluster &cluster, clusterList)
-        lineList.append(cluster.first());
+        lineList.append(cluster.constFirst());
 
     return lineList;
 }

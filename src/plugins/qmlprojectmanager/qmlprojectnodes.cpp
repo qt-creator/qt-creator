@@ -32,48 +32,18 @@
 
 #include <utils/algorithm.h>
 
-#include <QFileInfo>
-#include <QStyle>
+using namespace ProjectExplorer;
 
 namespace QmlProjectManager {
 namespace Internal {
 
-QmlProjectNode::QmlProjectNode(QmlProject *project)
-    : ProjectExplorer::ProjectNode(project->projectDirectory()),
-      m_project(project)
+QmlProjectNode::QmlProjectNode(QmlProject *project) : ProjectNode(project->projectDirectory()),
+    m_project(project)
 {
     setDisplayName(project->projectFilePath().toFileInfo().completeBaseName());
-    // make overlay
-    const QSize desiredSize = QSize(16, 16);
-    const QIcon projectBaseIcon(QLatin1String(":/qmlproject/images/qmlfolder.png"));
-    const QPixmap projectPixmap = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
-                                                                      projectBaseIcon,
-                                                                      desiredSize);
-    setIcon(QIcon(projectPixmap));
-}
 
-QmlProjectNode::~QmlProjectNode()
-{ }
-
-void QmlProjectNode::refresh()
-{
-    using namespace ProjectExplorer;
-
-    FileNode *projectFilesNode = new FileNode(m_project->filesFileName(),
-                                              FileType::Project,
-                                              /* generated = */ false);
-
-    QStringList files = m_project->files();
-    files.removeAll(m_project->filesFileName().toString());
-
-    QList<FileNode *> fileNodes = Utils::transform(files, [](const QString &f) {
-        FileType fileType = FileType::Source; // ### FIXME
-        return new FileNode(Utils::FileName::fromString(f), fileType, false);
-
-    });
-    fileNodes.append(projectFilesNode);
-
-    buildTree(fileNodes);
+    static QIcon qmlProjectIcon = Core::FileIconProvider::directoryIcon(":/projectexplorer/images/fileoverlay_qml.png");
+    setIcon(qmlProjectIcon);
 }
 
 bool QmlProjectNode::showInSimpleTree() const
@@ -81,18 +51,19 @@ bool QmlProjectNode::showInSimpleTree() const
     return true;
 }
 
-QList<ProjectExplorer::ProjectAction> QmlProjectNode::supportedActions(Node *node) const
+bool QmlProjectNode::supportsAction(ProjectAction action, const Node *node) const
 {
-    Q_UNUSED(node);
-    QList<ProjectExplorer::ProjectAction> actions;
-    actions.append(ProjectExplorer::AddNewFile);
-    actions.append(ProjectExplorer::EraseFile);
-    if (node->nodeType() == ProjectExplorer::NodeType::File) {
-        ProjectExplorer::FileNode *fileNode = static_cast<ProjectExplorer::FileNode *>(node);
-        if (fileNode->fileType() != ProjectExplorer::FileType::Project)
-            actions.append(ProjectExplorer::Rename);
+    if (action == AddNewFile || action == EraseFile)
+        return true;
+    QTC_ASSERT(node, return false);
+
+    if (action == Rename && node->nodeType() == NodeType::File) {
+        const FileNode *fileNode = node->asFileNode();
+        QTC_ASSERT(fileNode, return false);
+        return fileNode->fileType() != FileType::Project;
     }
-    return actions;
+
+    return false;
 }
 
 bool QmlProjectNode::addFiles(const QStringList &filePaths, QStringList * /*notAdded*/)

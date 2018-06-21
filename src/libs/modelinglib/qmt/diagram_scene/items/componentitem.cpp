@@ -32,7 +32,6 @@
 #include "qmt/diagram_scene/parts/contextlabelitem.h"
 #include "qmt/diagram_scene/parts/customiconitem.h"
 #include "qmt/diagram_scene/parts/editabletextitem.h"
-#include "qmt/diagram_scene/parts/relationstarter.h"
 #include "qmt/diagram_scene/parts/stereotypesitem.h"
 #include "qmt/infrastructure/geometryutilities.h"
 #include "qmt/infrastructure/qmtassert.h"
@@ -61,7 +60,7 @@ static const qreal BODY_VERT_BORDER = 4.0;
 static const qreal BODY_HORIZ_BORDER = 4.0;
 
 ComponentItem::ComponentItem(DComponent *component, DiagramSceneModel *diagramSceneModel, QGraphicsItem *parent)
-    : ObjectItem(component, diagramSceneModel, parent)
+    : ObjectItem("component", component, diagramSceneModel, parent)
 {
 }
 
@@ -88,7 +87,7 @@ void ComponentItem::update()
     } else if (m_customIcon) {
         m_customIcon->scene()->removeItem(m_customIcon);
         delete m_customIcon;
-        m_customIcon = 0;
+        m_customIcon = nullptr;
     }
 
     // shape
@@ -118,19 +117,19 @@ void ComponentItem::update()
         if (m_shape) {
             m_shape->scene()->removeItem(m_shape);
             delete m_shape;
-            m_shape = 0;
+            m_shape = nullptr;
         }
     }
     if (deleteRects) {
         if (m_lowerRect) {
             m_lowerRect->scene()->removeItem(m_lowerRect);
             delete m_lowerRect;
-            m_lowerRect = 0;
+            m_lowerRect = nullptr;
         }
         if (m_upperRect) {
             m_upperRect->scene()->removeItem(m_upperRect);
             delete m_upperRect;
-            m_upperRect = 0;
+            m_upperRect = nullptr;
         }
     }
 
@@ -141,7 +140,7 @@ void ComponentItem::update()
     updateNameItem(style);
 
     // context
-    if (showContext()) {
+    if (!suppressTextDisplay() && showContext()) {
         if (!m_contextLabel)
             m_contextLabel = new ContextLabelItem(this);
         m_contextLabel->setFont(style->smallFont());
@@ -150,26 +149,11 @@ void ComponentItem::update()
     } else if (m_contextLabel) {
         m_contextLabel->scene()->removeItem(m_contextLabel);
         delete m_contextLabel;
-        m_contextLabel = 0;
+        m_contextLabel = nullptr;
     }
 
     updateSelectionMarker(m_customIcon);
-
-    // relation starters
-    if (isFocusSelected()) {
-        if (!m_relationStarter && scene()) {
-            m_relationStarter = new RelationStarter(this, diagramSceneModel(), 0);
-            scene()->addItem(m_relationStarter);
-            m_relationStarter->setZValue(RELATION_STARTER_ZVALUE);
-            m_relationStarter->addArrow(QStringLiteral("dependency"), ArrowItem::ShaftDashed, ArrowItem::HeadOpen);
-        }
-    } else if (m_relationStarter) {
-        if (m_relationStarter->scene())
-            m_relationStarter->scene()->removeItem(m_relationStarter);
-        delete m_relationStarter;
-        m_relationStarter = 0;
-    }
-
+    updateRelationStarter();
     updateAlignmentButtons();
     updateGeometry();
 }
@@ -217,27 +201,10 @@ QList<ILatchable::Latch> ComponentItem::verticalLatches(ILatchable::Action actio
     return ObjectItem::verticalLatches(action, grabbedItem);
 }
 
-QPointF ComponentItem::relationStartPos() const
-{
-    return pos();
-}
-
-void ComponentItem::relationDrawn(const QString &id, const QPointF &toScenePos, const QList<QPointF> &intermediatePoints)
-{
-    DElement *targetElement = diagramSceneModel()->findTopmostElement(toScenePos);
-    if (targetElement) {
-       if (id == QStringLiteral("dependency")) {
-            auto dependantObject = dynamic_cast<DObject *>(targetElement);
-            if (dependantObject)
-                diagramSceneModel()->diagramSceneController()->createDependency(object(), dependantObject, intermediatePoints, diagramSceneModel()->diagram());
-        }
-    }
-}
-
 bool ComponentItem::hasPlainShape() const
 {
     auto diagramComponent = dynamic_cast<DComponent *>(object());
-    QMT_CHECK(diagramComponent);
+    QMT_ASSERT(diagramComponent, return false);
     return diagramComponent->isPlainShape();
 }
 
@@ -247,7 +214,12 @@ QSizeF ComponentItem::calcMinimumGeometry() const
     double height = 0.0;
 
     if (m_customIcon) {
-        return stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
+        QSizeF sz = stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(),
+                                              CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
+        if (shapeIcon().textAlignment() != qmt::StereotypeIcon::TextalignTop
+                && shapeIcon().textAlignment() != qmt::StereotypeIcon::TextalignCenter)
+            return sz;
+        width = sz.width();
     }
 
     height += BODY_VERT_BORDER;
@@ -319,7 +291,6 @@ void ComponentItem::updateGeometry()
     if (m_customIcon) {
         m_customIcon->setPos(left, top);
         m_customIcon->setActualSize(QSizeF(width, height));
-        y += height;
     }
 
     if (m_shape)
@@ -337,7 +308,35 @@ void ComponentItem::updateGeometry()
         m_lowerRect->setPos(left - RECT_WIDTH * 0.5, top + UPPER_RECT_Y + RECT_HEIGHT + RECT_Y_DISTANCE);
     }
 
-    y += BODY_VERT_BORDER;
+    if (m_customIcon) {
+        switch (shapeIcon().textAlignment()) {
+        case qmt::StereotypeIcon::TextalignBelow:
+            y += height + BODY_VERT_BORDER;
+            break;
+        case qmt::StereotypeIcon::TextalignCenter:
+        {
+            double h = 0.0;
+            if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem())
+                h += stereotypeIconItem->boundingRect().height();
+            if (StereotypesItem *stereotypesItem = this->stereotypesItem())
+                h += stereotypesItem->boundingRect().height();
+            if (nameItem())
+                h += nameItem()->boundingRect().height();
+            if (m_contextLabel)
+                h += m_contextLabel->height();
+            y = top + (height - h) / 2.0;
+            break;
+        }
+        case qmt::StereotypeIcon::TextalignNone:
+            // nothing to do
+            break;
+        case qmt::StereotypeIcon::TextalignTop:
+            y += BODY_VERT_BORDER;
+            break;
+        }
+    } else {
+        y += BODY_VERT_BORDER;
+    }
     if (CustomIconItem *stereotypeIconItem = this->stereotypeIconItem()) {
         stereotypeIconItem->setPos(right - stereotypeIconItem->boundingRect().width() - BODY_HORIZ_BORDER, y);
         y += stereotypeIconItem->boundingRect().height();
@@ -361,10 +360,7 @@ void ComponentItem::updateGeometry()
     }
 
     updateSelectionMarkerGeometry(rect);
-
-    if (m_relationStarter)
-        m_relationStarter->setPos(mapToScene(QPointF(right + 8.0, top)));
-
+    updateRelationStarterGeometry(rect);
     updateAlignmentButtonsGeometry(rect);
     updateDepth();
 }

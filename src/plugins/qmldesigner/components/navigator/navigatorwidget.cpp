@@ -25,16 +25,23 @@
 
 #include "navigatorwidget.h"
 #include "navigatorview.h"
-#include "qmldesignerconstants.h"
-#include "qmldesignericons.h"
-#include <theming.h>
 
-#include <QBoxLayout>
-#include <QToolButton>
+#include <designersettings.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignericons.h>
+#include <qmldesignerplugin.h>
+#include <theme.h>
+
 #include <QAbstractItemModel>
+#include <QBoxLayout>
 #include <QHeaderView>
-#include <QtDebug>
+#include <QMenu>
+#include <QStackedWidget>
+#include <QToolButton>
+
 #include <utils/fileutils.h>
+#include <utils/utilsicons.h>
+#include <utils/qtcassert.h>
 
 namespace QmlDesigner {
 
@@ -51,17 +58,44 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view) :
     m_treeView->setDefaultDropAction(Qt::LinkAction);
     m_treeView->setHeaderHidden(true);
 
-    QVBoxLayout *layout = new QVBoxLayout;
+    auto layout = new QVBoxLayout;
     layout->setSpacing(0);
     layout->setMargin(0);
-    layout->addWidget(m_treeView);
 
+    auto tabBar = new QTabBar(this);
+    tabBar->addTab(tr("Navigator"));
+    tabBar->addTab(tr("Project"));
+    tabBar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+    QWidget *spacer = new QWidget(this);
+    spacer->setObjectName(QStringLiteral("itemLibrarySearchInputSpacer"));
+    spacer->setFixedHeight(4);
+
+    layout->addWidget(tabBar);
+    layout->addWidget(spacer);
+
+    auto stackedWidget = new QStackedWidget(this);
+    stackedWidget->addWidget(m_treeView);
+
+#ifndef QMLDESIGNER_TEST
+    auto projectManager = QmlDesignerPlugin::instance()->createProjectExplorerWidget(this);
+
+    QTC_ASSERT(projectManager, ;);
+    if (projectManager)
+        stackedWidget->addWidget(projectManager);
+#endif
+
+    connect(tabBar, &QTabBar::currentChanged, stackedWidget, &QStackedWidget::setCurrentIndex);
+
+    layout->addWidget(stackedWidget);
     setLayout(layout);
 
     setWindowTitle(tr("Navigator", "Title of navigator view"));
 
-    setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/stylesheet.css")))));
-    m_treeView->setStyleSheet(Theming::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/scrollbar.css")))));
+#ifndef QMLDESIGNER_TEST
+    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
+    m_treeView->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css"))));
+#endif
 }
 
 void NavigatorWidget::setTreeModel(QAbstractItemModel* model)
@@ -78,40 +112,71 @@ QList<QToolButton *> NavigatorWidget::createToolBarWidgets()
 {
     QList<QToolButton *> buttons;
 
-    buttons.append(new QToolButton());
-    buttons.last()->setIcon(Icons::ARROW_LEFT.icon());
-    buttons.last()->setToolTip(tr("Become last sibling of parent (CTRL + Left)."));
-    buttons.last()->setShortcut(QKeySequence(Qt::Key_Left | Qt::CTRL));
-    connect(buttons.last(), SIGNAL(clicked()), this, SIGNAL(leftButtonClicked()));
 
-    buttons.append(new QToolButton());
-    buttons.last()->setIcon(Icons::ARROW_RIGHT.icon());
-    buttons.last()->setToolTip(tr("Become child of last sibling (CTRL + Right)."));
-    buttons.last()->setShortcut(QKeySequence(Qt::Key_Right | Qt::CTRL));
-    connect(buttons.last(), SIGNAL(clicked()), this, SIGNAL(rightButtonClicked()));
+    auto button = new QToolButton();
+    button->setIcon(Icons::ARROW_LEFT.icon());
+    button->setToolTip(tr("Become last sibling of parent (CTRL + Left)."));
+    button->setShortcut(QKeySequence(Qt::Key_Left | Qt::CTRL));
+    connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::leftButtonClicked);
+    buttons.append(button);
 
-    buttons.append(new QToolButton());
-    buttons.last()->setIcon(Icons::ARROW_DOWN.icon());
-    buttons.last()->setToolTip(tr("Move down (CTRL + Down)."));
-    buttons.last()->setShortcut(QKeySequence(Qt::Key_Down | Qt::CTRL));
-    connect(buttons.last(), SIGNAL(clicked()), this, SIGNAL(downButtonClicked()));
+    button = new QToolButton();
+    button->setIcon(Icons::ARROW_RIGHT.icon());
+    button->setToolTip(tr("Become child of last sibling (CTRL + Right)."));
+    button->setShortcut(QKeySequence(Qt::Key_Right | Qt::CTRL));
+    connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::rightButtonClicked);
+    buttons.append(button);
 
-    buttons.append(new QToolButton());
-    buttons.last()->setIcon(Icons::ARROW_UP.icon());
-    buttons.last()->setToolTip(tr("Move up (CTRL + Up)."));
-    buttons.last()->setShortcut(QKeySequence(Qt::Key_Up | Qt::CTRL));
-    connect(buttons.last(), SIGNAL(clicked()), this, SIGNAL(upButtonClicked()));
+    button = new QToolButton();
+    button->setIcon(Icons::ARROW_DOWN.icon());
+    button->setToolTip(tr("Move down (CTRL + Down)."));
+    button->setShortcut(QKeySequence(Qt::Key_Down | Qt::CTRL));
+    connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::downButtonClicked);
+    buttons.append(button);
+
+    button = new QToolButton();
+    button->setIcon(Icons::ARROW_UP.icon());
+    button->setToolTip(tr("Move up (CTRL + Up)."));
+    button->setShortcut(QKeySequence(Qt::Key_Up | Qt::CTRL));
+    connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::upButtonClicked);
+    buttons.append(button);
+
+    auto filter = new QToolButton;
+    filter->setIcon(Utils::Icons::FILTER.icon());
+    filter->setToolTip(tr("Filter Tree"));
+    filter->setPopupMode(QToolButton::InstantPopup);
+    filter->setProperty("noArrow", true);
+    auto filterMenu = new QMenu(filter);
+    auto objectAction = new QAction(tr("Show only visible items."), nullptr);
+    objectAction->setCheckable(true);
+    objectAction->setChecked(
+                DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool());
+    connect(objectAction, &QAction::toggled, this, &NavigatorWidget::filterToggled);
+    filterMenu->addAction(objectAction);
+    filter->setMenu(filterMenu);
+    buttons.append(filter);
 
     return buttons;
 }
 
-QString NavigatorWidget::contextHelpId() const
+void NavigatorWidget::contextHelpId(const Core::IContext::HelpIdCallback &callback) const
 {
     if (navigatorView())
-        return  navigatorView()->contextHelpId();
-
-    return QString();
+        navigatorView()->contextHelpId(callback);
+    else
+        callback(QString());
 }
+
+void NavigatorWidget::disableNavigator()
+{
+    m_treeView->setEnabled(false);
+}
+
+void NavigatorWidget::enableNavigator()
+{
+    m_treeView->setEnabled(true);
+}
+
 
 NavigatorView *NavigatorWidget::navigatorView() const
 {

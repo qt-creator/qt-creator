@@ -50,7 +50,6 @@ signals:
     void currentIndexRequested(const QModelIndex &idx);
     void itemIsExpanded(const QModelIndex &idx);
     void inameIsExpanded(const QString &iname);
-    void columnAdjustmentRequested();
     void updateStarted();
     void updateFinished();
 };
@@ -61,7 +60,7 @@ class WatchHandler : public QObject
 
 public:
     explicit WatchHandler(DebuggerEngine *engine);
-    ~WatchHandler();
+    ~WatchHandler() override;
 
     WatchModelBase *model() const;
 
@@ -104,7 +103,7 @@ public:
     void resetLocation();
 
     void setCurrentItem(const QString &iname);
-    void updateWatchersWindow();
+    void updateLocalsWindow();
 
     bool insertItem(WatchItem *item); // Takes ownership, returns whether item was added, not overwritten.
     void insertItems(const GdbMi &data);

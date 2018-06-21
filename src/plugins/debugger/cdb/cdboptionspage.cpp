@@ -80,12 +80,12 @@ CdbBreakEventWidget::CdbBreakEventWidget(QWidget *parent) : QWidget(parent)
     QHBoxLayout *mainLayout = new QHBoxLayout;
     mainLayout->setMargin(0);
     QVBoxLayout *leftLayout = new QVBoxLayout;
-    QFormLayout *parameterLayout = 0;
+    QFormLayout *parameterLayout = nullptr;
     mainLayout->addLayout(leftLayout);
     const size_t eventCount = sizeof(eventDescriptions) / sizeof(EventsDescription);
     for (size_t e = 0; e < eventCount; e++) {
         QCheckBox *cb = new QCheckBox(tr(eventDescriptions[e].description));
-        QLineEdit *le = 0;
+        QLineEdit *le = nullptr;
         if (eventDescriptions[e].hasParameter) {
             if (!parameterLayout) {
                 parameterLayout = new QFormLayout;
@@ -119,8 +119,8 @@ void CdbBreakEventWidget::setBreakEvents(const QStringList &l)
 {
     clear();
     // Split the list of ("eh", "out:MyOutput")
-    foreach (const QString &evt, l) {
-        const int colonPos = evt.indexOf(QLatin1Char(':'));
+    for (const QString &evt : l) {
+        const int colonPos = evt.indexOf(':');
         const QString abbrev = colonPos != -1 ? evt.mid(0, colonPos) : evt;
         const int index = indexOfEvent(abbrev);
         if (index != -1)
@@ -182,6 +182,7 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent)
     group.insert(action(CdbBreakOnCrtDbgReport), m_ui.breakCrtDbgReportCheckBox);
     group.insert(action(UseCdbConsole), m_ui.consoleCheckBox);
     group.insert(action(CdbBreakPointCorrection), m_ui.breakpointCorrectionCheckBox);
+    group.insert(action(CdbUsePythonDumper), m_ui.usePythonDumper);
     group.insert(action(IgnoreFirstChanceAccessViolation),
                  m_ui.ignoreFirstChanceAccessViolationCheckBox);
 
@@ -200,9 +201,6 @@ CdbOptionsPage::CdbOptionsPage()
     setId("F.Debugger.Cda");
     setDisplayName(tr("CDB"));
     setCategory(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Debugger",
-        Constants::DEBUGGER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 CdbOptionsPage::~CdbOptionsPage()
@@ -244,7 +242,7 @@ public:
     CdbSymbolPathListEditor *m_symbolPathListEditor;
     Utils::PathListEditor *m_sourcePathListEditor;
 
-    CdbPathsPageWidget(QWidget *parent = 0);
+    CdbPathsPageWidget(QWidget *parent = nullptr);
 };
 
 CdbPathsPageWidget::CdbPathsPageWidget(QWidget *parent) :
@@ -279,9 +277,6 @@ CdbPathsPage::CdbPathsPage()
     setId("F.Debugger.Cdb");
     setDisplayName(tr("CDB Paths"));
     setCategory(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Debugger",
-        Constants::DEBUGGER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 CdbPathsPage::~CdbPathsPage()

@@ -29,37 +29,28 @@
 #include <projectexplorer/projectnodes.h>
 
 #include <QElapsedTimer>
-#include <QFileSystemWatcher>
 #include <QFutureWatcher>
 #include <QTimer>
 
-namespace TextEditor { class TextDocument; }
-
 namespace Nim {
-
-class NimProjectManager;
-class NimProjectNode;
 
 class NimProject : public ProjectExplorer::Project
 {
     Q_OBJECT
 
 public:
-    NimProject(NimProjectManager *projectManager, const QString &fileName);
+    explicit NimProject(const Utils::FileName &fileName);
 
-    QString displayName() const override;
-    QStringList files(FilesMode) const override;
-    bool needsConfiguration() const override;
-    bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const override;
+    QList<ProjectExplorer::Task> projectIssues(const ProjectExplorer::Kit *k) const final;
     Utils::FileNameList nimFiles() const;
-    QVariantMap toMap() const override;
+    QVariantMap toMap() const final;
 
     bool addFiles(const QStringList &filePaths);
     bool removeFiles(const QStringList &filePaths);
     bool renameFile(const QString &filePath, const QString &newFilePath);
 
 protected:
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
+    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) final;
 
 private:
     void scheduleProjectScan();

@@ -30,13 +30,15 @@
 using namespace ClangBackEnd;
 
 using testing::_;
+using testing::Eq;
+using testing::Property;
 
 namespace {
 
 class CompleteCodeJob : public ClangAsyncJobTest
 {
 protected:
-    void SetUp() override { BaseSetUp(JobRequest::Type::CompleteCode, job); }
+    void SetUp() override { BaseSetUp(JobRequest::Type::RequestCompletions, job); }
 
 protected:
     ClangBackEnd::CompleteCodeJob job;
@@ -63,7 +65,23 @@ TEST_F(CompleteCodeJob, SendAnnotations)
 {
     job.setContext(jobContextWithMockClient);
     job.prepareAsyncRun();
-    EXPECT_CALL(mockIpcClient, codeCompleted(_)).Times(1);
+    EXPECT_CALL(mockIpcClient, completions(_)).Times(1);
+
+    job.runAsync();
+
+    ASSERT_TRUE(waitUntilJobFinished(job));
+}
+
+TEST_F(CompleteCodeJob, ForwardTicketNumber)
+{
+    jobRequest.ticketNumber = static_cast<quint64>(99);
+    jobContextWithMockClient = JobContext(jobRequest, &documents, &unsavedFiles, &mockIpcClient);
+    job.setContext(jobContextWithMockClient);
+    job.prepareAsyncRun();
+    EXPECT_CALL(mockIpcClient,
+                completions(Field(&CompletionsMessage::ticketNumber,
+                            Eq(jobRequest.ticketNumber))))
+                    .Times(1);
 
     job.runAsync();
 
@@ -74,7 +92,7 @@ TEST_F(CompleteCodeJob, DontSendCompletionsIfDocumentWasClosed)
 {
     job.setContext(jobContextWithMockClient);
     job.prepareAsyncRun();
-    EXPECT_CALL(mockIpcClient, codeCompleted(_)).Times(0);
+    EXPECT_CALL(mockIpcClient, completions(_)).Times(0);
 
     job.runAsync();
     documents.remove({FileContainer{filePath, projectPartId}});

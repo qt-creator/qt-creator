@@ -27,10 +27,13 @@
 
 #pragma once
 
+#include <projectexplorer/projectmacro.h>
+
 #include <QMutex>
 #include <QStringList>
 #include <QTextStream>
 #include <QObject>
+#include <QVector>
 
 QT_FORWARD_DECLARE_CLASS(QDir)
 
@@ -48,6 +51,8 @@ namespace Internal {
 class MakefileParser : public QObject
 {
     Q_OBJECT
+
+    using Macros = ProjectExplorer::Macros;
 
 public:
     /**
@@ -98,7 +103,7 @@ public:
      * #define X12_HAS_DEPRECATED
      * @endcode
      */
-    QByteArray defines() const;
+     Macros macros() const;
 
     /**
      * @return List of compiler flags for C.
@@ -267,7 +272,7 @@ private:
     QStringList m_sources;      ///< Return value for MakefileParser::sources()
     QStringList m_makefiles;    ///< Return value for MakefileParser::makefiles()
     QStringList m_includePaths; ///< Return value for MakefileParser::includePaths()
-    QByteArray m_defines;       ///< Return value for MakefileParser::defines()
+    Macros m_macros;            ///< Return value for MakefileParser::macros()
     QStringList m_cflags;       ///< Return value for MakefileParser::cflags()
     QStringList m_cxxflags;     ///< Return value for MakefileParser::cxxflags()
     QStringList m_cppflags;     ///< The cpp flags, which will be part of both cflags and cxxflags

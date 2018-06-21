@@ -51,6 +51,7 @@
 #include "imageview.h"
 
 #include "exportdialog.h"
+#include "multiexportdialog.h"
 #include "imageviewerfile.h"
 
 #include <coreplugin/messagemanager.h>
@@ -156,6 +157,55 @@ void ImageView::drawBackground(QPainter *p, const QRectF &)
     p->restore();
 }
 
+QImage ImageView::renderSvg(const QSize &imageSize) const
+{
+    QImage image(imageSize, QImage::Format_ARGB32);
+    image.fill(Qt::transparent);
+    QPainter painter;
+    painter.begin(&image);
+#ifndef QT_NO_SVG
+    QGraphicsSvgItem *svgItem = qgraphicsitem_cast<QGraphicsSvgItem *>(m_imageItem);
+    QTC_ASSERT(svgItem, return image);
+    svgItem->renderer()->render(&painter, QRectF(QPointF(), QSizeF(imageSize)));
+#endif
+    painter.end();
+    return image;
+}
+
+bool ImageView::exportSvg(const ExportData &ed)
+{
+    const bool result = renderSvg(ed.size).save(ed.fileName);
+    if (result) {
+        const QString message = tr("Exported \"%1\", %2x%3, %4 bytes")
+            .arg(QDir::toNativeSeparators(ed.fileName))
+            .arg(ed.size.width()).arg(ed.size.height())
+            .arg(QFileInfo(ed.fileName).size());
+        Core::MessageManager::write(message);
+    } else {
+        const QString message = tr("Could not write file \"%1\".").arg(QDir::toNativeSeparators(ed.fileName));
+        QMessageBox::critical(this, tr("Export Image"), message);
+    }
+    return result;
+}
+
+#ifndef QT_NO_SVG
+static QString suggestedExportFileName(const QFileInfo &fi)
+{
+    return fi.absolutePath() + QLatin1Char('/') + fi.baseName()
+        + QStringLiteral(".png");
+}
+#endif
+
+QSize ImageView::svgSize() const
+{
+    QSize result;
+#ifndef QT_NO_SVG
+    if (const QGraphicsSvgItem *svgItem = qgraphicsitem_cast<QGraphicsSvgItem *>(m_imageItem))
+        result = svgItem->boundingRect().size().toSize();
+#endif // !QT_NO_SVG
+    return result;
+}
+
 void ImageView::exportImage()
 {
 #ifndef QT_NO_SVG
@@ -163,37 +213,42 @@ void ImageView::exportImage()
     QTC_ASSERT(svgItem, return);
 
     const QFileInfo origFi = m_file->filePath().toFileInfo();
-    const QString suggestedFileName = origFi.absolutePath() + QLatin1Char('/')
-        + origFi.baseName() + QStringLiteral(".png");
-
     ExportDialog exportDialog(this);
     exportDialog.setWindowTitle(tr("Export %1").arg(origFi.fileName()));
-    exportDialog.setExportSize(svgItem->boundingRect().size().toSize());
-    exportDialog.setExportFileName(suggestedFileName);
+    exportDialog.setExportSize(svgSize());
+    exportDialog.setExportFileName(suggestedExportFileName(origFi));
 
-    while (true) {
-        if (exportDialog.exec() != QDialog::Accepted)
-            break;
+    while (exportDialog.exec() == QDialog::Accepted && !exportSvg(exportDialog.exportData())) {}
+#endif // !QT_NO_SVG
+}
 
-        const QSize imageSize = exportDialog.exportSize();
-        QImage image(imageSize, QImage::Format_ARGB32);
-        image.fill(Qt::transparent);
-        QPainter painter;
-        painter.begin(&image);
-        svgItem->renderer()->render(&painter, QRectF(QPointF(), QSizeF(imageSize)));
-        painter.end();
+void ImageView::exportMultiImages()
+{
+#ifndef QT_NO_SVG
+    QTC_ASSERT(qgraphicsitem_cast<QGraphicsSvgItem *>(m_imageItem), return);
 
-        const QString fileName = exportDialog.exportFileName();
-        if (image.save(fileName)) {
-            const QString message = tr("Exported \"%1\", %2x%3, %4 bytes")
-                .arg(QDir::toNativeSeparators(fileName)).arg(imageSize.width()).arg(imageSize.height())
-                .arg(QFileInfo(fileName).size());
-            Core::MessageManager::write(message);
-            break;
-        } else {
-            QMessageBox::critical(this, tr("Export Image"),
-                                  tr("Could not write file \"%1\".").arg(QDir::toNativeSeparators(fileName)));
+    const QFileInfo origFi = m_file->filePath().toFileInfo();
+    const QSize size = svgSize();
+    const QString title =
+        tr("Export a Series of Images from %1 (%2x%3")
+          .arg(origFi.fileName()).arg(size.width()).arg(size.height());
+    MultiExportDialog multiExportDialog;
+    multiExportDialog.setWindowTitle(title);
+    multiExportDialog.setExportFileName(suggestedExportFileName(origFi));
+    multiExportDialog.setSvgSize(size);
+    multiExportDialog.suggestSizes();
+
+    while (multiExportDialog.exec() == QDialog::Accepted) {
+        const auto exportData = multiExportDialog.exportData();
+        bool ok = true;
+        for (const auto &data : exportData) {
+            if (!exportSvg(data)) {
+                ok = false;
+                break;
+            }
         }
+        if (ok)
+            break;
     }
 #endif // !QT_NO_SVG
 }

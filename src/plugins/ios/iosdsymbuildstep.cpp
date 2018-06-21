@@ -27,7 +27,6 @@
 
 #include "iosconstants.h"
 #include "ui_iospresetbuildstep.h"
-#include "iosmanager.h"
 #include "iosconfigurations.h"
 #include "iosrunconfiguration.h"
 
@@ -56,35 +55,15 @@ static const char COMMAND_PARTIAL_KEY[] = ".Command";
 static const char ARGUMENTS_PARTIAL_KEY[] = ".Arguments";
 static const char CLEAN_PARTIAL_KEY[] = ".Clean";
 
-IosPresetBuildStep::IosPresetBuildStep(BuildStepList *parent, const Id id) :
-    AbstractProcessStep(parent, id),
+IosDsymBuildStep::IosDsymBuildStep(BuildStepList *parent) :
+    AbstractProcessStep(parent, Constants::IOS_DSYM_BUILD_STEP_ID),
     m_clean(parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
 {
 }
 
-bool IosPresetBuildStep::completeSetup()
-{
-    m_command = defaultCommand();
-    m_arguments = defaultArguments();
-    return true;
-}
-
-bool IosPresetBuildStep::completeSetupWithStep(BuildStep *bs)
-{
-    IosPresetBuildStep *o = qobject_cast<IosPresetBuildStep *>(bs);
-    if (!o)
-        return false;
-    m_arguments = o->m_arguments;
-    m_clean = o->m_clean;
-    m_command = o->m_command;
-    return true;
-}
-
-bool IosPresetBuildStep::init(QList<const BuildStep *> &earlierSteps)
+bool IosDsymBuildStep::init(QList<const BuildStep *> &earlierSteps)
 {
     BuildConfiguration *bc = buildConfiguration();
-    if (!bc)
-        bc = target()->activeBuildConfiguration();
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
@@ -108,27 +87,27 @@ bool IosPresetBuildStep::init(QList<const BuildStep *> &earlierSteps)
     return AbstractProcessStep::init(earlierSteps);
 }
 
-QVariantMap IosPresetBuildStep::toMap() const
+QVariantMap IosDsymBuildStep::toMap() const
 {
     QVariantMap map(AbstractProcessStep::toMap());
 
-    map.insert(id().withSuffix(QLatin1String(ARGUMENTS_PARTIAL_KEY)).toString(),
+    map.insert(id().withSuffix(ARGUMENTS_PARTIAL_KEY).toString(),
                arguments());
-    map.insert(id().withSuffix(QLatin1String(USE_DEFAULT_ARGS_PARTIAL_KEY)).toString(),
+    map.insert(id().withSuffix(USE_DEFAULT_ARGS_PARTIAL_KEY).toString(),
                isDefault());
-    map.insert(id().withSuffix(QLatin1String(CLEAN_PARTIAL_KEY)).toString(), m_clean);
-    map.insert(id().withSuffix(QLatin1String(COMMAND_PARTIAL_KEY)).toString(), command());
+    map.insert(id().withSuffix(CLEAN_PARTIAL_KEY).toString(), m_clean);
+    map.insert(id().withSuffix(COMMAND_PARTIAL_KEY).toString(), command());
     return map;
 }
 
-bool IosPresetBuildStep::fromMap(const QVariantMap &map)
+bool IosDsymBuildStep::fromMap(const QVariantMap &map)
 {
-    QVariant bArgs = map.value(id().withSuffix(QLatin1String(ARGUMENTS_PARTIAL_KEY)).toString());
+    QVariant bArgs = map.value(id().withSuffix(ARGUMENTS_PARTIAL_KEY).toString());
     m_arguments = bArgs.toStringList();
     bool useDefaultArguments = map.value(
-                id().withSuffix(QLatin1String(USE_DEFAULT_ARGS_PARTIAL_KEY)).toString()).toBool();
-    m_clean = map.value(id().withSuffix(QLatin1String(CLEAN_PARTIAL_KEY)).toString(), m_clean).toBool();
-    m_command = map.value(id().withSuffix(QLatin1String(COMMAND_PARTIAL_KEY)).toString(), m_command)
+                id().withSuffix(USE_DEFAULT_ARGS_PARTIAL_KEY).toString()).toBool();
+    m_clean = map.value(id().withSuffix(CLEAN_PARTIAL_KEY).toString(), m_clean).toBool();
+    m_command = map.value(id().withSuffix(COMMAND_PARTIAL_KEY).toString(), m_command)
             .toString();
     if (useDefaultArguments) {
         m_command = defaultCommand();
@@ -138,14 +117,14 @@ bool IosPresetBuildStep::fromMap(const QVariantMap &map)
     return BuildStep::fromMap(map);
 }
 
-QStringList IosPresetBuildStep::defaultArguments() const
+QStringList IosDsymBuildStep::defaultArguments() const
 {
     if (m_clean)
         return defaultCleanCmdList().mid(1);
     return defaultCmdList().mid(1);
 }
 
-QString IosPresetBuildStep::defaultCommand() const
+QString IosDsymBuildStep::defaultCommand() const
 {
     if (m_clean)
         return defaultCleanCmdList().at(0);
@@ -153,14 +132,40 @@ QString IosPresetBuildStep::defaultCommand() const
         return defaultCmdList().at(0);
 }
 
-QString IosPresetBuildStep::command() const
+QStringList IosDsymBuildStep::defaultCleanCmdList() const
+{
+    auto runConf = qobject_cast<IosRunConfiguration *>(target()->activeRunConfiguration());
+    QTC_ASSERT(runConf, return QStringList("echo"));
+    QString dsymPath = runConf->bundleDirectory().toUserOutput();
+    dsymPath.chop(4);
+    dsymPath.append(".dSYM");
+    return QStringList({"rm", "-rf", dsymPath});
+}
+
+QStringList IosDsymBuildStep::defaultCmdList() const
+{
+    QString dsymutilCmd = "dsymutil";
+    Utils::FileName dsymUtilPath = IosConfigurations::developerPath()
+            .appendPath("Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil");
+    if (dsymUtilPath.exists())
+        dsymutilCmd = dsymUtilPath.toUserOutput();
+    IosRunConfiguration *runConf =
+            qobject_cast<IosRunConfiguration *>(target()->activeRunConfiguration());
+    QTC_ASSERT(runConf, return QStringList("echo"));
+    QString dsymPath = runConf->bundleDirectory().toUserOutput();
+    dsymPath.chop(4);
+    dsymPath.append(".dSYM");
+    return QStringList({dsymutilCmd, "-o", dsymPath, runConf->localExecutable().toUserOutput()});
+}
+
+QString IosDsymBuildStep::command() const
 {
     if (m_command.isEmpty())
         return defaultCommand();
     return m_command;
 }
 
-void IosPresetBuildStep::setCommand(const QString &command)
+void IosDsymBuildStep::setCommand(const QString &command)
 {
     if (command == m_command)
         return;
@@ -177,41 +182,27 @@ void IosPresetBuildStep::setCommand(const QString &command)
     }
 }
 
-bool IosPresetBuildStep::clean() const
-{
-    return m_clean;
-}
-
-void IosPresetBuildStep::setClean(bool clean)
-{
-    if (m_clean != clean) {
-        m_clean = clean;
-        m_arguments = defaultArguments();
-        m_command = defaultCommand();
-    }
-}
-
-bool IosPresetBuildStep::isDefault() const
+bool IosDsymBuildStep::isDefault() const
 {
     return arguments() == defaultArguments() && command() == defaultCommand();
 }
 
-void IosPresetBuildStep::run(QFutureInterface<bool> &fi)
+void IosDsymBuildStep::run(QFutureInterface<bool> &fi)
 {
     AbstractProcessStep::run(fi);
 }
 
-BuildStepConfigWidget *IosPresetBuildStep::createConfigWidget()
+BuildStepConfigWidget *IosDsymBuildStep::createConfigWidget()
 {
-    return new IosPresetBuildStepConfigWidget(this);
+    return new IosDsymBuildStepConfigWidget(this);
 }
 
-bool IosPresetBuildStep::immutable() const
+bool IosDsymBuildStep::immutable() const
 {
     return false;
 }
 
-void IosPresetBuildStep::setArguments(const QStringList &args)
+void IosDsymBuildStep::setArguments(const QStringList &args)
 {
     if (arguments() == args)
         return;
@@ -224,7 +215,7 @@ void IosPresetBuildStep::setArguments(const QStringList &args)
     }
 }
 
-QStringList IosPresetBuildStep::arguments() const
+QStringList IosDsymBuildStep::arguments() const
 {
     if (m_command.isEmpty())
         return defaultArguments();
@@ -232,10 +223,10 @@ QStringList IosPresetBuildStep::arguments() const
 }
 
 //
-// IosPresetBuildStepConfigWidget
+// IosDsymBuildStepConfigWidget
 //
 
-IosPresetBuildStepConfigWidget::IosPresetBuildStepConfigWidget(IosPresetBuildStep *buildStep)
+IosDsymBuildStepConfigWidget::IosDsymBuildStepConfigWidget(IosDsymBuildStep *buildStep)
     : m_buildStep(buildStep)
 {
     m_ui = new Ui::IosPresetBuildStep;
@@ -250,34 +241,40 @@ IosPresetBuildStepConfigWidget::IosPresetBuildStepConfigWidget(IosPresetBuildSte
     updateDetails();
 
     connect(m_ui->argumentsTextEdit, &QPlainTextEdit::textChanged,
-            this, &IosPresetBuildStepConfigWidget::argumentsChanged);
+            this, &IosDsymBuildStepConfigWidget::argumentsChanged);
     connect(m_ui->commandLineEdit, &QLineEdit::editingFinished,
-            this, &IosPresetBuildStepConfigWidget::commandChanged);
+            this, &IosDsymBuildStepConfigWidget::commandChanged);
     connect(m_ui->resetDefaultsButton, &QAbstractButton::clicked,
-            this, &IosPresetBuildStepConfigWidget::resetDefaults);
+            this, &IosDsymBuildStepConfigWidget::resetDefaults);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            this, &IosPresetBuildStepConfigWidget::updateDetails);
+            this, &IosDsymBuildStepConfigWidget::updateDetails);
     connect(m_buildStep->target(), &Target::kitChanged,
-            this, &IosPresetBuildStepConfigWidget::updateDetails);
-    connect(pro, &Project::environmentChanged, this, &IosPresetBuildStepConfigWidget::updateDetails);
+            this, &IosDsymBuildStepConfigWidget::updateDetails);
+    pro->subscribeSignal(&BuildConfiguration::environmentChanged, this, [this]() {
+        if (static_cast<BuildConfiguration *>(sender())->isActive())
+            updateDetails();
+    });
+    connect(pro, &Project::activeProjectConfigurationChanged,
+            this, [this](ProjectConfiguration *pc) {
+        if (pc && pc->isActive())
+            updateDetails();
+    });
 }
 
-IosPresetBuildStepConfigWidget::~IosPresetBuildStepConfigWidget()
+IosDsymBuildStepConfigWidget::~IosDsymBuildStepConfigWidget()
 {
     delete m_ui;
 }
 
-QString IosPresetBuildStepConfigWidget::displayName() const
+QString IosDsymBuildStepConfigWidget::displayName() const
 {
     return m_buildStep->displayName();
 }
 
-void IosPresetBuildStepConfigWidget::updateDetails()
+void IosDsymBuildStepConfigWidget::updateDetails()
 {
     BuildConfiguration *bc = m_buildStep->buildConfiguration();
-    if (!bc)
-        bc = m_buildStep->target()->activeBuildConfiguration();
 
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
@@ -289,19 +286,19 @@ void IosPresetBuildStepConfigWidget::updateDetails()
     emit updateSummary();
 }
 
-QString IosPresetBuildStepConfigWidget::summaryText() const
+QString IosDsymBuildStepConfigWidget::summaryText() const
 {
     return m_summaryText;
 }
 
-void IosPresetBuildStepConfigWidget::commandChanged()
+void IosDsymBuildStepConfigWidget::commandChanged()
 {
     m_buildStep->setCommand(m_ui->commandLineEdit->text());
     m_ui->resetDefaultsButton->setEnabled(!m_buildStep->isDefault());
     updateDetails();
 }
 
-void IosPresetBuildStepConfigWidget::argumentsChanged()
+void IosDsymBuildStepConfigWidget::argumentsChanged()
 {
     m_buildStep->setArguments(Utils::QtcProcess::splitArgs(
                                       m_ui->argumentsTextEdit->toPlainText()));
@@ -309,7 +306,7 @@ void IosPresetBuildStepConfigWidget::argumentsChanged()
     updateDetails();
 }
 
-void IosPresetBuildStepConfigWidget::resetDefaults()
+void IosDsymBuildStepConfigWidget::resetDefaults()
 {
     m_buildStep->setCommand(m_buildStep->defaultCommand());
     m_buildStep->setArguments(m_buildStep->defaultArguments());
@@ -321,102 +318,16 @@ void IosPresetBuildStepConfigWidget::resetDefaults()
 }
 
 //
-// IosPresetBuildStepFactory
+// IosDsymBuildStepFactory
 //
 
-IosPresetBuildStepFactory::IosPresetBuildStepFactory(QObject *parent) :
-    IBuildStepFactory(parent)
+IosDsymBuildStepFactory::IosDsymBuildStepFactory()
 {
+    registerStep<IosDsymBuildStep>(Constants::IOS_DSYM_BUILD_STEP_ID);
+    setSupportedDeviceTypes({Constants::IOS_DEVICE_TYPE,
+                             Constants::IOS_SIMULATOR_TYPE});
+    setDisplayName("dsymutil");
 }
-
-BuildStep *IosPresetBuildStepFactory::create(BuildStepList *parent, const Id id)
-{
-    IosPresetBuildStep *step = createPresetStep(parent, id);
-    if (step->completeSetup())
-        return step;
-    delete step;
-    return 0;
-}
-
-BuildStep *IosPresetBuildStepFactory::clone(BuildStepList *parent, BuildStep *source)
-{
-    IosPresetBuildStep *old = qobject_cast<IosPresetBuildStep *>(source);
-    Q_ASSERT(old);
-    IosPresetBuildStep *res = createPresetStep(parent, old->id());
-    if (res->completeSetupWithStep(old))
-        return res;
-    delete res;
-    return 0;
-}
-
-BuildStep *IosPresetBuildStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
-{
-    IosPresetBuildStep *bs = createPresetStep(parent, idFromMap(map));
-    if (bs->fromMap(map))
-        return bs;
-    delete bs;
-    return 0;
-}
-
-QList<BuildStepInfo> IosDsymBuildStepFactory::availableSteps(BuildStepList *parent) const
-{
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_CLEAN
-            && parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD
-            && parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-        return {};
-
-    Id deviceType = DeviceTypeKitInformation::deviceTypeId(parent->target()->kit());
-    if (deviceType != Constants::IOS_DEVICE_TYPE && deviceType != Constants::IOS_SIMULATOR_TYPE)
-        return {};
-
-    return {{ Constants::IOS_DSYM_BUILD_STEP_ID, "dsymutil" }};
-}
-
-IosPresetBuildStep *IosDsymBuildStepFactory::createPresetStep(BuildStepList *parent, const Id id) const
-{
-    return new IosDsymBuildStep(parent, id);
-}
-
-IosDsymBuildStep::IosDsymBuildStep(BuildStepList *parent, const Id id)
-    : IosPresetBuildStep(parent, id)
-{
-    setDefaultDisplayName(QLatin1String("dsymutil"));
-}
-
-QStringList IosDsymBuildStep::defaultCleanCmdList() const
-{
-    IosRunConfiguration *runConf =
-            qobject_cast<IosRunConfiguration *>(target()->activeRunConfiguration());
-    QTC_ASSERT(runConf, return QStringList(QLatin1String("echo")));
-    QString dsymPath = runConf->bundleDirectory().toUserOutput();
-    dsymPath.chop(4);
-    dsymPath.append(QLatin1String(".dSYM"));
-    return QStringList()
-            << QLatin1String("rm")
-            << QLatin1String("-rf")
-            << dsymPath;
-}
-
-QStringList IosDsymBuildStep::defaultCmdList() const
-{
-    QString dsymutilCmd = QLatin1String("dsymutil");
-    Utils::FileName dsymUtilPath = IosConfigurations::developerPath()
-            .appendPath(QLatin1String("Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil"));
-    if (dsymUtilPath.exists())
-        dsymutilCmd = dsymUtilPath.toUserOutput();
-    IosRunConfiguration *runConf =
-            qobject_cast<IosRunConfiguration *>(target()->activeRunConfiguration());
-    QTC_ASSERT(runConf, return QStringList(QLatin1String("echo")));
-    QString dsymPath = runConf->bundleDirectory().toUserOutput();
-    dsymPath.chop(4);
-    dsymPath.append(QLatin1String(".dSYM"));
-    return QStringList()
-            << dsymutilCmd
-            << QLatin1String("-o")
-            << dsymPath
-            << runConf->localExecutable().toUserOutput();
-}
-
 
 } // namespace Internal
 } // namespace Ios

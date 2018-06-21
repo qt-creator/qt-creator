@@ -27,8 +27,6 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 
-#include <QDebug>
-
 using namespace QmlDesigner::Internal;
 using namespace QmlDesigner;
 

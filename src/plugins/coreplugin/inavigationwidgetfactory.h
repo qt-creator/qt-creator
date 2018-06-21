@@ -32,6 +32,7 @@
 #include <QKeySequence>
 
 QT_BEGIN_NAMESPACE
+class QSettings;
 class QToolButton;
 class QWidget;
 QT_END_NAMESPACE
@@ -40,7 +41,7 @@ namespace Core {
 
 struct NavigationView
 {
-    NavigationView(QWidget *w = 0) : widget(w) {}
+    NavigationView(QWidget *w = nullptr) : widget(w) {}
 
     QWidget *widget;
     QList<QToolButton *> dockToolBarWidgets;
@@ -52,6 +53,9 @@ class CORE_EXPORT INavigationWidgetFactory : public QObject
 
 public:
     INavigationWidgetFactory();
+    ~INavigationWidgetFactory() override;
+
+    static const QList<INavigationWidgetFactory *> allNavigationFactories();
 
     void setDisplayName(const QString &displayName);
     void setPriority(int priority);
@@ -69,8 +73,8 @@ public:
     // Similar to how IView
     virtual NavigationView createWidget() = 0;
 
-    virtual void saveSettings(int position, QWidget *widget);
-    virtual void restoreSettings(int position, QWidget *widget);
+    virtual void saveSettings(QSettings *settings, int position, QWidget *widget);
+    virtual void restoreSettings(QSettings *settings, int position, QWidget *widget);
 
 private:
     QString m_displayName;

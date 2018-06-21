@@ -10,7 +10,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
-    Depends { name: "ClangBackEndIpc" }
+    Depends { name: "ClangSupport" }
     Depends { name: "libclang"; required: false }
 
     pluginTestDepends: [
@@ -27,6 +27,7 @@ QtcPlugin {
         var resourceDir = FileInfo.joinPaths(libclang.llvmLibDir, "clang", libclang.llvmVersion,
                                              "include");
         defines.push('CLANG_RESOURCE_DIR="' + resourceDir + '"');
+        defines.push('CLANG_BINDIR="' + libclang.llvmBinDir + '"');
         return defines;
     }
 
@@ -41,11 +42,16 @@ QtcPlugin {
         "clangassistproposalitem.h",
         "clangassistproposalmodel.cpp",
         "clangassistproposalmodel.h",
-        "clangbackendipcintegration.cpp",
-        "clangbackendipcintegration.h",
+        "clangbackendcommunicator.cpp",
+        "clangbackendcommunicator.h",
+        "clangbackendlogging.cpp",
+        "clangbackendlogging.h",
+        "clangbackendreceiver.cpp",
+        "clangbackendreceiver.h",
+        "clangbackendsender.cpp",
+        "clangbackendsender.h",
         "clangcodemodelplugin.cpp",
         "clangcodemodelplugin.h",
-        "clangcodemodel.qrc",
         "clangcompletionassistinterface.cpp",
         "clangcompletionassistinterface.h",
         "clangcompletionassistprocessor.cpp",
@@ -57,6 +63,8 @@ QtcPlugin {
         "clangcompletioncontextanalyzer.cpp",
         "clangcompletioncontextanalyzer.h",
         "clangconstants.h",
+        "clangcurrentdocumentfilter.cpp",
+        "clangcurrentdocumentfilter.h",
         "clangdiagnosticfilter.cpp",
         "clangdiagnosticfilter.h",
         "clangdiagnosticmanager.cpp",
@@ -71,13 +79,19 @@ QtcPlugin {
         "clangfixitoperation.h",
         "clangfixitoperationsextractor.cpp",
         "clangfixitoperationsextractor.h",
+        "clangfollowsymbol.cpp",
+        "clangfollowsymbol.h",
         "clangfunctionhintmodel.cpp",
         "clangfunctionhintmodel.h",
-        "clanghighlightingmarksreporter.cpp",
-        "clanghighlightingmarksreporter.h",
+        "clanghighlightingresultreporter.cpp",
+        "clanghighlightingresultreporter.h",
+        "clanghoverhandler.cpp",
+        "clanghoverhandler.h",
         "clangisdiagnosticrelatedtolocation.h",
         "clangmodelmanagersupport.cpp",
         "clangmodelmanagersupport.h",
+        "clangoverviewmodel.cpp",
+        "clangoverviewmodel.h",
         "clangpreprocessorassistproposalitem.cpp",
         "clangpreprocessorassistproposalitem.h",
         "clangprojectsettings.cpp",
@@ -85,6 +99,8 @@ QtcPlugin {
         "clangprojectsettingswidget.cpp",
         "clangprojectsettingswidget.h",
         "clangprojectsettingswidget.ui",
+        "clangrefactoringengine.cpp",
+        "clangrefactoringengine.h",
         "clangtextmark.cpp",
         "clangtextmark.h",
         "clanguiheaderondiskmanager.cpp",
@@ -98,9 +114,13 @@ QtcPlugin {
         condition: qtc.testsEnabled
         prefix: "test/"
         files: [
-            "data/clangtestdata.qrc",
+            "clangautomationutils.cpp",
+            "clangautomationutils.h",
+            "clangbatchfileprocessor.cpp",
+            "clangbatchfileprocessor.h",
             "clangcodecompletion_test.cpp",
             "clangcodecompletion_test.h",
+            "data/clangtestdata.qrc",
         ]
     }
 

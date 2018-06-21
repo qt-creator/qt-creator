@@ -27,7 +27,9 @@
 
 #include "qmlprofilermodelmanager.h"
 #include "qmlnote.h"
-#include "timeline/timelinenotesmodel.h"
+
+#include <tracing/timelinenotesmodel.h>
+
 #include <QList>
 #include <QHash>
 
@@ -37,12 +39,13 @@ class QMLPROFILER_EXPORT QmlProfilerNotesModel : public Timeline::TimelineNotesM
 public:
     QmlProfilerNotesModel(QObject *parent);
 
-    void loadData();
-    void saveData();
+    void restore() override;
+    void stash() override;
 
     const QVector<QmlNote> &notes() const;
     void setNotes(const QVector<QmlNote> &notes);
-    void clear();
+    void addNote(const QmlNote &note);
+    void clear() override;
 
 protected:
     QVector<QmlNote> m_notes;

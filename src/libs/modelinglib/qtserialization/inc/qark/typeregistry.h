@@ -59,8 +59,8 @@ public:
     static MapType &uidToNameMap() { return *typeidUidToNameMap; }
 
 #if !defined(QT_NO_DEBUG)
-    static bool hasNameToUidMap() { return typeidNameToUidMap != 0; }
-    static bool hasUidToNameMap() { return typeidUidToNameMap != 0; }
+    static bool hasNameToUidMap() { return typeidNameToUidMap != nullptr; }
+    static bool hasUidToNameMap() { return typeidUidToNameMap != nullptr; }
 #endif
 
 protected:
@@ -119,8 +119,6 @@ public:
         typedef Archive &(*LoadFuncType)(Archive &, BASE * &p);
 
         explicit TypeInfo()
-            : m_saveFunc(0),
-              m_loadFunc(0)
         {
         }
 
@@ -135,8 +133,8 @@ public:
             return m_saveFunc == rhs.m_saveFunc && m_loadFunc == rhs.m_loadFunc;
         }
 
-        SaveFuncType m_saveFunc;
-        LoadFuncType m_loadFunc;
+        SaveFuncType m_saveFunc = nullptr;
+        LoadFuncType m_loadFunc = nullptr;
     };
 
     typedef QHash<QString, TypeInfo> MapType;
@@ -144,7 +142,7 @@ public:
     static MapType &map() { return *m_map; }
 
 #if !defined(QT_NO_DEBUG)
-    static bool hasMap() { return m_map != 0; }
+    static bool hasMap() { return m_map != nullptr; }
 #endif
 
 protected:
@@ -202,14 +200,14 @@ Archive &loadPointer(Archive &ar, BASE *&p)
 }
 
 template<class Archive, class T>
-typename std::enable_if<!std::is_abstract<T>::value, void>::type loadNonVirtualPointer(
+typename std::enable_if_t<!std::is_abstract<T>::value, void> loadNonVirtualPointer(
         Archive &archive, T *&p)
 {
     registry::loadPointer<Archive, T, T>(archive, p);
 }
 
 template<class Archive, class T>
-typename std::enable_if<std::is_abstract<T>::value, void>::type loadNonVirtualPointer(
+typename std::enable_if_t<std::is_abstract<T>::value, void> loadNonVirtualPointer(
         Archive &archive, T *&p)
 {
     (void) archive;
@@ -304,6 +302,6 @@ typename registry::TypeRegistry<Archive,T>::TypeInfo typeInfo(const QString &uid
     int qark::registry::DerivedTypeRegistry<OUTARCHIVE, BASE, DERIVED>::staticInit = \
             qark::registry::DerivedTypeRegistry<OUTARCHIVE, BASE, DERIVED>::init(qark::registry::savePointer<OUTARCHIVE, BASE, DERIVED>, 0); \
     template<> \
-    int qark::registry::DerivedTypeRegistry<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>::staticInit = \
-            qark::registry::DerivedTypeRegistry<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>:: \
-                init(qark::registry::savePointer<OUTARCHIVE, typename std::add_const<BASE>::type, typename std::add_const<DERIVED>::type>, 0);
+    int qark::registry::DerivedTypeRegistry<OUTARCHIVE, std::add_const_t<BASE>, std::add_const_t<DERIVED>>::staticInit = \
+            qark::registry::DerivedTypeRegistry<OUTARCHIVE, std::add_const_t<BASE>, std::add_const_t<DERIVED>>:: \
+                init(qark::registry::savePointer<OUTARCHIVE, std::add_const_t<BASE>, std::add_const_t<DERIVED>>, 0);

@@ -77,7 +77,6 @@ using namespace Android::Internal;
 namespace {
 const QLatin1String packageNameRegExp("^([a-z]{1}[a-z0-9_]+(\\.[a-zA-Z]{1}[a-zA-Z0-9_]*)*)$");
 const char infoBarId[] = "Android.AndroidManifestEditor.InfoBar";
-const char androidManifestEditorGeneralPaneContextId[] = "AndroidManifestEditorWidget.GeneralWidget";
 
 bool checkPackageName(const QString &packageName)
 {
@@ -86,7 +85,7 @@ bool checkPackageName(const QString &packageName)
 
 Project *androidProject(const Utils::FileName &fileName)
 {
-    foreach (Project *project, SessionManager::projects()) {
+    for (Project *project : SessionManager::projects()) {
         if (!project->activeTarget())
             continue;
         Kit *kit = project->activeTarget()->kit();
@@ -126,11 +125,6 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
 
 void AndroidManifestEditorWidget::initializePage()
 {
-    Core::IContext *myContext = new Core::IContext(this);
-    myContext->setWidget(this);
-    myContext->setContext(Core::Context(androidManifestEditorGeneralPaneContextId)); // where is the context used?
-    Core::ICore::addContextObject(myContext);
-
     QWidget *mainWidget = new QWidget; // different name
 
     QVBoxLayout *topLayout = new QVBoxLayout(mainWidget);
@@ -468,6 +462,7 @@ void AndroidManifestEditorWidget::initializePage()
     QScrollArea *mainWidgetScrollArea = new QScrollArea;
     mainWidgetScrollArea->setWidgetResizable(true);
     mainWidgetScrollArea->setWidget(mainWidget);
+    mainWidgetScrollArea->setFocusProxy(m_packageNameLineEdit);
 
     insertWidget(General, mainWidgetScrollArea);
     insertWidget(Source, m_textEditorWidget);
@@ -481,6 +476,16 @@ bool AndroidManifestEditorWidget::eventFilter(QObject *obj, QEvent *event)
     }
 
     return QWidget::eventFilter(obj, event);
+}
+
+void AndroidManifestEditorWidget::focusInEvent(QFocusEvent *event)
+{
+    if (currentWidget()) {
+        if (currentWidget()->focusWidget())
+            currentWidget()->focusWidget()->setFocus(event->reason());
+        else
+            currentWidget()->setFocus(event->reason());
+    }
 }
 
 void AndroidManifestEditorWidget::updateTargetComboBox()
@@ -977,8 +982,8 @@ void AndroidManifestEditorWidget::parseApplication(QXmlStreamReader &reader, QXm
     writer.writeStartElement(reader.name().toString());
 
     QXmlStreamAttributes attributes = reader.attributes();
-    QStringList keys = { QLatin1String("android:label") };
-    QStringList values = { m_appNameLineEdit->text() };
+    QStringList keys = {QLatin1String("android:label")};
+    QStringList values = {m_appNameLineEdit->text()};
     bool ensureIconAttribute =  !m_lIconPath.isEmpty()
             || !m_mIconPath.isEmpty()
             || !m_hIconPath.isEmpty();
@@ -1056,8 +1061,8 @@ bool AndroidManifestEditorWidget::parseMetaData(QXmlStreamReader &reader, QXmlSt
     QXmlStreamAttributes result;
 
     if (attributes.value(QLatin1String("android:name")) == QLatin1String("android.app.lib_name")) {
-        QStringList keys = QStringList() << QLatin1String("android:value");
-        QStringList values = QStringList() << m_targetLineEdit->currentText();
+        QStringList keys = QStringList("android:value");
+        QStringList values = QStringList(m_targetLineEdit->currentText());
         result = modifyXmlStreamAttributes(attributes, keys, values);
         found = true;
     } else {
@@ -1405,5 +1410,17 @@ AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifest
     textDocument()->setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
     setupGenericHighlighter();
     setMarksVisible(false);
+
+    // this context is used by the TextEditorActionHandler registered for the text editor in
+    // the AndroidManifestEditorFactory
+    m_context = new Core::IContext(this);
+    m_context->setWidget(this);
+    m_context->setContext(Core::Context(Constants::ANDROID_MANIFEST_EDITOR_CONTEXT));
+    Core::ICore::addContextObject(m_context);
+}
+
+AndroidManifestTextEditorWidget::~AndroidManifestTextEditorWidget()
+{
+    Core::ICore::removeContextObject(m_context);
 }
 

@@ -34,6 +34,7 @@
 #include <QClipboard>
 #include <QIcon>
 #include <QSettings>
+#include <QStyle>
 
 static const char SettingsApplication[] = "QtCreator";
 static const char SettingsKeySkipWarningAbortingBacktrace[]
@@ -177,5 +178,5 @@ void CrashHandlerDialog::close()
 {
     if (m_ui->restartAppCheckBox->isEnabled() && m_ui->restartAppCheckBox->isChecked())
         m_crashHandler->restartApplication();
-    qApp->quit();
+    QCoreApplication::quit();
 }

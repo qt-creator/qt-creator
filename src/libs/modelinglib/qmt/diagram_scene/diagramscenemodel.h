@@ -31,6 +31,7 @@
 #include <QList>
 #include <QHash>
 #include <QSet>
+#include <QRectF>
 
 QT_BEGIN_NAMESPACE
 class QGraphicsItem;
@@ -54,6 +55,7 @@ class DSelection;
 class MDiagram;
 class DElement;
 class DObject;
+class ObjectItem;
 
 class QMT_EXPORT DiagramSceneModel : public QObject
 {
@@ -62,6 +64,7 @@ class QMT_EXPORT DiagramSceneModel : public QObject
     class CreationVisitor;
     class UpdateVisitor;
     class OriginItem;
+    class SelectionStatus;
 
     friend class UpdateVisitor;
     friend class DiagramGraphicsScene;
@@ -73,12 +76,13 @@ public:
         CollidingOuterItems
     };
 
-    explicit DiagramSceneModel(QObject *parent = 0);
+    explicit DiagramSceneModel(QObject *parent = nullptr);
     ~DiagramSceneModel() override;
 
 signals:
     void diagramSceneActivated(const MDiagram *diagram);
     void selectionHasChanged(const MDiagram *diagram);
+    void sceneRectChanged(const QRectF &sceneRect);
 
 public:
     DiagramController *diagramController() const { return m_diagramController; }
@@ -92,12 +96,14 @@ public:
     MDiagram *diagram() const { return m_diagram; }
     void setDiagram(MDiagram *diagram);
     QGraphicsScene *graphicsScene() const;
+    QRectF sceneRect() const;
 
     bool hasSelection() const;
     bool hasMultiObjectsSelection() const;
     DSelection selectedElements() const;
     DElement *findTopmostElement(const QPointF &scenePos) const;
     DObject *findTopmostObject(const QPointF &scenePos) const;
+    ObjectItem *findTopmostObjectItem(const QPointF &scenePos) const;
 
     QList<QGraphicsItem *> graphicsItems() const { return m_graphicsItems; }
     QGraphicsItem *graphicsItem(DElement *element) const;
@@ -107,14 +113,15 @@ public:
     QSet<QGraphicsItem *> selectedItems() const { return m_selectedItems; }
     DElement *element(QGraphicsItem *item) const;
     bool isElementEditable(const DElement *element) const;
+    bool isInFrontOf(const QGraphicsItem *frontItem, const QGraphicsItem *backItem);
 
     void selectAllElements();
     void selectElement(DElement *element);
     void editElement(DElement *element);
     void copyToClipboard();
-    bool exportImage(const QString &fileName);
-    bool exportPdf(const QString &fileName);
-    bool exportSvg(const QString &fileName);
+    bool exportImage(const QString &fileName, bool selectedElements);
+    bool exportPdf(const QString &fileName, bool selectedElements);
+    bool exportSvg(const QString &fileName, bool selectedElements);
 
     void selectItem(QGraphicsItem *item, bool multiSelect);
     void moveSelectedItems(QGraphicsItem *grabbedItem, const QPointF &delta);
@@ -150,12 +157,14 @@ private:
     void clearGraphicsScene();
     void removeExtraSceneItems();
     void addExtraSceneItems();
+    void saveSelectionStatusBeforeExport(bool exportSelectedElements, SelectionStatus *status);
+    void restoreSelectedStatusAfterExport(const SelectionStatus &status);
+    void recalcSceneRectSize();
     QGraphicsItem *createGraphicsItem(DElement *element);
     void updateGraphicsItem(QGraphicsItem *item, DElement *element);
     void deleteGraphicsItem(QGraphicsItem *item, DElement *element);
     void updateFocusItem(const QSet<QGraphicsItem *> &selectedItems);
     void unsetFocusItem();
-    bool isInFrontOf(const QGraphicsItem *frontItem, const QGraphicsItem *backItem);
 
     enum Busy {
         NotBusy,
@@ -165,21 +174,22 @@ private:
         RemoveElement
     };
 
-    DiagramController *m_diagramController;
-    DiagramSceneController *m_diagramSceneController;
-    StyleController *m_styleController;
-    StereotypeController *m_stereotypeController;
-    MDiagram *m_diagram;
-    DiagramGraphicsScene *m_graphicsScene;
-    LatchController *m_latchController;
+    DiagramController *m_diagramController = nullptr;
+    DiagramSceneController *m_diagramSceneController = nullptr;
+    StyleController *m_styleController = nullptr;
+    StereotypeController *m_stereotypeController = nullptr;
+    MDiagram *m_diagram = nullptr;
+    DiagramGraphicsScene *m_graphicsScene = nullptr;
+    LatchController *m_latchController = nullptr;
     QList<QGraphicsItem *> m_graphicsItems;
     QHash<const QGraphicsItem *, DElement *> m_itemToElementMap;
     QHash<const DElement *, QGraphicsItem *> m_elementToItemMap;
     QSet<QGraphicsItem *> m_selectedItems;
     QSet<QGraphicsItem *> m_secondarySelectedItems;
-    Busy m_busyState;
-    OriginItem *m_originItem;
-    QGraphicsItem *m_focusItem;
+    Busy m_busyState = NotBusy;
+    OriginItem *m_originItem = nullptr;
+    QGraphicsItem *m_focusItem = nullptr;
+    QRectF m_sceneRect;
 };
 
 } // namespace qmt

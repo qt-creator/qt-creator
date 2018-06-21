@@ -29,7 +29,6 @@
 #include <utils/fileutils.h>
 
 #include <QDir>
-#include <QStringBuilder>
 #include <QDebug>
 #include <QJsonDocument>
 
@@ -259,13 +258,14 @@ void JsonSchema::enterNestedTypeSchema()
 
 QStringList JsonSchema::properties(JsonObjectValue *v) const
 {
-    typedef QHash<QString, JsonValue *>::ConstIterator MemberConstIterator;
+    using Members = QHash<QString, JsonValue *>;
 
     QStringList all;
 
     if (JsonObjectValue *ov = getObjectValue(kProperties(), v)) {
-        const MemberConstIterator cend = ov->members().constEnd();
-        for (MemberConstIterator it = ov->members().constBegin(); it != cend; ++it)
+        const Members members = ov->members();
+        const Members::ConstIterator cend = members.constEnd();
+        for (Members::ConstIterator it = members.constBegin(); it != cend; ++it)
             if (hasPropertySchema(it.key()))
                 all.append(it.key());
     }
@@ -672,7 +672,7 @@ JsonSchemaManager::JsonSchemaManager(const QStringList &searchPaths)
 {
     foreach (const QString &path, m_searchPaths) {
         QDir dir(path);
-        if (!dir.exists() && !dir.mkpath(path))
+        if (!dir.exists())
             continue;
         dir.setNameFilters(QStringList(QLatin1String("*.json")));
         foreach (const QFileInfo &fi, dir.entryInfoList())
@@ -707,7 +707,7 @@ JsonSchema *JsonSchemaManager::schemaByName(const QString &baseName) const
     QHash<QString, JsonSchemaData>::iterator it = m_schemas.find(baseName);
     if (it == m_schemas.end()) {
         foreach (const QString &path, m_searchPaths) {
-            QFileInfo candidate(path % baseName % QLatin1String(".json"));
+            QFileInfo candidate(path + baseName + ".json");
             if (candidate.exists()) {
                 m_schemas.insert(baseName, candidate.absoluteFilePath());
                 break;

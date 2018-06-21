@@ -52,7 +52,7 @@ bool ItemLibrarySection::sectionExpanded() const
 QString ItemLibrarySection::sortingName() const
 {
 
-    if (sectionName() == QStringLiteral("QML Components")) //Qml Components always come first
+    if (sectionName() == QStringLiteral("My QML Components")) //Qml Components always come first
         return QStringLiteral("aaaa");
 
     return sectionName();
@@ -75,7 +75,8 @@ bool ItemLibrarySection::updateSectionVisibility(const QString &searchText, bool
     *changed = false;
 
     foreach(ItemLibraryItem *itemLibraryItem, m_sectionEntries.items()) {
-        bool itemVisible = itemLibraryItem->itemName().toLower().contains(searchText);
+        bool itemVisible = itemLibraryItem->itemName().toLower().contains(searchText)
+                || itemLibraryItem->typeName().toLower().contains(searchText);
 
         bool itemChanged = itemLibraryItem->setVisible(itemVisible);
 
@@ -110,6 +111,11 @@ bool ItemLibrarySection::isVisible() const
 void ItemLibrarySection::sortItems()
 {
     m_sectionEntries.sortItems();
+}
+
+void ItemLibrarySection::setSectionExpanded(bool expanded)
+{
+    m_sectionExpanded = expanded;
 }
 
 } // namespace QmlDesigner

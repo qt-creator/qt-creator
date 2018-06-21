@@ -26,24 +26,23 @@
 #include "cppcurrentdocumentfilter.h"
 
 #include "cppmodelmanager.h"
+#include "cpptoolsconstants.h"
 
-#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/idocument.h>
 
-#include <QStringMatcher>
+#include <QRegularExpression>
 
 using namespace CppTools::Internal;
 using namespace CPlusPlus;
 
-CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppTools::CppModelManager *manager,
-                                                   StringTable &stringTable)
+CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppTools::CppModelManager *manager)
     : m_modelManager(manager)
-    , search(stringTable)
 {
-    setId("Methods in current Document");
-    setDisplayName(tr("C++ Symbols in Current Document"));
-    setShortcutString(QString(QLatin1Char('.')));
+    setId(Constants::CURRENT_DOCUMENT_FILTER_ID);
+    setDisplayName(Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME);
+    setShortcutString(".");
     setPriority(High);
     setIncludedByDefault(false);
 
@@ -61,20 +60,17 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppTools::CppModelManager *ma
 }
 
 QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
-        QFutureInterface<Core::LocatorFilterEntry> &future, const QString & origEntry)
+        QFutureInterface<Core::LocatorFilterEntry> &future, const QString & entry)
 {
-    QString entry = trimWildcards(origEntry);
     QList<Core::LocatorFilterEntry> goodEntries;
     QList<Core::LocatorFilterEntry> betterEntries;
-    QStringMatcher matcher(entry, Qt::CaseInsensitive);
-    const QChar asterisk = QLatin1Char('*');
-    QRegExp regexp(asterisk + entry + asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
+
+    const QRegularExpression regexp = createRegExp(entry);
     if (!regexp.isValid())
         return goodEntries;
-    bool hasWildcard = (entry.contains(asterisk) || entry.contains(QLatin1Char('?')));
-    const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
 
-    foreach (IndexItem::Ptr info, itemsOfCurrentDocument()) {
+    const QList<IndexItem::Ptr> items = itemsOfCurrentDocument();
+    for (IndexItem::Ptr info : items) {
         if (future.isCanceled())
             break;
 
@@ -84,20 +80,30 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
         else if (info->type() == IndexItem::Function)
             matchString += info->symbolType();
 
-        if ((hasWildcard && regexp.exactMatch(matchString))
-            || (!hasWildcard && matcher.indexIn(matchString) != -1))
-        {
+        QRegularExpressionMatch match = regexp.match(matchString);
+        if (match.hasMatch()) {
+            const bool betterMatch = match.capturedStart() == 0;
             QVariant id = qVariantFromValue(info);
             QString name = matchString;
             QString extraInfo = info->symbolScope();
             if (info->type() == IndexItem::Function) {
-                if (info->unqualifiedNameAndScope(matchString, &name, &extraInfo))
+                if (info->unqualifiedNameAndScope(matchString, &name, &extraInfo)) {
                     name += info->symbolType();
+                    match = regexp.match(name);
+                }
             }
+
             Core::LocatorFilterEntry filterEntry(this, name, id, info->icon());
             filterEntry.extraInfo = extraInfo;
+            if (match.hasMatch()) {
+                filterEntry.highlightInfo = highlightInfo(match);
+            } else {
+                match = regexp.match(extraInfo);
+                filterEntry.highlightInfo =
+                        highlightInfo(match, Core::LocatorFilterEntry::HighlightInfo::ExtraInfo);
+            }
 
-            if (matchString.startsWith(entry, caseSensitivityForPrefix))
+            if (betterMatch)
                 betterEntries.append(filterEntry);
             else
                 goodEntries.append(filterEntry);
@@ -110,8 +116,13 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
     return betterEntries;
 }
 
-void CppCurrentDocumentFilter::accept(Core::LocatorFilterEntry selection) const
+void CppCurrentDocumentFilter::accept(Core::LocatorFilterEntry selection,
+                                      QString *newText, int *selectionStart,
+                                      int *selectionLength) const
 {
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     IndexItem::Ptr info = qvariant_cast<CppTools::IndexItem::Ptr>(selection.internalData);
     Core::EditorManager::openEditorAt(info->fileName(), info->line(), info->column());
 }

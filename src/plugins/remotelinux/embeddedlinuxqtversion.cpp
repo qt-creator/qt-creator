@@ -53,7 +53,7 @@ QString EmbeddedLinuxQtVersion::type() const
 
 QList<ProjectExplorer::Abi> EmbeddedLinuxQtVersion::detectQtAbis() const
 {
-    return qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));
+    return qtAbisFromLibrary(qtCorePaths());
 }
 
 QString EmbeddedLinuxQtVersion::description() const
@@ -63,7 +63,7 @@ QString EmbeddedLinuxQtVersion::description() const
 
 QSet<Core::Id> EmbeddedLinuxQtVersion::targetDeviceTypes() const
 {
-    return { Constants::GenericLinuxOsType };
+    return {Constants::GenericLinuxOsType};
 }
 
 } // namespace Internal

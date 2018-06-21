@@ -25,6 +25,7 @@
 
 #include "gdbserverprovider.h"
 #include "gdbserverprovidermanager.h"
+#include "baremetaldevice.h"
 
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
@@ -74,6 +75,9 @@ GdbServerProvider::GdbServerProvider(const GdbServerProvider &other)
 
 GdbServerProvider::~GdbServerProvider()
 {
+    const QSet<BareMetalDevice *> devices = m_devices;
+    for (BareMetalDevice *device : devices)
+        device->unregisterProvider(this);
 }
 
 QString GdbServerProvider::displayName() const
@@ -155,11 +159,11 @@ bool GdbServerProvider::operator==(const GdbServerProvider &other) const
 QVariantMap GdbServerProvider::toMap() const
 {
     return {
-        { QLatin1String(idKeyC), m_id },
-        { QLatin1String(displayNameKeyC), m_displayName },
-        { QLatin1String(startupModeKeyC), m_startupMode },
-        { QLatin1String(initCommandsKeyC), m_initCommands },
-        { QLatin1String(resetCommandsKeyC), m_resetCommands }
+        {QLatin1String(idKeyC), m_id},
+        {QLatin1String(displayNameKeyC), m_displayName},
+        {QLatin1String(startupModeKeyC), m_startupMode},
+        {QLatin1String(initCommandsKeyC), m_initCommands},
+        {QLatin1String(resetCommandsKeyC), m_resetCommands}
     };
 }
 
@@ -173,9 +177,21 @@ bool GdbServerProvider::canStartupMode(StartupMode m) const
     return m == NoStartup;
 }
 
+void GdbServerProvider::registerDevice(BareMetalDevice *device)
+{
+    m_devices.insert(device);
+}
+
+void GdbServerProvider::unregisterDevice(BareMetalDevice *device)
+{
+    m_devices.remove(device);
+}
+
 void GdbServerProvider::providerUpdated()
 {
-    GdbServerProviderManager::instance()->notifyAboutUpdate(this);
+    GdbServerProviderManager::notifyAboutUpdate(this);
+    for (BareMetalDevice *device : qAsConst(m_devices))
+        device->providerUpdated(this);
 }
 
 bool GdbServerProvider::fromMap(const QVariantMap &data)
@@ -338,10 +354,9 @@ void GdbServerProviderConfigWidget::clearErrorMessage()
 
 void GdbServerProviderConfigWidget::setFromProvider()
 {
-    const bool b = blockSignals(true);
+    QSignalBlocker blocker(this);
     m_nameLineEdit->setText(m_provider->displayName());
     setStartupMode(m_provider->startupMode());
-    blockSignals(b);
 }
 
 QString GdbServerProviderConfigWidget::defaultInitCommandsTooltip()
@@ -381,9 +396,8 @@ HostWidget::HostWidget(QWidget *parent)
 
 void HostWidget::setHost(const QString &host)
 {
-    const bool b = blockSignals(true);
+    QSignalBlocker blocker(this);
     m_hostLineEdit->setText(host);
-    blockSignals(b);
 }
 
 QString HostWidget::host() const
@@ -393,9 +407,8 @@ QString HostWidget::host() const
 
 void HostWidget::setPort(const quint16 &port)
 {
-    const bool b = blockSignals(true);
+    QSignalBlocker blocker(this);
     m_portSpinBox->setValue(port);
-    blockSignals(b);
 }
 
 quint16 HostWidget::port() const

@@ -74,7 +74,8 @@ QbsProjectParser::~QbsProjectParser()
     m_fi = 0; // we do not own m_fi, do not delete
 }
 
-void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, const QString &dir)
+void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, const QString &dir,
+                             const QString &configName)
 {
     QTC_ASSERT(!m_qbsSetupProjectJob, return);
     QTC_ASSERT(!dir.isEmpty(), return);
@@ -86,9 +87,7 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
     QString specialKey = QLatin1String(Constants::QBS_CONFIG_PROFILE_KEY);
     const QString profileName = userConfig.take(specialKey).toString();
     params.setTopLevelProfile(profileName);
-    const QString buildVariantKey = QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY);
-    const QString buildVariant = userConfig.value(buildVariantKey).toString();
-    params.setConfigurationName(profileName + QLatin1Char('-') + buildVariant);
+    params.setConfigurationName(configName);
     specialKey = QLatin1String(Constants::QBS_FORCE_PROBES_KEY);
     params.setForceProbeExecution(userConfig.take(specialKey).toBool());
     params.setSettingsDirectory(QbsManager::settings()->baseDirectory());
@@ -101,7 +100,7 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
 
     params.setBuildRoot(dir);
     params.setProjectFilePath(m_projectFilePath);
-    params.setIgnoreDifferentProjectFilePath(false);
+    params.setOverrideBuildGraphData(true);
     params.setEnvironment(env.toProcessEnvironment());
     const qbs::Preferences prefs(QbsManager::settings(), profileName);
     params.setSearchPaths(prefs.searchPaths(resourcesBaseDirectory()));
@@ -109,7 +108,7 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
     params.setLibexecPath(libExecDirectory());
     params.setProductErrorMode(qbs::ErrorHandlingMode::Relaxed);
     params.setPropertyCheckingMode(qbs::ErrorHandlingMode::Relaxed);
-    params.setLogElapsedTime(!qgetenv(Constants::QBS_PROFILING_ENV).isEmpty());
+    params.setLogElapsedTime(!qEnvironmentVariableIsEmpty(Constants::QBS_PROFILING_ENV));
 
     m_qbsSetupProjectJob = m_project.setupProject(params, QbsManager::logSink(), 0);
 

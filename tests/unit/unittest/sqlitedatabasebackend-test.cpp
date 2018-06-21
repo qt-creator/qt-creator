@@ -25,13 +25,26 @@
 
 #include "googletest.h"
 
+#include <sqlitedatabase.h>
 #include <sqlitedatabasebackend.h>
 #include <sqliteexception.h>
 #include <sqlitewritestatement.h>
 
+#include <sqlite3.h>
+
 #include <QDir>
 
 namespace {
+
+using Backend = Sqlite::DatabaseBackend;
+
+using Sqlite::ColumnType;
+using Sqlite::Contraint;
+using Sqlite::JournalMode;
+using Sqlite::OpenMode;
+using Sqlite::TextEncoding;
+using Sqlite::Exception;
+using Sqlite::WriteStatement;
 
 class SqliteDatabaseBackend : public ::testing::Test
 {
@@ -39,24 +52,30 @@ protected:
     void SetUp() override;
     void TearDown() override;
 
-    QString databaseFilePath = QDir::tempPath() + QStringLiteral("/SqliteDatabaseBackendTest.db");
-    ::SqliteDatabaseBackend databaseBackend;
+    Utils::PathString databaseFilePath = UnitTest::temporaryDirPath() + "/SqliteDatabaseBackendTest.db";
+    Sqlite::Database database;
+    Sqlite::DatabaseBackend &databaseBackend = database.backend();
 };
+
+using SqliteDatabaseBackendSlowTest = SqliteDatabaseBackend;
 
 TEST_F(SqliteDatabaseBackend, OpenAlreadyOpenDatabase)
 {
-    ASSERT_THROW(databaseBackend.open(databaseFilePath), SqliteException);
+    ASSERT_THROW(databaseBackend.open(databaseFilePath, OpenMode::ReadWrite),
+                 Sqlite::DatabaseIsAlreadyOpen);
 }
 
 TEST_F(SqliteDatabaseBackend, CloseAlreadyClosedDatabase)
 {
     databaseBackend.close();
-    ASSERT_THROW(databaseBackend.close(), SqliteException);
+
+    ASSERT_THROW(databaseBackend.close(), Sqlite::DatabaseIsAlreadyClosed);
 }
 
 TEST_F(SqliteDatabaseBackend, OpenWithWrongPath)
 {
-    ASSERT_THROW(databaseBackend.open(QStringLiteral("/xxx/SqliteDatabaseBackendTest.db")), SqliteException);
+    ASSERT_THROW(databaseBackend.open("/xxx/SqliteDatabaseBackendTest.db", OpenMode::ReadWrite),
+                 Sqlite::WrongFilePath);
 }
 
 TEST_F(SqliteDatabaseBackend, DefaultJournalMode)
@@ -64,7 +83,7 @@ TEST_F(SqliteDatabaseBackend, DefaultJournalMode)
     ASSERT_THAT(databaseBackend.journalMode(), JournalMode::Delete);
 }
 
-TEST_F(SqliteDatabaseBackend, WalJournalMode)
+TEST_F(SqliteDatabaseBackendSlowTest, WalJournalMode)
 {
     databaseBackend.setJournalMode(JournalMode::Wal);
 
@@ -94,50 +113,65 @@ TEST_F(SqliteDatabaseBackend, PersistJournalMode)
 
 TEST_F(SqliteDatabaseBackend, DefaultTextEncoding)
 {
-    ASSERT_THAT(databaseBackend.textEncoding(), Utf8);
+    ASSERT_THAT(databaseBackend.textEncoding(), TextEncoding::Utf8);
 }
 
 TEST_F(SqliteDatabaseBackend, Utf16TextEncoding)
 {
-    databaseBackend.setTextEncoding(Utf16);
+    databaseBackend.setTextEncoding(TextEncoding::Utf16);
 
-    ASSERT_THAT(databaseBackend.textEncoding(), Utf16);
+    ASSERT_THAT(databaseBackend.textEncoding(), TextEncoding::Utf16);
 }
 
 TEST_F(SqliteDatabaseBackend, Utf16beTextEncoding)
 {
-    databaseBackend.setTextEncoding(Utf16be);
+    databaseBackend.setTextEncoding(TextEncoding::Utf16be);
 
-    ASSERT_THAT(databaseBackend.textEncoding(), Utf16be);
+    ASSERT_THAT(databaseBackend.textEncoding(),TextEncoding::Utf16be);
 }
 
 TEST_F(SqliteDatabaseBackend, Utf16leTextEncoding)
 {
-    databaseBackend.setTextEncoding(Utf16le);
+    databaseBackend.setTextEncoding(TextEncoding::Utf16le);
 
-    ASSERT_THAT(databaseBackend.textEncoding(), Utf16le);
+    ASSERT_THAT(databaseBackend.textEncoding(), TextEncoding::Utf16le);
 }
 
 TEST_F(SqliteDatabaseBackend, Utf8TextEncoding)
 {
-    databaseBackend.setTextEncoding(Utf8);
+    databaseBackend.setTextEncoding(TextEncoding::Utf8);
 
-    ASSERT_THAT(databaseBackend.textEncoding(), Utf8);
+    ASSERT_THAT(databaseBackend.textEncoding(), TextEncoding::Utf8);
 }
 
 TEST_F(SqliteDatabaseBackend, TextEncodingCannotBeChangedAfterTouchingDatabase)
 {
     databaseBackend.setJournalMode(JournalMode::Memory);
 
-    SqliteWriteStatement::execute(Utf8StringLiteral("CREATE TABLE text(name, number)"));
+    databaseBackend.execute("CREATE TABLE text(name, number)");
 
-    ASSERT_THROW(databaseBackend.setTextEncoding(Utf16), SqliteException);
+    ASSERT_THROW(databaseBackend.setTextEncoding(TextEncoding::Utf16),
+                 Sqlite::PragmaValueNotSet);
+}
+
+TEST_F(SqliteDatabaseBackend, OpenModeReadOnly)
+{
+    auto mode = Backend::openMode(OpenMode::ReadOnly);
+
+    ASSERT_THAT(mode, SQLITE_OPEN_CREATE | SQLITE_OPEN_READONLY);
+}
+
+TEST_F(SqliteDatabaseBackend, OpenModeReadWrite)
+{
+    auto mode = Backend::openMode(OpenMode::ReadWrite);
+
+    ASSERT_THAT(mode, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE);
 }
 
 void SqliteDatabaseBackend::SetUp()
 {
     QDir::temp().remove(QStringLiteral("SqliteDatabaseBackendTest.db"));
-    databaseBackend.open(databaseFilePath);
+    databaseBackend.open(databaseFilePath, OpenMode::ReadWrite);
 }
 
 void SqliteDatabaseBackend::TearDown()

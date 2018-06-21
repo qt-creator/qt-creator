@@ -29,6 +29,7 @@
 #include "infobar.h"
 
 #include <utils/checkablemessagebox.h>
+#include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
 
 #include <QCoreApplication>
@@ -44,14 +45,17 @@ using namespace Utils;
 namespace Core {
 namespace Internal {
 
+const char settingsKeyDPI[] = "Core/EnableHighDpiScaling";
+
 GeneralSettings::GeneralSettings()
     : m_page(0), m_dialog(0)
 {
     setId(Constants::SETTINGS_ID_INTERFACE);
     setDisplayName(tr("Interface"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_CORE_ICON));
+    setDisplayCategory(QCoreApplication::translate("Core", "Environment"));
+    setCategoryIcon(Utils::Icon({{":/core/images/settingscategory_core.png",
+                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }
 
 static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrPath)
@@ -102,6 +106,19 @@ QWidget *GeneralSettings::widget()
 
         m_page->colorButton->setColor(StyleHelper::requestedBaseColor());
         m_page->resetWarningsButton->setEnabled(canResetWarnings());
+
+        if (Utils::HostOsInfo().isMacHost()) {
+            m_page->dpiLabel->setVisible(false);
+            m_page->dpiCheckbox->setVisible(false);
+        } else {
+            const bool defaultValue = Utils::HostOsInfo().isWindowsHost();
+            m_page->dpiCheckbox->setChecked(ICore::settings()->value(settingsKeyDPI, defaultValue).toBool());
+            connect(m_page->dpiCheckbox, &QCheckBox::toggled, this, [](bool checked) {
+                ICore::settings()->setValue(settingsKeyDPI, checked);
+                QMessageBox::information(ICore::mainWindow(), tr("Restart Required"),
+                                         tr("The high DPI settings will take effect after restart."));
+            });
+        }
 
         connect(m_page->resetColorButton, &QAbstractButton::clicked,
                 this, &GeneralSettings::resetInterfaceColor);
@@ -164,7 +181,7 @@ void GeneralSettings::setLanguage(const QString &locale)
     QSettings *settings = ICore::settings();
     if (settings->value(QLatin1String("General/OverrideLanguage")).toString() != locale)
         QMessageBox::information(ICore::mainWindow(), tr("Restart Required"),
-                                 tr("The language change will take effect after a restart of Qt Creator."));
+                                 tr("The language change will take effect after restart."));
 
     if (locale.isEmpty())
         settings->remove(QLatin1String("General/OverrideLanguage"));

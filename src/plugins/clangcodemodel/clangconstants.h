@@ -32,5 +32,7 @@ const char CLANG_MODELMANAGERSUPPORT_ID[] = "ClangCodeModel.ClangCodeModel";
 const char CLANG_ERROR[] = "Clang.Error";
 const char CLANG_WARNING[] = "Clang.Warning";
 
+const char TASK_CATEGORY_DIAGNOSTICS[] = "ClangCodeModel";
+
 } // namespace Constants
 } // namespace ClangCodeModel

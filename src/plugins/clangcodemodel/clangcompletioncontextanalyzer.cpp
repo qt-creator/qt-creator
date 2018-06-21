@@ -91,8 +91,7 @@ void ClangCompletionContextAnalyzer::analyze()
     }
 }
 
-ClangCompletionContextAnalyzer::FunctionInfo
-ClangCompletionContextAnalyzer::analyzeFunctionCall(int endOfOperator) const
+int ClangCompletionContextAnalyzer::startOfFunctionCall(int endOfOperator) const
 {
     int index = ActivationSequenceContextProcessor::skipPrecedingWhitespace(m_interface,
                                                                             endOfOperator);
@@ -102,25 +101,27 @@ ClangCompletionContextAnalyzer::analyzeFunctionCall(int endOfOperator) const
     ExpressionUnderCursor euc(m_languageFeatures);
     index = euc.startOfFunctionCall(textCursor);
     index = ActivationSequenceContextProcessor::skipPrecedingWhitespace(m_interface, index);
-    const int functionNameStart = ActivationSequenceContextProcessor::findStartOfName(m_interface,
-                                                                                      index);
+    const int functionNameStart = ActivationSequenceContextProcessor::findStartOfName(
+        m_interface, index, ActivationSequenceContextProcessor::NameCategory::Function);
+    if (functionNameStart == -1)
+        return -1;
 
-    QTextCursor textCursor2(m_interface->textDocument());
-    textCursor2.setPosition(functionNameStart);
-    textCursor2.setPosition(index, QTextCursor::KeepAnchor);
+    QTextCursor functionNameSelector(m_interface->textDocument());
+    functionNameSelector.setPosition(functionNameStart);
+    functionNameSelector.setPosition(index, QTextCursor::KeepAnchor);
+    const QString functionName = functionNameSelector.selectedText().trimmed();
 
-    FunctionInfo info;
-    info.functionNamePosition = functionNameStart;
-    info.functionName = textCursor2.selectedText().trimmed();
-    return info;
+    return functionName.isEmpty() ? -1 : functionNameStart;
 }
 
 void ClangCompletionContextAnalyzer::setActionAndClangPosition(CompletionAction action,
-                                                               int position)
+                                                               int position,
+                                                               int functionNameStart)
 {
     QTC_CHECK(position >= -1);
     m_completionAction = action;
     m_positionForClang = position;
+    m_functionNameStart = functionNameStart;
 }
 
 void
@@ -159,12 +160,15 @@ void ClangCompletionContextAnalyzer::handleFunctionCall(int afterOperatorPositio
             m_positionForProposal = afterOperatorPosition;
             setActionAndClangPosition(PassThroughToLibClang, afterOperatorPosition);
         } else {
-            const FunctionInfo functionInfo = analyzeFunctionCall(afterOperatorPosition);
-            if (functionInfo.isValid()) {
-                m_functionName = functionInfo.functionName;
+            const int functionNameStart = startOfFunctionCall(afterOperatorPosition);
+            if (functionNameStart >= 0) {
+                // Always pass the position right after '(' to libclang because
+                // positions after the comma might be problematic if a preceding
+                // argument is invalid code.
                 setActionAndClangPosition(PassThroughToLibClangAfterLeftParen,
-                                          functionInfo.functionNamePosition);
-            } else {
+                                          m_positionForProposal,
+                                          functionNameStart);
+            } else { // e.g. "(" without any function name in front
                 m_positionForProposal = afterOperatorPosition;
                 setActionAndClangPosition(PassThroughToLibClang, afterOperatorPosition);
             }

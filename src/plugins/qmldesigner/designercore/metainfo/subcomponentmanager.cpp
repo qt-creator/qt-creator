@@ -63,7 +63,8 @@ SubComponentManager::SubComponentManager(Model *model, QObject *parent)
     : QObject(parent),
       m_model(model)
 {
-    connect(&m_watcher, SIGNAL(directoryChanged(QString)), this, SLOT(parseDirectory(QString)));
+    connect(&m_watcher, &QFileSystemWatcher::directoryChanged,
+            this, [this](const QString &path) { parseDirectory(path); });
 }
 
 void SubComponentManager::addImport(int pos, const Import &import)
@@ -151,7 +152,7 @@ void SubComponentManager::parseDirectories()
                     parseDirectory(dirInfo.canonicalFilePath(), false);
                 }
 
-                QString fullUrlVersion = path + QLatin1Char('/') + url + QLatin1Char('.') + import.version().split(".").first();
+                QString fullUrlVersion = path + QLatin1Char('/') + url + QLatin1Char('.') + import.version().split(".").constFirst();
                 dirInfo = QFileInfo(fullUrlVersion);
 
                 if (dirInfo.exists() && dirInfo.isDir()) {
@@ -324,13 +325,13 @@ void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QStri
         ItemLibraryEntry itemLibraryEntry;
         itemLibraryEntry.setType(componentName.toUtf8());
         itemLibraryEntry.setName(baseComponentName);
-        itemLibraryEntry.setCategory(QLatin1String("QML Components"));
+        itemLibraryEntry.setCategory(QLatin1String("My QML Components"));
         if (!qualifier.isEmpty()) {
             itemLibraryEntry.setRequiredImport(fixedQualifier);
         }
 
         if (!model()->metaInfo().itemLibraryInfo()->containsEntry(itemLibraryEntry))
-            model()->metaInfo().itemLibraryInfo()->addEntries(QList<ItemLibraryEntry>() << itemLibraryEntry);
+            model()->metaInfo().itemLibraryInfo()->addEntries({itemLibraryEntry});
     }
 }
 

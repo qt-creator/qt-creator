@@ -123,9 +123,9 @@ private:
     QString m_symbolScope;
     QString m_fileName;
     QIcon m_icon;
-    ItemType m_type;
-    int m_line;
-    int m_column;
+    ItemType m_type = All;
+    int m_line = 0;
+    int m_column = 0;
     QVector<IndexItem::Ptr> m_children;
 };
 

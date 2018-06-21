@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/debugger">
-        <file>images/category_debug.png</file>
+        <file>images/settingscategory_debugger.png</file>
+        <file>images/settingscategory_debugger@2x.png</file>
         <file>images/debugger_breakpoints.png</file>
         <file>images/debugger_continue.png</file>
         <file>images/debugger_continue@2x.png</file>
@@ -38,16 +39,13 @@
         <file>images/mode_debug_mask.png</file>
         <file>images/mode_debug_mask@2x.png</file>
         <file>images/pin.xpm</file>
-        <file>images/qml/select.png</file>
-        <file>images/qml/select@2x.png</file>
-        <file>images/qml/app-on-top.png</file>
-        <file>images/qml/app-on-top@2x.png</file>
         <file>images/debugger_restart_small.png</file>
         <file>images/debugger_restart_small@2x.png</file>
         <file>images/recordfill.png</file>
         <file>images/recordfill@2x.png</file>
         <file>images/recordoutline.png</file>
         <file>images/recordoutline@2x.png</file>
-        <file>Debugger.mimetypes.xml</file>
+        <file>images/tracepointoverlay.png</file>
+        <file>images/tracepointoverlay@2x.png</file>
     </qresource>
 </RCC>

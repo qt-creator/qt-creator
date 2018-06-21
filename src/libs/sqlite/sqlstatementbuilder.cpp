@@ -26,137 +26,164 @@
 #include "sqlstatementbuilder.h"
 
 #include "sqlstatementbuilderexception.h"
-#include "utf8stringvector.h"
+
+#include <utils/smallstringvector.h>
 
 #include <algorithm>
 
-SqlStatementBuilder::SqlStatementBuilder(const Utf8String &sqlTemplate)
-    : sqlTemplate(sqlTemplate)
+namespace Sqlite {
+
+SqlStatementBuilder::SqlStatementBuilder(Utils::SmallStringView sqlTemplate)
+    : m_sqlTemplate(std::move(sqlTemplate))
 {
 }
 
-void SqlStatementBuilder::bindEmptyText(const Utf8String &name)
+void SqlStatementBuilder::bindEmptyText(Utils::SmallString &&name)
 {
     clearSqlStatement();
     checkIfPlaceHolderExists(name);
-    changeBinding(name, Utf8String());
+    changeBinding(std::move(name), {});
 }
 
-void SqlStatementBuilder::bind(const Utf8String &name, const Utf8String &text)
+void SqlStatementBuilder::bind(Utils::SmallString &&name, Utils::SmallString &&text)
 {
     clearSqlStatement();
     checkBindingTextIsNotEmpty(text);
     checkIfPlaceHolderExists(name);
-    changeBinding(name, text);
+    changeBinding(std::move(name), std::move(text));
 }
 
-void SqlStatementBuilder::bind(const Utf8String &name, const Utf8StringVector &textVector)
+void SqlStatementBuilder::bind(Utils::SmallString &&name, const Utils::SmallStringVector &textVector)
 {
     clearSqlStatement();
     checkBindingTextVectorIsNotEmpty(textVector);
     checkIfPlaceHolderExists(name);
-    changeBinding(name, textVector.join(Utf8StringLiteral(", ")));
+    changeBinding(std::move(name), textVector.join(", "));
 }
 
-void SqlStatementBuilder::bind(const Utf8String &name, int value)
+void SqlStatementBuilder::bind(Utils::SmallString &&name, int value)
 {
     clearSqlStatement();
     checkIfPlaceHolderExists(name);
-    changeBinding(name, Utf8String::number(value));
+    changeBinding(std::move(name), Utils::SmallString::number(value));
 }
 
-void SqlStatementBuilder::bind(const Utf8String &name, const QVector<int> &integerVector)
+namespace {
+Utils::SmallStringVector integerVectorToStringVector(const std::vector<int> &integerVector)
+{
+    Utils::SmallStringVector stringVector;
+    stringVector.reserve(integerVector.size());
+
+    std::transform(integerVector.begin(),
+                   integerVector.end(),
+                   std::back_inserter(stringVector),
+                   [] (int i) { return Utils::SmallString::number(i); });
+
+    return stringVector;
+}
+}
+void SqlStatementBuilder::bind(Utils::SmallString &&name, const std::vector<int> &integerVector)
 {
     clearSqlStatement();
     checkBindingIntegerVectorIsNotEmpty(integerVector);
     checkIfPlaceHolderExists(name);
-    changeBinding(name, Utf8StringVector::fromIntegerVector(integerVector).join(Utf8StringLiteral(", ")));
+    changeBinding(std::move(name), integerVectorToStringVector(integerVector).join(", "));
 }
 
-void SqlStatementBuilder::bindWithInsertTemplateParameters(const Utf8String &name, const Utf8StringVector &columns)
+void SqlStatementBuilder::bindWithInsertTemplateParameters(Utils::SmallString &&name,
+                                                           const Utils::SmallStringVector &columns)
 {
     clearSqlStatement();
     checkBindingTextVectorIsNotEmpty(columns);
     checkIfPlaceHolderExists(name);
-    changeBinding(name, insertTemplateParameters(columns));
+    changeBinding(std::move(name), insertTemplateParameters(columns));
 }
 
-void SqlStatementBuilder::bindWithUpdateTemplateParameters(const Utf8String &name, const Utf8StringVector &columns)
+void SqlStatementBuilder::bindWithUpdateTemplateParameters(Utils::SmallString &&name,
+                                                           const Utils::SmallStringVector &columns)
 {
     clearSqlStatement();
     checkBindingTextVectorIsNotEmpty(columns);
     checkIfPlaceHolderExists(name);
-    changeBinding(name, updateTemplateParameters(columns));
+    changeBinding(std::move(name), updateTemplateParameters(columns));
 }
 
-void SqlStatementBuilder::bindWithUpdateTemplateNames(const Utf8String &name, const Utf8StringVector &columns)
+void SqlStatementBuilder::bindWithUpdateTemplateNames(Utils::SmallString &&name,
+                                                      const Utils::SmallStringVector &columns)
 {
     clearSqlStatement();
     checkBindingTextVectorIsNotEmpty(columns);
     checkIfPlaceHolderExists(name);
-    changeBinding(name, updateTemplateNames(columns));
+    changeBinding(std::move(name), updateTemplateNames(columns));
 }
 
 void SqlStatementBuilder::clear()
 {
-    bindings.clear();
-    sqlStatement_.clear();
+    m_bindings.clear();
+    m_sqlStatement.clear();
 }
 
-const Utf8String SqlStatementBuilder::insertTemplateParameters(const Utf8StringVector &columns)
+Utils::SmallString SqlStatementBuilder::insertTemplateParameters(const Utils::SmallStringVector &columns)
 {
-    const Utf8StringVector templateParamters(columns.count(), Utf8StringLiteral("?"));
+    const Utils::SmallStringVector templateParamters(columns.size(), "?");
 
-    return templateParamters.join(Utf8StringLiteral(", "));
+    return templateParamters.join(", ");
 }
 
-const Utf8String SqlStatementBuilder::updateTemplateParameters(const Utf8StringVector &columns)
+Utils::SmallString SqlStatementBuilder::updateTemplateParameters(const Utils::SmallStringVector &columns)
 {
-    Utf8String templateParamters = columns.join(Utf8StringLiteral("=?, "));
-    templateParamters.append(Utf8StringLiteral("=?"));
+    Utils::SmallString templateParamters = columns.join("=?, ");
+    templateParamters.append("=?");
 
     return templateParamters;
 }
 
-const Utf8String SqlStatementBuilder::updateTemplateNames(const Utf8StringVector &columns)
+Utils::SmallString SqlStatementBuilder::updateTemplateNames(const Utils::SmallStringVector &columns)
 {
-    Utf8StringVector templateNames;
+    Utils::SmallStringVector templateNames;
+    templateNames.reserve(columns.size());
 
-    foreach (const Utf8String &columnName, columns)
-        templateNames.append(columnName+Utf8StringLiteral("=@")+columnName);
+    auto convertToTemplateNames = [] (const Utils::SmallString &column) {
+        return Utils::SmallString::join({column, "=@", column});
+    };
 
-    return templateNames.join(Utf8StringLiteral(", "));
+    std::transform(columns.begin(),
+                   columns.end(),
+                   std::back_inserter(templateNames),
+                   convertToTemplateNames);
+
+    return templateNames.join(", ");
 }
 
 void SqlStatementBuilder::sortBindings() const
 {
-    std::sort(bindings.begin(), bindings.end(), [] (const BindingPair &lhs,const BindingPair &rhs)
+    std::sort(m_bindings.begin(), m_bindings.end(), [] (const BindingPair &lhs,const BindingPair &rhs)
     {
-        return lhs.first.byteSize() == rhs.first.byteSize() ? lhs.first.toByteArray() < rhs.first.toByteArray() : lhs.first.byteSize() > rhs.first.byteSize();
+        return lhs.first.size() == rhs.first.size() ? lhs.first < rhs.first : lhs.first.size() > rhs.first.size();
     });
 }
 
-Utf8String SqlStatementBuilder::sqlStatement() const
+Utils::SmallStringView SqlStatementBuilder::sqlStatement() const
 {
     if (!isBuild())
         generateSqlStatement();
 
-    return sqlStatement_;
+    return m_sqlStatement;
 }
 
 bool SqlStatementBuilder::isBuild() const
 {
-    return sqlStatement_.hasContent();
+    return m_sqlStatement.hasContent();
 }
 
-Utf8String SqlStatementBuilder::columnTypeToString(ColumnType columnType)
+Utils::SmallString SqlStatementBuilder::columnTypeToString(ColumnType columnType)
 {
     switch (columnType) {
-        case ColumnType::Numeric: return Utf8StringLiteral("NUMERIC");
-        case ColumnType::Integer: return Utf8StringLiteral("INTEGER");
-        case ColumnType::Real: return Utf8StringLiteral("REAL");
-        case ColumnType::Text: return Utf8StringLiteral("TEXT");
-        case ColumnType::None: return Utf8String();
+        case ColumnType::Numeric: return "NUMERIC";
+        case ColumnType::Integer: return "INTEGER";
+        case ColumnType::Real: return "REAL";
+        case ColumnType::Text: return "TEXT";
+        case ColumnType::None: return {};
     }
 
     Q_UNREACHABLE();
@@ -164,70 +191,71 @@ Utf8String SqlStatementBuilder::columnTypeToString(ColumnType columnType)
 
 void SqlStatementBuilder::generateSqlStatement() const
 {
-    sqlStatement_ = sqlTemplate;
+    m_sqlStatement = m_sqlTemplate;
 
     sortBindings();
 
-    auto bindingIterator = bindings.cbegin();
-    while (bindingIterator != bindings.cend()) {
-        const Utf8String &placeHolderToken = bindingIterator->first;
-        const Utf8String &replacementToken = bindingIterator->second;
-        sqlStatement_.replace(placeHolderToken, replacementToken);
-        ++bindingIterator;
+    for (const auto &entry : m_bindings) {
+        const Utils::SmallStringView placeHolderToken = entry.first;
+        const Utils::SmallStringView replacementToken = entry.second;
+        m_sqlStatement.replace(placeHolderToken, replacementToken);
     }
 
     checkIfNoPlaceHoldersAynmoreExists();
 }
 
-void SqlStatementBuilder::changeBinding(const Utf8String &name, const Utf8String &text)
+void SqlStatementBuilder::changeBinding(Utils::SmallString &&name, Utils::SmallString &&text)
 {
-
-    auto findBindingIterator = std::find_if(bindings.begin(), bindings.end(), [name] (const BindingPair &binding) {
+    auto findBindingIterator = std::find_if(m_bindings.begin(),
+                                            m_bindings.end(),
+                                            [&] (const BindingPair &binding) {
         return binding.first == name;
     });
 
-    if (findBindingIterator == bindings.end())
-        bindings.push_back(std::make_pair(name, text));
+    if (findBindingIterator == m_bindings.end())
+        m_bindings.push_back(std::make_pair(std::move(name), std::move(text)));
     else
-        findBindingIterator->second = text;
+        findBindingIterator->second = std::move(text);
 }
 
 void SqlStatementBuilder::clearSqlStatement()
 {
-    sqlStatement_.clear();
+    m_sqlStatement.clear();
 }
 
-void SqlStatementBuilder::checkIfPlaceHolderExists(const Utf8String &name) const
+void SqlStatementBuilder::checkIfPlaceHolderExists(Utils::SmallStringView name) const
 {
-    if (name.byteSize() < 2 || !name.startsWith('$') || !sqlTemplate.contains(name))
-        throwException("SqlStatementBuilder::bind: placeholder name does not exists!", name.constData());
+    if (name.size() < 2 || !name.startsWith('$') || !m_sqlTemplate.contains(name))
+        throwException("SqlStatementBuilder::bind: placeholder name does not exists!", name.data());
 }
 
 void SqlStatementBuilder::checkIfNoPlaceHoldersAynmoreExists() const
 {
-    if (sqlStatement_.contains('$'))
-        throwException("SqlStatementBuilder::bind: there are still placeholder in the sql statement!", sqlTemplate.constData());
+    if (m_sqlStatement.contains('$'))
+        throwException("SqlStatementBuilder::bind: there are still placeholder in the sql statement!", m_sqlTemplate.constData());
 }
 
-void SqlStatementBuilder::checkBindingTextIsNotEmpty(const Utf8String &text) const
+void SqlStatementBuilder::checkBindingTextIsNotEmpty(Utils::SmallStringView text) const
 {
     if (text.isEmpty())
-        throwException("SqlStatementBuilder::bind: binding text it empty!", sqlTemplate.constData());
+        throwException("SqlStatementBuilder::bind: binding text it empty!", m_sqlTemplate.constData());
 }
 
-void SqlStatementBuilder::checkBindingTextVectorIsNotEmpty(const Utf8StringVector &textVector) const
+void SqlStatementBuilder::checkBindingTextVectorIsNotEmpty(const Utils::SmallStringVector &textVector) const
 {
-    if (textVector.isEmpty())
-        throwException("SqlStatementBuilder::bind: binding text vector it empty!", sqlTemplate.constData());
+    if (textVector.empty())
+        throwException("SqlStatementBuilder::bind: binding text vector it empty!", m_sqlTemplate.constData());
 }
 
-void SqlStatementBuilder::checkBindingIntegerVectorIsNotEmpty(const QVector<int> &integerVector) const
+void SqlStatementBuilder::checkBindingIntegerVectorIsNotEmpty(const std::vector<int> &integerVector) const
 {
-    if (integerVector.isEmpty())
-        throwException("SqlStatementBuilder::bind: binding integer vector it empty!", sqlTemplate.constData());
+    if (integerVector.empty())
+        throwException("SqlStatementBuilder::bind: binding integer vector it empty!", m_sqlTemplate.constData());
 }
 
 void SqlStatementBuilder::throwException(const char *whatHasHappened, const char *errorMessage)
 {
     throw SqlStatementBuilderException(whatHasHappened, errorMessage);
 }
+
+} // namespace Sqlite

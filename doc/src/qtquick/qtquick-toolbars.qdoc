@@ -42,14 +42,13 @@
     . Select the icon to open the toolbar.
 
     To open toolbars immediately when you select a QML type, select
-    \uicontrol{Tools > Options > Qt Quick > Qt Quick Toolbar > Always show Qt Quick
-    Toolbar}.
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Qt Quick} >
+    \uicontrol {QML/JS Editing} > \uicontrol {Always show Qt Quick Toolbar}.
 
     Drag the toolbar to pin it to another location. Select
     \inlineimage qml-toolbar-pin.png
     to unpin the toolbar and move it to its default location. To pin toolbars
-    by default, select \uicontrol{Tools > Options > Qt Quick > Qt Quick Toolbar
-    > Pin Quick Toolbar}.
+    by default, select \uicontrol {Pin Quick Toolbar}.
 
     \section1 Previewing Images
 

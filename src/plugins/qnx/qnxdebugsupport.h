@@ -25,59 +25,27 @@
 
 #pragma once
 
-#include "qnxabstractrunsupport.h"
-
-#include <projectexplorer/runnables.h>
-
-#include <utils/outputformat.h>
-
-namespace Debugger { class DebuggerRunControl; }
+#include <debugger/debuggerruncontrol.h>
 
 namespace Qnx {
 namespace Internal {
 
-class QnxRunConfiguration;
-class Slog2InfoRunner;
-
-class QnxDebugSupport : public QnxAbstractRunSupport
+class QnxDebugSupport : public Debugger::DebuggerRunTool
 {
     Q_OBJECT
 
 public:
-    QnxDebugSupport(QnxRunConfiguration *runConfig,
-                    Debugger::DebuggerRunControl *runControl);
+    explicit QnxDebugSupport(ProjectExplorer::RunControl *runControl);
+};
 
-public slots:
-    void handleDebuggingFinished();
+class QnxAttachDebugSupport : public Debugger::DebuggerRunTool
+{
+    Q_OBJECT
 
-private slots:
-    void handleAdapterSetupRequested() override;
+public:
+    explicit QnxAttachDebugSupport(ProjectExplorer::RunControl *runControl);
 
-    void handleRemoteProcessStarted() override;
-    void handleRemoteProcessFinished(bool success) override;
-    void handleProgressReport(const QString &progressOutput) override;
-    void handleRemoteOutput(const QByteArray &output) override;
-    void handleError(const QString &error) override;
-
-    void printMissingWarning();
-    void handleApplicationOutput(const QString &msg, Utils::OutputFormat outputFormat);
-
-private:
-    void startExecution() override;
-
-    QString processExecutable() const;
-
-    void killInferiorProcess();
-
-    ProjectExplorer::StandardRunnable m_runnable;
-    Slog2InfoRunner *m_slog2Info;
-
-    Debugger::DebuggerRunControl *m_runControl;
-    Utils::Port m_pdebugPort;
-    Utils::Port m_qmlPort;
-
-    bool m_useCppDebugger;
-    bool m_useQmlDebugger;
+    static void showProcessesDialog();
 };
 
 } // namespace Internal

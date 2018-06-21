@@ -37,8 +37,8 @@ class OpenPagesWidget : public Core::OpenDocumentsTreeView
     Q_OBJECT
 
 public:
-    explicit OpenPagesWidget(OpenPagesModel *model, QWidget *parent = 0);
-    ~OpenPagesWidget();
+    explicit OpenPagesWidget(OpenPagesModel *model, QWidget *parent = nullptr);
+    ~OpenPagesWidget() override;
 
     void selectCurrentPage();
     void allowContextMenu(bool ok);

@@ -27,51 +27,69 @@
 
 #include "sqliteglobal.h"
 
-#include "utf8stringvector.h"
+#include <utils/smallstringvector.h>
 
-#include <QStringList>
+#include <chrono>
 
 struct sqlite3;
 
-class SQLITE_EXPORT SqliteDatabaseBackend
+namespace Sqlite {
+
+class Database;
+
+class SQLITE_EXPORT DatabaseBackend
 {
 public:
+    DatabaseBackend(Database &database);
+    ~DatabaseBackend();
 
-    SqliteDatabaseBackend();
-    ~SqliteDatabaseBackend();
+    DatabaseBackend(const DatabaseBackend &) = delete;
+    DatabaseBackend &operator=(const DatabaseBackend &) = delete;
 
-    static void setMmapSize(qint64 defaultSize, qint64 maximumSize);
-    static void activateMultiThreading();
-    static void activateLogging();
-    static void initializeSqliteLibrary();
-    static void shutdownSqliteLibrary();
-    static void checkpointFullWalLog();
+    DatabaseBackend(DatabaseBackend &&) = delete;
+    DatabaseBackend &operator=(DatabaseBackend &&) = delete;
 
-    void open(const QString &databaseFilePath);
+    void setMmapSize(qint64 defaultSize, qint64 maximumSize);
+    void activateMultiThreading();
+    void activateLogging();
+    void initializeSqliteLibrary();
+    void shutdownSqliteLibrary();
+    void checkpointFullWalLog();
+
+    void open(Utils::SmallStringView databaseFilePath, OpenMode openMode);
     void close();
     void closeWithoutException();
 
-    static SqliteDatabaseBackend *threadLocalInstance();
-    static sqlite3* sqliteDatabaseHandle();
+    sqlite3* sqliteDatabaseHandle() const;
 
     void setJournalMode(JournalMode journalMode);
-    JournalMode journalMode() const;
+    JournalMode journalMode();
 
     void setTextEncoding(TextEncoding textEncoding);
     TextEncoding textEncoding();
 
+    Utils::SmallStringVector columnNames(Utils::SmallStringView tableName);
 
+    int changesCount() const;
+    int totalChangesCount() const;
 
-    static Utf8StringVector columnNames(const Utf8String &tableName);
+    int64_t lastInsertedRowId() const;
+    void setLastInsertedRowId(int64_t rowId);
 
-    static int changesCount();
-    static int totalChangesCount();
+    void execute(Utils::SmallStringView sqlStatement);
+
+    template <typename Type>
+    Type toValue(Utils::SmallStringView sqlStatement);
+
+    static int openMode(OpenMode);
+
+    void setBusyTimeout(std::chrono::milliseconds timeout);
 
 protected:
     bool databaseIsOpen() const;
 
-    void setPragmaValue(const Utf8String &pragma, const Utf8String &value);
-    Utf8String pragmaValue(const Utf8String &pragma) const;
+    void setPragmaValue(Utils::SmallStringView pragma, Utils::SmallStringView value);
+    Utils::SmallString pragmaValue(Utils::SmallStringView pragma);
 
     void registerBusyHandler();
     void registerRankingFunction();
@@ -81,28 +99,34 @@ protected:
 
     void checkForOpenDatabaseWhichCanBeClosed();
     void checkDatabaseClosing(int resultCode);
-    void checkCanOpenDatabase(const QString &databaseFilePath);
+    void checkCanOpenDatabase(Utils::SmallStringView databaseFilePath);
     void checkDatabaseCouldBeOpened(int resultCode);
-    void checkPragmaValue(const Utf8String &databaseValue, const Utf8String &expectedValue);
-    static void checkDatabaseHandleIsNotNull();
-    static void checkDatabaseBackendIsNotNull();
-    static void checkIfMultithreadingIsActivated(int resultCode);
-    static void checkIfLoogingIsActivated(int resultCode);
-    static void checkMmapSizeIsSet(int resultCode);
-    static void checkInitializeSqliteLibraryWasSuccesful(int resultCode);
-    static void checkShutdownSqliteLibraryWasSuccesful(int resultCode);
-    static void checkIfLogCouldBeCheckpointed(int resultCode);
+    void checkPragmaValue(Utils::SmallStringView databaseValue, Utils::SmallStringView expectedValue);
+    void checkDatabaseHandleIsNotNull() const;
+    void checkIfMultithreadingIsActivated(int resultCode);
+    void checkIfLoogingIsActivated(int resultCode);
+    void checkMmapSizeIsSet(int resultCode);
+    void checkInitializeSqliteLibraryWasSuccesful(int resultCode);
+    void checkShutdownSqliteLibraryWasSuccesful(int resultCode);
+    void checkIfLogCouldBeCheckpointed(int resultCode);
+    void checkIfBusyTimeoutWasSet(int resultCode);
 
-    static int indexOfPragma(const Utf8String pragma, const Utf8String pragmas[], size_t pragmaCount);
-    static const Utf8String &journalModeToPragma(JournalMode journalMode);
-    static JournalMode pragmaToJournalMode(const Utf8String &pragma);
-    static const Utf8String &textEncodingToPragma(TextEncoding textEncoding);
-    static TextEncoding pragmaToTextEncoding(const Utf8String &pragma);
+    static Utils::SmallStringView journalModeToPragma(JournalMode journalMode);
+    static JournalMode pragmaToJournalMode(Utils::SmallStringView pragma);
+    Utils::SmallStringView textEncodingToPragma(TextEncoding textEncoding);
+    static TextEncoding pragmaToTextEncoding(Utils::SmallStringView pragma);
 
-    Q_NORETURN static void throwException(const char *whatHasHappens);
+
+    Q_NORETURN static void throwExceptionStatic(const char *whatHasHappens);
+    [[noreturn]] void throwException(const char *whatHasHappens) const;
+    [[noreturn]] void throwUnknowError(const char *whatHasHappens) const;
+    [[noreturn]] void throwDatabaseIsNotOpen(const char *whatHasHappens) const;
 
 private:
-    sqlite3 *databaseHandle;
-    TextEncoding cachedTextEncoding;
+    Database &m_database;
+    sqlite3 *m_databaseHandle;
+    TextEncoding m_cachedTextEncoding;
 
 };
+
+} // namespace Sqlite

@@ -47,14 +47,14 @@ void ClangDiagnosticConfig::setDisplayName(const QString &displayName)
     m_displayName = displayName;
 }
 
-QStringList ClangDiagnosticConfig::commandLineOptions() const
+QStringList ClangDiagnosticConfig::clangOptions() const
 {
-    return m_commandLineOptions;
+    return m_clangOptions;
 }
 
-void ClangDiagnosticConfig::setCommandLineOptions(const QStringList &options)
+void ClangDiagnosticConfig::setClangOptions(const QStringList &options)
 {
-    m_commandLineOptions = options;
+    m_clangOptions = options;
 }
 
 bool ClangDiagnosticConfig::isReadOnly() const
@@ -71,8 +71,46 @@ bool ClangDiagnosticConfig::operator==(const ClangDiagnosticConfig &other) const
 {
     return m_id == other.m_id
         && m_displayName == other.m_displayName
-        && m_commandLineOptions == other.m_commandLineOptions
+        && m_clangOptions == other.m_clangOptions
+        && m_clangTidyMode == other.m_clangTidyMode
+        && m_clangTidyChecks == other.m_clangTidyChecks
+        && m_clazyChecks == other.m_clazyChecks
         && m_isReadOnly == other.m_isReadOnly;
+}
+
+bool ClangDiagnosticConfig::operator!=(const ClangDiagnosticConfig &other) const
+{
+    return !(*this == other);
+}
+
+ClangDiagnosticConfig::TidyMode ClangDiagnosticConfig::clangTidyMode() const
+{
+    return m_clangTidyMode;
+}
+
+void ClangDiagnosticConfig::setClangTidyMode(TidyMode mode)
+{
+    m_clangTidyMode = mode;
+}
+
+QString ClangDiagnosticConfig::clangTidyChecks() const
+{
+    return m_clangTidyChecks;
+}
+
+void ClangDiagnosticConfig::setClangTidyChecks(const QString &checks)
+{
+    m_clangTidyChecks = checks;
+}
+
+QString ClangDiagnosticConfig::clazyChecks() const
+{
+    return m_clazyChecks;
+}
+
+void ClangDiagnosticConfig::setClazyChecks(const QString &checks)
+{
+    m_clazyChecks = checks;
 }
 
 } // namespace CppTools

@@ -56,10 +56,9 @@ class DEBUGGER_EXPORT DebuggerRunConfigurationAspect
 
 public:
     DebuggerRunConfigurationAspect(ProjectExplorer::RunConfiguration *runConfiguration);
-    DebuggerRunConfigurationAspect *create(ProjectExplorer::RunConfiguration *runConfiguration) const;
 
-    void fromMap(const QVariantMap &map);
-    void toMap(QVariantMap &map) const;
+    void fromMap(const QVariantMap &map) override;
+    void toMap(QVariantMap &map) const override;
 
     bool useCppDebugger() const;
     void setUseCppDebugger(bool value);

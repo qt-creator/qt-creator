@@ -53,7 +53,7 @@ class ModelIndexer :
                            const ModelIndexer::QueuedFile &rhs);
 
 public:
-    ModelIndexer(QObject *parent = 0);
+    ModelIndexer(QObject *parent = nullptr);
     ~ModelIndexer();
 
 signals:
@@ -65,7 +65,7 @@ public:
     QString findModel(const qmt::Uid &modelUid);
     QString findDiagram(const qmt::Uid &modelUid, const qmt::Uid &diagramUid);
 
-private slots:
+private:
     void onProjectAdded(ProjectExplorer::Project *project);
     void onAboutToRemoveProject(ProjectExplorer::Project *project);
     void onProjectFileListChanged(ProjectExplorer::Project *project);

@@ -27,16 +27,17 @@ import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.1
 import "../common"
+import QtQuickDesignerTheme 1.0
 
 FocusScope {
     id: root
 
-    height: expanded ? 136 : 30
+    height: expanded ? 192 : 40
     signal createNewState
     signal deleteState(int internalNodeId)
     signal duplicateCurrentState
 
-    property int stateImageSize: 100
+    property int stateImageSize: 180
     property int delegateWidth: stateImageSize + 44
     property int padding: 2
     property int delegateHeight: root.height - padding * 2 + 1
@@ -57,7 +58,7 @@ FocusScope {
     Rectangle {
         id: background
         anchors.fill: parent
-        color: creatorTheme.QmlDesignerBackgroundColorDarkAlternate
+        color: Theme.qmlDesignerBackgroundColorDarkAlternate()
     }
 
     MouseArea {
@@ -109,9 +110,9 @@ FocusScope {
 
             style: ButtonStyle {
                 background: Rectangle {
-                    property color buttonBaseColor: Qt.darker(creatorTheme.QmlDesignerBackgroundColorDarkAlternate, 1.1)
+                    property color buttonBaseColor: Qt.darker(Theme.qmlDesignerBackgroundColorDarkAlternate(), 1.1)
                     color: control.hovered ? Qt.lighter(buttonBaseColor, 1.2)  : buttonBaseColor
-                    border.color: creatorTheme.QmlDesignerBorderColor
+                    border.color: Theme.qmlDesignerBorderColor()
                     border.width: 1
                     Image {
                         source: "image://icons/plus"
@@ -148,7 +149,7 @@ FocusScope {
                 height: delegateHeight
                 isBaseState: 0 == internalNodeId
                 isCurrentState: root.currentStateInternalId == internalNodeId
-                baseColor: isCurrentState ? creatorTheme.QmlDesigner_HighlightColor : background.color
+                baseColor: isCurrentState ? Theme.color(Theme.QmlDesigner_HighlightColor) : background.color
                 delegateStateName: stateName
                 delegateStateImageSource: stateImageSource
                 delegateStateImageSize: stateImageSize

@@ -42,10 +42,24 @@ def qdump__std____1__array(d, value):
     qdump__std__array(d, value)
 
 
+def qdump__std__function(d, value):
+    (ptr, dummy1, manager, invoker) = value.split('pppp')
+    if manager:
+        if ptr > 2:
+            d.putSymbolValue(ptr)
+        else:
+            d.putEmptyValue()
+        d.putBetterType(value.type)
+    else:
+        d.putValue('(null)')
+    d.putPlainChildren(value)
+
+
 def qdump__std__complex(d, value):
     innerType = value.type[0]
     (real, imag) = value.split('{%s}{%s}' % (innerType.name, innerType.name))
     d.putValue("(%s, %s)" % (real.display(), imag.display()))
+    d.putNumChild(2)
     if d.isExpanded():
         with Children(d, 2, childType=innerType):
             d.putSubItem("real", real)
@@ -393,7 +407,10 @@ def qdumpHelper__std__tree__iterator_MSVC(d, value):
             (left, parent, right, color, isnil, pad, child) = \
                 d.split("pppcc@{%s}" % (childType.name), node)
             if (childType.name.startswith("std::pair")):
-                d.putPairItem(None, child)
+                # workaround that values created via split have no members
+                keyType = childType[0].name
+                valueType = childType[1].name
+                d.putPairItem(None, child.split("{%s}@{%s}" % (keyType, valueType))[::2])
             else:
                 d.putSubItem("value", child)
 
@@ -760,6 +777,20 @@ def qdump__std__unordered_map(d, value):
 def qdump__std____debug__unordered_map(d, value):
     qdump__std__unordered_map(d, value)
 
+
+def qform__std__unordered_multimap():
+    return qform__std__unordered_map()
+
+def qform__std____debug__unordered_multimap():
+    return qform__std____debug__unordered_map()
+
+def qdump__std__unordered_multimap(d, value):
+    qdump__std__unordered_map(d, value)
+
+def qdump__std____debug__unordered_multimap(d, value):
+    qdump__std__unordered_multimap(d, value)
+
+
 def qdump__std__unordered_set(d, value):
     if d.isQnxTarget() or d.isMsvcTarget():
         qdump__std__list__QNX(d, value["_List"])
@@ -833,6 +864,12 @@ def qdump__std____1__unordered_set(d, value):
 def qdump__std____debug__unordered_set(d, value):
     qdump__std__unordered_set(d, value)
 
+def qdump__std__unordered_multiset(d, value):
+    qdump__std__unordered_set(d, value)
+
+def qdump__std____debug__unordered_multiset(d, value):
+    qdump__std__unordered_multiset(d, value)
+
 
 def qform__std__valarray():
     return arrayForms()
@@ -864,10 +901,10 @@ def qedit__std__vector(d, value, data):
     import gdb
     values = data.split(',')
     n = len(values)
-    innerType = value.type[0]
+    innerType = value.type[0].name
     cmd = "set $d = (%s*)calloc(sizeof(%s)*%s,1)" % (innerType, innerType, n)
     gdb.execute(cmd)
-    cmd = "set {void*[3]}%s = {$d, $d+%s, $d+%s}" % (value.address, n, n)
+    cmd = "set {void*[3]}%s = {$d, $d+%s, $d+%s}" % (value.address(), n, n)
     gdb.execute(cmd)
     cmd = "set (%s[%d])*$d={%s}" % (innerType, n, data)
     gdb.execute(cmd)
@@ -941,6 +978,9 @@ def qdumpHelper__std__vector__QNX(d, value):
         else:
             d.putPlotData(start, size, innerType)
 
+def qform__std____1__vector():
+    return arrayForms()
+
 def qdump__std____1__vector(d, value):
     qdumpHelper__std__vector(d, value, True)
 
@@ -952,10 +992,22 @@ def qdump__std____debug__vector(d, value):
 
 
 def qedit__std__string(d, value, data):
-    d.call(value, "assign", '"%s"' % data.replace('"', '\\"'))
+    d.call('void', value, 'assign', '"%s"' % data.replace('"', '\\"'))
 
 def qedit__string(d, expr, value):
     qedit__std__string(d, expr, value)
+
+def qedit__std____cxx11__string(d, expr, value):
+    qedit__std__string(d, expr, value)
+
+def qedit__std__wstring(d, value, data):
+    d.call('void', value, 'assign', 'L"%s"' % data.replace('"', '\\"'))
+
+def qedit__wstring(d, expr, value):
+    qedit__std__wstring(d, expr, value)
+
+def qedit__std____cxx11__wstring(d, expr, value):
+    qedit__std__wstring(d, expr, value)
 
 def qdump__string(d, value):
     qdump__std__string(d, value)
@@ -1007,7 +1059,7 @@ def qdump__std____1__once_flag(d, value):
     qdump__std__once_flag(d, value)
 
 def qdump__std__once_flag(d, value):
-    d.putItem(value[0])
+    d.putValue(value.extractPointer())
     d.putBetterType(value.type)
     d.putPlainChildren(value)
 
@@ -1044,3 +1096,19 @@ def qdump__int8_t(d, value):
     d.putNumChild(0)
     d.putValue(value.integer())
 
+def qdump__std__byte(d, value):
+    d.putNumChild(0)
+    d.putValue(value.integer())
+
+def qdump__std__optional(d, value):
+    innerType = value.type[0]
+    (initialized, pad, payload) = d.split('b@{%s}' % innerType.name, value)
+    if initialized:
+        d.putItem(payload)
+        d.putBetterType(value.type)
+    else:
+        d.putSpecialValue("uninitialized")
+        d.putNumChild(0)
+
+def qdump__std__experimental__optional(d, value):
+    qdump__std__optional(d, value)

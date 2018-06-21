@@ -34,26 +34,14 @@
 
 using namespace TextEditor;
 
+const TextStyle GLSLReservedKeyword = C_REMOVED_LINE;
+
 namespace GlslEditor {
 namespace Internal {
 
 GlslHighlighter::GlslHighlighter()
 {
-    static const QVector<TextStyle> categories({
-        C_NUMBER,
-        C_STRING,
-        C_TYPE,
-        C_KEYWORD,
-        C_OPERATOR,
-        C_PREPROCESSOR,
-        C_LABEL,
-        C_COMMENT,
-        C_DOXYGEN_COMMENT,
-        C_DOXYGEN_TAG,
-        C_VISUAL_WHITESPACE,
-        C_REMOVED_LINE
-    });
-    setTextFormatCategories(categories);
+    setDefaultTextFormatCategories();
 }
 
 void GlslHighlighter::highlightBlock(const QString &text)
@@ -99,7 +87,7 @@ void GlslHighlighter::highlightBlock(const QString &text)
         setCurrentBlockState(previousState);
         TextDocumentLayout::clearParentheses(currentBlock());
         if (text.length()) // the empty line can still contain whitespace
-            setFormat(0, text.length(), formatForCategory(GLSLVisualWhitespace));
+            setFormat(0, text.length(), formatForCategory(C_VISUAL_WHITESPACE));
         TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
         return;
     }
@@ -123,7 +111,7 @@ void GlslHighlighter::highlightBlock(const QString &text)
 
         if (previousTokenEnd != tk.begin()) {
             setFormat(previousTokenEnd, tk.begin() - previousTokenEnd,
-                      formatForCategory(GLSLVisualWhitespace));
+                      formatForCategory(C_VISUAL_WHITESPACE));
         }
 
         if (tk.is(GLSL::Parser::T_LEFT_PAREN) || tk.is(GLSL::Parser::T_LEFT_BRACE) || tk.is(GLSL::Parser::T_LEFT_BRACKET)) {
@@ -160,17 +148,17 @@ void GlslHighlighter::highlightBlock(const QString &text)
             highlightAsPreprocessor = false;
 
         if (false /* && i == 0 && tk.is(GLSL::Parser::T_POUND)*/) {
-            highlightLine(text, tk.begin(), tk.length, formatForCategory(GLSLPreprocessorFormat));
+            highlightLine(text, tk.begin(), tk.length, formatForCategory(C_PREPROCESSOR));
             highlightAsPreprocessor = true;
 
         } else if (highlightCurrentWordAsPreprocessor && isPPKeyword(text.midRef(tk.begin(), tk.length))) {
-            setFormat(tk.begin(), tk.length, formatForCategory(GLSLPreprocessorFormat));
+            setFormat(tk.begin(), tk.length, formatForCategory(C_PREPROCESSOR));
 
         } else if (tk.is(GLSL::Parser::T_NUMBER)) {
-            setFormat(tk.begin(), tk.length, formatForCategory(GLSLNumberFormat));
+            setFormat(tk.begin(), tk.length, formatForCategory(C_NUMBER));
 
         } else if (tk.is(GLSL::Parser::T_COMMENT)) {
-            highlightLine(text, tk.begin(), tk.length, formatForCategory(GLSLCommentFormat));
+            highlightLine(text, tk.begin(), tk.length, formatForCategory(C_COMMENT));
 
             // we need to insert a close comment parenthesis, if
             //  - the line starts in a C Comment (initalState != 0)
@@ -195,7 +183,7 @@ void GlslHighlighter::highlightBlock(const QString &text)
             if (kind == GLSL::Parser::T_RESERVED)
                 setFormat(tk.position, tk.length, formatForCategory(GLSLReservedKeyword));
             else if (kind != GLSL::Parser::T_IDENTIFIER)
-                setFormat(tk.position, tk.length, formatForCategory(GLSLKeywordFormat));
+                setFormat(tk.position, tk.length, formatForCategory(C_KEYWORD));
         }
     }
 
@@ -248,7 +236,7 @@ void GlslHighlighter::highlightBlock(const QString &text)
 void GlslHighlighter::highlightLine(const QString &text, int position, int length,
                                 const QTextCharFormat &format)
 {
-    const QTextCharFormat visualSpaceFormat = formatForCategory(GLSLVisualWhitespace);
+    const QTextCharFormat visualSpaceFormat = formatForCategory(C_VISUAL_WHITESPACE);
 
     const int end = position + length;
     int index = position;
@@ -324,89 +312,6 @@ bool GlslHighlighter::isPPKeyword(const QStringRef &text) const
 
     return false;
 }
-
-#if 0
-void Highlighter::highlightBlock(const QString &text)
-{
-    const int previousState = previousBlockState();
-    int state = 0, initialBraceDepth = 0;
-    if (previousState != -1) {
-        state = previousState & 0xff;
-        initialBraceDepth = previousState >> 8;
-    }
-
-    int braceDepth = initialBraceDepth;
-
-    Parentheses parentheses;
-    parentheses.reserve(20); // assume wizard level ;-)
-
-    const QByteArray data = text.toLatin1();
-    GLSL::Lexer lex(/*engine=*/ 0, data.constData(), data.size());
-    lex.setState(qMax(0, previousState));
-    lex.setScanKeywords(false);
-    lex.setScanComments(true);
-    const int variant = m_editor->languageVariant();
-    lex.setVariant(variant);
-
-    int foldingIndent = initialBraceDepth;
-    if (TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(currentBlock())) {
-        userData->setFoldingIndent(0);
-        userData->setFoldingStartIncluded(false);
-        userData->setFoldingEndIncluded(false);
-    }
-
-    QList<GLSL::Token> tokens;
-    GLSL::Token tk;
-    do {
-        lex.yylex(&tk);
-        tokens.append(tk);
-    } while (tk.isNot(GLSL::Parser::EOF_SYMBOL));
-
-    for (int i = 0; i < tokens.size(); ++i) {
-        const GLSL::Token &tk = tokens.at(i);
-
-        if (tk.is(GLSL::Parser::T_NUMBER)) {
-            setFormat(tk.position, tk.length, formatForCategory(GLSLNumberFormat));
-        } else if (tk.is(GLSL::Parser::T_COMMENT)) {
-            setFormat(tk.position, tk.length, Qt::darkGreen); // ### FIXME: formatForCategory(GLSLCommentFormat);
-        } else if (tk.is(GLSL::Parser::T_IDENTIFIER)) {
-            int kind = lex.findKeyword(data.constData() + tk.position, tk.length);
-            if (kind == GLSL::Parser::T_RESERVED)
-                setFormat(tk.position, tk.length, formatForCategory(GLSLReservedKeyword));
-            else if (kind != GLSL::Parser::T_IDENTIFIER)
-                setFormat(tk.position, tk.length, formatForCategory(GLSLKeywordFormat));
-        } else if (tk.is(GLSL::Parser::T_LEFT_PAREN) || tk.is(GLSL::Parser::T_LEFT_BRACE) || tk.is(GLSL::Parser::T_LEFT_BRACKET)) {
-            const QChar c = text.at(tk.begin());
-            parentheses.append(Parenthesis(Parenthesis::Opened, c, tk.begin()));
-            if (tk.is(GLSL::Parser::T_LEFT_BRACE)) {
-                ++braceDepth;
-
-                // if a folding block opens at the beginning of a line, treat the entire line
-                // as if it were inside the folding block
-//                if (tk.begin() == firstNonSpace) {
-//                    ++foldingIndent;
-//                    BaseTextDocumentLayout::userData(currentBlock())->setFoldingStartIncluded(true);
-//                }
-            }
-        } else if (tk.is(GLSL::Parser::T_RIGHT_PAREN) || tk.is(GLSL::Parser::T_RIGHT_BRACE) || tk.is(GLSL::Parser::T_RIGHT_BRACKET)) {
-            const QChar c = text.at(tk.begin());
-            parentheses.append(Parenthesis(Parenthesis::Closed, c, tk.begin()));
-            if (tk.is(GLSL::Parser::T_RIGHT_BRACE)) {
-                --braceDepth;
-                if (braceDepth < foldingIndent) {
-                    // unless we are at the end of the block, we reduce the folding indent
-                    if (i == tokens.size()-1 || tokens.at(i+1).is(GLSL::Parser::T_SEMICOLON))
-                        BaseTextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
-                    else
-                        foldingIndent = qMin(braceDepth, foldingIndent);
-                }
-            }
-        }
-
-    } while (tk.isNot(GLSL::Parser::EOF_SYMBOL));
-    setCurrentBlockState((braceDepth << 8) | lex.state());
-}
-#endif
 
 } // namespace Internal
 } // namespace GlslEditor

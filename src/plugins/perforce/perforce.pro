@@ -29,5 +29,3 @@ FORMS += settingspage.ui \
     changenumberdialog.ui \
     pendingchangesdialog.ui \
     submitpanel.ui
-
-RESOURCES += perforce.qrc

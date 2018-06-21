@@ -49,7 +49,7 @@ QString StereotypesItem::format(const QList<QString> &stereotypes)
         bool first = true;
         foreach (const QString &stereotype, stereotypes) {
             if (!first)
-                text += QStringLiteral(", ");
+                text += ", ";
             text += stereotype;
             first = false;
         }

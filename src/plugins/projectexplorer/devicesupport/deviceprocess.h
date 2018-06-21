@@ -66,7 +66,7 @@ signals:
     void readyReadStandardError();
 
 protected:
-    explicit DeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = 0);
+    explicit DeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent = nullptr);
     QSharedPointer<const IDevice> device() const;
 
 private:

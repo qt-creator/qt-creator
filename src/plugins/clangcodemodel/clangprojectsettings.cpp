@@ -25,14 +25,41 @@
 
 #include "clangprojectsettings.h"
 
+#include <utils/qtcassert.h>
+#include <utils/hostosinfo.h>
+
+#include <QDebug>
+
 namespace ClangCodeModel {
 namespace Internal {
 
-static QString useGlobalWarningConfigKey()
-{ return QStringLiteral("ClangCodeModel.UseGlobalWarningConfig"); }
+static QString useGlobalConfigKey()
+{ return QStringLiteral("ClangCodeModel.UseGlobalConfig"); }
 
 static QString warningConfigIdKey()
 { return QStringLiteral("ClangCodeModel.WarningConfigId"); }
+
+static QString customCommandLineKey()
+{ return QLatin1String("ClangCodeModel.CustomCommandLineKey"); }
+
+static bool useGlobalConfigFromSettings(ProjectExplorer::Project *project)
+{
+    const QVariant useGlobalConfigVariant = project->namedSettings(useGlobalConfigKey());
+    return useGlobalConfigVariant.isValid() ? useGlobalConfigVariant.toBool() : true;
+}
+
+static Core::Id warningConfigIdFromSettings(ProjectExplorer::Project *project)
+{
+    return Core::Id::fromSetting(project->namedSettings(warningConfigIdKey()));
+}
+
+static QStringList customCommandLineFromSettings(ProjectExplorer::Project *project)
+{
+    QStringList options = project->namedSettings(customCommandLineKey()).toStringList();
+    if (options.empty())
+        options = ClangProjectSettings::globalCommandLineOptions();
+    return options;
+}
 
 ClangProjectSettings::ClangProjectSettings(ProjectExplorer::Project *project)
     : m_project(project)
@@ -55,31 +82,59 @@ void ClangProjectSettings::setWarningConfigId(const Core::Id &customConfigId)
     m_warningConfigId = customConfigId;
 }
 
-bool ClangProjectSettings::useGlobalWarningConfig() const
+bool ClangProjectSettings::useGlobalConfig() const
 {
-    return m_useGlobalWarningConfig;
+    return m_useGlobalConfig;
 }
 
-void ClangProjectSettings::setUseGlobalWarningConfig(bool useGlobalWarningConfig)
+void ClangProjectSettings::setUseGlobalConfig(bool useGlobalConfig)
 {
-    m_useGlobalWarningConfig = useGlobalWarningConfig;
+    m_useGlobalConfig = useGlobalConfig;
+}
+
+QStringList ClangProjectSettings::commandLineOptions() const
+{
+    return m_useGlobalConfig ? globalCommandLineOptions()
+                             : m_customCommandLineOptions;
+}
+
+void ClangProjectSettings::setCommandLineOptions(const QStringList &options)
+{
+    QTC_ASSERT(!m_useGlobalConfig, qDebug()
+               << "setCommandLineOptions was called while using global project config");
+    m_customCommandLineOptions = options;
 }
 
 void ClangProjectSettings::load()
 {
-    const QVariant useGlobalConfigVariant = m_project->namedSettings(useGlobalWarningConfigKey());
-    const bool useGlobalConfig = useGlobalConfigVariant.isValid()
-            ? useGlobalConfigVariant.toBool()
-            : true;
-
-    setUseGlobalWarningConfig(useGlobalConfig);
-    setWarningConfigId(Core::Id::fromSetting(m_project->namedSettings(warningConfigIdKey())));
+    setUseGlobalConfig(useGlobalConfigFromSettings(m_project));
+    setWarningConfigId(warningConfigIdFromSettings(m_project));
+    m_customCommandLineOptions = customCommandLineFromSettings(m_project);
 }
 
 void ClangProjectSettings::store()
 {
-    m_project->setNamedSettings(useGlobalWarningConfigKey(), useGlobalWarningConfig());
+    bool settingsChanged = false;
+    if (useGlobalConfig() != useGlobalConfigFromSettings(m_project))
+        settingsChanged = true;
+    if (warningConfigId() != warningConfigIdFromSettings(m_project))
+        settingsChanged = true;
+    if (commandLineOptions() != customCommandLineFromSettings(m_project))
+        settingsChanged = true;
+
+    m_project->setNamedSettings(useGlobalConfigKey(), useGlobalConfig());
     m_project->setNamedSettings(warningConfigIdKey(), warningConfigId().toSetting());
+    m_project->setNamedSettings(customCommandLineKey(), m_customCommandLineOptions);
+
+    if (settingsChanged)
+        emit changed();
+}
+
+QStringList ClangProjectSettings::globalCommandLineOptions()
+{
+    if (Utils::HostOsInfo::isWindowsHost())
+        return {QLatin1String{GlobalWindowsCmdOptions}};
+    return {};
 }
 
 } // namespace Internal

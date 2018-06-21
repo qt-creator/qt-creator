@@ -32,8 +32,14 @@
 class TestMacroExpander : public Utils::AbstractMacroExpander
 {
 public:
-    virtual bool resolveMacro(const QString &name, QString *ret)
+    virtual bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander*> &seen)
     {
+        // loop prevention
+        const int count = seen.count();
+        seen.insert(this);
+        if (seen.count() == count)
+            return false;
+
         if (name == QLatin1String("foo")) {
             *ret = QLatin1String("a");
             return true;
@@ -74,6 +80,10 @@ private slots:
     void testWithTildeHomePath();
     void testMacroExpander_data();
     void testMacroExpander();
+    void testStripAccelerator();
+    void testStripAccelerator_data();
+    void testParseUsedPortFromNetstatOutput();
+    void testParseUsedPortFromNetstatOutput_data();
 
 private:
     TestMacroExpander mx;
@@ -120,40 +130,40 @@ void tst_StringUtils::testMacroExpander_data()
         const char * const in;
         const char * const out;
     } vals[] = {
-        { "text", "text" },
-        { "%{a}", "hi" },
-        { "%%{a}", "%hi" },
-        { "%%%{a}", "%%hi" },
-        { "%{b}", "%{b}" },
-        { "pre%{a}", "prehi" },
-        { "%{a}post", "hipost" },
-        { "pre%{a}post", "prehipost" },
-        { "%{a}%{a}", "hihi" },
-        { "%{a}text%{a}", "hitexthi" },
-        { "%{foo}%{a}text%{a}", "ahitexthi" },
-        { "%{}{a}", "%{a}" },
-        { "%{}", "%" },
-        { "test%{}", "test%" },
-        { "%{}test", "%test" },
-        { "%{abc", "%{abc" },
-        { "%{%{a}", "%{hi" },
-        { "%{%{a}}", "ho" },
-        { "%{%{a}}}post", "ho}post" },
-        { "%{hi%{a}}", "bar" },
-        { "%{hi%{%{foo}}}", "bar" },
-        { "%{hihi/b/c}", "car" },
-        { "%{hihi/a/}", "br" }, // empty replacement
-        { "%{hihi/b}", "bar" }, // incomplete substitution
-        { "%{hihi/./c}", "car" },
-        { "%{hihi//./c}", "ccc" },
-        { "%{hihi/(.)(.)r/\\2\\1c}", "abc" }, // no escape for capture groups
-        { "%{hihi/b/c/d}", "c/dar" },
-        { "%{hihi/a/e{\\}e}", "be{}er" }, // escape closing brace
-        { "%{slash/o\\/b/ol's c}", "fool's car" },
-        { "%{sl\\/sh/(.)(a)(.)/\\2\\1\\3as}", "salsash" }, // escape in variable name
-        { "%{JS:foo/b/c}", "%{JS:foo/b/c}" }, // No replacement for JS (all considered varName)
-        { "%{%{a}%{a}/b/c}", "car" },
-        { "%{nonsense:-sense}", "sense" },
+        {"text", "text"},
+        {"%{a}", "hi"},
+        {"%%{a}", "%hi"},
+        {"%%%{a}", "%%hi"},
+        {"%{b}", "%{b}"},
+        {"pre%{a}", "prehi"},
+        {"%{a}post", "hipost"},
+        {"pre%{a}post", "prehipost"},
+        {"%{a}%{a}", "hihi"},
+        {"%{a}text%{a}", "hitexthi"},
+        {"%{foo}%{a}text%{a}", "ahitexthi"},
+        {"%{}{a}", "%{a}"},
+        {"%{}", "%"},
+        {"test%{}", "test%"},
+        {"%{}test", "%test"},
+        {"%{abc", "%{abc"},
+        {"%{%{a}", "%{hi"},
+        {"%{%{a}}", "ho"},
+        {"%{%{a}}}post", "ho}post"},
+        {"%{hi%{a}}", "bar"},
+        {"%{hi%{%{foo}}}", "bar"},
+        {"%{hihi/b/c}", "car"},
+        {"%{hihi/a/}", "br"}, // empty replacement
+        {"%{hihi/b}", "bar"}, // incomplete substitution
+        {"%{hihi/./c}", "car"},
+        {"%{hihi//./c}", "ccc"},
+        {"%{hihi/(.)(.)r/\\2\\1c}", "abc"}, // no escape for capture groups
+        {"%{hihi/b/c/d}", "c/dar"},
+        {"%{hihi/a/e{\\}e}", "be{}er"}, // escape closing brace
+        {"%{slash/o\\/b/ol's c}", "fool's car"},
+        {"%{sl\\/sh/(.)(a)(.)/\\2\\1\\3as}", "salsash"}, // escape in variable name
+        {"%{JS:foo/b/c}", "%{JS:foo/b/c}"}, // No replacement for JS (all considered varName)
+        {"%{%{a}%{a}/b/c}", "car"},
+        {"%{nonsense:-sense}", "sense"},
     };
 
     for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++)
@@ -168,6 +178,83 @@ void tst_StringUtils::testMacroExpander()
 
     Utils::expandMacros(&in, &mx);
     QCOMPARE(in, out);
+}
+
+void tst_StringUtils::testStripAccelerator()
+{
+    QFETCH(QString, expected);
+
+    QCOMPARE(Utils::stripAccelerator(QTest::currentDataTag()), expected);
+}
+
+void tst_StringUtils::testStripAccelerator_data()
+{
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("Test") << "Test";
+    QTest::newRow("&Test") << "Test";
+    QTest::newRow("&&Test") << "&Test";
+    QTest::newRow("T&est") << "Test";
+    QTest::newRow("&Te&&st") << "Te&st";
+    QTest::newRow("T&e&st") << "Test";
+    QTest::newRow("T&&est") << "T&est";
+    QTest::newRow("T&&e&st") << "T&est";
+    QTest::newRow("T&&&est") << "T&est";
+    QTest::newRow("Tes&t") << "Test";
+    QTest::newRow("Test&") << "Test";
+}
+
+void tst_StringUtils::testParseUsedPortFromNetstatOutput()
+{
+    QFETCH(QString, line);
+    QFETCH(int, port);
+
+    QCOMPARE(Utils::parseUsedPortFromNetstatOutput(line.toUtf8()), port);
+}
+
+void tst_StringUtils::testParseUsedPortFromNetstatOutput_data()
+{
+    QTest::addColumn<QString>("line");
+    QTest::addColumn<int>("port");
+
+    QTest::newRow("Empty") << "" << -1;
+
+    // Windows netstat.
+    QTest::newRow("Win1") << "Active Connection" <<  -1;
+    QTest::newRow("Win2") << "   Proto  Local Address          Foreign Address        State"       <<       -1;
+    QTest::newRow("Win3") << "   TCP    0.0.0.0:80             0.0.0.0:0              LISTENING"   <<       80;
+    QTest::newRow("Win4") << "   TCP    0.0.0.0:113            0.0.0.0:0              LISTENING"   <<      113;
+    QTest::newRow("Win5") << "   TCP    10.9.78.4:14714       0.0.0.0:0              LISTENING"    <<    14714;
+    QTest::newRow("Win6") << "   TCP    10.9.78.4:50233       12.13.135.180:993      ESTABLISHED"  <<    50233;
+    QTest::newRow("Win7") << "   TCP    [::]:445               [::]:0                 LISTENING"   <<      445;
+    QTest::newRow("Win8") << " TCP    192.168.0.80:51905     169.55.74.50:443       ESTABLISHED"   <<    51905;
+    QTest::newRow("Win9") << "  UDP    [fe80::840a:2942:8def:abcd%6]:1900  *:*   "                 <<     1900;
+
+    // Linux
+    QTest::newRow("Linux1") << "sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt ..." <<     -1;
+    QTest::newRow("Linux2") << "0: 00000000:2805 00000000:0000 0A 00000000:00000000 00:00000000 00000000  ..." <<  10245;
+
+    // Mac
+    QTest::newRow("Mac1") << "Active Internet connections (including servers)"                                  <<    -1;
+    QTest::newRow("Mac2") << "Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)"       <<    -1;
+    QTest::newRow("Mac3") << "tcp4       0      0  192.168.1.12.55687     88.198.14.66.443       ESTABLISHED"   << 55687;
+    QTest::newRow("Mac4") << "tcp6       0      0  2a01:e34:ee42:d0.55684 2a02:26f0:ff::5c.443   ESTABLISHED"   << 55684;
+    QTest::newRow("Mac5") << "tcp4       0      0  *.631                  *.*                    LISTEN"        <<   631;
+    QTest::newRow("Mac6") << "tcp6       0      0  *.631                  *.*                    LISTEN"        <<   631;
+    QTest::newRow("Mac7") << "udp4       0      0  192.168.79.1.123       *.*"                                  <<   123;
+    QTest::newRow("Mac9") << "udp4       0      0  192.168.8.1.123        *.*"                                  <<   123;
+
+    // QNX
+    QTest::newRow("Qnx1") << "Active Internet connections (including servers)"                                  <<    -1;
+    QTest::newRow("Qnx2") << "Proto Recv-Q Send-Q  Local Address          Foreign Address        State   "      <<    -1;
+    QTest::newRow("Qnx3") << "tcp        0      0  10.9.7.5.22          10.9.7.4.46592       ESTABLISHED"       <<    22;
+    QTest::newRow("Qnx4") << "tcp        0      0  *.8000                 *.*                    LISTEN     "   <<  8000;
+    QTest::newRow("Qnx5") << "tcp        0      0  *.22                   *.*                    LISTEN     "   <<    22;
+    QTest::newRow("Qnx6") << "udp        0      0  *.*                    *.*                               "   <<    -1;
+    QTest::newRow("Qnx7") << "udp        0      0  *.*                    *.*                               "   <<    -1;
+    QTest::newRow("Qnx8") << "Active Internet6 connections (including servers)"                                 <<    -1;
+    QTest::newRow("Qnx9") << "Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)    "   <<    -1;
+    QTest::newRow("QnxA") << "tcp6       0      0  *.22                   *.*                    LISTEN   "     <<    22;
 }
 
 QTEST_MAIN(tst_StringUtils)

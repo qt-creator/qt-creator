@@ -42,6 +42,8 @@
 #include <QThread>
 #include <QVariant>
 
+#include <numeric>
+
 /*!
     \fn void Utils::ProgressParser::parseProgress(const QString &text)
 
@@ -241,6 +243,14 @@ void ShellCommand::addTask(QFuture<void> &future)
     Q_UNUSED(future);
 }
 
+int ShellCommand::timeoutS() const
+{
+    return std::accumulate(d->m_jobs.cbegin(), d->m_jobs.cend(), 0,
+                           [](int sum, const Internal::ShellCommandPrivate::Job &job) {
+        return sum + job.timeoutS;
+    });
+}
+
 QString ShellCommand::workDirectory(const QString &wd) const
 {
     if (!wd.isEmpty())
@@ -413,6 +423,8 @@ SynchronousProcessResponse ShellCommand::runSynchronous(const FileName &binary,
         connect(&process, &Utils::SynchronousProcess::stdErrBuffered,
                 this, [this, proxy](const QString &text)
         {
+            if (d->m_progressParser)
+                d->m_progressParser->parseProgress(text);
             if (!(d->m_flags & SuppressStdErr))
                 proxy->appendError(text);
             if (d->m_progressiveOutput)
@@ -472,6 +484,11 @@ void ShellCommand::setProgressParser(ProgressParser *parser)
 {
     QTC_ASSERT(!d->m_progressParser, return);
     d->m_progressParser = parser;
+}
+
+bool ShellCommand::hasProgressParser() const
+{
+    return d->m_progressParser;
 }
 
 void ShellCommand::setProgressiveOutput(bool progressive)

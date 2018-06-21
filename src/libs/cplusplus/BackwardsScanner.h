@@ -66,6 +66,7 @@ public:
     int startOfBlock(int index) const;
 
     int size() const;
+    int offset() const;
 
     static int previousBlockState(const QTextBlock &block);
 

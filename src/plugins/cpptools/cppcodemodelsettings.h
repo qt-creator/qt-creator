@@ -63,21 +63,22 @@ public:
     PCHUsage pchUsage() const;
     void setPCHUsage(PCHUsage pchUsage);
 
+    bool interpretAmbigiousHeadersAsCHeaders() const;
+    void setInterpretAmbigiousHeadersAsCHeaders(bool yesno);
+
     bool skipIndexingBigFiles() const;
     void setSkipIndexingBigFiles(bool yesno);
 
     int indexerFileSizeLimitInMb() const;
     void setIndexerFileSizeLimitInMb(int sizeInMB);
 
-public: // for tests
-    void emitChanged();
-
 signals:
+    void clangDiagnosticConfigsInvalidated(const QVector<Core::Id> &configId);
     void changed();
-    void clangDiagnosticConfigIdChanged();
 
 private:
     PCHUsage m_pchUsage = PchUse_None;
+    bool m_interpretAmbigiousHeadersAsCHeaders = false;
     bool m_skipIndexingBigFiles = true;
     int m_indexerFileSizeLimitInMB = 5;
     ClangDiagnosticConfigs m_clangCustomDiagnosticConfigs;

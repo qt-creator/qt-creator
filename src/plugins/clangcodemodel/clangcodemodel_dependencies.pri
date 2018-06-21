@@ -1,7 +1,7 @@
 QTC_PLUGIN_NAME = ClangCodeModel
 QTC_LIB_DEPENDS += \
     utils \
-    clangbackendipc
+    clangsupport
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
     cpptools \

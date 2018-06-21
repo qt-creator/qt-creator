@@ -4,13 +4,26 @@ QtcTool {
     name: "sdktool"
 
     Depends { name: "Qt.core" }
-    Depends { name: "Utils" }
     Depends { name: "app_version_header" }
 
-    cpp.defines: base.concat([qbs.targetOS.contains("macos")
+    property string libsDir: path + "/../../libs"
+
+    cpp.defines: base.concat([
+        "UTILS_LIBRARY",
+        qbs.targetOS.contains("macos")
             ? 'DATA_PATH="."'
             : qbs.targetOS.contains("windows") ? 'DATA_PATH="../share/qtcreator"'
-                                               : 'DATA_PATH="../../share/qtcreator"'])
+                                               : 'DATA_PATH="../../share/qtcreator"'
+    ])
+    cpp.dynamicLibraries: {
+        if (qbs.targetOS.contains("windows"))
+            return ["user32", "shell32"]
+    }
+    Properties {
+        condition: qbs.targetOS.contains("macos")
+        cpp.frameworks: ["Foundation"]
+    }
+    cpp.includePaths: base.concat([libsDir])
 
     files: [
         "addcmakeoperation.cpp", "addcmakeoperation.h",
@@ -47,4 +60,25 @@ QtcTool {
         "settings.cpp",
         "settings.h",
     ]
+
+    Group {
+        name: "Utils"
+        prefix: libsDir + "/utils/"
+        files: [
+            "fileutils.cpp", "fileutils.h",
+            "hostosinfo.cpp", "hostosinfo.h",
+            "persistentsettings.cpp", "persistentsettings.h",
+            "qtcassert.cpp", "qtcassert.h",
+            "savefile.cpp", "savefile.h"
+        ]
+    }
+    Group {
+        name: "Utils/macOS"
+        condition: qbs.targetOS.contains("macos")
+        prefix: libsDir + "/utils/"
+        files: [
+            "fileutils_mac.h",
+            "fileutils_mac.mm",
+        ]
+    }
 }

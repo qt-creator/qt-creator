@@ -38,9 +38,8 @@
     \title Building for Multiple Platforms
 
     You can build applications for multiple target platforms, or using different
-    compilers,
-    debuggers or Qt versions. \l{glossary-buildandrun-kit}{Kits} define the tools,
-    device type and other settings to use.
+    compilers, debuggers or Qt versions. \l{glossary-buildandrun-kit}{Kits}
+    define the tools, \l{glossary-device}{device} type and other settings to use.
 
     By default, when you run the application, you
     automatically build and deploy it first.
@@ -67,6 +66,10 @@
              the application after building it.
 
     \endlist
+
+    While the application is being built, the \uicontrol Build button changes to
+    a \uicontrol {Cancel Build} button (3). To cancel the build, select the
+    button or press \key {Alt+Backspace}.
 
     For more information on the options you have, see
     \l{Specifying Build Settings}.

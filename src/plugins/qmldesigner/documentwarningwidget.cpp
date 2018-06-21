@@ -41,12 +41,10 @@
 
 namespace QmlDesigner {
 
-static QString errorToString(const RewriterError &error)
+static QString errorToString(const DocumentMessage &error)
 {
     return QString("Line: %1: %2").arg(error.line()).arg(error.description());
 }
-
-namespace Internal {
 
 DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
     : Utils::FakeToolTip(parent)
@@ -65,11 +63,11 @@ DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
     m_messageLabel->setForegroundRole(QPalette::ToolTipText);
     m_messageLabel->setWordWrap(true);
 
-    m_ignoreWarningsCheckBox->setText("Ignore always these unsupported Qt Quick Designer warnings.");
+    m_ignoreWarningsCheckBox->setText(tr("Always ignore these warnings about features "
+                                         "not supported by Qt Quick Designer."));
 
     connect(m_navigateLabel, &QLabel::linkActivated, this, [=](const QString &link) {
         if (link == QLatin1String("goToCode")) {
-            hide();
             emitGotoCodeClicked(m_messages.at(m_currentMessage));
         } else if (link == QLatin1String("previous")) {
             --m_currentMessage;
@@ -81,9 +79,10 @@ DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
     });
 
     connect(m_continueButton, &QPushButton::clicked, this, [=]() {
-        hide();
         if (m_mode == ErrorMode)
             emitGotoCodeClicked(m_messages.at(m_currentMessage));
+        else
+            hide();
     });
 
     connect(m_ignoreWarningsCheckBox, &QCheckBox::toggled, this, &DocumentWarningWidget::ignoreCheckBoxToggled);
@@ -119,16 +118,17 @@ void DocumentWarningWidget::refreshContent()
         m_continueButton->setText(tr("OK"));
     } else {
         m_headerLabel->setText(tr("This QML file contains features which are not supported by Qt Quick Designer at:"));
-        bool block = m_ignoreWarningsCheckBox->blockSignals(true);
-        m_ignoreWarningsCheckBox->setChecked(!warningsEnabled());
-        m_ignoreWarningsCheckBox->blockSignals(block);
+        {
+            QSignalBlocker blocker(m_ignoreWarningsCheckBox);
+            m_ignoreWarningsCheckBox->setChecked(!warningsEnabled());
+        }
         m_ignoreWarningsCheckBox->show();
         m_continueButton->setText(tr("Ignore"));
     }
 
     QString messageString;
-    RewriterError message = m_messages.at(m_currentMessage);
-    if (message.type() == RewriterError::ParseError) {
+    DocumentMessage message = m_messages.value(m_currentMessage);
+    if (message.type() == DocumentMessage::ParseError) {
         messageString += errorToString(message);
         m_navigateLabel->setText(generateNavigateLinks());
         m_navigateLabel->show();
@@ -192,7 +192,7 @@ bool DocumentWarningWidget::gotoCodeWasClicked()
     return m_gotoCodeWasClicked;
 }
 
-void DocumentWarningWidget::emitGotoCodeClicked(const RewriterError &message)
+void DocumentWarningWidget::emitGotoCodeClicked(const DocumentMessage &message)
 {
     m_gotoCodeWasClicked = true;
     emit gotoCodeClicked(message.url().toLocalFile(), message.line(), message.column() - 1);
@@ -200,32 +200,29 @@ void DocumentWarningWidget::emitGotoCodeClicked(const RewriterError &message)
 
 bool DocumentWarningWidget::warningsEnabled() const
 {
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.value(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool();
+    return DesignerSettings::getValue(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool();
 }
 
 void DocumentWarningWidget::ignoreCheckBoxToggled(bool b)
 {
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    settings.insert(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER, !b);
-    QmlDesignerPlugin::instance()->setSettings(settings);
+    DesignerSettings::setValue(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER, !b);
 }
 
-void DocumentWarningWidget::setErrors(const QList<RewriterError> &errors)
+void DocumentWarningWidget::setErrors(const QList<DocumentMessage> &errors)
 {
     Q_ASSERT(!errors.empty());
     m_mode = ErrorMode;
     setMessages(errors);
 }
 
-void DocumentWarningWidget::setWarnings(const QList<RewriterError> &warnings)
+void DocumentWarningWidget::setWarnings(const QList<DocumentMessage> &warnings)
 {
     Q_ASSERT(!warnings.empty());
     m_mode = WarningMode;
     setMessages(warnings);
 }
 
-void DocumentWarningWidget::setMessages(const QList<RewriterError> &messages)
+void DocumentWarningWidget::setMessages(const QList<DocumentMessage> &messages)
 {
     m_messages.clear();
     m_messages = messages;
@@ -233,5 +230,4 @@ void DocumentWarningWidget::setMessages(const QList<RewriterError> &messages)
     refreshContent();
 }
 
-} // namespace Internal
 } // namespace Designer

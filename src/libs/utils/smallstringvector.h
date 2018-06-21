@@ -33,27 +33,29 @@
 
 #include <QStringList>
 
-#pragma push_macro("noexcept")
-#ifndef __cpp_noexcept
-#define noexcept
-#endif
-
 namespace Utils {
 
-template<uint SmallStringSize>
-class BasicSmallStringVector : public std::vector<BasicSmallString<SmallStringSize>>
+template<typename String>
+class BasicSmallStringVector : public std::vector<String>
 {
-    using SmallString =BasicSmallString<SmallStringSize>;
-    using Base = std::vector<SmallString>;
+    using Base = std::vector<String>;
+
 public:
     BasicSmallStringVector() = default;
 
-    BasicSmallStringVector(std::initializer_list<SmallString> list)
+    using Base::Base;
+
+    explicit BasicSmallStringVector(const Base &stringVector)
+        : Base(stringVector.begin(), stringVector.end())
+    {
+    }
+
+    BasicSmallStringVector(std::initializer_list<String> list)
     {
         Base::reserve(list.size());
 
         for (auto &&entry : list)
-            Base::push_back(entry.clone());
+            Base::push_back(std::move(entry));
     }
 
     explicit BasicSmallStringVector(const QStringList &stringList)
@@ -72,32 +74,14 @@ public:
            Base::emplace_back(string);
     }
 
-#if !defined(UNIT_TESTS) && !(defined(_MSC_VER) && _MSC_VER < 1900)
-    BasicSmallStringVector(const BasicSmallStringVector &) = delete;
-    BasicSmallStringVector &operator=(const BasicSmallStringVector &) = delete;
-#else
     BasicSmallStringVector(const BasicSmallStringVector &) = default;
     BasicSmallStringVector &operator=(const BasicSmallStringVector &) = default;
-#endif
 
-#if !(defined(_MSC_VER) && _MSC_VER < 1900)
     BasicSmallStringVector(BasicSmallStringVector &&) noexcept = default;
-    BasicSmallStringVector &operator=(BasicSmallStringVector &&) noexcept = default;
-#else
-    BasicSmallStringVector(BasicSmallStringVector &&other)
-        : Base(std::move(other))
-    {
-    }
+    BasicSmallStringVector &operator=(BasicSmallStringVector &&)
+        noexcept(std::is_nothrow_move_assignable<Base>::value) = default;
 
-    BasicSmallStringVector &operator=(BasicSmallStringVector &&other)
-    {
-        Base(std::move(other));
-
-        return *this;
-    }
-#endif
-
-    SmallString join(SmallString &&separator) const
+    SmallString join(SmallStringView separator) const
     {
         SmallString joinedString;
 
@@ -128,7 +112,7 @@ public:
         return hasEntry;
     }
 
-    void append(SmallString &&string)
+    void append(String &&string)
     {
         push_back(std::move(string));
     }
@@ -149,6 +133,17 @@ public:
         return std::vector<std::string>(Base::begin(), Base::end());
     }
 
+    operator QStringList() const
+    {
+        QStringList qStringList;
+        qStringList.reserve(int(Base::size()));
+
+        for (const auto &entry : *this)
+            qStringList.push_back(QString(entry));
+
+        return qStringList;
+    }
+
 private:
     std::size_t totalByteSize() const
     {
@@ -161,8 +156,9 @@ private:
     }
 };
 
-using SmallStringVector = BasicSmallStringVector<31>;
 
+
+using SmallStringVector = BasicSmallStringVector<BasicSmallString<31>>;
+using PathStringVector = BasicSmallStringVector<BasicSmallString<190>>;
+using StringViewVector = BasicSmallStringVector<SmallStringView>;
 } // namespace Utils;
-
-#pragma pop_macro("noexcept")

@@ -33,10 +33,10 @@ ComponentTextModifier::ComponentTextModifier(TextModifier *originalModifier, int
         m_componentEndOffset(componentEndOffset),
         m_rootStartOffset(rootStartOffset)
 {
-    connect(m_originalModifier, SIGNAL(textChanged()), this, SIGNAL(textChanged()));
+    connect(m_originalModifier, &TextModifier::textChanged, this, &TextModifier::textChanged);
 
-    connect(m_originalModifier, SIGNAL(replaced(int,int,int)), this, SIGNAL(replaced(int,int,int)));
-    connect(m_originalModifier, SIGNAL(moved(TextModifier::MoveInfo)), this, SIGNAL(moved(TextModifier::MoveInfo)));
+    connect(m_originalModifier, &TextModifier::replaced, this, &TextModifier::replaced);
+    connect(m_originalModifier, &TextModifier::moved, this, &TextModifier::moved);
 }
 
 ComponentTextModifier::~ComponentTextModifier()
@@ -147,8 +147,4 @@ void ComponentTextModifier::deactivateChangeSignals()
 void ComponentTextModifier::reactivateChangeSignals()
 {
     m_originalModifier->reactivateChangeSignals();
-}
-
-void ComponentTextModifier::contentsChange(int /*position*/, int /*charsRemoved*/, int /*charsAdded*/)
-{
 }

@@ -30,122 +30,75 @@
 #include "qmleventlocation.h"
 #include "qmlevent.h"
 #include "qmleventtype.h"
+#include "qmlprofilertextmark.h"
 
 #include <utils/fileinprojectfinder.h>
+#include <tracing/timelinetracemanager.h>
 
 #include <QObject>
 #include <functional>
 
+namespace ProjectExplorer { class Target; }
+
 namespace QmlProfiler {
 class QmlProfilerModelManager;
-class QmlProfilerDataModel;
 class QmlProfilerNotesModel;
 
-namespace Internal {
-
-class QMLPROFILER_EXPORT QmlProfilerTraceTime : public QObject
-{
-    Q_OBJECT
-public:
-    explicit QmlProfilerTraceTime(QObject *parent);
-
-    qint64 startTime() const;
-    qint64 endTime() const;
-    qint64 duration() const;
-    bool isRestrictedToRange() const;
-
-public slots:
-    void clear();
-
-    void setTime(qint64 startTime, qint64 endTime);
-    void decreaseStartTime(qint64 time);
-    void increaseEndTime(qint64 time);
-    void restrictToRange(qint64 startTime, qint64 endTime);
-
-private:
-    qint64 m_startTime;
-    qint64 m_endTime;
-
-    qint64 m_restrictedStartTime;
-    qint64 m_restrictedEndTime;
-};
-
-} // End internal namespace
-
-using namespace Internal;
-
 // Interface between the Data Model and the Engine/Tool
-class QMLPROFILER_EXPORT QmlProfilerModelManager : public QObject
+class QMLPROFILER_EXPORT QmlProfilerModelManager : public Timeline::TimelineTraceManager
 {
     Q_OBJECT
 public:
-    enum State {
-        Empty,
-        AcquiringData,
-        ProcessingData,
-        ClearingData,
-        Done
-    };
+    typedef std::function<void(const QmlEvent &, const QmlEventType &)> QmlEventLoader;
+    typedef std::function<QmlEventLoader(QmlEventLoader)> QmlEventFilter;
 
-    typedef std::function<void(const QmlEvent &, const QmlEventType &)> EventLoader;
-    typedef std::function<void()> Finalizer;
+    explicit QmlProfilerModelManager(QObject *parent = nullptr);
+    ~QmlProfilerModelManager() override;
 
-    explicit QmlProfilerModelManager(Utils::FileInProjectFinder *finder, QObject *parent = 0);
-    ~QmlProfilerModelManager();
+    Internal::QmlProfilerTextMarkModel *textMarkModel() const;
 
-    State state() const;
-    QmlProfilerTraceTime *traceTime() const;
-    QmlProfilerDataModel *qmlModel() const;
-    QmlProfilerNotesModel *notesModel() const;
+    void registerFeatures(quint64 features, QmlEventLoader eventLoader,
+                          Initializer initializer = nullptr, Finalizer finalizer = nullptr,
+                          Clearer clearer = nullptr);
 
-    bool isEmpty() const;
-    uint numLoadedEvents() const;
+    const QmlEventType &eventType(int typeId) const;
 
-    int registerModelProxy();
-    void announceFeatures(quint64 features, EventLoader eventLoader, Finalizer finalizer);
+    void replayQmlEvents(QmlEventLoader loader, Initializer initializer, Finalizer finalizer,
+                         ErrorHandler errorHandler, QFutureInterface<void> &future) const;
 
-    int numFinishedFinalizers() const;
-    int numRegisteredFinalizers() const;
+    void initialize() override;
+    void finalize() override;
 
-    void dispatch(const QmlEvent &event, const QmlEventType &type);
-
-    quint64 availableFeatures() const;
-    quint64 visibleFeatures() const;
-    void setVisibleFeatures(quint64 features);
-    quint64 recordedFeatures() const;
-    void setRecordedFeatures(quint64 features);
-    bool aggregateTraces() const;
-    void setAggregateTraces(bool aggregateTraces);
-
-    void acquiringDone();
-    void processingDone();
+    void populateFileFinder(const ProjectExplorer::Target *target = nullptr);
+    QString findLocalFile(const QString &remoteFile);
 
     static const char *featureName(ProfileFeature feature);
 
-signals:
-    void error(const QString &error);
-    void stateChanged();
-    void loadFinished();
-    void saveFinished();
+    int appendEventType(QmlEventType &&type);
+    void setEventType(int typeId, QmlEventType &&type);
+    void appendEvent(QmlEvent &&event);
 
-    void availableFeaturesChanged(quint64 features);
-    void visibleFeaturesChanged(quint64 features);
-    void recordedFeaturesChanged(quint64 features);
-
-public slots:
-    void clear();
-    void restrictToRange(qint64 startTime, qint64 endTime);
+    void restrictToRange(qint64 start, qint64 end);
     bool isRestrictedToRange() const;
 
-    void startAcquiring();
+    QmlEventFilter rangeFilter(qint64 start, qint64 end) const;
 
-    void save(const QString &filename);
-    void load(const QString &filename);
+signals:
+    void traceChanged();
+    void typeDetailsChanged(int typeId);
+    void typeDetailsFinished();
 
 private:
-    void setState(State state);
+    void setTypeDetails(int typeId, const QString &details);
+    void restrictByFilter(QmlEventFilter filter);
 
-private:
+    void clearEventStorage() final;
+    void clearTypeStorage() final;
+
+    Timeline::TimelineTraceFile *createTraceFile() override;
+    void replayEvents(TraceEventLoader loader, Initializer initializer, Finalizer finalizer,
+                      ErrorHandler errorHandler, QFutureInterface<void> &future) const override;
+
     class QmlProfilerModelManagerPrivate;
     QmlProfilerModelManagerPrivate *d;
 };

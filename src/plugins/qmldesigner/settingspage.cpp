@@ -29,10 +29,14 @@
 #include "designersettings.h"
 #include "puppetcreator.h"
 
+#include <app/app_version.h>
+
 #include <coreplugin/icore.h>
 
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljstools/qmljstoolsconstants.h>
+
+#include <utils/qtcassert.h>
 
 #include <QLineEdit>
 #include <QTextStream>
@@ -60,12 +64,14 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
             m_ui.designerShowDebuggerCheckBox->setChecked(true);
         }
     );
-    m_ui.resetFallbackPuppetPathButton->hide();
     connect(m_ui.resetFallbackPuppetPathButton, &QPushButton::clicked, [=]() {
         m_ui.fallbackPuppetPathLineEdit->setPath(
             PuppetCreator::defaultPuppetFallbackDirectory());
         }
     );
+    m_ui.fallbackPuppetPathLineEdit->setPath(PuppetCreator::defaultPuppetFallbackDirectory());
+    m_ui.fallbackPuppetPathLineEdit->lineEdit()->setPlaceholderText(PuppetCreator::defaultPuppetFallbackDirectory());
+
     connect(m_ui.resetQmlPuppetBuildPathButton, &QPushButton::clicked, [=]() {
         m_ui.puppetBuildPathLineEdit->setPath(
             PuppetCreator::defaultPuppetToplevelBuildDirectory());
@@ -93,6 +99,8 @@ DesignerSettings SettingsPageWidget::settings() const
     settings.insert(DesignerSettingsKey::CONTAINERPADDING, m_ui.spinSnapMargin->value());
     settings.insert(DesignerSettingsKey::CANVASWIDTH, m_ui.spinCanvasWidth->value());
     settings.insert(DesignerSettingsKey::CANVASHEIGHT, m_ui.spinCanvasHeight->value());
+    settings.insert(DesignerSettingsKey::ROOT_ELEMENT_INIT_WIDTH, m_ui.spinRootItemInitWidth->value());
+    settings.insert(DesignerSettingsKey::ROOT_ELEMENT_INIT_HEIGHT, m_ui.spinRootItemInitHeight->value());
     settings.insert(DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER,
                     m_ui.designerWarningsCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES,
@@ -106,18 +114,35 @@ DesignerSettings SettingsPageWidget::settings() const
         m_ui.designerEnableDebuggerCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::USE_ONLY_FALLBACK_PUPPET,
         m_ui.useDefaultPuppetRadioButton->isChecked());
-    settings.insert(DesignerSettingsKey::USE_QSTR_FUNCTION,
-        m_ui.useQsTrFunctionRadioButton->isChecked());
+
+    int typeOfQsTrFunction;
+
+    if (m_ui.useQsTrFunctionRadioButton->isChecked())
+        typeOfQsTrFunction = 0;
+    else if (m_ui.useQsTrIdFunctionRadioButton->isChecked())
+        typeOfQsTrFunction = 1;
+    else if (m_ui.useQsTranslateFunctionRadioButton->isChecked())
+        typeOfQsTrFunction = 2;
+    else
+        typeOfQsTrFunction = 0;
+
+    settings.insert(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION, typeOfQsTrFunction);
     settings.insert(DesignerSettingsKey::CONTROLS_STYLE, m_ui.styleLineEdit->text());
     settings.insert(DesignerSettingsKey::FORWARD_PUPPET_OUTPUT,
         m_ui.forwardPuppetOutputComboBox->currentText());
     settings.insert(DesignerSettingsKey::DEBUG_PUPPET,
         m_ui.debugPuppetComboBox->currentText());
 
-    if (!m_ui.fallbackPuppetPathLineEdit->path().isEmpty() &&
-        m_ui.fallbackPuppetPathLineEdit->path() != PuppetCreator::defaultPuppetFallbackDirectory()) {
+    QString newFallbackPuppetPath = m_ui.fallbackPuppetPathLineEdit->path();
+    QTC_CHECK(PuppetCreator::defaultPuppetFallbackDirectory() ==
+              m_ui.fallbackPuppetPathLineEdit->lineEdit()->placeholderText());
+    if (newFallbackPuppetPath.isEmpty())
+        newFallbackPuppetPath = m_ui.fallbackPuppetPathLineEdit->lineEdit()->placeholderText();
+    QString oldFallbackPuppetPath = settings.value(DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY,
+                                                   PuppetCreator::defaultPuppetFallbackDirectory()).toString();
+    if (oldFallbackPuppetPath != newFallbackPuppetPath) {
         settings.insert(DesignerSettingsKey::PUPPET_FALLBACK_DIRECTORY,
-            m_ui.fallbackPuppetPathLineEdit->path());
+            newFallbackPuppetPath);
     }
 
     if (!m_ui.puppetBuildPathLineEdit->path().isEmpty() &&
@@ -145,6 +170,10 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
         DesignerSettingsKey::CANVASWIDTH).toInt());
     m_ui.spinCanvasHeight->setValue(settings.value(
         DesignerSettingsKey::CANVASHEIGHT).toInt());
+    m_ui.spinRootItemInitWidth->setValue(settings.value(
+        DesignerSettingsKey::ROOT_ELEMENT_INIT_WIDTH).toInt());
+    m_ui.spinRootItemInitHeight->setValue(settings.value(
+        DesignerSettingsKey::ROOT_ELEMENT_INIT_HEIGHT).toInt());
     m_ui.designerWarningsCheckBox->setChecked(settings.value(
         DesignerSettingsKey::WARNING_FOR_FEATURES_IN_DESIGNER).toBool());
     m_ui.designerWarningsUiQmlfiles->setChecked(settings.value(
@@ -160,9 +189,11 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
     m_ui.useQtRelatedPuppetRadioButton->setChecked(!settings.value(
         DesignerSettingsKey::USE_ONLY_FALLBACK_PUPPET).toBool());
     m_ui.useQsTrFunctionRadioButton->setChecked(settings.value(
-        DesignerSettingsKey::USE_QSTR_FUNCTION).toBool());
-    m_ui.useQsTrIdFunctionRadioButton->setChecked(!settings.value(
-        DesignerSettingsKey::USE_QSTR_FUNCTION).toBool());
+        DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt() == 0);
+    m_ui.useQsTrIdFunctionRadioButton->setChecked(settings.value(
+        DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt() == 1);
+    m_ui.useQsTranslateFunctionRadioButton->setChecked(settings.value(
+        DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt() == 2);
     m_ui.styleLineEdit->setText(settings.value(
         DesignerSettingsKey::CONTROLS_STYLE).toString());
 
@@ -189,6 +220,11 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
         DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT).toBool());
 
     m_ui.controls2StyleComboBox->setCurrentText(m_ui.styleLineEdit->text());
+
+    if (settings.value(DesignerSettingsKey::STANDALONE_MODE).toBool()) {
+        m_ui.emulationGroupBox->hide();
+        m_ui.debugGroupBox->hide();
+    }
 }
 
 SettingsPage::SettingsPage() :
@@ -197,9 +233,6 @@ SettingsPage::SettingsPage() :
     setId("B.QmlDesigner");
     setDisplayName(tr("Qt Quick Designer"));
     setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
-    setDisplayCategory(QCoreApplication::translate("QmlJSEditor",
-        QmlJSEditor::Constants::SETTINGS_TR_CATEGORY_QML));
-    setCategoryIcon(Utils::Icon(QmlJSTools::Constants::SETTINGS_CATEGORY_QML_ICON));
 }
 
 QWidget *SettingsPage::widget()
@@ -232,7 +265,8 @@ void SettingsPage::apply()
         if (currentSettings.value(key) != newSettings.value(key)) {
             QMessageBox::information(Core::ICore::mainWindow(), tr("Restart Required"),
                 tr("The made changes will take effect after a "
-                   "restart of the QML Emulation layer or Qt Creator."));
+                   "restart of the QML Emulation layer or %1.")
+                .arg(Core::Constants::IDE_DISPLAY_NAME));
             break;
         }
     }

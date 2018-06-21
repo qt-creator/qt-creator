@@ -35,6 +35,7 @@
 #include "qmt/model/mitem.h"
 #include "qmt/model/mrelation.h"
 #include "qmt/model/massociation.h"
+#include "qmt/model/mconnection.h"
 #include "qmt/model/mdependency.h"
 #include "qmt/model/minheritance.h"
 
@@ -102,6 +103,11 @@ void MVoidVisitor::visitMAssociation(MAssociation *association)
     visitMRelation(association);
 }
 
+void MVoidVisitor::visitMConnection(MConnection *connection)
+{
+    visitMRelation(connection);
+}
+
 void MVoidConstVisitor::visitMElement(const MElement *element)
 {
     Q_UNUSED(element);
@@ -160,6 +166,11 @@ void MVoidConstVisitor::visitMInheritance(const MInheritance *inheritance)
 void MVoidConstVisitor::visitMAssociation(const MAssociation *association)
 {
     visitMRelation(association);
+}
+
+void MVoidConstVisitor::visitMConnection(const MConnection *connection)
+{
+    visitMRelation(connection);
 }
 
 } // namespace qmt

@@ -25,7 +25,7 @@
 
 #include "cppfunctiondecldeflink.h"
 
-#include "cppeditor.h"
+#include "cppeditorwidget.h"
 #include "cppquickfixassistant.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -46,6 +46,7 @@
 #include <utils/runextensions.h>
 #include <utils/tooltip/tooltip.h>
 
+#include <QRegExp>
 #include <QVarLengthArray>
 
 using namespace CPlusPlus;
@@ -257,17 +258,6 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
     m_watcher.reset(new QFutureWatcher<QSharedPointer<FunctionDeclDefLink> >());
     connect(m_watcher.data(), &QFutureWatcherBase::finished, this, &FunctionDeclDefLinkFinder::onFutureDone);
     m_watcher->setFuture(Utils::runAsync(findLinkHelper, result, refactoringChanges));
-}
-
-FunctionDeclDefLink::FunctionDeclDefLink()
-{
-    hasMarker = false;
-    targetLine = 0;
-    targetColumn = 0;
-    sourceFunction = 0;
-    targetFunction = 0;
-    targetDeclaration = 0;
-    targetFunctionDeclarator = 0;
 }
 
 bool FunctionDeclDefLink::isValid() const

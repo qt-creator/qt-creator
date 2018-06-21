@@ -132,6 +132,14 @@ void VcsBaseEditorConfig::setBaseArguments(const QStringList &b)
     d->m_baseArguments = b;
 }
 
+QAction *VcsBaseEditorConfig::addButton(const QString &label, const QIcon &icon)
+{
+    auto action = new QAction(icon, label, d->m_toolBar);
+    connect(action, &QAction::triggered, this, &VcsBaseEditorConfig::argumentsChanged);
+    addAction(action);
+    return action;
+}
+
 QStringList VcsBaseEditorConfig::arguments() const
 {
     // Compile effective arguments
@@ -156,9 +164,7 @@ QAction *VcsBaseEditorConfig::addToggleButton(const QStringList &options,
     action->setToolTip(tooltip);
     action->setCheckable(true);
     connect(action, &QAction::toggled, this, &VcsBaseEditorConfig::argumentsChanged);
-    const QList<QAction *> actions = d->m_toolBar->actions();
-    // Insert the action before line/column and split actions.
-    d->m_toolBar->insertAction(actions.at(qMax(actions.count() - 2, 0)), action);
+    addAction(action);
     d->m_optionMappings.append(OptionMapping(options, action));
     return action;
 }
@@ -181,9 +187,8 @@ void VcsBaseEditorConfig::mapSetting(QAction *button, bool *setting)
     if (!d->m_settingMapping.contains(button) && button) {
         d->m_settingMapping.insert(button, Internal::SettingMappingData(setting));
         if (setting) {
-            button->blockSignals(true);
+            QSignalBlocker blocker(button);
             button->setChecked(*setting);
-            button->blockSignals(false);
         }
     }
 }
@@ -193,11 +198,10 @@ void VcsBaseEditorConfig::mapSetting(QComboBox *comboBox, QString *setting)
     if (!d->m_settingMapping.contains(comboBox) && comboBox) {
         d->m_settingMapping.insert(comboBox, Internal::SettingMappingData(setting));
         if (setting) {
-            comboBox->blockSignals(true);
-            const int itemIndex = setting ? comboBox->findData(*setting) : -1;
+            QSignalBlocker blocker(comboBox);
+            const int itemIndex = comboBox->findData(*setting);
             if (itemIndex != -1)
                 comboBox->setCurrentIndex(itemIndex);
-            comboBox->blockSignals(false);
         }
     }
 }
@@ -212,9 +216,8 @@ void VcsBaseEditorConfig::mapSetting(QComboBox *comboBox, int *setting)
     if (!setting || *setting < 0 || *setting >= comboBox->count())
         return;
 
-    comboBox->blockSignals(true);
+    QSignalBlocker blocker(comboBox);
     comboBox->setCurrentIndex(*setting);
-    comboBox->blockSignals(false);
 }
 
 void VcsBaseEditorConfig::handleArgumentsChanged()
@@ -294,6 +297,13 @@ void VcsBaseEditorConfig::updateMappedSettings()
             } // end switch ()
         }
     }
+}
+
+void VcsBaseEditorConfig::addAction(QAction *action)
+{
+    const QList<QAction *> actions = d->m_toolBar->actions();
+    // Insert the action before line/column and split actions.
+    d->m_toolBar->insertAction(actions.at(qMax(actions.count() - 2, 0)), action);
 }
 
 } // namespace VcsBase

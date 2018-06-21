@@ -145,9 +145,9 @@ def verifyClickCommit():
                         "Verifying whether diff editor contains pointless_header.h file.")
             test.verify(pointlessHeader not in diffOriginal,
                         "Verifying whether original does not contain pointless_header.h file.")
-            test.verify("HEADERS  += mainwindow.h \\\n    pointless_header.h\n" in diffChanged,
+            test.verify("HEADERS += \\\n        mainwindow.h \\\n    pointless_header.h\n" in diffChanged,
                         "Verifying whether diff editor has pointless_header.h listed in pro file.")
-            test.verify("HEADERS  += mainwindow.h\n\n" in diffOriginal
+            test.verify("HEADERS += \\\n        mainwindow.h\n\n" in diffOriginal
                         and "pointless_header.h" not in diffOriginal,
                         "Verifying whether original has no additional header in pro file.")
         test.verify(original.readOnly and changed.readOnly,
@@ -172,19 +172,19 @@ def main():
                 % os.path.join(srcPath, projectName, ".git").replace("\\", "/") in str(vcsLog),
                 "Has initialization of repo been logged:\n%s " % vcsLog)
     createLocalGitConfig(os.path.join(srcPath, projectName, ".git"))
-    commitMessages = [commit("Initial Commit", "Committed 5 file(s).")]
+    commitMessages = [commit("Initial Commit", "Committed 5 files.")]
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     headerName = "pointless_header.h"
-    addCPlusPlusFileToCurrentProject(headerName, "C++ Header File", addToVCS="Git",
-                                     expectedHeaderName=headerName)
-    commitMessages.insert(0, commit("Added pointless header file", "Committed 2 file(s)."))
+    addCPlusPlusFile(headerName, "C++ Header File", projectName + ".pro",
+                     addToVCS="Git", expectedHeaderName=headerName)
+    commitMessages.insert(0, commit("Added pointless header file", "Committed 2 files."))
     readmeName = "README.txt"
     addEmptyFileOutsideProject(readmeName)
     replaceEditorContent(waitForObject(":Qt Creator_TextEditor::TextEditorWidget"),
                          "Some important advice in the README")
     invokeMenuItem("File", "Save All")
     commitsInProject = list(commitMessages) # deep copy
-    commitOutsideProject = commit("Added README file", "Committed 2 file(s).", True) # QTCREATORBUG-11074
+    commitOutsideProject = commit("Added README file", "Committed 2 files.", True) # QTCREATORBUG-11074
     commitMessages.insert(0, commitOutsideProject)
 
     invokeMenuItem('Tools', 'Git', 'Current File', 'Log of "%s"' % readmeName)
@@ -208,7 +208,7 @@ def main():
     # test for QTCREATORBUG-15051
     addEmptyFileOutsideProject("anotherFile.txt")
     fakeIdCommitMessage = "deadbeefdeadbeefdeadbeef is not a commit id"
-    commit(fakeIdCommitMessage, "Committed 1 file(s).")
+    commit(fakeIdCommitMessage, "Committed 1 files.")
     invokeMenuItem("Tools", "Git", "Local Repository", "Log")
     gitEditor = waitForObject(":Qt Creator_Git::Internal::GitEditor")
     waitFor("len(str(gitEditor.plainText)) > 0 and str(gitEditor.plainText) != 'Working...'", 20000)
@@ -223,7 +223,7 @@ def main():
     mouseClick(gitEditor, rect.x+rect.width/2, rect.y+rect.height/2, 0, Qt.LeftButton)
     changed = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget")
     waitFor('str(changed.plainText) != "Waiting for data..."', 5000)
-    test.compare(str(changed.plainText), "Failed",
+    test.compare(str(changed.plainText), "Retrieving data failed.",
                  "Showing an invalid commit can't succeed but Creator survived.")
 
     invokeMenuItem("File", "Close All Projects and Editors")

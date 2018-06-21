@@ -50,13 +50,13 @@ using namespace Core;
 using namespace Help::Internal;
 
 GeneralSettingsPage::GeneralSettingsPage()
-    : m_ui(0)
 {
     setId("A.General settings");
     setDisplayName(tr("General"));
     setCategory(Help::Constants::HELP_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(Help::Constants::HELP_CATEGORY_ICON));
+    setDisplayCategory(QCoreApplication::translate("Help", "Help"));
+    setCategoryIcon(Utils::Icon({{":/help/images/settingscategory_help.png",
+                    Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }
 
 QWidget *GeneralSettingsPage::widget()
@@ -145,13 +145,13 @@ void GeneralSettingsPage::apply()
     const int startOption = m_ui->helpStartComboBox->currentIndex();
     if (m_startOption != startOption) {
         m_startOption = startOption;
-        LocalHelpManager::setStartOption((LocalHelpManager::StartOption)m_startOption);
+        LocalHelpManager::setStartOption(LocalHelpManager::StartOption(m_startOption));
     }
 
     const int helpOption = m_ui->contextHelpComboBox->currentIndex();
     if (m_contextOption != helpOption) {
         m_contextOption = helpOption;
-        LocalHelpManager::setContextHelpOption((HelpManager::HelpViewerLocation)m_contextOption);
+        LocalHelpManager::setContextHelpOption(HelpManager::HelpViewerLocation(m_contextOption));
     }
 
     const bool close = m_ui->m_returnOnClose->isChecked();
@@ -232,7 +232,7 @@ void GeneralSettingsPage::updateFontSizeSelector()
     if (pointSizes.empty())
         pointSizes = QFontDatabase::standardSizes();
 
-    bool blocked = m_ui->sizeComboBox->blockSignals(true);
+    QSignalBlocker blocker(m_ui->sizeComboBox);
     m_ui->sizeComboBox->clear();
     m_ui->sizeComboBox->setCurrentIndex(-1);
     m_ui->sizeComboBox->setEnabled(!pointSizes.empty());
@@ -246,7 +246,6 @@ void GeneralSettingsPage::updateFontSizeSelector()
         if (closestIndex != -1)
             m_ui->sizeComboBox->setCurrentIndex(closestIndex);
     }
-    m_ui->sizeComboBox->blockSignals(blocked);
 }
 
 void GeneralSettingsPage::updateFontStyleSelector()
@@ -254,7 +253,7 @@ void GeneralSettingsPage::updateFontStyleSelector()
     const QString &fontStyle = m_fontDatabase.styleString(m_font);
     const QStringList &styles = m_fontDatabase.styles(m_font.family());
 
-    bool blocked = m_ui->styleComboBox->blockSignals(true);
+    QSignalBlocker blocker(m_ui->styleComboBox);
     m_ui->styleComboBox->clear();
     m_ui->styleComboBox->setCurrentIndex(-1);
     m_ui->styleComboBox->setEnabled(!styles.empty());
@@ -276,7 +275,6 @@ void GeneralSettingsPage::updateFontStyleSelector()
         if (m_ui->styleComboBox->currentIndex() == -1 && normalIndex != -1)
             m_ui->styleComboBox->setCurrentIndex(normalIndex);
     }
-    m_ui->styleComboBox->blockSignals(blocked);
 }
 
 void GeneralSettingsPage::updateFontFamilySelector()
@@ -329,5 +327,5 @@ void GeneralSettingsPage::finish()
     if (!m_ui) // page was never shown
         return;
     delete m_ui;
-    m_ui = 0;
+    m_ui = nullptr;
 }

@@ -6,8 +6,7 @@ Project {
     QtcDevHeaders { }
 
     QtcPlugin {
-        Depends { name: "Qt"; submodules: ["quick", "widgets", "xml"]; }
-        Depends { name: "QmlJS" }
+        Depends { name: "Qt"; submodules: ["widgets", "xml"]; }
         Depends { name: "Utils" }
 
         Depends { name: "Core" }
@@ -106,8 +105,6 @@ Project {
             files: [
                 "desktopqtversion.cpp", "desktopqtversion.h",
                 "desktopqtversionfactory.cpp", "desktopqtversionfactory.h",
-                "winceqtversion.cpp", "winceqtversion.h",
-                "winceqtversionfactory.cpp", "winceqtversionfactory.h",
             ]
         }
 

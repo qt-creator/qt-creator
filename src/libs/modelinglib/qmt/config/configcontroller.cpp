@@ -42,7 +42,7 @@ namespace qmt {
 class ConfigController::ConfigControllerPrivate
 {
 public:
-    StereotypeController *m_stereotypeController = 0;
+    StereotypeController *m_stereotypeController = nullptr;
 };
 
 ConfigController::ConfigController(QObject *parent)
@@ -71,6 +71,8 @@ void ConfigController::readStereotypeDefinitions(const QString &path)
     StereotypeDefinitionParser parser;
     connect(&parser, &StereotypeDefinitionParser::iconParsed,
             this, &ConfigController::onStereotypeIconParsed);
+    connect(&parser, &StereotypeDefinitionParser::relationParsed,
+            this, &ConfigController::onRelationParsed);
     connect(&parser, &StereotypeDefinitionParser::toolbarParsed,
             this, &ConfigController::onToolbarParsed);
 
@@ -82,7 +84,7 @@ void ConfigController::readStereotypeDefinitions(const QString &path)
         fileNames.append(fileInfo.fileName());
     } else if (fileInfo.isDir()) {
         dir.setPath(path);
-        dir.setNameFilters(QStringList() << QStringLiteral("*.def"));
+        dir.setNameFilters(QStringList("*.def"));
         fileNames = dir.entryList(QDir::Files);
     } else {
         // TODO add error handling
@@ -98,10 +100,10 @@ void ConfigController::readStereotypeDefinitions(const QString &path)
             source.setText(text);
             try {
                 parser.parse(&source);
-            } catch (StereotypeDefinitionParserError x) {
+            } catch (const StereotypeDefinitionParserError &x) {
                 // TODO add error handling
                 qDebug() << x.errorMessage() << "in line" << x.sourcePos().lineNumber();
-            } catch (TextScannerError x) {
+            } catch (const TextScannerError &x) {
                 // TODO add error handling
                 qDebug() << x.errorMessage() << "in line" << x.sourcePos().lineNumber();
             } catch (...) {
@@ -114,6 +116,11 @@ void ConfigController::readStereotypeDefinitions(const QString &path)
 void ConfigController::onStereotypeIconParsed(const StereotypeIcon &stereotypeIcon)
 {
     d->m_stereotypeController->addStereotypeIcon(stereotypeIcon);
+}
+
+void ConfigController::onRelationParsed(const CustomRelation &customRelation)
+{
+    d->m_stereotypeController->addCustomRelation(customRelation);
 }
 
 void ConfigController::onToolbarParsed(const Toolbar &toolbar)

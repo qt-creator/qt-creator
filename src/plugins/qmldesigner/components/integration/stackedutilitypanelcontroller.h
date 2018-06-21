@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef StackedUtilityPanelController_h
-#define StackedUtilityPanelController_h
+#pragma once
 
 #include "utilitypanelcontroller.h"
 
@@ -41,14 +40,13 @@ class StackedUtilityPanelController : public UtilityPanelController
     Q_OBJECT
 
 public:
-    StackedUtilityPanelController(QObject* parent = 0);
+    StackedUtilityPanelController(QObject* parent = nullptr);
 
-public slots:
     void show(DesignDocument* DesignDocument);
     void close(DesignDocument* DesignDocument);
 
 protected:
-    virtual QWidget* contentWidget() const;
+    QWidget* contentWidget() const override;
     virtual QWidget* stackedPageWidget(DesignDocument* DesignDocument) const = 0;
 
 private:
@@ -56,5 +54,3 @@ private:
 };
 
 } // namespace QmlDesigner
-
-#endif // StackedUtilityPanelController_h

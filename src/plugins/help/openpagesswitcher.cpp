@@ -42,7 +42,7 @@ const int gWidth = 300;
 const int gHeight = 200;
 
 OpenPagesSwitcher::OpenPagesSwitcher(OpenPagesModel *model)
-    : QFrame(0, Qt::Popup)
+    : QFrame(nullptr, Qt::Popup)
     , m_openPagesModel(model)
 {
     resize(gWidth, gHeight);

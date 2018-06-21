@@ -30,23 +30,26 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-ClangAssistProposal::ClangAssistProposal(int cursorPos, TextEditor::GenericProposalModel *model)
+ClangAssistProposal::ClangAssistProposal(int cursorPos, TextEditor::GenericProposalModelPtr model)
     : GenericProposal(cursorPos, model)
 {
 }
 
-bool ClangAssistProposal::isCorrective() const
+bool ClangAssistProposal::isCorrective(TextEditor::TextEditorWidget *editorWidget) const
 {
-    auto clangAssistProposalModel = static_cast<ClangAssistProposalModel*>(model());
+    auto clangAssistProposalModel = model().staticCast<ClangAssistProposalModel>();
 
     return clangAssistProposalModel->neededCorrection()
-        == ClangBackEnd::CompletionCorrection::DotToArrowCorrection;
+                == ClangBackEnd::CompletionCorrection::DotToArrowCorrection
+        && editorWidget->textAt(basePosition() - 1, 1) == ".";
 }
 
 void ClangAssistProposal::makeCorrection(TextEditor::TextEditorWidget *editorWidget)
 {
+    const int oldPosition = editorWidget->position();
     editorWidget->setCursorPosition(basePosition() - 1);
     editorWidget->replace(1, QLatin1String("->"));
+    editorWidget->setCursorPosition(oldPosition + 1);
     moveBasePosition(1);
 }
 

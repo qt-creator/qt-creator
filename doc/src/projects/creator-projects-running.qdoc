@@ -39,7 +39,7 @@
 
     By default, running an application also builds it and deploys it to a
     location from where it can be run on the desktop, on a device emulator or
-    simulator, or on an embedded device or a mobile device that is connected to
+    simulator, or on a \l{glossary-device}{device} that is connected to
     the development PC.
 
     To run executable files without deploying them first, select \uicontrol Build >
@@ -61,9 +61,20 @@
 
     \endlist
 
+    The \uicontrol {Application Output} pane displays the status of the
+    application while it is running. You can select the \uicontrol Run button
+    in the pane to re-run applications without building them first. This is
+    useful when developing Qt Quick applications, because the QML files are
+    interpreted at runtime. Therefore, the application does not need to be
+    built again if you edited only QML files. This saves time especially if
+    the application contains large image files that would need to be bundled
+    into the resource file before running the application.
+
+    \image qtcreator-application-output.png
+
     For more information on the options you have, see
     \l{Specifying Run Settings}.
 
-    \include linux-mobile/creator-projects-running-generic-linux.qdocinc
-    \include qnx/creator-projects-running-qnx.qdocinc
+    \include linux-mobile/creator-projects-running-generic-linux.qdocinc running on embedded linux
+    \include qnx/creator-projects-running-qnx.qdocinc running on qnx
 */

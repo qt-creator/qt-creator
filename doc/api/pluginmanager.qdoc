@@ -75,9 +75,6 @@
         \row
             \li getObjectByName(const QString &name)
             \li Returns one object with the given object name that is registered in the object pool.
-        \row
-            \li getObjectByClassName(const QString &className)
-            \li Returns one object with the given class name that is registered in the object pool.
     \endtable
 
     \table
@@ -110,9 +107,7 @@
 
     It is also possible to retrieve an object with a specific object name with
     \l{ExtensionSystem::PluginManager::getObjectByName()}{getObjectByName()}
-    (see QObject::objectName()), and an object with a given class name with
-    \l{ExtensionSystem::PluginManager::getObjectByClassName()}{getObjectByClassName()}
-    (see QMetaObject::className()).
+    (see QObject::objectName()).
 
     Whenever the state of the object pool changes, a corresponding
     \l{ExtensionSystem::PluginManager::objectAdded()}{objectAdded()} or

@@ -28,7 +28,6 @@
 #include "cpptools_global.h"
 #include "cppindexingsupport.h"
 #include "indexitem.h"
-#include "stringtable.h"
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
@@ -46,7 +45,7 @@ public:
 
     static SymbolTypes AllTypes;
 
-    SearchSymbols(Internal::StringTable &stringTable);
+    SearchSymbols();
 
     void setSymbolsToSearchFor(const SymbolTypes &types);
 
@@ -61,30 +60,30 @@ protected:
     void accept(CPlusPlus::Symbol *symbol)
     { CPlusPlus::Symbol::visitSymbol(symbol, this); }
 
-    virtual bool visit(CPlusPlus::UsingNamespaceDirective *);
-    virtual bool visit(CPlusPlus::UsingDeclaration *);
-    virtual bool visit(CPlusPlus::NamespaceAlias *);
-    virtual bool visit(CPlusPlus::Declaration *);
-    virtual bool visit(CPlusPlus::Argument *);
-    virtual bool visit(CPlusPlus::TypenameArgument *);
-    virtual bool visit(CPlusPlus::BaseClass *);
-    virtual bool visit(CPlusPlus::Enum *);
-    virtual bool visit(CPlusPlus::Function *);
-    virtual bool visit(CPlusPlus::Namespace *);
-    virtual bool visit(CPlusPlus::Template *);
-    virtual bool visit(CPlusPlus::Class *);
-    virtual bool visit(CPlusPlus::Block *);
-    virtual bool visit(CPlusPlus::ForwardClassDeclaration *);
+    bool visit(CPlusPlus::UsingNamespaceDirective *) override;
+    bool visit(CPlusPlus::UsingDeclaration *) override;
+    bool visit(CPlusPlus::NamespaceAlias *) override;
+    bool visit(CPlusPlus::Declaration *) override;
+    bool visit(CPlusPlus::Argument *) override;
+    bool visit(CPlusPlus::TypenameArgument *) override;
+    bool visit(CPlusPlus::BaseClass *) override;
+    bool visit(CPlusPlus::Enum *) override;
+    bool visit(CPlusPlus::Function *) override;
+    bool visit(CPlusPlus::Namespace *) override;
+    bool visit(CPlusPlus::Template *) override;
+    bool visit(CPlusPlus::Class *) override;
+    bool visit(CPlusPlus::Block *) override;
+    bool visit(CPlusPlus::ForwardClassDeclaration *) override;
 
     // Objective-C
-    virtual bool visit(CPlusPlus::ObjCBaseClass *);
-    virtual bool visit(CPlusPlus::ObjCBaseProtocol *);
-    virtual bool visit(CPlusPlus::ObjCClass *symbol);
-    virtual bool visit(CPlusPlus::ObjCForwardClassDeclaration *);
-    virtual bool visit(CPlusPlus::ObjCProtocol *symbol);
-    virtual bool visit(CPlusPlus::ObjCForwardProtocolDeclaration *);
-    virtual bool visit(CPlusPlus::ObjCMethod *symbol);
-    virtual bool visit(CPlusPlus::ObjCPropertyDeclaration *symbol);
+    bool visit(CPlusPlus::ObjCBaseClass *) override;
+    bool visit(CPlusPlus::ObjCBaseProtocol *) override;
+    bool visit(CPlusPlus::ObjCClass *symbol) override;
+    bool visit(CPlusPlus::ObjCForwardClassDeclaration *) override;
+    bool visit(CPlusPlus::ObjCProtocol *symbol) override;
+    bool visit(CPlusPlus::ObjCForwardProtocolDeclaration *) override;
+    bool visit(CPlusPlus::ObjCMethod *symbol) override;
+    bool visit(CPlusPlus::ObjCPropertyDeclaration *symbol) override;
 
     QString scopedSymbolName(const QString &symbolName, const CPlusPlus::Symbol *symbol) const;
     QString scopedSymbolName(const CPlusPlus::Symbol *symbol) const;
@@ -98,11 +97,6 @@ private:
     template<class T> void processFunction(T *func);
 
 private:
-    QString findOrInsert(const QString &s)
-    { return strings.insert(s); }
-
-    Internal::StringTable &strings;            // Used to avoid QString duplication
-
     IndexItem::Ptr _parent;
     QString _scope;
     CPlusPlus::Overview overview;

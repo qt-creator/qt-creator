@@ -43,12 +43,12 @@ void QmlJSToolsPlugin::test_basic()
 {
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
-    const QString welcomescreenRootPath = Core::ICore::resourcePath() + QLatin1String("/welcomescreen/welcomescreen.qml");
-    modelManager->updateSourceFiles(QStringList(welcomescreenRootPath), false);
+    const QString qmlFilePath = Core::ICore::resourcePath() + QLatin1String("/qmldesigner/itemLibraryQmlSources/ItemDelegate.qml");
+    modelManager->updateSourceFiles(QStringList(qmlFilePath), false);
     modelManager->joinAllThreads();
 
     Snapshot snapshot = modelManager->snapshot();
-    Document::Ptr doc = snapshot.document(welcomescreenRootPath);
+    Document::Ptr doc = snapshot.document(qmlFilePath);
     QVERIFY(doc && doc->isQmlDocument());
 
     ContextPtr context = Link(snapshot, ViewerContext(), LibraryInfo())();

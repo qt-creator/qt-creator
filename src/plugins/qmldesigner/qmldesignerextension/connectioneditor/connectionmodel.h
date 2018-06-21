@@ -47,7 +47,7 @@ public:
         TargetPropertyNameRow = 1,
         SourceRow = 2
     };
-    ConnectionModel(ConnectionView *parent = 0);
+    ConnectionModel(ConnectionView *parent = nullptr);
     void resetModel();
     SignalHandlerProperty signalHandlerPropertyForRow(int rowNumber) const;
     ConnectionView *connectionView() const;
@@ -74,7 +74,7 @@ protected:
     void updateCustomData(QStandardItem *item, const SignalHandlerProperty &signalHandlerProperty);
     QStringList getPossibleSignalsForConnection(const ModelNode &connection) const;
 
-private slots:
+private:
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex& bottomRight);
     void handleException();
 

@@ -30,6 +30,9 @@ namespace Internal {
 
 static const char metricsKey[]           = "Metrics";
 static const char noCrashhandlerKey[]    = "NoCrashhandlerOnDebug";
+static const char useXMLOutputKey[]      = "UseXMLOutput";
+static const char verboseBenchKey[]      = "VerboseBench";
+static const char logSignalsSlotsKey[]   = "LogSignalsSlots";
 
 static MetricsType intToMetrics(int value)
 {
@@ -58,12 +61,18 @@ void QtTestSettings::fromFrameworkSettings(const QSettings *s)
 {
     metrics = intToMetrics(s->value(metricsKey, Walltime).toInt());
     noCrashHandler = s->value(noCrashhandlerKey, true).toBool();
+    useXMLOutput = s->value(useXMLOutputKey, true).toBool();
+    verboseBench = s->value(verboseBenchKey, false).toBool();
+    logSignalsSlots = s->value(logSignalsSlotsKey, false).toBool();
 }
 
 void QtTestSettings::toFrameworkSettings(QSettings *s) const
 {
     s->setValue(metricsKey, metrics);
     s->setValue(noCrashhandlerKey, noCrashHandler);
+    s->setValue(useXMLOutputKey, useXMLOutput);
+    s->setValue(verboseBenchKey, verboseBench);
+    s->setValue(logSignalsSlotsKey, logSignalsSlots);
 }
 
 QString QtTestSettings::metricsTypeToOption(const MetricsType type)
@@ -72,13 +81,13 @@ QString QtTestSettings::metricsTypeToOption(const MetricsType type)
     case MetricsType::Walltime:
         return QString();
     case MetricsType::TickCounter:
-        return QLatin1String("-tickcounter");
+        return QString("-tickcounter");
     case MetricsType::EventCounter:
-        return QLatin1String("-eventcounter");
+        return QString("-eventcounter");
     case MetricsType::CallGrind:
-        return QLatin1String("-callgrind");
+        return QString("-callgrind");
     case MetricsType::Perf:
-        return QLatin1String("-perf");
+        return QString("-perf");
     default:
         return QString();
     }

@@ -51,7 +51,32 @@
 static const char templatePathC[] = "templates/wizards";
 static const char configFileC[] = "wizard.xml";
 
+namespace {
+bool enableLoadTemplateFiles()
+{
+#ifdef WITH_TESTS
+    static bool value = qEnvironmentVariableIsEmpty("QTC_DISABLE_LOAD_TEMPLATES_FOR_TEST");
+#else
+    static bool value = true;
+#endif
+    return value;
+}
+}
+
 namespace ProjectExplorer {
+
+static QList<ICustomWizardMetaFactory *> g_customWizardMetaFactories;
+
+ICustomWizardMetaFactory::ICustomWizardMetaFactory(const QString &klass, Core::IWizardFactory::WizardKind kind) :
+    m_klass(klass), m_kind(kind)
+{
+    g_customWizardMetaFactories.append(this);
+}
+
+ICustomWizardMetaFactory::~ICustomWizardMetaFactory()
+{
+    g_customWizardMetaFactories.removeOne(this);
+}
 
 namespace Internal {
 /*!
@@ -326,7 +351,7 @@ CustomWizard::CustomWizardContextPtr CustomWizard::context() const
 
 CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizardParametersPtr &p)
 {
-    ICustomWizardMetaFactory *factory = ExtensionSystem::PluginManager::getObject<ICustomWizardMetaFactory>(
+    ICustomWizardMetaFactory *factory = Utils::findOrDefault(g_customWizardMetaFactories,
         [&p](ICustomWizardMetaFactory *factory) {
             return p->klass.isEmpty() ? (p->kind == factory->kind()) : (p->klass == factory->klass());
         });
@@ -394,7 +419,7 @@ QList<Core::IWizardFactory *> CustomWizard::createWizards()
 
     QList<CustomWizardParametersPtr> toCreate;
 
-    while (!dirs.isEmpty()) {
+    while (enableLoadTemplateFiles() && !dirs.isEmpty()) {
         const QFileInfo dirFi = dirs.takeFirst();
         const QDir dir(dirFi.absoluteFilePath());
         if (CustomWizardPrivate::verbose)

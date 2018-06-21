@@ -40,13 +40,13 @@ public:
 protected:
     using QmlJS::AST::Visitor::visit;
 
-    virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
-    virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
+    bool visit(QmlJS::AST::UiObjectBinding *ast) override;
+    bool visit(QmlJS::AST::UiObjectDefinition *ast) override;
 
 private:
     QmlJS::Document::MutablePtr m_doc;
-    quint32 m_offset;
-    quint32 m_length;
+    quint32 m_offset = 0;
+    quint32 m_length = 0;
 };
 
 } // namespace QmlDesigner

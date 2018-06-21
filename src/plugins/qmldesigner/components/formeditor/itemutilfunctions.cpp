@@ -44,29 +44,4 @@ QRectF boundingRectForItemList(QList<FormEditorItem*> itemList)
     return boundingRect;
 }
 
-//ModelNode parentNodeSemanticallyChecked(const ModelNode &childNode, const ModelNode &parentNode)
-//{
-//    if (ModelUtilities::canReparent(childNode, parentNode)) {
-//        ModelNode newParentNode;
-//         newParentNode = ModelUtilities::mapGraphicsViewToGraphicsScene(parentNode);
-//        if (newParentNode == childNode.parentNode())
-//            return ModelNode();
-//        if (ModelUtilities::isQWidget(childNode))
-//            return ModelUtilities::reparentAndProxymize(childNode, newParentNode);
-//        else
-//            return parentNode;
-//    }
-//
-//    return ModelNode();
-//}
-
-//FormEditorItem* mapGraphicsViewToGraphicsScene(FormEditorItem* item)
-//{
-//    if (item == 0) //null pointer
-//        return 0;
-//     ModelNode newNode  = ModelUtilities::mapGraphicsViewToGraphicsScene(item->modelNode());
-//     return item->scene()->itemForNode(newNode);
-//}
-
-
 }

@@ -37,8 +37,6 @@ class QAction;
 QT_END_NAMESPACE
 
 namespace CodePaster {
-class CustomFetcher;
-class CustomPoster;
 class Settings;
 class Protocol;
 

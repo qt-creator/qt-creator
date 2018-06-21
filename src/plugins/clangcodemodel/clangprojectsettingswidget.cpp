@@ -25,6 +25,7 @@
 
 #include "clangprojectsettingswidget.h"
 
+#include "clangmodelmanagersupport.h"
 #include "clangprojectsettings.h"
 
 #include <coreplugin/icore.h>
@@ -34,121 +35,107 @@
 #include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cpptoolsreuse.h>
 
-static const char GLOBAL_PROXY_CONFIG_ID[] = "globalProxyConfig";
+#include <utils/hostosinfo.h>
 
 namespace ClangCodeModel {
 namespace Internal {
 
-static CppTools::ClangDiagnosticConfig
-createConfigRepresentingGlobalSetting(const CppTools::ClangDiagnosticConfig &baseConfig)
+static Core::Id configIdForProject(ClangProjectSettings &projectSettings)
 {
-    CppTools::ClangDiagnosticConfig config = baseConfig;
-    config.setId(GLOBAL_PROXY_CONFIG_ID);
-
-    QString displayName = config.displayName();
-    if (config.isReadOnly())
-        displayName = CppTools::ClangDiagnosticConfigsModel::displayNameWithBuiltinIndication(config);
-    displayName = ClangProjectSettingsWidget::tr("Global setting (%1)").arg(displayName);
-
-    config.setDisplayName(displayName);
-    config.setIsReadOnly(true);
-
-    return config;
-}
-
-static Core::Id globalConfigId(const CppTools::CppCodeModelSettings &settings,
-                               const CppTools::ClangDiagnosticConfigsModel &model)
-{
-    const Core::Id configId = settings.clangDiagnosticConfigId();
-
-    if (model.hasConfigWithId(configId))
-        return configId;
-
-    return model.at(0).id(); // Config saved in the settings was removed, fallback to first.
-}
-
-static CppTools::ClangDiagnosticConfigsModel
-createConfigsModelWithGlobalProxyConfig(const CppTools::CppCodeModelSettings &settings)
-{
-    using namespace CppTools;
-    ClangDiagnosticConfigsModel configsModel(settings.clangCustomDiagnosticConfigs());
-
-    const Core::Id globalId = globalConfigId(settings, configsModel);
-    const ClangDiagnosticConfig globalConfig = configsModel.configWithId(globalId);
-    const ClangDiagnosticConfig globalProxy
-            = createConfigRepresentingGlobalSetting(globalConfig);
-
-    configsModel.prepend(globalProxy);
-
-    return configsModel;
-}
-
-static Core::Id configIdForProject(const ClangProjectSettings &projectSettings)
-{
-    return projectSettings.useGlobalWarningConfig()
-            ? Core::Id(GLOBAL_PROXY_CONFIG_ID)
-            : projectSettings.warningConfigId();
+    if (projectSettings.useGlobalConfig())
+        return CppTools::codeModelSettings()->clangDiagnosticConfigId();
+    Core::Id configId = projectSettings.warningConfigId();
+    if (!configId.isValid()) {
+        configId = CppTools::codeModelSettings()->clangDiagnosticConfigId();
+        projectSettings.setWarningConfigId(configId);
+    }
+    return configId;
 }
 
 ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project *project)
-    : m_projectSettings(project)
+    : m_projectSettings(ModelManagerSupportClang::instance()->projectSettings(project))
 {
     m_ui.setupUi(this);
 
     using namespace CppTools;
 
-    m_diagnosticConfigWidget = new ClangDiagnosticConfigsWidget;
-    m_diagnosticConfigWidget->setConfigWithUndecoratedDisplayName(Core::Id(GLOBAL_PROXY_CONFIG_ID));
-    refreshDiagnosticConfigsWidgetFromSettings();
-    connectToCppCodeModelSettingsChanged();
-    connect(m_diagnosticConfigWidget.data(), &ClangDiagnosticConfigsWidget::currentConfigChanged,
-            this, &ClangProjectSettingsWidget::onCurrentWarningConfigChanged);
-    connect(m_diagnosticConfigWidget.data(), &ClangDiagnosticConfigsWidget::customConfigsChanged,
-            this, &ClangProjectSettingsWidget::onCustomWarningConfigsChanged);
+    m_ui.delayedTemplateParse->setVisible(Utils::HostOsInfo::isWindowsHost());
 
-    m_ui.diagnosticConfigurationGroupBox->layout()->addWidget(m_diagnosticConfigWidget);
+    m_ui.clangSettings->setCurrentIndex(m_projectSettings.useGlobalConfig() ? 0 : 1);
+
+    connect(m_ui.clangDiagnosticConfigsSelectionWidget,
+            &ClangDiagnosticConfigsSelectionWidget::currentConfigChanged,
+            this, &ClangProjectSettingsWidget::onCurrentWarningConfigChanged);
+
+    connect(m_ui.delayedTemplateParse, &QCheckBox::toggled,
+            this, &ClangProjectSettingsWidget::onDelayedTemplateParseClicked);
+    connect(m_ui.clangSettings,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &ClangProjectSettingsWidget::onClangSettingsChanged);
+    connect(project, &ProjectExplorer::Project::aboutToSaveSettings,
+            this, &ClangProjectSettingsWidget::onAboutToSaveProjectSettings);
+
+    connect(CppTools::codeModelSettings().data(), &CppTools::CppCodeModelSettings::changed,
+            this, &ClangProjectSettingsWidget::syncOtherWidgetsToComboBox);
+
+    syncOtherWidgetsToComboBox();
 }
 
 void ClangProjectSettingsWidget::onCurrentWarningConfigChanged(const Core::Id &currentConfigId)
 {
-    const bool useGlobalConfig = currentConfigId == Core::Id(GLOBAL_PROXY_CONFIG_ID);
-
-    m_projectSettings.setUseGlobalWarningConfig(useGlobalConfig);
+    // Don't save it when we reset the global config in code
+    if (m_projectSettings.useGlobalConfig())
+        return;
     m_projectSettings.setWarningConfigId(currentConfigId);
-
-    m_projectSettings.store();
 }
 
-void ClangProjectSettingsWidget::onCustomWarningConfigsChanged(
-        const CppTools::ClangDiagnosticConfigs &customConfigs)
+void ClangProjectSettingsWidget::onDelayedTemplateParseClicked(bool checked)
 {
-    disconnectFromCppCodeModelSettingsChanged();
+    // Don't save it when we reset the global config in code
+    if (m_projectSettings.useGlobalConfig())
+        return;
 
-    const QSharedPointer<CppTools::CppCodeModelSettings> codeModelSettings
-            = CppTools::codeModelSettings();
-    codeModelSettings->setClangCustomDiagnosticConfigs(customConfigs);
-    codeModelSettings->toSettings(Core::ICore::settings());
+    const QLatin1String extraFlag{checked ? ClangProjectSettings::DelayedTemplateParsing
+                                          : ClangProjectSettings::NoDelayedTemplateParsing};
+    QStringList options = m_projectSettings.commandLineOptions();
+    options.removeAll(QLatin1String{ClangProjectSettings::DelayedTemplateParsing});
+    options.removeAll(QLatin1String{ClangProjectSettings::NoDelayedTemplateParsing});
+    options.append(extraFlag);
+    m_projectSettings.setCommandLineOptions(options);
+}
 
-    connectToCppCodeModelSettingsChanged();
+void ClangProjectSettingsWidget::onClangSettingsChanged(int index)
+{
+    m_projectSettings.setUseGlobalConfig(index == 0 ? true : false);
+    syncOtherWidgetsToComboBox();
+}
+
+void ClangProjectSettingsWidget::onAboutToSaveProjectSettings()
+{
+    CppTools::codeModelSettings()->toSettings(Core::ICore::settings());
+}
+
+void ClangProjectSettingsWidget::syncOtherWidgetsToComboBox()
+{
+    const QStringList options = m_projectSettings.commandLineOptions();
+    m_ui.delayedTemplateParse->setChecked(
+                options.contains(QLatin1String{ClangProjectSettings::DelayedTemplateParsing}));
+
+    const bool isCustom = !m_projectSettings.useGlobalConfig();
+    m_ui.delayedTemplateParse->setEnabled(isCustom);
+
+    for (int i = 0; i < m_ui.clangDiagnosticConfigsSelectionWidget->layout()->count(); ++i) {
+        QWidget *widget = m_ui.clangDiagnosticConfigsSelectionWidget->layout()->itemAt(i)->widget();
+        if (widget)
+            widget->setEnabled(isCustom);
+    }
+
+    refreshDiagnosticConfigsWidgetFromSettings();
 }
 
 void ClangProjectSettingsWidget::refreshDiagnosticConfigsWidgetFromSettings()
 {
-    m_diagnosticConfigWidget->refresh(
-                createConfigsModelWithGlobalProxyConfig(*CppTools::codeModelSettings()),
-                configIdForProject(m_projectSettings));
-}
-
-void ClangProjectSettingsWidget::connectToCppCodeModelSettingsChanged()
-{
-    connect(CppTools::codeModelSettings().data(), &CppTools::CppCodeModelSettings::changed,
-            this, &ClangProjectSettingsWidget::refreshDiagnosticConfigsWidgetFromSettings);
-}
-
-void ClangProjectSettingsWidget::disconnectFromCppCodeModelSettingsChanged()
-{
-    disconnect(CppTools::codeModelSettings().data(), &CppTools::CppCodeModelSettings::changed,
-               this, &ClangProjectSettingsWidget::refreshDiagnosticConfigsWidgetFromSettings);
+    m_ui.clangDiagnosticConfigsSelectionWidget->refresh(configIdForProject(m_projectSettings));
 }
 
 } // namespace Internal

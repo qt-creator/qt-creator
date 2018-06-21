@@ -33,6 +33,7 @@
 
 #include <coreplugin/messagebox.h>
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QQmlContext>
 
@@ -111,9 +112,17 @@ QColor PropertyEditorContextObject::colorFromString(const QString &colorString)
 QString PropertyEditorContextObject::translateFunction()
 {
     if (QmlDesignerPlugin::instance()->settings().value(
-            DesignerSettingsKey::USE_QSTR_FUNCTION).toBool())
-        return QStringLiteral("qsTr");
-    return QStringLiteral("qsTrId");
+            DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt())
+
+        switch (QmlDesignerPlugin::instance()->settings().value(
+                    DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt()) {
+        case 0: return QLatin1String("qsTr");
+        case 1: return QLatin1String("qsTrId");
+        case 2: return QLatin1String("qsTranslate");
+        default:
+            break;
+        }
+    return QLatin1String("qsTr");
 }
 
 QStringList PropertyEditorContextObject::autoComplete(const QString &text, int pos, bool explicitComplete, bool filter)
@@ -127,17 +136,15 @@ QStringList PropertyEditorContextObject::autoComplete(const QString &text, int p
 
 void PropertyEditorContextObject::toogleExportAlias()
 {
-    if (!m_model || !m_model->rewriterView())
-        return;
+    QTC_ASSERT(m_model && m_model->rewriterView(), return);
 
     /* Ideally we should not missuse the rewriterView
      * If we add more code here we have to forward the property editor view */
     RewriterView *rewriterView = m_model->rewriterView();
 
-    if (rewriterView->selectedModelNodes().isEmpty())
-        return;
+    QTC_ASSERT(!rewriterView->selectedModelNodes().isEmpty(), return);
 
-    ModelNode selectedNode = rewriterView->selectedModelNodes().first();
+    const ModelNode selectedNode = rewriterView->selectedModelNodes().constFirst();
 
     if (QmlObjectNode::isValidQmlObjectNode(selectedNode)) {
         QmlObjectNode objectNode(selectedNode);
@@ -166,17 +173,15 @@ void PropertyEditorContextObject::toogleExportAlias()
 void PropertyEditorContextObject::changeTypeName(const QString &typeName)
 {
 
-    if (!m_model || !m_model->rewriterView())
-        return;
+    QTC_ASSERT(m_model && m_model->rewriterView(), return);
 
     /* Ideally we should not missuse the rewriterView
      * If we add more code here we have to forward the property editor view */
     RewriterView *rewriterView = m_model->rewriterView();
 
-    if (rewriterView->selectedModelNodes().isEmpty())
-        return;
+    QTC_ASSERT(!rewriterView->selectedModelNodes().isEmpty(), return);
 
-    ModelNode selectedNode = rewriterView->selectedModelNodes().first();
+    ModelNode selectedNode = rewriterView->selectedModelNodes().constFirst();
 
     try {
         RewriterTransaction transaction =
@@ -187,7 +192,10 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
             Core::AsynchronousMessageBox::warning(tr("Invalid Type"),  tr("%1 is an invalid type.").arg(typeName));
             return;
         }
-        selectedNode.changeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
+        if (selectedNode.isRootNode())
+             rewriterView->changeRootNodeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
+        else
+            selectedNode.changeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
 
         transaction.commit();
     }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
@@ -195,6 +203,23 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
     }
 
 
+}
+
+void PropertyEditorContextObject::insertKeyframe(const QString &propertyName)
+{
+    QTC_ASSERT(m_model && m_model->rewriterView(), return);
+
+    /* Ideally we should not missuse the rewriterView
+     * If we add more code here we have to forward the property editor view */
+    RewriterView *rewriterView = m_model->rewriterView();
+
+    QTC_ASSERT(!rewriterView->selectedModelNodes().isEmpty(), return);
+
+    ModelNode selectedNode = rewriterView->selectedModelNodes().constFirst();
+
+    rewriterView->emitCustomNotification("INSERT_KEYFRAME",
+                                         { selectedNode },
+                                         { propertyName });
 }
 
 int PropertyEditorContextObject::majorVersion() const
@@ -257,6 +282,20 @@ void PropertyEditorContextObject::setMinorVersion(int minorVersion)
     m_minorVersion = minorVersion;
 
     emit minorVersionChanged();
+}
+
+bool PropertyEditorContextObject::hasActiveTimeline() const
+{
+    return m_setHasActiveTimeline;
+}
+
+void PropertyEditorContextObject::setHasActiveTimeline(bool b)
+{
+    if (b == m_setHasActiveTimeline)
+        return;
+
+    m_setHasActiveTimeline = b;
+    emit hasActiveTimelineChanged();
 }
 
 void PropertyEditorContextObject::insertInQmlContext(QQmlContext *context)

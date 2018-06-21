@@ -164,7 +164,7 @@ bool OpenOcdGdbServerProvider::isValid() const
     }
 
     if (m == StartupOnNetwork || m == StartupOnPipe) {
-        if (m_executableFile.isEmpty() || m_configurationFile.isEmpty())
+        if (m_executableFile.isEmpty())
             return false;
     }
 
@@ -232,7 +232,7 @@ GdbServerProvider *OpenOcdGdbServerProviderFactory::create()
     return new OpenOcdGdbServerProvider;
 }
 
-bool OpenOcdGdbServerProviderFactory::canRestore(const QVariantMap &data)
+bool OpenOcdGdbServerProviderFactory::canRestore(const QVariantMap &data) const
 {
     const QString id = idFromMap(data);
     return id.startsWith(QLatin1String(Constants::OPENOCD_PROVIDER_ID)
@@ -350,7 +350,7 @@ void OpenOcdGdbServerProviderConfigWidget::setFromProvider()
     const auto p = static_cast<OpenOcdGdbServerProvider *>(provider());
     Q_ASSERT(p);
 
-    const bool b = blockSignals(true);
+    QSignalBlocker blocker(this);
     startupModeChanged();
     m_hostWidget->setHost(p->m_host);
     m_hostWidget->setPort(p->m_port);
@@ -360,7 +360,6 @@ void OpenOcdGdbServerProviderConfigWidget::setFromProvider()
     m_additionalArgumentsLineEdit->setText(p->m_additionalArguments);
     m_initCommandsTextEdit->setPlainText(p->initCommands());
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());
-    blockSignals(b);
 }
 
 } // namespace Internal

@@ -94,6 +94,25 @@ def qdump____m512i(d, value):
 
 #######################################################################
 #
+# GSL
+#
+#######################################################################
+
+def qform__std__array():
+    return arrayForms()
+
+def qdump__gsl__span(d, value):
+    size, pointer = value.split('pp')
+    d.putItemCount(size)
+    if d.isExpanded():
+        d.putPlotData(pointer, size, value.type[0])
+
+def qdump__gsl__byte(d, value):
+    d.putNumChild(0)
+    d.putValue(value.integer())
+
+#######################################################################
+#
 # Eigen
 #
 #######################################################################
@@ -349,3 +368,47 @@ def qdump__QtcDumperTest_PointerArray(d, value):
             for i in d.childRange():
                 d.putSubItem(i, foos[i])
 
+def qdump__QtcDumperTest_BufArray(d, value):
+    maxItems = 1000
+    buffer = value['buffer']
+    count = int(value['count'])
+    objsize = int(value['objSize'])
+    valueType = value.type.templateArgument(0)
+    d.putItemCount(count, maxItems)
+    d.putNumChild(count)
+    if d.isExpanded():
+        with Children(d, count, maxNumChild=maxItems, childType=valueType):
+            for i in d.childRange():
+                d.putSubItem(i, (buffer + (i * objsize)).dereference().cast(valueType))
+
+def qdump__QtcDumperTest_List__NodeX(d, value):
+    typename = value.type.unqualified().name
+    pos0 = typename.find('<')
+    pos1 = typename.find('>')
+    tName = typename[pos0+1:pos1]
+    d.putBetterType('QtcDumperTest_List<' + tName + '>::Node')
+    d.putNumChild(1)
+    if d.isExpanded():
+        obj_type = d.lookupType(tName)
+        with Children(d):
+            d.putSubItem("this", value.cast(obj_type))
+            d.putFields(value)
+    #d.putPlainChildren(value)
+
+def qdump__QtcDumperTest_List(d, value):
+    innerType = value.type[0]
+    d.putNumChild(1)
+    p = value['root']
+    if d.isExpanded():
+        with Children(d):
+            d.putSubItem("[p]", p)
+            d.putSubItem("[root]", value["root"].cast(innerType))
+            d.putFields(value)
+    #d.putPlainChildren(value)
+
+def qdump__QtcDumperTest_String(d, value):
+    with Children(d):
+        first = d.hexdecode(d.putSubItem('first', value['first']).value)
+        second = d.hexdecode(d.putSubItem('second', value['second']).value)
+        third = d.hexdecode(d.putSubItem('third', value['third']).value)[:-1]
+    d.putValue(first + ', ' + second + ', ' + third)

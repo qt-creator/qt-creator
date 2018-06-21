@@ -25,9 +25,7 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
-
-#include <QObject>
+#include <debugger/debuggerruncontrol.h>
 
 namespace WinRt {
 namespace Internal {
@@ -35,25 +33,16 @@ namespace Internal {
 class WinRtRunConfiguration;
 class WinRtRunnerHelper;
 
-class WinRtDebugSupport : public QObject
+class WinRtDebugSupport : public Debugger::DebuggerRunTool
 {
     Q_OBJECT
+
 public:
-    static ProjectExplorer::RunControl *createDebugRunControl(WinRtRunConfiguration *runConfig,
-                                                              Core::Id mode,
-                                                              QString *errorMessage);
+    explicit WinRtDebugSupport(ProjectExplorer::RunControl *runControl);
     ~WinRtDebugSupport();
 
 private:
-    WinRtDebugSupport(ProjectExplorer::RunControl *runControl, WinRtRunnerHelper *runner);
-
-    void finish();
-
-    static bool useQmlDebugging(WinRtRunConfiguration *runConfig);
-    static bool getFreePort(Utils::Port &qmlDebuggerPort, QString *errorMessage);
-
-    ProjectExplorer::RunControl *m_debugRunControl;
-    WinRtRunnerHelper *m_runner;
+    WinRtRunnerHelper *m_runner = nullptr;
 };
 
 } // namespace Internal

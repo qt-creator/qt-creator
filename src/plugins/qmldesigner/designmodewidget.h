@@ -34,10 +34,6 @@
 #include <QWidget>
 #include <QScopedPointer>
 
-QT_BEGIN_NAMESPACE
-class QTabWidget;
-QT_END_NAMESPACE
-
 namespace Core {
     class SideBar;
     class SideBarItem;
@@ -49,23 +45,23 @@ namespace QmlDesigner {
 
 class ItemLibraryWidget;
 class CrumbleBar;
+class DocumentWarningWidget;
+class SwitchSplitTabWidget;
 
 namespace Internal {
 
 class DesignMode;
 class DocumentWidget;
-class DesignModeWidget;
-class DocumentWarningWidget;
 
 class DesignModeWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit DesignModeWidget(QWidget *parent = 0);
+    DesignModeWidget();
+    ~DesignModeWidget() override;
 
-    ~DesignModeWidget();
-    QString contextHelpId() const;
+    void contextHelpId(const Core::IContext::HelpIdCallback &callback) const;
 
     void initialize();
 
@@ -79,27 +75,22 @@ public:
 
     void enableWidgets();
     void disableWidgets();
-    void showTextEdit();
-    void showErrorMessageBox(const QList<RewriterError> &errors);
-    void showWarningMessageBox(const QList<RewriterError> &warnings);
-    bool gotoCodeWasClicked();
+    void switchTextOrForm();
 
     CrumbleBar* crumbleBar() const;
-    QTabWidget* centralTabWidget() const;
+    void showInternalTextEditor();
 
-public slots:
-    void updateErrorStatus(const QList<RewriterError> &errors);
     void restoreDefaultView();
-    void toggleSidebars();
     void toggleLeftSidebar();
     void toggleRightSidebar();
 
-private slots:
-    void toolBarOnGoBackClicked();
-    void toolBarOnGoForwardClicked();
+    static QWidget *createProjectExplorerWidget(QWidget *parent);
 
 private: // functions
     enum InitializeStatus { NotInitialized, Initializing, Initialized };
+
+    void toolBarOnGoBackClicked();
+    void toolBarOnGoForwardClicked();
 
     void setup();
     bool isInNodeDefinition(int nodeOffset, int nodeLength, int cursorPos) const;
@@ -107,17 +98,14 @@ private: // functions
     void addNavigatorHistoryEntry(const Utils::FileName &fileName);
     QWidget *createCenterWidget();
     QWidget *createCrumbleBarFrame();
-    DocumentWarningWidget *warningWidget();
-    void hideWarningWidget();
 
 private: // variables
     QSplitter *m_mainSplitter = nullptr;
-    QPointer<DocumentWarningWidget> m_warningWidget;
-    QTabWidget* m_centralTabWidget = nullptr;
+    SwitchSplitTabWidget* m_centralTabWidget = nullptr;
 
     QScopedPointer<Core::SideBar> m_leftSideBar;
     QScopedPointer<Core::SideBar> m_rightSideBar;
-    QPointer<QWidget> m_topSideBar;
+    QPointer<QWidget> m_bottomSideBar;
     Core::EditorToolBar *m_toolBar;
     CrumbleBar *m_crumbleBar;
     bool m_isDisabled = false;

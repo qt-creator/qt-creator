@@ -25,52 +25,20 @@
 
 #pragma once
 
-#include "minisplitter.h"
-
-#include <QList>
-#include <QObject>
-
-QT_BEGIN_NAMESPACE
-class QWidget;
-QT_END_NAMESPACE
+#include "icontext.h"
 
 namespace Core {
-namespace Internal {
 
-class MainWindow;
-
-class NonResizingSplitter : public MiniSplitter
+class CORE_EXPORT StatusBarManager
 {
-    Q_OBJECT
-
 public:
-    explicit NonResizingSplitter(QWidget *parent);
+    enum StatusBarPosition { First=0, Second=1, Third=2, LastLeftAligned=Third, RightCorner};
 
-protected:
-    void resizeEvent(QResizeEvent *ev);
+    static void addStatusBarWidget(QWidget *widget,
+                                   StatusBarPosition position,
+                                   const Context &ctx = Context());
+    static void destroyStatusBarWidget(QWidget *widget);
+    static void restoreSettings();
 };
 
-class StatusBarManager : public QObject
-{
-    Q_OBJECT
-
-public:
-    StatusBarManager(MainWindow *mainWnd);
-    ~StatusBarManager();
-
-    void init();
-    void extensionsInitalized();
-    void restoreSettings();
-
-private:
-    void objectAdded(QObject *obj);
-    void aboutToRemoveObject(QObject *obj);
-    void saveSettings();
-
-    MainWindow *m_mainWnd;
-    QSplitter *m_splitter;
-    QList<QWidget *> m_statusBarWidgets;
-};
-
-} // namespace Internal
 } // namespace Core

@@ -29,6 +29,8 @@
 #include "diffeditorfactory.h"
 #include "sidebysidediffeditorwidget.h"
 
+#include "texteditor/texteditoractionhandler.h"
+
 #include <QCoreApplication>
 
 namespace DiffEditor {
@@ -38,8 +40,28 @@ DiffEditorFactory::DiffEditorFactory(QObject *parent)
     : IEditorFactory(parent)
 {
     setId(Constants::DIFF_EDITOR_ID);
-    setDisplayName(qApp->translate("DiffEditorFactory", Constants::DIFF_EDITOR_DISPLAY_NAME));
+    setDisplayName(QCoreApplication::translate("DiffEditorFactory", Constants::DIFF_EDITOR_DISPLAY_NAME));
     addMimeType(Constants::DIFF_EDITOR_MIMETYPE);
+    auto descriptionHandler = new TextEditor::TextEditorActionHandler(
+                this, id(), Constants::C_DIFF_EDITOR_DESCRIPTION);
+    descriptionHandler->setTextEditorWidgetResolver([](Core::IEditor *e) {
+        return static_cast<DiffEditor *>(e)->descriptionWidget();
+    });
+    auto unifiedHandler = new TextEditor::TextEditorActionHandler(
+                this, id(), Constants::UNIFIED_VIEW_ID);
+    unifiedHandler->setTextEditorWidgetResolver([](Core::IEditor *e) {
+        return static_cast<DiffEditor *>(e)->unifiedEditorWidget();
+    });
+    auto leftHandler = new TextEditor::TextEditorActionHandler(
+                this, id(), Core::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(1));
+    leftHandler->setTextEditorWidgetResolver([](Core::IEditor *e) {
+        return static_cast<DiffEditor *>(e)->leftEditorWidget();
+    });
+    auto rightHandler = new TextEditor::TextEditorActionHandler(
+                this, id(), Core::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(2));
+    rightHandler->setTextEditorWidgetResolver([](Core::IEditor *e) {
+        return static_cast<DiffEditor *>(e)->rightEditorWidget();
+    });
 }
 
 Core::IEditor *DiffEditorFactory::createEditor()

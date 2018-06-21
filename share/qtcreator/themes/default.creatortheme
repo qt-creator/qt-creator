@@ -8,10 +8,13 @@ darkText=ff000000
 textDisabled=88a0a0a0
 error=ffdf4f4f
 warning=ffecbc1c
+shadowBackground=ff232323
+splitterColor=ff151515
+qmlDesignerButtonColor=ff4c4e50
 
 [Colors]
 BackgroundColorAlternate=ff3d3d3d
-BackgroundColorDark=ff232323
+BackgroundColorDark=shadowBackground
 BackgroundColorHover=ff515151
 BackgroundColorNormal=ffffffff
 BackgroundColorSelected=ff151515
@@ -104,14 +107,14 @@ ProgressBarColorFinished=ff5aaa3c
 ProgressBarColorNormal=b4ffffff
 ProgressBarTitleColor=ffffffff
 ProgressBarBackgroundColor=18ffffff
-SplitterColor=ff151515
+SplitterColor=splitterColor
 TextColorDisabled=ff000000
 TextColorError=ffff0000
 TextColorHighlight=ffa0a0a4
+TextColorHighlightBackground=ffef0b
 TextColorLink=ff0057ae
 TextColorLinkVisited=ff644a9b
 TextColorNormal=ff000000
-TodoItemTextColor=ff000000
 ToggleButtonBackgroundColor=ffff0000
 ToolBarBackgroundColor=ffff0000
 TreeViewArrowColorNormal=ffff0000
@@ -154,6 +157,7 @@ Welcome_ButtonBackgroundColor=ffdfdfdf
 Welcome_DividerColor=ffd6d6d6
 Welcome_HoverColor=ffe8e8e8
 Welcome_LinkColor=ff5caa15
+Welcome_DisabledLinkColor=textDisabled
 
 Timeline_TextColor=darkText
 Timeline_BackgroundColor1=ffffffff
@@ -180,11 +184,22 @@ TextEditor_CurrentLine_ScrollBarColor=ff404040
 ProjectExplorer_TaskError_TextMarkColor=error
 ProjectExplorer_TaskWarn_TextMarkColor=warning
 
-ClangCodeModel_Error_TextMarkColor=error
-ClangCodeModel_Warning_TextMarkColor=warning
+CodeModel_Error_TextMarkColor=error
+CodeModel_Warning_TextMarkColor=warning
 
-QmlDesigner_BackgroundColor=ff4c4e50
+QmlDesigner_BackgroundColor=qmlDesignerButtonColor
 QmlDesigner_HighlightColor=ff46a2da
+QmlDesigner_FormEditorSelectionColor=ff4ba2ff
+QmlDesigner_FormEditorForegroundColor=brightText
+QmlDesigner_BackgroundColorDarkAlternate=qmlDesignerButtonColor
+QmlDesigner_BackgroundColorDarker=ff4e4e4e
+QmlDesigner_BorderColor=splitterColor
+QmlDesigner_ButtonColor=ff7a7a7a
+QmlDesigner_TabDark=shadowBackground
+QmlDesigner_TabLight=brightText
+QmlDesigner_FormeditorBackgroundColor=qmlDesignerButtonColor
+QmlDesigner_AlternateBackgroundColor=qmlDesignerButtonColor
+QmlDesigner_ScrollBarHandleColor=ff7a7a7a
 
 [Flags]
 ComboBoxDrawTextShadow=true
@@ -203,6 +218,6 @@ ToolBarIconShadow=true
 WindowColorAsBase=false
 
 [Gradients]
-DetailsWidgetHeaderGradient\1\color=ffffff
+DetailsWidgetHeaderGradient\1\color=ffffffff
 DetailsWidgetHeaderGradient\1\pos=1
 DetailsWidgetHeaderGradient\size=1

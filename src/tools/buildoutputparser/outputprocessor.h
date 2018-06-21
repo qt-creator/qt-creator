@@ -34,10 +34,8 @@ namespace ProjectExplorer { class Task; }
 
 enum CompilerType {
     CompilerTypeGcc,
-    CompilerTypeClang
-#ifdef HAS_MSVC_PARSER
-    , CompilerTypeMsvc
-#endif
+    CompilerTypeClang,
+    CompilerTypeMsvc
 };
 
 class CompilerOutputProcessor : public QObject
@@ -47,8 +45,8 @@ public:
     CompilerOutputProcessor(CompilerType compilerType, QIODevice &source);
      ~CompilerOutputProcessor();
 
-private:
     void start();
+private:
     void handleTask(const ProjectExplorer::Task &task);
 
     const CompilerType m_compilerType;

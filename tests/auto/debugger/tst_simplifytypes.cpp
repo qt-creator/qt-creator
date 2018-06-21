@@ -44,7 +44,9 @@ const char *description[] =
     "g++_stringvector",
     "g++_wstringvector",
     "g++_unordered_set",
+    "g++_unordered_multiset",
     "g++_unordered_map",
+    "g++_unordered_multimap",
     "g++_stdvector_int_ptr",
     "g++_stdmap_char_ptr",
 
@@ -82,7 +84,9 @@ const char *input[] =
 "std::vector<std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >, std::allocator<std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> > > >",
 
 "std::unordered_set<int, std::hash<int>, std::equal_to<int>, std::allocator<int> >",
+"std::unordered_multiset<int, std::hash<int>, std::equal_to<int>, std::allocator<int> >",
 "std::unordered_map<int, int, std::hash<int>, std::equal_to<int>, std::allocator<std::pair<int const, int> > >",
+"std::unordered_multimap<int, int, std::hash<int>, std::equal_to<int>, std::allocator<std::pair<int const, int> > >",
 
 "std::vector<int *, std::allocator<int*> >",
 "std::map<const char *, Foo, std::less<const char *>, std::allocator<std::pair<char const* const, Foo> > >",
@@ -124,7 +128,9 @@ const char *output[] =
     "std::vector<std::string>",
     "std::vector<std::wstring>",
     "std::unordered_set<int>",
+    "std::unordered_multiset<int>",
     "std::unordered_map<int, int>",
+    "std::unordered_multimap<int, int>",
     "std::vector<int *>",
     "std::map<const char *, Foo>",
     // libc++

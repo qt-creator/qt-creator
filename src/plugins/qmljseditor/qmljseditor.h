@@ -43,13 +43,13 @@ QT_END_NAMESPACE
 
 namespace QmlJS {
     class ModelManagerInterface;
-    class IContextPane;
 namespace AST { class UiObjectMember; }
 }
 
 namespace QmlJSEditor {
 
 class QmlJSEditorDocument;
+class QuickToolBar;
 class FindReferences;
 
 namespace Internal {
@@ -66,6 +66,8 @@ public:
     QmlJSEditorDocument *qmlJsEditorDocument() const;
 
     QModelIndex outlineModelIndex();
+    void updateOutlineIndexNow();
+    bool isOutlineCursorChangesBlocked();
 
     TextEditor::AssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
                            TextEditor::AssistReason reason) const override;
@@ -84,7 +86,6 @@ private:
     void modificationChanged(bool);
 
     void jumpToOutlineElement(int index);
-    void updateOutlineIndexNow();
     void updateContextPane();
     void showTextMarker();
 
@@ -102,31 +103,30 @@ protected:
     void scrollContentsBy(int dx, int dy) override;
     void applyFontSettings() override;
     void createToolBar();
-    TextEditor::TextEditorWidget::Link findLinkAt(const QTextCursor &cursor,
-                                                      bool resolveTarget = true,
-                                                      bool inNextSplit = false) override;
+    void findLinkAt(const QTextCursor &cursor,
+                    Utils::ProcessLinkCallback &&processLinkCallback,
+                    bool resolveTarget = true,
+                    bool inNextSplit = false) override;
     QString foldReplacementText(const QTextBlock &block) const override;
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker) override;
 
 private:
-    bool isClosingBrace(const QList<QmlJS::Token> &tokens) const;
-
     void setSelectedElements();
     QString wordUnderCursor() const;
 
     QModelIndex indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex = QModelIndex()) const;
     bool hideContextPane();
 
-    QmlJSEditorDocument *m_qmlJsEditorDocument;
+    QmlJSEditorDocument *m_qmlJsEditorDocument = nullptr;
     QTimer m_updateUsesTimer; // to wait for multiple text cursor position changes
     QTimer m_updateOutlineIndexTimer;
     QTimer m_contextPaneTimer;
     QComboBox *m_outlineCombo;
     QModelIndex m_outlineModelIndex;
-    QmlJS::ModelManagerInterface *m_modelManager;
+    QmlJS::ModelManagerInterface *m_modelManager = nullptr;
 
-    QmlJS::IContextPane *m_contextPane;
-    int m_oldCursorPosition;
+    QuickToolBar *m_contextPane = nullptr;
+    int m_oldCursorPosition = -1;
 
     FindReferences *m_findReferences;
 };
@@ -148,6 +148,8 @@ class QmlJSEditorFactory : public TextEditor::TextEditorFactory
 
 public:
     QmlJSEditorFactory();
+
+    static void decorateEditor(TextEditor::TextEditorWidget *editor);
 };
 
 } // namespace Internal

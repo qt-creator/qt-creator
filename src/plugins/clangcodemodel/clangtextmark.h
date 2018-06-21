@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <clangbackendipc_global.h>
-#include <clangbackendipc/diagnosticcontainer.h>
+#include <clangsupport_global.h>
+#include <clangsupport/diagnosticcontainer.h>
 
 #include <texteditor/textmark.h>
 
@@ -39,14 +39,14 @@ class ClangTextMark : public TextEditor::TextMark
 public:
     using RemovedFromEditorHandler = std::function<void(ClangTextMark *)>;
 
-    ClangTextMark(const QString &fileName,
+    ClangTextMark(const ::Utils::FileName &fileName,
                   const ClangBackEnd::DiagnosticContainer &diagnostic,
-                  const RemovedFromEditorHandler &removedHandler);
+                  const RemovedFromEditorHandler &removedHandler,
+                  bool fullVisualization);
 
+    void updateIcon(bool valid = true);
 private:
-    void setIcon(ClangBackEnd::DiagnosticSeverity severity);
-
-    bool addToolTipContent(QLayout *target) override;
+    bool addToolTipContent(QLayout *target) const override;
     void removedFromEditor() override;
 
 private:

@@ -44,9 +44,9 @@ public:
      bool isPixelSize() { return !m_isPointSize; }
      bool isPointSize() { return m_isPointSize; }
 
-     void stepBy(int steps);
+     void stepBy(int steps) override;
 
-     QValidator::State validate (QString &input, int &pos) const;
+     QValidator::State validate (QString &input, int &pos) const override;
      int value() const { return m_value; }
 
 signals:
@@ -75,11 +75,11 @@ public:
      }
 
 
-     void clear();
+     void clear() override;
      void setValue (int val);
 
  protected:
-    StepEnabled stepEnabled() const;
+    StepEnabled stepEnabled() const override;
 
 private:
     void onEditingFinished();

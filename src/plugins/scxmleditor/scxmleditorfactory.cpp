@@ -38,7 +38,8 @@
 using namespace ScxmlEditor::Constants;
 using namespace ScxmlEditor::Internal;
 
-ScxmlEditorFactory::ScxmlEditorFactory()
+ScxmlEditorFactory::ScxmlEditorFactory(QObject *parent)
+    : IEditorFactory(parent)
 {
     setId(K_SCXML_EDITOR_ID);
     setDisplayName(QCoreApplication::translate("ScxmlEditor", C_SCXMLEDITOR_DISPLAY_NAME));

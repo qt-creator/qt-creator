@@ -52,7 +52,7 @@ public:
 
         QTC_ASSERT(bc->target()->project(), return);
         sourceDirectory = bc->target()->project()->projectDirectory().toString();
-        configuration = bc->cmakeConfiguration();
+        configuration = bc->configurationForCMake();
     }
 
     bool operator==(const BuildInfo &o) const final

@@ -28,7 +28,7 @@
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
-
+#include <gtest/gtest-printers.h>
 #include "compare-operators.h"
 
 #include "conditionally-disabled-tests.h"
@@ -37,3 +37,9 @@
 #ifdef CLANG_UNIT_TESTS
 #  include "gtest-clang-printing.h"
 #endif
+
+#include "google-using-declarations.h"
+
+#include "unittest-matchers.h"
+
+#include "unittest-utility-functions.h"

@@ -149,7 +149,6 @@ static bool matchesPattern(const QString &fileName, DefinitionMetaDataPtr metaDa
 
 QString Manager::definitionIdByMimeType(const Utils::MimeType &mimeType) const
 {
-    Utils::MimeDatabase mdb;
     QList<Utils::MimeType> queue;
     queue.append(mimeType);
     while (!queue.isEmpty()) {
@@ -158,7 +157,7 @@ QString Manager::definitionIdByMimeType(const Utils::MimeType &mimeType) const
         if (!id.isEmpty())
             return id;
         foreach (const QString &parent, mt.parentMimeTypes()) {
-            const Utils::MimeType parentMt = mdb.mimeTypeForName(parent);
+            const Utils::MimeType parentMt = Utils::mimeTypeForName(parent);
             if (parentMt.isValid())
                 queue.append(parentMt);
         }
@@ -395,7 +394,7 @@ QList<DefinitionMetaDataPtr> Manager::parseAvailableDefinitionsList(QIODevice *d
 
 void Manager::downloadAvailableDefinitionsMetaData()
 {
-    QUrl url(QLatin1String("https://www.kate-editor.org/syntax/update-5.17.xml"));
+    QUrl url(QLatin1String("https://www.kate-editor.org/syntax/update-5.60.xml"));
     QNetworkRequest request(url);
     // Currently this takes a couple of seconds on Windows 7: QTBUG-10106.
     QNetworkReply *reply = Utils::NetworkAccessManager::instance()->get(request);

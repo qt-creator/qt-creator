@@ -27,7 +27,10 @@
 #include "formeditorscene.h"
 
 #include <modelnode.h>
+#include <nodehints.h>
 #include <nodemetainfo.h>
+
+#include <utils/theme/theme.h>
 
 #include <QDebug>
 #include <QPainter>
@@ -44,7 +47,7 @@ FormEditorScene *FormEditorItem::scene() const {
 }
 
 FormEditorItem::FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene)
-    : QGraphicsObject(scene->formLayerItem()),
+    : QGraphicsItem(scene->formLayerItem()),
     m_snappingLineCreator(this),
     m_qmlItemNode(qmlItemNode),
     m_borderWidth(1.0),
@@ -53,18 +56,22 @@ FormEditorItem::FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* 
     m_isContentVisible(true),
     m_isFormEditorVisible(true)
 {
-    setCacheMode(QGraphicsItem::DeviceCoordinateCache);
+    setCacheMode(QGraphicsItem::NoCache);
     setup();
 }
 
 void FormEditorItem::setup()
 {
+    setAcceptedMouseButtons(Qt::NoButton);
     if (qmlItemNode().hasInstanceParent()) {
         setParentItem(scene()->itemForQmlItemNode(qmlItemNode().instanceParent().toQmlItemNode()));
         setOpacity(qmlItemNode().instanceValue("opacity").toDouble());
     }
 
     setFlag(QGraphicsItem::ItemClipsChildrenToShape, qmlItemNode().instanceValue("clip").toBool());
+
+    if (NodeHints::fromModelNode(qmlItemNode()).forceClip())
+        setFlag(QGraphicsItem::ItemClipsChildrenToShape, true);
 
     if (QGraphicsItem::parentItem() == scene()->formLayerItem())
         m_borderWidth = 0.0;
@@ -79,7 +86,7 @@ void FormEditorItem::setup()
 
 QRectF FormEditorItem::boundingRect() const
 {
-    return m_boundingRect;
+    return m_boundingRect.adjusted(-2, -2, 2, 2);
 }
 
 QPainterPath FormEditorItem::shape() const
@@ -109,10 +116,7 @@ void FormEditorItem::updateGeometry()
 
 void FormEditorItem::updateVisibilty()
 {
-//    setVisible(nodeInstance().isVisible());
-//    setOpacity(nodeInstance().opacity());
 }
-
 
 FormEditorView *FormEditorItem::formEditorView() const
 {
@@ -204,17 +208,6 @@ FormEditorItem* FormEditorItem::fromQGraphicsItem(QGraphicsItem *graphicsItem)
     return qgraphicsitem_cast<FormEditorItem*>(graphicsItem);
 }
 
-//static QRectF alignedRect(const QRectF &rect)
-//{
-//    QRectF alignedRect(rect);
-//    alignedRect.setTop(std::floor(rect.top()) + 0.5);
-//    alignedRect.setBottom(std::floor(rect.bottom()) + 0.5);
-//    alignedRect.setLeft(std::floor(rect.left()) + 0.5);
-//    alignedRect.setRight(std::floor(rect.right()) + 0.5);
-//
-//    return alignedRect;
-//}
-
 void FormEditorItem::paintBoundingRect(QPainter *painter) const
 {
     if (!m_boundingRect.isValid()
@@ -228,28 +221,23 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
     pen.setCosmetic(true);
     pen.setJoinStyle(Qt::MiterJoin);
 
-    QColor frameColor("#AAAAAA");
+    const QColor frameColor(0xaa, 0xaa, 0xaa);
+    static const QColor selectionColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_FormEditorSelectionColor);
 
     if (scene()->showBoundingRects()) {
-        if (m_highlightBoundingRect) {
-            pen.setColor(frameColor);
-        } else {
-            pen.setColor(frameColor.darker(150));
-            pen.setStyle(Qt::DotLine);
-        }
-    } else {
-        if (m_highlightBoundingRect) {
-            pen.setColor(frameColor);
-        } else {
-            pen.setColor(Qt::transparent);
-            pen.setStyle(Qt::DotLine);
-        }
+        pen.setColor(frameColor.darker(150));
+        pen.setStyle(Qt::DotLine);
+        painter->setPen(pen);
+        painter->drawRect(m_boundingRect.adjusted(0., 0., -1., -1.));
+
     }
 
-    painter->setPen(pen);
-//    int offset =  m_borderWidth / 2;
-
-    painter->drawRect(m_boundingRect.adjusted(0., 0., -1., -1.));
+    if (m_highlightBoundingRect) {
+        pen.setColor(selectionColor);
+        pen.setStyle(Qt::SolidLine);
+        painter->setPen(pen);
+        painter->drawRect(m_selectionBoundingRect.adjusted(0., 0., -1., -1.));
+    }
 }
 
 static void paintTextInPlaceHolderForInvisbleItem(QPainter *painter,
@@ -340,21 +328,45 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
 
     painter->save();
 
-    if (qmlItemNode().instanceIsRenderPixmapNull() || !isContentVisible()) {
-        if (scene()->showBoundingRects() && m_boundingRect.width() > 15 && m_boundingRect.height() > 15)
-            paintPlaceHolderForInvisbleItem(painter);
-    } else {
-        if (m_blurContent)
-            painter->drawPixmap(m_paintedBoundingRect.topLeft(), qmlItemNode().instanceBlurredRenderPixmap());
-        else
-            painter->drawPixmap(m_paintedBoundingRect.topLeft(), qmlItemNode().instanceRenderPixmap());
+    bool showPlaceHolder = qmlItemNode().instanceIsRenderPixmapNull() || !isContentVisible();
+
+    const bool isInStackedContainer = qmlItemNode().isInStackedContainer();
+
+    /* If already the parent is invisible then show nothing */
+    const bool hideCompletely = !isContentVisible() && (parentItem() && !parentItem()->isContentVisible());
+
+    if (isInStackedContainer)
+        showPlaceHolder = qmlItemNode().instanceIsRenderPixmapNull() && isContentVisible();
+
+    QRegion clipRegion = painter->clipRegion();
+    if (clipRegion.contains(m_selectionBoundingRect.toRect().topLeft())
+            && clipRegion.contains(m_selectionBoundingRect.toRect().bottomRight()))
+        painter->setClipRegion(boundingRect().toRect());
+    painter->setClipping(true);
+
+    if (!hideCompletely) {
+        if (showPlaceHolder) {
+            if (scene()->showBoundingRects() && m_boundingRect.width() > 15 && m_boundingRect.height() > 15)
+                paintPlaceHolderForInvisbleItem(painter);
+        } else if (!isInStackedContainer || isContentVisible() ) {
+            painter->save();
+            const QTransform &painterTransform = painter->transform();
+            if (painterTransform.m11() < 1.0 // horizontally scaled down?
+                    || painterTransform.m22() < 1.0 // vertically scaled down?
+                    || painterTransform.isRotating())
+                painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
+
+            if (m_blurContent)
+                painter->drawPixmap(m_paintedBoundingRect.topLeft(), qmlItemNode().instanceBlurredRenderPixmap());
+            else
+                painter->drawPixmap(m_paintedBoundingRect.topLeft(), qmlItemNode().instanceRenderPixmap());
+
+            painter->restore();
+        }
     }
 
     if (!qmlItemNode().isRootModelNode())
         paintBoundingRect(painter);
-
-//    if (qmlItemNode().modelNode().metaInfo().isSubclassOf("QtQuick.Loader", -1, -1))
-//        paintComponentContentVisualisation(painter, boundingRect());
 
     painter->restore();
 }

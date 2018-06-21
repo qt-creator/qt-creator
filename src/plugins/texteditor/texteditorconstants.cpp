@@ -63,6 +63,7 @@ const char *nameForStyle(TextStyle style)
     case C_KEYWORD:             return "Keyword";
     case C_PRIMITIVE_TYPE:      return "PrimitiveType";
     case C_OPERATOR:            return "Operator";
+    case C_OVERLOADED_OPERATOR: return "Overloaded Operator";
     case C_PREPROCESSOR:        return "Preprocessor";
     case C_LABEL:               return "Label";
     case C_COMMENT:             return "Comment";
@@ -101,8 +102,9 @@ const char *nameForStyle(TextStyle style)
     case C_WARNING:             return "Warning";
     case C_WARNING_CONTEXT:     return "WarningContext";
 
-    case C_DECLARATION: return "Declaration";
-    case C_OUTPUT_ARGUMENT:    return "C_OUTPUT_ARGUMENT";
+    case C_DECLARATION:         return "Declaration";
+    case C_FUNCTION_DEFINITION: return "FunctionDefinition";
+    case C_OUTPUT_ARGUMENT:     return "OutputArgument";
 
     case C_LAST_STYLE_SENTINEL: return "LastStyleSentinel";
     }

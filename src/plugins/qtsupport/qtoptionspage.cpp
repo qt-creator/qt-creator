@@ -38,6 +38,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <utils/buildablehelperlibrary.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
@@ -132,16 +133,6 @@ public:
         m_buildLog = buildLog;
     }
 
-    QByteArray toolChainId() const
-    {
-        return m_toolChainId;
-    }
-
-    void setToolChainId(const QByteArray &id)
-    {
-        m_toolChainId = id;
-    }
-
     void setChanged(bool changed)
     {
         if (changed == m_changed)
@@ -154,7 +145,6 @@ private:
     BaseQtVersion *m_version = 0;
     QIcon m_icon;
     QString m_buildLog;
-    QByteArray m_toolChainId;
     bool m_changed = false;
 };
 
@@ -167,10 +157,7 @@ QtOptionsPage::QtOptionsPage()
 {
     setId(Constants::QTVERSION_SETTINGS_PAGE_ID);
     setDisplayName(QCoreApplication::translate("QtSupport", Constants::QTVERSION_SETTINGS_PAGE_NAME));
-    setCategory(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
-        ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
-    setCategoryIcon(Utils::Icon(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
+    setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
 }
 
 QWidget *QtOptionsPage::widget()
@@ -201,7 +188,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     , m_ui(new Internal::Ui::QtVersionManager())
     , m_versionUi(new Internal::Ui::QtVersionInfo())
     , m_infoBrowser(new QTextBrowser)
-    , m_invalidVersionIcon(Utils::Icons::ERROR.icon())
+    , m_invalidVersionIcon(Utils::Icons::CRITICAL.icon())
     , m_warningVersionIcon(Utils::Icons::WARNING.icon())
     , m_configurationWidget(0)
 {
@@ -309,7 +296,7 @@ void QtOptionsPageWidget::cleanUpQtVersions()
     QVector<QtVersionItem *> toRemove;
     QString text;
 
-    foreach (Utils::TreeItem *child, m_manualItem->children()) {
+    for (TreeItem *child : *m_manualItem) {
         auto item = static_cast<QtVersionItem *>(child);
         if (item->version() && !item->version()->isValid()) {
             toRemove.append(item);
@@ -348,7 +335,7 @@ void QtOptionsPageWidget::toolChainsUpdated()
 
 void QtOptionsPageWidget::qtVersionsDumpUpdated(const FileName &qmakeCommand)
 {
-    m_model->forItemsAtLevel<2>([this, qmakeCommand](QtVersionItem *item) {
+    m_model->forItemsAtLevel<2>([qmakeCommand](QtVersionItem *item) {
         if (item->version()->qmakeCommand() == qmakeCommand)
             item->version()->recheckDumper();
     });
@@ -400,8 +387,15 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
     // Do we have tool chain issues?
     QList<Abi> missingToolChains;
     const QList<Abi> qtAbis = version->qtAbis();
+
     for (const Abi &abi : qtAbis) {
-        if (ToolChainManager::findToolChains(abi).isEmpty())
+        const auto abiCompatePred = [&abi] (const ToolChain *tc)
+        {
+            return Utils::contains(tc->supportedAbis(),
+                                   [&abi](const Abi &sabi) { return sabi.isCompatibleWith(abi); });
+        };
+
+        if (!ToolChainManager::toolChain(abiCompatePred))
             missingToolChains.append(abi);
     }
 
@@ -547,8 +541,6 @@ void QtOptionsPageWidget::updateQtVersions(const QList<int> &additions, const QL
         BaseQtVersion *version = QtVersionManager::version(a)->clone();
         auto *item = new QtVersionItem(version);
 
-        item->setToolChainId(defaultToolChainId(version));
-
         // Insert in the right place:
         Utils::TreeItem *parent = version->isAutodetected()? m_autoItem : m_manualItem;
         parent->appendChild(item);
@@ -611,8 +603,6 @@ void QtOptionsPageWidget::addQtDir()
         auto item = new QtVersionItem(version);
         item->setIcon(version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
         m_manualItem->appendChild(item);
-        item->setToolChainId(defaultToolChainId(version));
-
         QModelIndex source = m_model->indexForItem(item);
         m_ui->qtdirList->setCurrentIndex(m_filterModel->mapFromSource(source)); // should update the rest of the ui
         m_versionUi->nameEdit->setFocus();
@@ -669,7 +659,6 @@ void QtOptionsPageWidget::editPath()
     // Update ui
     if (QtVersionItem *item = currentItem()) {
         item->setVersion(version);
-        item->setToolChainId(defaultToolChainId(version));
         item->setIcon(version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
     }
     userChangedCurrentVersion();
@@ -681,7 +670,7 @@ void QtOptionsPageWidget::editPath()
 void QtOptionsPageWidget::updateCleanUpButton()
 {
     bool hasInvalidVersion = false;
-    foreach (Utils::TreeItem *child, m_manualItem->children()) {
+    for (TreeItem *child : *m_manualItem) {
         auto item = static_cast<QtVersionItem *>(child);
         if (item->version() && !item->version()->isValid()) {
             hasInvalidVersion = true;
@@ -778,7 +767,7 @@ void QtOptionsPageWidget::apply()
 
     QList<BaseQtVersion *> versions;
 
-    m_model->forItemsAtLevel<2>([this, &versions](QtVersionItem *item) {
+    m_model->forItemsAtLevel<2>([&versions](QtVersionItem *item) {
         item->setChanged(false);
         versions.append(item->version()->clone());
     });

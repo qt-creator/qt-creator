@@ -157,7 +157,7 @@ void sortFilterImports(const QStringList &imports, QStringList *workingImports, 
 
 namespace QmlDesigner {
 
-static NodeInstanceServer *nodeInstanceServerInstance = 0;
+static NodeInstanceServer *nodeInstanceServerInstance = nullptr;
 
 static void notifyPropertyChangeCallBackFunction(QObject *object, const PropertyName &propertyName)
 {
@@ -170,11 +170,7 @@ static void (*notifyPropertyChangeCallBackPointer)(QObject *, const PropertyName
 NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
     NodeInstanceServerInterface(),
     m_childrenChangeEventFilter(new Internal::ChildrenChangeEventFilter(this)),
-    m_nodeInstanceClient(nodeInstanceClient),
-    m_timer(0),
-    m_renderTimerInterval(16),
-    m_slowRenderTimer(false),
-    m_slowRenderTimerInterval(200)
+    m_nodeInstanceClient(nodeInstanceClient)
 {
     qmlRegisterType<DummyContextObject>("QmlDesigner", 1, 0, "DummyContextObject");
 
@@ -182,10 +178,6 @@ NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstance
     nodeInstanceServerInstance = this;
     Internal::QmlPrivateGate::registerNotifyPropertyChangeCallBack(notifyPropertyChangeCallBackPointer);
     Internal::QmlPrivateGate::registerFixResourcePathsForObjectCallBack();
-}
-
-NodeInstanceServer::~NodeInstanceServer()
-{
 }
 
 QList<ServerNodeInstance> NodeInstanceServer::createInstances(const QVector<InstanceContainer> &containerVector)
@@ -247,7 +239,7 @@ ServerNodeInstance NodeInstanceServer::instanceForObject(QObject *object) const
 
 bool NodeInstanceServer::hasInstanceForObject(QObject *object) const
 {
-    if (object == 0)
+    if (object == nullptr)
         return false;
 
     return m_objectInstanceHash.contains(object) && m_objectInstanceHash.value(object).isValid();
@@ -671,7 +663,7 @@ QQmlContext *NodeInstanceServer::context() const
     if (engine())
         return rootContext();
 
-    return 0;
+    return nullptr;
 }
 
 QQmlContext *NodeInstanceServer::rootContext() const
@@ -979,7 +971,7 @@ void NodeInstanceServer::setInstanceAuxiliaryData(const PropertyValueContainer &
         }
     }
     if (auxiliaryContainer.name().endsWith("@NodeInstance")) {
-        PropertyName propertyName = auxiliaryContainer.name().left(auxiliaryContainer.name().count() - 12);
+        PropertyName propertyName = auxiliaryContainer.name().left(auxiliaryContainer.name().count() - 13);
         if (!auxiliaryContainer.value().isNull()) {
             setInstancePropertyVariant(PropertyValueContainer(auxiliaryContainer.instanceId(),
                                                               propertyName,

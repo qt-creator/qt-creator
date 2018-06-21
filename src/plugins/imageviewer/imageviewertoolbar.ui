@@ -25,6 +25,13 @@
     </widget>
    </item>
    <item>
+    <widget class="Core::CommandButton" name="toolButtonMultiExportImages">
+     <property name="toolTipBase">
+      <string>Export Images of Multiple Sizes</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="Core::CommandButton" name="toolButtonBackground">
      <property name="toolTipBase">
       <string>Show Background</string>
@@ -134,8 +141,5 @@
    <header>coreplugin/actionmanager/commandbutton.h</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="imageviewer.qrc"/>
- </resources>
  <connections/>
 </ui>

@@ -32,6 +32,16 @@
 #include <QWidget>
 #include <QString>
 #include <QVariant>
+#include <QDir>
+
+#include <memory>
+#include <vector>
+
+QT_BEGIN_NAMESPACE
+class QStandardItem;
+class QStandardItemModel;
+class QItemSelectionModel;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
@@ -55,6 +65,8 @@ public:
 
     QLabel *m_label = nullptr;
     QWidget *m_widget = nullptr;
+
+    QString m_type;
 };
 
 // --------------------------------------------------------------------
@@ -161,32 +173,65 @@ private:
     bool validate(Utils::MacroExpander *expander, QString *message) override;
     void initializeData(Utils::MacroExpander *expander) override;
 
-    QString m_checkedValue = QString("0");
-    QString m_uncheckedValue = QString("1");
+    QString m_checkedValue;
+    QString m_uncheckedValue;
     QVariant m_checkedExpression;
 
     bool m_isModified = false;
 };
 
-class ComboBoxField : public JsonFieldPage::Field
+class ListField : public JsonFieldPage::Field
 {
-private:
+public:
+    enum SpecialRoles {
+        ValueRole = Qt::UserRole,
+        ConditionRole = Qt::UserRole + 1,
+        IconStringRole = Qt::UserRole + 2
+    };
+    ListField();
+    virtual ~ListField() override;
+
+    protected:
     bool parseData(const QVariant &data, QString *errorMessage) override;
 
-    QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
-
-    void setup(JsonFieldPage *page, const QString &name) override;
+    QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override = 0;
+    void setup(JsonFieldPage *page, const QString &name) override = 0;
 
     bool validate(Utils::MacroExpander *expander, QString *message) override;
     void initializeData(Utils::MacroExpander *expander) override;
+    QStandardItemModel *itemModel();
+    QItemSelectionModel *selectionModel();
+    void setSelectionModel(QItemSelectionModel *selectionModel);
+    QSize maxIconSize();
 
-    QStringList m_itemList;
-    QStringList m_itemDataList;
-    QVariantList m_itemConditionList;
+private:
+    void addPossibleIconSize(const QIcon &icon);
+    void updateIndex();
+
+    std::vector<std::unique_ptr<QStandardItem>> m_itemList;
+    QStandardItemModel *m_itemModel = nullptr;
+    QItemSelectionModel *m_selectionModel = nullptr;
     int m_index = -1;
     int m_disabledIndex = -1;
+    QSize m_maxIconSize;
 
     mutable int m_savedIndex = -1;
+};
+
+class ComboBoxField : public ListField
+{
+public:
+    void setup(JsonFieldPage *page, const QString &name) override;
+    QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
+    void initializeData(Utils::MacroExpander *expander) override;
+};
+
+class IconListField : public ListField
+{
+public:
+    void setup(JsonFieldPage *page, const QString &name) override;
+    QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
+    void initializeData(Utils::MacroExpander *expander) override;
 };
 
 } // namespace ProjectExplorer

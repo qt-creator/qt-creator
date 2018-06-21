@@ -25,39 +25,46 @@
 
 #pragma once
 
-#include "columndefinition.h"
+#include "sqlitecolumn.h"
 #include "sqlstatementbuilder.h"
 
-#include <QVector>
-
-namespace Internal {
+namespace Sqlite {
 
 class SQLITE_EXPORT CreateTableSqlStatementBuilder
 {
 public:
     CreateTableSqlStatementBuilder();
 
-    void setTable(const Utf8String &tableName);
-    void addColumnDefinition(const Utf8String &columnName, ColumnType columnType, bool isPrimaryKey = false);
-    void setColumnDefinitions(const QVector<ColumnDefinition> & columnDefinitions);
+    void setTableName(Utils::SmallString &&tableName);
+    void addColumn(Utils::SmallString &&columnName,
+                   ColumnType columnType,
+                   Contraint constraint = Contraint::NoConstraint);
+    void setColumns(const SqliteColumns &columns);
     void setUseWithoutRowId(bool useWithoutRowId);
+    void setUseIfNotExists(bool useIfNotExists);
+    void setUseTemporaryTable(bool useTemporaryTable);
 
     void clear();
     void clearColumns();
 
-    Utf8String sqlStatement() const;
+    Utils::SmallStringView sqlStatement() const;
 
     bool isValid() const;
 
 protected:
     void bindColumnDefinitions() const;
     void bindAll() const;
+    void bindWithoutRowId() const;
+    void bindIfNotExists() const;
+    void bindTemporary() const;
 
 private:
-    mutable SqlStatementBuilder sqlStatementBuilder;
-    Utf8String tableName;
-    QVector<ColumnDefinition> columnDefinitions;
-    bool useWithoutRowId;
+    mutable SqlStatementBuilder m_sqlStatementBuilder;
+    Utils::SmallString m_tableName;
+    SqliteColumns m_columns;
+    bool m_useWithoutRowId = false;
+    bool m_useIfNotExits = false;
+    bool m_useTemporaryTable = false;
 };
 
-}
+} // namespace Sqlite

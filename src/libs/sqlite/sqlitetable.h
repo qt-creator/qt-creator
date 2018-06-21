@@ -25,52 +25,142 @@
 
 #pragma once
 
+#include "createtablesqlstatementbuilder.h"
 #include "sqliteglobal.h"
-#include "tablewriteworkerproxy.h"
-#include "utf8string.h"
+#include "sqlitecolumn.h"
+#include "sqliteindex.h"
+#include "sqliteexception.h"
 
-#include <QObject>
-#include <QVector>
+namespace Sqlite {
 
-class SqliteColumn;
-class SqliteDatabase;
+class Database;
 
-class SQLITE_EXPORT SqliteTable : public QObject
+class Table
 {
-    Q_OBJECT
-
-    friend class Internal::TableWriteWorkerProxy;
-
 public:
-    SqliteTable();
-    ~SqliteTable();
+    Table(std::size_t reserve = 10)
+    {
+        m_sqliteColumns.reserve(reserve);
+        m_sqliteIndices.reserve(reserve);
+    }
 
-    void setName(const Utf8String &name);
-    const Utf8String &name() const;
+    void setName(Utils::SmallString &&name)
+    {
+        m_tableName = std::move(name);
+    }
 
-    void setUseWithoutRowId(bool useWithoutWorId);
-    bool useWithoutRowId() const;
+    Utils::SmallStringView name() const
+    {
+        return m_tableName;
+    }
 
-    void addColumn(SqliteColumn *newColumn);
-    const QVector<SqliteColumn *> &columns() const;
+    void setUseWithoutRowId(bool useWithoutWorId)
+    {
+        m_withoutRowId = useWithoutWorId;
+    }
 
-    void setSqliteDatabase(SqliteDatabase *database);
+    bool useWithoutRowId() const
+    {
+        return m_withoutRowId;
+    }
 
-    void initialize();
-    void shutdown();
+    void setUseIfNotExists(bool useIfNotExists)
+    {
+        m_useIfNotExists = useIfNotExists;
+    }
 
-signals:
-    void tableIsReady();
+    void setUseTemporaryTable(bool useTemporaryTable)
+    {
+        m_useTemporaryTable = useTemporaryTable;
+    }
+
+    Column &addColumn(Utils::SmallString &&name,
+                            ColumnType type = ColumnType::Numeric,
+                            Contraint constraint = Contraint::NoConstraint)
+    {
+        m_sqliteColumns.emplace_back(std::move(name), type, constraint);
+
+        return m_sqliteColumns.back();
+    }
+
+    Index &addIndex(const SqliteColumnConstReferences &columns)
+    {
+        m_sqliteIndices.emplace_back(m_tableName.clone(), sqliteColumnNames(columns));
+
+        return m_sqliteIndices.back();
+    }
+
+    Index &addUniqueIndex(const SqliteColumnConstReferences &columns)
+    {
+        m_sqliteIndices.emplace_back(m_tableName.clone(),
+                                     sqliteColumnNames(columns),
+                                     IndexType::Unique);
+
+        return m_sqliteIndices.back();
+    }
+
+    const SqliteColumns &columns() const
+    {
+        return m_sqliteColumns;
+    }
+
+    bool isReady() const
+    {
+        return m_isReady;
+    }
+
+    template <typename Database>
+    void initialize(Database &database)
+    {
+        CreateTableSqlStatementBuilder builder;
+
+        builder.setTableName(m_tableName.clone());
+        builder.setUseWithoutRowId(m_withoutRowId);
+        builder.setUseIfNotExists(m_useIfNotExists);
+        builder.setUseTemporaryTable(m_useTemporaryTable);
+        builder.setColumns(m_sqliteColumns);
+
+        database.execute(builder.sqlStatement());
+
+        initializeIndices(database);
+
+        m_isReady = true;
+    }
+    template <typename Database>
+    void initializeIndices(Database &database)
+    {
+        for (const Index &index : m_sqliteIndices)
+            database.execute(index.sqlStatement());
+    }
+
+    friend bool operator==(const Table &first, const Table &second)
+    {
+        return first.m_tableName == second.m_tableName
+            && first.m_withoutRowId == second.m_withoutRowId
+            && first.m_useIfNotExists == second.m_useIfNotExists
+            && first.m_isReady == second.m_isReady
+            && first.m_sqliteColumns == second.m_sqliteColumns;
+    }
 
 private:
-    void handleTableCreated();
-    Internal::CreateTableCommand createTableCommand() const;
-    QVector<Internal::ColumnDefinition> createColumnDefintions() const;
+    Utils::SmallStringVector sqliteColumnNames(const SqliteColumnConstReferences &columns)
+    {
+        Utils::SmallStringVector columnNames;
+
+        for (const Column &column : columns)
+            columnNames.push_back(column.name());
+
+        return columnNames;
+    }
 
 private:
-    Internal::TableWriteWorkerProxy writeWorker;
-    QVector<SqliteColumn*> sqliteColumns;
-    Utf8String tableName;
-    SqliteDatabase *sqliteDatabase;
-    bool withoutRowId;
+    Utils::SmallString m_tableName;
+    SqliteColumns m_sqliteColumns;
+    SqliteIndices m_sqliteIndices;
+    bool m_withoutRowId = false;
+    bool m_useIfNotExists = false;
+    bool m_useTemporaryTable = false;
+    bool m_isReady = false;
 };
+
+} // namespace Sqlite

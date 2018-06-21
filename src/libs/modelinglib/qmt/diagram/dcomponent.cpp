@@ -31,8 +31,6 @@
 namespace qmt {
 
 DComponent::DComponent()
-    : DObject(),
-      m_isPlainShape(false)
 {
 }
 

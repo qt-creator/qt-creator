@@ -24,11 +24,11 @@
 ****************************************************************************/
 
 #include "gtestframework.h"
-#include "gtestconstants.h"
 #include "gtestsettings.h"
 #include "gtestsettingspage.h"
 #include "gtesttreeitem.h"
 #include "gtestparser.h"
+#include "../testframeworkmanager.h"
 
 namespace Autotest {
 namespace Internal {
@@ -69,6 +69,35 @@ ITestSettingsPage *GTestFramework::createSettingsPage(QSharedPointer<IFrameworkS
 bool GTestFramework::hasFrameworkSettings() const
 {
     return true;
+}
+
+QString GTestFramework::currentGTestFilter()
+{
+    static const Core::Id id
+            = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
+    const auto manager = TestFrameworkManager::instance();
+
+    auto gSettings = qSharedPointerCast<GTestSettings>(manager->settingsForTestFramework(id));
+    return gSettings.isNull() ? QString(GTest::Constants::DEFAULT_FILTER) : gSettings->gtestFilter;
+}
+
+QString GTestFramework::groupingToolTip() const
+{
+    return QCoreApplication::translate("GTestFramework",
+                                       "Enable or disable grouping of test cases by folder or "
+                                       "gtest filter.\nSee also Google Test settings.");
+}
+
+GTest::Constants::GroupMode GTestFramework::groupMode()
+{
+    static const Core::Id id
+            = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
+    const auto manager = TestFrameworkManager::instance();
+    if (!manager->groupingEnabled(id))
+        return GTest::Constants::None;
+
+    auto gSettings = qSharedPointerCast<GTestSettings>(manager->settingsForTestFramework(id));
+    return gSettings.isNull() ? GTest::Constants::Directory : gSettings->groupMode;
 }
 
 } // namespace Internal

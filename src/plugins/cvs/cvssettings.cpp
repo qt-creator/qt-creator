@@ -44,7 +44,7 @@ CvsSettings::CvsSettings()
 {
     setSettingsGroup(QLatin1String("CVS"));
     declareKey(binaryPathKey, QLatin1String("cvs" QTC_HOST_EXE_SUFFIX));
-    declareKey(cvsRootKey, QLatin1String(""));
+    declareKey(cvsRootKey, QString());
     declareKey(diffOptionsKey, QLatin1String("-du"));
     declareKey(describeByCommitIdKey, true);
     declareKey(diffIgnoreWhiteSpaceKey, false);

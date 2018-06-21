@@ -35,6 +35,7 @@
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QDir>
+#include <QRegExp>
 
 #include <QDebug>
 
@@ -47,8 +48,6 @@ ToolSettings::ToolSettings(QObject *parent) :
     setId(Constants::SETTINGS_ID_TOOLS);
     setDisplayName(tr("External Tools"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
-    setCategoryIcon(Utils::Icon(Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 

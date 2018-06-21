@@ -44,17 +44,12 @@ PlainTextEditModifier::PlainTextEditModifier(QPlainTextEdit *textEdit):
 {
     Q_ASSERT(textEdit);
 
-    connect(m_textEdit, SIGNAL(textChanged()),
-            this, SLOT(textEditChanged()));
+    connect(m_textEdit, &QPlainTextEdit::textChanged,
+            this, &PlainTextEditModifier::textEditChanged);
 }
 
 PlainTextEditModifier::~PlainTextEditModifier()
 {
-}
-
-void PlainTextEditModifier::save(QIODevice *device)
-{
-    device->write(m_textEdit->toPlainText().toUtf8());
 }
 
 void PlainTextEditModifier::replace(int offset, int length, const QString &replacement)
@@ -126,7 +121,7 @@ void PlainTextEditModifier::startGroup()
     if (!m_changeSet)
         m_changeSet = new ChangeSet;
 
-    m_textEdit->textCursor().beginEditBlock();
+    textCursor().beginEditBlock();
 }
 
 void PlainTextEditModifier::flushGroup()
@@ -143,7 +138,7 @@ void PlainTextEditModifier::commitGroup()
         m_changeSet = 0;
     }
 
-    m_textEdit->textCursor().endEditBlock();
+    textCursor().endEditBlock();
 }
 
 void PlainTextEditModifier::textEditChanged()
@@ -157,7 +152,7 @@ void PlainTextEditModifier::textEditChanged()
 void PlainTextEditModifier::runRewriting(ChangeSet *changeSet)
 {
     m_ongoingTextChange = true;
-    QTextCursor cursor = m_textEdit->textCursor();
+    QTextCursor cursor = textCursor();
     changeSet->apply(&cursor);
     m_ongoingTextChange = false;
     textEditChanged();

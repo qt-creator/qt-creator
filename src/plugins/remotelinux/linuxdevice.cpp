@@ -35,6 +35,7 @@
 
 #include <coreplugin/id.h>
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
+#include <projectexplorer/runconfiguration.h>
 #include <ssh/sshremoteprocessrunner.h>
 #include <utils/algorithm.h>
 #include <utils/port.h>
@@ -122,7 +123,7 @@ private:
 
 class LinuxPortsGatheringMethod : public PortsGatheringMethod
 {
-    QByteArray commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const
+    Runnable runnable(QAbstractSocket::NetworkLayerProtocol protocol) const
     {
         // We might encounter the situation that protocol is given IPv6
         // but the consumer of the free port information decides to open
@@ -135,7 +136,10 @@ class LinuxPortsGatheringMethod : public PortsGatheringMethod
         Q_UNUSED(protocol)
 
         // /proc/net/tcp* covers /proc/net/tcp and /proc/net/tcp6
-        return "sed -e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*";
+        Runnable runnable;
+        runnable.executable = "sed";
+        runnable.commandLineArguments = "-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*";
+        return runnable;
     }
 
     QList<Utils::Port> usedPorts(const QByteArray &output) const
@@ -201,6 +205,11 @@ void LinuxDevice::executeAction(Core::Id actionId, QWidget *parent)
     if (d)
         d->exec();
     delete d;
+}
+
+Utils::OsType LinuxDevice::osType() const
+{
+    return Utils::OsTypeLinux;
 }
 
 LinuxDevice::LinuxDevice(const QString &name, Core::Id type, MachineType machineType,

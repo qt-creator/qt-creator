@@ -32,10 +32,6 @@
 #include <QPointer>
 #include <QWidget>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
 namespace VcsBase {
 class VcsBaseClientSettings;
 } // namespace VcsBase
@@ -63,7 +59,7 @@ class SettingsPage : public VcsBase::VcsClientOptionsPage
     Q_OBJECT
 
 public:
-    SettingsPage(Core::IVersionControl *control);
+    SettingsPage(Core::IVersionControl *control, QObject *parent);
     void apply() override;
 };
 

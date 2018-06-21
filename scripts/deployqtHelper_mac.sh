@@ -29,6 +29,7 @@
 [ $(uname -s) != "Darwin" ] && echo "Run this script on Mac OS X" && exit 2;
 
 app_path="$1"
+resource_path="$app_path/Contents/Resources"
 bin_src="$2"
 translation_src="$3"
 plugin_src="$4"
@@ -76,28 +77,28 @@ if [ -d "$quick2_src" ]; then
 fi
 
 # copy qt creator qt.conf
-if [ ! -f "$app_path/Contents/Resources/qt.conf" ]; then
+if [ ! -f "$resource_path/qt.conf" ]; then
     echo "- Copying qt.conf"
-    cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/qt.conf" "$app_path/Contents/Resources/qt.conf" || exit 1
+    cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/qt.conf" "$resource_path/qt.conf" || exit 1
 fi
 
 # copy ios tools' qt.conf
-if [ ! -f "$app_path/Contents/Resources/ios/qt.conf" ]; then
+if [ ! -f "$resource_path/ios/qt.conf" ]; then
     echo "- Copying ios/qt.conf"
-    cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/ios_qt.conf" "$app_path/Contents/Resources/ios/qt.conf" || exit 1
+    cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/ios_qt.conf" "$resource_path/ios/qt.conf" || exit 1
 fi
 
 # copy qml2puppet's qt.conf
-if [ ! -f "$app_path/Contents/Resources/qmldesigner/qt.conf" ]; then
+if [ ! -f "$resource_path/qmldesigner/qt.conf" ]; then
     echo "- Copying qmldesigner/qt.conf"
-    cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/qmldesigner_qt.conf" "$app_path/Contents/Resources/qmldesigner/qt.conf" || exit 1
+    cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/qmldesigner_qt.conf" "$resource_path/qmldesigner/qt.conf" || exit 1
 fi
 
 # copy Qt translations
 # check for known existing translation to avoid copying multiple times
-if [ ! -f "$app_path/Contents/Resources/translations/qt_de.qm" ]; then
+if [ ! -f "$resource_path/translations/qt_de.qm" ]; then
     echo "- Copying Qt translations"
-    cp "$translation_src"/*.qm "$app_path/Contents/Resources/translations/" || exit 1
+    cp "$translation_src"/*.qm "$resource_path/translations/" || exit 1
 fi
 
 # copy libclang if needed
@@ -106,47 +107,43 @@ if [ $LLVM_INSTALL_DIR ]; then
         echo "- Copying libclang"
         mkdir -p "$app_path/Contents/Frameworks" || exit 1
         # use recursive copy to make it copy symlinks as symlinks
-        mkdir -p "$app_path/Contents/Resources/clang/bin"
-        mkdir -p "$app_path/Contents/Resources/clang/lib"
+        mkdir -p "$resource_path/clang/bin"
+        mkdir -p "$resource_path/clang/lib"
         cp -Rf "$LLVM_INSTALL_DIR"/lib/libclang.*dylib "$app_path/Contents/Frameworks/" || exit 1
-        cp -Rf "$LLVM_INSTALL_DIR"/lib/clang "$app_path/Contents/Resources/clang/lib/" || exit 1
+        cp -Rf "$LLVM_INSTALL_DIR"/lib/clang "$resource_path/clang/lib/" || exit 1
         clangsource="$LLVM_INSTALL_DIR"/bin/clang
         clanglinktarget="$(readlink "$clangsource")"
-        cp -Rf "$clangsource" "$app_path/Contents/Resources/clang/bin/" || exit 1
+        cp -Rf "$clangsource" "$resource_path/clang/bin/" || exit 1
         if [ $clanglinktarget ]; then
-            cp -Rf "$(dirname "$clangsource")/$clanglinktarget" "$app_path/Contents/Resources/clang/bin/$clanglinktarget" || exit 1
+            cp -Rf "$(dirname "$clangsource")/$clanglinktarget" "$resource_path/clang/bin/$clanglinktarget" || exit 1
         fi
     fi
-    _CLANG_CODEMODEL_LIB="$app_path/Contents/PlugIns/libClangCodeModel_debug.dylib"
-    if [ ! -f "$_CLANG_CODEMODEL_LIB" ]; then
-        _CLANG_CODEMODEL_LIB="$app_path/Contents/PlugIns/libClangCodeModel.dylib"
-    fi
-    # this will just fail when run a second time on libClangCodeModel
-    xcrun install_name_tool -delete_rpath "$LLVM_INSTALL_DIR/lib" "$_CLANG_CODEMODEL_LIB" || true
-    xcrun install_name_tool -add_rpath "@loader_path/../Frameworks" "$_CLANG_CODEMODEL_LIB" || true
-    clangbackendArgument="-executable=$app_path/Contents/Resources/clangbackend"
+    clangbackendArgument="-executable=$resource_path/clangbackend"
+    clangpchmanagerArgument="-executable=$resource_path/clangpchmanagerbackend"
+    clangrefactoringArgument="-executable=$resource_path/clangrefactoringbackend"
 fi
 
 #### macdeployqt
 
 if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
 
-    qml2puppetapp="$app_path/Contents/Resources/qmldesigner/qml2puppet"
+    qml2puppetapp="$resource_path/qmldesigner/qml2puppet"
     if [ -f "$qml2puppetapp" ]; then
         qml2puppetArgument="-executable=$qml2puppetapp"
     fi
 
     qbsapp="$app_path/Contents/MacOS/qbs"
 
-    echo "- Running macdeployqt ($(which macdeployqt))"
+    echo "- Running macdeployqt ($bin_src/macdeployqt)"
 
-    macdeployqt "$app_path" \
-        "-executable=$app_path/Contents/Resources/qtpromaker" \
-        "-executable=$app_path/Contents/Resources/sdktool" \
-        "-executable=$app_path/Contents/Resources/ios/iostool" \
-        "-executable=$app_path/Contents/Resources/buildoutputparser" \
-        "-executable=$app_path/Contents/Resources/cpaster" \
+    "$bin_src/macdeployqt" "$app_path" \
         "-executable=$app_path/Contents/MacOS/qtdiag" \
+        "-executable=$resource_path/qtpromaker" \
+        "-executable=$resource_path/sdktool" \
+        "-executable=$resource_path/ios/iostool" \
+        "-executable=$resource_path/buildoutputparser" \
+        "-executable=$resource_path/cpaster" \
+        "-executable=$resource_path/qbs_processlauncher" \
         "-executable=$qbsapp" \
         "-executable=$qbsapp-config" \
         "-executable=$qbsapp-config-ui" \
@@ -154,6 +151,8 @@ if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
         "-executable=$qbsapp-setup-android" \
         "-executable=$qbsapp-setup-qt" \
         "-executable=$qbsapp-setup-toolchains" \
-        "$qml2puppetArgument" "$clangbackendArgument" || exit 1
+        "-executable=$qbsapp-create-project" \
+        "$qml2puppetArgument" \
+        "$clangbackendArgument" "$clangpchmanagerArgument" "$clangrefactoringArgument" || exit 1
 
 fi

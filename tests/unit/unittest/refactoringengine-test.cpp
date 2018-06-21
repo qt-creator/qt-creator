@@ -25,17 +25,16 @@
 
 #include "googletest.h"
 
+#include "mockfilepathcaching.h"
 #include "mockrefactoringserver.h"
 #include "mockrefactoringclient.h"
+#include "mocksymbolquery.h"
 
 #include <refactoringengine.h>
 
-#include <requestsourcelocationforrenamingmessage.h>
-#include <requestsourcerangesanddiagnosticsforquerymessage.h>
-#include <sourcelocationsforrenamingmessage.h>
-#include <sourcerangesanddiagnosticsforquerymessage.h>
+#include <clangrefactoringmessages.h>
 
-#include <cpptools/clangcompileroptionsbuilder.h>
+#include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/projectpart.h>
 
 #include <utils/smallstringvector.h>
@@ -47,7 +46,7 @@ namespace {
 
 using testing::_;
 
-using CppTools::ClangCompilerOptionsBuilder;
+using CppTools::CompilerOptionsBuilder;
 
 using ClangBackEnd::RequestSourceLocationsForRenamingMessage;
 
@@ -57,14 +56,17 @@ using Utils::SmallStringVector;
 class RefactoringEngine : public ::testing::Test
 {
 protected:
-    RefactoringEngine();
-
     void SetUp();
 
 protected:
+    NiceMock<MockFilePathCaching> mockFilePathCaching;
     MockRefactoringServer mockRefactoringServer;
     MockRefactoringClient mockRefactoringClient;
-    ClangRefactoring::RefactoringEngine engine;
+    MockSymbolQuery mockSymbolQuery;
+    ClangRefactoring::RefactoringEngine engine{mockRefactoringServer,
+                                               mockRefactoringClient,
+                                               mockFilePathCaching,
+                                               mockSymbolQuery};
     QString fileContent{QStringLiteral("int x;\nint y;")};
     QTextDocument textDocument{fileContent};
     QTextCursor cursor{&textDocument};
@@ -89,40 +91,57 @@ TEST_F(RefactoringEngine, SendRequestSourceLocationsForRenamingMessage)
     EXPECT_CALL(mockRefactoringServer, requestSourceLocationsForRenamingMessage(message))
         .Times(1);
 
-    engine.startLocalRenaming(cursor, filePath, textDocument.revision(), projectPart.data(), {});
+    engine.startLocalRenaming(CppTools::CursorInEditor{cursor, filePath},
+                              projectPart.data(), {});
 }
 
 TEST_F(RefactoringEngine, AfterSendRequestSourceLocationsForRenamingMessageIsUnusable)
 {
     EXPECT_CALL(mockRefactoringServer, requestSourceLocationsForRenamingMessage(_));
 
-    engine.startLocalRenaming(cursor, filePath, textDocument.revision(), projectPart.data(), {});
+    engine.startLocalRenaming(CppTools::CursorInEditor{cursor, filePath},
+                              projectPart.data(), {});
 
-    ASSERT_FALSE(engine.isUsable());
+    ASSERT_FALSE(engine.isRefactoringEngineAvailable());
+}
+
+TEST_F(RefactoringEngine, ExpectSourceUsagesAtInFindUsages)
+{
+    cursor.setPosition(11);
+
+    EXPECT_CALL(mockSymbolQuery, sourceUsagesAt(_, 2, 5));
+
+    engine.findUsages(CppTools::CursorInEditor{cursor, filePath},
+                      [](const CppTools::Usages &) {});
+}
+
+TEST_F(RefactoringEngine, ExpectSourceUsagesAtInGlobalRename)
+{
+    cursor.setPosition(11);
+
+    EXPECT_CALL(mockSymbolQuery, sourceUsagesAt(_, 2, 5));
+
+    engine.globalRename(CppTools::CursorInEditor{cursor, filePath},
+                        [](const CppTools::Usages &) {}, QString());
 }
 
 TEST_F(RefactoringEngine, EngineIsNotUsableForUnusableServer)
 {
-    ASSERT_FALSE(engine.isUsable());
+    ASSERT_FALSE(engine.isRefactoringEngineAvailable());
 }
 
 TEST_F(RefactoringEngine, EngineIsUsableForUsableServer)
 {
-    mockRefactoringServer.setUsable(true);
+    mockRefactoringServer.setAvailable(true);
 
-    ASSERT_TRUE(engine.isUsable());
+    ASSERT_TRUE(engine.isRefactoringEngineAvailable());
 }
 
 TEST_F(RefactoringEngine, ServerIsUsableForUsableEngine)
 {
-    engine.setUsable(true);
+    engine.setRefactoringEngineAvailable(true);
 
-    ASSERT_TRUE(mockRefactoringServer.isUsable());
-}
-
-RefactoringEngine::RefactoringEngine()
-    : engine(mockRefactoringServer, mockRefactoringClient)
-{
+    ASSERT_TRUE(mockRefactoringServer.isAvailable());
 }
 
 void RefactoringEngine::SetUp()
@@ -130,12 +149,10 @@ void RefactoringEngine::SetUp()
     projectPart = CppTools::ProjectPart::Ptr(new CppTools::ProjectPart);
     projectPart->files.push_back(projectFile);
 
-    commandLine = Utils::SmallStringVector(ClangCompilerOptionsBuilder::build(
-                                               projectPart.data(),
+    CompilerOptionsBuilder optionsBuilder(*projectPart, CLANG_VERSION, CLANG_RESOURCE_DIR);
+    commandLine = Utils::SmallStringVector(optionsBuilder.build(
                                                projectFile.kind,
-                                               CppTools::CompilerOptionsBuilder::PchUsage::None,
-                                               CLANG_VERSION,
-                                               CLANG_RESOURCE_DIR));
+                                               CompilerOptionsBuilder::PchUsage::None));
     commandLine.push_back(qStringFilePath);
 }
 

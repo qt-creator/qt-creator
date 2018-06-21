@@ -27,7 +27,7 @@
 
 #include <texteditor/quickfix.h>
 
-#include <clangbackendipc/diagnosticcontainer.h>
+#include <clangsupport/diagnosticcontainer.h>
 
 namespace ClangCodeModel {
 

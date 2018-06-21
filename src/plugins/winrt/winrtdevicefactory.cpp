@@ -170,14 +170,16 @@ bool WinRtDeviceFactory::allPrerequisitesLoaded()
 
 QString WinRtDeviceFactory::findRunnerFilePath() const
 {
-    const QString winRtQtType = QLatin1String(Constants::WINRT_WINRTQT);
-    const QString winPhoneQtType = QLatin1String(Constants::WINRT_WINPHONEQT);
     const QString winRtRunnerExe = QStringLiteral("/winrtrunner.exe");
+    const QList<BaseQtVersion *> winrtVersions
+            = QtVersionManager::sortVersions(
+                QtVersionManager::versions(BaseQtVersion::isValidPredicate([](const BaseQtVersion *v) {
+        return v->type() == QLatin1String(Constants::WINRT_WINRTQT)
+                || v->type() == QLatin1String(Constants::WINRT_WINPHONEQT);
+    })));
     QString filePath;
-    BaseQtVersion *qt = 0;
-    foreach (BaseQtVersion *v, QtVersionManager::versions()) {
-        if (!v->isValid() || (v->type() != winRtQtType && v->type() != winPhoneQtType))
-            continue;
+    BaseQtVersion *qt = nullptr;
+    for (BaseQtVersion *v : winrtVersions) {
         if (!qt || qt->qtVersion() < v->qtVersion()) {
             QFileInfo fi(v->binPath().toString() + winRtRunnerExe);
             if (fi.isFile() && fi.isExecutable()) {

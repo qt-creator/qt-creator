@@ -28,8 +28,10 @@
 #include <coreplugin/actionmanager/command.h>
 
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QAction>
+#include <QTimer>
 
 namespace Core {
 
@@ -66,21 +68,26 @@ QList<LocatorFilterEntry> CommandLocator::matchesFor(QFutureInterface<LocatorFil
     QList<LocatorFilterEntry> betterEntries;
     // Get active, enabled actions matching text, store in list.
     // Reference via index in extraInfo.
-    const QChar ampersand = QLatin1Char('&');
-    const Qt::CaseSensitivity caseSensitivity_ = caseSensitivity(entry);
+    const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
     const int count = d->commands.size();
     for (int i = 0; i < count; i++) {
         if (future.isCanceled())
             break;
-        if (d->commands.at(i)->isActive()) {
-            if (QAction *action = d->commands.at(i)->action())
-                if (action->isEnabled()) {
-                QString text = action->text();
-                text.remove(ampersand);
-                if (text.startsWith(entry, caseSensitivity_))
-                    betterEntries.append(LocatorFilterEntry(this, text, QVariant(i)));
-                else if (text.contains(entry, caseSensitivity_))
-                    goodEntries.append(LocatorFilterEntry(this, text, QVariant(i)));
+        if (!d->commands.at(i)->isActive())
+            continue;
+
+        QAction *action = d->commands.at(i)->action();
+        if (action && action->isEnabled()) {
+            const QString text = Utils::stripAccelerator(action->text());
+            const int index = text.indexOf(entry, 0, entryCaseSensitivity);
+            if (index >= 0) {
+                LocatorFilterEntry filterEntry(this, text, QVariant(i));
+                filterEntry.highlightInfo = {index, entry.length()};
+
+                if (index == 0)
+                    betterEntries.append(filterEntry);
+                else
+                    goodEntries.append(filterEntry);
             }
         }
     }
@@ -88,14 +95,21 @@ QList<LocatorFilterEntry> CommandLocator::matchesFor(QFutureInterface<LocatorFil
     return betterEntries;
 }
 
-void CommandLocator::accept(LocatorFilterEntry entry) const
+void CommandLocator::accept(LocatorFilterEntry entry,
+                            QString *newText, int *selectionStart, int *selectionLength) const
 {
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     // Retrieve action via index.
     const int index = entry.internalData.toInt();
     QTC_ASSERT(index >= 0 && index < d->commands.size(), return);
     QAction *action = d->commands.at(index)->action();
-    QTC_ASSERT(action->isEnabled(), return);
-    action->trigger();
+    // avoid nested stack trace and blocking locator by delayed triggering
+    QTimer::singleShot(0, action, [action] {
+        if (action->isEnabled())
+            action->trigger();
+    });
 }
 
 void CommandLocator::refresh(QFutureInterface<void> &)

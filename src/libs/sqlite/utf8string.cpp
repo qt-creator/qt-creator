@@ -39,11 +39,6 @@ QDebug operator<<(QDebug debug, const Utf8String &text)
     return debug;
 }
 
-void PrintTo(const Utf8String &text, ::std::ostream* os)
-{
-    *os << "\"" << text.toByteArray().data() << "\"";
-}
-
 std::ostream& operator<<(std::ostream &os, const Utf8String &utf8String)
 {
     using std::ostream;

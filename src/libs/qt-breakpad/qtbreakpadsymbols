@@ -1,0 +1,271 @@
+#!/usr/bin/python
+
+import sys
+import os
+import os.path
+import subprocess
+import shlex
+import shutil
+import base64
+
+from poster.encode import multipart_encode
+from poster.encode import MultipartParam
+from poster.streaminghttp import register_openers
+import urllib2
+
+from optparse import OptionParser
+
+register_openers()
+
+breakpadSourceDir = os.environ['BREAKPAD_SOURCE_DIR']
+breakpadUploadUrl = os.environ['BREAKPAD_UPLOAD_URL']
+breakpadUserName = os.environ['BREAKPAD_USER_NAME']
+breakpadUserPassword = os.environ['BREAKPAD_USER_PASSWORD']
+
+if sys.platform == 'win32':
+    nullfilename = 'nul:'
+else:
+    nullfilename = '/dev/null'
+nullfile = open(nullfilename, 'r+b')
+
+
+def stdoutFromProcess(process):
+    (stdout, stderr) = process.communicate()
+    if stderr:
+        print stderr
+        raise SystemError()
+        sys.exit(1)
+    return stdout
+
+def toolPath():
+    if sys.platform == 'linux2':
+        dumpsymsPath = os.path.join(breakpadSourceDir, 'src/tools/linux/dump_syms/dump_syms')
+    elif sys.platform == 'darwin':
+        dumpsymsPath = os.path.join(breakpadSourceDir, 'src/tools/mac/dump_syms/build/Release/dump_syms')
+    elif sys.platform == 'win32':
+        dumpsymsPath = os.path.join(breakpadSourceDir,'src\\tools\\windows\\binaries\\dump_syms.exe')
+    else:
+        sys.exit(1)
+    return dumpsymsPath
+
+gitRootDirectoryCache = {}
+
+def gitRootDirectory(path):
+    directory = os.path.dirname(path)
+    if directory in gitRootDirectoryCache:
+        return gitRootDirectoryCache[directory]
+    directoryList = directory.split(os.sep)
+    while len(directoryList) > 0:
+        gitDirectory = os.sep.join(directoryList + ['.git'])
+        if os.path.exists(gitDirectory):
+            gitDirectory = os.sep.join(directoryList)
+            gitRootDirectoryCache[directory] = gitDirectory
+            return gitDirectory
+        directoryList.pop()
+
+    return None
+
+
+gitCommitShaCache = {}
+
+
+def gitCommitSha(gitRootPath):
+    if gitRootPath in gitCommitShaCache:
+        return gitCommitShaCache[gitRootPath]
+    gitProcess = subprocess.Popen(shlex.split('git rev-parse HEAD'),
+                                  stdout=subprocess.PIPE,
+                                  stderr=nullfile, cwd=gitRootPath)
+    commitSha = stdoutFromProcess(gitProcess).strip('\n')
+    gitCommitShaCache[gitRootPath] = commitSha
+    return commitSha
+
+
+gitRemoteRepositoryCache = {}
+
+
+def gitRemoteRepository(gitRootPath):
+    if gitRootPath in gitRemoteRepositoryCache:
+        return gitRemoteRepositoryCache[gitRootPath]
+    gitProcess = \
+        subprocess.Popen(shlex.split('git config remote.origin.url'),
+                         stdout=subprocess.PIPE, stderr=nullfile,
+                         cwd=gitRootPath)
+    repository = stdoutFromProcess(gitProcess).strip('\n')
+    gitRemoteRepositoryCache[gitRootPath] = repository
+    return repository
+
+
+gitFilePathCache = {}
+
+
+def populateFilePathCache(gitRootPath):
+    if gitRootPath not in gitFilePathCache:
+        gitProcess = \
+            subprocess.Popen(shlex.split('git ls-files --full-name'),
+                             stdout=subprocess.PIPE, stderr=nullfile,
+                             cwd=gitRootPath)
+        fileNameList = stdoutFromProcess(gitProcess).split('\n')
+        filePathCache = {}
+        for fileName in fileNameList:
+            baseFileName = os.path.basename(fileName)
+            filePathCache[baseFileName] = fileName
+        gitFilePathCache[gitRootPath] = filePathCache
+
+
+def gitFilePath(path, gitRootPath):
+    if not gitRootPath:
+        return path
+
+    populateFilePathCache(gitRootPath)
+
+    baseFileName = os.path.basename(path)
+    filePathCache = gitFilePathCache[gitRootPath]
+    if baseFileName in filePathCache:
+        return filePathCache[baseFileName]
+    else:
+        return os.path.relpath(path, gitRootPath)
+
+
+def isInRepository(path):
+    gitRootPath = gitRootDirectory(path)
+    if not gitRootPath:
+        return False
+
+    populateFilePathCache(gitRootPath)
+    baseFileName = os.path.basename(path)
+    if baseFileName in gitFilePathCache[gitRootPath]:
+        return True
+    else:
+        return False
+
+
+def sendSymbolsToServer(
+    breakpadUploadUrl,
+    symbolText,
+    codeFile,
+    debugFile,
+    debugIdentifier,
+    operatingSystem,
+    cpu,
+    ):
+    (data, headers) = multipart_encode({
+        'symbol_file': MultipartParam('symbol_file', value=symbolText,
+                filename='symbol_file'),
+        'code_file': codeFile,
+        'debug_file': debugFile,
+        'debug_identifier': debugIdentifier,
+        'os': operatingSystem,
+        'cpu': cpu,
+        })
+    request = urllib2.Request(breakpadUploadUrl, data, headers)
+    auth = base64.encodestring('%s:%s' % (breakpadUserName,
+                               breakpadUserPassword))[:-1]  # This is just standard un/pw encoding
+    request.add_header('Authorization', 'Basic %s' % auth)  # Add Auth header to request
+    result = urllib2.urlopen(request).read()
+
+
+def generateSymbolFilesAndSend(binaryPath, projectPath):
+    dumpsymsPath = toolPath()
+
+    originalBinaryPath = binaryPath
+
+    if sys.platform == 'darwin':
+        dsymutilProcess = \
+            subprocess.Popen(shlex.split('/usr/bin/dsymutil "'
+                             + binaryPath + '"'), stdout=nullfile,
+                             stderr=nullfile)
+        dsymutilProcess.wait()
+        binaryPath += os.path.join('.dSYM/Contents/Resources/DWARF/',
+                                   os.path.basename(binaryPath))
+
+    binaryPath = os.path.normpath(binaryPath)
+
+    dumpsymsProcess = subprocess.Popen(shlex.split('"' + dumpsymsPath
+            + '" "' + binaryPath + '"'), stdout=subprocess.PIPE,
+            stderr=nullfile, cwd=projectPath)
+    symbolList = stdoutFromProcess(dumpsymsProcess).split('\n')
+
+    outputTextList = []
+    codeFile = os.path.basename(binaryPath)
+    debugFile = ''
+    debugIdentifier = ''
+    operatingSystem = ''
+    cpu = ''
+    moduleNotParsed = True
+    for line in symbolList:
+        line = line.strip('\n').strip('\r')
+        if line[:4] == 'FILE':
+            (marker, idnumber, filepath) = line.split(' ', 2)
+            filepath = os.path.normpath(os.path.join(projectPath,
+                    filepath))
+
+            if isInRepository(filepath):
+                gitRootPath = gitRootDirectory(filepath)
+                commitSha = gitCommitSha(gitRootPath)
+                repository = \
+                    gitRemoteRepository(gitRootPath).replace(':', '/')
+                relativeFilePath = gitFilePath(filepath,
+                        gitRootPath).replace('\\', '/')
+                outputTextList.append('FILE ' + idnumber + ' git:'
+                        + repository + ':' + relativeFilePath + ':'
+                        + commitSha)
+            else:
+                outputTextList.append(line)
+        elif moduleNotParsed and line[:6] == 'MODULE':
+            (operatingSystem, cpu, debugIdentifier, debugFile) = \
+                line[7:].split(' ', 3)
+            moduleNotParsed = False
+        elif line:
+            outputTextList.append(line)
+
+    if moduleNotParsed:
+        print 'Module not parsed'
+        sys.exit(1)
+
+    sendSymbolsToServer(
+        breakpadUploadUrl,
+        '\n'.join(outputTextList),
+        codeFile,
+        debugFile,
+        debugIdentifier,
+        operatingSystem,
+        cpu,
+        )
+
+    if sys.platform == 'darwin':
+        shutil.rmtree(originalBinaryPath + '.dSYM')
+
+
+def testForBreakpad():
+    try:
+        dumpsymsPath = toolPath()
+        if not dumpsymsPath:
+            sys.exit(1)
+        subprocess.Popen([dumpsymsPath], stdout=nullfile,
+                         stderr=nullfile)
+    except (OSError, KeyError):
+        print 'No dumpsyms can be executed. Maybe  BREAKPAD_SOURCE_DIR is wrong.'
+        sys.exit(1)
+    sys.exit(0)
+
+
+def main():
+    usage = 'usage: %prog [options] binary projectpath'
+    parser = OptionParser(usage=usage)
+    parser.add_option('-v', '--verbose', action='store_true',
+                      dest='verbose')
+    parser.add_option('-e', '--breakpad-exists', action='store_true',
+                      dest='testForBreakpad')
+
+    (options, args) = parser.parse_args()
+
+    if options.testForBreakpad == True:
+        testForBreakpad()
+    if len(args) > 1:
+        generateSymbolFilesAndSend(args[0], args[1])
+    else:
+        parser.print_help()
+
+
+if __name__ == '__main__':
+    main()

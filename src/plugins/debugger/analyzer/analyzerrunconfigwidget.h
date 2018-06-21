@@ -46,7 +46,7 @@ class DEBUGGER_EXPORT AnalyzerRunConfigWidget : public ProjectExplorer::RunConfi
 public:
     AnalyzerRunConfigWidget(ProjectExplorer::IRunConfigurationAspect *aspect);
 
-    QString displayName() const;
+    QString displayName() const override;
 
 private:
     void chooseSettings(int setting);

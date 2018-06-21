@@ -124,7 +124,7 @@ bool QStringParser::Parser::scan(double *d, int *index)
             ++(*index);
     }
     bool ok = false;
-    *d = m_source.mid(startIndex, *index - startIndex).toDouble(&ok);
+    *d = m_source.midRef(startIndex, *index - startIndex).toDouble(&ok);
     return ok;
 }
 

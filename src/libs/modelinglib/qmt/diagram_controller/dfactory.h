@@ -51,9 +51,10 @@ public:
     void visitMDependency(const MDependency *dependency) override;
     void visitMInheritance(const MInheritance *inheritance) override;
     void visitMAssociation(const MAssociation *association) override;
+    void visitMConnection(const MConnection *connection) override;
 
 private:
-    DElement *m_product;
+    DElement *m_product = nullptr;
 };
 
 } // namespace qmt

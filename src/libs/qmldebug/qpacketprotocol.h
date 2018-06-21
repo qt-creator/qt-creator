@@ -50,7 +50,7 @@ public:
     QByteArray read();
     bool waitForReadyRead(int msecs = 3000);
 
-Q_SIGNALS:
+signals:
     void readyRead();
     void invalidPacket();
 
@@ -66,7 +66,6 @@ public:
     QByteArray data() const;
 
 private:
-    void init(QIODevice::OpenMode mode);
     QBuffer buf;
 };
 

@@ -33,6 +33,8 @@
 #include <clangcodemodelserver.h>
 #include <clangcodemodelclientproxy.h>
 
+#include <iostream>
+
 using ClangBackEnd::ClangCodeModelClientProxy;
 using ClangBackEnd::ClangCodeModelServer;
 using ClangBackEnd::ConnectionServer;
@@ -53,9 +55,21 @@ QString processArguments(QCoreApplication &application)
     return parser.positionalArguments().first();
 }
 
+#ifdef Q_OS_WIN
+static void messageOutput(QtMsgType type, const QMessageLogContext &, const QString &msg)
+{
+    std::wcout << msg.toStdWString() << std::endl;
+    if (type == QtFatalMsg)
+        abort();
+}
+#endif
+
 int main(int argc, char *argv[])
 {
-    QLoggingCategory::setFilterRules(QStringLiteral("*.debug=false"));
+#ifdef Q_OS_WIN
+    qInstallMessageHandler(messageOutput);
+#endif
+    QLoggingCategory::setFilterRules(QStringLiteral("qtc.*.debug=false"));
 
     QCoreApplication::setOrganizationName(QStringLiteral("QtProject"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("qt-project.org"));
@@ -68,13 +82,12 @@ int main(int argc, char *argv[])
 
     const QString connection = processArguments(application);
 
-    clang_toggleCrashRecovery(true);
     clang_enableStackTraces();
 
     ClangCodeModelServer clangCodeModelServer;
-    ConnectionServer<ClangCodeModelServer, ClangCodeModelClientProxy> connectionServer(connection);
-    connectionServer.start();
+    ConnectionServer<ClangCodeModelServer, ClangCodeModelClientProxy> connectionServer;
     connectionServer.setServer(&clangCodeModelServer);
+    connectionServer.start(connection);
 
     return application.exec();
 }

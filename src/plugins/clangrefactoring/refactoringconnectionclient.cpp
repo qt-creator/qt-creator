@@ -25,8 +25,11 @@
 
 #include "refactoringconnectionclient.h"
 
+#include <coreplugin/icore.h>
+
+#include <utils/temporarydirectory.h>
+
 #include <QCoreApplication>
-#include <QTemporaryDir>
 
 namespace ClangBackEnd {
 
@@ -40,8 +43,15 @@ QString currentProcessId()
 }
 
 RefactoringConnectionClient::RefactoringConnectionClient(RefactoringClientInterface *client)
-    : serverProxy_(client, ioDevice())
+    : ConnectionClient(Utils::TemporaryDirectory::masterDirectoryPath()
+                       + QStringLiteral("/ClangRefactoringBackEnd-")
+                       + currentProcessId()),
+      m_serverProxy(client, nullptr)
 {
+    m_processCreator.setTemporaryDirectoryPattern("clangrefactoringbackend-XXXXXX");
+    m_processCreator.setArguments({connectionName(),
+                                   Core::ICore::userResourcePath() + "/symbol-experimental-v1.db"});
+
     stdErrPrefixer().setPrefix("RefactoringConnectionClient.stderr: ");
     stdOutPrefixer().setPrefix("RefactoringConnectionClient.stdout: ");
 }
@@ -53,27 +63,27 @@ RefactoringConnectionClient::~RefactoringConnectionClient()
 
 RefactoringServerProxy &RefactoringConnectionClient::serverProxy()
 {
-    return serverProxy_;
+    return m_serverProxy;
 }
 
 void RefactoringConnectionClient::sendEndCommand()
 {
-    serverProxy_.end();
+    m_serverProxy.end();
 }
 
-void RefactoringConnectionClient::resetCounter()
+void RefactoringConnectionClient::resetState()
 {
-    serverProxy_.resetCounter();
-}
-
-QString RefactoringConnectionClient::connectionName() const
-{
-    return temporaryDirectory().path() + QStringLiteral("/ClangRefactoringBackEnd-") + currentProcessId();
+    m_serverProxy.resetState();
 }
 
 QString RefactoringConnectionClient::outputName() const
 {
     return QStringLiteral("RefactoringConnectionClient");
+}
+
+void RefactoringConnectionClient::newConnectedServer(QIODevice *ioDevice)
+{
+    m_serverProxy.setIoDevice(ioDevice);
 }
 
 } // namespace ClangBackEnd

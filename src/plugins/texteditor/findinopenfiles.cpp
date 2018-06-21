@@ -56,9 +56,11 @@ QString FindInOpenFiles::displayName() const
 }
 
 Utils::FileIterator *FindInOpenFiles::files(const QStringList &nameFilters,
-                                              const QVariant &additionalParameters) const
+                                            const QStringList &exclusionFilters,
+                                            const QVariant &additionalParameters) const
 {
     Q_UNUSED(nameFilters)
+    Q_UNUSED(exclusionFilters)
     Q_UNUSED(additionalParameters)
     QMap<QString, QTextCodec *> openEditorEncodings
             = TextDocument::openedTextDocumentEncodings();
@@ -110,7 +112,7 @@ void FindInOpenFiles::writeSettings(QSettings *settings)
 void FindInOpenFiles::readSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String("FindInOpenFiles"));
-    readCommonSettings(settings, QLatin1String("*"));
+    readCommonSettings(settings, "*", "");
     settings->endGroup();
 }
 

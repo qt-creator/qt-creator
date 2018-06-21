@@ -27,7 +27,7 @@
 
 #include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/runnables.h>
+#include <projectexplorer/runconfiguration.h>
 
 using namespace ProjectExplorer;
 
@@ -57,7 +57,7 @@ void RemoteLinuxEnvironmentReader::start()
             this, &RemoteLinuxEnvironmentReader::handleError);
     connect(m_deviceProcess, &DeviceProcess::finished,
             this, &RemoteLinuxEnvironmentReader::remoteProcessFinished);
-    StandardRunnable runnable;
+    Runnable runnable;
     runnable.executable = QLatin1String("env");
     m_deviceProcess->start(runnable);
 }

@@ -37,6 +37,7 @@
 #include "qmt/diagram/ddependency.h"
 #include "qmt/diagram/dinheritance.h"
 #include "qmt/diagram/dassociation.h"
+#include "qmt/diagram/dconnection.h"
 
 #include "qmt/model/melement.h"
 #include "qmt/model/mpackage.h"
@@ -121,6 +122,11 @@ void OpenDiagramElementVisitor::visitDAssociation(const qmt::DAssociation *assoc
     visitDRelation(association);
 }
 
+void OpenDiagramElementVisitor::visitDConnection(const qmt::DConnection *connection)
+{
+    visitDRelation(connection);
+}
+
 void OpenDiagramElementVisitor::visitDAnnotation(const qmt::DAnnotation *annotation)
 {
     Q_UNUSED(annotation);
@@ -129,6 +135,11 @@ void OpenDiagramElementVisitor::visitDAnnotation(const qmt::DAnnotation *annotat
 void OpenDiagramElementVisitor::visitDBoundary(const qmt::DBoundary *boundary)
 {
     Q_UNUSED(boundary);
+}
+
+void OpenDiagramElementVisitor::visitDSwimlane(const qmt::DSwimlane *swimlane)
+{
+    Q_UNUSED(swimlane);
 }
 
 void OpenModelElementVisitor::setElementTasks(ElementTasks *elementTasks)
@@ -197,6 +208,11 @@ void OpenModelElementVisitor::visitMInheritance(const qmt::MInheritance *inherit
 void OpenModelElementVisitor::visitMAssociation(const qmt::MAssociation *association)
 {
     Q_UNUSED(association);
+}
+
+void OpenModelElementVisitor::visitMConnection(const qmt::MConnection *connection)
+{
+    Q_UNUSED(connection);
 }
 
 } // namespace Internal

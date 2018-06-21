@@ -48,10 +48,9 @@ public:
     QVector<QGradientStops> gradients;
     QVector<bool> flags;
     QMap<QString, QColor> palette;
-
-    QVariantMap values;
 };
 
 QTCREATOR_UTILS_EXPORT void setCreatorTheme(Theme *theme);
+QTCREATOR_UTILS_EXPORT void setThemeApplicationPalette();
 
 } // namespace Utils

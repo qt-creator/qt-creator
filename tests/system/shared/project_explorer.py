@@ -83,6 +83,10 @@ def prepareBuildSettings(targetCount, currentTarget, setReleaseBuild=True, disab
 # param targetCount specifies the number of targets currently defined (must be correct!)
 # param projectSettings specifies where to switch to (must be one of ProjectSettings.BUILD or ProjectSettings.RUN)
 def switchToBuildOrRunSettingsFor(targetCount, currentTarget, projectSettings):
+    def kitIsActivated(kit):
+        return not (str(kit.toolTip).startswith("<h3>Click to activate:</h3>")
+                    or str(kit.toolTip).startswith("<h3>Kit is unsuited for Project</h3>"))
+
     try:
         treeView = waitForObject(":Projects.ProjectNavigationTreeView")
     except LookupError:
@@ -90,15 +94,18 @@ def switchToBuildOrRunSettingsFor(targetCount, currentTarget, projectSettings):
     bAndRIndex = getQModelIndexStr("text='Build & Run'", ":Projects.ProjectNavigationTreeView")
 
     targetIndices = dumpIndices(treeView.model(), waitForObject(bAndRIndex))
-    targets = map(lambda t: str(t.data(0)), filter(lambda x: x.enabled, targetIndices))
+    targets = map(lambda t: str(t.data(0)),
+                  filter(kitIsActivated, targetIndices))
     if not test.compare(targetCount, len(targets), "Check whether all chosen targets are listed."):
         return False
     # we assume the targets are still ordered the same way
     currentTargetIndex = getQModelIndexStr("text='%s'" % targets[currentTarget], bAndRIndex)
-    if not test.verify(findObject(currentTargetIndex).enabled, "Verifying target '%s' is enabled."
-                       % targets[currentTarget]):
+    if not test.verify(kitIsActivated(findObject(currentTargetIndex)),
+                       "Verifying target '%s' is enabled." % targets[currentTarget]):
         return False
-    mouseClick(waitForObject(currentTargetIndex))
+    index = waitForObject(currentTargetIndex)
+    treeView.scrollTo(index)
+    mouseClick(index)
 
     if projectSettings == ProjectSettings.BUILD:
         settingsIndex = getQModelIndexStr("text='Build'", currentTargetIndex)
@@ -153,68 +160,13 @@ def getQtInformationForBuildSettings(kitCount, alreadyOnProjectsBuildSettings=Fa
 
     qmakeCallLabel = waitForObject("{text?='<b>qmake:</b> qmake*' type='QLabel' unnamed='1' visible='1' "
                                    "window=':Qt Creator_Core::Internal::MainWindow'}")
-    mkspec = __getMkspecFromQMakeCall__(str(qmakeCallLabel.text))
-    qtVersion = getQtInformationByQMakeCall(qtDir, QtInformation.QT_VERSION)
-    qtLibPath = getQtInformationByQMakeCall(qtDir, QtInformation.QT_LIBPATH)
-    qtBinPath = getQtInformationByQMakeCall(qtDir, QtInformation.QT_BINPATH)
+    qtVersion = getQtInformationByQMakeCall(qtDir)
     if afterSwitchTo:
         if ViewConstants.FIRST_AVAILABLE <= afterSwitchTo <= ViewConstants.LAST_AVAILABLE:
             switchViewTo(afterSwitchTo)
         else:
             test.warning("Don't know where you trying to switch to (%s)" % afterSwitchTo)
-    return qtVersion, mkspec, qtBinPath, qtLibPath
-
-def getQtInformationForQmlProject():
-    fancyToolButton = waitForObject(":*Qt Creator_Core::Internal::FancyToolButton")
-    kit = __getTargetFromToolTip__(str(fancyToolButton.toolTip))
-    if not kit:
-        test.fatal("Could not figure out which kit you're using...")
-        return None, None, None, None
-    test.log("Searching for Qt information for kit '%s'" % kit)
-    invokeMenuItem("Tools", "Options...")
-    waitForObjectItem(":Options_QListView", "Build & Run")
-    clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
-    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Kits")
-    targetsTreeView = waitForObject(":BuildAndRun_QTreeView")
-    if not __selectTreeItemOnBuildAndRun__(targetsTreeView, "%s(\s\(default\))?" % kit, True):
-        test.fatal("Found no matching kit - this shouldn't happen.")
-        clickButton(waitForObject(":Options.Cancel_QPushButton"))
-        return None, None, None, None
-    qtVersionStr = str(waitForObject(":Kits_QtVersion_QComboBox").currentText)
-    test.log("Kit '%s' uses Qt Version '%s'" % (kit, qtVersionStr))
-    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
-    treeView = waitForObject(":qtdirList_QTreeView")
-    if not __selectTreeItemOnBuildAndRun__(treeView, qtVersionStr):
-        test.fatal("Found no matching Qt Version for kit - this shouldn't happen.")
-        clickButton(waitForObject(":Options.Cancel_QPushButton"))
-        return None, None, None, None
-    qmake = str(waitForObject(":QtSupport__Internal__QtVersionManager.qmake_QLabel").text)
-    test.log("Qt Version '%s' uses qmake at '%s'" % (qtVersionStr, qmake))
-    qtDir = os.path.dirname(os.path.dirname(qmake))
-    qtVersion = getQtInformationByQMakeCall(qtDir, QtInformation.QT_VERSION)
-    qtLibPath = getQtInformationByQMakeCall(qtDir, QtInformation.QT_LIBPATH)
-    mkspec = __getMkspecFromQmake__(qmake)
-    clickButton(waitForObject(":Options.Cancel_QPushButton"))
-    return qtVersion, mkspec, qtLibPath, qmake
-
-def __selectTreeItemOnBuildAndRun__(treeViewOrWidget, itemText, isRegex=False):
-    model = treeViewOrWidget.model()
-    test.compare(model.rowCount(), 2, "Verifying expected section count")
-    autoDetected = model.index(0, 0)
-    test.compare(autoDetected.data().toString(), "Auto-detected", "Verifying label for section")
-    manual = model.index(1, 0)
-    test.compare(manual.data().toString(), "Manual", "Verifying label for section")
-    if isRegex:
-        pattern = re.compile(itemText)
-    for section in [autoDetected, manual]:
-        for dumpedItem in dumpItems(model, section):
-            if (isRegex and pattern.match(dumpedItem)
-                or itemText == dumpedItem):
-                item = ".".join([str(section.data().toString()),
-                                 dumpedItem.replace(".", "\\.").replace("_", "\\_")])
-                clickItem(treeViewOrWidget, item, 5, 5, 0, Qt.LeftButton)
-                return True
-    return False
+    return qtVersion
 
 def __getTargetFromToolTip__(toolTip):
     if toolTip == None or not isinstance(toolTip, (str, unicode)):
@@ -240,20 +192,10 @@ def getExecutableAndTargetFromToolTip(toolTip):
         return None, target
     return exe.group(1).strip(), target
 
-def __getMkspecFromQMakeCall__(qmakeCall):
-    qCall = qmakeCall.split("</b>")[1].strip()
-    tmp = qCall.split()
-    for i in range(len(tmp)):
-        if tmp[i] == '-spec' and i + 1 < len(tmp):
-            return tmp[i + 1]
-    test.fatal("Couldn't get mkspec from qmake call '%s'" % qmakeCall)
-    return None
-
-# this function queries information from qmake
+# this function queries the version number from qmake
 # param qtDir set this to a path that holds a valid Qt
-# param which set this to one of the QtInformation "constants"
 # the function will return the wanted information or None if something went wrong
-def getQtInformationByQMakeCall(qtDir, which):
+def getQtInformationByQMakeCall(qtDir):
     qmake = os.path.join(qtDir, "bin", "qmake")
     if platform.system() in ('Microsoft', 'Windows'):
         qmake += ".exe"
@@ -261,17 +203,7 @@ def getQtInformationByQMakeCall(qtDir, which):
         test.fatal("Given Qt directory does not exist or does not contain bin/qmake.",
                    "Constructed path: '%s'" % qmake)
         return None
-    query = ""
-    if which == QtInformation.QT_VERSION:
-        query = "QT_VERSION"
-    elif which == QtInformation.QT_BINPATH:
-        query = "QT_INSTALL_BINS"
-    elif which == QtInformation.QT_LIBPATH:
-        query = "QT_INSTALL_LIBS"
-    else:
-        test.fatal("You're trying to fetch an unknown information (%s)" % which)
-        return None
-    return getOutputFromCmdline([qmake, "-query", query]).strip()
+    return getOutputFromCmdline([qmake, "-query", "QT_VERSION"]).strip()
 
 def invokeContextMenuOnProject(projectName, menuItem):
     try:
@@ -291,3 +223,34 @@ def invokeContextMenuOnProject(projectName, menuItem):
     else:
         activateItem(waitForObjectItem("{name='Project.Menu.Project' type='QMenu' visible='1'}", menuItem))
     return projItem
+
+def addAndActivateKit(kit):
+    clickToActivate = "<h3>Click to activate:</h3>"
+    bAndRIndex = getQModelIndexStr("text='Build & Run'", ":Projects.ProjectNavigationTreeView")
+    kitString = Targets.getStringForTarget(kit)
+    switchViewTo(ViewConstants.PROJECTS)
+    try:
+        treeView = waitForObject(":Projects.ProjectNavigationTreeView")
+        wanted = getQModelIndexStr("text='%s'" % kitString, bAndRIndex)
+        index = findObject(wanted)
+        if str(index.toolTip).startswith(clickToActivate):
+            mouseClick(index)
+            test.verify(waitFor("not str(index.toolTip).startswith(clickToActivate)", 1500),
+                        "Kit added for this project")
+            try:
+                findObject(":Projects.ProjectNavigationTreeView")
+            except:
+                test.warning("Squish issue - QC switches automatically to Edit view after enabling "
+                             "a new kit when running tst_opencreator_qbs - works as expected when "
+                             "running without Squish")
+                switchViewTo(ViewConstants.PROJECTS)
+        else:
+            test.warning("Kit is already added for this project.")
+        mouseClick(index)
+        test.verify(waitFor("index.font.bold == True", 1500),
+                    "Verifying whether kit is current active")
+    except:
+        return False
+    finally:
+        switchViewTo(ViewConstants.EDIT)
+    return True

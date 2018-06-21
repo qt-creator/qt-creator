@@ -30,58 +30,23 @@
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalRunConfigurationWidget;
-
 class BareMetalRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
-    Q_DISABLE_COPY(BareMetalRunConfiguration)
-
-    friend class BareMetalRunConfigurationFactory;
-    friend class BareMetalRunConfigurationWidget;
 
 public:
-    explicit BareMetalRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
-                                       const QString &projectFilePath);
-
-    bool isEnabled() const override;
-    QString disabledReason() const override;
-    QWidget *createConfigurationWidget() override;
-    Utils::OutputFormatter *createOutputFormatter() const override;
-
-    virtual QString localExecutableFilePath() const;
-    QString arguments() const;
-    QString workingDirectory() const;
-    void setWorkingDirectory(const QString &wd);
-
-    QVariantMap toMap() const override;
-
-    QString projectFilePath() const;
+    BareMetalRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     static const char *IdPrefix;
 
-signals:
-    void deploySpecsChanged();
-    void targetInformationChanged() const;
-
-protected:
-    BareMetalRunConfiguration(ProjectExplorer::Target *parent, BareMetalRunConfiguration *source);
-    bool fromMap(const QVariantMap &map) override;
-    QString defaultDisplayName();
-    void setDisabledReason(const QString &reason) const;
-
-protected slots:
-    void updateEnableState() { emit enabledChanged(); }
-
-private slots:
-    void handleBuildSystemDataUpdated();
-
 private:
-    void init();
+    void updateTargetInformation();
+};
 
-    QString m_projectFilePath;
-    mutable QString m_disabledReason;
-    QString m_workingDirectory;
+class BareMetalRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
+{
+public:
+    BareMetalRunConfigurationFactory();
 };
 
 } // namespace Internal

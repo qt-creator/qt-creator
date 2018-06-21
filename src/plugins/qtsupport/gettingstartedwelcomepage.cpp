@@ -28,6 +28,7 @@
 #include "exampleslistmodel.h"
 #include "screenshotcropper.h"
 
+#include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/winutils.h>
 
@@ -39,26 +40,29 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 
-#include <QMutex>
-#include <QThread>
-#include <QMutexLocker>
-#include <QPointer>
-#include <QWaitCondition>
-#include <QDir>
+#include <QApplication>
 #include <QBuffer>
+#include <QCloseEvent>
+#include <QComboBox>
+#include <QDesktopServices>
+#include <QDialogButtonBox>
+#include <QDir>
+#include <QGridLayout>
+#include <QHeaderView>
+#include <QIdentityProxyModel>
 #include <QImage>
 #include <QImageReader>
-#include <QGridLayout>
 #include <QLabel>
-#include <QDialogButtonBox>
-#include <QPushButton>
 #include <QMessageBox>
-#include <QApplication>
-#include <QQuickImageProvider>
-#include <QQmlEngine>
-#include <QQmlContext>
-#include <QDesktopServices>
+#include <QPainter>
+#include <QPointer>
+#include <QPushButton>
+#include <QStyledItemDelegate>
+#include <QTableView>
+#include <QTime>
+#include <QTimer>
 
+using namespace Core;
 using namespace Utils;
 
 namespace QtSupport {
@@ -66,223 +70,35 @@ namespace Internal {
 
 const char C_FALLBACK_ROOT[] = "ProjectsFallbackRoot";
 
-QPointer<ExamplesListModel> &examplesModelStatic()
+const int itemWidth = 240;
+const int itemHeight = 240;
+const int itemGap = 10;
+const int tagsSeparatorY = itemHeight - 60;
+
+ExamplesWelcomePage::ExamplesWelcomePage(bool showExamples)
+    : m_showExamples(showExamples)
 {
-    static QPointer<ExamplesListModel> s_examplesModel;
-    return s_examplesModel;
-}
-
-class Fetcher : public QObject
-{
-    Q_OBJECT
-
-public:
-    Fetcher() : QObject(),  m_shutdown(false)
-    {
-        connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose, this, &Fetcher::shutdown);
-    }
-
-    void wait()
-    {
-        if (QThread::currentThread() == QApplication::instance()->thread())
-            return;
-        if (m_shutdown)
-            return;
-
-        m_waitcondition.wait(&m_mutex, 4000);
-    }
-
-    QByteArray data()
-    {
-        QMutexLocker lock(&m_dataMutex);
-        return m_fetchedData;
-    }
-
-    void clearData()
-    {
-        QMutexLocker lock(&m_dataMutex);
-        m_fetchedData.clear();
-    }
-
-    bool asynchronousFetchData(const QUrl &url)
-    {
-        QMutexLocker lock(&m_mutex);
-
-        if (!QMetaObject::invokeMethod(this,
-                                       "fetchData",
-                                       Qt::AutoConnection,
-                                       Q_ARG(QUrl, url))) {
-            return false;
-        }
-
-        wait();
-        return true;
-    }
-
-
-public slots:
-    void fetchData(const QUrl &url)
-    {
-        if (m_shutdown)
-            return;
-
-        QMutexLocker lock(&m_mutex);
-
-        if (Core::HelpManager::instance()) {
-            QMutexLocker dataLock(&m_dataMutex);
-            m_fetchedData = Core::HelpManager::fileData(url);
-        }
-        m_waitcondition.wakeAll();
-    }
-
-private:
-    void shutdown()
-    {
-        m_shutdown = true;
-    }
-
-public:
-    QByteArray m_fetchedData;
-    QWaitCondition m_waitcondition;
-    QMutex m_mutex;     //This mutex synchronises the wait() and wakeAll() on the wait condition.
-                        //We have to ensure that wakeAll() is called always after wait().
-
-    QMutex m_dataMutex; //This mutex synchronises the access of m_fectedData.
-                        //If the wait condition timeouts we otherwise get a race condition.
-    bool m_shutdown;
-};
-
-class HelpImageProvider : public QQuickImageProvider
-{
-public:
-    HelpImageProvider()
-        : QQuickImageProvider(QQuickImageProvider::Image)
-    {
-    }
-
-    // gets called by declarative in separate thread
-    QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize)
-    {
-        QMutexLocker lock(&m_mutex);
-
-        QUrl url = QUrl::fromEncoded(id.toLatin1());
-
-
-        if (!m_fetcher.asynchronousFetchData(url) || m_fetcher.data().isEmpty()) {
-            if (size) {
-                size->setWidth(0);
-                size->setHeight(0);
-            }
-            return QImage();
-        }
-
-        QByteArray data = m_fetcher.data();
-        QBuffer imgBuffer(&data);
-        imgBuffer.open(QIODevice::ReadOnly);
-        QImageReader reader(&imgBuffer);
-        QImage img = reader.read();
-
-        m_fetcher.clearData();
-        img = ScreenshotCropper::croppedImage(img, id, requestedSize);
-        if (size)
-            *size = img.size();
-        return img;
-
-    }
-private:
-    Fetcher m_fetcher;
-    QMutex m_mutex;
-};
-
-ExamplesWelcomePage::ExamplesWelcomePage()
-    : m_engine(0),  m_showExamples(false)
-{
-}
-
-void ExamplesWelcomePage::setShowExamples(bool showExamples)
-{
-    m_showExamples = showExamples;
 }
 
 QString ExamplesWelcomePage::title() const
 {
-    if (m_showExamples)
-        return tr("Examples");
-    else
-        return tr("Tutorials");
+    return m_showExamples ? tr("Examples") : tr("Tutorials");
 }
 
- int ExamplesWelcomePage::priority() const
- {
-     if (m_showExamples)
-         return 30;
-     else
-         return 40;
- }
-
- bool ExamplesWelcomePage::hasSearchBar() const
- {
-     if (m_showExamples)
-         return true;
-     else
-         return false;
- }
-
-QUrl ExamplesWelcomePage::pageLocation() const
+int ExamplesWelcomePage::priority() const
 {
-    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    const QString resourcePath = Utils::FileUtils::normalizePathName(Core::ICore::resourcePath());
-    if (m_showExamples)
-        return QUrl::fromLocalFile(resourcePath + QLatin1String("/welcomescreen/examples.qml"));
-    else
-        return QUrl::fromLocalFile(resourcePath + QLatin1String("/welcomescreen/tutorials.qml"));
+    return m_showExamples ? 30 : 40;
 }
 
-void ExamplesWelcomePage::facilitateQml(QQmlEngine *engine)
-{
-    m_engine = engine;
-    m_engine->addImageProvider(QLatin1String("helpimage"), new HelpImageProvider);
-    ExamplesListModelFilter *proxy = new ExamplesListModelFilter(examplesModel(), this);
-
-    proxy->setDynamicSortFilter(true);
-    proxy->sort(0);
-    proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
-
-    QQmlContext *rootContenxt = m_engine->rootContext();
-    if (m_showExamples) {
-        proxy->setShowTutorialsOnly(false);
-        rootContenxt->setContextProperty(QLatin1String("examplesModel"), proxy);
-        rootContenxt->setContextProperty(QLatin1String("exampleSetModel"), proxy->exampleSetModel());
-    } else {
-        rootContenxt->setContextProperty(QLatin1String("tutorialsModel"), proxy);
-    }
-    rootContenxt->setContextProperty(QLatin1String("gettingStarted"), this);
-}
-
-Core::Id ExamplesWelcomePage::id() const
+Id ExamplesWelcomePage::id() const
 {
     return m_showExamples ? "Examples" : "Tutorials";
-}
-
-void ExamplesWelcomePage::openHelpInExtraWindow(const QUrl &help)
-{
-    Core::HelpManager::handleHelpRequest(help, Core::HelpManager::ExternalHelpAlways);
-}
-
-void ExamplesWelcomePage::openHelp(const QUrl &help)
-{
-    Core::HelpManager::handleHelpRequest(help, Core::HelpManager::HelpModeAlways);
-}
-
-void ExamplesWelcomePage::openUrl(const QUrl &url)
-{
-    QDesktopServices::openUrl(url);
 }
 
 QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileInfo, QStringList &filesToOpen, const QStringList& dependencies)
 {
     const QString projectDir = proFileInfo.canonicalPath();
-    QDialog d(Core::ICore::mainWindow());
+    QDialog d(ICore::mainWindow());
     QGridLayout *lay = new QGridLayout(&d);
     QLabel *descrLbl = new QLabel;
     d.setWindowTitle(tr("Copy Project to writable Location?"));
@@ -305,9 +121,9 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     txt->setBuddy(chooser);
     chooser->setExpectedKind(PathChooser::ExistingDirectory);
     chooser->setHistoryCompleter(QLatin1String("Qt.WritableExamplesDir.History"));
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
     chooser->setPath(settings->value(QString::fromLatin1(C_FALLBACK_ROOT),
-                                     Core::DocumentManager::projectsDirectory()).toString());
+                                     DocumentManager::projectsDirectory().toString()).toString());
     lay->addWidget(txt, 1, 0);
     lay->addWidget(chooser, 1, 1);
     enum { Copy = QDialog::Accepted + 1, Keep = QDialog::Accepted + 2 };
@@ -327,7 +143,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
         QDir toDirWithExamplesDir(destBaseDir);
         if (toDirWithExamplesDir.cd(exampleDirName)) {
             toDirWithExamplesDir.cdUp(); // step out, just to not be in the way
-            QMessageBox::warning(Core::ICore::mainWindow(), tr("Cannot Use Location"),
+            QMessageBox::warning(ICore::mainWindow(), tr("Cannot Use Location"),
                                  tr("The specified location already exists. "
                                     "Please specify a valid location."),
                                  QMessageBox::Ok, QMessageBox::NoButton);
@@ -347,7 +163,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
                     targetFile.appendPath(QDir(dependency).dirName());
                     if (!FileUtils::copyRecursively(FileName::fromString(dependency), targetFile,
                             &error)) {
-                        QMessageBox::warning(Core::ICore::mainWindow(), tr("Cannot Copy Project"), error);
+                        QMessageBox::warning(ICore::mainWindow(), tr("Cannot Copy Project"), error);
                         // do not fail, just warn;
                     }
                 }
@@ -355,7 +171,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
 
                 return targetDir + QLatin1Char('/') + proFileInfo.fileName();
             } else {
-                QMessageBox::warning(Core::ICore::mainWindow(), tr("Cannot Copy Project"), error);
+                QMessageBox::warning(ICore::mainWindow(), tr("Cannot Copy Project"), error);
             }
 
         }
@@ -363,62 +179,463 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     if (code == Keep)
         return proFileInfo.absoluteFilePath();
     return QString();
-
 }
 
-void ExamplesWelcomePage::openProject(const QString &projectFile,
-                                      const QStringList &additionalFilesToOpen,
-                                      const QString &mainFile,
-                                      const QUrl &help,
-                                      const QStringList &dependencies,
-                                      const QStringList &)
+void ExamplesWelcomePage::openProject(const ExampleItem &item)
 {
-    QString proFile = projectFile;
+    using namespace ProjectExplorer;
+    QString proFile = item.projectPath;
     if (proFile.isEmpty())
         return;
 
-    QStringList filesToOpen = additionalFilesToOpen;
-    if (!mainFile.isEmpty()) {
+    QStringList filesToOpen = item.filesToOpen;
+    if (!item.mainFile.isEmpty()) {
         // ensure that the main file is opened on top (i.e. opened last)
-        filesToOpen.removeAll(mainFile);
-        filesToOpen.append(mainFile);
+        filesToOpen.removeAll(item.mainFile);
+        filesToOpen.append(item.mainFile);
     }
 
     QFileInfo proFileInfo(proFile);
     if (!proFileInfo.exists())
         return;
 
-    QFileInfo pathInfo(proFileInfo.path());
     // If the Qt is a distro Qt on Linux, it will not be writable, hence compilation will fail
-    if (!proFileInfo.isWritable()
-            || !pathInfo.isWritable() /* path of .pro file */
-            || !QFileInfo(pathInfo.path()).isWritable() /* shadow build directory */) {
-        proFile = copyToAlternativeLocation(proFileInfo, filesToOpen, dependencies);
-    }
+    // Same if it is installed in non-writable location for other reasons
+    const bool needsCopy = withNtfsPermissions<bool>([proFileInfo] {
+        QFileInfo pathInfo(proFileInfo.path());
+        return !proFileInfo.isWritable()
+                || !pathInfo.isWritable() /* path of .pro file */
+                || !QFileInfo(pathInfo.path()).isWritable() /* shadow build directory */;
+    });
+    if (needsCopy)
+        proFile = copyToAlternativeLocation(proFileInfo, filesToOpen, item.dependencies);
 
     // don't try to load help and files if loading the help request is being cancelled
     if (proFile.isEmpty())
         return;
-    ProjectExplorer::ProjectExplorerPlugin::OpenProjectResult result =
-            ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFile);
+    ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorerPlugin::openProject(proFile);
     if (result) {
-        Core::ICore::openFiles(filesToOpen);
-        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
-        if (help.isValid())
-            openHelpInExtraWindow(help.toString());
-        Core::ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
+        ICore::openFiles(filesToOpen);
+        ModeManager::activateMode(Core::Constants::MODE_EDIT);
+        QUrl docUrl = QUrl::fromUserInput(item.docUrl);
+        if (docUrl.isValid())
+            HelpManager::handleHelpRequest(docUrl, HelpManager::ExternalHelpAlways);
+        ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
     } else {
-        ProjectExplorer::ProjectExplorerPlugin::showOpenProjectError(result);
+        ProjectExplorerPlugin::showOpenProjectError(result);
     }
 }
 
-ExamplesListModel *ExamplesWelcomePage::examplesModel() const
-{
-    if (examplesModelStatic())
-        return examplesModelStatic().data();
+//////////////////////////////
 
-    examplesModelStatic() = new ExamplesListModel(const_cast<ExamplesWelcomePage*>(this));
-    return examplesModelStatic().data();
+static QColor themeColor(Theme::Color role)
+{
+    return Utils::creatorTheme()->color(role);
+}
+
+static QFont sizedFont(int size, const QWidget *widget, bool underline = false)
+{
+    QFont f = widget->font();
+    f.setPixelSize(size);
+    f.setUnderline(underline);
+    return f;
+}
+
+class SearchBox : public WelcomePageFrame
+{
+public:
+    SearchBox(QWidget *parent)
+        : WelcomePageFrame(parent)
+    {
+        QPalette pal;
+        pal.setColor(QPalette::Base, themeColor(Theme::Welcome_BackgroundColor));
+
+        m_lineEdit = new FancyLineEdit;
+        m_lineEdit->setFiltering(true);
+        m_lineEdit->setFrame(false);
+        m_lineEdit->setFont(sizedFont(14, this));
+        m_lineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
+        m_lineEdit->setPalette(pal);
+
+        auto box = new QHBoxLayout(this);
+        box->setContentsMargins(10, 3, 3, 3);
+        box->addWidget(m_lineEdit);
+    }
+
+    FancyLineEdit *m_lineEdit;
+};
+
+class GridView : public QTableView
+{
+public:
+    GridView(QWidget *parent)
+        : QTableView(parent)
+    {
+        setVerticalScrollMode(ScrollPerPixel);
+        horizontalHeader()->hide();
+        horizontalHeader()->setDefaultSectionSize(itemWidth);
+        verticalHeader()->hide();
+        verticalHeader()->setDefaultSectionSize(itemHeight);
+        setMouseTracking(true); // To enable hover.
+        setSelectionMode(QAbstractItemView::NoSelection);
+        setFrameShape(QFrame::NoFrame);
+        setGridStyle(Qt::NoPen);
+
+        QPalette pal;
+        pal.setColor(QPalette::Base, themeColor(Theme::Welcome_BackgroundColor));
+        setPalette(pal); // Makes a difference on Mac.
+    }
+
+    void leaveEvent(QEvent *) final
+    {
+        QHoverEvent hev(QEvent::HoverLeave, QPointF(), QPointF());
+        viewportEvent(&hev); // Seemingly needed to kill the hover paint.
+    }
+};
+
+class GridProxyModel : public QIdentityProxyModel
+{
+public:
+    GridProxyModel()
+    {}
+
+    void setColumnCount(int columnCount)
+    {
+        if (columnCount == m_columnCount)
+            return;
+        QTC_ASSERT(columnCount >= 1, columnCount = 1);
+        m_columnCount = columnCount;
+        layoutChanged();
+    }
+
+    int rowCount(const QModelIndex &parent) const final
+    {
+        if (parent.isValid())
+            return 0;
+        int rows = sourceModel()->rowCount(QModelIndex());
+        return (rows + m_columnCount - 1) / m_columnCount;
+    }
+
+    int columnCount(const QModelIndex &parent) const final
+    {
+        if (parent.isValid())
+            return 0;
+        return m_columnCount;
+    }
+
+    QModelIndex index(int row, int column, const QModelIndex &) const final
+    {
+        return createIndex(row, column, nullptr);
+    }
+
+    QModelIndex parent(const QModelIndex &) const final
+    {
+        return QModelIndex();
+    }
+
+    QModelIndex mapToSource(const QModelIndex &proxyIndex) const final
+    {
+        if (!proxyIndex.isValid())
+            return QModelIndex();
+        int sourceRow = proxyIndex.row() * m_columnCount + proxyIndex.column();
+        return sourceModel()->index(sourceRow, 0);
+    }
+
+    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const final
+    {
+        if (!sourceIndex.isValid())
+            return QModelIndex();
+        QTC_CHECK(sourceIndex.column() == 0);
+        int proxyRow = sourceIndex.row() / m_columnCount;
+        int proxyColumn = sourceIndex.row() % m_columnCount;
+        return index(proxyRow, proxyColumn, QModelIndex());
+    }
+
+private:
+    int m_columnCount = 1;
+};
+
+class ExampleDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+
+public:
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const final
+    {
+        const ExampleItem item = index.data(ExamplesListModel::ExampleItemRole).value<ExampleItem>();
+        const QRect rc = option.rect;
+
+        // Quick hack for empty items in the last row.
+        if (item.name.isEmpty())
+            return;
+
+        const int d = 10;
+        const int x = rc.x() + d;
+        const int y = rc.y() + d;
+        const int w = rc.width() - 2 * d - itemGap;
+        const int h = rc.height() - 2 * d;
+        const bool hovered = option.state & QStyle::State_MouseOver;
+
+        const int tagsBase = tagsSeparatorY + 10;
+        const int shiftY = tagsSeparatorY - 20;
+        const int nameY = tagsSeparatorY - 20;
+
+        const QRect textRect = QRect(x, y + nameY, w, h);
+
+        QTextOption wrapped;
+        wrapped.setWrapMode(QTextOption::WordWrap);
+        int offset = 0;
+        if (hovered) {
+            if (index != m_previousIndex) {
+                m_previousIndex = index;
+                m_startTime.start();
+                m_currentArea = rc;
+                m_currentWidget = qobject_cast<QAbstractItemView *>(
+                    const_cast<QWidget *>(option.widget));
+            }
+            offset = m_startTime.elapsed() * itemHeight / 200; // Duration 200 ms.
+            if (offset < shiftY)
+                QTimer::singleShot(5, this, &ExampleDelegate::goon);
+            else if (offset > shiftY)
+                offset = shiftY;
+        } else {
+            m_previousIndex = QModelIndex();
+        }
+
+        const QFontMetrics fm(option.widget->font());
+        const QRect shiftedTextRect = textRect.adjusted(0, -offset, 0, -offset);
+
+        // The pixmap.
+        if (offset == 0) {
+            QPixmap pm = index.data(ExamplesListModel::ExampleImageRole).value<QPixmap>();
+            QRect inner(x + 11, y - offset, ExamplesListModel::exampleImageSize.width(),
+                        ExamplesListModel::exampleImageSize.height());
+            QRect pixmapRect = inner;
+            if (!pm.isNull()) {
+                painter->setPen(foregroundColor2);
+                if (!m_showExamples)
+                    pixmapRect = inner.adjusted(6, 20, -6, -15);
+                QPoint pixmapPos = pixmapRect.center();
+                pixmapPos.rx() -= pm.width() / pm.devicePixelRatio() / 2;
+                pixmapPos.ry() -= pm.height() / pm.devicePixelRatio() / 2;
+                painter->drawPixmap(pixmapPos, pm);
+                if (item.isVideo) {
+                    painter->setFont(sizedFont(13, option.widget));
+                    QString videoLen = item.videoLength;
+                    painter->drawText(pixmapRect.adjusted(0, 0, 0, painter->font().pixelSize() + 3),
+                                      videoLen, Qt::AlignBottom | Qt::AlignHCenter);
+                }
+            } else {
+                // The description text as fallback.
+                painter->setPen(foregroundColor2);
+                painter->setFont(sizedFont(11, option.widget));
+                painter->drawText(pixmapRect.adjusted(6, 10, -6, -10), item.description, wrapped);
+            }
+            painter->setPen(foregroundColor1);
+            painter->drawRect(pixmapRect.adjusted(-1, -1, -1, -1));
+        }
+
+        // The title of the example.
+        painter->setPen(foregroundColor1);
+        painter->setFont(sizedFont(13, option.widget));
+        QRectF nameRect;
+        if (offset) {
+            nameRect = painter->boundingRect(shiftedTextRect, item.name, wrapped);
+            painter->drawText(nameRect, item.name, wrapped);
+        } else {
+            nameRect = QRect(x, y + nameY, x + w, y + nameY + 20);
+            QString elidedName = fm.elidedText(item.name, Qt::ElideRight, w - 20);
+            painter->drawText(nameRect, elidedName);
+        }
+
+        // The separator line below the example title.
+        if (offset) {
+            int ll = nameRect.bottom() + 5;
+            painter->setPen(lightColor);
+            painter->drawLine(x, ll, x + w, ll);
+        }
+
+        // The description text.
+        if (offset) {
+            int dd = nameRect.height() + 10;
+            QRect descRect = shiftedTextRect.adjusted(0, dd, 0, dd);
+            painter->setPen(foregroundColor2);
+            painter->setFont(sizedFont(11, option.widget));
+            painter->drawText(descRect, item.description, wrapped);
+        }
+
+        // Separator line between text and 'Tags:' section
+        painter->setPen(lightColor);
+        painter->drawLine(x, y + tagsSeparatorY, x + w, y + tagsSeparatorY);
+
+        // The 'Tags:' section
+        const int tagsHeight = h - tagsBase;
+        const QFont tagsFont = sizedFont(10, option.widget);
+        const QFontMetrics tagsFontMetrics(tagsFont);
+        QRect tagsLabelRect = QRect(x, y + tagsBase, 30, tagsHeight - 2);
+        painter->setPen(foregroundColor2);
+        painter->setFont(tagsFont);
+        painter->drawText(tagsLabelRect, ExamplesWelcomePage::tr("Tags:"));
+
+        painter->setPen(themeColor(Theme::Welcome_LinkColor));
+        m_currentTagRects.clear();
+        int xx = 0;
+        int yy = y + tagsBase;
+        for (const QString tag : item.tags) {
+            const int ww = tagsFontMetrics.width(tag) + 5;
+            if (xx + ww > w - 30) {
+                yy += 15;
+                xx = 0;
+            }
+            const QRect tagRect(xx + x + 30, yy, ww, 15);
+            painter->drawText(tagRect, tag);
+            m_currentTagRects.append({ tag, tagRect });
+            xx += ww;
+        }
+
+        // Box it when hovered.
+        if (hovered) {
+            painter->setPen(lightColor);
+            painter->drawRect(rc.adjusted(0, 0, -1, -1));
+        }
+    }
+
+    void goon()
+    {
+        if (m_currentWidget)
+            m_currentWidget->viewport()->update(m_currentArea);
+    }
+
+    bool editorEvent(QEvent *ev, QAbstractItemModel *model,
+        const QStyleOptionViewItem &option, const QModelIndex &idx) final
+    {
+        if (ev->type() == QEvent::MouseButtonRelease) {
+            const ExampleItem item = idx.data(Qt::UserRole).value<ExampleItem>();
+            auto mev = static_cast<QMouseEvent *>(ev);
+            if (idx.isValid()) {
+                const QPoint pos = mev->pos();
+                if (pos.y() > option.rect.y() + tagsSeparatorY) {
+                    //const QStringList tags = idx.data(Tags).toStringList();
+                    for (auto it : m_currentTagRects) {
+                        if (it.second.contains(pos))
+                            emit tagClicked(it.first);
+                    }
+                } else {
+                    if (item.isVideo)
+                        QDesktopServices::openUrl(QUrl::fromUserInput(item.videoUrl));
+                    else if (item.hasSourceCode)
+                        ExamplesWelcomePage::openProject(item);
+                    else
+                        HelpManager::handleHelpRequest(QUrl::fromUserInput(item.docUrl),
+                                                       HelpManager::ExternalHelpAlways);
+                }
+            }
+        }
+        return QAbstractItemDelegate::editorEvent(ev, model, option, idx);
+    }
+
+    void setShowExamples(bool showExamples) { m_showExamples = showExamples; goon(); }
+
+signals:
+    void tagClicked(const QString &tag);
+
+private:
+    const QColor lightColor = QColor(221, 220, 220); // color: "#dddcdc"
+    const QColor backgroundColor = themeColor(Theme::Welcome_BackgroundColor);
+    const QColor foregroundColor1 = themeColor(Theme::Welcome_ForegroundPrimaryColor); // light-ish.
+    const QColor foregroundColor2 = themeColor(Theme::Welcome_ForegroundSecondaryColor); // blacker.
+
+    mutable QPersistentModelIndex m_previousIndex;
+    mutable QTime m_startTime;
+    mutable QRect m_currentArea;
+    mutable QPointer<QAbstractItemView> m_currentWidget;
+    mutable QVector<QPair<QString, QRect>> m_currentTagRects;
+    bool m_showExamples = true;
+};
+
+class ExamplesPageWidget : public QWidget
+{
+public:
+    ExamplesPageWidget(bool isExamples)
+        : m_isExamples(isExamples)
+    {
+        m_exampleDelegate.setShowExamples(isExamples);
+        const int sideMargin = 27;
+        static ExamplesListModel *s_examplesModel = new ExamplesListModel(this);
+        m_examplesModel = s_examplesModel;
+
+        auto filteredModel = new ExamplesListModelFilter(m_examplesModel, !m_isExamples, this);
+
+        auto searchBox = new SearchBox(this);
+        m_searcher = searchBox->m_lineEdit;
+
+        auto vbox = new QVBoxLayout(this);
+        vbox->setContentsMargins(30, sideMargin, 0, 0);
+
+        auto hbox = new QHBoxLayout;
+        if (m_isExamples) {
+            m_searcher->setPlaceholderText(ExamplesWelcomePage::tr("Search in Examples..."));
+
+            auto exampleSetSelector = new QComboBox(this);
+            exampleSetSelector->setMinimumWidth(itemWidth);
+            exampleSetSelector->setMaximumWidth(itemWidth);
+            ExampleSetModel *exampleSetModel = m_examplesModel->exampleSetModel();
+            exampleSetSelector->setModel(exampleSetModel);
+            exampleSetSelector->setCurrentIndex(exampleSetModel->selectedExampleSet());
+            connect(exampleSetSelector, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
+                    exampleSetModel, &ExampleSetModel::selectExampleSet);
+            connect(exampleSetModel, &ExampleSetModel::selectedExampleSetChanged,
+                    exampleSetSelector, &QComboBox::setCurrentIndex);
+
+            hbox->setSpacing(17);
+            hbox->addWidget(exampleSetSelector);
+        } else {
+            m_searcher->setPlaceholderText(ExamplesWelcomePage::tr("Search in Tutorials..."));
+        }
+        hbox->addWidget(searchBox);
+        hbox->addSpacing(sideMargin);
+        vbox->addItem(hbox);
+
+        m_gridModel.setSourceModel(filteredModel);
+
+        auto gridView = new GridView(this);
+        gridView->setModel(&m_gridModel);
+        gridView->setItemDelegate(&m_exampleDelegate);
+        vbox->addWidget(gridView);
+
+        connect(&m_exampleDelegate, &ExampleDelegate::tagClicked,
+                this, &ExamplesPageWidget::onTagClicked);
+        connect(m_searcher, &QLineEdit::textChanged,
+                filteredModel, &ExamplesListModelFilter::setSearchString);
+    }
+
+    int bestColumnCount() const
+    {
+        return qMax(1, width() / (itemWidth + itemGap));
+    }
+
+    void resizeEvent(QResizeEvent *ev) final
+    {
+        QWidget::resizeEvent(ev);
+        m_gridModel.setColumnCount(bestColumnCount());
+    }
+
+    void onTagClicked(const QString &tag)
+    {
+        QString text = m_searcher->text();
+        m_searcher->setText(text + QString("tag:\"%1\" ").arg(tag));
+    }
+
+    const bool m_isExamples;
+    ExampleDelegate m_exampleDelegate;
+    QPointer<ExamplesListModel> m_examplesModel;
+    QLineEdit *m_searcher;
+    GridProxyModel m_gridModel;
+};
+
+QWidget *ExamplesWelcomePage::createWidget() const
+{
+    return new ExamplesPageWidget(m_showExamples);
 }
 
 } // namespace Internal

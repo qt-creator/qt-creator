@@ -37,6 +37,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
+#include <QRegularExpression>
 #include <QXmlStreamWriter>
 
 namespace Beautifier {
@@ -44,10 +45,12 @@ namespace Internal {
 namespace ArtisticStyle {
 
 namespace {
-const char USE_OTHER_FILES[]  = "useOtherFiles";
-const char USE_HOME_FILE[]    = "useHomeFile";
-const char USE_CUSTOM_STYLE[] = "useCustomStyle";
-const char CUSTOM_STYLE[]     = "customStyle";
+const char USE_OTHER_FILES[]          = "useOtherFiles";
+const char USE_SPECIFIC_CONFIG_FILE[] = "useSpecificConfigFile";
+const char SPECIFIC_CONFIG_FILE[]     = "specificConfigFile";
+const char USE_HOME_FILE[]            = "useHomeFile";
+const char USE_CUSTOM_STYLE[]         = "useCustomStyle";
+const char CUSTOM_STYLE[]             = "customStyle";
 }
 
 ArtisticStyleSettings::ArtisticStyleSettings() :
@@ -58,6 +61,8 @@ ArtisticStyleSettings::ArtisticStyleSettings() :
 
     setCommand("astyle");
     m_settings.insert(USE_OTHER_FILES, QVariant(true));
+    m_settings.insert(USE_SPECIFIC_CONFIG_FILE, QVariant(false));
+    m_settings.insert(SPECIFIC_CONFIG_FILE, QVariant());
     m_settings.insert(USE_HOME_FILE, QVariant(false));
     m_settings.insert(USE_CUSTOM_STYLE, QVariant(false));
     m_settings.insert(CUSTOM_STYLE, QVariant());
@@ -67,10 +72,11 @@ ArtisticStyleSettings::ArtisticStyleSettings() :
 static int parseVersion(const QString &text)
 {
     // The version in Artistic Style is printed like "Artistic Style Version 2.04"
-    const QRegExp rx("([2-9]{1})\\.([0-9]{2})(\\.[1-9]{1})?$");
-    if (rx.indexIn(text) != -1) {
-        const int major = rx.cap(1).toInt() * 100;
-        const int minor = rx.cap(2).toInt();
+    const QRegularExpression rx("([2-9]{1})\\.([0-9]{2})(\\.[1-9]{1})?$");
+    const QRegularExpressionMatch match = rx.match(text);
+    if (match.hasMatch()) {
+        const int major = match.capturedRef(1).toInt() * 100;
+        const int minor = match.capturedRef(2).toInt();
         return major + minor;
     }
     return 0;
@@ -80,7 +86,7 @@ static int updateVersionHelper(const QString &command)
 {
     Utils::SynchronousProcess process;
     Utils::SynchronousProcessResponse response
-            = process.runBlocking(command, QStringList() << QLatin1String("--version"));
+            = process.runBlocking(command, QStringList("--version"));
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return 0;
 
@@ -113,6 +119,26 @@ bool ArtisticStyleSettings::useOtherFiles() const
 void ArtisticStyleSettings::setUseOtherFiles(bool useOtherFiles)
 {
     m_settings.insert(USE_OTHER_FILES, QVariant(useOtherFiles));
+}
+
+bool ArtisticStyleSettings::useSpecificConfigFile() const
+{
+    return m_settings.value(USE_SPECIFIC_CONFIG_FILE).toBool();
+}
+
+void ArtisticStyleSettings::setUseSpecificConfigFile(bool useSpecificConfigFile)
+{
+    m_settings.insert(USE_SPECIFIC_CONFIG_FILE, QVariant(useSpecificConfigFile));
+}
+
+Utils::FileName ArtisticStyleSettings::specificConfigFile() const
+{
+    return Utils::FileName::fromString(m_settings.value(SPECIFIC_CONFIG_FILE).toString());
+}
+
+void ArtisticStyleSettings::setSpecificConfigFile(const Utils::FileName &specificConfigFile)
+{
+    m_settings.insert(SPECIFIC_CONFIG_FILE, QVariant(specificConfigFile.toString()));
 }
 
 bool ArtisticStyleSettings::useHomeFile() const
@@ -157,7 +183,7 @@ void ArtisticStyleSettings::createDocumentationFile() const
     Utils::SynchronousProcess process;
     process.setTimeoutS(2);
     Utils::SynchronousProcessResponse response
-            = process.runBlocking(command(), QStringList() << QLatin1String("-h"));
+            = process.runBlocking(command(), QStringList("-h"));
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return;
 
@@ -200,7 +226,7 @@ void ArtisticStyleSettings::createDocumentationFile() const
                         stream.writeTextElement(Constants::DOCUMENTATION_XMLKEY, key);
                     stream.writeEndElement();
                     const QString text = "<p><span class=\"option\">"
-                            + keys.filter(QRegExp("^\\-")).join(", ") + "</span></p><p>"
+                            + keys.filter(QRegularExpression("^\\-")).join(", ") + "</span></p><p>"
                             + (docu.join(' ').toHtmlEscaped()) + "</p>";
                     stream.writeTextElement(Constants::DOCUMENTATION_XMLDOC, text);
                     stream.writeEndElement();

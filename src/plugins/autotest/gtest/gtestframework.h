@@ -26,6 +26,7 @@
 #pragma once
 
 #include "../itestframework.h"
+#include "gtestconstants.h"
 
 namespace Autotest {
 namespace Internal {
@@ -39,6 +40,9 @@ public:
     IFrameworkSettings *createFrameworkSettings() const override;
     ITestSettingsPage *createSettingsPage(QSharedPointer<IFrameworkSettings> settings) const override;
     bool hasFrameworkSettings() const override;
+    static GTest::Constants::GroupMode groupMode();
+    static QString currentGTestFilter();
+    QString groupingToolTip() const override;
 protected:
     ITestParser *createTestParser() const override;
     TestTreeItem *createRootNode() const override;

@@ -76,12 +76,8 @@ def checkIncludeCompletion(editor, isClangCodeModel):
         missing, noProposal, specialHandling = args
         inclSnippet = currentLine.split("//#include")[-1].strip().strip('<"')
         propShown = waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", 2500)
-        if isClangCodeModel and inclSnippet in noProposal and JIRA.isBugStillOpen(15710):
-            test.xcompare(propShown, False, ("Proposal widget should not be shown for (%s) "
-                          "but because of QTCREATORBUG-15710 it currently is") % inclSnippet)
-        else:
-            test.compare(not propShown, inclSnippet in missing or inclSnippet in noProposal,
-                         "Proposal widget is (not) shown as expected (%s)" % inclSnippet)
+        test.compare(not propShown, inclSnippet in missing or inclSnippet in noProposal,
+                     "Proposal widget is (not) shown as expected (%s)" % inclSnippet)
         if propShown:
             proposalListView = waitForObject(':popupFrame_Proposal_QListView')
             if inclSnippet in specialHandling:
@@ -109,34 +105,28 @@ def checkSymbolCompletion(editor, isClangCodeModel):
                           "Dummy::Internal::":["DOUBLE", "one"]
                           }
     missing = ["Dummy::s", "Dummy::P", "dummy.b", "dummy.bla(", "internal.o", "freefunc2",
-               "using namespace st", "afun"]
+               "afun"]
     expectedResults = {"dummy.":"dummy.foo(", "Dummy::s":"Dummy::sfunc()",
                        "Dummy::P":"Dummy::PI", "dummy.b":"dummy.bla(", "dummy.bla(":"dummy.bla(",
                        "internal.o":"internal.one", "freefunc2":"freefunc2(",
                        "using namespace st":"using namespace std", "afun":"afunc()"}
-    if not isClangCodeModel:
-        expectedSuggestion["using namespace st"] = ["std", "st"]
-        missing.remove("using namespace st")
-    else:
+    if isClangCodeModel:
         missing.remove("internal.o")
         expectedSuggestion["internal.o"] = ["one", "operator="]
         if platform.system() in ('Microsoft', 'Windows'):
             expectedSuggestion["using namespace st"] = ["std", "stdext"]
-            missing.remove("using namespace st")
+        else:
+            expectedSuggestion["using namespace st"] = ["std", "struct ", "struct template"]
+    else:
+        expectedSuggestion["using namespace st"] = ["std", "st"]
     # define test function to perform the _real_ auto completion test on the current line
     def testSymb(currentLine, *args):
         missing, expectedSug, expectedRes = args
         symbol = currentLine.lstrip("/").strip()
         timeout = 2500
-        if isClangCodeModel and JIRA.isBugStillOpen(15639):
-            timeout = 5000
         propShown = waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", timeout)
-        if isClangCodeModel and symbol in missing and not "(" in symbol and JIRA.isBugStillOpen(15710):
-            test.xcompare(propShown, False, ("Proposal widget should not be shown for (%s) "
-                          "but because of QTCREATORBUG-15710 it currently is") % symbol)
-        else:
-            test.compare(not propShown, symbol in missing,
-                         "Proposal widget is (not) shown as expected (%s)" % symbol)
+        test.compare(not propShown, symbol in missing,
+                     "Proposal widget is (not) shown as expected (%s)" % symbol)
         found = []
         if propShown:
             proposalListView = waitForObject(':popupFrame_Proposal_QListView')
@@ -172,20 +162,21 @@ def main():
     templateDir = prepareTemplate(examplePath)
     examplePath = os.path.join(templateDir, "cplusplus-tools.pro")
     for useClang in [False, True]:
-        if not startCreator(useClang):
-            continue
-        openQmakeProject(examplePath, Targets.DESKTOP_531_DEFAULT)
-        checkCodeModelSettings(useClang)
-        if not openDocument("cplusplus-tools.Sources.main\\.cpp"):
-            earlyExit("Failed to open main.cpp.")
-            return
-        editor = getEditorForFileSuffix("main.cpp")
-        if editor:
-            checkIncludeCompletion(editor, useClang)
-            checkSymbolCompletion(editor, useClang)
-            invokeMenuItem('File', 'Revert "main.cpp" to Saved')
-            clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
-        snooze(1)   # 'Close "main.cpp"' might still be disabled
-        # editor must be closed to get the second code model applied on re-opening the file
-        invokeMenuItem('File', 'Close "main.cpp"')
-        invokeMenuItem("File", "Exit")
+        with TestSection(getCodeModelString(useClang)):
+            if not startCreator(useClang):
+                continue
+            openQmakeProject(examplePath, [Targets.DESKTOP_5_6_1_DEFAULT])
+            checkCodeModelSettings(useClang)
+            if not openDocument("cplusplus-tools.Sources.main\\.cpp"):
+                earlyExit("Failed to open main.cpp.")
+                return
+            editor = getEditorForFileSuffix("main.cpp")
+            if editor:
+                checkIncludeCompletion(editor, useClang)
+                checkSymbolCompletion(editor, useClang)
+                invokeMenuItem('File', 'Revert "main.cpp" to Saved')
+                clickButton(waitForObject(":Revert to Saved.Proceed_QPushButton"))
+            snooze(1)   # 'Close "main.cpp"' might still be disabled
+            # editor must be closed to get the second code model applied on re-opening the file
+            invokeMenuItem('File', 'Close "main.cpp"')
+            invokeMenuItem("File", "Exit")

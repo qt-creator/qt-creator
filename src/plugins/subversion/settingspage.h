@@ -33,10 +33,6 @@
 #include <QPointer>
 #include <QString>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
 namespace Subversion {
 namespace Internal {
 
@@ -60,7 +56,7 @@ class SettingsPage : public VcsBase::VcsClientOptionsPage
     Q_OBJECT
 
 public:
-    SettingsPage(Core::IVersionControl *control);
+    SettingsPage(Core::IVersionControl *control, QObject *parent);
 };
 
 } // namespace Subversion

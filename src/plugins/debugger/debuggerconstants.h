@@ -81,10 +81,6 @@ enum DebuggerState
     EngineSetupFailed,
     EngineSetupOk,
 
-    InferiorSetupRequested,
-    InferiorSetupFailed,
-    InferiorSetupOk,
-
     EngineRunRequested,
     EngineRunFailed,
 
@@ -99,12 +95,10 @@ enum DebuggerState
     InferiorStopFailed,        // Debuggee not stopped, will kill debugger
 
     InferiorShutdownRequested,
-    InferiorShutdownFailed,
-    InferiorShutdownOk,
+    InferiorShutdownFinished,
 
     EngineShutdownRequested,
-    EngineShutdownFailed,
-    EngineShutdownOk,
+    EngineShutdownFinished,
 
     DebuggerFinished
 };
@@ -120,6 +114,7 @@ enum DebuggerStartMode
     AttachCore,            // Attach to a core file
     AttachToRemoteServer,  // Attach to a running gdbserver
     AttachToRemoteProcess, // Attach to a running remote process
+    AttachToQmlServer,     // Attach to a running QmlServer
     StartRemoteProcess     // Start and attach to a remote process
 };
 
@@ -161,7 +156,8 @@ enum DebuggerCapabilities
     WatchComplexExpressionsCapability = 1 << 26, // Used to filter out challenges for cdb.
     AdditionalQmlStackCapability      = 1 << 27, //!< C++ debugger engine is able to retrieve QML stack as well.
     ResetInferiorCapability           = 1 << 28, //!< restart program while debugging
-    NativeMixedCapability             = 1 << 29
+    NativeMixedCapability             = 1 << 29,
+    BreakIndividualLocationsCapability= 1 << 30  //!< Allows to enable/disable individual location for multi-location bps
 };
 
 enum LogChannel
@@ -190,15 +186,7 @@ enum DebuggerEngineType
     GdbEngineType     = 0x001,
     CdbEngineType     = 0x004,
     PdbEngineType     = 0x008,
-    QmlEngineType     = 0x020,
-    QmlCppEngineType  = 0x040,
-    LldbEngineType    = 0x100,
-    AllEngineTypes = GdbEngineType
-        | CdbEngineType
-        | PdbEngineType
-        | QmlEngineType
-        | QmlCppEngineType
-        | LldbEngineType
+    LldbEngineType    = 0x100
 };
 
 enum DebuggerLanguage

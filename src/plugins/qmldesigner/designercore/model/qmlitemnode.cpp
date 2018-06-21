@@ -27,6 +27,7 @@
 #include <metainfo.h>
 #include "qmlchangeset.h"
 #include "nodelistproperty.h"
+#include "nodehints.h"
 #include "variantproperty.h"
 #include "bindingproperty.h"
 #include "qmlanchors.h"
@@ -51,6 +52,9 @@ bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode)
         return true;
 
     if (modelNode.metaInfo().isSubclassOf("QtQuick.Window.Window") && modelNode.isRootNode())
+        return true;
+
+    if (modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Popup"))
         return true;
 
     return false;
@@ -114,15 +118,15 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
         if (itemLibraryEntry.qmlSource().isEmpty()) {
             QList<QPair<PropertyName, QVariant> > propertyPairList;
             if (!position.isNull()) {
-                propertyPairList.append(qMakePair(PropertyName("x"), QVariant(qRound(position.x()))));
-                propertyPairList.append(qMakePair(PropertyName("y"), QVariant(qRound(position.y()))));
+                propertyPairList.append({PropertyName("x"), QVariant(qRound(position.x()))});
+                propertyPairList.append({PropertyName("y"), QVariant(qRound(position.y()))});
             }
 
             foreach (const PropertyContainer &property, itemLibraryEntry.properties()) {
                 if (property.type() == QStringLiteral("binding")) {
                     propertyBindingList.append(PropertyBindingEntry(property.name(), property.value().toString()));
                 } else {
-                    propertyPairList.append(qMakePair(property.name(), property.value()));
+                    propertyPairList.append({property.name(), property.value()});
                 }
             }
 
@@ -138,11 +142,6 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
             return newQmlItemNode;
 
         newQmlItemNode.setId(view->generateNewId(itemLibraryEntry.name()));
-
-        if (!view->currentState().isBaseState()) {
-            newQmlItemNode.modelNode().variantProperty("opacity").setValue(0);
-            newQmlItemNode.setVariantProperty("opacity", 1);
-        }
 
         foreach (const PropertyBindingEntry &propertyBindingEntry, propertyBindingList)
             newQmlItemNode.modelNode().bindingProperty(propertyBindingEntry.first).setExpression(propertyBindingEntry.second);
@@ -178,8 +177,8 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
         if (view->model()->hasNodeMetaInfo("QtQuick.Image")) {
             NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Image");
             QList<QPair<PropertyName, QVariant> > propertyPairList;
-            propertyPairList.append(qMakePair(PropertyName("x"), QVariant(qRound(position.x()))));
-            propertyPairList.append(qMakePair(PropertyName("y"), QVariant(qRound(position.y()))));
+            propertyPairList.append({PropertyName("x"), QVariant(qRound(position.x()))});
+            propertyPairList.append({PropertyName("y"), QVariant(qRound(position.y()))});
 
             QString relativeImageName = imageName;
 
@@ -187,18 +186,13 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
             if (QFileInfo::exists(view->model()->fileUrl().toLocalFile())) {
                 QDir fileDir(QFileInfo(view->model()->fileUrl().toLocalFile()).absolutePath());
                 relativeImageName = fileDir.relativeFilePath(imageName);
-                propertyPairList.append(qMakePair(PropertyName("source"), QVariant(relativeImageName)));
+                propertyPairList.append({PropertyName("source"), QVariant(relativeImageName)});
             }
 
             newQmlItemNode = QmlItemNode(view->createModelNode("QtQuick.Image", metaInfo.majorVersion(), metaInfo.minorVersion(), propertyPairList));
             parentproperty.reparentHere(newQmlItemNode);
 
             newQmlItemNode.setId(view->generateNewId(QLatin1String("image")));
-
-            if (!view->currentState().isBaseState()) {
-                newQmlItemNode.modelNode().variantProperty("opacity").setValue(0);
-                newQmlItemNode.setVariantProperty("opacity", 1);
-            }
 
             Q_ASSERT(newQmlItemNode.isValid());
         }
@@ -367,29 +361,51 @@ bool itemIsMovable(const ModelNode &modelNode)
     if (modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab"))
         return false;
 
-    if (modelNode.hasParentProperty()) {
-        ModelNode parentModelNode = modelNode.parentProperty().parentModelNode();
-        if (QmlItemNode::isValidQmlItemNode(parentModelNode)
-                && parentModelNode.metaInfo().isLayoutable())
-            return false;
-    }
+    if (!modelNode.hasParentProperty())
+        return false;
 
-    return true;
+    if (!modelNode.parentProperty().isNodeListProperty())
+        return false;
+
+    return NodeHints::fromModelNode(modelNode).isMovable();
 }
 
+bool itemIsResizable(const ModelNode &modelNode)
+{
+    if (modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab"))
+        return false;
+
+    return NodeHints::fromModelNode(modelNode).isResizable();
+}
 
 bool QmlItemNode::modelIsMovable() const
 {
     return !modelNode().hasBindingProperty("x")
             && !modelNode().hasBindingProperty("y")
-            && itemIsMovable(modelNode());
+            && itemIsMovable(modelNode())
+            && !modelIsInLayout();
 }
 
 bool QmlItemNode::modelIsResizable() const
 {
     return !modelNode().hasBindingProperty("width")
             && !modelNode().hasBindingProperty("height")
-            && itemIsMovable(modelNode());
+            && itemIsResizable(modelNode())
+            && !modelIsInLayout();
+}
+
+bool QmlItemNode::modelIsInLayout() const
+{
+    if (modelNode().hasParentProperty()) {
+        ModelNode parentModelNode = modelNode().parentProperty().parentModelNode();
+        if (QmlItemNode::isValidQmlItemNode(parentModelNode)
+                && parentModelNode.metaInfo().isLayoutable())
+            return true;
+
+        return NodeHints::fromModelNode(parentModelNode).doesLayoutChildren();
+    }
+
+    return false;
 }
 
 QRectF  QmlItemNode::instanceBoundingRect() const
@@ -503,11 +519,8 @@ QmlModelState QmlModelStateGroup::addState(const QString &name)
     if (!modelNode().isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-
-    PropertyListType propertyList;
-    propertyList.append(qMakePair(PropertyName("name"), QVariant(name)));
-
-    ModelNode newState = QmlModelState::createQmlState(modelNode().view(), propertyList);
+    ModelNode newState = QmlModelState::createQmlState(
+        modelNode().view(), {{PropertyName("name"), QVariant(name)}});
     modelNode().nodeListProperty("states").reparentHere(newState);
 
     return newState;
@@ -605,12 +618,28 @@ bool QmlItemNode::isInLayout() const
     return false;
 }
 
+bool QmlItemNode::canBereparentedTo(const ModelNode &potentialParent) const
+{
+    if (!NodeHints::fromModelNode(potentialParent).canBeContainerFor(modelNode()))
+        return false;
+    return NodeHints::fromModelNode(modelNode()).canBeReparentedTo(potentialParent);
+}
+
+bool QmlItemNode::isInStackedContainer() const
+{
+    if (hasInstanceParent())
+        return NodeHints::fromModelNode(instanceParent()).isStackedContainer();
+    return false;
+}
+
 void QmlItemNode::setSize(const QSizeF &size)
 {
-    if (!hasBindingProperty("width") && !anchors().instanceHasAnchor(AnchorLineRight))
+    if (!hasBindingProperty("width") && !(anchors().instanceHasAnchor(AnchorLineRight)
+                                          && anchors().instanceHasAnchor(AnchorLineLeft)))
         setVariantProperty("width", qRound(size.width()));
 
-    if (!hasBindingProperty("height") && !anchors().instanceHasAnchor(AnchorLineBottom))
+    if (!hasBindingProperty("height") && !(anchors().instanceHasAnchor(AnchorLineBottom)
+                                           && anchors().instanceHasAnchor(AnchorLineTop)))
         setVariantProperty("height", qRound(size.height()));
 }
 

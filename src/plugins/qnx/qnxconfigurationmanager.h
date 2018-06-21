@@ -38,8 +38,10 @@ class QnxConfigurationManager: public QObject
 {
     Q_OBJECT
 public:
-    static QnxConfigurationManager *instance();
+    QnxConfigurationManager();
     ~QnxConfigurationManager();
+
+    static QnxConfigurationManager *instance();
     QList<QnxConfiguration*> configurations() const;
     void removeConfiguration(QnxConfiguration *config);
     bool addConfiguration(QnxConfiguration *config);
@@ -52,13 +54,9 @@ signals:
     void configurationsListUpdated();
 
 private:
-    QnxConfigurationManager(QObject *parent = 0);
-    static QnxConfigurationManager *m_instance;
     QList<QnxConfiguration*> m_configurations;
     Utils::PersistentSettingsWriter *m_writer;
     void restoreConfigurations();
-
-    friend class QnxPlugin;
 };
 
 }

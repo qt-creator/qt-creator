@@ -57,13 +57,13 @@ struct BehaviorSettingsPage::BehaviorSettingsPagePrivate
 
     const BehaviorSettingsPageParameters m_parameters;
     QPointer<QWidget> m_widget;
-    Internal::Ui::BehaviorSettingsPage *m_page;
+    Internal::Ui::BehaviorSettingsPage *m_page = nullptr;
 
     void init();
 
-    CodeStylePool *m_defaultCodeStylePool;
-    SimpleCodeStylePreferences *m_codeStyle;
-    SimpleCodeStylePreferences *m_pageCodeStyle;
+    CodeStylePool *m_defaultCodeStylePool = nullptr;
+    SimpleCodeStylePreferences *m_codeStyle = nullptr;
+    SimpleCodeStylePreferences *m_pageCodeStyle = nullptr;
     TypingSettings m_typingSettings;
     StorageSettings m_storageSettings;
     BehaviorSettings m_behaviorSettings;
@@ -72,7 +72,7 @@ struct BehaviorSettingsPage::BehaviorSettingsPagePrivate
 
 BehaviorSettingsPage::BehaviorSettingsPagePrivate::BehaviorSettingsPagePrivate
     (const BehaviorSettingsPageParameters &p)
-    : m_parameters(p), m_page(0), m_pageCodeStyle(0)
+    : m_parameters(p)
 {
 }
 

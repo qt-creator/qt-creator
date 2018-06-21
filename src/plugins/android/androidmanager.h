@@ -29,7 +29,6 @@
 
 #include <QPair>
 #include <QObject>
-#include <QStringList>
 
 namespace ProjectExplorer {
 class Kit;
@@ -47,10 +46,6 @@ class ANDROID_EXPORT AndroidManager : public QObject
     Q_OBJECT
 
 public:
-
-    static bool supportsAndroid(const ProjectExplorer::Kit *kit);
-    static bool supportsAndroid(const ProjectExplorer::Target *target);
-
     static QString packageName(ProjectExplorer::Target *target);
     static QString packageName(const Utils::FileName &manifestFile);
 
@@ -60,6 +55,9 @@ public:
     static bool bundleQt(ProjectExplorer::Target *target);
     static QString deviceSerialNumber(ProjectExplorer::Target *target);
     static void setDeviceSerialNumber(ProjectExplorer::Target *target, const QString &deviceSerialNumber);
+
+    static int deviceApiLevel(ProjectExplorer::Target *target);
+    static void setDeviceApiLevel(ProjectExplorer::Target *target, int level);
 
     static QString buildTargetSDK(ProjectExplorer::Target *target);
 
@@ -83,10 +81,11 @@ public:
 
     static bool checkKeystorePassword(const QString &keystorePath, const QString &keystorePasswd);
     static bool checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd);
-    static bool checkForQt51Files(Utils::FileName fileName);
+    static bool checkCertificateExists(const QString &keystorePath, const QString &keystorePasswd,
+                                       const QString &alias);
     static AndroidQtSupport *androidQtSupport(ProjectExplorer::Target *target);
-    static bool useGradle(ProjectExplorer::Target *target);
     static bool updateGradleProperties(ProjectExplorer::Target *target);
+    static int findApiLevel(const Utils::FileName &platformPath);
 };
 
 } // namespace Android

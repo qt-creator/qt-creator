@@ -28,6 +28,7 @@
 #include "projectexplorer_export.h"
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 
 #include <QList>
@@ -38,25 +39,24 @@ namespace ProjectExplorer {
 class PROJECTEXPLORER_EXPORT BuildTargetInfo
 {
 public:
-    BuildTargetInfo() = default;
-    BuildTargetInfo(const QString &targetName, const Utils::FileName &targetFilePath,
-                    const Utils::FileName &projectFilePath) :
-        targetName(targetName),
-        targetFilePath(targetFilePath),
-        projectFilePath(projectFilePath)
-    { }
+    QString buildKey; // Used to identify this BuildTargetInfo object in its list.
+    QString displayName;
 
-    QString targetName;
     Utils::FileName targetFilePath;
     Utils::FileName projectFilePath;
+    Utils::FileName workingDirectory;
+    bool isQtcRunnable = true;
+    bool usesTerminal = false;
 
-    bool isValid() const { return !targetName.isEmpty(); }
+    std::function<void(Utils::Environment &, bool)> runEnvModifier;
 };
 
 inline bool operator==(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)
 {
-    return ti1.targetName == ti2.targetName && ti1.targetFilePath == ti2.targetFilePath
-            && ti1.projectFilePath == ti2.projectFilePath;
+    return ti1.buildKey == ti2.buildKey
+        && ti1.displayName == ti2.displayName
+        && ti1.targetFilePath == ti2.targetFilePath
+        && ti1.projectFilePath == ti2.projectFilePath;
 }
 
 inline bool operator!=(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)
@@ -66,36 +66,16 @@ inline bool operator!=(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)
 
 inline uint qHash(const BuildTargetInfo &ti)
 {
-    return qHash(ti.targetName);
+    return qHash(ti.displayName) ^ qHash(ti.buildKey);
 }
 
 class PROJECTEXPLORER_EXPORT BuildTargetInfoList
 {
 public:
-    Utils::FileName targetForProject(const QString &projectFilePath) const
-    {
-        return targetForProject(Utils::FileName::fromString(projectFilePath));
-    }
-
-    Utils::FileName targetForProject(const Utils::FileName &projectFilePath) const
-    {
-        foreach (const BuildTargetInfo &ti, list) {
-            if (ti.projectFilePath == projectFilePath)
-                return ti.targetFilePath;
-        }
-        return Utils::FileName();
-    }
-
-    bool hasTarget(const QString &targetName) {
-        return Utils::anyOf(list, [&targetName](const BuildTargetInfo &ti) {
-            return ti.targetName == targetName;
+    BuildTargetInfo buildTargetInfo(const QString &buildKey) {
+        return Utils::findOrDefault(list, [&buildKey](const BuildTargetInfo &ti) {
+            return ti.buildKey == buildKey;
         });
-    }
-
-    Utils::FileName targetFilePath(const QString &targetName) {
-        return Utils::findOrDefault(list, [&targetName](const BuildTargetInfo &ti) {
-            return ti.targetName == targetName;
-        }).targetFilePath;
     }
 
     QList<BuildTargetInfo> list;

@@ -26,8 +26,7 @@
 // Changes will be lost.
 //
 
-#ifndef CPLUSPLUS_AST_PATTERN_BUILDER_H
-#define CPLUSPLUS_AST_PATTERN_BUILDER_H
+#pragma once
 
 #include "CPlusPlusForwardDeclarations.h"
 #include "AST.h"
@@ -1385,5 +1384,3 @@ public:
 };
 
 } // end of namespace CPlusPlus
-
-#endif // CPLUSPLUS_AST_PATTERN_BUILDER_H

@@ -50,7 +50,7 @@ class AnnotationItem :
 
 public:
     AnnotationItem(DAnnotation *annotation, DiagramSceneModel *diagramSceneModel,
-                   QGraphicsItem *parent = 0);
+                   QGraphicsItem *parent = nullptr);
     ~AnnotationItem() override;
 
     DAnnotation *annotation() const { return m_annotation; }
@@ -77,6 +77,8 @@ public:
     void setSecondarySelected(bool secondarySelected) override;
     bool isFocusSelected() const override;
     void setFocusSelected(bool focusSelected) override;
+    QRectF getSecondarySelectionBoundary() override;
+    void setBoundarySelected(const QRectF &boundary, bool secondary) override;
 
     bool isEditable() const override;
     void edit() override;
@@ -98,13 +100,13 @@ private:
     QSizeF calcMinimumGeometry() const;
     void updateGeometry();
 
-    DAnnotation *m_annotation = 0;
-    DiagramSceneModel *m_diagramSceneModel = 0;
+    DAnnotation *m_annotation = nullptr;
+    DiagramSceneModel *m_diagramSceneModel = nullptr;
     bool m_isSecondarySelected = false;
     bool m_isFocusSelected = false;
-    RectangularSelectionItem *m_selectionMarker = 0;
-    QGraphicsRectItem *m_noTextItem = 0;
-    AnnotationTextItem *m_textItem = 0;
+    RectangularSelectionItem *m_selectionMarker = nullptr;
+    QGraphicsRectItem *m_noTextItem = nullptr;
+    AnnotationTextItem *m_textItem = nullptr;
     bool m_isUpdating = false;
     bool m_isChanged = false;
 };

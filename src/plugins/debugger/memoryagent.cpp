@@ -27,7 +27,6 @@
 
 #include "breakhandler.h"
 #include "debuggerengine.h"
-#include "debuggerstartparameters.h"
 #include "debuggercore.h"
 #include "debuggerinternalconstants.h"
 #include "registerhandler.h"
@@ -161,8 +160,8 @@ QString registerViewTitle(const QString &registerName, quint64 addr)
 
 QList<MemoryMarkup> registerViewMarkup(quint64 a, const QString &regName)
 {
-    return { MemoryMarkup(a, 1, QColor(Qt::blue).lighter(),
-                          MemoryAgent::tr("Register \"%1\"").arg(regName)) };
+    return {MemoryMarkup(a, 1, QColor(Qt::blue).lighter(),
+                         MemoryAgent::tr("Register \"%1\"").arg(regName))};
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -284,12 +283,10 @@ MemoryAgent::MemoryAgent(const MemoryViewSetupData &data, DebuggerEngine *engine
 
 MemoryAgent::~MemoryAgent()
 {
-    if (m_service) {
-        if (m_service->editor())
-            EditorManager::closeDocument(m_service->editor()->document());
-        if (m_service->widget())
-            m_service->widget()->close();
-    }
+    if (m_service && m_service->editor())
+        EditorManager::closeDocument(m_service->editor()->document());
+    if (m_service && m_service->widget()) // m_service might be set to null by closeDocument
+        m_service->widget()->close();
 }
 
 void MemoryAgent::updateContents()

@@ -31,11 +31,11 @@ namespace DiffEditor {
 namespace Icons {
 
 const Utils::Icon TOP_BAR({
-        {QLatin1String(":/diffeditor/images/topbar.png"), Utils::Theme::IconsBaseColor}});
+        {":/diffeditor/images/topbar.png", Utils::Theme::IconsBaseColor}});
 const Utils::Icon UNIFIED_DIFF({
-        {QLatin1String(":/diffeditor/images/unifieddiff.png"), Utils::Theme::IconsBaseColor}});
+        {":/diffeditor/images/unifieddiff.png", Utils::Theme::IconsBaseColor}});
 const Utils::Icon SIDEBYSIDE_DIFF({
-        {QLatin1String(":/diffeditor/images/sidebysidediff.png"), Utils::Theme::IconsBaseColor}});
+        {":/diffeditor/images/sidebysidediff.png", Utils::Theme::IconsBaseColor}});
 
 } // namespace Icons
 } // namespace DiffEditor

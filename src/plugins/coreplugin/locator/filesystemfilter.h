@@ -28,32 +28,31 @@
 #include "ilocatorfilter.h"
 #include "ui_filesystemfilter.h"
 
-#include <QString>
-#include <QList>
 #include <QByteArray>
 #include <QFutureInterface>
+#include <QList>
+#include <QString>
 
 namespace Core {
 namespace Internal {
-
-class LocatorWidget;
 
 class FileSystemFilter : public ILocatorFilter
 {
     Q_OBJECT
 
 public:
-    explicit FileSystemFilter(LocatorWidget *locatorWidget);
-    void prepareSearch(const QString &entry);
-    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry);
-    void accept(LocatorFilterEntry selection) const;
-    QByteArray saveState() const;
-    bool restoreState(const QByteArray &state);
-    bool openConfigDialog(QWidget *parent, bool &needsRefresh);
-    void refresh(QFutureInterface<void> &) {}
+    explicit FileSystemFilter();
+    void prepareSearch(const QString &entry) override;
+    QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
+                                         const QString &entry) override;
+    void accept(LocatorFilterEntry selection,
+                QString *newText, int *selectionStart, int *selectionLength) const override;
+    QByteArray saveState() const override;
+    void restoreState(const QByteArray &state) override;
+    bool openConfigDialog(QWidget *parent, bool &needsRefresh) override;
+    void refresh(QFutureInterface<void> &) override {}
 
 private:
-    LocatorWidget *m_locatorWidget;
     bool m_includeHidden = true;
     QString m_currentDocumentDirectory;
 };

@@ -13,7 +13,6 @@ QtcPlugin {
     files: [
         "annotationhighlighter.cpp",
         "annotationhighlighter.h",
-        "cvs.qrc",
         "cvsclient.cpp",
         "cvsclient.h",
         "cvscontrol.cpp",

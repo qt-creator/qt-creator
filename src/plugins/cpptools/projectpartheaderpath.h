@@ -29,14 +29,14 @@
 
 namespace CppTools {
 
-struct ProjectPartHeaderPath {
+class ProjectPartHeaderPath {
+public:
     enum Type {
         InvalidPath,
         IncludePath,
         FrameworkPath
     };
 
-public:
     QString path;
     Type type;
 

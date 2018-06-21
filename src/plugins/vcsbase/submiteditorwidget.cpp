@@ -28,6 +28,8 @@
 #include "submitfilemodel.h"
 #include "ui_submiteditorwidget.h"
 
+#include <utils/algorithm.h>
+
 #include <QDebug>
 #include <QPointer>
 #include <QTextBlock>
@@ -117,18 +119,6 @@ public slots:
 
 // Helpers to retrieve model data
 // Convenience to extract a list of selected indexes
-QList<int> selectedRows(const QAbstractItemView *view)
-{
-    const QModelIndexList indexList = view->selectionModel()->selectedRows(0);
-    if (indexList.empty())
-        return QList<int>();
-    QList<int> rc;
-    const QModelIndexList::const_iterator cend = indexList.constEnd();
-    for (QModelIndexList::const_iterator it = indexList.constBegin(); it != cend; ++it)
-        rc.push_back(it->row());
-    return rc;
-}
-
 // -----------  SubmitEditorWidgetPrivate
 
 struct SubmitEditorWidgetPrivate
@@ -369,6 +359,7 @@ void SubmitEditorWidget::setLineWrap(bool v)
     } else {
         d->m_ui.description->setLineWrapMode(QTextEdit::NoWrap);
     }
+    descriptionTextChanged();
 }
 
 int SubmitEditorWidget::lineWrapWidth() const
@@ -385,6 +376,7 @@ void SubmitEditorWidget::setLineWrapWidth(int v)
     d->m_lineWidth = v;
     if (lineWrap())
         d->m_ui.description->setLineWrapColumnOrWidth(v);
+    descriptionTextChanged();
 }
 
 bool SubmitEditorWidget::isDescriptionMandatory() const
@@ -461,7 +453,7 @@ Utils::CompletingTextEdit *SubmitEditorWidget::descriptionEdit() const
 
 void SubmitEditorWidget::triggerDiffSelected()
 {
-    const QList<int> sel = selectedRows(d->m_ui.fileView);
+    const QList<int> sel = selectedRows();
     if (!sel.empty())
         emit diffSelected(sel);
 }
@@ -606,6 +598,22 @@ void SubmitEditorWidget::setUpdateInProgress(bool value)
 bool SubmitEditorWidget::updateInProgress() const
 {
     return d->m_updateInProgress;
+}
+
+QList<int> SubmitEditorWidget::selectedRows() const
+{
+    return Utils::transform(d->m_ui.fileView->selectionModel()->selectedRows(0), &QModelIndex::row);
+}
+
+void SubmitEditorWidget::setSelectedRows(const QList<int> &rows)
+{
+    if (const SubmitFileModel *model = fileModel()) {
+        QItemSelectionModel *selectionModel = d->m_ui.fileView->selectionModel();
+        for (int row : rows) {
+            selectionModel->select(model->index(row, 0),
+                                   QItemSelectionModel::Select | QItemSelectionModel::Rows);
+        }
+    }
 }
 
 QString SubmitEditorWidget::commitName() const

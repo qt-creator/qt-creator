@@ -59,7 +59,7 @@ QString cdbSourcePathMapping(QString fileName,
 
     if (fileName.isEmpty() || sourcePathMapping.isEmpty())
         return fileName;
-    foreach (const SourcePathMapping &m, sourcePathMapping) {
+    for (const SourcePathMapping &m : sourcePathMapping) {
         const QString &source = mode == DebuggerToSource ? m.first : m.second;
         const int sourceSize = source.size();
         // Map parts of the path and ensure a slash follows.
@@ -364,7 +364,7 @@ void WinException::fromGdbMI(const GdbMi &gdbmi)
         info1 = ginfo1.data().toULongLong();
         const GdbMi ginfo2  = gdbmi["exceptionInformation1"];
         if (ginfo2.isValid())
-            info2 = ginfo1.data().toULongLong();
+            info2 = ginfo2.data().toULongLong();
     }
     const GdbMi gLineNumber = gdbmi["exceptionLine"];
     if (gLineNumber.isValid()) {

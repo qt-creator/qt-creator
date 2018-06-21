@@ -48,6 +48,9 @@ public:
 
     MetricsType metrics = Walltime;
     bool noCrashHandler = true;
+    bool useXMLOutput = true;
+    bool verboseBench = false;
+    bool logSignalsSlots = false;
 
 protected:
     void fromFrameworkSettings(const QSettings *s) override;

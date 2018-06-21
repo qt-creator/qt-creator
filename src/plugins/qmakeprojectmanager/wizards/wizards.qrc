@@ -1,8 +1,11 @@
 <RCC>
     <qresource prefix="/wizards">
         <file>images/console.png</file>
+        <file>images/console@2x.png</file>
         <file>images/gui.png</file>
+        <file>images/gui@2x.png</file>
         <file>images/lib.png</file>
+        <file>images/lib@2x.png</file>
         <file>images/qtquickapp.png</file>
     </qresource>
 </RCC>

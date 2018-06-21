@@ -25,14 +25,7 @@
 
 #include "plugin1.h"
 
-#include <qplugin.h>
-#include <QStringList>
-
 using namespace Plugin1;
-
-MyPlugin1::MyPlugin1()
-{
-}
 
 bool MyPlugin1::initialize(const QStringList &arguments, QString *errorString)
 {

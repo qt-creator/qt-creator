@@ -42,18 +42,18 @@
 
 using namespace Help::Internal;
 
-static LocalHelpManager *m_instance = 0;
+static LocalHelpManager *m_instance = nullptr;
 
 bool LocalHelpManager::m_guiNeedsSetup = true;
 bool LocalHelpManager::m_needsCollectionFile = true;
 
 QMutex LocalHelpManager::m_guiMutex;
-QHelpEngine* LocalHelpManager::m_guiEngine = 0;
+QHelpEngine* LocalHelpManager::m_guiEngine = nullptr;
 
 QMutex LocalHelpManager::m_bkmarkMutex;
-BookmarkManager* LocalHelpManager::m_bookmarkManager = 0;
+BookmarkManager* LocalHelpManager::m_bookmarkManager = nullptr;
 
-QStandardItemModel *LocalHelpManager::m_filterModel = 0;
+QStandardItemModel *LocalHelpManager::m_filterModel = nullptr;
 QString LocalHelpManager::m_currentFilter = QString();
 int LocalHelpManager::m_currentFilterIndex = -1;
 
@@ -115,11 +115,11 @@ LocalHelpManager::~LocalHelpManager()
     if (m_bookmarkManager) {
         m_bookmarkManager->saveBookmarks();
         delete m_bookmarkManager;
-        m_bookmarkManager = 0;
+        m_bookmarkManager = nullptr;
     }
 
     delete m_guiEngine;
-    m_guiEngine = 0;
+    m_guiEngine = nullptr;
 }
 
 LocalHelpManager *LocalHelpManager::instance()
@@ -266,7 +266,7 @@ QList<float> LocalHelpManager::lastShownPagesZoom()
 void LocalHelpManager::setLastShownPagesZoom(const QList<qreal> &zoom)
 {
     const QStringList stringValues = Utils::transform(zoom,
-                                                      [](float z) { return QString::number(z); });
+                                                      [](qreal z) { return QString::number(z); });
     Core::ICore::settings()->setValue(kLastShownPagesZoomKey,
                                       stringValues.join(Constants::ListSeparator));
 }
@@ -287,6 +287,7 @@ void LocalHelpManager::setupGuiHelpEngine()
     if (m_needsCollectionFile) {
         m_needsCollectionFile = false;
         helpEngine().setCollectionFile(Core::HelpManager::collectionFilePath());
+        m_guiNeedsSetup = true;
     }
 
     if (m_guiNeedsSetup) {
@@ -304,10 +305,8 @@ QHelpEngine &LocalHelpManager::helpEngine()
 {
     if (!m_guiEngine) {
         QMutexLocker _(&m_guiMutex);
-        if (!m_guiEngine) {
+        if (!m_guiEngine)
             m_guiEngine = new QHelpEngine(QString());
-            m_guiEngine->setAutoSaveFilter(false);
-        }
     }
     return *m_guiEngine;
 }

@@ -26,6 +26,7 @@
 #pragma once
 
 #include "../projectexplorer_export.h"
+#include <projectexplorer/projectnodes.h>
 
 #include <coreplugin/generatedfile.h>
 
@@ -108,7 +109,6 @@ signals:
     void filesReady(const JsonWizard::GeneratorFiles &files); // emitted just after files are in final state on disk.
     void filesPolished(const JsonWizard::GeneratorFiles &files); // emitted just after additional files (e.g. settings) not directly related to the project were created.
     void allDone(const JsonWizard::GeneratorFiles &files); // emitted just after the wizard is done with the files. They are ready to be opened.
-
 public slots:
     void accept() override;
     void reject() override;
@@ -120,6 +120,7 @@ private:
     QString stringify(const QVariant &v) const override;
     QString evaluate(const QVariant &v) const override ;
     void openFiles(const GeneratorFiles &files);
+    void openProjectForNode(ProjectExplorer::Node *node);
 
     QList<JsonWizardGenerator *> m_generators;
 

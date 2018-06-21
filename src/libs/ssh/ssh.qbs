@@ -22,6 +22,8 @@ Project {
             "sftpoperation.cpp", "sftpoperation_p.h",
             "sftpoutgoingpacket.cpp", "sftpoutgoingpacket_p.h",
             "sftppacket.cpp", "sftppacket_p.h",
+            "ssh.qrc",
+            "sshagent.cpp", "sshagent_p.h",
             "sshbotanconversions_p.h",
             "sshcapabilities_p.h", "sshcapabilities.cpp",
             "sshchannel.cpp", "sshchannel_p.h",

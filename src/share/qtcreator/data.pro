@@ -9,7 +9,6 @@ STATIC_INSTALL_BASE = $$INSTALL_DATA_PATH
 STATIC_FILES = \
     $$PWD/externaltools/lrelease.xml \
     $$PWD/externaltools/lupdate.xml \
-    $$PWD/externaltools/sort.xml \
     $$PWD/externaltools/qmlviewer.xml \
     $$PWD/externaltools/qmlscene.xml
 unix {

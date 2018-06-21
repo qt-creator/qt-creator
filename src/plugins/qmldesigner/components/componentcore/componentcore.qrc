@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/qmldesigner/icon/designeractions">
+        <file>images/column.png</file>
+        <file>images/column@2x.png</file>
+        <file>images/grid.png</file>
+        <file>images/grid@2x.png</file>
+        <file>images/lower.png</file>
+        <file>images/lower@2x.png</file>
+        <file>images/raise.png</file>
+        <file>images/raise@2x.png</file>
+        <file>images/row.png</file>
+        <file>images/row@2x.png</file>
+    </qresource>
+</RCC>

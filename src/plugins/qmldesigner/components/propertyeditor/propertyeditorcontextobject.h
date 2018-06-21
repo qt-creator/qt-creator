@@ -55,12 +55,14 @@ class PropertyEditorContextObject : public QObject
 
     Q_PROPERTY(bool hasAliasExport READ hasAliasExport NOTIFY hasAliasExportChanged)
 
+    Q_PROPERTY(bool hasActiveTimeline READ hasActiveTimeline NOTIFY hasActiveTimelineChanged)
+
     Q_PROPERTY(QQmlPropertyMap* backendValues READ backendValues WRITE setBackendValues NOTIFY backendValuesChanged)
 
     Q_PROPERTY(QQmlComponent* specificQmlComponent READ specificQmlComponent NOTIFY specificQmlComponentChanged)
 
 public:
-    PropertyEditorContextObject(QObject *parent = 0);
+    PropertyEditorContextObject(QObject *parent = nullptr);
 
     QUrl globalBaseUrl() const {return m_globalBaseUrl; }
     QUrl specificsUrl() const {return m_specificsUrl; }
@@ -81,6 +83,7 @@ public:
     Q_INVOKABLE void toogleExportAlias();
 
     Q_INVOKABLE void changeTypeName(const QString &typeName);
+    Q_INVOKABLE void insertKeyframe(const QString &propertyName);
 
     int majorVersion() const;
     int majorQtQuickVersion() const;
@@ -90,6 +93,9 @@ public:
     void setMinorQtQuickVersion(int minorVersion);
     int minorVersion() const;
     void setMinorVersion(int minorVersion);
+
+    bool hasActiveTimeline() const;
+    void setHasActiveTimeline(bool b);
 
     void insertInQmlContext(QQmlContext *context);
     QQmlComponent *specificQmlComponent();
@@ -110,6 +116,7 @@ signals:
     void minorQtQuickVersionChanged();
     void specificQmlComponentChanged();
     void hasAliasExportChanged();
+    void hasActiveTimelineChanged();
 
 public slots:
      void setGlobalBaseUrl(const QUrl &newBaseUrl);
@@ -153,6 +160,8 @@ private:
     Model *m_model = nullptr;
 
     bool m_aliasExport = false;
+
+    bool m_setHasActiveTimeline = false;
 };
 
 } //QmlDesigner {

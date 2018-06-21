@@ -26,6 +26,7 @@
 #pragma once
 
 #include <utils/itemviews.h>
+#include <utils/fileutils.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
 #include <QAbstractItemModel>
@@ -50,9 +51,7 @@ class BookmarkManager : public QAbstractItemModel
 
 public:
     BookmarkManager();
-    ~BookmarkManager();
-
-    QIcon bookmarkIcon() const { return m_bookmarkIcon; }
+    ~BookmarkManager() final;
 
     void updateBookmark(Bookmark *bookmark);
     void updateBookmarkFileName(Bookmark *bookmark, const QString &oldFileName);
@@ -64,21 +63,21 @@ public:
     State state() const;
 
     // Model stuff
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const final;
+    QModelIndex parent(const QModelIndex &child) const final;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const final;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const final;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const final;
+    Qt::ItemFlags flags(const QModelIndex &index) const final;
 
-    Qt::DropActions supportedDragActions() const;
-    QStringList mimeTypes() const;
-    QMimeData *mimeData(const QModelIndexList &indexes) const;
+    Qt::DropActions supportedDragActions() const final;
+    QStringList mimeTypes() const final;
+    QMimeData *mimeData(const QModelIndexList &indexes) const final;
 
     // this QItemSelectionModel is shared by all views
     QItemSelectionModel *selectionModel() const;
 
-    bool hasBookmarkInPosition(const QString &fileName, int lineNumber);
+    bool hasBookmarkInPosition(const Utils::FileName &fileName, int lineNumber);
 
     enum Roles {
         Filename = Qt::UserRole,
@@ -88,7 +87,7 @@ public:
         Note = Qt::UserRole + 4
     };
 
-    void toggleBookmark(const QString &fileName, int lineNumber);
+    void toggleBookmark(const Utils::FileName &fileName, int lineNumber);
     void nextInDocument();
     void prevInDocument();
     void next();
@@ -96,8 +95,8 @@ public:
     void moveUp();
     void moveDown();
     void edit();
-    void editByFileAndLine(const QString &fileName, int lineNumber);
-    bool gotoBookmark(Bookmark *bookmark);
+    void editByFileAndLine(const Utils::FileName &fileName, int lineNumber);
+    bool gotoBookmark(const Bookmark *bookmark) const;
 
 signals:
     void updateActions(bool enableToggle, int state);
@@ -106,23 +105,18 @@ signals:
 private:
     void updateActionStatus();
     void loadBookmarks();
+    bool isAtCurrentBookmark() const;
 
     void documentPrevNext(bool next);
 
-    Bookmark *findBookmark(const QString &filePath, int lineNumber);
+    Bookmark *findBookmark(const Utils::FileName &filePath, int lineNumber);
+    void insertBookmark(int index, Bookmark *bookmark, bool userset = true);
     void addBookmark(Bookmark *bookmark, bool userset = true);
     void addBookmark(const QString &s);
-    void addBookmarkToMap(Bookmark *bookmark);
-    bool removeBookmarkFromMap(Bookmark *bookmark, const QString &fileName = QString());
     static QString bookmarkToString(const Bookmark *b);
     void saveBookmarks();
 
-    typedef QMultiMap<QString, Bookmark *> FileNameBookmarksMap;
-    typedef QMap<QString, FileNameBookmarksMap *> DirectoryFileBookmarksMap;
-
-    DirectoryFileBookmarksMap m_bookmarksMap;
-
-    const QIcon m_bookmarkIcon;
+    QMap<Utils::FileName, QVector<Bookmark *>> m_bookmarksMap;
 
     QList<Bookmark *> m_bookmarksList;
     QItemSelectionModel *m_selectionModel;
@@ -134,7 +128,9 @@ class BookmarkView : public Utils::ListView
 
 public:
     explicit BookmarkView(BookmarkManager *manager);
-    ~BookmarkView();
+    ~BookmarkView() final;
+
+    QList<QToolButton *> createToolBarWidgets() const;
 
 public slots:
     void gotoBookmark(const QModelIndex &index);
@@ -144,9 +140,9 @@ protected slots:
     void removeAll();
 
 protected:
-    void contextMenuEvent(QContextMenuEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event) final;
     void removeBookmark(const QModelIndex &index);
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) final;
 
 private:
     Core::IContext *m_bookmarkContext;
@@ -162,7 +158,7 @@ public:
     BookmarkViewFactory(BookmarkManager *bm);
 
 private:
-    Core::NavigationView createWidget();
+    Core::NavigationView createWidget() override;
 
     BookmarkManager *m_manager;
 };
@@ -172,11 +168,11 @@ class BookmarkDelegate : public QStyledItemDelegate
     Q_OBJECT
 
 public:
-    BookmarkDelegate(QObject *parent = 0);
+    BookmarkDelegate(QObject *parent = nullptr);
 
 private:
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const final;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const final;
     void generateGradientPixmap(int width, int height, const QColor &color, bool selected) const;
 
     mutable QPixmap m_normalPixmap;

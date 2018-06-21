@@ -44,6 +44,8 @@ class PROJECTEXPLORER_EXPORT IDeviceFactory : public QObject
     Q_OBJECT
 
 public:
+    ~IDeviceFactory() override;
+    static const QList<IDeviceFactory *> allDeviceFactories();
 
     virtual QString displayNameForId(Core::Id type) const = 0;
 
@@ -60,7 +62,7 @@ public:
     static IDeviceFactory *find(Core::Id type);
 
 protected:
-    explicit IDeviceFactory(QObject *parent = 0);
+    explicit IDeviceFactory(QObject *parent = nullptr);
 };
 
 } // namespace ProjectExplorer

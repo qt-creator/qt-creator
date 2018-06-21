@@ -38,7 +38,7 @@ class QMT_EXPORT PaletteBox : public QWidget
     Q_OBJECT
 
 public:
-    explicit PaletteBox(QWidget *parent = 0);
+    explicit PaletteBox(QWidget *parent = nullptr);
     ~PaletteBox() override;
 
 signals:
@@ -62,7 +62,7 @@ protected:
 private:
     QVector<QBrush> m_brushes;
     QVector<QPen> m_pens;
-    int m_currentIndex;
+    int m_currentIndex = -1;
 };
 
 } // namespace qmt

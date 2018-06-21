@@ -873,7 +873,7 @@
             \code
             auto something = new MyCustomType;
             auto keyEvent = static_cast<QKeyEvent *>(event);
-            auto myList = QStringList() << QLatin1String("FooThing") << QLatin1String("BarThing");
+            auto myList = QStringList({ "FooThing",  "BarThing" });
             \endcode
 
         \li When assigning iterator types.
@@ -899,6 +899,27 @@
     \code
     const QVector<int> values = {1, 2, 3, 4, 5};
     \endcode
+
+    \section3 Initialization with Curly Brackets
+
+    If you use initialization with curly brackets, follow the same rules as with
+    round brackets. For example:
+
+    \code
+    class Values // the following code is quite useful for test fixtures
+    {
+        float floatValue = 4; // prefer that for simple types
+        QVector<int> values = {1, 2, 3, 4, integerValue}; // prefer that syntax for initializer lists
+        SomeValues someValues{"One", 2, 3.4}; // not an initializer_list
+        SomeValues &someValuesReference = someValues;
+        ComplexType complexType{values, otherValues} // constructor call
+    }
+
+    object.setEntry({"SectionA", value, doubleValue}); // calls a constructor
+    object.setEntry({}); // calls default constructor
+    \endcode
+
+    But be careful not to overuse it, to not obfuscate your code.
 
     \section3 Non-Static Data Member Initialization
 

@@ -47,17 +47,21 @@ class ComponentViewController :
     class ComponentViewControllerPrivate;
 
 public:
-    explicit ComponentViewController(QObject *parent = 0);
+    explicit ComponentViewController(QObject *parent = nullptr);
     ~ComponentViewController();
 
     void setPxNodeUtilties(PxNodeUtilities *pxnodeUtilities);
     void setDiagramSceneController(qmt::DiagramSceneController *diagramSceneController);
 
-    void createComponentModel(const ProjectExplorer::FolderNode *folderNode,
-                              qmt::MDiagram *diagram, const QString anchorFolder);
+    void createComponentModel(const QString &filePath,
+                              qmt::MDiagram *diagram, const QString &anchorFolder);
     void updateIncludeDependencies(qmt::MPackage *rootPackage);
 
 private:
+    void doCreateComponentModel(const QString &filePath, qmt::MDiagram *diagram,
+                                const QString &anchorFolder, bool scanHeaders);
+    bool isProxyHeader(const QString &file) const;
+
     ComponentViewControllerPrivate *d;
 };
 

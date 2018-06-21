@@ -26,9 +26,14 @@
 #pragma once
 
 #include "texteditor_global.h"
+
 #include <texteditor/texteditorconstants.h>
+
 #include <QObject>
 #include <QTextLayout>
+
+#include <functional>
+#include <limits.h>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
@@ -50,10 +55,10 @@ class TEXTEDITOR_EXPORT SyntaxHighlighter : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(SyntaxHighlighter)
 public:
-    SyntaxHighlighter(QObject *parent = 0);
+    SyntaxHighlighter(QObject *parent = nullptr);
     SyntaxHighlighter(QTextDocument *parent);
     SyntaxHighlighter(QTextEdit *parent);
-    virtual ~SyntaxHighlighter();
+    ~SyntaxHighlighter() override;
 
     void setDocument(QTextDocument *doc);
     QTextDocument *document() const;
@@ -64,21 +69,30 @@ public:
 
     // Don't call in constructors of derived classes
     virtual void setFontSettings(const TextEditor::FontSettings &fontSettings);
-public Q_SLOTS:
+
+    void setNoAutomaticHighlighting(bool noAutomatic);
+
+public slots:
     void rehighlight();
     void rehighlightBlock(const QTextBlock &block);
 
 protected:
-    void setTextFormatCategories(const QVector<TextEditor::TextStyle> &categories);
+    void setDefaultTextFormatCategories();
+    void setTextFormatCategories(int count, std::function<TextStyle(int)> formatMapping);
     QTextCharFormat formatForCategory(int categoryIndex) const;
-    virtual void highlightBlock(const QString &text) = 0;
+
+    // implement in subclasses
+    // default implementation highlights whitespace
+    virtual void highlightBlock(const QString &text);
 
     void setFormat(int start, int count, const QTextCharFormat &format);
     void setFormat(int start, int count, const QColor &color);
     void setFormat(int start, int count, const QFont &font);
     QTextCharFormat format(int pos) const;
 
-    void applyFormatToSpaces(const QString &text, const QTextCharFormat &format);
+    void formatSpaces(const QString &text, int start = 0, int count = INT_MAX);
+    void setFormatWithSpaces(const QString &text, int start, int count,
+                             const QTextCharFormat &format);
 
     int previousBlockState() const;
     int currentBlockState() const;
@@ -90,8 +104,9 @@ protected:
     QTextBlock currentBlock() const;
 
 private:
-    Q_PRIVATE_SLOT(d_ptr, void _q_reformatBlocks(int from, int charsRemoved, int charsAdded))
-    Q_PRIVATE_SLOT(d_ptr, void _q_delayedRehighlight())
+    void setTextFormatCategories(const QVector<std::pair<int, TextStyle>> &categories);
+    void reformatBlocks(int from, int charsRemoved, int charsAdded);
+    void delayedRehighlight();
 
     QScopedPointer<SyntaxHighlighterPrivate> d_ptr;
 };

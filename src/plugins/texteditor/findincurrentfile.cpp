@@ -57,9 +57,11 @@ QString FindInCurrentFile::displayName() const
 }
 
 Utils::FileIterator *FindInCurrentFile::files(const QStringList &nameFilters,
+                                              const QStringList &exclusionFilters,
                                               const QVariant &additionalParameters) const
 {
     Q_UNUSED(nameFilters)
+    Q_UNUSED(exclusionFilters)
     QString fileName = additionalParameters.toString();
     QMap<QString, QTextCodec *> openEditorEncodings = TextDocument::openedTextDocumentEncodings();
     QTextCodec *codec = openEditorEncodings.value(fileName);
@@ -116,6 +118,6 @@ void FindInCurrentFile::writeSettings(QSettings *settings)
 void FindInCurrentFile::readSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String("FindInCurrentFile"));
-    readCommonSettings(settings, QLatin1String("*"));
+    readCommonSettings(settings, "*", "");
     settings->endGroup();
 }

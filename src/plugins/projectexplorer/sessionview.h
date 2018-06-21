@@ -27,17 +27,18 @@
 
 #include "sessionmodel.h"
 
+#include <utils/itemviews.h>
+
 #include <QAbstractTableModel>
-#include <QTreeView>
 
 namespace ProjectExplorer {
 namespace Internal {
 
-class SessionView : public QTreeView {
+class SessionView : public Utils::TreeView {
     Q_OBJECT
 
 public:
-    explicit SessionView(QWidget *parent = Q_NULLPTR);
+    explicit SessionView(QWidget *parent = nullptr);
 
     void createNewSession();
     void deleteCurrentSession();

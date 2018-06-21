@@ -1,0 +1,36 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ ],
+    "id": "SA.ModelScratch",
+    "category": "O.Model",
+    "trDescription": "Creates a scratch model using a temporary file.",
+    "trDisplayName": "Scratch Model",
+    "trDisplayCategory": "Modeling",
+    "iconText": "qmodel",
+    "platformIndependent": true,
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('ModelEditor') >= 0}",
+
+    "options": [ { "key": "TargetPath", "value": "%{JS: Util.mktemp('model-XXXXXX.qmodel')}" } ],
+
+    "pages" : [],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.qmodel",
+                "target": "%{TargetPath}",
+                "overwrite": true,
+                "openInEditor": true,
+                "options":
+                [
+                    { "key": "Name", "value": "Scratch", "evaluate": false },
+                    { "key": "UUID1", "value": "%{UUID}", "evaluate": true },
+                    { "key": "UUID2", "value": "%{UUID}", "evaluate": true },
+                    { "key": "UUID3", "value": "%{UUID}", "evaluate": true }
+                ]
+            }
+        }
+    ]
+}

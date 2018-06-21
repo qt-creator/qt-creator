@@ -26,14 +26,27 @@
 #include "googletest.h"
 #include "sourcerangecontainer-matcher.h"
 #include "dynamicastmatcherdiagnosticcontainer-matcher.h"
+#include "filesystem-utilities.h"
 
 #include <clangquery.h>
+#include <refactoringdatabaseinitializer.h>
+
+#include <sqlitedatabase.h>
+
+#include <filepathcaching.h>
+
+#include <QDir>
+
+#include <mutex>
 
 using ClangBackEnd::ClangQuery;
+using ClangBackEnd::FilePathCaching;
+using ClangBackEnd::RefactoringDatabaseInitializer;
 
+using testing::AllOf;
+using testing::Contains;
 using testing::IsEmpty;
 using testing::Not;
-using testing::AllOf;
 
 namespace {
 
@@ -43,85 +56,115 @@ protected:
     void SetUp() override;
 
 protected:
-    ::ClangQuery simpleFunctionQuery;
-    ::ClangQuery simpleClassQuery;
+    Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+    RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
+    FilePathCaching filePathCache{database};
+    ::ClangQuery simpleFunctionQuery{filePathCache};
+    ::ClangQuery simpleClassQuery{filePathCache};
 };
 
+using ClangQuerySlowTest = ClangQuery;
 
 TEST_F(ClangQuery, NoSourceRangesForDefaultConstruction)
 {
     auto sourceRanges = simpleFunctionQuery.takeSourceRanges();
 
-    ASSERT_THAT(sourceRanges.sourceRangeWithTextContainers(), IsEmpty());
+    ASSERT_THAT(sourceRanges.sourceRangeWithTextContainers, IsEmpty());
 }
 
-TEST_F(ClangQuery, SourceRangesForSimpleFunctionDeclarationAreNotEmpty)
+TEST_F(ClangQuerySlowTest, SourceRangesForSimpleFunctionDeclarationAreNotEmpty)
 {
     simpleFunctionQuery.setQuery("functionDecl()");
 
     simpleFunctionQuery.findLocations();
 
-    ASSERT_THAT(simpleFunctionQuery.takeSourceRanges().sourceRangeWithTextContainers(), Not(IsEmpty()));
+    ASSERT_THAT(simpleFunctionQuery.takeSourceRanges().sourceRangeWithTextContainers, Not(IsEmpty()));
 }
 
-TEST_F(ClangQuery, RootSourceRangeForSimpleFunctionDeclarationRange)
+TEST_F(ClangQuerySlowTest, RootSourceRangeForSimpleFunctionDeclarationRange)
 {
     simpleFunctionQuery.setQuery("functionDecl()");
 
     simpleFunctionQuery.findLocations();
 
-    ASSERT_THAT(simpleFunctionQuery.takeSourceRanges().sourceRangeWithTextContainers().at(0),
-                IsSourceRangeWithText(1, 1, 8, 2, "int function(int* pointer, int value)\n{\n  if (pointer == nullptr) {\n    return value + 1;\n  } else {\n    return value - 1;\n  }\n}"));
+    ASSERT_THAT(simpleFunctionQuery.takeSourceRanges().sourceRangeWithTextContainers,
+                Contains(IsSourceRangeWithText(1, 1, 8, 2, "int function(int* pointer, int value)\n{\n  if (pointer == nullptr) {\n    return value + 1;\n  } else {\n    return value - 1;\n  }\n}")));
 }
 
-TEST_F(ClangQuery, SourceRangeInUnsavedFileDeclarationRange)
+TEST_F(ClangQuerySlowTest, SourceRangeInUnsavedFileDeclarationRange)
 {
-    ::ClangQuery query;
-    query.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "#include \"unsaved.h\"", {"cc", "query_simplefunction.cpp", "-std=c++14"});
+    ::ClangQuery query(filePathCache);
+    query.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "#include \"unsaved.h\"", {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction.cpp"), "-std=c++14"});
     query.setQuery("functionDecl()");
     ClangBackEnd::V2::FileContainer unsavedFile{{TESTDATA_DIR, "unsaved.h"}, "void unsaved();", {}};
     query.addUnsavedFiles({unsavedFile});
 
     query.findLocations();
 
-    ASSERT_THAT(query.takeSourceRanges().sourceRangeWithTextContainers().at(0),
-                IsSourceRangeWithText(1, 1, 1, 15, "void unsaved();"));
+    ASSERT_THAT(query.takeSourceRanges().sourceRangeWithTextContainers,
+                Contains(IsSourceRangeWithText(1, 1, 1, 15, "void unsaved();")));
 }
 
-TEST_F(ClangQuery, RootSourceRangeForSimpleFieldDeclarationRange)
+TEST_F(ClangQuerySlowTest, FileIsNotExistingButTheUnsavedDataIsParsed)
+{
+    ::ClangQuery query(filePathCache);
+    query.addFile(TESTDATA_DIR, "foo.cpp", "void f() {}", {"cc", toNativePath(TESTDATA_DIR"/foo.cpp"), "-std=c++14"});
+    query.setQuery("functionDecl()");
+
+    query.findLocations();
+
+    ASSERT_THAT(query.takeSourceRanges().sourceRangeWithTextContainers,
+                Contains(IsSourceRangeWithText(1, 1, 1, 12, "void f() {}")));
+}
+
+TEST_F(ClangQuerySlowTest, DISABLED_SourceRangeInUnsavedFileDeclarationRangeOverride) // seems not to work in Clang
+{
+    ::ClangQuery query(filePathCache);
+    query.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "void f() {}", {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction.cpp"), "-std=c++14"});
+    query.setQuery("functionDecl()");
+    ClangBackEnd::V2::FileContainer unsavedFile{{TESTDATA_DIR, "query_simplefunction.cpp"}, "void unsaved();", {}};
+    query.addUnsavedFiles({unsavedFile});
+
+    query.findLocations();
+
+    ASSERT_THAT(query.takeSourceRanges().sourceRangeWithTextContainers,
+                Contains(IsSourceRangeWithText(1, 1, 1, 15, "void unsaved();")));
+}
+
+TEST_F(ClangQuerySlowTest, RootSourceRangeForSimpleFieldDeclarationRange)
 {
     simpleClassQuery.setQuery("fieldDecl(hasType(isInteger()))");
 
     simpleClassQuery.findLocations();
 
-    ASSERT_THAT(simpleClassQuery.takeSourceRanges().sourceRangeWithTextContainers().at(0),
+    ASSERT_THAT(simpleClassQuery.takeSourceRanges().sourceRangeWithTextContainers.at(0),
                 IsSourceRangeWithText(4, 5, 4, 10, "    int x;"));
 }
 
-TEST_F(ClangQuery, NoSourceRangesForEmptyQuery)
+TEST_F(ClangQuerySlowTest, NoSourceRangesForEmptyQuery)
 {
     simpleClassQuery.findLocations();
 
-    ASSERT_THAT(simpleClassQuery.takeSourceRanges().sourceRangeWithTextContainers(), IsEmpty());
+    ASSERT_THAT(simpleClassQuery.takeSourceRanges().sourceRangeWithTextContainers, IsEmpty());
 }
 
-TEST_F(ClangQuery, NoSourceRangesForWrongQuery)
+TEST_F(ClangQuerySlowTest, NoSourceRangesForWrongQuery)
 {
     simpleClassQuery.setQuery("wrongQuery()");
 
     simpleClassQuery.findLocations();
 
-    ASSERT_THAT(simpleClassQuery.takeSourceRanges().sourceRangeWithTextContainers(), IsEmpty());
+    ASSERT_THAT(simpleClassQuery.takeSourceRanges().sourceRangeWithTextContainers, IsEmpty());
 }
 
-TEST_F(ClangQuery, NoDiagnosticsForDefaultConstruction)
+TEST_F(ClangQuerySlowTest, NoDiagnosticsForDefaultConstruction)
 {
     auto diagnostics = simpleFunctionQuery.takeDiagnosticContainers();
 
     ASSERT_THAT(diagnostics, IsEmpty());
 }
 
-TEST_F(ClangQuery, DiagnosticsForEmptyQuery)
+TEST_F(ClangQuerySlowTest, DiagnosticsForEmptyQuery)
 {
     simpleFunctionQuery.findLocations();
 
@@ -129,7 +172,7 @@ TEST_F(ClangQuery, DiagnosticsForEmptyQuery)
                 Not(IsEmpty()));
 }
 
-TEST_F(ClangQuery, DiagnosticsForWrongQuery)
+TEST_F(ClangQuerySlowTest, DiagnosticsForWrongQuery)
 {
     simpleClassQuery.setQuery("wrongQuery()");
 
@@ -139,7 +182,7 @@ TEST_F(ClangQuery, DiagnosticsForWrongQuery)
                 Not(IsEmpty()));
 }
 
-TEST_F(ClangQuery, NoDiagnosticsForAccurateQuery)
+TEST_F(ClangQuerySlowTest, NoDiagnosticsForAccurateQuery)
 {
     simpleFunctionQuery.setQuery("functionDecl()");
 
@@ -149,7 +192,7 @@ TEST_F(ClangQuery, NoDiagnosticsForAccurateQuery)
                 IsEmpty());
 }
 
-TEST_F(ClangQuery, DiagnosticForWrongQuery)
+TEST_F(ClangQuerySlowTest, DiagnosticForWrongQuery)
 {
     simpleClassQuery.setQuery("wrongQuery()");
 
@@ -159,7 +202,7 @@ TEST_F(ClangQuery, DiagnosticForWrongQuery)
                 HasDiagnosticMessage("RegistryMatcherNotFound", 1, 1, 1, 11));
 }
 
-TEST_F(ClangQuery, DiagnosticForWrongArgumenType)
+TEST_F(ClangQuerySlowTest, DiagnosticForWrongArgumenType)
 {
     simpleFunctionQuery.setQuery("functionDecl(1)");
 
@@ -172,7 +215,7 @@ TEST_F(ClangQuery, DiagnosticForWrongArgumenType)
 
 void ClangQuery::SetUp()
 {
-    simpleFunctionQuery.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "", {"cc", "query_simplefunction.cpp", "-std=c++14"});
+    simpleFunctionQuery.addFile(TESTDATA_DIR, "query_simplefunction.cpp", "", {"cc", toNativePath(TESTDATA_DIR"/query_simplefunction.cpp"), "-std=c++14"});
     simpleClassQuery.addFile(TESTDATA_DIR, "query_simpleclass.cpp", "", {"cc", "query_simpleclass.cpp", "-std=c++14"});
 
 }

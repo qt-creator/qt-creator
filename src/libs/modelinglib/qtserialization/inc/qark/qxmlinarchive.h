@@ -296,9 +296,7 @@ private:
 
 public:
     explicit QXmlInArchive(QXmlStreamReader &stream)
-        : m_stream(stream),
-          m_endTagWasRead(false),
-          m_currentRefNode(0)
+        : m_stream(stream)
     {
     }
 
@@ -491,7 +489,7 @@ public:
     {
     public:
         explicit ReferenceTag(ReferenceKind k = Nullpointer,
-                              const QString &string = QLatin1String(""))
+                              const QString &string = QString())
             : kind(k),
               typeName(string)
         {
@@ -587,7 +585,7 @@ private:
     template<class T>
     void visit(ObjectNode<T> *node, const XmlTag &tag)
     {
-        if (tag.m_id.isValid() && node->object().object() != 0)
+        if (tag.m_id.isValid() && node->object().object() != nullptr)
             m_loadingRefMap.addObject(tag.m_id, node->object().object());
         readChildren(node);
     }
@@ -704,9 +702,9 @@ private:
         m_currentRefNode = node;
         T value = T();
         load(*this, value, node->reference().parameters());
-        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode) { // ref node was not consumed by forward reference
             *node->reference().value() = value;
-            m_currentRefNode = 0;
+            m_currentRefNode = nullptr;
         }
         XmlTag xmlTag = readTag();
         if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName())
@@ -719,9 +717,9 @@ private:
         m_currentRefNode = node;
         T value;
         load(*this, value, node->reference().parameters());
-        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode) { // ref node was not consumed by forward reference
             (node->reference().object().*(node->reference().setter()))(value);
-            m_currentRefNode = 0;
+            m_currentRefNode = nullptr;
         }
         XmlTag xmlTag = readTag();
         if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName())
@@ -734,9 +732,9 @@ private:
         m_currentRefNode = node;
         T value;
         load(*this, value, node->reference().parameters());
-        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode) { // ref node was not consumed by forward reference
             (node->reference().object().*(node->reference().setter()))(value);
-            m_currentRefNode = 0;
+            m_currentRefNode = nullptr;
         }
         XmlTag xmlTag = readTag();
         if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName())
@@ -749,9 +747,9 @@ private:
         m_currentRefNode = node;
         V value;
         load(*this, value, node->reference().parameters());
-        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode) { // ref node was not consumed by forward reference
             (node->reference().object().*(node->reference().setter()))(value);
-            m_currentRefNode = 0;
+            m_currentRefNode = nullptr;
         }
         XmlTag xmlTag = readTag();
         if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName())
@@ -764,9 +762,9 @@ private:
         m_currentRefNode = node;
         V value;
         load(*this, value, node->reference().parameters());
-        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode) { // ref node was not consumed by forward reference
             (node->reference().object().*(node->reference().setter()))(value);
-            m_currentRefNode = 0;
+            m_currentRefNode = nullptr;
         }
         XmlTag xmlTag = readTag();
         if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName())
@@ -779,9 +777,9 @@ private:
         m_currentRefNode = node;
         T value;
         load(*this, value, node->reference().parameters());
-        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode) { // ref node was not consumed by forward reference
             (node->reference().setterFunc())(node->reference().object(), value);
-            m_currentRefNode = 0;
+            m_currentRefNode = nullptr;
         }
         XmlTag xmlTag = readTag();
         if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName())
@@ -794,9 +792,9 @@ private:
         m_currentRefNode = node;
         T value;
         load(*this, value, node->reference().parameters());
-        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode) { // ref node was not consumed by forward reference
             (node->reference().setterFunc())(node->reference().object(), value);
-            m_currentRefNode = 0;
+            m_currentRefNode = nullptr;
         }
         XmlTag xmlTag = readTag();
         if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName())
@@ -809,9 +807,9 @@ private:
         m_currentRefNode = node;
         V value;
         load(*this, value, node->reference().parameters());
-        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode) { // ref node was not consumed by forward reference
             (node->reference().setterFunc())(node->reference().object(), value);
-            m_currentRefNode = 0;
+            m_currentRefNode = nullptr;
         }
         XmlTag xmlTag = readTag();
         if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName())
@@ -824,9 +822,9 @@ private:
         m_currentRefNode = node;
         V value;
         load(*this, value, node->reference().parameters());
-        if (m_currentRefNode != 0) { // ref node was not consumed by forward reference
+        if (m_currentRefNode) { // ref node was not consumed by forward reference
             (node->reference().setterFunc())(node->reference().object(), value);
-            m_currentRefNode = 0;
+            m_currentRefNode = nullptr;
         }
         XmlTag xmlTag = readTag();
         if (!xmlTag.m_isEndTag || xmlTag.m_tagName != node->reference().qualifiedName())
@@ -837,10 +835,10 @@ private:
     inline void skipUntilEndOfTag(const XmlTag &xmlTag);
 
     QXmlStreamReader &m_stream;
-    bool m_endTagWasRead;
+    bool m_endTagWasRead = false;
     QStack<Node *> m_nodeStack;
     impl::LoadingRefMap m_loadingRefMap;
-    Node *m_currentRefNode;
+    Node *m_currentRefNode = nullptr;
 };
 
 QXmlInArchive::XmlTag QXmlInArchive::readTag()

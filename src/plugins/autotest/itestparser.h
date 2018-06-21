@@ -61,7 +61,7 @@ class ITestParser
 {
 public:
     virtual ~ITestParser() { }
-    virtual void init(const QStringList &filesToParse) = 0;
+    virtual void init(const QStringList &filesToParse, bool fullParse) = 0;
     virtual bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
                                  const QString &fileName) = 0;
     virtual void release() = 0;
@@ -76,7 +76,7 @@ class CppParser : public ITestParser
 {
 public:
     CppParser();
-    void init(const QStringList &filesToParse) override;
+    void init(const QStringList &filesToParse, bool fullParse) override;
     static bool selectedForBuilding(const QString &fileName);
     static QByteArray getFileContent(const QString &filePath);
     void release() override;

@@ -179,7 +179,7 @@ void ThemeChooser::apply()
     const QString currentThemeId = ThemeEntry::themeSetting().toString();
     if (currentThemeId != themeId) {
         QMessageBox::information(ICore::mainWindow(), tr("Restart Required"),
-                                 tr("The theme change will take effect after a restart of Qt Creator."));
+                                 tr("The theme change will take effect after restart."));
 
         // save filename of selected theme in global config
         settings->setValue(QLatin1String(Constants::SETTINGS_THEME), themeId);
@@ -190,7 +190,7 @@ static void addThemesFromPath(const QString &path, QList<ThemeEntry> *themes)
 {
     static const QLatin1String extension("*.creatortheme");
     QDir themeDir(path);
-    themeDir.setNameFilters(QStringList() << extension);
+    themeDir.setNameFilters({extension});
     themeDir.setFilter(QDir::Files);
     const QStringList themeList = themeDir.entryList();
     foreach (const QString &fileName, themeList) {
@@ -221,8 +221,16 @@ QList<ThemeEntry> ThemeEntry::availableThemes()
 
 Id ThemeEntry::themeSetting()
 {
-    return Id::fromSetting(ICore::settings()->value(QLatin1String(Constants::SETTINGS_THEME),
-                                                    QLatin1String(Constants::DEFAULT_THEME)));
+    const Id setting =
+            Id::fromSetting(ICore::settings()->value(QLatin1String(Constants::SETTINGS_THEME),
+                                                     QLatin1String(Constants::DEFAULT_THEME)));
+
+    const QList<ThemeEntry> themes = availableThemes();
+    if (themes.empty())
+        return Id();
+    const bool settingValid = Utils::contains(themes, Utils::equal(&ThemeEntry::id, setting));
+
+    return settingValid ? setting : themes.first().id();
 }
 
 Theme *ThemeEntry::createTheme(Id id)

@@ -6,8 +6,6 @@ include(../../qtcreatortool.pri)
 
 TARGET = buildoutputparser
 
-win32|equals(TEST, 1):DEFINES += HAS_MSVC_PARSER
-
 SOURCES = \
     main.cpp \
     outputprocessor.cpp

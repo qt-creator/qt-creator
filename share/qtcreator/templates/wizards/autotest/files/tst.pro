@@ -13,8 +13,20 @@ CONFIG += qt warn_on depend_includepath testcase
 TEMPLATE = app
 
 SOURCES +=  %{TestCaseFileWithCppSuffix}
-@else
-include(../gtest_dependency.pri)
+@endif
+@if "%{TestFrameWork}" == "QtQuickTest"
+CONFIG += warn_on qmltestcase
+
+TEMPLATE = app
+
+DISTFILES += \\
+    %{TestCaseFileWithQmlSuffix}
+
+SOURCES += \\
+    %{MainCppName}
+@endif
+@if "%{TestFrameWork}" == "GTest"
+include(gtest_dependency.pri)
 
 TEMPLATE = app
 @if "%{GTestCXX11}" == "true"
@@ -26,9 +38,9 @@ CONFIG -= app_bundle
 CONFIG += thread
 CONFIG -= qt
 
-HEADERS += \
-    %{TestCaseFileWithHeaderSuffix}
+HEADERS += \\
+        %{TestCaseFileWithHeaderSuffix}
 
-SOURCES += \
-    %{MainCppName}
+SOURCES += \\
+        %{MainCppName}
 @endif

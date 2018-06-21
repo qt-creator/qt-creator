@@ -40,17 +40,6 @@ namespace Internal {
 class MacWebKitHelpViewer;
 class MacWebKitHelpWidgetPrivate;
 
-class MacResponderHack : public QObject
-{
-    Q_OBJECT
-
-public:
-    MacResponderHack(QObject *parent);
-
-private:
-    void responderHack(QWidget *old, QWidget *now);
-};
-
 class MacWebKitHelpWidget : public QMacCocoaViewContainer
 {
     Q_OBJECT
@@ -78,7 +67,7 @@ class MacWebKitHelpViewer : public HelpViewer
     Q_OBJECT
 
 public:
-    explicit MacWebKitHelpViewer(QWidget *parent = 0);
+    explicit MacWebKitHelpViewer(QWidget *parent = nullptr);
     ~MacWebKitHelpViewer();
 
     QFont viewerFont() const;
@@ -104,7 +93,7 @@ public:
     void setActionVisible(bool visible);
 
     bool findText(const QString &text, Core::FindFlags flags,
-        bool incremental, bool fromSearch, bool *wrapped = 0);
+        bool incremental, bool fromSearch, bool *wrapped = nullptr);
 
     MacWebKitHelpWidget *widget() const { return m_widget; }
 

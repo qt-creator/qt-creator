@@ -23,8 +23,7 @@
 **
 ****************************************************************************/
 
-#ifndef TESTCORE_H
-#define TESTCORE_H
+#pragma once
 
 #include <QObject>
 
@@ -57,7 +56,7 @@ private slots:
     void testMetaInfoEnums();
     void testMetaInfoProperties();
     void testMetaInfoDotProperties();
-    void testMetaInfoQtQuick1Vs2();
+    void testMetaInfoQtQuickVersion2();
     void testMetaInfoListProperties();
     void testQtQuick20Basic();
     void testQtQuick20BasicRectangle();
@@ -139,6 +138,7 @@ private slots:
     void testRewriterActionCompression();
     void testRewriterImports();
     void testRewriterChangeImports();
+    void testRewriterUnicodeChars();
 
     //
     // unit tests QmlModelNodeFacade/QmlModelState
@@ -229,6 +229,8 @@ private slots:
     // Object bindings as properties:
     void loadGradient();
     void changeGradientId();
-};
 
-#endif // TESTCORE_H
+    // QMLAnnotations
+    void writeAnnotations();
+    void readAnnotations();
+};

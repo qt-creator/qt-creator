@@ -28,9 +28,7 @@
 #include "autotoolsproject.h"
 #include "autotoolsbuildconfiguration.h"
 #include "autotoolsprojectconstants.h"
-#include "autotoolsmanager.h"
 #include "autotoolsprojectnode.h"
-#include "autotoolsprojectfile.h"
 #include "autotoolsopenprojectwizard.h"
 #include "makestep.h"
 #include "makefileparserthread.h"
@@ -47,7 +45,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/projectinfo.h>
-#include <cpptools/projectpartbuilder.h>
+#include <cpptools/cppprojectupdater.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <qtsupport/baseqtversion.h>
@@ -69,46 +67,32 @@ using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
-AutotoolsProject::AutotoolsProject(AutotoolsManager *manager, const QString &fileName) :
-    m_fileWatcher(new Utils::FileSystemWatcher(this))
+AutotoolsProject::AutotoolsProject(const Utils::FileName &fileName) :
+    Project(Constants::MAKEFILE_MIMETYPE, fileName),
+    m_fileWatcher(new Utils::FileSystemWatcher(this)),
+    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     setId(Constants::AUTOTOOLS_PROJECT_ID);
-    setProjectManager(manager);
-    setDocument(new AutotoolsProjectFile(fileName));
-    setRootProjectNode(new AutotoolsProjectNode(projectDirectory()));
-    setProjectContext(Core::Context(Constants::PROJECT_CONTEXT));
-    setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
-
-    const QFileInfo fileInfo = projectFilePath().toFileInfo();
-    m_projectName = fileInfo.absoluteDir().dirName();
-    rootProjectNode()->setDisplayName(m_projectName);
+    setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+    setDisplayName(projectDirectory().fileName());
 }
 
 AutotoolsProject::~AutotoolsProject()
 {
-    setRootProjectNode(0);
+    delete m_cppCodeModelUpdater;
 
-    if (m_makefileParserThread != 0) {
+    setRootProjectNode(nullptr);
+
+    if (m_makefileParserThread) {
         m_makefileParserThread->wait();
         delete m_makefileParserThread;
-        m_makefileParserThread = 0;
+        m_makefileParserThread = nullptr;
     }
-}
-
-QString AutotoolsProject::displayName() const
-{
-    return m_projectName;
 }
 
 QString AutotoolsProject::defaultBuildDirectory(const QString &projectPath)
 {
     return QFileInfo(projectPath).absolutePath();
-}
-
-QStringList AutotoolsProject::files(FilesMode fileMode) const
-{
-    Q_UNUSED(fileMode);
-    return m_files;
 }
 
 // This function, is called at the very beginning, to
@@ -134,7 +118,8 @@ Project::RestoreResult AutotoolsProject::fromMap(const QVariantMap &map, QString
 
 void AutotoolsProject::loadProjectTree()
 {
-    if (m_makefileParserThread != 0) {
+    emitParsingStarted();
+    if (m_makefileParserThread) {
         // The thread is still busy parsing a previus configuration.
         // Wait until the thread has been finished and delete it.
         // TODO: Discuss whether blocking is acceptable.
@@ -177,7 +162,7 @@ void AutotoolsProject::makefileParsingFinished()
         // The parsing has been cancelled by the user. Don't show any
         // project data at all.
         m_makefileParserThread->deleteLater();
-        m_makefileParserThread = 0;
+        m_makefileParserThread = nullptr;
         return;
     }
 
@@ -194,7 +179,7 @@ void AutotoolsProject::makefileParsingFinished()
     // Apply sources to m_files, which are returned at AutotoolsProject::files()
     const QFileInfo fileInfo = projectFilePath().toFileInfo();
     const QDir dir = fileInfo.absoluteDir();
-    QStringList files = m_makefileParserThread->sources();
+    const QStringList files = m_makefileParserThread->sources();
     foreach (const QString& file, files)
         m_files.append(dir.absoluteFilePath(file));
 
@@ -202,38 +187,39 @@ void AutotoolsProject::makefileParsingFinished()
     // has been changed, the project tree must be reparsed.
     const QStringList makefiles = m_makefileParserThread->makefiles();
     foreach (const QString &makefile, makefiles) {
-        files.append(makefile);
+        const QString absMakefile = dir.absoluteFilePath(makefile);
 
-        const QString watchedFile = dir.absoluteFilePath(makefile);
-        m_fileWatcher->addFile(watchedFile, Utils::FileSystemWatcher::WatchAllChanges);
-        m_watchedFiles.append(watchedFile);
+        m_files.append(absMakefile);
+
+        m_fileWatcher->addFile(absMakefile, Utils::FileSystemWatcher::WatchAllChanges);
+        m_watchedFiles.append(absMakefile);
     }
 
     // Add configure.ac file to project and watch for changes.
     const QLatin1String configureAc(QLatin1String("configure.ac"));
     const QFile configureAcFile(fileInfo.absolutePath() + QLatin1Char('/') + configureAc);
     if (configureAcFile.exists()) {
-        files.append(configureAc);
-        const QString configureAcFilePath = dir.absoluteFilePath(configureAc);
-        m_fileWatcher->addFile(configureAcFilePath, Utils::FileSystemWatcher::WatchAllChanges);
-        m_watchedFiles.append(configureAcFilePath);
+        const QString absConfigureAc = dir.absoluteFilePath(configureAc);
+        m_files.append(absConfigureAc);
+
+        m_fileWatcher->addFile(absConfigureAc, Utils::FileSystemWatcher::WatchAllChanges);
+        m_watchedFiles.append(absConfigureAc);
     }
 
-    QList<FileNode *> fileNodes = Utils::transform(files, [dir](const QString &f) {
-        const Utils::FileName path = Utils::FileName::fromString(dir.absoluteFilePath(f));
-        return new FileNode(path,
-                            (f == QLatin1String("Makefile.am") ||
-                             f == QLatin1String("configure.ac")) ? FileType::Project : FileType::Resource,
-                            false);
-    });
-    rootProjectNode()->buildTree(fileNodes);
+    auto newRoot = std::make_unique<AutotoolsProjectNode>(projectDirectory());
+    for (const QString &f : m_files) {
+        const Utils::FileName path = Utils::FileName::fromString(f);
+        newRoot->addNestedNode(std::make_unique<FileNode>(path, FileNode::fileTypeForFileName(path),
+                                                          false));
+    }
+    setRootProjectNode(std::move(newRoot));
 
     updateCppCodeModel();
 
     m_makefileParserThread->deleteLater();
-    m_makefileParserThread = 0;
+    m_makefileParserThread = nullptr;
 
-    emit parsingFinished();
+    emitParsingFinished(true);
 }
 
 void AutotoolsProject::onFileChanged(const QString &file)
@@ -270,40 +256,50 @@ static QStringList filterIncludes(const QString &absSrc, const QString &absBuild
 
 void AutotoolsProject::updateCppCodeModel()
 {
-    CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
+    const Kit *k = nullptr;
+    if (Target *target = activeTarget())
+        k = target->kit();
+    else
+        k = KitManager::defaultKit();
+    QTC_ASSERT(k, return);
 
-    m_codeModelFuture.cancel();
-    CppTools::ProjectInfo pInfo(this);
-    CppTools::ProjectPartBuilder ppBuilder(pInfo);
+    ToolChain *cToolChain
+            = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::C_LANGUAGE_ID);
+    ToolChain *cxxToolChain
+            = ToolChainKitInformation::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+
+    m_cppCodeModelUpdater->cancel();
+
+    CppTools::RawProjectPart rpp;
+    rpp.setDisplayName(displayName());
+    rpp.setProjectFileLocation(projectFilePath().toString());
 
     CppTools::ProjectPart::QtVersion activeQtVersion = CppTools::ProjectPart::NoQt;
-    if (QtSupport::BaseQtVersion *qtVersion =
-            QtSupport::QtKitInformation::qtVersion(activeTarget()->kit())) {
-        if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
-            activeQtVersion = CppTools::ProjectPart::Qt4;
+    if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k)) {
+        if (qtVersion->qtVersion() <= QtSupport::QtVersionNumber(4,8,6))
+            activeQtVersion = CppTools::ProjectPart::Qt4_8_6AndOlder;
+        else if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0))
+            activeQtVersion = CppTools::ProjectPart::Qt4Latest;
         else
             activeQtVersion = CppTools::ProjectPart::Qt5;
     }
 
-    ppBuilder.setQtVersion(activeQtVersion);
+    rpp.setQtVersion(activeQtVersion);
     const QStringList cflags = m_makefileParserThread->cflags();
     QStringList cxxflags = m_makefileParserThread->cxxflags();
     if (cxxflags.isEmpty())
         cxxflags = cflags;
-    ppBuilder.setCFlags(cflags);
-    ppBuilder.setCxxFlags(cxxflags);
+    rpp.setFlagsForC({cToolChain, cflags});
+    rpp.setFlagsForCxx({cxxToolChain, cxxflags});
 
     const QString absSrc = projectDirectory().toString();
     const Target *target = activeTarget();
     const QString absBuild = (target && target->activeBuildConfiguration())
             ? target->activeBuildConfiguration()->buildDirectory().toString() : QString();
 
-    ppBuilder.setIncludePaths(filterIncludes(absSrc, absBuild, m_makefileParserThread->includePaths()));
-    ppBuilder.setDefines(m_makefileParserThread->defines());
+    rpp.setIncludePaths(filterIncludes(absSrc, absBuild, m_makefileParserThread->includePaths()));
+    rpp.setMacros(m_makefileParserThread->macros());
+    rpp.setFiles(m_files);
 
-    const QList<Core::Id> languages = ppBuilder.createProjectPartsForFiles(m_files);
-    foreach (Core::Id language, languages)
-        setProjectLanguage(language, true);
-
-    m_codeModelFuture = modelManager->updateProjectInfo(pInfo);
+    m_cppCodeModelUpdater->update({this, cToolChain, cxxToolChain, k, {rpp}});
 }

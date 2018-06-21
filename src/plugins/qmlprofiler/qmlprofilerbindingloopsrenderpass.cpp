@@ -70,7 +70,7 @@ struct BindlingLoopsGeometry {
     static const QSGGeometry::AttributeSet &point2DWithOffset();
     static const int maxEventsPerNode = 0xffff / 18;
 
-    BindlingLoopsGeometry() : allocatedVertices(0), usedVertices(0), currentY(-1), node(0) {}
+    BindlingLoopsGeometry() : allocatedVertices(0), usedVertices(0), currentY(-1), node(nullptr) {}
     uint allocatedVertices;
     uint usedVertices;
     float currentY;
@@ -158,7 +158,7 @@ void updateNodes(const QmlProfilerRangeModel *model, int from, int to,
 Timeline::TimelineRenderPass::State *QmlProfilerBindingLoopsRenderPass::update(
         const Timeline::TimelineAbstractRenderer *renderer,
         const Timeline::TimelineRenderState *parentState, State *oldState,
-        int indexFrom, int indexTo, bool stateChanged, qreal spacing) const
+        int indexFrom, int indexTo, bool stateChanged, float spacing) const
 {
     Q_UNUSED(stateChanged);
     Q_UNUSED(spacing);
@@ -170,7 +170,7 @@ Timeline::TimelineRenderPass::State *QmlProfilerBindingLoopsRenderPass::update(
         return oldState;
 
     BindingLoopsRenderPassState *state;
-    if (oldState == 0)
+    if (oldState == nullptr)
         state = new BindingLoopsRenderPassState(model);
     else
         state = static_cast<BindingLoopsRenderPassState *>(oldState);
@@ -244,7 +244,7 @@ void BindlingLoopsGeometry::allocate(QSGMaterial *material)
 
 void BindlingLoopsGeometry::addExpandedEvent(float itemCenter)
 {
-    float verticalCenter = Timeline::TimelineModel::defaultRowHeight() / 2.0;
+    float verticalCenter = Timeline::TimelineModel::defaultRowHeight() / 2.0f;
     Point2DWithOffset *v = vertexData() + usedVertices;
     v[0].set(itemCenter, verticalCenter, -1.0f, currentY);
     v[1].set(itemCenter, verticalCenter, +1.0f, currentY);
@@ -327,7 +327,7 @@ void BindingLoopMaterialShader::updateState(const RenderState &state, QSGMateria
 
 char const *const *BindingLoopMaterialShader::attributeNames() const
 {
-    static const char *const attr[] = {"vertexCoord", "postScaleOffset", 0};
+    static const char *const attr[] = {"vertexCoord", "postScaleOffset", nullptr};
     return attr;
 }
 

@@ -25,35 +25,33 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runconfigurationaspects.h>
 
 namespace WinRt {
 namespace Internal {
+
+class UninstallAfterStopAspect : public ProjectExplorer::BaseBoolAspect
+{
+    Q_OBJECT
+
+public:
+    UninstallAfterStopAspect(ProjectExplorer::RunConfiguration *rc);
+};
 
 class WinRtRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 
 public:
-    explicit WinRtRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    WinRtRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     QWidget *createConfigurationWidget() override;
-    bool isEnabled() const override { return true; } // Always enabled like DLL run control
-    QVariantMap toMap() const override;
-    bool fromMap(const QVariantMap &map) override;
+};
 
-    const QString &proFilePath() const { return m_proFilePath; }
-    QString arguments() const;
-    bool uninstallAfterStop() const { return m_uninstallAfterStop; }
-    void setUninstallAfterStop(bool b);
-
-signals:
-    void argumentsChanged(QString);
-    void uninstallAfterStopChanged(bool);
-
-private:
-    QString m_proFilePath;
-    bool m_uninstallAfterStop;
+class WinRtRunConfigurationFactory  : public ProjectExplorer::RunConfigurationFactory
+{
+public:
+    WinRtRunConfigurationFactory();
 };
 
 } // namespace Internal

@@ -32,6 +32,8 @@
 #include <QTextLayout>
 #include <QTimer>
 
+namespace TextEditor { class TextMark; }
+
 namespace QmlJSEditor {
 
 class QmlJSEditorDocument;
@@ -57,20 +59,27 @@ public:
     void acceptNewSemanticInfo(const QmlJSTools::SemanticInfo &semanticInfo);
     void updateOutlineModel();
 
+    void createTextMarks(const QList<QmlJS::DiagnosticMessage> &diagnostics);
+    void cleanDiagnosticMarks();
+    void createTextMarks(const QmlJSTools::SemanticInfo &info);
+    void cleanSemanticMarks();
+
 public:
-    QmlJSEditorDocument *q;
+    QmlJSEditorDocument *q = nullptr;
     QTimer m_updateDocumentTimer; // used to compress multiple document changes
     QTimer m_reupdateSemanticInfoTimer; // used to compress multiple libraryInfo changes
-    int m_semanticInfoDocRevision; // document revision to which the semantic info is currently updated to
+    int m_semanticInfoDocRevision = -1; // document revision to which the semantic info is currently updated to
     SemanticInfoUpdater *m_semanticInfoUpdater;
     QmlJSTools::SemanticInfo m_semanticInfo;
     QVector<QTextLayout::FormatRange> m_diagnosticRanges;
-    Internal::SemanticHighlighter *m_semanticHighlighter;
-    bool m_semanticHighlightingNecessary;
-    bool m_outlineModelNeedsUpdate;
+    Internal::SemanticHighlighter *m_semanticHighlighter = nullptr;
+    bool m_semanticHighlightingNecessary = false;
+    bool m_outlineModelNeedsUpdate = false;
     bool m_firstSementicInfo = true;
     QTimer m_updateOutlineModelTimer;
-    Internal::QmlOutlineModel *m_outlineModel;
+    Internal::QmlOutlineModel *m_outlineModel = nullptr;
+    QVector<TextEditor::TextMark *> m_diagnosticMarks;
+    QVector<TextEditor::TextMark *> m_semanticMarks;
 };
 
 } // Internal

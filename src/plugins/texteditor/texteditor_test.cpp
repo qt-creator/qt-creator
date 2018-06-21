@@ -25,7 +25,7 @@
 
 #ifdef WITH_TESTS
 
-#include <QApplication>
+#include <QGuiApplication>
 #include <QClipboard>
 #include <QString>
 #include <QtTest/QtTest>
@@ -44,10 +44,10 @@ enum TransFormationType { Uppercase, Lowercase };
 
 struct TestBlockSelection
 {
-    int positionBlock;
-    int positionColumn;
-    int anchorBlock;
-    int anchorColumn;
+    int positionBlock = 0;
+    int positionColumn = 0;
+    int anchorBlock = 0;
+    int anchorColumn = 0;
     TestBlockSelection(int positionBlock, int positionColumn, int anchorBlock, int anchorColumn)
         : positionBlock(positionBlock), positionColumn(positionColumn)
         , anchorBlock(anchorBlock), anchorColumn(anchorColumn) {}
@@ -493,7 +493,7 @@ void Internal::TextEditorPlugin::testBlockSelectionCopy()
         editorWidget->update();
         editorWidget->copy();
 
-        QCOMPARE(qApp->clipboard()->text(), copiedText);
+        QCOMPARE(QGuiApplication::clipboard()->text(), copiedText);
     }
     Core::EditorManager::closeDocument(editor->document(), false);
 }

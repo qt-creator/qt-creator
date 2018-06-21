@@ -40,7 +40,6 @@ class FlameGraphView : public QmlProfilerEventsView
 public:
     FlameGraphView(QmlProfilerModelManager *manager, QWidget *parent = nullptr);
 
-public slots:
     void selectByTypeId(int typeIndex) override;
     void onVisibleFeaturesChanged(quint64 features) override;
 

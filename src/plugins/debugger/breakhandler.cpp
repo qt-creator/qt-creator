@@ -55,6 +55,7 @@
 #include <modeltest.h>
 #endif
 
+#include <QApplication>
 #include <QTimerEvent>
 #include <QDir>
 #include <QDebug>
@@ -72,11 +73,16 @@ using namespace Utils;
 namespace Debugger {
 namespace Internal {
 
-class LocationItem : public TreeItem
+class LocationItem : public TypedTreeItem<TreeItem, BreakpointItem>
 {
 public:
-    QVariant data(int column, int role) const
+    QVariant data(int column, int role) const final
     {
+        if (role == Qt::DecorationRole && column == 0) {
+            return params.enabled ? Icons::BREAKPOINT.icon()
+                                  : Icons::BREAKPOINT_DISABLED.icon();
+        }
+
         if (role == Qt::DisplayRole) {
             switch (column) {
                 case BreakpointNumberColumn:
@@ -153,11 +159,13 @@ private:
 class BreakpointMarker : public TextEditor::TextMark
 {
 public:
-    BreakpointMarker(BreakpointItem *b, const QString &fileName, int lineNumber)
+    BreakpointMarker(BreakpointItem *b, const FileName &fileName, int lineNumber)
         : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_bp(b)
     {
-        setIcon(b->icon());
+        setColor(Theme::Debugger_Breakpoint_TextMarkColor);
+        setDefaultToolTip(QApplication::translate("BreakHandler", "Breakpoint"));
         setPriority(TextEditor::TextMark::NormalPriority);
+        setIcon(b->icon());
     }
 
     void removedFromEditor()
@@ -172,10 +180,10 @@ public:
         m_bp->updateLineNumberFromMarker(lineNumber);
     }
 
-    void updateFileName(const QString &fileName)
+    void updateFileName(const FileName &fileName)
     {
         TextMark::updateFileName(fileName);
-        m_bp->updateFileNameFromMarker(fileName);
+        m_bp->updateFileNameFromMarker(fileName.toString());
     }
 
     bool isDraggable() const { return true; }
@@ -296,7 +304,7 @@ class BreakpointDialog : public QDialog
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::BreakHandler)
 
 public:
-    explicit BreakpointDialog(Breakpoint b, QWidget *parent = 0);
+    explicit BreakpointDialog(Breakpoint b, QWidget *parent = nullptr);
     bool showDialog(BreakpointParameters *data, BreakpointParts *parts);
 
     void setParameters(const BreakpointParameters &data);
@@ -363,19 +371,19 @@ BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
 
     // Match BreakpointType (omitting unknown type).
     const QStringList types = {
-        tr("File name and line number"),
-        tr("Function name"),
-        tr("Break on memory address"),
-        tr("Break when C++ exception is thrown"),
-        tr("Break when C++ exception is caught"),
-        tr("Break when function \"main\" starts"),
-        tr("Break when a new process is forked"),
-        tr("Break when a new process is executed"),
-        tr("Break when a system call is executed"),
-        tr("Break on data access at fixed address"),
-        tr("Break on data access at address given by expression"),
-        tr("Break on QML signal emit"),
-        tr("Break when JavaScript exception is thrown")
+        tr("File Name and Line Number"),
+        tr("Function Name"),
+        tr("Break on Memory Address"),
+        tr("Break When C++ Exception Is Thrown"),
+        tr("Break When C++ Exception Is Caught"),
+        tr("Break When Function \"main\" Starts"),
+        tr("Break When a New Process Is Forked"),
+        tr("Break When a New Process Is Executed"),
+        tr("Break When a System Call Is Executed"),
+        tr("Break on Data Access at Fixed Address"),
+        tr("Break on Data Access at Address Given by Expression"),
+        tr("Break on QML Signal Emit"),
+        tr("Break When JavaScript Exception Is Thrown")
     };
     // We don't list UnknownBreakpointType, so 1 less:
     QTC_CHECK(types.size() + 1 == LastBreakpointType);
@@ -444,9 +452,9 @@ BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
     m_labelUseFullPath->setToolTip(pathToolTip);
 
     const QString moduleToolTip =
-        tr("<p>Specifying the module (base name of the library or executable) "
-           "for function or file type breakpoints can significantly speed up "
-           "debugger startup times (CDB, LLDB).");
+            "<p>" + tr("Specifying the module (base name of the library or executable) "
+                       "for function or file type breakpoints can significantly speed up "
+                       "debugger startup times (CDB, LLDB).") + "</p>";
     m_lineEditModule = new QLineEdit(groupBoxAdvanced);
     m_lineEditModule->setToolTip(moduleToolTip);
     m_labelModule = new QLabel(tr("&Module:"), groupBoxAdvanced);
@@ -454,8 +462,8 @@ BreakpointDialog::BreakpointDialog(Breakpoint b, QWidget *parent)
     m_labelModule->setToolTip(moduleToolTip);
 
     const QString commandsToolTip =
-        tr("<p>Debugger commands to be executed when the breakpoint is hit. "
-           "This feature is only available for GDB.");
+            "<p>" + tr("Debugger commands to be executed when the breakpoint is hit. "
+                       "This feature is only available for GDB.") + "</p>";
     m_textEditCommands = new SmallTextEdit(groupBoxAdvanced);
     m_textEditCommands->setToolTip(commandsToolTip);
     m_labelCommands = new QLabel(tr("&Commands:"), groupBoxAdvanced);
@@ -842,7 +850,7 @@ class MultiBreakPointsDialog : public QDialog
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::BreakHandler)
 
 public:
-    MultiBreakPointsDialog(QWidget *parent = 0);
+    MultiBreakPointsDialog(QWidget *parent = nullptr);
 
     QString condition() const { return m_lineEditCondition->text(); }
     int ignoreCount() const { return m_spinBoxIgnoreCount->value(); }
@@ -894,17 +902,12 @@ BreakHandler::BreakHandler()
   : m_syncTimerId(-1)
 {
     qRegisterMetaType<BreakpointModelId>();
-    TextEditor::TextMark::setCategoryColor(Constants::TEXT_MARK_CATEGORY_BREAKPOINT,
-                                           Theme::Debugger_Breakpoint_TextMarkColor);
-    TextEditor::TextMark::setDefaultToolTip(Constants::TEXT_MARK_CATEGORY_BREAKPOINT,
-                                            tr("Breakpoint"));
 
 #if USE_BREAK_MODEL_TEST
     new ModelTest(this, 0);
 #endif
-    setHeader(QStringList()
-        << tr("Number") <<  tr("Function") << tr("File") << tr("Line")
-        << tr("Address") << tr("Condition") << tr("Ignore") << tr("Threads"));
+    setHeader(QStringList({tr("Number"), tr("Function"), tr("File"), tr("Line"), tr("Address"),
+                           tr("Condition"), tr("Ignore"), tr("Threads")}));
 }
 
 static inline bool fileNameMatch(const QString &f1, const QString &f2)
@@ -973,7 +976,7 @@ Breakpoint BreakHandler::findBreakpointByFunction(const QString &functionName) c
 Breakpoint BreakHandler::findBreakpointByAddress(quint64 address) const
 {
     return Breakpoint(findItemAtLevel<1>([address](BreakpointItem *b) {
-        return b->m_params.address == address || b->m_params.address == address;
+        return b->m_params.address == address;
     }));
 }
 
@@ -1061,9 +1064,9 @@ void BreakHandler::saveBreakpoints()
 
 void BreakHandler::loadBreakpoints()
 {
-    QVariant value = sessionValue("Breakpoints");
-    QList<QVariant> list = value.toList();
-    foreach (const QVariant &var, list) {
+    const QVariant value = sessionValue("Breakpoints");
+    const QList<QVariant> list = value.toList();
+    for (const QVariant &var : list) {
         const QMap<QString, QVariant> map = var.toMap();
         BreakpointParameters params(BreakpointByFileAndLine);
         QVariant v = map.value("filename");
@@ -1134,7 +1137,7 @@ Breakpoint BreakHandler::findBreakpointByIndex(const QModelIndex &index) const
 Breakpoints BreakHandler::findBreakpointsByIndex(const QList<QModelIndex> &list) const
 {
     QSet<Breakpoint> ids;
-    foreach (const QModelIndex &index, list) {
+    for (const QModelIndex &index : list) {
         if (Breakpoint b = findBreakpointByIndex(index))
             ids.insert(b);
     }
@@ -1827,19 +1830,19 @@ void BreakHandler::changeLineNumberFromMarkerHelper(BreakpointModelId id)
     appendBreakpoint(params);
 }
 
-Breakpoints BreakHandler::allBreakpoints() const
+const Breakpoints BreakHandler::allBreakpoints() const
 {
     Breakpoints items;
     forItemsAtLevel<1>([&items](BreakpointItem *b) { items.append(Breakpoint(b)); });
     return items;
 }
 
-Breakpoints BreakHandler::unclaimedBreakpoints() const
+const Breakpoints BreakHandler::unclaimedBreakpoints() const
 {
     return engineBreakpoints(0);
 }
 
-Breakpoints BreakHandler::engineBreakpoints(DebuggerEngine *engine) const
+const Breakpoints BreakHandler::engineBreakpoints(DebuggerEngine *engine) const
 {
     Breakpoints items;
     forItemsAtLevel<1>([&items, engine](BreakpointItem *b) {
@@ -1927,7 +1930,7 @@ bool BreakHandler::setData(const QModelIndex &idx, const QVariant &value, int ro
                     const bool isEnabled = items.isEmpty() || items.at(0).isEnabled();
                     setBreakpointsEnabled(items, !isEnabled);
 // FIXME
-//                    foreach (const QModelIndex &id, selectedIds)
+//                    for (const QModelIndex &id : selectedIds)
 //                        update(id);
                     return true;
                 }
@@ -1937,9 +1940,11 @@ bool BreakHandler::setData(const QModelIndex &idx, const QVariant &value, int ro
         if (ev.as<QMouseEvent>(QEvent::MouseButtonDblClick)) {
             if (Breakpoint b = findBreakpointByIndex(idx)) {
                 if (idx.column() >= BreakpointAddressColumn)
-                    editBreakpoints({ b }, ev.view());
+                    editBreakpoints({b}, ev.view());
                 else
                     b.gotoLocation();
+            } else if (LocationItem *l = itemForIndexAtLevel<2>(idx)) {
+                Breakpoint(l->parent()).gotoLocation();
             } else {
                 addBreakpoint();
             }
@@ -1953,39 +1958,73 @@ bool BreakHandler::setData(const QModelIndex &idx, const QVariant &value, int ro
 bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
 {
     const QModelIndexList selectedIndices = ev.selectedRows();
-    const Breakpoints selectedItems = findBreakpointsByIndex(selectedIndices);
-    const bool enabled = selectedItems.isEmpty() || selectedItems.at(0).isEnabled();
+
+    const Breakpoints selectedBreakpoints = findBreakpointsByIndex(selectedIndices);
+    const bool breakpointsEnabled = selectedBreakpoints.isEmpty() || selectedBreakpoints.at(0).isEnabled();
+
+    QList<LocationItem *> selectedLocations;
+    bool handlesIndividualLocations = false;
+    for (const QModelIndex &index : selectedIndices) {
+        if (LocationItem *location = itemForIndexAtLevel<2>(index)) {
+            if (selectedLocations.contains(location))
+                continue;
+            selectedLocations.append(location);
+            DebuggerEngine *engine = location->parent()->m_engine;
+            if (engine && engine->hasCapability(BreakIndividualLocationsCapability))
+                handlesIndividualLocations = true;
+        }
+    }
+    const bool locationsEnabled = selectedLocations.isEmpty() || selectedLocations.at(0)->params.enabled;
 
     auto menu = new QMenu;
 
     addAction(menu, tr("Add Breakpoint..."), true, [this] { addBreakpoint(); });
 
     addAction(menu, tr("Delete Selected Breakpoints"),
-              !selectedItems.isEmpty(),
-              [this, selectedItems] { deleteBreakpoints(selectedItems); });
+              !selectedBreakpoints.isEmpty(),
+              [this, selectedBreakpoints] { deleteBreakpoints(selectedBreakpoints); });
 
     addAction(menu, tr("Edit Selected Breakpoints..."),
-              !selectedItems.isEmpty(),
-              [this, selectedItems, ev] { editBreakpoints(selectedItems, ev.view()); });
+              !selectedBreakpoints.isEmpty(),
+              [this, selectedBreakpoints, ev] { editBreakpoints(selectedBreakpoints, ev.view()); });
 
 
     // FIXME BP: m_engine->threadsHandler()->currentThreadId();
-    int threadId = 0;
-    addAction(menu,
-              threadId == -1 ? tr("Associate Breakpoint with All Threads")
-                             : tr("Associate Breakpoint with Thread %1").arg(threadId),
-              !selectedItems.isEmpty(),
-              [this, selectedItems, threadId] {
-                    for (Breakpoint bp : selectedItems)
-                        bp.setThreadSpec(threadId);
-              });
+    // int threadId = 0;
+    // addAction(menu,
+    //           threadId == -1 ? tr("Associate Breakpoint with All Threads")
+    //                          : tr("Associate Breakpoint with Thread %1").arg(threadId),
+    //           !selectedItems.isEmpty(),
+    //           [this, selectedItems, threadId] {
+    //                 for (Breakpoint bp : selectedItems)
+    //                     bp.setThreadSpec(threadId);
+    //           });
 
     addAction(menu,
-              selectedItems.size() > 1
-                  ? enabled ? tr("Disable Selected Breakpoints") : tr("Enable Selected Breakpoints")
-                  : enabled ? tr("Disable Breakpoint") : tr("Enable Breakpoint"),
-              !selectedItems.isEmpty(),
-              [this, selectedItems, enabled] { setBreakpointsEnabled(selectedItems, !enabled); });
+              selectedBreakpoints.size() > 1
+                  ? breakpointsEnabled ? tr("Disable Selected Breakpoints") : tr("Enable Selected Breakpoints")
+                  : breakpointsEnabled ? tr("Disable Breakpoint") : tr("Enable Breakpoint"),
+              !selectedBreakpoints.isEmpty(),
+              [this, selectedBreakpoints, breakpointsEnabled] {
+                    setBreakpointsEnabled(selectedBreakpoints, !breakpointsEnabled);
+              }
+    );
+
+    addAction(menu,
+              selectedLocations.size() > 1
+                  ? locationsEnabled ? tr("Disable Selected Locations") : tr("Enable Selected Locations")
+                  : locationsEnabled ? tr("Disable Location") : tr("Enable Location"),
+              !selectedLocations.isEmpty() && handlesIndividualLocations,
+              [selectedLocations, locationsEnabled] {
+                   for (LocationItem *location : selectedLocations) {
+                       location->params.enabled = !locationsEnabled;
+                       location->update();
+                       BreakpointItem *bp = location->parent();
+                       if (bp->m_engine)
+                           bp->m_engine->enableSubBreakpoint(location->params.id.toString(), !locationsEnabled);
+                   }
+              }
+    );
 
     menu->addSeparator();
 
@@ -2014,7 +2053,7 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
 
     addAction(menu, tr("Synchronize Breakpoints"),
               Internal::hasSnapshots(),
-              [this] { Internal::synchronizeBreakpoints(); });
+              [] { Internal::synchronizeBreakpoints(); });
 
     menu->addSeparator();
     menu->addAction(action(UseToolTipsInBreakpointsView));
@@ -2030,7 +2069,7 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
 
 void BreakHandler::setBreakpointsEnabled(const Breakpoints &bps, bool enabled)
 {
-    foreach (Breakpoint b, bps)
+    for (Breakpoint b : bps)
         b.setEnabled(enabled);
 }
 
@@ -2049,7 +2088,7 @@ void BreakHandler::deleteAllBreakpoints()
 
 void BreakHandler::deleteBreakpoints(const Breakpoints &bps)
 {
-    foreach (Breakpoint bp, bps)
+    for (Breakpoint bp : bps)
         bp.removeBreakpoint();
 }
 
@@ -2102,7 +2141,7 @@ void BreakHandler::editBreakpoints(const Breakpoints &bps, QWidget *parent)
     const int newIgnoreCount = dialog.ignoreCount();
     const int newThreadSpec = dialog.threadSpec();
 
-    foreach (Breakpoint bp, bps) {
+    for (Breakpoint bp : bps) {
         if (bp) {
             bp.setCondition(newCondition);
             bp.setIgnoreCount(newIgnoreCount);
@@ -2217,7 +2256,7 @@ void BreakpointItem::updateMarkerIcon()
 
 void BreakpointItem::updateMarker()
 {
-    QString file = markerFileName();
+    FileName file = FileName::fromString(markerFileName());
     int line = markerLineNumber();
     if (m_marker && (file != m_marker->fileName() || line != m_marker->lineNumber()))
         destroyMarker();

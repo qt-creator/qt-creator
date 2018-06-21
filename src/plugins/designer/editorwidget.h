@@ -51,7 +51,7 @@ class EditorWidget : public Utils::FancyMainWindow
     Q_OBJECT
 
 public:
-    explicit EditorWidget(QWidget *parent = 0);
+    explicit EditorWidget(QWidget *parent = nullptr);
 
     QDockWidget* const* designerDockWidgets() const;
 
@@ -63,12 +63,10 @@ public:
     SharedTools::WidgetHost *formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const;
 
     EditorData activeEditor() const;
-
-public slots:
     void resetToDefaultLayout();
 
 private:
-    FormEditorStack *m_stack;
+    FormEditorStack *m_stack = nullptr;
     QDockWidget *m_designerDockWidgets[Designer::Constants::DesignerSubWindowCount];
 };
 

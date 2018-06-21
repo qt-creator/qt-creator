@@ -196,10 +196,6 @@ void TypeDescriptionReader::readDependencies(UiScriptBinding *ast)
     }
     for (ElementList *l = exp->elements; l; l = l->next) {
         StringLiteral *str = AST::cast<StringLiteral *>(l->expression);
-        if (!exp) {
-            addWarning(l->expression->firstSourceLocation(),
-                       tr("Cannot read dependency: skipping."));
-        }
         *_dependencies << str->value.toString();
     }
 }
@@ -645,7 +641,9 @@ void TypeDescriptionReader::readMetaObjectRevisions(UiScriptBinding *ast, FakeMe
 
 void TypeDescriptionReader::readEnumValues(AST::UiScriptBinding *ast, LanguageUtils::FakeMetaEnum *fme)
 {
-    if (!ast || !ast->statement) {
+    if (!ast)
+        return;
+    if (!ast->statement) {
         addError(ast->colonToken, tr("Expected object literal after colon."));
         return;
     }

@@ -28,6 +28,8 @@
 
 #include "ioptionspage.h"
 
+#include <utils/stringutils.h>
+
 #include <QCheckBox>
 #include <QGroupBox>
 #include <QIcon>
@@ -133,15 +135,17 @@ QIcon Core::IOptionsPage::categoryIcon() const
     Sets \a categoryIcon as the category icon of the options page.
 */
 
+static QList<Core::IOptionsPage *> g_optionsPages;
 
 /*!
-    Constructs an options page with the given \a parent.
+    Constructs an options page with the given \a parent and registers it
+    at the global options page pool if \a registerGlobally is true.
 */
-Core::IOptionsPage::IOptionsPage(QObject *parent)
-    : QObject(parent),
-      m_keywordsInitialized(false)
+Core::IOptionsPage::IOptionsPage(QObject *parent, bool registerGlobally)
+    : QObject(parent)
 {
-
+    if (registerGlobally)
+        g_optionsPages.append(this);
 }
 
 /*!
@@ -149,6 +153,12 @@ Core::IOptionsPage::IOptionsPage(QObject *parent)
  */
 Core::IOptionsPage::~IOptionsPage()
 {
+    g_optionsPages.removeOne(this);
+}
+
+const QList<Core::IOptionsPage *> Core::IOptionsPage::allOptionsPages()
+{
+    return g_optionsPages;
 }
 
 /*!
@@ -165,18 +175,14 @@ bool Core::IOptionsPage::matches(const QString &searchKeyWord) const
             return false;
         // find common subwidgets
         foreach (const QLabel *label, widget->findChildren<QLabel *>())
-            m_keywords << label->text();
+            m_keywords << Utils::stripAccelerator(label->text());
         foreach (const QCheckBox *checkbox, widget->findChildren<QCheckBox *>())
-            m_keywords << checkbox->text();
+            m_keywords << Utils::stripAccelerator(checkbox->text());
         foreach (const QPushButton *pushButton, widget->findChildren<QPushButton *>())
-            m_keywords << pushButton->text();
+            m_keywords << Utils::stripAccelerator(pushButton->text());
         foreach (const QGroupBox *groupBox, widget->findChildren<QGroupBox *>())
-            m_keywords << groupBox->title();
+            m_keywords << Utils::stripAccelerator(groupBox->title());
 
-        // clean up accelerators
-        QMutableStringListIterator it(m_keywords);
-        while (it.hasNext())
-            it.next().remove(QLatin1Char('&'));
         m_keywordsInitialized = true;
     }
     foreach (const QString &keyword, m_keywords)
@@ -185,7 +191,25 @@ bool Core::IOptionsPage::matches(const QString &searchKeyWord) const
     return false;
 }
 
+static QList<Core::IOptionsPageProvider *> g_optionsPagesProviders;
+
+Core::IOptionsPageProvider::IOptionsPageProvider(QObject *parent)
+    : QObject(parent)
+{
+    g_optionsPagesProviders.append(this);
+}
+
+Core::IOptionsPageProvider::~IOptionsPageProvider()
+{
+    g_optionsPagesProviders.removeOne(this);
+}
+
+const QList<Core::IOptionsPageProvider *> Core::IOptionsPageProvider::allOptionsPagesProviders()
+{
+    return g_optionsPagesProviders;
+}
+
 QIcon Core::IOptionsPageProvider::categoryIcon() const
 {
-    return QIcon(m_categoryIcon);
+    return m_categoryIcon.icon();
 }

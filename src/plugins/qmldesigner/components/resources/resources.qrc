@@ -1,9 +1,12 @@
 <RCC>
     <qresource prefix="/qmldesigner">
-        <file>templates/Standard/Form.xml</file>
         <file>stylesheet.css</file>
         <file>scrollbar.css</file>
         <file>formeditorstylesheet.css</file>
         <file>centerwidget.css</file>
+        <file>images/spliteditorhorizontally.png</file>
+        <file>images/spliteditorhorizontally@2x.png</file>
+        <file>images/spliteditorvertically.png</file>
+        <file>images/spliteditorvertically@2x.png</file>
     </qresource>
 </RCC>

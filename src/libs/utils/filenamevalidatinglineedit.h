@@ -37,15 +37,15 @@ class QTCREATOR_UTILS_EXPORT FileNameValidatingLineEdit : public FancyLineEdit
     Q_PROPERTY(bool forceFirstCapitalLetter READ forceFirstCapitalLetter WRITE setForceFirstCapitalLetter)
 
 public:
-    explicit FileNameValidatingLineEdit(QWidget *parent = 0);
+    explicit FileNameValidatingLineEdit(QWidget *parent = nullptr);
 
     static bool validateFileName(const QString &name,
                                  bool allowDirectories = false,
-                                 QString *errorMessage = 0);
+                                 QString *errorMessage = nullptr);
 
     static bool validateFileNameExtension(const QString &name,
                                           const QStringList &requiredExtensions = QStringList(),
-                                          QString *errorMessage = 0);
+                                          QString *errorMessage = nullptr);
 
     /**
      * Sets whether entering directories is allowed. This will enable the user
@@ -69,7 +69,7 @@ public:
     void setRequiredExtensions(const QStringList &extensionList);
 
 protected:
-    virtual QString fixInputString(const QString &string);
+    QString fixInputString(const QString &string) override;
 
 private:
     bool m_allowDirectories;

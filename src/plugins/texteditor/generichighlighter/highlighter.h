@@ -60,12 +60,11 @@ class Highlighter : public TextEditor::SyntaxHighlighter
     Q_OBJECT
 
 public:
-    Highlighter(QTextDocument *parent = 0);
-    virtual ~Highlighter();
+    Highlighter(QTextDocument *parent = nullptr);
+    ~Highlighter() override;
 
     enum TextFormatId {
         Normal,
-        VisualWhitespace,
         Keyword,
         DataType,
         Comment,
@@ -91,14 +90,20 @@ public:
         Import,
         Others,
         Identifier,
-        Documentation
+        Documentation,
+        ControlFlow,
+        Preprocessor,
+        VerbatimString,
+        SpecialString,
+        Constant,
+        TextFormatIdCount
     };
 
     void setTabSettings(const TabSettings &ts);
     void setDefaultContext(const QSharedPointer<Internal::Context> &defaultContext);
 
 protected:
-    virtual void highlightBlock(const QString &text);
+    void highlightBlock(const QString &text) override;
 
 private:
 

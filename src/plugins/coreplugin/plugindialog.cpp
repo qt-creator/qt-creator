@@ -35,6 +35,7 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QCheckBox>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QPushButton>
@@ -50,13 +51,25 @@ PluginDialog::PluginDialog(QWidget *parent)
     : QDialog(parent),
       m_view(new ExtensionSystem::PluginView(this))
 {
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
     QVBoxLayout *vl = new QVBoxLayout(this);
 
+    auto filterLayout = new QHBoxLayout;
+    vl->addLayout(filterLayout);
     auto filterEdit = new Utils::FancyLineEdit(this);
     filterEdit->setFiltering(true);
     connect(filterEdit, &Utils::FancyLineEdit::filterChanged,
             m_view, &ExtensionSystem::PluginView::setFilter);
-    vl->addWidget(filterEdit);
+    filterLayout->addWidget(filterEdit);
+    m_view->setShowHidden(false);
+    auto showHidden = new QCheckBox(tr("Show all"));
+    showHidden->setToolTip(tr("Show all installed plugins, including base plugins "
+                              "and plugins that are not available on this platform."));
+    showHidden->setChecked(m_view->isShowingHidden());
+    connect(showHidden, &QCheckBox::stateChanged,
+            m_view, &ExtensionSystem::PluginView::setShowHidden);
+    filterLayout->addWidget(showHidden);
 
     vl->addWidget(m_view);
 

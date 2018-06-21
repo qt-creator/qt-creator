@@ -1,4 +1,4 @@
-contains(CONFIG, dll) {
+shared {
     DEFINES += QMLDEBUG_LIBRARY
 } else {
     DEFINES += QMLDEBUG_STATIC_LIB
@@ -19,7 +19,9 @@ HEADERS += \
     $$PWD/declarativetoolsclient.h \
     $$PWD/qmltoolsclient.h \
     $$PWD/qmlenginecontrolclient.h \
-    $$PWD/qmldebugcommandlinearguments.h
+    $$PWD/qmldebugcommandlinearguments.h \
+    $$PWD/qmldebugconnection.h \
+    $$PWD/qmldebugconnectionmanager.h
 
 SOURCES += \
     $$PWD/qmldebugclient.cpp \
@@ -31,5 +33,6 @@ SOURCES += \
     $$PWD/declarativetoolsclient.cpp \
     $$PWD/qmltoolsclient.cpp \
     $$PWD/declarativeenginedebugclient.cpp \
-    $$PWD/qmlenginecontrolclient.cpp
-
+    $$PWD/qmlenginecontrolclient.cpp \
+    $$PWD/qmldebugconnection.cpp \
+    $$PWD/qmldebugconnectionmanager.cpp

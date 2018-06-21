@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/environment.h>
+
 #include <QObject>
 #include <QSet>
 #include <QStringList>
@@ -39,43 +41,40 @@ public:
     QmlProjectContentItem(QObject *parent = 0) : QObject(parent) {}
 };
 
-class QmlProjectItemPrivate;
-
 class QmlProjectItem : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QmlProjectItem)
-
-    Q_PROPERTY(QString sourceDirectory READ sourceDirectory NOTIFY sourceDirectoryChanged)
-    Q_PROPERTY(QStringList importPaths READ importPaths WRITE setImportPaths NOTIFY importPathsChanged)
-    Q_PROPERTY(QString mainFile READ mainFile WRITE setMainFile NOTIFY mainFileChanged)
 
 public:
-    QmlProjectItem(QObject *parent = 0);
-    ~QmlProjectItem();
-
-    QString sourceDirectory() const;
+    QString sourceDirectory() const { return m_sourceDirectory; }
     void setSourceDirectory(const QString &directoryPath);
+    QString targetDirectory() const { return m_targetDirectory; }
+    void setTargetDirectory(const QString &directoryPath);
 
-    QStringList importPaths() const;
+    QStringList importPaths() const { return m_importPaths; }
     void setImportPaths(const QStringList &paths);
 
     QStringList files() const;
     bool matchesFile(const QString &filePath) const;
 
-    QString mainFile() const;
-    void setMainFile(const QString &mainFilePath);
+    QString mainFile() const { return m_mainFile; }
+    void setMainFile(const QString &mainFilePath) { m_mainFile = mainFilePath; }
 
-    void appendContent(QmlProjectContentItem* contentItem);
+    void appendContent(QmlProjectContentItem *item) { m_content.append(item); }
+
+    QList<Utils::EnvironmentItem> environment() const;
+    void addToEnviroment(const QString &key, const QString &value);
 
 signals:
     void qmlFilesChanged(const QSet<QString> &, const QSet<QString> &);
-    void sourceDirectoryChanged();
-    void importPathsChanged();
-    void mainFileChanged();
 
 protected:
-    QmlProjectItemPrivate *d_ptr;
+    QString m_sourceDirectory;
+    QString m_targetDirectory;
+    QStringList m_importPaths;
+    QString m_mainFile;
+    QList<Utils::EnvironmentItem> m_environment;
+    QList<QmlProjectContentItem *> m_content; // content property
 };
 
 } // namespace QmlProjectManager

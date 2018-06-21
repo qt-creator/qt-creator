@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -123,6 +123,9 @@
     \uicontrol Tools > \uicontrol Git > \uicontrol {Local Repository} >
     \uicontrol {Fixup Previous Commit}. This operation is done using interactive
     rebase. In case of conflicts, a merge tool is suggested.
+
+    To recover removed files, select \uicontrol Tools > \uicontrol Git >
+    \uicontrol {Recover Deleted Files}.
 
     To change a series of commits in the local repository, select
     \uicontrol Tools > \uicontrol Git > \uicontrol {Local Repository} >
@@ -292,14 +295,16 @@
     If your Git project uses Gerrit for code reviews, you can view your changes
     in \QC.
 
-    Select \uicontrol Tools > \uicontrol Options > \uicontrol {Version Control}
-    > \uicontrol Gerrit to specify the connection to the Gerrit server.
-
-    \image qtcreator-gerrit-options.png
-
     To push committed changes to Gerrit, select \uicontrol Tools >
     \uicontrol Git > \uicontrol {Remote Repository} >
     \uicontrol {Push to Gerrit}.
+
+    \image qtcreator-gerrit-push.png
+
+    Select the \uicontrol {Draft/private} check box to push changes that are
+    only visible to you and the reviewers. If you are using Gerrit 2.15 or
+    later, you can select the \uicontrol {Work-in-progress} check box to push
+    changes that do not generate email notifications.
 
     To view the same information about each change as in the Gerrit
     web interface, select \uicontrol Tools > \uicontrol Git >
@@ -318,6 +323,17 @@
     To check out the change in a headless state, select \uicontrol Checkout.
 
     To refresh the list of changes, select \uicontrol Refresh.
+
+    The \uicontrol Remote field lists the remotes of the current repository that
+    are detected as Gerrit servers. Select \uicontrol Tools > \uicontrol Options
+    > \uicontrol {Version Control} > \uicontrol Gerrit to specify a fallback
+    connection to a Gerrit server over SSH. The Gerrit REST interface and the
+    \l{https://curl.haxx.se/}{curl} tool are used for HTTP connections.
+
+    Select the \uicontrol HTTPS check box to prepend \c https to the Gerrit URL
+    if Gerrit does not provide it.
+
+    \image qtcreator-gerrit-options.png
 
     \section1 Working with Git Tools
 

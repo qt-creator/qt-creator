@@ -329,7 +329,10 @@ void Structure::showMenu(const QModelIndex &index, const QPoint &globalPos)
                     m_currentDocument->undoStack()->endMacro();
                 } else if (actionType == TagUtils::AddChild) {
                     tag->document()->undoStack()->beginMacro(tr("Add child"));
-                    ScxmlTag *childTag = SceneUtils::addChild(tag, data, m_scene);
+                    ScxmlTag *childTag = (tag->tagType() == TagType::Else
+                                          || tag->tagType() == TagType::ElseIf)
+                            ? SceneUtils::addSibling(tag, data, m_scene)
+                            : SceneUtils::addChild(tag, data, m_scene);
                     if (childTag && childTag->tagType() <= MetadataItem)
                         m_structureView->edit(m_structureView->currentIndex());
                     tag->document()->undoStack()->endMacro();

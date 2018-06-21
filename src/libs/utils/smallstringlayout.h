@@ -28,22 +28,8 @@
 #include <QtGlobal>
 
 #include <cstdint>
-
-#pragma push_macro("constexpr")
-#ifndef __cpp_constexpr
-#define constexpr
-#endif
-
-#pragma push_macro("noexcept")
-#ifndef __cpp_noexcept
-#define noexcept
-#endif
-
-#ifdef __cpp_alignas
-#define ALIGNAS_16 alignas(16)
-#else
-#define ALIGNAS_16
-#endif
+#include <memory>
+#include <type_traits>
 
 namespace Utils {
 
@@ -51,91 +37,180 @@ namespace Internal {
 
 using size_type = std::size_t;
 
+template <uint MaximumShortStringDataAreaSize,
+          typename ControlType = typename std::conditional_t<(MaximumShortStringDataAreaSize < 64), uint8_t, uint16_t>>
+struct ControlBlock
+{
+    using SizeType =  ControlType;
+    constexpr ControlBlock() noexcept = default;
+    constexpr ControlBlock(ControlType shortStringSize, bool isReadOnlyReference, bool isReference) noexcept
+          : m_shortStringSize(shortStringSize),
+            m_isReadOnlyReference(isReadOnlyReference),
+            m_isReference(isReference)
+    {}
+
+    void setShortStringSize(size_type size)
+    {
+       m_shortStringSize = static_cast<SizeType>(size);
+    }
+
+    size_type shortStringSize() const
+    {
+        return m_shortStringSize;
+    }
+
+    void setIsReadOnlyReference(bool isReadOnlyReference)
+    {
+        m_isReadOnlyReference = isReadOnlyReference;
+    }
+
+    void setIsReference(bool isReference)
+    {
+        m_isReference = isReference;
+    }
+
+    void setIsShortString(bool isShortString)
+    {
+        m_isReference = !isShortString;
+    }
+
+    constexpr
+    SizeType stringSize() const
+    {
+        return m_shortStringSize;
+    }
+
+    constexpr
+    bool isReadOnlyReference() const
+    {
+        return m_isReadOnlyReference;
+    }
+
+    constexpr
+    bool isReference() const
+    {
+        return m_isReference;
+    }
+
+    constexpr
+    bool isShortString() const
+    {
+        return !m_isReference;
+    }
+
+private:
+    ControlType m_shortStringSize : (sizeof(ControlType) * 8) - 2;
+    ControlType m_isReadOnlyReference : 1;
+    ControlType m_isReference : 1;
+};
+
 template <uint MaximumShortStringDataAreaSize>
-struct AllocatedLayout {
-    struct Data {
+struct AllocatedLayout
+{
+    struct Data
+    {
         char *pointer;
         size_type size;
         size_type capacity;
-    } data;
-    char dummy[MaximumShortStringDataAreaSize - sizeof(Data)];
-    std::uint8_t shortStringSize: 6;
-    std::uint8_t isReadOnlyReference : 1;
-    std::uint8_t isReference : 1;
+    };
+
+    ControlBlock<MaximumShortStringDataAreaSize> control;
+    Data data;
 };
 
 template <uint MaximumShortStringDataAreaSize>
-struct ReferenceLayout {
-    struct Data {
+struct ReferenceLayout
+{
+    constexpr ReferenceLayout() noexcept = default;
+    constexpr ReferenceLayout(const char *stringPointer,
+                              size_type size,
+                              size_type capacity) noexcept
+          : control(0, true, true),
+          data{stringPointer, size, capacity}
+    {}
+
+    struct Data
+    {
         const char *pointer;
         size_type size;
         size_type capacity;
-    } data;
-    char dummy[MaximumShortStringDataAreaSize - sizeof(Data)];
-    std::uint8_t shortStringSize: 6;
-    std::uint8_t isReadOnlyReference : 1;
-    std::uint8_t isReference : 1;
+    };
+
+    ControlBlock<MaximumShortStringDataAreaSize> control;
+    Data data;
 };
 
 template <uint MaximumShortStringDataAreaSize>
-struct ShortStringLayout {
+struct ShortStringLayout
+{
+    ControlBlock<MaximumShortStringDataAreaSize> control;
     char string[MaximumShortStringDataAreaSize];
-    std::uint8_t shortStringSize: 6;
-    std::uint8_t isReadOnlyReference : 1;
-    std::uint8_t isReference : 1;
 };
 
 template <uint MaximumShortStringDataAreaSize>
-struct ALIGNAS_16 StringDataLayout {
-    static_assert( MaximumShortStringDataAreaSize >= 15, "Size must be greater equal than 15 bytes!");
-    static_assert(((MaximumShortStringDataAreaSize + 1) % 16) == 0, "Size + 1 must be dividable by 16!");
-    StringDataLayout() noexcept = default;
+struct StringDataLayout {
+    static_assert(MaximumShortStringDataAreaSize >= 15, "Size must be greater equal than 15 bytes!");
+    static_assert(MaximumShortStringDataAreaSize < 64
+                ? ((MaximumShortStringDataAreaSize + 1) % 16) == 0
+                : ((MaximumShortStringDataAreaSize + 2) % 16) == 0,
+                  "Size + 1 must be dividable by 16 if under 64 and Size + 2 must be dividable by 16 if over 64!");
+
+    StringDataLayout() noexcept
+    {
+        reset();
+    }
 
     constexpr StringDataLayout(const char *string,
                                size_type size) noexcept
-       : reference({{string, size, 0}, {}, 0, true, true})
+       : reference(string, size, 0)
     {
     }
 
-    template<size_type Size>
-    constexpr StringDataLayout(const char(&string)[Size]) noexcept
-#if __cpp_constexpr < 201304
-        : reference({{string, Size - 1, 0}, {}, 0, true, true})
-#endif
+    template<size_type Size,
+             typename std::enable_if_t<Size <= MaximumShortStringDataAreaSize, int> = 0>
+    StringDataLayout(const char(&string)[Size]) noexcept
+        : shortString(ShortStringLayout<MaximumShortStringDataAreaSize>{})
     {
-#if __cpp_constexpr >= 201304
-        if (Size <= MaximumShortStringDataAreaSize) {
-            for (size_type i = 0; i < Size; ++i)
-                shortString.string[i] = string[i];
+       for (size_type i = 0; i < Size; ++i)
+           shortString.string[i] = string[i];
 
-#if defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Woverflow"
-            shortString.shortStringSize = std::uint8_t(Size) - 1;
-#pragma GCC diagnostic pop
-#endif
-            shortString.isReference = false;
-            shortString.isReadOnlyReference = false;
-        } else {
-            reference.data.pointer = string;
-            reference.data.size = Size - 1;
-            reference.data.capacity = 0;
-            reference.shortStringSize = 0;
-            reference.isReference = true;
-            reference.isReadOnlyReference = true;
-        }
-#endif
+       shortString.control.setShortStringSize(Size - 1);
+       shortString.control.setIsShortString(true);
+       shortString.control.setIsReadOnlyReference(false);
+    }
+
+    template<size_type Size,
+            typename std::enable_if_t<!(Size <= MaximumShortStringDataAreaSize), int> = 1>
+    constexpr StringDataLayout(const char(&string)[Size]) noexcept
+        : reference(string, Size - 1, 0)
+    {
+    }
+
+    constexpr static
+    size_type shortStringCapacity() noexcept
+    {
+        return MaximumShortStringDataAreaSize - 1;
+    }
+
+    void reset()
+    {
+        shortString.control = ControlBlock<MaximumShortStringDataAreaSize>();
+        shortString.string[0] = '\0';
+    }
+
+    StringDataLayout &operator=(const StringDataLayout &other)
+    {
+        this->shortString = other.shortString;
+
+        return *this;
     }
 
     union {
         AllocatedLayout<MaximumShortStringDataAreaSize> allocated;
         ReferenceLayout<MaximumShortStringDataAreaSize> reference;
-        ShortStringLayout<MaximumShortStringDataAreaSize> shortString = ShortStringLayout<MaximumShortStringDataAreaSize>();
+        ShortStringLayout<MaximumShortStringDataAreaSize> shortString;
     };
 };
 
 } // namespace Internal
 }  // namespace Utils
-
-#pragma pop_macro("noexcept")
-#pragma pop_macro("constexpr")

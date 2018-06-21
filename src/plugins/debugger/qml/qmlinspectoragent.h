@@ -63,6 +63,7 @@ public:
     void assignValue(const WatchItem *data, const QString &expression, const QVariant &valueV);
     void updateWatchData(const WatchItem &data);
     void watchDataSelected(qint64 id);
+    void enableTools(bool enable);
 
 private:
     bool selectObjectInTree(int debugId);
@@ -96,8 +97,6 @@ private:
     bool isConnected() const;
     void clearObjectTree();
 
-    void onEngineStateChanged(const Debugger::DebuggerState);
-
     void clientStateChanged(QmlDebug::QmlDebugClient::State state);
     void toolsClientStateChanged(QmlDebug::QmlDebugClient::State state);
     void engineClientStateChanged(QmlDebug::QmlDebugClient::State state);
@@ -116,8 +115,6 @@ private:
     void selectObject(
             const QmlDebug::ObjectReference &objectReference,
             SelectionTarget target);
-
-    void enableTools(const bool enable);
 
 private:
     QPointer<QmlEngine> m_qmlEngine;

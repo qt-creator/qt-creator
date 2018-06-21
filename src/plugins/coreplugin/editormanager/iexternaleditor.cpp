@@ -25,6 +25,8 @@
 
 #include "iexternaleditor.h"
 
+namespace Core {
+
 /*!
     \class Core::IExternalEditor
     \mainclass
@@ -50,3 +52,23 @@
     Opens the editor with \a fileName. Returns \c true on success or \c false
     on failure along with the error in \a errorMessage.
 */
+
+static QList<IExternalEditor *> g_externalEditors;
+
+IExternalEditor::IExternalEditor(QObject *parent)
+    : QObject(parent)
+{
+    g_externalEditors.append(this);
+}
+
+IExternalEditor::~IExternalEditor()
+{
+    g_externalEditors.removeOne(this);
+}
+
+const QList<IExternalEditor *> IExternalEditor::allExternalEditors()
+{
+    return g_externalEditors;
+}
+
+} // Core

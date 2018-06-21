@@ -36,7 +36,7 @@ namespace Internal {
 class TestQmlVisitor : public QmlJS::AST::Visitor
 {
 public:
-    explicit TestQmlVisitor(QmlJS::Document::Ptr doc);
+    explicit TestQmlVisitor(QmlJS::Document::Ptr doc, const QmlJS::Snapshot &snapshot);
 
     bool visit(QmlJS::AST::UiObjectDefinition *ast);
     bool visit(QmlJS::AST::ExpressionStatement *ast);
@@ -47,12 +47,15 @@ public:
     QString testCaseName() const { return m_currentTestCaseName; }
     TestCodeLocationAndType testCaseLocation() const { return m_testCaseLocation; }
     QMap<QString, TestCodeLocationAndType> testFunctions() const { return m_testFunctions; }
+    bool isValid() const { return m_typeIsTestCase; }
 
 private:
     QmlJS::Document::Ptr m_currentDoc;
+    QmlJS::Snapshot m_snapshot;
     QString m_currentTestCaseName;
     TestCodeLocationAndType m_testCaseLocation;
     QMap<QString, TestCodeLocationAndType> m_testFunctions;
+    bool m_typeIsTestCase = false;
 };
 
 } // namespace Internal

@@ -94,8 +94,8 @@ DetailsWidgetPrivate::DetailsWidgetPrivate(QWidget *parent) :
         m_summaryLabel(new QLabel(parent)),
         m_summaryCheckBox(new QCheckBox(parent)),
         m_additionalSummaryLabel(new QLabel(parent)),
-        m_toolWidget(0),
-        m_widget(0),
+        m_toolWidget(nullptr),
+        m_widget(nullptr),
         m_state(DetailsWidget::Collapsed),
         m_hovered(false),
         m_useCheckBox(false)
@@ -142,7 +142,7 @@ QPixmap DetailsWidget::createBackground(const QSize &size, int topHeight, QWidge
     QRect topRect(0, 0, size.width(), topHeight);
     QRect fullRect(0, 0, size.width(), size.height());
     if (HostOsInfo::isMacHost())
-        p.fillRect(fullRect, qApp->palette().window().color());
+        p.fillRect(fullRect, QApplication::palette().window().color());
     else
         p.fillRect(fullRect, creatorTheme()->color(Theme::DetailsWidgetBackgroundColor));
 
@@ -189,9 +189,9 @@ void DetailsWidgetPrivate::changeHoverState(bool hovered)
     if (!m_toolWidget)
         return;
     if (HostOsInfo::isMacHost())
-        m_toolWidget->setOpacity(hovered ? 1.0 : 0);
+        m_toolWidget->setOpacity(hovered ? .999 : 0);
     else
-        m_toolWidget->fadeTo(hovered ? 1.0 : 0);
+        m_toolWidget->fadeTo(hovered ? .999 : 0);
     m_hovered = hovered;
 }
 
@@ -387,7 +387,7 @@ void DetailsWidget::setToolWidget(FadingPanel *widget)
     d->m_grid->addWidget(d->m_toolWidget, 0, 1, 1, 1, Qt::AlignRight);
 
     if (HostOsInfo::isMacHost())
-        d->m_toolWidget->setOpacity(1.0);
+        d->m_toolWidget->setOpacity(.999);
     d->changeHoverState(d->m_hovered);
 }
 

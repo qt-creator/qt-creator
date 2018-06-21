@@ -29,46 +29,13 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    available = [("5.6", False), ("5.6", True)]
-    if platform.system() != 'Darwin':
-        available.extend([("5.4", False), ("5.4", True)])
+    available = ["5.6"]
 
-    for qtVersion, controls in available:
+    for qtVersion in available:
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
-        projectName = createNewQtQuickUI(workingDir, qtVersion, controls)
-        switchViewTo(ViewConstants.PROJECTS)
-        clickButton(waitForObject(":*Qt Creator.Add Kit_QPushButton"))
-        if qtVersion == "5.6":
-            menuItem = Targets.getStringForTarget(Targets.DESKTOP_561_DEFAULT)
-            quick = "2.6"
-        else:
-            menuItem = Targets.getStringForTarget(Targets.DESKTOP_541_GCC)
-            quick = "2.4"
-        if platform.system() == 'Darwin':
-            waitFor("macHackActivateContextMenuItem(menuItem)", 5000)
-        else:
-            activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1' "
-                                           "window=':Qt Creator_Core::Internal::MainWindow'}", menuItem))
-        additionalText = ''
-        if controls:
-            additionalText = ' Controls '
-        test.log("Running project Qt Quick%sUI (%s)" % (additionalText, menuItem))
-        qmlViewer = modifyRunSettingsForHookIntoQtQuickUI(2, 1, workingDir, projectName, 11223, quick)
-        if qmlViewer!=None:
-            qmlViewerPath = os.path.dirname(qmlViewer)
-            qmlViewer = os.path.basename(qmlViewer)
-            result = addExecutableAsAttachableAUT(qmlViewer, 11223)
-            allowAppThroughWinFW(qmlViewerPath, qmlViewer, None)
-            if result:
-                result = runAndCloseApp(True, qmlViewer, 11223, sType=SubprocessType.QT_QUICK_UI, quickVersion=quick)
-            else:
-                result = runAndCloseApp(sType=SubprocessType.QT_QUICK_UI)
-            removeExecutableAsAttachableAUT(qmlViewer, 11223)
-            deleteAppFromWinFW(qmlViewerPath, qmlViewer)
-        else:
-            result = runAndCloseApp(sType=SubprocessType.QT_QUICK_UI)
-        if result == None:
+        createNewQtQuickUI(workingDir, qtVersion)
+        if runAndCloseApp(True) == None:
             checkCompile()
         else:
             appOutput = logApplicationOutput()

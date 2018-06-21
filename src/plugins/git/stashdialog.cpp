@@ -85,7 +85,7 @@ void StashModel::setStashes(const QList<Stash> &stashes)
     m_stashes = stashes;
     if (const int rows = rowCount())
         removeRows(0, rows);
-    foreach (const Stash &s, stashes)
+    for (const Stash &s : stashes)
         appendRow(stashModelRowItems(s));
 }
 
@@ -151,20 +151,13 @@ StashDialog::~StashDialog()
     delete ui;
 }
 
-QString StashDialog::msgRepositoryLabel(const QString &repository)
-{
-    return repository.isEmpty() ?
-            tr("<No repository>")  :
-            tr("Repository: %1").arg(QDir::toNativeSeparators(repository));
-}
-
 void StashDialog::refresh(const QString &repository, bool force)
 {
     if (m_repository == repository && !force)
         return;
     // Refresh
     m_repository = repository;
-    ui->repositoryLabel->setText(msgRepositoryLabel(repository));
+    ui->repositoryLabel->setText(GitPlugin::msgRepositoryLabel(repository));
     if (m_repository.isEmpty()) {
         m_model->setStashes(QList<Stash>());
     } else {
@@ -361,7 +354,8 @@ int StashDialog::currentRow() const
 QList<int> StashDialog::selectedRows() const
 {
     QList<int> rc;
-    foreach (const QModelIndex &proxyIndex, ui->stashView->selectionModel()->selectedRows()) {
+    const QModelIndexList rows = ui->stashView->selectionModel()->selectedRows();
+    for (const QModelIndex &proxyIndex : rows) {
         const QModelIndex index = m_proxyModel->mapToSource(proxyIndex);
         if (index.isValid())
             rc.push_back(index.row());

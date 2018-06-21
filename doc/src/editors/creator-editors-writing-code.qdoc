@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -111,11 +111,10 @@
 
         \li \l{Parsing C++ Files with the Clang Code Model}
 
-            A Clang code model plugin enables you to replace the
-            built-in \QC code model with the Clang code model. Clang is a C
-            language family front end for LLVM. Clang provides you with more
-            accurate information than the built-in code model but can be slower
-            to use for large projects.
+            The Clang code model provides some of the services previously
+            provided by the built-in C/C++ code model, such as code
+            completion, syntactic and semantic highlighting, diagnostics,
+            tooltips, outline of symbols, and renaming of local symbols.
 
     \endlist
 

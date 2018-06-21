@@ -47,6 +47,7 @@ const char ID[] = "ProjectExplorer.ToolChain.Id";
 const char DISPLAYNAME[] = "ProjectExplorer.ToolChain.DisplayName";
 const char AUTODETECTED[] = "ProjectExplorer.ToolChain.Autodetect";
 const char LANGUAGE_KEY[] = "ProjectExplorer.ToolChain.Language";
+const char LANGUAGE_KEY_V2[] = "ProjectExplorer.ToolChain.LanguageV2";
 
 // GCC ToolChain:
 const char PATH[] = "ProjectExplorer.GccToolChain.Path";
@@ -60,7 +61,7 @@ QString AddToolChainOperation::name() const
 
 QString AddToolChainOperation::helpText() const
 {
-    return QString("add a tool chain to Qt Creator");
+    return QString("add a tool chain");
 }
 
 QString AddToolChainOperation::argumentsHelpText() const
@@ -259,25 +260,48 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map, const QS
         nameList << GetOperation::get(map, nameKey).toString();
     const QString uniqueName = makeUnique(displayName, nameList);
 
-    QVariantMap result = RmKeysOperation::rmKeys(map, { COUNT });
+    QVariantMap result = RmKeysOperation::rmKeys(map, {COUNT});
 
     const QString tc = QString::fromLatin1(PREFIX) + QString::number(count);
 
     KeyValuePairList data;
-    data << KeyValuePair({ tc, ID }, QVariant(id));
-    data << KeyValuePair({ tc, LANGUAGE_KEY }, QVariant(lang));
-    data << KeyValuePair({ tc, DISPLAYNAME }, QVariant(uniqueName));
-    data << KeyValuePair({ tc, AUTODETECTED }, QVariant(true));
-    data << KeyValuePair({ tc, PATH }, QVariant(path));
-    data << KeyValuePair({ tc, TARGET_ABI }, QVariant(abi));
+    data << KeyValuePair({tc, ID}, QVariant(id));
+
+    // Language compatibility hack for 4.2:
+    QString newLang; // QtC 4.3 and later
+    QString oldLang; // QtC 4.2
+    int langInt = lang.toInt(&ok);
+    Q_UNUSED(langInt);
+    if (lang == "2" || lang == "Cxx") {
+        newLang = "Cxx";
+        oldLang = "2";
+    } else if (lang == "1" || lang == "C") {
+        newLang = "C";
+        oldLang = "1";
+    } else if (ok) {
+        std::cerr << "Error: Language ID must be 1 for C, 2 for Cxx "
+                  << "or a string like (\"C\", \"Cxx\", \"Nim\", etc.)" << std::endl;
+        return {};
+    } else if (!ok) {
+        newLang = lang;
+        oldLang = "";
+    }
+    if (!oldLang.isEmpty())
+        data << KeyValuePair({tc, LANGUAGE_KEY}, QVariant(oldLang));
+    if (!newLang.isEmpty())
+        data << KeyValuePair({tc, LANGUAGE_KEY_V2}, QVariant(newLang));
+    data << KeyValuePair({tc, DISPLAYNAME}, QVariant(uniqueName));
+    data << KeyValuePair({tc, AUTODETECTED}, QVariant(true));
+    data << KeyValuePair({tc, PATH}, QVariant(path));
+    data << KeyValuePair({tc, TARGET_ABI}, QVariant(abi));
     QVariantList abis;
     QStringList abiStrings = supportedAbis.split(',');
     foreach (const QString &s, abiStrings)
         abis << QVariant(s);
-    data << KeyValuePair({ tc, SUPPORTED_ABIS }, QVariant(abis));
+    data << KeyValuePair({tc, SUPPORTED_ABIS}, QVariant(abis));
     KeyValuePairList tcExtraList;
     foreach (const KeyValuePair &pair, extra)
-        tcExtraList << KeyValuePair(QStringList({ tc }) << pair.key, pair.value);
+        tcExtraList << KeyValuePair(QStringList({tc}) << pair.key, pair.value);
     data.append(tcExtraList);
     data << KeyValuePair(COUNT, QVariant(count + 1));
 

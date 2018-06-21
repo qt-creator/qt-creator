@@ -1,4 +1,3 @@
-QTC_LIB_DEPENDS += utils
 QT = core network widgets
 include(../qttest.pri)
 

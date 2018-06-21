@@ -34,6 +34,7 @@
 
 #include <QGridLayout>
 #include <QLabel>
+#include <QLineEdit>
 #include <QWidget>
 
 namespace QbsProjectManager {
@@ -59,16 +60,22 @@ QbsBuildConfigurationWidget::QbsBuildConfigurationWidget(QbsProjectManager::Inte
 
     QGridLayout *layout = new QGridLayout(details);
     layout->setMargin(0);
-    layout->addWidget(new QLabel(tr("Build directory:"), 0, 0));
+    layout->addWidget(new QLabel(tr("Build directory:")), 0, 0);
 
     m_buildDirChooser = new Utils::PathChooser;
     m_buildDirChooser->setExpectedKind(Utils::PathChooser::Directory);
     m_buildDirChooser->setBaseFileName(bc->target()->project()->projectDirectory());
     m_buildDirChooser->setEnvironment(bc->environment());
     layout->addWidget(m_buildDirChooser, 0, 1);
+    layout->addWidget(new QLabel(tr("Configuration name:")), 1, 0);
+    m_configNameEdit = new QLineEdit;
+    m_configNameEdit->setText(m_buildConfiguration->configurationName());
+    layout->addWidget(m_configNameEdit, 1, 1);
 
     connect(m_buildDirChooser, &Utils::PathChooser::rawPathChanged,
             this, &QbsBuildConfigurationWidget::buildDirEdited);
+    connect(m_configNameEdit, &QLineEdit::textEdited,
+            this, &QbsBuildConfigurationWidget::configNameEdited);
 
     buildDirectoryChanged();
 }
@@ -77,6 +84,12 @@ void QbsBuildConfigurationWidget::buildDirEdited()
 {
     m_ignoreChange = true;
     m_buildConfiguration->setBuildDirectory(m_buildDirChooser->fileName());
+}
+
+void QbsBuildConfigurationWidget::configNameEdited()
+{
+    m_ignoreChange = true;
+    m_buildConfiguration->setConfigurationName(m_configNameEdit->text());
 }
 
 void QbsBuildConfigurationWidget::buildDirectoryChanged()

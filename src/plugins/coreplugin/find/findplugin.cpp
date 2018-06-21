@@ -48,6 +48,7 @@
 
 #include <QMenu>
 #include <QStringListModel>
+#include <QVector>
 #include <QAction>
 
 #include <QtPlugin>
@@ -70,6 +71,103 @@ namespace {
 
 namespace Core {
 
+struct CompletionEntry
+{
+    QString text;
+    FindFlags findFlags;
+};
+
+QDebug operator<<(QDebug d, const CompletionEntry &e)
+{
+    QDebugStateSaver saver(d);
+    d.noquote();
+    d.nospace();
+    d << "CompletionEntry(\"" << e.text << "\", flags=" << hex
+      << showbase << int(e.findFlags) << dec << noshowbase << ')';
+    return d;
+}
+
+class CompletionModel : public QAbstractListModel
+{
+public:
+    explicit CompletionModel(QObject *p = nullptr) : QAbstractListModel(p) {}
+
+    int rowCount(const QModelIndex & = QModelIndex()) const override { return m_entries.size(); }
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
+    void writeSettings(QSettings *settings) const;
+    void readSettings(QSettings *settings);
+
+    void updateCompletion(const QString &text, FindFlags f);
+
+private:
+    QVector<CompletionEntry> m_entries;
+};
+
+QVariant CompletionModel::data(const QModelIndex &index, int role) const
+{
+    if (index.isValid()) {
+        const CompletionEntry &entry = m_entries.at(index.row());
+        switch (role) {
+        case Qt::DisplayRole:
+        case Qt::EditRole:
+            return QVariant(entry.text);
+        case Find::CompletionModelFindFlagsRole:
+            return QVariant(int(entry.findFlags));
+        default:
+            break;
+        }
+    }
+    return QVariant();
+}
+
+static inline QString completionSettingsArrayPrefix() { return QStringLiteral("FindCompletions"); }
+static inline QString completionSettingsTextKey() { return QStringLiteral("Text"); }
+static inline QString completionSettingsFlagsKey() { return QStringLiteral("Flags"); }
+
+void CompletionModel::writeSettings(QSettings *settings) const
+{
+    const int size = m_entries.size();
+    settings->beginWriteArray(completionSettingsArrayPrefix(), size);
+    for (int i = 0; i < size; ++i) {
+        settings->setArrayIndex(i);
+        settings->setValue(completionSettingsTextKey(), m_entries.at(i).text);
+        settings->setValue(completionSettingsFlagsKey(), int(m_entries.at(i).findFlags));
+    }
+    settings->endArray();
+}
+
+void CompletionModel::readSettings(QSettings *settings)
+{
+    beginResetModel();
+    const int size = settings->beginReadArray(completionSettingsArrayPrefix());
+    m_entries.clear();
+    m_entries.reserve(size);
+    for (int i = 0; i < size; ++i) {
+        settings->setArrayIndex(i);
+        CompletionEntry entry;
+        entry.text = settings->value(completionSettingsTextKey()).toString();
+        entry.findFlags = FindFlags(settings->value(completionSettingsFlagsKey(), 0).toInt());
+        if (!entry.text.isEmpty())
+            m_entries.append(entry);
+    }
+    settings->endArray();
+    endResetModel();
+}
+
+void CompletionModel::updateCompletion(const QString &text, FindFlags f)
+{
+    if (text.isEmpty())
+         return;
+     beginResetModel();
+     Utils::erase(m_entries, Utils::equal(&CompletionEntry::text, text));
+     m_entries.prepend({text, f});
+     while (m_entries.size() > MAX_COMPLETIONS)
+         m_entries.removeLast();
+     endResetModel();
+}
+
 class FindPrivate : public QObject
 {
     Q_DECLARE_TR_FUNCTIONS(Core::Find)
@@ -88,9 +186,8 @@ public:
     Internal::FindToolWindow *m_findDialog = 0;
     SearchResultWindow *m_searchResultWindow = 0;
     FindFlags m_findFlags;
-    QStringListModel m_findCompletionModel;
+    CompletionModel m_findCompletionModel;
     QStringListModel m_replaceCompletionModel;
-    QStringList m_findCompletions;
     QStringList m_replaceCompletions;
     QAction *m_openFindDialog = 0;
 };
@@ -192,7 +289,7 @@ void FindPrivate::setupMenu()
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F")));
     mfindadvanced->addAction(cmd);
     connect(m_openFindDialog, &QAction::triggered,
-            this, [this] { Find::openFindDialog(nullptr); });
+            this, [] { Find::openFindDialog(nullptr); });
 }
 
 static QString filterActionName(const IFindFilter *filter)
@@ -202,13 +299,12 @@ static QString filterActionName(const IFindFilter *filter)
 
 void FindPrivate::setupFilterMenuItems()
 {
-    QList<IFindFilter*> findInterfaces = ExtensionSystem::PluginManager::getObjects<IFindFilter>();
     Command *cmd;
 
     ActionContainer *mfindadvanced = ActionManager::actionContainer(Constants::M_FIND_ADVANCED);
     bool haveEnabledFilters = false;
     const Id base("FindFilter.");
-    QList<IFindFilter *> sortedFilters = findInterfaces;
+    QList<IFindFilter *> sortedFilters = IFindFilter::allFindFilters();
     Utils::sort(sortedFilters, &IFindFilter::displayName);
     foreach (IFindFilter *filter, sortedFilters) {
         QAction *action = new QAction(filterActionName(filter), this);
@@ -220,8 +316,7 @@ void FindPrivate::setupFilterMenuItems()
         cmd->setDefaultKeySequence(filter->defaultShortcut());
         cmd->setAttribute(Command::CA_UpdateText);
         mfindadvanced->addAction(cmd);
-        connect(action, &QAction::triggered,
-                this, [filter, action] { Find::openFindDialog(filter); });
+        connect(action, &QAction::triggered, this, [filter] { Find::openFindDialog(filter); });
         connect(filter, &IFindFilter::enabledChanged, this, [filter, action] {
             action->setEnabled(filter->isEnabled());
             d->m_openFindDialog->setEnabled(d->isAnyFilterEnabled());
@@ -290,7 +385,7 @@ void FindPrivate::writeSettings()
     settings->setValue(QLatin1String("WholeWords"), bool(m_findFlags & FindWholeWords));
     settings->setValue(QLatin1String("RegularExpression"), bool(m_findFlags & FindRegularExpression));
     settings->setValue(QLatin1String("PreserveCase"), bool(m_findFlags & FindPreserveCase));
-    settings->setValue(QLatin1String("FindStrings"), m_findCompletions);
+    m_findCompletionModel.writeSettings(settings);
     settings->setValue(QLatin1String("ReplaceStrings"), m_replaceCompletions);
     settings->endGroup();
     m_findToolBar->writeSettings();
@@ -302,16 +397,16 @@ void FindPrivate::readSettings()
 {
     QSettings *settings = ICore::settings();
     settings->beginGroup(QLatin1String("Find"));
-    bool block = m_instance->blockSignals(true);
-    Find::setBackward(settings->value(QLatin1String("Backward"), false).toBool());
-    Find::setCaseSensitive(settings->value(QLatin1String("CaseSensitively"), false).toBool());
-    Find::setWholeWord(settings->value(QLatin1String("WholeWords"), false).toBool());
-    Find::setRegularExpression(settings->value(QLatin1String("RegularExpression"), false).toBool());
-    Find::setPreserveCase(settings->value(QLatin1String("PreserveCase"), false).toBool());
-    m_instance->blockSignals(block);
-    m_findCompletions = settings->value(QLatin1String("FindStrings")).toStringList();
+    {
+        QSignalBlocker blocker(m_instance);
+        Find::setBackward(settings->value(QLatin1String("Backward"), false).toBool());
+        Find::setCaseSensitive(settings->value(QLatin1String("CaseSensitively"), false).toBool());
+        Find::setWholeWord(settings->value(QLatin1String("WholeWords"), false).toBool());
+        Find::setRegularExpression(settings->value(QLatin1String("RegularExpression"), false).toBool());
+        Find::setPreserveCase(settings->value(QLatin1String("PreserveCase"), false).toBool());
+    }
+    m_findCompletionModel.readSettings(settings);
     m_replaceCompletions = settings->value(QLatin1String("ReplaceStrings")).toStringList();
-    m_findCompletionModel.setStringList(m_findCompletions);
     m_replaceCompletionModel.setStringList(m_replaceCompletions);
     settings->endGroup();
     m_findToolBar->readSettings();
@@ -319,9 +414,9 @@ void FindPrivate::readSettings()
     emit m_instance->findFlagsChanged(); // would have been done in the setXXX methods above
 }
 
-void Find::updateFindCompletion(const QString &text)
+void Find::updateFindCompletion(const QString &text, FindFlags flags)
 {
-    d->updateCompletion(text, d->m_findCompletions, &d->m_findCompletionModel);
+    d->m_findCompletionModel.updateCompletion(text, flags);
 }
 
 void Find::updateReplaceCompletion(const QString &text)
@@ -354,7 +449,7 @@ void Find::openFindToolBar(FindDirection direction)
     }
 }
 
-QStringListModel *Find::findCompletionModel()
+QAbstractListModel *Find::findCompletionModel()
 {
     return &(d->m_findCompletionModel);
 }

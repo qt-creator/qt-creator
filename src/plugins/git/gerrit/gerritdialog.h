@@ -25,55 +25,48 @@
 
 #pragma once
 
-#include <utils/pathchooser.h>
-
 #include <QDialog>
 #include <QSharedPointer>
 #include <QTimer>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
-class QTreeView;
-class QLabel;
 class QModelIndex;
 class QSortFilterProxyModel;
-class QStandardItem;
 class QStringListModel;
 class QPushButton;
-class QDialogButtonBox;
-class QTextBrowser;
 QT_END_NAMESPACE
 
-namespace Utils {
-class FancyLineEdit;
-class ProgressIndicator;
-class TreeView;
-}
+namespace Utils { class ProgressIndicator; }
 
 namespace Gerrit {
 namespace Internal {
-class GerritParameters;
-class GerritModel;
+namespace Ui { class GerritDialog; }
 class GerritChange;
-class QueryValidatingLineEdit;
+class GerritModel;
+class GerritParameters;
+class GerritServer;
 
 class GerritDialog : public QDialog
 {
     Q_OBJECT
 public:
     explicit GerritDialog(const QSharedPointer<GerritParameters> &p,
-                          QWidget *parent = 0);
+                          const QSharedPointer<GerritServer> &s,
+                          const QString &repository,
+                          QWidget *parent = nullptr);
     ~GerritDialog();
     QString repositoryPath() const;
     void setCurrentPath(const QString &path);
+    void fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
+    void fetchFinished();
+    void refresh();
 
 signals:
     void fetchDisplay(const QSharedPointer<Gerrit::Internal::GerritChange> &);
     void fetchCherryPick(const QSharedPointer<Gerrit::Internal::GerritChange> &);
     void fetchCheckout(const QSharedPointer<Gerrit::Internal::GerritChange> &);
-
-public slots:
-    void fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
-    void fetchFinished();
 
 private:
     void slotCurrentChanged();
@@ -82,7 +75,8 @@ private:
     void slotFetchDisplay();
     void slotFetchCherryPick();
     void slotFetchCheckout();
-    void slotRefresh();
+    void remoteChanged();
+    void updateRemotes(bool forceReload = false);
 
     void manageProgressIndicator();
 
@@ -93,23 +87,20 @@ private:
     void updateButtons();
 
     const QSharedPointer<GerritParameters> m_parameters;
+    const QSharedPointer<GerritServer> m_server;
     QSortFilterProxyModel *m_filterModel;
+    Ui::GerritDialog *m_ui;
     GerritModel *m_model;
     QStringListModel *m_queryModel;
-    Utils::TreeView *m_treeView;
-    QTextBrowser *m_detailsBrowser;
-    Utils::FancyLineEdit *m_queryLineEdit;
-    Utils::FancyLineEdit *m_filterLineEdit;
-    Utils::PathChooser *m_repositoryChooser;
-    QDialogButtonBox *m_buttonBox;
     QPushButton *m_displayButton;
     QPushButton *m_cherryPickButton;
     QPushButton *m_checkoutButton;
     QPushButton *m_refreshButton;
-    QLabel *m_repositoryChooserLabel;
     Utils::ProgressIndicator *m_progressIndicator;
     QTimer m_progressIndicatorTimer;
-    bool m_fetchRunning;
+    QString m_repository;
+    bool m_fetchRunning = false;
+    bool m_updatingRemotes = false;
 };
 
 } // namespace Internal

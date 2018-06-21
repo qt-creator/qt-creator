@@ -32,10 +32,6 @@
 #include <projectexplorer/runconfiguration.h>
 #include <utils/fileutils.h>
 
-namespace QmakeProjectManager {
-class QmakeProFileNode;
-}
-
 namespace Ios {
 namespace Internal {
 
@@ -46,48 +42,43 @@ class IosRunConfigurationWidget;
 class IosRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
-    friend class IosRunConfigurationFactory;
 
 public:
-    IosRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const Utils::FileName &path);
+    IosRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
     QWidget *createConfigurationWidget() override;
-    Utils::OutputFormatter *createOutputFormatter() const override;
     IosDeployStep *deployStep() const;
 
-    QString commandLineArguments() const;
     Utils::FileName profilePath() const;
     QString applicationName() const;
     Utils::FileName bundleDirectory() const;
     Utils::FileName localExecutable() const;
-    bool isEnabled() const override;
     QString disabledReason() const override;
     IosDeviceType deviceType() const;
     void setDeviceType(const IosDeviceType &deviceType);
 
+    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
-
-protected:
-    IosRunConfiguration(ProjectExplorer::Target *parent, IosRunConfiguration *source);
 
 signals:
     void localExecutableChanged();
 
 private:
-    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
     void deviceChanges();
-    void init();
-    void enabledCheck();
     friend class IosRunConfigurationWidget;
+    void updateDeviceType();
     void updateDisplayNames();
+    void updateEnabledState() final;
+    bool canRunForNode(const ProjectExplorer::Node *node) const final;
 
-    Utils::FileName m_profilePath;
-    QString m_lastDisabledReason;
-    bool m_lastIsEnabled;
-    bool m_parseInProgress;
-    bool m_parseSuccess;
     IosDeviceType m_deviceType;
+};
+
+class IosRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
+{
+public:
+    IosRunConfigurationFactory();
 };
 
 } // namespace Internal

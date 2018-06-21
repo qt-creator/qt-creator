@@ -27,34 +27,62 @@
 #include "../qtest/qttestconstants.h"
 #include "../qtest/qttestoutputreader.h"
 #include "../qtest/qttestsettings.h"
+#include "../qtest/qttest_utils.h"
+#include "../autotestplugin.h"
 #include "../testframeworkmanager.h"
+#include "../testsettings.h"
 
 namespace Autotest {
 namespace Internal {
 
+QuickTestConfiguration::QuickTestConfiguration()
+{
+    setMixedDebugging(true);
+}
+
 TestOutputReader *QuickTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
                                                        QProcess *app) const
 {
-    return new QtTestOutputReader(fi, app, buildDirectory());
+    static const Core::Id id
+            = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
+    TestFrameworkManager *manager = TestFrameworkManager::instance();
+    auto qtSettings = qSharedPointerCast<QtTestSettings>(manager->settingsForTestFramework(id));
+    const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput
+            ? QtTestOutputReader::XML
+            : QtTestOutputReader::PlainText;
+    return new QtTestOutputReader(fi, app, buildDirectory(), projectFile(),
+                                  mode, TestType::QuickTest);
 }
 
-QStringList QuickTestConfiguration::argumentsForTestRunner() const
+QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
     static const Core::Id id
             = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(QtTest::Constants::FRAMEWORK_NAME);
 
-    QStringList arguments("-xml");
-    if (testCases().count())
-        arguments << testCases();
+    QStringList arguments;
+    if (AutotestPlugin::settings()->processArgs) {
+        arguments.append(QTestUtils::filterInterfering
+                         (runnable().commandLineArguments.split(' ', QString::SkipEmptyParts),
+                          omitted, true));
+    }
 
     TestFrameworkManager *manager = TestFrameworkManager::instance();
     auto qtSettings = qSharedPointerCast<QtTestSettings>(manager->settingsForTestFramework(id));
     if (qtSettings.isNull())
         return arguments;
+    if (qtSettings->useXMLOutput)
+        arguments << "-xml";
+    if (testCases().count())
+        arguments << testCases();
 
     const QString &metricsOption = QtTestSettings::metricsTypeToOption(qtSettings->metrics);
     if (!metricsOption.isEmpty())
         arguments << metricsOption;
+
+    if (isDebugRunMode()) {
+        if (qtSettings->noCrashHandler)
+            arguments << "-nocrashhandler";
+    }
     return arguments;
 }
 

@@ -29,8 +29,8 @@
 #include <QUndoGroup>
 
 #include <QCoreApplication>
-#include <coreplugin/designmode.h>
 #include <coreplugin/editortoolbar.h>
+#include <coreplugin/icontext.h>
 
 using namespace Core;
 
@@ -47,7 +47,7 @@ class ScxmlEditorData : public QObject
     Q_OBJECT
 public:
     ScxmlEditorData(QObject *parent = nullptr);
-    ~ScxmlEditorData();
+    ~ScxmlEditorData() override;
 
     void fullInit();
     IEditor *createEditor();
@@ -61,7 +61,6 @@ private:
     Context m_contexts;
     QWidget *m_modeWidget = nullptr;
     ScxmlEditorStack *m_widgetStack = nullptr;
-    DesignMode *m_designMode = nullptr;
     QToolBar *m_widgetToolBar = nullptr;
     EditorToolBar *m_mainToolBar = nullptr;
     QUndoGroup *m_undoGroup = nullptr;

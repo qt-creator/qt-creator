@@ -26,6 +26,7 @@
 #include "qmlobjectnode.h"
 #include "qmlitemnode.h"
 #include "qmlstate.h"
+#include "qmltimelinekeyframegroup.h"
 #include "variantproperty.h"
 #include "nodeproperty.h"
 #include <invalidmodelnodeexception.h>
@@ -35,9 +36,14 @@
 #include "bindingproperty.h"
 #include "nodelistproperty.h"
 #include "nodeinstanceview.h"
+
+#include <qmltimeline.h>
+
 #ifndef QMLDESIGNER_TEST
 #include <qmldesignerplugin.h>
 #endif
+
+#include <QRegExp>
 
 namespace QmlDesigner {
 
@@ -45,6 +51,19 @@ void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant 
 {
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    if (timelineIsActive()) {
+        modelNode().validId();
+
+        QmlTimelineKeyframeGroup timelineFrames(currentTimeline().keyframeGroup(modelNode(), name));
+
+        Q_ASSERT(timelineFrames.isValid());
+
+        qreal frame = currentTimeline().modelNode().auxiliaryData("currentFrame@NodeInstance").toReal();
+        timelineFrames.setValue(value, frame);
+
+        return;
+    }
 
     if (isInBaseState()) {
         modelNode().variantProperty(name).setValue(value); //basestate
@@ -79,6 +98,14 @@ QmlModelState QmlObjectNode::currentState() const
         return QmlModelState(view()->currentStateNode());
     else
         return QmlModelState();
+}
+
+QmlTimeline QmlObjectNode::currentTimeline() const
+{
+    if (isValid())
+        return view()->currentTimeline();
+    else
+        return QmlTimeline();
 }
 
 bool QmlObjectNode::isRootModelNode() const
@@ -159,6 +186,9 @@ bool QmlObjectNode::propertyAffectedByCurrentState(const PropertyName &name) con
     if (currentState().isBaseState())
         return modelNode().hasProperty(name);
 
+    if (timelineIsActive() && currentTimeline().hasTimeline(modelNode(), name))
+        return true;
+
     if (!currentState().hasPropertyChanges(modelNode()))
         return false;
 
@@ -169,6 +199,21 @@ QVariant QmlObjectNode::modelValue(const PropertyName &name) const
 {
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    if (timelineIsActive() && currentTimeline().hasTimeline(modelNode(), name)) {
+        QmlTimelineKeyframeGroup timelineFrames(currentTimeline().keyframeGroup(modelNode(), name));
+
+        Q_ASSERT(timelineFrames.isValid());
+
+        qreal frame = currentTimeline().modelNode().auxiliaryData("currentFrame@NodeInstance").toReal();
+
+        QVariant value = timelineFrames.value(frame);
+
+        if (!value.isValid()) //interpolation is not done in the model
+            value = instanceValue(name);
+
+        return value;
+    }
 
     if (currentState().isBaseState())
         return modelNode().variantProperty(name).value();
@@ -189,7 +234,7 @@ bool QmlObjectNode::isTranslatableText(const PropertyName &name) const
     if (modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name))
         if (modelNode().metaInfo().propertyTypeName(name) == "QString" || modelNode().metaInfo().propertyTypeName(name) == "string") {
             if (modelNode().hasBindingProperty(name)) {
-                static QRegExp regularExpressionPatter(QLatin1String("qsTr(?:|Id)\\((\".*\")\\)"));
+                static QRegExp regularExpressionPatter(QLatin1String("qsTr(|Id|anslate)\\(\".*\"\\)"));
                 return regularExpressionPatter.exactMatch(modelNode().bindingProperty(name).expression());
             }
 
@@ -202,14 +247,12 @@ bool QmlObjectNode::isTranslatableText(const PropertyName &name) const
 QString QmlObjectNode::stripedTranslatableText(const PropertyName &name) const
 {
     if (modelNode().hasBindingProperty(name)) {
-        static QRegExp regularExpressionPatter(QLatin1String("qsTr(?:|Id)\\(\"(.*)\"\\)"));
+        static QRegExp regularExpressionPatter(QLatin1String("qsTr(|Id|anslate)\\(\"(.*)\"\\)"));
         if (regularExpressionPatter.exactMatch(modelNode().bindingProperty(name).expression()))
-            return regularExpressionPatter.cap(1);
-    } else {
-        return modelNode().variantProperty(name).value().toString();
+            return regularExpressionPatter.cap(2);
+        return instanceValue(name).toString();
     }
-
-    return QString();
+    return modelNode().variantProperty(name).value().toString();
 }
 
 QString QmlObjectNode::expression(const PropertyName &name) const
@@ -237,6 +280,11 @@ QString QmlObjectNode::expression(const PropertyName &name) const
 bool QmlObjectNode::isInBaseState() const
 {
     return currentState().isBaseState();
+}
+
+bool QmlObjectNode::timelineIsActive() const
+{
+    return currentTimeline().isValid();
 }
 
 bool QmlObjectNode::instanceCanReparent() const
@@ -303,9 +351,17 @@ void QmlObjectNode::destroy()
 
     removeAliasExports(modelNode());
 
-    foreach (QmlModelStateOperation stateOperation, allAffectingStatesOperations()) {
+    for (QmlModelStateOperation stateOperation : allAffectingStatesOperations()) {
         stateOperation.modelNode().destroy(); //remove of belonging StatesOperations
     }
+
+    for (const ModelNode &timelineNode : view()->allModelNodes()) {
+        if (QmlTimeline::isValidQmlTimeline(timelineNode)) {
+            QmlTimeline timeline(timelineNode);
+            timeline.destroyKeyframesForTarget(modelNode());
+        }
+    }
+
     removeStateOperationsForChildren(modelNode());
     modelNode().destroy();
 }
@@ -466,11 +522,20 @@ QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const Property
 QString QmlObjectNode::generateTranslatableText(const QString &text)
 {
 #ifndef QMLDESIGNER_TEST
+
     if (QmlDesignerPlugin::instance()->settings().value(
-            DesignerSettingsKey::USE_QSTR_FUNCTION).toBool())
-        return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
-    else
-        return QString(QStringLiteral("qsTrId(\"%1\")")).arg(text);
+            DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt())
+
+        switch (QmlDesignerPlugin::instance()->settings().value(
+                    DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt()) {
+        case 0: return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
+        case 1: return QString(QStringLiteral("qsTrId(\"%1\")")).arg(text);
+        case 2: return QString(QStringLiteral("qsTranslate(\"\"\"%1\")")).arg(text);
+        default:
+            break;
+
+        }
+    return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
 #else
     Q_UNUSED(text);
     return QString();

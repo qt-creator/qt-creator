@@ -35,13 +35,20 @@ class NimPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Nim.json")
 
 public:
-    NimPlugin();
+    NimPlugin() = default;
+    ~NimPlugin() final;
 
-    ~NimPlugin();
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+#ifdef WITH_TESTS
+private slots:
+    void testNimParser_data();
+    void testNimParser();
+#endif
 
-    void extensionsInitialized() override {}
+private:
+    class NimPluginPrivate *d = nullptr;
 };
 
-}
+} // Nim

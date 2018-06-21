@@ -73,6 +73,7 @@
 
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QLoggingCategory>
 #include <QProcess>
 #include <QCoreApplication>
 #include <QUuid>
@@ -84,14 +85,17 @@
 
 namespace QmlDesigner {
 
-static void showCannotConnectToPuppetWarningAndSwitchToEditMode()
+static Q_LOGGING_CATEGORY(instanceViewBenchmark, "qtc.nodeinstances.init")
+
+void NodeInstanceServerProxy::showCannotConnectToPuppetWarningAndSwitchToEditMode()
 {
 #ifndef QMLDESIGNER_TEST
-    Core::AsynchronousMessageBox::warning(QCoreApplication::translate("NodeInstanceServerProxy", "Cannot Connect to QML Emulation Layer (QML Puppet)"),
-                                          QCoreApplication::translate("NodeInstanceServerProxy", "The executable of the QML emulation layer (QML Puppet) may not be responding. "
-                                                                                                 "Switching to another kit might help."));
+    Core::AsynchronousMessageBox::warning(tr("Cannot Connect to QML Emulation Layer (QML Puppet)"),
+                                          tr("The executable of the QML emulation layer (QML Puppet) may not be responding. "
+                                             "Switching to another kit might help."));
 
     QmlDesignerPlugin::instance()->switchToTextModeDeferred();
+    m_nodeInstanceView->emitDocumentMessage(tr("Cannot Connect to QML Emulation Layer (QML Puppet)"));
 #endif
 
 }
@@ -103,24 +107,19 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
     : NodeInstanceServerInterface(nodeInstanceView),
       m_localServer(new QLocalServer(this)),
       m_nodeInstanceView(nodeInstanceView),
-      m_firstBlockSize(0),
-      m_secondBlockSize(0),
-      m_thirdBlockSize(0),
-      m_writeCommandCounter(0),
-      m_firstLastReadCommandCounter(0),
-      m_secondLastReadCommandCounter(0),
-      m_thirdLastReadCommandCounter(0),
-      m_runModus(runModus),
-      m_synchronizeId(-1)
+      m_runModus(runModus)
 {
+    if (instanceViewBenchmark().isInfoEnabled())
+        m_benchmarkTimer.start();
+
    QString socketToken(QUuid::createUuid().toString());
    m_localServer->listen(socketToken);
    m_localServer->setMaxPendingConnections(3);
 
-   PuppetCreator puppetCreator(kit, project, QString(), nodeInstanceView->model());
+   PuppetCreator puppetCreator(kit, project, nodeInstanceView->model());
    puppetCreator.setQrcMappingString(qrcMappingString());
 
-   puppetCreator.createPuppetExecutableIfMissing();
+   puppetCreator.createQml2PuppetExecutableIfMissing();
 
    m_qmlPuppetEditorProcess = puppetCreator.createPuppetProcess("editormode",
                                                               socketToken,
@@ -146,6 +145,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    if (m_qmlPuppetEditorProcess->waitForStarted(waitConstant)) {
        connect(m_qmlPuppetEditorProcess.data(), static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             m_qmlPuppetEditorProcess.data(), &QProcess::deleteLater);
+    qCInfo(instanceViewBenchmark) << "puppets started:" << m_benchmarkTimer.elapsed();
 
        if (runModus == NormalModus) {
            m_qmlPuppetPreviewProcess->waitForStarted(waitConstant / 2);
@@ -164,7 +164,8 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
        if (connectedToPuppet) {
            m_firstSocket = m_localServer->nextPendingConnection();
-           connect(m_firstSocket.data(), SIGNAL(readyRead()), this, SLOT(readFirstDataStream()));
+           connect(m_firstSocket.data(), &QIODevice::readyRead, this,
+                   &NodeInstanceServerProxy::readFirstDataStream);
 
            if (runModus == NormalModus) {
                if (!m_localServer->hasPendingConnections())
@@ -172,14 +173,15 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
                if (connectedToPuppet) {
                    m_secondSocket = m_localServer->nextPendingConnection();
-                   connect(m_secondSocket.data(), SIGNAL(readyRead()), this, SLOT(readSecondDataStream()));
+                   connect(m_secondSocket.data(), &QIODevice::readyRead, this, &NodeInstanceServerProxy::readSecondDataStream);
 
                    if (!m_localServer->hasPendingConnections())
                         connectedToPuppet = m_localServer->waitForNewConnection(waitConstant / 4);
 
+    qCInfo(instanceViewBenchmark) << "puppets connected:" << m_benchmarkTimer.elapsed();
                    if (connectedToPuppet) {
                        m_thirdSocket = m_localServer->nextPendingConnection();
-                       connect(m_thirdSocket.data(), SIGNAL(readyRead()), this, SLOT(readThirdDataStream()));
+                       connect(m_thirdSocket.data(), &QIODevice::readyRead, this, &NodeInstanceServerProxy::readThirdDataStream);
                    } else {
                        showCannotConnectToPuppetWarningAndSwitchToEditMode();
                    }
@@ -192,12 +194,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
        }
 
    } else {
-       Core::AsynchronousMessageBox::warning(tr("Cannot Start QML Emulation Layer (QML Puppet)"),
-                                              tr("The executable of the QML emulation layer (QML Puppet) process cannot be started or does not respond."));
-
-#ifndef QMLDESIGNER_TEST
-       QmlDesignerPlugin::instance()->switchToTextModeDeferred();
-#endif
+       showCannotConnectToPuppetWarningAndSwitchToEditMode();
    }
 
    m_localServer->close();
@@ -228,6 +225,8 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
 NodeInstanceServerProxy::~NodeInstanceServerProxy()
 {
+    m_destructing = true;
+
     disconnect(this, SLOT(processFinished(int,QProcess::ExitStatus)));
 
     writeCommand(QVariant::fromValue(EndPuppetCommand()));
@@ -248,18 +247,18 @@ NodeInstanceServerProxy::~NodeInstanceServerProxy()
     }
 
     if (m_qmlPuppetEditorProcess) {
-        QTimer::singleShot(3000, m_qmlPuppetEditorProcess.data(), SLOT(terminate()));
-        QTimer::singleShot(6000, m_qmlPuppetEditorProcess.data(), SLOT(kill()));
+        QTimer::singleShot(3000, m_qmlPuppetEditorProcess.data(), &QProcess::terminate);
+        QTimer::singleShot(6000, m_qmlPuppetEditorProcess.data(), &QProcess::kill);
     }
 
     if (m_qmlPuppetPreviewProcess) {
-        QTimer::singleShot(3000, m_qmlPuppetPreviewProcess.data(), SLOT(terminate()));
-        QTimer::singleShot(6000, m_qmlPuppetPreviewProcess.data(), SLOT(kill()));
+        QTimer::singleShot(3000, m_qmlPuppetPreviewProcess.data(), &QProcess::terminate);
+        QTimer::singleShot(6000, m_qmlPuppetPreviewProcess.data(), &QProcess::kill);
     }
 
     if (m_qmlPuppetRenderProcess) {
-         QTimer::singleShot(3000, m_qmlPuppetRenderProcess.data(), SLOT(terminate()));
-         QTimer::singleShot(6000, m_qmlPuppetRenderProcess.data(), SLOT(kill()));
+         QTimer::singleShot(3000, m_qmlPuppetRenderProcess.data(), &QProcess::terminate);
+         QTimer::singleShot(6000, m_qmlPuppetRenderProcess.data(), &QProcess::kill);
     }
 }
 
@@ -276,6 +275,10 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStr
     static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
     static const int puppetAliveCommandType = QMetaType::type("PuppetAliveCommand");
 
+    if (m_destructing)
+        return;
+
+    qCInfo(instanceViewBenchmark) << "dispatching command" << command.userType() << command.typeName();
     if (command.userType() ==  informationChangedCommandType) {
         nodeInstanceClient()->informationChanged(command.value<InformationChangedCommand>());
     } else if (command.userType() ==  valuesChangedCommandType) {
@@ -299,6 +302,7 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command, PuppetStr
         m_synchronizeId = synchronizeCommand.synchronizeId();
     }  else
         Q_ASSERT(false);
+     qCInfo(instanceViewBenchmark) << "dispatching command" << "done" << command.userType();
 }
 
 NodeInstanceClientInterface *NodeInstanceServerProxy::nodeInstanceClient() const
@@ -337,7 +341,7 @@ QString NodeInstanceServerProxy::qrcMappingString() const
 
             foreach (const StringPair &pair, rewriterView->qrcMapping()) {
                 if (!mappingString.isEmpty())
-                    mappingString.append(QLatin1String(","));
+                    mappingString.append(QLatin1String(";"));
                 mappingString.append(pair.first);
                 mappingString.append(QLatin1String("="));
                 mappingString.append(pair.second);
@@ -592,6 +596,7 @@ void NodeInstanceServerProxy::changeFileUrl(const ChangeFileUrlCommand &command)
 
 void NodeInstanceServerProxy::createScene(const CreateSceneCommand &command)
 {
+    qCInfo(instanceViewBenchmark) << Q_FUNC_INFO << m_benchmarkTimer.elapsed();
     writeCommand(QVariant::fromValue(command));
 }
 
@@ -658,6 +663,11 @@ void NodeInstanceServerProxy::token(const TokenCommand &command)
 void NodeInstanceServerProxy::removeSharedMemory(const RemoveSharedMemoryCommand &command)
 {
    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceServerProxy::benchmark(const QString &message)
+{
+    qCInfo(instanceViewBenchmark) << message << m_benchmarkTimer.elapsed();
 }
 
 } // namespace QmlDesigner

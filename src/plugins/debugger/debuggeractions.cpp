@@ -106,7 +106,7 @@ DebuggerSettings::DebuggerSettings()
     const QString debugModeGroup = QLatin1String(debugModeSettingsGroupC);
     const QString cdbSettingsGroup = QLatin1String(cdbSettingsGroupC);
 
-    SavedAction *item = 0;
+    SavedAction *item = nullptr;
 
     item = new SavedAction(this);
     insertItem(SettingsDialog, item);
@@ -225,6 +225,12 @@ DebuggerSettings::DebuggerSettings()
     item->setDefaultValue(true);
     item->setSettingsKey(cdbSettingsGroup, QLatin1String("BreakpointCorrection"));
     insertItem(CdbBreakPointCorrection, item);
+
+    item = new SavedAction(this);
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    item->setSettingsKey(cdbSettingsGroup, QLatin1String("UsePythonDumper"));
+    insertItem(CdbUsePythonDumper, item);
 
     item = new SavedAction(this);
     item->setCheckable(true);
@@ -477,12 +483,6 @@ DebuggerSettings::DebuggerSettings()
     insertItem(AutoQuit, item);
 
     item = new SavedAction(this);
-    item->setSettingsKey(debugModeGroup, QLatin1String("AttemptQuickStart"));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    insertItem(AttemptQuickStart, item);
-
-    item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("MultiInferior"));
     item->setCheckable(true);
     item->setDefaultValue(false);
@@ -530,7 +530,7 @@ DebuggerSettings::DebuggerSettings()
     insertItem(UseToolTipsInBreakpointsView, item);
 
     item = new SavedAction(this);
-    item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTipsInBreakpointsView"));
+    item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTipsInStackView"));
     item->setText(tr("Use Tooltips in Stack View when Debugging"));
     item->setToolTip(tr("<p>Checking this will enable tooltips in the stack "
         "view during debugging."));
@@ -683,21 +683,20 @@ SavedAction *DebuggerSettings::item(int code) const
 
 QString DebuggerSettings::dump() const
 {
-    QString out;
-    QTextStream ts(&out);
-    ts << "Debugger settings: ";
+    QStringList settings;
     foreach (SavedAction *item, m_items) {
         QString key = item->settingsKey();
         if (!key.isEmpty()) {
             const QString current = item->value().toString();
             const QString default_ = item->defaultValue().toString();
-            ts << '\n' << key << ": " << current
-               << "  (default: " << default_ << ')';
+            QString setting = key + ": " + current + "  (default: " + default_ + ')';
             if (current != default_)
-                ts <<  "  ***";
+                setting +=  "  ***";
+            settings << setting;
         }
     }
-    return out;
+    settings.sort();
+    return "Debugger settings:\n" + settings.join('\n');
 }
 
 } // namespace Internal

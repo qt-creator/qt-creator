@@ -41,7 +41,7 @@ class ValgrindPlugin : public ExtensionSystem::IPlugin
 
 public:
     ValgrindPlugin() {}
-    ~ValgrindPlugin();
+    ~ValgrindPlugin() override;
 
     bool initialize(const QStringList &arguments, QString *errorString) override;
     void extensionsInitialized() override;

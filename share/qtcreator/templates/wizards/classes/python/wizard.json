@@ -6,6 +6,7 @@
     "trDescription": "Creates new Python class file.",
     "trDisplayName": "Python Class",
     "trDisplayCategory": "Python",
+    "iconText": "py",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('PythonEditor') >= 0}",
 
     "options":
@@ -51,8 +52,7 @@
 
                 {
                     "name": "Sp1",
-                    "type": "Spacer",
-                    "data": { "size": 6 }
+                    "type": "Spacer"
                 },
                 {
                     "name": "ImportQtCore",
@@ -89,8 +89,7 @@
                 },
                 {
                     "name": "Sp2",
-                    "type": "Spacer",
-                    "data": { "size": 12 }
+                    "type": "Spacer"
                 },
 
 

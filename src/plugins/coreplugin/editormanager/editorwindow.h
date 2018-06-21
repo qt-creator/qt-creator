@@ -41,6 +41,8 @@ public:
 
     EditorArea *editorArea() const;
 
+    QVariantHash saveState() const;
+    void restoreState(const QVariantHash &state);
 private:
     void updateWindowTitle();
 

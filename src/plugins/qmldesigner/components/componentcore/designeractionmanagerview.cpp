@@ -27,6 +27,7 @@
 
 #include <selectioncontext.h>
 #include <actioninterface.h>
+#include <variantproperty.h>
 
 namespace QmlDesigner {
 
@@ -36,7 +37,6 @@ DesignerActionManagerView::DesignerActionManagerView()
       m_isInRewriterTransaction(false),
       m_setupContextDirty(false)
 {
-    m_designerActionManager.createDefaultDesignerActions();
 }
 
 void DesignerActionManagerView::modelAttached(Model *model)
@@ -53,7 +53,7 @@ void DesignerActionManagerView::modelAboutToBeDetached(Model *model)
 
 void DesignerActionManagerView::nodeCreated(const ModelNode &)
 {
-    setupContext();
+    setupContext(SelectionContext::UpdateMode::Fast);
 }
 
 void DesignerActionManagerView::nodeRemoved(const ModelNode &, const NodeAbstractProperty &, AbstractView::PropertyChangeFlags)
@@ -63,17 +63,17 @@ void DesignerActionManagerView::nodeRemoved(const ModelNode &, const NodeAbstrac
 
 void DesignerActionManagerView::nodeAboutToBeReparented(const ModelNode &, const NodeAbstractProperty &, const NodeAbstractProperty &, AbstractView::PropertyChangeFlags)
 {
-    setupContext();
+    setupContext(SelectionContext::UpdateMode::Fast);
 }
 
 void DesignerActionManagerView::nodeReparented(const ModelNode &, const NodeAbstractProperty &, const NodeAbstractProperty &, AbstractView::PropertyChangeFlags)
 {
-    setupContext();
+    setupContext(SelectionContext::UpdateMode::Fast);
 }
 
 void DesignerActionManagerView::propertiesRemoved(const QList<AbstractProperty> &)
 {
-    setupContext();
+    setupContext(SelectionContext::UpdateMode::Fast);
 }
 
 void DesignerActionManagerView::rootNodeTypeChanged(const QString &, int, int)
@@ -96,17 +96,23 @@ void DesignerActionManagerView::rewriterEndTransaction()
 
 void DesignerActionManagerView::currentStateChanged(const ModelNode &)
 {
-    setupContext();
+    setupContext(SelectionContext::UpdateMode::Fast);
 }
 
-void DesignerActionManagerView::selectedNodesChanged(const QList<ModelNode> &, const QList<ModelNode> &)
+void DesignerActionManagerView::selectedNodesChanged(const QList<ModelNode> &selectedNodes, const QList<ModelNode> &)
 {
     setupContext();
+
+    /* This breaks encapsulation, but the selection state is a very minor information.
+     * Without this signal the ShortcutManager would have to be refactored completely.
+     * This signal is only used to update the state of the cut/copy/delete actions.
+    */
+    emit selectionChanged(!selectedNodes.isEmpty(), singleSelectedModelNode().isRootNode());
 }
 
 void DesignerActionManagerView::nodeOrderChanged(const NodeListProperty &, const ModelNode &, int)
 {
-    setupContext();
+    setupContext(SelectionContext::UpdateMode::Fast);
 }
 
 void DesignerActionManagerView::importsChanged(const QList<Import> &, const QList<Import> &)
@@ -114,14 +120,29 @@ void DesignerActionManagerView::importsChanged(const QList<Import> &, const QLis
     setupContext();
 }
 
-void DesignerActionManagerView::setDesignerActionList(const QList<ActionInterface *> &designerActionList)
-{
-    m_designerActionList = designerActionList;
-}
-
 void DesignerActionManagerView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &, AbstractView::PropertyChangeFlags)
 {
-    setupContext();
+    setupContext(SelectionContext::UpdateMode::Fast);
+}
+
+void DesignerActionManagerView::variantPropertiesChanged(const QList<VariantProperty> &, AbstractView::PropertyChangeFlags propertyChangeFlag)
+{
+    if (propertyChangeFlag == AbstractView::PropertiesAdded)
+        setupContext(SelectionContext::UpdateMode::Fast);
+    else if (hasSingleSelectedModelNode())
+        setupContext(SelectionContext::UpdateMode::Fast);
+}
+
+void DesignerActionManagerView::bindingPropertiesChanged(const QList<BindingProperty> &, AbstractView::PropertyChangeFlags propertyChangeFlag)
+{
+    if (propertyChangeFlag == AbstractView::PropertiesAdded)
+        setupContext(SelectionContext::UpdateMode::Fast);
+}
+
+void DesignerActionManagerView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &)
+{
+    if (hasSingleSelectedModelNode())
+        setupContext(SelectionContext::UpdateMode::Fast);
 }
 
 DesignerActionManager &DesignerActionManagerView::designerActionManager()
@@ -134,14 +155,23 @@ const DesignerActionManager &DesignerActionManagerView::designerActionManager() 
     return m_designerActionManager;
 }
 
-void DesignerActionManagerView::setupContext()
+void DesignerActionManagerView::emitSelectionChanged()
+{
+    if (model())
+        emit selectionChanged(!selectedModelNodes().isEmpty(), singleSelectedModelNode().isRootNode());
+}
+
+/* We should consider compressing this. */
+/* One update every 100ms should be enough. */
+void DesignerActionManagerView::setupContext(SelectionContext::UpdateMode updateMode)
 {
     if (m_isInRewriterTransaction) {
         m_setupContextDirty = true;
         return;
     }
     SelectionContext selectionContext(this);
-    foreach (ActionInterface* action, m_designerActionList) {
+    selectionContext.setUpdateMode(updateMode);
+    foreach (ActionInterface* action, m_designerActionManager.designerActions()) {
         action->currentContextChanged(selectionContext);
     }
     m_setupContextDirty = false;

@@ -42,6 +42,8 @@ public:
     TextEditItemWidget(QGraphicsScene *scene);
     ~TextEditItemWidget();
 
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+
     void activateTextEdit(const QSize &maximumSize);
     void activateLineEdit();
     void updateText(const QString &text);

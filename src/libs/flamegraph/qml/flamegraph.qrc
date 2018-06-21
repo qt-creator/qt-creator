@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/flamegraph">
-        <file>FlameGraphText.qml</file>
-        <file>FlameGraphDetails.qml</file>
-        <file>FlameGraphDelegate.qml</file>
-    </qresource>
-</RCC>

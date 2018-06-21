@@ -43,7 +43,7 @@ class DisassemblerAgent : public QObject
 public:
     // Called from Gui
     explicit DisassemblerAgent(DebuggerEngine *engine);
-    ~DisassemblerAgent();
+    ~DisassemblerAgent() override;
 
     void setLocation(const Location &location);
     const Location &location() const;

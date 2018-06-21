@@ -27,9 +27,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QObject>
-#include <QtGlobal>
-
 #if defined(PLUGIN1_LIBRARY)
 #  define PLUGIN1_EXPORT Q_DECL_EXPORT
 #else
@@ -44,13 +41,16 @@ class PLUGIN1_EXPORT MyPlugin1 : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "plugin" FILE "plugin1.json")
 
 public:
-    MyPlugin1();
+    MyPlugin1() = default;
+    ~MyPlugin1() final;
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
+    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void extensionsInitialized() final;
 
 private:
-    bool initializeCalled;
+    bool initializeCalled = false;
+    QObject *object1 = nullptr;
+    QObject *object2 = nullptr;
 };
 
 } // namespace Plugin1

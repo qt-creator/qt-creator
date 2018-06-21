@@ -33,13 +33,13 @@ class TEXTEDITOR_EXPORT SimpleCodeStylePreferences : public ICodeStylePreference
 {
     Q_OBJECT
 public:
-    explicit SimpleCodeStylePreferences(QObject *parentObject = 0);
+    explicit SimpleCodeStylePreferences(QObject *parentObject = nullptr);
 
-    virtual QVariant value() const;
-    virtual void setValue(const QVariant &);
+    QVariant value() const override;
+    void setValue(const QVariant &) override;
 
 protected:
-    virtual QString settingsSuffix() const;
+    QString settingsSuffix() const override;
 
 };
 

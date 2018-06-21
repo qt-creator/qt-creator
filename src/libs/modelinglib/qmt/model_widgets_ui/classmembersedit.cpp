@@ -94,10 +94,10 @@ QString ClassMembersEdit::Cursor::readWord()
         } else {
             if (c == QLatin1Char('<') && m_pos < m_text.length() && m_text.at(m_pos) == QLatin1Char('<')) {
                 ++m_pos;
-                word = QStringLiteral("<<");
+                word = "<<";
             } else if (c == QLatin1Char('>') && m_pos < m_text.length() && m_text.at(m_pos) == QLatin1Char('>')) {
                 ++m_pos;
-                word = QStringLiteral(">>");
+                word = ">>";
             } else {
                 word = c;
             }
@@ -123,7 +123,7 @@ QString ClassMembersEdit::Cursor::readUntil(const QString &delimiter)
 {
     QString s;
     while (m_isValid) {
-        if (m_pos >= m_text.length() || m_text.at(m_pos) == QStringLiteral("\n")) {
+        if (m_pos >= m_text.length() || m_text.at(m_pos) == '\n') {
             m_isValid = false;
             return s;
         }
@@ -154,7 +154,7 @@ void ClassMembersEdit::Cursor::skipUntilOrNewline(const QString &delimiter)
     while (m_isValid) {
         if (m_pos >= m_text.length())
             return;
-        if (m_text.at(m_pos) == QStringLiteral("\n"))
+        if (m_text.at(m_pos) == '\n')
             return;
         if (m_pos + delimiter.length() <= m_text.length()
                 && QString::compare(m_text.mid(m_pos, delimiter.length()), delimiter, Qt::CaseInsensitive) == 0) {
@@ -183,10 +183,10 @@ QString ClassMembersEdit::Cursor::readWordFromRight()
         } else {
             if (c == QLatin1Char('<') && m_pos >= 0 && m_text.at(m_pos) == QLatin1Char('<')) {
                 --m_pos;
-                word = QStringLiteral("<<");
+                word = "<<";
             } else if (c == QLatin1Char('>') && m_pos >= 0 && m_text.at(m_pos) == QLatin1Char('>')) {
                 --m_pos;
-                word = QStringLiteral(">>");
+                word = ">>";
             } else {
                 word = c;
             }
@@ -218,13 +218,13 @@ bool ClassMembersEdit::Cursor::searchOutsideOfBracketsFromRight(const QString &s
     int brackets = 0;
     for (;;) {
         const QString word = readWordFromRight();
-        if (!m_isValid || word == QStringLiteral("\n"))
+        if (!m_isValid || word == "\n")
             break;
         if (brackets == 0 && word == s)
             return true;
-        else if (word == QStringLiteral("(") || word == QStringLiteral("[") || word == QStringLiteral("{"))
+        else if (word == "(" || word == "[" || word == "{")
             ++brackets;
-        else if (word == QStringLiteral(")") || word == QStringLiteral("]") || word == QStringLiteral("}"))
+        else if (word == ")" || word == "]" || word == "}")
             --brackets;
     }
     m_isValid = true;
@@ -238,12 +238,12 @@ QString ClassMembersEdit::Cursor::extractSubstr(int start, int stop)
     if (m_isValid && start >= 0 && start < m_text.length() && stop >= start && stop < m_text.length())
         return m_text.mid(start, stop - start + 1);
     m_isValid = false;
-    return QStringLiteral("");
+    return QString();
 }
 
 void ClassMembersEdit::Cursor::skipWhitespaces()
 {
-    while (m_isValid && m_pos < m_text.length() && m_text.at(m_pos).isSpace() && m_text.at(m_pos) != QStringLiteral("\n"))
+    while (m_isValid && m_pos < m_text.length() && m_text.at(m_pos).isSpace() && m_text.at(m_pos) != '\n')
         ++m_pos;
     if (m_pos >= m_text.length())
         m_isValid = false;
@@ -251,7 +251,7 @@ void ClassMembersEdit::Cursor::skipWhitespaces()
 
 void ClassMembersEdit::Cursor::skipWhitespacesFromRight()
 {
-    while (m_isValid && m_pos >= 0 && m_text.at(m_pos).isSpace() && m_text.at(m_pos) != QStringLiteral("\n"))
+    while (m_isValid && m_pos >= 0 && m_text.at(m_pos).isSpace() && m_text.at(m_pos) != '\n')
         --m_pos;
     if (m_pos < 0)
         m_isValid = false;
@@ -378,29 +378,29 @@ QString ClassMembersEdit::build(const QList<MClassMember> &members)
                 case MClassMember::VisibilityUndefined:
                     break;
                 case MClassMember::VisibilityPublic:
-                    vis = QStringLiteral("public:");
+                    vis = "public:";
                     break;
                 case MClassMember::VisibilityProtected:
-                    vis = QStringLiteral("protected:");
+                    vis = "protected:";
                     break;
                 case MClassMember::VisibilityPrivate:
-                    vis = QStringLiteral("private:");
+                    vis = "private:";
                     break;
                 case MClassMember::VisibilitySignals:
-                    vis = QStringLiteral("signals:");
+                    vis = "signals:";
                     break;
                 case MClassMember::VisibilityPrivateSlots:
-                    vis = QStringLiteral("private slots:");
+                    vis = "private slots:";
                     break;
                 case MClassMember::VisibilityProtectedSlots:
-                    vis = QStringLiteral("protected slots:");
+                    vis = "protected slots:";
                     break;
                 case MClassMember::VisibilityPublicSlots:
-                    vis = QStringLiteral("public slots:");
+                    vis = "public slots:";
                     break;
                 }
                 if (!text.isEmpty())
-                    text += QStringLiteral("\n");
+                    text += "\n";
                 text += vis;
                 addNewline = true;
                 addSpace = true;
@@ -409,42 +409,42 @@ QString ClassMembersEdit::build(const QList<MClassMember> &members)
         }
         if (member.group() != currentGroup) {
             if (addSpace)
-                text += QStringLiteral(" ");
+                text += " ";
             else if (!text.isEmpty())
-                text += QStringLiteral("\n");
-            text += QString(QStringLiteral("[%1]")).arg(member.group());
+                text += "\n";
+            text += QString("[%1]").arg(member.group());
             addNewline = true;
             currentGroup = member.group();
         }
         if (addNewline)
-            text += QStringLiteral("\n");
+            text += "\n";
 
         if (!member.stereotypes().isEmpty()) {
             StereotypesController ctrl;
-            text += QString(QStringLiteral("<<%1>> ")).arg(ctrl.toString(member.stereotypes()));
+            text += QString("<<%1>> ").arg(ctrl.toString(member.stereotypes()));
         }
         if (member.properties() & MClassMember::PropertyQsignal)
-            text += QStringLiteral("signal ");
+            text += "signal ";
         if (member.properties() & MClassMember::PropertyQslot)
-            text += QStringLiteral("slot ");
+            text += "slot ";
         if (member.properties() & MClassMember::PropertyQinvokable)
-            text += QStringLiteral("invokable ");
+            text += "invokable ";
         if (member.properties() & MClassMember::PropertyStatic)
-            text += QStringLiteral("static ");
+            text += "static ";
         if (member.properties() & MClassMember::PropertyVirtual)
-            text += QStringLiteral("virtual ");
+            text += "virtual ";
         if (member.properties() & MClassMember::PropertyConstexpr)
-            text += QStringLiteral("constexpr ");
+            text += "constexpr ";
         text += member.declaration();
         if (member.properties() & MClassMember::PropertyConst)
-            text += QStringLiteral(" const");
+            text += " const";
         if (member.properties() & MClassMember::PropertyOverride)
-            text += QStringLiteral(" override");
+            text += " override";
         if (member.properties() & MClassMember::PropertyFinal)
-            text += QStringLiteral(" final");
+            text += " final";
         if (member.properties() & MClassMember::PropertyAbstract)
-            text += QStringLiteral(" = 0");
-        text += QStringLiteral(";\n");
+            text += " = 0";
+        text += ";\n";
     }
 
     return text;
@@ -452,7 +452,7 @@ QString ClassMembersEdit::build(const QList<MClassMember> &members)
 
 QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
 {
-    QMT_CHECK(ok);
+    QMT_ASSERT(ok, return QList<MClassMember>());
 
     *ok = true;
     QList<MClassMember> members;
@@ -468,19 +468,19 @@ QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
         member = MClassMember();
         QString word = cursor.readWord().toLower();
         for (;;) {
-            if (word == QStringLiteral("public")) {
+            if (word == "public") {
                 currentVisibility = MClassMember::VisibilityPublic;
                 word = cursor.readWord().toLower();
-            } else if (word == QStringLiteral("protected")) {
+            } else if (word == "protected") {
                 currentVisibility = MClassMember::VisibilityProtected;
                 word = cursor.readWord().toLower();
-            } else if (word == QStringLiteral("private")) {
+            } else if (word == "private") {
                 currentVisibility = MClassMember::VisibilityPrivate;
                 word = cursor.readWord().toLower();
-            } else if (word == QStringLiteral("signals")) {
+            } else if (word == "signals") {
                 currentVisibility = MClassMember::VisibilitySignals;
                 word = cursor.readWord().toLower();
-            } else if (word == QStringLiteral("slots")) {
+            } else if (word == "slots") {
                 switch (currentVisibility) {
                 case MClassMember::VisibilityPrivate:
                     currentVisibility = MClassMember::VisibilityPrivateSlots;
@@ -496,34 +496,34 @@ QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
                     break;
                 }
                 word = cursor.readWord().toLower();
-            } else if (word == QStringLiteral("[")) {
-                currentGroup = cursor.readUntil(QStringLiteral("]"));
+            } else if (word == "[") {
+                currentGroup = cursor.readUntil("]");
                 word = cursor.readWord().toLower();
-            } else if (word == QStringLiteral("<<")) {
-                QString stereotypes = cursor.readUntil(QStringLiteral(">>"));
+            } else if (word == "<<") {
+                QString stereotypes = cursor.readUntil(">>");
                 StereotypesController ctrl;
                 member.setStereotypes(ctrl.fromString(stereotypes));
                 word = cursor.readWord().toLower();
-            } else if (word == QStringLiteral("static")) {
+            } else if (word == "static") {
                 member.setProperties(member.properties() | MClassMember::PropertyStatic);
                 word = cursor.readWord().toLower();
-            } else if (word == QStringLiteral("virtual")) {
+            } else if (word == "virtual") {
                 member.setProperties(member.properties() | MClassMember::PropertyVirtual);
                 word = cursor.readWord().toLower();
-            } else if (word == QStringLiteral("constexpr") || word == QStringLiteral("q_decl_constexpr")
-                       || word == QStringLiteral("q_decl_relaxed_constexpr")) {
+            } else if (word == "constexpr" || word == "q_decl_constexpr"
+                       || word == "q_decl_relaxed_constexpr") {
                 member.setProperties(member.properties() | MClassMember::PropertyConstexpr);
                 word = cursor.readWord().toLower();
-            } else if (word == QStringLiteral("signal") || word == QStringLiteral("q_signal")) {
+            } else if (word == "signal" || word == "q_signal") {
                 member.setProperties(member.properties() | MClassMember::PropertyQsignal);
                 word = cursor.readWord().toLower();
-            } else if (word == QStringLiteral("slot") || word == QStringLiteral("q_slot")) {
+            } else if (word == "slot" || word == "q_slot") {
                 member.setProperties(member.properties() | MClassMember::PropertyQslot);
                 word = cursor.readWord().toLower();
-            } else if (word == QStringLiteral("invokable") || word == QStringLiteral("q_invokable")) {
+            } else if (word == "invokable" || word == "q_invokable") {
                 member.setProperties(member.properties() | MClassMember::PropertyQinvokable);
                 word = cursor.readWord().toLower();
-            } else if (word == QStringLiteral(":")) {
+            } else if (word == ":") {
                 word = cursor.readWord().toLower();
             } else {
                 cursor.unreadWord();
@@ -532,32 +532,32 @@ QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
         }
         member.setVisibility(currentVisibility);
         member.setGroup(currentGroup);
-        if (word != QStringLiteral("\n")) {
+        if (word != "\n") {
             int declarationStart = cursor.position();
-            cursor.skipUntilOrNewline(QStringLiteral(";"));
+            cursor.skipUntilOrNewline(";");
             int nextLinePosition = cursor.position();
             cursor.setPosition(nextLinePosition - 1);
             word = cursor.readWordFromRight().toLower();
-            if (word != QStringLiteral(";"))
+            if (word != ";")
                 cursor.unreadWord();
 
             int endPosition = cursor.position();
             QString expr;
-            if (cursor.searchOutsideOfBracketsFromRight(QStringLiteral("=")))
+            if (cursor.searchOutsideOfBracketsFromRight("="))
                 expr = cursor.extractSubstr(cursor.position() + 2, endPosition).trimmed();
             word = cursor.readWordFromRight().toLower();
             for (;;) {
                 // TODO ignore throw(), noexpect(*),
-                if (word == QStringLiteral("final") || word == QStringLiteral("q_decl_final")) {
+                if (word == "final" || word == "q_decl_final") {
                     member.setProperties(member.properties() | MClassMember::PropertyFinal);
                     word = cursor.readWordFromRight().toLower();
-                } else if (word == QStringLiteral("override") || word == QStringLiteral("q_decl_override")) {
+                } else if (word == "override" || word == "q_decl_override") {
                     member.setProperties(member.properties() | MClassMember::PropertyOverride);
                     word = cursor.readWordFromRight().toLower();
-                } else if (word == QStringLiteral("const")) {
+                } else if (word == "const") {
                     member.setProperties(member.properties() | MClassMember::PropertyConst);
                     word = cursor.readWordFromRight().toLower();
-                } else if (word == QStringLiteral("noexpect")) {
+                } else if (word == "noexpect") {
                     // just ignore it
                     word = cursor.readWordFromRight().toLower();
                 } else {
@@ -572,9 +572,9 @@ QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
             if (!declaration.isEmpty()) {
                 member.setDeclaration(declaration);
                 // TODO recognize function pointer
-                if (declaration.endsWith(QStringLiteral(")"))) {
+                if (declaration.endsWith(")")) {
                     member.setMemberType(MClassMember::MemberMethod);
-                    if (expr == QStringLiteral("0"))
+                    if (expr == "0")
                         member.setProperties(member.properties() | MClassMember::PropertyAbstract);
                 } else {
                     member.setMemberType(MClassMember::MemberAttribute);
@@ -584,7 +584,7 @@ QList<MClassMember> ClassMembersEdit::parse(const QString &text, bool *ok)
             cursor.setPosition(nextLinePosition);
             if (cursor.atEnd())
                 return members;
-            cursor.skip(QStringLiteral("\n"));
+            cursor.skip("\n");
         } else {
             word = cursor.readWord().toLower();
         }

@@ -28,7 +28,7 @@
 #include "addlibrarywizard.h"
 
 namespace QmakeProjectManager {
-class QmakeProFileNode;
+class QmakeProFile;
 namespace Internal {
 
 namespace Ui { class LibraryDetailsWidget; }
@@ -182,7 +182,7 @@ private:
     void updateProFile();
 
     QString m_rootProjectPath;
-    QVector<QmakeProFileNode *> m_proFileNodes;
+    QVector<QmakeProFile *> m_proFiles;
 };
 
 } // namespace Internal

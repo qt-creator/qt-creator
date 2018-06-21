@@ -51,7 +51,7 @@ public:
     };
 
     IPlugin();
-    virtual ~IPlugin();
+    ~IPlugin() override;
 
     virtual bool initialize(const QStringList &arguments, QString *errorString) = 0;
     virtual void extensionsInitialized() = 0;
@@ -59,14 +59,10 @@ public:
     virtual ShutdownFlag aboutToShutdown() { return SynchronousShutdown; }
     virtual QObject *remoteCommand(const QStringList & /* options */,
                                    const QString & /* workingDirectory */,
-                                   const QStringList & /* arguments */) { return 0; }
+                                   const QStringList & /* arguments */) { return nullptr; }
     virtual QList<QObject *> createTestObjects() const;
 
     PluginSpec *pluginSpec() const;
-
-    void addObject(QObject *obj);
-    void addAutoReleasedObject(QObject *obj);
-    void removeObject(QObject *obj);
 
 signals:
     void asynchronousShutdownFinished();

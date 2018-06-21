@@ -27,6 +27,7 @@
 #include "projectexplorer.h"
 #include "session.h"
 #include "projectnodes.h"
+#include "projecttree.h"
 #include "projectwizardpage.h"
 
 #include <utils/algorithm.h>
@@ -41,6 +42,7 @@
 #include <texteditor/tabsettings.h>
 #include <texteditor/storagesettings.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/editorconfiguration.h>
 #include <utils/mimetypes/mimedatabase.h>
 #
@@ -120,7 +122,8 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
 
     QStringList filePaths;
     ProjectAction projectAction;
-    if (m_context->wizard->kind()== IWizardFactory::ProjectWizard) {
+    const IWizardFactory::WizardKind kind = m_context->wizard->kind();
+    if (kind == IWizardFactory::ProjectWizard) {
         projectAction = AddSubProject;
         filePaths << generatedProjectFilePath(files);
     } else {
@@ -128,11 +131,36 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
         filePaths = Utils::transform(files, &GeneratedFile::path);
     }
 
-    Node *contextNode = extraValues.value(QLatin1String(Constants::PREFERRED_PROJECT_NODE)).value<Node *>();
+    // Static cast from void * to avoid qobject_cast (which needs a valid object) in value().
+    auto contextNode = static_cast<Node *>(extraValues.value(QLatin1String(Constants::PREFERRED_PROJECT_NODE)).value<void *>());
+    auto project = static_cast<Project *>(extraValues.value(Constants::PROJECT_POINTER).value<void *>());
+    const QString path = extraValues.value(Constants::PREFERRED_PROJECT_NODE_PATH).toString();
 
-    m_context->page->initializeProjectTree(contextNode, filePaths, m_context->wizard->kind(),
+    m_context->page->initializeProjectTree(findWizardContextNode(contextNode, project, path),
+                                           filePaths, m_context->wizard->kind(),
                                            projectAction);
+    // Refresh combobox on project tree changes:
+    connect(ProjectTree::instance(), &ProjectTree::treeChanged,
+            m_context->page, [this, project, path, filePaths, kind, projectAction]() {
+        m_context->page->initializeProjectTree(
+                    findWizardContextNode(m_context->page->currentNode(), project, path), filePaths,
+                    kind, projectAction);
+    });
+
     m_context->page->initializeVersionControls();
+}
+
+Node *ProjectFileWizardExtension::findWizardContextNode(Node *contextNode, Project *project,
+                                                        const QString &path)
+{
+    if (contextNode && !ProjectTree::hasNode(contextNode)) {
+        if (SessionManager::projects().contains(project) && project->rootProjectNode()) {
+            contextNode = project->rootProjectNode()->findNode([path](const Node *n) {
+                return path == n->filePath().toString();
+            });
+        }
+    }
+    return contextNode;
 }
 
 QList<QWizardPage *> ProjectFileWizardExtension::extensionPages(const IWizardFactory *wizard)
@@ -181,7 +209,7 @@ bool ProjectFileWizardExtension::processProject(
     if (!folder)
         return true;
     if (m_context->wizard->kind() == IWizardFactory::ProjectWizard) {
-        if (!static_cast<ProjectNode *>(folder)->addSubProjects(QStringList(generatedProject))) {
+        if (!static_cast<ProjectNode *>(folder)->addSubProject(generatedProject)) {
             *errorMessage = tr("Failed to add subproject \"%1\"\nto project \"%2\".")
                             .arg(generatedProject).arg(folder->filePath().toUserOutput());
             return false;
@@ -214,14 +242,13 @@ void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
     if (file->isBinary() || file->contents().isEmpty())
         return; // nothing to do
 
-    Utils::MimeDatabase mdb;
-    Id languageId = TextEditorSettings::languageId(mdb.mimeTypeForFile(file->path()).name());
+    Id languageId = TextEditorSettings::languageId(Utils::mimeTypeForFile(file->path()).name());
 
     if (!languageId.isValid())
         return; // don't modify files like *.ui *.pro
 
     FolderNode *folder = m_context->page->currentNode();
-    Project *baseProject = SessionManager::projectForNode(folder);
+    Project *baseProject = ProjectTree::projectForNode(folder);
 
     ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(languageId);
 

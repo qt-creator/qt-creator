@@ -25,6 +25,7 @@
 
 #include "progressindicator.h"
 
+#include "icon.h"
 #include "qtcassert.h"
 #include "stylehelper.h"
 
@@ -32,51 +33,225 @@
 #include <QPainter>
 #include <QPixmap>
 
-using namespace Utils;
+/*!
+    \class Utils::ProgressIndicator
+    \brief The ProgressIndicator class shows an circular, endlessly animated progress indicator.
 
-ProgressIndicator::ProgressIndicator(IndicatorSize size, QWidget *parent)
-    : QWidget(parent),
-      m_rotation(0)
-{
-    setAttribute(Qt::WA_TransparentForMouseEvents);
-    m_timer.setSingleShot(false);
-    connect(&m_timer, &QTimer::timeout, this, &ProgressIndicator::step);
-    setIndicatorSize(size);
-}
+    Use it if you want to indicate that some work is being done, but you do not have the detailed
+    progress information needed for a progress bar. You can either create the widget on demand,
+    or create the widget once and only show it on demand. The animation only runs while the widget
+    is visible.
 
-static QString imageFileNameForIndicatorSize(ProgressIndicator::IndicatorSize size)
+    \inmodule Qt Creator
+*/
+
+/*!
+    \class Utils::ProgressIndicatorPainter
+    \brief The ProgressIndicatorPainter class is the painting backend for the ProgressIndicator
+    class.
+
+    You can use it to paint a circular, endlessly animated progress indicator directly onto a
+    QPaintDevice, for example, if you want to show a progress indicator where you cannot use
+    a QWidget.
+
+    \inmodule Qt Creator
+*/
+
+/*!
+    \enum Utils::ProgressIndicatorSize
+
+    Size of a progress indicator.
+    \sa Utils::ProgressIndicator
+    \sa Utils::ProgressIndicatorPainter
+
+    \value Small
+           Small icon size. Useful for tool bars, status bars, rows in tree views,
+           and so on.
+    \value Medium
+           Larger progress indicator useful for covering whole medium sized widgets.
+    \value Large
+           Very large progress indicator that can be used to cover large parts of a UI.
+*/
+
+namespace {
+
+static QString imageFileNameForIndicatorSize(Utils::ProgressIndicatorSize size)
 {
     switch (size) {
-        case ProgressIndicator::Large:
-            return QLatin1String(":/utils/images/progressindicator_big.png");
-        case ProgressIndicator::Medium:
-            return QLatin1String(":/utils/images/progressindicator_medium.png");
-        case ProgressIndicator::Small:
-        default:
+    case Utils::ProgressIndicatorSize::Large:
+        return QLatin1String(":/utils/images/progressindicator_big.png");
+    case Utils::ProgressIndicatorSize::Medium:
+        return QLatin1String(":/utils/images/progressindicator_medium.png");
+    case Utils::ProgressIndicatorSize::Small:
+    default:
             return QLatin1String(":/utils/images/progressindicator_small.png");
     }
 }
 
-void ProgressIndicator::setIndicatorSize(ProgressIndicator::IndicatorSize size)
+} // namespace
+
+namespace Utils {
+
+/*!
+    Constructs a progress indicator painter for the indicator \a size.
+
+    \sa setUpdateCallback
+*/
+ProgressIndicatorPainter::ProgressIndicatorPainter(ProgressIndicatorSize size)
 {
-    m_size = size;
-    m_rotationStep = size == Small ? 45 : 30;
-    m_timer.setInterval(size == Small ? 100 : 80);
-    m_pixmap.load(StyleHelper::dpiSpecificImageFile(
-                      imageFileNameForIndicatorSize(size)));
-    updateGeometry();
+    m_timer.setSingleShot(false);
+    QObject::connect(&m_timer, &QTimer::timeout, [this]() {
+        nextAnimationStep();
+        if (m_callback)
+            m_callback();
+    });
+
+    setIndicatorSize(size);
 }
 
-ProgressIndicator::IndicatorSize ProgressIndicator::indicatorSize() const
+/*!
+    Changes the size of the progress indicator to \a size. Users of the class need
+    to adapt their painting or layouting code to the change in resulting pixel size.
+
+    \sa indicatorSize
+    \sa size
+*/
+void ProgressIndicatorPainter::setIndicatorSize(ProgressIndicatorSize size)
+{
+    m_size = size;
+    m_rotationStep = size == ProgressIndicatorSize::Small ? 45 : 30;
+    m_timer.setInterval(size == ProgressIndicatorSize::Small ? 100 : 80);
+    m_pixmap = Icon({{imageFileNameForIndicatorSize(size),
+                      Theme::PanelTextColorMid}}, Icon::Tint).pixmap();
+}
+
+/*!
+    Returns the current indicator size. Use \l size to get the resulting
+    pixel size.
+
+    \sa setIndicatorSize
+*/
+ProgressIndicatorSize ProgressIndicatorPainter::indicatorSize() const
 {
     return m_size;
 }
 
-QSize ProgressIndicator::sizeHint() const
+/*!
+    Sets the callback \a cb that is called whenever the progress indicator needs a repaint, because
+    its animation progressed. The callback is a void function taking no parameters, and should
+    usually trigger a QWidget::update on the widget that does the actual painting.
+*/
+void ProgressIndicatorPainter::setUpdateCallback(const UpdateCallback &cb)
+{
+    m_callback = cb;
+}
+
+/*!
+    Returns the size of the progress indicator in device independent pixels.
+
+    \sa setIndicatorSize
+    \sa paint
+*/
+QSize ProgressIndicatorPainter::size() const
 {
     return m_pixmap.size() / m_pixmap.devicePixelRatio();
 }
 
+/*!
+    Paints the progress indicator centered in the \a rect on the given \a painter.
+
+    \sa size
+*/
+void ProgressIndicatorPainter::paint(QPainter &painter, const QRect &rect) const
+{
+    painter.save();
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+    QPoint translate(rect.x() + rect.width() / 2, rect.y() + rect.height() / 2);
+    QTransform t;
+    t.translate(translate.x(), translate.y());
+    t.rotate(m_rotation);
+    t.translate(-translate.x(), -translate.y());
+    painter.setTransform(t);
+    QSize pixmapUserSize(m_pixmap.size() / m_pixmap.devicePixelRatio());
+    painter.drawPixmap(QPoint(rect.x() + ((rect.width() - pixmapUserSize.width()) / 2),
+                              rect.y() + ((rect.height() - pixmapUserSize.height()) / 2)),
+                 m_pixmap);
+    painter.restore();
+}
+
+/*!
+    Starts the progress indicator animation.
+
+    \sa setUpdateCallback
+    \sa stopAnimation
+*/
+void ProgressIndicatorPainter::startAnimation()
+{
+    QTC_ASSERT(m_callback, return);
+    m_timer.start();
+}
+
+/*!
+    Stops the progress indicator animation.
+
+    \sa setUpdateCallback
+    \sa startAnimation
+*/
+void ProgressIndicatorPainter::stopAnimation()
+{
+    m_timer.stop();
+}
+
+/*!
+    \internal
+*/
+void Utils::ProgressIndicatorPainter::nextAnimationStep()
+{
+    m_rotation = (m_rotation + m_rotationStep + 360) % 360;
+}
+
+/*!
+    Constructs a ProgressIndicator of the size \a size and with the parent \a parent.
+
+    Use \l attachToWidget to make the progress indicator automatically resize and center on the
+    parent widget.
+
+    \sa attachToWidget
+    \sa setIndicatorSize
+*/
+ProgressIndicator::ProgressIndicator(ProgressIndicatorSize size, QWidget *parent)
+    : QWidget(parent), m_paint(size)
+{
+    setAttribute(Qt::WA_TransparentForMouseEvents);
+    m_paint.setUpdateCallback([this]() { update(); });
+    updateGeometry();
+}
+
+/*!
+    Changes the size of the progress indicator to \a size.
+
+    \sa indicatorSize
+*/
+void ProgressIndicator::setIndicatorSize(ProgressIndicatorSize size)
+{
+    m_paint.setIndicatorSize(size);
+    updateGeometry();
+}
+
+/*!
+    Returns the size of the indicator in device independent pixels.
+
+    \sa indicatorSize
+*/
+QSize ProgressIndicator::sizeHint() const
+{
+    return m_paint.size();
+}
+
+/*!
+    Makes the indicator a child of \a parent, automatically centering on it,
+    and adapting to size changes.
+*/
 void ProgressIndicator::attachToWidget(QWidget *parent)
 {
     if (parentWidget())
@@ -87,32 +262,34 @@ void ProgressIndicator::attachToWidget(QWidget *parent)
     raise();
 }
 
+/*!
+    \internal
+*/
 void ProgressIndicator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    p.setRenderHint(QPainter::SmoothPixmapTransform);
-    QPoint translate(rect().width() / 2, rect().height() / 2);
-    QTransform t;
-    t.translate(translate.x(), translate.y());
-    t.rotate(m_rotation);
-    t.translate(-translate.x(), -translate.y());
-    p.setTransform(t);
-    QSize pixmapUserSize(m_pixmap.size() / m_pixmap.devicePixelRatio());
-    p.drawPixmap(QPoint((rect().width() - pixmapUserSize.width()) / 2,
-                       (rect().height() - pixmapUserSize.height()) / 2),
-                 m_pixmap);
+    m_paint.paint(p, rect());
 }
 
+/*!
+    \internal
+*/
 void ProgressIndicator::showEvent(QShowEvent *)
 {
-    m_timer.start();
+    m_paint.startAnimation();
 }
 
+/*!
+    \internal
+*/
 void ProgressIndicator::hideEvent(QHideEvent *)
 {
-    m_timer.stop();
+    m_paint.stopAnimation();
 }
 
+/*!
+    \internal
+*/
 bool ProgressIndicator::eventFilter(QObject *obj, QEvent *ev)
 {
     if (obj == parent() && ev->type() == QEvent::Resize) {
@@ -121,15 +298,13 @@ bool ProgressIndicator::eventFilter(QObject *obj, QEvent *ev)
     return QWidget::eventFilter(obj, ev);
 }
 
-void ProgressIndicator::step()
-{
-    m_rotation = (m_rotation + m_rotationStep + 360) % 360;
-    update();
-}
-
+/*!
+    \internal
+*/
 void ProgressIndicator::resizeToParent()
 {
     QTC_ASSERT(parentWidget(), return);
     setGeometry(QRect(QPoint(0, 0), parentWidget()->size()));
 }
 
+} // namespace Utils

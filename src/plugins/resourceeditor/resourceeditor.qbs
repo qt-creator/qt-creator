@@ -18,7 +18,6 @@ Project {
         Group {
             name: "General"
             files: [
-                "resourceeditor.qrc",
                 "resourceeditorconstants.h",
                 "resourceeditorfactory.cpp", "resourceeditorfactory.h",
                 "resourceeditorplugin.cpp", "resourceeditorplugin.h",

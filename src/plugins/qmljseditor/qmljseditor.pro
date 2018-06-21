@@ -11,7 +11,6 @@ HEADERS += \
     qmlexpressionundercursor.h \
     qmljshighlighter.h \
     qmljshoverhandler.h \
-    qmljspreviewrunner.h \
     qmljscomponentfromobjectdef.h \
     qmljsoutline.h \
     qmloutlinemodel.h \
@@ -22,7 +21,6 @@ HEADERS += \
     qmljscomponentnamedialog.h \
     qmljsfindreferences.h \
     qmljsautocompleter.h \
-    qmljssnippetprovider.h \
     qmljsreuse.h \
     qmljsquickfixassist.h \
     qmljscompletionassist.h \
@@ -31,7 +29,8 @@ HEADERS += \
     qmljssemantichighlighter.h \
     qmljswrapinloader.h \
     qmljseditordocument.h \
-    qmljseditordocument_p.h
+    qmljseditordocument_p.h \
+    qmljstextmark.h
 
 SOURCES += \
     qmljseditor.cpp \
@@ -39,7 +38,6 @@ SOURCES += \
     qmlexpressionundercursor.cpp \
     qmljshighlighter.cpp \
     qmljshoverhandler.cpp \
-    qmljspreviewrunner.cpp \
     qmljscomponentfromobjectdef.cpp \
     qmljsoutline.cpp \
     qmloutlinemodel.cpp \
@@ -51,7 +49,6 @@ SOURCES += \
     qmljscomponentnamedialog.cpp \
     qmljsfindreferences.cpp \
     qmljsautocompleter.cpp \
-    qmljssnippetprovider.cpp \
     qmljsreuse.cpp \
     qmljsquickfixassist.cpp \
     qmljscompletionassist.cpp \
@@ -59,7 +56,8 @@ SOURCES += \
     qmljssemanticinfoupdater.cpp \
     qmljssemantichighlighter.cpp \
     qmljswrapinloader.cpp \
-    qmljseditordocument.cpp
+    qmljseditordocument.cpp \
+    qmljstextmark.cpp
 
 FORMS += \
     qmljseditingsettingspage.ui \

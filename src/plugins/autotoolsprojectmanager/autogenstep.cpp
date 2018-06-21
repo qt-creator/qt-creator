@@ -50,53 +50,21 @@ using namespace ProjectExplorer;
 const char AUTOGEN_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.AutogenStep.AdditionalArguments";
 const char AUTOGEN_STEP_ID[] = "AutotoolsProjectManager.AutogenStep";
 
-/////////////////////////////
-// AutogenStepFactory class
-/////////////////////////////
-AutogenStepFactory::AutogenStepFactory(QObject *parent) : IBuildStepFactory(parent)
-{ }
 
-QList<BuildStepInfo> AutogenStepFactory::availableSteps(BuildStepList *parent) const
+// AutogenStepFactory
+
+AutogenStepFactory::AutogenStepFactory()
 {
-    if (parent->target()->project()->id() != Constants::AUTOTOOLS_PROJECT_ID
-            || parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        return {};
-
-    QString display = tr("Autogen", "Display name for AutotoolsProjectManager::AutogenStep id.");
-    return {{ AUTOGEN_STEP_ID, display }};
+    registerStep<AutogenStep>(AUTOGEN_STEP_ID);
+    setDisplayName(AutogenStep::tr("Autogen", "Display name for AutotoolsProjectManager::AutogenStep id."));
+    setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
 }
 
-BuildStep *AutogenStepFactory::create(BuildStepList *parent, Core::Id id)
-{
-    Q_UNUSED(id)
-    return new AutogenStep(parent);
-}
 
-BuildStep *AutogenStepFactory::clone(BuildStepList *parent, BuildStep *source)
-{
-    return new AutogenStep(parent, static_cast<AutogenStep *>(source));
-}
+// AutogenStep
 
-////////////////////////
-// AutogenStep class
-////////////////////////
-AutogenStep::AutogenStep(BuildStepList *bsl) : AbstractProcessStep(bsl, Core::Id(AUTOGEN_STEP_ID))
-{
-    ctor();
-}
-
-AutogenStep::AutogenStep(BuildStepList *bsl, Core::Id id) : AbstractProcessStep(bsl, id)
-{
-    ctor();
-}
-
-AutogenStep::AutogenStep(BuildStepList *bsl, AutogenStep *bs) : AbstractProcessStep(bsl, bs),
-    m_additionalArguments(bs->additionalArguments())
-{
-    ctor();
-}
-
-void AutogenStep::ctor()
+AutogenStep::AutogenStep(BuildStepList *bsl) : AbstractProcessStep(bsl, AUTOGEN_STEP_ID)
 {
     setDefaultDisplayName(tr("Autogen"));
 }
@@ -110,7 +78,7 @@ bool AutogenStep::init(QList<const BuildStep *> &earlierSteps)
     pp->setEnvironment(bc->environment());
     const QString projectDir(bc->target()->project()->projectDirectory().toString());
     pp->setWorkingDirectory(projectDir);
-    pp->setCommand(QLatin1String("./autogen.sh"));
+    pp->setCommand("./autogen.sh");
     pp->setArguments(additionalArguments());
     pp->resolveAll();
 
@@ -123,9 +91,9 @@ void AutogenStep::run(QFutureInterface<bool> &fi)
 
     // Check whether we need to run autogen.sh
     const QString projectDir(bc->target()->project()->projectDirectory().toString());
-    const QFileInfo configureInfo(projectDir + QLatin1String("/configure"));
-    const QFileInfo configureAcInfo(projectDir + QLatin1String("/configure.ac"));
-    const QFileInfo makefileAmInfo(projectDir + QLatin1String("/Makefile.am"));
+    const QFileInfo configureInfo(projectDir + "/configure");
+    const QFileInfo configureAcInfo(projectDir + "/configure.ac");
+    const QFileInfo makefileAmInfo(projectDir + "/Makefile.am");
 
     if (!configureInfo.exists()
         || configureInfo.lastModified() < configureAcInfo.lastModified()
@@ -134,7 +102,7 @@ void AutogenStep::run(QFutureInterface<bool> &fi)
     }
 
     if (!m_runAutogen) {
-        emit addOutput(tr("Configuration unchanged, skipping autogen step."), BuildStep::MessageOutput);
+        emit addOutput(tr("Configuration unchanged, skipping autogen step."), BuildStep::OutputFormat::NormalMessage);
         reportRunResult(fi, true);
         return;
     }
@@ -173,13 +141,13 @@ QVariantMap AutogenStep::toMap() const
 {
     QVariantMap map(AbstractProcessStep::toMap());
 
-    map.insert(QLatin1String(AUTOGEN_ADDITIONAL_ARGUMENTS_KEY), m_additionalArguments);
+    map.insert(AUTOGEN_ADDITIONAL_ARGUMENTS_KEY, m_additionalArguments);
     return map;
 }
 
 bool AutogenStep::fromMap(const QVariantMap &map)
 {
-    m_additionalArguments = map.value(QLatin1String(AUTOGEN_ADDITIONAL_ARGUMENTS_KEY)).toString();
+    m_additionalArguments = map.value(AUTOGEN_ADDITIONAL_ARGUMENTS_KEY).toString();
 
     return BuildStep::fromMap(map);
 }
@@ -226,7 +194,7 @@ void AutogenStepConfigWidget::updateDetails()
     param.setEnvironment(bc->environment());
     const QString projectDir(bc->target()->project()->projectDirectory().toString());
     param.setWorkingDirectory(projectDir);
-    param.setCommand(QLatin1String("./autogen.sh"));
+    param.setCommand("./autogen.sh");
     param.setArguments(m_autogenStep->additionalArguments());
     m_summaryText = param.summary(displayName());
     emit updateSummary();

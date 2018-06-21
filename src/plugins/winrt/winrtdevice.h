@@ -45,6 +45,7 @@ public:
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     void fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
+    Utils::OsType osType() const override;
     ProjectExplorer::IDevice::Ptr clone() const override;
 
     static QString displayNameForType(Core::Id type);
@@ -54,6 +55,9 @@ protected:
     WinRtDevice();
     WinRtDevice(Core::Id type, MachineType machineType, Core::Id internalId, int deviceId);
     WinRtDevice(const WinRtDevice &other);
+
+private:
+    void initFreePorts();
 
 private:
     int m_deviceId;

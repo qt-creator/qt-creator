@@ -38,8 +38,6 @@ extern const char DEVICE_ID_ID[];
 class AddDeviceOperation : public Operation
 {
 public:
-    AddDeviceOperation();
-
     QString name() const;
     QString helpText() const;
     QString argumentsHelpText() const;
@@ -75,7 +73,7 @@ private:
                                          int sshPort, int timeout, const QString &uname, int version,
                                          const KeyValuePairList &extra);
 
-    int m_authentication;
+    int m_authentication = -1;
     QString m_b2q_platformHardware;
     QString m_b2q_platformSoftware;
     QString m_debugServer;
@@ -84,13 +82,13 @@ private:
     QString m_id;
     QString m_keyFile;
     QString m_displayName;
-    int m_origin;
+    int m_origin = 1;
     QString m_osType;
     QString m_password;
-    int m_sshPort;
-    int m_timeout;
-    int m_type;
+    int m_sshPort = 0;
+    int m_timeout = 5;
+    int m_type = -1;
     QString m_uname;
-    int m_version;
+    int m_version = 0;
     KeyValuePairList m_extra;
 };

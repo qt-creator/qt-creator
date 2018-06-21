@@ -1,3 +1,8 @@
+#include <windows.h>
+
+#define STRINGIFY1(x) #x
+#define STRINGIFY(x) STRINGIFY1(x)
+
 IDI_ICON1               ICON    DISCARDABLE     "qtcreator.ico"
 IDI_ICON2               ICON    DISCARDABLE     "winicons/c.ico"
 IDI_ICON3               ICON    DISCARDABLE     "winicons/cpp.ico"
@@ -6,3 +11,25 @@ IDI_ICON5               ICON    DISCARDABLE     "winicons/ui.ico"
 IDI_ICON6               ICON    DISCARDABLE     "winicons/pro.ico"
 IDI_ICON7               ICON    DISCARDABLE     "winicons/pri.ico"
 IDI_ICON8               ICON    DISCARDABLE     "winicons/qml.ico"
+
+VS_VERSION_INFO VERSIONINFO
+    FILEVERSION    RC_VERSION
+    PRODUCTVERSION RC_VERSION
+{
+    BLOCK "StringFileInfo"
+    {
+       // U.S. English - Windows, Multilingual
+       BLOCK "040904E4"
+       {
+          VALUE "FileDescription", "Qt Creator"
+          VALUE "FileVersion", STRINGIFY(RC_VERSION_STRING)
+          VALUE "ProductName", "Qt Creator"
+          VALUE "ProductVersion", STRINGIFY(RC_VERSION_STRING)
+          VALUE "LegalCopyright", STRINGIFY(RC_COPYRIGHT)
+        }
+    }
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x409, 1252 // 1252 = 0x04E4
+    }
+}

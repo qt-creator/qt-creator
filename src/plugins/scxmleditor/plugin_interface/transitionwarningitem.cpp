@@ -45,7 +45,7 @@ void TransitionWarningItem::check()
 {
     if (m_parentItem) {
         if (m_parentItem->targetType() == TransitionItem::ExternalNoTarget) {
-            setReason(tr("Not Connected (%1)").arg(m_parentItem->tagValue("event")));
+            setReason(tr("Not connected (%1).").arg(m_parentItem->tagValue("event")));
             setWarningActive(true);
         } else
             setWarningActive(false);
