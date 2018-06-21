@@ -1373,7 +1373,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiUserOsFlavor()
         osFlavorMap.insert(i, Abi::flavorsForOs(static_cast<ProjectExplorer::Abi::OS>(i)));
 
      Abi::OSFlavor osFlavor = Abi::registerOsFlavor({static_cast<Abi::OS>(os)}, osFlavorName);
-     QCOMPARE(osFlavor, expectedFlavor);
+     QCOMPARE(osFlavor, static_cast<Abi::OSFlavor>(expectedFlavor));
 
      for (int i = 0; i <= Abi::UnknownOS; ++i) {
          const QList<Abi::OSFlavor> flavors = Abi::flavorsForOs(static_cast<Abi::OS>(i));
