@@ -72,7 +72,7 @@ const EditorFactoryList IEditorFactory::editorFactories(const QString &fileName,
     }
     // open text files > 48 MB in binary editor
     if (fileInfo.size() > EditorManager::maxTextFileSize()
-            && mimeType.name().startsWith("text")) {
+            && mimeType.inherits("text/plain")) {
         mimeType = Utils::mimeTypeForName("application/octet-stream");
     }
 
