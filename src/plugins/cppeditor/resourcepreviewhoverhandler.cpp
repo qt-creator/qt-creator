@@ -200,14 +200,12 @@ QString ResourcePreviewHoverHandler::makeTooltip() const
     QString ret;
 
     const Utils::MimeType mimeType = Utils::mimeTypeForFile(m_resPath);
-    if (mimeType.isValid()) {
-        if (mimeType.name().startsWith("image", Qt::CaseInsensitive))
-            ret += QString("<img src=\"file:///%1\" /><br/>").arg(m_resPath);
+    if (mimeType.name().startsWith("image", Qt::CaseInsensitive))
+        ret += QString("<img src=\"file:///%1\" /><br/>").arg(m_resPath);
 
-        ret += QString("<a href=\"file:///%1\">%2</a>")
-                .arg(m_resPath)
-                .arg(QDir::toNativeSeparators(m_resPath));
-    }
+    ret += QString("<a href=\"file:///%1\">%2</a>")
+            .arg(m_resPath)
+            .arg(QDir::toNativeSeparators(m_resPath));
     return ret;
 }
 

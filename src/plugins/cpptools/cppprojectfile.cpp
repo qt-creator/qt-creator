@@ -51,8 +51,6 @@ ProjectFile::Kind ProjectFile::classify(const QString &filePath)
         return AmbiguousHeader;
 
     const Utils::MimeType mimeType = Utils::mimeTypeForFile(filePath);
-    if (!mimeType.isValid())
-        return Unsupported;
     const QString mt = mimeType.name();
     if (mt == QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE))
         return CSource;

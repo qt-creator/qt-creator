@@ -795,15 +795,10 @@ void MainWindow::openFile()
 static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fileFactories,
                                      const QFileInfo &fi)
 {
-    const MimeType mt = Utils::mimeTypeForFile(fi);
-    if (mt.isValid()) {
-        const QString typeName = mt.name();
-        foreach (IDocumentFactory *factory, fileFactories) {
-            if (factory->mimeTypes().contains(typeName))
-                return factory;
-        }
-    }
-    return 0;
+    const QString typeName = Utils::mimeTypeForFile(fi).name();
+    return Utils::findOrDefault(fileFactories, [typeName](IDocumentFactory *f) {
+        return f->mimeTypes().contains(typeName);
+    });
 }
 
 /*! Either opens \a fileNames with editors or loads a project.

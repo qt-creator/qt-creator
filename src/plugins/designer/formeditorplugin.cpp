@@ -160,8 +160,6 @@ static QString otherFile()
     if (current.isEmpty())
         return QString();
     const Utils::MimeType currentMimeType = Utils::mimeTypeForFile(current);
-    if (!currentMimeType.isValid())
-        return QString();
     // Determine potential suffixes of candidate files
     // 'ui' -> 'cpp', 'cpp/h' -> 'ui'.
     QStringList candidateSuffixes;

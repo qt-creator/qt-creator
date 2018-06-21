@@ -1819,36 +1819,31 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
         }
 
         Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
-        if (mt.isValid()) {
-            if (ProjectManager::canOpenProjectForMimeType(mt)) {
-                if (!QFileInfo(filePath).isFile()) {
-                    appendError(errorString,
-                                tr("Failed opening project \"%1\": Project is not a file.").arg(fileName));
-                } else if (Project *pro = ProjectManager::openProject(mt, Utils::FileName::fromString(filePath))) {
-                    QObject::connect(pro, &Project::parsingFinished, [pro]() {
-                        emit SessionManager::instance()->projectFinishedParsing(pro);
-                    });
-                    QString restoreError;
-                    Project::RestoreResult restoreResult = pro->restoreSettings(&restoreError);
-                    if (restoreResult == Project::RestoreResult::Ok) {
-                        connect(pro, &Project::fileListChanged,
-                                m_instance, &ProjectExplorerPlugin::fileListChanged);
-                        SessionManager::addProject(pro);
-                        openedPro += pro;
-                    } else {
-                        if (restoreResult == Project::RestoreResult::Error)
-                            appendError(errorString, restoreError);
-                        delete pro;
-                    }
+        if (ProjectManager::canOpenProjectForMimeType(mt)) {
+            if (!QFileInfo(filePath).isFile()) {
+                appendError(errorString,
+                            tr("Failed opening project \"%1\": Project is not a file.").arg(fileName));
+            } else if (Project *pro = ProjectManager::openProject(mt, Utils::FileName::fromString(filePath))) {
+                QObject::connect(pro, &Project::parsingFinished, [pro]() {
+                    emit SessionManager::instance()->projectFinishedParsing(pro);
+                });
+                QString restoreError;
+                Project::RestoreResult restoreResult = pro->restoreSettings(&restoreError);
+                if (restoreResult == Project::RestoreResult::Ok) {
+                    connect(pro, &Project::fileListChanged,
+                            m_instance, &ProjectExplorerPlugin::fileListChanged);
+                    SessionManager::addProject(pro);
+                    openedPro += pro;
+                } else {
+                    if (restoreResult == Project::RestoreResult::Error)
+                        appendError(errorString, restoreError);
+                    delete pro;
                 }
-            } else {
-                appendError(errorString, tr("Failed opening project \"%1\": No plugin can open project type \"%2\".")
-                            .arg(QDir::toNativeSeparators(fileName))
-                            .arg(mt.name()));
             }
         } else {
-            appendError(errorString, tr("Failed opening project \"%1\": Unknown project type.")
-                        .arg(QDir::toNativeSeparators(fileName)));
+            appendError(errorString, tr("Failed opening project \"%1\": No plugin can open project type \"%2\".")
+                        .arg(QDir::toNativeSeparators(fileName))
+                        .arg(mt.name()));
         }
         if (fileNames.size() > 1)
             SessionManager::reportProjectLoadingProgress();

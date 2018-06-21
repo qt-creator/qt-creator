@@ -65,11 +65,6 @@ const EditorFactoryList IEditorFactory::editorFactories(const QString &fileName,
     const QFileInfo fileInfo(fileName);
     // Find by mime type
     Utils::MimeType mimeType = Utils::mimeTypeForFile(fileInfo);
-    if (!mimeType.isValid()) {
-        qWarning("%s unable to determine mime type of %s. Falling back to text/plain",
-                 Q_FUNC_INFO, fileName.toUtf8().constData());
-        mimeType = Utils::mimeTypeForName("text/plain");
-    }
     // open text files > 48 MB in binary editor
     if (fileInfo.size() > EditorManager::maxTextFileSize()
             && mimeType.inherits("text/plain")) {

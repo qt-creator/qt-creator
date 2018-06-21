@@ -70,8 +70,7 @@ void FilePropertiesDialog::refresh()
         m_ui->name->setText(fileInfo.fileName());
         m_ui->path->setText(fileInfo.canonicalPath());
 
-        const Utils::MimeType mt = Utils::mimeTypeForFile(fileInfo);
-        m_ui->mimeType->setText(mt.isValid() ? mt.name() : tr("Undefined"));
+        m_ui->mimeType->setText(Utils::mimeTypeForFile(fileInfo).name());
 
         const Core::EditorFactoryList factories = Core::IEditorFactory::editorFactories(m_fileName);
         m_ui->defaultEditor->setText(!factories.isEmpty() ? factories.at(0)->displayName() : tr("Undefined"));

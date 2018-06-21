@@ -936,10 +936,7 @@ void EditorManagerPrivate::showPopupOrSelectDocument()
 Id EditorManagerPrivate::getOpenWithEditorId(const QString &fileName, bool *isExternalEditor)
 {
     // Collect editors that can open the file
-    Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
-    //Unable to determine mime type of fileName. Falling back to text/plain",
-    if (!mt.isValid())
-        mt = Utils::mimeTypeForName("text/plain");
+    const Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
     QList<Id> allEditorIds;
     QStringList allEditorDisplayNames;
     QList<Id> externalEditorIds;
@@ -2470,37 +2467,33 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
 
     menu->clear();
 
-    bool anyMatches = false;
-
     const Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
-    if (mt.isValid()) {
-        const EditorFactoryList factories = IEditorFactory::editorFactories(mt, false);
-        const ExternalEditorList extEditors = IExternalEditor::externalEditors(mt);
-        anyMatches = !factories.empty() || !extEditors.empty();
-        if (anyMatches) {
-            // Add all suitable editors
-            foreach (IEditorFactory *editorFactory, factories) {
-                Core::Id editorId = editorFactory->id();
-                // Add action to open with this very editor factory
-                QString const actionTitle = editorFactory->displayName();
-                QAction *action = menu->addAction(actionTitle);
-                // Below we need QueuedConnection because otherwise, if a qrc file
-                // is inside of a qrc file itself, and the qrc editor opens the Open with menu,
-                // crashes happen, because the editor instance is deleted by openEditorWith
-                // while the menu is still being processed.
-                connect(action, &QAction::triggered, d,
-                        [fileName, editorId]() {
-                            EditorManagerPrivate::openEditorWith(fileName, editorId);
-                        }, Qt::QueuedConnection);
-            }
-            // Add all suitable external editors
-            foreach (IExternalEditor *externalEditor, extEditors) {
-                QAction *action = menu->addAction(externalEditor->displayName());
-                Core::Id editorId = externalEditor->id();
-                connect(action, &QAction::triggered, [fileName, editorId]() {
-                    EditorManager::openExternalEditor(fileName, editorId);
-                });
-            }
+    const EditorFactoryList factories = IEditorFactory::editorFactories(mt, false);
+    const ExternalEditorList extEditors = IExternalEditor::externalEditors(mt);
+    const bool anyMatches = !factories.empty() || !extEditors.empty();
+    if (anyMatches) {
+        // Add all suitable editors
+        foreach (IEditorFactory *editorFactory, factories) {
+            Core::Id editorId = editorFactory->id();
+            // Add action to open with this very editor factory
+            QString const actionTitle = editorFactory->displayName();
+            QAction *action = menu->addAction(actionTitle);
+            // Below we need QueuedConnection because otherwise, if a qrc file
+            // is inside of a qrc file itself, and the qrc editor opens the Open with menu,
+            // crashes happen, because the editor instance is deleted by openEditorWith
+            // while the menu is still being processed.
+            connect(action, &QAction::triggered, d,
+                    [fileName, editorId]() {
+                        EditorManagerPrivate::openEditorWith(fileName, editorId);
+                    }, Qt::QueuedConnection);
+        }
+        // Add all suitable external editors
+        foreach (IExternalEditor *externalEditor, extEditors) {
+            QAction *action = menu->addAction(externalEditor->displayName());
+            Core::Id editorId = externalEditor->id();
+            connect(action, &QAction::triggered, [fileName, editorId]() {
+                EditorManager::openExternalEditor(fileName, editorId);
+            });
         }
     }
     menu->setEnabled(anyMatches);
