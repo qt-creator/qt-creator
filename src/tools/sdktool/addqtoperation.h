@@ -46,7 +46,8 @@ public:
 
     static QVariantMap addQt(const QVariantMap &map,
                              const QString &id, const QString &displayName, const QString &type,
-                             const QString &qmake, const KeyValuePairList &extra);
+                             const QString &qmake, const KeyValuePairList &extra,
+                             const QStringList &abis);
 
     static QVariantMap initializeQtVersions();
 
@@ -58,5 +59,6 @@ private:
     QString m_displayName;
     QString m_type;
     QString m_qmake;
+    QStringList m_abis;
     KeyValuePairList m_extra;
 };

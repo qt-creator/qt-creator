@@ -103,10 +103,11 @@ bool RmQtOperation::test() const
 
     map = AddQtOperation::addQt(map, QLatin1String("testId"), QLatin1String("name"), QLatin1String("type"),
                                 QLatin1String("/tmp/test"),
-                                KeyValuePairList() << KeyValuePair(QLatin1String("ExtraKey"), QVariant(QLatin1String("ExtraValue"))));
+                                KeyValuePairList() << KeyValuePair(QLatin1String("ExtraKey"), QVariant(QLatin1String("ExtraValue"))),
+                                QStringList());
     map = AddQtOperation::addQt(map, QLatin1String("testId2"), QLatin1String("other name"),  QLatin1String("type"),
                                 QLatin1String("/tmp/test2"),
-                                KeyValuePairList());
+                                KeyValuePairList(), QStringList());
 
     result = rmQt(map, QLatin1String("nonexistant"));
     if (result != map)

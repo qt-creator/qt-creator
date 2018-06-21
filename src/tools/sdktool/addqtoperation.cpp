@@ -46,6 +46,7 @@ const char ID[] = "Id";
 const char DISPLAYNAME[] = "Name";
 const char AUTODETECTED[] = "isAutodetected";
 const char AUTODETECTION_SOURCE[] = "autodetectionSource";
+const char ABIS[] = "Abis";
 const char QMAKE[] = "QMakePath";
 const char TYPE[] = "QtVersion.Type";
 
@@ -72,6 +73,7 @@ QString AddQtOperation::argumentsHelpText() const
                          "    --name <NAME>                              display name of the new Qt version. (required)\n"
                          "    --qmake <PATH>                             path to qmake. (required)\n"
                          "    --type <TYPE>                              type of Qt version to add. (required)\n"
+                         "    --abis <ABI>(,<ABI>)*                      ABIs of Qt version (leave out for auto-detection!)\n"
                          "    <KEY> <TYPE:VALUE>                         extra key value pairs\n");
 }
 
@@ -121,6 +123,16 @@ bool AddQtOperation::setArguments(const QStringList &args)
             continue;
         }
 
+        if (current == "--abis") {
+            if (next.isNull()) {
+                std::cerr << "Error parsing after --abis." << std::endl << std::endl;
+                return false;
+            }
+            ++i; // skip next;
+            m_abis = next.split(',');
+            continue;
+        }
+
         if (next.isNull()) {
             std::cerr << "Unknown parameter: " << qPrintable(current) << std::endl << std::endl;
             return false;
@@ -155,7 +167,7 @@ int AddQtOperation::execute() const
     if (map.isEmpty())
         map = initializeQtVersions();
 
-    QVariantMap result = addQt(map, m_id, m_displayName, m_type, m_qmake, m_extra);
+    QVariantMap result = addQt(map, m_id, m_displayName, m_type, m_qmake, m_extra, m_abis);
 
     if (result.isEmpty() || result == map)
         return 2;
@@ -176,11 +188,13 @@ bool AddQtOperation::test() const
 #if defined Q_OS_WIN
     map = addQt(map, QLatin1String("{some-qt-id}"), QLatin1String("Test Qt Version"), QLatin1String("testType"),
                 QLatin1String("/tmp//../tmp/test\\qmake"),
-                KeyValuePairList() << KeyValuePair(QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))));
+                KeyValuePairList() << KeyValuePair(QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))),
+                QStringList());
 #else
     map = addQt(map, QLatin1String("{some-qt-id}"), QLatin1String("Test Qt Version"), QLatin1String("testType"),
                 QLatin1String("/tmp//../tmp/test/qmake"),
-                KeyValuePairList() << KeyValuePair(QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))));
+                KeyValuePairList() << KeyValuePair(QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))),
+                QStringList());
 #endif
 
     if (map.count() != 2
@@ -190,7 +204,7 @@ bool AddQtOperation::test() const
         return false;
 
     QVariantMap version0 = map.value(QLatin1String("QtVersion.0")).toMap();
-    if (version0.count() != 7
+    if (version0.count() != 8
             || !version0.contains(QLatin1String(ID))
             || version0.value(QLatin1String(ID)).toInt() != -1
             || !version0.contains(QLatin1String(DISPLAYNAME))
@@ -201,6 +215,8 @@ bool AddQtOperation::test() const
             || version0.value(QLatin1String(AUTODETECTION_SOURCE)).toString() != QLatin1String("SDK.{some-qt-id}")
             || !version0.contains(QLatin1String(TYPE))
             || version0.value(QLatin1String(TYPE)).toString() != QLatin1String("testType")
+            || !version0.contains(QLatin1String(ABIS))
+            || version0.value(QLatin1String(ABIS)).toStringList() != QStringList()
             || !version0.contains(QLatin1String(QMAKE))
             || version0.value(QLatin1String(QMAKE)).toString() != QLatin1String("/tmp/test/qmake")
             || !version0.contains(QLatin1String("extraData"))
@@ -210,14 +226,16 @@ bool AddQtOperation::test() const
     // Ignore existing ids:
     QVariantMap result = addQt(map, QLatin1String("{some-qt-id}"), QLatin1String("Test Qt Version2"), QLatin1String("testType2"),
                                QLatin1String("/tmp/test/qmake2"),
-                               KeyValuePairList() << KeyValuePair(QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))));
+                               KeyValuePairList() << KeyValuePair(QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))),
+                               QStringList());
     if (!result.isEmpty())
         return false;
 
     // Make sure name is unique:
     map = addQt(map, QLatin1String("testId2"), QLatin1String("Test Qt Version"), QLatin1String("testType3"),
-                   QLatin1String("/tmp/test/qmake2"),
-                   KeyValuePairList() << KeyValuePair(QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))));
+                QLatin1String("/tmp/test/qmake2"),
+                KeyValuePairList() << KeyValuePair(QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))),
+                QStringList());
     if (map.count() != 3
             || !map.contains(QLatin1String(VERSION))
             || map.value(QLatin1String(VERSION)).toInt() != 1
@@ -229,7 +247,7 @@ bool AddQtOperation::test() const
         return false;
 
     QVariantMap version1 = map.value(QLatin1String("QtVersion.1")).toMap();
-    if (version1.count() != 7
+    if (version1.count() != 8
             || !version1.contains(QLatin1String(ID))
             || version1.value(QLatin1String(ID)).toInt() != -1
             || !version1.contains(QLatin1String(DISPLAYNAME))
@@ -240,6 +258,8 @@ bool AddQtOperation::test() const
             || version1.value(QLatin1String(AUTODETECTION_SOURCE)).toString() != QLatin1String("SDK.testId2")
             || !version1.contains(QLatin1String(TYPE))
             || version1.value(QLatin1String(TYPE)).toString() != QLatin1String("testType3")
+            || !version1.contains(QLatin1String(ABIS))
+            || version1.value(QLatin1String(ABIS)).toStringList() != QStringList()
             || !version1.contains(QLatin1String(QMAKE))
             || version1.value(QLatin1String(QMAKE)).toString() != QLatin1String("/tmp/test/qmake2")
             || !version1.contains(QLatin1String("extraData"))
@@ -252,7 +272,8 @@ bool AddQtOperation::test() const
 
 QVariantMap AddQtOperation::addQt(const QVariantMap &map,
                                   const QString &id, const QString &displayName, const QString &type,
-                                  const QString &qmake, const KeyValuePairList &extra)
+                                  const QString &qmake, const KeyValuePairList &extra,
+                                  const QStringList &abis)
 {
     QString sdkId = extendId(id);
 
@@ -293,6 +314,7 @@ QVariantMap AddQtOperation::addQt(const QVariantMap &map,
     data << KeyValuePair(QStringList() << qt << QLatin1String(AUTODETECTION_SOURCE), QVariant(sdkId));
     data << KeyValuePair(QStringList() << qt << QLatin1String(QMAKE), QVariant(saneQmake));
     data << KeyValuePair(QStringList() << qt << QLatin1String(TYPE), QVariant(type));
+    data << KeyValuePair(QStringList() << qt << ABIS, QVariant(abis));
 
     KeyValuePairList qtExtraList;
     foreach (const KeyValuePair &pair, extra)
@@ -322,10 +344,8 @@ bool AddQtOperation::exists(const QVariantMap &map, const QString &id)
     // Sanity check: Make sure autodetection source is not in use already:
     QStringList valueKeys = FindValueOperation::findValue(map, sdkId);
     foreach (const QString &k, valueKeys) {
-        if (k.endsWith(QString(QLatin1Char('/')) + QLatin1String(AUTODETECTION_SOURCE))) {
+        if (k.endsWith(QString(QLatin1Char('/')) + QLatin1String(AUTODETECTION_SOURCE)))
             return true;
-            break;
-        }
     }
     return false;
 }

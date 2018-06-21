@@ -318,7 +318,7 @@ bool AddKitOperation::test() const
 
     QVariantMap qtMap = AddQtOperation::initializeQtVersions();
     qtMap = AddQtOperation::addQt(qtMap, "{qt-id}", "Qt", "desktop-qt", "/usr/bin/qmake",
-                                  KeyValuePairList());
+                                  KeyValuePairList(), {});
 
     QVariantMap devMap = AddDeviceOperation::initializeDevices();
     devMap = AddDeviceOperation::addDevice(devMap, "{dev-id}", "Dev", 0, 0,

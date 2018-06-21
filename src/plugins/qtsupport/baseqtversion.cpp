@@ -74,6 +74,8 @@ static const char QTVERSION_OVERRIDE_FEATURES[] = "overrideFeatures";
 static const char QTVERSIONQMAKEPATH[] = "QMakePath";
 static const char QTVERSIONSOURCEPATH[] = "SourcePath";
 
+static const char QTVERSION_ABIS[] = "Abis";
+
 static const char MKSPEC_VALUE_LIBINFIX[] = "QT_LIBINFIX";
 static const char MKSPEC_VALUE_NAMESPACE[] = "QT_NAMESPACE";
 
@@ -502,6 +504,12 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
 
     m_qtSources = Utils::FileName::fromUserInput(
                 map.value(QTVERSIONSOURCEPATH).toString());
+
+    // Handle ABIs provided by the SDKTool:
+    // Note: Creator does not write these settings itself, so it has to come from the SDKTool!
+    m_qtAbis = Utils::transform(map.value(QTVERSION_ABIS, QStringList()).toStringList(), &Abi::fromString);
+    m_qtAbis = Utils::filtered(m_qtAbis, &Abi::isValid);
+    m_hasQtAbis = !m_qtAbis.isEmpty();
 
     QFileInfo fi(string);
     if (BuildableHelperLibrary::isQtChooser(fi)) {
