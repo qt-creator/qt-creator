@@ -154,6 +154,7 @@ void TestRunner::scheduleNext()
     QTC_ASSERT(!m_selectedTests.isEmpty(), onFinished(); return);
     QTC_ASSERT(!m_currentConfig && !m_currentProcess, resetInternalPointers());
     QTC_ASSERT(m_fakeFutureInterface, onFinished(); return);
+    QTC_ASSERT(!m_canceled, onFinished(); return);
 
     m_currentConfig = m_selectedTests.dequeue();
 
@@ -215,10 +216,16 @@ void TestRunner::scheduleNext()
 
 void TestRunner::cancelCurrent(TestRunner::CancelReason reason)
 {
+    m_canceled = true;
     if (reason == UserCanceled) {
         // when using the stop button we need to report, for progress bar this happens automatically
         if (m_fakeFutureInterface && !m_fakeFutureInterface->isCanceled())
             m_fakeFutureInterface->reportCanceled();
+    } else if (reason == KitChanged) {
+        if (m_fakeFutureInterface)
+            m_fakeFutureInterface->reportCanceled();
+        emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
+                tr("Current kit has changed. Canceling test run."))));
     }
     if (m_currentProcess && m_currentProcess->state() != QProcess::NotRunning) {
         m_currentProcess->kill();
@@ -279,6 +286,7 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
     }
 
     m_executingTests = true;
+    m_canceled = false;
     emit testRunStarted();
 
     // clear old log and output pane
@@ -300,6 +308,9 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
         onFinished();
         return;
     }
+
+    m_targetConnect = connect(project, &ProjectExplorer::Project::activeTargetChanged,
+                              [this]() { cancelCurrent(KitChanged); });
 
     if (!projectExplorerSettings.buildBeforeDeploy || mode == TestRunMode::DebugWithoutDeploy
             || mode == TestRunMode::RunWithoutDeploy) {
@@ -386,9 +397,13 @@ int TestRunner::precheckTestConfigurations()
 void TestRunner::runTests()
 {
     QList<TestConfiguration *> toBeRemoved;
+    bool projectChanged = false;
     for (TestConfiguration *config : m_selectedTests) {
         config->completeTestInformation(TestRunMode::Run);
-        if (!config->hasExecutable()) {
+        if (!config->project()) {
+            projectChanged = true;
+            toBeRemoved.append(config);
+        } else if (!config->hasExecutable()) {
             if (auto rc = getRunConfiguration(firstTestCaseTarget(config)))
                 config->setOriginalRunConfiguration(rc);
             else
@@ -400,8 +415,10 @@ void TestRunner::runTests()
     qDeleteAll(toBeRemoved);
     toBeRemoved.clear();
     if (m_selectedTests.isEmpty()) {
-        emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
-                tr("No test cases left for execution. Canceling test run."))));
+        QString mssg = projectChanged ? tr("Startup project has changed. Canceling test run.")
+                                      : tr("No test cases left for execution. Canceling test run.");
+
+        emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageWarn, mssg)));
         onFinished();
         return;
     }
@@ -454,6 +471,12 @@ void TestRunner::debugTests()
 
     TestConfiguration *config = m_selectedTests.first();
     config->completeTestInformation(TestRunMode::Debug);
+    if (!config->project()) {
+        emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
+            TestRunner::tr("Startup project has changed. Canceling test run."))));
+        onFinished();
+        return;
+    }
     if (!config->hasExecutable()) {
         if (auto *rc = getRunConfiguration(firstTestCaseTarget(config)))
             config->completeTestInformation(rc, TestRunMode::Debug);
@@ -573,7 +596,10 @@ void TestRunner::buildFinished(bool success)
                this, &TestRunner::buildFinished);
 
     if (success) {
-        runOrDebugTests();
+        if (!m_canceled)
+            runOrDebugTests();
+        else if (m_executingTests)
+            onFinished();
     } else {
         emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
                                                   tr("Build failed. Canceling test run."))));
@@ -587,6 +613,7 @@ void TestRunner::onFinished()
     qDeleteAll(m_selectedTests);
     m_selectedTests.clear();
 
+    disconnect(m_targetConnect);
     m_fakeFutureInterface = nullptr;
     m_executingTests = false;
     emit testRunFinished();

@@ -75,12 +75,14 @@ void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguratio
                                                 TestRunMode runMode)
 {
     QTC_ASSERT(rc, return);
+    QTC_ASSERT(m_project, return);
+
     if (hasExecutable()) {
         qCDebug(LOG) << "Executable has been set already - not completing configuration again.";
         return;
     }
     Project *project = SessionManager::startupProject();
-    if (!project)
+    if (!project || project != m_project)
         return;
 
     Target *target = project->activeTarget();
@@ -94,7 +96,6 @@ void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguratio
 
     m_runnable = rc->runnable();
     m_displayName = rc->displayName();
-    m_project = rc->project();
 
     const QString buildKey = rc->buildKey();
     BuildTargetInfo targetInfo = target->applicationTargets().buildTargetInfo(buildKey);
@@ -116,6 +117,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
 {
     QTC_ASSERT(!m_projectFile.isEmpty(), return);
     QTC_ASSERT(!m_buildTargets.isEmpty(), return);
+    QTC_ASSERT(m_project, return);
 
     if (m_origRunConfig) {
         qCDebug(LOG) << "Using run configuration specified by user or found by first call";
@@ -129,8 +131,10 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
         qCDebug(LOG) << "Failed to complete - using 'normal' way.";
     }
     Project *project = SessionManager::startupProject();
-    if (!project)
+    if (!project || project != m_project) {
+        m_project = nullptr;
         return;
+    }
 
     Target *target = project->activeTarget();
     if (!target)
@@ -204,7 +208,6 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
             m_runnable = runnable;
             m_runnable.executable = currentExecutable;
             m_displayName = runConfig->displayName();
-            m_project = project;
             if (runMode == TestRunMode::Debug || runMode == TestRunMode::DebugWithoutDeploy)
                 m_runConfig = new TestRunConfiguration(runConfig->target(), this);
             break;
@@ -224,7 +227,6 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
             if (isLocal(rc)) { // FIXME for now only Desktop support
                 const Runnable runnable = rc->runnable();
                 m_runnable.environment = runnable.environment;
-                m_project = project;
                 m_guessedConfiguration = true;
                 m_guessedFrom = rc->displayName();
                 if (runMode == TestRunMode::Debug)
