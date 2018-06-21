@@ -769,4 +769,4 @@ QString SynchronousProcess::locateBinary(const QString &binary)
 
 } // namespace Utils
 
-#include "synchronousprocess.moc"
+#include ".moc/release-shared/synchronousprocess.moc"

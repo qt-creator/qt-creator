@@ -1037,4 +1037,4 @@ bool WizardProgressItem::titleWordWrap() const
 
 } // namespace Utils
 
-#include "wizard.moc"
+#include ".moc/release-shared/wizard.moc"

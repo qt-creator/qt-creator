@@ -272,7 +272,7 @@ bool WidgetTip::equals(int typeId, const QVariant &other, const QString &otherHe
 }
 
 // need to include it here to force it to be inside the namespaces
-#include "moc_tips.cpp"
+#include "../.moc/release-shared/moc_tips.cpp"
 
 } // namespace Internal
 } // namespace Utils

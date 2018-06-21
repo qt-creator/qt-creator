@@ -455,4 +455,4 @@ QModelIndexList ItemViewEvent::currentOrSelectedRows() const
 
 } // namespace Utils
 
-#include "basetreeview.moc"
+#include ".moc/release-shared/basetreeview.moc"

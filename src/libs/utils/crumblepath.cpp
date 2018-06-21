@@ -426,4 +426,4 @@ void CrumblePath::emitElementClicked()
 
 } // namespace Utils
 
-#include "crumblepath.moc"
+#include ".moc/release-shared/crumblepath.moc"

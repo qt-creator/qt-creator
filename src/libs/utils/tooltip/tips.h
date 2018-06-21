@@ -32,6 +32,7 @@
 #include <QSharedPointer>
 #include <QVariant>
 #include <QVBoxLayout>
+#include <QWidget>
 
 #ifndef Q_MOC_RUN
 namespace Utils {
