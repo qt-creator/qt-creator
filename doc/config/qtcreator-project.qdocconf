@@ -54,8 +54,8 @@ include(qt-defines.qdocconf)
 sources.fileextensions         = "*.qdoc"
 
 qhp.projects            = QtCreator
-qhp.QtCreator.file             = $IDE_ID.qhp
-qhp.QtCreator.namespace        = org.qt-project.$IDE_ID.$QTC_VERSION_TAG
+qhp.QtCreator.file             = qtcreator.qhp
+qhp.QtCreator.namespace        = org.qt-project.qtcreator.$QTC_VERSION_TAG
 qhp.QtCreator.virtualFolder    = doc
 qhp.QtCreator.indexTitle       = $IDE_DISPLAY_NAME Manual $QTC_VERSION
 qhp.QtCreator.filterAttributes = $IDE_ID $QTC_VERSION
