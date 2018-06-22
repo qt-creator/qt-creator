@@ -70,7 +70,7 @@ public:
         _message = Message(type, _location);
     }
 
-    virtual void visit(const NumberValue *value)
+    void visit(const NumberValue *value) override
     {
         if (const QmlEnumValue *enumValue = value_cast<QmlEnumValue>(value)) {
             if (StringLiteral *stringLiteral = cast<StringLiteral *>(_ast)) {
@@ -90,7 +90,7 @@ public:
         }
     }
 
-    virtual void visit(const BooleanValue *)
+    void visit(const BooleanValue *) override
     {
         UnaryMinusExpression *unaryMinus = cast<UnaryMinusExpression *>(_ast);
 
@@ -101,7 +101,7 @@ public:
         }
     }
 
-    virtual void visit(const StringValue *value)
+    void visit(const StringValue *value) override
     {
         UnaryMinusExpression *unaryMinus = cast<UnaryMinusExpression *>(_ast);
 
@@ -132,7 +132,7 @@ public:
         }
     }
 
-    virtual void visit(const ColorValue *)
+    void visit(const ColorValue *) override
     {
         if (StringLiteral *stringLiteral = cast<StringLiteral *>(_ast)) {
             if (!toQColor(stringLiteral->value.toString()).isValid())
@@ -142,7 +142,7 @@ public:
         }
     }
 
-    virtual void visit(const AnchorLineValue *)
+    void visit(const AnchorLineValue *) override
     {
         if (! (_rhsValue->asAnchorLineValue() || _rhsValue->asUnknownValue()))
             setMessage(ErrAnchorLineExpected);
@@ -189,7 +189,7 @@ protected:
         return _state;
     }
 
-    virtual bool preVisit(Node *ast)
+    bool preVisit(Node *ast) override
     {
         if (ast->expressionCast())
             return false;
@@ -204,7 +204,7 @@ protected:
         return false;
     }
 
-    virtual bool visit(LabelledStatement *ast)
+    bool visit(LabelledStatement *ast) override
     {
         // get the target statement
         Statement *end = ast->statement;
@@ -219,7 +219,7 @@ protected:
         return true;
     }
 
-    virtual bool visit(BreakStatement *ast)
+    bool visit(BreakStatement *ast) override
     {
         _state = Break;
         if (!ast->label.isEmpty()) {
@@ -232,12 +232,12 @@ protected:
     }
 
     // labelled continues don't change control flow...
-    virtual bool visit(ContinueStatement *) { _state = Continue; return false; }
+    bool visit(ContinueStatement *) override { _state = Continue; return false; }
 
-    virtual bool visit(ReturnStatement *) { _state = ReturnOrThrow; return false; }
-    virtual bool visit(ThrowStatement *) { _state = ReturnOrThrow; return false; }
+    bool visit(ReturnStatement *) override { _state = ReturnOrThrow; return false; }
+    bool visit(ThrowStatement *) override { _state = ReturnOrThrow; return false; }
 
-    virtual bool visit(IfStatement *ast)
+    bool visit(IfStatement *ast) override
     {
         State ok = check(ast->ok);
         State ko = check(ast->ko);
@@ -256,7 +256,7 @@ protected:
         }
     }
 
-    virtual bool visit(SwitchStatement *ast)
+    bool visit(SwitchStatement *ast) override
     {
         if (!ast->block)
             return false;
@@ -282,7 +282,7 @@ protected:
         return false;
     }
 
-    virtual bool visit(TryStatement *ast)
+    bool visit(TryStatement *ast) override
     {
         State tryBody = check(ast->statement);
         State catchBody = ReturnOrThrow;
@@ -303,13 +303,13 @@ protected:
         return false;
     }
 
-    virtual bool visit(WhileStatement *ast) { return preconditionLoopStatement(ast, ast->statement); }
-    virtual bool visit(ForStatement *ast) { return preconditionLoopStatement(ast, ast->statement); }
-    virtual bool visit(ForEachStatement *ast) { return preconditionLoopStatement(ast, ast->statement); }
-    virtual bool visit(LocalForStatement *ast) { return preconditionLoopStatement(ast, ast->statement); }
-    virtual bool visit(LocalForEachStatement *ast) { return preconditionLoopStatement(ast, ast->statement); }
+    bool visit(WhileStatement *ast) override { return preconditionLoopStatement(ast, ast->statement); }
+    bool visit(ForStatement *ast) override { return preconditionLoopStatement(ast, ast->statement); }
+    bool visit(ForEachStatement *ast) override { return preconditionLoopStatement(ast, ast->statement); }
+    bool visit(LocalForStatement *ast) override { return preconditionLoopStatement(ast, ast->statement); }
+    bool visit(LocalForEachStatement *ast) override { return preconditionLoopStatement(ast, ast->statement); }
 
-    virtual bool visit(DoWhileStatement *ast)
+    bool visit(DoWhileStatement *ast) override
     {
         check(ast->statement);
         // not necessarily an infinite loop due to labelled breaks
@@ -335,7 +335,7 @@ public:
     }
 
 protected:
-    virtual State check(Node *node)
+    State check(Node *node) override
     {
         bool oldwarning = _emittedWarning;
         _emittedWarning = false;
@@ -344,7 +344,7 @@ protected:
         return s;
     }
 
-    virtual void onUnreachable(Node *node)
+    void onUnreachable(Node *node) override
     {
         if (_emittedWarning)
             return;

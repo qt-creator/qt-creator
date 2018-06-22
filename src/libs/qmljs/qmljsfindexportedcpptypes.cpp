@@ -119,7 +119,7 @@ public:
     }
 
 protected:
-    virtual bool visit(CompoundStatementAST *ast)
+    bool visit(CompoundStatementAST *ast) override
     {
         CompoundStatementAST *old = _compound;
         _compound = ast;
@@ -128,7 +128,7 @@ protected:
         return false;
     }
 
-    virtual bool visit(CallAST *ast)
+    bool visit(CallAST *ast) override
     {
         if (checkForQmlRegisterType(ast))
             return false;
