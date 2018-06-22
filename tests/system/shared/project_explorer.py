@@ -85,7 +85,7 @@ def prepareBuildSettings(targetCount, currentTarget, setReleaseBuild=True, disab
 def switchToBuildOrRunSettingsFor(targetCount, currentTarget, projectSettings):
     def kitIsActivated(kit):
         return not (str(kit.toolTip).startswith("<h3>Click to activate:</h3>")
-                    or str(kit.toolTip).startswith("<h3>Kit is unsuited for Project</h3>"))
+                    or str(kit.toolTip).startswith("<h3>Kit is unsuited for project</h3>"))
 
     try:
         treeView = waitForObject(":Projects.ProjectNavigationTreeView")
