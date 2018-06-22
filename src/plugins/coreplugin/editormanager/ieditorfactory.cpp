@@ -52,15 +52,15 @@ const EditorFactoryList IEditorFactory::allEditorFactories()
     return g_editorFactories;
 }
 
-const EditorFactoryList IEditorFactory::editorFactories(const Utils::MimeType &mimeType, bool bestMatchOnly)
+const EditorFactoryList IEditorFactory::editorFactories(const Utils::MimeType &mimeType)
 {
     EditorFactoryList rc;
     const EditorFactoryList allFactories = IEditorFactory::allEditorFactories();
-    Internal::mimeTypeFactoryLookup(mimeType, allFactories, bestMatchOnly, &rc);
+    Internal::mimeTypeFactoryLookup(mimeType, allFactories, &rc);
     return rc;
 }
 
-const EditorFactoryList IEditorFactory::editorFactories(const QString &fileName, bool bestMatchOnly)
+const EditorFactoryList IEditorFactory::editorFactories(const QString &fileName)
 {
     const QFileInfo fileInfo(fileName);
     // Find by mime type
@@ -71,7 +71,7 @@ const EditorFactoryList IEditorFactory::editorFactories(const QString &fileName,
         mimeType = Utils::mimeTypeForName("application/octet-stream");
     }
 
-    return IEditorFactory::editorFactories(mimeType, bestMatchOnly);
+    return IEditorFactory::editorFactories(mimeType);
 }
 
 

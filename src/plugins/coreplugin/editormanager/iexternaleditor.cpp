@@ -77,7 +77,7 @@ const ExternalEditorList IExternalEditor::externalEditors(const Utils::MimeType 
 {
     ExternalEditorList rc;
     const ExternalEditorList allEditors = IExternalEditor::allExternalEditors();
-    Internal::mimeTypeFactoryLookup(mimeType, allEditors, /*bestmatchonly=*/false, &rc);
+    Internal::mimeTypeFactoryLookup(mimeType, allEditors, &rc);
     return rc;
 }
 

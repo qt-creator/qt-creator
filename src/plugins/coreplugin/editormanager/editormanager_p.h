@@ -284,7 +284,6 @@ private:
 template <class EditorFactoryLike>
 static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
                                      const QList<EditorFactoryLike*> &allFactories,
-                                     bool firstMatchOnly,
                                      QList<EditorFactoryLike*> *list)
 {
     QSet<EditorFactoryLike *> matches;
@@ -305,8 +304,6 @@ static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
                 foreach (const QString &mimeName, factory->mimeTypes()) {
                     if (mt.matchesName(mimeName)) {
                         list->append(factory);
-                        if (firstMatchOnly)
-                            return;
                         matches.insert(factory);
                     }
                 }

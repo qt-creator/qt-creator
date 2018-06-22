@@ -941,7 +941,7 @@ Id EditorManagerPrivate::getOpenWithEditorId(const QString &fileName, bool *isEx
     QStringList allEditorDisplayNames;
     QList<Id> externalEditorIds;
     // Built-in
-    const EditorFactoryList editors = IEditorFactory::editorFactories(mt, false);
+    const EditorFactoryList editors = IEditorFactory::editorFactories(mt);
     const int size = editors.size();
     allEditorDisplayNames.reserve(size);
     for (int i = 0; i < size; i++) {
@@ -1127,7 +1127,7 @@ EditorFactoryList EditorManagerPrivate::findFactories(Id editorId, const QString
 
     EditorFactoryList factories;
     if (!editorId.isValid()) {
-        factories = IEditorFactory::editorFactories(fileName, false);
+        factories = IEditorFactory::editorFactories(fileName);
     } else {
         // Find by editor id
         IEditorFactory *factory = Utils::findOrDefault(IEditorFactory::allEditorFactories(),
@@ -2468,7 +2468,7 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
     menu->clear();
 
     const Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
-    const EditorFactoryList factories = IEditorFactory::editorFactories(mt, false);
+    const EditorFactoryList factories = IEditorFactory::editorFactories(mt);
     const ExternalEditorList extEditors = IExternalEditor::externalEditors(mt);
     const bool anyMatches = !factories.empty() || !extEditors.empty();
     if (anyMatches) {
