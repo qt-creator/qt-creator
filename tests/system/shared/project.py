@@ -548,6 +548,8 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
             result.extend([Targets.DESKTOP_5_6_1_DEFAULT, Targets.DESKTOP_5_10_1_DEFAULT])
             if platform.system() != 'Darwin':
                 result.append(Targets.DESKTOP_5_4_1_GCC)
+            if templateName == "Qt Widgets Application":
+                result.remove(Targets.DESKTOP_4_8_7_DEFAULT)
     elif 'Platform independent' in text:
         result = Targets.desktopTargetClasses()
     else:
