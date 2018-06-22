@@ -63,12 +63,26 @@ namespace QtSupport
 {
 class QtConfigWidget;
 
+class BaseQtVersion;
+
+// Wrapper to make the std::unique_ptr<Utils::MacroExpander> "copyable":
+class MacroExpanderWrapper
+{
+public:
+    MacroExpanderWrapper() = default;
+    MacroExpanderWrapper(const MacroExpanderWrapper &other) { Q_UNUSED(other); }
+    MacroExpanderWrapper(MacroExpanderWrapper &&other) = default;
+
+    Utils::MacroExpander *macroExpander(const BaseQtVersion *qtversion) const;
+private:
+    mutable std::unique_ptr<Utils::MacroExpander> m_expander;
+};
+
 class QTSUPPORT_EXPORT QtVersionNumber
 {
 public:
-    QtVersionNumber(int ma, int mi, int p);
+    QtVersionNumber(int ma = -1, int mi = -1, int p = -1);
     QtVersionNumber(const QString &versionString);
-    QtVersionNumber();
 
     QSet<Core::Id> features() const;
 
@@ -232,8 +246,8 @@ public:
     QStringList qtConfigValues() const;
 
     Utils::MacroExpander *macroExpander() const; // owned by the Qt version
-    static std::unique_ptr<Utils::MacroExpander> createMacroExpander(
-        const std::function<BaseQtVersion *()> &qtVersion);
+    static std::unique_ptr<Utils::MacroExpander>
+    createMacroExpander(const std::function<const BaseQtVersion *()> &qtVersion);
 
     static void populateQmlFileFinder(Utils::FileInProjectFinder *finder,
                                       const ProjectExplorer::Target *target);
@@ -256,9 +270,6 @@ protected:
 
 private:
     void setAutoDetectionSource(const QString &autodetectionSource);
-    static int getUniqueId();
-    void ctor(const Utils::FileName &qmakePath);
-    void setupExpander();
     void updateSourcePath() const;
     void updateVersionInfo() const;
     enum HostBinaries { Designer, Linguist, Uic, QScxmlc };
@@ -278,22 +289,22 @@ private:
     void setId(int id); // used by the qtversionmanager for legacy restore
                         // and by the qtoptionspage to replace Qt versions
 
-    int m_id;
+    int m_id = -1;
 
-    bool m_isAutodetected;
-    mutable bool m_hasQmlDump;         // controlled by m_versionInfoUpToDate
-    mutable bool m_mkspecUpToDate;
-    mutable bool m_mkspecReadUpToDate;
-    mutable bool m_defaultConfigIsDebug;
-    mutable bool m_defaultConfigIsDebugAndRelease;
-    mutable bool m_frameworkBuild;
-    mutable bool m_versionInfoUpToDate;
-    mutable bool m_installed;
-    mutable bool m_hasExamples;
-    mutable bool m_hasDemos;
-    mutable bool m_hasDocumentation;
-    mutable bool m_qmakeIsExecutable;
-    mutable bool m_hasQtAbis;
+    bool m_isAutodetected = false;
+    mutable bool m_hasQmlDump = false;         // controlled by m_versionInfoUpToDate
+    mutable bool m_mkspecUpToDate = false;
+    mutable bool m_mkspecReadUpToDate = false;
+    mutable bool m_defaultConfigIsDebug = true;
+    mutable bool m_defaultConfigIsDebugAndRelease = true;
+    mutable bool m_frameworkBuild = false;
+    mutable bool m_versionInfoUpToDate = false;
+    mutable bool m_installed = true;
+    mutable bool m_hasExamples = false;
+    mutable bool m_hasDemos = false;
+    mutable bool m_hasDocumentation = false;
+    mutable bool m_qmakeIsExecutable = true;
+    mutable bool m_hasQtAbis = false;
 
     mutable QStringList m_configValues;
     mutable QStringList m_qtConfigValues;
@@ -320,7 +331,7 @@ private:
 
     mutable QList<ProjectExplorer::Abi> m_qtAbis;
 
-    std::unique_ptr<Utils::MacroExpander> m_expander;
+    MacroExpanderWrapper m_expander;
 };
 }
 
