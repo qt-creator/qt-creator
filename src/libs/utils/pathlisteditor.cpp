@@ -70,7 +70,7 @@ class PathListPlainTextEdit : public QPlainTextEdit {
 public:
     explicit PathListPlainTextEdit(QWidget *parent = 0);
 protected:
-    virtual void insertFromMimeData (const QMimeData *source);
+    void insertFromMimeData (const QMimeData *source) override;
 };
 
 PathListPlainTextEdit::PathListPlainTextEdit(QWidget *parent) :

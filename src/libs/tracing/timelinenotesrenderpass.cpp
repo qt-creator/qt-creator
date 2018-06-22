@@ -220,12 +220,12 @@ class NotesMaterialShader : public QSGMaterialShader
 public:
     NotesMaterialShader();
 
-    virtual void updateState(const RenderState &state, QSGMaterial *newEffect,
-                             QSGMaterial *oldEffect);
-    virtual char const *const *attributeNames() const;
+    void updateState(const RenderState &state, QSGMaterial *newEffect,
+                     QSGMaterial *oldEffect) override;
+    char const *const *attributeNames() const override;
 
 private:
-    virtual void initialize();
+    void initialize() override;
 
     int m_matrix_id;
     int m_z_range_id;

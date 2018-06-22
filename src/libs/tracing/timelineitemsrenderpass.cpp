@@ -342,7 +342,7 @@ void TimelineItemsGeometry::updateCurrentNode(float itemRight, float itemTop)
 class TimelineExpandedRowNode : public QSGNode {
 public:
     TimelineItemsMaterial material;
-    virtual ~TimelineExpandedRowNode() {}
+    ~TimelineExpandedRowNode() override {}
 };
 
 static qint64 startTime(const TimelineModel *model, const TimelineRenderState *parentState, int i)
@@ -436,12 +436,12 @@ class TimelineItemsMaterialShader : public QSGMaterialShader
 public:
     TimelineItemsMaterialShader();
 
-    virtual void updateState(const RenderState &state, QSGMaterial *newEffect,
-                             QSGMaterial *oldEffect);
-    virtual char const *const *attributeNames() const;
+    void updateState(const RenderState &state, QSGMaterial *newEffect,
+                     QSGMaterial *oldEffect) override;
+    char const *const *attributeNames() const override;
 
 private:
-    virtual void initialize();
+    void initialize() override;
 
     int m_matrix_id;
     int m_scale_id;
