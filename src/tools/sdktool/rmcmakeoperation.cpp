@@ -97,6 +97,7 @@ bool RmCMakeOperation::test() const
 {
     // Add cmakes:
     QVariantMap map = AddCMakeOperation::initializeCMake();
+    const QVariantMap emptyMap = map;
     map = AddCMakeOperation::addCMake(map, "testId", "name", "/tmp/test",
                                       KeyValuePairList({KeyValuePair("ExtraKey", QVariant("ExtraValue"))}));
     map = AddCMakeOperation::addCMake(map, "testId2", "other name", "/tmp/test2", KeyValuePairList());
@@ -109,21 +110,25 @@ bool RmCMakeOperation::test() const
     if (result != map)
         return false;
 
+    // Remove from map with both testId and testId2:
     result = rmCMake(map, "testId2");
     if (result == map
             || result.value(COUNT, 0).toInt() != 1
-            || !result.contains("CMake.0") || result.value("CMake.0") != map.value("CMake.0"))
+            || !result.contains(QString::fromLatin1(PREFIX) + "0")
+            || result.value(QString::fromLatin1(PREFIX) + "0") != map.value(QString::fromLatin1(PREFIX) + "0"))
         return false;
 
+    // Remove from map with both testId and testId2:
     result = rmCMake(map, "testId");
     if (result == map
             || result.value(COUNT, 0).toInt() != 1
-            || !result.contains("CMake.0") || result.value("CMake.0") != map.value("CMake.1"))
+            || !result.contains(QString::fromLatin1(PREFIX) + "0")
+            || result.value(QString::fromLatin1(PREFIX) + "0") != map.value(QString::fromLatin1(PREFIX) + "1"))
         return false;
 
+    // Remove from map without testId!
     result = rmCMake(result, "testId2");
-    if (result == map
-            || result.value(COUNT, 0).toInt() != 0)
+    if (result != emptyMap)
         return false;
 
     return true;

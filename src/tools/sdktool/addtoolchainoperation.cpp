@@ -183,7 +183,7 @@ bool AddToolChainOperation::test() const
     QVariantMap tcData = map.value(QString::fromLatin1(PREFIX) + '0').toMap();
     if (tcData.count() != 8
             || tcData.value(ID).toString() != "testId"
-            || tcData.value(LANGUAGE_KEY).toString() != "langId"
+            || tcData.value(LANGUAGE_KEY_V2).toString() != "langId"
             || tcData.value(DISPLAYNAME).toString() != "name"
             || tcData.value(AUTODETECTED).toBool() != true
             || tcData.value(PATH).toString() != "/tmp/test"
@@ -209,7 +209,7 @@ bool AddToolChainOperation::test() const
     tcData = map.value(QString::fromLatin1(PREFIX) + '0').toMap();
     if (tcData.count() != 8
             || tcData.value(ID).toString() != "testId"
-            || tcData.value(LANGUAGE_KEY).toString() != "langId"
+            || tcData.value(LANGUAGE_KEY_V2).toString() != "langId"
             || tcData.value(DISPLAYNAME).toString() != "name"
             || tcData.value(AUTODETECTED).toBool() != true
             || tcData.value(PATH).toString() != "/tmp/test"
@@ -220,7 +220,7 @@ bool AddToolChainOperation::test() const
     tcData = map.value(QString::fromLatin1(PREFIX) + '1').toMap();
         if (tcData.count() != 8
                 || tcData.value(ID).toString() != "{some-tc-id}"
-                || tcData.value(LANGUAGE_KEY).toString() != "langId2"
+                || tcData.value(LANGUAGE_KEY_V2).toString() != "langId2"
                 || tcData.value(DISPLAYNAME).toString() != "name2"
                 || tcData.value(AUTODETECTED).toBool() != true
                 || tcData.value(PATH).toString() != "/tmp/test"

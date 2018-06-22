@@ -143,7 +143,7 @@ bool AddCMakeOperation::test() const
             || !map.contains(QString::fromLatin1(PREFIX) + '0'))
         return false;
     QVariantMap cmData = map.value(QString::fromLatin1(PREFIX) + '0').toMap();
-    if (cmData.count() != 8
+    if (cmData.count() != 5
             || cmData.value(ID_KEY).toString() != "testId"
             || cmData.value(DISPLAYNAME_KEY).toString() != "name"
             || cmData.value(AUTODETECTED_KEY).toBool() != true
@@ -165,7 +165,7 @@ bool AddCMakeOperation::test() const
             || !map.contains(QString::fromLatin1(PREFIX) + '1'))
         return false;
     cmData = map.value(QString::fromLatin1(PREFIX) + '0').toMap();
-    if (cmData.count() != 8
+    if (cmData.count() != 5
             || cmData.value(ID_KEY).toString() != "testId"
             || cmData.value(DISPLAYNAME_KEY).toString() != "name"
             || cmData.value(AUTODETECTED_KEY).toBool() != true
@@ -173,7 +173,7 @@ bool AddCMakeOperation::test() const
             || cmData.value("ExtraKey").toString() != "ExtraValue")
         return false;
     cmData = map.value(QString::fromLatin1(PREFIX) + '1').toMap();
-        if (cmData.count() != 8
+        if (cmData.count() != 5
                 || cmData.value(ID_KEY).toString() != "{some-cm-id}"
                 || cmData.value(DISPLAYNAME_KEY).toString() != "name2"
                 || cmData.value(AUTODETECTED_KEY).toBool() != true
