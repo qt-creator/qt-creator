@@ -81,9 +81,8 @@ class MimeTypeSettingsModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    MimeTypeSettingsModel(QObject *parent = 0)
+    MimeTypeSettingsModel(QObject *parent = nullptr)
         : QAbstractTableModel(parent) {}
-    virtual ~MimeTypeSettingsModel() {}
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -93,8 +92,10 @@ public:
 
     void load();
 
+    QString handlerForMimeType(const Utils::MimeType &mimeType) const;
+
     QList<Utils::MimeType> m_mimeTypes;
-    QHash<QString, QString> m_handlersByMimeType;
+    mutable QHash<Utils::MimeType, QString> m_handlersByMimeType;
 };
 
 int MimeTypeSettingsModel::rowCount(const QModelIndex &) const
@@ -125,11 +126,11 @@ QVariant MimeTypeSettingsModel::data(const QModelIndex &modelIndex, int role) co
 
     const int column = modelIndex.column();
     if (role == Qt::DisplayRole) {
-        const QString &type = m_mimeTypes.at(modelIndex.row()).name();
+        const Utils::MimeType &type = m_mimeTypes.at(modelIndex.row());
         if (column == 0)
-            return type;
+            return type.name();
         else
-            return m_handlersByMimeType.value(type);
+            return handlerForMimeType(type);
     }
     return QVariant();
 }
@@ -141,13 +142,18 @@ void MimeTypeSettingsModel::load()
     Utils::sort(m_mimeTypes, [](const Utils::MimeType &a, const Utils::MimeType &b) {
         return a.name().compare(b.name(), Qt::CaseInsensitive) < 0;
     });
+    m_handlersByMimeType.clear();
+    endResetModel();
+}
 
-    foreach (const Utils::MimeType &mimeType, m_mimeTypes) {
+QString MimeTypeSettingsModel::handlerForMimeType(const Utils::MimeType &mimeType) const
+{
+    if (!m_handlersByMimeType.contains(mimeType)) {
         const QList<IEditorFactory *> factories = IEditorFactory::editorFactories(mimeType);
         const QString value = factories.isEmpty() ? "" : factories.front()->displayName();
-        m_handlersByMimeType.insert(mimeType.name(), value);
+        m_handlersByMimeType.insert(mimeType, value);
     }
-    endResetModel();
+    return m_handlersByMimeType.value(mimeType);
 }
 
 // MimeTypeSettingsPrivate
