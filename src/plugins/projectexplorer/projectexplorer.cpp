@@ -31,6 +31,7 @@
 #include "customwizard/customwizard.h"
 #include "deployablefile.h"
 #include "deployconfiguration.h"
+#include "extraabi.h"
 #include "gcctoolchainfactories.h"
 #ifdef WITH_JOURNALD
 #include "journaldwatcher.h"
@@ -1624,6 +1625,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
 bool ProjectExplorerPlugin::delayedInitialize()
 {
     dd->determineSessionToRestoreAtStartup();
+    ExtraAbi::load(); // Load this before Toolchains!
     DeviceManager::instance()->load();
     ToolChainManager::restoreToolChains();
     dd->m_kitManager->restoreKits();

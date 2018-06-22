@@ -63,6 +63,7 @@ Project {
                 "environmentaspectwidget.cpp", "environmentaspectwidget.h",
                 "environmentwidget.cpp", "environmentwidget.h",
                 "expanddata.cpp", "expanddata.h",
+                "extraabi.cpp", "extraabi.h",
                 "extracompiler.cpp", "extracompiler.h",
                 "foldernavigationwidget.cpp", "foldernavigationwidget.h",
                 "gccparser.cpp", "gccparser.h",

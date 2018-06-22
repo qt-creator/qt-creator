@@ -12,6 +12,7 @@ HEADERS += projectexplorer.h \
     configtaskhandler.h \
     environmentaspect.h \
     environmentaspectwidget.h \
+    extraabi.h \
     gcctoolchain.h \
     importwidget.h \
     userfileaccessor.h \
@@ -161,6 +162,7 @@ SOURCES += projectexplorer.cpp \
     configtaskhandler.cpp \
     environmentaspect.cpp \
     environmentaspectwidget.cpp \
+    extraabi.cpp \
     gcctoolchain.cpp \
     importwidget.cpp \
     projectconfigurationmodel.cpp \
