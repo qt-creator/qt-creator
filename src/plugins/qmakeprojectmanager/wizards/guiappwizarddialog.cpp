@@ -84,6 +84,7 @@ QtProjectParameters GuiAppWizardDialog::projectParameters() const
     rc.path = path();
     rc.selectedModules = selectedModulesList();
     rc.deselectedModules = deselectedModulesList();
+    rc.qtVersionSupport = QtProjectParameters::SupportQt5Only;
     return rc;
 }
 
