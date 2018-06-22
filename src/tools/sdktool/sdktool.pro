@@ -10,6 +10,7 @@ win32: LIBS += -luser32 -lshell32
 
 SOURCES += \
     main.cpp \
+    addabiflavor.cpp \
     addcmakeoperation.cpp \
     adddebuggeroperation.cpp \
     adddeviceoperation.cpp \
@@ -36,6 +37,7 @@ SOURCES += \
     $$UTILS/savefile.cpp \
 
 HEADERS += \
+    addabiflavor.h \
     addcmakeoperation.h \
     adddebuggeroperation.h \
     adddeviceoperation.h \

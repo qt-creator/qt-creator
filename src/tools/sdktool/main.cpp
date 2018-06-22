@@ -30,6 +30,7 @@
 #include "addcmakeoperation.h"
 #include "adddebuggeroperation.h"
 #include "adddeviceoperation.h"
+#include "addabiflavor.h"
 #include "addkeysoperation.h"
 #include "addkitoperation.h"
 #include "addqtoperation.h"
@@ -180,6 +181,7 @@ int main(int argc, char *argv[])
     std::vector<std::unique_ptr<Operation>> operations;
     operations.emplace_back(std::make_unique<AddKeysOperation>());
 
+    operations.emplace_back(std::make_unique<AddAbiFlavor>());
     operations.emplace_back(std::make_unique<AddCMakeOperation>());
     operations.emplace_back(std::make_unique<AddDebuggerOperation>());
     operations.emplace_back(std::make_unique<AddDeviceOperation>());

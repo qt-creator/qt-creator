@@ -60,7 +60,7 @@ Utils::FileName Settings::getPath(const QString &file)
     const QString lowerFile = file.toLower();
     const QStringList identical
             = QStringList({ "android", "cmaketools", "debuggers", "devices",
-                            "profiles", "qtversions", "toolchains" });
+                            "profiles", "qtversions", "toolchains", "abi" });
     if (lowerFile == "cmake")
         result.appendPath("cmaketools");
     else if (lowerFile == "kits")
