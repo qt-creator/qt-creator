@@ -328,6 +328,9 @@ QVariant DiagnosticItem::data(int column, int role) const
 bool DiagnosticItem::setData(int column, const QVariant &data, int role)
 {
     if (column == DiagnosticView::FixItColumn && role == Qt::CheckStateRole) {
+        if (m_fixitStatus != FixitStatus::Scheduled && m_fixitStatus != FixitStatus::NotScheduled)
+            return false;
+
         const FixitStatus newStatus = data.value<Qt::CheckState>() == Qt::Checked
                                           ? FixitStatus::Scheduled
                                           : FixitStatus::NotScheduled;

@@ -700,7 +700,8 @@ static std::string dumplocalHelper(ExtensionCommandContext &exc,PCSTR args, int 
         return std::string();
     }
     std::wstring value;
-    if (!dumpSimpleType(n->asSymbolGroupNode(), SymbolGroupValueContext(exc.dataSpaces(), exc.symbols()), &value, &std::string())) {
+    std::string tmp;
+    if (!dumpSimpleType(n->asSymbolGroupNode(), SymbolGroupValueContext(exc.dataSpaces(), exc.symbols()), &value, &tmp)) {
         *errorMessage = "Cannot dump " + iname;
         return std::string();
     }

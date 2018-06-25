@@ -41,6 +41,8 @@ public:
         FixItColumn = LocationColumn + 1,
     };
 
+    void setSelectedFixItsCount(int fixItsCount);
+
 private:
     void suppressCurrentDiagnostic();
 
@@ -49,6 +51,7 @@ private:
     void setModel(QAbstractItemModel *model) override;
 
     QAction *m_suppressAction;
+    bool m_ignoreSetSelectedFixItsCount = false;
 };
 
 } // namespace Internal

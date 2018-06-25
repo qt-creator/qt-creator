@@ -323,6 +323,7 @@ bool GerritServer::resolveRoot()
             }
             break;
         default: // unknown error - fail
+            authenticated = false;
             return false;
         }
     }

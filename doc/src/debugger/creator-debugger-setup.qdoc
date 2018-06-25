@@ -75,7 +75,7 @@
 
     \section1 Supported Native Debugger Versions
 
-    Qt Creator supports native debuggers when working with compiled code. On
+    \QC supports native debuggers when working with compiled code. On
     most supported platforms, the GNU Symbolic Debugger GDB can be used. On
     Microsoft Windows, when using the Microsoft tool chain the Microsoft Console
     Debugger CDB, is needed. On \macos, the LLDB debugger can be used. Basic
@@ -195,7 +195,7 @@
     \note Visual Studio does not include the Debugging tools needed,
     and therefore, you must install them separately.
 
-    In addition, you must select \uicontrol {Qt Creator CDB Debugger Support}
+    In addition, you must select \uicontrol {\QC CDB Debugger Support}
     (in \uicontrol Qt > \uicontrol Tools > \uicontrol {\QC}) when you install
     Qt or the stand-alone \QC.
 
@@ -328,7 +328,7 @@
             codesign -f -s "fsfgdb" $INSTALL_LOCATION/fsfgdb
             \endcode
 
-        \li In \QC, select \uicontrol {Qt Creator} > \uicontrol Preferences >
+        \li In \QC, select \uicontrol {\QC} > \uicontrol Preferences >
             \uicontrol Kits > \uicontrol Add to
             create a kit that uses FSF GDB.
 

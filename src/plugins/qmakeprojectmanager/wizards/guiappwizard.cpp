@@ -78,7 +78,8 @@ GuiAppWizard::GuiAppWizard()
                   "Includes a Qt Designer-based main window.\n\n"
                   "Preselects a desktop Qt for building the application if available."));
     setIcon(QIcon(QLatin1String(":/wizards/images/gui.png")));
-    setRequiredFeatures({QtSupport::Constants::FEATURE_QWIDGETS});
+    auto qt5 = Core::Id::fromString(QString(QtSupport::Constants::FEATURE_QT_PREFIX).append(".5"));
+    setRequiredFeatures({QtSupport::Constants::FEATURE_QWIDGETS, qt5});
 }
 
 Core::BaseFileWizard *GuiAppWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
@@ -187,6 +188,7 @@ Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
         QTextStream proStr(&contents);
         QtProjectParameters::writeProFileHeader(proStr);
         projectParams.writeProFile(proStr);
+        proStr << "\nCONFIG += c++11"; // ensure all Qt5 versions can handle the source
         proStr << "\n\nSOURCES +="
                << " \\\n        " << Utils::FileName::fromString(mainSourceFileName).fileName()
                << " \\\n        " << Utils::FileName::fromString(formSource.path()).fileName()

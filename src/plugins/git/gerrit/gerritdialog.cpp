@@ -216,6 +216,23 @@ void GerritDialog::refresh()
     m_ui->treeView->sortByColumn(-1);
 }
 
+void GerritDialog::scheduleUpdateRemotes()
+{
+    if (isVisible())
+        updateRemotes();
+    else
+        m_shouldUpdateRemotes = true;
+}
+
+void GerritDialog::showEvent(QShowEvent *event)
+{
+    QDialog::showEvent(event);
+    if (m_shouldUpdateRemotes) {
+        m_shouldUpdateRemotes = false;
+        updateRemotes();
+    }
+}
+
 void GerritDialog::remoteChanged()
 {
     const GerritServer server = m_ui->remoteComboBox->currentServer();

@@ -132,7 +132,7 @@
 
     \QC creates the test in the specified project directory.
     For more information about creating Google tests, see the
-    \l{https://github.com/google/googletest/blob/master/googletest/docs/Primer.md}
+    \l{https://github.com/google/googletest/blob/master/googletest/docs/primer.md}
     {Google Test Primer}.
 
     \section1 Setting Up the Google C++ Testing Framework

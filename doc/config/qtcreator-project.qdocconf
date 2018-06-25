@@ -1,6 +1,6 @@
-project     = "QtCreator"
-description = "Qt Creator Manual"
-url         = http://doc.qt.io/qtcreator
+project     = "$IDE_DISPLAY_NAME"
+description = "$IDE_DISPLAY_NAME Manual"
+url         = http://doc.qt.io/$IDE_ID
 
 headerdirs =
 sourcedirs = ../src
@@ -54,17 +54,17 @@ include(qt-defines.qdocconf)
 sources.fileextensions         = "*.qdoc"
 
 qhp.projects            = QtCreator
-qhp.QtCreator.file             = qtcreator.qhp
-qhp.QtCreator.namespace        = org.qt-project.qtcreator.$QTC_VERSION_TAG
+qhp.QtCreator.file             = $IDE_ID.qhp
+qhp.QtCreator.namespace        = org.qt-project.$IDE_ID.$QTC_VERSION_TAG
 qhp.QtCreator.virtualFolder    = doc
-qhp.QtCreator.indexTitle       = Qt Creator Manual $QTC_VERSION
-qhp.QtCreator.filterAttributes = qtcreator $QTC_VERSION
-qhp.QtCreator.customFilters.QtCreator.name = Qt Creator $QTC_VERSION
-qhp.QtCreator.customFilters.QtCreator.filterAttributes = qtcreator $QTC_VERSION
+qhp.QtCreator.indexTitle       = $IDE_DISPLAY_NAME Manual $QTC_VERSION
+qhp.QtCreator.filterAttributes = $IDE_ID $QTC_VERSION
+qhp.QtCreator.customFilters.QtCreator.name = $IDE_DISPLAY_NAME $QTC_VERSION
+qhp.QtCreator.customFilters.QtCreator.filterAttributes = $IDE_ID $QTC_VERSION
 qhp.QtCreator.indexRoot        =
 
 qhp.QtCreator.subprojects = manual
-qhp.QtCreator.subprojects.manual.title = Qt Creator Manual
+qhp.QtCreator.subprojects.manual.title = $IDE_DISPLAY_NAME Manual
 qhp.QtCreator.subprojects.manual.indexTitle = All Topics
 qhp.QtCreator.subprojects.manual.type = manual
 
@@ -73,5 +73,5 @@ qhp.QtCreator.subprojects.manual.type = manual
 macro.see                       = "\\sa"
 macro.function                  = "\\fn"
 
-navigation.landingpage = "Qt Creator Manual"
-buildversion = "Qt Creator Manual $QTC_VERSION"
+navigation.landingpage = "$IDE_DISPLAY_NAME Manual"
+buildversion = "$IDE_DISPLAY_NAME Manual $QTC_VERSION"

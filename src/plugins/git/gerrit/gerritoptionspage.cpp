@@ -72,6 +72,7 @@ void GerritOptionsPage::apply()
                 newParameters.setPortFlagBySshType();
             *m_parameters = newParameters;
             m_parameters->toSettings(Core::ICore::settings());
+            emit settingsChanged();
         }
     }
 }

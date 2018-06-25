@@ -31,6 +31,7 @@ Editing
   behavior (QTCREATORBUG-9859, QTCREATORBUG-20061)
 * Fixed that extra editor windows were not restored when opening session
   (QTCREATORBUG-13840)
+* Fixed that editor could stay busy repainting annotations (QTCREATORBUG-20422)
 * FakeVim
     * Added `:<range>sor[t][!]`
 
@@ -55,6 +56,7 @@ QMake Projects
 * Added support for `-isystem` in `QMAKE_CXXFLAGS`
 * Added deployment rules for devices to widget and console application wizards
   (QTCREATORBUG-20358)
+* Fixed that arguments for QMake step did not expand variables
 
 C++ Support
 
@@ -94,6 +96,11 @@ QML Support
 Python Support
 
 * Added stack traces in application output to Issues pane (category `Python`)
+
+Debugging
+
+* QML
+    * Added support for nested properties (QTBUG-68474)
 
 Clang Static Analyzer
 
@@ -141,9 +148,11 @@ Android
 * Improved behavior when emulator cannot be started (QTCREATORBUG-20160)
 
 Credits for these changes go to:  
+Aaron Barany  
 Aleix Pol  
 Alessandro Portale  
 Alexander Drozdov  
+Alexandru Croitor  
 Andre Hartmann  
 André Pönitz  
 Antonio Di Monaco  
@@ -155,13 +164,16 @@ Claus Steuer
 Colin Duquesnoy  
 David Schulz  
 Eike Ziller  
+Filipe Azevedo  
 Friedemann Kleint  
 Hugo Holgersson  
 Ivan Donchevskii  
 Jaroslaw Kobus  
 Jay Gupta  
+José Tomás Tocino  
 Jörg Bornemann  
 Kari Oikarinen  
+Kimmo Linnavuo  
 Leena Miettinen  
 Marco Benelli  
 Marco Bubke  
@@ -169,6 +181,7 @@ Mitch Curtis
 Nikita Baryshnikov  
 Nikolai Kosjar  
 Orgad Shaneh  
+Oswald Buddenhagen  
 Pawel Rutka  
 Przemyslaw Gorszkowski  
 Razi Alavizadeh  

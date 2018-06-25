@@ -113,6 +113,13 @@
         \"        </magic>\",
         \"    </mime-type>\",
 
+        \"    <mime-type type=\'text/x-dsrc\'>\",
+        \"        <comment>D source code</comment>\",
+        \"        <sub-class-of type=\'text/plain\'/>\",
+        \"        <glob pattern=\'*.d\'/>\",
+        \"        <glob pattern=\'*.di\'/>\",
+        \"    </mime-type>\",
+
         \"</mime-info>\"
     ]
 }

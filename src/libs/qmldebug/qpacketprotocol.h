@@ -52,7 +52,7 @@ public:
 
 signals:
     void readyRead();
-    void invalidPacket();
+    void protocolError();
 
 private:
     QPacketProtocolPrivate *d;

@@ -68,7 +68,7 @@
     settings directory to ensure that different \QC instances do not overwrite
     each other's profiles. If you only run one \QC instance, you can store the
     profiles in the Qbs settings directory instead, by deselecting the
-    \uicontrol {Store profiles in Qt Creator settings directory} check box.
+    \uicontrol {Store profiles in \QC settings directory} check box.
 
     In the \uicontrol Kit field, select a build and run kit to view the
     properties of the associated Qbs profile. To modify the properties of the

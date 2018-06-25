@@ -40,7 +40,7 @@ bool winResumeThread(unsigned long dwThreadId, QString *errorMessage);
 bool isWinProcessBeingDebugged(unsigned long pid);
 
 // Special exception codes.
-enum
+enum : unsigned long
 {
     winExceptionCppException = 0xe06d7363,
     winExceptionSetThreadName = 0x406d1388,
@@ -60,7 +60,7 @@ void formatWindowsException(unsigned long code, quint64 address,
                             unsigned long flags, quint64 info1, quint64 info2,
                             QTextStream &str);
 // Check for access violation, etc.
-bool isFatalWinException(long code);
+bool isFatalWinException(unsigned long code);
 
 // Check for EXCEPTION_BREAKPOINT, EXCEPTION_SINGLE_STEP
 bool isDebuggerWinException(unsigned long code);

@@ -72,7 +72,7 @@
 
             \note If only one kit is specified in \uicontrol Tools >
             \uicontrol Options > \uicontrol Kits (on Windows and Linux) or in
-            \uicontrol {Qt Creator} > \uicontrol Preferences > \uicontrol Kits
+            \uicontrol {\QC} > \uicontrol Preferences > \uicontrol Kits
             (on \macos), this dialog is skipped.
 
             The \uicontrol{Class Information} dialog opens.
