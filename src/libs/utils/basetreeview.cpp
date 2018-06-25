@@ -462,3 +462,8 @@ QModelIndexList ItemViewEvent::currentOrSelectedRows() const
 }
 
 } // namespace Utils
+<<<<<<< HEAD
+
+#include ".moc/release-shared/basetreeview.moc"
+=======
+>>>>>>> 10d4792c855dabe2ac26a4c1f417fca08f0b442c

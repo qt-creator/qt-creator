@@ -40,6 +40,7 @@
 #include <QStyle>
 #include <QToolButton>
 #include <QDebug>
+#include <QtWidgets>
 
 namespace QmlEditorWidgets {
 

@@ -40,6 +40,7 @@
 #include <QFileInfo>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
+#include <QAction>
 
 namespace {
     int NAME_ROLE = Qt::UserRole;

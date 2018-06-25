@@ -267,4 +267,4 @@ void forceNewConnection(const SshConnectionParameters &sshParams)
 
 } // namespace QSsh
 
-#include "sshconnectionmanager.moc"
+#include ".moc/release-shared/sshconnectionmanager.moc"

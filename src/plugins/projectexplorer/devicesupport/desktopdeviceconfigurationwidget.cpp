@@ -30,6 +30,7 @@
 #include <utils/utilsicons.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
+#include <QtGui>
 
 #include <QRegExpValidator>
 

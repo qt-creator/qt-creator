@@ -175,4 +175,4 @@ QList<EnvironmentItem> EnvironmentDialog::getEnvironmentItems(bool *ok,
 
 } // namespace Utils
 
-#include "environmentdialog.moc"
+#include ".moc/release-shared/environmentdialog.moc"

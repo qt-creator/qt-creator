@@ -204,4 +204,4 @@ bool CompletingTextEdit::event(QEvent *e)
 
 } // namespace Utils
 
-#include "moc_completingtextedit.cpp"
+#include ".moc/release-shared/moc_completingtextedit.cpp"

@@ -146,4 +146,4 @@ void showPixmap(QWidget *parent, const QString &pixmap)
 } // FadingIndicator
 } // Utils
 
-#include "fadingindicator.moc"
+#include ".moc/release-shared/fadingindicator.moc"
