@@ -368,30 +368,34 @@ public:
         const QStyleOptionViewItem &option, const QModelIndex &idx) final
     {
         if (ev->type() == QEvent::MouseButtonRelease) {
+            const QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(ev);
+            const Qt::MouseButtons button = mouseEvent->button();
             const QPoint pos = static_cast<QMouseEvent *>(ev)->pos();
             const QRect rc(option.rect.right() - 24, option.rect.top(), 24, SESSION_LINE_HEIGHT);
             const QString sessionName = idx.data(Qt::DisplayRole).toString();
-            if (rc.contains(pos)) {
+            if (rc.contains(pos) || button == Qt::RightButton) {
                 // The expand/collapse "button".
                 if (m_expandedSessions.contains(sessionName))
                     m_expandedSessions.removeOne(sessionName);
                 else
                     m_expandedSessions.append(sessionName);
                 model->layoutChanged({QPersistentModelIndex(idx)});
-                return false;
+                return true;
             }
-            // One of the action links?
-            const auto sessionModel = qobject_cast<SessionModel *>(model);
-            QTC_ASSERT(sessionModel, return false);
-            if (m_activeSwitchToRect.contains(pos))
-                sessionModel->switchToSession(sessionName);
-            else if (m_activeActionRects[0].contains(pos))
-                sessionModel->cloneSession(ICore::mainWindow(), sessionName);
-            else if (m_activeActionRects[1].contains(pos))
-                sessionModel->renameSession(ICore::mainWindow(), sessionName);
-            else if (m_activeActionRects[2].contains(pos))
-                sessionModel->deleteSession(sessionName);
-            return true;
+            if (button == Qt::LeftButton) {
+                // One of the action links?
+                const auto sessionModel = qobject_cast<SessionModel *>(model);
+                QTC_ASSERT(sessionModel, return false);
+                if (m_activeSwitchToRect.contains(pos))
+                    sessionModel->switchToSession(sessionName);
+                else if (m_activeActionRects[0].contains(pos))
+                    sessionModel->cloneSession(ICore::mainWindow(), sessionName);
+                else if (m_activeActionRects[1].contains(pos))
+                    sessionModel->renameSession(ICore::mainWindow(), sessionName);
+                else if (m_activeActionRects[2].contains(pos))
+                    sessionModel->deleteSession(sessionName);
+                return true;
+            }
         }
         if (ev->type() == QEvent::MouseMove) {
             model->layoutChanged({QPersistentModelIndex(idx)}); // Somewhat brutish.
@@ -473,9 +477,13 @@ public:
         const QStyleOptionViewItem &, const QModelIndex &idx) final
     {
         if (ev->type() == QEvent::MouseButtonRelease) {
-            QString projectFile = idx.data(ProjectModel::FilePathRole).toString();
-            ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
-            return true;
+            const QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(ev);
+            const Qt::MouseButtons button = mouseEvent->button();
+            if (button == Qt::LeftButton) {
+                const QString projectFile = idx.data(ProjectModel::FilePathRole).toString();
+                ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
+                return true;
+            }
         }
         return false;
     }
