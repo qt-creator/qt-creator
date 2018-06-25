@@ -229,7 +229,7 @@ Project {
                 "editorview.cpp", "editorview.h",
                 "editorwindow.cpp", "editorwindow.h",
                 "ieditor.cpp", "ieditor.h",
-                "ieditorfactory.cpp", "ieditorfactory.h",
+                "ieditorfactory.cpp", "ieditorfactory.h", "ieditorfactory_p.h",
                 "iexternaleditor.cpp", "iexternaleditor.h",
                 "openeditorsview.cpp", "openeditorsview.h",
                 "openeditorswindow.cpp", "openeditorswindow.h",

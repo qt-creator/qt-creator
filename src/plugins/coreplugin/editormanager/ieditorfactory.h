@@ -49,8 +49,8 @@ public:
     ~IEditorFactory() override;
 
     static const EditorFactoryList allEditorFactories();
-    static const EditorFactoryList editorFactories(const Utils::MimeType &mimeType);
-    static const EditorFactoryList editorFactories(const QString &fileName);
+    static const EditorFactoryList defaultEditorFactories(const Utils::MimeType &mimeType);
+    static const EditorFactoryList preferredEditorFactories(const QString &fileName);
 
     QString displayName() const { return m_displayName; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }

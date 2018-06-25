@@ -30,6 +30,7 @@
 #include "ui_mimetypesettingspage.h"
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
+#include <coreplugin/editormanager/ieditorfactory_p.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
 
 #include <utils/algorithm.h>
@@ -48,6 +49,7 @@
 #include <QScopedPointer>
 #include <QSet>
 #include <QStringList>
+#include <QStyledItemDelegate>
 #include <QSortFilterProxyModel>
 
 static const char kModifiedMimeTypesFile[] = "/mimetypes/modifiedmimetypes.xml";
@@ -66,6 +68,18 @@ static const char matchMaskAttributeC[] = "mask";
 namespace Core {
 namespace Internal {
 
+class MimeEditorDelegate : public QStyledItemDelegate
+{
+public:
+    QWidget *createEditor(QWidget *parent,
+                          const QStyleOptionViewItem &option,
+                          const QModelIndex &index) const final;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const final;
+    void setModelData(QWidget *editor,
+                      QAbstractItemModel *model,
+                      const QModelIndex &index) const final;
+};
+
 class UserMimeType
 {
 public:
@@ -81,6 +95,10 @@ class MimeTypeSettingsModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
+    enum class Role {
+        DefaultHandler = Qt::UserRole
+    };
+
     MimeTypeSettingsModel(QObject *parent = nullptr)
         : QAbstractTableModel(parent) {}
 
@@ -89,13 +107,18 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
     QVariant data(const QModelIndex &modelIndex, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) final;
+    Qt::ItemFlags flags(const QModelIndex &index) const final;
 
     void load();
 
-    QString handlerForMimeType(const Utils::MimeType &mimeType) const;
+    QList<IEditorFactory *> handlersForMimeType(const Utils::MimeType &mimeType) const;
+    IEditorFactory *defaultHandlerForMimeType(const Utils::MimeType &mimeType) const;
+    void resetUserDefaults();
 
     QList<Utils::MimeType> m_mimeTypes;
-    mutable QHash<Utils::MimeType, QString> m_handlersByMimeType;
+    mutable QHash<Utils::MimeType, QList<IEditorFactory *>> m_handlersByMimeType;
+    QHash<Utils::MimeType, IEditorFactory *> m_userDefault;
 };
 
 int MimeTypeSettingsModel::rowCount(const QModelIndex &) const
@@ -127,18 +150,61 @@ QVariant MimeTypeSettingsModel::data(const QModelIndex &modelIndex, int role) co
     const int column = modelIndex.column();
     if (role == Qt::DisplayRole) {
         const Utils::MimeType &type = m_mimeTypes.at(modelIndex.row());
-        if (column == 0)
+        if (column == 0) {
             return type.name();
-        else
-            return handlerForMimeType(type);
+        } else {
+            IEditorFactory *defaultHandler = defaultHandlerForMimeType(type);
+            return defaultHandler ? defaultHandler->displayName() : QString();
+        }
+    } else if (role == Qt::EditRole) {
+        return qVariantFromValue(handlersForMimeType(m_mimeTypes.at(modelIndex.row())));
+    } else if (role == int(Role::DefaultHandler)) {
+        return qVariantFromValue(defaultHandlerForMimeType(m_mimeTypes.at(modelIndex.row())));
+    } else if (role == Qt::FontRole) {
+        if (column == 1) {
+            const Utils::MimeType &type = m_mimeTypes.at(modelIndex.row());
+            if (m_userDefault.contains(type)) {
+                QFont font = QGuiApplication::font();
+                font.setItalic(true);
+                return font;
+            }
+        }
+        return QVariant();
     }
     return QVariant();
+}
+
+bool MimeTypeSettingsModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (role != int(Role::DefaultHandler) || index.column() != 1)
+        return false;
+    auto factory = value.value<IEditorFactory *>();
+    QTC_ASSERT(factory, return false);
+    const int row = index.row();
+    QTC_ASSERT(row >= 0 && row < m_mimeTypes.size(), return false);
+    const Utils::MimeType mimeType = m_mimeTypes.at(row);
+    const QList<IEditorFactory *> handlers = handlersForMimeType(mimeType);
+    QTC_ASSERT(handlers.contains(factory), return false);
+    if (handlers.first() == factory) // selection is the default anyhow
+        m_userDefault.remove(mimeType);
+    else
+        m_userDefault.insert(mimeType, factory);
+    emit dataChanged(index, index);
+    return true;
+}
+
+Qt::ItemFlags MimeTypeSettingsModel::flags(const QModelIndex &index) const
+{
+    if (index.column() == 0 || handlersForMimeType(m_mimeTypes.at(index.row())).size() < 2)
+        return QAbstractTableModel::flags(index);
+    return QAbstractTableModel::flags(index) | Qt::ItemIsEditable;
 }
 
 void MimeTypeSettingsModel::load()
 {
     beginResetModel();
     m_mimeTypes = Utils::allMimeTypes();
+    m_userDefault = Core::Internal::userPreferredEditorFactories();
     Utils::sort(m_mimeTypes, [](const Utils::MimeType &a, const Utils::MimeType &b) {
         return a.name().compare(b.name(), Qt::CaseInsensitive) < 0;
     });
@@ -146,14 +212,27 @@ void MimeTypeSettingsModel::load()
     endResetModel();
 }
 
-QString MimeTypeSettingsModel::handlerForMimeType(const Utils::MimeType &mimeType) const
+QList<IEditorFactory *> MimeTypeSettingsModel::handlersForMimeType(
+    const Utils::MimeType &mimeType) const
 {
-    if (!m_handlersByMimeType.contains(mimeType)) {
-        const QList<IEditorFactory *> factories = IEditorFactory::editorFactories(mimeType);
-        const QString value = factories.isEmpty() ? "" : factories.front()->displayName();
-        m_handlersByMimeType.insert(mimeType, value);
-    }
+    if (!m_handlersByMimeType.contains(mimeType))
+        m_handlersByMimeType.insert(mimeType, IEditorFactory::defaultEditorFactories(mimeType));
     return m_handlersByMimeType.value(mimeType);
+}
+
+IEditorFactory *MimeTypeSettingsModel::defaultHandlerForMimeType(const Utils::MimeType &mimeType) const
+{
+    if (m_userDefault.contains(mimeType))
+        return m_userDefault.value(mimeType);
+    const QList<IEditorFactory *> handlers = handlersForMimeType(mimeType);
+    return handlers.isEmpty() ? nullptr : handlers.first();
+}
+
+void MimeTypeSettingsModel::resetUserDefaults()
+{
+    beginResetModel();
+    m_userDefault.clear();
+    endResetModel();
 }
 
 // MimeTypeSettingsPrivate
@@ -197,6 +276,7 @@ public:
     QString m_filterPattern;
     Ui::MimeTypeSettingsPage m_ui;
     QPointer<QWidget> m_widget;
+    MimeEditorDelegate m_delegate;
 };
 
 const QChar MimeTypeSettingsPrivate::kSemiColon(QLatin1Char(';'));
@@ -225,6 +305,7 @@ void MimeTypeSettingsPrivate::configureUi(QWidget *w)
     connect(m_ui.filterLineEdit, &QLineEdit::textChanged,
             this, &MimeTypeSettingsPrivate::setFilterPattern);
     m_ui.mimeTypesTreeView->setModel(m_filterModel);
+    m_ui.mimeTypesTreeView->setItemDelegate(&m_delegate);
 
     new Utils::HeaderViewStretcher(m_ui.mimeTypesTreeView->header(), 1);
 
@@ -243,6 +324,8 @@ void MimeTypeSettingsPrivate::configureUi(QWidget *w)
             this, &MimeTypeSettingsPrivate::editMagicHeader);
     connect(m_ui.resetButton, &QPushButton::clicked,
             this, &MimeTypeSettingsPrivate::resetMimeTypes);
+    connect(m_ui.resetHandlersButton, &QPushButton::clicked,
+            m_model, &MimeTypeSettingsModel::resetUserDefaults);
     connect(m_ui.magicHeadersTreeWidget, &QTreeWidget::itemSelectionChanged,
             this, &MimeTypeSettingsPrivate::updatePatternEditAndMagicButtons);
 
@@ -576,6 +659,7 @@ QWidget *MimeTypeSettings::widget()
 void MimeTypeSettings::apply()
 {
     MimeTypeSettingsPrivate::applyUserModifiedMimeTypes(d->m_pendingModifiedMimeTypes);
+    Core::Internal::setUserPreferredEditorFactories(d->m_model->m_userDefault);
     d->m_pendingModifiedMimeTypes.clear();
     d->m_model->load();
 }
@@ -591,6 +675,39 @@ void MimeTypeSettings::restoreSettings()
     MimeTypeSettingsPrivate::UserMimeTypeHash mimetypes
             = MimeTypeSettingsPrivate::readUserModifiedMimeTypes();
     MimeTypeSettingsPrivate::applyUserModifiedMimeTypes(mimetypes);
+}
+
+QWidget *MimeEditorDelegate::createEditor(QWidget *parent,
+                                          const QStyleOptionViewItem &option,
+                                          const QModelIndex &index) const
+{
+    Q_UNUSED(option)
+    Q_UNUSED(index)
+    return new QComboBox(parent);
+}
+
+void MimeEditorDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+{
+    auto box = static_cast<QComboBox *>(editor);
+    const auto factories = index.model()->data(index, Qt::EditRole).value<QList<IEditorFactory *>>();
+    for (IEditorFactory *factory : factories)
+        box->addItem(factory->displayName(), qVariantFromValue(factory));
+    int currentIndex = factories.indexOf(
+        index.model()
+            ->data(index, int(MimeTypeSettingsModel::Role::DefaultHandler))
+            .value<IEditorFactory *>());
+    if (QTC_GUARD(currentIndex != -1))
+        box->setCurrentIndex(currentIndex);
+}
+
+void MimeEditorDelegate::setModelData(QWidget *editor,
+                                      QAbstractItemModel *model,
+                                      const QModelIndex &index) const
+{
+    auto box = static_cast<QComboBox *>(editor);
+    model->setData(index,
+                   box->currentData(Qt::UserRole),
+                   int(MimeTypeSettingsModel::Role::DefaultHandler));
 }
 
 } // Internal

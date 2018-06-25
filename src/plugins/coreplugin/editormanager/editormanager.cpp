@@ -44,6 +44,7 @@
 #include <coreplugin/diffservice.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
+#include <coreplugin/editormanager/ieditorfactory_p.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
 #include <coreplugin/editortoolbar.h>
 #include <coreplugin/fileutils.h>
@@ -121,6 +122,7 @@ static const char autoSuspendMinDocumentCountKey[] = "EditorManager/AutoSuspendM
 static const char warnBeforeOpeningBigTextFilesKey[] = "EditorManager/WarnBeforeOpeningBigTextFiles";
 static const char bigTextFileSizeLimitKey[] = "EditorManager/BigTextFileSizeLimitInMB";
 static const char fileSystemCaseSensitivityKey[] = "Core/FileSystemCaseSensitivity";
+static const char preferredEditorFactoriesKey[] = "EditorManager/PreferredEditorFactories";
 
 static const char scratchBufferKey[] = "_q_emScratchBuffer";
 
@@ -936,12 +938,11 @@ void EditorManagerPrivate::showPopupOrSelectDocument()
 Id EditorManagerPrivate::getOpenWithEditorId(const QString &fileName, bool *isExternalEditor)
 {
     // Collect editors that can open the file
-    const Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
     QList<Id> allEditorIds;
     QStringList allEditorDisplayNames;
     QList<Id> externalEditorIds;
     // Built-in
-    const EditorFactoryList editors = IEditorFactory::editorFactories(mt);
+    const EditorFactoryList editors = IEditorFactory::preferredEditorFactories(fileName);
     const int size = editors.size();
     allEditorDisplayNames.reserve(size);
     for (int i = 0; i < size; i++) {
@@ -949,6 +950,7 @@ Id EditorManagerPrivate::getOpenWithEditorId(const QString &fileName, bool *isEx
         allEditorDisplayNames.push_back(editors.at(i)->displayName());
     }
     // External editors
+    const Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
     const ExternalEditorList exEditors = IExternalEditor::externalEditors(mt);
     const int esize = exEditors.size();
     for (int i = 0; i < esize; i++) {
@@ -969,6 +971,39 @@ Id EditorManagerPrivate::getOpenWithEditorId(const QString &fileName, bool *isEx
     if (isExternalEditor)
         *isExternalEditor = externalEditorIds.contains(selectedId);
     return selectedId;
+}
+
+static QMap<QString, QVariant> toMap(const QHash<Utils::MimeType, IEditorFactory *> &hash)
+{
+    QMap<QString, QVariant> map;
+    auto it = hash.begin();
+    const auto end = hash.end();
+    while (it != end) {
+        map.insert(it.key().name(), it.value()->id().toSetting());
+        ++it;
+    }
+    return map;
+}
+
+static QHash<Utils::MimeType, IEditorFactory *> fromMap(const QMap<QString, QVariant> &map)
+{
+    const EditorFactoryList factories = IEditorFactory::allEditorFactories();
+    QHash<Utils::MimeType, IEditorFactory *> hash;
+    auto it = map.begin();
+    const auto end = map.end();
+    while (it != end) {
+        const Utils::MimeType mimeType = Utils::mimeTypeForName(it.key());
+        if (mimeType.isValid()) {
+            const Id factoryId = Id::fromSetting(it.value());
+            IEditorFactory *factory = Utils::findOrDefault(factories,
+                                                           Utils::equal(&IEditorFactory::id,
+                                                                        factoryId));
+            if (factory)
+                hash.insert(mimeType, factory);
+        }
+        ++it;
+    }
+    return hash;
 }
 
 void EditorManagerPrivate::saveSettings()
@@ -992,6 +1027,7 @@ void EditorManagerPrivate::saveSettings()
         qsettings->remove(fileSystemCaseSensitivityKey);
     else
         qsettings->setValue(fileSystemCaseSensitivityKey, sensitivity);
+    qsettings->setValue(preferredEditorFactoriesKey, toMap(userPreferredEditorFactories()));
 }
 
 void EditorManagerPrivate::readSettings()
@@ -1023,6 +1059,9 @@ void EditorManagerPrivate::readSettings()
         else
             HostOsInfo::setOverrideFileNameCaseSensitivity(sensitivity);
     }
+    const QHash<Utils::MimeType, IEditorFactory *> preferredEditorFactories = fromMap(
+        qs->value(preferredEditorFactoriesKey).toMap());
+    setUserPreferredEditorFactories(preferredEditorFactories);
 
     SettingsDatabase *settings = ICore::settingsDatabase();
     if (settings->contains(documentStatesKey)) {
@@ -1127,7 +1166,7 @@ EditorFactoryList EditorManagerPrivate::findFactories(Id editorId, const QString
 
     EditorFactoryList factories;
     if (!editorId.isValid()) {
-        factories = IEditorFactory::editorFactories(fileName);
+        factories = IEditorFactory::preferredEditorFactories(fileName);
     } else {
         // Find by editor id
         IEditorFactory *factory = Utils::findOrDefault(IEditorFactory::allEditorFactories(),
@@ -2467,8 +2506,8 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
 
     menu->clear();
 
+    const EditorFactoryList factories = IEditorFactory::preferredEditorFactories(fileName);
     const Utils::MimeType mt = Utils::mimeTypeForFile(fileName);
-    const EditorFactoryList factories = IEditorFactory::editorFactories(mt);
     const ExternalEditorList extEditors = IExternalEditor::externalEditors(mt);
     const bool anyMatches = !factories.empty() || !extEditors.empty();
     if (anyMatches) {

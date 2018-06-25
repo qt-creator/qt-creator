@@ -224,7 +224,8 @@ HEADERS += corejsextensions.h \
     coreicons.h \
     editormanager/documentmodel_p.h \
     diffservice.h \
-    menubarfilter.h
+    menubarfilter.h \
+    editormanager/ieditorfactory_p.h
 
 FORMS += dialogs/newdialog.ui \
     dialogs/saveitemsdialog.ui \
