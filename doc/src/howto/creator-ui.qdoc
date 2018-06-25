@@ -152,8 +152,9 @@
 
     \endlist
 
-    For more information about the sidebar views that are only available in
-    \QMLD, see \l{Using Qt Quick Designer}.
+    For more information about the sidebar views that are only
+    available when editing QML files in the Design mode, see
+    \l{Editing QML Files in Design Mode}.
 
     You can change the view of the sidebars in the following ways:
 

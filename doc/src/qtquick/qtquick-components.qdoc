@@ -92,13 +92,13 @@
 
     Qt Quick Controls 2 achieve improved efficiency by employing a simplified
     \l {Styling Qt Quick Controls 2}{styling architecture} when compared to
-    Qt Quick Controls, on which the module is based. \QMLD reads the
+    Qt Quick Controls, on which the module is based. The visual editor reads the
     \c qtquickcontrols2.conf file that specifies the preferred style and some
     style-specific arguments. To change the style, select another style from
     the list on the toolbar. This enables you to check how your UI looks when
     using the available styles.
 
-    For an example of defining your own style and using it in \QMLD, see
+    For an example of defining your own style and using it in the Design mode, see
     \l {Qt Quick Controls 2 - Flat Style}.
 
     Qt Quick Controls 2 work in conjunction with Qt Quick and Qt Quick Layouts.
@@ -112,7 +112,7 @@
     Some ready-made controls, such as a gauge, dial, status indicator, and
     tumbler, are provided by the \l {Qt Quick Extras} module.
 
-    \section1 Creating Components in Qt Quick Designer
+    \section1 Creating Components in Design Mode
 
     \list 1
 
@@ -125,7 +125,7 @@
             the \uicontrol Library only if the filename begins with a capital
             letter.
 
-        \li Click \uicontrol Design to open the .qml file in \QMLD.
+        \li Click \uicontrol Design to open the .qml file in the Design mode.
 
         \li Drag and drop a QML type from the \uicontrol Library to the
             \uicontrol Navigator or \uicontrol {Form Editor}.

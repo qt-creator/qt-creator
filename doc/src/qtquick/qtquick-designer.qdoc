@@ -35,16 +35,16 @@
     \page creator-using-qt-quick-designer.html
     \nextpage qmldesigner-pathview-editor.html
 
-    \title Using Qt Quick Designer
+    \title Editing QML Files in Design Mode
 
-    You can edit \l{Qt Quick UI Forms} (ui.qml files) in \QMLD. \QC opens the
-    UI forms in the \uicontrol {Form Editor} tab in the \uicontrol Design mode.
-    It is recommended that you use UI forms for components that you want to
-    design in \QMLD.
+    \QC opens \l{Qt Quick UI Forms}{UI forms} (ui.qml files) in the
+    \uicontrol {Form Editor} tab in the Design mode. It is
+    recommended that you use UI forms for components that you want to
+    edit in the Design mode.
 
     \image qmldesigner-visual-editor.png "Visual editor"
 
-    Use \QMLD to manage your project:
+    To manage your project in the Design mode:
 
     \list
 
@@ -170,9 +170,9 @@
 
     \section2 Switching Parent Items
 
-    When you drag and drop instances of QML types to the canvas, Qt Quick Designer
-    adds the new item as a child of the item beneath it.
-    When you move items on the canvas, Qt Quick Designer cannot determine
+    When you drag and drop instances of QML types to the canvas, the new item
+    is added as a child of the item beneath it. When you move items on the
+    canvas, it is not possible to determine
     whether you want to adjust their position or attach them to a new
     parent item. Therefore, the parent item is not automatically
     changed. To change the parent of the item, press down the \key Shift
@@ -307,7 +307,7 @@
 
     If you use text IDs instead of plain text, change the default call to
     \c qsTrId(). Select \uicontrol Tools > \uicontrol Options >
-    \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer}, and then select the
+    \uicontrol {Qt Quick} > \uicontrol {\QMLD}, and then select the
     \uicontrol {qsTrId()} radio button in the \uicontrol Internationalization
     group. For more information about text ID based translations, see
     \l {Qt Linguist Manual: Text ID Based Translations}.
@@ -321,19 +321,20 @@
 
     \section2 Loading Placeholder Data
 
-    \QMLD supports views, models, and delegates, so that when you add a Grid
-    View, List View, or Path View item, the ListModel and the delegate
+    The Design mode supports views, models, and delegates, so that when you add
+    a Grid View, List View, or Path View item, the ListModel and the delegate
     item are added automatically.
 
-    However, the missing context of the application presents a challenge for
-    \QMLD. Specific models defined in C++ are the most obvious case. Often,
+    However, the missing context of the application presents a challenge.
+    Specific models defined in C++ are the most obvious case. Often,
     the context is missing simple properties, which are either defined in C++,
     or in other QML files. A typical example is an item that uses the
     properties of its parent, such as \c parent.width.
 
     \section3 Using Dummy Models
 
-    If you open a file in \QMLD that references a C++ model, you see nothing on
+    If you open a file in the Design mode that references a C++ model, you see
+    nothing on
     the canvas. If the data in the model is fetched from the internet, you have
     no control over it. To get reliable data, \e {dummy data} was introduced.
 
@@ -387,8 +388,8 @@
         }
     \endqml
 
-    This works nicely for applications but \QMLD displays a zero-sized item.
-    A parent for the opened file does not exist, because the context is
+    This works nicely for applications but the Design mode displays a zero-sized
+    item. A parent for the opened file does not exist, because the context is
     missing. To get around the missing context, the idea of a \e {dummy
     context} is introduced. If you place a file with the same name as the
     application (here, example.qml) in the \c {dummydata/context} directory,
@@ -462,7 +463,7 @@
     \endlist
 
     The \uicontrol State pane displays the different \l{State}{states}
-    of the component in the Qt Quick Designer. The \uicontrol State pane is
+    of the component in the Design mode. The \uicontrol State pane is
     collapsed by default to save space. Select \uicontrol Expand in the context
     menu to view the whole pane.
 
@@ -502,8 +503,9 @@
     Click the \inlineimage snapping_and_anchoring.png
     button to anchor the item to the items that you snap to.
 
-    Choose \uicontrol {Tools > Options > Qt Quick > Qt Quick Designer} to specify
-    settings for snapping. In the \uicontrol {Parent item padding} field, specify the
+    Choose \uicontrol Tools > \uicontrol Options > \uicontrol {Qt Quick} >
+    \uicontrol {\QMLD} to specify settings for snapping. In the
+    \uicontrol {Parent item padding} field, specify the
     distance in pixels between the parent item and the snapping lines. In the
     \uicontrol {Sibling item spacing} field, specify the distance in pixels between
     sibling items and the snapping lines.
@@ -515,7 +517,7 @@
 
     \section2 Hiding Item Boundaries
 
-    \QMLD displays the boundaries of items on the canvas. To hide
+    The Design mode displays the boundaries of items on the canvas. To hide
     the boundaries, click the \inlineimage boundingrect.png
     button.
 
@@ -549,14 +551,14 @@
 
     \section2 Specifying Canvas Size
 
-    To change the canvas size, select \uicontrol {Tools > Options > Qt Quick
-    > Qt Quick Designer} and
+    To change the canvas size, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Qt Quick} > \uicontrol {\QMLD} and
     specify the canvas width and height in the \uicontrol Canvas group.
 
     \section2 Refreshing the Canvas
 
-    When you open QML files in \QMLD, the items in the file are drawn on
-    the canvas. When you edit the item properties in \QMLD, the QML file and
+    When you open QML files in the Design mode, the items in the file are drawn
+    on the canvas. When you edit the item properties, the QML file and
     the image on the canvas might get out of sync. For example, when you change
     the position of an item within a column or a row, the new position might
     not be displayed correctly on the canvas.

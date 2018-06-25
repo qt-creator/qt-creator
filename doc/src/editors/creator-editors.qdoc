@@ -570,44 +570,45 @@
     \row
         \li M203
         \li Warning
-        \li Imperative code is not supported in the Qt Quick Designer
+        \li Imperative code is not supported in the Design mode
         \li
 
     \row
         \li M204
         \li Warning
-        \li This QML type is not supported in the Qt Quick Designer
+        \li This QML type is not supported in the Design mode
         \li
     \row
         \li M205
         \li Warning
-        \li Reference to parent QML type cannot be resolved correctly by the Qt
-            Quick Designer
+        \li Reference to parent QML type cannot be resolved correctly by the
+            Design mode
         \li
 
     \row
         \li M206
         \li Warning
         \li This visual property binding cannot be evaluated in the local
-            context and might not show up in Qt Quick Designer as expected
+            context and might not show up in Design mode as expected
         \li
 
     \row
         \li M207
         \li Warning
-        \li Qt Quick Designer only supports states in the root QML type
+        \li Design mode only supports states in the root QML type
         \li
 
     \row
         \li M208
         \li Error
-        \li This id might be ambiguous and is not supported in the \QMLD.
+        \li This id might be ambiguous and is not supported in the Design mode.
         \li
 
     \row
         \li M209
         \li Error
-        \li This type (type name) is not supported as a root element by \QMLD.
+        \li This type (type name) is not supported as a root element in the
+            Design mode.
         \li
 
     \row
@@ -813,15 +814,15 @@
     instead of Qt Quick 2}.
 
     You can see the error message when you move the mouse pointer over code that
-    \QC underlines in the code editor or when you open a QML file in the
-    \uicontrol Design mode.
+    \QC underlines in the code editor or when you open a QML file in the Design
+    mode.
 
     To reset the code model, select \uicontrol Tools > \uicontrol {QML/JS} >
     \uicontrol {Reset Code Model}.
 
     If this does not help, try changing the QML emulation layer to the one that
     was built with the same Qt version as the one selected in the build and run
-    kit. For more information, see \l{Running QML Modules in Qt Quick Designer}.
+    kit. For more information, see \l{Running QML Modules in Design Mode}.
 
     \section1 Inspecting QML and JavaScript
 
@@ -2729,7 +2730,7 @@
                 \image qtcreator-move-component-into-separate-file.png
 
             \li QML type name. This action is also available in the
-                \uicontrol {Form Editor} in \QMLD.
+                \uicontrol {Form Editor} in the Design mode.
         \row
             \li Split Initializer
             \li Reformats a one-line type into a multi-line type. For example,

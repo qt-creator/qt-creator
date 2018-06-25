@@ -90,7 +90,7 @@
     files, as defined by the wizard.
 
     For example, if you choose to create a Qt Quick application, \QC generates a
-    QML file that you can modify with the integrated \QMLD.
+    QML file that you can modify in the Design mode.
 
     \section1 Selecting Project Type
 

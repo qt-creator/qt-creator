@@ -50,10 +50,10 @@
             (.ui.qml files). The forms use a purely declarative subset of the
             QML language and you can edit them in the Design mode.
 
-        \li \l {Using Qt Quick Designer}
+        \li \l {Editing QML Files in Design Mode}
 
             You can use the \uicontrol {Form Editor} or the
-            \uicontrol {Text Editor} of \QMLD in the \uicontrol Design mode to
+            \uicontrol {Text Editor} in the Design mode to
             develop Qt Quick applications.
 
         \li \l {Editing PathView Properties}
