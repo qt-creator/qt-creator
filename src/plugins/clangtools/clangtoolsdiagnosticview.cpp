@@ -35,11 +35,59 @@
 #include <QAction>
 #include <QDebug>
 #include <QHeaderView>
+#include <QPainter>
 
 using namespace Debugger;
 
 namespace ClangTools {
 namespace Internal {
+
+class ClickableFixItHeader : public QHeaderView
+{
+    Q_OBJECT
+
+public:
+    ClickableFixItHeader(Qt::Orientation orientation, QWidget *parent = 0)
+        : QHeaderView(orientation, parent)
+    {
+    }
+
+    void setState(QFlags<QStyle::StateFlag> newState)
+    {
+        state = newState;
+    }
+
+protected:
+    void paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const
+    {
+        painter->save();
+        QHeaderView::paintSection(painter, rect, logicalIndex);
+        painter->restore();
+        if (logicalIndex == DiagnosticView::FixItColumn) {
+            QStyleOptionButton option;
+            const int side = sizeHint().height();
+            option.rect = QRect(rect.left() + 1, 1, side - 3, side - 3);
+            option.state = state;
+            style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &option, painter);
+        }
+    }
+
+    void mousePressEvent(QMouseEvent *event)
+    {
+        if (event->localPos().x() > sectionPosition(DiagnosticView::FixItColumn)) {
+            state = (state != QStyle::State_On) ? QStyle::State_On : QStyle::State_Off;
+            viewport()->update();
+            emit fixItColumnClicked(state == QStyle::State_On);
+        }
+        QHeaderView::mousePressEvent(event);
+    }
+
+signals:
+    void fixItColumnClicked(bool checked);
+
+private:
+    QFlags<QStyle::StateFlag> state = QStyle::State_Off;
+};
 
 DiagnosticView::DiagnosticView(QWidget *parent)
     : Debugger::DetailedErrorView(parent)
@@ -104,12 +152,36 @@ bool DiagnosticView::eventFilter(QObject *watched, QEvent *event)
     }
 }
 
+void DiagnosticView::setSelectedFixItsCount(int fixItsCount)
+{
+    if (m_ignoreSetSelectedFixItsCount)
+        return;
+    auto *clickableFixItHeader = static_cast<ClickableFixItHeader *>(header());
+    clickableFixItHeader->setState(fixItsCount
+                                   ? (QStyle::State_NoChange | QStyle::State_On | QStyle::State_Off)
+                                   : QStyle::State_Off);
+    clickableFixItHeader->viewport()->update();
+}
+
 void DiagnosticView::setModel(QAbstractItemModel *model)
 {
     Debugger::DetailedErrorView::setModel(model);
+    auto *clickableFixItHeader = new ClickableFixItHeader(Qt::Horizontal, this);
+    connect(clickableFixItHeader, &ClickableFixItHeader::fixItColumnClicked,
+            this, [=](bool checked) {
+        m_ignoreSetSelectedFixItsCount = true;
+        for (int row = 0; row < model->rowCount(); ++row) {
+            QModelIndex index = model->index(row, FixItColumn, QModelIndex());
+            model->setData(index, checked ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
+        }
+        m_ignoreSetSelectedFixItsCount = false;
+    });
+    setHeader(clickableFixItHeader);
     header()->setStretchLastSection(false);
     header()->setSectionResizeMode(0, QHeaderView::Stretch);
 }
 
 } // namespace Internal
 } // namespace ClangTools
+
+#include "clangtoolsdiagnosticview.moc"

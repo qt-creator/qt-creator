@@ -58,6 +58,13 @@ Utils::OptionalLineColumn convertPosition(const QTextDocument *document, int pos
     return optional;
 }
 
+int positionInText(QTextDocument *textDocument, int line, int column)
+{
+    // Deduct 1 from line and column since they are 1-based.
+    // Column should already be converted from UTF-8 byte offset to the TextEditor column.
+    return textDocument->findBlockByNumber(line - 1).position() + column - 1;
+}
+
 QString textAt(QTextCursor tc, int pos, int length)
 {
     if (pos < 0)

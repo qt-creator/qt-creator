@@ -44,7 +44,7 @@
     \section1 Exporting from Adobe Photoshop to QML
 
     You can use a QML Asset Exporter to export designs from Adobe Photoshop
-    to .ui.qml files. The the QML Asset Exporter provides templates that are
+    to .ui.qml files. The QML Asset Exporter provides templates that are
     based on the \l{http://www.pngexpress.com}{PNG EXPRESS} plugin for
     Photoshop. They enable you to export PSD files to QML format, so that each
     PSD file is converted into an .ui.qml file.

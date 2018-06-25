@@ -26,10 +26,9 @@
 #include "qpacketprotocol.h"
 
 #include <qelapsedtimer.h>
+#include <qendian.h>
 
 namespace QmlDebug {
-
-static const unsigned int MAX_PACKET_SIZE = 0x7FFFFFFF;
 
 /*!
   \class QPacketProtocol
@@ -98,15 +97,14 @@ class QPacketProtocolPrivate : public QObject
 
 public:
     QPacketProtocolPrivate(QPacketProtocol *parent, QIODevice *_dev)
-        : QObject(parent), inProgressSize(-1), maxPacketSize(MAX_PACKET_SIZE),
-          waitingForPacket(false), dev(_dev)
+        : QObject(parent), inProgressSize(-1), waitingForPacket(false), dev(_dev)
     {
         Q_ASSERT(4 == sizeof(qint32));
 
         QObject::connect(this, &QPacketProtocolPrivate::readyRead,
                          parent, &QPacketProtocol::readyRead);
-        QObject::connect(this, &QPacketProtocolPrivate::invalidPacket,
-                         parent, &QPacketProtocol::invalidPacket);
+        QObject::connect(this, &QPacketProtocolPrivate::protocolError,
+                         parent, &QPacketProtocol::protocolError);
         QObject::connect(dev, &QIODevice::readyRead,
                          this, &QPacketProtocolPrivate::readyToRead);
         QObject::connect(dev, &QIODevice::aboutToClose,
@@ -117,7 +115,7 @@ public:
 
 signals:
     void readyRead();
-    void invalidPacket();
+    void protocolError();
 
 public:
     void aboutToClose()
@@ -142,6 +140,17 @@ public:
         }
     }
 
+    void fail()
+    {
+        QObject::disconnect(dev, &QIODevice::readyRead,
+                            this, &QPacketProtocolPrivate::readyToRead);
+        QObject::disconnect(dev, &QIODevice::aboutToClose,
+                            this, &QPacketProtocolPrivate::aboutToClose);
+        QObject::disconnect(dev, &QIODevice::bytesWritten,
+                            this, &QPacketProtocolPrivate::bytesWritten);
+        emit protocolError();
+    }
+
     void readyToRead()
     {
         while (true) {
@@ -152,19 +161,15 @@ public:
                     return;
 
                 // Read size header
-                int read = dev->read((char *)&inProgressSize, sizeof(qint32));
+                qint32 inProgressSizeLE;
+                const qint64 read = dev->read((char *)&inProgressSizeLE, sizeof(qint32));
                 Q_ASSERT(read == sizeof(qint32));
                 Q_UNUSED(read);
+                inProgressSize = qFromLittleEndian(inProgressSizeLE);
 
                 // Check sizing constraints
-                if (inProgressSize > maxPacketSize) {
-                    QObject::disconnect(dev, &QIODevice::readyRead,
-                                        this, &QPacketProtocolPrivate::readyToRead);
-                    QObject::disconnect(dev, &QIODevice::aboutToClose,
-                                        this, &QPacketProtocolPrivate::aboutToClose);
-                    QObject::disconnect(dev, &QIODevice::bytesWritten,
-                                        this, &QPacketProtocolPrivate::bytesWritten);
-                    emit invalidPacket();
+                if (inProgressSize < qint32(sizeof(qint32))) {
+                    fail();
                     return;
                 }
 
@@ -187,11 +192,10 @@ public:
     }
 
 public:
-    QList<qint64> sendingPackets;
+    QList<qint32> sendingPackets;
     QList<QByteArray> packets;
     QByteArray inProgress;
     qint32 inProgressSize;
-    qint32 maxPacketSize;
     bool waitingForPacket;
     QIODevice *dev;
 };
@@ -211,18 +215,29 @@ QPacketProtocol::QPacketProtocol(QIODevice *dev, QObject *parent)
  */
 void QPacketProtocol::send(const QByteArray &p)
 {
+    static const qint32 maxSize = std::numeric_limits<qint32>::max() - sizeof(qint32);
+
     if (p.isEmpty())
         return; // We don't send empty packets
 
-    qint64 sendSize = p.size() + sizeof(qint32);
+    if (p.size() > maxSize) {
+        d->fail();
+        return;
+    }
 
+    const qint32 sendSize = p.size() + sizeof(qint32);
     d->sendingPackets.append(sendSize);
-    qint32 sendSize32 = sendSize;
-    qint64 writeBytes = d->dev->write((char *)&sendSize32, sizeof(qint32));
-    Q_ASSERT(writeBytes == sizeof(qint32));
-    writeBytes = d->dev->write(p);
-    Q_ASSERT(writeBytes == p.size());
-    Q_UNUSED(writeBytes); // For building in release mode.
+
+    const qint32 sendSizeLE = qToLittleEndian(sendSize);
+    if (d->dev->write((char *)&sendSizeLE, sizeof(qint32)) != sizeof(qint32)) {
+        d->fail();
+        return;
+    }
+
+    if (d->dev->write(p) != p.size()) {
+        d->fail();
+        return;
+    }
 }
 
 /*!

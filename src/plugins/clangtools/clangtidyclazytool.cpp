@@ -251,7 +251,10 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     m_applyFixitsButton->setEnabled(false);
     connect(m_diagnosticModel,
             &ClangToolsDiagnosticModel::fixItsToApplyCountChanged,
-            [this](int c) { m_applyFixitsButton->setEnabled(c); });
+            [this](int c) {
+        m_applyFixitsButton->setEnabled(c);
+        static_cast<DiagnosticView *>(m_diagnosticView)->setSelectedFixItsCount(c);
+    });
     connect(m_applyFixitsButton, &QToolButton::clicked, [this]() {
         QVector<DiagnosticItem *> diagnosticItems;
         m_diagnosticModel->rootItem()->forChildrenAtLevel(1, [&](TreeItem *item){

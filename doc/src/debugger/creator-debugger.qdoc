@@ -223,7 +223,7 @@
     The \QC installation program asks you whether you want to register \QC as a
     post-mortem debugger. To change the setting, select
     \uicontrol Tools > \uicontrol Options > \uicontrol Debugger >
-    \uicontrol General > \uicontrol {Use Qt Creator for post-mortem debugging}.
+    \uicontrol General > \uicontrol {Use \QC for post-mortem debugging}.
 
     You can launch the debugger in the post-mortem mode if an application
     crashes on Windows. Click the \uicontrol {Debug in \QC} button in the error
@@ -979,7 +979,7 @@
     Unlike GDB's
     \l{https://sourceware.org/gdb/onlinedocs/gdb/Pretty-Printing.html#Pretty-Printing}
     {pretty printers} and LLDB's \l{http://lldb.llvm.org/varformats.html}
-    {data formatters}, Qt Creator's debugging helpers are independent of the
+    {data formatters}, \QC's debugging helpers are independent of the
     native debugging backend. That is, the same code can be used with GDB on
     Linux, LLDB on macOS, and CDB on Windows, or any other platform on which at
     least one of the three supported backends is available.

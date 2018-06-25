@@ -28,6 +28,7 @@
 #include "buildconfiguration.h"
 #include "buildstep.h"
 #include "project.h"
+#include "target.h"
 #include "task.h"
 
 #include <coreplugin/reaper.h>
@@ -306,7 +307,10 @@ void AbstractProcessStep::processReadyReadStdOutput()
     if (!m_process)
         return;
     m_process->setReadChannel(QProcess::StandardOutput);
-    const bool utf8Output = buildConfiguration()->environment().hasKey("VSLANG");
+    BuildConfiguration *bc = buildConfiguration();
+    if (!bc)
+        bc = target()->activeBuildConfiguration();
+    const bool utf8Output = bc && bc->environment().hasKey("VSLANG");
 
     while (m_process->canReadLine()) {
         QString line = utf8Output ? QString::fromUtf8(m_process->readLine())

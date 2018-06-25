@@ -42,9 +42,8 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
     RangeType rangeType = MaximumRangeType;
     if (!stream.atEnd()) {
         stream >> subtype;
-        rangeType = static_cast<RangeType>(subtype);
-        if (rangeType < 0 || rangeType > MaximumRangeType)
-            rangeType = MaximumRangeType;
+        if (subtype >= 0 && subtype < MaximumRangeType)
+            rangeType = static_cast<RangeType>(subtype);
     } else {
         subtype = -1;
     }

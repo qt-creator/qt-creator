@@ -76,7 +76,7 @@
 
     \image qtcreator-custom-wizard.png
 
-    \section1 Integrating Wizards into Qt Creator Builds
+    \section1 Integrating Wizards into Builds
 
     To integrate the wizard into \QC and to deliver it as part of the \QC build,
     place the wizard files in the \QC sources. Then select \uicontrol Build >

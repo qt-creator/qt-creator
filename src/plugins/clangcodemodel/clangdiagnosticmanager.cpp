@@ -63,18 +63,6 @@ QTextEdit::ExtraSelection createExtraSelections(const QTextCharFormat &mainforma
     return extraSelection;
 }
 
-int positionInText(QTextDocument *textDocument,
-                   const ClangBackEnd::SourceLocationContainer &sourceLocationContainer)
-{
-    auto textBlock = textDocument->findBlockByNumber(
-                static_cast<int>(sourceLocationContainer.line) - 1);
-    // 'sourceLocationContainer' already has the CppEditor column converted from
-    // the utf8 byte offset from the beginning of the line provided by clang.
-    // - 1 is required for 0-based columns.
-    const int column = static_cast<int>(sourceLocationContainer.column) - 1;
-    return textBlock.position() + column;
-}
-
 void addRangeSelections(const ClangBackEnd::DiagnosticContainer &diagnostic,
                         QTextDocument *textDocument,
                         const QTextCharFormat &contextFormat,
@@ -82,8 +70,13 @@ void addRangeSelections(const ClangBackEnd::DiagnosticContainer &diagnostic,
 {
     for (auto &&range : diagnostic.ranges) {
         QTextCursor cursor(textDocument);
-        cursor.setPosition(positionInText(textDocument, range.start));
-        cursor.setPosition(positionInText(textDocument, range.end), QTextCursor::KeepAnchor);
+        cursor.setPosition(::Utils::Text::positionInText(textDocument,
+                                                         range.start.line,
+                                                         range.start.column));
+        cursor.setPosition(::Utils::Text::positionInText(textDocument,
+                                                         range.end.line,
+                                                         range.end.column),
+                           QTextCursor::KeepAnchor);
 
         auto extraSelection = createExtraSelections(contextFormat, cursor);
 
@@ -127,11 +120,15 @@ QTextCursor createSelectionCursor(QTextDocument *textDocument,
                                   const ClangBackEnd::SourceLocationContainer &sourceLocationContainer)
 {
     QTextCursor cursor(textDocument);
-    cursor.setPosition(positionInText(textDocument, sourceLocationContainer));
+    cursor.setPosition(::Utils::Text::positionInText(textDocument,
+                                                     sourceLocationContainer.line,
+                                                     sourceLocationContainer.column));
     selectToLocationEnd(cursor);
 
     if (!cursor.hasSelection()) {
-        cursor.setPosition(positionInText(textDocument, sourceLocationContainer) - 1);
+        cursor.setPosition(::Utils::Text::positionInText(textDocument,
+                                                         sourceLocationContainer.line,
+                                                         sourceLocationContainer.column) - 1);
         cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 2);
     }
 

@@ -73,6 +73,9 @@ public:
     void apply() override;
     void finish() override;
 
+signals:
+    void settingsChanged();
+
 private:
     const QSharedPointer<GerritParameters> &m_parameters;
     QPointer<GerritOptionsWidget> m_widget;

@@ -62,10 +62,10 @@ public:
     GitSubmitEditorPanelData panelData() const;
     CommitType commitType() const { return m_commitType; }
     QString amendSHA1() const;
+    void updateFileModel() override;
 
 protected:
     QByteArray fileContents() const override;
-    void updateFileModel() override;
     void forceUpdateFileModel();
 
 private:

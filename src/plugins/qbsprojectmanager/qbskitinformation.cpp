@@ -72,6 +72,13 @@ private:
     QPushButton * const m_changeButton;
 };
 
+QbsKitInformation::QbsKitInformation()
+{
+    setObjectName(QLatin1String("QbsKitInformation"));
+    setId(QbsKitInformation::id());
+    setPriority(22000);
+}
+
 QString QbsKitInformation::displayName()
 {
     return tr("Additional Qbs Profile Settings");

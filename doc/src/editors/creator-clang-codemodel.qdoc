@@ -138,34 +138,33 @@
             edit the value for the \uicontrol {Do not index files greater than}
             check box. To index all files, deselect the check box.
 
-        \li Select \uicontrol Manage to specify the level for requesting Clang
-            warnings.
+        \li Select \uicontrol Manage to specify the Clang checks to perform.
 
             \image qtcreator-diagnostics-configuration.png
 
     \endlist
 
-    \section1 Clang Warnings
+    \section1 Clang Checks
 
-    The predefined configurations request Clang warnings at the following
-    levels:
+    The predefined configurations perform the following Clang checks:
 
     \list
 
-        \li \uicontrol {Pedantic Warnings} uses the \c -Wpendantic option that
-            requests all the warnings demanded by strict ISO C and ISO C++.
+        \li \uicontrol {Clang-only pedantic checks} uses the \c -Wpendantic
+            option that performs checks as required by strict ISO C and ISO C++.
 
-        \li \uicontrol {Warnings for Questionable Constructs} combines the
-            \c -Wall and \c -Wextra options to request all warnings about easily
-            avoidable questionable constructions and some additional warnings.
+        \li \uicontrol {Clang-only checks for questionable constructs} combines
+            the \c -Wall and \c -Wextra checks for easily avoidable questionable
+            constructions and some additional issues.
 
-        \li \uicontrol {Warnings for Almost Everything} uses the \c -Weverything
-            option with negative options to suppress some warnings.
+        \li \uicontrol {Clang-only checks for almost everything} uses the
+            \c -Weverything option with negative options to suppress some
+            warnings.
 
     \endlist
 
-    You can edit the predefined configurations to request specific warnings
-    beginning with \c -W. Each of these warnings also has a negative version
+    You can edit the predefined configurations to perform particular checks
+    beginning with \c -W. Each of these checks also has a negative version
     that begins with \c -Wno.
 
     Keep in mind that some options turn on other options. For more information,

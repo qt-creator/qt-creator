@@ -75,10 +75,10 @@
             You can use the Heob heap observer on Windows to detect buffer
             overruns and memory leaks.
 
-        \li \l{Analyzing CPU Usage}{CPU Usage Analyzer}
+        \li \l{Analyzing CPU Usage}{Performance Analyzer}
 
             You can analyze the CPU usage of embedded applications and Linux
-            desktop applications with the CPU Usage Analyzer (commercial only)
+            desktop applications with the Performance Analyzer (commercial only)
             that integrates the Linux Perf tool.
 
     \endlist

@@ -1673,7 +1673,11 @@ void BinEditorWidget::setNewWindowRequestAllowed(bool c)
 void BinEditorWidget::updateContents()
 {
     m_oldData = m_data;
-    setSizes(baseAddress() + cursorPosition(), m_size, m_blockSize);
+    m_data.clear();
+    m_modifiedData.clear();
+    m_requests.clear();
+    for (auto it = m_oldData.constBegin(), et = m_oldData.constEnd(); it != et; ++it)
+        d->fetchData(m_baseAddr + it.key());
 }
 
 QPoint BinEditorWidget::offsetToPos(qint64 offset) const

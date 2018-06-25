@@ -1069,7 +1069,6 @@ bool GitPlugin::submitEditorAboutToClose()
 
     // Go ahead!
     SubmitFileModel *model = qobject_cast<SubmitFileModel *>(editor->fileModel());
-    bool closeEditor = true;
     CommitType commitType = editor->commitType();
     QString amendSHA1 = editor->amendSHA1();
     if (model->hasCheckedFiles() || !amendSHA1.isEmpty()) {
@@ -1077,12 +1076,12 @@ bool GitPlugin::submitEditorAboutToClose()
         if (!DocumentManager::saveDocument(editorDocument))
             return false;
 
-        closeEditor = m_gitClient->addAndCommit(m_submitRepository, editor->panelData(),
-                                                commitType, amendSHA1,
-                                                m_commitMessageFileName, model);
+        if (!m_gitClient->addAndCommit(m_submitRepository, editor->panelData(), commitType,
+                                       amendSHA1, m_commitMessageFileName, model)) {
+            editor->updateFileModel();
+            return false;
+        }
     }
-    if (!closeEditor)
-        return false;
     cleanCommitMessageFile();
     if (commitType == FixupCommit) {
         if (!m_gitClient->beginStashScope(m_submitRepository, "Rebase-fixup",
