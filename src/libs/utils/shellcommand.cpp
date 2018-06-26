@@ -276,6 +276,7 @@ void ShellCommand::run(QFutureInterface<void> &future)
     QString stdOut;
     QString stdErr;
 
+    emit started();
     if (d->m_progressParser)
         d->m_progressParser->setFuture(&future);
     else

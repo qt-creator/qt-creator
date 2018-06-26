@@ -157,6 +157,7 @@ public:
 
     QFileSystemWatcher *m_fileWatcher = nullptr; // Delayed creation.
     QFileSystemWatcher *m_linkWatcher = nullptr; // Delayed creation (only UNIX/if a link is seen).
+    bool m_postponeAutoReload = false;
     bool m_blockActivated = false;
     bool m_checkOnFocusChange = false;
     QString m_lastVisitedDirectory = QDir::currentPath();
@@ -597,6 +598,13 @@ void DocumentManager::unexpectFileChange(const QString &fileName)
         updateExpectedState(filePathKey(fileName, ResolveLinks));
 }
 
+void DocumentManager::setAutoReloadPostponed(bool postponed)
+{
+    d->m_postponeAutoReload = postponed;
+    if (!postponed)
+        QTimer::singleShot(500, m_instance, &DocumentManager::checkForReload);
+}
+
 static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
                                     const QString &message, bool *cancelled, bool silently,
                                     const QString &alwaysSaveMessage, bool *alwaysSave,
@@ -990,7 +998,7 @@ void DocumentManager::changedFile(const QString &fileName)
 
 void DocumentManager::checkForReload()
 {
-    if (d->m_changedFiles.isEmpty())
+    if (d->m_postponeAutoReload || d->m_changedFiles.isEmpty())
         return;
     if (QApplication::applicationState() != Qt::ApplicationActive)
         return;
