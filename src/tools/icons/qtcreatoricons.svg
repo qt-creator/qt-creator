@@ -3376,12 +3376,6 @@
          width="16"
          id="rect3817-2-9-1-9-6-2"
          style="fill:#ffffff" />
-      <path
-         sodipodi:nodetypes="cccc"
-         inkscape:connector-curvature="0"
-         id="path4784"
-         d="m 210,595 -2.5,2.5 -2.5,-2.5 z"
-         style="fill:#000000;fill-opacity:1;stroke:none" />
       <polygon
          transform="translate(93.999999,334)"
          id="polygon4959-9"
@@ -6011,6 +6005,26 @@
          d="m 1714,581 h 5 v 2 h -5 z m -4,-12 h 5 v 2 h -5 z m 4,4 h 5 v 2 h -5 z m 4,4 h 5 v 2 h -5 z"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cccccccccccccccccccc" />
+    </g>
+    <g
+       id="src/libs/utils/images/toolbuttonexpandarrow"
+       style="display:inline"
+       clip-path="url(#clipPath4845-7)"
+       transform="translate(-131,-32)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use5933-0-9"
+         width="100%"
+         height="100%"
+         transform="translate(211,148)" />
+      <path
+         sodipodi:nodetypes="cccc"
+         inkscape:connector-curvature="0"
+         id="path4784-17"
+         d="m 210,595 -2.5,2.5 -2.5,-2.5 z"
+         style="fill:#000000;fill-opacity:1;stroke:none" />
     </g>
   </g>
   <g

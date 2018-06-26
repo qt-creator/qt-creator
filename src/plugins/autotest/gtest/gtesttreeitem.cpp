@@ -33,8 +33,9 @@
 #include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/session.h>
 #include <utils/algorithm.h>
+#include <utils/icon.h>
 #include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
+#include <utils/theme/theme.h>
 
 #include <QRegExp>
 
@@ -112,7 +113,9 @@ QVariant GTestTreeItem::data(int column, int role) const
     case Qt::DecorationRole:
         if (type() == GroupNode
                 && GTestFramework::groupMode() == GTest::Constants::GTestFilter) {
-            return Utils::Icons::FILTER.icon(); // TODO replace by an 'inked' filter w/o arrow
+            static const QIcon filterIcon = Utils::Icon({{":/utils/images/filtericon.png",
+                                                          Utils::Theme::PanelTextColorMid}}).icon();
+            return filterIcon;
         }
         break;
     case Qt::ToolTipRole:
