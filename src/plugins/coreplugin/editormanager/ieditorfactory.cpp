@@ -26,7 +26,6 @@
 #include "ieditorfactory.h"
 #include "ieditorfactory_p.h"
 #include "editormanager.h"
-#include "editormanager_p.h"
 
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>

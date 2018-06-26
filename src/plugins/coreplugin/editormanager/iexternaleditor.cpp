@@ -25,7 +25,7 @@
 
 #include "iexternaleditor.h"
 
-#include "editormanager_p.h"
+#include "ieditorfactory_p.h"
 
 namespace Core {
 
