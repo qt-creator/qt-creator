@@ -159,6 +159,10 @@ QVector<TokenInfoContainer> TokenProcessor<FullTokenInfo>::toTokenInfoContainers
             if (it->m_extraInfo.declaration && !it->hasMainType(HighlightingType::LocalVariable)
                     && it->m_originalCursor != token.m_originalCursor
                     && it->m_extraInfo.cursorRange.contains(tokenStart)) {
+                if (token.m_originalCursor.lexicalParent() != it->m_originalCursor
+                        && !token.hasMainType(HighlightingType::QtProperty)) {
+                    continue;
+                }
                 token.m_extraInfo.lexicalParentIndex = std::distance(it, tokens.rend()) - 1;
                 break;
             }
