@@ -36,6 +36,12 @@
 
     \title Acknowledgements
 
+    \section1 Credits
+
+    We would like to thank our contributors, who are listed in the \QC
+    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/dist}{change logs}
+    for each release.
+
     \section1 Third-party Components
 
     \QC contains the following third-party components:
