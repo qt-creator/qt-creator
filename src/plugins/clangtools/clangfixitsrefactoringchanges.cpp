@@ -42,11 +42,11 @@ using namespace Utils;
 namespace ClangTools {
 namespace Internal {
 
-int FixitsRefactoringFile::position(unsigned line, unsigned column) const
+int FixitsRefactoringFile::position(const QString &filePath, unsigned line, unsigned column) const
 {
     QTC_ASSERT(line != 0, return -1);
     QTC_ASSERT(column != 0, return -1);
-    return document()->findBlockByNumber(line - 1).position() + column - 1;
+    return document(filePath)->findBlockByNumber(line - 1).position() + column - 1;
 }
 
 static QDebug operator<<(QDebug debug, const ReplacementOperation &op)
@@ -71,23 +71,22 @@ bool FixitsRefactoringFile::apply()
 
     QTC_ASSERT(!m_filePath.isEmpty(), return false);
 
-    // Check for permissions
-    if (!QFileInfo(m_filePath).isWritable())
-        return false; // Error file not writable
-
     // Apply changes
-    QTextDocument *doc = document();
-    QTextCursor cursor(doc);
-
     for (int i=0; i < m_replacementOperations.size(); ++i) {
         ReplacementOperation &op = *m_replacementOperations[i];
         if (op.apply) {
+            // Check for permissions
+            if (!QFileInfo(op.fileName).isWritable())
+                return false; // Error file not writable
+
             qCDebug(fixitsLog) << " " << i << "Applying" << op;
 
             // Shift subsequent operations that are affected
             shiftAffectedReplacements(op, i + 1);
 
             // Apply
+            QTextDocument *doc = document(op.fileName);
+            QTextCursor cursor(doc);
             cursor.setPosition(op.pos);
             cursor.setPosition(op.pos + op.length, QTextCursor::KeepAnchor);
             cursor.insertText(op.text);
@@ -99,40 +98,45 @@ bool FixitsRefactoringFile::apply()
         return false; // Error reading file
 
     QString error;
-    if (!m_textFileFormat.writeFile(m_filePath, doc->toPlainText(), &error)) {
-        qCDebug(fixitsLog) << "ERROR: Could not write file" << m_filePath << ":" << error;
-        return false; // Error writing file
+    for (auto it = m_documents.begin(); it != m_documents.end(); ++it) {
+        if (!m_textFileFormat.writeFile(it.key(), it.value()->toPlainText(), &error)) {
+            qCDebug(fixitsLog) << "ERROR: Could not write file" << it.key() << ":" << error;
+            return false; // Error writing file
+        }
     }
 
     return true;
 }
 
-QTextDocument *FixitsRefactoringFile::document() const
+QTextDocument *FixitsRefactoringFile::document(const QString &filePath) const
 {
-    if (!m_document) {
+    if (m_documents.find(filePath) == m_documents.end()) {
         QString fileContents;
-        if (!m_filePath.isEmpty()) {
+        if (!filePath.isEmpty()) {
             QString error;
             QTextCodec *defaultCodec = Core::EditorManager::defaultTextCodec();
             TextFileFormat::ReadResult result = TextFileFormat::readFile(
-                        m_filePath, defaultCodec,
+                        filePath, defaultCodec,
                         &fileContents, &m_textFileFormat,
                         &error);
             if (result != TextFileFormat::ReadSuccess) {
-                qCDebug(fixitsLog) << "ERROR: Could not read " << m_filePath << ":" << error;
+                qCDebug(fixitsLog) << "ERROR: Could not read " << filePath << ":" << error;
                 m_textFileFormat.codec = nullptr;
             }
         }
         // always make a QTextDocument to avoid excessive null checks
-        m_document = new QTextDocument(fileContents);
+        m_documents[filePath] = new QTextDocument(fileContents);
     }
-    return m_document;
+    return m_documents[filePath];
 }
 
 void FixitsRefactoringFile::shiftAffectedReplacements(const ReplacementOperation &op, int startIndex)
 {
     for (int i = startIndex; i < m_replacementOperations.size(); ++i) {
         ReplacementOperation &current = *m_replacementOperations[i];
+        if (op.fileName != current.fileName)
+            continue;
+
         ReplacementOperation before = current;
 
         if (op.pos <= current.pos)
