@@ -1882,8 +1882,8 @@ bool matchName(const Name *name, QList<Core::LocatorFilterEntry> *matches, QStri
     if (!name)
         return false;
 
-    if (CppClassesFilter *classesFilter
-            = ExtensionSystem::PluginManager::getObject<CppClassesFilter>()) {
+    if (Core::ILocatorFilter *classesFilter
+            = CppTools::CppModelManager::instance()->classesFilter()) {
         QFutureInterface<Core::LocatorFilterEntry> dummy;
 
         const Overview oo;

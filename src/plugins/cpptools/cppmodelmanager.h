@@ -219,6 +219,13 @@ public:
     void setSymbolsFindFilter(std::unique_ptr<Core::IFindFilter> &&filter);
     void setCurrentDocumentFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
 
+    Core::ILocatorFilter *locatorFilter() const;
+    Core::ILocatorFilter *classesFilter() const;
+    Core::ILocatorFilter *includesFilter() const;
+    Core::ILocatorFilter *functionsFilter() const;
+    Core::IFindFilter *symbolsFindFilter() const;
+    Core::ILocatorFilter *currentDocumentFilter() const;
+
     void renameIncludes(const QString &oldFileName, const QString &newFileName);
 
 signals:
