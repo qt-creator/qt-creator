@@ -159,7 +159,6 @@ private:
     void handleNewRows(const QModelIndex &index, int first, int last);
     void handleRowsAboutToBeRemoved(const QModelIndex &index, int first, int last);
     void handleDataChanged(const QModelIndex &top, const QModelIndex &bottom);
-    void handleReset();
 
     QModelIndex mapToSource(const QModelIndex &index) const;
     void invalidateFilter();
