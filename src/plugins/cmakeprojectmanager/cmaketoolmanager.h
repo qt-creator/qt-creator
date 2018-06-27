@@ -40,8 +40,6 @@ class CMAKE_EXPORT CMakeToolManager : public QObject
 {
     Q_OBJECT
 public:
-    typedef std::function<QList<CMakeTool *> ()> AutodetectionHelper;
-
     CMakeToolManager(QObject *parent);
     ~CMakeToolManager() override;
 
@@ -57,7 +55,6 @@ public:
     static void setDefaultCMakeTool(const Core::Id &id);
     static CMakeTool *findByCommand(const Utils::FileName &command);
     static CMakeTool *findById(const Core::Id &id);
-    static void registerAutodetectionHelper(AutodetectionHelper helper);
 
     static void notifyAboutUpdate(CMakeTool *);
     static void restoreCMakeTools();

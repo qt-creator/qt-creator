@@ -54,7 +54,6 @@ public:
     Id m_defaultCMake;
     QList<CMakeTool *> m_cmakeTools;
     PersistentSettingsWriter *m_writer =  nullptr;
-    QList<CMakeToolManager::AutodetectionHelper> m_autoDetectionHelpers;
 };
 static CMakeToolManagerPrivate *d = nullptr;
 
@@ -179,10 +178,6 @@ static QList<CMakeTool *> autoDetectCMakeTools()
 
         found.append(item);
     }
-
-    //execute custom helpers if available
-    foreach (CMakeToolManager::AutodetectionHelper source, d->m_autoDetectionHelpers)
-        found.append(source());
 
     return found;
 }
@@ -373,11 +368,6 @@ void CMakeToolManager::restoreCMakeTools()
     // restore the legacy cmake settings only once and keep them around
     readAndDeleteLegacyCMakeSettings();
     emit m_instance->cmakeToolsLoaded();
-}
-
-void CMakeToolManager::registerAutodetectionHelper(CMakeToolManager::AutodetectionHelper helper)
-{
-    d->m_autoDetectionHelpers.append(helper);
 }
 
 void CMakeToolManager::notifyAboutUpdate(CMakeTool *tool)
