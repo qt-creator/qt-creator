@@ -87,6 +87,9 @@ WinRtDeployStepFactory::WinRtDeployStepFactory()
     setDisplayName(QCoreApplication::translate("WinRt::Internal::WinRtDeployStepFactory", "Run windeployqt"));
     setFlags(BuildStepInfo::Unclonable);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    setSupportedDeviceTypes({Constants::WINRT_DEVICE_TYPE_LOCAL,
+                             Constants::WINRT_DEVICE_TYPE_EMULATOR,
+                             Constants::WINRT_DEVICE_TYPE_PHONE});
     setRepeatable(false);
 }
 
