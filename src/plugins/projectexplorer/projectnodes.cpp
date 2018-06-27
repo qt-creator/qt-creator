@@ -604,6 +604,7 @@ bool FolderNode::isAncesterOf(Node *n)
 
 bool FolderNode::replaceSubtree(Node *oldNode, std::unique_ptr<Node> &&newNode)
 {
+    std::unique_ptr<Node> keepAlive;
     if (!oldNode) {
         addNode(std::move(newNode)); // Happens e.g. when a project is registered
     } else {
@@ -614,9 +615,10 @@ bool FolderNode::replaceSubtree(Node *oldNode, std::unique_ptr<Node> &&newNode)
         QTC_ASSERT(it != m_nodes.end(), return false);
         if (newNode) {
             newNode->setParentFolderNode(this);
+            keepAlive = std::move(*it);
             *it = std::move(newNode);
         } else {
-            takeNode(oldNode); // Happens e.g. when project is shutting down
+            keepAlive = takeNode(oldNode); // Happens e.g. when project is shutting down
         }
     }
     handleSubTreeChanged(this);
