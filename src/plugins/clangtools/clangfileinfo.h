@@ -36,12 +36,24 @@ namespace Internal {
 class FileInfo
 {
 public:
+    FileInfo() = default;
+    FileInfo(Utils::FileName file,
+             CppTools::ProjectFile::Kind kind,
+             CppTools::ProjectPart::Ptr projectPart)
+        : file(std::move(file))
+        , kind(kind)
+        , projectPart(projectPart)
+    {}
     Utils::FileName file;
     CppTools::ProjectFile::Kind kind;
     CppTools::ProjectPart::Ptr projectPart;
 };
 
-using FileInfos = QVector<FileInfo>;
+inline bool operator==(const FileInfo &lhs, const FileInfo &rhs) {
+    return lhs.file == rhs.file;
+}
+
+using FileInfos = std::vector<FileInfo>;
 
 } // namespace Internal
 } // namespace ClangTools

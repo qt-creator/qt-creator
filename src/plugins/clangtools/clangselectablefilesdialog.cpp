@@ -155,7 +155,7 @@ public:
                 return false;
 
             if (!node->isDir)
-                result += static_cast<TreeWithFileInfo *>(node)->info;
+                result.push_back(static_cast<TreeWithFileInfo *>(node)->info);
 
             return true;
         });
@@ -194,7 +194,7 @@ private:
         Tree *projectDirTree = buildProjectDirTree(project->projectDirectory(),
                                                    fileInfos,
                                                    outOfBaseDirFiles);
-        if (outOfBaseDirFiles.isEmpty()) {
+        if (outOfBaseDirFiles.empty()) {
             // Showing the project file and beneath the project dir is pointless in this case,
             // so get rid of the root node and modify the project dir node as the new root node.
             projectDirTree->name = m_root->name;
@@ -229,7 +229,7 @@ private:
 
         for (const FileInfo &fileInfo : fileInfos) {
             if (!fileInfo.file.isChildOf(projectDirNode->fullPath)) {
-                outOfBaseDirFiles += fileInfo;
+                outOfBaseDirFiles.push_back(fileInfo);
                 continue; // Handle these separately.
             }
 

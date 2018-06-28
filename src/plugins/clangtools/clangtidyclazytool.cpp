@@ -333,7 +333,7 @@ void ClangTidyClazyTool::startTool(bool askUserForFileSelection)
     QTC_ASSERT(project, return);
 
     const FileInfos fileInfos = collectFileInfos(project, askUserForFileSelection);
-    if (fileInfos.isEmpty())
+    if (fileInfos.empty())
         return;
 
     auto clangTool = new ClangTidyClazyRunControl(runControl,
