@@ -26,6 +26,7 @@ QtcTool {
     cpp.includePaths: base.concat([libsDir])
 
     files: [
+        "addabiflavor.cpp", "addabiflavor.h",
         "addcmakeoperation.cpp", "addcmakeoperation.h",
         "adddebuggeroperation.cpp", "adddebuggeroperation.h",
         "adddeviceoperation.cpp", "adddeviceoperation.h",
