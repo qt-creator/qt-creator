@@ -393,6 +393,8 @@ void TaskFilterModel::handleNewRows(const QModelIndex &index, int first, int las
 {
     QTC_ASSERT(!index.isValid(), return);
 
+    const int newItemCount = last - first + 1;
+
     QList<int> newMapping;
     for (int i = first; i <= last; ++i) {
         const Task &task = m_sourceModel->task(m_sourceModel->index(i, 0));
@@ -400,8 +402,8 @@ void TaskFilterModel::handleNewRows(const QModelIndex &index, int first, int las
             newMapping.append(i);
     }
 
-    const int newItems = newMapping.count();
-    if (!newItems)
+    const int newMappingCount = newMapping.count();
+    if (!newMappingCount)
         return;
 
     int filteredFirst = -1;
@@ -410,18 +412,18 @@ void TaskFilterModel::handleNewRows(const QModelIndex &index, int first, int las
     else
         filteredFirst = std::lower_bound(m_mapping.constBegin(), m_mapping.constEnd(), first) - m_mapping.constBegin();
 
-    const int filteredLast = filteredFirst + newItems - 1;
+    const int filteredLast = filteredFirst + newMappingCount - 1;
     beginInsertRows(QModelIndex(), filteredFirst, filteredLast);
     if (filteredFirst == m_mapping.count()) {
         m_mapping.append(newMapping);
     } else {
-        QList<int> rest = m_mapping.mid(filteredFirst);
+        const QList<int> rest = m_mapping.mid(filteredFirst);
 
-        m_mapping.reserve(m_mapping.count() + newItems);
+        m_mapping.reserve(m_mapping.count() + newMappingCount);
         m_mapping.erase(m_mapping.begin() + filteredFirst, m_mapping.end());
         m_mapping.append(newMapping);
-        foreach (int pos, rest)
-            m_mapping.append(pos + newItems);
+        for (int pos : rest)
+            m_mapping.append(pos + newItemCount);
     }
     endInsertRows();
 }
