@@ -26,11 +26,11 @@
 #include "cmaketoolmanager.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/toolchainmanager.h>
+
+#include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
-#include <utils/environment.h>
-#include <utils/algorithm.h>
 
 #include <QFileInfo>
 #include <QDebug>
@@ -143,7 +143,7 @@ static QList<CMakeTool *> autoDetectCMakeTools()
 
         QFileInfo fi;
         for (const QString &exec : execs) {
-            fi.setFile(base.toString(), exec);
+            fi.setFile(QDir(base.toString()), exec);
             if (fi.exists() && fi.isFile() && fi.isExecutable())
                 suspects << FileName::fromString(fi.absoluteFilePath());
         }
