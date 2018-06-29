@@ -321,25 +321,27 @@ void CMakeToolManager::restoreCMakeTools()
     FileName sdkSettingsFile = FileName::fromString(ICore::installerResourcePath()
                                                     + CMAKETOOL_FILENAME);
 
-    QList<CMakeTool *> toolsToRegister = readCMakeTools(sdkSettingsFile, &defaultId, true);
+    QList<CMakeTool *> sdkTools = readCMakeTools(sdkSettingsFile, &defaultId, true);
 
     //read the tools from the user settings file
-    QList<CMakeTool *> readTools = readCMakeTools(userSettingsFileName(), &defaultId, false);
+    QList<CMakeTool *> userTools = readCMakeTools(userSettingsFileName(), &defaultId, false);
 
     //autodetect tools
-    QList<CMakeTool *> autoDetected = autoDetectCMakeTools();
+    QList<CMakeTool *> autoDetectedTools = autoDetectCMakeTools();
 
     //filter out the tools that were stored in SDK
-    for (int i = readTools.size() - 1; i >= 0; i--) {
-        CMakeTool *currTool = readTools.takeAt(i);
-        if (Utils::anyOf(toolsToRegister, Utils::equal(&CMakeTool::id, currTool->id()))) {
+    QList<CMakeTool *> toRegister;
+    for (int i = userTools.size() - 1; i >= 0; i--) {
+        CMakeTool *currTool = userTools.takeAt(i);
+        if (CMakeTool *sdk = Utils::findOrDefault(sdkTools, Utils::equal(&CMakeTool::id, currTool->id()))) {
             delete currTool;
+            toRegister.append(sdk);
         } else {
             //if the current tool is marked as autodetected and NOT in the autodetected list,
             //it is a leftover SDK provided tool. The user will not be able to edit it,
             //so we automatically drop it
             if (currTool->isAutoDetected()) {
-                if (!Utils::anyOf(autoDetected,
+                if (!Utils::anyOf(autoDetectedTools,
                                   Utils::equal(&CMakeTool::cmakeExecutable, currTool->cmakeExecutable()))) {
 
                     qWarning() << QString::fromLatin1("Previously SDK provided CMakeTool \"%1\" (%2) dropped.")
@@ -349,22 +351,22 @@ void CMakeToolManager::restoreCMakeTools()
                     continue;
                 }
             }
-            toolsToRegister.append(currTool);
+            toRegister.append(currTool);
         }
     }
 
     //filter out the tools that are already known
-    while (autoDetected.size()) {
-        CMakeTool *currTool = autoDetected.takeFirst();
-        if (Utils::anyOf(toolsToRegister,
+    while (autoDetectedTools.size()) {
+        CMakeTool *currTool = autoDetectedTools.takeFirst();
+        if (Utils::anyOf(toRegister,
                          Utils::equal(&CMakeTool::cmakeExecutable, currTool->cmakeExecutable())))
             delete currTool;
         else
-            toolsToRegister.append(currTool);
+            toRegister.append(currTool);
     }
 
     // Store all tools
-    foreach (CMakeTool *current, toolsToRegister) {
+    foreach (CMakeTool *current, toRegister) {
         if (!registerCMakeTool(current)) {
             //this should never happen, but lets make sure we do not leak memory
             qWarning() << QString::fromLatin1("CMakeTool \"%1\" (%2) dropped.")
