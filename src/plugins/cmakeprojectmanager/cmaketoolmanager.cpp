@@ -190,6 +190,47 @@ static QList<CMakeTool *> autoDetectCMakeTools()
     return found;
 }
 
+static QList<CMakeTool *> mergeTools(QList<CMakeTool *> &sdkTools,
+                                     QList<CMakeTool *> &userTools,
+                                     QList<CMakeTool *> &autoDetectedTools)
+{
+    QList<CMakeTool *> result;
+    for (int i = userTools.size() - 1; i >= 0; i--) {
+        CMakeTool *currTool = userTools.takeAt(i);
+        if (CMakeTool *sdk = Utils::findOrDefault(sdkTools, Utils::equal(&CMakeTool::id, currTool->id()))) {
+            delete currTool;
+            result.append(sdk);
+        } else {
+            //if the current tool is marked as autodetected and NOT in the autodetected list,
+            //it is a leftover SDK provided tool. The user will not be able to edit it,
+            //so we automatically drop it
+            if (currTool->isAutoDetected()) {
+                if (!Utils::anyOf(autoDetectedTools,
+                                  Utils::equal(&CMakeTool::cmakeExecutable, currTool->cmakeExecutable()))) {
+
+                    qWarning() << QString::fromLatin1("Previously SDK provided CMakeTool \"%1\" (%2) dropped.")
+                                  .arg(currTool->cmakeExecutable().toUserOutput(), currTool->id().toString());
+
+                    delete currTool;
+                    continue;
+                }
+            }
+            result.append(currTool);
+        }
+    }
+
+    //filter out the tools that are already known
+    while (autoDetectedTools.size()) {
+        CMakeTool *currTool = autoDetectedTools.takeFirst();
+        if (Utils::anyOf(result,
+                         Utils::equal(&CMakeTool::cmakeExecutable, currTool->cmakeExecutable())))
+            delete currTool;
+        else
+            result.append(currTool);
+    }
+    return result;
+}
+
 // --------------------------------------------------------------------
 // CMakeToolManager:
 // --------------------------------------------------------------------
@@ -318,8 +359,8 @@ void CMakeToolManager::restoreCMakeTools()
 {
     Core::Id defaultId;
 
-    FileName sdkSettingsFile = FileName::fromString(ICore::installerResourcePath()
-                                                    + CMAKETOOL_FILENAME);
+    const FileName sdkSettingsFile = FileName::fromString(ICore::installerResourcePath()
+                                                          + CMAKETOOL_FILENAME);
 
     QList<CMakeTool *> sdkTools = readCMakeTools(sdkSettingsFile, &defaultId, true);
 
@@ -330,40 +371,7 @@ void CMakeToolManager::restoreCMakeTools()
     QList<CMakeTool *> autoDetectedTools = autoDetectCMakeTools();
 
     //filter out the tools that were stored in SDK
-    QList<CMakeTool *> toRegister;
-    for (int i = userTools.size() - 1; i >= 0; i--) {
-        CMakeTool *currTool = userTools.takeAt(i);
-        if (CMakeTool *sdk = Utils::findOrDefault(sdkTools, Utils::equal(&CMakeTool::id, currTool->id()))) {
-            delete currTool;
-            toRegister.append(sdk);
-        } else {
-            //if the current tool is marked as autodetected and NOT in the autodetected list,
-            //it is a leftover SDK provided tool. The user will not be able to edit it,
-            //so we automatically drop it
-            if (currTool->isAutoDetected()) {
-                if (!Utils::anyOf(autoDetectedTools,
-                                  Utils::equal(&CMakeTool::cmakeExecutable, currTool->cmakeExecutable()))) {
-
-                    qWarning() << QString::fromLatin1("Previously SDK provided CMakeTool \"%1\" (%2) dropped.")
-                                  .arg(currTool->cmakeExecutable().toUserOutput(), currTool->id().toString());
-
-                    delete currTool;
-                    continue;
-                }
-            }
-            toRegister.append(currTool);
-        }
-    }
-
-    //filter out the tools that are already known
-    while (autoDetectedTools.size()) {
-        CMakeTool *currTool = autoDetectedTools.takeFirst();
-        if (Utils::anyOf(toRegister,
-                         Utils::equal(&CMakeTool::cmakeExecutable, currTool->cmakeExecutable())))
-            delete currTool;
-        else
-            toRegister.append(currTool);
-    }
+    const QList<CMakeTool *> toRegister = mergeTools(sdkTools, userTools, autoDetectedTools);
 
     // Store all tools
     foreach (CMakeTool *current, toRegister) {
