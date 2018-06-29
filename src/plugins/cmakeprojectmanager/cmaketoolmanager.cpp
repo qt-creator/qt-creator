@@ -110,35 +110,6 @@ static QList<CMakeTool *> readCMakeTools(const FileName &fileName, Core::Id *def
     return loaded;
 }
 
-static void readAndDeleteLegacyCMakeSettings ()
-{
-    // restore the legacy cmake
-    QSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String("CMakeSettings"));
-
-    FileName exec = FileName::fromUserInput(settings->value(QLatin1String("cmakeExecutable")).toString());
-    if (exec.toFileInfo().isExecutable()) {
-        CMakeTool *item = CMakeToolManager::findByCommand(exec);
-        if (!item) {
-            item = new CMakeTool(CMakeTool::ManualDetection, CMakeTool::createId());
-            item->setCMakeExecutable(exec);
-            item->setDisplayName(CMakeToolManager::tr("CMake at %1").arg(item->cmakeExecutable().toUserOutput()));
-
-            if (!CMakeToolManager::registerCMakeTool(item)) {
-                delete item;
-                item = nullptr;
-            }
-        }
-
-        //this setting used to be the default cmake, make sure it is again
-        if (item)
-            d->m_defaultCMake = item->id();
-    }
-
-    settings->remove(QString());
-    settings->endGroup();
-}
-
 static QList<CMakeTool *> autoDetectCMakeTools()
 {
     Utils::Environment env = Environment::systemEnvironment();
@@ -387,8 +358,6 @@ void CMakeToolManager::restoreCMakeTools()
     if (CMakeToolManager::findById(defaultId))
         d->m_defaultCMake = defaultId;
 
-    // restore the legacy cmake settings only once and keep them around
-    readAndDeleteLegacyCMakeSettings();
     emit m_instance->cmakeToolsLoaded();
 }
 
