@@ -235,7 +235,7 @@
     select \uicontrol {GTest Filter} and specify the filter to use in the
     \uicontrol {Active filter} field. For more information about GTest
     filters, see
-    \l{https://github.com/google/googletest/blob/master/googletest/docs/AdvancedGuide.md#running-a-subset-of-the-tests}
+    \l{https://github.com/google/googletest/blob/master/googletest/docs/advanced.md#running-a-subset-of-the-tests}
     {Running a Subset of the Tests}.
 
     \image qtcreator-autotests-options.png
