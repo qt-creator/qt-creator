@@ -42,11 +42,9 @@ using namespace ProjectExplorer;
 
 namespace CMakeProjectManager {
 
-const char CMAKETOOL_COUNT_KEY[] = "CMakeTools.Count";
-const char CMAKETOOL_DEFAULT_KEY[] = "CMakeTools.Default";
-const char CMAKETOOL_DATA_KEY[] = "CMakeTools.";
-const char CMAKETOOL_FILE_VERSION_KEY[] = "Version";
-const char CMAKETOOL_FILENAME[] = "/cmaketools.xml";
+// --------------------------------------------------------------------
+// CMakeToolManagerPrivate:
+// --------------------------------------------------------------------
 
 class CMakeToolManagerPrivate
 {
@@ -56,6 +54,16 @@ public:
     PersistentSettingsWriter *m_writer =  nullptr;
 };
 static CMakeToolManagerPrivate *d = nullptr;
+
+// --------------------------------------------------------------------
+// Helper:
+// --------------------------------------------------------------------
+
+const char CMAKETOOL_COUNT_KEY[] = "CMakeTools.Count";
+const char CMAKETOOL_DEFAULT_KEY[] = "CMakeTools.Default";
+const char CMAKETOOL_DATA_KEY[] = "CMakeTools.";
+const char CMAKETOOL_FILE_VERSION_KEY[] = "Version";
+const char CMAKETOOL_FILENAME[] = "/cmaketools.xml";
 
 static FileName userSettingsFileName()
 {
@@ -181,6 +189,10 @@ static QList<CMakeTool *> autoDetectCMakeTools()
 
     return found;
 }
+
+// --------------------------------------------------------------------
+// CMakeToolManager:
+// --------------------------------------------------------------------
 
 CMakeToolManager *CMakeToolManager::m_instance = nullptr;
 
