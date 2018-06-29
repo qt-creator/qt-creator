@@ -242,11 +242,10 @@ QList<CMakeTool *> CMakeToolManager::cmakeTools()
 
 Id CMakeToolManager::registerOrFindCMakeTool(const FileName &command)
 {
-    CMakeTool  *cmake = findByCommand(command);
-    if (cmake)
+    if (CMakeTool  *cmake = findByCommand(command))
         return cmake->id();
 
-    cmake = new CMakeTool(CMakeTool::ManualDetection, CMakeTool::createId());
+    CMakeTool *cmake = new CMakeTool(CMakeTool::ManualDetection, CMakeTool::createId());
     cmake->setCMakeExecutable(command);
     cmake->setDisplayName(tr("CMake at %1").arg(command.toUserOutput()));
 
@@ -259,21 +258,21 @@ bool CMakeToolManager::registerCMakeTool(CMakeTool *tool)
     if (!tool || d->m_cmakeTools.contains(tool))
         return true;
 
-    QTC_ASSERT(tool->id().isValid(),return false);
+    const Core::Id toolId = tool->id();
+    QTC_ASSERT(toolId.isValid(),return false);
 
     //make sure the same id was not used before
-    foreach (CMakeTool *current, d->m_cmakeTools) {
-        if (tool->id() == current->id())
-            return false;
-    }
+    QTC_ASSERT(!Utils::contains(d->m_cmakeTools, [toolId](const CMakeTool *known) {
+        return toolId == known->id();
+    }), return false);
 
     d->m_cmakeTools.append(tool);
 
-    emit CMakeToolManager::m_instance->cmakeAdded(tool->id());
+    emit CMakeToolManager::m_instance->cmakeAdded(toolId);
 
     //set the first registered cmake tool as default if there is not already one
     if (!d->m_defaultCMake.isValid())
-        CMakeToolManager::setDefaultCMakeTool(tool->id());
+        CMakeToolManager::setDefaultCMakeTool(toolId);
 
     return true;
 }
