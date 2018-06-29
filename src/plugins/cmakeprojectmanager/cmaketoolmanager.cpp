@@ -27,9 +27,9 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/persistentsettings.h>
+#include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -50,7 +50,7 @@ class CMakeToolManagerPrivate
 {
 public:
     Id m_defaultCMake;
-    QList<CMakeTool *> m_cmakeTools;
+    std::vector<std::unique_ptr<CMakeTool>> m_cmakeTools;
     PersistentSettingsWriter *m_writer =  nullptr;
 };
 static CMakeToolManagerPrivate *d = nullptr;
@@ -70,7 +70,8 @@ static FileName userSettingsFileName()
     return FileName::fromString(ICore::userResourcePath() + CMAKETOOL_FILENAME);
 }
 
-static QList<CMakeTool *> readCMakeTools(const FileName &fileName, Core::Id *defaultId, bool fromSDK)
+static std::vector<std::unique_ptr<CMakeTool>>
+readCMakeTools(const FileName &fileName, Core::Id *defaultId, bool fromSDK)
 {
     PersistentSettingsReader reader;
     if (!reader.load(fileName))
@@ -83,7 +84,7 @@ static QList<CMakeTool *> readCMakeTools(const FileName &fileName, Core::Id *def
     if (version < 1)
         return {};
 
-    QList<CMakeTool *> loaded;
+    std::vector<std::unique_ptr<CMakeTool>> loaded;
 
     int count = data.value(QLatin1String(CMAKETOOL_COUNT_KEY), 0).toInt();
     for (int i = 0; i < count; ++i) {
@@ -92,17 +93,16 @@ static QList<CMakeTool *> readCMakeTools(const FileName &fileName, Core::Id *def
             continue;
 
         const QVariantMap dbMap = data.value(key).toMap();
-        auto item = new CMakeTool(dbMap,fromSDK);
+        auto item = std::make_unique<CMakeTool>(dbMap, fromSDK);
         if (item->isAutoDetected()) {
             if (!item->cmakeExecutable().toFileInfo().isExecutable()) {
                 qWarning() << QString::fromLatin1("CMakeTool \"%1\" (%2) read from \"%3\" dropped since the command is not executable.")
                               .arg(item->cmakeExecutable().toUserOutput(), item->id().toString(), fileName.toUserOutput());
-                delete item;
                 continue;
             }
         }
 
-        loaded.append(item);
+        loaded.emplace_back(std::move(item));
     }
 
     *defaultId = Id::fromSetting(data.value(QLatin1String(CMAKETOOL_DEFAULT_KEY), defaultId->toSetting()));
@@ -110,7 +110,7 @@ static QList<CMakeTool *> readCMakeTools(const FileName &fileName, Core::Id *def
     return loaded;
 }
 
-static QList<CMakeTool *> autoDetectCMakeTools()
+static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools()
 {
     Utils::Environment env = Environment::systemEnvironment();
 
@@ -149,56 +149,53 @@ static QList<CMakeTool *> autoDetectCMakeTools()
         }
     }
 
-    QList<CMakeTool *> found;
+    std::vector<std::unique_ptr<CMakeTool>> found;
     foreach (const FileName &command, suspects) {
-        auto item = new CMakeTool(CMakeTool::AutoDetection, CMakeTool::createId());
+        auto item = std::make_unique<CMakeTool>(CMakeTool::AutoDetection, CMakeTool::createId());
         item->setCMakeExecutable(command);
         item->setDisplayName(CMakeToolManager::tr("System CMake at %1").arg(command.toUserOutput()));
 
-        found.append(item);
+        found.emplace_back(std::move(item));
     }
 
     return found;
 }
 
-static QList<CMakeTool *> mergeTools(QList<CMakeTool *> &sdkTools,
-                                     QList<CMakeTool *> &userTools,
-                                     QList<CMakeTool *> &autoDetectedTools)
+static std::vector<std::unique_ptr<CMakeTool>>
+mergeTools(std::vector<std::unique_ptr<CMakeTool>> &sdkTools,
+           std::vector<std::unique_ptr<CMakeTool>> &userTools,
+           std::vector<std::unique_ptr<CMakeTool>> &autoDetectedTools)
 {
-    QList<CMakeTool *> result;
-    for (int i = userTools.size() - 1; i >= 0; i--) {
-        CMakeTool *currTool = userTools.takeAt(i);
-        if (CMakeTool *sdk = Utils::findOrDefault(sdkTools, Utils::equal(&CMakeTool::id, currTool->id()))) {
-            delete currTool;
-            result.append(sdk);
+    std::vector<std::unique_ptr<CMakeTool>> result;
+    while (userTools.size() > 0) {
+        std::unique_ptr<CMakeTool> userTool = std::move(userTools[0]);
+        userTools.erase(std::begin(userTools));
+
+        if (auto sdkTool = Utils::take(sdkTools, Utils::equal(&CMakeTool::id, userTool->id()))) {
+            result.emplace_back(std::move(sdkTool.value()));
         } else {
-            //if the current tool is marked as autodetected and NOT in the autodetected list,
-            //it is a leftover SDK provided tool. The user will not be able to edit it,
-            //so we automatically drop it
-            if (currTool->isAutoDetected()) {
-                if (!Utils::anyOf(autoDetectedTools,
-                                  Utils::equal(&CMakeTool::cmakeExecutable, currTool->cmakeExecutable()))) {
+            if (userTool->isAutoDetected()
+                    && !Utils::contains(autoDetectedTools, Utils::equal(&CMakeTool::cmakeExecutable,
+                                                                        userTool->cmakeExecutable()))) {
 
-                    qWarning() << QString::fromLatin1("Previously SDK provided CMakeTool \"%1\" (%2) dropped.")
-                                  .arg(currTool->cmakeExecutable().toUserOutput(), currTool->id().toString());
-
-                    delete currTool;
-                    continue;
-                }
+                qWarning() << QString::fromLatin1("Previously SDK provided CMakeTool \"%1\" (%2) dropped.")
+                              .arg(userTool->cmakeExecutable().toUserOutput(), userTool->id().toString());
+                continue;
             }
-            result.append(currTool);
+            result.emplace_back(std::move(userTool));
         }
     }
 
-    //filter out the tools that are already known
-    while (autoDetectedTools.size()) {
-        CMakeTool *currTool = autoDetectedTools.takeFirst();
-        if (Utils::anyOf(result,
-                         Utils::equal(&CMakeTool::cmakeExecutable, currTool->cmakeExecutable())))
-            delete currTool;
-        else
-            result.append(currTool);
+    // add all the autodetected tools that are not known yet
+    while (autoDetectedTools.size() > 0) {
+        std::unique_ptr<CMakeTool> autoDetectedTool = std::move(autoDetectedTools[0]);
+        autoDetectedTools.erase(std::begin(autoDetectedTools));
+
+        if (!Utils::contains(result,
+                             Utils::equal(&CMakeTool::cmakeExecutable, autoDetectedTool->cmakeExecutable())))
+            result.emplace_back(std::move(autoDetectedTool));
     }
+
     return result;
 }
 
@@ -226,7 +223,6 @@ CMakeToolManager::CMakeToolManager(QObject *parent) : QObject(parent)
 CMakeToolManager::~CMakeToolManager()
 {
     delete d->m_writer;
-    qDeleteAll(d->m_cmakeTools);
     delete d;
 }
 
@@ -237,7 +233,7 @@ CMakeToolManager *CMakeToolManager::instance()
 
 QList<CMakeTool *> CMakeToolManager::cmakeTools()
 {
-    return d->m_cmakeTools;
+    return Utils::toRawPointer<QList>(d->m_cmakeTools);
 }
 
 Id CMakeToolManager::registerOrFindCMakeTool(const FileName &command)
@@ -245,28 +241,29 @@ Id CMakeToolManager::registerOrFindCMakeTool(const FileName &command)
     if (CMakeTool  *cmake = findByCommand(command))
         return cmake->id();
 
-    CMakeTool *cmake = new CMakeTool(CMakeTool::ManualDetection, CMakeTool::createId());
+    auto cmake = std::make_unique<CMakeTool>(CMakeTool::ManualDetection, CMakeTool::createId());
     cmake->setCMakeExecutable(command);
     cmake->setDisplayName(tr("CMake at %1").arg(command.toUserOutput()));
 
-    QTC_ASSERT(registerCMakeTool(cmake), return Core::Id());
-    return cmake->id();
+    Core::Id id = cmake->id();
+    QTC_ASSERT(registerCMakeTool(std::move(cmake)), return Core::Id());
+    return id;
 }
 
-bool CMakeToolManager::registerCMakeTool(CMakeTool *tool)
+bool CMakeToolManager::registerCMakeTool(std::unique_ptr<CMakeTool> &&tool)
 {
-    if (!tool || d->m_cmakeTools.contains(tool))
+    if (!tool || Utils::contains(d->m_cmakeTools, tool.get()))
         return true;
 
     const Core::Id toolId = tool->id();
     QTC_ASSERT(toolId.isValid(),return false);
 
     //make sure the same id was not used before
-    QTC_ASSERT(!Utils::contains(d->m_cmakeTools, [toolId](const CMakeTool *known) {
+    QTC_ASSERT(!Utils::contains(d->m_cmakeTools, [toolId](const std::unique_ptr<CMakeTool> &known) {
         return toolId == known->id();
     }), return false);
 
-    d->m_cmakeTools.append(tool);
+    d->m_cmakeTools.emplace_back(std::move(tool));
 
     emit CMakeToolManager::m_instance->cmakeAdded(toolId);
 
@@ -277,14 +274,12 @@ bool CMakeToolManager::registerCMakeTool(CMakeTool *tool)
 
 void CMakeToolManager::deregisterCMakeTool(const Id &id)
 {
-    int idx = Utils::indexOf(d->m_cmakeTools, Utils::equal(&CMakeTool::id, id));
-    if (idx >= 0) {
-        CMakeTool *toRemove = d->m_cmakeTools.takeAt(idx);
+    auto toRemove = Utils::take(d->m_cmakeTools, Utils::equal(&CMakeTool::id, id));
+    if (toRemove.has_value()) {
 
         ensureDefaultCMakeToolIsValid();
 
         emit m_instance->cmakeRemoved(id);
-        delete toRemove;
     }
 }
 
@@ -321,25 +316,28 @@ void CMakeToolManager::restoreCMakeTools()
     const FileName sdkSettingsFile = FileName::fromString(ICore::installerResourcePath()
                                                           + CMAKETOOL_FILENAME);
 
-    QList<CMakeTool *> sdkTools = readCMakeTools(sdkSettingsFile, &defaultId, true);
+    std::vector<std::unique_ptr<CMakeTool>> sdkTools
+            = readCMakeTools(sdkSettingsFile, &defaultId, true);
 
     //read the tools from the user settings file
-    QList<CMakeTool *> userTools = readCMakeTools(userSettingsFileName(), &defaultId, false);
+    std::vector<std::unique_ptr<CMakeTool>> userTools
+            = readCMakeTools(userSettingsFileName(), &defaultId, false);
 
     //autodetect tools
-    QList<CMakeTool *> autoDetectedTools = autoDetectCMakeTools();
+    std::vector<std::unique_ptr<CMakeTool>> autoDetectedTools = autoDetectCMakeTools();
 
     //filter out the tools that were stored in SDK
-    const QList<CMakeTool *> toRegister = mergeTools(sdkTools, userTools, autoDetectedTools);
+    std::vector<std::unique_ptr<CMakeTool>> toRegister = mergeTools(sdkTools, userTools, autoDetectedTools);
 
     // Store all tools
-    foreach (CMakeTool *current, toRegister) {
-        if (!registerCMakeTool(current)) {
+    for (auto it = std::begin(toRegister); it != std::end(toRegister); ++it) {
+        const Utils::FileName executable = (*it)->cmakeExecutable();
+        const Core::Id id = (*it)->id();
+
+        if (!registerCMakeTool(std::move(*it))) {
             //this should never happen, but lets make sure we do not leak memory
             qWarning() << QString::fromLatin1("CMakeTool \"%1\" (%2) dropped.")
-                          .arg(current->cmakeExecutable().toUserOutput(), current->id().toString());
-
-            delete current;
+                          .arg(executable.toUserOutput(), id.toString());
         }
     }
 
@@ -350,7 +348,7 @@ void CMakeToolManager::restoreCMakeTools()
 
 void CMakeToolManager::notifyAboutUpdate(CMakeTool *tool)
 {
-    if (!tool || !d->m_cmakeTools.contains(tool))
+    if (!tool || !Utils::contains(d->m_cmakeTools, tool))
         return;
     emit m_instance->cmakeUpdated(tool->id());
 }
@@ -363,7 +361,7 @@ void CMakeToolManager::saveCMakeTools()
     data.insert(QLatin1String(CMAKETOOL_DEFAULT_KEY), d->m_defaultCMake.toSetting());
 
     int count = 0;
-    foreach (CMakeTool *item, d->m_cmakeTools) {
+    for (const std::unique_ptr<CMakeTool> &item : d->m_cmakeTools) {
         QFileInfo fi = item->cmakeExecutable().toFileInfo();
 
         if (fi.isExecutable()) {
@@ -381,7 +379,7 @@ void CMakeToolManager::saveCMakeTools()
 void CMakeToolManager::ensureDefaultCMakeToolIsValid()
 {
     const Core::Id oldId = d->m_defaultCMake;
-    if (d->m_cmakeTools.isEmpty()) {
+    if (d->m_cmakeTools.size() == 0) {
         d->m_defaultCMake = Core::Id();
     } else {
         if (findById(d->m_defaultCMake))

@@ -48,7 +48,7 @@ public:
     static QList<CMakeTool *> cmakeTools();
 
     static Core::Id registerOrFindCMakeTool(const Utils::FileName &command);
-    static bool registerCMakeTool(CMakeTool *tool);
+    static bool registerCMakeTool(std::unique_ptr<CMakeTool> &&tool);
     static void deregisterCMakeTool(const Core::Id &id);
 
     static CMakeTool *defaultCMakeTool();
