@@ -250,7 +250,7 @@ Id CMakeToolManager::registerOrFindCMakeTool(const FileName &command)
     cmake->setCMakeExecutable(command);
     cmake->setDisplayName(tr("CMake at %1").arg(command.toUserOutput()));
 
-    addCMakeTool(cmake);
+    QTC_ASSERT(registerCMakeTool(cmake), return Core::Id());
     return cmake->id();
 }
 
@@ -267,7 +267,14 @@ bool CMakeToolManager::registerCMakeTool(CMakeTool *tool)
             return false;
     }
 
-    addCMakeTool(tool);
+    d->m_cmakeTools.append(tool);
+
+    emit CMakeToolManager::m_instance->cmakeAdded(tool->id());
+
+    //set the first registered cmake tool as default if there is not already one
+    if (!d->m_defaultCMake.isValid())
+        CMakeToolManager::setDefaultCMakeTool(tool->id());
+
     return true;
 }
 
@@ -389,19 +396,6 @@ void CMakeToolManager::saveCMakeTools()
     }
     data.insert(QLatin1String(CMAKETOOL_COUNT_KEY), count);
     d->m_writer->save(data, ICore::mainWindow());
-}
-
-void CMakeToolManager::addCMakeTool(CMakeTool *item)
-{
-    QTC_ASSERT(item->id().isValid(), return);
-
-    d->m_cmakeTools.append(item);
-
-    emit CMakeToolManager::m_instance->cmakeAdded(item->id());
-
-    //set the first registered cmake tool as default if there is not already one
-    if (!d->m_defaultCMake.isValid())
-        CMakeToolManager::setDefaultCMakeTool(item->id());
 }
 
 } // namespace CMakeProjectManager

@@ -69,7 +69,6 @@ signals:
 
 private:
     static void saveCMakeTools();
-    static void addCMakeTool(CMakeTool *item);
 
     static CMakeToolManager *m_instance;
 };
