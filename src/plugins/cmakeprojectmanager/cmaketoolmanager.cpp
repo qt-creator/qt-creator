@@ -66,14 +66,14 @@ static QList<CMakeTool *> readCMakeTools(const FileName &fileName, Core::Id *def
 {
     PersistentSettingsReader reader;
     if (!reader.load(fileName))
-        return QList<CMakeTool *>();
+        return {};
 
     QVariantMap data = reader.restoreValues();
 
     // Check version
     int version = data.value(QLatin1String(CMAKETOOL_FILE_VERSION_KEY), 0).toInt();
     if (version < 1)
-        return QList<CMakeTool *>();
+        return {};
 
     QList<CMakeTool *> loaded;
 
