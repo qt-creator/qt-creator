@@ -270,9 +270,7 @@ bool CMakeToolManager::registerCMakeTool(CMakeTool *tool)
 
     emit CMakeToolManager::m_instance->cmakeAdded(toolId);
 
-    //set the first registered cmake tool as default if there is not already one
-    if (!d->m_defaultCMake.isValid())
-        CMakeToolManager::setDefaultCMakeTool(toolId);
+    ensureDefaultCMakeToolIsValid();
 
     return true;
 }
@@ -282,14 +280,8 @@ void CMakeToolManager::deregisterCMakeTool(const Id &id)
     int idx = Utils::indexOf(d->m_cmakeTools, Utils::equal(&CMakeTool::id, id));
     if (idx >= 0) {
         CMakeTool *toRemove = d->m_cmakeTools.takeAt(idx);
-        if (toRemove->id() == d->m_defaultCMake) {
-            if (d->m_cmakeTools.isEmpty())
-                d->m_defaultCMake = Id();
-            else
-                d->m_defaultCMake = d->m_cmakeTools.first()->id();
 
-            emit m_instance->defaultCMakeChanged();
-        }
+        ensureDefaultCMakeToolIsValid();
 
         emit m_instance->cmakeRemoved(id);
         delete toRemove;
@@ -298,28 +290,18 @@ void CMakeToolManager::deregisterCMakeTool(const Id &id)
 
 CMakeTool *CMakeToolManager::defaultCMakeTool()
 {
-    CMakeTool *tool = findById(d->m_defaultCMake);
-    if (!tool) {
-        //if the id is not valid, we set the firstly registered one as default
-        if (!d->m_cmakeTools.isEmpty()) {
-            d->m_defaultCMake = d->m_cmakeTools.first()->id();
-            emit m_instance->defaultCMakeChanged();
-
-            return d->m_cmakeTools.first();
-        }
-    }
-    return tool;
+    return findById(d->m_defaultCMake);
 }
 
 void CMakeToolManager::setDefaultCMakeTool(const Id &id)
 {
-    if (d->m_defaultCMake == id)
-        return;
-
-    if (findById(id)) {
+    if (d->m_defaultCMake != id && findById(id)) {
         d->m_defaultCMake = id;
         emit m_instance->defaultCMakeChanged();
+        return;
     }
+
+    ensureDefaultCMakeToolIsValid();
 }
 
 CMakeTool *CMakeToolManager::findByCommand(const FileName &command)
@@ -361,8 +343,7 @@ void CMakeToolManager::restoreCMakeTools()
         }
     }
 
-    if (CMakeToolManager::findById(defaultId))
-        d->m_defaultCMake = defaultId;
+    setDefaultCMakeTool(defaultId);
 
     emit m_instance->cmakeToolsLoaded();
 }
@@ -395,6 +376,22 @@ void CMakeToolManager::saveCMakeTools()
     }
     data.insert(QLatin1String(CMAKETOOL_COUNT_KEY), count);
     d->m_writer->save(data, ICore::mainWindow());
+}
+
+void CMakeToolManager::ensureDefaultCMakeToolIsValid()
+{
+    const Core::Id oldId = d->m_defaultCMake;
+    if (d->m_cmakeTools.isEmpty()) {
+        d->m_defaultCMake = Core::Id();
+    } else {
+        if (findById(d->m_defaultCMake))
+            return;
+        d->m_defaultCMake = d->m_cmakeTools.at(0)->id();
+    }
+
+    // signaling:
+    if (oldId != d->m_defaultCMake)
+        emit m_instance->defaultCMakeChanged();
 }
 
 } // namespace CMakeProjectManager
