@@ -54,7 +54,7 @@ public:
     using std::array<T, MaxSize>::rend;
     using std::array<T, MaxSize>::crend;
 
-    constexpr SizedArray() = default;
+    constexpr SizedArray() : std::array<T, MaxSize>() {}
     SizedArray(std::initializer_list<T> list)
         : m_size(std::uint8_t(list.size()))
     {
