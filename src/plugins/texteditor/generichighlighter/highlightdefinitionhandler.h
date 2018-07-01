@@ -67,6 +67,7 @@ private:
     void detect2CharsStarted(const QXmlAttributes &atts);
     void anyCharStarted(const QXmlAttributes &atts);
     void stringDetectedStarted(const QXmlAttributes &atts);
+    void wordDetectStarted(const QXmlAttributes &atts);
     void regExprStarted(const QXmlAttributes &atts);
     void keywordStarted(const QXmlAttributes &atts);
     void intStarted(const QXmlAttributes &atts);

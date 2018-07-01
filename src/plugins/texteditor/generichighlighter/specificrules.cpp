@@ -171,6 +171,21 @@ bool StringDetectRule::doMatchSucceed(const QString &text,
     return false;
 }
 
+bool WordDetectRule::doMatchSucceed(const QString &text, const int length, ProgressData *progress)
+{
+    const int offset = progress->offset();
+    if (length - offset < m_length)
+        return false;
+    if (offset > 0 && !definition()->isDelimiter(text.at(offset - 1)))
+        return false;
+    if (text.midRef(offset, m_string.size()).compare(m_string, m_caseSensitivity) != 0)
+        return false;
+    if (length > offset + m_string.size() && !definition()->isDelimiter(text.at(offset + m_string.size())))
+        return false;
+    progress->incrementOffset(m_length);
+    return true;
+}
+
 // RegExpr
 RegExprRule::~RegExprRule()
 {

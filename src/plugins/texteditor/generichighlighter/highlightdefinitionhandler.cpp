@@ -85,6 +85,7 @@ namespace {
     static const QLatin1String kDetect2Chars("Detect2Chars");
     static const QLatin1String kAnyChar("AnyChar");
     static const QLatin1String kStringDetect("StringDetect");
+    static const QLatin1String kWordDetect("WordDetect");
     static const QLatin1String kRegExpr("RegExpr");
     static const QLatin1String kKeyword("keyword");
     static const QLatin1String kInt("Int");
@@ -153,6 +154,8 @@ bool HighlightDefinitionHandler::startElement(const QString &,
         anyCharStarted(atts);
     else if (qName == kStringDetect)
         stringDetectedStarted(atts);
+    else if (qName == kWordDetect)
+        wordDetectStarted(atts);
     else if (qName == kRegExpr)
         regExprStarted(atts);
     else if (qName == kKeyword)
@@ -189,7 +192,8 @@ bool HighlightDefinitionHandler::endElement(const QString &, const QString &, co
         m_currentList->addKeyword(m_currentKeyword.trimmed());
         m_processingKeyword = false;
     } else if (qName == kDetectChar || qName == kDetect2Chars || qName == kAnyChar ||
-               qName == kStringDetect || qName == kRegExpr || qName == kKeyword || qName == kInt ||
+               qName == kStringDetect || qName == kWordDetect  || qName == kRegExpr ||
+               qName == kKeyword || qName == kInt ||
                qName == kFloat || qName == kHlCOct || qName == kHlCHex || qName == kHlCStringChar ||
                qName == kHlCChar || qName == kRangeDetect || qName == kLineContinue ||
                qName == kDetectSpaces || qName == kDetectIdentifier) {
@@ -327,6 +331,15 @@ void HighlightDefinitionHandler::anyCharStarted(const QXmlAttributes &atts)
 void HighlightDefinitionHandler::stringDetectedStarted(const QXmlAttributes &atts)
 {
     StringDetectRule *rule = new StringDetectRule;
+    rule->setString(atts.value(kString));
+    rule->setInsensitive(atts.value(kInsensitive));
+    rule->setActive(atts.value(kDynamic));
+    ruleElementStarted(atts, QSharedPointer<Rule>(rule));
+}
+
+void HighlightDefinitionHandler::wordDetectStarted(const QXmlAttributes &atts)
+{
+    WordDetectRule *rule = new WordDetectRule;
     rule->setString(atts.value(kString));
     rule->setInsensitive(atts.value(kInsensitive));
     rule->setActive(atts.value(kDynamic));
