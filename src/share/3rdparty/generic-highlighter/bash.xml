@@ -8,7 +8,7 @@
         <!ENTITY noword   "(?![\w$+-])">                <!-- no word, $, + or - following -->
         <!ENTITY pathpart "([\w_@.&#37;*?+-]|\\ )">     <!-- valid character in a file name -->
 ]>
-<language name="Bash" version="6" kateversion="5.0" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;*.nix;.bashrc;.bash_profile;.bash_login;.profile;PKGBUILD" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
+<language name="Bash" version="8" kateversion="5.0" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;*.nix;.bashrc;.bash_profile;.bash_login;.profile;PKGBUILD;APKBUILD" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
 
 <!-- (c) 2004 by Wilbert Berendsen (wilbert@kde.nl)
     Changes by Matthew Woehlke (mw_triad@users.sourceforge.net)
@@ -540,7 +540,7 @@
         <RegExpr attribute="Variable" context="AssignSubscr" String="\b&varname;(?=\[.+\]\+?=)" />
         <!-- handle functions with function keyword before keywords -->
         <StringDetect attribute="Function" context="#stay" String=":()" />
-        <RegExpr attribute="Keyword" context="FunctionDef" String="\bfunction\b" />
+        <WordDetect attribute="Keyword" context="FunctionDef" String="function" />
         <!-- mark function definitions without function keyword -->
         <RegExpr attribute="Function" context="#stay" String="&funcname;\s*\(\)" />
         <!-- handle keywords -->
@@ -551,7 +551,7 @@
         <!-- handle here-string -->
         <RegExpr attribute="Redirection" context="#stay" String="\d*&lt;&lt;&lt;" />
         <!-- handle here document -->
-        <StringDetect attribute="Redirection" context="HereDoc" String="&lt;&lt;" lookAhead="true" />
+        <Detect2Chars attribute="Redirection" context="HereDoc" char="&lt;" char1="&lt;" lookAhead="true" />
         <!-- handle process subst -->
         <RegExpr attribute="Redirection" context="ProcessSubst" String="[&lt;&gt;]\(" />
         <!-- handle redirection -->
@@ -580,7 +580,7 @@
         <!-- handle here-string -->
         <RegExpr attribute="Redirection" context="#stay" String="\d*&lt;&lt;&lt;" />
         <!-- handle here document -->
-        <StringDetect attribute="Redirection" context="HereDoc" String="&lt;&lt;" lookAhead="true" />
+        <Detect2Chars attribute="Redirection" context="HereDoc" char="&lt;" char1="&lt;" lookAhead="true" />
         <!-- handle process subst -->
         <RegExpr attribute="Redirection" context="ProcessSubst" String="[&lt;&gt;]\(" />
         <!-- handle redirection -->
@@ -647,7 +647,7 @@
         <RegExpr attribute="Variable" context="VarBrace" String="\$\{[*@#?$!_0-9-](?=[:#%/=?+-])" />
         <StringDetect attribute="Variable" context="ExprDblParenSubst" String="$((" beginRegion="expression" />
         <StringDetect attribute="Redirection" context="SubstFile" String="$(&lt;" />
-        <StringDetect attribute="Variable" context="SubstCommand" String="$(" />
+        <Detect2Chars attribute="Variable" context="SubstCommand" char="$" char1="(" />
         <DetectChar attribute="Backquote" context="SubstBackq" char="`" />
         <RegExpr attribute="Escape" context="#stay" String="\\[`$\\]" />
       </context>
@@ -902,7 +902,7 @@
         <RegExpr attribute="Redirection" context="HereDocQ"   String="(&lt;&lt;\s*'(&word;)')" lookAhead="true" />
         <RegExpr attribute="Redirection" context="HereDocQ"   String="(&lt;&lt;\s*\\(&word;))" lookAhead="true" />
         <RegExpr attribute="Redirection" context="HereDocNQ"  String="(&lt;&lt;\s*(&word;))" lookAhead="true" />
-        <StringDetect attribute="Redirection" context="#pop"  String="&lt;&lt;" /><!-- always met -->
+        <Detect2Chars attribute="Redirection" context="#pop"  char="&lt;" char1="&lt;" /><!-- always met -->
       </context>
 
       <context attribute="Normal Text" lineEndContext="#pop" name="HereDocRemainder">

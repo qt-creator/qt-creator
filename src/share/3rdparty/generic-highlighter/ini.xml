@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
-<language name="INI Files" section="Configuration" extensions="*.ini;*.pls;*.kcfgc" mimetype="" version="2" kateversion="2.4" author="Jan Janssen (medhefgo@web.de)" license="LGPL">
+<language name="INI Files" section="Configuration" extensions="*.ini;*.pls;*.kcfgc" mimetype="" version="3" kateversion="2.4" author="Jan Janssen (medhefgo@web.de)" license="LGPL">
 
 <highlighting>
 <list name="keywords">
@@ -44,8 +44,6 @@
   <Float attribute="Float" />
   <Int attribute="Int" />
   <keyword attribute="Keyword" String="keywords" />
-  <RegExpr attribute="Comment" context="#pop" String=";.*$" />
-  <RegExpr attribute="Comment" context="#pop" String="#.*$" />
  </context>
 
  <context name="Comment" attribute="Comment" lineEndContext="#pop">
