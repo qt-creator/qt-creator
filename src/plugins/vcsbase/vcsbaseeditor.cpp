@@ -1303,14 +1303,14 @@ int VcsBaseEditor::lineNumberOfCurrentEditor(const QString &currentFile)
     const BaseTextEditor *eda = qobject_cast<const BaseTextEditor *>(ed);
     if (!eda)
         return -1;
-    const int cursorLine = eda->textCursor().blockNumber();
+    const int cursorLine = eda->textCursor().blockNumber() + 1;
     auto const edw = qobject_cast<const TextEditorWidget *>(ed->widget());
     if (edw) {
-        const int firstLine = edw->firstVisibleBlockNumber();
-        const int lastLine = edw->lastVisibleBlockNumber();
+        const int firstLine = edw->firstVisibleBlockNumber() + 1;
+        const int lastLine = edw->lastVisibleBlockNumber() + 1;
         if (firstLine <= cursorLine && cursorLine < lastLine)
             return cursorLine;
-        return edw->centerVisibleBlockNumber();
+        return edw->centerVisibleBlockNumber() + 1;
     }
     return cursorLine;
 }
