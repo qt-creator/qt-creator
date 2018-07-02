@@ -125,14 +125,12 @@ mergeTools(std::vector<std::unique_ptr<CMakeTool>> &sdkTools,
            std::vector<std::unique_ptr<CMakeTool>> &userTools,
            std::vector<std::unique_ptr<CMakeTool>> &autoDetectedTools)
 {
-    std::vector<std::unique_ptr<CMakeTool>> result;
+    std::vector<std::unique_ptr<CMakeTool>> result = std::move(sdkTools);
     while (userTools.size() > 0) {
         std::unique_ptr<CMakeTool> userTool = std::move(userTools[0]);
         userTools.erase(std::begin(userTools));
 
-        if (auto sdkTool = Utils::take(sdkTools, Utils::equal(&CMakeTool::id, userTool->id()))) {
-            result.emplace_back(std::move(sdkTool.value()));
-        } else {
+        if (!Utils::contains(result, Utils::equal(&CMakeTool::id, userTool->id()))) {
             if (userTool->isAutoDetected()
                     && !Utils::contains(autoDetectedTools, Utils::equal(&CMakeTool::cmakeExecutable,
                                                                         userTool->cmakeExecutable()))) {
