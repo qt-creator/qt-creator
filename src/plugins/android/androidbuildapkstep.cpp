@@ -25,6 +25,7 @@
 ****************************************************************************/
 
 #include "androidbuildapkstep.h"
+
 #include "androidbuildapkwidget.h"
 #include "androidconfigurations.h"
 #include "androidconstants.h"
@@ -40,6 +41,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -47,6 +49,8 @@
 #include <utils/algorithm.h>
 #include <utils/synchronousprocess.h>
 #include <utils/utilsicons.h>
+
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <QDialogButtonBox>
 #include <QHBoxLayout>
@@ -61,12 +65,15 @@
 #include <memory>
 
 using namespace ProjectExplorer;
+using namespace Android::Internal;
+
 namespace {
 Q_LOGGING_CATEGORY(buildapkstepLog, "qtc.android.build.androidbuildapkstep")
 }
 
 namespace Android {
-using namespace Internal;
+
+const Core::Id ANDROID_BUILD_APK_ID("QmakeProjectManager.AndroidBuildApkStep");
 
 const QVersionNumber gradleScriptRevokedSdkVersion(25, 3, 0);
 const char KeystoreLocationKey[] = "KeystoreLocation";
@@ -115,8 +122,8 @@ private:
                                                        this);
 };
 
-AndroidBuildApkStep::AndroidBuildApkStep(ProjectExplorer::BuildStepList *parent, Core::Id id)
-    : ProjectExplorer::AbstractProcessStep(parent, id),
+AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent)
+    : AbstractProcessStep(parent, ANDROID_BUILD_APK_ID),
       m_buildTargetSdk(AndroidConfig::apiLevelNameFor(AndroidConfigurations::
                                          sdkManager()->latestAndroidSdkPlatform()))
 {
@@ -263,7 +270,7 @@ void AndroidBuildApkStep::showInGraphicalShell()
 
 ProjectExplorer::BuildStepConfigWidget *AndroidBuildApkStep::createConfigWidget()
 {
-    return new AndroidBuildApkInnerWidget(this);
+    return new AndroidBuildApkWidget(this);
 }
 
 void AndroidBuildApkStep::processFinished(int exitCode, QProcess::ExitStatus status)
@@ -537,6 +544,22 @@ QString PasswordInputDialog::getPassword(Context context, std::function<bool (co
     return isAccepted ? dlg->inputEdit->text() : "";
 }
 
+
+namespace Internal {
+
+// AndroidBuildApkStepFactory
+
+AndroidBuildApkStepFactory::AndroidBuildApkStepFactory()
+{
+    registerStep<AndroidBuildApkStep>(ANDROID_BUILD_APK_ID);
+    setSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
+    setSupportedDeviceType(Constants::ANDROID_DEVICE_TYPE);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    setDisplayName(AndroidBuildApkStep::tr("Build Android APK"));
+    setRepeatable(false);
+}
+
+} // namespace Internal
 } // namespace Android
 
 #include "androidbuildapkstep.moc"

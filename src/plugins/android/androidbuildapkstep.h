@@ -27,6 +27,7 @@
 #pragma once
 
 #include "android_global.h"
+
 #include <projectexplorer/abstractprocessstep.h>
 
 QT_BEGIN_NAMESPACE
@@ -39,10 +40,9 @@ class ANDROID_EXPORT AndroidBuildApkStep : public ProjectExplorer::AbstractProce
 {
     Q_OBJECT
 
-protected:
-    AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, Core::Id id);
-
 public:
+    AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc);
+
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
@@ -104,4 +104,13 @@ private:
     bool m_skipBuilding = false;
 };
 
+namespace Internal {
+
+class AndroidBuildApkStepFactory : public ProjectExplorer::BuildStepFactory
+{
+public:
+    AndroidBuildApkStepFactory();
+};
+
+} // namespace Internal
 } // namespace Android

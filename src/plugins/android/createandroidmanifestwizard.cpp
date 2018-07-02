@@ -47,10 +47,10 @@
 #include <QMessageBox>
 #include <QVBoxLayout>
 
-using namespace Android;
 using namespace ProjectExplorer;
-using namespace QmakeAndroidSupport::Internal;
 using namespace Utils;
+
+namespace Android {
 
 //
 // NoApplicationProFilePage
@@ -375,3 +375,5 @@ void CreateAndroidManifestWizard::accept()
     createAndroidTemplateFiles();
     Wizard::accept();
 }
+
+} // namespace Android

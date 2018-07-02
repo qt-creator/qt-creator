@@ -92,6 +92,7 @@ public:
     AndroidPackageInstallationFactory packackeInstallationFactory;
     AndroidManifestEditorFactory manifestEditorFactory;
     AndroidRunConfigurationFactory runConfigFactory;
+    AndroidBuildApkStepFactory buildApkStepFactory;
 };
 
 AndroidPlugin::~AndroidPlugin()

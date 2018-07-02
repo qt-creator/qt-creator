@@ -116,6 +116,8 @@ Project {
             "avddialog.h",
             "certificatesmodel.cpp",
             "certificatesmodel.h",
+            "createandroidmanifestwizard.h",
+            "createandroidmanifestwizard.cpp",
             "javaeditor.cpp",
             "javaeditor.h",
             "javaindenter.cpp",

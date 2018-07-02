@@ -54,7 +54,8 @@ HEADERS += \
     androidsdkmodel.h \
     androidsdkmanagerwidget.h \
     androidpackageinstallationstep.h \
-    androidextralibrarylistmodel.h
+    androidextralibrarylistmodel.h \
+    createandroidmanifestwizard.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -102,7 +103,8 @@ SOURCES += \
     androidsdkmodel.cpp \
     androidsdkmanagerwidget.cpp \
     androidpackageinstallationstep.cpp \
-    androidextralibrarylistmodel.cpp
+    androidextralibrarylistmodel.cpp \
+    createandroidmanifestwizard.cpp
 
 FORMS += \
     androidsettingswidget.ui \

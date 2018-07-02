@@ -30,10 +30,8 @@
 #include "androidcreatekeystorecertificate.h"
 #include "androidmanager.h"
 #include "androidsdkmanager.h"
+#include "createandroidmanifestwizard.h"
 #include "ui_androidbuildapkwidget.h"
-
-#include <android/androidbuildapkwidget.h>
-#include <android/androidmanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
@@ -55,10 +53,8 @@
 
 #include <algorithm>
 
-using namespace Android;
-using namespace Internal;
-
 namespace Android {
+namespace Internal {
 
 const int minApiSupported = 9;
 
@@ -240,7 +236,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step) :
 {
     m_extraLibraryListModel = new AndroidExtraLibraryListModel(m_step->target(), this);
 
-    auto base = new Android::AndroidBuildApkInnerWidget(step);
+    auto base = new AndroidBuildApkInnerWidget(step);
     base->layout()->setContentsMargins(0, 0, 0, 0);
 
     auto createTemplatesGroupBox = new QGroupBox(tr("Android"));
@@ -284,8 +280,10 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step) :
     topLayout->addWidget(createTemplatesGroupBox);
     topLayout->addWidget(additionalLibrariesGroupBox);
 
-    connect(createAndroidTemplatesButton, &QAbstractButton::clicked,
-            this, &AndroidBuildApkWidget::requestAndroidTemplates);
+    connect(createAndroidTemplatesButton, &QAbstractButton::clicked, this, [this] {
+        CreateAndroidManifestWizard wizard(m_step->target());
+        wizard.exec();
+    });
 
     connect(addAndroidExtraLibButton, &QAbstractButton::clicked,
             this, &AndroidBuildApkWidget::addAndroidExtraLib);
@@ -336,4 +334,5 @@ QString AndroidBuildApkWidget::displayName() const
     return summaryText();
 }
 
+} // Internal
 } // Android

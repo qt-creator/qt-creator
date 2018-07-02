@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "android_global.h"
+
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/wizard.h>
@@ -37,8 +39,7 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Target; }
 
-namespace QmakeAndroidSupport {
-namespace Internal {
+namespace Android {
 
 class CreateAndroidManifestWizard;
 
@@ -84,7 +85,7 @@ private:
     bool m_complete;
 };
 
-class CreateAndroidManifestWizard : public Utils::Wizard
+class ANDROID_EXPORT CreateAndroidManifestWizard : public Utils::Wizard
 {
     Q_OBJECT
 public:
@@ -118,5 +119,4 @@ private:
     bool m_copyGradle;
 };
 
-} //namespace QmakeAndroidSupport
-} //namespace Internal
+} // namespace Android

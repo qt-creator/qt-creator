@@ -42,10 +42,9 @@ namespace Ui { class AndroidBuildApkWidget; }
 QT_END_NAMESPACE
 
 namespace Android {
+namespace Internal {
 
-class AndroidBuildApkStep;
-
-class ANDROID_EXPORT AndroidBuildApkInnerWidget : public ProjectExplorer::BuildStepConfigWidget
+class AndroidBuildApkInnerWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 
@@ -72,12 +71,12 @@ private:
     AndroidBuildApkStep *m_step;
 };
 
-class ANDROID_EXPORT AndroidBuildApkWidget : public ProjectExplorer::BuildStepConfigWidget
+class AndroidBuildApkWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 
 public:
-    explicit AndroidBuildApkWidget(Android::AndroidBuildApkStep *step);
+    explicit AndroidBuildApkWidget(AndroidBuildApkStep *step);
 
 signals:
     void requestAndroidTemplates();
@@ -94,9 +93,10 @@ private:
     QListView *m_androidExtraLibsListView = nullptr;
     QToolButton *m_removeAndroidExtraLibButton = nullptr;
 
-    Android::AndroidBuildApkStep *m_step = nullptr;
+    AndroidBuildApkStep *m_step = nullptr;
     Android::AndroidExtraLibraryListModel *m_extraLibraryListModel = nullptr;
     bool m_ignoreChange = false;
 };
 
+} // namespace Internal
 } // namespace Android

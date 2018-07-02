@@ -30,6 +30,8 @@
 
 #include <projectexplorer/target.h>
 
+using namespace Android::Internal;
+
 Utils::FileName Android::AndroidQtSupport::apkPath(const ProjectExplorer::Target *target) const
 {
     if (!target)

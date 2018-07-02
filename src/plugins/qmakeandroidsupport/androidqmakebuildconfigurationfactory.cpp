@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "androidqmakebuildconfigurationfactory.h"
-#include "qmakeandroidbuildapkstep.h"
 
+#include <android/androidbuildapkstep.h>
 #include <android/androidconfigurations.h>
 #include <android/androidconstants.h>
 #include <android/androidmanager.h>
@@ -71,7 +71,7 @@ void AndroidQmakeBuildConfiguration::initialize(const BuildInfo *info)
 
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     buildSteps->appendStep(new AndroidPackageInstallationStep(buildSteps));
-    buildSteps->appendStep(new QmakeAndroidBuildApkStep(buildSteps));
+    buildSteps->appendStep(new Android::AndroidBuildApkStep(buildSteps));
 
     updateCacheAndEmitEnvironmentChanged();
 }

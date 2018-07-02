@@ -23,10 +23,10 @@
 **
 ****************************************************************************/
 
-#include "qmakeandroidbuildapkstep.h"
 #include "qmakeandroidsupport.h"
 #include "androidqmakebuildconfigurationfactory.h"
 
+#include <android/androidbuildapkstep.h>
 #include <android/androidconstants.h>
 #include <android/androidglobal.h>
 
