@@ -124,6 +124,8 @@ bool QmakeAndroidSupport::setTargetData(Core::Id role, const QStringList &values
     QString var;
     if (role == Android::Constants::AndroidExtraLibs)
         var = "ANDROID_EXTRA_LIBS";
+    else if (role == Android::Constants::AndroidPackageSourceDir)
+        var = "ANDROID_PACKAGE_SOURCE_DIR";
 
     if (var.isEmpty())
         return false;
@@ -201,6 +203,16 @@ void QmakeAndroidSupport::manifestSaved(const ProjectExplorer::Target *target)
     ProjectExplorer::BuildConfiguration *bc = target->activeBuildConfiguration();
     if (auto qbc = qobject_cast<AndroidQmakeBuildConfiguration *>(bc))
         qbc->manifestSaved();
+}
+
+void QmakeAndroidSupport::addFiles(const ProjectExplorer::Target *target,
+                                   const QString &buildKey,
+                                   const QStringList &addedFiles) const
+{
+    QmakeProject *project = static_cast<QmakeProject *>(target->project());
+    QmakeProFile *currentRunNode = project->rootProFile()->findProFile(FileName::fromString(buildKey));
+    QTC_ASSERT(currentRunNode, return);
+    currentRunNode->addFiles(addedFiles);
 }
 
 } // namespace Internal

@@ -81,6 +81,9 @@ public:
     virtual bool validParse(const ProjectExplorer::Target *target) const = 0;
     virtual bool extraLibraryEnabled(const ProjectExplorer::Target *target) const = 0;
     virtual Utils::FileName projectFilePath(const ProjectExplorer::Target *target) const = 0;
+
+    virtual void addFiles(const ProjectExplorer::Target *target, const QString &buildKey,
+                          const QStringList &addedFiles) const = 0;
 };
 
 } // namespace Android

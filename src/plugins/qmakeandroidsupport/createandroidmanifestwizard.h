@@ -36,7 +36,6 @@ class QFormLayout;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Target; }
-namespace QmakeProjectManager { class QmakeProFile; }
 
 namespace QmakeAndroidSupport {
 namespace Internal {
@@ -56,9 +55,8 @@ class ChooseProFilePage : public QWizardPage
 {
     Q_OBJECT
 public:
-    ChooseProFilePage(CreateAndroidManifestWizard *wizard,
-                      const QList<QmakeProjectManager::QmakeProFile *> &nodes,
-                      const QmakeProjectManager::QmakeProFile *select);
+    explicit ChooseProFilePage(CreateAndroidManifestWizard *wizard);
+
 private:
     void nodeSelected(int index);
 private:
@@ -92,14 +90,16 @@ class CreateAndroidManifestWizard : public Utils::Wizard
 public:
     CreateAndroidManifestWizard(ProjectExplorer::Target *target);
 
-    QmakeProjectManager::QmakeProFile *proFile() const;
-    void setProFile(QmakeProjectManager::QmakeProFile *proFile);
+    QString buildKey() const;
+    void setBuildKey(const QString &buildKey);
 
     void accept();
     bool copyGradle();
 
     void setDirectory(const QString &directory);
     void setCopyGradle(bool copy);
+
+    ProjectExplorer::Target *target() const;
 
 private:
     enum CopyState {
@@ -112,7 +112,7 @@ private:
     void createAndroidManifestFile();
     void createAndroidTemplateFiles();
     ProjectExplorer::Target *m_target;
-    QmakeProjectManager::QmakeProFile *m_proFile;
+    QString m_buildKey;
     QString m_directory;
     CopyState m_copyState;
     bool m_copyGradle;

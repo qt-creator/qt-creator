@@ -34,27 +34,23 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
-#include <qmakeprojectmanager/qmakeproject.h>
-
-#include <proparser/prowriter.h>
-
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/utilsicons.h>
 
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDir>
+#include <QFileInfo>
 #include <QFormLayout>
 #include <QLabel>
 #include <QMessageBox>
 #include <QVBoxLayout>
 
 using namespace Android;
+using namespace ProjectExplorer;
 using namespace QmakeAndroidSupport::Internal;
 using namespace Utils;
-
-using QmakeProjectManager::QmakeProject;
-using QmakeProjectManager::QmakeProFile;
 
 //
 // NoApplicationProFilePage
@@ -73,10 +69,8 @@ NoApplicationProFilePage::NoApplicationProFilePage(CreateAndroidManifestWizard *
 //
 // ChooseProFilePage
 //
-ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard,
-                                     const QList<QmakeProFile *> &files,
-                                     const QmakeProFile *select) :
-    m_wizard(wizard)
+ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard)
+    : m_wizard(wizard)
 {
     QFormLayout *fl = new QFormLayout(this);
     QLabel *label = new QLabel(this);
@@ -84,10 +78,17 @@ ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard,
     label->setText(tr("Select the .pro file for which you want to create the Android template files."));
     fl->addRow(label);
 
+    Target *target = wizard->target();
+    QString currentBuildTarget;
+    if (RunConfiguration *rc = target->activeRunConfiguration())
+        currentBuildTarget = rc->buildKey();
+
     m_comboBox = new QComboBox(this);
-    for (QmakeProFile *file : files) {
-        m_comboBox->addItem(file->displayName(), QVariant::fromValue(static_cast<void *>(file))); // TODO something more?
-        if (file == select)
+    const BuildTargetInfoList buildTargets = wizard->target()->applicationTargets();
+    for (const BuildTargetInfo &bti : buildTargets.list) {
+        const QString displayName = bti.buildKey;
+        m_comboBox->addItem(displayName, QVariant(bti.buildKey)); // TODO something more?
+        if (bti.buildKey == currentBuildTarget)
             m_comboBox->setCurrentIndex(m_comboBox->count() - 1);
     }
 
@@ -102,7 +103,7 @@ ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard,
 void ChooseProFilePage::nodeSelected(int index)
 {
     Q_UNUSED(index)
-    m_wizard->setProFile(static_cast<QmakeProFile *>(m_comboBox->itemData(m_comboBox->currentIndex()).value<void *>()));
+    m_wizard->setBuildKey(m_comboBox->itemData(m_comboBox->currentIndex()).toString());
 }
 
 
@@ -153,8 +154,11 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
 
 void ChooseDirectoryPage::checkPackageSourceDir()
 {
-    QString projectDir = m_wizard->proFile()->filePath().toFileInfo().absolutePath();
-    QString newDir = m_androidPackageSourceDir->path();
+    const QString buildKey = m_wizard->buildKey();
+    const BuildTargetInfo bti = m_wizard->target()->applicationTargets().buildTargetInfo(buildKey);
+    const QString projectDir = bti.projectFilePath.toFileInfo().absolutePath();
+
+    const QString newDir = m_androidPackageSourceDir->path();
     bool isComplete = QFileInfo(projectDir) != QFileInfo(newDir);
 
     m_sourceDirectoryWarning->setVisible(!isComplete);
@@ -173,13 +177,20 @@ bool ChooseDirectoryPage::isComplete() const
 
 void ChooseDirectoryPage::initializePage()
 {
-    QString androidPackageDir = m_wizard->proFile()->singleVariableValue(QmakeProjectManager::Variable::AndroidPackageSourceDir);
+    const QString buildKey = m_wizard->buildKey();
+    const BuildTargetInfo bti = m_wizard->target()->applicationTargets().buildTargetInfo(buildKey);
+    const QString projectDir = bti.projectFilePath.toFileInfo().absolutePath();
+
+    AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(m_wizard->target());
+    const QString androidPackageDir
+            = qtSupport->targetDataItem(Android::Constants::AndroidPackageSourceDir, m_wizard->target());
+
     if (androidPackageDir.isEmpty()) {
         m_label->setText(tr("Select the Android package source directory.\n\n"
                           "The files in the Android package source directory are copied to the build directory's "
                           "Android directory and the default files are overwritten."));
 
-        m_androidPackageSourceDir->setPath(m_wizard->proFile()->filePath().toFileInfo().absolutePath().append(QLatin1String("/android")));
+        m_androidPackageSourceDir->setPath(projectDir + "/android");
         connect(m_androidPackageSourceDir, &PathChooser::rawPathChanged,
                 this, &ChooseDirectoryPage::checkPackageSourceDir);
     } else {
@@ -196,39 +207,34 @@ void ChooseDirectoryPage::initializePage()
 // CreateAndroidManifestWizard
 //
 CreateAndroidManifestWizard::CreateAndroidManifestWizard(ProjectExplorer::Target *target)
-    : m_target(target), m_proFile(0), m_copyState(Ask)
+    : m_target(target), m_copyState(Ask)
 {
     setWindowTitle(tr("Create Android Template Files Wizard"));
 
-    QmakeProject *project = static_cast<QmakeProject *>(target->project());
-    QList<QmakeProFile *> files = project->applicationProFiles();
+    const BuildTargetInfoList buildTargets = target->applicationTargets();
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     m_copyGradle = version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
 
-    const QmakeProFile *currentRunNode = nullptr;
-    if (ProjectExplorer::RunConfiguration *rc = target->activeRunConfiguration())
-        currentRunNode = project->rootProFile()->findProFile(FileName::fromString(rc->buildKey()));
-
-    if (files.isEmpty()) {
+    if (buildTargets.list.isEmpty()) {
         // oh uhm can't create anything
         addPage(new NoApplicationProFilePage(this));
-    } else if (files.size() == 1) {
-        setProFile(files.first());
+    } else if (buildTargets.list.size() == 1) {
+        setBuildKey(buildTargets.list.first().buildKey);
         addPage(new ChooseDirectoryPage(this));
     } else {
-        addPage(new ChooseProFilePage(this, files, currentRunNode));
+        addPage(new ChooseProFilePage(this));
         addPage(new ChooseDirectoryPage(this));
     }
 }
 
-QmakeProjectManager::QmakeProFile *CreateAndroidManifestWizard::proFile() const
+QString CreateAndroidManifestWizard::buildKey() const
 {
-    return m_proFile;
+    return m_buildKey;
 }
 
-void CreateAndroidManifestWizard::setProFile(QmakeProjectManager::QmakeProFile *node)
+void CreateAndroidManifestWizard::setBuildKey(const QString &buildKey)
 {
-    m_proFile = node;
+    m_buildKey = buildKey;
 }
 
 void CreateAndroidManifestWizard::setDirectory(const QString &directory)
@@ -337,22 +343,31 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
 
         AndroidManager::updateGradleProperties(m_target);
     }
-    m_proFile->addFiles(addedFiles);
 
-    if (m_proFile->singleVariableValue(QmakeProjectManager::Variable::AndroidPackageSourceDir).isEmpty()) {
+    AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(m_target);
+    qtSupport->addFiles(m_target, m_buildKey, addedFiles);
+
+    const QString androidPackageDir
+            = qtSupport->targetDataItem(Android::Constants::AndroidPackageSourceDir, m_target);
+
+    if (androidPackageDir.isEmpty()) {
         // and now time for some magic
-        QString value = QLatin1String("$$PWD/")
-                + m_proFile->filePath().toFileInfo().absoluteDir().relativeFilePath(m_directory);
-        bool result =
-                m_proFile->setProVariable(QLatin1String("ANDROID_PACKAGE_SOURCE_DIR"), QStringList(value));
+        const BuildTargetInfo bti = m_target->applicationTargets().buildTargetInfo(m_buildKey);
+        const QString value = "$$PWD/" + bti.projectFilePath.toFileInfo().absoluteDir().relativeFilePath(m_directory);
+        bool result = qtSupport->setTargetData(Android::Constants::AndroidPackageSourceDir, {value}, m_target);
 
         if (!result) {
             QMessageBox::warning(this, tr("Project File not Updated"),
-                                 tr("Could not update the .pro file %1.")
-                                 .arg(m_proFile->filePath().toUserOutput()));
+                                 tr("Could not update the project file %1.")
+                                 .arg(bti.projectFilePath.toUserOutput()));
         }
     }
     Core::EditorManager::openEditor(m_directory + QLatin1String("/AndroidManifest.xml"));
+}
+
+ProjectExplorer::Target *CreateAndroidManifestWizard::target() const
+{
+    return m_target;
 }
 
 void CreateAndroidManifestWizard::accept()
