@@ -1921,14 +1921,16 @@ void FakeVimPluginPrivate::handleExCommand(FakeVimHandler *handler, bool *handle
 
         if (!saved)
             handler->showMessage(MessageError, Tr::tr("File not saved"));
-    } else if (cmd.matches("wa", "wall")) {
-        // :w[all]
+    } else if (cmd.matches("wa", "wall") || cmd.matches("wqa", "wqall")) {
+        // :wa[ll] :wqa[ll]
         triggerAction(Core::Constants::SAVEALL);
         const QList<IDocument *> failed = DocumentManager::modifiedDocuments();
         if (failed.isEmpty())
             handler->showMessage(MessageInfo, Tr::tr("Saving succeeded"));
         else
             handler->showMessage(MessageError, Tr::tr("%n files not saved", 0, failed.size()));
+        if (cmd.matches("wqa", "wqall"))
+            emit delayedQuitAllRequested(cmd.hasBang);
     } else if (cmd.matches("q", "quit")) {
         // :q[uit]
         emit delayedQuitRequested(cmd.hasBang, m_editorToHandler.key(handler));

@@ -158,7 +158,6 @@ public:
     Signal<void(const QString &msg)> extraInformationChanged;
     Signal<void(const QList<QTextEdit::ExtraSelection> &selection)> selectionChanged;
     Signal<void(const QString &needle)>  highlightMatches;
-    Signal<void(QString *error)> writeAllRequested;
     Signal<void(bool *moved, bool *forward, QTextCursor *cursor)> moveToMatchingParenthesis;
     Signal<void(bool *result, QChar c)> checkForElectricCharacter;
     Signal<void(int beginLine, int endLine, QChar typedChar)> indentRegion;
