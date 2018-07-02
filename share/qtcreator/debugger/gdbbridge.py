@@ -990,7 +990,7 @@ class Dumper(DumperBase):
         if self.isWindowsTarget():
             qtCoreMatch = re.match('.*Qt5?Core[^/.]*d?\.dll', name)
         else:
-            qtCoreMatch = re.match('.*/libQt5?Core[^/.]\.so', name)
+            qtCoreMatch = re.match('.*/libQt5?Core[^/.]*\.so', name)
 
         if qtCoreMatch is not None:
             self.handleQtCoreLoaded(objfile)
