@@ -20,6 +20,7 @@ HEADERS = builddirmanager.h \
     cmakelocatorfilter.h \
     cmakefilecompletionassist.h \
     cmaketool.h \
+    cmaketoolsettingsaccessor.h \
     cmakeparser.h \
     cmakesettingspage.h \
     cmaketoolmanager.h \
@@ -56,6 +57,7 @@ SOURCES = builddirmanager.cpp \
     cmakelocatorfilter.cpp \
     cmakefilecompletionassist.cpp \
     cmaketool.cpp \
+    cmaketoolsettingsaccessor.cpp \
     cmakeparser.cpp \
     cmakesettingspage.cpp \
     cmaketoolmanager.cpp \
