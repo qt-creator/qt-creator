@@ -34,11 +34,11 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
-#include <utils/environment.h>
-#include <utils/algorithm.h>
 
 #include <QSettings>
 
@@ -98,15 +98,14 @@ KitManager *KitManager::instance()
     return m_instance;
 }
 
-KitManager::KitManager(QObject *parent) :
-    QObject(parent)
+KitManager::KitManager(QObject *parent)
+    : QObject(parent)
 {
     d = new KitManagerPrivate;
     QTC_CHECK(!m_instance);
     m_instance = this;
 
-    connect(ICore::instance(), &ICore::saveSettingsRequested,
-            this, &KitManager::saveKits);
+    connect(ICore::instance(), &ICore::saveSettingsRequested, this, &KitManager::saveKits);
 
     connect(this, &KitManager::kitAdded, this, &KitManager::kitsChanged);
     connect(this, &KitManager::kitRemoved, this, &KitManager::kitsChanged);
@@ -115,7 +114,7 @@ KitManager::KitManager(QObject *parent) :
 
 void KitManager::restoreKits()
 {
-    QTC_ASSERT(!d->m_initialized, return);
+    QTC_ASSERT(!d->m_initialized, return );
     static bool initializing = false;
 
     if (initializing) // kits will call kits() to check their display names, which will trigger another
@@ -214,7 +213,7 @@ void KitManager::restoreKits()
     if (k)
         setDefaultKit(k);
 
-    d->m_writer = new PersistentSettingsWriter(settingsFileName(), QLatin1String("QtCreatorProfiles"));
+    d->m_writer = new PersistentSettingsWriter(settingsFileName(), "QtCreatorProfiles");
     d->m_initialized = true;
     emit kitsLoaded();
     emit kitsChanged();
@@ -262,11 +261,13 @@ static bool greaterPriority(KitInformation *a, KitInformation *b)
 void KitManager::registerKitInformation(KitInformation *ki)
 {
     QTC_CHECK(!isLoaded());
-    QTC_ASSERT(!d->m_informationList.contains(ki), return);
-    QTC_ASSERT(ki->id().isValid(), return);
+    QTC_ASSERT(!d->m_informationList.contains(ki), return );
+    QTC_ASSERT(ki->id().isValid(), return );
 
-    auto it = std::lower_bound(d->m_informationList.begin(), d->m_informationList.end(),
-                               ki, greaterPriority);
+    auto it = std::lower_bound(d->m_informationList.begin(),
+                               d->m_informationList.end(),
+                               ki,
+                               greaterPriority);
     d->m_informationList.insert(it, ki);
 
     if (!isLoaded())
@@ -315,13 +316,15 @@ QList<Kit *> KitManager::sortKits(const QList<Kit *> kits)
     // calling executables to find version information, etc.) to call that
     // method!
     // Avoid lots of potentially expensive calls to Kit::displayName():
-    QList<QPair<QString, Kit *> > sortList
-            = Utils::transform(kits, [](Kit *k) { return qMakePair(k->displayName(), k); });
-    Utils::sort(sortList, [](const QPair<QString, Kit *> &a, const QPair<QString, Kit *> &b) -> bool {
-        if (a.first == b.first)
-            return a.second < b.second;
-        return a. first < b.first;
+    QList<QPair<QString, Kit *>> sortList = Utils::transform(kits, [](Kit *k) {
+        return qMakePair(k->displayName(), k);
     });
+    Utils::sort(sortList,
+                [](const QPair<QString, Kit *> &a, const QPair<QString, Kit *> &b) -> bool {
+                    if (a.first == b.first)
+                        return a.second < b.second;
+                    return a.first < b.first;
+                });
     return Utils::transform(sortList, &QPair<QString, Kit *>::second);
 }
 
@@ -331,7 +334,8 @@ KitManager::KitList KitManager::restoreKits(const FileName &fileName)
 
     PersistentSettingsReader reader;
     if (!reader.load(fileName)) {
-        qWarning("Warning: Failed to read \"%s\", cannot restore kits!", qPrintable(fileName.toUserOutput()));
+        qWarning("Warning: Failed to read \"%s\", cannot restore kits!",
+                 qPrintable(fileName.toUserOutput()));
         return result;
     }
     QVariantMap data = reader.restoreValues();
@@ -358,7 +362,8 @@ KitManager::KitList KitManager::restoreKits(const FileName &fileName)
             // If the Id is broken, then do not trust the rest of the data either.
             delete k;
             qWarning("Warning: Unable to restore kits stored in %s at position %d.",
-                     qPrintable(fileName.toUserOutput()), i);
+                     qPrintable(fileName.toUserOutput()),
+                     i);
         }
     }
     const Id id = Id::fromSetting(data.value(QLatin1String(KIT_DEFAULT_KEY)));
@@ -417,7 +422,7 @@ KitManagerConfigWidget *KitManager::createConfigWidget(Kit *k)
 
 void KitManager::deleteKit(Kit *k)
 {
-    QTC_ASSERT(!KitManager::kits().contains(k), return);
+    QTC_ASSERT(!KitManager::kits().contains(k), return );
     delete k;
 }
 
@@ -447,8 +452,7 @@ bool KitManager::registerKit(Kit *k)
     // make sure we have all the information in our kits:
     m_instance->addKit(k);
 
-    if (!d->m_defaultKit ||
-            (!d->m_defaultKit->isValid() && k->isValid()))
+    if (!d->m_defaultKit || (!d->m_defaultKit->isValid() && k->isValid()))
         setDefaultKit(k);
 
     emit m_instance->kitAdded(k);
@@ -496,6 +500,10 @@ void KitManager::addKit(Kit *k)
 
     d->m_kitList.append(k);
 }
+
+// --------------------------------------------------------------------
+// KitInformation:
+// --------------------------------------------------------------------
 
 void KitInformation::addToEnvironment(const Kit *k, Environment &env) const
 {

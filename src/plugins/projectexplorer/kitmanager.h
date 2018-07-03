@@ -29,8 +29,8 @@
 
 #include "kit.h"
 
-#include <coreplugin/id.h>
 #include <coreplugin/featureprovider.h>
+#include <coreplugin/id.h>
 
 #include <QObject>
 #include <QPair>
@@ -41,7 +41,7 @@ namespace Utils {
 class Environment;
 class FileName;
 class MacroExpander;
-}
+} // namespace Utils
 
 namespace ProjectExplorer {
 class Task;
@@ -165,7 +165,7 @@ private:
     class KitList
     {
     public:
-        KitList() { }
+        KitList() {}
         Core::Id defaultKit;
         QList<Kit *> kits;
     };
