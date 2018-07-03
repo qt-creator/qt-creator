@@ -198,13 +198,6 @@ QStringList QmakeAndroidSupport::projectTargetApplications(const ProjectExplorer
     return apps;
 }
 
-void QmakeAndroidSupport::manifestSaved(const ProjectExplorer::Target *target)
-{
-    ProjectExplorer::BuildConfiguration *bc = target->activeBuildConfiguration();
-    if (auto qbc = qobject_cast<AndroidQmakeBuildConfiguration *>(bc))
-        qbc->manifestSaved();
-}
-
 void QmakeAndroidSupport::addFiles(const ProjectExplorer::Target *target,
                                    const QString &buildKey,
                                    const QStringList &addedFiles) const

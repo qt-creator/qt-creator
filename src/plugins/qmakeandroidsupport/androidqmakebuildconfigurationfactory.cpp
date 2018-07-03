@@ -32,11 +32,10 @@
 #include <android/androidpackageinstallationstep.h>
 
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
-#include <qmakeprojectmanager/qmakebuildinfo.h>
-#include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 using namespace Android;
@@ -78,19 +77,8 @@ void AndroidQmakeBuildConfiguration::initialize(const BuildInfo *info)
 
 void AndroidQmakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 {
-    m_androidNdkPlatform = AndroidConfigurations::currentConfig().bestNdkPlatformMatch(AndroidManager::minimumSDK(target()));
-    env.set(QLatin1String("ANDROID_NDK_PLATFORM"), m_androidNdkPlatform);
-}
-
-void AndroidQmakeBuildConfiguration::manifestSaved()
-{
     QString androidNdkPlatform = AndroidConfigurations::currentConfig().bestNdkPlatformMatch(AndroidManager::minimumSDK(target()));
-    if (m_androidNdkPlatform == androidNdkPlatform)
-        return;
-
-    updateCacheAndEmitEnvironmentChanged();
-
-    regenerateBuildFiles();
+    env.set(QLatin1String("ANDROID_NDK_PLATFORM"), androidNdkPlatform);
 }
 
 } // namespace Internal

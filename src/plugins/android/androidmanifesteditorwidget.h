@@ -191,6 +191,7 @@ private:
     QTimer m_timerParseCheck;
     TextEditor::TextEditorWidget *m_textEditorWidget;
     AndroidManifestEditor *m_editor;
+    QString m_androidNdkPlatform;
 };
 } // namespace Internal
 } // namespace Android

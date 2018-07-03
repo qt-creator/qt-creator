@@ -25,6 +25,7 @@
 
 #include "androidmanifesteditorwidget.h"
 #include "androidmanifesteditor.h"
+#include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidmanifestdocument.h"
 #include "androidmanager.h"
@@ -34,6 +35,7 @@
 #include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/ieditor.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectwindow.h>
 #include <projectexplorer/session.h>
@@ -605,9 +607,15 @@ void AndroidManifestEditorWidget::postSave()
     ProjectExplorer::Project *project = androidProject(docPath);
     if (project) {
         if (Target *target = project->activeTarget()) {
-            AndroidQtSupport *androidQtSupport = AndroidManager::androidQtSupport(target);
-            if (androidQtSupport)
-                androidQtSupport->manifestSaved(target);
+            if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
+                QString androidNdkPlatform = AndroidConfigurations::currentConfig()
+                        .bestNdkPlatformMatch(AndroidManager::minimumSDK(target));
+                if (m_androidNdkPlatform != androidNdkPlatform) {
+                    m_androidNdkPlatform = androidNdkPlatform;
+                    bc->updateCacheAndEmitEnvironmentChanged();
+                    bc->regenerateBuildFiles(nullptr);
+                }
+            }
         }
     }
 }

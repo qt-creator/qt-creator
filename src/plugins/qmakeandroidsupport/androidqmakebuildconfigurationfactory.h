@@ -45,10 +45,6 @@ public:
 
     void initialize(const ProjectExplorer::BuildInfo *info) override;
     void addToEnvironment(Utils::Environment &env) const override;
-    void manifestSaved();
-
-private:
-    mutable QString m_androidNdkPlatform;
 };
 
 } // namespace Internal
