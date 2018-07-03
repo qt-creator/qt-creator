@@ -556,11 +556,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     IWizardFactory::registerFeatureProvider(new KitFeatureProvider);
 
     // Register KitInformation:
-    KitManager::registerKitInformation(new DeviceTypeKitInformation);
-    KitManager::registerKitInformation(new DeviceKitInformation);
-    KitManager::registerKitInformation(new ToolChainKitInformation);
-    KitManager::registerKitInformation(new SysRootKitInformation);
-    KitManager::registerKitInformation(new EnvironmentKitInformation);
+    KitManager::registerKitInformation<DeviceTypeKitInformation>();
+    KitManager::registerKitInformation<DeviceKitInformation>();
+    KitManager::registerKitInformation<ToolChainKitInformation>();
+    KitManager::registerKitInformation<SysRootKitInformation>();
+    KitManager::registerKitInformation<EnvironmentKitInformation>();
 
     IWizardFactory::registerFactoryCreator([]() -> QList<IWizardFactory *> {
         QList<IWizardFactory *> result;

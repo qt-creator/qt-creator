@@ -34,9 +34,9 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/persistentsettings.h>
+#include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -71,7 +71,7 @@ public:
 
     Kit *m_defaultKit = nullptr;
     bool m_initialized = false;
-    QList<KitInformation *> m_informationList;
+    std::vector<std::unique_ptr<KitInformation>> m_informationList;
     QList<Kit *> m_kitList;
     PersistentSettingsWriter *m_writer = nullptr;
 };
@@ -80,7 +80,6 @@ KitManagerPrivate::~KitManagerPrivate()
 {
     foreach (Kit *k, m_kitList)
         delete k;
-    qDeleteAll(m_informationList);
     delete m_writer;
 }
 
@@ -247,22 +246,20 @@ bool KitManager::isLoaded()
     return d->m_initialized;
 }
 
-static bool greaterPriority(KitInformation *a, KitInformation *b)
-{
-    return a->priority() > b->priority();
-}
-
-void KitManager::registerKitInformation(KitInformation *ki)
+void KitManager::registerKitInformation(std::unique_ptr<KitInformation> &&ki)
 {
     QTC_CHECK(!isLoaded());
-    QTC_ASSERT(!d->m_informationList.contains(ki), return );
     QTC_ASSERT(ki->id().isValid(), return );
+    QTC_ASSERT(!Utils::contains(d->m_informationList, ki.get()), return );
 
-    auto it = std::lower_bound(d->m_informationList.begin(),
-                               d->m_informationList.end(),
+    auto it = std::lower_bound(std::begin(d->m_informationList),
+                               std::end(d->m_informationList),
                                ki,
-                               greaterPriority);
-    d->m_informationList.insert(it, ki);
+                               [](const std::unique_ptr<KitInformation> &a,
+                                  const std::unique_ptr<KitInformation> &b) {
+                                   return a->priority() > b->priority();
+                               });
+    d->m_informationList.insert(it, std::move(ki));
 
     if (!isLoaded())
         return;
@@ -393,7 +390,7 @@ Kit *KitManager::defaultKit()
 
 QList<KitInformation *> KitManager::kitInformation()
 {
-    return d->m_informationList;
+    return Utils::toRawPointer<QList>(d->m_informationList);
 }
 
 KitManagerConfigWidget *KitManager::createConfigWidget(Kit *k)
@@ -476,7 +473,7 @@ void KitManager::addKit(Kit *k)
 
     {
         KitGuard g(k);
-        foreach (KitInformation *ki, d->m_informationList) {
+        for (const std::unique_ptr<KitInformation> &ki : d->m_informationList) {
             ki->upgrade(k);
             if (!k->hasValue(ki->id()))
                 k->setValue(ki->id(), ki->defaultValue(k));

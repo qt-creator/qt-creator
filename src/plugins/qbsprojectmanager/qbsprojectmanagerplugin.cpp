@@ -114,7 +114,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     Core::HelpManager::registerDocumentation({Core::ICore::documentationPath() + "/qbs.qch"});
 
     ProjectManager::registerProjectType<QbsProject>(QmlJSTools::Constants::QBS_MIMETYPE);
-    KitManager::registerKitInformation(new QbsKitInformation);
+    KitManager::registerKitInformation<QbsKitInformation>();
 
     //menus
     // Build Menu:

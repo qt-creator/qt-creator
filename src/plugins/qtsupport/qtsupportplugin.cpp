@@ -84,7 +84,7 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     d = new QtSupportPluginPrivate;
 
-    ProjectExplorer::KitManager::registerKitInformation(new QtKitInformation);
+    ProjectExplorer::KitManager::registerKitInformation<QtKitInformation>();
 
     (void) new UicGeneratorFactory(this);
     (void) new QScxmlcGeneratorFactory(this);

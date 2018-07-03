@@ -130,7 +130,10 @@ public:
     static void deregisterKit(Kit *k);
     static void setDefaultKit(Kit *k);
 
-    static void registerKitInformation(KitInformation *ki);
+    template<typename KI, typename... Args>
+    static void registerKitInformation(Args&&... args) {
+        registerKitInformation(std::make_unique<KI>(std::forward<Args>(args)...));
+    }
 
     static QSet<Core::Id> supportedPlatforms();
     static QSet<Core::Id> availableFeatures(Core::Id platformId);
@@ -157,6 +160,8 @@ signals:
 
 private:
     explicit KitManager(QObject *parent = nullptr);
+
+    static void registerKitInformation(std::unique_ptr<KitInformation> &&ki);
 
     // Make sure the this is only called after all
     // KitInformation are registered!

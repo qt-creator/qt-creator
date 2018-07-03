@@ -117,7 +117,7 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
 
     d = new AndroidPluginPrivate;
 
-    KitManager::registerKitInformation(new Internal::AndroidGdbServerKitInformation);
+    KitManager::registerKitInformation<Internal::AndroidGdbServerKitInformation>();
 
     connect(KitManager::instance(), &KitManager::kitsLoaded,
             this, &AndroidPlugin::kitsRestored);

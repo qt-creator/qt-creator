@@ -3271,7 +3271,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     mstart->addSeparator(Constants::G_GENERAL);
     mstart->addSeparator(Constants::G_SPECIAL);
 
-    KitManager::registerKitInformation(new DebuggerKitInformation);
+    KitManager::registerKitInformation<DebuggerKitInformation>();
 
     // Task integration.
     //: Category under which Analyzer tasks are listed in Issues view

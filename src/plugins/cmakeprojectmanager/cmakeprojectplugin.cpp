@@ -106,9 +106,9 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
 
     new CMakeToolManager(this);
 
-    KitManager::registerKitInformation(new CMakeKitInformation);
-    KitManager::registerKitInformation(new CMakeGeneratorKitInformation);
-    KitManager::registerKitInformation(new CMakeConfigurationKitInformation);
+    KitManager::registerKitInformation<CMakeKitInformation>();
+    KitManager::registerKitInformation<CMakeGeneratorKitInformation>();
+    KitManager::registerKitInformation<CMakeConfigurationKitInformation>();
 
     //menus
     ActionContainer *msubproject =
