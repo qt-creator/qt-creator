@@ -115,7 +115,6 @@ void KitManager::restoreKits()
 {
     QTC_ASSERT(!d->m_initialized, return );
 
-    QList<Kit *> kitsToValidate;
     QList<Kit *> kitsToCheck;
 
     QList<Kit *> resultList;
@@ -124,15 +123,11 @@ void KitManager::restoreKits()
     KitList system
             = restoreKits(FileName::fromString(ICore::installerResourcePath() + KIT_FILENAME));
     // make sure we mark these as autodetected and run additional setup logic
-    foreach (Kit *k, system.kits) {
+    for (Kit *k : system.kits) {
         k->setAutoDetected(true);
         k->setSdkProvided(true);
         k->makeSticky();
     }
-
-    // SDK kits are always considered to be up for validation since they might have been
-    // extended with additional information by creator in the meantime:
-    kitsToValidate = system.kits;
 
     // read all kits from user file
     KitList userKits = restoreKits(settingsFileName());
@@ -145,9 +140,9 @@ void KitManager::restoreKits()
         }
     }
 
-    Kit *toStore = nullptr;
-    foreach (Kit *current, kitsToValidate) {
-        toStore = current;
+    // SDK kits need to get updated with the user-provided extra settings:
+    for (Kit *current : system.kits) {
+        Kit *toStore = current;
         toStore->upgrade();
         toStore->setup(); // Make sure all kitinformation are properly set up before merging them
                           // with the information from the user settings file
