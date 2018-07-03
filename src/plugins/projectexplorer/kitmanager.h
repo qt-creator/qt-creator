@@ -131,7 +131,6 @@ public:
     static void setDefaultKit(Kit *k);
 
     static void registerKitInformation(KitInformation *ki);
-    static void deregisterKitInformation(KitInformation *ki);
 
     static QSet<Core::Id> supportedPlatforms();
     static QSet<Core::Id> availableFeatures(Core::Id platformId);

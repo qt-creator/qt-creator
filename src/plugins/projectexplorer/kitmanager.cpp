@@ -283,13 +283,6 @@ void KitManager::registerKitInformation(KitInformation *ki)
     return;
 }
 
-void KitManager::deregisterKitInformation(KitInformation *ki)
-{
-    QTC_CHECK(d->m_informationList.contains(ki));
-    d->m_informationList.removeOne(ki);
-    delete ki;
-}
-
 QSet<Id> KitManager::supportedPlatforms()
 {
     QSet<Id> platforms;
