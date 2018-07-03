@@ -1,0 +1,65 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage quick-dynamic-properties.html
+    \page quick-property-bindings.html
+    \nextpage quick-connections-backend.html
+
+    \title Adding Bindings Between Properties
+
+    To dynamically change the behavior of an object, you can create a \e binding
+    between the properties of two objects. To create a property binding, a
+    property is assigned a JavaScript expression that evaluates to the desired
+    value. At its simplest, a binding may be a reference to another property.
+    For example, the height of an object can be bound to the height of its
+    parent, so that when the parent height changes, the object height is
+    adjusted automatically.
+
+    For more information about the use of property bindings, see
+    \l{Property Binding}.
+
+    You can create bindings between objects in the \uicontrol Connections view.
+
+    \image qmldesigner-bindings.png
+
+    To bind a property of an object to the property of another object:
+
+    \list 1
+        \li In the \uicontrol {Connections} view, select the
+            \uicontrol {Bindings} tab.
+        \li Select the \inlineimage plus.png
+            (\uicontrol Add) button to add a binding.
+        \li Select \uicontrol Item to select the target object whose property
+            you want to change dynamically.
+        \li Select \uicontrol Property to select the property to bind to a
+            source property.
+        \li Select \uicontrol {Source Item} to select the object whose property
+            you want to use to determine the behavior of the target object.
+        \li Select \uicontrol {Source Property} to select the property to bind
+            the target property to.
+    \endlist
+*/
