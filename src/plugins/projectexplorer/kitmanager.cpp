@@ -115,8 +115,6 @@ void KitManager::restoreKits()
 {
     QTC_ASSERT(!d->m_initialized, return );
 
-    QList<Kit *> kitsToCheck;
-
     QList<Kit *> resultList;
 
     // read all kits from SDK
@@ -130,10 +128,11 @@ void KitManager::restoreKits()
     }
 
     // read all kits from user file
+    std::vector<Kit *> kitsToCheck;
     KitList userKits = restoreKits(settingsFileName());
     foreach (Kit *k, userKits.kits) {
         if (k->isSdkProvided()) {
-            kitsToCheck.append(k);
+            kitsToCheck.emplace_back(k);
         } else {
             completeKit(k); // Store manual kits
             resultList.append(k);
@@ -148,23 +147,23 @@ void KitManager::restoreKits()
                           // with the information from the user settings file
 
         // Check whether we had this kit stored and prefer the stored one:
-        for (int i = 0; i < kitsToCheck.count(); ++i) {
-            if (kitsToCheck.at(i)->id() == current->id()) {
-                toStore = kitsToCheck.at(i);
-                kitsToCheck.removeAt(i);
+        const auto i = std::find_if(std::begin(kitsToCheck),
+                                    std::end(kitsToCheck),
+                                    Utils::equal(&Kit::id, current->id()));
+        if (i != std::end(kitsToCheck)) {
+            toStore = *i;
+            kitsToCheck.erase(i);
 
-                // Overwrite settings that the SDK sets to those values:
-                foreach (const KitInformation *ki, kitInformation()) {
-                    // Copy sticky settings over:
-                    if (current->isSticky(ki->id())) {
-                        toStore->setValue(ki->id(), current->value(ki->id()));
-                        toStore->setSticky(ki->id(), true);
-                    }
+            // Overwrite settings that the SDK sets to those values:
+            foreach (const KitInformation *ki, kitInformation()) {
+                // Copy sticky settings over:
+                if (current->isSticky(ki->id())) {
+                    toStore->setValue(ki->id(), current->value(ki->id()));
+                    toStore->setSticky(ki->id(), true);
                 }
-
-                delete current;
-                break;
             }
+
+            delete current;
         }
         completeKit(toStore); // Store manual kits
         resultList.append(toStore);
