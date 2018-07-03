@@ -61,12 +61,19 @@
 #include <QApplication>
 #include <QDomDocument>
 #include <QVersionNumber>
+#include <QRegularExpression>
 
 namespace {
     const QLatin1String AndroidManifestName("AndroidManifest.xml");
     const QLatin1String AndroidDefaultPropertiesName("project.properties");
     const QLatin1String AndroidDeviceSn("AndroidDeviceSerialNumber");
     const QLatin1String ApiLevelKey("AndroidVersion.ApiLevel");
+    const QString packageNameRegEx("(package: name=)\\'(([a-z]{1}[a-z\\d_]*\\."
+                                   ")*[a-z][a-z\\d_]*)\\'");
+    const QString activityRegEx("(launchable-activity: name=)\\'"
+                                "(([a-z]{1}[a-z\\d_]*\\.)*[a-z][a-z\\d_]*)\\'");
+    const QString apkVersionRegEx("package: name=([\\=a-z\\d_\\.\\'\\s]*)"
+                                  "\\sversionName='([\\d\\.]*)'");
 
     Q_LOGGING_CATEGORY(androidManagerLog, "qtc.android.androidManager")
 
@@ -82,6 +89,15 @@ namespace {
         return response.result == Utils::SynchronousProcessResponse::Finished;
     }
 
+    QString parseAaptOutput(const QString &output, const QString &regEx) {
+        const QRegularExpression regRx(regEx,
+                                       QRegularExpression::CaseInsensitiveOption |
+                                       QRegularExpression::MultilineOption);
+        QRegularExpressionMatch match = regRx.match(output);
+        if (match.hasMatch())
+            return match.captured(2);
+        return QString();
+    };
 } // anonymous namespace
 
 namespace Android {
@@ -132,6 +148,53 @@ QString AndroidManager::packageName(const Utils::FileName &manifestFile)
         return QString();
     QDomElement manifestElem = doc.documentElement();
     return manifestElem.attribute(QLatin1String("package"));
+}
+
+bool AndroidManager::packageInstalled(const QString &deviceSerial,
+                                      const QString &packageName)
+{
+    if (deviceSerial.isEmpty() || packageName.isEmpty())
+        return false;
+    QStringList args = AndroidDeviceInfo::adbSelector(deviceSerial);
+    args << "shell" << "pm" << "list" << "packages";
+    QString output;
+    runAdbCommand(args, &output);
+    QStringList lines = output.split(QRegularExpression("[\\n\\r]"),
+                                     QString::SkipEmptyParts);
+    for (const QString &line : lines) {
+        // Don't want to confuse com.abc.xyz with com.abc.xyz.def so check with
+        // endsWith
+        if (line.endsWith(packageName))
+            return true;
+    }
+    return false;
+}
+
+void AndroidManager::apkInfo(const Utils::FileName &apkPath,
+                                    QString *packageName,
+                                    QVersionNumber *version,
+                                    QString *activityPath)
+{
+    QString output;
+    runAaptCommand({"dump", "badging", apkPath.toString()}, &output);
+
+    QString packageStr;
+    if (activityPath) {
+        packageStr = parseAaptOutput(output, packageNameRegEx);
+        QString path = parseAaptOutput(output, activityRegEx);
+        if (!packageStr.isEmpty() && !path.isEmpty())
+            *activityPath = packageStr + '/' + path;
+    }
+
+    if (packageName) {
+        *packageName = activityPath ? packageStr :
+                                      parseAaptOutput(output, packageNameRegEx);
+    }
+
+    if (version) {
+        QString versionStr = parseAaptOutput(output, apkVersionRegEx);
+        *version = QVersionNumber::fromString(versionStr);
+    }
 }
 
 QString AndroidManager::intentName(ProjectExplorer::Target *target)
@@ -612,5 +675,11 @@ bool AndroidManager::runAdbCommand(const QStringList &args, QString *output)
 {
     return runCommand(AndroidConfigurations::currentConfig().adbToolPath().toString(),
                       args, output);
+}
+
+bool AndroidManager::runAaptCommand(const QStringList &args, QString *output)
+{
+    return runCommand(AndroidConfigurations::currentConfig().aaptToolPath().toString(),
+               args, output);
 }
 } // namespace Android

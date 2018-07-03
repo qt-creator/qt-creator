@@ -416,6 +416,17 @@ FileName AndroidConfig::avdManagerToolPath() const
     return avdManagerPath;
 }
 
+FileName AndroidConfig::aaptToolPath() const
+{
+    Utils::FileName aaptToolPath = m_sdkLocation;
+    aaptToolPath.appendPath("build-tools");
+    QString toolPath = QString("%1/aapt").arg(buildToolsVersion().toString());
+    if (HostOsInfo::isWindowsHost())
+        toolPath += ANDROID_BAT_SUFFIX;
+    aaptToolPath.appendPath(toolPath);
+    return aaptToolPath;
+}
+
 FileName AndroidConfig::gccPath(const Abi &abi, Core::Id lang,
                                 const QString &ndkToolChainVersion) const
 {
