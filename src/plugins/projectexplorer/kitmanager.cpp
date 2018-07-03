@@ -126,26 +126,21 @@ void KitManager::restoreKits()
     QList<Kit *> kitsToCheck;
 
     // read all kits from SDK
-    QFileInfo kitFile(ICore::installerResourcePath() + KIT_FILENAME);
-    if (kitFile.exists()) {
-        KitList system = restoreKits(FileName(kitFile));
-        // make sure we mark these as autodetected and run additional setup logic
-        foreach (Kit *k, system.kits) {
-            k->setAutoDetected(true);
-            k->setSdkProvided(true);
-            k->makeSticky();
-        }
-
-        // SDK kits are always considered to be up for validation since they might have been
-        // extended with additional information by creator in the meantime:
-        kitsToValidate = system.kits;
+    KitList system
+            = restoreKits(FileName::fromString(ICore::installerResourcePath() + KIT_FILENAME));
+    // make sure we mark these as autodetected and run additional setup logic
+    foreach (Kit *k, system.kits) {
+        k->setAutoDetected(true);
+        k->setSdkProvided(true);
+        k->makeSticky();
     }
 
+    // SDK kits are always considered to be up for validation since they might have been
+    // extended with additional information by creator in the meantime:
+    kitsToValidate = system.kits;
+
     // read all kits from user file
-    KitList userKits;
-    FileName userSettingsFile(settingsFileName());
-    if (userSettingsFile.exists())
-        userKits = restoreKits(userSettingsFile);
+    KitList userKits = restoreKits(settingsFileName());
     foreach (Kit *k, userKits.kits) {
         if (k->isSdkProvided())
             kitsToCheck.append(k);
@@ -315,6 +310,9 @@ QList<Kit *> KitManager::sortKits(const QList<Kit *> kits)
 KitManager::KitList KitManager::restoreKits(const FileName &fileName)
 {
     KitList result;
+
+    if (!fileName.exists())
+        return result;
 
     PersistentSettingsReader reader;
     if (!reader.load(fileName)) {
