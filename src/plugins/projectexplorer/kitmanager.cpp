@@ -191,15 +191,12 @@ void KitManager::restoreKits()
         defaultKit->setup();
 
         addKit(defaultKit);
-        setDefaultKit(defaultKit);
     }
 
-    if (!defaultKit()) {
-        Kit *k = kit(userKits.defaultKit);
-        if (!k)
-            k = Utils::findOrDefault(d->m_kitList, &Kit::isValid);
-        setDefaultKit(k);
-    }
+    Kit *k = kit(userKits.defaultKit);
+    if (!k)
+        k = Utils::findOrDefault(d->m_kitList, &Kit::isValid);
+    setDefaultKit(k);
 
     d->m_writer = new PersistentSettingsWriter(settingsFileName(), "QtCreatorProfiles");
     d->m_initialized = true;
