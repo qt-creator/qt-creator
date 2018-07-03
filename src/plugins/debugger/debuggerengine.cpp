@@ -486,6 +486,7 @@ void DebuggerEngine::start()
         d->m_runTool->runControl()->setApplicationProcessHandle(d->m_inferiorPid);
 
     action(OperateByInstruction)->setEnabled(hasCapability(DisassemblerCapability));
+    action(OperateByInstruction)->setChecked(boolSetting(OperateByInstruction));
 
     QTC_ASSERT(state() == DebuggerNotReady || state() == DebuggerFinished,
          qDebug() << state());
