@@ -31,9 +31,7 @@
 #include <android/androidmanager.h>
 #include <android/androidpackageinstallationstep.h>
 
-#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
@@ -43,7 +41,6 @@
 
 using namespace Android;
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
 
 namespace QmakeAndroidSupport {
 namespace Internal {
@@ -93,15 +90,7 @@ void AndroidQmakeBuildConfiguration::manifestSaved()
 
     updateCacheAndEmitEnvironmentChanged();
 
-    QMakeStep *qs = qmakeStep();
-    if (!qs)
-        return;
-
-    qs->setForced(true);
-
-    BuildManager::buildList(stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
-    BuildManager::appendStep(qs, ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
-    setSubNodeBuild(0);
+    regenerateBuildFiles();
 }
 
 } // namespace Internal

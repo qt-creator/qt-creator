@@ -38,20 +38,23 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
+
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
+
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
-#include <android/androidmanager.h>
 
 #include <QDebug>
 #include <QInputDialog>
@@ -694,6 +697,26 @@ bool QmakeBuildConfiguration::LastKitState::operator ==(const LastKitState &othe
 bool QmakeBuildConfiguration::LastKitState::operator !=(const LastKitState &other) const
 {
     return !operator ==(other);
+}
+
+bool QmakeBuildConfiguration::regenerateBuildFiles(Node *node)
+{
+    QMakeStep *qs = qmakeStep();
+    if (!qs)
+        return false;
+
+    qs->setForced(true);
+
+    BuildManager::buildList(stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+    BuildManager::appendStep(qs, ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+
+    QmakeProFileNode *proFile = nullptr;
+    if (node && node != target()->project()->rootProjectNode())
+        proFile = dynamic_cast<QmakeProFileNode *>(node);
+
+    setSubNodeBuild(proFile);
+
+    return true;
 }
 
 } // namespace QmakeProjectManager

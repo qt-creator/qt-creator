@@ -113,6 +113,7 @@ signals:
 
 protected:
     bool fromMap(const QVariantMap &map) override;
+    bool regenerateBuildFiles(ProjectExplorer::Node *node = nullptr) override;
 
 private:
     void kitChanged();

@@ -36,6 +36,7 @@ namespace ProjectExplorer {
 class BuildInfo;
 class NamedWidget;
 class BuildStepList;
+class Node;
 class Kit;
 class Target;
 class IOutputParser;
@@ -78,6 +79,8 @@ public:
 
     virtual bool isEnabled() const;
     virtual QString disabledReason() const;
+
+    virtual bool regenerateBuildFiles(Node *node);
 
     enum BuildType {
         Unknown,

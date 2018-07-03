@@ -271,6 +271,12 @@ QString BuildConfiguration::disabledReason() const
     return QString();
 }
 
+bool BuildConfiguration::regenerateBuildFiles(Node *node)
+{
+    Q_UNUSED(node);
+    return false;
+}
+
 QString BuildConfiguration::buildTypeName(BuildConfiguration::BuildType type)
 {
     switch (type) {
