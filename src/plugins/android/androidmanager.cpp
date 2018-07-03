@@ -54,6 +54,7 @@
 #include <QDir>
 #include <QFileSystemWatcher>
 #include <QList>
+#include <QLoggingCategory>
 #include <QProcess>
 #include <QRegExp>
 #include <QMessageBox>
@@ -66,6 +67,20 @@ namespace {
     const QLatin1String AndroidDefaultPropertiesName("project.properties");
     const QLatin1String AndroidDeviceSn("AndroidDeviceSerialNumber");
     const QLatin1String ApiLevelKey("AndroidVersion.ApiLevel");
+
+    Q_LOGGING_CATEGORY(androidManagerLog, "qtc.android.androidManager")
+
+    bool runCommand(const QString &executable, const QStringList &args,
+                    QString *output = nullptr, int timeoutS = 30)
+    {
+        Utils::SynchronousProcess cmdProc;
+        cmdProc.setTimeoutS(timeoutS);
+        qCDebug(androidManagerLog) << executable << args.join(' ');
+        Utils::SynchronousProcessResponse response = cmdProc.runBlocking(executable, args);
+        if (output)
+            *output = response.allOutput();
+        return response.result == Utils::SynchronousProcessResponse::Finished;
+    }
 
 } // anonymous namespace
 
@@ -364,16 +379,9 @@ void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
             Core::MessageManager::write(tr("Starting Android virtual device failed."));
     }
 
-    QProcess *process = new QProcess();
     QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
     arguments << QLatin1String("shell") << QLatin1String("rm") << QLatin1String("-r") << QLatin1String("/data/local/tmp/qt");
-    QObject::connect(process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
-                     process, &QObject::deleteLater);
-    const QString adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
-    Core::MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1Char(' ')));
-    process->start(adb, arguments);
-    if (!process->waitForStarted(500))
-        delete process;
+    runAdbCommandDetached(arguments);
 }
 
 void AndroidManager::installQASIPackage(ProjectExplorer::Target *target, const QString &packagePath)
@@ -393,17 +401,9 @@ void AndroidManager::installQASIPackage(ProjectExplorer::Target *target, const Q
             Core::MessageManager::write(tr("Starting Android virtual device failed."));
     }
 
-    QProcess *process = new QProcess();
     QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
     arguments << QLatin1String("install") << QLatin1String("-r ") << packagePath;
-
-    connect(process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
-            process, &QObject::deleteLater);
-    const QString adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
-    Core::MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1Char(' ')));
-    process->start(adb, arguments);
-    if (!process->waitForStarted(500) && process->state() != QProcess::Running)
-        delete process;
+    runAdbCommandDetached(arguments);
 }
 
 bool AndroidManager::checkKeystorePassword(const QString &keystorePath, const QString &keystorePasswd)
@@ -596,4 +596,21 @@ int AndroidManager::findApiLevel(const Utils::FileName &platformPath)
     return apiLevel;
 }
 
+void AndroidManager::runAdbCommandDetached(const QStringList &args)
+{
+    QProcess *process = new QProcess();
+    connect(process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+            process, &QObject::deleteLater);
+    const QString adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
+    qCDebug(androidManagerLog) << adb << args.join(' ');
+    process->start(adb, args);
+    if (!process->waitForStarted(500) && process->state() != QProcess::Running)
+        delete process;
+}
+
+bool AndroidManager::runAdbCommand(const QStringList &args, QString *output)
+{
+    return runCommand(AndroidConfigurations::currentConfig().adbToolPath().toString(),
+                      args, output);
+}
 } // namespace Android

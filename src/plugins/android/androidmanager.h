@@ -87,6 +87,9 @@ public:
     static AndroidQtSupport *androidQtSupport(ProjectExplorer::Target *target);
     static bool updateGradleProperties(ProjectExplorer::Target *target);
     static int findApiLevel(const Utils::FileName &platformPath);
+
+    static void runAdbCommandDetached(const QStringList &args);
+    static bool runAdbCommand(const QStringList &args, QString *output = nullptr);
 };
 
 } // namespace Android
