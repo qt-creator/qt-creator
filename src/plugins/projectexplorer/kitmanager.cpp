@@ -123,10 +123,8 @@ void KitManager::restoreKits()
 
     initializing = true;
 
-    QList<Kit *> kitsToRegister;
     QList<Kit *> kitsToValidate;
     QList<Kit *> kitsToCheck;
-    QList<Kit *> sdkKits;
 
     // read all kits from SDK
     QFileInfo kitFile(ICore::installerResourcePath() + KIT_FILENAME);
@@ -153,7 +151,7 @@ void KitManager::restoreKits()
         if (k->isSdkProvided())
             kitsToCheck.append(k);
         else
-            kitsToRegister.append(k);
+            addKit(k); // Store manual kits
     }
 
     Kit *toStore = nullptr;
@@ -183,17 +181,12 @@ void KitManager::restoreKits()
             }
         }
         addKit(toStore);
-        sdkKits << toStore;
     }
 
     // Delete all loaded autodetected kits that were not rediscovered:
     foreach (Kit *k, kitsToCheck)
         delete k;
     kitsToCheck.clear();
-
-    // Store manual kits
-    foreach (Kit *k, kitsToRegister)
-        addKit(k);
 
     if (kits().isEmpty()) {
         Kit *defaultKit = new Kit; // One kit using default values
@@ -207,11 +200,12 @@ void KitManager::restoreKits()
         setDefaultKit(defaultKit);
     }
 
-    Kit *k = kit(userKits.defaultKit);
-    if (!k && !defaultKit())
-        k = Utils::findOrDefault(kitsToRegister + sdkKits, &Kit::isValid);
-    if (k)
+    if (!defaultKit()) {
+        Kit *k = kit(userKits.defaultKit);
+        if (!k)
+            k = Utils::findOrDefault(d->m_kitList, &Kit::isValid);
         setDefaultKit(k);
+    }
 
     d->m_writer = new PersistentSettingsWriter(settingsFileName(), "QtCreatorProfiles");
     d->m_initialized = true;
