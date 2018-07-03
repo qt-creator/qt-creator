@@ -96,6 +96,7 @@
                     \li \l{Adding Bindings Between Properties}
                     \li \l{Managing C++ Backend Objects}
                 \endlist
+                \li \l {Adding States}
                 \li \l {Creating Components}
                 \li \l {Creating Buttons}
                 \li \l {Creating Scalable Buttons and Borders}

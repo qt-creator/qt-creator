@@ -93,7 +93,7 @@
         \li \uicontrol {State} pane (6) displays the different states of the item.
             QML states typically describe user interface configurations, such as
             the UI controls, their properties and behavior and the available
-            actions.
+            actions. For more information, see \l{Adding States}.
 
     \endlist
 
@@ -425,70 +425,6 @@
     the inline editors from a context-menu.
 
     \image qmldesigner-inline-editing.png
-
-    \section1 Adding States
-
-    User interfaces are designed to present different interface configurations
-    in different scenarios, or to modify their appearances in response to user
-    interaction. Often, there are a set of changes that are made concurrently,
-    such that the interface could be seen to be internally changing from one
-    \e state to another.
-
-    This applies generally to interfaces regardless of their complexity.
-    A photo viewer may initially present images in a grid, and when an image is
-    clicked, change to a detailed state where the individual image is expanded
-    and the interface is changed to present new options for image editing.
-    On the other end of the scale, when a simple button is pressed, it may change
-    to a \e pressed state in which its color and position is modified to give a
-    pressed appearance.
-
-    In QML, any item can change between different states to apply sets of
-    changes that modify the properties of relevant items. Each state can present
-    a different configuration that can, for example:
-
-    \list
-
-        \li Show some UI items and hide others.
-
-        \li Present different available actions to the user.
-
-        \li Start, stop or pause animations.
-
-        \li Execute some script required in the new state.
-
-        \li Change a property value for a particular item.
-
-        \li Show a different view or screen.
-
-    \endlist
-
-    The \uicontrol State pane displays the different \l{State}{states}
-    of the component in the Design mode. The \uicontrol State pane is
-    collapsed by default to save space. Select \uicontrol Expand in the context
-    menu to view the whole pane.
-
-    \image qmldesigner-transitions.png "State pane"
-
-    To add states, click the \inlineimage plus.png
-    button. Then modify the new state in the editor.
-    For example, to change the appearance of a button, you can hide the button
-    image and show another image in its place. Or, to add movement to the screen,
-    you can change the position of an object on the canvas and then add animation
-    to the change between the states.
-
-    To determine when the state should be applied, select
-    \uicontrol {Set when Condition} in the menu and specify a
-    \l [QtQuick]{State::when}{when} property for the state.
-
-    You can preview the states in the \uicontrol State pane and click them to switch
-    between states on the canvas.
-
-    For more information on using states, see \l{Creating Screens}.
-
-    If you add animation to the states, you can run the application to test the
-    animation.
-
-    For more information on adding animation, see \l{Animating Screens}.
 
     \section1 Working with QML Types on Canvas
 
