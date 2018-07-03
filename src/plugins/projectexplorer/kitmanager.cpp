@@ -114,16 +114,11 @@ KitManager::KitManager(QObject *parent)
 void KitManager::restoreKits()
 {
     QTC_ASSERT(!d->m_initialized, return );
-    static bool initializing = false;
-
-    if (initializing) // kits will call kits() to check their display names, which will trigger another
-                      // call to restoreKits, which ...
-        return;
-
-    initializing = true;
 
     QList<Kit *> kitsToValidate;
     QList<Kit *> kitsToCheck;
+
+    QList<Kit *> resultList;
 
     // read all kits from SDK
     KitList system
@@ -142,10 +137,12 @@ void KitManager::restoreKits()
     // read all kits from user file
     KitList userKits = restoreKits(settingsFileName());
     foreach (Kit *k, userKits.kits) {
-        if (k->isSdkProvided())
+        if (k->isSdkProvided()) {
             kitsToCheck.append(k);
-        else
-            addKit(k); // Store manual kits
+        } else {
+            completeKit(k); // Store manual kits
+            resultList.append(k);
+        }
     }
 
     Kit *toStore = nullptr;
@@ -174,7 +171,8 @@ void KitManager::restoreKits()
                 break;
             }
         }
-        addKit(toStore);
+        completeKit(toStore); // Store manual kits
+        resultList.append(toStore);
     }
 
     // Delete all loaded autodetected kits that were not rediscovered:
@@ -190,12 +188,14 @@ void KitManager::restoreKits()
 
         defaultKit->setup();
 
-        addKit(defaultKit);
+        completeKit(defaultKit); // Store manual kits
+        resultList.append(defaultKit);
     }
 
-    Kit *k = kit(userKits.defaultKit);
+    Kit *k = Utils::findOrDefault(resultList, Utils::equal(&Kit::id, userKits.defaultKit));
     if (!k)
-        k = Utils::findOrDefault(d->m_kitList, &Kit::isValid);
+        k = Utils::findOrDefault(resultList, &Kit::isValid);
+    std::swap(resultList, d->m_kitList);
     setDefaultKit(k);
 
     d->m_writer = new PersistentSettingsWriter(settingsFileName(), "QtCreatorProfiles");
@@ -240,7 +240,6 @@ bool KitManager::isLoaded()
 
 void KitManager::registerKitInformation(std::unique_ptr<KitInformation> &&ki)
 {
-    QTC_CHECK(!isLoaded());
     QTC_ASSERT(ki->id().isValid(), return );
     QTC_ASSERT(!Utils::contains(d->m_informationList, ki.get()), return );
 
@@ -252,9 +251,6 @@ void KitManager::registerKitInformation(std::unique_ptr<KitInformation> &&ki)
                                    return a->priority() > b->priority();
                                });
     d->m_informationList.insert(it, std::move(ki));
-
-    if (!isLoaded())
-        return;
 
     foreach (Kit *k, kits()) {
         if (!k->hasValue(ki->id()))
@@ -429,7 +425,8 @@ bool KitManager::registerKit(Kit *k)
         return false;
 
     // make sure we have all the information in our kits:
-    m_instance->addKit(k);
+    completeKit(k);
+    d->m_kitList.append(k);
 
     if (!d->m_defaultKit || (!d->m_defaultKit->isValid() && k->isValid()))
         setDefaultKit(k);
@@ -461,23 +458,17 @@ void KitManager::setDefaultKit(Kit *k)
     emit m_instance->defaultkitChanged();
 }
 
-void KitManager::addKit(Kit *k)
+void KitManager::completeKit(Kit *k)
 {
-    if (!k)
-        return;
-
-    {
-        KitGuard g(k);
-        for (const std::unique_ptr<KitInformation> &ki : d->m_informationList) {
-            ki->upgrade(k);
-            if (!k->hasValue(ki->id()))
-                k->setValue(ki->id(), ki->defaultValue(k));
-            else
-                ki->fix(k);
-        }
+    QTC_ASSERT(k, return);
+    KitGuard g(k);
+    for (const std::unique_ptr<KitInformation> &ki : d->m_informationList) {
+        ki->upgrade(k);
+        if (!k->hasValue(ki->id()))
+            k->setValue(ki->id(), ki->defaultValue(k));
+        else
+            ki->fix(k);
     }
-
-    d->m_kitList.append(k);
 }
 
 // --------------------------------------------------------------------

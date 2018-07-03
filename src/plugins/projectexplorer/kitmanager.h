@@ -176,7 +176,7 @@ private:
     KitList restoreKits(const Utils::FileName &fileName);
 
     static void notifyAboutUpdate(Kit *k);
-    void addKit(Kit *k);
+    static void completeKit(Kit *k);
 
     friend class ProjectExplorerPlugin; // for constructor
     friend class Kit;
