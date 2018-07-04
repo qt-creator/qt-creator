@@ -795,7 +795,8 @@ QString GitClient::findGitDirForRepository(const QString &repositoryDir) const
 
 bool GitClient::managesFile(const QString &workingDirectory, const QString &fileName) const
 {
-    return vcsFullySynchronousExec(workingDirectory, {"ls-files", "--error-unmatch", fileName}).result
+    return vcsFullySynchronousExec(workingDirectory, {"ls-files", "--error-unmatch", fileName},
+                                   Core::ShellCommand::NoOutput).result
             == SynchronousProcessResponse::Finished;
 }
 
