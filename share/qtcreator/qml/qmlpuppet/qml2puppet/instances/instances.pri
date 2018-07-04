@@ -22,6 +22,7 @@ HEADERS += $$PWD/servernodeinstance.h
 HEADERS += $$PWD/anchorchangesnodeinstance.h
 HEADERS += $$PWD/positionernodeinstance.h
 HEADERS += $$PWD/layoutnodeinstance.h
+HEADERS += $$PWD/qt3dpresentationnodeinstance.h
 
 SOURCES += $$PWD/qt5nodeinstanceserver.cpp
 SOURCES += $$PWD/qt5testnodeinstanceserver.cpp
@@ -45,3 +46,4 @@ SOURCES += $$PWD/servernodeinstance.cpp
 SOURCES += $$PWD/anchorchangesnodeinstance.cpp
 SOURCES += $$PWD/positionernodeinstance.cpp
 SOURCES += $$PWD/layoutnodeinstance.cpp
+SOURCES += $$PWD/qt3dpresentationnodeinstance.cpp

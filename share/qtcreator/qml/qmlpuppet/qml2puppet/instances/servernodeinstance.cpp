@@ -36,6 +36,7 @@
 #include "positionernodeinstance.h"
 #include "layoutnodeinstance.h"
 #include "debugoutputcommand.h"
+#include "qt3presentationdnodeinstance.h"
 
 #include "quickitemnodeinstance.h"
 
@@ -161,6 +162,8 @@ Internal::ObjectNodeInstance::Pointer ServerNodeInstance::createInstance(QObject
 
     if (objectToBeWrapped == 0)
         instance = Internal::DummyNodeInstance::create();
+    else if (isSubclassOf(objectToBeWrapped, "Q3DSPresentationItem"))
+        instance = Internal::Qt3DPresentationNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QQuickBasePositioner"))
         instance = Internal::PositionerNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QQuickLayout"))
