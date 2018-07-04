@@ -56,6 +56,16 @@
             \uicontrol {Text Editor} in the Design mode to
             develop Qt Quick applications.
 
+        \li \l {Managing Item Hierarchy}
+
+            You can manage the items in the current QML file and their
+            relationships in the \uicontrol Navigator.
+
+        \li \l {Specifying Item Properties}
+
+            You can specify properties for your components in the
+            \uicontrol Properties pane.
+
         \li \l {Editing PathView Properties}
 
             You can use a graphical spline editor to specify \l{PathView} paths.

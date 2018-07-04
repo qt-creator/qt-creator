@@ -88,6 +88,8 @@
                 \li \l {Creating Qt Quick Projects}
                 \li \l {Qt Quick UI Forms}
                 \li \l {Editing QML Files in Design Mode}
+                \li \l {Managing Item Hierarchy}
+                \li \l {Specifying Item Properties}
                 \li \l {Editing PathView Properties}
                 \li \l {Adding Connections}
                 \list
