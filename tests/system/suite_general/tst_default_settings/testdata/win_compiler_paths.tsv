@@ -25,3 +25,4 @@
 "VS140COMNTOOLS"	"..\..\VC"	"vcvarsall.bat"	"Microsoft Visual C++ Compiler 14.0"	"x86,amd64,x86_amd64,x86_arm,amd64_arm,amd64_x86"	"x86,amd64,x86_amd64,x86_arm,amd64_arm,amd64_x86"	"false"	"..\IDE\devenv.exe"
 "ProgramFiles"	"Microsoft Visual C++ Build Tools"	"vcbuildtools.bat"	"Microsoft Visual C++ Build Tools"	"x86,x64,x86_arm,x64_arm"	"x86,amd64,x86_arm,amd64_arm"	"false"	""
 "ProgramFiles(x86)"	"Microsoft Visual C++ Build Tools"	"vcbuildtools.bat"	"Microsoft Visual C++ Build Tools"	"x86,x64,x86_arm,x64_arm"	"x86,amd64,x86_arm,amd64_arm"	"false"	""
+"ProgramFiles(x86)"	"Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build"	"vcvarsall.bat"	"Microsoft Visual C++ Compiler 15.0"	"x86,amd64_x86,amd64,x86_amd64"	"x86,amd64_x86,amd64,x86_amd64"	"false"	""

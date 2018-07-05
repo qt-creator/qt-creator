@@ -90,7 +90,7 @@ public:
     void setFlags(unsigned tc) { m_flags = tc; }
 
 protected:
-    virtual void setupChildProcess();
+    void setupChildProcess() override;
 
 private:
     unsigned m_flags;

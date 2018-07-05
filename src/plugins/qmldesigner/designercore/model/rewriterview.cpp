@@ -49,6 +49,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljssimplereader.h>
 
+#include <utils/algorithm.h>
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
 
@@ -483,14 +484,20 @@ QString RewriterView::auxiliaryDataAsQML() const
             str += QString::number(node.internalId());
             str += ";";
 
-            for (auto i = data.begin(); i != data.end(); ++i) {
-                const QVariant value = i.value();
+            QStringList keys = Utils::transform(data.keys(), [](const PropertyName &name) {
+                return QString::fromUtf8(name);
+            });
+
+            keys.sort();
+
+            for (const QString &key : keys) {
+                const QVariant value = data.value(key.toUtf8());
                 QString strValue = value.toString();
                 if (static_cast<QMetaType::Type>(value.type()) == QMetaType::QString)
                     strValue = "\"" + strValue + "\"";
 
                 if (!strValue.isEmpty()) {
-                    str += replaceIllegalPropertyNameChars(QString::fromUtf8(i.key())) + ":";
+                    str += replaceIllegalPropertyNameChars(key) + ":";
                     str += strValue;
                     str += ";";
                 }

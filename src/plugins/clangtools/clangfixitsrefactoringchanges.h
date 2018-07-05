@@ -41,6 +41,7 @@ public:
     int pos = -1;
     int length = -1;
     QString text;
+    QString fileName;
     bool apply = false;
 };
 using ReplacementOperations = QVector<ReplacementOperation *>;
@@ -52,20 +53,21 @@ class FixitsRefactoringFile
 public:
     FixitsRefactoringFile() = default;
     FixitsRefactoringFile(const QString &filePath) : m_filePath(filePath) {}
+    ~FixitsRefactoringFile() { qDeleteAll(m_documents); }
 
     bool isValid() const { return !m_filePath.isEmpty(); }
-    int position(unsigned line, unsigned column) const;
+    int position(const QString &filePath, unsigned line, unsigned column) const;
 
     void setReplacements(const ReplacementOperations &ops) { m_replacementOperations = ops; }
     bool apply();
 
 private:
-    QTextDocument *document() const;
+    QTextDocument *document(const QString &filePath) const;
     void shiftAffectedReplacements(const ReplacementOperation &op, int startIndex);
 
     QString m_filePath;
     mutable Utils::TextFileFormat m_textFileFormat;
-    mutable QTextDocument *m_document = nullptr;
+    mutable QHash<QString, QTextDocument *> m_documents;
     ReplacementOperations m_replacementOperations; // Not owned.
 };
 

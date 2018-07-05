@@ -119,13 +119,14 @@ public:
 
             const Debugger::DiagnosticLocation start = step.ranges.first();
             const Debugger::DiagnosticLocation end = step.ranges.last();
-            const int startPos = file.position(start.line, start.column);
-            const int endPos = file.position(end.line, end.column);
+            const int startPos = file.position(start.filePath, start.line, start.column);
+            const int endPos = file.position(start.filePath, end.line, end.column);
 
             auto op = new ReplacementOperation;
             op->pos = startPos;
             op->length = endPos - startPos;
             op->text = step.message;
+            op->fileName = start.filePath;
             op->apply = apply;
 
             replacements += op;
@@ -332,7 +333,7 @@ void ClangTidyClazyTool::startTool(bool askUserForFileSelection)
     QTC_ASSERT(project, return);
 
     const FileInfos fileInfos = collectFileInfos(project, askUserForFileSelection);
-    if (fileInfos.isEmpty())
+    if (fileInfos.empty())
         return;
 
     auto clangTool = new ClangTidyClazyRunControl(runControl,

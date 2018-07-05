@@ -27,6 +27,7 @@
 
 #include <formeditorscene.h>
 #include <nodemetainfo.h>
+#include <rewritingexception.h>
 
 #include <QLineEdit>
 #include <QTextEdit>
@@ -48,12 +49,17 @@ TextEditItem::~TextEditItem()
 void TextEditItem::writeTextToProperty()
 {
     if (m_formEditorItem) {
-        if (text().isEmpty())
-            m_formEditorItem->qmlItemNode().removeProperty("text");
-        else if (m_formEditorItem->qmlItemNode().isTranslatableText("text"))
-            m_formEditorItem->qmlItemNode().setBindingProperty("text", QmlObjectNode::generateTranslatableText(text()));
-        else
-            m_formEditorItem->qmlItemNode().setVariantProperty("text", text());
+        try {
+            if (text().isEmpty())
+                m_formEditorItem->qmlItemNode().removeProperty("text");
+            else if (m_formEditorItem->qmlItemNode().isTranslatableText("text"))
+                m_formEditorItem->qmlItemNode().setBindingProperty("text", QmlObjectNode::generateTranslatableText(text()));
+            else
+                m_formEditorItem->qmlItemNode().setVariantProperty("text", text());
+        }
+        catch (const RewritingException &e) {
+            e.showException();
+        }
     }
 }
 

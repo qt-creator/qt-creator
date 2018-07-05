@@ -87,9 +87,16 @@
             \list
                 \li \l {Creating Qt Quick Projects}
                 \li \l {Qt Quick UI Forms}
-                \li \l {Using Qt Quick Designer}
+                \li \l {Editing QML Files in Design Mode}
                 \li \l {Editing PathView Properties}
                 \li \l {Adding Connections}
+                \list
+                    \li \l{Connecting Objects to Signals}
+                    \li \l{Specifying Dynamic Properties}
+                    \li \l{Adding Bindings Between Properties}
+                    \li \l{Managing C++ Backend Objects}
+                \endlist
+                \li \l {Adding States}
                 \li \l {Creating Components}
                 \li \l {Creating Buttons}
                 \li \l {Creating Scalable Buttons and Borders}

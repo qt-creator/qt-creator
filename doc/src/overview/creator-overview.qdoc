@@ -64,7 +64,8 @@
                 \l{Managing Projects}.
             \li \b {\l{Designing User Interfaces}}
 
-                \QC provides two integrated visual editors, \QMLD and \QD.
+                \QC provides integrated visual editors for creating Qt Quick and
+                widget-based applications in the Design mode.
                 To create intuitive, modern-looking, fluid user interfaces, you
                 can use \l{Qt Quick}.
                 If you need a traditional user interface that is clearly

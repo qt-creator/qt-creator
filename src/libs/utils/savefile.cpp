@@ -126,7 +126,7 @@ bool SaveFile::commit()
     m_tempFile.reset();
     bool result = ReplaceFile(finalFileName.toStdWString().data(),
                               fileName().toStdWString().data(),
-                              nullptr, 0, nullptr, nullptr);
+                              nullptr, REPLACEFILE_IGNORE_MERGE_ERRORS, nullptr, nullptr);
     if (!result) {
         const DWORD replaceErrorCode = GetLastError();
         QString errorStr;

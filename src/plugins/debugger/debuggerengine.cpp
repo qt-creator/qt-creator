@@ -486,6 +486,7 @@ void DebuggerEngine::start()
         d->m_runTool->runControl()->setApplicationProcessHandle(d->m_inferiorPid);
 
     action(OperateByInstruction)->setEnabled(hasCapability(DisassemblerCapability));
+    action(OperateByInstruction)->setChecked(boolSetting(OperateByInstruction));
 
     QTC_ASSERT(state() == DebuggerNotReady || state() == DebuggerFinished,
          qDebug() << state());
@@ -534,8 +535,10 @@ void DebuggerEngine::gotoLocation(const Location &loc)
     const QString file = QDir::cleanPath(loc.fileName());
     const int line = loc.lineNumber();
     bool newEditor = false;
-    IEditor *editor = EditorManager::openEditor(file, Id(),
-                                                EditorManager::IgnoreNavigationHistory, &newEditor);
+    IEditor *editor = EditorManager::openEditor(
+                file, Id(),
+                EditorManager::IgnoreNavigationHistory | EditorManager::DoNotSwitchToDesignMode,
+                &newEditor);
     QTC_ASSERT(editor, return); // Unreadable file?
 
     editor->gotoLine(line, 0, !boolSetting(StationaryEditorWhileStepping));

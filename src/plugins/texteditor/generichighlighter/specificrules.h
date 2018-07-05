@@ -99,7 +99,7 @@ public:
     void setString(const QString &s);
     void setInsensitive(const QString &insensitive);
 
-private:
+protected:
     virtual bool doMatchSucceed(const QString &text,
                                 const int length,
                                 ProgressData *progress);
@@ -109,6 +109,15 @@ private:
     QString m_string;
     int m_length = 0;
     Qt::CaseSensitivity m_caseSensitivity = Qt::CaseSensitive;
+};
+
+class WordDetectRule : public StringDetectRule
+{
+private:
+    virtual bool doMatchSucceed(const QString &text,
+                                const int length,
+                                ProgressData *progress);
+    virtual WordDetectRule *doClone() const { return new WordDetectRule(*this); }
 };
 
 class RegExprRule : public DynamicRule

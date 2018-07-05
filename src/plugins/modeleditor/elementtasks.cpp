@@ -108,7 +108,8 @@ bool ElementTasks::hasClassDefinition(const qmt::MElement *element) const
                 ? klass->name()
                 : klass->umlNamespace() + "::" + klass->name();
 
-        CppTools::CppClassesFilter *classesFilter = ExtensionSystem::PluginManager::getObject<CppTools::CppClassesFilter>();
+        Core::ILocatorFilter *classesFilter
+                = CppTools::CppModelManager::instance()->classesFilter();
         if (!classesFilter)
             return false;
 
@@ -144,7 +145,8 @@ void ElementTasks::openClassDefinition(const qmt::MElement *element)
                 ? klass->name()
                 : klass->umlNamespace() + "::" + klass->name();
 
-        CppTools::CppClassesFilter *classesFilter = ExtensionSystem::PluginManager::getObject<CppTools::CppClassesFilter>();
+        Core::ILocatorFilter *classesFilter
+                = CppTools::CppModelManager::instance()->classesFilter();
         if (!classesFilter)
             return;
 

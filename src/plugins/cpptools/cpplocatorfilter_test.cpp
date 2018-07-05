@@ -96,7 +96,7 @@ class CppCurrentDocumentFilterTestCase
 public:
     CppCurrentDocumentFilterTestCase(const QString &fileName,
                                      const ResultDataList &expectedResults)
-        : BasicLocatorFilterTest(PluginManager::getObject<CppCurrentDocumentFilter>())
+        : BasicLocatorFilterTest(CppTools::CppModelManager::instance()->currentDocumentFilter())
         , m_editor(0)
         , m_fileName(fileName)
     {
@@ -158,9 +158,11 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
     QTest::addColumn<QString>("searchText");
     QTest::addColumn<ResultDataList>("expectedResults");
 
-    ILocatorFilter *cppFunctionsFilter = PluginManager::getObject<CppFunctionsFilter>();
-    ILocatorFilter *cppClassesFilter = PluginManager::getObject<CppClassesFilter>();
-    ILocatorFilter *cppLocatorFilter = PluginManager::getObject<CppLocatorFilter>();
+    CppModelManager *cppModelManager = CppModelManager::instance();
+
+    ILocatorFilter *cppFunctionsFilter = cppModelManager->functionsFilter();
+    ILocatorFilter *cppClassesFilter = cppModelManager->classesFilter();
+    ILocatorFilter *cppLocatorFilter = cppModelManager->locatorFilter();
 
     MyTestDataDir testDirectory("testdata_basic");
     const QString testFile = testDirectory.file("file1.cpp");

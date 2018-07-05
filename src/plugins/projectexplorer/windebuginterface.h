@@ -25,7 +25,12 @@
 
 #pragma once
 
+#include <QMap>
 #include <QThread>
+
+#include <map>
+#include <mutex>
+#include <vector>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -45,12 +50,15 @@ public:
 signals:
     void debugOutput(qint64 pid, const QString &message);
     void cannotRetrieveDebugOutput();
+    void _q_debugOutputReady();
 
 private:
     enum Handles { DataReadyEventHandle, TerminateEventHandle, HandleCount };
 
     void run() override;
     bool runLoop();
+    void emitReadySignal();
+    void dispatchDebugOutput();
 
     static WinDebugInterface *m_instance;
 
@@ -59,6 +67,9 @@ private:
     Qt::HANDLE m_bufferReadyEvent = nullptr;
     Qt::HANDLE m_sharedFile = nullptr;
     void *m_sharedMem = nullptr;
+    std::mutex m_outputMutex;
+    bool m_readySignalEmitted = false;
+    std::map<qint64, std::vector<QString>> m_debugOutput;
 };
 
 } // namespace Internal

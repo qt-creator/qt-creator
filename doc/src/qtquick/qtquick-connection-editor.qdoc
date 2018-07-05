@@ -27,153 +27,45 @@
     \contentspage {Qt Creator Manual}
     \previouspage qmldesigner-pathview-editor.html
     \page qmldesigner-connections.html
-    \nextpage quick-components.html
+    \nextpage quick-signals.html
 
     \title Adding Connections
 
-    You can use the \uicontrol {Connections} view to:
+    The user interface components and the application need to communicate with
+    each other. For example, a button needs to know that the user has clicked
+    on it. The button may then change color to indicate its state or perform an
+    action. Further, the application needs to know whether the user is clicking
+    the button, because it may need to relay this clicking event to other
+    applications.
+
+    QML has a signal and handler mechanism, that enables components to respond
+    to application events. Events are represented by \e signals. When a signal
+    is emitted, the corresponding \e {signal handler} is invoked to respond to
+    the event by using scripts or other operations placed in the handler.
+
+    To access a signal outside of the object that emits it, you can use the
+    \l Connections type for connecting to signals of arbitrary objects. A
+    Connections object can receive any signal from its specified target.
+
+    A component's property can be assigned a static value which stays constant
+    until it is explicitly assigned a new value. However, to make the fullest
+    use of QML and its built-in support for dynamic object behaviors, most QML
+    types use property bindings. This means that you can specify relationships
+    between different object properties so that when a property's sependencies
+    change in value, the property's value is automatically updated accordingly.
+
+    Behind the scenes, the QML engine monitors the property's dependencies (that
+    is, the variables in the binding expression). When a change is detected, the
+    QML engine re-evaluates the binding expression and applies the new result to
+    the property.
+
+    The following sections describe how to use the \uicontrol {Connections} view
+    to perform the following tasks:
 
     \list
-
-        \li Connect objects to signals.
-
-        \li Specify dynamic properties for objects.
-
-        \li Create bindings between the properties of two objects.
-
-        \li Manage backend QObjects.
-
+        \li \l{Connecting Objects to Signals}
+        \li \l{Specifying Dynamic Properties}
+        \li \l{Adding Bindings Between Properties}
+        \li \l{Managing C++ Backend Objects}
     \endlist
-
-    For examples of adding connections, see
-    \l{Creating Scalable Buttons and Borders}.
-
-    \section1 Connecting Objects to Signals
-
-    To connect objects to signals in QML, create \l{Connections} objects.
-
-    \image qmldesigner-connections.png
-
-    To create the connections:
-
-    \list 1
-
-        \li Select the \uicontrol {Connections} tab.
-
-        \li Select the \inlineimage plus.png
-            (\uicontrol Add) button to add a connection.
-
-        \li Select \uicontrol Target to add the object to connect to a signal.
-
-        \li Select \uicontrol {Signal Handler} to select the signal that the connection
-            will listen to from a list of all signals available for the object.
-
-        \li Select \uicontrol Actions to specify the action to perform when
-            the signal is emitted. You use JavaScript to specify the actions.
-
-    \endlist
-
-    \section1 Specifying Dynamic Properties
-
-    You can bind \l{Properties} to dynamic expressions to define global properties for an
-    object that can be read by other objects. For example, you can specify
-    global properties for the root object that you can use in the child objects.
-
-    \image qmldesigner-dynamicprops.png
-
-    To specify dynamic properties for an object:
-
-    \list 1
-
-        \li Select the \uicontrol {Properties} tab.
-
-        \li Select \uicontrol Item to select the object to specify the property for.
-
-        \li Select \uicontrol Property to give a name to the property.
-
-        \li Select \uicontrol {Property Type} to specify the type of the property.
-
-        \li Select \uicontrol {Property Value} to specify the value of the property.
-
-    \endlist
-
-    \section1 Adding Bindings Between Properties
-
-    To dynamically change the behavior of an object, you can create a
-    \l{Property Binding} between the properties of two objects.
-
-    \image qmldesigner-bindings.png
-
-    To bind a property of an object to the property of another object:
-
-    \list 1
-
-        \li Select the \uicontrol {Bindings} tab.
-
-        \li Select the \inlineimage plus.png
-            (\uicontrol Add) button to add a binding.
-
-        \li Select \uicontrol Item to select the target object whose property you want
-            to change dynamically.
-
-        \li Select \uicontrol Property to select the property to bind to a source
-            property.
-
-        \li Select \uicontrol {Source Item} to select the object whose property you
-            want to use to determine the behavior of the target object.
-
-        \li Select \uicontrol {Source Property} to select the property to bind the
-            target property to.
-
-    \endlist
-
-    \section1 Managing C++ Backend Objects
-
-    Many applications provide QObject objects implemented in C++ that work as a
-    bridge between QML and C++. Such objects are typically registered with
-    qmlRegisterType or qmlRegisterSingletonType and then used by QML to
-    communicate with the C++ backend. Another example of such objects are the
-    state machines created by the \l {Using the Qt SCXML Compiler (qscxmlc)}
-    {Qt SCXML Compiler}.
-
-    Backend objects in a QML file are accessible if the QML file contains the
-    required imports. In addition, for a non-singleton QObject, a dynamic
-    property that contains the QObject must be specified.
-
-    A \e local QObject is instantiated in the current \e .qml file, as follows:
-
-    \badcode
-    property MyType myType: MyType {}.
-    \endcode
-
-    Otherwise the property is just defined, as follows:
-
-    \badcode
-    property MyType myType
-    \endcode
-
-    To manage backend objects:
-
-    \list 1
-
-        \li Select the \uicontrol Backends tab to view accessible backend
-            objects.
-
-            \image qmldesigner-backends.png
-
-        \li Select the \inlineimage plus.png
-            (\uicontrol Add) button to add a backend object in the
-            \uicontrol {Add New C++ Backend} dialog.
-
-        \li In the \uicontrol Type field, select the type of the backend QObject
-            to add.
-
-        \li Select the \uicontrol {Define object locally} check box if the
-            QObject is not registered as a singleton.
-
-        \li Select \uicontrol OK to add the required import and to create the
-            property for a non-singleton object.
-
-    \endlist
-
 */

@@ -181,6 +181,9 @@ uint TranslationUnitUpdater::defaultParseOptions()
          | CXTranslationUnit_SkipFunctionBodies
          | CXTranslationUnit_LimitSkipFunctionBodiesToPreamble
 #endif
+#ifdef IS_SKIPWARNINGSFROMINCLUDEDFILES_SUPPORTED
+         | CXTranslationUnit_IgnoreNonErrorsFromIncludedFiles
+#endif
          | CXTranslationUnit_IncludeBriefCommentsInCodeCompletion
          | CXTranslationUnit_DetailedPreprocessingRecord
          | CXTranslationUnit_KeepGoing;

@@ -160,7 +160,7 @@ ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *pare
     connect(WinDebugInterface::instance(), &WinDebugInterface::cannotRetrieveDebugOutput,
             this, &ApplicationLauncherPrivate::cannotRetrieveLocalDebugOutput);
     connect(WinDebugInterface::instance(), &WinDebugInterface::debugOutput,
-            this, &ApplicationLauncherPrivate::checkLocalDebugOutput, Qt::BlockingQueuedConnection);
+            this, &ApplicationLauncherPrivate::checkLocalDebugOutput);
 #endif
 }
 

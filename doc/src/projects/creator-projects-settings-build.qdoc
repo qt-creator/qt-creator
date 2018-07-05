@@ -75,6 +75,11 @@
     \uicontrol General, and enter a period (.) in the
     \uicontrol {Default build directory} field.
 
+    You can create separate versions of project files to keep platform-dependent
+    code separate. You can use qmake \l{Adding Platform Specific Source Files}
+    {scopes} to select the file to process depending on which platform qmake is
+    run on.
+
     \include creator-projects-cmake-building.qdocinc cmake build configuration
 
     \section1 Starting External Processes

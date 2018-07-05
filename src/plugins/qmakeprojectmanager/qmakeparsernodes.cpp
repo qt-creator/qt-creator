@@ -45,6 +45,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/stringutils.h>
+#include <utils/temporarydirectory.h>
 #include <utils/QtConcurrentTools>
 
 #include <QLoggingCategory>
@@ -1870,9 +1871,11 @@ FileName QmakeProFile::buildDir(QmakeBuildConfiguration *bc) const
     const QString relativeDir = srcDirRoot.relativeFilePath(directoryPath().toString());
     if (!bc && m_project->activeTarget())
         bc = static_cast<QmakeBuildConfiguration *>(m_project->activeTarget()->activeBuildConfiguration());
-    if (!bc)
-        return { };
-    return FileName::fromString(QDir::cleanPath(QDir(bc->buildDirectory().toString()).absoluteFilePath(relativeDir)));
+    const QString buildConfigBuildDir = bc ? bc->buildDirectory().toString() : QString();
+    const QString buildDir = buildConfigBuildDir.isEmpty()
+                                 ? m_project->projectDirectory().toString()
+                                 : buildConfigBuildDir;
+    return FileName::fromString(QDir::cleanPath(QDir(buildDir).absoluteFilePath(relativeDir)));
 }
 
 FileNameList QmakeProFile::generatedFiles(const FileName &buildDir,

@@ -29,6 +29,7 @@
 #include "fancyactionbar.h"
 
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
@@ -599,6 +600,12 @@ void FancyTabWidget::showWidget(int index)
 {
     emit currentAboutToShow(index);
     m_modesStack->setCurrentIndex(index);
+    QWidget *w = m_modesStack->currentWidget();
+    if (QTC_GUARD(w)) {
+        if (QWidget *focusWidget = w->focusWidget())
+            w = focusWidget;
+        w->setFocus();
+    }
     emit currentChanged(index);
 }
 

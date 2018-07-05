@@ -539,7 +539,10 @@
             \li  Ctrl+0
     \endtable
 
-    \section2 Qt Quick Designer Keyboard Shortcuts
+    \section2 Design Mode Keyboard Shortcuts
+
+    You can use the following keyboard shortcuts when editing QML files in the
+    Design mode.
 
     \table
         \header

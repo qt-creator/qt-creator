@@ -131,6 +131,14 @@
         "QtQuick 2.8",
         "QtQuick 2.9",
         "QtTest 1.0",
+        "QtWebEngine 1.0",
+        "QtWebEngine 1.1",
+        "QtWebEngine 1.2",
+        "QtWebEngine 1.3",
+        "QtWebEngine 1.4",
+        "QtWebEngine 1.5",
+        "QtWebEngine 1.6",
+        "QtWebEngine 1.7",
         "QtWebKit 3.0",
         "Enginio 1.0"
     ]

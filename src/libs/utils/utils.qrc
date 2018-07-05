@@ -207,5 +207,7 @@
         <file>images/lightbulb@2x.png</file>
         <file>images/lightbulbcap.png</file>
         <file>images/lightbulbcap@2x.png</file>
+        <file>images/toolbuttonexpandarrow.png</file>
+        <file>images/toolbuttonexpandarrow@2x.png</file>
     </qresource>
 </RCC>

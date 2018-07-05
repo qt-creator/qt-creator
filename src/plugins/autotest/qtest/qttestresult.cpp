@@ -205,7 +205,8 @@ bool QtTestResult::matchesTestFunction(const TestTreeItem *item) const
     }
     if (type == TestTreeItem::TestDataTag) {
         TestTreeItem *grandParentItem = parentItem->parentItem();
-        return parentItem->name() == m_function && grandParentItem->name() == name();
+        return parentItem->name() == m_function && grandParentItem->name() == name()
+                && item->name() == m_dataTag;
     }
     return item->name() == m_function && parentItem->name() == name();
 }

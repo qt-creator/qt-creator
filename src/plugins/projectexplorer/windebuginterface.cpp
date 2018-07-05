@@ -27,10 +27,11 @@
 
 #ifdef Q_OS_WIN
 
-#include <windows.h>
+#include <utils/qtcassert.h>
 #include <QCoreApplication>
-#include <QMap>
-#include <QTime>
+#include <qt_windows.h>
+
+#include <algorithm>
 
 /*!
     \class ProjectExplorer::Internal::WinDebugInterface
@@ -67,6 +68,8 @@ WinDebugInterface::WinDebugInterface(QObject *parent) :
     m_instance = this;
     m_creatorPid = QCoreApplication::applicationPid();
     setObjectName(QLatin1String("WinDebugInterfaceThread"));
+    connect(this, &WinDebugInterface::_q_debugOutputReady,
+            this, &WinDebugInterface::dispatchDebugOutput, Qt::QueuedConnection);
 }
 
 WinDebugInterface::~WinDebugInterface()
@@ -131,46 +134,66 @@ bool WinDebugInterface::runLoop()
 
     SetEvent(m_bufferReadyEvent);
 
-    QTime timer; // time since last signal sent
-    timer.start();
-
-    QMap<qint64, QString> delayedMessages;
-
-    auto flushMessages = [this, &delayedMessages, &timer](){
-        auto it = delayedMessages.constBegin();
-        auto end = delayedMessages.constEnd();
-        for (; it != end; ++it)
-            emit debugOutput(it.key(), it.value());
-        delayedMessages.clear();
-        timer.start();
-    };
-
     while (true) {
-        DWORD timeout = INFINITE;
-        if (!delayedMessages.isEmpty()) // if we have delayed message, don't wait forever
-            timeout = qMax(60 - timer.elapsed(), 1);
-        const DWORD ret = WaitForMultipleObjects(HandleCount, m_waitHandles, FALSE, timeout);
-
+        const DWORD ret = WaitForMultipleObjects(HandleCount, m_waitHandles, FALSE, INFINITE);
         if (ret == WAIT_FAILED || ret - WAIT_OBJECT_0 == TerminateEventHandle) {
-            flushMessages();
+            std::lock_guard<std::mutex> guard(m_outputMutex);
+            emitReadySignal();
             break;
         }
-        if (ret == WAIT_TIMEOUT) {
-            flushMessages();
-            SetEvent(m_bufferReadyEvent);
-        } else if (ret - WAIT_OBJECT_0 == DataReadyEventHandle) {
+        if (ret - WAIT_OBJECT_0 == DataReadyEventHandle) {
             if (*processId != m_creatorPid) {
-                if (timer.elapsed() < 60) {
-                    delayedMessages[*processId].append(QString::fromLocal8Bit(message));
-                } else {
-                    delayedMessages[*processId] += QString::fromLocal8Bit(message);
-                    flushMessages();
-                }
+                std::lock_guard<std::mutex> guard(m_outputMutex);
+                m_debugOutput[*processId].push_back(QString::fromLocal8Bit(message));
+                emitReadySignal();
             }
             SetEvent(m_bufferReadyEvent);
         }
     }
     return true;
+}
+
+void WinDebugInterface::emitReadySignal()
+{
+    // This function must be called from the WinDebugInterface thread only.
+    QTC_ASSERT(QThread::currentThread() == this, return);
+
+    if (m_debugOutput.empty() || m_readySignalEmitted)
+        return;
+
+    m_readySignalEmitted = true;
+    emit _q_debugOutputReady();
+}
+
+void WinDebugInterface::dispatchDebugOutput()
+{
+    // Called in the thread this object was created in, not in the WinDebugInterfaceThread.
+    QTC_ASSERT(QThread::currentThread() == QCoreApplication::instance()->thread(), return);
+
+    static size_t maxMessagesToSend = 100;
+    std::vector<std::pair<qint64, QString>> output;
+    bool hasMoreOutput = false;
+
+    m_outputMutex.lock();
+    for (auto &entry : m_debugOutput) {
+        std::vector<QString> &src = entry.second;
+        QString dst;
+        size_t n = std::min(maxMessagesToSend, src.size());
+        for (size_t i = 0; i < n; ++i)
+            dst += src.at(i);
+        src.erase(src.begin(), std::next(src.begin(), n));
+        if (!src.empty())
+            hasMoreOutput = true;
+        output.emplace_back(entry.first, std::move(dst));
+    }
+    if (!hasMoreOutput)
+        m_readySignalEmitted = false;
+    m_outputMutex.unlock();
+
+    for (auto p : output)
+        emit debugOutput(p.first, p.second);
+    if (hasMoreOutput)
+        emit _q_debugOutputReady();
 }
 
 } // namespace Internal
@@ -192,6 +215,10 @@ WinDebugInterface::~WinDebugInterface() { }
 void WinDebugInterface::run() { }
 
 bool WinDebugInterface::runLoop() { return false; }
+
+void WinDebugInterface::emitReadySignal() { }
+
+void WinDebugInterface::dispatchDebugOutput() { }
 
 } // namespace Internal
 } // namespace ProjectExplorer

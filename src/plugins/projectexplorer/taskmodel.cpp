@@ -331,10 +331,18 @@ TaskFilterModel::TaskFilterModel(TaskModel *sourceModel, QObject *parent) : QAbs
 
     connect(m_sourceModel, &QAbstractItemModel::rowsInserted,
             this, &TaskFilterModel::handleNewRows);
+
     connect(m_sourceModel, &QAbstractItemModel::rowsAboutToBeRemoved,
             this, &TaskFilterModel::handleRowsAboutToBeRemoved);
+    connect(m_sourceModel, &QAbstractItemModel::rowsRemoved,
+            this, [this](const QModelIndex &parent, int, int) {
+        QTC_ASSERT(!parent.isValid(), return);
+        endRemoveRows();
+    });
+
     connect(m_sourceModel, &QAbstractItemModel::modelReset,
-            this, &TaskFilterModel::handleReset);
+            this, &TaskFilterModel::invalidateFilter);
+
     connect(m_sourceModel, &QAbstractItemModel::dataChanged,
             this, &TaskFilterModel::handleDataChanged);
 
@@ -383,8 +391,9 @@ static QPair<int, int> findFilteredRange(int first, int last, const QList<int> &
 
 void TaskFilterModel::handleNewRows(const QModelIndex &index, int first, int last)
 {
-    if (index.isValid())
-        return;
+    QTC_ASSERT(!index.isValid(), return);
+
+    const int newItemCount = last - first + 1;
 
     QList<int> newMapping;
     for (int i = first; i <= last; ++i) {
@@ -393,8 +402,8 @@ void TaskFilterModel::handleNewRows(const QModelIndex &index, int first, int las
             newMapping.append(i);
     }
 
-    const int newItems = newMapping.count();
-    if (!newItems)
+    const int newMappingCount = newMapping.count();
+    if (!newMappingCount)
         return;
 
     int filteredFirst = -1;
@@ -403,36 +412,35 @@ void TaskFilterModel::handleNewRows(const QModelIndex &index, int first, int las
     else
         filteredFirst = std::lower_bound(m_mapping.constBegin(), m_mapping.constEnd(), first) - m_mapping.constBegin();
 
-    const int filteredLast = filteredFirst + newItems - 1;
+    const int filteredLast = filteredFirst + newMappingCount - 1;
     beginInsertRows(QModelIndex(), filteredFirst, filteredLast);
     if (filteredFirst == m_mapping.count()) {
         m_mapping.append(newMapping);
     } else {
-        QList<int> rest = m_mapping.mid(filteredFirst);
+        const QList<int> rest = m_mapping.mid(filteredFirst);
 
-        m_mapping.reserve(m_mapping.count() + newItems);
+        m_mapping.reserve(m_mapping.count() + newMappingCount);
         m_mapping.erase(m_mapping.begin() + filteredFirst, m_mapping.end());
         m_mapping.append(newMapping);
-        foreach (int pos, rest)
-            m_mapping.append(pos + newItems);
+        for (int pos : rest)
+            m_mapping.append(pos + newItemCount);
     }
     endInsertRows();
 }
 
 void TaskFilterModel::handleRowsAboutToBeRemoved(const QModelIndex &index, int first, int last)
 {
-    if (index.isValid())
-        return;
+    QTC_ASSERT(!index.isValid(), return);
 
     const QPair<int, int> range = findFilteredRange(first, last, m_mapping);
-    if (range.first > range.second)
+    if (range.first > range.second) // rows to be removed are filtered out
         return;
 
     beginRemoveRows(QModelIndex(), range.first, range.second);
     m_mapping.erase(m_mapping.begin() + range.first, m_mapping.begin() + range.second + 1);
+    const int sourceRemovedCount = (last - first) + 1;
     for (int i = range.first; i < m_mapping.count(); ++i)
-        m_mapping[i] = m_mapping.at(i) - (last - first) - 1;
-    endRemoveRows();
+        m_mapping[i] = m_mapping.at(i) - sourceRemovedCount;
 }
 
 void TaskFilterModel::handleDataChanged(const QModelIndex &top, const QModelIndex &bottom)
@@ -444,24 +452,21 @@ void TaskFilterModel::handleDataChanged(const QModelIndex &top, const QModelInde
     emit dataChanged(index(range.first, top.column()), index(range.second, bottom.column()));
 }
 
-void TaskFilterModel::handleReset()
-{
-    invalidateFilter();
-}
-
 QModelIndex TaskFilterModel::mapFromSource(const QModelIndex &idx) const
 {
-    auto it = std::lower_bound(m_mapping.constBegin(), m_mapping.constEnd(), idx.row());
-    if (it == m_mapping.constEnd() || idx.row() != *it)
+    if (!idx.isValid())
         return QModelIndex();
+    auto it = std::lower_bound(m_mapping.constBegin(), m_mapping.constEnd(), idx.row());
+    QTC_ASSERT(it != m_mapping.constEnd() && idx.row() == *it, return QModelIndex());
     return index(it - m_mapping.constBegin(), 0);
 }
 
 QModelIndex TaskFilterModel::mapToSource(const QModelIndex &index) const
 {
-    int row = index.row();
-    if (row >= m_mapping.count())
+    if (!index.isValid())
         return QModelIndex();
+    int row = index.row();
+    QTC_ASSERT(row >= 0 && row < m_mapping.count(), return QModelIndex());
     return m_sourceModel->index(m_mapping.at(row), index.column(), index.parent());
 }
 

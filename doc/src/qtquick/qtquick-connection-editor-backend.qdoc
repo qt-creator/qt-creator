@@ -1,0 +1,74 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage quick-property-bindings.html
+    \page quick-connections-backend.html
+    \nextpage quick-states.html
+
+    \title Managing C++ Backend Objects
+
+    Many applications provide QObject objects implemented in C++ that work as a
+    bridge between QML and C++. Such objects are typically registered with
+    \c qmlRegisterType or \c qmlRegisterSingletonType and then used by QML to
+    communicate with the C++ backend. Another example of such objects are the
+    state machines created by the \l {Using the Qt SCXML Compiler (qscxmlc)}
+    {Qt SCXML Compiler}.
+
+    Backend objects in a QML file are accessible if the QML file contains the
+    required imports. In addition, for a non-singleton QObject, a dynamic
+    property that contains the QObject must be specified.
+
+    A \e local QObject is instantiated in the current \e .qml file, as follows:
+
+    \badcode
+    property MyType myType: MyType {}.
+    \endcode
+
+    Otherwise the property is just defined, as follows:
+
+    \badcode
+    property MyType myType
+    \endcode
+
+    To manage backend objects:
+
+    \list 1
+
+        \li In the \uicontrol {Connections} view, select the
+            \uicontrol Backends tab to view accessible backend objects.
+            \image qmldesigner-backends.png
+        \li Select the \inlineimage plus.png
+            (\uicontrol Add) button to add a backend object in the
+            \uicontrol {Add New C++ Backend} dialog.
+        \li In the \uicontrol Type field, select the type of the backend QObject
+            to add.
+        \li Select the \uicontrol {Define object locally} check box if the
+            QObject is not registered as a singleton.
+        \li Select \uicontrol OK to add the required import and to create the
+            property for a non-singleton object.
+    \endlist
+*/

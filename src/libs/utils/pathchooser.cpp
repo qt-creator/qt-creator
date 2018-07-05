@@ -147,7 +147,7 @@ public:
         BinaryVersionToolTipEventFilter(pe->lineEdit()), m_pathChooser(pe) {}
 
 private:
-    virtual QString defaultToolTip() const
+    QString defaultToolTip() const override
         { return m_pathChooser->errorMessage(); }
 
     const PathChooser *m_pathChooser = nullptr;

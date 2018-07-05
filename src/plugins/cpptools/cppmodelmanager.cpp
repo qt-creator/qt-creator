@@ -390,6 +390,36 @@ void CppModelManager::setCurrentDocumentFilter(std::unique_ptr<Core::ILocatorFil
     setFilter(d->m_currentDocumentFilter, std::move(filter));
 }
 
+Core::ILocatorFilter *CppModelManager::locatorFilter() const
+{
+    return d->m_locatorFilter.get();
+}
+
+Core::ILocatorFilter *CppModelManager::classesFilter() const
+{
+    return d->m_classesFilter.get();
+}
+
+Core::ILocatorFilter *CppModelManager::includesFilter() const
+{
+    return d->m_includesFilter.get();
+}
+
+Core::ILocatorFilter *CppModelManager::functionsFilter() const
+{
+    return d->m_functionsFilter.get();
+}
+
+Core::IFindFilter *CppModelManager::symbolsFindFilter() const
+{
+    return d->m_symbolsFindFilter.get();
+}
+
+Core::ILocatorFilter *CppModelManager::currentDocumentFilter() const
+{
+    return d->m_currentDocumentFilter.get();
+}
+
 FollowSymbolInterface &CppModelManager::followSymbolInterface() const
 {
     return d->m_activeModelManagerSupport->followSymbolInterface();

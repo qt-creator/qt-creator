@@ -48,8 +48,8 @@
 
     \image qmldesigner-tutorial.png "States and transitions example"
 
-    For more information about using \QMLD, see
-    \l{Developing Qt Quick Applications}.
+    For more information about developing Qt Quick applications in the Design
+    mode, see \l{Developing Qt Quick Applications}.
 
     For examples of using Qt Quick Controls 2, see
     \l{Qt Quick Controls 2 Examples}.
@@ -69,7 +69,7 @@
     \list 1
 
         \li In the \uicontrol Projects view, double-click the \e Page1Form.ui.qml
-            file to open it in \QMLD.
+            file to open it in the Design mode.
 
             \image qmldesigner-tutorial-design-mode.png "Transitions project in Design Mode"
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -23,41 +23,36 @@
 **
 ****************************************************************************/
 
-// **********************************************************************
-// NOTE: the sections are not ordered by their logical order to avoid
-// reshuffling the file each time the index order changes (i.e., often).
-// Run the fixnavi.pl script to adjust the links to the index order.
-// **********************************************************************
-
 /*!
     \contentspage {Qt Creator Manual}
-    \previouspage creator-build-example-application.html
-    \page creator-tutorials.html
-    \nextpage {Creating a Qt Quick Application}
+    \previouspage qmldesigner-connections.html
+    \page quick-dynamic-properties.html
+    \nextpage quick-property-bindings.html
 
-    \title Tutorials
+    \title Specifying Dynamic Properties
 
-    \image creator-gs-04.png
+    You can bind object properties to dynamic expressions to define global
+    properties for an object that can be read by other objects. For example,
+    you can specify global properties for the root object that you can use in
+    the child objects.
 
-    You can use \QC to create applications for several platforms by using
-    several technologies. The tutorials in this manual explain how to create
-    some basic applications.
+    You can specify dynamic properties for objects in the
+    \uicontrol Connections view.
 
-    \list
+    \image qmldesigner-dynamicprops.png
 
-        \li \l{Creating a Qt Quick Application}
+    To specify dynamic properties for an object:
 
-            Learn how to use the Design mode to create a Qt Quick application.
-
-        \li \l{Creating a Qt Widget Based Application}
-
-            Learn how to create a Qt widget based application for the desktop.
-
-       \li \l{Creating a Mobile Application}
-
-            Learn how to create a Qt Quick application using Qt Quick Controls 2
-            for Android and iOS devices.
-
+    \list 1
+        \li In the \uicontrol {Connections} view, select the
+            \uicontrol {Properties} tab.
+        \li Select \uicontrol Item to select the object to specify the property
+            for.
+        \li Select \uicontrol Property to give a name to the property.
+        \li Select \uicontrol {Property Type} to specify the type of the
+            property.
+        \li Select \uicontrol {Property Value} to specify the value of the
+            property.
     \endlist
 
 */

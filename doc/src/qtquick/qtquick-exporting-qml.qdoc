@@ -66,7 +66,7 @@
     development PC. Each layer is exported as an item.
 
     You can open the QML file in \QC for editing. By default, the export scripts
-    generate Qt Quick 1 files. To edit the files in \QMLD, change the import
+    generate Qt Quick 1 files. To edit the files in the Design mode, change the import
     statements in the export scripts to import Qt Quick 2. Or, you can change
     the import statement in each file after generating the files.
 
@@ -146,8 +146,8 @@
 
             On Linux, run the following command: \c {chmod u+rx}
 
-        \li To generate QML files that you can edit in \QMLD, edit the import
-            statement in \e qmlexporter.py. For example:
+        \li To generate QML files that you can edit in the Design mode, edit the
+            import statement in \e qmlexporter.py. For example:
 
             \code
             f.write('import QtQuick 2.5\n')

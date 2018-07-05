@@ -1,0 +1,71 @@
+/****************************************************************************
+**
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage qmldesigner-connections.html
+    \page quick-signals.html
+    \nextpage quick-dynamic-properties.html
+
+    \title Connecting Objects to Signals
+
+    To receive a notification when a particular signal is emitted for a
+    particular object, the object definition should declare a signal handler
+    named \e {on<Signal>} where \e {<Signal>} is the name of the signal, with
+    the first letter capitalized. The signal handler should contain the
+    JavaScript code to be executed when the signal handler is invoked.
+
+    QML types have predefined signals that are emitted when users interact with
+    the application. For example, the \l MouseArea type from the \l QtQuick
+    module has a \c clicked signal that is emitted whenever the mouse is
+    clicked within the area. Since the signal name is \c clicked, the signal
+    handler for receiving this signal is named \c onClicked.
+
+    For more information about signals and signal handlers, see
+    \l{Signal and Handler Event System}.
+
+    To access a signal outside of the object that emits it, you can use the
+    \l Connections type for connecting to signals of arbitrary objects. A
+    connections object can receive any signal from its specified target.
+    You can connect objects to signals that are available to them in the
+    \uicontrol Connections view.
+
+    \image qmldesigner-connections.png
+
+    To connect objects to signals:
+
+    \list 1
+        \li In the \uicontrol {Connections} view, select the
+            \uicontrol {Connections} tab.
+        \li Select the \inlineimage plus.png
+            (\uicontrol Add) button to add a connection.
+        \li Select \uicontrol Target to add the object to connect to a signal.
+        \li Select \uicontrol {Signal Handler} to select the signal that the
+            connection will listen to from a list of all signals available for
+            the object.
+        \li Select \uicontrol Actions to specify the action to perform when
+            the signal is emitted. You use JavaScript to specify the actions.
+    \endlist
+*/

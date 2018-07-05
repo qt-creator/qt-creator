@@ -35,16 +35,16 @@
     \page creator-using-qt-quick-designer.html
     \nextpage qmldesigner-pathview-editor.html
 
-    \title Using Qt Quick Designer
+    \title Editing QML Files in Design Mode
 
-    You can edit \l{Qt Quick UI Forms} (ui.qml files) in \QMLD. \QC opens the
-    UI forms in the \uicontrol {Form Editor} tab in the \uicontrol Design mode.
-    It is recommended that you use UI forms for components that you want to
-    design in \QMLD.
+    \QC opens \l{Qt Quick UI Forms}{UI forms} (ui.qml files) in the
+    \uicontrol {Form Editor} tab in the Design mode. It is
+    recommended that you use UI forms for components that you want to
+    edit in the Design mode.
 
     \image qmldesigner-visual-editor.png "Visual editor"
 
-    Use \QMLD to manage your project:
+    To manage your project in the Design mode:
 
     \list
 
@@ -93,7 +93,7 @@
         \li \uicontrol {State} pane (6) displays the different states of the item.
             QML states typically describe user interface configurations, such as
             the UI controls, their properties and behavior and the available
-            actions.
+            actions. For more information, see \l{Adding States}.
 
     \endlist
 
@@ -170,9 +170,9 @@
 
     \section2 Switching Parent Items
 
-    When you drag and drop instances of QML types to the canvas, Qt Quick Designer
-    adds the new item as a child of the item beneath it.
-    When you move items on the canvas, Qt Quick Designer cannot determine
+    When you drag and drop instances of QML types to the canvas, the new item
+    is added as a child of the item beneath it. When you move items on the
+    canvas, it is not possible to determine
     whether you want to adjust their position or attach them to a new
     parent item. Therefore, the parent item is not automatically
     changed. To change the parent of the item, press down the \key Shift
@@ -307,7 +307,7 @@
 
     If you use text IDs instead of plain text, change the default call to
     \c qsTrId(). Select \uicontrol Tools > \uicontrol Options >
-    \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer}, and then select the
+    \uicontrol {Qt Quick} > \uicontrol {\QMLD}, and then select the
     \uicontrol {qsTrId()} radio button in the \uicontrol Internationalization
     group. For more information about text ID based translations, see
     \l {Qt Linguist Manual: Text ID Based Translations}.
@@ -321,19 +321,20 @@
 
     \section2 Loading Placeholder Data
 
-    \QMLD supports views, models, and delegates, so that when you add a Grid
-    View, List View, or Path View item, the ListModel and the delegate
+    The Design mode supports views, models, and delegates, so that when you add
+    a Grid View, List View, or Path View item, the ListModel and the delegate
     item are added automatically.
 
-    However, the missing context of the application presents a challenge for
-    \QMLD. Specific models defined in C++ are the most obvious case. Often,
+    However, the missing context of the application presents a challenge.
+    Specific models defined in C++ are the most obvious case. Often,
     the context is missing simple properties, which are either defined in C++,
     or in other QML files. A typical example is an item that uses the
     properties of its parent, such as \c parent.width.
 
     \section3 Using Dummy Models
 
-    If you open a file in \QMLD that references a C++ model, you see nothing on
+    If you open a file in the Design mode that references a C++ model, you see
+    nothing on
     the canvas. If the data in the model is fetched from the internet, you have
     no control over it. To get reliable data, \e {dummy data} was introduced.
 
@@ -387,8 +388,8 @@
         }
     \endqml
 
-    This works nicely for applications but \QMLD displays a zero-sized item.
-    A parent for the opened file does not exist, because the context is
+    This works nicely for applications but the Design mode displays a zero-sized
+    item. A parent for the opened file does not exist, because the context is
     missing. To get around the missing context, the idea of a \e {dummy
     context} is introduced. If you place a file with the same name as the
     application (here, example.qml) in the \c {dummydata/context} directory,
@@ -425,70 +426,6 @@
 
     \image qmldesigner-inline-editing.png
 
-    \section1 Adding States
-
-    User interfaces are designed to present different interface configurations
-    in different scenarios, or to modify their appearances in response to user
-    interaction. Often, there are a set of changes that are made concurrently,
-    such that the interface could be seen to be internally changing from one
-    \e state to another.
-
-    This applies generally to interfaces regardless of their complexity.
-    A photo viewer may initially present images in a grid, and when an image is
-    clicked, change to a detailed state where the individual image is expanded
-    and the interface is changed to present new options for image editing.
-    On the other end of the scale, when a simple button is pressed, it may change
-    to a \e pressed state in which its color and position is modified to give a
-    pressed appearance.
-
-    In QML, any item can change between different states to apply sets of
-    changes that modify the properties of relevant items. Each state can present
-    a different configuration that can, for example:
-
-    \list
-
-        \li Show some UI items and hide others.
-
-        \li Present different available actions to the user.
-
-        \li Start, stop or pause animations.
-
-        \li Execute some script required in the new state.
-
-        \li Change a property value for a particular item.
-
-        \li Show a different view or screen.
-
-    \endlist
-
-    The \uicontrol State pane displays the different \l{State}{states}
-    of the component in the Qt Quick Designer. The \uicontrol State pane is
-    collapsed by default to save space. Select \uicontrol Expand in the context
-    menu to view the whole pane.
-
-    \image qmldesigner-transitions.png "State pane"
-
-    To add states, click the \inlineimage plus.png
-    button. Then modify the new state in the editor.
-    For example, to change the appearance of a button, you can hide the button
-    image and show another image in its place. Or, to add movement to the screen,
-    you can change the position of an object on the canvas and then add animation
-    to the change between the states.
-
-    To determine when the state should be applied, select
-    \uicontrol {Set when Condition} in the menu and specify a
-    \l [QtQuick]{State::when}{when} property for the state.
-
-    You can preview the states in the \uicontrol State pane and click them to switch
-    between states on the canvas.
-
-    For more information on using states, see \l{Creating Screens}.
-
-    If you add animation to the states, you can run the application to test the
-    animation.
-
-    For more information on adding animation, see \l{Animating Screens}.
-
     \section1 Working with QML Types on Canvas
 
     You design applications on the canvas by placing items on it.
@@ -502,8 +439,9 @@
     Click the \inlineimage snapping_and_anchoring.png
     button to anchor the item to the items that you snap to.
 
-    Choose \uicontrol {Tools > Options > Qt Quick > Qt Quick Designer} to specify
-    settings for snapping. In the \uicontrol {Parent item padding} field, specify the
+    Choose \uicontrol Tools > \uicontrol Options > \uicontrol {Qt Quick} >
+    \uicontrol {\QMLD} to specify settings for snapping. In the
+    \uicontrol {Parent item padding} field, specify the
     distance in pixels between the parent item and the snapping lines. In the
     \uicontrol {Sibling item spacing} field, specify the distance in pixels between
     sibling items and the snapping lines.
@@ -515,7 +453,7 @@
 
     \section2 Hiding Item Boundaries
 
-    \QMLD displays the boundaries of items on the canvas. To hide
+    The Design mode displays the boundaries of items on the canvas. To hide
     the boundaries, click the \inlineimage boundingrect.png
     button.
 
@@ -549,14 +487,14 @@
 
     \section2 Specifying Canvas Size
 
-    To change the canvas size, select \uicontrol {Tools > Options > Qt Quick
-    > Qt Quick Designer} and
+    To change the canvas size, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Qt Quick} > \uicontrol {\QMLD} and
     specify the canvas width and height in the \uicontrol Canvas group.
 
     \section2 Refreshing the Canvas
 
-    When you open QML files in \QMLD, the items in the file are drawn on
-    the canvas. When you edit the item properties in \QMLD, the QML file and
+    When you open QML files in the Design mode, the items in the file are drawn
+    on the canvas. When you edit the item properties, the QML file and
     the image on the canvas might get out of sync. For example, when you change
     the position of an item within a column or a row, the new position might
     not be displayed correctly on the canvas.

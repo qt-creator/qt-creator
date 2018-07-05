@@ -27,6 +27,7 @@
 #include "vcsbaseplugin.h"
 #include "vcsoutputwindow.h"
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/synchronousprocess.h>
 
@@ -55,6 +56,14 @@ VcsCommand::VcsCommand(const QString &workingDirectory,
                 outputWindow, &VcsOutputWindow::appendMessage);
 
         return proxy;
+    });
+    connect(this, &VcsCommand::started, this, [this] {
+        if (flags() & ExpectRepoChanges)
+            Core::DocumentManager::setAutoReloadPostponed(true);
+    });
+    connect(this, &VcsCommand::finished, this, [this] {
+        if (flags() & ExpectRepoChanges)
+            Core::DocumentManager::setAutoReloadPostponed(false);
     });
 }
 

@@ -36,9 +36,11 @@ int main(int argc, char *argv[])
     QString qs("I'm a QString");
     std::string stds("I'm a std::string");
     char c[] = "I'm a char c[]";
+    int i = 1892;
     qDebug() << "This is a QString:" << qs;
     std::cout << "This is a std::string: " << stds << std::endl;
     std::cout << "This is a char c[]: " << c << std::endl;
+    std::cout << "This is an int: " << i << std::endl;
 
     qDebug() << "This is QDebug";
     std::cout << "This is stdout" << std::endl;

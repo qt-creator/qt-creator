@@ -87,6 +87,8 @@ bool Uncrustify::initialize()
     connect(m_settings, &UncrustifySettings::supportedMimeTypesChanged,
             [this] { updateActions(Core::EditorManager::currentEditor()); });
 
+    new UncrustifyOptionsPage(m_settings, this);
+
     return true;
 }
 

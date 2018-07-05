@@ -120,8 +120,8 @@
 
     Property bindings are created implicitly in QML whenever a property is
     assigned a JavaScript expression. To set JavaScript expressions as values of
-    properties in \QMLD, click the circle icon next to a property to open a
-    context menu, and select \uicontrol {Set Binding}.
+    properties in the Design mode, click the circle icon next to a property to
+    open a context menu, and select \uicontrol {Set Binding}.
 
     \image qmldesigner-set-expression.png "Type properties context menu"
 
@@ -141,7 +141,8 @@
     For more information on the JavaScript environment provided by QML, see
     \l{Integrating QML and JavaScript}.
 
-    Bindings are a black box for \QMLD and using them might have a negative impact on
+    Bindings are a black box for the Design mode and using them might have a
+    negative impact on
     performance, so consider setting anchors and margins for items, instead.
     For example, instead of setting \c {parent.width} for an item, you could
     anchor the item to its sibling items on the left and the right.
@@ -167,8 +168,8 @@
     (\uicontrol {Reset Anchors}) button to reset the anchors to their saved
     state.
 
-    Specifying the baseline anchor in \QMLD is not supported. You can specify it
-    in the \uicontrol {Text Editor}.
+    You can specify the baseline anchor in the \uicontrol {Text Editor} in the
+    Design mode.
 
     For performance reasons, you can only anchor an item to its siblings and
     direct parent. By default, an item is anchored to its parent when you
@@ -393,9 +394,9 @@
 
     \section2 Using SCXML State Machines
 
-    To use QML and \QMLD together with an SCXML state machine, add states and
-    bind them to the state machine in the \uicontrol Backends tab, as described
-    in \l {Managing C++ Backend Objects}.
+    To use QML together with an SCXML state machine, add states and bind them to
+    the state machine in the \uicontrol Backends tab in the Design mode, as
+    described in \l {Managing C++ Backend Objects}.
 
     In the \uicontrol States pane, you can edit the \c when condition of states
     to map QML states to the states of the SCXML state machine. For an example,

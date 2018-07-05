@@ -106,7 +106,6 @@ static Utf8String getPropertyType(const CXSourceLocation &cxLocation,
                                   CXTranslationUnit cxTranslationUnit,
                                   uint propertyPosition)
 {
-#if defined(CINDEX_VERSION_HAS_GETFILECONTENTS_BACKPORTED) || CINDEX_VERSION_MINOR >= 47
     // Extract property type from the source code
     CXFile cxFile;
     uint offset;
@@ -123,12 +122,6 @@ static Utf8String getPropertyType(const CXSourceLocation &cxLocation,
                                 Utils::unequalTo(' '));
 
     return Utf8String(typeStart, static_cast<int>(&(*typeEnd) + 1 - typeStart));
-#else
-    Q_UNUSED(cxLocation)
-    Q_UNUSED(cxTranslationUnit)
-    Q_UNUSED(propertyPosition)
-    return Utf8String();
-#endif
 }
 
 void FullTokenInfo::updatePropertyData()
