@@ -488,7 +488,8 @@ SynchronousProcessResponse SynchronousProcess::runBlocking(const QString &binary
     // event loop in that case.
     d->m_binary = binary;
     d->m_process.start(binary, args, QIODevice::ReadOnly);
-    if (!d->m_process.waitForStarted(d->m_maxHangTimerCount * 1000)) {
+    if (!d->m_process.waitForStarted(d->m_maxHangTimerCount * 1000)
+            && d->m_process.state() == QProcess::NotRunning) {
         d->m_result.result = SynchronousProcessResponse::StartFailed;
         return d->m_result;
     }
