@@ -44,6 +44,7 @@
 #include <utils/hostosinfo.h>
 
 #include <QDirIterator>
+#include <QHostAddress>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
@@ -131,7 +132,10 @@ void AndroidDebugSupport::start()
                       + "/app_process");
         setSkipExecutableValidation(true);
         setUseExtendedRemote(true);
-        setRemoteChannel(":" + m_runner->gdbServerPort().toString());
+        QUrl gdbServer;
+        gdbServer.setHost(QHostAddress(QHostAddress::LocalHost).toString());
+        gdbServer.setPort(m_runner->gdbServerPort().number());
+        setRemoteChannel(gdbServer);
         setSysRoot(AndroidConfigurations::currentConfig().ndkLocation().appendPath("platforms")
                    .appendPath(QString("android-%1").arg(AndroidManager::minimumSDK(target)))
                    .appendPath(toNdkArch(AndroidManager::targetArch(target))).toString());
