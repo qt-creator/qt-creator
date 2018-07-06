@@ -79,10 +79,79 @@
     You can preview the states in the \uicontrol State pane and click them to
     switch between states on the canvas.
 
-    For more information about using states, see \l{Creating Screens}.
+    \section1 Using States
 
-    If you add animation to the states, you can run the application to test the
-    animation.
+    QML states typically describe user interface configurations, such as the UI
+    controls, their properties and behavior and the available actions. For
+    example, you can use states to create two screens.
 
-    For more information about adding animation, see \l{Animating Screens}.
+    To add states, click the empty slot in the \uicontrol States pane.
+    Then modify the new state in the \uicontrol {Form Editor} or the
+    \uicontrol Properties pane.
+
+    \image qmldesigner-states.png "States pane"
+
+    The properties that you change in a state are highlighted with blue color.
+    In the \uicontrol {Text Editor}, you can see the changes recorded as changes
+    to the base state.
+
+    To keep the QML code clean, you should create a base state that contains all
+    the types you will need in the application. You can then create states,
+    in which you hide and show a set of items and modify their properties.
+    This allows you to:
+
+    \list
+        \li Align items on different screens with each other.
+        \li Avoid excessive property changes. If an item is invisible in the
+            base state, you must define all changes to its child types as
+            property changes, which leads to complicated QML code.
+        \li Minimize the differences between the base state and the other states
+            to keep the QML code short and readable and to improve performance.
+        \li Avoid problems when using transitions and animation when changing
+            states.
+    \endlist
+
+    To create screens for an application by using states:
+
+    \list 1
+        \li In the base state, add all items you will need in the application
+            (1). While you work on one screen, you can click the
+            \inlineimage eye_open.png
+            icon to hide items on the canvas that are not part of a screen.
+        \li In the \uicontrol States pane, click the empty slot to create a
+            new state and give it a name. For example, \c Normal.
+        \li In the \uicontrol Properties pane (2), deselect the
+            \uicontrol Visibility check box or set \uicontrol Opacity to 0
+            for each item that is not needed in this view. If you specify
+            the setting for the parent item, all child items inherit it and
+            are also hidden.
+            \image qmldesigner-screen-design.png "Designing screens"
+        \li Create additional states for each screen and set the visibility
+            or opacity of the items in the screen.
+        \li To determine which view opens when the application starts, use the
+            \uicontrol {Text Editor} to set the state of the root item of the
+           .qml file, as specified by the following code snippet:
+            \qml
+            Item {
+                state: "Normal"
+            }
+            \endqml
+        \endlist
+
+    \include qtquick-states-scxml.qdocinc scxml state machines
+
+    \section1 Animating Transitions Between States
+
+    To make movement between states smooth, you can specify transitions. You can
+    use different types of animated transitions. For example, you can animate
+    changes to property values and colors. You can use rotation animation to
+    control the direction of rotation. For more information, see
+    \l{Animation and Transitions in Qt Quick}.
+
+    You can use the \c ParallelAnimation type to start several animations at
+    the same time. Or use the \c SequentialAnimation type to run them one
+    after another.
+
+    You can use the \uicontrol {Text Editor} to specify transitions. For more
+    information, see \l{Transition}.
 */

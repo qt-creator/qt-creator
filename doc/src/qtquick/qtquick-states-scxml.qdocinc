@@ -1,0 +1,45 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+//! [scxml state machines]
+
+    \section2 Using SCXML State Machines
+
+    To use QML together with an SCXML state machine, add states and bind them to
+    the state machine in the \uicontrol Backends tab in the Design mode, as
+    described in \l {Managing C++ Backend Objects}.
+
+    In the \uicontrol States pane, you can edit the \c when condition of states
+    to map QML states to the states of the SCXML state machine. For an example,
+    see \l {Qt SCXML Traffic Light QML Example (Dynamic)}.
+
+    \image qmldesigner-states-when-condition.png
+
+    If you add animation to the states, you can run the application to test the
+    animation.
+
+//! [scxml state machines]
+*/
