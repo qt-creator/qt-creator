@@ -70,6 +70,8 @@ static const char *highlightingTypeToCStringLiteral(HighlightingType type)
         RETURN_TEXT_FOR_CASE(ObjectiveCMethod);
         RETURN_TEXT_FOR_CASE(PrimitiveType);
         RETURN_TEXT_FOR_CASE(Declaration);
+        RETURN_TEXT_FOR_CASE(TemplateTypeParameter);
+        RETURN_TEXT_FOR_CASE(TemplateTemplateParameter);
         default: return "UnhandledHighlightingType";
     }
 }

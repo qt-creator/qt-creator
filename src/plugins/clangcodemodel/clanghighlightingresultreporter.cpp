@@ -108,6 +108,8 @@ bool ignore(ClangBackEnd::HighlightingType type)
     case HighlightingType::ObjectiveCImplementation:
     case HighlightingType::ObjectiveCProperty:
     case HighlightingType::ObjectiveCMethod:
+    case HighlightingType::TemplateTypeParameter:
+    case HighlightingType::TemplateTemplateParameter:
         return true;
     }
 

@@ -104,7 +104,9 @@ enum class HighlightingType : quint8
     ObjectiveCInterface,
     ObjectiveCImplementation,
     ObjectiveCProperty,
-    ObjectiveCMethod
+    ObjectiveCMethod,
+    TemplateTypeParameter,
+    TemplateTemplateParameter
 };
 
 enum class StorageClass : quint8

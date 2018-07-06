@@ -341,9 +341,13 @@ void TokenInfo::typeKind(const Cursor &cursor)
         case CXCursor_ObjCCategoryImplDecl:
             m_types.mixinHighlightingTypes.push_back(HighlightingType::ObjectiveCCategory);
             return;
-        case CXCursor_ObjCSuperClassRef:
         case CXCursor_TemplateTypeParameter:
+            m_types.mixinHighlightingTypes.push_back(HighlightingType::TemplateTypeParameter);
+            return;
         case CXCursor_TemplateTemplateParameter:
+            m_types.mixinHighlightingTypes.push_back(HighlightingType::TemplateTemplateParameter);
+            return;
+        case CXCursor_ObjCSuperClassRef:
         case CXCursor_CXXStaticCastExpr:
         case CXCursor_CXXReinterpretCastExpr:
             break;
