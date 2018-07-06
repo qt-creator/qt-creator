@@ -140,6 +140,8 @@ public:
     void setPerspectiveEnabled(const QByteArray &perspectiveId, bool enabled);
 
 private:
+    void closeEvent(QCloseEvent *) final { saveCurrentPerspective(); }
+
     QDockWidget *registerDockWidget(const QByteArray &dockId, QWidget *widget);
     void loadPerspectiveHelper(const QByteArray &perspectiveId, bool fromStoredSettings = true);
 

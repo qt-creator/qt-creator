@@ -2799,7 +2799,6 @@ void DebuggerPluginPrivate::aboutToShutdown()
 
     disconnect(SessionManager::instance(), &SessionManager::startupProjectChanged, this, nullptr);
 
-    m_mainWindow->saveCurrentPerspective();
     m_shutdownTimer.setInterval(0);
     m_shutdownTimer.setSingleShot(true);
     connect(&m_shutdownTimer, &QTimer::timeout, this, &DebuggerPluginPrivate::doShutdown);
