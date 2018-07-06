@@ -75,11 +75,10 @@
 
 #include <cctype>
 
-enum { debug = 0 };
-enum { debugLocals = 0 };
-enum { debugSourceMapping = 0 };
-enum { debugWatches = 0 };
-enum { debugBreakpoints = 0 };
+constexpr bool debug = false;
+constexpr bool debugLocals = false;
+constexpr bool debugSourceMapping = false;
+constexpr bool debugBreakpoints = false;
 
 #define CB(callback) [this](const DebuggerResponse &r) { callback(r); }
 
@@ -987,7 +986,7 @@ void CdbEngine::handleJumpToLineAddressResolution(const DebuggerResponse &respon
     if (apPos != -1)
         answer.remove(apPos, 1);
     bool ok;
-    const quint64 address = answer.toLongLong(&ok, 16);
+    const quint64 address = answer.toULongLong(&ok, 16);
     if (ok && address) {
         jumpToAddress(address);
         gotoLocation(Location(context.fileName, context.lineNumber));
@@ -1593,8 +1592,8 @@ void CdbEngine::handleModules(const DebuggerResponse &response)
                 Module module;
                 module.moduleName = gdbmiModule["name"].data();
                 module.modulePath = gdbmiModule["image"].data();
-                module.startAddress = gdbmiModule["start"].data().toULongLong(0, 0);
-                module.endAddress = gdbmiModule["end"].data().toULongLong(0, 0);
+                module.startAddress = gdbmiModule["start"].data().toULongLong(nullptr, 0);
+                module.endAddress = gdbmiModule["end"].data().toULongLong(nullptr, 0);
                 if (gdbmiModule["deferred"].type() == GdbMi::Invalid)
                     module.symbolsRead = Module::ReadOk;
                 handler->updateModule(module);
@@ -1967,7 +1966,7 @@ void CdbEngine::handleBreakInsert(const DebuggerResponse &response, const Breakp
         return;
     Breakpoint bp = breakHandler()->breakpointById(bpId);
     // add break point for every match
-    int subBreakPointID = 0;
+    quint16 subBreakPointID = 0;
     for (auto line = reply.constBegin(), end = reply.constEnd(); line != end; ++line) {
         if (!line->startsWith("Matched: "))
             continue;
@@ -2331,7 +2330,7 @@ void CdbEngine::parseOutputLine(QString line)
     static const QString creatorExtPrefix = "<qtcreatorcdbext>|";
     if (line.startsWith(creatorExtPrefix)) {
         // "<qtcreatorcdbext>|type_char|token|remainingChunks|serviceName|message"
-        const char type = line.at(creatorExtPrefix.size()).unicode();
+        const char type = char(line.at(creatorExtPrefix.size()).unicode());
         // integer token
         const int tokenPos = creatorExtPrefix.size() + 2;
         const int tokenEndPos = line.indexOf('|', tokenPos);
@@ -2636,7 +2635,8 @@ void CdbEngine::attemptBreakpointSynchronization()
                 if (lineCorrection.isNull())
                     lineCorrection.reset(new BreakpointCorrectionContext(m_codeModelSnapshot,
                                                                          CppTools::CppModelManager::instance()->workingCopy()));
-                response.lineNumber = lineCorrection->fixLineNumber(parameters.fileName, parameters.lineNumber);
+                response.lineNumber = int(lineCorrection->fixLineNumber(
+                                              parameters.fileName, unsigned(parameters.lineNumber)));
                 QString cmd = cdbAddBreakpointCommand(response, m_sourcePathMappings, id, false);
                 runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
             } else {
@@ -2763,7 +2763,7 @@ static StackFrames parseFrames(const GdbMi &gdbmi, bool *incomplete = nullptr)
         frame.function = frameMi["function"].data();
         frame.module = frameMi["from"].data();
         frame.context = frameMi["context"].data();
-        frame.address = frameMi["address"].data().toULongLong(0, 16);
+        frame.address = frameMi["address"].data().toULongLong(nullptr, 16);
         rc.push_back(frame);
     }
     return rc;
@@ -2967,7 +2967,7 @@ void CdbEngine::handleWidgetAt(const DebuggerResponse &response)
             break;
         }
         // 0x000 -> nothing found
-        if (!watchExp.mid(sepPos + 1).toULongLong(0, 0)) {
+        if (!watchExp.mid(sepPos + 1).toULongLong(nullptr, 0)) {
             message = QString("No widget could be found at %1, %2.").arg(m_watchPointX).arg(m_watchPointY);
             break;
         }
