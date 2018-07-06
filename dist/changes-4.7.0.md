@@ -29,6 +29,7 @@ Editing
 * Added `Context Help` to editor context menu (QTCREATORBUG-55)
 * Added previous and next buttons to bookmarks view, and polished their
   behavior (QTCREATORBUG-9859, QTCREATORBUG-20061)
+* Added support for `WordDetect` in Kate highlighting files
 * Fixed that extra editor windows were not restored when opening session
   (QTCREATORBUG-13840)
 * Fixed that editor could stay busy repainting annotations (QTCREATORBUG-20422)
@@ -76,6 +77,7 @@ C++ Support
       (category `Clang Code Model`)
     * Added highlighting style for overloaded operators (QTCREATORBUG-19659)
     * Added option to use `.clang-tidy` configuration file or checks string
+    * Added default configurations for Clang-Tidy and Clazy checks
     * Added link to the documentation in tooltip for Clang-Tidy and Clazy
       diagnostics
     * Improved reparse performance and memory usage
@@ -92,6 +94,7 @@ QML Support
 * Fixed that reformatting incorrectly removed quotes (QTCREATORBUG-17455)
 * Fixed that `.pragma` and `.import` were removed when reformatting
   (QTCREATORBUG-13038)
+* Fixed that import completion did not offer `QtWebEngine` (QTCREATORBUG-20723)
 
 Python Support
 
@@ -99,8 +102,16 @@ Python Support
 
 Debugging
 
+* Fixed updating of memory view
 * QML
     * Added support for nested properties (QTBUG-68474)
+    * Fixed issue with different endianness (QTBUG-68721)
+
+Qt Quick Designer
+
+* Fixed crash when adding quotes to text (QTCREATORBUG-20684)
+* Fixed that meta data could move in source code even when no changes occurred
+  (QTCREATORBUG-20686)
 
 Clang Static Analyzer
 
@@ -119,6 +130,7 @@ Version Control Systems
     * Added `-git-show <ref>` command line parameter
 * Gerrit
     * Added warning when pushing to wrong branch (QTCREATORBUG-20062)
+    * Fixed updating after settings change (QTCREATORBUG-20536)
 
 Image Viewer
 
@@ -134,6 +146,7 @@ Test Integration
       (QTCREATORBUG-18725)
 * Qt Quick
     * Fixed parsing issue with non-ASCII characters (QTCREATORBUG-20105)
+    * Fixed detection of test name (QTCREATORBUG-20642)
 
 Platform Specific
 
@@ -141,11 +154,15 @@ Windows
 
 * Improved parsing of MSVC error messages (QTCREATORBUG-20297)
 * Fixed that querying MSVC tool chains at startup could block Qt Creator
+* Fixed issue with writing to network drives (QTCREATORBUG-20560)
 * Fixed issue with Clang and Qt 5.8 and later (QTCREATORBUG-20021)
+* Fixed handling of Windows debug stream which could lead to freezes
+  (QTCREATORBUG-20640)
 
 Android
 
 * Improved behavior when emulator cannot be started (QTCREATORBUG-20160)
+* Fixed QML debugger connection issue from macOS client (QTCREATORBUG-20730)
 
 Credits for these changes go to:  
 Aaron Barany  
@@ -172,9 +189,11 @@ Jaroslaw Kobus
 Jay Gupta  
 José Tomás Tocino  
 Jörg Bornemann  
+Kai Köhne  
 Kari Oikarinen  
 Kimmo Linnavuo  
 Leena Miettinen  
+Lorenz Haas  
 Marco Benelli  
 Marco Bubke  
 Mitch Curtis  
@@ -187,6 +206,7 @@ Przemyslaw Gorszkowski
 Razi Alavizadeh  
 Robert Löhning  
 Rune Espeseth  
+Sergey Belyashov  
 Sergey Morozov  
 Tasuku Suzuki  
 Thiago Macieira  
