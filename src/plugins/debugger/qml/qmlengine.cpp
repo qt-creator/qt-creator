@@ -2247,7 +2247,10 @@ void QmlEnginePrivate::handleScope(const QVariantMap &response)
         item->setHasChildren(localData.hasChildren());
 
         if (localData.value.isValid() || item->wantsChildren || localData.expectedProperties == 0) {
-            engine->watchHandler()->insertItem(item.release());
+            WatchHandler *watchHander = engine->watchHandler();
+            if (watchHander->isExpandedIName(item->iname))
+                itemsToLookup.insert(int(item->id), {item->iname, item->name, item->exp});
+            watchHander->insertItem(item.release());
         } else {
             itemsToLookup.insert(int(item->id), {item->iname, item->name, item->exp});
         }
