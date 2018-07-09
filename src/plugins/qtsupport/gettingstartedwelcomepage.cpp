@@ -70,8 +70,8 @@ namespace Internal {
 
 const char C_FALLBACK_ROOT[] = "ProjectsFallbackRoot";
 
-const int itemWidth = 240;
-const int itemHeight = 240;
+const int itemWidth = 230;
+const int itemHeight = 230;
 const int itemGap = 10;
 const int tagsSeparatorY = itemHeight - 60;
 
