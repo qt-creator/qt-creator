@@ -106,7 +106,7 @@ protected:
     mutable QList<HeaderPath> m_headerPaths;
     Abi m_abi;
 
-   QString m_vcvarsBat;
+    QString m_vcvarsBat;
 };
 
 } // namespace Internal

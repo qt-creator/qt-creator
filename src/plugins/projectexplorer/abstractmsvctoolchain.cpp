@@ -53,10 +53,6 @@ AbstractMsvcToolChain::AbstractMsvcToolChain(Core::Id typeId, Core::Id l, Detect
     m_abi(abi),
     m_vcvarsBat(vcvarsBat)
 {
-    Q_ASSERT(abi.os() == Abi::WindowsOS);
-    Q_ASSERT(abi.binaryFormat() == Abi::PEFormat);
-    Q_ASSERT(abi.osFlavor() != Abi::WindowsMSysFlavor);
-    Q_ASSERT(!m_vcvarsBat.isEmpty());
     setLanguage(l);
 }
 

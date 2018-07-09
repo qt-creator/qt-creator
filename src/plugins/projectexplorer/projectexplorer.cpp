@@ -447,6 +447,7 @@ public:
 #ifdef Q_OS_WIN
     WinDebugInterface m_winDebugInterface;
     MsvcToolChainFactory m_mscvToolChainFactory;
+    ClangClToolChainFactory m_clangClToolChainFactory;
 #else
     LinuxIccToolChainFactory m_linuxToolChainFactory;
 #endif
