@@ -422,7 +422,7 @@ FileName AndroidConfig::aaptToolPath() const
     aaptToolPath.appendPath("build-tools");
     QString toolPath = QString("%1/aapt").arg(buildToolsVersion().toString());
     if (HostOsInfo::isWindowsHost())
-        toolPath += ANDROID_BAT_SUFFIX;
+        toolPath += QTC_HOST_EXE_SUFFIX;
     aaptToolPath.appendPath(toolPath);
     return aaptToolPath;
 }
