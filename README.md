@@ -20,6 +20,7 @@ Prerequisites:
     * ActiveState Active Perl
     * MinGW with g++ 4.9 or Visual Studio 2015 or later
     * jom
+    * Python 3.5 or later (optional, needed for the python enabled debug helper)
 * On Mac OS X: latest Xcode
 * On Linux: g++ 4.9 or later
 * LLVM/Clang 6.0.0 or later (optional, needed for the Clang Code Model, see the
@@ -35,6 +36,8 @@ You can build Qt Creator with
     export LLVM_INSTALL_DIR=/path/to/llvm (or "set" on Windows)
     # Optional, needed to let the QbsProjectManager plugin use system Qbs:
     export QBS_INSTALL_DIR=/path/to/qbs
+    # Optional, needed for the Python enabled dumper on Windows
+    set PYTHON_INSTALL_DIR=C:\path\to\python
 
     cd $SOURCE_DIRECTORY
     qmake -r
