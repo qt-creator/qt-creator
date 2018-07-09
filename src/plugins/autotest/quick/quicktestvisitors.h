@@ -27,6 +27,8 @@
 
 #include "quicktesttreeitem.h"
 
+#include <cplusplus/ASTVisitor.h>
+#include <cplusplus/CppDocument.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsdocument.h>
 
@@ -63,6 +65,20 @@ private:
     bool m_typeIsTestCase = false;
     bool m_insideTestCase = false;
     bool m_expectTestCaseName = false;
+};
+
+class QuickTestAstVisitor : public CPlusPlus::ASTVisitor
+{
+public:
+    QuickTestAstVisitor(CPlusPlus::Document::Ptr doc, const CPlusPlus::Snapshot &snapshot);
+
+    bool visit(CPlusPlus::CallAST *ast) override;
+
+    QString testBaseName() const { return m_testBaseName; }
+private:
+    QString m_testBaseName;
+    CPlusPlus::Document::Ptr m_currentDoc;
+    CPlusPlus::Snapshot m_snapshot;
 };
 
 } // namespace Internal

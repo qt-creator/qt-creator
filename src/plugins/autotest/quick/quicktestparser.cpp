@@ -108,7 +108,8 @@ static QString quickTestSrcDir(const CppTools::CppModelManager *cppMM,
     return QString();
 }
 
-static QString quickTestName(const CPlusPlus::Document::Ptr &doc)
+static QString quickTestName(const CPlusPlus::Document::Ptr &doc,
+                             const CPlusPlus::Snapshot &snapshot)
 {
     const QList<CPlusPlus::Document::MacroUse> macros = doc->macroUses();
 
@@ -122,7 +123,18 @@ static QString quickTestName(const CPlusPlus::Document::Ptr &doc)
                                  .mid(arg.bytesBegin(), arg.bytesEnd() - arg.bytesBegin()));
         }
     }
-    return QString();
+
+    // check for using quick_test_main() directly
+    const QString fileName = doc->fileName();
+    const QByteArray &fileContent = CppParser::getFileContent(fileName);
+    CPlusPlus::Document::Ptr document = snapshot.preprocessedDocument(fileContent, fileName);
+    if (document.isNull())
+        return QString();
+    document->check();
+    CPlusPlus::AST *ast = document->translationUnit()->ast();
+    QuickTestAstVisitor astVisitor(document, snapshot);
+    astVisitor.accept(ast);
+    return astVisitor.testBaseName();
 }
 
 QList<QmlJS::Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const QString &srcDir) const
@@ -215,7 +227,7 @@ bool QuickTestParser::handleQtQuickTest(QFutureInterface<TestParseResultPtr> fut
                                         const Core::Id &id)
 {
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
-    if (quickTestName(document).isEmpty())
+    if (quickTestName(document, m_cppSnapshot).isEmpty())
         return false;
 
     const QString cppFileName = document->fileName();
