@@ -43,9 +43,8 @@ namespace ProjectExplorer { class Kit; }
 
 namespace CMakeProjectManager {
 
-class CMAKE_EXPORT CMakeTool : public QObject
+class CMAKE_EXPORT CMakeTool
 {
-    Q_OBJECT
 public:
     enum Detection {
         ManualDetection,
@@ -79,7 +78,7 @@ public:
 
     explicit CMakeTool(Detection d, const Core::Id &id);
     explicit CMakeTool(const QVariantMap &map, bool fromSdk);
-    ~CMakeTool() override = default;
+    ~CMakeTool() = default;
 
     static Core::Id createId();
 
