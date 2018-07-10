@@ -475,7 +475,7 @@ private:
         }
 
         CppTools::CompilerOptionsBuilder builder(m_projectPart);
-        builder.addLanguageOption(fileKind);
+        builder.updateLanguageOption(fileKind);
 
         m_options.append(builder.options());
     }

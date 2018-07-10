@@ -39,13 +39,19 @@
 #include <cpptools/projectpart.h>
 #include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cpptoolsreuse.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
 #include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QStringList>
 #include <QTextBlock>
 
@@ -355,6 +361,55 @@ QString diagnosticCategoryPrefixRemoved(const QString &text)
     }
 
     return text;
+}
+
+static ::Utils::FileName buildDirectory(const CppTools::ProjectPart &projectPart)
+{
+    ProjectExplorer::Target *target = projectPart.project->activeTarget();
+    if (!target)
+        return ::Utils::FileName();
+
+    ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration();
+    if (!buildConfig)
+        return ::Utils::FileName();
+
+    return buildConfig->buildDirectory();
+}
+
+static QJsonObject createFileObject(CompilerOptionsBuilder &optionsBuilder,
+                                    const ProjectFile &projFile,
+                                    const ::Utils::FileName &buildDir)
+{
+    optionsBuilder.updateLanguageOption(ProjectFile::classify(projFile.path));
+
+    QJsonObject fileObject;
+    fileObject["file"] = projFile.path;
+    QJsonArray args = QJsonArray::fromStringList(optionsBuilder.options());
+    args.append(QDir::toNativeSeparators(projFile.path));
+    fileObject["arguments"] = args;
+    fileObject["directory"] = buildDir.toString();
+    return fileObject;
+}
+
+void generateCompilationDB(::Utils::FileName projectDir, CppTools::ProjectInfo projectInfo)
+{
+    QFile compileCommandsFile(projectDir.toString() + "/compile_commands.json");
+
+    QJsonArray array;
+    for (ProjectPart::Ptr projectPart : projectInfo.projectParts()) {
+        const ::Utils::FileName buildDir = buildDirectory(*projectPart);
+
+        CompilerOptionsBuilder optionsBuilder(*projectPart);
+        optionsBuilder.build(CppTools::ProjectFile::Unclassified,
+                             CppTools::CompilerOptionsBuilder::PchUsage::None);
+
+        for (const ProjectFile &projFile : projectPart->files)
+            array.push_back(createFileObject(optionsBuilder, projFile, buildDir));
+    }
+
+    compileCommandsFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
+    compileCommandsFile.write(QJsonDocument(array).toJson());
+    compileCommandsFile.close();
 }
 
 } // namespace Utils

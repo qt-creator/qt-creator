@@ -46,8 +46,8 @@ public:
     virtual void addExtraCodeModelFlags();
     virtual void enableExceptions();
     virtual void addPredefinedHeaderPathsOptions();
-    virtual void addLanguageOption(ProjectFile::Kind fileKind);
     virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);
+    virtual void updateLanguageOption(ProjectFile::Kind fileKind);
 
     virtual void addExtraOptions() {}
 

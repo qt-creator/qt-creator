@@ -29,6 +29,7 @@ namespace ClangCodeModel {
 namespace Constants {
 
 const char CLANG_MODELMANAGERSUPPORT_ID[] = "ClangCodeModel.ClangCodeModel";
+const char GENERATE_COMPILATION_DB[]  = "ClangCodeModel.GenerateCompilationDB";
 const char CLANG_ERROR[] = "Clang.Error";
 const char CLANG_WARNING[] = "Clang.Warning";
 

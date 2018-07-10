@@ -28,7 +28,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/fileutils.h>
@@ -53,10 +52,12 @@ QStringList CompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind, 
                    return QStringList(););
     }
 
+    add("-c");
+
     addWordWidth();
     addTargetTriple();
     addExtraCodeModelFlags();
-    addLanguageOption(fileKind);
+    updateLanguageOption(fileKind);
     addOptionsForLanguage(/*checkForBorlandExtensions*/ true);
     enableExceptions();
 
@@ -75,6 +76,67 @@ QStringList CompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind, 
     addExtraOptions();
 
     return options();
+}
+
+static QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt)
+{
+    QStringList opts;
+
+    switch (fileKind) {
+    case ProjectFile::Unclassified:
+    case ProjectFile::Unsupported:
+        break;
+    case ProjectFile::CHeader:
+        if (objcExt)
+            opts += QLatin1String("objective-c-header");
+        else
+            opts += QLatin1String("c-header");
+        break;
+
+    case ProjectFile::CXXHeader:
+    default:
+        if (!objcExt) {
+            opts += QLatin1String("c++-header");
+            break;
+        }
+        Q_FALLTHROUGH();
+    case ProjectFile::ObjCHeader:
+    case ProjectFile::ObjCXXHeader:
+        opts += QLatin1String("objective-c++-header");
+        break;
+
+    case ProjectFile::CSource:
+        if (!objcExt) {
+            opts += QLatin1String("c");
+            break;
+        }
+        Q_FALLTHROUGH();
+    case ProjectFile::ObjCSource:
+        opts += QLatin1String("objective-c");
+        break;
+
+    case ProjectFile::CXXSource:
+        if (!objcExt) {
+            opts += QLatin1String("c++");
+            break;
+        }
+        Q_FALLTHROUGH();
+    case ProjectFile::ObjCXXSource:
+        opts += QLatin1String("objective-c++");
+        break;
+
+    case ProjectFile::OpenCLSource:
+        opts += QLatin1String("cl");
+        break;
+    case ProjectFile::CudaSource:
+        opts += QLatin1String("cuda");
+        break;
+    }
+
+    if (!opts.isEmpty())
+        opts.prepend(QLatin1String("-x"));
+
+    return opts;
 }
 
 QStringList CompilerOptionsBuilder::options() const
@@ -197,72 +259,20 @@ void CompilerOptionsBuilder::addMacros(const ProjectExplorer::Macros &macros)
     m_options.append(result);
 }
 
-static QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt)
-{
-    QStringList opts;
-
-    switch (fileKind) {
-    case ProjectFile::Unclassified:
-    case ProjectFile::Unsupported:
-        break;
-    case ProjectFile::CHeader:
-        if (objcExt)
-            opts += QLatin1String("objective-c-header");
-        else
-            opts += QLatin1String("c-header");
-        break;
-
-    case ProjectFile::CXXHeader:
-    default:
-        if (!objcExt) {
-            opts += QLatin1String("c++-header");
-            break;
-        }
-        Q_FALLTHROUGH();
-    case ProjectFile::ObjCHeader:
-    case ProjectFile::ObjCXXHeader:
-        opts += QLatin1String("objective-c++-header");
-        break;
-
-    case ProjectFile::CSource:
-        if (!objcExt) {
-            opts += QLatin1String("c");
-            break;
-        }
-        Q_FALLTHROUGH();
-    case ProjectFile::ObjCSource:
-        opts += QLatin1String("objective-c");
-        break;
-
-    case ProjectFile::CXXSource:
-        if (!objcExt) {
-            opts += QLatin1String("c++");
-            break;
-        }
-        Q_FALLTHROUGH();
-    case ProjectFile::ObjCXXSource:
-        opts += QLatin1String("objective-c++");
-        break;
-
-    case ProjectFile::OpenCLSource:
-        opts += QLatin1String("cl");
-        break;
-    case ProjectFile::CudaSource:
-        opts += QLatin1String("cuda");
-        break;
-    }
-
-    if (!opts.isEmpty())
-        opts.prepend(QLatin1String("-x"));
-
-    return opts;
-}
-
-void CompilerOptionsBuilder::addLanguageOption(ProjectFile::Kind fileKind)
+void CompilerOptionsBuilder::updateLanguageOption(ProjectFile::Kind fileKind)
 {
     const bool objcExt = m_projectPart.languageExtensions & ProjectPart::ObjectiveCExtensions;
     const QStringList options = createLanguageOptionGcc(fileKind, objcExt);
-    m_options.append(options);
+    if (options.isEmpty())
+        return;
+
+    QTC_ASSERT(options.size() == 2, return;);
+    int langOptIndex = m_options.indexOf("-x");
+    if (langOptIndex == -1) {
+        m_options.append(options);
+    } else {
+        m_options[langOptIndex + 1] = options[1];
+    }
 }
 
 void CompilerOptionsBuilder::addOptionsForLanguage(bool checkForBorlandExtensions)
