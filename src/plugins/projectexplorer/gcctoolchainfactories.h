@@ -31,6 +31,7 @@
 #include "abiwidget.h"
 
 #include <QList>
+#include <QSet>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -62,6 +63,12 @@ public:
 
 protected:
     virtual GccToolChain *createToolChain(bool autoDetect);
+    void versionProbe(const QString &name,
+                      Core::Id language,
+                      Core::Id type,
+                      QList<ToolChain *> &tcs,
+                      QList<ToolChain *> &known,
+                      const QSet<QString> &filteredNames = {});
     QList<ToolChain *> autoDetectToolchains(const QString &compiler, const Abi &requiredAbi,
                                             Core::Id language, const Core::Id requiredTypeId,
                                             const QList<ToolChain *> &alreadyKnown);

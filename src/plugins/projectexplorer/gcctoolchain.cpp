@@ -922,6 +922,32 @@ ToolChain *GccToolChainFactory::create(Core::Id language)
     return tc;
 }
 
+void GccToolChainFactory::versionProbe(const QString &name, Core::Id language, Core::Id type,
+                                       QList<ToolChain *> &tcs, QList<ToolChain *> &known,
+                                       const QSet<QString> &filteredNames)
+{
+    if (!HostOsInfo::isLinuxHost())
+        return;
+    const QRegularExpression regexp(binaryRegexp);
+    for (const QString &dir : QStringList({ "/usr/bin", "/usr/local/bin" })) {
+        QDir binDir(dir);
+        for (const QString &entry : binDir.entryList(
+             {"*-" + name, name + "-*", "*-" + name + "-*"},
+                 QDir::Files | QDir::Executable)) {
+            const QString fileName = FileName::fromString(entry).fileName();
+            if (filteredNames.contains(fileName))
+                continue;
+            const QRegularExpressionMatch match = regexp.match(fileName);
+            if (!match.hasMatch())
+                continue;
+            const bool isNative = fileName.startsWith(name);
+            const Abi abi = isNative ? Abi::hostAbi() : Abi();
+            tcs.append(autoDetectToolchains(entry, abi, language, type, known));
+            known.append(tcs);
+        }
+    }
+}
+
 QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
     QList<ToolChain *> tcs;
@@ -931,31 +957,9 @@ QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alr
     tcs.append(autoDetectToolchains("gcc", Abi::hostAbi(), Constants::C_LANGUAGE_ID,
                                     Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
     known.append(tcs);
-    if (HostOsInfo::isLinuxHost()) {
-        const QRegularExpression regexp(binaryRegexp);
-        for (const QString &dir : QStringList({ "/usr/bin", "/usr/local/bin" })) {
-            QDir binDir(dir);
-            auto gccProbe = [&](const QString &name, Core::Id language) {
-                for (const QString &entry : binDir.entryList(
-                     {"*-" + name, name + "-*", "*-" + name + "-*"},
-                         QDir::Files | QDir::Executable)) {
-                    const QString fileName = FileName::fromString(entry).fileName();
-                    if (fileName == "c89-gcc" || fileName == "c99-gcc")
-                        continue;
-                    const QRegularExpressionMatch match = regexp.match(fileName);
-                    if (!match.hasMatch())
-                        continue;
-                    const bool isNative = fileName.startsWith(name);
-                    const Abi abi = isNative ? Abi::hostAbi() : Abi();
-                    tcs.append(autoDetectToolchains(entry, abi, language,
-                                                    Constants::GCC_TOOLCHAIN_TYPEID, known));
-                    known.append(tcs);
-                }
-            };
-            gccProbe("g++", Constants::CXX_LANGUAGE_ID);
-            gccProbe("gcc", Constants::C_LANGUAGE_ID);
-        }
-    }
+    versionProbe("g++", Constants::CXX_LANGUAGE_ID, Constants::GCC_TOOLCHAIN_TYPEID, tcs, known);
+    versionProbe("gcc", Constants::C_LANGUAGE_ID, Constants::GCC_TOOLCHAIN_TYPEID, tcs, known,
+                 {"c89-gcc", "c99-gcc"});
 
     return tcs;
 }
