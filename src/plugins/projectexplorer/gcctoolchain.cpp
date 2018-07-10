@@ -73,7 +73,7 @@ static const char compilerPlatformLinkerFlagsKeyC[] = "ProjectExplorer.GccToolCh
 static const char targetAbiKeyC[] = "ProjectExplorer.GccToolChain.TargetAbi";
 static const char originalTargetTripleKeyC[] = "ProjectExplorer.GccToolChain.OriginalTargetTriple";
 static const char supportedAbisKeyC[] = "ProjectExplorer.GccToolChain.SupportedAbis";
-static const char binaryRegexp[] = "(?:^|-|\\b)(?:gcc|g\\+\\+)(?:-([\\d.]+))?$";
+static const char binaryRegexp[] = "(?:^|-|\\b)(?:gcc|g\\+\\+|clang(?:\\+\\+)?)(?:-([\\d.]+))?$";
 
 static QByteArray runGcc(const FileName &gcc, const QStringList &arguments, const QStringList &env)
 {
@@ -1349,12 +1349,16 @@ QSet<Core::Id> ClangToolChainFactory::supportedLanguages() const
 
 QList<ToolChain *> ClangToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
-    QList<ToolChain *> result
-            = autoDetectToolchains("clang++", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
-                                   Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown);
-    result += autoDetectToolchains("clang", Abi::hostAbi(), Constants::C_LANGUAGE_ID,
-                                   Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown);
-    return result;
+    QList<ToolChain *> tcs;
+    QList<ToolChain *> known = alreadyKnown;
+    tcs.append(autoDetectToolchains("clang++", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
+                                    Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown));
+    tcs.append(autoDetectToolchains("clang", Abi::hostAbi(), Constants::C_LANGUAGE_ID,
+                                    Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown));
+    known.append(tcs);
+    versionProbe("clang++", Constants::CXX_LANGUAGE_ID, Constants::CLANG_TOOLCHAIN_TYPEID, tcs, known);
+    versionProbe("clang", Constants::C_LANGUAGE_ID, Constants::CLANG_TOOLCHAIN_TYPEID, tcs, known);
+    return tcs;
 }
 
 QList<ToolChain *> ClangToolChainFactory::autoDetect(const FileName &compilerPath, const Core::Id &language)
