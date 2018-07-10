@@ -103,6 +103,7 @@ Python Support
 Debugging
 
 * Fixed updating of memory view
+* Added `Leave Debug Mode` button to toolbar
 * QML
     * Added support for nested properties (QTBUG-68474)
     * Fixed issue with different endianness (QTBUG-68721)
@@ -147,6 +148,11 @@ Test Integration
 * Qt Quick
     * Fixed parsing issue with non-ASCII characters (QTCREATORBUG-20105)
     * Fixed detection of test name (QTCREATORBUG-20642)
+
+Welcome
+
+* Rather than open project do nothing when right-clicking recent projects
+* Open session mini menu when right-clicking sessions
 
 Platform Specific
 
