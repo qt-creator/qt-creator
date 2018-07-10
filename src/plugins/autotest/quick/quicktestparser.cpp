@@ -212,7 +212,7 @@ static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr
 
 bool QuickTestParser::handleQtQuickTest(QFutureInterface<TestParseResultPtr> futureInterface,
                                         CPlusPlus::Document::Ptr document,
-                                        const Core::Id &id) const
+                                        const Core::Id &id)
 {
     const CppTools::CppModelManager *modelManager = CppTools::CppModelManager::instance();
     if (quickTestName(document).isEmpty())
@@ -223,7 +223,7 @@ bool QuickTestParser::handleQtQuickTest(QFutureInterface<TestParseResultPtr> fut
     if (ppList.isEmpty()) // happens if shutting down while parsing
         return false;
     const QString &proFile = ppList.at(0)->projectFile;
-
+    m_mainCppFiles.insert(cppFileName, proFile);
     const QString srcDir = quickTestSrcDir(modelManager, cppFileName);
     if (srcDir.isEmpty())
         return false;
@@ -306,8 +306,21 @@ QuickTestParser::~QuickTestParser()
 void QuickTestParser::init(const QStringList &filesToParse, bool fullParse)
 {
     m_qmlSnapshot = QmlJSTools::Internal::ModelManager::instance()->snapshot();
-    if (!fullParse) // in a full parse we get the correct entry points by the respective main
+    if (!fullParse) {
+        // in a full parse we get the correct entry points by the respective main
         m_proFilesForQmlFiles = QuickTestUtils::proFilesForQmlFiles(id(), filesToParse);
+        // get rid of cached main cpp files that are going to get processed anyhow
+        for (const QString &file : filesToParse) {
+            if (m_mainCppFiles.contains(file)) {
+                m_mainCppFiles.remove(file);
+                if (m_mainCppFiles.isEmpty())
+                    break;
+            }
+        }
+    } else {
+        // get rid of all cached main cpp files
+        m_mainCppFiles.clear();
+    }
     CppParser::init(filesToParse, fullParse);
 }
 
@@ -334,6 +347,11 @@ bool QuickTestParser::processDocument(QFutureInterface<TestParseResultPtr> futur
     if (!includesQtQuickTest(document, m_cppSnapshot))
         return false;
     return handleQtQuickTest(futureInterface, document, id());
+}
+
+QString QuickTestParser::projectFileForMainCppFile(const QString &fileName) const
+{
+    return m_mainCppFiles.contains(fileName) ? m_mainCppFiles.value(fileName) : QString();
 }
 
 } // namespace Internal
