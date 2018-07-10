@@ -77,12 +77,14 @@ def main():
                          "possible to select one of the suggestions.")
 # Step 4: Insert text "voi" to new line and press Tab.
             resetLine(editorWidget)
-            type(editorWidget, "voi")
+            type(editorWidget, "unsi")
             try:
-                waitForObjectItem(":popupFrame_Proposal_QListView", "void")
-                type(waitForObject(":popupFrame_Proposal_QListView"), "<Tab>")
-                test.compare(str(lineUnderCursor(editorWidget)).strip(), "void",
-                             "Step 4: Verifying if: Word 'void' is completed because only one option is available.")
+                proposalListView = waitForObject(":popupFrame_Proposal_QListView")
+                waitForObjectItem(proposalListView, "unsigned")
+                test.compare(proposalListView.model().rowCount(), 1, 'Only one proposal for "unsi"?')
+                type(proposalListView, "<Tab>")
+                test.compare(str(lineUnderCursor(editorWidget)).strip(), "unsigned",
+                             "Step 4: Verifying if: Word 'unsigned' is completed because only one option is available.")
             except:
                 test.fail("The expected completion popup was not shown.")
 # Step 4.5: Insert text "2." to new line and verify that code completion is not triggered (QTCREATORBUG-16188)

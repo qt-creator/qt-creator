@@ -16812,7 +16812,7 @@ Soll es noch einmal versucht werden?</translation>
     </message>
     <message>
         <source>No compiler can produce code for this Qt version. Please define one or more compilers for: %1</source>
-        <translation>Kein Compiler kann für diese Qt-Version Code erzeugen. Bitte richten Sie einen oder mehrere für &quot;%1&quot; geeignete Compiler ein.</translation>
+        <translation>Kein Compiler kann für diese Qt-Version Code erzeugen. Bitte richten Sie einen oder mehrere Compiler ein, geeignet für: %1</translation>
     </message>
     <message>
         <source>The following ABIs are currently not supported: %1</source>

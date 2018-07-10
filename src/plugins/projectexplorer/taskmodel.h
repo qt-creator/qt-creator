@@ -165,6 +165,7 @@ private:
     void updateMapping() const;
     bool filterAcceptsTask(const Task &task) const;
 
+    bool m_beginRemoveRowsSent = false;
     bool m_includeUnknowns;
     bool m_includeWarnings;
     bool m_includeErrors;

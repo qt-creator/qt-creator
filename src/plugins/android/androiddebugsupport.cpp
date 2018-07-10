@@ -45,6 +45,7 @@
 
 #include <QDirIterator>
 #include <QLoggingCategory>
+#include <QHostAddress>
 
 namespace {
 Q_LOGGING_CATEGORY(androidDebugSupportLog, "qtc.android.run.androiddebugsupport")
@@ -142,7 +143,10 @@ void AndroidDebugSupport::start()
                       + "/app_process");
         setSkipExecutableValidation(true);
         setUseExtendedRemote(true);
-        setRemoteChannel(":" + m_runner->gdbServerPort().toString());
+        QUrl gdbServer;
+        gdbServer.setHost(QHostAddress(QHostAddress::LocalHost).toString());
+        gdbServer.setPort(m_runner->gdbServerPort().number());
+        setRemoteChannel(gdbServer);
 
         QString sysRoot = AndroidConfigurations::currentConfig().ndkLocation().appendPath("platforms")
                 .appendPath(QString("android-%1").arg(AndroidManager::minimumSDK(target)))

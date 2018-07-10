@@ -34,6 +34,7 @@
 #include "androidavdmanager.h"
 #include "androidrunnerworker.h"
 
+#include <QHostAddress>
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
@@ -206,6 +207,7 @@ void AndroidRunner::qmlServerPortReady(Port port)
     // device side. It only happens to work since we redirect
     // host port n to target port n via adb.
     QUrl serverUrl;
+    serverUrl.setHost(QHostAddress(QHostAddress::LocalHost).toString());
     serverUrl.setPort(port.number());
     serverUrl.setScheme(urlTcpScheme());
     emit qmlServerReady(serverUrl);

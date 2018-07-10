@@ -96,6 +96,20 @@ static QString addType(const QString &name, const ClangBackEnd::ExtraInfo &extra
     return name + QLatin1String(" -> ", 4) + extraInfo.typeSpelling.toString();
 }
 
+static QString fullName(const ClangBackEnd::ExtraInfo &extraInfo, TokenTreeItem *parent)
+{
+    const QString parentType = parent->token.extraInfo.typeSpelling.toString();
+    if (extraInfo.semanticParentTypeSpelling.startsWith(parentType)) {
+        const QString parentQualification = parentType.isEmpty()
+                ? extraInfo.semanticParentTypeSpelling
+                : extraInfo.semanticParentTypeSpelling.mid(parentType.length() + 2);
+        if (!parentQualification.isEmpty())
+            return parentQualification + "::" + extraInfo.token.toString();
+    }
+
+    return extraInfo.token.toString();
+}
+
 QVariant TokenTreeItem::data(int column, int role) const
 {
     Q_UNUSED(column)
@@ -109,7 +123,8 @@ QVariant TokenTreeItem::data(int column, int role) const
 
     switch (role) {
     case Qt::DisplayRole: {
-        QString name = token.extraInfo.token.toString();
+        QString name = fullName(token.extraInfo, static_cast<TokenTreeItem *>(parent()));
+
         ClangBackEnd::HighlightingType mainType = token.types.mainHighlightingType;
 
         if (mainType == ClangBackEnd::HighlightingType::VirtualFunction

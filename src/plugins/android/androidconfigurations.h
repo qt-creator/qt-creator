@@ -132,6 +132,7 @@ public:
     Utils::FileName emulatorToolPath() const;
     Utils::FileName sdkManagerToolPath() const;
     Utils::FileName avdManagerToolPath() const;
+    Utils::FileName aaptToolPath() const;
 
     Utils::FileName gccPath(const ProjectExplorer::Abi &abi, Core::Id lang,
                             const QString &ndkToolChainVersion) const;

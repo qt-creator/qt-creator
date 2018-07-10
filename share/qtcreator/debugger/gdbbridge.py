@@ -1002,7 +1002,12 @@ class Dumper(DumperBase):
         try:
             symbols = gdb.execute(cmd, to_string = True)
         except:
-            pass
+            # command syntax depends on gdb version - below is gdb 8+
+            cmd = 'maint print msymbols -objfile "%s" -- %s' % (objfile.filename, tmppath)
+            try:
+                symbols = gdb.execute(cmd, to_string = True)
+            except:
+                pass
         ns = ''
         with open(tmppath) as f:
             for line in f:

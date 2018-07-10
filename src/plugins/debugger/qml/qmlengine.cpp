@@ -138,6 +138,12 @@ struct LookupData
 
 typedef QHash<int, LookupData> LookupItems; // id -> (iname, exp)
 
+static void setWatchItemHasChildren(WatchItem *item, bool hasChildren)
+{
+    item->setHasChildren(hasChildren);
+    item->valueEditable = !hasChildren;
+}
+
 class QmlEnginePrivate : public QmlDebugClient
 {
 public:
@@ -1311,7 +1317,7 @@ void QmlEnginePrivate::handleEvaluateExpression(const QVariantMap &response,
     if (success) {
         item->type = body.type;
         item->value = body.value.toString();
-        item->setHasChildren(body.hasChildren());
+        setWatchItemHasChildren(item, body.hasChildren());
     } else {
         //Do not set type since it is unknown
         item->setError(body.value.toString());
@@ -2156,11 +2162,11 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
         item->id = objectData.handle;
         item->type = objectData.type;
         item->value = objectData.value.toString();
-        item->setHasChildren(objectData.hasChildren());
+        setWatchItemHasChildren(item, objectData.hasChildren());
         // In case of global object, we do not get children
         // Set children nevertheless and query later.
         if (item->value == "global") {
-            item->setHasChildren(true);
+            setWatchItemHasChildren(item, true);
             item->id = 0;
         }
         watchHandler->insertItem(item);
@@ -2244,10 +2250,13 @@ void QmlEnginePrivate::handleScope(const QVariantMap &response)
         item->id = localData.handle;
         item->type = localData.type;
         item->value = localData.value.toString();
-        item->setHasChildren(localData.hasChildren());
+        setWatchItemHasChildren(item.get(), localData.hasChildren());
 
         if (localData.value.isValid() || item->wantsChildren || localData.expectedProperties == 0) {
-            engine->watchHandler()->insertItem(item.release());
+            WatchHandler *watchHander = engine->watchHandler();
+            if (watchHander->isExpandedIName(item->iname))
+                itemsToLookup.insert(int(item->id), {item->iname, item->name, item->exp});
+            watchHander->insertItem(item.release());
         } else {
             itemsToLookup.insert(int(item->id), {item->iname, item->name, item->exp});
         }
@@ -2387,7 +2396,7 @@ void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &pro
         item->value = propertyData.value.toString();
         if (item->type.isEmpty() || expandedINames.contains(item->iname))
             itemsToLookup.insert(propertyData.handle, {item->iname, item->name, item->exp});
-        item->setHasChildren(propertyData.hasChildren());
+        setWatchItemHasChildren(item.get(), propertyData.hasChildren());
         parent->appendChild(item.release());
     }
 
@@ -2443,7 +2452,7 @@ void QmlEnginePrivate::handleLookup(const QVariantMap &response)
             item->type = bodyObjectData.type;
             item->value = bodyObjectData.value.toString();
 
-            item->setHasChildren(bodyObjectData.hasChildren());
+            setWatchItemHasChildren(item, bodyObjectData.hasChildren());
             insertSubItems(item, bodyObjectData.properties);
 
             engine->watchHandler()->insertItem(item);

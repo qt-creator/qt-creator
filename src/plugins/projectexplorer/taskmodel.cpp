@@ -337,7 +337,10 @@ TaskFilterModel::TaskFilterModel(TaskModel *sourceModel, QObject *parent) : QAbs
     connect(m_sourceModel, &QAbstractItemModel::rowsRemoved,
             this, [this](const QModelIndex &parent, int, int) {
         QTC_ASSERT(!parent.isValid(), return);
-        endRemoveRows();
+        if (m_beginRemoveRowsSent) {
+            m_beginRemoveRowsSent = false;
+            endRemoveRows();
+        }
     });
 
     connect(m_sourceModel, &QAbstractItemModel::modelReset,
@@ -430,6 +433,7 @@ void TaskFilterModel::handleNewRows(const QModelIndex &index, int first, int las
 
 void TaskFilterModel::handleRowsAboutToBeRemoved(const QModelIndex &index, int first, int last)
 {
+    m_beginRemoveRowsSent = false;
     QTC_ASSERT(!index.isValid(), return);
 
     const QPair<int, int> range = findFilteredRange(first, last, m_mapping);
@@ -437,6 +441,7 @@ void TaskFilterModel::handleRowsAboutToBeRemoved(const QModelIndex &index, int f
         return;
 
     beginRemoveRows(QModelIndex(), range.first, range.second);
+    m_beginRemoveRowsSent = true;
     m_mapping.erase(m_mapping.begin() + range.first, m_mapping.begin() + range.second + 1);
     const int sourceRemovedCount = (last - first) + 1;
     for (int i = range.first; i < m_mapping.count(); ++i)

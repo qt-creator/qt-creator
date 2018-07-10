@@ -129,6 +129,13 @@ public:
 
     bool isGlobalDeclaration() const
     {
+        if (types.mixinHighlightingTypes.contains(
+                    ClangBackEnd::HighlightingType::TemplateTypeParameter)
+                || types.mixinHighlightingTypes.contains(
+                    ClangBackEnd::HighlightingType::TemplateTemplateParameter)) {
+            return false;
+        }
+
         return extraInfo.declaration
                 && types.mainHighlightingType != HighlightingType::LocalVariable
                 && ((types.mainHighlightingType == HighlightingType::Operator)

@@ -136,21 +136,12 @@
         \li \uicontrol{File System} shows all files in the currently selected
              directory.
 
-        \li \uicontrol {Class View} shows the class hierarchy of the currently
-            open projects.
-
-        \li \uicontrol Outline shows the symbol hierarchy of a C++ file and the type
-            hierarchy of a QML file.
-
-        \li \uicontrol Tests lists autotests and Qt Quick tests in the project.
-            For more information, see \l {Running Autotests}.
-
-        \li \uicontrol {Type Hierarchy} shows the base classes of a class.
-
-        \li \uicontrol {Include Hierarchy} shows which files are included in the current file
-            and which files include the current file.
+        \li \uicontrol Outline shows an overview of defined types and other
+            symbols, as well as their properties and hierarchy in a source file.
 
     \endlist
+
+    \include creator-sidebar-cpp-views.qdocinc cpp sidebar views
 
     For more information about the sidebar views that are only
     available when editing QML files in the Design mode, see
@@ -326,16 +317,6 @@
 
     \endlist
 
-    \section2 Viewing the Class Hierarchy
-
-    The \uicontrol {Class View} shows the class hierarchy of the currently
-    open projects. To organize the view by subprojects, click
-    \inlineimage qtcreator-show-subprojects.png
-    (\uicontrol {Show Subprojects}).
-
-    To visit all parts of a namespace, double-click on the namespace item
-    multiple times.
-
     \section2 Viewing QML Types
 
     The \uicontrol Outline view shows the type hierarchy in a QML file.
@@ -350,16 +331,9 @@
 
     \endlist
 
-    \section2 Viewing Type Hierarchy
-
-    To view the base classes of a class, right-click the class and select
-    \uicontrol {Open Type Hierarchy}  or press \key {Ctrl+Shift+T}.
-
-    \section2 Viewing Include Hierarchy
-
-    To view which files are included in the current file and which files include
-    the current file, right-click in the editor and select \uicontrol {Open Include Hierarchy}
-    or press \key {Ctrl+Shift+I}.
+    \include creator-sidebar-cpp-views.qdocinc class view
+    \include creator-sidebar-cpp-views.qdocinc type hierarchy view
+    \include creator-sidebar-cpp-views.qdocinc include hierarchy view
 
     \section1 Viewing Output
 
