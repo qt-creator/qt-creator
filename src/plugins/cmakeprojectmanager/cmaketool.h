@@ -119,8 +119,11 @@ private:
     QStringList parseVariableOutput(const QString &output);
 
     void fetchGeneratorsFromHelp() const;
+    void parseGeneratorsFromHelp(const QStringList &lines) const;
     void fetchVersionFromVersionOutput() const;
+    void parseVersionFormVersionOutput(const QStringList &lines) const;
     void fetchFromCapabilities() const;
+    void parseFromCapabilities(const QString &input) const;
 
     Core::Id m_id;
     QString m_displayName;

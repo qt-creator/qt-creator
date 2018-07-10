@@ -374,10 +374,13 @@ void CMakeTool::fetchGeneratorsFromHelp() const
     Utils::SynchronousProcessResponse response = run({"--help"});
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return;
+    parseGeneratorsFromHelp(response.stdOut().split('\n'));
+}
 
+void CMakeTool::parseGeneratorsFromHelp(const QStringList &lines) const
+{
     bool inGeneratorSection = false;
     QHash<QString, QStringList> generatorInfo;
-    const QStringList lines = response.stdOut().split('\n');
     foreach (const QString &line, lines) {
         if (line.isEmpty())
             continue;
@@ -427,9 +430,13 @@ void CMakeTool::fetchVersionFromVersionOutput() const
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return;
 
+    parseVersionFormVersionOutput(response.stdOut().split('\n'));
+}
+
+void CMakeTool::parseVersionFormVersionOutput(const QStringList &lines) const
+{
     QRegularExpression versionLine("^cmake.* version ((\\d+).(\\d+).(\\d+).*)$");
-    const QString responseText = response.stdOut();
-    for (const QStringRef &line : responseText.splitRef(QLatin1Char('\n'))) {
+    for (const QString &line : lines) {
         QRegularExpressionMatch match = versionLine.match(line);
         if (!match.hasMatch())
             continue;
@@ -448,7 +455,12 @@ void CMakeTool::fetchFromCapabilities() const
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return;
 
-    auto doc = QJsonDocument::fromJson(response.stdOut().toUtf8());
+    parseFromCapabilities(response.stdOut());
+}
+
+void CMakeTool::parseFromCapabilities(const QString &input) const
+{
+    auto doc = QJsonDocument::fromJson(input.toUtf8());
     if (!doc.isObject())
         return;
 
