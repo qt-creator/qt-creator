@@ -43,6 +43,8 @@ namespace ProjectExplorer { class Kit; }
 
 namespace CMakeProjectManager {
 
+namespace Internal {  class IntrospectionData;  }
+
 class CMAKE_EXPORT CMakeTool
 {
 public:
@@ -78,7 +80,7 @@ public:
 
     explicit CMakeTool(Detection d, const Core::Id &id);
     explicit CMakeTool(const QVariantMap &map, bool fromSdk);
-    ~CMakeTool() = default;
+    ~CMakeTool();
 
     static Core::Id createId();
 
@@ -133,18 +135,7 @@ private:
     bool m_isAutoDetected = false;
     bool m_autoCreateBuildDirectory = false;
 
-    mutable bool m_didAttemptToRun = false;
-    mutable bool m_didRun = false;
-    mutable bool m_hasServerMode = false;
-
-    mutable bool m_queriedServerMode = false;
-    mutable bool m_triedCapabilities = false;
-
-    mutable QList<Generator> m_generators;
-    mutable QMap<QString, QStringList> m_functionArgs;
-    mutable QStringList m_variables;
-    mutable QStringList m_functions;
-    mutable Version m_version;
+    std::unique_ptr<Internal::IntrospectionData> m_introspection;
 
     PathMapper m_pathMapper;
 };

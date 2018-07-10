@@ -55,18 +55,45 @@ bool CMakeTool::Generator::matches(const QString &n, const QString &ex) const
     return n == name && (ex.isEmpty() || extraGenerators.contains(ex));
 }
 
+namespace Internal {
+
+// --------------------------------------------------------------------
+// CMakeIntrospectionData:
+// --------------------------------------------------------------------
+
+class IntrospectionData
+{
+public:
+    bool m_didAttemptToRun = false;
+    bool m_didRun = false;
+    bool m_hasServerMode = false;
+
+    bool m_queriedServerMode = false;
+    bool m_triedCapabilities = false;
+
+    QList<CMakeTool::Generator> m_generators;
+    QMap<QString, QStringList> m_functionArgs;
+    QStringList m_variables;
+    QStringList m_functions;
+    CMakeTool::Version m_version;
+};
+
+} // namespace Internal
+
 ///////////////////////////
 // CMakeTool
 ///////////////////////////
 CMakeTool::CMakeTool(Detection d, const Core::Id &id) :
-    m_id(id), m_isAutoDetected(d == AutoDetection)
+    m_id(id), m_isAutoDetected(d == AutoDetection),
+    m_introspection(std::make_unique<Internal::IntrospectionData>())
 {
     QTC_ASSERT(m_id.isValid(), m_id = Core::Id::fromString(QUuid::createUuid().toString()));
 }
 
-CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) : m_isAutoDetected(fromSdk)
+CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) :
+    CMakeTool(fromSdk ? CMakeTool::AutoDetection : CMakeTool::ManualDetection,
+              Core::Id::fromSetting(map.value(CMAKE_INFORMATION_ID)))
 {
-    m_id = Core::Id::fromSetting(map.value(CMAKE_INFORMATION_ID));
     m_displayName = map.value(CMAKE_INFORMATION_DISPLAYNAME).toString();
     m_isAutoRun = map.value(CMAKE_INFORMATION_AUTORUN, true).toBool();
     m_autoCreateBuildDirectory = map.value(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, false).toBool();
@@ -78,6 +105,8 @@ CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) : m_isAutoDetected(fr
     setCMakeExecutable(Utils::FileName::fromString(map.value(CMAKE_INFORMATION_COMMAND).toString()));
 }
 
+CMakeTool::~CMakeTool() = default;
+
 Core::Id CMakeTool::createId()
 {
     return Core::Id::fromString(QUuid::createUuid().toString());
@@ -88,8 +117,8 @@ void CMakeTool::setCMakeExecutable(const Utils::FileName &executable)
     if (m_executable == executable)
         return;
 
-    m_didRun = false;
-    m_didAttemptToRun = false;
+    m_introspection->m_didRun = false;
+    m_introspection->m_didAttemptToRun = false;
 
     m_executable = executable;
     CMakeToolManager::notifyAboutUpdate(this);
@@ -118,15 +147,15 @@ bool CMakeTool::isValid() const
     if (!m_id.isValid())
         return false;
 
-    if (!m_didAttemptToRun)
+    if (!m_introspection->m_didAttemptToRun)
         supportedGenerators();
 
-    return m_didRun;
+    return m_introspection->m_didRun;
 }
 
 Utils::SynchronousProcessResponse CMakeTool::run(const QStringList &args, bool mayFail) const
 {
-    if (m_didAttemptToRun && !m_didRun) {
+    if (m_introspection->m_didAttemptToRun && !m_introspection->m_didRun) {
         Utils::SynchronousProcessResponse response;
         response.result = Utils::SynchronousProcessResponse::StartFailed;
         return response;
@@ -141,8 +170,8 @@ Utils::SynchronousProcessResponse CMakeTool::run(const QStringList &args, bool m
     cmake.setTimeOutMessageBoxEnabled(false);
 
     Utils::SynchronousProcessResponse response = cmake.runBlocking(m_executable.toString(), args);
-    m_didAttemptToRun = true;
-    m_didRun = mayFail ? true : (response.result == Utils::SynchronousProcessResponse::Finished);
+    m_introspection->m_didAttemptToRun = true;
+    m_introspection->m_didRun = mayFail ? true : (response.result == Utils::SynchronousProcessResponse::Finished);
     return response;
 }
 
@@ -182,16 +211,16 @@ bool CMakeTool::autoCreateBuildDirectory() const
 QList<CMakeTool::Generator> CMakeTool::supportedGenerators() const
 {
     readInformation(QueryType::GENERATORS);
-    return m_generators;
+    return m_introspection->m_generators;
 }
 
 TextEditor::Keywords CMakeTool::keywords()
 {
-    if (m_functions.isEmpty()) {
+    if (m_introspection->m_functions.isEmpty()) {
         Utils::SynchronousProcessResponse response;
         response = run({"--help-command-list"});
         if (response.result == Utils::SynchronousProcessResponse::Finished)
-            m_functions = response.stdOut().split('\n');
+            m_introspection->m_functions = response.stdOut().split('\n');
 
         response = run({"--help-commands"});
         if (response.result == Utils::SynchronousProcessResponse::Finished)
@@ -199,29 +228,31 @@ TextEditor::Keywords CMakeTool::keywords()
 
         response = run({"--help-property-list"});
         if (response.result == Utils::SynchronousProcessResponse::Finished)
-            m_variables = parseVariableOutput(response.stdOut());
+            m_introspection->m_variables = parseVariableOutput(response.stdOut());
 
         response = run({"--help-variable-list"});
         if (response.result == Utils::SynchronousProcessResponse::Finished) {
-            m_variables.append(parseVariableOutput(response.stdOut()));
-            m_variables = Utils::filteredUnique(m_variables);
-            Utils::sort(m_variables);
+            m_introspection->m_variables.append(parseVariableOutput(response.stdOut()));
+            m_introspection->m_variables = Utils::filteredUnique(m_introspection->m_variables);
+            Utils::sort(m_introspection->m_variables);
         }
     }
 
-    return TextEditor::Keywords(m_variables, m_functions, m_functionArgs);
+    return TextEditor::Keywords(m_introspection->m_variables,
+                                m_introspection->m_functions,
+                                m_introspection->m_functionArgs);
 }
 
 bool CMakeTool::hasServerMode() const
 {
     readInformation(QueryType::SERVER_MODE);
-    return m_hasServerMode;
+    return m_introspection->m_hasServerMode;
 }
 
 CMakeTool::Version CMakeTool::version() const
 {
     readInformation(QueryType::VERSION);
-    return m_version;
+    return m_introspection->m_version;
 }
 
 bool CMakeTool::isAutoDetected() const
@@ -254,16 +285,16 @@ CMakeTool::PathMapper CMakeTool::pathMapper() const
 
 void CMakeTool::readInformation(CMakeTool::QueryType type) const
 {
-    if ((type == QueryType::GENERATORS && !m_generators.isEmpty())
-         || (type == QueryType::SERVER_MODE && m_queriedServerMode)
-         || (type == QueryType::VERSION && !m_version.fullVersion.isEmpty()))
+    if ((type == QueryType::GENERATORS && !m_introspection->m_generators.isEmpty())
+         || (type == QueryType::SERVER_MODE && m_introspection->m_queriedServerMode)
+         || (type == QueryType::VERSION && !m_introspection->m_version.fullVersion.isEmpty()))
         return;
 
-    if (!m_triedCapabilities) {
+    if (!m_introspection->m_triedCapabilities) {
         fetchFromCapabilities();
-        m_triedCapabilities = true;
-        m_queriedServerMode = true; // Got added after "-E capabilities" support!
-        if (type == QueryType::GENERATORS && !m_generators.isEmpty())
+        m_introspection->m_triedCapabilities = true;
+        m_introspection->m_queriedServerMode = true; // Got added after "-E capabilities" support!
+        if (type == QueryType::GENERATORS && !m_introspection->m_generators.isEmpty())
             return;
     }
 
@@ -312,7 +343,7 @@ static QStringList parseDefinition(const QString &definition)
 void CMakeTool::parseFunctionDetailsOutput(const QString &output)
 {
     QSet<QString> functionSet;
-    functionSet.fromList(m_functions);
+    functionSet.fromList(m_introspection->m_functions);
 
     bool expectDefinition = false;
     QString currentDefinition;
@@ -333,13 +364,13 @@ void CMakeTool::parseFunctionDetailsOutput(const QString &output)
                 if (!words.isEmpty()) {
                     const QString command = words.takeFirst();
                     if (functionSet.contains(command)) {
-                        QStringList tmp = words + m_functionArgs[command];
+                        QStringList tmp = words + m_introspection->m_functionArgs[command];
                         Utils::sort(tmp);
-                        m_functionArgs[command] = Utils::filteredUnique(tmp);
+                        m_introspection->m_functionArgs[command] = Utils::filteredUnique(tmp);
                     }
                 }
                 if (!words.isEmpty() && functionSet.contains(words.at(0)))
-                    m_functionArgs[words.at(0)];
+                    m_introspection->m_functionArgs[words.at(0)];
                 currentDefinition.clear();
             } else {
                 currentDefinition.append(line.trimmed() + ' ');
@@ -421,7 +452,7 @@ void CMakeTool::parseGeneratorsFromHelp(const QStringList &lines) const
 
     // Populate genertor list:
     for (auto it = generatorInfo.constBegin(); it != generatorInfo.constEnd(); ++it)
-        m_generators.append(Generator(it.key(), it.value()));
+        m_introspection->m_generators.append(Generator(it.key(), it.value()));
 }
 
 void CMakeTool::fetchVersionFromVersionOutput() const
@@ -441,10 +472,10 @@ void CMakeTool::parseVersionFormVersionOutput(const QStringList &lines) const
         if (!match.hasMatch())
             continue;
 
-        m_version.major = match.captured(2).toInt();
-        m_version.minor = match.captured(3).toInt();
-        m_version.patch = match.captured(4).toInt();
-        m_version.fullVersion = match.captured(1).toUtf8();
+        m_introspection->m_version.major = match.captured(2).toInt();
+        m_introspection->m_version.minor = match.captured(3).toInt();
+        m_introspection->m_version.patch = match.captured(4).toInt();
+        m_introspection->m_version.fullVersion = match.captured(1).toUtf8();
         break;
     }
 }
@@ -465,21 +496,21 @@ void CMakeTool::parseFromCapabilities(const QString &input) const
         return;
 
     const QVariantMap data = doc.object().toVariantMap();
-    m_hasServerMode = data.value("serverMode").toBool();
+    m_introspection->m_hasServerMode = data.value("serverMode").toBool();
     const QVariantList generatorList = data.value("generators").toList();
     for (const QVariant &v : generatorList) {
         const QVariantMap gen = v.toMap();
-        m_generators.append(Generator(gen.value("name").toString(),
-                                      gen.value("extraGenerators").toStringList(),
-                                      gen.value("platformSupport").toBool(),
-                                      gen.value("toolsetSupport").toBool()));
+        m_introspection->m_generators.append(Generator(gen.value("name").toString(),
+                                                       gen.value("extraGenerators").toStringList(),
+                                                       gen.value("platformSupport").toBool(),
+                                                       gen.value("toolsetSupport").toBool()));
     }
 
     const QVariantMap versionInfo = data.value("version").toMap();
-    m_version.major = versionInfo.value("major").toInt();
-    m_version.minor = versionInfo.value("minor").toInt();
-    m_version.patch = versionInfo.value("patch").toInt();
-    m_version.fullVersion = versionInfo.value("string").toByteArray();
+    m_introspection->m_version.major = versionInfo.value("major").toInt();
+    m_introspection->m_version.minor = versionInfo.value("minor").toInt();
+    m_introspection->m_version.patch = versionInfo.value("patch").toInt();
+    m_introspection->m_version.fullVersion = versionInfo.value("string").toByteArray();
 }
 
 } // namespace CMakeProjectManager
