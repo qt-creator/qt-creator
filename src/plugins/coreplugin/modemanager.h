@@ -54,7 +54,8 @@ public:
 
     static ModeManager *instance();
 
-    static Id currentMode();
+    static IMode *currentMode();
+    static Id currentModeId();
 
     static void addAction(QAction *action, int priority);
     static void addProjectSelector(QAction *action);

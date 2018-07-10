@@ -1031,7 +1031,7 @@ bool QmlJSEditor::isDesignModePreferred() const
         alwaysPreferDesignMode = true;
 
     // stay in design mode if we are there
-    Id mode = ModeManager::currentMode();
+    Id mode = ModeManager::currentModeId();
     return alwaysPreferDesignMode || mode == Core::Constants::MODE_DESIGN;
 }
 

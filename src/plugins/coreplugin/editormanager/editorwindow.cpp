@@ -29,6 +29,7 @@
 #include "editormanager_p.h"
 
 #include <aggregation/aggregate.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/locator/locatormanager.h>
@@ -67,7 +68,10 @@ EditorWindow::EditorWindow(QWidget *parent) :
     resize(QSize(800, 600));
 
     static int windowId = 0;
-    ICore::registerWindow(this, Context(Id("EditorManager.ExternalWindow.").withSuffix(++windowId)));
+
+    ICore::registerWindow(this,
+                          Context(Id("EditorManager.ExternalWindow.").withSuffix(++windowId),
+                                  Constants::C_EDITORMANAGER));
 
     connect(m_area, &EditorArea::windowTitleNeedsUpdate,
             this, &EditorWindow::updateWindowTitle);

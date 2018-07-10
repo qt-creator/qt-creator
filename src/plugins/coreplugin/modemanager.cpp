@@ -125,7 +125,7 @@ ModeManager::~ModeManager()
     m_instance = nullptr;
 }
 
-Id ModeManager::currentMode()
+Id ModeManager::currentModeId()
 {
     int currentIndex = d->m_modeStack->currentIndex();
     if (currentIndex < 0)
@@ -222,7 +222,7 @@ void ModeManagerPrivate::enabledStateChanged(IMode *mode)
     d->m_modeStack->setTabEnabled(index, mode->isEnabled());
 
     // Make sure we leave any disabled mode to prevent possible crashes:
-    if (mode->id() == ModeManager::currentMode() && !mode->isEnabled()) {
+    if (mode->id() == ModeManager::currentModeId() && !mode->isEnabled()) {
         // This assumes that there is always at least one enabled mode.
         for (int i = 0; i < d->m_modes.count(); ++i) {
             if (d->m_modes.at(i) != mode &&
@@ -298,7 +298,7 @@ void ModeManager::currentTabChanged(int index)
 
 void ModeManager::setFocusToCurrentMode()
 {
-    IMode *mode = findMode(currentMode());
+    IMode *mode = findMode(currentModeId());
     QTC_ASSERT(mode, return);
     QWidget *widget = mode->widget();
     if (widget) {
@@ -334,6 +334,12 @@ ModeManager::Style ModeManager::modeStyle()
 ModeManager *ModeManager::instance()
 {
     return m_instance;
+}
+
+IMode *ModeManager::currentMode()
+{
+    const int currentIndex = d->m_modeStack->currentIndex();
+    return currentIndex < 0 ? nullptr : d->m_modes.at(currentIndex);
 }
 
 } // namespace Core

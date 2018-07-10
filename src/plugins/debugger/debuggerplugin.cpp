@@ -2758,7 +2758,7 @@ void DebuggerPluginPrivate::dumpLog()
 /*! Activates the previous mode when the current mode is the debug mode. */
 void DebuggerPluginPrivate::activatePreviousMode()
 {
-    if (ModeManager::currentMode() == MODE_DEBUG && m_previousMode.isValid()) {
+    if (ModeManager::currentModeId() == MODE_DEBUG && m_previousMode.isValid()) {
         // If stopping the application also makes Qt Creator active (as the
         // "previously active application"), doing the switch synchronously
         // leads to funny effects with floating dock widgets
@@ -3390,7 +3390,7 @@ void DebuggerPluginPrivate::onModeChanged(Id mode)
 
 void saveModeToRestore()
 {
-    dd->m_previousMode = ModeManager::currentMode();
+    dd->m_previousMode = ModeManager::currentModeId();
 }
 
 } // namespace Internal
@@ -3522,7 +3522,7 @@ void setPerspectiveEnabled(const QByteArray &perspectiveId, bool enabled)
 
 void selectPerspective(const QByteArray &perspectiveId)
 {
-    if (ModeManager::currentMode() == MODE_DEBUG
+    if (ModeManager::currentModeId() == MODE_DEBUG
             && dd->m_mainWindow->currentPerspective() == perspectiveId) {
         return;
     }

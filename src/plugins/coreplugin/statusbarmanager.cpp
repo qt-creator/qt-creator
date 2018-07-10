@@ -25,8 +25,10 @@
 
 #include "statusbarmanager.h"
 
+#include "imode.h"
 #include "mainwindow.h"
 #include "minisplitter.h"
+#include "modemanager.h"
 
 #include <utils/qtcassert.h>
 
@@ -44,6 +46,17 @@ const char kLeftSplitWidthKey[] = "LeftSplitWidth";
 static QPointer<QSplitter> m_splitter;
 static QList<QPointer<QWidget>> m_statusBarWidgets;
 static QList<QPointer<IContext>> m_contexts;
+
+/*!
+    Context that always returns the context of the active's mode widget (if available).
+*/
+class StatusBarContext : public IContext
+{
+public:
+    StatusBarContext(QObject *parent);
+
+    Context context() const final;
+};
 
 static QWidget *createWidget(QWidget *parent)
 {
@@ -84,6 +97,10 @@ static void createStatusBarManager()
     QWidget *rightCornerWidget = createWidget(bar);
     bar->insertPermanentWidget(1, rightCornerWidget);
     m_statusBarWidgets.append(rightCornerWidget);
+
+    auto context = new StatusBarContext(bar);
+    context->setWidget(bar);
+    ICore::addContextObject(context);
 
     QObject::connect(ICore::instance(), &ICore::saveSettingsRequested, [] {
         QSettings *s = ICore::settings();
@@ -150,6 +167,22 @@ void StatusBarManager::restoreSettings()
     foreach (int w, m_splitter->sizes())
         sum += w;
     m_splitter->setSizes(QList<int>() << leftSplitWidth << (sum - leftSplitWidth));
+}
+
+StatusBarContext::StatusBarContext(QObject *parent)
+    : IContext(parent)
+{
+}
+
+Context StatusBarContext::context() const
+{
+    IMode *currentMode = ModeManager::currentMode();
+    QWidget *modeWidget = currentMode ? currentMode->widget() : nullptr;
+    if (modeWidget) {
+        if (IContext *context = ICore::contextObject(modeWidget))
+            return context->context();
+    }
+    return Context();
 }
 
 } // Core

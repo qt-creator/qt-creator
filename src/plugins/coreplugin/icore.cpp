@@ -531,6 +531,11 @@ QWidget *ICore::currentContextWidget()
     return context ? context->widget() : nullptr;
 }
 
+IContext *ICore::contextObject(QWidget *widget)
+{
+    return m_mainwindow->contextObject(widget);
+}
+
 
 QMainWindow *ICore::mainWindow()
 {

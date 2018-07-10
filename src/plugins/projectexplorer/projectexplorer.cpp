@@ -1689,7 +1689,7 @@ void ProjectExplorerPluginPrivate::showSessionManager()
 
     updateActions();
 
-    if (ModeManager::currentMode() == Core::Constants::MODE_WELCOME)
+    if (ModeManager::currentModeId() == Core::Constants::MODE_WELCOME)
         updateWelcomePage();
 }
 

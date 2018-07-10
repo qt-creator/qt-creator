@@ -68,7 +68,7 @@ OutputPanePlaceHolder::OutputPanePlaceHolder(Id mode, QSplitter *parent)
             this, &OutputPanePlaceHolder::currentModeChanged);
     // if this is part of a lazily created mode widget,
     // we need to check if this is the current placeholder
-    currentModeChanged(ModeManager::currentMode());
+    currentModeChanged(ModeManager::currentModeId());
 }
 
 OutputPanePlaceHolder::~OutputPanePlaceHolder()

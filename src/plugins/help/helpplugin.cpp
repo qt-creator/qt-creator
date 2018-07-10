@@ -523,7 +523,7 @@ void HelpPluginPrivate::updateSideBarSource(const QUrl &newUrl)
 void HelpPluginPrivate::setupHelpEngineIfNeeded()
 {
     LocalHelpManager::setEngineNeedsUpdate();
-    if (ModeManager::currentMode() == m_mode.id()
+    if (ModeManager::currentModeId() == m_mode.id()
             || LocalHelpManager::contextHelpOption() == HelpManager::ExternalHelpAlways)
         LocalHelpManager::setupGuiHelpEngine();
 }
