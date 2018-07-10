@@ -37,10 +37,7 @@ def main():
         invokeMenuItem("File", "Exit")
         return
     # select "Tutorials"
-    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Tutorials')
-    if all((wsButtonFrame, wsButtonLabel)):
-        mouseClick(wsButtonLabel)
-    else:
+    if not switchToSubMode('Tutorials'):
         test.fatal("Could not find Tutorials button - leaving test")
         invokeMenuItem("File", "Exit")
         return
