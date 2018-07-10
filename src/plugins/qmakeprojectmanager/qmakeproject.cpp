@@ -1299,23 +1299,28 @@ void QmakeProject::testToolChain(ToolChain *tc, const Utils::FileName &path) con
             t->kit()->addToEnvironment(env);
     }
 
-    if (!env.isSameExecutable(path.toString(), expected.toString())) {
-        const QPair<Utils::FileName, Utils::FileName> pair = qMakePair(expected, path);
-        if (!m_toolChainWarnings.contains(pair)) {
-            // Suppress warnings on Apple machines where compilers in /usr/bin point into Xcode.
-            // This will suppress some valid warnings, but avoids annoying Apple users with
-            // spurious warnings all the time!
-            if (!pair.first.toString().startsWith("/usr/bin/")
-                    || !pair.second.toString().contains("/Contents/Developer/Toolchains/")) {
-                TaskHub::addTask(Task(Task::Warning,
-                                      QCoreApplication::translate("QmakeProjectManager", "\"%1\" is used by qmake, but \"%2\" is configured in the kit.\n"
-                                                                                         "Please update your kit or choose a mkspec for qmake that matches your target environment better.").
-                                      arg(path.toUserOutput()).arg(expected.toUserOutput()),
-                                      Utils::FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-                m_toolChainWarnings.insert(pair);
-            }
-        }
+    if (env.isSameExecutable(path.toString(), expected.toString()))
+        return;
+    const QPair<Utils::FileName, Utils::FileName> pair = qMakePair(expected, path);
+    if (m_toolChainWarnings.contains(pair))
+        return;
+    // Suppress warnings on Apple machines where compilers in /usr/bin point into Xcode.
+    // This will suppress some valid warnings, but avoids annoying Apple users with
+    // spurious warnings all the time!
+    if (pair.first.toString().startsWith("/usr/bin/")
+            && pair.second.toString().contains("/Contents/Developer/Toolchains/")) {
+        return;
     }
+    TaskHub::addTask(
+                Task(Task::Warning,
+                     QCoreApplication::translate(
+                         "QmakeProjectManager",
+                         "\"%1\" is used by qmake, but \"%2\" is configured in the kit.\n"
+                         "Please update your kit or choose a mkspec for qmake that matches "
+                         "your target environment better.")
+                     .arg(path.toUserOutput()).arg(expected.toUserOutput()),
+                     Utils::FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+    m_toolChainWarnings.insert(pair);
 }
 
 void QmakeProject::warnOnToolChainMismatch(const QmakeProFile *pro) const
