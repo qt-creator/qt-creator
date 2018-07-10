@@ -1292,12 +1292,15 @@ void QmakeProject::testToolChain(ToolChain *tc, const Utils::FileName &path) con
     const Utils::FileName expected = tc->compilerCommand();
 
     Environment env = Environment::systemEnvironment();
+    Kit *k = nullptr;
     if (Target *t = activeTarget()) {
+        k = t->kit();
         if (BuildConfiguration *bc = t->activeBuildConfiguration())
             env = bc->environment();
         else
-            t->kit()->addToEnvironment(env);
+            k->addToEnvironment(env);
     }
+    QTC_ASSERT(k, return);
 
     if (env.isSameExecutable(path.toString(), expected.toString()))
         return;
@@ -1316,9 +1319,9 @@ void QmakeProject::testToolChain(ToolChain *tc, const Utils::FileName &path) con
                      QCoreApplication::translate(
                          "QmakeProjectManager",
                          "\"%1\" is used by qmake, but \"%2\" is configured in the kit.\n"
-                         "Please update your kit or choose a mkspec for qmake that matches "
+                         "Please update your kit (%3) or choose a mkspec for qmake that matches "
                          "your target environment better.")
-                     .arg(path.toUserOutput()).arg(expected.toUserOutput()),
+                     .arg(path.toUserOutput()).arg(expected.toUserOutput()).arg(k->displayName()),
                      Utils::FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     m_toolChainWarnings.insert(pair);
 }
