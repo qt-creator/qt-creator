@@ -450,8 +450,7 @@ bool AbstractMsvcToolChain::operator ==(const ToolChain &other) const
 
 AbstractMsvcToolChain::WarningFlagAdder::WarningFlagAdder(const QString &flag,
                                                           WarningFlags &flags) :
-    m_flags(flags),
-    m_triggered(false)
+    m_flags(flags)
 {
     if (flag.startsWith(QLatin1String("-wd"))) {
         m_doesEnable = false;

@@ -910,7 +910,7 @@ QDebug operator<<(QDebug ts, const Range &range)
 
 
 ExCommand::ExCommand(const QString &c, const QString &a, const Range &r)
-    : cmd(c), hasBang(false), args(a), range(r), count(1)
+    : cmd(c), args(a), range(r)
 {}
 
 bool ExCommand::matches(const QString &min, const QString &full) const

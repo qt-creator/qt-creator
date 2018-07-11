@@ -108,8 +108,7 @@ public:
         m_executable(executable),
         m_isAutoRun(autoRun),
         m_autoCreateBuildDirectory(autoCreate),
-        m_autodetected(autodetected),
-        m_changed(true)
+        m_autodetected(autodetected)
     {}
 
     CMakeToolTreeItem() = default;

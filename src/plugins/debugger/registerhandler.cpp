@@ -464,7 +464,7 @@ public:
 };
 
 RegisterItem::RegisterItem(DebuggerEngine *engine, const Register &reg)
-    : m_engine(engine), m_reg(reg), m_changed(true)
+    : m_engine(engine), m_reg(reg)
 {
     if (m_reg.kind == UnknownRegister)
         m_reg.guessMissingData();

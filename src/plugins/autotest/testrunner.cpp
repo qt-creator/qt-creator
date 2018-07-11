@@ -77,8 +77,7 @@ TestRunner *TestRunner::instance()
 }
 
 TestRunner::TestRunner(QObject *parent) :
-    QObject(parent),
-    m_executingTests(false)
+    QObject(parent)
 {
     connect(&m_futureWatcher, &QFutureWatcher<TestResultPtr>::resultReadyAt,
             this, [this](int index) { emit testResultReady(m_futureWatcher.resultAt(index)); });

@@ -518,7 +518,7 @@ class NodeMetaInfoPrivate
 {
 public:
     typedef QSharedPointer<NodeMetaInfoPrivate> Pointer;
-    NodeMetaInfoPrivate();
+    NodeMetaInfoPrivate() = default;
     ~NodeMetaInfoPrivate() {}
 
     bool isValid() const;
@@ -667,11 +667,6 @@ NodeMetaInfoPrivate::Pointer NodeMetaInfoPrivate::create(Model *model, const Typ
     if (newData->isValid())
         m_nodeMetaInfoCache.insert(stringIdentifier(type, major, minor), newData);
     return newData;
-}
-
-NodeMetaInfoPrivate::NodeMetaInfoPrivate() : m_isValid(false)
-{
-
 }
 
 NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, int min)

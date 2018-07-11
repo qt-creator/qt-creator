@@ -168,7 +168,6 @@ public:
 
     IconCommandParameter(int keyword, ShapeValueF::Unit unit, ShapeValueF::Origin origin = ShapeValueF::OriginSmart)
         : m_keyword(keyword),
-          m_type(ShapeValue),
           m_unit(unit),
           m_origin(origin)
     {

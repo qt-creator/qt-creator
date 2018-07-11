@@ -43,7 +43,6 @@ namespace Internal {
 
 CppUseSelectionsUpdater::CppUseSelectionsUpdater(TextEditor::TextEditorWidget *editorWidget)
     : m_editorWidget(editorWidget)
-    , m_runnerRevision(-1)
 {
     m_timer.setSingleShot(true);
     m_timer.setInterval(updateUseSelectionsInternalInMs);
