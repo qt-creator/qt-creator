@@ -764,9 +764,9 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
 }
 
 
-ToolChainConfigWidget *MsvcToolChain::configurationWidget()
+std::unique_ptr<ToolChainConfigWidget> MsvcToolChain::createConfigurationWidget()
 {
-    return new MsvcToolChainConfigWidget(this);
+    return std::make_unique<MsvcToolChainConfigWidget>(this);
 }
 
 ToolChain *MsvcToolChain::clone() const
@@ -1048,9 +1048,9 @@ bool ClangClToolChain::fromMap(const QVariantMap &data)
     return true;
 }
 
-ToolChainConfigWidget *ClangClToolChain::configurationWidget()
+std::unique_ptr<ToolChainConfigWidget> ClangClToolChain::createConfigurationWidget()
 {
-    return new ClangClToolChainConfigWidget(this);
+    return std::make_unique<ClangClToolChainConfigWidget>(this);
 }
 
 void ClangClToolChain::resetMsvcToolChain(const MsvcToolChain *base)

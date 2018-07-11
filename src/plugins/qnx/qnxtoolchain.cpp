@@ -118,9 +118,9 @@ QString QnxToolChain::typeDisplayName() const
     return QnxToolChainFactory::tr("QCC");
 }
 
-ToolChainConfigWidget *QnxToolChain::configurationWidget()
+std::unique_ptr<ToolChainConfigWidget> QnxToolChain::createConfigurationWidget()
 {
-    return new QnxToolChainConfigWidget(this);
+    return std::make_unique<QnxToolChainConfigWidget>(this);
 }
 
 void QnxToolChain::addToEnvironment(Environment &env) const

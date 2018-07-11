@@ -73,7 +73,7 @@ public:
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;
 
-    ToolChainConfigWidget *configurationWidget() override;
+    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
 
     ToolChain *clone() const override;
 
@@ -127,7 +127,7 @@ public:
     ToolChain *clone() const override;
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;
-    ToolChainConfigWidget *configurationWidget() override;
+    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
 
     const QList<MsvcToolChain *> &msvcToolchains() const;
     QString clangPath() const { return m_clangPath; }

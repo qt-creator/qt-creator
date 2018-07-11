@@ -146,7 +146,7 @@ public:
 
     virtual bool operator ==(const ToolChain &) const;
 
-    virtual ToolChainConfigWidget *configurationWidget() = 0;
+    virtual std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() = 0;
     virtual bool canClone() const;
     virtual ToolChain *clone() const = 0;
 

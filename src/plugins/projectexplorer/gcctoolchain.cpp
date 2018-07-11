@@ -861,9 +861,9 @@ bool GccToolChain::operator ==(const ToolChain &other) const
             && m_platformLinkerFlags == gccTc->m_platformLinkerFlags;
 }
 
-ToolChainConfigWidget *GccToolChain::configurationWidget()
+std::unique_ptr<ToolChainConfigWidget> GccToolChain::createConfigurationWidget()
 {
-    return new GccToolChainConfigWidget(this);
+    return std::make_unique<GccToolChainConfigWidget>(this);
 }
 
 void GccToolChain::updateSupportedAbis() const

@@ -54,7 +54,7 @@ public:
     QString compilerVersion() const;
     void setCompilerCommand(const Utils::FileName &compilerCommand);
     ProjectExplorer::IOutputParser *outputParser() const final;
-    ProjectExplorer::ToolChainConfigWidget *configurationWidget() final;
+    std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> createConfigurationWidget() final;
     ProjectExplorer::ToolChain *clone() const final;
 
     QVariantMap toMap() const final;

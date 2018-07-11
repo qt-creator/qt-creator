@@ -158,7 +158,7 @@ public:
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;
 
-    ToolChainConfigWidget *configurationWidget() override;
+    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
 
     bool operator ==(const ToolChain &) const override;
 

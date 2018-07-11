@@ -281,6 +281,7 @@ QList<ToolChain *> ToolChainSettingsAccessor::toolChains(const QVariantMap &data
 #include "headerpath.h"
 
 #include "abi.h"
+#include "toolchainconfigwidget.h"
 
 #include <QSet>
 #include <QTest>
@@ -318,7 +319,7 @@ public:
     QString makeCommand(const Environment &env) const override { Q_UNUSED(env); return QString("make"); }
     FileName compilerCommand() const override { return Utils::FileName::fromString("/tmp/test/gcc"); }
     IOutputParser *outputParser() const override { return nullptr; }
-    ToolChainConfigWidget *configurationWidget() override { return nullptr; }
+    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override { return nullptr; }
     TTC *clone() const override { return new TTC(*this); }
     bool operator ==(const ToolChain &other) const override {
         if (!ToolChain::operator==(other))

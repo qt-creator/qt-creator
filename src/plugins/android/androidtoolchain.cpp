@@ -181,9 +181,9 @@ bool AndroidToolChain::operator ==(const ToolChain &tc) const
     return m_ndkToolChainVersion == static_cast<const AndroidToolChain &>(tc).m_ndkToolChainVersion;
 }
 
-ToolChainConfigWidget *AndroidToolChain::configurationWidget()
+std::unique_ptr<ToolChainConfigWidget> AndroidToolChain::createConfigurationWidget()
 {
-    return new AndroidToolChainConfigWidget(this);
+    return std::make_unique<AndroidToolChainConfigWidget>(this);
 }
 
 FileName AndroidToolChain::suggestedDebugger() const

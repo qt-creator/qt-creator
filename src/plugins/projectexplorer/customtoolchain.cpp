@@ -412,9 +412,9 @@ QList<CustomToolChain::Parser> CustomToolChain::parsers()
     return result;
 }
 
-ToolChainConfigWidget *CustomToolChain::configurationWidget()
+std::unique_ptr<ToolChainConfigWidget> CustomToolChain::createConfigurationWidget()
 {
-    return new Internal::CustomToolChainConfigWidget(this);
+    return std::make_unique<Internal::CustomToolChainConfigWidget>(this);
 }
 
 namespace Internal {

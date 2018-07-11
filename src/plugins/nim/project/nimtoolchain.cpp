@@ -136,9 +136,9 @@ IOutputParser *NimToolChain::outputParser() const
     return nullptr;
 }
 
-ToolChainConfigWidget *NimToolChain::configurationWidget()
+std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> NimToolChain::createConfigurationWidget()
 {
-    return new NimToolChainConfigWidget(this);
+    return std::make_unique<NimToolChainConfigWidget>(this);
 }
 
 ToolChain *NimToolChain::clone() const
