@@ -417,6 +417,7 @@ KitEnvironmentConfigWidget::KitEnvironmentConfigWidget(Kit *workingCopy, const K
     m_mainWidget(new QWidget)
 {
     auto *layout = new QVBoxLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_summaryLabel);
     if (Utils::HostOsInfo::isWindowsHost())
         initMSVCOutputSwitch(layout);
