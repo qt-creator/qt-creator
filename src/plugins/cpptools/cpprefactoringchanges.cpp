@@ -49,9 +49,9 @@ public:
         , m_workingCopy(m_modelManager->workingCopy())
     {}
 
-    virtual void indentSelection(const QTextCursor &selection,
-                                 const QString &fileName,
-                                 const TextEditor::TextDocument *textDocument) const
+    void indentSelection(const QTextCursor &selection,
+                         const QString &fileName,
+                         const TextEditor::TextDocument *textDocument) const override
     {
         const TextEditor::TabSettings &tabSettings =
             ProjectExplorer::actualTabSettings(fileName, textDocument);
@@ -60,9 +60,9 @@ public:
         indenter.indent(selection.document(), selection, QChar::Null, tabSettings);
     }
 
-    virtual void reindentSelection(const QTextCursor &selection,
-                                   const QString &fileName,
-                                   const TextEditor::TextDocument *textDocument) const
+    void reindentSelection(const QTextCursor &selection,
+                           const QString &fileName,
+                           const TextEditor::TextDocument *textDocument) const override
     {
         const TextEditor::TabSettings &tabSettings =
             ProjectExplorer::actualTabSettings(fileName, textDocument);
@@ -71,7 +71,7 @@ public:
         indenter.reindent(selection.document(), selection, tabSettings);
     }
 
-    virtual void fileChanged(const QString &fileName)
+    void fileChanged(const QString &fileName) override
     {
         m_modelManager->updateSourceFiles(QSet<QString>() << fileName);
     }

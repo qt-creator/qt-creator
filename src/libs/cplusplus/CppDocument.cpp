@@ -142,34 +142,34 @@ protected:
 
     using SymbolVisitor::visit;
 
-    virtual bool preVisit(Symbol *)
+    bool preVisit(Symbol *) override
     { return ! _scope; }
 
-    virtual bool visit(UsingNamespaceDirective *) { return false; }
-    virtual bool visit(UsingDeclaration *) { return false; }
-    virtual bool visit(NamespaceAlias *) { return false; }
-    virtual bool visit(Declaration *) { return false; }
-    virtual bool visit(Argument *) { return false; }
-    virtual bool visit(TypenameArgument *) { return false; }
-    virtual bool visit(BaseClass *) { return false; }
-    virtual bool visit(ForwardClassDeclaration *) { return false; }
+    bool visit(UsingNamespaceDirective *) override { return false; }
+    bool visit(UsingDeclaration *) override { return false; }
+    bool visit(NamespaceAlias *) override { return false; }
+    bool visit(Declaration *) override { return false; }
+    bool visit(Argument *) override { return false; }
+    bool visit(TypenameArgument *) override { return false; }
+    bool visit(BaseClass *) override { return false; }
+    bool visit(ForwardClassDeclaration *) override { return false; }
 
-    virtual bool visit(Enum *symbol)
+    bool visit(Enum *symbol) override
     { return process(symbol); }
 
-    virtual bool visit(Function *symbol)
+    bool visit(Function *symbol) override
     { return process(symbol); }
 
-    virtual bool visit(Namespace *symbol)
+    bool visit(Namespace *symbol) override
     { return process(symbol); }
 
-    virtual bool visit(Class *symbol)
+    bool visit(Class *symbol) override
     { return process(symbol); }
 
-    virtual bool visit(Block *symbol)
+    bool visit(Block *symbol) override
     { return process(symbol); }
 
-    virtual bool visit(Template *symbol)
+    bool visit(Template *symbol) override
     {
         if (Symbol *decl = symbol->declaration()) {
             if (decl->isFunction() || decl->isClass() || decl->isDeclaration())
@@ -179,19 +179,19 @@ protected:
     }
 
     // Objective-C
-    virtual bool visit(ObjCBaseClass *) { return false; }
-    virtual bool visit(ObjCBaseProtocol *) { return false; }
-    virtual bool visit(ObjCForwardClassDeclaration *) { return false; }
-    virtual bool visit(ObjCForwardProtocolDeclaration *) { return false; }
-    virtual bool visit(ObjCPropertyDeclaration *) { return false; }
+    bool visit(ObjCBaseClass *) override { return false; }
+    bool visit(ObjCBaseProtocol *) override { return false; }
+    bool visit(ObjCForwardClassDeclaration *) override { return false; }
+    bool visit(ObjCForwardProtocolDeclaration *) override { return false; }
+    bool visit(ObjCPropertyDeclaration *) override { return false; }
 
-    virtual bool visit(ObjCClass *symbol)
+    bool visit(ObjCClass *symbol) override
     { return process(symbol); }
 
-    virtual bool visit(ObjCProtocol *symbol)
+    bool visit(ObjCProtocol *symbol) override
     { return process(symbol); }
 
-    virtual bool visit(ObjCMethod *symbol)
+    bool visit(ObjCMethod *symbol) override
     { return process(symbol); }
 };
 
@@ -209,10 +209,10 @@ public:
           errorCount(0)
     { }
 
-    virtual void report(int level,
-                        const StringLiteral *fileId,
-                        unsigned line, unsigned column,
-                        const char *format, va_list ap)
+    void report(int level,
+                const StringLiteral *fileId,
+                unsigned line, unsigned column,
+                const char *format, va_list ap) override
     {
         if (level == Error) {
             ++errorCount;

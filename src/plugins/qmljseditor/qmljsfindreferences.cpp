@@ -95,7 +95,7 @@ protected:
 
     using Visitor::visit;
 
-    virtual bool visit(AST::UiPublicMember *node)
+    bool visit(AST::UiPublicMember *node) override
     {
         if (node->name == _name
                 && _scopeChain.qmlScopeObjects().contains(_scope)) {
@@ -110,7 +110,7 @@ protected:
         return true;
     }
 
-    virtual bool visit(AST::UiObjectDefinition *node)
+    bool visit(AST::UiObjectDefinition *node) override
     {
         _builder.push(node);
         Node::accept(node->initializer, this);
@@ -118,7 +118,7 @@ protected:
         return false;
     }
 
-    virtual bool visit(AST::UiObjectBinding *node)
+    bool visit(AST::UiObjectBinding *node) override
     {
         if (node->qualifiedId
                 && !node->qualifiedId->next
@@ -133,7 +133,7 @@ protected:
         return false;
     }
 
-    virtual bool visit(AST::UiScriptBinding *node)
+    bool visit(AST::UiScriptBinding *node) override
     {
         if (node->qualifiedId
                 && !node->qualifiedId->next
@@ -151,7 +151,7 @@ protected:
         return true;
     }
 
-    virtual bool visit(AST::UiArrayBinding *node)
+    bool visit(AST::UiArrayBinding *node) override
     {
         if (node->qualifiedId
                 && !node->qualifiedId->next
@@ -162,7 +162,7 @@ protected:
         return true;
     }
 
-    virtual bool visit(AST::IdentifierExpression *node)
+    bool visit(AST::IdentifierExpression *node) override
     {
         if (node->name.isEmpty() || node->name != _name)
             return false;
@@ -193,7 +193,7 @@ protected:
         return false;
     }
 
-    virtual bool visit(AST::FieldMemberExpression *node)
+    bool visit(AST::FieldMemberExpression *node) override
     {
         if (node->name != _name)
             return true;
@@ -209,12 +209,12 @@ protected:
         return true;
     }
 
-    virtual bool visit(AST::FunctionDeclaration *node)
+    bool visit(AST::FunctionDeclaration *node) override
     {
         return visit(static_cast<FunctionExpression *>(node));
     }
 
-    virtual bool visit(AST::FunctionExpression *node)
+    bool visit(AST::FunctionExpression *node) override
     {
         if (node->name == _name) {
             if (checkLookup())
@@ -227,7 +227,7 @@ protected:
         return false;
     }
 
-    virtual bool visit(AST::VariableDeclaration *node)
+    bool visit(AST::VariableDeclaration *node) override
     {
         if (node->name == _name) {
             if (checkLookup())
@@ -320,7 +320,7 @@ protected:
 
     using Visitor::visit;
 
-    virtual bool visit(AST::UiPublicMember *node)
+    bool visit(AST::UiPublicMember *node) override
     {
         if (node->memberTypeName() == _name){
             const ObjectValue * tVal = _context->lookupType(_doc.data(), QStringList(_name));
@@ -336,7 +336,7 @@ protected:
         return true;
     }
 
-    virtual bool visit(AST::UiObjectDefinition *node)
+    bool visit(AST::UiObjectDefinition *node) override
     {
         checkTypeName(node->qualifiedTypeNameId);
         _builder.push(node);
@@ -345,7 +345,7 @@ protected:
         return false;
     }
 
-    virtual bool visit(AST::UiObjectBinding *node)
+    bool visit(AST::UiObjectBinding *node) override
     {
         checkTypeName(node->qualifiedTypeNameId);
         _builder.push(node);
@@ -354,7 +354,7 @@ protected:
         return false;
     }
 
-    virtual bool visit(AST::UiScriptBinding *node)
+    bool visit(AST::UiScriptBinding *node) override
     {
         if (AST::cast<Block *>(node->statement)) {
             Node::accept(node->qualifiedId, this);
@@ -366,7 +366,7 @@ protected:
         return true;
     }
 
-    virtual bool visit(AST::IdentifierExpression *node)
+    bool visit(AST::IdentifierExpression *node) override
     {
         if (node->name != _name)
             return false;
@@ -378,7 +378,7 @@ protected:
         return false;
     }
 
-    virtual bool visit(AST::FieldMemberExpression *node)
+    bool visit(AST::FieldMemberExpression *node) override
     {
         if (node->name != _name)
             return true;
@@ -392,12 +392,12 @@ protected:
         return true;
     }
 
-    virtual bool visit(AST::FunctionDeclaration *node)
+    bool visit(AST::FunctionDeclaration *node) override
     {
         return visit(static_cast<FunctionExpression *>(node));
     }
 
-    virtual bool visit(AST::FunctionExpression *node)
+    bool visit(AST::FunctionExpression *node) override
     {
         Node::accept(node->formals, this);
         _builder.push(node);
@@ -406,13 +406,13 @@ protected:
         return false;
     }
 
-    virtual bool visit(AST::VariableDeclaration *node)
+    bool visit(AST::VariableDeclaration *node) override
     {
         Node::accept(node->expression, this);
         return false;
     }
 
-    virtual bool visit(UiImport *ast)
+    bool visit(UiImport *ast) override
     {
         if (ast && ast->importId == _name) {
             const Imports *imp = _context->imports(_doc.data());
@@ -499,7 +499,7 @@ protected:
 
     using Visitor::visit;
 
-    virtual bool preVisit(Node *node)
+    bool preVisit(Node *node) override
     {
         if (Statement *stmt = node->statementCast())
             return containsOffset(stmt->firstSourceLocation(), stmt->lastSourceLocation());
@@ -510,7 +510,7 @@ protected:
         return true;
     }
 
-    virtual bool visit(IdentifierExpression *node)
+    bool visit(IdentifierExpression *node) override
     {
         if (containsOffset(node->identifierToken)) {
             _name = node->name.toString();
@@ -524,7 +524,7 @@ protected:
         return true;
     }
 
-    virtual bool visit(FieldMemberExpression *node)
+    bool visit(FieldMemberExpression *node) override
     {
         if (containsOffset(node->identifierToken)) {
             setScope(node->base);
@@ -547,17 +547,17 @@ protected:
         return true;
     }
 
-    virtual bool visit(UiScriptBinding *node)
+    bool visit(UiScriptBinding *node) override
     {
         return !checkBindingName(node->qualifiedId);
     }
 
-    virtual bool visit(UiArrayBinding *node)
+    bool visit(UiArrayBinding *node) override
     {
         return !checkBindingName(node->qualifiedId);
     }
 
-    virtual bool visit(UiObjectBinding *node)
+    bool visit(UiObjectBinding *node) override
     {
         if ((!checkTypeName(node->qualifiedTypeNameId)) &&
                 (!checkBindingName(node->qualifiedId))) {
@@ -569,7 +569,7 @@ protected:
         return false;
     }
 
-    virtual bool visit(UiObjectDefinition *node)
+    bool visit(UiObjectDefinition *node) override
     {
         if (!checkTypeName(node->qualifiedTypeNameId)) {
             Node *oldObjectNode = _objectNode;
@@ -580,7 +580,7 @@ protected:
         return false;
     }
 
-    virtual bool visit(UiPublicMember *node)
+    bool visit(UiPublicMember *node) override
     {
         if (containsOffset(node->typeToken)){
             if (node->isValid()) {
@@ -598,12 +598,12 @@ protected:
         return true;
     }
 
-    virtual bool visit(FunctionDeclaration *node)
+    bool visit(FunctionDeclaration *node) override
     {
         return visit(static_cast<FunctionExpression *>(node));
     }
 
-    virtual bool visit(FunctionExpression *node)
+    bool visit(FunctionExpression *node) override
     {
         if (containsOffset(node->identifierToken)) {
             _name = node->name.toString();
@@ -612,7 +612,7 @@ protected:
         return true;
     }
 
-    virtual bool visit(VariableDeclaration *node)
+    bool visit(VariableDeclaration *node) override
     {
         if (containsOffset(node->identifierToken)) {
             _name = node->name.toString();

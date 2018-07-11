@@ -58,7 +58,7 @@ public:
 
     public:
         GCRunner(StringTablePrivate &stringTable): m_stringTable(stringTable) {}
-        virtual void run() { m_stringTable.GC(); }
+        void run() override { m_stringTable.GC(); }
     } m_gcRunner;
 
     mutable QMutex m_lock;

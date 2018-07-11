@@ -116,17 +116,17 @@ protected:
         return true;
     }
 
-    virtual bool visit(CaptureAST *ast)
+    bool visit(CaptureAST *ast) override
     {
         return checkLocalUse(ast->identifier, ast->firstToken());
     }
 
-    virtual bool visit(IdExpressionAST *ast)
+    bool visit(IdExpressionAST *ast) override
     {
         return checkLocalUse(ast->name, ast->firstToken());
     }
 
-    virtual bool visit(SizeofExpressionAST *ast)
+    bool visit(SizeofExpressionAST *ast) override
     {
         if (ast->expression && ast->expression->asTypeId()) {
             TypeIdAST *typeId = ast->expression->asTypeId();
@@ -141,7 +141,7 @@ protected:
         return true;
     }
 
-    virtual bool visit(CastExpressionAST *ast)
+    bool visit(CastExpressionAST *ast) override
     {
         if (ast->expression && ast->expression->asUnaryExpression()) {
             TypeIdAST *typeId = ast->type_id->asTypeId();
@@ -158,137 +158,137 @@ protected:
         return true;
     }
 
-    virtual bool visit(FunctionDefinitionAST *ast)
+    bool visit(FunctionDefinitionAST *ast) override
     {
         if (ast->symbol)
             enterScope(ast->symbol);
         return true;
     }
 
-    virtual void endVisit(FunctionDefinitionAST *ast)
+    void endVisit(FunctionDefinitionAST *ast) override
     {
         if (ast->symbol)
             _scopeStack.removeLast();
     }
 
-    virtual bool visit(LambdaExpressionAST *ast)
+    bool visit(LambdaExpressionAST *ast) override
     {
         if (ast->lambda_declarator && ast->lambda_declarator->symbol)
             enterScope(ast->lambda_declarator->symbol);
         return true;
     }
 
-    virtual void endVisit(LambdaExpressionAST *ast)
+    void endVisit(LambdaExpressionAST *ast) override
     {
         if (ast->lambda_declarator && ast->lambda_declarator->symbol)
             _scopeStack.removeLast();
     }
 
-    virtual bool visit(CompoundStatementAST *ast)
+    bool visit(CompoundStatementAST *ast) override
     {
         if (ast->symbol)
             enterScope(ast->symbol);
         return true;
     }
 
-    virtual void endVisit(CompoundStatementAST *ast)
+    void endVisit(CompoundStatementAST *ast) override
     {
         if (ast->symbol)
             _scopeStack.removeLast();
     }
 
-    virtual bool visit(IfStatementAST *ast)
+    bool visit(IfStatementAST *ast) override
     {
         if (ast->symbol)
             enterScope(ast->symbol);
         return true;
     }
 
-    virtual void endVisit(IfStatementAST *ast)
+    void endVisit(IfStatementAST *ast) override
     {
         if (ast->symbol)
             _scopeStack.removeLast();
     }
 
-    virtual bool visit(WhileStatementAST *ast)
+    bool visit(WhileStatementAST *ast) override
     {
         if (ast->symbol)
             enterScope(ast->symbol);
         return true;
     }
 
-    virtual void endVisit(WhileStatementAST *ast)
+    void endVisit(WhileStatementAST *ast) override
     {
         if (ast->symbol)
             _scopeStack.removeLast();
     }
 
-    virtual bool visit(ForStatementAST *ast)
+    bool visit(ForStatementAST *ast) override
     {
         if (ast->symbol)
             enterScope(ast->symbol);
         return true;
     }
 
-    virtual void endVisit(ForStatementAST *ast)
+    void endVisit(ForStatementAST *ast) override
     {
         if (ast->symbol)
             _scopeStack.removeLast();
     }
 
-    virtual bool visit(ForeachStatementAST *ast)
+    bool visit(ForeachStatementAST *ast) override
     {
         if (ast->symbol)
             enterScope(ast->symbol);
         return true;
     }
 
-    virtual void endVisit(ForeachStatementAST *ast)
+    void endVisit(ForeachStatementAST *ast) override
     {
         if (ast->symbol)
             _scopeStack.removeLast();
     }
 
-    virtual bool visit(RangeBasedForStatementAST *ast)
+    bool visit(RangeBasedForStatementAST *ast) override
     {
         if (ast->symbol)
             enterScope(ast->symbol);
         return true;
     }
 
-    virtual void endVisit(RangeBasedForStatementAST *ast)
+    void endVisit(RangeBasedForStatementAST *ast) override
     {
         if (ast->symbol)
             _scopeStack.removeLast();
     }
 
-    virtual bool visit(SwitchStatementAST *ast)
+    bool visit(SwitchStatementAST *ast) override
     {
         if (ast->symbol)
             enterScope(ast->symbol);
         return true;
     }
 
-    virtual void endVisit(SwitchStatementAST *ast)
+    void endVisit(SwitchStatementAST *ast) override
     {
         if (ast->symbol)
             _scopeStack.removeLast();
     }
 
-    virtual bool visit(CatchClauseAST *ast)
+    bool visit(CatchClauseAST *ast) override
     {
         if (ast->symbol)
             enterScope(ast->symbol);
         return true;
     }
 
-    virtual void endVisit(CatchClauseAST *ast)
+    void endVisit(CatchClauseAST *ast) override
     {
         if (ast->symbol)
             _scopeStack.removeLast();
     }
 
-    virtual bool visit(ExpressionOrDeclarationStatementAST *ast)
+    bool visit(ExpressionOrDeclarationStatementAST *ast) override
     {
         accept(ast->declaration);
         return false;

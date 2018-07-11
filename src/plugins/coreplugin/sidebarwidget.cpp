@@ -48,7 +48,7 @@ public:
     explicit SideBarComboBox(SideBarWidget *sideBarWidget) : m_sideBarWidget(sideBarWidget) {}
 
 private:
-    virtual const Command *command(const QString &text) const
+    const Command *command(const QString &text) const override
         { return m_sideBarWidget->command(text); }
 
     SideBarWidget *m_sideBarWidget;

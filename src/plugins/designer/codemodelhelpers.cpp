@@ -64,7 +64,7 @@ public:
     explicit SearchFunction(const char *name);
     FunctionList operator()(const DocumentPtr &doc);
 
-    virtual bool visit(CPlusPlus::Function * f);
+    bool visit(CPlusPlus::Function * f) override;
 
 private:
     const size_t m_length;

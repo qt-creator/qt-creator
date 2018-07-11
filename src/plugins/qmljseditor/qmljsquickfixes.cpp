@@ -138,8 +138,8 @@ public:
         setDescription(tr("Add a Comment to Suppress This Message"));
     }
 
-    virtual void performChanges(QmlJSRefactoringFilePtr currentFile,
-                                const QmlJSRefactoringChanges &)
+    void performChanges(QmlJSRefactoringFilePtr currentFile,
+                        const QmlJSRefactoringChanges &) override
     {
         Utils::ChangeSet changes;
         const int insertLoc = _message.location.begin() - _message.location.startColumn + 1;

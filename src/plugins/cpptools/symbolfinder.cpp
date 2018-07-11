@@ -64,7 +64,7 @@ public:
 
     using SymbolVisitor::visit;
 
-    virtual bool visit(Function *fun)
+    bool visit(Function *fun) override
     {
         if (_oper) {
             if (const Name *name = fun->unqualifiedName()) {
@@ -79,7 +79,7 @@ public:
         return false;
     }
 
-    virtual bool visit(Block *)
+    bool visit(Block *) override
     {
         return false;
     }

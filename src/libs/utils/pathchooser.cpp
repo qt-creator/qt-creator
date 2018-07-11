@@ -78,7 +78,7 @@ class BinaryVersionToolTipEventFilter : public QObject
 public:
     explicit BinaryVersionToolTipEventFilter(QLineEdit *le);
 
-    virtual bool eventFilter(QObject *, QEvent *);
+    bool eventFilter(QObject *, QEvent *) override;
 
     QStringList arguments() const { return m_arguments; }
     void setArguments(const QStringList &arguments) { m_arguments = arguments; }

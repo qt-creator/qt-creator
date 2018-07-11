@@ -86,7 +86,7 @@ protected:
         return handle(ast, ast->firstSourceLocation(), ast->lastSourceLocation(), addToPath);
     }
 
-    virtual bool preVisit(AST::Node *node)
+    bool preVisit(AST::Node *node) override
     {
         if (Statement *stmt = node->statementCast())
             return handleLocationAst(stmt);
@@ -97,7 +97,7 @@ protected:
         return true;
     }
 
-    virtual bool visit(AST::UiQualifiedId *ast)
+    bool visit(AST::UiQualifiedId *ast) override
     {
         AST::SourceLocation first = ast->identifierToken;
         AST::SourceLocation last;
@@ -108,19 +108,19 @@ protected:
         return false;
     }
 
-    virtual bool visit(AST::UiProgram *ast)
+    bool visit(AST::UiProgram *ast) override
     {
         _path.append(ast);
         return true;
     }
 
-    virtual bool visit(AST::Program *ast)
+    bool visit(AST::Program *ast) override
     {
         _path.append(ast);
         return true;
     }
 
-    virtual bool visit(AST::UiImport *ast)
+    bool visit(AST::UiImport *ast) override
     {
         return handleLocationAst(ast);
     }

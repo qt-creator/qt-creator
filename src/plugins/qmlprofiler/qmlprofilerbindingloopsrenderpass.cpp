@@ -295,12 +295,12 @@ class BindingLoopMaterialShader : public QSGMaterialShader
 public:
     BindingLoopMaterialShader();
 
-    virtual void updateState(const RenderState &state, QSGMaterial *newEffect,
-                             QSGMaterial *oldEffect);
-    virtual char const *const *attributeNames() const;
+    void updateState(const RenderState &state, QSGMaterial *newEffect,
+                     QSGMaterial *oldEffect) override;
+    char const *const *attributeNames() const override;
 
 private:
-    virtual void initialize();
+    void initialize() override;
 
     int m_matrix_id = 0;
     int m_z_range_id = 0;

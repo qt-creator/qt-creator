@@ -99,8 +99,8 @@ public:
         init();
     }
 
-    virtual void performChanges(QmlJSRefactoringFilePtr currentFile,
-                                const QmlJSRefactoringChanges &refactoring)
+    void performChanges(QmlJSRefactoringFilePtr currentFile,
+                        const QmlJSRefactoringChanges &refactoring) override
     {
         QString componentName = m_componentName;
 

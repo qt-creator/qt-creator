@@ -108,7 +108,7 @@ protected:
     using Visitor::visit;
     using Visitor::endVisit;
 
-    virtual bool visit(AST::UiScriptBinding *node)
+    bool visit(AST::UiScriptBinding *node) override
     {
         if (asString(node->qualifiedId) == QLatin1String("id")) {
             if (AST::ExpressionStatement *stmt = AST::cast<AST::ExpressionStatement*>(node->statement)) {
@@ -130,7 +130,7 @@ protected:
         return false;
     }
 
-    virtual bool visit(AST::IdentifierExpression *node)
+    bool visit(AST::IdentifierExpression *node) override
     {
         if (!node->name.isEmpty()) {
             const QString &name = node->name.toString();
@@ -205,7 +205,7 @@ protected:
         decl->endColumn = last.startColumn + last.length;
     }
 
-    virtual bool visit(AST::UiObjectDefinition *node)
+    bool visit(AST::UiObjectDefinition *node) override
     {
         ++_depth;
 
@@ -223,12 +223,12 @@ protected:
         return true; // search for more bindings
     }
 
-    virtual void endVisit(AST::UiObjectDefinition *)
+    void endVisit(AST::UiObjectDefinition *) override
     {
         --_depth;
     }
 
-    virtual bool visit(AST::UiObjectBinding *node)
+    bool visit(AST::UiObjectBinding *node) override
     {
         ++_depth;
 
@@ -250,12 +250,12 @@ protected:
         return true; // search for more bindings
     }
 
-    virtual void endVisit(AST::UiObjectBinding *)
+    void endVisit(AST::UiObjectBinding *) override
     {
         --_depth;
     }
 
-    virtual bool visit(AST::UiScriptBinding *)
+    bool visit(AST::UiScriptBinding *) override
     {
         ++_depth;
 
@@ -272,17 +272,17 @@ protected:
         return false; // more more bindings in this subtree.
     }
 
-    virtual void endVisit(AST::UiScriptBinding *)
+    void endVisit(AST::UiScriptBinding *) override
     {
         --_depth;
     }
 
-    virtual bool visit(AST::FunctionExpression *)
+    bool visit(AST::FunctionExpression *) override
     {
         return false;
     }
 
-    virtual bool visit(AST::FunctionDeclaration *ast)
+    bool visit(AST::FunctionDeclaration *ast) override
     {
         if (ast->name.isEmpty())
             return false;
@@ -309,7 +309,7 @@ protected:
         return false;
     }
 
-    virtual bool visit(AST::VariableDeclaration *ast)
+    bool visit(AST::VariableDeclaration *ast) override
     {
         if (ast->name.isEmpty())
             return false;
@@ -376,27 +376,27 @@ public:
 protected:
     using AST::Visitor::visit;
 
-    virtual bool visit(AST::UiObjectBinding *ast)
+    bool visit(AST::UiObjectBinding *ast) override
     {
         if (ast->initializer && ast->initializer->lbraceToken.length)
             _ranges.append(createRange(ast, ast->initializer));
         return true;
     }
 
-    virtual bool visit(AST::UiObjectDefinition *ast)
+    bool visit(AST::UiObjectDefinition *ast) override
     {
         if (ast->initializer && ast->initializer->lbraceToken.length)
             _ranges.append(createRange(ast, ast->initializer));
         return true;
     }
 
-    virtual bool visit(AST::FunctionExpression *ast)
+    bool visit(AST::FunctionExpression *ast) override
     {
         _ranges.append(createRange(ast));
         return true;
     }
 
-    virtual bool visit(AST::FunctionDeclaration *ast)
+    bool visit(AST::FunctionDeclaration *ast) override
     {
         _ranges.append(createRange(ast));
         return true;
@@ -412,7 +412,7 @@ protected:
         return true;
     }
 
-    virtual bool visit(AST::UiScriptBinding *ast)
+    bool visit(AST::UiScriptBinding *ast) override
     {
         if (AST::Block *block = AST::cast<AST::Block *>(ast->statement))
             _ranges.append(createRange(ast, block));

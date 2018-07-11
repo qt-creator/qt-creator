@@ -43,7 +43,7 @@ namespace Internal {
 class ClassModel : public QStandardItemModel {
 public:
     explicit ClassModel(QObject *parent = 0);
-    virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
     void appendPlaceHolder() { appendClass(m_newClassPlaceHolder); }
 

@@ -92,7 +92,7 @@ public:
 protected:
     using GLSL::Visitor::visit;
 
-    virtual void endVisit(CompoundStatementAST *ast)
+    void endVisit(CompoundStatementAST *ast) override
     {
         if (ast->symbol) {
             QTextCursor tc(textDocument);

@@ -82,7 +82,7 @@ protected:
 
     using AST::Visitor::visit;
 
-    virtual bool visit(AST::UiPublicMember *node)
+    bool visit(AST::UiPublicMember *node) override
     {
         if (node->memberTypeName() == m_typeName){
             const ObjectValue * objectValue = m_context->lookupType(m_document.data(), QStringList(m_typeName));
@@ -98,7 +98,7 @@ protected:
         return true;
     }
 
-    virtual bool visit(AST::UiObjectDefinition *node)
+    bool visit(AST::UiObjectDefinition *node) override
     {
         bool oldInside = m_insideObject;
         if (checkTypeName(node->qualifiedTypeNameId))
@@ -111,7 +111,7 @@ protected:
         return false;
     }
 
-    virtual bool visit(AST::UiObjectBinding *node)
+    bool visit(AST::UiObjectBinding *node) override
     {
         bool oldInside = m_insideObject;
         if (checkTypeName(node->qualifiedTypeNameId))
@@ -125,7 +125,7 @@ protected:
         return false;
     }
 
-    virtual bool visit(AST::UiScriptBinding *node)
+    bool visit(AST::UiScriptBinding *node) override
     {
         if (m_insideObject) {
             QStringList stringList = textAt(node->qualifiedId->firstSourceLocation(),
@@ -147,7 +147,7 @@ protected:
         return true;
     }
 
-    virtual bool visit(AST::IdentifierExpression *node)
+    bool visit(AST::IdentifierExpression *node) override
     {
         if (node->name != m_typeName)
             return false;
@@ -159,7 +159,7 @@ protected:
         return false;
     }
 
-    virtual bool visit(AST::FieldMemberExpression *node)
+    bool visit(AST::FieldMemberExpression *node) override
     {
         if (node->name != m_typeName)
             return true;
@@ -173,12 +173,12 @@ protected:
         return true;
     }
 
-    virtual bool visit(AST::FunctionDeclaration *node)
+    bool visit(AST::FunctionDeclaration *node) override
     {
         return visit(static_cast<AST::FunctionExpression *>(node));
     }
 
-    virtual bool visit(AST::FunctionExpression *node)
+    bool visit(AST::FunctionExpression *node) override
     {
         AST::Node::accept(node->formals, this);
         m_scopeBuilder.push(node);
@@ -187,13 +187,13 @@ protected:
         return false;
     }
 
-    virtual bool visit(AST::VariableDeclaration *node)
+    bool visit(AST::VariableDeclaration *node) override
     {
         AST::Node::accept(node->expression, this);
         return false;
     }
 
-    virtual bool visit(AST::UiImport *ast)
+    bool visit(AST::UiImport *ast) override
     {
         if (ast && ast->importId == m_typeName) {
             const Imports *imp = m_context->imports(m_document.data());

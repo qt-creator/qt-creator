@@ -49,7 +49,7 @@ public:
 
     void execute(const CPlusPlus::Document::Ptr &doc, const CPlusPlus::Snapshot &snapshot);
 
-    virtual bool visit(CPlusPlus::Class *);
+    bool visit(CPlusPlus::Class *) override;
 
     const QList<CPlusPlus::Symbol *> &derived() { return _derived; }
     const QStringList otherBases() { return _otherBases; }

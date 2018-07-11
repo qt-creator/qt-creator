@@ -659,7 +659,7 @@ public:
         accept(tu->ast());
     }
 
-    virtual bool preVisit(AST *)
+    bool preVisit(AST *) override
     {
         if (_block)
             return false;
@@ -667,7 +667,7 @@ public:
         return true;
     }
 
-    virtual bool visit(SimpleNameAST *ast)
+    bool visit(SimpleNameAST *ast) override
     {
         if (ast->name
                 && ast->name->identifier()
@@ -678,7 +678,7 @@ public:
         return false;
     }
 
-    virtual bool visit(MemberAccessAST *ast)
+    bool visit(MemberAccessAST *ast) override
     {
         accept(ast->base_expression);
         return false;

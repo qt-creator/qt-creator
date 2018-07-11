@@ -62,9 +62,9 @@ class FunctionGraphicsTextItem : public QAbstractGraphicsShapeItem
 public:
     FunctionGraphicsTextItem(const QString &text, QGraphicsItem *parent);
 
-    virtual void paint(QPainter *painter,
-                       const QStyleOptionGraphicsItem *option, QWidget *widget);
-    virtual QRectF boundingRect() const;
+    void paint(QPainter *painter,
+               const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    QRectF boundingRect() const override;
 
 private:
     QString m_text;
@@ -82,8 +82,8 @@ public:
     FunctionGraphicsItem(const QString &text, qreal x, qreal y,
                          qreal width, qreal height, QGraphicsItem *parent = 0);
 
-    virtual void paint(QPainter *painter,
-                       const QStyleOptionGraphicsItem *option, QWidget *widget);
+    void paint(QPainter *painter,
+               const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     FunctionGraphicsTextItem *textItem() const;
 
 private:

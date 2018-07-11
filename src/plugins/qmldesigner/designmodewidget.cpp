@@ -84,9 +84,9 @@ class ItemLibrarySideBarItem : public Core::SideBarItem
 {
 public:
     explicit ItemLibrarySideBarItem(QWidget *widget, const QString &id);
-    virtual ~ItemLibrarySideBarItem();
+    ~ItemLibrarySideBarItem() override;
 
-    virtual QList<QToolButton *> createToolBarWidgets();
+    QList<QToolButton *> createToolBarWidgets() override;
 };
 
 ItemLibrarySideBarItem::ItemLibrarySideBarItem(QWidget *widget, const QString &id) : Core::SideBarItem(widget, id) {}
@@ -105,9 +105,9 @@ class DesignerSideBarItem : public Core::SideBarItem
 {
 public:
     explicit DesignerSideBarItem(QWidget *widget, WidgetInfo::ToolBarWidgetFactoryInterface *createToolBarWidgets, const QString &id);
-    virtual ~DesignerSideBarItem();
+    ~DesignerSideBarItem() override;
 
-    virtual QList<QToolButton *> createToolBarWidgets();
+    QList<QToolButton *> createToolBarWidgets() override;
 
 private:
     WidgetInfo::ToolBarWidgetFactoryInterface *m_toolBarWidgetFactory;

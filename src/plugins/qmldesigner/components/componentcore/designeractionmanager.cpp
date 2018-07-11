@@ -199,7 +199,7 @@ public:
         ModelNodeContextMenuAction(id, description, category, key, priority, action, enabled, visibility)
     {}
 
-    virtual void updateContext()
+    void updateContext() override
     {
         defaultAction()->setSelectionContext(selectionContext());
         if (selectionContext().isValid()) {
@@ -225,7 +225,7 @@ public:
                               SelectionContextPredicate visibility = &SelectionContextFunctors::always) :
         ModelNodeContextMenuAction(id, description, category, key, priority, action, enabled, visibility)
     {}
-    virtual void updateContext()
+    void updateContext() override
     {
         defaultAction()->setSelectionContext(selectionContext());
         if (selectionContext().isValid()) {
@@ -285,7 +285,7 @@ public:
 
     {}
 
-    virtual void updateContext()
+    void updateContext() override
     {
         menu()->clear();
         if (selectionContext().isValid()) {

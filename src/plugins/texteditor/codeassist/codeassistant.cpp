@@ -84,7 +84,7 @@ public:
     void clearAbortedPosition();
     void updateFromCompletionSettings(const TextEditor::CompletionSettings &settings);
 
-    virtual bool eventFilter(QObject *o, QEvent *e);
+    bool eventFilter(QObject *o, QEvent *e) override;
 
 private:
     void processProposalItem(AssistProposalItemInterface *proposalItem);

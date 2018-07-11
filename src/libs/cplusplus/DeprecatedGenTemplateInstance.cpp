@@ -81,48 +81,48 @@ private:
             return previousType;
         }
 
-        virtual void visit(VoidType *)
+        void visit(VoidType *) override
         {
             // nothing to do
         }
 
-        virtual void visit(IntegerType *)
+        void visit(IntegerType *) override
         {
             // nothing to do
         }
 
-        virtual void visit(FloatType *)
+        void visit(FloatType *) override
         {
             // nothing to do
         }
 
-        virtual void visit(PointerToMemberType *)
+        void visit(PointerToMemberType *) override
         {
             qDebug() << Q_FUNC_INFO; // ### TODO
         }
 
-        virtual void visit(PointerType *ptrTy)
+        void visit(PointerType *ptrTy) override
         {
             _type.setType(control()->pointerType(q->apply(ptrTy->elementType())));
         }
 
-        virtual void visit(ReferenceType *refTy)
+        void visit(ReferenceType *refTy) override
         {
             _type.setType(control()->referenceType(q->apply(refTy->elementType()), refTy->isRvalueReference()));
         }
 
-        virtual void visit(ArrayType *arrayTy)
+        void visit(ArrayType *arrayTy) override
         {
             _type.setType(control()->arrayType(q->apply(arrayTy->elementType()), arrayTy->size()));
         }
 
-        virtual void visit(NamedType *ty)
+        void visit(NamedType *ty) override
         {
             FullySpecifiedType n = q->apply(ty->name());
             _type.setType(n.type());
         }
 
-        virtual void visit(Function *funTy)
+        void visit(Function *funTy) override
         {
             Function *fun = control()->newFunction(/*sourceLocation=*/ 0, funTy->name());
             fun->setEnclosingScope(funTy->enclosingScope());
@@ -149,47 +149,47 @@ private:
             _type.setType(fun);
         }
 
-        virtual void visit(Namespace *)
+        void visit(Namespace *) override
         {
             qDebug() << Q_FUNC_INFO;
         }
 
-        virtual void visit(Class *)
+        void visit(Class *) override
         {
             qDebug() << Q_FUNC_INFO;
         }
 
-        virtual void visit(Enum *)
+        void visit(Enum *) override
         {
             qDebug() << Q_FUNC_INFO;
         }
 
-        virtual void visit(ForwardClassDeclaration *)
+        void visit(ForwardClassDeclaration *) override
         {
             qDebug() << Q_FUNC_INFO;
         }
 
-        virtual void visit(ObjCClass *)
+        void visit(ObjCClass *) override
         {
             qDebug() << Q_FUNC_INFO;
         }
 
-        virtual void visit(ObjCProtocol *)
+        void visit(ObjCProtocol *) override
         {
             qDebug() << Q_FUNC_INFO;
         }
 
-        virtual void visit(ObjCMethod *)
+        void visit(ObjCMethod *) override
         {
             qDebug() << Q_FUNC_INFO;
         }
 
-        virtual void visit(ObjCForwardClassDeclaration *)
+        void visit(ObjCForwardClassDeclaration *) override
         {
             qDebug() << Q_FUNC_INFO;
         }
 
-        virtual void visit(ObjCForwardProtocolDeclaration *)
+        void visit(ObjCForwardProtocolDeclaration *) override
         {
             qDebug() << Q_FUNC_INFO;
         }
@@ -229,7 +229,7 @@ private:
             return previousType;
         }
 
-        virtual void visit(const Identifier *name)
+        void visit(const Identifier *name) override
         {
             int index = findSubstitution(name->identifier());
 
@@ -240,7 +240,7 @@ private:
                 _type = control()->namedType(name);
         }
 
-        virtual void visit(const TemplateNameId *name)
+        void visit(const TemplateNameId *name) override
         {
             QVarLengthArray<FullySpecifiedType, 8> arguments(name->templateArgumentCount());
             for (unsigned i = 0; i < name->templateArgumentCount(); ++i) {
@@ -294,31 +294,31 @@ private:
             return 0;
         }
 
-        virtual void visit(const QualifiedNameId *name)
+        void visit(const QualifiedNameId *name) override
         {
             if (const Name *n = instantiate(name))
                 _type = control()->namedType(n);
         }
 
-        virtual void visit(const DestructorNameId *name)
+        void visit(const DestructorNameId *name) override
         {
             Overview oo;
             qWarning() << "ignored name:" << oo.prettyName(name);
         }
 
-        virtual void visit(const OperatorNameId *name)
+        void visit(const OperatorNameId *name) override
         {
             Overview oo;
             qWarning() << "ignored name:" << oo.prettyName(name);
         }
 
-        virtual void visit(const ConversionNameId *name)
+        void visit(const ConversionNameId *name) override
         {
             Overview oo;
             qWarning() << "ignored name:" << oo.prettyName(name);
         }
 
-        virtual void visit(const SelectorNameId *name)
+        void visit(const SelectorNameId *name) override
         {
             Overview oo;
             qWarning() << "ignored name:" << oo.prettyName(name);

@@ -161,29 +161,29 @@ protected:
     }
 
     // nothing to do
-    virtual bool visit(UsingNamespaceDirective *) { return true; }
-    virtual bool visit(UsingDeclaration *) { return true; }
-    virtual bool visit(Argument *) { return true; }
-    virtual bool visit(BaseClass *) { return true; }
+    bool visit(UsingNamespaceDirective *) override { return true; }
+    bool visit(UsingDeclaration *) override { return true; }
+    bool visit(Argument *) override { return true; }
+    bool visit(BaseClass *) override { return true; }
 
-    virtual bool visit(Function *symbol)
+    bool visit(Function *symbol) override
     {
         addFunction(symbol->name());
         return true;
     }
 
-    virtual bool visit(Block *)
+    bool visit(Block *) override
     {
         return true;
     }
 
-    virtual bool visit(NamespaceAlias *symbol)
+    bool visit(NamespaceAlias *symbol) override
     {
         addType(symbol->name());
         return true;
     }
 
-    virtual bool visit(Declaration *symbol)
+    bool visit(Declaration *symbol) override
     {
         if (symbol->enclosingEnum() != 0)
             addStatic(symbol->name());
@@ -199,66 +199,66 @@ protected:
         return true;
     }
 
-    virtual bool visit(TypenameArgument *symbol)
+    bool visit(TypenameArgument *symbol) override
     {
         addType(symbol->name());
         return true;
     }
 
-    virtual bool visit(Enum *symbol)
+    bool visit(Enum *symbol) override
     {
         addType(symbol->name());
         return true;
     }
 
-    virtual bool visit(Namespace *symbol)
+    bool visit(Namespace *symbol) override
     {
         addType(symbol->name());
         return true;
     }
 
-    virtual bool visit(Template *)
+    bool visit(Template *) override
     {
         return true;
     }
 
-    virtual bool visit(Class *symbol)
+    bool visit(Class *symbol) override
     {
         addType(symbol->name());
         return true;
     }
 
-    virtual bool visit(ForwardClassDeclaration *symbol)
+    bool visit(ForwardClassDeclaration *symbol) override
     {
         addType(symbol->name());
         return true;
     }
 
     // Objective-C
-    virtual bool visit(ObjCBaseClass *) { return true; }
-    virtual bool visit(ObjCBaseProtocol *) { return true; }
-    virtual bool visit(ObjCPropertyDeclaration *) { return true; }
-    virtual bool visit(ObjCMethod *) { return true; }
+    bool visit(ObjCBaseClass *) override { return true; }
+    bool visit(ObjCBaseProtocol *) override { return true; }
+    bool visit(ObjCPropertyDeclaration *) override { return true; }
+    bool visit(ObjCMethod *) override { return true; }
 
-    virtual bool visit(ObjCClass *symbol)
+    bool visit(ObjCClass *symbol) override
     {
         addType(symbol->name());
         return true;
     }
 
-    virtual bool visit(ObjCForwardClassDeclaration *symbol)
+    bool visit(ObjCForwardClassDeclaration *symbol) override
     {
         addType(symbol->name());
         return true;
     }
 
-    virtual bool visit(ObjCProtocol *symbol)
+    bool visit(ObjCProtocol *symbol) override
     {
         addType(symbol->name());
         return true;
     }
 
-    virtual bool visit(ObjCForwardProtocolDeclaration *symbol)
+    bool visit(ObjCForwardProtocolDeclaration *symbol) override
     {
         addType(symbol->name());
         return true;

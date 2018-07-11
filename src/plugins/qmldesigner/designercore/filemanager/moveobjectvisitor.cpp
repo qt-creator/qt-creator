@@ -53,7 +53,7 @@ public:
     {}
 
 protected:
-    virtual bool visit(UiObjectBinding *ast)
+    bool visit(UiObjectBinding *ast) override
     {
         if (didRewriting())
             return false;
@@ -64,7 +64,7 @@ protected:
         return !didRewriting();
     }
 
-    virtual bool visit(UiObjectDefinition *ast)
+    bool visit(UiObjectDefinition *ast) override
     {
         if (didRewriting())
             return false;

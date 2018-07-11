@@ -58,7 +58,7 @@ class IntegerValidator : public QValidator
 {
 public:
     explicit IntegerValidator(QObject *parent);
-    virtual State validate(QString &, int &) const;
+    State validate(QString &, int &) const override;
 
     int base() const           { return m_base; }
     void setBase(int b)        { m_base = b; }

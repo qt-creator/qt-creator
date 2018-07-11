@@ -123,7 +123,7 @@ public:
     }
 
 protected:
-    virtual bool preVisit(AST *ast)
+    bool preVisit(AST *ast) override
     {
         if (m_functionDefinition)
             return false;
