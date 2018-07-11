@@ -90,7 +90,7 @@ QVariant TestTreeItem::data(int /*column*/, int role) const
         if (m_type == GroupNode)
             return QVariant();
         QVariant itemLink;
-        itemLink.setValue(Utils::Link(m_filePath, m_line, m_column));
+        itemLink.setValue(Utils::Link(m_filePath, int(m_line), int(m_column)));
         return itemLink;
     }
     case ItalicRole:
@@ -107,7 +107,7 @@ bool TestTreeItem::setData(int /*column*/, const QVariant &data, int role)
 {
     if (role == Qt::CheckStateRole) {
         Qt::CheckState old = m_checked;
-        m_checked = (Qt::CheckState)data.toInt();
+        m_checked = Qt::CheckState(data.toInt());
         return m_checked != old;
     }
     return false;
@@ -124,9 +124,6 @@ Qt::ItemFlags TestTreeItem::flags(int /*column*/) const
         return defaultFlags | Qt::ItemIsAutoTristate | Qt::ItemIsUserCheckable;
     case TestFunctionOrSet:
         return defaultFlags | Qt::ItemIsUserCheckable;
-    case TestDataFunction:
-    case TestSpecialFunction:
-    case TestDataTag:
     default:
         return defaultFlags;
     }
@@ -244,9 +241,8 @@ TestConfiguration *TestTreeItem::asConfiguration(TestRunMode mode) const
     case TestRunMode::Debug:
     case TestRunMode::DebugWithoutDeploy:
         return debugConfiguration();
-    default:
-        return nullptr;
     }
+    return nullptr;
 }
 
 QList<TestConfiguration *> TestTreeItem::getAllTestConfigurations() const
@@ -287,9 +283,8 @@ bool TestTreeItem::lessThan(const TestTreeItem *other, SortMode mode) const
         }
         return leftLink.targetFileName > rightLink.targetFileName;
     }
-    default:
-        return true;
     }
+    return true;
 }
 
 bool TestTreeItem::isGroupNodeFor(const TestTreeItem *other) const
@@ -310,7 +305,7 @@ QSet<QString> TestTreeItem::internalTargets() const
     if (projectParts.isEmpty())
         return TestTreeItem::dependingInternalTargets(cppMM, m_filePath);
     QSet<QString> targets;
-    for (const CppTools::ProjectPart::Ptr part : projectParts) {
+    for (const CppTools::ProjectPart::Ptr &part : projectParts) {
         targets.insert(part->buildSystemTarget);
         if (part->buildTargetType != CppTools::ProjectPart::Executable)
             targets.unite(TestTreeItem::dependingInternalTargets(cppMM, m_filePath));
@@ -367,7 +362,7 @@ QSet<QString> TestTreeItem::dependingInternalTargets(CppTools::CppModelManager *
     const Utils::FileNameList dependingFiles = snapshot.filesDependingOn(
                 wasHeader ? file : correspondingFile);
     for (const Utils::FileName &fn : dependingFiles) {
-        for (const CppTools::ProjectPart::Ptr part : cppMM->projectPart(fn))
+        for (const CppTools::ProjectPart::Ptr &part : cppMM->projectPart(fn))
             result.insert(part->buildSystemTarget);
     }
     return result;

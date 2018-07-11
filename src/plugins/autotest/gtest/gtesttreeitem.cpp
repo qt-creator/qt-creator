@@ -468,7 +468,7 @@ QSet<QString> GTestTreeItem::internalTargets() const
     const QVector<CppTools::ProjectPart::Ptr> projectParts = projectInfo.projectParts();
     if (projectParts.isEmpty())
         return TestTreeItem::dependingInternalTargets(cppMM, file);
-    for (const CppTools::ProjectPart::Ptr projectPart : projectParts) {
+    for (const CppTools::ProjectPart::Ptr &projectPart : projectParts) {
         if (projectPart->projectFile == proFile()
                 && Utils::anyOf(projectPart->files, [&file] (const CppTools::ProjectFile &pf) {
                                 return pf.path == file;

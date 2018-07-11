@@ -72,7 +72,7 @@ class TestResultsPane : public Core::IOutputPane
 {
     Q_OBJECT
 public:
-    virtual ~TestResultsPane();
+    ~TestResultsPane() override;
     static TestResultsPane *instance();
 
     // IOutputPane interface
@@ -119,7 +119,7 @@ private:
     void toggleOutputStyle();
     QString getWholeOutput(const QModelIndex &parent = QModelIndex());
 
-    void createMarks(const QModelIndex& parent = QModelIndex());
+    void createMarks(const QModelIndex &parent = QModelIndex());
     void clearMarks();
 
     QStackedWidget *m_outputWidget;

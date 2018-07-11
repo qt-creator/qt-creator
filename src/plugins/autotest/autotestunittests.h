@@ -38,7 +38,7 @@ class AutoTestUnitTests : public QObject
 {
     Q_OBJECT
 public:
-    explicit AutoTestUnitTests(TestTreeModel *model, QObject *parent = 0);
+    explicit AutoTestUnitTests(TestTreeModel *model, QObject *parent = nullptr);
 
 signals:
 

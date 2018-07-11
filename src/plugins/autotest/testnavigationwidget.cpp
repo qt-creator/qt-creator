@@ -108,10 +108,6 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
             m_progressIndicator, &Utils::ProgressIndicator::show);
 }
 
-TestNavigationWidget::~TestNavigationWidget()
-{
-}
-
 void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     const bool enabled = !ProjectExplorer::BuildManager::isBuilding()

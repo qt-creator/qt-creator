@@ -50,6 +50,7 @@ namespace Internal {
 class TestParseResult;
 class TestConfiguration;
 enum class TestRunMode;
+
 class TestTreeItem : public Utils::TypedTreeItem<TestTreeItem>
 {
 public:
@@ -157,7 +158,7 @@ private:
 class TestCodeLocationAndType
 {
 public:
-    QString m_name;     // tag name for m_type == TEST_DATATAG, file name for other values
+    QString m_name;     // tag name for m_type == TestDataTag, file name for other values
     unsigned m_line = 0;
     unsigned m_column = 0;
     TestTreeItem::Type m_type = TestTreeItem::Root;

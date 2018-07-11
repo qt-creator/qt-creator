@@ -100,7 +100,7 @@ Result::Type TestResult::toResultType(int rt)
     if (rt < Result::FIRST_TYPE || rt > Result::LAST_TYPE)
         return Result::Invalid;
 
-    return (Result::Type)rt;
+    return Result::Type(rt);
 }
 
 QString TestResult::resultToString(const Result::Type type)

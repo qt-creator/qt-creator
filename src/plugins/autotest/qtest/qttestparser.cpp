@@ -109,8 +109,8 @@ static QString testClass(const CppTools::CppModelManager *modelManager,
         const QByteArray name = macro.macro().name();
         if (QTestUtils::isQTestMacro(name)) {
             const CPlusPlus::Document::Block arg = macro.arguments().at(0);
-            return QLatin1String(fileContent.mid(arg.bytesBegin(),
-                                                 arg.bytesEnd() - arg.bytesBegin()));
+            return QLatin1String(fileContent.mid(int(arg.bytesBegin()),
+                                                 int(arg.bytesEnd() - arg.bytesBegin())));
         }
     }
     // check if one has used a self-defined macro or QTest::qExec() directly
@@ -126,7 +126,8 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
                                                   const CPlusPlus::Snapshot &snapshot,
                                                   const QString &testCaseName,
                                                   const QStringList &alternativeFiles = {},
-                                                  unsigned *line = 0, unsigned *column = 0)
+                                                  unsigned *line = nullptr,
+                                                  unsigned *column = nullptr)
 {
     CPlusPlus::Document::Ptr declaringDoc;
     CPlusPlus::TypeOfExpression typeOfExpr;
@@ -152,7 +153,7 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
         if (CPlusPlus::Symbol *symbol = item.declaration()) {
             if (CPlusPlus::Class *toeClass = symbol->asClass()) {
                 const QString declFileName = QLatin1String(toeClass->fileId()->chars(),
-                                                           toeClass->fileId()->size());
+                                                           int(toeClass->fileId()->size()));
                 declaringDoc = snapshot.document(declFileName);
                 if (line)
                     *line = toeClass->line();

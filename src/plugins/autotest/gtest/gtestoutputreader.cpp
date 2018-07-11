@@ -96,7 +96,7 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
             TestResultPtr testResult = TestResultPtr(new GTestResult(m_projectFile));
             testResult->setResult(Result::MessageDisabledTests);
             int disabled = disabledTests.cap(1).toInt();
-            testResult->setDescription(tr("You have %n disabled test(s).", 0, disabled));
+            testResult->setDescription(tr("You have %n disabled test(s).", nullptr, disabled));
             testResult->setLine(disabled); // misuse line property to hold number of disabled
             reportResult(testResult);
             m_description.clear();

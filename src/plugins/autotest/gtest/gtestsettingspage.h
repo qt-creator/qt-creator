@@ -59,7 +59,6 @@ public:
 
     QWidget *widget() override;
     void apply() override;
-    void finish() override { }
 
 private:
     QSharedPointer<GTestSettings> m_settings;

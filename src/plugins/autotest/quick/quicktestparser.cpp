@@ -120,7 +120,7 @@ static QString quickTestName(const CPlusPlus::Document::Ptr &doc,
         if (QuickTestUtils::isQuickTestMacro(name)) {
             CPlusPlus::Document::Block arg = macro.arguments().at(0);
             return QLatin1String(CppParser::getFileContent(doc->fileName())
-                                 .mid(arg.bytesBegin(), arg.bytesEnd() - arg.bytesBegin()));
+                                 .mid(int(arg.bytesBegin()), int(arg.bytesEnd() - arg.bytesBegin())));
         }
     }
 
@@ -309,10 +309,6 @@ QuickTestParser::QuickTestParser()
             this, &QuickTestParser::handleDirectoryChanged);
     connect(this, &QuickTestParser::updateWatchPaths,
             this, &QuickTestParser::doUpdateWatchPaths, Qt::QueuedConnection);
-}
-
-QuickTestParser::~QuickTestParser()
-{
 }
 
 void QuickTestParser::init(const QStringList &filesToParse, bool fullParse)

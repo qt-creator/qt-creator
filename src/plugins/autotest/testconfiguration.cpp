@@ -48,10 +48,6 @@ using namespace ProjectExplorer;
 namespace Autotest {
 namespace Internal {
 
-TestConfiguration::TestConfiguration()
-{
-}
-
 TestConfiguration::~TestConfiguration()
 {
     m_testCases.clear();

@@ -383,7 +383,7 @@ void TestTreeModel::revalidateCheckState(TestTreeItem *item)
             || type == TestTreeItem::TestDataTag) {
         return;
     }
-    const Qt::CheckState oldState = (Qt::CheckState)item->data(0, Qt::CheckStateRole).toInt();
+    const Qt::CheckState oldState = Qt::CheckState(item->data(0, Qt::CheckStateRole).toInt());
     Qt::CheckState newState = Qt::Checked;
     bool foundChecked = false;
     bool foundUnchecked = false;

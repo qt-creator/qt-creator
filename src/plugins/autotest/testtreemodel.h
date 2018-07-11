@@ -47,7 +47,7 @@ class AUTOTESTSHARED_EXPORT TestTreeModel : public Utils::TreeModel<>
     Q_OBJECT
 public:
     static TestTreeModel* instance();
-    ~TestTreeModel();
+    ~TestTreeModel() override;
 
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;

@@ -52,12 +52,11 @@ namespace Internal {
 class AUTOTESTSHARED_EXPORT TestRunner : public QObject
 {
     Q_OBJECT
-
 public:
     enum CancelReason { UserCanceled, Timeout, KitChanged };
 
     static TestRunner* instance();
-    ~TestRunner();
+    ~TestRunner() override;
 
     void setSelectedTests(const QList<TestConfiguration *> &selected);
     void runTest(TestRunMode mode, const TestTreeItem *item);

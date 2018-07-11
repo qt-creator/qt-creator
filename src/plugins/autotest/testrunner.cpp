@@ -564,15 +564,14 @@ void TestRunner::runOrDebugTests()
     case TestRunMode::Run:
     case TestRunMode::RunWithoutDeploy:
         runTests();
-        break;
+        return;
     case TestRunMode::Debug:
     case TestRunMode::DebugWithoutDeploy:
         debugTests();
-        break;
-    default:
-        onFinished();
-        QTC_ASSERT(false, return);  // unexpected run mode
+        return;
     }
+    onFinished();
+    QTC_ASSERT(false, return);  // unexpected run mode
 }
 
 void TestRunner::buildProject(ProjectExplorer::Project *project)

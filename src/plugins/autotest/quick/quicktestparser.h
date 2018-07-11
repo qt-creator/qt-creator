@@ -46,7 +46,6 @@ class QuickTestParser : public QObject, public CppParser
     Q_OBJECT
 public:
     QuickTestParser();
-    virtual ~QuickTestParser();
     void init(const QStringList &filesToParse, bool fullParse) override;
     void release() override;
     bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,

@@ -88,9 +88,8 @@ QString QtTestSettings::metricsTypeToOption(const MetricsType type)
         return QString("-callgrind");
     case MetricsType::Perf:
         return QString("-perf");
-    default:
-        return QString();
     }
+    return QString();
 }
 
 } // namespace Internal

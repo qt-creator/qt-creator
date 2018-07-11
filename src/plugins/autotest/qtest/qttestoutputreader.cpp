@@ -47,9 +47,9 @@ static QString decode(const QString& original)
     while ((pos = regex.indexIn(original, pos)) != -1) {
         const QString value = regex.cap(1);
         if (value.startsWith('x'))
-            result.replace(regex.cap(0), QChar(value.midRef(1).toInt(0, 16)));
+            result.replace(regex.cap(0), QChar(value.midRef(1).toInt(nullptr, 16)));
         else
-            result.replace(regex.cap(0), QChar(value.toInt(0, 10)));
+            result.replace(regex.cap(0), QChar(value.toInt(nullptr, 10)));
         pos += regex.matchedLength();
     }
 
@@ -120,7 +120,7 @@ static QString constructBenchmarkInformation(const QString &metric, double value
     return QtTestOutputReader::tr("%1 %2 per iteration (total: %3, iterations: %4)")
             .arg(formatResult(value))
             .arg(metricsText)
-            .arg(formatResult(value * (double)iterations))
+            .arg(formatResult(value * double(iterations)))
             .arg(iterations);
 }
 

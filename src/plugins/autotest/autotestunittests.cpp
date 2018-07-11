@@ -54,7 +54,7 @@ namespace Internal {
 AutoTestUnitTests::AutoTestUnitTests(TestTreeModel *model, QObject *parent)
     : QObject(parent),
       m_model(model),
-      m_tmpDir(0),
+      m_tmpDir(nullptr),
       m_isQt4(false)
 {
 }

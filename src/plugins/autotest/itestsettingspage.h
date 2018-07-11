@@ -45,7 +45,7 @@ public:
         setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
     }
 
-    virtual ~ITestSettingsPage() {}
+    void finish() override {}
 
 private:
     void setId(Core::Id id)

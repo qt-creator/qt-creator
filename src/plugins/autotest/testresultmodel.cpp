@@ -42,10 +42,6 @@ TestResultItem::TestResultItem(const TestResultPtr &testResult)
 {
 }
 
-TestResultItem::~TestResultItem()
-{
-}
-
 static QIcon testResultIcon(Result::Type result) {
     const static QIcon icons[] = {
         Icons::RESULT_PASS.icon(),

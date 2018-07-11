@@ -50,7 +50,7 @@ public:
     QSet<QString> baseClasses() const { return m_baseClasses; }
     bool resultValid() const { return m_valid; }
 
-    bool visit(CPlusPlus::Class *symbol);
+    bool visit(CPlusPlus::Class *symbol) override;
 
 private:
     CppTools::SymbolFinder m_symbolFinder;
@@ -67,8 +67,8 @@ class TestAstVisitor : public CPlusPlus::ASTVisitor
 public:
     explicit TestAstVisitor(CPlusPlus::Document::Ptr doc, const CPlusPlus::Snapshot &snapshot);
 
-    bool visit(CPlusPlus::CallAST *ast);
-    bool visit(CPlusPlus::CompoundStatementAST *ast);
+    bool visit(CPlusPlus::CallAST *ast) override;
+    bool visit(CPlusPlus::CompoundStatementAST *ast) override;
 
     QString className() const { return m_className; }
 
@@ -84,11 +84,11 @@ class TestDataFunctionVisitor : public CPlusPlus::ASTVisitor
 public:
     explicit TestDataFunctionVisitor(CPlusPlus::Document::Ptr doc);
 
-    bool visit(CPlusPlus::UsingDirectiveAST *ast);
-    bool visit(CPlusPlus::FunctionDefinitionAST *ast);
-    bool visit(CPlusPlus::CallAST *ast);
-    bool preVisit(CPlusPlus::AST *ast);
-    void postVisit(CPlusPlus::AST *ast);
+    bool visit(CPlusPlus::UsingDirectiveAST *ast) override;
+    bool visit(CPlusPlus::FunctionDefinitionAST *ast) override;
+    bool visit(CPlusPlus::CallAST *ast) override;
+    bool preVisit(CPlusPlus::AST *ast) override;
+    void postVisit(CPlusPlus::AST *ast) override;
     QMap<QString, QtTestCodeLocationList> dataTags() const { return m_dataTags; }
 
 private:

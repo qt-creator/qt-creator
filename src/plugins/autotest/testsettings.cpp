@@ -44,7 +44,7 @@ static const char filtersKey[]              = "WhiteListFilters";
 static const char processArgsKey[]          = "ProcessArgs";
 static const char groupSuffix[]             = ".group";
 
-static const int defaultTimeout = 60000;
+constexpr int defaultTimeout = 60000;
 
 TestSettings::TestSettings()
     : timeout(defaultTimeout)

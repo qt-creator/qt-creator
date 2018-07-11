@@ -36,10 +36,6 @@ TestTreeItemDelegate::TestTreeItemDelegate(QObject *parent)
 {
 }
 
-TestTreeItemDelegate::~TestTreeItemDelegate()
-{
-}
-
 void TestTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QStyleOptionViewItem opt = option;

@@ -58,7 +58,7 @@ class GTestVisitor : public CPlusPlus::ASTVisitor
 {
 public:
     explicit GTestVisitor(CPlusPlus::Document::Ptr doc);
-    bool visit(CPlusPlus::FunctionDefinitionAST *ast);
+    bool visit(CPlusPlus::FunctionDefinitionAST *ast) override;
 
     QMap<GTestCaseSpec, GTestCodeLocationList> gtestFunctions() const { return m_gtestFunctions; }
 

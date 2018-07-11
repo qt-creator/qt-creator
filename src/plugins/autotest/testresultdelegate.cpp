@@ -38,7 +38,7 @@
 namespace Autotest {
 namespace Internal {
 
-const static int outputLimit = 100000;
+constexpr int outputLimit = 100000;
 
 static bool isSummaryItem(Result::Type type)
 {

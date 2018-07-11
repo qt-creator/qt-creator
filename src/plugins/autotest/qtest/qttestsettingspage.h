@@ -41,7 +41,7 @@ class QtTestSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit QtTestSettingsWidget(QWidget *parent = 0);
+    explicit QtTestSettingsWidget(QWidget *parent = nullptr);
 
     void setSettings(const QtTestSettings &settings);
     QtTestSettings settings() const;
@@ -58,7 +58,6 @@ public:
 
     QWidget *widget() override;
     void apply() override;
-    void finish() override { }
 
 private:
     QSharedPointer<QtTestSettings> m_settings;

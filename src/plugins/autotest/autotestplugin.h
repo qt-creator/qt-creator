@@ -46,7 +46,7 @@ class AutotestPlugin : public ExtensionSystem::IPlugin
 
 public:
     AutotestPlugin();
-    ~AutotestPlugin();
+    ~AutotestPlugin() override;
 
     bool initialize(const QStringList &arguments, QString *errorString) override;
     void extensionsInitialized() override;

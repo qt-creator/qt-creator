@@ -167,7 +167,6 @@ static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
         testConfigurations << testConfig;
         return;
     case Qt::PartiallyChecked:
-    default:
         QStringList testCases;
         item->forFirstLevelChildren([&testCases](TestTreeItem *grandChild) {
             if (grandChild->checked() == Qt::Checked) {

@@ -41,7 +41,6 @@ class TestResultItem : public Utils::TreeItem
 {
 public:
     explicit TestResultItem(const TestResultPtr &testResult);
-    ~TestResultItem();
     QVariant data(int column, int role) const override;
     const TestResult *testResult() const { return m_testResult.data(); }
     void updateDescription(const QString &description);

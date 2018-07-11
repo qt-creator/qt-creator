@@ -52,7 +52,7 @@ using TestResultPtr = QSharedPointer<TestResult>;
 class TestConfiguration
 {
 public:
-    explicit TestConfiguration();
+    explicit TestConfiguration() = default;
     virtual ~TestConfiguration();
 
     void completeTestInformation(TestRunMode runMode);
@@ -113,7 +113,6 @@ class DebuggableTestConfiguration : public TestConfiguration
 public:
     explicit DebuggableTestConfiguration(TestRunMode runMode = TestRunMode::Run)
         : m_runMode(runMode) {}
-    ~DebuggableTestConfiguration() {}
 
     void setRunMode(TestRunMode mode) { m_runMode = mode; }
     TestRunMode runMode() const { return m_runMode; }

@@ -65,8 +65,6 @@ void QtTestSettingsWidget::setSettings(const QtTestSettings &settings)
     case MetricsType::Perf:
         m_ui.perfRB->setChecked(true);
         break;
-    default:
-        m_ui.walltimeRB->setChecked(true);
     }
 }
 
