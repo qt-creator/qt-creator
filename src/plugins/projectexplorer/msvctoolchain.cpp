@@ -27,6 +27,7 @@
 
 #include "msvcparser.h"
 #include "projectexplorerconstants.h"
+#include "taskhub.h"
 #include "toolchainmanager.h"
 
 #include <utils/algorithm.h>
@@ -523,46 +524,57 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
     return in;
 }
 
-void MsvcToolChain::environmentModifications(QFutureInterface<QList<Utils::EnvironmentItem>> &future,
-                                             QString vcvarsBat, QString varsBatArg)
+void MsvcToolChain::environmentModifications(
+        QFutureInterface<MsvcToolChain::GenerateEnvResult> &future,
+        QString vcvarsBat, QString varsBatArg)
 {
     const Utils::Environment inEnv = Utils::Environment::systemEnvironment();
     Utils::Environment outEnv;
     QMap<QString, QString> envPairs;
-    if (!generateEnvironmentSettings(inEnv, vcvarsBat, varsBatArg, envPairs))
-        return;
+    QList<Utils::EnvironmentItem> diff;
+    Utils::optional<QString> error = generateEnvironmentSettings(inEnv, vcvarsBat,
+                                                                 varsBatArg, envPairs);
+    if (!error) {
 
-    // Now loop through and process them
-    for (auto envIter = envPairs.cbegin(), eend = envPairs.cend(); envIter != eend; ++envIter) {
-        const QString expandedValue = winExpandDelayedEnvReferences(envIter.value(), inEnv);
-        if (!expandedValue.isEmpty())
-            outEnv.set(envIter.key(), expandedValue);
-    }
+        // Now loop through and process them
+        for (auto envIter = envPairs.cbegin(), end = envPairs.cend(); envIter != end; ++envIter) {
+            const QString expandedValue = winExpandDelayedEnvReferences(envIter.value(), inEnv);
+            if (!expandedValue.isEmpty())
+                outEnv.set(envIter.key(), expandedValue);
+        }
 
-    if (debug) {
-        const QStringList newVars = outEnv.toStringList();
-        const QStringList oldVars = inEnv.toStringList();
-        QDebug nsp = qDebug().nospace();
-        foreach (const QString &n, newVars) {
-            if (!oldVars.contains(n))
-                nsp << n << '\n';
+        if (debug) {
+            const QStringList newVars = outEnv.toStringList();
+            const QStringList oldVars = inEnv.toStringList();
+            QDebug nsp = qDebug().nospace();
+            foreach (const QString &n, newVars) {
+                if (!oldVars.contains(n))
+                    nsp << n << '\n';
+            }
+        }
+
+        diff = inEnv.diff(outEnv, true);
+        for (int i = diff.size() - 1; i >= 0; --i) {
+            if (diff.at(i).name.startsWith(QLatin1Char('='))) { // Exclude "=C:", "=EXITCODE"
+                diff.removeAt(i);
+            }
         }
     }
 
-    QList<Utils::EnvironmentItem> diff = inEnv.diff(outEnv, true);
-    for (int i = diff.size() - 1; i >= 0; --i) {
-        if (diff.at(i).name.startsWith(QLatin1Char('='))) { // Exclude "=C:", "=EXITCODE"
-            diff.removeAt(i);
-        }
-    }
-
-    future.reportResult(diff);
+    future.reportResult({error, diff});
 }
 
-void MsvcToolChain::initEnvModWatcher(const QFuture<QList<Utils::EnvironmentItem> > &future)
+void MsvcToolChain::initEnvModWatcher(const QFuture<GenerateEnvResult> &future)
 {
-    QObject::connect(&m_envModWatcher, &QFutureWatcher<QList<Utils::EnvironmentItem>>::resultReadyAt, [&]() {
-        updateEnvironmentModifications(m_envModWatcher.result());
+    QObject::connect(&m_envModWatcher, &QFutureWatcher<GenerateEnvResult>::resultReadyAt, [&]() {
+        const GenerateEnvResult &result = m_envModWatcher.result();
+        if (result.error) {
+            const QString &errorMessage = *result.error;
+            if (!errorMessage.isEmpty())
+                TaskHub::addTask(Task::Error, errorMessage, Constants::TASK_CATEGORY_COMPILE);
+        } else {
+            updateEnvironmentModifications(result.environmentItems);
+        }
     });
     m_envModWatcher.setFuture(future);
 }
@@ -578,15 +590,23 @@ void MsvcToolChain::updateEnvironmentModifications(QList<Utils::EnvironmentItem>
 
 Utils::Environment MsvcToolChain::readEnvironmentSetting(const Utils::Environment& env) const
 {
-    Utils::Environment result = env;
+    Utils::Environment resultEnv = env;
     if (m_environmentModifications.isEmpty()) {
         m_envModWatcher.waitForFinished();
-        if (m_envModWatcher.future().isFinished() && !m_envModWatcher.future().isCanceled())
-            result.modify(m_envModWatcher.result());
+        if (m_envModWatcher.future().isFinished() && !m_envModWatcher.future().isCanceled()) {
+            const GenerateEnvResult &result = m_envModWatcher.result();
+            if (result.error) {
+                const QString &errorMessage = *result.error;
+                if (!errorMessage.isEmpty())
+                    TaskHub::addTask(Task::Error, errorMessage, Constants::TASK_CATEGORY_COMPILE);
+            } else {
+                resultEnv.modify(result.environmentItems);
+            }
+        }
     } else {
-        result.modify(m_environmentModifications);
+        resultEnv.modify(m_environmentModifications);
     }
-    return result;
+    return resultEnv;
 }
 
 // --------------------------------------------------------------------------
@@ -608,7 +628,14 @@ MsvcToolChain::MsvcToolChain(const MsvcToolChain &other)
         initEnvModWatcher(other.m_envModWatcher.future());
     } else if (m_environmentModifications.isEmpty() && other.m_envModWatcher.future().isFinished()
                && !other.m_envModWatcher.future().isCanceled()) {
-        m_environmentModifications = other.m_envModWatcher.result();
+        const GenerateEnvResult &result = m_envModWatcher.result();
+        if (result.error) {
+            const QString &errorMessage = *result.error;
+            if (!errorMessage.isEmpty())
+                TaskHub::addTask(Task::Error, errorMessage, Constants::TASK_CATEGORY_COMPILE);
+        } else {
+            updateEnvironmentModifications(result.environmentItems);
+        }
     }
 
     setDisplayName(other.displayName());
