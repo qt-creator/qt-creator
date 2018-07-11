@@ -33,6 +33,7 @@
 
 #include <QDateTime>
 #include <QDebug>
+#include <QDir>
 #include <QFileInfo>
 #include <QLocale>
 
@@ -68,7 +69,7 @@ void FilePropertiesDialog::refresh()
         QLocale locale;
 
         m_ui->name->setText(fileInfo.fileName());
-        m_ui->path->setText(fileInfo.canonicalPath());
+        m_ui->path->setText(QDir::toNativeSeparators(fileInfo.canonicalPath()));
 
         const Utils::MimeType mt = Utils::mimeTypeForFile(fileInfo);
         m_ui->mimeType->setText(mt.isValid() ? mt.name() : tr("Undefined"));
