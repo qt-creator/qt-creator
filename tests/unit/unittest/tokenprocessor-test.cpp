@@ -959,7 +959,8 @@ TEST_F(TokenProcessor, TemplateTypeParameter)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(265, 135));
 
-    ASSERT_THAT(infos[3], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[3], HasTwoTypes(HighlightingType::Type,
+                                      HighlightingType::TemplateTypeParameter));
 }
 
 TEST_F(TokenProcessor, TemplateDefaultParameter)
@@ -987,7 +988,8 @@ TEST_F(TokenProcessor, TemplateTemplateParameter)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(265, 135));
 
-    ASSERT_THAT(infos[17], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[17], HasTwoTypes(HighlightingType::Type,
+                                       HighlightingType::TemplateTemplateParameter));
 }
 
 TEST_F(TokenProcessor, TemplateTemplateParameterDefaultArgument)
@@ -1008,7 +1010,8 @@ TEST_F(TokenProcessor, TemplateTypeParameterReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(268, 58));
 
-    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type,
+                                      HighlightingType::TemplateTypeParameter));
 }
 
 TEST_F(TokenProcessor, TemplateTypeParameterDeclarationReference)
@@ -1036,14 +1039,16 @@ TEST_F(TokenProcessor, TemplateTemplateParameterReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(270, 89));
 
-    ASSERT_THAT(infos[0], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[0], HasTwoTypes(HighlightingType::Type,
+                                      HighlightingType::TemplateTemplateParameter));
 }
 
 TEST_F(TokenProcessor, TemplateTemplateContainerParameterReference)
 {
     const auto infos = translationUnit.tokenInfosInRange(sourceRange(270, 89));
 
-    ASSERT_THAT(infos[2], HasOnlyType(HighlightingType::Type));
+    ASSERT_THAT(infos[2], HasTwoTypes(HighlightingType::Type,
+                                      HighlightingType::TemplateTypeParameter));
 }
 
 TEST_F(TokenProcessor, TemplateTemplateParameterReferenceVariable)
