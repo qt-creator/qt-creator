@@ -30,7 +30,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-testing.html
     \page creator-debugging.html
     \nextpage creator-debugger-engines.html
@@ -98,7 +98,7 @@
 
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-debugger-engines.html
     \page creator-debugger-operating-modes.html
     \nextpage creator-debug-mode.html
@@ -352,7 +352,7 @@
 
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-debugger-operating-modes.html
     \page creator-debug-mode.html
     \nextpage creator-debugging-helpers.html
@@ -928,7 +928,7 @@
 
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-debug-mode.html
     \page creator-debugging-helpers.html
     \nextpage creator-debugging-qml.html
@@ -1526,7 +1526,7 @@
 
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-qml-debugging-example.html
     \page creator-troubleshooting-debugging.html
     \nextpage creator-analyze-mode.html

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -30,7 +30,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-coding-navigating.html
     \page creator-highlighting.html
     \nextpage creator-checking-code-syntax.html
@@ -157,7 +157,7 @@
 
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-highlighting.html
     \page creator-checking-code-syntax.html
     \nextpage creator-completing-code.html
@@ -839,7 +839,7 @@
 
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-checking-code-syntax.html
     \page creator-completing-code.html
     \nextpage creator-indenting-code.html
@@ -1066,7 +1066,7 @@
 
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage qt-quick-toolbars.html
     \page creator-editor-codepasting.html
     \nextpage creator-macros.html
@@ -1159,7 +1159,7 @@
 
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-editor-codepasting.html
     \page creator-macros.html
     \nextpage creator-diff-editor.html
@@ -1196,7 +1196,7 @@
 
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-editor-options-text.html
     \page creator-editor-fakevim.html
     \nextpage creator-mime-types.html
@@ -1401,7 +1401,7 @@
     */
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-completing-code.html
     \page creator-indenting-code.html
     \nextpage qt-quick-toolbars.html
@@ -1668,7 +1668,7 @@
 
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-finding-overview.html
     \page creator-editor-finding.html
     \nextpage creator-editor-locator.html
@@ -1917,7 +1917,7 @@
 
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-editor-locator.html
     \page creator-editor-refactoring.html
     \nextpage creator-beautifier.html
@@ -2767,7 +2767,7 @@
 
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-editor-finding.html
     \page creator-editor-locator.html
     \nextpage creator-editor-refactoring.html

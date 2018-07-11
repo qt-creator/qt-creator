@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Author: Peter Penz (ppenz@openismus.com)
 ** Auther: Patricia Santana Cruz (patriciasantanacruz@gmail.com)
 ** Contact: https://www.qt.io/licensing/
@@ -26,7 +26,7 @@
 ****************************************************************************/
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-project-qbs.html
     \page creator-projects-autotools.html
     \nextpage creator-project-generic.html

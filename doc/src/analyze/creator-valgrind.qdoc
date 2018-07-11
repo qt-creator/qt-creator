@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -30,7 +30,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-valgrind-overview.html
     \page creator-analyzer.html
     \nextpage creator-cache-profiler.html
@@ -140,7 +140,7 @@
 
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-analyzer.html
     \page creator-cache-profiler.html
     \nextpage creator-running-valgrind-remotely.html
@@ -260,7 +260,7 @@
 
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-cache-profiler.html
     \page creator-running-valgrind-remotely.html
     \nextpage creator-clang-tools.html
