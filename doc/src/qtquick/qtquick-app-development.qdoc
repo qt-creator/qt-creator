@@ -56,6 +56,12 @@
             \uicontrol {Text Editor} in the Design mode to
             develop Qt Quick applications.
 
+        \li \l {Creating Components}
+
+            You can use basic QML types to create your own components that you
+            can combine with ready-made Qt Quick Controls 2 and Layouts
+            (available since Qt 5.7).
+
         \li \l {Managing Item Hierarchy}
 
             You can manage the items in the current QML file and their
@@ -76,16 +82,11 @@
             You can connect objects to signals, specify dynamic properties for
             objects, and create bindings between the properties of two objects.
 
-        \li \l {Creating Components}
+        \li \l {Adding States}
 
-            You can use basic QML types to create your own components that you
-            can combine with ready-made Qt Quick Controls 2 and Layouts
-            (available since Qt 5.7).
-        \li \l {Creating Screens}
-
-            You can combine basic QML types with ready-made Qt Quick Controls 2,
-            Dialogs, and Layouts (available since Qt 5.7) to create screens. You
-            can use states and transitions to navigate between screens.
+            You can use states to describe user interface configurations, such
+            as the UI controls, their properties and behavior, and the available
+            actions.
 
         \li \l {Browsing ISO 7000 Icons}
 

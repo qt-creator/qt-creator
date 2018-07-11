@@ -33,7 +33,7 @@
     \contentspage {Qt Creator Manual}
     \previouspage creator-quick-ui-forms.html
     \page creator-using-qt-quick-designer.html
-    \nextpage qtquick-navigator.html
+    \nextpage quick-components.html
 
     \title Editing QML Files in Design Mode
 
@@ -65,7 +65,8 @@
             \li \uicontrol {Library} (2) displays the building blocks that you
                 can use to design applications: predefined QML types, your own
                 QML components, or Qt Quick Controls 2 that you import to the
-                project, and other resources.
+                project, and other resources. For more information, see
+                \l {Creating Components}.
 
             \li \uicontrol {Navigator} (3) displays the items in the current QML
                 file as a tree structure. For more information, see
@@ -99,33 +100,10 @@
 
     \endlist
 
-    \section1 QML Type Library
-
-    The \uicontrol {Library} enables you to select QML types, UI components, and
-    resources, as well as to manage imports.
-
-    \uicontrol {QML Types} displays the QML types grouped by category: your own QML
-    components, basic types, layouts, positioner types, and views.
-
-    Sets of UI components with the look and feel of a particular mobile device
-    platform have been defined for Qt Quick 1. Since Qt 5.1, ready-made Qt
-    Quick Controls, Dialogs, and Layouts are available for creating user
-    interfaces using Qt Quick 2.1. The components and controls are based on
-    standard QML types. To view the components and controls in the
-    \uicontrol {Library}, import the component sets in \uicontrol Imports.
-
-    The \uicontrol {Qt Quick Application} wizards for a particular platform add the
-    import statements automatically. You can remove import statements in
-    \uicontrol Imports
-
-    \image qmldesigner-qml-components.png "QML Components"
-
-    \uicontrol {Resources} displays the images and other files that you copy
-    to the project folder (to the same subfolder as the QML files).
-
     \section1 Snapping to Parent and Sibling Items
 
     You design applications on the canvas by placing items on it.
+
     When you are working on a design, you can use snapping to align
     items on the canvas. Click the \inlineimage snapping.png
     button to have the items snap to their parent or sibling items. Snapping
