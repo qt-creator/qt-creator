@@ -366,7 +366,7 @@ Kit *KitManager::kit(Id id)
     if (!id.isValid())
         return nullptr;
 
-    return Utils::findOrDefault(kits(), Utils::equal(&Kit::id, id));
+    return Utils::findOrDefault(d->m_kitList, Utils::equal(&Kit::id, id));
 }
 
 Kit *KitManager::kit(const Kit::Predicate &predicate)
