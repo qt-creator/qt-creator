@@ -46,12 +46,13 @@ class GdbServerProviderFactory;
 class GdbServerProviderNode;
 class GdbServerProvidersSettingsWidget;
 
-class GdbServerProviderModel : public Utils::TreeModel<>
+class GdbServerProviderModel
+    : public Utils::TreeModel<Utils::TypedTreeItem<GdbServerProviderNode>, GdbServerProviderNode>
 {
     Q_OBJECT
 
 public:
-    explicit GdbServerProviderModel(QObject *parent = 0);
+    GdbServerProviderModel();
 
     GdbServerProvider *provider(const QModelIndex &) const;
     GdbServerProviderConfigWidget *widget(const QModelIndex &) const;
@@ -82,14 +83,14 @@ class GdbServerProvidersSettingsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    explicit GdbServerProvidersSettingsPage(QObject *parent = 0);
+    explicit GdbServerProvidersSettingsPage(QObject *parent = nullptr);
 
 private:
     QWidget *widget();
     void apply();
     void finish();
 
-    GdbServerProvidersSettingsWidget *m_configWidget = 0;
+    GdbServerProvidersSettingsWidget *m_configWidget = nullptr;
 };
 
 } // namespace Internal
