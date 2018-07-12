@@ -175,7 +175,7 @@ void KitManager::restoreKits()
         delete k;
     kitsToCheck.clear();
 
-    if (kits().isEmpty()) {
+    if (resultList.isEmpty()) {
         Kit *defaultKit = new Kit; // One kit using default values
         defaultKit->setUnexpandedDisplayName(tr("Desktop"));
         defaultKit->setSdkProvided(false);
