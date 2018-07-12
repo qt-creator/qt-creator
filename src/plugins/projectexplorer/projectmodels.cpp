@@ -314,9 +314,15 @@ void FlatModel::handleProjectAdded(Project *project)
     QTC_ASSERT(project, return);
 
     connect(project, &Project::parsingStarted,
-            this, [this, project]() { parsingStateChanged(project); });
+            this, [this, project]() {
+        if (nodeForProject(project))
+            parsingStateChanged(project);
+    });
     connect(project, &Project::parsingFinished,
-            this, [this, project]() { parsingStateChanged(project); });
+            this, [this, project]() {
+        if (nodeForProject(project))
+            parsingStateChanged(project);
+    });
     addOrRebuildProjectModel(project);
 }
 
