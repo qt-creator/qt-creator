@@ -185,11 +185,13 @@ void FlameGraph::rebuild()
         return;
     }
 
-    if (m_root.isValid()) {
-        QObject *parentObject = appendChild(this, this, qmlContext(this), m_root, 0, 1);
-        m_depth = buildNode(m_root, parentObject, 1, m_maximumDepth);
-    } else {
-        m_depth = buildNode(m_root, this, 0, m_maximumDepth);
+    if (m_model->data(m_root, m_sizeRole).toReal() > 0) {
+        if (m_root.isValid()) {
+            QObject *parentObject = appendChild(this, this, qmlContext(this), m_root, 0, 1);
+            m_depth = buildNode(m_root, parentObject, 1, m_maximumDepth);
+        } else {
+            m_depth = buildNode(m_root, this, 0, m_maximumDepth);
+        }
     }
 
     emit depthChanged(m_depth);
