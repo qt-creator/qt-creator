@@ -25,19 +25,18 @@
 
 #include "buildconfiguration.h"
 
+#include "buildenvironmentwidget.h"
 #include "buildinfo.h"
 #include "buildsteplist.h"
-#include "projectexplorer.h"
-#include "kitmanager.h"
-#include "target.h"
-#include "project.h"
 #include "kit.h"
-
-#include <projectexplorer/buildenvironmentwidget.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectmacroexpander.h>
-#include <projectexplorer/target.h>
+#include "kitinformation.h"
+#include "kitmanager.h"
+#include "project.h"
+#include "projectexplorer.h"
+#include "projectexplorerconstants.h"
+#include "projectmacroexpander.h"
+#include "projecttree.h"
+#include "target.h"
 
 #include <coreplugin/idocument.h>
 
