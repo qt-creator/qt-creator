@@ -67,7 +67,6 @@ def switchToSubMode(subModeLabel):
     return frameAndLabelFound
 
 def findExampleOrTutorial(tableView, regex, verbose=False):
-    model = tableView.model()
     children = __childrenOfType__(tableView, 'QModelIndex')
     for child in children:
         if re.match(regex, str(child.text)):
