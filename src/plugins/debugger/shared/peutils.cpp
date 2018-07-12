@@ -31,7 +31,7 @@
 #  include <QDir>
 #  include <QDebug>
 #  include <climits>
-#  include <windows.h>
+#  include <Windows.h>
 
 using Utils::winErrorMessage;
 

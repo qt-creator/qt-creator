@@ -37,7 +37,7 @@
 
 #ifdef Q_OS_WIN
 #define _WIN32_WINNT 0x0502
-#include <windows.h>
+#include <Windows.h>
 #ifndef PROCESS_SUSPEND_RESUME
 #define PROCESS_SUSPEND_RESUME 0x0800
 #endif // PROCESS_SUSPEND_RESUME

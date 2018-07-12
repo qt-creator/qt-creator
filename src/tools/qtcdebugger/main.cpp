@@ -43,7 +43,7 @@
 
 #include <registryaccess.h>
 
-#include <windows.h>
+#include <Windows.h>
 #include <psapi.h>
 
 #include <app/app_version.h>

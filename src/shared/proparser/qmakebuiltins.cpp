@@ -59,7 +59,7 @@
 #include <sys/stat.h>
 #include <sys/utsname.h>
 #else
-#include <windows.h>
+#include <Windows.h>
 #endif
 #include <stdio.h>
 #include <stdlib.h>

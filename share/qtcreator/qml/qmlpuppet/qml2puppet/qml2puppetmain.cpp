@@ -41,7 +41,7 @@
 #endif
 
 #ifdef Q_OS_WIN
-#include <windows.h>
+#include <Windows.h>
 #endif
 
 int internalMain(QGuiApplication *application)

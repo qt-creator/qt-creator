@@ -30,7 +30,7 @@
 #include <qregexp.h>
 
 #ifdef Q_OS_WIN
-#  include <windows.h>
+#  include <Windows.h>
 #else
 #  include <sys/types.h>
 #  include <sys/stat.h>

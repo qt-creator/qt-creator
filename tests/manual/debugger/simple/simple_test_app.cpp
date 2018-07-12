@@ -258,7 +258,7 @@ void dummyStatement(...) {}
 #endif
 
 #ifdef Q_OS_WIN
-#include <windows.h>
+#include <Windows.h>
 #include <basetsd.h>
 #undef min
 #undef max

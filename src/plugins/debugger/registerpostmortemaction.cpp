@@ -35,7 +35,7 @@
 #include <QDir>
 #include <QString>
 
-#include <windows.h>
+#include <Windows.h>
 #include <objbase.h>
 #include <shellapi.h>
 

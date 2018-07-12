@@ -26,7 +26,7 @@
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501 /* WinXP, needed for DebugActiveProcessStop() */
 
-#include <windows.h>
+#include <Windows.h>
 #include <shellapi.h>
 #include <string.h>
 #include <stdio.h>
