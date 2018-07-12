@@ -4520,19 +4520,14 @@ void GdbEngine::handleFileExecAndSymbols(const DebuggerResponse &response)
     CHECK_STATE(EngineSetupRequested);
 
     if (isRemoteEngine()) {
-        if (response.resultClass == ResultDone) {
-            callTargetRemote();
-        } else {
-            QString reason = response.data["msg"].data();
-            QString msg = tr("Reading debug information failed:") + '\n' + reason;
-            if (reason.endsWith("No such file or directory.")) {
-                showMessage("INFERIOR STARTUP: BINARY NOT FOUND");
+        if (response.resultClass != ResultDone) {
+            QString msg = response.data["msg"].data();
+            if (!msg.isEmpty()) {
+                showMessage(msg);
                 showMessage(msg, StatusBar);
-                callTargetRemote(); // Proceed nevertheless.
-            } else {
-                notifyInferiorSetupFailedHelper(msg);
             }
         }
+        callTargetRemote(); // Proceed nevertheless.
 
     } else  if (isCoreEngine()) {
 
