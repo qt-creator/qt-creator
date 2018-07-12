@@ -128,7 +128,7 @@ bool FossilPlugin::initialize(const QStringList &arguments, QString *errorMessag
     auto vcsCtrl = initializeVcs<FossilControl>(context, m_client);
     connect(m_client, &VcsBase::VcsBaseClient::changed, vcsCtrl, &FossilControl::changed);
 
-    addAutoReleasedObject(new OptionsPage(vcsCtrl));
+    new OptionsPage(vcsCtrl, this);
 
     const auto describeFunc = [this](const QString &source, const QString &id) {
         m_client->view(source, id);
@@ -137,13 +137,12 @@ bool FossilPlugin::initialize(const QStringList &arguments, QString *errorMessag
     const int editorCount = sizeof(editorParameters) / sizeof(VcsBase::VcsBaseEditorParameters);
     const auto widgetCreator = []() { return new FossilEditorWidget; };
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new VcsBase::VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc));
+        new VcsBase::VcsEditorFactory(editorParameters + i, widgetCreator, describeFunc, this);
 
-    addAutoReleasedObject(new VcsBase::VcsSubmitEditorFactory(&submitEditorParameters,
-        []() { return new CommitEditor(&submitEditorParameters); }));
+    new VcsBase::VcsSubmitEditorFactory(&submitEditorParameters,
+        []() { return new CommitEditor(&submitEditorParameters); }, this);
 
-    m_commandLocator = new Core::CommandLocator("Fossil", "fossil", "fossil");
-    addAutoReleasedObject(m_commandLocator);
+    m_commandLocator = new Core::CommandLocator("Fossil", "fossil", "fossil", this);
 
     ProjectExplorer::JsonWizardFactory::addWizardPath(Utils::FileName::fromString(Constants::WIZARD_PATH));
     Core::JsExpander::registerQObjectForJs("Fossil", new FossilJsExtension);
@@ -203,7 +202,7 @@ void FossilPlugin::createFileActions(const Core::Context &context)
     m_diffFile = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_diffFile, Constants::DIFF, context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+I,Meta+D") : tr("ALT+I,Alt+D")));
+    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+D") : tr("ALT+I,Alt+D")));
     connect(m_diffFile, &QAction::triggered, this, &FossilPlugin::diffCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -211,7 +210,7 @@ void FossilPlugin::createFileActions(const Core::Context &context)
     m_logFile = new Utils::ParameterAction(tr("Timeline Current File"), tr("Timeline \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_logFile, Constants::LOG, context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+I,Meta+L") : tr("ALT+I,Alt+L")));
+    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+L") : tr("ALT+I,Alt+L")));
     connect(m_logFile, &QAction::triggered, this, &FossilPlugin::logCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -219,7 +218,7 @@ void FossilPlugin::createFileActions(const Core::Context &context)
     m_statusFile = new Utils::ParameterAction(tr("Status Current File"), tr("Status \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_statusFile, Constants::STATUS, context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+I,Meta+S") : tr("ALT+I,Alt+S")));
+    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+S") : tr("ALT+I,Alt+S")));
     connect(m_statusFile, &QAction::triggered, this, &FossilPlugin::statusCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -329,7 +328,7 @@ void FossilPlugin::createDirectoryActions(const Core::Context &context)
     action = new QAction(tr("Timeline"), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::LOGMULTI, context);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+I,Meta+T") : tr("ALT+I,Alt+T")));
+    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+T") : tr("ALT+I,Alt+T")));
     connect(action, &QAction::triggered, this, &FossilPlugin::logRepository);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -413,7 +412,7 @@ void FossilPlugin::createRepositoryActions(const Core::Context &context)
     action = new QAction(tr("Update..."), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::UPDATE, context);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+I,Meta+U") : tr("ALT+I,Alt+U")));
+    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+U") : tr("ALT+I,Alt+U")));
     connect(action, &QAction::triggered, this, &FossilPlugin::update);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -421,7 +420,7 @@ void FossilPlugin::createRepositoryActions(const Core::Context &context)
     action = new QAction(tr("Commit..."), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::COMMIT, context);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+I,Meta+C") : tr("ALT+I,Alt+C")));
+    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+C") : tr("ALT+I,Alt+C")));
     connect(action, &QAction::triggered, this, &FossilPlugin::commit);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -551,6 +550,9 @@ void FossilPlugin::createSubmitEditorActions()
 
 void FossilPlugin::commit()
 {
+    if (!promptBeforeCommit())
+        return;
+
     if (raiseSubmitEditor())
         return;
 
