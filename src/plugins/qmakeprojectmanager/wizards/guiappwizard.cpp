@@ -133,7 +133,7 @@ static inline bool generateFormClass(const GuiAppParameters &params,
 Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
                                                  QString *errorMessage) const
 {
-    const GuiAppWizardDialog *dialog = qobject_cast<const GuiAppWizardDialog *>(w);
+    const auto *dialog = qobject_cast<const GuiAppWizardDialog *>(w);
     const QtProjectParameters projectParams = dialog->projectParameters();
     const QString projectPath = projectParams.projectPath();
     const GuiAppParameters params = dialog->parameters();

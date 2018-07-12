@@ -198,7 +198,7 @@ QList<void *> QmakeProjectImporter::examineDirectory(const FileName &importPath)
 
 bool QmakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
 {
-    DirectoryData *data = static_cast<DirectoryData *>(directoryData);
+    auto *data = static_cast<DirectoryData *>(directoryData);
     const QLoggingCategory &logs = MakeFileParse::logging();
 
     BaseQtVersion *kitVersion = QtKitInformation::qtVersion(k);
@@ -225,14 +225,14 @@ bool QmakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
 
 Kit *QmakeProjectImporter::createKit(void *directoryData) const
 {
-    DirectoryData *data = static_cast<DirectoryData *>(directoryData);
+    auto *data = static_cast<DirectoryData *>(directoryData);
     return createTemporaryKit(data->qtVersionData, data->parsedSpec, data->archConfig, data->osType);
 }
 
 QList<BuildInfo *> QmakeProjectImporter::buildInfoListForKit(const Kit *k, void *directoryData) const
 {
     QList<BuildInfo *> result;
-    DirectoryData *data = static_cast<DirectoryData *>(directoryData);
+    auto *data = static_cast<DirectoryData *>(directoryData);
     auto factory = qobject_cast<QmakeBuildConfigurationFactory *>(
                 IBuildConfigurationFactory::find(k, projectFilePath().toString()));
     if (!factory)

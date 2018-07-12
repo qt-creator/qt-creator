@@ -135,7 +135,7 @@ void QmakeBuildConfiguration::initialize(const BuildInfo *info)
     BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
     cleanSteps->appendStep(new QmakeMakeStep(cleanSteps));
 
-    const QmakeBuildInfo *qmakeInfo = static_cast<const QmakeBuildInfo *>(info);
+    const auto *qmakeInfo = static_cast<const QmakeBuildInfo *>(info);
     BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
 
     BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
@@ -163,9 +163,7 @@ void QmakeBuildConfiguration::initialize(const BuildInfo *info)
     updateCacheAndEmitEnvironmentChanged();
 }
 
-QmakeBuildConfiguration::~QmakeBuildConfiguration()
-{
-}
+QmakeBuildConfiguration::~QmakeBuildConfiguration() = default;
 
 QVariantMap QmakeBuildConfiguration::toMap() const
 {
@@ -309,24 +307,24 @@ QStringList QmakeBuildConfiguration::configCommandLineArguments() const
 
 QMakeStep *QmakeBuildConfiguration::qmakeStep() const
 {
-    QMakeStep *qs = 0;
+    QMakeStep *qs = nullptr;
     BuildStepList *bsl = stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
     Q_ASSERT(bsl);
     for (int i = 0; i < bsl->count(); ++i)
-        if ((qs = qobject_cast<QMakeStep *>(bsl->at(i))) != 0)
+        if ((qs = qobject_cast<QMakeStep *>(bsl->at(i))) != nullptr)
             return qs;
-    return 0;
+    return nullptr;
 }
 
 QmakeMakeStep *QmakeBuildConfiguration::makeStep() const
 {
-    QmakeMakeStep *ms = 0;
+    QmakeMakeStep *ms = nullptr;
     BuildStepList *bsl = stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
     Q_ASSERT(bsl);
     for (int i = 0; i < bsl->count(); ++i)
-        if ((ms = qobject_cast<QmakeMakeStep *>(bsl->at(i))) != 0)
+        if ((ms = qobject_cast<QmakeMakeStep *>(bsl->at(i))) != nullptr)
             return ms;
-    return 0;
+    return nullptr;
 }
 
 // Returns true if both are equal.
@@ -563,7 +561,7 @@ QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
                                                               BuildConfiguration::BuildType type) const
 {
     BaseQtVersion *version = QtKitInformation::qtVersion(k);
-    QmakeBuildInfo *info = new QmakeBuildInfo(this);
+    auto *info = new QmakeBuildInfo(this);
     QString suffix;
     if (type == BuildConfiguration::Release) {
         //: The name of the release build configuration created by default for a qmake project.
@@ -675,7 +673,7 @@ void QmakeBuildConfiguration::setupBuildEnvironment(Kit *k, Environment &env)
         env.prependOrSetPath(qt->binPath().toString());
 }
 
-QmakeBuildConfiguration::LastKitState::LastKitState() { }
+QmakeBuildConfiguration::LastKitState::LastKitState() = default;
 
 QmakeBuildConfiguration::LastKitState::LastKitState(Kit *k)
     : m_qtVersion(QtKitInformation::qtVersionId(k)),

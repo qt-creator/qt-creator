@@ -46,7 +46,7 @@ FilesPage::FilesPage(QWidget *parent) :
         "for which you want to generate skeleton source code files."));
     label->setWordWrap(true);
 
-    QVBoxLayout *vlayout = new QVBoxLayout;
+    auto *vlayout = new QVBoxLayout;
     vlayout->addWidget(label);
     vlayout->addItem(new QSpacerItem(0, 20));
 

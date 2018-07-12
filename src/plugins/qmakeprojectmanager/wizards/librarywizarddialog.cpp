@@ -53,15 +53,15 @@ struct PluginBaseClasses {
 static const PluginBaseClasses pluginBaseClasses[] =
 {
     {"QAccessiblePlugin", "QtGui", "QtCore", "accessible", "QAccessibleFactoryInterface"},
-    {"QDecorationPlugin", "QtGui", "QtCore", 0, 0}, // Qt 4 only.
+    {"QDecorationPlugin", "QtGui", "QtCore", nullptr, nullptr}, // Qt 4 only.
     {"QGenericPlugin", "QtGui", "QtCore", "generic", "QGenericPluginFactoryInterface"},
-    {"QIconEnginePluginV2", "QtGui", "QtCore", "imageformats", 0}, // Qt 4 only.
+    {"QIconEnginePluginV2", "QtGui", "QtCore", "imageformats", nullptr}, // Qt 4 only.
     {"QIconEnginePlugin", "QtGui", "QtCore", "imageformats", "QIconEngineFactoryInterface"},
     {"QImageIOPlugin", "QtGui", "QtCore", "imageformats",  "QImageIOHandlerFactoryInterface"},
-    {"QScriptExtensionPlugin", "QtScript", "QtCore", 0, "QScriptExtensionInterface"},
+    {"QScriptExtensionPlugin", "QtScript", "QtCore", nullptr, "QScriptExtensionInterface"},
     {"QSqlDriverPlugin", "QtSql", "QtCore", "sqldrivers", "QSqlDriverFactoryInterface"},
     {"QStylePlugin", "QtGui", "QtCore", "styles", "QStyleFactoryInterface"},
-    {"QTextCodecPlugin", "QtCore", 0, "codecs", 0} // Qt 4 only.
+    {"QTextCodecPlugin", "QtCore", nullptr, "codecs", nullptr} // Qt 4 only.
 };
 
 enum { defaultPluginBaseClass = 2 };
@@ -72,7 +72,7 @@ static const PluginBaseClasses *findPluginBaseClass(const QString &name)
     for (int i = 0; i < pluginBaseClassCount; i++)
         if (name == QLatin1String(pluginBaseClasses[i].name))
             return pluginBaseClasses + i;
-    return 0;
+    return nullptr;
 }
 
 // return dependencies of a plugin as a line ready for the 'QT=' line in a pro
@@ -96,7 +96,7 @@ static QStringList pluginDependencies(const PluginBaseClasses *plb)
 class LibraryIntroPage : public Utils::ProjectIntroPage
 {
 public:
-    explicit LibraryIntroPage(QWidget *parent = 0);
+    explicit LibraryIntroPage(QWidget *parent = nullptr);
 
     QtProjectParameters::Type type() const;
 
@@ -154,7 +154,7 @@ LibraryWizardDialog::LibraryWizardDialog(const Core::BaseFileWizardFactory *fact
     m_filesPageId = addPage(m_filesPage);
 
     Utils::WizardProgressItem *introItem = wizardProgress()->item(startId());
-    Utils::WizardProgressItem *targetItem = 0;
+    Utils::WizardProgressItem *targetItem = nullptr;
     if (m_targetPageId != -1)
         targetItem = wizardProgress()->item(m_targetPageId);
     Utils::WizardProgressItem *modulesItem = wizardProgress()->item(m_modulesPageId);
@@ -165,11 +165,11 @@ LibraryWizardDialog::LibraryWizardDialog(const Core::BaseFileWizardFactory *fact
         if (m_targetPageId != -1) {
             targetItem->setNextItems(QList<Utils::WizardProgressItem *>()
                                      << modulesItem << filesItem);
-            targetItem->setNextShownItem(0);
+            targetItem->setNextShownItem(nullptr);
         } else {
             introItem->setNextItems(QList<Utils::WizardProgressItem *>()
                                     << modulesItem << filesItem);
-            introItem->setNextShownItem(0);
+            introItem->setNextShownItem(nullptr);
         }
     }
 
@@ -238,7 +238,7 @@ void LibraryWizardDialog::cleanupPage(int id)
 {
     if (m_targetPageId != -1 && id == m_targetPageId) {
         Utils::WizardProgressItem *targetsItem = wizardProgress()->item(m_targetPageId);
-        targetsItem->setNextShownItem(0);
+        targetsItem->setNextShownItem(nullptr);
     }
     BaseQmakeProjectWizardDialog::cleanupPage(id);
 }

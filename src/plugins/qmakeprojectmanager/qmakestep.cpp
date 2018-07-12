@@ -305,7 +305,7 @@ bool QMakeStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
     bool result = AbstractProcessStep::processSucceeded(exitCode, status);
     if (!result)
         m_needToRunQMake = true;
-    QmakeProject *project = static_cast<QmakeProject *>(qmakeBuildConfiguration()->target()->project());
+    auto *project = static_cast<QmakeProject *>(qmakeBuildConfiguration()->target()->project());
     project->emitBuildDirectoryInitialized();
     return result;
 }
@@ -353,7 +353,7 @@ void QMakeStep::runNextCommand()
         return;
     case State::RUN_MAKE_QMAKE_ALL:
         {
-            GnuMakeParser *parser = new GnuMakeParser;
+            auto *parser = new GnuMakeParser;
             parser->setWorkingDirectory(processParameters()->workingDirectory());
             setOutputParser(parser);
             m_nextState = State::POST_PROCESS;
@@ -450,7 +450,7 @@ void QMakeStep::setSeparateDebugInfo(bool enable)
 
 QString QMakeStep::makeCommand() const
 {
-    MakeStep *ms = qobject_cast<BuildStepList *>(parent())->firstOfType<MakeStep>();
+    auto *ms = qobject_cast<BuildStepList *>(parent())->firstOfType<MakeStep>();
     return ms ? ms->effectiveMakeCommand() : QString();
 }
 
@@ -735,7 +735,7 @@ void QMakeStepConfigWidget::linkQmlDebuggingLibraryChecked(bool checked)
 
 void QMakeStepConfigWidget::askForRebuild(const QString &title)
 {
-    QMessageBox *question = new QMessageBox(Core::ICore::mainWindow());
+    auto *question = new QMessageBox(Core::ICore::mainWindow());
     question->setWindowTitle(title);
     question->setText(tr("The option will only take effect if the project is recompiled. Do you want to recompile now?"));
     question->setStandardButtons(QMessageBox::Yes | QMessageBox::No);

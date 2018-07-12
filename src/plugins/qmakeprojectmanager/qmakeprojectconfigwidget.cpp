@@ -53,7 +53,7 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
                                                             Utils::FileUtils::qmakeFriendlyName(bc->displayName()),
                                                             bc->buildType());
 
-    QVBoxLayout *vbox = new QVBoxLayout(this);
+    auto *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
     m_detailsContainer = new Utils::DetailsWidget(this);
     m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
@@ -97,7 +97,7 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     connect(m_ui->shadowBuildDirEdit, &Utils::PathChooser::rawPathChanged,
             this, &QmakeProjectConfigWidget::shadowBuildEdited);
 
-    QmakeProject *project = static_cast<QmakeProject *>(bc->target()->project());
+    auto *project = static_cast<QmakeProject *>(bc->target()->project());
     project->subscribeSignal(&BuildConfiguration::environmentChanged, this, [this]() {
         if (static_cast<BuildConfiguration *>(sender())->isActive())
             environmentChanged();
@@ -216,7 +216,7 @@ void QmakeProjectConfigWidget::updateProblemLabel()
         return;
     }
 
-    QmakeProject *p = static_cast<QmakeProject *>(m_buildConfiguration->target()->project());
+    auto *p = static_cast<QmakeProject *>(m_buildConfiguration->target()->project());
     if (p->rootProFile()->parseInProgress() || !p->rootProFile()->validParse()) {
         setProblemLabel(QString());
         return;

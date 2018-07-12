@@ -340,7 +340,7 @@ void QmakePriFile::processValues(QmakePriFileEvalResult &result)
     }
 
     for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
-        FileType type = static_cast<FileType>(i);
+        auto type = static_cast<FileType>(i);
         QSet<FileName> &foundFiles = result.foundFiles[type];
         result.recursiveEnumerateFiles.subtract(foundFiles);
         QSet<FileName> newFilePaths = filterFilesProVariables(type, foundFiles);
@@ -355,7 +355,7 @@ void QmakePriFile::update(const Internal::QmakePriFileEvalResult &result)
     watchFolders(result.folders);
 
     for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
-        const FileType type = static_cast<FileType>(i);
+        const auto type = static_cast<FileType>(i);
         m_files[type] = result.foundFiles.value(type);
     }
 }
@@ -403,7 +403,7 @@ bool QmakePriFile::folderChanged(const QString &changedFolder, const QSet<FileNa
 
     // Apply the differences per file type
     for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
-        FileType type = static_cast<FileType>(i);
+        auto type = static_cast<FileType>(i);
         QSet<FileName> add = filterFilesRecursiveEnumerata(type, addedFiles);
         QSet<FileName> remove = filterFilesRecursiveEnumerata(type, removedFiles);
 
@@ -508,7 +508,7 @@ bool QmakePriFile::addFiles(const QStringList &filePaths, QStringList *notAdded)
     // So it's obviously a bit limited, but in those cases you need to edit the
     // project files manually anyway.
 
-    typedef QMap<QString, QStringList> TypeFileMap;
+    using TypeFileMap = QMap<QString, QStringList>;
     // Split into lists by file type and bulk-add them.
     TypeFileMap typeFileMap;
     foreach (const QString &file, filePaths) {
@@ -555,7 +555,7 @@ bool QmakePriFile::removeFiles(const QStringList &filePaths,
                               QStringList *notRemoved)
 {
     QStringList failedFiles;
-    typedef QMap<QString, QStringList> TypeFileMap;
+    using TypeFileMap = QMap<QString, QStringList>;
     // Split into lists by file type and bulk-add them.
     TypeFileMap typeFileMap;
     foreach (const QString &file, filePaths) {
@@ -1176,7 +1176,7 @@ void QmakeProFile::setValidParseRecursive(bool b)
 {
     m_validParse = b;
     foreach (QmakePriFile *c, children()) {
-        if (QmakeProFile *node = dynamic_cast<QmakeProFile *>(c))
+        if (auto *node = dynamic_cast<QmakeProFile *>(c))
             node->setValidParseRecursive(b);
     }
 }
@@ -1275,7 +1275,7 @@ static bool evaluateOne(const QmakeEvalInput &input, ProFile *pro,
 
 QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
 {
-    QmakeEvalResult *result = new QmakeEvalResult;
+    auto *result = new QmakeEvalResult;
     QtSupport::ProFileReader *exactBuildPassReader = nullptr;
     QtSupport::ProFileReader *cumulativeBuildPassReader = nullptr;
     ProFile *pro;
@@ -1387,7 +1387,7 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
             = baseVPaths(cumulativeReader, input.projectDir, input.buildDirectory.toString());
 
     for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
-        const FileType type = static_cast<FileType>(i);
+        const auto type = static_cast<FileType>(i);
         const QStringList qmakeVariables = varNames(type, exactReader);
         foreach (const QString &qmakeVariable, qmakeVariables) {
             QHash<ProString, bool> handled;
@@ -1587,14 +1587,14 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
                 continue; // Do nothing
 
             if (priFile->proFile) {
-                QmakePriFile *qmakePriFileNode = new QmakePriFile(m_project, this, priFile->name);
+                auto *qmakePriFileNode = new QmakePriFile(m_project, this, priFile->name);
                 pn->addChild(qmakePriFileNode);
                 qmakePriFileNode->setIncludedInExactParse(
                             (result->state == QmakeEvalResult::EvalOk) && pn->includedInExactParse());
                 qmakePriFileNode->update(priFile->result);
                 toCompare.append(qMakePair(qmakePriFileNode, priFile));
             } else {
-                QmakeProFile *qmakeProFileNode = new QmakeProFile(m_project, priFile->name);
+                auto *qmakeProFileNode = new QmakeProFile(m_project, priFile->name);
                 pn->addChild(qmakeProFileNode);
                 qmakeProFileNode->setIncludedInExactParse(
                             result->exactSubdirs.contains(qmakeProFileNode->filePath())

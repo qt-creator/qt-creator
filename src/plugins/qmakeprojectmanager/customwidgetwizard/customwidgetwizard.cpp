@@ -62,7 +62,7 @@ Core::BaseFileWizard *CustomWidgetWizard::create(QWidget *parent, const Core::Wi
 Core::GeneratedFiles CustomWidgetWizard::generateFiles(const QWizard *w,
                                                        QString *errorMessage) const
 {
-    const CustomWidgetWizardDialog *cw = qobject_cast<const CustomWidgetWizardDialog *>(w);
+    const auto *cw = qobject_cast<const CustomWidgetWizardDialog *>(w);
     Q_ASSERT(w);
     GenerationParameters p;
     p.fileName = cw->projectName();

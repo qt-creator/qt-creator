@@ -624,7 +624,7 @@ static FolderNode *folderOf(FolderNode *in, const FileName &fileName)
 static FileNode *fileNodeOf(FolderNode *in, const FileName &fileName)
 {
     for (FolderNode *folder = folderOf(in, fileName); folder; folder = folder->parentFolderNode()) {
-        if (QmakeProFileNode *proFile = dynamic_cast<QmakeProFileNode *>(folder)) {
+        if (auto *proFile = dynamic_cast<QmakeProFileNode *>(folder)) {
             foreach (FileNode *fileNode, proFile->fileNodes()) {
                 if (fileNode->filePath() == fileName)
                     return fileNode;

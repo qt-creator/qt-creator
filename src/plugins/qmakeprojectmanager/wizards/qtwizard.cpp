@@ -88,7 +88,7 @@ bool QtWizard::qt4ProjectPostGenerateFiles(const QWizard *w,
                                            const Core::GeneratedFiles &generatedFiles,
                                            QString *errorMessage)
 {
-    const BaseQmakeProjectWizardDialog *dialog = qobject_cast<const BaseQmakeProjectWizardDialog *>(w);
+    const auto *dialog = qobject_cast<const BaseQmakeProjectWizardDialog *>(w);
 
     // Generate user settings
     foreach (const Core::GeneratedFile &file, generatedFiles)
@@ -118,14 +118,12 @@ bool QtWizard::lowerCaseFiles()
 }
 
 // ------------ CustomQmakeProjectWizard
-CustomQmakeProjectWizard::CustomQmakeProjectWizard()
-{
-}
+CustomQmakeProjectWizard::CustomQmakeProjectWizard() = default;
 
 Core::BaseFileWizard *CustomQmakeProjectWizard::create(QWidget *parent,
                                           const Core::WizardDialogParameters &parameters) const
 {
-    BaseQmakeProjectWizardDialog *wizard = new BaseQmakeProjectWizardDialog(this, false, parent,
+    auto *wizard = new BaseQmakeProjectWizardDialog(this, false, parent,
                                                                             parameters);
 
     if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
@@ -146,8 +144,6 @@ BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(const Core::BaseFileW
                                                            bool showModulesPage, QWidget *parent,
                                                            const Core::WizardDialogParameters &parameters) :
     ProjectExplorer::BaseProjectWizardDialog(factory, parent, parameters),
-    m_modulesPage(0),
-    m_targetSetupPage(0),
     m_profileIds(parameters.extraValues().value(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS))
                  .value<QList<Core::Id> >())
 {
@@ -160,8 +156,6 @@ BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(const Core::BaseFileW
                                                            int introId, QWidget *parent,
                                                            const Core::WizardDialogParameters &parameters) :
     ProjectExplorer::BaseProjectWizardDialog(factory, introPage, introId, parent, parameters),
-    m_modulesPage(0),
-    m_targetSetupPage(0),
     m_profileIds(parameters.extraValues().value(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS))
                  .value<QList<Core::Id> >())
 {

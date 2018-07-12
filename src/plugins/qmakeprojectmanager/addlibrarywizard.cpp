@@ -87,9 +87,7 @@ AddLibraryWizard::AddLibraryWizard(const QString &fileName, QWidget *parent) :
     addPage(m_summaryPage);
 }
 
-AddLibraryWizard::~AddLibraryWizard()
-{
-}
+AddLibraryWizard::~AddLibraryWizard() = default;
 
 QString AddLibraryWizard::proFile() const
 {
@@ -114,7 +112,7 @@ LibraryTypePage::LibraryTypePage(AddLibraryWizard *parent)
     setTitle(tr("Library Type"));
     setSubTitle(tr("Choose the type of the library to link to"));
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto *layout = new QVBoxLayout(this);
 
     m_internalRadio = new QRadioButton(tr("Internal library"), this);
     layout->addWidget(m_internalRadio);
@@ -221,7 +219,7 @@ void DetailsPage::initializePage()
 {
     if (m_libraryDetailsController) {
         delete m_libraryDetailsController;
-        m_libraryDetailsController = 0;
+        m_libraryDetailsController = nullptr;
     }
     QString title;
     QString subTitle;
@@ -269,7 +267,7 @@ SummaryPage::SummaryPage(AddLibraryWizard *parent)
     setTitle(tr("Summary"));
     setFinalPage(true);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto *layout = new QVBoxLayout(this);
     m_summaryLabel = new QLabel(this);
     m_snippetLabel = new QLabel(this);
     m_snippetLabel->setWordWrap(true);

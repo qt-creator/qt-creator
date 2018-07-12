@@ -203,7 +203,7 @@ QmakeProFileNode *QmakeProFileNode::findProFileFor(const FileName &fileName) con
     if (fileName == filePath())
         return const_cast<QmakeProFileNode *>(this);
     for (Node *node : nodes()) {
-        if (QmakeProFileNode *qmakeProFileNode = dynamic_cast<QmakeProFileNode *>(node))
+        if (auto *qmakeProFileNode = dynamic_cast<QmakeProFileNode *>(node))
             if (QmakeProFileNode *result = qmakeProFileNode->findProFileFor(fileName))
                 return result;
     }

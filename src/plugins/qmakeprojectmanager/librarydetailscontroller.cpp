@@ -98,7 +98,7 @@ AddLibraryWizard::MacLibraryType LibraryDetailsController::macLibraryType() cons
 void LibraryDetailsController::updateGui()
 {
     // read values from gui
-    m_platforms = 0;
+    m_platforms = nullptr;
     if (libraryDetailsWidget()->linCheckBox->isChecked())
         m_platforms |= AddLibraryWizard::LinuxPlatform;
     if (libraryDetailsWidget()->macCheckBox->isChecked())
@@ -424,7 +424,7 @@ static QString generateLibsSnippet(AddLibraryWizard::Platforms platforms,
                                                                | AddLibraryWizard::WindowsMSVCPlatform);
 
     AddLibraryWizard::Platforms diffPlatforms = platforms ^ commonPlatforms;
-    AddLibraryWizard::Platforms generatedPlatforms = 0;
+    AddLibraryWizard::Platforms generatedPlatforms = nullptr;
 
     QString snippetMessage;
     QTextStream str(&snippetMessage);
@@ -510,7 +510,7 @@ static QString generatePreTargetDepsSnippet(AddLibraryWizard::Platforms platform
     QString snippetMessage;
     QTextStream str(&snippetMessage);
     str << "\n";
-    AddLibraryWizard::Platforms generatedPlatforms = 0;
+    AddLibraryWizard::Platforms generatedPlatforms = nullptr;
     AddLibraryWizard::Platforms windowsPlatforms = platforms
             & (AddLibraryWizard::WindowsMinGWPlatform | AddLibraryWizard::WindowsMSVCPlatform);
     AddLibraryWizard::Platforms commonPlatforms = platforms;
@@ -843,7 +843,7 @@ bool PackageLibraryDetailsController::isLinkPackageGenerated() const
     if (!project)
         return false;
 
-    const QmakeProFileNode *rootProject = dynamic_cast<const QmakeProFileNode *>(project->rootProjectNode());
+    const auto *rootProject = dynamic_cast<const QmakeProFileNode *>(project->rootProjectNode());
     if (!rootProject)
         return false;
 

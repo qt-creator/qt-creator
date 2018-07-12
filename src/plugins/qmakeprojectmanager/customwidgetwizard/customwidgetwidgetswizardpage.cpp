@@ -53,7 +53,7 @@ CustomWidgetWidgetsWizardPage::CustomWidgetWidgetsWizardPage(QWidget *parent) :
     m_ui->deleteButton->setEnabled(false);
 
     // Disabled dummy for <new class> column>.
-    ClassDefinition *dummy = new ClassDefinition;
+    auto *dummy = new ClassDefinition;
     dummy->setFileNamingParameters(m_fileNamingParameters);
     dummy->setEnabled(false);
     m_tabStackLayout->addWidget(dummy);
@@ -89,7 +89,7 @@ void CustomWidgetWidgetsWizardPage::slotCurrentRowChanged(int row)
 
 void CustomWidgetWidgetsWizardPage::on_classList_classAdded(const QString &name)
 {
-    ClassDefinition *cdef = new ClassDefinition;
+    auto *cdef = new ClassDefinition;
     cdef->setFileNamingParameters(m_fileNamingParameters);
     const int index = m_uiClassDefs.count();
     m_tabStackLayout->insertWidget(index, cdef);

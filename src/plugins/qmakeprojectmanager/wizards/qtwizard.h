@@ -134,8 +134,8 @@ private:
 
     inline void init(bool showModulesPage);
 
-    ModulesPage *m_modulesPage;
-    ProjectExplorer::TargetSetupPage *m_targetSetupPage;
+    ModulesPage *m_modulesPage = nullptr;
+    ProjectExplorer::TargetSetupPage *m_targetSetupPage = nullptr;
     QStringList m_selectedModules;
     QStringList m_deselectedModules;
     QList<Core::Id> m_profileIds;

@@ -169,7 +169,7 @@ static inline const item *itemForModule(const QString &module)
     foreach (const item *i, staticQtModuleInfo()->items)
         if (QLatin1String(i->config) == module)
             return i;
-    return 0;
+    return nullptr;
 }
 
 QString QtModulesInfo::moduleName(const QString &module)
