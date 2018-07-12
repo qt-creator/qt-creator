@@ -64,9 +64,9 @@ TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
     if (m_filterModel->rowCount() != 0)
         ui.listWidget->setCurrentIndex(m_filterModel->index(0, 0));
 
-    connect(ui.buttonDisplay, &QPushButton::clicked,
+    connect(ui.buttonBox, &QDialogButtonBox::accepted,
             this, &TopicChooser::acceptDialog);
-    connect(ui.buttonCancel, &QPushButton::clicked,
+    connect(ui.buttonBox, &QDialogButtonBox::rejected,
             this, &TopicChooser::reject);
     connect(ui.listWidget, &QListView::activated,
             this, &TopicChooser::activated);
