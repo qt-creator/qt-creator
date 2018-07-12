@@ -631,7 +631,7 @@ SettingsAccessor::RestoreData MergingSettingsAccessor::readData(const FileName &
         secondaryData.issue = Issue(QApplication::translate("Utils::SettingsAccessor",
                                                             "Unsupported Merge Settings File"),
                                     QApplication::translate("Utils::SettingsAccessor",
-                                                            "\"%1\" is not supported by %1. "
+                                                            "\"%1\" is not supported by %2. "
                                                             "Do you want to try loading it anyway?")
                                     .arg(secondaryData.path.toUserOutput())
                                     .arg(applicationDisplayName), Issue::Type::WARNING);
