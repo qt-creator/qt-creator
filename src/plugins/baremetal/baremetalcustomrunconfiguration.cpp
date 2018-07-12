@@ -52,7 +52,7 @@ BareMetalCustomRunConfiguration::BareMetalCustomRunConfiguration(Target *target,
     addExtraAspect(new ArgumentsAspect(this, "Qt4ProjectManager.MaemoRunConfiguration.Arguments"));
     addExtraAspect(new WorkingDirectoryAspect(this, "BareMetal.RunConfig.WorkingDirectory"));
 
-    setDefaultDisplayName(RunConfigurationFactory::decoratedTargetName(tr("Custom Executable)"), target));
+    setDefaultDisplayName(RunConfigurationFactory::decoratedTargetName(tr("Custom Executable"), target));
 }
 
 const char *BareMetalCustomRunConfiguration::Id = "BareMetal";
