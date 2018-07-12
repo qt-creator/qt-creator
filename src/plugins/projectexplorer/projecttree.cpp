@@ -158,7 +158,10 @@ void ProjectTree::updateFromProjectTreeWidget(ProjectTreeWidget *widget)
     Node *currentNode = widget->currentNode();
     Project *project = projectForNode(currentNode);
 
-    setCurrent(currentNode, project);
+    if (!project)
+        updateFromNode(nullptr); // Project was removed!
+    else
+        setCurrent(currentNode, project);
 }
 
 void ProjectTree::updateFromDocumentManager()
@@ -227,12 +230,14 @@ void ProjectTree::setCurrent(Node *node, Project *project)
 
 void ProjectTree::sessionChanged()
 {
-    if (m_currentProject)
+    if (m_currentProject) {
         Core::DocumentManager::setDefaultLocationForNewFiles(m_currentProject->projectDirectory().toString());
-    else if (SessionManager::startupProject())
-        Core::DocumentManager::setDefaultLocationForNewFiles(SessionManager::startupProject()->projectDirectory().toString());
-    else
+    } else if (Project *project = SessionManager::startupProject()) {
+        Core::DocumentManager::setDefaultLocationForNewFiles(project->projectDirectory().toString());
+        updateFromNode(nullptr); // Make startup project current if there is no other current
+    } else {
         Core::DocumentManager::setDefaultLocationForNewFiles(QString());
+    }
     update();
 }
 
