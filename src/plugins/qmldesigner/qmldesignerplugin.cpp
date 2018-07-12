@@ -203,6 +203,7 @@ bool QmlDesignerPlugin::delayedInitialize()
 
 void QmlDesignerPlugin::extensionsInitialized()
 {
+    Core::DesignMode::setDesignModeIsRequired();
     // delay after Core plugin's extensionsInitialized, so the DesignMode is availabe
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToOpen, this, [this] {
         integrateIntoQtCreator(&d->mainWidget);
