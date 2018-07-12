@@ -79,6 +79,9 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
     connect(this, &BuildConfiguration::environmentChanged,
             this, &BuildConfiguration::emitBuildDirectoryChanged);
+    // Many macroexpanders are based on the current project, so they may change the environment:
+    connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
+            this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
 }
 
 Utils::FileName BuildConfiguration::buildDirectory() const
