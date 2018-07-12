@@ -76,7 +76,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
 
     updateCacheAndEmitEnvironmentChanged();
     connect(target, &Target::kitChanged,
-            this, &BuildConfiguration::handleKitUpdate);
+            this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
     connect(this, &BuildConfiguration::environmentChanged,
             this, &BuildConfiguration::emitBuildDirectoryChanged);
 }
@@ -181,11 +181,6 @@ void BuildConfiguration::updateCacheAndEmitEnvironmentChanged()
         return;
     m_cachedEnvironment = env;
     emit environmentChanged(); // might trigger buildDirectoryChanged signal!
-}
-
-void BuildConfiguration::handleKitUpdate()
-{
-    updateCacheAndEmitEnvironmentChanged();
 }
 
 void BuildConfiguration::emitBuildDirectoryChanged()

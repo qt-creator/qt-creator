@@ -108,7 +108,6 @@ protected:
     void updateCacheAndEmitEnvironmentChanged();
 
 private:
-    void handleKitUpdate();
     void emitBuildDirectoryChanged();
 
     bool m_clearSystemEnvironment = false;
