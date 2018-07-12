@@ -70,8 +70,8 @@ namespace Internal {
 
 const char C_FALLBACK_ROOT[] = "ProjectsFallbackRoot";
 
-const int itemWidth = 240;
-const int itemHeight = 240;
+const int itemWidth = 230;
+const int itemHeight = 230;
 const int itemGap = 10;
 const int tagsSeparatorY = itemHeight - 60;
 
@@ -293,11 +293,69 @@ public:
     }
 };
 
-class GridProxyModel : public QIdentityProxyModel
+class GridProxyModel : public QAbstractItemModel
 {
 public:
+    using OptModelIndex = Utils::optional<QModelIndex>;
+
     GridProxyModel()
     {}
+
+    void setSourceModel(QAbstractItemModel *newModel)
+    {
+        if (m_sourceModel == newModel)
+            return;
+        if (m_sourceModel)
+            disconnect(m_sourceModel, nullptr, this, nullptr);
+        m_sourceModel = newModel;
+        if (newModel) {
+            connect(newModel, &QAbstractItemModel::layoutAboutToBeChanged, this, [this] {
+                layoutAboutToBeChanged();
+            });
+            connect(newModel, &QAbstractItemModel::layoutChanged, this, [this] { layoutChanged(); });
+            connect(newModel, &QAbstractItemModel::modelAboutToBeReset, this, [this] {
+                beginResetModel();
+            });
+            connect(newModel, &QAbstractItemModel::modelReset, this, [this] { endResetModel(); });
+            connect(newModel, &QAbstractItemModel::rowsAboutToBeInserted, this, [this] {
+                beginResetModel();
+            });
+            connect(newModel, &QAbstractItemModel::rowsInserted, this, [this] { endResetModel(); });
+            connect(newModel, &QAbstractItemModel::rowsAboutToBeRemoved, this, [this] {
+                beginResetModel();
+            });
+            connect(newModel, &QAbstractItemModel::rowsRemoved, this, [this] { endResetModel(); });
+        }
+    }
+
+    QAbstractItemModel *sourceModel() const
+    {
+        return m_sourceModel;
+    }
+
+    QVariant data(const QModelIndex &index, int role) const final
+    {
+        const OptModelIndex sourceIndex = mapToSource(index);
+        if (sourceIndex)
+            return sourceModel()->data(*sourceIndex, role);
+        return QVariant();
+    }
+
+    Qt::ItemFlags flags(const QModelIndex &index) const final
+    {
+        const OptModelIndex sourceIndex = mapToSource(index);
+        if (sourceIndex)
+            return sourceModel()->flags(*sourceIndex);
+        return Qt::ItemFlags();
+    }
+
+    bool hasChildren(const QModelIndex &parent) const final
+    {
+        const OptModelIndex sourceParent = mapToSource(parent);
+        if (sourceParent)
+            return sourceModel()->hasChildren(*sourceParent);
+        return false;
+    }
 
     void setColumnCount(int columnCount)
     {
@@ -333,15 +391,19 @@ public:
         return QModelIndex();
     }
 
-    QModelIndex mapToSource(const QModelIndex &proxyIndex) const final
+    // The items at the lower right of the grid might not correspond to source items, if
+    // source's row count is not N*columnCount
+    OptModelIndex mapToSource(const QModelIndex &proxyIndex) const
     {
         if (!proxyIndex.isValid())
             return QModelIndex();
         int sourceRow = proxyIndex.row() * m_columnCount + proxyIndex.column();
-        return sourceModel()->index(sourceRow, 0);
+        if (sourceRow < sourceModel()->rowCount())
+            return sourceModel()->index(sourceRow, 0);
+        return OptModelIndex();
     }
 
-    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const final
+    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const
     {
         if (!sourceIndex.isValid())
             return QModelIndex();
@@ -352,6 +414,7 @@ public:
     }
 
 private:
+    QAbstractItemModel *m_sourceModel = nullptr;
     int m_columnCount = 1;
 };
 

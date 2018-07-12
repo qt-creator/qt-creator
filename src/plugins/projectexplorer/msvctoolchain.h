@@ -31,6 +31,8 @@
 
 #include <QFutureWatcher>
 
+#include <utils/optional.h>
+
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QVersionNumber)
 
@@ -92,13 +94,18 @@ protected:
                                 const Utils::Environment &env) const override;
 
 private:
-    static void environmentModifications(QFutureInterface<QList<Utils::EnvironmentItem> > &future,
+    struct GenerateEnvResult
+    {
+        Utils::optional<QString> error;
+        QList<Utils::EnvironmentItem> environmentItems;
+    };
+    static void environmentModifications(QFutureInterface<GenerateEnvResult> &future,
                                          QString vcvarsBat, QString varsBatArg);
-    void initEnvModWatcher(const QFuture<QList<Utils::EnvironmentItem>> &future);
+    void initEnvModWatcher(const QFuture<GenerateEnvResult> &future);
     void updateEnvironmentModifications(QList<Utils::EnvironmentItem> modifications);
 
     mutable QList<Utils::EnvironmentItem> m_environmentModifications;
-    mutable QFutureWatcher<QList<Utils::EnvironmentItem>> m_envModWatcher;
+    mutable QFutureWatcher<GenerateEnvResult> m_envModWatcher;
 
     QString m_varsBatArg; // Argument
 };

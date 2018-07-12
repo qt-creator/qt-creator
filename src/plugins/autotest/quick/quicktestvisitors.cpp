@@ -25,6 +25,7 @@
 
 #include "quicktestvisitors.h"
 
+#include <cplusplus/Overview.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljslink.h>
@@ -157,6 +158,49 @@ bool TestQmlVisitor::visit(QmlJS::AST::StringLiteral *ast)
     if (m_expectTestCaseName && m_currentTestCaseName.isEmpty()) {
         m_currentTestCaseName = ast->value.toString();
         m_expectTestCaseName = false;
+    }
+    return false;
+}
+
+/************************************** QuickTestAstVisitor *************************************/
+
+QuickTestAstVisitor::QuickTestAstVisitor(CPlusPlus::Document::Ptr doc,
+                                         const CPlusPlus::Snapshot &snapshot)
+    : ASTVisitor(doc->translationUnit())
+    , m_currentDoc(doc)
+    , m_snapshot(snapshot)
+{
+}
+
+bool QuickTestAstVisitor::visit(CPlusPlus::CallAST *ast)
+{
+    if (m_currentDoc.isNull())
+        return false;
+
+    if (const auto expressionAST = ast->base_expression) {
+        if (const auto idExpressionAST = expressionAST->asIdExpression()) {
+            if (const auto simpleNameAST = idExpressionAST->name->asSimpleName()) {
+                const CPlusPlus::Overview o;
+                const QString prettyName = o.prettyName(simpleNameAST->name);
+                if (prettyName == "quick_test_main" || prettyName == "quick_test_main_with_setup") {
+                    if (auto expressionListAST = ast->expression_list) {
+                        // third argument is the one we need, so skip current and next
+                        expressionListAST = expressionListAST->next; // argv
+                        expressionListAST = expressionListAST ? expressionListAST->next : nullptr; // testcase literal
+
+                        if (expressionListAST && expressionListAST->value) {
+                            const auto *stringLitAST = expressionListAST->value->asStringLiteral();
+                            const auto *string
+                                    = translationUnit()->stringLiteral(stringLitAST->literal_token);
+                            if (string) {
+                                m_testBaseName = QString::fromUtf8(string->chars(),
+                                                                   int(string->size()));
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     return false;
 }

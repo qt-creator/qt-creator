@@ -51,11 +51,12 @@ public:
     void release() override;
     bool processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
                          const QString &fileName) override;
+    QString projectFileForMainCppFile(const QString &fileName) const;
 signals:
     void updateWatchPaths(const QStringList &directories) const;
 private:
     bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> futureInterface,
-                           CPlusPlus::Document::Ptr document, const Core::Id &id) const;
+                           CPlusPlus::Document::Ptr document, const Core::Id &id);
     void handleDirectoryChanged(const QString &directory);
     void doUpdateWatchPaths(const QStringList &directories);
     QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const QString &srcDir) const;
@@ -63,6 +64,7 @@ private:
     QHash<QString, QString> m_proFilesForQmlFiles;
     QFileSystemWatcher m_directoryWatcher;
     QMap<QString, QMap<QString, QDateTime> > m_watchedFiles;
+    QMap<QString, QString> m_mainCppFiles;
 };
 
 } // namespace Internal

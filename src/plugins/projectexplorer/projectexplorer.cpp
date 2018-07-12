@@ -1490,6 +1490,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             return BuildConfiguration::buildTypeName(type);
         });
 
+    expander->registerPrefix(Constants::VAR_CURRENTBUILD_ENV,
+                             BuildConfiguration::tr("Variables in the current build environment"),
+                             [](const QString &var) {
+                                 if (BuildConfiguration *bc = activeBuildConfiguration())
+                                     return bc->environment().value(var);
+                                 return QString();
+                             });
 
     QString fileDescription = tr("File where current session is saved.");
     auto fileHandler = [] { return SessionManager::sessionNameToFileName(SessionManager::activeSession()).toString(); };

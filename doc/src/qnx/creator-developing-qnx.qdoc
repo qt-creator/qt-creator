@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (C) 2016 Blackberry
+** Copyright (C) 2018 Blackberry
 **
 ** Contact: Blackberry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
@@ -29,7 +29,7 @@
 ****************************************************************************/
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-developing-ios.html
     \page creator-developing-qnx.html
     \nextpage creator-build-process-customizing.html

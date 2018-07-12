@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -30,10 +30,10 @@
 // **********************************************************************
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage creator-quick-ui-forms.html
     \page creator-using-qt-quick-designer.html
-    \nextpage qmldesigner-pathview-editor.html
+    \nextpage quick-components.html
 
     \title Editing QML Files in Design Mode
 
@@ -65,14 +65,17 @@
             \li \uicontrol {Library} (2) displays the building blocks that you
                 can use to design applications: predefined QML types, your own
                 QML components, or Qt Quick Controls 2 that you import to the
-                project, and other resources.
+                project, and other resources. For more information, see
+                \l {Creating Components}.
 
             \li \uicontrol {Navigator} (3) displays the items in the current QML
-                file as a tree structure.
+                file as a tree structure. For more information, see
+                \l {Managing Item Hierarchy}.
 
             \li \uicontrol {Properties} (4) organizes the properties of the
                 selected item. You can change the properties also in the
-                \uicontrol {Text Editor}.
+                \uicontrol {Text Editor}. For more information, see
+                \l {Specifying Item Properties}.
 
             \li \uicontrol Connections (5) enables you to create connections
                 between objects, signals, and object properties. For more
@@ -97,340 +100,9 @@
 
     \endlist
 
-    \section1 Managing Item Hierarchy
-
-    The \uicontrol Navigator displays the items in the current QML file and their
-    relationships.
-    Items (1) are listed in a tree structure, below their parent (2).
-
-    \image qmldesigner-navigator.png "Navigator"
-
-    You can select items in the \uicontrol Navigator to edit their properties
-    in the \uicontrol Properties pane. Items can access the properties of their
-    parent item. To select items on the canvas, right-click an item,
-    and select another type in the context menu.
-
-    Typically, child items are located within the parent item on the
-    canvas. However, they do not necessarily have to fit inside the parent
-    item. For example, you might want to make a mouse area larger than the
-    rectangle or image beneath it (1).
-
-    \image qmldesigner-element-size.png "Mouse area for a button"
-
-    When you copy an item, all its child items are also copied. When
-    you remove an item, the child items are also removed.
-
-    You can show and hide items on the canvas to focus on specific parts of the
-    application. Click the \inlineimage icon_color_none.png
-    (\uicontrol Transparent) button to change the visibility of an item on the
-    canvas. To change the
-    visibility of an item in the application, select the \uicontrol Visibility
-    check box in the \uicontrol Properties pane or select \uicontrol Edit >
-    \uicontrol Visibility in the context menu.
-
-    You can also set the \uicontrol Opacity field to 0 to hide items that you
-    want to apply animation to.
-
-    As all properties, visibility and opacity are inherited from the parent
-    item. To hide or show child items, edit the properties of the parent item.
-
-    To hide invisible items in the navigator, click \inlineimage filtericon.png
-    (\uicontrol {Filter Tree}) and select \uicontrol {Show only visible items}.
-
-    To reset item size, position, or anchors, select context menu commands. To
-    change the source of an Image type, select \uicontrol {Change Source URL} in
-    the context menu.
-
-    To view lists of files or projects, instead, select \uicontrol {File System},
-    \uicontrol {Open Documents}, or \uicontrol Projects in the menu.
-    To view several types of content at a time, split the sidebars by clicking
-    the \inlineimage splitbutton_horizontal.png
-    (\uicontrol Split) button.
-
-    \section2 Setting the Stacking Order
-
-    The \c z property of an \l Item determines its position in relation to its
-    sibling items in the
-    type hierarchy. By default, items with a higher stacking value are
-    drawn on top of siblings with a lower stacking value. Items with the same
-    stacking value are drawn in the order they are listed, from the last item
-    up.
-
-    To raise or lower the stack value of an item, select \inlineimage raise.png
-    (\uicontrol Raise) or \inlineimage lower.png
-    (\uicontrol Lower) on the toolbar.
-
-    To move an item to the front or back of all its siblings, right-click it in
-    the navigator or the \uicontrol {Form Editor} and select
-    \uicontrol {Stack (z)}. To remove the \c z property, select
-    \uicontrol {Reset z Property}.
-
-    You can also use a \uicontrol StackLayout item (Qt Quick Controls 2) to
-    create a stacked view. For more information, see \l {Using Layouts}.
-
-    \section2 Switching Parent Items
-
-    When you drag and drop instances of QML types to the canvas, the new item
-    is added as a child of the item beneath it. When you move items on the
-    canvas, it is not possible to determine
-    whether you want to adjust their position or attach them to a new
-    parent item. Therefore, the parent item is not automatically
-    changed. To change the parent of the item, press down the \key Shift
-    key before you drag and drop the item into a new position. The topmost
-    item under the cursor becomes the new parent of the item.
-
-    You can change the parent of an item also in the \uicontrol Navigator.
-    Drag and drop the item to another position in the tree or use the arrow
-    buttons (1) to move the item in the tree.
-
-    \image qmldesigner-navigator-arrows.png "Navigator arrow buttons"
-
-    \section1 QML Type Library
-
-    The \uicontrol {Library} enables you to select QML types, UI components, and
-    resources, as well as to manage imports.
-
-    \uicontrol {QML Types} displays the QML types grouped by category: your own QML
-    components, basic types, layouts, positioner types, and views.
-
-    Sets of UI components with the look and feel of a particular mobile device
-    platform have been defined for Qt Quick 1. Since Qt 5.1, ready-made Qt
-    Quick Controls, Dialogs, and Layouts are available for creating user
-    interfaces using Qt Quick 2.1. The components and controls are based on
-    standard QML types. To view the components and controls in the
-    \uicontrol {Library}, import the component sets in \uicontrol Imports.
-
-    The \uicontrol {Qt Quick Application} wizards for a particular platform add the
-    import statements automatically. You can remove import statements in
-    \uicontrol Imports
-
-    \image qmldesigner-qml-components.png "QML Components"
-
-    \uicontrol {Resources} displays the images and other files that you copy
-    to the project folder (to the same subfolder as the QML files).
-
-    \section1 Specifying Item Properties
-
-    The \uicontrol Properties pane displays all the properties of the selected item.
-    The properties are grouped by type. The top part of the pane
-    displays properties that are common to all QML types, such as
-    position, size, and visibility.
-
-    The bottom part of the pane displays properties that are specific to each
-    QML type. For example, the following image displays the properties you
-    can set for \uicontrol Rectangle (1) and \uicontrol Text (2) items.
-
-    \image qmldesigner-element-properties.png
-
-    To change the item type, double-click the \uicontrol Type field in the
-    \uicontrol Properties pane, and enter the name of another QML type in the
-    field. If you have specified properties for the item that are not supported
-    for the new type, the type cannot be changed and an error message is
-    displayed. Remove the properties in the \uicontrol {Text Editor} and try
-    again.
-
-    To return an item to its implicit position after moving it, select the
-    \inlineimage qtcreator-reset-position-icon.png
-    (\uicontrol {Reset Position}) button on the toolbar. To return it to its
-    implicit size, select \inlineimage qtcreator-reset-size-icon.png
-    (\uicontrol {Reset Size}) button.
-
-    To set the visibility of the item, select \uicontrol {Edit > Visibility} in the context menu.
-
-    To specify the color of the selected item in the \uicontrol {Select Color}
-    dialog, select \uicontrol {Edit Color} in the context menu.
-
-    For more information on the properties available for an item, press
-    \key {F1}.
-
-    \section2 Viewing Changes in Properties
-
-    The default values of properties are displayed in white color, while the
-    values that you specify explicitly are highlighted with blue color. In
-    addition, property changes in states are highlighted with blue.
-
-    This allows you to easily see which values are set in the UI form or
-    QML file and
-    which values are default characteristics of a QML type or a component.
-
-    When editing states, you can easily see which values are explicitly set in
-    the current state and which values are derived from the base state.
-
-    The following images illustrate this. In the base state, the \uicontrol Size (1)
-    and \uicontrol Colors (2) values are explicitly set and highlighted.
-
-    \image qmldesigner-properties-explicit-base.png "Explicitly set properties"
-
-    In \uicontrol State1, only the color (1) is explicitly set and highlighted.
-
-    \image qmldesigner-properties-explicit-state1.png "Explicitly set properties"
-
-    Resetting a property sets it back to the default value and removes the value
-    from the UI form or QML file.
-
-    \note As a result, all boolean values can be visualized in four different
-    ways.
-
-    For example, visibility can be visualized as follows:
-
-    \table
-        \row
-            \li \image qmldesigner-boolean-true.png
-            \li TRUE
-            \li The QML type is visible by default. The visibility might be
-                overridden by the visibility set in the base state.
-        \row
-            \li \image qmldesigner-boolean-true-blue.png
-            \li TRUE (highlighted)
-            \li The QML type is explicitly set to visible.
-        \row
-            \li \image qmldesigner-boolean-false.png
-            \li FALSE
-            \li The QML type is hidden by default. The visibility might be
-                overridden by the visibility set in the base state.
-        \row
-            \li \image qmldesigner-boolean-false-blue.png
-            \li FALSE (hightlighted)
-            \li The type is explicitly set to hidden.
-    \endtable
-
-    \section2 Marking Text Items for Translation
-
-    To support translators, mark each text item that should be translated.
-    In the \uicontrol Properties pane, \uicontrol Text field, select \uicontrol tr (1).
-
-    \image qmldesigner-text-property-tr.png "Text properties"
-
-    By default, the text string is enclosed in a \c qsTr() call.
-
-    \image qml-translate.png "Text marked for translation"
-
-    If you use text IDs instead of plain text, change the default call to
-    \c qsTrId(). Select \uicontrol Tools > \uicontrol Options >
-    \uicontrol {Qt Quick} > \uicontrol {\QMLD}, and then select the
-    \uicontrol {qsTrId()} radio button in the \uicontrol Internationalization
-    group. For more information about text ID based translations, see
-    \l {Qt Linguist Manual: Text ID Based Translations}.
-
-    To preserve the context when editing the text or to change the context
-    by setting a binding on the text property, change the default call to
-    \c qsTranslate() by selecting the \uicontrol {qsTranslate()} radio button.
-
-    For more information, see
-    \l {Internationalization and Localization with Qt Quick}.
-
-    \section2 Loading Placeholder Data
-
-    The Design mode supports views, models, and delegates, so that when you add
-    a Grid View, List View, or Path View item, the ListModel and the delegate
-    item are added automatically.
-
-    However, the missing context of the application presents a challenge.
-    Specific models defined in C++ are the most obvious case. Often,
-    the context is missing simple properties, which are either defined in C++,
-    or in other QML files. A typical example is an item that uses the
-    properties of its parent, such as \c parent.width.
-
-    \section3 Using Dummy Models
-
-    If you open a file in the Design mode that references a C++ model, you see
-    nothing on
-    the canvas. If the data in the model is fetched from the internet, you have
-    no control over it. To get reliable data, \e {dummy data} was introduced.
-
-    For example, the following code snippet describes the file example.qml that
-    contains a ListView that in turn specifies a C++ model:
-
-    \qml
-        ListView {
-            model: dataModel
-            delegate: ContactDelegate {
-                name: name
-            }
-        }
-    \endqml
-
-    Create a directory named \e dummydata in the root directory of the project,
-    so that it is not deployed to the device. In the \c dummydata directory,
-    create a QML file that has the same name as the value of \c model:
-
-    \code
-        qml/exampleapp/example.qml
-        dummydata/dataModel.qml
-    \endcode
-
-    Then create the dataModel.qml file that contains the dummy data:
-
-    \qml
-        import QtQuick 1.0
-
-        ListModel {
-             ListElement {
-                 name: "Ariane"
-             }
-             ListElement {
-                 name: "Bella"
-             }
-             ListElement {
-                 name: "Corinna"
-             }
-        }
-    \endqml
-
-    \section3 Creating Dummy Context
-
-    The following example presents a common pattern in QML:
-
-    \qml
-        Item {
-            width: parent.width
-            height: parent.height
-        }
-    \endqml
-
-    This works nicely for applications but the Design mode displays a zero-sized
-    item. A parent for the opened file does not exist, because the context is
-    missing. To get around the missing context, the idea of a \e {dummy
-    context} is introduced. If you place a file with the same name as the
-    application (here, example.qml) in the \c {dummydata/context} directory,
-    you can fake a parent context:
-
-    \qml
-        import QtQuick 1.0
-        import QmlDesigner 1.0
-
-        DummyContextObject {
-            parent: Item {
-                width: 640
-                height: 300
-            }
-        }
-    \endqml
-
-    \section2 Building Transformations on Items
-
-    The \uicontrol Advanced pane allows you to configure advanced transformations,
-    such as rotation, scale, and translation. You can assign any number of
-    transformations to an item. Each transformation is applied in order, one at
-    a time.
-
-    For more information on Transform types, see \l{Transform}.
-
-    \section2 Editing Properties Inline
-
-    You can double-click objects on the canvas to edit their text, color, or
-    source properties inline.
-    Because you can specify several of these properties for some QML types, such
-    as \l [QML]{TextEdit}{Text Edit}, you can also right-click objects to open
-    the inline editors from a context-menu.
-
-    \image qmldesigner-inline-editing.png
-
-    \section1 Working with QML Types on Canvas
+    \section1 Snapping to Parent and Sibling Items
 
     You design applications on the canvas by placing items on it.
-
-    \section2 Snapping to Parent and Sibling Items
 
     When you are working on a design, you can use snapping to align
     items on the canvas. Click the \inlineimage snapping.png
@@ -451,13 +123,13 @@
 
     \image qmldesigner-snap-margins.png "Snapping lines on canvas"
 
-    \section2 Hiding Item Boundaries
+    \section1 Hiding Item Boundaries
 
     The Design mode displays the boundaries of items on the canvas. To hide
     the boundaries, click the \inlineimage boundingrect.png
     button.
 
-    \section2 Selecting Items
+    \section1 Selecting Items
 
     When you point the mouse to overlapping items, the frontmost item is
     selected by default. However, items that do not have any content, such as
@@ -467,7 +139,7 @@
     \inlineimage qmldesigner-only-select-items-with-content.png
     button.
 
-    \section2 Previewing Component Size
+    \section1 Previewing Component Size
 
     The width and height of the root item in a QML file determine the size of
     the component. You can reuse components, such as buttons, in different
@@ -485,13 +157,13 @@
 
     \image qmldesigner-preview-size.png "Canvas width and height"
 
-    \section2 Specifying Canvas Size
+    \section1 Specifying Canvas Size
 
     To change the canvas size, select \uicontrol Tools > \uicontrol Options >
     \uicontrol {Qt Quick} > \uicontrol {\QMLD} and
     specify the canvas width and height in the \uicontrol Canvas group.
 
-    \section2 Refreshing the Canvas
+    \section1 Refreshing the Canvas
 
     When you open QML files in the Design mode, the items in the file are drawn
     on the canvas. When you edit the item properties, the QML file and

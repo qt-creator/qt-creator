@@ -23,41 +23,23 @@
 **
 ****************************************************************************/
 
-// **********************************************************************
-// NOTE: the sections are not ordered by their logical order to avoid
-// reshuffling the file each time the index order changes (i.e., often).
-// Run the fixnavi.pl script to adjust the links to the index order.
-// **********************************************************************
-
 /*!
-    \contentspage index.html
-    \previouspage creator-build-example-application.html
-    \page creator-tutorials.html
-    \nextpage {Creating a Qt Quick Application}
+//! [scxml state machines]
 
-    \title Tutorials
+    \section2 Using SCXML State Machines
 
-    \image creator-gs-04.png
+    To use QML together with an SCXML state machine, add states and bind them to
+    the state machine in the \uicontrol Backends tab in the Design mode, as
+    described in \l {Managing C++ Backend Objects}.
 
-    You can use \QC to create applications for several platforms by using
-    several technologies. The tutorials in this manual explain how to create
-    some basic applications.
+    In the \uicontrol States pane, you can edit the \c when condition of states
+    to map QML states to the states of the SCXML state machine. For an example,
+    see \l {Qt SCXML Traffic Light QML Example (Dynamic)}.
 
-    \list
+    \image qmldesigner-states-when-condition.png
 
-        \li \l{Creating a Qt Quick Application}
+    If you add animation to the states, you can run the application to test the
+    animation.
 
-            Learn how to use the Design mode to create a Qt Quick application.
-
-        \li \l{Creating a Qt Widget Based Application}
-
-            Learn how to create a Qt widget based application for the desktop.
-
-       \li \l{Creating a Mobile Application}
-
-            Learn how to create a Qt Quick application using Qt Quick Controls 2
-            for Android and iOS devices.
-
-    \endlist
-
+//! [scxml state machines]
 */

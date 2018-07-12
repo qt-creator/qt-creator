@@ -74,9 +74,7 @@ def main():
         invokeMenuItem("File", "Exit")
         return
     # select "Examples" topic
-    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Examples')
-    if all((wsButtonFrame, wsButtonLabel)):
-        mouseClick(wsButtonLabel)
+    switchToSubMode('Examples')
     expect = (("QTableView", "unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'",
                "examples list"),
               ("QLineEdit", "placeholderText='Search in Examples...'", "examples search line edit"),

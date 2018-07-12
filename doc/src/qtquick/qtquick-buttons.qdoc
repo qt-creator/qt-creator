@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -30,7 +30,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage quick-components.html
     \page quick-buttons.html
     \nextpage quick-scalable-image.html
@@ -115,10 +115,10 @@
 
 /*!
 
-    \contentspage {Qt Creator Manual}
+    \contentspage index.html
     \previouspage quick-buttons.html
     \page quick-scalable-image.html
-    \nextpage quick-screens.html
+    \nextpage qtquick-navigator.html
 
     \title Creating Scalable Buttons and Borders
 

@@ -54,6 +54,7 @@ public:
     bool removeOnSweepIfEmpty() const override;
     TestTreeItem *createParentGroupNode() const override;
     QSet<QString> internalTargets() const override;
+    void markForRemovalRecursively(const QString &filePath) override;
 private:
     TestTreeItem *unnamedQuickTests() const;
 };

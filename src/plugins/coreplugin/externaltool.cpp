@@ -35,6 +35,7 @@
 
 #include <app/app_version.h>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
@@ -574,7 +575,11 @@ bool ExternalToolRunner::resolve()
 
 
     MacroExpander *expander = globalMacroExpander();
-    m_resolvedEnvironment.modify(m_tool->environment());
+    QList<EnvironmentItem> expandedEnvironment
+        = Utils::transform(m_tool->environment(), [expander](const EnvironmentItem &item) {
+              return EnvironmentItem(item.name, expander->expand(item.value), item.operation);
+          });
+    m_resolvedEnvironment.modify(expandedEnvironment);
 
     {
         // executable

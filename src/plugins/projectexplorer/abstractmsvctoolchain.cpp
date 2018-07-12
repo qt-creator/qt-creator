@@ -312,10 +312,10 @@ bool AbstractMsvcToolChain::canClone() const
     return true;
 }
 
-bool AbstractMsvcToolChain::generateEnvironmentSettings(const Utils::Environment &env,
-                                                        const QString &batchFile,
-                                                        const QString &batchArgs,
-                                                        QMap<QString, QString> &envPairs)
+Utils::optional<QString> AbstractMsvcToolChain::generateEnvironmentSettings(const Utils::Environment &env,
+                                                                            const QString &batchFile,
+                                                                            const QString &batchArgs,
+                                                                            QMap<QString, QString> &envPairs)
 {
     const QString marker = "####################";
     // Create a temporary file name for the output. Use a temporary file here
@@ -338,7 +338,7 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(const Utils::Environment
     saver.write("@echo " + marker.toLocal8Bit() + "\r\n");
     if (!saver.finalize()) {
         qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
-        return false;
+        return QString();
     }
 
     Utils::SynchronousProcess run;
@@ -365,12 +365,9 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(const Utils::Environment
 
     QString command = QDir::toNativeSeparators(batchFile);
     if (!response.stdErr().isEmpty()) {
-        TaskHub::addTask(Task::Error,
-                         QCoreApplication::translate("ProjectExplorer::Internal::AbstractMsvcToolChain",
-                                                     "Failed to retrieve MSVC Environment from \"%1\":\n"
-                                                     "%2")
-                         .arg(command, response.stdErr()), Constants::TASK_CATEGORY_COMPILE);
-        return false;
+        return QCoreApplication::translate("ProjectExplorer::Internal::AbstractMsvcToolChain",
+                                           "Failed to retrieve MSVC Environment from \"%1\":\n"
+                                           "%2").arg(command, response.stdErr());
     }
 
     if (response.result != Utils::SynchronousProcessResponse::Finished) {
@@ -378,12 +375,9 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(const Utils::Environment
         qWarning().noquote() << message;
         if (!batchArgs.isEmpty())
             command += ' ' + batchArgs;
-        TaskHub::addTask(Task::Error,
-                         QCoreApplication::translate("ProjectExplorer::Internal::AbstractMsvcToolChain",
-                                                     "Failed to retrieve MSVC Environment from \"%1\":\n"
-                                                     "%2")
-                         .arg(command, message), Constants::TASK_CATEGORY_COMPILE);
-        return false;
+        return QCoreApplication::translate("ProjectExplorer::Internal::AbstractMsvcToolChain",
+                                           "Failed to retrieve MSVC Environment from \"%1\":\n"
+                                           "%2").arg(command, message);
     }
 
     // The SDK/MSVC scripts do not return exit codes != 0. Check on stdout.
@@ -394,13 +388,13 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(const Utils::Environment
     const int start = stdOut.indexOf(marker);
     if (start == -1) {
         qWarning("Could not find start marker in stdout output.");
-        return false;
+        return QString();
     }
 
     const int end = stdOut.indexOf(marker, start + 1);
     if (end == -1) {
         qWarning("Could not find end marker in stdout output.");
-        return false;
+        return QString();
     }
 
     const QString output = stdOut.mid(start, end - start);
@@ -414,7 +408,7 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(const Utils::Environment
         }
     }
 
-    return true;
+    return Utils::nullopt;
 }
 
 /**

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -30,9 +30,8 @@
 // **********************************************************************
 
 /*!
-
-    \contentspage {Qt Creator Manual}
-    \previouspage quick-states.html
+    \contentspage index.html
+    \previouspage creator-using-qt-quick-designer.html
     \page quick-components.html
     \nextpage quick-buttons.html
 
@@ -42,43 +41,364 @@
     that you can re-use in other QML files. A component is like a black box; it
     interacts with the outside world through properties, signals, and slots, and
     is generally defined in its own QML file. You can import components to
-    screens and applications.
+    applications.
+
+    The \uicontrol {Library} pane lists the available QML types, UI
+    components, resources, and imports.
+
+    \image qmldesigner-qml-components.png "QML Components"
+
+    The \uicontrol {QML Types} tab displays the QML types grouped by category:
+    your own QML components, basic types, layouts, positioner types, and views.
+
+    Sets of UI components with the look and feel of a particular mobile device
+    platform have been defined for Qt Quick 1. Since Qt 5.1, ready-made Qt
+    Quick Controls, Dialogs, and Layouts are available for creating user
+    interfaces using Qt Quick 2. The components and controls are based on
+    standard QML types. To view the components and controls in the
+    \uicontrol {Library}, import the component sets in \uicontrol Imports.
+
+    The \uicontrol {Qt Quick Application} wizards for a particular platform add
+    the import statements automatically. You can remove import statements in
+    \uicontrol Imports
+
+    \uicontrol {Resources} displays the images and other files that you copy
+    to the project folder (to the same subfolder as the QML files).
+
+    \section1 Adding Components to Designs
+
+    \image qmldesigner-visual-editor.png "Design mode"
+
+    \list 1
+        \li Drag and drop components from the \uicontrol Library (2) to the
+            \uicontrol Navigator (3) or \uicontrol {Form Editor} (1).
+        \li Select components in the \uicontrol Navigator to edit their
+            properties in the \uicontrol Properties pane (4). For more
+            information, see \l {Specifying Item Properties}.
+        \li Connect components to signals or create bindings between components
+            in the \uicontrol Connections pane (5). For more information, see
+            \l{Adding Connections}.
+        \li Add states to apply sets of changes to the properties of one or
+            several components in the \uicontrol States pane (6). For more
+            information, see \l{Adding States}.
+    \endlist
+
+    \section1 Using Basic QML Types
 
     You can use the following QML types to create components:
 
     \list
-
-        \li \l [QML]{BorderImage}{Border Image} uses an image as a border or background.
-
-        \li \l [QML]{Image}
-            adds a bitmap to the scene. You can stretch and tile images.
-
-        \li \l [QML]{Item}
-            is the most basic of all visual types in QML. Even though it has no
-            visual appearance, it defines all the properties that are common
-            across visual types, such as the x and y position, width and height,
-            anchoring, and key handling.
-
-        \li \l [QML]{Rectangle}
-            adds a rectangle that is painted with a solid fill color and an
-            optional border. You can also use the radius property to create
-            rounded rectangles.
-
+        \li \l [QML]{BorderImage}{Border Image} uses an image as a border or
+            background.
+        \li \l [QML]{Image} adds a bitmap to the scene. You can stretch and
+            tile images.
+        \li \l [QML]{Item} is the most basic of all visual types in QML. Even
+            though it has no visual appearance, it defines all the properties
+            that are common across visual types, such as the x and y position,
+            width and height, anchoring, and key handling.
+        \li \l [QML]{Rectangle} adds a rectangle that is painted with a solid
+            fill color and an optional border. You can use the radius property
+            to create rounded rectangles.
         \li \l [QML]{Text} adds formatted read-only text.
-
-        \li \l [QML]{TextEdit}{Text Edit}
-            adds a single line of editable formatted text that can be validated.
-
-        \li \l [QML]{TextInput}{Text Input}
-            adds a single line of editable plain text that can be validated.
-
-        \omit
-        \li \l{WebView} adds web content to a canvas.
-        \endomit
-
+        \li \l [QML]{TextEdit}{Text Edit} adds a single line of editable
+            formatted text that can be validated.
+        \li \l [QML]{TextInput}{Text Input} adds a single line of editable
+            plain text that can be validated.
     \endlist
 
-    \section1 Using Qt Quick Controls
+    \section1 Using Data Models
+
+    You can create the following types of views to organize items provided by
+    \l{Models and Views in Qt Quick}{data models}:
+
+    \list
+        \li \l{GridView}{Grid View} provides a grid vizualization of a model.
+        \li \l{ListView}{List View} provides a list vizualization of a model.
+        \li \l{PathView}{Path View} visualizes the contents of a model along a
+            path.
+    \endlist
+
+    When you add a \l{GridView}{Grid View}, \l{ListView}{List View}, or
+    \l{PathView}{Path View}, the ListModel and the delegate component that
+    creates an instance for each item in the model are added automatically.
+    You can edit item properties in the \uicontrol Properties pane or
+    in the \uicontrol {Text Editor}. You can also replace the default model and
+    delegate with other, more complex models and delegates in the
+    \uicontrol {Text Editor}.
+
+    \section1 Positioning Items on Screens
+
+    The position of an item on the canvas can be either absolute or relative
+    to other items. If you are designing a static user interface,
+    \l{Important Concepts In Qt Quick - Positioning#manual-positioning}
+    {manual positioning} provides the most efficient form of positioning items
+    on the screen. For a dynamic user interface, you can employ the following
+    positioning methods provided by Qt Quick:
+
+    \list
+        \li \l{Setting Bindings}
+        \li \l{Setting Anchors and Margins}
+        \li \l{Using Positioners}
+        \li \l{Using Layouts}
+        \li \l{Organizing Items}
+    \endlist
+
+    \section2 Setting Bindings
+
+    \l{Positioning with Bindings} {Property binding} is a declarative way of
+    specifying the value of a property. Binding allows a property value to be
+    expressed as a JavaScript expression that defines the value relative to
+    other property values or data accessible in the application. The property
+    value is automatically kept up to date if the other properties or data
+    values change.
+
+    Property bindings are created implicitly in QML whenever a property is
+    assigned a JavaScript expression. To set JavaScript expressions as values
+    of properties in the Design mode, select the \uicontrol Nut menu next to
+    a property, and then select \uicontrol {Set Binding}.
+
+    \image qmldesigner-set-expression.png "Type properties context menu"
+
+    The \uicontrol {Binding Editor} supports code completion. Start typing a
+    string and press \key Ctrl+Space to display a list of properties, IDs, and
+    code snippets. When you enter a period (.) after a property name, a list of
+    available values is displayed. Press \key Enter to accept the first
+    suggestion in the list and to complete the code.
+
+    \image qmldesigner-binding-editor.png "Binding Editor"
+
+    To remove bindings, select \uicontrol Reset in the context menu.
+
+    You can set bindings also in the \uicontrol Connections view. For more
+    information, see \l {Adding Bindings Between Properties}.
+
+    For more information on the JavaScript environment provided by QML, see
+    \l{Integrating QML and JavaScript}.
+
+    Bindings are a black box for the Design mode and using them might have a
+    negative impact on performance, so consider setting anchors and margins for
+    items, instead. For example, instead of setting \c {parent.width} for an
+    item, you could anchor the item to its sibling items on the left and the
+    right.
+
+    \section2 Setting Anchors and Margins
+
+    In an \l{Important Concepts In Qt Quick - Positioning#anchors}
+    {anchor-based} layout, each QML type can be thought of as having a set of
+    invisible \e anchor lines: top, bottom, left, right, fill, horizontal
+    center, vertical center, and baseline.
+
+    In the \uicontrol Layout pane you can set anchors and margins for items. To
+    set the anchors of an item, click the anchor buttons. You can combine the
+    top/bottom, left/right, and horizontal/vertical anchors to anchor items in
+    the corners of the parent item or center them horizontally or vertically
+    within the parent item.
+
+    \image qmldesigner-anchor-buttons.png "Anchor buttons"
+
+    For convenience, you can click the \inlineimage anchor_fill.png
+    (\uicontrol {Fill to Parent}) toolbar button to apply fill anchors to an
+    item and the \inlineimage qtcreator-anchors-reset-icon.png
+    (\uicontrol {Reset Anchors}) button to reset the anchors to their saved
+    state.
+
+    You can specify the baseline anchor in the \uicontrol {Text Editor} in the
+    Design mode.
+
+    For performance reasons, you can only anchor an item to its siblings
+    and direct parent. By default, an item is anchored to its parent when
+    you use the anchor buttons. Select a sibling of the item in the
+    \uicontrol Target field to anchor to it, instead.
+
+    Arbitrary anchoring is not supported. For example, you cannot specify:
+    \c {anchor.left: parent.right}. You have to specify:
+    \c {anchor.left: parent.left}. When you use the anchor buttons, anchors to
+    the parent item are always specified to the same side. However, anchors to
+    sibling items are specified to the opposite side:
+    \c {anchor.left: sibling.right}. This allows you to keep sibling items
+    together.
+
+    In the following image, \uicontrol{Rectangle 2} is anchored to
+    \uicontrol {Rectangle 1} on its left and to the bottom of its parent.
+
+    \image qmldesigner-anchors.png "Anchoring sibling items"
+
+    The anchors for \uicontrol{Rectangle 2} are specified as follows in code:
+
+    \qml
+    Rectangle {
+        id: rectangle2
+        anchors.left: rectangle1.right
+        anchors.leftMargin: 15
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 15
+        //
+    }
+    \endqml
+
+    Margins specify the amount of empty space to leave to the outside of an
+    item. Margins only have meaning for anchors. They do not take any effect
+    when using layouts or absolute positioning.
+
+    \section2 Using Positioners
+
+    \l{Important Concepts In Qt Quick - Positioning#positioners}
+    {Positioner items} are container items that manage the positions of items
+    in a declarative user interface. Positioners behave in a similar way to
+    the layout managers used with standard Qt widgets, except that they are
+    also containers in their own right.
+
+    You can use the following positioners to arrange items on screens:
+
+    \list
+        \li \l[QML] {Column} arranges its child items vertically.
+        \li \l[QML] {Row} arranges its child items horizontally.
+        \li \l[QML] {Grid}
+            arranges its child items so that they are aligned in a grid and
+            are not overlapping.
+        \li \l[QML] {Flow}
+            arranges its child items side by side, wrapping as necessary.
+    \endlist
+
+    To lay out several items in a \uicontrol Column, \uicontrol Row,
+    \uicontrol Grid, or \uicontrol Flow, select the items on the canvas, and
+    then select \uicontrol Layout in the context menu.
+
+    \section2 Using Layouts
+
+    Since Qt 5.1, you can use QML types in the \l{qtquicklayouts-index.html}
+    {Qt Quick Layouts} module to arrange Qt Quick items on screens. Unlike
+    positioners, they manage both the positions and sizes of items in a
+    declarative interface. They are well suited for resizable user interfaces.
+
+    You can use the following layout types to arrange items on screens:
+
+    \list
+        \li \l{Layout} provides attached properties for items pushed onto a
+            \uicontrol {Column Layout}, \uicontrol {Row Layout}, or
+            \uicontrol {Grid Layout}.
+        \li \l{ColumnLayout}{Column Layout} provides a grid layout with only
+            one column.
+        \li \l{RowLayout}{Row Layout} provides a grid layout with only one row.
+        \li \l{GridLayout}{Grid Layout} provides a way of dynamically arranging
+            items in a grid.
+        \li \l{StackLayout}{Stack Layout} provides a stack of items where only
+            one item is visible at a time.
+    \endlist
+
+    To lay out several items in a \uicontrol {Column Layout},
+    \uicontrol {Row Layout}, \uicontrol {Grid Layout}, or
+    \uicontrol {Stack Layout}, select the items in the \uicontrol {Form Editor},
+    and then select \uicontrol Layout in the context menu.
+
+    You can also click the \inlineimage column.png
+    (\uicontrol {Column Layout}), \inlineimage row.png
+    (\uicontrol {Row Layout}), and \inlineimage grid.png
+    (\uicontrol {Grid Layout}) toolbar buttons to apply
+    layouts to the selected items.
+
+    To make an item within a layout as wide as possible while respecting
+    the given constraints, select the item on the canvas and then select
+    \uicontrol Layout > \uicontrol {Fill Width} in the context menu. To
+    make the item as high as possible, select \uicontrol {Fill Height}.
+
+    \section2 Editing Stack Layouts
+
+    \image qtquick-designer-stacked-view.png
+
+    To add items to a \uicontrol {Stack Layout}, select the
+    \inlineimage plus.png
+    button next to the type name in the \uicontrol {Form Editor}. To move
+    between items, select the \inlineimage prev.png
+    (\uicontrol Previous) and \inlineimage next.png
+    (\uicontrol Next) buttons.
+
+    To add a tab bar to a stack layout, select \uicontrol {Stacked Container} >
+    \uicontrol {Add Tab Bar}.
+
+    To raise or lower the stacking order of an item, select
+    \uicontrol {Stacked Container} > \uicontrol {Increase Index} or
+    \uicontrol {Decrease Index}.
+
+    \section2 Organizing Items
+
+    Since Qt 5.7, you can use the following \l{Qt Quick Controls 2} types to
+    organize items on screens:
+
+    \list
+        \li \l [QtQuickControls2]{Frame} places a logical group of controls
+            within a visual frame.
+        \li \l [QtQuickControls2]{GroupBox}{Group Box} is used to lay out a
+            logical group of controls together, within a titled visual frame.
+        \li \l [QtQuickControls2]{Label} is a text label with inherited styling
+            and font.
+        \li \l [QtQuickControls2]{PageIndicator}{Page Indicator} indicates the
+            currently active page.
+        \li \l [QtQuickControls2]{Pane} provides a background matching with the
+            application style and theme.
+    \endlist
+
+    \section1 Adding User Interaction Methods
+
+    You can use the following QML types to add basic interaction methods to
+    screens:
+
+    \list
+        \li \l{Flickable}
+            items can be flicked horizontally or vertically.
+        \li \l{FocusScope}{Focus Scope}
+            assists in keyboard focus handling when building reusable QML
+            components.
+        \li \l [QML]{MouseArea}{Mouse Area} enables simple mouse handling.
+    \endlist
+
+    Since Qt 5.7, you can also use the following \l{Qt Quick Controls 2} types
+    to inform users about the progress of the application or to gather input
+    from the user:
+
+    \list
+        \li \l [QtQuickControls2]{BusyIndicator}{Busy Indicator} indicates
+            activity while content is being loaded.
+        \li \l [QtQuickControls2]{Button} provides a push button that you can
+            associate with an action.
+        \li \l [QtQuickControls2]{CheckBox}{Check Box} provides an option button
+            that can be toggled on (checked) or off (unchecked).
+        \li \l [QtQuickControls2]{CheckDelegate}{Check Delegate} presents an
+            item delegate that can be toggled on (checked) or off (unchecked).
+        \li \l [QtQuickControls2]{ComboBox}{Combo Box} is a combined button and
+            popup list that is populated by using a data model.
+        \li \l [QtQuickControls2]{Dial} is a circular dial that is rotated to
+            set a value.
+        \li \l [QtQuickControls2]{ItemDelegate}{Item Delegate} is a standard
+            view item that can be used in various views and controls.
+        \li \l [QtQuickControls2]{ProgressBar}{Progress Bar} indicates the
+            progress of an operation.
+        \li \l [QtQuickControls2]{RadioButton}{Radio Button} provides an option
+            button that can be switched on (checked) or off (unchecked).
+        \li \l [QtQuickControls2]{RadioDelegate}{Radio Delegate} presents an
+            item delegate that can be toggled on (checked) or off (unchecked).
+        \li \l [QtQuickControls2]{Slider} selects a value by sliding a handle
+            along a track.
+        \li \l [QtQuickControls2]{SpinBox}{Spin Box} enables the user to specify
+            a value by clicking the up or down buttons, by pressing up or down
+            on the keyboard, or by entering a value in the box.
+        \li \l [QtQuickControls2]{Switch} is an option button that can be
+            toggled on or off.
+        \li \l [QtQuickControls2]{TextArea}{Text Area} displays multiple lines
+            of editable formatted text.
+        \li \l [QtQuickControls2]{TextField}{Text Field} displays a single line
+            of editable plain text.
+        \li \l [QtQuickControls2]{ToolBar}{Tool Bar} is a container of
+            application-wide and context sensitive actions and controls, such as
+            navigation buttons and search fields.
+        \li \l [QtQuickControls2]{ToolButton}{Tool Button} is a button
+            that is functionally similar to \uicontrol Button, but provides a
+            look that is more suitable for a \uicontrol {Tool Bar}.
+        \li \l [QtQuickControls2]{Tumbler} is a spinnable wheel of items that
+            can be selected.
+    \endlist
+
+    \section1 History of Qt Quick Controls
 
     In Qt 4, ready-made Qt Quick 1 Components were provided for creating
     screens with a native look and feel for a particular target platform.

@@ -1,0 +1,250 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage qtquick-navigator.html
+    \page qtquick-properties.html
+    \nextpage qmldesigner-pathview-editor.html
+
+    \title Specifying Item Properties
+
+    The \uicontrol Properties pane displays all the properties of the selected
+    item. The properties are grouped by type. The top part of the pane displays
+    properties that are common to all QML types, such as position, size, and
+    visibility.
+
+    The bottom part of the pane displays properties that are specific to each
+    QML type. For example, the following image displays the properties you can
+    set for \uicontrol Rectangle (1) and \uicontrol Text (2) items.
+
+    \image qmldesigner-element-properties.png
+
+    To change the item type, double-click the \uicontrol Type field in the
+    \uicontrol Properties pane, and enter the name of another QML type in the
+    field. If you have specified properties for the item that are not supported
+    for the new type, the type cannot be changed and an error message is
+    displayed. Select the \uicontrol Nut menu next to the property name, and
+    then select \uicontrol Reset to remove the property values before trying
+    again.
+
+    To return an item to its implicit position after moving it, select the
+    \inlineimage qtcreator-reset-position-icon.png
+    (\uicontrol {Reset Position}) button on the toolbar. To return it to its
+    implicit size, select \inlineimage qtcreator-reset-size-icon.png
+    (\uicontrol {Reset Size}) button.
+
+    To set the visibility of the item, select \uicontrol Edit >
+    \uicontrol Visibility in the context menu.
+
+    To specify the color of the selected item in the \uicontrol {Select Color}
+    dialog, select \uicontrol {Edit Color} in the context menu.
+
+    For more information on the properties available for an item, press
+    \key {F1}.
+
+    \section1 Viewing Changes in Properties
+
+    The default values of properties are displayed in white color, while the
+    values that you specify explicitly are highlighted with blue color. In
+    addition, property changes in states are highlighted with blue.
+
+    This allows you to easily see which values are set in the UI form or QML
+    file and which values are default characteristics of a QML type or a
+    component.
+
+    When editing states, you can easily see which values are explicitly set in
+    the current state and which values are derived from the base state.
+
+    The following images illustrate this. In the base state, the \uicontrol Size
+    (1) and \uicontrol Colors (2) values are explicitly set and highlighted.
+
+    \image qmldesigner-properties-explicit-base.png "Explicitly set properties"
+
+    In \uicontrol State1, only the color (1) is explicitly set and highlighted.
+
+    \image qmldesigner-properties-explicit-state1.png "Explicitly set properties"
+
+    Resetting a property sets it back to the default value and removes the value
+    from the UI form or QML file.
+
+    \note As a result, all boolean values can be visualized in four different
+    ways.
+
+    For example, visibility can be visualized as follows:
+
+    \table
+        \row
+            \li \image qmldesigner-boolean-true.png
+            \li TRUE
+            \li The QML type is visible by default. The visibility might be
+                overridden by the visibility set in the base state.
+        \row
+            \li \image qmldesigner-boolean-true-blue.png
+            \li TRUE (highlighted)
+            \li The QML type is explicitly set to visible.
+        \row
+            \li \image qmldesigner-boolean-false.png
+            \li FALSE
+            \li The QML type is hidden by default. The visibility might be
+                overridden by the visibility set in the base state.
+        \row
+            \li \image qmldesigner-boolean-false-blue.png
+            \li FALSE (hightlighted)
+            \li The type is explicitly set to hidden.
+    \endtable
+
+    \section1 Marking Text Items for Translation
+
+    To support translators, mark each text item that should be translated.
+    In the \uicontrol Properties pane, \uicontrol Text field, select \uicontrol tr (1).
+
+    \image qmldesigner-text-property-tr.png "Text properties"
+
+    By default, the text string is enclosed in a \c qsTr() call.
+
+    \image qml-translate.png "Text marked for translation"
+
+    If you use text IDs instead of plain text, change the default call to
+    \c qsTrId(). Select \uicontrol Tools > \uicontrol Options >
+    \uicontrol {Qt Quick} > \uicontrol {\QMLD}, and then select the
+    \uicontrol {qsTrId()} radio button in the \uicontrol Internationalization
+    group. For more information about text ID based translations, see
+    \l {Qt Linguist Manual: Text ID Based Translations}.
+
+    To preserve the context when editing the text or to change the context
+    by setting a binding on the text property, change the default call to
+    \c qsTranslate() by selecting the \uicontrol {qsTranslate()} radio button.
+
+    For more information, see
+    \l {Internationalization and Localization with Qt Quick}.
+
+    \section1 Loading Placeholder Data
+
+    The Design mode supports views, models, and delegates, so that when you add
+    a Grid View, List View, or Path View item, the ListModel and the delegate
+    item are added automatically.
+
+    However, the missing context of the application presents a challenge.
+    Specific models defined in C++ are the most obvious case. Often,
+    the context is missing simple properties, which are either defined in C++,
+    or in other QML files. A typical example is an item that uses the
+    properties of its parent, such as \c parent.width.
+
+    \section2 Using Dummy Models
+
+    If you open a file in the Design mode that references a C++ model, you see
+    nothing on
+    the canvas. If the data in the model is fetched from the internet, you have
+    no control over it. To get reliable data, \e {dummy data} was introduced.
+
+    For example, the following code snippet describes the file example.qml that
+    contains a ListView that in turn specifies a C++ model:
+
+    \qml
+        ListView {
+            model: dataModel
+            delegate: ContactDelegate {
+                name: name
+            }
+        }
+    \endqml
+
+    Create a directory named \e dummydata in the root directory of the project,
+    so that it is not deployed to the device. In the \c dummydata directory,
+    create a QML file that has the same name as the value of \c model:
+
+    \code
+        qml/exampleapp/example.qml
+        dummydata/dataModel.qml
+    \endcode
+
+    Then create the dataModel.qml file that contains the dummy data:
+
+    \qml
+        import QtQuick 1.0
+
+        ListModel {
+             ListElement {
+                 name: "Ariane"
+             }
+             ListElement {
+                 name: "Bella"
+             }
+             ListElement {
+                 name: "Corinna"
+             }
+        }
+    \endqml
+
+    \section2 Creating Dummy Context
+
+    The following example presents a common pattern in QML:
+
+    \qml
+        Item {
+            width: parent.width
+            height: parent.height
+        }
+    \endqml
+
+    This works nicely for applications but the Design mode displays a zero-sized
+    item. A parent for the opened file does not exist, because the context is
+    missing. To get around the missing context, the idea of a \e {dummy
+    context} is introduced. If you place a file with the same name as the
+    application (here, example.qml) in the \c {dummydata/context} directory,
+    you can fake a parent context:
+
+    \qml
+        import QtQuick 1.0
+        import QmlDesigner 1.0
+
+        DummyContextObject {
+            parent: Item {
+                width: 640
+                height: 300
+            }
+        }
+    \endqml
+
+    \section1 Building Transformations on Items
+
+    The \uicontrol Advanced pane allows you to configure advanced
+    transformations, such as rotation, scale, and translation. You
+    can assign any number of transformations to an item. Each
+    transformation is applied in order, one at a time.
+
+    For more information on Transform types, see \l{Transform}.
+
+    \section1 Editing Properties Inline
+
+    You can double-click objects on the canvas to edit their text, color,
+    or source properties inline. Because you can specify several of these
+    properties for some QML types, such as \l [QML]{TextEdit}{Text Edit},
+    you can also right-click objects to open the inline editors from a
+    context-menu.
+
+    \image qmldesigner-inline-editing.png
+*/

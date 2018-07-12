@@ -354,10 +354,9 @@ static QString generateSuffix(const QString &suffix)
 static inline Utils::optional<QString> defineExternalUserFileDir()
 {
     static const char userFilePathVariable[] = "QTC_USER_FILE_PATH";
-    static QString userFilePath = QFile::decodeName(qgetenv(userFilePathVariable));
-    if (userFilePath.isEmpty())
-        return QString();
-    const QFileInfo fi(userFilePath);
+    if (Q_LIKELY(!qEnvironmentVariableIsSet(userFilePathVariable)))
+        return nullopt;
+    const QFileInfo fi(QFile::decodeName(qgetenv(userFilePathVariable)));
     const QString path = fi.absoluteFilePath();
     if (fi.isDir() || fi.isSymLink())
         return path;
@@ -407,7 +406,7 @@ static FileName externalUserFilePath(const Utils::FileName &projectFilePath, con
     FileName result;
     static const optional<QString> externalUserFileDir = defineExternalUserFileDir();
 
-    if (!externalUserFileDir) {
+    if (externalUserFileDir) {
         // Recreate the relative project file hierarchy under the shared directory.
         // PersistentSettingsWriter::write() takes care of creating the path.
         result = FileName::fromString(externalUserFileDir.value());

@@ -356,7 +356,7 @@ QString CMakeBuildStep::allArguments(const CMakeRunConfiguration *rc) const
 
     if (isCurrentExecutableTarget(m_buildTarget)) {
         if (rc)
-            target = rc->buildKey();
+            target = rc->buildKey().section('\n', 0, 0);
         else
             target = "<i>&lt;" + tr(ADD_RUNCONFIGURATION_TEXT) + "&gt;</i>";
     } else {

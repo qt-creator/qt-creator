@@ -75,6 +75,7 @@ WinRtDebugSupport::WinRtDebugSupport(RunControl *runControl)
         setQmlServer(qmlServer);
     }
 
+    setSymbolFile(runControl->runConfiguration()->buildTargetInfo().targetFilePath.toString());
     QString errorMessage;
     m_runner = new WinRtRunnerHelper(this, &errorMessage);
     if (!errorMessage.isEmpty()) {

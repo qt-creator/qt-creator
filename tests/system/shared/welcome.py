@@ -59,6 +59,13 @@ def getWelcomeTreeView(treeViewLabel):
     except:
         return None
 
+def switchToSubMode(subModeLabel):
+    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton(subModeLabel)
+    frameAndLabelFound = all((wsButtonFrame, wsButtonLabel))
+    if frameAndLabelFound:
+        mouseClick(wsButtonLabel)
+    return frameAndLabelFound
+
 def findExampleOrTutorial(tableView, regex, verbose=False):
     model = tableView.model()
     children = __childrenOfType__(tableView, 'QModelIndex')

@@ -82,7 +82,7 @@ def main():
     setFixedHelpViewer(HelpViewer.HELPMODE)
     addCurrentCreatorDocumentation()
 
-    buttonsAndState = {'Projects':True, 'Examples':False, 'Tutorials':False}
+    buttonsAndState = {'Projects':False, 'Examples':True, 'Tutorials':False}
     for button, state in buttonsAndState.items():
         wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton(button)
         if test.verify(all((wsButtonFrame, wsButtonLabel)),
@@ -90,6 +90,8 @@ def main():
             test.compare(buttonActive(wsButtonFrame), state,
                          "Verifying whether '%s' button is active (%s)." % (button, state))
 
+    # select Projects and roughly check this
+    switchToSubMode('Projects')
     for button in ['New Project', 'Open Project']:
         wsButtonFrame, wsButtonLabel = getWelcomeScreenMainButton(button)
         if test.verify(all((wsButtonFrame, wsButtonLabel)),
@@ -130,9 +132,7 @@ def main():
     test.verify(wsButtonFrame is not None and wsButtonLabel is not None,
                 "Verifying: Getting Started topic is being displayed.")
     # select Examples and roughly check them
-    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Examples')
-    if all((wsButtonFrame, wsButtonLabel)):
-        mouseClick(wsButtonLabel)
+    switchToSubMode('Examples')
     test.verify(waitForButtonsState(False, True, False), "Buttons' states have changed.")
 
     expect = (("QTableView", "unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'",
@@ -147,9 +147,7 @@ def main():
                              "Verifying that at least one example is displayed.")
 
     # select Tutorials and roughly check them
-    wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Tutorials')
-    if all((wsButtonFrame, wsButtonLabel)):
-        mouseClick(wsButtonLabel)
+    switchToSubMode('Tutorials')
     test.verify(waitForButtonsState(False, False, True), "Buttons' states have changed.")
     expect = (("QTableView", "unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'",
                "tutorials list"),

@@ -451,7 +451,7 @@ void DocumentManager::filePathChanged(const FileName &oldName, const FileName &n
 */
 void DocumentManager::addDocument(IDocument *document, bool addWatcher)
 {
-    addDocuments(QList<IDocument *>() << document, addWatcher);
+    addDocuments({document}, addWatcher);
 }
 
 void DocumentManager::documentDestroyed(QObject *obj)

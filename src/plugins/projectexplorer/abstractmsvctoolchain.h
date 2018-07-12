@@ -33,6 +33,7 @@
 
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/optional.h>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -71,10 +72,10 @@ public:
 
     bool operator ==(const ToolChain &) const override;
 
-    static bool generateEnvironmentSettings(const Utils::Environment &env,
-                                            const QString &batchFile,
-                                            const QString &batchArgs,
-                                            QMap<QString, QString> &envPairs);
+    static Utils::optional<QString> generateEnvironmentSettings(const Utils::Environment &env,
+                                                                const QString &batchFile,
+                                                                const QString &batchArgs,
+                                                                QMap<QString, QString> &envPairs);
 
 protected:
     class WarningFlagAdder

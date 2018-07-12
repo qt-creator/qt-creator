@@ -1,0 +1,116 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Creator Manual}
+    \previouspage quick-scalable-image.html
+    \page qtquick-navigator.html
+    \nextpage qtquick-properties.html
+
+    \title Managing Item Hierarchy
+
+    The \uicontrol Navigator displays the items in the current QML file and
+    their relationships. Items (1) are listed in a tree structure, below their
+    parent (2).
+
+    \image qmldesigner-navigator.png "Navigator"
+
+    You can select items in the \uicontrol Navigator to edit their properties
+    in the \uicontrol Properties pane. Items can access the properties of their
+    parent item. To select items on the canvas, right-click an item, and select
+    another type in the context menu.
+
+    Typically, child items are located within the parent item on the canvas.
+    However, they do not necessarily have to fit inside the parent item. For
+    example, you might want to make a mouse area larger than the rectangle
+    or image beneath it (1).
+
+    \image qmldesigner-element-size.png "Mouse area for a button"
+
+    When you copy an item, all its child items are also copied. When
+    you remove an item, the child items are also removed.
+
+    You can show and hide items on the canvas to focus on specific parts of the
+    application. Click the \inlineimage icon_color_none.png
+    (\uicontrol Transparent) button to change the visibility of an item on the
+    canvas. To change the visibility of an item in the application, select the
+    \uicontrol Visibility check box in the \uicontrol Properties pane or select
+    \uicontrol Edit > \uicontrol Visibility in the context menu.
+
+    You can also set the \uicontrol Opacity field to 0 to hide items that you
+    want to apply animation to.
+
+    As all properties, visibility and opacity are inherited from the parent
+    item. To hide or show child items, edit the properties of the parent item.
+
+    To hide invisible items in the navigator, click \inlineimage filtericon.png
+    (\uicontrol {Filter Tree}) and select \uicontrol {Show only visible items}.
+
+    To reset item size, position, or anchors, select context menu commands. To
+    change the source of an Image type, select \uicontrol {Change Source URL} in
+    the context menu.
+
+    To view lists of files or projects, instead, select \uicontrol {File System},
+    \uicontrol {Open Documents}, or \uicontrol Projects in the menu. To view
+    several types of content at a time, split the sidebars by clicking the
+    \inlineimage splitbutton_horizontal.png
+    (\uicontrol Split) button.
+
+    \section1 Setting the Stacking Order
+
+    The \c z property of an \l Item determines its position in relation to its
+    sibling items in the type hierarchy. By default, items with a higher
+    stacking value are drawn on top of siblings with a lower stacking value.
+    Items with the same stacking value are drawn in the order they are listed,
+    from the last item up.
+
+    To raise or lower the stack value of an item, select \inlineimage raise.png
+    (\uicontrol Raise) or \inlineimage lower.png
+    (\uicontrol Lower) on the toolbar.
+
+    To move an item to the front or back of all its siblings, right-click it in
+    the navigator or the \uicontrol {Form Editor} and select
+    \uicontrol {Stack (z)}. To remove the \c z property, select
+    \uicontrol {Reset z Property}.
+
+    You can also use a \uicontrol StackLayout item (Qt Quick Controls 2) to
+    create a stacked view. For more information, see \l {Using Layouts}.
+
+    \section1 Switching Parent Items
+
+    When you drag and drop instances of QML types to the canvas, the new item is
+    added as a child of the item beneath it. When you move items on the canvas,
+    it is not possible to determine whether you want to adjust their position or
+    attach them to a new parent item. Therefore, the parent item is not
+    automatically changed. To change the parent of the item, press down the
+    \key Shift key before you drag and drop the item into a new position. The
+    topmost item under the cursor becomes the new parent of the item.
+
+    You can change the parent of an item also in the \uicontrol Navigator.
+    Drag and drop the item to another position in the tree or use the arrow
+    buttons (1) to move the item in the tree.
+
+    \image qmldesigner-navigator-arrows.png "Navigator arrow buttons"
+*/
