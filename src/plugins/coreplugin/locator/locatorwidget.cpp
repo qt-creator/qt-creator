@@ -592,6 +592,8 @@ LocatorWidget::LocatorWidget(Locator *locator) :
         updatePlaceholderText(locateCmd);
     }
 
+    connect(qApp, &QApplication::focusChanged, this, &LocatorWidget::updatePreviousFocusWidget);
+
     connect(locator, &Locator::filtersChanged, this, &LocatorWidget::updateFilterList);
     updateFilterList();
 }
@@ -618,6 +620,28 @@ void LocatorWidget::updateFilterList()
     m_filterMenu->addSeparator();
     m_filterMenu->addAction(m_refreshAction);
     m_filterMenu->addAction(m_configureAction);
+}
+
+bool LocatorWidget::isInMainWindow() const
+{
+    return window() == ICore::mainWindow();
+}
+
+void LocatorWidget::updatePreviousFocusWidget(QWidget *previous, QWidget *current)
+{
+    const auto isInLocator = [this](QWidget *w) { return w == this || isAncestorOf(w); };
+    if (isInLocator(current) && !isInLocator(previous))
+        m_previousFocusWidget = previous;
+}
+
+static void resetFocus(QPointer<QWidget> previousFocus, bool isInMainWindow)
+{
+    if (previousFocus) {
+        previousFocus->setFocus();
+        ICore::raiseWindow(previousFocus);
+    } else if (isInMainWindow) {
+        ModeManager::setFocusToCurrentMode();
+    }
 }
 
 bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
@@ -706,7 +730,12 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
         case Qt::Key_Escape:
             if (!ke->modifiers()) {
                 event->accept();
-                QTimer::singleShot(0, this, &LocatorWidget::setFocusToCurrentMode);
+                QTimer::singleShot(0,
+                                   this,
+                                   [focus = m_previousFocusWidget,
+                                    isInMainWindow = isInMainWindow()] {
+                                       resetFocus(focus, isInMainWindow);
+                                   });
                 return true;
             }
             break;
@@ -721,11 +750,6 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
         }
     }
     return QWidget::eventFilter(obj, event);
-}
-
-void LocatorWidget::setFocusToCurrentMode()
-{
-    ModeManager::setFocusToCurrentMode();
 }
 
 void LocatorWidget::showPopupDelayed()
@@ -858,7 +882,7 @@ void LocatorWidget::acceptEntry(int row)
     entry.filter->accept(entry, &newText, &selectionStart, &selectionLength);
     if (newText.isEmpty()) {
         emit hidePopup();
-        m_fileLineEdit->clearFocus();
+        resetFocus(m_previousFocusWidget, isInMainWindow());
     } else {
         showText(newText, selectionStart, selectionLength);
     }
