@@ -268,8 +268,8 @@ void ProjectTree::sessionAndTreeChanged()
 
 void ProjectTree::collapseAll()
 {
-    if (m_focusForContextMenu)
-        m_focusForContextMenu->collapseAll();
+    if (auto w = Utils::findOrDefault(s_instance->m_projectTreeWidgets, &ProjectTree::hasFocus))
+        w->collapseAll();
 }
 
 void ProjectTree::updateExternalFileWarning()
