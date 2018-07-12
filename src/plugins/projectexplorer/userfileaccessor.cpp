@@ -59,7 +59,7 @@ class UserFileVersion1Upgrader : public VersionUpgrader
 {
 public:
     UserFileVersion1Upgrader(UserFileAccessor *a) : VersionUpgrader(1, "1.3+git"), m_accessor(a) { }
-    QVariantMap upgrade(const QVariantMap &map);
+    QVariantMap upgrade(const QVariantMap &map) override;
 
 private:
     struct TargetDescription
@@ -433,7 +433,7 @@ public:
 
 FileNameList UserFileBackUpStrategy::readFileCandidates(const FileName &baseFileName) const
 {
-    const UserFileAccessor *const ac = static_cast<const UserFileAccessor *>(accessor());
+    const auto *const ac = static_cast<const UserFileAccessor *>(accessor());
     const FileName externalUser = ac->externalUserFile();
     const FileName projectUser = ac->projectUserFile();
     QTC_CHECK(!baseFileName.isEmpty());
@@ -1203,9 +1203,9 @@ static const char * const envExpandedKeys[] = {
             "Qt4ProjectManager.S60DeviceRunConfiguration.CommandLineArguments",
             "CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory",
             "CMakeProjectManager.CMakeRunConfiguration.Arguments",
-            0,
-        0,
-    0
+            nullptr,
+        nullptr,
+    nullptr
 };
 
 static QString version8NewVar(const QString &old)
@@ -1314,11 +1314,11 @@ static const char * const varExpandedKeys[] = {
                     "GenericProjectManager.GenericMakeStep.MakeCommand",
                     "GenericProjectManager.GenericMakeStep.MakeArguments",
                     "GenericProjectManager.GenericMakeStep.BuildTargets",
-                    0,
-                0,
-            0,
-        0,
-    0
+                    nullptr,
+                nullptr,
+            nullptr,
+        nullptr,
+    nullptr
 };
 
 // Translate old-style ${} var expansions into new-style %{} ones
@@ -2238,7 +2238,7 @@ public:
     TestUserFileAccessor(Project *project) : UserFileAccessor(project) { }
 
     void storeSharedSettings(const QVariantMap &data) const { m_storedSettings = data; }
-    QVariant retrieveSharedSettings() const { return m_storedSettings; }
+    QVariant retrieveSharedSettings() const override { return m_storedSettings; }
 
     using UserFileAccessor::preprocessReadSettings;
     using UserFileAccessor::prepareToWriteSettings;

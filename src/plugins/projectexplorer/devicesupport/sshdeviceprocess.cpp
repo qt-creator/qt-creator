@@ -342,7 +342,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::setState(SshDeviceProcess::SshDe
     if (connection) {
         connection->disconnect(q);
         QSsh::releaseConnection(connection);
-        connection = 0;
+        connection = nullptr;
     }
 }
 

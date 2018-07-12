@@ -149,7 +149,7 @@ void TargetSetupWidget::addBuildInfo(BuildInfo *info, bool isImport)
         m_haveImported = true;
     }
 
-    const int pos = static_cast<int>(m_infoStore.size());
+    const auto pos = static_cast<int>(m_infoStore.size());
 
     BuildInfoStore store;
     store.buildInfo = info;
@@ -233,7 +233,7 @@ QList<BuildInfo *> TargetSetupWidget::buildInfoList(const Kit *k, const QString 
     if (factory)
         return factory->availableSetups(k, projectPath);
 
-    BuildInfo *info = new BuildInfo(nullptr);
+    auto *info = new BuildInfo(nullptr);
     info->kitId = k->id();
     return QList<BuildInfo *>({info});
 }
@@ -303,7 +303,7 @@ void TargetSetupWidget::pathChanged()
 
 void TargetSetupWidget::reportIssues(int index)
 {
-    const int size = static_cast<int>(m_infoStore.size());
+    const auto size = static_cast<int>(m_infoStore.size());
     QTC_ASSERT(index >= 0 && index < size, return);
 
     BuildInfoStore &store = m_infoStore[static_cast<size_t>(index)];

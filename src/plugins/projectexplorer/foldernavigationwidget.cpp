@@ -147,7 +147,7 @@ public:
     FolderSortProxyModel(QObject *parent = nullptr);
 
 protected:
-    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
 };
 
 FolderSortProxyModel::FolderSortProxyModel(QObject *parent)

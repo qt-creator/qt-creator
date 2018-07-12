@@ -88,7 +88,7 @@ static void insertIntoOsFlavorMap(const std::vector<Abi::OS> &oses, const Abi::O
 static void registerOsFlavor(const Abi::OSFlavor &flavor, const QByteArray &flavorName,
                              const std::vector<Abi::OS> &oses)
 {
-    const size_t pos = static_cast<size_t>(flavor);
+    const auto pos = static_cast<size_t>(flavor);
     if (m_registeredOsFlavors.size() <= pos)
         m_registeredOsFlavors.resize(pos + 1);
 
@@ -675,7 +675,7 @@ QString Abi::toString(const OS &o)
 
 QString Abi::toString(const OSFlavor &of)
 {
-    const size_t index = static_cast<size_t>(of);
+    const auto index = static_cast<size_t>(of);
     const std::vector<QByteArray> &flavors = registeredOsFlavors();
     QTC_ASSERT(index < flavors.size(),
                return QString::fromUtf8(flavors.at(int(UnknownFlavor))));
@@ -845,7 +845,7 @@ Abi::OSFlavor Abi::registerOsFlavor(const std::vector<OS> &oses, const QString &
     if (index < 0)
         index = int(registeredOsFlavors().size());
 
-    OSFlavor toRegister = OSFlavor(index);
+    auto toRegister = OSFlavor(index);
     ProjectExplorer::registerOsFlavor(toRegister, flavorBytes, oses);
     return toRegister;
 }
@@ -1030,7 +1030,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiRoundTrips()
     for (const Abi::OSFlavor flavorIt : Abi::allOsFlavors()) {
         const QString string = Abi::toString(flavorIt);
         for (int os = 0; os <= Abi::UnknownOS; ++os) {
-            const Abi::OS osEnum = static_cast<Abi::OS>(os);
+            const auto osEnum = static_cast<Abi::OS>(os);
             const Abi::OSFlavor flavor = Abi::osFlavorFromString(QStringRef(&string), osEnum);
             if (isGenericFlavor(flavorIt) && flavor != Abi::UnknownFlavor)
                 QVERIFY(isGenericFlavor(flavor));

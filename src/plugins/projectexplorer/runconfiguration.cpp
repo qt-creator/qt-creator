@@ -890,7 +890,7 @@ public:
         }
     }
 
-    ~RunControlPrivate()
+    ~RunControlPrivate() override
     {
         QTC_CHECK(state == RunControlState::Finished || state == RunControlState::Initialized);
         disconnect();
@@ -1048,7 +1048,7 @@ RunWorkerFactory::WorkerCreator RunControl::producer(RunConfiguration *runConfig
     if (candidates.empty())
         return {};
 
-    const auto higherPriority = std::bind(std::greater<int>(),
+    const auto higherPriority = std::bind(std::greater<>(),
                                           std::bind(&RunWorkerFactory::priority, std::placeholders::_1),
                                           std::bind(&RunWorkerFactory::priority, std::placeholders::_2));
     const auto bestFactory = std::max_element(candidates.begin(), candidates.end(), higherPriority);

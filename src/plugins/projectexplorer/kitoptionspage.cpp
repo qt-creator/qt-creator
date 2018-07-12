@@ -157,7 +157,7 @@ void KitOptionsPageWidget::kitSelectionChanged()
 
 void KitOptionsPageWidget::addNewKit()
 {
-    Kit *k = m_model->markForAddition(0);
+    Kit *k = m_model->markForAddition(nullptr);
 
     QModelIndex newIdx = m_model->indexOf(k);
     m_selectionModel->select(newIdx,

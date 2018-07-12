@@ -54,12 +54,12 @@ public:
         }
     }
 
-    ~KitNode()
+    ~KitNode() override
     {
         delete widget;
     }
 
-    QVariant data(int, int role) const
+    QVariant data(int, int role) const override
     {
         if (widget) {
             if (role == Qt::FontRole) {
@@ -132,7 +132,7 @@ KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent)
 Kit *KitModel::kit(const QModelIndex &index)
 {
     KitNode *n = kitNode(index);
-    return n ? n->widget->workingCopy() : 0;
+    return n ? n->widget->workingCopy() : nullptr;
 }
 
 KitNode *KitModel::kitNode(const QModelIndex &index)
@@ -161,7 +161,7 @@ bool KitModel::isDefaultKit(Kit *k) const
 KitManagerConfigWidget *KitModel::widget(const QModelIndex &index)
 {
     KitNode *n = kitNode(index);
-    return n ? n->widget : 0;
+    return n ? n->widget : nullptr;
 }
 
 void KitModel::isAutoDetectedChanged()
@@ -244,7 +244,7 @@ void KitModel::markForRemoval(Kit *k)
         setDefaultNode(findItemAtLevel<2>([node](KitNode *kn) { return kn != node; }));
 
     takeItem(node);
-    if (node->widget->configures(0))
+    if (node->widget->configures(nullptr))
         delete node;
     else
         m_toRemoveList.append(node);
@@ -252,7 +252,7 @@ void KitModel::markForRemoval(Kit *k)
 
 Kit *KitModel::markForAddition(Kit *baseKit)
 {
-    KitNode *node = createNode(0);
+    KitNode *node = createNode(nullptr);
     m_manualRoot->appendChild(node);
     Kit *k = node->widget->workingCopy();
     KitGuard g(k);
@@ -331,7 +331,7 @@ void KitModel::removeKit(Kit *k)
         if (n->widget->configures(k)) {
             m_toRemoveList.removeOne(n);
             if (m_defaultNode == n)
-                m_defaultNode = 0;
+                m_defaultNode = nullptr;
             delete n;
             return;
         }

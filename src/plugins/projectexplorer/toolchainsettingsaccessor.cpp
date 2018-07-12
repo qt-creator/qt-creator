@@ -287,7 +287,7 @@ QList<ToolChain *> ToolChainSettingsAccessor::toolChains(const QVariantMap &data
 
 namespace ProjectExplorer {
 
-typedef QList<ToolChain *> TCList;
+using TCList = QList<ToolChain *>;
 
 class TTC : public ToolChain
 {

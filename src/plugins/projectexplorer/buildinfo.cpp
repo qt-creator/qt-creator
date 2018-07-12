@@ -27,5 +27,4 @@
 
 using namespace ProjectExplorer;
 
-BuildInfo::~BuildInfo()
-{ }
+BuildInfo::~BuildInfo() = default;

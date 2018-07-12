@@ -96,7 +96,7 @@ public:
         : QStyledItemDelegate(view), m_model(model), m_view(view)
     {}
 
-    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
         QWidget *w = QStyledItemDelegate::createEditor(parent, option, index);
         if (index.column() != 0)

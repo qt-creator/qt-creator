@@ -389,10 +389,10 @@ static QByteArray msvcCompilationFile()
         "_WIN64",
         "_WINRT_DLL",
         "_Wp64",
-        0
+        nullptr
     };
     QByteArray file = "#define __PPOUT__(x) V##x=x\n\n";
-    for (int i = 0; macros[i] != 0; ++i)
+    for (int i = 0; macros[i] != nullptr; ++i)
         file += msvcCompilationDefine(macros[i]);
     file += "\nvoid main(){}\n\n";
     return file;
@@ -778,7 +778,7 @@ MsvcBasedToolChainConfigWidget::MsvcBasedToolChainConfigWidget(ToolChain *tc) :
 
 void MsvcBasedToolChainConfigWidget::setFromMsvcToolChain()
 {
-    const MsvcToolChain *tc = static_cast<const MsvcToolChain *>(toolChain());
+    const auto *tc = static_cast<const MsvcToolChain *>(toolChain());
     QTC_ASSERT(tc, return);
     m_nameDisplayLabel->setText(tc->displayName());
     QString varsBatDisplay = QDir::toNativeSeparators(tc->varsBat());
@@ -1251,7 +1251,7 @@ bool MsvcToolChain::operator ==(const ToolChain &other) const
 {
     if (!AbstractMsvcToolChain::operator ==(other))
         return false;
-    const MsvcToolChain *msvcTc = static_cast<const MsvcToolChain *>(&other);
+    const auto *msvcTc = static_cast<const MsvcToolChain *>(&other);
     return m_varsBatArg == msvcTc->m_varsBatArg;
 }
 

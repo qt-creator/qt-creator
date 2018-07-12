@@ -68,8 +68,8 @@ public:
     AddNewTree(FolderNode *node, QList<AddNewTree *> children, const QString &displayName);
     AddNewTree(FolderNode *node, QList<AddNewTree *> children, const FolderNode::AddNewInformation &info);
 
-    QVariant data(int column, int role) const;
-    Qt::ItemFlags flags(int column) const;
+    QVariant data(int column, int role) const override;
+    Qt::ItemFlags flags(int column) const override;
 
     QString displayName() const { return m_displayName; }
     FolderNode *node() const { return m_node; }
@@ -202,7 +202,7 @@ void BestNodeSelector::inspect(AddNewTree *tree, bool isContextNode)
 AddNewTree *BestNodeSelector::bestChoice() const
 {
     if (m_deploys)
-        return 0;
+        return nullptr;
     return m_bestChoice;
 }
 

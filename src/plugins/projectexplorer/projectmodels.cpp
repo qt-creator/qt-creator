@@ -178,7 +178,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
 Qt::ItemFlags FlatModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return 0;
+        return nullptr;
     // We claim that everything is editable
     // That's slightly wrong
     // We control the only view, and that one does the checks

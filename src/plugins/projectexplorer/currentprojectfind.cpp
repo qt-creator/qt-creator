@@ -66,7 +66,7 @@ QString CurrentProjectFind::displayName() const
 
 bool CurrentProjectFind::isEnabled() const
 {
-    return ProjectTree::currentProject() != 0 && BaseFileFind::isEnabled();
+    return ProjectTree::currentProject() != nullptr && BaseFileFind::isEnabled();
 }
 
 QVariant CurrentProjectFind::additionalParameters() const

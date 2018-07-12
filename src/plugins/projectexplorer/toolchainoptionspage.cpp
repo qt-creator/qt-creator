@@ -75,7 +75,7 @@ public:
         }
     }
 
-    QVariant data(int column, int role) const
+    QVariant data(int column, int role) const override
     {
         switch (role) {
             case Qt::DisplayRole:

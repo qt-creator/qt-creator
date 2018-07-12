@@ -69,7 +69,7 @@ class ApplicationLauncherPrivate : public QObject
 public:
     enum State { Inactive, Run };
     explicit ApplicationLauncherPrivate(ApplicationLauncher *parent);
-    ~ApplicationLauncherPrivate() { setFinished(); }
+    ~ApplicationLauncherPrivate() override { setFinished(); }
 
     void start(const Runnable &runnable, const IDevice::ConstPtr &device, bool local);
     void stop();
@@ -324,7 +324,7 @@ void ApplicationLauncherPrivate::readLocalStandardError()
 void ApplicationLauncherPrivate::cannotRetrieveLocalDebugOutput()
 {
 #ifdef Q_OS_WIN
-    disconnect(WinDebugInterface::instance(), 0, this, 0);
+    disconnect(WinDebugInterface::instance(), nullptr, this, nullptr);
     emit q->appendMessage(ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput(), ErrorMessageFormat);
 #endif
 }
@@ -446,7 +446,7 @@ void ApplicationLauncherPrivate::setFinished()
     if (m_deviceProcess) {
         m_deviceProcess->disconnect(this);
         m_deviceProcess->deleteLater();
-        m_deviceProcess = 0;
+        m_deviceProcess = nullptr;
     }
 
     m_state = Inactive;

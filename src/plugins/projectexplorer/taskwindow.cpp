@@ -74,9 +74,9 @@ namespace Internal {
 class TaskView : public Utils::ListView
 {
 public:
-    TaskView(QWidget *parent = 0);
-    ~TaskView();
-    void resizeEvent(QResizeEvent *e);
+    TaskView(QWidget *parent = nullptr);
+    ~TaskView() override;
+    void resizeEvent(QResizeEvent *e) override;
 };
 
 class TaskWindowContext : public Core::IContext
@@ -92,10 +92,10 @@ class TaskDelegate : public QStyledItemDelegate
     friend class TaskView; // for using Positions::minimumSize()
 
 public:
-    TaskDelegate(QObject * parent = 0);
-    ~TaskDelegate();
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    TaskDelegate(QObject * parent = nullptr);
+    ~TaskDelegate() override;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
     // TaskView uses this method if the size of the taskview changes
     void emitSizeHintChanged(const QModelIndex &index);
@@ -105,7 +105,7 @@ public:
 private:
     void generateGradientPixmap(int width, int height, QColor color, bool selected) const;
 
-    mutable int m_cachedHeight;
+    mutable int m_cachedHeight = 0;
     mutable QFont m_cachedFont;
 
     /*
@@ -194,8 +194,7 @@ TaskView::TaskView(QWidget *parent)
     verticalScrollBar()->setSingleStep(vStepSize);
 }
 
-TaskView::~TaskView()
-{ }
+TaskView::~TaskView() = default;
 
 void TaskView::resizeEvent(QResizeEvent *e)
 {
@@ -253,7 +252,7 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
     d->m_listview->setFrameStyle(QFrame::NoFrame);
     d->m_listview->setWindowTitle(displayName());
     d->m_listview->setSelectionMode(QAbstractItemView::SingleSelection);
-    Internal::TaskDelegate *tld = new Internal::TaskDelegate(this);
+    auto *tld = new Internal::TaskDelegate(this);
     d->m_listview->setItemDelegate(tld);
     d->m_listview->setWindowIcon(Icons::WINDOW.icon());
     d->m_listview->setContextMenuPolicy(Qt::ActionsContextMenu);
@@ -533,7 +532,7 @@ void TaskWindow::setShowWarnings(bool show)
 
 void TaskWindow::updateCategoriesMenu()
 {
-    typedef QMap<QString, Core::Id>::ConstIterator NameToIdsConstIt;
+    using NameToIdsConstIt = QMap<QString, Core::Id>::ConstIterator;
 
     d->m_categoriesMenu->clear();
 
@@ -670,13 +669,10 @@ bool TaskWindow::canNavigate() const
 /////
 
 TaskDelegate::TaskDelegate(QObject *parent) :
-    QStyledItemDelegate(parent),
-    m_cachedHeight(0)
+    QStyledItemDelegate(parent)
 { }
 
-TaskDelegate::~TaskDelegate()
-{
-}
+TaskDelegate::~TaskDelegate() = default;
 
 QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {

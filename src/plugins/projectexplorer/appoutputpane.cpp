@@ -121,14 +121,14 @@ bool TabWidget::eventFilter(QObject *object, QEvent *event)
 {
     if (object == tabBar()) {
         if (event->type() == QEvent::MouseButtonPress) {
-            QMouseEvent *me = static_cast<QMouseEvent *>(event);
+            auto *me = static_cast<QMouseEvent *>(event);
             if (me->button() == Qt::MiddleButton) {
                 m_tabIndexForMiddleClick = tabBar()->tabAt(me->pos());
                 event->accept();
                 return true;
             }
         } else if (event->type() == QEvent::MouseButtonRelease) {
-            QMouseEvent *me = static_cast<QMouseEvent *>(event);
+            auto *me = static_cast<QMouseEvent *>(event);
             if (me->button() == Qt::MiddleButton) {
                 int tab = tabBar()->tabAt(me->pos());
                 if (tab != -1 && tab == m_tabIndexForMiddleClick)
@@ -221,7 +221,7 @@ AppOutputPane::AppOutputPane() :
 
     // Spacer (?)
 
-    QVBoxLayout *layout = new QVBoxLayout;
+    auto *layout = new QVBoxLayout;
     layout->setMargin(0);
     m_tabWidget->setDocumentMode(true);
     m_tabWidget->setTabsClosable(true);
@@ -353,7 +353,7 @@ int AppOutputPane::priorityInStatusBar() const
 
 void AppOutputPane::clearContents()
 {
-    Core::OutputWindow *currentWindow = qobject_cast<Core::OutputWindow *>(m_tabWidget->currentWidget());
+    auto *currentWindow = qobject_cast<Core::OutputWindow *>(m_tabWidget->currentWidget());
     if (currentWindow)
         currentWindow->clear();
 }
@@ -458,7 +458,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
             tab.window->setFontZoom(m_zoom);
     });
 
-    Aggregation::Aggregate *agg = new Aggregation::Aggregate;
+    auto *agg = new Aggregation::Aggregate;
     agg->add(ow);
     agg->add(new Core::BaseTextFind(ow));
     m_runControlTabs.push_back(RunControlTab(rc, ow));
@@ -689,7 +689,7 @@ void AppOutputPane::tabChanged(int i)
 void AppOutputPane::contextMenuRequested(const QPoint &pos, int index)
 {
     QList<QAction *> actions = QList<QAction *>() << m_closeCurrentTabAction << m_closeAllTabsAction << m_closeOtherTabsAction;
-    QAction *action = QMenu::exec(actions, m_tabWidget->mapToGlobal(pos), 0, m_tabWidget);
+    QAction *action = QMenu::exec(actions, m_tabWidget->mapToGlobal(pos), nullptr, m_tabWidget);
     const int currentIdx = index != -1 ? index : currentIndex();
     if (action == m_closeCurrentTabAction) {
         if (currentIdx >= 0)
@@ -712,7 +712,7 @@ void AppOutputPane::slotRunControlChanged()
 
 void AppOutputPane::slotRunControlFinished()
 {
-    RunControl *rc = qobject_cast<RunControl *>(sender());
+    auto *rc = qobject_cast<RunControl *>(sender());
     QTimer::singleShot(0, this, [this, rc]() { slotRunControlFinished2(rc); });
     if (rc->outputFormatter())
         rc->outputFormatter()->flush();

@@ -161,7 +161,7 @@ void TaskModel::updateTaskLineNumber(unsigned int id, int line)
 
 void TaskModel::clearTasks(Core::Id categoryId)
 {
-    typedef QHash<Core::Id,CategoryData>::ConstIterator IdCategoryConstIt;
+    using IdCategoryConstIt = QHash<Core::Id,CategoryData>::ConstIterator;
 
     if (!categoryId.isValid()) {
         if (m_tasks.isEmpty())

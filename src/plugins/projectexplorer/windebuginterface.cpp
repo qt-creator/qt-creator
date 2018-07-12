@@ -81,31 +81,31 @@ WinDebugInterface::~WinDebugInterface()
 
 void WinDebugInterface::run()
 {
-    m_waitHandles[DataReadyEventHandle] = m_waitHandles[TerminateEventHandle] = 0;
-    m_bufferReadyEvent = 0;
-    m_sharedFile = 0;
-    m_sharedMem  = 0;
+    m_waitHandles[DataReadyEventHandle] = m_waitHandles[TerminateEventHandle] = nullptr;
+    m_bufferReadyEvent = nullptr;
+    m_sharedFile = nullptr;
+    m_sharedMem  = nullptr;
     if (!runLoop())
         emit cannotRetrieveDebugOutput();
     if (m_sharedMem) {
         UnmapViewOfFile(m_sharedMem);
-        m_sharedMem = 0;
+        m_sharedMem = nullptr;
     }
     if (m_sharedFile) {
         CloseHandle(m_sharedFile);
-        m_sharedFile = 0;
+        m_sharedFile = nullptr;
     }
     if (m_waitHandles[TerminateEventHandle]) {
         CloseHandle(m_waitHandles[TerminateEventHandle]);
-        m_waitHandles[TerminateEventHandle] = 0;
+        m_waitHandles[TerminateEventHandle] = nullptr;
     }
     if (m_waitHandles[DataReadyEventHandle]) {
         CloseHandle(m_waitHandles[DataReadyEventHandle]);
-        m_waitHandles[DataReadyEventHandle] = 0;
+        m_waitHandles[DataReadyEventHandle] = nullptr;
     }
     if (m_bufferReadyEvent) {
         CloseHandle(m_bufferReadyEvent);
-        m_bufferReadyEvent = 0;
+        m_bufferReadyEvent = nullptr;
     }
 }
 
@@ -130,7 +130,7 @@ bool WinDebugInterface::runLoop()
         return false;
 
     LPSTR  message = reinterpret_cast<LPSTR>(m_sharedMem) + sizeof(DWORD);
-    LPDWORD processId = reinterpret_cast<LPDWORD>(m_sharedMem);
+    auto processId = reinterpret_cast<LPDWORD>(m_sharedMem);
 
     SetEvent(m_bufferReadyEvent);
 

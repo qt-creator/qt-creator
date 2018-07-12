@@ -152,7 +152,7 @@ void CustomExecutableDialog::accept()
 bool CustomExecutableDialog::event(QEvent *event)
 {
     if (event->type() == QEvent::ShortcutOverride) {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        auto *ke = static_cast<QKeyEvent *>(event);
         if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
             ke->accept();
             return true;

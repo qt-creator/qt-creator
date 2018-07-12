@@ -128,7 +128,7 @@ const char SshOptionsKey[] = "SshOptions";
 const char DebugServerKey[] = "DebugServerKey";
 const char QmlsceneKey[] = "QmlsceneKey";
 
-typedef QSsh::SshConnectionParameters::AuthenticationType AuthType;
+using AuthType = QSsh::SshConnectionParameters::AuthenticationType;
 const AuthType DefaultAuthType = QSsh::SshConnectionParameters::AuthenticationTypePublicKey;
 const IDevice::MachineType DefaultMachineType = IDevice::Hardware;
 
@@ -138,20 +138,15 @@ namespace Internal {
 class IDevicePrivate
 {
 public:
-    IDevicePrivate() :
-        origin(IDevice::AutoDetected),
-        deviceState(IDevice::DeviceStateUnknown),
-        machineType(IDevice::Hardware),
-        version(0)
-    { }
+    IDevicePrivate() = default;
 
     QString displayName;
     Core::Id type;
-    IDevice::Origin origin;
+    IDevice::Origin origin = IDevice::AutoDetected;
     Core::Id id;
-    IDevice::DeviceState deviceState;
-    IDevice::MachineType machineType;
-    int version; // This is used by devices that have been added by the SDK.
+    IDevice::DeviceState deviceState = IDevice::DeviceStateUnknown;
+    IDevice::MachineType machineType = IDevice::Hardware;
+    int version = 0; // This is used by devices that have been added by the SDK.
 
     QSsh::SshConnectionParameters sshParameters;
     Utils::PortList freePorts;
@@ -270,14 +265,14 @@ PortsGatheringMethod::Ptr IDevice::portsGatheringMethod() const
 DeviceProcessList *IDevice::createProcessListModel(QObject *parent) const
 {
     Q_UNUSED(parent);
-    QTC_ASSERT(false, qDebug("This should not have been called..."); return 0);
-    return 0;
+    QTC_ASSERT(false, qDebug("This should not have been called..."); return nullptr);
+    return nullptr;
 }
 
 DeviceTester *IDevice::createDeviceTester() const
 {
     QTC_ASSERT(false, qDebug("This should not have been called..."));
-    return 0;
+    return nullptr;
 }
 
 Utils::OsType IDevice::osType() const
@@ -288,7 +283,7 @@ Utils::OsType IDevice::osType() const
 DeviceProcess *IDevice::createProcess(QObject * /* parent */) const
 {
     QTC_CHECK(false);
-    return 0;
+    return nullptr;
 }
 
 DeviceEnvironmentFetcher::Ptr IDevice::environmentFetcher() const
@@ -479,12 +474,8 @@ void DeviceProcessSignalOperation::setDebuggerCommand(const QString &cmd)
     m_debuggerCommand = cmd;
 }
 
-DeviceProcessSignalOperation::DeviceProcessSignalOperation()
-{
-}
+DeviceProcessSignalOperation::DeviceProcessSignalOperation() = default;
 
-DeviceEnvironmentFetcher::DeviceEnvironmentFetcher()
-{
-}
+DeviceEnvironmentFetcher::DeviceEnvironmentFetcher() = default;
 
 } // namespace ProjectExplorer

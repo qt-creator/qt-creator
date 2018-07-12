@@ -437,7 +437,7 @@ bool AbstractMsvcToolChain::operator ==(const ToolChain &other) const
     if (!ToolChain::operator ==(other))
         return false;
 
-    const AbstractMsvcToolChain *msvcTc = static_cast<const AbstractMsvcToolChain *>(&other);
+    const auto *msvcTc = static_cast<const AbstractMsvcToolChain *>(&other);
     return targetAbi() == msvcTc->targetAbi()
             && m_vcvarsBat == msvcTc->m_vcvarsBat;
 }

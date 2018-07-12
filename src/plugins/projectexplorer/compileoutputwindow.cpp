@@ -108,7 +108,7 @@ private:
     }
 
 protected:
-    void mouseMoveEvent(QMouseEvent *ev)
+    void mouseMoveEvent(QMouseEvent *ev) override
     {
         const int line = cursorForPosition(ev->pos()).block().blockNumber();
         if (m_taskids.contains(line) && m_mousePressButton == Qt::NoButton)
@@ -118,14 +118,14 @@ protected:
         QPlainTextEdit::mouseMoveEvent(ev);
     }
 
-    void mousePressEvent(QMouseEvent *ev)
+    void mousePressEvent(QMouseEvent *ev) override
     {
         m_mousePressPosition = ev->pos();
         m_mousePressButton = ev->button();
         QPlainTextEdit::mousePressEvent(ev);
     }
 
-    void mouseReleaseEvent(QMouseEvent *ev)
+    void mouseReleaseEvent(QMouseEvent *ev) override
     {
         if ((m_mousePressPosition - ev->pos()).manhattanLength() < 4
                 && m_mousePressButton == Qt::LeftButton) {

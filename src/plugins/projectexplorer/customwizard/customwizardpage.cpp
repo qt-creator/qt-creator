@@ -163,7 +163,7 @@ void CustomWizardFieldPage::addField(const CustomWizardField &field)\
 static void comboChoices(const CustomWizardField::ControlAttributeMap &controlAttributes,
                   QStringList *values, QStringList *displayTexts)
 {
-    typedef CustomWizardField::ControlAttributeMap::ConstIterator AttribMapConstIt;
+    using AttribMapConstIt = CustomWizardField::ControlAttributeMap::ConstIterator;
 
     values->clear();
     displayTexts->clear();
@@ -260,7 +260,7 @@ QWidget *CustomWizardFieldPage::registerCheckBox(const QString &fieldName,
                                                  const QString &fieldDescription,
                                                  const CustomWizardField &field)
 {
-    typedef CustomWizardField::ControlAttributeMap::const_iterator AttributeMapConstIt;
+    using AttributeMapConstIt = CustomWizardField::ControlAttributeMap::const_iterator;
 
     auto checkBox = new TextFieldCheckBox(fieldDescription);
     const bool defaultValue = field.controlAttributes.value(QLatin1String("defaultvalue")) == QLatin1String("true");

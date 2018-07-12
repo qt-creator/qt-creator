@@ -76,12 +76,12 @@ public:
         setVisible(!task.icon.isNull());
     }
 
-    bool isClickable() const;
-    void clicked();
+    bool isClickable() const override;
+    void clicked() override;
 
-    void updateFileName(const FileName &fileName);
-    void updateLineNumber(int lineNumber);
-    void removedFromEditor();
+    void updateFileName(const FileName &fileName) override;
+    void updateLineNumber(int lineNumber) override;
+    void removedFromEditor() override;
 private:
     unsigned int m_id;
 };

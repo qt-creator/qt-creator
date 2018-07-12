@@ -149,7 +149,7 @@ IOutputParser *IOutputParser::takeOutputParserChain()
     IOutputParser *parser = m_parser;
     disconnect(parser, &IOutputParser::addOutput, this, &IOutputParser::outputAdded);
     disconnect(parser, &IOutputParser::addTask, this, &IOutputParser::taskAdded);
-    m_parser = 0;
+    m_parser = nullptr;
     return parser;
 }
 

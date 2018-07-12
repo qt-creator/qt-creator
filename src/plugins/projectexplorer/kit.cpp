@@ -472,7 +472,7 @@ bool Kit::isEqual(const Kit *other) const
 
 QVariantMap Kit::toMap() const
 {
-    typedef QHash<Id, QVariant>::ConstIterator IdVariantConstIt;
+    using IdVariantConstIt = QHash<Id, QVariant>::ConstIterator;
 
     QVariantMap data;
     data.insert(QLatin1String(ID_KEY), QString::fromLatin1(d->m_id.name()));

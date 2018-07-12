@@ -2447,7 +2447,7 @@ void ProjectExplorerPluginPrivate::runProjectContextMenu()
         auto act = qobject_cast<QAction *>(sender());
         if (!act)
             return;
-        RunConfiguration *rc = act->data().value<RunConfiguration *>();
+        auto *rc = act->data().value<RunConfiguration *>();
         if (!rc)
             return;
         m_instance->runRunConfiguration(rc, Constants::NORMAL_RUN_MODE);
@@ -2877,7 +2877,7 @@ void ProjectExplorerPluginPrivate::updateUnloadProjectMenu()
 
 void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
 {
-    typedef QList<QPair<QString, QString> >::const_iterator StringPairListConstIterator;
+    using StringPairListConstIterator = QList<QPair<QString, QString> >::const_iterator;
     ActionContainer *aci = ActionManager::actionContainer(Constants::M_RECENTPROJECTS);
     QMenu *menu = aci->menu();
     menu->clear();
@@ -2994,7 +2994,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
                 } else if (runConfigs.count() > 1) {
                     runMenu->menu()->menuAction()->setVisible(true);
                     foreach (RunConfiguration *rc, runConfigs) {
-                        QAction *act = new QAction(runMenu->menu());
+                        auto *act = new QAction(runMenu->menu());
                         act->setData(QVariant::fromValue(rc));
                         act->setText(tr("Run %1").arg(rc->displayName()));
                         runMenu->menu()->addAction(act);
@@ -3099,7 +3099,7 @@ void ProjectExplorerPluginPrivate::updateLocationSubMenus()
     for (const FolderNode::LocationInfo &li : locations) {
         const int line = li.line;
         const Utils::FileName path = li.path;
-        QAction *action = new QAction(li.displayName, nullptr);
+        auto *action = new QAction(li.displayName, nullptr);
         connect(action, &QAction::triggered, this, [line, path]() {
             Core::EditorManager::openEditorAt(path.toString(), line);
         });
@@ -3442,7 +3442,7 @@ void ProjectExplorerPluginPrivate::updateSessionMenu()
     m_sessionMenu->clear();
     dd->m_sessionMenu->addAction(dd->m_sessionManagerAction);
     dd->m_sessionMenu->addSeparator();
-    QActionGroup *ag = new QActionGroup(m_sessionMenu);
+    auto *ag = new QActionGroup(m_sessionMenu);
     connect(ag, &QActionGroup::triggered, this, &ProjectExplorerPluginPrivate::setSession);
     const QString activeSession = SessionManager::activeSession();
 

@@ -218,7 +218,7 @@ void KitManagerConfigWidget::addConfigWidget(KitConfigWidget *widget)
     QString name = widget->displayName();
     QString toolTip = widget->toolTip();
 
-    auto action = new QAction(tr("Mark as Mutable"), 0);
+    auto action = new QAction(tr("Mark as Mutable"), nullptr);
     action->setCheckable(true);
     action->setChecked(widget->isMutable());
     action->setEnabled(!widget->isSticky());

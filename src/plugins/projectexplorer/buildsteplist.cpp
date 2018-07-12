@@ -184,7 +184,7 @@ Target *BuildStepList::target() const
     auto dc = qobject_cast<DeployConfiguration *>(parent());
     if (dc)
         return dc->target();
-    return 0;
+    return nullptr;
 }
 
 Project *BuildStepList::project() const

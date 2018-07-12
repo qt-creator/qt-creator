@@ -114,13 +114,13 @@ public:
         m_fixupExpando = expando;
     }
 
-    QValidator::State validate(QString &input, int &pos) const
+    QValidator::State validate(QString &input, int &pos) const override
     {
         fixup(input);
         return QRegularExpressionValidator::validate(input, pos);
     }
 
-    void fixup(QString &fixup) const
+    void fixup(QString &fixup) const override
     {
         if (m_fixupExpando.isEmpty())
             return;
@@ -159,7 +159,7 @@ JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString
     if (input.type() != QVariant::Map) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                     "Field is not an object.");
-        return 0;
+        return nullptr;
     }
 
     QVariantMap tmp = input.toMap();
@@ -167,13 +167,13 @@ JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString
     if (name.isEmpty()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                     "Field has no name.");
-        return 0;
+        return nullptr;
     }
     const QString type = consumeValue(tmp, TYPE_KEY).toString();
     if (type.isEmpty()) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                     "Field \"%1\" has no type.").arg(name);
-        return 0;
+        return nullptr;
     }
 
     Field *data = createFieldData(type);
@@ -181,7 +181,7 @@ JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
                                                     "Field \"%1\" has unsupported type \"%2\".")
                 .arg(name).arg(type);
-        return 0;
+        return nullptr;
     }
     data->setTexts(name,
                    JsonWizardFactory::localizedString(consumeValue(tmp, DISPLAY_NAME_KEY).toString()),
@@ -200,7 +200,7 @@ JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString
                                                     "When parsing Field \"%1\": %2")
                 .arg(name).arg(*errorMessage);
         delete data;
-        return 0;
+        return nullptr;
     }
 
     warnAboutUnsupportedKeys(tmp, name);
@@ -927,7 +927,7 @@ void ListField::initializeData(MacroExpander *expander)
 
         QString iconPath = expandedValuesItem->data(IconStringRole).toString();
         if (!iconPath.isEmpty()) {
-            if (JsonFieldPage *page = qobject_cast<JsonFieldPage*>(widget()->parentWidget())) {
+            if (auto *page = qobject_cast<JsonFieldPage*>(widget()->parentWidget())) {
                 const QString wizardDirectory = page->value("WizardDir").toString();
                 iconPath = QDir::cleanPath(QDir(wizardDirectory).absoluteFilePath(iconPath));
                 if (QFileInfo::exists(iconPath)) {

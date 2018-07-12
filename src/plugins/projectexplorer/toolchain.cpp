@@ -53,7 +53,7 @@ namespace Internal {
 class ToolChainPrivate
 {
 public:
-    typedef ToolChain::Detection Detection;
+    using Detection = ToolChain::Detection;
 
     explicit ToolChainPrivate(Core::Id typeId, Detection d) :
         m_id(QUuid::createUuid().toByteArray()),

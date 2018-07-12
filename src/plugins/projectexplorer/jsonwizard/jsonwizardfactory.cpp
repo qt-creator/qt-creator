@@ -127,7 +127,7 @@ static JsonWizardFactory::Generator parseGenerator(const QVariant &value, QStrin
     }
     Core::Id typeId = Core::Id::fromString(QLatin1String(Constants::GENERATOR_ID_PREFIX) + strVal);
     JsonWizardGeneratorFactory *factory
-            = Utils::findOr(s_generatorFactories, 0, [typeId](JsonWizardGeneratorFactory *f) { return f->canCreate(typeId); });
+            = Utils::findOr(s_generatorFactories, nullptr, [typeId](JsonWizardGeneratorFactory *f) { return f->canCreate(typeId); });
     if (!factory) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizardFactory",
                                                     "TypeId \"%1\" of generator is unknown. Supported typeIds are: \"%2\".")
@@ -164,7 +164,7 @@ static JsonWizardFactory::Page parsePage(const QVariant &value, QString *errorMe
     Core::Id typeId = Core::Id::fromString(QLatin1String(Constants::PAGE_ID_PREFIX) + strVal);
 
     JsonWizardPageFactory *factory
-            = Utils::findOr(s_pageFactories, 0, [typeId](JsonWizardPageFactory *f) { return f->canCreate(typeId); });
+            = Utils::findOr(s_pageFactories, nullptr, [typeId](JsonWizardPageFactory *f) { return f->canCreate(typeId); });
     if (!factory) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizardFactory",
                                                     "TypeId \"%1\" of page is unknown. Supported typeIds are: \"%2\".")
@@ -306,7 +306,7 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
 JsonWizardFactory *JsonWizardFactory::createWizardFactory(const QVariantMap &data, const QDir &baseDir,
                                                           QString *errorMessage)
 {
-    JsonWizardFactory *factory = new JsonWizardFactory;
+    auto *factory = new JsonWizardFactory;
     if (!factory->initialize(data, baseDir, errorMessage)) {
         delete factory;
         factory = nullptr;
@@ -404,7 +404,7 @@ Utils::Wizard *JsonWizardFactory::runWizardImpl(const QString &path, QWidget *pa
             continue;
 
         havePage = true;
-        JsonWizardPageFactory *factory = Utils::findOr(s_pageFactories, 0,
+        JsonWizardPageFactory *factory = Utils::findOr(s_pageFactories, nullptr,
                                                        [&data](JsonWizardPageFactory *f) {
                                                             return f->canCreate(data.typeId);
                                                        });
@@ -427,7 +427,7 @@ Utils::Wizard *JsonWizardFactory::runWizardImpl(const QString &path, QWidget *pa
 
     foreach (const Generator &data, m_generators) {
         QTC_ASSERT(data.isValid(), continue);
-        JsonWizardGeneratorFactory *factory = Utils::findOr(s_generatorFactories, 0,
+        JsonWizardGeneratorFactory *factory = Utils::findOr(s_generatorFactories, nullptr,
                                                             [&data](JsonWizardGeneratorFactory *f) {
                                                                  return f->canCreate(data.typeId);
                                                             });
@@ -441,7 +441,7 @@ Utils::Wizard *JsonWizardFactory::runWizardImpl(const QString &path, QWidget *pa
     if (!havePage) {
         wizard->accept();
         wizard->deleteLater();
-        return 0;
+        return nullptr;
     }
 
     wizard->show();
@@ -629,7 +629,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
             return false;
     }
 
-    WizardFlags flags = 0;
+    WizardFlags flags = {};
     if (data.value(QLatin1String(PLATFORM_INDEPENDENT_KEY), false).toBool())
         flags |= PlatformIndependent;
     setFlags(flags);

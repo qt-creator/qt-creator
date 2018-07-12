@@ -78,7 +78,7 @@ public:
         : m_factory(factory), m_project(project)
     {}
 
-    ~MiscSettingsPanelItem() { delete m_widget; }
+    ~MiscSettingsPanelItem() override { delete m_widget; }
 
     QVariant data(int column, int role) const override;
     Qt::ItemFlags flags(int column) const override;
@@ -174,7 +174,7 @@ public:
         Q_UNUSED(column)
 
         if (role == ItemActivatedFromBelowRole) {
-            TreeItem *item = data.value<TreeItem *>();
+            auto *item = data.value<TreeItem *>();
             QTC_ASSERT(item, return false);
             m_currentPanelIndex = indexOf(item);
             QTC_ASSERT(m_currentPanelIndex != -1, return false);
@@ -198,7 +198,7 @@ private:
 class ProjectItem : public TreeItem
 {
 public:
-    ProjectItem() {}
+    ProjectItem() = default;
 
     ProjectItem(Project *project, const std::function<void()> &changeListener)
         : m_project(project), m_changeListener(changeListener)
@@ -279,7 +279,7 @@ public:
 
     QModelIndex activeIndex() const
     {
-        TreeItem *activeItem = data(0, ActiveItemRole).value<TreeItem *>();
+        auto *activeItem = data(0, ActiveItemRole).value<TreeItem *>();
         return activeItem ? activeItem->index() : QModelIndex();
     }
 
@@ -295,7 +295,7 @@ private:
 class SelectorDelegate : public QStyledItemDelegate
 {
 public:
-    SelectorDelegate() {}
+    SelectorDelegate() = default;
 
     QSize sizeHint(const QStyleOptionViewItem &option,
                    const QModelIndex &index) const final;
@@ -538,8 +538,8 @@ public:
     void handleImportBuild()
     {
         ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0);
-        Project *project = projectItem ? projectItem->project() : 0;
-        ProjectImporter *projectImporter = project ? project->projectImporter() : 0;
+        Project *project = projectItem ? projectItem->project() : nullptr;
+        ProjectImporter *projectImporter = project ? project->projectImporter() : nullptr;
         QTC_ASSERT(projectImporter, return);
 
         QString dir = project->projectDirectory().toString();

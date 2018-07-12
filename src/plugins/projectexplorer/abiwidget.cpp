@@ -77,7 +77,7 @@ public:
 AbiWidget::AbiWidget(QWidget *parent) : QWidget(parent),
     d(new Internal::AbiWidgetPrivate)
 {
-    QHBoxLayout *layout = new QHBoxLayout(this);
+    auto *layout = new QHBoxLayout(this);
     layout->setMargin(0);
     layout->setSpacing(2);
 

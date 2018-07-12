@@ -67,7 +67,7 @@ namespace ProjectExplorer {
 static ICodeStylePreferences *codeStylePreferences(Project *project, Id languageId)
 {
     if (!languageId.isValid())
-        return 0;
+        return nullptr;
 
     if (project)
         return project->editorConfiguration()->codeStyle(languageId);
@@ -310,7 +310,7 @@ JsonWizardGenerator *FileGeneratorFactory::create(Id typeId, const QVariant &dat
     Q_UNUSED(platform);
     Q_UNUSED(variables);
 
-    QTC_ASSERT(canCreate(typeId), return 0);
+    QTC_ASSERT(canCreate(typeId), return nullptr);
 
     auto gen = new JsonWizardFileGenerator;
     QString errorMessage;
@@ -319,7 +319,7 @@ JsonWizardGenerator *FileGeneratorFactory::create(Id typeId, const QVariant &dat
     if (!errorMessage.isEmpty()) {
         qWarning() << "FileGeneratorFactory setup error:" << errorMessage;
         delete gen;
-        return 0;
+        return nullptr;
     }
 
     return gen;
@@ -350,7 +350,7 @@ JsonWizardGenerator *ScannerGeneratorFactory::create(Id typeId, const QVariant &
     Q_UNUSED(platform);
     Q_UNUSED(variables);
 
-    QTC_ASSERT(canCreate(typeId), return 0);
+    QTC_ASSERT(canCreate(typeId), return nullptr);
 
     auto gen = new JsonWizardScannerGenerator;
     QString errorMessage;
@@ -359,7 +359,7 @@ JsonWizardGenerator *ScannerGeneratorFactory::create(Id typeId, const QVariant &
     if (!errorMessage.isEmpty()) {
         qWarning() << "ScannerGeneratorFactory setup error:" << errorMessage;
         delete gen;
-        return 0;
+        return nullptr;
     }
 
     return gen;

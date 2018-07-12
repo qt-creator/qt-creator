@@ -58,7 +58,7 @@ class ProcessListFilterModel : public QSortFilterProxyModel
 {
 public:
     ProcessListFilterModel();
-    bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
 ProcessListFilterModel::ProcessListFilterModel()
@@ -120,14 +120,14 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
     : q(parent)
     , kitLabel(new QLabel(DeviceProcessesDialog::tr("Kit:"), parent))
     , kitChooser(chooser)
-    , acceptButton(0)
+    , acceptButton(nullptr)
     , buttonBox(new QDialogButtonBox(parent))
 {
     q->setWindowTitle(DeviceProcessesDialog::tr("List of Processes"));
     q->setWindowFlags(q->windowFlags() & ~Qt::WindowContextHelpButtonHint);
     q->setMinimumHeight(500);
 
-    processList = 0;
+    processList = nullptr;
 
     processFilterLineEdit = new FancyLineEdit(q);
     processFilterLineEdit->setPlaceholderText(DeviceProcessesDialog::tr("Filter"));
@@ -159,7 +159,7 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
     buttonBox->addButton(updateListButton, QDialogButtonBox::ActionRole);
     buttonBox->addButton(killProcessButton, QDialogButtonBox::ActionRole);
 
-    QFormLayout *leftColumn = new QFormLayout();
+    auto *leftColumn = new QFormLayout();
     leftColumn->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     leftColumn->addRow(kitLabel, kitChooser);
     leftColumn->addRow(DeviceProcessesDialog::tr("&Filter:"), processFilterLineEdit);
@@ -173,7 +173,7 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
 //    horizontalLayout->addLayout(leftColumn);
 //    horizontalLayout->addLayout(rightColumn);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(q);
+    auto *mainLayout = new QVBoxLayout(q);
     mainLayout->addLayout(leftColumn);
     mainLayout->addWidget(procView);
     mainLayout->addWidget(errorText);
@@ -212,8 +212,8 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
 void DeviceProcessesDialogPrivate::setDevice(const IDevice::ConstPtr &device)
 {
     delete processList;
-    processList = 0;
-    proxyModel.setSourceModel(0);
+    processList = nullptr;
+    proxyModel.setSourceModel(nullptr);
     if (!device)
         return;
 

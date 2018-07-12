@@ -62,7 +62,7 @@ public:
         setMinimumHeight(1);
         setMaximumHeight(1);
     }
-    void paintEvent(QPaintEvent *e)
+    void paintEvent(QPaintEvent *e) override
     {
         Q_UNUSED(e);
         QPainter p(this);
@@ -77,7 +77,7 @@ public:
     RootWidget(QWidget *parent) : QWidget(parent) {
         setFocusPolicy(Qt::NoFocus);
     }
-    void paintEvent(QPaintEvent *);
+    void paintEvent(QPaintEvent *) override;
 };
 
 void RootWidget::paintEvent(QPaintEvent *e)
@@ -153,9 +153,7 @@ PanelsWidget::PanelsWidget(const QString &displayName, const QIcon &icon, QWidge
     addPropertiesPanel(displayName, icon, widget);
 }
 
-PanelsWidget::~PanelsWidget()
-{
-}
+PanelsWidget::~PanelsWidget() = default;
 
 /*
  * Add a widget with heading information into the grid

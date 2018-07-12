@@ -270,8 +270,8 @@ void ProjectExplorerPlugin::testXcodebuildParserParsing_data()
 void ProjectExplorerPlugin::testXcodebuildParserParsing()
 {
     OutputParserTester testbench;
-    XcodebuildParser *childParser = new XcodebuildParser;
-    XcodebuildParserTester *tester = new XcodebuildParserTester(childParser);
+    auto *childParser = new XcodebuildParser;
+    auto *tester = new XcodebuildParserTester(childParser);
 
     connect(&testbench, &OutputParserTester::aboutToDeleteParser,
             tester, &XcodebuildParserTester::onAboutToDeleteParser);

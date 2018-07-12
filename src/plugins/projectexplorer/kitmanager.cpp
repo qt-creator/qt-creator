@@ -324,7 +324,7 @@ KitManager::KitList KitManager::restoreKits(const FileName &fileName)
 
         const QVariantMap stMap = data.value(key).toMap();
 
-        Kit *k = new Kit(stMap);
+        auto *k = new Kit(stMap);
         if (k->id().isValid()) {
             result.kits.append(k);
         } else {
@@ -380,7 +380,7 @@ QList<KitInformation *> KitManager::kitInformation()
 
 KitManagerConfigWidget *KitManager::createConfigWidget(Kit *k)
 {
-    KitManagerConfigWidget *result = new KitManagerConfigWidget(k);
+    auto *result = new KitManagerConfigWidget(k);
     foreach (KitInformation *ki, kitInformation())
         result->addConfigWidget(ki->createConfigWidget(result->workingCopy()));
 

@@ -700,7 +700,7 @@ void SelectableFilesWidget::parsingFinished()
 
     const Utils::FileNameList preservedFiles = m_model->preservedFiles();
     m_preservedFilesLabel->setText(tr("Not showing %n files that are outside of the base directory.\n"
-                                      "These files are preserved.", 0, preservedFiles.count()));
+                                      "These files are preserved.", nullptr, preservedFiles.count()));
 
     enableWidgets(true);
 }

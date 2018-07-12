@@ -358,7 +358,7 @@ int IBuildConfigurationFactory::priority(const Kit *k, const QString &projectPat
 // setup
 IBuildConfigurationFactory *IBuildConfigurationFactory::find(const Kit *k, const QString &projectPath)
 {
-    IBuildConfigurationFactory *factory = 0;
+    IBuildConfigurationFactory *factory = nullptr;
     int priority = -1;
     for (IBuildConfigurationFactory *i : g_buildConfigurationFactories) {
         int iPriority = i->priority(k, projectPath);
@@ -373,7 +373,7 @@ IBuildConfigurationFactory *IBuildConfigurationFactory::find(const Kit *k, const
 // create
 IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
 {
-    IBuildConfigurationFactory *factory = 0;
+    IBuildConfigurationFactory *factory = nullptr;
     int priority = -1;
     for (IBuildConfigurationFactory *i : g_buildConfigurationFactories) {
         int iPriority = i->priority(parent);

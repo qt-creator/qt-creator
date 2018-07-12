@@ -529,13 +529,13 @@ TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
         if (factory)
             return factory->availableSetups(k, m_projectPath);
 
-        BuildInfo *info = new BuildInfo(nullptr);
+        auto *info = new BuildInfo(nullptr);
         info->kitId = k->id();
         return QList<BuildInfo *>({info});
     }();
 
     // Not all projects have BuildConfigurations, that is perfectly fine.
-    TargetSetupWidget *widget = new TargetSetupWidget(k, m_projectPath);
+    auto *widget = new TargetSetupWidget(k, m_projectPath);
 
     m_baseLayout->removeWidget(m_importWidget);
     foreach (QWidget *potentialWidget, m_potentialWidgets)

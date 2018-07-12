@@ -35,8 +35,7 @@ namespace ProjectExplorer {
 // JsonWizardPageFactory:
 // --------------------------------------------------------------------
 
-JsonWizardPageFactory::~JsonWizardPageFactory()
-{ }
+JsonWizardPageFactory::~JsonWizardPageFactory() = default;
 
 void JsonWizardPageFactory::setTypeIdsSuffixes(const QStringList &suffixes)
 {

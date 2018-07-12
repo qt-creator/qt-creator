@@ -202,7 +202,7 @@ public:
         NavigationTreeView::setModel(newModel);
     }
 
-    ~ProjectTreeView()
+    ~ProjectTreeView() override
     {
         ICore::removeContextObject(m_context);
         delete m_context;
@@ -423,7 +423,7 @@ void ProjectTreeWidget::editCurrentItem()
     const Node *node = m_model->nodeForIndex(currentIndex);
     if (!node)
         return;
-    QLineEdit *editor = qobject_cast<QLineEdit*>(m_view->indexWidget(currentIndex));
+    auto *editor = qobject_cast<QLineEdit*>(m_view->indexWidget(currentIndex));
     if (!editor)
         return;
 

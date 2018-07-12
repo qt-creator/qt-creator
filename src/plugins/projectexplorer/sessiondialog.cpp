@@ -39,8 +39,8 @@ class SessionValidator : public QValidator
 {
 public:
     SessionValidator(QObject *parent, const QStringList &sessions);
-    void fixup(QString & input) const;
-    QValidator::State validate(QString & input, int & pos) const;
+    void fixup(QString & input) const override;
+    QValidator::State validate(QString & input, int & pos) const override;
 private:
     QStringList m_sessions;
 };

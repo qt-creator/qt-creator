@@ -208,7 +208,7 @@ class TargetGroupItemPrivate : public QObject
 
 public:
     TargetGroupItemPrivate(TargetGroupItem *q, Project *project);
-    ~TargetGroupItemPrivate();
+    ~TargetGroupItemPrivate() override;
 
     void handleRemovedKit(Kit *kit);
     void handleAddedKit(Kit *kit);
@@ -302,7 +302,7 @@ public:
     Qt::ItemFlags flags(int column) const override
     {
         Q_UNUSED(column)
-        return m_kitErrorsForProject ? Qt::ItemFlags(0)
+        return m_kitErrorsForProject ? Qt::ItemFlags({})
                                      : Qt::ItemFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     }
 
@@ -375,7 +375,7 @@ public:
         Q_UNUSED(column)
 
         if (role == ContextMenuItemAdderRole) {
-            QMenu *menu = data.value<QMenu *>();
+            auto *menu = data.value<QMenu *>();
             addToContextMenu(menu);
             return true;
         }
@@ -663,7 +663,7 @@ public:
     {
         Q_UNUSED(column)
         if (role == ContextMenuItemAdderRole) {
-            QMenu *menu = data.value<QMenu *>();
+            auto *menu = data.value<QMenu *>();
             auto enableAction = menu->addAction(tr("Enable Kit"));
             enableAction->setEnabled(!isEnabled());
             QObject::connect(enableAction, &QAction::triggered, [this] {

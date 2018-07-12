@@ -83,11 +83,11 @@ void GnuMakeParser::stdOutput(const QString &line)
 
 class Result {
 public:
-    Result() : isFatal(false), type(Task::Error) { }
+    Result() = default;
 
     QString description;
-    bool isFatal;
-    Task::TaskType type;
+    bool isFatal = false;
+    Task::TaskType type = Task::Error;
 };
 
 static Result parseDescription(const QString &description)
@@ -401,8 +401,8 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
 void ProjectExplorerPlugin::testGnuMakeParserParsing()
 {
     OutputParserTester testbench;
-    GnuMakeParser *childParser = new GnuMakeParser;
-    GnuMakeParserTester *tester = new GnuMakeParserTester(childParser);
+    auto *childParser = new GnuMakeParser;
+    auto *tester = new GnuMakeParserTester(childParser);
     connect(&testbench, &OutputParserTester::aboutToDeleteParser,
             tester, &GnuMakeParserTester::parserIsAboutToBeDeleted);
 
@@ -494,7 +494,7 @@ void ProjectExplorerPlugin::testGnuMakeParserTaskMangling_data()
 void ProjectExplorerPlugin::testGnuMakeParserTaskMangling()
 {
     OutputParserTester testbench;
-    GnuMakeParser *childParser = new GnuMakeParser;
+    auto *childParser = new GnuMakeParser;
     testbench.appendOutputParser(childParser);
 
     QFETCH(QStringList, files);

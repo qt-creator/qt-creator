@@ -38,8 +38,7 @@ static inline QByteArray msgFileComparisonFail(const Utils::FileName &f1, const 
     return result.toLocal8Bit();
 }
 
-OutputParserTester::OutputParserTester()
-{ }
+OutputParserTester::OutputParserTester() = default;
 
 // test functions:
 void OutputParserTester::testParsing(const QString &lines,

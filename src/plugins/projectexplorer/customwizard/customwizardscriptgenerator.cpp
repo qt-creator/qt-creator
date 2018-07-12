@@ -230,7 +230,7 @@ bool runCustomWizardGeneratorScript(const QString &targetPath,
 {
     return runGenerationScriptHelper(targetPath, script, arguments,
                                      false, fieldMap,
-                                     0, errorMessage);
+                                     nullptr, errorMessage);
 }
 
 } // namespace Internal

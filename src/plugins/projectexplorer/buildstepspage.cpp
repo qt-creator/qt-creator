@@ -50,8 +50,7 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 using namespace Utils;
 
-ToolWidget::ToolWidget(QWidget *parent) : FadingPanel(parent),
-    m_targetOpacity(.999)
+ToolWidget::ToolWidget(QWidget *parent) : FadingPanel(parent)
 {
     auto layout = new QHBoxLayout;
     layout->setMargin(4);
@@ -169,7 +168,7 @@ void ToolWidget::setDownVisible(bool b)
 }
 
 BuildStepsWidgetData::BuildStepsWidgetData(BuildStep *s) :
-    step(s), widget(0), detailsWidget(0)
+    step(s), widget(nullptr), detailsWidget(nullptr)
 {
     widget = s->createConfigWidget();
     Q_ASSERT(widget);

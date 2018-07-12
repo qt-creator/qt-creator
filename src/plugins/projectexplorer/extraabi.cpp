@@ -51,7 +51,7 @@ class AbiFlavorUpgraderV0 : public VersionUpgrader
 public:
     AbiFlavorUpgraderV0() : VersionUpgrader(0, "") { }
 
-    virtual QVariantMap upgrade(const QVariantMap &data) { return data; }
+    QVariantMap upgrade(const QVariantMap &data) override { return data; }
 };
 
 class AbiFlavorAccessor : public UpgradingSettingsAccessor

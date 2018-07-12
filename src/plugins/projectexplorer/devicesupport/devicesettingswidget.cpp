@@ -58,14 +58,14 @@ const char LastDeviceIndexKey[] = "LastDisplayedMaemoDeviceConfig";
 class NameValidator : public QValidator
 {
 public:
-    NameValidator(const DeviceManager *deviceManager, QWidget *parent = 0)
+    NameValidator(const DeviceManager *deviceManager, QWidget *parent = nullptr)
         : QValidator(parent), m_deviceManager(deviceManager)
     {
     }
 
     void setDisplayName(const QString &name) { m_oldName = name; }
 
-    virtual State validate(QString &input, int & /* pos */) const
+    State validate(QString &input, int & /* pos */) const override
     {
         if (input.trimmed().isEmpty()
                 || (input != m_oldName && m_deviceManager->hasDevice(input)))
@@ -73,7 +73,7 @@ public:
         return Acceptable;
     }
 
-    virtual void fixup(QString &input) const
+    void fixup(QString &input) const override
     {
         int dummy = 0;
         if (validate(input, dummy) != Acceptable)
@@ -91,7 +91,7 @@ DeviceSettingsWidget::DeviceSettingsWidget(QWidget *parent)
       m_deviceManager(DeviceManager::cloneInstance()),
       m_deviceManagerModel(new DeviceManagerModel(m_deviceManager, this)),
       m_nameValidator(new NameValidator(m_deviceManager, this)),
-      m_configWidget(0)
+      m_configWidget(nullptr)
 {
     initGui();
     connect(m_deviceManager, &DeviceManager::deviceUpdated,
@@ -270,7 +270,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
 {
     qDeleteAll(m_additionalActionButtons);
     delete m_configWidget;
-    m_configWidget = 0;
+    m_configWidget = nullptr;
     m_additionalActionButtons.clear();
     const IDevice::ConstPtr device = m_deviceManagerModel->device(index);
     if (device.isNull()) {
