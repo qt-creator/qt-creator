@@ -520,7 +520,7 @@ void AndroidRunnerWorker::handleJdbWaiting()
     jdbProcess->setProcessChannelMode(QProcess::MergedChannels);
     jdbProcess->start(jdbPath.toString(), jdbArgs);
     if (!jdbProcess->waitForStarted()) {
-        emit remoteProcessFinished(tr("Failed to start jdb"));
+        emit remoteProcessFinished(tr("Failed to start jdb."));
         return;
     }
     m_jdbProcess = std::move(jdbProcess);
@@ -560,7 +560,8 @@ void AndroidRunnerWorker::handleJdbSettled()
             }
         }
     }
-    emit remoteProcessFinished(tr("Cannot attach jdb to the running application").arg(m_lastRunAdbError));
+    emit remoteProcessFinished(tr("Cannot attach jdb to the running application. Reason: %1.")
+                               .arg(m_lastRunAdbError));
 }
 
 void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
