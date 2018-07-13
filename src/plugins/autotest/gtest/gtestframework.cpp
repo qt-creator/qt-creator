@@ -85,7 +85,7 @@ QString GTestFramework::groupingToolTip() const
 {
     return QCoreApplication::translate("GTestFramework",
                                        "Enable or disable grouping of test cases by folder or "
-                                       "gtest filter.\nSee also Google Test settings.");
+                                       "GTest filter.\nSee also Google Test settings.");
 }
 
 GTest::Constants::GroupMode GTestFramework::groupMode()
