@@ -230,7 +230,7 @@ void ImageView::exportMultiImages()
     const QFileInfo origFi = m_file->filePath().toFileInfo();
     const QSize size = svgSize();
     const QString title =
-        tr("Export a Series of Images from %1 (%2x%3")
+        tr("Export a Series of Images from %1 (%2x%3)")
           .arg(origFi.fileName()).arg(size.width()).arg(size.height());
     MultiExportDialog multiExportDialog;
     multiExportDialog.setWindowTitle(title);
