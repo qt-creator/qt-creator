@@ -13,6 +13,8 @@ General
   variables
 * Added `Create Folder` to context menu of path choosers if the path does not
   exist
+* Fixed menu items shown in menu locator filter (QTCREATORBUG-20071,
+  QTCREATORBUG-20626)
 
 Editing
 
@@ -24,13 +26,21 @@ All Projects
 
 * Added option for parallel jobs to `make` step, which is enabled by default
   if `MAKEFLAGS` are not set (QTCREATORBUG-18414)
+* Added auto-detection of the Clang compiler shipped with Qt Creator
 * Improved handling of relative file paths for custom error parsers
   (QTCREATORBUG-20605)
 * Fixed that `make` step required C++ tool chain
 
 QMake Projects
 
+* Fixed that `make qmake_all` was run in top-level project directory even when
+  building sub-project (QTCREATORBUG-20823)
+
 C++ Support
+
+* Clang Code Model
+    * Added function overloads to tooltip in completion popup
+    * Added `Build` > `Generate Compilation Database`
 
 QML Support
 
@@ -42,6 +52,14 @@ Python Support
 
 Debugging
 
+* GDB
+    * Fixed startup issue with localized debugger output (QTCREATORBUG-20765)
+    * Fixed disassembler view for newer GCC
+* CDB
+    * Added option to suppress task entries for exceptions (QTCREATORBUG-20915)
+* LLDB
+    * Fixed instruction-wise stepping
+
 Clang Static Analyzer
 
 QML Profiler
@@ -50,6 +68,7 @@ Version Control Systems
 
 * Git
     * Improved behavior if no merge tool is configured
+    * Fixed handling of `file://` remotes (QTCREATORBUG-20618)
 
 Image Viewer
 
@@ -60,5 +79,9 @@ Platform Specific
 Windows
 
 Android
+
+* Added support for command line arguments
+* Added support for environment variables
+* Fixed connecting to debugger for API level 24 and later
 
 Credits for these changes go to:  
