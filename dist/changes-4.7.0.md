@@ -20,6 +20,7 @@ General
     * Added option to show folders on top (QTCREATORBUG-7818)
     * Made synchronization of root directory with current document optional
       (QTCREATORBUG-19322)
+* Fixed that external tools did not expand variables for environment changes
 
 Editing
 
@@ -51,6 +52,7 @@ All Projects
   (QTCREATORBUG-19625)
 * Added global option for `Add linker library search paths to run environment`
   (QTCREATORBUG-20240)
+* Added `%{CurrentBuild:Env}` Qt Creator variable
 
 QMake Projects
 
@@ -58,6 +60,8 @@ QMake Projects
 * Added deployment rules for devices to widget and console application wizards
   (QTCREATORBUG-20358)
 * Fixed that arguments for QMake step did not expand variables
+* Fixed `lupdate` and `lrelease` external tools for Qt 5.9 and later
+  (QTCREATORBUG-19892)
 
 C++ Support
 
@@ -102,11 +106,13 @@ Python Support
 
 Debugging
 
-* Fixed updating of memory view
 * Added `Leave Debug Mode` button to toolbar
+* Fixed updating of memory view
+* Fixed issue with restoring debugger views (QTCREATORBUG-20721)
 * QML
     * Added support for nested properties (QTBUG-68474)
     * Fixed issue with different endianness (QTBUG-68721)
+* Fixed Qt namespace detection with GDB 8 (QTCREATORBUG-19620)
 
 Qt Quick Designer
 
@@ -148,6 +154,8 @@ Test Integration
 * Qt Quick
     * Fixed parsing issue with non-ASCII characters (QTCREATORBUG-20105)
     * Fixed detection of test name (QTCREATORBUG-20642)
+    * Fixed detection when `quick_test_main()` is used directly
+      (QTCREATORBUG-20746)
 
 Welcome
 
@@ -212,6 +220,7 @@ Przemyslaw Gorszkowski
 Razi Alavizadeh  
 Robert Löhning  
 Rune Espeseth  
+scootergrisen  
 Sergey Belyashov  
 Sergey Morozov  
 Tasuku Suzuki  
