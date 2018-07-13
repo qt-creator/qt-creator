@@ -6187,8 +6187,12 @@ void TextEditorWidget::zoomReset()
     showZoomIndicator(this, 100);
 }
 
-void TextEditorWidget::findLinkAt(const QTextCursor &, Utils::ProcessLinkCallback &&, bool, bool)
+void TextEditorWidget::findLinkAt(const QTextCursor &cursor,
+                                  Utils::ProcessLinkCallback &&callback,
+                                  bool resolveTarget,
+                                  bool inNextSplit)
 {
+    emit requestLinkAt(cursor, callback, resolveTarget, inNextSplit);
 }
 
 bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
@@ -8392,6 +8396,15 @@ bool BaseTextEditor::restoreState(const QByteArray &state)
 BaseTextEditor *BaseTextEditor::currentTextEditor()
 {
     return qobject_cast<BaseTextEditor *>(EditorManager::currentEditor());
+}
+
+BaseTextEditor *BaseTextEditor::textEditorForDocument(TextDocument *textDocument)
+{
+    for (IEditor *editor : Core::DocumentModel::editorsForDocument(textDocument)) {
+        if (auto textEditor = qobject_cast<BaseTextEditor *>(editor))
+            return textEditor;
+    }
+    return nullptr;
 }
 
 TextEditorWidget *BaseTextEditor::editorWidget() const

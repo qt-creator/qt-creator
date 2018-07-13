@@ -2166,8 +2166,10 @@ bool EditorManagerPrivate::saveDocument(IDocument *document)
         success = DocumentManager::saveDocument(document);
     }
 
-    if (success)
+    if (success) {
         addDocumentToRecentFiles(document);
+        emit m_instance->saved(document);
+    }
 
     return success;
 }
@@ -2200,8 +2202,10 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
     // a good way out either (also the undo stack would be lost). Perhaps the best is to
     // re-think part of the editors design.
 
-    if (success)
+    if (success) {
         addDocumentToRecentFiles(document);
+        emit m_instance->saved(document);
+    }
 
     updateActions();
     return success;

@@ -21,6 +21,7 @@ SUBDIRS += \
     filesearch \
     mapreduce \
     runextensions \
+    languageserverprotocol \
     sdktool \
     valgrind
 

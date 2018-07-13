@@ -108,6 +108,7 @@ public:
     virtual void finalizeInitialization() {}
 
     static BaseTextEditor *currentTextEditor();
+    static BaseTextEditor *textEditorForDocument(TextDocument *textDocument);
 
     TextEditorWidget *editorWidget() const;
     TextDocument *textDocument() const;
@@ -471,6 +472,9 @@ signals:
     void readOnlyChanged();
 
     void requestBlockUpdate(const QTextBlock &);
+
+    void requestLinkAt(const QTextCursor &cursor, Utils::ProcessLinkCallback &callback,
+                       bool resolveTarget, bool inNextSplit);
 
 protected:
     QTextBlock blockForVisibleRow(int row) const;

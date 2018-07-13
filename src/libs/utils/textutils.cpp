@@ -57,7 +57,7 @@ OptionalLineColumn convertPosition(const QTextDocument *document, int pos)
     return optional;
 }
 
-int positionInText(QTextDocument *textDocument, int line, int column)
+int positionInText(const QTextDocument *textDocument, int line, int column)
 {
     // Deduct 1 from line and column since they are 1-based.
     // Column should already be converted from UTF-8 byte offset to the TextEditor column.

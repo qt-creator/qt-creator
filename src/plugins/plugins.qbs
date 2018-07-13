@@ -39,6 +39,7 @@ Project {
         "help/help.qbs",
         "imageviewer/imageviewer.qbs",
         "ios/ios.qbs",
+        "languageclient/languageclient.qbs",
         "macros/macros.qbs",
         "mercurial/mercurial.qbs",
         "modeleditor/modeleditor.qbs",

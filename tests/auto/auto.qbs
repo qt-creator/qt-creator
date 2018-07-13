@@ -16,15 +16,16 @@ Project {
         "filesearch/filesearch.qbs",
         "generichighlighter/generichighlighter.qbs",
         "json/json.qbs",
+        "languageserverprotocol/languageserverprotocol.qbs",
         "profilewriter/profilewriter.qbs",
         "qml/qml.qbs",
         "qtcprocess/qtcprocess.qbs",
         "runextensions/runextensions.qbs",
         "sdktool/sdktool.qbs",
+        "toolchaincache/toolchaincache.qbs",
         "tracing/tracing.qbs",
         "treeviewfind/treeviewfind.qbs",
-        "toolchaincache/toolchaincache.qbs",
         "utils/utils.qbs",
-        "valgrind/valgrind.qbs"
+        "valgrind/valgrind.qbs",
     ].concat(project.additionalAutotests)
 }

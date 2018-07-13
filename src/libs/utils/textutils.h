@@ -45,7 +45,7 @@ QTCREATOR_UTILS_EXPORT
 OptionalLineColumn convertPosition(const QTextDocument *document, int pos);
 
 // line and column are 1-based
-QTCREATOR_UTILS_EXPORT int positionInText(QTextDocument *textDocument, int line, int column);
+QTCREATOR_UTILS_EXPORT int positionInText(const QTextDocument *textDocument, int line, int column);
 
 QTCREATOR_UTILS_EXPORT QString textAt(QTextCursor tc, int pos, int length);
 

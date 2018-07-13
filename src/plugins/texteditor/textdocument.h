@@ -29,6 +29,7 @@
 
 #include <coreplugin/id.h>
 #include <coreplugin/textdocument.h>
+#include <utils/link.h>
 
 #include <QList>
 #include <QMap>

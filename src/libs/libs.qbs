@@ -9,6 +9,7 @@ Project {
         "cplusplus/cplusplus.qbs",
         "extensionsystem/extensionsystem.qbs",
         "glsl/glsl.qbs",
+        "languageserverprotocol/languageserverprotocol.qbs",
         "languageutils/languageutils.qbs",
         "modelinglib/modelinglib.qbs",
         "qmleditorwidgets/qmleditorwidgets.qbs",

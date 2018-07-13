@@ -207,6 +207,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
         return;
 
     m_assistKind = kind;
+    m_requestProvider = provider;
     IAssistProcessor *processor = provider->createProcessor();
 
     switch (provider->runType()) {
@@ -220,7 +221,6 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
         if (IAssistProposal *newProposal = processor->immediateProposal(assistInterface))
             displayProposal(newProposal, reason);
 
-        m_requestProvider = provider;
         m_requestRunner = new ProcessorRunner;
         m_runnerConnection = connect(m_requestRunner, &ProcessorRunner::finished,
                                      this, [this, reason](){
@@ -433,10 +433,13 @@ void CodeAssistantPrivate::notifyChange()
         QTC_ASSERT(m_proposal, return);
         if (m_editorWidget->position() < m_proposal->basePosition()) {
             destroyContext();
-        } else {
+        } else if (!m_proposal->isFragile()) {
             m_proposalWidget->updateProposal(
                 m_editorWidget->textAt(m_proposal->basePosition(),
                                      m_editorWidget->position() - m_proposal->basePosition()));
+        } else {
+            destroyContext();
+            requestProposal(ExplicitlyInvoked, m_assistKind, m_requestProvider);
         }
     }
 }

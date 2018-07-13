@@ -243,7 +243,9 @@ namespace std {
 #endif
 
 #if defined(__cpp_constexpr) && __cpp_constexpr >= 201304
+#if !defined(_MSC_VER) || _MSC_VER < 1915 // compile issue in msvc 2017 update 8
 #define MPARK_CPP14_CONSTEXPR
+#endif
 #endif
 
 #if __has_feature(cxx_exceptions) || defined(__cpp_exceptions) || \
@@ -1883,8 +1885,7 @@ namespace mpark {
     template <
         typename Front = lib::type_pack_element_t<0, Ts...>,
         lib::enable_if_t<std::is_default_constructible<Front>::value, int> = 0>
-    inline constexpr variant() noexcept(
-        std::is_nothrow_default_constructible<Front>::value)
+    inline constexpr variant()
         : impl_(in_place_index_t<0>{}) {}
 
     variant(const variant &) = default;
@@ -1976,9 +1977,7 @@ namespace mpark {
               lib::enable_if_t<(std::is_assignable<T &, Arg>::value &&
                                 std::is_constructible<T, Arg>::value),
                                int> = 0>
-    inline variant &operator=(Arg &&arg) noexcept(
-        (std::is_nothrow_assignable<T &, Arg>::value &&
-         std::is_nothrow_constructible<T, Arg>::value)) {
+    inline variant &operator=(Arg &&arg) {
       impl_.template assign<I>(lib::forward<Arg>(arg));
       return *this;
     }

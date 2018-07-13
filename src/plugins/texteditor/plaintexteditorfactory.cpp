@@ -69,8 +69,9 @@ PlainTextEditorFactory::PlainTextEditorFactory()
     setUseGenericHighlighter(true);
 
     setEditorActionHandlers(TextEditorActionHandler::Format |
-        TextEditorActionHandler::UnCommentSelection |
-        TextEditorActionHandler::UnCollapseAll);
+                            TextEditorActionHandler::UnCommentSelection |
+                            TextEditorActionHandler::UnCollapseAll |
+                            TextEditorActionHandler::FollowSymbolUnderCursor);
 }
 
 PlainTextEditorFactory *PlainTextEditorFactory::instance()

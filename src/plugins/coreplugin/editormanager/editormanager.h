@@ -179,6 +179,7 @@ signals:
     void findOnFileSystemRequest(const QString &path);
     void openFileProperties(const Utils::FileName &path);
     void aboutToSave(IDocument *document);
+    void saved(IDocument *document);
     void autoSaved();
     void currentEditorAboutToChange(Core::IEditor *editor);
 
