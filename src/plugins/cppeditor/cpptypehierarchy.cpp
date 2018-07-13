@@ -34,7 +34,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppelementevaluator.h>
 #include <utils/algorithm.h>
-#include <utils/annotateditemdelegate.h>
+#include <utils/delegates.h>
 #include <utils/navigationtreeview.h>
 #include <utils/dropsupport.h>
 

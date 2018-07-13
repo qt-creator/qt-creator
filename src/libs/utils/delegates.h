@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 BlackBerry Limited. All rights reserved.
-** Contact: KDAB (info@kdab.com)
+** Copyright (C) 2016 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
 **
@@ -25,41 +25,60 @@
 
 #pragma once
 
+#include "utils_global.h"
+#include "pathchooser.h"
+
 #include <QStyledItemDelegate>
 
-#include <utils/pathchooser.h>
+namespace Utils {
 
-namespace Qnx {
-namespace Internal {
-
-// TODO: This whole class should probably go into utils
-
-class PathChooserDelegate : public QStyledItemDelegate
+class QTCREATOR_UTILS_EXPORT AnnotatedItemDelegate : public QStyledItemDelegate
 {
-    Q_OBJECT
 public:
-    explicit PathChooserDelegate(QObject *parent = 0);
+    AnnotatedItemDelegate(QObject *parent = nullptr);
+    ~AnnotatedItemDelegate() override;
 
-    void setExpectedKind(Utils::PathChooser::Kind kind);
+    void setAnnotationRole(int role);
+    int annotationRole() const;
+
+    void setDelimiter(const QString &delimiter);
+    const QString &delimiter() const;
+
+protected:
+    void paint(QPainter *painter,
+                       const QStyleOptionViewItem &option,
+                       const QModelIndex &index) const override;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+
+private:
+    int m_annotationRole;
+    QString m_delimiter;
+};
+
+class QTCREATOR_UTILS_EXPORT PathChooserDelegate : public QStyledItemDelegate
+{
+public:
+    explicit PathChooserDelegate(QObject *parent = nullptr);
+
+    void setExpectedKind(PathChooser::Kind kind);
     void setPromptDialogFilter(const QString &filter);
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                          const QModelIndex &index) const;
+                          const QModelIndex &index) const override;
 
-    void setEditorData(QWidget *editor, const QModelIndex &index) const;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
     void setModelData(QWidget *editor, QAbstractItemModel *model,
-                      const QModelIndex &index) const;
+                      const QModelIndex &index) const override;
 
     void updateEditorGeometry(QWidget *editor,
-        const QStyleOptionViewItem &option, const QModelIndex &index) const;
+        const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
     void setHistoryCompleter(const QString &key);
 
 private:
-    Utils::PathChooser::Kind m_kind;
+    PathChooser::Kind m_kind;
     QString m_filter;
     QString m_historyKey;
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // Utils

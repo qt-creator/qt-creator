@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "annotateditemdelegate.h"
+#include "delegates.h"
 
 #include <QPainter>
 #include <QApplication>
@@ -110,4 +110,68 @@ QSize AnnotatedItemDelegate::sizeHint(const QStyleOptionViewItem &option,
         opt.text += m_delimiter + annotation;
 
     return QApplication::style()->sizeFromContents(QStyle::CT_ItemViewItem, &opt, QSize(), nullptr);
+}
+
+PathChooserDelegate::PathChooserDelegate(QObject *parent)
+    : QStyledItemDelegate(parent)
+    , m_kind(Utils::PathChooser::ExistingDirectory)
+{
+}
+
+void PathChooserDelegate::setExpectedKind(Utils::PathChooser::Kind kind)
+{
+    m_kind = kind;
+}
+
+void PathChooserDelegate::setPromptDialogFilter(const QString &filter)
+{
+    m_filter = filter;
+}
+
+QWidget *PathChooserDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    Q_UNUSED(option);
+    Q_UNUSED(index);
+
+    Utils::PathChooser *editor = new Utils::PathChooser(parent);
+
+    editor->setHistoryCompleter(m_historyKey);
+    editor->setAutoFillBackground(true); // To hide the text beneath the editor widget
+    editor->lineEdit()->setMinimumWidth(0);
+
+    connect(editor, &Utils::PathChooser::browsingFinished, this, [this, editor]() {
+        emit const_cast<PathChooserDelegate*>(this)->commitData(editor);
+    });
+
+    return editor;
+}
+
+void PathChooserDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+{
+    if (auto *pathChooser = qobject_cast<Utils::PathChooser *>(editor)) {
+        pathChooser->setExpectedKind(m_kind);
+        pathChooser->setPromptDialogFilter(m_filter);
+        pathChooser->setPath(index.model()->data(index, Qt::EditRole).toString());
+    }
+}
+
+void PathChooserDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+{
+    Utils::PathChooser *pathChooser = qobject_cast<Utils::PathChooser *>(editor);
+    if (!pathChooser)
+        return;
+
+    model->setData(index, pathChooser->path(), Qt::EditRole);
+}
+
+void PathChooserDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    Q_UNUSED(index);
+
+    editor->setGeometry(option.rect);
+}
+
+void PathChooserDelegate::setHistoryCompleter(const QString &key)
+{
+    m_historyKey = key;
 }

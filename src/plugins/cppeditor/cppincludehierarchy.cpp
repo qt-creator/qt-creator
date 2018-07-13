@@ -42,7 +42,7 @@
 
 #include <cplusplus/CppDocument.h>
 
-#include <utils/annotateditemdelegate.h>
+#include <utils/delegates.h>
 #include <utils/dropsupport.h>
 #include <utils/fileutils.h>
 #include <utils/navigationtreeview.h>

@@ -18,8 +18,6 @@ QtcPlugin {
         "qnxdeployqtlibrariesdialog.cpp",
         "qnxdeployqtlibrariesdialog.h",
         "qnxdeployqtlibrariesdialog.ui",
-        "pathchooserdelegate.cpp",
-        "pathchooserdelegate.h",
         "qnxtoolchain.cpp",
         "qnxtoolchain.h",
         "qnx.qrc",

@@ -74,7 +74,7 @@ SOURCES += \
     $$PWD/crumblepath.cpp \
     $$PWD/historycompleter.cpp \
     $$PWD/buildablehelperlibrary.cpp \
-    $$PWD/annotateditemdelegate.cpp \
+    $$PWD/delegates.cpp \
     $$PWD/fileinprojectfinder.cpp \
     $$PWD/statuslabel.cpp \
     $$PWD/outputformatter.cpp \
@@ -184,7 +184,7 @@ HEADERS += \
     $$PWD/crumblepath.h \
     $$PWD/historycompleter.h \
     $$PWD/buildablehelperlibrary.h \
-    $$PWD/annotateditemdelegate.h \
+    $$PWD/delegates.h \
     $$PWD/fileinprojectfinder.h \
     $$PWD/statuslabel.h \
     $$PWD/outputformatter.h \

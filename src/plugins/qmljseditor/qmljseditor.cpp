@@ -70,7 +70,7 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textmark.h>
 
-#include <utils/annotateditemdelegate.h>
+#include <utils/delegates.h>
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
 #include <utils/uncommentselection.h>

@@ -14,7 +14,6 @@ SOURCES += qnxplugin.cpp \
     qnxqtversion.cpp \
     qnxdeployconfiguration.cpp \
     qnxdevice.cpp \
-    pathchooserdelegate.cpp \
     qnxdevicetester.cpp \
     qnxdeviceprocesssignaloperation.cpp \
     qnxdeviceprocesslist.cpp \
@@ -41,7 +40,6 @@ HEADERS += qnxplugin.h\
     qnxqtversion.h \
     qnxdeployconfiguration.h \
     qnxdevice.h \
-    pathchooserdelegate.h \
     qnxdevicetester.h \
     qnxdeviceprocesssignaloperation.h \
     qnxdeviceprocesslist.h \

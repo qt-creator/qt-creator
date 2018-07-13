@@ -26,7 +26,7 @@
 #include "qmljsoutlinetreeview.h"
 #include "qmloutlinemodel.h"
 
-#include <utils/annotateditemdelegate.h>
+#include <utils/delegates.h>
 #include <QMenu>
 
 namespace QmlJSEditor {

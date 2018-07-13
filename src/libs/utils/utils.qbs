@@ -39,8 +39,6 @@ Project {
         files: [
             "QtConcurrentTools",
             "algorithm.h",
-            "annotateditemdelegate.cpp",
-            "annotateditemdelegate.h",
             "ansiescapecodehandler.cpp",
             "ansiescapecodehandler.h",
             "appmainwindow.cpp",
@@ -71,6 +69,8 @@ Project {
             "crumblepath.cpp",
             "crumblepath.h",
             "declarationmacros.h",
+            "delegates.cpp",
+            "delegates.h",
             "detailsbutton.cpp",
             "detailsbutton.h",
             "detailswidget.cpp",
