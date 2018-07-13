@@ -213,8 +213,9 @@ void QmlProfilerDetailsRewriterTest::seedRewriter()
 
     QFutureInterface<void> result;
     QmlJS::PathsAndLanguages lPaths;
-    for (auto p : QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath))
-        lPaths.maybeInsert(Utils::FileName::fromString(p), QmlJS::Dialect::Qml);
+    lPaths.maybeInsert(
+                Utils::FileName::fromString(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath)),
+                QmlJS::Dialect::Qml);
     QmlJS::ModelManagerInterface::importScan(result, QmlJS::ModelManagerInterface::workingCopy(),
                                              lPaths, m_modelManager, false);
 
