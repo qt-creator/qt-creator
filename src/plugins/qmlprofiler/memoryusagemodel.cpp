@@ -116,16 +116,14 @@ QVariantMap MemoryUsageModel::details(int index) const
     else
         result.insert(QLatin1String("displayName"), tr("Memory Freed"));
 
-    result.insert(tr("Total"), tr("%1 byte(s)", nullptr, toSameSignedInt(ev->size)).arg(ev->size));
+    result.insert(tr("Total"), tr("%n byte(s)", nullptr, toSameSignedInt(ev->size)));
     if (ev->allocations > 0) {
-        result.insert(tr("Allocated"), tr("%1 byte(s)", nullptr, toSameSignedInt(ev->allocated))
-                      .arg(ev->allocated));
+        result.insert(tr("Allocated"), tr("%n byte(s)", nullptr, toSameSignedInt(ev->allocated)));
         result.insert(tr("Allocations"), ev->allocations);
     }
     if (ev->deallocations > 0) {
         result.insert(tr("Deallocated"),
-                      tr("%1 byte(s)", nullptr, toSameSignedInt(-ev->deallocated))
-                      .arg(-ev->deallocated));
+                      tr("%n byte(s)", nullptr, toSameSignedInt(-ev->deallocated)));
         result.insert(tr("Deallocations"), ev->deallocations);
     }
     QString memoryTypeName;
