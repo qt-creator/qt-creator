@@ -354,6 +354,14 @@ Bind *Document::bind() const
     return _bind;
 }
 
+LibraryInfo::LibraryInfo()
+    : _status(NotScanned)
+    , _dumpStatus(NoTypeInfo)
+{
+    static const QByteArray emptyFingerprint = calculateFingerprint();
+    _fingerprint = emptyFingerprint;
+}
+
 LibraryInfo::LibraryInfo(Status status)
     : _status(status)
     , _dumpStatus(NoTypeInfo)

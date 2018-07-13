@@ -164,7 +164,8 @@ private:
     QString _dumpError;
 
 public:
-    explicit LibraryInfo(Status status = NotScanned);
+    LibraryInfo();
+    explicit LibraryInfo(Status status);
     explicit LibraryInfo(const QmlDirParser &parser, const QByteArray &fingerprint = QByteArray());
     ~LibraryInfo();
 
