@@ -106,7 +106,7 @@ def main():
                     "Verifying: The project is shown in 'Edit' mode.")
         invokeContextMenuOnProject('2dpainting', 'Close Project "2dpainting"')
         navTree = waitForObject(":Qt Creator_Utils::NavigationTreeView")
-        res = waitFor("navTree.model().rowCount(navTree.rootIndex()) == 0", 2000)
+        waitFor("navTree.model().rowCount(navTree.rootIndex()) == 0", 2000)
         test.verify(not checkIfObjectItemExists(":Qt Creator_Utils::NavigationTreeView", "2dpainting"),
                     "Verifying: The first example is closed.")
     # clean up created packaging directories
@@ -132,7 +132,7 @@ def main():
                     "Verifying: The project is shown in 'Edit' mode while old project isn't.")
         invokeContextMenuOnProject('addressbook', 'Close Project "addressbook"')
         navTree = waitForObject(":Qt Creator_Utils::NavigationTreeView")
-        res = waitFor("navTree.model().rowCount(navTree.rootIndex()) == 0", 2000)
+        waitFor("navTree.model().rowCount(navTree.rootIndex()) == 0", 2000)
         test.verify(not checkIfObjectItemExists(":Qt Creator_Utils::NavigationTreeView", "addressbook"),
                     "Verifying: The second example is closed.")
     # clean up created packaging directories

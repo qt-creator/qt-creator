@@ -117,6 +117,15 @@ isEmpty(LLVM_VERSION) {
         "LLVM/Clang version >= 6.0.0 required, version provided: $$LLVM_VERSION")
     LLVM_VERSION =
 } else {
+    # CLANG-UPGRADE-CHECK: Remove suppression if this warning is resolved.
+    gcc {
+        # GCC6 shows full version (6.4.0), while GCC7 and up show only major version (8)
+        GCC_VERSION = $$system("$$QMAKE_CXX -dumpversion")
+        GCC_MAJOR_VERSION = $$section(GCC_VERSION, ., 0, 0)
+        # GCC8 warns about memset/memcpy for types with copy ctor. Clang has some of these.
+        greaterThan(GCC_MAJOR_VERSION, 7):QMAKE_CXXFLAGS += -Wno-class-memaccess
+    }
+
     LLVM_LIBDIR = $$quote($$system($$llvm_config --libdir, lines))
     LLVM_BINDIR = $$quote($$system($$llvm_config --bindir, lines))
     LLVM_INCLUDEPATH = $$system($$llvm_config --includedir, lines)
