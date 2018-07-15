@@ -159,7 +159,7 @@ public:
         QByteArray pattern = txt.toLatin1();
         bool wasReset = (m_incrementalStartPos < 0);
         if (m_contPos == -1) {
-            m_contPos = m_widget->cursorPosition();
+            m_contPos = m_widget->cursorPosition() + 1;
             if (findFlags & FindBackward)
                 m_contPos = m_widget->selectionStart()-1;
         }
