@@ -51,14 +51,10 @@ public:
 using namespace Internal;
 
 DeviceProcessList::DeviceProcessList(const IDevice::ConstPtr &device, QObject *parent)
-    : QAbstractItemModel(parent), d(new DeviceProcessListPrivate(device))
-{
-}
+    : QAbstractItemModel(parent), d(std::make_unique<DeviceProcessListPrivate>(device))
+{ }
 
-DeviceProcessList::~DeviceProcessList()
-{
-    delete d;
-}
+DeviceProcessList::~DeviceProcessList() = default;
 
 QModelIndex DeviceProcessList::parent(const QModelIndex &) const
 {

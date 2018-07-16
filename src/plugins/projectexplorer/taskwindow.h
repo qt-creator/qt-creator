@@ -28,6 +28,8 @@
 #include <coreplugin/id.h>
 #include <coreplugin/ioutputpane.h>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QAction;
 class QModelIndex;
@@ -100,7 +102,7 @@ private:
 
     int sizeHintForColumn(int column) const;
 
-    TaskWindowPrivate *d;
+    const std::unique_ptr<TaskWindowPrivate> d;
 };
 
 } // namespace Internal

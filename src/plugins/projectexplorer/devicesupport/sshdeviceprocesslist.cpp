@@ -42,14 +42,11 @@ public:
 };
 
 SshDeviceProcessList::SshDeviceProcessList(const IDevice::ConstPtr &device, QObject *parent) :
-        DeviceProcessList(device, parent), d(new SshDeviceProcessListPrivate)
+        DeviceProcessList(device, parent), d(std::make_unique<SshDeviceProcessListPrivate>())
 {
 }
 
-SshDeviceProcessList::~SshDeviceProcessList()
-{
-    delete d;
-}
+SshDeviceProcessList::~SshDeviceProcessList() = default;
 
 void SshDeviceProcessList::doUpdate()
 {

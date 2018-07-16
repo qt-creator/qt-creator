@@ -29,6 +29,8 @@
 
 #include <QDialog>
 
+#include <memory>
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -37,7 +39,7 @@ class DeviceTestDialog : public QDialog
     Q_OBJECT
 
 public:
-    DeviceTestDialog(const IDevice::ConstPtr &deviceConfiguration, QWidget *parent = 0);
+    DeviceTestDialog(const IDevice::ConstPtr &deviceConfiguration, QWidget *parent = nullptr);
     ~DeviceTestDialog() override;
 
     void reject() override;
@@ -50,7 +52,7 @@ private:
     void addText(const QString &text, const QString &color, bool bold);
 
     class DeviceTestDialogPrivate;
-    DeviceTestDialogPrivate * const d;
+    const std::unique_ptr<DeviceTestDialogPrivate> d;
 };
 
 } // namespace Internal

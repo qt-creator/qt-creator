@@ -39,6 +39,7 @@
 #include <QVariantMap>
 
 #include <functional>
+#include <memory>
 
 namespace Utils { class Environment; }
 
@@ -168,7 +169,7 @@ protected:
 private:
     void setDetection(Detection d);
 
-    Internal::ToolChainPrivate *const d;
+    const std::unique_ptr<Internal::ToolChainPrivate> d;
 
     friend class Internal::ToolChainSettingsAccessor;
     friend class ToolChainFactory;

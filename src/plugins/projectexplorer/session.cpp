@@ -153,6 +153,7 @@ SessionManager::~SessionManager()
     emit m_instance->aboutToUnloadSession(d->m_sessionName);
     delete d->m_writer;
     delete d;
+    d = nullptr;
 }
 
 SessionManager *SessionManager::instance()

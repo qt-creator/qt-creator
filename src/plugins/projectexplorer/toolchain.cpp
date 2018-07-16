@@ -117,12 +117,11 @@ QString languageId(Language l)
 // --------------------------------------------------------------------------
 
 ToolChain::ToolChain(Core::Id typeId, Detection d) :
-    d(new Internal::ToolChainPrivate(typeId, d))
+    d(std::make_unique<Internal::ToolChainPrivate>(typeId, d))
 {
 }
 
-ToolChain::ToolChain(const ToolChain &other) :
-    d(new Internal::ToolChainPrivate(other.d->m_typeId, ManualDetection))
+ToolChain::ToolChain(const ToolChain &other) : ToolChain(other.d->m_typeId, ManualDetection)
 {
     d->m_language = other.d->m_language;
 
@@ -140,10 +139,7 @@ void ToolChain::setLanguage(Core::Id language)
     d->m_language = language;
 }
 
-ToolChain::~ToolChain()
-{
-    delete d;
-}
+ToolChain::~ToolChain() = default;
 
 QString ToolChain::displayName() const
 {

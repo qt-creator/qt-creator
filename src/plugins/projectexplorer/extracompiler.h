@@ -39,6 +39,7 @@
 #include <QList>
 
 #include <functional>
+#include <memory>
 
 QT_FORWARD_DECLARE_CLASS(QProcess);
 QT_FORWARD_DECLARE_CLASS(QThreadPool);
@@ -89,7 +90,7 @@ private:
     virtual void run(const QByteArray &sourceContent) = 0;
     virtual void run(const Utils::FileName &file) = 0;
 
-    ExtraCompilerPrivate *const d;
+    const std::unique_ptr<ExtraCompilerPrivate> d;
 };
 
 class PROJECTEXPLORER_EXPORT ProcessExtraCompiler : public ExtraCompiler

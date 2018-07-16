@@ -30,6 +30,8 @@
 
 #include "subscription.h"
 
+#include <memory>
+
 QT_FORWARD_DECLARE_CLASS(QIcon)
 
 namespace Utils { class Environment; }
@@ -180,7 +182,7 @@ private:
 
     void setActiveBuildConfiguration(BuildConfiguration *configuration);
     void setActiveDeployConfiguration(DeployConfiguration *configuration);
-    TargetPrivate *d;
+    const std::unique_ptr<TargetPrivate> d;
 
     friend class Project;
 };

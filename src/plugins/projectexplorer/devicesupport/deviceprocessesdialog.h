@@ -31,6 +31,8 @@
 
 #include <QDialog>
 
+#include <memory>
+
 namespace ProjectExplorer {
 
 class DeviceProcessItem;
@@ -58,7 +60,7 @@ public:
 private:
     void setKitVisible(bool);
 
-    Internal::DeviceProcessesDialogPrivate * const d;
+    const std::unique_ptr<Internal::DeviceProcessesDialogPrivate> d;
 };
 
 } // namespace ProjectExplorer

@@ -30,6 +30,8 @@
 #include <QAbstractItemModel>
 #include <QList>
 
+#include <memory>
+
 namespace ProjectExplorer {
 
 namespace Internal { class DeviceProcessListPrivate; }
@@ -86,7 +88,7 @@ private:
 
     void setFinished();
 
-    Internal::DeviceProcessListPrivate * const d;
+    const std::unique_ptr<Internal::DeviceProcessListPrivate> d;
 };
 
 } // namespace ProjectExplorer

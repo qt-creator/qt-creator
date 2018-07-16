@@ -417,7 +417,7 @@ protected:
 private:
     friend class Internal::RunControlPrivate;
     friend class Internal::RunWorkerPrivate;
-    Internal::RunWorkerPrivate *d;
+    const std::unique_ptr<Internal::RunWorkerPrivate> d;
 };
 
 class PROJECTEXPLORER_EXPORT RunWorkerFactory
@@ -551,7 +551,7 @@ private:
     friend class RunWorker;
     friend class Internal::RunWorkerPrivate;
 
-    Internal::RunControlPrivate *d;
+    const std::unique_ptr<Internal::RunControlPrivate> d;
 };
 
 

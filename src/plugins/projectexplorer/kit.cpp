@@ -132,14 +132,14 @@ public:
 // -------------------------------------------------------------------------
 
 Kit::Kit(Id id) :
-    d(new Internal::KitPrivate(id, this))
+    d(std::make_unique<Internal::KitPrivate>(id, this))
 {
     foreach (KitInformation *sti, KitManager::kitInformation())
         d->m_data.insert(sti->id(), sti->defaultValue(this));
 }
 
 Kit::Kit(const QVariantMap &data) :
-    d(new Internal::KitPrivate(Id(), this))
+    d(std::make_unique<Internal::KitPrivate>(Id(), this))
 {
     d->m_id = Id::fromSetting(data.value(QLatin1String(ID_KEY)));
 
@@ -174,10 +174,7 @@ Kit::Kit(const QVariantMap &data) :
         d->m_sticky.insert(Id::fromString(stickyInfo));
 }
 
-Kit::~Kit()
-{
-    delete d;
-}
+Kit::~Kit() = default;
 
 void Kit::blockNotification()
 {

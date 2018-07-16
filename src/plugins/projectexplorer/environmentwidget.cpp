@@ -132,7 +132,7 @@ public:
 };
 
 EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetailsWidget)
-    : QWidget(parent), d(new EnvironmentWidgetPrivate)
+    : QWidget(parent), d(std::make_unique<EnvironmentWidgetPrivate>())
 {
     d->m_model = new Utils::EnvironmentModel();
     connect(d->m_model, &Utils::EnvironmentModel::userChangesChanged,
@@ -235,7 +235,6 @@ EnvironmentWidget::~EnvironmentWidget()
 {
     delete d->m_model;
     d->m_model = nullptr;
-    delete d;
 }
 
 void EnvironmentWidget::focusIndex(const QModelIndex &index)

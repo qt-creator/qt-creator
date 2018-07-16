@@ -316,19 +316,14 @@ DeviceProcessItem DeviceProcessesDialogPrivate::selectedProcess() const
 */
 
 DeviceProcessesDialog::DeviceProcessesDialog(QWidget *parent)
-    : QDialog(parent), d(new Internal::DeviceProcessesDialogPrivate(new KitChooser(this), this))
-{
-}
+    : QDialog(parent), d(std::make_unique<Internal::DeviceProcessesDialogPrivate>(new KitChooser(this), this))
+{ }
 
 DeviceProcessesDialog::DeviceProcessesDialog(KitChooser *chooser, QWidget *parent)
-    : QDialog(parent), d(new Internal::DeviceProcessesDialogPrivate(chooser, this))
-{
-}
+    : QDialog(parent), d(std::make_unique<Internal::DeviceProcessesDialogPrivate>(chooser, this))
+{ }
 
-DeviceProcessesDialog::~DeviceProcessesDialog()
-{
-    delete d;
-}
+DeviceProcessesDialog::~DeviceProcessesDialog() = default;
 
 void DeviceProcessesDialog::addAcceptButton(const QString &label)
 {

@@ -103,6 +103,7 @@ static BuildManager *m_instance = nullptr;
 BuildManager::BuildManager(QObject *parent, QAction *cancelBuildAction)
     : QObject(parent)
 {
+    QTC_CHECK(!m_instance);
     m_instance = this;
     d = new BuildManagerPrivate;
 
@@ -166,6 +167,7 @@ BuildManager::~BuildManager()
     delete d->m_outputWindow;
 
     delete d;
+    d = nullptr;
 }
 
 void BuildManager::aboutToRemoveProject(Project *p)

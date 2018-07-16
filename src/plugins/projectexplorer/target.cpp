@@ -110,7 +110,7 @@ TargetPrivate::TargetPrivate(Kit *k) :
 
 Target::Target(Project *project, Kit *k, _constructor_tag) :
     ProjectConfiguration(project, k->id()),
-    d(new TargetPrivate(k))
+    d(std::make_unique<TargetPrivate>(k))
 {
     QTC_CHECK(d->m_kit);
     connect(DeviceManager::instance(), &DeviceManager::updated, this, &Target::updateDeviceState);
@@ -144,7 +144,6 @@ Target::~Target()
     qDeleteAll(d->m_buildConfigurations);
     qDeleteAll(d->m_deployConfigurations);
     qDeleteAll(d->m_runConfigurations);
-    delete d;
 }
 
 void Target::handleKitUpdates(Kit *k)

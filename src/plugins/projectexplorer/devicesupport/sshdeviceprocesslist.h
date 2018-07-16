@@ -27,6 +27,8 @@
 
 #include "deviceprocesslist.h"
 
+#include <memory>
+
 namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT SshDeviceProcessList : public DeviceProcessList
@@ -51,7 +53,7 @@ private:
     void setFinished();
 
     class SshDeviceProcessListPrivate;
-    SshDeviceProcessListPrivate * const d;
+    const std::unique_ptr<SshDeviceProcessListPrivate> d;
 };
 
 } // namespace ProjectExplorer

@@ -34,6 +34,8 @@
 
 #include <QProcess>
 
+#include <memory>
+
 namespace Utils { class ProcessHandle; }
 
 namespace ProjectExplorer {
@@ -79,7 +81,7 @@ signals:
     void finished(bool success);
 
 private:
-    Internal::ApplicationLauncherPrivate *d;
+    std::unique_ptr<Internal::ApplicationLauncherPrivate> d;
 };
 
 } // namespace ProjectExplorer

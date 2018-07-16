@@ -45,7 +45,7 @@ public:
 using namespace Internal;
 
 DeploymentDataView::DeploymentDataView(Target *target, QWidget *parent) : NamedWidget(parent),
-    d(new DeploymentDataViewPrivate)
+    d(std::make_unique<DeploymentDataViewPrivate>())
 {
     d->ui.setupUi(this);
     d->ui.deploymentDataView->setTextElideMode(Qt::ElideMiddle);
@@ -60,10 +60,7 @@ DeploymentDataView::DeploymentDataView(Target *target, QWidget *parent) : NamedW
     updateDeploymentDataModel();
 }
 
-DeploymentDataView::~DeploymentDataView()
-{
-    delete d;
-}
+DeploymentDataView::~DeploymentDataView() = default;
 
 void DeploymentDataView::updateDeploymentDataModel()
 {

@@ -83,7 +83,7 @@ struct EditorConfigurationPrivate
     QList<BaseTextEditor *> m_editors;
 };
 
-EditorConfiguration::EditorConfiguration() : d(new EditorConfigurationPrivate)
+EditorConfiguration::EditorConfiguration() : d(std::make_unique<EditorConfigurationPrivate>())
 {
     const QMap<Core::Id, ICodeStylePreferences *> languageCodeStylePreferences = TextEditorSettings::codeStyles();
     QMapIterator<Core::Id, ICodeStylePreferences *> itCodeStyle(languageCodeStylePreferences);
@@ -119,7 +119,6 @@ EditorConfiguration::EditorConfiguration() : d(new EditorConfigurationPrivate)
 EditorConfiguration::~EditorConfiguration()
 {
     qDeleteAll(d->m_languageCodeStylePreferences);
-    delete d;
 }
 
 bool EditorConfiguration::useGlobalSettings() const

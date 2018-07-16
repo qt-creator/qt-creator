@@ -29,6 +29,8 @@
 
 #include <QWidget>
 
+#include <memory>
+
 QT_FORWARD_DECLARE_CLASS(QModelIndex)
 
 namespace Utils {
@@ -71,7 +73,7 @@ private:
     void updateButtons();
     void linkActivated(const QString &link);
 
-    EnvironmentWidgetPrivate *d;
+    const std::unique_ptr<EnvironmentWidgetPrivate> d;
 };
 
 } // namespace ProjectExplorer

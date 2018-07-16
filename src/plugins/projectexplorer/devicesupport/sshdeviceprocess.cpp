@@ -63,7 +63,7 @@ public:
 };
 
 SshDeviceProcess::SshDeviceProcess(const IDevice::ConstPtr &device, QObject *parent)
-    : DeviceProcess(device, parent), d(new SshDeviceProcessPrivate(this))
+    : DeviceProcess(device, parent), d(std::make_unique<SshDeviceProcessPrivate>(this))
 {
     connect(&d->killTimer, &QTimer::timeout, this, &SshDeviceProcess::handleKillOperationTimeout);
 }
@@ -71,7 +71,6 @@ SshDeviceProcess::SshDeviceProcess(const IDevice::ConstPtr &device, QObject *par
 SshDeviceProcess::~SshDeviceProcess()
 {
     d->setState(SshDeviceProcessPrivate::Inactive);
-    delete d;
 }
 
 void SshDeviceProcess::start(const Runnable &runnable)

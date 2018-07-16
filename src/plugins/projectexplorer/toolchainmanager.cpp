@@ -76,7 +76,7 @@ ToolChainManagerPrivate::~ToolChainManagerPrivate()
 }
 
 static ToolChainManager *m_instance = nullptr;
-static ToolChainManagerPrivate *d;
+static ToolChainManagerPrivate *d = nullptr;
 
 } // namespace Internal
 
@@ -103,8 +103,9 @@ ToolChainManager::ToolChainManager(QObject *parent) :
 
 ToolChainManager::~ToolChainManager()
 {
-    delete d;
     m_instance = nullptr;
+    delete d;
+    d = nullptr;
 }
 
 ToolChainManager *ToolChainManager::instance()

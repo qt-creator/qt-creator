@@ -33,6 +33,8 @@
 #include <QSet>
 #include <QVariant>
 
+#include <memory>
+
 namespace Utils {
 class Environment;
 class MacroExpander;
@@ -139,7 +141,7 @@ private:
 
     QVariantMap toMap() const;
 
-    Internal::KitPrivate *const d;
+    const std::unique_ptr<Internal::KitPrivate> d;
 
     friend class KitInformation;
     friend class KitManager;

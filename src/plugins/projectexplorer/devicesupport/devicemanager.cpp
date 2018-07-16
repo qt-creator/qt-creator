@@ -46,6 +46,7 @@
 #include <QVariantList>
 
 #include <limits>
+#include <memory>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -348,7 +349,7 @@ const IDeviceFactory *DeviceManager::restoreFactory(const QVariantMap &map)
     return factory;
 }
 
-DeviceManager::DeviceManager(bool isInstance) : d(new DeviceManagerPrivate)
+DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManagerPrivate>())
 {
     if (isInstance) {
         QTC_ASSERT(!m_instance, return);
@@ -370,7 +371,6 @@ DeviceManager::~DeviceManager()
         delete d->writer;
     if (m_instance == this)
         m_instance = nullptr;
-    delete d;
 }
 
 IDevice::ConstPtr DeviceManager::deviceAt(int idx) const

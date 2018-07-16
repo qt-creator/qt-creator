@@ -29,6 +29,8 @@
 
 #include <QWidget>
 
+#include <memory>
+
 namespace ProjectExplorer {
 class Abi;
 
@@ -64,7 +66,7 @@ private:
 
     void emitAbiChanged(const Abi &current);
 
-    Internal::AbiWidgetPrivate *const d;
+    const std::unique_ptr<Internal::AbiWidgetPrivate> d;
 };
 
 } // namespace ProjectExplorer

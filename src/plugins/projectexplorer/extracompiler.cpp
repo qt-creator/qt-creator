@@ -72,7 +72,7 @@ public:
 
 ExtraCompiler::ExtraCompiler(const Project *project, const Utils::FileName &source,
                              const Utils::FileNameList &targets, QObject *parent) :
-    QObject(parent), d(new ExtraCompilerPrivate)
+    QObject(parent), d(std::make_unique<ExtraCompilerPrivate>())
 {
     d->project = project;
     d->source = source;
@@ -129,10 +129,7 @@ ExtraCompiler::ExtraCompiler(const Project *project, const Utils::FileName &sour
     }
 }
 
-ExtraCompiler::~ExtraCompiler()
-{
-    delete d;
-}
+ExtraCompiler::~ExtraCompiler() = default;
 
 const Project *ExtraCompiler::project() const
 {

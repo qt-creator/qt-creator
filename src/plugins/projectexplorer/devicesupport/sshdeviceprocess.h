@@ -27,6 +27,8 @@
 
 #include "deviceprocess.h"
 
+#include <memory>
+
 namespace ProjectExplorer {
 
 class Runnable;
@@ -72,7 +74,7 @@ private:
 
     class SshDeviceProcessPrivate;
     friend class SshDeviceProcessPrivate;
-    SshDeviceProcessPrivate * const d;
+    const std::unique_ptr<SshDeviceProcessPrivate> d;
 };
 
 } // namespace ProjectExplorer

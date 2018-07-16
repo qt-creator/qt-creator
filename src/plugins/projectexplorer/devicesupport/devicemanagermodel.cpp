@@ -44,7 +44,7 @@ public:
 } // namespace Internal
 
 DeviceManagerModel::DeviceManagerModel(const DeviceManager *deviceManager, QObject *parent) :
-    QAbstractListModel(parent), d(new Internal::DeviceManagerModelPrivate)
+    QAbstractListModel(parent), d(std::make_unique<Internal::DeviceManagerModelPrivate>())
 {
     d->deviceManager = deviceManager;
     handleDeviceListChanged();
@@ -58,10 +58,7 @@ DeviceManagerModel::DeviceManagerModel(const DeviceManager *deviceManager, QObje
             this, &DeviceManagerModel::handleDeviceListChanged);
 }
 
-DeviceManagerModel::~DeviceManagerModel()
-{
-    delete d;
-}
+DeviceManagerModel::~DeviceManagerModel() = default;
 
 void DeviceManagerModel::setFilter(const QList<Core::Id> &filter)
 {

@@ -28,6 +28,8 @@
 #include "namedwidget.h"
 #include "projectexplorer_export.h"
 
+#include <memory>
+
 namespace ProjectExplorer {
 class Target;
 
@@ -44,7 +46,7 @@ public:
 private:
     void updateDeploymentDataModel();
 
-    Internal::DeploymentDataViewPrivate * const d;
+    const std::unique_ptr<Internal::DeploymentDataViewPrivate> d;
 };
 
 } // namespace ProjectExplorer

@@ -30,6 +30,8 @@
 
 #include <QAbstractListModel>
 
+#include <memory>
+
 namespace ProjectExplorer {
 namespace Internal { class DeviceManagerModelPrivate; }
 class IDevice;
@@ -62,7 +64,7 @@ private:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     bool matchesTypeFilter(const IDevice::ConstPtr &dev) const;
 
-    Internal::DeviceManagerModelPrivate * const d;
+    const std::unique_ptr<Internal::DeviceManagerModelPrivate> d;
 };
 
 } // namespace ProjectExplorer

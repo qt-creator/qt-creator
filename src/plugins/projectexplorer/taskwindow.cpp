@@ -242,7 +242,7 @@ static QToolButton *createFilterButton(const QIcon &icon, const QString &toolTip
     return button;
 }
 
-TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
+TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
 {
     d->m_model = new Internal::TaskModel(this);
     d->m_filter = new Internal::TaskFilterModel(d->m_model);
@@ -321,7 +321,6 @@ TaskWindow::~TaskWindow()
     delete d->m_listview;
     delete d->m_filter;
     delete d->m_model;
-    delete d;
 }
 
 void TaskWindow::delayedInitialization()

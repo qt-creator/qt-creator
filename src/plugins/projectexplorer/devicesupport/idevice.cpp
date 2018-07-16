@@ -165,7 +165,7 @@ IDevice::IDevice() : d(new Internal::IDevicePrivate)
 }
 
 IDevice::IDevice(Core::Id type, Origin origin, MachineType machineType, Core::Id id)
-    : d(new Internal::IDevicePrivate)
+    : d(std::make_unique<Internal::IDevicePrivate>())
 {
     d->type = type;
     d->origin = origin;
@@ -177,15 +177,12 @@ IDevice::IDevice(Core::Id type, Origin origin, MachineType machineType, Core::Id
 
 IDevice::IDevice(const IDevice &other)
     : QEnableSharedFromThis<IDevice>(other)
-    , d(new Internal::IDevicePrivate)
+    , d(std::make_unique<Internal::IDevicePrivate>())
 {
     *d = *other.d;
 }
 
-IDevice::~IDevice()
-{
-    delete d;
-}
+IDevice::~IDevice() = default;
 
 /*!
     Specifies a free-text name for the device to be displayed in GUI elements.

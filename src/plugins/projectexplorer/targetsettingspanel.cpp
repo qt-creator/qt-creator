@@ -690,22 +690,19 @@ public:
 };
 
 TargetGroupItem::TargetGroupItem(const QString &displayName, Project *project)
-    : d(new TargetGroupItemPrivate(this, project))
+    : d(std::make_unique<TargetGroupItemPrivate>(this, project))
 {
     d->m_displayName = displayName;
     QObject::connect(project, &Project::addedTarget,
-            d, &TargetGroupItemPrivate::handleTargetAdded,
+            d.get(), &TargetGroupItemPrivate::handleTargetAdded,
             Qt::QueuedConnection);
     QObject::connect(project, &Project::removedTarget,
-            d, &TargetGroupItemPrivate::handleTargetRemoved);
+            d.get(), &TargetGroupItemPrivate::handleTargetRemoved);
     QObject::connect(project, &Project::activeTargetChanged,
-            d, &TargetGroupItemPrivate::handleTargetChanged, Qt::QueuedConnection);
+            d.get(), &TargetGroupItemPrivate::handleTargetChanged, Qt::QueuedConnection);
 }
 
-TargetGroupItem::~TargetGroupItem()
-{
-    delete d;
-}
+TargetGroupItem::~TargetGroupItem() = default;
 
 TargetGroupItemPrivate::TargetGroupItemPrivate(TargetGroupItem *q, Project *project)
     : q(q), m_project(project)

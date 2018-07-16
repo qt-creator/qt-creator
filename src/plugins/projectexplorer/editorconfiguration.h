@@ -30,6 +30,8 @@
 #include <QObject>
 #include <QVariantMap>
 
+#include <memory>
+
 namespace Core {
 class IEditor;
 class Id;
@@ -107,7 +109,7 @@ signals:
 private:
     void switchSettings(TextEditor::TextEditorWidget *baseTextEditor) const;
 
-    EditorConfigurationPrivate *d;
+    const std::unique_ptr<EditorConfigurationPrivate> d;
 };
 
 // Return the editor settings in the case it's not null. Otherwise, try to find the project

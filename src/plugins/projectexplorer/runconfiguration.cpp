@@ -949,7 +949,7 @@ public:
 using namespace Internal;
 
 RunControl::RunControl(RunConfiguration *runConfiguration, Core::Id mode) :
-    d(new RunControlPrivate(this, runConfiguration, mode))
+    d(std::make_unique<RunControlPrivate>(this, runConfiguration, mode))
 {
 #ifdef WITH_JOURNALD
     JournaldWatcher::instance()->subscribe(this, [this](const JournaldWatcher::LogEntry &entry) {
@@ -981,8 +981,6 @@ RunControl::~RunControl()
 #ifdef WITH_JOURNALD
     JournaldWatcher::instance()->unsubscribe(this);
 #endif
-    delete d;
-    d = nullptr;
 }
 
 void RunControl::initiateStart()
@@ -1009,7 +1007,7 @@ void RunControl::forceStop()
 
 void RunControl::initiateFinish()
 {
-    QTimer::singleShot(0, d, &RunControlPrivate::initiateFinish);
+    QTimer::singleShot(0, d.get(), &RunControlPrivate::initiateFinish);
 }
 
 using WorkerCreators = QHash<Core::Id, RunControl::WorkerCreator>;
@@ -1878,14 +1876,10 @@ void RunWorkerPrivate::timerEvent(QTimerEvent *ev)
 */
 
 RunWorker::RunWorker(RunControl *runControl)
-    : d(new RunWorkerPrivate(this, runControl))
-{
-}
+    : d(std::make_unique<RunWorkerPrivate>(this, runControl))
+{ }
 
-RunWorker::~RunWorker()
-{
-    delete d;
-}
+RunWorker::~RunWorker() = default;
 
 /*!
  * This function is called by the RunControl once all dependencies

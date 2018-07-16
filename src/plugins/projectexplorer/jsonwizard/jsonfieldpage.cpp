@@ -139,14 +139,13 @@ private:
 // JsonFieldPage::FieldData:
 // --------------------------------------------------------------------
 
-JsonFieldPage::Field::Field() : d(new FieldPrivate)
+JsonFieldPage::Field::Field() : d(std::make_unique<FieldPrivate>())
 { }
 
 JsonFieldPage::Field::~Field()
 {
     delete d->m_widget;
     delete d->m_label;
-    delete d;
 }
 
 QString JsonFieldPage::Field::type()

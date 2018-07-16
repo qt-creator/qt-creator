@@ -606,7 +606,7 @@ public:
 //
 
 ProjectWindow::ProjectWindow()
-    : d(new ProjectWindowPrivate(this))
+    : d(std::make_unique<ProjectWindowPrivate>(this))
 {
     setBackgroundRole(QPalette::Base);
 
@@ -615,10 +615,7 @@ ProjectWindow::ProjectWindow()
     setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
-ProjectWindow::~ProjectWindow()
-{
-    delete d;
-}
+ProjectWindow::~ProjectWindow() = default;
 
 QSize SelectorDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {

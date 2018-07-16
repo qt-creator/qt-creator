@@ -165,14 +165,10 @@ ApplicationLauncherPrivate::ApplicationLauncherPrivate(ApplicationLauncher *pare
 }
 
 ApplicationLauncher::ApplicationLauncher(QObject *parent) : QObject(parent),
-    d(new ApplicationLauncherPrivate(this))
-{
-}
+    d(std::make_unique<ApplicationLauncherPrivate>(this))
+{ }
 
-ApplicationLauncher::~ApplicationLauncher()
-{
-    delete d;
-}
+ApplicationLauncher::~ApplicationLauncher() = default;
 
 void ApplicationLauncher::setProcessChannelMode(QProcess::ProcessChannelMode mode)
 {

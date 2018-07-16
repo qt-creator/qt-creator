@@ -31,6 +31,8 @@
 
 #include <QCoreApplication>
 
+#include <memory>
+
 namespace ProjectExplorer {
 
 class Target;
@@ -57,7 +59,7 @@ public:
     TargetItem *targetItem(Target *target) const;
 
 private:
-    TargetGroupItemPrivate *d;
+    const std::unique_ptr<TargetGroupItemPrivate> d;
 };
 
 } // namespace Internal
