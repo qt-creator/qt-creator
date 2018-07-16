@@ -34,6 +34,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
+#include <QApplication>
+
 using namespace Core::Internal;
 
 namespace Core {
@@ -93,6 +95,17 @@ QWidget *LocatorManager::createLocatorInputWidget(QWidget *window)
     agg->add(window);
     agg->add(locatorWidget);
     return locatorWidget;
+}
+
+bool LocatorManager::locatorHasFocus()
+{
+    QWidget *w = qApp->focusWidget();
+    while (w) {
+        if (qobject_cast<LocatorWidget *>(w))
+            return true;
+        w = w->parentWidget();
+    }
+    return false;
 }
 
 } // namespace Core

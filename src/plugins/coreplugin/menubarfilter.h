@@ -27,6 +27,10 @@
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
+#include <QAction>
+#include <QPointer>
+#include <QSet>
+
 QT_BEGIN_NAMESPACE
 class QAction;
 class QMenu;
@@ -52,8 +56,10 @@ private:
                                                const QStringList &entryPath,
                                                const QStringList &path,
                                                QVector<const QMenu *> &processedMenus);
+    void updateEnabledActionCache();
 
     QList<LocatorFilterEntry> m_entries;
+    QSet<QPointer<QAction>> m_enabledActions;
 };
 
 } // namespace Internal

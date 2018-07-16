@@ -28,6 +28,8 @@
 #include "actionmanager/actioncontainer.h"
 #include "actionmanager/actionmanager.h"
 #include "coreconstants.h"
+#include "icore.h"
+#include "locator/locatormanager.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -38,6 +40,11 @@
 #include <QRegularExpression>
 #include <QTimer>
 
+uint qHash(const QPointer<QAction> &p, uint seed)
+{
+    return qHash(p.data(), seed);
+}
+
 using namespace Core::Internal;
 using namespace Core;
 
@@ -46,6 +53,10 @@ MenuBarFilter::MenuBarFilter()
     setId("Actions from the menu");
     setDisplayName(tr("Actions from the Menu"));
     setShortcutString("t");
+    connect(ICore::instance(), &ICore::contextAboutToChange, this, [this] {
+        if (LocatorManager::locatorHasFocus())
+            updateEnabledActionCache();
+    });
 }
 
 static const QList<QAction *> menuBarActions()
@@ -88,7 +99,7 @@ QList<LocatorFilterEntry> MenuBarFilter::matchesForAction(QAction *action,
                                                           QVector<const QMenu *> &processedMenus)
 {
     QList<LocatorFilterEntry> entries;
-    if (!action->isEnabled())
+    if (!m_enabledActions.contains(action))
         return entries;
     const QString text = Utils::stripAccelerator(action->text());
     if (QMenu *menu = action->menu()) {
@@ -146,6 +157,24 @@ static void requestMenuUpdate(const QAction* action)
         const QList<QAction *> &actions = menu->actions();
         for (const QAction *menuActions : actions)
             requestMenuUpdate(menuActions);
+    }
+}
+
+void MenuBarFilter::updateEnabledActionCache()
+{
+    m_enabledActions.clear();
+    QList<QAction *> queue = menuBarActions();
+    for (QAction *action : qAsConst(queue))
+        requestMenuUpdate(action);
+    while (!queue.isEmpty()) {
+        QAction *action = queue.takeFirst();
+        if (action->isEnabled()) {
+            m_enabledActions.insert(action);
+            if (QMenu *menu = action->menu()) {
+                if (menu->isEnabled())
+                    queue.append(menu->actions());
+            }
+        }
     }
 }
 
