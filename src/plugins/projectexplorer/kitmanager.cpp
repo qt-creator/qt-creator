@@ -73,14 +73,13 @@ public:
     bool m_initialized = false;
     std::vector<std::unique_ptr<KitInformation>> m_informationList;
     QList<Kit *> m_kitList;
-    PersistentSettingsWriter *m_writer = nullptr;
+    std::unique_ptr<PersistentSettingsWriter> m_writer;
 };
 
 KitManagerPrivate::~KitManagerPrivate()
 {
     foreach (Kit *k, m_kitList)
         delete k;
-    delete m_writer;
 }
 
 } // namespace Internal
@@ -192,7 +191,7 @@ void KitManager::restoreKits()
     std::swap(resultList, d->m_kitList);
     setDefaultKit(k);
 
-    d->m_writer = new PersistentSettingsWriter(settingsFileName(), "QtCreatorProfiles");
+    d->m_writer = std::make_unique<PersistentSettingsWriter>(settingsFileName(), "QtCreatorProfiles");
     d->m_initialized = true;
     emit kitsLoaded();
     emit kitsChanged();
