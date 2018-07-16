@@ -32,6 +32,7 @@
 
 #include <coreplugin/variablechooser.h>
 
+#include <utils/algorithm.h>
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
 #include <utils/macroexpander.h>
@@ -60,7 +61,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     m_nameEdit(new QLineEdit),
     m_fileSystemFriendlyNameLineEdit(new QLineEdit),
     m_kit(k),
-    m_modifiedKit(new Kit(Core::Id(WORKING_COPY_KIT_ID)))
+    m_modifiedKit(std::make_unique<Kit>(Core::Id(WORKING_COPY_KIT_ID)))
 {
     static auto alignment
             = static_cast<const Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
@@ -129,10 +130,9 @@ KitManagerConfigWidget::~KitManagerConfigWidget()
     qDeleteAll(m_actions);
     m_actions.clear();
 
-    KitManager::deleteKit(m_modifiedKit);
     // Make sure our workingCopy did not get registered somehow:
-    foreach (const Kit *k, KitManager::kits())
-        QTC_CHECK(k->id() != Core::Id(WORKING_COPY_KIT_ID));
+    QTC_CHECK(!Utils::contains(KitManager::kits(),
+                               Utils::equal(&Kit::id, Core::Id(WORKING_COPY_KIT_ID))));
 }
 
 QString KitManagerConfigWidget::displayName() const
@@ -151,13 +151,14 @@ void KitManagerConfigWidget::apply()
 {
     bool mustSetDefault = m_isDefaultKit;
     bool mustRegister = false;
+    auto toRegister = std::make_unique<Kit>();
     if (!m_kit) {
         mustRegister = true;
-        m_kit = new Kit;
+        m_kit = toRegister.get();
     }
-    m_kit->copyFrom(m_modifiedKit); //m_isDefaultKit is reset in discard() here.
+    m_kit->copyFrom(m_modifiedKit.get()); //m_isDefaultKit is reset in discard() here.
     if (mustRegister)
-        KitManager::registerKit(m_kit);
+        KitManager::registerKit(std::move(toRegister));
 
     if (mustSetDefault)
         KitManager::setDefaultKit(m_kit);
@@ -186,7 +187,7 @@ void KitManagerConfigWidget::discard()
 bool KitManagerConfigWidget::isDirty() const
 {
     return !m_kit
-            || !m_kit->isEqual(m_modifiedKit)
+            || !m_kit->isEqual(m_modifiedKit.get())
             || m_isDefaultKit != (KitManager::defaultKit() == m_kit);
 }
 
@@ -272,7 +273,7 @@ void KitManagerConfigWidget::makeStickySubWidgetsReadOnly()
 
 Kit *KitManagerConfigWidget::workingCopy() const
 {
-    return m_modifiedKit;
+    return m_modifiedKit.get();
 }
 
 bool KitManagerConfigWidget::configures(Kit *k) const
@@ -340,7 +341,7 @@ void KitManagerConfigWidget::setFileSystemFriendlyName()
 
 void KitManagerConfigWidget::workingCopyWasUpdated(Kit *k)
 {
-    if (k != m_modifiedKit || m_fixingKit)
+    if (k != m_modifiedKit.get() || m_fixingKit)
         return;
 
     m_fixingKit = true;

@@ -46,15 +46,16 @@ void QmlProfilerAttachDialogTest::testAccessors()
     dialog.setPort(4444);
     QCOMPARE(dialog.port(), 4444);
 
-    ProjectExplorer::Kit *newKit = new ProjectExplorer::Kit("dings");
+    auto newKit = std::make_unique<ProjectExplorer::Kit>("dings");
+    ProjectExplorer::Kit *newKitPtr = newKit.get();
     ProjectExplorer::KitManager *kitManager = ProjectExplorer::KitManager::instance();
     QVERIFY(kitManager);
-    QVERIFY(kitManager->registerKit(newKit));
+    QVERIFY(kitManager->registerKit(std::move(newKit)));
 
     dialog.setKitId("dings");
-    QCOMPARE(dialog.kit(), newKit);
+    QCOMPARE(dialog.kit(), newKitPtr);
 
-    kitManager->deregisterKit(newKit);
+    kitManager->deregisterKit(newKitPtr);
 }
 
 } // namespace Internal

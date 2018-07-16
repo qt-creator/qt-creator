@@ -63,6 +63,8 @@
 #include <QStandardPaths>
 #include <QTimer>
 
+#include <memory>
+
 using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
@@ -298,7 +300,8 @@ void IosConfigurations::updateAutomaticKitList()
                     kit->unblockNotification();
                 } else {
                     qCDebug(kitSetupLog) << "    - Setting up new kit";
-                    kit = new Kit;
+                    auto newKit = std::make_unique<Kit>();
+                    kit = newKit.get();
                     kit->blockNotification();
                     kit->setAutoDetected(true);
                     const QString baseDisplayName = isSimulatorDeviceId(pDeviceType)
@@ -307,7 +310,7 @@ void IosConfigurations::updateAutomaticKitList()
                     kit->setUnexpandedDisplayName(baseDisplayName);
                     setupKit(kit, pDeviceType, platformToolchains, debuggerId, sdk.path, qtVersion);
                     kit->unblockNotification();
-                    KitManager::registerKit(kit);
+                    KitManager::registerKit(std::move(newKit));
                 }
                 resultingKits.insert(kit);
             }
@@ -330,8 +333,8 @@ IosConfigurations *IosConfigurations::instance()
 
 void IosConfigurations::initialize()
 {
-    QTC_CHECK(m_instance == 0);
-    m_instance = new IosConfigurations(0);
+    QTC_CHECK(m_instance == nullptr);
+    m_instance = new IosConfigurations(nullptr);
 }
 
 bool IosConfigurations::ignoreAllDevices()

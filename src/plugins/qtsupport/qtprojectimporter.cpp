@@ -589,7 +589,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
         }
 
         if (templateKit != defaultKit)
-            KitManager::deleteKit(templateKit);
+            delete templateKit;
     }
 
     // --------------------------------------------------------------------
@@ -603,8 +603,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
         KitManager::deregisterKit(k);
 
     // Delete kit templates:
-    for (int i = 1; i < kitTemplates.count(); ++i)
-        KitManager::deleteKit(kitTemplates.at(i));
+    qDeleteAll(kitTemplates);
 }
 
 } // namespace Internal

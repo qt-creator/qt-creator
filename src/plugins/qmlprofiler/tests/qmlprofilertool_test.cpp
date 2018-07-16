@@ -44,13 +44,14 @@ namespace Internal {
 
 void QmlProfilerToolTest::testAttachToWaitingApplication()
 {
-    ProjectExplorer::Kit *newKit = new ProjectExplorer::Kit("fookit");
+    auto newKit = std::make_unique<ProjectExplorer::Kit>("fookit");
+    ProjectExplorer::Kit * newKitPtr = newKit.get();
     ProjectExplorer::KitManager *kitManager = ProjectExplorer::KitManager::instance();
     QVERIFY(kitManager);
-    QVERIFY(kitManager->registerKit(newKit));
+    QVERIFY(kitManager->registerKit(std::move(newKit)));
     QSettings *settings = Core::ICore::settings();
     QVERIFY(settings);
-    settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/kitId"), newKit->id().toSetting());
+    settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/kitId"), newKitPtr->id().toSetting());
 
     QmlProfilerTool profilerTool;
     QTcpServer server;

@@ -1057,17 +1057,18 @@ void AndroidConfigurations::updateAutomaticKitList()
         };
 
         for (const QtSupport::BaseQtVersion *qt : qtVersionsForArch.value(tc->targetAbi())) {
-            Kit *newKit = new Kit;
-            initBasicKitData(newKit, qt);
-            Kit *existingKit = Utils::findOrDefault(existingKits, [newKit](const Kit *k) {
-                return matchKits(newKit, k);
+            auto newKit = std::make_unique<Kit>();
+            Kit *toSetup = newKit.get();
+            initBasicKitData(toSetup, qt);
+            Kit *existingKit = Utils::findOrDefault(existingKits, [toSetup](const Kit *k) {
+                return matchKits(toSetup, k);
             });
             if (existingKit) {
                 // Existing kit found.
                 // Update the existing kit with new data.
                 initBasicKitData(existingKit, qt);
-                KitManager::deleteKit(newKit);
-                newKit = existingKit;
+                newKit.reset();
+                toSetup = existingKit;
             }
 
             Debugger::DebuggerItem debugger;
@@ -1078,16 +1079,16 @@ void AndroidConfigurations::updateAutomaticKitList()
             debugger.setAbi(tc->targetAbi());
             debugger.reinitializeFromFile();
             QVariant id = Debugger::DebuggerItemManager::registerDebugger(debugger);
-            Debugger::DebuggerKitInformation::setDebugger(newKit, id);
+            Debugger::DebuggerKitInformation::setDebugger(toSetup, id);
 
-            AndroidGdbServerKitInformation::setGdbSever(newKit, tc->suggestedGdbServer());
-            newKit->makeSticky();
-            newKit->setUnexpandedDisplayName(tr("Android for %1 (GCC %2, %3)")
-                                             .arg(static_cast<const AndroidQtVersion *>(qt)->targetArch())
-                                             .arg(tc->ndkToolChainVersion())
-                                             .arg(qt->displayName()));
+            AndroidGdbServerKitInformation::setGdbSever(toSetup, tc->suggestedGdbServer());
+            toSetup->makeSticky();
+            toSetup->setUnexpandedDisplayName(tr("Android for %1 (GCC %2, %3)")
+                                              .arg(static_cast<const AndroidQtVersion *>(qt)->targetArch())
+                                              .arg(tc->ndkToolChainVersion())
+                                              .arg(qt->displayName()));
             if (!existingKit)
-                KitManager::registerKit(newKit);
+                KitManager::registerKit(std::move(newKit));
         }
     }
 }

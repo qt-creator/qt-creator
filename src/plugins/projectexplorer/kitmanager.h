@@ -124,9 +124,7 @@ public:
 
     static Internal::KitManagerConfigWidget *createConfigWidget(Kit *k);
 
-    static void deleteKit(Kit *k);
-
-    static bool registerKit(Kit *k);
+    static bool registerKit(std::unique_ptr<Kit> &&k);
     static void deregisterKit(Kit *k);
     static void setDefaultKit(Kit *k);
 
@@ -171,7 +169,7 @@ private:
     public:
         KitList() {}
         Core::Id defaultKit;
-        QList<Kit *> kits;
+        std::vector<std::unique_ptr<Kit>> kits;
     };
     KitList restoreKits(const Utils::FileName &fileName);
 

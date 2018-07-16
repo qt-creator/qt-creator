@@ -29,6 +29,8 @@
 
 #include <QWidget>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QGridLayout;
 class QLabel;
@@ -98,7 +100,7 @@ private:
     QList<KitConfigWidget *> m_widgets;
     QList<QLabel *> m_labels;
     Kit *m_kit;
-    Kit *m_modifiedKit;
+    std::unique_ptr<Kit> m_modifiedKit;
     bool m_isDefaultKit = false;
     bool m_fixingKit = false;
     bool m_hasUniqueName = true;

@@ -61,6 +61,8 @@ public:
     using Predicate = std::function<bool(const Kit *)>;
 
     explicit Kit(Core::Id id = Core::Id());
+    explicit Kit(const QVariantMap &data);
+    ~Kit();
 
     // Do not trigger evaluations
     void blockNotification();
@@ -128,9 +130,6 @@ public:
 
 private:
     void setSdkProvided(bool sdkProvided);
-
-    ~Kit();
-    Kit(const QVariantMap &data);
 
     // Unimplemented.
     Kit(const Kit &other);
