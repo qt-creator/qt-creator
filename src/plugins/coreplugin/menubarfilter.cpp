@@ -59,17 +59,8 @@ QList<LocatorFilterEntry> MenuBarFilter::matchesFor(QFutureInterface<LocatorFilt
                                                     const QString &entry)
 {
     Q_UNUSED(future);
-    static const QString separators = ". >/";
-    static const QRegularExpression seperatorRegExp(QString("[%1]").arg(separators));
-    QList<LocatorFilterEntry> entries;
-    QString normalized = entry;
-    normalized.replace(seperatorRegExp, separators.at(0));
-    const QStringList entryPath = normalized.split(separators.at(0), QString::SkipEmptyParts);
-    QVector<const QMenu *> processedMenus;
-    for (QAction* action : menuBarActions())
-        entries << matchesForAction(action, entryPath, QStringList(), processedMenus);
-
-    return entries;
+    Q_UNUSED(entry);
+    return std::move(m_entries);
 }
 
 void MenuBarFilter::accept(LocatorFilterEntry selection, QString *newText,
@@ -161,6 +152,15 @@ static void requestMenuUpdate(const QAction* action)
 void Core::Internal::MenuBarFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry);
-    for (const QAction *action : menuBarActions())
+    static const QString separators = ". >/";
+    static const QRegularExpression seperatorRegExp(QString("[%1]").arg(separators));
+    QString normalized = entry;
+    normalized.replace(seperatorRegExp, separators.at(0));
+    const QStringList entryPath = normalized.split(separators.at(0), QString::SkipEmptyParts);
+    m_entries.clear();
+    QVector<const QMenu *> processedMenus;
+    for (QAction* action : menuBarActions()) {
         requestMenuUpdate(action);
+        m_entries << matchesForAction(action, entryPath, QStringList(), processedMenus);
+    }
 }

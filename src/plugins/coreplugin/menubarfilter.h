@@ -53,6 +53,7 @@ private:
                                                const QStringList &path,
                                                QVector<const QMenu *> &processedMenus);
 
+    QList<LocatorFilterEntry> m_entries;
 };
 
 } // namespace Internal
