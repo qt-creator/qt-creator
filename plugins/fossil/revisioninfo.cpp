@@ -28,9 +28,14 @@
 namespace Fossil {
 namespace Internal {
 
-RevisionInfo::RevisionInfo(const QString &revisionId, const QString &parent) :
+RevisionInfo::RevisionInfo(const QString &revisionId, const QString &parent,
+                           const QStringList &mergeParents, const QString &comment,
+                           const QString &user) :
     id(revisionId),
-    parentId(parent)
+    parentId(parent),
+    mergeParentIds(mergeParents),
+    commentMsg(comment),
+    committer(user)
 { }
 
 } // namespace Internal

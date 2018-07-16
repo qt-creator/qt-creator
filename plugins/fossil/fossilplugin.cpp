@@ -285,8 +285,9 @@ void FossilPlugin::logCurrentFile()
     if (features.testFlag(FossilClient::TimelineWidthFeature))
         extraOptions << "-W" << QString::number(m_client->settings().intValue(FossilSettings::timelineWidthKey));
 
-    // annotate only supported for current revision, so disable context menu
-    bool enableAnnotationContextMenu = false;
+    // disable annotate context menu for older client versions, used to be supported for current revision only
+    bool enableAnnotationContextMenu = features.testFlag(FossilClient::AnnotateRevisionFeature);
+
     m_client->logCurrentFile(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()),
                   extraOptions, enableAnnotationContextMenu);
 }
