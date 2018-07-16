@@ -64,7 +64,7 @@ const char * const IDE_SETTINGSVARIANT_STR      = \"QtProject\";
 #ifdef IDE_COPY_SETTINGS_FROM_VARIANT
 const char * const IDE_COPY_SETTINGS_FROM_VARIANT_STR = STRINGIFY(IDE_COPY_SETTINGS_FROM_VARIANT);
 #else
-const char * const IDE_COPY_SETTINGS_FROM_VARIANT_STR = \"Nokia\";
+const char * const IDE_COPY_SETTINGS_FROM_VARIANT_STR = \"\";
 #endif
 
 #undef IDE_VERSION_DISPLAY_DEF
