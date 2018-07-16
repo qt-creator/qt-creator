@@ -3,7 +3,7 @@
     \"Version\" : \"$$QTCREATOR_VERSION\",
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
     \"Vendor\" : \"Artur Shepilko\",
-    \"Copyright\" : \"(C) 2016 Artur Shepilko\",
+    \"Copyright\" : \"(C) 2018 Artur Shepilko\",
     \"License\" : [ \"Commercial Usage\",
                   \"\",
                   \"Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.\",
