@@ -18,11 +18,11 @@ Prerequisites:
 * Qt WebEngine module for QtWebEngine based help viewer
 * On Windows:
     * ActiveState Active Perl
-    * MinGW with g++ 4.9 or Visual Studio 2015 or later
+    * MinGW with g++ 5.3 or Visual Studio 2015 or later
     * jom
     * Python 3.5 or later (optional, needed for the python enabled debug helper)
 * On Mac OS X: latest Xcode
-* On Linux: g++ 4.9 or later
+* On Linux: g++ 5.3 or later
 * LLVM/Clang 6.0.0 or later (optional, needed for the Clang Code Model, see the
   section "Get LLVM/Clang for the Clang Code Model")
     * CMake (only for manual builds of LLVM/Clang)
