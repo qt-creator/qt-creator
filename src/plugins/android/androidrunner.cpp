@@ -210,6 +210,7 @@ void AndroidRunner::qmlServerPortReady(Port port)
     serverUrl.setHost(QHostAddress(QHostAddress::LocalHost).toString());
     serverUrl.setPort(port.number());
     serverUrl.setScheme(urlTcpScheme());
+    qCDebug(androidRunnerLog) << "Qml Server port ready"<< serverUrl;
     emit qmlServerReady(serverUrl);
 }
 

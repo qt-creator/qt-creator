@@ -229,6 +229,8 @@ private:
     bool m_force32bit;
 };
 
+QDebug &operator<<(QDebug &stream, const AndroidDeviceInfo &device);
+
 } // namespace Android
 
 Q_DECLARE_METATYPE(Android::AndroidDeviceInfo)

@@ -1287,4 +1287,13 @@ void AndroidConfigurations::updateAndroidDevice()
 
 AndroidConfigurations *AndroidConfigurations::m_instance = 0;
 
+QDebug &operator<<(QDebug &stream, const AndroidDeviceInfo &device)
+{
+    stream << "Type:"<< (device.type == AndroidDeviceInfo::Emulator ? "Emulator" : "Device")
+           << ", ABI:" << device.cpuAbi << ", Serial:" << device.serialNumber
+           << ", Name:" << device.avdname << ", API:" << device.sdk
+           << ", Authorised:" << !device.unauthorized;
+    return stream;
+}
+
 } // namespace Android

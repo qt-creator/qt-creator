@@ -34,8 +34,13 @@
 #include <utils/url.h>
 
 #include <QCoreApplication>
+#include <QLoggingCategory>
 
 using namespace ProjectExplorer;
+
+namespace {
+Q_LOGGING_CATEGORY(androidDeviceLog, "qtc.android.build.androiddevice")
+}
 
 namespace Android {
 namespace Internal {
@@ -51,6 +56,8 @@ AndroidDevice::AndroidDevice()
     QString activityPath;
     const AndroidConfig &config = AndroidConfigurations::currentConfig();
     AndroidManager::apkInfo(config.qtLiveApkPath(), nullptr, nullptr, &activityPath);
+    qCDebug(androidDeviceLog) << "Using Qt live apk from: " << config.qtLiveApkPath()
+                              << "Activity Path:" << activityPath;
     setQmlsceneCommand(activityPath);
 }
 

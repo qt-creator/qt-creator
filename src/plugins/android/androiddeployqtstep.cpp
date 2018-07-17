@@ -123,6 +123,8 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
         return false;
     }
 
+    emit addOutput(tr("initializing deployment to Android device/simulator"), OutputFormat::Stdout);
+
     RunConfiguration *rc = target()->activeRunConfiguration();
     QTC_ASSERT(rc, return false);
     const bool deployQtLive = rc->id().name().startsWith(qmlProjectRunConfigIdName);
@@ -135,10 +137,12 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
         return false;
     }
 
-    int deviceAPILevel = AndroidManager::minimumSDK(target());
+    int minTargetApi = AndroidManager::minimumSDK(target());
+    qCDebug(deployStepLog) << "Target architecture:" << m_targetArch
+                           << "Min target API" << minTargetApi;
     AndroidDeviceInfo info = earlierDeviceInfo(earlierSteps, Id);
     if (!info.isValid()) {
-        info = AndroidConfigurations::showDeviceDialog(project(), deviceAPILevel, m_targetArch);
+        info = AndroidConfigurations::showDeviceDialog(project(), minTargetApi, m_targetArch);
         m_deviceInfo = info; // Keep around for later steps
     }
 
@@ -147,13 +151,15 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
 
     m_avdName = info.avdname;
     m_serialNumber = info.serialNumber;
-    qCDebug(deployStepLog) << "AVD:" << m_avdName << "Device Serial:" << m_serialNumber;
+    qCDebug(deployStepLog) << "Selected Device:" << info;
 
     if (!deployQtLive)
         gatherFilesToPull();
 
     AndroidManager::setDeviceSerialNumber(target(), m_serialNumber);
     AndroidManager::setDeviceApiLevel(target(), info.sdk);
+
+    emit addOutput(tr("Deploying to %1").arg(m_serialNumber), OutputFormat::Stdout);
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (!version)
