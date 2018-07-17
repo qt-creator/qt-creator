@@ -23,7 +23,18 @@ qtcdocsdir.name = QTC_DOCS_DIR
 qtcdocsdir.value = $$IDE_SOURCE_TREE/doc
 qtccopyrightyear.name = QTCREATOR_COPYRIGHT_YEAR
 qtccopyrightyear.value = $$QTCREATOR_COPYRIGHT_YEAR
-QDOC_ENV += qtcname qtcid qtccasedid qtcver qtcvertag qtdocs qdocindex qtcdocsdir qtccopyrightyear
+qtcsourcedir.name = IDE_SOURCE_TREE
+qtcsourcedir.value = $$IDE_SOURCE_TREE
+QDOC_ENV += qtcname \
+            qtcid \
+            qtccasedid \
+            qtcver \
+            qtcvertag \
+            qtdocs \
+            qdocindex \
+            qtcdocsdir \
+            qtccopyrightyear \
+            qtcsourcedir
 
 DOC_INDEX_PATHS += $$IDE_BUILD_TREE/doc
 DOC_HTML_INSTALLDIR = $$INSTALL_DOC_PATH
