@@ -49,7 +49,7 @@ public:
     void setProjectDirectory(const QString &absoluteProjectPath);
     QString projectDirectory() const;
 
-    void setProjectFiles(const Utils::FileNameList &projectFiles);
+    void setProjectFiles(const FileNameList &projectFiles);
     void setSysroot(const QString &sysroot);
 
     QString findFile(const QUrl &fileUrl, bool *success = nullptr) const;
@@ -74,7 +74,7 @@ private:
 
     QString m_projectDir;
     QString m_sysroot;
-    Utils::FileNameList m_projectFiles;
+    FileNameList m_projectFiles;
     QStringList m_searchDirectories;
     mutable QHash<QString,QString> m_cache;
 };

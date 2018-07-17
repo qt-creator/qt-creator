@@ -53,7 +53,7 @@ ShellCommandPage::ShellCommandPage(QWidget *parent) :
     resize(264, 200);
     auto verticalLayout = new QVBoxLayout(this);
     m_logPlainTextEdit = new QPlainTextEdit;
-    m_formatter = new Utils::OutputFormatter;
+    m_formatter = new OutputFormatter;
     m_logPlainTextEdit->setReadOnly(true);
     m_formatter->setPlainTextEdit(m_logPlainTextEdit);
 
@@ -86,10 +86,10 @@ void ShellCommandPage::start(ShellCommand *command)
     m_command = command;
     command->setProgressiveOutput(true);
     connect(command, &ShellCommand::stdOutText, this, [this](const QString &text) {
-        m_formatter->appendMessage(text, Utils::StdOutFormat);
+        m_formatter->appendMessage(text, StdOutFormat);
     });
     connect(command, &ShellCommand::stdErrText, this, [this](const QString &text) {
-        m_formatter->appendMessage(text, Utils::StdErrFormat);
+        m_formatter->appendMessage(text, StdErrFormat);
     });
     connect(command, &ShellCommand::finished, this, &ShellCommandPage::slotFinished);
     QApplication::setOverrideCursor(Qt::WaitCursor);

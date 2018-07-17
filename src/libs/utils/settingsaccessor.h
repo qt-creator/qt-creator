@@ -63,7 +63,7 @@ QTCREATOR_UTILS_EXPORT void setVersionInMap(QVariantMap &data, int version);
 QTCREATOR_UTILS_EXPORT void setOriginalVersionInMap(QVariantMap &data, int version);
 QTCREATOR_UTILS_EXPORT void setSettingsIdInMap(QVariantMap &data, const QByteArray &id);
 
-using SettingsMergeResult = Utils::optional<QPair<QString, QVariant>>;
+using SettingsMergeResult = optional<QPair<QString, QVariant>>;
 
 // --------------------------------------------------------------------
 // SettingsAccessor:
@@ -99,7 +99,7 @@ public:
     class RestoreData {
     public:
         RestoreData() = default;
-        RestoreData(const Utils::FileName &path, const QVariantMap &data) : path{path}, data{data} { }
+        RestoreData(const FileName &path, const QVariantMap &data) : path{path}, data{data} { }
         RestoreData(const QString &title, const QString &message, const Issue::Type type) :
             RestoreData(Issue(title, message, type))
         { }
@@ -109,9 +109,9 @@ public:
         bool hasError() const { return hasIssue() && issue.value().type == Issue::Type::ERROR; }
         bool hasWarning() const { return hasIssue() && issue.value().type == Issue::Type::WARNING; }
 
-        Utils::FileName path;
+        FileName path;
         QVariantMap data;
-        Utils::optional<Issue> issue;
+        optional<Issue> issue;
     };
 
     QVariantMap restoreSettings(QWidget *parent) const;
@@ -121,26 +121,26 @@ public:
     const QString displayName;
     const QString applicationDisplayName;
 
-    void setBaseFilePath(const Utils::FileName &baseFilePath) { m_baseFilePath = baseFilePath; }
+    void setBaseFilePath(const FileName &baseFilePath) { m_baseFilePath = baseFilePath; }
     void setReadOnly() { m_readOnly = true; }
-    Utils::FileName baseFilePath() const { return m_baseFilePath; }
+    FileName baseFilePath() const { return m_baseFilePath; }
 
-    virtual RestoreData readData(const Utils::FileName &path, QWidget *parent) const;
-    virtual Utils::optional<Issue> writeData(const Utils::FileName &path, const QVariantMap &data, QWidget *parent) const;
+    virtual RestoreData readData(const FileName &path, QWidget *parent) const;
+    virtual optional<Issue> writeData(const FileName &path, const QVariantMap &data, QWidget *parent) const;
 
 protected:
     // Report errors:
-    QVariantMap restoreSettings(const Utils::FileName &settingsPath, QWidget *parent) const;
+    QVariantMap restoreSettings(const FileName &settingsPath, QWidget *parent) const;
     ProceedInfo reportIssues(const Issue &issue, const FileName &path, QWidget *parent) const;
 
     virtual QVariantMap preprocessReadSettings(const QVariantMap &data) const;
     virtual QVariantMap prepareToWriteSettings(const QVariantMap &data) const;
 
-    virtual RestoreData readFile(const Utils::FileName &path) const;
-    virtual Utils::optional<Issue> writeFile(const Utils::FileName &path, const QVariantMap &data) const;
+    virtual RestoreData readFile(const FileName &path) const;
+    virtual optional<Issue> writeFile(const FileName &path, const QVariantMap &data) const;
 
 private:
-    Utils::FileName m_baseFilePath;
+    FileName m_baseFilePath;
     mutable std::unique_ptr<PersistentSettingsWriter> m_writer;
     bool m_readOnly = false;
 };
@@ -154,7 +154,7 @@ class QTCREATOR_UTILS_EXPORT BackUpStrategy
 public:
     virtual ~BackUpStrategy() = default;
 
-    virtual FileNameList readFileCandidates(const Utils::FileName &baseFileName) const;
+    virtual FileNameList readFileCandidates(const FileName &baseFileName) const;
     // Return -1 if data1 is better that data2, 0 if both are equally worthwhile
     // and 1 if data2 is better than data1
     virtual int compare(const SettingsAccessor::RestoreData &data1,
@@ -172,14 +172,14 @@ public:
     BackingUpSettingsAccessor(std::unique_ptr<BackUpStrategy> &&strategy, const QString &docType,
                               const QString &displayName, const QString &applicationDisplayName);
 
-    RestoreData readData(const Utils::FileName &path, QWidget *parent) const override;
-    Utils::optional<Issue> writeData(const Utils::FileName &path, const QVariantMap &data,
-                                     QWidget *parent) const override;
+    RestoreData readData(const FileName &path, QWidget *parent) const override;
+    optional<Issue> writeData(const FileName &path, const QVariantMap &data,
+                              QWidget *parent) const override;
 
     BackUpStrategy *strategy() const { return m_strategy.get(); }
 
 private:
-    Utils::FileNameList readFileCandidates(const FileName &path) const;
+    FileNameList readFileCandidates(const FileName &path) const;
     RestoreData bestReadFileData(const FileNameList &candidates, QWidget *parent) const;
     void backupFile(const FileName &path, const QVariantMap &data, QWidget *parent) const;
 
@@ -251,7 +251,7 @@ public:
     bool isValidVersionAndId(const int version, const QByteArray &id) const;
     VersionUpgrader *upgrader(const int version) const;
 
-    RestoreData readData(const Utils::FileName &path, QWidget *parent) const override;
+    RestoreData readData(const FileName &path, QWidget *parent) const override;
 
 protected:
     QVariantMap prepareToWriteSettings(const QVariantMap &data) const override;
@@ -284,7 +284,7 @@ public:
                             const QString &docType, const QString &displayName,
                             const QString &applicationDisplayName);
 
-    RestoreData readData(const Utils::FileName &path, QWidget *parent) const final;
+    RestoreData readData(const FileName &path, QWidget *parent) const final;
 
     void setSecondaryAccessor(std::unique_ptr<SettingsAccessor> &&secondary);
 

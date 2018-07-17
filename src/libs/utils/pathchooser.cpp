@@ -49,9 +49,11 @@
     This class has some validation logic for embedding into QWizardPage.
 */
 
+namespace Utils {
+
 static QString appBundleExpandedPath(const QString &path)
 {
-    if (Utils::HostOsInfo::hostOs() == Utils::OsTypeMac && path.endsWith(".app")) {
+    if (HostOsInfo::hostOs() == OsTypeMac && path.endsWith(".app")) {
         // possibly expand to Foo.app/Contents/MacOS/Foo
         QFileInfo info(path);
         if (info.isDir()) {
@@ -63,9 +65,7 @@ static QString appBundleExpandedPath(const QString &path)
     return path;
 }
 
-Utils::PathChooser::AboutToShowContextMenuHandler Utils::PathChooser::s_aboutToShowContextMenuHandler;
-
-namespace Utils {
+PathChooser::AboutToShowContextMenuHandler PathChooser::s_aboutToShowContextMenuHandler;
 
 // ------------------ BinaryVersionToolTipEventFilter
 // Event filter to be installed on a lineedit used for entering

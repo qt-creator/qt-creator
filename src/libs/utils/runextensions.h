@@ -59,7 +59,7 @@ struct hasCallOperator
 
 namespace Utils {
 
-using StackSizeInBytes = Utils::optional<uint>;
+using StackSizeInBytes = optional<uint>;
 
 namespace Internal {
 

@@ -275,13 +275,13 @@ auto toRawPointer(const SourceContainer &sources)
 // take:
 /////////////////
 template<typename C>
-Q_REQUIRED_RESULT Utils::optional<ValueType<C>> take(C &container, PointerType<C> p)
+Q_REQUIRED_RESULT optional<ValueType<C>> take(C &container, PointerType<C> p)
 {
     return take(container, [p](const ValueType<C> &v) { return v.get() == p; });
 }
 
 template <typename C>
-Q_REQUIRED_RESULT Utils::optional<ValueType<C>> take(C &container, std::nullptr_t)
+Q_REQUIRED_RESULT optional<ValueType<C>> take(C &container, std::nullptr_t)
 {
     return take(container, static_cast<PointerType<C>>(nullptr));
 }

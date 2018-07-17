@@ -396,7 +396,7 @@ void MacroExpander::registerFileVariables(const QByteArray &prefix,
 
     registerVariable(prefix + kFileNamePostfix,
          tr("%1: File name without path.").arg(heading),
-         [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : Utils::FileName::fromString(tmp).fileName(); },
+         [base]() -> QString { QString tmp = base(); return tmp.isEmpty() ? QString() : FileName::fromString(tmp).fileName(); },
          visibleInChooser);
 
     registerVariable(prefix + kFileBaseNamePostfix,

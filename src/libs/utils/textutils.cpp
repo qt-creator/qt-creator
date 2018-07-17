@@ -46,9 +46,9 @@ bool convertPosition(const QTextDocument *document, int pos, int *line, int *col
     }
 }
 
-Utils::OptionalLineColumn convertPosition(const QTextDocument *document, int pos)
+OptionalLineColumn convertPosition(const QTextDocument *document, int pos)
 {
-    Utils::OptionalLineColumn optional;
+    OptionalLineColumn optional;
 
     QTextBlock block = document->findBlock(pos);
 

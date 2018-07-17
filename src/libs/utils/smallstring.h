@@ -146,7 +146,7 @@ public:
     {
     }
 
-    BasicSmallString(std::initializer_list<Utils::SmallStringView> list)
+    BasicSmallString(std::initializer_list<SmallStringView> list)
         : m_data(Internal::StringDataLayout<Size>())
     {
         appendInitializerList(list, 0);
@@ -695,7 +695,7 @@ private:
 
     void appendInitializerList(std::initializer_list<SmallStringView> list, std::size_t initialSize)
     {
-        auto addSize =  [] (std::size_t size, Utils::SmallStringView string) {
+        auto addSize =  [] (std::size_t size, SmallStringView string) {
             return size + string.size();
         };
 
@@ -706,7 +706,7 @@ private:
 
         char *currentData = data() + initialSize;
 
-        for (Utils::SmallStringView string : list) {
+        for (SmallStringView string : list) {
             std::memcpy(currentData, string.data(), string.size());
             currentData += string.size();
         }

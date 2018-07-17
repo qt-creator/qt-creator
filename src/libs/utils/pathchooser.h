@@ -95,7 +95,7 @@ public:
     FileName rawFileName() const; // The raw unexpanded input.
     FileName fileName() const;
 
-    static QString expandedDirectory(const QString &input, const Utils::Environment &env,
+    static QString expandedDirectory(const QString &input, const Environment &env,
                                      const QString &baseDir);
 
     QString baseDirectory() const;
@@ -142,7 +142,7 @@ public:
 
     // global handler for adding context menus to ALL pathchooser
     // used by the coreplugin to add "Open in Terminal" and "Open in Explorer" context menu actions
-    using AboutToShowContextMenuHandler = std::function<void (Utils::PathChooser *, QMenu *)>;
+    using AboutToShowContextMenuHandler = std::function<void (PathChooser *, QMenu *)>;
     static void setAboutToShowContextMenuHandler(AboutToShowContextMenuHandler handler);
 
     QColor errorColor() const;
@@ -166,7 +166,7 @@ signals:
 
 public slots:
     void setPath(const QString &);
-    void setFileName(const Utils::FileName &);
+    void setFileName(const FileName &);
 
     void setErrorColor(const QColor &errorColor);
     void setOkColor(const QColor &okColor);

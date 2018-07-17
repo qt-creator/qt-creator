@@ -205,7 +205,7 @@ void ProgressIndicatorPainter::stopAnimation()
 /*!
     \internal
 */
-void Utils::ProgressIndicatorPainter::nextAnimationStep()
+void ProgressIndicatorPainter::nextAnimationStep()
 {
     m_rotation = (m_rotation + m_rotationStep + 360) % 360;
 }

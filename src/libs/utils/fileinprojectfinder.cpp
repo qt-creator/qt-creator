@@ -95,7 +95,7 @@ QString FileInProjectFinder::projectDirectory() const
     return m_projectDir;
 }
 
-void FileInProjectFinder::setProjectFiles(const Utils::FileNameList &projectFiles)
+void FileInProjectFinder::setProjectFiles(const FileNameList &projectFiles)
 {
     if (m_projectFiles == projectFiles)
         return;
@@ -180,7 +180,7 @@ QString FileInProjectFinder::findFileOrDirectory(const QString &originalPath, Fi
         int prefixToIgnore = -1;
         const QChar separator = QLatin1Char('/');
         if (originalPath.startsWith(m_projectDir + separator)) {
-            if (Utils::HostOsInfo::isMacHost()) {
+            if (HostOsInfo::isMacHost()) {
                 // starting with the project path is not sufficient if the file was
                 // copied in an insource build, e.g. into MyApp.app/Contents/Resources
                 static const QString appResourcePath = QString::fromLatin1(".app/Contents/Resources");

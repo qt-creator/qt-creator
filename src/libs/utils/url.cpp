@@ -47,7 +47,7 @@ QUrl urlFromLocalSocket()
 {
     QUrl serverUrl;
     serverUrl.setScheme(urlSocketScheme());
-    Utils::TemporaryFile file("qtcreator-freesocket");
+    TemporaryFile file("qtcreator-freesocket");
     if (file.open())
         serverUrl.setPath(file.fileName());
     return serverUrl;

@@ -181,16 +181,16 @@ QDebug operator<<(QDebug debug, const EnvironmentItem &i)
     debug.nospace();
     debug << "EnvironmentItem(";
     switch (i.operation) {
-    case Utils::EnvironmentItem::Set:
+    case EnvironmentItem::Set:
         debug << "set \"" << i.name << "\" to \"" << i.value << '"';
         break;
-    case Utils::EnvironmentItem::Unset:
+    case EnvironmentItem::Unset:
         debug << "unset \"" << i.name << '"';
         break;
-    case Utils::EnvironmentItem::Prepend:
+    case EnvironmentItem::Prepend:
         debug << "prepend to \"" << i.name << "\":\"" << i.value << '"';
         break;
-    case Utils::EnvironmentItem::Append:
+    case EnvironmentItem::Append:
         debug << "append to \"" << i.name << "\":\"" << i.value << '"';
         break;
     }

@@ -144,7 +144,7 @@ protected:
     virtual void handleChanged(const QString &) {}
 
 signals:
-    void buttonClicked(Utils::FancyLineEdit::Side side);
+    void buttonClicked(FancyLineEdit::Side side);
     void leftButtonClicked();
     void rightButtonClicked();
 

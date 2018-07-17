@@ -110,7 +110,7 @@ SettingsAccessor::RestoreData SettingsAccessor::readData(const FileName &path, Q
 /*!
  * Store the \a data in \a path on disk. Do all the necessary preprocessing of the data.
  */
-Utils::optional<SettingsAccessor::Issue>
+optional<SettingsAccessor::Issue>
 SettingsAccessor::writeData(const FileName &path, const QVariantMap &data, QWidget *parent) const
 {
     Q_UNUSED(parent);
@@ -155,7 +155,7 @@ SettingsAccessor::RestoreData SettingsAccessor::readFile(const FileName &path) c
  *
  * This method does not do *any* processing of the file contents.
  */
-Utils::optional<SettingsAccessor::Issue>
+optional<SettingsAccessor::Issue>
 SettingsAccessor::writeFile(const FileName &path, const QVariantMap &data) const
 {
     if (data.isEmpty()) {
@@ -239,11 +239,11 @@ int BackUpStrategy::compare(const SettingsAccessor::RestoreData &data1,
     return 0;
 }
 
-Utils::optional<Utils::FileName>
+optional<FileName>
 BackUpStrategy::backupName(const QVariantMap &oldData, const FileName &path, const QVariantMap &data) const
 {
     if (oldData == data)
-        return Utils::nullopt;
+        return nullopt;
     FileName backup = path;
     backup.appendString(".bak");
     return backup;
@@ -264,7 +264,7 @@ BackingUpSettingsAccessor::BackingUpSettingsAccessor(std::unique_ptr<BackUpStrat
 { }
 
 SettingsAccessor::RestoreData
-BackingUpSettingsAccessor::readData(const Utils::FileName &path, QWidget *parent) const
+BackingUpSettingsAccessor::readData(const FileName &path, QWidget *parent) const
 {
     const FileNameList fileList = readFileCandidates(path);
     if (fileList.isEmpty()) // No settings found at all.
@@ -288,8 +288,8 @@ BackingUpSettingsAccessor::readData(const Utils::FileName &path, QWidget *parent
     return result;
 }
 
-Utils::optional<SettingsAccessor::Issue>
-BackingUpSettingsAccessor::writeData(const Utils::FileName &path, const QVariantMap &data,
+optional<SettingsAccessor::Issue>
+BackingUpSettingsAccessor::writeData(const FileName &path, const QVariantMap &data,
                                      QWidget *parent) const
 {
     if (data.isEmpty())
@@ -300,7 +300,7 @@ BackingUpSettingsAccessor::writeData(const Utils::FileName &path, const QVariant
     return SettingsAccessor::writeData(path, data, parent);
 }
 
-FileNameList BackingUpSettingsAccessor::readFileCandidates(const Utils::FileName &path) const
+FileNameList BackingUpSettingsAccessor::readFileCandidates(const FileName &path) const
 {
     FileNameList result = Utils::filteredUnique(m_strategy->readFileCandidates(path));
     if (result.removeOne(baseFilePath()))
@@ -752,7 +752,7 @@ static QVariant mergeQVariantMapsRecursion(const QVariantMap &mainTree, const QV
         global.key = keyPrefix + key;
         local.key = key;
 
-        Utils::optional<QPair<QString, QVariant>> mergeResult = merge(global, local);
+        optional<QPair<QString, QVariant>> mergeResult = merge(global, local);
         if (!mergeResult)
             continue;
 
