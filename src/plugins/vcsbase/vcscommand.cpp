@@ -33,6 +33,8 @@
 
 #include <QProcessEnvironment>
 
+using namespace Utils;
+
 namespace VcsBase {
 
 VcsCommand::VcsCommand(const QString &workingDirectory,
@@ -40,19 +42,19 @@ VcsCommand::VcsCommand(const QString &workingDirectory,
     Core::ShellCommand(workingDirectory, environment),
     m_preventRepositoryChanged(false)
 {
-    setOutputProxyFactory([this]() -> Utils::OutputProxy * {
-        auto proxy = new Utils::OutputProxy;
+    setOutputProxyFactory([this]() -> OutputProxy * {
+        auto proxy = new OutputProxy;
         VcsOutputWindow *outputWindow = VcsOutputWindow::instance();
 
-        connect(proxy, &Utils::OutputProxy::append,
+        connect(proxy, &OutputProxy::append,
                 outputWindow, [](const QString &txt) { VcsOutputWindow::append(txt); });
-        connect(proxy, &Utils::OutputProxy::appendSilently,
+        connect(proxy, &OutputProxy::appendSilently,
                 outputWindow, &VcsOutputWindow::appendSilently);
-        connect(proxy, &Utils::OutputProxy::appendError,
+        connect(proxy, &OutputProxy::appendError,
                 outputWindow, &VcsOutputWindow::appendError);
-        connect(proxy, &Utils::OutputProxy::appendCommand,
+        connect(proxy, &OutputProxy::appendCommand,
                 outputWindow, &VcsOutputWindow::appendCommand);
-        connect(proxy, &Utils::OutputProxy::appendMessage,
+        connect(proxy, &OutputProxy::appendMessage,
                 outputWindow, &VcsOutputWindow::appendMessage);
 
         return proxy;
@@ -74,12 +76,12 @@ const QProcessEnvironment VcsCommand::processEnvironment() const
     return env;
 }
 
-Utils::SynchronousProcessResponse VcsCommand::runCommand(const Utils::FileName &binary,
+SynchronousProcessResponse VcsCommand::runCommand(const FileName &binary,
                                                          const QStringList &arguments, int timeoutS,
                                                          const QString &workingDirectory,
-                                                         const Utils::ExitCodeInterpreter &interpreter)
+                                                         const ExitCodeInterpreter &interpreter)
 {
-    Utils::SynchronousProcessResponse response
+    SynchronousProcessResponse response
             = Core::ShellCommand::runCommand(binary, arguments, timeoutS, workingDirectory,
                                              interpreter);
     emitRepositoryChanged(workingDirectory);
@@ -99,7 +101,7 @@ unsigned VcsCommand::processFlags() const
 {
     unsigned processFlags = 0;
     if (!VcsBasePlugin::sshPrompt().isEmpty() && (flags() & SshPasswordPrompt))
-        processFlags |= Utils::SynchronousProcess::UnixTerminalDisabled;
+        processFlags |= SynchronousProcess::UnixTerminalDisabled;
     return processFlags;
 }
 

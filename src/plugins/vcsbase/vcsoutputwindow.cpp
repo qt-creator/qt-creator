@@ -52,6 +52,8 @@
 #include <QPoint>
 #include <QFileInfo>
 
+using namespace Utils;
+
 /*!
     \class VcsBase::VcsBaseOutputWindow
 
@@ -107,7 +109,7 @@ private:
     QTextCharFormat m_warningFormat;
     QTextCharFormat m_commandFormat;
     QTextCharFormat m_messageFormat;
-    Utils::OutputFormatter *m_formatter;
+    OutputFormatter *m_formatter;
 };
 
 OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
@@ -118,7 +120,6 @@ OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
     m_commandFormat(m_defaultFormat),
     m_messageFormat(m_defaultFormat)
 {
-    using Utils::Theme;
     setReadOnly(true);
     setUndoRedoEnabled(false);
     setFrameStyle(QFrame::NoFrame);
@@ -126,7 +127,7 @@ OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent) :
     m_warningFormat.setForeground(Utils::creatorTheme()->color(Theme::OutputPanes_WarningMessageTextColor));
     m_commandFormat.setFontWeight(QFont::Bold);
     m_messageFormat.setForeground(Utils::creatorTheme()->color(Theme::OutputPanes_MessageOutput));
-    m_formatter = new Utils::OutputFormatter;
+    m_formatter = new OutputFormatter;
     m_formatter->setPlainTextEdit(this);
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(this);
@@ -435,12 +436,12 @@ static inline QString formatArguments(const QStringList &args)
         if (i)
             str << ' ';
         if (arg.startsWith(QString::fromLatin1(passwordOptionC) + QLatin1Char('='))) {
-            str << Utils::QtcProcess::quoteArg("--password=********");
+            str << QtcProcess::quoteArg("--password=********");
             continue;
         }
-        str << Utils::QtcProcess::quoteArg(arg);
+        str << QtcProcess::quoteArg(arg);
         if (arg == QLatin1String(passwordOptionC)) {
-            str << ' ' << Utils::QtcProcess::quoteArg("********");
+            str << ' ' << QtcProcess::quoteArg("********");
             i++;
         }
     }
@@ -448,11 +449,11 @@ static inline QString formatArguments(const QStringList &args)
 }
 
 QString VcsOutputWindow::msgExecutionLogEntry(const QString &workingDir,
-                                                  const Utils::FileName &executable,
-                                                  const QStringList &arguments)
+                                              const FileName &executable,
+                                              const QStringList &arguments)
 {
     const QString args = formatArguments(arguments);
-    const QString nativeExecutable = Utils::QtcProcess::quoteArg(executable.toUserOutput());
+    const QString nativeExecutable = QtcProcess::quoteArg(executable.toUserOutput());
     if (workingDir.isEmpty())
         return tr("Running: %1 %2").arg(nativeExecutable, args) + QLatin1Char('\n');
     return tr("Running in %1: %2 %3").
@@ -465,7 +466,7 @@ void VcsOutputWindow::appendShellCommandLine(const QString &text)
 }
 
 void VcsOutputWindow::appendCommand(const QString &workingDirectory,
-                                    const Utils::FileName &binary,
+                                    const FileName &binary,
                                     const QStringList &args)
 {
     appendShellCommandLine(msgExecutionLogEntry(workingDirectory, binary, args));

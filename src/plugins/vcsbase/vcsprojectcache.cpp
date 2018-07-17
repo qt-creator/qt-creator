@@ -35,6 +35,8 @@
 
 #include <limits>
 
+using namespace Utils;
+
 namespace {
 
 class PathMatcher
@@ -44,7 +46,7 @@ public:
     ProjectExplorer::Project *project() { return m_project; }
 
     void match(ProjectExplorer::Project *project,
-               const Utils::FileName &base, const Utils::FileName &child) {
+               const FileName &base, const FileName &child) {
         int count = std::numeric_limits<int>::max();
         if (child.isChildOf(base)) {
             const QString relative = child.toString().mid(base.count() + 1);
@@ -98,7 +100,7 @@ ProjectExplorer::Project *VcsProjectCache::projectFor(const QString &repo)
         return m_instance->m_cache.at(0).project;
     }
 
-    project = projectForToplevel(Utils::FileName::fromString(repo));
+    project = projectForToplevel(FileName::fromString(repo));
     m_instance->m_cache.prepend(CacheNode(repo, project));
     while (m_instance->m_cache.count() > 10)
         m_instance->m_cache.removeLast();
@@ -121,12 +123,12 @@ void VcsProjectCache::destroy()
     delete m_instance;
 }
 
-ProjectExplorer::Project *VcsProjectCache::projectForToplevel(const Utils::FileName &vcsTopLevel)
+ProjectExplorer::Project *VcsProjectCache::projectForToplevel(const FileName &vcsTopLevel)
 {
     PathMatcher parentMatcher;
     PathMatcher childMatcher;
     for (ProjectExplorer::Project *project : ProjectExplorer::SessionManager::projects()) {
-        const Utils::FileName projectDir = project->projectDirectory();
+        const FileName projectDir = project->projectDirectory();
         if (projectDir == vcsTopLevel)
             return project;
         parentMatcher.match(project, vcsTopLevel, projectDir);

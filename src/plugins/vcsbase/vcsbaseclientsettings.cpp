@@ -34,6 +34,8 @@
 #include <QSettings>
 #include <QVariant>
 
+using namespace Utils;
+
 namespace {
 
 class SettingValue
@@ -176,7 +178,7 @@ public:
     QHash<QString, SettingValue> m_valueHash;
     QVariantHash m_defaultValueHash;
     QString m_settingsGroup;
-    mutable Utils::FileName m_binaryFullPath;
+    mutable FileName m_binaryFullPath;
 };
 
 } // namespace Internal
@@ -352,12 +354,12 @@ QVariant::Type VcsBaseClientSettings::valueType(const QString &key) const
     return QVariant::Invalid;
 }
 
-Utils::FileName VcsBaseClientSettings::binaryPath() const
+FileName VcsBaseClientSettings::binaryPath() const
 {
     if (d->m_binaryFullPath.isEmpty()) {
-        const Utils::FileNameList searchPaths
-                = Utils::transform(searchPathList(), [](const QString &s) { return Utils::FileName::fromString(s); });
-        d->m_binaryFullPath = Utils::Environment::systemEnvironment().searchInPath(
+        const FileNameList searchPaths
+                = Utils::transform(searchPathList(), [](const QString &s) { return FileName::fromString(s); });
+        d->m_binaryFullPath = Environment::systemEnvironment().searchInPath(
                     stringValue(binaryPathKey), searchPaths);
     }
     return d->m_binaryFullPath;
@@ -365,7 +367,7 @@ Utils::FileName VcsBaseClientSettings::binaryPath() const
 
 QStringList VcsBaseClientSettings::searchPathList() const
 {
-    return stringValue(pathKey).split(Utils::HostOsInfo::pathListSeparator(), QString::SkipEmptyParts);
+    return stringValue(pathKey).split(HostOsInfo::pathListSeparator(), QString::SkipEmptyParts);
 }
 
 QString VcsBaseClientSettings::settingsGroup() const

@@ -34,6 +34,8 @@
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
 
+using namespace Utils;
+
 enum { NickNameRole = Qt::UserRole + 1 };
 
 /*!
@@ -175,7 +177,7 @@ NickNameDialog::NickNameDialog(QStandardItemModel *model, QWidget *parent) :
     m_filterModel->setSourceModel(model);
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_ui->filterTreeView->setModel(m_filterModel);
-    m_ui->filterTreeView->setActivationMode(Utils::DoubleClickActivation);
+    m_ui->filterTreeView->setActivationMode(DoubleClickActivation);
     const int columnCount = m_filterModel->columnCount();
     int treeWidth = 0;
     for (int c = 0; c < columnCount; c++) {
@@ -188,7 +190,7 @@ NickNameDialog::NickNameDialog(QStandardItemModel *model, QWidget *parent) :
             &NickNameDialog::slotActivated);
     connect(m_ui->filterTreeView->selectionModel(), &QItemSelectionModel::currentRowChanged,
             this, &NickNameDialog::slotCurrentItemChanged);
-    connect(m_ui->filterLineEdit, &Utils::FancyLineEdit::filterChanged,
+    connect(m_ui->filterLineEdit, &FancyLineEdit::filterChanged,
             m_filterModel, &QSortFilterProxyModel::setFilterFixedString);
 }
 
@@ -242,7 +244,7 @@ bool NickNameDialog::populateModelFromMailCapFile(const QString &fileName,
         model->removeRows(0, rowCount);
     if (fileName.isEmpty())
         return true;
-    Utils::FileReader reader;
+    FileReader reader;
     if (!reader.fetch(fileName, QIODevice::Text, errorMessage))
          return false;
     // Split into lines and read

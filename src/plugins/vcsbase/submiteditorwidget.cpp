@@ -42,6 +42,8 @@
 #include <QSpacerItem>
 #include <QShortcut>
 
+using namespace Utils;
+
 enum { debug = 0 };
 enum { defaultLineWidth = 72 };
 
@@ -252,16 +254,16 @@ void SubmitEditorWidget::unregisterActions(QAction *editorUndoAction,  QAction *
                                            QAction *submitAction, QAction *diffAction)
 {
     if (editorUndoAction) {
-        disconnect(d->m_ui.description, &Utils::CompletingTextEdit::undoAvailable,
+        disconnect(d->m_ui.description, &CompletingTextEdit::undoAvailable,
                    editorUndoAction, &QAction::setEnabled);
         disconnect(editorUndoAction, &QAction::triggered,
-                   d->m_ui.description, &Utils::CompletingTextEdit::undo);
+                   d->m_ui.description, &CompletingTextEdit::undo);
     }
     if (editorRedoAction) {
-        disconnect(d->m_ui.description, &Utils::CompletingTextEdit::redoAvailable,
+        disconnect(d->m_ui.description, &CompletingTextEdit::redoAvailable,
                    editorRedoAction, &QAction::setEnabled);
         disconnect(editorRedoAction, &QAction::triggered,
-                   d->m_ui.description, &Utils::CompletingTextEdit::redo);
+                   d->m_ui.description, &CompletingTextEdit::redo);
     }
 
     if (submitAction) {
@@ -446,7 +448,7 @@ QStringList SubmitEditorWidget::checkedFiles() const
     return rc;
 }
 
-Utils::CompletingTextEdit *SubmitEditorWidget::descriptionEdit() const
+CompletingTextEdit *SubmitEditorWidget::descriptionEdit() const
 {
     return d->m_ui.description;
 }

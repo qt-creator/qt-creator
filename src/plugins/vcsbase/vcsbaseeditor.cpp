@@ -90,6 +90,7 @@
 */
 
 using namespace TextEditor;
+using namespace Utils;
 
 namespace VcsBase {
 
@@ -563,7 +564,7 @@ public:
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
     QPointer<VcsCommand> m_command;
     VcsBaseEditorWidget::DescribeFunc m_describeFunc = nullptr;
-    Utils::ProgressIndicator *m_progressIndicator = nullptr;
+    ProgressIndicator *m_progressIndicator = nullptr;
     bool m_fileLogAnnotateEnabled = false;
     bool m_mouseDragging = false;
 
@@ -867,7 +868,7 @@ void VcsBaseEditorWidget::slotPopulateDiffBrowser()
                 lastFileName = file;
                 // ignore any headers
                 d->m_entrySections.push_back(d->m_entrySections.empty() ? 0 : lineNumber);
-                entriesComboBox->addItem(Utils::FileName::fromString(file).fileName());
+                entriesComboBox->addItem(FileName::fromString(file).fileName());
             }
         }
     }
@@ -1397,7 +1398,7 @@ void VcsBaseEditorWidget::setCommand(VcsCommand *command)
     }
     d->m_command = command;
     if (command) {
-        d->m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Large);
+        d->m_progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Large);
         d->m_progressIndicator->attachToWidget(this);
         connect(command, &VcsCommand::finished, this, &VcsBaseEditorWidget::reportCommandFinished);
         QTimer::singleShot(100, this, &VcsBaseEditorWidget::showProgressIndicator);

@@ -37,6 +37,8 @@
 
 #include <QCoreApplication>
 
+using namespace Utils;
+
 namespace VcsBase {
 namespace Internal {
 
@@ -47,13 +49,13 @@ CommonSettingsWidget::CommonSettingsWidget(QWidget *parent) :
     m_ui(new Ui::CommonSettingsPage)
 {
     m_ui->setupUi(this);
-    m_ui->submitMessageCheckScriptChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_ui->submitMessageCheckScriptChooser->setExpectedKind(PathChooser::ExistingCommand);
     m_ui->submitMessageCheckScriptChooser->setHistoryCompleter(QLatin1String("Vcs.MessageCheckScript.History"));
-    m_ui->nickNameFieldsFileChooser->setExpectedKind(Utils::PathChooser::File);
+    m_ui->nickNameFieldsFileChooser->setExpectedKind(PathChooser::File);
     m_ui->nickNameFieldsFileChooser->setHistoryCompleter(QLatin1String("Vcs.NickFields.History"));
-    m_ui->nickNameMailMapChooser->setExpectedKind(Utils::PathChooser::File);
+    m_ui->nickNameMailMapChooser->setExpectedKind(PathChooser::File);
     m_ui->nickNameMailMapChooser->setHistoryCompleter(QLatin1String("Vcs.NickMap.History"));
-    m_ui->sshPromptChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_ui->sshPromptChooser->setExpectedKind(PathChooser::ExistingCommand);
     m_ui->sshPromptChooser->setHistoryCompleter(QLatin1String("Vcs.SshPrompt.History"));
 
     updatePath();
@@ -93,9 +95,9 @@ void CommonSettingsWidget::setSettings(const CommonVcsSettings &s)
 
 void CommonSettingsWidget::updatePath()
 {
-    Utils::Environment env = Utils::Environment::systemEnvironment();
+    Environment env = Environment::systemEnvironment();
     QStringList toAdd = Core::VcsManager::additionalToolsPath();
-    env.appendOrSetPath(toAdd.join(Utils::HostOsInfo::pathListSeparator()));
+    env.appendOrSetPath(toAdd.join(HostOsInfo::pathListSeparator()));
     m_ui->sshPromptChooser->setEnvironment(env);
 }
 
