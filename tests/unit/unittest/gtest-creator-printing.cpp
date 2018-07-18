@@ -538,6 +538,8 @@ static const char *highlightingTypeToCStringLiteral(HighlightingType type)
         RETURN_TEXT_FOR_CASE(ObjectiveCImplementation);
         RETURN_TEXT_FOR_CASE(ObjectiveCProperty);
         RETURN_TEXT_FOR_CASE(ObjectiveCMethod);
+        RETURN_TEXT_FOR_CASE(TemplateTypeParameter);
+        RETURN_TEXT_FOR_CASE(TemplateTemplateParameter);
     }
 
     return "";
