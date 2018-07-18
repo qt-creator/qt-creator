@@ -876,28 +876,44 @@ static const MsvcToolChain *selectMsvcToolChain(const QString &clangClPath,
     return toolChain;
 }
 
-static void detectClangClToolChainInPath(const QString &clangClPath,
-                                         QList<ToolChain *> &list)
+static QList<ToolChain *> detectClangClToolChainInPath(
+        const QString &clangClPath, const QList<ToolChain *> &alreadyKnown)
 {
+    QList<ToolChain *> res;
     const unsigned char wordWidth = Utils::is64BitWindowsBinary(clangClPath) ? 64 : 32;
     const MsvcToolChain *toolChain = selectMsvcToolChain(clangClPath, wordWidth);
 
     if (!toolChain) {
         qWarning("Unable to find a suitable MSVC version for \"%s\".",
                  qPrintable(QDir::toNativeSeparators(clangClPath)));
-        return;
+        return res;
     }
 
+    Utils::Environment systemEnvironment = Utils::Environment::systemEnvironment();
     const Abi targetAbi = toolChain->targetAbi();
     const QString name = QStringLiteral("LLVM ") + QString::number(wordWidth)
         + QStringLiteral("bit based on ")
         + Abi::toString(targetAbi.osFlavor()).toUpper();
     for (auto language: {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}) {
-        auto *clangClToolChain = new ClangClToolChain(name, clangClPath,
-                                                      language, ToolChain::AutoDetection);
-        clangClToolChain->resetMsvcToolChain(toolChain);
-        list.append(clangClToolChain);
+        ClangClToolChain *tc = static_cast<ClangClToolChain *>(
+                    Utils::findOrDefault(
+                        alreadyKnown,
+                        [&targetAbi, &language, &clangClPath, &systemEnvironment](ToolChain *tc) -> bool {
+            if (tc->typeId() != Constants::CLANG_CL_TOOLCHAIN_TYPEID)
+                return false;
+            if (tc->targetAbi() != targetAbi)
+                return false;
+            if (tc->language() != language)
+                return false;
+            return systemEnvironment.isSameExecutable(tc->compilerCommand().toString(), clangClPath);
+        }));
+        if (!tc) {
+            tc = new ClangClToolChain(name, clangClPath, language, ToolChain::AutoDetection);
+            tc->resetMsvcToolChain(toolChain);
+        }
+        res << tc;
     }
+    return res;
 }
 
 static QString compilerFromPath(const QString &path)
@@ -917,8 +933,7 @@ void ClangClToolChainConfigWidget::applyImpl()
         return;
     }
 
-    QList<ToolChain *> results;
-    detectClangClToolChainInPath(clangClPath.toString(), results);
+    QList<ToolChain *> results = detectClangClToolChainInPath(clangClPath.toString(), {});
 
     if (results.isEmpty()) {
         clangClToolChain->resetMsvcToolChain();
@@ -1232,7 +1247,7 @@ QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> 
         const QString path = QDir::cleanPath(registry.value(QStringLiteral(".")).toString());
         const QString clangClPath = compilerFromPath(path);
         if (!path.isEmpty()) {
-            detectClangClToolChainInPath(clangClPath, results);
+            results.append(detectClangClToolChainInPath(clangClPath, alreadyKnown));
             return results;
         }
     }
@@ -1240,7 +1255,7 @@ QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> 
     const Utils::Environment systemEnvironment = Utils::Environment::systemEnvironment();
     const Utils::FileName clangClPath = systemEnvironment.searchInPath("clang-cl");
     if (!clangClPath.isEmpty())
-        detectClangClToolChainInPath(clangClPath.toString(), results);
+        results.append(detectClangClToolChainInPath(clangClPath.toString(), alreadyKnown));
     return results;
 }
 
