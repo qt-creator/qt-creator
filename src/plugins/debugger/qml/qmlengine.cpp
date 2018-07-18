@@ -170,6 +170,10 @@ public:
                        bool enabled = true,int line = 0, int column = 0,
                        const QString condition = QString(), int ignoreCount = -1);
     void clearBreakpoint(int breakpoint);
+
+    bool canChangeBreakpoint() const;
+    void changeBreakpoint(int breakpoint, bool enabled);
+
     void setExceptionBreak(Exceptions type, bool enabled = false);
 
     void flushSendBuffer();
@@ -225,6 +229,7 @@ public:
     bool automaticConnect = false;
     bool unpausedEvaluate = false;
     bool contextEvaluate = false;
+    bool supportChangeBreakpoint = false;
 
     QTimer connectionTimer;
     QmlDebug::QDebugMessageClient *msgClient = nullptr;
@@ -759,6 +764,8 @@ void QmlEngine::changeBreakpoint(Breakpoint bp)
         d->setBreakpoint(EVENT, params.functionName, params.enabled);
         br.enabled = params.enabled;
         bp.setResponse(br);
+    } else if (d->canChangeBreakpoint()) {
+        d->changeBreakpoint(d->breakpoints.value(bp.id()), params.enabled);
     } else {
         //V8 supports only minimalistic changes in breakpoint
         //Remove the breakpoint and add again
@@ -1499,6 +1506,19 @@ void QmlEnginePrivate::clearBreakpoint(int breakpoint)
 
     DebuggerCommand cmd(CLEARBREAKPOINT);
     cmd.arg(BREAKPOINT, breakpoint);
+    runCommand(cmd);
+}
+
+bool QmlEnginePrivate::canChangeBreakpoint() const
+{
+    return supportChangeBreakpoint;
+}
+
+void QmlEnginePrivate::changeBreakpoint(int breakpoint, bool enabled)
+{
+    DebuggerCommand cmd(CHANGEBREAKPOINT);
+    cmd.arg(BREAKPOINT, breakpoint);
+    cmd.arg(ENABLED, enabled);
     runCommand(cmd);
 }
 
@@ -2478,8 +2498,10 @@ void QmlEnginePrivate::stateChanged(State state)
 
 void QmlEnginePrivate::handleVersion(const QVariantMap &response)
 {
-    unpausedEvaluate = response.value(BODY).toMap().value("UnpausedEvaluate", false).toBool();
-    contextEvaluate = response.value(BODY).toMap().value("ContextEvaluate", false).toBool();
+    const QVariantMap body = response.value(BODY).toMap();
+    unpausedEvaluate = body.value("UnpausedEvaluate", false).toBool();
+    contextEvaluate = body.value("ContextEvaluate", false).toBool();
+    supportChangeBreakpoint = body.value("ChangeBreakpoint", false).toBool();
 }
 
 void QmlEnginePrivate::flushSendBuffer()

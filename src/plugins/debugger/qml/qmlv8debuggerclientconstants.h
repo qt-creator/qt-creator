@@ -73,6 +73,7 @@ const char SCOPE[] = "scope";
 const char SCRIPTS[] = "scripts";
 const char SETBREAKPOINT[] = "setbreakpoint";
 const char CLEARBREAKPOINT[] = "clearbreakpoint";
+const char CHANGEBREAKPOINT[] = "changebreakpoint";
 const char SETEXCEPTIONBREAK[] = "setexceptionbreak";
 const char VERSION[] = "version";
 const char DISCONNECT[] = "disconnect";
