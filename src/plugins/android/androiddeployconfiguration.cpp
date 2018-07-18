@@ -63,10 +63,13 @@ AndroidDeployConfigurationFactory::AndroidDeployConfigurationFactory()
 
 QList<QString> AndroidDeployConfigurationFactory::availableBuildTargets(Target *parent) const
 {
-    ToolChain *tc = ToolChainKitInformation::toolChain(parent->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-
-    if (!tc || tc->targetAbi().osFlavor() != Abi::AndroidLinuxFlavor)
-        return {};
+    if (!parent->project()->id().name().startsWith("QmlProjectManager.QmlProject")) {
+        // Avoid tool chain check for QML Project
+        Core::Id cxxLangId(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+        ToolChain *tc = ToolChainKitInformation::toolChain(parent->kit(), cxxLangId);
+        if (!tc || tc->targetAbi().osFlavor() != Abi::AndroidLinuxFlavor)
+            return {};
+    }
 
     QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(parent->kit());
     if (!qt || qt->type() != Constants::ANDROIDQT)
