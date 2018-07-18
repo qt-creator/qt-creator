@@ -167,7 +167,7 @@ void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
         if (selectedAction == getGlobalStatsAction)
             emit showFullRange();
         if (selectedAction == showExtendedStatsAction)
-            m_mainView->setShowExtendedStatistics(m_mainView->showExtendedStatistics());
+            m_mainView->setShowExtendedStatistics(showExtendedStatsAction->isChecked());
     }
 }
 

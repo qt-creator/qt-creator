@@ -133,9 +133,9 @@ class PlainDumper:
 
     def __call__(self, d, value):
         try:
-            printer = self.printer.gen_printer(value)
+            printer = self.printer.gen_printer(value.nativeValue)
         except:
-            printer = self.printer.invoke(value)
+            printer = self.printer.invoke(value.nativeValue)
         lister = getattr(printer, 'children', None)
         children = [] if lister is None else list(lister())
         d.putType(self.printer.name)
