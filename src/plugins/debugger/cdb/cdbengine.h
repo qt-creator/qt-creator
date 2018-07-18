@@ -129,13 +129,12 @@ private:
         bool exists;
     };
 
-    enum SpecialStopMode
-    {
-        NoSpecialStop,
-        SpecialStopSynchronizeBreakpoints,
-        SpecialStopGetWidgetAt,
-        CustomSpecialStop // Associated with m_specialStopData, handleCustomSpecialStop()
+    enum StopMode {
+        NoStopRequested,
+        Interrupt,
+        Callback
     };
+
     enum ParseStackResultFlags // Flags returned by parseStackTrace
     {
         ParseStackStepInto = 1, // Need to execute a step, hit on a call frame in "Step into"
@@ -160,16 +159,12 @@ private:
     void handleSessionAccessible(unsigned long cdbExState);
     void handleSessionInaccessible(unsigned long cdbExState);
     void handleSessionIdle(const QString &message);
-    void doInterruptInferior(SpecialStopMode sm);
-    void doInterruptInferiorCustomSpecialStop(const QVariant &v);
+    using InterruptCallback = std::function<void()>;
+    void doInterruptInferior(const InterruptCallback &cb = InterruptCallback());
     void doContinueInferior();
     void parseOutputLine(QString line);
     bool isCdbProcessRunning() const { return m_process.state() != QProcess::NotRunning; }
     bool canInterruptInferior() const;
-    void syncOperateByInstruction(bool operateByInstruction);
-    void postWidgetAtCommand();
-    void handleCustomSpecialStop(const QVariant &v);
-    void postFetchMemory(const MemoryViewCookie &c);
     inline void postDisassemblerCommand(quint64 address, DisassemblerAgent *agent);
     void postDisassemblerCommand(quint64 address, quint64 endAddress,
                                  DisassemblerAgent *agent);
@@ -215,7 +210,7 @@ private:
     QByteArray m_outputBuffer;
     //! Debugger accessible (expecting commands)
     bool m_accessible = false;
-    SpecialStopMode m_specialStopMode = NoSpecialStop;
+    StopMode m_stopMode = NoStopRequested;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr m_signalOperation;
     int m_nextCommandToken = 0;
     QHash<int, DebuggerCommand> m_commandForToken;
@@ -223,7 +218,6 @@ private:
     int m_currentBuiltinResponseToken = -1;
     QMap<QString, NormalizedSourceFileName> m_normalizedFileCache;
     const QString m_extensionCommandPrefix; //!< Library name used as prefix
-    bool m_operateByInstructionPending = true; //!< Creator operate by instruction action changed.
     bool m_operateByInstruction = true; // Default CDB setting.
     bool m_hasDebuggee = false;
     enum Wow64State {
@@ -245,7 +239,7 @@ private:
     QHash<QString, QString> m_fileNameModuleHash;
     QMultiHash<QString, quint64> m_symbolAddressCache;
     bool m_ignoreCdbOutput = false;
-    QVariantList m_customSpecialStopData;
+    QList<InterruptCallback> m_interrupCallbacks;
     QList<SourcePathMapping> m_sourcePathMappings;
     QScopedPointer<GdbMi> m_coreStopReason;
     int m_pythonVersion = 0; // 0xMMmmpp MM = major; mm = minor; pp = patch
