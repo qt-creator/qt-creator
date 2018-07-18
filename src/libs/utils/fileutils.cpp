@@ -43,7 +43,7 @@
 
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
-#include <ShlObj.h>
+#include <shlobj.h>
 #endif
 
 #ifdef Q_OS_OSX

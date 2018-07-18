@@ -27,7 +27,7 @@
 #include "qtcassert.h"
 #include "fileutils.h"
 #ifdef Q_OS_WIN
-#  include <Windows.h>
+#  include <windows.h>
 #  include <io.h>
 #else
 #  include <unistd.h>

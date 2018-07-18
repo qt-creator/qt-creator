@@ -45,7 +45,7 @@ static inline QString msgCannotInterrupt(qint64 pid, const QString &why)
 #define _WIN32_WINNT 0x0501 /* WinXP, needed for DebugBreakProcess() */
 
 #include <utils/winutils.h>
-#include <Windows.h>
+#include <windows.h>
 
 #if !defined(PROCESS_SUSPEND_RESUME) // Check flag for MinGW
 #    define PROCESS_SUSPEND_RESUME (0x0800)

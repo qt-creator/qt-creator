@@ -32,7 +32,7 @@
 #include <QString>
 #include <QLatin1String>
 
-#include <Windows.h>
+#include <windows.h>
 
 namespace RegistryAccess {
 

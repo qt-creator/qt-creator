@@ -37,7 +37,7 @@
 #if defined(Q_OS_UNIX)
 #include <unistd.h>
 #elif defined(Q_OS_WIN)
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 namespace QmlDesigner {

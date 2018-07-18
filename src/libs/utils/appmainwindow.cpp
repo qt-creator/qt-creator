@@ -27,7 +27,7 @@
 #include "theme/theme_p.h"
 
 #ifdef Q_OS_WIN
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 #include <QEvent>

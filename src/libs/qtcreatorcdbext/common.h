@@ -32,7 +32,7 @@
 #include <string>
 #include <sstream>
 
-#include <Windows.h>
+#include <windows.h>
 #define KDEXT_64BIT
 #pragma warning( disable : 4838  )
 #include <wdbgexts.h>

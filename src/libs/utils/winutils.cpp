@@ -30,7 +30,7 @@
 #ifdef Q_OS_WIN
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0600 // Needed for QueryFullProcessImageName
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 #include <QString>

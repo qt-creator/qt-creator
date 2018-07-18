@@ -37,7 +37,7 @@
 // Yes, this is ugly. But please don't introduce a libUtils dependency
 // just to get rid of a single function.
 #ifdef Q_OS_WIN
-#include <Windows.h>
+#include <windows.h>
 void doSleep(int msec) { ::Sleep(msec); }
 #else
 #include <time.h>

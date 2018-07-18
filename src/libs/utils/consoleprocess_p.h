@@ -39,7 +39,7 @@ QT_END_NAMESPACE
 
 #ifdef Q_OS_WIN
 #  include <QWinEventNotifier>
-#  include <Windows.h>
+#  include <windows.h>
 #endif
 
 namespace Utils {

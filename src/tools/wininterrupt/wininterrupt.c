@@ -31,7 +31,7 @@
 #error Must target Windows NT 5.0.1 or later for DebugBreakProcess
 #endif
 
-#include <Windows.h>
+#include <windows.h>
 #include <stdio.h>
 
 /* To debug break a 64bit application under Windows, you must call

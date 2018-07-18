@@ -102,7 +102,7 @@
 
 #include <utils/winutils.h>
 
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 using namespace Core;
