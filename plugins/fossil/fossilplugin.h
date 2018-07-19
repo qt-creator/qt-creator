@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2016 Artur Shepilko
+** Copyright (c) 2018 Artur Shepilko
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.

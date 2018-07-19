@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2016 Artur Shepilko
+** Copyright (c) 2018 Artur Shepilko
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -77,8 +77,8 @@ void OptionsPageWidget::setSettings(const VcsBase::VcsBaseClientSettings &s)
     m_ui.disableAutosyncCheckBox->setChecked(s.boolValue(FossilSettings::disableAutosyncKey));
 }
 
-OptionsPage::OptionsPage(Core::IVersionControl *control) :
-    VcsClientOptionsPage(control, FossilPlugin::instance()->client())
+OptionsPage::OptionsPage(Core::IVersionControl *control, QObject *parent) :
+    VcsClientOptionsPage(control, FossilPlugin::instance()->client(), parent)
 {
     setId(Constants::VCS_ID_FOSSIL);
     setDisplayName(tr("Fossil"));

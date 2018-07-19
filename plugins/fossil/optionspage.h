@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2016 Artur Shepilko
+** Copyright (c) 2018 Artur Shepilko
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -56,7 +56,7 @@ class OptionsPage : public VcsBase::VcsClientOptionsPage
     Q_OBJECT
 
 public:
-    OptionsPage(Core::IVersionControl *control);
+    OptionsPage(Core::IVersionControl *control, QObject *parent);
 };
 
 } // namespace Internal
