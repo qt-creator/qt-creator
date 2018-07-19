@@ -182,7 +182,7 @@ PluginSpec::PluginSpec()
 PluginSpec::~PluginSpec()
 {
     delete d;
-    d = 0;
+    d = nullptr;
 }
 
 /*!
@@ -963,7 +963,7 @@ bool PluginSpecPrivate::loadLibrary()
             + QString::fromLatin1(": ") + loader.errorString();
         return false;
     }
-    IPlugin *pluginObject = qobject_cast<IPlugin*>(loader.instance());
+    auto *pluginObject = qobject_cast<IPlugin*>(loader.instance());
     if (!pluginObject) {
         hasError = true;
         errorString = QCoreApplication::translate("PluginSpec", "Plugin is not valid (does not derive from IPlugin)");
@@ -1065,6 +1065,6 @@ void PluginSpecPrivate::kill()
     if (!plugin)
         return;
     delete plugin;
-    plugin = 0;
+    plugin = nullptr;
     state = PluginSpec::Deleted;
 }

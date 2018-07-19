@@ -34,7 +34,7 @@ InvokerBase::InvokerBase()
     nag = true;
     success = true;
     connectionType = Qt::AutoConnection;
-    target = 0;
+    target = nullptr;
 }
 
 InvokerBase::~InvokerBase()

@@ -265,9 +265,9 @@ bool OptionsParser::checkForUnknownOption()
 
 void OptionsParser::forceDisableAllPluginsExceptTestedAndForceEnabled()
 {
-    for (const PluginManagerPrivate::TestSpec &testSpec : m_pmPrivate->testSpecs)
+    for (const PluginManagerPrivate::TestSpec &testSpec : qAsConst(m_pmPrivate->testSpecs))
         testSpec.pluginSpec->d->setForceEnabled(true);
-    for (PluginSpec *spec : m_pmPrivate->pluginSpecs) {
+    for (PluginSpec *spec : qAsConst(m_pmPrivate->pluginSpecs)) {
         if (!spec->isForceEnabled() && !spec->isRequired())
             spec->d->setForceDisabled(true);
     }

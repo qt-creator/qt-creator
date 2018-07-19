@@ -110,7 +110,7 @@ public:
 
     int columnCount() const { return 4; }
 
-    QVariant data(int column, int role) const
+    QVariant data(int column, int role) const override
     {
         if (role == HiddenByDefaultRole)
             return m_spec->isHiddenByDefault() || !m_spec->isAvailableForHostPlatform();
@@ -177,7 +177,7 @@ public:
         return QVariant();
     }
 
-    bool setData(int column, const QVariant &data, int role)
+    bool setData(int column, const QVariant &data, int role) override
     {
         if (column == LoadedColumn && role == Qt::CheckStateRole)
             return m_view->setPluginsEnabled(QSet<PluginSpec *>() << m_spec, data.toBool());
@@ -189,7 +189,7 @@ public:
         return m_spec->isAvailableForHostPlatform() && !m_spec->isRequired();
     }
 
-    Qt::ItemFlags flags(int column) const
+    Qt::ItemFlags flags(int column) const override
     {
         Qt::ItemFlags ret = Qt::ItemIsSelectable;
 
@@ -221,7 +221,7 @@ public:
 
     int columnCount() const { return 4; }
 
-    QVariant data(int column, int role) const
+    QVariant data(int column, int role) const override
     {
         if (role == HiddenByDefaultRole)
             return false;
@@ -260,7 +260,7 @@ public:
         return QVariant();
     }
 
-    bool setData(int column, const QVariant &data, int role)
+    bool setData(int column, const QVariant &data, int role) override
     {
         if (column == LoadedColumn && role == Qt::CheckStateRole) {
             const QList<PluginSpec *> affectedPlugins =
@@ -273,7 +273,7 @@ public:
         return false;
     }
 
-    Qt::ItemFlags flags(int column) const
+    Qt::ItemFlags flags(int column) const override
     {
         Qt::ItemFlags ret = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
         if (column == LoadedColumn)
@@ -290,7 +290,7 @@ public:
 class PluginFilterModel : public CategorySortFilterModel
 {
 public:
-    PluginFilterModel(QObject *parent = 0) : CategorySortFilterModel(parent) {}
+    PluginFilterModel(QObject *parent = nullptr) : CategorySortFilterModel(parent) {}
 
     void setShowHidden(bool show)
     {
@@ -355,7 +355,7 @@ PluginView::PluginView(QWidget *parent)
     m_sortModel->setFilterKeyColumn(-1/*all*/);
     m_categoryView->setModel(m_sortModel);
 
-    QGridLayout *gridLayout = new QGridLayout(this);
+    auto *gridLayout = new QGridLayout(this);
     gridLayout->setContentsMargins(2, 2, 2, 2);
     gridLayout->addWidget(m_categoryView, 1, 0, 1, 1);
 
@@ -367,10 +367,10 @@ PluginView::PluginView(QWidget *parent)
             this, &PluginView::updatePlugins);
 
     connect(m_categoryView, &QAbstractItemView::activated,
-            [this](const QModelIndex &idx) { pluginActivated(pluginForIndex(idx)); });
+            [this](const QModelIndex &idx) { emit pluginActivated(pluginForIndex(idx)); });
 
     connect(m_categoryView->selectionModel(), &QItemSelectionModel::currentChanged,
-            [this](const QModelIndex &idx) { currentPluginChanged(pluginForIndex(idx)); });
+            [this](const QModelIndex &idx) { emit currentPluginChanged(pluginForIndex(idx)); });
 
     updatePlugins();
 }
@@ -378,9 +378,7 @@ PluginView::PluginView(QWidget *parent)
 /*!
     \internal
 */
-PluginView::~PluginView()
-{
-}
+PluginView::~PluginView() = default;
 
 /*!
     Returns the current selection in the list of plugins.
@@ -411,7 +409,7 @@ PluginSpec *PluginView::pluginForIndex(const QModelIndex &index) const
 {
     const QModelIndex &sourceIndex = m_sortModel->mapToSource(index);
     PluginItem *item = m_model->itemForIndexAtLevel<2>(sourceIndex);
-    return item ? item->m_spec: 0;
+    return item ? item->m_spec: nullptr;
 }
 
 void PluginView::updatePlugins()
@@ -432,7 +430,7 @@ void PluginView::updatePlugins()
     foreach (CollectionItem *collection, collections)
         m_model->rootItem()->appendChild(collection);
 
-    m_model->layoutChanged();
+    emit m_model->layoutChanged();
     m_categoryView->expandAll();
 }
 

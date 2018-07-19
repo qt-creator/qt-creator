@@ -55,7 +55,7 @@ class EXTENSIONSYSTEM_EXPORT PluginManagerPrivate : public QObject
     Q_OBJECT
 public:
     PluginManagerPrivate(PluginManager *pluginManager);
-    virtual ~PluginManagerPrivate();
+    ~PluginManagerPrivate() override;
 
     // Object pool operations
     void addObject(QObject *obj);
@@ -106,19 +106,19 @@ public:
     QStringList disabledPlugins;
     QStringList forceEnabledPlugins;
     // delayed initialization
-    QTimer *delayedInitializeTimer;
+    QTimer *delayedInitializeTimer = nullptr;
     QList<PluginSpec *> delayedInitializeQueue;
     // ansynchronous shutdown
     QList<PluginSpec *> asynchronousPlugins; // plugins that have requested async shutdown
-    QEventLoop *shutdownEventLoop; // used for async shutdown
+    QEventLoop *shutdownEventLoop = nullptr; // used for async shutdown
 
     QStringList arguments;
     QScopedPointer<QTime> m_profileTimer;
     QHash<const PluginSpec *, int> m_profileTotal;
-    int m_profileElapsedMS;
-    unsigned m_profilingVerbosity;
-    QSettings *settings;
-    QSettings *globalSettings;
+    int m_profileElapsedMS = 0;
+    unsigned m_profilingVerbosity = 0;
+    QSettings *settings = nullptr;
+    QSettings *globalSettings = nullptr;
 
     // Look in argument descriptions of the specs for the option.
     PluginSpec *pluginForOption(const QString &option, bool *requiresArgument) const;
