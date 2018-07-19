@@ -145,16 +145,17 @@ private:
         if (buildType == BuildConfiguration::Release) {
             const QString wrongMode = ClangToolRunControl::tr("Release");
             const QString toolName = m_parent->tool()->name();
-            const QString title = ClangToolRunControl::tr("Run %1 in %2 Mode?").arg(toolName)
-                    .arg(wrongMode);
-            const QString message = ClangToolRunControl::tr(
-                        "<html><head/><body>"
-                        "<p>You are trying to run the tool \"%1\" on an application in %2 mode. The tool is "
+            const QString title = ClangToolRunControl::tr("Run %1 in %2 Mode?").arg(toolName, wrongMode);
+            const QString problem = ClangToolRunControl::tr(
+                        "You are trying to run the tool \"%1\" on an application in %2 mode. The tool is "
                         "designed to be used in Debug mode since enabled assertions can reduce the number of "
-                        "false positives.</p>"
-                        "<p>Do you want to continue and run the tool in %2 mode?</p>"
-                        "</body></html>")
-                    .arg(toolName).arg(wrongMode);
+                        "false positives.").arg(toolName, wrongMode);
+            const QString question = ClangToolRunControl::tr(
+                        "Do you want to continue and run the tool in %1 mode?").arg(wrongMode);
+            const QString message = QString("<html><head/><body>"
+                                            "<p>%1</p>"
+                                            "<p>%2</p>"
+                                            "</body></html>").arg(problem, question);
             if (Utils::CheckableMessageBox::doNotAskAgainQuestion(Core::ICore::mainWindow(),
                                                                   title, message, Core::ICore::settings(),
                                                                   "ClangToolsCorrectModeWarning") != QDialogButtonBox::Yes)
