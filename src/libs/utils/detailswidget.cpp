@@ -100,7 +100,7 @@ DetailsWidgetPrivate::DetailsWidgetPrivate(QWidget *parent) :
         m_hovered(false),
         m_useCheckBox(false)
 {
-    QHBoxLayout *summaryLayout = new QHBoxLayout;
+    auto summaryLayout = new QHBoxLayout;
     summaryLayout->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
     summaryLayout->setSpacing(0);
 
@@ -177,7 +177,7 @@ void DetailsWidgetPrivate::updateControls()
     for (QWidget *w = q; w; w = w->parentWidget()) {
         if (w->layout())
             w->layout()->activate();
-        if (QScrollArea *area = qobject_cast<QScrollArea*>(w)) {
+        if (auto area = qobject_cast<QScrollArea*>(w)) {
             QEvent e(QEvent::LayoutRequest);
             QCoreApplication::sendEvent(area, &e);
         }
@@ -249,7 +249,7 @@ void DetailsWidget::setSummaryFontBold(bool b)
 
 void DetailsWidget::setIcon(const QIcon &icon)
 {
-    int iconSize = style()->pixelMetric(QStyle::PM_ButtonIconSize, 0, this);
+    int iconSize = style()->pixelMetric(QStyle::PM_ButtonIconSize, nullptr, this);
     d->m_summaryLabelIcon->setFixedWidth(icon.isNull() ? 0 : iconSize);
     d->m_summaryLabelIcon->setPixmap(icon.pixmap(iconSize, iconSize));
     d->m_summaryCheckBox->setIcon(icon);
@@ -347,10 +347,10 @@ QWidget *DetailsWidget::widget() const
 QWidget *DetailsWidget::takeWidget()
 {
     QWidget *widget = d->m_widget;
-    d->m_widget = 0;
+    d->m_widget = nullptr;
     d->m_grid->removeWidget(widget);
     if (widget)
-        widget->setParent(0);
+        widget->setParent(nullptr);
     return widget;
 }
 

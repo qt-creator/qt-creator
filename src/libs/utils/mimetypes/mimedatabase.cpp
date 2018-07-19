@@ -328,7 +328,7 @@ MimeDatabase::MimeDatabase() :
  */
 MimeDatabase::~MimeDatabase()
 {
-    d = 0;
+    d = nullptr;
 }
 
 void Utils::addMimeTypes(const QString &fileName, const QByteArray &data)

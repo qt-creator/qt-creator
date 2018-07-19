@@ -45,17 +45,14 @@ struct ClassNameValidatingLineEditPrivate {
 
     QRegExp m_nameRegexp;
     QString m_namespaceDelimiter;
-    bool m_namespacesEnabled;
-    bool m_lowerCaseFileName;
-    bool m_forceFirstCapitalLetter;
+    bool m_namespacesEnabled = false;
+    bool m_lowerCaseFileName = true;
+    bool m_forceFirstCapitalLetter = false;
 };
 
 // Match something like "Namespace1::Namespace2::ClassName".
 ClassNameValidatingLineEditPrivate:: ClassNameValidatingLineEditPrivate() :
-    m_namespaceDelimiter(QLatin1String("::")),
-    m_namespacesEnabled(false),
-    m_lowerCaseFileName(true),
-    m_forceFirstCapitalLetter(false)
+    m_namespaceDelimiter(QLatin1String("::"))
 {
 }
 

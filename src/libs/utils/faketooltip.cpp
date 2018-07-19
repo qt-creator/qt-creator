@@ -52,9 +52,9 @@ FakeToolTip::FakeToolTip(QWidget *parent) :
     p.setColor(QPalette::Inactive, QPalette::ButtonText, toolTipTextColor);
     setPalette(p);
 
-    const int margin = 1 + style()->pixelMetric(QStyle::PM_ToolTipLabelFrameWidth, 0, this);
+    const int margin = 1 + style()->pixelMetric(QStyle::PM_ToolTipLabelFrameWidth, nullptr, this);
     setContentsMargins(margin + 1, margin, margin, margin);
-    setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, 0, this) / 255.0);
+    setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, nullptr, this) / 255.0);
 }
 
 void FakeToolTip::paintEvent(QPaintEvent *)

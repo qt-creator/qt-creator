@@ -116,8 +116,8 @@ QList<ChangeSet::EditOp> ChangeSet::operationList() const
 
 void ChangeSet::clear()
 {
-    m_string = 0;
-    m_cursor = 0;
+    m_string = nullptr;
+    m_cursor = nullptr;
     m_operationList.clear();
     m_error = false;
 }
@@ -334,14 +334,14 @@ void ChangeSet::apply(QString *s)
 {
     m_string = s;
     apply_helper();
-    m_string = 0;
+    m_string = nullptr;
 }
 
 void ChangeSet::apply(QTextCursor *textCursor)
 {
     m_cursor = textCursor;
     apply_helper();
-    m_cursor = 0;
+    m_cursor = nullptr;
 }
 
 QString ChangeSet::textAt(int pos, int length)

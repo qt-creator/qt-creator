@@ -42,14 +42,14 @@ static inline QString msgCanceled(const QString &searchTerm, int numMatches, int
 {
     return QCoreApplication::translate("Utils::FileSearch",
                                        "%1: canceled. %n occurrences found in %2 files.",
-                                       0, numMatches).arg(searchTerm).arg(numFilesSearched);
+                                       nullptr, numMatches).arg(searchTerm).arg(numFilesSearched);
 }
 
 static inline QString msgFound(const QString &searchTerm, int numMatches, int numFilesSearched)
 {
     return QCoreApplication::translate("Utils::FileSearch",
                                        "%1: %n occurrences found in %2 files.",
-                                       0, numMatches).arg(searchTerm).arg(numFilesSearched);
+                                       nullptr, numMatches).arg(searchTerm).arg(numFilesSearched);
 }
 
 namespace {
@@ -301,7 +301,7 @@ struct SearchState
 {
     SearchState(const QString &term, FileIterator *iterator) : searchTerm(term), files(iterator) {}
     QString searchTerm;
-    FileIterator *files = 0;
+    FileIterator *files = nullptr;
     FileSearchResultList cachedResults;
     int numFilesSearched = 0;
     int numMatches = 0;
@@ -649,7 +649,7 @@ SubDirFileIterator::SubDirFileIterator(const QStringList &directories, const QSt
     : m_filterFiles(filterFilesFunction(filters, exclusionFilters)),
       m_progress(0)
 {
-    m_encoding = (encoding == 0 ? QTextCodec::codecForLocale() : encoding);
+    m_encoding = (encoding == nullptr ? QTextCodec::codecForLocale() : encoding);
     qreal maxPer = qreal(MAX_PROGRESS) / directories.count();
     foreach (const QString &directoryEntry, directories) {
         if (!directoryEntry.isEmpty()) {

@@ -135,7 +135,7 @@ void TreeViewComboBox::setCurrentIndex(const QModelIndex &index)
 bool TreeViewComboBox::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonPress && object == view()->viewport()) {
-        QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+        auto* mouseEvent = static_cast<QMouseEvent*>(event);
         QModelIndex index = view()->indexAt(mouseEvent->pos());
         if (!view()->visualRect(index).contains(mouseEvent->pos()))
             m_skipNextHide = true;

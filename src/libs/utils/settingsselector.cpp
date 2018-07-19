@@ -41,7 +41,7 @@ namespace Utils {
 SettingsSelector::SettingsSelector(QWidget *parent) :
     QWidget(parent)
 {
-    QHBoxLayout *layout = new QHBoxLayout(this);
+    auto layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(6);
 
@@ -77,8 +77,7 @@ SettingsSelector::SettingsSelector(QWidget *parent) :
             this, &SettingsSelector::currentChanged);
 }
 
-SettingsSelector::~SettingsSelector()
-{ }
+SettingsSelector::~SettingsSelector() = default;
 
 void SettingsSelector::setConfigurationModel(QAbstractItemModel *model)
 {

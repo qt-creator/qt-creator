@@ -139,10 +139,7 @@ MimeType::MimeType() :
     \fn MimeType::MimeType(const MimeType &other);
     Constructs this MimeType object as a copy of \a other.
  */
-MimeType::MimeType(const MimeType &other) :
-        d(other.d)
-{
-}
+MimeType::MimeType(const MimeType &other) = default;
 
 /*!
     \fn MimeType &MimeType::operator=(const MimeType &other);
@@ -181,9 +178,7 @@ MimeType::MimeType(const MimeTypePrivate &dd) :
     \fn MimeType::~MimeType();
     Destroys the MimeType object, and releases the d pointer.
  */
-MimeType::~MimeType()
-{
-}
+MimeType::~MimeType() = default;
 
 /*!
     \fn bool MimeType::operator==(const MimeType &other) const;

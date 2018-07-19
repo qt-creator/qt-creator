@@ -85,9 +85,7 @@
 
 namespace Utils {
 
-Guard::Guard()
-{
-}
+Guard::Guard() = default;
 
 Guard::~Guard()
 {

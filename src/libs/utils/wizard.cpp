@@ -57,7 +57,7 @@ class ProgressItemWidget : public QWidget
 {
     Q_OBJECT
 public:
-    ProgressItemWidget(const QPixmap &indicatorPixmap, const QString &title, QWidget *parent = 0)
+    ProgressItemWidget(const QPixmap &indicatorPixmap, const QString &title, QWidget *parent = nullptr)
         : QWidget(parent),
         m_indicatorVisible(false),
         m_indicatorPixmap(indicatorPixmap)
@@ -65,7 +65,7 @@ public:
         m_indicatorLabel = new QLabel(this);
         m_indicatorLabel->setFixedSize(m_indicatorPixmap.size());
         m_titleLabel = new QLabel(title, this);
-        QHBoxLayout *l = new QHBoxLayout(this);
+        auto l = new QHBoxLayout(this);
         l->setMargin(0);
         l->addWidget(m_indicatorLabel);
         l->addWidget(m_titleLabel);
@@ -97,7 +97,7 @@ class LinearProgressWidget : public QWidget
 {
     Q_OBJECT
 public:
-    LinearProgressWidget(WizardProgress *progress, QWidget *parent = 0);
+    LinearProgressWidget(WizardProgress *progress, QWidget *parent = nullptr);
 
 private:
     void slotItemAdded(WizardProgressItem *item);
@@ -126,14 +126,14 @@ private:
 LinearProgressWidget::LinearProgressWidget(WizardProgress *progress, QWidget *parent)
     :
     QWidget(parent),
-    m_dotsItemWidget(0),
+    m_dotsItemWidget(nullptr),
     m_disableUpdatesCount(0)
 {
     m_indicatorPixmap = QIcon::fromTheme(QLatin1String("go-next"), QIcon(QLatin1String(":/utils/images/arrow.png"))).pixmap(16);
     m_wizardProgress = progress;
     m_mainLayout = new QVBoxLayout(this);
     m_itemWidgetLayout = new QVBoxLayout();
-    QSpacerItem *spacer = new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding);
+    auto spacer = new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding);
     m_mainLayout->addLayout(m_itemWidgetLayout);
     m_mainLayout->addSpacerItem(spacer);
 
@@ -477,7 +477,7 @@ void Wizard::_q_pageAdded(int pageId)
     Q_D(Wizard);
 
     QWizardPage *p = page(pageId);
-    WizardPage *wp = qobject_cast<WizardPage *>(p);
+    auto wp = qobject_cast<WizardPage *>(p);
     if (wp)
         wp->pageWasAdded();
 
@@ -501,8 +501,8 @@ void Wizard::_q_pageAdded(int pageId)
     if (index < pages.count() - 1)
         nextId = pages.at(index + 1);
 
-    WizardProgressItem *prevItem = 0;
-    WizardProgressItem *nextItem = 0;
+    WizardProgressItem *prevItem = nullptr;
+    WizardProgressItem *nextItem = nullptr;
 
     if (prevId >= 0)
         prevItem = d->m_wizardProgress->item(prevId);
@@ -538,8 +538,8 @@ void Wizard::_q_pageRemoved(int pageId)
     if (index < pages.count() - 1)
         nextId = pages.at(index + 1);
 
-    WizardProgressItem *prevItem = 0;
-    WizardProgressItem *nextItem = 0;
+    WizardProgressItem *prevItem = nullptr;
+    WizardProgressItem *nextItem = nullptr;
 
     if (prevId >= 0)
         prevItem = d->m_wizardProgress->item(prevId);
@@ -567,8 +567,8 @@ class WizardProgressPrivate
 public:
     WizardProgressPrivate()
         :
-        m_currentItem(0),
-        m_startItem(0)
+        m_currentItem(nullptr),
+        m_startItem(nullptr)
     {
     }
 
@@ -673,7 +673,7 @@ QList<WizardProgressItem *> WizardProgressPrivate::singlePathBetween(WizardProgr
 void WizardProgressPrivate::updateReachableItems()
 {
     m_reachableItems = m_visitedItems;
-    WizardProgressItem *item = 0;
+    WizardProgressItem *item = nullptr;
     if (m_visitedItems.count() > 0)
         item = m_visitedItems.last();
     if (!item) {
@@ -712,7 +712,7 @@ WizardProgressItem *WizardProgress::addItem(const QString &title)
 {
     Q_D(WizardProgress);
 
-    WizardProgressItem *item = new WizardProgressItem(this, title);
+    auto item = new WizardProgressItem(this, title);
     d->m_itemToItem.insert(item, item);
     emit itemAdded(item);
     return item;
@@ -835,7 +835,7 @@ void WizardProgress::setCurrentPage(int pageId)
     Q_D(WizardProgress);
 
     if (pageId < 0) { // reset history
-        d->m_currentItem = 0;
+        d->m_currentItem = nullptr;
         d->m_visitedItems.clear();
         d->m_reachableItems.clear();
         d->updateReachableItems();
@@ -903,7 +903,7 @@ WizardProgressItem::WizardProgressItem(WizardProgress *progress, const QString &
     d_ptr->m_title = title;
     d_ptr->m_titleWordWrap = false;
     d_ptr->m_wizardProgress = progress;
-    d_ptr->m_nextShownItem = 0;
+    d_ptr->m_nextShownItem = nullptr;
 }
 
 WizardProgressItem::~WizardProgressItem()
@@ -947,7 +947,7 @@ void WizardProgressItem::setNextItems(const QList<WizardProgressItem *> &items)
         return;
 
     if (!items.contains(d->m_nextShownItem))
-        setNextShownItem(0);
+        setNextShownItem(nullptr);
 
     // update prev items (remove this item from the old next items)
     for (int i = 0; i < d->m_nextItems.count(); i++) {

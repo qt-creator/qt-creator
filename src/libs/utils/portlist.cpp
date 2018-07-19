@@ -35,7 +35,7 @@ namespace Utils {
 namespace Internal {
 namespace {
 
-typedef QPair<Port, Port> Range;
+using Range = QPair<Port, Port>;
 
 class PortsSpecParser
 {

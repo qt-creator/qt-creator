@@ -41,14 +41,14 @@
 namespace Utils {
 namespace Internal {
 
-static QSettings *theSettings = 0;
+static QSettings *theSettings = nullptr;
 
 class HistoryCompleterPrivate : public QAbstractListModel
 {
 public:
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
     void clearHistory();
     void addEntry(const QString &str);
@@ -69,7 +69,7 @@ public:
         , icon(Icons::EDIT_CLEAR.icon())
     {}
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
         // from QHistoryCompleter
         QStyleOptionViewItem optCopy = option;
@@ -109,7 +109,7 @@ public:
     }
 
 private:
-    void mousePressEvent(QMouseEvent *event)
+    void mousePressEvent(QMouseEvent *event) override
     {
         const QSize clearButtonSize = delegate->clearIconSize;
         if (clearButtonSize.isValid()) {

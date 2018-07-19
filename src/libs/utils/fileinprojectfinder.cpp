@@ -63,9 +63,7 @@ static bool checkPath(const QString &candidate, FileInProjectFinder::FindMode fi
   \endlist
 */
 
-FileInProjectFinder::FileInProjectFinder()
-{
-}
+FileInProjectFinder::FileInProjectFinder() = default;
 
 static QString stripTrailingSlashes(const QString &path)
 {

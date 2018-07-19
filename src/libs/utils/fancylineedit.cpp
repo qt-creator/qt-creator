@@ -89,7 +89,7 @@ public:
 
     FancyLineEdit *m_lineEdit;
     IconButton *m_iconbutton[2];
-    HistoryCompleter *m_historyCompleter = 0;
+    HistoryCompleter *m_historyCompleter = nullptr;
     FancyLineEdit::ValidationFunction m_validationFunction = &FancyLineEdit::validateWithValidator;
     QString m_oldText;
     QMenu *m_menu[2];
@@ -119,7 +119,7 @@ FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
         m_iconbutton[i]->hide();
         m_iconbutton[i]->setAutoHide(false);
 
-        m_menu[i] = 0;
+        m_menu[i] = nullptr;
 
         m_menuTabFocusTrigger[i] = false;
         m_iconEnabled[i] = false;
@@ -194,7 +194,7 @@ QAbstractButton *FancyLineEdit::button(FancyLineEdit::Side side) const
 
 void FancyLineEdit::iconClicked()
 {
-    IconButton *button = qobject_cast<IconButton *>(sender());
+    auto button = qobject_cast<IconButton *>(sender());
     int index = -1;
     for (int i = 0; i < 2; ++i)
         if (d->m_iconbutton[i] == button)

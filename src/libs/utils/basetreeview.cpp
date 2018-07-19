@@ -50,19 +50,19 @@ class BaseTreeViewPrivate : public QObject
 {
 public:
     explicit BaseTreeViewPrivate(BaseTreeView *parent)
-        : q(parent), m_settings(0), m_expectUserChanges(false), m_progressIndicator(0)
+        : q(parent)
     {
         m_settingsTimer.setSingleShot(true);
         connect(&m_settingsTimer, &QTimer::timeout,
                 this, &BaseTreeViewPrivate::doSaveState);
     }
 
-    bool eventFilter(QObject *, QEvent *event)
+    bool eventFilter(QObject *, QEvent *event) override
     {
         if (event->type() == QEvent::MouseMove) {
             // At this time we don't know which section will get which size.
             // But we know that a resizedSection() will be emitted later.
-            QMouseEvent *me = static_cast<QMouseEvent *>(event);
+            const auto *me = static_cast<QMouseEvent *>(event);
             if (me->buttons() & Qt::LeftButton)
                 m_expectUserChanges = true;
         }
@@ -219,11 +219,11 @@ public:
 public:
     BaseTreeView *q;
     QMap<int, int> m_userHandled; // column -> width, "not present" means "automatic"
-    QSettings *m_settings;
+    QSettings *m_settings = nullptr;
     QTimer m_settingsTimer;
     QString m_settingsKey;
-    bool m_expectUserChanges;
-    ProgressIndicator *m_progressIndicator;
+    bool m_expectUserChanges = false;
+    ProgressIndicator *m_progressIndicator = nullptr;
 };
 
 class BaseTreeViewDelegate : public QItemDelegate
@@ -232,7 +232,7 @@ public:
     BaseTreeViewDelegate(QObject *parent): QItemDelegate(parent) {}
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                          const QModelIndex &index) const
+                          const QModelIndex &index) const override
     {
         Q_UNUSED(option);
         QLabel *label = new QLabel(parent);
@@ -283,7 +283,7 @@ BaseTreeView::~BaseTreeView()
 
 void BaseTreeView::setModel(QAbstractItemModel *m)
 {
-    if (BaseTreeModel *oldModel = qobject_cast<BaseTreeModel *>(model())) {
+    if (auto oldModel = qobject_cast<BaseTreeModel *>(model())) {
         disconnect(oldModel, &BaseTreeModel::requestExpansion, this, &BaseTreeView::expand);
         disconnect(oldModel, &BaseTreeModel::requestCollapse, this, &BaseTreeView::collapse);
     }
@@ -291,7 +291,7 @@ void BaseTreeView::setModel(QAbstractItemModel *m)
     TreeView::setModel(m);
 
     if (m) {
-        if (BaseTreeModel *newModel = qobject_cast<BaseTreeModel *>(m)) {
+        if (auto newModel = qobject_cast<BaseTreeModel *>(m)) {
             connect(newModel, &BaseTreeModel::requestExpansion, this, &BaseTreeView::expand);
             connect(newModel, &BaseTreeModel::requestCollapse, this, &BaseTreeView::collapse);
         }

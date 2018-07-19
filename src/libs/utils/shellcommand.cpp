@@ -314,7 +314,7 @@ void ShellCommand::run(QFutureInterface<void> &future)
     }
 
     if (d->m_progressParser)
-        d->m_progressParser->setFuture(0);
+        d->m_progressParser->setFuture(nullptr);
     // As it is used asynchronously, we need to delete ourselves
     this->deleteLater();
 }
@@ -503,7 +503,7 @@ void ShellCommand::setOutputProxyFactory(const std::function<OutputProxy *()> &f
 }
 
 ProgressParser::ProgressParser() :
-    m_future(0),
+    m_future(nullptr),
     m_futureMutex(new QMutex)
 { }
 

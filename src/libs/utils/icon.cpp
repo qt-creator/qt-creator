@@ -47,10 +47,10 @@ static QPixmap maskToColorAndAlpha(const QPixmap &mask, const QColor &color)
 {
     QImage result(mask.toImage().convertToFormat(QImage::Format_ARGB32));
     result.setDevicePixelRatio(mask.devicePixelRatio());
-    QRgb *bitsStart = reinterpret_cast<QRgb*>(result.bits());
+    auto bitsStart = reinterpret_cast<QRgb*>(result.bits());
     const QRgb *bitsEnd = bitsStart + result.width() * result.height();
     const QRgb tint = color.rgb() & 0x00ffffff;
-    const QRgb alpha = QRgb(color.alpha());
+    const auto alpha = QRgb(color.alpha());
     for (QRgb *pixel = bitsStart; pixel < bitsEnd; ++pixel) {
         QRgb pixelAlpha = (((~*pixel) & 0xff) * alpha) >> 8;
         *pixel = (pixelAlpha << 24) | tint;
@@ -58,8 +58,8 @@ static QPixmap maskToColorAndAlpha(const QPixmap &mask, const QColor &color)
     return QPixmap::fromImage(result);
 }
 
-typedef QPair<QPixmap, QColor> MaskAndColor;
-typedef QList<MaskAndColor> MasksAndColors;
+using MaskAndColor = QPair<QPixmap, QColor>;
+using MasksAndColors = QList<MaskAndColor>;
 static MasksAndColors masksAndColors(const Icon &icon, int dpr)
 {
     MasksAndColors result;
@@ -154,9 +154,7 @@ static QPixmap masksToIcon(const MasksAndColors &masks, const QPixmap &combinedM
     return result;
 }
 
-Icon::Icon()
-{
-}
+Icon::Icon() = default;
 
 Icon::Icon(std::initializer_list<IconMaskAndColor> args, Icon::IconStyleOptions style)
     : QVector<IconMaskAndColor>(args)

@@ -36,7 +36,7 @@
 
 namespace Utils {
 
-static Theme *m_creatorTheme = 0;
+static Theme *m_creatorTheme = nullptr;
 
 ThemePrivate::ThemePrivate()
 {

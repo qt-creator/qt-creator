@@ -80,9 +80,9 @@ QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
 {
 #ifdef Q_OS_WIN
     // Resolve required symbols from the version.dll
-    typedef DWORD (APIENTRY *GetFileVersionInfoSizeProtoType)(LPCTSTR, LPDWORD);
-    typedef BOOL (APIENTRY *GetFileVersionInfoWProtoType)(LPCWSTR, DWORD, DWORD, LPVOID);
-    typedef BOOL (APIENTRY *VerQueryValueWProtoType)(const LPVOID, LPWSTR lpSubBlock, LPVOID, PUINT);
+    using GetFileVersionInfoSizeProtoType = DWORD (APIENTRY*)(LPCTSTR, LPDWORD);
+    using GetFileVersionInfoWProtoType = BOOL (APIENTRY*)(LPCWSTR, DWORD, DWORD, LPVOID);
+    using VerQueryValueWProtoType = BOOL (APIENTRY*)(const LPVOID, LPWSTR lpSubBlock, LPVOID, PUINT);
 
     const char *versionDLLC = "version.dll";
     QLibrary versionLib(QLatin1String(versionDLLC), 0);
@@ -91,9 +91,9 @@ QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
         return QString();
     }
     // MinGW requires old-style casts
-    GetFileVersionInfoSizeProtoType getFileVersionInfoSizeW = (GetFileVersionInfoSizeProtoType)(versionLib.resolve("GetFileVersionInfoSizeW"));
-    GetFileVersionInfoWProtoType getFileVersionInfoW = (GetFileVersionInfoWProtoType)(versionLib.resolve("GetFileVersionInfoW"));
-    VerQueryValueWProtoType verQueryValueW = (VerQueryValueWProtoType)(versionLib.resolve("VerQueryValueW"));
+    auto getFileVersionInfoSizeW = (GetFileVersionInfoSizeProtoType)(versionLib.resolve("GetFileVersionInfoSizeW"));
+    auto getFileVersionInfoW = (GetFileVersionInfoWProtoType)(versionLib.resolve("GetFileVersionInfoW"));
+    auto verQueryValueW = (VerQueryValueWProtoType)(versionLib.resolve("VerQueryValueW"));
     if (!getFileVersionInfoSizeW || !getFileVersionInfoW || !verQueryValueW) {
         *errorMessage = msgCannotResolve(versionDLLC);
         return QString();
@@ -101,7 +101,7 @@ QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
 
     // Now go ahead, read version info resource
     DWORD dummy = 0;
-    const LPCTSTR fileName = reinterpret_cast<LPCTSTR>(name.utf16()); // MinGWsy
+    const auto fileName = reinterpret_cast<LPCTSTR>(name.utf16()); // MinGWsy
     const DWORD infoSize = (*getFileVersionInfoSizeW)(fileName, &dummy);
     if (infoSize == 0) {
         *errorMessage = QString::fromLatin1("Unable to determine the size of the version information of %1: %2").arg(name, winErrorMessage(GetLastError()));

@@ -44,15 +44,10 @@ namespace Utils {
 class FileWizardPagePrivate
 {
 public:
-    FileWizardPagePrivate();
+    FileWizardPagePrivate() = default;
     Ui::WizardPage m_ui;
-    bool m_complete;
+    bool m_complete = false;
 };
-
-FileWizardPagePrivate::FileWizardPagePrivate() :
-    m_complete(false)
-{
-}
 
 FileWizardPage::FileWizardPage(QWidget *parent) :
     WizardPage(parent),

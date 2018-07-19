@@ -295,7 +295,7 @@ bool MimeTypeParserBase::parse(const QByteArray &content, const QString &fileNam
             }
                 break;
             case ParseMagicMatchRule: {
-                MimeMagicRule *rule = 0;
+                MimeMagicRule *rule = nullptr;
                 if (!createMagicMatchRule(atts, errorMessage, rule))
                     return false;
                 QList<MimeMagicRule> *ruleList;

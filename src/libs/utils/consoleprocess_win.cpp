@@ -39,14 +39,14 @@ namespace Utils {
 ConsoleProcessPrivate::ConsoleProcessPrivate() :
     m_mode(ConsoleProcess::Run),
     m_appPid(0),
-    m_stubSocket(0),
-    m_tempFile(0),
+    m_stubSocket(nullptr),
+    m_tempFile(nullptr),
     m_error(QProcess::UnknownError),
     m_appMainThreadId(0),
-    m_pid(0),
+    m_pid(nullptr),
     m_hInferior(NULL),
-    inferiorFinishedNotifier(0),
-    processFinishedNotifier(0)
+    inferiorFinishedNotifier(nullptr),
+    processFinishedNotifier(nullptr)
 {
 }
 
@@ -95,7 +95,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
             stubServerShutdown();
             emitError(QProcess::FailedToStart, msgCannotCreateTempFile(d->m_tempFile->errorString()));
             delete d->m_tempFile;
-            d->m_tempFile = 0;
+            d->m_tempFile = nullptr;
             return false;
         }
         QTextStream out(d->m_tempFile);
@@ -109,7 +109,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
             stubServerShutdown();
             emitError(QProcess::FailedToStart, msgCannotWriteTempFile());
             delete d->m_tempFile;
-            d->m_tempFile = 0;
+            d->m_tempFile = nullptr;
             return false;
         }
     }
@@ -143,9 +143,9 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
 
     if (!success) {
         delete d->m_pid;
-        d->m_pid = 0;
+        d->m_pid = nullptr;
         delete d->m_tempFile;
-        d->m_tempFile = 0;
+        d->m_tempFile = nullptr;
         stubServerShutdown();
         emitError(QProcess::FailedToStart, tr("The process \"%1\" could not be started: %2").arg(cmdLine, winErrorMessage(GetLastError())));
         return false;
@@ -183,7 +183,7 @@ void ConsoleProcess::stop()
 
 bool ConsoleProcess::isRunning() const
 {
-    return d->m_pid != 0;
+    return d->m_pid != nullptr;
 }
 
 QString ConsoleProcess::stubServerListen()
@@ -198,7 +198,7 @@ QString ConsoleProcess::stubServerListen()
 void ConsoleProcess::stubServerShutdown()
 {
     delete d->m_stubSocket;
-    d->m_stubSocket = 0;
+    d->m_stubSocket = nullptr;
     if (d->m_stubServer.isListening())
         d->m_stubServer.close();
 }
@@ -224,7 +224,7 @@ void ConsoleProcess::readStubOutput()
         } else if (out.startsWith("pid ")) {
             // Will not need it any more
             delete d->m_tempFile;
-            d->m_tempFile = 0;
+            d->m_tempFile = nullptr;
             d->m_appPid = out.mid(4).toLongLong();
 
             d->m_hInferior = OpenProcess(
@@ -251,7 +251,7 @@ void ConsoleProcess::readStubOutput()
 void ConsoleProcess::cleanupInferior()
 {
     delete d->inferiorFinishedNotifier;
-    d->inferiorFinishedNotifier = 0;
+    d->inferiorFinishedNotifier = nullptr;
     CloseHandle(d->m_hInferior);
     d->m_hInferior = NULL;
     d->m_appPid = 0;
@@ -274,13 +274,13 @@ void ConsoleProcess::cleanupStub()
 {
     stubServerShutdown();
     delete d->processFinishedNotifier;
-    d->processFinishedNotifier = 0;
+    d->processFinishedNotifier = nullptr;
     CloseHandle(d->m_pid->hThread);
     CloseHandle(d->m_pid->hProcess);
     delete d->m_pid;
-    d->m_pid = 0;
+    d->m_pid = nullptr;
     delete d->m_tempFile;
-    d->m_tempFile = 0;
+    d->m_tempFile = nullptr;
 }
 
 void ConsoleProcess::stubExited()

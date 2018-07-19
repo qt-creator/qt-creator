@@ -38,7 +38,7 @@ class OutputFormatterPrivate
 {
 public:
     OutputFormatterPrivate()
-        : plainTextEdit(0), overwriteOutput(false)
+        : plainTextEdit(nullptr), overwriteOutput(false)
     {}
 
     QPlainTextEdit *plainTextEdit;

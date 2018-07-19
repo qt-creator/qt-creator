@@ -55,17 +55,15 @@ public:
 
     bool acceptsCompletionPrefix(const QString &prefix) const;
 
-    QCompleter *m_completer;
-    int m_completionLengthThreshold;
+    QCompleter *m_completer = nullptr;
+    int m_completionLengthThreshold = 3;
 
 private:
     CompletingTextEdit *m_backPointer;
 };
 
 CompletingTextEditPrivate::CompletingTextEditPrivate(CompletingTextEdit *textEdit)
-    : m_completer(0),
-      m_completionLengthThreshold(3),
-      m_backPointer(textEdit)
+    : m_backPointer(textEdit)
 {
 }
 
@@ -107,7 +105,7 @@ CompletingTextEdit::~CompletingTextEdit()
 void CompletingTextEdit::setCompleter(QCompleter *c)
 {
     if (completer())
-        disconnect(completer(), 0, this, 0);
+        disconnect(completer(), nullptr, this, nullptr);
 
     d->m_completer = c;
 
@@ -153,12 +151,12 @@ void CompletingTextEdit::keyPressEvent(QKeyEvent *e)
     }
 
     const bool isShortcut = ((e->modifiers() & Qt::ControlModifier) && e->key() == Qt::Key_E); // CTRL+E
-    if (completer() == 0 || !isShortcut) // do not process the shortcut when we have a completer
+    if (completer() == nullptr || !isShortcut) // do not process the shortcut when we have a completer
         QTextEdit::keyPressEvent(e);
 
     const bool ctrlOrShift = e->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier);
     const QString text = e->text();
-    if (completer() == 0 || (ctrlOrShift && text.isEmpty()))
+    if (completer() == nullptr || (ctrlOrShift && text.isEmpty()))
         return;
 
     const bool hasModifier = (e->modifiers() != Qt::NoModifier) && !ctrlOrShift;
@@ -183,7 +181,7 @@ void CompletingTextEdit::keyPressEvent(QKeyEvent *e)
 
 void CompletingTextEdit::focusInEvent(QFocusEvent *e)
 {
-    if (completer() != 0)
+    if (completer() != nullptr)
         completer()->setWidget(this);
     QTextEdit::focusInEvent(e);
 }
@@ -193,7 +191,7 @@ bool CompletingTextEdit::event(QEvent *e)
     // workaround for QTCREATORBUG-9453
     if (e->type() == QEvent::ShortcutOverride && completer()
             && completer()->popup() && completer()->popup()->isVisible()) {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(e);
+        auto ke = static_cast<QKeyEvent *>(e);
         if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
             ke->accept();
             return true;

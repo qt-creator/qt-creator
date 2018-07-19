@@ -108,7 +108,7 @@ bool ElfMapper::map()
 
     fdlen = file.size();
     ustart = file.map(0, fdlen);
-    if (ustart == 0) {
+    if (ustart == nullptr) {
         // Try reading the data into memory instead.
         try {
             raw = file.readAll();
@@ -221,7 +221,7 @@ ElfReader::Result ElfReader::readIt()
     QTC_CHECK(data == mapper.ustart + (is64Bit ? 64 : 52));
 
     if (quint64(e_shnum) * e_shentsize > fdlen) {
-        const QString reason = tr("announced %n sections, each %1 bytes, exceed file size", 0, e_shnum)
+        const QString reason = tr("announced %n sections, each %1 bytes, exceed file size", nullptr, e_shnum)
                                .arg(e_shentsize);
         m_errorString = msgInvalidElfObject(m_binary, reason);
         return Corrupt;

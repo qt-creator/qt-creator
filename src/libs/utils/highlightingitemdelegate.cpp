@@ -135,7 +135,7 @@ int HighlightingItemDelegate::drawLineNumber(QPainter *painter, const QStyleOpti
     opt.palette.setColor(cg, QPalette::Text, Qt::darkGray);
 
     const QStyle *style = QApplication::style();
-    const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, 0) + 1;
+    const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, nullptr, nullptr) + 1;
 
     const QRect rowRect
             = lineNumberAreaRect.adjusted(-textMargin, 0,
@@ -263,7 +263,7 @@ void HighlightingItemDelegate::drawDisplay(QPainter *painter,
 
     const QWidget *widget = option.widget;
     QStyle *style = widget ? widget->style() : QApplication::style();
-    const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, widget) + 1;
+    const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, nullptr, widget) + 1;
     QRect textRect = rect.adjusted(textMargin, 0, -textMargin, 0); // remove width padding
     const bool wrapText = opt.features & QStyleOptionViewItem::WrapText;
     QTextOption textOption;

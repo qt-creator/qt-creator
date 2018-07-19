@@ -108,7 +108,7 @@ namespace Utils {
 
 struct Context // Basic context containing element name string constants.
 {
-    Context() {}
+    Context() = default;
     const QString qtCreatorElement = QString("qtcreator");
     const QString dataElement = QString("data");
     const QString variableElement = QString("variable");
@@ -281,7 +281,7 @@ QString ParseContext::formatWarning(const QXmlStreamReader &r, const QString &me
 {
     QString result = QLatin1String("Warning reading ");
     if (const QIODevice *device = r.device())
-        if (const QFile *file = qobject_cast<const QFile *>(device))
+        if (const auto file = qobject_cast<const QFile *>(device))
             result += QDir::toNativeSeparators(file->fileName()) + QLatin1Char(':');
     result += QString::number(r.lineNumber());
     result += QLatin1String(": ");
@@ -327,9 +327,7 @@ QVariant ParseContext::readSimpleValue(QXmlStreamReader &r, const QXmlStreamAttr
 
 // =================================== PersistentSettingsReader
 
-PersistentSettingsReader::PersistentSettingsReader()
-{
-}
+PersistentSettingsReader::PersistentSettingsReader() = default;
 
 QVariant PersistentSettingsReader::restoreValue(const QString &variable, const QVariant &defaultValue) const
 {
@@ -417,7 +415,7 @@ PersistentSettingsWriter::PersistentSettingsWriter(const FileName &fileName, con
 
 PersistentSettingsWriter::~PersistentSettingsWriter()
 {
-    write(m_savedData, 0);
+    write(m_savedData, nullptr);
 }
 
 bool PersistentSettingsWriter::save(const QVariantMap &data, QString *errorString) const

@@ -317,8 +317,8 @@ SynchronousProcess::SynchronousProcess() :
 
 SynchronousProcess::~SynchronousProcess()
 {
-    disconnect(&d->m_timer, 0, this, 0);
-    disconnect(&d->m_process, 0, this, 0);
+    disconnect(&d->m_timer, nullptr, this, nullptr);
+    disconnect(&d->m_process, nullptr, this, nullptr);
     delete d;
 }
 
@@ -540,10 +540,10 @@ static inline bool askToKill(const QString &binary = QString())
     msg += QLatin1Char(' ');
     msg += SynchronousProcess::tr("Would you like to terminate it?");
     // Restore the cursor that is set to wait while running.
-    const bool hasOverrideCursor = QApplication::overrideCursor() != 0;
+    const bool hasOverrideCursor = QApplication::overrideCursor() != nullptr;
     if (hasOverrideCursor)
         QApplication::restoreOverrideCursor();
-    QMessageBox::StandardButton answer = QMessageBox::question(0, title, msg, QMessageBox::Yes|QMessageBox::No);
+    QMessageBox::StandardButton answer = QMessageBox::question(nullptr, title, msg, QMessageBox::Yes|QMessageBox::No);
     if (hasOverrideCursor)
         QApplication::setOverrideCursor(Qt::WaitCursor);
     return answer == QMessageBox::Yes;
@@ -616,7 +616,7 @@ void SynchronousProcess::processStdErr(bool emitSignals)
 
 QSharedPointer<QProcess> SynchronousProcess::createProcess(unsigned flags)
 {
-    TerminalControllingProcess *process = new TerminalControllingProcess;
+    auto process = new TerminalControllingProcess;
     process->setFlags(flags);
     return QSharedPointer<QProcess>(process);
 }

@@ -47,7 +47,7 @@ const wchar_t szTitle[] = L"qtcctrlcstub";
 const wchar_t szWindowClass[] = L"wcqtcctrlcstub";
 UINT uiShutDownWindowMessage;
 UINT uiInterruptMessage;
-HWND hwndMain = 0;
+HWND hwndMain = nullptr;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 BOOL WINAPI shutdownHandler(DWORD dwCtrlType);
@@ -68,7 +68,7 @@ int main(int argc, char **)
     WNDCLASSEX wcex = {0};
     wcex.cbSize = sizeof(wcex);
     wcex.lpfnWndProc = WndProc;
-    wcex.hInstance = GetModuleHandle(0);
+    wcex.hInstance = GetModuleHandle(nullptr);
     wcex.lpszClassName = szWindowClass;
     if (!RegisterClassEx(&wcex))
         return 1;
@@ -156,7 +156,7 @@ BOOL WINAPI interruptHandler(DWORD /*dwCtrlType*/)
 
 DWORD WINAPI processWatcherThread(LPVOID lpParameter)
 {
-    HANDLE hProcess = reinterpret_cast<HANDLE>(lpParameter);
+    auto hProcess = reinterpret_cast<HANDLE>(lpParameter);
     WaitForSingleObject(hProcess, INFINITE);
     DWORD dwExitCode;
     if (!GetExitCodeProcess(hProcess, &dwExitCode))

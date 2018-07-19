@@ -49,11 +49,9 @@ const char kFileBaseNamePostfix[] = ":FileBaseName";
 class MacroExpanderPrivate : public AbstractMacroExpander
 {
 public:
-    MacroExpanderPrivate()
-        : m_accumulating(false), m_aborted(false), m_lockDepth(0)
-    {}
+    MacroExpanderPrivate() = default;
 
-    bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander *> &seen)
+    bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander *> &seen) override
     {
         // Prevent loops:
         const int count = seen.count();
@@ -113,10 +111,10 @@ public:
     QMap<QByteArray, QString> m_descriptions;
     QString m_displayName;
     QVector<MacroExpanderProvider> m_subProviders;
-    bool m_accumulating;
+    bool m_accumulating = false;
 
-    bool m_aborted;
-    int m_lockDepth;
+    bool m_aborted = false;
+    int m_lockDepth = 0;
 };
 
 } // Internal

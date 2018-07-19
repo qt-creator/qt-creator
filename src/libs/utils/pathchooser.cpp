@@ -102,7 +102,7 @@ bool BinaryVersionToolTipEventFilter::eventFilter(QObject *o, QEvent *e)
 {
     if (e->type() != QEvent::ToolTip)
         return false;
-    QLineEdit *le = qobject_cast<QLineEdit *>(o);
+    auto le = qobject_cast<QLineEdit *>(o);
     QTC_ASSERT(le, return false);
 
     const QString binary = le->text();
@@ -674,7 +674,7 @@ QString PathChooser::toolVersion(const QString &binary, const QStringList &argum
 
 void PathChooser::installLineEditVersionToolTip(QLineEdit *le, const QStringList &arguments)
 {
-    BinaryVersionToolTipEventFilter *ef = new BinaryVersionToolTipEventFilter(le);
+    auto ef = new BinaryVersionToolTipEventFilter(le);
     ef->setArguments(arguments);
 }
 

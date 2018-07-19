@@ -98,7 +98,7 @@ public:
     quint32 number;
     quint32 numberMask;
 
-    typedef bool (*MatchFunction)(const MimeMagicRulePrivate *d, const QByteArray &data);
+    using MatchFunction = bool (*)(const MimeMagicRulePrivate*, const QByteArray&);
     MatchFunction matchFunction;
 };
 
@@ -263,7 +263,7 @@ MimeMagicRule::MimeMagicRule(MimeMagicRule::Type theType,
     d->startPos = theStartPos;
     d->endPos = theEndPos;
     d->mask = theMask;
-    d->matchFunction = 0;
+    d->matchFunction = nullptr;
 
     if (d->value.isEmpty()) {
         d->type = Invalid;
@@ -365,9 +365,7 @@ MimeMagicRule::MimeMagicRule(const MimeMagicRule &other) :
 {
 }
 
-MimeMagicRule::~MimeMagicRule()
-{
-}
+MimeMagicRule::~MimeMagicRule() = default;
 
 MimeMagicRule &MimeMagicRule::operator=(const MimeMagicRule &other)
 {

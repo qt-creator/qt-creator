@@ -33,8 +33,7 @@ using namespace Utils;
 AnnotatedItemDelegate::AnnotatedItemDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {}
 
-AnnotatedItemDelegate::~AnnotatedItemDelegate()
-{}
+AnnotatedItemDelegate::~AnnotatedItemDelegate() = default;
 
 void AnnotatedItemDelegate::setAnnotationRole(int role)
 {
@@ -110,5 +109,5 @@ QSize AnnotatedItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     if (!annotation.isEmpty())
         opt.text += m_delimiter + annotation;
 
-    return QApplication::style()->sizeFromContents(QStyle::CT_ItemViewItem, &opt, QSize(), 0);
+    return QApplication::style()->sizeFromContents(QStyle::CT_ItemViewItem, &opt, QSize(), nullptr);
 }

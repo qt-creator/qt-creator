@@ -47,12 +47,12 @@
 
 namespace Utils {
 
-static NetworkAccessManager *namInstance = 0;
+static NetworkAccessManager *namInstance = nullptr;
 
 void cleanupNetworkAccessManager()
 {
     delete namInstance;
-    namInstance = 0;
+    namInstance = nullptr;
 }
 
 NetworkAccessManager *NetworkAccessManager::instance()

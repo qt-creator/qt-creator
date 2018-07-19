@@ -46,14 +46,13 @@ JsonValue::JsonValue(Kind kind)
     : m_kind(kind)
 {}
 
-JsonValue::~JsonValue()
-{}
+JsonValue::~JsonValue() = default;
 
 JsonValue *JsonValue::create(const QString &s, JsonMemoryPool *pool)
 {
     const QJsonDocument document = QJsonDocument::fromJson(s.toUtf8());
     if (document.isNull())
-        return 0;
+        return nullptr;
 
     return build(document.toVariant(), pool);
 }
@@ -92,14 +91,14 @@ JsonValue *JsonValue::build(const QVariant &variant, JsonMemoryPool *pool)
     switch (variant.type()) {
 
     case QVariant::List: {
-        JsonArrayValue *newValue = new (pool) JsonArrayValue;
+        auto newValue = new (pool) JsonArrayValue;
         foreach (const QVariant &element, variant.toList())
             newValue->addElement(build(element, pool));
         return newValue;
     }
 
     case QVariant::Map: {
-        JsonObjectValue *newValue = new (pool) JsonObjectValue;
+        auto newValue = new (pool) JsonObjectValue;
         const QVariantMap variantMap = variant.toMap();
         for (QVariantMap::const_iterator it = variantMap.begin(); it != variantMap.end(); ++it)
             newValue->addMember(it.key(), build(it.value(), pool));
@@ -125,7 +124,7 @@ JsonValue *JsonValue::build(const QVariant &variant, JsonMemoryPool *pool)
         break;
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -295,7 +294,7 @@ JsonObjectValue *JsonSchema::propertySchema(const QString &property,
     if (JsonObjectValue *base = resolveBase(v))
         return propertySchema(property, base);
 
-    return 0;
+    return nullptr;
 }
 
 bool JsonSchema::hasPropertySchema(const QString &property) const
@@ -526,14 +525,14 @@ bool JsonSchema::maybeSchemaName(const QString &s)
 
 JsonObjectValue *JsonSchema::rootValue() const
 {
-    QTC_ASSERT(!m_schemas.isEmpty(), return 0);
+    QTC_ASSERT(!m_schemas.isEmpty(), return nullptr);
 
     return m_schemas.first().m_value;
 }
 
 JsonObjectValue *JsonSchema::currentValue() const
 {
-    QTC_ASSERT(!m_schemas.isEmpty(), return 0);
+    QTC_ASSERT(!m_schemas.isEmpty(), return nullptr);
 
     return m_schemas.last().m_value;
 }
@@ -616,14 +615,14 @@ JsonObjectValue *JsonSchema::resolveBase(JsonObjectValue *ov) const
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 JsonStringValue *JsonSchema::getStringValue(const QString &name, JsonObjectValue *value)
 {
     JsonValue *v = value->member(name);
     if (!v)
-        return 0;
+        return nullptr;
 
     return v->toString();
 }
@@ -632,7 +631,7 @@ JsonObjectValue *JsonSchema::getObjectValue(const QString &name, JsonObjectValue
 {
     JsonValue *v = value->member(name);
     if (!v)
-        return 0;
+        return nullptr;
 
     return v->toObject();
 }
@@ -641,7 +640,7 @@ JsonBooleanValue *JsonSchema::getBooleanValue(const QString &name, JsonObjectVal
 {
     JsonValue *v = value->member(name);
     if (!v)
-        return 0;
+        return nullptr;
 
     return v->toBoolean();
 }
@@ -650,7 +649,7 @@ JsonArrayValue *JsonSchema::getArrayValue(const QString &name, JsonObjectValue *
 {
     JsonValue *v = value->member(name);
     if (!v)
-        return 0;
+        return nullptr;
 
     return v->toArray();
 }
@@ -659,7 +658,7 @@ JsonDoubleValue *JsonSchema::getDoubleValue(const QString &name, JsonObjectValue
 {
     JsonValue *v = value->member(name);
     if (!v)
-        return 0;
+        return nullptr;
 
     return v->toDouble();
 }
@@ -717,7 +716,7 @@ JsonSchema *JsonSchemaManager::schemaByName(const QString &baseName) const
 
     it = m_schemas.find(baseName);
     if (it == m_schemas.end())
-        return 0;
+        return nullptr;
 
     JsonSchemaData *schemaData = &it.value();
     if (!schemaData->m_schema) {
@@ -743,5 +742,5 @@ JsonSchema *JsonSchemaManager::parseSchema(const QString &schemaFileName) const
             return new JsonSchema(json->toObject(), this);
     }
 
-    return 0;
+    return nullptr;
 }
