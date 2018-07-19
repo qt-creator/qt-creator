@@ -302,7 +302,7 @@ void ClangToolRunControl::start()
     // Create log dir
     if (!m_temporaryDir.isValid()) {
         const QString errorMessage
-                = toolName + tr(": Failed to create temporary dir, stop.");
+                = tr("%1: Failed to create temporary dir, stop.").arg(toolName);
         appendMessage(errorMessage, Utils::ErrorMessageFormat);
         TaskHub::addTask(Task::Error, errorMessage, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
@@ -451,13 +451,13 @@ void ClangToolRunControl::updateProgressValue()
 void ClangToolRunControl::finalize()
 {
     const QString toolName = tool()->name();
-    appendMessage(toolName + tr(" finished: "
-                     "Processed %1 files successfully, %2 failed.")
-                        .arg(m_filesAnalyzed).arg(m_filesNotAnalyzed),
+    appendMessage(tr("%1 finished: "
+                     "Processed %2 files successfully, %3 failed.")
+                        .arg(toolName, m_filesAnalyzed, m_filesNotAnalyzed),
                   Utils::NormalMessageFormat);
 
     if (m_filesNotAnalyzed != 0) {
-        QString msg = toolName + tr(": Not all files could be analyzed.");
+        QString msg = tr("%1: Not all files could be analyzed.").arg(toolName);
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
     }
