@@ -403,6 +403,7 @@ private: ////////// General Interface //////////
     void shutdownEngine() final;
 
     void interruptInferior2();
+    QChar mixedDisasmFlag() const;
 
     // Plain
     void handleExecRun(const DebuggerResponse &response);

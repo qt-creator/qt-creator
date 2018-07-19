@@ -3520,11 +3520,11 @@ void GdbEngine::fetchDisassembler(DisassemblerAgent *agent)
     fetchDisassemblerByCliPointMixed(agent);
 }
 
-static inline QString disassemblerCommand(const Location &location, bool mixed)
+static inline QString disassemblerCommand(const Location &location, bool mixed, QChar mixedFlag)
 {
     QString command = "disassemble /r";
     if (mixed)
-        command += 'm';
+        command += mixedFlag;
     command += ' ';
     if (const quint64 address = location.address()) {
         command += "0x";
@@ -3540,7 +3540,8 @@ static inline QString disassemblerCommand(const Location &location, bool mixed)
 void GdbEngine::fetchDisassemblerByCliPointMixed(const DisassemblerAgentCookie &ac)
 {
     QTC_ASSERT(ac.agent, return);
-    DebuggerCommand cmd(disassemblerCommand(ac.agent->location(), true), Discardable | ConsoleCommand);
+    DebuggerCommand cmd(disassemblerCommand(ac.agent->location(), true, mixedDisasmFlag()),
+                        Discardable | ConsoleCommand);
     cmd.callback = [this, ac](const DebuggerResponse &response) {
         if (response.resultClass == ResultDone)
             if (handleCliDisassemblerResult(response.consoleStreamOutput, ac.agent))
@@ -3558,7 +3559,8 @@ void GdbEngine::fetchDisassemblerByCliRangeMixed(const DisassemblerAgentCookie &
     const quint64 address = ac.agent->address();
     QString start = QString::number(address - 20, 16);
     QString end = QString::number(address + 100, 16);
-    DebuggerCommand cmd("disassemble /rm 0x" + start + ",0x" + end, Discardable | ConsoleCommand);
+    DebuggerCommand cmd("disassemble /r" + mixedDisasmFlag() + " 0x" + start + ",0x" + end,
+                        Discardable | ConsoleCommand);
     cmd.callback = [this, ac](const DebuggerResponse &response) {
         if (response.resultClass == ResultDone)
             if (handleCliDisassemblerResult(response.consoleStreamOutput, ac.agent))
@@ -4484,6 +4486,12 @@ void GdbEngine::interruptInferior2()
         interruptLocalInferior(inferiorPid());
 
     }
+}
+
+QChar GdbEngine::mixedDisasmFlag() const
+{
+    // /m is deprecated since 7.11, and was replaced by /s which works better with optimizations
+    return m_gdbVersion >= 71100 ? 's' : 'm';
 }
 
 void GdbEngine::shutdownEngine()
