@@ -2,6 +2,7 @@
     \"Name\" : \"Fossil\",
     \"Version\" : \"$$QTCREATOR_VERSION\",
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
+    \"Revision\" : \"$$FOSSIL_PLUGIN_REVISION\",
     \"Vendor\" : \"Artur Shepilko\",
     \"Copyright\" : \"(C) 2018 Artur Shepilko\",
     \"License\" : [ \"Commercial Usage\",
