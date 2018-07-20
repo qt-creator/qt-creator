@@ -57,6 +57,7 @@
 #include <QGroupBox>
 #include <QLineEdit>
 #include <QListWidget>
+#include <QRadioButton>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -435,11 +436,20 @@ CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
             this, &CMakeBuildStepConfigWidget::updateDetails);
 
-    connect(m_buildStep, &CMakeBuildStep::buildTargetsChanged, this, &CMakeBuildStepConfigWidget::buildTargetsChanged);
-    connect(m_buildStep, &CMakeBuildStep::targetToBuildChanged, this, &CMakeBuildStepConfigWidget::selectedBuildTargetsChanged);
+    connect(m_buildStep,
+            &CMakeBuildStep::buildTargetsChanged,
+            this,
+            &CMakeBuildStepConfigWidget::buildTargetsChanged);
 
-    connect(m_buildStep->buildConfiguration(), &BuildConfiguration::environmentChanged,
-            this, &CMakeBuildStepConfigWidget::updateDetails);
+    connect(m_buildStep,
+            &CMakeBuildStep::targetToBuildChanged,
+            this,
+            &CMakeBuildStepConfigWidget::updateBuildTarget);
+
+    connect(m_buildStep->buildConfiguration(),
+            &BuildConfiguration::environmentChanged,
+            this,
+            &CMakeBuildStepConfigWidget::updateDetails);
 }
 
 void CMakeBuildStepConfigWidget::toolArgumentsEdited()
@@ -459,6 +469,19 @@ void CMakeBuildStepConfigWidget::itemChanged(QListWidgetItem *item)
 void CMakeBuildStepConfigWidget::buildTargetsChanged()
 {
     {
+        auto addItem = [this](const QString &buildTarget,
+                const QString &displayName) {
+            auto item = new QListWidgetItem(m_buildTargetsList);
+            auto button = new QRadioButton(displayName);
+            connect(button, &QRadioButton::toggled, this, [this, buildTarget](bool toggled) {
+                if (toggled) {
+                    m_buildStep->setBuildTarget(buildTarget);
+                }
+            });
+            m_buildTargetsList->setItemWidget(item, button);
+            item->setData(Qt::UserRole, buildTarget);
+        };
+
         QSignalBlocker blocker(m_buildTargetsList);
         m_buildTargetsList->clear();
 
@@ -468,40 +491,47 @@ void CMakeBuildStepConfigWidget::buildTargetsChanged()
         QFont italics;
         italics.setItalic(true);
 
-        auto exeItem = new QListWidgetItem(tr(ADD_RUNCONFIGURATION_TEXT), m_buildTargetsList);
-        exeItem->setData(Qt::UserRole, ADD_RUNCONFIGURATION_TEXT);
+        addItem(ADD_RUNCONFIGURATION_TEXT, tr(ADD_RUNCONFIGURATION_TEXT));
 
-        foreach (const QString &buildTarget, targetList) {
-            auto item = new QListWidgetItem(buildTarget, m_buildTargetsList);
-            item->setData(Qt::UserRole, buildTarget);
-        }
+        foreach (const QString &buildTarget, targetList)
+            addItem(buildTarget, buildTarget);
 
         for (int i = 0; i < m_buildTargetsList->count(); ++i) {
             QListWidgetItem *item = m_buildTargetsList->item(i);
             const QString title = item->data(Qt::UserRole).toString();
+            QRadioButton *radio = itemWidget(item);
 
-            item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-            item->setCheckState(m_buildStep->buildsBuildTarget(title) ? Qt::Checked : Qt::Unchecked);
+            radio->setChecked(m_buildStep->buildsBuildTarget(title));
 
             // Print utility targets in italics:
             if (CMakeBuildStep::specialTargets().contains(title) || title == ADD_RUNCONFIGURATION_TEXT)
-                item->setFont(italics);
+                radio->setFont(italics);
         }
     }
     updateDetails();
 }
 
-void CMakeBuildStepConfigWidget::selectedBuildTargetsChanged()
+void CMakeBuildStepConfigWidget::updateBuildTarget()
 {
+    const QString buildTarget = m_buildStep->buildTarget();
     {
         QSignalBlocker blocker(m_buildTargetsList);
         for (int y = 0; y < m_buildTargetsList->count(); ++y) {
             QListWidgetItem *item = m_buildTargetsList->item(y);
-            item->setCheckState(m_buildStep->buildsBuildTarget(item->data(Qt::UserRole).toString())
-                                ? Qt::Checked : Qt::Unchecked);
+            const QString itemTarget = item->data(Qt::UserRole).toString();
+
+            if (itemTarget == buildTarget) {
+                QRadioButton *radio = itemWidget(item);
+                radio->setChecked(true);
+            }
         }
     }
     updateDetails();
+}
+
+QRadioButton *CMakeBuildStepConfigWidget::itemWidget(QListWidgetItem *item)
+{
+    return static_cast<QRadioButton *>(m_buildTargetsList->itemWidget(item));
 }
 
 void CMakeBuildStepConfigWidget::updateDetails()
