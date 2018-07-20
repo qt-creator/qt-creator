@@ -789,7 +789,7 @@ void QmlProfilerTraceFile::saveQtd(QIODevice *device)
         if (stream.hasError())
             fail(tr("Error writing trace file."));
     }, [this](const QString &message) {
-        fail(tr("Could not re-read events from temporary trace file: %s\nSaving failed.")
+        fail(tr("Could not re-read events from temporary trace file: %1\nSaving failed.")
              .arg(message));
     }, future());
 }
@@ -857,7 +857,7 @@ void QmlProfilerTraceFile::saveQzt(QIODevice *device)
             addEventsProgress(traceEnd() - lastProgressTimestamp);
         }
     }, [this](const QString &message) {
-        fail(tr("Could not re-read events from temporary trace file: %s\nSaving failed.")
+        fail(tr("Could not re-read events from temporary trace file: %1\nSaving failed.")
              .arg(message));
     }, future());
 }
