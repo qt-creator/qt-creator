@@ -39,11 +39,11 @@ class ToolSettings : public IOptionsPage
     Q_OBJECT
 
 public:
-    explicit ToolSettings(QObject *parent = 0);
+    explicit ToolSettings(QObject *parent = nullptr);
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     QPointer<ExternalToolConfig> m_widget;

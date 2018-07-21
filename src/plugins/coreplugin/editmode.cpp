@@ -61,13 +61,13 @@ EditMode::EditMode() :
     auto editorPlaceHolder = new EditorManagerPlaceHolder;
     m_rightSplitWidgetLayout->insertWidget(0, editorPlaceHolder);
 
-    MiniSplitter *rightPaneSplitter = new MiniSplitter;
+    auto rightPaneSplitter = new MiniSplitter;
     rightPaneSplitter->insertWidget(0, rightSplitWidget);
     rightPaneSplitter->insertWidget(1, new RightPanePlaceHolder(Constants::MODE_EDIT));
     rightPaneSplitter->setStretchFactor(0, 1);
     rightPaneSplitter->setStretchFactor(1, 0);
 
-    MiniSplitter *splitter = new MiniSplitter;
+    auto splitter = new MiniSplitter;
     splitter->setOrientation(Qt::Vertical);
     splitter->insertWidget(0, rightPaneSplitter);
     QWidget *outputPane = new OutputPanePlaceHolder(Constants::MODE_EDIT, splitter);
@@ -87,7 +87,7 @@ EditMode::EditMode() :
             this, &EditMode::grabEditorManager);
     m_splitter->setFocusProxy(editorPlaceHolder);
 
-    IContext *modeContextObject = new IContext(this);
+    auto modeContextObject = new IContext(this);
     modeContextObject->setContext(Context(Constants::C_EDITORMANAGER));
     modeContextObject->setWidget(m_splitter);
     ICore::addContextObject(modeContextObject);

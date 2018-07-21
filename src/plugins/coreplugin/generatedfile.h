@@ -84,6 +84,6 @@ private:
     QSharedDataPointer<GeneratedFilePrivate> m_d;
 };
 
-typedef QList<GeneratedFile> GeneratedFiles;
+using GeneratedFiles = QList<GeneratedFile>;
 
 } // namespace Core

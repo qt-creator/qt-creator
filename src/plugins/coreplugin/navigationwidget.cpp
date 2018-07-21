@@ -87,7 +87,7 @@ NavigationWidgetPlaceHolder::~NavigationWidgetPlaceHolder()
 
 void NavigationWidgetPlaceHolder::applyStoredSize()
 {
-    QSplitter *splitter = qobject_cast<QSplitter *>(parentWidget());
+    auto splitter = qobject_cast<QSplitter *>(parentWidget());
     if (splitter) {
         // A splitter we need to resize the splitter sizes
         QList<int> sizes = splitter->sizes();
@@ -332,7 +332,7 @@ Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position, int
     if (!d->m_subWidgets.isEmpty()) // Make all icons the bottom icon
         d->m_subWidgets.at(0)->setCloseIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
 
-    Internal::NavigationSubWidget *nsw = new Internal::NavigationSubWidget(this, position, factoryIndex);
+    auto nsw = new Internal::NavigationSubWidget(this, position, factoryIndex);
     connect(nsw, &Internal::NavigationSubWidget::splitMe,  this, &NavigationWidget::splitSubWidget);
     connect(nsw, &Internal::NavigationSubWidget::closeMe, this, &NavigationWidget::closeSubWidget);
     connect(nsw, &Internal::NavigationSubWidget::factoryIndexChanged,
@@ -371,7 +371,7 @@ QWidget *NavigationWidget::activateSubWidget(Id factoryId, int preferredPosition
 
 void NavigationWidget::splitSubWidget(int factoryIndex)
 {
-    Internal::NavigationSubWidget *original = qobject_cast<Internal::NavigationSubWidget *>(sender());
+    auto original = qobject_cast<Internal::NavigationSubWidget *>(sender());
     int pos = indexOf(original) + 1;
     insertSubItem(pos, factoryIndex);
 }
@@ -379,7 +379,7 @@ void NavigationWidget::splitSubWidget(int factoryIndex)
 void NavigationWidget::closeSubWidget()
 {
     if (d->m_subWidgets.count() != 1) {
-        Internal::NavigationSubWidget *subWidget = qobject_cast<Internal::NavigationSubWidget *>(sender());
+        auto subWidget = qobject_cast<Internal::NavigationSubWidget *>(sender());
         subWidget->saveSettings();
 
         int position = d->m_subWidgets.indexOf(subWidget);
@@ -543,7 +543,7 @@ QString NavigationWidget::settingsKey(const QString &key) const
 void NavigationWidget::onSubWidgetFactoryIndexChanged(int factoryIndex)
 {
     Q_UNUSED(factoryIndex);
-    Internal::NavigationSubWidget *subWidget = qobject_cast<Internal::NavigationSubWidget *>(sender());
+    auto subWidget = qobject_cast<Internal::NavigationSubWidget *>(sender());
     QTC_ASSERT(subWidget, return);
     Id factoryId = subWidget->factory()->id();
     NavigationWidgetPrivate::updateActivationsMap(factoryId, {d->m_side, subWidget->position()});

@@ -46,7 +46,7 @@ class ActionContainerPrivate : public ActionContainer
 
 public:
     ActionContainerPrivate(Id id);
-    ~ActionContainerPrivate() override {}
+    ~ActionContainerPrivate() override = default;
 
     void setOnAllDisabledBehavior(OnAllDisabledBehavior behavior) override;
     ActionContainer::OnAllDisabledBehavior onAllDisabledBehavior() const override;

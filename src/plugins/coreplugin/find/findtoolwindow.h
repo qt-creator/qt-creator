@@ -42,8 +42,8 @@ class FindToolWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit FindToolWindow(QWidget *parent = 0);
-    ~FindToolWindow();
+    explicit FindToolWindow(QWidget *parent = nullptr);
+    ~FindToolWindow() override;
     static FindToolWindow *instance();
 
     void setFindFilters(const QList<IFindFilter *> &filters);
@@ -55,8 +55,8 @@ public:
     void writeSettings();
 
 protected:
-    bool event(QEvent *event);
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool event(QEvent *event) override;
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     void search();

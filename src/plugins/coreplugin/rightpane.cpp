@@ -38,7 +38,7 @@
 using namespace Core;
 using namespace Core::Internal;
 
-RightPanePlaceHolder *RightPanePlaceHolder::m_current = 0;
+RightPanePlaceHolder *RightPanePlaceHolder::m_current = nullptr;
 
 RightPanePlaceHolder* RightPanePlaceHolder::current()
 {
@@ -57,7 +57,7 @@ RightPanePlaceHolder::RightPanePlaceHolder(Id mode, QWidget *parent)
 RightPanePlaceHolder::~RightPanePlaceHolder()
 {
     if (m_current == this) {
-        RightPaneWidget::instance()->setParent(0);
+        RightPaneWidget::instance()->setParent(nullptr);
         RightPaneWidget::instance()->hide();
     }
 }
@@ -65,7 +65,7 @@ RightPanePlaceHolder::~RightPanePlaceHolder()
 void RightPanePlaceHolder::applyStoredSize(int width)
 {
     if (width) {
-        QSplitter *splitter = qobject_cast<QSplitter *>(parentWidget());
+        auto splitter = qobject_cast<QSplitter *>(parentWidget());
         if (splitter) {
             // A splitter we need to resize the splitter sizes
             QList<int> sizes = splitter->sizes();
@@ -95,8 +95,8 @@ void RightPanePlaceHolder::applyStoredSize(int width)
 void RightPanePlaceHolder::currentModeChanged(Id mode)
 {
     if (m_current == this) {
-        m_current = 0;
-        RightPaneWidget::instance()->setParent(0);
+        m_current = nullptr;
+        RightPaneWidget::instance()->setParent(nullptr);
         RightPaneWidget::instance()->hide();
     }
     if (m_mode == mode) {
@@ -117,14 +117,13 @@ void RightPanePlaceHolder::currentModeChanged(Id mode)
 /////
 
 
-RightPaneWidget *RightPaneWidget::m_instance = 0;
+RightPaneWidget *RightPaneWidget::m_instance = nullptr;
 
 RightPaneWidget::RightPaneWidget()
-    : m_shown(true), m_width(0)
 {
     m_instance = this;
 
-    QVBoxLayout *layout = new QVBoxLayout;
+    auto layout = new QVBoxLayout;
     layout->setMargin(0);
     setLayout(layout);
 }
@@ -132,7 +131,7 @@ RightPaneWidget::RightPaneWidget()
 RightPaneWidget::~RightPaneWidget()
 {
     clearWidget();
-    m_instance = 0;
+    m_instance = nullptr;
 }
 
 RightPaneWidget *RightPaneWidget::instance()
@@ -207,7 +206,7 @@ void RightPaneWidget::clearWidget()
 {
     if (m_widget) {
         m_widget->hide();
-        m_widget->setParent(0);
-        m_widget = 0;
+        m_widget->setParent(nullptr);
+        m_widget = nullptr;
     }
 }

@@ -142,7 +142,7 @@ ManhattanStyle::ManhattanStyle(const QString &baseStyleName)
 ManhattanStyle::~ManhattanStyle()
 {
     delete d;
-    d = 0;
+    d = nullptr;
 }
 
 QPixmap ManhattanStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap, const QStyleOption *opt) const
@@ -398,7 +398,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
     QRect oldRect;
     QRect newRect;
     if (widget && (element == PE_PanelButtonTool) && !animating) {
-        QWidget *w = const_cast<QWidget *> (widget);
+        auto w = const_cast<QWidget *> (widget);
         int oldState = w->property("_q_stylestate").toInt();
         oldRect = w->property("_q_stylerect").toRect();
         newRect = w->rect();
@@ -422,7 +422,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
             opt.state = (QStyle::State)oldState;
             opt.state |= State_Animating;
             startImage.fill(0);
-            Transition *t = new Transition;
+            auto t = new Transition;
             t->setWidget(w);
             QPainter startPainter(&startImage);
             if (!anim) {
@@ -630,7 +630,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
     switch (element) {
     case CE_MenuItem:
         painter->save();
-        if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
+        if (const auto mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
             const bool enabled = mbi->state & State_Enabled;
             QStyleOptionMenuItem item = *mbi;
             item.rect = mbi->rect;
@@ -649,7 +649,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
 
     case CE_MenuBarItem:
         painter->save();
-        if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
+        if (const auto mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
             const bool act = mbi->state & (State_Sunken | State_Selected);
             const bool dis = !(mbi->state & State_Enabled);
 
@@ -687,7 +687,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
         break;
 
     case CE_ComboBoxLabel:
-        if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
+        if (const auto cb = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
             if (panelWidget(widget)) {
                 painter->save();
                 QRect editRect = subControlRect(CC_ComboBox, cb, SC_ComboBoxEditField, widget);
@@ -872,7 +872,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
     QRect rect = option->rect;
     switch (control) {
     case CC_ToolButton:
-        if (const QStyleOptionToolButton *toolbutton = qstyleoption_cast<const QStyleOptionToolButton *>(option)) {
+        if (const auto toolbutton = qstyleoption_cast<const QStyleOptionToolButton *>(option)) {
             bool reverse = option->direction == Qt::RightToLeft;
             bool drawborder = (widget && widget->property("showborder").toBool());
 
@@ -946,7 +946,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
         break;
 
     case CC_ComboBox:
-        if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
+        if (const auto cb = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
             painter->save();
             bool isEmpty = cb->currentText.isEmpty() && cb->currentIcon.isNull();
             bool reverse = option->direction == Qt::RightToLeft;

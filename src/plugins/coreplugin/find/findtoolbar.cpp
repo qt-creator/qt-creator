@@ -121,26 +121,26 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
             static_cast<void (QCompleter::*)(const QModelIndex &)>(&QCompleter::activated),
             this, &FindToolBar::findCompleterActivated);
 
-    QAction *shiftEnterAction = new QAction(m_ui.findEdit);
+    auto shiftEnterAction = new QAction(m_ui.findEdit);
     shiftEnterAction->setShortcut(QKeySequence(tr("Shift+Enter")));
     shiftEnterAction->setShortcutContext(Qt::WidgetShortcut);
     connect(shiftEnterAction, &QAction::triggered,
             this, &FindToolBar::invokeFindPrevious);
     m_ui.findEdit->addAction(shiftEnterAction);
-    QAction *shiftReturnAction = new QAction(m_ui.findEdit);
+    auto shiftReturnAction = new QAction(m_ui.findEdit);
     shiftReturnAction->setShortcut(QKeySequence(tr("Shift+Return")));
     shiftReturnAction->setShortcutContext(Qt::WidgetShortcut);
     connect(shiftReturnAction, &QAction::triggered,
             this, &FindToolBar::invokeFindPrevious);
     m_ui.findEdit->addAction(shiftReturnAction);
 
-    QAction *shiftEnterReplaceAction = new QAction(m_ui.replaceEdit);
+    auto shiftEnterReplaceAction = new QAction(m_ui.replaceEdit);
     shiftEnterReplaceAction->setShortcut(QKeySequence(tr("Shift+Enter")));
     shiftEnterReplaceAction->setShortcutContext(Qt::WidgetShortcut);
     connect(shiftEnterReplaceAction, &QAction::triggered,
             this, &FindToolBar::invokeReplacePrevious);
     m_ui.replaceEdit->addAction(shiftEnterReplaceAction);
-    QAction *shiftReturnReplaceAction = new QAction(m_ui.replaceEdit);
+    auto shiftReturnReplaceAction = new QAction(m_ui.replaceEdit);
     shiftReturnReplaceAction->setShortcut(QKeySequence(tr("Shift+Return")));
     shiftReturnReplaceAction->setShortcutContext(Qt::WidgetShortcut);
     connect(shiftReturnReplaceAction, &QAction::triggered,
@@ -313,9 +313,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     connect(&m_findStepTimer, &QTimer::timeout, this, &FindToolBar::invokeFindStep);
 }
 
-FindToolBar::~FindToolBar()
-{
-}
+FindToolBar::~FindToolBar() = default;
 
 void FindToolBar::findCompleterActivated(const QModelIndex &index)
 {
@@ -342,7 +340,7 @@ void FindToolBar::installEventFilters()
 bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::KeyPress) {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        auto ke = static_cast<QKeyEvent *>(event);
         if (ke->key() == Qt::Key_Down) {
             if (obj == m_ui.findEdit) {
                 if (m_ui.findEdit->text().isEmpty())
@@ -358,7 +356,7 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
 
     if ((obj == m_ui.findEdit || obj == m_findCompleter->popup())
                && event->type() == QEvent::KeyPress) {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        auto ke = static_cast<QKeyEvent *>(event);
         if (ke->key() == Qt::Key_Space && (ke->modifiers() & Utils::HostOsInfo::controlModifier())) {
             QString completedText = m_currentDocumentFind->completedFindString();
             if (!completedText.isEmpty()) {
@@ -368,7 +366,7 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
             }
         }
     } else if (obj == this && event->type() == QEvent::ShortcutOverride) {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        auto ke = static_cast<QKeyEvent *>(event);
         if (ke->key() == Qt::Key_Space && (ke->modifiers() & Utils::HostOsInfo::controlModifier())) {
             event->accept();
             return true;
@@ -394,7 +392,7 @@ void FindToolBar::adaptToCandidate()
 void FindToolBar::updateGlobalActions()
 {
     IFindSupport *candidate = m_currentDocumentFind->candidate();
-    bool enabled = (candidate != 0);
+    bool enabled = (candidate != nullptr);
     bool replaceEnabled = enabled && candidate->supportsReplace();
     m_findInDocumentAction->setEnabled(enabled || (toolBarHasFocus() && isEnabled()));
     m_findNextSelectedAction->setEnabled(enabled);
@@ -670,7 +668,7 @@ void FindToolBar::findFlagsChanged()
 
 void FindToolBar::findEditButtonClicked()
 {
-    OptionsPopup *popup = new OptionsPopup(m_ui.findEdit);
+    auto popup = new OptionsPopup(m_ui.findEdit);
     popup->show();
 }
 
@@ -753,7 +751,7 @@ FindToolBarPlaceHolder *FindToolBar::findToolBarPlaceHolder() const
         }
         candidate = candidate->parentWidget();
     }
-    return 0;
+    return nullptr;
 }
 
 bool FindToolBar::toolBarHasFocus() const
@@ -826,7 +824,7 @@ void FindToolBar::openFindToolBar(OpenFlags flags)
     FindToolBarPlaceHolder *previousHolder = FindToolBarPlaceHolder::getCurrent();
     if (previousHolder != holder) {
         if (previousHolder)
-            previousHolder->setWidget(0);
+            previousHolder->setWidget(nullptr);
         holder->setWidget(this);
         FindToolBarPlaceHolder::setCurrent(holder);
     }
@@ -987,7 +985,7 @@ OptionsPopup::OptionsPopup(QWidget *parent)
     : QWidget(parent, Qt::Popup)
 {
     setAttribute(Qt::WA_DeleteOnClose);
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(2, 2, 2, 2);
     layout->setSpacing(2);
     setLayout(layout);
@@ -1003,7 +1001,7 @@ OptionsPopup::OptionsPopup(QWidget *parent)
 bool OptionsPopup::event(QEvent *ev)
 {
     if (ev->type() == QEvent::ShortcutOverride) {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(ev);
+        auto ke = static_cast<QKeyEvent *>(ev);
         if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
             ev->accept();
             return true;
@@ -1014,9 +1012,9 @@ bool OptionsPopup::event(QEvent *ev)
 
 bool OptionsPopup::eventFilter(QObject *obj, QEvent *ev)
 {
-    QCheckBox *checkbox = qobject_cast<QCheckBox *>(obj);
+    auto checkbox = qobject_cast<QCheckBox *>(obj);
     if (ev->type() == QEvent::KeyPress && checkbox) {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(ev);
+        auto ke = static_cast<QKeyEvent *>(ev);
         if (!ke->modifiers() && (ke->key() == Qt::Key_Enter || ke->key() == Qt::Key_Return)) {
             checkbox->click();
             ev->accept();
@@ -1028,7 +1026,7 @@ bool OptionsPopup::eventFilter(QObject *obj, QEvent *ev)
 
 void OptionsPopup::actionChanged()
 {
-    QAction *action = qobject_cast<QAction *>(sender());
+    auto action = qobject_cast<QAction *>(sender());
     QTC_ASSERT(action, return);
     QCheckBox *checkbox = m_checkboxMap.value(action);
     QTC_ASSERT(checkbox, return);

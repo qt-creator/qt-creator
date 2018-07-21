@@ -230,7 +230,7 @@ IFindSupport::Result ItemViewFind::find(const QString &searchTxt,
         d->m_view->setCurrentIndex(resultIndex);
         d->m_view->scrollTo(resultIndex);
         if (resultIndex.parent().isValid())
-            if (QTreeView *treeView = qobject_cast<QTreeView *>(d->m_view))
+            if (auto treeView = qobject_cast<QTreeView *>(d->m_view))
                 treeView->expand(resultIndex.parent());
         if (wrapped)
             *wrapped = anyWrapped;

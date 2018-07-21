@@ -89,7 +89,7 @@ void SearchResultTreeView::emitJumpToSearchResult(const QModelIndex &index)
 
 void SearchResultTreeView::setTabWidth(int tabWidth)
 {
-    SearchResultTreeItemDelegate *delegate = static_cast<SearchResultTreeItemDelegate *>(itemDelegate());
+    auto delegate = static_cast<SearchResultTreeItemDelegate *>(itemDelegate());
     delegate->setTabWidth(tabWidth);
     doItemsLayout();
 }

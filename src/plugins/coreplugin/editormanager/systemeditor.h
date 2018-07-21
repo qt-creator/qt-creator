@@ -35,13 +35,13 @@ class SystemEditor : public IExternalEditor
     Q_OBJECT
 
 public:
-    explicit SystemEditor(QObject *parent = 0);
+    explicit SystemEditor(QObject *parent = nullptr);
 
-    QStringList mimeTypes() const;
-    Id id() const;
-    QString displayName() const;
+    QStringList mimeTypes() const override;
+    Id id() const override;
+    QString displayName() const override;
 
-    bool startEditor(const QString &fileName, QString *errorMessage);
+    bool startEditor(const QString &fileName, QString *errorMessage) override;
 };
 
 } // namespace Internal

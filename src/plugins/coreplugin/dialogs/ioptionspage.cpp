@@ -169,7 +169,7 @@ const QList<Core::IOptionsPage *> Core::IOptionsPage::allOptionsPages()
 bool Core::IOptionsPage::matches(const QString &searchKeyWord) const
 {
     if (!m_keywordsInitialized) {
-        IOptionsPage *that = const_cast<IOptionsPage *>(this);
+        auto that = const_cast<IOptionsPage *>(this);
         QWidget *widget = that->widget();
         if (!widget)
             return false;

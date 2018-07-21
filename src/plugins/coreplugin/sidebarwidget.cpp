@@ -55,8 +55,7 @@ private:
 };
 
 SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
-    : m_currentItem(0)
-    , m_sideBar(sideBar)
+    : m_sideBar(sideBar)
 {
     m_comboBox = new SideBarComboBox(this);
     m_comboBox->setMinimumContentsLength(15);
@@ -81,7 +80,7 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
     connect(m_closeAction, &QAction::triggered, this, &SideBarWidget::closeMe);
     m_toolbar->addAction(m_closeAction);
 
-    QVBoxLayout *lay = new QVBoxLayout();
+    auto lay = new QVBoxLayout();
     lay->setMargin(0);
     lay->setSpacing(0);
     setLayout(lay);
@@ -104,9 +103,7 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
             this, &SideBarWidget::setCurrentIndex);
 }
 
-SideBarWidget::~SideBarWidget()
-{
-}
+SideBarWidget::~SideBarWidget() = default;
 
 QString SideBarWidget::currentItemTitle() const
 {
@@ -176,14 +173,14 @@ void SideBarWidget::removeCurrentItem()
     QWidget *w = m_currentItem->widget();
     w->hide();
     layout()->removeWidget(w);
-    w->setParent(0);
+    w->setParent(nullptr);
     m_sideBar->makeItemAvailable(m_currentItem);
 
     // Delete custom toolbar widgets
     qDeleteAll(m_addedToolBarActions);
     m_addedToolBarActions.clear();
 
-    m_currentItem = 0;
+    m_currentItem = nullptr;
 }
 
 void SideBarWidget::setCurrentIndex(int)
@@ -197,12 +194,12 @@ Command *SideBarWidget::command(const QString &title) const
 {
     const QString id = m_sideBar->idForTitle(title);
     if (id.isEmpty())
-        return 0;
+        return nullptr;
     const QMap<QString, Command*> shortcutMap = m_sideBar->shortcutMap();
     QMap<QString, Command*>::const_iterator r = shortcutMap.find(id);
     if (r != shortcutMap.end())
         return r.value();
-    return 0;
+    return nullptr;
 }
 
 void SideBarWidget::setCloseIcon(const QIcon &icon)

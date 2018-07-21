@@ -82,7 +82,7 @@ private:
 
     QFutureInterfaceBase m_futureInterface;
     int m_expectedTime;
-    int m_currentTime;
+    int m_currentTime = 0;
     QTimer *m_timer;
 };
 

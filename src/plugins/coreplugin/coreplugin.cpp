@@ -70,9 +70,6 @@ using namespace Core::Internal;
 using namespace Utils;
 
 CorePlugin::CorePlugin()
-  : m_mainWindow(nullptr)
-  , m_editMode(nullptr)
-  , m_locator(nullptr)
 {
     qRegisterMetaType<Id>();
     qRegisterMetaType<Core::Search::TextPosition>();

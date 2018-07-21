@@ -51,7 +51,7 @@ OutputPanePlaceHolderPrivate::OutputPanePlaceHolderPrivate(Id mode, QSplitter *p
 {
 }
 
-OutputPanePlaceHolder *OutputPanePlaceHolderPrivate::m_current = 0;
+OutputPanePlaceHolder *OutputPanePlaceHolderPrivate::m_current = nullptr;
 
 OutputPanePlaceHolder::OutputPanePlaceHolder(Id mode, QSplitter *parent)
    : QWidget(parent), d(new OutputPanePlaceHolderPrivate(mode, parent))
@@ -75,7 +75,7 @@ OutputPanePlaceHolder::~OutputPanePlaceHolder()
 {
     if (d->m_current == this) {
         if (Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance()) {
-            om->setParent(0);
+            om->setParent(nullptr);
             om->hide();
         }
         OutputPanePlaceHolderPrivate::m_current = nullptr;
@@ -86,12 +86,12 @@ OutputPanePlaceHolder::~OutputPanePlaceHolder()
 void OutputPanePlaceHolder::currentModeChanged(Id mode)
 {
     if (d->m_current == this) {
-        d->m_current = 0;
+        d->m_current = nullptr;
         if (d->m_initialized)
             Internal::OutputPaneManager::setOutputPaneHeightSetting(d->m_nonMaximizedSize);
         Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance();
         om->hide();
-        om->setParent(0);
+        om->setParent(nullptr);
         om->updateStatusButtons(false);
     }
     if (d->m_mode == mode) {

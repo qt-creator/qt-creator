@@ -30,12 +30,12 @@
 
 using namespace Core;
 
-FindToolBarPlaceHolder *FindToolBarPlaceHolder::m_current = 0;
+FindToolBarPlaceHolder *FindToolBarPlaceHolder::m_current = nullptr;
 
 static QList<FindToolBarPlaceHolder *> g_findToolBarPlaceHolders;
 
 FindToolBarPlaceHolder::FindToolBarPlaceHolder(QWidget *owner, QWidget *parent)
-    : QWidget(parent), m_owner(owner), m_subWidget(0), m_lightColored(false)
+    : QWidget(parent), m_owner(owner), m_subWidget(nullptr)
 {
     g_findToolBarPlaceHolders.append(this);
     setLayout(new QVBoxLayout);
@@ -48,10 +48,10 @@ FindToolBarPlaceHolder::~FindToolBarPlaceHolder()
     g_findToolBarPlaceHolders.removeOne(this);
     if (m_subWidget) {
         m_subWidget->setVisible(false);
-        m_subWidget->setParent(0);
+        m_subWidget->setParent(nullptr);
     }
     if (m_current == this)
-        m_current = 0;
+        m_current = nullptr;
 }
 
 const QList<FindToolBarPlaceHolder *> FindToolBarPlaceHolder::allFindToolbarPlaceHolders()
@@ -82,7 +82,7 @@ void FindToolBarPlaceHolder::setWidget(Internal::FindToolBar *widget)
 {
     if (m_subWidget) {
         m_subWidget->setVisible(false);
-        m_subWidget->setParent(0);
+        m_subWidget->setParent(nullptr);
     }
     m_subWidget = widget;
     if (m_subWidget) {

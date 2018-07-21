@@ -103,15 +103,15 @@ private:
     QString m_description;
     QString m_displayName;
     QString m_displayCategory;
-    int m_order;
+    int m_order = -1;
     QStringList m_executables;
     QString m_arguments;
     QString m_input;
     QString m_workingDirectory;
     QList<Utils::EnvironmentItem> m_environment;
-    OutputHandling m_outputHandling;
-    OutputHandling m_errorHandling;
-    bool m_modifiesCurrentDocument;
+    OutputHandling m_outputHandling = ShowInPane;
+    OutputHandling m_errorHandling = ShowInPane;
+    bool m_modifiesCurrentDocument = false;
 
     QString m_fileName;
     QString m_presetFileName;

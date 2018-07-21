@@ -64,8 +64,8 @@ private:
     void reposition();
 
     QVBoxLayout *m_layout;
-    QWidget *m_referenceWidget;
-    bool m_hovered;
+    QWidget *m_referenceWidget = nullptr;
+    bool m_hovered = false;
 };
 
 } // namespace Internal

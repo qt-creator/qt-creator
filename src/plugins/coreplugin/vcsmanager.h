@@ -59,7 +59,7 @@ public:
     template <typename T, typename... Args>
     static T *registerVersionControl(Args&&... args)
     {
-        T *vc = new T(std::forward<Args>(args)...);
+        auto vc = new T(std::forward<Args>(args)...);
         addVersionControl(vc);
         return vc;
     }

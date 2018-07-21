@@ -44,9 +44,9 @@ class GeneralSettings : public IOptionsPage
 public:
     GeneralSettings();
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     void resetInterfaceColor();

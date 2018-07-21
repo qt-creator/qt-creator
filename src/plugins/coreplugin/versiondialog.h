@@ -40,7 +40,7 @@ class VersionDialog : public QDialog
 public:
     explicit VersionDialog(QWidget *parent);
 
-    bool event(QEvent *event);
+    bool event(QEvent *event) override;
 
 };
 

@@ -44,13 +44,13 @@ using namespace Core;
 
 CommandButton::CommandButton(QWidget *parent)
     : QToolButton(parent)
-    , m_command(0)
+    , m_command(nullptr)
 {
 }
 
 CommandButton::CommandButton(Id id, QWidget *parent)
     : QToolButton(parent)
-    , m_command(0)
+    , m_command(nullptr)
 {
     setCommandId(id);
 }

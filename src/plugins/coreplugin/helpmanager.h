@@ -56,7 +56,7 @@ public:
         ExternalHelpAlways = 3
     };
 
-    typedef QHash<QString, QStringList> Filters;
+    using Filters = QHash<QString, QStringList>;
 
     static HelpManager *instance();
     static QString collectionFilePath();

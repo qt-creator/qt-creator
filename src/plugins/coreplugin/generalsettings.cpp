@@ -48,7 +48,7 @@ namespace Internal {
 const char settingsKeyDPI[] = "Core/EnableHighDpiScaling";
 
 GeneralSettings::GeneralSettings()
-    : m_page(0), m_dialog(0)
+    : m_page(nullptr), m_dialog(nullptr)
 {
     setId(Constants::SETTINGS_ID_INTERFACE);
     setDisplayName(tr("Interface"));
@@ -143,7 +143,7 @@ void GeneralSettings::finish()
 {
     delete m_widget;
     delete m_page;
-    m_page = 0;
+    m_page = nullptr;
 }
 
 void GeneralSettings::resetInterfaceColor()

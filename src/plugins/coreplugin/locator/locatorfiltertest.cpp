@@ -41,9 +41,7 @@ BasicLocatorFilterTest::BasicLocatorFilterTest(ILocatorFilter *filter) : m_filte
 {
 }
 
-BasicLocatorFilterTest::~BasicLocatorFilterTest()
-{
-}
+BasicLocatorFilterTest::~BasicLocatorFilterTest() = default;
 
 QList<LocatorFilterEntry> BasicLocatorFilterTest::matchesFor(const QString &searchText)
 {
@@ -57,9 +55,7 @@ QList<LocatorFilterEntry> BasicLocatorFilterTest::matchesFor(const QString &sear
     return locatorSearch.results();
 }
 
-ResultData::ResultData()
-{
-}
+ResultData::ResultData() = default;
 
 ResultData::ResultData(const QString &textColumn1, const QString &textColumn2)
     : textColumn1(textColumn1), textColumn2(textColumn2)

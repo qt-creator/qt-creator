@@ -85,7 +85,7 @@ void ExecuteFilter::accept(LocatorFilterEntry selection,
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
-    ExecuteFilter *p = const_cast<ExecuteFilter *>(this);
+    auto p = const_cast<ExecuteFilter *>(this);
 
     const QString value = selection.displayName.trimmed();
     const int index = m_commandHistory.indexOf(value);

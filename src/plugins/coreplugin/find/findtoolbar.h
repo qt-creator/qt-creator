@@ -51,8 +51,8 @@ public:
     explicit OptionsPopup(QWidget *parent);
 
 protected:
-    bool event(QEvent *ev);
-    bool eventFilter(QObject *obj, QEvent *ev);
+    bool event(QEvent *ev) override;
+    bool eventFilter(QObject *obj, QEvent *ev) override;
 
 private:
     void actionChanged();
@@ -77,7 +77,7 @@ public:
     Q_DECLARE_FLAGS(OpenFlags, OpenFlag)
 
     explicit FindToolBar(CurrentDocumentFind *currentDocumentFind);
-    ~FindToolBar();
+    ~FindToolBar() override;
 
     void readSettings();
     void writeSettings();
@@ -91,8 +91,8 @@ public slots:
     void setBackward(bool backward);
 
 protected:
-    bool focusNextPrevChild(bool next);
-    void resizeEvent(QResizeEvent *event);
+    bool focusNextPrevChild(bool next) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     void invokeFindNext();
@@ -147,7 +147,7 @@ private:
     void acceptCandidateAndMoveToolBar();
     void indicateSearchState(IFindSupport::Result searchState);
 
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
     void setFindText(const QString &text);
     QString getFindText();
     QString getReplaceText();

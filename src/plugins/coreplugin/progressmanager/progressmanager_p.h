@@ -96,18 +96,18 @@ private:
     QPointer<ProgressView> m_progressView;
     QList<FutureProgress *> m_taskList;
     QMap<QFutureWatcher<void> *, Id> m_runningTasks;
-    QFutureWatcher<void> *m_applicationTask;
+    QFutureWatcher<void> *m_applicationTask = nullptr;
     StatusBarWidget *m_statusBarWidgetContainer;
     QWidget *m_statusBarWidget;
     QWidget *m_summaryProgressWidget;
     QHBoxLayout *m_summaryProgressLayout;
-    QWidget *m_currentStatusDetailsWidget;
+    QWidget *m_currentStatusDetailsWidget = nullptr;
     QPointer<FutureProgress> m_currentStatusDetailsProgress;
     ProgressBar *m_summaryProgressBar;
     QGraphicsOpacityEffect *m_opacityEffect;
     QPointer<QPropertyAnimation> m_opacityAnimation;
-    bool m_progressViewPinned;
-    bool m_hovered;
+    bool m_progressViewPinned = false;
+    bool m_hovered = false;
 };
 
 class ToggleButton : public QToolButton

@@ -89,7 +89,7 @@ void BaseFileWizard::accept()
         reject();
         return;
     case BaseFileWizardFactory::OverwriteError:
-        QMessageBox::critical(0, tr("Existing files"), errorMessage);
+        QMessageBox::critical(nullptr, tr("Existing files"), errorMessage);
         reject();
         return;
     case BaseFileWizardFactory::OverwriteOk:
@@ -132,7 +132,7 @@ void BaseFileWizard::accept()
     // Post generation handler
     if (!m_factory->postGenerateFiles(this, m_files, &errorMessage))
         if (!errorMessage.isEmpty())
-            QMessageBox::critical(0, tr("File Generation Failure"), errorMessage);
+            QMessageBox::critical(nullptr, tr("File Generation Failure"), errorMessage);
 
     Wizard::accept();
 }

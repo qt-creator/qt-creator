@@ -87,12 +87,12 @@ OutputWindow::OutputWindow(Context context, QWidget *parent)
     d->outputWindowContext->setWidget(this);
     ICore::addContextObject(d->outputWindowContext);
 
-    QAction *undoAction = new QAction(this);
-    QAction *redoAction = new QAction(this);
-    QAction *cutAction = new QAction(this);
-    QAction *copyAction = new QAction(this);
-    QAction *pasteAction = new QAction(this);
-    QAction *selectAllAction = new QAction(this);
+    auto undoAction = new QAction(this);
+    auto redoAction = new QAction(this);
+    auto cutAction = new QAction(this);
+    auto copyAction = new QAction(this);
+    auto pasteAction = new QAction(this);
+    auto selectAllAction = new QAction(this);
 
     ActionManager::registerAction(undoAction, Constants::UNDO, context);
     ActionManager::registerAction(redoAction, Constants::REDO, context);

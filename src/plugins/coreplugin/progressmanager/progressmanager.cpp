@@ -263,14 +263,10 @@ using namespace Utils;
     Sent when all tasks of a \a type have finished.
 */
 
-static ProgressManagerPrivate *m_instance = 0;
+static ProgressManagerPrivate *m_instance = nullptr;
 
 ProgressManagerPrivate::ProgressManagerPrivate()
-  : m_applicationTask(0),
-    m_currentStatusDetailsWidget(0),
-    m_opacityEffect(new QGraphicsOpacityEffect(this)),
-    m_progressViewPinned(false),
-    m_hovered(false)
+    : m_opacityEffect(new QGraphicsOpacityEffect(this))
 {
     m_opacityEffect->setOpacity(.999);
     m_instance = this;
@@ -288,7 +284,7 @@ ProgressManagerPrivate::~ProgressManagerPrivate()
     StatusBarManager::destroyStatusBarWidget(m_statusBarWidget);
     m_statusBarWidget = nullptr;
     cleanup();
-    m_instance = 0;
+    m_instance = nullptr;
 }
 
 void ProgressManagerPrivate::readSettings()
@@ -304,7 +300,7 @@ void ProgressManagerPrivate::init()
     readSettings();
 
     m_statusBarWidget = new QWidget;
-    QHBoxLayout *layout = new QHBoxLayout(m_statusBarWidget);
+    auto layout = new QHBoxLayout(m_statusBarWidget);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     m_statusBarWidget->setLayout(layout);
@@ -322,7 +318,7 @@ void ProgressManagerPrivate::init()
     m_summaryProgressBar->setCancelEnabled(false);
     m_summaryProgressLayout->addWidget(m_summaryProgressBar);
     layout->addWidget(m_summaryProgressWidget);
-    ToggleButton *toggleButton = new ToggleButton(m_statusBarWidget);
+    auto toggleButton = new ToggleButton(m_statusBarWidget);
     layout->addWidget(toggleButton);
     m_statusBarWidget->installEventFilter(this);
     StatusBarManager::addStatusBarWidget(m_statusBarWidget, StatusBarManager::RightCorner);
@@ -381,7 +377,7 @@ bool ProgressManagerPrivate::eventFilter(QObject *obj, QEvent *event)
         updateVisibilityWithDelay();
     } else if (obj == m_statusBarWidget && event->type() == QEvent::MouseButtonPress
                && !m_taskList.isEmpty()) {
-        QMouseEvent *me = static_cast<QMouseEvent *>(event);
+        auto me = static_cast<QMouseEvent *>(event);
         if (me->button() == Qt::LeftButton && !me->modifiers()) {
             FutureProgress *progress = m_currentStatusDetailsProgress;
             if (!progress)
@@ -415,7 +411,7 @@ FutureProgress *ProgressManagerPrivate::doAddTask(const QFuture<void> &future, c
                                                 Id type, ProgressFlags flags)
 {
     // watch
-    QFutureWatcher<void> *watcher = new QFutureWatcher<void>();
+    auto watcher = new QFutureWatcher<void>();
     m_runningTasks.insert(watcher, type);
     connect(watcher, &QFutureWatcherBase::progressRangeChanged,
             this, &ProgressManagerPrivate::updateSummaryProgressBar);
@@ -442,7 +438,7 @@ FutureProgress *ProgressManagerPrivate::doAddTask(const QFuture<void> &future, c
     removeOldTasks(type);
     if (m_taskList.size() == 10)
         removeOneOldTask();
-    FutureProgress *progress = new FutureProgress;
+    auto progress = new FutureProgress;
     progress->setTitle(title);
     progress->setFuture(future);
 
@@ -475,7 +471,7 @@ void ProgressManagerPrivate::taskFinished()
 {
     QObject *taskObject = sender();
     QTC_ASSERT(taskObject, return);
-    QFutureWatcher<void> *task = static_cast<QFutureWatcher<void> *>(taskObject);
+    auto task = static_cast<QFutureWatcher<void> *>(taskObject);
     if (m_applicationTask == task)
         disconnectApplicationTask();
     Id type = m_runningTasks.value(task);
@@ -494,7 +490,7 @@ void ProgressManagerPrivate::disconnectApplicationTask()
     disconnect(m_applicationTask, &QFutureWatcherBase::progressValueChanged,
                this, &ProgressManagerPrivate::setApplicationProgressValue);
     setApplicationProgressVisible(false);
-    m_applicationTask = 0;
+    m_applicationTask = nullptr;
 }
 
 void ProgressManagerPrivate::updateSummaryProgressBar()
@@ -566,7 +562,7 @@ bool ProgressManagerPrivate::isLastFading() const
 
 void ProgressManagerPrivate::slotRemoveTask()
 {
-    FutureProgress *progress = qobject_cast<FutureProgress *>(sender());
+    auto progress = qobject_cast<FutureProgress *>(sender());
     QTC_ASSERT(progress, return);
     Id type = progress->type();
     removeTask(progress);
@@ -655,7 +651,7 @@ void ProgressManagerPrivate::updateVisibilityWithDelay()
 
 void ProgressManagerPrivate::updateStatusDetailsWidget()
 {
-    QWidget *candidateWidget = 0;
+    QWidget *candidateWidget = nullptr;
     // get newest progress with a status bar widget
     QList<FutureProgress *>::iterator i = m_taskList.end();
     while (i != m_taskList.begin()) {
@@ -727,13 +723,9 @@ void ToggleButton::paintEvent(QPaintEvent *event)
 }
 
 
-ProgressManager::ProgressManager()
-{
-}
+ProgressManager::ProgressManager() = default;
 
-ProgressManager::~ProgressManager()
-{
-}
+ProgressManager::~ProgressManager() = default;
 
 ProgressManager *ProgressManager::instance()
 {
@@ -781,8 +773,7 @@ ProgressTimer::ProgressTimer(const QFutureInterfaceBase &futureInterface,
                              QObject *parent)
     : QObject(parent),
       m_futureInterface(futureInterface),
-      m_expectedTime(expectedSeconds),
-      m_currentTime(0)
+      m_expectedTime(expectedSeconds)
 {
     m_futureInterface.setProgressRange(0, 100);
     m_futureInterface.setProgressValue(0);

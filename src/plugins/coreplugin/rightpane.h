@@ -80,8 +80,8 @@ protected:
 
 private:
     void clearWidget();
-    bool m_shown;
-    int m_width;
+    bool m_shown = true;
+    int m_width = 0;
     QPointer<QWidget> m_widget;
     static RightPaneWidget *m_instance;
 };

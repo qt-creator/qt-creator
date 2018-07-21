@@ -204,7 +204,7 @@ void HighlightScrollBarOverlay::drawHighlights(QPainter *painter,
             const QColor &color = creatorTheme()->color(itColor.key());
             const QMap<int, int> &positions = itColor.value();
             const auto itPosEnd = positions.constEnd();
-            const int firstPos = int(docStart / lineHeight);
+            const auto firstPos = int(docStart / lineHeight);
             auto itPos = positions.upperBound(firstPos);
             if (itPos != positions.constBegin())
                 --itPos;

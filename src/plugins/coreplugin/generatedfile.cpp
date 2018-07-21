@@ -49,19 +49,18 @@ namespace Core {
 class GeneratedFilePrivate : public QSharedData
 {
 public:
-    GeneratedFilePrivate() : binary(false) {}
+    GeneratedFilePrivate() = default;
     explicit GeneratedFilePrivate(const QString &p);
     QString path;
     QByteArray contents;
     Id editorId;
-    bool binary;
+    bool binary = false;
     GeneratedFile::Attributes attributes;
 };
 
 GeneratedFilePrivate::GeneratedFilePrivate(const QString &p) :
     path(QDir::cleanPath(p)),
-    binary(false),
-    attributes(0)
+    attributes({})
 {
 }
 
@@ -75,10 +74,7 @@ GeneratedFile::GeneratedFile(const QString &p) :
 {
 }
 
-GeneratedFile::GeneratedFile(const GeneratedFile &rhs) :
-    m_d(rhs.m_d)
-{
-}
+GeneratedFile::GeneratedFile(const GeneratedFile &rhs) = default;
 
 GeneratedFile &GeneratedFile::operator=(const GeneratedFile &rhs)
 {
@@ -87,9 +83,7 @@ GeneratedFile &GeneratedFile::operator=(const GeneratedFile &rhs)
     return *this;
 }
 
-GeneratedFile::~GeneratedFile()
-{
-}
+GeneratedFile::~GeneratedFile() = default;
 
 QString GeneratedFile::path() const
 {

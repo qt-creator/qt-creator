@@ -101,7 +101,7 @@ JsExpander::JsExpander()
 JsExpander::~JsExpander()
 {
     delete d;
-    d = 0;
+    d = nullptr;
 }
 
 } // namespace Core

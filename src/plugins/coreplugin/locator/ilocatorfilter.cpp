@@ -167,8 +167,8 @@ bool ILocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     QDialog dialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
     dialog.setWindowTitle(msgConfigureDialogTitle());
 
-    QVBoxLayout *vlayout = new QVBoxLayout(&dialog);
-    QHBoxLayout *hlayout = new QHBoxLayout;
+    auto vlayout = new QVBoxLayout(&dialog);
+    auto hlayout = new QHBoxLayout;
     QLineEdit *shortcutEdit = new QLineEdit(shortcutString());
     QCheckBox *includeByDefault = new QCheckBox(msgIncludeByDefault());
     includeByDefault->setToolTip(msgIncludeByDefaultToolTip());

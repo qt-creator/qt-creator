@@ -60,17 +60,17 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     m_navigationComboBox->setFocusPolicy(Qt::TabFocus);
     m_navigationComboBox->setMinimumContentsLength(0);
     m_navigationComboBox->setModel(parentWidget->factoryModel());
-    m_navigationWidget = 0;
-    m_navigationWidgetFactory = 0;
+    m_navigationWidget = nullptr;
+    m_navigationWidgetFactory = nullptr;
 
     m_toolBar = new Utils::StyledBar(this);
-    QHBoxLayout *toolBarLayout = new QHBoxLayout;
+    auto toolBarLayout = new QHBoxLayout;
     toolBarLayout->setMargin(0);
     toolBarLayout->setSpacing(0);
     m_toolBar->setLayout(toolBarLayout);
     toolBarLayout->addWidget(m_navigationComboBox);
 
-    QToolButton *splitAction = new QToolButton();
+    auto splitAction = new QToolButton();
     splitAction->setIcon(Utils::Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
     splitAction->setToolTip(tr("Split"));
     splitAction->setPopupMode(QToolButton::InstantPopup);
@@ -86,7 +86,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     toolBarLayout->addWidget(splitAction);
     toolBarLayout->addWidget(m_closeButton);
 
-    QVBoxLayout *lay = new QVBoxLayout();
+    auto lay = new QVBoxLayout();
     lay->setMargin(0);
     lay->setSpacing(0);
     setLayout(lay);
@@ -103,9 +103,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     comboBoxIndexChanged(factoryIndex);
 }
 
-NavigationSubWidget::~NavigationSubWidget()
-{
-}
+NavigationSubWidget::~NavigationSubWidget() = default;
 
 void NavigationSubWidget::comboBoxIndexChanged(int factoryIndex)
 {
@@ -118,8 +116,8 @@ void NavigationSubWidget::comboBoxIndexChanged(int factoryIndex)
 
     // Remove old Widget
     delete m_navigationWidget;
-    m_navigationWidget = 0;
-    m_navigationWidgetFactory = 0;
+    m_navigationWidget = nullptr;
+    m_navigationWidgetFactory = nullptr;
     if (factoryIndex == -1)
         return;
 
@@ -132,7 +130,7 @@ void NavigationSubWidget::comboBoxIndexChanged(int factoryIndex)
 
     // Add Toolbutton
     m_additionalToolBarWidgets = n.dockToolBarWidgets;
-    QHBoxLayout *layout = qobject_cast<QHBoxLayout *>(m_toolBar->layout());
+    auto layout = qobject_cast<QHBoxLayout *>(m_toolBar->layout());
     foreach (QToolButton *w, m_additionalToolBarWidgets) {
         layout->insertWidget(layout->count()-2, w);
     }
@@ -193,7 +191,7 @@ Core::Command *NavigationSubWidget::command(const QString &title) const
     QHash<Id, Command *>::const_iterator r = commandMap.find(Id::fromString(title));
     if (r != commandMap.end())
         return r.value();
-    return 0;
+    return nullptr;
 }
 
 void NavigationSubWidget::setCloseIcon(const QIcon &icon)

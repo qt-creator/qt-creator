@@ -36,8 +36,7 @@ class MagicData
 {
 public:
     MagicData()
-        : m_rule(Utils::Internal::MimeMagicRule::String, QByteArray(" "), 0, 0),
-          m_priority(0)
+        : m_rule(Utils::Internal::MimeMagicRule::String, QByteArray(" "), 0, 0)
     {
     }
 
@@ -53,14 +52,14 @@ public:
     static QByteArray normalizedMask(const Utils::Internal::MimeMagicRule &rule);
 
     Utils::Internal::MimeMagicRule m_rule;
-    int m_priority;
+    int m_priority = 0;
 };
 
 class MimeTypeMagicDialog : public QDialog
 {
     Q_DECLARE_TR_FUNCTIONS(Core::Internal::MimeTypeMagicDialog)
 public:
-    explicit MimeTypeMagicDialog(QWidget *parent = 0);
+    explicit MimeTypeMagicDialog(QWidget *parent = nullptr);
 
     void setMagicData(const MagicData &data);
     MagicData magicData() const;
@@ -69,12 +68,12 @@ private:
     void setToRecommendedValues();
     void applyRecommended(bool checked);
     void validateAccept();
-    Utils::Internal::MimeMagicRule createRule(QString *errorMessage = 0) const;
+    Utils::Internal::MimeMagicRule createRule(QString *errorMessage = nullptr) const;
 
     Ui::MimeTypeMagicDialog ui;
-    int m_customRangeStart;
-    int m_customRangeEnd;
-    int m_customPriority;
+    int m_customRangeStart = 0;
+    int m_customRangeEnd = 0;
+    int m_customPriority = 50;
 };
 
 } // Internal

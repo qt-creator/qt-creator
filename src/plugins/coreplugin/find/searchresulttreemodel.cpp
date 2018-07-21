@@ -37,7 +37,7 @@ using namespace Core::Internal;
 
 SearchResultTreeModel::SearchResultTreeModel(QObject *parent)
     : QAbstractItemModel(parent)
-    , m_currentParent(0)
+    , m_currentParent(nullptr)
     , m_showReplaceUI(false)
     , m_editorFontIsUsed(false)
 {
@@ -178,7 +178,7 @@ QVariant SearchResultTreeModel::data(const QModelIndex &idx, int role) const
 bool SearchResultTreeModel::setData(const QModelIndex &idx, const QVariant &value, int role)
 {
     if (role == Qt::CheckStateRole) {
-        Qt::CheckState checkState = static_cast<Qt::CheckState>(value.toInt());
+        auto checkState = static_cast<Qt::CheckState>(value.toInt());
         return setCheckState(idx, checkState);
     }
     return QAbstractItemModel::setData(idx, value, role);
@@ -308,7 +308,7 @@ QSet<SearchResultTreeItem *> SearchResultTreeModel::addPath(const QStringList &p
     QSet<SearchResultTreeItem *> pathNodes;
     SearchResultTreeItem *currentItem = m_rootItem;
     QModelIndex currentItemIndex = QModelIndex();
-    SearchResultTreeItem *partItem = 0;
+    SearchResultTreeItem *partItem = nullptr;
     QStringList currentPath;
     foreach (const QString &part, path) {
         const int insertionIndex = currentItem->insertionIndex(part, &partItem);
@@ -418,7 +418,7 @@ QList<QModelIndex> SearchResultTreeModel::addResults(const QList<SearchResultIte
 void SearchResultTreeModel::clear()
 {
     beginResetModel();
-    m_currentParent = NULL;
+    m_currentParent = nullptr;
     m_rootItem->clearChildren();
     m_editorFontIsUsed = false;
     endResetModel();

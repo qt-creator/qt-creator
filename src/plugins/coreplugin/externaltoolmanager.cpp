@@ -56,8 +56,8 @@ struct ExternalToolManagerPrivate
     QAction *m_configureAction;
 };
 
-static ExternalToolManager *m_instance = 0;
-static ExternalToolManagerPrivate *d = 0;
+static ExternalToolManager *m_instance = nullptr;
+static ExternalToolManagerPrivate *d = nullptr;
 
 static void writeSettings();
 static void readSettings(const QMap<QString, ExternalTool *> &tools,
@@ -211,7 +211,7 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalT
     it.toFront();
     while (it.hasNext()) {
         it.next();
-        ActionContainer *container = 0;
+        ActionContainer *container = nullptr;
         const QString &containerName = it.key();
         if (containerName.isEmpty()) { // no displayCategory, so put into external tools menu directly
             container = mexternaltools;
@@ -227,8 +227,8 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalT
         foreach (ExternalTool *tool, it.value()) {
             const QString &toolId = tool->id();
             // tool action and command
-            QAction *action = 0;
-            Command *command = 0;
+            QAction *action = nullptr;
+            Command *command = nullptr;
             if (d->m_actions.contains(toolId)) {
                 action = d->m_actions.value(toolId);
                 command = ActionManager::command(externalToolsPrefix.withSuffix(toolId));
@@ -236,7 +236,7 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalT
                 action = new QAction(tool->displayName(), m_instance);
                 d->m_actions.insert(toolId, action);
                 connect(action, &QAction::triggered, [tool] {
-                    ExternalToolRunner *runner = new ExternalToolRunner(tool);
+                    auto runner = new ExternalToolRunner(tool);
                     if (runner->hasError())
                         MessageManager::write(runner->errorString());
                 });

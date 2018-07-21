@@ -78,7 +78,7 @@ public:
 
 private:
     QString m_displayName;
-    int m_priority;
+    int m_priority = 0;
     Id m_id;
     QKeySequence m_activationSequence;
 };

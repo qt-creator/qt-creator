@@ -42,7 +42,7 @@ class DocumentModelPrivate : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    ~DocumentModelPrivate();
+    ~DocumentModelPrivate() override;
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;

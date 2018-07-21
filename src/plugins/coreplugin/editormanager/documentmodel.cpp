@@ -295,7 +295,7 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
 
 void DocumentModelPrivate::itemChanged()
 {
-    IDocument *document = qobject_cast<IDocument *>(sender());
+    auto document = qobject_cast<IDocument *>(sender());
 
     const Utils::optional<int> idx = indexOfDocument(document);
     if (!idx)
@@ -439,7 +439,7 @@ void DocumentModelPrivate::DynamicEntry::setNumberedName(int number)
 } // Internal
 
 DocumentModel::Entry::Entry() :
-    document(0),
+    document(nullptr),
     isSuspended(false)
 {
 }
@@ -450,9 +450,7 @@ DocumentModel::Entry::~Entry()
         delete document;
 }
 
-DocumentModel::DocumentModel()
-{
-}
+DocumentModel::DocumentModel() = default;
 
 void DocumentModel::init()
 {
@@ -561,7 +559,7 @@ DocumentModel::Entry *DocumentModel::entryAtRow(int row)
 {
     int entryIndex = row - 1/*<no document>*/;
     if (entryIndex < 0)
-        return 0;
+        return nullptr;
     return d->m_entries[entryIndex];
 }
 

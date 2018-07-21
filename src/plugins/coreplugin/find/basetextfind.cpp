@@ -111,7 +111,7 @@ void BaseTextFind::setTextCursor(const QTextCursor &cursor)
 
 QTextDocument *BaseTextFind::document() const
 {
-    QTC_ASSERT(d->m_editor || d->m_plaineditor, return 0);
+    QTC_ASSERT(d->m_editor || d->m_plaineditor, return nullptr);
     return d->m_editor ? d->m_editor->document() : d->m_plaineditor->document();
 }
 
@@ -140,7 +140,7 @@ void BaseTextFind::resetIncrementalSearch()
 
 void BaseTextFind::clearHighlights()
 {
-    highlightAll(QString(), 0);
+    highlightAll(QString(), nullptr);
 }
 
 QString BaseTextFind::currentFindString() const
@@ -191,7 +191,7 @@ IFindSupport::Result BaseTextFind::findIncremental(const QString &txt, FindFlags
     if (found)
         highlightAll(txt, findFlags);
     else
-        highlightAll(QString(), 0);
+        highlightAll(QString(), nullptr);
     return found ? Found : NotFound;
 }
 

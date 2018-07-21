@@ -134,7 +134,7 @@ int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyle
     opt.palette.setColor(cg, QPalette::Text, Qt::darkGray);
 
     const QStyle *style = QApplication::style();
-    const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, 0) + 1;
+    const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, nullptr, nullptr) + 1;
 
     const QRect rowRect = lineNumberAreaRect.adjusted(-textMargin, 0, textMargin-lineNumberAreaHorizontalPadding, 0);
     QItemDelegate::drawDisplay(painter, opt, rowRect, lineText);

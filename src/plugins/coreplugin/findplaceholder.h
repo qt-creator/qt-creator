@@ -56,7 +56,7 @@ public:
 private:
     QWidget *m_owner;
     QPointer<Internal::FindToolBar> m_subWidget;
-    bool m_lightColored;
+    bool m_lightColored = false;
     static FindToolBarPlaceHolder *m_current;
 };
 

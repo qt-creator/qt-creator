@@ -40,8 +40,9 @@ namespace Core {
 class CORE_EXPORT Id
 {
 public:
-    Id() : m_id(0) {}
+    Id() = default;
     Id(const char *name); // Good to use.
+    Id(const QLatin1String &) = delete;
 
     Id withSuffix(int suffix) const;
     Id withSuffix(const char *suffix) const;
@@ -72,11 +73,9 @@ public:
     static QStringList toStringList(const QSet<Id> &ids);
 
 private:
-    // Intentionally unimplemented
-    Id(const QLatin1String &) = delete;
     explicit Id(quintptr uid) : m_id(uid) {}
 
-    quintptr m_id;
+    quintptr m_id = 0;
 };
 
 inline uint qHash(Id id) { return static_cast<uint>(id.uniqueIdentifier()); }

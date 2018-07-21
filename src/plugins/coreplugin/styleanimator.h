@@ -42,8 +42,8 @@
 class Animation
 {
 public :
-    Animation() : m_running(true) { }
-    virtual ~Animation() { }
+    Animation() = default;
+    virtual ~Animation() = default;
     QWidget * widget() const { return m_widget; }
     bool running() const { return m_running; }
     const QTime &startTime() const { return m_startTime; }
@@ -59,21 +59,21 @@ protected:
     QImage m_primaryImage;
     QImage m_secondaryImage;
     QImage m_tempImage;
-    bool m_running;
+    bool m_running = true;
 };
 
 // Handles state transition animations
 class Transition : public Animation
 {
 public :
-    Transition() : Animation(), m_duration(100) {}
-    virtual ~Transition() {}
+    Transition() = default;
+    ~Transition() override = default;
     void setDuration(int duration) { m_duration = duration; }
     void setStartImage(const QImage &image) { m_primaryImage = image; }
     void setEndImage(const QImage &image) { m_secondaryImage = image; }
-    virtual void paint(QPainter *painter, const QStyleOption *option);
+    void paint(QPainter *painter, const QStyleOption *option) override;
     int duration() const { return m_duration; }
-    int m_duration; //set time in ms to complete a state transition
+    int m_duration = 100; //set time in ms to complete a state transition
 };
 
 class StyleAnimator : public QObject
@@ -81,9 +81,9 @@ class StyleAnimator : public QObject
     Q_OBJECT
 
 public:
-    StyleAnimator(QObject *parent = 0) : QObject(parent) {}
+    StyleAnimator(QObject *parent = nullptr) : QObject(parent) {}
 
-    void timerEvent(QTimerEvent *);
+    void timerEvent(QTimerEvent *) override;
     void startAnimation(Animation *);
     void stopAnimation(const QWidget *);
     Animation* widgetAnimation(const QWidget *) const;

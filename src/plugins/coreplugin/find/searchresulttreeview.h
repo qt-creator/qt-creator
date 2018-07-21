@@ -40,7 +40,7 @@ class SearchResultTreeView : public Utils::TreeView
     Q_OBJECT
 
 public:
-    explicit SearchResultTreeView(QWidget *parent = 0);
+    explicit SearchResultTreeView(QWidget *parent = nullptr);
 
     void setAutoExpandResults(bool expand);
     void setTextEditorFont(const QFont &font, const SearchResultColor &color);

@@ -82,7 +82,7 @@ private:
     Ui::NewDialog *m_ui;
     QStandardItemModel *m_model;
     QSortFilterProxyModel *m_filterProxyModel;
-    QPushButton *m_okButton;
+    QPushButton *m_okButton = nullptr;
     QIcon m_dummyIcon;
     QList<QStandardItem*> m_categoryItems;
     QString m_defaultLocation;

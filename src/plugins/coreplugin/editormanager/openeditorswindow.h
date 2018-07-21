@@ -45,9 +45,9 @@ namespace Internal {
 
 class OpenEditorsTreeWidget : public QTreeWidget {
 public:
-    explicit OpenEditorsTreeWidget(QWidget *parent = 0) : QTreeWidget(parent) {}
-    ~OpenEditorsTreeWidget() {}
-    QSize sizeHint() const;
+    explicit OpenEditorsTreeWidget(QWidget *parent = nullptr) : QTreeWidget(parent) {}
+    ~OpenEditorsTreeWidget() override = default;
+    QSize sizeHint() const override;
 };
 
 
@@ -58,16 +58,16 @@ class OpenEditorsWindow : public QFrame
 public:
     enum Mode {ListMode, HistoryMode };
 
-    explicit OpenEditorsWindow(QWidget *parent = 0);
+    explicit OpenEditorsWindow(QWidget *parent = nullptr);
 
     void setEditors(const QList<EditLocation> &globalHistory, EditorView *view);
 
-    bool eventFilter(QObject *src, QEvent *e);
-    void focusInEvent(QFocusEvent *);
-    void setVisible(bool visible);
+    bool eventFilter(QObject *src, QEvent *e) override;
+    void focusInEvent(QFocusEvent*) override;
+    void setVisible(bool visible) override;
     void selectNextEditor();
     void selectPreviousEditor();
-    QSize sizeHint() const;
+    QSize sizeHint() const override;
 
 public slots:
     void selectAndHide();

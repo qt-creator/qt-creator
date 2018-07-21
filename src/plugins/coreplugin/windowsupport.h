@@ -61,12 +61,12 @@ class WindowSupport : public QObject
     Q_OBJECT
 public:
     WindowSupport(QWidget *window, const Context &context);
-    ~WindowSupport();
+    ~WindowSupport() override;
 
     void setCloseActionEnabled(bool enabled);
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     void toggleFullScreen();

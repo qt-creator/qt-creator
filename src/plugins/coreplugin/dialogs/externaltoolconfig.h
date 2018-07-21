@@ -46,7 +46,7 @@ class ExternalToolModel : public QAbstractItemModel
 
 public:
     explicit ExternalToolModel(QObject *parent);
-    ~ExternalToolModel();
+    ~ExternalToolModel() override;
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &modelIndex, int role = Qt::DisplayRole) const override;
@@ -86,8 +86,8 @@ class ExternalToolConfig : public QWidget
     Q_OBJECT
 
 public:
-    explicit ExternalToolConfig(QWidget *parent = 0);
-    ~ExternalToolConfig();
+    explicit ExternalToolConfig(QWidget *parent = nullptr);
+    ~ExternalToolConfig() override;
 
     void setTools(const QMap<QString, QList<ExternalTool *> > &tools);
     QMap<QString, QList<ExternalTool *> > tools() const;

@@ -45,10 +45,7 @@ static Utils::Internal::MimeMagicRule::Type typeValue(int i)
 }
 
 MimeTypeMagicDialog::MimeTypeMagicDialog(QWidget *parent) :
-    QDialog(parent),
-    m_customRangeStart(0),
-    m_customRangeEnd(0),
-    m_customPriority(50)
+    QDialog(parent)
 {
     ui.setupUi(this);
     setWindowTitle(tr("Add Magic Header"));

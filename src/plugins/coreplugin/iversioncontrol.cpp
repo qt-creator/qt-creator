@@ -87,7 +87,7 @@ ShellCommand *IVersionControl::createInitialCheckoutCommand(const QString &url,
     Q_UNUSED(baseDirectory);
     Q_UNUSED(localName);
     Q_UNUSED(extraArgs);
-    return 0;
+    return nullptr;
 }
 
 QString IVersionControl::vcsTopic(const QString &topLevel)
@@ -106,9 +106,7 @@ IVersionControl::OpenSupportMode IVersionControl::openSupportMode(const QString 
     return NoOpen;
 }
 
-IVersionControl::TopicCache::~TopicCache()
-{
-}
+IVersionControl::TopicCache::~TopicCache() = default;
 
 /*!
    Returns the topic for repository under \a topLevel.
@@ -175,7 +173,7 @@ bool TestVersionControl::managesFile(const QString &workingDirectory, const QStr
 
     QFileInfo fi(workingDirectory + QLatin1Char('/') + fileName);
     QString dir = fi.absolutePath();
-    if (!managesDirectory(dir, 0))
+    if (!managesDirectory(dir, nullptr))
         return false;
     QString file = fi.absoluteFilePath();
     return m_managedFiles.contains(file);

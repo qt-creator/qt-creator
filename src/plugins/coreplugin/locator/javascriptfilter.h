@@ -43,9 +43,9 @@ class JavaScriptFilter : public Core::ILocatorFilter
     Q_OBJECT
 public:
     JavaScriptFilter();
-    ~JavaScriptFilter();
+    ~JavaScriptFilter() override;
 
-    virtual void prepareSearch(const QString &entry) override;
+    void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) override;
     void accept(Core::LocatorFilterEntry selection, QString *newText,

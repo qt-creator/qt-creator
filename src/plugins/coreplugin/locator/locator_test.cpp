@@ -55,7 +55,7 @@ public:
 class ReferenceData
 {
 public:
-    ReferenceData() {}
+    ReferenceData() = default;
     ReferenceData(const QString &searchText, const ResultDataList &results)
         : searchText(searchText), results(results) {}
 

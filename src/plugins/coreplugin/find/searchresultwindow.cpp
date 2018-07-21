@@ -67,7 +67,7 @@ namespace Internal {
             setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         }
 
-        QSize sizeHint() const
+        QSize sizeHint() const override
         {
             if (widget())
                 return widget()->size();
@@ -109,7 +109,7 @@ namespace Internal {
 
     SearchResultWindowPrivate::SearchResultWindowPrivate(SearchResultWindow *window, QWidget *nsp) :
         q(window),
-        m_expandCollapseButton(0),
+        m_expandCollapseButton(nullptr),
         m_expandCollapseAction(new QAction(tr("Expand All"), window)),
         m_spacer(new QWidget),
         m_historyLabel(new QLabel(tr("History:"))),
@@ -178,7 +178,7 @@ namespace Internal {
 
     void SearchResultWindowPrivate::moveWidgetToTop()
     {
-        SearchResultWidget *widget = qobject_cast<SearchResultWidget *>(sender());
+        auto widget = qobject_cast<SearchResultWidget *>(sender());
         QTC_ASSERT(widget, return);
         int index = m_searchResultWidgets.indexOf(widget);
         if (index == 0)
@@ -212,7 +212,7 @@ namespace Internal {
 
     void SearchResultWindowPrivate::popupRequested(bool focus)
     {
-        SearchResultWidget *widget = qobject_cast<SearchResultWidget *>(sender());
+        auto widget = qobject_cast<SearchResultWidget *>(sender());
         QTC_ASSERT(widget, return);
         int internalIndex = m_searchResultWidgets.indexOf(widget) + 1/*account for "new search" entry*/;
         setCurrentIndex(internalIndex, focus);
@@ -297,7 +297,7 @@ using namespace Core::Internal;
     \internal
 */
 
-SearchResultWindow *SearchResultWindow::m_instance = 0;
+SearchResultWindow *SearchResultWindow::m_instance = nullptr;
 
 /*!
     \internal
@@ -316,7 +316,7 @@ SearchResultWindow::~SearchResultWindow()
 {
     qDeleteAll(d->m_searchResults);
     delete d->m_widget;
-    d->m_widget = 0;
+    d->m_widget = nullptr;
     delete d;
 }
 

@@ -80,7 +80,7 @@ static DesignModePrivate *d = nullptr;
 DesignMode::DesignMode()
 {
     ICore::addPreCloseListener([]() -> bool {
-        m_instance->currentEditorChanged(0);
+        m_instance->currentEditorChanged(nullptr);
         return true;
     });
 
@@ -130,7 +130,7 @@ void DesignMode::registerDesignWidget(QWidget *widget,
     setDesignModeIsRequired();
     int index = d->m_stackWidget->addWidget(widget);
 
-    DesignEditorInfo *info = new DesignEditorInfo;
+    auto info = new DesignEditorInfo;
     info->mimeTypes = mimeTypes;
     info->context = context;
     info->widgetIndex = index;
@@ -184,7 +184,7 @@ void DesignMode::currentEditorChanged(IEditor *editor)
         if (ModeManager::currentMode() == id())
             ModeManager::activateMode(Constants::MODE_EDIT);
         setEnabled(false);
-        d->m_currentEditor = 0;
+        d->m_currentEditor = nullptr;
         emit actionsUpdated(d->m_currentEditor.data());
     } else {
         d->m_currentEditor = editor;

@@ -40,7 +40,7 @@ namespace Core {
 class CORE_EXPORT Context
 {
 public:
-    Context() {}
+    Context() = default;
 
     explicit Context(Id c1) { add(c1); }
     Context(Id c1, Id c2) { add(c1); add(c2); }
@@ -51,7 +51,7 @@ public:
     Id at(int i) const { return d.at(i); }
 
     // FIXME: Make interface slimmer.
-    typedef QList<Id>::const_iterator const_iterator;
+    using const_iterator = QList<Id>::const_iterator;
     const_iterator begin() const { return d.begin(); }
     const_iterator end() const { return d.end(); }
     int indexOf(Id c) const { return d.indexOf(c); }

@@ -40,7 +40,7 @@ static ReaperPrivate *d = nullptr;
 namespace {
 void killProcess(QProcess *process)
 {
-    if (Utils::QtcProcess *qtcProcess = qobject_cast<Utils::QtcProcess*>(process))
+    if (auto qtcProcess = qobject_cast<Utils::QtcProcess*>(process))
         qtcProcess->kill();
     else
         process->kill();
@@ -48,7 +48,7 @@ void killProcess(QProcess *process)
 
 void terminateProcess(QProcess *process)
 {
-    if (Utils::QtcProcess *qtcProcess = qobject_cast<Utils::QtcProcess*>(process))
+    if (auto qtcProcess = qobject_cast<Utils::QtcProcess*>(process))
         qtcProcess->terminate();
     else
         process->terminate();

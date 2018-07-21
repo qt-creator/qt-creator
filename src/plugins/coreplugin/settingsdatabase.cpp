@@ -57,7 +57,7 @@ enum { debug_settings = 0 };
 namespace Core {
 namespace Internal {
 
-typedef QMap<QString, QVariant> SettingsMap;
+using SettingsMap = QMap<QString, QVariant>;
 
 class SettingsDatabasePrivate
 {

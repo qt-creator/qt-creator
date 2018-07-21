@@ -152,7 +152,7 @@ using namespace Core::Internal;
     Emitted when a command (with the \a id) is added.
 */
 
-static ActionManager *m_instance = 0;
+static ActionManager *m_instance = nullptr;
 static ActionManagerPrivate *d;
 
 /*!
@@ -198,7 +198,7 @@ ActionContainer *ActionManager::createMenu(Id id)
     if (it !=  d->m_idContainerMap.constEnd())
         return it.value();
 
-    MenuActionContainer *mc = new MenuActionContainer(id);
+    auto mc = new MenuActionContainer(id);
 
     d->m_idContainerMap.insert(id, mc);
     connect(mc, &QObject::destroyed, d, &ActionManagerPrivate::containerDestroyed);
@@ -219,10 +219,10 @@ ActionContainer *ActionManager::createMenuBar(Id id)
     if (it !=  d->m_idContainerMap.constEnd())
         return it.value();
 
-    QMenuBar *mb = new QMenuBar; // No parent (System menu bar on Mac OS X)
+    auto mb = new QMenuBar; // No parent (System menu bar on macOS)
     mb->setObjectName(id.toString());
 
-    MenuBarActionContainer *mbc = new MenuBarActionContainer(id);
+    auto mbc = new MenuBarActionContainer(id);
     mbc->setMenuBar(mb);
 
     d->m_idContainerMap.insert(id, mbc);
@@ -268,7 +268,7 @@ Command *ActionManager::command(Id id)
         if (warnAboutFindFailures)
             qWarning() << "ActionManagerPrivate::command(): failed to find :"
                        << id.name();
-        return 0;
+        return nullptr;
     }
     return it.value();
 }
@@ -287,7 +287,7 @@ ActionContainer *ActionManager::actionContainer(Id id)
         if (warnAboutFindFailures)
             qWarning() << "ActionManagerPrivate::actionContainer(): failed to find :"
                        << id.name();
-        return 0;
+        return nullptr;
     }
     return it.value();
 }
@@ -415,13 +415,13 @@ bool ActionManagerPrivate::hasContext(const Context &context) const
 
 void ActionManagerPrivate::containerDestroyed()
 {
-    ActionContainerPrivate *container = static_cast<ActionContainerPrivate *>(sender());
+    auto container = static_cast<ActionContainerPrivate *>(sender());
     m_idContainerMap.remove(m_idContainerMap.key(container));
 }
 
 void ActionManagerPrivate::actionTriggered()
 {
-    QAction *action = qobject_cast<QAction *>(QObject::sender());
+    auto action = qobject_cast<QAction *>(QObject::sender());
     if (action)
         showShortcutPopup(action->shortcut().toString());
 }

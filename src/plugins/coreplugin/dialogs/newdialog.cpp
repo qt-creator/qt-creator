@@ -61,10 +61,10 @@ using namespace Core::Internal;
 class WizardFactoryContainer
 {
 public:
-    WizardFactoryContainer() : wizard(nullptr), wizardOption(0) {}
+    WizardFactoryContainer() = default;
     WizardFactoryContainer(Core::IWizardFactory *w, int i): wizard(w), wizardOption(i) {}
-    Core::IWizardFactory *wizard;
-    int wizardOption;
+    Core::IWizardFactory *wizard = nullptr;
+    int wizardOption = 0;
 };
 
 inline Core::IWizardFactory *factoryOfItem(const QStandardItem *item = nullptr)
@@ -175,8 +175,7 @@ QWidget *NewDialog::m_currentDialog = nullptr;
 
 NewDialog::NewDialog(QWidget *parent) :
     QDialog(parent),
-    m_ui(new Ui::NewDialog),
-    m_okButton(nullptr)
+    m_ui(new Ui::NewDialog)
 {
     QTC_CHECK(m_currentDialog == nullptr);
 
@@ -257,10 +256,10 @@ void NewDialog::setWizardFactories(QList<IWizardFactory *> factories,
 
     QStandardItem *projectKindItem = new QStandardItem(tr("Projects"));
     projectKindItem->setData(IWizardFactory::ProjectWizard, Qt::UserRole);
-    projectKindItem->setFlags(0); // disable item to prevent focus
+    projectKindItem->setFlags(nullptr); // disable item to prevent focus
     QStandardItem *filesKindItem = new QStandardItem(tr("Files and Classes"));
     filesKindItem->setData(IWizardFactory::FileWizard, Qt::UserRole);
-    filesKindItem->setFlags(0); // disable item to prevent focus
+    filesKindItem->setFlags(nullptr); // disable item to prevent focus
 
     parentItem->appendRow(projectKindItem);
     parentItem->appendRow(filesKindItem);
@@ -355,7 +354,7 @@ QWidget *NewDialog::currentDialog()
 bool NewDialog::event(QEvent *event)
 {
     if (event->type() == QEvent::ShortcutOverride) {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        auto ke = static_cast<QKeyEvent *>(event);
         if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
             ke->accept();
             return true;
@@ -518,7 +517,7 @@ void NewDialog::reject()
 
 void NewDialog::updateOkButton()
 {
-    m_okButton->setEnabled(currentWizardFactory() != 0);
+    m_okButton->setEnabled(currentWizardFactory() != nullptr);
 }
 
 void NewDialog::setSelectedPlatform(const QString & /*platform*/)

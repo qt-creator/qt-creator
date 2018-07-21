@@ -44,7 +44,7 @@ class EditMode : public IMode
 
 public:
     EditMode();
-    ~EditMode();
+    ~EditMode() override;
 
 private:
     void grabEditorManager(Id mode);

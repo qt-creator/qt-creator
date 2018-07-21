@@ -53,7 +53,7 @@ public:
     explicit EditorToolBar(QWidget *parent = nullptr);
     ~EditorToolBar() override;
 
-    typedef std::function<void(QMenu*)> MenuProvider;
+    using MenuProvider = std::function<void(QMenu*)>;
     enum ToolbarCreationFlags { FlagsNone = 0, FlagsStandalone = 1 };
 
     /**

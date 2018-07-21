@@ -45,7 +45,7 @@ namespace Core {
 namespace Internal {
 
 
-QMenu *WindowList::m_dockMenu = 0;
+QMenu *WindowList::m_dockMenu = nullptr;
 QList<QWidget *> WindowList::m_windows;
 QList<QAction *> WindowList::m_windowActions;
 QList<Id> WindowList::m_windowActionIds;

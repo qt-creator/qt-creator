@@ -68,10 +68,9 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     m_container(new QStackedWidget(this)),
     m_infoBarDisplay(new InfoBarDisplay(this)),
     m_statusHLine(new QFrame(this)),
-    m_statusWidget(new QFrame(this)),
-    m_currentNavigationHistoryPosition(0)
+    m_statusWidget(new QFrame(this))
 {
-    QVBoxLayout *tl = new QVBoxLayout(this);
+    auto tl = new QVBoxLayout(this);
     tl->setSpacing(0);
     tl->setMargin(0);
     {
@@ -106,7 +105,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
         m_statusWidget->setLineWidth(0);
         m_statusWidget->setAutoFillBackground(true);
 
-        QHBoxLayout *hbox = new QHBoxLayout(m_statusWidget);
+        auto hbox = new QHBoxLayout(m_statusWidget);
         hbox->setContentsMargins(1, 0, 1, 1);
         m_statusWidgetLabel = new QLabel;
         m_statusWidgetLabel->setContentsMargins(3, 0, 3, 0);
@@ -153,9 +152,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     updateNavigatorActions();
 }
 
-EditorView::~EditorView()
-{
-}
+EditorView::~EditorView() = default;
 
 SplitterOrView *EditorView::parentSplitterOrView() const
 {
@@ -173,7 +170,7 @@ EditorView *EditorView::findNextView()
         QTC_ASSERT(splitter->count() == 2, return nullptr);
         // is current the first child? then the next view is the first one in current's sibling
         if (splitter->widget(0) == current) {
-            SplitterOrView *second = qobject_cast<SplitterOrView *>(splitter->widget(1));
+            auto second = qobject_cast<SplitterOrView *>(splitter->widget(1));
             QTC_ASSERT(second, return nullptr);
             return second->findFirstView();
         }
@@ -196,7 +193,7 @@ EditorView *EditorView::findPreviousView()
         QTC_ASSERT(splitter->count() == 2, return nullptr);
         // is current the last child? then the previous view is the first child in current's sibling
         if (splitter->widget(1) == current) {
-            SplitterOrView *first = qobject_cast<SplitterOrView *>(splitter->widget(0));
+            auto first = qobject_cast<SplitterOrView *>(splitter->widget(0));
             QTC_ASSERT(first, return nullptr);
             return first->findFirstView();
         }
@@ -652,7 +649,7 @@ EditorView *SplitterOrView::findFirstView()
 {
     if (m_splitter) {
         for (int i = 0; i < m_splitter->count(); ++i) {
-            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
+            if (auto splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
                 if (EditorView *result = splitterOrView->findFirstView())
                     return result;
         }
@@ -665,7 +662,7 @@ EditorView *SplitterOrView::findLastView()
 {
     if (m_splitter) {
         for (int i = m_splitter->count() - 1; 0 < i; --i) {
-            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
+            if (auto splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
                 if (EditorView *result = splitterOrView->findLastView())
                     return result;
         }
@@ -678,7 +675,7 @@ SplitterOrView *SplitterOrView::findParentSplitter() const
 {
     QWidget *w = parentWidget();
     while (w) {
-        if (SplitterOrView *splitter = qobject_cast<SplitterOrView *>(w)) {
+        if (auto splitter = qobject_cast<SplitterOrView *>(w)) {
             QTC_CHECK(splitter->splitter());
             return splitter;
         }
@@ -801,7 +798,7 @@ const QList<IEditor *> SplitterOrView::unsplitAll_helper()
     QList<IEditor *> editorsToDelete;
     if (m_splitter) {
         for (int i = 0; i < m_splitter->count(); ++i) {
-            if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
+            if (auto splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
                 editorsToDelete.append(splitterOrView->unsplitAll_helper());
         }
     }
@@ -814,7 +811,7 @@ void SplitterOrView::unsplit()
         return;
 
     Q_ASSERT(m_splitter->count() == 1);
-    SplitterOrView *childSplitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(0));
+    auto childSplitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(0));
     QSplitter *oldSplitter = m_splitter;
     m_splitter = nullptr;
     QList<IEditor *> editorsToDelete;
@@ -838,7 +835,7 @@ void SplitterOrView::unsplit()
             m_view = childSplitterOrView->takeView();
             m_view->setParentSplitterOrView(this);
             m_layout->addWidget(m_view);
-            QSplitter *parentSplitter = qobject_cast<QSplitter *>(parentWidget());
+            auto parentSplitter = qobject_cast<QSplitter *>(parentWidget());
             if (parentSplitter) { // not the toplevel splitterOrView
                 if (parentSplitter->orientation() == Qt::Horizontal)
                     m_view->setCloseSplitIcon(parentSplitter->widget(0) == this ?

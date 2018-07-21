@@ -72,9 +72,9 @@ public:
         new HeaderViewStretcher(header(), 0);
     }
 
-    void contextMenuEvent(QContextMenuEvent *ev);
+    void contextMenuEvent(QContextMenuEvent *ev) override;
 
-    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous) override;
 
 private:
     VariableChooserPrivate *m_target;
@@ -146,12 +146,9 @@ public:
 class VariableGroupItem : public TreeItem
 {
 public:
-    VariableGroupItem()
-        : m_chooser(0), m_populated(false)
-    {
-    }
+    VariableGroupItem() = default;
 
-    QVariant data(int column, int role) const
+    QVariant data(int column, int role) const override
     {
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
             if (column == 0)
@@ -162,12 +159,12 @@ public:
         return QVariant();
     }
 
-    bool canFetchMore() const
+    bool canFetchMore() const override
     {
         return !m_populated;
     }
 
-    void fetchMore()
+    void fetchMore() override
     {
         if (MacroExpander *expander = m_provider())
             populateGroup(expander);
@@ -177,15 +174,15 @@ public:
     void populateGroup(MacroExpander *expander);
 
 public:
-    VariableChooserPrivate *m_chooser; // Not owned.
-    bool m_populated;
+    VariableChooserPrivate *m_chooser = nullptr; // Not owned.
+    bool m_populated = false;
     MacroExpanderProvider m_provider;
 };
 
 class VariableItem : public TypedTreeItem<TreeItem, VariableGroupItem>
 {
 public:
-    VariableItem() {}
+    VariableItem() = default;
 
     Qt::ItemFlags flags(int) const override
     {
@@ -231,8 +228,8 @@ void VariableTreeView::contextMenuEvent(QContextMenuEvent *ev)
     QString expandedText = index.data(ExpandedTextRole).toString();
 
     QMenu menu;
-    QAction *insertUnexpandedAction = 0;
-    QAction *insertExpandedAction = 0;
+    QAction *insertUnexpandedAction = nullptr;
+    QAction *insertExpandedAction = nullptr;
 
     if (unexpandedText.isEmpty()) {
         insertUnexpandedAction = menu.addAction(VariableChooser::tr("Insert Unexpanded Value"));
@@ -265,13 +262,13 @@ void VariableTreeView::currentChanged(const QModelIndex &current, const QModelIn
 
 VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
     : q(parent),
-      m_lineEdit(0),
-      m_textEdit(0),
-      m_plainTextEdit(0),
-      m_iconButton(0),
-      m_variableFilter(0),
-      m_variableTree(0),
-      m_variableDescription(0)
+      m_lineEdit(nullptr),
+      m_textEdit(nullptr),
+      m_plainTextEdit(nullptr),
+      m_iconButton(nullptr),
+      m_variableFilter(nullptr),
+      m_variableTree(nullptr),
+      m_variableDescription(nullptr)
 {
     m_defaultDescription = VariableChooser::tr("Select a variable to insert.");
 
@@ -295,7 +292,7 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
     m_variableDescription->setAttribute(Qt::WA_MacSmallSize);
     m_variableDescription->setTextInteractionFlags(Qt::TextBrowserInteraction);
 
-    QVBoxLayout *verticalLayout = new QVBoxLayout(q);
+    auto verticalLayout = new QVBoxLayout(q);
     verticalLayout->setContentsMargins(3, 3, 3, 12);
     verticalLayout->addWidget(m_variableFilter);
     verticalLayout->addWidget(m_variableTree);
@@ -307,7 +304,7 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
             this, &VariableChooserPrivate::handleItemActivated);
     connect(qobject_cast<QApplication *>(qApp), &QApplication::focusChanged,
             this, &VariableChooserPrivate::updateCurrentEditor);
-    updateCurrentEditor(0, QApplication::focusWidget());
+    updateCurrentEditor(nullptr, QApplication::focusWidget());
 }
 
 void VariableGroupItem::populateGroup(MacroExpander *expander)
@@ -489,18 +486,18 @@ void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
 
     QLineEdit *previousLineEdit = m_lineEdit;
     QWidget *previousWidget = currentWidget();
-    m_lineEdit = 0;
-    m_textEdit = 0;
-    m_plainTextEdit = 0;
-    QWidget *chooser = widget->property(kVariableSupportProperty).value<QWidget *>();
+    m_lineEdit = nullptr;
+    m_textEdit = nullptr;
+    m_plainTextEdit = nullptr;
+    auto chooser = widget->property(kVariableSupportProperty).value<QWidget *>();
     m_currentVariableName = widget->property(kVariableNameProperty).toByteArray();
     bool supportsVariables = chooser == q;
-    if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget))
-        m_lineEdit = (supportsVariables ? lineEdit : 0);
-    else if (QTextEdit *textEdit = qobject_cast<QTextEdit *>(widget))
-        m_textEdit = (supportsVariables ? textEdit : 0);
-    else if (QPlainTextEdit *plainTextEdit = qobject_cast<QPlainTextEdit *>(widget))
-        m_plainTextEdit = (supportsVariables ? plainTextEdit : 0);
+    if (auto lineEdit = qobject_cast<QLineEdit *>(widget))
+        m_lineEdit = (supportsVariables ? lineEdit : nullptr);
+    else if (auto textEdit = qobject_cast<QTextEdit *>(widget))
+        m_textEdit = (supportsVariables ? textEdit : nullptr);
+    else if (auto plainTextEdit = qobject_cast<QPlainTextEdit *>(widget))
+        m_plainTextEdit = (supportsVariables ? plainTextEdit : nullptr);
 
     QWidget *current = currentWidget();
     if (current != previousWidget) {
@@ -510,7 +507,7 @@ void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
             previousLineEdit->setTextMargins(0, 0, 0, 0);
         if (m_iconButton) {
             m_iconButton->hide();
-            m_iconButton->setParent(0);
+            m_iconButton->setParent(nullptr);
         }
         if (current) {
             current->installEventFilter(q); // escape key handling and geometry changes
@@ -608,7 +605,7 @@ static bool handleEscapePressed(QKeyEvent *ke, QWidget *widget)
 bool VariableChooser::event(QEvent *ev)
 {
     if (ev->type() == QEvent::KeyPress || ev->type() == QEvent::ShortcutOverride) {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(ev);
+        auto ke = static_cast<QKeyEvent *>(ev);
         if (handleEscapePressed(ke, this))
             return true;
     }
@@ -623,7 +620,7 @@ bool VariableChooser::eventFilter(QObject *obj, QEvent *event)
     if (obj != d->currentWidget())
         return false;
     if ((event->type() == QEvent::KeyPress || event->type() == QEvent::ShortcutOverride) && isVisible()) {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        auto ke = static_cast<QKeyEvent *>(event);
         return handleEscapePressed(ke, this);
     } else if (event->type() == QEvent::Resize) {
         d->updateButtonGeometry();

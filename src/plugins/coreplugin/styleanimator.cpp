@@ -32,7 +32,7 @@
 Animation * StyleAnimator::widgetAnimation(const QWidget *widget) const
 {
     if (!widget)
-        return 0;
+        return nullptr;
     return Utils::findOrDefault(animations, Utils::equal(&Animation::widget, widget));
 }
 

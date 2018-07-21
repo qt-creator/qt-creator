@@ -50,7 +50,7 @@ namespace Core {
 namespace Internal {
 
 SystemSettings::SystemSettings()
-    : m_page(nullptr), m_dialog(0)
+    : m_page(nullptr), m_dialog(nullptr)
 {
     setId(Constants::SETTINGS_ID_SYSTEM);
     setDisplayName(tr("System"));
@@ -187,7 +187,7 @@ void SystemSettings::finish()
 {
     delete m_widget;
     delete m_page;
-    m_page = 0;
+    m_page = nullptr;
 }
 
 void SystemSettings::resetTerminal()

@@ -211,8 +211,8 @@ void VcsManager::resetVersionControlForDirectory(const QString &inputDirectory)
 IVersionControl* VcsManager::findVersionControlForDirectory(const QString &inputDirectory,
                                                             QString *topLevelDirectory)
 {
-    typedef QPair<QString, IVersionControl *> StringVersionControlPair;
-    typedef QList<StringVersionControlPair> StringVersionControlPairs;
+    using StringVersionControlPair = QPair<QString, IVersionControl *>;
+    using StringVersionControlPairs = QList<StringVersionControlPair>;
     if (inputDirectory.isEmpty()) {
         if (topLevelDirectory)
             topLevelDirectory->clear();
@@ -441,7 +441,7 @@ void VcsManager::clearVersionControlCache()
 void VcsManager::handleConfigurationChanges()
 {
     d->m_cachedAdditionalToolsPathsDirty = true;
-    IVersionControl *vcs = qobject_cast<IVersionControl *>(sender());
+    auto vcs = qobject_cast<IVersionControl *>(sender());
     if (vcs)
         emit configurationChanged(vcs);
 }
@@ -462,7 +462,7 @@ namespace Internal {
 const char ID_VCS_A[] = "A";
 const char ID_VCS_B[] = "B";
 
-typedef QHash<QString, QString> FileHash;
+using FileHash = QHash<QString, QString>;
 
 static FileHash makeHash(const QStringList &list)
 {

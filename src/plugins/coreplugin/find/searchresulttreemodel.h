@@ -41,8 +41,8 @@ class SearchResultTreeModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    SearchResultTreeModel(QObject *parent = 0);
-    ~SearchResultTreeModel();
+    SearchResultTreeModel(QObject *parent = nullptr);
+    ~SearchResultTreeModel() override;
 
     void setShowReplaceUI(bool show);
     void setTextEditorFont(const QFont &font, const SearchResultColor &color);
@@ -56,8 +56,8 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
-    QModelIndex next(const QModelIndex &idx, bool includeGenerated = false, bool *wrapped = 0) const;
-    QModelIndex prev(const QModelIndex &idx, bool includeGenerated = false, bool *wrapped = 0) const;
+    QModelIndex next(const QModelIndex &idx, bool includeGenerated = false, bool *wrapped = nullptr) const;
+    QModelIndex prev(const QModelIndex &idx, bool includeGenerated = false, bool *wrapped = nullptr) const;
 
     QList<QModelIndex> addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode);
 
@@ -74,8 +74,8 @@ private:
     QSet<SearchResultTreeItem *> addPath(const QStringList &path);
     QVariant data(const SearchResultTreeItem *row, int role) const;
     bool setCheckState(const QModelIndex &idx, Qt::CheckState checkState, bool firstCall = true);
-    QModelIndex nextIndex(const QModelIndex &idx, bool *wrapped = 0) const;
-    QModelIndex prevIndex(const QModelIndex &idx, bool *wrapped = 0) const;
+    QModelIndex nextIndex(const QModelIndex &idx, bool *wrapped = nullptr) const;
+    QModelIndex prevIndex(const QModelIndex &idx, bool *wrapped = nullptr) const;
     SearchResultTreeItem *treeItemAtIndex(const QModelIndex &idx) const;
 
     SearchResultTreeItem *m_rootItem;

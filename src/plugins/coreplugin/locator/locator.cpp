@@ -196,7 +196,7 @@ void Locator::updateFilterActions()
             continue;
         Id filterId = filter->id();
         Id actionId = filter->actionId();
-        QAction *action = 0;
+        QAction *action = nullptr;
         if (!actionCopy.contains(filterId)) {
             // register new action
             action = new QAction(filter->displayName(), this);

@@ -79,7 +79,7 @@ QString ThemeEntry::filePath() const
 class ThemeListModel : public QAbstractListModel
 {
 public:
-    ThemeListModel(QObject *parent = 0):
+    ThemeListModel(QObject *parent = nullptr):
         QAbstractListModel(parent)
     {
     }
@@ -135,7 +135,7 @@ ThemeChooserPrivate::ThemeChooserPrivate(QWidget *widget)
     : m_themeListModel(new ThemeListModel)
     , m_themeComboBox(new QComboBox)
 {
-    QHBoxLayout *layout = new QHBoxLayout(widget);
+    auto layout = new QHBoxLayout(widget);
     layout->addWidget(m_themeComboBox);
     auto overriddenLabel = new QLabel;
     overriddenLabel->setText(ThemeChooser::tr("Current theme: %1")

@@ -40,7 +40,7 @@ public:
     enum Result { Found, NotFound, NotYetFound };
 
     IFindSupport() : QObject(nullptr) {}
-    ~IFindSupport() override {}
+    ~IFindSupport() override = default;
 
     virtual bool supportsReplace() const = 0;
     virtual FindFlags supportedFindFlags() const = 0;

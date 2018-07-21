@@ -46,7 +46,7 @@ public:
 
     static const QList<IDocumentFactory *> allDocumentFactories();
 
-    typedef std::function<IDocument *(const QString &fileName)> Opener;
+    using Opener = std::function<IDocument *(const QString &fileName)>;
     IDocument *open(const QString &filename);
 
     QStringList mimeTypes() const { return m_mimeTypes; }

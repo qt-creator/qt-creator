@@ -57,10 +57,7 @@ namespace Core {
 
 struct HelpManagerPrivate
 {
-    HelpManagerPrivate() :
-       m_needsSetup(true), m_helpEngine(nullptr), m_collectionWatcher(nullptr)
-    {}
-
+    HelpManagerPrivate() = default;
     ~HelpManagerPrivate();
 
     const QStringList documentationFromInstaller();
@@ -68,9 +65,9 @@ struct HelpManagerPrivate
     void writeSettings();
     void cleanUpDocumentation();
 
-    bool m_needsSetup;
-    QHelpEngineCore *m_helpEngine;
-    Utils::FileSystemWatcher *m_collectionWatcher;
+    bool m_needsSetup = true;
+    QHelpEngineCore *m_helpEngine = nullptr;
+    Utils::FileSystemWatcher *m_collectionWatcher = nullptr;
 
     // data for delayed initialization
     QSet<QString> m_filesToRegister;
@@ -506,7 +503,7 @@ void HelpManagerPrivate::writeSettings()
 
 namespace Core {
 
-HelpManager *HelpManager::instance() { return 0; }
+HelpManager *HelpManager::instance() { return nullptr; }
 
 QString HelpManager::collectionFilePath() { return QString(); }
 
@@ -542,7 +539,7 @@ void HelpManager::handleHelpRequest(const QUrl &, HelpManager::HelpViewerLocatio
 void HelpManager::handleHelpRequest(const QString &, HelpViewerLocation) {}
 
 HelpManager::HelpManager(QObject *) {}
-HelpManager::~HelpManager() {}
+HelpManager::~HelpManager() = default;
 void HelpManager::aboutToShutdown() {}
 void HelpManager::setupHelpManager() {}
 

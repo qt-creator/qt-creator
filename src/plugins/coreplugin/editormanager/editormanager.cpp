@@ -665,9 +665,9 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
 
         IEditorFactory *selectedFactory = nullptr;
         if (!factories.isEmpty()) {
-            QPushButton *button = qobject_cast<QPushButton *>(msgbox.button(QMessageBox::Open));
+            auto button = qobject_cast<QPushButton *>(msgbox.button(QMessageBox::Open));
             QTC_ASSERT(button, return nullptr);
-            QMenu *menu = new QMenu(button);
+            auto menu = new QMenu(button);
             foreach (IEditorFactory *factory, factories) {
                 QAction *action = menu->addAction(factory->displayName());
                 connect(action, &QAction::triggered, &msgbox, [&selectedFactory, factory, &msgbox]() {
@@ -785,7 +785,7 @@ EditorView *EditorManagerPrivate::viewForEditor(IEditor *editor)
     QWidget *w = editor->widget();
     while (w) {
         w = w->parentWidget();
-        if (EditorView *view = qobject_cast<EditorView *>(w))
+        if (auto view = qobject_cast<EditorView *>(w))
             return view;
     }
     return nullptr;
@@ -1566,7 +1566,7 @@ EditorArea *EditorManagerPrivate::findEditorArea(const EditorView *view, int *ar
 {
     SplitterOrView *current = view->parentSplitterOrView();
     while (current) {
-        if (EditorArea *area = qobject_cast<EditorArea *>(current)) {
+        if (auto area = qobject_cast<EditorArea *>(current)) {
             int index = d->m_editorAreas.indexOf(area);
             QTC_ASSERT(index >= 0, return nullptr);
             if (areaIndex)
@@ -1980,7 +1980,7 @@ void EditorManagerPrivate::vcsOpenCurrentEditor()
 void EditorManagerPrivate::handleDocumentStateChange()
 {
     updateActions();
-    IDocument *document = qobject_cast<IDocument *>(sender());
+    auto document = qobject_cast<IDocument *>(sender());
     if (!document->isModified())
         document->removeAutoSaveFile();
     if (EditorManager::currentDocument() == document)
@@ -2082,7 +2082,7 @@ void EditorManagerPrivate::copyFilePathFromContextMenu()
 
 void EditorManagerPrivate::copyLocationFromContextMenu()
 {
-    const QAction *action = qobject_cast<const QAction *>(sender());
+    const auto action = qobject_cast<const QAction *>(sender());
     if (!d->m_contextMenuEntry || !action)
         return;
     const QString text = d->m_contextMenuEntry->fileName().toUserOutput()
@@ -2501,8 +2501,8 @@ void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentM
 
 void EditorManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
 {
-    typedef QList<IEditorFactory*> EditorFactoryList;
-    typedef QList<IExternalEditor*> ExternalEditorList;
+    using EditorFactoryList = QList<IEditorFactory*>;
+    using ExternalEditorList = QList<IExternalEditor*>;
 
     menu->clear();
 

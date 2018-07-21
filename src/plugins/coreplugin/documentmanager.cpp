@@ -436,7 +436,7 @@ void DocumentManager::renamedFile(const QString &from, const QString &to)
 
 void DocumentManager::filePathChanged(const FileName &oldName, const FileName &newName)
 {
-    IDocument *doc = qobject_cast<IDocument *>(sender());
+    auto doc = qobject_cast<IDocument *>(sender());
     QTC_ASSERT(doc, return);
     if (doc == d->m_blockedIDocument)
         return;
@@ -456,7 +456,7 @@ void DocumentManager::addDocument(IDocument *document, bool addWatcher)
 
 void DocumentManager::documentDestroyed(QObject *obj)
 {
-    IDocument *document = static_cast<IDocument*>(obj);
+    auto document = static_cast<IDocument*>(obj);
     // Check the special unwatched first:
     if (!d->m_documentsWithoutWatch.removeOne(document))
         removeFileInfo(document);
@@ -487,7 +487,7 @@ bool DocumentManager::removeDocument(IDocument *document)
    because the file was saved under different name. */
 void DocumentManager::checkForNewFileName()
 {
-    IDocument *document = qobject_cast<IDocument *>(sender());
+    auto document = qobject_cast<IDocument *>(sender());
     // We modified the IDocument
     // Trust the other code to also update the m_states map
     if (document == d->m_blockedIDocument)
@@ -720,7 +720,7 @@ bool DocumentManager::saveDocument(IDocument *document, const QString &fileName,
     return ret;
 }
 
-QString DocumentManager::allDocumentFactoryFiltersString(QString *allFilesFilter = 0)
+QString DocumentManager::allDocumentFactoryFiltersString(QString *allFilesFilter = nullptr)
 {
     QSet<QString> uniqueFilters;
 

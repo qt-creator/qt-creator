@@ -54,7 +54,7 @@ public:
         KeepLinks
     };
 
-    typedef QPair<QString, Id> RecentFile;
+    using RecentFile = QPair<QString, Id>;
 
     static DocumentManager *instance();
 

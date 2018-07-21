@@ -49,7 +49,7 @@
 
 namespace {
     int total = 0;
-    ITaskbarList3* pITask = 0;
+    ITaskbarList3* pITask = nullptr;
 }
 
 QT_BEGIN_NAMESPACE
@@ -62,12 +62,12 @@ static inline QWindow *windowOfWidget(const QWidget *widget)
         return window;
     if (QWidget *topLevel = widget->nativeParentWidget())
         return topLevel->windowHandle();
-    return 0;
+    return nullptr;
 }
 
 static inline HWND hwndOfWidget(const QWidget *w)
 {
-    void *result = 0;
+    void *result = nullptr;
     if (QWindow *window = windowOfWidget(w))
         result = QGuiApplication::platformNativeInterface()->nativeResourceForWindow("handle", window);
     return static_cast<HWND>(result);
@@ -81,7 +81,7 @@ void Core::Internal::ProgressManagerPrivate::initInternal()
                                     IID_ITaskbarList3,(LPVOID*) &pITask);
      if (FAILED(hRes))
      {
-         pITask = 0;
+         pITask = nullptr;
          CoUninitialize();
          return;
      }

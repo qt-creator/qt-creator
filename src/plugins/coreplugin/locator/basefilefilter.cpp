@@ -67,8 +67,7 @@ public:
 } // Internal
 } // Core
 
-BaseFileFilter::Iterator::~Iterator()
-{}
+BaseFileFilter::Iterator::~Iterator() = default;
 
 BaseFileFilter::BaseFileFilter()
   : d(new Internal::BaseFileFilterPrivate)

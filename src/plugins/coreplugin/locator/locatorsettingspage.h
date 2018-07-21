@@ -52,9 +52,9 @@ class LocatorSettingsPage : public IOptionsPage
 public:
     explicit LocatorSettingsPage(Locator *plugin);
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     void updateButtonStates();

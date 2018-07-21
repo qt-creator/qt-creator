@@ -53,7 +53,7 @@ VersionDialog::VersionDialog(QWidget *parent)
 
     setWindowTitle(tr("About %1").arg(Core::Constants::IDE_DISPLAY_NAME));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    QGridLayout *layout = new QGridLayout(this);
+    auto layout = new QGridLayout(this);
     layout->setSizeConstraint(QLayout::SetFixedSize);
 
     QString ideRev;
@@ -112,7 +112,7 @@ VersionDialog::VersionDialog(QWidget *parent)
 bool VersionDialog::event(QEvent *event)
 {
     if (event->type() == QEvent::ShortcutOverride) {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        auto ke = static_cast<QKeyEvent *>(event);
         if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
             ke->accept();
             return true;

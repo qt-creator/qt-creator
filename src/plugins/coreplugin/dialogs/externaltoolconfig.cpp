@@ -121,14 +121,14 @@ QVariant ExternalToolModel::data(const QString &category, int role) const
 QMimeData *ExternalToolModel::mimeData(const QModelIndexList &indexes) const
 {
     if (indexes.isEmpty())
-        return 0;
+        return nullptr;
     QModelIndex modelIndex = indexes.first();
     ExternalTool *tool = toolForIndex(modelIndex);
-    QTC_ASSERT(tool, return 0);
+    QTC_ASSERT(tool, return nullptr);
     bool found;
     QString category = categoryForIndex(modelIndex.parent(), &found);
-    QTC_ASSERT(found, return 0);
-    QMimeData *md = new QMimeData();
+    QTC_ASSERT(found, return nullptr);
+    auto md = new QMimeData();
     QByteArray ba;
     QDataStream stream(&ba, QIODevice::WriteOnly);
     stream << category << m_tools.value(category).indexOf(tool);
@@ -230,7 +230,7 @@ Qt::ItemFlags ExternalToolModel::flags(const QModelIndex &index) const
             return TOOLSMENU_ITEM_FLAGS;
         return CATEGORY_ITEM_FLAGS;
     }
-    return 0;
+    return nullptr;
 }
 
 bool ExternalToolModel::setData(const QModelIndex &modelIndex, const QVariant &value, int role)
@@ -342,7 +342,7 @@ QModelIndex ExternalToolModel::addTool(const QModelIndex &atIndex)
     if (!found)
         category = categoryForIndex(atIndex.parent(), &found);
 
-    ExternalTool *tool = new ExternalTool;
+    auto tool = new ExternalTool;
     tool->setDisplayCategory(category);
     tool->setDisplayName(tr("New Tool"));
     tool->setDescription(tr("This tool prints a line of useful text"));
@@ -440,7 +440,7 @@ ExternalToolConfig::ExternalToolConfig(QWidget *parent) :
     connect(ui->revertButton, &QAbstractButton::clicked, this, &ExternalToolConfig::revertCurrentItem);
     connect(ui->removeButton, &QAbstractButton::clicked, this, &ExternalToolConfig::removeTool);
 
-    QMenu *menu = new QMenu(ui->addButton);
+    auto menu = new QMenu(ui->addButton);
     ui->addButton->setMenu(menu);
     QAction *addTool = new QAction(tr("Add Tool"), this);
     menu->addAction(addTool);

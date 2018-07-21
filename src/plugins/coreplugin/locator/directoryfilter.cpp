@@ -212,7 +212,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
         if (future.isProgressUpdateNeeded()
                 || future.progressValue() == 0 /*workaround for regression in Qt*/) {
             future.setProgressValueAndText(subDirIterator.currentProgress(),
-                                           tr("%1 filter update: %n files", 0, filesFound.size()).arg(displayName()));
+                                           tr("%1 filter update: %n files", nullptr, filesFound.size()).arg(displayName()));
         }
     }
 

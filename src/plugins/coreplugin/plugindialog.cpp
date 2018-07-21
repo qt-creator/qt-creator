@@ -53,7 +53,7 @@ PluginDialog::PluginDialog(QWidget *parent)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    QVBoxLayout *vl = new QVBoxLayout(this);
+    auto vl = new QVBoxLayout(this);
 
     auto filterLayout = new QHBoxLayout;
     vl->addLayout(filterLayout);
@@ -85,7 +85,7 @@ PluginDialog::PluginDialog(QWidget *parent)
     if (!s_isRestartRequired)
         m_restartRequired->setVisible(false);
 
-    QHBoxLayout *hl = new QHBoxLayout;
+    auto hl = new QHBoxLayout;
     hl->addWidget(m_detailsButton);
     hl->addWidget(m_errorDetailsButton);
     hl->addSpacing(10);
@@ -144,9 +144,9 @@ void PluginDialog::openDetails(ExtensionSystem::PluginSpec *spec)
         return;
     QDialog dialog(this);
     dialog.setWindowTitle(tr("Plugin Details of %1").arg(spec->name()));
-    QVBoxLayout *layout = new QVBoxLayout;
+    auto layout = new QVBoxLayout;
     dialog.setLayout(layout);
-    ExtensionSystem::PluginDetailsView *details = new ExtensionSystem::PluginDetailsView(&dialog);
+    auto details = new ExtensionSystem::PluginDetailsView(&dialog);
     layout->addWidget(details);
     details->update(spec);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Close, Qt::Horizontal, &dialog);
@@ -164,9 +164,9 @@ void PluginDialog::openErrorDetails()
         return;
     QDialog dialog(this);
     dialog.setWindowTitle(tr("Plugin Errors of %1").arg(spec->name()));
-    QVBoxLayout *layout = new QVBoxLayout;
+    auto layout = new QVBoxLayout;
     dialog.setLayout(layout);
-    ExtensionSystem::PluginErrorView *errors = new ExtensionSystem::PluginErrorView(&dialog);
+    auto errors = new ExtensionSystem::PluginErrorView(&dialog);
     layout->addWidget(errors);
     errors->update(spec);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Close, Qt::Horizontal, &dialog);

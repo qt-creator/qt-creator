@@ -77,21 +77,21 @@ public:
         importButton = new QPushButton(CommandMappings::tr("Import..."), groupBox);
         exportButton = new QPushButton(CommandMappings::tr("Export..."), groupBox);
 
-        QHBoxLayout *hboxLayout1 = new QHBoxLayout();
+        auto hboxLayout1 = new QHBoxLayout();
         hboxLayout1->addWidget(defaultButton);
         hboxLayout1->addStretch();
         hboxLayout1->addWidget(importButton);
         hboxLayout1->addWidget(exportButton);
 
-        QHBoxLayout *hboxLayout = new QHBoxLayout();
+        auto hboxLayout = new QHBoxLayout();
         hboxLayout->addWidget(filterEdit);
 
-        QVBoxLayout *vboxLayout1 = new QVBoxLayout(groupBox);
+        auto vboxLayout1 = new QVBoxLayout(groupBox);
         vboxLayout1->addLayout(hboxLayout);
         vboxLayout1->addWidget(commandList);
         vboxLayout1->addLayout(hboxLayout1);
 
-        QVBoxLayout *vboxLayout = new QVBoxLayout(parent);
+        auto vboxLayout = new QVBoxLayout(parent);
         vboxLayout->addWidget(groupBox);
 
         q->connect(exportButton, &QPushButton::clicked,

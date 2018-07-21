@@ -46,7 +46,7 @@ MessageOutputWindow::MessageOutputWindow()
     QColor activeHighlightedText = p.color(QPalette::Active, QPalette::HighlightedText);
     p.setColor(QPalette::HighlightedText, activeHighlightedText);
     m_widget->setPalette(p);
-    Aggregation::Aggregate *agg = new Aggregation::Aggregate;
+    auto agg = new Aggregation::Aggregate;
     agg->add(m_widget);
     agg->add(new BaseTextFind(m_widget));
 }

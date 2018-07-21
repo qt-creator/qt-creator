@@ -68,7 +68,7 @@ QList<QToolButton *> SideBarItem::createToolBarWidgets()
 }
 
 struct SideBarPrivate {
-    SideBarPrivate() :m_closeWhenEmpty(false) {}
+    SideBarPrivate() = default;
 
     QList<Internal::SideBarWidget*> m_widgets;
     QMap<QString, QPointer<SideBarItem> > m_itemMap;
@@ -77,7 +77,7 @@ struct SideBarPrivate {
     QStringList m_unavailableItemIds;
     QStringList m_defaultVisible;
     QMap<QString, Core::Command*> m_shortcutMap;
-    bool m_closeWhenEmpty;
+    bool m_closeWhenEmpty = false;
 };
 
 SideBar::SideBar(QList<SideBarItem*> itemList,
@@ -143,10 +143,8 @@ void SideBar::setCloseWhenEmpty(bool value)
 
 void SideBar::makeItemAvailable(SideBarItem *item)
 {
-    typedef QMap<QString, QPointer<SideBarItem> >::const_iterator Iterator;
-
-    const Iterator cend = d->m_itemMap.constEnd();
-    for (Iterator it = d->m_itemMap.constBegin(); it != cend ; ++it) {
+    auto cend = d->m_itemMap.constEnd();
+    for (auto it = d->m_itemMap.constBegin(); it != cend ; ++it) {
         if (it.value().data() == item) {
             d->m_availableItemIds.append(it.key());
             d->m_availableItemTitles.append(it.value().data()->title());
@@ -193,7 +191,7 @@ SideBarItem *SideBar::item(const QString &id)
         emit availableItemsChanged();
         return d->m_itemMap.value(id).data();
     }
-    return 0;
+    return nullptr;
 }
 
 Internal::SideBarWidget *SideBar::insertSideBarWidget(int position, const QString &id)
@@ -201,7 +199,7 @@ Internal::SideBarWidget *SideBar::insertSideBarWidget(int position, const QStrin
     if (!d->m_widgets.isEmpty())
         d->m_widgets.at(0)->setCloseIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
 
-    Internal::SideBarWidget *item = new Internal::SideBarWidget(this, id);
+    auto item = new Internal::SideBarWidget(this, id);
     connect(item, &Internal::SideBarWidget::splitMe, this, &SideBar::splitSubWidget);
     connect(item, &Internal::SideBarWidget::closeMe, this, &SideBar::closeSubWidget);
     connect(item, &Internal::SideBarWidget::currentWidgetChanged, this, &SideBar::updateWidgets);
@@ -225,7 +223,7 @@ void SideBar::removeSideBarWidget(Internal::SideBarWidget *widget)
 
 void SideBar::splitSubWidget()
 {
-    Internal::SideBarWidget *original = qobject_cast<Internal::SideBarWidget*>(sender());
+    auto original = qobject_cast<Internal::SideBarWidget*>(sender());
     int pos = indexOf(original) + 1;
     insertSideBarWidget(pos);
     updateWidgets();
@@ -234,7 +232,7 @@ void SideBar::splitSubWidget()
 void SideBar::closeSubWidget()
 {
     if (d->m_widgets.count() != 1) {
-        Internal::SideBarWidget *widget = qobject_cast<Internal::SideBarWidget*>(sender());
+        auto widget = qobject_cast<Internal::SideBarWidget*>(sender());
         if (!widget)
             return;
         removeSideBarWidget(widget);

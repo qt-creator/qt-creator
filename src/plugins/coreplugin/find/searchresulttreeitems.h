@@ -37,7 +37,7 @@ class SearchResultTreeItem
 {
 public:
     explicit SearchResultTreeItem(const SearchResultItem &item = SearchResultItem(),
-                                  SearchResultTreeItem *parent = NULL);
+                                  SearchResultTreeItem *parent = nullptr);
     virtual ~SearchResultTreeItem();
 
     bool isLeaf() const;

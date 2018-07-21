@@ -38,20 +38,19 @@ namespace Internal {
 class OpenDocumentsDelegate : public QStyledItemDelegate
 {
 public:
-    explicit OpenDocumentsDelegate(QObject *parent = 0);
+    explicit OpenDocumentsDelegate(QObject *parent = nullptr);
 
     void setCloseButtonVisible(bool visible);
     void handlePressed(const QModelIndex &index);
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const;
+               const QModelIndex &index) const override;
 
     mutable QModelIndex pressedIndex;
-    bool closeButtonVisible;
+    bool closeButtonVisible = true;
 };
 
 OpenDocumentsDelegate::OpenDocumentsDelegate(QObject *parent)
- : QStyledItemDelegate(parent),
-   closeButtonVisible(true)
+    : QStyledItemDelegate(parent)
 {
 }
 
@@ -141,7 +140,7 @@ bool OpenDocumentsTreeView::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == this && event->type() == QEvent::KeyPress
             && currentIndex().isValid()) {
-        QKeyEvent *ke = static_cast<QKeyEvent*>(event);
+        auto ke = static_cast<QKeyEvent*>(event);
         if ((ke->key() == Qt::Key_Delete
                    || ke->key() == Qt::Key_Backspace)
                 && ke->modifiers() == 0) {
@@ -149,7 +148,7 @@ bool OpenDocumentsTreeView::eventFilter(QObject *obj, QEvent *event)
         }
     } else if (obj == viewport()
              && event->type() == QEvent::MouseButtonRelease) {
-        QMouseEvent * me = static_cast<QMouseEvent*>(event);
+        auto  me = static_cast<QMouseEvent*>(event);
         if (me->button() == Qt::MiddleButton
                 && me->modifiers() == Qt::NoModifier) {
             QModelIndex index = indexAt(me->pos());

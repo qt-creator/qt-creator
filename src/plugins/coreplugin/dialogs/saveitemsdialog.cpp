@@ -166,7 +166,7 @@ void SaveItemsDialog::collectFilesToDiff()
 {
     m_filesToDiff.clear();
     foreach (QTreeWidgetItem *item, m_ui.treeWidget->selectedItems()) {
-        if (IDocument *doc = item->data(0, Qt::UserRole).value<IDocument*>())
+        if (auto doc = item->data(0, Qt::UserRole).value<IDocument*>())
             m_filesToDiff.append(doc->filePath().toString());
     }
     reject();

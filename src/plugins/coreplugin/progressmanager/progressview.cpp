@@ -32,7 +32,7 @@ using namespace Core;
 using namespace Core::Internal;
 
 ProgressView::ProgressView(QWidget *parent)
-    : QWidget(parent), m_referenceWidget(nullptr), m_hovered(false)
+    : QWidget(parent)
 {
     m_layout = new QVBoxLayout;
     setLayout(m_layout);
@@ -42,9 +42,7 @@ ProgressView::ProgressView(QWidget *parent)
     setWindowTitle(tr("Processes"));
 }
 
-ProgressView::~ProgressView()
-{
-}
+ProgressView::~ProgressView() = default;
 
 void ProgressView::addProgressWidget(QWidget *widget)
 {

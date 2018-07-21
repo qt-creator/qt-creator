@@ -47,7 +47,7 @@ class BaseFileWizard;
 class CORE_EXPORT WizardDialogParameters
 {
 public:
-    typedef QList<QWizardPage *> WizardPageList;
+    using WizardPageList = QList<QWizardPage *>;
 
     enum DialogParameterEnum {
         ForceCapitalLetterForFileName = 0x01

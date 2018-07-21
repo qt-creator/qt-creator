@@ -130,7 +130,7 @@ void ToolSettings::apply()
         it.next();
         QList<ExternalTool *> items;
         foreach (ExternalTool *tool, it.value()) {
-            ExternalTool *toolToAdd = 0;
+            ExternalTool *toolToAdd = nullptr;
             if (ExternalTool *originalTool = originalTools.take(tool->id())) {
                 // check if it has different category and is custom tool
                 if (tool->displayCategory() != it.key() && !tool->preset())

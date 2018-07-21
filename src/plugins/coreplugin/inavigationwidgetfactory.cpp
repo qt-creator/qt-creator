@@ -91,7 +91,6 @@ static QList<INavigationWidgetFactory *> g_navigationWidgetFactories;
     Creates a \l{Core::NavigationViewFactory}.
 */
 INavigationWidgetFactory::INavigationWidgetFactory()
-    : m_priority(0)
 {
     g_navigationWidgetFactories.append(this);
 }

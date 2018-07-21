@@ -86,15 +86,15 @@ private:
     Id m_id;
     QKeySequence m_defaultKey;
     QString m_defaultText;
-    bool m_isKeyInitialized;
+    bool m_isKeyInitialized = false;
 
-    Utils::ProxyAction *m_action;
+    Utils::ProxyAction *m_action = nullptr;
     QString m_toolTip;
 
     QMap<Id, QPointer<QAction> > m_contextActionMap;
     QMap<QAction*, bool> m_scriptableMap;
-    bool m_active;
-    bool m_contextInitialized;
+    bool m_active = false;
+    bool m_contextInitialized = false;
 };
 
 } // namespace Internal

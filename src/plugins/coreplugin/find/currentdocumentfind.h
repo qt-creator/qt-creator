@@ -61,7 +61,7 @@ public:
     void removeConnections();
     bool setFocusToCurrentFindSupport();
 
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 signals:
     void changed();

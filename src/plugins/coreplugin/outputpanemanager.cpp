@@ -118,7 +118,7 @@ static int numberAreaWidth()
 // OutputPaneManager
 ////
 
-static OutputPaneManager *m_instance = 0;
+static OutputPaneManager *m_instance = nullptr;
 
 void OutputPaneManager::create()
 {
@@ -128,7 +128,7 @@ void OutputPaneManager::create()
 void OutputPaneManager::destroy()
 {
     delete m_instance;
-    m_instance = 0;
+    m_instance = nullptr;
 }
 
 OutputPaneManager *OutputPaneManager::instance()
@@ -174,15 +174,11 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_titleLabel(new QLabel),
     m_manageButton(new OutputPaneManageButton),
     m_closeButton(new QToolButton),
-    m_minMaxAction(0),
     m_minMaxButton(new QToolButton),
-    m_nextAction(0),
-    m_prevAction(0),
     m_outputWidgetPane(new QStackedWidget),
     m_opToolBarWidgets(new QStackedWidget),
     m_minimizeIcon(Utils::Icons::ARROW_DOWN.icon()),
-    m_maximizeIcon(Utils::Icons::ARROW_UP.icon()),
-    m_outputPaneHeightSetting(0)
+    m_maximizeIcon(Utils::Icons::ARROW_UP.icon())
 {
     setWindowTitle(tr("Output"));
 
@@ -212,11 +208,11 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 
     connect(ICore::instance(), &ICore::saveSettingsRequested, this, &OutputPaneManager::saveSettings);
 
-    QVBoxLayout *mainlayout = new QVBoxLayout;
+    auto mainlayout = new QVBoxLayout;
     mainlayout->setSpacing(0);
     mainlayout->setMargin(0);
     m_toolBar = new StyledBar;
-    QHBoxLayout *toolLayout = new QHBoxLayout(m_toolBar);
+    auto toolLayout = new QHBoxLayout(m_toolBar);
     toolLayout->setMargin(0);
     toolLayout->setSpacing(0);
     toolLayout->addWidget(m_titleLabel);
@@ -317,7 +313,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
         });
 
         QWidget *toolButtonsContainer = new QWidget(m_opToolBarWidgets);
-        QHBoxLayout *toolButtonsLayout = new QHBoxLayout;
+        auto toolButtonsLayout = new QHBoxLayout;
         toolButtonsLayout->setMargin(0);
         toolButtonsLayout->setSpacing(0);
         foreach (QWidget *toolButton, outPane->toolBarWidgets())
@@ -369,9 +365,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     readSettings();
 }
 
-OutputPaneManager::~OutputPaneManager()
-{
-}
+OutputPaneManager::~OutputPaneManager() = default;
 
 void OutputPaneManager::shortcutTriggered(int idx)
 {
@@ -691,7 +685,7 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent*)
         if (c != Theme::BackgroundColorDark)
             p.fillRect(rect(), creatorTheme()->color(c));
     } else {
-        const QImage *image = 0;
+        const QImage *image = nullptr;
         if (isDown()) {
             static const QImage pressed(
                         StyleHelper::dpiSpecificImageFile(":/utils/images/panel_button_pressed.png"));

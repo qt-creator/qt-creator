@@ -202,7 +202,7 @@ void InfoBarDisplay::setInfoBar(InfoBar *infoBar)
 
 void InfoBarDisplay::infoBarDestroyed()
 {
-    m_infoBar = 0;
+    m_infoBar = nullptr;
     // Calling update() here causes a complicated crash on shutdown.
     // So instead we rely on the view now being either destroyed (in which case it
     // will delete the widgets itself) or setInfoBar() being called explicitly.
@@ -233,10 +233,10 @@ void InfoBarDisplay::update()
         infoWidget->setLineWidth(1);
         infoWidget->setAutoFillBackground(true);
 
-        QHBoxLayout *hbox = new QHBoxLayout;
+        auto hbox = new QHBoxLayout;
         hbox->setMargin(2);
 
-        auto *vbox = new QVBoxLayout(infoWidget);
+        auto vbox = new QVBoxLayout(infoWidget);
         vbox->setMargin(0);
         vbox->addLayout(hbox);
 
@@ -250,7 +250,7 @@ void InfoBarDisplay::update()
                 vbox->addWidget(detailsWidget);
             }
 
-            auto *showDetailsButton = new QToolButton;
+            auto showDetailsButton = new QToolButton;
             showDetailsButton->setCheckable(true);
             showDetailsButton->setChecked(m_isShowingDetailsWidget);
             showDetailsButton->setText(tr("&Show Details"));
@@ -271,7 +271,7 @@ void InfoBarDisplay::update()
         }
 
         if (!info.buttonText.isEmpty()) {
-            QToolButton *infoWidgetButton = new QToolButton;
+            auto infoWidgetButton = new QToolButton;
             infoWidgetButton->setText(info.buttonText);
             connect(infoWidgetButton, &QAbstractButton::clicked, [info]() { info.m_buttonCallBack(); });
 
@@ -279,7 +279,7 @@ void InfoBarDisplay::update()
         }
 
         const Id id = info.id;
-        QToolButton *infoWidgetSuppressButton = 0;
+        QToolButton *infoWidgetSuppressButton = nullptr;
         if (info.globalSuppression == InfoBarEntry::GlobalSuppressionEnabled) {
             infoWidgetSuppressButton = new QToolButton;
             infoWidgetSuppressButton->setText(tr("Do Not Show Again"));

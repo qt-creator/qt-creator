@@ -39,7 +39,7 @@ class ProxyModel : public QAbstractProxyModel
 {
     Q_OBJECT
 public:
-    explicit ProxyModel(QObject *parent = 0);
+    explicit ProxyModel(QObject *parent = nullptr);
     QModelIndex mapFromSource(const QModelIndex & sourceIndex) const override;
     QModelIndex mapToSource(const QModelIndex & proxyIndex) const override;
 
@@ -69,7 +69,7 @@ class OpenEditorsWidget : public OpenDocumentsTreeView
 
 public:
     OpenEditorsWidget();
-    ~OpenEditorsWidget();
+    ~OpenEditorsWidget() override;
 
 private:
     void handleActivated(const QModelIndex &);
@@ -88,7 +88,7 @@ class OpenEditorsViewFactory : public INavigationWidgetFactory
 public:
     OpenEditorsViewFactory();
 
-    NavigationView createWidget();
+    NavigationView createWidget() override;
 };
 
 } // namespace Internal

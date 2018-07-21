@@ -337,8 +337,8 @@ ICore::ICore(MainWindow *mainwindow)
 
 ICore::~ICore()
 {
-    m_instance = 0;
-    m_mainwindow = 0;
+    m_instance = nullptr;
+    m_mainwindow = nullptr;
 }
 
 void ICore::showNewItemDialog(const QString &title,

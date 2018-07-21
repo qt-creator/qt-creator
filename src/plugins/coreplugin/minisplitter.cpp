@@ -46,8 +46,8 @@ public:
         setAttribute(Qt::WA_MouseNoMask, true);
     }
 protected:
-    void resizeEvent(QResizeEvent *event);
-    void paintEvent(QPaintEvent *event);
+    void resizeEvent(QResizeEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
 
 private:
     bool m_lightColored;

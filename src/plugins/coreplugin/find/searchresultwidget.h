@@ -49,8 +49,8 @@ class SearchResultWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit SearchResultWidget(QWidget *parent = 0);
-    ~SearchResultWidget();
+    explicit SearchResultWidget(QWidget *parent = nullptr);
+    ~SearchResultWidget() override;
 
     void setInfo(const QString &label, const QString &toolTip, const QString &term);
     QWidget *additionalReplaceWidget() const;

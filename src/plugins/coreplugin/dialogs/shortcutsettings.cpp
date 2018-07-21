@@ -125,7 +125,7 @@ QSize ShortcutButton::sizeHint() const
 {
     if (m_preferredWidth < 0) { // initialize size hint
         const QString originalText = text();
-        ShortcutButton *that = const_cast<ShortcutButton *>(this);
+        auto that = const_cast<ShortcutButton *>(this);
         that->setText(m_checkedText);
         m_preferredWidth = QPushButton::sizeHint().width();
         that->setText(m_uncheckedText);
@@ -153,7 +153,7 @@ bool ShortcutButton::eventFilter(QObject *obj, QEvent *evt)
         return true;
     }
     if (evt->type() == QEvent::KeyPress) {
-        QKeyEvent *k = static_cast<QKeyEvent*>(evt);
+        auto k = static_cast<QKeyEvent*>(evt);
         int nextKey = k->key();
         if (m_keyNum > 3
                 || nextKey == Qt::Key_Control
@@ -486,8 +486,8 @@ void ShortcutSettingsWidget::initialize()
         if (c->action() && c->action()->isSeparator())
             continue;
 
-        QTreeWidgetItem *item = 0;
-        ShortcutItem *s = new ShortcutItem;
+        QTreeWidgetItem *item = nullptr;
+        auto s = new ShortcutItem;
         m_scitems << s;
         item = new QTreeWidgetItem;
         s->m_cmd = c;

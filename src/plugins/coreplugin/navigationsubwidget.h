@@ -48,7 +48,7 @@ class NavigationSubWidget : public QWidget
     Q_OBJECT
 public:
     NavigationSubWidget(NavigationWidget *parentWidget, int position, int factoryIndex);
-    virtual ~NavigationSubWidget();
+    ~NavigationSubWidget() override;
 
     INavigationWidgetFactory *factory();
 
@@ -95,10 +95,10 @@ class CommandComboBox : public QComboBox
     Q_OBJECT
 
 public:
-    explicit CommandComboBox(QWidget *parent = 0);
+    explicit CommandComboBox(QWidget *parent = nullptr);
 
 protected:
-    bool event(QEvent *event);
+    bool event(QEvent *event) override;
 
 private:
     virtual const Command *command(const QString &text) const = 0;
@@ -114,7 +114,7 @@ public:
         m_navSubWidget(navSubWidget) {}
 
 private:
-    virtual const Command *command(const QString &text) const
+    const Command *command(const QString &text) const override
         { return m_navSubWidget->command(text); }
 
     NavigationSubWidget *m_navSubWidget;

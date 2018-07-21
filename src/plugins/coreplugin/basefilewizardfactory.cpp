@@ -78,7 +78,7 @@ Utils::Wizard *BaseFileWizardFactory::runWizardImpl(const QString &path, QWidget
                                                     Id platform,
                                                     const QVariantMap &extraValues)
 {
-    QTC_ASSERT(!path.isEmpty(), return 0);
+    QTC_ASSERT(!path.isEmpty(), return nullptr);
 
     // Create dialog and run it. Ensure that the dialog is deleted when
     // leaving the func, but not before the IFileWizardExtension::process

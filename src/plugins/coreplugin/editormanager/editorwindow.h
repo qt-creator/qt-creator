@@ -36,8 +36,8 @@ class EditorWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit EditorWindow(QWidget *parent = 0);
-    ~EditorWindow();
+    explicit EditorWindow(QWidget *parent = nullptr);
+    ~EditorWindow() override;
 
     EditorArea *editorArea() const;
 

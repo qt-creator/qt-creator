@@ -82,7 +82,7 @@ EditorWindow::EditorWindow(QWidget *parent) :
 EditorWindow::~EditorWindow()
 {
     if (m_area)
-        disconnect(m_area, 0, this, 0);
+        disconnect(m_area, nullptr, this, nullptr);
 }
 
 EditorArea *EditorWindow::editorArea() const

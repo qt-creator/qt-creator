@@ -82,7 +82,7 @@ private:
     void setFocusToCurrentMode();
     void updateFilterList();
 
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
     void updateCompletionList(const QString &text);
     QList<ILocatorFilter*> filtersFor(const QString &text, QString &searchText);

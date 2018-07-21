@@ -181,24 +181,24 @@ public:
     void setupFilterMenuItems();
     void readSettings();
 
-    Internal::CurrentDocumentFind *m_currentDocumentFind = 0;
-    Internal::FindToolBar *m_findToolBar = 0;
-    Internal::FindToolWindow *m_findDialog = 0;
-    SearchResultWindow *m_searchResultWindow = 0;
+    Internal::CurrentDocumentFind *m_currentDocumentFind = nullptr;
+    Internal::FindToolBar *m_findToolBar = nullptr;
+    Internal::FindToolWindow *m_findDialog = nullptr;
+    SearchResultWindow *m_searchResultWindow = nullptr;
     FindFlags m_findFlags;
     CompletionModel m_findCompletionModel;
     QStringListModel m_replaceCompletionModel;
     QStringList m_replaceCompletions;
-    QAction *m_openFindDialog = 0;
+    QAction *m_openFindDialog = nullptr;
 };
 
-Find *m_instance = 0;
-FindPrivate *d = 0;
+Find *m_instance = nullptr;
+FindPrivate *d = nullptr;
 
 void Find::destroy()
 {
     delete m_instance;
-    m_instance = 0;
+    m_instance = nullptr;
     if (d) {
         delete d->m_currentDocumentFind;
         delete d->m_findToolBar;
@@ -245,7 +245,7 @@ void Find::extensionsInitialized()
 void Find::aboutToShutdown()
 {
     d->m_findToolBar->setVisible(false);
-    d->m_findToolBar->setParent(0);
+    d->m_findToolBar->setParent(nullptr);
     d->m_currentDocumentFind->removeConnections();
 }
 

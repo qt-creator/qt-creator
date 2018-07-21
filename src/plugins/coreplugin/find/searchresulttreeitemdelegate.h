@@ -33,8 +33,8 @@ namespace Internal {
 class SearchResultTreeItemDelegate: public QItemDelegate
 {
 public:
-    SearchResultTreeItemDelegate(int tabWidth, QObject *parent = 0);
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    SearchResultTreeItemDelegate(int tabWidth, QObject *parent = nullptr);
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
     void setTabWidth(int width);
 
 private:

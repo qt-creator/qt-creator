@@ -74,8 +74,8 @@ public:
 };
 
 FutureProgressPrivate::FutureProgressPrivate(FutureProgress *q) :
-    m_progress(new Internal::ProgressBar), m_widget(0), m_widgetLayout(new QHBoxLayout),
-    m_statusBarWidget(0),
+    m_progress(new Internal::ProgressBar), m_widget(nullptr), m_widgetLayout(new QHBoxLayout),
+    m_statusBarWidget(nullptr),
     m_keep(FutureProgress::HideOnFinish), m_waitingForUserInteraction(false),
     m_q(q), m_fadeStarting(false), m_isFading(false)
 {
@@ -124,7 +124,7 @@ FutureProgressPrivate::FutureProgressPrivate(FutureProgress *q) :
 FutureProgress::FutureProgress(QWidget *parent) :
     QWidget(parent), d(new FutureProgressPrivate(this))
 {
-    QVBoxLayout *layout = new QVBoxLayout;
+    auto layout = new QVBoxLayout;
     setLayout(layout);
     layout->addWidget(d->m_progress);
     layout->setMargin(0);
@@ -370,11 +370,11 @@ void FutureProgressPrivate::fadeAway()
 {
     m_isFading = true;
 
-    QGraphicsOpacityEffect *opacityEffect = new QGraphicsOpacityEffect;
+    auto opacityEffect = new QGraphicsOpacityEffect;
     opacityEffect->setOpacity(.999);
     m_q->setGraphicsEffect(opacityEffect);
 
-    QSequentialAnimationGroup *group = new QSequentialAnimationGroup(this);
+    auto group = new QSequentialAnimationGroup(this);
     QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, "opacity");
     animation->setDuration(StyleHelper::progressFadeAnimationDuration);
     animation->setEndValue(0.);

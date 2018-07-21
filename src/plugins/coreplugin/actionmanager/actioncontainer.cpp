@@ -202,29 +202,29 @@ QList<Group>::const_iterator ActionContainerPrivate::findGroup(Id groupId) const
 QAction *ActionContainerPrivate::insertLocation(Id groupId) const
 {
     QList<Group>::const_iterator it = findGroup(groupId);
-    QTC_ASSERT(it != m_groups.constEnd(), return 0);
+    QTC_ASSERT(it != m_groups.constEnd(), return nullptr);
     return insertLocation(it);
 }
 
 QAction *ActionContainerPrivate::insertLocation(QList<Group>::const_iterator group) const
 {
     if (group == m_groups.constEnd())
-        return 0;
+        return nullptr;
     ++group;
     while (group != m_groups.constEnd()) {
         if (!group->items.isEmpty()) {
             QObject *item = group->items.first();
-            if (Command *cmd = qobject_cast<Command *>(item)) {
+            if (auto cmd = qobject_cast<Command *>(item)) {
                 return cmd->action();
-            } else if (ActionContainer *container = qobject_cast<ActionContainer *>(item)) {
+            } else if (auto container = qobject_cast<ActionContainer *>(item)) {
                 if (container->menu())
                     return container->menu()->menuAction();
             }
-            QTC_ASSERT(false, return 0);
+            QTC_ASSERT(false, return nullptr);
         }
         ++group;
     }
-    return 0;
+    return nullptr;
 }
 
 void ActionContainerPrivate::addAction(Command *command, Id groupId)
@@ -247,11 +247,11 @@ void ActionContainerPrivate::addAction(Command *command, Id groupId)
 
 void ActionContainerPrivate::addMenu(ActionContainer *menu, Id groupId)
 {
-    ActionContainerPrivate *containerPrivate = static_cast<ActionContainerPrivate *>(menu);
+    auto containerPrivate = static_cast<ActionContainerPrivate *>(menu);
     if (!containerPrivate->canBeAddedToMenu())
         return;
 
-    MenuActionContainer *container = static_cast<MenuActionContainer *>(containerPrivate);
+    auto container = static_cast<MenuActionContainer *>(containerPrivate);
     const Id actualGroupId = groupId.isValid() ? groupId : Id(Constants::G_DEFAULT_TWO);
     QList<Group>::const_iterator groupIt = findGroup(actualGroupId);
     QTC_ASSERT(groupIt != m_groups.constEnd(), return);
@@ -265,11 +265,11 @@ void ActionContainerPrivate::addMenu(ActionContainer *menu, Id groupId)
 
 void ActionContainerPrivate::addMenu(ActionContainer *before, ActionContainer *menu, Id groupId)
 {
-    ActionContainerPrivate *containerPrivate = static_cast<ActionContainerPrivate *>(menu);
+    auto containerPrivate = static_cast<ActionContainerPrivate *>(menu);
     if (!containerPrivate->canBeAddedToMenu())
         return;
 
-    MenuActionContainer *container = static_cast<MenuActionContainer *>(containerPrivate);
+    auto container = static_cast<MenuActionContainer *>(containerPrivate);
     const Id actualGroupId = groupId.isValid() ? groupId : Id(Constants::G_DEFAULT_TWO);
     QList<Group>::const_iterator groupIt = findGroup(actualGroupId);
     QTC_ASSERT(groupIt != m_groups.constEnd(), return);
@@ -293,7 +293,7 @@ void ActionContainerPrivate::addMenu(ActionContainer *before, ActionContainer *m
 Command *ActionContainerPrivate::addSeparator(const Context &context, Id group, QAction **outSeparator)
 {
     static int separatorIdCount = 0;
-    QAction *separator = new QAction(this);
+    auto separator = new QAction(this);
     separator->setSeparator(true);
     Id sepId = id().withSuffix(".Separator.").withSuffix(++separatorIdCount);
     Command *cmd = ActionManager::registerAction(separator, sepId, context);
@@ -309,12 +309,12 @@ void ActionContainerPrivate::clear()
     while (it.hasNext()) {
         Group &group = it.next();
         foreach (QObject *item, group.items) {
-            if (Command *command = qobject_cast<Command *>(item)) {
+            if (auto command = qobject_cast<Command *>(item)) {
                 removeAction(command->action());
                 disconnect(command, &Command::activeStateChanged,
                            this, &ActionContainerPrivate::scheduleUpdate);
                 disconnect(command, &QObject::destroyed, this, &ActionContainerPrivate::itemDestroyed);
-            } else if (ActionContainer *container = qobject_cast<ActionContainer *>(item)) {
+            } else if (auto container = qobject_cast<ActionContainer *>(item)) {
                 container->clear();
                 disconnect(container, &QObject::destroyed,
                            this, &ActionContainerPrivate::itemDestroyed);
@@ -344,12 +344,12 @@ Id ActionContainerPrivate::id() const
 
 QMenu *ActionContainerPrivate::menu() const
 {
-    return 0;
+    return nullptr;
 }
 
 QMenuBar *ActionContainerPrivate::menuBar() const
 {
-    return 0;
+    return nullptr;
 }
 
 bool ActionContainerPrivate::canAddAction(Command *action) const
@@ -429,7 +429,7 @@ bool MenuActionContainer::updateInternal()
     while (it.hasNext()) {
         const Group &group = it.next();
         foreach (QObject *item, group.items) {
-            if (ActionContainerPrivate *container = qobject_cast<ActionContainerPrivate*>(item)) {
+            if (auto container = qobject_cast<ActionContainerPrivate*>(item)) {
                 actions.removeAll(container->menu()->menuAction());
                 if (container == this) {
                     QByteArray warning = Q_FUNC_INFO + QByteArray(" container '");
@@ -443,7 +443,7 @@ bool MenuActionContainer::updateInternal()
                     hasitems = true;
                     break;
                 }
-            } else if (Command *command = qobject_cast<Command *>(item)) {
+            } else if (auto command = qobject_cast<Command *>(item)) {
                 actions.removeAll(command->action());
                 if (command->isActive()) {
                     hasitems = true;
@@ -488,7 +488,7 @@ bool MenuActionContainer::canBeAddedToMenu() const
 */
 
 MenuBarActionContainer::MenuBarActionContainer(Id id)
-    : ActionContainerPrivate(id), m_menuBar(0)
+    : ActionContainerPrivate(id), m_menuBar(nullptr)
 {
     setOnAllDisabledBehavior(Show);
 }

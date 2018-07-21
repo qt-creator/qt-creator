@@ -200,12 +200,9 @@ namespace Internal {
   \internal
 */
 Action::Action(Id id)
-    : m_attributes(0),
+    : m_attributes({}),
       m_id(id),
-      m_isKeyInitialized(false),
-      m_action(new Utils::ProxyAction(this)),
-      m_active(false),
-      m_contextInitialized(false)
+      m_action(new Utils::ProxyAction(this))
 {
     m_action->setShortcutVisibleInToolTip(true);
     connect(m_action, &QAction::changed, this, &Action::updateActiveState);
@@ -276,9 +273,9 @@ void Action::setCurrentContext(const Context &context)
 {
     m_context = context;
 
-    QAction *currentAction = 0;
+    QAction *currentAction = nullptr;
     for (int i = 0; i < m_context.size(); ++i) {
-        if (QAction *a = m_contextActionMap.value(m_context.at(i), 0)) {
+        if (QAction *a = m_contextActionMap.value(m_context.at(i), nullptr)) {
             currentAction = a;
             break;
         }
@@ -319,7 +316,7 @@ void Action::addOverrideAction(QAction *action, const Context &context, bool scr
         for (int i = 0; i < context.size(); ++i) {
             Id id = context.at(i);
             if (m_contextActionMap.contains(id))
-                qWarning("%s", qPrintable(msgActionWarning(action, id, m_contextActionMap.value(id, 0))));
+                qWarning("%s", qPrintable(msgActionWarning(action, id, m_contextActionMap.value(id, nullptr))));
             m_contextActionMap.insert(id, action);
         }
     }
@@ -332,7 +329,7 @@ void Action::removeOverrideAction(QAction *action)
     QMutableMapIterator<Id, QPointer<QAction> > it(m_contextActionMap);
     while (it.hasNext()) {
         it.next();
-        if (it.value() == 0)
+        if (it.value() == nullptr)
             it.remove();
         else if (it.value() == action)
             it.remove();
@@ -369,7 +366,7 @@ bool Action::isScriptable(const Context &context) const
         return m_scriptableMap.value(m_action->action());
 
     for (int i = 0; i < context.size(); ++i) {
-        if (QAction *a = m_contextActionMap.value(context.at(i), 0)) {
+        if (QAction *a = m_contextActionMap.value(context.at(i), nullptr)) {
             if (m_scriptableMap.contains(a) && m_scriptableMap.value(a))
                 return true;
         }
@@ -433,7 +430,7 @@ void Command::augmentActionWithShortcutToolTip(QAction *a) const
 
 QToolButton *Command::toolButtonWithAppendedShortcut(QAction *action, Command *cmd)
 {
-    QToolButton *button = new QToolButton;
+    auto button = new QToolButton;
     button->setDefaultAction(action);
     if (cmd)
         cmd->augmentActionWithShortcutToolTip(action);

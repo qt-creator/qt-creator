@@ -44,7 +44,7 @@ SearchResultTreeItem::~SearchResultTreeItem()
 
 bool SearchResultTreeItem::isLeaf() const
 {
-    return childrenCount() == 0 && parent() != 0;
+    return childrenCount() == 0 && parent() != nullptr;
 }
 
 Qt::CheckState SearchResultTreeItem::checkState() const
@@ -96,7 +96,7 @@ int SearchResultTreeItem::insertionIndex(const QString &text, SearchResultTreeIt
         if (insertionPosition != m_children.end() && (*insertionPosition)->item.text == text)
             (*existingItem) = (*insertionPosition);
         else
-            *existingItem = 0;
+            *existingItem = nullptr;
     }
     return insertionPosition - m_children.begin();
 }
@@ -113,7 +113,7 @@ void SearchResultTreeItem::insertChild(int index, SearchResultTreeItem *child)
 
 void SearchResultTreeItem::insertChild(int index, const SearchResultItem &item)
 {
-    SearchResultTreeItem *child = new SearchResultTreeItem(item, this);
+    auto child = new SearchResultTreeItem(item, this);
     insertChild(index, child);
 }
 

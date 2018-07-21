@@ -30,8 +30,8 @@
 
 using namespace Core;
 
-static MessageManager *m_instance = 0;
-Internal::MessageOutputWindow *m_messageOutputWindow = 0;
+static MessageManager *m_instance = nullptr;
+Internal::MessageOutputWindow *m_messageOutputWindow = nullptr;
 
 MessageManager *MessageManager::instance()
 {
@@ -54,7 +54,7 @@ void MessageManager::showOutputPane(Core::MessageManager::PrintToOutputPaneFlags
 MessageManager::MessageManager()
 {
     m_instance = this;
-    m_messageOutputWindow = 0;
+    m_messageOutputWindow = nullptr;
     qRegisterMetaType<MessageManager::PrintToOutputPaneFlags>();
 }
 
@@ -64,7 +64,7 @@ MessageManager::~MessageManager()
         ExtensionSystem::PluginManager::removeObject(m_messageOutputWindow);
         delete m_messageOutputWindow;
     }
-    m_instance = 0;
+    m_instance = nullptr;
 }
 
 void MessageManager::init()

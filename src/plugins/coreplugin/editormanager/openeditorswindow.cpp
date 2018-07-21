@@ -72,7 +72,7 @@ OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
         setFrameStyle(m_editorList->frameStyle());
     m_editorList->setFrameStyle(QFrame::NoFrame);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     layout->setMargin(0);
     layout->addWidget(m_editorList);
 
@@ -97,7 +97,7 @@ bool OpenEditorsWindow::eventFilter(QObject *obj, QEvent *e)
 {
     if (obj == m_editorList) {
         if (e->type() == QEvent::KeyPress) {
-            QKeyEvent *ke = static_cast<QKeyEvent*>(e);
+            auto ke = static_cast<QKeyEvent*>(e);
             if (ke->key() == Qt::Key_Escape) {
                 setVisible(false);
                 return true;
@@ -108,7 +108,7 @@ bool OpenEditorsWindow::eventFilter(QObject *obj, QEvent *e)
                 return true;
             }
         } else if (e->type() == QEvent::KeyRelease) {
-            QKeyEvent *ke = static_cast<QKeyEvent*>(e);
+            auto ke = static_cast<QKeyEvent*>(e);
             if (ke->modifiers() == 0
                     /*HACK this is to overcome some event inconsistencies between platforms*/
                     || (ke->modifiers() == Qt::AltModifier
@@ -133,7 +133,7 @@ void OpenEditorsWindow::selectUpDown(bool up)
     int index = m_editorList->indexOfTopLevelItem(m_editorList->currentItem());
     if (index < 0)
         return;
-    QTreeWidgetItem *editor = 0;
+    QTreeWidgetItem *editor = nullptr;
     int count = 0;
     while (!editor && count < itemCount) {
         if (up) {
@@ -245,7 +245,7 @@ void OpenEditorsWindow::addItem(DocumentModel::Entry *entry,
     entriesDone.insert(entry);
     QString title = entry->displayName();
     QTC_ASSERT(!title.isEmpty(), return);
-    QTreeWidgetItem *item = new QTreeWidgetItem();
+    auto item = new QTreeWidgetItem();
     if (entry->document->isModified())
         title += tr("*");
     item->setIcon(0, !entry->fileName().isEmpty() && entry->document->isFileReadOnly()

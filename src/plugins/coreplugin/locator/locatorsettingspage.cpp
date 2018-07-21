@@ -161,7 +161,7 @@ QVariant CategoryItem::data(int column, int role) const
 }
 
 LocatorSettingsPage::LocatorSettingsPage(Locator *plugin)
-    : m_plugin(plugin), m_widget(0)
+    : m_plugin(plugin), m_widget(nullptr)
 {
     setId(Constants::FILTER_OPTIONS_PAGE);
     setDisplayName(QCoreApplication::translate("Locator", Constants::FILTER_OPTIONS_PAGE));

@@ -56,9 +56,7 @@ namespace Core {
 class StringHolder
 {
 public:
-    StringHolder()
-        : n(0), str(0)
-    {}
+    StringHolder() = default;
 
     StringHolder(const char *s, int length)
         : n(length), str(s)
@@ -72,8 +70,8 @@ public:
             h &= 0x0fffffff;
         }
     }
-    int n;
-    const char *str;
+    int n = 0;
+    const char *str = nullptr;
     quintptr h;
 };
 

@@ -242,7 +242,7 @@ class MimeTypeSettingsPrivate : public QObject
 
 public:
     MimeTypeSettingsPrivate();
-    virtual ~MimeTypeSettingsPrivate();
+    ~MimeTypeSettingsPrivate() override;
 
     void configureUi(QWidget *w);
 
@@ -264,7 +264,7 @@ private:
     static void writeUserModifiedMimeTypes();
 
 public:
-    typedef QHash<QString, UserMimeType> UserMimeTypeHash; // name -> mime type
+    using UserMimeTypeHash = QHash<QString, UserMimeType>; // name -> mime type
     static const QChar kSemiColon;
     static UserMimeTypeHash readUserModifiedMimeTypes();
     static void applyUserModifiedMimeTypes(const UserMimeTypeHash &mimeTypes);
@@ -293,8 +293,7 @@ MimeTypeSettingsPrivate::MimeTypeSettingsPrivate()
             this, &MimeTypeSettingsPrivate::writeUserModifiedMimeTypes);
 }
 
-MimeTypeSettingsPrivate::~MimeTypeSettingsPrivate()
-{}
+MimeTypeSettingsPrivate::~MimeTypeSettingsPrivate() = default;
 
 void MimeTypeSettingsPrivate::configureUi(QWidget *w)
 {
@@ -393,7 +392,7 @@ void MimeTypeSettingsPrivate::addMagicHeaderRow(const MagicData &data)
 
 void MimeTypeSettingsPrivate::editMagicHeaderRowData(const int row, const MagicData &data)
 {
-    QTreeWidgetItem *item = new QTreeWidgetItem;
+    auto item = new QTreeWidgetItem;
     item->setText(0, QString::fromUtf8(data.m_rule.value()));
     item->setText(1, QString::fromLatin1(Utils::Internal::MimeMagicRule::typeName(data.m_rule.type())));
     item->setText(2, QString::fromLatin1("%1:%2").arg(data.m_rule.startPos()).arg(data.m_rule.endPos()));

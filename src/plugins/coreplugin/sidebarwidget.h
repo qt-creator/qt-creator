@@ -45,7 +45,7 @@ class SideBarWidget : public QWidget
     Q_OBJECT
 public:
     explicit SideBarWidget(SideBar *sideBar, const QString &title);
-    virtual ~SideBarWidget();
+    ~SideBarWidget() override;
 
     QString currentItemId() const;
     QString currentItemTitle() const;
@@ -66,13 +66,13 @@ signals:
 private:
     void setCurrentIndex(int);
 
-    SideBarComboBox *m_comboBox;
-    SideBarItem *m_currentItem;
-    QToolBar *m_toolbar;
-    QAction *m_splitAction;
-    QAction *m_closeAction;
+    SideBarComboBox *m_comboBox = nullptr;
+    SideBarItem *m_currentItem = nullptr;
+    QToolBar *m_toolbar = nullptr;
+    QAction *m_splitAction = nullptr;
+    QAction *m_closeAction = nullptr;
     QList<QAction *> m_addedToolBarActions;
-    SideBar *m_sideBar;
+    SideBar *m_sideBar = nullptr;
 };
 
 } // namespace Internal

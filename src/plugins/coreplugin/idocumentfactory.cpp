@@ -49,7 +49,7 @@ const QList<IDocumentFactory *> IDocumentFactory::allDocumentFactories()
 
 IDocument *IDocumentFactory::open(const QString &filename)
 {
-    QTC_ASSERT(m_opener, return 0);
+    QTC_ASSERT(m_opener, return nullptr);
     return m_opener(filename);
 }
 

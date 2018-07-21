@@ -89,28 +89,27 @@ private:
     void buttonTriggered(int idx);
     void readSettings();
 
-    QLabel *m_titleLabel;
-    OutputPaneManageButton *m_manageButton;
-    QAction *m_clearAction;
-    QToolButton *m_clearButton;
-    QToolButton *m_closeButton;
+    QLabel *m_titleLabel = nullptr;
+    OutputPaneManageButton *m_manageButton = nullptr;
+    QAction *m_clearAction = nullptr;
+    QToolButton *m_clearButton = nullptr;
+    QToolButton *m_closeButton = nullptr;
 
-    QAction *m_minMaxAction;
-    QToolButton *m_minMaxButton;
+    QAction *m_minMaxAction = nullptr;
+    QToolButton *m_minMaxButton = nullptr;
 
-    QAction *m_nextAction;
-    QAction *m_prevAction;
-    QToolButton *m_prevToolButton;
-    QToolButton *m_nextToolButton;
-    QWidget *m_toolBar;
+    QAction *m_nextAction = nullptr;
+    QAction *m_prevAction = nullptr;
+    QToolButton *m_prevToolButton = nullptr;
+    QToolButton *m_nextToolButton = nullptr;
+    QWidget *m_toolBar = nullptr;
 
-    QStackedWidget *m_outputWidgetPane;
-    QStackedWidget *m_opToolBarWidgets;
-    QWidget *m_buttonsWidget;
+    QStackedWidget *m_outputWidgetPane = nullptr;
+    QStackedWidget *m_opToolBarWidgets = nullptr;
+    QWidget *m_buttonsWidget = nullptr;
     QIcon m_minimizeIcon;
     QIcon m_maximizeIcon;
-    bool m_maximized;
-    int m_outputPaneHeightSetting;
+    int m_outputPaneHeightSetting = 0;
 };
 
 class BadgeLabel

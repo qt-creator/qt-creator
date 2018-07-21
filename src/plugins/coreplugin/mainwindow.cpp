@@ -192,7 +192,7 @@ MainWindow::MainWindow() :
     statusBar()->setProperty("p_styled", true);
 
     auto dropSupport = new DropSupport(this, [](QDropEvent *event, DropSupport *) {
-        return event->source() == 0; // only accept drops from the "outside" (e.g. file manager)
+        return event->source() == nullptr; // only accept drops from the "outside" (e.g. file manager)
     });
     connect(dropSupport, &DropSupport::filesDropped,
             this, &MainWindow::openDroppedFiles);
@@ -950,7 +950,7 @@ void MainWindow::updateContextObject(const QList<IContext *> &context)
     if (debugMainWindow) {
         qDebug() << "new context objects =" << context;
         foreach (IContext *c, context)
-            qDebug() << (c ? c->widget() : 0) << (c ? c->widget()->metaObject()->className() : 0);
+            qDebug() << (c ? c->widget() : nullptr) << (c ? c->widget()->metaObject()->className() : nullptr);
     }
 }
 
@@ -1149,7 +1149,7 @@ void MainWindow::destroyVersionDialog()
 {
     if (m_versionDialog) {
         m_versionDialog->deleteLater();
-        m_versionDialog = 0;
+        m_versionDialog = nullptr;
     }
 }
 

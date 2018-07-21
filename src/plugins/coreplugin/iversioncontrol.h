@@ -241,7 +241,7 @@ class CORE_EXPORT TestVersionControl : public IVersionControl
     Q_OBJECT
 public:
     TestVersionControl(Id id, const QString &name) :
-        m_id(id), m_displayName(name), m_dirCount(0), m_fileCount(0)
+        m_id(id), m_displayName(name)
     { }
     ~TestVersionControl() override;
 
@@ -273,8 +273,8 @@ private:
     QString m_displayName;
     QHash<QString, QString> m_managedDirs;
     QSet<QString> m_managedFiles;
-    mutable int m_dirCount;
-    mutable int m_fileCount;
+    mutable int m_dirCount = 0;
+    mutable int m_fileCount = 0;
 };
 
 } // namespace Core

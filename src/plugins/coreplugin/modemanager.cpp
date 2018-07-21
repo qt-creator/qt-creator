@@ -80,7 +80,7 @@ struct ModeManagerPrivate
 };
 
 static ModeManagerPrivate *d;
-static ModeManager *m_instance = 0;
+static ModeManager *m_instance = nullptr;
 
 static int indexOf(Id id)
 {
@@ -121,8 +121,8 @@ ModeManager::ModeManager(Internal::MainWindow *mainWindow,
 ModeManager::~ModeManager()
 {
     delete d;
-    d = 0;
-    m_instance = 0;
+    d = nullptr;
+    m_instance = nullptr;
 }
 
 Id ModeManager::currentMode()
@@ -138,7 +138,7 @@ static IMode *findMode(Id id)
     const int index = indexOf(id);
     if (index >= 0)
         return d->m_modes.at(index);
-    return 0;
+    return nullptr;
 }
 
 void ModeManager::activateMode(Id id)
