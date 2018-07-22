@@ -41,8 +41,8 @@ class FilesPage : public QWizardPage
     Q_OBJECT
 
 public:
-    explicit FilesPage(QWidget *parent = 0);
-    virtual bool isComplete() const;
+    explicit FilesPage(QWidget *parent = nullptr);
+    bool isComplete() const override;
 
     QString className() const;
     void setClassName(const QString &suggestedClassName);

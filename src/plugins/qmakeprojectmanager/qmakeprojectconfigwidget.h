@@ -44,7 +44,7 @@ class QmakeProjectConfigWidget : public ProjectExplorer::NamedWidget
     Q_OBJECT
 public:
     QmakeProjectConfigWidget(QmakeBuildConfiguration *bc);
-    ~QmakeProjectConfigWidget();
+    ~QmakeProjectConfigWidget() override;
 
 private:
     // User changes in our widgets

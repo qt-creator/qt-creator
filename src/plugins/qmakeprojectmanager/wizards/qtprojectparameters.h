@@ -57,9 +57,9 @@ struct QtProjectParameters {
     // Shared library: name of #define indicating compilation within library
     static QString libraryMacro(const QString &projectName);
 
-    Type type;
-    unsigned flags;
-    QtVersionSupport qtVersionSupport;
+    Type type = ConsoleApp;
+    unsigned flags = 0;
+    QtVersionSupport qtVersionSupport = SupportQt4And5;
     QString fileName;
     QString target;
     QString path;

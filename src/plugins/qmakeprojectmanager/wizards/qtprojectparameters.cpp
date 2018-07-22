@@ -36,10 +36,7 @@ namespace QmakeProjectManager {
 namespace Internal {
 
 // ----------- QtProjectParameters
-QtProjectParameters::QtProjectParameters()
-  : type(ConsoleApp), flags(0), qtVersionSupport(SupportQt4And5)
-{
-}
+QtProjectParameters::QtProjectParameters() = default;
 
 QString QtProjectParameters::projectPath() const
 {

@@ -41,7 +41,7 @@ class ModulesPage : public QWizardPage
     Q_OBJECT
 
 public:
-    explicit ModulesPage(QWidget* parent = 0);
+    explicit ModulesPage(QWidget* parent = nullptr);
 
     QStringList selectedModulesList() const;
     QStringList deselectedModulesList() const;

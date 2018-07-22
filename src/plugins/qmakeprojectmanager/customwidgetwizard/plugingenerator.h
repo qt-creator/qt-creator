@@ -56,7 +56,7 @@ public:
                                                      QString *errorMessage);
 
 private:
-    typedef QMap<QString,QString> SubstitutionMap;
+    using SubstitutionMap = QMap<QString, QString>;
     static QString processTemplate(const QString &tmpl, const SubstitutionMap &substMap, QString *errorMessage);
     static QString cStringQuote(QString s);
 };

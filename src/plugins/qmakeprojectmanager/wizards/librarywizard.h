@@ -39,9 +39,9 @@ public:
     LibraryWizard();
 
 protected:
-    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
+    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const override;
 
-    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
+    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
 };
 
 } // namespace Internal

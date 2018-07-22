@@ -43,7 +43,7 @@ public:
     };
 
     ProFileHighlighter();
-    void highlightBlock(const QString &text);
+    void highlightBlock(const QString &text) override;
 
 private:
     const TextEditor::Keywords m_keywords;
