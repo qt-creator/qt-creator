@@ -108,7 +108,7 @@ namespace Utils {
 
 struct Context // Basic context containing element name string constants.
 {
-    Context() = default;
+    Context() {}
     const QString qtCreatorElement = QString("qtcreator");
     const QString dataElement = QString("data");
     const QString variableElement = QString("variable");
