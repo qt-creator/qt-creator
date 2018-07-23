@@ -1107,7 +1107,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
                elapsedLogTime(), qPrintable(dbgCmd.function), qPrintable(stateName(state())),
                m_commandForToken.size());
     }
-    if (debug > 1) {
+    if (debug) {
         qDebug("CdbEngine::postCommand: resulting command '%s'\n", qPrintable(fullCmd));
     }
     showMessage(cmd, LogInput);
@@ -2162,11 +2162,11 @@ void CdbEngine::handleSessionIdle(const QString &message)
 
 void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, const QString &message)
 {
-    if (debug > 1) {
+    if (debug) {
         QDebug nospace = qDebug().nospace();
         nospace << "handleExtensionMessage " << t << ' ' << token << ' ' << what
                 << ' ' << stateName(state());
-        if (t == 'N' || debug > 1)
+        if (t == 'N' || debug)
             nospace << ' ' << message;
         else
             nospace << ' ' << message.size() << " bytes";
@@ -2359,7 +2359,7 @@ void CdbEngine::parseOutputLine(QString line)
     int token = 0;
     bool isStartToken = false;
     const bool isCommandToken = checkCommandToken(m_tokenPrefix, line, &token, &isStartToken);
-    if (debug > 1)
+    if (debug)
         qDebug("Reading CDB stdout '%s',\n  isCommand=%d, token=%d, isStart=%d",
                qPrintable(line), isCommandToken, token, isStartToken);
 
