@@ -116,10 +116,7 @@ QDebug operator<<(QDebug d, const  SnapshotData &f)
     A snapshot represents a debugging session.
 */
 
-SnapshotHandler::SnapshotHandler()
-{
-    m_currentIndex = -1;
-}
+SnapshotHandler::SnapshotHandler() = default;
 
 SnapshotHandler::~SnapshotHandler()
 {
@@ -196,10 +193,10 @@ QVariant SnapshotHandler::headerData(int section, Qt::Orientation orientation, i
 Qt::ItemFlags SnapshotHandler::flags(const QModelIndex &index) const
 {
     if (index.row() >= m_snapshots.size())
-        return 0;
+        return nullptr;
     if (index.row() == m_snapshots.size())
         return QAbstractTableModel::flags(index);
-    return true ? QAbstractTableModel::flags(index) : Qt::ItemFlags(0);
+    return true ? QAbstractTableModel::flags(index) : Qt::ItemFlags({});
 }
 
 void SnapshotHandler::activateSnapshot(int index)

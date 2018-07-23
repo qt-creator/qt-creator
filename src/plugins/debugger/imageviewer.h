@@ -64,7 +64,7 @@ class PlotViewer : public QWidget
 public:
     explicit PlotViewer(QWidget *parent = nullptr);
 
-    typedef std::vector<double> Data;
+    using Data = std::vector<double>;
     void setData(const Data &data);
     void setInfo(const QString &description);
 

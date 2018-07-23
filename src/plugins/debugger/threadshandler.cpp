@@ -62,7 +62,7 @@ public:
         : threadData(data), handler(handler)
     {}
 
-    QVariant data(int column, int role) const
+    QVariant data(int column, int role) const override
     {
         switch (role) {
         case Qt::DisplayRole:
@@ -83,9 +83,9 @@ public:
         return QVariant();
     }
 
-    Qt::ItemFlags flags(int column) const
+    Qt::ItemFlags flags(int column) const override
     {
-        return threadData.stopped ? TreeItem::flags(column) : Qt::ItemFlags(0);
+        return threadData.stopped ? TreeItem::flags(column) : Qt::ItemFlags({});
     }
 
     QString threadToolTip() const
@@ -233,7 +233,6 @@ public:
 ThreadsHandler::ThreadsHandler(DebuggerEngine *engine)
     : m_engine(engine)
 {
-    m_resetLocationScheduled = false;
     setObjectName(QLatin1String("ThreadsModel"));
     setHeader({
         QLatin1String("  ") + tr("ID") + QLatin1String("  "),

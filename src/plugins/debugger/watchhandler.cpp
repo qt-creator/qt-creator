@@ -102,15 +102,15 @@ const char KeyProperty[] = "KeyProperty";
 
 static QVariant createItemDelegate();
 
-typedef QList<MemoryMarkup> MemoryMarkupList;
+using MemoryMarkupList = QList<MemoryMarkup>;
 
 // Helper functionality to indicate the area of a member variable in
 // a vector representing the memory area by a unique color
 // number and tooltip. Parts of it will be overwritten when recursing
 // over the children.
 
-typedef QPair<int, QString> ColorNumberToolTip;
-typedef QVector<ColorNumberToolTip> ColorNumberToolTips;
+using ColorNumberToolTip = QPair<int, QString>;
+using ColorNumberToolTips = QVector<ColorNumberToolTip>;
 
 struct TypeInfo
 {
@@ -126,7 +126,7 @@ static const WatchModel *watchModel(const WatchItem *item)
 template <class T>
 void readNumericVectorHelper(std::vector<double> *v, const QByteArray &ba)
 {
-    const T *p = (const T *) ba.data();
+    const auto p = (const T*)ba.data();
     const int n = ba.size() / sizeof(T);
     v->resize(n);
     // Losing precision in case of 64 bit ints is ok here, as the result
@@ -292,7 +292,7 @@ public:
         setSessionValue("DebuggerSeparateWidgetGeometry", geometry());
     }
 
-    ~SeparatedView()
+    ~SeparatedView() override
     {
         saveGeometry();
     }
@@ -332,7 +332,7 @@ public:
             if (key == needle)
                 return w;
         }
-        return 0;
+        return nullptr;
     }
 
     template <class T> T *prepareObject(const WatchItem *item)
@@ -530,7 +530,7 @@ static QString parentName(const QString &iname)
 
 static QString niceTypeHelper(const QString &typeIn)
 {
-    typedef QMap<QString, QString> Cache;
+    using Cache = QMap<QString, QString>;
     static Cache cache;
     const Cache::const_iterator it = cache.constFind(typeIn);
     if (it != cache.constEnd())
@@ -766,7 +766,7 @@ static inline quint64 pointerValue(QString data)
     if (blankPos != -1)
         data.truncate(blankPos);
     data.remove('`');
-    return data.toULongLong(0, 0);
+    return data.toULongLong(nullptr, 0);
 }
 
 // Return the type used for editing
@@ -1156,7 +1156,7 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
 Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
 {
     if (!idx.isValid())
-        return 0;
+        return nullptr;
 
     const WatchItem *item = nonRootItemForIndex(idx);
     if (!item)
@@ -1897,7 +1897,7 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item, QWidget *parent)
 
 static inline QString msgArrayFormat(int n)
 {
-    return WatchModel::tr("Array of %n items", 0, n);
+    return WatchModel::tr("Array of %n items", nullptr, n);
 }
 
 QString WatchModel::nameForFormat(int format)
@@ -1960,7 +1960,7 @@ WatchHandler::~WatchHandler()
     // Do it manually to prevent calling back in model destructors
     // after m_cache is destroyed.
     delete m_model;
-    m_model = 0;
+    m_model = nullptr;
 }
 
 void WatchHandler::cleanup()
@@ -2267,7 +2267,7 @@ void WatchModel::showEditValue(const WatchItem *item)
         QTC_ASSERT(0 < imformat && imformat < 32, return);
         QImage im(width, height, QImage::Format(imformat));
         std::memcpy(im.bits(), bits, nbytes);
-        ImageViewer *v = m_separatedView->prepareObject<ImageViewer>(item);
+        auto v = m_separatedView->prepareObject<ImageViewer>(item);
         v->setInfo(item->address ?
             tr("%1 Object at %2").arg(item->type, item->hexAddress()) :
             tr("%1 Object at Unknown Address").arg(item->type) + "    " +
@@ -2307,7 +2307,7 @@ void WatchModel::showEditValue(const WatchItem *item)
         QTC_ASSERT(ndims == 2, qDebug() << "Display format: " << format; return);
         QByteArray ba = QByteArray::fromHex(item->editvalue.toUtf8());
 
-        void (*reader)(const char *p, QString *res, int size) = 0;
+        void (*reader)(const char *p, QString *res, int size) = nullptr;
         if (innerType == "int")
             reader = &readOne<qlonglong>;
         else if (innerType == "uint")
@@ -2427,7 +2427,7 @@ const WatchItem *WatchHandler::findCppLocalVariable(const QString &name) const
 //    iname.insert(localsPrefix.size(), "this.");
 //    if (const WatchData *wd = findData(iname))
 //        return wd;
-    return 0;
+    return nullptr;
 }
 
 void WatchModel::setTypeFormat(const QString &type0, int format)
@@ -2666,15 +2666,15 @@ public:
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
         const QModelIndex &index) const override
     {
-        const WatchModelBase *model = qobject_cast<const WatchModelBase *>(index.model());
-        QTC_ASSERT(model, return 0);
+        const auto model = qobject_cast<const WatchModelBase *>(index.model());
+        QTC_ASSERT(model, return nullptr);
 
         WatchItem *item = model->nonRootItemForIndex(index);
-        QTC_ASSERT(item, return 0);
+        QTC_ASSERT(item, return nullptr);
 
         // Value column: Custom editor. Apply integer-specific settings.
         if (index.column() == 1) {
-            QVariant::Type editType = QVariant::Type(item->editType());
+            auto editType = QVariant::Type(item->editType());
             if (editType == QVariant::Bool)
                 return new BooleanComboBox(parent);
 

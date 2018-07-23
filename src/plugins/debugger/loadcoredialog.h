@@ -41,9 +41,9 @@ class AttachCoreDialog : public QDialog
 
 public:
     explicit AttachCoreDialog(QWidget *parent);
-    ~AttachCoreDialog();
+    ~AttachCoreDialog() override;
 
-    int exec();
+    int exec() override;
 
     QString localExecutableFile() const;
     QString localCoreFile() const;

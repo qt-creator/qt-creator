@@ -67,7 +67,7 @@ public:
     bool isCppEditor;
 };
 
-typedef QList<DebuggerToolTipContext> DebuggerToolTipContexts;
+using DebuggerToolTipContexts = QList<DebuggerToolTipContext>;
 
 class DebuggerToolTipManager : public QObject
 {

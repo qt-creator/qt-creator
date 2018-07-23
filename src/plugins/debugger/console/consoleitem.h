@@ -75,7 +75,7 @@ private:
     ItemType m_itemType;
     QString m_text;
     QString m_file;
-    int m_line;
+    int m_line = -1;
 
     std::function<void(ConsoleItem *)> m_doFetch;
 };

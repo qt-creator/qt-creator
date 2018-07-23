@@ -55,7 +55,7 @@ QString cdbSourcePathMapping(QString fileName,
                              const QList<QPair<QString, QString> > &sourcePathMapping,
                              SourcePathMode mode)
 {
-    typedef QPair<QString, QString> SourcePathMapping;
+    using SourcePathMapping = QPair<QString, QString>;
 
     if (fileName.isEmpty() || sourcePathMapping.isEmpty())
         return fileName;
@@ -286,7 +286,7 @@ void parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
         r->fileName = sourceFileName.data();
         const GdbMi lineNumber = gdbmi["srcline"];
         if (lineNumber.isValid())
-            r->lineNumber = lineNumber.data().toULongLong(0, 0);
+            r->lineNumber = lineNumber.data().toULongLong(nullptr, 0);
     }
     if (expression) {
         const GdbMi expressionG = gdbmi["expression"];
@@ -295,7 +295,7 @@ void parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
     }
     const GdbMi addressG = gdbmi["address"];
     if (addressG.isValid())
-        r->address = addressG.data().toULongLong(0, 0);
+        r->address = addressG.data().toULongLong(nullptr, 0);
     if (gdbmiChildToInt(gdbmi, "passcount", &(r->ignoreCount)))
         r->ignoreCount--;
     gdbmiChildToInt(gdbmi, "thread", &(r->threadSpec));
@@ -347,11 +347,7 @@ QString debugByteArray(const QByteArray &a)
     return rc;
 }
 
-WinException::WinException() :
-    exceptionCode(0), exceptionFlags(0), exceptionAddress(0),
-    info1(0),info2(0), firstChance(false), lineNumber(0)
-{
-}
+WinException::WinException() = default;
 
 void WinException::fromGdbMI(const GdbMi &gdbmi)
 {
@@ -448,7 +444,7 @@ bool parseCdbDisassemblerFunctionLine(const QString &l,
     const int offsetPos = l.indexOf(QLatin1String("+0x"));
     if (offsetPos > 0) {
         *currentFunction = l.left(offsetPos);
-        *functionOffset = l.mid(offsetPos + 3, functionEnd - offsetPos - 3).trimmed().toULongLong(0, 16);
+        *functionOffset = l.mid(offsetPos + 3, functionEnd - offsetPos - 3).trimmed().toULongLong(nullptr, 16);
     } else { // No offset, directly at beginning.
         *currentFunction = l.left(functionEnd);
         *functionOffset = 0;

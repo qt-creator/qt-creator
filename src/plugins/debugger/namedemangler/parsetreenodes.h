@@ -33,7 +33,7 @@ namespace Internal {
 class ParseTreeNode
 {
 public:
-    typedef QSharedPointer<ParseTreeNode> Ptr;
+    using Ptr = QSharedPointer<ParseTreeNode>;
 
     virtual ~ParseTreeNode();
     virtual QByteArray toByteArray() const = 0;
@@ -76,41 +76,41 @@ public:
 
     static bool mangledRepresentationStartsWith(char c);
 
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
-    ArrayTypeNode(const ArrayTypeNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new ArrayTypeNode(*this)); }
+    ArrayTypeNode(const ArrayTypeNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new ArrayTypeNode(*this)); }
 
-    void parse();
-    QByteArray description() const { return "ArrayType"; }
+    void parse() override;
+    QByteArray description() const override { return "ArrayType"; }
 };
 
 class BareFunctionTypeNode : public ParseTreeNode
 {
 public:
-    typedef QSharedPointer<BareFunctionTypeNode> Ptr;
+    using Ptr = QSharedPointer<BareFunctionTypeNode>;
     BareFunctionTypeNode(GlobalParseState *parseState);
     static bool mangledRepresentationStartsWith(char c);
     bool hasReturnType() const { return m_hasReturnType; }
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
     BareFunctionTypeNode(const BareFunctionTypeNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new BareFunctionTypeNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new BareFunctionTypeNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
-    bool m_hasReturnType;
+    bool m_hasReturnType = false;
 };
 
 class BuiltinTypeNode : public ParseTreeNode
 {
 public:
-    typedef QSharedPointer<BuiltinTypeNode> Ptr;
+    using Ptr = QSharedPointer<BuiltinTypeNode>;
     BuiltinTypeNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
     enum Type {
         VoidType, WCharType, BoolType,
@@ -125,11 +125,11 @@ public:
 
 private:
     BuiltinTypeNode(const BuiltinTypeNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new BuiltinTypeNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new BuiltinTypeNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
-    Type m_type;
+    Type m_type; // TODO: define?
 };
 
 class CallOffsetRule
@@ -146,26 +146,26 @@ class NvOffsetNode : public ParseTreeNode
 {
 public:
     NvOffsetNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
-    QByteArray toByteArray() const { return QByteArray(); } // TODO: How to encode this?
+    QByteArray toByteArray() const override { return QByteArray(); } // TODO: How to encode this?
 
 private:
-    NvOffsetNode(const NvOffsetNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new NvOffsetNode(*this)); }
-    void parse();
-    QByteArray description() const { return "NvOffset"; }
+    NvOffsetNode(const NvOffsetNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new NvOffsetNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "NvOffset"; }
 };
 
 class VOffsetNode : public ParseTreeNode
 {
 public:
     VOffsetNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
-    QByteArray toByteArray() const { return QByteArray(); } // TODO: How to encode this?
+    QByteArray toByteArray() const override { return QByteArray(); } // TODO: How to encode this?
 
 private:
-    VOffsetNode(const VOffsetNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new VOffsetNode(*this)); }
-    void parse();
-    QByteArray description() const { return "VOffset"; }
+    VOffsetNode(const VOffsetNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new VOffsetNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "VOffset"; }
 };
 
 class ClassEnumTypeRule
@@ -193,34 +193,34 @@ class CtorDtorNameNode : public ParseTreeNode
 public:
     CtorDtorNameNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
     CtorDtorNameNode(const CtorDtorNameNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new CtorDtorNameNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new CtorDtorNameNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
-    bool m_isDestructor;
+    bool m_isDestructor; // TODO: define?
     QByteArray m_representation;
 };
 
 class CvQualifiersNode : public ParseTreeNode
 {
 public:
-    typedef QSharedPointer<CvQualifiersNode> Ptr;
+    using Ptr = QSharedPointer<CvQualifiersNode>;
     CvQualifiersNode(GlobalParseState *parseState);
     static bool mangledRepresentationStartsWith(char c);
     bool hasQualifiers() const { return m_hasConst || m_hasVolatile; }
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 private:
     CvQualifiersNode(const CvQualifiersNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new CvQualifiersNode(*this)); }
-    void parse();
-    QByteArray description() const { return "CvQualifiers[" + toByteArray() + ']'; }
+    ParseTreeNode::Ptr clone() const override { return Ptr(new CvQualifiersNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "CvQualifiers[" + toByteArray() + ']'; }
 
-    bool m_hasConst;
-    bool m_hasVolatile;
+    bool m_hasConst = false;
+    bool m_hasVolatile = false;
 };
 
 class EncodingNode : public ParseTreeNode
@@ -228,13 +228,13 @@ class EncodingNode : public ParseTreeNode
 public:
     EncodingNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
-    EncodingNode(const EncodingNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new EncodingNode(*this)); }
-    void parse();
-    QByteArray description() const { return "Encoding"; }
+    EncodingNode(const EncodingNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new EncodingNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "Encoding"; }
 };
 
 class ExpressionNode : public ParseTreeNode
@@ -242,13 +242,13 @@ class ExpressionNode : public ParseTreeNode
 public:
     ExpressionNode(GlobalParseState *parseState);
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
     ExpressionNode(const ExpressionNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new ExpressionNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new ExpressionNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
     enum Type {
         ConversionType, SizeofType, AlignofType, OperatorType, ParameterPackSizeType,
@@ -257,14 +257,14 @@ private:
         StaticCastType, ConstCastType, ReinterpretCastType, MemberAccessType,
         PointerMemberAccessType, MemberDerefType, PackExpansionType, ThrowType,
         RethrowType, OtherType
-    } m_type;
-    bool m_globalNamespace;
+    } m_type; // TODO: define?
+    bool m_globalNamespace = false;
 };
 
 class OperatorNameNode : public ParseTreeNode
 {
 public:
-    typedef QSharedPointer<OperatorNameNode> Ptr;
+    using Ptr = QSharedPointer<OperatorNameNode>;
     OperatorNameNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
 
@@ -282,13 +282,13 @@ public:
     };
     Type type() const { return m_type; }
 
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
     OperatorNameNode(const OperatorNameNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new OperatorNameNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new OperatorNameNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
     Type m_type = VendorType;
 };
@@ -299,55 +299,55 @@ public:
     ExprPrimaryNode(GlobalParseState *parseState);
     static bool mangledRepresentationStartsWith(char c);
 
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
     ExprPrimaryNode(const ExprPrimaryNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new ExprPrimaryNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new ExprPrimaryNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
     QByteArray m_suffix;
-    bool m_isNullPtr;
+    bool m_isNullPtr = false;
 };
 
 class FunctionTypeNode : public ParseTreeNode
 {
 public:
-    typedef QSharedPointer<FunctionTypeNode> Ptr;
+    using Ptr = QSharedPointer<FunctionTypeNode>;
     FunctionTypeNode(GlobalParseState *parseState);
     static bool mangledRepresentationStartsWith(char c);
     bool isExternC() const { return m_isExternC; }
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
     FunctionTypeNode(const FunctionTypeNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new FunctionTypeNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new FunctionTypeNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
-    bool m_isExternC;
+    bool m_isExternC = false;
 };
 
 class LocalNameNode : public ParseTreeNode
 {
 public:
-    typedef QSharedPointer<LocalNameNode> Ptr;
+    using Ptr = QSharedPointer<LocalNameNode>;
     LocalNameNode(GlobalParseState *parseState);
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
     bool isTemplate() const;
     bool isConstructorOrDestructorOrConversionOperator() const;
     CvQualifiersNode::Ptr cvQualifiers() const;
 
 private:
     LocalNameNode(const LocalNameNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new LocalNameNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new LocalNameNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
-    bool m_isStringLiteral;
-    bool m_isDefaultArg;
+    bool m_isStringLiteral = false;
+    bool m_isDefaultArg = false;
 };
 
 class MangledNameRule
@@ -365,15 +365,15 @@ class NumberNode : public ParseTreeNode
 public:
     NumberNode(GlobalParseState *parseState);
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
     NumberNode(const NumberNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new NumberNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new NumberNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
-    bool m_isNegative;
+    bool m_isNegative = false;
 };
 
 class SourceNameNode : public ParseTreeNode
@@ -381,13 +381,13 @@ class SourceNameNode : public ParseTreeNode
 public:
     SourceNameNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const { return m_name; }
+    QByteArray toByteArray() const override { return m_name; }
 
 private:
     SourceNameNode(const SourceNameNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new SourceNameNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new SourceNameNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
     QByteArray m_name;
 };
@@ -395,17 +395,17 @@ private:
 class UnqualifiedNameNode : public ParseTreeNode
 {
 public:
-    typedef QSharedPointer<UnqualifiedNameNode> Ptr;
+    using Ptr = QSharedPointer<UnqualifiedNameNode>;
     UnqualifiedNameNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
     bool isConstructorOrDestructorOrConversionOperator() const;
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
-    UnqualifiedNameNode(const UnqualifiedNameNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new UnqualifiedNameNode(*this)); }
-    void parse();
-    QByteArray description() const { return "UnqualifiedName"; }
+    UnqualifiedNameNode(const UnqualifiedNameNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new UnqualifiedNameNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "UnqualifiedName"; }
 };
 
 class UnscopedNameNode : public ParseTreeNode
@@ -414,21 +414,21 @@ public:
     UnscopedNameNode(GlobalParseState *parseState);
     static bool mangledRepresentationStartsWith(char c);
     bool isConstructorOrDestructorOrConversionOperator() const;
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
     UnscopedNameNode(const UnscopedNameNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new UnscopedNameNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new UnscopedNameNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
-    bool m_inStdNamespace;
+    bool m_inStdNamespace = false;
 };
 
 class NestedNameNode : public ParseTreeNode
 {
 public:
-    typedef QSharedPointer<NestedNameNode> Ptr;
+    using Ptr = QSharedPointer<NestedNameNode>;
     NestedNameNode(GlobalParseState *parseState) : ParseTreeNode(parseState ){}
 
     static bool mangledRepresentationStartsWith(char c);
@@ -437,22 +437,22 @@ public:
     bool isConstructorOrDestructorOrConversionOperator() const;
     CvQualifiersNode::Ptr cvQualifiers() const;
 
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
-    NestedNameNode(const NestedNameNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new NestedNameNode(*this)); }
-    void parse();
-    QByteArray description() const { return "NestedName"; }
+    NestedNameNode(const NestedNameNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new NestedNameNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "NestedName"; }
 };
 
 class SubstitutionNode : public ParseTreeNode
 {
 public:
-    typedef QSharedPointer<SubstitutionNode> Ptr;
+    using Ptr = QSharedPointer<SubstitutionNode>;
     SubstitutionNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
     enum Type {
         ActualSubstitutionType, StdType, StdAllocType, StdBasicStringType, FullStdBasicStringType,
@@ -462,11 +462,11 @@ public:
 
 private:
     SubstitutionNode(const SubstitutionNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new SubstitutionNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new SubstitutionNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
-    Type m_type;
+    Type m_type; // TODO: define?
 };
 
 class PointerToMemberTypeNode : public ParseTreeNode
@@ -474,19 +474,19 @@ class PointerToMemberTypeNode : public ParseTreeNode
 public:
     PointerToMemberTypeNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
-    PointerToMemberTypeNode(const PointerToMemberTypeNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new PointerToMemberTypeNode(*this)); }
-    void parse();
-    QByteArray description() const { return "PointerToMember"; }
+    PointerToMemberTypeNode(const PointerToMemberTypeNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new PointerToMemberTypeNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "PointerToMember"; }
 };
 
 class TemplateParamNode : public ParseTreeNode
 {
 public:
-    typedef QSharedPointer<TemplateParamNode> Ptr;
+    using Ptr = QSharedPointer<TemplateParamNode>;
 
     TemplateParamNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
 
@@ -494,15 +494,15 @@ public:
 
     int index() const { return m_index; }
 
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
     TemplateParamNode(const TemplateParamNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new TemplateParamNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new TemplateParamNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
-    int m_index;
+    int m_index; // TODO: define?
 };
 
 class TemplateArgsNode : public ParseTreeNode
@@ -510,13 +510,13 @@ class TemplateArgsNode : public ParseTreeNode
 public:
     TemplateArgsNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
-    TemplateArgsNode(const TemplateArgsNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new TemplateArgsNode(*this)); }
-    void parse();
-    QByteArray description() const { return "TemplateArgs"; }
+    TemplateArgsNode(const TemplateArgsNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new TemplateArgsNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "TemplateArgs"; }
 };
 
 class SpecialNameNode : public ParseTreeNode
@@ -524,45 +524,45 @@ class SpecialNameNode : public ParseTreeNode
 public:
     SpecialNameNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
     SpecialNameNode(const SpecialNameNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new SpecialNameNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new SpecialNameNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
     enum Type {
         VirtualTableType, VttStructType, TypeInfoType, TypeInfoNameType, GuardVarType,
         SingleCallOffsetType, DoubleCallOffsetType
-    } m_type;
+    } m_type; // TODO: define?
 };
 
 template<int base> class NonNegativeNumberNode : public ParseTreeNode
 {
 public:
-    typedef QSharedPointer<NonNegativeNumberNode<base> > Ptr;
+    using Ptr = QSharedPointer<NonNegativeNumberNode<base> >;
     NonNegativeNumberNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c) {
         // Base can only be 10 or 36.
         return (c >= '0' && c <= '9') || (base == 36 && c >= 'A' && c <= 'Z');
     }
     quint64 number() const { return m_number; }
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
     NonNegativeNumberNode(const NonNegativeNumberNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new NonNegativeNumberNode<base>(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new NonNegativeNumberNode<base>(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
-    quint64 m_number;
+    quint64 m_number; // TODO: define?
 };
 
 class NameNode : public ParseTreeNode
 {
 public:
-    typedef QSharedPointer<NameNode> Ptr;
+    using Ptr = QSharedPointer<NameNode>;
 
     NameNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
 
@@ -572,13 +572,13 @@ public:
     bool isConstructorOrDestructorOrConversionOperator() const;
     CvQualifiersNode::Ptr cvQualifiers() const;
 
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
-    NameNode(const NameNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new NameNode(*this)); }
-    void parse();
-    QByteArray description() const { return "Name"; }
+    NameNode(const NameNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new NameNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "Name"; }
 };
 
 class TemplateArgNode : public ParseTreeNode
@@ -586,21 +586,21 @@ class TemplateArgNode : public ParseTreeNode
 public:
     TemplateArgNode(GlobalParseState *parseState);
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
     TemplateArgNode(const TemplateArgNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new TemplateArgNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new TemplateArgNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
-    bool m_isTemplateArgumentPack;
+    bool m_isTemplateArgumentPack = false;
 };
 
 class PrefixNode : public ParseTreeNode
 {
 public:
-    typedef QSharedPointer<PrefixNode> Ptr;
+    using Ptr = QSharedPointer<PrefixNode>;
     PrefixNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
 
     static bool mangledRepresentationStartsWith(char c);
@@ -608,21 +608,21 @@ public:
     bool isTemplate() const;
     bool isConstructorOrDestructorOrConversionOperator() const;
 
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
-    PrefixNode(const PrefixNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new PrefixNode(*this)); }
-    void parse();
-    QByteArray description() const { return "Prefix"; }
+    PrefixNode(const PrefixNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new PrefixNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "Prefix"; }
 };
 
 class TypeNode : public ParseTreeNode
 {
 public:
-    typedef QSharedPointer<TypeNode> Ptr;
+    using Ptr = QSharedPointer<TypeNode>;
 
-    TypeNode(GlobalParseState *parseState) : ParseTreeNode(parseState), m_type(OtherType) {}
+    TypeNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
 
     static bool mangledRepresentationStartsWith(char c);
 
@@ -632,19 +632,19 @@ public:
     };
     Type type() const { return m_type; }
 
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
     TypeNode(const TypeNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new TypeNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new TypeNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
     QByteArray toByteArrayQualPointerRef(const TypeNode *typeNode,
             const QByteArray &qualPtrRef) const;
     QByteArray qualPtrRefListToByteArray(const QList<const ParseTreeNode *> &nodeList) const;
 
-    Type m_type;
+    Type m_type = OtherType;
 };
 
 class FloatValueNode : public ParseTreeNode
@@ -652,15 +652,15 @@ class FloatValueNode : public ParseTreeNode
 public:
     FloatValueNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
     FloatValueNode(const FloatValueNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new FloatValueNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new FloatValueNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
-    double m_value;
+    double m_value; // TODO: define?
 };
 
 class LambdaSigNode : public ParseTreeNode
@@ -668,26 +668,26 @@ class LambdaSigNode : public ParseTreeNode
 public:
     LambdaSigNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
-    LambdaSigNode(const LambdaSigNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new LambdaSigNode(*this)); }
-    void parse();
-    QByteArray description() const { return "LambdaSig"; }
+    LambdaSigNode(const LambdaSigNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new LambdaSigNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "LambdaSig"; }
 };
 
 class ClosureTypeNameNode : public ParseTreeNode
 {
 public:
     ClosureTypeNameNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
-    ClosureTypeNameNode(const ClosureTypeNameNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new ClosureTypeNameNode(*this)); }
-    void parse();
-    QByteArray description() const { return "ClosureType"; }
+    ClosureTypeNameNode(const ClosureTypeNameNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new ClosureTypeNameNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "ClosureType"; }
 };
 
 class UnnamedTypeNameNode : public ParseTreeNode
@@ -695,13 +695,13 @@ class UnnamedTypeNameNode : public ParseTreeNode
 public:
     UnnamedTypeNameNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
-    UnnamedTypeNameNode(const UnnamedTypeNameNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new UnnamedTypeNameNode(*this)); }
-    void parse();
-    QByteArray description() const { return "UnnnamedType"; }
+    UnnamedTypeNameNode(const UnnamedTypeNameNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new UnnamedTypeNameNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "UnnnamedType"; }
 };
 
 class DeclTypeNode : public ParseTreeNode
@@ -709,13 +709,13 @@ class DeclTypeNode : public ParseTreeNode
 public:
     DeclTypeNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
-    DeclTypeNode(const DeclTypeNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new DeclTypeNode(*this)); }
-    void parse();
-    QByteArray description() const { return "DeclType"; }
+    DeclTypeNode(const DeclTypeNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new DeclTypeNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "DeclType"; }
 };
 
 class UnresolvedTypeRule
@@ -733,13 +733,13 @@ class SimpleIdNode : public ParseTreeNode
 public:
     SimpleIdNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
-    SimpleIdNode(const SimpleIdNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new SimpleIdNode(*this)); }
-    void parse();
-    QByteArray description() const { return "SimpleId"; }
+    SimpleIdNode(const SimpleIdNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new SimpleIdNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "SimpleId"; }
 };
 
 class DestructorNameNode : public ParseTreeNode
@@ -747,13 +747,13 @@ class DestructorNameNode : public ParseTreeNode
 public:
     DestructorNameNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
-    DestructorNameNode(const DestructorNameNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new DestructorNameNode(*this)); }
-    void parse();
-    QByteArray description() const { return "DesctuctorName"; }
+    DestructorNameNode(const DestructorNameNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new DestructorNameNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "DesctuctorName"; }
 };
 
 class UnresolvedQualifierLevelRule
@@ -771,15 +771,15 @@ class BaseUnresolvedNameNode : public ParseTreeNode
 public:
     BaseUnresolvedNameNode(GlobalParseState *parseState);
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
     BaseUnresolvedNameNode(const BaseUnresolvedNameNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new BaseUnresolvedNameNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new BaseUnresolvedNameNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
-    bool m_isOperator;
+    bool m_isOperator = false;
 };
 
 class InitializerNode : public ParseTreeNode
@@ -787,13 +787,13 @@ class InitializerNode : public ParseTreeNode
 public:
     InitializerNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
-    InitializerNode(const InitializerNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new InitializerNode(*this)); }
-    void parse();
-    QByteArray description() const { return "Initializer"; }
+    InitializerNode(const InitializerNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new InitializerNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "Initializer"; }
 };
 
 class UnresolvedNameNode : public ParseTreeNode
@@ -801,15 +801,15 @@ class UnresolvedNameNode : public ParseTreeNode
 public:
     UnresolvedNameNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
     UnresolvedNameNode(const UnresolvedNameNode &other);
-    ParseTreeNode::Ptr clone() const { return Ptr(new UnresolvedNameNode(*this)); }
-    void parse();
-    QByteArray description() const;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new UnresolvedNameNode(*this)); }
+    void parse() override;
+    QByteArray description() const override;
 
-    bool m_globalNamespace;
+    bool m_globalNamespace; // TODO: define?
 };
 
 class FunctionParamNode : public ParseTreeNode
@@ -817,13 +817,13 @@ class FunctionParamNode : public ParseTreeNode
 public:
     FunctionParamNode(GlobalParseState *parseState) : ParseTreeNode(parseState) {}
     static bool mangledRepresentationStartsWith(char c);
-    QByteArray toByteArray() const;
+    QByteArray toByteArray() const override;
 
 private:
-    FunctionParamNode(const FunctionParamNode &other) : ParseTreeNode(other) {}
-    ParseTreeNode::Ptr clone() const { return Ptr(new FunctionParamNode(*this)); }
-    void parse();
-    QByteArray description() const { return "FunctionParam"; }
+    FunctionParamNode(const FunctionParamNode &other) = default;
+    ParseTreeNode::Ptr clone() const override { return Ptr(new FunctionParamNode(*this)); }
+    void parse() override;
+    QByteArray description() const override { return "FunctionParam"; }
 };
 
 } // namespace Internal

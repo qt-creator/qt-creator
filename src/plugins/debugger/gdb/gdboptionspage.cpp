@@ -70,9 +70,9 @@ class GdbOptionsPage : public Core::IOptionsPage
 public:
     GdbOptionsPage();
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     QPointer<GdbOptionsPageWidget> m_widget;
@@ -396,9 +396,9 @@ class GdbOptionsPage2 : public Core::IOptionsPage
 public:
     GdbOptionsPage2();
 
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     QPointer<GdbOptionsPageWidget2> m_widget;

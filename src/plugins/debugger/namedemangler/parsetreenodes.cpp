@@ -76,9 +76,7 @@ ParseTreeNode::ParseTreeNode(const ParseTreeNode &other) : m_parseState(other.m_
         addChild(child->clone());
 }
 
-ParseTreeNode::~ParseTreeNode()
-{
-}
+ParseTreeNode::~ParseTreeNode() = default;
 
 ParseTreeNode::Ptr ParseTreeNode::childAt(int i, const QString &func, const QString &file,
         int line) const
@@ -155,7 +153,7 @@ QByteArray ArrayTypeNode::toByteArray() const
 
 
 BareFunctionTypeNode::BareFunctionTypeNode(GlobalParseState *parseState)
-        : ParseTreeNode(parseState), m_hasReturnType(false)
+        : ParseTreeNode(parseState)
 {
 }
 
@@ -440,12 +438,7 @@ void DiscriminatorRule::parse(GlobalParseState *parseState)
 }
 
 
-CtorDtorNameNode::CtorDtorNameNode(const CtorDtorNameNode &other)
-        : ParseTreeNode(other),
-          m_isDestructor(other.m_isDestructor),
-          m_representation(other.m_representation)
-{
-}
+CtorDtorNameNode::CtorDtorNameNode(const CtorDtorNameNode &other) = default;
 
 bool CtorDtorNameNode::mangledRepresentationStartsWith(char c)
 {
@@ -504,14 +497,11 @@ QByteArray CtorDtorNameNode::toByteArray() const
 
 
 CvQualifiersNode::CvQualifiersNode(GlobalParseState *parseState)
-        : ParseTreeNode(parseState), m_hasConst(false), m_hasVolatile(false)
+        : ParseTreeNode(parseState)
 {
 }
 
-CvQualifiersNode::CvQualifiersNode(const CvQualifiersNode &other)
-        : ParseTreeNode(other), m_hasConst(other.m_hasConst), m_hasVolatile(other.m_hasVolatile)
-{
-}
+CvQualifiersNode::CvQualifiersNode(const CvQualifiersNode &other) = default;
 
 bool CvQualifiersNode::mangledRepresentationStartsWith(char c)
 {
@@ -601,14 +591,11 @@ QByteArray EncodingNode::toByteArray() const
 
 
 ExpressionNode::ExpressionNode(GlobalParseState *parseState)
-        : ParseTreeNode(parseState), m_type(OtherType), m_globalNamespace(false)
+        : ParseTreeNode(parseState), m_type(OtherType)
 {
 }
 
-ExpressionNode::ExpressionNode(const ExpressionNode &other)
-        : ParseTreeNode(other), m_type(other.m_type), m_globalNamespace(other.m_globalNamespace)
-{
-}
+ExpressionNode::ExpressionNode(const ExpressionNode &other) = default;
 
 bool ExpressionNode::mangledRepresentationStartsWith(char c)
 {
@@ -1000,10 +987,7 @@ QByteArray ExpressionNode::toByteArray() const
 }
 
 
-OperatorNameNode::OperatorNameNode(const OperatorNameNode &other)
-        : ParseTreeNode(other), m_type(other.m_type)
-{
-}
+OperatorNameNode::OperatorNameNode(const OperatorNameNode &other) = default;
 
 bool OperatorNameNode::mangledRepresentationStartsWith(char c)
 {
@@ -1253,14 +1237,11 @@ QByteArray OperatorNameNode::toByteArray() const
 
 
 ExprPrimaryNode::ExprPrimaryNode(GlobalParseState *parseState)
-        : ParseTreeNode(parseState), m_isNullPtr(false)
+        : ParseTreeNode(parseState)
 {
 }
 
-ExprPrimaryNode::ExprPrimaryNode(const ExprPrimaryNode &other)
-        : ParseTreeNode(other), m_suffix(other.m_suffix), m_isNullPtr(other.m_isNullPtr)
-{
-}
+ExprPrimaryNode::ExprPrimaryNode(const ExprPrimaryNode &other) = default;
 
 bool ExprPrimaryNode::mangledRepresentationStartsWith(char c)
 {
@@ -1353,7 +1334,7 @@ QByteArray ExprPrimaryNode::toByteArray() const
 
 
 FunctionTypeNode::FunctionTypeNode(GlobalParseState *parseState)
-        : ParseTreeNode(parseState), m_isExternC(false)
+        : ParseTreeNode(parseState)
 {
 }
 
@@ -1395,16 +1376,11 @@ QByteArray FunctionTypeNode::toByteArray() const
 
 
 LocalNameNode::LocalNameNode(GlobalParseState *parseState)
-        : ParseTreeNode(parseState), m_isStringLiteral(false), m_isDefaultArg(false)
+        : ParseTreeNode(parseState)
 {
 }
 
-LocalNameNode::LocalNameNode(const LocalNameNode &other)
-        : ParseTreeNode(other),
-          m_isStringLiteral(other.m_isStringLiteral),
-          m_isDefaultArg(other.m_isDefaultArg)
-{
-}
+LocalNameNode::LocalNameNode(const LocalNameNode &other) = default;
 
 bool LocalNameNode::mangledRepresentationStartsWith(char c)
 {
@@ -1538,10 +1514,7 @@ void MangledNameRule::parse(GlobalParseState *parseState, const ParseTreeNode::P
 }
 
 
-SourceNameNode::SourceNameNode(const SourceNameNode &other)
-        : ParseTreeNode(other), m_name(other.m_name)
-{
-}
+SourceNameNode::SourceNameNode(const SourceNameNode &other) = default;
 
 bool SourceNameNode::mangledRepresentationStartsWith(char c)
 {
@@ -1609,14 +1582,11 @@ void UnqualifiedNameNode::parse()
 
 
 UnscopedNameNode::UnscopedNameNode(GlobalParseState *parseState)
-        : ParseTreeNode(parseState), m_inStdNamespace(false)
+        : ParseTreeNode(parseState)
 {
 }
 
-UnscopedNameNode::UnscopedNameNode(const UnscopedNameNode &other)
-        : ParseTreeNode(other), m_inStdNamespace(other.m_inStdNamespace)
-{
-}
+UnscopedNameNode::UnscopedNameNode(const UnscopedNameNode &other) = default;
 
 bool UnscopedNameNode::mangledRepresentationStartsWith(char c)
 {
@@ -1972,10 +1942,7 @@ QByteArray TemplateArgsNode::toByteArray() const
 }
 
 
-SpecialNameNode::SpecialNameNode(const SpecialNameNode &other)
-        : ParseTreeNode(other), m_type(other.m_type)
-{
-}
+SpecialNameNode::SpecialNameNode(const SpecialNameNode &other) = default;
 
 bool SpecialNameNode::mangledRepresentationStartsWith(char c)
 {
@@ -2063,14 +2030,11 @@ QByteArray SpecialNameNode::toByteArray() const
 
 
 NumberNode::NumberNode(GlobalParseState *parseState)
-        : ParseTreeNode(parseState), m_isNegative(false)
+        : ParseTreeNode(parseState)
 {
 }
 
-NumberNode::NumberNode(const NumberNode &other)
-        : ParseTreeNode(other), m_isNegative(other.m_isNegative)
-{
-}
+NumberNode::NumberNode(const NumberNode &other) = default;
 
 bool NumberNode::mangledRepresentationStartsWith(char c)
 {
@@ -2118,7 +2082,7 @@ template<int base> void NonNegativeNumberNode<base>::parse()
         numberRepr += ADVANCE();
     if (numberRepr.count() == 0)
         throw ParseException(QString::fromLatin1("Invalid non-negative number"));
-    m_number = numberRepr.toULongLong(0, base);
+    m_number = numberRepr.toULongLong(nullptr, base);
 }
 
 template<int base> QByteArray NonNegativeNumberNode<base>::description() const
@@ -2225,14 +2189,11 @@ void NameNode::parse()
 
 
 TemplateArgNode::TemplateArgNode(GlobalParseState *parseState)
-        : ParseTreeNode(parseState), m_isTemplateArgumentPack(false)
+        : ParseTreeNode(parseState)
 {
 }
 
-TemplateArgNode::TemplateArgNode(const TemplateArgNode &other)
-        : ParseTreeNode(other), m_isTemplateArgumentPack(other.m_isTemplateArgumentPack)
-{
-}
+TemplateArgNode::TemplateArgNode(const TemplateArgNode &other) = default;
 
 bool TemplateArgNode::mangledRepresentationStartsWith(char c)
 {
@@ -2680,7 +2641,7 @@ QByteArray TypeNode::qualPtrRefListToByteArray(const QList<const ParseTreeNode *
 {
     QByteArray repr;
     for (const ParseTreeNode * const n : nodeList) {
-        const TypeNode * const typeNode = dynamic_cast<const TypeNode *>(n);
+        const auto typeNode = dynamic_cast<const TypeNode*>(n);
         if (typeNode) {
             switch (typeNode->m_type) {
             case PointerType:
@@ -2712,10 +2673,7 @@ QByteArray TypeNode::qualPtrRefListToByteArray(const QList<const ParseTreeNode *
 }
 
 
-FloatValueNode::FloatValueNode(const FloatValueNode &other)
-        : ParseTreeNode(other), m_value(other.m_value)
-{
-}
+FloatValueNode::FloatValueNode(const FloatValueNode &other) = default;
 
 bool FloatValueNode::mangledRepresentationStartsWith(char c)
 {
@@ -2975,14 +2933,11 @@ bool UnresolvedQualifierLevelRule::mangledRepresentationStartsWith(char c)
 
 
 BaseUnresolvedNameNode::BaseUnresolvedNameNode(GlobalParseState *parseState)
-        : ParseTreeNode(parseState), m_isOperator(false)
+        : ParseTreeNode(parseState)
 {
 }
 
-BaseUnresolvedNameNode::BaseUnresolvedNameNode(const BaseUnresolvedNameNode &other)
-        : ParseTreeNode(other), m_isOperator(other.m_isOperator)
-{
-}
+BaseUnresolvedNameNode::BaseUnresolvedNameNode(const BaseUnresolvedNameNode &other) = default;
 
 bool BaseUnresolvedNameNode::mangledRepresentationStartsWith(char c)
 {
@@ -3057,10 +3012,7 @@ QByteArray InitializerNode::toByteArray() const
 }
 
 
-UnresolvedNameNode::UnresolvedNameNode(const UnresolvedNameNode &other)
-        : ParseTreeNode(other), m_globalNamespace(other.m_globalNamespace)
-{
-}
+UnresolvedNameNode::UnresolvedNameNode(const UnresolvedNameNode &other) = default;
 
 bool UnresolvedNameNode::mangledRepresentationStartsWith(char c)
 {

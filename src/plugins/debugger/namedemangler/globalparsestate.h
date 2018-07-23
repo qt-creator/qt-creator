@@ -56,7 +56,7 @@ public:
     QSharedPointer<ParseTreeNode> templateParamAt(int index) const { return m_templateParams.at(index); }
     void addTemplateParam(const QSharedPointer<ParseTreeNode> &node) { m_templateParams << node; }
 private:
-    int m_pos;
+    int m_pos = 0;
     QByteArray m_mangledName;
     QList<QSharedPointer<ParseTreeNode> > m_substitutions;
     QList<QSharedPointer<ParseTreeNode> > m_templateParams;

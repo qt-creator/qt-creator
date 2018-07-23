@@ -33,7 +33,7 @@
     Connect to all of the models signals.  Whenever anything happens
     recheck everything.
 */
-ModelTest::ModelTest(QAbstractItemModel *_model, QObject *parent) : QObject(parent), model(_model), fetchingMore(false)
+ModelTest::ModelTest(QAbstractItemModel *_model, QObject *parent) : QObject(parent), model(_model)
 {
     Q_ASSERT(model);
 

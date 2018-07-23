@@ -78,7 +78,7 @@ void RegisterPostMortemAction::readSettings(const QSettings *)
     Q_UNUSED(debuggerRegistryValueNameC); // avoid warning from MinGW
 
     bool registered = false;
-    HKEY handle = 0;
+    HKEY handle = NULL;
     QString errorMessage;
     if (openRegistryKey(HKEY_LOCAL_MACHINE, debuggerRegistryKeyC, false, &handle, &errorMessage))
         registered = isRegistered(handle, debuggerCall(), &errorMessage);

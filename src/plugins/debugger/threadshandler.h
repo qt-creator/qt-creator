@@ -87,7 +87,7 @@ private:
 
     DebuggerEngine *m_engine;
     ThreadId m_currentId;
-    bool m_resetLocationScheduled;
+    bool m_resetLocationScheduled = false;
     QHash<QString, QString> m_pidForGroupId;
 };
 

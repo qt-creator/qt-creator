@@ -53,13 +53,13 @@ CacheDirectoryDialog::CacheDirectoryDialog(QWidget *parent) :
     setModal(true);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    QFormLayout *formLayout = new QFormLayout;
+    auto formLayout = new QFormLayout;
     m_chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_chooser->setHistoryCompleter(QLatin1String("Debugger.CdbCacheDir.History"));
     m_chooser->setMinimumWidth(400);
     formLayout->addRow(tr("Path:"), m_chooser);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout;
+    auto mainLayout = new QVBoxLayout;
     mainLayout->addLayout(formLayout);
     mainLayout->addWidget(m_buttonBox);
 

@@ -110,7 +110,7 @@ ConsoleView::ConsoleView(ConsoleItemModel *model, QWidget *parent) :
             baseName = QLatin1String("fusion"); // Qt5
         }
     }
-    ConsoleViewStyle *style = new ConsoleViewStyle(baseName);
+    auto style = new ConsoleViewStyle(baseName);
     setStyle(style);
     style->setParent(this);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -180,18 +180,18 @@ void ConsoleView::contextMenuEvent(QContextMenuEvent *event)
     QModelIndex itemIndex = indexAt(event->pos());
     QMenu menu;
 
-    QAction *copy = new QAction(tr("&Copy"), this);
+    auto copy = new QAction(tr("&Copy"), this);
     copy->setEnabled(itemIndex.isValid());
     menu.addAction(copy);
-    QAction *show = new QAction(tr("&Show in Editor"), this);
+    auto show = new QAction(tr("&Show in Editor"), this);
     show->setEnabled(canShowItemInTextEditor(itemIndex));
     menu.addAction(show);
     menu.addSeparator();
-    QAction *clear = new QAction(tr("C&lear"), this);
+    auto clear = new QAction(tr("C&lear"), this);
     menu.addAction(clear);
 
     QAction *a = menu.exec(event->globalPos());
-    if (a == 0)
+    if (a == nullptr)
         return;
 
     if (a == copy) {
@@ -199,8 +199,8 @@ void ConsoleView::contextMenuEvent(QContextMenuEvent *event)
     } else if (a == show) {
         onRowActivated(itemIndex);
     } else if (a == clear) {
-        QAbstractProxyModel *proxyModel = qobject_cast<QAbstractProxyModel *>(model());
-        ConsoleItemModel *handler = qobject_cast<ConsoleItemModel *>(
+        auto proxyModel = qobject_cast<QAbstractProxyModel*>(model());
+        auto handler = qobject_cast<ConsoleItemModel*>(
                     proxyModel->sourceModel());
         handler->clear();
     }

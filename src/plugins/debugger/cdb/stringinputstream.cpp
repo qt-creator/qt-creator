@@ -31,7 +31,7 @@ namespace Debugger {
 namespace Internal {
 
 StringInputStream::StringInputStream(QString &str) :
-    m_target(str), m_integerBase(10), m_hexPrefix(false), m_width(0)
+    m_target(str)
 {
 }
 

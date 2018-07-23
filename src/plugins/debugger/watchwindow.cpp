@@ -41,7 +41,7 @@ namespace Debugger {
 namespace Internal {
 
 WatchTreeView::WatchTreeView(WatchType type)
-  : m_type(type), m_sliderPosition(0)
+  : m_type(type)
 {
     setObjectName("WatchWindow");
     setWindowTitle(tr("Locals and Expressions"));

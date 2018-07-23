@@ -53,7 +53,7 @@ static inline QString msgCannotInterrupt(qint64 pid, const QString &why)
 
 static BOOL isWow64Process(HANDLE hproc)
 {
-    typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+    using LPFN_ISWOW64PROCESS = BOOL (WINAPI*)(HANDLE, PBOOL);
 
     BOOL ret = false;
 

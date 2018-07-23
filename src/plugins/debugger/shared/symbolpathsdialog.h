@@ -39,7 +39,7 @@ class SymbolPathsDialog : public QDialog
 
 public:
     explicit SymbolPathsDialog(QWidget *parent = nullptr);
-    ~SymbolPathsDialog();
+    ~SymbolPathsDialog() override;
 
     bool useSymbolCache() const;
     bool useSymbolServer() const;

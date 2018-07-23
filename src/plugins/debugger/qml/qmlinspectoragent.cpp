@@ -66,21 +66,14 @@ Q_LOGGING_CATEGORY(qmlInspectorLog, "qtc.dbg.qmlinspector")
  */
 QmlInspectorAgent::QmlInspectorAgent(QmlEngine *engine, QmlDebugConnection *connection)
     : m_qmlEngine(engine)
-    , m_engineClient(0)
-    , m_engineQueryId(0)
-    , m_rootContextQueryId(0)
     , m_objectToSelect(WatchItem::InvalidId)
     , m_masterEngine(engine->masterEngine())
-    , m_toolsClient(0)
-    , m_targetToSync(NoTarget)
     , m_debugIdToSelect(WatchItem::InvalidId)
     , m_currentSelectedDebugId(WatchItem::InvalidId)
-    , m_toolsClientConnected(false)
     , m_inspectorToolsContext("Debugger.QmlInspector")
     , m_selectAction(new QAction(this))
     , m_zoomAction(new QAction(this))
     , m_showAppOnTopAction(action(ShowAppOnTop))
-    , m_engineClientConnected(false)
 {
     m_debugIdToIname.insert(WatchItem::InvalidId, "inspect");
     connect(action(ShowQmlObjectTree),
@@ -396,7 +389,7 @@ static bool insertChildren(WatchItem *parent, const QVariant &value)
     case QVariant::Map: {
         const QVariantMap map = value.toMap();
         for (auto it = map.begin(), end = map.end(); it != end; ++it) {
-            WatchItem *child = new WatchItem;
+            auto child = new WatchItem;
             child->name = it.key();
             child->value = it.value().toString();
             child->type = QLatin1String(it.value().typeName());
@@ -410,7 +403,7 @@ static bool insertChildren(WatchItem *parent, const QVariant &value)
     case QVariant::List: {
         const QVariantList list = value.toList();
         for (int i = 0, end = list.size(); i != end; ++i) {
-            WatchItem *child = new WatchItem;
+            auto child = new WatchItem;
             const QVariant &value = list.at(i);
             child->arrayIndex = i;
             child->value = value.toString();
@@ -756,7 +749,7 @@ void QmlInspectorAgent::clientStateChanged(QmlDebugClient::State state)
 {
     QString serviceName;
     float version = 0;
-    if (QmlDebugClient *client = qobject_cast<QmlDebugClient*>(sender())) {
+    if (auto client = qobject_cast<QmlDebugClient*>(sender())) {
         serviceName = client->name();
         version = client->serviceVersion();
     }
@@ -766,7 +759,7 @@ void QmlInspectorAgent::clientStateChanged(QmlDebugClient::State state)
 
 void QmlInspectorAgent::toolsClientStateChanged(QmlDebugClient::State state)
 {
-    BaseToolsClient *client = qobject_cast<BaseToolsClient*>(sender());
+    auto client = qobject_cast<BaseToolsClient*>(sender());
     QTC_ASSERT(client, return);
     if (state == QmlDebugClient::Enabled) {
         m_toolsClient = client;
@@ -820,8 +813,7 @@ void QmlInspectorAgent::toolsClientStateChanged(QmlDebugClient::State state)
 
 void QmlInspectorAgent::engineClientStateChanged(QmlDebugClient::State state)
 {
-    BaseEngineDebugClient *client
-            = qobject_cast<BaseEngineDebugClient*>(sender());
+    auto client = qobject_cast<BaseEngineDebugClient*>(sender());
 
     if (state == QmlDebugClient::Enabled && !m_engineClientConnected) {
         // We accept the first client that is enabled and reject the others.

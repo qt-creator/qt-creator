@@ -45,9 +45,9 @@ class DebuggerResponse;
 class DebuggerCommand
 {
 public:
-    typedef std::function<void(const DebuggerResponse &)> Callback;
+    using Callback = std::function<void (const DebuggerResponse &)>;
 
-    DebuggerCommand() {}
+    DebuggerCommand() = default;
     DebuggerCommand(const QString &f) : function(f) {}
     DebuggerCommand(const QString &f, const QJsonValue &a) : function(f), args(a) {}
     DebuggerCommand(const QString &f, int fl) : function(f), flags(fl) {}
@@ -109,7 +109,7 @@ private:
 class DebuggerCommandSequence
 {
 public:
-    DebuggerCommandSequence() {}
+    DebuggerCommandSequence() = default;
     bool isEmpty() const { return m_commands.isEmpty(); }
     bool wantContinue() const { return m_continue; }
     const QList<DebuggerCommand> &commands() const { return m_commands; }
@@ -127,7 +127,7 @@ public:
 class GdbMi
 {
 public:
-    GdbMi() : m_type(Invalid) {}
+    GdbMi() = default;
 
     QString m_name;
     QString m_data;
@@ -135,7 +135,7 @@ public:
 
     enum Type { Invalid, Const, Tuple, List };
 
-    Type m_type;
+    Type m_type = Invalid;
 
     Type type() const { return m_type; }
     const QString &name() const { return m_name; }
@@ -189,12 +189,12 @@ enum ResultClass
 class DebuggerResponse
 {
 public:
-    DebuggerResponse() : token(-1), resultClass(ResultUnknown) {}
+    DebuggerResponse() = default;
     QString toString() const;
     static QString stringFromResultClass(ResultClass resultClass);
 
-    int         token;
-    ResultClass resultClass;
+    int         token = -1;
+    ResultClass resultClass = ResultUnknown;
     GdbMi       data;
     QString     logStreamOutput;
     QString     consoleStreamOutput;
@@ -224,7 +224,7 @@ public:
         DateTimeInternal,
     };
 
-    DebuggerEncoding() {}
+    DebuggerEncoding() = default;
     explicit DebuggerEncoding(const QString &data);
     QString toString() const;
 

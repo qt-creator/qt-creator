@@ -223,21 +223,21 @@ QWidget *CommonOptionsPage::widget()
                        checkBoxKeepEditorStationaryWhileStepping);
         m_group.insert(action(FontSizeFollowsEditor),
                        checkBoxFontSizeFollowsEditor);
-        m_group.insert(action(AutoDerefPointers), 0);
-        m_group.insert(action(UseToolTipsInLocalsView), 0);
-        m_group.insert(action(AlwaysAdjustColumnWidths), 0);
-        m_group.insert(action(UseToolTipsInBreakpointsView), 0);
-        m_group.insert(action(UseToolTipsInStackView), 0);
-        m_group.insert(action(UseAddressInBreakpointsView), 0);
-        m_group.insert(action(UseAddressInStackView), 0);
+        m_group.insert(action(AutoDerefPointers), nullptr);
+        m_group.insert(action(UseToolTipsInLocalsView), nullptr);
+        m_group.insert(action(AlwaysAdjustColumnWidths), nullptr);
+        m_group.insert(action(UseToolTipsInBreakpointsView), nullptr);
+        m_group.insert(action(UseToolTipsInStackView), nullptr);
+        m_group.insert(action(UseAddressInBreakpointsView), nullptr);
+        m_group.insert(action(UseAddressInStackView), nullptr);
         m_group.insert(action(MaximalStackDepth), spinBoxMaximalStackDepth);
-        m_group.insert(action(ShowStdNamespace), 0);
-        m_group.insert(action(ShowQtNamespace), 0);
-        m_group.insert(action(ShowQObjectNames), 0);
-        m_group.insert(action(SortStructMembers), 0);
-        m_group.insert(action(LogTimeStamps), 0);
-        m_group.insert(action(BreakOnThrow), 0);
-        m_group.insert(action(BreakOnCatch), 0);
+        m_group.insert(action(ShowStdNamespace), nullptr);
+        m_group.insert(action(ShowQtNamespace), nullptr);
+        m_group.insert(action(ShowQObjectNames), nullptr);
+        m_group.insert(action(SortStructMembers), nullptr);
+        m_group.insert(action(LogTimeStamps), nullptr);
+        m_group.insert(action(BreakOnThrow), nullptr);
+        m_group.insert(action(BreakOnCatch), nullptr);
         if (HostOsInfo::isWindowsHost()) {
             SavedAction *registerAction = action(RegisterForPostMortem);
             m_group.insert(registerAction, checkBoxRegisterForPostMortem);

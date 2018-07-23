@@ -72,7 +72,7 @@ public:
     {}
 
 private:
-    void highlightBlock(const QString &text)
+    void highlightBlock(const QString &text) override
     {
         using Utils::Theme;
         QTextCharFormat format;
@@ -125,7 +125,7 @@ public:
     {}
 
 private:
-    void highlightBlock(const QString &text)
+    void highlightBlock(const QString &text) override
     {
         using Utils::Theme;
         Theme *theme = Utils::creatorTheme();
@@ -172,7 +172,7 @@ public:
                 this, &DebuggerPane::reloadDebuggingHelpers);
     }
 
-    void contextMenuEvent(QContextMenuEvent *ev)
+    void contextMenuEvent(QContextMenuEvent *ev) override
     {
         QMenu *menu = createStandardContextMenu();
         menu->addAction(m_clearContentsAction);
@@ -254,7 +254,7 @@ signals:
     void commandSelected(int);
 
 private:
-    void keyPressEvent(QKeyEvent *ev)
+    void keyPressEvent(QKeyEvent *ev) override
     {
         if (ev->modifiers() == Qt::ControlModifier && ev->key() == Qt::Key_Return)
             emit executeLineRequested();
@@ -264,7 +264,7 @@ private:
             QPlainTextEdit::keyPressEvent(ev);
     }
 
-    void mouseDoubleClickEvent(QMouseEvent *ev)
+    void mouseDoubleClickEvent(QMouseEvent *ev) override
     {
         QString line = cursorForPosition(ev->pos()).block().text();
         int n = 0;
@@ -283,13 +283,13 @@ private:
         emit commandSelected(n);
     }
 
-    void focusInEvent(QFocusEvent *ev)
+    void focusInEvent(QFocusEvent *ev) override
     {
         emit statusMessageRequested(tr("Type Ctrl-<Return> to execute a line."), -1);
         QPlainTextEdit::focusInEvent(ev);
     }
 
-    void focusOutEvent(QFocusEvent *ev)
+    void focusOutEvent(QFocusEvent *ev) override
     {
         emit statusMessageRequested(QString(), -1);
         QPlainTextEdit::focusOutEvent(ev);

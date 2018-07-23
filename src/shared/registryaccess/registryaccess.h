@@ -81,6 +81,6 @@ inline bool openRegistryKey(HKEY category, const WCHAR *key, bool readWrite, HKE
 
 QString debuggerCall(const QString &additionalOption = QString());
 
-bool isRegistered(HKEY handle, const QString &call, QString *errorMessage, QString *oldDebugger = 0);
+bool isRegistered(HKEY handle, const QString &call, QString *errorMessage, QString *oldDebugger = nullptr);
 
 } // namespace RegistryAccess

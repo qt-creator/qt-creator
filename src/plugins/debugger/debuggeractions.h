@@ -36,8 +36,8 @@ namespace Utils { class SavedAction; }
 namespace Debugger {
 namespace Internal {
 
-typedef QMap<QString, QString> SourcePathMap;
-typedef QVector<QPair<QRegExp, QString> > SourcePathRegExpMap;
+using SourcePathMap = QMap<QString, QString>;
+using SourcePathRegExpMap = QVector<QPair<QRegExp, QString> >;
 
 // Global debugger options that are not stored as saved action.
 class GlobalDebuggerOptions

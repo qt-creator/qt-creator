@@ -40,13 +40,13 @@ namespace Internal {
 class BreakpointIdBase
 {
 public:
-    BreakpointIdBase() : m_majorPart(0), m_minorPart(0) {}
+    BreakpointIdBase() = default;
 
     bool isValid() const { return m_majorPart != 0; }
     bool isMajor() const { return m_majorPart != 0 && m_minorPart == 0; }
     bool isMinor() const { return m_majorPart != 0 && m_minorPart != 0; }
     bool operator!() const { return !isValid(); }
-    operator const void*() const { return isValid() ? this : 0; }
+    operator const void*() const { return isValid() ? this : nullptr; }
     quint32 toInternalId() const { return m_majorPart | (m_minorPart << 16); }
     QString toString() const;
     bool operator==(const BreakpointIdBase &id) const
@@ -55,8 +55,8 @@ public:
     quint16 minorPart() const { return m_minorPart; }
 
 protected:
-    quint16 m_majorPart;
-    quint16 m_minorPart;
+    quint16 m_majorPart = 0;
+    quint16 m_minorPart = 0;
 };
 
 class BreakpointModelId : public BreakpointIdBase

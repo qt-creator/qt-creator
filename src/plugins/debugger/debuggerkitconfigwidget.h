@@ -72,7 +72,7 @@ private:
     void updateComboBox(const QVariant &id);
 
     bool m_isReadOnly;
-    bool m_ignoreChanges;
+    bool m_ignoreChanges = false;
     QComboBox *m_comboBox;
     QPushButton *m_manageButton;
 };

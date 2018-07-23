@@ -155,7 +155,7 @@ static const char localsPrefixC[] = "local.";
 class CdbCommand
 {
 public:
-    CdbCommand() {}
+    CdbCommand() = default;
     CdbCommand(CdbEngine::CommandHandler h) : handler(h) {}
 
     CdbEngine::CommandHandler handler;
@@ -267,9 +267,7 @@ void CdbEngine::init()
     QTC_ASSERT(m_process.state() != QProcess::Running, SynchronousProcess::stopProcess(m_process));
 }
 
-CdbEngine::~CdbEngine()
-{
-}
+CdbEngine::~CdbEngine() = default;
 
 void CdbEngine::operateByInstructionTriggered(bool operateByInstruction)
 {

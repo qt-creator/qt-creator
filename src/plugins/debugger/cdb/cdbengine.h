@@ -46,8 +46,8 @@ class CdbEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    typedef QSharedPointer<CdbCommand> CdbCommandPtr;
-    typedef std::function<void(const DebuggerResponse &)> CommandHandler;
+    using CdbCommandPtr = QSharedPointer<CdbCommand>;
+    using CommandHandler = std::function<void (const DebuggerResponse &)>;
 
     explicit CdbEngine();
     ~CdbEngine() override;
@@ -119,8 +119,8 @@ private:
 
     void handleDoInterruptInferior(const QString &errorMessage);
 
-    typedef QHash<BreakpointModelId, BreakpointResponse> PendingBreakPointMap;
-    typedef QPair<QString, QString> SourcePathMapping;
+    using PendingBreakPointMap = QHash<BreakpointModelId, BreakpointResponse>;
+    using SourcePathMapping = QPair<QString, QString>;
     struct NormalizedSourceFileName // Struct for caching mapped/normalized source files.
     {
         NormalizedSourceFileName(const QString &fn = QString(), bool e = false) : fileName(fn), exists(e) {}

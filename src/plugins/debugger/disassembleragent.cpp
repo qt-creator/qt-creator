@@ -72,8 +72,8 @@ public:
         setPriority(TextMark::NormalPriority);
     }
 
-    bool isClickable() const { return true; }
-    void clicked() { m_bp.removeBreakpoint(); }
+    bool isClickable() const override { return true; }
+    void clicked() override { m_bp.removeBreakpoint(); }
 
 public:
     Breakpoint m_bp;
@@ -88,13 +88,13 @@ public:
 class FrameKey
 {
 public:
-    FrameKey() : startAddress(0), endAddress(0) {}
+    FrameKey() = default;
     inline bool matches(const Location &loc) const;
 
     QString functionName;
     QString fileName;
-    quint64 startAddress;
-    quint64 endAddress;
+    quint64 startAddress = 0;
+    quint64 endAddress = 0;
 };
 
 bool FrameKey::matches(const Location &loc) const
@@ -105,7 +105,7 @@ bool FrameKey::matches(const Location &loc) const
             && loc.functionName() == functionName;
 }
 
-typedef QPair<FrameKey, DisassemblerLines> CacheEntry;
+using CacheEntry = QPair<FrameKey, DisassemblerLines>;
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -134,7 +134,7 @@ public:
 };
 
 DisassemblerAgentPrivate::DisassemblerAgentPrivate(DebuggerEngine *engine)
-  : document(0),
+  : document(nullptr),
     engine(engine),
     locationMark(engine, Utils::FileName(), 0),
     mimeType("text/x-qtcreator-generic-asm"),
@@ -144,7 +144,7 @@ DisassemblerAgentPrivate::DisassemblerAgentPrivate(DebuggerEngine *engine)
 DisassemblerAgentPrivate::~DisassemblerAgentPrivate()
 {
     EditorManager::closeDocuments(QList<IDocument *>() << document);
-    document = 0;
+    document = nullptr;
     qDeleteAll(breakpointMarks);
 }
 
@@ -183,7 +183,7 @@ DisassemblerAgent::DisassemblerAgent(DebuggerEngine *engine)
 DisassemblerAgent::~DisassemblerAgent()
 {
     delete d;
-    d = 0;
+    d = nullptr;
 }
 
 int DisassemblerAgent::indexOf(const Location &loc) const
@@ -261,7 +261,7 @@ void DisassemblerAgentPrivate::configureMimeType()
     Utils::MimeType mtype = Utils::mimeTypeForName(mimeType);
     if (mtype.isValid()) {
         foreach (IEditor *editor, DocumentModel::editorsForDocument(document))
-            if (TextEditorWidget *widget = qobject_cast<TextEditorWidget *>(editor->widget()))
+            if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget()))
                 widget->configureGenericHighlighter();
     } else {
         qWarning("Assembler mimetype '%s' not found.", qPrintable(mimeType));
@@ -309,7 +309,7 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
                 &titlePattern);
         QTC_ASSERT(editor, return);
-        if (TextEditorWidget *widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
+        if (auto widget = qobject_cast<TextEditorWidget *>(editor->widget())) {
             widget->setReadOnly(true);
             widget->setRequestMarkEnabled(true);
         }
@@ -350,7 +350,7 @@ void DisassemblerAgent::updateLocationMarker()
 
     // Center cursor.
     if (EditorManager::currentDocument() == d->document)
-        if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor()))
+        if (auto textEditor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor()))
             textEditor->gotoLine(lineNumber);
 }
 

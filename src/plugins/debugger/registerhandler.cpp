@@ -69,7 +69,7 @@ enum RegisterDataRole
 class RegisterDelegate : public QItemDelegate
 {
 public:
-    RegisterDelegate() {}
+    RegisterDelegate() = default;
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
         const QModelIndex &index) const override
@@ -80,7 +80,7 @@ public:
             lineEdit->setFrame(false);
             return lineEdit;
         }
-        return 0;
+        return nullptr;
     }
 
     void setEditorData(QWidget *editor, const QModelIndex &index) const override
@@ -428,9 +428,9 @@ public:
             appendChild(new RegisterEditItem(i, subKind, subSize, format));
     }
 
-    QVariant data(int column, int role) const;
+    QVariant data(int column, int role) const override;
 
-    Qt::ItemFlags flags(int column) const
+    Qt::ItemFlags flags(int column) const override
     {
         //return column == 1 ? Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsEditable
         //                   : Qt::ItemIsSelectable|Qt::ItemIsEnabled;

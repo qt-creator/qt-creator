@@ -86,7 +86,7 @@ DebuggerMainWindow::DebuggerMainWindow()
 DebuggerMainWindow::~DebuggerMainWindow()
 {
     delete m_editorPlaceHolder;
-    m_editorPlaceHolder = 0;
+    m_editorPlaceHolder = nullptr;
     // As we have to setParent(0) on dock widget that are not selected,
     // we keep track of all and make sure we don't leak any
     foreach (QDockWidget *dock, m_dockForDockId) {
@@ -312,7 +312,7 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
             removeDockWidget(dockWidget);
             dockWidget->hide();
             // Prevent saveState storing the data of the wrong children.
-            dockWidget->setParent(0);
+            dockWidget->setParent(nullptr);
         }
 
         ICore::removeAdditionalContext(Context(Id::fromName(m_currentPerspectiveId)));
@@ -416,7 +416,7 @@ void DebuggerMainWindow::savePerspectiveHelper(const QByteArray &perspectiveId)
 
 QDockWidget *DebuggerMainWindow::registerDockWidget(const QByteArray &dockId, QWidget *widget)
 {
-    QTC_ASSERT(!widget->objectName().isEmpty(), return 0);
+    QTC_ASSERT(!widget->objectName().isEmpty(), return nullptr);
     QDockWidget *dockWidget = addDockForWidget(widget);
     m_dockForDockId[dockId] = dockWidget;
     return dockWidget;

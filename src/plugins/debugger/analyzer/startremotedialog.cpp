@@ -74,14 +74,14 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
     d->buttonBox->setOrientation(Qt::Horizontal);
     d->buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
-    QFormLayout *formLayout = new QFormLayout;
+    auto formLayout = new QFormLayout;
     formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     formLayout->addRow(tr("Kit:"), d->kitChooser);
     formLayout->addRow(tr("Executable:"), d->executable);
     formLayout->addRow(tr("Arguments:"), d->arguments);
     formLayout->addRow(tr("Working directory:"), d->workingDirectory);
 
-    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    auto verticalLayout = new QVBoxLayout(this);
     verticalLayout->addLayout(formLayout);
     verticalLayout->addWidget(d->buttonBox);
 

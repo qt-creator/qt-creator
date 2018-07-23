@@ -72,9 +72,7 @@ DetailedErrorView::DetailedErrorView(QWidget *parent) :
     addAction(m_copyAction);
 }
 
-DetailedErrorView::~DetailedErrorView()
-{
-}
+DetailedErrorView::~DetailedErrorView() = default;
 
 void DetailedErrorView::contextMenuEvent(QContextMenuEvent *e)
 {

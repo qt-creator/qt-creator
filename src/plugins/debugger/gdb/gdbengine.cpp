@@ -192,10 +192,10 @@ static QString msgWinException(const QString &data, unsigned *exCodeIn = nullptr
     const int addressPos = blankPos != -1 ? data.indexOf("0x", blankPos + 1) : -1;
     if (addressPos < 0)
         return GdbEngine::tr("An exception was triggered.");
-    const unsigned exCode = data.mid(exCodePos, blankPos - exCodePos).toUInt(0, 0);
+    const unsigned exCode = data.mid(exCodePos, blankPos - exCodePos).toUInt(nullptr, 0);
     if (exCodeIn)
         *exCodeIn = exCode;
-    const quint64 address = data.mid(addressPos).trimmed().toULongLong(0, 0);
+    const quint64 address = data.mid(addressPos).trimmed().toULongLong(nullptr, 0);
     QString rc;
     QTextStream str(&rc);
     str << GdbEngine::tr("An exception was triggered:") << ' ';
@@ -841,7 +841,7 @@ void GdbEngine::commandTimeout()
             "to a command within %n seconds. This could mean it is stuck "
             "in an endless loop or taking longer than expected to perform "
             "the operation.\nYou can choose between waiting "
-            "longer or aborting debugging.", 0, timeOut / 1000);
+            "longer or aborting debugging.", nullptr, timeOut / 1000);
         QMessageBox *mb = showMessageBox(QMessageBox::Critical,
             tr("GDB Not Responding"), msg,
             QMessageBox::Ok | QMessageBox::Cancel);
@@ -1008,7 +1008,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
     if (m_commandsDoneCallback && m_commandForToken.isEmpty()) {
         showMessage("ALL COMMANDS DONE; INVOKING CALLBACK");
         CommandsDoneCallback cont = m_commandsDoneCallback;
-        m_commandsDoneCallback = 0;
+        m_commandsDoneCallback = nullptr;
         if (response->resultClass != ResultRunning) //only start if the thing is not already running
             (this->*cont)();
     } else {
@@ -1408,7 +1408,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
         const GdbMi wpt = data["wpt"];
         const BreakpointResponseId rid(wpt["number"].data());
         const Breakpoint bp = breakHandler()->findBreakpointByResponseId(rid);
-        const quint64 bpAddress = wpt["exp"].data().mid(1).toULongLong(0, 0);
+        const quint64 bpAddress = wpt["exp"].data().mid(1).toULongLong(nullptr, 0);
         QString msg;
         if (bp.type() == WatchpointAtExpression)
             msg = bp.msgWatchpointByExpressionTriggered(rid.majorPart(), bp.expression());
@@ -2141,7 +2141,7 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
                 QString what = bkpt["what"].data();
                 if (what.startsWith("*0x")) {
                     response.type = WatchpointAtAddress;
-                    response.address = what.mid(1).toULongLong(0, 0);
+                    response.address = what.mid(1).toULongLong(nullptr, 0);
                 } else {
                     response.type = WatchpointAtExpression;
                     response.expression = what;
@@ -2270,7 +2270,7 @@ void GdbEngine::handleWatchInsert(const DebuggerResponse &response, Breakpoint b
             br.id = BreakpointResponseId(wpt["number"].data());
             QString exp = wpt["exp"].data();
             if (exp.startsWith('*'))
-                br.address = exp.mid(1).toULongLong(0, 0);
+                br.address = exp.mid(1).toULongLong(nullptr, 0);
             bp.setResponse(br);
             QTC_CHECK(!bp.needsChange());
             bp.notifyBreakpointInsertOk();
@@ -2282,7 +2282,7 @@ void GdbEngine::handleWatchInsert(const DebuggerResponse &response, Breakpoint b
             const QString address = ba.mid(end + 2).trimmed();
             br.id = BreakpointResponseId(ba.mid(begin, end - begin));
             if (address.startsWith('*'))
-                br.address = address.mid(1).toULongLong(0, 0);
+                br.address = address.mid(1).toULongLong(nullptr, 0);
             bp.setResponse(br);
             QTC_CHECK(!bp.needsChange());
             bp.notifyBreakpointInsertOk();
@@ -2905,7 +2905,7 @@ void GdbEngine::handleModulesList(const DebuggerResponse &response)
                 module.symbolsRead = (item["state"].data() == "Y")
                         ? Module::ReadOk : Module::ReadFailed;
                 module.startAddress =
-                    item["loaded_addr"].data().toULongLong(0, 0);
+                    item["loaded_addr"].data().toULongLong(nullptr, 0);
                 module.endAddress = 0; // FIXME: End address not easily available.
                 handler->updateModule(module);
             }
@@ -3409,7 +3409,7 @@ void GdbEngine::assignValueInDebugger(WatchItem *item,
 class MemoryAgentCookie
 {
 public:
-    MemoryAgentCookie() {}
+    MemoryAgentCookie() = default;
 
     QByteArray *accumulator = nullptr; // Shared between split request. Last one cleans up.
     uint *pendingRequests = nullptr; // Shared between split request. Last one cleans up.
@@ -3503,7 +3503,7 @@ void GdbEngine::handleFetchMemory(const DebuggerResponse &response, MemoryAgentC
 class DisassemblerAgentCookie
 {
 public:
-    DisassemblerAgentCookie() : agent(0) {}
+    DisassemblerAgentCookie() : agent(nullptr) {}
     DisassemblerAgentCookie(DisassemblerAgent *agent_) : agent(agent_) {}
 
 public:
@@ -3594,7 +3594,7 @@ void GdbEngine::fetchDisassemblerByCliRangePlain(const DisassemblerAgentCookie &
 
 struct LineData
 {
-    LineData() {}
+    LineData() = default;
     LineData(int i, int f) : index(i), function(f) {}
     int index;
     int function;
@@ -3611,7 +3611,7 @@ bool GdbEngine::handleCliDisassemblerResult(const QString &output, DisassemblerA
 
     QVector<DisassemblerLine> lines = dlines.data();
 
-    typedef QMap<quint64, LineData> LineMap;
+    using LineMap = QMap<quint64, LineData>;
     LineMap lineMap;
     int currentFunction = -1;
     for (int i = 0, n = lines.size(); i != n; ++i) {
@@ -3983,7 +3983,7 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, Id settingsIdHint)
 void GdbEngine::prepareForRestart()
 {
     m_rerunPending = false;
-    m_commandsDoneCallback = 0;
+    m_commandsDoneCallback = nullptr;
     m_commandForToken.clear();
     m_flagsForToken.clear();
 }
@@ -4003,7 +4003,7 @@ void GdbEngine::handleInferiorPrepared()
     if (m_commandForToken.isEmpty()) {
         finishInferiorSetup();
     } else {
-        QTC_CHECK(m_commandsDoneCallback == 0);
+        QTC_CHECK(m_commandsDoneCallback == nullptr);
         m_commandsDoneCallback = &GdbEngine::finishInferiorSetup;
     }
 }
@@ -4503,7 +4503,7 @@ void GdbEngine::shutdownEngine()
 
     CHECK_STATE(EngineShutdownRequested);
     showMessage(QString("INITIATE GDBENGINE SHUTDOWN, PROC STATE: %1").arg(m_gdbProc.state()));
-    m_commandsDoneCallback = 0;
+    m_commandsDoneCallback = nullptr;
     switch (m_gdbProc.state()) {
     case QProcess::Running: {
         if (runParameters().closeMode == KillAndExitMonitorAtClose)

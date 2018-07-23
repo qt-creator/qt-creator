@@ -64,8 +64,7 @@ namespace Internal {
 // -----------------------------------------------------------------------
 
 DebuggerKitConfigWidget::DebuggerKitConfigWidget(Kit *workingCopy, const KitInformation *ki)
-    : KitConfigWidget(workingCopy, ki),
-      m_ignoreChanges(false)
+    : KitConfigWidget(workingCopy, ki)
 {
     m_comboBox = new QComboBox;
     m_comboBox->setEnabled(true);

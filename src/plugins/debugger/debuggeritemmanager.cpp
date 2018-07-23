@@ -144,7 +144,7 @@ public:
         : m_item(item), m_orig(item), m_added(changed), m_changed(changed)
     {}
 
-    QVariant data(int column, int role) const
+    QVariant data(int column, int role) const override
     {
         switch (role) {
             case Qt::DisplayRole:
@@ -327,7 +327,7 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
     m_abis = new QLineEdit(this);
     m_abis->setEnabled(false);
 
-    QFormLayout *formLayout = new QFormLayout(this);
+    auto formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     formLayout->addRow(new QLabel(tr("Name:")), m_displayNameLineEdit);
     formLayout->addRow(m_cdbLabel);
@@ -620,7 +620,7 @@ void DebuggerOptionsPage::apply()
 void DebuggerOptionsPage::finish()
 {
     delete m_configWidget;
-    m_configWidget = 0;
+    m_configWidget = nullptr;
     d->m_model->cancel();
 }
 

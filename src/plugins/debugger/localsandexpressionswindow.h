@@ -35,13 +35,13 @@ class LocalsAndInspectorWindow : public QWidget
 {
 public:
     LocalsAndInspectorWindow(QWidget *locals, QWidget *inspector,
-                             QWidget *returnWidget);
+                             QWidget *returnWidget); // TODO parent?
 
     void setShowLocals(bool showLocals);
 
 private:
     QTimer m_timer;
-    bool m_showLocals;
+    bool m_showLocals = false;
 };
 
 } // namespace Internal

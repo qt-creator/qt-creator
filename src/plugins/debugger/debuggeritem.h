@@ -111,10 +111,10 @@ private:
 
     QVariant m_id;
     QString m_unexpandedDisplayName;
-    DebuggerEngineType m_engineType;
+    DebuggerEngineType m_engineType = NoEngineType;
     Utils::FileName m_command;
     Utils::FileName m_workingDirectory;
-    bool m_isAutoDetected;
+    bool m_isAutoDetected = false;
     QString m_autoDetectionSource;
     QString m_version;
     QList<ProjectExplorer::Abi> m_abis;

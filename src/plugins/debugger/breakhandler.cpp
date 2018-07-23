@@ -107,9 +107,9 @@ class BreakpointItem : public QObject, public TypedTreeItem<LocationItem>
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::BreakHandler)
 
 public:
-    ~BreakpointItem();
+    ~BreakpointItem() override;
 
-    QVariant data(int column, int role) const;
+    QVariant data(int column, int role) const override;
 
     QIcon icon() const;
 
@@ -168,28 +168,28 @@ public:
         setIcon(b->icon());
     }
 
-    void removedFromEditor()
+    void removedFromEditor() override
     {
         if (m_bp)
             m_bp->removeBreakpoint();
     }
 
-    void updateLineNumber(int lineNumber)
+    void updateLineNumber(int lineNumber) override
     {
         TextMark::updateLineNumber(lineNumber);
         m_bp->updateLineNumberFromMarker(lineNumber);
     }
 
-    void updateFileName(const FileName &fileName)
+    void updateFileName(const FileName &fileName) override
     {
         TextMark::updateFileName(fileName);
         m_bp->updateFileNameFromMarker(fileName.toString());
     }
 
-    bool isDraggable() const { return true; }
-    void dragToLine(int line) { m_bp->changeLineNumberFromMarker(line); }
-    bool isClickable() const { return true; }
-    void clicked() { m_bp->removeBreakpoint(); }
+    bool isDraggable() const override { return true; }
+    void dragToLine(int line) override { m_bp->changeLineNumberFromMarker(line); }
+    bool isClickable() const override { return true; }
+    void clicked() override { m_bp->removeBreakpoint(); }
 
 public:
     BreakpointItem *m_bp;
@@ -269,7 +269,7 @@ static QString typeToString(BreakpointType type)
 class LeftElideDelegate : public QStyledItemDelegate
 {
 public:
-    LeftElideDelegate() {}
+    LeftElideDelegate() = default;
 
     void paint(QPainter *pain, const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
@@ -283,8 +283,8 @@ class SmallTextEdit : public QTextEdit
 {
 public:
     explicit SmallTextEdit(QWidget *parent) : QTextEdit(parent) {}
-    QSize sizeHint() const { return QSize(QTextEdit::sizeHint().width(), 100); }
-    QSize minimumSizeHint() const { return sizeHint(); }
+    QSize sizeHint() const override { return QSize(QTextEdit::sizeHint().width(), 100); }
+    QSize minimumSizeHint() const override { return sizeHint(); }
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -669,7 +669,7 @@ void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) 
         data->functionName = m_lineEditFunction->text();
 
     if (partsMask & AddressPart)
-        data->address = m_lineEditAddress->text().toULongLong(0, 0);
+        data->address = m_lineEditAddress->text().toULongLong(nullptr, 0);
     if (partsMask & ExpressionPart)
         data->expression = m_lineEditExpression->text();
 
@@ -1378,7 +1378,7 @@ QIcon Breakpoint::icon() const { return b ? b->icon() : QIcon(); }
 
 DebuggerEngine *Breakpoint::engine() const
 {
-    return b ? b->m_engine : 0;
+    return b ? b->m_engine : nullptr;
 }
 
 const BreakpointResponse &Breakpoint::response() const
@@ -1610,7 +1610,7 @@ void Breakpoint::notifyBreakpointReleased()
     b->removeChildren();
     //QTC_ASSERT(b->m_state == BreakpointChangeProceeding, qDebug() << b->m_state);
     b->m_state = BreakpointNew;
-    b->m_engine = 0;
+    b->m_engine = nullptr;
     b->m_response = BreakpointResponse();
     b->destroyMarker();
     b->updateMarker();
@@ -1673,7 +1673,7 @@ void BreakHandler::appendBreakpointInternal(const BreakpointParameters &params)
         return;
     }
 
-    BreakpointItem *b = new BreakpointItem(this);
+    auto b = new BreakpointItem(this);
     b->m_params = params;
     b->updateMarker();
     rootItem()->appendChild(b);
@@ -1839,7 +1839,7 @@ const Breakpoints BreakHandler::allBreakpoints() const
 
 const Breakpoints BreakHandler::unclaimedBreakpoints() const
 {
-    return engineBreakpoints(0);
+    return engineBreakpoints(nullptr);
 }
 
 const Breakpoints BreakHandler::engineBreakpoints(DebuggerEngine *engine) const
@@ -2161,7 +2161,7 @@ void BreakHandler::editBreakpoints(const Breakpoints &bps, QWidget *parent)
 static int currentId = 0;
 
 BreakpointItem::BreakpointItem(BreakHandler *handler)
-    : m_handler(handler), m_id(++currentId), m_state(BreakpointNew), m_engine(0), m_marker(0)
+    : m_handler(handler), m_id(++currentId), m_state(BreakpointNew), m_engine(nullptr), m_marker(nullptr)
 {}
 
 BreakpointItem::~BreakpointItem()
@@ -2173,8 +2173,8 @@ void BreakpointItem::destroyMarker()
 {
     if (m_marker) {
         BreakpointMarker *m = m_marker;
-        m->m_bp = 0;
-        m_marker = 0;
+        m->m_bp = nullptr;
+        m_marker = nullptr;
         delete m;
     }
 }

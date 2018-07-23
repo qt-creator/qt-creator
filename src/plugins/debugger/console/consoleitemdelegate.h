@@ -48,16 +48,17 @@ public:
 
 protected:
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const;
+               const QModelIndex &index) const override;
     QSize sizeHint(const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const;
+                   const QModelIndex &index) const override;
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                          const QModelIndex &index) const;
-    void setEditorData(QWidget *editor, const QModelIndex &index) const;
-    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
+                          const QModelIndex &index) const override;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+                      const QModelIndex &index) const override;
 
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
-                              const QModelIndex &index) const;
+                              const QModelIndex &index) const override;
 
 private:
     qreal layoutText(QTextLayout &tl, int width, bool *success = nullptr) const;
@@ -70,7 +71,7 @@ private:
     const QIcon m_expandIcon;
     const QIcon m_collapseIcon;
     const QIcon m_prompt;
-    mutable int m_cachedHeight;
+    mutable int m_cachedHeight = 0;
     mutable QFont m_cachedFont;
 };
 
@@ -95,8 +96,6 @@ public:
           m_width(rect.width()),
           m_top(rect.top()),
           m_bottom(rect.bottom()),
-          m_maxFileLength(0),
-          m_maxLineLength(0),
           m_showTaskIconArea(showTaskIconArea),
           m_showExpandableIconArea(showExpandableIconArea)
     {

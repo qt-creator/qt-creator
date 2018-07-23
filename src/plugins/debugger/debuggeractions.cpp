@@ -677,7 +677,7 @@ void DebuggerSettings::writeSettings() const
 
 SavedAction *DebuggerSettings::item(int code) const
 {
-    QTC_ASSERT(m_items.value(code, 0), qDebug() << "CODE: " << code; return 0);
+    QTC_ASSERT(m_items.value(code, 0), qDebug() << "CODE: " << code; return nullptr);
     return m_items.value(code, 0);
 }
 

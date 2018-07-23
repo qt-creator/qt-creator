@@ -62,7 +62,7 @@ private:
     void currentChanged(const QModelIndex &current, const QModelIndex &previous) override;
 
     WatchType m_type;
-    int m_sliderPosition;
+    int m_sliderPosition = 0;
 };
 
 } // namespace Internal

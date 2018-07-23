@@ -468,8 +468,8 @@ QAction *addCheckableAction(QMenu *menu, const QString &display, bool on, bool c
 class DummyEngine : public DebuggerEngine
 {
 public:
-    DummyEngine() {}
-    ~DummyEngine() override {}
+    DummyEngine() = default;
+    ~DummyEngine() override = default;
 
     void setupEngine() override {}
     void runEngine() override {}
@@ -486,7 +486,7 @@ bool DummyEngine::hasCapability(unsigned cap) const
     // This can only be a first approximation of what to expect when running.
     Project *project = ProjectTree::currentProject();
     if (!project)
-        return 0;
+        return false;
     Target *target = project->activeTarget();
     QTC_ASSERT(target, return 0);
     RunConfiguration *activeRc = target->activeRunConfiguration();
@@ -632,7 +632,7 @@ class DebuggerPluginPrivate : public QObject
 
 public:
     explicit DebuggerPluginPrivate(DebuggerPlugin *plugin);
-    ~DebuggerPluginPrivate();
+    ~DebuggerPluginPrivate() override;
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
@@ -640,7 +640,7 @@ public:
     void doShutdown();
 
     void connectEngine(DebuggerRunTool *runTool);
-    void disconnectEngine() { connectEngine(0); }
+    void disconnectEngine() { connectEngine(nullptr); }
     DebuggerEngine *dummyEngine();
 
     void setThreadBoxContents(const QStringList &list, int index)
@@ -1842,7 +1842,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
         {DOCKWIDGET_WATCHERS, m_watchersWindow, DOCKWIDGET_LOCALS_AND_INSPECTOR, Perspective::AddToTab, true,
          Qt::RightDockWidgetArea},
         {DOCKWIDGET_OUTPUT, m_logWindow, {}, Perspective::AddToTab, false, Qt::TopDockWidgetArea},
-        {DOCKWIDGET_BREAK, 0, {}, Perspective::Raise}
+        {DOCKWIDGET_BREAK, nullptr, {}, Perspective::Raise}
     }); };
 
     Perspective *cppPerspective = createBasePerspective();
@@ -1865,7 +1865,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
             this, &DebuggerPluginPrivate::enableReverseDebuggingTriggered);
 
     setInitialState();
-    connectEngine(0);
+    connectEngine(nullptr);
 
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
         this, &DebuggerPluginPrivate::onCurrentProjectChanged);
@@ -2066,12 +2066,12 @@ void DebuggerPluginPrivate::attachToUnstartedApplicationDialog()
 RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     DeviceProcessItem process, bool contAfterAttach)
 {
-    QTC_ASSERT(kit, return 0);
+    QTC_ASSERT(kit, return nullptr);
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-    QTC_ASSERT(device, return 0);
+    QTC_ASSERT(device, return nullptr);
     if (process.pid == 0) {
         AsynchronousMessageBox::warning(tr("Warning"), tr("Cannot attach to process with PID 0"));
-        return 0;
+        return nullptr;
     }
 
     const Abi tcAbi = ToolChainKitInformation::targetAbi(kit);
@@ -2082,13 +2082,13 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
                     tr("The process %1 is already under the control of a debugger.\n"
                        "%2 cannot attach to it.").arg(process.pid)
                     .arg(Core::Constants::IDE_DISPLAY_NAME));
-        return 0;
+        return nullptr;
     }
 
     if (device->type() != PE::DESKTOP_DEVICE_TYPE) {
         AsynchronousMessageBox::warning(tr("Not a Desktop Device Type"),
                              tr("It is only possible to attach to a locally running process."));
-        return 0;
+        return nullptr;
     }
 
     auto runControl = new RunControl(nullptr, ProjectExplorer::Constants::DEBUG_RUN_MODE);
@@ -2208,8 +2208,8 @@ void DebuggerPluginPrivate::editorOpened(IEditor *editor)
 
 void DebuggerPluginPrivate::updateBreakMenuItem(IEditor *editor)
 {
-    BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(editor);
-    m_breakAction->setEnabled(textEditor != 0);
+    auto textEditor = qobject_cast<BaseTextEditor *>(editor);
+    m_breakAction->setEnabled(textEditor != nullptr);
 }
 
 void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
@@ -3049,7 +3049,7 @@ BreakHandler *breakHandler()
 
 void showModuleSymbols(const QString &moduleName, const Symbols &symbols)
 {
-    QTreeWidget *w = new QTreeWidget;
+    auto w = new QTreeWidget;
     w->setUniformRowHeights(true);
     w->setColumnCount(5);
     w->setRootIsDecorated(false);
@@ -3065,7 +3065,7 @@ void showModuleSymbols(const QString &moduleName, const Symbols &symbols)
     w->setHeaderLabels(header);
     w->setWindowTitle(DebuggerPlugin::tr("Symbols in \"%1\"").arg(moduleName));
     for (const Symbol &s : symbols) {
-        QTreeWidgetItem *it = new QTreeWidgetItem;
+        auto it = new QTreeWidgetItem;
         it->setData(0, Qt::DisplayRole, s.name);
         it->setData(1, Qt::DisplayRole, s.address);
         it->setData(2, Qt::DisplayRole, s.state);
@@ -3078,7 +3078,7 @@ void showModuleSymbols(const QString &moduleName, const Symbols &symbols)
 
 void showModuleSections(const QString &moduleName, const Sections &sections)
 {
-    QTreeWidget *w = new QTreeWidget;
+    auto w = new QTreeWidget;
     w->setUniformRowHeights(true);
     w->setColumnCount(5);
     w->setRootIsDecorated(false);
@@ -3094,7 +3094,7 @@ void showModuleSections(const QString &moduleName, const Sections &sections)
     w->setHeaderLabels(header);
     w->setWindowTitle(DebuggerPlugin::tr("Sections in \"%1\"").arg(moduleName));
     for (const Section &s : sections) {
-        QTreeWidgetItem *it = new QTreeWidgetItem;
+        auto it = new QTreeWidgetItem;
         it->setData(0, Qt::DisplayRole, s.name);
         it->setData(1, Qt::DisplayRole, s.from);
         it->setData(2, Qt::DisplayRole, s.to);
@@ -3109,13 +3109,13 @@ void DebuggerPluginPrivate::doShutdown()
 {
     m_shutdownTimer.stop();
     delete m_mainWindow;
-    m_mainWindow = 0;
+    m_mainWindow = nullptr;
 
     delete m_modeWindow;
-    m_modeWindow = 0;
+    m_modeWindow = nullptr;
 
     delete m_mode;
-    m_mode = 0;
+    m_mode = nullptr;
     emit m_plugin->asynchronousShutdownFinished();
 }
 
@@ -3234,7 +3234,7 @@ QSharedPointer<Internal::GlobalDebuggerOptions> globalDebuggerOptions()
     is DebuggerCore, implemented in DebuggerPluginPrivate.
 */
 
-static DebuggerPlugin *m_instance = 0;
+static DebuggerPlugin *m_instance = nullptr;
 
 DebuggerPlugin::DebuggerPlugin()
 {
@@ -3245,8 +3245,8 @@ DebuggerPlugin::DebuggerPlugin()
 DebuggerPlugin::~DebuggerPlugin()
 {
     delete dd;
-    dd = 0;
-    m_instance = 0;
+    dd = nullptr;
+    m_instance = nullptr;
 }
 
 DebuggerPlugin *DebuggerPlugin::instance()
@@ -3294,7 +3294,7 @@ QObject *DebuggerPlugin::remoteCommand(const QStringList &options,
     Q_UNUSED(workingDirectory);
     Q_UNUSED(list);
     dd->remoteCommand(options);
-    return 0;
+    return nullptr;
 }
 
 void DebuggerPlugin::extensionsInitialized()
@@ -3405,7 +3405,7 @@ static BuildConfiguration::BuildType startupBuildType()
 
 void showCannotStartDialog(const QString &text)
 {
-    QMessageBox *errorDialog = new QMessageBox(ICore::mainWindow());
+    auto errorDialog = new QMessageBox(ICore::mainWindow());
     errorDialog->setAttribute(Qt::WA_DeleteOnClose);
     errorDialog->setIcon(QMessageBox::Warning);
     errorDialog->setWindowTitle(text);
@@ -3571,7 +3571,7 @@ class DebuggerUnitTests : public QObject
     Q_OBJECT
 
 public:
-    DebuggerUnitTests() {}
+    DebuggerUnitTests() = default;
 
 private slots:
     void initTestCase();
@@ -3584,7 +3584,7 @@ private slots:
     void testStateMachine();
 
 private:
-    CppTools::Tests::TemporaryCopiedDir *m_tmpDir = 0;
+    CppTools::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
 };
 
 void DebuggerUnitTests::initTestCase()
@@ -3749,7 +3749,7 @@ void DebuggerUnitTests::testDebuggerMatching()
     QFETCH(QString, target);
     QFETCH(int, result);
 
-    DebuggerItem::MatchLevel expectedLevel = static_cast<DebuggerItem::MatchLevel>(result);
+    auto expectedLevel = static_cast<DebuggerItem::MatchLevel>(result);
 
     QList<Abi> debuggerAbis;
     foreach (const QString &abi, debugger)

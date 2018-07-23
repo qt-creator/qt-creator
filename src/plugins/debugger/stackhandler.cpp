@@ -77,9 +77,7 @@ StackHandler::StackHandler(DebuggerEngine *engine)
         this, &StackHandler::reloadFullStack);
 }
 
-StackHandler::~StackHandler()
-{
-}
+StackHandler::~StackHandler() = default;
 
 int StackHandler::rowCount(const QModelIndex &parent) const
 {
@@ -157,7 +155,7 @@ QVariant StackHandler::headerData(int section, Qt::Orientation orient, int role)
 Qt::ItemFlags StackHandler::flags(const QModelIndex &index) const
 {
     if (index.row() >= m_stackFrames.size() + m_canExpand)
-        return 0;
+        return nullptr;
     if (index.row() == m_stackFrames.size())
         return QAbstractTableModel::flags(index);
     const StackFrame &frame = m_stackFrames.at(index.row());

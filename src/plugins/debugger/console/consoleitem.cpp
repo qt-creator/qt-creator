@@ -44,7 +44,7 @@ ConsoleItem::ConsoleItem(ItemType itemType, const QString &expression, const QSt
 
 ConsoleItem::ConsoleItem(ConsoleItem::ItemType itemType, const QString &expression,
                          std::function<void(ConsoleItem *)> doFetch) :
-    m_itemType(itemType), m_text(addZeroWidthSpace(expression)), m_line(-1), m_doFetch(doFetch)
+    m_itemType(itemType), m_text(addZeroWidthSpace(expression)), m_doFetch(doFetch)
 {}
 
 ConsoleItem::ItemType ConsoleItem::itemType() const
@@ -144,7 +144,7 @@ void ConsoleItem::fetchMore()
     }
 
     for (TreeItem *child : *this) {
-        ConsoleItem *item = static_cast<ConsoleItem *>(child);
+        auto item = static_cast<ConsoleItem*>(child);
         if (item->m_doFetch) {
             item->m_doFetch(item);
             item->m_doFetch = m_doFetch;

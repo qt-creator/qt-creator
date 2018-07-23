@@ -49,8 +49,8 @@ class QmlEngine;
 class WatchItem;
 
 //map <filename, editorRevision> -> <lineNumber, columnNumber> -> debugId
-typedef
-QHash<QPair<QString, int>, QHash<QPair<int, int>, QList<int> > > DebugIdHash;
+using DebugIdHash =
+        QHash<QPair<QString, int>, QHash<QPair<int, int>, QList<int> > >;
 
 class QmlInspectorAgent : public QObject
 {
@@ -118,10 +118,10 @@ private:
 
 private:
     QPointer<QmlEngine> m_qmlEngine;
-    QmlDebug::BaseEngineDebugClient *m_engineClient;
+    QmlDebug::BaseEngineDebugClient *m_engineClient = nullptr;
 
-    quint32 m_engineQueryId;
-    quint32 m_rootContextQueryId;
+    quint32 m_engineQueryId = 0;
+    quint32 m_rootContextQueryId = 0;
     int m_objectToSelect;
     QList<quint32> m_objectTreeQueryIds;
     QStack<QmlDebug::ObjectReference> m_objectStack;
@@ -136,22 +136,22 @@ private:
 
     DebuggerEngine *m_masterEngine;
     QHash<QString, QmlDebug::BaseEngineDebugClient*> m_engineClients;
-    QmlDebug::BaseToolsClient *m_toolsClient;
+    QmlDebug::BaseToolsClient *m_toolsClient = nullptr;
 
-    SelectionTarget m_targetToSync;
+    SelectionTarget m_targetToSync = NoTarget;
     int m_debugIdToSelect;
 
     int m_currentSelectedDebugId;
     QString m_currentSelectedDebugName;
 
     // toolbar
-    bool m_toolsClientConnected;
+    bool m_toolsClientConnected = false;
     Core::Context m_inspectorToolsContext;
     QAction *m_selectAction;
     QAction *m_zoomAction;
     QAction *m_showAppOnTopAction;
 
-    bool m_engineClientConnected;
+    bool m_engineClientConnected = false;
 };
 
 } // Internal

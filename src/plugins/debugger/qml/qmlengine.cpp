@@ -127,7 +127,7 @@ struct QmlV8ObjectData
     }
 };
 
-typedef std::function<void(const QVariantMap &)> QmlCallback;
+using QmlCallback = std::function<void(const QVariantMap &)>;
 
 struct LookupData
 {
@@ -136,7 +136,7 @@ struct LookupData
     QString exp;
 };
 
-typedef QHash<int, LookupData> LookupItems; // id -> (iname, exp)
+using LookupItems = QHash<int, LookupData>; // id -> (iname, exp)
 
 static void setWatchItemHasChildren(WatchItem *item, bool hasChildren)
 {
@@ -415,7 +415,7 @@ void QmlEngine::connectionStartupFailed()
         return;
     }
 
-    QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());
+    auto infoBox = new QMessageBox(ICore::mainWindow());
     infoBox->setIcon(QMessageBox::Critical);
     infoBox->setWindowTitle(Core::Constants::IDE_DISPLAY_NAME);
     infoBox->setText(tr("Could not connect to the in-process QML debugger."
@@ -436,7 +436,7 @@ void QmlEngine::appStartupFailed(const QString &errorMessage)
     QString error = tr("Could not connect to the in-process QML debugger. %1").arg(errorMessage);
 
     if (isMasterEngine()) {
-        QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());
+        auto infoBox = new QMessageBox(ICore::mainWindow());
         infoBox->setIcon(QMessageBox::Critical);
         infoBox->setWindowTitle(Core::Constants::IDE_DISPLAY_NAME);
         infoBox->setText(error);
@@ -935,9 +935,9 @@ void QmlEngine::selectWatchData(const QString &iname)
 
 bool compareConsoleItems(const ConsoleItem *a, const ConsoleItem *b)
 {
-    if (a == 0)
+    if (a == nullptr)
         return true;
-    if (b == 0)
+    if (b == nullptr)
         return false;
     return a->text() < b->text();
 }
@@ -947,7 +947,7 @@ static ConsoleItem *constructLogItemTree(const QVariant &result,
 {
     bool sorted = boolSetting(SortStructMembers);
     if (!result.isValid())
-        return 0;
+        return nullptr;
 
     QString text;
     ConsoleItem *item = nullptr;

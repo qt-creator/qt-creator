@@ -37,14 +37,14 @@ class DebuggerCommand;
 class DebuggerEngine;
 class WatchModel;
 
-typedef QVector<DisplayFormat> DisplayFormats;
+using DisplayFormats = QVector<DisplayFormat>;
 
 class WatchModelBase : public Utils::TreeModel<WatchItem, WatchItem>
 {
     Q_OBJECT
 
 public:
-    WatchModelBase() {}
+    WatchModelBase() = default;
 
 signals:
     void currentIndexRequested(const QModelIndex &idx);

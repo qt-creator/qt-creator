@@ -37,7 +37,6 @@ enum { LocalsIndex = 0, InspectorIndex = 1 };
 
 LocalsAndInspectorWindow::LocalsAndInspectorWindow(QWidget *locals,
       QWidget *inspector, QWidget *returnWidget)
-    : m_showLocals(false)
 {
     auto layout = new QVBoxLayout(this);
     layout->setMargin(0);

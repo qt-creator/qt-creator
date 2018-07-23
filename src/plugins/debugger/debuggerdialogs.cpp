@@ -585,7 +585,7 @@ static QString cdbRemoteHelp()
 }
 
 StartRemoteCdbDialog::StartRemoteCdbDialog(QWidget *parent) :
-    QDialog(parent), m_okButton(0), m_lineEdit(new QLineEdit)
+    QDialog(parent), m_lineEdit(new QLineEdit)
 {
     setWindowTitle(tr("Start a CDB Remote Session"));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -630,9 +630,7 @@ void StartRemoteCdbDialog::accept()
         QDialog::accept();
 }
 
-StartRemoteCdbDialog::~StartRemoteCdbDialog()
-{
-}
+StartRemoteCdbDialog::~StartRemoteCdbDialog() = default;
 
 void StartRemoteCdbDialog::textChanged(const QString &t)
 {
@@ -698,7 +696,7 @@ void AddressDialog::setAddress(quint64 a)
 
 quint64 AddressDialog::address() const
 {
-    return m_lineEdit->text().toULongLong(0, 16);
+    return m_lineEdit->text().toULongLong(nullptr, 16);
 }
 
 void AddressDialog::accept()
@@ -820,7 +818,7 @@ public:
     {
         m_layout = new QGridLayout;
         m_layout->setColumnStretch(0, 2);
-        QVBoxLayout *vboxLayout = new QVBoxLayout;
+        auto vboxLayout = new QVBoxLayout;
         vboxLayout->addLayout(m_layout);
         vboxLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Ignored,
                                             QSizePolicy::MinimumExpanding));
@@ -832,10 +830,10 @@ public:
     {
         const int row = m_layout->rowCount();
         int column = 0;
-        QButtonGroup *group = new QButtonGroup(this);
+        auto group = new QButtonGroup(this);
         m_layout->addWidget(new QLabel(type), row, column++);
         for (int i = -1; i != typeFormats.size(); ++i) {
-            QRadioButton *choice = new QRadioButton(this);
+            auto choice = new QRadioButton(this);
             choice->setText(i == -1 ? TypeFormatsDialog::tr("Reset")
                                     : WatchHandler::nameForFormat(typeFormats.at(i)));
             m_layout->addWidget(choice, row, column++);
@@ -858,7 +856,7 @@ public:
         buttonBox = new QDialogButtonBox(q);
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
-        QVBoxLayout *layout = new QVBoxLayout(q);
+        auto layout = new QVBoxLayout(q);
         layout->addWidget(tabs);
         layout->addWidget(buttonBox);
         q->setLayout(layout);
@@ -866,9 +864,9 @@ public:
 
     void addPage(const QString &name)
     {
-        TypeFormatsDialogPage *page = new TypeFormatsDialogPage;
+        auto page = new TypeFormatsDialogPage;
         pages.append(page);
-        QScrollArea *scroller = new QScrollArea;
+        auto scroller = new QScrollArea;
         scroller->setWidgetResizable(true);
         scroller->setWidget(page);
         scroller->setFrameStyle(QFrame::NoFrame);

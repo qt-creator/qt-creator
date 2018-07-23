@@ -52,7 +52,8 @@ signals:
                          QItemSelectionModel::SelectionFlags command);
 
 protected:
-    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+    bool filterAcceptsRow(int source_row,
+                          const QModelIndex &source_parent) const override;
 
 private:
     QFlags<ConsoleItem::ItemType> m_filter;

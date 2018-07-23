@@ -42,7 +42,7 @@ class DebuggerEngine;
 class MemoryMarkup
 {
 public:
-    MemoryMarkup() {}
+    MemoryMarkup() = default;
     MemoryMarkup(quint64 address, quint64 length, QColor c, const QString &tt)
         : address(address), length(length), color(c), toolTip(tt)
     {}
@@ -56,7 +56,7 @@ public:
 class MemoryViewSetupData
 {
 public:
-    MemoryViewSetupData() {}
+    MemoryViewSetupData() = default;
 
     quint64 startAddress = 0;
     QString registerName;

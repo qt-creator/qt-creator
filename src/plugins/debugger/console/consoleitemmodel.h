@@ -60,8 +60,8 @@ signals:
     void selectEditableRow(const QModelIndex &index, QItemSelectionModel::SelectionFlags flags);
 
 private:
-    int m_maxSizeOfFileName;
-    bool m_canFetchMore;
+    int m_maxSizeOfFileName = 0;
+    bool m_canFetchMore = false;
 };
 
 } // Internal

@@ -120,7 +120,7 @@ private:
     void textChanged(const QString &);
     void accept() override;
 
-    QPushButton *m_okButton;
+    QPushButton *m_okButton = nullptr;
     QLineEdit *m_lineEdit;
 };
 

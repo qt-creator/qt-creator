@@ -40,7 +40,7 @@ namespace Internal {
 class DisassemblerLine
 {
 public:
-    DisassemblerLine() : address(0), offset(0), lineNumber(0), hunk(0) {}
+    DisassemblerLine() = default;
     bool isAssembler() const { return address != 0; }
     bool isCode() const { return lineNumber != 0; }
     bool isComment() const { return lineNumber == 0 && address == 0; }
@@ -48,21 +48,21 @@ public:
     void fromString(const QString &unparsed);
 
 public:
-    quint64 address;  // (ass) Address of instruction in memory/in binary.
-    QString function; // (ass) Function to which current instruction belongs.
-    QString fileName; // (src) Source file
-    uint offset;      // (ass) Offset of instruction in relation to current function.
-    uint lineNumber;  // (src) Line number in source.
-    uint hunk;        // (src) Number of hunk if source line was split
-    QByteArray rawData;  // (ass) Raw bytes of the instruction
-    QString data;     // (ass) Instruction text, (src) source text, (cmt) arbitrary.
-    QString bytes;    // (ass) The instruction in raw bytes
+    quint64 address = 0;    // (ass) Address of instruction in memory/in binary.
+    QString function;       // (ass) Function to which current instruction belongs.
+    QString fileName;       // (src) Source file
+    uint offset = 0;        // (ass) Offset of instruction in relation to current function.
+    uint lineNumber = 0;    // (src) Line number in source.
+    uint hunk = 0;          // (src) Number of hunk if source line was split
+    QByteArray rawData;     // (ass) Raw bytes of the instruction
+    QString data;           // (ass) Instruction text, (src) source text, (cmt) arbitrary.
+    QString bytes;          // (ass) The instruction in raw bytes
 };
 
 class DisassemblerLines
 {
 public:
-    DisassemblerLines() : m_bytesLength(0) {}
+    DisassemblerLines() = default;
 
     bool coversAddress(quint64 address) const;
     void appendUnparsed(const QString &line);
@@ -84,7 +84,7 @@ public:
 
 private:
     QString m_lastFunction;
-    int m_bytesLength;
+    int m_bytesLength = 0;
     QVector<DisassemblerLine> m_data;
     QHash<quint64, int> m_rowCache;
 };

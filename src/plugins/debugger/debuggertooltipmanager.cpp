@@ -139,9 +139,9 @@ public:
         : m_target(target), m_moveStartPos(-1, -1), active(false)
     {}
 
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
 public:
     QWidget *m_target;
@@ -192,13 +192,13 @@ void DraggableLabel::mouseMoveEvent(QMouseEvent * event)
 class ToolTipWatchItem : public TreeItem
 {
 public:
-    ToolTipWatchItem() : expandable(false) {}
+    ToolTipWatchItem() = default;
     ToolTipWatchItem(TreeItem *item);
 
-    bool hasChildren() const { return expandable; }
-    bool canFetchMore() const { return childCount() == 0 && expandable && model(); }
-    void fetchMore() {}
-    QVariant data(int column, int role) const;
+    bool hasChildren() const override { return expandable; }
+    bool canFetchMore() const override { return childCount() == 0 && expandable && model(); }
+    void fetchMore() override {}
+    QVariant data(int column, int role) const override;
 
 public:
     QString name;
@@ -206,7 +206,7 @@ public:
     QString type;
     QString expression;
     QColor valueColor;
-    bool expandable;
+    bool expandable = false;
     QString iname;
 };
 
@@ -257,7 +257,7 @@ public:
         m_expandedINames.remove(idx.data(LocalsINameRole).toString());
     }
 
-    void fetchMore(const QModelIndex &idx)
+    void fetchMore(const QModelIndex &idx) override
     {
         if (!idx.isValid())
             return;
@@ -379,9 +379,9 @@ public:
         setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     }
 
-    QSize sizeHint() const { return m_size; }
+    QSize sizeHint() const override { return m_size; }
 
-    int sizeHintForColumn(int column) const
+    int sizeHintForColumn(int column) const override
     {
         return QTreeView::sizeHintForColumn(column);
     }
@@ -410,19 +410,19 @@ class DebuggerToolTipWidget : public QWidget
 public:
     DebuggerToolTipWidget();
 
-    ~DebuggerToolTipWidget() { DEBUG("DESTROY DEBUGGERTOOLTIP WIDGET"); }
+    ~DebuggerToolTipWidget() override { DEBUG("DESTROY DEBUGGERTOOLTIP WIDGET"); }
 
-    void closeEvent(QCloseEvent *)
+    void closeEvent(QCloseEvent *) override
     {
         DEBUG("CLOSE DEBUGGERTOOLTIP WIDGET");
     }
 
-    void enterEvent(QEvent *)
+    void enterEvent(QEvent *) override
     {
         DEBUG("ENTER DEBUGGERTOOLTIP WIDGET");
     }
 
-    void leaveEvent(QEvent *)
+    void leaveEvent(QEvent *) override
     {
         DEBUG("LEAVE DEBUGGERTOOLTIP WIDGET");
         if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
@@ -826,7 +826,7 @@ void DebuggerToolTipHolder::destroy()
 {
     if (widget) {
         widget->close();
-        widget = 0;
+        widget = nullptr;
     }
 }
 
@@ -1224,7 +1224,7 @@ static void slotTooltipOverrideRequested
 static void slotEditorOpened(IEditor *e)
 {
     // Move tooltip along when scrolled.
-    if (BaseTextEditor *textEditor = qobject_cast<BaseTextEditor *>(e)) {
+    if (auto textEditor = qobject_cast<BaseTextEditor *>(e)) {
         TextEditorWidget *widget = textEditor->editorWidget();
         QObject::connect(widget->verticalScrollBar(), &QScrollBar::valueChanged,
                          &DebuggerToolTipManager::updateVisibleToolTips);
@@ -1262,7 +1262,7 @@ void DebuggerToolTipManager::leavingDebugMode()
         if (QWidget *topLevel = ICore::mainWindow()->topLevelWidget())
             topLevel->removeEventFilter(this);
         foreach (IEditor *e, DocumentModel::editorsForOpenedDocuments()) {
-            if (BaseTextEditor *toolTipEditor = qobject_cast<BaseTextEditor *>(e)) {
+            if (auto toolTipEditor = qobject_cast<BaseTextEditor *>(e)) {
                 toolTipEditor->editorWidget()->verticalScrollBar()->disconnect(this);
                 toolTipEditor->disconnect(this);
             }
@@ -1289,7 +1289,7 @@ bool DebuggerToolTipManager::eventFilter(QObject *o, QEvent *e)
         return false;
     switch (e->type()) {
     case QEvent::Move: { // Move along with parent (toplevel)
-        const QMoveEvent *me = static_cast<const QMoveEvent *>(e);
+        const auto me = static_cast<const QMoveEvent *>(e);
         const QPoint dist = me->pos() - me->oldPos();
         purgeClosedToolTips();
         foreach (DebuggerToolTipHolder *tooltip, m_tooltips) {
@@ -1299,7 +1299,7 @@ bool DebuggerToolTipManager::eventFilter(QObject *o, QEvent *e)
         break;
     }
     case QEvent::WindowStateChange: { // Hide/Show along with parent (toplevel)
-        const QWindowStateChangeEvent *se = static_cast<const QWindowStateChangeEvent *>(e);
+        const auto se = static_cast<const QWindowStateChangeEvent *>(e);
         const bool wasMinimized = se->oldState() & Qt::WindowMinimized;
         const bool isMinimized  = static_cast<const QWidget *>(o)->windowState() & Qt::WindowMinimized;
         if (wasMinimized ^ isMinimized) {

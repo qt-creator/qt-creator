@@ -1002,12 +1002,12 @@ void DebuggerEngine::updateViews()
 
 bool DebuggerEngine::isSlaveEngine() const
 {
-    return d->m_masterEngine != 0;
+    return d->m_masterEngine != nullptr;
 }
 
 bool DebuggerEngine::isMasterEngine() const
 {
-    return d->m_masterEngine == 0;
+    return d->m_masterEngine == nullptr;
 }
 
 void DebuggerEngine::setMasterEngine(DebuggerEngine *masterEngine)
@@ -1535,7 +1535,7 @@ void DebuggerEngine::updateMemoryViews()
 
 void DebuggerEngine::openDisassemblerView(const Location &location)
 {
-    DisassemblerAgent *agent = new DisassemblerAgent(this);
+    auto agent = new DisassemblerAgent(this);
     agent->setLocation(location);
 }
 

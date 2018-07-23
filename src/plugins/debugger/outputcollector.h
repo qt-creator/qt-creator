@@ -47,7 +47,7 @@ class OutputCollector : public QObject
     Q_OBJECT
 
 public:
-    OutputCollector() {}
+    OutputCollector() = default;
     ~OutputCollector() override;
     bool listen();
     void shutdown();

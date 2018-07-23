@@ -63,7 +63,7 @@ Console::Console()
     m_consoleWidget->setWindowTitle(displayName());
     m_consoleWidget->setEnabled(true);
 
-    QVBoxLayout *vbox = new QVBoxLayout(m_consoleWidget);
+    auto vbox = new QVBoxLayout(m_consoleWidget);
     vbox->setMargin(0);
     vbox->setSpacing(0);
 
@@ -92,7 +92,7 @@ Console::Console()
             itemDelegate, &ConsoleItemDelegate::currentChanged);
     m_consoleView->setItemDelegate(itemDelegate);
 
-    Aggregation::Aggregate *aggregate = new Aggregation::Aggregate();
+    auto aggregate = new Aggregation::Aggregate();
     aggregate->add(m_consoleView);
     aggregate->add(new Core::ItemViewFind(m_consoleView));
 
@@ -189,7 +189,7 @@ bool Console::canFocus() const
 
 bool Console::hasFocus() const
 {
-    for (QWidget *widget = m_consoleWidget->window()->focusWidget(); widget != 0;
+    for (QWidget *widget = m_consoleWidget->window()->focusWidget(); widget != nullptr;
          widget = widget->parentWidget()) {
         if (widget == m_consoleWidget)
             return true;

@@ -384,7 +384,7 @@ qulonglong GdbMi::toAddress() const
         ba.chop(1);
     if (ba.startsWith('*') || ba.startsWith('@'))
         ba = ba.mid(1);
-    return ba.toULongLong(0, 0);
+    return ba.toULongLong(nullptr, 0);
 }
 
 Utils::ProcessHandle GdbMi::toProcessHandle() const
@@ -574,13 +574,13 @@ QString decodeData(const QString &ba, const QString &encoding)
     if (encoding == "empty")
         return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<empty>");
     if (encoding == "minimumitemcount")
-        return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<at least %n items>", 0, ba.toInt());
+        return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<at least %n items>", nullptr, ba.toInt());
     if (encoding == "undefined")
         return QLatin1String("Undefined");
     if (encoding == "null")
         return QLatin1String("Null");
     if (encoding == "itemcount")
-        return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<%n items>", 0, ba.toInt());
+        return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<%n items>", nullptr, ba.toInt());
     if (encoding == "notaccessible")
         return QCoreApplication::translate("Debugger::Internal::WatchHandler", "<not accessible>");
     if (encoding == "optimizedout")

@@ -57,8 +57,7 @@ ConsoleItemDelegate::ConsoleItemDelegate(ConsoleItemModel *model, QObject *paren
     m_expandIcon(Utils::Icons::EXPAND.icon()),
     m_collapseIcon(Utils::Icons::COLLAPSE.icon()),
     m_prompt(Utils::Icon({{QLatin1String(":/utils/images/next.png"),
-                          Utils::Theme::TextColorNormal}}, Utils::Icon::Tint).icon()),
-    m_cachedHeight(0)
+                          Utils::Theme::TextColorNormal}}, Utils::Icon::Tint).icon())
 {
 }
 
@@ -124,7 +123,7 @@ void ConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
                                             bool(opt.state & QStyle::State_Selected));
 
     // Calculate positions
-    const QTreeView *view = qobject_cast<const QTreeView *>(opt.widget);
+    const auto view = qobject_cast<const QTreeView*>(opt.widget);
     int level = 0;
     QModelIndex idx(index);
     while (idx.parent() != QModelIndex()) {
@@ -219,7 +218,7 @@ QSize ConsoleItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
 
-    const QTreeView *view = qobject_cast<const QTreeView *>(opt.widget);
+    const auto view = qobject_cast<const QTreeView*>(opt.widget);
     int level = 0;
     QModelIndex idx(index);
     while (idx.parent() != QModelIndex()) {
@@ -268,7 +267,7 @@ QWidget *ConsoleItemDelegate::createEditor(QWidget *parent,
                                               const QModelIndex &index) const
 
 {
-    ConsoleEdit *editor = new ConsoleEdit(index, parent);
+    auto editor = new ConsoleEdit(index, parent);
     // Make the background transparent so that the prompt shines through
     editor->setStyleSheet(QLatin1String("QTextEdit {"
                                         "margin-left: 24px;"
@@ -286,7 +285,7 @@ QWidget *ConsoleItemDelegate::createEditor(QWidget *parent,
 void ConsoleItemDelegate::setEditorData(QWidget *editor,
                                            const QModelIndex &index) const
 {
-    ConsoleEdit *edtr = qobject_cast<ConsoleEdit *>(editor);
+    auto edtr = qobject_cast<ConsoleEdit*>(editor);
     edtr->insertPlainText(index.data(ConsoleItem::ExpressionRole).toString());
 }
 
@@ -294,7 +293,7 @@ void ConsoleItemDelegate::setModelData(QWidget *editor,
                                           QAbstractItemModel *model,
                                           const QModelIndex &index) const
 {
-    ConsoleEdit *edtr = qobject_cast<ConsoleEdit *>(editor);
+    auto edtr = qobject_cast<ConsoleEdit*>(editor);
     model->setData(index, edtr->getCurrentScript(), ConsoleItem::ExpressionRole);
     model->setData(index, ConsoleItem::InputType, ConsoleItem::TypeRole);
 }

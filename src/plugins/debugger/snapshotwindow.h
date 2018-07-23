@@ -42,8 +42,8 @@ public:
 private:
     void rowActivated(const QModelIndex &index);
     void removeSnapshot(int i);
-    void keyPressEvent(QKeyEvent *ev);
-    void contextMenuEvent(QContextMenuEvent *ev);
+    void keyPressEvent(QKeyEvent *ev) override;
+    void contextMenuEvent(QContextMenuEvent *ev) override;
 
     SnapshotHandler *m_snapshotHandler;
 };

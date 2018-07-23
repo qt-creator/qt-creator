@@ -117,7 +117,7 @@ SelectRemoteFileDialog::SelectRemoteFileDialog(QWidget *parent)
     m_buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
     m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     layout->addWidget(m_fileSystemView);
     layout->addWidget(m_textBrowser);
     layout->addWidget(m_buttonBox);
@@ -234,7 +234,7 @@ public:
     {
         State st;
         st.localCoreFile = p.useLocalCoreFile();
-        st.validKit = (kitChooser->currentKit() != 0);
+        st.validKit = (kitChooser->currentKit() != nullptr);
         st.validLocalExecFilename = localExecFileName->isValid();
 
         if (st.localCoreFile)

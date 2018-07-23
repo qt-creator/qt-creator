@@ -58,7 +58,7 @@ public:
         Node::accept(ast, this);
     }
 
-    bool preVisit(Node *ast)
+    bool preVisit(Node *ast) override
     {
         return !done && ast->lastSourceLocation().startLine >= *line;
     }
@@ -73,7 +73,7 @@ public:
 
     //Add more types when suitable.
 
-    bool visit(UiScriptBinding *ast)
+    bool visit(UiScriptBinding *ast) override
     {
         if (!ast->statement)
             return true;
@@ -87,7 +87,7 @@ public:
             statementColumn = ast->statement->firstSourceLocation().startColumn;
 
         } else if (ast->statement->kind == Node::Kind_Block) {
-            Block *block = static_cast<Block *>(ast->statement);
+            auto block = static_cast<Block *>(ast->statement);
             if (!block->statements)
                 return true;
             statementStartLine = block->statements->firstSourceLocation().startLine;
@@ -124,7 +124,7 @@ public:
         return true;
     }
 
-    bool visit(FunctionDeclaration *ast) {
+    bool visit(FunctionDeclaration *ast) override {
         quint32 sourceStartLine = ast->firstSourceLocation().startLine;
         quint32 sourceStartColumn = ast->firstSourceLocation().startColumn;
         quint32 statementStartLine = ast->body->firstSourceLocation().startLine;
@@ -152,39 +152,39 @@ public:
         return true;
     }
 
-    bool visit(EmptyStatement *ast)
+    bool visit(EmptyStatement *ast) override
     {
         *line = ast->lastSourceLocation().startLine + 1;
         return true;
     }
 
-    bool visit(VariableStatement *ast) { test(ast); return true; }
-    bool visit(VariableDeclarationList *ast) { test(ast); return true; }
-    bool visit(VariableDeclaration *ast) { test(ast); return true; }
-    bool visit(ExpressionStatement *ast) { test(ast); return true; }
-    bool visit(IfStatement *ast) { test(ast); return true; }
-    bool visit(DoWhileStatement *ast) { test(ast); return true; }
-    bool visit(WhileStatement *ast) { test(ast); return true; }
-    bool visit(ForStatement *ast) { test(ast); return true; }
-    bool visit(LocalForStatement *ast) { test(ast); return true; }
-    bool visit(ForEachStatement *ast) { test(ast); return true; }
-    bool visit(LocalForEachStatement *ast) { test(ast); return true; }
-    bool visit(ContinueStatement *ast) { test(ast); return true; }
-    bool visit(BreakStatement *ast) { test(ast); return true; }
-    bool visit(ReturnStatement *ast) { test(ast); return true; }
-    bool visit(WithStatement *ast) { test(ast); return true; }
-    bool visit(SwitchStatement *ast) { test(ast); return true; }
-    bool visit(CaseBlock *ast) { test(ast); return true; }
-    bool visit(CaseClauses *ast) { test(ast); return true; }
-    bool visit(CaseClause *ast) { test(ast); return true; }
-    bool visit(DefaultClause *ast) { test(ast); return true; }
-    bool visit(LabelledStatement *ast) { test(ast); return true; }
-    bool visit(ThrowStatement *ast) { test(ast); return true; }
-    bool visit(TryStatement *ast) { test(ast); return true; }
-    bool visit(Catch *ast) { test(ast); return true; }
-    bool visit(Finally *ast) { test(ast); return true; }
-    bool visit(FunctionExpression *ast) { test(ast); return true; }
-    bool visit(DebuggerStatement *ast) { test(ast); return true; }
+    bool visit(VariableStatement *ast) override { test(ast); return true; }
+    bool visit(VariableDeclarationList *ast) override { test(ast); return true; }
+    bool visit(VariableDeclaration *ast) override { test(ast); return true; }
+    bool visit(ExpressionStatement *ast) override { test(ast); return true; }
+    bool visit(IfStatement *ast) override { test(ast); return true; }
+    bool visit(DoWhileStatement *ast) override { test(ast); return true; }
+    bool visit(WhileStatement *ast) override { test(ast); return true; }
+    bool visit(ForStatement *ast) override { test(ast); return true; }
+    bool visit(LocalForStatement *ast) override { test(ast); return true; }
+    bool visit(ForEachStatement *ast) override { test(ast); return true; }
+    bool visit(LocalForEachStatement *ast) override { test(ast); return true; }
+    bool visit(ContinueStatement *ast) override { test(ast); return true; }
+    bool visit(BreakStatement *ast) override { test(ast); return true; }
+    bool visit(ReturnStatement *ast) override { test(ast); return true; }
+    bool visit(WithStatement *ast) override { test(ast); return true; }
+    bool visit(SwitchStatement *ast) override { test(ast); return true; }
+    bool visit(CaseBlock *ast) override { test(ast); return true; }
+    bool visit(CaseClauses *ast) override { test(ast); return true; }
+    bool visit(CaseClause *ast) override { test(ast); return true; }
+    bool visit(DefaultClause *ast) override { test(ast); return true; }
+    bool visit(LabelledStatement *ast) override { test(ast); return true; }
+    bool visit(ThrowStatement *ast) override { test(ast); return true; }
+    bool visit(TryStatement *ast) override { test(ast); return true; }
+    bool visit(Catch *ast) override { test(ast); return true; }
+    bool visit(Finally *ast) override { test(ast); return true; }
+    bool visit(FunctionExpression *ast) override { test(ast); return true; }
+    bool visit(DebuggerStatement *ast) override { test(ast); return true; }
 
     void test(Node *ast)
     {
@@ -247,7 +247,7 @@ QStringList highlightExceptionCode(int lineNumber, const QString &filePath, cons
     QTextCharFormat errorFormat = fontSettings.toTextCharFormat(TextEditor::C_ERROR);
 
     for (IEditor *editor : editors) {
-        TextEditorWidget *ed = qobject_cast<TextEditorWidget *>(editor->widget());
+        auto ed = qobject_cast<TextEditorWidget *>(editor->widget());
         if (!ed)
             continue;
 

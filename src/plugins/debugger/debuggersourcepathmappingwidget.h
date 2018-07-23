@@ -50,7 +50,7 @@ class DebuggerSourcePathMappingWidget : public QGroupBox
     Q_OBJECT
 
 public:
-    typedef QMap<QString, QString> SourcePathMap;
+    using SourcePathMap = QMap<QString, QString>;
 
     explicit DebuggerSourcePathMappingWidget(QWidget *parent = nullptr);
 

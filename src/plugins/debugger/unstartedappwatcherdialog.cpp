@@ -57,8 +57,8 @@ namespace Internal {
 
 static bool isLocal(RunConfiguration *runConfiguration)
 {
-    Target *target = runConfiguration ? runConfiguration->target() : 0;
-    Kit *kit = target ? target->kit() : 0;
+    Target *target = runConfiguration ? runConfiguration->target() : nullptr;
+    Kit *kit = target ? target->kit() : nullptr;
     return DeviceTypeKitInformation::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 
@@ -94,8 +94,8 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     m_kitChooser->setVisible(true);
 
     Project *project = ProjectTree::currentProject();
-    Target *activeTarget = project ? project->activeTarget() : 0;
-    Kit *kit = activeTarget ? activeTarget->kit() : 0;
+    Target *activeTarget = project ? project->activeTarget() : nullptr;
+    Kit *kit = activeTarget ? activeTarget->kit() : nullptr;
 
     if (kit)
         m_kitChooser->setCurrentKitId(kit->id());
@@ -140,14 +140,14 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     m_waitingLabel = new QLabel(QString(), this);
     m_waitingLabel->setAlignment(Qt::AlignCenter);
 
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Close, this);
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Close, this);
     m_watchingPushButton = buttonBox->addButton(tr("Start Watching"), QDialogButtonBox::ActionRole);
     m_watchingPushButton->setCheckable(true);
     m_watchingPushButton->setChecked(false);
     m_watchingPushButton->setEnabled(false);
     m_watchingPushButton->setDefault(true);
 
-    QFormLayout *mainLayout = new QFormLayout(this);
+    auto mainLayout = new QFormLayout(this);
     mainLayout->addRow(new QLabel(tr("Kit: "), this), m_kitChooser);
     mainLayout->addRow(new QLabel(tr("Executable: "), this), pathLayout);
     mainLayout->addRow(m_hideOnAttachCheckBox);
@@ -177,7 +177,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
 bool UnstartedAppWatcherDialog::event(QEvent *e)
 {
     if (e->type() == QEvent::ShortcutOverride) {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(e);
+        auto ke = static_cast<QKeyEvent *>(e);
         if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
             ke->accept();
             return true;
@@ -191,7 +191,7 @@ void UnstartedAppWatcherDialog::selectExecutable()
     QString path;
 
     Project *project = ProjectTree::currentProject();
-    Target *activeTarget = project ? project->activeTarget() : 0;
+    Target *activeTarget = project ? project->activeTarget() : nullptr;
 
     if (activeTarget) {
         if (RunConfiguration *runConfig = activeTarget->activeRunConfiguration()) {

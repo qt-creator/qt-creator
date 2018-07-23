@@ -149,7 +149,7 @@ if (true) {
 \endcode
  */
 
-typedef QHash<QString, int> SeenHash;
+using SeenHash = QHash<QString, int>;
 
 static void blockRecursion(const Overview &overview,
                            const Scope *scope,

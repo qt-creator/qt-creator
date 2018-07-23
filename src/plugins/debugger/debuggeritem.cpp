@@ -68,17 +68,11 @@ namespace Debugger {
 // DebuggerItem
 // --------------------------------------------------------------------------
 
-DebuggerItem::DebuggerItem()
-{
-    m_engineType = NoEngineType;
-    m_isAutoDetected = false;
-}
+DebuggerItem::DebuggerItem() = default;
 
 DebuggerItem::DebuggerItem(const QVariant &id)
 {
     m_id = id;
-    m_engineType = NoEngineType;
-    m_isAutoDetected = false;
 }
 
 DebuggerItem::DebuggerItem(const QVariantMap &data)

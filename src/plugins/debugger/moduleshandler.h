@@ -55,7 +55,7 @@ public:
     QString demangled;
 };
 
-typedef QVector<Symbol> Symbols;
+using Symbols = QVector<Symbol>;
 
 //////////////////////////////////////////////////////////////////
 //
@@ -73,7 +73,7 @@ public:
     QString flags;
 };
 
-typedef QVector<Section> Sections;
+using Sections = QVector<Section>;
 
 //////////////////////////////////////////////////////////////////
 //
@@ -84,7 +84,7 @@ typedef QVector<Section> Sections;
 class Module
 {
 public:
-    Module() : symbolsRead(UnknownReadState), startAddress(0), endAddress(0) {}
+    Module() = default;
 
 public:
     enum SymbolReadState {
@@ -95,14 +95,14 @@ public:
     QString moduleName;
     QString modulePath;
     QString hostPath;
-    SymbolReadState symbolsRead;
-    quint64 startAddress;
-    quint64 endAddress;
+    SymbolReadState symbolsRead = UnknownReadState;
+    quint64 startAddress = 0;
+    quint64 endAddress = 0;
 
     Utils::ElfData elfData;
 };
 
-typedef QVector<Module> Modules;
+using Modules = QVector<Module>;
 
 //////////////////////////////////////////////////////////////////
 //

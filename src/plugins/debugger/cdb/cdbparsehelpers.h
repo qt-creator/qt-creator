@@ -82,14 +82,14 @@ struct WinException
     void fromGdbMI(const GdbMi &);
     QString toString(bool includeLocation = false) const;
 
-    unsigned exceptionCode;
-    unsigned exceptionFlags;
-    quint64 exceptionAddress;
-    quint64 info1;
-    quint64 info2;
-    bool firstChance;
+    unsigned exceptionCode = 0;
+    unsigned exceptionFlags = 0;
+    quint64 exceptionAddress = 0;
+    quint64 info1 = 0;
+    quint64 info2 = 0;
+    bool firstChance = false;
     QString file;
-    int lineNumber;
+    int lineNumber = 0;
     QString function;
 };
 

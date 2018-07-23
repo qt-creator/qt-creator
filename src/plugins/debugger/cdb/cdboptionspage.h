@@ -92,12 +92,12 @@ class CdbOptionsPage : public Core::IOptionsPage
 
 public:
     explicit CdbOptionsPage();
-    virtual ~CdbOptionsPage();
+    ~CdbOptionsPage() override;
 
     // IOptionsPage
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
     static const char *crtDbgReport;
 
@@ -112,14 +112,14 @@ class CdbPathsPage : public Core::IOptionsPage
 
 public:
     explicit CdbPathsPage();
-    virtual ~CdbPathsPage();
+    ~CdbPathsPage() override;
 
     static CdbPathsPage *instance();
 
     // IOptionsPage
-    QWidget *widget();
-    void apply();
-    void finish();
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
 
 private:
     QPointer<CdbPathsPageWidget> m_widget;

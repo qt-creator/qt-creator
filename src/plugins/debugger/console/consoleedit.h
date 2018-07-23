@@ -41,8 +41,8 @@ public:
     QString getCurrentScript() const;
 
 protected:
-    void keyPressEvent(QKeyEvent *e);
-    void focusOutEvent(QFocusEvent *e);
+    void keyPressEvent(QKeyEvent *e) override;
+    void focusOutEvent(QFocusEvent *e) override;
 
 signals:
     void editingFinished();

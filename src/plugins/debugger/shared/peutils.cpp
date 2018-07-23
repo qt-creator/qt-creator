@@ -72,21 +72,21 @@ struct CV_INFO_PDB70
 // Retrieve the NT image header of an executable via the legacy DOS header.
 static IMAGE_NT_HEADERS *getNtHeader(void *fileMemory, QString *errorMessage)
 {
-    IMAGE_DOS_HEADER *dosHeader = static_cast<PIMAGE_DOS_HEADER>(fileMemory);
+    auto dosHeader = static_cast<PIMAGE_DOS_HEADER>(fileMemory);
     // Check DOS header consistency
     if (IsBadReadPtr(dosHeader, sizeof(IMAGE_DOS_HEADER))
         || dosHeader->e_magic != IMAGE_DOS_SIGNATURE) {
         *errorMessage = QString::fromLatin1("DOS header check failed.");
-        return 0;
+        return nullptr;
     }
     // Retrieve NT header
-    IMAGE_NT_HEADERS *ntHeaders = makePtr<IMAGE_NT_HEADERS>(dosHeader, dosHeader->e_lfanew);
+    auto ntHeaders = makePtr<IMAGE_NT_HEADERS>(dosHeader, dosHeader->e_lfanew);
     // check NT header consistency
     if (IsBadReadPtr(ntHeaders, sizeof(ntHeaders->Signature))
         || ntHeaders->Signature != IMAGE_NT_SIGNATURE
         || IsBadReadPtr(&ntHeaders->FileHeader, sizeof(IMAGE_FILE_HEADER))) {
         *errorMessage = QString::fromLatin1("NT header check failed.");
-        return 0;
+        return nullptr;
     }
     // Check magic
     const WORD magic = ntHeaders->OptionalHeader.Magic;
@@ -100,14 +100,14 @@ static IMAGE_NT_HEADERS *getNtHeader(void *fileMemory, QString *errorMessage)
     if (magic != IMAGE_NT_OPTIONAL_HDR32_MAGIC && magic != IMAGE_NT_OPTIONAL_HDR64_MAGIC) {
         *errorMessage = QString::fromLatin1("NT header check failed; magic %1 is none of %2, %3.").
                         arg(magic).arg(IMAGE_NT_OPTIONAL_HDR32_MAGIC).arg(IMAGE_NT_OPTIONAL_HDR64_MAGIC);
-        return 0;
+        return nullptr;
     }
 #endif
     // Check section headers
     IMAGE_SECTION_HEADER *sectionHeaders = IMAGE_FIRST_SECTION(ntHeaders);
     if (IsBadReadPtr(sectionHeaders, ntHeaders->FileHeader.NumberOfSections * sizeof(IMAGE_SECTION_HEADER))) {
         *errorMessage = QString::fromLatin1("NT header section header check failed.");
-        return 0;
+        return nullptr;
     }
     return ntHeaders;
 }
@@ -134,22 +134,22 @@ static bool getDebugDirectory(IMAGE_NT_HEADERS *ntHeaders, void *fileMemory,
 {
     DWORD debugDirRva = 0;
     DWORD debugDirSize;
-    *debugDir = 0;
+    *debugDir = nullptr;
     *count = 0;
 
 #ifdef  __GNUC__ // MinGW does not have complete 64bit definitions.
-    IMAGE_OPTIONAL_HEADER *optionalHeader = reinterpret_cast<IMAGE_OPTIONAL_HEADER*>(&(ntHeaders->OptionalHeader));
+    auto optionalHeader = reinterpret_cast<IMAGE_OPTIONAL_HEADER*>(&(ntHeaders->OptionalHeader));
     debugDirRva = optionalHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress;
     debugDirSize = optionalHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size;
 #else
     // Find the virtual address
     const bool is64Bit = ntHeaders->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC;
     if (is64Bit) {
-        IMAGE_OPTIONAL_HEADER64 *optionalHeader64 = reinterpret_cast<IMAGE_OPTIONAL_HEADER64*>(&(ntHeaders->OptionalHeader));
+        auto optionalHeader64 = reinterpret_cast<IMAGE_OPTIONAL_HEADER64*>(&(ntHeaders->OptionalHeader));
         debugDirRva = optionalHeader64->DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress;
         debugDirSize = optionalHeader64->DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size;
     } else {
-        IMAGE_OPTIONAL_HEADER32 *optionalHeader32 = reinterpret_cast<IMAGE_OPTIONAL_HEADER32*>(&(ntHeaders->OptionalHeader));
+        auto optionalHeader32 = reinterpret_cast<IMAGE_OPTIONAL_HEADER32*>(&(ntHeaders->OptionalHeader));
         debugDirRva = optionalHeader32->DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress;
         debugDirSize = optionalHeader32->DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size;
     }
@@ -168,7 +168,7 @@ static bool getDebugDirectory(IMAGE_NT_HEADERS *ntHeaders, void *fileMemory,
     // Check
     if (IsBadReadPtr(*debugDir, debugDirSize) || debugDirSize < sizeof(IMAGE_DEBUG_DIRECTORY)) {
         *errorMessage = QString::fromLatin1("Debug directory corrupted.");
-        return 0;
+        return false;
     }
 
     *count = debugDirSize / sizeof(IMAGE_DEBUG_DIRECTORY);
@@ -185,19 +185,19 @@ static QString getPDBFileOfCodeViewSection(void *debugInfo, DWORD size)
 
     const DWORD cvSignature = *static_cast<DWORD*>(debugInfo);
     if (cvSignature == CV_SIGNATURE_NB10) {
-        CV_INFO_PDB20* cvInfo = static_cast<CV_INFO_PDB20*>(debugInfo);
+        auto cvInfo = static_cast<CV_INFO_PDB20*>(debugInfo);
         if (IsBadReadPtr(debugInfo, sizeof(CV_INFO_PDB20)))
             return QString();
-        CHAR* pdbFileName = reinterpret_cast<CHAR*>(cvInfo->PdbFileName);
+        auto pdbFileName = reinterpret_cast<CHAR*>(cvInfo->PdbFileName);
         if (IsBadStringPtrA(pdbFileName, UINT_MAX))
             return QString();
         return QString::fromLocal8Bit(pdbFileName);
     }
     if (cvSignature == CV_SIGNATURE_RSDS) {
-        CV_INFO_PDB70* cvInfo = static_cast<CV_INFO_PDB70*>(debugInfo);
+        auto cvInfo = static_cast<CV_INFO_PDB70*>(debugInfo);
         if (IsBadReadPtr(debugInfo, sizeof(CV_INFO_PDB70)))
             return QString();
-        CHAR* pdbFileName = reinterpret_cast<CHAR*>(cvInfo->PdbFileName);
+        auto pdbFileName = reinterpret_cast<CHAR*>(cvInfo->PdbFileName);
         if (IsBadStringPtrA(pdbFileName, UINT_MAX))
             return QString();
         return QString::fromLocal8Bit(pdbFileName);

@@ -44,7 +44,7 @@ namespace Internal {
 
 static QString chopConst(QString type)
 {
-    while (1) {
+    while (true) {
         if (type.startsWith(QLatin1String("const")))
             type = type.mid(5);
         else if (type.startsWith(QLatin1Char(' ')))

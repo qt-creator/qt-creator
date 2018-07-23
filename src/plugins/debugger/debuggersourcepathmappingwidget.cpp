@@ -50,8 +50,8 @@ enum { SourceColumn, TargetColumn, ColumnCount };
 namespace Debugger {
 namespace Internal {
 
-typedef QPair<QString, QString> Mapping;
-typedef DebuggerSourcePathMappingWidget::SourcePathMap SourcePathMap;
+using Mapping = QPair<QString, QString>;
+using SourcePathMap = DebuggerSourcePathMappingWidget::SourcePathMap;
 
 // Qt's various build paths for unpatched versions.
 QStringList qtBuildPaths()
@@ -166,9 +166,9 @@ void SourcePathMappingModel::setSourcePathMap(const SourcePathMap &m)
 void SourcePathMappingModel::addRawMapping(const QString &source, const QString &target)
 {
     QList<QStandardItem *> items;
-    QStandardItem *sourceItem = new QStandardItem(source);
+    auto sourceItem = new QStandardItem(source);
     sourceItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
-    QStandardItem *targetItem = new QStandardItem(target);
+    auto targetItem = new QStandardItem(target);
     targetItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
     items << sourceItem << targetItem;
     appendRow(items);

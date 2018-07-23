@@ -236,9 +236,9 @@ public:
     void decodeArrayHelper(int childSize)
     {
         const QByteArray ba = QByteArray::fromHex(rawData.toUtf8());
-        const T *p = (const T *) ba.data();
+        const auto p = (const T*)ba.data();
         for (int i = 0, n = ba.size() / sizeof(T); i < n; ++i) {
-            WatchItem *child = new WatchItem;
+            auto child = new WatchItem;
             child->arrayIndex = i;
             child->value = decodeItemHelper(p[i]);
             child->size = childSize;
@@ -409,7 +409,7 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
 
             for (int i = 0, n = int(children.children().size()); i != n; ++i) {
                 const GdbMi &subinput = children.children().at(i);
-                WatchItem *child = new WatchItem;
+                auto child = new WatchItem;
                 if (childType.isValid())
                     child->type = childType.data();
                 if (childNumChild.isValid())
@@ -505,7 +505,7 @@ QString WatchItem::toToolTip() const
     if (arrayIndex >= 0)
         formatToolTipRow(str, tr("Array Index"), QString::number(arrayIndex));
     if (size)
-        formatToolTipRow(str, tr("Static Object Size"), tr("%n bytes", 0, size));
+        formatToolTipRow(str, tr("Static Object Size"), tr("%n bytes", nullptr, size));
     formatToolTipRow(str, tr("Internal ID"), internalName());
     str << "</table></body></html>";
     return res;

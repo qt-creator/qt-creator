@@ -103,7 +103,7 @@ class RegisterItem;
 using RegisterRootItem = Utils::TypedTreeItem<RegisterItem>;
 using RegisterModel = Utils::TreeModel<RegisterRootItem, RegisterItem, RegisterSubItem>;
 
-typedef QMap<quint64, QString> RegisterMap;
+using RegisterMap = QMap<quint64, QString>;
 
 class RegisterHandler : public RegisterModel
 {

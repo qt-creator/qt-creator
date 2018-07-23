@@ -39,7 +39,7 @@ static QString winErrorMessage(unsigned long error)
 
     const int len = FormatMessage(
             FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL, error, 0, (LPTSTR)&lpMsgBuf, 0, NULL);
+            nullptr, error, 0, (LPTSTR)&lpMsgBuf, 0, nullptr);
     if (len) {
        rc = QString::fromUtf16(lpMsgBuf, len);
         LocalFree(lpMsgBuf);
@@ -63,14 +63,14 @@ static bool registryReadBinaryKey(HKEY handle, // HKEY_LOCAL_MACHINE, etc.
     DWORD type;
     DWORD size;
     // get size and retrieve
-    LONG rc = RegQueryValueEx(handle, valueName, 0, &type, 0, &size);
+    LONG rc = RegQueryValueEx(handle, valueName, nullptr, &type, nullptr, &size);
     if (rc != ERROR_SUCCESS) {
         *errorMessage = msgRegistryOperationFailed("read", valueName, msgFunctionFailed("RegQueryValueEx1", rc));
         return false;
     }
-    BYTE *dataC = new BYTE[size + 1];
+    auto dataC = new BYTE[size + 1];
     // Will be Utf16 in case of a string
-    rc = RegQueryValueEx(handle, valueName, 0, &type, dataC, &size);
+    rc = RegQueryValueEx(handle, valueName, nullptr, &type, dataC, &size);
     if (rc != ERROR_SUCCESS) {
         *errorMessage = msgRegistryOperationFailed("read", valueName, msgFunctionFailed("RegQueryValueEx2", rc));
         return false;

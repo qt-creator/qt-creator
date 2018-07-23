@@ -44,9 +44,7 @@ namespace Internal {
 //
 ////////////////////////////////////////////////////////////////////////
 
-StackFrame::StackFrame()
-  : language(CppLanguage), line(-1), address(0), usable(false)
-{}
+StackFrame::StackFrame() = default;
 
 void StackFrame::clear()
 {

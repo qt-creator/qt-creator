@@ -69,9 +69,9 @@ class DebuggerRunConfigWidget : public RunConfigWidget
 
 public:
     explicit DebuggerRunConfigWidget(DebuggerRunConfigurationAspect *aspect);
-    QString displayName() const { return tr("Debugger Settings"); }
+    QString displayName() const override { return tr("Debugger Settings"); }
 
-    void showEvent(QShowEvent *event);
+    void showEvent(QShowEvent *event) override;
     void update();
 
     void useCppDebuggerClicked(bool on);

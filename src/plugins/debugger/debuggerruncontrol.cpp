@@ -932,7 +932,7 @@ DebuggerRunTool::~DebuggerRunTool()
     disconnect();
     if (m_engine) {
         DebuggerEngine *engine = m_engine;
-        m_engine = 0;
+        m_engine = nullptr;
         engine->disconnect();
         delete engine;
     }
@@ -975,9 +975,7 @@ GdbServerPortsGatherer::GdbServerPortsGatherer(RunControl *runControl)
     m_device = runControl->device();
 }
 
-GdbServerPortsGatherer::~GdbServerPortsGatherer()
-{
-}
+GdbServerPortsGatherer::~GdbServerPortsGatherer() = default;
 
 Port GdbServerPortsGatherer::gdbServerPort() const
 {
@@ -1016,9 +1014,7 @@ GdbServerRunner::GdbServerRunner(RunControl *runControl, GdbServerPortsGatherer 
     addStartDependency(m_portsGatherer);
 }
 
-GdbServerRunner::~GdbServerRunner()
-{
-}
+GdbServerRunner::~GdbServerRunner() = default;
 
 void GdbServerRunner::setRunnable(const Runnable &runnable)
 {

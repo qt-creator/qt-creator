@@ -50,10 +50,10 @@ class Breakpoint
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::BreakHandler)
 
 public:
-    Breakpoint() {}
+    Breakpoint() = default;
 
     bool isValid() const;
-    operator const void *() const { return isValid() ? this : 0; }
+    operator const void *() const { return isValid() ? this : nullptr; }
     bool operator!() const { return !isValid(); }
 
     uint hash() const;
@@ -157,7 +157,7 @@ private:
 
 inline uint qHash(const Debugger::Internal::Breakpoint &b) { return b.hash(); }
 
-typedef QList<Breakpoint> Breakpoints;
+using Breakpoints = QList<Breakpoint>;
 
 using BreakModel = Utils::TreeModel<Utils::TypedTreeItem<BreakpointItem>, BreakpointItem, LocationItem>;
 

@@ -49,7 +49,7 @@ class ImageWidget : public QWidget
 {
     Q_OBJECT
 public:
-    ImageWidget() {}
+    ImageWidget() = default;
 
     void setImage(const QImage &image);
     const QImage &image() const { return  m_image; }
@@ -58,8 +58,8 @@ signals:
     void clicked(const QString &message);
 
 protected:
-    void paintEvent(QPaintEvent *);
-    void mousePressEvent(QMouseEvent *ev);
+    void paintEvent(QPaintEvent *) override;
+    void mousePressEvent(QMouseEvent *ev) override;
 
 private:
     QImage m_image;

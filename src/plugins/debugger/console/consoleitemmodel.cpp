@@ -38,8 +38,7 @@ namespace Internal {
 ///////////////////////////////////////////////////////////////////////
 
 ConsoleItemModel::ConsoleItemModel(QObject *parent) :
-    Utils::TreeModel<>(new ConsoleItem, parent),
-    m_maxSizeOfFileName(0), m_canFetchMore(false)
+    Utils::TreeModel<>(new ConsoleItem, parent)
 {
     clear();
 }
