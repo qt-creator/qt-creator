@@ -39,7 +39,7 @@ namespace Utils {
 QFile::Permissions SaveFile::m_umask = nullptr;
 
 SaveFile::SaveFile(const QString &filename) :
-    m_finalFileName(filename), m_finalized(true)
+    m_finalFileName(filename)
 {
 }
 

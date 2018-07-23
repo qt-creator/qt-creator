@@ -38,7 +38,7 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT Port
 {
 public:
-    Port() : m_port(-1) {}
+    Port() = default;
     explicit Port(quint16 port) : m_port(port) {}
     explicit Port(int port) :
         m_port((port < 0 || port > std::numeric_limits<quint16>::max()) ? -1 : port)
@@ -56,7 +56,7 @@ public:
     QString toString() const { return QString::number(m_port); }
 
 private:
-    int m_port;
+    int m_port = -1;
 };
 
 inline bool operator<(const Port &p1, const Port &p2) { return p1.number() < p2.number(); }

@@ -137,7 +137,7 @@ public:
 class QTCREATOR_UTILS_EXPORT ElfData
 {
 public:
-    ElfData() : symbolsType(UnknownSymbols) {}
+    ElfData() = default;
     int indexOf(const QByteArray &name) const;
 
 public:
@@ -148,7 +148,7 @@ public:
     quint64    entryPoint;
     QByteArray debugLink;
     QByteArray buildId;
-    DebugSymbolsType symbolsType;
+    DebugSymbolsType symbolsType = UnknownSymbols;
     QVector<ElfSectionHeader> sectionHeaders;
     QVector<ElfProgramHeader> programHeaders;
 };

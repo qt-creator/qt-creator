@@ -206,7 +206,7 @@ protected:
     std::unique_ptr<QFile> m_file;
     QString m_fileName;
     QString m_errorString;
-    bool m_hasError;
+    bool m_hasError = false;
 
 private:
     Q_DISABLE_COPY(FileSaverBase)
@@ -236,7 +236,7 @@ public:
     void setAutoRemove(bool on) { m_autoRemove = on; }
 
 private:
-    bool m_autoRemove;
+    bool m_autoRemove = true;
 };
 
 } // namespace Utils

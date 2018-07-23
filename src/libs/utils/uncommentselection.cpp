@@ -32,14 +32,11 @@ using namespace Utils;
 CommentDefinition CommentDefinition::CppStyle = CommentDefinition("//", "/*", "*/");
 CommentDefinition CommentDefinition::HashStyle = CommentDefinition("#");
 
-CommentDefinition::CommentDefinition() :
-    isAfterWhiteSpaces(false)
-{}
+CommentDefinition::CommentDefinition() = default;
 
 CommentDefinition::CommentDefinition(const QString &single, const QString &multiStart,
                                      const QString &multiEnd)
-    : isAfterWhiteSpaces(false),
-      singleLine(single),
+    : singleLine(single),
       multiLineStart(multiStart),
       multiLineEnd(multiEnd)
 {

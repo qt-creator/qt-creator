@@ -503,7 +503,6 @@ void ShellCommand::setOutputProxyFactory(const std::function<OutputProxy *()> &f
 }
 
 ProgressParser::ProgressParser() :
-    m_future(nullptr),
     m_futureMutex(new QMutex)
 { }
 

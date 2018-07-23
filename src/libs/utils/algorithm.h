@@ -229,7 +229,7 @@ protected:
   Container *container;
 
 public:
-  typedef Container container_type;
+  using container_type = Container;
   explicit SetInsertIterator (Container &x)
     : container(&x) {}
   SetInsertIterator<Container> &operator=(const typename Container::value_type &value)
@@ -253,7 +253,7 @@ template <class Container>
     Container *container;
 
   public:
-    typedef Container container_type;
+    using container_type = Container;
     explicit MapInsertIterator (Container &x)
       : container(&x) {}
     MapInsertIterator<Container> &operator=(const std::pair<const typename Container::key_type, typename Container::mapped_type> &value)

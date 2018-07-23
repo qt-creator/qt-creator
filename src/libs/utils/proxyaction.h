@@ -68,11 +68,11 @@ private:
     void connectAction();
     void update(QAction *action, bool initialize);
 
-    QPointer<QAction> m_action;
-    Attributes m_attributes;
-    bool m_showShortcut;
+    QPointer<QAction> m_action = nullptr;
+    Attributes m_attributes = {};
+    bool m_showShortcut = false;
     QString m_toolTip;
-    bool m_block;
+    bool m_block = false;
 };
 
 } // namespace Utils

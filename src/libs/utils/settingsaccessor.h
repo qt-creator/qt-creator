@@ -78,7 +78,7 @@ public:
     virtual ~SettingsAccessor() = default;
 
     enum ProceedInfo { Continue, DiscardAndContinue };
-    typedef QHash<QMessageBox::StandardButton, ProceedInfo> ButtonMap;
+    using ButtonMap = QHash<QMessageBox::StandardButton, ProceedInfo>;
     class Issue {
     public:
         enum class Type { ERROR, WARNING };
@@ -224,7 +224,7 @@ public:
     virtual QVariantMap upgrade(const QVariantMap &data) = 0;
 
 protected:
-    typedef QPair<QLatin1String,QLatin1String> Change;
+    using Change = QPair<QLatin1String,QLatin1String>;
     QVariantMap renameKeys(const QList<Change> &changes, QVariantMap map) const;
 
 private:

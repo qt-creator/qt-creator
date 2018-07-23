@@ -58,7 +58,6 @@ namespace Utils {
 */
 FixedSizeClickLabel::FixedSizeClickLabel(QWidget *parent)
     : QLabel(parent)
-    , m_pressed(false)
 {
 }
 

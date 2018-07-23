@@ -106,7 +106,7 @@ public:
     class QTCREATOR_UTILS_EXPORT ArgIterator {
     public:
         ArgIterator(QString *str, OsType osType = HostOsInfo::hostOs())
-            : m_str(str), m_pos(0), m_prev(-1), m_osType(osType)
+            : m_str(str), m_osType(osType)
         {}
         //! Get the next argument. Returns false on encountering end of first command.
         bool next();
@@ -121,7 +121,8 @@ public:
         void appendArg(const QString &str);
     private:
         QString *m_str, m_value;
-        int m_pos, m_prev;
+        int m_pos = 0;
+        int m_prev = -1;
         bool m_simple;
         OsType m_osType;
     };
@@ -143,8 +144,8 @@ private:
     QString m_command;
     QString m_arguments;
     Environment m_environment;
-    bool m_haveEnv;
-    bool m_useCtrlCStub;
+    bool m_haveEnv = false;
+    bool m_useCtrlCStub = false;
 };
 
 } // namespace Utils

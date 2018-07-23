@@ -28,11 +28,7 @@
 using namespace Utils;
 
 ProxyAction::ProxyAction(QObject *parent) :
-    QAction(parent),
-    m_action(nullptr),
-    m_attributes(nullptr),
-    m_showShortcut(false),
-    m_block(false)
+    QAction(parent)
 {
     connect(this, &QAction::changed, this, &ProxyAction::updateToolTipWithKeySequence);
     updateState();

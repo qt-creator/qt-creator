@@ -44,7 +44,7 @@ void TreeViewComboBoxView::adjustWidth(int width)
 
 
 TreeViewComboBox::TreeViewComboBox(QWidget *parent)
-    : QComboBox(parent), m_skipNextHide(false)
+    : QComboBox(parent)
 {
     m_view = new TreeViewComboBoxView;
     m_view->setHeaderHidden(true);

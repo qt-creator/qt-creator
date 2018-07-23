@@ -76,7 +76,7 @@ public:
     void setHistoryCompleter(const QString &key);
 
 private:
-    PathChooser::Kind m_kind;
+    PathChooser::Kind m_kind = PathChooser::ExistingDirectory;
     QString m_filter;
     QString m_historyKey;
 };

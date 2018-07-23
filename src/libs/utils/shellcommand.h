@@ -63,7 +63,7 @@ private:
     void setFuture(QFutureInterface<void> *future);
 
     QFutureInterface<void> *m_future;
-    QMutex *m_futureMutex;
+    QMutex *m_futureMutex = nullptr;
     friend class ShellCommand;
 };
 

@@ -54,7 +54,7 @@ signals:
 
 private:
     QString m_maxText;
-    bool m_pressed;
+    bool m_pressed = false;
 };
 
 } // namespace Utils

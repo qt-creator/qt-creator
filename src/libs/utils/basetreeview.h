@@ -110,7 +110,7 @@ template <class T> T *checkEventType(QEvent *ev)
 class QTCREATOR_UTILS_EXPORT ItemViewEvent
 {
 public:
-    ItemViewEvent() {}
+    ItemViewEvent() = default;
     ItemViewEvent(QEvent *ev, QAbstractItemView *view);
 
     template <class T> T *as() const {

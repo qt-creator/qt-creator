@@ -51,7 +51,7 @@ public:
         int column;
     };
     // returns true if the event should be accepted
-    typedef std::function<bool(QDropEvent*,DropSupport*)> DropFilterFunction;
+    using DropFilterFunction = std::function<bool(QDropEvent*, DropSupport*)>;
 
     DropSupport(QWidget *parentWidget, const DropFilterFunction &filterFunction = DropFilterFunction());
 

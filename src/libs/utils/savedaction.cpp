@@ -56,7 +56,6 @@ namespace Utils {
 SavedAction::SavedAction(QObject *parent)
   : QAction(parent)
 {
-    m_widget = nullptr;
     connect(this, &QAction::triggered, this, &SavedAction::actionTriggered);
 }
 

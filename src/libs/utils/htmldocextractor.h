@@ -81,8 +81,8 @@ private:
     static void replaceTablesForSimpleLines(QString *html);
     static void replaceListsForSimpleLines(QString *html);
 
-    bool m_formatContents;
-    Mode m_mode;
+    bool m_formatContents = true;
+    Mode m_mode = FirstParagraph;
 };
 
 } // namespace Utils

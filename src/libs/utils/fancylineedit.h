@@ -121,7 +121,7 @@ public:
     //  Validation
 
     // line edit, (out)errorMessage -> valid?
-    typedef std::function<bool(FancyLineEdit *, QString *)> ValidationFunction;
+    using ValidationFunction = std::function<bool(FancyLineEdit *, QString *)>;
     enum State { Invalid, DisplayingPlaceholderText, Valid };
 
     State state() const;

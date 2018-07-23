@@ -50,7 +50,7 @@ public:
     bool hasMultiLineStyle() const;
 
 public:
-    bool isAfterWhiteSpaces;
+    bool isAfterWhiteSpaces = false;
     QString singleLine;
     QString multiLineStart;
     QString multiLineEnd;

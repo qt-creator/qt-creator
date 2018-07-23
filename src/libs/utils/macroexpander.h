@@ -38,8 +38,8 @@ namespace Utils {
 namespace Internal { class MacroExpanderPrivate; }
 
 class MacroExpander;
-typedef std::function<MacroExpander *()> MacroExpanderProvider;
-typedef QVector<MacroExpanderProvider> MacroExpanderProviders;
+using MacroExpanderProvider = std::function<MacroExpander *()>;
+using MacroExpanderProviders = QVector<MacroExpanderProvider>;
 
 class QTCREATOR_UTILS_EXPORT MacroExpander
 {
@@ -59,10 +59,10 @@ public:
 
     QString expandProcessArgs(const QString &argsWithVariables) const;
 
-    typedef std::function<QString(QString)> PrefixFunction;
-    typedef std::function<bool(QString, QString *)> ResolverFunction;
-    typedef std::function<QString()> StringFunction;
-    typedef std::function<int()> IntFunction;
+    using PrefixFunction = std::function<QString(QString)>;
+    using ResolverFunction = std::function<bool(QString, QString *)>;
+    using StringFunction = std::function<QString()>;
+    using IntFunction = std::function<int()>;
 
     void registerPrefix(const QByteArray &prefix,
         const QString &description, const PrefixFunction &value);

@@ -49,26 +49,25 @@ public:
             Copy
         };
 
-        EditOp(): type(Unset), pos1(0), pos2(0), length1(0), length2(0) {}
-        EditOp(Type t): type(t), pos1(0), pos2(0), length1(0), length2(0) {}
+        EditOp() = default;
+        EditOp(Type t): type(t) {}
 
-        Type type;
-        int pos1;
-        int pos2;
-        int length1;
-        int length2;
+        Type type = Unset;
+        int pos1 = 0;
+        int pos2 = 0;
+        int length1 = 0;
+        int length2 = 0;
         QString text;
     };
 
     struct Range {
-        Range()
-            : start(0), end(0) {}
+        Range() = default;
 
         Range(int start, int end)
             : start(start), end(end) {}
 
-        int start;
-        int end;
+        int start = 0;
+        int end = 0;
     };
 
 public:

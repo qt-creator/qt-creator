@@ -45,7 +45,7 @@ signals:
 #ifdef Q_OS_WIN
 protected:
     virtual bool winEvent(MSG *message, long *result);
-    virtual bool event(QEvent *event);
+    bool event(QEvent *event) override;
 #endif
 
 private:

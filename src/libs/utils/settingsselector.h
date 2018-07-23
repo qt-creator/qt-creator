@@ -46,8 +46,8 @@ class QTCREATOR_UTILS_EXPORT SettingsSelector : public QWidget
     Q_OBJECT
 
 public:
-    explicit SettingsSelector(QWidget *parent = 0);
-    ~SettingsSelector();
+    explicit SettingsSelector(QWidget *parent = nullptr);
+    ~SettingsSelector() override;
 
     void setConfigurationModel(QAbstractItemModel *model);
     QAbstractItemModel *configurationModel() const;

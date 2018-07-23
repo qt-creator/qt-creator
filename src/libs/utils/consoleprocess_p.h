@@ -48,32 +48,32 @@ struct ConsoleProcessPrivate {
     ConsoleProcessPrivate();
 
     static QString m_defaultConsoleProcess;
-    ConsoleProcess::Mode m_mode;
+    ConsoleProcess::Mode m_mode = ConsoleProcess::Run;
     QString m_workingDir;
     Environment m_environment;
-    qint64 m_appPid;
+    qint64 m_appPid = 0;
     int m_appCode;
     QString m_executable;
     QProcess::ExitStatus m_appStatus;
     QLocalServer m_stubServer;
-    QLocalSocket *m_stubSocket;
-    QTemporaryFile *m_tempFile;
-    QProcess::ProcessError m_error;
+    QLocalSocket *m_stubSocket = nullptr;
+    QTemporaryFile *m_tempFile = nullptr;
+    QProcess::ProcessError m_error = QProcess::UnknownError;
     QString m_errorString;
 
 #ifdef Q_OS_UNIX
     QProcess m_process;
     QByteArray m_stubServerDir;
-    QSettings *m_settings;
-    bool m_stubConnected;
-    qint64 m_stubPid;
-    QTimer *m_stubConnectTimer;
+    QSettings *m_settings = nullptr;
+    bool m_stubConnected = false;
+    qint64 m_stubPid = 0;
+    QTimer *m_stubConnectTimer = nullptr;
 #else
-    qint64 m_appMainThreadId;
-    PROCESS_INFORMATION *m_pid;
-    HANDLE m_hInferior;
-    QWinEventNotifier *inferiorFinishedNotifier;
-    QWinEventNotifier *processFinishedNotifier;
+    qint64 m_appMainThreadId = 0;
+    PROCESS_INFORMATION *m_pid = nullptr;
+    HANDLE m_hInferior = NULL;
+    QWinEventNotifier *inferiorFinishedNotifier = nullptr;
+    QWinEventNotifier *processFinishedNotifier = nullptr;
 #endif
 };
 

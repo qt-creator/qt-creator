@@ -51,7 +51,7 @@ public:
 
     inline void *allocate(size_t size)
     {
-        char *obj = new char[size];
+        auto obj = new char[size];
         _objs.append(obj);
         return obj;
     }

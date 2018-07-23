@@ -38,10 +38,7 @@ namespace {
     }
 }
 
-HtmlDocExtractor::HtmlDocExtractor() :
-    m_formatContents(true),
-    m_mode(FirstParagraph)
-{}
+HtmlDocExtractor::HtmlDocExtractor() = default;
 
 void HtmlDocExtractor::setMode(Mode mode)
 { m_mode = mode; }

@@ -49,6 +49,6 @@ public:
     }
 };
 
-typedef ScopedSwap<bool> ScopedBoolSwap;
+using ScopedBoolSwap = ScopedSwap<bool>;
 
 } // Utils namespace

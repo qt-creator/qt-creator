@@ -39,7 +39,7 @@ public:
     void set();
     void reset();
 private:
-    bool m_set;
+    bool m_set = true;
     QCursor m_cursor;
 };
 

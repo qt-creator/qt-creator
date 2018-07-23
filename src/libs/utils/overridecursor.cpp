@@ -30,7 +30,7 @@
 using namespace Utils;
 
 OverrideCursor::OverrideCursor(const QCursor &cursor)
-    : m_set(true), m_cursor(cursor)
+    : m_cursor(cursor)
 {
     QApplication::setOverrideCursor(cursor);
 }

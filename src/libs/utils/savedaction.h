@@ -83,14 +83,14 @@ private:
     QString m_settingsKey;
     QString m_settingsGroup;
     QString m_dialogText;
-    QWidget *m_widget;
+    QWidget *m_widget = nullptr;
 };
 
 class QTCREATOR_UTILS_EXPORT SavedActionSet
 {
 public:
-    SavedActionSet() {}
-    ~SavedActionSet() {}
+    SavedActionSet() = default;
+    ~SavedActionSet() = default;
 
     void insert(SavedAction *action, QWidget *widget);
     void apply(QSettings *settings);

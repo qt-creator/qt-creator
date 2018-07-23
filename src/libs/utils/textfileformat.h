@@ -78,9 +78,9 @@ public:
 
     static QByteArray decodingErrorSample(const QByteArray &data);
 
-    LineTerminationMode lineTerminationMode;
-    bool hasUtf8Bom;
-    const QTextCodec *codec;
+    LineTerminationMode lineTerminationMode = NativeLineTerminator;
+    bool hasUtf8Bom = false;
+    const QTextCodec *codec = nullptr;
 };
 
 } // namespace Utils

@@ -38,7 +38,7 @@ QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace Utils {
 
-typedef QPair<QString, Theme::Color> IconMaskAndColor;
+using IconMaskAndColor = QPair<QString, Theme::Color>;
 
 // Returns a recolored icon with shadow and custom disabled state for a
 // series of grayscalemask|Theme::Color mask pairs

@@ -47,7 +47,7 @@ private:
     void slotTimeout();
     void stopTimer();
 
-    QTimer *m_timer;
+    QTimer *m_timer = nullptr;
     QString m_lastPermanentStatusMessage;
 };
 

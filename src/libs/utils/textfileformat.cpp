@@ -68,10 +68,7 @@ QDebug operator<<(QDebug d, const TextFileFormat &format)
     as strings or string lists and to write out files.
 */
 
-TextFileFormat::TextFileFormat() :
-    lineTerminationMode(NativeLineTerminator), hasUtf8Bom(false), codec(nullptr)
-{
-}
+TextFileFormat::TextFileFormat() = default;
 
 /*!
     Detects the format of text data.

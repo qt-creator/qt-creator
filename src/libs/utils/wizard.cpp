@@ -565,12 +565,7 @@ class WizardProgressPrivate
     Q_DECLARE_PUBLIC(WizardProgress)
 
 public:
-    WizardProgressPrivate()
-        :
-        m_currentItem(nullptr),
-        m_startItem(nullptr)
-    {
-    }
+    WizardProgressPrivate() = default;
 
     bool isNextItem(WizardProgressItem *item, WizardProgressItem *nextItem) const;
     // if multiple paths are possible the empty list is returned
@@ -585,8 +580,8 @@ public:
     QList<WizardProgressItem *> m_visitedItems;
     QList<WizardProgressItem *> m_reachableItems;
 
-    WizardProgressItem *m_currentItem;
-    WizardProgressItem *m_startItem;
+    WizardProgressItem *m_currentItem = nullptr;
+    WizardProgressItem *m_startItem = nullptr;
 };
 
 class WizardProgressItemPrivate

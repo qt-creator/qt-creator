@@ -84,7 +84,7 @@ namespace Utils {
 // A special QProcess derivative allowing for terminal control.
 class TerminalControllingProcess : public QProcess {
 public:
-    TerminalControllingProcess() : m_flags(0) {}
+    TerminalControllingProcess() = default;
 
     unsigned flags() const { return m_flags; }
     void setFlags(unsigned tc) { m_flags = tc; }
@@ -93,7 +93,7 @@ protected:
     void setupChildProcess() override;
 
 private:
-    unsigned m_flags;
+    unsigned m_flags = 0;
 };
 
 void TerminalControllingProcess::setupChildProcess()

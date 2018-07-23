@@ -395,10 +395,7 @@ bool FileReader::fetch(const QString &fileName, QIODevice::OpenMode mode, QWidge
 }
 #endif // QT_GUI_LIB
 
-FileSaverBase::FileSaverBase()
-    : m_hasError(false)
-{
-}
+FileSaverBase::FileSaverBase() = default;
 
 FileSaverBase::~FileSaverBase() = default;
 
@@ -526,7 +523,6 @@ bool FileSaver::finalize()
 }
 
 TempFileSaver::TempFileSaver(const QString &templ)
-    : m_autoRemove(true)
 {
     m_file.reset(new QTemporaryFile{});
     auto tempFile = static_cast<QTemporaryFile *>(m_file.get());

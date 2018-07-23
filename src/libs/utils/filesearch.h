@@ -65,26 +65,26 @@ public:
     class Item
     {
     public:
-        Item() : encoding(nullptr) { }
+        Item() = default;
         Item(const QString &path, QTextCodec *codec)
             : filePath(path), encoding(codec)
         {}
         QString filePath;
-        QTextCodec *encoding;
+        QTextCodec *encoding = nullptr;
     };
 
-    typedef Item value_type;
+    using value_type = Item;
 
     class const_iterator
     {
     public:
-        typedef std::forward_iterator_tag iterator_category;
-        typedef Item value_type;
-        typedef std::ptrdiff_t difference_type;
-        typedef const value_type *pointer;
-        typedef const value_type &reference;
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = Item;
+        using difference_type = std::ptrdiff_t;
+        using pointer = const value_type*;
+        using reference = const value_type&;
 
-        const_iterator() : m_parent(nullptr), m_index(-1) { }
+        const_iterator() = default;
         const_iterator(const FileIterator *parent, int id)
             : m_parent(parent), m_index(id)
         {}
@@ -100,11 +100,11 @@ public:
         }
         bool operator!=(const const_iterator &other) const { return !operator==(other); }
 
-        const FileIterator *m_parent;
-        int m_index; // -1 == end
+        const FileIterator *m_parent = nullptr;
+        int m_index = -1; // -1 == end
     };
 
-    virtual ~FileIterator() {}
+    virtual ~FileIterator() = default;
     const_iterator begin() const;
     const_iterator end() const;
 
@@ -169,7 +169,7 @@ private:
 class QTCREATOR_UTILS_EXPORT FileSearchResult
 {
 public:
-    FileSearchResult() {}
+    FileSearchResult() = default;
     FileSearchResult(const QString &fileName, int lineNumber, const QString &matchingLine,
                      int matchStart, int matchLength,
                      const QStringList &regexpCapturedTexts)
@@ -189,7 +189,7 @@ public:
     QStringList regexpCapturedTexts;
 };
 
-typedef QList<FileSearchResult> FileSearchResultList;
+using FileSearchResultList = QList<FileSearchResult>;
 
 QTCREATOR_UTILS_EXPORT QFuture<FileSearchResultList> findInFiles(const QString &searchTerm, FileIterator *files,
     QTextDocument::FindFlags flags, const QMap<QString, QString> &fileToContentsMap = QMap<QString, QString>());

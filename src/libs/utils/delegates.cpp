@@ -114,7 +114,6 @@ QSize AnnotatedItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 
 PathChooserDelegate::PathChooserDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
-    , m_kind(Utils::PathChooser::ExistingDirectory)
 {
 }
 
@@ -133,7 +132,7 @@ QWidget *PathChooserDelegate::createEditor(QWidget *parent, const QStyleOptionVi
     Q_UNUSED(option);
     Q_UNUSED(index);
 
-    Utils::PathChooser *editor = new Utils::PathChooser(parent);
+    auto editor = new Utils::PathChooser(parent);
 
     editor->setHistoryCompleter(m_historyKey);
     editor->setAutoFillBackground(true); // To hide the text beneath the editor widget
@@ -157,7 +156,7 @@ void PathChooserDelegate::setEditorData(QWidget *editor, const QModelIndex &inde
 
 void PathChooserDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
-    Utils::PathChooser *pathChooser = qobject_cast<Utils::PathChooser *>(editor);
+    auto pathChooser = qobject_cast<Utils::PathChooser *>(editor);
     if (!pathChooser)
         return;
 

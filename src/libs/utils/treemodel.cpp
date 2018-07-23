@@ -605,10 +605,7 @@ namespace Utils {
 //
 // TreeItem
 //
-TreeItem::TreeItem()
-    : m_parent(nullptr), m_model(nullptr)
-{
-}
+TreeItem::TreeItem() = default;
 
 TreeItem::~TreeItem()
 {

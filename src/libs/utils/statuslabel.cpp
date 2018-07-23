@@ -35,7 +35,7 @@
 
 namespace Utils {
 
-StatusLabel::StatusLabel(QWidget *parent) : QLabel(parent), m_timer(nullptr)
+StatusLabel::StatusLabel(QWidget *parent) : QLabel(parent)
 {
     // A manual size let's us shrink below minimum text width which is what
     // we want in [fake] status bars.

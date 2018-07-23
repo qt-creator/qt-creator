@@ -36,19 +36,7 @@
 
 namespace Utils {
 
-ConsoleProcessPrivate::ConsoleProcessPrivate() :
-    m_mode(ConsoleProcess::Run),
-    m_appPid(0),
-    m_stubSocket(nullptr),
-    m_tempFile(nullptr),
-    m_error(QProcess::UnknownError),
-    m_appMainThreadId(0),
-    m_pid(nullptr),
-    m_hInferior(NULL),
-    inferiorFinishedNotifier(nullptr),
-    processFinishedNotifier(nullptr)
-{
-}
+ConsoleProcessPrivate::ConsoleProcessPrivate() = default;
 
 ConsoleProcess::ConsoleProcess(QObject *parent) :
     QObject(parent), d(new ConsoleProcessPrivate)

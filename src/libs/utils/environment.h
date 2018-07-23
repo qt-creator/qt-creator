@@ -82,7 +82,7 @@ QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug debug, const EnvironmentItem &i)
 class QTCREATOR_UTILS_EXPORT Environment
 {
 public:
-    typedef QMap<QString, QString>::const_iterator const_iterator;
+    using const_iterator = QMap<QString, QString>::const_iterator;
 
     explicit Environment(OsType osType = HostOsInfo::hostOs()) : m_osType(osType) {}
     explicit Environment(const QStringList &env, OsType osType = HostOsInfo::hostOs());
