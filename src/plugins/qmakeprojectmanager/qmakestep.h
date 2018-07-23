@@ -144,7 +144,7 @@ public:
     void setSeparateDebugInfo(bool enable);
 
     QString makeCommand() const;
-    QString makeArguments() const;
+    QString makeArguments(const QString &makefile) const;
     QString effectiveQMakeCall() const;
 
     QVariantMap toMap() const override;
