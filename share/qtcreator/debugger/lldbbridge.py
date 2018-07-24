@@ -1505,7 +1505,7 @@ class Dumper(DumperBase):
         self.reportResult('', args)
 
     def executeNextI(self, args):
-        self.currentThread().StepInstruction(lldb.eOnlyThisThread)
+        self.currentThread().StepInstruction(True)
         self.reportResult('', args)
 
     def executeStep(self, args):
@@ -1527,7 +1527,7 @@ class Dumper(DumperBase):
         self.reportResult('', args)
 
     def executeStepI(self, args):
-        self.currentThread().StepInstruction(lldb.eOnlyThisThread)
+        self.currentThread().StepInstruction(False)
         self.reportResult('', args)
 
     def executeStepOut(self, args = {}):
