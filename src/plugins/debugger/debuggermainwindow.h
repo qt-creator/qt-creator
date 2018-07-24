@@ -37,6 +37,7 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
+class QToolButton;
 class QStackedWidget;
 QT_END_NAMESPACE
 
