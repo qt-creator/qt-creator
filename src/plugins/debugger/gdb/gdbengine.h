@@ -176,8 +176,6 @@ private: ////////// General Interface //////////
     void handleStop3();
     void resetCommandQueue();
 
-    bool isSynchronous() const final { return true; }
-
     // Gdb initialization sequence
     void handleShowVersion(const DebuggerResponse &response);
     void handleListFeatures(const DebuggerResponse &response);

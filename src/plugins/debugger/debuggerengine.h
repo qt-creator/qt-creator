@@ -301,7 +301,6 @@ public:
     virtual bool hasCapability(unsigned cap) const = 0;
     virtual void debugLastCommand() {}
 
-    virtual bool isSynchronous() const;
     virtual QString qtNamespace() const;
     void setQtNamespace(const QString &ns);
 

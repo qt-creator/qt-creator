@@ -88,7 +88,6 @@ private:
     void reloadFullStack() override {}
 
     bool supportsThreads() const { return true; }
-    bool isSynchronous() const override { return true; }
     void updateItem(const QString &iname) override;
 
     void runCommand(const DebuggerCommand &cmd) override;

@@ -70,7 +70,6 @@ private:
     void gotoLocation(const Internal::Location &location) override;
     void insertBreakpoint(Breakpoint bp) override;
 
-    bool isSynchronous() const override { return false; }
     bool canDisplayTooltip() const override { return false; }
 
     void resetLocation() override;

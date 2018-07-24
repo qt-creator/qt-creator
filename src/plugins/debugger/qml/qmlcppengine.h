@@ -65,7 +65,6 @@ public:
     void setRegisterValue(const QString &name, const QString &value) override;
     bool hasCapability(unsigned cap) const override;
 
-    bool isSynchronous() const override;
     QString qtNamespace() const override;
 
     void createSnapshot() override;

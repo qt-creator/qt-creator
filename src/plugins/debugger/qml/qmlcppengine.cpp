@@ -207,11 +207,6 @@ bool QmlCppEngine::hasCapability(unsigned cap) const
     return hasCap;
 }
 
-bool QmlCppEngine::isSynchronous() const
-{
-    return m_activeEngine->isSynchronous();
-}
-
 QString QmlCppEngine::qtNamespace() const
 {
     return m_cppEngine->qtNamespace();

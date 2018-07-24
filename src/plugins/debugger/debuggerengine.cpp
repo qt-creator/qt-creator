@@ -1273,11 +1273,6 @@ void DebuggerEngine::addOptionPages(QList<IOptionsPage*> *) const
 {
 }
 
-bool DebuggerEngine::isSynchronous() const
-{
-    return false;
-}
-
 QString DebuggerEngine::qtNamespace() const
 {
     return d->m_qtNamespace;

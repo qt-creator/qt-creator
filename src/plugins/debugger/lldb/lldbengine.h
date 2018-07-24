@@ -110,7 +110,6 @@ private:
     void reloadDebuggingHelpers() override;
     void fetchDisassembler(Internal::DisassemblerAgent *) override;
 
-    bool isSynchronous() const override { return true; }
     void setRegisterValue(const QString &name, const QString &value) override;
 
     void fetchMemory(MemoryAgent *, quint64 addr, quint64 length) override;
