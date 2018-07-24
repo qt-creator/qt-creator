@@ -3494,6 +3494,11 @@ void registerToolbar(const QByteArray &perspectiveId, const ToolbarDescription &
     dd->m_mainWindow->registerToolbar(perspectiveId, toolbar);
 }
 
+void destroyDynamicToolbar(const QByteArray &perspectiveId)
+{
+    dd->m_mainWindow->destroyDynamicToolbar(perspectiveId);
+}
+
 QAction *createStartAction()
 {
     auto action = new QAction(DebuggerMainWindow::tr("Start"), DebuggerPlugin::instance());
@@ -3513,6 +3518,11 @@ QAction *createStopAction()
 void registerPerspective(const QByteArray &perspectiveId, const Perspective *perspective)
 {
     dd->m_mainWindow->registerPerspective(perspectiveId, perspective);
+}
+
+void destroyDynamicPerspective(const QByteArray &perspectiveId)
+{
+    dd->m_mainWindow->destroyDynamicPerspective(perspectiveId);
 }
 
 void setPerspectiveEnabled(const QByteArray &perspectiveId, bool enabled)

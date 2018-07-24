@@ -103,10 +103,18 @@ DebuggerMainWindow::~DebuggerMainWindow()
 void DebuggerMainWindow::registerPerspective(const QByteArray &perspectiveId, const Perspective *perspective)
 {
     m_perspectiveForPerspectiveId.insert(perspectiveId, perspective);
-    m_perspectiveChooser->addItem(perspective->name(), perspectiveId);
-    // adjust width if necessary
+    QByteArray parentPerspective = perspective->parentPerspective();
+    // Add "main" perspectives to the chooser.
+    if (parentPerspective.isEmpty()) {
+        m_perspectiveChooser->addItem(perspective->name(), perspectiveId);
+        increaseChooserWidthIfNecessary(perspective->name());
+    }
+}
+
+void DebuggerMainWindow::increaseChooserWidthIfNecessary(const QString &visibleName)
+{
     const int oldWidth = m_perspectiveChooser->width();
-    const int contentWidth = m_perspectiveChooser->fontMetrics().width(perspective->name());
+    const int contentWidth = m_perspectiveChooser->fontMetrics().width(visibleName);
     QStyleOptionComboBox option;
     option.initFrom(m_perspectiveChooser);
     const QSize sz(contentWidth, 1);
@@ -116,10 +124,33 @@ void DebuggerMainWindow::registerPerspective(const QByteArray &perspectiveId, co
         m_perspectiveChooser->setFixedWidth(width);
 }
 
+void DebuggerMainWindow::destroyDynamicPerspective(const QByteArray &perspectiveId)
+{
+    savePerspectiveHelper(perspectiveId);
+
+    const Perspective *perspective = m_perspectiveForPerspectiveId.take(perspectiveId);
+    QTC_ASSERT(perspective, return);
+    // Dynamic perspectives are currently not visible in the chooser.
+    // This might change in the future, make sure we notice.
+    const int idx = m_perspectiveChooser->findData(perspectiveId);
+    QTC_ASSERT(idx == -1, m_perspectiveChooser->removeItem(idx));
+    QByteArray parentPerspective = perspective->parentPerspective();
+    delete perspective;
+    // All dynamic perspectives currently have a static parent perspective.
+    // This might change in the future, make sure we notice.
+    QTC_CHECK(!parentPerspective.isEmpty());
+    restorePerspective(parentPerspective);
+}
+
 void DebuggerMainWindow::registerToolbar(const QByteArray &perspectiveId, QWidget *widget)
 {
     m_toolbarForPerspectiveId.insert(perspectiveId, widget);
     m_controlsStackWidget->addWidget(widget);
+}
+
+void DebuggerMainWindow::destroyDynamicToolbar(const QByteArray &perspectiveId)
+{
+    delete m_toolbarForPerspectiveId.take(perspectiveId);
 }
 
 void DebuggerMainWindow::showStatusMessage(const QString &message, int timeoutMS)
@@ -454,6 +485,16 @@ void Perspective::aboutToActivate() const
 {
     if (m_aboutToActivateCallback)
         m_aboutToActivateCallback();
+}
+
+QByteArray Perspective::parentPerspective() const
+{
+    return m_parentPerspective;
+}
+
+void Perspective::setParentPerspective(const QByteArray &parentPerspective)
+{
+    m_parentPerspective = parentPerspective;
 }
 
 QList<QWidget *> ToolbarDescription::widgets() const

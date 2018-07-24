@@ -92,11 +92,15 @@ public:
     void setAboutToActivateCallback(const Callback &cb);
     void aboutToActivate() const;
 
+    QByteArray parentPerspective() const;
+    void setParentPerspective(const QByteArray &parentPerspective);
+
 private:
     Perspective(const Perspective &) = delete;
     void operator=(const Perspective &) = delete;
 
     QString m_name;
+    QByteArray m_parentPerspective;
     QVector<QByteArray> m_docks;
     QVector<Operation> m_operations;
     QPointer<QWidget> m_centralWidget;
@@ -127,7 +131,9 @@ public:
     ~DebuggerMainWindow() override;
 
     void registerPerspective(const QByteArray &perspectiveId, const Perspective *perspective);
+    void destroyDynamicPerspective(const QByteArray &perspectiveId);
     void registerToolbar(const QByteArray &perspectiveId, QWidget *widget);
+    void destroyDynamicToolbar(const QByteArray &perspectiveId);
 
     void resetCurrentPerspective();
     void restorePerspective(const QByteArray &perspectiveId);
@@ -150,6 +156,7 @@ private:
     QDockWidget *registerDockWidget(const QByteArray &dockId, QWidget *widget);
     void loadPerspectiveHelper(const QByteArray &perspectiveId, bool fromStoredSettings = true);
     void savePerspectiveHelper(const QByteArray &perspectiveId);
+    void increaseChooserWidthIfNecessary(const QString &visibleName);
 
     QByteArray m_currentPerspectiveId;
     QComboBox *m_perspectiveChooser;
