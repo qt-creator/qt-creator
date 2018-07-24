@@ -309,6 +309,7 @@ void BaseTreeView::setModel(QAbstractItemModel *m)
 void BaseTreeView::mousePressEvent(QMouseEvent *ev)
 {
     ItemViewEvent ive(ev, this);
+    QTC_ASSERT(model(), return);
     if (!model()->setData(ive.index(), QVariant::fromValue(ive), ItemViewEventRole))
         TreeView::mousePressEvent(ev);
 // Resizing columns by clicking on the empty space seems to be controversial.
@@ -321,6 +322,7 @@ void BaseTreeView::mousePressEvent(QMouseEvent *ev)
 void BaseTreeView::mouseReleaseEvent(QMouseEvent *ev)
 {
     ItemViewEvent ive(ev, this);
+    QTC_ASSERT(model(), return);
     if (!model()->setData(ive.index(), QVariant::fromValue(ive), ItemViewEventRole))
         TreeView::mouseReleaseEvent(ev);
 }
@@ -444,15 +446,17 @@ ItemViewEvent::ItemViewEvent(QEvent *ev, QAbstractItemView *view)
         m_index = view->indexAt(m_pos);
         break;
     default:
-        m_index = selection->currentIndex();
+        m_index = selection ? selection->currentIndex() : QModelIndex();
         break;
     }
 
-    m_selectedRows = selection->selectedRows();
-    if (m_selectedRows.isEmpty()) {
-        QModelIndex current = selection->currentIndex();
-        if (current.isValid())
-            m_selectedRows.append(current);
+    if (selection) {
+        m_selectedRows = selection->selectedRows();
+        if (m_selectedRows.isEmpty()) {
+            QModelIndex current = selection->currentIndex();
+            if (current.isValid())
+                m_selectedRows.append(current);
+        }
     }
 }
 
