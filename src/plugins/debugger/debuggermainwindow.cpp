@@ -85,6 +85,8 @@ DebuggerMainWindow::DebuggerMainWindow()
 
 DebuggerMainWindow::~DebuggerMainWindow()
 {
+    savePerspectiveHelper(m_currentPerspectiveId);
+
     delete m_editorPlaceHolder;
     m_editorPlaceHolder = nullptr;
     // As we have to setParent(0) on dock widget that are not selected,
@@ -332,8 +334,12 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
 
     ICore::addAdditionalContext(Context(Id::fromName(m_currentPerspectiveId)));
 
-    QTC_ASSERT(m_perspectiveForPerspectiveId.contains(m_currentPerspectiveId), return);
     const Perspective *perspective = m_perspectiveForPerspectiveId.value(m_currentPerspectiveId);
+    if (!perspective) {
+        QTC_ASSERT(!m_perspectiveForPerspectiveId.isEmpty(), return);
+        perspective = *m_perspectiveForPerspectiveId.begin();
+    }
+    QTC_ASSERT(perspective, return);
     perspective->aboutToActivate();
     for (const Perspective::Operation &operation : perspective->operations()) {
         QDockWidget *dock = m_dockForDockId.value(operation.dockId);
