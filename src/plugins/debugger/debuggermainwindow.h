@@ -70,11 +70,16 @@ public:
 
     Perspective() = default;
     // Takes ownership of \a centralWidget and all dock widgets in \a operations.
-    Perspective(const QString &name, const QVector<Operation> &operations,
+    Perspective(const QString &name,
+                const QVector<Operation> &operations = {},
                 QWidget *centralWidget = nullptr);
     ~Perspective();
 
     void addOperation(const Operation &operation);
+    void addWindow(QWidget *widget,
+                   OperationType op,
+                   bool visibleByDefault = true,
+                   Qt::DockWidgetArea area = Qt::BottomDockWidgetArea);
 
     QVector<Operation> operations() const { return m_operations; }
     QVector<QByteArray> docks() const { return m_docks; }

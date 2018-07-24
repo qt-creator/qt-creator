@@ -496,4 +496,14 @@ void Perspective::addOperation(const Operation &operation)
     m_operations.append(operation);
 }
 
+void Perspective::addWindow(QWidget *widget,
+                            Perspective::OperationType op,
+                            bool visibleByDefault,
+                            Qt::DockWidgetArea area)
+{
+    const QByteArray dockId = widget->objectName().toUtf8();
+    QTC_CHECK(!dockId.isEmpty());
+    m_operations.append({dockId, widget, {}, op, visibleByDefault, area});
+}
+
 } // Utils
