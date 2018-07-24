@@ -367,16 +367,12 @@ Utils::optional<QString> AbstractMsvcToolChain::generateEnvironmentSettings(cons
     run.setCodec(QTextCodec::codecForName("UTF-8"));
     Utils::SynchronousProcessResponse response = run.runBlocking(cmdPath.toString(), cmdArguments);
 
-    QString command = QDir::toNativeSeparators(batchFile);
-    if (!response.stdErr().isEmpty()) {
-        return QCoreApplication::translate("ProjectExplorer::Internal::AbstractMsvcToolChain",
-                                           "Failed to retrieve MSVC Environment from \"%1\":\n"
-                                           "%2").arg(command, response.stdErr());
-    }
-
     if (response.result != Utils::SynchronousProcessResponse::Finished) {
-        const QString message = response.exitMessage(cmdPath.toString(), 10);
+        const QString message = !response.stdErr().isEmpty()
+                ? response.stdErr()
+                : response.exitMessage(cmdPath.toString(), 10);
         qWarning().noquote() << message;
+        QString command = QDir::toNativeSeparators(batchFile);
         if (!batchArgs.isEmpty())
             command += ' ' + batchArgs;
         return QCoreApplication::translate("ProjectExplorer::Internal::AbstractMsvcToolChain",
