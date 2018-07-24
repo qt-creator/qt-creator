@@ -38,8 +38,8 @@ public:
                             const QString &newType);
 
 protected:
-    virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
-    virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
+    bool visit(QmlJS::AST::UiObjectDefinition *ast) override;
+    bool visit(QmlJS::AST::UiObjectBinding *ast) override;
 
 private:
     void replaceType(QmlJS::AST::UiQualifiedId *typeId);

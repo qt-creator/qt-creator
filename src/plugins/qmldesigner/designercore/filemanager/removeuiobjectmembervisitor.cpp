@@ -95,7 +95,7 @@ QmlJS::AST::UiArrayBinding *RemoveUIObjectMemberVisitor::containingArray() const
             return QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(parents[parents.size() - 3]);
     }
 
-    return 0;
+    return nullptr;
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
@@ -104,7 +104,7 @@ void RemoveUIObjectMemberVisitor::extendToLeadingOrTrailingComma(QmlJS::AST::UiA
                                                                  int &start,
                                                                  int &end) const
 {
-    QmlJS::AST::UiArrayMemberList *currentMember = 0;
+    QmlJS::AST::UiArrayMemberList *currentMember = nullptr;
     for (QmlJS::AST::UiArrayMemberList *it = parentArray->members; it; it = it->next) {
         if (it->member == ast) {
             currentMember = it;

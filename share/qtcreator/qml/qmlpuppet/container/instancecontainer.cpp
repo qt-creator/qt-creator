@@ -40,9 +40,7 @@ static TypeName properDelemitingOfType(const TypeName &typeName)
     return convertedTypeName;
 }
 
-InstanceContainer::InstanceContainer()
-{
-}
+InstanceContainer::InstanceContainer() = default;
 
 InstanceContainer::InstanceContainer(qint32 instanceId,
                                      const TypeName &type,

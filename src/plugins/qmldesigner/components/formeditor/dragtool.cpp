@@ -52,10 +52,7 @@ DragTool::DragTool(FormEditorView *editorView)
 {
 }
 
-
-DragTool::~DragTool()
-{
-}
+DragTool::~DragTool() = default;
 
 void DragTool::clear()
 {

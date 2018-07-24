@@ -29,9 +29,7 @@
 
 namespace QmlDesigner {
 
-ChangeAuxiliaryCommand::ChangeAuxiliaryCommand()
-{
-}
+ChangeAuxiliaryCommand::ChangeAuxiliaryCommand() = default;
 
 ChangeAuxiliaryCommand::ChangeAuxiliaryCommand(const QVector<PropertyValueContainer> &auxiliaryChangeVector)
     : m_auxiliaryChangeVector (auxiliaryChangeVector)

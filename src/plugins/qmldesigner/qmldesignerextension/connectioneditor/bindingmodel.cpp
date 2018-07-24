@@ -444,7 +444,7 @@ void BindingModel::handleDataChanged(const QModelIndex &topLeft, const QModelInd
 
 void BindingModel::handleException()
 {
-    QMessageBox::warning(0, tr("Error"), m_exceptionError);
+    QMessageBox::warning(nullptr, tr("Error"), m_exceptionError);
     resetModel();
 }
 

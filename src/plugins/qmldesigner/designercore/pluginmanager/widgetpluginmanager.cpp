@@ -37,9 +37,7 @@ namespace QmlDesigner {
 
 namespace Internal {
 
-WidgetPluginManager::WidgetPluginManager()
-{
-}
+WidgetPluginManager::WidgetPluginManager() = default;
 
 WidgetPluginManager::IWidgetPluginList WidgetPluginManager::instances()
 {
@@ -63,7 +61,7 @@ bool WidgetPluginManager::addPath(const QString &path)
 
 QAbstractItemModel *WidgetPluginManager::createModel(QObject *parent)
 {
-    QStandardItemModel *model = new QStandardItemModel(parent);
+    auto model = new QStandardItemModel(parent);
     const auto end = m_paths.end();
     for (auto it = m_paths.begin(); it != end; ++it)
         model->appendRow(it->createModelItem());

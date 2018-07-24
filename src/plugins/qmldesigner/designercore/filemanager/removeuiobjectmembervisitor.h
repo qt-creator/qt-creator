@@ -39,15 +39,15 @@ public:
                                 quint32 objectLocation);
 
 protected:
-    virtual bool preVisit(QmlJS::AST::Node *ast);
-    virtual void postVisit(QmlJS::AST::Node *);
+    bool preVisit(QmlJS::AST::Node *ast) override;
+    void postVisit(QmlJS::AST::Node *) override;
 
-    virtual bool visit(QmlJS::AST::UiPublicMember *ast);
-    virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
-    virtual bool visit(QmlJS::AST::UiSourceElement *ast);
-    virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
-    virtual bool visit(QmlJS::AST::UiScriptBinding *ast);
-    virtual bool visit(QmlJS::AST::UiArrayBinding *ast);
+    bool visit(QmlJS::AST::UiPublicMember *ast) override;
+    bool visit(QmlJS::AST::UiObjectDefinition *ast) override;
+    bool visit(QmlJS::AST::UiSourceElement *ast) override;
+    bool visit(QmlJS::AST::UiObjectBinding *ast) override;
+    bool visit(QmlJS::AST::UiScriptBinding *ast) override;
+    bool visit(QmlJS::AST::UiArrayBinding *ast) override;
 
 private:
     bool visitObjectMember(QmlJS::AST::UiObjectMember *ast);

@@ -42,9 +42,9 @@ namespace Internal {
     class InternalNode;
     class InternalProperty;
 
-    typedef QSharedPointer<InternalNode> InternalNodePointer;
-    typedef QSharedPointer<InternalProperty> InternalPropertyPointer;
-    typedef QWeakPointer<InternalNode> InternalNodeWeakPointer;
+    using InternalNodePointer = QSharedPointer<InternalNode>;
+    using InternalPropertyPointer = QSharedPointer<InternalProperty>;
+    using InternalNodeWeakPointer = QWeakPointer<InternalNode>;
 }
 class NodeMetaInfo;
 class AbstractProperty;
@@ -60,7 +60,7 @@ class ModelNode;
 
 QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
 
-typedef QList<QPair<PropertyName, QVariant> > PropertyListType;
+using PropertyListType = QList<QPair<PropertyName, QVariant> >;
 
 class QMLDESIGNERCORE_EXPORT  ModelNode
 {

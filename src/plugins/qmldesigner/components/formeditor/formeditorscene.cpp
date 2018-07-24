@@ -86,7 +86,7 @@ void FormEditorScene::resetScene()
 
 FormEditorItem* FormEditorScene::itemForQmlItemNode(const QmlItemNode &qmlItemNode) const
 {
-    QTC_ASSERT(qmlItemNode.isValid(), return 0);
+    QTC_ASSERT(qmlItemNode.isValid(), return nullptr);
     return m_qmlItemNodeItemHash.value(qmlItemNode);
 }
 
@@ -140,7 +140,7 @@ FormEditorItem* FormEditorScene::calulateNewParent(FormEditorItem *formEditorIte
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 void FormEditorScene::synchronizeTransformation(FormEditorItem *item)
@@ -182,7 +182,7 @@ void FormEditorScene::synchronizeOtherProperty(FormEditorItem *item, const QByte
 
 FormEditorItem *FormEditorScene::addFormEditorItem(const QmlItemNode &qmlItemNode)
 {
-    FormEditorItem *formEditorItem = new FormEditorItem(qmlItemNode, this);
+    auto formEditorItem = new FormEditorItem(qmlItemNode, this);
     Q_ASSERT(!m_qmlItemNodeItemHash.contains(qmlItemNode));
 
     m_qmlItemNodeItemHash.insert(qmlItemNode, formEditorItem);
@@ -382,7 +382,7 @@ void FormEditorScene::hoverLeaveEvent(QGraphicsSceneHoverEvent * /*event*/)
 void FormEditorScene::reparentItem(const QmlItemNode &node, const QmlItemNode &newParent)
 {
     if (FormEditorItem *item = itemForQmlItemNode(node)) {
-        item->setParentItem(0);
+        item->setParentItem(nullptr);
         if (newParent.isValid()) {
             if (FormEditorItem *parentItem = itemForQmlItemNode(newParent))
                 item->setParentItem(parentItem);
@@ -407,7 +407,7 @@ void FormEditorScene::clearFormEditorItems()
     const QList<FormEditorItem*> formEditorItems = Utils::filtered(formEditorItemsTransformed,
                                                                    [](FormEditorItem *item) { return item; });
     foreach (FormEditorItem *item, formEditorItems)
-            item->setParentItem(0);
+            item->setParentItem(nullptr);
 
     foreach (FormEditorItem *item, formEditorItems)
             delete item;

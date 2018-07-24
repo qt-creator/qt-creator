@@ -42,7 +42,7 @@ namespace QmlDesigner {
 
 class DesignerActionManagerView;
 
-typedef std::function<bool (const QStringList &filenames, const QString &defaulTargetDirectory)> AddResourceOperation;
+using AddResourceOperation = std::function<bool (const QStringList&, const QString&)>;
 
 struct AddResourceHandler
 {

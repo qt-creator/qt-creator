@@ -49,9 +49,9 @@ namespace Internal {
 class WidgetPluginManager
 {
     Q_DISABLE_COPY(WidgetPluginManager)
-    typedef QList<WidgetPluginPath> PluginPathList;
+    using PluginPathList = QList<WidgetPluginPath>;
 public:
-    typedef QList<IWidgetPlugin *> IWidgetPluginList;
+    using IWidgetPluginList = QList<IWidgetPlugin *>;
 
     WidgetPluginManager();
 

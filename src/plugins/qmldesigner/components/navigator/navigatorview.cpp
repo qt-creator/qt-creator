@@ -75,7 +75,7 @@ NavigatorView::NavigatorView(QObject* parent) :
     m_treeModel(new NavigatorTreeModel(this))
 {
 #ifndef QMLDESIGNER_TEST
-    Internal::NavigatorContext *navigatorContext = new Internal::NavigatorContext(m_widget.data());
+    auto navigatorContext = new Internal::NavigatorContext(m_widget.data());
     Core::ICore::addContextObject(navigatorContext);
 #endif
 
@@ -92,7 +92,7 @@ NavigatorView::NavigatorView(QObject* parent) :
     connect(m_widget.data(), &NavigatorWidget::filterToggled, this, &NavigatorView::filterToggled);
 
 #ifndef QMLDESIGNER_TEST
-    NameItemDelegate *idDelegate = new NameItemDelegate(this);
+    auto idDelegate = new NameItemDelegate(this);
     IconCheckboxItemDelegate *showDelegate =
             new IconCheckboxItemDelegate(this,
                                          Utils::Icons::EYE_OPEN_TOOLBAR.icon(),
@@ -479,7 +479,7 @@ QTreeView *NavigatorView::treeWidget() const
 {
     if (m_widget)
         return m_widget->treeView();
-    return 0;
+    return nullptr;
 }
 
 NavigatorTreeModel *NavigatorView::treeModel()

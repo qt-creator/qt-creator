@@ -444,7 +444,7 @@ void anchorsReset(const SelectionContext &selectionState)
     }
 }
 
-typedef std::function<bool(const ModelNode &node1, const ModelNode &node2)> LessThan;
+using LessThan = std::function<bool (const ModelNode &, const ModelNode&)>;
 
 bool compareByX(const ModelNode &node1, const ModelNode &node2)
 {
@@ -588,9 +588,9 @@ static QString toUpper(const QString signal)
 static void addSignal(const QString &typeName, const QString &itemId, const QString &signalName, bool isRootModelNode)
 {
     QScopedPointer<Model> model(Model::create("Item", 2, 0));
-    RewriterView rewriterView(RewriterView::Amend, 0);
+    RewriterView rewriterView(RewriterView::Amend, nullptr);
 
-    TextEditor::TextEditorWidget *textEdit = qobject_cast<TextEditor::TextEditorWidget*>
+    auto textEdit = qobject_cast<TextEditor::TextEditorWidget*>
             (Core::EditorManager::currentEditor()->widget());
 
     BaseTextEditModifier modifier(textEdit);
@@ -699,7 +699,7 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
         Core::EditorManager::openEditorAt(usages.constFirst().path, usages.constFirst().line, usages.constFirst().col);
 
         if (!signalNames.isEmpty()) {
-            AddSignalHandlerDialog *dialog = new AddSignalHandlerDialog(Core::ICore::dialogParent());
+            auto dialog = new AddSignalHandlerDialog(Core::ICore::dialogParent());
             dialog->setSignals(signalNames);
 
             AddSignalHandlerDialog::connect(dialog, &AddSignalHandlerDialog::signalSelected, [=] {

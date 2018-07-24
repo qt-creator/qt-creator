@@ -30,9 +30,7 @@
 
 namespace QmlDesigner {
 
-RemoveSharedMemoryCommand::RemoveSharedMemoryCommand()
-{
-}
+RemoveSharedMemoryCommand::RemoveSharedMemoryCommand() = default;
 
 RemoveSharedMemoryCommand::RemoveSharedMemoryCommand(const QString &typeName, const QVector<qint32> &keyNumberVector)
     : m_typeName(typeName),

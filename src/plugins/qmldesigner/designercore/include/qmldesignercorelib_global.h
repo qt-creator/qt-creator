@@ -36,11 +36,11 @@
 #  define QMLDESIGNERCORE_EXPORT Q_DECL_IMPORT
 #endif
 namespace QmlDesigner {
-typedef QByteArray PropertyName;
-typedef QList<PropertyName> PropertyNameList;
-typedef QByteArray TypeName;
-typedef QList<PropertyName> PropertyTypeList;
-typedef QByteArray IdName;
+using PropertyName = QByteArray;
+using PropertyNameList = QList<PropertyName>;
+using TypeName = QByteArray;
+using PropertyTypeList = QList<PropertyName>;
+using IdName = QByteArray;
 
 enum AnchorLineType {
     AnchorLineInvalid = 0x0,

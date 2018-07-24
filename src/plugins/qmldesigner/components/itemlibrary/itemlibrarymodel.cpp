@@ -88,11 +88,11 @@ QVariant ItemLibraryModel::data(const QModelIndex &index, int role) const
     if (m_roleNames.contains(role)) {
         QVariant value = m_sections.at(index.row())->property(m_roleNames.value(role));
 
-        ItemLibrarySectionModel* model = qobject_cast<ItemLibrarySectionModel *>(value.value<QObject*>());
+        auto model = qobject_cast<ItemLibrarySectionModel *>(value.value<QObject*>());
         if (model)
             return QVariant::fromValue(model);
 
-        ItemLibraryModel* model2 = qobject_cast<ItemLibraryModel *>(value.value<QObject*>());
+        auto model2 = qobject_cast<ItemLibraryModel *>(value.value<QObject*>());
         if (model2)
             return QVariant::fromValue(model2);
 
@@ -192,13 +192,13 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
             qCInfo(itemlibraryPopulate) << "Adding:" << entry.typeName() << "to:" << entry.category();
             ItemLibrarySection *sectionModel = sectionByName(itemSectionName);
 
-            if (sectionModel == 0) {
+            if (sectionModel == nullptr) {
                 sectionModel = new ItemLibrarySection(itemSectionName, this);
                 m_sections.append(sectionModel);
                 sectionModel->setSectionExpanded(sectionExapanded(itemSectionName));
             }
 
-            ItemLibraryItem *item = new ItemLibraryItem(sectionModel);
+            auto item = new ItemLibraryItem(sectionModel);
             item->setItemLibraryEntry(entry);
             sectionModel->addSectionEntry(item);
         }
@@ -212,7 +212,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
 QMimeData *ItemLibraryModel::getMimeData(const ItemLibraryEntry &itemLibraryEntry)
 {
-    QMimeData *mimeData = new QMimeData();
+    auto mimeData = new QMimeData();
 
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
@@ -248,7 +248,7 @@ ItemLibrarySection *ItemLibraryModel::sectionByName(const QString &sectionName)
             return itemLibrarySection;
     }
 
-    return 0;
+    return nullptr;
 }
 
 void ItemLibraryModel::updateVisibility(bool *changed)

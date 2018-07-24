@@ -87,9 +87,7 @@ public:
     QHash<PropertyName, QPair<PropertyName, qint32> > anchors;
 };
 
-NodeInstance::NodeInstance()
-{
-}
+NodeInstance::NodeInstance() = default;
 
 NodeInstance::NodeInstance(ProxyNodeInstanceData *dPointer)
     : d(dPointer)
@@ -98,27 +96,18 @@ NodeInstance::NodeInstance(ProxyNodeInstanceData *dPointer)
 
 NodeInstance NodeInstance::create(const ModelNode &node)
 {
-    ProxyNodeInstanceData *d = new ProxyNodeInstanceData;
+    auto d = new ProxyNodeInstanceData;
 
     d->modelNode = node;
 
     return NodeInstance(d);
 }
 
-NodeInstance::~NodeInstance()
-{
-}
+NodeInstance::~NodeInstance() = default;
 
-NodeInstance::NodeInstance(const NodeInstance &other)
-  : d(other.d)
-{
-}
+NodeInstance::NodeInstance(const NodeInstance &other) = default;
 
-NodeInstance &NodeInstance::operator=(const NodeInstance &other)
-{
-    d = other.d;
-    return *this;
-}
+NodeInstance &NodeInstance::operator=(const NodeInstance &other) = default;
 
 ModelNode NodeInstance::modelNode() const
 {

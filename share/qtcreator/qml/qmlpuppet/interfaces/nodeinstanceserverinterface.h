@@ -59,7 +59,7 @@ public:
         TestModus // No preview images and synchronized
     };
 
-    explicit NodeInstanceServerInterface(QObject *parent = 0);
+    explicit NodeInstanceServerInterface(QObject *parent = nullptr);
 
     virtual void createInstances(const CreateInstancesCommand &command) = 0;
     virtual void changeFileUrl(const ChangeFileUrlCommand &command) = 0;

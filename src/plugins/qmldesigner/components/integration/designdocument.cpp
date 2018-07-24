@@ -77,13 +77,11 @@ DesignDocument::DesignDocument(QObject *parent) :
         m_subComponentManager(new SubComponentManager(m_documentModel.data(), this)),
         m_rewriterView (new RewriterView(RewriterView::Amend, m_documentModel.data())),
         m_documentLoaded(false),
-        m_currentKit(0)
+        m_currentKit(nullptr)
 {
 }
 
-DesignDocument::~DesignDocument()
-{
-}
+DesignDocument::~DesignDocument() = default;
 
 Model *DesignDocument::currentModel() const
 {
@@ -590,7 +588,7 @@ QPlainTextEdit *DesignDocument::plainTextEdit() const
     if (editor())
         return qobject_cast<QPlainTextEdit*>(editor()->widget());
 
-    return 0;
+    return nullptr;
 }
 
 ModelNode DesignDocument::rootModelNode() const
@@ -622,7 +620,7 @@ static inline Kit *getActiveKit(DesignDocument *designDocument)
         currentProject = ProjectExplorer::ProjectTree::currentProject();
 
     if (!currentProject)
-        return 0;
+        return nullptr;
 
 
     QObject::connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
@@ -641,10 +639,10 @@ static inline Kit *getActiveKit(DesignDocument *designDocument)
     Target *target = currentProject->activeTarget();
 
     if (!target)
-        return 0;
+        return nullptr;
 
     if (!target->kit() || !target->kit()->isValid())
-        return 0;
+        return nullptr;
     QObject::connect(target, &Target::kitChanged,
                      designDocument, &DesignDocument::updateActiveQtVersion, Qt::UniqueConnection);
 

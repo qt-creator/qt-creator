@@ -40,10 +40,10 @@ class QtQuickPlugin : public QObject, QmlDesigner::IWidgetPlugin
     Q_INTERFACES(QmlDesigner::IWidgetPlugin)
 public:
     QtQuickPlugin();
-    ~QtQuickPlugin() {}
+    ~QtQuickPlugin() override = default;
 
-    QString metaInfo() const;
-    QString pluginName() const;
+    QString metaInfo() const override;
+    QString pluginName() const override;
 
 };
 

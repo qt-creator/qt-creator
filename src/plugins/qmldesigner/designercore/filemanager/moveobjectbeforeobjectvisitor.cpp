@@ -53,8 +53,8 @@ MoveObjectBeforeObjectVisitor::MoveObjectBeforeObjectVisitor(TextModifier &modif
 
 bool MoveObjectBeforeObjectVisitor::operator ()(QmlJS::AST::UiProgram *ast)
 {
-    movingObject = 0;
-    beforeObject = 0;
+    movingObject = nullptr;
+    beforeObject = nullptr;
     movingObjectParents.clear();
 
     QMLRewriter::operator ()(ast);
@@ -102,14 +102,14 @@ void MoveObjectBeforeObjectVisitor::doMove()
 
     TextModifier::MoveInfo moveInfo;
     QmlJS::AST::Node *parent = movingObjectParent();
-    QmlJS::AST::UiArrayMemberList *arrayMember = 0, *otherArrayMember = 0;
+    QmlJS::AST::UiArrayMemberList *arrayMember = nullptr, *otherArrayMember = nullptr;
     QString separator;
 
     if (!inDefaultProperty) {
-        QmlJS::AST::UiArrayBinding *initializer = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(parent);
+        auto initializer = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(parent);
         Q_ASSERT(initializer);
 
-        otherArrayMember = 0;
+        otherArrayMember = nullptr;
         for (QmlJS::AST::UiArrayMemberList *cur = initializer->members; cur; cur = cur->next) {
             if (cur->member == movingObject) {
                 arrayMember = cur;
@@ -166,7 +166,7 @@ QmlJS::AST::Node *MoveObjectBeforeObjectVisitor::movingObjectParent() const
     if (movingObjectParents.size() > 1)
         return movingObjectParents.at(movingObjectParents.size() - 2);
     else
-        return 0;
+        return nullptr;
 }
 
 QmlJS::AST::SourceLocation MoveObjectBeforeObjectVisitor::lastParentLocation() const
@@ -174,9 +174,9 @@ QmlJS::AST::SourceLocation MoveObjectBeforeObjectVisitor::lastParentLocation() c
     dump(movingObjectParents);
 
     QmlJS::AST::Node *parent = movingObjectParent();
-    if (QmlJS::AST::UiObjectInitializer *initializer = QmlJS::AST::cast<QmlJS::AST::UiObjectInitializer*>(parent))
+    if (auto initializer = QmlJS::AST::cast<QmlJS::AST::UiObjectInitializer*>(parent))
         return initializer->rbraceToken;
-    else if (QmlJS::AST::UiArrayBinding *initializer = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(parent))
+    else if (auto initializer = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(parent))
         return initializer->rbracketToken;
     else
         return QmlJS::AST::SourceLocation();

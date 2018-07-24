@@ -39,9 +39,7 @@ LayerItem::LayerItem(FormEditorScene* scene)
     setAcceptedMouseButtons(Qt::NoButton);
 }
 
-LayerItem::~LayerItem()
-{
-}
+LayerItem::~LayerItem() = default;
 
 void LayerItem::paint(QPainter * /*painter*/, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {

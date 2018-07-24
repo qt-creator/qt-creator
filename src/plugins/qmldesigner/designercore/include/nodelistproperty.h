@@ -36,7 +36,7 @@ namespace QmlDesigner {
 namespace Internal {
     class ModelPrivate;
     class InternalNodeListProperty;
-    typedef QSharedPointer<InternalNodeListProperty> InternalNodeListPropertyPointer;
+    using InternalNodeListPropertyPointer = QSharedPointer<InternalNodeListProperty>;
 }
 
 

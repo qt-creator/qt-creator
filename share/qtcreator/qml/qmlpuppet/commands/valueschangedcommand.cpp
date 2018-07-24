@@ -36,7 +36,7 @@
 namespace QmlDesigner {
 
 // using cache as a container which deletes sharedmemory pointers at process exit
-typedef QCache<qint32, SharedMemory> GlobalSharedMemoryContainer;
+using GlobalSharedMemoryContainer = QCache<qint32, SharedMemory>;
 Q_GLOBAL_STATIC_WITH_ARGS(GlobalSharedMemoryContainer, globalSharedMemoryContainer, (10000))
 
 ValuesChangedCommand::ValuesChangedCommand()
@@ -88,7 +88,7 @@ static SharedMemory *createSharedMemory(qint32 key, int byteCount)
         delete sharedMemory;
     }
 
-    return 0;
+    return nullptr;
 }
 
 QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command)

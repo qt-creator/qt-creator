@@ -337,7 +337,7 @@ QString NodeInstanceServerProxy::qrcMappingString() const
         if (rewriterView) {
             QString mappingString;
 
-            typedef QPair<QString, QString> StringPair;
+            using StringPair = QPair<QString, QString>;
 
             foreach (const StringPair &pair, rewriterView->qrcMapping()) {
                 if (!mappingString.isEmpty())
@@ -406,7 +406,7 @@ void NodeInstanceServerProxy::writeCommand(const QVariant &command)
 
 void NodeInstanceServerProxy::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    QProcess* finishedProcess = qobject_cast<QProcess*>(sender());
+    auto finishedProcess = qobject_cast<QProcess*>(sender());
     if (finishedProcess)
         qWarning() << "Process" << (exitStatus == QProcess::CrashExit ? "crashed:" : "finished:") << finishedProcess->arguments() << "exitCode:" << exitCode;
     else

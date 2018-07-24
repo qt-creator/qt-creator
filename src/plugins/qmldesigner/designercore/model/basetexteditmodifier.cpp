@@ -47,7 +47,7 @@ void BaseTextEditModifier::indentLines(int startLine, int endLine)
 {
     if (startLine < 0)
         return;
-    TextEditor::TextEditorWidget *baseTextEditorWidget = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit());
+    auto baseTextEditorWidget = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit());
     if (!baseTextEditorWidget)
         return;
 
@@ -82,7 +82,7 @@ void BaseTextEditModifier::indent(int offset, int length)
 
 int BaseTextEditModifier::indentDepth() const
 {
-    if (TextEditor::TextEditorWidget *bte = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit()))
+    if (auto bte = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit()))
         return bte->textDocument()->tabSettings().m_indentSize;
     else
         return 0;
@@ -90,9 +90,8 @@ int BaseTextEditModifier::indentDepth() const
 
 bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)
 {
-    if (TextEditor::TextEditorWidget *bte = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit())) {
-        if (QmlJSEditor::QmlJSEditorDocument *document
-                = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(bte->textDocument())) {
+    if (auto bte = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit())) {
+        if (auto document = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(bte->textDocument())) {
             Utils::ChangeSet changeSet;
             foreach (const QmlJS::AST::SourceLocation &loc,
                     document->semanticInfo().idLocations.value(oldId)) {
@@ -108,7 +107,7 @@ bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)
 
 static QmlJS::AST::UiObjectDefinition *getObjectDefinition(QList<QmlJS::AST::Node *> path, QmlJS::AST::UiQualifiedId *qualifiedId)
 {
-    QmlJS::AST::UiObjectDefinition *object = 0;
+    QmlJS::AST::UiObjectDefinition *object = nullptr;
     for (int i = path.size() - 1; i >= 0; --i) {
         auto node = path.at(i);
         if (auto objDef =  QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition *>(node)) {
@@ -121,11 +120,11 @@ static QmlJS::AST::UiObjectDefinition *getObjectDefinition(QList<QmlJS::AST::Nod
 
 bool BaseTextEditModifier::moveToComponent(int nodeOffset)
 {
-    if (TextEditor::TextEditorWidget *bte = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit())) {
-        if (QmlJSEditor::QmlJSEditorDocument *document
+    if (auto bte = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit())) {
+        if (auto document
                 = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(bte->textDocument())) {
 
-            auto *qualifiedId = QmlJS::AST::cast<QmlJS::AST::UiQualifiedId *>(document->semanticInfo().astNodeAt(nodeOffset));
+            auto qualifiedId = QmlJS::AST::cast<QmlJS::AST::UiQualifiedId *>(document->semanticInfo().astNodeAt(nodeOffset));
             QList<QmlJS::AST::Node *> path = document->semanticInfo().rangePath(nodeOffset);
             QmlJS::AST::UiObjectDefinition *object = getObjectDefinition(path, qualifiedId);
 
@@ -141,8 +140,8 @@ bool BaseTextEditModifier::moveToComponent(int nodeOffset)
 
 QStringList BaseTextEditModifier::autoComplete(QTextDocument *textDocument, int position, bool explicitComplete)
 {
-    if (TextEditor::TextEditorWidget *bte = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit()))
-        if (QmlJSEditor::QmlJSEditorDocument *document
+    if (auto bte = qobject_cast<TextEditor::TextEditorWidget*>(plainTextEdit()))
+        if (auto document
                 = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(bte->textDocument()))
             return QmlJSEditor::qmlJSAutoComplete(textDocument,
                                                   position,

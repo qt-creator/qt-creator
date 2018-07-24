@@ -441,7 +441,7 @@ void PropertyEditorNodeWrapper::changeValue(const QString &propertyName)
     if (m_modelNode.isValid()) {
         QmlDesigner::QmlObjectNode qmlObjectNode(m_modelNode);
 
-        PropertyEditorValue *valueObject = qvariant_cast<PropertyEditorValue *>(m_valuesPropertyMap.value(QString::fromLatin1(name)));
+        auto valueObject = qvariant_cast<PropertyEditorValue *>(m_valuesPropertyMap.value(QString::fromLatin1(name)));
 
         if (valueObject->value().isValid())
             qmlObjectNode.setVariantProperty(name, valueObject->value());
@@ -463,7 +463,7 @@ void PropertyEditorNodeWrapper::setup()
 
         foreach (const QmlDesigner::PropertyName &propertyName, m_modelNode.metaInfo().propertyNames()) {
             if (qmlObjectNode.isValid()) {
-                PropertyEditorValue *valueObject = new PropertyEditorValue(&m_valuesPropertyMap);
+                auto valueObject = new PropertyEditorValue(&m_valuesPropertyMap);
                 valueObject->setName(propertyName);
                 valueObject->setValue(qmlObjectNode.instanceValue(propertyName));
                 connect(valueObject, &PropertyEditorValue::valueChanged, &m_valuesPropertyMap, &QQmlPropertyMap::valueChanged);

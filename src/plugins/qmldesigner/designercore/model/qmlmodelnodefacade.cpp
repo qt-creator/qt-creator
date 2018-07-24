@@ -36,7 +36,7 @@ AbstractView *QmlModelNodeFacade::view() const
     if (modelNode().isValid())
         return modelNode().view();
     else
-        return 0;
+        return nullptr;
 }
 
 NodeInstanceView *QmlModelNodeFacade::nodeInstanceView(const ModelNode &modelNode)
@@ -53,8 +53,7 @@ NodeInstanceView *QmlModelNodeFacade::nodeInstanceView() const
 QmlModelNodeFacade::QmlModelNodeFacade(const ModelNode &modelNode) : m_modelNode(modelNode)
 {}
 
-QmlModelNodeFacade::~QmlModelNodeFacade()
-{}
+QmlModelNodeFacade::~QmlModelNodeFacade() = default;
 
 QmlModelNodeFacade::operator ModelNode() const
 {

@@ -33,15 +33,12 @@ namespace QmlDesigner {
 
 ImportManagerView::ImportManagerView(QObject *parent) :
     AbstractView(parent),
-    m_importsWidget(0)
+    m_importsWidget(nullptr)
 
 {
 }
 
-ImportManagerView::~ImportManagerView()
-{
-
-}
+ImportManagerView::~ImportManagerView() = default;
 
 bool ImportManagerView::hasWidget() const
 {
@@ -50,7 +47,7 @@ bool ImportManagerView::hasWidget() const
 
 WidgetInfo ImportManagerView::widgetInfo()
 {
-    if (m_importsWidget == 0) {
+    if (m_importsWidget == nullptr) {
         m_importsWidget = new ImportsWidget;
         connect(m_importsWidget.data(), &ImportsWidget::removeImport, this, &ImportManagerView::removeImport);
         connect(m_importsWidget.data(), &ImportsWidget::addImport, this, &ImportManagerView::addImport);
@@ -59,7 +56,7 @@ WidgetInfo ImportManagerView::widgetInfo()
             m_importsWidget->setImports(model()->imports());
     }
 
-    return createWidgetInfo(m_importsWidget, 0, QLatin1String("ImportManager"), WidgetInfo::LeftPane, 1);
+    return createWidgetInfo(m_importsWidget, nullptr, QLatin1String("ImportManager"), WidgetInfo::LeftPane, 1);
 }
 
 void ImportManagerView::modelAttached(Model *model)

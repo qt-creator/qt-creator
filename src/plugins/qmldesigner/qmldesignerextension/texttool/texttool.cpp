@@ -54,28 +54,28 @@ class TextToolAction : public AbstractAction
 public:
     TextToolAction() : AbstractAction(QCoreApplication::translate("TextToolAction","Edit Text")) {}
 
-    QByteArray category() const
+    QByteArray category() const override
     {
         return QByteArray();
     }
 
-    QByteArray menuId() const
+    QByteArray menuId() const override
     {
         return "TextTool";
     }
 
-    int priority() const
+    int priority() const override
     {
         return CustomActionsPriority;
     }
 
-    Type type() const
+    Type type() const override
     {
         return ContextMenuAction;
     }
 
 protected:
-    bool isVisible(const SelectionContext &selectionContext) const
+    bool isVisible(const SelectionContext &selectionContext) const override
     {
         if (selectionContext.scenePosition().isNull())
             return false;
@@ -86,7 +86,7 @@ protected:
         return false;
     }
 
-    bool isEnabled(const SelectionContext &selectionContext) const
+    bool isEnabled(const SelectionContext &selectionContext) const override
     {
         return isVisible(selectionContext);
     }
@@ -95,16 +95,14 @@ protected:
 TextTool::TextTool()
     : QObject() , AbstractCustomTool()
 {
-    TextToolAction *textToolAction = new TextToolAction;
+    auto textToolAction = new TextToolAction;
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(textToolAction);
     connect(textToolAction->action(), &QAction::triggered, [=]() {
         view()->changeCurrentToolTo(this);
     });
 }
 
-TextTool::~TextTool()
-{
-}
+TextTool::~TextTool() = default;
 
 void TextTool::clear()
 {
@@ -195,7 +193,7 @@ void TextTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> & /*itemList*/,
 
 void TextTool::itemsAboutToRemoved(const QList<FormEditorItem*> &removedItemList)
 {
-    if (textItem() == 0)
+    if (textItem() == nullptr)
         return;
 
     if (removedItemList.contains(textItem()->formEditorItem()))
@@ -232,7 +230,7 @@ void  TextTool::instancesParentChanged(const QList<FormEditorItem *> & /*itemLis
 
 void TextTool::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList)
 {
-    typedef QPair<ModelNode, PropertyName> ModelNodePropertyNamePair;
+    using ModelNodePropertyNamePair = QPair<ModelNode, PropertyName>;
     foreach (const ModelNodePropertyNamePair &propertyPair, propertyList) {
         if (propertyPair.first == textItem()->formEditorItem()->qmlItemNode().modelNode()
                 && propertyPair.second == "text")

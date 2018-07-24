@@ -43,9 +43,9 @@ FileResourcesModel::FileResourcesModel(QObject *parent) :
 void FileResourcesModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 {
 
-    QObject* modelNodeBackendObject = modelNodeBackend.value<QObject*>();
+    auto modelNodeBackendObject = modelNodeBackend.value<QObject*>();
 
-    const QmlDesigner::QmlModelNodeProxy *backendObjectCasted =
+    const auto backendObjectCasted =
             qobject_cast<const QmlDesigner::QmlModelNodeProxy *>(modelNodeBackendObject);
 
     if (backendObjectCasted)

@@ -36,8 +36,8 @@ class TextEditItem : public TextEditItemWidget
     Q_OBJECT
 public:
     TextEditItem(FormEditorScene* scene);
-    ~TextEditItem();
-    int type() const;
+    ~TextEditItem() override;
+    int type() const override;
 
     void setFormEditorItem(FormEditorItem *formEditorItem);
     FormEditorItem *formEditorItem() const;

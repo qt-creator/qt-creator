@@ -36,13 +36,9 @@ namespace QmlDesigner {
 namespace Internal {
 
 // Creates invalid InternalProperty
-InternalProperty::InternalProperty()
-{
-}
+InternalProperty::InternalProperty() = default;
 
-InternalProperty::~InternalProperty()
-{
-}
+InternalProperty::~InternalProperty() = default;
 
 InternalProperty::InternalProperty(const PropertyName &name, const InternalNode::Pointer &propertyOwner)
      : m_name(name),

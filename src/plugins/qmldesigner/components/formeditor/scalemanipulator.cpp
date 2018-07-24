@@ -34,8 +34,6 @@ ScaleManipulator::ScaleManipulator(LayerItem *layerItem, FormEditorItem *formEdi
 {
 }
 
-ScaleManipulator::~ScaleManipulator()
-{
-}
+ScaleManipulator::~ScaleManipulator() = default;
 
 }

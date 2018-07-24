@@ -45,7 +45,7 @@ PathItem::PathItem(FormEditorScene* scene)
             : QGraphicsObject(),
               m_selectionManipulator(this),
               m_lastPercent(-1.),
-              m_formEditorItem(0),
+              m_formEditorItem(nullptr),
               m_dontUpdatePath(false)
 {
     scene->addItem(this);
@@ -54,7 +54,7 @@ PathItem::PathItem(FormEditorScene* scene)
 
 PathItem::~PathItem()
 {
-    m_formEditorItem = 0;
+    m_formEditorItem = nullptr;
 }
 
 static ModelNode pathModelNode(FormEditorItem *formEditorItem)
@@ -64,7 +64,7 @@ static ModelNode pathModelNode(FormEditorItem *formEditorItem)
      return modelNode.nodeProperty("path").modelNode();
 }
 
-typedef QPair<PropertyName, QVariant> PropertyPair;
+using PropertyPair = QPair<PropertyName, QVariant>;
 
 void PathItem::writeLinePath(ModelNode pathNode, const CubicSegment &cubicSegment)
 {
@@ -557,7 +557,7 @@ void PathItem::readControlPoints()
     }
 }
 
-static CubicSegment getMinimumDistanceSegment(const QPointF &pickPoint, const QList<CubicSegment> &cubicSegments, double maximumDistance, double *t = 0)
+static CubicSegment getMinimumDistanceSegment(const QPointF &pickPoint, const QList<CubicSegment> &cubicSegments, double maximumDistance, double *t = nullptr)
 {
     CubicSegment minimumDistanceSegment;
     double actualMinimumDistance = maximumDistance;
@@ -610,7 +610,7 @@ void PathItem::openPath()
 
 QAction *PathItem::createClosedPathAction(QMenu *contextMenu) const
 {
-    QAction *closedPathAction = new QAction(contextMenu);
+    auto closedPathAction = new QAction(contextMenu);
     closedPathAction->setCheckable(true);
     closedPathAction->setChecked(isClosedPath());
     closedPathAction->setText(tr("Closed Path"));
@@ -638,11 +638,11 @@ void PathItem::createCubicSegmentContextMenu(CubicSegment &cubicSegment, const Q
 {
     QMenu contextMenu;
 
-    QAction *splitSegmentAction = new QAction(&contextMenu);
+    auto splitSegmentAction = new QAction(&contextMenu);
     splitSegmentAction->setText(tr("Split Segment"));
     contextMenu.addAction(splitSegmentAction);
 
-    QAction *straightLinePointAction = new QAction(&contextMenu);
+    auto straightLinePointAction = new QAction(&contextMenu);
     straightLinePointAction->setText(tr("Make Curve Segment Straight"));
     contextMenu.addAction(straightLinePointAction);
 
@@ -672,7 +672,7 @@ void PathItem::createCubicSegmentContextMenu(CubicSegment &cubicSegment, const Q
 void PathItem::createEditPointContextMenu(const ControlPoint &controlPoint, const QPoint &menuPosition)
 {
     QMenu contextMenu;
-    QAction *removeEditPointAction = new QAction(&contextMenu);
+    auto removeEditPointAction = new QAction(&contextMenu);
     removeEditPointAction->setText(tr("Remove Edit Point"));
     contextMenu.addAction(removeEditPointAction);
 

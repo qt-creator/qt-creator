@@ -126,9 +126,7 @@ if (s_shouldAssert)
     Q_ASSERT_X(false, _function, QString(QStringLiteral("%1:%2 - %3")).arg(m_file).arg(m_line).arg(m_function).toUtf8());
 }
 
-Exception::~Exception()
-{
-}
+Exception::~Exception() = default;
 
 /*!
     Returns the unmangled backtrace of this exception as a string.

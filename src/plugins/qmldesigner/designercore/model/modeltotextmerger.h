@@ -36,7 +36,7 @@ namespace Internal {
 
 class ModelToTextMerger
 {
-    typedef AbstractView::PropertyChangeFlags PropertyChangeFlags;
+    using PropertyChangeFlags = AbstractView::PropertyChangeFlags;
 
 public:
     ModelToTextMerger(RewriterView *reWriterView);

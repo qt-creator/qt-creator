@@ -42,15 +42,14 @@ class InternalNodeProperty;
 class InternalNodeAbstractProperty;
 class InternalNode;
 
-typedef QSharedPointer<InternalNode> InternalNodePointer;
-typedef QWeakPointer<InternalNode> InternalNodeWeakPointer;
+using InternalNodePointer = QSharedPointer<InternalNode>;
+using InternalNodeWeakPointer = QWeakPointer<InternalNode>;
 
 class QMLDESIGNERCORE_EXPORT InternalProperty
 {
 public:
-    typedef QSharedPointer<InternalProperty> Pointer;
-    typedef QWeakPointer<InternalProperty> WeakPointer;
-
+    using Pointer = QSharedPointer<InternalProperty>;
+    using WeakPointer = QWeakPointer<InternalProperty>;
 
     InternalProperty();
     virtual ~InternalProperty();

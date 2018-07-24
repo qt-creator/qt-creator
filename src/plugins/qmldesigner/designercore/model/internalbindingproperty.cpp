@@ -36,7 +36,7 @@ InternalBindingProperty::InternalBindingProperty(const PropertyName &name, const
 
 InternalBindingProperty::Pointer InternalBindingProperty::create(const PropertyName &name, const InternalNodePointer &propertyOwner)
 {
-    InternalBindingProperty *newPointer(new InternalBindingProperty(name, propertyOwner));
+    auto newPointer(new InternalBindingProperty(name, propertyOwner));
     InternalBindingProperty::Pointer smartPointer(newPointer);
 
     newPointer->setInternalWeakPointer(smartPointer);

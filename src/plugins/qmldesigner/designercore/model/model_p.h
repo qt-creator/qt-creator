@@ -56,15 +56,14 @@ class InternalVariantProperty;
 class InternalNodeAbstractProperty;
 class InternalNodeListProperty;
 
-typedef QSharedPointer<InternalNode> InternalNodePointer;
-typedef QSharedPointer<InternalProperty> InternalPropertyPointer;
-typedef QSharedPointer<InternalBindingProperty> InternalBindingPropertyPointer;
-typedef QSharedPointer<InternalSignalHandlerProperty> InternalSignalHandlerPropertyPointer;
-typedef QSharedPointer<InternalVariantProperty> InternalVariantPropertyPointer;
-typedef QSharedPointer<InternalNodeAbstractProperty> InternalNodeAbstractPropertyPointer;
-typedef QSharedPointer<InternalNodeListProperty> InternalNodeListPropertyPointer;
-typedef QPair<InternalNodePointer, PropertyName> PropertyPair;
-
+using InternalNodePointer = QSharedPointer<InternalNode>;
+using InternalPropertyPointer = QSharedPointer<InternalProperty>;
+using InternalBindingPropertyPointer = QSharedPointer<InternalBindingProperty>;
+using InternalSignalHandlerPropertyPointer = QSharedPointer<InternalSignalHandlerProperty>;
+using InternalVariantPropertyPointer = QSharedPointer<InternalVariantProperty>;
+using InternalNodeAbstractPropertyPointer = QSharedPointer<InternalNodeAbstractProperty>;
+using InternalNodeListPropertyPointer = QSharedPointer<InternalNodeListProperty>;
+using PropertyPair = QPair<InternalNodePointer, PropertyName>;
 
 class ModelPrivate;
 
@@ -88,7 +87,7 @@ class ModelPrivate : public QObject {
 
 public:
      ModelPrivate(Model *model);
-    ~ModelPrivate();
+    ~ModelPrivate() override;
 
     static Model *create(const TypeName &type, int major, int minor, Model *metaInfoPropxyModel);
 

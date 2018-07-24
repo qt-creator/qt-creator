@@ -52,7 +52,7 @@ public:
         LowestPriority = ComponentCoreConstants::priorityLast
     };
 
-    virtual ~ActionInterface() {}
+    virtual ~ActionInterface() = default;
 
     virtual QAction *action() const = 0;
     virtual QByteArray category() const = 0;

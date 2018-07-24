@@ -205,7 +205,7 @@ static void openContextMenu(const QModelIndex &index, const QPoint &pos)
 bool NameItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *, const QStyleOptionViewItem &, const QModelIndex &index)
 {
     if (event->type() == QEvent::MouseButtonRelease) {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        auto mouseEvent = static_cast<QMouseEvent *>(event);
         if (mouseEvent->button() == Qt::RightButton) {
             openContextMenu(index, mouseEvent->globalPos());
             mouseEvent->accept();
@@ -220,7 +220,7 @@ QWidget *NameItemDelegate::createEditor(QWidget *parent,
                                         const QModelIndex &index) const
 {
     if (!getModelNode(index).isValid())
-        return 0;
+        return nullptr;
 
     return new QLineEdit(parent);
 }
@@ -230,7 +230,7 @@ void NameItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) 
     const ModelNode node = getModelNode(index);
     const QString value = node.id();
 
-    QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
+    auto lineEdit = static_cast<QLineEdit*>(editor);
     lineEdit->setText(value);
 }
 
@@ -259,7 +259,7 @@ static void setId(const QModelIndex &index, const QString &newId)
 void NameItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
     Q_UNUSED(model);
-    QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
+    auto lineEdit = static_cast<QLineEdit*>(editor);
     setId(index,lineEdit->text());
     lineEdit->clearFocus();
 }
@@ -268,7 +268,7 @@ void NameItemDelegate::updateEditorGeometry(QWidget *editor,
                                             const QStyleOptionViewItem &option,
                                             const QModelIndex & /*index*/) const
 {
-    QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
+    auto lineEdit = static_cast<QLineEdit*>(editor);
     lineEdit->setGeometry(option.rect);
 }
 

@@ -30,8 +30,8 @@
 
 namespace QmlDesigner {
 
-typedef QByteArray PropertyName;
-typedef QList<PropertyName> PropertyNameList;
-typedef QByteArray TypeName;
+using PropertyName = QByteArray;
+using PropertyNameList = QList<PropertyName>;
+using TypeName = QByteArray;
 
 }

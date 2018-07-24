@@ -32,7 +32,7 @@
 namespace QmlDesigner {
 
 DesignerActionManagerView::DesignerActionManagerView()
-    : AbstractView(0),
+    : AbstractView(nullptr),
       m_designerActionManager(this),
       m_isInRewriterTransaction(false),
       m_setupContextDirty(false)

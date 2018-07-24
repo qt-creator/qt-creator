@@ -29,9 +29,7 @@
 
 namespace QmlDesigner {
 
-Import::Import()
-{
-}
+Import::Import() = default;
 
 Import Import::createLibraryImport(const QString &url, const QString &version, const QString &alias, const QStringList &importPaths)
 {

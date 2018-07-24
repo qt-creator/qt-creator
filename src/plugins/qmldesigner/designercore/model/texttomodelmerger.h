@@ -167,8 +167,7 @@ public:
     DifferenceHandler(TextToModelMerger *textToModelMerger):
             m_merger(textToModelMerger)
     {}
-    virtual ~DifferenceHandler()
-    {}
+    virtual ~DifferenceHandler() = default;
 
     virtual void modelMissesImport(const QmlDesigner::Import &import) = 0;
     virtual void importAbsentInQMl(const QmlDesigner::Import &import) = 0;
@@ -219,48 +218,47 @@ public:
     ModelValidator(TextToModelMerger *textToModelMerger):
             DifferenceHandler(textToModelMerger)
     {}
-    ~ModelValidator()
-    {}
+    ~ModelValidator() override = default;
 
-    virtual void modelMissesImport(const QmlDesigner::Import &import);
-    virtual void importAbsentInQMl(const QmlDesigner::Import &import);
-    virtual void bindingExpressionsDiffer(BindingProperty &modelProperty,
-                                          const QString &javascript,
-                                          const TypeName &astType);
-    virtual void shouldBeBindingProperty(AbstractProperty &modelProperty,
-                                         const QString &javascript,
-                                         const TypeName &astType);
-    virtual void signalHandlerSourceDiffer(SignalHandlerProperty &modelProperty,
-                                          const QString &javascript);
-    virtual void shouldBeSignalHandlerProperty(AbstractProperty &modelProperty,
-                                         const QString &javascript);
-    virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty,
-                                          const QList<QmlJS::AST::UiObjectMember *> arrayMembers,
-                                          ReadingContext *context);
-    virtual void variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicTypeName);
-    virtual void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicTypeName);
-    virtual void shouldBeNodeProperty(AbstractProperty &modelProperty,
-                                      const TypeName &typeName,
-                                      int majorVersion,
-                                      int minorVersion,
-                                      QmlJS::AST::UiObjectMember *astNode,
-                                      const TypeName &dynamicPropertyType,
-                                      ReadingContext *context);
+    void modelMissesImport(const QmlDesigner::Import &import) override;
+    void importAbsentInQMl(const QmlDesigner::Import &import) override;
+    void bindingExpressionsDiffer(BindingProperty &modelProperty,
+                                  const QString &javascript,
+                                  const TypeName &astType) override;
+    void shouldBeBindingProperty(AbstractProperty &modelProperty,
+                                 const QString &javascript,
+                                 const TypeName &astType) override;
+    void signalHandlerSourceDiffer(SignalHandlerProperty &modelProperty,
+                                   const QString &javascript) override;
+    void shouldBeSignalHandlerProperty(AbstractProperty &modelProperty,
+                                       const QString &javascript) override;
+    void shouldBeNodeListProperty(AbstractProperty &modelProperty,
+                                  const QList<QmlJS::AST::UiObjectMember *> arrayMembers,
+                                  ReadingContext *context) override;
+    void variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicTypeName) override;
+    void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicTypeName) override;
+    void shouldBeNodeProperty(AbstractProperty &modelProperty,
+                              const TypeName &typeName,
+                              int majorVersion,
+                              int minorVersion,
+                              QmlJS::AST::UiObjectMember *astNode,
+                              const TypeName &dynamicPropertyType,
+                              ReadingContext *context) override;
 
-    virtual void modelNodeAbsentFromQml(ModelNode &modelNode);
-    virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty,
-                                                   ReadingContext *context,
-                                                   QmlJS::AST::UiObjectMember *arrayMember);
-    virtual void typeDiffers(bool isRootNode,
-                             ModelNode &modelNode,
-                             const TypeName &typeName,
-                             int majorVersion,
-                             int minorVersion,
-                             QmlJS::AST::UiObjectMember *astNode,
-                             ReadingContext *context);
-    virtual void propertyAbsentFromQml(AbstractProperty &modelProperty);
-    virtual void idsDiffer(ModelNode &modelNode, const QString &qmlId);
-    virtual bool isValidator() const {return false; }
+    void modelNodeAbsentFromQml(ModelNode &modelNode) override;
+    ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty,
+                                           ReadingContext *context,
+                                           QmlJS::AST::UiObjectMember *arrayMember) override;
+    void typeDiffers(bool isRootNode,
+                     ModelNode &modelNode,
+                     const TypeName &typeName,
+                     int majorVersion,
+                     int minorVersion,
+                     QmlJS::AST::UiObjectMember *astNode,
+                     ReadingContext *context) override;
+    void propertyAbsentFromQml(AbstractProperty &modelProperty) override;
+    void idsDiffer(ModelNode &modelNode, const QString &qmlId) override;
+    bool isValidator() const override {return false; }
 };
 
 class ModelAmender: public DifferenceHandler
@@ -269,48 +267,47 @@ public:
     ModelAmender(TextToModelMerger *textToModelMerger):
             DifferenceHandler(textToModelMerger)
     {}
-    ~ModelAmender()
-    {}
+    ~ModelAmender() override = default;
 
-    virtual void modelMissesImport(const QmlDesigner::Import &import);
-    virtual void importAbsentInQMl(const QmlDesigner::Import &import);
-    virtual void bindingExpressionsDiffer(BindingProperty &modelProperty,
-                                          const QString &javascript,
-                                          const TypeName &astType);
-    virtual void shouldBeBindingProperty(AbstractProperty &modelProperty,
-                                         const QString &javascript,
-                                         const TypeName &astType);
-    virtual void signalHandlerSourceDiffer(SignalHandlerProperty &modelProperty,
-                                          const QString &javascript);
-    virtual void shouldBeSignalHandlerProperty(AbstractProperty &modelProperty,
-                                         const QString &javascript);
-    virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty,
-                                          const QList<QmlJS::AST::UiObjectMember *> arrayMembers,
-                                          ReadingContext *context);
-    virtual void variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicType);
-    virtual void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicTypeName);
-    virtual void shouldBeNodeProperty(AbstractProperty &modelProperty,
-                                      const TypeName &typeName,
-                                      int majorVersion,
-                                      int minorVersion,
-                                      QmlJS::AST::UiObjectMember *astNode,
-                                      const TypeName &dynamicPropertyType,
-                                      ReadingContext *context);
+    void modelMissesImport(const QmlDesigner::Import &import) override;
+    void importAbsentInQMl(const QmlDesigner::Import &import) override;
+    void bindingExpressionsDiffer(BindingProperty &modelProperty,
+                                  const QString &javascript,
+                                  const TypeName &astType) override;
+    void shouldBeBindingProperty(AbstractProperty &modelProperty,
+                                 const QString &javascript,
+                                 const TypeName &astType) override;
+    void signalHandlerSourceDiffer(SignalHandlerProperty &modelProperty,
+                                   const QString &javascript) override;
+    void shouldBeSignalHandlerProperty(AbstractProperty &modelProperty,
+                                       const QString &javascript) override;
+    void shouldBeNodeListProperty(AbstractProperty &modelProperty,
+                                  const QList<QmlJS::AST::UiObjectMember *> arrayMembers,
+                                  ReadingContext *context) override;
+    void variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicType) override;
+    void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicTypeName) override;
+    void shouldBeNodeProperty(AbstractProperty &modelProperty,
+                              const TypeName &typeName,
+                              int majorVersion,
+                              int minorVersion,
+                              QmlJS::AST::UiObjectMember *astNode,
+                              const TypeName &dynamicPropertyType,
+                              ReadingContext *context) override;
 
-    virtual void modelNodeAbsentFromQml(ModelNode &modelNode);
-    virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty,
-                                                   ReadingContext *context,
-                                                   QmlJS::AST::UiObjectMember *arrayMember);
-    virtual void typeDiffers(bool isRootNode,
-                             ModelNode &modelNode,
-                             const TypeName &typeName,
-                             int majorVersion,
-                             int minorVersion,
-                             QmlJS::AST::UiObjectMember *astNode,
-                             ReadingContext *context);
-    virtual void propertyAbsentFromQml(AbstractProperty &modelProperty);
-    virtual void idsDiffer(ModelNode &modelNode, const QString &qmlId);
-    virtual bool isValidator() const {return true; }
+    void modelNodeAbsentFromQml(ModelNode &modelNode) override;
+    ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty,
+                                           ReadingContext *context,
+                                           QmlJS::AST::UiObjectMember *arrayMember) override;
+    void typeDiffers(bool isRootNode,
+                     ModelNode &modelNode,
+                     const TypeName &typeName,
+                     int majorVersion,
+                     int minorVersion,
+                     QmlJS::AST::UiObjectMember *astNode,
+                     ReadingContext *context) override;
+    void propertyAbsentFromQml(AbstractProperty &modelProperty) override;
+    void idsDiffer(ModelNode &modelNode, const QString &qmlId) override;
+    bool isValidator() const override {return true; }
 };
 
 } //Internal

@@ -29,9 +29,7 @@
 
 namespace QmlDesigner {
 
-ChangeIdsCommand::ChangeIdsCommand()
-{
-}
+ChangeIdsCommand::ChangeIdsCommand() = default;
 
 ChangeIdsCommand::ChangeIdsCommand(const QVector<IdContainer> &idVector)
     : m_idVector(idVector)

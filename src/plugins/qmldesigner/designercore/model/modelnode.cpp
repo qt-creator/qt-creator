@@ -103,27 +103,13 @@ ModelNode::ModelNode():
 
 }
 
-ModelNode::ModelNode(const ModelNode &other):
-        m_internalNode(other.m_internalNode),
-        m_model(other.m_model),
-        m_view(other.m_view)
-{
-}
+ModelNode::ModelNode(const ModelNode &other) = default;
 
-ModelNode& ModelNode::operator=(const ModelNode &other)
-{
-    this->m_model = other.m_model;
-    this->m_internalNode = other.m_internalNode;
-    this->m_view = other.m_view;
-
-    return *this;
-}
+ModelNode& ModelNode::operator=(const ModelNode &other) = default;
 
 /*! \brief does nothing
 */
-ModelNode::~ModelNode()
-{
-}
+ModelNode::~ModelNode() = default;
 
 /*! \brief returns the name of node which is a short cut to a property like objectName
 \return name of the node

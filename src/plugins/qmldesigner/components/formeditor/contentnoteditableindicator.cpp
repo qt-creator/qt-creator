@@ -37,9 +37,7 @@ ContentNotEditableIndicator::ContentNotEditableIndicator(LayerItem *layerItem)
 
 }
 
-ContentNotEditableIndicator::ContentNotEditableIndicator()
-{
-}
+ContentNotEditableIndicator::ContentNotEditableIndicator() = default;
 
 ContentNotEditableIndicator::~ContentNotEditableIndicator()
 {
@@ -92,7 +90,7 @@ void ContentNotEditableIndicator::addAddiationEntries(const QList<FormEditorItem
         if (modelNode.metaInfo().isValid() && modelNode.metaInfo().isSubclassOf("QtQuick.Loader")) {
 
             if (!m_entryList.contains(EntryPair(formEditorItem, 0))) {
-                QGraphicsRectItem *indicatorShape = new QGraphicsRectItem(m_layerItem);
+                auto indicatorShape = new QGraphicsRectItem(m_layerItem);
                 QPen linePen;
                 linePen.setCosmetic(true);
                 linePen.setColor(QColor(0xa0, 0xa0, 0xa0));

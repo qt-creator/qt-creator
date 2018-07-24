@@ -33,14 +33,9 @@
 
 namespace QmlDesigner {
 
-ControlPoint::ControlPoint()
-{
-}
+ControlPoint::ControlPoint() = default;
 
-ControlPoint::ControlPoint(const ControlPoint &other)
-    : d(other.d)
-{
-}
+ControlPoint::ControlPoint(const ControlPoint &other) = default;
 
 ControlPoint::ControlPoint(const QPointF &coordinate)
     : d(new ControlPointData)
@@ -54,9 +49,7 @@ ControlPoint::ControlPoint(double x, double y)
     d->coordinate = QPointF(x, y);
 }
 
-ControlPoint::~ControlPoint()
-{
-}
+ControlPoint::~ControlPoint() = default;
 
 ControlPoint &ControlPoint::operator =(const ControlPoint &other)
 {

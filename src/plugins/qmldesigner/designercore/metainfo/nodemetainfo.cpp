@@ -77,7 +77,7 @@ namespace Internal {
 
 using namespace QmlJS;
 
-typedef QPair<PropertyName, TypeName> PropertyInfo;
+using PropertyInfo = QPair<PropertyName, TypeName>;
 
 QVector<PropertyInfo> getObjectTypes(const ObjectValue *ov, const ContextPtr &context, bool local = false, int rec = 0);
 
@@ -350,7 +350,7 @@ static inline bool isValueType(const QString &type)
 const CppComponentValue *findQmlPrototype(const ObjectValue *ov, const ContextPtr &context)
 {
     if (!ov)
-        return 0;
+        return nullptr;
 
     const CppComponentValue * qmlValue = value_cast<CppComponentValue>(ov);
     if (qmlValue)
@@ -517,9 +517,9 @@ QVector<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const Conte
 class NodeMetaInfoPrivate
 {
 public:
-    typedef QSharedPointer<NodeMetaInfoPrivate> Pointer;
+    using Pointer = QSharedPointer<NodeMetaInfoPrivate>;
     NodeMetaInfoPrivate() = default;
-    ~NodeMetaInfoPrivate() {}
+    ~NodeMetaInfoPrivate() = default;
 
     bool isValid() const;
     bool isFileComponent() const;
@@ -723,7 +723,7 @@ const CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() const
 {
     const QList<TypeName> nameComponents = m_qualfiedTypeName.split('.');
     if (nameComponents.size() < 2)
-        return 0;
+        return nullptr;
     const TypeName &type = nameComponents.constLast();
 
     TypeName module;
@@ -784,14 +784,14 @@ ContextPtr NodeMetaInfoPrivate::context() const
 {
     if (m_model && m_model->rewriterView() && m_model->rewriterView()->scopeChain())
         return m_model->rewriterView()->scopeChain()->context();
-    return ContextPtr(0);
+    return ContextPtr(nullptr);
 }
 
 const Document *NodeMetaInfoPrivate::document() const
 {
     if (m_model && m_model->rewriterView())
         return m_model->rewriterView()->document();
-    return 0;
+    return nullptr;
 }
 
 void NodeMetaInfoPrivate::setupLocalPropertyInfo(const QVector<PropertyInfo> &localPropertyInfos)
@@ -963,7 +963,7 @@ QString NodeMetaInfoPrivate::propertyEnumScope(const PropertyName &propertyName)
     const CppComponentValue *qmlObjectValue = getNearestCppComponentValue();
     if (!qmlObjectValue)
         return QString();
-    const CppComponentValue *definedIn = 0;
+    const CppComponentValue *definedIn = nullptr;
     qmlObjectValue->getEnum(QString::fromUtf8(propertyType(propertyName)), &definedIn);
     if (definedIn) {
         QString nonCppPackage;
@@ -1322,14 +1322,9 @@ NodeMetaInfo::NodeMetaInfo(Model *model, TypeName type, int maj, int min) : m_pr
 
 }
 
-NodeMetaInfo::~NodeMetaInfo()
-{
-}
+NodeMetaInfo::~NodeMetaInfo() = default;
 
-NodeMetaInfo::NodeMetaInfo(const NodeMetaInfo &other)
-    : m_privateData(other.m_privateData)
-{
-}
+NodeMetaInfo::NodeMetaInfo(const NodeMetaInfo &other) = default;
 
 NodeMetaInfo &NodeMetaInfo::operator=(const NodeMetaInfo &other)
 {

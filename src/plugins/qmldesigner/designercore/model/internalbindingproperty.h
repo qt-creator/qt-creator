@@ -33,11 +33,11 @@ namespace Internal {
 class InternalBindingProperty : public InternalProperty
 {
 public:
-    typedef QSharedPointer<InternalBindingProperty> Pointer;
+    using Pointer = QSharedPointer<InternalBindingProperty>;
 
     static Pointer create(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
-    bool isValid() const;
+    bool isValid() const override;
 
     QString expression() const;
     void setExpression(const QString &expression);
@@ -45,7 +45,7 @@ public:
     void setDynamicExpression(const TypeName &type, const QString &expression);
 
 
-    bool isBindingProperty() const;
+    bool isBindingProperty() const override;
 
 protected:
     InternalBindingProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);

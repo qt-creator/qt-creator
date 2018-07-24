@@ -70,9 +70,7 @@ RewriterView::RewriterView(DifferenceHandling differenceHandling, QObject *paren
     connect(&m_amendTimer, &QTimer::timeout, this, &RewriterView::amendQmlText);
 }
 
-RewriterView::~RewriterView()
-{
-}
+RewriterView::~RewriterView() = default;
 
 Internal::ModelToTextMerger *RewriterView::modelToTextMerger() const
 {

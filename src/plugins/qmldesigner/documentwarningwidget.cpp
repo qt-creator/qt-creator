@@ -87,16 +87,16 @@ DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
 
     connect(m_ignoreWarningsCheckBox, &QCheckBox::toggled, this, &DocumentWarningWidget::ignoreCheckBoxToggled);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     layout->addWidget(m_headerLabel);
-    QVBoxLayout *messageLayout = new QVBoxLayout;
+    auto messageLayout = new QVBoxLayout;
     messageLayout->setMargin(20);
     messageLayout->setSpacing(5);
     messageLayout->addWidget(m_navigateLabel);
     messageLayout->addWidget(m_messageLabel);
     layout->addLayout(messageLayout);
     layout->addWidget(m_ignoreWarningsCheckBox);
-    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    auto buttonLayout = new QHBoxLayout();
     buttonLayout->addStretch();
     buttonLayout->addWidget(m_continueButton);
     layout->addLayout(buttonLayout);

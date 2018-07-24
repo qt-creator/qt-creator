@@ -43,17 +43,17 @@ public:
                                   quint32 beforeObjectLocation,
                                   bool inDefaultProperty);
 
-    bool operator ()(QmlJS::AST::UiProgram *ast);
+    bool operator ()(QmlJS::AST::UiProgram *ast) override;
 
 protected:
-    virtual bool preVisit(QmlJS::AST::Node *ast);
-    virtual void postVisit(QmlJS::AST::Node *ast);
+    bool preVisit(QmlJS::AST::Node *ast) override;
+    void postVisit(QmlJS::AST::Node *ast) override;
 
-    virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
+    bool visit(QmlJS::AST::UiObjectDefinition *ast) override;
 
 private:
     bool foundEverything() const
-    { return movingObject != 0 && !movingObjectParents.isEmpty() && (toEnd || beforeObject != 0); }
+    { return movingObject != nullptr && !movingObjectParents.isEmpty() && (toEnd || beforeObject != nullptr); }
 
     void doMove();
 

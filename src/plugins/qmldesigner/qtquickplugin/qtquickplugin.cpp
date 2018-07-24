@@ -28,11 +28,7 @@
 
 namespace QmlDesigner {
 
-
-QtQuickPlugin::QtQuickPlugin()
-{
-
-}
+QtQuickPlugin::QtQuickPlugin() = default;
 
 QString QtQuickPlugin::pluginName() const
 {

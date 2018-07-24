@@ -43,7 +43,7 @@ namespace Internal {
     class MetaInfoPrivate;
     class ModelPrivate;
     class SubComponentManagerPrivate;
-    typedef QSharedPointer<MetaInfoPrivate> MetaInfoPrivatePointer;
+    using MetaInfoPrivatePointer = QSharedPointer<MetaInfoPrivate>;
 }
 
 QMLDESIGNERCORE_EXPORT bool operator==(const MetaInfo &first, const MetaInfo &second);

@@ -48,7 +48,7 @@ void LineEditAction::clearLineEditText()
 
 QWidget *LineEditAction::createWidget(QWidget *parent)
 {
-    QLineEdit *lineEdit = new QLineEdit(parent);
+    auto lineEdit = new QLineEdit(parent);
 
     lineEdit->setPlaceholderText(m_placeHolderText);
     lineEdit->setFixedWidth(100);

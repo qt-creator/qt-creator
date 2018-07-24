@@ -61,7 +61,7 @@ const char disbledTooltip[] = QT_TRANSLATE_NOOP("ChangeStyleWidgetAction",
 
 QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
 {
-    QComboBox *comboBox = new QComboBox(parent);
+    auto comboBox = new QComboBox(parent);
     comboBox->setToolTip(tr(enabledTooltip));
     comboBox->addItem("Default");
     comboBox->addItem("Fusion");

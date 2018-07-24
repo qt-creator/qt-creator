@@ -30,9 +30,7 @@
 
 namespace QmlDesigner {
 
-ChangeFileUrlCommand::ChangeFileUrlCommand()
-{
-}
+ChangeFileUrlCommand::ChangeFileUrlCommand() = default;
 
 ChangeFileUrlCommand::ChangeFileUrlCommand(const QUrl &fileUrl)
     : m_fileUrl(fileUrl)

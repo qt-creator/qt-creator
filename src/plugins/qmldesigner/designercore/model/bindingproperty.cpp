@@ -43,9 +43,7 @@ bool compareBindingProperties(const QmlDesigner::BindingProperty &bindingPropert
     return true;
 }
 
-BindingProperty::BindingProperty()
-{
-}
+BindingProperty::BindingProperty() = default;
 
 BindingProperty::BindingProperty(const BindingProperty &property, AbstractView *view)
     : AbstractProperty(property.name(), property.internalNode(), property.model(), view)

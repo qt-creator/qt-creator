@@ -61,7 +61,7 @@ InternalNode::InternalNode(const TypeName &typeName,int majorVersion, int minorV
 
 InternalNode::Pointer InternalNode::create(const TypeName &type,int majorVersion, int minorVersion, qint32 internalId)
 {
-    InternalNode *newPointer(new InternalNode(type, majorVersion, minorVersion, internalId));
+    auto newPointer(new InternalNode(type, majorVersion, minorVersion, internalId));
     InternalNode::Pointer smartPointer(newPointer);
 
     newPointer->setInternalWeakPointer(smartPointer);

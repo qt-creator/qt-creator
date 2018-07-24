@@ -42,7 +42,7 @@ ResizeManipulator::ResizeManipulator(LayerItem *layerItem, FormEditorView *view)
     m_beginRightMargin(0.0),
     m_beginBottomMargin(0.0),
     m_layerItem(layerItem),
-    m_resizeHandle(0),
+    m_resizeHandle(nullptr),
     m_isActive(false)
 {
 }
@@ -65,7 +65,7 @@ void ResizeManipulator::setHandle(ResizeHandleItem *resizeHandle)
 void ResizeManipulator::removeHandle()
 {
     m_resizeController = ResizeController();
-    m_resizeHandle = 0;
+    m_resizeHandle = nullptr;
 }
 
 void ResizeManipulator::begin(const QPointF &/*beginPoint*/)

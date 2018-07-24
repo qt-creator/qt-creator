@@ -91,10 +91,7 @@ public:
 
 ItemLibrarySideBarItem::ItemLibrarySideBarItem(QWidget *widget, const QString &id) : Core::SideBarItem(widget, id) {}
 
-ItemLibrarySideBarItem::~ItemLibrarySideBarItem()
-{
-
-}
+ItemLibrarySideBarItem::~ItemLibrarySideBarItem() = default;
 
 QList<QToolButton *> ItemLibrarySideBarItem::createToolBarWidgets()
 {
@@ -267,7 +264,7 @@ void DesignModeWidget::setup()
 
     foreach (Core::INavigationWidgetFactory *factory, factories) {
         Core::NavigationView navigationView;
-        navigationView.widget = 0;
+        navigationView.widget = nullptr;
         if (factory->id() == "Projects") {
             navigationView = factory->createWidget();
             projectsExplorer = navigationView.widget;
@@ -293,7 +290,7 @@ void DesignModeWidget::setup()
         }
     }
 
-    QToolBar *toolBar = new QToolBar;
+    auto toolBar = new QToolBar;
     toolBar->addAction(viewManager().componentViewAction());
     toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     DesignerActionToolBar *designerToolBar = QmlDesignerPlugin::instance()->viewManager().designerActionManager().createToolBar(m_toolBar);
@@ -450,7 +447,7 @@ void DesignModeWidget::addNavigatorHistoryEntry(const Utils::FileName &fileName)
 
 static QTabWidget *createWidgetsInTabWidget(const QList<WidgetInfo> &widgetInfos)
 {
-    QTabWidget *tabWidget = new QTabWidget;
+    auto tabWidget = new QTabWidget;
 
     foreach (const WidgetInfo &widgetInfo, widgetInfos)
         tabWidget->addTab(widgetInfo.widget, widgetInfo.tabName);
@@ -488,10 +485,10 @@ static QWidget *createbottomSideBarWidget(const QList<WidgetInfo> &widgetInfos)
 static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widgetInfos)
 {
     // editor and output panes
-    Core::MiniSplitter *outputPlaceholderSplitter = new Core::MiniSplitter;
+    auto outputPlaceholderSplitter = new Core::MiniSplitter;
     outputPlaceholderSplitter->setOrientation(Qt::Vertical);
 
-    SwitchSplitTabWidget *switchSplitTabWidget = new SwitchSplitTabWidget();
+    auto switchSplitTabWidget = new SwitchSplitTabWidget();
 
     foreach (const WidgetInfo &widgetInfo, widgetInfos) {
         if (widgetInfo.placementHint == widgetInfo.CentralPane)
@@ -516,7 +513,7 @@ QWidget *DesignModeWidget::createCenterWidget()
 {
     QWidget *centerWidget = new QWidget;
 
-    QVBoxLayout *horizontalLayout = new QVBoxLayout(centerWidget);
+    auto horizontalLayout = new QVBoxLayout(centerWidget);
     horizontalLayout->setMargin(0);
     horizontalLayout->setSpacing(0);
 
@@ -537,9 +534,9 @@ QWidget *DesignModeWidget::createCenterWidget()
 
 QWidget *DesignModeWidget::createCrumbleBarFrame()
 {
-    auto *frame = new Utils::StyledBar(this);
+    auto frame = new Utils::StyledBar(this);
     frame->setSingleRow(false);
-    QHBoxLayout *layout = new QHBoxLayout(frame);
+    auto layout = new QHBoxLayout(frame);
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(m_crumbleBar->crumblePath());

@@ -44,8 +44,8 @@ public:
                        const TypeName &dynamicTypeName);
 
 protected:
-    virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
-    virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
+    bool visit(QmlJS::AST::UiObjectDefinition *ast) override;
+    bool visit(QmlJS::AST::UiObjectBinding *ast) override;
 
 private:
     void addInMembers(QmlJS::AST::UiObjectInitializer *initializer);

@@ -27,18 +27,14 @@
 
 namespace QmlDesigner {
 
-SharedMemory::SharedMemory()
-{
-}
+SharedMemory::SharedMemory() = default;
 
 SharedMemory::SharedMemory(const QString &key)
     : m_sharedMemory(key)
 {
 }
 
-SharedMemory::~SharedMemory()
-{
-}
+SharedMemory::~SharedMemory() = default;
 
 void SharedMemory::setKey(const QString &key)
 {

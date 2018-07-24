@@ -39,10 +39,7 @@ ItemLibraryView::ItemLibraryView(QObject* parent)
 
 }
 
-ItemLibraryView::~ItemLibraryView()
-{
-
-}
+ItemLibraryView::~ItemLibraryView() = default;
 
 bool ItemLibraryView::hasWidget() const
 {
@@ -79,7 +76,7 @@ void ItemLibraryView::modelAboutToBeDetached(Model *model)
 
     AbstractView::modelAboutToBeDetached(model);
 
-    m_widget->setModel(0);
+    m_widget->setModel(nullptr);
 }
 
 void ItemLibraryView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)

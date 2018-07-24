@@ -69,7 +69,7 @@ static QmlItemNode createQmlItemNodeFromSource(AbstractView *view, const QString
     textEdit.setPlainText(source);
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, 0));
+    QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, nullptr));
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(&modifier);
     inputModel->setRewriterView(rewriterView.data());
@@ -113,7 +113,7 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
         int minorVersion = metaInfo.minorVersion();
         int majorVersion = metaInfo.majorVersion();
 
-        typedef QPair<PropertyName, QString> PropertyBindingEntry;
+        using PropertyBindingEntry = QPair<PropertyName, QString>;
         QList<PropertyBindingEntry> propertyBindingList;
         if (itemLibraryEntry.qmlSource().isEmpty()) {
             QList<QPair<PropertyName, QVariant> > propertyPairList;

@@ -36,9 +36,7 @@ namespace DesignerSettingsGroupKey {
     const char QML_DESIGNER_SETTINGS_GROUP[] = "Designer";
 }
 
-DesignerSettings::DesignerSettings()
-{
-}
+DesignerSettings::DesignerSettings() = default;
 
 void DesignerSettings::restoreValue(QSettings *settings, const QByteArray &key, const QVariant &defaultValue)
 {

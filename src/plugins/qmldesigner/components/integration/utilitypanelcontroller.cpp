@@ -35,9 +35,7 @@ UtilityPanelController::UtilityPanelController(QObject* parent):
 {
 }
 
-UtilityPanelController::~UtilityPanelController()
-{
-}
+UtilityPanelController::~UtilityPanelController() = default;
 
 QWidget* UtilityPanelController::widget()
 {

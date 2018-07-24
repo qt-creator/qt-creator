@@ -58,30 +58,19 @@ public:
 ResizeControllerData::ResizeControllerData(LayerItem *layerItem, FormEditorItem *formEditorItem)
     : layerItem(layerItem),
     formEditorItem(formEditorItem),
-    topLeftItem(0),
-    topRightItem(0),
-    bottomLeftItem(0),
-    bottomRightItem(0),
-    topItem(0),
-    leftItem(0),
-    rightItem(0),
-    bottomItem(0)
+    topLeftItem(nullptr),
+    topRightItem(nullptr),
+    bottomLeftItem(nullptr),
+    bottomRightItem(nullptr),
+    topItem(nullptr),
+    leftItem(nullptr),
+    rightItem(nullptr),
+    bottomItem(nullptr)
 {
 
 }
 
-ResizeControllerData::ResizeControllerData(const ResizeControllerData &other)
-    : layerItem(other.layerItem),
-    formEditorItem(other.formEditorItem),
-    topLeftItem(other.topLeftItem),
-    topRightItem(other.topRightItem),
-    bottomLeftItem(other.bottomLeftItem),
-    bottomRightItem(other.bottomRightItem),
-    topItem(other.topItem),
-    leftItem(other.leftItem),
-    rightItem(other.rightItem),
-    bottomItem(other.bottomItem)
-{}
+ResizeControllerData::ResizeControllerData(const ResizeControllerData &other) = default;
 
 ResizeControllerData::~ResizeControllerData()
 {
@@ -100,7 +89,7 @@ ResizeControllerData::~ResizeControllerData()
 
 
 ResizeController::ResizeController()
-   : m_data(new ResizeControllerData(0, 0))
+   : m_data(new ResizeControllerData(nullptr, nullptr))
 {
 
 }
@@ -149,20 +138,14 @@ ResizeController::ResizeController(LayerItem *layerItem, FormEditorItem *formEdi
     updatePosition();
 }
 
-ResizeController::ResizeController(const ResizeController &other)
-    : m_data(other.m_data)
-{
-
-}
+ResizeController::ResizeController(const ResizeController &other) = default;
 
 ResizeController::ResizeController(const WeakResizeController &resizeController)
     : m_data(resizeController.m_data.toStrongRef())
 {
 }
 
-ResizeController::~ResizeController()
-{
-}
+ResizeController::~ResizeController() = default;
 
 ResizeController &ResizeController::operator =(const ResizeController &other)
 {
@@ -310,24 +293,16 @@ WeakResizeController ResizeController::toWeakResizeController() const
     return WeakResizeController(*this);
 }
 
-WeakResizeController::WeakResizeController()
-{
+WeakResizeController::WeakResizeController() = default;
 
-}
-
-WeakResizeController::WeakResizeController(const WeakResizeController &resizeController)
-    : m_data(resizeController.m_data)
-{
-}
+WeakResizeController::WeakResizeController(const WeakResizeController &resizeController) = default;
 
 WeakResizeController::WeakResizeController(const ResizeController &resizeController)
     : m_data(resizeController.m_data.toWeakRef())
 {
 }
 
-WeakResizeController::~WeakResizeController()
-{
-}
+WeakResizeController::~WeakResizeController() = default;
 
 WeakResizeController &WeakResizeController::operator =(const WeakResizeController &other)
 {

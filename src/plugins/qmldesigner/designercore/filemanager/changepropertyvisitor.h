@@ -41,8 +41,8 @@ public:
                           QmlRefactoring::PropertyType propertyType);
 
 protected:
-    virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
-    virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
+    bool visit(QmlJS::AST::UiObjectDefinition *ast) override;
+    bool visit(QmlJS::AST::UiObjectBinding *ast) override;
 
 private:
     void replaceInMembers(QmlJS::AST::UiObjectInitializer *initializer,

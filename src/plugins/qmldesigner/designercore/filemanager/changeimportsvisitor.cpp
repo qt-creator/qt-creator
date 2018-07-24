@@ -70,7 +70,7 @@ bool ChangeImportsVisitor::remove(QmlJS::AST::UiProgram *ast, const Import &impo
         return false;
 
     for (QmlJS::AST::UiHeaderItemList *iter = ast->headers; iter; iter = iter->next) {
-        QmlJS::AST::UiImport *iterImport = QmlJS::AST::cast<QmlJS::AST::UiImport *>(iter->headerItem);
+        auto iterImport = QmlJS::AST::cast<QmlJS::AST::UiImport *>(iter->headerItem);
         if (equals(iterImport, import)) {
             int start = iterImport->firstSourceLocation().begin();
             int end = iterImport->lastSourceLocation().end();

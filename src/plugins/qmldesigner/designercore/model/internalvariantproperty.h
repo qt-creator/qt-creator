@@ -33,18 +33,18 @@ namespace Internal {
 class InternalVariantProperty : public InternalProperty
 {
 public:
-    typedef QSharedPointer<InternalVariantProperty> Pointer;
+    using Pointer = QSharedPointer<InternalVariantProperty>;
 
     static Pointer create(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
-    bool isValid() const;
+    bool isValid() const override;
 
     QVariant value() const;
     void setValue(const QVariant &value);
 
     void setDynamicValue(const TypeName &type, const QVariant &value);
 
-    bool isVariantProperty() const;
+    bool isVariantProperty() const override;
 
 protected:
     InternalVariantProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);

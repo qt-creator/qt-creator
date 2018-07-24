@@ -475,7 +475,7 @@ void DynamicPropertiesModel::updatePropertyName(int rowNumber)
             targetNode.removeProperty(bindingProperty.name());
             transaction.commit(); //committing in the try block
         } catch (Exception &e) { //better save then sorry
-            QMessageBox::warning(0, tr("Error"), e.description());
+            QMessageBox::warning(nullptr, tr("Error"), e.description());
         }
 
         updateCustomData(rowNumber, targetNode.bindingProperty(newName));
@@ -495,7 +495,7 @@ void DynamicPropertiesModel::updatePropertyName(int rowNumber)
             targetNode.removeProperty(variantProperty.name());
             transaction.commit(); //committing in the try block
         } catch (Exception &e) { //better save then sorry
-            QMessageBox::warning(0, tr("Error"), e.description());
+            QMessageBox::warning(nullptr, tr("Error"), e.description());
         }
 
         updateCustomData(rowNumber, targetNode.variantProperty(newName));
@@ -525,7 +525,7 @@ void DynamicPropertiesModel::updatePropertyType(int rowNumber)
             targetNode.bindingProperty(propertyName).setDynamicTypeNameAndExpression(newType, expression);
             transaction.commit(); //committing in the try block
         } catch (Exception &e) { //better save then sorry
-            QMessageBox::warning(0, tr("Error"), e.description());
+            QMessageBox::warning(nullptr, tr("Error"), e.description());
         }
 
         updateCustomData(rowNumber, targetNode.bindingProperty(propertyName));
@@ -549,7 +549,7 @@ void DynamicPropertiesModel::updatePropertyType(int rowNumber)
             }
             transaction.commit(); //committing in the try block
         } catch (Exception &e) { //better save then sorry
-            QMessageBox::warning(0, tr("Error"), e.description());
+            QMessageBox::warning(nullptr, tr("Error"), e.description());
         }
 
         updateCustomData(rowNumber, targetNode.variantProperty(propertyName));
@@ -683,7 +683,7 @@ void DynamicPropertiesModel::handleDataChanged(const QModelIndex &topLeft, const
 
 void DynamicPropertiesModel::handleException()
 {
-    QMessageBox::warning(0, tr("Error"), m_exceptionError);
+    QMessageBox::warning(nullptr, tr("Error"), m_exceptionError);
     resetModel();
 }
 

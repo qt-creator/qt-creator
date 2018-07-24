@@ -30,7 +30,7 @@
 namespace QmlDesigner {
 
 AbstractCustomTool::AbstractCustomTool()
-    : AbstractFormEditorTool(0)
+    : AbstractFormEditorTool(nullptr)
 {
 }
 

@@ -35,8 +35,8 @@ class AddTabToTabViewDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AddTabToTabViewDialog(QWidget *parent = 0);
-    ~AddTabToTabViewDialog();
+    explicit AddTabToTabViewDialog(QWidget *parent = nullptr);
+    ~AddTabToTabViewDialog() override;
 
     static QString create(const QString &tabName, QWidget *parent);
 

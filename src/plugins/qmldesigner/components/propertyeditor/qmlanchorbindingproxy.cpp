@@ -70,9 +70,7 @@ QmlAnchorBindingProxy::QmlAnchorBindingProxy(QObject *parent) :
 {
 }
 
-QmlAnchorBindingProxy::~QmlAnchorBindingProxy()
-{
-}
+QmlAnchorBindingProxy::~QmlAnchorBindingProxy() = default;
 
 void QmlAnchorBindingProxy::setup(const QmlItemNode &fxItemNode)
 {

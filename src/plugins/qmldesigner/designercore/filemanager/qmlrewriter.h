@@ -39,7 +39,7 @@ namespace Internal {
 class QMLRewriter: protected QmlJS::AST::Visitor
 {
 public:
-    typedef QStack<QmlJS::AST::Node *> ASTPath;
+    using ASTPath = QStack<QmlJS::AST::Node *>;
 
 public:
     QMLRewriter(QmlDesigner::TextModifier &textModifier);

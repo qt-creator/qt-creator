@@ -124,7 +124,7 @@ void EnterTabDesignerAction::createActionForTab(const ModelNode &modelNode)
         if (itemNode.isValid()) {
             QString what = tr("Step into: %1").
                     arg(itemNode.instanceValue("title").toString());
-            EnterTabAction *selectionAction = new EnterTabAction(what);
+            auto selectionAction = new EnterTabAction(what);
 
             SelectionContext nodeSelectionContext = selectionContext();
             nodeSelectionContext.setTargetNode(modelNode);

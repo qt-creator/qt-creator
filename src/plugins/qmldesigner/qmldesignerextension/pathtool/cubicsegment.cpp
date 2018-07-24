@@ -31,9 +31,7 @@
 
 namespace QmlDesigner {
 
-CubicSegment::CubicSegment()
-{
-}
+CubicSegment::CubicSegment() = default;
 
 CubicSegment CubicSegment::create()
 {

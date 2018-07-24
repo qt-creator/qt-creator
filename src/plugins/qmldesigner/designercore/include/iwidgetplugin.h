@@ -34,7 +34,7 @@ namespace QmlDesigner {
 class IWidgetPlugin
 {
 public:
-    virtual ~IWidgetPlugin() {}
+    virtual ~IWidgetPlugin() = default;
 
     virtual QString metaInfo() const  = 0;
     virtual QString pluginName() const = 0;

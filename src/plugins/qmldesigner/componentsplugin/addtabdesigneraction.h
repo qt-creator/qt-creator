@@ -35,14 +35,14 @@ class AddTabDesignerAction : public QObject, public AbstractAction
 public:
     AddTabDesignerAction();
 
-    QByteArray category() const;
-    QByteArray menuId() const;
-    int priority() const;
-    Type type() const;
+    QByteArray category() const override;
+    QByteArray menuId() const override;
+    int priority() const override;
+    Type type() const override;
 
 protected:
-    bool isVisible(const SelectionContext &selectionContext) const;
-    bool isEnabled(const SelectionContext &selectionContext) const;
+    bool isVisible(const SelectionContext &selectionContext) const override;
+    bool isEnabled(const SelectionContext &selectionContext) const override;
 
 private:
     void addNewTab();

@@ -36,7 +36,7 @@ InternalSignalHandlerProperty::InternalSignalHandlerProperty(const PropertyName 
 
 InternalSignalHandlerProperty::Pointer InternalSignalHandlerProperty::create(const PropertyName &name, const InternalNodePointer &propertyOwner)
 {
-    InternalSignalHandlerProperty *newPointer(new InternalSignalHandlerProperty(name, propertyOwner));
+    auto newPointer(new InternalSignalHandlerProperty(name, propertyOwner));
     InternalSignalHandlerProperty::Pointer smartPointer(newPointer);
 
     newPointer->setInternalWeakPointer(smartPointer);

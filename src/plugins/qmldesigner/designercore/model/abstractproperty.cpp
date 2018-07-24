@@ -79,27 +79,11 @@ AbstractProperty::AbstractProperty(const AbstractProperty &property, AbstractVie
 
 }
 
-AbstractProperty::~AbstractProperty()
-{
-}
+AbstractProperty::~AbstractProperty() = default;
 
-AbstractProperty::AbstractProperty(const AbstractProperty &other)
-    :  m_propertyName(other.m_propertyName),
-    m_internalNode(other.m_internalNode),
-    m_model(other.m_model),
-    m_view(other.m_view)
-{
-}
+AbstractProperty::AbstractProperty(const AbstractProperty &other) = default;
 
-AbstractProperty& AbstractProperty::operator=(const AbstractProperty &other)
-{
-    m_propertyName = other.m_propertyName;
-    m_internalNode = other.m_internalNode;
-    m_model = other.m_model;
-    m_view = other.m_view;
-
-    return *this;
-}
+AbstractProperty& AbstractProperty::operator=(const AbstractProperty &other) = default;
 
 Internal::InternalNodePointer AbstractProperty::internalNode() const
 {

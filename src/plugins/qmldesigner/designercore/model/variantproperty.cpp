@@ -35,8 +35,7 @@
 
 namespace QmlDesigner {
 
-VariantProperty::VariantProperty()
-{}
+VariantProperty::VariantProperty() = default;
 
 VariantProperty::VariantProperty(const VariantProperty &property, AbstractView *view)
     : AbstractProperty(property.name(), property.internalNode(), property.model(), view)

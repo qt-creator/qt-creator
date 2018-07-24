@@ -55,7 +55,7 @@ QIcon iconForColor(const QColor &color) {
 
 QWidget *BackgroundAction::createWidget(QWidget *parent)
 {
-    QComboBox *comboBox = new QComboBox(parent);
+    auto comboBox = new QComboBox(parent);
     comboBox->setFixedWidth(42);
 
     for (int i = 0; i < colors().count(); ++i) {

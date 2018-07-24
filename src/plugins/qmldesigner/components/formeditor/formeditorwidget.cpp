@@ -61,7 +61,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 {
     setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/formeditorstylesheet.css")))));
 
-    QVBoxLayout *fillLayout = new QVBoxLayout(this);
+    auto fillLayout = new QVBoxLayout(this);
     fillLayout->setMargin(0);
     fillLayout->setSpacing(0);
     setLayout(fillLayout);
@@ -70,7 +70,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     m_toolActionGroup = new QActionGroup(this);
 
-    QActionGroup *layoutActionGroup = new QActionGroup(this);
+    auto layoutActionGroup = new QActionGroup(this);
     layoutActionGroup->setExclusive(true);
 
     m_noSnappingAction = layoutActionGroup->addAction(tr("No snapping (T)."));
@@ -98,7 +98,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     addActions(layoutActionGroup->actions());
     upperActions.append(layoutActionGroup->actions());
 
-    QAction *separatorAction = new QAction(this);
+    auto separatorAction = new QAction(this);
     separatorAction->setSeparator(true);
     addAction(separatorAction);
     upperActions.append(separatorAction);

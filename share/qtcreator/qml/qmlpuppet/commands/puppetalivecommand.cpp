@@ -27,9 +27,7 @@
 
 namespace QmlDesigner {
 
-PuppetAliveCommand::PuppetAliveCommand()
-{
-}
+PuppetAliveCommand::PuppetAliveCommand() = default;
 
 QDataStream &operator<<(QDataStream &out, const PuppetAliveCommand &/*command*/)
 {

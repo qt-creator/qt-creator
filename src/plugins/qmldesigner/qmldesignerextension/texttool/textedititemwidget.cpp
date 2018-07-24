@@ -43,7 +43,7 @@ TextEditItemWidget::TextEditItemWidget(QGraphicsScene* scene)
 
 TextEditItemWidget::~TextEditItemWidget()
 {
-    setWidget(0);
+    setWidget(nullptr);
 }
 
 void TextEditItemWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)

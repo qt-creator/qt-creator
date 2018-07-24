@@ -99,7 +99,7 @@ void TextEditorView::modelAttached(Model *model)
 
     AbstractView::modelAttached(model);
 
-    TextEditor::BaseTextEditor* textEditor = qobject_cast<TextEditor::BaseTextEditor*>(
+    auto textEditor = qobject_cast<TextEditor::BaseTextEditor*>(
                 QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor()->duplicate());
 
     Core::Context context = textEditor->context();
@@ -118,7 +118,7 @@ void TextEditorView::modelAboutToBeDetached(Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
 
-    m_widget->setTextEditor(0);
+    m_widget->setTextEditor(nullptr);
 
     // in case the user closed it explicit we do not want to do anything with the editor
     if (TextEditor::BaseTextEditor *textEditor =
@@ -149,7 +149,7 @@ void TextEditorView::nodeReparented(const ModelNode &/*node*/, const NodeAbstrac
 
 WidgetInfo TextEditorView::widgetInfo()
 {
-    return createWidgetInfo(m_widget, 0, "TextEditor", WidgetInfo::CentralPane, 0, tr("Text Editor"), DesignerWidgetFlags::IgnoreErrors);
+    return createWidgetInfo(m_widget, nullptr, "TextEditor", WidgetInfo::CentralPane, 0, tr("Text Editor"), DesignerWidgetFlags::IgnoreErrors);
 }
 
 void TextEditorView::contextHelpId(const Core::IContext::HelpIdCallback &callback) const

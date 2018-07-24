@@ -68,7 +68,7 @@ AbstractView::~AbstractView()
 */
 void AbstractView::setModel(Model *model)
 {
-    Q_ASSERT(model != 0);
+    Q_ASSERT(model != nullptr);
     if (model == m_model.data())
         return;
 
@@ -525,7 +525,7 @@ NodeInstanceView *AbstractView::nodeInstanceView() const
     if (model())
         return model()->d->nodeInstanceView();
     else
-        return 0;
+        return nullptr;
 }
 
 RewriterView *AbstractView::rewriterView() const
@@ -533,7 +533,7 @@ RewriterView *AbstractView::rewriterView() const
     if (model())
         return model()->d->rewriterView();
     else
-        return 0;
+        return nullptr;
 }
 
 void AbstractView::resetView()

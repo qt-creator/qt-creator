@@ -36,28 +36,28 @@ namespace Internal {
 class InternalNodeListProperty : public InternalNodeAbstractProperty
 {
 public:
-    typedef QSharedPointer<InternalNodeListProperty> Pointer;
+    using Pointer = QSharedPointer<InternalNodeListProperty>;
 
     static Pointer create(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
-    bool isValid() const;
+    bool isValid() const override;
 
-    bool isEmpty() const;
-    int count() const;
-    int indexOf(const InternalNodePointer &node) const;
+    bool isEmpty() const override;
+    int count() const override;
+    int indexOf(const InternalNodePointer &node) const override;
     InternalNodePointer at(int index) const;
 
-    bool isNodeListProperty() const;
+    bool isNodeListProperty() const override;
 
-    QList<InternalNodePointer> allSubNodes() const;
-    QList<InternalNodePointer> directSubNodes() const;
+    QList<InternalNodePointer> allSubNodes() const override;
+    QList<InternalNodePointer> directSubNodes() const override;
     const QList<InternalNodePointer> &nodeList() const;
     void slide(int from, int to);
 
 protected:
     InternalNodeListProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
-    void add(const InternalNodePointer &node);
-    void remove(const InternalNodePointer &node);
+    void add(const InternalNodePointer &node) override;
+    void remove(const InternalNodePointer &node) override;
 
 private:
     QList<InternalNodePointer> m_nodeList;

@@ -31,9 +31,7 @@
 
 namespace QmlDesigner {
 
-StatePreviewImageChangedCommand::StatePreviewImageChangedCommand()
-{
-}
+StatePreviewImageChangedCommand::StatePreviewImageChangedCommand() = default;
 
 StatePreviewImageChangedCommand::StatePreviewImageChangedCommand(const QVector<ImageContainer> &imageVector)
     : m_previewVector(imageVector)

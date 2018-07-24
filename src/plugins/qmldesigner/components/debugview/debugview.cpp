@@ -298,7 +298,7 @@ void DebugView::rewriterEndTransaction()
 
 WidgetInfo DebugView::widgetInfo()
 {
-    return createWidgetInfo(m_debugViewWidget.data(), 0, QStringLiteral("DebugView"), WidgetInfo::LeftPane, 0, tr("Debug View"));
+    return createWidgetInfo(m_debugViewWidget.data(), nullptr, QStringLiteral("DebugView"), WidgetInfo::LeftPane, 0, tr("Debug View"));
 }
 
 bool DebugView::hasWidget() const
@@ -316,7 +316,7 @@ void DebugView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyNam
         QString string;
         message.setString(&string);
 
-        typedef QPair<ModelNode, PropertyName> Pair;
+        using Pair = QPair<ModelNode, PropertyName>;
 
         foreach (const Pair &pair, propertyList) {
             message << pair.first;

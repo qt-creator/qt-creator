@@ -86,7 +86,7 @@ static QObject *variantToQObject(const QVariant &value)
     if (value.userType() == QMetaType::QObjectStar || value.userType() > QMetaType::User)
         return *(QObject **)value.constData();
 
-    return 0;
+    return nullptr;
 }
 
 namespace QmlDesigner {
@@ -109,15 +109,13 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
                      propertyEditor, &PropertyEditorView::changeValue);
 }
 
-PropertyEditorQmlBackend::~PropertyEditorQmlBackend()
-{
-}
+PropertyEditorQmlBackend::~PropertyEditorQmlBackend() = default;
 
 void PropertyEditorQmlBackend::setupPropertyEditorValue(const PropertyName &name, PropertyEditorView *propertyEditor, const QString &type)
 {
     QmlDesigner::PropertyName propertyName(name);
     propertyName.replace('.', '_');
-    PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(backendValuesPropertyMap().value(QString::fromUtf8(propertyName))));
+    auto valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(backendValuesPropertyMap().value(QString::fromUtf8(propertyName))));
     if (!valueObject) {
         valueObject = new PropertyEditorValue(&backendValuesPropertyMap());
         QObject::connect(valueObject, &PropertyEditorValue::valueChanged, &backendValuesPropertyMap(), &DesignerPropertyMap::valueChanged);
@@ -186,7 +184,7 @@ void PropertyEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qm
 {
     PropertyName propertyName(name);
     propertyName.replace('.', '_');
-    PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(backendValuesPropertyMap().value(QString::fromUtf8(propertyName))));
+    auto valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(backendValuesPropertyMap().value(QString::fromUtf8(propertyName))));
     if (!valueObject) {
         valueObject = new PropertyEditorValue(&backendValuesPropertyMap());
         QObject::connect(valueObject, &PropertyEditorValue::valueChanged, &backendValuesPropertyMap(), &DesignerPropertyMap::valueChanged);
@@ -220,7 +218,7 @@ void PropertyEditorQmlBackend::setValue(const QmlObjectNode & qmlObjectNode, con
 {
     PropertyName propertyName = name;
     propertyName.replace('.', '_');
-    PropertyEditorValue *propertyValue = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value(QString::fromUtf8(propertyName))));
+    auto propertyValue = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value(QString::fromUtf8(propertyName))));
     if (propertyValue) {
         propertyValue->setValue(value);
 
@@ -285,7 +283,7 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         setupLayoutAttachedProperties(qmlObjectNode, propertyEditor);
 
         // className
-        PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value(QLatin1String("className"))));
+        auto valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value(QLatin1String("className"))));
         if (!valueObject)
             valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
         valueObject->setName("className");
@@ -366,7 +364,7 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
     foreach (const PropertyName &propertyName, metaInfo.propertyNames())
         setupPropertyEditorValue(propertyName, propertyEditor, QString::fromUtf8(metaInfo.propertyTypeName(propertyName)));
 
-    PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value(QLatin1String("className"))));
+    auto valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value(QLatin1String("className"))));
     if (!valueObject)
         valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
     valueObject->setName("className");

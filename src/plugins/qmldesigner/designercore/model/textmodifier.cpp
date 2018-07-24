@@ -31,9 +31,7 @@
 
 using namespace QmlDesigner;
 
-TextModifier::~TextModifier()
-{
-}
+TextModifier::~TextModifier() = default;
 
 int TextModifier::getLineInDocument(QTextDocument *document, int offset)
 {

@@ -31,9 +31,7 @@
 
 namespace QmlDesigner {
 
-Enumeration::Enumeration()
-{
-}
+Enumeration::Enumeration() = default;
 
 Enumeration::Enumeration(const EnumerationName &enumerationName)
     : m_enumerationName(enumerationName)

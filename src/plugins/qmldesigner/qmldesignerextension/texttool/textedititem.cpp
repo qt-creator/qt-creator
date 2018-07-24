@@ -36,14 +36,14 @@ namespace QmlDesigner {
 
 TextEditItem::TextEditItem(FormEditorScene* scene)
             : TextEditItemWidget(scene)
-            , m_formEditorItem(0)
+            , m_formEditorItem(nullptr)
 {
     connect(lineEdit(), &QLineEdit::returnPressed, this, &TextEditItem::returnPressed);
 }
 
 TextEditItem::~TextEditItem()
 {
-    m_formEditorItem = 0;
+    m_formEditorItem = nullptr;
 }
 
 void TextEditItem::writeTextToProperty()

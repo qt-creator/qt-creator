@@ -57,7 +57,7 @@ QVariant ItemLibrarySectionModel::data(const QModelIndex &index, int role) const
     if (m_roleNames.contains(role)) {
         QVariant value = m_itemList.at(index.row())->property(m_roleNames.value(role));
 
-        if (ItemLibrarySectionModel* model = qobject_cast<ItemLibrarySectionModel *>(value.value<QObject*>()))
+        if (auto model = qobject_cast<ItemLibrarySectionModel *>(value.value<QObject*>()))
             return QVariant::fromValue(model);
 
         return m_itemList.at(index.row())->property(m_roleNames.value(role));

@@ -38,11 +38,11 @@ namespace QmlDesigner {
 
     namespace Internal {
         class InternalNode;
-        typedef QSharedPointer<InternalNode> InternalNodePointer;
-        typedef QWeakPointer<InternalNode> InternalNodeWeakPointer;
+        using InternalNodePointer = QSharedPointer<InternalNode>;
+        using InternalNodeWeakPointer = QWeakPointer<InternalNode>;
 
         class InternalNodeState;
-        typedef QSharedPointer<InternalNodeState> InternalNodeStatePointer;
+        using InternalNodeStatePointer = QSharedPointer<InternalNodeState>;
 
         class TextToModelMerger;
     }

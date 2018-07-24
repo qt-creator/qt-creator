@@ -291,9 +291,9 @@ void GradientModel::setupModel()
 
 void GradientModel::setAnchorBackend(const QVariant &anchorBackend)
 {
-    QObject* anchorBackendObject = anchorBackend.value<QObject*>();
+    auto anchorBackendObject = anchorBackend.value<QObject*>();
 
-    const QmlDesigner::Internal::QmlAnchorBindingProxy *backendCasted =
+    const auto backendCasted =
             qobject_cast<const QmlDesigner::Internal::QmlAnchorBindingProxy *>(anchorBackendObject);
 
     if (backendCasted)
@@ -330,7 +330,7 @@ bool GradientModel::locked() const
     if (m_locked)
         return true;
 
-    QmlDesigner::PropertyEditorView *view = qobject_cast<QmlDesigner::PropertyEditorView*>(m_itemNode.view());
+    auto view = qobject_cast<QmlDesigner::PropertyEditorView*>(m_itemNode.view());
 
     if (view && view->locked())
         return true;

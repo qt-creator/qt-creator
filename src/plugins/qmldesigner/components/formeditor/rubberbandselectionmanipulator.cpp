@@ -32,7 +32,7 @@ namespace QmlDesigner {
 RubberBandSelectionManipulator::RubberBandSelectionManipulator(LayerItem *layerItem, FormEditorView *editorView)
     : m_selectionRectangleElement(layerItem),
     m_editorView(editorView),
-    m_beginFormEditorItem(0),
+    m_beginFormEditorItem(nullptr),
     m_isActive(false)
 {
     m_selectionRectangleElement.hide();

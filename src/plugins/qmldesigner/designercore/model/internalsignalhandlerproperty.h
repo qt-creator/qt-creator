@@ -33,16 +33,16 @@ namespace Internal {
 class InternalSignalHandlerProperty : public InternalProperty
 {
 public:
-    typedef QSharedPointer<InternalSignalHandlerProperty> Pointer;
+    using Pointer = QSharedPointer<InternalSignalHandlerProperty>;
 
     static Pointer create(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
-    bool isValid() const;
+    bool isValid() const override;
 
     QString source() const;
     void setSource(const QString &source);
 
-    bool isSignalHandlerProperty() const;
+    bool isSignalHandlerProperty() const override;
 
 protected:
     InternalSignalHandlerProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);

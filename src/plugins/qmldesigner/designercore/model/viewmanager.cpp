@@ -143,7 +143,7 @@ void ViewManager::detachRewriterView()
 {
     if (RewriterView *view = currentDesignDocument()->rewriterView()) {
         view->deactivateTextMofifierChangeSignals();
-        currentModel()->setRewriterView(0);
+        currentModel()->setRewriterView(nullptr);
     }
 }
 
@@ -205,7 +205,7 @@ void ViewManager::detachViewsExceptRewriterAndComponetView()
     if (d->debugView.isAttached())
         currentModel()->detachView(&d->debugView);
 
-    currentModel()->setNodeInstanceView(0);
+    currentModel()->setNodeInstanceView(nullptr);
 }
 
 void ViewManager::attachItemLibraryView()

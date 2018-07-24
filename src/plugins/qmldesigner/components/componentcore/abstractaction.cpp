@@ -74,7 +74,7 @@ SelectionContext AbstractAction::selectionContext() const
 }
 
 DefaultAction::DefaultAction(const QString &description)
-    : QAction(description, 0)
+    : QAction(description, nullptr)
 {
     connect(this, &QAction::triggered, this, &DefaultAction::actionTriggered);
 }

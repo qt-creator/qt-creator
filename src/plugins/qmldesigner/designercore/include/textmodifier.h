@@ -58,7 +58,7 @@ public:
     };
 
 public:
-    TextModifier() {}
+    TextModifier() = default;
     ~TextModifier() override = 0;
 
     virtual void replace(int offset, int length, const QString& replacement) = 0;

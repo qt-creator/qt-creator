@@ -144,7 +144,7 @@ bool PuppetCreator::useOnlyFallbackPuppet() const
     if (!m_kit || !m_kit->isValid())
         qWarning() << "Invalid kit for QML puppet";
     return m_designerSettings.value(DesignerSettingsKey::USE_ONLY_FALLBACK_PUPPET
-                                    ).toBool() || m_kit == 0 || !m_kit->isValid();
+                                    ).toBool() || m_kit == nullptr || !m_kit->isValid();
 #else
     return true;
 #endif

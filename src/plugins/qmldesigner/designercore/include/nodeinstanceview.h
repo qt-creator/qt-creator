@@ -75,7 +75,7 @@ class QMLDESIGNERCORE_EXPORT NodeInstanceView : public AbstractView, public Node
     friend class NodeInstance;
 
 public:
-    typedef QWeakPointer<NodeInstanceView> Pointer;
+    using Pointer = QWeakPointer<NodeInstanceView>;
 
     explicit NodeInstanceView(QObject *parent = nullptr, NodeInstanceServerInterface::RunModus runModus = NodeInstanceServerInterface::NormalModus);
     ~NodeInstanceView() override;

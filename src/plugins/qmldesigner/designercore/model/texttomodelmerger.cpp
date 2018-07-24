@@ -197,9 +197,9 @@ static bool isLiteralValue(AST::ExpressionNode *expr)
         return true;
     else if (AST::cast<AST::StringLiteral*>(expr))
         return true;
-    else if (AST::UnaryPlusExpression *plusExpr = AST::cast<AST::UnaryPlusExpression*>(expr))
+    else if (auto plusExpr = AST::cast<AST::UnaryPlusExpression*>(expr))
         return isLiteralValue(plusExpr->expression);
-    else if (AST::UnaryMinusExpression *minusExpr = AST::cast<AST::UnaryMinusExpression*>(expr))
+    else if (auto minusExpr = AST::cast<AST::UnaryMinusExpression*>(expr))
         return isLiteralValue(minusExpr->expression);
     else if (AST::cast<AST::TrueLiteral*>(expr))
         return true;
@@ -211,7 +211,7 @@ static bool isLiteralValue(AST::ExpressionNode *expr)
 
 static bool isLiteralValue(AST::Statement *stmt)
 {
-    AST::ExpressionStatement *exprStmt = AST::cast<AST::ExpressionStatement *>(stmt);
+    auto exprStmt = AST::cast<AST::ExpressionStatement *>(stmt);
     if (exprStmt)
         return isLiteralValue(exprStmt->expression);
     else
@@ -368,8 +368,7 @@ public:
     {
     }
 
-    ~ReadingContext()
-    {}
+    ~ReadingContext() = default;
 
     Document::Ptr doc() const
     { return m_doc; }
@@ -436,7 +435,8 @@ public:
     /// When something is changed here, also change Check::checkScopeObjectMember in
     /// qmljscheck.cpp
     /// ### Maybe put this into the context as a helper function.
-    bool lookupProperty(const QString &prefix, const AST::UiQualifiedId *id, const Value **property = 0, const ObjectValue **parentObject = 0, QString *name = 0)
+    bool lookupProperty(const QString &prefix, const AST::UiQualifiedId *id, const Value **property = nullptr,
+                        const ObjectValue **parentObject = nullptr, QString *name = nullptr)
     {
         QList<const ObjectValue *> scopeObjects = m_scopeChain.qmlScopeObjects();
         if (scopeObjects.isEmpty())
@@ -472,8 +472,8 @@ public:
             return false;
 
         // global lookup for first part of id
-        const ObjectValue *objectValue = 0;
-        const Value *value = 0;
+        const ObjectValue *objectValue = nullptr;
+        const Value *value = nullptr;
         for (int i = scopeObjects.size() - 1; i >= 0; --i) {
             objectValue = scopeObjects[i];
             value = objectValue->lookupMember(propertyName, m_context);
@@ -560,8 +560,8 @@ public:
     {
         const bool hasQuotes = astValue.trimmed().left(1) == QStringLiteral("\"") && astValue.trimmed().right(1) == QStringLiteral("\"");
         const QString cleanedValue = fixEscapedUnicodeChar(deEscape(stripQuotes(astValue.trimmed())));
-        const Value *property = 0;
-        const ObjectValue *containingObject = 0;
+        const Value *property = nullptr;
+        const ObjectValue *containingObject = nullptr;
         QString name;
         if (!lookupProperty(propertyPrefix, propertyId, &property, &containingObject, &name)) {
             qWarning() << Q_FUNC_INFO << "Unknown property" << propertyPrefix + QLatin1Char('.') + toString(propertyId)
@@ -623,13 +623,13 @@ public:
                 return QVariant::fromValue(Enumeration(astValue));
         }
 
-        AST::ExpressionStatement *eStmt = AST::cast<AST::ExpressionStatement *>(rhs);
+        auto eStmt = AST::cast<AST::ExpressionStatement *>(rhs);
         if (!eStmt || !eStmt->expression)
             return QVariant();
 
-        const ObjectValue *containingObject = 0;
+        const ObjectValue *containingObject = nullptr;
         QString name;
-        if (!lookupProperty(propertyPrefix, propertyId, 0, &containingObject, &name))
+        if (!lookupProperty(propertyPrefix, propertyId, nullptr, &containingObject, &name))
             return QVariant();
 
         if (containingObject)
@@ -639,14 +639,14 @@ public:
             return QVariant();
         const QString lhsPropertyTypeName = lhsCppComponent->propertyType(name);
 
-        const ObjectValue *rhsValueObject = 0;
+        const ObjectValue *rhsValueObject = nullptr;
         QString rhsValueName;
-        if (AST::IdentifierExpression *idExp = AST::cast<AST::IdentifierExpression *>(eStmt->expression)) {
+        if (auto idExp = AST::cast<AST::IdentifierExpression *>(eStmt->expression)) {
             if (!m_scopeChain.qmlScopeObjects().isEmpty())
                 rhsValueObject = m_scopeChain.qmlScopeObjects().constLast();
             if (!idExp->name.isEmpty())
                 rhsValueName = idExp->name.toString();
-        } else if (AST::FieldMemberExpression *memberExp = AST::cast<AST::FieldMemberExpression *>(eStmt->expression)) {
+        } else if (auto memberExp = AST::cast<AST::FieldMemberExpression *>(eStmt->expression)) {
             Evaluate evaluate(&m_scopeChain);
             const Value *result = evaluate(memberExp->base);
             rhsValueObject = result->asObjectValue();
@@ -748,7 +748,7 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
     QList<Import> existingImports = m_rewriterView->model()->imports();
 
     for (AST::UiHeaderItemList *iter = doc->qmlProgram()->headers; iter; iter = iter->next) {
-        AST::UiImport *import = AST::cast<AST::UiImport *>(iter->headerItem);
+        auto import = AST::cast<AST::UiImport *>(iter->headerItem);
         if (!import)
             continue;
 
@@ -1022,7 +1022,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         }
         setupUsedImports();
 
-        AST::UiObjectMember *astRootNode = 0;
+        AST::UiObjectMember *astRootNode = nullptr;
         if (AST::UiProgram *program = m_document->qmlProgram())
             if (program->members)
                 astRootNode = program->members->member;
@@ -1081,7 +1081,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
     if (modelNode.isRootNode() && isComponentType(typeName)) {
         for (AST::UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {
-            if (AST::UiObjectDefinition *def = AST::cast<AST::UiObjectDefinition *>(iter->member)) {
+            if (auto def = AST::cast<AST::UiObjectDefinition *>(iter->member)) {
                 syncNode(modelNode, def, context, differenceHandler);
                 return;
             }
@@ -1120,7 +1120,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         if (!member)
             continue;
 
-        if (AST::UiArrayBinding *array = AST::cast<AST::UiArrayBinding *>(member)) {
+        if (auto array = AST::cast<AST::UiArrayBinding *>(member)) {
             const QString astPropertyName = toString(array->qualifiedId);
             if (isPropertyChangesType(typeName) || isConnectionsType(typeName) || context->lookupProperty(QString(), array->qualifiedId)) {
                 AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
@@ -1135,7 +1135,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 qWarning() << "Skipping invalid array property" << astPropertyName
                            << "for node type" << modelNode.type();
             }
-        } else if (AST::UiObjectDefinition *def = AST::cast<AST::UiObjectDefinition *>(member)) {
+        } else if (auto def = AST::cast<AST::UiObjectDefinition *>(member)) {
             const QString &name = def->qualifiedTypeNameId->name.toString();
             if (name.isEmpty() || !name.at(0).isUpper()) {
                 QStringList props = syncGroupedProperties(modelNode,
@@ -1148,13 +1148,13 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             } else {
                 defaultPropertyItems.append(member);
             }
-        } else if (AST::UiObjectBinding *binding = AST::cast<AST::UiObjectBinding *>(member)) {
+        } else if (auto binding = AST::cast<AST::UiObjectBinding *>(member)) {
             const QString astPropertyName = toString(binding->qualifiedId);
             if (binding->hasOnToken) {
                 // skip value sources
             } else {
-                const Value *propertyType = 0;
-                const ObjectValue *containingObject = 0;
+                const Value *propertyType = nullptr;
+                const ObjectValue *containingObject = nullptr;
                 QString name;
                 if (context->lookupProperty(QString(), binding->qualifiedId, &propertyType, &containingObject, &name)
                         || isPropertyChangesType(typeName)
@@ -1173,9 +1173,9 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                     modelPropertyNames.remove(astPropertyName.toUtf8());
                 }
             }
-        } else if (AST::UiScriptBinding *script = AST::cast<AST::UiScriptBinding *>(member)) {
+        } else if (auto script = AST::cast<AST::UiScriptBinding *>(member)) {
             modelPropertyNames.remove(syncScriptBinding(modelNode, QString(), script, context, differenceHandler));
-        } else if (AST::UiPublicMember *property = AST::cast<AST::UiPublicMember *>(member)) {
+        } else if (auto property = AST::cast<AST::UiPublicMember *>(member)) {
             if (property->type == AST::UiPublicMember::Signal)
                 continue; // QML designer doesn't support this yet.
 
@@ -1198,7 +1198,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             AbstractProperty modelProperty = modelNode.property(astName.toUtf8());
 
             if (property->binding) {
-                if (AST::UiObjectBinding *binding = AST::cast<AST::UiObjectBinding *>(property->binding))
+                if (auto binding = AST::cast<AST::UiObjectBinding *>(property->binding))
                     syncNodeProperty(modelProperty, binding, context, astType, differenceHandler);
                 else
                     qWarning() << "Arrays are not yet supported";
@@ -1251,7 +1251,7 @@ static QVariant parsePropertyExpression(AST::ExpressionNode *expressionNode)
 {
     Q_ASSERT(expressionNode);
 
-    AST::ArrayLiteral *arrayLiteral = AST::cast<AST::ArrayLiteral *>(expressionNode);
+    auto arrayLiteral = AST::cast<AST::ArrayLiteral *>(expressionNode);
 
     if (arrayLiteral) {
         QList<QVariant> variantList;
@@ -1260,19 +1260,19 @@ static QVariant parsePropertyExpression(AST::ExpressionNode *expressionNode)
         return variantList;
     }
 
-    AST::StringLiteral *stringLiteral = AST::cast<AST::StringLiteral *>(expressionNode);
+    auto stringLiteral = AST::cast<AST::StringLiteral *>(expressionNode);
     if (stringLiteral)
         return stringLiteral->value.toString();
 
-    AST::TrueLiteral *trueLiteral = AST::cast<AST::TrueLiteral *>(expressionNode);
+    auto trueLiteral = AST::cast<AST::TrueLiteral *>(expressionNode);
     if (trueLiteral)
         return true;
 
-    AST::FalseLiteral *falseLiteral = AST::cast<AST::FalseLiteral *>(expressionNode);
+    auto falseLiteral = AST::cast<AST::FalseLiteral *>(expressionNode);
     if (falseLiteral)
         return false;
 
-    AST::NumericLiteral *numericLiteral = AST::cast<AST::NumericLiteral *>(expressionNode);
+    auto numericLiteral = AST::cast<AST::NumericLiteral *>(expressionNode);
     if (numericLiteral)
         return numericLiteral->value;
 
@@ -1284,7 +1284,7 @@ QVariant parsePropertyScriptBinding(AST::UiScriptBinding *uiScriptBinding)
 {
     Q_ASSERT(uiScriptBinding);
 
-    AST::ExpressionStatement *expStmt = AST::cast<AST::ExpressionStatement *>(uiScriptBinding->statement);
+    auto expStmt = AST::cast<AST::ExpressionStatement *>(uiScriptBinding->statement);
     if (!expStmt)
         return QVariant();
 
@@ -1596,7 +1596,7 @@ QStringList TextToModelMerger::syncGroupedProperties(ModelNode &modelNode,
     for (AST::UiObjectMemberList *iter = members; iter; iter = iter->next) {
         AST::UiObjectMember *member = iter->member;
 
-        if (AST::UiScriptBinding *script = AST::cast<AST::UiScriptBinding *>(member)) {
+        if (auto script = AST::cast<AST::UiScriptBinding *>(member)) {
             const QString prop = QString::fromLatin1(syncScriptBinding(modelNode, name, script, context, differenceHandler));
             if (!prop.isEmpty())
                 props.append(prop);
@@ -1881,12 +1881,12 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
                                                      ReadingContext *context,
                                                      AST::UiObjectMember *arrayMember)
 {
-    AST::UiQualifiedId *astObjectType = 0;
-    AST::UiObjectInitializer *astInitializer = 0;
-    if (AST::UiObjectDefinition *def = AST::cast<AST::UiObjectDefinition *>(arrayMember)) {
+    AST::UiQualifiedId *astObjectType = nullptr;
+    AST::UiObjectInitializer *astInitializer = nullptr;
+    if (auto def = AST::cast<AST::UiObjectDefinition *>(arrayMember)) {
         astObjectType = def->qualifiedTypeNameId;
         astInitializer = def->initializer;
-    } else if (AST::UiObjectBinding *bin = AST::cast<AST::UiObjectBinding *>(arrayMember)) {
+    } else if (auto bin = AST::cast<AST::UiObjectBinding *>(arrayMember)) {
         astObjectType = bin->qualifiedTypeNameId;
         astInitializer = bin->initializer;
     }

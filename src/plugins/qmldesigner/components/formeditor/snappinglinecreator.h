@@ -31,8 +31,8 @@ namespace QmlDesigner {
 
 class FormEditorItem;
 
-typedef QMultiMap<double, QPair<QRectF, FormEditorItem*> > SnapLineMap;
-typedef QMapIterator<double, QPair<QRectF, FormEditorItem*> > SnapLineMapIterator;
+using SnapLineMap = QMultiMap<double, QPair<QRectF, FormEditorItem*> >;
+using SnapLineMapIterator = QMapIterator<double, QPair<QRectF, FormEditorItem*> >;
 
 class FormEditorItem;
 

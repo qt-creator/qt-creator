@@ -42,7 +42,7 @@ using namespace QmlJS;
 class FindImplementationVisitor: protected AST::Visitor
 {
 public:
-    typedef QList<AST::SourceLocation> Results;
+    using Results = QList<AST::SourceLocation>;
 
     FindImplementationVisitor(Document::Ptr doc, const ContextPtr &context)
         : m_document(doc)
@@ -248,9 +248,7 @@ QString matchingLine(unsigned position, const QString &source)
 } //namespace
 
 
-FindImplementation::FindImplementation()
-{
-}
+FindImplementation::FindImplementation() = default;
 
 QList<QmlJSEditor::FindReferences::Usage> FindImplementation::run(const QString &fileName,
                                                                   const QString &typeName,

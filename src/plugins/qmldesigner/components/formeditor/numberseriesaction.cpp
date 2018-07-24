@@ -42,7 +42,7 @@ void NumberSeriesAction::addEntry(const QString &text, const QVariant &value)
     if (m_comboBoxModel.isNull())
         m_comboBoxModel = new QStandardItemModel(this);
 
-    QStandardItem *newItem = new QStandardItem(text);
+    auto newItem = new QStandardItem(text);
     newItem->setData(value);
     m_comboBoxModel->appendRow(newItem);
 }
@@ -54,7 +54,7 @@ QVariant NumberSeriesAction::currentValue() const
 
 QWidget *NumberSeriesAction::createWidget(QWidget *parent)
 {
-    QComboBox *comboBox = new QComboBox(parent);
+    auto comboBox = new QComboBox(parent);
 
     comboBox->setModel(m_comboBoxModel.data());
 

@@ -111,7 +111,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     Theme::setupTheme(m_itemViewQuickWidget->engine());
 
     /* other widgets */
-    QTabBar *tabBar = new QTabBar(this);
+    auto tabBar = new QTabBar(this);
     tabBar->addTab(tr("QML Types", "Title of library QML types view"));
     tabBar->addTab(tr("Resources", "Title of library resources view"));
     tabBar->addTab(tr("Imports", "Title of library imports view"));
@@ -128,7 +128,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_filterLineEdit->setFiltering(true);
     QWidget *lineEditFrame = new QWidget(this);
     lineEditFrame->setObjectName(QStringLiteral("itemLibrarySearchInputFrame"));
-    QGridLayout *lineEditLayout = new QGridLayout(lineEditFrame);
+    auto lineEditLayout = new QGridLayout(lineEditFrame);
     lineEditLayout->setMargin(2);
     lineEditLayout->setSpacing(0);
     lineEditLayout->addItem(new QSpacerItem(5, 3, QSizePolicy::Fixed, QSizePolicy::Fixed), 0, 0, 1, 3);
@@ -145,7 +145,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     spacer->setObjectName(QStringLiteral("itemLibrarySearchInputSpacer"));
     spacer->setFixedHeight(4);
 
-    QGridLayout *layout = new QGridLayout(this);
+    auto layout = new QGridLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     layout->addWidget(tabBar, 0, 0, 1, 1);
@@ -166,7 +166,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
 
     connect(&m_compressionTimer, &QTimer::timeout, this, &ItemLibraryWidget::updateModel);
 
-    auto *flowLayout = new Utils::FlowLayout(m_importTagsWidget.data());
+    auto flowLayout = new Utils::FlowLayout(m_importTagsWidget.data());
     flowLayout->setMargin(4);
 
     m_addResourcesWidget->setVisible(false);
@@ -291,7 +291,7 @@ void ItemLibraryWidget::setupImportTagWidget()
 
     qDeleteAll(m_importTagsWidget->findChildren<QWidget*>("", Qt::FindDirectChildrenOnly));
 
-    auto *flowLayout = m_importTagsWidget->layout();
+    auto flowLayout = m_importTagsWidget->layout();
 
     auto createButton = [this](const QString &import) {
         auto button = new QToolButton(m_importTagsWidget.data());
@@ -342,7 +342,7 @@ void ItemLibraryWidget::startDragAndDrop(QQuickItem *mouseArea, QVariant itemLib
     m_currentitemLibraryEntry = itemLibraryId.value<ItemLibraryEntry>();
 
     QMimeData *mimeData = m_itemLibraryModel->getMimeData(m_currentitemLibraryEntry);
-    QDrag *drag = new QDrag(this);
+    auto drag = new QDrag(this);
 
     drag->setPixmap(Utils::StyleHelper::dpiSpecificImageFile(
                         m_currentitemLibraryEntry.libraryEntryIconPath()));

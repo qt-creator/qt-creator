@@ -81,7 +81,7 @@ void RemovePropertyVisitor::removeFrom(QmlJS::AST::UiObjectInitializer *ast)
             removeMember(member);
         // check for grouped properties:
         } else if (!prefix.isEmpty()) {
-            if (QmlJS::AST::UiObjectDefinition *def = QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition *>(member)) {
+            if (auto def = QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition *>(member)) {
                 if (toString(def->qualifiedTypeNameId) == prefix)
                     removeGroupedProperty(def);
             }
@@ -98,7 +98,7 @@ void RemovePropertyVisitor::removeGroupedProperty(QmlJS::AST::UiObjectDefinition
 
     const QString propName = propertyName.mid(dotIdx + 1);
 
-    QmlJS::AST::UiObjectMember *wanted = 0;
+    QmlJS::AST::UiObjectMember *wanted = nullptr;
     unsigned memberCount = 0;
     for (QmlJS::AST::UiObjectMemberList *it = ast->initializer->members; it; it = it->next) {
         ++memberCount;
@@ -131,13 +131,13 @@ void RemovePropertyVisitor::removeMember(QmlJS::AST::UiObjectMember *member)
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 bool RemovePropertyVisitor::memberNameMatchesPropertyName(const QString &propertyName, QmlJS::AST::UiObjectMember *ast)
 {
-    if (QmlJS::AST::UiPublicMember *publicMember = QmlJS::AST::cast<QmlJS::AST::UiPublicMember*>(ast))
+    if (auto publicMember = QmlJS::AST::cast<QmlJS::AST::UiPublicMember*>(ast))
         return publicMember->name == propertyName;
-    else if (QmlJS::AST::UiObjectBinding *objectBinding = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding*>(ast))
+    else if (auto objectBinding = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding*>(ast))
         return toString(objectBinding->qualifiedId) == propertyName;
-    else if (QmlJS::AST::UiScriptBinding *scriptBinding = QmlJS::AST::cast<QmlJS::AST::UiScriptBinding*>(ast))
+    else if (auto scriptBinding = QmlJS::AST::cast<QmlJS::AST::UiScriptBinding*>(ast))
         return toString(scriptBinding->qualifiedId) == propertyName;
-    else if (QmlJS::AST::UiArrayBinding *arrayBinding = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(ast))
+    else if (auto arrayBinding = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(ast))
         return toString(arrayBinding->qualifiedId) == propertyName;
     else
         return false;

@@ -42,11 +42,7 @@ AbstractFormEditorTool::AbstractFormEditorTool(FormEditorView *editorView) : m_v
 {
 }
 
-
-AbstractFormEditorTool::~AbstractFormEditorTool()
-{
-
-}
+AbstractFormEditorTool::~AbstractFormEditorTool() = default;
 
 FormEditorView* AbstractFormEditorTool::view() const
 {
@@ -79,7 +75,7 @@ QList<FormEditorItem *> AbstractFormEditorTool::toFormEditorItemList(const QList
     QList<FormEditorItem *> formEditorItemList;
 
     foreach (QGraphicsItem *graphicsItem, itemList) {
-        FormEditorItem *formEditorItem = qgraphicsitem_cast<FormEditorItem*>(graphicsItem);
+        auto formEditorItem = qgraphicsitem_cast<FormEditorItem*>(graphicsItem);
         if (formEditorItem)
             formEditorItemList.append(formEditorItem);
     }
@@ -90,13 +86,13 @@ QList<FormEditorItem *> AbstractFormEditorTool::toFormEditorItemList(const QList
 bool AbstractFormEditorTool::topItemIsMovable(const QList<QGraphicsItem*> & itemList)
 {
     QGraphicsItem *firstSelectableItem = topMovableGraphicsItem(itemList);
-    if (firstSelectableItem == 0)
+    if (firstSelectableItem == nullptr)
         return false;
 
     FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(firstSelectableItem);
     QList<ModelNode> selectedNodes = view()->selectedModelNodes();
 
-    if (formEditorItem != 0
+    if (formEditorItem != nullptr
        && selectedNodes.contains(formEditorItem->qmlItemNode()))
         return true;
 
@@ -170,7 +166,7 @@ QGraphicsItem *AbstractFormEditorTool::topMovableGraphicsItem(const QList<QGraph
             return item;
     }
 
-    return 0;
+    return nullptr;
 }
 
 FormEditorItem *AbstractFormEditorTool::topMovableFormEditorItem(const QList<QGraphicsItem*> &itemList, bool selectOnlyContentItems)
@@ -186,12 +182,12 @@ FormEditorItem *AbstractFormEditorTool::topMovableFormEditorItem(const QList<QGr
             return formEditorItem;
     }
 
-    return 0;
+    return nullptr;
 }
 
 FormEditorItem* AbstractFormEditorTool::nearestFormEditorItem(const QPointF &point, const QList<QGraphicsItem*> & itemList)
 {
-    FormEditorItem* nearestItem = 0;
+    FormEditorItem* nearestItem = nullptr;
     foreach (QGraphicsItem *item, itemList) {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
 
@@ -345,7 +341,7 @@ FormEditorItem *AbstractFormEditorTool::containerFormEditorItem(const QList<QGra
             return formEditorItem;
     }
 
-    return 0;
+    return nullptr;
 }
 
 void AbstractFormEditorTool::clear()

@@ -228,7 +228,7 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
 }
 
 SettingsPage::SettingsPage() :
-    m_widget(0)
+    m_widget(nullptr)
 {
     setId("B.QmlDesigner");
     setDisplayName(tr("Qt Quick Designer"));

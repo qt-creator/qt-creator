@@ -51,10 +51,7 @@ MoveTool::MoveTool(FormEditorView *editorView)
     m_selectionIndicator.setCursor(Qt::SizeAllCursor);
 }
 
-MoveTool::~MoveTool()
-{
-
-}
+MoveTool::~MoveTool() = default;
 
 void MoveTool::clear()
 {
@@ -316,7 +313,7 @@ bool MoveTool::isAncestorOfAllItems(FormEditorItem* maybeAncestorItem,
 FormEditorItem* MoveTool::ancestorIfOtherItemsAreChild(const QList<FormEditorItem*> &itemList)
 {
     if (itemList.isEmpty())
-        return 0;
+        return nullptr;
 
 
     foreach (FormEditorItem* item, itemList)
@@ -325,7 +322,7 @@ FormEditorItem* MoveTool::ancestorIfOtherItemsAreChild(const QList<FormEditorIte
             return item;
     }
 
-    return 0;
+    return nullptr;
 }
 
 void MoveTool::updateMoveManipulator()
@@ -369,13 +366,13 @@ QList<FormEditorItem*> MoveTool::movingItems(const QList<FormEditorItem*> &selec
 
     FormEditorItem* ancestorItem = ancestorIfOtherItemsAreChild(filteredItemList);
 
-    if (ancestorItem != 0 && ancestorItem->qmlItemNode().isRootNode()) {
+    if (ancestorItem != nullptr && ancestorItem->qmlItemNode().isRootNode()) {
 //        view()->changeToSelectionTool();
         return QList<FormEditorItem*>();
     }
 
 
-    if (ancestorItem != 0 && ancestorItem->parentItem() != 0)  {
+    if (ancestorItem != nullptr && ancestorItem->parentItem() != nullptr)  {
         QList<FormEditorItem*> ancestorItemList;
         ancestorItemList.append(ancestorItem);
         return ancestorItemList;

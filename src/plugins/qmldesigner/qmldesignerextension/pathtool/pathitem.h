@@ -72,7 +72,7 @@ public:
         Type = 0xEAAC
     };
     PathItem(FormEditorScene* scene);
-    ~PathItem();
+    ~PathItem() override;
     int type() const override;
 
     void setFormEditorItem(FormEditorItem *formEditorItem);

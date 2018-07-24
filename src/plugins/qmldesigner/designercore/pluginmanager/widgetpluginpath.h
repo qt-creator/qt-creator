@@ -66,7 +66,7 @@ struct WidgetPluginData {
 // IPlugins.
 
 class WidgetPluginPath {
-    typedef QList<IWidgetPlugin *> IWidgetPluginList;
+    using IWidgetPluginList = QList<IWidgetPlugin *>;
 public:
     explicit WidgetPluginPath(const QDir &path);
 
@@ -80,7 +80,7 @@ public:
     QStandardItem *createModelItem();
 
 private:
-    typedef QList<WidgetPluginData> PluginDataList;
+    using PluginDataList = QList<WidgetPluginData>;
 
     static QStringList libraryFilePaths(const QDir &dir);
     void clear();

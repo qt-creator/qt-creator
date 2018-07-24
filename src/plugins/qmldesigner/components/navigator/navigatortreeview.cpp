@@ -60,7 +60,7 @@ public:
         baseStyle()->setParent(parent);
     }
 
-    void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget = 0) const
+    void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget = nullptr) const override
     {
         static QRect mouseOverStateSavedFrameRectangle;
         if (element == QStyle::PE_PanelItemViewRow) {
@@ -98,7 +98,7 @@ public:
         }
     }
 
-    int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const {
+    int styleHint(StyleHint hint, const QStyleOption *option = nullptr, const QWidget *widget = nullptr, QStyleHintReturn *returnData = nullptr) const override {
         if (hint == SH_ItemView_ShowDecorationSelected)
             return 0;
         else

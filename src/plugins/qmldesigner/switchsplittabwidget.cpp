@@ -77,7 +77,7 @@ SwitchSplitTabWidget::SwitchSplitTabWidget(QWidget *parent)
     m_tabBarBackground->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
     m_tabBarBackground->layout()->addWidget(m_tabBar);
 
-    QToolButton *horizontalButton = new QToolButton;
+    auto horizontalButton = new QToolButton;
     horizontalButton->setObjectName("centralTabBar");
     horizontalButton->setIcon(Utils::Icon({{QLatin1String(":/qmldesigner/images/spliteditorvertically.png"),
                                             Utils::Theme::IconsBaseColor}}).icon());
@@ -87,7 +87,7 @@ SwitchSplitTabWidget::SwitchSplitTabWidget(QWidget *parent)
         updateSplitterSizes();
         selectFakeTab();
     });
-    QToolButton *verticalButton = new QToolButton;
+    auto verticalButton = new QToolButton;
     verticalButton->setObjectName("centralTabBar");
     verticalButton->setIcon(Utils::Icon({{QLatin1String(":/qmldesigner/images/spliteditorhorizontally.png"),
                                           Utils::Theme::IconsBaseColor}}).icon());

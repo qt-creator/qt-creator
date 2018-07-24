@@ -121,7 +121,7 @@ NodeInstanceView::~NodeInstanceView()
 {
     removeAllInstanceNodeRelationships();
     delete nodeInstanceServer();
-    m_currentKit = 0;
+    m_currentKit = nullptr;
 }
 
 //\{

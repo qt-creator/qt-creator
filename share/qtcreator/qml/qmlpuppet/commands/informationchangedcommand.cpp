@@ -34,9 +34,7 @@
 
 namespace QmlDesigner {
 
-InformationChangedCommand::InformationChangedCommand()
-{
-}
+InformationChangedCommand::InformationChangedCommand() = default;
 
 InformationChangedCommand::InformationChangedCommand(const QVector<InformationContainer> &informationVector)
     : m_informationVector(informationVector)

@@ -38,9 +38,7 @@ ResizeHandleItem::ResizeHandleItem(QGraphicsItem *parent, const ResizeController
     setAcceptedMouseButtons(Qt::NoButton);
 }
 
-ResizeHandleItem::~ResizeHandleItem()
-{
-}
+ResizeHandleItem::~ResizeHandleItem() = default;
 
 void ResizeHandleItem::setHandlePosition(const QPointF & globalPosition, const QPointF & itemSpacePosition)
 {

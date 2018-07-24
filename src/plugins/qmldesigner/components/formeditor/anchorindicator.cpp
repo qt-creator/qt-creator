@@ -37,9 +37,7 @@ AnchorIndicator::AnchorIndicator(LayerItem *layerItem)
 {
 }
 
-AnchorIndicator::AnchorIndicator()
-{
-}
+AnchorIndicator::AnchorIndicator() = default;
 
 AnchorIndicator::~AnchorIndicator()
 {

@@ -49,9 +49,7 @@ DesignDocumentView::DesignDocumentView(QObject *parent)
 {
 }
 
-DesignDocumentView::~DesignDocumentView()
-{
-}
+DesignDocumentView::~DesignDocumentView() = default;
 
 ModelNode DesignDocumentView::insertModel(const ModelNode &modelNode)
 {
@@ -81,7 +79,7 @@ void DesignDocumentView::toClipboard() const
 {
     QClipboard *clipboard = QApplication::clipboard();
 
-    QMimeData *data = new QMimeData;
+    auto data = new QMimeData;
 
     data->setText(toText());
     QStringList imports;
@@ -121,7 +119,7 @@ QString DesignDocumentView::toText() const
     textEdit.setPlainText(imports +  QStringLiteral("Item {\n}\n"));
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, 0));
+    QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, nullptr));
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(&modifier);
     outputModel->setRewriterView(rewriterView.data());
@@ -149,7 +147,7 @@ void DesignDocumentView::fromText(QString text)
     textEdit.setPlainText(imports + text);
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, 0));
+    QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, nullptr));
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(&modifier);
     inputModel->setRewriterView(rewriterView.data());
@@ -172,7 +170,7 @@ static Model *currentModel()
     if (document)
         return document->currentModel();
 
-    return 0;
+    return nullptr;
 }
 
 Model *DesignDocumentView::pasteToModel()

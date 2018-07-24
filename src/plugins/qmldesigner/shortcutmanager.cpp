@@ -365,7 +365,7 @@ DesignDocument *ShortCutManager::currentDesignDocument() const
 
 void ShortCutManager::undoAvailable(bool isAvailable)
 {
-    DesignDocument *documentController = qobject_cast<DesignDocument*>(sender());
+    auto documentController = qobject_cast<DesignDocument*>(sender());
     if (currentDesignDocument() &&
         currentDesignDocument() == documentController) {
         m_undoAction.setEnabled(isAvailable);
@@ -374,7 +374,7 @@ void ShortCutManager::undoAvailable(bool isAvailable)
 
 void ShortCutManager::redoAvailable(bool isAvailable)
 {
-    DesignDocument *documentController = qobject_cast<DesignDocument*>(sender());
+    auto documentController = qobject_cast<DesignDocument*>(sender());
     if (currentDesignDocument() &&
         currentDesignDocument() == documentController) {
         m_redoAction.setEnabled(isAvailable);

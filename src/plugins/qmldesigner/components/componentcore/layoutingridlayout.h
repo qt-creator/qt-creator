@@ -46,7 +46,7 @@ public:
                                                                                  const QList<ModelNode> &modelNodeList);
     static void setSizeAsPreferredSize(const QList<ModelNode> &modelNodeList);
 private:
-    typedef std::function<bool(const ModelNode &node1, const ModelNode &node2)> LessThan;
+    using LessThan = std::function<bool (const ModelNode&, const ModelNode&)>;
 
     LayoutInGridLayout(const SelectionContext &selectionContext);
     void doIt();

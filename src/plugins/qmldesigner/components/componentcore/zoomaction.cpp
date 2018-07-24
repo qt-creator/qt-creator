@@ -71,7 +71,7 @@ void ZoomAction::setZoomLevel(double zoomLevel)
 
 QWidget *ZoomAction::createWidget(QWidget *parent)
 {
-    QComboBox *comboBox = new QComboBox(parent);
+    auto comboBox = new QComboBox(parent);
 
     if (m_comboBoxModel.isNull()) {
         m_comboBoxModel = comboBox->model();

@@ -40,37 +40,37 @@ template <class ViewType>
 class ForwardView : public AbstractView
 {
 public:
-    typedef QPointer<ForwardView> Pointer;
-    typedef typename ViewType::Pointer ViewTypePointer;
+    using Pointer = QPointer<ForwardView<ViewType> >;
+    using ViewTypePointer = typename ViewType::Pointer;
 
     ForwardView(QObject *parent);
 
-    void modelAttached(Model *model);
-    void modelAboutToBeDetached(Model *model);
+    void modelAttached(Model *model) override;
+    void modelAboutToBeDetached(Model *model) override;
 
-    void nodeCreated(const ModelNode &createdNode);
-    void nodeAboutToBeRemoved(const ModelNode &removedNode);
-    void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange);
-    void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
-    void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId);
-    void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList);
-    void propertiesRemoved(const QList<AbstractProperty>& propertyList);
-    void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
-    void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
-    void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList,PropertyChangeFlags propertyChange);
-    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
+    void nodeCreated(const ModelNode &createdNode) override;
+    void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
+    void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange) override;
+    void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange) override;
+    void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) override;
+    void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList) override;
+    void propertiesRemoved(const QList<AbstractProperty>& propertyList) override;
+    void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) override;
+    void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) override;
+    void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList,PropertyChangeFlags propertyChange) override;
+    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
-                              const QList<ModelNode> &lastSelectedNodeList);
+                              const QList<ModelNode> &lastSelectedNodeList) override;
 
-    void fileUrlChanged(const QUrl &oldUrl, const QUrl &newUrl);
+    void fileUrlChanged(const QUrl &oldUrl, const QUrl &newUrl) override;
 
-    void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
-    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
+    void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex) override;
+    void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
 
-    void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data);
+    void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) override;
 
-    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
+    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList) override;
 
 protected:
     void appendView(ViewType *view);

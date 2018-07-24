@@ -124,7 +124,7 @@ void ImportsWidget::setImports(const QList<Import> &imports)
     Utils::sort(sortedImports, importLess);
 
     foreach (const Import &import, sortedImports) {
-        ImportLabel *importLabel = new ImportLabel(this);
+        auto importLabel = new ImportLabel(this);
         importLabel->setImport(import);
         m_importLabels.append(importLabel);
         connect(importLabel, &ImportLabel::removeImport, this, &ImportsWidget::removeImport);
@@ -138,7 +138,7 @@ void ImportsWidget::updateLayout()
 {
     delete layout();
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     layout->setSpacing(0);
 
     layout->addWidget(m_addImportComboBox);

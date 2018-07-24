@@ -35,7 +35,7 @@ namespace QmlDesigner {
 class ContentNotEditableIndicator
 {
 public:
-    typedef QPair<FormEditorItem*, QGraphicsRectItem *> EntryPair;
+    using EntryPair = QPair<FormEditorItem*, QGraphicsRectItem *>;
 
     ContentNotEditableIndicator(LayerItem *layerItem);
     ContentNotEditableIndicator();

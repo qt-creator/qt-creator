@@ -31,7 +31,7 @@ namespace QmlDesigner {
 
 namespace Internal {
     class InternalNodeAbstractProperty;
-    typedef QSharedPointer<InternalNodeAbstractProperty> InternalNodeAbstractPropertyPointer;
+    using InternalNodeAbstractPropertyPointer = QSharedPointer<InternalNodeAbstractProperty>;
 }
 
 class QMLDESIGNERCORE_EXPORT NodeAbstractProperty : public AbstractProperty

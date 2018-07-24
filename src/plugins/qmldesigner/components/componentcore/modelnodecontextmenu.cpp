@@ -91,7 +91,7 @@ void populateMenu(QSet<ActionInterface* > &actionInterfaces,
 
 void ModelNodeContextMenu::execute(const QPoint &position, bool selectionMenuBool)
 {
-    QMenu* mainMenu = new QMenu();
+    auto mainMenu = new QMenu();
 
     m_selectionContext.setShowSelectionTools(selectionMenuBool);
     m_selectionContext.setScenePosition(m_scenePos);

@@ -40,10 +40,7 @@
 
 namespace QmlDesigner {
 
-QmlTimeline::QmlTimeline()
-{
-
-}
+QmlTimeline::QmlTimeline() = default;
 
 QmlTimeline::QmlTimeline(const ModelNode &modelNode) : QmlModelNodeFacade(modelNode)
 {

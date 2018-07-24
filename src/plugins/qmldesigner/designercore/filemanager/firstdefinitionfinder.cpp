@@ -54,7 +54,7 @@ FirstDefinitionFinder::FirstDefinitionFinder(const QString &text):
 qint32 FirstDefinitionFinder::operator()(quint32 offset)
 {
     m_offset = offset;
-    m_firstObjectDefinition = 0;
+    m_firstObjectDefinition = nullptr;
 
     QmlJS::AST::Node::accept(m_doc->qmlProgram(), this);
 
@@ -70,7 +70,7 @@ void FirstDefinitionFinder::extractFirstObjectDefinition(QmlJS::AST::UiObjectIni
         return;
 
     for (QmlJS::AST::UiObjectMemberList *iter = ast->members; iter; iter = iter->next) {
-        if (QmlJS::AST::UiObjectDefinition *def = QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition*>(iter->member))
+        if (auto def = QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition*>(iter->member))
             m_firstObjectDefinition = def;
     }
 }

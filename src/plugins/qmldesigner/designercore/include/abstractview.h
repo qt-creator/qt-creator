@@ -47,8 +47,8 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
     namespace Internal {
         class InternalNode;
-        typedef QSharedPointer<InternalNode> InternalNodePointer;
-        typedef QWeakPointer<InternalNode> InternalNodeWeakPointer;
+        using InternalNodePointer = QSharedPointer<InternalNode>;
+        using InternalNodeWeakPointer = QWeakPointer<InternalNode>;
     }
 }
 
@@ -69,13 +69,11 @@ class WidgetInfo {
 public:
     class ToolBarWidgetFactoryInterface {
     public:
-        ToolBarWidgetFactoryInterface()
-        {}
+        ToolBarWidgetFactoryInterface() = default;
 
         virtual QList<QToolButton*> createToolBarWidgets() = 0;
 
-        virtual ~ToolBarWidgetFactoryInterface()
-        {}
+        virtual ~ToolBarWidgetFactoryInterface() = default;
     };
 
     template <class T>

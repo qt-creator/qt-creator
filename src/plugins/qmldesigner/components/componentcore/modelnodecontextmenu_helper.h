@@ -41,8 +41,8 @@
 
 namespace QmlDesigner {
 
-typedef std::function<bool (const SelectionContext &context)> SelectionContextPredicate;
-typedef std::function<void (const SelectionContext &context)> SelectionContextOperation;
+using SelectionContextPredicate = std::function<bool (const SelectionContext&)>;
+using SelectionContextOperation = std::function<void (const SelectionContext&)>;
 
 namespace SelectionContextFunctors {
 

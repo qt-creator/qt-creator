@@ -48,7 +48,7 @@ void ComponentAction::setCurrentIndex(int index)
 
 QWidget *ComponentAction::createWidget(QWidget *parent)
 {
-    QComboBox *comboBox = new QComboBox(parent);
+    auto comboBox = new QComboBox(parent);
     comboBox->setMinimumWidth(120);
     comboBox->setToolTip(tr("Edit sub components defined in this file."));
     comboBox->setModel(m_componentView->standardItemModel());

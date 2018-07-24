@@ -30,9 +30,7 @@
 
 namespace QmlDesigner {
 
-CreateInstancesCommand::CreateInstancesCommand()
-{
-}
+CreateInstancesCommand::CreateInstancesCommand() = default;
 
 CreateInstancesCommand::CreateInstancesCommand(const QVector<InstanceContainer> &container)
     : m_instanceVector(container)

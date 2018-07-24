@@ -203,7 +203,7 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
             if (!hasEntryForNode(node)) {
                 QString description = descriptionForNode(node);
 
-                QStandardItem *item = new QStandardItem(description);
+                auto item = new QStandardItem(description);
                 item->setData(QVariant::fromValue(node.internalId()), ModelNodeRole);
                 item->setEditable(false);
                 removeSingleNodeFromList(node); //remove node if already present

@@ -155,7 +155,7 @@ void FormEditorView::createFormEditorWidget()
 
     m_currentTool = m_selectionTool.get();
 
-    Internal::FormEditorContext *formEditorContext = new Internal::FormEditorContext(m_formEditorWidget.data());
+    auto formEditorContext = new Internal::FormEditorContext(m_formEditorWidget.data());
     Core::ICore::addContextObject(formEditorContext);
 
     connect(formEditorWidget()->zoomAction(), &ZoomAction::zoomLevelChanged, [this]() {
@@ -168,7 +168,7 @@ void FormEditorView::createFormEditorWidget()
 void FormEditorView::temporaryBlockView()
 {
     formEditorWidget()->graphicsView()->setUpdatesEnabled(false);
-    static QTimer *timer = new QTimer(qApp);
+    static auto timer = new QTimer(qApp);
     timer->setSingleShot(true);
     timer->start(1000);
 
@@ -277,7 +277,7 @@ WidgetInfo FormEditorView::widgetInfo()
     if (!m_formEditorWidget)
         createFormEditorWidget();
 
-    return createWidgetInfo(m_formEditorWidget.data(), 0, "FormEditor", WidgetInfo::CentralPane, 0, tr("Form Editor"), DesignerWidgetFlags::IgnoreErrors);
+    return createWidgetInfo(m_formEditorWidget.data(), nullptr, "FormEditor", WidgetInfo::CentralPane, 0, tr("Form Editor"), DesignerWidgetFlags::IgnoreErrors);
 }
 
 FormEditorWidget *FormEditorView::formEditorWidget()
@@ -395,7 +395,7 @@ void FormEditorView::changeToCustomTool()
 {
     if (hasSelectedModelNodes()) {
         int handlingRank = 0;
-        AbstractCustomTool *selectedCustomTool = 0;
+        AbstractCustomTool *selectedCustomTool = nullptr;
 
         const ModelNode selectedModelNode = selectedModelNodes().constFirst();
 

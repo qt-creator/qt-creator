@@ -98,7 +98,7 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
         if (!item->qmlItemNode().isValid())
             continue;
 
-        QGraphicsPolygonItem *newSelectionIndicatorGraphicsItem = new QGraphicsPolygonItem(m_layerItem.data());
+        auto newSelectionIndicatorGraphicsItem = new QGraphicsPolygonItem(m_layerItem.data());
         m_indicatorShapeHash.insert(item, newSelectionIndicatorGraphicsItem);
         newSelectionIndicatorGraphicsItem->setPolygon(boundingRectInLayerItemSpaceForItem(item, m_layerItem.data()));
         newSelectionIndicatorGraphicsItem->setFlag(QGraphicsItem::ItemIsSelectable, false);

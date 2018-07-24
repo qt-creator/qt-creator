@@ -176,9 +176,7 @@ NavigatorTreeModel::NavigatorTreeModel(QObject *parent) : QAbstractItemModel(par
 {
 }
 
-NavigatorTreeModel::~NavigatorTreeModel()
-{
-}
+NavigatorTreeModel::~NavigatorTreeModel() = default;
 
 QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
 {
@@ -373,7 +371,7 @@ QStringList NavigatorTreeModel::mimeTypes() const
 
 QMimeData *NavigatorTreeModel::mimeData(const QModelIndexList &modelIndexList) const
 {
-    QMimeData *mimeData = new QMimeData();
+    auto mimeData = new QMimeData();
 
     QByteArray encodedModelNodeData;
     QDataStream encodedModelNodeDataStream(&encodedModelNodeData, QIODevice::WriteOnly);

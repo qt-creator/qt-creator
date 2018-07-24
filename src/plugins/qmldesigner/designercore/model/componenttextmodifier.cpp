@@ -39,9 +39,7 @@ ComponentTextModifier::ComponentTextModifier(TextModifier *originalModifier, int
     connect(m_originalModifier, &TextModifier::moved, this, &TextModifier::moved);
 }
 
-ComponentTextModifier::~ComponentTextModifier()
-{
-}
+ComponentTextModifier::~ComponentTextModifier() = default;
 
 void ComponentTextModifier::replace(int offset, int length, const QString& replacement)
 {

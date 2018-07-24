@@ -84,9 +84,9 @@ PropertyEditorContextObject::PropertyEditorContextObject(QObject *parent) :
     QObject(parent),
     m_isBaseState(false),
     m_selectionChanged(false),
-    m_backendValues(0),
-    m_qmlComponent(0),
-    m_qmlContext(0)
+    m_backendValues(nullptr),
+    m_qmlComponent(nullptr),
+    m_qmlContext(nullptr)
 {
 
 }
@@ -342,7 +342,7 @@ void PropertyEditorContextObject::setSpecificQmlData(const QString &newSpecificQ
     m_specificQmlData = newSpecificQmlData;
 
     delete m_qmlComponent;
-    m_qmlComponent = 0;
+    m_qmlComponent = nullptr;
 
     emit specificQmlComponentChanged();
     emit specificQmlDataChanged();

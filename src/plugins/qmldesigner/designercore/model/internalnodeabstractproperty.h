@@ -36,10 +36,10 @@ class InternalNodeAbstractProperty : public InternalProperty
     friend class InternalNode;
 
 public:
-    typedef QSharedPointer<InternalNodeAbstractProperty> Pointer;
-    typedef QWeakPointer<InternalNodeAbstractProperty> WeakPointer;
+    using Pointer = QSharedPointer<InternalNodeAbstractProperty>;
+    using WeakPointer = QWeakPointer<InternalNodeAbstractProperty>;
 
-    bool isNodeAbstractProperty() const;
+    bool isNodeAbstractProperty() const override;
 
     virtual QList<InternalNodePointer> allSubNodes() const = 0;
     virtual QList<InternalNodePointer> directSubNodes() const = 0;
@@ -48,7 +48,7 @@ public:
     virtual int count() const = 0;
     virtual int indexOf(const InternalNodePointer &node) const = 0;
 
-    virtual bool isValid() const;
+    bool isValid() const override;
 
     using InternalProperty::remove; // keep the virtual remove(...) function around
 

@@ -79,35 +79,35 @@ public:
         action()->setIcon(prevIcon.icon());
     }
 
-    QByteArray category() const
+    QByteArray category() const override
     {
         return QByteArray();
     }
 
-    QByteArray menuId() const
+    QByteArray menuId() const override
     {
         return "SourceTool";
     }
 
-    int priority() const
+    int priority() const override
     {
         return CustomActionsPriority;
     }
 
-    Type type() const
+    Type type() const override
     {
         return FormEditorAction;
     }
 
 protected:
-    bool isVisible(const SelectionContext &selectionContext) const
+    bool isVisible(const SelectionContext &selectionContext) const override
     {
         if (selectionContext.singleNodeIsSelected())
             return modelNodeHasUrlSource(selectionContext.currentSingleSelectedNode());
         return false;
     }
 
-    bool isEnabled(const SelectionContext &selectionContext) const
+    bool isEnabled(const SelectionContext &selectionContext) const override
     {
         return isVisible(selectionContext);
     }
@@ -117,16 +117,14 @@ protected:
 SourceTool::SourceTool()
     : QObject(), AbstractCustomTool()
 {
-    SourceToolAction *sourceToolAction = new SourceToolAction;
+    auto sourceToolAction = new SourceToolAction;
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(sourceToolAction);
     connect(sourceToolAction->action(), &QAction::triggered, [=]() {
         view()->changeCurrentToolTo(this);
     });
 }
 
-SourceTool::~SourceTool()
-{
-}
+SourceTool::~SourceTool() = default;
 
 void SourceTool::clear()
 {
@@ -199,7 +197,7 @@ void SourceTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
         if (openDirectory.isEmpty())
             openDirectory = baseDirectory(view()->model()->fileUrl());
 
-        QString fileName = QFileDialog::getOpenFileName(0,
+        QString fileName = QFileDialog::getOpenFileName(nullptr,
                                                        tr("Open File"),
                                                        openDirectory);
         fileSelected(fileName);

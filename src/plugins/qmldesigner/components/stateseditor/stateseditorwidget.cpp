@@ -87,8 +87,8 @@ void StatesEditorWidget::showAddNewStatesButton(bool showAddNewStatesButton)
 StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, StatesEditorModel *statesEditorModel)
     : QQuickWidget(),
       m_statesEditorView(statesEditorView),
-      m_imageProvider(0),
-      m_qmlSourceUpdateShortcut(0)
+      m_imageProvider(nullptr),
+      m_qmlSourceUpdateShortcut(nullptr)
 {
     m_imageProvider = new Internal::StatesEditorImageProvider;
     m_imageProvider->setNodeInstanceView(statesEditorView->nodeInstanceView());
@@ -115,9 +115,7 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     reloadQmlSource();
 }
 
-StatesEditorWidget::~StatesEditorWidget()
-{
-}
+StatesEditorWidget::~StatesEditorWidget() = default;
 
 QString StatesEditorWidget::qmlSourcesPath() {
     return Core::ICore::resourcePath() + QStringLiteral("/qmldesigner/statesEditorQmlSources");

@@ -40,12 +40,12 @@ public:
                       quint32 targetParentObjectLocation,
                       const PropertyNameList &propertyOrder);
 
-    bool operator ()(QmlJS::AST::UiProgram *ast);
+    bool operator ()(QmlJS::AST::UiProgram *ast) override;
 
 protected:
-    virtual bool visit(QmlJS::AST::UiArrayBinding *ast);
-    virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
-    virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
+    bool visit(QmlJS::AST::UiArrayBinding *ast) override;
+    bool visit(QmlJS::AST::UiObjectBinding *ast) override;
+    bool visit(QmlJS::AST::UiObjectDefinition *ast) override;
 
 private:
     void doMove(const TextModifier::MoveInfo &moveInfo);

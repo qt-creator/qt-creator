@@ -33,9 +33,7 @@
 #include "model_p.h"
 namespace QmlDesigner {
 
-SignalHandlerProperty::SignalHandlerProperty()
-{
-}
+SignalHandlerProperty::SignalHandlerProperty() = default;
 
 SignalHandlerProperty::SignalHandlerProperty(const SignalHandlerProperty &property, AbstractView *view)
     : AbstractProperty(property.name(), property.internalNode(), property.model(), view)

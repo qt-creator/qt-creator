@@ -29,10 +29,7 @@
 
 namespace QmlDesigner {
 
-QmlDesigner::MockupTypeContainer::MockupTypeContainer()
-{
-
-}
+QmlDesigner::MockupTypeContainer::MockupTypeContainer() = default;
 
 QmlDesigner::MockupTypeContainer::MockupTypeContainer(const QmlDesigner::TypeName &type,
                                                       const QString &importUri,

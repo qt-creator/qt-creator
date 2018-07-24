@@ -38,8 +38,8 @@
 namespace QmlDesigner {
 
 Snapper::Snapper()
-    : m_containerFormEditorItem(0),
-    m_transformtionSpaceFormEditorItem(0),
+    : m_containerFormEditorItem(nullptr),
+    m_transformtionSpaceFormEditorItem(nullptr),
     m_snappingDistance(5.0)
 {
 }
@@ -321,7 +321,7 @@ QList<QLineF> Snapper::findSnappingLines(const SnapLineMap &snappingLineMap,
                                         lowerLimit,
                                         upperLimit,
                                         snappingLineIterator.value().first);
-            if (boundingRects != 0)
+            if (boundingRects != nullptr)
                 boundingRects->append(snappingLineIterator.value().first);
         }
     }
@@ -363,7 +363,7 @@ QList<QLineF> Snapper::findSnappingOffsetLines(const SnapLineMap &snappingOffset
                                        lowerLimit,
                                        upperLimit,
                                        formEditorItemRect);
-            if (boundingRects != 0)
+            if (boundingRects != nullptr)
                 boundingRects->append(snappingOffsetIterator.value().first);
         }
     }
@@ -715,7 +715,7 @@ QList<QGraphicsItem*> Snapper::generateSnappingLines(const QList<QRectF> &boundi
 
     foreach (const QLineF &line, lineList) {
         QLineF lineInTransformationSpace = transform.map(line);
-        QGraphicsLineItem * lineItem = new QGraphicsLineItem(lineInTransformationSpace, layerItem);
+        auto lineItem = new QGraphicsLineItem(lineInTransformationSpace, layerItem);
         lineItem->setZValue(40);
         QPen linePen;
         linePen.setCosmetic(true);

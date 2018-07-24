@@ -27,8 +27,6 @@
 
 namespace QmlDesigner {
 
-PropertyNode::PropertyNode()
-{
-}
+PropertyNode::PropertyNode() = default;
 
 } // namespace QmlDesigner

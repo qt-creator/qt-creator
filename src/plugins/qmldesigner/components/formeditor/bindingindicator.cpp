@@ -36,9 +36,7 @@ BindingIndicator::BindingIndicator(LayerItem *layerItem)
 {
 }
 
-BindingIndicator::BindingIndicator()
-{
-}
+BindingIndicator::BindingIndicator() = default;
 
 BindingIndicator::~BindingIndicator()
 {

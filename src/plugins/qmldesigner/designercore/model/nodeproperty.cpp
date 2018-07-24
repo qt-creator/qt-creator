@@ -33,9 +33,7 @@
 
 namespace QmlDesigner {
 
-NodeProperty::NodeProperty()
-{
-}
+NodeProperty::NodeProperty() = default;
 
 NodeProperty::NodeProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view)
     :  NodeAbstractProperty(propertyName, internalNode, model, view)

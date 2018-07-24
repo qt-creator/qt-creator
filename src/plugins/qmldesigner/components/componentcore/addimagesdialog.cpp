@@ -39,7 +39,7 @@
 
 static QTableWidget* createFilesTable(const QStringList &fileNames)
 {
-    QTableWidget *table = new QTableWidget(0, 2);
+    auto table = new QTableWidget(0, 2);
     table->setSelectionMode(QAbstractItemView::NoSelection);
 
     QStringList labels({
@@ -55,7 +55,7 @@ static QTableWidget* createFilesTable(const QStringList &fileNames)
            const QString toolTip = QDir::toNativeSeparators(filePath);
            const QString fileName = QFileInfo(filePath).fileName();
            const qint64 size = QFileInfo(filePath).size() / 1024;
-           QTableWidgetItem *fileNameItem = new QTableWidgetItem(fileName);
+           auto fileNameItem = new QTableWidgetItem(fileName);
            fileNameItem->setToolTip(toolTip);
            fileNameItem->setFlags(fileNameItem->flags() ^ Qt::ItemIsEditable);
            QTableWidgetItem *sizeItem = new QTableWidgetItem(QString::number(size) + " KB");
@@ -74,7 +74,7 @@ static QTableWidget* createFilesTable(const QStringList &fileNames)
 
 QComboBox *createDirectoryComboBox(const QString &defaultDirectory)
 {
-    QComboBox *comboBox = new QComboBox;
+    auto comboBox = new QComboBox;
     comboBox->addItem(defaultDirectory);
     comboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
@@ -99,7 +99,7 @@ QString AddImagesDialog::getDirectory(const QStringList &fileNames, const QStrin
     dialog->setWindowTitle(QCoreApplication::translate("AddImageToResources","Add Resources"));
     QTableWidget *table = createFilesTable(fileNames);
     table->setParent(dialog);
-    QGridLayout *mainLayout = new QGridLayout(dialog);
+    auto mainLayout = new QGridLayout(dialog);
     mainLayout->addWidget(table, 0, 0, 1, 4);
 
     QComboBox *directoryComboBox = createDirectoryComboBox(defaultDirectory);

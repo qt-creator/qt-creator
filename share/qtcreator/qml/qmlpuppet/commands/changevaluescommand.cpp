@@ -29,9 +29,7 @@
 
 namespace QmlDesigner {
 
-ChangeValuesCommand::ChangeValuesCommand()
-{
-}
+ChangeValuesCommand::ChangeValuesCommand() = default;
 
 ChangeValuesCommand::ChangeValuesCommand(const QVector<PropertyValueContainer> &valueChangeVector)
     : m_valueChangeVector (valueChangeVector)

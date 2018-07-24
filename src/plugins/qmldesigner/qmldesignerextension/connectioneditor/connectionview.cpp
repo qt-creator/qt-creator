@@ -52,9 +52,7 @@ ConnectionView::ConnectionView(QObject *parent) : AbstractView(parent),
     connectionViewWidget()->setBackendModel(m_backendModel);
 }
 
-ConnectionView::~ConnectionView()
-{
-}
+ConnectionView::~ConnectionView() = default;
 
 void ConnectionView::modelAttached(Model *model)
 {

@@ -33,26 +33,26 @@ namespace Internal  {
 class InternalNodeProperty : public InternalNodeAbstractProperty
 {
 public:
-    typedef QSharedPointer<InternalNodeProperty> Pointer;
+    using Pointer = QSharedPointer<InternalNodeProperty>;
 
     static Pointer create(const PropertyName &name, const InternalNodePointer &propertyOwner);
 
-    bool isValid() const;
-    bool isEmpty() const;
-    int count() const;
-    int indexOf(const InternalNodePointer &node) const;
-    bool isNodeProperty() const;
+    bool isValid() const override;
+    bool isEmpty() const override;
+    int count() const override;
+    int indexOf(const InternalNodePointer &node) const override;
+    bool isNodeProperty() const override;
 
-    QList<InternalNodePointer> allSubNodes() const;
-    QList<InternalNodePointer> directSubNodes() const;
+    QList<InternalNodePointer> allSubNodes() const override;
+    QList<InternalNodePointer> directSubNodes() const override;
 
     InternalNodePointer node() const;
 
 
 protected:
     InternalNodeProperty(const PropertyName &name, const InternalNodePointer &node);
-    void add(const InternalNodePointer &node);
-    void remove(const InternalNodePointer &node);
+    void add(const InternalNodePointer &node) override;
+    void remove(const InternalNodePointer &node) override;
 
 private:
     InternalNodePointer m_node;

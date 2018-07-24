@@ -30,9 +30,7 @@
 
 namespace QmlDesigner {
 
-RemoveInstancesCommand::RemoveInstancesCommand()
-{
-}
+RemoveInstancesCommand::RemoveInstancesCommand() = default;
 
 RemoveInstancesCommand::RemoveInstancesCommand(const QVector<qint32> &idVector)
     : m_instanceIdVector(idVector)

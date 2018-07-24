@@ -52,11 +52,11 @@ static IWidgetPlugin *instance(WidgetPluginData &p)
 
     // Go stale once something fails
     if (p.failed)
-        return 0;
+        return nullptr;
 
     // Pull up the plugin, retrieve IPlugin instance.
     if (!p.instanceGuard) {
-        p.instance = 0;
+        p.instance = nullptr;
         QPluginLoader loader(p.path);
 
         if (debug)
@@ -68,7 +68,7 @@ static IWidgetPlugin *instance(WidgetPluginData &p)
                                                          "Failed to create instance of file "
                                                          "\"%1\": %2").arg(p.path).arg(p.errorMessage);
             qWarning() << p.errorMessage;
-            return 0;
+            return nullptr;
         }
         QObject *object = loader.instance();
         if (!object) {
@@ -77,7 +77,7 @@ static IWidgetPlugin *instance(WidgetPluginData &p)
                                                          "Failed to create instance of file \"%1\"."
                                                          ).arg(p.path);
             qWarning() << p.errorMessage;
-            return 0;
+            return nullptr;
         }
         IWidgetPlugin *iplugin = qobject_cast<IWidgetPlugin *>(object);
         if (!iplugin) {
@@ -87,7 +87,7 @@ static IWidgetPlugin *instance(WidgetPluginData &p)
                                                          ).arg(p.path);
             qWarning() << p.errorMessage;
             delete object;
-            return 0;
+            return nullptr;
         }
         p.instanceGuard = object;
         p.instance = iplugin;
@@ -110,7 +110,7 @@ static IWidgetPlugin *instance(WidgetPluginData &p)
 WidgetPluginData::WidgetPluginData(const QString &p) :
     path(p),
     failed(false),
-    instance(0)
+    instance(nullptr)
 {
 }
 
@@ -187,7 +187,7 @@ QStandardItem *WidgetPluginPath::createModelItem()
     // If there are failed ones, create a separate "Failed"
     // category at the end
     QStandardItem *pathItem = new QStandardItem(m_path.absolutePath());
-    QStandardItem *failedCategory = 0;
+    QStandardItem *failedCategory = nullptr;
     const auto end = m_plugins.end();
     for (auto it = m_plugins.begin(); it != end; ++it) {
         QStandardItem *pluginItem = new QStandardItem(Utils::FileName::fromString(it->path).fileName());

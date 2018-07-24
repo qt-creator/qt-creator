@@ -70,10 +70,10 @@ static bool propertyIsAttachedLayoutProperty(const PropertyName &propertyName)
 PropertyEditorView::PropertyEditorView(QWidget *parent) :
         AbstractView(parent),
         m_parent(parent),
-        m_updateShortcut(0),
+        m_updateShortcut(nullptr),
         m_timerId(0),
         m_stackedWidget(new PropertyEditorWidget(parent)),
-        m_qmlBackEndForCurrentType(0),
+        m_qmlBackEndForCurrentType(nullptr),
         m_locked(false),
         m_setupCompleted(false),
         m_singleShotTimer(new QTimer(this))
@@ -170,7 +170,7 @@ void PropertyEditorView::changeValue(const QString &name)
     underscoreName.replace('.', '_');
     PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(QString::fromLatin1(underscoreName));
 
-    if (value ==0)
+    if (value ==nullptr)
         return;
 
     QmlObjectNode qmlObjectNode(m_selectedNode);
@@ -381,7 +381,7 @@ void PropertyEditorView::updateSize()
 {
     if (!m_qmlBackEndForCurrentType)
         return;
-    QWidget* frame = m_qmlBackEndForCurrentType->widget()->findChild<QWidget*>("propertyEditorFrame");
+    auto frame = m_qmlBackEndForCurrentType->widget()->findChild<QWidget*>("propertyEditorFrame");
     if (frame)
         frame->resize(m_stackedWidget->size());
 }
@@ -412,7 +412,7 @@ void PropertyEditorView::timerEvent(QTimerEvent *timerEvent)
 
 void PropertyEditorView::resetView()
 {
-    if (model() == 0)
+    if (model() == nullptr)
         return;
 
     m_locked = true;
@@ -688,7 +688,7 @@ bool PropertyEditorView::hasWidget() const
 
 WidgetInfo PropertyEditorView::widgetInfo()
 {
-    return createWidgetInfo(m_stackedWidget, 0, QStringLiteral("Properties"), WidgetInfo::RightPane, 0);
+    return createWidgetInfo(m_stackedWidget, nullptr, QStringLiteral("Properties"), WidgetInfo::RightPane, 0);
 }
 
 void PropertyEditorView::currentStateChanged(const ModelNode &node)
@@ -706,7 +706,7 @@ void PropertyEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Pr
         return;
     m_locked = true;
 
-    typedef QPair<ModelNode, PropertyName> ModelNodePropertyPair;
+    using ModelNodePropertyPair = QPair<ModelNode, PropertyName>;
     foreach (const ModelNodePropertyPair &propertyPair, propertyList) {
         const ModelNode modelNode = propertyPair.first;
         const QmlObjectNode qmlObjectNode(modelNode);
@@ -762,7 +762,7 @@ void PropertyEditorView::reloadQml()
         m_stackedWidget->removeWidget(widget);
         delete widget;
     }
-    m_qmlBackEndForCurrentType = 0;
+    m_qmlBackEndForCurrentType = nullptr;
 
     delayedResetView();
 }

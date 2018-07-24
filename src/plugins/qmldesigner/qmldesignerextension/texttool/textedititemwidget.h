@@ -40,7 +40,7 @@ class TextEditItemWidget : public QGraphicsProxyWidget
     Q_OBJECT
 public:
     TextEditItemWidget(QGraphicsScene *scene);
-    ~TextEditItemWidget();
+    ~TextEditItemWidget() override;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 

@@ -32,7 +32,7 @@
 
 namespace QmlDesigner {
 
-typedef QByteArray EnumerationName;
+using EnumerationName = QByteArray;
 
 class Enumeration
 {

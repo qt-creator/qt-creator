@@ -29,9 +29,7 @@
 
 namespace QmlDesigner {
 
-ChangeBindingsCommand::ChangeBindingsCommand()
-{
-}
+ChangeBindingsCommand::ChangeBindingsCommand() = default;
 
 ChangeBindingsCommand::ChangeBindingsCommand(const QVector<PropertyBindingContainer> &bindingChangeVector)
     : m_bindingChangeVector (bindingChangeVector)

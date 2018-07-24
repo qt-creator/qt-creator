@@ -54,10 +54,7 @@ SelectionTool::SelectionTool(FormEditorView *editorView)
     m_selectionIndicator.setCursor(Qt::ArrowCursor);
 }
 
-
-SelectionTool::~SelectionTool()
-{
-}
+SelectionTool::~SelectionTool() = default;
 
 void SelectionTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
                                     QGraphicsSceneMouseEvent *event)

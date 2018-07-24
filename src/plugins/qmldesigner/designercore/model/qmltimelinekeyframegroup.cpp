@@ -38,10 +38,7 @@
 
 namespace QmlDesigner {
 
-QmlTimelineKeyframeGroup::QmlTimelineKeyframeGroup()
-{
-
-}
+QmlTimelineKeyframeGroup::QmlTimelineKeyframeGroup() = default;
 
 QmlTimelineKeyframeGroup::QmlTimelineKeyframeGroup(const ModelNode &modelNode) : QmlModelNodeFacade(modelNode)
 {

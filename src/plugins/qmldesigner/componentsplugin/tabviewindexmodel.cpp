@@ -36,7 +36,7 @@ TabViewIndexModel::TabViewIndexModel(QObject *parent) :
 
 void TabViewIndexModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 {
-    QObject* modelNodeBackendObject = modelNodeBackend.value<QObject*>();
+    auto modelNodeBackendObject = modelNodeBackend.value<QObject*>();
 
     if (modelNodeBackendObject)
         setModelNode(modelNodeBackendObject->property("modelNode").value<QmlDesigner::ModelNode>());

@@ -83,7 +83,7 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
     QmlJS::AST::SourceLocation startOfNextMember;
     unsigned depth;
 
-    if (insertAfter == 0 || insertAfter->member == 0) {
+    if (insertAfter == nullptr || insertAfter->member == nullptr) {
         // insert as first member
         endOfPreviousMember = initializer->lbraceToken;
 
@@ -108,7 +108,7 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
     bool needsTrailingSemicolon = false;
 
     if (isOneLiner) {
-        if (insertAfter == 0) { // we're inserting after an lbrace
+        if (insertAfter == nullptr) { // we're inserting after an lbrace
             if (initializer->members) { // we're inserting before a member (and not the rbrace)
                 needsTrailingSemicolon = m_propertyType == QmlRefactoring::ScriptBinding;
             }

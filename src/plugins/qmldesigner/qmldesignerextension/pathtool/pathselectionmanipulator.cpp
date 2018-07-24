@@ -166,9 +166,7 @@ void PathSelectionManipulator::endMultiSelection()
     m_isMultiSelecting = false;
 }
 
-SelectionPoint::SelectionPoint()
-{
-}
+SelectionPoint::SelectionPoint() = default;
 
 SelectionPoint::SelectionPoint(const ControlPoint &controlPoint)
     : controlPoint(controlPoint)

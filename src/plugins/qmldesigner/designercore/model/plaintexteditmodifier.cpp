@@ -36,7 +36,7 @@ using namespace Utils;
 using namespace QmlDesigner;
 
 PlainTextEditModifier::PlainTextEditModifier(QPlainTextEdit *textEdit):
-        m_changeSet(0),
+        m_changeSet(nullptr),
         m_textEdit(textEdit),
         m_changeSignalsEnabled(true),
         m_pendingChangeSignal(false),
@@ -48,9 +48,7 @@ PlainTextEditModifier::PlainTextEditModifier(QPlainTextEdit *textEdit):
             this, &PlainTextEditModifier::textEditChanged);
 }
 
-PlainTextEditModifier::~PlainTextEditModifier()
-{
-}
+PlainTextEditModifier::~PlainTextEditModifier() = default;
 
 void PlainTextEditModifier::replace(int offset, int length, const QString &replacement)
 {
@@ -135,7 +133,7 @@ void PlainTextEditModifier::commitGroup()
     if (m_changeSet) {
         runRewriting(m_changeSet);
         delete m_changeSet;
-        m_changeSet = 0;
+        m_changeSet = nullptr;
     }
 
     textCursor().endEditBlock();

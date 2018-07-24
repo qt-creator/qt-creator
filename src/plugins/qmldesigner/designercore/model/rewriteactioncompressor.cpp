@@ -317,7 +317,7 @@ void RewriteActionCompressor::compressAddEditActions(QList<RewriteAction *> &act
 
     QmlTextGenerator gen(m_propertyOrder);
     foreach (RewriteAction *action, dirtyActions) {
-        RewriteAction *newAction = 0;
+        RewriteAction *newAction = nullptr;
         if (AddPropertyRewriteAction *addAction = action->asAddPropertyRewriteAction()) {
             newAction = new AddPropertyRewriteAction(addAction->property(),
                                                      gen(addAction->containedModelNode()),
@@ -364,7 +364,7 @@ void RewriteActionCompressor::compressAddReparentActions(QList<RewriteAction *> 
                 RewriteAction *previousAction = addedNodes[reparentAction->reparentedNode()];
                 actionsToRemove.append(previousAction);
 
-                RewriteAction *replacementAction = 0;
+                RewriteAction *replacementAction = nullptr;
                 if (AddPropertyRewriteAction *addAction = previousAction->asAddPropertyRewriteAction()) {
                     replacementAction = new AddPropertyRewriteAction(reparentAction->targetProperty(),
                                                                      addAction->valueText(),

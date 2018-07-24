@@ -30,9 +30,7 @@
 
 namespace QmlDesigner {
 
-ChangeNodeSourceCommand::ChangeNodeSourceCommand()
-{
-}
+ChangeNodeSourceCommand::ChangeNodeSourceCommand() = default;
 
 ChangeNodeSourceCommand::ChangeNodeSourceCommand(qint32 newInstanceId, const QString &newNodeSource)
     : m_instanceId(newInstanceId), m_nodeSource(newNodeSource)

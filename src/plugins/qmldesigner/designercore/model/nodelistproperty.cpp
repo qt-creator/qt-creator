@@ -36,8 +36,7 @@
 
 namespace QmlDesigner {
 
-NodeListProperty::NodeListProperty()
-{}
+NodeListProperty::NodeListProperty() = default;
 
 NodeListProperty::NodeListProperty(const NodeListProperty &property, AbstractView *view)
     : NodeAbstractProperty(property.name(), property.internalNode(), property.model(), view)

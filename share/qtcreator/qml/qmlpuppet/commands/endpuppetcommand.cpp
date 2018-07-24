@@ -29,9 +29,7 @@
 
 namespace QmlDesigner {
 
-EndPuppetCommand::EndPuppetCommand()
-{
-}
+EndPuppetCommand::EndPuppetCommand() = default;
 
 QDataStream &operator<<(QDataStream &out, const EndPuppetCommand &/*command*/)
 {

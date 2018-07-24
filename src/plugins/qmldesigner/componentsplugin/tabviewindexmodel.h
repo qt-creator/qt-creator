@@ -37,7 +37,7 @@ class TabViewIndexModel : public QObject
     Q_PROPERTY(QStringList tabViewIndexModel READ tabViewIndexModel NOTIFY modelNodeBackendChanged)
 
 public:
-    explicit TabViewIndexModel(QObject *parent = 0);
+    explicit TabViewIndexModel(QObject *parent = nullptr);
 
     void setModelNodeBackend(const QVariant &modelNodeBackend);
     void setModelNode(const QmlDesigner::ModelNode &modelNode);

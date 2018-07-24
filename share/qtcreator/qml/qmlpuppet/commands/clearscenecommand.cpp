@@ -29,9 +29,7 @@
 
 namespace QmlDesigner {
 
-ClearSceneCommand::ClearSceneCommand()
-{
-}
+ClearSceneCommand::ClearSceneCommand() = default;
 
 QDataStream &operator<<(QDataStream &out, const ClearSceneCommand &/*command*/)
 {

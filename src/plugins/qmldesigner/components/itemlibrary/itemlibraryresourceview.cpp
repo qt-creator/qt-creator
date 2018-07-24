@@ -46,7 +46,7 @@ namespace QmlDesigner {
 
 void ItemLibraryResourceView::addSizeAction(QActionGroup *group, const QString &text, int gridSize, int iconSize)
 {
-    QAction *action = new QAction(text, group);
+    auto action = new QAction(text, group);
     group->addAction(action);
     action->setCheckable(true);
     QAction::connect(action, &QAction::triggered, this, [this, gridSize, iconSize]() {
@@ -80,7 +80,7 @@ ItemLibraryResourceView::ItemLibraryResourceView(QWidget *parent) :
 
     setContextMenuPolicy(Qt::ActionsContextMenu);
 
-    QActionGroup *actionGroup = new QActionGroup(this);
+    auto actionGroup = new QActionGroup(this);
     actionGroup->setExclusive(true);
 
     addSizeAction(actionGroup, tr("Large Icons"), 256, 192);
@@ -113,14 +113,14 @@ void ItemLibraryResourceView::startDrag(Qt::DropActions /* supportedActions */)
     if (!mimeData)
         return;
 
-    CustomFileSystemModel *fileSystemModel = qobject_cast<CustomFileSystemModel*>(model());
+    auto fileSystemModel = qobject_cast<CustomFileSystemModel*>(model());
     Q_ASSERT(fileSystemModel);
     QFileInfo fileInfo = fileSystemModel->fileInfo(selectedIndexes().front());
     QPixmap pixmap(fileInfo.absoluteFilePath());
     if (!pixmap.isNull()) {
-        QDrag *drag = new QDrag(this);
+        auto drag = new QDrag(this);
         drag->setPixmap(QIcon(pixmap).pixmap(128, 128));
-        QMimeData *mimeData = new QMimeData;
+        auto mimeData = new QMimeData;
         mimeData->setData(QLatin1String("application/vnd.bauhaus.libraryresource"), fileInfo.absoluteFilePath().toUtf8());
         drag->setMimeData(mimeData);
         drag->exec();

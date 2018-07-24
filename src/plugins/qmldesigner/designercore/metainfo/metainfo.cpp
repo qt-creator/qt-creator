@@ -120,10 +120,7 @@ properties.
 /*!
   Constructs a copy of \a metaInfo.
   */
-MetaInfo::MetaInfo(const MetaInfo &metaInfo) :
-        m_p(metaInfo.m_p)
-{
-}
+MetaInfo::MetaInfo(const MetaInfo &metaInfo) = default;
 
 /*!
   Creates a meta information object with just the QML types registered statically.
@@ -138,19 +135,13 @@ MetaInfo::MetaInfo() :
 {
 }
 
-MetaInfo::~MetaInfo()
-{
-}
+MetaInfo::~MetaInfo() = default;
 
 /*!
   Assigns \a other to this meta information and returns a reference to this
   meta information.
   */
-MetaInfo& MetaInfo::operator=(const MetaInfo &other)
-{
-    m_p = other.m_p;
-    return *this;
-}
+MetaInfo& MetaInfo::operator=(const MetaInfo &other) = default;
 
 ItemLibraryInfo *MetaInfo::itemLibraryInfo() const
 {

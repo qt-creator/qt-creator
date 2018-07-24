@@ -30,9 +30,7 @@
 
 namespace QmlDesigner {
 
-AddImportContainer::AddImportContainer()
-{
-}
+AddImportContainer::AddImportContainer() = default;
 
 AddImportContainer::AddImportContainer(const QUrl &url, const QString &fileName, const QString &version, const QString &alias, const QStringList &importPathList)
     : m_url(url),

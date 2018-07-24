@@ -113,7 +113,7 @@ void ChangePropertyVisitor::replaceInMembers(UiObjectInitializer *initializer,
             break;
         // for grouped properties:
         } else if (!prefix.isEmpty()) {
-            if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
+            if (auto def = cast<UiObjectDefinition *>(member)) {
                 if (toString(def->qualifiedTypeNameId) == prefix)
                     replaceInMembers(def->initializer, suffix);
             }
@@ -127,16 +127,16 @@ void ChangePropertyVisitor::replaceMemberValue(UiObjectMember *propertyMember, b
     QString replacement = m_value;
     int startOffset = -1;
     int endOffset = -1;
-    if (UiObjectBinding *objectBinding = AST::cast<UiObjectBinding *>(propertyMember)) {
+    if (auto objectBinding = AST::cast<UiObjectBinding *>(propertyMember)) {
         startOffset = objectBinding->qualifiedTypeNameId->identifierToken.offset;
         endOffset = objectBinding->initializer->rbraceToken.end();
-    } else if (UiScriptBinding *scriptBinding = AST::cast<UiScriptBinding *>(propertyMember)) {
+    } else if (auto scriptBinding = AST::cast<UiScriptBinding *>(propertyMember)) {
         startOffset = scriptBinding->statement->firstSourceLocation().offset;
         endOffset = scriptBinding->statement->lastSourceLocation().end();
-    } else if (UiArrayBinding *arrayBinding = AST::cast<UiArrayBinding *>(propertyMember)) {
+    } else if (auto arrayBinding = AST::cast<UiArrayBinding *>(propertyMember)) {
         startOffset = arrayBinding->lbracketToken.offset;
         endOffset = arrayBinding->rbracketToken.end();
-    } else if (UiPublicMember *publicMember = AST::cast<UiPublicMember*>(propertyMember)) {
+    } else if (auto publicMember = AST::cast<UiPublicMember*>(propertyMember)) {
         if (publicMember->statement) {
             startOffset = publicMember->statement->firstSourceLocation().offset;
             if (publicMember->semicolonToken.isValid())
@@ -165,13 +165,13 @@ void ChangePropertyVisitor::replaceMemberValue(UiObjectMember *propertyMember, b
 bool ChangePropertyVisitor::isMatchingPropertyMember(const QString &propName,
                                                      UiObjectMember *member)
 {
-    if (UiObjectBinding *objectBinding = AST::cast<UiObjectBinding *>(member))
+    if (auto objectBinding = AST::cast<UiObjectBinding *>(member))
         return propName == toString(objectBinding->qualifiedId);
-    else if (UiScriptBinding *scriptBinding = AST::cast<UiScriptBinding *>(member))
+    else if (auto scriptBinding = AST::cast<UiScriptBinding *>(member))
         return propName == toString(scriptBinding->qualifiedId);
-    else if (UiArrayBinding *arrayBinding = AST::cast<UiArrayBinding *>(member))
+    else if (auto arrayBinding = AST::cast<UiArrayBinding *>(member))
         return propName == toString(arrayBinding->qualifiedId);
-    else if (UiPublicMember *publicMember = AST::cast<UiPublicMember *>(member))
+    else if (auto publicMember = AST::cast<UiPublicMember *>(member))
         return propName == publicMember->name;
     else
         return false;
@@ -192,7 +192,7 @@ void ChangePropertyVisitor::insertIntoArray(QmlJS::AST::UiArrayBinding *ast)
     if (!ast)
         return;
 
-    UiObjectMember *lastMember = 0;
+    UiObjectMember *lastMember = nullptr;
     for (UiArrayMemberList *iter = ast->members; iter; iter = iter->next) {
         lastMember = iter->member;
     }

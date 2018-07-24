@@ -71,7 +71,7 @@ DesignerActionManagerView *DesignerActionManager::view()
 
 DesignerActionToolBar *DesignerActionManager::createToolBar(QWidget *parent) const
 {
-    DesignerActionToolBar *toolBar = new DesignerActionToolBar(parent);
+    auto toolBar = new DesignerActionToolBar(parent);
 
     QList<ActionInterface* > categories = Utils::filtered(designerActions(), [](ActionInterface *action) {
             return action->type() ==  ActionInterface::ContextMenu;
@@ -149,13 +149,13 @@ QGraphicsWidget *DesignerActionManager::createFormEditorToolBar(QGraphicsItem *p
 
     QGraphicsWidget *toolbar = new QGraphicsWidget(parent);
 
-    QGraphicsLinearLayout *layout = new QGraphicsLinearLayout;
+    auto layout = new QGraphicsLinearLayout;
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     toolbar->setLayout(layout);
 
     for (ActionInterface *action : actions) {
-        FormEditorToolButton *button = new FormEditorToolButton(action->action(), toolbar);
+        auto button = new FormEditorToolButton(action->action(), toolbar);
         layout->addItem(button);
     }
 
@@ -1036,9 +1036,7 @@ DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designer
 {
 }
 
-DesignerActionManager::~DesignerActionManager()
-{
-}
+DesignerActionManager::~DesignerActionManager() = default;
 
 DesignerActionToolBar::DesignerActionToolBar(QWidget *parentWidget) : Utils::StyledBar(parentWidget),
     m_toolBar(new QToolBar("ActionToolBar", this))
@@ -1048,7 +1046,7 @@ DesignerActionToolBar::DesignerActionToolBar(QWidget *parentWidget) : Utils::Sty
     m_toolBar->setMovable(true);
     m_toolBar->setOrientation(Qt::Horizontal);
 
-    QHBoxLayout *horizontalLayout = new QHBoxLayout(this);
+    auto horizontalLayout = new QHBoxLayout(this);
 
     horizontalLayout->setMargin(0);
     horizontalLayout->setSpacing(0);
@@ -1066,7 +1064,7 @@ void DesignerActionToolBar::registerAction(ActionInterface *action)
 
 void DesignerActionToolBar::addSeparator()
 {
-    QAction *separatorAction = new QAction(m_toolBar);
+    auto separatorAction = new QAction(m_toolBar);
     separatorAction->setSeparator(true);
     m_toolBar->addAction(separatorAction);
 }

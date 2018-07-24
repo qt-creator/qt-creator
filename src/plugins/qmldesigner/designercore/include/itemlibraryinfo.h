@@ -71,7 +71,7 @@ public:
     ItemLibraryEntry(const ItemLibraryEntry &other);
     ItemLibraryEntry& operator=(const ItemLibraryEntry &other);
 
-    typedef QmlDesigner::PropertyContainer Property;
+    using Property = QmlDesigner::PropertyContainer;
 
     QList<Property> properties() const;
     QHash<QString, QString> hints() const;

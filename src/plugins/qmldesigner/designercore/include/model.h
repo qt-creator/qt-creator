@@ -59,7 +59,7 @@ class RewriterView;
 class NodeInstanceView;
 class TextModifier;
 
-typedef QList<QPair<PropertyName, QVariant> > PropertyListType;
+using PropertyListType = QList<QPair<PropertyName, QVariant> >;
 
 class QMLDESIGNERCORE_EXPORT Model : public QObject
 {

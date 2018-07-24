@@ -42,11 +42,11 @@ ToolBox::ToolBox(QWidget *parentWidget)
     m_leftToolBar->setMovable(true);
     m_leftToolBar->setOrientation(Qt::Horizontal);
 
-    QHBoxLayout *horizontalLayout = new QHBoxLayout(this);
+    auto horizontalLayout = new QHBoxLayout(this);
     horizontalLayout->setMargin(0);
     horizontalLayout->setSpacing(0);
 
-    QToolBar *stretchToolbar = new QToolBar(this);
+    auto stretchToolbar = new QToolBar(this);
 
     m_leftToolBar->setProperty("panelwidget", true);
     m_leftToolBar->setProperty("panelwidget_singlerow", false);

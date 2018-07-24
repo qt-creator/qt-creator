@@ -46,10 +46,7 @@ ResizeTool::ResizeTool(FormEditorView *editorView)
 {
 }
 
-
-ResizeTool::~ResizeTool()
-{
-}
+ResizeTool::~ResizeTool() = default;
 
 void ResizeTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
                                             QGraphicsSceneMouseEvent *event)

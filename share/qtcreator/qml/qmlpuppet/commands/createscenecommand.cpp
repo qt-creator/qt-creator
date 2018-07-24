@@ -29,9 +29,7 @@
 
 namespace QmlDesigner {
 
-CreateSceneCommand::CreateSceneCommand()
-{
-}
+CreateSceneCommand::CreateSceneCommand() = default;
 
 CreateSceneCommand::CreateSceneCommand(const QVector<InstanceContainer> &instanceContainer,
                                        const QVector<ReparentContainer> &reparentContainer,

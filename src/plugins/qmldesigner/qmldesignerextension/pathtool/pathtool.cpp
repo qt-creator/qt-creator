@@ -101,28 +101,28 @@ class PathToolAction : public AbstractAction
 public:
     PathToolAction() : AbstractAction(QCoreApplication::translate("PathToolAction","Edit Path")) {}
 
-    QByteArray category() const
+    QByteArray category() const override
     {
         return QByteArray();
     }
 
-    QByteArray menuId() const
+    QByteArray menuId() const override
     {
         return "PathTool";
     }
 
-    int priority() const
+    int priority() const override
     {
         return CustomActionsPriority;
     }
 
-    Type type() const
+    Type type() const override
     {
         return ContextMenuAction;
     }
 
 protected:
-    bool isVisible(const SelectionContext &selectionContext) const
+    bool isVisible(const SelectionContext &selectionContext) const override
     {
         if (selectionContext.scenePosition().isNull())
             return false;
@@ -133,7 +133,7 @@ protected:
         return false;
     }
 
-    bool isEnabled(const SelectionContext &selectionContext) const
+    bool isEnabled(const SelectionContext &selectionContext) const override
     {
         return isVisible(selectionContext);
     }
@@ -144,7 +144,7 @@ PathTool::PathTool()
       AbstractCustomTool(),
       m_pathToolView(this)
 {
-    PathToolAction *textToolAction = new PathToolAction;
+    auto textToolAction = new PathToolAction;
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(textToolAction);
     connect(textToolAction->action(), &QAction::triggered, [=]() {
         if (m_pathToolView.model())
@@ -155,9 +155,7 @@ PathTool::PathTool()
 
 }
 
-PathTool::~PathTool()
-{
-}
+PathTool::~PathTool() = default;
 
 void PathTool::clear()
 {
@@ -239,7 +237,7 @@ void PathTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> & /*itemList*/,
 
 void PathTool::itemsAboutToRemoved(const QList<FormEditorItem*> &removedItemList)
 {
-    if (m_pathItem == 0)
+    if (m_pathItem == nullptr)
         return;
 
     if (removedItemList.contains(m_pathItem->formEditorItem()))
@@ -280,7 +278,7 @@ void  PathTool::instancesParentChanged(const QList<FormEditorItem *> & /*itemLis
 
 void PathTool::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList)
 {
-    typedef QPair<ModelNode, PropertyName> ModelNodePropertyNamePair;
+    using ModelNodePropertyNamePair = QPair<ModelNode, PropertyName>;
     foreach (const ModelNodePropertyNamePair &propertyPair, propertyList) {
         if (propertyPair.first == m_pathItem->formEditorItem()->qmlItemNode().modelNode()
                 && propertyPair.second == "path")

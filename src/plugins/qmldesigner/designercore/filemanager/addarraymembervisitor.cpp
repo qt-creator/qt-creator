@@ -45,10 +45,10 @@ AddArrayMemberVisitor::AddArrayMemberVisitor(TextModifier &modifier,
 void AddArrayMemberVisitor::findArrayBindingAndInsert(const QString &propertyName, QmlJS::AST::UiObjectMemberList *ast)
 {
     for (QmlJS::AST::UiObjectMemberList *iter = ast; iter; iter = iter->next) {
-        if (QmlJS::AST::UiArrayBinding *arrayBinding = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(iter->member)) {
+        if (auto arrayBinding = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(iter->member)) {
             if (toString(arrayBinding->qualifiedId) == propertyName)
                 insertInto(arrayBinding);
-        } else if (QmlJS::AST::UiObjectBinding *objectBinding = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding*>(iter->member)) {
+        } else if (auto objectBinding = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding*>(iter->member)) {
             if (toString(objectBinding->qualifiedId) == propertyName && willConvertObjectBindingIntoArrayBinding())
                 convertAndAdd(objectBinding);
         }
@@ -80,7 +80,7 @@ bool AddArrayMemberVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void AddArrayMemberVisitor::insertInto(QmlJS::AST::UiArrayBinding *arrayBinding)
 {
-    QmlJS::AST::UiObjectMember *lastMember = 0;
+    QmlJS::AST::UiObjectMember *lastMember = nullptr;
     for (QmlJS::AST::UiArrayMemberList *iter = arrayBinding->members; iter; iter = iter->next)
         if (iter->member)
             lastMember = iter->member;

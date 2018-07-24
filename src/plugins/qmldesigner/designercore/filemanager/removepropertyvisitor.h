@@ -40,8 +40,8 @@ public:
                           const QString &name);
 
 protected:
-    virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
-    virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
+    bool visit(QmlJS::AST::UiObjectBinding *ast) override;
+    bool visit(QmlJS::AST::UiObjectDefinition *ast) override;
 
 private:
     void removeFrom(QmlJS::AST::UiObjectInitializer *ast);

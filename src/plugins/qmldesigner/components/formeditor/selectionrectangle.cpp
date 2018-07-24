@@ -64,7 +64,7 @@ void SelectionRectangle::show()
 
 void SelectionRectangle::hide()
 {
-    m_controlShape->setParentItem(0);
+    m_controlShape->setParentItem(nullptr);
     m_controlShape->hide();
 }
 

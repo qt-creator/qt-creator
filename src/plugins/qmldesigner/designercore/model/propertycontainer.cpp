@@ -35,9 +35,7 @@ using namespace QmlDesigner::Internal;
 
 
 // Creates invalid PropertyContainer
-PropertyContainer::PropertyContainer()
-{
-}
+PropertyContainer::PropertyContainer() = default;
 
 PropertyContainer::PropertyContainer(const PropertyName &name, const QString &type, const QVariant &value)
         : m_name(name), m_type(type), m_value(value)

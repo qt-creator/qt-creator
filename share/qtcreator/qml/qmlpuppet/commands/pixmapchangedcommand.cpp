@@ -33,9 +33,7 @@
 
 namespace QmlDesigner {
 
-PixmapChangedCommand::PixmapChangedCommand()
-{
-}
+PixmapChangedCommand::PixmapChangedCommand() = default;
 
 PixmapChangedCommand::PixmapChangedCommand(const QVector<ImageContainer> &imageVector)
     : m_imageVector(imageVector)

@@ -45,16 +45,16 @@ namespace Internal {
 class InternalProperty;
 class InternalNode;
 
-typedef QSharedPointer<InternalNode> InternalNodePointer;
-typedef QSharedPointer<InternalProperty> InternalPropertyPointer;
-typedef QWeakPointer<InternalNode> InternalNodeWeakPointer;
+using InternalNodePointer = QSharedPointer<InternalNode>;
+using InternalPropertyPointer = QSharedPointer<InternalProperty>;
+using InternalNodeWeakPointer = QWeakPointer<InternalNode>;
 
 class InternalNode
 {
     friend class InternalProperty;
 public:
-    typedef QSharedPointer<InternalNode> Pointer;
-    typedef QWeakPointer<InternalNode> WeakPointer;
+    using Pointer = QSharedPointer<InternalNode>;
+    using WeakPointer = QWeakPointer<InternalNode>;
 
     explicit InternalNode();
 

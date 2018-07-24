@@ -35,7 +35,7 @@ InternalVariantProperty::InternalVariantProperty(const PropertyName &name, const
 
 InternalVariantProperty::Pointer InternalVariantProperty::create(const PropertyName &name, const InternalNodePointer &propertyOwner)
 {
-    InternalVariantProperty *newPointer(new InternalVariantProperty(name, propertyOwner));
+    auto newPointer(new InternalVariantProperty(name, propertyOwner));
     InternalVariantProperty::Pointer smartPointer(newPointer);
 
     newPointer->setInternalWeakPointer(smartPointer);

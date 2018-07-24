@@ -33,9 +33,7 @@ ItemLibraryItem::ItemLibraryItem(QObject *parent)
 {
 }
 
-ItemLibraryItem::~ItemLibraryItem()
-{
-}
+ItemLibraryItem::~ItemLibraryItem() = default;
 
 QString ItemLibraryItem::itemName() const
 {
