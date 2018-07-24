@@ -25,6 +25,11 @@
 
 import re;
 
+def getBuildIssues():
+    ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
+    model = waitForObject(":Qt Creator.Issues_QListView").model()
+    return dumpBuildIssues(model)
+
 # this method checks the last build (if there's one) and logs the number of errors, warnings and
 # lines within the Issues output
 # param expectedToFail can be used to tell this function if the build was expected to fail or not
@@ -36,16 +41,13 @@ def checkLastBuild(expectedToFail=False, createTasksFileOnError=True):
     except LookupError:
         test.log("checkLastBuild called without a build")
         return
-    ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
-    model = waitForObject(":Qt Creator.Issues_QListView").model()
-    buildIssues = dumpBuildIssues(model)
+    buildIssues = getBuildIssues()
     types = map(lambda i: i[5], buildIssues)
     errors = types.count("1")
     warnings = types.count("2")
     gotErrors = errors != 0
     test.verify(not (gotErrors ^ expectedToFail), "Errors: %s | Warnings: %s" % (errors, warnings))
     # additional stuff - could be removed... or improved :)
-    test.log("Rows inside issues: %d" % model.rowCount())
     if gotErrors and createTasksFileOnError:
         createTasksFile(buildIssues)
     return not gotErrors
