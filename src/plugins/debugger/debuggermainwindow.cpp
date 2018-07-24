@@ -455,12 +455,13 @@ QList<QWidget *> ToolbarDescription::widgets() const
     return m_widgets;
 }
 
-void ToolbarDescription::addAction(QAction *action, const QIcon &toolbarIcon)
+QToolButton *ToolbarDescription::addAction(QAction *action, const QIcon &toolbarIcon)
 {
     auto button = new QToolButton;
     button->setDefaultAction(toolbarIcon.isNull()
                              ? action : ProxyAction::proxyActionWithIcon(action, toolbarIcon));
     m_widgets.append(button);
+    return button;
 }
 
 void ToolbarDescription::addWidget(QWidget *widget)
