@@ -124,7 +124,6 @@ public:
     void registerPerspective(const QByteArray &perspectiveId, const Perspective *perspective);
     void registerToolbar(const QByteArray &perspectiveId, QWidget *widget);
 
-    void saveCurrentPerspective();
     void resetCurrentPerspective();
     void restorePerspective(const QByteArray &perspectiveId);
 
@@ -141,10 +140,11 @@ public:
     void setPerspectiveEnabled(const QByteArray &perspectiveId, bool enabled);
 
 private:
-    void closeEvent(QCloseEvent *) final { saveCurrentPerspective(); }
+    void closeEvent(QCloseEvent *) final { savePerspectiveHelper(m_currentPerspectiveId); }
 
     QDockWidget *registerDockWidget(const QByteArray &dockId, QWidget *widget);
     void loadPerspectiveHelper(const QByteArray &perspectiveId, bool fromStoredSettings = true);
+    void savePerspectiveHelper(const QByteArray &perspectiveId);
 
     QByteArray m_currentPerspectiveId;
     QComboBox *m_perspectiveChooser;

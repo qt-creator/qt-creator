@@ -305,7 +305,7 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
 {
     // Clean up old perspective.
     if (!m_currentPerspectiveId.isEmpty()) {
-        saveCurrentPerspective();
+        savePerspectiveHelper(m_currentPerspectiveId);
         foreach (QDockWidget *dockWidget, m_dockForDockId) {
             QTC_ASSERT(dockWidget, continue);
             dockWidget->setFloating(false);
@@ -402,16 +402,16 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
     m_statusLabel->clear();
 }
 
-void DebuggerMainWindow::saveCurrentPerspective()
+void DebuggerMainWindow::savePerspectiveHelper(const QByteArray &perspectiveId)
 {
-    if (m_currentPerspectiveId.isEmpty())
+    if (perspectiveId.isEmpty())
         return;
     QSettings *settings = ICore::settings();
-    settings->beginGroup(QString::fromLatin1(m_currentPerspectiveId));
+    settings->beginGroup(QString::fromLatin1(perspectiveId));
     saveSettings(settings);
     settings->setValue(QLatin1String("ToolSettingsSaved"), true);
     settings->endGroup();
-    settings->setValue(QLatin1String(LAST_PERSPECTIVE_KEY), m_currentPerspectiveId);
+    settings->setValue(QLatin1String(LAST_PERSPECTIVE_KEY), perspectiveId);
 }
 
 QDockWidget *DebuggerMainWindow::registerDockWidget(const QByteArray &dockId, QWidget *widget)
