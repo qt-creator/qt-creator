@@ -265,6 +265,7 @@ void DebuggerRunTool::setStartMode(DebuggerStartMode startMode)
     if (startMode == AttachToQmlServer) {
         m_runParameters.startMode = AttachToRemoteProcess;
         m_runParameters.isCppDebugging = false;
+        m_runParameters.cppEngineType = NoEngineType;
         m_runParameters.isQmlDebugging = true;
         m_runParameters.closeMode = KillAtClose;
 
