@@ -159,21 +159,21 @@ QString FileInProjectFinder::findFileOrDirectory(const QString &originalPath, Fi
         return originalPath;
     }
 
+    auto it = m_cache.find(originalPath);
+    if (it != m_cache.end()) {
+        if (debug)
+            qDebug() << "FileInProjectFinder: checking cache ...";
+        // check if cached path is still there
+        const QString &candidate = it.value();
+        if (checkPath(candidate, findMode))
+            return handleSuccess(originalPath, candidate, success, "in the cache", false);
+        else
+            m_cache.erase(it);
+    }
+
     if (!m_projectDir.isEmpty()) {
         if (debug)
             qDebug() << "FileInProjectFinder: checking project directory ...";
-
-        auto it = m_cache.find(originalPath);
-        if (it != m_cache.end()) {
-            if (debug)
-                qDebug() << "FileInProjectFinder: checking cache ...";
-            // check if cached path is still there
-            const QString &candidate = it.value();
-            if (checkPath(candidate, findMode))
-                return handleSuccess(originalPath, candidate, success, "in the cache", false);
-            else
-                m_cache.erase(it);
-        }
 
         int prefixToIgnore = -1;
         const QChar separator = QLatin1Char('/');
