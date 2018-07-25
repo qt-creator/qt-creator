@@ -369,7 +369,8 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const QString &workingDirect
     if (!id.isEmpty())
         args << id;
 
-    const Utils::SynchronousProcessResponse response = vcsFullySynchronousExec(workingDirectory, args);
+    const Utils::SynchronousProcessResponse response = vcsFullySynchronousExec(
+                workingDirectory, args, Utils::ShellCommand::SuppressCommandLogging);
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return RevisionInfo();
 
