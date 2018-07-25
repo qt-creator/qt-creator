@@ -79,7 +79,7 @@ signals:
     void append(const QString &text);
     void appendSilently(const QString &text);
     void appendError(const QString &text);
-    void appendCommand(const QString &workingDirectory, const FileName &binary,
+    void appendCommand(const QString &workingDirectory, const Utils::FileName &binary,
                        const QStringList &args);
     void appendMessage(const QString &text);
 };
