@@ -58,7 +58,7 @@ int clangColumn(const QTextBlock &lineText, int cppEditorColumn);
 
 QString diagnosticCategoryPrefixRemoved(const QString &text);
 
-CPlusPlus::Icons::IconType iconTypeForToken(const ClangBackEnd::TokenInfoContainer &token);
+::Utils::CodeModelIcon::Type iconTypeForToken(const ClangBackEnd::TokenInfoContainer &token);
 
 } // namespace Utils
 } // namespace Clang

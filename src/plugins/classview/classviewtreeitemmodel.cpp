@@ -62,7 +62,7 @@ QVariant TreeItemModel::data(const QModelIndex &index, int role) const
                 bool ok = false;
                 int type = iconType.toInt(&ok);
                 if (ok && type >= 0)
-                    return CPlusPlus::Icons::iconForType(static_cast<CPlusPlus::Icons::IconType>(type));
+                    return ::Utils::CodeModelIcon::iconForType(static_cast<::Utils::CodeModelIcon::Type>(type));
             }
         }
         break;

@@ -145,4 +145,38 @@ QTCREATOR_UTILS_EXPORT extern const Icon CODEMODEL_DISABLED_WARNING;
 QTCREATOR_UTILS_EXPORT extern const Icon CODEMODEL_FIXIT;
 
 } // namespace Icons
+
+namespace CodeModelIcon {
+
+enum Type {
+    Class = 0,
+    Struct,
+    Enum,
+    Enumerator,
+    FuncPublic,
+    FuncProtected,
+    FuncPrivate,
+    FuncPublicStatic,
+    FuncProtectedStatic,
+    FuncPrivateStatic,
+    Namespace,
+    VarPublic,
+    VarProtected,
+    VarPrivate,
+    VarPublicStatic,
+    VarProtectedStatic,
+    VarPrivateStatic,
+    Signal,
+    SlotPublic,
+    SlotProtected,
+    SlotPrivate,
+    Keyword,
+    Macro,
+    Property,
+    Unknown
+};
+
+QTCREATOR_UTILS_EXPORT QIcon iconForType(Type type);
+
+} // namespace CodeModel
 } // namespace Utils

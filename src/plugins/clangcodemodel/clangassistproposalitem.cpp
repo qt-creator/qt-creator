@@ -362,11 +362,11 @@ QIcon ClangAssistProposalItem::icon() const
         case CodeCompletion::ClassCompletionKind:
         case CodeCompletion::TemplateClassCompletionKind:
         case CodeCompletion::TypeAliasCompletionKind:
-            return Icons::iconForType(Icons::ClassIconType);
+            return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Class);
         case CodeCompletion::EnumerationCompletionKind:
-            return Icons::iconForType(Icons::EnumIconType);
+            return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Enum);
         case CodeCompletion::EnumeratorCompletionKind:
-            return Icons::iconForType(Icons::EnumeratorIconType);
+            return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Enumerator);
         case CodeCompletion::ConstructorCompletionKind:
         case CodeCompletion::DestructorCompletionKind:
         case CodeCompletion::FunctionCompletionKind:
@@ -376,40 +376,40 @@ QIcon ClangAssistProposalItem::icon() const
             switch (completion.availability) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
-                    return Icons::iconForType(Icons::FuncPublicIconType);
+                    return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::FuncPublic);
                 default:
-                    return Icons::iconForType(Icons::FuncPrivateIconType);
+                    return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::FuncPrivate);
             }
         case CodeCompletion::SignalCompletionKind:
-            return Icons::iconForType(Icons::SignalIconType);
+            return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Signal);
         case CodeCompletion::SlotCompletionKind:
             switch (completion.availability) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
-                    return Icons::iconForType(Icons::SlotPublicIconType);
+                    return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::SlotPublic);
                 case CodeCompletion::NotAccessible:
                 case CodeCompletion::NotAvailable:
-                    return Icons::iconForType(Icons::SlotPrivateIconType);
+                    return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::SlotPrivate);
             }
             break;
         case CodeCompletion::NamespaceCompletionKind:
-            return Icons::iconForType(Icons::NamespaceIconType);
+            return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Namespace);
         case CodeCompletion::PreProcessorCompletionKind:
-            return Icons::iconForType(Icons::MacroIconType);
+            return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Macro);
         case CodeCompletion::VariableCompletionKind:
             switch (completion.availability) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
-                    return Icons::iconForType(Icons::VarPublicIconType);
+                    return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::VarPublic);
                 default:
-                    return Icons::iconForType(Icons::VarPrivateIconType);
+                    return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::VarPrivate);
             }
         case CodeCompletion::KeywordCompletionKind:
-            return Icons::iconForType(Icons::KeywordIconType);
+            return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Keyword);
         case CodeCompletion::ClangSnippetKind:
             return snippetIcon;
         case CodeCompletion::Other:
-            return Icons::iconForType(Icons::UnknownIconType);
+            return ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Unknown);
         default:
             break;
     }

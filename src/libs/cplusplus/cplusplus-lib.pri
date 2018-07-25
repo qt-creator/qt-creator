@@ -84,5 +84,3 @@ SOURCES += \
     $$PWD/findcdbbreakpoint.cpp \
     $$PWD/PPToken.cpp \
     $$PWD/cppmodelmanagerbase.cpp
-
-RESOURCES += $$PWD/cplusplus.qrc

@@ -26,6 +26,7 @@
 #pragma once
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
+#include <utils/utilsicons.h>
 
 #include <QIcon>
 
@@ -41,36 +42,7 @@ public:
     static QIcon keywordIcon();
     static QIcon macroIcon();
 
-    enum IconType {
-        ClassIconType = 0,
-        StructIconType,
-        EnumIconType,
-        EnumeratorIconType,
-        FuncPublicIconType,
-        FuncProtectedIconType,
-        FuncPrivateIconType,
-        FuncPublicStaticIconType,
-        FuncProtectedStaticIconType,
-        FuncPrivateStaticIconType,
-        NamespaceIconType,
-        VarPublicIconType,
-        VarProtectedIconType,
-        VarPrivateIconType,
-        VarPublicStaticIconType,
-        VarProtectedStaticIconType,
-        VarPrivateStaticIconType,
-        SignalIconType,
-        SlotPublicIconType,
-        SlotProtectedIconType,
-        SlotPrivateIconType,
-        KeywordIconType,
-        MacroIconType,
-        PropertyIconType,
-        UnknownIconType
-    };
-
-    static IconType iconTypeForSymbol(const Symbol *symbol);
-    static QIcon iconForType(IconType type);
+    static Utils::CodeModelIcon::Type iconTypeForSymbol(const Symbol *symbol);
 
 private:
     Icons() {}

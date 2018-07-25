@@ -171,7 +171,7 @@ QVariant TokenTreeItem::data(int column, int role) const
     }
 
     case Qt::DecorationRole: {
-        return CPlusPlus::Icons::iconForType(ClangCodeModel::Utils::iconTypeForToken(token));
+        return ::Utils::CodeModelIcon::iconForType(ClangCodeModel::Utils::iconTypeForToken(token));
     }
 
     case CppTools::AbstractOverviewModel::FileNameRole: {

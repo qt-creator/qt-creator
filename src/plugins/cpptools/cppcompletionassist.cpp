@@ -1837,7 +1837,7 @@ bool InternalCppCompletionAssistProcessor::completeQtMethodClassName(
         return false;
 
     const LookupContext &context = m_model->m_typeOfExpression->context();
-    const QIcon classIcon = Icons::iconForType(Icons::ClassIconType);
+    const QIcon classIcon = Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Class);
     Overview overview;
 
     foreach (const LookupItem &lookupItem, results) {

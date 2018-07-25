@@ -122,7 +122,6 @@ Project {
                 "SymbolNameVisitor.cpp", "SymbolNameVisitor.h",
                 "TypeOfExpression.cpp", "TypeOfExpression.h",
                 "TypePrettyPrinter.cpp", "TypePrettyPrinter.h",
-                "cplusplus.qrc",
                 "findcdbbreakpoint.cpp", "findcdbbreakpoint.h",
                 "pp-cctype.h",
                 "pp-engine.cpp", "pp-engine.h",

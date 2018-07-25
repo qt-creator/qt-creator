@@ -205,52 +205,52 @@ int clangColumn(const QTextBlock &line, int cppEditorColumn)
     return line.text().left(cppEditorColumn).toUtf8().size() + 1;
 }
 
-CPlusPlus::Icons::IconType iconTypeForToken(const ClangBackEnd::TokenInfoContainer &token)
+::Utils::CodeModelIcon::Type iconTypeForToken(const ClangBackEnd::TokenInfoContainer &token)
 {
     const ClangBackEnd::ExtraInfo &extraInfo = token.extraInfo;
     if (extraInfo.signal)
-        return CPlusPlus::Icons::SignalIconType;
+        return ::Utils::CodeModelIcon::Signal;
 
     ClangBackEnd::AccessSpecifier access = extraInfo.accessSpecifier;
     if (extraInfo.slot) {
         switch (access) {
         case ClangBackEnd::AccessSpecifier::Public:
         case ClangBackEnd::AccessSpecifier::Invalid:
-            return CPlusPlus::Icons::SlotPublicIconType;
+            return ::Utils::CodeModelIcon::SlotPublic;
         case ClangBackEnd::AccessSpecifier::Protected:
-            return CPlusPlus::Icons::SlotProtectedIconType;
+            return ::Utils::CodeModelIcon::SlotProtected;
         case ClangBackEnd::AccessSpecifier::Private:
-            return CPlusPlus::Icons::SlotPrivateIconType;
+            return ::Utils::CodeModelIcon::SlotPrivate;
         }
     }
 
     ClangBackEnd::HighlightingType mainType = token.types.mainHighlightingType;
 
     if (mainType == ClangBackEnd::HighlightingType::QtProperty)
-        return CPlusPlus::Icons::PropertyIconType;
+        return ::Utils::CodeModelIcon::Property;
 
     if (mainType == ClangBackEnd::HighlightingType::PreprocessorExpansion
             || mainType == ClangBackEnd::HighlightingType::PreprocessorDefinition) {
-        return CPlusPlus::Icons::MacroIconType;
+        return ::Utils::CodeModelIcon::Macro;
     }
 
     if (mainType == ClangBackEnd::HighlightingType::Enumeration)
-        return CPlusPlus::Icons::EnumeratorIconType;
+        return ::Utils::CodeModelIcon::Enumerator;
 
     if (mainType == ClangBackEnd::HighlightingType::Type
             || mainType == ClangBackEnd::HighlightingType::Keyword) {
         const ClangBackEnd::MixinHighlightingTypes &types = token.types.mixinHighlightingTypes;
         if (types.contains(ClangBackEnd::HighlightingType::Enum))
-            return CPlusPlus::Icons::EnumIconType;
+            return ::Utils::CodeModelIcon::Enum;
         if (types.contains(ClangBackEnd::HighlightingType::Struct))
-            return CPlusPlus::Icons::StructIconType;
+            return ::Utils::CodeModelIcon::Struct;
         if (types.contains(ClangBackEnd::HighlightingType::Namespace))
-            return CPlusPlus::Icons::NamespaceIconType;
+            return ::Utils::CodeModelIcon::Namespace;
         if (types.contains(ClangBackEnd::HighlightingType::Class))
-            return CPlusPlus::Icons::ClassIconType;
+            return ::Utils::CodeModelIcon::Class;
         if (mainType == ClangBackEnd::HighlightingType::Keyword)
-            return CPlusPlus::Icons::KeywordIconType;
-        return CPlusPlus::Icons::ClassIconType;
+            return ::Utils::CodeModelIcon::Keyword;
+        return ::Utils::CodeModelIcon::Class;
     }
 
     ClangBackEnd::StorageClass storageClass = extraInfo.storageClass;
@@ -261,21 +261,21 @@ CPlusPlus::Icons::IconType iconTypeForToken(const ClangBackEnd::TokenInfoContain
             switch (access) {
             case ClangBackEnd::AccessSpecifier::Public:
             case ClangBackEnd::AccessSpecifier::Invalid:
-                return CPlusPlus::Icons::FuncPublicIconType;
+                return ::Utils::CodeModelIcon::FuncPublic;
             case ClangBackEnd::AccessSpecifier::Protected:
-                return CPlusPlus::Icons::FuncProtectedIconType;
+                return ::Utils::CodeModelIcon::FuncProtected;
             case ClangBackEnd::AccessSpecifier::Private:
-                return CPlusPlus::Icons::FuncPrivateIconType;
+                return ::Utils::CodeModelIcon::FuncPrivate;
             }
         } else {
             switch (access) {
             case ClangBackEnd::AccessSpecifier::Public:
             case ClangBackEnd::AccessSpecifier::Invalid:
-                return CPlusPlus::Icons::FuncPublicStaticIconType;
+                return ::Utils::CodeModelIcon::FuncPublicStatic;
             case ClangBackEnd::AccessSpecifier::Protected:
-                return CPlusPlus::Icons::FuncProtectedStaticIconType;
+                return ::Utils::CodeModelIcon::FuncProtectedStatic;
             case ClangBackEnd::AccessSpecifier::Private:
-                return CPlusPlus::Icons::FuncPrivateStaticIconType;
+                return ::Utils::CodeModelIcon::FuncPrivateStatic;
             }
         }
     }
@@ -285,26 +285,26 @@ CPlusPlus::Icons::IconType iconTypeForToken(const ClangBackEnd::TokenInfoContain
             switch (access) {
             case ClangBackEnd::AccessSpecifier::Public:
             case ClangBackEnd::AccessSpecifier::Invalid:
-                return CPlusPlus::Icons::VarPublicIconType;
+                return ::Utils::CodeModelIcon::VarPublic;
             case ClangBackEnd::AccessSpecifier::Protected:
-                return CPlusPlus::Icons::VarProtectedIconType;
+                return ::Utils::CodeModelIcon::VarProtected;
             case ClangBackEnd::AccessSpecifier::Private:
-                return CPlusPlus::Icons::VarPrivateIconType;
+                return ::Utils::CodeModelIcon::VarPrivate;
             }
         } else {
             switch (access) {
             case ClangBackEnd::AccessSpecifier::Public:
             case ClangBackEnd::AccessSpecifier::Invalid:
-                return CPlusPlus::Icons::VarPublicStaticIconType;
+                return ::Utils::CodeModelIcon::VarPublicStatic;
             case ClangBackEnd::AccessSpecifier::Protected:
-                return CPlusPlus::Icons::VarProtectedStaticIconType;
+                return ::Utils::CodeModelIcon::VarProtectedStatic;
             case ClangBackEnd::AccessSpecifier::Private:
-                return CPlusPlus::Icons::VarPrivateStaticIconType;
+                return ::Utils::CodeModelIcon::VarPrivateStatic;
             }
         }
     }
 
-    return CPlusPlus::Icons::UnknownIconType;
+    return ::Utils::CodeModelIcon::Unknown;
 }
 
 QString diagnosticCategoryPrefixRemoved(const QString &text)

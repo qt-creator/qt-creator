@@ -256,4 +256,194 @@ const Icon CODEMODEL_FIXIT({
         {":/utils/images/lightbulb.png", Theme::IconsWarningColor}}, Icon::Tint);
 
 } // namespace Icons
+
+QIcon CodeModelIcon::iconForType(CodeModelIcon::Type type)
+{
+    static const IconMaskAndColor classRelationIcon {
+        QLatin1String(":/codemodel/images/classrelation.png"), Theme::IconsCodeModelOverlayForegroundColor};
+    static const IconMaskAndColor classRelationBackgroundIcon {
+        QLatin1String(":/codemodel/images/classrelationbackground.png"), Theme::IconsCodeModelOverlayBackgroundColor};
+    static const IconMaskAndColor classMemberFunctionIcon {
+        QLatin1String(":/codemodel/images/classmemberfunction.png"), Theme::IconsCodeModelFunctionColor};
+    static const IconMaskAndColor classMemberVariableIcon {
+        QLatin1String(":/codemodel/images/classmembervariable.png"), Theme::IconsCodeModelVariableColor};
+    static const IconMaskAndColor functionIcon {
+        QLatin1String(":/codemodel/images/member.png"), Theme::IconsCodeModelFunctionColor};
+    static const IconMaskAndColor variableIcon {
+        QLatin1String(":/codemodel/images/member.png"), Theme::IconsCodeModelVariableColor};
+    static const IconMaskAndColor signalIcon {
+        QLatin1String(":/codemodel/images/signal.png"), Theme::IconsCodeModelFunctionColor};
+    static const IconMaskAndColor slotIcon {
+        QLatin1String(":/codemodel/images/slot.png"), Theme::IconsCodeModelFunctionColor};
+    static const IconMaskAndColor propertyIcon {
+        QLatin1String(":/codemodel/images/property.png"), Theme::IconsCodeModelOverlayForegroundColor};
+    static const IconMaskAndColor propertyBackgroundIcon {
+        QLatin1String(":/codemodel/images/propertybackground.png"), Theme::IconsCodeModelOverlayBackgroundColor};
+    static const IconMaskAndColor protectedIcon {
+        QLatin1String(":/codemodel/images/protected.png"), Theme::IconsCodeModelOverlayForegroundColor};
+    static const IconMaskAndColor protectedBackgroundIcon {
+        QLatin1String(":/codemodel/images/protectedbackground.png"), Theme::IconsCodeModelOverlayBackgroundColor};
+    static const IconMaskAndColor privateIcon {
+        QLatin1String(":/codemodel/images/private.png"), Theme::IconsCodeModelOverlayForegroundColor};
+    static const IconMaskAndColor privateBackgroundIcon {
+        QLatin1String(":/codemodel/images/privatebackground.png"), Theme::IconsCodeModelOverlayBackgroundColor};
+    static const IconMaskAndColor staticIcon {
+        QLatin1String(":/codemodel/images/static.png"), Theme::IconsCodeModelOverlayForegroundColor};
+    static const IconMaskAndColor staticBackgroundIcon {
+        QLatin1String(":/codemodel/images/staticbackground.png"), Theme::IconsCodeModelOverlayBackgroundColor};
+
+    switch (type) {
+    case Class: {
+        const static QIcon icon(Icon({
+            classRelationBackgroundIcon, classRelationIcon,
+            {QLatin1String(":/codemodel/images/classparent.png"), Theme::IconsCodeModelClassColor},
+            classMemberFunctionIcon, classMemberVariableIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case Struct: {
+        const static QIcon icon(Icon({
+            classRelationBackgroundIcon, classRelationIcon,
+            {QLatin1String(":/codemodel/images/classparent.png"), Theme::IconsCodeModelStructColor},
+            classMemberFunctionIcon, classMemberVariableIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case Enum: {
+        const static QIcon icon(Icon({
+            {QLatin1String(":/codemodel/images/enum.png"), Theme::IconsCodeModelEnumColor}
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case Enumerator: {
+        const static QIcon icon(Icon({
+            {QLatin1String(":/codemodel/images/enumerator.png"), Theme::IconsCodeModelEnumColor}
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case FuncPublic: {
+        const static QIcon icon(Icon({
+                functionIcon}, Icon::Tint).icon());
+        return icon;
+    }
+    case FuncProtected: {
+        const static QIcon icon(Icon({
+                functionIcon, protectedBackgroundIcon, protectedIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case FuncPrivate: {
+        const static QIcon icon(Icon({
+            functionIcon, privateBackgroundIcon, privateIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case FuncPublicStatic: {
+        const static QIcon icon(Icon({
+            functionIcon, staticBackgroundIcon, staticIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case FuncProtectedStatic: {
+        const static QIcon icon(Icon({
+            functionIcon, staticBackgroundIcon, staticIcon, protectedBackgroundIcon, protectedIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case FuncPrivateStatic: {
+        const static QIcon icon(Icon({
+            functionIcon, staticBackgroundIcon, staticIcon, privateBackgroundIcon, privateIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case Namespace: {
+        const static QIcon icon(Icon({
+            {QLatin1String(":/utils/images/namespace.png"), Theme::IconsCodeModelKeywordColor}
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case VarPublic: {
+        const static QIcon icon(Icon({
+            variableIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case VarProtected: {
+        const static QIcon icon(Icon({
+            variableIcon, protectedBackgroundIcon, protectedIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case VarPrivate: {
+        const static QIcon icon(Icon({
+            variableIcon, privateBackgroundIcon, privateIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case VarPublicStatic: {
+        const static QIcon icon(Icon({
+            variableIcon, staticBackgroundIcon, staticIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case VarProtectedStatic: {
+        const static QIcon icon(Icon({
+            variableIcon, staticBackgroundIcon, staticIcon, protectedBackgroundIcon, protectedIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case VarPrivateStatic: {
+        const static QIcon icon(Icon({
+            variableIcon, staticBackgroundIcon, staticIcon, privateBackgroundIcon, privateIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case Signal: {
+        const static QIcon icon(Icon({
+            signalIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case SlotPublic: {
+        const static QIcon icon(Icon({
+            slotIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case SlotProtected: {
+        const static QIcon icon(Icon({
+            slotIcon, protectedBackgroundIcon, protectedIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case SlotPrivate: {
+        const static QIcon icon(Icon({
+            slotIcon, privateBackgroundIcon, privateIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case Keyword: {
+        const static QIcon icon(Icon({
+            {QLatin1String(":/codemodel/images/keyword.png"), Theme::IconsCodeModelKeywordColor}
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case Macro: {
+        const static QIcon icon(Icon({
+            {QLatin1String(":/codemodel/images/macro.png"), Theme::IconsCodeModelMacroColor}
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    case Property: {
+        const static QIcon icon(Icon({
+            variableIcon, propertyBackgroundIcon, propertyIcon
+        }, Icon::Tint).icon());
+        return icon;
+    }
+    default:
+        break;
+    }
+    return QIcon();
+}
+
 } // namespace Utils

@@ -62,8 +62,8 @@ static QIcon testTreeIcon(TestTreeItem::Type type)
     static QIcon icons[] = {
         QIcon(),
         Utils::Icons::OPENFILE.icon(),
-        CPlusPlus::Icons::iconForType(CPlusPlus::Icons::ClassIconType),
-        CPlusPlus::Icons::iconForType(CPlusPlus::Icons::SlotPrivateIconType),
+        Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Class),
+        Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::SlotPrivate),
         QIcon(":/autotest/images/data.png")
     };
 

@@ -210,4 +210,46 @@
         <file>images/toolbuttonexpandarrow.png</file>
         <file>images/toolbuttonexpandarrow@2x.png</file>
     </qresource>
+    <qresource prefix="/codemodel">
+        <file>images/enum.png</file>
+        <file>images/enum@2x.png</file>
+        <file>images/enumerator.png</file>
+        <file>images/enumerator@2x.png</file>
+        <file>images/keyword.png</file>
+        <file>images/keyword@2x.png</file>
+        <file>images/macro.png</file>
+        <file>images/macro@2x.png</file>
+        <file>images/signal.png</file>
+        <file>images/signal@2x.png</file>
+        <file>images/slot.png</file>
+        <file>images/slot@2x.png</file>
+        <file>images/member.png</file>
+        <file>images/member@2x.png</file>
+        <file>images/private.png</file>
+        <file>images/private@2x.png</file>
+        <file>images/privatebackground.png</file>
+        <file>images/privatebackground@2x.png</file>
+        <file>images/property.png</file>
+        <file>images/property@2x.png</file>
+        <file>images/propertybackground.png</file>
+        <file>images/propertybackground@2x.png</file>
+        <file>images/protected.png</file>
+        <file>images/protected@2x.png</file>
+        <file>images/protectedbackground.png</file>
+        <file>images/protectedbackground@2x.png</file>
+        <file>images/static.png</file>
+        <file>images/static@2x.png</file>
+        <file>images/staticbackground.png</file>
+        <file>images/staticbackground@2x.png</file>
+        <file>images/classmemberfunction.png</file>
+        <file>images/classmemberfunction@2x.png</file>
+        <file>images/classmembervariable.png</file>
+        <file>images/classmembervariable@2x.png</file>
+        <file>images/classparent.png</file>
+        <file>images/classparent@2x.png</file>
+        <file>images/classrelation.png</file>
+        <file>images/classrelation@2x.png</file>
+        <file>images/classrelationbackground.png</file>
+        <file>images/classrelationbackground@2x.png</file>
+    </qresource>
 </RCC>

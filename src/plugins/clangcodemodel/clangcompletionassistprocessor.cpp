@@ -496,11 +496,11 @@ bool ClangCompletionAssistProcessor::completePreprocessorDirectives()
 {
     foreach (const QString &preprocessorCompletion, m_preprocessorCompletions)
         addCompletionItem(preprocessorCompletion,
-                          Icons::iconForType(Icons::MacroIconType));
+                          ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Macro));
 
     if (m_interface->objcEnabled())
         addCompletionItem(QLatin1String("import"),
-                          Icons::iconForType(Icons::MacroIconType));
+                          ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Macro));
 
     return !m_completions.isEmpty();
 }

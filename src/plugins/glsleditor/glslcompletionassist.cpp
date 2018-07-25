@@ -161,15 +161,15 @@ static QIcon glslIcon(IconTypes iconType)
 
     switch (iconType) {
     case IconTypeType:
-        return Icons::iconForType(Icons::ClassIconType);
+        return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Class);
     case IconTypeConst:
-        return Icons::iconForType(Icons::EnumeratorIconType);
+        return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Enumerator);
     case IconTypeKeyword:
-        return Icons::iconForType(Icons::KeywordIconType);
+        return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Keyword);
     case IconTypeFunction:
-        return Icons::iconForType(Icons::FuncPublicIconType);
+        return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::FuncPublic);
     case IconTypeVariable:
-        return Icons::iconForType(Icons::VarPublicIconType);
+        return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::VarPublic);
     case IconTypeAttribute: {
         static const QIcon icon =
                 Icon({{member, Theme::IconsCodeModelAttributeColor}}, Icon::Tint).icon();
@@ -187,7 +187,7 @@ static QIcon glslIcon(IconTypes iconType)
     }
     case IconTypeOther:
     default:
-        return Icons::iconForType(Icons::NamespaceIconType);
+        return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Namespace);
     }
 }
 

@@ -97,7 +97,7 @@ static Core::LocatorFilterEntry makeEntry(Core::ILocatorFilter *filter,
     }
     entry.displayName = displayName;
     entry.extraInfo = extra;
-    entry.displayIcon = CPlusPlus::Icons::iconForType(Utils::iconTypeForToken(info));
+    entry.displayIcon = ::Utils::CodeModelIcon::iconForType(Utils::iconTypeForToken(info));
     return entry;
 }
 

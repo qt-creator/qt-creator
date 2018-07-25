@@ -173,7 +173,7 @@ QList<QToolButton *> NavigationWidget::createToolButtons()
         // create a button
         fullProjectsModeButton = new QToolButton();
         fullProjectsModeButton->setIcon(
-                    CPlusPlus::Icons::iconForType(CPlusPlus::Icons::ClassIconType));
+                    ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Class));
         fullProjectsModeButton->setCheckable(true);
         fullProjectsModeButton->setToolTip(tr("Show Subprojects"));
 

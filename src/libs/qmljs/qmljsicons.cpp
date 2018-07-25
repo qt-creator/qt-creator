@@ -123,20 +123,20 @@ QIcon Icons::icon(Node *node)
 
 QIcon Icons::objectDefinitionIcon()
 {
-    return CPlusPlus::Icons::iconForType(CPlusPlus::Icons::ClassIconType);
+    return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Class);
 }
 
 QIcon Icons::scriptBindingIcon()
 {
-    return CPlusPlus::Icons::iconForType(CPlusPlus::Icons::VarPublicIconType);
+    return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::VarPublic);
 }
 
 QIcon Icons::publicMemberIcon()
 {
-    return CPlusPlus::Icons::iconForType(CPlusPlus::Icons::FuncPublicIconType);
+    return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::FuncPublic);
 }
 
 QIcon Icons::functionDeclarationIcon()
 {
-    return CPlusPlus::Icons::iconForType(CPlusPlus::Icons::FuncPublicIconType);
+    return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::FuncPublic);
 }
