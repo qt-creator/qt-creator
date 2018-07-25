@@ -1805,9 +1805,16 @@ bool DebuggerEngine::isNativeMixedActiveFrame() const
     return frame.language == QmlLanguage;
 }
 
+bool DebuggerRunParameters::isCppDebugging() const
+{
+    return cppEngineType == CdbEngineType
+            || cppEngineType == GdbEngineType
+            || cppEngineType == LldbEngineType;
+}
+
 bool DebuggerRunParameters::isNativeMixedDebugging() const
 {
-    return nativeMixedEnabled && isCppDebugging && isQmlDebugging;
+    return nativeMixedEnabled && isCppDebugging() && isQmlDebugging;
 }
 
 } // namespace Internal

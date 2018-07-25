@@ -129,7 +129,6 @@ public:
 
     DebuggerEngineType cppEngineType = NoEngineType;
 
-    bool isCppDebugging = true;
     bool isQmlDebugging = false;
     bool breakOnMain = false;
     bool multiProcess = false; // Whether to set detach-on-fork off.
@@ -156,6 +155,7 @@ public:
 
     bool nativeMixedEnabled = false;
 
+    bool isCppDebugging() const;
     bool isNativeMixedDebugging() const;
     void validateExecutable();
 

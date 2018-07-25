@@ -2868,7 +2868,7 @@ static QString formatStartParameters(const DebuggerRunTool *debugger)
     str << "Start parameters: '" << sp.displayName << "' mode: " << sp.startMode
         << "\nABI: " << sp.toolChainAbi.toString() << '\n';
     str << "Languages: ";
-    if (sp.isCppDebugging)
+    if (sp.isCppDebugging())
         str << "c++ ";
     if (sp.isQmlDebugging)
         str << "qml";
@@ -3345,7 +3345,7 @@ void DebuggerPluginPrivate::updateActiveLanguages()
 //    Id perspective = (languages & QmlLanguage) && !(languages & CppLanguage)
 //            ? QmlPerspectiveId : CppPerspectiveId;
 //    m_mainWindow->restorePerspective(perspective);
-    if (rp.isCppDebugging)
+    if (rp.isCppDebugging())
         ICore::addAdditionalContext(Context(C_CPPDEBUGGER));
     else
         ICore::removeAdditionalContext(Context(C_CPPDEBUGGER));
