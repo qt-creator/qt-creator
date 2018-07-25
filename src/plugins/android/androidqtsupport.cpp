@@ -37,7 +37,7 @@ Utils::FileName Android::AndroidQtSupport::apkPath(const ProjectExplorer::Target
     if (!target)
         return Utils::FileName();
 
-    AndroidBuildApkStep *buildApkStep
+    auto buildApkStep
         = Android::AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
 
     if (!buildApkStep)

@@ -514,7 +514,7 @@ void SdkManagerOutputParser::compilePackageAssociations()
             return platform && platform->apiLevel() == imageApi;
         });
         if (itr != m_packages.end()) {
-            SdkPlatform *platform = static_cast<SdkPlatform*>(*itr);
+            auto platform = static_cast<SdkPlatform*>(*itr);
             platform->addSystemImage(static_cast<SystemImage *>(image));
         }
     }

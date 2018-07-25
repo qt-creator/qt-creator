@@ -52,7 +52,7 @@ public:
     };
 
     explicit AndroidSdkModel(const AndroidConfig &config, AndroidSdkManager *sdkManager,
-                             QObject *parent = 0);
+                             QObject *parent = nullptr);
 
     // QAbstractItemModel overrides.
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;

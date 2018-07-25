@@ -312,7 +312,7 @@ void AndroidConfig::updateNdkInformation() const
         const QString &fileName = it.next();
         m_availableNdkPlatforms.push_back(fileName.midRef(fileName.lastIndexOf(QLatin1Char('-')) + 1).toInt());
     }
-    Utils::sort(m_availableNdkPlatforms, std::greater<int>());
+    Utils::sort(m_availableNdkPlatforms, std::greater<>());
 
     // detect toolchain host
     QStringList hostPatterns;
@@ -1174,10 +1174,7 @@ AndroidConfigurations::AndroidConfigurations()
     m_instance = this;
 }
 
-AndroidConfigurations::~AndroidConfigurations()
-{
-
-}
+AndroidConfigurations::~AndroidConfigurations() = default;
 
 static FileName javaHomeForJavac(const FileName &location)
 {
@@ -1286,7 +1283,7 @@ void AndroidConfigurations::updateAndroidDevice()
         devMgr->removeDevice(Core::Id(Constants::ANDROID_DEVICE_ID));
 }
 
-AndroidConfigurations *AndroidConfigurations::m_instance = 0;
+AndroidConfigurations *AndroidConfigurations::m_instance = nullptr;
 
 QDebug &operator<<(QDebug &stream, const AndroidDeviceInfo &device)
 {

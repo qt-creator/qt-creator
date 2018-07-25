@@ -44,15 +44,15 @@ class AndroidDeployQtWidget : public ProjectExplorer::BuildStepConfigWidget
 
 public:
     AndroidDeployQtWidget(AndroidDeployQtStep *step);
-    ~AndroidDeployQtWidget();
+    ~AndroidDeployQtWidget() override;
 
 private:
     void installMinistro();
     void cleanLibsOnDevice();
     void resetDefaultDevices();
 
-    virtual QString summaryText() const;
-    virtual QString displayName() const;
+    QString summaryText() const override;
+    QString displayName() const override;
 
     Ui::AndroidDeployQtWidget *m_ui;
     AndroidDeployQtStep *m_step;

@@ -31,12 +31,9 @@
 using namespace Android;
 using namespace Android::Internal;
 
-JavaIndenter::JavaIndenter()
-{
-}
+JavaIndenter::JavaIndenter() = default;
 
-JavaIndenter::~JavaIndenter()
-{}
+JavaIndenter::~JavaIndenter() = default;
 
 bool JavaIndenter::isElectricCharacter(const QChar &ch) const
 {

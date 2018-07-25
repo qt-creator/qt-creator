@@ -37,7 +37,7 @@ class AndroidManifestEditorFactory : public Core::IEditorFactory
 public:
     AndroidManifestEditorFactory();
 
-    Core::IEditor *createEditor();
+    Core::IEditor *createEditor() override;
 };
 
 } // namespace Internal

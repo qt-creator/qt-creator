@@ -58,16 +58,16 @@ class PermissionsModel: public QAbstractListModel
 {
     Q_OBJECT
 public:
-    PermissionsModel(QObject *parent = 0 );
+    PermissionsModel(QObject *parent = nullptr);
     void setPermissions(const QStringList &permissions);
     const QStringList &permissions();
     QModelIndex addPermission(const QString &permission);
     bool updatePermission(const QModelIndex &index, const QString &permission);
     void removePermission(int index);
-    QVariant data(const QModelIndex &index, int role) const;
+    QVariant data(const QModelIndex &index, int role) const override;
 
 protected:
-    int rowCount(const QModelIndex &parent) const;
+    int rowCount(const QModelIndex &parent) const override;
 
 private:
     QStringList m_permissions;
@@ -77,7 +77,7 @@ class AndroidManifestTextEditorWidget : public TextEditor::TextEditorWidget
 {
 public:
     explicit AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent);
-    ~AndroidManifestTextEditorWidget();
+    ~AndroidManifestTextEditorWidget() override;
 
 private:
     Core::IContext *m_context;
@@ -111,8 +111,8 @@ signals:
     void guiChanged();
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *event);
-    void focusInEvent(QFocusEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
+    void focusInEvent(QFocusEvent *event) override;
 
 private:
     void setLDPIIcon();

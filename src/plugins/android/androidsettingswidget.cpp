@@ -564,7 +564,7 @@ void AndroidSettingsWidget::checkMissingQtVersion()
     m_ui->kitWarningDetails->setVisible(isArchMissing);
     if (isArchMissing) {
         m_ui->kitWarningDetails->setSummaryText(tr("Cannot create kits for all architectures."));
-        QLabel *detailsLabel = static_cast<QLabel *>(m_ui->kitWarningDetails->widget());
+        auto detailsLabel = static_cast<QLabel *>(m_ui->kitWarningDetails->widget());
         QStringList archNames;
         for (auto abi : missingQtArchs)
             archNames << abi.toString();

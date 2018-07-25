@@ -47,8 +47,8 @@ class AndroidCreateKeystoreCertificate : public QDialog
     };
 
 public:
-    explicit AndroidCreateKeystoreCertificate(QWidget *parent = 0);
-    ~AndroidCreateKeystoreCertificate();
+    explicit AndroidCreateKeystoreCertificate(QWidget *parent = nullptr);
+    ~AndroidCreateKeystoreCertificate() override;
     Utils::FileName keystoreFilePath();
     QString keystorePassword();
     QString certificateAlias();

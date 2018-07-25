@@ -61,10 +61,7 @@ AndroidDevice::AndroidDevice()
     setQmlsceneCommand(activityPath);
 }
 
-AndroidDevice::AndroidDevice(const AndroidDevice &other)
-    : IDevice(other)
-{ }
-
+AndroidDevice::AndroidDevice(const AndroidDevice &other) = default;
 
 IDevice::DeviceInfo AndroidDevice::deviceInformation() const
 {
@@ -78,7 +75,7 @@ QString AndroidDevice::displayType() const
 
 IDeviceWidget *AndroidDevice::createWidget()
 {
-    return 0;
+    return nullptr;
 }
 
 QList<Core::Id> AndroidDevice::actionIds() const

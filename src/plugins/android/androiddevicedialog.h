@@ -53,8 +53,8 @@ class AndroidDeviceDialog : public QDialog
 
 public:
     explicit AndroidDeviceDialog(int apiLevel, const QString &abi,
-                                 const QString &serialNumber, QWidget *parent = 0);
-    ~AndroidDeviceDialog();
+                                 const QString &serialNumber, QWidget *parent = nullptr);
+    ~AndroidDeviceDialog() override;
 
     AndroidDeviceInfo device();
 

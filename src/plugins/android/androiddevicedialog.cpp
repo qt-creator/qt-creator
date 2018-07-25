@@ -107,23 +107,21 @@ class AndroidDeviceModelDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    AndroidDeviceModelDelegate(QObject * parent = 0)
+    AndroidDeviceModelDelegate(QObject * parent = nullptr)
         : QStyledItemDelegate(parent)
     {
 
     }
 
-    ~AndroidDeviceModelDelegate()
-    {
-    }
+    ~AndroidDeviceModelDelegate() override = default;
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
         QStyleOptionViewItem opt = option;
         initStyleOption(&opt, index);
         painter->save();
 
-        AndroidDeviceModelNode *node = static_cast<AndroidDeviceModelNode *>(index.internalPointer());
+        auto node = static_cast<AndroidDeviceModelNode *>(index.internalPointer());
         AndroidDeviceInfo device = node->deviceInfo();
 
         painter->setPen(Qt::NoPen);
@@ -221,7 +219,7 @@ public:
         painter->restore();
     }
 
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
         QStyleOptionViewItem opt = option;
         initStyleOption(&opt, index);
@@ -240,12 +238,12 @@ class AndroidDeviceModel : public QAbstractItemModel
 public:
     AndroidDeviceModel(int apiLevel, const QString &abi);
     QModelIndex index(int row, int column,
-                      const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+                      const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &child) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     AndroidDeviceInfo device(QModelIndex index);
     void setDevices(const QVector<AndroidDeviceInfo> &devices);
@@ -263,7 +261,7 @@ private:
 // AndroidDeviceModel
 /////////////////
 AndroidDeviceModel::AndroidDeviceModel(int apiLevel, const QString &abi)
-    : m_apiLevel(apiLevel), m_abi(abi), m_root(0)
+    : m_apiLevel(apiLevel), m_abi(abi), m_root(nullptr)
 {
 }
 
@@ -281,7 +279,7 @@ QModelIndex AndroidDeviceModel::index(int row, int column, const QModelIndex &pa
         return createIndex(row, column, m_root->children().at(row));
     }
 
-    AndroidDeviceModelNode *node = static_cast<AndroidDeviceModelNode *>(parent.internalPointer());
+    auto node = static_cast<AndroidDeviceModelNode *>(parent.internalPointer());
     if (row < node->children().count())
         return createIndex(row, column, node->children().at(row));
 
@@ -294,7 +292,7 @@ QModelIndex AndroidDeviceModel::parent(const QModelIndex &child) const
         return QModelIndex();
     if (!m_root)
         return QModelIndex();
-    AndroidDeviceModelNode *node = static_cast<AndroidDeviceModelNode *>(child.internalPointer());
+    auto node = static_cast<AndroidDeviceModelNode *>(child.internalPointer());
     if (node == m_root)
         return QModelIndex();
     AndroidDeviceModelNode *parent = node->parent();
@@ -312,7 +310,7 @@ int AndroidDeviceModel::rowCount(const QModelIndex &parent) const
         return 0;
     if (!parent.isValid())
         return m_root->children().count();
-    AndroidDeviceModelNode *node = static_cast<AndroidDeviceModelNode *>(parent.internalPointer());
+    auto node = static_cast<AndroidDeviceModelNode *>(parent.internalPointer());
     return node->children().count();
 }
 
@@ -326,7 +324,7 @@ QVariant AndroidDeviceModel::data(const QModelIndex &index, int role) const
 {
     if (role != Qt::DisplayRole)
         return QVariant();
-    AndroidDeviceModelNode *node = static_cast<AndroidDeviceModelNode *>(index.internalPointer());
+    auto node = static_cast<AndroidDeviceModelNode *>(index.internalPointer());
     if (!node)
         return QVariant();
     return node->deviceInfo().serialNumber;
@@ -334,7 +332,7 @@ QVariant AndroidDeviceModel::data(const QModelIndex &index, int role) const
 
 Qt::ItemFlags AndroidDeviceModel::flags(const QModelIndex &index) const
 {
-    AndroidDeviceModelNode *node = static_cast<AndroidDeviceModelNode *>(index.internalPointer());
+    auto node = static_cast<AndroidDeviceModelNode *>(index.internalPointer());
     if (node)
         if (node->displayName().isEmpty() && node->incompatibleReason().isEmpty())
             return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
@@ -344,7 +342,7 @@ Qt::ItemFlags AndroidDeviceModel::flags(const QModelIndex &index) const
 
 AndroidDeviceInfo AndroidDeviceModel::device(QModelIndex index)
 {
-    AndroidDeviceModelNode *node = static_cast<AndroidDeviceModelNode *>(index.internalPointer());
+    auto node = static_cast<AndroidDeviceModelNode *>(index.internalPointer());
     if (!node)
         return AndroidDeviceInfo();
     return node->deviceInfo();
@@ -354,10 +352,10 @@ void AndroidDeviceModel::setDevices(const QVector<AndroidDeviceInfo> &devices)
 {
     beginResetModel();
     delete m_root;
-    m_root = new AndroidDeviceModelNode(0, QString());
+    m_root = new AndroidDeviceModelNode(nullptr, QString());
 
     AndroidDeviceModelNode *compatibleDevices = new AndroidDeviceModelNode(m_root, AndroidDeviceDialog::tr("Compatible devices"));
-    AndroidDeviceModelNode *incompatibleDevices = 0; // created on demand
+    AndroidDeviceModelNode *incompatibleDevices = nullptr; // created on demand
     foreach (const AndroidDeviceInfo &device, devices) {
         QString error;
         if (device.state == AndroidDeviceInfo::UnAuthorizedState) {
@@ -614,7 +612,7 @@ void AndroidDeviceDialog::enableOkayButton()
 void AndroidDeviceDialog::clickedOnView(const QModelIndex &idx)
 {
     if (idx.isValid()) {
-        AndroidDeviceModelNode *node = static_cast<AndroidDeviceModelNode *>(idx.internalPointer());
+        auto node = static_cast<AndroidDeviceModelNode *>(idx.internalPointer());
         if (!node->displayName().isEmpty()) {
             if (m_ui->deviceView->isExpanded(idx))
                 m_ui->deviceView->collapse(idx);

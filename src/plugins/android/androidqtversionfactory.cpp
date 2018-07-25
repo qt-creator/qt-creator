@@ -48,8 +48,8 @@ bool AndroidQtVersionFactory::canRestore(const QString &type)
 QtSupport::BaseQtVersion *AndroidQtVersionFactory::restore(const QString &type,
     const QVariantMap &data)
 {
-    QTC_ASSERT(canRestore(type), return 0);
-    AndroidQtVersion *v = new AndroidQtVersion;
+    QTC_ASSERT(canRestore(type), return nullptr);
+    auto v = new AndroidQtVersion;
     v->fromMap(data);
     return v;
 }
@@ -63,12 +63,12 @@ QtSupport::BaseQtVersion *AndroidQtVersionFactory::create(const Utils::FileName 
 {
     QFileInfo fi = qmakePath.toFileInfo();
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
-        return 0;
+        return nullptr;
     if (!evaluator->values(QLatin1String("CONFIG")).contains(QLatin1String("android"))
             && evaluator->value(QLatin1String("QMAKE_PLATFORM")) != QLatin1String("android"))
-        return 0;
+        return nullptr;
     if (evaluator->values(QLatin1String("CONFIG")).contains(QLatin1String("android-no-sdk")))
-        return 0;
+        return nullptr;
     return new AndroidQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
 }
 

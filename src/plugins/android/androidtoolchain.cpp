@@ -84,13 +84,9 @@ AndroidToolChain::AndroidToolChain()
 {
 }
 
-AndroidToolChain::AndroidToolChain(const AndroidToolChain &tc) :
-    GccToolChain(tc), m_ndkToolChainVersion(tc.m_ndkToolChainVersion),
-    m_secondaryToolChain(tc.m_secondaryToolChain)
-{ }
+AndroidToolChain::AndroidToolChain(const AndroidToolChain &tc)  = default;
 
-AndroidToolChain::~AndroidToolChain()
-{ }
+AndroidToolChain::~AndroidToolChain() = default;
 
 static QString getArch(const QString &triple)
 {
@@ -342,12 +338,12 @@ bool AndroidToolChainFactory::canRestore(const QVariantMap &data)
 
 ToolChain *AndroidToolChainFactory::restore(const QVariantMap &data)
 {
-    AndroidToolChain *tc = new AndroidToolChain();
+    auto tc = new AndroidToolChain();
     if (tc->fromMap(data))
         return tc;
 
     delete tc;
-    return 0;
+    return nullptr;
 }
 
 QList<AndroidToolChainFactory::AndroidToolChainInformation> AndroidToolChainFactory::toolchainPathsForNdk(const FileName &ndkPath)
@@ -490,7 +486,7 @@ AndroidToolChainFactory::autodetectToolChainsForNdk(const FileName &ndkPath,
     }
 
     foreach (ToolChain *tc, result) {
-        AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
+        auto atc = static_cast<AndroidToolChain *>(tc);
         atc->setSecondaryToolChain(!newestToolChainForArch.value(atc->targetAbi()).contains(atc));
     }
 

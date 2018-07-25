@@ -41,7 +41,7 @@ class AvdDialog : public QDialog
     Q_OBJECT
 public:
     explicit AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QString &targetArch,
-                       QWidget *parent = 0);
+                       QWidget *parent = nullptr);
 
     const SdkPlatform *sdkPlatform() const;
     QString name() const;
@@ -53,7 +53,7 @@ public:
 
 private:
     void updateApiLevelComboBox();
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
     Ui::AddNewAVDDialog m_avdDialog;
     AndroidSdkManager *m_sdkManager;

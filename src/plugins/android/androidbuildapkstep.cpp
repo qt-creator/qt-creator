@@ -175,7 +175,7 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
         return false;
     }
 
-    JavaParser *parser = new JavaParser;
+    auto parser = new JavaParser;
     parser->setProjectFileList(Utils::transform(target()->project()->files(ProjectExplorer::Project::AllFiles),
                                                 &Utils::FileName::toString));
 
@@ -469,7 +469,7 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
     const Utils::SynchronousProcessResponse response
             = keytoolProc.run(AndroidConfigurations::currentConfig().keytoolPath().toString(), params);
     if (response.result > Utils::SynchronousProcessResponse::FinishedError)
-        QMessageBox::critical(0, tr("Error"), tr("Failed to run keytool."));
+        QMessageBox::critical(nullptr, tr("Error"), tr("Failed to run keytool."));
     else
         model = new CertificatesModel(response.stdOut(), this);
 

@@ -58,7 +58,7 @@ namespace Android {
 NoApplicationProFilePage::NoApplicationProFilePage(CreateAndroidManifestWizard *wizard)
     : m_wizard(wizard)
 {
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     QLabel *label = new QLabel(this);
     label->setWordWrap(true);
     label->setText(tr("No application .pro file found in this project."));
@@ -72,7 +72,7 @@ NoApplicationProFilePage::NoApplicationProFilePage(CreateAndroidManifestWizard *
 ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard)
     : m_wizard(wizard)
 {
-    QFormLayout *fl = new QFormLayout(this);
+    auto fl = new QFormLayout(this);
     QLabel *label = new QLabel(this);
     label->setWordWrap(true);
     label->setText(tr("Select the .pro file for which you want to create the Android template files."));
@@ -111,7 +111,7 @@ void ChooseProFilePage::nodeSelected(int index)
 // ChooseDirectoryPage
 //
 ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
-    : m_wizard(wizard), m_androidPackageSourceDir(0), m_complete(true)
+    : m_wizard(wizard), m_androidPackageSourceDir(nullptr), m_complete(true)
 {
     m_layout = new QFormLayout(this);
     m_label = new QLabel(this);
@@ -132,7 +132,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
     m_warningIcon->setWordWrap(true);
     m_warningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    QHBoxLayout *hbox = new QHBoxLayout;
+    auto hbox = new QHBoxLayout;
     hbox->addWidget(m_warningIcon);
     hbox->addWidget(m_sourceDirectoryWarning);
     hbox->setAlignment(m_warningIcon, Qt::AlignTop);
@@ -143,7 +143,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
             m_wizard, &CreateAndroidManifestWizard::setDirectory);
 
     if (wizard->copyGradle()) {
-        QCheckBox *checkBox = new QCheckBox(this);
+        auto checkBox = new QCheckBox(this);
         checkBox->setChecked(true);
         connect(checkBox, &QCheckBox::toggled, wizard, &CreateAndroidManifestWizard::setCopyGradle);
         checkBox->setText(tr("Copy the Gradle files to Android directory"));
@@ -324,21 +324,21 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
                 .append(QLatin1String("/src/android/java/AndroidManifest.xml")));
         FileUtils::copyRecursively(FileName::fromString(src),
                                    FileName::fromString(m_directory + QLatin1String("/AndroidManifest.xml")),
-                                   0, [this, &addedFiles](QFileInfo src, QFileInfo dst, QString *){return copy(src, dst, &addedFiles);});
+                                   nullptr, [this, &addedFiles](QFileInfo src, QFileInfo dst, QString *){return copy(src, dst, &addedFiles);});
     } else {
         const QString src(version->qmakeProperty("QT_INSTALL_PREFIX")
                           .append(QLatin1String("/src/android/templates")));
 
         FileUtils::copyRecursively(FileName::fromString(src),
                                    FileName::fromString(m_directory),
-                                   0, [this, &addedFiles](QFileInfo src, QFileInfo dst, QString *){return copy(src, dst, &addedFiles);});
+                                   nullptr, [this, &addedFiles](QFileInfo src, QFileInfo dst, QString *){return copy(src, dst, &addedFiles);});
 
         if (m_copyGradle) {
             FileName gradlePath = FileName::fromString(version->qmakeProperty("QT_INSTALL_PREFIX").append(QLatin1String("/src/3rdparty/gradle")));
             if (!gradlePath.exists())
                 gradlePath = AndroidConfigurations::currentConfig().sdkLocation().appendPath(QLatin1String("/tools/templates/gradle/wrapper"));
             FileUtils::copyRecursively(gradlePath, FileName::fromString(m_directory),
-                                       0, [this, &addedFiles](QFileInfo src, QFileInfo dst, QString *){return copy(src, dst, &addedFiles);});
+                                       nullptr, [this, &addedFiles](QFileInfo src, QFileInfo dst, QString *){return copy(src, dst, &addedFiles);});
         }
 
         AndroidManager::updateGradleProperties(m_target);

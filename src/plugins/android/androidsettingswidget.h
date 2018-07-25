@@ -55,10 +55,10 @@ public:
     QModelIndex indexForAvdName(const QString &avdName) const;
 
 protected:
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
 private:
     AndroidDeviceInfoList m_list;
@@ -69,8 +69,8 @@ class AndroidSettingsWidget : public QWidget
     Q_OBJECT
 public:
     // Todo: This would be so much simpler if it just used Utils::PathChooser!!!
-    AndroidSettingsWidget(QWidget *parent = 0);
-    ~AndroidSettingsWidget();
+    AndroidSettingsWidget(QWidget *parent = nullptr);
+    ~AndroidSettingsWidget() override;
 
     void saveSettings();
 

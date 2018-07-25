@@ -33,14 +33,14 @@ namespace Internal {
 class AndroidQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
-    explicit AndroidQtVersionFactory(QObject *parent = 0);
+    explicit AndroidQtVersionFactory(QObject *parent = nullptr);
 
-    bool canRestore(const QString &type);
-    QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data);
+    bool canRestore(const QString &type) override;
+    QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data) override;
 
-    int priority() const;
+    int priority() const override;
     QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
-                                     bool isAutoDetected = false, const QString &autoDetectionSource = QString());
+                                     bool isAutoDetected = false, const QString &autoDetectionSource = QString()) override;
 };
 
 } // namespace Internal

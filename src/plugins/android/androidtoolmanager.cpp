@@ -92,10 +92,7 @@ AndroidToolManager::AndroidToolManager(const AndroidConfig &config) :
 
 }
 
-AndroidToolManager::~AndroidToolManager()
-{
-
-}
+AndroidToolManager::~AndroidToolManager() = default;
 
 SdkPlatformList AndroidToolManager::availableSdkPlatforms(bool *ok) const
 {

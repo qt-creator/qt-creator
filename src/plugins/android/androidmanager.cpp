@@ -117,7 +117,7 @@ public:
     QString name;
 };
 
-typedef QMap<QString, Library> LibrariesMap;
+using LibrariesMap = QMap<QString, Library>;
 
 static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
 static bool openManifest(ProjectExplorer::Target *target, QDomDocument &doc);
@@ -249,7 +249,7 @@ int AndroidManager::minimumSDK(const ProjectExplorer::Kit *kit)
 
 QString AndroidManager::buildTargetSDK(ProjectExplorer::Target *target)
 {
-    AndroidBuildApkStep *androidBuildApkStep
+    auto androidBuildApkStep
             = AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
     if (androidBuildApkStep)
         return androidBuildApkStep->buildTargetSdk();
@@ -261,7 +261,7 @@ QString AndroidManager::buildTargetSDK(ProjectExplorer::Target *target)
 
 bool AndroidManager::signPackage(ProjectExplorer::Target *target)
 {
-    AndroidBuildApkStep *androidBuildApkStep
+    auto androidBuildApkStep
             = AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
     if (androidBuildApkStep)
         return androidBuildApkStep->signPackage();
@@ -270,7 +270,7 @@ bool AndroidManager::signPackage(ProjectExplorer::Target *target)
 
 QString AndroidManager::targetArch(ProjectExplorer::Target *target)
 {
-    AndroidQtVersion *qt = static_cast<AndroidQtVersion *>(QtSupport::QtKitInformation::qtVersion(target->kit()));
+    auto qt = static_cast<AndroidQtVersion *>(QtSupport::QtKitInformation::qtVersion(target->kit()));
     return qt->targetArch();
 }
 
@@ -306,7 +306,7 @@ Utils::FileName AndroidManager::defaultPropertiesPath(ProjectExplorer::Target *t
 
 bool AndroidManager::bundleQt(ProjectExplorer::Target *target)
 {
-    AndroidBuildApkStep *androidBuildApkStep
+    auto androidBuildApkStep
             = AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
     if (androidBuildApkStep)
         return !androidBuildApkStep->useMinistro();
@@ -401,7 +401,7 @@ QString AndroidManager::androidNameForApiLevel(int x)
 
 static void raiseError(const QString &reason)
 {
-    QMessageBox::critical(0, AndroidManager::tr("Error creating Android templates."), reason);
+    QMessageBox::critical(nullptr, AndroidManager::tr("Error creating Android templates."), reason);
 }
 
 static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName)
@@ -534,10 +534,10 @@ AndroidQtSupport *AndroidManager::androidQtSupport(ProjectExplorer::Target *targ
         if (provider->canHandle(target))
             return provider;
     }
-    return 0;
+    return nullptr;
 }
 
-typedef QMap<QByteArray, QByteArray> GradleProperties;
+using GradleProperties = QMap<QByteArray, QByteArray>;
 
 static GradleProperties readGradleProperties(const QString &path)
 {
@@ -663,7 +663,7 @@ int AndroidManager::findApiLevel(const Utils::FileName &platformPath)
 
 void AndroidManager::runAdbCommandDetached(const QStringList &args)
 {
-    QProcess *process = new QProcess();
+    auto process = new QProcess();
     connect(process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
             process, &QObject::deleteLater);
     const QString adb = AndroidConfigurations::currentConfig().adbToolPath().toString();

@@ -55,7 +55,7 @@ class OptionsDialog : public QDialog
 public:
     OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &args,
                   QWidget *parent = nullptr);
-    ~OptionsDialog();
+    ~OptionsDialog() override;
 
     QStringList sdkManagerArguments() const;
 
@@ -78,7 +78,7 @@ class AndroidSdkManagerWidget : public QWidget
 public:
     AndroidSdkManagerWidget(AndroidConfig &config, AndroidSdkManager *sdkManager,
                             QWidget *parent = nullptr);
-    ~AndroidSdkManagerWidget();
+    ~AndroidSdkManagerWidget() override;
 
     void setSdkManagerControlsEnabled(bool enable);
     void installEssentials();

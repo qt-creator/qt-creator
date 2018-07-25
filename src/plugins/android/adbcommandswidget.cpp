@@ -77,9 +77,7 @@ AdbCommandsWidget::AdbCommandsWidget(QWidget *parent) :
 {
 }
 
-AdbCommandsWidget::~AdbCommandsWidget()
-{
-}
+AdbCommandsWidget::~AdbCommandsWidget() = default;
 
 QStringList AdbCommandsWidget::commandsList() const
 {

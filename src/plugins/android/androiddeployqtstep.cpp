@@ -131,7 +131,7 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
     QTC_ASSERT(deployQtLive || bc, return false);
 
-    AndroidBuildApkStep *androidBuildApkStep = AndroidGlobal::buildStep<AndroidBuildApkStep>(bc);
+    auto androidBuildApkStep = AndroidGlobal::buildStep<AndroidBuildApkStep>(bc);
     if (!androidBuildApkStep && !deployQtLive) {
         emit addOutput(tr("Cannot find the android build step."), OutputFormat::Stderr);
         return false;
@@ -379,7 +379,7 @@ void AndroidDeployQtStep::slotAskForUninstall(DeployErrorCode errorCode)
     }
 
     uninstallMsg.append(tr("\nUninstalling the installed package may solve the issue.\nDo you want to uninstall the existing package?"));
-    int button = QMessageBox::critical(0, tr("Install failed"), uninstallMsg,
+    int button = QMessageBox::critical(nullptr, tr("Install failed"), uninstallMsg,
                                        QMessageBox::Yes, QMessageBox::No);
     m_askForUninstall = button == QMessageBox::Yes;
 }

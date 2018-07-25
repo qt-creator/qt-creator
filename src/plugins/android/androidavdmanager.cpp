@@ -234,10 +234,7 @@ AndroidAvdManager::AndroidAvdManager(const AndroidConfig &config):
 
 }
 
-AndroidAvdManager::~AndroidAvdManager()
-{
-
-}
+AndroidAvdManager::~AndroidAvdManager() = default;
 
 void AndroidAvdManager::launchAvdManagerUiTool() const
 {
@@ -296,7 +293,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
                               .arg(m_config.emulatorToolPath().toString()));
         return false;
     }
-    QProcess *avdProcess = new QProcess();
+    auto avdProcess = new QProcess();
     avdProcess->setReadChannelMode(QProcess::MergedChannels);
     QObject::connect(avdProcess,
                      static_cast<void (QProcess::*)(int)>(&QProcess::finished),

@@ -43,13 +43,13 @@ class ANDROID_EXPORT AndroidExtraLibraryListModel : public QAbstractItemModel
     Q_OBJECT
 public:
     explicit AndroidExtraLibraryListModel(ProjectExplorer::Target *target,
-                                          QObject *parent = 0);
+                                          QObject *parent = nullptr);
 
-    QModelIndex index(int row, int column, const QModelIndex &parent) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent) const override;
+    QModelIndex parent(const QModelIndex &child) const override;
+    int rowCount(const QModelIndex &parent) const override;
+    int columnCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
 
     void removeEntries(QModelIndexList list);
     void addEntries(const QStringList &list);

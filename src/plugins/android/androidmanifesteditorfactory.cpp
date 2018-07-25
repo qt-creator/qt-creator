@@ -49,6 +49,6 @@ AndroidManifestEditorFactory::AndroidManifestEditorFactory()
 
 Core::IEditor *AndroidManifestEditorFactory::createEditor()
 {
-    AndroidManifestEditorWidget *androidManifestEditorWidget = new AndroidManifestEditorWidget();
+    auto androidManifestEditorWidget = new AndroidManifestEditorWidget();
     return androidManifestEditorWidget->editor();
 }

@@ -40,23 +40,23 @@ public:
     AndroidQtVersion();
     AndroidQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
 
-    AndroidQtVersion *clone() const;
-    QString type() const;
-    bool isValid() const;
-    QString invalidReason() const;
+    AndroidQtVersion *clone() const override;
+    QString type() const override;
+    bool isValid() const override;
+    QString invalidReason() const override;
 
-    QList<ProjectExplorer::Abi> detectQtAbis() const;
+    QList<ProjectExplorer::Abi> detectQtAbis() const override;
 
-    void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
-    Utils::Environment qmakeRunEnvironment() const;
+    void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const override;
+    Utils::Environment qmakeRunEnvironment() const override;
 
-    QSet<Core::Id> availableFeatures() const;
-    QSet<Core::Id> targetDeviceTypes() const;
+    QSet<Core::Id> availableFeatures() const override;
+    QSet<Core::Id> targetDeviceTypes() const override;
 
-    QString description() const;
+    QString description() const override;
     QString targetArch() const;
 protected:
-    virtual void parseMkSpec(ProFileEvaluator *) const;
+    void parseMkSpec(ProFileEvaluator *) const override;
 private:
     mutable QString m_targetArch;
 };

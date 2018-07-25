@@ -62,7 +62,7 @@ public:
     };
 
     AndroidSdkManager(const AndroidConfig &config, QObject *parent = nullptr);
-    ~AndroidSdkManager();
+    ~AndroidSdkManager() override;
 
     SdkPlatformList installedSdkPlatforms();
     const AndroidSdkPackageList &allSdkPackages();
