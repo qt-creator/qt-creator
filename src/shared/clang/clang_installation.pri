@@ -130,6 +130,9 @@ isEmpty(LLVM_VERSION) {
     LLVM_BINDIR = $$quote($$system($$llvm_config --bindir, lines))
     LLVM_INCLUDEPATH = $$system($$llvm_config --includedir, lines)
     msvc {
+        # CLANG-UPGRADE-CHECK: Remove suppression if this warning is resolved.
+        # Suppress unreferenced formal parameter warnings
+        QMAKE_CXXFLAGS += -wd4100
         LLVM_STATIC_LIBS_STRING += $$system($$llvm_config --libnames, lines)
     } else {
         LLVM_STATIC_LIBS_STRING += $$system($$llvm_config --libs, lines)

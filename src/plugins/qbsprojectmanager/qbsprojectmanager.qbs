@@ -135,7 +135,7 @@ QtcPlugin {
         ]
     }
 
-    Depends { name: "qbs resources" }
+    Depends { name: "qbs resources"; condition: updateQmlTypeInfo }
     Rule {
         condition: updateQmlTypeInfo
         inputsFromDependencies: ["qbs qml type descriptions", "qbs qml type bundle"]

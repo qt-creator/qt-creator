@@ -758,22 +758,19 @@ void QmlEngine::changeBreakpoint(Breakpoint bp)
     BreakpointResponse br = bp.response();
     if (params.type == BreakpointAtJavaScriptThrow) {
         d->setExceptionBreak(AllExceptions, params.enabled);
-        br.enabled = params.enabled;
-        bp.setResponse(br);
     } else if (params.type == BreakpointOnQmlSignalEmit) {
         d->setBreakpoint(EVENT, params.functionName, params.enabled);
-        br.enabled = params.enabled;
-        bp.setResponse(br);
     } else if (d->canChangeBreakpoint()) {
         d->changeBreakpoint(d->breakpoints.value(bp.id()), params.enabled);
     } else {
-        //V8 supports only minimalistic changes in breakpoint
-        //Remove the breakpoint and add again
-        bp.notifyBreakpointChangeOk();
-        bp.removeBreakpoint();
-        BreakHandler *handler = d->engine->breakHandler();
-        handler->appendBreakpoint(params);
+        d->clearBreakpoint(d->breakpoints.take(bp.id()));
+        d->setBreakpoint(SCRIPTREGEXP, params.fileName,
+                         params.enabled, params.lineNumber, 0,
+                         params.condition, params.ignoreCount);
+        d->breakpointsSync.insert(d->sequence, bp.id());
     }
+    br.enabled = params.enabled;
+    bp.setResponse(br);
 
     if (bp.state() == BreakpointChangeProceeding)
         bp.notifyBreakpointChangeOk();
