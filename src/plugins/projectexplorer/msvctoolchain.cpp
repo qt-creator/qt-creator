@@ -1218,6 +1218,8 @@ bool ClangClToolChainFactory::canCreate()
 
 QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
+    Q_UNUSED(alreadyKnown)
+
 #ifdef Q_OS_WIN64
     const char registryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\LLVM\\LLVM";
 #else
