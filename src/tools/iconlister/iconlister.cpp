@@ -1029,19 +1029,19 @@ void IconLister::addQmlDesignerIcons()
 
 void IconLister::addProfilerTimelineIcons()
 {
-    Q_INIT_RESOURCE(timeline);
+    Q_INIT_RESOURCE(tracing);
     using namespace Utils;
     const QString prefix = "Profiler";
     const QList<IconInfo> icons = {
-        {Icon({{":/timeline/ico_rangeselection.png", Theme::IconsBaseColor}}).icon(), "rangeselection", prefix,
+        {Icon({{":/tracing/ico_rangeselection.png", Theme::IconsBaseColor}}).icon(), "rangeselection", prefix,
          ""},
-        {Icon({{":/timeline/ico_rangeselected.png", Theme::IconsBaseColor}}).icon(), "rangeselected", prefix,
+        {Icon({{":/tracing/ico_rangeselected.png", Theme::IconsBaseColor}}).icon(), "rangeselected", prefix,
          ""},
-        {Icon({{":/timeline/ico_selectionmode.png", Theme::IconsBaseColor}}).icon(), "selectionmode", prefix,
+        {Icon({{":/tracing/ico_selectionmode.png", Theme::IconsBaseColor}}).icon(), "selectionmode", prefix,
          ""},
-        {Icon({{":/timeline/ico_edit.png", Theme::IconsBaseColor}}).icon(), "edit", prefix,
+        {Icon({{":/tracing/ico_edit.png", Theme::IconsBaseColor}}).icon(), "edit", prefix,
          ""},
-        {Icon({{":/timeline/range_handle.png", Theme::IconsBaseColor}}).icon(), "range_handle", prefix,
+        {Icon({{":/tracing/range_handle.png", Theme::IconsBaseColor}}).icon(), "range_handle", prefix,
          ""},
     };
     m_icons.append(icons);

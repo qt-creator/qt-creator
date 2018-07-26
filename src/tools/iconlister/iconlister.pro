@@ -35,7 +35,7 @@ RESOURCES += \
     $$IDE_SOURCE_TREE/src/plugins/android/android.qrc \
     $$IDE_SOURCE_TREE/src/plugins/qnx/qnx.qrc \
     $$IDE_SOURCE_TREE/src/plugins/winrt/winrt.qrc \
-    $$IDE_SOURCE_TREE/src/libs/timeline/qml/timeline.qrc \
+    $$IDE_SOURCE_TREE/src/libs/tracing/qml/tracing.qrc \
 
 DEFINES += \
     IDE_SOURCE_TREE='\\"$$IDE_SOURCE_TREE\\"'
