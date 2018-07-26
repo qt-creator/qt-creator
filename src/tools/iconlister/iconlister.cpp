@@ -311,8 +311,7 @@ void IconLister::addProjectExplorerIcons()
         {MODE_PROJECT_FLAT_ACTIVE.icon(), "MODE_PROJECT_FLAT_ACTIVE", prefix,
          ""},
 
-        {OPTIONS_CATEGORY_KITS.icon(), "OPTIONS_CATEGORY_KITS", prefix,
-         ""},
+        {Utils::Icon({{":/projectexplorer/images/settingscategory_kits.png", Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint).icon(), "OPTIONS_CATEGORY_KITS", prefix, ""},
 
         {QIcon(":/projectexplorer/images/fileoverlay_qml.png"), "fileoverlay_qml.png", prefix,
          ""},
