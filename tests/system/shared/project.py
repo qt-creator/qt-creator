@@ -156,8 +156,12 @@ def __createProjectHandleQtQuickSelection__(minimumQtVersion):
 # Selects the Qt versions for a project
 # param checks turns tests in the function on if set to True
 # param available a list holding the available targets
-def __selectQtVersionDesktop__(checks, available=None):
-    checkedTargets = __chooseTargets__(Targets.desktopTargetClasses(), available)
+# withoutQt4 if True Qt4 will get unchecked / not selected while checking the targets
+def __selectQtVersionDesktop__(checks, available=None, withoutQt4=False):
+    wanted = Targets.desktopTargetClasses()
+    if withoutQt4 and Targets.DESKTOP_4_8_7_DEFAULT in wanted:
+        wanted.remove(Targets.DESKTOP_4_8_7_DEFAULT)
+    checkedTargets = __chooseTargets__(wanted, available)
     if checks:
         for target in checkedTargets:
             detailsWidget = waitForObject("{type='Utils::DetailsWidget' unnamed='1' visible='1' "
@@ -216,7 +220,7 @@ def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl =
     template = "Qt Widgets Application"
     available = __createProjectOrFileSelectType__("  Application", template)
     __createProjectSetNameAndPath__(path, projectName, checks)
-    checkedTargets = __selectQtVersionDesktop__(checks, available)
+    checkedTargets = __selectQtVersionDesktop__(checks, available, True)
 
     if checks:
         exp_filename = "mainwindow"
@@ -541,7 +545,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split(" ")
         result = []
         if 'Desktop' in supports:
-            if (version == None or version < "5.0") and templateName != "Qt Widgets Application":
+            if (version == None or version < "5.0"):
                 result.append(Targets.DESKTOP_4_8_7_DEFAULT)
                 if platform.system() in ("Linux", "Darwin"):
                     result.append(Targets.EMBEDDED_LINUX)
