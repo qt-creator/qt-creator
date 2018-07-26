@@ -56,8 +56,6 @@
 namespace Android {
 namespace Internal {
 
-const int minApiSupported = 9;
-
 AndroidBuildApkInnerWidget::AndroidBuildApkInnerWidget(AndroidBuildApkStep *step)
     : ProjectExplorer::BuildStepConfigWidget(),
       m_ui(new Ui::AndroidBuildApkWidget),
