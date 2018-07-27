@@ -54,11 +54,11 @@ bool QmakeAndroidSupport::canHandle(const ProjectExplorer::Target *target) const
     return qobject_cast<QmakeProject*>(target->project());
 }
 
-QStringList QmakeAndroidSupport::targetData(Core::Id role, const Target *target) const
+QVariant QmakeAndroidSupport::targetData(Core::Id role, const Target *target) const
 {
     RunConfiguration *rc = target->activeRunConfiguration();
     if (!rc)
-        return QStringList();
+        return {};
 
     const FileName projectFilePath = FileName::fromString(rc->buildKey());
     const QmakeProject *pro = qobject_cast<QmakeProject *>(target->project());
@@ -67,19 +67,17 @@ QStringList QmakeAndroidSupport::targetData(Core::Id role, const Target *target)
     const QmakeProFileNode *profileNode = pro->rootProjectNode()->findProFileFor(projectFilePath);
     QTC_ASSERT(profileNode, return {});
 
-    Variable var = {};
     if (role == Android::Constants::AndroidPackageSourceDir)
-        var = Variable::AndroidPackageSourceDir;
-    else if (role == Android::Constants::AndroidDeploySettingsFile)
-        var = Variable::AndroidDeploySettingsFile;
-    else if (role == Android::Constants::AndroidExtraLibs)
-        var = Variable::AndroidExtraLibs;
-    else if (role == Android::Constants::AndroidArch)
-        var = Variable::AndroidArch;
-    else
-        QTC_CHECK(false);
+        return profileNode->singleVariableValue(Variable::AndroidPackageSourceDir);
+    if (role == Android::Constants::AndroidDeploySettingsFile)
+        return profileNode->singleVariableValue(Variable::AndroidDeploySettingsFile);
+    if (role == Android::Constants::AndroidExtraLibs)
+        return profileNode->variableValue(Variable::AndroidExtraLibs);
+    if (role == Android::Constants::AndroidArch)
+        return profileNode->singleVariableValue(Variable::AndroidArch);
 
-    return profileNode->variableValue(var);
+    QTC_CHECK(false);
+    return {};
 }
 
 static QmakeProFile *applicationProFile(const Target *target)
@@ -115,32 +113,23 @@ FileName QmakeAndroidSupport::projectFilePath(const Target *target) const
     return pro ? pro->filePath() : FileName();
 }
 
-bool QmakeAndroidSupport::setTargetData(Core::Id role, const QStringList &values, const Target *target) const
+bool QmakeAndroidSupport::setTargetData(Core::Id role, const QVariant &value, const Target *target) const
 {
     QmakeProFile *pro = applicationProFile(target);
     if (!pro)
         return false;
 
-    QString var;
-    if (role == Android::Constants::AndroidExtraLibs)
-        var = "ANDROID_EXTRA_LIBS";
-    else if (role == Android::Constants::AndroidPackageSourceDir)
-        var = "ANDROID_PACKAGE_SOURCE_DIR";
-
-    if (var.isEmpty())
-        return false;
-
     const QString arch = pro->singleVariableValue(Variable::AndroidArch);
     const QString scope = "contains(ANDROID_TARGET_ARCH," + arch + ')';
-    return pro->setProVariable(var, values, scope,
-                        QmakeProjectManager::Internal::ProWriter::ReplaceValues
-                        | QmakeProjectManager::Internal::ProWriter::MultiLine);
-}
+    auto flags = QmakeProjectManager::Internal::ProWriter::ReplaceValues
+               | QmakeProjectManager::Internal::ProWriter::MultiLine;
 
-QString QmakeAndroidSupport::targetDataItem(Core::Id role, const Target *target) const
-{
-    const QStringList data = targetData(role, target);
-    return data.isEmpty() ? QString() : data.first();
+    if (role == Android::Constants::AndroidExtraLibs)
+        return pro->setProVariable("ANDROID_EXTRA_LIBS", value.toStringList(), scope, flags);
+    if (role == Android::Constants::AndroidPackageSourceDir)
+        return pro->setProVariable("ANDROID_PACKAGE_SOURCE_DIR", {value.toString()}, scope, flags);
+
+    return false;
 }
 
 QStringList QmakeAndroidSupport::soLibSearchPath(const ProjectExplorer::Target *target) const
@@ -162,7 +151,7 @@ QStringList QmakeAndroidSupport::soLibSearchPath(const ProjectExplorer::Target *
             res.insert(destDir.toString());
         }
 
-        const QString jsonFile = targetDataItem(Android::Constants::AndroidDeploySettingsFile, target);
+        const QString jsonFile = targetData(Android::Constants::AndroidDeploySettingsFile, target).toString();
         QFile deploymentSettings(jsonFile);
         if (deploymentSettings.open(QIODevice::ReadOnly)) {
             QJsonParseError error;

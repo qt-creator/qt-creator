@@ -305,7 +305,8 @@ Utils::FileName AndroidManager::apkPath(const ProjectExplorer::Target *target)
 Utils::FileName AndroidManager::manifestSourcePath(ProjectExplorer::Target *target)
 {
     if (AndroidQtSupport *androidQtSupport = AndroidManager::androidQtSupport(target)) {
-        const QString packageSource = androidQtSupport->targetDataItem(Android::Constants::AndroidPackageSourceDir, target);
+        const QString packageSource
+                = androidQtSupport->targetData(Android::Constants::AndroidPackageSourceDir, target).toString();
         if (!packageSource.isEmpty()) {
             const FileName manifest = FileName::fromUserInput(packageSource + "/AndroidManifest.xml");
             if (manifest.exists())
@@ -630,7 +631,7 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
     if (!qtSupport)
         return false;
 
-    QFileInfo sourceDirInfo(qtSupport->targetDataItem(Constants::AndroidPackageSourceDir, target));
+    QFileInfo sourceDirInfo(qtSupport->targetData(Constants::AndroidPackageSourceDir, target).toString());
     FileName packageSourceDir = FileName::fromString(sourceDirInfo.canonicalFilePath());
     if (!packageSourceDir.appendPath("gradlew").exists())
         return false;

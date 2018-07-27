@@ -93,7 +93,7 @@ void AndroidExtraLibraryListModel::updateModel()
     bool enabled;
     beginResetModel();
     if (qtSupport->validParse(m_target)) {
-        m_entries = qtSupport->targetData(Constants::AndroidExtraLibs, m_target);
+        m_entries = qtSupport->targetData(Constants::AndroidExtraLibs, m_target).toStringList();
         enabled = true;
     } else {
         // parsing error or not a application template

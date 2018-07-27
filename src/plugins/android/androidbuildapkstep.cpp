@@ -180,7 +180,7 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
                                                 &Utils::FileName::toString));
 
     AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(target());
-    QFileInfo sourceDirInfo(qtSupport->targetDataItem(Constants::AndroidPackageSourceDir, target()));
+    QFileInfo sourceDirInfo(qtSupport->targetData(Constants::AndroidPackageSourceDir, target()).toString());
     parser->setSourceDirectory(Utils::FileName::fromString(sourceDirInfo.canonicalFilePath()));
     parser->setBuildDirectory(Utils::FileName::fromString(bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString()));
     setOutputParser(parser);
@@ -202,7 +202,7 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     QString outputDir = bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString();
 
     QString inputFile = AndroidManager::androidQtSupport(target())
-            ->targetDataItem(Constants::AndroidDeploySettingsFile, target());
+            ->targetData(Constants::AndroidDeploySettingsFile, target()).toString();
     if (inputFile.isEmpty()) {
         m_skipBuilding = true;
         return true;

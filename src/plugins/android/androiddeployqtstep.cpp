@@ -191,7 +191,7 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, m_workingDirectory);
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--no-build"));
         Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--input"));
-        const QString jsonFile = qtSupport->targetDataItem(Constants::AndroidDeploySettingsFile, target());
+        const QString jsonFile = qtSupport->targetData(Constants::AndroidDeploySettingsFile, target()).toString();
         if (jsonFile.isEmpty()) {
             emit addOutput(tr("Cannot find the androiddeploy Json file."), OutputFormat::Stderr);
             return false;

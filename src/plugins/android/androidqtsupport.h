@@ -38,10 +38,10 @@ namespace Utils { class FileName; }
 namespace Android {
 namespace Constants {
 
-const char AndroidPackageSourceDir[] = "AndroidPackageSourceDir";
-const char AndroidDeploySettingsFile[] = "AndroidDeploySettingsFile";
-const char AndroidExtraLibs[] = "AndroidExtraLibs";
-const char AndroidArch[] = "AndroidArch";
+const char AndroidPackageSourceDir[] = "AndroidPackageSourceDir"; // QString
+const char AndroidDeploySettingsFile[] = "AndroidDeploySettingsFile"; // QString
+const char AndroidExtraLibs[] = "AndroidExtraLibs";  // QStringList
+const char AndroidArch[] = "AndroidArch"; // QString
 
 } // namespace Constants
 
@@ -64,9 +64,8 @@ public:
     virtual QStringList soLibSearchPath(const ProjectExplorer::Target *target) const = 0;
     virtual QStringList projectTargetApplications(const ProjectExplorer::Target *target) const = 0;
 
-    virtual QString targetDataItem(Core::Id role, const ProjectExplorer::Target *target) const = 0;
-    virtual QStringList targetData(Core::Id role, const ProjectExplorer::Target *target) const = 0;
-    virtual bool setTargetData(Core::Id role, const QStringList &values,
+    virtual QVariant targetData(Core::Id role, const ProjectExplorer::Target *target) const = 0;
+    virtual bool setTargetData(Core::Id role, const QVariant &value,
                                const ProjectExplorer::Target *target) const = 0;
 
     virtual bool parseInProgress(const ProjectExplorer::Target *target) const = 0;

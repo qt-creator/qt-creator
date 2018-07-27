@@ -135,8 +135,9 @@ void AndroidDebugSupport::start()
         qCDebug(androidDebugSupportLog) << "C++ debugging enabled";
         AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(target);
         QStringList solibSearchPath = qtSupport->soLibSearchPath(target);
+        QStringList extraLibs = qtSupport->targetData(Android::Constants::AndroidExtraLibs, target).toStringList();
         solibSearchPath.append(qtSoPaths(qtVersion));
-        solibSearchPath.append(uniquePaths(qtSupport->targetData(Android::Constants::AndroidExtraLibs, target)));
+        solibSearchPath.append(uniquePaths(extraLibs));
         setSolibSearchPath(solibSearchPath);
         qCDebug(androidDebugSupportLog) << "SoLibSearchPath: "<<solibSearchPath;
         setSymbolFile(target->activeBuildConfiguration()->buildDirectory().toString()

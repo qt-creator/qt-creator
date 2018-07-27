@@ -183,7 +183,7 @@ void ChooseDirectoryPage::initializePage()
 
     AndroidQtSupport *qtSupport = AndroidManager::androidQtSupport(m_wizard->target());
     const QString androidPackageDir
-            = qtSupport->targetDataItem(Android::Constants::AndroidPackageSourceDir, m_wizard->target());
+            = qtSupport->targetData(Android::Constants::AndroidPackageSourceDir, m_wizard->target()).toString();
 
     if (androidPackageDir.isEmpty()) {
         m_label->setText(tr("Select the Android package source directory.\n\n"
@@ -348,13 +348,13 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
     qtSupport->addFiles(m_target, m_buildKey, addedFiles);
 
     const QString androidPackageDir
-            = qtSupport->targetDataItem(Android::Constants::AndroidPackageSourceDir, m_target);
+            = qtSupport->targetData(Android::Constants::AndroidPackageSourceDir, m_target).toString();
 
     if (androidPackageDir.isEmpty()) {
         // and now time for some magic
         const BuildTargetInfo bti = m_target->applicationTargets().buildTargetInfo(m_buildKey);
         const QString value = "$$PWD/" + bti.projectFilePath.toFileInfo().absoluteDir().relativeFilePath(m_directory);
-        bool result = qtSupport->setTargetData(Android::Constants::AndroidPackageSourceDir, {value}, m_target);
+        bool result = qtSupport->setTargetData(Android::Constants::AndroidPackageSourceDir, value, m_target);
 
         if (!result) {
             QMessageBox::warning(this, tr("Project File not Updated"),

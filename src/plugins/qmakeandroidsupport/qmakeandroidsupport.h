@@ -39,9 +39,8 @@ public:
     QStringList soLibSearchPath(const ProjectExplorer::Target *target) const override;
     QStringList projectTargetApplications(const ProjectExplorer::Target *target) const override;
 
-    QString targetDataItem(Core::Id role, const ProjectExplorer::Target *target) const override;
-    QStringList targetData(Core::Id role, const ProjectExplorer::Target *target) const override;
-    bool setTargetData(Core::Id role, const QStringList &values,
+    QVariant targetData(Core::Id role, const ProjectExplorer::Target *target) const override;
+    bool setTargetData(Core::Id role, const QVariant &value,
                        const ProjectExplorer::Target *target) const override;
 
     bool parseInProgress(const ProjectExplorer::Target *target) const override;
