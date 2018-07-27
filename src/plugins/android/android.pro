@@ -94,7 +94,6 @@ SOURCES += \
     avddialog.cpp \
     androidbuildapkstep.cpp \
     androidbuildapkwidget.cpp \
-    androidqtsupport.cpp \
     androidtoolmanager.cpp \
     androidsdkmanager.cpp \
     androidavdmanager.cpp \

@@ -186,7 +186,7 @@ bool AndroidBuildApkStep::init(QList<const BuildStep *> &earlierSteps)
     setOutputParser(parser);
 
     m_openPackageLocationForRun = m_openPackageLocation;
-    m_apkPath = qtSupport->apkPath(target()).toString();
+    m_apkPath = AndroidManager::apkPath(target()).toString();
     qCDebug(buildapkstepLog) << "APK path:" << m_apkPath;
 
     if (!AbstractProcessStep::init(earlierSteps))

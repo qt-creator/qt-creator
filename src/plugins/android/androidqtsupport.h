@@ -30,14 +30,8 @@
 #include <coreplugin/id.h>
 
 #include <QObject>
-#include <QList>
 
-namespace ProjectExplorer {
-    class DeployConfiguration;
-    class ProcessParameters;
-    class Project;
-    class Target;
-}
+namespace ProjectExplorer { class Target; }
 
 namespace Utils { class FileName; }
 
@@ -69,7 +63,6 @@ public:
     virtual bool canHandle(const ProjectExplorer::Target *target) const = 0;
     virtual QStringList soLibSearchPath(const ProjectExplorer::Target *target) const = 0;
     virtual QStringList projectTargetApplications(const ProjectExplorer::Target *target) const = 0;
-    virtual Utils::FileName apkPath(const ProjectExplorer::Target *target) const;
 
     virtual QString targetDataItem(Core::Id role, const ProjectExplorer::Target *target) const = 0;
     virtual QStringList targetData(Core::Id role, const ProjectExplorer::Target *target) const = 0;

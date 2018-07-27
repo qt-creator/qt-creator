@@ -218,8 +218,7 @@ bool AndroidDeployQtStep::init(QList<const BuildStep *> &earlierSteps)
         m_uninstallPreviousPackageRun = true;
         m_command = AndroidConfigurations::currentConfig().adbToolPath().toString();
         const AndroidConfig &config = AndroidConfigurations::currentConfig();
-        m_apkPath = deployQtLive ? config.qtLiveApkPath() :
-                                     (qtSupport ? qtSupport->apkPath(target()) : Utils::FileName());
+        m_apkPath = deployQtLive ? config.qtLiveApkPath() : AndroidManager::apkPath(target());
         m_workingDirectory = bc ? bc->buildDirectory().toString() : QString();
     }
     m_environment = bc ? bc->environment() : Utils::Environment();

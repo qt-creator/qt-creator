@@ -48,7 +48,9 @@
 
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
+
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDir>
@@ -274,11 +276,30 @@ QString AndroidManager::targetArch(ProjectExplorer::Target *target)
     return qt->targetArch();
 }
 
-Utils::FileName AndroidManager::dirPath(ProjectExplorer::Target *target)
+Utils::FileName AndroidManager::dirPath(const ProjectExplorer::Target *target)
 {
     if (target->activeBuildConfiguration())
         return target->activeBuildConfiguration()->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY));
     return Utils::FileName();
+}
+
+Utils::FileName AndroidManager::apkPath(const ProjectExplorer::Target *target)
+{
+    QTC_ASSERT(target, return Utils::FileName());
+
+    auto buildApkStep
+        = Android::AndroidGlobal::buildStep<AndroidBuildApkStep>(target->activeBuildConfiguration());
+
+    if (!buildApkStep)
+        return Utils::FileName();
+
+    QString apkPath("build/outputs/apk/android-build-");
+    if (buildApkStep->signPackage())
+        apkPath += QLatin1String("release.apk");
+    else
+        apkPath += QLatin1String("debug.apk");
+
+    return dirPath(target).appendPath(apkPath);
 }
 
 Utils::FileName AndroidManager::manifestSourcePath(ProjectExplorer::Target *target)
