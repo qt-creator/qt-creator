@@ -177,44 +177,45 @@ def main():
     openGeneralMessages()
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     for protocol in protocolsToTest:
-        skippedPasting = True
-        description = "Paste from 2017-05-11"
-        if protocol == NAME_KDE:
-            pasteId = "pysjk6n2i"
-            pastedText = readFile(os.path.join(os.getcwd(), "testdata", "main-prepasted.cpp"))
-        elif skipPastingToPastebinCom and protocol == NAME_PBCOM:
-            pasteId = "8XHP0ZgH"
-            pastedText = readFile(os.path.join(os.getcwd(), "testdata", "main-prepasted.cpp"))
-        else:
-            skippedPasting = False
-            try:
-                pasteId, description, pastedText = pasteFile(sourceFile, protocol)
-            except Exception as e:
-                if e.message == serverProblems:
-                    test.warning("Ignoring server side issues")
+        with TestSection(protocol):
+            skippedPasting = True
+            description = "Paste from 2017-05-11"
+            if protocol == NAME_KDE:
+                pasteId = "pysjk6n2i"
+                pastedText = readFile(os.path.join(os.getcwd(), "testdata", "main-prepasted.cpp"))
+            elif skipPastingToPastebinCom and protocol == NAME_PBCOM:
+                pasteId = "8XHP0ZgH"
+                pastedText = readFile(os.path.join(os.getcwd(), "testdata", "main-prepasted.cpp"))
+            else:
+                skippedPasting = False
+                try:
+                    pasteId, description, pastedText = pasteFile(sourceFile, protocol)
+                except Exception as e:
+                    if e.message == serverProblems:
+                        test.warning("Ignoring server side issues")
+                        continue
+                    else: # if it was not our own exception re-raise
+                        raise e
+                if not pasteId:
+                    test.fatal("Could not get id of paste to %s" % protocol)
                     continue
-                else: # if it was not our own exception re-raise
-                    raise e
-            if not pasteId:
-                test.fatal("Could not get id of paste to %s" % protocol)
+            pasteId = fetchSnippet(protocol, description, pasteId, skippedPasting)
+            if pasteId == -1:
                 continue
-        pasteId = fetchSnippet(protocol, description, pasteId, skippedPasting)
-        if pasteId == -1:
-            continue
-        filenameCombo = waitForObject(":Qt Creator_FilenameQComboBox")
-        waitFor("not filenameCombo.currentText.isEmpty()", 20000)
-        try:
-            editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
-        except:
-            outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
-            test.fail("Could not find editor with snippet", str(outputWindow.plainText))
-            clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
-            continue
-        test.compare(filenameCombo.currentText, "%s: %s" % (protocol, pasteId), "Verify title of editor")
-        if protocol in (NAME_KDE, NAME_PBCOM) and pastedText.endswith("\n"):
-            pastedText = pastedText[:-1]
-        test.compare(editor.plainText, pastedText, "Verify that pasted and fetched texts are the same")
-        invokeMenuItem("File", "Close All")
+            filenameCombo = waitForObject(":Qt Creator_FilenameQComboBox")
+            waitFor("not filenameCombo.currentText.isEmpty()", 20000)
+            try:
+                editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
+            except:
+                outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
+                test.fail("Could not find editor with snippet", str(outputWindow.plainText))
+                clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
+                continue
+            test.compare(filenameCombo.currentText, "%s: %s" % (protocol, pasteId), "Verify title of editor")
+            if protocol in (NAME_KDE, NAME_PBCOM) and pastedText.endswith("\n"):
+                pastedText = pastedText[:-1]
+            test.compare(editor.plainText, pastedText, "Verify that pasted and fetched texts are the same")
+            invokeMenuItem("File", "Close All")
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(sourceFile)
     editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
