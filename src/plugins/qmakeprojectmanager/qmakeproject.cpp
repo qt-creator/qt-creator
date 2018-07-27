@@ -1062,15 +1062,11 @@ void QmakeProject::updateBuildSystemData()
             else
                 workingDir = destDir;
         } else {
-            destDir = ti.buildDir.toString();
             workingDir = ti.buildDir.toString();
         }
 
-        if (HostOsInfo::isMacHost() && config.contains("app_bundle")) {
-            const QString infix = '/' + ti.target + ".app/Contents/MacOS";
-            workingDir += infix;
-            destDir += infix;
-        }
+        if (HostOsInfo::isMacHost() && config.contains("app_bundle"))
+            workingDir += '/' + ti.target + ".app/Contents/MacOS";
 
         BuildTargetInfo bti;
         bti.targetFilePath = FileName::fromString(executableFor(proFile));
