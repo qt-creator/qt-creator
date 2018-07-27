@@ -45,7 +45,7 @@ namespace Internal {
 class QmlProfilerStateWidget::QmlProfilerStateWidgetPrivate
 {
     public:
-    QmlProfilerStateWidgetPrivate(QmlProfilerStateWidget *qq) { Q_UNUSED(qq); }
+    QmlProfilerStateWidgetPrivate(QmlProfilerStateWidget *qq) : text(nullptr) { Q_UNUSED(qq); }
 
     QLabel *text;
 
