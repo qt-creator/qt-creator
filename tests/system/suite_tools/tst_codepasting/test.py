@@ -25,10 +25,14 @@
 
 source("../../shared/qtcreator.py")
 import random
+from datetime import date
+
+def __platformToBeRunToday__():
+    return (('Linux'), ('Darwin'), ('Microsoft', 'Windows'))[date.today().day % 3]
 
 # Be careful with Pastebin.Com, there are only 10 pastes per 24h
 # for all machines using the same IP-address like you.
-skipPastingToPastebinCom = True
+skipPastingToPastebinCom = platform.system() not in __platformToBeRunToday__()
 
 NAME_KDE = "Paste.KDE.Org"
 NAME_PBCA = "Pastebin.Ca"
@@ -197,8 +201,16 @@ def main():
                     else: # if it was not our own exception re-raise
                         raise e
                 if not pasteId:
-                    test.fatal("Could not get id of paste to %s" % protocol)
-                    continue
+                    message = "Could not get id of paste to %s" % protocol
+                    if protocol == NAME_PBCOM:
+                        test.log("%s, using prepasted file instead" % message)
+                        skippedPasting = True
+                        pasteId = "8XHP0ZgH"
+                        pastedText = readFile(os.path.join(os.getcwd(),
+                                              "testdata", "main-prepasted.cpp"))
+                    else:
+                        test.fatal(message)
+                        continue
             pasteId = fetchSnippet(protocol, description, pasteId, skippedPasting)
             if pasteId == -1:
                 continue
