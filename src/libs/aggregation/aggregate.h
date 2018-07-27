@@ -40,7 +40,7 @@ class AGGREGATION_EXPORT Aggregate : public QObject
     Q_OBJECT
 
 public:
-    Aggregate(QObject *parent = 0);
+    Aggregate(QObject *parent = nullptr);
     ~Aggregate() override;
 
     void add(QObject *component);
@@ -52,7 +52,7 @@ public:
             if (T *result = qobject_cast<T *>(component))
                 return result;
         }
-        return (T *)0;
+        return nullptr;
     }
 
     template <typename T> QList<T *> components() {
@@ -84,19 +84,19 @@ private:
 template <typename T> T *query(Aggregate *obj)
 {
     if (!obj)
-        return (T *)0;
+        return nullptr;
     return obj->template component<T>();
 }
 
 template <typename T> T *query(QObject *obj)
 {
     if (!obj)
-        return (T *)0;
+        return nullptr;
     T *result = qobject_cast<T *>(obj);
     if (!result) {
         QReadLocker locker(&Aggregate::lock());
         Aggregate *parentAggregation = Aggregate::parentAggregate(obj);
-        result = (parentAggregation ? query<T>(parentAggregation) : 0);
+        result = (parentAggregation ? query<T>(parentAggregation) : nullptr);
     }
     return result;
 }
