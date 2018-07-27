@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "kind": "project",
+    "supportedProjectTypes": [ "UNKNOWN_PROJECT" ],
     "id": "I.Fossil",
     "category": "T.Import",
     "trDescription": "Clones a Fossil repository and tries to load the contained project.",
