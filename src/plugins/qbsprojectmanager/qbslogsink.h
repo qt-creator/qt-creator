@@ -40,7 +40,7 @@ class QbsLogSink : public QObject, public qbs::ILogSink
 {
     Q_OBJECT
 public:
-    QbsLogSink(QObject *parent = 0);
+    QbsLogSink(QObject *parent = nullptr);
 
 signals:
     void newTask(const ProjectExplorer::Task &task);
@@ -48,8 +48,9 @@ signals:
 private:
     Q_INVOKABLE void sendMessages();
 
-    void doPrintWarning(const qbs::ErrorInfo &warning);
-    void doPrintMessage(qbs::LoggerLevel level, const QString &message, const QString &tag);
+    void doPrintWarning(const qbs::ErrorInfo &warning) override;
+    void doPrintMessage(qbs::LoggerLevel level, const QString &message,
+                        const QString &tag) override;
 
     QStringList m_messages;
     QMutex m_mutex;

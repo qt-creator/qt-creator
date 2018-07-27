@@ -98,9 +98,9 @@ class QbsInstallStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
     Q_OBJECT
 public:
     QbsInstallStepConfigWidget(QbsInstallStep *step);
-    ~QbsInstallStepConfigWidget();
-    QString summaryText() const;
-    QString displayName() const;
+    ~QbsInstallStepConfigWidget() override;
+    QString summaryText() const override;
+    QString displayName() const override;
 
 private:
     void updateState();

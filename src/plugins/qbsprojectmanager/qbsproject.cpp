@@ -121,8 +121,8 @@ private:
 
 QbsProject::QbsProject(const FileName &fileName) :
     Project(Constants::MIME_TYPE, fileName, [this]() { delayParsing(); }),
-    m_qbsProjectParser(0),
-    m_qbsUpdateFutureInterface(0),
+    m_qbsProjectParser(nullptr),
+    m_qbsUpdateFutureInterface(nullptr),
     m_parsingScheduled(false),
     m_cancelStatus(CancelStatusNone),
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this)),
@@ -174,7 +174,7 @@ QbsProject::~QbsProject()
         m_qbsUpdateFutureInterface->reportCanceled();
         m_qbsUpdateFutureInterface->reportFinished();
         delete m_qbsUpdateFutureInterface;
-        m_qbsUpdateFutureInterface = 0;
+        m_qbsUpdateFutureInterface = nullptr;
     }
     qDeleteAll(m_extraCompilers);
     std::for_each(m_qbsDocuments.cbegin(), m_qbsDocuments.cend(),
@@ -210,7 +210,7 @@ class ChangeExpector
 {
 public:
     ChangeExpector(const QString &filePath, const QSet<IDocument *> &documents)
-        : m_document(0)
+        : m_document(nullptr)
     {
         foreach (IDocument * const doc, documents) {
             if (doc->filePath().toString() == filePath) {
@@ -362,8 +362,8 @@ template<typename Options>
 qbs::AbstractJob *QbsProject::buildOrClean(const Options &opts, const QStringList &productNames,
                                            QString &error)
 {
-    QTC_ASSERT(qbsProject().isValid(), return 0);
-    QTC_ASSERT(!isParsing(), return 0);
+    QTC_ASSERT(qbsProject().isValid(), return nullptr);
+    QTC_ASSERT(!isParsing(), return nullptr);
 
     QList<qbs::ProductData> products;
     foreach (const QString &productName, productNames) {
@@ -400,7 +400,7 @@ qbs::CleanJob *QbsProject::clean(const qbs::CleanOptions &opts, const QStringLis
 qbs::InstallJob *QbsProject::install(const qbs::InstallOptions &opts)
 {
     if (!qbsProject().isValid())
-        return 0;
+        return nullptr;
     return qbsProject().installAllProducts(opts);
 }
 
@@ -437,7 +437,7 @@ bool QbsProject::checkCancelStatus()
         return false;
     qCDebug(qbsPmLog) << "Cancel request while parsing, starting re-parse";
     m_qbsProjectParser->deleteLater();
-    m_qbsProjectParser = 0;
+    m_qbsProjectParser = nullptr;
     emitParsingFinished(false);
     parseCurrentBuildConfiguration();
     return true;
@@ -514,10 +514,10 @@ void QbsProject::handleQbsParsingDone(bool success)
     }
 
     m_qbsProjectParser->deleteLater();
-    m_qbsProjectParser = 0;
+    m_qbsProjectParser = nullptr;
     m_qbsUpdateFutureInterface->reportFinished();
     delete m_qbsUpdateFutureInterface;
-    m_qbsUpdateFutureInterface = 0;
+    m_qbsUpdateFutureInterface = nullptr;
 
     if (dataChanged)
         updateAfterParse();
@@ -539,10 +539,10 @@ void QbsProject::handleRuleExecutionDone()
         return;
 
     m_qbsProjectParser->deleteLater();
-    m_qbsProjectParser = 0;
+    m_qbsProjectParser = nullptr;
     m_qbsUpdateFutureInterface->reportFinished();
     delete m_qbsUpdateFutureInterface;
-    m_qbsUpdateFutureInterface = 0;
+    m_qbsUpdateFutureInterface = nullptr;
 
     QTC_ASSERT(m_qbsProject.isValid(), return);
     m_projectData = m_qbsProject.projectData();
@@ -588,7 +588,7 @@ void QbsProject::parseCurrentBuildConfiguration()
 
     if (!activeTarget())
         return;
-    QbsBuildConfiguration *bc = qobject_cast<QbsBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
+    auto bc = qobject_cast<QbsBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
     if (!bc)
         return;
 
@@ -719,7 +719,7 @@ void QbsProject::prepareForParsing()
         m_qbsUpdateFutureInterface->reportFinished();
     }
     delete m_qbsUpdateFutureInterface;
-    m_qbsUpdateFutureInterface = 0;
+    m_qbsUpdateFutureInterface = nullptr;
 
     m_qbsUpdateFutureInterface = new QFutureInterface<bool>();
     m_qbsUpdateFutureInterface->setProgressRange(0, 0);

@@ -46,7 +46,7 @@ class QbsManager : public QObject
 
 public:
     QbsManager();
-    ~QbsManager();
+    ~QbsManager() override;
 
     // QBS profiles management:
     static QString profileForKit(const ProjectExplorer::Kit *k);

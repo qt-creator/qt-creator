@@ -85,7 +85,7 @@ void QbsBuildConfiguration::initialize(const BuildInfo *info)
 {
     BuildConfiguration::initialize(info);
 
-    const QbsBuildInfo * const bi = static_cast<const QbsBuildInfo *>(info);
+    const auto * const bi = static_cast<const QbsBuildInfo *>(info);
     QVariantMap configData = bi->config;
     configData.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
                       (info->buildType == BuildConfiguration::Debug)
@@ -136,7 +136,7 @@ bool QbsBuildConfiguration::fromMap(const QVariantMap &map)
     BuildStepList *bsl = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     // Fix up the existing build steps:
     for (int i = 0; i < bsl->count(); ++i) {
-        QbsBuildStep *bs = qobject_cast<QbsBuildStep *>(bsl->at(i));
+        auto bs = qobject_cast<QbsBuildStep *>(bsl->at(i));
         if (bs)
             connect(bs, &QbsBuildStep::qbsConfigurationChanged, this, &QbsBuildConfiguration::qbsConfigurationChanged);
     }
@@ -178,7 +178,7 @@ Internal::QbsProject *QbsBuildConfiguration::project() const
 IOutputParser *QbsBuildConfiguration::createOutputParser() const
 {
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    return tc ? tc->outputParser() : 0;
+    return tc ? tc->outputParser() : nullptr;
 }
 
 bool QbsBuildConfiguration::isEnabled() const

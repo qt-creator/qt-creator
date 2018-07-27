@@ -45,10 +45,10 @@ CustomQbsPropertiesDialog::CustomQbsPropertiesDialog(const QVariantMap &properti
     int currentRow = 0;
     for (QVariantMap::ConstIterator it = properties.constBegin(); it != properties.constEnd();
          ++it) {
-        QTableWidgetItem * const nameItem = new QTableWidgetItem;
+        auto * const nameItem = new QTableWidgetItem;
         nameItem->setData(Qt::DisplayRole, it.key());
         m_ui->propertiesTable->setItem(currentRow, 0, nameItem);
-        QTableWidgetItem * const valueItem = new QTableWidgetItem;
+        auto * const valueItem = new QTableWidgetItem;
         valueItem->setData(Qt::DisplayRole, qbs::settingsValueToRepresentation(it.value()));
         m_ui->propertiesTable->setItem(currentRow, 1, valueItem);
         ++currentRow;

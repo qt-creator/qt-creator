@@ -231,7 +231,7 @@ QList<BuildInfo *> QbsProjectImporter::buildInfoListForKit(const Kit *k, void *d
         return result;
     }
     const auto * const bgData = static_cast<BuildGraphData *>(directoryData);
-    QbsBuildInfo * const buildInfo = new QbsBuildInfo(factory);
+    auto * const buildInfo = new QbsBuildInfo(factory);
     buildInfo->displayName = bgData->bgFilePath.toFileInfo().completeBaseName();
     buildInfo->buildType = bgData->buildVariant == "debug"
             ? BuildConfiguration::Debug : BuildConfiguration::Release;

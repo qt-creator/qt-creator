@@ -40,7 +40,7 @@ class QBSPROJECTMANAGER_EXPORT PropertyProvider : public QObject
 
 public:
     PropertyProvider();
-    ~PropertyProvider();
+    ~PropertyProvider() override;
 
     virtual bool canHandle(const ProjectExplorer::Kit *k) const = 0;
     virtual QVariantMap properties(const ProjectExplorer::Kit *k, const QVariantMap &defaultData) const = 0;

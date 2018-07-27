@@ -59,7 +59,7 @@ QbsCleanStep::~QbsCleanStep()
     cancel();
     if (m_job) {
         m_job->deleteLater();
-        m_job = 0;
+        m_job = nullptr;
     }
 }
 
@@ -69,7 +69,7 @@ bool QbsCleanStep::init(QList<const BuildStep *> &earlierSteps)
     if (project()->isParsing() || m_job)
         return false;
 
-    QbsBuildConfiguration *bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
+    auto bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
 
     if (!bc)
         return false;
@@ -82,7 +82,7 @@ void QbsCleanStep::run(QFutureInterface<bool> &fi)
 {
     m_fi = &fi;
 
-    QbsProject *pro = static_cast<QbsProject *>(project());
+    auto pro = static_cast<QbsProject *>(project());
     qbs::CleanOptions options(m_qbsCleanOptions);
 
     QString error;
@@ -164,9 +164,9 @@ void QbsCleanStep::cleaningDone(bool success)
 
     QTC_ASSERT(m_fi, return);
     reportRunResult(*m_fi, success);
-    m_fi = 0; // do not delete, it is not ours
+    m_fi = nullptr; // do not delete, it is not ours
     m_job->deleteLater();
-    m_job = 0;
+    m_job = nullptr;
 }
 
 void QbsCleanStep::handleTaskStarted(const QString &desciption, int max)

@@ -67,9 +67,9 @@ class QbsBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
     Q_OBJECT
 public:
     QbsBuildStepConfigWidget(QbsBuildStep *step);
-    ~QbsBuildStepConfigWidget();
-    QString summaryText() const;
-    QString displayName() const;
+    ~QbsBuildStepConfigWidget() override;
+    QString summaryText() const override;
+    QString displayName() const override;
 
 private:
     void updateState();
@@ -137,7 +137,7 @@ QbsBuildStep::~QbsBuildStep()
     cancel();
     if (m_job) {
         m_job->deleteLater();
-        m_job = 0;
+        m_job = nullptr;
     }
     delete m_parser;
 }
@@ -148,7 +148,7 @@ bool QbsBuildStep::init(QList<const BuildStep *> &earlierSteps)
     if (project()->isParsing() || m_job)
         return false;
 
-    QbsBuildConfiguration *bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
+    auto bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
 
     if (!bc)
         return false;
@@ -220,7 +220,7 @@ QVariantMap QbsBuildStep::qbsConfiguration(VariableHandling variableHandling) co
 
 void QbsBuildStep::setQbsConfiguration(const QVariantMap &config)
 {
-    QbsProject *pro = static_cast<QbsProject *>(project());
+    auto pro = static_cast<QbsProject *>(project());
 
     QVariantMap tmp = config;
     tmp.insert(Constants::QBS_CONFIG_PROFILE_KEY, pro->profileForTarget(target()));
@@ -231,7 +231,7 @@ void QbsBuildStep::setQbsConfiguration(const QVariantMap &config)
     if (tmp == m_qbsConfiguration)
         return;
     m_qbsConfiguration = tmp;
-    QbsBuildConfiguration *bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
+    auto bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
     if (bc)
         bc->emitBuildTypeChanged();
     emit qbsConfigurationChanged();
@@ -330,7 +330,7 @@ void QbsBuildStep::buildingDone(bool success)
         createTaskAndOutput(ProjectExplorer::Task::Error, item.description(),
                             item.codeLocation().filePath(), item.codeLocation().line());
 
-    QbsProject *pro = static_cast<QbsProject *>(project());
+    auto pro = static_cast<QbsProject *>(project());
 
     // Building can uncover additional target artifacts.
     pro->updateAfterBuild();
@@ -424,7 +424,7 @@ void QbsBuildStep::setBuildVariant(const QString &variant)
         return;
     m_qbsConfiguration.insert(Constants::QBS_CONFIG_VARIANT_KEY, variant);
     emit qbsConfigurationChanged();
-    QbsBuildConfiguration *bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
+    auto bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
     if (bc)
         bc->emitBuildTypeChanged();
 }
@@ -517,10 +517,10 @@ void QbsBuildStep::finish()
 {
     QTC_ASSERT(m_fi, return);
     reportRunResult(*m_fi, m_lastWasSuccess);
-    m_fi = 0; // do not delete, it is not ours
+    m_fi = nullptr; // do not delete, it is not ours
     if (m_job) {
         m_job->deleteLater();
-        m_job = 0;
+        m_job = nullptr;
     }
 }
 

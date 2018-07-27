@@ -44,7 +44,7 @@ class QbsProjectParser : public QObject
 public:
     QbsProjectParser(QbsProjectManager::Internal::QbsProject *project,
                      QFutureInterface<bool> *fi);
-    ~QbsProjectParser();
+    ~QbsProjectParser() override;
 
     void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir,
                const QString &configName);

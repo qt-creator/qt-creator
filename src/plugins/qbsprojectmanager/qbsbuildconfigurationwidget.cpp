@@ -49,16 +49,16 @@ QbsBuildConfigurationWidget::QbsBuildConfigurationWidget(QbsProjectManager::Inte
     connect(bc, &ProjectExplorer::BuildConfiguration::environmentChanged,
             this, &QbsBuildConfigurationWidget::environmentHasChanged);
 
-    QVBoxLayout *vbox = new QVBoxLayout(this);
+    auto vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
-    Utils::DetailsWidget *container = new Utils::DetailsWidget(this);
+    auto container = new Utils::DetailsWidget(this);
     container->setState(Utils::DetailsWidget::NoSummary);
     vbox->addWidget(container);
 
     QWidget *details = new QWidget(container);
     container->setWidget(details);
 
-    QGridLayout *layout = new QGridLayout(details);
+    auto layout = new QGridLayout(details);
     layout->setMargin(0);
     layout->addWidget(new QLabel(tr("Build directory:")), 0, 0);
 

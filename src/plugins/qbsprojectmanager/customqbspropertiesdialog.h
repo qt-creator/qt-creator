@@ -37,10 +37,10 @@ class CustomQbsPropertiesDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit CustomQbsPropertiesDialog(const QVariantMap &properties, QWidget *parent = 0);
+    explicit CustomQbsPropertiesDialog(const QVariantMap &properties, QWidget *parent = nullptr);
 
     QVariantMap properties() const;
-    ~CustomQbsPropertiesDialog();
+    ~CustomQbsPropertiesDialog() override;
 
 private:
     void addProperty();

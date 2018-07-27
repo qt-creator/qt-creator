@@ -56,21 +56,21 @@ namespace Internal {
 static const QbsProjectNode *parentQbsProjectNode(const ProjectExplorer::Node *node)
 {
     for (const ProjectExplorer::FolderNode *pn = node->managingProject(); pn; pn = pn->parentProjectNode()) {
-        const QbsProjectNode *prjNode = dynamic_cast<const QbsProjectNode *>(pn);
+        const auto prjNode = dynamic_cast<const QbsProjectNode *>(pn);
         if (prjNode)
             return prjNode;
     }
-    return 0;
+    return nullptr;
 }
 
 static const QbsProductNode *parentQbsProductNode(const ProjectExplorer::Node *node)
 {
     for (; node; node = node->parentFolderNode()) {
-        const QbsProductNode *prdNode = dynamic_cast<const QbsProductNode *>(node);
+        const auto prdNode = dynamic_cast<const QbsProductNode *>(node);
         if (prdNode)
             return prdNode;
     }
-    return 0;
+    return nullptr;
 }
 
 static qbs::GroupData findMainQbsGroup(const qbs::ProductData &productData)
@@ -84,7 +84,7 @@ static qbs::GroupData findMainQbsGroup(const qbs::ProductData &productData)
 
 class FileTreeNode {
 public:
-    explicit FileTreeNode(const QString &n = QString(), FileTreeNode *p = 0, bool f = false) :
+    explicit FileTreeNode(const QString &n = QString(), FileTreeNode *p = nullptr, bool f = false) :
         parent(p), name(n), m_isFile(f)
     {
         if (p)
@@ -109,14 +109,14 @@ public:
 
     static FileTreeNode *moveChildrenUp(FileTreeNode *node)
     {
-        QTC_ASSERT(node, return 0);
+        QTC_ASSERT(node, return nullptr);
 
         FileTreeNode *newParent = node->parent;
         if (!newParent)
-            return 0;
+            return nullptr;
 
         // disconnect node and parent:
-        node->parent = 0;
+        node->parent = nullptr;
         newParent->children.removeOne(node);
 
         foreach (FileTreeNode *c, node->children) {
@@ -163,7 +163,7 @@ public:
             // Clean up node:
             node->children.clear();
             node->parent->children.removeOne(node);
-            node->parent = 0;
+            node->parent = nullptr;
             delete node;
 
             return;
@@ -184,7 +184,7 @@ public:
         if (node->children.isEmpty() && !node->isFile()) {
             // Clean up empty folder nodes:
             node->parent->children.removeOne(node);
-            node->parent = 0;
+            node->parent = nullptr;
             delete node;
         } else if (node->children.count() == 1 && !node->children.at(0)->isFile()) {
             // Compact folder nodes with one child only:

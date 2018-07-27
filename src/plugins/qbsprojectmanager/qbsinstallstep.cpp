@@ -76,7 +76,7 @@ QbsInstallStep::~QbsInstallStep()
     cancel();
     if (m_job)
         m_job->deleteLater();
-    m_job = 0;
+    m_job = nullptr;
 }
 
 bool QbsInstallStep::init(QList<const BuildStep *> &earlierSteps)
@@ -90,7 +90,7 @@ void QbsInstallStep::run(QFutureInterface<bool> &fi)
 {
     m_fi = &fi;
 
-    QbsProject *pro = static_cast<QbsProject *>(project());
+    auto pro = static_cast<QbsProject *>(project());
     m_job = pro->install(m_qbsInstallOptions);
 
     if (!m_job) {
@@ -187,9 +187,9 @@ void QbsInstallStep::installDone(bool success)
 
     QTC_ASSERT(m_fi, return);
     reportRunResult(*m_fi, success);
-    m_fi = 0; // do not delete, it is not ours
+    m_fi = nullptr; // do not delete, it is not ours
     m_job->deleteLater();
-    m_job = 0;
+    m_job = nullptr;
 }
 
 void QbsInstallStep::handleTaskStarted(const QString &desciption, int max)
@@ -260,7 +260,7 @@ QbsInstallStepConfigWidget::QbsInstallStepConfigWidget(QbsInstallStep *step) :
 
     setContentsMargins(0, 0, 0, 0);
 
-    QbsProject *project = static_cast<QbsProject *>(m_step->project());
+    auto project = static_cast<QbsProject *>(m_step->project());
 
     m_ui = new Ui::QbsInstallStepConfigWidget;
     m_ui->setupUi(this);

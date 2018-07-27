@@ -52,7 +52,7 @@ class QbsProfilesSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QbsProfilesSettingsWidget(QWidget *parent = 0);
+    QbsProfilesSettingsWidget(QWidget *parent = nullptr);
 
     void apply();
 
@@ -66,7 +66,7 @@ private:
 
 QbsProfilesSettingsPage::QbsProfilesSettingsPage(QObject *parent)
     : Core::IOptionsPage(parent)
-    , m_widget(0)
+    , m_widget(nullptr)
     , m_useQtcSettingsDirPersistent(QbsProjectManagerSettings::useCreatorSettingsDirForQbs())
 
 {
@@ -92,7 +92,7 @@ void QbsProfilesSettingsPage::apply()
 void QbsProfilesSettingsPage::finish()
 {
     delete m_widget;
-    m_widget = 0;
+    m_widget = nullptr;
     QbsProjectManagerSettings::setUseCreatorSettingsDirForQbs(m_useQtcSettingsDirPersistent);
     QbsProjectManagerSettings::writeSettings();
 }
@@ -131,7 +131,7 @@ void QbsProfilesSettingsWidget::apply()
 void QbsProfilesSettingsWidget::refreshKitsList()
 {
     m_ui.kitsComboBox->disconnect(this);
-    m_ui.propertiesView->setModel(0);
+    m_ui.propertiesView->setModel(nullptr);
     m_model.reload();
     m_ui.profileValueLabel->clear();
     Core::Id currentId;
@@ -159,7 +159,7 @@ void QbsProfilesSettingsWidget::refreshKitsList()
 
 void QbsProfilesSettingsWidget::displayCurrentProfile()
 {
-    m_ui.propertiesView->setModel(0);
+    m_ui.propertiesView->setModel(nullptr);
     if (m_ui.kitsComboBox->currentIndex() == -1)
         return;
     const Core::Id kitId = Core::Id::fromSetting(m_ui.kitsComboBox->currentData());
