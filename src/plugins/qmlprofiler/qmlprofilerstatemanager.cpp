@@ -47,7 +47,10 @@ inline QString stringForState(int state) {
 class QmlProfilerStateManager::QmlProfilerStateManagerPrivate
 {
 public:
-    QmlProfilerStateManagerPrivate(QmlProfilerStateManager *qq) : q(qq) {}
+    QmlProfilerStateManagerPrivate(QmlProfilerStateManager *qq)
+        : q(qq), m_currentState(Idle), m_clientRecording(true), m_serverRecording(false),
+          m_requestedFeatures(0), m_recordedFeatures(0) {}
+
     ~QmlProfilerStateManagerPrivate() {}
 
     QmlProfilerStateManager *q;
@@ -59,14 +62,7 @@ public:
     quint64 m_recordedFeatures;
 };
 QmlProfilerStateManager::QmlProfilerStateManager(QObject *parent) :
-    QObject(parent),d(new QmlProfilerStateManagerPrivate(this))
-{
-    d->m_currentState = Idle;
-    d->m_clientRecording = true;
-    d->m_serverRecording = false;
-    d->m_requestedFeatures = 0;
-    d->m_recordedFeatures = 0;
-}
+    QObject(parent),d(new QmlProfilerStateManagerPrivate(this)) {}
 
 QmlProfilerStateManager::~QmlProfilerStateManager()
 {
