@@ -49,10 +49,7 @@ namespace Internal {
 // --------------------------------------------------------------------
 
 QbsProjectParser::QbsProjectParser(QbsProject *project, QFutureInterface<bool> *fi) :
-    m_qbsSetupProjectJob(nullptr),
-    m_ruleExecutionJob(nullptr),
-    m_fi(fi),
-    m_currentProgressBase(0)
+    m_fi(fi)
 {
     m_project = project->qbsProject();
     m_projectFilePath = project->projectFilePath().toString();

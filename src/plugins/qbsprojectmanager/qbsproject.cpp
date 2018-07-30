@@ -120,13 +120,8 @@ private:
 // --------------------------------------------------------------------
 
 QbsProject::QbsProject(const FileName &fileName) :
-    Project(Constants::MIME_TYPE, fileName, [this]() { delayParsing(); }),
-    m_qbsProjectParser(nullptr),
-    m_qbsUpdateFutureInterface(nullptr),
-    m_parsingScheduled(false),
-    m_cancelStatus(CancelStatusNone),
-    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this)),
-    m_extraCompilersPending(false)
+    Project(Constants::MIME_TYPE, fileName, [this] { delayParsing(); }),
+    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater(this))
 {
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
 

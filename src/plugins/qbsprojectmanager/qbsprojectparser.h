@@ -70,14 +70,14 @@ private:
     void handleRuleExecutionDone();
 
     QString m_projectFilePath;
-    qbs::SetupProjectJob *m_qbsSetupProjectJob;
-    qbs::BuildJob *m_ruleExecutionJob;
+    qbs::SetupProjectJob *m_qbsSetupProjectJob = nullptr;
+    qbs::BuildJob *m_ruleExecutionJob = nullptr;
     qbs::ErrorInfo m_error;
     qbs::Project m_project;
     bool m_dryRun;
 
-    QFutureInterface<bool> *m_fi;
-    int m_currentProgressBase;
+    QFutureInterface<bool> *m_fi = nullptr;
+    int m_currentProgressBase = 0;
 };
 
 } // namespace Internal

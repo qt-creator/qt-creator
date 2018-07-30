@@ -41,7 +41,7 @@ private:
     void apply() override;
     void finish() override;
 
-    QbsProfilesSettingsWidget *m_widget;
+    QbsProfilesSettingsWidget *m_widget = nullptr;
     bool m_useQtcSettingsDirPersistent;
 };
 

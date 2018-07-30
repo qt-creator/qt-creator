@@ -66,7 +66,6 @@ private:
 
 QbsProfilesSettingsPage::QbsProfilesSettingsPage(QObject *parent)
     : Core::IOptionsPage(parent)
-    , m_widget(nullptr)
     , m_useQtcSettingsDirPersistent(QbsProjectManagerSettings::useCreatorSettingsDirForQbs())
 
 {
