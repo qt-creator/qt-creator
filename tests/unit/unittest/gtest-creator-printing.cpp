@@ -299,18 +299,6 @@ std::ostream &operator<<(std::ostream &os, const AliveMessage &/*message*/)
     return os << "()";
 }
 
-#define RETURN_TEXT_FOR_CASE(enumValue) case CompletionCorrection::enumValue: return #enumValue
-static const char *completionCorrectionToText(CompletionCorrection correction)
-{
-    switch (correction) {
-        RETURN_TEXT_FOR_CASE(NoCorrection);
-        RETURN_TEXT_FOR_CASE(DotToArrowCorrection);
-    }
-
-    return "";
-}
-#undef RETURN_TEXT_FOR_CASE
-
 std::ostream &operator<<(std::ostream &os, const CompletionsMessage &message)
 {
     os << "("
