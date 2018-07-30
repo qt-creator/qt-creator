@@ -55,7 +55,6 @@ class ProjectConfiguration;
 class ProjectImporter;
 class ProjectNode;
 class ProjectPrivate;
-class Session;
 class Target;
 
 // Auto-registers with the DocumentManager if a callback is set!
@@ -250,7 +249,6 @@ private:
     void setActiveTarget(Target *target);
     ProjectPrivate *d;
 
-    friend class Session;
     friend class ContainerNode;
 };
 
