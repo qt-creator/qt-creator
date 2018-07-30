@@ -303,7 +303,7 @@ The minimum API level required by the kit is %1.</source>
     </message>
     <message>
         <source>Android run settings</source>
-        <translation>Настройки запуска Android</translation>
+        <translation>Настройки запуска под Android</translation>
     </message>
     <message>
         <source>The project file &quot;%1&quot; is currently being parsed.</source>
@@ -357,7 +357,7 @@ The minimum API level required by the kit is %1.</source>
     </message>
     <message>
         <source>Install the missing emulator tool (%1) to the installed Android SDK.</source>
-        <translation>Установите отсутствующую утилиту эмуляции (%1) в установленный Android SDK.</translation>
+        <translation>Установите утилиту эмуляции (%1) в установленный Android SDK.</translation>
     </message>
 </context>
 <context>
@@ -929,7 +929,7 @@ Do you want to uninstall the existing package?</source>
     </message>
     <message>
         <source>Cannot attach jdb to the running application</source>
-        <translation>Не удалось подключить jdb к работающему приложению</translation>
+        <translation>Не удалось подключить jdb к запущенному приложению</translation>
     </message>
     <message>
         <source>&quot;%1&quot; died.</source>
@@ -1909,7 +1909,7 @@ Executable: %2</source>
     </message>
     <message>
         <source>Select on what grouping the tests should be based.</source>
-        <translation>Выберите основание для группировки тестов.</translation>
+        <translation>Выберите критерий для группировки тестов.</translation>
     </message>
     <message>
         <source>Directory</source>
@@ -14156,7 +14156,7 @@ You can choose between waiting longer or aborting debugging.</source>
     </message>
     <message>
         <source>Attached to running application.</source>
-        <translation>Присоединено к работающему приложению.</translation>
+        <translation>Присоединено к запущенному приложению.</translation>
     </message>
     <message>
         <source>Failed to attach to application: %1</source>
