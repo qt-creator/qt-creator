@@ -45,10 +45,10 @@ NimRunConfiguration::NimRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
     addExtraAspect(new ExecutableAspect(this));
-    addExtraAspect(new ArgumentsAspect(this, "Nim.NimRunConfiguration.ArgumentAspect"));
-    addExtraAspect(new WorkingDirectoryAspect(this, "Nim.NimRunConfiguration.WorkingDirectoryAspect"));
+    addExtraAspect(new ArgumentsAspect(this));
+    addExtraAspect(new WorkingDirectoryAspect(this));
     addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
-    addExtraAspect(new TerminalAspect(this, "Nim.NimRunConfiguration.TerminalAspect"));
+    addExtraAspect(new TerminalAspect(this));
 
     setDisplayName(tr("Current Build Target"));
     setDefaultDisplayName(tr("Current Build Target"));

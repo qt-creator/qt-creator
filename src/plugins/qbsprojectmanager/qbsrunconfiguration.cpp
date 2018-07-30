@@ -59,18 +59,18 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target, Core::Id id)
     addExtraAspect(envAspect);
 
     addExtraAspect(new ExecutableAspect(this));
-    addExtraAspect(new ArgumentsAspect(this, "Qbs.RunConfiguration.CommandLineArguments"));
-    addExtraAspect(new WorkingDirectoryAspect(this, "Qbs.RunConfiguration.WorkingDirectory"));
-    addExtraAspect(new TerminalAspect(this, "Qbs.RunConfiguration.UseTerminal"));
+    addExtraAspect(new ArgumentsAspect(this));
+    addExtraAspect(new WorkingDirectoryAspect(this));
+    addExtraAspect(new TerminalAspect(this));
 
     setOutputFormatter<QtSupport::QtOutputFormatter>();
 
-    auto libAspect = new UseLibraryPathsAspect(this, "Qbs.RunConfiguration.UsingLibraryPaths");
+    auto libAspect = new UseLibraryPathsAspect(this);
     addExtraAspect(libAspect);
     connect(libAspect, &UseLibraryPathsAspect::changed,
             envAspect, &EnvironmentAspect::environmentChanged);
     if (HostOsInfo::isMacHost()) {
-        auto dyldAspect = new UseDyldSuffixAspect(this, "Qbs.RunConfiguration.UseDyldImageSuffix");
+        auto dyldAspect = new UseDyldSuffixAspect(this);
         addExtraAspect(dyldAspect);
         connect(dyldAspect, &UseDyldSuffixAspect::changed,
                 envAspect, &EnvironmentAspect::environmentChanged);

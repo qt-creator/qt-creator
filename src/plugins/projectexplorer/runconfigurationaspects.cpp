@@ -51,12 +51,12 @@ namespace ProjectExplorer {
     \class ProjectExplorer::TerminalAspect
 */
 
-TerminalAspect::TerminalAspect(RunConfiguration *runConfig, const QString &key, bool useTerminal) :
+TerminalAspect::TerminalAspect(RunConfiguration *runConfig, bool useTerminal) :
     IRunConfigurationAspect(runConfig), m_useTerminal(useTerminal)
 {
     setDisplayName(tr("Terminal"));
     setId("TerminalAspect");
-    setSettingsKey(key);
+    setSettingsKey("RunConfiguration.UseTerminal");
 }
 
 void TerminalAspect::addToConfigurationLayout(QFormLayout *layout)
@@ -115,12 +115,12 @@ bool TerminalAspect::isUserSet() const
     \class ProjectExplorer::WorkingDirectoryAspect
 */
 
-WorkingDirectoryAspect::WorkingDirectoryAspect(RunConfiguration *runConfig, const QString &key)
+WorkingDirectoryAspect::WorkingDirectoryAspect(RunConfiguration *runConfig)
     : IRunConfigurationAspect(runConfig)
 {
     setDisplayName(tr("Working Directory"));
     setId("WorkingDirectoryAspect");
-    setSettingsKey(key);
+    setSettingsKey("RunConfiguration.WorkingDirectory");
 }
 
 void WorkingDirectoryAspect::addToConfigurationLayout(QFormLayout *layout)
@@ -235,12 +235,12 @@ PathChooser *WorkingDirectoryAspect::pathChooser() const
     \class ProjectExplorer::ArgumentsAspect
 */
 
-ArgumentsAspect::ArgumentsAspect(RunConfiguration *runConfig, const QString &key)
+ArgumentsAspect::ArgumentsAspect(RunConfiguration *runConfig)
     : IRunConfigurationAspect(runConfig)
 {
     setDisplayName(tr("Arguments"));
     setId("ArgumentsAspect");
-    setSettingsKey(key);
+    setSettingsKey("RunConfiguration.Arguments");
 }
 
 QString ArgumentsAspect::arguments() const
@@ -654,10 +654,11 @@ void BaseBoolAspect::setLabel(const QString &label)
     \class ProjectExplorer::UseLibraryPathsAspect
 */
 
-UseLibraryPathsAspect::UseLibraryPathsAspect(RunConfiguration *rc, const QString &settingsKey)
-    : BaseBoolAspect(rc, settingsKey)
+UseLibraryPathsAspect::UseLibraryPathsAspect(RunConfiguration *rc)
+    : BaseBoolAspect(rc)
 {
     setId("UseLibraryPath");
+    setSettingsKey("RunConfiguration.UseLibrarySearchPath");
     if (HostOsInfo::isMacHost())
         setLabel(tr("Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH"));
     else if (HostOsInfo::isWindowsHost())
@@ -671,10 +672,11 @@ UseLibraryPathsAspect::UseLibraryPathsAspect(RunConfiguration *rc, const QString
     \class ProjectExplorer::UseDyldSuffixAspect
 */
 
-UseDyldSuffixAspect::UseDyldSuffixAspect(RunConfiguration *rc, const QString &settingsKey)
-    : BaseBoolAspect(rc, settingsKey)
+UseDyldSuffixAspect::UseDyldSuffixAspect(RunConfiguration *rc)
+    : BaseBoolAspect(rc)
 {
     setId("UseDyldSuffix");
+    setSettingsKey("RunConfiguration.UseDyldImageSuffix");
     setLabel(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"));
 }
 

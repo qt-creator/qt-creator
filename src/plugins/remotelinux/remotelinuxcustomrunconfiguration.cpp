@@ -57,8 +57,8 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
     symbolsAspect->setDisplayStyle(SymbolFileAspect::PathChooserDisplay);
     addExtraAspect(symbolsAspect);
 
-    addExtraAspect(new ArgumentsAspect(this, "RemoteLinux.CustomRunConfig.Arguments"));
-    addExtraAspect(new WorkingDirectoryAspect(this, "RemoteLinux.CustomRunConfig.WorkingDirectory"));
+    addExtraAspect(new ArgumentsAspect(this));
+    addExtraAspect(new WorkingDirectoryAspect(this));
     addExtraAspect(new RemoteLinuxEnvironmentAspect(this));
 
     setDefaultDisplayName(runConfigDefaultDisplayName());

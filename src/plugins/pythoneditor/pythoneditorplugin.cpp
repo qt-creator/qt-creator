@@ -266,8 +266,8 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
     addExtraAspect(scriptAspect);
 
     addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
-    addExtraAspect(new ArgumentsAspect(this, "PythonEditor.RunConfiguration.Arguments"));
-    addExtraAspect(new TerminalAspect(this, "PythonEditor.RunConfiguration.UseTerminal"));
+    addExtraAspect(new ArgumentsAspect(this));
+    addExtraAspect(new TerminalAspect(this));
 
     setOutputFormatter<PythonOutputFormatter>();
 

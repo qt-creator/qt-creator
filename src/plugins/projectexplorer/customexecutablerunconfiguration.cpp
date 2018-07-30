@@ -86,10 +86,7 @@ private:
 
 CustomExecutableDialog::CustomExecutableDialog(RunConfiguration *rc)
     : QDialog(Core::ICore::dialogParent()),
-      m_rc(rc),
-      m_arguments(rc, rc->extraAspect<ArgumentsAspect>()->settingsKey()),
-      m_workingDirectory(rc, rc->extraAspect<WorkingDirectoryAspect>()->settingsKey()),
-      m_terminal(rc, rc->extraAspect<TerminalAspect>()->settingsKey())
+      m_rc(rc), m_arguments(rc), m_workingDirectory(rc), m_terminal(rc)
 {
     auto vbox = new QVBoxLayout(this);
     vbox->addWidget(new QLabel(tr("Could not find the executable, please specify one.")));
@@ -189,9 +186,9 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
     exeAspect->setEnvironment(envAspect->environment());
     addExtraAspect(exeAspect);
 
-    addExtraAspect(new ArgumentsAspect(this, "ProjectExplorer.CustomExecutableRunConfiguration.Arguments"));
-    addExtraAspect(new TerminalAspect(this, "ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal"));
-    addExtraAspect(new WorkingDirectoryAspect(this, "ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory"));
+    addExtraAspect(new ArgumentsAspect(this));
+    addExtraAspect(new TerminalAspect(this));
+    addExtraAspect(new WorkingDirectoryAspect(this));
 
     connect(envAspect, &EnvironmentAspect::environmentChanged,
             this, [exeAspect, envAspect] { exeAspect->setEnvironment(envAspect->environment()); });

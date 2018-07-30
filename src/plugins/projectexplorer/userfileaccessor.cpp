@@ -122,6 +122,17 @@ public:
     static QVariant process(const QVariant &entry);
 };
 
+// Version 19 makes arguments, working directory and run-in-terminal
+// run configuration fields use the same key in the settings file.
+class UserFileVersion19Upgrader : public VersionUpgrader
+{
+public:
+    UserFileVersion19Upgrader() : VersionUpgrader(19, "4.8-pre2") { }
+    QVariantMap upgrade(const QVariantMap &map) final;
+
+    static QVariant process(const QVariant &entry, const QStringList &path);
+};
+
 } // namespace
 
 //
@@ -322,6 +333,7 @@ UserFileAccessor::UserFileAccessor(Project *project) :
     addVersionUpgrader(std::make_unique<UserFileVersion16Upgrader>());
     addVersionUpgrader(std::make_unique<UserFileVersion17Upgrader>());
     addVersionUpgrader(std::make_unique<UserFileVersion18Upgrader>());
+    addVersionUpgrader(std::make_unique<UserFileVersion19Upgrader>());
 }
 
 Project *UserFileAccessor::project() const
@@ -767,6 +779,71 @@ QVariant UserFileVersion18Upgrader::process(const QVariant &entry)
                                          ? QString("AutotoolsProjectManager.MakeStep.MakeArguments")
                                          : item.first);
                 return qMakePair(key, UserFileVersion18Upgrader::process(item.second));
+            });
+    default:
+        return entry;
+    }
+}
+
+QVariantMap UserFileVersion19Upgrader::upgrade(const QVariantMap &map)
+{
+    return process(map, QStringList()).toMap();
+}
+
+QVariant UserFileVersion19Upgrader::process(const QVariant &entry, const QStringList &path)
+{
+    static const QStringList argsKeys = {"Qt4ProjectManager.MaemoRunConfiguration.Arguments",
+                                         "CMakeProjectManager.CMakeRunConfiguration.Arguments",
+                                         "Ios.run_arguments",
+                                         "Nim.NimRunConfiguration.ArgumentAspect",
+                                         "ProjectExplorer.CustomExecutableRunConfiguration.Arguments",
+                                         "PythonEditor.RunConfiguration.Arguments",
+                                         "Qbs.RunConfiguration.CommandLineArguments",
+                                         "Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments",
+                                         "RemoteLinux.CustomRunConfig.Arguments",
+                                         "WinRtRunConfigurationArgumentsId",
+                                         "CommandLineArgs"};
+    static const QStringList wdKeys = {"BareMetal.RunConfig.WorkingDirectory",
+                                       "CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory",
+                                       "Nim.NimRunConfiguration.WorkingDirectoryAspect",
+                                       "ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory",
+                                       "Qbs.RunConfiguration.WorkingDirectory",
+                                       "Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory",
+                                       "RemoteLinux.CustomRunConfig.WorkingDirectory"
+                                       "RemoteLinux.RunConfig.WorkingDirectory",
+                                       "WorkingDir"};
+    static const QStringList termKeys = {"CMakeProjectManager.CMakeRunConfiguration.UseTerminal",
+                                         "Nim.NimRunConfiguration.TerminalAspect",
+                                         "ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal",
+                                         "PythonEditor.RunConfiguration.UseTerminal",
+                                         "Qbs.RunConfiguration.UseTerminal",
+                                         "Qt4ProjectManager.Qt4RunConfiguration.UseTerminal"};
+    static const QStringList libsKeys = {"Qbs.RunConfiguration.UsingLibraryPaths",
+                                         "QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath"};
+    static const QStringList dyldKeys = {"Qbs.RunConfiguration.UseDyldImageSuffix",
+                                         "QmakeProjectManager.QmakeRunConfiguration.UseDyldImageSuffix"};
+    switch (entry.type()) {
+    case QVariant::List:
+        return Utils::transform(entry.toList(),
+                                std::bind(&UserFileVersion19Upgrader::process, std::placeholders::_1, path));
+    case QVariant::Map:
+        return Utils::transform<QVariantMap>(
+            entry.toMap().toStdMap(), [&](const std::pair<const QString, QVariant> &item) {
+                if (path.size() == 2 && path.at(1).startsWith("ProjectExplorer.Target.RunConfiguration.")) {
+                    if (argsKeys.contains(item.first))
+                        return qMakePair(QString("RunConfiguration.Arguments"), item.second);
+                    if (wdKeys.contains(item.first))
+                        return qMakePair(QString("RunConfiguration.WorkingDirectory"), item.second);
+                    if (termKeys.contains(item.first))
+                        return qMakePair(QString("RunConfiguration.UseTerminal"), item.second);
+                    if (libsKeys.contains(item.first))
+                        return qMakePair(QString("RunConfiguration.UseLibrarySearchPath"), item.second);
+                    if (dyldKeys.contains(item.first))
+                        return qMakePair(QString("RunConfiguration.UseDyldImageSuffix"), item.second);
+                }
+                QStringList newPath = path;
+                newPath.append(item.first);
+                return qMakePair(item.first, UserFileVersion19Upgrader::process(item.second, newPath));
             });
     default:
         return entry;

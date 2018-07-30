@@ -59,14 +59,8 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
     symbolsAspect->setDisplayStyle(SymbolFileAspect::LabelDisplay);
     addExtraAspect(symbolsAspect);
 
-    auto argsAspect = new ArgumentsAspect(this);
-    argsAspect->setSettingsKey("Qt4ProjectManager.MaemoRunConfiguration.Arguments");
-    addExtraAspect(argsAspect);
-
-    auto wdAspect = new WorkingDirectoryAspect(this);
-    wdAspect->setSettingsKey("RemoteLinux.RunConfig.WorkingDirectory");
-    addExtraAspect(wdAspect);
-
+    addExtraAspect(new ArgumentsAspect(this));
+    addExtraAspect(new WorkingDirectoryAspect(this));
     addExtraAspect(new RemoteLinuxEnvironmentAspect(this));
 
     setOutputFormatter<QtSupport::QtOutputFormatter>();

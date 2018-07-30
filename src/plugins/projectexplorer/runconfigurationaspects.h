@@ -47,8 +47,7 @@ class PROJECTEXPLORER_EXPORT TerminalAspect : public IRunConfigurationAspect
     Q_OBJECT
 
 public:
-    TerminalAspect(RunConfiguration *rc, const QString &settingsKey,
-                   bool useTerminal = false);
+    TerminalAspect(RunConfiguration *rc, bool useTerminal = false);
 
     void addToConfigurationLayout(QFormLayout *layout) override;
 
@@ -71,8 +70,7 @@ class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public IRunConfigurationAs
     Q_OBJECT
 
 public:
-    explicit WorkingDirectoryAspect(RunConfiguration *runConfig,
-                                    const QString &settingsKey = QString());
+    explicit WorkingDirectoryAspect(RunConfiguration *runConfig);
 
     void addToConfigurationLayout(QFormLayout *layout) override;
 
@@ -100,7 +98,7 @@ class PROJECTEXPLORER_EXPORT ArgumentsAspect : public IRunConfigurationAspect
     Q_OBJECT
 
 public:
-    explicit ArgumentsAspect(RunConfiguration *runConfig, const QString &settingsKey = QString());
+    explicit ArgumentsAspect(RunConfiguration *runConfig);
 
     void addToConfigurationLayout(QFormLayout *layout) override;
 
@@ -149,7 +147,7 @@ class PROJECTEXPLORER_EXPORT UseLibraryPathsAspect : public BaseBoolAspect
     Q_OBJECT
 
 public:
-    UseLibraryPathsAspect(RunConfiguration *rc, const QString &settingsKey);
+    explicit UseLibraryPathsAspect(RunConfiguration *rc);
 };
 
 class PROJECTEXPLORER_EXPORT UseDyldSuffixAspect : public BaseBoolAspect
@@ -157,7 +155,7 @@ class PROJECTEXPLORER_EXPORT UseDyldSuffixAspect : public BaseBoolAspect
     Q_OBJECT
 
 public:
-    UseDyldSuffixAspect(RunConfiguration *rc, const QString &settingsKey);
+    explicit UseDyldSuffixAspect(RunConfiguration *rc);
 };
 
 class PROJECTEXPLORER_EXPORT BaseStringAspect : public IRunConfigurationAspect

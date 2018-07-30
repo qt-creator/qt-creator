@@ -48,8 +48,8 @@ BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target, Core::Id id
     exeAspect->setPlaceHolderText(tr("Unknown"));
     addExtraAspect(exeAspect);
 
-    addExtraAspect(new ArgumentsAspect(this, "Qt4ProjectManager.MaemoRunConfiguration.Arguments"));
-    addExtraAspect(new WorkingDirectoryAspect(this, "BareMetal.RunConfig.WorkingDirectory"));
+    addExtraAspect(new ArgumentsAspect(this));
+    addExtraAspect(new WorkingDirectoryAspect(this));
 
     connect(target, &Target::deploymentDataChanged,
             this, &BareMetalRunConfiguration::updateTargetInformation);

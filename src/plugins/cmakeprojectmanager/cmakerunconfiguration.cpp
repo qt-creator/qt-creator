@@ -55,9 +55,9 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *target, Core::Id id)
     };
     addExtraAspect(new LocalEnvironmentAspect(this, cmakeRunEnvironmentModifier));
     addExtraAspect(new ExecutableAspect(this));
-    addExtraAspect(new ArgumentsAspect(this, "CMakeProjectManager.CMakeRunConfiguration.Arguments"));
-    addExtraAspect(new TerminalAspect(this, "CMakeProjectManager.CMakeRunConfiguration.UseTerminal"));
-    addExtraAspect(new WorkingDirectoryAspect(this, "CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"));
+    addExtraAspect(new ArgumentsAspect(this));
+    addExtraAspect(new TerminalAspect(this));
+    addExtraAspect(new WorkingDirectoryAspect(this));
 
     connect(target->project(), &Project::parsingFinished,
             this, &CMakeRunConfiguration::updateTargetInformation);

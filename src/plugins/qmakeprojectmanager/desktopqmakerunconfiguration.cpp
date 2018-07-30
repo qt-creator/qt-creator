@@ -69,19 +69,19 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target, Core:
     addExtraAspect(envAspect);
 
     addExtraAspect(new ExecutableAspect(this));
-    addExtraAspect(new ArgumentsAspect(this, "Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments"));
-    addExtraAspect(new TerminalAspect(this, "Qt4ProjectManager.Qt4RunConfiguration.UseTerminal"));
-    addExtraAspect(new WorkingDirectoryAspect(this, "Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory"));
+    addExtraAspect(new ArgumentsAspect(this));
+    addExtraAspect(new TerminalAspect(this));
+    addExtraAspect(new WorkingDirectoryAspect(this));
 
     setOutputFormatter<QtSupport::QtOutputFormatter>();
 
-    auto libAspect = new UseLibraryPathsAspect(this, "QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath");
+    auto libAspect = new UseLibraryPathsAspect(this);
     addExtraAspect(libAspect);
     connect(libAspect, &UseLibraryPathsAspect::changed,
             envAspect, &EnvironmentAspect::environmentChanged);
 
     if (HostOsInfo::isMacHost()) {
-        auto dyldAspect = new UseDyldSuffixAspect(this, "QmakeProjectManager.QmakeRunConfiguration.UseDyldImageSuffix");
+        auto dyldAspect = new UseDyldSuffixAspect(this);
         addExtraAspect(dyldAspect);
         connect(dyldAspect, &UseLibraryPathsAspect::changed,
                 envAspect, &EnvironmentAspect::environmentChanged);
