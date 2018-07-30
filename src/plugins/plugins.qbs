@@ -24,6 +24,7 @@ Project {
         "coreplugin/images/logo/logo.qbs",
         "cpaster/cpaster.qbs",
         "cpaster/frontend/frontend.qbs",
+        "cppcheck/cppcheck.qbs",
         "cppeditor/cppeditor.qbs",
         "cpptools/cpptools.qbs",
         "cvs/cvs.qbs",

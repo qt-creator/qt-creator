@@ -57,7 +57,8 @@ SUBDIRS   = \
     scxmleditor \
     welcome \
     silversearcher \
-    languageclient
+    languageclient \
+    cppcheck
 
 qtHaveModule(serialport) {
     SUBDIRS += serialterminal
