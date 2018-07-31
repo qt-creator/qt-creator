@@ -164,6 +164,7 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
 
         if (autoInsertBrackets &&
                 (ccr.completionKind == CodeCompletion::FunctionCompletionKind
+                 || ccr.completionKind == CodeCompletion::FunctionDefinitionCompletionKind
                  || ccr.completionKind == CodeCompletion::DestructorCompletionKind
                  || ccr.completionKind == CodeCompletion::SignalCompletionKind
                  || ccr.completionKind == CodeCompletion::SlotCompletionKind)) {
@@ -176,17 +177,40 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
             while (manipulator.characterAt(cursor.position()) == ':')
                 cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::MoveAnchor, 2);
 
+            const int previousWordStart = cursor.position();
             // Move to the last character in the previous word
             cursor.movePosition(QTextCursor::NextWord);
             moveToPrevChar(manipulator, cursor);
+            const QString previousWord = manipulator.textAt(previousWordStart,
+                                                            cursor.position() - previousWordStart + 1);
+
             bool abandonParen = false;
-            if (manipulator.characterAt(cursor.position()) == '&') {
+            if (previousWord == "&") {
                 moveToPrevChar(manipulator, cursor);
                 const QChar prevChar = manipulator.characterAt(cursor.position());
                 abandonParen = QString("(;,{}").contains(prevChar);
             }
             if (!abandonParen)
                 abandonParen = isAtUsingDeclaration(manipulator, basePosition);
+            if (!abandonParen && ccr.completionKind == CodeCompletion::FunctionDefinitionCompletionKind) {
+                const CodeCompletionChunk resultType = ccr.chunks.first();
+                QTC_ASSERT(resultType.kind == CodeCompletionChunk::ResultType, return;);
+                if (previousWord == resultType.text.toString()) {
+                    bool skipChunks = true;
+                    for (const CodeCompletionChunk &chunk : ccr.chunks) {
+                        if (chunk.kind == CodeCompletionChunk::TypedText) {
+                            skipChunks = false;
+                            continue;
+                        }
+                        if (skipChunks)
+                            continue;
+                        extraCharacters += chunk.text;
+                    }
+
+                    // To skip the next block.
+                    abandonParen = true;
+                }
+            }
             if (!abandonParen) {
                 if (completionSettings.m_spaceAfterFunctionName)
                     extraCharacters += QLatin1Char(' ');
@@ -338,6 +362,7 @@ QIcon ClangAssistProposalItem::icon() const
         case CodeCompletion::ConstructorCompletionKind:
         case CodeCompletion::DestructorCompletionKind:
         case CodeCompletion::FunctionCompletionKind:
+        case CodeCompletion::FunctionDefinitionCompletionKind:
         case CodeCompletion::TemplateFunctionCompletionKind:
         case CodeCompletion::ObjCMessageCompletionKind:
             switch (m_codeCompletion.availability) {

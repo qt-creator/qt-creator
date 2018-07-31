@@ -176,6 +176,9 @@ void CodeCompletionsExtractor::extractText()
 void CodeCompletionsExtractor::extractMethodCompletionKind()
 {
     CXCompletionString cxCompletionString = cxCodeCompleteResults->Results[cxCodeCompleteResultIndex].CompletionString;
+
+    const unsigned long long contexts = clang_codeCompleteGetContexts(cxCodeCompleteResults);
+
     const uint annotationCount = clang_getCompletionNumAnnotations(cxCompletionString);
 
     for (uint annotationIndex = 0; annotationIndex < annotationCount; ++annotationIndex) {
@@ -192,7 +195,11 @@ void CodeCompletionsExtractor::extractMethodCompletionKind()
         }
     }
 
-    currentCodeCompletion_.completionKind = CodeCompletion::FunctionCompletionKind;
+    currentCodeCompletion_.completionKind = CodeCompletion::FunctionDefinitionCompletionKind;
+    if ((contexts & CXCompletionContext_DotMemberAccess)
+            || (contexts & CXCompletionContext_ArrowMemberAccess)) {
+        currentCodeCompletion_.completionKind = CodeCompletion::FunctionCompletionKind;
+    }
 }
 
 void CodeCompletionsExtractor::extractMacroCompletionKind()

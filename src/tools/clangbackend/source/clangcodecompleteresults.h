@@ -49,10 +49,8 @@ public:
     bool isEmpty() const;
 
     bool hasResults() const;
-    bool hasNoResultsForDotCompletion() const;
 
     bool hasUnknownContext() const;
-    bool isDotCompletion() const;
 
     CXCodeCompleteResults *data() const;
 
