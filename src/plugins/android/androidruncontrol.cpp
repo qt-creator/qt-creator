@@ -39,9 +39,8 @@ namespace Android {
 namespace Internal {
 
 AndroidRunSupport::AndroidRunSupport(RunControl *runControl, const QString &intentName,
-                                     const QString &extraAppParams,
                                      const Utils::Environment &extraEnvVars)
-    : AndroidRunner(runControl, intentName, extraAppParams, extraEnvVars)
+    : AndroidRunner(runControl, intentName, extraEnvVars)
 {
     runControl->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
 }

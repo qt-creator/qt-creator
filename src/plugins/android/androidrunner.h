@@ -51,7 +51,6 @@ class AndroidRunner : public ProjectExplorer::RunWorker
 public:
     explicit AndroidRunner(ProjectExplorer::RunControl *runControl,
                            const QString &intentName = QString(),
-                           const QString &extraAppParams = QString(),
                            const Utils::Environment &extraEnvVars = Utils::Environment());
     ~AndroidRunner() override;
 

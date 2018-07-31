@@ -31,6 +31,7 @@
 #include "androidrunconfiguration.h"
 
 #include <debugger/debuggerrunconfigurationaspect.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
@@ -38,6 +39,7 @@
 #include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
 #include <utils/temporaryfile.h>
+#include <utils/qtcprocess.h>
 #include <utils/url.h>
 
 #include <QLoggingCategory>
@@ -190,6 +192,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     auto target = runConfig->target();
     m_deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
     m_apiLevel = AndroidManager::deviceApiLevel(target);
+
+    m_extraAppParams = runConfig->runnable().commandLineArguments;
 
     if (auto aspect = runConfig->extraAspect(Constants::ANDROID_AMSTARTARGS))
         m_amStartExtraArgs = static_cast<BaseStringAspect *>(aspect)->value().split(' ');
@@ -456,9 +460,13 @@ void AndroidRunnerWorker::asyncStartHelper()
                 .arg(m_qmlServer.port()).arg(QmlDebug::qmlDebugServices(m_qmlDebugServices));
     }
 
+
     if (!m_extraAppParams.isEmpty()) {
+        QStringList appArgs =
+                Utils::QtcProcess::splitArgs(m_extraAppParams, Utils::OsType::OsTypeLinux);
+        qCDebug(androidRunWorkerLog) << "Using application arguments: " << appArgs;
         args << "-e" << "extraappparams"
-             << QString::fromLatin1(m_extraAppParams.toUtf8().toBase64());
+             << QString::fromLatin1(appArgs.join(' ').toUtf8().toBase64());
     }
 
     if (m_extraEnvVars.size() > 0) {
@@ -605,12 +613,6 @@ void AndroidRunnerWorker::setExtraEnvVars(const Utils::Environment &extraEnvVars
     qCDebug(androidRunWorkerLog) << "Settings extra env:"
                                  << extraEnvVars.toStringList();
 }
-
-void AndroidRunnerWorker::setExtraAppParams(const QString &extraAppParams)
-{
-    m_extraAppParams = extraAppParams;
-}
-
 
 } // namespace Internal
 } // namespace Android

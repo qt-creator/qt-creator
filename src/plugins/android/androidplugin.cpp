@@ -107,7 +107,7 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
 
     RunControl::registerWorker(QML_PREVIEW_RUN_MODE, [](RunControl *runControl) -> RunWorker* {
         const Runnable runnable = runControl->runConfiguration()->runnable();
-        return new AndroidQmlToolingSupport(runControl, runnable.executable, runnable.commandLineArguments);
+        return new AndroidQmlToolingSupport(runControl, runnable.executable);
     }, [](RunConfiguration *runConfig) {
         return runConfig->isEnabled()
                 && runConfig->id().name().startsWith("QmlProjectManager.QmlRunConfiguration")

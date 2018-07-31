@@ -110,6 +110,8 @@ void BaseStringListAspect::setLabel(const QString &label)
 AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
+    addExtraAspect(new ArgumentsAspect(this));
+
     auto amStartArgsAspect = new BaseStringAspect(this);
     amStartArgsAspect->setId(Constants::ANDROID_AMSTARTARGS);
     amStartArgsAspect->setSettingsKey("Android.AmStartArgsKey");
@@ -141,6 +143,7 @@ QWidget *AndroidRunConfiguration::createConfigurationWidget()
     auto widget = new QWidget;
     auto layout = new QFormLayout(widget);
 
+    extraAspect<ArgumentsAspect>()->addToConfigurationLayout(layout);
     extraAspect(Constants::ANDROID_AMSTARTARGS)->addToConfigurationLayout(layout);
 
     auto warningIconLabel = new QLabel;

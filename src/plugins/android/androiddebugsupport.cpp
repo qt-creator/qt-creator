@@ -100,12 +100,11 @@ static QString toNdkArch(const QString &arch)
 }
 
 AndroidDebugSupport::AndroidDebugSupport(RunControl *runControl, const QString &intentName,
-                                         const QString &extraAppParams,
                                          const Utils::Environment &extraEnvVars)
     : Debugger::DebuggerRunTool(runControl)
 {
     setDisplayName("AndroidDebugger");
-    m_runner = new AndroidRunner(runControl, intentName, extraAppParams, extraEnvVars);
+    m_runner = new AndroidRunner(runControl, intentName, extraEnvVars);
     addStartDependency(m_runner);
 }
 

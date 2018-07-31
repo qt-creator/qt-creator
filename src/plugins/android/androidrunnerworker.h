@@ -56,7 +56,6 @@ public:
     void logcatProcess(const QByteArray &text, QByteArray &buffer, bool onlyError);
     void setAndroidDeviceInfo(const AndroidDeviceInfo &info);
     void setExtraEnvVars(const Utils::Environment &extraEnvVars);
-    void setExtraAppParams(const QString &extraAppParams);
     void setIsPreNougat(bool isPreNougat) { m_isPreNougat = isPreNougat; }
     void setIntentName(const QString &intentName) { m_intentName = intentName; }
 

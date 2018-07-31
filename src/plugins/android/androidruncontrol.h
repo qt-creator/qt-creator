@@ -41,7 +41,6 @@ class AndroidRunSupport : public AndroidRunner
 public:
     explicit AndroidRunSupport(ProjectExplorer::RunControl *runControl,
                                const QString &intentName = QString(),
-                               const QString &extraAppParams = QString(),
                                const Utils::Environment &extraEnvVars = Utils::Environment());
     ~AndroidRunSupport() override;
 
