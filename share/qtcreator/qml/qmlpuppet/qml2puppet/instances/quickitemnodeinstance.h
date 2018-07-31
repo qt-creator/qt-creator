@@ -38,8 +38,8 @@ namespace Internal {
 class QuickItemNodeInstance : public ObjectNodeInstance
 {
 public:
-    typedef QSharedPointer<QuickItemNodeInstance> Pointer;
-    typedef QWeakPointer<QuickItemNodeInstance> WeakPointer;
+    using Pointer = QSharedPointer<QuickItemNodeInstance>;
+    using WeakPointer = QWeakPointer<QuickItemNodeInstance>;
 
     ~QuickItemNodeInstance() override;
 

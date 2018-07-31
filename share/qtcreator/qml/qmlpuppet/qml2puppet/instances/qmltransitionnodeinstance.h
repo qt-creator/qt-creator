@@ -33,8 +33,8 @@ namespace Internal {
 class QmlTransitionNodeInstance : public ObjectNodeInstance
 {
 public:
-    typedef QSharedPointer<QmlTransitionNodeInstance> Pointer;
-    typedef QWeakPointer<QmlTransitionNodeInstance> WeakPointer;
+    using Pointer = QSharedPointer<QmlTransitionNodeInstance>;
+    using WeakPointer = QWeakPointer<QmlTransitionNodeInstance>;
 
     static Pointer create(QObject *objectToBeWrapped);
 

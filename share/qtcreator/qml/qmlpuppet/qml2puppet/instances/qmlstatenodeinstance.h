@@ -34,8 +34,8 @@ namespace Internal {
 class QmlStateNodeInstance : public ObjectNodeInstance
 {
 public:
-    typedef QSharedPointer<QmlStateNodeInstance> Pointer;
-    typedef QWeakPointer<QmlStateNodeInstance> WeakPointer;
+    using Pointer = QSharedPointer<QmlStateNodeInstance>;
+    using WeakPointer = QWeakPointer<QmlStateNodeInstance>;
 
     static Pointer create(QObject *objectToBeWrapped);
 

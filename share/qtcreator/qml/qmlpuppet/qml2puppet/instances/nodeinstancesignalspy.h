@@ -36,8 +36,9 @@ namespace QmlDesigner {
 namespace Internal {
 
 class ObjectNodeInstance;
-typedef QSharedPointer<ObjectNodeInstance> ObjectNodeInstancePointer;
-typedef QWeakPointer<ObjectNodeInstance> ObjectNodeInstanceWeakPointer;
+
+using ObjectNodeInstancePointer = QSharedPointer<ObjectNodeInstance>;
+using ObjectNodeInstanceWeakPointer = QWeakPointer<ObjectNodeInstance>;
 
 class NodeInstanceSignalSpy : public QObject
 {

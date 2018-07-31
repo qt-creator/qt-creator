@@ -33,8 +33,8 @@ namespace Internal {
 class BehaviorNodeInstance : public ObjectNodeInstance
 {
 public:
-    typedef QSharedPointer<BehaviorNodeInstance> Pointer;
-    typedef QWeakPointer<BehaviorNodeInstance> WeakPointer;
+    using Pointer = QSharedPointer<BehaviorNodeInstance>;
+    using WeakPointer = QWeakPointer<BehaviorNodeInstance>;
 
     BehaviorNodeInstance(QObject *object);
 

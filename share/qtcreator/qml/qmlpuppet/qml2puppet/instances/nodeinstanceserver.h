@@ -65,10 +65,11 @@ class NodeInstanceServer : public NodeInstanceServerInterface
 {
     Q_OBJECT
 public:
-    typedef QPair<QPointer<QObject>, PropertyName> ObjectPropertyPair;
-    typedef QPair<qint32, QString>  IdPropertyPair;
-    typedef QPair<ServerNodeInstance, PropertyName> InstancePropertyPair;
-    typedef QPair<QString, QPointer<QObject> > DummyPair;
+    using ObjectPropertyPair = QPair<QPointer<QObject>, PropertyName>;
+    using IdPropertyPair = QPair<qint32, QString>;
+    using InstancePropertyPair= QPair<ServerNodeInstance, PropertyName>;
+    using DummyPair = QPair<QString, QPointer<QObject> >;
+
 
     explicit NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
 

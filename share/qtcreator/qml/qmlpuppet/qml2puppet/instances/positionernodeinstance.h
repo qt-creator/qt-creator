@@ -37,8 +37,8 @@ namespace Internal {
 class PositionerNodeInstance : public QuickItemNodeInstance
 {
 public:
-    typedef QSharedPointer<PositionerNodeInstance> Pointer;
-    typedef QWeakPointer<PositionerNodeInstance> WeakPointer;
+    using Pointer = QSharedPointer<PositionerNodeInstance>;
+    using WeakPointer = QWeakPointer<PositionerNodeInstance>;
 
     static Pointer create(QObject *objectToBeWrapped);
 

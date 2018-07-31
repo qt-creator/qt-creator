@@ -41,8 +41,8 @@ namespace Internal {
 class AnchorChangesNodeInstance : public ObjectNodeInstance
 {
 public:
-    typedef QSharedPointer<AnchorChangesNodeInstance> Pointer;
-    typedef QWeakPointer<AnchorChangesNodeInstance> WeakPointer;
+    using Pointer = QSharedPointer<AnchorChangesNodeInstance>;
+    using WeakPointer = QWeakPointer<AnchorChangesNodeInstance>;
 
     static Pointer create(QObject *objectToBeWrapped);
 

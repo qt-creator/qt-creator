@@ -34,8 +34,8 @@ class LayoutNodeInstance : public QuickItemNodeInstance
 {
 
 public:
-    typedef QSharedPointer<LayoutNodeInstance> Pointer;
-    typedef QWeakPointer<LayoutNodeInstance> WeakPointer;
+    using Pointer = QSharedPointer<LayoutNodeInstance>;
+    using WeakPointer = QWeakPointer<LayoutNodeInstance>;
 
     static Pointer create(QObject *objectToBeWrapped);
 

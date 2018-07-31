@@ -37,8 +37,9 @@ namespace Internal {
 class ComponentNodeInstance : public ObjectNodeInstance
 {
 public:
-    typedef QSharedPointer<ComponentNodeInstance> Pointer;
-    typedef QWeakPointer<ComponentNodeInstance> WeakPointer;
+    using Pointer = QSharedPointer<ComponentNodeInstance>;
+    using WeakPointer = QWeakPointer<ComponentNodeInstance>;
+
     ComponentNodeInstance(QQmlComponent *component);
     static Pointer create(QObject *objectToBeWrapped);
 

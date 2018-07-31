@@ -60,8 +60,8 @@ class WidgetNodeInstance;
 class ObjectNodeInstance
 {
 public:
-    typedef QSharedPointer<ObjectNodeInstance> Pointer;
-    typedef QWeakPointer<ObjectNodeInstance> WeakPointer;
+    using Pointer = QSharedPointer<ObjectNodeInstance>;
+    using WeakPointer = QWeakPointer<ObjectNodeInstance>;
 
     virtual ~ObjectNodeInstance();
     void destroy();

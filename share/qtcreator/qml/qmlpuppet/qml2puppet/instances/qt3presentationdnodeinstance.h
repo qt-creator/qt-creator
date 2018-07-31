@@ -33,8 +33,8 @@ namespace Internal {
 class Qt3DPresentationNodeInstance : public ObjectNodeInstance
 {
 public:
-    typedef QSharedPointer<Qt3DPresentationNodeInstance> Pointer;
-    typedef QWeakPointer<Qt3DPresentationNodeInstance> WeakPointer;
+    using Pointer = QSharedPointer<Qt3DPresentationNodeInstance>;
+    using WeakPointer = QWeakPointer<Qt3DPresentationNodeInstance>;
 
     static Pointer create(QObject *objectToBeWrapped);
 

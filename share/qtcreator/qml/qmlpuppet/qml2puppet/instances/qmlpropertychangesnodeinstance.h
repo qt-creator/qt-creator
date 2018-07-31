@@ -39,8 +39,8 @@ class QmlPropertyChangesNodeInstance;
 class QmlPropertyChangesNodeInstance : public ObjectNodeInstance
 {
 public:
-    typedef QSharedPointer<QmlPropertyChangesNodeInstance> Pointer;
-    typedef QWeakPointer<QmlPropertyChangesNodeInstance> WeakPointer;
+    using Pointer = QSharedPointer<QmlPropertyChangesNodeInstance>;
+    using WeakPointer = QWeakPointer<QmlPropertyChangesNodeInstance>;
 
     static Pointer create(QObject *objectToBeWrapped);
 

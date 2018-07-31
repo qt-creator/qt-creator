@@ -35,8 +35,8 @@ namespace Internal {
 class DummyNodeInstance : public ObjectNodeInstance
 {
 public:
-    typedef QSharedPointer<DummyNodeInstance> Pointer;
-    typedef QWeakPointer<DummyNodeInstance> WeakPointer;
+    using Pointer = QSharedPointer<DummyNodeInstance>;
+    using WeakPointer = QWeakPointer<DummyNodeInstance>;
 
     static Pointer create();
 
