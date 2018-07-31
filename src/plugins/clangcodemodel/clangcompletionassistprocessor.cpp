@@ -64,14 +64,51 @@ namespace Internal {
 using ClangBackEnd::CodeCompletion;
 using TextEditor::AssistProposalItemInterface;
 
-namespace {
+static void addAssistProposalItem(QList<AssistProposalItemInterface *> &items,
+                                  const CodeCompletion &codeCompletion,
+                                  const QString &name)
+{
+    ClangAssistProposalItem *item = new ClangAssistProposalItem;
+    items.push_back(item);
 
-QList<AssistProposalItemInterface *> toAssistProposalItems(const CodeCompletions &completions)
+    item->setText(name);
+    item->setOrder(int(codeCompletion.priority));
+    item->appendCodeCompletion(codeCompletion);
+}
+
+static void addFunctionOverloadAssistProposalItem(QList<AssistProposalItemInterface *> &items,
+                                                        const ClangCompletionAssistInterface *interface,
+                                                        const CodeCompletion &codeCompletion,
+                                                        const QString &name)
+{
+    ClangBackEnd::CodeCompletionChunk resultType = codeCompletion.chunks.first();
+    QTC_ASSERT(resultType.kind == ClangBackEnd::CodeCompletionChunk::ResultType,
+               return;);
+
+    auto *item = static_cast<ClangAssistProposalItem *>(items.last());
+    item->setHasOverloadsWithParameters(true);
+    QTextCursor cursor = interface->textEditorWidget()->textCursor();
+    cursor.setPosition(interface->position());
+    cursor.movePosition(QTextCursor::StartOfWord);
+
+    if (::Utils::Text::matchPreviousWord(*interface->textEditorWidget(),
+                                         cursor,
+                                         resultType.text.toString())) {
+        addAssistProposalItem(items, codeCompletion, name);
+    } else {
+        item->appendCodeCompletion(codeCompletion);
+    }
+}
+
+static QList<AssistProposalItemInterface *> toAssistProposalItems(
+        const CodeCompletions &completions,
+        const ClangCompletionAssistInterface *interface)
 {
     bool signalCompletion = false; // TODO
     bool slotCompletion = false; // TODO
 
-    QHash<QString, ClangAssistProposalItem *> items;
+    QList<AssistProposalItemInterface *> items;
+    items.reserve(completions.size());
     for (const CodeCompletion &codeCompletion : completions) {
         if (codeCompletion.text.isEmpty()) // TODO: Make isValid()?
             continue;
@@ -80,34 +117,18 @@ QList<AssistProposalItemInterface *> toAssistProposalItems(const CodeCompletions
         if (slotCompletion && codeCompletion.completionKind != CodeCompletion::SlotCompletionKind)
             continue;
 
-        QString name;
-        if (codeCompletion.completionKind == CodeCompletion::KeywordCompletionKind)
-            name = CompletionChunksToTextConverter::convertToName(codeCompletion.chunks);
+        const QString name = codeCompletion.completionKind == CodeCompletion::KeywordCompletionKind
+                ? CompletionChunksToTextConverter::convertToName(codeCompletion.chunks)
+                : codeCompletion.text.toString();
+
+        if (!items.empty() && items.last()->text() == name && codeCompletion.hasParameters)
+            addFunctionOverloadAssistProposalItem(items, interface, codeCompletion, name);
         else
-            name = codeCompletion.text.toString();
-
-        ClangAssistProposalItem *item = items.value(name, 0);
-        if (item) {
-            if (codeCompletion.hasParameters)
-                item->setHasOverloadsWithParameters(true);
-        } else {
-            item = new ClangAssistProposalItem;
-            items.insert(name, item);
-
-            item->setText(name);
-            item->setOrder(int(codeCompletion.priority));
-            item->setCodeCompletion(codeCompletion);
-        }
+            addAssistProposalItem(items, codeCompletion, name);
     }
 
-    QList<AssistProposalItemInterface *> results;
-    results.reserve(items.size());
-    std::copy(items.cbegin(), items.cend(), std::back_inserter(results));
-
-    return results;
+    return items;
 }
-
-} // Anonymous
 
 using namespace CPlusPlus;
 using namespace TextEditor;
@@ -147,7 +168,7 @@ void ClangCompletionAssistProcessor::handleAvailableCompletions(
     QTC_CHECK(m_completions.isEmpty());
 
     if (m_sentRequestType == NormalCompletion) {
-        m_completions = toAssistProposalItems(completions);
+        m_completions = toAssistProposalItems(completions, m_interface.data());
 
         if (m_addSnippets && !m_completions.isEmpty())
             addSnippets();

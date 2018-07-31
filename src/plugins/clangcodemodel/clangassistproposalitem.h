@@ -57,14 +57,15 @@ public:
     bool hasOverloadsWithParameters() const;
     void setHasOverloadsWithParameters(bool hasOverloadsWithParameters);
 
-    void setCodeCompletion(const ClangBackEnd::CodeCompletion &codeCompletion);
-    const ClangBackEnd::CodeCompletion &codeCompletion() const;
+    void appendCodeCompletion(const ClangBackEnd::CodeCompletion &firstCodeCompletion);
+    const ClangBackEnd::CodeCompletion &firstCodeCompletion() const;
 
 private:
+    const QVector<ClangBackEnd::FixItContainer> &firstCompletionFixIts() const;
     QString fixItText() const;
     int fixItsShift(const TextEditor::TextDocumentManipulatorInterface &manipulator) const;
 
-    ClangBackEnd::CodeCompletion m_codeCompletion;
+    std::vector<ClangBackEnd::CodeCompletion> m_codeCompletions;
     QList<ClangBackEnd::CodeCompletion> m_overloads;
     bool m_hasOverloadsWithParameters = false;
     QString m_text;

@@ -57,7 +57,7 @@ bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedCharacter) co
         applies = QString::fromLatin1("(,").contains(typedCharacter);
     else if (m_completionOperator == T_STRING_LITERAL || m_completionOperator == T_ANGLE_STRING_LITERAL)
         applies = (typedCharacter == QLatin1Char('/')) && text().endsWith(QLatin1Char('/'));
-    else if (codeCompletion().completionKind == CodeCompletion::ObjCMessageCompletionKind)
+    else if (firstCodeCompletion().completionKind == CodeCompletion::ObjCMessageCompletionKind)
         applies = QString::fromLatin1(";.,").contains(typedCharacter);
     else
         applies = QString::fromLatin1(";.,:(").contains(typedCharacter);
@@ -71,14 +71,6 @@ bool ClangAssistProposalItem::prematurelyApplies(const QChar &typedCharacter) co
 bool ClangAssistProposalItem::implicitlyApplies() const
 {
     return true;
-}
-
-static void moveToPrevChar(TextEditor::TextDocumentManipulatorInterface &manipulator,
-                           QTextCursor &cursor)
-{
-    cursor.movePosition(QTextCursor::PreviousCharacter);
-    while (manipulator.characterAt(cursor.position()).isSpace())
-        cursor.movePosition(QTextCursor::PreviousCharacter);
 }
 
 static QString textUntilPreviousStatement(TextEditor::TextDocumentManipulatorInterface &manipulator,
@@ -118,10 +110,35 @@ static bool isAtUsingDeclaration(TextEditor::TextDocumentManipulatorInterface &m
     });
 }
 
+static QString methodDefinitionParameters(const CodeCompletionChunks &chunks)
+{
+    QString result;
+
+    auto typedTextChunkIt = std::find_if(chunks.begin(), chunks.end(),
+                                         [](const CodeCompletionChunk &chunk) {
+        return chunk.kind == CodeCompletionChunk::TypedText;
+    });
+    if (typedTextChunkIt == chunks.end())
+        return result;
+
+    std::for_each(++typedTextChunkIt, chunks.end(), [&result](const CodeCompletionChunk &chunk) {
+        if (chunk.kind == CodeCompletionChunk::Placeholder && chunk.text.contains('=')) {
+            Utf8String text = chunk.text.mid(0, chunk.text.indexOf('='));
+            if (text.endsWith(' '))
+                text.chop(1);
+            result += text;
+        } else {
+            result += chunk.text;
+        }
+    });
+
+    return result;
+}
+
 void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
                                     int basePosition) const
 {
-    const CodeCompletion ccr = codeCompletion();
+    const CodeCompletion ccr = firstCodeCompletion();
 
     if (!ccr.requiredFixIts.empty()) {
         ClangFixItOperation fixItOperation(Utf8String(), ccr.requiredFixIts);
@@ -173,40 +190,23 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
             // inserted closing parenthesis.
             const bool skipClosingParenthesis = m_typedCharacter != QLatin1Char('(');
             QTextCursor cursor = manipulator.textCursorAt(basePosition);
-            cursor.movePosition(QTextCursor::PreviousWord);
-            while (manipulator.characterAt(cursor.position()) == ':')
-                cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::MoveAnchor, 2);
-
-            const int previousWordStart = cursor.position();
-            // Move to the last character in the previous word
-            cursor.movePosition(QTextCursor::NextWord);
-            moveToPrevChar(manipulator, cursor);
-            const QString previousWord = manipulator.textAt(previousWordStart,
-                                                            cursor.position() - previousWordStart + 1);
 
             bool abandonParen = false;
-            if (previousWord == "&") {
-                moveToPrevChar(manipulator, cursor);
+            if (Utils::Text::matchPreviousWord(manipulator, cursor, "&")) {
+                Utils::Text::moveToPrevChar(manipulator, cursor);
+                Utils::Text::moveToPrevChar(manipulator, cursor);
                 const QChar prevChar = manipulator.characterAt(cursor.position());
+                cursor.setPosition(basePosition);
                 abandonParen = QString("(;,{}").contains(prevChar);
             }
             if (!abandonParen)
                 abandonParen = isAtUsingDeclaration(manipulator, basePosition);
+
             if (!abandonParen && ccr.completionKind == CodeCompletion::FunctionDefinitionCompletionKind) {
                 const CodeCompletionChunk resultType = ccr.chunks.first();
                 QTC_ASSERT(resultType.kind == CodeCompletionChunk::ResultType, return;);
-                if (previousWord == resultType.text.toString()) {
-                    bool skipChunks = true;
-                    for (const CodeCompletionChunk &chunk : ccr.chunks) {
-                        if (chunk.kind == CodeCompletionChunk::TypedText) {
-                            skipChunks = false;
-                            continue;
-                        }
-                        if (skipChunks)
-                            continue;
-                        extraCharacters += chunk.text;
-                    }
-
+                if (Utils::Text::matchPreviousWord(manipulator, cursor, resultType.text.toString())) {
+                    extraCharacters += methodDefinitionParameters(ccr.chunks);
                     // To skip the next block.
                     abandonParen = true;
                 }
@@ -308,10 +308,15 @@ QString ClangAssistProposalItem::text() const
     return m_text + (requiresFixIts() ? fixItText() : QString());
 }
 
+const QVector<ClangBackEnd::FixItContainer> &ClangAssistProposalItem::firstCompletionFixIts() const
+{
+    return firstCodeCompletion().requiredFixIts;
+}
+
 // FIXME: Indicate required fix-it without adding extra text.
 QString ClangAssistProposalItem::fixItText() const
 {
-    const FixItContainer &fixIt = m_codeCompletion.requiredFixIts.first();
+    const FixItContainer &fixIt = firstCompletionFixIts().first();
     const SourceRangeContainer &range = fixIt.range;
     return QCoreApplication::translate("ClangCodeModel::ClangAssistProposalItem",
                                        " (requires to correct [%1:%2-%3:%4] to \"%5\")")
@@ -325,12 +330,13 @@ QString ClangAssistProposalItem::fixItText() const
 int ClangAssistProposalItem::fixItsShift(
         const TextEditor::TextDocumentManipulatorInterface &manipulator) const
 {
-    if (m_codeCompletion.requiredFixIts.empty())
+    const QVector<ClangBackEnd::FixItContainer> &requiredFixIts = firstCompletionFixIts();
+    if (requiredFixIts.empty())
         return 0;
 
     int shift = 0;
     QTextCursor cursor = manipulator.textCursorAt(0);
-    for (const FixItContainer &fixIt : m_codeCompletion.requiredFixIts) {
+    for (const FixItContainer &fixIt : requiredFixIts) {
         const int fixItStartPos = Utils::Text::positionInText(
                     cursor.document(),
                     static_cast<int>(fixIt.range.start.line),
@@ -350,7 +356,8 @@ QIcon ClangAssistProposalItem::icon() const
     static const char SNIPPET_ICON_PATH[] = ":/texteditor/images/snippet.png";
     static const QIcon snippetIcon = QIcon(QLatin1String(SNIPPET_ICON_PATH));
 
-    switch (m_codeCompletion.completionKind) {
+    const ClangBackEnd::CodeCompletion &completion = firstCodeCompletion();
+    switch (completion.completionKind) {
         case CodeCompletion::ClassCompletionKind:
         case CodeCompletion::TemplateClassCompletionKind:
         case CodeCompletion::TypeAliasCompletionKind:
@@ -365,7 +372,7 @@ QIcon ClangAssistProposalItem::icon() const
         case CodeCompletion::FunctionDefinitionCompletionKind:
         case CodeCompletion::TemplateFunctionCompletionKind:
         case CodeCompletion::ObjCMessageCompletionKind:
-            switch (m_codeCompletion.availability) {
+            switch (completion.availability) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
                     return Icons::iconForType(Icons::FuncPublicIconType);
@@ -375,7 +382,7 @@ QIcon ClangAssistProposalItem::icon() const
         case CodeCompletion::SignalCompletionKind:
             return Icons::iconForType(Icons::SignalIconType);
         case CodeCompletion::SlotCompletionKind:
-            switch (m_codeCompletion.availability) {
+            switch (completion.availability) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
                     return Icons::iconForType(Icons::SlotPublicIconType);
@@ -389,7 +396,7 @@ QIcon ClangAssistProposalItem::icon() const
         case CodeCompletion::PreProcessorCompletionKind:
             return Icons::iconForType(Icons::MacroIconType);
         case CodeCompletion::VariableCompletionKind:
-            switch (m_codeCompletion.availability) {
+            switch (completion.availability) {
                 case CodeCompletion::Available:
                 case CodeCompletion::Deprecated:
                     return Icons::iconForType(Icons::VarPublicIconType);
@@ -411,11 +418,15 @@ QIcon ClangAssistProposalItem::icon() const
 
 QString ClangAssistProposalItem::detail() const
 {
-    QString detail = CompletionChunksToTextConverter::convertToToolTipWithHtml(
-                m_codeCompletion.chunks, m_codeCompletion.completionKind);
-
-    if (!m_codeCompletion.briefComment.isEmpty())
-        detail += QStringLiteral("\n\n") + m_codeCompletion.briefComment.toString();
+    QString detail;
+    for (const ClangBackEnd::CodeCompletion &codeCompletion : m_codeCompletions) {
+        if (!detail.isEmpty())
+            detail += "<br>";
+        detail += CompletionChunksToTextConverter::convertToToolTipWithHtml(
+                    codeCompletion.chunks, codeCompletion.completionKind);
+        if (!codeCompletion.briefComment.isEmpty())
+            detail += "<br>" + codeCompletion.briefComment.toString();
+    }
 
     return detail;
 }
@@ -437,7 +448,7 @@ quint64 ClangAssistProposalItem::hash() const
 
 bool ClangAssistProposalItem::requiresFixIts() const
 {
-    return !m_codeCompletion.requiredFixIts.empty();
+    return !firstCompletionFixIts().empty();
 }
 
 bool ClangAssistProposalItem::hasOverloadsWithParameters() const
@@ -455,14 +466,14 @@ void ClangAssistProposalItem::keepCompletionOperator(unsigned compOp)
     m_completionOperator = compOp;
 }
 
-void ClangAssistProposalItem::setCodeCompletion(const CodeCompletion &codeCompletion)
+void ClangAssistProposalItem::appendCodeCompletion(const CodeCompletion &codeCompletion)
 {
-    m_codeCompletion = codeCompletion;
+    m_codeCompletions.push_back(codeCompletion);
 }
 
-const ClangBackEnd::CodeCompletion &ClangAssistProposalItem::codeCompletion() const
+const ClangBackEnd::CodeCompletion &ClangAssistProposalItem::firstCodeCompletion() const
 {
-    return m_codeCompletion;
+    return m_codeCompletions.at(0);
 }
 
 } // namespace Internal

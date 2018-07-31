@@ -27,7 +27,6 @@
 
 #include <QTextDocument>
 #include <QTextBlock>
-#include <QTextCursor>
 
 namespace Utils {
 namespace Text {
