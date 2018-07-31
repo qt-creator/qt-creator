@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <debugger/breakpoint.h>
+#include <debugger/breakhandler.h>
 
 #include <QPair>
 
@@ -36,7 +36,6 @@ QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
-class BreakpointData;
 class BreakpointParameters;
 struct ThreadData;
 class Register;
@@ -54,19 +53,17 @@ QString cdbSourcePathMapping(QString fileName,
 enum { cdbBreakPointStartId = 100000,
        cdbBreakPointIdMinorPart = 100};
 
-int breakPointIdToCdbId(const BreakpointModelId &id);
-BreakpointModelId cdbIdToBreakpointModelId(const GdbMi &id);
-BreakpointResponseId cdbIdToBreakpointResponseId(const GdbMi &id);
+int breakPointIdToCdbId(const Breakpoint &bp);
 
 // Convert breakpoint in CDB syntax (applying source path mappings using native paths).
 QString cdbAddBreakpointCommand(const BreakpointParameters &d,
                                 const QList<QPair<QString, QString> > &sourcePathMapping,
-                                BreakpointModelId id = BreakpointModelId(quint16(-1)), bool oneshot = false);
-QString cdbClearBreakpointCommand(const BreakpointModelId &id);
+                                const QString &responseId = QString(), bool oneshot = false);
+QString cdbClearBreakpointCommand(const Breakpoint &bp);
 // Parse extension command listing breakpoints.
 // Note that not all fields are returned, since file, line, function are encoded
 // in the expression (that is in addition deleted on resolving for a bp-type breakpoint).
-void parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r, QString *expression = nullptr);
+void parseBreakPoint(const GdbMi &gdbmi, BreakpointParameters *r, QString *expression = nullptr);
 
 // Write memory (f ...).
 QString cdbWriteMemoryCommand(quint64 addr, const QByteArray &data);

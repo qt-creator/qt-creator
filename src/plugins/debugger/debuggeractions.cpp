@@ -101,8 +101,12 @@ void GlobalDebuggerOptions::fromSettings()
 //
 //////////////////////////////////////////////////////////////////////////
 
+static DebuggerSettings *theDebuggerSettings = nullptr;
+
 DebuggerSettings::DebuggerSettings()
 {
+    theDebuggerSettings = this;
+
     const QString debugModeGroup = QLatin1String(debugModeSettingsGroupC);
     const QString cdbSettingsGroup = QLatin1String(cdbSettingsGroupC);
 
@@ -580,6 +584,7 @@ DebuggerSettings::DebuggerSettings()
     item->setText(tr("Enable Reverse Debugging"));
     item->setCheckable(true);
     item->setDefaultValue(false);
+    item->setIcon(Icons::REVERSE_MODE.icon());
     insertItem(EnableReverseDebugging, item);
 
 #ifdef Q_OS_WIN
@@ -693,10 +698,10 @@ SavedAction *DebuggerSettings::item(int code) const
     return m_items.value(code, 0);
 }
 
-QString DebuggerSettings::dump() const
+QString DebuggerSettings::dump()
 {
     QStringList settings;
-    foreach (SavedAction *item, m_items) {
+    foreach (SavedAction *item, theDebuggerSettings->m_items) {
         QString key = item->settingsKey();
         if (!key.isEmpty()) {
             const QString current = item->value().toString();

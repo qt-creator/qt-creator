@@ -71,7 +71,8 @@ private:
 class TerminalRunner : public ProjectExplorer::RunWorker
 {
 public:
-    explicit TerminalRunner(DebuggerRunTool *runControl);
+    TerminalRunner(ProjectExplorer::RunControl *runControl,
+                   const ProjectExplorer::Runnable &stubRunnable);
 
     qint64 applicationPid() const { return m_applicationPid; }
     qint64 applicationMainThreadId() const { return m_applicationMainThreadId; }

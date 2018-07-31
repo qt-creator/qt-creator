@@ -32,9 +32,8 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-#include <QWidget>
-
 #include <QCoreApplication>
+#include <QWidget>
 
 #include <functional>
 
@@ -63,14 +62,11 @@ DEBUGGER_EXPORT void showCannotStartDialog(const QString &toolName);
 
 // Register a tool for a given start mode.
 DEBUGGER_EXPORT void registerPerspective(Utils::Perspective *perspective);
-DEBUGGER_EXPORT void destroyDynamicPerspective(const QByteArray &perspectiveId);
-DEBUGGER_EXPORT void setPerspectiveEnabled(const QByteArray &perspectiveId, bool enable);
 
 DEBUGGER_EXPORT void enableMainWindow(bool on);
 DEBUGGER_EXPORT QWidget *mainWindow();
 
 DEBUGGER_EXPORT void selectPerspective(const QByteArray &perspectiveId);
-DEBUGGER_EXPORT QByteArray currentPerspective();
 
 // Convenience functions.
 DEBUGGER_EXPORT void showStatusMessage(const QString &message, int timeoutMS = 10000);

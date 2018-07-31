@@ -47,7 +47,6 @@ namespace Debugger {
 namespace Internal {
 
 class BreakpointParameters;
-class BreakpointResponse;
 class DebugInfoTask;
 class DebugInfoTaskHandler;
 class DebuggerResponse;
@@ -65,7 +64,7 @@ struct CoreInfo
                                                const QString &coreFile);
 };
 
-class GdbEngine : public DebuggerEngine
+class GdbEngine : public CppDebuggerEngine
 {
     Q_OBJECT
 
@@ -74,8 +73,6 @@ public:
     ~GdbEngine() final;
 
 private: ////////// General Interface //////////
-    DebuggerEngine *cppEngine() final { return this; }
-
     void handleGdbStartFailed();
     void prepareForRestart() final;
 
@@ -86,7 +83,7 @@ private: ////////// General Interface //////////
     void resetInferior() final;
 
     bool acceptsDebuggerCommands() const final;
-    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) final;
+    void executeDebuggerCommand(const QString &command) final;
 
     ////////// General State //////////
 
@@ -189,11 +186,11 @@ private: ////////// General Interface //////////
 
     // This should be always the last call in a function.
     bool stateAcceptsBreakpointChanges() const final;
-    bool acceptsBreakpoint(Breakpoint bp) const final;
-    void insertBreakpoint(Breakpoint bp) final;
-    void removeBreakpoint(Breakpoint bp) final;
-    void changeBreakpoint(Breakpoint bp) final;
-    void enableSubBreakpoint(const QString &locId, bool on) final;
+    bool acceptsBreakpoint(const BreakpointParameters &bp) const final;
+    void insertBreakpoint(const Breakpoint &bp) final;
+    void removeBreakpoint(const Breakpoint &bp) final;
+    void updateBreakpoint(const Breakpoint &bp) final;
+    void enableSubBreakpoint(const SubBreakpoint &sbp, bool on) final;
 
     void executeStep() final;
     void executeStepOut() final;
@@ -209,6 +206,7 @@ private: ////////// General Interface //////////
     void executeRunToFunction(const QString &functionName) final;
     void executeJumpToLine(const ContextData &data) final;
     void executeReturn() final;
+    void executeRecordReverse(bool reverse);
 
     void handleExecuteContinue(const DebuggerResponse &response);
     void handleExecuteStep(const DebuggerResponse &response);
@@ -223,26 +221,24 @@ private: ////////// General Interface //////////
 
     void selectThread(ThreadId threadId) final;
     void activateFrame(int index) final;
-    void handleAutoContinueInferior();
 
     //
     // Breakpoint specific stuff
     //
     void handleBreakModifications(const GdbMi &bkpts);
-    void handleBreakIgnore(const DebuggerResponse &response, Breakpoint bp);
-    void handleBreakDisable(const DebuggerResponse &response, Breakpoint bp);
-    void handleBreakEnable(const DebuggerResponse &response, Breakpoint bp);
-    void handleBreakInsert1(const DebuggerResponse &response, Breakpoint bp);
-    void handleBreakInsert2(const DebuggerResponse &response, Breakpoint bp);
-    void handleBreakCondition(const DebuggerResponse &response, Breakpoint bp);
-    void handleBreakThreadSpec(const DebuggerResponse &response, Breakpoint bp);
-    void handleBreakLineNumber(const DebuggerResponse &response, Breakpoint bp);
-    void handleInsertInterpreterBreakpoint(const DebuggerResponse &response, Breakpoint bp);
+    void handleBreakIgnore(const DebuggerResponse &response, const Breakpoint &bp);
+    void handleBreakDisable(const DebuggerResponse &response, const Breakpoint &bp);
+    void handleBreakEnable(const DebuggerResponse &response, const Breakpoint &bp);
+    void handleBreakInsert1(const DebuggerResponse &response, const Breakpoint &bp);
+    void handleBreakInsert2(const DebuggerResponse &response, const Breakpoint &bp);
+    void handleBreakCondition(const DebuggerResponse &response, const Breakpoint &bp);
+    void handleBreakThreadSpec(const DebuggerResponse &response, const Breakpoint &bp);
+    void handleBreakLineNumber(const DebuggerResponse &response, const Breakpoint &bp);
+    void handleInsertInterpreterBreakpoint(const DebuggerResponse &response, const Breakpoint &bp);
     void handleInterpreterBreakpointModified(const GdbMi &data);
-    void handleWatchInsert(const DebuggerResponse &response, Breakpoint bp);
-    void handleCatchInsert(const DebuggerResponse &response, Breakpoint bp);
-    void handleBkpt(const GdbMi &bkpt, Breakpoint bp);
-    void updateResponse(BreakpointResponse &response, const GdbMi &bkpt);
+    void handleWatchInsert(const DebuggerResponse &response, const Breakpoint &bp);
+    void handleCatchInsert(const DebuggerResponse &response, const Breakpoint &bp);
+    void handleBkpt(const GdbMi &bkpt, const Breakpoint &bp);
     QString breakpointLocation(const BreakpointParameters &data); // For gdb/MI.
     QString breakpointLocation2(const BreakpointParameters &data); // For gdb/CLI fallback.
     QString breakLocation(const QString &file) const;

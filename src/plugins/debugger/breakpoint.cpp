@@ -25,88 +25,19 @@
 
 #include "breakpoint.h"
 
+#include "debuggeractions.h"
+#include "debuggercore.h"
+#include "debuggerprotocol.h"
+
+#include <projectexplorer/abi.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QFileInfo>
+#include <QDir>
 
 namespace Debugger {
 namespace Internal {
-
-/*!
-    \class Debugger::Internal::BreakpointIdBase
-
-    Convenience base class for BreakpointModelId and
-    BreakpointResponseId.
-*/
-
-QDebug operator<<(QDebug d, const BreakpointIdBase &id)
-{
-    d << qPrintable(id.toString());
-    return d;
-}
-
-QString BreakpointIdBase::toString() const
-{
-    if (!isValid())
-        return QLatin1String("<invalid bkpt>");
-    if (isMinor())
-        return QString("%1.%2").arg(m_majorPart).arg(m_minorPart);
-    return QString::number(m_majorPart);
-}
-
-
-/*!
-    \class Debugger::Internal::BreakpointModelId
-
-    This identifies a breakpoint in the \c BreakHandler. The
-    major parts are strictly increasing over time.
-
-    The minor part identifies a multiple breakpoint
-    set for example by gdb in constructors.
-*/
-
-
-BreakpointModelId::BreakpointModelId(const QString &ba)
-{
-    int pos = ba.indexOf('\'');
-    if (pos == -1) {
-        m_majorPart = ba.toUShort();
-        m_minorPart = 0;
-    } else {
-        m_majorPart = ba.left(pos).toUShort();
-        m_minorPart = ba.mid(pos + 1).toUShort();
-    }
-}
-
-/*!
-    \class Debugger::Internal::BreakpointResponseId
-
-    This is what the external debuggers use to identify a breakpoint.
-    It is only valid for one debugger run.
-
-    In gdb, the breakpoint number is used, which is constant
-    during a session. CDB's breakpoint numbers vary if breakpoints
-    are deleted, so, the ID is used.
-*/
-
-BreakpointResponseId::BreakpointResponseId(const QString &ba)
-{
-    int pos = ba.indexOf('.');
-    if (pos == -1) {
-        m_majorPart = ba.toInt();
-        m_minorPart = 0;
-    } else {
-        m_majorPart = ba.left(pos).toInt();
-        m_minorPart = ba.mid(pos + 1).toInt();
-    }
-}
-
-//////////////////////////////////////////////////////////////////
-//
-// BreakpointParameters
-//
-//////////////////////////////////////////////////////////////////
 
 /*!
     \class Debugger::Internal::BreakpointParameters
@@ -215,25 +146,32 @@ void BreakpointParameters::updateLocation(const QString &location)
     }
 }
 
+bool BreakpointParameters::isQmlFileAndLineBreakpoint() const
+{
+    if (type != BreakpointByFileAndLine)
+        return false;
+
+    QString qmlExtensionString = QString::fromLocal8Bit(qgetenv("QTC_QMLDEBUGGER_FILEEXTENSIONS"));
+    if (qmlExtensionString.isEmpty())
+        qmlExtensionString = ".qml;.js";
+
+    const auto qmlFileExtensions = qmlExtensionString.splitRef(';', QString::SkipEmptyParts);
+    for (QStringRef extension : qmlFileExtensions) {
+        if (fileName.endsWith(extension, Qt::CaseInsensitive))
+            return true;
+    }
+    return false;
+}
+
 bool BreakpointParameters::isCppBreakpoint() const
 {
     // Qml specific breakpoint types.
-    if (type == BreakpointAtJavaScriptThrow
-            || type == BreakpointOnQmlSignalEmit)
+    if (type == BreakpointAtJavaScriptThrow || type == BreakpointOnQmlSignalEmit)
         return false;
 
     // Qml is currently only file.
-    if (type == BreakpointByFileAndLine) {
-        auto qmlExtensionString = QString::fromLocal8Bit(qgetenv("QTC_QMLDEBUGGER_FILEEXTENSIONS"));
-        if (qmlExtensionString.isEmpty())
-            qmlExtensionString = ".qml;.js";
-
-        const auto qmlFileExtensions = qmlExtensionString.splitRef(';', QString::SkipEmptyParts);
-        for (QStringRef extension : qmlFileExtensions) {
-            if (fileName.endsWith(extension, Qt::CaseInsensitive))
-                return false;
-        }
-    }
+    if (type == BreakpointByFileAndLine)
+        return !isQmlFileAndLineBreakpoint();
 
     return true;
 }
@@ -283,55 +221,176 @@ QString BreakpointParameters::toString() const
         ts << " Command: " << command;
     if (!message.isEmpty())
         ts << " Message: " << message;
-    return result;
-}
 
-//////////////////////////////////////////////////////////////////
-//
-// BreakpointResponse
-//
-//////////////////////////////////////////////////////////////////
-
-/*!
-    \class Debugger::Internal::BreakpointResponse
-
-    This is what debuggers produce in response to the attempt to
-    insert a breakpoint. The data might differ from the requested bits.
-*/
-
-BreakpointResponse::BreakpointResponse()
-{
-    pending = true;
-    hitCount = 0;
-    multiple = false;
-    correctedLineNumber = 0;
-}
-
-QString BreakpointResponse::toString() const
-{
-    QString result = BreakpointParameters::toString();
-    QTextStream ts(&result);
-    ts << " Number: " << id.toString();
     if (pending)
         ts << " [pending]";
     if (!functionName.isEmpty())
         ts << " Function: " << functionName;
-    if (multiple)
-        ts << " Multiple: " << multiple;
-    if (correctedLineNumber)
-        ts << " CorrectedLineNumber: " << correctedLineNumber;
     ts << " Hit: " << hitCount << " times";
     ts << ' ';
-    return result + BreakpointParameters::toString();
+
+    return result;
 }
 
-void BreakpointResponse::fromParameters(const BreakpointParameters &p)
+static QString cleanupFullName(const QString &fileName)
 {
-    BreakpointParameters::operator=(p);
-    id = BreakpointResponseId();
-    multiple = false;
-    correctedLineNumber = 0;
-    hitCount = 0;
+    QString cleanFilePath = fileName;
+
+    // Gdb running on windows often delivers "fullnames" which
+    // (a) have no drive letter and (b) are not normalized.
+    if (ProjectExplorer::Abi::hostAbi().os() == ProjectExplorer::Abi::WindowsOS) {
+        if (fileName.isEmpty())
+            return QString();
+        QFileInfo fi(fileName);
+        if (fi.isReadable())
+            cleanFilePath = QDir::cleanPath(fi.absoluteFilePath());
+    }
+
+//    if (!boolSetting(AutoEnrichParameters))
+//        return cleanFilePath;
+
+//    const QString sysroot = runParameters().sysRoot;
+//    if (QFileInfo(cleanFilePath).isReadable())
+//        return cleanFilePath;
+//    if (!sysroot.isEmpty() && fileName.startsWith('/')) {
+//        cleanFilePath = sysroot + fileName;
+//        if (QFileInfo(cleanFilePath).isReadable())
+//            return cleanFilePath;
+//    }
+//    if (m_baseNameToFullName.isEmpty()) {
+//        QString debugSource = sysroot + "/usr/src/debug";
+//        if (QFileInfo(debugSource).isDir()) {
+//            QDirIterator it(debugSource, QDirIterator::Subdirectories);
+//            while (it.hasNext()) {
+//                it.next();
+//                QString name = it.fileName();
+//                if (!name.startsWith('.')) {
+//                    QString path = it.filePath();
+//                    m_baseNameToFullName.insert(name, path);
+//                }
+//            }
+//        }
+//    }
+
+//    cleanFilePath.clear();
+//    const QString base = FileName::fromString(fileName).fileName();
+
+//    QMap<QString, QString>::const_iterator jt = m_baseNameToFullName.constFind(base);
+//    while (jt != m_baseNameToFullName.constEnd() && jt.key() == base) {
+//        // FIXME: Use some heuristics to find the "best" match.
+//        return jt.value();
+//        //++jt;
+//    }
+
+    return cleanFilePath;
+}
+void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt)
+{
+    QTC_ASSERT(bkpt.isValid(), return);
+
+    QString originalLocation;
+    QString file;
+    QString fullName;
+    QString internalId;
+
+    enabled = true;
+    pending = false;
+    condition.clear();
+    for (const GdbMi &child : bkpt.children()) {
+        if (child.hasName("number")) {
+            // Handled on caller side.
+        } else if (child.hasName("func")) {
+            functionName = child.data();
+        } else if (child.hasName("addr")) {
+            // <MULTIPLE> happens in constructors, inline functions, and
+            // at other places like 'foreach' lines. In this case there are
+            // fields named "addr" in the response and/or the address
+            // is called <MULTIPLE>.
+            //qDebug() << "ADDR: " << child.data() << (child.data() == "<MULTIPLE>");
+            if (child.data().startsWith("0x"))
+                address = child.toAddress();
+        } else if (child.hasName("file")) {
+            file = child.data();
+        } else if (child.hasName("fullname")) {
+            fullName = child.data();
+        } else if (child.hasName("line")) {
+            lineNumber = child.toInt();
+        } else if (child.hasName("cond")) {
+            // gdb 6.3 likes to "rewrite" conditions. Just accept that fact.
+            condition = child.data();
+        } else if (child.hasName("enabled")) {
+            enabled = (child.data() == "y");
+        } else if (child.hasName("disp")) {
+            oneShot = child.data() == "del";
+        } else if (child.hasName("pending")) {
+            // Any content here would be interesting only if we did accept
+            // spontaneously appearing breakpoints (user using gdb commands).
+            if (file.isEmpty())
+                file = child.data();
+            pending = true;
+        } else if (child.hasName("at")) {
+            // Happens with gdb 6.4 symbianelf.
+            QString ba = child.data();
+            if (ba.startsWith('<') && ba.endsWith('>'))
+                ba = ba.mid(1, ba.size() - 2);
+            functionName = ba;
+        } else if (child.hasName("thread")) {
+            threadSpec = child.toInt();
+        } else if (child.hasName("type")) {
+            // "breakpoint", "hw breakpoint", "tracepoint", "hw watchpoint"
+            // {bkpt={number="2",type="hw watchpoint",disp="keep",enabled="y",
+            //  what="*0xbfffed48",times="0",original-location="*0xbfffed48"}}
+            if (child.data().contains("tracepoint")) {
+                tracepoint = true;
+            } else if (child.data() == "hw watchpoint" || child.data() == "watchpoint") {
+                QString what = bkpt["what"].data();
+                if (what.startsWith("*0x")) {
+                    type = WatchpointAtAddress;
+                    address = what.mid(1).toULongLong(0, 0);
+                } else {
+                    type = WatchpointAtExpression;
+                    expression = what;
+                }
+            } else if (child.data() == "breakpoint") {
+                QString catchType = bkpt["catch-type"].data();
+                if (catchType == "throw")
+                    type = BreakpointAtThrow;
+                else if (catchType == "catch")
+                    type = BreakpointAtCatch;
+                else if (catchType == "fork")
+                    type = BreakpointAtFork;
+                else if (catchType == "exec")
+                    type = BreakpointAtExec;
+                else if (catchType == "syscall")
+                    type = BreakpointAtSysCall;
+            }
+        } else if (child.hasName("times")) {
+            hitCount = child.toInt();
+        } else if (child.hasName("original-location")) {
+            originalLocation = child.data();
+        }
+        // This field is not present.  Contents needs to be parsed from
+        // the plain "ignore"
+        //else if (child.hasName("ignore"))
+        //    ignoreCount = child.data();
+    }
+
+    QString name;
+    if (!fullName.isEmpty()) {
+        name = cleanupFullName(fullName);
+        fileName = name;
+        //if (data->markerFileName().isEmpty())
+        //    data->setMarkerFileName(name);
+    } else {
+        name = file;
+        // Use fullName() once we have a mapping which is more complete than
+        // gdb's own. No point in assigning markerFileName for now.
+    }
+    if (!name.isEmpty())
+        fileName = name;
+
+    if (fileName.isEmpty())
+        updateLocation(originalLocation);
 }
 
 } // namespace Internal

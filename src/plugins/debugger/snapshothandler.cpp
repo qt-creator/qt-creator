@@ -25,15 +25,28 @@
 
 #include "snapshothandler.h"
 
+#include "analyzer/analyzermanager.h"
+#include "debuggeractions.h"
 #include "debuggerinternalconstants.h"
 #include "debuggericons.h"
 #include "debuggercore.h"
 #include "debuggerruncontrol.h"
+#include "stackhandler.h"
 
+#include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/modemanager.h>
+
+#include <utils/basetreeview.h>
+#include <utils/treemodel.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QFile>
+#include <QMenu>
+#include <QTimer>
+
+using namespace Core;
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
@@ -102,177 +115,300 @@ QDebug operator<<(QDebug d, const  SnapshotData &f)
 }
 #endif
 
+class EngineItem : public QObject, public TreeItem
+{
+public:
+    QVariant data(int column, int role) const final;
+    bool setData(int row, const QVariant &data, int role) final;
+
+    const bool m_isPreset = false;
+    QPointer<DebuggerEngine> m_engine;
+};
+
+class EngineManagerPrivate : public QObject
+{
+public:
+    EngineManagerPrivate()
+    {
+        m_engineModel.setHeader({EngineManager::tr("Name"), EngineManager::tr("File")});
+        m_engineModel.rootItem()->appendChild(new EngineItem); // The preset case.
+
+        m_engineChooser = new QComboBox;
+        m_engineChooser->setVisible(false);
+        m_engineChooser->setModel(&m_engineModel);
+        connect(m_engineChooser, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
+                this, &EngineManagerPrivate::activateEngineByIndex);
+    }
+
+    ~EngineManagerPrivate()
+    {
+        delete m_engineChooser;
+    }
+
+    EngineItem *findEngineItem(DebuggerEngine *engine);
+    void activateEngine(DebuggerEngine *engine);
+    void activateEngineItem(EngineItem *engineItem);
+    void activateEngineByIndex(int index);
+    void selectUiForCurrentEngine();
+    void updateEngineChooserVisibility();
+
+    TreeModel<TypedTreeItem<EngineItem>, EngineItem> m_engineModel;
+    QPointer<EngineItem> m_currentItem;
+    Core::Id m_previousMode;
+    QPointer<QComboBox> m_engineChooser;
+};
+
 ////////////////////////////////////////////////////////////////////////
 //
-// SnapshotHandler
+// EngineManager
 //
 ////////////////////////////////////////////////////////////////////////
 
 /*!
-    \class Debugger::Internal::SnapshotHandler
-    \brief The SnapshotHandler class provides a model to represent the
-    snapshots in a QTreeView.
-
-    A snapshot represents a debugging session.
+    \class Debugger::Internal::EngineManager
+    \brief The EngineManager manages running debugger engines.
 */
 
-SnapshotHandler::SnapshotHandler() = default;
+static EngineManager *theEngineManager = nullptr;
+static EngineManagerPrivate *d = nullptr;
 
-SnapshotHandler::~SnapshotHandler()
+EngineManager::EngineManager()
 {
-    for (int i = m_snapshots.size(); --i >= 0; ) {
-        if (DebuggerRunTool *runTool = at(i)) {
-            const DebuggerRunParameters &rp = runTool->runParameters();
-            if (rp.isSnapshot && !rp.coreFile.isEmpty())
-                QFile::remove(rp.coreFile);
+    theEngineManager = this;
+    d = new EngineManagerPrivate;
+}
+
+QWidget *EngineManager::engineChooser()
+{
+    return d->m_engineChooser;
+}
+
+EngineManager::~EngineManager()
+{
+    theEngineManager = nullptr;
+    delete d;
+}
+
+EngineManager *EngineManager::instance()
+{
+    return theEngineManager;
+}
+
+QAbstractItemModel *EngineManager::model()
+{
+    return &d->m_engineModel;
+}
+
+void EngineManager::activateEngine(DebuggerEngine *engine)
+{
+    d->activateEngine(engine);
+}
+
+QVariant EngineItem::data(int column, int role) const
+{
+    if (m_engine) {
+        if (role == SnapshotCapabilityRole)
+            return m_engine->hasCapability(SnapshotCapability);
+
+        const DebuggerRunParameters &rp = m_engine->runParameters();
+
+        switch (role) {
+        case Qt::DisplayRole:
+            switch (column) {
+            case 0:
+                return m_engine->displayName();
+            case 1:
+                return rp.coreFile.isEmpty() ? rp.inferior.executable : rp.coreFile;
+            }
+            return QVariant();
+
+        case Qt::ToolTipRole:
+            return QVariant();
+
+        case Qt::DecorationRole:
+            // Return icon that indicates whether this is the active engine
+            if (column == 0)
+                return d->m_currentItem == this ? Icons::LOCATION.icon() : Icons::EMPTY.icon();
+
+        default:
+            break;
         }
-    }
-}
-
-int SnapshotHandler::rowCount(const QModelIndex &parent) const
-{
-    // Since the stack is not a tree, row count is 0 for any valid parent
-    return parent.isValid() ? 0 : m_snapshots.size();
-}
-
-int SnapshotHandler::columnCount(const QModelIndex &parent) const
-{
-    return parent.isValid() ? 0 : 2;
-}
-
-QVariant SnapshotHandler::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid() || index.row() >= m_snapshots.size())
-        return QVariant();
-
-    const DebuggerRunTool *runTool = at(index.row());
-
-    if (role == SnapshotCapabilityRole)
-        return runTool && runTool->activeEngine()->hasCapability(SnapshotCapability);
-
-    if (!runTool)
-        return QLatin1String("<finished>");
-
-    const DebuggerRunParameters &rp = runTool->runParameters();
-
-    switch (role) {
-    case Qt::DisplayRole:
-        switch (index.column()) {
-        case 0:
-            return rp.displayName;
-        case 1:
-            return rp.coreFile.isEmpty() ? rp.inferior.executable : rp.coreFile;
+    } else {
+        switch (role) {
+        case Qt::DisplayRole:
+            return EngineManager::tr("Debugger Preset");
+        default:
+            break;
         }
-        return QVariant();
-
-    case Qt::ToolTipRole:
-        return QVariant();
-
-    case Qt::DecorationRole:
-        // Return icon that indicates whether this is the active stack frame.
-        if (index.column() == 0)
-            return (index.row() == m_currentIndex) ? Icons::LOCATION.icon() : Icons::EMPTY.icon();
-
-    default:
-        break;
     }
     return QVariant();
 }
 
-QVariant SnapshotHandler::headerData(int section, Qt::Orientation orientation, int role) const
+bool EngineItem::setData(int row, const QVariant &value, int role)
 {
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        switch (section) {
-            case 0: return tr("Name");
-            case 1: return tr("File");
-        };
+    Q_UNUSED(row);
+    if (!m_engine)
+        return false;
+
+    if (role == BaseTreeView::ItemActivatedRole) {
+        EngineItem *engineItem = d->findEngineItem(m_engine);
+        d->activateEngineItem(engineItem);
+        return true;
     }
-    return QVariant();
+
+    if (role == BaseTreeView::ItemViewEventRole) {
+        ItemViewEvent ev = value.value<ItemViewEvent>();
+
+        if (auto cmev = ev.as<QContextMenuEvent>()) {
+
+            auto menu = new QMenu(ev.view());
+
+            QAction *actCreate = menu->addAction(tr("Create Snapshot"));
+            actCreate->setEnabled(m_engine->hasCapability(SnapshotCapabilityRole));
+            menu->addSeparator();
+
+            QAction *actRemove = menu->addAction(tr("Abort Debugger"));
+            actRemove->setEnabled(true);
+
+            QAction *act = menu->exec(cmev->globalPos());
+
+            if (act == actCreate && m_engine)
+                m_engine->createSnapshot();
+            else if (act == actRemove && m_engine)
+                m_engine->quitDebugger();
+
+            return true;
+        }
+
+        if (auto kev = ev.as<QKeyEvent>(QEvent::KeyPress)) {
+            if (kev->key() == Qt::Key_Delete && m_engine) {
+                m_engine->quitDebugger();
+            } else if (kev->key() == Qt::Key_Return || kev->key() == Qt::Key_Enter) {
+                d->activateEngineByIndex(row);
+            }
+            return true;
+        }
+    }
+
+    return false;
 }
 
-Qt::ItemFlags SnapshotHandler::flags(const QModelIndex &index) const
+void EngineManagerPrivate::activateEngineByIndex(int index)
 {
-    if (index.row() >= m_snapshots.size())
-        return nullptr;
-    if (index.row() == m_snapshots.size())
-        return QAbstractTableModel::flags(index);
-    return true ? QAbstractTableModel::flags(index) : Qt::ItemFlags({});
+    activateEngineItem(m_engineModel.rootItem()->childAt(index));
 }
 
-void SnapshotHandler::activateSnapshot(int index)
+void EngineManagerPrivate::activateEngineItem(EngineItem *engineItem)
 {
-    beginResetModel();
-    m_currentIndex = index;
-    //qDebug() << "ACTIVATING INDEX: " << m_currentIndex << " OF " << size();
-    Internal::displayDebugger(at(index));
-    endResetModel();
+    if (m_currentItem) {
+        if (DebuggerEngine *engine = m_currentItem->m_engine) {
+            const Context context = engine->languageContext();
+            ICore::removeAdditionalContext(context);
+        }
+    }
+
+    m_currentItem = engineItem;
+
+    if (m_currentItem) {
+        if (DebuggerEngine *engine = m_currentItem->m_engine) {
+            const Context context = engine->languageContext();
+            ICore::addAdditionalContext(context);
+            engine->gotoCurrentLocation();
+        }
+    }
+
+    selectUiForCurrentEngine();
 }
 
-void SnapshotHandler::createSnapshot(int index)
+void EngineManagerPrivate::selectUiForCurrentEngine()
 {
-    DebuggerRunTool *runTool = at(index);
-    QTC_ASSERT(runTool, return);
-    runTool->engine()->createSnapshot();
+    Perspective *perspective = nullptr;
+    int row = 0;
+
+    if (m_currentItem && m_currentItem->m_engine) {
+        perspective = m_currentItem->m_engine->perspective();
+        row = m_engineModel.rootItem()->indexOf(m_currentItem);
+    }
+
+    m_engineChooser->setCurrentIndex(row);
+
+    if (perspective)
+        perspective->select();
+    else
+        selectPerspective(Debugger::Constants::PRESET_PERSPRECTIVE_ID);
+
+    m_engineModel.rootItem()->forFirstLevelChildren([this](EngineItem *engineItem) {
+        if (engineItem && engineItem->m_engine)
+            engineItem->m_engine->updateMarkers();
+    });
+
+    emit theEngineManager->currentEngineChanged();
 }
 
-void SnapshotHandler::removeSnapshot(int index)
+void EngineManager::selectUiForCurrentEngine()
 {
-    DebuggerRunTool *runTool = at(index);
-    //qDebug() << "REMOVING " << runTool;
-    QTC_ASSERT(runTool, return);
-#if 0
-    // See http://sourceware.org/bugzilla/show_bug.cgi?id=11241.
-    setState(EngineSetupRequested);
-    postCommand("set stack-cache off");
-#endif
-    //QString fileName = runTool->startParameters().coreFile;
-    //if (!fileName.isEmpty())
-    //    QFile::remove(fileName);
-    beginResetModel();
-    m_snapshots.removeAt(index);
-    if (index == m_currentIndex)
-        m_currentIndex = -1;
-    else if (index < m_currentIndex)
-        --m_currentIndex;
-    //runTool->quitDebugger();
-    endResetModel();
+    d->selectUiForCurrentEngine();
 }
 
-
-void SnapshotHandler::removeAll()
+EngineItem *EngineManagerPrivate::findEngineItem(DebuggerEngine *engine)
 {
-    beginResetModel();
-    m_snapshots.clear();
-    m_currentIndex = -1;
-    endResetModel();
+    return m_engineModel.rootItem()->findFirstLevelChild([engine](EngineItem *engineItem) {
+        return engineItem->m_engine == engine;
+    });
 }
 
-void SnapshotHandler::appendSnapshot(DebuggerRunTool *runTool)
+void EngineManagerPrivate::activateEngine(DebuggerEngine *engine)
 {
-    beginResetModel();
-    m_snapshots.append(runTool);
-    m_currentIndex = size() - 1;
-    endResetModel();
+    EngineItem *engineItem = findEngineItem(engine);
+    activateEngineItem(engineItem);
 }
 
-void SnapshotHandler::removeSnapshot(DebuggerRunTool *runTool)
+void EngineManagerPrivate::updateEngineChooserVisibility()
+{
+    // Show it if there's more than one option (i.e. not the the preset engine only)
+    const int count = m_engineModel.rootItem()->childCount();
+    m_engineChooser->setVisible(count >= 2);
+}
+
+void EngineManager::registerEngine(DebuggerEngine *engine)
+{
+    auto engineItem = new EngineItem;
+    engineItem->m_engine = engine;
+    d->m_engineModel.rootItem()->appendChild(engineItem);
+    d->updateEngineChooserVisibility();
+}
+
+void EngineManager::activateDebugMode()
+{
+    if (ModeManager::currentModeId() != Constants::MODE_DEBUG) {
+        d->m_previousMode = ModeManager::currentModeId();
+        ModeManager::activateMode(Constants::MODE_DEBUG);
+    }
+}
+
+void EngineManager::unregisterEngine(DebuggerEngine *engine)
 {
     // Could be that the run controls died before it was appended.
-    int index = m_snapshots.indexOf(runTool);
-    if (index != -1)
-        removeSnapshot(index);
+    if (auto engineItem = d->findEngineItem(engine))
+        d->m_engineModel.destroyItem(engineItem);
+
+    d->updateEngineChooserVisibility();
+    emit theEngineManager->currentEngineChanged();
 }
 
-void SnapshotHandler::setCurrentIndex(int index)
+QList<QPointer<DebuggerEngine>> EngineManager::engines()
 {
-    beginResetModel();
-    m_currentIndex = index;
-    endResetModel();
+    QList<QPointer<DebuggerEngine>> result;
+    d->m_engineModel.forItemsAtLevel<1>([&result](EngineItem *engineItem) {
+        if (DebuggerEngine *engine = engineItem->m_engine)
+            result.append(engine);
+    });
+    return result;
 }
 
-DebuggerRunTool *SnapshotHandler::at(int i) const
+QPointer<DebuggerEngine> EngineManager::currentEngine()
 {
-    return m_snapshots.at(i).data();
+    return d->m_currentItem ? d->m_currentItem->m_engine : nullptr;
 }
 
 } // namespace Internal

@@ -282,12 +282,12 @@ ClangTidyClazyTool::ClangTidyClazyTool()
         action->setEnabled(m_startAction->isEnabled());
     });
 
-    perspective->addToolbarAction(m_startAction);
-    perspective->addToolbarAction(m_stopAction);
-    perspective->addToolbarAction(m_goBack);
-    perspective->addToolbarAction(m_goNext);
-    perspective->addToolbarWidget(m_filterLineEdit);
-    perspective->addToolbarWidget(m_applyFixitsButton);
+    perspective->addToolBarAction(m_startAction);
+    perspective->addToolBarAction(m_stopAction);
+    perspective->addToolBarAction(m_goBack);
+    perspective->addToolBarAction(m_goNext);
+    perspective->addToolBarWidget(m_filterLineEdit);
+    perspective->addToolBarWidget(m_applyFixitsButton);
 
     Debugger::registerPerspective(perspective);
 

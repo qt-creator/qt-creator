@@ -28,6 +28,7 @@
 #include "debugger_global.h"
 #include "debuggerconstants.h"
 #include "debuggerengine.h"
+#include "terminal.h"
 
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
@@ -51,9 +52,6 @@ public:
                              bool allowTerminal = true);
     ~DebuggerRunTool() override;
 
-    Internal::DebuggerEngine *engine() const { return m_engine; }
-    Internal::DebuggerEngine *activeEngine() const;
-
     void startRunControl();
 
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
@@ -61,15 +59,8 @@ public:
     void start() override;
     void stop() override;
 
-    void notifyInferiorIll();
-    Q_SLOT void notifyInferiorExited(); // Called from Android.
     void quitDebugger();
-    void abortDebugger();
 
-    const Internal::DebuggerRunParameters &runParameters() const;
-
-    void startDying() { m_isDying = true; }
-    bool isDying() const { return m_isDying; }
     bool isCppDebugging() const;
     bool isQmlDebugging() const;
     int portsUsedByDebugger() const;
@@ -138,11 +129,13 @@ public:
 
 private:
     bool fixupParameters();
+    void handleEngineStarted(Internal::DebuggerEngine *engine);
+    void handleEngineFinished(Internal::DebuggerEngine *engine);
 
     Internal::DebuggerRunToolPrivate *d;
-    QPointer<Internal::DebuggerEngine> m_engine; // Master engine
+    QPointer<Internal::DebuggerEngine> m_engine;
+    QPointer<Internal::DebuggerEngine> m_engine2;
     Internal::DebuggerRunParameters m_runParameters;
-    bool m_isDying = false;
 };
 
 class DEBUGGER_EXPORT GdbServerPortsGatherer : public ProjectExplorer::ChannelProvider

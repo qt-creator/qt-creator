@@ -68,12 +68,17 @@ public:
     DisassemblerBreakpointMarker(const Breakpoint &bp, int lineNumber)
         : TextMark(Utils::FileName(), lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_bp(bp)
     {
-        setIcon(bp.icon());
+        setIcon(bp->icon());
         setPriority(TextMark::NormalPriority);
     }
 
-    bool isClickable() const override { return true; }
-    void clicked() override { m_bp.removeBreakpoint(); }
+    bool isClickable() const final { return true; }
+
+    void clicked() final
+    {
+        QTC_ASSERT(m_bp, return);
+        m_bp->deleteGlobalOrThisBreakpoint();
+    }
 
 public:
     Breakpoint m_bp;
@@ -331,8 +336,8 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
     d->document->setPreferredDisplayName(QString("Disassembler (%1)")
         .arg(d->location.functionName()));
 
-    const Breakpoints bps = breakHandler()->engineBreakpoints(d->engine);
-    for (Breakpoint bp : bps)
+    const Breakpoints bps = d->engine->breakHandler()->breakpoints();
+    for (const Breakpoint bp : bps)
         updateBreakpointMarker(bp);
 
     updateLocationMarker();
@@ -340,13 +345,17 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
 
 void DisassemblerAgent::updateLocationMarker()
 {
-    QTC_ASSERT(d->document, return);
+    if (!d->document)
+        return;
+
     int lineNumber = d->lineForAddress(d->location.address());
     if (d->location.needsMarker()) {
         d->document->removeMark(&d->locationMark);
         d->locationMark.updateLineNumber(lineNumber);
         d->document->addMark(&d->locationMark);
     }
+
+    d->locationMark.updateIcon();
 
     // Center cursor.
     if (EditorManager::currentDocument() == d->document)
@@ -359,9 +368,8 @@ void DisassemblerAgent::removeBreakpointMarker(const Breakpoint &bp)
     if (!d->document)
         return;
 
-    BreakpointModelId id = bp.id();
-    foreach (DisassemblerBreakpointMarker *marker, d->breakpointMarks) {
-        if (marker->m_bp.id() == id) {
+    for (DisassemblerBreakpointMarker *marker : d->breakpointMarks) {
+        if (marker->m_bp == bp) {
             d->breakpointMarks.removeOne(marker);
             d->document->removeMark(marker);
             delete marker;
@@ -373,7 +381,7 @@ void DisassemblerAgent::removeBreakpointMarker(const Breakpoint &bp)
 void DisassemblerAgent::updateBreakpointMarker(const Breakpoint &bp)
 {
     removeBreakpointMarker(bp);
-    const quint64 address = bp.response().address;
+    const quint64 address = bp->address();
     if (!address)
         return;
 
@@ -384,7 +392,7 @@ void DisassemblerAgent::updateBreakpointMarker(const Breakpoint &bp)
     // HACK: If it's a FileAndLine breakpoint, and there's a source line
     // above, move the marker up there. That allows setting and removing
     // normal breakpoints from within the disassembler view.
-    if (bp.type() == BreakpointByFileAndLine) {
+    if (bp->type() == BreakpointByFileAndLine) {
         ContextData context = getLocationContext(d->document, lineNumber - 1);
         if (context.type == LocationByFile)
             --lineNumber;

@@ -41,7 +41,6 @@ HEADERS += \
     procinterrupt.h \
     registerhandler.h \
     snapshothandler.h \
-    snapshotwindow.h \
     sourceagent.h \
     sourcefileshandler.h \
     sourceutils.h \
@@ -89,7 +88,6 @@ SOURCES += \
     procinterrupt.cpp \
     registerhandler.cpp \
     snapshothandler.cpp \
-    snapshotwindow.cpp \
     sourceagent.cpp \
     sourcefileshandler.cpp \
     sourceutils.cpp \

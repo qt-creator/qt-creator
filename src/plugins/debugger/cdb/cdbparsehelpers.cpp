@@ -27,6 +27,7 @@
 
 #include "stringinputstream.h"
 
+#include <debugger/breakhandler.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/disassemblerlines.h>
 #include <debugger/shared/hostutils.h>
@@ -77,14 +78,14 @@ QString cdbSourcePathMapping(QString fileName,
 
 // Determine file name to be used for breakpoints. Convert to native and, unless short path
 // is set, perform reverse lookup in the source path mappings.
-static inline QString cdbBreakPointFileName(const BreakpointParameters &bp,
+static inline QString cdbBreakPointFileName(const BreakpointParameters &params,
                                             const QList<QPair<QString, QString> > &sourcePathMapping)
 {
-    if (bp.fileName.isEmpty())
-        return bp.fileName;
-    if (bp.pathUsage == BreakpointUseShortPath)
-        return Utils::FileName::fromString(bp.fileName).fileName();
-    return cdbSourcePathMapping(QDir::toNativeSeparators(bp.fileName), sourcePathMapping, SourceToDebugger);
+    if (params.fileName.isEmpty())
+        return params.fileName;
+    if (params.pathUsage == BreakpointUseShortPath)
+        return Utils::FileName::fromString(params.fileName).fileName();
+    return cdbSourcePathMapping(QDir::toNativeSeparators(params.fileName), sourcePathMapping, SourceToDebugger);
 }
 
 static BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
@@ -127,69 +128,46 @@ static BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
     return p;
 }
 
-int breakPointIdToCdbId(const BreakpointModelId &id)
+int breakPointIdToCdbId(const Breakpoint &bp)
 {
-    return cdbBreakPointStartId + id.majorPart() * cdbBreakPointIdMinorPart + id.minorPart();
+//    return cdbBreakPointStartId + bp.majorPart() * cdbBreakPointIdMinorPart + bp.minorPart();
+    if (!bp->responseId().isEmpty())
+        return bp->responseId().toInt();
+    return cdbBreakPointStartId + bp->modelId() * cdbBreakPointIdMinorPart;
 }
 
-template <class ModelId>
-inline ModelId cdbIdToBreakpointId(const int &id)
-{
-    if (id >= cdbBreakPointStartId) {
-        int major = (id - cdbBreakPointStartId) / cdbBreakPointIdMinorPart;
-        int minor = id % cdbBreakPointIdMinorPart;
-        if (minor)
-            return ModelId(major, minor);
-        else
-            return ModelId(major);
-    }
-    return ModelId();
-}
-
-template <class ModelId>
-inline ModelId cdbIdToBreakpointId(const GdbMi &data)
-{
-    if (data.isValid()) { // Might not be valid if there is not id
-        bool ok;
-        const int id = data.data().toInt(&ok);
-        if (ok)
-            return cdbIdToBreakpointId<ModelId>(id);
-    }
-    return ModelId();
-}
-
-BreakpointModelId cdbIdToBreakpointModelId(const GdbMi &id)
-{
-    return cdbIdToBreakpointId<BreakpointModelId>(id);
-}
-
-BreakpointResponseId cdbIdToBreakpointResponseId(const GdbMi &id)
-{
-    return cdbIdToBreakpointId<BreakpointResponseId>(id);
-}
+//static int cdbIdToBreakpointModel(int cdbid)
+//{
+//    if (cdbid >= cdbBreakPointStartId) {
+//        int major = (cdbid - cdbBreakPointStartId) / cdbBreakPointIdMinorPart;
+//        int minor = cdbid % cdbBreakPointIdMinorPart;
+//        (void) minor;
+//        return major;
+//    }
+//    return 0;
+//}
 
 QString cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
                                 const QList<QPair<QString, QString> > &sourcePathMapping,
-                                BreakpointModelId id /* = BreakpointId() */,
+                                const QString &responseId,
                                 bool oneshot)
 {
-    const BreakpointParameters bp = fixWinMSVCBreakpoint(bpIn);
+    const BreakpointParameters params = fixWinMSVCBreakpoint(bpIn);
     QString rc;
     StringInputStream str(rc);
 
-    if (bp.threadSpec >= 0)
-        str << '~' << bp.threadSpec << ' ';
+    if (params.threadSpec >= 0)
+        str << '~' << params.threadSpec << ' ';
 
     // Currently use 'bu' so that the offset expression (including file name)
     // is kept when reporting back breakpoints (which is otherwise discarded
     // when resolving).
-    str << (bp.type == WatchpointAtAddress ? "ba" : "bu");
-    if (id.isValid())
-        str << breakPointIdToCdbId(id);
-    str << ' ';
+    str << (params.type == WatchpointAtAddress ? "ba" : "bu")
+        << responseId
+        << ' ';
     if (oneshot)
         str << "/1 ";
-    switch (bp.type) {
+    switch (params.type) {
     case BreakpointAtFork:
     case BreakpointAtExec:
     case WatchpointAtExpression:
@@ -204,39 +182,41 @@ QString cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
         QTC_ASSERT(false, return QString());
         break;
     case BreakpointByAddress:
-        str << hex << hexPrefixOn << bp.address << hexPrefixOff << dec;
+        str << hex << hexPrefixOn << params.address << hexPrefixOff << dec;
         break;
     case BreakpointByFunction:
-        if (!bp.module.isEmpty())
-            str << bp.module << '!';
-        str << bp.functionName;
+        if (!params.module.isEmpty())
+            str << params.module << '!';
+        str << params.functionName;
         break;
     case BreakpointByFileAndLine:
         str << '`';
-        if (!bp.module.isEmpty())
-            str << bp.module << '!';
-        str << cdbBreakPointFileName(bp, sourcePathMapping) << ':' << bp.lineNumber << '`';
+        if (!params.module.isEmpty())
+            str << params.module << '!';
+        str << cdbBreakPointFileName(params, sourcePathMapping) << ':' << params.lineNumber << '`';
         break;
     case WatchpointAtAddress: { // Read/write, no space here
-        const unsigned size = bp.size ? bp.size : 1;
-        str << 'r' << size << ' ' << hex << hexPrefixOn << bp.address << hexPrefixOff << dec;
+        const unsigned size = params.size ? params.size : 1;
+        str << 'r' << size << ' ' << hex << hexPrefixOn << params.address << hexPrefixOff << dec;
     }
         break;
     }
-    if (bp.ignoreCount)
-        str << " 0n" << (bp.ignoreCount + 1);
+    if (params.ignoreCount)
+        str << " 0n" << (params.ignoreCount + 1);
     // Condition currently unsupported.
-    if (!bp.command.isEmpty())
-        str << " \"" << bp.command << '"';
+    if (!params.command.isEmpty())
+        str << " \"" << params.command << '"';
     return rc;
 }
 
-QString cdbClearBreakpointCommand(const BreakpointModelId &id)
+QString cdbClearBreakpointCommand(const Breakpoint &bp)
 {
-    const int firstBreakPoint = breakPointIdToCdbId(id);
-    if (id.isMinor())
-        return "bc " + QString::number(firstBreakPoint);
+// FIME: Check
+//    const int firstBreakPoint = breakPointIdToCdbId(id);
+//    if (id.isMinor())
+//        return "bc " + QString::number(firstBreakPoint);
     // If this is a major break point we also want to delete all sub break points
+    const int firstBreakPoint = cdbBreakPointStartId + bp->modelId() * cdbBreakPointIdMinorPart;
     const int lastBreakPoint = firstBreakPoint + cdbBreakPointIdMinorPart - 1;
     return "bc " + QString::number(firstBreakPoint) + '-' + QString::number(lastBreakPoint);
 }
@@ -270,14 +250,11 @@ static inline bool gdbmiChildToBool(const GdbMi &parent, const char *childName, 
 // Parse extension command listing breakpoints.
 // Note that not all fields are returned, since file, line, function are encoded
 // in the expression (that is in addition deleted on resolving for a bp-type breakpoint).
-void parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
+void parseBreakPoint(const GdbMi &gdbmi, BreakpointParameters *r,
                      QString *expression /*  = 0 */)
 {
     gdbmiChildToBool(gdbmi, "enabled", &(r->enabled));
     gdbmiChildToBool(gdbmi, "deferred", &(r->pending));
-    r->id = BreakpointResponseId();
-    // Might not be valid if there is not id
-    r->id = cdbIdToBreakpointResponseId(gdbmi["id"]);
     const GdbMi moduleG = gdbmi["module"];
     if (moduleG.isValid())
         r->module = moduleG.data();

@@ -134,7 +134,6 @@ private:
     QList<int> m_fetchDataIds;
     QTimer m_delayQueryTimer;
 
-    DebuggerEngine *m_masterEngine;
     QHash<QString, QmlDebug::BaseEngineDebugClient*> m_engineClients;
     QmlDebug::BaseToolsClient *m_toolsClient = nullptr;
 

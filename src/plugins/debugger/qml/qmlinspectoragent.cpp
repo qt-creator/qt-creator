@@ -67,7 +67,8 @@ Q_LOGGING_CATEGORY(qmlInspectorLog, "qtc.dbg.qmlinspector")
 QmlInspectorAgent::QmlInspectorAgent(QmlEngine *engine, QmlDebugConnection *connection)
     : m_qmlEngine(engine)
     , m_objectToSelect(WatchItem::InvalidId)
-    , m_masterEngine(engine->masterEngine())
+    , m_toolsClient(nullptr)
+    , m_targetToSync(NoTarget)
     , m_debugIdToSelect(WatchItem::InvalidId)
     , m_currentSelectedDebugId(WatchItem::InvalidId)
     , m_inspectorToolsContext("Debugger.QmlInspector")
@@ -786,7 +787,7 @@ void QmlInspectorAgent::toolsClientStateChanged(QmlDebugClient::State state)
         Core::ICore::addAdditionalContext(m_inspectorToolsContext);
 
         m_toolsClientConnected = true;
-        enableTools(m_masterEngine->state() == InferiorRunOk);
+        enableTools(m_qmlEngine->state() == InferiorRunOk);
         if (m_showAppOnTopAction->isChecked())
             m_toolsClient->showAppOnTop(true);
 
@@ -901,7 +902,7 @@ void QmlInspectorAgent::setActiveEngineClient(BaseEngineDebugClient *client)
 void QmlInspectorAgent::jumpToObjectDefinitionInEditor(
         const FileReference &objSource, int debugId)
 {
-    const QString fileName = m_masterEngine->toFileInProject(objSource.url());
+    const QString fileName = m_qmlEngine->toFileInProject(objSource.url());
 
     Core::EditorManager::openEditorAt(fileName, objSource.lineNumber());
     if (debugId != WatchItem::InvalidId && debugId != m_currentSelectedDebugId) {

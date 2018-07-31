@@ -82,17 +82,17 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
     m_flameGraphView = new FlameGraphView(m_profilerModelManager);
     prepareEventsView(m_flameGraphView);
 
-    QWidget *anchor = nullptr;
+    QWidget *anchorDock = nullptr;
     if (m_traceView->isUsable()) {
-        anchor = m_traceView;
+        anchorDock = m_traceView;
         m_perspective->addWindow(m_traceView, Perspective::SplitVertical, nullptr);
-        m_perspective->addWindow(m_flameGraphView, Perspective::AddToTab, anchor);
+        m_perspective->addWindow(m_flameGraphView, Perspective::AddToTab, m_traceView);
     } else {
-        anchor = m_flameGraphView;
+        anchorDock = m_flameGraphView;
         m_perspective->addWindow(m_flameGraphView, Perspective::SplitVertical, nullptr);
     }
-    m_perspective->addWindow(m_statisticsView, Perspective::AddToTab, anchor);
-    m_perspective->addWindow(anchor, Perspective::Raise, nullptr);
+    m_perspective->addWindow(m_statisticsView, Perspective::AddToTab, anchorDock);
+    m_perspective->addWindow(anchorDock, Perspective::Raise, nullptr);
 
     Debugger::registerPerspective(m_perspective);
 }
@@ -102,6 +102,7 @@ QmlProfilerViewManager::~QmlProfilerViewManager()
     delete m_traceView;
     delete m_flameGraphView;
     delete m_statisticsView;
+    delete m_perspective;
 }
 
 void QmlProfilerViewManager::clear()

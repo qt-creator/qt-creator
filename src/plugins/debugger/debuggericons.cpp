@@ -81,9 +81,18 @@ const Icon DEBUG_EXIT_SMALL_TOOLBAR({
 const Icon LOCATION({
         {":/debugger/images/location_background.png", Theme::IconsCodeModelOverlayForegroundColor},
         {":/debugger/images/location.png", Theme::IconsWarningToolBarColor}}, Icon::Tint);
+const Icon REVERSE_LOCATION({
+        {":/debugger/images/debugger_reversemode_background.png", Theme::IconsCodeModelOverlayForegroundColor},
+        {":/debugger/images/debugger_reversemode.png", Theme::IconsWarningToolBarColor}}, Icon::Tint);
 const Icon REVERSE_MODE({
         {":/debugger/images/debugger_reversemode_background.png", Theme::IconsCodeModelOverlayForegroundColor},
         {":/debugger/images/debugger_reversemode.png", Theme::IconsInfoColor}}, Icon::Tint);
+const Icon DIRECTION_BACKWARD({
+        {":/debugger/images/debugger_reversemode_background.png", Theme::IconsCodeModelOverlayForegroundColor},
+        {":/debugger/images/debugger_reversemode.png", Theme::IconsInfoColor}}, Icon::Tint);
+const Icon DIRECTION_FORWARD({
+        {":/debugger/images/location_background.png", Theme::IconsCodeModelOverlayForegroundColor},
+        {":/debugger/images/location.png", Theme::IconsInfoColor}}, Icon::Tint);
 const Icon APP_ON_TOP({
         {":/utils/images/app-on-top.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
 const Icon APP_ON_TOP_TOOLBAR({

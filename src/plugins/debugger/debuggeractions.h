@@ -61,7 +61,7 @@ public:
     void insertItem(int code, Utils::SavedAction *item);
     Utils::SavedAction *item(int code) const;
 
-    QString dump() const;
+    static QString dump();
 
     void readSettings();
     void writeSettings() const;

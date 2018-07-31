@@ -169,10 +169,10 @@ public:
     void setBreakpoint(const QString type, const QString target,
                        bool enabled = true,int line = 0, int column = 0,
                        const QString condition = QString(), int ignoreCount = -1);
-    void clearBreakpoint(int breakpoint);
+    void clearBreakpoint(const Breakpoint &bp);
 
     bool canChangeBreakpoint() const;
-    void changeBreakpoint(int breakpoint, bool enabled);
+    void changeBreakpoint(const Breakpoint &bp, bool enabled);
 
     void setExceptionBreak(Exceptions type, bool enabled = false);
 
@@ -204,9 +204,8 @@ public:
     QHash<int, QmlV8ObjectData> refVals; // The mapping of target object handles to retrieved values.
     int sequence = -1;
     QmlEngine *engine;
-    QHash<BreakpointModelId, int> breakpoints;
-    QHash<int, BreakpointModelId> breakpointsSync;
-    QList<int> breakpointsTemp;
+    QHash<int, Breakpoint> breakpointsSync;
+    QList<QString> breakpointsTemp;
 
     LookupItems currentlyLookingUp; // Id -> inames
 
@@ -260,13 +259,13 @@ QmlEngine::QmlEngine()
   :  d(new QmlEnginePrivate(this, new QmlDebugConnection(this)))
 {
     setObjectName("QmlEngine");
+    setDebuggerName(tr("QML Debugger"));
+
     QmlDebugConnection *connection = d->connection();
 
     connect(stackHandler(), &StackHandler::stackChanged,
             this, &QmlEngine::updateCurrentContext);
     connect(stackHandler(), &StackHandler::currentIndexChanged,
-            this, &QmlEngine::updateCurrentContext);
-    connect(inspectorView(), &WatchTreeView::currentIndexChanged,
             this, &QmlEngine::updateCurrentContext);
 
     connect(&d->applicationLauncher, &ApplicationLauncher::processExited,
@@ -278,7 +277,7 @@ QmlEngine::QmlEngine()
 
     debuggerConsole()->populateFileFinder();
     debuggerConsole()->setScriptEvaluator([this](const QString &expr) {
-        executeDebuggerCommand(expr, QmlLanguage);
+        executeDebuggerCommand(expr);
     });
 
     d->connectionTimer.setInterval(4000);
@@ -336,7 +335,7 @@ void QmlEngine::handleLauncherStarted()
 {
     // FIXME: The QmlEngine never calls notifyInferiorPid() triggering the
     // raising, so do it here manually for now.
-    runTool()->runControl()->applicationProcessHandle().activate();
+    ProcessHandle(inferiorPid()).activate();
     tryToConnect();
 }
 
@@ -347,7 +346,10 @@ void QmlEngine::appMessage(const QString &msg, Utils::OutputFormat /* format */)
 
 void QmlEngine::connectionEstablished()
 {
-    attemptBreakpointSynchronization();
+    connect(inspectorView(), &WatchTreeView::currentIndexChanged,
+            this, &QmlEngine::updateCurrentContext);
+
+    BreakpointManager::claimBreakpointsForEngine(this);
 
     if (state() == EngineRunRequested)
         notifyEngineRunAndInferiorRunOk();
@@ -435,7 +437,7 @@ void QmlEngine::appStartupFailed(const QString &errorMessage)
 {
     QString error = tr("Could not connect to the in-process QML debugger. %1").arg(errorMessage);
 
-    if (isMasterEngine()) {
+    if (companionEngine()) {
         auto infoBox = new QMessageBox(ICore::mainWindow());
         infoBox->setIcon(QMessageBox::Critical);
         infoBox->setWindowTitle(Core::Constants::IDE_DISPLAY_NAME);
@@ -522,7 +524,8 @@ void QmlEngine::runEngine()
 
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
-    if (!isSlaveEngine()) {
+    if (isPrimaryEngine()) {
+        // QML only.
         if (runParameters().startMode == AttachToRemoteServer)
             tryToConnect();
         else if (runParameters().startMode == AttachToRemoteProcess)
@@ -538,10 +541,9 @@ void QmlEngine::startApplicationLauncher()
 {
     if (!d->applicationLauncher.isRunning()) {
         const Runnable runnable = runParameters().inferior;
-        runTool()->appendMessage(tr("Starting %1 %2").arg(
-                                     QDir::toNativeSeparators(runnable.executable),
-                                     runnable.commandLineArguments),
-                                 Utils::NormalMessageFormat);
+        showMessage(tr("Starting %1 %2").arg(QDir::toNativeSeparators(runnable.executable),
+                                             runnable.commandLineArguments),
+                    Utils::NormalMessageFormat);
         d->applicationLauncher.start(runnable);
     }
 }
@@ -565,8 +567,7 @@ void QmlEngine::shutdownInferior()
     //    }
     d->runCommand({DISCONNECT});
 
-    if (isSlaveEngine())
-        resetLocation();
+    resetLocation();
     stopApplicationLauncher();
     closeConnection();
 
@@ -583,8 +584,7 @@ void QmlEngine::shutdownEngine()
     stopApplicationLauncher();
 
     notifyEngineShutdownFinished();
-    if (!isSlaveEngine())
-        showMessage(QString(), StatusBar);
+    showMessage(QString(), StatusBar);
 }
 
 void QmlEngine::setupEngine()
@@ -689,34 +689,31 @@ void QmlEngine::selectThread(ThreadId threadId)
     Q_UNUSED(threadId)
 }
 
-void QmlEngine::insertBreakpoint(Breakpoint bp)
+void QmlEngine::insertBreakpoint(const Breakpoint &bp)
 {
-    BreakpointState state = bp.state();
-    QTC_ASSERT(state == BreakpointInsertRequested, qDebug() << bp << this << state);
-    bp.notifyBreakpointInsertProceeding();
+    QTC_ASSERT(bp, return);
+    const BreakpointState state = bp->state();
+    QTC_ASSERT(state == BreakpointInsertionRequested, qDebug() << bp << this << state);
+    notifyBreakpointInsertProceeding(bp);
 
-    const BreakpointParameters &params = bp.parameters();
-    if (params.type == BreakpointAtJavaScriptThrow) {
-        BreakpointResponse br = bp.response();
-        br.pending = false;
-        bp.setResponse(br);
-        bp.notifyBreakpointInsertOk();
-        d->setExceptionBreak(AllExceptions, params.enabled);
+    const BreakpointParameters &requested = bp->requestedParameters();
+    if (requested.type == BreakpointAtJavaScriptThrow) {
+        bp->setPending(false);
+        notifyBreakpointInsertOk(bp);
+        d->setExceptionBreak(AllExceptions, requested.enabled);
 
-    } else if (params.type == BreakpointByFileAndLine) {
-        d->setBreakpoint(SCRIPTREGEXP, params.fileName,
-                         params.enabled, params.lineNumber, 0,
-                         params.condition, params.ignoreCount);
+    } else if (requested.type == BreakpointByFileAndLine) {
+        d->setBreakpoint(SCRIPTREGEXP, requested.fileName,
+                         requested.enabled, requested.lineNumber, 0,
+                         requested.condition, requested.ignoreCount);
 
-    } else if (params.type == BreakpointOnQmlSignalEmit) {
-        d->setBreakpoint(EVENT, params.functionName, params.enabled);
-        BreakpointResponse br = bp.response();
-        br.pending = false;
-        bp.setResponse(br);
-        bp.notifyBreakpointInsertOk();
+    } else if (requested.type == BreakpointOnQmlSignalEmit) {
+        d->setBreakpoint(EVENT, requested.functionName, requested.enabled);
+        bp->setPending(false);
+        notifyBreakpointInsertOk(bp);
     }
 
-    d->breakpointsSync.insert(d->sequence, bp.id());
+    d->breakpointsSync.insert(d->sequence, bp);
 }
 
 void QmlEngine::resetLocation()
@@ -725,114 +722,64 @@ void QmlEngine::resetLocation()
     d->currentlyLookingUp.clear();
 }
 
-void QmlEngine::removeBreakpoint(Breakpoint bp)
+void QmlEngine::removeBreakpoint(const Breakpoint &bp)
 {
-    const BreakpointParameters &params = bp.parameters();
+    QTC_ASSERT(bp, return);
+    const BreakpointParameters &params = bp->requestedParameters();
 
-    BreakpointState state = bp.state();
+    const BreakpointState state = bp->state();
     QTC_ASSERT(state == BreakpointRemoveRequested, qDebug() << bp << this << state);
-    bp.notifyBreakpointRemoveProceeding();
-
-    int breakpoint = d->breakpoints.value(bp.id());
-    d->breakpoints.remove(bp.id());
+    notifyBreakpointRemoveProceeding(bp);
 
     if (params.type == BreakpointAtJavaScriptThrow)
         d->setExceptionBreak(AllExceptions);
     else if (params.type == BreakpointOnQmlSignalEmit)
         d->setBreakpoint(EVENT, params.functionName, false);
     else
-        d->clearBreakpoint(breakpoint);
+        d->clearBreakpoint(bp);
 
-    if (bp.state() == BreakpointRemoveProceeding)
-        bp.notifyBreakpointRemoveOk();
+    if (bp->state() == BreakpointRemoveProceeding)
+        notifyBreakpointRemoveOk(bp);
 }
 
-void QmlEngine::changeBreakpoint(Breakpoint bp)
+void QmlEngine::updateBreakpoint(const Breakpoint &bp)
 {
-    BreakpointState state = bp.state();
-    QTC_ASSERT(state == BreakpointChangeRequested, qDebug() << bp << this << state);
-    bp.notifyBreakpointChangeProceeding();
+    QTC_ASSERT(bp, return);
+    const BreakpointState state = bp->state();
+    QTC_ASSERT(state == BreakpointUpdateRequested, qDebug() << bp << this << state);
+    notifyBreakpointChangeProceeding(bp);
 
-    const BreakpointParameters &params = bp.parameters();
+    const BreakpointParameters &requested = bp->requestedParameters();
 
-    BreakpointResponse br = bp.response();
-    if (params.type == BreakpointAtJavaScriptThrow) {
-        d->setExceptionBreak(AllExceptions, params.enabled);
-    } else if (params.type == BreakpointOnQmlSignalEmit) {
-        d->setBreakpoint(EVENT, params.functionName, params.enabled);
+    if (requested.type == BreakpointAtJavaScriptThrow) {
+        d->setExceptionBreak(AllExceptions, requested.enabled);
+        bp->setEnabled(requested.enabled);
+    } else if (requested.type == BreakpointOnQmlSignalEmit) {
+        d->setBreakpoint(EVENT, requested.functionName, requested.enabled);
+        bp->setEnabled(requested.enabled);
     } else if (d->canChangeBreakpoint()) {
-        d->changeBreakpoint(d->breakpoints.value(bp.id()), params.enabled);
+        d->changeBreakpoint(bp, requested.enabled);
     } else {
-        d->clearBreakpoint(d->breakpoints.take(bp.id()));
-        d->setBreakpoint(SCRIPTREGEXP, params.fileName,
-                         params.enabled, params.lineNumber, 0,
-                         params.condition, params.ignoreCount);
-        d->breakpointsSync.insert(d->sequence, bp.id());
+        d->clearBreakpoint(bp);
+        d->setBreakpoint(SCRIPTREGEXP, requested.fileName,
+                         requested.enabled, requested.lineNumber, 0,
+                         requested.condition, requested.ignoreCount);
+        d->breakpointsSync.insert(d->sequence, bp);
     }
-    br.enabled = params.enabled;
-    bp.setResponse(br);
 
-    if (bp.state() == BreakpointChangeProceeding)
-        bp.notifyBreakpointChangeOk();
+    if (bp->state() == BreakpointUpdateProceeding)
+        notifyBreakpointChangeOk(bp);
 }
 
-void QmlEngine::attemptBreakpointSynchronization()
+bool QmlEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
-    if (!stateAcceptsBreakpointChanges()) {
-        showMessage("BREAKPOINT SYNCHRONIZATION NOT POSSIBLE IN CURRENT STATE");
-        return;
-    }
-
-    BreakHandler *handler = breakHandler();
-
-    DebuggerEngine *bpOwner = masterEngine();
-    for (Breakpoint bp : handler->unclaimedBreakpoints()) {
-        // Take ownership of the breakpoint. Requests insertion.
-        if (acceptsBreakpoint(bp))
-            bp.setEngine(bpOwner);
-    }
-
-    for (Breakpoint bp : handler->engineBreakpoints(bpOwner)) {
-        switch (bp.state()) {
-        case BreakpointNew:
-            // Should not happen once claimed.
-            QTC_CHECK(false);
-            continue;
-        case BreakpointInsertRequested:
-            insertBreakpoint(bp);
-            continue;
-        case BreakpointChangeRequested:
-            changeBreakpoint(bp);
-            continue;
-        case BreakpointRemoveRequested:
-            removeBreakpoint(bp);
-            continue;
-        case BreakpointChangeProceeding:
-        case BreakpointInsertProceeding:
-        case BreakpointRemoveProceeding:
-        case BreakpointInserted:
-        case BreakpointDead:
-            continue;
-        }
-        QTC_ASSERT(false, qDebug() << "UNKNOWN STATE"  << bp << state());
-    }
-
-    DebuggerEngine::attemptBreakpointSynchronization();
-}
-
-bool QmlEngine::acceptsBreakpoint(Breakpoint bp) const
-{
-    if (!bp.parameters().isCppBreakpoint())
-            return true;
-
-    //If it is a Cpp Breakpoint query if the type can be also handled by the debugger client
     //TODO: enable setting of breakpoints before start of debug session
     //For now, the event breakpoint can be set after the activeDebuggerClient is known
     //This is because the older client does not support BreakpointOnQmlSignalHandler
-    BreakpointType type = bp.type();
-    return type == BreakpointOnQmlSignalEmit
-            || type == BreakpointByFileAndLine
-            || type == BreakpointAtJavaScriptThrow;
+    if (bp.type == BreakpointOnQmlSignalEmit || bp.type == BreakpointAtJavaScriptThrow)
+        return true;
+
+    return bp.isQmlFileAndLineBreakpoint();
 }
 
 void QmlEngine::loadSymbols(const QString &moduleName)
@@ -1041,6 +988,11 @@ void QmlEngine::doUpdateLocals(const UpdateParameters &params)
     d->updateLocals();
 }
 
+Context QmlEngine::languageContext() const
+{
+    return Context(Constants::C_QMLDEBUGGER);
+}
+
 void QmlEngine::disconnected()
 {
     showMessage(tr("QML Debugger disconnected."), StatusBar);
@@ -1084,11 +1036,8 @@ void QmlEngine::updateCurrentContext()
                                   + (context.isEmpty() ? tr("Global QML Context") : context));
 }
 
-void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
+void QmlEngine::executeDebuggerCommand(const QString &command)
 {
-    if (!(languages & QmlLanguage))
-        return;
-
     if (state() == InferiorStopOk) {
         StackHandler *handler = stackHandler();
         if (handler->isContentsValid() && handler->currentFrame().isUsable()) {
@@ -1114,6 +1063,16 @@ void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
             }
         }
     }
+}
+
+bool QmlEngine::companionPreventsActions() const
+{
+    // We need a C++ Engine in a Running state to do anything sensible
+    // as otherwise the debugger services in the debuggee are unresponsive.
+    if (DebuggerEngine *companion = companionEngine())
+        return companion->state() != InferiorRunOk;
+
+    return false;
 }
 
 void QmlEnginePrivate::updateScriptSource(const QString &fileName, int lineOffset, int columnOffset,
@@ -1181,11 +1140,8 @@ void QmlEngine::connectionFailed()
     // this is only an error if we are already connected and something goes wrong.
     if (isConnected()) {
         showMessage(tr("QML Debugger: Connection failed."), StatusBar);
-
-        if (!isSlaveEngine()) { // normal flow for slave engine when gdb exits
-            notifyInferiorSpontaneousStop();
-            notifyInferiorIll();
-        }
+        notifyInferiorSpontaneousStop();
+        notifyInferiorIll();
     } else {
         d->connectionTimer.stop();
         connectionStartupFailed();
@@ -1492,7 +1448,7 @@ void QmlEnginePrivate::setBreakpoint(const QString type, const QString target,
     }
 }
 
-void QmlEnginePrivate::clearBreakpoint(int breakpoint)
+void QmlEnginePrivate::clearBreakpoint(const Breakpoint &bp)
 {
     //    { "seq"       : <number>,
     //      "type"      : "request",
@@ -1502,7 +1458,7 @@ void QmlEnginePrivate::clearBreakpoint(int breakpoint)
     //    }
 
     DebuggerCommand cmd(CLEARBREAKPOINT);
-    cmd.arg(BREAKPOINT, breakpoint);
+    cmd.arg(BREAKPOINT, bp->responseId().toInt());
     runCommand(cmd);
 }
 
@@ -1511,10 +1467,10 @@ bool QmlEnginePrivate::canChangeBreakpoint() const
     return supportChangeBreakpoint;
 }
 
-void QmlEnginePrivate::changeBreakpoint(int breakpoint, bool enabled)
+void QmlEnginePrivate::changeBreakpoint(const Breakpoint &bp, bool enabled)
 {
     DebuggerCommand cmd(CHANGEBREAKPOINT);
-    cmd.arg(BREAKPOINT, breakpoint);
+    cmd.arg(BREAKPOINT, bp->responseId().toInt());
     cmd.arg(ENABLED, enabled);
     runCommand(cmd);
 }
@@ -1780,27 +1736,26 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
                     int seq = resp.value("request_seq").toInt();
                     const QVariantMap breakpointData = resp.value(BODY).toMap();
-                    int index = breakpointData.value("breakpoint").toInt();
+                    const QString index = QString::number(breakpointData.value("breakpoint").toInt());
 
                     if (breakpointsSync.contains(seq)) {
-                        BreakpointModelId id = breakpointsSync.take(seq);
-                        breakpoints.insert(id, index);
+                        Breakpoint bp = breakpointsSync.take(seq);
+                        QTC_ASSERT(bp, return);
+                        bp->setParameters(bp->requestedParameters()); // Assume it worked.
+                        bp->setResponseId(index);
 
                         //Is actual position info present? Then breakpoint was
                         //accepted
                         const QVariantList actualLocations =
                                 breakpointData.value("actual_locations").toList();
+                        const int line = breakpointData.value("line").toInt() + 1;
                         if (actualLocations.count()) {
                             //The breakpoint requested line should be same as
                             //actual line
-                            BreakHandler *handler = engine->breakHandler();
-                            Breakpoint bp = handler->breakpointById(id);
-                            if (bp.state() != BreakpointInserted) {
-                                BreakpointResponse br = bp.response();
-                                br.lineNumber = breakpointData.value("line").toInt() + 1;
-                                br.pending = false;
-                                bp.setResponse(br);
-                                bp.notifyBreakpointInsertOk();
+                            if (bp && bp->state() != BreakpointInserted) {
+                                bp->setLineNumber(line);
+                                bp->setPending(false);
+                                engine->notifyBreakpointInsertOk(bp);
                             }
                         }
 
@@ -1900,14 +1855,18 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
                     bool inferiorStop = true;
 
-                    QList<int> v8BreakpointIds;
-                    {
-                        const QVariantList v8BreakpointIdList = breakData.value("breakpoints").toList();
-                        for (const QVariant &breakpointId : v8BreakpointIdList)
-                            v8BreakpointIds << breakpointId.toInt();
+                    QList<Breakpoint> v8Breakpoints;
+
+                    const QVariantList v8BreakpointIdList = breakData.value("breakpoints").toList();
+                    for (const QVariant &breakpointId : v8BreakpointIdList) {
+                        const QString x = breakpointId.toString();
+                        const QString responseId = QString::number(breakpointId.toInt());
+                        Breakpoint bp = engine->breakHandler()->findBreakpointByResponseId(responseId);
+                        QTC_ASSERT(bp, continue);
+                        v8Breakpoints << bp;
                     }
 
-                    if (!v8BreakpointIds.isEmpty() && invocationText.startsWith("[anonymous]()")
+                    if (!v8Breakpoints.isEmpty() && invocationText.startsWith("[anonymous]()")
                             && scriptUrl.endsWith(".qml")
                             && sourceLineText.trimmed().startsWith('(')) {
 
@@ -1915,24 +1874,20 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                         // -> relocate the breakpoint to column: 1 and continue
 
                         int newColumn = sourceLineText.indexOf('(') + 1;
-                        BreakHandler *handler = engine->breakHandler();
 
-                        for (int v8Id : v8BreakpointIds) {
-                            const BreakpointModelId id = breakpoints.key(v8Id);
-                            Breakpoint bp = handler->breakpointById(id);
-                            if (bp.isValid()) {
-                                const BreakpointParameters &params = bp.parameters();
+                        for (const Breakpoint &bp : v8Breakpoints) {
+                            QTC_ASSERT(bp, continue);
+                            const BreakpointParameters &params = bp->requestedParameters();
 
-                                clearBreakpoint(v8Id);
-                                setBreakpoint(SCRIPTREGEXP,
-                                              params.fileName,
-                                              params.enabled,
-                                              params.lineNumber,
-                                              newColumn,
-                                              params.condition,
-                                              params.ignoreCount);
-                                breakpointsSync.insert(sequence, id);
-                            }
+                            clearBreakpoint(bp);
+                            setBreakpoint(SCRIPTREGEXP,
+                                          params.fileName,
+                                          params.enabled,
+                                          params.lineNumber,
+                                          newColumn,
+                                          params.condition,
+                                          params.ignoreCount);
+                            breakpointsSync.insert(sequence, bp);
                         }
                         continueDebugging(Continue);
                         inferiorStop = false;
@@ -1946,29 +1901,23 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
                     if (inferiorStop) {
                         //Update breakpoint data
-                        BreakHandler *handler = engine->breakHandler();
-                        for (int v8Id : v8BreakpointIds) {
-                            const BreakpointModelId id = breakpoints.key(v8Id);
-                            Breakpoint bp = handler->breakpointById(id);
-                            if (bp) {
-                                BreakpointResponse br = bp.response();
-                                if (br.functionName.isEmpty()) {
-                                    br.functionName = invocationText;
-                                    bp.setResponse(br);
-                                }
-                                if (bp.state() != BreakpointInserted) {
-                                    br.lineNumber = breakData.value("sourceLine").toInt() + 1;
-                                    br.pending = false;
-                                    bp.setResponse(br);
-                                    bp.notifyBreakpointInsertOk();
-                                }
+                        for (const Breakpoint &bp : v8Breakpoints) {
+                            QTC_ASSERT(bp, continue);
+                            if (bp->functionName().isEmpty()) {
+                                bp->setFunctionName(invocationText);
+                            }
+                            if (bp->state() != BreakpointInserted) {
+                                bp->setLineNumber(breakData.value("sourceLine").toInt() + 1);
+                                bp->setPending(false);
+                                engine->notifyBreakpointInsertOk(bp);
                             }
                         }
 
                         if (engine->state() == InferiorRunOk) {
-                            for (const QVariant &breakpointId : v8BreakpointIds) {
-                                if (breakpointsTemp.contains(breakpointId.toInt()))
-                                    clearBreakpoint(breakpointId.toInt());
+                            for (const Breakpoint &bp : v8Breakpoints) {
+                                QTC_ASSERT(bp, continue);
+                                if (breakpointsTemp.contains(bp->responseId()))
+                                    clearBreakpoint(bp);
                             }
                             engine->notifyInferiorSpontaneousStop();
                             backtrace();

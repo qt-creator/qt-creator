@@ -52,11 +52,7 @@ public:
     explicit CdbEngine();
     ~CdbEngine() override;
 
-    // Factory function that returns 0 if the debug engine library cannot be found.
-
     bool canHandleToolTip(const DebuggerToolTipContext &context) const override;
-
-    DebuggerEngine *cppEngine() override { return this; }
 
     void setupEngine() override;
     void runEngine() override;
@@ -81,14 +77,18 @@ public:
     void executeRunToFunction(const QString &functionName) override;
     void executeJumpToLine(const ContextData &data) override;
     void assignValueInDebugger(WatchItem *w, const QString &expr, const QVariant &value) override;
-    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) override;
+    void executeDebuggerCommand(const QString &command) override;
 
     void activateFrame(int index) override;
     void selectThread(ThreadId threadId) override;
 
     bool stateAcceptsBreakpointChanges() const override;
-    bool acceptsBreakpoint(Breakpoint bp) const override;
-    void attemptBreakpointSynchronization() override;
+    bool acceptsBreakpoint(const BreakpointParameters &params) const override;
+
+    void insertBreakpoint(const Breakpoint &bp) override;
+    void removeBreakpoint(const Breakpoint &bp) override;
+    void updateBreakpoint(const Breakpoint &bp) override;
+    void enableSubBreakpoint(const SubBreakpoint &sbp, bool on) override;
 
     void fetchDisassembler(DisassemblerAgent *agent) override;
     void fetchMemory(MemoryAgent *, quint64 addr, quint64 length) override;
@@ -119,8 +119,7 @@ private:
 
     void handleDoInterruptInferior(const QString &errorMessage);
 
-    using PendingBreakPointMap = QHash<BreakpointModelId, BreakpointResponse>;
-    using SourcePathMapping = QPair<QString, QString>;
+    typedef QPair<QString, QString> SourcePathMapping;
     struct NormalizedSourceFileName // Struct for caching mapped/normalized source files.
     {
         NormalizedSourceFileName(const QString &fn = QString(), bool e = false) : fileName(fn), exists(e) {}
@@ -176,10 +175,10 @@ private:
     void handleStackTrace(const DebuggerResponse &);
     void handleRegisters(const DebuggerResponse &);
     void handleJumpToLineAddressResolution(const DebuggerResponse &response, const ContextData &context);
-    void handleExpression(const DebuggerResponse &command, BreakpointModelId id, const GdbMi &stopReason);
+    void handleExpression(const DebuggerResponse &command, const Breakpoint &bp, const GdbMi &stopReason);
     void handleResolveSymbol(const DebuggerResponse &command, const QString &symbol, DisassemblerAgent *agent);
     void handleResolveSymbolHelper(const QList<quint64> &addresses, DisassemblerAgent *agent);
-    void handleBreakInsert(const DebuggerResponse &response, const BreakpointModelId &bpId);
+    void handleBreakInsert(const DebuggerResponse &response, const Breakpoint &bp);
     void handleCheckWow64(const DebuggerResponse &response, const GdbMi &stack);
     void ensureUsing32BitStackInWow64(const DebuggerResponse &response, const GdbMi &stack);
     void handleSwitchWow64Stack(const DebuggerResponse &response);
@@ -232,11 +231,8 @@ private:
     bool m_sourceStepInto = false;
     int m_watchPointX = 0;
     int m_watchPointY = 0;
-    PendingBreakPointMap m_pendingBreakpointMap;
-    PendingBreakPointMap m_insertSubBreakpointMap;
-    PendingBreakPointMap m_pendingSubBreakpointMap;
+    QSet<Breakpoint> m_pendingBreakpointMap;
     bool m_autoBreakPointCorrection = false;
-    QHash<QString, QString> m_fileNameModuleHash;
     QMultiHash<QString, quint64> m_symbolAddressCache;
     bool m_ignoreCdbOutput = false;
     QList<InterruptCallback> m_interrupCallbacks;

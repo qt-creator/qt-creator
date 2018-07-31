@@ -27,6 +27,7 @@
 
 #include "debuggerconstants.h"
 
+#include <coreplugin/id.h>
 #include <projectexplorer/abi.h>
 
 #include <QObject>
@@ -43,7 +44,10 @@ QT_END_NAMESPACE
 
 namespace CPlusPlus { class Snapshot; }
 
-namespace Utils { class SavedAction; }
+namespace Utils {
+class BaseTreeView;
+class SavedAction;
+}
 
 namespace Debugger {
 
@@ -51,12 +55,9 @@ class DebuggerRunTool;
 
 namespace Internal {
 
-class BreakHandler;
-class DebuggerEngine;
 class Symbol;
 class Section;
 class GlobalDebuggerOptions;
-class WatchTreeView;
 
 enum TestCases
 {
@@ -65,34 +66,14 @@ enum TestCases
 };
 
 // Some convenience.
-void updateState(DebuggerRunTool *runTool);
-void updateLocalsWindow(bool showReturn);
-bool hasSnapshots();
 void openTextEditor(const QString &titlePattern, const QString &contents);
 
-// void runTest(const QString &fileName);
-void showMessage(const QString &msg, int channel, int timeout = -1);
-
-bool isReverseDebugging();
-void runControlStarted(DebuggerRunTool *runTool);
-void runControlFinished(DebuggerRunTool *runTool);
-void displayDebugger(DebuggerRunTool *runTool);
-void synchronizeBreakpoints();
-
-void saveModeToRestore();
 QWidget *mainWindow();
-void raiseWatchersWindow();
-bool isRegistersWindowVisible();
-bool isModulesWindowVisible();
 void showModuleSymbols(const QString &moduleName, const QVector<Internal::Symbol> &symbols);
 void showModuleSections(const QString &moduleName, const QVector<Internal::Section> &sections);
-void openMemoryEditor();
-
-void setThreadBoxContents(const QStringList &list, int index);
 
 QSharedPointer<Internal::GlobalDebuggerOptions> globalDebuggerOptions();
 
-WatchTreeView *inspectorView();
 QVariant sessionValue(const QByteArray &name);
 void setSessionValue(const QByteArray &name, const QVariant &value);
 QVariant configValue(const QString &name);
@@ -104,9 +85,6 @@ Utils::SavedAction *action(int code);
 bool boolSetting(int code);
 QString stringSetting(int code);
 QStringList stringListSetting(int code);
-
-BreakHandler *breakHandler();
-DebuggerEngine *currentEngine();
 
 QMessageBox *showMessageBox(int icon, const QString &title,
     const QString &text, int buttons = 0);
@@ -124,6 +102,7 @@ QAction *addCheckableAction(QMenu *menu, const QString &display, bool on, bool c
 QStringList qtBuildPaths();
 
 void addDebugInfoTask(unsigned id, const QString &cmd);
+QWidget *addSearch(Utils::BaseTreeView *treeView);
 
 } // namespace Internal
 } // namespace Debugger

@@ -420,17 +420,17 @@ CallgrindTool::CallgrindTool()
     updateEventCombo();
 
     auto perspective = new Perspective(CallgrindPerspectiveId, tr("Callgrind"));
-    perspective->addToolbarAction(m_startAction);
-    perspective->addToolbarAction(m_stopAction);
-    perspective->addToolbarAction(m_loadExternalLogFile);
-    perspective->addToolbarAction(m_dumpAction);
-    perspective->addToolbarAction(m_resetAction);
-    perspective->addToolbarAction(m_pauseAction);
-    perspective->addToolbarAction(m_discardAction);
-    perspective->addToolbarAction(m_goBack);
-    perspective->addToolbarAction(m_goNext);
+    perspective->addToolBarAction(m_startAction);
+    perspective->addToolBarAction(m_stopAction);
+    perspective->addToolBarAction(m_loadExternalLogFile);
+    perspective->addToolBarAction(m_dumpAction);
+    perspective->addToolBarAction(m_resetAction);
+    perspective->addToolBarAction(m_pauseAction);
+    perspective->addToolBarAction(m_discardAction);
+    perspective->addToolBarAction(m_goBack);
+    perspective->addToolBarAction(m_goNext);
     perspective->addToolbarSeparator();
-    perspective->addToolbarWidget(m_eventCombo);
+    perspective->addToolBarWidget(m_eventCombo);
 
     // Cost formatting
     {
@@ -463,7 +463,7 @@ CallgrindTool::CallgrindTool()
     button->setPopupMode(QToolButton::InstantPopup);
     button->setText(QLatin1String("$"));
     button->setToolTip(tr("Cost Format"));
-    perspective->addToolbarWidget(button);
+    perspective->addToolBarWidget(button);
     }
 
     ValgrindGlobalSettings *settings = ValgrindPlugin::globalSettings();
@@ -500,10 +500,10 @@ CallgrindTool::CallgrindTool()
     setCostFormat(settings->costFormat());
     enableCycleDetection(settings->detectCycles());
 
-    perspective->addToolbarAction(m_cycleDetection);
-    perspective->addToolbarAction(m_shortenTemplates);
-    perspective->addToolbarAction(m_filterProjectCosts);
-    perspective->addToolbarWidget(m_searchFilter);
+    perspective->addToolBarAction(m_cycleDetection);
+    perspective->addToolBarAction(m_shortenTemplates);
+    perspective->addToolBarAction(m_filterProjectCosts);
+    perspective->addToolBarWidget(m_searchFilter);
 
     perspective->addWindow(m_flatView, Perspective::SplitVertical, nullptr);
     perspective->addWindow(m_calleesView, Perspective::SplitVertical, nullptr);

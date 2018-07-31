@@ -58,6 +58,52 @@
 namespace Debugger {
 namespace Internal {
 
+GlobalLogWindow *theGlobalLog = nullptr;
+
+static LogChannel channelForChar(QChar c)
+{
+    switch (c.unicode()) {
+        case 'd': return LogDebug;
+        case 'w': return LogWarning;
+        case 'e': return LogError;
+        case '<': return LogInput;
+        case '>': return LogOutput;
+        case 's': return LogStatus;
+        case 't': return LogTime;
+        default: return LogMisc;
+    }
+}
+
+QChar static charForChannel(int channel)
+{
+    switch (channel) {
+        case LogDebug: return QLatin1Char('d');
+        case LogWarning: return QLatin1Char('w');
+        case LogError: return QLatin1Char('e');
+        case LogInput: return QLatin1Char('<');
+        case LogOutput: return QLatin1Char('>');
+        case LogStatus: return QLatin1Char('s');
+        case LogTime: return QLatin1Char('t');
+        case LogMisc:
+        default: return QLatin1Char(' ');
+    }
+}
+
+static bool writeLogContents(const QPlainTextEdit *editor, QWidget *parent)
+{
+    bool success = false;
+    while (!success) {
+        const QString fileName = QFileDialog::getSaveFileName(parent, LogWindow::tr("Log File"));
+        if (fileName.isEmpty())
+            break;
+        Utils::FileSaver saver(fileName, QIODevice::Text);
+        saver.write(editor->toPlainText().toUtf8());
+        if (saver.finalize(parent))
+            success = true;
+    }
+    return success;
+}
+
 /////////////////////////////////////////////////////////////////////
 //
 // OutputHighlighter
@@ -77,7 +123,7 @@ private:
         using Utils::Theme;
         QTextCharFormat format;
         Theme *theme = Utils::creatorTheme();
-        switch (LogWindow::channelForChar(text.isEmpty() ? QChar() : text.at(0))) {
+        switch (channelForChar(text.isEmpty() ? QChar() : text.at(0))) {
             case LogInput:
                 format.setForeground(theme->color(Theme::Debugger_LogWindow_LogInput));
                 setFormat(1, text.size(), format);
@@ -149,15 +195,14 @@ class DebuggerPane : public QPlainTextEdit
     Q_OBJECT
 
 public:
-    DebuggerPane(LogWindow *parent)
-        : QPlainTextEdit(parent)
+    explicit DebuggerPane()
     {
         setFrameStyle(QFrame::NoFrame);
+        setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+
         m_clearContentsAction = new QAction(this);
         m_clearContentsAction->setText(tr("Clear Contents"));
         m_clearContentsAction->setEnabled(true);
-        connect(m_clearContentsAction, &QAction::triggered,
-                parent, &LogWindow::clearContents);
 
         m_saveContentsAction = new QAction(this);
         m_saveContentsAction->setText(tr("Save Contents"));
@@ -168,8 +213,6 @@ public:
         m_reloadDebuggingHelpersAction = new QAction(this);
         m_reloadDebuggingHelpersAction->setText(tr("Reload Debugging Helpers"));
         m_reloadDebuggingHelpersAction->setEnabled(true);
-        connect(m_reloadDebuggingHelpersAction, &QAction::triggered,
-                this, &DebuggerPane::reloadDebuggingHelpers);
     }
 
     void contextMenuEvent(QContextMenuEvent *ev) override
@@ -212,24 +255,18 @@ public:
         setUndoRedoEnabled(true);
     }
 
+    QAction *clearContentsAction() const { return m_clearContentsAction; }
+    QAction *reloadDebuggingHelpersAction() const { return m_reloadDebuggingHelpersAction; }
+
 private:
-    void saveContents();
-    void reloadDebuggingHelpers();
+    void saveContents() { writeLogContents(this, this); }
 
     QAction *m_clearContentsAction;
     QAction *m_saveContentsAction;
     QAction *m_reloadDebuggingHelpersAction;
 };
 
-void DebuggerPane::saveContents()
-{
-    LogWindow::writeLogContents(this, this);
-}
 
-void DebuggerPane::reloadDebuggingHelpers()
-{
-    currentEngine()->reloadDebuggingHelpers();
-}
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -241,9 +278,12 @@ class InputPane : public DebuggerPane
 {
     Q_OBJECT
 public:
-    InputPane(LogWindow *parent)
-        : DebuggerPane(parent)
+    InputPane(LogWindow *logWindow)
     {
+        connect(clearContentsAction(), &QAction::triggered,
+                logWindow, &LogWindow::clearContents);
+        connect(reloadDebuggingHelpersAction(), &QAction::triggered,
+                logWindow->engine(), &DebuggerEngine::reloadDebuggingHelpers);
         (void) new InputHighlighter(this);
     }
 
@@ -307,10 +347,13 @@ class CombinedPane : public DebuggerPane
 {
     Q_OBJECT
 public:
-    CombinedPane(LogWindow *parent)
-        : DebuggerPane(parent)
+    CombinedPane(LogWindow *logWindow)
     {
         (void) new OutputHighlighter(this);
+        connect(clearContentsAction(), &QAction::triggered,
+                logWindow, &LogWindow::clearContents);
+        connect(reloadDebuggingHelpersAction(), &QAction::triggered,
+                logWindow->engine(), &DebuggerEngine::reloadDebuggingHelpers);
     }
 
     void gotoResult(int i)
@@ -347,8 +390,8 @@ public:
 //
 /////////////////////////////////////////////////////////////////////
 
-LogWindow::LogWindow(QWidget *parent)
-  : QWidget(parent)
+LogWindow::LogWindow(DebuggerEngine *engine)
+    : m_engine(engine)
 {
     setWindowTitle(tr("Debugger &Log"));
     setObjectName(QLatin1String("Log"));
@@ -362,14 +405,10 @@ LogWindow::LogWindow(QWidget *parent)
     m_combinedText = new CombinedPane(this);
     m_combinedText->setReadOnly(true);
     m_combinedText->setReadOnly(false);
-    m_combinedText->setSizePolicy(QSizePolicy::MinimumExpanding,
-        QSizePolicy::MinimumExpanding);
 
     // Input only.
     m_inputText = new InputPane(this);
     m_inputText->setReadOnly(false);
-    m_inputText->setSizePolicy(QSizePolicy::MinimumExpanding,
-        QSizePolicy::MinimumExpanding);
 
     m_commandEdit = new Utils::FancyLineEdit(this);
     m_commandEdit->setFrame(false);
@@ -445,23 +484,33 @@ LogWindow::LogWindow(QWidget *parent)
                .arg(Core::Constants::IDE_DISPLAY_NAME));
 }
 
+LogWindow::~LogWindow()
+{
+    disconnect(&m_outputTimer, &QTimer::timeout, this, &LogWindow::doOutput);
+    m_outputTimer.stop();
+    doOutput();
+}
+
 void LogWindow::executeLine()
 {
     m_ignoreNextInputEcho = true;
-    currentEngine()->
-        executeDebuggerCommand(m_inputText->textCursor().block().text(), CppLanguage);
+    m_engine->executeDebuggerCommand(m_inputText->textCursor().block().text());
 }
 
 void LogWindow::repeatLastCommand()
 {
-    currentEngine()->debugLastCommand();
+    m_engine->debugLastCommand();
+}
+
+DebuggerEngine *LogWindow::engine() const
+{
+    return m_engine;
 }
 
 void LogWindow::sendCommand()
 {
-    DebuggerEngine *engine = currentEngine();
-    if (engine->acceptsDebuggerCommands())
-        engine->executeDebuggerCommand(m_commandEdit->text(), CppLanguage);
+    if (m_engine->acceptsDebuggerCommands())
+        m_engine->executeDebuggerCommand(m_commandEdit->text());
     else
         showOutput(LogError, tr("User commands are not accepted in the current state."));
 }
@@ -512,6 +561,8 @@ void LogWindow::doOutput()
     if (m_queuedOutput.isEmpty())
         return;
 
+    theGlobalLog->doOutput(m_queuedOutput);
+
     QTextCursor cursor = m_combinedText->textCursor();
     const bool atEnd = cursor.atEnd();
 
@@ -543,6 +594,8 @@ void LogWindow::showInput(int channel, const QString &input)
     cursor.movePosition(QTextCursor::End);
     m_inputText->setTextCursor(cursor);
     m_inputText->ensureCursorVisible();
+
+    theGlobalLog->doInput(input);
 }
 
 void LogWindow::clearContents()
@@ -597,48 +650,100 @@ QString LogWindow::logTimeStamp()
     return lastTimeStamp;
 }
 
-bool LogWindow::writeLogContents(const QPlainTextEdit *editor, QWidget *parent)
+/////////////////////////////////////////////////////////////////////
+//
+// GlobalLogWindow
+//
+/////////////////////////////////////////////////////////////////////
+
+GlobalLogWindow::GlobalLogWindow()
 {
-    bool success = false;
-    while (!success) {
-        const QString fileName = QFileDialog::getSaveFileName(parent, tr("Log File"));
-        if (fileName.isEmpty())
-            break;
-        Utils::FileSaver saver(fileName, QIODevice::Text);
-        saver.write(editor->toPlainText().toUtf8());
-        if (saver.finalize(parent))
-            success = true;
-    }
-    return success;
+    theGlobalLog = this;
+
+    setWindowTitle(tr("Global Debugger &Log"));
+    setObjectName("GlobalLog");
+
+    auto m_splitter = new Core::MiniSplitter(Qt::Horizontal);
+    m_splitter->setParent(this);
+
+    m_rightPane = new DebuggerPane;
+    m_rightPane->setReadOnly(true);
+
+    m_leftPane = new DebuggerPane;
+    m_leftPane->setReadOnly(true);
+
+    m_splitter->addWidget(m_leftPane);
+    m_splitter->addWidget(m_rightPane);
+    m_splitter->setStretchFactor(0, 1);
+    m_splitter->setStretchFactor(1, 3);
+
+    auto layout = new QVBoxLayout(this);
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    layout->addWidget(m_splitter);
+    layout->addWidget(new Core::FindToolBarPlaceHolder(this));
+    setLayout(layout);
+
+    auto aggregate = new Aggregation::Aggregate;
+    aggregate->add(m_rightPane);
+    aggregate->add(new Core::BaseTextFind(m_rightPane));
+
+    aggregate = new Aggregation::Aggregate;
+    aggregate->add(m_leftPane);
+    aggregate->add(new Core::BaseTextFind(m_leftPane));
+
+    connect(m_leftPane->clearContentsAction(), &QAction::triggered,
+            this, &GlobalLogWindow::clearContents);
+    connect(m_rightPane->clearContentsAction(), &QAction::triggered,
+            this, &GlobalLogWindow::clearContents);
 }
 
-QChar LogWindow::charForChannel(int channel)
+GlobalLogWindow::~GlobalLogWindow()
 {
-    switch (channel) {
-        case LogDebug: return QLatin1Char('d');
-        case LogWarning: return QLatin1Char('w');
-        case LogError: return QLatin1Char('e');
-        case LogInput: return QLatin1Char('<');
-        case LogOutput: return QLatin1Char('>');
-        case LogStatus: return QLatin1Char('s');
-        case LogTime: return QLatin1Char('t');
-        case LogMisc:
-        default: return QLatin1Char(' ');
+}
+
+void GlobalLogWindow::doOutput(const QString &output)
+{
+    QTextCursor cursor = m_rightPane->textCursor();
+    const bool atEnd = cursor.atEnd();
+
+    m_rightPane->append(output);
+
+    if (atEnd) {
+        cursor.movePosition(QTextCursor::End);
+        m_rightPane->setTextCursor(cursor);
+        m_rightPane->ensureCursorVisible();
     }
 }
 
-LogChannel LogWindow::channelForChar(QChar c)
+void GlobalLogWindow::doInput(const QString &input)
 {
-    switch (c.unicode()) {
-        case 'd': return LogDebug;
-        case 'w': return LogWarning;
-        case 'e': return LogError;
-        case '<': return LogInput;
-        case '>': return LogOutput;
-        case 's': return LogStatus;
-        case 't': return LogTime;
-        default: return LogMisc;
-    }
+    if (boolSetting(LogTimeStamps))
+        m_leftPane->append(LogWindow::logTimeStamp());
+    m_leftPane->append(input);
+    QTextCursor cursor = m_leftPane->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    m_leftPane->setTextCursor(cursor);
+    m_leftPane->ensureCursorVisible();
+}
+
+void GlobalLogWindow::clearContents()
+{
+    m_rightPane->clear();
+    m_leftPane->clear();
+}
+
+void GlobalLogWindow::setCursor(const QCursor &cursor)
+{
+    m_rightPane->viewport()->setCursor(cursor);
+    m_leftPane->viewport()->setCursor(cursor);
+    QWidget::setCursor(cursor);
+}
+
+void GlobalLogWindow::clearUndoRedoStacks()
+{
+    m_leftPane->clearUndoRedoStacks();
+    m_rightPane->clearUndoRedoStacks();
 }
 
 } // namespace Internal

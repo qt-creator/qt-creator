@@ -182,6 +182,7 @@ CdbEngine::CdbEngine() :
     m_extensionCommandPrefix("!" QT_CREATOR_CDB_EXT ".")
 {
     setObjectName("CdbEngine");
+    setDebuggerName("CDB");
 
     DisplayFormats stringFormats;
     stringFormats.append(SimpleFormat);
@@ -225,7 +226,7 @@ void CdbEngine::init()
     m_stopMode = NoStopRequested;
     m_nextCommandToken  = 0;
     m_currentBuiltinResponseToken = -1;
-    m_operateByInstruction = true;
+    m_operateByInstruction = action(OperateByInstruction)->isChecked();
     m_hasDebuggee = false;
     m_sourceStepInto = false;
     m_watchPointX = m_watchPointY = 0;
@@ -238,8 +239,6 @@ void CdbEngine::init()
     m_currentBuiltinResponse.clear();
     m_extensionMessageBuffer.clear();
     m_pendingBreakpointMap.clear();
-    m_insertSubBreakpointMap.clear();
-    m_pendingSubBreakpointMap.clear();
     m_interrupCallbacks.clear();
     m_symbolAddressCache.clear();
     m_coreStopReason.reset();
@@ -526,15 +525,17 @@ void CdbEngine::handleInitialSessionIdle()
     operateByInstructionTriggered(action(OperateByInstruction)->isChecked());
     // QmlCppEngine expects the QML engine to be connected before any breakpoints are hit
     // (attemptBreakpointSynchronization() will be directly called then)
-    attemptBreakpointSynchronization();
     if (rp.breakOnMain) {
-        const BreakpointParameters bp(BreakpointAtMain);
-        BreakpointModelId id(quint16(-1));
-        QString function = cdbAddBreakpointCommand(bp, m_sourcePathMappings, id, true);
-        runCommand({function, BuiltinCommand,
-                    [this, id](const DebuggerResponse &r) { handleBreakInsert(r, id); }});
+        // FIXME:
+//        const BreakpointParameters bp(BreakpointAtMain);
+//        BreakpointModelId id(quint16(-1));
+//        QString function = cdbAddBreakpointCommand(bp, m_sourcePathMappings, id, true);
+//        runCommand({function, BuiltinCommand,
+//                    [this, id](const DebuggerResponse &r) { handleBreakInsert(r, id); }});
     }
 
+    // Take ownership of the breakpoint. Requests insertion. TODO: Cpp only?
+    BreakpointManager::claimBreakpointsForEngine(this);
     runCommand({".symopt+0x8000"}); // disable searching public symbol table - improving the symbol lookup speed
     runCommand({"sxn 0x4000001f", NoFlags}); // Do not break on WowX86 exceptions.
     runCommand({"sxn ibp", NoFlags}); // Do not break on initial breakpoints.
@@ -608,7 +609,7 @@ void CdbEngine::runEngine()
         runCommand({"sxe " + breakEvent, NoFlags});
     // Break functions: each function must be fully qualified,
     // else the debugger will slow down considerably.
-    const auto cb = [this](const DebuggerResponse &r) { handleBreakInsert(r, BreakpointModelId()); };
+    const auto cb = [this](const DebuggerResponse &r) { handleBreakInsert(r, Breakpoint()); };
     if (boolSetting(CdbBreakOnCrtDbgReport)) {
         Abi::OSFlavor flavor = runParameters().toolChainAbi.osFlavor();
         // CrtDebugReport can not be safely resolved for vc 19
@@ -853,13 +854,8 @@ void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
 
     showMessage(QString("Interrupting process %1...").arg(inferiorPid()), LogMisc);
     QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed(); return);
-    if (DebuggerRunTool *rt = runTool()) {
-        IDevice::ConstPtr device = rt->device();
-        if (!device)
-            device = runParameters().inferior.device;
-        if (device)
-            m_signalOperation = device->signalOperation();
-    }
+    QTC_ASSERT(device(), notifyInferiorRunFailed(); return);
+    m_signalOperation = device()->signalOperation();
     QTC_ASSERT(m_signalOperation, notifyInferiorStopFailed(); return;);
     connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
             this, &CdbEngine::handleDoInterruptInferior);
@@ -881,8 +877,8 @@ void CdbEngine::executeRunToLine(const ContextData &data)
         bp.lineNumber = data.lineNumber;
     }
 
-    runCommand({cdbAddBreakpointCommand(bp, m_sourcePathMappings, BreakpointModelId(), true), BuiltinCommand,
-               [this](const DebuggerResponse &r) { handleBreakInsert(r, BreakpointModelId()); }});
+    runCommand({cdbAddBreakpointCommand(bp, m_sourcePathMappings, {}, true), BuiltinCommand,
+               [this](const DebuggerResponse &r) { handleBreakInsert(r, Breakpoint()); }});
     continueInferior();
 }
 
@@ -891,8 +887,8 @@ void CdbEngine::executeRunToFunction(const QString &functionName)
     // Add one-shot breakpoint
     BreakpointParameters bp(BreakpointByFunction);
     bp.functionName = functionName;
-    runCommand({cdbAddBreakpointCommand(bp, m_sourcePathMappings, BreakpointModelId(), true), BuiltinCommand,
-               [this](const DebuggerResponse &r) { handleBreakInsert(r, BreakpointModelId()); }});
+    runCommand({cdbAddBreakpointCommand(bp, m_sourcePathMappings, {}, true), BuiltinCommand,
+               [this](const DebuggerResponse &r) { handleBreakInsert(r, Breakpoint()); }});
     continueInferior();
 }
 
@@ -1014,10 +1010,9 @@ void CdbEngine::handleThreads(const DebuggerResponse &response)
     }
 }
 
-void CdbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
+void CdbEngine::executeDebuggerCommand(const QString &command)
 {
-    if (languages & CppLanguage)
-        runCommand({command, NoFlags});
+    runCommand({command, NoFlags});
 }
 
 // Post command to the cdb process
@@ -1465,8 +1460,7 @@ void CdbEngine::fetchMemory(MemoryAgent *agent, quint64 address, quint64 length)
     StringInputStream str(args);
     str << address << ' ' << length;
     cmd.args = args;
-    cmd.callback = [this, agent = QPointer<MemoryAgent>(agent), address, length]
-            (const DebuggerResponse &response) {
+    cmd.callback = [&](const DebuggerResponse &response) {
         if (!agent)
             return;
         if (response.resultClass == ResultDone) {
@@ -1507,7 +1501,8 @@ void CdbEngine::requestModuleSymbols(const QString &moduleName)
 
 void CdbEngine::reloadRegisters()
 {
-    QTC_ASSERT(threadsHandler()->currentThreadIndex() >= 0,  return);
+    if (!(threadsHandler()->currentThreadIndex() >= 0))
+        return;
     runCommand({"registers", ExtensionCommand, CB(handleRegistersExt)});
 }
 
@@ -1680,19 +1675,18 @@ enum StopActionFlags
     StopShutdownInProgress = 0x80 // Shutdown in progress
 };
 
-static inline QString msgTracePointTriggered(BreakpointModelId id, const int number,
+static inline QString msgTracePointTriggered(const Breakpoint &, const QString &displayName,
                                              const QString &threadId)
 {
-    return CdbEngine::tr("Trace point %1 (%2) in thread %3 triggered.")
-            .arg(id.toString()).arg(number).arg(threadId);
+    return CdbEngine::tr("Trace point %1 in thread %2 triggered.")
+            .arg(displayName).arg(threadId);
 }
 
-static inline QString msgCheckingConditionalBreakPoint(BreakpointModelId id, const int number,
-                                                       const QString &condition,
+static inline QString msgCheckingConditionalBreakPoint(const Breakpoint &bp, const QString &displayName,
                                                        const QString &threadId)
 {
-    return CdbEngine::tr("Conditional breakpoint %1 (%2) in thread %3 triggered, examining expression \"%4\".")
-            .arg(id.toString()).arg(number).arg(threadId, condition);
+    return CdbEngine::tr("Conditional breakpoint %1 in thread %2 triggered, examining expression \"%3\".")
+            .arg(displayName).arg(threadId, bp->condition());
 }
 
 unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
@@ -1722,52 +1716,55 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
     if (reason == "breakpoint") {
         // Note: Internal breakpoints (run to line) are reported with id=0.
         // Step out creates temporary breakpoints with id 10000.
-        int number = 0;
-        BreakpointModelId id = cdbIdToBreakpointModelId(stopReason["breakpointId"]);
-        Breakpoint bp = breakHandler()->breakpointById(id);
-        if (bp) {
-            if (bp.engine() == this) {
-                const BreakpointResponse parameters =  bp.response();
-                if (!parameters.message.isEmpty()) {
-                    showMessage(parameters.message + '\n', AppOutput);
-                    showMessage(parameters.message, LogMisc);
-                }
-                // Trace point? Just report.
-                number = parameters.id.majorPart();
-                if (parameters.tracepoint) {
-                    *message = msgTracePointTriggered(id, number, QString::number(threadId));
-                    return StopReportLog|StopIgnoreContinue;
-                }
-                // Trigger evaluation of BP expression unless we are already in the response.
-                if (!conditionalBreakPointTriggered && !parameters.condition.isEmpty()) {
-                    *message = msgCheckingConditionalBreakPoint(id, number, parameters.condition,
-                                                                QString::number(threadId));
-                    QString args = parameters.condition;
-                    if (args.contains(' ') && !args.startsWith('"')) {
-                        args.prepend('"');
-                        args.append('"');
-                    }
-                    DebuggerCommand cmd("expression", ExtensionCommand);
-                    cmd.args = args;
-                    cmd.callback = [this, id, stopReason](const DebuggerResponse &response) {
-                        handleExpression(response, id, stopReason);
-                    };
-                    runCommand(cmd);
 
-                    return StopReportLog;
-                }
-            } else {
-                bp = Breakpoint();
+        const QString responseId = stopReason["breakpointId"].data();
+        QString displayName;
+        Breakpoint bp = breakHandler()->findBreakpointByResponseId(responseId);
+        if (!bp) {
+            if (const SubBreakpoint sub = breakHandler()->findSubBreakpointByResponseId(responseId)) {
+                bp = sub->breakpoint();
+                displayName = sub->displayName;
             }
+        } else {
+            displayName = bp->displayName();
         }
-        QString tid = QString::number(threadId);
-        if (bp.type() == WatchpointAtAddress)
-            *message = bp.msgWatchpointByAddressTriggered(number, bp.address(), tid);
-        else if (bp.type() == WatchpointAtExpression)
-            *message = bp.msgWatchpointByExpressionTriggered(number, bp.expression(), tid);
-        else
-            *message = bp.msgBreakpointTriggered(number, tid);
-        rc |= StopReportStatusMessage|StopNotifyStop;
+        if (bp) {
+            if (!bp->message().isEmpty()) {
+                showMessage(bp->message() + '\n', AppOutput);
+                showMessage(bp->message(), LogMisc);
+            }
+            // Trace point? Just report.
+            if (bp->isTracepoint()) {
+                *message = msgTracePointTriggered(bp, displayName, QString::number(threadId));
+                return StopReportLog|StopIgnoreContinue;
+            }
+            // Trigger evaluation of BP expression unless we are already in the response.
+            if (!conditionalBreakPointTriggered && !bp->condition().isEmpty()) {
+                *message = msgCheckingConditionalBreakPoint(bp, displayName, QString::number(threadId));
+                QString args = bp->condition();
+                if (args.contains(' ') && !args.startsWith('"')) {
+                    args.prepend('"');
+                    args.append('"');
+                }
+                DebuggerCommand cmd("expression", ExtensionCommand);
+                cmd.args = args;
+                cmd.callback = [this, bp, stopReason](const DebuggerResponse &response) {
+                    handleExpression(response, bp, stopReason);
+                };
+                runCommand(cmd);
+
+                return StopReportLog;
+            }
+
+            QString tid = QString::number(threadId);
+            if (bp->type() == WatchpointAtAddress)
+                *message = bp->msgWatchpointByAddressTriggered(bp->address(), tid);
+            else if (bp->type() == WatchpointAtExpression)
+                *message = bp->msgWatchpointByExpressionTriggered(bp->expression(), tid);
+            else
+                *message = bp->msgBreakpointTriggered(tid);
+            rc |= StopReportStatusMessage|StopNotifyStop;
+        }
         return rc;
     }
     if (reason == "exception") {
@@ -1881,11 +1878,11 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
             showMessage(stopReason["threaderror"].data(), LogError);
         }
         // Fire off remaining commands asynchronously
-        if (!m_pendingBreakpointMap.isEmpty() && !m_pendingSubBreakpointMap.isEmpty())
+        if (!m_pendingBreakpointMap.isEmpty())
             listBreakpoints();
-        if (Internal::isRegistersWindowVisible())
+        if (isRegistersWindowVisible())
             reloadRegisters();
-        if (Internal::isModulesWindowVisible())
+        if (isModulesWindowVisible())
             reloadModules();
     }
     // After the sequence has been sent off and CDB is pondering the commands,
@@ -1894,7 +1891,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
         showStoppedByExceptionMessageBox(exceptionBoxMessage);
 }
 
-void CdbEngine::handleBreakInsert(const DebuggerResponse &response, const BreakpointModelId &bpId)
+void CdbEngine::handleBreakInsert(const DebuggerResponse &response, const Breakpoint &bp)
 {
     const QStringList reply = response.data.data().split('\n');
     if (reply.isEmpty())
@@ -1913,16 +1910,19 @@ void CdbEngine::handleBreakInsert(const DebuggerResponse &response, const Breakp
     // Matched: untitled123!<lambda_4956dbaf7bce78acbc6759af75f3884a>::operator QString (__cdecl*)(void) (000007f6`be2f27b0)
     // Matched: untitled123!<lambda_4956dbaf7bce78acbc6759af75f3884a>::<helper_func_vectorcall> (000007f6`be2f27d0)
     // Matched: untitled123!<lambda_4956dbaf7bce78acbc6759af75f3884a>::operator QString (__vectorcall*)(void) (000007f6`be2f2850)
-    // Ambiguous symbol error at '`untitled2!C:\dev\src\tmp\untitled2\main.cpp:18`'
+    // Ambiguous symbol error at '`untitled2!C:\dev\src\tmp\unttitled2\main.cpp:18`'
     //               ^ Extra character error in 'bu1004 `untitled2!C:\dev\src\tmp\untitled2\main.cpp:18`'
 
-    if (!bpId.isValid())
+    // Happens regularly for Run to Line and Jump to Line.
+    if (!bp)
         return;
-    Breakpoint bp = breakHandler()->breakpointById(bpId);
+
     // add break point for every match
+    const int parentResponseId = bp->responseId().toInt();
     quint16 subBreakPointID = 0;
+    const QLatin1String matchPrefix("Matched: ");
     for (auto line = reply.constBegin(), end = reply.constEnd(); line != end; ++line) {
-        if (!line->startsWith("Matched: "))
+        if (!line->startsWith(matchPrefix))
             continue;
         const int addressStartPos = line->lastIndexOf('(') + 1;
         const int addressEndPos = line->indexOf(')', addressStartPos);
@@ -1936,16 +1936,25 @@ void CdbEngine::handleBreakInsert(const DebuggerResponse &response, const Breakp
         if (!ok)
             continue;
 
-        BreakpointModelId id(bpId.majorPart(), ++subBreakPointID);
-        BreakpointResponse res = bp.response();
-        res.type = BreakpointByAddress;
-        res.address = address;
-        m_insertSubBreakpointMap.insert(id, res);
+        ++subBreakPointID;
+        const QString responseId(QString::number(parentResponseId + subBreakPointID));
+        SubBreakpoint sub = bp->findOrCreateSubBreakpoint(responseId);
+        sub->responseId = responseId;
+        sub->params = bp->parameters();
+        sub->params.type = BreakpointByAddress;
+        sub->params.address = address;
+        QString functionName(line->mid(matchPrefix.size(),
+                                       addressStartPos - 1 - matchPrefix.size()));
+        const int functionStart = functionName.indexOf('!') + 1;
+        const int functionOffset = functionName.lastIndexOf('+');
+        if (functionOffset > 0)
+            functionName.truncate(functionOffset);
+        if (functionStart > 0)
+            functionName = functionName.mid(functionStart);
+        sub->params.functionName = functionName;
+        sub->displayName = bp->displayName() + '.' + QString::number(subBreakPointID);
+        runCommand({cdbAddBreakpointCommand(sub->params, m_sourcePathMappings, sub->responseId, false), NoFlags});
     }
-    if (subBreakPointID == 0)
-        return;
-
-    attemptBreakpointSynchronization();
 }
 
 void CdbEngine::handleCheckWow64(const DebuggerResponse &response, const GdbMi &stack)
@@ -2413,10 +2422,10 @@ bool CdbEngine::stateAcceptsBreakpointChanges() const
     return false;
 }
 
-bool CdbEngine::acceptsBreakpoint(Breakpoint bp) const
+bool CdbEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
-    if (bp.parameters().isCppBreakpoint()) {
-        switch (bp.type()) {
+    if (bp.isCppBreakpoint()) {
+        switch (bp.type) {
         case UnknownBreakpointType:
         case LastBreakpointType:
         case BreakpointAtFork:
@@ -2490,139 +2499,90 @@ unsigned BreakpointCorrectionContext::fixLineNumber(const QString &fileName,
     return correctedLine;
 }
 
-void CdbEngine::attemptBreakpointSynchronization()
+void CdbEngine::insertBreakpoint(const Breakpoint &bp)
 {
-    if (debug)
-        qDebug("attemptBreakpointSynchronization in %s", qPrintable(stateName(state())));
-    // Check if there is anything to be done at all.
-    BreakHandler *handler = breakHandler();
-    // Take ownership of the breakpoint. Requests insertion. TODO: Cpp only?
-    for (Breakpoint bp : handler->unclaimedBreakpoints())
-        if (acceptsBreakpoint(bp))
-            bp.setEngine(this);
-
-    // Quick check: is there a need to change something? - Populate module cache
-    bool changed = !m_insertSubBreakpointMap.isEmpty();
-    const Breakpoints bps = handler->engineBreakpoints(this);
-    if (!changed) {
-        for (Breakpoint bp : bps) {
-            switch (bp.state()) {
-            case BreakpointInsertRequested:
-            case BreakpointRemoveRequested:
-            case BreakpointChangeRequested:
-                changed = true;
-                break;
-            case BreakpointInserted: {
-                // Collect the new modules matching the files.
-                // In the future, that information should be obtained from the build system.
-                const BreakpointParameters &data = bp.parameters();
-                if (data.type == BreakpointByFileAndLine && !data.module.isEmpty())
-                    m_fileNameModuleHash.insert(data.fileName, data.module);
-            }
-                break;
-            default:
-                break;
-            }
-        }
+    BreakpointParameters parameters = bp->requestedParameters();
+    const auto handleBreakInsertCB = [this, bp](const DebuggerResponse &r) { handleBreakInsert(r, bp); };
+    BreakpointParameters response = parameters;
+    auto responseId = QString::number(breakPointIdToCdbId(bp));
+    QScopedPointer<BreakpointCorrectionContext> lineCorrection(
+                new BreakpointCorrectionContext(m_codeModelSnapshot, CppTools::CppModelManager::instance()->workingCopy()));
+    if (!m_autoBreakPointCorrection
+            && parameters.type == BreakpointByFileAndLine
+            && boolSetting(CdbBreakPointCorrection)) {
+        response.lineNumber = int(lineCorrection->fixLineNumber(
+                                      parameters.fileName, unsigned(parameters.lineNumber)));
+        QString cmd = cdbAddBreakpointCommand(response, m_sourcePathMappings, responseId, false);
+        runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
+    } else {
+        QString cmd = cdbAddBreakpointCommand(parameters, m_sourcePathMappings, responseId, false);
+        runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
     }
-
+    if (!parameters.enabled)
+        runCommand({"bd " + responseId, NoFlags});
+    // Ensure enabled/disabled is correct in handler and line number is there.
+    bp->setParameters(response);
+    bp->setResponseId(responseId);
+    bp->setDisplayName(QString::number(bp->modelId()));
+    notifyBreakpointInsertProceeding(bp);
+    notifyBreakpointInsertOk(bp);
+    m_pendingBreakpointMap.insert(bp);
     if (debugBreakpoints)
-        qDebug("attemptBreakpointSynchronizationI %dms accessible=%d, %s %d breakpoints, changed=%d",
-               elapsedLogTime(), m_accessible, qPrintable(stateName(state())), bps.size(), changed);
-    if (!changed)
-        return;
+        qDebug("Adding %d %s\n", bp->modelId(), qPrintable(response.toString()));
+    listBreakpoints();
+}
 
-    // Add/Change breakpoints and store pending ones in map, since
-    // Breakhandler::setResponse() on pending breakpoints clears the pending flag.
-    // handleBreakPoints will the complete that information and set it on the break handler.
-    bool addedChanged = false;
-    QScopedPointer<BreakpointCorrectionContext> lineCorrection;
-    for (Breakpoint bp : bps) {
-        BreakpointParameters parameters = bp.parameters();
-        BreakpointModelId id = bp.id();
-        const auto handleBreakInsertCB = [this, id](const DebuggerResponse &r) { handleBreakInsert(r, id); };
-        BreakpointResponse response;
-        response.fromParameters(parameters);
-        response.id = BreakpointResponseId(id.majorPart(), id.minorPart());
-        // If we encountered that file and have a module for it: Add it.
-        if (parameters.type == BreakpointByFileAndLine && parameters.module.isEmpty()) {
-            const QHash<QString, QString>::const_iterator it = m_fileNameModuleHash.constFind(parameters.fileName);
-            if (it != m_fileNameModuleHash.constEnd())
-                parameters.module = it.value();
-        }
-        switch (bp.state()) {
-        case BreakpointInsertRequested:
-            if (!m_autoBreakPointCorrection
-                    && parameters.type == BreakpointByFileAndLine
-                    && boolSetting(CdbBreakPointCorrection)) {
-                if (lineCorrection.isNull())
-                    lineCorrection.reset(new BreakpointCorrectionContext(m_codeModelSnapshot,
-                                                                         CppTools::CppModelManager::instance()->workingCopy()));
-                response.lineNumber = int(lineCorrection->fixLineNumber(
-                                              parameters.fileName, unsigned(parameters.lineNumber)));
-                QString cmd = cdbAddBreakpointCommand(response, m_sourcePathMappings, id, false);
-                runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
-            } else {
-                QString cmd = cdbAddBreakpointCommand(parameters, m_sourcePathMappings, id, false);
-                runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
-            }
-            if (!parameters.enabled)
-                runCommand({"bd " + QString::number(breakPointIdToCdbId(id)), NoFlags});
-            bp.notifyBreakpointInsertProceeding();
-            bp.notifyBreakpointInsertOk();
-            m_pendingBreakpointMap.insert(id, response);
-            addedChanged = true;
-            // Ensure enabled/disabled is correct in handler and line number is there.
-            bp.setResponse(response);
-            if (debugBreakpoints)
-                qDebug("Adding %d %s\n", id.toInternalId(),
-                    qPrintable(response.toString()));
-            break;
-        case BreakpointChangeRequested:
-            bp.notifyBreakpointChangeProceeding();
-            if (debugBreakpoints)
-                qDebug("Changing %d:\n    %s\nTo %s\n", id.toInternalId(),
-                    qPrintable(bp.response().toString()),
-                    qPrintable(parameters.toString()));
-            if (parameters.enabled != bp.response().enabled) {
-                // Change enabled/disabled breakpoints without triggering update.
-                if (parameters.enabled)
-                    runCommand({"be " + QString::number(breakPointIdToCdbId(id)), NoFlags});
-                else
-                    runCommand({"bd " + QString::number(breakPointIdToCdbId(id)), NoFlags});
-                response.pending = false;
-                response.enabled = parameters.enabled;
-                bp.setResponse(response);
-            } else {
-                // Delete and re-add, triggering update
-                addedChanged = true;
-                runCommand({cdbClearBreakpointCommand(id), NoFlags});
-                QString cmd(cdbAddBreakpointCommand(parameters, m_sourcePathMappings, id, false));
-                runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
-                m_pendingBreakpointMap.insert(id, response);
-            }
-            bp.notifyBreakpointChangeOk();
-            break;
-        case BreakpointRemoveRequested:
-            runCommand({cdbClearBreakpointCommand(id), NoFlags});
-            bp.notifyBreakpointRemoveProceeding();
-            bp.notifyBreakpointRemoveOk();
-            m_pendingBreakpointMap.remove(id);
-            break;
-        default:
-            break;
-        }
-    }
-    foreach (BreakpointModelId id, m_insertSubBreakpointMap.keys()) {
-        addedChanged = true;
-        const BreakpointResponse &response = m_insertSubBreakpointMap.value(id);
-        runCommand({cdbAddBreakpointCommand(response, m_sourcePathMappings, id, false), NoFlags});
-        m_insertSubBreakpointMap.remove(id);
-        m_pendingSubBreakpointMap.insert(id, response);
-    }
-    // List breakpoints and send responses
-    if (addedChanged)
+void CdbEngine::removeBreakpoint(const Breakpoint &bp)
+{
+    runCommand({cdbClearBreakpointCommand(bp), NoFlags});
+    notifyBreakpointRemoveProceeding(bp);
+    notifyBreakpointRemoveOk(bp);
+    m_pendingBreakpointMap.remove(bp);
+}
+
+static QString enableBreakpointCommand(const QString &responseId, bool on)
+{
+    const QString command(on ? QString("be") : QString("bd"));
+    return command + ' ' + responseId;
+}
+
+void CdbEngine::updateBreakpoint(const Breakpoint &bp)
+{
+    BreakpointParameters parameters = bp->requestedParameters();
+    const auto handleBreakInsertCB = [this, bp](const DebuggerResponse &r) { handleBreakInsert(r, bp); };
+    BreakpointParameters response = parameters;
+    auto responseId = QString::number(breakPointIdToCdbId(bp));
+    notifyBreakpointChangeProceeding(bp);
+    if (debugBreakpoints)
+        qDebug("Changing %d:\n    %s\nTo %s\n", bp->modelId(),
+            qPrintable(bp->parameters().toString()),
+            qPrintable(parameters.toString()));
+    if (parameters.enabled != bp->isEnabled()) {
+        // Change enabled/disabled breakpoints without triggering update.
+        bp->forFirstLevelChildren([this, parameters](SubBreakpointItem *sbp){
+            breakHandler()->requestSubBreakpointEnabling({sbp}, parameters.enabled);
+        });
+        if (!bp->hasChildren())
+            runCommand({enableBreakpointCommand(bp->responseId(), parameters.enabled), NoFlags});
+        response.pending = false;
+        response.enabled = parameters.enabled;
+        bp->setParameters(response);
+    } else {
+        // Delete and re-add, triggering update
+        runCommand({cdbClearBreakpointCommand(bp), NoFlags});
+        QString cmd = cdbAddBreakpointCommand(parameters, m_sourcePathMappings, responseId, false);
+        runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
+        m_pendingBreakpointMap.insert(bp);
         listBreakpoints();
+    }
+    notifyBreakpointChangeOk(bp);
+}
+
+void CdbEngine::enableSubBreakpoint(const SubBreakpoint &sbp, bool on)
+{
+    runCommand({enableBreakpointCommand(sbp->responseId, on), NoFlags});
+    if (on && !sbp->breakpoint()->isEnabled())
+        sbp->breakpoint()->setEnabled(true);
 }
 
 // Pass a file name through source mapping and normalize upper/lower case (for the editor
@@ -2852,7 +2812,7 @@ void CdbEngine::handleStackTrace(const DebuggerResponse &response)
     }
 }
 
-void CdbEngine::handleExpression(const DebuggerResponse &response, BreakpointModelId id, const GdbMi &stopReason)
+void CdbEngine::handleExpression(const DebuggerResponse &response, const Breakpoint &bp, const GdbMi &stopReason)
 {
     int value = 0;
     if (response.resultClass == ResultDone)
@@ -2862,9 +2822,9 @@ void CdbEngine::handleExpression(const DebuggerResponse &response, BreakpointMod
     // Is this a conditional breakpoint?
     const QString message = value ?
         tr("Value %1 obtained from evaluating the condition of breakpoint %2, stopping.").
-        arg(value).arg(id.toString()) :
+        arg(value).arg(bp->displayName()) :
         tr("Value 0 obtained from evaluating the condition of breakpoint %1, continuing.").
-        arg(id.toString());
+        arg(bp->displayName());
     showMessage(message, LogMisc);
     // Stop if evaluation is true, else continue
     if (value)
@@ -2905,10 +2865,9 @@ void CdbEngine::handleWidgetAt(const DebuggerResponse &response)
     m_watchPointX = m_watchPointY = 0;
 }
 
-static inline void formatCdbBreakPointResponse(BreakpointModelId id, const BreakpointResponse &r,
-                                                  QTextStream &str)
+static void formatCdbBreakPointResponse(int modelId, const QString &responseId, const BreakpointParameters &r, QTextStream &str)
 {
-    str << "Obtained breakpoint " << id << " (#" << r.id.majorPart() << ')';
+    str << "Obtained breakpoint " << modelId << " (#" << responseId << ')';
     if (r.pending) {
         str << ", pending";
     } else {
@@ -2946,46 +2905,62 @@ void CdbEngine::handleBreakPoints(const DebuggerResponse &response)
     QTextStream str(&message);
     BreakHandler *handler = breakHandler();
     foreach (const GdbMi &breakPointG, response.data.children()) {
-        BreakpointResponse reportedResponse;
+        // Might not be valid if there is not id
+        const QString responseId = breakPointG["id"].data();
+        BreakpointParameters reportedResponse;
         parseBreakPoint(breakPointG, &reportedResponse);
         if (debugBreakpoints)
-            qDebug("  Parsed %d: pending=%d %s\n", reportedResponse.id.majorPart(),
+            qDebug("  Parsed %s: pending=%d %s\n", qPrintable(responseId),
                 reportedResponse.pending,
                 qPrintable(reportedResponse.toString()));
-        if (reportedResponse.id.isValid() && !reportedResponse.pending) {
-            Breakpoint bp = handler->findBreakpointByResponseId(reportedResponse.id);
+        if (!responseId.isEmpty() && !reportedResponse.pending) {
+            Breakpoint bp = handler->findBreakpointByResponseId(responseId);
             if (!bp && reportedResponse.type == BreakpointByFunction)
                 continue; // Breakpoints from options, CrtDbgReport() and others.
-            QTC_ASSERT(bp, continue);
-            const auto it = m_pendingBreakpointMap.find(bp.id());
-            const auto subIt = m_pendingSubBreakpointMap.find(
-                        BreakpointModelId(reportedResponse.id.majorPart(),
-                                          reportedResponse.id.minorPart()));
-            if (it != m_pendingBreakpointMap.end() || subIt != m_pendingSubBreakpointMap.end()) {
+
+            if (bp) {
+                if (!bp->isPending())
+                    continue;
+                QTC_ASSERT(m_pendingBreakpointMap.contains(bp), continue);
                 // Complete the response and set on handler.
-                BreakpointResponse currentResponse = it != m_pendingBreakpointMap.end()
-                        ? it.value()
-                        : subIt.value();
-                currentResponse.id = reportedResponse.id;
+                BreakpointParameters currentResponse = bp->parameters();
                 currentResponse.address = reportedResponse.address;
                 currentResponse.module = reportedResponse.module;
                 currentResponse.pending = reportedResponse.pending;
                 currentResponse.enabled = reportedResponse.enabled;
                 currentResponse.fileName = reportedResponse.fileName;
                 currentResponse.lineNumber = reportedResponse.lineNumber;
-                formatCdbBreakPointResponse(bp.id(), currentResponse, str);
+                formatCdbBreakPointResponse(bp->modelId(), responseId, currentResponse, str);
                 if (debugBreakpoints)
-                    qDebug("  Setting for %d: %s\n", currentResponse.id.majorPart(),
+                    qDebug("  Setting for %s: %s\n", qPrintable(responseId),
                            qPrintable(currentResponse.toString()));
-                if (it != m_pendingBreakpointMap.end()) {
-                    bp.setResponse(currentResponse);
-                    m_pendingBreakpointMap.erase(it);
-                }
-                if (subIt != m_pendingSubBreakpointMap.end()) {
-                    bp.insertSubBreakpoint(currentResponse);
-                    m_pendingSubBreakpointMap.erase(subIt);
-                }
+                bp->setParameters(currentResponse);
+                m_pendingBreakpointMap.remove(bp);
+                continue;
             }
+            SubBreakpoint sub = handler->findSubBreakpointByResponseId(responseId);
+            if (sub) {
+                BreakpointParameters currentResponse = sub->params;
+                currentResponse.address = reportedResponse.address;
+                currentResponse.module = reportedResponse.module;
+                currentResponse.pending = reportedResponse.pending;
+                currentResponse.enabled = reportedResponse.enabled;
+                currentResponse.fileName = reportedResponse.fileName;
+                currentResponse.lineNumber = reportedResponse.lineNumber;
+                Breakpoint bp = sub->breakpoint();
+                QTC_ASSERT(bp, continue);
+                formatCdbBreakPointResponse(bp->modelId(), responseId, currentResponse, str);
+                m_pendingBreakpointMap.remove(bp);
+                if (bp->isPending() && !reportedResponse.pending)
+                    bp->setPending(false);
+                if (debugBreakpoints)
+                    qDebug("  Setting for %s: %s\n", qPrintable(responseId),
+                           qPrintable(currentResponse.toString()));
+//                SubBreakpointItem *loc = bp->findOrCreateSubBreakpoint(reportedResponse.responseId);
+                sub->setParameters(currentResponse);
+                continue;
+            }
+            QTC_ASSERT(false, qDebug() << "bp not found in either of the pending maps");
         } // not pending reported
     } // foreach
     if (m_pendingBreakpointMap.empty())

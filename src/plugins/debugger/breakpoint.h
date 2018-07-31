@@ -31,52 +31,7 @@
 namespace Debugger {
 namespace Internal {
 
-//////////////////////////////////////////////////////////////////
-//
-// BreakpointIds
-//
-//////////////////////////////////////////////////////////////////
-
-class BreakpointIdBase
-{
-public:
-    BreakpointIdBase() = default;
-
-    bool isValid() const { return m_majorPart != 0; }
-    bool isMajor() const { return m_majorPart != 0 && m_minorPart == 0; }
-    bool isMinor() const { return m_majorPart != 0 && m_minorPart != 0; }
-    bool operator!() const { return !isValid(); }
-    operator const void*() const { return isValid() ? this : nullptr; }
-    quint32 toInternalId() const { return m_majorPart | (m_minorPart << 16); }
-    QString toString() const;
-    bool operator==(const BreakpointIdBase &id) const
-        { return m_majorPart == id.m_majorPart && m_minorPart == id.m_minorPart; }
-    quint16 majorPart() const { return m_majorPart; }
-    quint16 minorPart() const { return m_minorPart; }
-
-protected:
-    quint16 m_majorPart = 0;
-    quint16 m_minorPart = 0;
-};
-
-class BreakpointModelId : public BreakpointIdBase
-{
-public:
-    BreakpointModelId() { m_majorPart = m_minorPart = 0; }
-    explicit BreakpointModelId(quint16 ma) { m_majorPart = ma; m_minorPart = 0; }
-    BreakpointModelId(quint16 ma, quint16 mi) { m_majorPart = ma; m_minorPart = mi; }
-    explicit BreakpointModelId(const QString &ba); // "21.2"
-};
-
-class BreakpointResponseId : public BreakpointIdBase
-{
-public:
-    BreakpointResponseId() { m_majorPart = m_minorPart = 0; }
-    explicit BreakpointResponseId(quint16 ma) { m_majorPart = ma; m_minorPart = 0; }
-    BreakpointResponseId(quint16 ma, quint16 mi) { m_majorPart = ma; m_minorPart = mi; }
-    explicit BreakpointResponseId(const QString &ba); // "21.2"
-};
-
+class GdbMi;
 
 //////////////////////////////////////////////////////////////////
 //
@@ -86,7 +41,7 @@ public:
 
 //! \enum Debugger::Internal::BreakpointType
 
-// Note: Keep synchronized with similar definitions in bridge.py
+// Note: Keep synchronized with similar definitions in dumper.py
 enum BreakpointType
 {
     UnknownBreakpointType,
@@ -110,11 +65,11 @@ enum BreakpointType
 enum BreakpointState
 {
     BreakpointNew,
-    BreakpointInsertRequested,  //!< Inferior was told about bp, not ack'ed.
-    BreakpointInsertProceeding,
-    BreakpointChangeRequested,
-    BreakpointChangeProceeding,
+    BreakpointInsertionRequested,  //!< Inferior was told about bp, not ack'ed.
+    BreakpointInsertionProceeding,
     BreakpointInserted,
+    BreakpointUpdateRequested,
+    BreakpointUpdateProceeding,
     BreakpointRemoveRequested,
     BreakpointRemoveProceeding,
     BreakpointDead
@@ -185,12 +140,15 @@ public:
     bool conditionsMatch(const QString &other) const;
     bool isWatchpoint() const
         { return type == WatchpointAtAddress || type == WatchpointAtExpression; }
+    bool isLocatedAt(const QString &fileName, int lineNumber, const QString &markerFileName) const;
     // Enough for now.
     bool isBreakpoint() const { return !isWatchpoint() && !isTracepoint(); }
     bool isTracepoint() const { return tracepoint; }
     bool isCppBreakpoint() const;
+    bool isQmlFileAndLineBreakpoint() const;
     QString toString() const;
     void updateLocation(const QString &location); // file.cpp:42
+    void updateFromGdbOutput(const GdbMi &bkpt);
 
     bool operator==(const BreakpointParameters &p) const { return equals(p); }
     bool operator!=(const BreakpointParameters &p) const { return !equals(p); }
@@ -214,31 +172,10 @@ public:
     QString message;         //!< message
     bool tracepoint;
     bool oneShot;            //!< Should this breakpoint trigger only once?
+
+    bool pending = true;     //!< Breakpoint not fully resolved.
+    int hitCount = 0;        //!< Number of times this has been hit.
 };
-
-class BreakpointResponse : public BreakpointParameters
-{
-public:
-    BreakpointResponse();
-    QString toString() const;
-
-public:
-    void fromParameters(const BreakpointParameters &p);
-
-    BreakpointResponseId id; //!< Breakpoint number assigned by the debugger engine.
-    bool pending;            //!< Breakpoint not fully resolved.
-    int hitCount;            //!< Number of times this has been hit.
-    bool multiple;           //!< Happens in constructors/gdb.
-    int correctedLineNumber; //!< Line number as seen by gdb.
-};
-
-inline uint qHash(const Debugger::Internal::BreakpointModelId &id)
-{
-    return id.toInternalId();
-}
 
 } // namespace Internal
 } // namespace Debugger
-
-Q_DECLARE_METATYPE(Debugger::Internal::BreakpointModelId)
-Q_DECLARE_METATYPE(Debugger::Internal::BreakpointResponseId)

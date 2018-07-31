@@ -676,8 +676,8 @@ bool RegisterHandler::setData(const QModelIndex &idx, const QVariant &data, int 
 
 bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
 {
-    const bool actionsEnabled = m_engine->debuggerActionsEnabled();
     const DebuggerState state = m_engine->state();
+    const bool actionsEnabled = m_engine->debuggerActionsEnabled();
 
     RegisterItem *registerItem = itemForIndexAtLevel<1>(ev.index());
     RegisterSubItem *registerSubItem = itemForIndexAtLevel<2>(ev.index());

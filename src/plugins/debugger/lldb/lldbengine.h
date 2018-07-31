@@ -41,17 +41,14 @@
 #include <QMap>
 #include <QVariant>
 
-
 namespace Debugger {
 namespace Internal {
-
-class GdbMi;
 
 /* A debugger engine interfacing the LLDB debugger
  * using its Python interface.
  */
 
-class LldbEngine : public DebuggerEngine
+class LldbEngine : public CppDebuggerEngine
 {
     Q_OBJECT
 
@@ -63,8 +60,6 @@ signals:
     void outputReady(const QString &data);
 
 private:
-    DebuggerEngine *cppEngine() override { return this; }
-
     void executeStep() override;
     void executeStepOut() override;
     void executeNext() override;
@@ -92,13 +87,13 @@ private:
 
     // This should be always the last call in a function.
     bool stateAcceptsBreakpointChanges() const override;
-    bool acceptsBreakpoint(Breakpoint bp) const override;
-    void insertBreakpoint(Breakpoint bp) override;
-    void removeBreakpoint(Breakpoint bp) override;
-    void changeBreakpoint(Breakpoint bp) override;
+    bool acceptsBreakpoint(const BreakpointParameters &bp) const override;
+    void insertBreakpoint(const Breakpoint &bp) override;
+    void removeBreakpoint(const Breakpoint &bp) override;
+    void updateBreakpoint(const Breakpoint &bp) override;
 
     void assignValueInDebugger(WatchItem *item, const QString &expr, const QVariant &value) override;
-    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages) override;
+    void executeDebuggerCommand(const QString &command) override;
 
     void loadSymbols(const QString &moduleName) override;
     void loadAllSymbols() override;
@@ -130,7 +125,7 @@ private:
     void handleResponse(const QString &data);
     void updateAll() override;
     void doUpdateLocals(const UpdateParameters &params) override;
-    void updateBreakpointData(Breakpoint bp, const GdbMi &bkpt, bool added);
+    void updateBreakpointData(const Breakpoint &bp, const GdbMi &bkpt, bool added);
     void fetchStack(int limit);
 
     void runCommand(const DebuggerCommand &cmd) override;

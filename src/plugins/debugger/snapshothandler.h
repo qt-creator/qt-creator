@@ -25,47 +25,43 @@
 
 #pragma once
 
+#include <utils/treemodel.h>
+
 #include <QAbstractTableModel>
+#include <QComboBox>
 #include <QPointer>
 
 namespace Debugger {
-
-class DebuggerRunTool;
-
 namespace Internal {
 
-class SnapshotHandler : public QAbstractTableModel
+class DebuggerEngine;
+
+class EngineManager : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit SnapshotHandler();
-    ~SnapshotHandler() override;
+    explicit EngineManager();
+    ~EngineManager() final;
 
-    // Called from SnapshotHandler after a new snapshot has been added
-    void removeAll();
-    QAbstractItemModel *model() { return this; }
-    int currentIndex() const { return m_currentIndex; }
-    void appendSnapshot(DebuggerRunTool *runTool);
-    void removeSnapshot(DebuggerRunTool *runTool);
-    void setCurrentIndex(int index);
-    int size() const { return m_snapshots.size(); }
-    DebuggerRunTool *at(int index) const;
+    static EngineManager *instance();
+    static QAbstractItemModel *model();
 
-    void createSnapshot(int index);
-    void activateSnapshot(int index);
-    void removeSnapshot(int index);
+    static void registerEngine(DebuggerEngine *engine);
+    static void unregisterEngine(DebuggerEngine *engine);
+    static void activateEngine(DebuggerEngine *engine);
+    static void activateDebugMode();
 
-private:
-    // QAbstractTableModel
-    int rowCount(const QModelIndex &parent) const override;
-    int columnCount(const QModelIndex &parent) const override;
-    QVariant data(const QModelIndex &index, int role) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    static QList<QPointer<DebuggerEngine> > engines();
+    static QPointer<DebuggerEngine> currentEngine();
 
-    int m_currentIndex = -1;
-    QList< QPointer<DebuggerRunTool> > m_snapshots;
+    static void selectUiForCurrentEngine();
+
+    static QWidget *engineChooser();
+
+signals:
+    void engineStateChanged(DebuggerEngine *engine);
+    void currentEngineChanged();
 };
 
 } // namespace Internal

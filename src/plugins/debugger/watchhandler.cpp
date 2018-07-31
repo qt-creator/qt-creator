@@ -1298,7 +1298,7 @@ void WatchModel::timerEvent(QTimerEvent *event)
             }
             ungrabWidget();
         }
-        showMessage(msg, StatusBar);
+        m_engine->showMessage(msg, StatusBar);
     } else {
         WatchModelBase::timerEvent(event);
     }
@@ -1951,8 +1951,10 @@ QString WatchModel::nameForFormat(int format)
 ///////////////////////////////////////////////////////////////////////
 
 WatchHandler::WatchHandler(DebuggerEngine *engine)
+    : m_engine(engine)
 {
     m_model = new WatchModel(this, engine);
+    loadSessionDataForEngine();
 }
 
 WatchHandler::~WatchHandler()
@@ -2072,7 +2074,13 @@ void WatchHandler::resetValueCache()
 
 void WatchHandler::resetWatchers()
 {
-    loadSessionData();
+    loadFormats();
+    theWatcherNames.clear();
+    theWatcherCount = 0;
+    const QStringList watchers = sessionValue("Watchers").toStringList();
+    m_model->m_watchRoot->removeChildren();
+    for (const QString &exp : watchers)
+        watchExpression(exp.trimmed());
 }
 
 void WatchHandler::notifyUpdateStarted(const UpdateParameters &updateParameters)
@@ -2173,7 +2181,7 @@ void WatchHandler::watchExpression(const QString &exp, const QString &name, bool
         m_model->m_engine->updateWatchData(item->iname);
     }
     updateLocalsWindow();
-    Internal::raiseWatchersWindow();
+    m_engine->raiseWatchersWindow();
 }
 
 void WatchHandler::updateWatchExpression(WatchItem *item, const QString &newExp)
@@ -2358,7 +2366,7 @@ void WatchHandler::updateLocalsWindow()
 {
     // Force show/hide of return view.
     bool showReturn = m_model->m_returnRoot->childCount() != 0;
-    Internal::updateLocalsWindow(showReturn);
+    m_engine->updateLocalsWindow(showReturn);
 }
 
 QStringList WatchHandler::watchedExpressions()
@@ -2382,6 +2390,11 @@ void WatchHandler::saveSessionData()
 }
 
 void WatchHandler::loadSessionData()
+{
+    // Handled by loadSesseionDataForEngine.
+}
+
+void WatchHandler::loadSessionDataForEngine()
 {
     loadFormats();
     theWatcherNames.clear();

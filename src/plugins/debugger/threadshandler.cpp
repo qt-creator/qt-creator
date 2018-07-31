@@ -367,7 +367,7 @@ void ThreadsHandler::updateThreadBox()
     forItemsAtLevel<1>([&list](ThreadItem *item) {
         list.append(QString::fromLatin1("#%1 %2").arg(item->threadData.id.raw()).arg(item->threadData.name));
     });
-    Internal::setThreadBoxContents(list, indexForThreadId(this, m_currentId));
+    m_engine->setThreadBoxContents(list, indexForThreadId(this, m_currentId));
 }
 
 ThreadData ThreadsHandler::thread(ThreadId id) const

@@ -230,13 +230,13 @@ QmlProfilerTool::QmlProfilerTool()
     QObject::connect(d->m_startAction, &QAction::triggered, this, &QmlProfilerTool::profileStartupProject);
 
     Utils::Perspective *perspective = d->m_viewContainer->perspective();
-    perspective->addToolbarAction(d->m_startAction);
-    perspective->addToolbarAction(d->m_stopAction);
-    perspective->addToolbarWidget(d->m_recordButton);
-    perspective->addToolbarWidget(d->m_clearButton);
-    perspective->addToolbarWidget(d->m_searchButton);
-    perspective->addToolbarWidget(d->m_displayFeaturesButton);
-    perspective->addToolbarWidget(d->m_timeLabel);
+    perspective->addToolBarAction(d->m_startAction);
+    perspective->addToolBarAction(d->m_stopAction);
+    perspective->addToolBarWidget(d->m_recordButton);
+    perspective->addToolBarWidget(d->m_clearButton);
+    perspective->addToolBarWidget(d->m_searchButton);
+    perspective->addToolBarWidget(d->m_displayFeaturesButton);
+    perspective->addToolBarWidget(d->m_timeLabel);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
             this, &QmlProfilerTool::updateRunActions);

@@ -40,6 +40,8 @@ namespace Utils { class FancyLineEdit; }
 namespace Debugger {
 namespace Internal {
 
+class DebuggerEngine;
+class DebuggerPane;
 class CombinedPane;
 class InputPane;
 
@@ -48,7 +50,10 @@ class LogWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit LogWindow(QWidget *parent = nullptr);
+    explicit LogWindow(DebuggerEngine *engine);
+    ~LogWindow() final;
+
+    DebuggerEngine *engine() const;
 
     void setCursor(const QCursor &cursor);
 
@@ -59,11 +64,6 @@ public:
 
     static QString logTimeStamp();
 
-    static bool writeLogContents(const QPlainTextEdit *editor, QWidget *parent = nullptr);
-
-    static QChar charForChannel(int channel);
-    static LogChannel channelForChar(QChar c);
-
     void clearContents();
     void sendCommand();
     void executeLine();
@@ -73,7 +73,6 @@ public:
     void repeatLastCommand();
 
 signals:
-    void showPage();
     void statusMessageRequested(const QString &msg, int);
 
 private:
@@ -83,6 +82,27 @@ private:
     QString m_queuedOutput;
     Utils::FancyLineEdit *m_commandEdit;
     bool m_ignoreNextInputEcho;
+    DebuggerEngine *m_engine;
+};
+
+class GlobalLogWindow : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit GlobalLogWindow();
+    ~GlobalLogWindow() final;
+
+    void setCursor(const QCursor &cursor);
+
+    void clearUndoRedoStacks();
+    void clearContents();
+    void doInput(const QString &input);
+    void doOutput(const QString &output);
+
+private:
+    DebuggerPane *m_rightPane; // everything
+    DebuggerPane *m_leftPane;  // combined input
 };
 
 } // namespace Internal

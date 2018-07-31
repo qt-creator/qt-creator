@@ -76,8 +76,10 @@ public:
     WatchItem *findItem(const QString &iname) const;
     const WatchItem *findCppLocalVariable(const QString &name) const;
 
-    void loadSessionData();
-    void saveSessionData();
+    void loadSessionDataForEngine();
+
+    static void loadSessionData();
+    static void saveSessionData();
 
     bool isExpandedIName(const QString &iname) const;
     QSet<QString> expandedINames() const;
@@ -120,6 +122,7 @@ public:
     void recordTypeInfo(const GdbMi &typeInfo);
 
 private:
+    DebuggerEngine * const m_engine; // Not owned
     WatchModel *m_model; // Owned.
 };
 

@@ -301,6 +301,20 @@ const char DisplayImageFile[]    = "imagefile:separate";
 const char DisplayPlotData[]     = "plotdata:separate";
 const char DisplayArrayData[]    = "arraydata:separate";
 
+enum LocationType { UnknownLocation, LocationByFile, LocationByAddress };
+
+class ContextData
+{
+public:
+    bool isValid() const { return type != UnknownLocation; }
+
+public:
+    LocationType type = UnknownLocation;
+    QString fileName;
+    int lineNumber = 0;
+    quint64 address = 0;
+};
+
 } // namespace Internal
 } // namespace Debugger
 

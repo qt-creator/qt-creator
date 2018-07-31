@@ -28,6 +28,7 @@
 #include "debuggerengine.h"
 #include "debuggerprotocol.h"
 #include "debuggeractions.h"
+#include "snapshothandler.h"
 #include "stackhandler.h"
 #include "debuggercore.h"
 #include "watchhandler.h"
@@ -1138,7 +1139,7 @@ static void slotTooltipOverrideRequested
         return;
 
     const TextDocument *document = editorWidget->textDocument();
-    DebuggerEngine *engine = currentEngine();
+    DebuggerEngine *engine = EngineManager::currentEngine();
     if (!engine || !engine->canDisplayTooltip())
         return;
 

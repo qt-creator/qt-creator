@@ -683,13 +683,13 @@ MemcheckTool::MemcheckTool()
         ProjectExplorerPlugin::startRunControl(rc);
     });
 
-    perspective->addToolbarAction(m_startAction);
+    perspective->addToolBarAction(m_startAction);
     //toolbar.addAction(m_startWithGdbAction);
-    perspective->addToolbarAction(m_stopAction);
-    perspective->addToolbarAction(m_loadExternalLogFile);
-    perspective->addToolbarAction(m_goBack);
-    perspective->addToolbarAction(m_goNext);
-    perspective->addToolbarWidget(filterButton);
+    perspective->addToolBarAction(m_stopAction);
+    perspective->addToolBarAction(m_loadExternalLogFile);
+    perspective->addToolBarAction(m_goBack);
+    perspective->addToolBarAction(m_goNext);
+    perspective->addToolBarWidget(filterButton);
     Debugger::registerPerspective(perspective);
 
     updateFromSettings();

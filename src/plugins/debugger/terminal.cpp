@@ -25,16 +25,16 @@
 
 #include "terminal.h"
 
-#include "debuggerruncontrol.h"
-
-#include <QDebug>
-#include <QIODevice>
-#include <QSocketNotifier>
+#include <projectexplorer/runconfiguration.h>
 
 #include <coreplugin/icore.h>
 
 #include <utils/qtcassert.h>
 #include <utils/hostosinfo.h>
+
+#include <QDebug>
+#include <QIODevice>
+#include <QSocketNotifier>
 
 #ifdef Q_OS_UNIX
 #   define DEBUGGER_USE_TERMINAL
@@ -168,13 +168,12 @@ void Terminal::onSlaveReaderActivated(int fd)
 #endif
 }
 
-TerminalRunner::TerminalRunner(DebuggerRunTool *debugger)
-    : RunWorker(debugger->runControl())
+TerminalRunner::TerminalRunner(RunControl *runControl, const Runnable &stubRunnable)
+    : RunWorker(runControl)
 {
     setDisplayName("TerminalRunner");
 
-    const DebuggerRunParameters &rp = debugger->runParameters();
-    m_stubRunnable = rp.inferior;
+    m_stubRunnable = stubRunnable;
 
     connect(&m_stubProc, &ConsoleProcess::processError,
             this, &TerminalRunner::stubError);

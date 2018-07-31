@@ -25,12 +25,13 @@
 
 #pragma once
 
+#include "breakhandler.h"
+
 #include <QObject>
 
 namespace Debugger {
 namespace Internal {
 
-class Breakpoint;
 class DebuggerEngine;
 class DisassemblerAgentPrivate;
 class DisassemblerLines;
