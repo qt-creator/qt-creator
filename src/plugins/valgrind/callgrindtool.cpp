@@ -105,11 +105,6 @@ namespace Internal {
 const char CallgrindPerspectiveId[]       = "Callgrind.Perspective";
 const char CallgrindLocalActionId[]       = "Callgrind.Local.Action";
 const char CallgrindRemoteActionId[]      = "Callgrind.Remote.Action";
-const char CallgrindCallersDockId[]       = "Callgrind.Callers.Dock";
-const char CallgrindCalleesDockId[]       = "Callgrind.Callees.Dock";
-const char CallgrindFlatDockId[]          = "Callgrind.Flat.Dock";
-const char CallgrindVisualizationDockId[] = "Callgrind.Visualization.Dock";
-
 const char CALLGRIND_RUN_MODE[]           = "CallgrindTool.CallgrindRunMode";
 
 class CallgrindTool : public QObject
@@ -187,10 +182,10 @@ public:
     QSortFilterProxyModel m_calleesProxy;
 
     // Callgrind widgets
-    CostView *m_flatView = nullptr;
-    CostView *m_callersView = nullptr;
-    CostView *m_calleesView = nullptr;
-    Visualisation *m_visualization = nullptr;
+    std::unique_ptr<CostView> m_flatView;
+    std::unique_ptr<CostView> m_callersView;
+    std::unique_ptr<CostView> m_calleesView;
+    std::unique_ptr<Visualisation> m_visualization;
 
     // Navigation
     QAction *m_goBack = nullptr;
@@ -312,15 +307,15 @@ CallgrindTool::CallgrindTool()
     //
     // DockWidgets
     //
-    m_visualization = new Visualisation;
+    m_visualization = std::make_unique<Visualisation>();
     m_visualization->setFrameStyle(QFrame::NoFrame);
     m_visualization->setObjectName(QLatin1String("Valgrind.CallgrindTool.Visualisation"));
     m_visualization->setWindowTitle(tr("Visualization"));
     m_visualization->setModel(&m_dataModel);
-    connect(m_visualization, &Visualisation::functionActivated,
+    connect(m_visualization.get(), &Visualisation::functionActivated,
             this, &CallgrindTool::visualisationFunctionSelected);
 
-    m_callersView = new CostView;
+    m_callersView = std::make_unique<CostView>();
     m_callersView->setObjectName(QLatin1String("Valgrind.CallgrindTool.CallersView"));
     m_callersView->setWindowTitle(tr("Callers"));
     m_callersView->setSettings(coreSettings, "Valgrind.CallgrindTool.CallersView");
@@ -330,10 +325,10 @@ CallgrindTool::CallgrindTool()
     m_callersProxy.setSourceModel(&m_callersModel);
     m_callersView->setModel(&m_callersProxy);
     m_callersView->hideColumn(CallModel::CalleeColumn);
-    connect(m_callersView, &QAbstractItemView::activated,
+    connect(m_callersView.get(), &QAbstractItemView::activated,
             this, &CallgrindTool::callerFunctionSelected);
 
-    m_calleesView = new CostView;
+    m_calleesView = std::make_unique<CostView>();
     m_calleesView->setObjectName(QLatin1String("Valgrind.CallgrindTool.CalleesView"));
     m_calleesView->setWindowTitle(tr("Callees"));
     m_calleesView->setSettings(coreSettings, "Valgrind.CallgrindTool.CalleesView");
@@ -343,10 +338,10 @@ CallgrindTool::CallgrindTool()
     m_calleesProxy.setSourceModel(&m_calleesModel);
     m_calleesView->setModel(&m_calleesProxy);
     m_calleesView->hideColumn(CallModel::CallerColumn);
-    connect(m_calleesView, &QAbstractItemView::activated,
+    connect(m_calleesView.get(), &QAbstractItemView::activated,
             this, &CallgrindTool::calleeFunctionSelected);
 
-    m_flatView = new CostView;
+    m_flatView = std::make_unique<CostView>();
     m_flatView->setObjectName(QLatin1String("Valgrind.CallgrindTool.FlatView"));
     m_flatView->setWindowTitle(tr("Functions"));
     m_flatView->setSettings(coreSettings, "Valgrind.CallgrindTool.FlatView");
@@ -354,7 +349,7 @@ CallgrindTool::CallgrindTool()
     m_flatView->setFrameStyle(QFrame::NoFrame);
     m_flatView->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_flatView->setModel(&m_proxyModel);
-    connect(m_flatView, &QAbstractItemView::activated,
+    connect(m_flatView.get(), &QAbstractItemView::activated,
             this, &CallgrindTool::dataFunctionSelected);
 
     updateCostFormat();
@@ -511,13 +506,13 @@ CallgrindTool::CallgrindTool()
     toolbar.addWidget(m_searchFilter);
     Debugger::registerToolbar(CallgrindPerspectiveId, toolbar);
 
-    Debugger::registerPerspective(CallgrindPerspectiveId, new Perspective(tr("Callgrind"), {
-        {CallgrindFlatDockId, m_flatView, {}, Perspective::SplitVertical},
-        {CallgrindCalleesDockId, m_calleesView, {}, Perspective::SplitVertical},
-        {CallgrindCallersDockId, m_callersView, CallgrindCalleesDockId, Perspective::SplitHorizontal},
-        {CallgrindVisualizationDockId, m_visualization, {}, Perspective::SplitVertical,
-         false, Qt::RightDockWidgetArea}
-    }));
+    auto perspective = new Perspective(tr("Callgrind"));
+    perspective->addWindow(m_flatView.get(), Perspective::SplitVertical, nullptr);
+    perspective->addWindow(m_calleesView.get(), Perspective::SplitVertical, nullptr);
+    perspective->addWindow(m_callersView.get(), Perspective::SplitHorizontal, m_calleesView.get());
+    perspective->addWindow(m_visualization.get(), Perspective::SplitVertical, nullptr,
+                           false, Qt::RightDockWidgetArea);
+    Debugger::registerPerspective(CallgrindPerspectiveId, perspective);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
             this, &CallgrindTool::updateRunActions);

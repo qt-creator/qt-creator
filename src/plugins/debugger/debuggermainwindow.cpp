@@ -158,11 +158,6 @@ void DebuggerMainWindow::showStatusMessage(const QString &message, int timeoutMS
     m_statusLabel->showStatusMessage(message, timeoutMS);
 }
 
-QDockWidget *DebuggerMainWindow::dockWidget(const QByteArray &dockId) const
-{
-    return m_dockForDockId.value(dockId);
-}
-
 void DebuggerMainWindow::raiseDock(const QByteArray &dockId)
 {
     QDockWidget *dock = m_dockForDockId.value(dockId);
@@ -339,14 +334,17 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
     // Clean up old perspective.
     if (!m_currentPerspectiveId.isEmpty()) {
         savePerspectiveHelper(m_currentPerspectiveId);
-        foreach (QDockWidget *dockWidget, m_dockForDockId) {
-            QTC_ASSERT(dockWidget, continue);
-            dockWidget->setFloating(false);
-            removeDockWidget(dockWidget);
-            dockWidget->hide();
-            // Prevent saveState storing the data of the wrong children.
-            dockWidget->setParent(nullptr);
+        for (QDockWidget *dock : m_dockForDockId) {
+            QTC_ASSERT(dock, continue);
+            dock->setFloating(false);
+            removeDockWidget(dock);
+            dock->setParent(nullptr);
+            dock->widget()->setParent(nullptr);
+            ActionManager::unregisterAction(dock->toggleViewAction(),
+                Id("Dock.").withSuffix(dock->objectName()));
+            delete dock;
         }
+        m_dockForDockId.clear();
 
         ICore::removeAdditionalContext(Context(Id::fromName(m_currentPerspectiveId)));
         const Perspective *perspective = m_perspectiveForPerspectiveId.value(m_currentPerspectiveId);
@@ -372,11 +370,14 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
     }
     QTC_ASSERT(perspective, return);
     perspective->aboutToActivate();
-    for (const Perspective::Operation &operation : perspective->operations()) {
-        QDockWidget *dock = m_dockForDockId.value(operation.dockId);
+    for (const Perspective::Operation &op : perspective->m_operations) {
+        QTC_ASSERT(op.widget, continue);
+        const QByteArray dockId = op.widget->objectName().toUtf8();
+        QDockWidget *dock = m_dockForDockId.value(dockId);
         if (!dock) {
-            QTC_CHECK(!operation.widget->objectName().isEmpty());
-            dock = registerDockWidget(operation.dockId, operation.widget);
+            QTC_CHECK(!dockId.isEmpty());
+            dock = addDockForWidget(op.widget);
+            m_dockForDockId[dockId] = dock;
 
             QAction *toggleViewAction = dock->toggleViewAction();
             toggleViewAction->setText(dock->windowTitle());
@@ -390,16 +391,16 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
         }
         // Restore parent/child relation, so that the widget hierarchy is clear.
         dock->setParent(this);
-        if (operation.operationType == Perspective::Raise) {
+        if (op.operationType == Perspective::Raise) {
             dock->raise();
             continue;
         }
-        addDockWidget(operation.area, dock);
-        QDockWidget *anchor = m_dockForDockId.value(operation.anchorDockId);
-        if (!anchor && operation.area == Qt::BottomDockWidgetArea)
+        addDockWidget(op.area, dock);
+        QDockWidget *anchor = m_dockForDockId.value(op.anchorDockId);
+        if (!anchor && op.area == Qt::BottomDockWidgetArea)
             anchor = m_toolbarDock;
         if (anchor) {
-            switch (operation.operationType) {
+            switch (op.operationType) {
             case Perspective::AddToTab:
                 tabifyDockWidget(anchor, dock);
                 break;
@@ -413,7 +414,7 @@ void DebuggerMainWindow::loadPerspectiveHelper(const QByteArray &perspectiveId, 
                 break;
             }
         }
-        if (!operation.visibleByDefault)
+        if (!op.visibleByDefault)
             dock->hide();
         else
             dock->show();
@@ -451,18 +452,8 @@ void DebuggerMainWindow::savePerspectiveHelper(const QByteArray &perspectiveId)
     settings->setValue(QLatin1String(LAST_PERSPECTIVE_KEY), perspectiveId);
 }
 
-QDockWidget *DebuggerMainWindow::registerDockWidget(const QByteArray &dockId, QWidget *widget)
-{
-    QTC_ASSERT(!widget->objectName().isEmpty(), return nullptr);
-    QDockWidget *dockWidget = addDockForWidget(widget);
-    m_dockForDockId[dockId] = dockWidget;
-    return dockWidget;
-}
-
 Perspective::~Perspective()
 {
-    foreach (const Operation &operation, m_operations)
-        delete operation.widget;
 }
 
 void Perspective::setCentralWidget(QWidget *centralWidget)
@@ -521,34 +512,22 @@ void ToolbarDescription::addWidget(QWidget *widget)
     m_widgets.append(widget);
 }
 
-Perspective::Operation::Operation(const QByteArray &dockId, QWidget *widget, const QByteArray &anchorDockId,
-                                  Perspective::OperationType splitType, bool visibleByDefault,
-                                  Qt::DockWidgetArea area)
-    : dockId(dockId), widget(widget), anchorDockId(anchorDockId),
-      operationType(splitType), visibleByDefault(visibleByDefault), area(area)
-{}
-
-Perspective::Perspective(const QString &name, const QVector<Operation> &splits)
-    : m_name(name), m_operations(splits)
+Perspective::Perspective(const QString &name)
+    : m_name(name)
 {
-    for (const Operation &split : splits)
-        m_docks.append(split.dockId);
 }
 
-void Perspective::addOperation(const Operation &operation)
+void Perspective::addWindow(QWidget *widget, OperationType type, QWidget *anchorWidget,
+                            bool visibleByDefault, Qt::DockWidgetArea area)
 {
-    m_docks.append(operation.dockId);
-    m_operations.append(operation);
-}
-
-void Perspective::addWindow(QWidget *widget,
-                            Perspective::OperationType op,
-                            bool visibleByDefault,
-                            Qt::DockWidgetArea area)
-{
-    const QByteArray dockId = widget->objectName().toUtf8();
-    QTC_CHECK(!dockId.isEmpty());
-    m_operations.append({dockId, widget, {}, op, visibleByDefault, area});
+    Operation op;
+    op.widget = widget;
+    if (anchorWidget)
+        op.anchorDockId = anchorWidget->objectName().toUtf8();
+    op.operationType = type;
+    op.visibleByDefault = visibleByDefault;
+    op.area = area;
+    m_operations.append(op);
 }
 
 } // Utils

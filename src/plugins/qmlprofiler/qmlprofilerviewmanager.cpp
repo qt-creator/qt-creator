@@ -83,22 +83,26 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
     m_flameGraphView = new FlameGraphView(m_profilerModelManager);
     prepareEventsView(m_flameGraphView);
 
-    QByteArray anchorDockId;
+    QWidget *anchor = nullptr;
     if (m_traceView->isUsable()) {
-        anchorDockId = m_traceView->objectName().toLatin1();
-        perspective->addOperation({anchorDockId, m_traceView, {}, Perspective::SplitVertical});
-        perspective->addOperation({m_flameGraphView->objectName().toLatin1(), m_flameGraphView,
-                                   anchorDockId, Perspective::AddToTab});
+        anchor = m_traceView;
+        perspective->addWindow(m_traceView, Perspective::SplitVertical, nullptr);
+        perspective->addWindow(m_flameGraphView, Perspective::AddToTab, anchor);
     } else {
-        anchorDockId = m_flameGraphView->objectName().toLatin1();
-        perspective->addOperation({anchorDockId, m_flameGraphView, {},
-                                   Perspective::SplitVertical});
+        anchor = m_flameGraphView;
+        perspective->addWindow(m_flameGraphView, Perspective::SplitVertical, nullptr);
     }
-    perspective->addOperation({m_statisticsView->objectName().toLatin1(), m_statisticsView,
-                               anchorDockId, Perspective::AddToTab});
-    perspective->addOperation({anchorDockId, nullptr, {}, Perspective::Raise});
+    perspective->addWindow(m_statisticsView, Perspective::AddToTab, anchor);
+    perspective->addWindow(anchor, Perspective::Raise, nullptr);
 
     Debugger::registerPerspective(Constants::QmlProfilerPerspectiveId, perspective);
+}
+
+QmlProfilerViewManager::~QmlProfilerViewManager()
+{
+    delete m_traceView;
+    delete m_flameGraphView;
+    delete m_statisticsView;
 }
 
 void QmlProfilerViewManager::clear()

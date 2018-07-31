@@ -1022,20 +1022,21 @@ public:
     BaseTreeView *m_stackView = nullptr;
     BaseTreeView *m_threadsView = nullptr;
 
-    QWidget *m_breakWindow = nullptr;
     BreakHandler *m_breakHandler = nullptr;
-    QWidget *m_returnWindow = nullptr;
-    QWidget *m_localsWindow = nullptr;
-    QWidget *m_watchersWindow = nullptr;
-    QWidget *m_inspectorWindow = nullptr;
-    QWidget *m_registerWindow = nullptr;
-    QWidget *m_modulesWindow = nullptr;
-    QWidget *m_snapshotWindow = nullptr;
-    QWidget *m_sourceFilesWindow = nullptr;
-    QWidget *m_stackWindow = nullptr;
-    QWidget *m_threadsWindow = nullptr;
-    LogWindow *m_logWindow = nullptr;
-    LocalsAndInspectorWindow *m_localsAndInspectorWindow = nullptr;
+
+    QPointer<QWidget> m_returnWindow;
+    QPointer<QWidget> m_localsWindow;
+    QPointer<QWidget> m_watchersWindow;
+    QPointer<QWidget> m_inspectorWindow;
+    QPointer<LocalsAndInspectorWindow> m_localsAndInspectorWindow;
+    QPointer<QWidget> m_breakWindow;
+    QPointer<QWidget> m_registerWindow;
+    QPointer<QWidget> m_modulesWindow;
+    QPointer<QWidget> m_snapshotWindow;
+    QPointer<QWidget> m_sourceFilesWindow;
+    QPointer<QWidget> m_stackWindow;
+    QPointer<QWidget> m_threadsWindow;
+    QPointer<LogWindow> m_logWindow;
 
     bool m_busy = false;
     QString m_lastPermanentStatusMessage;
@@ -1088,6 +1089,20 @@ DebuggerPluginPrivate::~DebuggerPluginPrivate()
 
     delete m_breakHandler;
     m_breakHandler = nullptr;
+
+    delete m_returnWindow;
+    delete m_localsWindow;
+    delete m_watchersWindow;
+    delete m_inspectorWindow;
+    delete m_localsAndInspectorWindow;
+    delete m_breakWindow;
+    delete m_registerWindow;
+    delete m_modulesWindow;
+    delete m_snapshotWindow;
+    delete m_sourceFilesWindow;
+    delete m_stackWindow;
+    delete m_threadsWindow;
+    delete m_logWindow;
 }
 
 DebuggerEngine *DebuggerPluginPrivate::dummyEngine()
@@ -1341,8 +1356,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
             this, [this](bool on) { m_breakView->setColumnHidden(BreakpointAddressColumn, !on); });
     m_breakView->setSettings(settings, "Debugger.BreakWindow");
     m_breakView->setModel(m_breakHandler->model());
-    m_breakWindow = addSearch(m_breakView, tr("&Breakpoints"), DOCKWIDGET_BREAK);
     m_breakView->setRootIsDecorated(true);
+    m_breakWindow = addSearch(m_breakView, tr("&Breakpoints"), DOCKWIDGET_BREAK);
 
     m_modulesView = new BaseTreeView;
     m_modulesView->setSortingEnabled(true);
@@ -1486,8 +1501,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     ActionContainer *debugMenu = ActionManager::actionContainer(PE::M_DEBUG);
 
-    m_localsAndInspectorWindow = new LocalsAndInspectorWindow(
-                m_localsWindow, m_inspectorWindow, m_returnWindow);
+    m_localsAndInspectorWindow = new LocalsAndInspectorWindow
+            (m_localsWindow, m_inspectorWindow, m_returnWindow);
     m_localsAndInspectorWindow->setObjectName(DOCKWIDGET_LOCALS_AND_INSPECTOR);
     m_localsAndInspectorWindow->setWindowTitle(m_localsWindow->windowTitle());
 
@@ -1830,25 +1845,26 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 //    qmlToolbar.addAction(qmlSelectDummyAction, Icons::SELECT_TOOLBAR.icon());
 //    qmlToolbar.addWidget(new StyledSeparator);
 
-    auto createBasePerspective = [this] { return new Perspective({}, {
-        {DOCKWIDGET_STACK, m_stackWindow, {}, Perspective::SplitVertical},
-        {DOCKWIDGET_BREAK, m_breakWindow, DOCKWIDGET_STACK, Perspective::SplitHorizontal},
-        {DOCKWIDGET_THREADS, m_threadsWindow, DOCKWIDGET_BREAK, Perspective::AddToTab, false},
-        {DOCKWIDGET_MODULES, m_modulesWindow, DOCKWIDGET_THREADS, Perspective::AddToTab, false},
-        {DOCKWIDGET_SOURCE_FILES, m_sourceFilesWindow, DOCKWIDGET_MODULES, Perspective::AddToTab, false},
-        {DOCKWIDGET_SNAPSHOTS, m_snapshotWindow, DOCKWIDGET_SOURCE_FILES, Perspective::AddToTab, false},
-        {DOCKWIDGET_LOCALS_AND_INSPECTOR, m_localsAndInspectorWindow, {}, Perspective::AddToTab, true,
-         Qt::RightDockWidgetArea},
-        {DOCKWIDGET_WATCHERS, m_watchersWindow, DOCKWIDGET_LOCALS_AND_INSPECTOR, Perspective::AddToTab, true,
-         Qt::RightDockWidgetArea},
-        {DOCKWIDGET_OUTPUT, m_logWindow, {}, Perspective::AddToTab, false, Qt::TopDockWidgetArea},
-        {DOCKWIDGET_BREAK, nullptr, {}, Perspective::Raise}
-    }); };
+    auto createBasePerspective = [this] {
+        auto perspective = new Perspective;
+        perspective->addWindow(m_stackWindow, Perspective::SplitVertical, nullptr);
+        perspective->addWindow(m_breakWindow, Perspective::SplitHorizontal, m_stackWindow);
+        perspective->addWindow(m_threadsWindow, Perspective::AddToTab, m_breakWindow, false);
+        perspective->addWindow(m_modulesWindow, Perspective::AddToTab, m_threadsWindow, false);
+        perspective->addWindow(m_sourceFilesWindow, Perspective::AddToTab, m_modulesWindow, false);
+        perspective->addWindow(m_snapshotWindow, Perspective::AddToTab, m_sourceFilesWindow, false);
+        perspective->addWindow(m_localsAndInspectorWindow, Perspective::AddToTab, nullptr, true,
+                     Qt::RightDockWidgetArea);
+        perspective->addWindow(m_watchersWindow, Perspective::AddToTab, m_localsAndInspectorWindow, true,
+                     Qt::RightDockWidgetArea);
+        perspective->addWindow(m_logWindow, Perspective::AddToTab, nullptr, false, Qt::TopDockWidgetArea);
+        perspective->addWindow(m_breakWindow, Perspective::Raise, nullptr);
+        return perspective;
+    };
 
     Perspective *cppPerspective = createBasePerspective();
     cppPerspective->setName(tr("Debugger"));
-    cppPerspective->addOperation({DOCKWIDGET_REGISTER, m_registerWindow, DOCKWIDGET_SNAPSHOTS,
-                                  Perspective::AddToTab, false});
+    cppPerspective->addWindow(m_registerWindow, Perspective::AddToTab, m_snapshotWindow, false);
 
     Debugger::registerToolbar(CppPerspectiveId, toolbar);
     Debugger::registerPerspective(CppPerspectiveId, cppPerspective);

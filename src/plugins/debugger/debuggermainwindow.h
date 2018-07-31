@@ -50,39 +50,17 @@ class DEBUGGER_EXPORT Perspective
 public:
     enum OperationType { SplitVertical, SplitHorizontal, AddToTab, Raise };
 
-    class DEBUGGER_EXPORT Operation
-    {
-    public:
-        Operation() = default;
-        Operation(const QByteArray &dockId, QWidget *widget,
-                  const QByteArray &anchorDockId,
-                  OperationType operationType,
-                  bool visibleByDefault = true,
-                  Qt::DockWidgetArea area = Qt::BottomDockWidgetArea);
-
-        QByteArray dockId;
-        QPointer<QWidget> widget;
-        QByteArray anchorDockId;
-        OperationType operationType = Raise;
-        bool visibleByDefault = true;
-        Qt::DockWidgetArea area = Qt::BottomDockWidgetArea;
-    };
-
     Perspective() = default;
-    // Takes ownership of all dock widgets in \a operations.
-    Perspective(const QString &name,
-                const QVector<Operation> &operations = {});
+    explicit Perspective(const QString &name);
     ~Perspective();
 
     void setCentralWidget(QWidget *centralWidget);
-    void addOperation(const Operation &operation);
     void addWindow(QWidget *widget,
                    OperationType op,
+                   QWidget *anchorWidget,
                    bool visibleByDefault = true,
                    Qt::DockWidgetArea area = Qt::BottomDockWidgetArea);
 
-    QVector<Operation> operations() const { return m_operations; }
-    QVector<QByteArray> docks() const { return m_docks; }
     QWidget *centralWidget() const { return m_centralWidget; }
 
     QString name() const;
@@ -99,9 +77,20 @@ private:
     Perspective(const Perspective &) = delete;
     void operator=(const Perspective &) = delete;
 
+    friend class DebuggerMainWindow;
+
+    class Operation
+    {
+    public:
+        QPointer<QWidget> widget;
+        QByteArray anchorDockId;
+        OperationType operationType = Raise;
+        bool visibleByDefault = true;
+        Qt::DockWidgetArea area = Qt::BottomDockWidgetArea;
+    };
+
     QString m_name;
     QByteArray m_parentPerspective;
-    QVector<QByteArray> m_docks;
     QVector<Operation> m_operations;
     QPointer<QWidget> m_centralWidget;
     Callback m_aboutToActivateCallback;
@@ -141,7 +130,6 @@ public:
     void finalizeSetup();
 
     void showStatusMessage(const QString &message, int timeoutMS);
-    QDockWidget *dockWidget(const QByteArray &dockId) const;
     void raiseDock(const QByteArray &dockId);
     QByteArray currentPerspective() const { return m_currentPerspectiveId; }
     QStackedWidget *centralWidgetStack() const { return m_centralWidgetStack; }
@@ -153,7 +141,6 @@ public:
 private:
     void closeEvent(QCloseEvent *) final { savePerspectiveHelper(m_currentPerspectiveId); }
 
-    QDockWidget *registerDockWidget(const QByteArray &dockId, QWidget *widget);
     void loadPerspectiveHelper(const QByteArray &perspectiveId, bool fromStoredSettings = true);
     void savePerspectiveHelper(const QByteArray &perspectiveId);
     void increaseChooserWidthIfNecessary(const QString &visibleName);

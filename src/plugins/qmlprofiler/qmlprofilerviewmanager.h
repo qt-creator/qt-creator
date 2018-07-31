@@ -44,6 +44,7 @@ public:
     QmlProfilerViewManager(QObject *parent,
                            QmlProfilerModelManager *modelManager,
                            QmlProfilerStateManager *profilerState);
+    ~QmlProfilerViewManager();
 
     QmlProfilerTraceView *traceView() const { return m_traceView; }
     QmlProfilerStatisticsView *statisticsView() const { return m_statisticsView; }

@@ -39,7 +39,6 @@ namespace Internal {
 class DiagnosticFilterModel;
 
 const char ClangTidyClazyPerspectiveId[] = "ClangTidyClazy.Perspective";
-const char ClangTidyClazyDockId[]        = "ClangTidyClazy.Dock";
 
 class ClangTidyClazyTool final : public ClangTool
 {
