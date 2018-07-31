@@ -463,7 +463,12 @@ Perspective::~Perspective()
 {
     foreach (const Operation &operation, m_operations)
         delete operation.widget;
-    delete m_centralWidget;
+}
+
+void Perspective::setCentralWidget(QWidget *centralWidget)
+{
+    QTC_ASSERT(m_centralWidget == nullptr, return);
+    m_centralWidget = centralWidget;
 }
 
 QString Perspective::name() const
@@ -523,9 +528,8 @@ Perspective::Operation::Operation(const QByteArray &dockId, QWidget *widget, con
       operationType(splitType), visibleByDefault(visibleByDefault), area(area)
 {}
 
-Perspective::Perspective(const QString &name, const QVector<Operation> &splits,
-                         QWidget *centralWidget)
-    : m_name(name), m_operations(splits), m_centralWidget(centralWidget)
+Perspective::Perspective(const QString &name, const QVector<Operation> &splits)
+    : m_name(name), m_operations(splits)
 {
     for (const Operation &split : splits)
         m_docks.append(split.dockId);
