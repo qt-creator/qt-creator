@@ -43,18 +43,9 @@ class ProxyNodeInstanceData
 {
 public:
     ProxyNodeInstanceData()
-        : parentInstanceId(-1),
-          penWidth(1),
-          isAnchoredBySibling(false),
-          isAnchoredByChildren(false),
-          hasContent(false),
-          isMovable(false),
-          isResizable(false),
-          isInLayoutable(false),
-          directUpdates(false)
     {}
 
-    qint32 parentInstanceId;
+    qint32 parentInstanceId{-1};
     ModelNode modelNode;
     QRectF boundingRect;
     QRectF contentItemBoundingRect;
@@ -64,14 +55,14 @@ public:
     QTransform contentTransform;
     QTransform contentItemTransform;
     QTransform sceneTransform;
-    int penWidth;
-    bool isAnchoredBySibling;
-    bool isAnchoredByChildren;
-    bool hasContent;
-    bool isMovable;
-    bool isResizable;
-    bool isInLayoutable;
-    bool directUpdates;
+    int penWidth{1};
+    bool isAnchoredBySibling{false};
+    bool isAnchoredByChildren{false};
+    bool hasContent{false};
+    bool isMovable{false};
+    bool isResizable{false};
+    bool isInLayoutable{false};
+    bool directUpdates{false};
 
 
     QHash<PropertyName, QVariant> propertyValues;

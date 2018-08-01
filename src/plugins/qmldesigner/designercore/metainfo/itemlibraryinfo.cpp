@@ -37,13 +37,13 @@ namespace Internal {
 class ItemLibraryEntryData : public QSharedData
 {
 public:
-    ItemLibraryEntryData() : majorVersion(-1), minorVersion(-1)
-    { }
+    ItemLibraryEntryData()
+    {}
     QString name;
     TypeName typeName;
     QString category;
-    int majorVersion;
-    int minorVersion;
+    int majorVersion{-1};
+    int minorVersion{-1};
     QString libraryEntryIconPath;
     QIcon typeIcon;
     QList<PropertyContainer> properties;
