@@ -185,7 +185,7 @@ public:
     std::unique_ptr<CostView> m_flatView;
     std::unique_ptr<CostView> m_callersView;
     std::unique_ptr<CostView> m_calleesView;
-    std::unique_ptr<Visualisation> m_visualization;
+    std::unique_ptr<Visualization> m_visualization;
 
     // Navigation
     QAction *m_goBack = nullptr;
@@ -307,12 +307,12 @@ CallgrindTool::CallgrindTool()
     //
     // DockWidgets
     //
-    m_visualization = std::make_unique<Visualisation>();
+    m_visualization = std::make_unique<Visualization>();
     m_visualization->setFrameStyle(QFrame::NoFrame);
     m_visualization->setObjectName(QLatin1String("Valgrind.CallgrindTool.Visualisation"));
     m_visualization->setWindowTitle(tr("Visualization"));
     m_visualization->setModel(&m_dataModel);
-    connect(m_visualization.get(), &Visualisation::functionActivated,
+    connect(m_visualization.get(), &Visualization::functionActivated,
             this, &CallgrindTool::visualisationFunctionSelected);
 
     m_callersView = std::make_unique<CostView>();

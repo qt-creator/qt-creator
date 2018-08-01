@@ -204,21 +204,21 @@ void FunctionGraphicsItem::paint(QPainter *painter,
     painter->restore();
 }
 
-class Visualisation::Private
+class Visualization::Private
 {
 public:
-    Private(Visualisation *qq);
+    Private(Visualization *qq);
 
     void handleMousePressEvent(QMouseEvent *event, bool doubleClicked);
     qreal sceneHeight() const;
     qreal sceneWidth() const;
 
-    Visualisation *q;
+    Visualization *q;
     DataProxyModel *m_model;
     QGraphicsScene m_scene;
 };
 
-Visualisation::Private::Private(Visualisation *qq)
+Visualization::Private::Private(Visualization *qq)
     : q(qq)
     , m_model(new DataProxyModel(qq))
 {
@@ -230,10 +230,10 @@ Visualisation::Private::Private(Visualisation *qq)
     // setup model
     m_model->setMinimumInclusiveCostRatio(0.1);
     connect(m_model, &DataProxyModel::filterFunctionChanged,
-            qq, &Visualisation::populateScene);
+            qq, &Visualization::populateScene);
 }
 
-void Visualisation::Private::handleMousePressEvent(QMouseEvent *event,
+void Visualization::Private::handleMousePressEvent(QMouseEvent *event,
                                                    bool doubleClicked)
 {
     // find the first item that accepts mouse presses under the cursor position
@@ -261,18 +261,18 @@ void Visualisation::Private::handleMousePressEvent(QMouseEvent *event,
 
 }
 
-qreal Visualisation::Private::sceneHeight() const
+qreal Visualization::Private::sceneHeight() const
 {
     return m_scene.height() - FIT_IN_VIEW_MARGIN;
 }
 
-qreal Visualisation::Private::sceneWidth() const
+qreal Visualization::Private::sceneWidth() const
 {
     // Magic number to improve margins appearance
     return m_scene.width() + 1;
 }
 
-Visualisation::Visualisation(QWidget *parent)
+Visualization::Visualization(QWidget *parent)
     : QGraphicsView(parent)
     , d(new Private(this))
 {
@@ -281,17 +281,17 @@ Visualisation::Visualisation(QWidget *parent)
     setRenderHint(QPainter::Antialiasing);
 }
 
-Visualisation::~Visualisation()
+Visualization::~Visualization()
 {
     delete d;
 }
 
-const Function *Visualisation::functionForItem(QGraphicsItem *item) const
+const Function *Visualization::functionForItem(QGraphicsItem *item) const
 {
     return item->data(FunctionGraphicsItem::FunctionCallKey).value<const Function *>();
 }
 
-QGraphicsItem *Visualisation::itemForFunction(const Function *function) const
+QGraphicsItem *Visualization::itemForFunction(const Function *function) const
 {
     foreach (QGraphicsItem *item, items()) {
         if (functionForItem(item) == function)
@@ -300,49 +300,49 @@ QGraphicsItem *Visualisation::itemForFunction(const Function *function) const
     return 0;
 }
 
-void Visualisation::setFunction(const Function *function)
+void Visualization::setFunction(const Function *function)
 {
     d->m_model->setFilterFunction(function);
 }
 
-const Function *Visualisation::function() const
+const Function *Visualization::function() const
 {
     return d->m_model->filterFunction();
 }
 
-void Visualisation::setMinimumInclusiveCostRatio(double ratio)
+void Visualization::setMinimumInclusiveCostRatio(double ratio)
 {
     d->m_model->setMinimumInclusiveCostRatio(ratio);
 }
 
-void Visualisation::setModel(QAbstractItemModel *model)
+void Visualization::setModel(QAbstractItemModel *model)
 {
     QTC_ASSERT(!d->m_model->sourceModel() && model, return); // only set once!
     d->m_model->setSourceModel(model);
 
     connect(model, &QAbstractItemModel::columnsInserted,
-            this, &Visualisation::populateScene);
+            this, &Visualization::populateScene);
     connect(model, &QAbstractItemModel::columnsMoved,
-            this, &Visualisation::populateScene);
+            this, &Visualization::populateScene);
     connect(model, &QAbstractItemModel::columnsRemoved,
-            this, &Visualisation::populateScene);
+            this, &Visualization::populateScene);
     connect(model, &QAbstractItemModel::dataChanged,
-            this, &Visualisation::populateScene);
+            this, &Visualization::populateScene);
     connect(model, &QAbstractItemModel::headerDataChanged,
-            this, &Visualisation::populateScene);
-    connect(model, &QAbstractItemModel::layoutChanged, this, &Visualisation::populateScene);
-    connect(model, &QAbstractItemModel::modelReset, this, &Visualisation::populateScene);
+            this, &Visualization::populateScene);
+    connect(model, &QAbstractItemModel::layoutChanged, this, &Visualization::populateScene);
+    connect(model, &QAbstractItemModel::modelReset, this, &Visualization::populateScene);
     connect(model, &QAbstractItemModel::rowsInserted,
-            this, &Visualisation::populateScene);
+            this, &Visualization::populateScene);
     connect(model, &QAbstractItemModel::rowsMoved,
-            this, &Visualisation::populateScene);
+            this, &Visualization::populateScene);
     connect(model, &QAbstractItemModel::rowsRemoved,
-            this, &Visualisation::populateScene);
+            this, &Visualization::populateScene);
 
     populateScene();
 }
 
-void Visualisation::setText(const QString &message)
+void Visualization::setText(const QString &message)
 {
     d->m_scene.clear();
 
@@ -353,7 +353,7 @@ void Visualisation::setText(const QString &message)
     textItem->setFlag(QGraphicsItem::ItemIgnoresTransformations);
 }
 
-void Visualisation::populateScene()
+void Visualization::populateScene()
 {
     // reset scene first
     d->m_scene.clear();
@@ -419,21 +419,21 @@ void Visualisation::populateScene()
     }
 }
 
-void Visualisation::mousePressEvent(QMouseEvent *event)
+void Visualization::mousePressEvent(QMouseEvent *event)
 {
     d->handleMousePressEvent(event, false);
 
     QGraphicsView::mousePressEvent(event);
 }
 
-void Visualisation::mouseDoubleClickEvent(QMouseEvent *event)
+void Visualization::mouseDoubleClickEvent(QMouseEvent *event)
 {
     d->handleMousePressEvent(event, true);
 
     QGraphicsView::mouseDoubleClickEvent(event);
 }
 
-void Visualisation::resizeEvent(QResizeEvent *event)
+void Visualization::resizeEvent(QResizeEvent *event)
 {
     fitInView(sceneRect());
 

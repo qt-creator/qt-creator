@@ -38,13 +38,13 @@ namespace Callgrind { class Function; }
 namespace Valgrind {
 namespace Internal {
 
-class Visualisation : public QGraphicsView
+class Visualization : public QGraphicsView
 {
     Q_OBJECT
 
 public:
-    explicit Visualisation(QWidget *parent = 0);
-    virtual ~Visualisation();
+    explicit Visualization(QWidget *parent = 0);
+    virtual ~Visualization();
 
     void setModel(QAbstractItemModel *model);
 
