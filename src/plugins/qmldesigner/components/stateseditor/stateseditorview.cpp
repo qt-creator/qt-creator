@@ -30,7 +30,7 @@
 
 #include <QDebug>
 #include <QRegExp>
-#include <math.h>
+#include <cmath>
 
 #include <nodemetainfo.h>
 
