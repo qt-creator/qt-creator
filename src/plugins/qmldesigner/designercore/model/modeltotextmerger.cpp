@@ -248,8 +248,7 @@ void ModelToTextMerger::applyChanges()
         textModifier->deactivateChangeSignals();
         textModifier->startGroup();
 
-        for (int i = 0; i < m_rewriteActions.size(); ++i) {
-            RewriteAction* action = m_rewriteActions.at(i);
+        for (auto action : m_rewriteActions) {
             if (DebugRewriteActions)
                 qDebug() << "Next rewrite action:" << qPrintable(action->info());
 
