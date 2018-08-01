@@ -261,7 +261,7 @@ QList<QmlJSEditor::FindReferences::Usage> FindImplementation::run(const QString 
     //Parse always the latest version of document
     QmlJS::Dialect dialect = QmlJS::ModelManagerInterface::guessLanguageOfFile(fileName);
     QmlJS::Document::MutablePtr documentUpdate = QmlJS::Document::create(fileName, dialect);
-    documentUpdate->setSource(modelManager->workingCopy().source(fileName));
+    documentUpdate->setSource(QmlJS::ModelManagerInterface::workingCopy().source(fileName));
     if (documentUpdate->parseQml())
         modelManager->updateDocument(documentUpdate);
 

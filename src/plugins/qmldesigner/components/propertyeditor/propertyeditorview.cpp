@@ -152,13 +152,13 @@ void PropertyEditorView::changeValue(const QString &name)
         if (newId == m_selectedNode.id())
             return;
 
-        if (m_selectedNode.isValidId(newId)  && !hasId(newId)) {
+        if (QmlDesigner::ModelNode::isValidId(newId)  && !hasId(newId)) {
             m_selectedNode.setIdWithRefactoring(newId);
         } else {
             m_locked = true;
             value->setValue(m_selectedNode.id());
             m_locked = false;
-            if (!m_selectedNode.isValidId(newId))
+            if (!QmlDesigner::ModelNode::isValidId(newId))
                 Core::AsynchronousMessageBox::warning(tr("Invalid Id"),  tr("%1 is an invalid id.").arg(newId));
             else
                 Core::AsynchronousMessageBox::warning(tr("Invalid Id"),  tr("%1 already exists.").arg(newId));

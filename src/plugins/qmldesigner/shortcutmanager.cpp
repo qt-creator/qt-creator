@@ -133,9 +133,9 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     //Save
     Core::ActionManager::registerAction(&m_saveAction, Core::Constants::SAVE, qmlDesignerMainContext);
-    connect(&m_saveAction, &QAction::triggered, em, [em] {
+    connect(&m_saveAction, &QAction::triggered, em, [] {
          QmlDesignerPlugin::instance()->viewManager().reformatFileUsingTextEditorView();
-         em->saveDocument();
+         Core::EditorManager::saveDocument();
     });
 
     Core::Command *command = nullptr;
