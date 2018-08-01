@@ -37,8 +37,7 @@
 namespace QmlDesigner {
 
 PathToolView::PathToolView(PathTool *pathTool)
-    : AbstractView(),
-      m_pathTool(pathTool)
+    : m_pathTool(pathTool)
 {
 }
 

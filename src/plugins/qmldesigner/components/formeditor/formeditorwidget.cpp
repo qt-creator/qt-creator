@@ -55,8 +55,7 @@
 
 namespace QmlDesigner {
 
-FormEditorWidget::FormEditorWidget(FormEditorView *view)
-    : QWidget(),
+FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     m_formEditorView(view)
 {
     setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/formeditorstylesheet.css")))));

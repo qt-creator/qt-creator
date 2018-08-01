@@ -85,10 +85,9 @@ void StatesEditorWidget::showAddNewStatesButton(bool showAddNewStatesButton)
 }
 
 StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, StatesEditorModel *statesEditorModel)
-    : QQuickWidget(),
-      m_statesEditorView(statesEditorView),
-      m_imageProvider(nullptr),
-      m_qmlSourceUpdateShortcut(nullptr)
+    : m_statesEditorView(statesEditorView),
+    m_imageProvider(nullptr),
+    m_qmlSourceUpdateShortcut(nullptr)
 {
     m_imageProvider = new Internal::StatesEditorImageProvider;
     m_imageProvider->setNodeInstanceView(statesEditorView->nodeInstanceView());

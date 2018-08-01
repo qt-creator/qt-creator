@@ -31,7 +31,6 @@
 namespace QmlDesigner {
 
 LayerItem::LayerItem(FormEditorScene* scene)
-            : QGraphicsObject()
 {
     scene->addItem(this);
     setZValue(1);

@@ -34,7 +34,6 @@
 namespace QmlDesigner {
 
 TextEditItemWidget::TextEditItemWidget(QGraphicsScene* scene)
-    : QGraphicsProxyWidget()
 {
     scene->addItem(this);
     setFlag(QGraphicsItem::ItemIsMovable, false);

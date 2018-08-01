@@ -93,7 +93,6 @@ protected:
 };
 
 TextTool::TextTool()
-    : QObject() , AbstractCustomTool()
 {
     auto textToolAction = new TextToolAction;
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(textToolAction);

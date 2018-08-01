@@ -115,7 +115,6 @@ protected:
 
 
 SourceTool::SourceTool()
-    : QObject(), AbstractCustomTool()
 {
     auto sourceToolAction = new SourceToolAction;
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(sourceToolAction);
@@ -168,7 +167,6 @@ void SourceTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
 {
     AbstractFormEditorTool::mouseReleaseEvent(itemList, event);
 }
-
 
 void SourceTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event)
 {

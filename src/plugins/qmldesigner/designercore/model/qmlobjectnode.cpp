@@ -568,7 +568,6 @@ QmlItemNode QmlObjectNode::itemForInstance(const NodeInstance &instance) const
 }
 
 QmlObjectNode::QmlObjectNode()
-    : QmlModelNodeFacade()
 {
 }
 

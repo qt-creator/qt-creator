@@ -38,7 +38,6 @@
 namespace QmlDesigner {
 
 QmlModelState::QmlModelState()
-   : QmlModelNodeFacade()
 {
 }
 

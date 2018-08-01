@@ -140,9 +140,7 @@ protected:
 };
 
 PathTool::PathTool()
-    : QObject(),
-      AbstractCustomTool(),
-      m_pathToolView(this)
+    : m_pathToolView(this)
 {
     auto textToolAction = new PathToolAction;
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(textToolAction);

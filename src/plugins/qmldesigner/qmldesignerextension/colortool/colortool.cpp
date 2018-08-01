@@ -89,7 +89,6 @@ protected:
 };
 
 ColorTool::ColorTool()
-    : QObject(), AbstractCustomTool()
 {
     auto colorToolAction = new ColorToolAction;
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(colorToolAction);

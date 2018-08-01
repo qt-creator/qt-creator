@@ -42,11 +42,10 @@
 namespace QmlDesigner {
 
 PathItem::PathItem(FormEditorScene* scene)
-            : QGraphicsObject(),
-              m_selectionManipulator(this),
-              m_lastPercent(-1.),
-              m_formEditorItem(nullptr),
-              m_dontUpdatePath(false)
+    : m_selectionManipulator(this),
+    m_lastPercent(-1.),
+    m_formEditorItem(nullptr),
+    m_dontUpdatePath(false)
 {
     scene->addItem(this);
     setFlag(QGraphicsItem::ItemIsMovable, false);
