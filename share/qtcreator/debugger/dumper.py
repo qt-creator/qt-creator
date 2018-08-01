@@ -2924,6 +2924,8 @@ class DumperBase:
                 return str(simple)
             if self.ldisplay is not None:
                 return self.ldisplay
+            if self.type.code == TypeCodeEnum:
+                return self.displayEnum()
             #if self.ldata is not None:
             #    if sys.version_info[0] == 2 and isinstance(self.ldata, buffer):
             #        return bytes(self.ldata).encode('hex')

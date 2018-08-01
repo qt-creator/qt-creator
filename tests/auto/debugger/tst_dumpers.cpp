@@ -6836,12 +6836,14 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("Internal2")
-            << Data("struct Foo { int bar = 15; }; \n"
+            << Data("enum E { V1, V2 };\n"
+                    "struct Foo { int bar = 15; E e = V1; };\n"
                     "struct QtcDumperTest_PointerArray {\n"
                     "   Foo *foos = new Foo[10];\n"
                     "};\n\n",
                     "QtcDumperTest_PointerArray tc; unused(&tc);\n")
             + Check("tc.0.bar", "15", "int")
+            + Check("tc.0.e", "V1 (0)", "E")
             + Check("tc.1.bar", "15", "int")
             + Check("tc.2.bar", "15", "int")
             + Check("tc.3.bar", "15", "int");
