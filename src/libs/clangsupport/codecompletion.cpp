@@ -36,6 +36,7 @@ static const char *completionKindToString(CodeCompletion::Kind kind)
     switch (kind) {
         case CodeCompletion::Other: return "Other";
         case CodeCompletion::FunctionCompletionKind: return "Function";
+        case CodeCompletion::FunctionDefinitionCompletionKind: return "FunctionDefinitionCompletion";
         case CodeCompletion::TemplateFunctionCompletionKind: return "TemplateFunction";
         case CodeCompletion::FunctionOverloadCompletionKind: return "FunctionOverload";
         case CodeCompletion::ConstructorCompletionKind: return "Constructor";
