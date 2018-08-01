@@ -176,6 +176,8 @@ QtcTool {
             "instances/qmlstatenodeinstance.h",
             "instances/qmltransitionnodeinstance.cpp",
             "instances/qmltransitionnodeinstance.h",
+            "instances/qt3dpresentationnodeinstance.cpp",
+            "instances/qt3presentationdnodeinstance.h",
             "instances/qt5informationnodeinstanceserver.cpp",
             "instances/qt5informationnodeinstanceserver.h",
             "instances/qt5nodeinstanceclientproxy.cpp",
