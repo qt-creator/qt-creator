@@ -213,7 +213,7 @@ QColor GradientModel::getColor(int index) const
             return stop.modelValue("color").value<QColor>();
     }
     qWarning() << Q_FUNC_INFO << "invalid color index";
-    return QColor();
+    return {};
 }
 
 qreal GradientModel::getPosition(int index) const

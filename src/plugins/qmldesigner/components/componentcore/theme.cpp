@@ -53,7 +53,7 @@ QColor Theme::evaluateColorAtThemeInstance(const QString &themeColorName)
     }
 
     qWarning() << Q_FUNC_INFO << "error while evaluating" << themeColorName;
-    return QColor();
+    return {};
 }
 
 Theme *Theme::instance()

@@ -498,7 +498,7 @@ QRectF PathItem::instanceBoundingRect() const
     if (formEditorItem())
         return formEditorItem()->qmlItemNode().instanceBoundingRect();
 
-    return QRectF();
+    return {};
 }
 
 void PathItem::readControlPoints()

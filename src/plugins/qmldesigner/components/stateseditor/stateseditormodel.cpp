@@ -60,7 +60,7 @@ int StatesEditorModel::count() const
 QModelIndex StatesEditorModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (m_statesEditorView.isNull())
-        return QModelIndex();
+        return {};
 
 
     int internalNodeId = 0;

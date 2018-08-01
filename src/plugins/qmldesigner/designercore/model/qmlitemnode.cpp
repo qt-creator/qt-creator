@@ -455,7 +455,7 @@ QPointF QmlItemNode::instanceScenePosition() const
      else if (modelNode().hasParentProperty() && QmlItemNode::isValidQmlItemNode(modelNode().parentProperty().parentModelNode()))
         return QmlItemNode(modelNode().parentProperty().parentModelNode()).instanceSceneTransform().map(nodeInstance().position());
 
-    return QPointF();
+    return {};
 }
 
 QPointF QmlItemNode::instancePosition() const

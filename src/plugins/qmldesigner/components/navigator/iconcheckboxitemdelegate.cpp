@@ -55,7 +55,7 @@ IconCheckboxItemDelegate::IconCheckboxItemDelegate(QObject *parent,
 QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem & /*option*/,
                                          const QModelIndex & /*modelIndex*/) const
 {
-    return QSize(15, 20);
+   return {15, 20};
 }
 
 static bool isChecked(const QModelIndex &modelIndex)

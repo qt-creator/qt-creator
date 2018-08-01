@@ -260,7 +260,7 @@ QModelIndex NavigatorTreeModel::index(int row, int column,
                                       const QModelIndex &parent) const
 {
     if (!m_view->model())
-        return QModelIndex();
+        return {};
 
     if (!hasIndex(row, column, parent))
         return QModelIndex();
@@ -288,7 +288,7 @@ QVariant NavigatorTreeModel::headerData(int, Qt::Orientation, int) const
 QModelIndex NavigatorTreeModel::parent(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return QModelIndex();
+        return {};
 
     const ModelNode modelNode = modelNodeForIndex(index);
 

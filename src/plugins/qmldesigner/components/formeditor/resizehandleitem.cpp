@@ -48,7 +48,7 @@ void ResizeHandleItem::setHandlePosition(const QPointF & globalPosition, const Q
 
 QRectF ResizeHandleItem::boundingRect() const
 {
-    return QRectF(- 5., - 5., 9., 9.);
+    return {- 5., - 5., 9., 9.};
 }
 
 void ResizeHandleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /* option */, QWidget * /* widget */)

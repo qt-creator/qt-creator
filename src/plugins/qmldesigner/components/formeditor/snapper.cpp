@@ -289,7 +289,7 @@ QLineF Snapper::createSnapLine(Qt::Orientation orientation,
     if (orientation == Qt::Horizontal) {
         double lowerX(qMin(lowerLimit, double(itemRect.left())));
         double upperX(qMax(upperLimit, double(itemRect.right())));
-        return QLineF(lowerX, snapLine, upperX, snapLine);
+        return {lowerX, snapLine, upperX, snapLine};
     } else {
         double lowerY(qMin(lowerLimit, double(itemRect.top())));
         double upperY(qMax(upperLimit, double(itemRect.bottom())));
@@ -461,7 +461,7 @@ static QLineF mergedHorizontalLine(const QList<QLineF> &lineList)
     }
 
     double y(lineList.constFirst().y1());
-    return QLineF(minimumX, y, maximumX, y);
+    return {minimumX, y, maximumX, y};
 }
 
 static QLineF mergedVerticalLine(const QList<QLineF> &lineList)
@@ -479,7 +479,7 @@ static QLineF mergedVerticalLine(const QList<QLineF> &lineList)
     }
 
     double x(lineList.constFirst().x1());
-    return QLineF(x, minimumY, x, maximumY);
+    return {x, minimumY, x, maximumY};
 }
 
 static QList<QLineF> mergedHorizontalLines(const QList<QLineF> &lineList)

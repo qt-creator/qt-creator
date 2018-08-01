@@ -46,10 +46,10 @@ void BindingIndicatorGraphicsItem::paint(QPainter *painter, const QStyleOptionGr
 
 QRectF BindingIndicatorGraphicsItem::boundingRect() const
 {
-    return QRectF(m_bindingLine.x1(),
+    return {m_bindingLine.x1(),
                   m_bindingLine.y1(),
                   m_bindingLine.x2() - m_bindingLine.x1() + 3,
-                  m_bindingLine.y2() - m_bindingLine.y1() + 3);
+                  m_bindingLine.y2() - m_bindingLine.y1() + 3};
 }
 
 void BindingIndicatorGraphicsItem::updateBindingIndicator(const QLineF &bindingLine)

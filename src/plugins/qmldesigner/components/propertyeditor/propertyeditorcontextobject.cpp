@@ -71,7 +71,7 @@ QColor convertColorFromString(const QString &s)
         uchar r = fromHex(s, 3);
         uchar g = fromHex(s, 5);
         uchar b = fromHex(s, 7);
-        return QColor(r, g, b, a);
+        return {r, g, b, a};
     } else {
         QColor rv(s);
         return rv;

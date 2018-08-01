@@ -69,7 +69,7 @@ QColor colorFromString(const QString &s, bool *ok)
         uchar g = fromHex(s, 5);
         uchar b = fromHex(s, 7);
         if (ok) *ok = true;
-        return QColor(r, g, b, a);
+        return {r, g, b, a};
     } else {
         QColor rv(s);
         if (ok) *ok = rv.isValid();
@@ -82,7 +82,7 @@ QPointF pointFFromString(const QString &s, bool *ok)
     if (s.count(QLatin1Char(',')) != 1) {
         if (ok)
             *ok = false;
-        return QPointF();
+        return {};
     }
 
     bool xGood, yGood;
@@ -105,7 +105,7 @@ QRectF rectFFromString(const QString &s, bool *ok)
     if (s.count(QLatin1Char(',')) != 2 || s.count(QLatin1Char('x')) != 1) {
         if (ok)
             *ok = false;
-        return QRectF();
+        return {};
     }
 
     bool xGood, yGood, wGood, hGood;
@@ -132,7 +132,7 @@ QSizeF sizeFFromString(const QString &s, bool *ok)
     if (s.count(QLatin1Char('x')) != 1) {
         if (ok)
             *ok = false;
-        return QSizeF();
+        return {};
     }
 
     bool wGood, hGood;
@@ -155,7 +155,7 @@ QVector3D vector3DFromString(const QString &s, bool *ok)
     if (s.count(QLatin1Char(',')) != 2) {
         if (ok)
             *ok = false;
-        return QVector3D();
+        return {};
     }
 
     bool xGood, yGood, zGood;

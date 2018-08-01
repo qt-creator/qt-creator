@@ -186,22 +186,22 @@ void ResizeController::hide()
 
 static QPointF topCenter(const QRectF &rect)
 {
-    return QPointF(rect.center().x(), rect.top());
+    return {rect.center().x(), rect.top()};
 }
 
 static QPointF leftCenter(const QRectF &rect)
 {
-    return QPointF(rect.left(), rect.center().y());
+    return {rect.left(), rect.center().y()};
 }
 
 static QPointF rightCenter(const QRectF &rect)
 {
-    return QPointF(rect.right(), rect.center().y());
+    return {rect.right(), rect.center().y()};
 }
 
 static QPointF bottomCenter(const QRectF &rect)
 {
-    return QPointF(rect.center().x(), rect.bottom());
+    return {rect.center().x(), rect.bottom()};
 }
 
 
