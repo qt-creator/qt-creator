@@ -36,7 +36,7 @@
 #include "positionernodeinstance.h"
 #include "layoutnodeinstance.h"
 #include "debugoutputcommand.h"
-#include "qt3presentationdnodeinstance.h"
+#include "qt3dpresentationnodeinstance.h"
 
 #include "quickitemnodeinstance.h"
 

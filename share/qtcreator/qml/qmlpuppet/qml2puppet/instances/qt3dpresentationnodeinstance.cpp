@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "qt3presentationdnodeinstance.h"
+#include "qt3dpresentationnodeinstance.h"
 #include <QQuickItem>
 
 namespace QmlDesigner {
