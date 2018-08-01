@@ -50,6 +50,7 @@
 #include <QPair>
 #include <QString>
 #include <QTimer>
+#include <memory>
 
 namespace QmlDesigner {
 
@@ -148,10 +149,10 @@ void FormEditorView::createFormEditorWidget()
     m_formEditorWidget = QPointer<FormEditorWidget>(new FormEditorWidget(this));
     m_scene = QPointer<FormEditorScene>(new FormEditorScene(m_formEditorWidget.data(), this));
 
-    m_moveTool.reset(new MoveTool(this));
-    m_selectionTool.reset(new SelectionTool(this));
-    m_resizeTool.reset(new ResizeTool(this));
-    m_dragTool.reset(new DragTool(this));
+    m_moveTool = std::make_unique<MoveTool>(this);
+    m_selectionTool = std::make_unique<SelectionTool>(this);
+    m_resizeTool = std::make_unique<ResizeTool>(this);
+    m_dragTool = std::make_unique<DragTool>(this);
 
     m_currentTool = m_selectionTool.get();
 

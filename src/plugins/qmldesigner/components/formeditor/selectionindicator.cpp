@@ -30,6 +30,7 @@
 #include <QPen>
 #include <QGraphicsScene>
 #include <QGraphicsTextItem>
+#include <memory>
 
 #include <abstractview.h>
 
@@ -113,7 +114,7 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
 
     if (checkSingleSelection(itemList)) {
         FormEditorItem *selectedItem = itemList.constFirst();
-        m_labelItem.reset(new QGraphicsPolygonItem(m_layerItem.data()));
+        m_labelItem = std::make_unique<QGraphicsPolygonItem>(m_layerItem.data());
 
         QGraphicsWidget *toolbar = DesignerActionManager::instance().createFormEditorToolBar(m_labelItem.get());
         toolbar->setPos(1, -1);
