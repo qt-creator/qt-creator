@@ -68,7 +68,7 @@ public:
     PropertyEditorValue *propertyValueForName(const QString &propertyName);
 
     static QString propertyEditorResourcesPath();
-    static QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType,
+    static QString templateGeneration(const NodeMetaInfo &type, const NodeMetaInfo &superType,
                                       const QmlObjectNode &objectNode);
 
     static QUrl getQmlFileUrl(const TypeName &relativeTypeName, const NodeMetaInfo &info = NodeMetaInfo());

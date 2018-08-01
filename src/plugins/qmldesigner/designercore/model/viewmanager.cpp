@@ -374,13 +374,13 @@ QWidget *ViewManager::widget(const QString &uniqueId) const
 
 void ViewManager::disableWidgets()
 {
-    for (auto view : views())
+    for (const auto &view : views())
         view->disableWidget();
 }
 
 void ViewManager::enableWidgets()
 {
-    for (auto view : views())
+    for (const auto &view : views())
         view->enableWidget();
 }
 

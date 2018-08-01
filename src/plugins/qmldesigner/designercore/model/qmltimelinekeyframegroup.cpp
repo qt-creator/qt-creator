@@ -90,7 +90,7 @@ int QmlTimelineKeyframeGroup::getSupposedTargetIndex(qreal newFrame) const
 {
     const NodeListProperty nodeListProperty = modelNode().defaultNodeListProperty();
     int i = 0;
-    for (auto node : nodeListProperty.toModelNodeList()) {
+    for (const auto &node : nodeListProperty.toModelNodeList()) {
         if (node.hasVariantProperty("frame")) {
             const qreal currentFrame = node.variantProperty("frame").value().toReal();
             if (!qFuzzyCompare(currentFrame, newFrame)) { //Ignore the frame itself

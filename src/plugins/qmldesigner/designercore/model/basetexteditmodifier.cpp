@@ -105,7 +105,7 @@ bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)
     return false;
 }
 
-static QmlJS::AST::UiObjectDefinition *getObjectDefinition(QList<QmlJS::AST::Node *> path, QmlJS::AST::UiQualifiedId *qualifiedId)
+static QmlJS::AST::UiObjectDefinition *getObjectDefinition(const QList<QmlJS::AST::Node *> &path, QmlJS::AST::UiQualifiedId *qualifiedId)
 {
     QmlJS::AST::UiObjectDefinition *object = nullptr;
     for (int i = path.size() - 1; i >= 0; --i) {

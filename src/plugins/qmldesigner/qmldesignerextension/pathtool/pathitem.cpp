@@ -66,7 +66,7 @@ static ModelNode pathModelNode(FormEditorItem *formEditorItem)
 
 using PropertyPair = QPair<PropertyName, QVariant>;
 
-void PathItem::writeLinePath(ModelNode pathNode, const CubicSegment &cubicSegment)
+void PathItem::writeLinePath(const ModelNode &pathNode, const CubicSegment &cubicSegment)
 {
     QList<PropertyPair> propertyList;
     propertyList.append(PropertyPair("x", cubicSegment.fourthControlX()));
@@ -76,7 +76,7 @@ void PathItem::writeLinePath(ModelNode pathNode, const CubicSegment &cubicSegmen
     pathNode.nodeListProperty("pathElements").reparentHere(lineNode);
 }
 
-void PathItem::writeQuadPath(ModelNode pathNode, const CubicSegment &cubicSegment)
+void PathItem::writeQuadPath(const ModelNode &pathNode, const CubicSegment &cubicSegment)
 {
     QList<QPair<PropertyName, QVariant> > propertyList;
     propertyList.append(PropertyPair("controlX", cubicSegment.quadraticControlX()));
@@ -88,7 +88,7 @@ void PathItem::writeQuadPath(ModelNode pathNode, const CubicSegment &cubicSegmen
     pathNode.nodeListProperty("pathElements").reparentHere(lineNode);
 }
 
-void PathItem::writeCubicPath(ModelNode pathNode, const CubicSegment &cubicSegment)
+void PathItem::writeCubicPath(const ModelNode &pathNode, const CubicSegment &cubicSegment)
 {
     QList<QPair<PropertyName, QVariant> > propertyList;
     propertyList.append(PropertyPair("control1X", cubicSegment.secondControlX()));
@@ -102,7 +102,7 @@ void PathItem::writeCubicPath(ModelNode pathNode, const CubicSegment &cubicSegme
     pathNode.nodeListProperty("pathElements").reparentHere(lineNode);
 }
 
-void PathItem::writePathAttributes(ModelNode pathNode, const QMap<QString, QVariant> &attributes)
+void PathItem::writePathAttributes(const ModelNode &pathNode, const QMap<QString, QVariant> &attributes)
 {
     QMapIterator<QString, QVariant> attributesIterator(attributes);
     while (attributesIterator.hasNext()) {
@@ -116,7 +116,7 @@ void PathItem::writePathAttributes(ModelNode pathNode, const QMap<QString, QVari
     }
 }
 
-void PathItem::writePathPercent(ModelNode pathNode, double percent)
+void PathItem::writePathPercent(const ModelNode& pathNode, double percent)
 {
     if (percent >= 0.0) {
         QList<QPair<PropertyName, QVariant> > propertyList;
@@ -943,8 +943,8 @@ void PathItem::removeEditPoint(const ControlPoint &controlPoint)
         m_cubicSegments.removeOne(cubicSegments.constFirst());
     } else if (cubicSegments.count()  == 2){
         CubicSegment mergedCubicSegment = CubicSegment::create();
-        CubicSegment firstCubicSegment = cubicSegments.at(0);
-        CubicSegment secondCubicSegment = cubicSegments.at(1);
+        const CubicSegment &firstCubicSegment = cubicSegments.at(0);
+        const CubicSegment &secondCubicSegment = cubicSegments.at(1);
         mergedCubicSegment.setFirstControlPoint(firstCubicSegment.firstControlPoint());
         mergedCubicSegment.setSecondControlPoint(firstCubicSegment.secondControlPoint());
         mergedCubicSegment.setThirdControlPoint(secondCubicSegment.thirdControlPoint());

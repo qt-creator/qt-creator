@@ -39,7 +39,7 @@ class NodeState;
 
 const PropertyName auxDataString("anchors_");
 
-static inline void backupPropertyAndRemove(ModelNode node, const PropertyName &propertyName)
+static inline void backupPropertyAndRemove(const ModelNode &node, const PropertyName &propertyName)
 {
     if (node.hasVariantProperty(propertyName)) {
         node.setAuxiliaryData(auxDataString + propertyName, node.variantProperty(propertyName).value());

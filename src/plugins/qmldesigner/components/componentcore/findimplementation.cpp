@@ -44,7 +44,7 @@ class FindImplementationVisitor: protected AST::Visitor
 public:
     using Results = QList<AST::SourceLocation>;
 
-    FindImplementationVisitor(Document::Ptr doc, const ContextPtr &context)
+    FindImplementationVisitor(const Document::Ptr &doc, const ContextPtr &context)
         : m_document(doc)
         , m_context(context)
         , m_scopeChain(doc, context)

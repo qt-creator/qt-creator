@@ -135,7 +135,7 @@ QString DesignDocumentView::toText() const
     //get the text of the root item without imports
 }
 
-void DesignDocumentView::fromText(QString text)
+void DesignDocumentView::fromText(const QString &text)
 {
     QScopedPointer<Model> inputModel(Model::create("QtQuick.Rectangle", 1, 0, model()));
     inputModel->setFileUrl(model()->fileUrl());

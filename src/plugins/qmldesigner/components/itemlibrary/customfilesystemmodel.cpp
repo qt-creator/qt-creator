@@ -88,7 +88,7 @@ void CustomFileSystemModel::setFilter(QDir::Filters)
 
 }
 
-QString filterMetaIcons(const QString fileName)
+QString filterMetaIcons(const QString &fileName)
 {
 
     QFileInfo info(fileName);

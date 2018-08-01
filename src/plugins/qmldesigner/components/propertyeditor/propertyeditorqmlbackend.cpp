@@ -401,8 +401,8 @@ QString PropertyEditorQmlBackend::propertyEditorResourcesPath() {
     return Core::ICore::resourcePath() + QStringLiteral("/qmldesigner/propertyEditorQmlSources");
 }
 
-QString PropertyEditorQmlBackend::templateGeneration(NodeMetaInfo type,
-                                                     NodeMetaInfo superType,
+QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
+                                                     const NodeMetaInfo &superType,
                                                      const QmlObjectNode &objectNode)
 {
     if (!templateConfiguration() || !templateConfiguration()->isValid())

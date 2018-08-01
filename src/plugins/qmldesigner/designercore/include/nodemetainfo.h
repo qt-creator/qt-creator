@@ -54,7 +54,7 @@ class QMLDESIGNERCORE_EXPORT NodeMetaInfo
 {
 public:
     NodeMetaInfo();
-    NodeMetaInfo(Model *model, TypeName type, int maj, int min);
+    NodeMetaInfo(Model *model, const TypeName &type, int maj, int min);
 
     ~NodeMetaInfo();
 

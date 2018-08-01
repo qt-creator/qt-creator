@@ -99,11 +99,11 @@ public:
 protected:
     void updateBoundingRect();
     QRectF instanceBoundingRect() const;
-    void writeLinePath(ModelNode pathNode, const CubicSegment &cubicSegment);
-    void writeQuadPath(ModelNode pathNode, const CubicSegment &cubicSegment);
-    void writeCubicPath(ModelNode pathNode, const CubicSegment &cubicSegment);
-    void writePathAttributes(ModelNode pathNode, const QMap<QString, QVariant> &attributes);
-    void writePathPercent(ModelNode pathNode, double percent);
+    void writeLinePath(const ModelNode &pathNode, const CubicSegment &cubicSegment);
+    void writeQuadPath(const ModelNode &pathNode, const CubicSegment &cubicSegment);
+    void writeCubicPath(const ModelNode &pathNode, const CubicSegment &cubicSegment);
+    void writePathAttributes(const ModelNode &pathNode, const QMap<QString, QVariant> &attributes);
+    void writePathPercent(const ModelNode &pathNode, double percent);
     void readControlPoints();
     void splitCubicSegment(CubicSegment &cubicSegment, double t);
     void closePath();

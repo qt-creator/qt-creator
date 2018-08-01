@@ -47,7 +47,7 @@ public:
     void fromClipboard();
 
     QString toText() const;
-    void fromText(QString text);
+    void fromText(const QString &text);
 
     static Model *pasteToModel();
     static void copyModelNodes(const QList<ModelNode> &nodesToCopy);

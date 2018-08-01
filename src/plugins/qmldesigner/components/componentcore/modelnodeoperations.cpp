@@ -379,7 +379,7 @@ void resetZ(const SelectionContext &selectionState)
     }
 }
 
-static inline void backupPropertyAndRemove(ModelNode node, const PropertyName &propertyName)
+static inline void backupPropertyAndRemove(const ModelNode &node, const PropertyName &propertyName)
 {
     if (node.hasVariantProperty(propertyName)) {
         node.setAuxiliaryData(auxDataString + propertyName, node.variantProperty(propertyName).value());
@@ -480,7 +480,7 @@ bool compareByGrid(const ModelNode &node1, const ModelNode &node2)
 
 
 static void layoutHelperFunction(const SelectionContext &selectionContext,
-                                 TypeName layoutType,
+                                 const TypeName &layoutType,
                                  LessThan lessThan)
 {
     if (!selectionContext.view()
@@ -578,7 +578,7 @@ static PropertyNameList sortedPropertyNameList(const PropertyNameList &nameList)
     return sortedPropertyNameList;
 }
 
-static QString toUpper(const QString signal)
+static QString toUpper(const QString &signal)
 {
     QString ret = signal;
     ret[0] = signal.at(0).toUpper();

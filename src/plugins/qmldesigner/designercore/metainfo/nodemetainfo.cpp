@@ -50,8 +50,8 @@ namespace Internal {
 struct TypeDescription
 {
     QString className;
-    int minorVersion;
-    int majorVersion;
+    int minorVersion{};
+    int majorVersion{};
 };
 
 } //Internal
@@ -736,7 +736,7 @@ const CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() const
     // get the qml object value that's available in the document
     const QmlJS::Imports *importsPtr = context()->imports(document());
     if (importsPtr) {
-        const QList<QmlJS::Import> imports = importsPtr->all();
+        const QList<QmlJS::Import> &imports = importsPtr->all();
         foreach (const QmlJS::Import &import, imports) {
             if (import.info.path() != QString::fromUtf8(module))
                 continue;
@@ -1317,7 +1317,7 @@ NodeMetaInfo::NodeMetaInfo() : m_privateData(new Internal::NodeMetaInfoPrivate()
 
 }
 
-NodeMetaInfo::NodeMetaInfo(Model *model, TypeName type, int maj, int min) : m_privateData(Internal::NodeMetaInfoPrivate::create(model, type, maj, min))
+NodeMetaInfo::NodeMetaInfo(Model *model, const TypeName &type, int maj, int min) : m_privateData(Internal::NodeMetaInfoPrivate::create(model, type, maj, min))
 {
 
 }

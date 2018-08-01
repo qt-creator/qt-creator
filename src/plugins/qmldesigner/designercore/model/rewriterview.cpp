@@ -468,7 +468,7 @@ QString RewriterView::auxiliaryDataAsQML() const
     QString str = "Designer {\n    ";
 
     int columnCount = 0;
-    for (const auto node : allModelNodes()) {
+    for (const auto &node : allModelNodes()) {
         QHash<PropertyName, QVariant> data = node.auxiliaryData();
         if (!data.isEmpty()) {
             hasAuxData = true;
@@ -918,13 +918,11 @@ QString RewriterView::getRawAuxiliaryData() const
 
     const QString oldText = m_textModifier->text();
 
-    QString newText = oldText;
-
-    int startIndex = newText.indexOf(annotationsStart());
-    int endIndex = newText.indexOf(annotationsEnd());
+    int startIndex = oldText.indexOf(annotationsStart());
+    int endIndex = oldText.indexOf(annotationsEnd());
 
     if (startIndex > 0 && endIndex > 0)
-        return newText.mid(startIndex, endIndex - startIndex + annotationsEnd().length());
+        return oldText.mid(startIndex, endIndex - startIndex + annotationsEnd().length());
 
     return {};
 }
@@ -957,14 +955,14 @@ void RewriterView::writeAuxiliaryData()
     changeSet.apply(&tc);
 }
 
-static void checkNode(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view);
+static void checkNode(const QmlJS::SimpleReaderNode::Ptr &node, RewriterView *view);
 
-static void checkChildNodes(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view)
+static void checkChildNodes(const QmlJS::SimpleReaderNode::Ptr &node, RewriterView *view)
 {
     if (!node)
         return;
 
-    for (auto child : node->children())
+    for (const auto &child : node->children())
         checkNode(child, view);
 }
 
@@ -975,7 +973,7 @@ static QString fixUpIllegalChars(const QString &str)
     return ret;
 }
 
-static void checkNode(QmlJS::SimpleReaderNode::Ptr node, RewriterView *view)
+static void checkNode(const QmlJS::SimpleReaderNode::Ptr &node, RewriterView *view)
 {
     if (!node)
         return;
