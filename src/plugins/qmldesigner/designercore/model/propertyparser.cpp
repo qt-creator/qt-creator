@@ -34,7 +34,7 @@
 
 namespace {
 
-static uchar fromHex(const uchar c, const uchar c2)
+uchar fromHex(const uchar c, const uchar c2)
 {
     uchar rv = 0;
     if (c >= '0' && c <= '9')
@@ -54,7 +54,7 @@ static uchar fromHex(const uchar c, const uchar c2)
     return rv;
 }
 
-static uchar fromHex(const QString &s, int idx)
+uchar fromHex(const QString &s, int idx)
 {
     uchar c = s.at(idx).toLatin1();
     uchar c2 = s.at(idx + 1).toLatin1();

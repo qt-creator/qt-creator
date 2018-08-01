@@ -68,12 +68,12 @@ static Q_LOGGING_CATEGORY(rewriterBenchmark, "qtc.rewriter.load")
 
 namespace {
 
-static inline bool isSupportedAttachedProperties(const QString &propertyName)
+bool isSupportedAttachedProperties(const QString &propertyName)
 {
     return propertyName.startsWith(QLatin1String("Layout."));
 }
 
-static inline QStringList supportedVersionsList()
+QStringList supportedVersionsList()
 {
     static const QStringList list = {
         "2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "2.9", "2.10", "2.11"
@@ -81,7 +81,7 @@ static inline QStringList supportedVersionsList()
     return list;
 }
 
-static inline QStringList globalQtEnums()
+QStringList globalQtEnums()
 {
     static const QStringList list = {
         "Horizontal", "Vertical", "AlignVCenter", "AlignLeft", "LeftToRight", "RightToLeft",
@@ -93,7 +93,7 @@ static inline QStringList globalQtEnums()
     return list;
 }
 
-static inline QStringList knownEnumScopes()
+QStringList knownEnumScopes()
 {
     static const QStringList list = {
         "TextInput", "TextEdit", "Material", "Universal", "Font", "Shape", "ShapePath", "AbstractButton"
@@ -101,12 +101,12 @@ static inline QStringList knownEnumScopes()
     return list;
 }
 
-static inline bool supportedQtQuickVersion(const QString &version)
+bool supportedQtQuickVersion(const QString &version)
 {
     return supportedVersionsList().contains(version);
 }
 
-static inline QString stripQuotes(const QString &str)
+QString stripQuotes(const QString &str)
 {
     if ((str.startsWith(QLatin1Char('"')) && str.endsWith(QLatin1Char('"')))
             || (str.startsWith(QLatin1Char('\'')) && str.endsWith(QLatin1Char('\''))))
@@ -115,7 +115,7 @@ static inline QString stripQuotes(const QString &str)
     return str;
 }
 
-static inline QString deEscape(const QString &value)
+inline QString deEscape(const QString &value)
 {
     QString result = value;
 
@@ -128,7 +128,7 @@ static inline QString deEscape(const QString &value)
     return result;
 }
 
-static inline unsigned char convertHex(ushort c)
+unsigned char convertHex(ushort c)
 {
     if (c >= '0' && c <= '9')
         return (c - '0');
@@ -145,7 +145,7 @@ QChar convertUnicode(ushort c1, ushort c2,
                   (convertHex(c1) << 4) + convertHex(c2));
 }
 
-static inline bool isHexDigit(ushort c)
+bool isHexDigit(ushort c)
 {
     return ((c >= '0' && c <= '9')
             || (c >= 'a' && c <= 'f')
@@ -153,7 +153,7 @@ static inline bool isHexDigit(ushort c)
 }
 
 
-static inline QString fixEscapedUnicodeChar(const QString &value) //convert "\u2939"
+QString fixEscapedUnicodeChar(const QString &value) //convert "\u2939"
 {
     if (value.count() == 6 && value.at(0) == QLatin1Char('\\') && value.at(1) == QLatin1Char('u') &&
         isHexDigit(value.at(2).unicode()) && isHexDigit(value.at(3).unicode()) &&
@@ -163,7 +163,7 @@ static inline QString fixEscapedUnicodeChar(const QString &value) //convert "\u2
     return value;
 }
 
-static inline bool isSignalPropertyName(const QString &signalName)
+bool isSignalPropertyName(const QString &signalName)
 {
     if (signalName.isEmpty())
         return false;
@@ -175,7 +175,7 @@ static inline bool isSignalPropertyName(const QString &signalName)
             pureSignalName.at(2).isLetter();
 }
 
-static inline QVariant cleverConvert(const QString &value)
+QVariant cleverConvert(const QString &value)
 {
     if (value == QLatin1String("true"))
         return QVariant(true);
@@ -191,11 +191,11 @@ static inline QVariant cleverConvert(const QString &value)
     return QVariant(value);
 }
 
-static bool isLiteralValue(AST::ExpressionNode *expr)
+bool isLiteralValue(AST::ExpressionNode *expr)
 {
     if (AST::cast<AST::NumericLiteral*>(expr))
         return true;
-    else if (AST::cast<AST::StringLiteral*>(expr))
+    if (AST::cast<AST::StringLiteral*>(expr))
         return true;
     else if (auto plusExpr = AST::cast<AST::UnaryPlusExpression*>(expr))
         return isLiteralValue(plusExpr->expression);
@@ -209,7 +209,7 @@ static bool isLiteralValue(AST::ExpressionNode *expr)
         return false;
 }
 
-static bool isLiteralValue(AST::Statement *stmt)
+bool isLiteralValue(AST::Statement *stmt)
 {
     auto exprStmt = AST::cast<AST::ExpressionStatement *>(stmt);
     if (exprStmt)
@@ -218,7 +218,7 @@ static bool isLiteralValue(AST::Statement *stmt)
         return false;
 }
 
-static inline bool isLiteralValue(AST::UiScriptBinding *script)
+bool isLiteralValue(AST::UiScriptBinding *script)
 {
     if (!script || !script->statement)
         return false;
@@ -226,7 +226,7 @@ static inline bool isLiteralValue(AST::UiScriptBinding *script)
     return isLiteralValue(script->statement);
 }
 
-static inline int propertyType(const QString &typeName)
+int propertyType(const QString &typeName)
 {
     if (typeName == QStringLiteral("bool"))
         return QMetaType::type("bool");
@@ -250,7 +250,7 @@ static inline int propertyType(const QString &typeName)
         return -1;
 }
 
-static inline QVariant convertDynamicPropertyValueToVariant(const QString &astValue,
+QVariant convertDynamicPropertyValueToVariant(const QString &astValue,
                                                             const QString &astType)
 {
     const QString cleanedValue = fixEscapedUnicodeChar(deEscape(stripQuotes(astValue.trimmed())));
@@ -271,12 +271,12 @@ static inline QVariant convertDynamicPropertyValueToVariant(const QString &astVa
     }
 }
 
-static bool isListElementType(const QmlDesigner::TypeName &type)
+bool isListElementType(const QmlDesigner::TypeName &type)
 {
     return type == "ListElement" || type == "QtQuick.ListElement" || type == "Qt.ListElement";
 }
 
-static bool isComponentType(const QmlDesigner::TypeName &type)
+bool isComponentType(const QmlDesigner::TypeName &type)
 {
     return type == "Component"
             || type == "Qt.Component"
@@ -285,7 +285,7 @@ static bool isComponentType(const QmlDesigner::TypeName &type)
             || type == "QQmlComponent";
 }
 
-static bool isCustomParserType(const QmlDesigner::TypeName &type)
+bool isCustomParserType(const QmlDesigner::TypeName &type)
 {
     return type == "QtQuick.VisualItemModel" || type == "Qt.VisualItemModel" ||
            type == "QtQuick.VisualDataModel" || type == "Qt.VisualDataModel" ||
@@ -294,17 +294,17 @@ static bool isCustomParserType(const QmlDesigner::TypeName &type)
 }
 
 
-static bool isPropertyChangesType(const QmlDesigner::TypeName &type)
+bool isPropertyChangesType(const QmlDesigner::TypeName &type)
 {
     return type == "PropertyChanges" || type == "QtQuick.PropertyChanges" || type == "Qt.PropertyChanges";
 }
 
-static bool isConnectionsType(const QmlDesigner::TypeName &type)
+bool isConnectionsType(const QmlDesigner::TypeName &type)
 {
     return type == "Connections" || type == "QtQuick.Connections" || type == "Qt.Connections";
 }
 
-static bool propertyIsComponentType(const QmlDesigner::NodeAbstractProperty &property, const QmlDesigner::TypeName &type, QmlDesigner::Model *model)
+bool propertyIsComponentType(const QmlDesigner::NodeAbstractProperty &property, const QmlDesigner::TypeName &type, QmlDesigner::Model *model)
 {
     if (model->metaInfo(type).isSubclassOf("QtQuick.Component") && !isComponentType(type))
         return false; //If the type is already a subclass of Component keep it
@@ -313,7 +313,7 @@ static bool propertyIsComponentType(const QmlDesigner::NodeAbstractProperty &pro
             isComponentType(property.parentModelNode().metaInfo().propertyTypeName(property.name()));
 }
 
-static inline QString extractComponentFromQml(const QString &source)
+QString extractComponentFromQml(const QString &source)
 {
     if (source.isEmpty())
         return QString();
@@ -336,7 +336,7 @@ static inline QString extractComponentFromQml(const QString &source)
     return result;
 }
 
-static QString normalizeJavaScriptExpression(const QString &expression)
+QString normalizeJavaScriptExpression(const QString &expression)
 {
     static const QRegularExpression regExp("\\n(\\s)+");
 
@@ -344,9 +344,42 @@ static QString normalizeJavaScriptExpression(const QString &expression)
     return result.replace(regExp, "\n");
 }
 
-static bool compareJavaScriptExpression(const QString &expression1, const QString &expression2)
+bool compareJavaScriptExpression(const QString &expression1, const QString &expression2)
 {
     return normalizeJavaScriptExpression(expression1) == normalizeJavaScriptExpression(expression2);
+}
+
+bool smartVeryFuzzyCompare(const QVariant &value1, const QVariant &value2)
+{ //we ignore slight changes on doubles and only check three digits
+    if ((value1.type() == QVariant::Double) || (value2.type() == QVariant::Double)) {
+        bool ok1, ok2;
+        qreal a = value1.toDouble(&ok1);
+        qreal b = value2.toDouble(&ok2);
+
+        if (!ok1 || !ok2)
+            return false;
+
+        if (qFuzzyCompare(a, b))
+            return true;
+
+        int ai = qRound(a * 1000);
+        int bi = qRound(b * 1000);
+
+        if (qFuzzyCompare((qreal(ai) / 1000), (qreal(bi) / 1000)))
+            return true;
+    }
+    return false;
+}
+
+bool equals(const QVariant &a, const QVariant &b)
+{
+    if (a.canConvert<QmlDesigner::Enumeration>() && b.canConvert<QmlDesigner::Enumeration>())
+        return a.value<QmlDesigner::Enumeration>().toString() == b.value<QmlDesigner::Enumeration>().toString();
+    if (a == b)
+        return true;
+    if (smartVeryFuzzyCompare(a, b))
+        return true;
+    return false;
 }
 
 } // anonymous namespace
@@ -688,40 +721,6 @@ private:
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
-
-
-static inline bool smartVeryFuzzyCompare(QVariant value1, QVariant value2)
-{ //we ignore slight changes on doubles and only check three digits
-    if ((value1.type() == QVariant::Double) || (value2.type() == QVariant::Double)) {
-        bool ok1, ok2;
-        qreal a = value1.toDouble(&ok1);
-        qreal b = value2.toDouble(&ok2);
-
-        if (!ok1 || !ok2)
-            return false;
-
-        if (qFuzzyCompare(a, b))
-            return true;
-
-        int ai = qRound(a * 1000);
-        int bi = qRound(b * 1000);
-
-        if (qFuzzyCompare((qreal(ai) / 1000), (qreal(bi) / 1000)))
-            return true;
-    }
-    return false;
-}
-
-static inline bool equals(const QVariant &a, const QVariant &b)
-{
-    if (a.canConvert<Enumeration>() && b.canConvert<Enumeration>())
-        return a.value<Enumeration>().toString() == b.value<Enumeration>().toString();
-    if (a == b)
-        return true;
-    if (smartVeryFuzzyCompare(a, b))
-        return true;
-    return false;
-}
 
 TextToModelMerger::TextToModelMerger(RewriterView *reWriterView) :
         m_rewriterView(reWriterView),

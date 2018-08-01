@@ -36,7 +36,7 @@ using namespace QmlDesigner;
 
 namespace { // anonymous
 
-static inline QString toInfo(const Import &import)
+QString toInfo(const Import &import)
 {
     QString txt;
 
@@ -65,7 +65,7 @@ static inline QString toInfo(const Import &import)
     return txt;
 }
 
-static inline QString toString(QmlRefactoring::PropertyType type)
+QString toString(QmlRefactoring::PropertyType type)
 {
     switch (type) {
         case QmlRefactoring::ArrayBinding:  return QStringLiteral("array binding");
