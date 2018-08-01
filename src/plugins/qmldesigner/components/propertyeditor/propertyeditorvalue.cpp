@@ -358,7 +358,7 @@ PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(PropertyEditorValue* parent
     connect(m_editorValue, &PropertyEditorValue::modelNodeChanged, this, &PropertyEditorNodeWrapper::update);
 }
 
-PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(QObject *parent) : QObject(parent), m_editorValue(NULL)
+PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(QObject *parent) : QObject(parent), m_editorValue(nullptr)
 {
 }
 

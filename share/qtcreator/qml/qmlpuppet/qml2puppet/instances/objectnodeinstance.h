@@ -163,7 +163,7 @@ public:
     void setInLayoutable(bool isInLayoutable);
     virtual void refreshLayoutable();
 
-    bool hasBindingForProperty(const PropertyName &propertyName, bool *hasChanged = 0) const;
+    bool hasBindingForProperty(const PropertyName &propertyName, bool *hasChanged = nullptr) const;
 
     QQmlContext *context() const;
     QQmlEngine *engine() const;
