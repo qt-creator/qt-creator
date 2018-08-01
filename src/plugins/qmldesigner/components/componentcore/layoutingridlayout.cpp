@@ -119,7 +119,7 @@ static void setUpperLeftPostionToNode(const ModelNode &layoutNode, const QList<M
 {
     QPointF upperLeftPosition = getUpperLeftPosition(modelNodeList);
     layoutNode.variantProperty("x").setValue(qRound(upperLeftPosition.x()));
-    layoutNode.variantProperty("y") .setValue(qRound(upperLeftPosition.y()));
+    layoutNode.variantProperty("y").setValue(qRound(upperLeftPosition.y()));
 }
 
 void LayoutInGridLayout::reparentToNodeAndRemovePositionForModelNodes(const ModelNode &parentModelNode,
