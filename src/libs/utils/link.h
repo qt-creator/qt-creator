@@ -49,7 +49,7 @@ struct Link
     bool operator==(const Link &other) const
     { return linkTextStart == other.linkTextStart && linkTextEnd == other.linkTextEnd; }
 
-    int linkTextStart = 1;
+    int linkTextStart = -1;
     int linkTextEnd = -1;
 
     QString targetFileName;
