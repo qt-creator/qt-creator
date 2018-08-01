@@ -41,6 +41,7 @@
 #include <app/app_version.h>
 
 #include <debugger/debuggericons.h>
+#include <debugger/debuggermainwindow.h>
 #include <debugger/analyzer/analyzermanager.h>
 
 #include <utils/fancymainwindow.h>
@@ -228,15 +229,14 @@ QmlProfilerTool::QmlProfilerTool()
 
     QObject::connect(d->m_startAction, &QAction::triggered, this, &QmlProfilerTool::profileStartupProject);
 
-    Utils::ToolbarDescription toolbar;
-    toolbar.addAction(d->m_startAction);
-    toolbar.addAction(d->m_stopAction);
-    toolbar.addWidget(d->m_recordButton);
-    toolbar.addWidget(d->m_clearButton);
-    toolbar.addWidget(d->m_searchButton);
-    toolbar.addWidget(d->m_displayFeaturesButton);
-    toolbar.addWidget(d->m_timeLabel);
-    Debugger::registerToolbar(Constants::QmlProfilerPerspectiveId, toolbar);
+    Utils::Perspective *perspective = d->m_viewContainer->perspective();
+    perspective->addToolbarAction(d->m_startAction);
+    perspective->addToolbarAction(d->m_stopAction);
+    perspective->addToolbarWidget(d->m_recordButton);
+    perspective->addToolbarWidget(d->m_clearButton);
+    perspective->addToolbarWidget(d->m_searchButton);
+    perspective->addToolbarWidget(d->m_displayFeaturesButton);
+    perspective->addToolbarWidget(d->m_timeLabel);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
             this, &QmlProfilerTool::updateRunActions);

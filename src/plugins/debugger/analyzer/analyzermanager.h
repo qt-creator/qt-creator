@@ -62,11 +62,9 @@ DEBUGGER_EXPORT bool wantRunTool(ToolMode toolMode, const QString &toolName);
 DEBUGGER_EXPORT void showCannotStartDialog(const QString &toolName);
 
 // Register a tool for a given start mode.
-DEBUGGER_EXPORT void registerPerspective(const QByteArray &perspectiveId, const Utils::Perspective *perspective);
+DEBUGGER_EXPORT void registerPerspective(const QByteArray &perspectiveId, Utils::Perspective *perspective);
 DEBUGGER_EXPORT void destroyDynamicPerspective(const QByteArray &perspectiveId);
 DEBUGGER_EXPORT void setPerspectiveEnabled(const QByteArray &perspectiveId, bool enable);
-DEBUGGER_EXPORT void registerToolbar(const QByteArray &perspectiveId, const Utils::ToolbarDescription &desc);
-DEBUGGER_EXPORT void destroyDynamicToolbar(const QByteArray &perspectiveId);
 
 DEBUGGER_EXPORT void enableMainWindow(bool on);
 DEBUGGER_EXPORT QWidget *mainWindow();

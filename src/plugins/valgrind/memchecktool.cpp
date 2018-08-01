@@ -558,7 +558,6 @@ MemcheckTool::MemcheckTool()
 
     auto perspective = new Perspective(tr("Memcheck"));
     perspective->addWindow(m_errorView, Perspective::SplitVertical, nullptr);
-    Debugger::registerPerspective(MemcheckPerspectiveId, perspective);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
             this, &MemcheckTool::maybeActiveRunConfigurationChanged);
@@ -684,15 +683,14 @@ MemcheckTool::MemcheckTool()
         ProjectExplorerPlugin::startRunControl(rc);
     });
 
-    ToolbarDescription toolbar;
-    toolbar.addAction(m_startAction);
+    perspective->addToolbarAction(m_startAction);
     //toolbar.addAction(m_startWithGdbAction);
-    toolbar.addAction(m_stopAction);
-    toolbar.addAction(m_loadExternalLogFile);
-    toolbar.addAction(m_goBack);
-    toolbar.addAction(m_goNext);
-    toolbar.addWidget(filterButton);
-    Debugger::registerToolbar(MemcheckPerspectiveId, toolbar);
+    perspective->addToolbarAction(m_stopAction);
+    perspective->addToolbarAction(m_loadExternalLogFile);
+    perspective->addToolbarAction(m_goBack);
+    perspective->addToolbarAction(m_goNext);
+    perspective->addToolbarWidget(filterButton);
+    Debugger::registerPerspective(MemcheckPerspectiveId, perspective);
 
     updateFromSettings();
     maybeActiveRunConfigurationChanged();

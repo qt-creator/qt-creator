@@ -419,18 +419,18 @@ CallgrindTool::CallgrindTool()
             this, &CallgrindTool::setCostEvent);
     updateEventCombo();
 
-    ToolbarDescription toolbar;
-    toolbar.addAction(m_startAction);
-    toolbar.addAction(m_stopAction);
-    toolbar.addAction(m_loadExternalLogFile);
-    toolbar.addAction(m_dumpAction);
-    toolbar.addAction(m_resetAction);
-    toolbar.addAction(m_pauseAction);
-    toolbar.addAction(m_discardAction);
-    toolbar.addAction(m_goBack);
-    toolbar.addAction(m_goNext);
-    toolbar.addWidget(new Utils::StyledSeparator);
-    toolbar.addWidget(m_eventCombo);
+    auto perspective = new Perspective(tr("Callgrind"));
+    perspective->addToolbarAction(m_startAction);
+    perspective->addToolbarAction(m_stopAction);
+    perspective->addToolbarAction(m_loadExternalLogFile);
+    perspective->addToolbarAction(m_dumpAction);
+    perspective->addToolbarAction(m_resetAction);
+    perspective->addToolbarAction(m_pauseAction);
+    perspective->addToolbarAction(m_discardAction);
+    perspective->addToolbarAction(m_goBack);
+    perspective->addToolbarAction(m_goNext);
+    perspective->addToolbarSeparator();
+    perspective->addToolbarWidget(m_eventCombo);
 
     // Cost formatting
     {
@@ -463,7 +463,7 @@ CallgrindTool::CallgrindTool()
     button->setPopupMode(QToolButton::InstantPopup);
     button->setText(QLatin1String("$"));
     button->setToolTip(tr("Cost Format"));
-    toolbar.addWidget(button);
+    perspective->addToolbarWidget(button);
     }
 
     ValgrindGlobalSettings *settings = ValgrindPlugin::globalSettings();
@@ -500,13 +500,11 @@ CallgrindTool::CallgrindTool()
     setCostFormat(settings->costFormat());
     enableCycleDetection(settings->detectCycles());
 
-    toolbar.addAction(m_cycleDetection);
-    toolbar.addAction(m_shortenTemplates);
-    toolbar.addAction(m_filterProjectCosts);
-    toolbar.addWidget(m_searchFilter);
-    Debugger::registerToolbar(CallgrindPerspectiveId, toolbar);
+    perspective->addToolbarAction(m_cycleDetection);
+    perspective->addToolbarAction(m_shortenTemplates);
+    perspective->addToolbarAction(m_filterProjectCosts);
+    perspective->addToolbarWidget(m_searchFilter);
 
-    auto perspective = new Perspective(tr("Callgrind"));
     perspective->addWindow(m_flatView, Perspective::SplitVertical, nullptr);
     perspective->addWindow(m_calleesView, Perspective::SplitVertical, nullptr);
     perspective->addWindow(m_callersView, Perspective::SplitHorizontal, m_calleesView);

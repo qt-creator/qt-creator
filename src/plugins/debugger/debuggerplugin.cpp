@@ -1809,34 +1809,17 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     connect(action(SettingsDialog), &QAction::triggered,
             [] { ICore::showOptionsDialog(DEBUGGER_COMMON_SETTINGS_ID); });
 
-    // Toolbar
-    ToolbarDescription toolbar;
-    toolbar.addAction(m_visibleStartAction);
-    toolbar.addAction(ActionManager::command(Constants::STOP)->action(), Icons::DEBUG_EXIT_SMALL_TOOLBAR.icon());
-    toolbar.addAction(ActionManager::command(Constants::NEXT)->action(), Icons::STEP_OVER_TOOLBAR.icon());
-    toolbar.addAction(ActionManager::command(Constants::STEP)->action(), Icons::STEP_INTO_TOOLBAR.icon());
-    toolbar.addAction(ActionManager::command(Constants::STEPOUT)->action(), Icons::STEP_OUT_TOOLBAR.icon());
-    toolbar.addAction(ActionManager::command(Constants::RESET)->action(), Icons::RESTART_TOOLBAR.icon());
-    toolbar.addAction(ActionManager::command(Constants::OPERATE_BY_INSTRUCTION)->action());
-
     if (isReverseDebuggingEnabled()) {
         m_reverseToolButton = new QToolButton;
         m_reverseToolButton->setDefaultAction(m_reverseDirectionAction);
-        toolbar.addWidget(m_reverseToolButton);
     }
 
-    toolbar.addWidget(new StyledSeparator);
-
     m_threadLabel = new QLabel(tr("Threads:"));
-    toolbar.addWidget(m_threadLabel);
 
     m_threadBox = new QComboBox;
     m_threadBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     connect(m_threadBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
             this, &DebuggerPluginPrivate::selectThread);
-
-    toolbar.addWidget(m_threadBox);
-//    toolbar.addSpacerItem(new QSpacerItem(4, 0));
 
 //    ToolbarDescription qmlToolbar
 //    qmlToolbar.addAction(qmlUpdateOnSaveDummyAction);
@@ -1846,7 +1829,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 //    qmlToolbar.addWidget(new StyledSeparator);
 
     auto createBasePerspective = [this] {
-        auto perspective = new Perspective;
+        auto perspective = new Perspective("Debugger");
         perspective->addWindow(m_stackWindow, Perspective::SplitVertical, nullptr);
         perspective->addWindow(m_breakWindow, Perspective::SplitHorizontal, m_stackWindow);
         perspective->addWindow(m_threadsWindow, Perspective::AddToTab, m_breakWindow, false);
@@ -1859,6 +1842,23 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
                      Qt::RightDockWidgetArea);
         perspective->addWindow(m_logWindow, Perspective::AddToTab, nullptr, false, Qt::TopDockWidgetArea);
         perspective->addWindow(m_breakWindow, Perspective::Raise, nullptr);
+
+
+        perspective->addToolbarAction(m_visibleStartAction);
+        perspective->addToolbarAction(ActionManager::command(Constants::STOP)->action(), Icons::DEBUG_EXIT_SMALL_TOOLBAR.icon());
+        perspective->addToolbarAction(ActionManager::command(Constants::NEXT)->action(), Icons::STEP_OVER_TOOLBAR.icon());
+        perspective->addToolbarAction(ActionManager::command(Constants::STEP)->action(), Icons::STEP_INTO_TOOLBAR.icon());
+        perspective->addToolbarAction(ActionManager::command(Constants::STEPOUT)->action(), Icons::STEP_OUT_TOOLBAR.icon());
+        perspective->addToolbarAction(ActionManager::command(Constants::RESET)->action(), Icons::RESTART_TOOLBAR.icon());
+        perspective->addToolbarAction(ActionManager::command(Constants::OPERATE_BY_INSTRUCTION)->action());
+
+        if (isReverseDebuggingEnabled())
+            perspective->addToolbarWidget(m_reverseToolButton);
+
+        perspective->addToolbarSeparator();
+        perspective->addToolbarWidget(m_threadLabel);
+        perspective->addToolbarWidget(m_threadBox);
+
         return perspective;
     };
 
@@ -1866,7 +1866,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     cppPerspective->setName(tr("Debugger"));
     cppPerspective->addWindow(m_registerWindow, Perspective::AddToTab, m_snapshotWindow, false);
 
-    Debugger::registerToolbar(CppPerspectiveId, toolbar);
     Debugger::registerPerspective(CppPerspectiveId, cppPerspective);
 
 //    Perspective *qmlPerspective = createBasePerspective();
@@ -3495,26 +3494,6 @@ bool wantRunTool(ToolMode toolMode, const QString &toolName)
     return true;
 }
 
-void registerToolbar(const QByteArray &perspectiveId, const ToolbarDescription &desc)
-{
-    auto toolbar = new QWidget;
-    toolbar->setObjectName(QString::fromLatin1(perspectiveId + ".Toolbar"));
-    auto hbox = new QHBoxLayout(toolbar);
-    hbox->setMargin(0);
-    hbox->setSpacing(0);
-    for (QWidget *widget : desc.widgets())
-        hbox->addWidget(widget);
-    hbox->addStretch();
-    toolbar->setLayout(hbox);
-
-    dd->m_mainWindow->registerToolbar(perspectiveId, toolbar);
-}
-
-void destroyDynamicToolbar(const QByteArray &perspectiveId)
-{
-    dd->m_mainWindow->destroyDynamicToolbar(perspectiveId);
-}
-
 QAction *createStartAction()
 {
     auto action = new QAction(DebuggerMainWindow::tr("Start"), DebuggerPlugin::instance());
@@ -3531,14 +3510,9 @@ QAction *createStopAction()
     return action;
 }
 
-void registerPerspective(const QByteArray &perspectiveId, const Perspective *perspective)
+void registerPerspective(const QByteArray &perspectiveId, Perspective *perspective)
 {
     dd->m_mainWindow->registerPerspective(perspectiveId, perspective);
-}
-
-void destroyDynamicPerspective(const QByteArray &perspectiveId)
-{
-    dd->m_mainWindow->destroyDynamicPerspective(perspectiveId);
 }
 
 void setPerspectiveEnabled(const QByteArray &perspectiveId, bool enabled)
@@ -3557,7 +3531,7 @@ void selectPerspective(const QByteArray &perspectiveId)
     if (perspectiveId.isEmpty())
         return;
     ModeManager::activateMode(MODE_DEBUG);
-    dd->m_mainWindow->restorePerspective(perspectiveId);
+    dd->m_mainWindow->restorePerspective(dd->m_mainWindow->findPerspective(perspectiveId));
 }
 
 QByteArray currentPerspective()

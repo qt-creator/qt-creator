@@ -61,8 +61,8 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
 
     new QmlProfilerStateWidget(m_profilerState, m_profilerModelManager, m_traceView);
 
-    auto perspective = new Utils::Perspective;
-    perspective->setName(tr("QML Profiler"));
+    m_perspective = new Utils::Perspective;
+    m_perspective->setName(tr("QML Profiler"));
 
     auto prepareEventsView = [this](QmlProfilerEventsView *view) {
         connect(view, &QmlProfilerEventsView::typeSelected,
@@ -86,16 +86,16 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
     QWidget *anchor = nullptr;
     if (m_traceView->isUsable()) {
         anchor = m_traceView;
-        perspective->addWindow(m_traceView, Perspective::SplitVertical, nullptr);
-        perspective->addWindow(m_flameGraphView, Perspective::AddToTab, anchor);
+        m_perspective->addWindow(m_traceView, Perspective::SplitVertical, nullptr);
+        m_perspective->addWindow(m_flameGraphView, Perspective::AddToTab, anchor);
     } else {
         anchor = m_flameGraphView;
-        perspective->addWindow(m_flameGraphView, Perspective::SplitVertical, nullptr);
+        m_perspective->addWindow(m_flameGraphView, Perspective::SplitVertical, nullptr);
     }
-    perspective->addWindow(m_statisticsView, Perspective::AddToTab, anchor);
-    perspective->addWindow(anchor, Perspective::Raise, nullptr);
+    m_perspective->addWindow(m_statisticsView, Perspective::AddToTab, anchor);
+    m_perspective->addWindow(anchor, Perspective::Raise, nullptr);
 
-    Debugger::registerPerspective(Constants::QmlProfilerPerspectiveId, perspective);
+    Debugger::registerPerspective(Constants::QmlProfilerPerspectiveId, m_perspective);
 }
 
 QmlProfilerViewManager::~QmlProfilerViewManager()

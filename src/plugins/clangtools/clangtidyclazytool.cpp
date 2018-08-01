@@ -271,7 +271,6 @@ ClangTidyClazyTool::ClangTidyClazyTool()
 
     auto perspective = new Perspective(tr("Clang-Tidy and Clazy"));
     perspective->addWindow(m_diagnosticView, Perspective::SplitVertical, nullptr);
-    Debugger::registerPerspective(ClangTidyClazyPerspectiveId, perspective);
 
     action = new QAction(tr("Clang-Tidy and Clazy..."), this);
     action->setToolTip(toolTip);
@@ -283,14 +282,14 @@ ClangTidyClazyTool::ClangTidyClazyTool()
         action->setEnabled(m_startAction->isEnabled());
     });
 
-    ToolbarDescription tidyClazyToolbar;
-    tidyClazyToolbar.addAction(m_startAction);
-    tidyClazyToolbar.addAction(m_stopAction);
-    tidyClazyToolbar.addAction(m_goBack);
-    tidyClazyToolbar.addAction(m_goNext);
-    tidyClazyToolbar.addWidget(m_filterLineEdit);
-    tidyClazyToolbar.addWidget(m_applyFixitsButton);
-    Debugger::registerToolbar(ClangTidyClazyPerspectiveId, tidyClazyToolbar);
+    perspective->addToolbarAction(m_startAction);
+    perspective->addToolbarAction(m_stopAction);
+    perspective->addToolbarAction(m_goBack);
+    perspective->addToolbarAction(m_goNext);
+    perspective->addToolbarWidget(m_filterLineEdit);
+    perspective->addToolbarWidget(m_applyFixitsButton);
+
+    Debugger::registerPerspective(ClangTidyClazyPerspectiveId, perspective);
 
     updateRunActions();
 
