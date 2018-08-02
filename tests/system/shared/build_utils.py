@@ -37,7 +37,7 @@ def getBuildIssues():
 def checkLastBuild(expectedToFail=False, createTasksFileOnError=True):
     try:
         # can't use waitForObject() 'cause visible is always 0
-        buildProg = findObject("{type='ProjectExplorer::Internal::BuildProgress' unnamed='1' }")
+        findObject("{type='ProjectExplorer::Internal::BuildProgress' unnamed='1' }")
     except LookupError:
         test.log("checkLastBuild called without a build")
         return

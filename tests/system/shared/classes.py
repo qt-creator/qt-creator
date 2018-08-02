@@ -24,7 +24,6 @@
 ############################################################################
 
 import __builtin__
-import operator
 
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:

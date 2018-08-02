@@ -68,7 +68,6 @@ def debuggerHasStopped():
 
 def getQmlJSConsoleOutput():
     try:
-        result = []
         consoleView = waitForObject(":DebugModeWidget_Debugger::Internal::ConsoleView")
         model = consoleView.model()
         # old input, output, new input > 2
@@ -135,7 +134,7 @@ def main():
         switchViewTo(ViewConstants.EDIT)
         # start debugging
         clickButton(fancyDebugButton)
-        locAndExprTV = waitForObject(":Locals and Expressions_Debugger::Internal::WatchTreeView")
+        waitForObject(":Locals and Expressions_Debugger::Internal::WatchTreeView")
         rootIndex = getQModelIndexStr("text='Rectangle'",
                                       ":Locals and Expressions_Debugger::Internal::WatchTreeView")
         # make sure the items inside the root item are visible

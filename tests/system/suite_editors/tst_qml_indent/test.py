@@ -44,7 +44,6 @@ def prepareQmlFile():
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     isDarwin = platform.system() == 'Darwin'
     for i in range(3):
-        content = "%s" % editor.plainText
         if not placeCursorToLine(editor, 'title: qsTr("Hello World")'):
             test.fatal("Couldn't find line(s) I'm looking for - QML file seems to "
                        "have changed!\nLeaving test...")

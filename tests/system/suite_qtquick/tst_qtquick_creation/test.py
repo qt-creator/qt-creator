@@ -34,7 +34,6 @@ def main():
 
     for qtVersion, controls in available:
         targ = [Targets.DESKTOP_5_6_1_DEFAULT]
-        quick = "2.6"
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
         checkedTargets = createNewQtQuickApplication(workingDir, targets=targ,

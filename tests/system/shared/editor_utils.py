@@ -106,7 +106,7 @@ def openContextMenuOnTextCursorPosition(editor):
 # param direction is one of "Left", "Right", "Up", "Down", but "End" and combinations work as well
 # param typeCount defines how often the cursor will be moved in the given direction (while marking)
 def markText(editor, direction, typeCount=1):
-    for i in range(typeCount):
+    for _ in range(typeCount):
         type(editor, "<Shift+%s>" % direction)
 
 # works for all standard editors
@@ -173,7 +173,7 @@ def verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, e
 # param expectedVals a dict holding property value pairs that must match
 def __handleTextTips__(textTip, expectedVals, alternativeVals):
     props = object.properties(textTip)
-    expFail = altFail = False
+    expFail = False
     eResult = verifyProperties(props, expectedVals)
     for val in eResult.itervalues():
         if not val:
@@ -182,7 +182,6 @@ def __handleTextTips__(textTip, expectedVals, alternativeVals):
     if expFail and alternativeVals != None:
         aResult = verifyProperties(props, alternativeVals)
     else:
-        altFail = True
         aResult = None
     if not expFail:
         test.passes("TextTip verified")
@@ -360,7 +359,7 @@ def invokeContextMenuItem(editorArea, command1, command2 = None):
 def invokeFindUsage(editor, line, typeOperation, n=1):
     if not placeCursorToLine(editor, line, True):
         return False
-    for i in range(n):
+    for _ in range(n):
         type(editor, typeOperation)
     snooze(1)
     invokeContextMenuItem(editor, "Find Usages")

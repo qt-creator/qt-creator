@@ -98,7 +98,7 @@ def main():
                 test.fail("Could not open %s.h - continuing." % className.lower())
                 continue
             editor = getEditorForFileSuffix("%s.h" % className.lower())
-            oldContent = str(editor.plainText)
+            str(editor.plainText)
             placeCursorToLine(editor, "class %s.*" % className, True)
             snooze(4) # avoid timing issue with the parser
             invokeContextMenuItem(editor, "Refactor", "Insert Virtual Functions of Base Classes")

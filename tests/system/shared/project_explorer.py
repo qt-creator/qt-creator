@@ -42,7 +42,7 @@ def switchViewTo(view):
         text = ""
     pattern = ViewConstants.getToolTipForViewTab(view)
     if re.match(pattern, unicode(text), re.UNICODE):
-       test.passes("ToolTip verified")
+        test.passes("ToolTip verified")
     else:
         test.warning("ToolTip does not match", "Expected pattern: %s\nGot: %s" % (pattern, text))
     mouseClick(waitForObject("{type='Core::Internal::FancyTabBar' unnamed='1' visible='1' "
@@ -158,7 +158,7 @@ def addAndActivateKit(kit):
     kitString = Targets.getStringForTarget(kit)
     switchViewTo(ViewConstants.PROJECTS)
     try:
-        treeView = waitForObject(":Projects.ProjectNavigationTreeView")
+        waitForObject(":Projects.ProjectNavigationTreeView")
         wanted = getQModelIndexStr("text='%s'" % kitString, bAndRIndex)
         index = findObject(wanted)
         if str(index.toolTip).startswith(clickToActivate):

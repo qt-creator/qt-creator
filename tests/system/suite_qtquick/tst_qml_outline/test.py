@@ -139,9 +139,9 @@ def verifyOutline(outlinePseudoTree, datasetFileName):
                   "Found %d elements, but expected %d" % (len(outlinePseudoTree), len(expected)))
         return
     for counter, (expectedItem, foundItem) in enumerate(zip(expected, outlinePseudoTree)):
-       if expectedItem != foundItem:
-           test.fail("Mismatch in element number %d for '%s'" % (counter + 1, fileName),
+        if expectedItem != foundItem:
+            test.fail("Mismatch in element number %d for '%s'" % (counter + 1, fileName),
                       "%s != %s" % (str(expectedItem), str(foundItem)))
-           return
+            return
     test.passes("All nodes (%d) inside outline match expected nodes for '%s'."
                 % (len(expected), fileName))

@@ -76,7 +76,7 @@ def main():
             # select some other word in .cpp file and select "Edit" -> "Find/Replace".
             clickButton(waitForObject(":Qt Creator.CloseFind_QToolButton"))
             placeCursorToLine(editorWidget, "void Trianglefind::render()")
-            for i in range(10):
+            for _ in range(10):
                 type(editorWidget, "<Left>")
             markText(editorWidget, "Left", 12)
             invokeMenuItem("Edit", "Find/Replace", "Find/Replace")

@@ -24,7 +24,6 @@
 ############################################################################
 
 source("../../shared/qtcreator.py")
-import re
 
 SpeedCrunchPath = ""
 

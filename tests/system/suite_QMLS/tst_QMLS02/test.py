@@ -48,7 +48,7 @@ def main():
                 "Verifying if error is properly reported")
     # repair error - go to written line
     placeCursorToLine(editorArea, testingCodeLine)
-    for i in range(14):
+    for _ in range(14):
         type(editorArea, "<Left>")
     markText(editorArea, "Right")
     type(editorArea, "c")

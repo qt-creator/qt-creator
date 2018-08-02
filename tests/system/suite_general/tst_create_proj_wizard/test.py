@@ -45,7 +45,6 @@ def main():
     projects = catModel.index(0, 0)
     test.compare("Projects", str(projects.data()))
     comboBox = findObject(":New.comboBox_QComboBox")
-    targets = zip(*kits.values())[0]
     test.verify(comboBox.enabled, "Verifying whether combobox is enabled.")
     test.compare(comboBox.currentText, "All Templates")
     try:
