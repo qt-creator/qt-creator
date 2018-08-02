@@ -50,8 +50,7 @@ class AndroidRunner : public ProjectExplorer::RunWorker
 
 public:
     explicit AndroidRunner(ProjectExplorer::RunControl *runControl,
-                           const QString &intentName = QString(),
-                           const Utils::Environment &extraEnvVars = Utils::Environment());
+                           const QString &intentName = QString());
     ~AndroidRunner() override;
 
     Utils::Port gdbServerPort() const { return m_gdbServerPort; }

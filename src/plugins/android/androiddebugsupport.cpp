@@ -99,12 +99,11 @@ static QString toNdkArch(const QString &arch)
     return QLatin1String("arch-") + arch;
 }
 
-AndroidDebugSupport::AndroidDebugSupport(RunControl *runControl, const QString &intentName,
-                                         const Utils::Environment &extraEnvVars)
+AndroidDebugSupport::AndroidDebugSupport(RunControl *runControl, const QString &intentName)
     : Debugger::DebuggerRunTool(runControl)
 {
     setDisplayName("AndroidDebugger");
-    m_runner = new AndroidRunner(runControl, intentName, extraEnvVars);
+    m_runner = new AndroidRunner(runControl, intentName);
     addStartDependency(m_runner);
 }
 

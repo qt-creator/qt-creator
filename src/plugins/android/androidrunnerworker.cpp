@@ -31,6 +31,7 @@
 #include "androidrunconfiguration.h"
 
 #include <debugger/debuggerrunconfigurationaspect.h>
+#include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/baseqtversion.h>
@@ -192,6 +193,10 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     auto target = runConfig->target();
     m_deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
     m_apiLevel = AndroidManager::deviceApiLevel(target);
+
+    m_extraEnvVars = runConfig->extraAspect<EnvironmentAspect>()->environment();
+    qCDebug(androidRunWorkerLog) << "Environment variables for the app"
+                                 << m_extraEnvVars.toStringList();
 
     m_extraAppParams = runConfig->runnable().commandLineArguments;
 
@@ -605,13 +610,6 @@ void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
         m_psIsAlive->start(m_adb, selector() << QStringLiteral("shell")
                            << pidPollingScript.arg(m_processPID));
     }
-}
-
-void AndroidRunnerWorker::setExtraEnvVars(const Utils::Environment &extraEnvVars)
-{
-    m_extraEnvVars = extraEnvVars;
-    qCDebug(androidRunWorkerLog) << "Settings extra env:"
-                                 << extraEnvVars.toStringList();
 }
 
 } // namespace Internal

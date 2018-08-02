@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,41 +22,27 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#include "androidrunenvironmentaspect.h"
 
-#include "androidqmltoolingsupport.h"
-#include "androidrunner.h"
-
-using namespace ProjectExplorer;
+namespace  {
+enum BaseEnvironmentBase {
+    CleanEnvironmentBase
+};
+}
 
 namespace Android {
-namespace Internal {
 
-AndroidQmlToolingSupport::AndroidQmlToolingSupport(RunControl *runControl,
-                                                   const QString &intentName)
-    : RunWorker(runControl)
+AndroidRunEnvironmentAspect::AndroidRunEnvironmentAspect(ProjectExplorer::RunConfiguration *rc) :
+    ProjectExplorer::EnvironmentAspect (rc)
 {
-    setDisplayName("AndroidQmlToolingSupport");
-
-    auto runner = new AndroidRunner(runControl, intentName);
-    addStartDependency(runner);
-
-    auto profiler = runControl->createWorker(runControl->runMode());
-    profiler->addStartDependency(this);
-
-    connect(runner, &AndroidRunner::qmlServerReady, this, [this, profiler](const QUrl &server) {
-        profiler->recordData("QmlServerUrl", server);
-        reportStarted();
-    });
+    addSupportedBaseEnvironment(CleanEnvironmentBase, tr("Clean Environment"));
 }
 
-void AndroidQmlToolingSupport::start()
+Utils::Environment AndroidRunEnvironmentAspect::baseEnvironment() const
 {
+    // Clean Environment
+    return Utils::Environment();
 }
 
-void AndroidQmlToolingSupport::stop()
-{
-    reportStopped();
-}
-
-} // namespace Internal
 } // namespace Android
+

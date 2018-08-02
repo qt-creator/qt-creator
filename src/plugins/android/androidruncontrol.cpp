@@ -38,9 +38,8 @@ using namespace ProjectExplorer;
 namespace Android {
 namespace Internal {
 
-AndroidRunSupport::AndroidRunSupport(RunControl *runControl, const QString &intentName,
-                                     const Utils::Environment &extraEnvVars)
-    : AndroidRunner(runControl, intentName, extraEnvVars)
+AndroidRunSupport::AndroidRunSupport(RunControl *runControl, const QString &intentName)
+    : AndroidRunner(runControl, intentName)
 {
     runControl->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
 }

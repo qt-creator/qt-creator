@@ -118,9 +118,7 @@ using namespace Utils;
 namespace Android {
 namespace Internal {
 
-AndroidRunner::AndroidRunner(RunControl *runControl,
-                             const QString &intentName,
-                             const Utils::Environment &extraEnvVars)
+AndroidRunner::AndroidRunner(RunControl *runControl, const QString &intentName)
     : RunWorker(runControl), m_target(runControl->runConfiguration()->target())
 {
     setDisplayName("AndroidRunner");
@@ -144,7 +142,6 @@ AndroidRunner::AndroidRunner(RunControl *runControl,
     m_worker.reset(new AndroidRunnerWorker(this, m_packageName));
     m_worker->setIntentName(intent);
     m_worker->setIsPreNougat(apiLevel <= 23);
-    m_worker->setExtraEnvVars(extraEnvVars);
 
     m_worker->moveToThread(&m_thread);
 

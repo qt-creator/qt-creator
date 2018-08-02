@@ -85,6 +85,8 @@ Project {
             "androidqtversionfactory.h",
             "androidrunconfiguration.cpp",
             "androidrunconfiguration.h",
+            "androidrunenvironmentaspect.h",
+            "androidrunenvironmentaspect.cpp",
             "androidruncontrol.cpp",
             "androidruncontrol.h",
             "androidrunner.cpp",

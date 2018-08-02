@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -22,41 +22,21 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+#pragma once
 
-#include "androidqmltoolingsupport.h"
-#include "androidrunner.h"
-
-using namespace ProjectExplorer;
+#include <projectexplorer/environmentaspect.h>
 
 namespace Android {
-namespace Internal {
 
-AndroidQmlToolingSupport::AndroidQmlToolingSupport(RunControl *runControl,
-                                                   const QString &intentName)
-    : RunWorker(runControl)
+class AndroidRunEnvironmentAspect : public ProjectExplorer::EnvironmentAspect
 {
-    setDisplayName("AndroidQmlToolingSupport");
+    Q_OBJECT
 
-    auto runner = new AndroidRunner(runControl, intentName);
-    addStartDependency(runner);
+public:
+    AndroidRunEnvironmentAspect(ProjectExplorer::RunConfiguration *rc);
 
-    auto profiler = runControl->createWorker(runControl->runMode());
-    profiler->addStartDependency(this);
+    Utils::Environment baseEnvironment() const override;
+};
 
-    connect(runner, &AndroidRunner::qmlServerReady, this, [this, profiler](const QUrl &server) {
-        profiler->recordData("QmlServerUrl", server);
-        reportStarted();
-    });
-}
-
-void AndroidQmlToolingSupport::start()
-{
-}
-
-void AndroidQmlToolingSupport::stop()
-{
-    reportStopped();
-}
-
-} // namespace Internal
 } // namespace Android
+
