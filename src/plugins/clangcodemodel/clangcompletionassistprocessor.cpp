@@ -77,16 +77,23 @@ static void addAssistProposalItem(QList<AssistProposalItemInterface *> &items,
 }
 
 static void addFunctionOverloadAssistProposalItem(QList<AssistProposalItemInterface *> &items,
-                                                        const ClangCompletionAssistInterface *interface,
-                                                        const CodeCompletion &codeCompletion,
-                                                        const QString &name)
+                                                  AssistProposalItemInterface *sameItem,
+                                                  const ClangCompletionAssistInterface *interface,
+                                                  const CodeCompletion &codeCompletion,
+                                                  const QString &name)
 {
     ClangBackEnd::CodeCompletionChunk resultType = codeCompletion.chunks.first();
-    QTC_ASSERT(resultType.kind == ClangBackEnd::CodeCompletionChunk::ResultType,
-               return;);
-
-    auto *item = static_cast<ClangAssistProposalItem *>(items.last());
+    auto *item = static_cast<ClangAssistProposalItem *>(sameItem);
     item->setHasOverloadsWithParameters(true);
+    if (resultType.kind != ClangBackEnd::CodeCompletionChunk::ResultType) {
+        // It's the constructor.
+        // CLANG-UPGRADE-CHECK: Can we get here with constructor definition?
+        if (!item->firstCodeCompletion().hasParameters)
+            item->removeFirstCodeCompletion();
+        item->appendCodeCompletion(codeCompletion);
+        return;
+    }
+
     QTextCursor cursor = interface->textEditorWidget()->textCursor();
     cursor.setPosition(interface->position());
     cursor.movePosition(QTextCursor::StartOfWord);
@@ -121,10 +128,33 @@ static QList<AssistProposalItemInterface *> toAssistProposalItems(
                 ? CompletionChunksToTextConverter::convertToName(codeCompletion.chunks)
                 : codeCompletion.text.toString();
 
-        if (!items.empty() && items.last()->text() == name && codeCompletion.hasParameters)
-            addFunctionOverloadAssistProposalItem(items, interface, codeCompletion, name);
-        else
+        if (codeCompletion.completionKind == CodeCompletion::ConstructorCompletionKind
+                || codeCompletion.completionKind == CodeCompletion::ClassCompletionKind) {
+            auto samePreviousConstructor
+                    = std::find_if(items.begin(),
+                                   items.end(),
+                                   [&name](const AssistProposalItemInterface *item) {
+                return item->text() == name;
+            });
+            if (samePreviousConstructor == items.end()) {
+                addAssistProposalItem(items, codeCompletion, name);
+            } else {
+                addFunctionOverloadAssistProposalItem(items, *samePreviousConstructor, interface,
+                                                      codeCompletion, name);
+            }
+            continue;
+        }
+
+        if (!items.empty() && items.last()->text() == name) {
+            if ((codeCompletion.completionKind == CodeCompletion::FunctionCompletionKind
+                 || codeCompletion.completionKind == CodeCompletion::FunctionDefinitionCompletionKind)
+                    && codeCompletion.hasParameters) {
+                addFunctionOverloadAssistProposalItem(items, items.back(), interface,
+                                                      codeCompletion, name);
+            }
+        } else {
             addAssistProposalItem(items, codeCompletion, name);
+        }
     }
 
     return items;

@@ -59,6 +59,7 @@ public:
 
     void appendCodeCompletion(const ClangBackEnd::CodeCompletion &firstCodeCompletion);
     const ClangBackEnd::CodeCompletion &firstCodeCompletion() const;
+    void removeFirstCodeCompletion();
 
 private:
     const QVector<ClangBackEnd::FixItContainer> &firstCompletionFixIts() const;

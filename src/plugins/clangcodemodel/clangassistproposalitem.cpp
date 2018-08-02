@@ -183,6 +183,7 @@ void ClangAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface
                 (ccr.completionKind == CodeCompletion::FunctionCompletionKind
                  || ccr.completionKind == CodeCompletion::FunctionDefinitionCompletionKind
                  || ccr.completionKind == CodeCompletion::DestructorCompletionKind
+                 || ccr.completionKind == CodeCompletion::ConstructorCompletionKind
                  || ccr.completionKind == CodeCompletion::SignalCompletionKind
                  || ccr.completionKind == CodeCompletion::SlotCompletionKind)) {
             // When the user typed the opening parenthesis, he'll likely also type the closing one,
@@ -474,6 +475,12 @@ void ClangAssistProposalItem::appendCodeCompletion(const CodeCompletion &codeCom
 const ClangBackEnd::CodeCompletion &ClangAssistProposalItem::firstCodeCompletion() const
 {
     return m_codeCompletions.at(0);
+}
+
+void ClangAssistProposalItem::removeFirstCodeCompletion()
+{
+    QTC_ASSERT(!m_codeCompletions.empty(), return;);
+    m_codeCompletions.erase(m_codeCompletions.begin());
 }
 
 } // namespace Internal
