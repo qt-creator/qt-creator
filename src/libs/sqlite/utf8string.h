@@ -116,6 +116,26 @@ public:
         byteArray.append(textToAppend.byteArray);
     }
 
+    void chop(int n)
+    {
+        byteArray.chop(n);
+    }
+
+    int indexOf(const Utf8String &text) const
+    {
+        return byteArray.indexOf(text.byteArray);
+    }
+
+    int indexOf(const char *text) const
+    {
+        return byteArray.indexOf(text);
+    }
+
+    int indexOf(char character) const
+    {
+        return byteArray.indexOf(character);
+    }
+
     bool contains(const Utf8String &text) const
     {
         return byteArray.contains(text.byteArray);
@@ -149,6 +169,16 @@ public:
     bool endsWith(const Utf8String &text) const
     {
         return byteArray.endsWith(text.byteArray);
+    }
+
+    bool endsWith(const char *text) const
+    {
+        return byteArray.endsWith(text);
+    }
+
+    bool endsWith(char character) const
+    {
+        return byteArray.endsWith(character);
     }
 
     bool isNull() const
