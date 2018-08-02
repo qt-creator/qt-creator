@@ -558,8 +558,9 @@ void TestRunner::debugTests()
                 outputreader, &QObject::deleteLater);
     }
 
-    connect(this, &TestRunner::requestStopTestRun, runControl,
-            &ProjectExplorer::RunControl::initiateStop);
+    m_stopDebugConnect = connect(this, &TestRunner::requestStopTestRun,
+                                 runControl, &ProjectExplorer::RunControl::initiateStop);
+
     connect(runControl, &ProjectExplorer::RunControl::stopped, this, &TestRunner::onFinished);
     ProjectExplorer::ProjectExplorerPlugin::startRunControl(runControl);
 }
@@ -618,6 +619,7 @@ void TestRunner::onFinished()
     qDeleteAll(m_selectedTests);
     m_selectedTests.clear();
 
+    disconnect(m_stopDebugConnect);
     disconnect(m_targetConnect);
     m_fakeFutureInterface = nullptr;
     m_executingTests = false;
