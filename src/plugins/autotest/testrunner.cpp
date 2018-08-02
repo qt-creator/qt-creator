@@ -239,7 +239,8 @@ void TestRunner::cancelCurrent(TestRunner::CancelReason reason)
 
 void TestRunner::onProcessFinished()
 {
-    if (m_currentConfig) {
+    if (m_executingTests && QTC_GUARD(m_currentConfig)) {
+        QTC_CHECK(m_fakeFutureInterface);
         m_fakeFutureInterface->setProgressValue(m_fakeFutureInterface->progressValue()
                                                 + m_currentConfig->testCaseCount());
         if (!m_fakeFutureInterface->isCanceled()) {
@@ -258,6 +259,10 @@ void TestRunner::onProcessFinished()
     }
     resetInternalPointers();
 
+    if (!m_fakeFutureInterface) {
+        QTC_ASSERT(!m_executingTests, m_executingTests = false);
+        return;
+    }
     if (!m_selectedTests.isEmpty() && !m_fakeFutureInterface->isCanceled())
         scheduleNext();
     else
