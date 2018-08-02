@@ -50,10 +50,9 @@ def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWe
         clickButton(waitForObject("{text='Yes' type='QPushButton' unnamed='1' visible='1'}"))
     except:
         pass
-    checkedTargets = __chooseTargets__(targets)
+    __chooseTargets__(targets)
     configureButton = waitForObject(":Qt Creator.Configure Project_QPushButton")
     clickButton(configureButton)
-    return checkedTargets
 
 def openCmakeProject(projectPath, buildDir):
     def additionalFunction():
@@ -175,7 +174,6 @@ def __selectQtVersionDesktop__(checks, available=None, withoutQt4=False):
                 verifyChecked(cbObject % ("Release", objectMap.realName(detailsWidget)))
                 clickButton(detailsButton)
     clickButton(waitForObject(":Next_QPushButton"))
-    return checkedTargets
 
 def __createProjectHandleLastPage__(expectedFiles=[], addToVersionControl="<None>", addToProject=None):
     if len(expectedFiles):
@@ -220,7 +218,7 @@ def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl =
     template = "Qt Widgets Application"
     available = __createProjectOrFileSelectType__("  Application", template)
     __createProjectSetNameAndPath__(path, projectName, checks)
-    checkedTargets = __selectQtVersionDesktop__(checks, available, True)
+    __selectQtVersionDesktop__(checks, available, True)
 
     if checks:
         exp_filename = "mainwindow"
@@ -251,7 +249,6 @@ def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl =
     progressBarWait(20000)
     if checks:
         __verifyFileCreation__(path, expectedFiles)
-    return checkedTargets
 
 # Creates a Qt Console project
 # param path specifies where to create the project
@@ -261,7 +258,7 @@ def createProject_Qt_Console(path, projectName, checks = True, buildSystem = Non
     available = __createProjectOrFileSelectType__("  Application", "Qt Console Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
     __handleBuildSystem__(buildSystem)
-    checkedTargets = __selectQtVersionDesktop__(checks, available)
+    __selectQtVersionDesktop__(checks, available)
 
     expectedFiles = []
     if checks:
@@ -277,7 +274,6 @@ def createProject_Qt_Console(path, projectName, checks = True, buildSystem = Non
     progressBarWait(10000)
     if checks:
         __verifyFileCreation__(path, expectedFiles)
-    return checkedTargets
 
 def createNewQtQuickApplication(workingDir, projectName = None,
                                 targets=Targets.desktopTargetClasses(), minimumQtVersion="5.6",
@@ -324,7 +320,7 @@ def createNewQmlExtension(workingDir, targets=[Targets.DESKTOP_5_6_1_DEFAULT]):
     if workingDir == None:
         workingDir = tempDir()
     __createProjectSetNameAndPath__(workingDir)
-    checkedTargets = __chooseTargets__(targets, available)
+    __chooseTargets__(targets, available)
     nextButton = waitForObject(":Next_QPushButton")
     clickButton(nextButton)
     nameLineEd = waitForObject("{buddy={type='QLabel' text='Object class-name:' unnamed='1' visible='1'} "
@@ -335,18 +331,17 @@ def createNewQmlExtension(workingDir, targets=[Targets.DESKTOP_5_6_1_DEFAULT]):
     replaceEditorContent(uriLineEd, "org.qt-project.test.qmlcomponents")
     clickButton(nextButton)
     __createProjectHandleLastPage__()
-    return checkedTargets
 
 def createEmptyQtProject(workingDir=None, projectName=None, targets=Targets.desktopTargetClasses()):
     __createProjectOrFileSelectType__("  Other Project", "Empty qmake Project")
     if workingDir == None:
         workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
-    checkedTargets = __chooseTargets__(targets)
+    __chooseTargets__(targets)
     snooze(1)
     clickButton(waitForObject(":Next_QPushButton"))
     __createProjectHandleLastPage__()
-    return projectName, checkedTargets
+    return projectName
 
 def createNewNonQtProject(workingDir=None, projectName=None, target=[Targets.DESKTOP_4_8_7_DEFAULT],
                           plainC=False, cmake=False, qbs=False):
@@ -386,13 +381,13 @@ def createNewCPPLib(projectDir = None, projectName = None, className = None, fro
     if projectDir == None:
         projectDir = tempDir()
     projectName = __createProjectSetNameAndPath__(projectDir, projectName, False, libType)
-    checkedTargets = __chooseTargets__(target, available)
+    __chooseTargets__(target, available)
     snooze(1)
     clickButton(waitForObject(":Next_QPushButton"))
     __createProjectHandleModuleSelection__(modules)
     className = __createProjectHandleClassInformation__(className)
     __createProjectHandleLastPage__()
-    return checkedTargets, projectName, className
+    return projectName, className
 
 def createNewQtPlugin(projectDir=None, projectName=None, className=None, fromWelcome=False,
                       target=[Targets.DESKTOP_4_8_7_DEFAULT], baseClass="QGenericPlugin"):
@@ -400,12 +395,12 @@ def createNewQtPlugin(projectDir=None, projectName=None, className=None, fromWel
     if projectDir == None:
         projectDir = tempDir()
     projectName = __createProjectSetNameAndPath__(projectDir, projectName, False, LibType.QT_PLUGIN)
-    checkedTargets = __chooseTargets__(target, available)
+    __chooseTargets__(target, available)
     snooze(1)
     clickButton(waitForObject(":Next_QPushButton"))
     className = __createProjectHandleClassInformation__(className, baseClass)
     __createProjectHandleLastPage__()
-    return checkedTargets, projectName, className
+    return projectName, className
 
 # parameter target can be a list of Targets
 # parameter availableTargets should be the result of __createProjectOrFileSelectType__()

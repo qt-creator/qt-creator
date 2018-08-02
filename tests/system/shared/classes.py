@@ -82,6 +82,13 @@ class Targets:
         return result
 
     @staticmethod
+    def getIdForTargetName(targetName):
+        for id in Targets.ALL_TARGETS:
+            if Targets.getStringForTarget(id) == targetName:
+                return id
+        raise Exception("'%s' is not a known target name" % targetName)
+
+    @staticmethod
     def getDefaultKit():
         return Targets.DESKTOP_5_6_1_DEFAULT
 

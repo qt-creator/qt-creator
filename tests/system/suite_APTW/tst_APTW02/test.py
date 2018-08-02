@@ -30,8 +30,8 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    checkedTargets, projectName = createNewQtQuickApplication(tempDir(), "SampleApp")
+    createNewQtQuickApplication(tempDir(), "SampleApp")
     # run project for debug and release and verify results
-    runVerify(checkedTargets)
+    runVerify()
     #close Qt Creator
     invokeMenuItem("File", "Exit")

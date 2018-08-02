@@ -50,12 +50,12 @@ def main():
 
     # empty Qt
     workingDir = tempDir()
-    projectName, checkedTargets = createEmptyQtProject(workingDir, "EmptyQtProj", targets)
+    projectName = createEmptyQtProject(workingDir, "EmptyQtProj", targets)
     addFileToProject(os.path.join(workingDir, projectName), "  C++", "C++ Source File", "main.cpp")
     editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
     typeLines(editor, ["int main() {"])
     invokeMenuItem("File", "Save All")
-    performDebugging(projectName, checkedTargets)
+    performDebugging(projectName)
     invokeMenuItem("File", "Close All Projects and Editors")
     # C/C++
     for name,isC in {"C":True, "CPP":False}.items():
@@ -74,8 +74,8 @@ def main():
             typeLines(editor, ["int main() {"])
             invokeMenuItem("File", "Save All")
             progressBarWait(15000)
-            setRunInTerminal(1, 0, False)
-            performDebugging(projectName, [singleTarget])
+            setRunInTerminal(singleTarget, False)
+            performDebugging(projectName)
             invokeMenuItem("File", "Close All Projects and Editors")
     invokeMenuItem("File", "Exit")
 
@@ -89,14 +89,14 @@ def __handleAppOutputWaitForDebuggerFinish__():
         invokeMenuItem("Debug", "Abort Debugging")
         waitFor("str(appOutput.plainText).endswith('Debugging has finished')", 5000)
 
-def performDebugging(projectName, checkedTargets):
-    for kit, config in iterateBuildConfigs(len(checkedTargets), "Debug"):
+def performDebugging(projectName):
+    for kit, config in iterateBuildConfigs("Debug"):
         test.log("Selecting '%s' as build config" % config)
-        verifyBuildConfig(len(checkedTargets), kit, config, True, True)
+        verifyBuildConfig(kit, config, True, True)
         waitForObject(":*Qt Creator.Build Project_Core::Internal::FancyToolButton")
         invokeMenuItem("Build", "Rebuild All")
         waitForCompile()
-        isMsvc = isMsvcConfig(len(checkedTargets), kit)
+        isMsvc = isMsvcConfig(kit)
         clickButton(waitForObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton"))
         handleDebuggerWarnings(config, isMsvc)
         waitForObject(":Qt Creator.DebugModeWidget_QSplitter")

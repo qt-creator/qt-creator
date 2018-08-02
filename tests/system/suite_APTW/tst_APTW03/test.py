@@ -56,11 +56,11 @@ def handleInsertVirtualFunctions(expected):
     clickButton("{text='OK' type='QPushButton' unnamed='1' visible='1'}")
 
 def checkSimpleCppLib(projectName, static):
-    checkedTargets, projectName, className = createNewCPPLib(tempDir(), projectName, "MyClass",
-                                                             target=Targets.desktopTargetClasses(),
-                                                             isStatic=static)
-    for kit, config in iterateBuildConfigs(len(checkedTargets), "Release"):
-        verifyBuildConfig(len(checkedTargets), kit, config, False, True)
+    projectName, className = createNewCPPLib(tempDir(), projectName, "MyClass",
+                                             target=Targets.desktopTargetClasses(),
+                                             isStatic=static)
+    for kit, config in iterateBuildConfigs("Release"):
+        verifyBuildConfig(kit, config, False, True)
         invokeMenuItem('Build', 'Build Project "%s"' % projectName)
         waitForCompile(10000)
         checkCompile()
@@ -81,12 +81,12 @@ def main():
 
     # Qt Plugin needs Qt4.8 for QGenericPlugin which is tested by default
     targets = Targets.desktopTargetClasses()
-    checkedTargets, projectName, className = createNewQtPlugin(tempDir(), "SampleApp3", "MyPlugin",
-                                                               target=targets)
+    projectName, className = createNewQtPlugin(tempDir(), "SampleApp3", "MyPlugin",
+                                               target=targets)
     virtualFunctionsAdded = False
-    for kit, config in iterateBuildConfigs(len(checkedTargets), "Debug"):
-        is487Kit = checkedTargets[kit] in (Targets.DESKTOP_4_8_7_DEFAULT, Targets.EMBEDDED_LINUX)
-        verifyBuildConfig(len(checkedTargets), kit, config, True, True)
+    for kit, config in iterateBuildConfigs("Debug"):
+        is487Kit = kit in (Targets.DESKTOP_4_8_7_DEFAULT, Targets.EMBEDDED_LINUX)
+        verifyBuildConfig(kit, config, True, True)
         if virtualFunctionsAdded and platform.system() in ('Microsoft', 'Windows') and is487Kit:
             test.warning("Skipping building of Qt4.8 targets because of QTCREATORBUG-12251.")
             continue
