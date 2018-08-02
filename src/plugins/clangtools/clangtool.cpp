@@ -98,7 +98,10 @@ ClangTool::ClangTool(const QString &name)
     m_stopAction = Debugger::createStopAction();
 }
 
-ClangTool::~ClangTool() = default;
+ClangTool::~ClangTool()
+{
+    delete m_diagnosticView;
+}
 
 FileInfos ClangTool::collectFileInfos(Project *project, bool askUserForFileSelection) const
 {

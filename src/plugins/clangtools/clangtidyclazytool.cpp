@@ -203,7 +203,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     m_diagnosticFilterModel = new DiagnosticFilterModel(this);
     m_diagnosticFilterModel->setSourceModel(m_diagnosticModel);
 
-    m_diagnosticView = std::make_unique<DiagnosticView>();
+    m_diagnosticView = new DiagnosticView;
     initDiagnosticView();
     m_diagnosticView->setModel(m_diagnosticFilterModel);
     m_diagnosticView->setObjectName(QLatin1String("ClangTidyClazyIssuesView"));
@@ -226,7 +226,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     action->setDisabled(true);
     action->setIcon(Utils::Icons::PREV_TOOLBAR.icon());
     action->setToolTip(tr("Go to previous diagnostic."));
-    connect(action, &QAction::triggered, m_diagnosticView.get(), &DetailedErrorView::goBack);
+    connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goBack);
     m_goBack = action;
 
     // Go to next diagnostic
@@ -234,7 +234,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     action->setDisabled(true);
     action->setIcon(Utils::Icons::NEXT_TOOLBAR.icon());
     action->setToolTip(tr("Go to next diagnostic."));
-    connect(action, &QAction::triggered, m_diagnosticView.get(), &DetailedErrorView::goNext);
+    connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goNext);
     m_goNext = action;
 
     // Filter line edit
@@ -254,7 +254,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
             &ClangToolsDiagnosticModel::fixItsToApplyCountChanged,
             [this](int c) {
         m_applyFixitsButton->setEnabled(c);
-        static_cast<DiagnosticView *>(m_diagnosticView.get())->setSelectedFixItsCount(c);
+        static_cast<DiagnosticView *>(m_diagnosticView.data())->setSelectedFixItsCount(c);
     });
     connect(m_applyFixitsButton, &QToolButton::clicked, [this]() {
         QVector<DiagnosticItem *> diagnosticItems;
@@ -270,7 +270,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
                                "Clang project to search for errors and warnings.");
 
     auto perspective = new Perspective(tr("Clang-Tidy and Clazy"));
-    perspective->addWindow(m_diagnosticView.get(), Perspective::SplitVertical, nullptr);
+    perspective->addWindow(m_diagnosticView, Perspective::SplitVertical, nullptr);
     Debugger::registerPerspective(ClangTidyClazyPerspectiveId, perspective);
 
     action = new QAction(tr("Clang-Tidy and Clazy..."), this);

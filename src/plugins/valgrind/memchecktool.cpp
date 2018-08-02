@@ -391,6 +391,7 @@ class MemcheckTool : public QObject
 
 public:
     MemcheckTool();
+    ~MemcheckTool();
 
     void setupRunner(MemcheckToolRunner *runTool);
     void loadShowXmlLogFile(const QString &filePath, const QString &exitMsg);
@@ -424,7 +425,7 @@ private:
 
     Valgrind::XmlProtocol::ErrorListModel m_errorModel;
     MemcheckErrorFilterProxyModel m_errorProxyModel;
-    std::unique_ptr<MemcheckErrorView> m_errorView;
+    QPointer<MemcheckErrorView> m_errorView;
 
     QList<QAction *> m_errorFilterActions;
     QAction *m_filterProjectAction;
@@ -539,7 +540,7 @@ MemcheckTool::MemcheckTool()
     initKindFilterAction(a, { InvalidFree,  MismatchedFree });
     m_errorFilterActions.append(a);
 
-    m_errorView = std::make_unique<MemcheckErrorView>();
+    m_errorView = new MemcheckErrorView;
     m_errorView->setObjectName(QLatin1String("MemcheckErrorView"));
     m_errorView->setFrameStyle(QFrame::NoFrame);
     m_errorView->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -556,7 +557,7 @@ MemcheckTool::MemcheckTool()
     m_errorView->setWindowTitle(tr("Memory Issues"));
 
     auto perspective = new Perspective(tr("Memcheck"));
-    perspective->addWindow(m_errorView.get(), Perspective::SplitVertical, nullptr);
+    perspective->addWindow(m_errorView, Perspective::SplitVertical, nullptr);
     Debugger::registerPerspective(MemcheckPerspectiveId, perspective);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
@@ -582,7 +583,7 @@ MemcheckTool::MemcheckTool()
     action->setDisabled(true);
     action->setIcon(Icons::PREV_TOOLBAR.icon());
     action->setToolTip(tr("Go to previous leak."));
-    connect(action, &QAction::triggered, m_errorView.get(), &MemcheckErrorView::goBack);
+    connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goBack);
     m_goBack = action;
 
     // Go to next leak.
@@ -590,7 +591,7 @@ MemcheckTool::MemcheckTool()
     action->setDisabled(true);
     action->setIcon(Icons::NEXT_TOOLBAR.icon());
     action->setToolTip(tr("Go to next leak."));
-    connect(action, &QAction::triggered, m_errorView.get(), &MemcheckErrorView::goNext);
+    connect(action, &QAction::triggered, m_errorView, &MemcheckErrorView::goNext);
     m_goNext = action;
 
     auto filterButton = new QToolButton;
@@ -695,6 +696,11 @@ MemcheckTool::MemcheckTool()
 
     updateFromSettings();
     maybeActiveRunConfigurationChanged();
+}
+
+MemcheckTool::~MemcheckTool()
+{
+    delete m_errorView;
 }
 
 void MemcheckTool::heobAction()

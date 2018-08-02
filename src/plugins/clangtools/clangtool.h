@@ -72,7 +72,7 @@ protected:
     void initDiagnosticView();
 
     ClangToolsDiagnosticModel *m_diagnosticModel = nullptr;
-    std::unique_ptr<Debugger::DetailedErrorView> m_diagnosticView;
+    QPointer<Debugger::DetailedErrorView> m_diagnosticView;
 
     QAction *m_startAction = nullptr;
     QAction *m_stopAction = nullptr;
