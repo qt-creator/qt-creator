@@ -93,13 +93,13 @@ void EnvironmentAspect::addSupportedBaseEnvironment(int base, const QString &dis
 {
     m_displayNames[base] = displayName;
     if (m_base == -1)
-        m_base = base;
+        setBaseEnvironmentBase(base);
 }
 
 void EnvironmentAspect::addPreferredBaseEnvironment(int base, const QString &displayName)
 {
     m_displayNames[base] = displayName;
-    m_base = base;
+    setBaseEnvironmentBase(base);
 }
 
 void EnvironmentAspect::fromMap(const QVariantMap &map)
