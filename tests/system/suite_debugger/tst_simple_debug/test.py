@@ -29,11 +29,9 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    # Requires Qt 4.8
-    targets = Targets.desktopTargetClasses()
     # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
-    projectName = createNewQtQuickApplication(workingDir, targets=targets)[1]
+    projectName = createNewQtQuickApplication(workingDir)[1]
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     if placeCursorToLine(editor, "}"):
         type(editor, '<Left>')

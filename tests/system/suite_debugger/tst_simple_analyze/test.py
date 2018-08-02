@@ -31,9 +31,7 @@ def main():
         return
     # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
-    # we need a Qt >= 5.3 - we use checkedTargets, so we should get only valid targets
-    analyzerTargets = Targets.desktopTargetClasses()
-    projectName = createNewQtQuickApplication(workingDir, targets=analyzerTargets)[1]
+    projectName = createNewQtQuickApplication(workingDir)[1]
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     if placeCursorToLine(editor, "}"):
         type(editor, '<Left>')
