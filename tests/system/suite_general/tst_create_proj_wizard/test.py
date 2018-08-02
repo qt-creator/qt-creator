@@ -87,23 +87,20 @@ def main():
 
 def verifyKitCheckboxes(kits, displayedPlatforms):
     waitForObject("{type='QLabel' unnamed='1' visible='1' text='Kit Selection'}")
-    availableCheckboxes = filter(visibleCheckBoxExists, kits.keys())
+    availableCheckboxes = frozenset(filter(visibleCheckBoxExists, kits.keys()))
     # verification whether expected, found and configured match
-    for t in kits:
-        if t in displayedPlatforms:
-            if t in availableCheckboxes:
-                test.passes("Found expected kit '%s' on 'Kit Selection' page." % t)
-                availableCheckboxes.remove(t)
-            else:
-                test.fail("Expected kit '%s' missing on 'Kit Selection' page." % t)
-        else:
-            if t in availableCheckboxes:
-                test.fail("Kit '%s' found on 'Kit Selection' page - but was not expected!" % t)
-            else:
-                test.passes("Irrelevant kit '%s' not found on 'Kit Selection' page." % t)
-    if len(availableCheckboxes) != 0:
-        test.fail("Found unexpected additional kit(s) %s on 'Kit Selection' page."
-                  % str(availableCheckboxes))
+
+    expectedShownKits = availableCheckboxes.intersection(displayedPlatforms)
+    unexpectedShownKits = availableCheckboxes.difference(displayedPlatforms)
+    missingKits = displayedPlatforms.difference(availableCheckboxes)
+
+    test.log("Expected kits shown on 'Kit Selection' page:\n%s" % "\n".join(expectedShownKits))
+    if len(unexpectedShownKits):
+        test.fail("Kits found on 'Kit Selection' page but not expected:\n%s"
+                  % "\n".join(unexpectedShownKits))
+    if len(missingKits):
+        test.fail("Expected kits missing on 'Kit Selection' page:\n%s"
+                  % "\n".join(missingKits))
 
 def handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
                                 specialHandlingFunc = None, *args):
