@@ -53,6 +53,7 @@ QnxDeviceTester::QnxDeviceTester(QObject *parent)
             this, &QnxDeviceTester::handleProcessFinished);
 
     m_commandsToTest << QLatin1String("awk")
+                     << QLatin1String("cat")
                      << QLatin1String("grep")
                      << QLatin1String("kill")
                      << QLatin1String("netstat")
