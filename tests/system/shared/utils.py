@@ -457,7 +457,6 @@ def iterateQtVersions(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
                         else:
                             currResult = additionalFunction(target, version, *argsForAdditionalFunc)
                     except:
-                        import sys
                         t,v,_ = sys.exc_info()
                         currResult = None
                         test.fatal("Function to additionally execute on Options Dialog could not be found or "
@@ -520,7 +519,6 @@ def iterateKits(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
                     else:
                         currResult = additionalFunction(item, kitName, *argsForAdditionalFunc)
                 except:
-                    import sys
                     t,v,_ = sys.exc_info()
                     currResult = None
                     test.fatal("Function to additionally execute on Options Dialog could not be "

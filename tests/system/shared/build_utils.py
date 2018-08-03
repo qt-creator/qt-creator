@@ -23,8 +23,6 @@
 #
 ############################################################################
 
-import re;
-
 def getBuildIssues():
     ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
     model = waitForObject(":Qt Creator.Issues_QListView").model()

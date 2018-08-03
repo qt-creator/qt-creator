@@ -23,8 +23,6 @@
 #
 ############################################################################
 
-import os
-
 # Helper class to create a tree structure
 class Tree:
     def __init__(self, name=None, value=None, children=None):

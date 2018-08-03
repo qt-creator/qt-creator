@@ -24,7 +24,6 @@
 ############################################################################
 
 source("../../shared/qtcreator.py")
-import re
 
 # test search in help mode and advanced search
 searchKeywordDictionary={ "abundance":True, "deplmint":False, "QODBC":True, "bld":False }

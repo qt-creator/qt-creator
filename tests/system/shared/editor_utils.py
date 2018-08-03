@@ -23,8 +23,6 @@
 #
 ############################################################################
 
-import re;
-
 # places the cursor inside the given editor into the given line
 # (leading and trailing whitespaces are ignored!)
 # and goes to the end of the line

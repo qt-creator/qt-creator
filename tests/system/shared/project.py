@@ -23,9 +23,6 @@
 #
 ############################################################################
 
-import __builtin__
-import re
-
 def openQbsProject(projectPath):
     cleanUpUserFiles(projectPath)
     invokeMenuItem("File", "Open File or Project...")
