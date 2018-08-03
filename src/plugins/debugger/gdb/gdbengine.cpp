@@ -72,6 +72,7 @@
 #include <QMessageBox>
 #include <QProcess>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QJsonArray>
 
 using namespace Core;
@@ -1434,9 +1435,19 @@ void GdbEngine::handleStop2(const GdbMi &data)
             gNumber = data["number"];
         const QString rid = gNumber.data();
         const QString threadId = data["thread-id"].data();
-        if (const Breakpoint bp = breakHandler()->findBreakpointByResponseId(rid))
-            showStatusMessage(bp->msgBreakpointTriggered(threadId));
         m_currentThread = threadId;
+        if (const Breakpoint bp = breakHandler()->findBreakpointByResponseId(rid)) {
+            showStatusMessage(bp->msgBreakpointTriggered(threadId));
+            const QString commands = bp->command().trimmed();
+            // Can be either c or cont[inue]
+            const QRegularExpression contExp("(^|\\n)\\s*c(ont(i(n(ue?)?)?)?)?$");
+            QTC_CHECK(contExp.isValid());
+            if (contExp.match(commands).hasMatch()) {
+                notifyInferiorRunRequested();
+                notifyInferiorRunOk();
+                return;
+            }
+        }
     } else {
         QString reasontr = msgStopped(reason);
         if (reason == "signal-received") {
