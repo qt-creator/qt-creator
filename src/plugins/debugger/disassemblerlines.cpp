@@ -218,9 +218,9 @@ QString DisassemblerLine::toString(int maxOp) const
         if (address)
             str += QString("0x%1  ").arg(address, 0, 16);
         if (offset)
-            str += QString("<+0x%2> ").arg(offset, 4, 16, QLatin1Char('0'));
+            str += QString("<+%1> ").arg(offset, 5);
         else
-            str += "          ";
+            str += "         ";
         str += QString("       %1 ").arg(bytes);
         str += QString(maxOp - bytes.size(), QLatin1Char(' '));
         str += data;
