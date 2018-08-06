@@ -97,6 +97,9 @@ public:
     static QString installerResourcePath();
     static QString documentationPath();
     static QString libexecPath();
+    static QString clangExecutable(const QString &clangBinDirectory);
+    static QString clangIncludeDirectory(const QString &clangVersion,
+                                         const QString &clangResourceDirectory);
 
     static QString versionString();
     static QString buildCompatibilityString();

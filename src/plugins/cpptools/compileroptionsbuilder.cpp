@@ -510,6 +510,16 @@ void CompilerOptionsBuilder::addPredefinedHeaderPathsOptions()
     addClangIncludeFolder();
 }
 
+static QString clangIncludeDirectory(const QString &clangVersion,
+                                     const QString &clangResourceDirectory)
+{
+#ifndef UNIT_TESTS
+    return Core::ICore::clangIncludeDirectory(clangVersion, clangResourceDirectory);
+#else
+    return QString();
+#endif
+}
+
 void CompilerOptionsBuilder::addClangIncludeFolder()
 {
     QTC_CHECK(!m_clangVersion.isEmpty());
@@ -523,32 +533,6 @@ void CompilerOptionsBuilder::addProjectConfigFileInclude()
         add("-include");
         add(QDir::toNativeSeparators(m_projectPart.projectConfigFile));
     }
-}
-
-static QString creatorLibexecPath()
-{
-#ifndef UNIT_TESTS
-    return Core::ICore::instance()->libexecPath();
-#else
-    return QString();
-#endif
-}
-
-QString clangIncludeDirectory(const QString &clangVersion, const QString &clangResourceDirectory)
-{
-    QDir dir(creatorLibexecPath() + "/clang" + clangIncludePath(clangVersion));
-    if (!dir.exists() || !QFileInfo(dir, "stdint.h").exists())
-        dir = QDir(clangResourceDirectory);
-    return QDir::toNativeSeparators(dir.canonicalPath());
-}
-
-QString clangExecutable(const QString &clangBinDirectory)
-{
-    const QString hostExeSuffix(QTC_HOST_EXE_SUFFIX);
-    QFileInfo executable(creatorLibexecPath() + "/clang/bin/clang" + hostExeSuffix);
-    if (!executable.exists())
-        executable = QFileInfo(clangBinDirectory + "/clang" + hostExeSuffix);
-    return QDir::toNativeSeparators(executable.canonicalFilePath());
 }
 
 void CompilerOptionsBuilder::undefineClangVersionMacrosForMsvc()

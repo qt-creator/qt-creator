@@ -97,15 +97,4 @@ private:
     QString m_clangResourceDirectory;
 };
 
-QString CPPTOOLS_EXPORT clangExecutable(const QString &clangBinDirectory);
-
-QString CPPTOOLS_EXPORT clangIncludeDirectory(const QString &clangVersion,
-                                              const QString &clangResourceDirectory);
-
-template<class T>
-T clangIncludePath(const T &clangVersion)
-{
-    return "/lib/clang/" + clangVersion + "/include";
-}
-
 } // namespace CppTools

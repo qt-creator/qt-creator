@@ -209,7 +209,8 @@ AnalyzeUnits ClangToolRunControl::unitsToAnalyze(const QString &clangVersion)
 {
     QTC_ASSERT(m_projectInfo.isValid(), return AnalyzeUnits());
 
-    const QString clangResourceDirectory = clangIncludeDirectory(m_clangExecutable, clangVersion);
+    const QString clangResourceDirectory = Core::ICore::clangIncludeDirectory(m_clangExecutable,
+                                                                              clangVersion);
     return toAnalyzeUnits(m_fileInfos, clangVersion, clangResourceDirectory);
 }
 
@@ -232,7 +233,7 @@ ClangToolRunControl::ClangToolRunControl(RunControl *runControl,
                                          const FileInfos &fileInfos)
     : RunWorker(runControl)
     , m_projectBuilder(new ProjectBuilder(runControl, target->project(), this))
-    , m_clangExecutable(CppTools::clangExecutable(CLANG_BINDIR))
+    , m_clangExecutable(Core::ICore::clangExecutable(CLANG_BINDIR))
     , m_temporaryDir("clangtools-XXXXXX")
     , m_target(target)
     , m_fileInfos(fileInfos)

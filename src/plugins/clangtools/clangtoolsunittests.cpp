@@ -29,6 +29,7 @@
 #include "clangtidyclazytool.h"
 #include "clangtoolsutils.h"
 
+#include <coreplugin/icore.h>
 #include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolstestcase.h>
@@ -62,7 +63,7 @@ void ClangToolsUnitTests::initTestCase()
     if (!toolchain)
         QSKIP("This test requires that there is a kit with a toolchain.");
 
-    if (CppTools::clangExecutable(CLANG_BINDIR).isEmpty())
+    if (Core::ICore::clangExecutable(CLANG_BINDIR).isEmpty())
         QSKIP("No clang suitable for analyzing found");
 
     m_tmpDir = new CppTools::Tests::TemporaryCopiedDir(QLatin1String(":/unit-tests"));
