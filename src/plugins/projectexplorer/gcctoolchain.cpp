@@ -942,7 +942,8 @@ void GccToolChainFactory::versionProbe(const QString &name, Core::Id language, C
                 continue;
             const bool isNative = fileName.startsWith(name);
             const Abi abi = isNative ? Abi::hostAbi() : Abi();
-            tcs.append(autoDetectToolchains(entry, abi, language, type, known));
+            tcs.append(autoDetectToolchains(compilerPathFromEnvironment(entry), abi, language, type,
+                                            known));
             known.append(tcs);
         }
     }
@@ -952,10 +953,12 @@ QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alr
 {
     QList<ToolChain *> tcs;
     QList<ToolChain *> known = alreadyKnown;
-    tcs.append(autoDetectToolchains("g++", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
-                                    Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
-    tcs.append(autoDetectToolchains("gcc", Abi::hostAbi(), Constants::C_LANGUAGE_ID,
-                                    Constants::GCC_TOOLCHAIN_TYPEID, alreadyKnown));
+    tcs.append(autoDetectToolchains(compilerPathFromEnvironment("g++"), Abi::hostAbi(),
+                                    Constants::CXX_LANGUAGE_ID, Constants::GCC_TOOLCHAIN_TYPEID,
+                                    alreadyKnown));
+    tcs.append(autoDetectToolchains(compilerPathFromEnvironment("gcc"), Abi::hostAbi(),
+                                    Constants::C_LANGUAGE_ID, Constants::GCC_TOOLCHAIN_TYPEID,
+                                    alreadyKnown));
     known.append(tcs);
     versionProbe("g++", Constants::CXX_LANGUAGE_ID, Constants::GCC_TOOLCHAIN_TYPEID, tcs, known);
     versionProbe("gcc", Constants::C_LANGUAGE_ID, Constants::GCC_TOOLCHAIN_TYPEID, tcs, known,
@@ -996,7 +999,13 @@ GccToolChain *GccToolChainFactory::createToolChain(bool autoDetect)
     return new GccToolChain(autoDetect ? ToolChain::AutoDetection : ToolChain::ManualDetection);
 }
 
-QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &compiler,
+Utils::FileName GccToolChainFactory::compilerPathFromEnvironment(const QString &compilerName)
+{
+    Environment systemEnvironment = Environment::systemEnvironment();
+    return systemEnvironment.searchInPath(compilerName);
+}
+
+QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const FileName &compilerPath,
                                                              const Abi &requiredAbi,
                                                              Core::Id language,
                                                              const Core::Id requiredTypeId,
@@ -1004,11 +1013,8 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
 {
     QList<ToolChain *> result;
 
-    Environment systemEnvironment = Environment::systemEnvironment();
-    const FileName compilerPath = systemEnvironment.searchInPath(compiler);
     if (compilerPath.isEmpty())
         return result;
-    const FileName canonicalPath = FileUtils::canonicalPath(compilerPath);
 
     result = Utils::filtered(alreadyKnown, [requiredTypeId, compilerPath](ToolChain *tc) {
         return tc->typeId() == requiredTypeId && tc->compilerCommand() == compilerPath;
@@ -1338,10 +1344,13 @@ QList<ToolChain *> ClangToolChainFactory::autoDetect(const QList<ToolChain *> &a
 {
     QList<ToolChain *> tcs;
     QList<ToolChain *> known = alreadyKnown;
-    tcs.append(autoDetectToolchains("clang++", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
-                                    Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown));
-    tcs.append(autoDetectToolchains("clang", Abi::hostAbi(), Constants::C_LANGUAGE_ID,
-                                    Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown));
+
+    tcs.append(autoDetectToolchains(compilerPathFromEnvironment("clang++"), Abi::hostAbi(),
+                                    Constants::CXX_LANGUAGE_ID, Constants::CLANG_TOOLCHAIN_TYPEID,
+                                    alreadyKnown));
+    tcs.append(autoDetectToolchains(compilerPathFromEnvironment("clang"), Abi::hostAbi(),
+                                    Constants::C_LANGUAGE_ID, Constants::CLANG_TOOLCHAIN_TYPEID,
+                                    alreadyKnown));
     known.append(tcs);
     versionProbe("clang++", Constants::CXX_LANGUAGE_ID, Constants::CLANG_TOOLCHAIN_TYPEID, tcs, known);
     versionProbe("clang", Constants::C_LANGUAGE_ID, Constants::CLANG_TOOLCHAIN_TYPEID, tcs, known);
@@ -1435,10 +1444,12 @@ QList<ToolChain *> MingwToolChainFactory::autoDetect(const QList<ToolChain *> &a
 {
     Abi ha = Abi::hostAbi();
     ha = Abi(ha.architecture(), Abi::WindowsOS, Abi::WindowsMSysFlavor, Abi::PEFormat, ha.wordWidth());
-    QList<ToolChain *> result = autoDetectToolchains("g++", ha, Constants::CXX_LANGUAGE_ID,
-                                                     Constants::MINGW_TOOLCHAIN_TYPEID, alreadyKnown);
-    result += autoDetectToolchains("gcc", ha, Constants::C_LANGUAGE_ID,
-                                   Constants::MINGW_TOOLCHAIN_TYPEID, alreadyKnown);
+    QList<ToolChain *> result = autoDetectToolchains(
+                compilerPathFromEnvironment("g++"), ha, Constants::CXX_LANGUAGE_ID,
+                Constants::MINGW_TOOLCHAIN_TYPEID, alreadyKnown);
+    result += autoDetectToolchains(
+                compilerPathFromEnvironment("gcc"), ha, Constants::C_LANGUAGE_ID,
+                Constants::MINGW_TOOLCHAIN_TYPEID, alreadyKnown);
     return result;
 }
 
@@ -1532,8 +1543,9 @@ QSet<Core::Id> LinuxIccToolChainFactory::supportedLanguages() const
 
 QList<ToolChain *> LinuxIccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
-    return autoDetectToolchains("icpc", Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
-                                Constants::LINUXICC_TOOLCHAIN_TYPEID, alreadyKnown);
+    return autoDetectToolchains(compilerPathFromEnvironment("icpc"), Abi::hostAbi(),
+                                Constants::CXX_LANGUAGE_ID, Constants::LINUXICC_TOOLCHAIN_TYPEID,
+                                alreadyKnown);
 }
 
 QList<ToolChain *> LinuxIccToolChainFactory::autoDetect(const FileName &compilerPath, const Core::Id &language)

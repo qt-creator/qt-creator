@@ -69,9 +69,12 @@ protected:
                       QList<ToolChain *> &tcs,
                       QList<ToolChain *> &known,
                       const QSet<QString> &filteredNames = {});
-    QList<ToolChain *> autoDetectToolchains(const QString &compiler, const Abi &requiredAbi,
-                                            Core::Id language, const Core::Id requiredTypeId,
-                                            const QList<ToolChain *> &alreadyKnown);
+
+    Utils::FileName compilerPathFromEnvironment(const QString &compilerName);
+
+    QList<ToolChain *> autoDetectToolchains(
+            const Utils::FileName &compilerPath, const Abi &requiredAbi, Core::Id language,
+            const Core::Id requiredTypeId, const QList<ToolChain *> &alreadyKnown);
     QList<ToolChain *> autoDetectToolChain(const Utils::FileName &compilerPath, const Core::Id language,
                                            const Abi &requiredAbi = Abi());
 };
