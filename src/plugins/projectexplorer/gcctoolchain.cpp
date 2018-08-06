@@ -32,6 +32,8 @@
 #include "projectexplorerconstants.h"
 #include "toolchainmanager.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -1052,8 +1054,9 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolChain(const FileName &comp
     if (!requiredAbi.isNull() && !abiList.contains(requiredAbi)) {
         if (requiredAbi.wordWidth() != 64
                 || !abiList.contains(Abi(requiredAbi.architecture(), requiredAbi.os(), requiredAbi.osFlavor(),
-                                         requiredAbi.binaryFormat(), 32)))
+                                         requiredAbi.binaryFormat(), 32))) {
             return result;
+        }
     }
 
     for (const Abi &abi : abiList) {
@@ -1345,15 +1348,28 @@ QList<ToolChain *> ClangToolChainFactory::autoDetect(const QList<ToolChain *> &a
     QList<ToolChain *> tcs;
     QList<ToolChain *> known = alreadyKnown;
 
-    tcs.append(autoDetectToolchains(compilerPathFromEnvironment("clang++"), Abi::hostAbi(),
+    const Abi hostAbi = Abi::hostAbi();
+    tcs.append(autoDetectToolchains(compilerPathFromEnvironment("clang++"), hostAbi,
                                     Constants::CXX_LANGUAGE_ID, Constants::CLANG_TOOLCHAIN_TYPEID,
                                     alreadyKnown));
-    tcs.append(autoDetectToolchains(compilerPathFromEnvironment("clang"), Abi::hostAbi(),
+    tcs.append(autoDetectToolchains(compilerPathFromEnvironment("clang"), hostAbi,
                                     Constants::C_LANGUAGE_ID, Constants::CLANG_TOOLCHAIN_TYPEID,
                                     alreadyKnown));
     known.append(tcs);
     versionProbe("clang++", Constants::CXX_LANGUAGE_ID, Constants::CLANG_TOOLCHAIN_TYPEID, tcs, known);
     versionProbe("clang", Constants::C_LANGUAGE_ID, Constants::CLANG_TOOLCHAIN_TYPEID, tcs, known);
+
+    const FileName compilerPath = FileName::fromString(Core::ICore::clangExecutable(CLANG_BINDIR));
+    if (!compilerPath.isEmpty()) {
+        tcs.append(autoDetectToolchains(compilerPath.parentDir().appendPath(
+                                            HostOsInfo::withExecutableSuffix("clang++")),
+                                        hostAbi, Constants::CXX_LANGUAGE_ID,
+                                        Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown));
+        tcs.append(autoDetectToolchains(compilerPath.parentDir().appendPath(
+                                            HostOsInfo::withExecutableSuffix("clang")),
+                                        hostAbi, Constants::C_LANGUAGE_ID,
+                                        Constants::CLANG_TOOLCHAIN_TYPEID, alreadyKnown));
+    }
     return tcs;
 }
 

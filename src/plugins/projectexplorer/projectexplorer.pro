@@ -3,6 +3,10 @@ QT += qml
 include(../../qtcreatorplugin.pri)
 include(customwizard/customwizard.pri)
 include(jsonwizard/jsonwizard.pri)
+
+include(../../shared/clang/clang_installation.pri)
+include(../../shared/clang/clang_defines.pri)
+
 HEADERS += projectexplorer.h \
     abi.h \
     abiwidget.h \
