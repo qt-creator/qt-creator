@@ -37,7 +37,9 @@
 #include <precompiledheaderstorage.h>
 #include <precompiledheadersupdatedmessage.h>
 #include <refactoringdatabaseinitializer.h>
+#include <removegeneratedfilesmessage.h>
 #include <removeprojectpartsmessage.h>
+#include <updategeneratedfilesmessage.h>
 #include <updateprojectpartsmessage.h>
 
 #include <cpptools/compileroptionsbuilder.h>
@@ -121,10 +123,19 @@ protected:
 TEST_F(ProjectUpdater, CallUpdateProjectParts)
 {
     std::vector<CppTools::ProjectPart*> projectParts = {&projectPart, &projectPart};
-    ClangBackEnd::UpdateProjectPartsMessage message{{expectedContainer.clone(), expectedContainer.clone()},
-                                                    {generatedFile}};
+    ClangBackEnd::UpdateProjectPartsMessage message{{expectedContainer.clone(), expectedContainer.clone()}};
 
     EXPECT_CALL(mockPchManagerServer, updateProjectParts(message));
+
+    updater.updateProjectParts(projectParts, {generatedFile});
+}
+
+TEST_F(ProjectUpdater, CallUpdateGeneratedFiles)
+{
+    std::vector<CppTools::ProjectPart*> projectParts = {&projectPart, &projectPart};
+    ClangBackEnd::UpdateGeneratedFilesMessage message{{generatedFile}};
+
+    EXPECT_CALL(mockPchManagerServer, updateGeneratedFiles(message));
 
     updater.updateProjectParts(projectParts, {generatedFile});
 }

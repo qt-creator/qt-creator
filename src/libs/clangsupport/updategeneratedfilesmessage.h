@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,23 +25,53 @@
 
 #pragma once
 
-#include <projectpartcontainerv2.h>
-#include <filecontainerv2.h>
+#include "filecontainerv2.h"
 
 namespace ClangBackEnd {
 
-class SymbolIndexingInterface
+class UpdateGeneratedFilesMessage
 {
 public:
-    SymbolIndexingInterface() = default;
-    SymbolIndexingInterface(const SymbolIndexingInterface&) = delete;
-    SymbolIndexingInterface &operator=(const SymbolIndexingInterface&) = delete;
+    UpdateGeneratedFilesMessage() = default;
+    UpdateGeneratedFilesMessage(V2::FileContainers &&generatedFiles)
+        : generatedFiles(std::move(generatedFiles))
+    {}
 
-    virtual void updateProjectParts(V2::ProjectPartContainers &&projectParts,
-                                    const V2::FileContainers &generatedFiles) = 0;
+    V2::FileContainers takeGeneratedFiles()
+    {
+        return std::move(generatedFiles);
+    }
 
-protected:
-    ~SymbolIndexingInterface() = default;
+    friend QDataStream &operator<<(QDataStream &out, const UpdateGeneratedFilesMessage &message)
+    {
+        out << message.generatedFiles;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, UpdateGeneratedFilesMessage &message)
+    {
+        in >> message.generatedFiles;
+
+        return in;
+    }
+
+    friend bool operator==(const UpdateGeneratedFilesMessage &first,
+                           const UpdateGeneratedFilesMessage &second)
+    {
+        return first.generatedFiles == second.generatedFiles;
+    }
+
+    UpdateGeneratedFilesMessage clone() const
+    {
+        return *this;
+    }
+
+public:
+    V2::FileContainers generatedFiles;
 };
 
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const UpdateGeneratedFilesMessage &message);
+
+DECLARE_MESSAGE(UpdateGeneratedFilesMessage)
 } // namespace ClangBackEnd

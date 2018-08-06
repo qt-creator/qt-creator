@@ -28,7 +28,9 @@
 #include "endmessage.h"
 #include "messageenvelop.h"
 #include "pchmanagerclientinterface.h"
+#include "removegeneratedfilesmessage.h"
 #include "removeprojectpartsmessage.h"
+#include "updategeneratedfilesmessage.h"
 #include "updateprojectpartsmessage.h"
 
 #include <QIODevice>
@@ -52,6 +54,16 @@ void PchManagerServerProxy::updateProjectParts(UpdateProjectPartsMessage &&messa
 }
 
 void PchManagerServerProxy::removeProjectParts(RemoveProjectPartsMessage &&message)
+{
+    m_writeMessageBlock.write(message);
+}
+
+void PchManagerServerProxy::updateGeneratedFiles(UpdateGeneratedFilesMessage &&message)
+{
+    m_writeMessageBlock.write(message);
+}
+
+void PchManagerServerProxy::removeGeneratedFiles(RemoveGeneratedFilesMessage &&message)
 {
     m_writeMessageBlock.write(message);
 }

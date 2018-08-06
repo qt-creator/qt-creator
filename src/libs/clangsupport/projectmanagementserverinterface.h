@@ -29,7 +29,9 @@
 
 namespace ClangBackEnd {
 
+class RemoveGeneratedFilesMessage;
 class RemoveProjectPartsMessage;
+class UpdateGeneratedFilesMessage;
 class UpdateProjectPartsMessage;
 
 class ProjectManagementServerInterface : public IpcServerInterface
@@ -37,6 +39,8 @@ class ProjectManagementServerInterface : public IpcServerInterface
 public:
     virtual void updateProjectParts(UpdateProjectPartsMessage &&message) = 0;
     virtual void removeProjectParts(RemoveProjectPartsMessage &&message) = 0;
+    virtual void updateGeneratedFiles(UpdateGeneratedFilesMessage &&message) = 0;
+    virtual void removeGeneratedFiles(RemoveGeneratedFilesMessage &&message) = 0;
 
 protected:
     ~ProjectManagementServerInterface() = default;

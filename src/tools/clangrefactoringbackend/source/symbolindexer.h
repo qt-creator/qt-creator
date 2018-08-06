@@ -46,7 +46,7 @@ public:
                   Sqlite::TransactionInterface &transactionInterface);
 
     void updateProjectParts(V2::ProjectPartContainers &&projectParts,
-                            V2::FileContainers &&generatedFiles);
+                            const V2::FileContainers &generatedFiles);
     void updateProjectPart(V2::ProjectPartContainer &&projectPart,
                            const V2::FileContainers &generatedFiles);
 

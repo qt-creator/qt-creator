@@ -37,7 +37,7 @@ public:
                      const ClangBackEnd::V2::FileContainers &generatedFiles));
 
    void updateProjectParts(ClangBackEnd::V2::ProjectPartContainers &&projectParts,
-                           ClangBackEnd::V2::FileContainers &&generatedFiles) override
+                           const ClangBackEnd::V2::FileContainers &generatedFiles) override
    {
        updateProjectParts(projectParts, generatedFiles);
    }

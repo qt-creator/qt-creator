@@ -35,7 +35,9 @@
 #include <filepathcaching.h>
 #include <refactoringdatabaseinitializer.h>
 #include <precompiledheadersupdatedmessage.h>
+#include <removegeneratedfilesmessage.h>
 #include <removeprojectpartsmessage.h>
+#include <updategeneratedfilesmessage.h>
 #include <updateprojectpartsmessage.h>
 
 namespace {
@@ -166,7 +168,6 @@ TEST_F(PchManagerClient, ProjectPartPchAddedToDatabase)
 TEST_F(PchManagerClient, ProjectPartPchRemovedFromDatabase)
 {
     EXPECT_CALL(mockPrecompiledHeaderStorage, deletePrecompiledHeader(TypedEq<Utils::SmallStringView>(projectPartId)));
-
 
     projectUpdater.removeProjectParts({QString(projectPartId)});
 }

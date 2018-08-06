@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,23 +25,55 @@
 
 #pragma once
 
-#include <projectpartcontainerv2.h>
-#include <filecontainerv2.h>
+#include <clangsupport_global.h>
+
+#include "filepath.h"
 
 namespace ClangBackEnd {
 
-class SymbolIndexingInterface
+class RemoveGeneratedFilesMessage
 {
 public:
-    SymbolIndexingInterface() = default;
-    SymbolIndexingInterface(const SymbolIndexingInterface&) = delete;
-    SymbolIndexingInterface &operator=(const SymbolIndexingInterface&) = delete;
+    RemoveGeneratedFilesMessage() = default;
+    RemoveGeneratedFilesMessage(FilePaths &&generatedFiles)
+        : generatedFiles(std::move(generatedFiles))
+    {}
 
-    virtual void updateProjectParts(V2::ProjectPartContainers &&projectParts,
-                                    const V2::FileContainers &generatedFiles) = 0;
+    FilePaths takeGeneratedFiles()
+    {
+        return std::move(generatedFiles);
+    }
 
-protected:
-    ~SymbolIndexingInterface() = default;
+    friend QDataStream &operator<<(QDataStream &out, const RemoveGeneratedFilesMessage &message)
+    {
+        out << message.generatedFiles;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, RemoveGeneratedFilesMessage &message)
+    {
+        in >> message.generatedFiles;
+
+        return in;
+    }
+
+    friend bool operator==(const RemoveGeneratedFilesMessage &first,
+                           const RemoveGeneratedFilesMessage &second)
+    {
+        return first.generatedFiles == second.generatedFiles;
+    }
+
+    RemoveGeneratedFilesMessage clone() const
+    {
+        return *this;
+    }
+
+public:
+    FilePaths generatedFiles;
 };
 
+CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RemoveGeneratedFilesMessage &message);
+
+DECLARE_MESSAGE(RemoveGeneratedFilesMessage)
 } // namespace ClangBackEnd

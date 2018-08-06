@@ -47,10 +47,12 @@ using ::testing::Args;
 using ::testing::Property;
 using ::testing::Eq;
 
+using ClangBackEnd::RemoveGeneratedFilesMessage;
+using ClangBackEnd::RemoveProjectPartsMessage;
 using ClangBackEnd::UpdateProjectPartsMessage;
+using ClangBackEnd::UpdateGeneratedFilesMessage;
 using ClangBackEnd::V2::FileContainer;
 using ClangBackEnd::V2::ProjectPartContainer;
-using ClangBackEnd::RemoveProjectPartsMessage;
 
 class RefactoringClientServerInProcess : public ::testing::Test
 {
@@ -182,12 +184,22 @@ TEST_F(RefactoringClientServerInProcess, SendUpdateProjectPartsMessage)
                                       {"/includes"},
                                       {{1, 1}},
                                       {{1, 2}}};
-    FileContainer fileContainer{{"/path/to/", "file"}, "content", {}};
-    UpdateProjectPartsMessage message{{projectPart2}, {fileContainer}};
+    UpdateProjectPartsMessage message{{projectPart2}};
 
     EXPECT_CALL(mockRefactoringServer, updateProjectParts(message));
 
     serverProxy.updateProjectParts(message.clone());
+    scheduleServerMessages();
+}
+
+TEST_F(RefactoringClientServerInProcess, SendUpdateGeneratedFilesMessage)
+{
+    FileContainer fileContainer{{"/path/to/", "file"}, "content", {}};
+    UpdateGeneratedFilesMessage message{{fileContainer}};
+
+    EXPECT_CALL(mockRefactoringServer, updateGeneratedFiles(message));
+
+    serverProxy.updateGeneratedFiles(message.clone());
     scheduleServerMessages();
 }
 
@@ -198,6 +210,16 @@ TEST_F(RefactoringClientServerInProcess, SendRemoveProjectPartsMessage)
     EXPECT_CALL(mockRefactoringServer, removeProjectParts(message));
 
     serverProxy.removeProjectParts(message.clone());
+    scheduleServerMessages();
+}
+
+TEST_F(RefactoringClientServerInProcess, SendRemoveGeneratedFilesMessage)
+{
+    RemoveGeneratedFilesMessage message{{{"/path/to/", "file"}}};
+
+    EXPECT_CALL(mockRefactoringServer, removeGeneratedFiles(message));
+
+    serverProxy.removeGeneratedFiles(message.clone());
     scheduleServerMessages();
 }
 

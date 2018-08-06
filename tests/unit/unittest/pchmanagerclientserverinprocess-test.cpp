@@ -32,7 +32,9 @@
 #include <pchmanagerclientproxy.h>
 #include <pchmanagerserverproxy.h>
 #include <precompiledheadersupdatedmessage.h>
+#include <removegeneratedfilesmessage.h>
 #include <removeprojectpartsmessage.h>
+#include <updategeneratedfilesmessage.h>
 #include <updateprojectpartsmessage.h>
 
 #include <QBuffer>
@@ -41,10 +43,12 @@
 
 #include <vector>
 
+using ClangBackEnd::UpdateGeneratedFilesMessage;
 using ClangBackEnd::UpdateProjectPartsMessage;
+using ClangBackEnd::RemoveGeneratedFilesMessage;
+using ClangBackEnd::RemoveProjectPartsMessage;
 using ClangBackEnd::V2::FileContainer;
 using ClangBackEnd::V2::ProjectPartContainer;
-using ClangBackEnd::RemoveProjectPartsMessage;
 using ClangBackEnd::PrecompiledHeadersUpdatedMessage;
 
 using ::testing::Args;
@@ -98,12 +102,22 @@ TEST_F(PchManagerClientServerInProcess, SendUpdateProjectPartsMessage)
                                       {"/includes"},
                                       {{1, 1}},
                                       {{1, 2}}};
-    FileContainer fileContainer{{"/path/to/", "file"}, "content", {}};
-    UpdateProjectPartsMessage message{{projectPart2}, {fileContainer}};
+    UpdateProjectPartsMessage message{{projectPart2}};
 
     EXPECT_CALL(mockPchManagerServer, updateProjectParts(message));
 
     serverProxy.updateProjectParts(message.clone());
+    scheduleServerMessages();
+}
+
+TEST_F(PchManagerClientServerInProcess, SendUpdateGeneratedFilesMessage)
+{
+    FileContainer fileContainer{{"/path/to/", "file"}, "content", {}};
+    UpdateGeneratedFilesMessage message{{fileContainer}};
+
+    EXPECT_CALL(mockPchManagerServer, updateGeneratedFiles(message));
+
+    serverProxy.updateGeneratedFiles(message.clone());
     scheduleServerMessages();
 }
 
@@ -114,6 +128,16 @@ TEST_F(PchManagerClientServerInProcess, SendRemoveProjectPartsMessage)
     EXPECT_CALL(mockPchManagerServer, removeProjectParts(message));
 
     serverProxy.removeProjectParts(message.clone());
+    scheduleServerMessages();
+}
+
+TEST_F(PchManagerClientServerInProcess, SendRemoveGeneratedFilesMessage)
+{
+    RemoveGeneratedFilesMessage message{{{"/path/to/", "file"}}};
+
+    EXPECT_CALL(mockPchManagerServer, removeGeneratedFiles(message));
+
+    serverProxy.removeGeneratedFiles(message.clone());
     scheduleServerMessages();
 }
 

@@ -62,7 +62,7 @@ public:
     }
 
     void updateProjectParts(V2::ProjectPartContainers &&projectParts,
-                            V2::FileContainers &&generatedFiles);
+                            const V2::FileContainers &generatedFiles) override;
 
 private:
     FilePathCachingInterface &m_filePathCache;

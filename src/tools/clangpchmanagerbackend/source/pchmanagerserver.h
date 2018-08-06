@@ -53,6 +53,8 @@ public:
     void end() override;
     void updateProjectParts(UpdateProjectPartsMessage &&message) override;
     void removeProjectParts(RemoveProjectPartsMessage &&message) override;
+    void updateGeneratedFiles(UpdateGeneratedFilesMessage &&message) override;
+    void removeGeneratedFiles(RemoveGeneratedFilesMessage &&message) override;
 
     void pathsWithIdsChanged(const Utils::SmallStringVector &ids) override;
     void pathsChanged(const FilePathIds &filePathIds) override;

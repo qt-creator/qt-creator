@@ -26,7 +26,9 @@
 #include "pchmanagerserverinterface.h"
 
 #include "messageenvelop.h"
+#include "removegeneratedfilesmessage.h"
 #include "removeprojectpartsmessage.h"
+#include "updategeneratedfilesmessage.h"
 #include "updateprojectpartsmessage.h"
 
 #include <QDebug>
@@ -44,6 +46,12 @@ void PchManagerServerInterface::dispatch(const MessageEnvelop &messageEnvelop)
             break;
         case MessageType::RemoveProjectPartsMessage:
             removeProjectParts(messageEnvelop.message<RemoveProjectPartsMessage>());
+            break;
+        case MessageType::UpdateGeneratedFilesMessage:
+            updateGeneratedFiles(messageEnvelop.message<UpdateGeneratedFilesMessage>());
+            break;
+        case MessageType::RemoveGeneratedFilesMessage:
+            removeGeneratedFiles(messageEnvelop.message<RemoveGeneratedFilesMessage>());
             break;
         default:
             qWarning() << "Unknown IpcClientMessage";

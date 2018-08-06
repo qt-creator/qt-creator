@@ -38,6 +38,10 @@ public:
                  void (const ClangBackEnd::UpdateProjectPartsMessage&));
     MOCK_METHOD1(removeProjectParts,
                  void (const ClangBackEnd::RemoveProjectPartsMessage&));
+    MOCK_METHOD1(updateGeneratedFiles,
+                 void (const ClangBackEnd::UpdateGeneratedFilesMessage&));
+    MOCK_METHOD1(removeGeneratedFiles,
+                 void (const ClangBackEnd::RemoveGeneratedFilesMessage&));
 
     void updateProjectParts(ClangBackEnd::UpdateProjectPartsMessage &&message) override
     {
@@ -47,5 +51,15 @@ public:
     void removeProjectParts(ClangBackEnd::RemoveProjectPartsMessage &&message) override
     {
         removeProjectParts(message);
+    }
+
+    void updateGeneratedFiles(ClangBackEnd::UpdateGeneratedFilesMessage &&message) override
+    {
+        updateGeneratedFiles(message);
+    }
+
+    void removeGeneratedFiles(ClangBackEnd::RemoveGeneratedFilesMessage &&message) override
+    {
+        removeGeneratedFiles(message);
     }
 };

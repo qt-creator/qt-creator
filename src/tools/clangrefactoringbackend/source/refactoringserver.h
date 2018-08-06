@@ -62,7 +62,10 @@ public:
     void requestSourceRangesAndDiagnosticsForQueryMessage(RequestSourceRangesAndDiagnosticsForQueryMessage &&message) override;
     void requestSourceRangesForQueryMessage(RequestSourceRangesForQueryMessage &&message) override;
     void updateProjectParts(UpdateProjectPartsMessage &&message) override;
+    void updateGeneratedFiles(UpdateGeneratedFilesMessage &&message) override;
     void removeProjectParts(RemoveProjectPartsMessage &&message) override;
+    void removeGeneratedFiles(RemoveGeneratedFilesMessage &&message) override;
+
     void cancel() override;
 
     bool isCancelingJobs() const;
@@ -81,6 +84,7 @@ private:
 
 private:
     ClangQueryGatherer m_gatherer;
+    V2::FileContainers m_generatedFiles;
     QTimer m_pollTimer;
     SymbolIndexingInterface &m_symbolIndexing;
     FilePathCachingInterface &m_filePathCache;

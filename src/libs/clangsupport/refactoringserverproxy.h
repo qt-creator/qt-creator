@@ -55,6 +55,8 @@ public:
     void requestSourceRangesForQueryMessage(RequestSourceRangesForQueryMessage &&message) override;
     void updateProjectParts(UpdateProjectPartsMessage &&message) override;
     void removeProjectParts(RemoveProjectPartsMessage &&message) override;
+    void updateGeneratedFiles(UpdateGeneratedFilesMessage &&message) override;
+    void removeGeneratedFiles(RemoveGeneratedFilesMessage &&message) override;
     void cancel() override;
 };
 

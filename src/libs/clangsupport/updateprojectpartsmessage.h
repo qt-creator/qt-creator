@@ -34,10 +34,8 @@ class UpdateProjectPartsMessage
 {
 public:
     UpdateProjectPartsMessage() = default;
-    UpdateProjectPartsMessage(V2::ProjectPartContainers &&projectsParts,
-                              V2::FileContainers &&generatedFiles)
-        : projectsParts(std::move(projectsParts)),
-          generatedFiles(std::move(generatedFiles))
+    UpdateProjectPartsMessage(V2::ProjectPartContainers &&projectsParts)
+        : projectsParts(std::move(projectsParts))
     {}
 
     V2::ProjectPartContainers takeProjectsParts()
@@ -45,15 +43,9 @@ public:
         return std::move(projectsParts);
     }
 
-    V2::FileContainers takeGeneratedFiles()
-    {
-        return std::move(generatedFiles);
-    }
-
     friend QDataStream &operator<<(QDataStream &out, const UpdateProjectPartsMessage &message)
     {
         out << message.projectsParts;
-        out << message.generatedFiles;
 
         return out;
     }
@@ -61,7 +53,6 @@ public:
     friend QDataStream &operator>>(QDataStream &in, UpdateProjectPartsMessage &message)
     {
         in >> message.projectsParts;
-        in >> message.generatedFiles;
 
         return in;
     }
@@ -69,19 +60,16 @@ public:
     friend bool operator==(const UpdateProjectPartsMessage &first,
                            const UpdateProjectPartsMessage &second)
     {
-        return first.projectsParts == second.projectsParts
-            && first.generatedFiles == second.generatedFiles;
+        return first.projectsParts == second.projectsParts;
     }
 
     UpdateProjectPartsMessage clone() const
     {
-        return UpdateProjectPartsMessage(Utils::clone(projectsParts),
-                                         Utils::clone(generatedFiles));
+        return *this;
     }
 
 public:
     V2::ProjectPartContainers projectsParts;
-    V2::FileContainers generatedFiles;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const UpdateProjectPartsMessage &message);

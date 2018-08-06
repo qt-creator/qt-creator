@@ -30,6 +30,7 @@
 #include <filepathid.h>
 #include <pchmanagerserverinterface.h>
 #include <removeprojectpartsmessage.h>
+#include <updategeneratedfilesmessage.h>
 #include <updateprojectpartsmessage.h>
 
 #include <cpptools/compileroptionsbuilder.h>
@@ -67,10 +68,11 @@ void ProjectUpdater::updateProjectParts(const std::vector<CppTools::ProjectPart 
 {
     m_excludedPaths = createExcludedPaths(generatedFiles);
 
-    ClangBackEnd::UpdateProjectPartsMessage message{toProjectPartContainers(projectParts),
-                                                       std::move(generatedFiles)};
+    m_server.updateGeneratedFiles( // TODO move to an other code path
+                ClangBackEnd::UpdateGeneratedFilesMessage{std::move(generatedFiles)});
 
-    m_server.updateProjectParts(std::move(message));
+    m_server.updateProjectParts(
+                ClangBackEnd::UpdateProjectPartsMessage{toProjectPartContainers(projectParts)});
 }
 
 void ProjectUpdater::removeProjectParts(const QStringList &projectPartIds)

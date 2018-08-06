@@ -50,8 +50,14 @@ void RefactoringServerInterface::dispatch(const MessageEnvelop &messageEnvelop)
         case MessageType::UpdateProjectPartsMessage:
             updateProjectParts(messageEnvelop.message<UpdateProjectPartsMessage>());
             break;
+        case MessageType::UpdateGeneratedFilesMessage:
+            updateGeneratedFiles(messageEnvelop.message<UpdateGeneratedFilesMessage>());
+            break;
         case MessageType::RemoveProjectPartsMessage:
             removeProjectParts(messageEnvelop.message<RemoveProjectPartsMessage>());
+            break;
+        case MessageType::RemoveGeneratedFilesMessage:
+            removeGeneratedFiles(messageEnvelop.message<RemoveGeneratedFilesMessage>());
             break;
         case MessageType::CancelMessage:
             cancel();

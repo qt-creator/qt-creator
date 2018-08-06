@@ -298,6 +298,20 @@ TEST_F(RefactoringServerSlowTest, ForInvalidRequestSourceRangesAndDiagnosticsGet
     refactoringServer.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(message));
 }
 
+TEST_F(RefactoringServer, UpdateGeneratedFilesSetMemberWhichIsUsedForSymbolIndexing)
+{
+    FileContainers unsaved{{{TESTDATA_DIR, "query_simplefunction.h"},
+                            "void f();",
+                            {}}};
+
+
+    EXPECT_CALL(mockSymbolIndexing,
+                updateProjectParts(_, unsaved));
+
+    refactoringServer.updateGeneratedFiles(Utils::clone(unsaved));
+    refactoringServer.updateProjectParts({});
+}
+
 TEST_F(RefactoringServer, UpdateProjectPartsCallsSymbolIndexingUpdateProjectParts)
 {
     ProjectPartContainers projectParts{{{"projectPartId",
@@ -306,16 +320,14 @@ TEST_F(RefactoringServer, UpdateProjectPartsCallsSymbolIndexingUpdateProjectPart
                                         {"/includes"},
                                         {filePathId("header1.h")},
                                         {filePathId("main.cpp")}}}};
-    FileContainers unsaved{{{TESTDATA_DIR, "query_simplefunction.h"},
-                            "void f();",
-                            {}}};
 
 
     EXPECT_CALL(mockSymbolIndexing,
-                updateProjectParts(projectParts, unsaved));
+                updateProjectParts(projectParts, _));
 
-    refactoringServer.updateProjectParts({Utils::clone(projectParts), Utils::clone(unsaved)});
+    refactoringServer.updateProjectParts({Utils::clone(projectParts)});
 }
+
 
 void RefactoringServer::SetUp()
 {

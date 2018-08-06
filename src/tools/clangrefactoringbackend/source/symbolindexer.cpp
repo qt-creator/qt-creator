@@ -43,7 +43,7 @@ SymbolIndexer::SymbolIndexer(SymbolsCollectorInterface &symbolsCollector,
     pathWatcher.setNotifier(this);
 }
 
-void SymbolIndexer::updateProjectParts(V2::ProjectPartContainers &&projectParts, V2::FileContainers &&generatedFiles)
+void SymbolIndexer::updateProjectParts(V2::ProjectPartContainers &&projectParts, const V2::FileContainers &generatedFiles)
 {
         for (V2::ProjectPartContainer &projectPart : projectParts)
             updateProjectPart(std::move(projectPart), generatedFiles);

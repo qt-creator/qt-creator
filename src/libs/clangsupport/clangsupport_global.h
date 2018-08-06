@@ -177,7 +177,9 @@ enum class MessageType : quint8 {
     CancelMessage,
     UpdateProjectPartsMessage,
     RemoveProjectPartsMessage,
-    PrecompiledHeadersUpdatedMessage
+    PrecompiledHeadersUpdatedMessage,
+    UpdateGeneratedFilesMessage,
+    RemoveGeneratedFilesMessage
 };
 
 template<MessageType messageEnumeration>

@@ -69,6 +69,16 @@ void RefactoringServerProxy::removeProjectParts(RemoveProjectPartsMessage &&mess
     m_writeMessageBlock.write(message);
 }
 
+void RefactoringServerProxy::updateGeneratedFiles(UpdateGeneratedFilesMessage &&message)
+{
+    m_writeMessageBlock.write(message);
+}
+
+void RefactoringServerProxy::removeGeneratedFiles(RemoveGeneratedFilesMessage &&message)
+{
+    m_writeMessageBlock.write(message);
+}
+
 void RefactoringServerProxy::cancel()
 {
     m_writeMessageBlock.write(CancelMessage());

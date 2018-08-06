@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,25 +23,15 @@
 **
 ****************************************************************************/
 
-#pragma once
-
-#include <projectpartcontainerv2.h>
-#include <filecontainerv2.h>
+#include "removegeneratedfilesmessage.h"
 
 namespace ClangBackEnd {
 
-class SymbolIndexingInterface
+QDebug operator<<(QDebug debug, const RemoveGeneratedFilesMessage &message)
 {
-public:
-    SymbolIndexingInterface() = default;
-    SymbolIndexingInterface(const SymbolIndexingInterface&) = delete;
-    SymbolIndexingInterface &operator=(const SymbolIndexingInterface&) = delete;
+    debug.nospace() << "RemoveGeneratedFilesMessage("
+                    << message.generatedFiles << ")";
 
-    virtual void updateProjectParts(V2::ProjectPartContainers &&projectParts,
-                                    const V2::FileContainers &generatedFiles) = 0;
-
-protected:
-    ~SymbolIndexingInterface() = default;
-};
-
+    return debug;
+}
 } // namespace ClangBackEnd
