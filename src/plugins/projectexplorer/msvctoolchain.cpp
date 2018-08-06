@@ -30,6 +30,8 @@
 #include "taskhub.h"
 #include "toolchainmanager.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/optional.h>
@@ -877,7 +879,7 @@ static const MsvcToolChain *selectMsvcToolChain(const QString &clangClPath,
 }
 
 static QList<ToolChain *> detectClangClToolChainInPath(
-        const QString &clangClPath, const QList<ToolChain *> &alreadyKnown)
+        const QString &clangClPath, const QList<ToolChain *> &alreadyKnown, bool isDefault = false)
 {
     QList<ToolChain *> res;
     const unsigned char wordWidth = Utils::is64BitWindowsBinary(clangClPath) ? 64 : 32;
@@ -891,9 +893,10 @@ static QList<ToolChain *> detectClangClToolChainInPath(
 
     Utils::Environment systemEnvironment = Utils::Environment::systemEnvironment();
     const Abi targetAbi = toolChain->targetAbi();
-    const QString name = QStringLiteral("LLVM ") + QString::number(wordWidth)
-        + QStringLiteral("bit based on ")
-        + Abi::toString(targetAbi.osFlavor()).toUpper();
+    const QString name = QString("%1LLVM %2 bit based on %3")
+              .arg(QLatin1String(isDefault ? "Default " : ""))
+              .arg(wordWidth)
+              .arg(Abi::toString(targetAbi.osFlavor()).toUpper());
     for (auto language: {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}) {
         ClangClToolChain *tc = static_cast<ClangClToolChain *>(
                     Utils::findOrDefault(
@@ -1048,6 +1051,15 @@ void ClangClToolChain::resetMsvcToolChain(const MsvcToolChain *base)
     m_abi = base->targetAbi();
     m_vcvarsBat = base->varsBat();
     setVarsBatArg(base->varsBatArg());
+}
+
+bool ClangClToolChain::operator ==(const ToolChain &other) const
+{
+    if (!MsvcToolChain::operator ==(other))
+        return false;
+
+    const auto *clangClTc = static_cast<const ClangClToolChain *>(&other);
+    return m_clangPath == clangClTc->m_clangPath;
 }
 
 // --------------------------------------------------------------------------
@@ -1242,20 +1254,31 @@ QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> 
 #endif
 
     QList<ToolChain *> results;
+    QList<ToolChain *> known = alreadyKnown;
+
+    QString qtCreatorsClang = Core::ICore::clangExecutable(CLANG_BINDIR);
+    if (!qtCreatorsClang.isEmpty()) {
+        qtCreatorsClang = Utils::FileName::fromString(qtCreatorsClang).parentDir()
+                .appendPath("clang-cl.exe").toString();
+        results.append(detectClangClToolChainInPath(qtCreatorsClang, alreadyKnown, true));
+        known.append(results);
+    }
+
     const QSettings registry(QLatin1String(registryNode), QSettings::NativeFormat);
     if (registry.status() == QSettings::NoError) {
         const QString path = QDir::cleanPath(registry.value(QStringLiteral(".")).toString());
         const QString clangClPath = compilerFromPath(path);
         if (!path.isEmpty()) {
-            results.append(detectClangClToolChainInPath(clangClPath, alreadyKnown));
-            return results;
+            results.append(detectClangClToolChainInPath(clangClPath, known));
+            known.append(results);
         }
     }
 
     const Utils::Environment systemEnvironment = Utils::Environment::systemEnvironment();
     const Utils::FileName clangClPath = systemEnvironment.searchInPath("clang-cl");
     if (!clangClPath.isEmpty())
-        results.append(detectClangClToolChainInPath(clangClPath.toString(), alreadyKnown));
+        results.append(detectClangClToolChainInPath(clangClPath.toString(), known));
+
     return results;
 }
 

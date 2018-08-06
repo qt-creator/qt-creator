@@ -134,6 +134,8 @@ public:
     void setClangPath(const QString &path) { m_clangPath = path; }
 
     void resetMsvcToolChain(const MsvcToolChain *base = nullptr);
+
+    bool operator ==(const ToolChain &) const override;
 private:
     QString m_clangPath;
 };
