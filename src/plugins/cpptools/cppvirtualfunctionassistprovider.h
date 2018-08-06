@@ -40,6 +40,7 @@ namespace CppTools {
 
 class CPPTOOLS_EXPORT VirtualFunctionAssistProvider : public TextEditor::IAssistProvider
 {
+    Q_OBJECT
 public:
     VirtualFunctionAssistProvider();
 
