@@ -1023,19 +1023,6 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
 
     result = autoDetectToolChain(compilerPath, language, requiredAbi);
 
-    if (!requiredAbi.isNull()) {
-        const Abi alternateAbi = Abi(requiredAbi.architecture(), requiredAbi.os(),
-                                     requiredAbi.osFlavor(), requiredAbi.binaryFormat(), 32);
-        ToolChain *abiTc = Utils::findOrDefault(result, [&requiredAbi, &alternateAbi](const ToolChain *tc) {
-            return requiredAbi == tc->targetAbi()
-                    || (requiredAbi.wordWidth() == 64 && tc->targetAbi() == alternateAbi);
-        });
-        if (!abiTc) {
-            qDeleteAll(result);
-            result.clear();
-        }
-    }
-
     return result;
 }
 
