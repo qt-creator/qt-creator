@@ -52,6 +52,7 @@ public:
     void setInherited(bool inherited) { m_inherited = inherited; }
     bool inherited() const { return m_inherited; }
     TestTreeItem *createParentGroupNode() const override;
+    bool isGroupable() const override;
 private:
     TestTreeItem *findChildByNameAndInheritance(const QString &name, bool inherited) const;
     QString nameSuffix() const;
