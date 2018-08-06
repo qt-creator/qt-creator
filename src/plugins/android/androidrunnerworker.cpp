@@ -399,13 +399,16 @@ void AndroidRunnerWorker::asyncStartHelper()
     args << "-n" << m_intentName;
     if (m_useCppDebugger) {
         args << "-D";
-        QString gdbServerSocket;
         // run-as <package-name> pwd fails on API 22 so route the pwd through shell.
         if (!runAdb({"shell", "run-as", m_packageName, "/system/bin/sh", "-c", "pwd"})) {
             emit remoteProcessFinished(tr("Failed to get process path. Reason: %1.").arg(m_lastRunAdbError));
             return;
         }
-        gdbServerSocket = QString::fromUtf8(m_lastRunAdbRawOutput.trimmed()) + "/debug-socket";
+
+        QString packageDir = QString::fromUtf8(m_lastRunAdbRawOutput.trimmed());
+        // Add executable flag to package dir. Gdb can't connect to running server on device on
+        // e.g. on Android 8 with NDK 10e
+        runAdb({"shell", "run-as", m_packageName, "chmod", "a+x", packageDir});
 
         QString gdbServerExecutable;
         if (!runAdb({"shell", "run-as", m_packageName, "ls", "lib/"})) {
@@ -425,6 +428,7 @@ void AndroidRunnerWorker::asyncStartHelper()
             return;
         }
 
+        QString gdbServerSocket = packageDir + "/debug-socket";
         runAdb({"shell", "run-as", m_packageName, "killall", gdbServerExecutable});
         runAdb({"shell", "run-as", m_packageName, "rm", gdbServerSocket});
         std::unique_ptr<QProcess, Deleter> gdbServerProcess(new QProcess, deleter);
