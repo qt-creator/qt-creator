@@ -251,10 +251,27 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QFutureInter
         QTC_ASSERT(rc, return DeployErrorCode::Failure);
         const bool deployQtLive = rc->id().name().startsWith(qmlProjectRunConfigIdName);
         QString packageName;
+        int packageVersion = -1;
         if (deployQtLive) {
-            AndroidManager::apkInfo(m_apkPath, &packageName);
-            if (AndroidManager::packageInstalled(m_serialNumber, packageName))
-                return DeployErrorCode::NoError;
+            // Do not install Qt live if apk is already installed or the same version is
+            // being installed.
+            AndroidManager::apkInfo(m_apkPath, &packageName, &packageVersion);
+            if (AndroidManager::packageInstalled(m_serialNumber, packageName)) {
+                int installedVersion = AndroidManager::packageVersionCode(m_serialNumber,
+                                                                          packageName);
+                if (installedVersion == packageVersion) {
+                    qCDebug(deployStepLog) << "Qt live APK already installed. APK version:"
+                                           << packageVersion << "Installed version:"
+                                           << installedVersion;
+                    return DeployErrorCode::NoError;
+                } else {
+                    qCDebug(deployStepLog) << "Re-installing Qt live APK. Version mismatch."
+                                           << "APK version:" << packageVersion
+                                           << "Installed version:" << installedVersion;
+                }
+            } else {
+                qCDebug(deployStepLog) << "Installing Qt live APK. APK version:" << packageVersion;
+            }
         }
 
         if (m_uninstallPreviousPackageRun) {

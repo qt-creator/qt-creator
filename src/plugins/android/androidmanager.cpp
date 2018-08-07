@@ -70,12 +70,10 @@ namespace {
     const QLatin1String AndroidDefaultPropertiesName("project.properties");
     const QLatin1String AndroidDeviceSn("AndroidDeviceSerialNumber");
     const QLatin1String ApiLevelKey("AndroidVersion.ApiLevel");
-    const QString packageNameRegEx("(package: name=)\\'(([a-z]{1}[a-z\\d_]*\\."
-                                   ")*[a-z][a-z\\d_]*)\\'");
-    const QString activityRegEx("(launchable-activity: name=)\\'"
-                                "(([a-z]{1}[a-z\\d_]*\\.)*[a-z][a-z\\d_]*)\\'");
-    const QString apkVersionRegEx("package: name=([\\=a-z\\d_\\.\\'\\s]*)"
-                                  "\\sversionName='([\\d\\.]*)'");
+    const QString packageNameRegEx("(?<token>package: )(.*?)(name=)'(?<target>.*?)'");
+    const QString activityRegEx("(?<token>launchable-activity: )(.*?)(name=)'(?<target>.*?)'");
+    const QString apkVersionRegEx("(?<token>package: )(.*?)(versionCode=)'(?<target>.*?)'");
+    const QString versionCodeRegEx("(?<token>versionCode=)(?<version>\\d*)");
 
     Q_LOGGING_CATEGORY(androidManagerLog, "qtc.android.androidManager")
 
@@ -85,7 +83,7 @@ namespace {
                                        QRegularExpression::MultilineOption);
         QRegularExpressionMatch match = regRx.match(output);
         if (match.hasMatch())
-            return match.captured(2);
+            return match.captured("target");
         return QString();
     };
 } // anonymous namespace
@@ -161,9 +159,27 @@ bool AndroidManager::packageInstalled(const QString &deviceSerial,
     return false;
 }
 
+int AndroidManager::packageVersionCode(const QString &deviceSerial,
+                                              const QString &packageName)
+{
+    if (deviceSerial.isEmpty() || packageName.isEmpty())
+        return -1;
+
+    QStringList args = AndroidDeviceInfo::adbSelector(deviceSerial);
+    args << "shell" << "dumpsys" << "package" << packageName;
+    const QRegularExpression regRx(versionCodeRegEx,
+                                   QRegularExpression::CaseInsensitiveOption |
+                                   QRegularExpression::MultilineOption);
+    QRegularExpressionMatch match = regRx.match(runAdbCommand(args).stdOut());
+    if (match.hasMatch())
+        return match.captured("version").toInt();
+
+    return -1;
+}
+
 void AndroidManager::apkInfo(const Utils::FileName &apkPath,
                                     QString *packageName,
-                                    QVersionNumber *version,
+                                    int *version,
                                     QString *activityPath)
 {
     SdkToolResult result;
@@ -184,7 +200,7 @@ void AndroidManager::apkInfo(const Utils::FileName &apkPath,
 
     if (version) {
         QString versionStr = parseAaptOutput(result.stdOut(), apkVersionRegEx);
-        *version = QVersionNumber::fromString(versionStr);
+        *version = versionStr.toInt();
     }
 }
 

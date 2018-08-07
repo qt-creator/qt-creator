@@ -69,11 +69,11 @@ class ANDROID_EXPORT AndroidManager : public QObject
 public:
     static QString packageName(ProjectExplorer::Target *target);
     static QString packageName(const Utils::FileName &manifestFile);
-    static bool packageInstalled(const QString &deviceSerial,
-                                 const QString &packageName);
+    static bool packageInstalled(const QString &deviceSerial, const QString &packageName);
+    static int packageVersionCode(const QString &deviceSerial, const QString &packageName);
     static void apkInfo(const Utils::FileName &apkPath,
                         QString *packageName = nullptr,
-                        QVersionNumber *version = nullptr,
+                        int *version = nullptr,
                         QString *activityPath = nullptr);
     static QString intentName(ProjectExplorer::Target *target);
     static QString activityName(ProjectExplorer::Target *target);
