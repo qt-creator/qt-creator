@@ -29,13 +29,18 @@
 
 namespace ClangBackEnd {
 
-class GeneratedFiles
+class CLANGSUPPORT_EXPORT GeneratedFiles
 {
 public:
     void update(V2::FileContainers &&fileContainers);
+    void update(const V2::FileContainers &fileContainers);
     void remove(const FilePaths &filePaths);
 
     const V2::FileContainers &fileContainers() const;
+private:
+    template<class Type>
+    void updateInternal(Type &&fileContainers);
+
 private:
     V2::FileContainers m_fileContainers;
 };

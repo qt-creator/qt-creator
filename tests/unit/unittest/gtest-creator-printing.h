@@ -67,6 +67,7 @@ std::ostream &operator<<(std::ostream &out, const Macro &macro);
 
 namespace Utils {
 class LineColumn;
+class SmallStringView;
 
 std::ostream &operator<<(std::ostream &out, const LineColumn &lineColumn);
 
@@ -85,6 +86,7 @@ void PrintTo(const Utils::optional<Type> &optional, ::std::ostream *os)
     *os << optional;
 }
 
+void PrintTo(Utils::SmallStringView text, ::std::ostream *os);
 void PrintTo(const Utils::SmallString &text, ::std::ostream *os);
 void PrintTo(const Utils::PathString &text, ::std::ostream *os);
 
@@ -165,6 +167,8 @@ class SymbolEntry;
 enum class SymbolKind : uchar;
 enum class SymbolTag : uchar;
 using SymbolTags = Utils::SizedArray<SymbolTag, 7>;
+class UpdateGeneratedFilesMessage;
+class RemoveGeneratedFilesMessage;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
@@ -242,6 +246,8 @@ std::ostream &operator<<(std::ostream &out, const SymbolEntry &symbolEntry);
 std::ostream &operator<<(std::ostream &out, SymbolKind symbolKind);
 std::ostream &operator<<(std::ostream &out, SymbolTag symbolTag);
 std::ostream &operator<<(std::ostream &out, SymbolTags symbolTags);
+std::ostream &operator<<(std::ostream &out, const UpdateGeneratedFilesMessage &message);
+std::ostream &operator<<(std::ostream &out, const RemoveGeneratedFilesMessage &message);
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os);
 void PrintTo(const FilePathView &filePathView, ::std::ostream *os);

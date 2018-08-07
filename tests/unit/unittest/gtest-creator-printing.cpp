@@ -143,6 +143,11 @@ std::ostream &operator<<(std::ostream &out, const LineColumn &lineColumn)
     return out << "(" << lineColumn.line << ", " << lineColumn.column << ")";
 }
 
+void PrintTo(Utils::SmallStringView text, ::std::ostream *os)
+{
+    *os << text;
+}
+
 void PrintTo(const Utils::SmallString &text, ::std::ostream *os)
 {
     *os << text;
@@ -981,6 +986,16 @@ std::ostream &operator<<(std::ostream &out, SymbolTags symbolTags)
     return out;
 }
 
+std::ostream &operator<<(std::ostream &out, const UpdateGeneratedFilesMessage &message)
+{
+    return out << "(" << message.generatedFiles << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const RemoveGeneratedFilesMessage &message)
+{
+    return out << "(" << message.generatedFiles << ")";
+}
+
 void PrintTo(const FilePath &filePath, ::std::ostream *os)
 {
     *os << filePath;
@@ -1020,6 +1035,7 @@ std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &containe
         << container.projectPartId << ", "
         << container.arguments << ", "
         << container.headerPathIds << ", "
+        << container.sourcePathIds << ", "
         << container.compilerMacros << ", "
         << container.includeSearchPaths << ")";
 

@@ -133,7 +133,9 @@ public:
 
     friend bool operator==(const FilePath &first, const FilePath &second)
     {
-        return first.toStringView() == second.toStringView();
+        return first.slashIndex() == second.slashIndex()
+            && first.name() == second.name()
+            && first.directory() == second.directory();
     }
 
     friend bool operator==(const FilePath &first, const FilePathView &second)
@@ -148,7 +150,8 @@ public:
 
     friend bool operator<(const FilePath &first, const FilePath &second)
     {
-        return first.toStringView() < second.toStringView();
+        return std::make_tuple(first.slashIndex(), first.name(), first.directory())
+             < std::make_tuple(second.slashIndex(), second.name(), second.directory());
     }
 
     FilePath clone() const

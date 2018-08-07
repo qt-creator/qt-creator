@@ -97,12 +97,13 @@ void RefactoringServer::requestSourceRangesForQueryMessage(RequestSourceRangesFo
 
 void RefactoringServer::updateProjectParts(UpdateProjectPartsMessage &&message)
 {
-    m_symbolIndexing.updateProjectParts(message.takeProjectsParts(), m_generatedFiles);
+    m_symbolIndexing.updateProjectParts(message.takeProjectsParts(),
+                                        m_generatedFiles.fileContainers());
 }
 
 void RefactoringServer::updateGeneratedFiles(UpdateGeneratedFilesMessage &&message)
 {
-    m_generatedFiles = message.takeGeneratedFiles();
+    m_generatedFiles.update(message.takeGeneratedFiles());
 }
 
 void RefactoringServer::removeProjectParts(RemoveProjectPartsMessage &&)
@@ -112,7 +113,7 @@ void RefactoringServer::removeProjectParts(RemoveProjectPartsMessage &&)
 
 void RefactoringServer::removeGeneratedFiles(RemoveGeneratedFilesMessage &&message)
 {
-    // TODO
+    m_generatedFiles.remove(message.generatedFiles);
 }
 
 void RefactoringServer::cancel()

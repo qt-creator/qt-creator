@@ -77,8 +77,8 @@ public:
 
     friend bool operator<(const FileContainer &first, const FileContainer &second)
     {
-        return std::tie(first.documentRevision, first.filePath, first.unsavedFileContent, first.commandLineArguments)
-             < std::tie(second.documentRevision, second.filePath, second.unsavedFileContent, second.commandLineArguments);
+        return std::tie(first.filePath, first.documentRevision, first.unsavedFileContent, first.commandLineArguments)
+             < std::tie(second.filePath, second.documentRevision, second.unsavedFileContent, second.commandLineArguments);
     }
 
     FileContainer clone() const

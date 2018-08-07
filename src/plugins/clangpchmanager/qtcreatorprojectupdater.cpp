@@ -55,6 +55,8 @@ std::vector<ClangBackEnd::V2::FileContainer> createGeneratedFiles()
                    std::back_inserter(generatedFiles),
                    toFileContainer);
 
+    std::sort(generatedFiles.begin(), generatedFiles.end());
+
     return generatedFiles;
 }
 
