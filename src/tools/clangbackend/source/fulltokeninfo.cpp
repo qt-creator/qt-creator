@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "clangstring.h"
+#include "clangtooltipinfocollector.h"
 #include "cursor.h"
 #include "fulltokeninfo.h"
 #include "sourcerange.h"
@@ -46,29 +47,27 @@ FullTokenInfo::operator TokenInfoContainer() const
     return TokenInfoContainer(line(), column(), length(), m_types, m_extraInfo);
 }
 
-static Utf8String fullyQualifiedType(const Cursor &cursor)
-{
-    Utf8String typeSpelling = cursor.type().canonical().utf8Spelling();
-    if (typeSpelling.isEmpty()) {
-        // Only if it's the namespaces level.
-        typeSpelling = cursor.unifiedSymbolResolution();
-        typeSpelling.replace(Utf8StringLiteral("c:@N@"), Utf8StringLiteral(""));
-        typeSpelling.replace(Utf8StringLiteral("@N@"), Utf8StringLiteral("::"));
-        typeSpelling.replace(Utf8StringLiteral("c:@aN"), Utf8StringLiteral("(anonymous)"));
+static Utf8String fullyQualifiedType(const Cursor &cursor) {
+    Utf8String prefix;
+    if (cursor.kind() == CXCursor_ClassTemplate || cursor.kind() == CXCursor_Namespace) {
+        if (cursor.unifiedSymbolResolution() == "c:@aN")
+            return Utf8String::fromUtf8("(anonymous)");
+        return qualificationPrefix(cursor) + cursor.displayName();
     }
-    return typeSpelling;
+    return cursor.type().canonical().spelling();
 }
 
 void FullTokenInfo::updateTypeSpelling(const Cursor &cursor, bool functionLike)
 {
-    m_extraInfo.typeSpelling = fullyQualifiedType(cursor);
     m_extraInfo.semanticParentTypeSpelling = fullyQualifiedType(cursor.semanticParent());
-    if (!functionLike)
+    if (!functionLike) {
+        m_extraInfo.typeSpelling = fullyQualifiedType(cursor);
         return;
-    Type type = cursor.type().canonical();
+    }
+
     m_extraInfo.token = cursor.displayName();
     // On the client side full type is typeSpelling + token.
-    m_extraInfo.typeSpelling = type.resultType().utf8Spelling();
+    m_extraInfo.typeSpelling = cursor.type().resultType().utf8Spelling();
 }
 
 static Utf8String propertyParentSpelling(CXTranslationUnit cxTranslationUnit,
