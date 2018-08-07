@@ -118,7 +118,7 @@ def testRenameMacroAfterSourceMoving():
     return True
 
 def performMacroRenaming(newMacroName):
-    for i in range(10):
+    for _ in range(10):
         type(cppEditorStr, "<Left>")
     invokeContextMenuItem(waitForObject(cppEditorStr), "Refactor",
                           "Rename Symbol Under Cursor")

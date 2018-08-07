@@ -32,8 +32,8 @@ def main():
     startCreator(False)
     if not startedWithoutPluginError():
         return
-    checkedTargets = createProject_Qt_GUI(tempDir(), "SampleApp")
+    createProject_Qt_GUI(tempDir(), "SampleApp")
     # run project for debug and release and verify results
-    runVerify(checkedTargets)
+    runVerify()
     #close Qt Creator
     invokeMenuItem("File", "Exit")

@@ -24,7 +24,6 @@
 ############################################################################
 
 source("../../shared/qtcreator.py")
-import re
 
 SpeedCrunchPath = ""
 
@@ -42,16 +41,16 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    checkedTargets = openQmakeProject(SpeedCrunchPath, [Targets.DESKTOP_4_8_7_DEFAULT])
+    openQmakeProject(SpeedCrunchPath, [Targets.DESKTOP_4_8_7_DEFAULT])
     progressBarWait(30000)
 
     fancyToolButton = waitForObject(":*Qt Creator_Core::Internal::FancyToolButton")
 
-    availableConfigs = iterateBuildConfigs(len(checkedTargets), "Release")
+    availableConfigs = iterateBuildConfigs("Release")
     if not availableConfigs:
         test.fatal("Haven't found a suitable Qt version (need Release build) - leaving without building.")
     for kit, config in availableConfigs:
-        selectBuildConfig(len(checkedTargets), kit, config)
+        selectBuildConfig(kit, config)
         buildConfig = buildConfigFromFancyToolButton(fancyToolButton)
         if buildConfig != config:
             test.fatal("Build configuration %s is selected instead of %s" % (buildConfig, config))

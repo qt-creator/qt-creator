@@ -159,7 +159,6 @@
 :Qt Creator_QmlJSEditor::Internal::QmlJSOutlineTreeView	{type='QmlJSEditor::Internal::QmlJSOutlineTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QmlJSEditor::QmlJSTextEditorWidget	{type='QmlJSEditor::Internal::QmlJSEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_SearchResult_Core::Internal::OutputPaneToggleButton	{occurrence='2' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator_SystemSettings.Details_Utils::DetailsButton	{occurrence='4' text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_TextEditor::TextEditorWidget	{type='TextEditor::TextEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Utils::BuildDirectoryLineEdit	{name='shadowBuildDirEditLineEdit' type='Utils::FancyLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Utils::NavigationTreeView	{type='Utils::NavigationTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -220,7 +219,6 @@
 :scrollArea.Edit build configuration:_QComboBox	{leftWidget=':scrollArea.Edit build configuration:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :scrollArea.Edit build configuration:_QLabel	{text='Edit build configuration:' type='QLabel' unnamed='1' visible='1'}
 :scrollArea.Library not available_QLabel	{name='qmlDebuggingWarningText' text?='Library not available*' type='QLabel' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:scrollArea.environment_QTreeView	{container=':Qt Creator.scrollArea_QScrollArea' type='QTreeView' unnamed='1' visible='1'}
 :scrollArea.qmlDebuggingLibraryCheckBox_QCheckBox	{name='qmlDebuggingLibraryCheckBox' type='QCheckBox' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :sourceFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Source file:_QLabel' name='sourceFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
 :splitter.Commit File(s)_VcsBase::QActionPushButton	{text~='(Commit .+/.+ File.*)' type='VcsBase::QActionPushButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}

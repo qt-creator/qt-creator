@@ -31,7 +31,7 @@ def main():
         return
     type(editorArea, "<Return>")
     type(editorArea, "Color")
-    for i in range(3):
+    for _ in range(3):
         type(editorArea, "<Left>")
     invokeMenuItem("File", "Save All")
     # invoke Refactoring - Add a message suppression comment.

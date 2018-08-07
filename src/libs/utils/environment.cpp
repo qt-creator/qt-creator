@@ -49,8 +49,10 @@ public:
             toReplace.append(':');
             toReplace.append(lib.path());
 
-            if (ldLibraryPath.startsWith(toReplace))
-                set("LD_LIBRARY_PATH", ldLibraryPath.remove(0, toReplace.length()));
+            if (ldLibraryPath.startsWith(toReplace + ':'))
+                set("LD_LIBRARY_PATH", ldLibraryPath.remove(0, toReplace.length() + 1));
+            else if (ldLibraryPath == toReplace)
+                unset("LD_LIBRARY_PATH");
         }
     }
 };

@@ -2603,9 +2603,13 @@ void GdbEngine::changeBreakpoint(Breakpoint bp)
         cmd.callback = [this, bp](const DebuggerResponse &r) { handleBreakLineNumber(r, bp); };
     } else if (data.command != response.command) {
         cmd.function = "-break-commands " + bpnr;
-        foreach (const QString &command, data.command.split(QLatin1String("\n"))) {
-            if (!command.isEmpty())
+        for (QString command : data.command.split('\n')) {
+            if (!command.isEmpty()) {
+                // escape backslashes and quotes
+                command.replace('\\', "\\\\");
+                command.replace('"', "\\\"");
                 cmd.function +=  " \"" + command + '"';
+            }
         }
         cmd.callback = [this, bp](const DebuggerResponse &r) { handleBreakIgnore(r, bp); };
     } else if (!data.conditionsMatch(response.condition)) {

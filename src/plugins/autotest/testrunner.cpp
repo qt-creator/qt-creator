@@ -238,7 +238,8 @@ void TestRunner::cancelCurrent(TestRunner::CancelReason reason)
 
 void TestRunner::onProcessFinished()
 {
-    if (m_currentConfig) {
+    if (m_executingTests && QTC_GUARD(m_currentConfig)) {
+        QTC_CHECK(m_fakeFutureInterface);
         m_fakeFutureInterface->setProgressValue(m_fakeFutureInterface->progressValue()
                                                 + m_currentConfig->testCaseCount());
         if (!m_fakeFutureInterface->isCanceled()) {
@@ -257,6 +258,10 @@ void TestRunner::onProcessFinished()
     }
     resetInternalPointers();
 
+    if (!m_fakeFutureInterface) {
+        QTC_ASSERT(!m_executingTests, m_executingTests = false);
+        return;
+    }
     if (!m_selectedTests.isEmpty() && !m_fakeFutureInterface->isCanceled())
         scheduleNext();
     else
@@ -552,8 +557,9 @@ void TestRunner::debugTests()
                 outputreader, &QObject::deleteLater);
     }
 
-    connect(this, &TestRunner::requestStopTestRun, runControl,
-            &ProjectExplorer::RunControl::initiateStop);
+    m_stopDebugConnect = connect(this, &TestRunner::requestStopTestRun,
+                                 runControl, &ProjectExplorer::RunControl::initiateStop);
+
     connect(runControl, &ProjectExplorer::RunControl::stopped, this, &TestRunner::onFinished);
     ProjectExplorer::ProjectExplorerPlugin::startRunControl(runControl);
 }
@@ -611,6 +617,7 @@ void TestRunner::onFinished()
     qDeleteAll(m_selectedTests);
     m_selectedTests.clear();
 
+    disconnect(m_stopDebugConnect);
     disconnect(m_targetConnect);
     m_fakeFutureInterface = nullptr;
     m_executingTests = false;

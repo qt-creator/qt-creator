@@ -34,12 +34,11 @@ def main():
 
     for qtVersion, controls in available:
         targ = [Targets.DESKTOP_5_6_1_DEFAULT]
-        quick = "2.6"
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
-        checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=targ,
-                                                                  minimumQtVersion=qtVersion,
-                                                                  withControls = controls)
+        checkedTargets = createNewQtQuickApplication(workingDir, targets=targ,
+                                                     minimumQtVersion=qtVersion,
+                                                     withControls = controls)[0]
         if len(checkedTargets) == 0:
             if controls and qtVersion < "5.7":
                 test.xfail("Could not check wanted target.", "Quick Controls 2 wizard needs Qt5.7+")

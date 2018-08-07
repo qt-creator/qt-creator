@@ -24,7 +24,6 @@
 ############################################################################
 
 import __builtin__
-import operator
 
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:
@@ -80,6 +79,13 @@ class Targets:
         if None in result:
             test.fatal("You've passed at least one unknown target!")
         return result
+
+    @staticmethod
+    def getIdForTargetName(targetName):
+        for id in Targets.ALL_TARGETS:
+            if Targets.getStringForTarget(id) == targetName:
+                return id
+        raise Exception("'%s' is not a known target name" % targetName)
 
     @staticmethod
     def getDefaultKit():

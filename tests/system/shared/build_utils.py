@@ -25,6 +25,11 @@
 
 import re;
 
+def getBuildIssues():
+    ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
+    model = waitForObject(":Qt Creator.Issues_QListView").model()
+    return dumpBuildIssues(model)
+
 # this method checks the last build (if there's one) and logs the number of errors, warnings and
 # lines within the Issues output
 # param expectedToFail can be used to tell this function if the build was expected to fail or not
@@ -32,20 +37,17 @@ import re;
 def checkLastBuild(expectedToFail=False, createTasksFileOnError=True):
     try:
         # can't use waitForObject() 'cause visible is always 0
-        buildProg = findObject("{type='ProjectExplorer::Internal::BuildProgress' unnamed='1' }")
+        findObject("{type='ProjectExplorer::Internal::BuildProgress' unnamed='1' }")
     except LookupError:
         test.log("checkLastBuild called without a build")
         return
-    ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
-    model = waitForObject(":Qt Creator.Issues_QListView").model()
-    buildIssues = dumpBuildIssues(model)
+    buildIssues = getBuildIssues()
     types = map(lambda i: i[5], buildIssues)
     errors = types.count("1")
     warnings = types.count("2")
     gotErrors = errors != 0
     test.verify(not (gotErrors ^ expectedToFail), "Errors: %s | Warnings: %s" % (errors, warnings))
     # additional stuff - could be removed... or improved :)
-    test.log("Rows inside issues: %d" % model.rowCount())
     if gotErrors and createTasksFileOnError:
         createTasksFile(buildIssues)
     return not gotErrors
@@ -129,15 +131,14 @@ def createTasksFile(buildIssues):
     file.close()
     test.log("Written tasks file %s" % outfile)
 
-# returns a list of pairs each containing the zero based number of a kit
+# returns a list of pairs each containing the ID of a kit (see class Targets)
 # and the name of the matching build configuration
-# param kitCount specifies the number of kits currently defined (must be correct!)
 # param filter is a regular expression to filter the configuration by their name
-def iterateBuildConfigs(kitCount, filter = ""):
+def iterateBuildConfigs(filter = ""):
     switchViewTo(ViewConstants.PROJECTS)
     configs = []
-    for currentKit in range(kitCount):
-        switchToBuildOrRunSettingsFor(kitCount, currentKit, ProjectSettings.BUILD)
+    for currentKit in iterateConfiguredKits():
+        switchToBuildOrRunSettingsFor(currentKit, ProjectSettings.BUILD)
         model = waitForObject(":scrollArea.Edit build configuration:_QComboBox").model()
         prog = re.compile(filter)
         # for each row in the model, write its data to a list
@@ -149,21 +150,23 @@ def iterateBuildConfigs(kitCount, filter = ""):
     return configs
 
 # selects a build configuration for building the current project
-# param targetCount specifies the number of targets currently defined (must be correct!)
-# param currentTarget specifies the target for which to switch into the specified settings (zero based index)
+# param wantedKit specifies the ID of the kit to select (see class Targets)
 # param configName is the name of the configuration that should be selected
 # param afterSwitchTo the ViewConstant of the mode to switch to after selecting or None
-# returns information about the selected kit, see getQtInformationForBuildSettings
-def selectBuildConfig(targetCount, currentTarget, configName, afterSwitchTo=ViewConstants.EDIT):
+def selectBuildConfig(wantedKit, configName, afterSwitchTo=ViewConstants.EDIT):
     switchViewTo(ViewConstants.PROJECTS)
-    switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
-    if selectFromCombo(":scrollArea.Edit build configuration:_QComboBox", configName) or targetCount > 1:
+    if any((switchToBuildOrRunSettingsFor(wantedKit, ProjectSettings.BUILD),
+            selectFromCombo(":scrollArea.Edit build configuration:_QComboBox", configName))):
         progressBarWait(30000)
-    return getQtInformationForBuildSettings(targetCount, True, afterSwitchTo)
+    if afterSwitchTo:
+        if ViewConstants.FIRST_AVAILABLE <= afterSwitchTo <= ViewConstants.LAST_AVAILABLE:
+            switchViewTo(afterSwitchTo)
+        else:
+            test.warning("Don't know where you trying to switch to (%s)" % afterSwitchTo)
 
 # This will not trigger a rebuild. If needed, caller has to do this.
-def verifyBuildConfig(targetCount, currentTarget, configName, shouldBeDebug=False, enableShadowBuild=False, enableQmlDebug=False):
-    qtInfo = selectBuildConfig(targetCount, currentTarget, configName, None)
+def verifyBuildConfig(currentTarget, configName, shouldBeDebug=False, enableShadowBuild=False, enableQmlDebug=False):
+    selectBuildConfig(currentTarget, configName, None)
     ensureChecked(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
     ensureChecked("{name='shadowBuildCheckBox' type='QCheckBox' visible='1'}", enableShadowBuild)
     buildCfCombo = waitForObject("{type='QComboBox' name='buildConfigurationComboBox' visible='1' "
@@ -201,7 +204,6 @@ def verifyBuildConfig(targetCount, currentTarget, configName, shouldBeDebug=Fals
             clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
     clickButton(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
     switchViewTo(ViewConstants.EDIT)
-    return qtInfo
 
 # verify if building and running of project was successful
 def verifyBuildAndRun():
@@ -216,15 +218,15 @@ def verifyBuildAndRun():
                     "Verifying if built app started and closed successfully.")
 
 # run project for debug and release
-def runVerify(checkedTargets):
-    availableConfigs = iterateBuildConfigs(len(checkedTargets))
+def runVerify():
+    availableConfigs = iterateBuildConfigs()
     if not availableConfigs:
         test.fatal("Haven't found build configurations, quitting")
         invokeMenuItem("File", "Save All")
         invokeMenuItem("File", "Exit")
     # select debug configuration
     for kit, config in availableConfigs:
-        selectBuildConfig(len(checkedTargets), kit, config)
+        selectBuildConfig(kit, config)
         test.log("Using build config '%s'" % config)
         if runAndCloseApp() == None:
             checkCompile()

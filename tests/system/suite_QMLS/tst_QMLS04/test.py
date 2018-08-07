@@ -37,7 +37,7 @@ def main():
         saveAndExit()
         return
     placeCursorToLine(editorArea, "TextEdit {")
-    for i in range(5):
+    for _ in range(5):
         type(editorArea, "<Left>")
     # invoke Refactoring - Move Component into separate file
     invokeContextMenuItem(editorArea, "Refactoring", "Move Component into Separate File")

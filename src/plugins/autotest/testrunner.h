@@ -98,6 +98,8 @@ private:
 
     // temporarily used if building before running is necessary
     QMetaObject::Connection m_buildConnect;
+    // temporarily used when debugging
+    QMetaObject::Connection m_stopDebugConnect;
     // temporarily used for handling of switching the current target
     QMetaObject::Connection m_targetConnect;
 };

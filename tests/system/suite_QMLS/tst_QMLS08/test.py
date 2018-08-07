@@ -71,7 +71,7 @@ def main():
         return
     # cancel indentation
     type(editorArea, "<Ctrl+a>")
-    for i in range(5):
+    for _ in range(5):
         type(editorArea, "<Shift+Backtab>")
     # select unindented block
     type(editorArea, "<Ctrl+a>")

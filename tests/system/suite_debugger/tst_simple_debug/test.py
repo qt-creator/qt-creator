@@ -29,11 +29,9 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    # Requires Qt 4.8
-    targets = Targets.desktopTargetClasses()
     # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
-    checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=targets)
+    projectName = createNewQtQuickApplication(workingDir)[1]
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     if placeCursorToLine(editor, "}"):
         type(editor, '<Left>')
@@ -54,13 +52,13 @@ def main():
         if result:
             expectedBreakpointsOrder = [{os.path.join(workingDir, projectName, "main.cpp"):10},
                                         {os.path.join(workingDir, projectName, "main.qml"):13}]
-            availableConfigs = iterateBuildConfigs(len(checkedTargets), "Debug")
+            availableConfigs = iterateBuildConfigs("Debug")
             progressBarWait()
             if not availableConfigs:
                 test.fatal("Haven't found a suitable Qt version - leaving without debugging.")
             for kit, config in availableConfigs:
                 test.log("Selecting '%s' as build config" % config)
-                verifyBuildConfig(len(checkedTargets), kit, config, True, True, True)
+                verifyBuildConfig(kit, config, True, True, True)
                 # explicitly build before start debugging for adding the executable as allowed program to WinFW
                 invokeMenuItem("Build", "Rebuild All")
                 waitForCompile(300000)
@@ -69,12 +67,12 @@ def main():
                     continue
                 if platform.system() in ('Microsoft' 'Windows'):
                     switchViewTo(ViewConstants.PROJECTS)
-                    switchToBuildOrRunSettingsFor(len(checkedTargets), kit, ProjectSettings.BUILD)
+                    switchToBuildOrRunSettingsFor(kit, ProjectSettings.BUILD)
                     buildDir = os.path.join(str(waitForObject(":Qt Creator_Utils::BuildDirectoryLineEdit").text),
                                             "debug")
                     switchViewTo(ViewConstants.EDIT)
                     allowAppThroughWinFW(buildDir, projectName, None)
-                if not doSimpleDebugging(len(checkedTargets), kit, config,
+                if not doSimpleDebugging(kit, config,
                                          len(expectedBreakpointsOrder), expectedBreakpointsOrder):
                     try:
                         stopB = findObject(':Qt Creator.Stop_QToolButton')

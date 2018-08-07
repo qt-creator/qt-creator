@@ -744,11 +744,10 @@
 
     \section3 Null Pointers
 
-    Using a plain zero (0) for null pointer constants is always correct and
-    least effort to type.
+    Use nullptr for null pointer constants.
 
     \code
-    void *p = 0;
+    void *p = nullptr;
 
     -NOT-
 
@@ -764,7 +763,7 @@
     \endcode
 
     \note As an exception, imported third party code as well as code
-    interfacing the native APIs (src/support/os_*) can use NULL.
+    interfacing the native APIs (src/support/os_*) can use NULL or 0.
 
     \section2 C++11 and C++14 Features
 

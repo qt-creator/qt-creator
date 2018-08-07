@@ -92,7 +92,7 @@ def __clickCommit__(count):
         test.fail("Could not find the %d. commit - leaving test" % count)
         return False
     placeCursorToLine(gitEditor, line)
-    for i in range(30):
+    for _ in range(30):
         type(gitEditor, "<Left>")
     # get the current cursor rectangle which should be positioned on the commit ID
     rect = gitEditor.cursorRect()
@@ -234,7 +234,7 @@ def deleteProject():
     if os.path.exists(path):
         try:
             # Make files in .git writable to remove them
-            for root, dirs, files in os.walk(path):
+            for root, _, files in os.walk(path):
                 for name in files:
                     os.chmod(os.path.join(root, name), stat.S_IWUSR)
             shutil.rmtree(path)

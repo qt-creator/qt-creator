@@ -23,8 +23,6 @@
 #
 ############################################################################
 
-import re
-
 def handleDebuggerWarnings(config, isMsvcBuild=False):
     if isMsvcBuild:
         try:
@@ -71,8 +69,8 @@ def setBreakpointsForCurrentProject(filesAndLines):
     if not filesAndLines or not isinstance(filesAndLines, (list,tuple)):
         test.fatal("This function only takes a non-empty list/tuple holding dicts.")
         return False
-    navTree = waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
-                            "window=':Qt Creator_Core::Internal::MainWindow'}")
+    waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
+                  "window=':Qt Creator_Core::Internal::MainWindow'}")
     for current in filesAndLines:
         for curFile,curLine in current.iteritems():
             if not openDocument(curFile):
@@ -115,25 +113,24 @@ def removeOldBreakpoints():
     return test.compare(model.rowCount(), 0, "Check if all breakpoints have been removed.")
 
 # function to do simple debugging of the current (configured) project
-# param kitCount specifies the number of kits currently defined (must be correct!)
-# param currentKit specifies the target to use (zero based index)
+# param currentKit specifies the ID of the kit to use (see class Targets)
 # param currentConfigName is the name of the configuration that should be used
 # param pressContinueCount defines how often it is expected to press
 #       the 'Continue' button while debugging
 # param expectedBPOrder holds a list of dicts where the dicts contain always
 #       only 1 key:value pair - the key is the name of the file, the value is
 #       line number where the debugger should stop
-def doSimpleDebugging(kitCount, currentKit, currentConfigName, pressContinueCount=1,
+def doSimpleDebugging(currentKit, currentConfigName, pressContinueCount=1,
                       expectedBPOrder=[], enableQml=True):
     expectedLabelTexts = ['Stopped\.', 'Stopped at breakpoint \d+ \(\d+\) in thread \d+\.']
     if len(expectedBPOrder) == 0:
         expectedLabelTexts.append("Running\.")
     switchViewTo(ViewConstants.PROJECTS)
-    switchToBuildOrRunSettingsFor(kitCount, currentKit, ProjectSettings.RUN)
+    switchToBuildOrRunSettingsFor(currentKit, ProjectSettings.RUN)
     ensureChecked(waitForObject("{container=':Qt Creator.scrollArea_QScrollArea' text='Enable QML' "
                                 "type='QCheckBox' unnamed='1' visible='1'}"), enableQml)
     switchViewTo(ViewConstants.EDIT)
-    if not __startDebugger__(kitCount, currentKit, currentConfigName):
+    if not __startDebugger__(currentKit, currentConfigName):
         return False
     statusLabel = findObject(":Debugger Toolbar.StatusText_Utils::StatusLabel")
     test.log("Continuing debugging %d times..." % pressContinueCount)
@@ -167,20 +164,18 @@ def doSimpleDebugging(kitCount, currentKit, currentConfigName, pressContinueCoun
             # if stopping failed - debugger had already stopped
             return True
 
-# param kitCount specifies the number of kits currently defined (must be correct!)
-# param currentKit specifies the target to use (zero based index)
-def isMsvcConfig(kitCount, currentKit):
+# param currentKit specifies the ID of the kit to use (see class Targets)
+def isMsvcConfig(currentKit):
     switchViewTo(ViewConstants.PROJECTS)
-    switchToBuildOrRunSettingsFor(kitCount, currentKit, ProjectSettings.BUILD)
+    switchToBuildOrRunSettingsFor(currentKit, ProjectSettings.BUILD)
     isMsvc = " -spec win32-msvc" in str(waitForObject(":qmakeCallEdit").text)
     switchViewTo(ViewConstants.EDIT)
     return isMsvc
 
-# param kitCount specifies the number of kits currently defined (must be correct!)
-# param currentKit specifies the target to use (zero based index)
+# param currentKit specifies the ID of the kit to use (see class Targets)
 # param config is the name of the configuration that should be used
-def __startDebugger__(kitCount, currentKit, config):
-    isMsvcBuild = isMsvcConfig(kitCount, currentKit)
+def __startDebugger__(currentKit, config):
+    isMsvcBuild = isMsvcConfig(currentKit)
     clickButton(waitForObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton"))
     handleDebuggerWarnings(config, isMsvcBuild)
     try:

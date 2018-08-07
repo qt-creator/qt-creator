@@ -56,7 +56,7 @@ def main():
         earlyExit("Something went wrong opening Qml project - probably missing Qt5.")
         return
     switchViewTo(ViewConstants.PROJECTS)
-    switchToBuildOrRunSettingsFor(1, 0, ProjectSettings.RUN)
+    switchToBuildOrRunSettingsFor(Targets.getDefaultKit(), ProjectSettings.RUN)
     ensureChecked("{container=':Qt Creator.scrollArea_QScrollArea' text='Enable QML' "
                   "type='QCheckBox' unnamed='1' visible='1'}")
     switchViewTo(ViewConstants.EDIT)
@@ -117,7 +117,7 @@ def fetchItems(index, valIndex, treeView):
             tree.setName(name)
             tree.setValue(value)
     for row in range(model.rowCount(index)):
-         tree.addChild(fetchItems(model.index(row, 0, index), model.index(row, 1, index), treeView))
+        tree.addChild(fetchItems(model.index(row, 0, index), model.index(row, 1, index), treeView))
     return tree
 
 def checkForEmptyRows(items, isRootCheck=True):

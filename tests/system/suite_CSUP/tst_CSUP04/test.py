@@ -70,7 +70,7 @@ def main():
             openDocument("openglwindow.Sources.main\\.cpp")
             if not placeCursorToLine(editorWidget, 'm_posAttr = m_program->attributeLocation("posAttr");'):
                 return
-            for i in range(13):
+            for _ in range(13):
                 type(editorWidget, "<Left>")
             type(editorWidget, "<Ctrl+Shift+u>")
             # wait until search finished and verify search results

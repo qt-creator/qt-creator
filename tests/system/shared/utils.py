@@ -458,7 +458,7 @@ def iterateQtVersions(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
                             currResult = additionalFunction(target, version, *argsForAdditionalFunc)
                     except:
                         import sys
-                        t,v,tb = sys.exc_info()
+                        t,v,_ = sys.exc_info()
                         currResult = None
                         test.fatal("Function to additionally execute on Options Dialog could not be found or "
                                    "an exception occurred while executing it.", "%s(%s)" % (str(t), str(v)))
@@ -521,7 +521,7 @@ def iterateKits(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
                         currResult = additionalFunction(item, kitName, *argsForAdditionalFunc)
                 except:
                     import sys
-                    t,v,tb = sys.exc_info()
+                    t,v,_ = sys.exc_info()
                     currResult = None
                     test.fatal("Function to additionally execute on Options Dialog could not be "
                                "found or an exception occurred while executing it.", "%s(%s)" %
@@ -605,10 +605,8 @@ def progressBarWait(timeout=60000, warn=True):
     checkIfObjectExists(":Qt Creator_Core::Internal::ProgressBar", False, timeout)
 
 def readFile(filename):
-    f = open(filename, "r")
-    content = f.read()
-    f.close()
-    return content
+    with open(filename, "r") as f:
+        return f.read()
 
 def simpleFileName(navigatorFileName):
     # try to find the last part of the given name, assume it's inside a (folder) structure
