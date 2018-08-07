@@ -39,9 +39,7 @@ public:
         Use
     };
 
-    CompilerOptionsBuilder(const ProjectPart &projectPart,
-                           const QString &clangVersion = QString(),
-                           const QString &clangResourceDirectory = QString());
+    CompilerOptionsBuilder(const ProjectPart &projectPart);
     virtual ~CompilerOptionsBuilder() {}
 
     virtual void addTargetTriple();
@@ -90,11 +88,8 @@ private:
     QByteArray macroOption(const ProjectExplorer::Macro &macro) const;
     QByteArray toDefineOption(const ProjectExplorer::Macro &macro) const;
     QString defineDirectiveToDefineOption(const ProjectExplorer::Macro &marco) const;
-    void addClangIncludeFolder();
 
     QStringList m_options;
-    QString m_clangVersion;
-    QString m_clangResourceDirectory;
 };
 
 } // namespace CppTools

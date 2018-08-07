@@ -77,7 +77,7 @@ private:
     void start() final;
     void stop() final;
 
-    AnalyzeUnits unitsToAnalyze(const QString &clangVersion);
+    AnalyzeUnits unitsToAnalyze();
     void analyzeNextFile();
 
     void handleFinished();

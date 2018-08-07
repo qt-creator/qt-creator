@@ -39,14 +39,8 @@
 
 namespace CppTools {
 
-static constexpr char SYSTEM_INCLUDE_PREFIX[] = "-isystem";
-
-CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
-                                               const QString &clangVersion,
-                                               const QString &clangResourceDirectory)
+CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart)
     : m_projectPart(projectPart)
-    , m_clangVersion(clangVersion)
-    , m_clangResourceDirectory(clangResourceDirectory)
 {
 }
 
@@ -500,31 +494,9 @@ bool CompilerOptionsBuilder::excludeHeaderPath(const QString &headerPath) const
 
 void CompilerOptionsBuilder::addPredefinedHeaderPathsOptions()
 {
-    add("-nostdinc");
-    add("-nostdlibinc");
-
     // In case of MSVC we need builtin clang defines to correctly handle clang includes
     if (m_projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
         add("-undef");
-
-    addClangIncludeFolder();
-}
-
-static QString clangIncludeDirectory(const QString &clangVersion,
-                                     const QString &clangResourceDirectory)
-{
-#ifndef UNIT_TESTS
-    return Core::ICore::clangIncludeDirectory(clangVersion, clangResourceDirectory);
-#else
-    return QString();
-#endif
-}
-
-void CompilerOptionsBuilder::addClangIncludeFolder()
-{
-    QTC_CHECK(!m_clangVersion.isEmpty());
-    add(SYSTEM_INCLUDE_PREFIX);
-    add(clangIncludeDirectory(m_clangVersion, m_clangResourceDirectory));
 }
 
 void CompilerOptionsBuilder::addProjectConfigFileInclude()

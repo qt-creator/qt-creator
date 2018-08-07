@@ -86,17 +86,32 @@ static QString creatorResourcePath()
 #endif
 }
 
+static QString clangIncludeDirectory(const QString &clangVersion,
+                                     const QString &clangResourceDirectory)
+{
+#ifndef UNIT_TESTS
+    return Core::ICore::clangIncludeDirectory(clangVersion, clangResourceDirectory);
+#else
+    return QString();
+#endif
+}
+
 class LibClangOptionsBuilder final : public CompilerOptionsBuilder
 {
 public:
     LibClangOptionsBuilder(const ProjectPart &projectPart)
-        : CompilerOptionsBuilder(projectPart, CLANG_VERSION, CLANG_RESOURCE_DIR)
+        : CompilerOptionsBuilder(projectPart)
+        , m_clangVersion(CLANG_VERSION)
+        , m_clangResourceDirectory(CLANG_RESOURCE_DIR)
     {
     }
 
     void addPredefinedHeaderPathsOptions() final
     {
         CompilerOptionsBuilder::addPredefinedHeaderPathsOptions();
+        add("-nostdinc");
+        add("-nostdlibinc");
+        addClangIncludeFolder();
         addWrappedQtHeadersIncludePath();
     }
 
@@ -117,6 +132,13 @@ public:
     }
 
 private:
+    void addClangIncludeFolder()
+    {
+        QTC_CHECK(!m_clangVersion.isEmpty());
+        add("-I");
+        add(clangIncludeDirectory(m_clangVersion, m_clangResourceDirectory));
+    }
+
     void addWrappedQtHeadersIncludePath()
     {
         static const QString resourcePath = creatorResourcePath();
@@ -140,6 +162,9 @@ private:
             add(QDir::toNativeSeparators(path));
         }
     }
+
+    QString m_clangVersion;
+    QString m_clangResourceDirectory;
 };
 
 /**
