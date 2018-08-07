@@ -40,7 +40,7 @@ public:
 
     FileContainer(FilePath &&filePath,
                   Utils::SmallString &&unsavedFileContent,
-                  Utils::SmallStringVector &&commandLineArguments,
+                  Utils::SmallStringVector &&commandLineArguments = {},
                   quint32 documentRevision = 0)
         : filePath(std::move(filePath)),
           unsavedFileContent(std::move(unsavedFileContent)),
