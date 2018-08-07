@@ -33,6 +33,7 @@
 
 namespace ClangBackEnd {
 
+class Cursor;
 class UnsavedFiles;
 
 ToolTipInfo collectToolTipInfo(UnsavedFiles &unsavedFiles,
@@ -41,5 +42,7 @@ ToolTipInfo collectToolTipInfo(UnsavedFiles &unsavedFiles,
                                CXTranslationUnit cxTranslationUnit,
                                uint line,
                                uint column);
+
+Utf8String qualificationPrefix(const Cursor &cursor);
 
 } // namespace ClangBackEnd

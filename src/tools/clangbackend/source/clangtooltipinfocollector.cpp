@@ -44,6 +44,20 @@
 
 namespace ClangBackEnd {
 
+Utf8String qualificationPrefix(const Cursor &cursor)
+{
+    // TODO: Implement with qualificationPrefixAsVector()
+    Utf8String qualifiedName;
+
+    for (Cursor parent = cursor.semanticParent();
+         parent.isValid() && (parent.kind() == CXCursor_Namespace);
+         parent = parent.semanticParent()) {
+        qualifiedName = parent.spelling() + Utf8StringLiteral("::") + qualifiedName;
+    }
+
+    return qualifiedName;
+}
+
 namespace {
 
 Utf8StringVector qualificationPrefixAsVector(const Cursor &cursor)
@@ -57,20 +71,6 @@ Utf8StringVector qualificationPrefixAsVector(const Cursor &cursor)
     }
 
     return result;
-}
-
-Utf8String qualificationPrefix(const Cursor &cursor)
-{
-    // TODO: Implement with qualificationPrefixAsVector()
-    Utf8String qualifiedName;
-
-    for (Cursor parent = cursor.semanticParent();
-         parent.isValid() && (parent.kind() == CXCursor_Namespace);
-         parent = parent.semanticParent()) {
-        qualifiedName = parent.spelling() + Utf8StringLiteral("::") + qualifiedName;
-    }
-
-    return qualifiedName;
 }
 
 Utf8String displayName(const Cursor &cursor)
