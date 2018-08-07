@@ -31,6 +31,10 @@
 #include <QObject>
 #include <QVersionNumber>
 
+QT_BEGIN_NAMESPACE
+class QProcess;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer {
 class Kit;
 class Target;
@@ -41,6 +45,22 @@ namespace Utils { class FileName; }
 namespace Android {
 
 class AndroidQtSupport;
+
+class SdkToolResult {
+public:
+    SdkToolResult() = default;
+    bool success() const { return m_success; }
+    const QString &stdOut() { return m_stdOut; }
+    const QString &stdErr() { return m_stdErr; }
+    const QString &exitMessage() { return m_exitMessage; }
+
+private:
+    bool m_success = false;
+    QString m_stdOut;
+    QString m_stdErr;
+    QString m_exitMessage;
+    friend class AndroidManager;
+};
 
 class ANDROID_EXPORT AndroidManager : public QObject
 {
@@ -94,9 +114,15 @@ public:
     static bool updateGradleProperties(ProjectExplorer::Target *target);
     static int findApiLevel(const Utils::FileName &platformPath);
 
-    static void runAdbCommandDetached(const QStringList &args);
-    static bool runAdbCommand(const QStringList &args, QString *output = nullptr);
-    static bool runAaptCommand(const QStringList &args, QString *output = nullptr);
+    static QProcess *runAdbCommandDetached(const QStringList &args, QString *err = nullptr,
+                                           bool deleteOnFinish = false);
+    static SdkToolResult runAdbCommand(const QStringList &args, const QByteArray &writeData = {},
+                                       int timeoutS = 30);
+    static SdkToolResult runAaptCommand(const QStringList &args, int timeoutS = 30);
+
+private:
+    static SdkToolResult runCommand(const QString &executable, const QStringList &args,
+                                    const QByteArray &writeData = {}, int timeoutS = 30);
 };
 
 } // namespace Android

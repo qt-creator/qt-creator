@@ -79,18 +79,6 @@ namespace {
 
     Q_LOGGING_CATEGORY(androidManagerLog, "qtc.android.androidManager")
 
-    bool runCommand(const QString &executable, const QStringList &args,
-                    QString *output = nullptr, int timeoutS = 30)
-    {
-        Utils::SynchronousProcess cmdProc;
-        cmdProc.setTimeoutS(timeoutS);
-        qCDebug(androidManagerLog) << executable << args.join(' ');
-        Utils::SynchronousProcessResponse response = cmdProc.runBlocking(executable, args);
-        if (output)
-            *output = response.allOutput();
-        return response.result == Utils::SynchronousProcessResponse::Finished;
-    }
-
     QString parseAaptOutput(const QString &output, const QString &regEx) {
         const QRegularExpression regRx(regEx,
                                        QRegularExpression::CaseInsensitiveOption |
@@ -162,10 +150,8 @@ bool AndroidManager::packageInstalled(const QString &deviceSerial,
         return false;
     QStringList args = AndroidDeviceInfo::adbSelector(deviceSerial);
     args << "shell" << "pm" << "list" << "packages";
-    QString output;
-    runAdbCommand(args, &output);
-    QStringList lines = output.split(QRegularExpression("[\\n\\r]"),
-                                     QString::SkipEmptyParts);
+    QStringList lines = runAdbCommand(args).stdOut().split(QRegularExpression("[\\n\\r]"),
+                                                           QString::SkipEmptyParts);
     for (const QString &line : lines) {
         // Don't want to confuse com.abc.xyz with com.abc.xyz.def so check with
         // endsWith
@@ -180,24 +166,24 @@ void AndroidManager::apkInfo(const Utils::FileName &apkPath,
                                     QVersionNumber *version,
                                     QString *activityPath)
 {
-    QString output;
-    runAaptCommand({"dump", "badging", apkPath.toString()}, &output);
+    SdkToolResult result;
+    result = runAaptCommand({"dump", "badging", apkPath.toString()});
 
     QString packageStr;
     if (activityPath) {
-        packageStr = parseAaptOutput(output, packageNameRegEx);
-        QString path = parseAaptOutput(output, activityRegEx);
+        packageStr = parseAaptOutput(result.stdOut(), packageNameRegEx);
+        QString path = parseAaptOutput(result.stdOut(), activityRegEx);
         if (!packageStr.isEmpty() && !path.isEmpty())
             *activityPath = packageStr + '/' + path;
     }
 
     if (packageName) {
         *packageName = activityPath ? packageStr :
-                                      parseAaptOutput(output, packageNameRegEx);
+                                      parseAaptOutput(result.stdOut(), packageNameRegEx);
     }
 
     if (version) {
-        QString versionStr = parseAaptOutput(output, apkVersionRegEx);
+        QString versionStr = parseAaptOutput(result.stdOut(), apkVersionRegEx);
         *version = QVersionNumber::fromString(versionStr);
     }
 }
@@ -477,8 +463,11 @@ void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
     }
 
     QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
-    arguments << QLatin1String("shell") << QLatin1String("rm") << QLatin1String("-r") << QLatin1String("/data/local/tmp/qt");
-    runAdbCommandDetached(arguments);
+    arguments << "shell" << "rm" << "-r" << "/data/local/tmp/qt";
+
+    QString error;
+    if (!runAdbCommandDetached(arguments, &error))
+        Core::MessageManager::write(tr("Cleaning Qt libraries on device failed.\n%1").arg(error));
 }
 
 void AndroidManager::installQASIPackage(ProjectExplorer::Target *target, const QString &packagePath)
@@ -499,8 +488,10 @@ void AndroidManager::installQASIPackage(ProjectExplorer::Target *target, const Q
     }
 
     QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
-    arguments << QLatin1String("install") << QLatin1String("-r ") << packagePath;
-    runAdbCommandDetached(arguments);
+    arguments << "install" << "-r " << packagePath;
+    QString error;
+    if (!runAdbCommandDetached(arguments, &error, true))
+        Core::MessageManager::write(tr("Android package installation failed.\n%1").arg(error));
 }
 
 bool AndroidManager::checkKeystorePassword(const QString &keystorePath, const QString &keystorePasswd)
@@ -683,27 +674,57 @@ int AndroidManager::findApiLevel(const Utils::FileName &platformPath)
     return apiLevel;
 }
 
-void AndroidManager::runAdbCommandDetached(const QStringList &args)
+QProcess *AndroidManager::runAdbCommandDetached(const QStringList &args, QString *err,
+                                                bool deleteOnFinish)
 {
-    auto process = new QProcess();
-    connect(process, static_cast<void (QProcess::*)(int)>(&QProcess::finished),
-            process, &QObject::deleteLater);
+    std::unique_ptr<QProcess> p(new QProcess);
     const QString adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
-    qCDebug(androidManagerLog) << adb << args.join(' ');
-    process->start(adb, args);
-    if (!process->waitForStarted(500) && process->state() != QProcess::Running)
-        delete process;
+    qCDebug(androidManagerLog) << "Running command:" << adb << args.join(' ');
+    p->start(adb, args);
+    if (p->waitForStarted(500) && p->state() == QProcess::Running) {
+        if (deleteOnFinish) {
+            connect(p.get(), static_cast<void (QProcess::*)(int)>(&QProcess::finished),
+                    p.get(), &QObject::deleteLater);
+        }
+        return p.release();
+    }
+
+    QString errorStr = QString::fromUtf8(p->readAllStandardError());
+    qCDebug(androidManagerLog) << "Running command failed" << adb << args.join(' ') << errorStr;
+    if (err)
+        *err = errorStr;
+    return nullptr;
 }
 
-bool AndroidManager::runAdbCommand(const QStringList &args, QString *output)
+SdkToolResult AndroidManager::runCommand(const QString &executable, const QStringList &args,
+                                         const QByteArray &writeData, int timeoutS)
 {
-    return runCommand(AndroidConfigurations::currentConfig().adbToolPath().toString(),
-                      args, output);
+    Android::SdkToolResult cmdResult;
+    Utils::SynchronousProcess cmdProc;
+    cmdProc.setTimeoutS(timeoutS);
+    qCDebug(androidManagerLog) << "Running command: " << executable << args.join(' ');
+    Utils::SynchronousProcessResponse response = cmdProc.run(executable, args, writeData);
+    cmdResult.m_stdOut = response.stdOut().trimmed();
+    cmdResult.m_stdErr = response.stdErr().trimmed();
+    cmdResult.m_success = response.result == Utils::SynchronousProcessResponse::Finished;
+    qCDebug(androidManagerLog) << "Running command finshed:" << executable << args.join(' ')
+                               << "Success:" << cmdResult.m_success
+                               << "Output:" << response.allRawOutput();
+    if (!cmdResult.success())
+        cmdResult.m_exitMessage = response.exitMessage(executable, timeoutS);
+    return cmdResult;
 }
 
-bool AndroidManager::runAaptCommand(const QStringList &args, QString *output)
+SdkToolResult AndroidManager::runAdbCommand(const QStringList &args,
+                                            const QByteArray &writeData, int timeoutS)
 {
-    return runCommand(AndroidConfigurations::currentConfig().aaptToolPath().toString(),
-               args, output);
+    return runCommand(AndroidConfigurations::currentConfig().adbToolPath().toString(), args,
+                      writeData, timeoutS);
+}
+
+SdkToolResult AndroidManager::runAaptCommand(const QStringList &args, int timeoutS)
+{
+    return runCommand(AndroidConfigurations::currentConfig().aaptToolPath().toString(), args, {},
+                      timeoutS);
 }
 } // namespace Android
