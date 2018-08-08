@@ -623,6 +623,14 @@ void TestRunner::onFinished()
 
 /*************************************************************************************************/
 
+static QFrame *createLine(QWidget *parent)
+{
+    QFrame *line = new QFrame(parent);
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+    return line;
+}
+
 RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &buildTargetKey,
                                                                  QWidget *parent)
     : QDialog(parent)
@@ -642,15 +650,11 @@ RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &
     m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
     m_buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
-    auto line = new QFrame(this);
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-
     auto formLayout = new QFormLayout;
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     formLayout->addRow(m_details);
     formLayout->addRow(tr("Run Configuration:"), m_rcCombo);
-    formLayout->addRow(line);
+    formLayout->addRow(createLine(this));
     formLayout->addRow(tr("Executable:"), m_executable);
     formLayout->addRow(tr("Arguments:"), m_arguments);
     formLayout->addRow(tr("Working Directory:"), m_workingDir);
@@ -658,7 +662,7 @@ RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &
     auto vboxLayout = new QVBoxLayout(this);
     vboxLayout->addLayout(formLayout);
     vboxLayout->addStretch();
-    vboxLayout->addWidget(line);
+    vboxLayout->addWidget(createLine(this));
     vboxLayout->addWidget(m_buttonBox);
 
     connect(m_rcCombo, &QComboBox::currentTextChanged,
