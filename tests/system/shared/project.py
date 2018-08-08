@@ -168,7 +168,8 @@ def __selectQtVersionDesktop__(checks, available=None, withoutQt4=False):
                 cbObject = ("{type='QCheckBox' text='%s' unnamed='1' visible='1' "
                             "container=%s}")
                 verifyChecked(cbObject % ("Debug", objectMap.realName(detailsWidget)))
-                verifyChecked(cbObject % ("Profile", objectMap.realName(detailsWidget)))
+                if target not in (Targets.DESKTOP_4_8_7_DEFAULT, Targets.EMBEDDED_LINUX):
+                    verifyChecked(cbObject % ("Profile", objectMap.realName(detailsWidget)))
                 verifyChecked(cbObject % ("Release", objectMap.realName(detailsWidget)))
                 clickButton(detailsButton)
     clickButton(waitForObject(":Next_QPushButton"))
