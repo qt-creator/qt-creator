@@ -26,6 +26,7 @@
 #include "msvctoolchain.h"
 
 #include "msvcparser.h"
+#include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "taskhub.h"
 #include "toolchainmanager.h"
@@ -64,6 +65,16 @@ namespace Internal {
 // --------------------------------------------------------------------------
 // Helpers:
 // --------------------------------------------------------------------------
+
+static QThreadPool *envModThreadPool()
+{
+    static QThreadPool *pool = nullptr;
+    if (!pool) {
+        pool = new QThreadPool(ProjectExplorerPlugin::instance());
+        pool->setMaxThreadCount(1);
+    }
+    return pool;
+}
 
 struct MsvcPlatform {
     MsvcToolChain::Platform platform;
@@ -647,7 +658,8 @@ MsvcToolChain::MsvcToolChain(Core::Id typeId, const QString &name, const Abi &ab
     : AbstractMsvcToolChain(typeId, l, d, abi, varsBat)
     , m_varsBatArg(varsBatArg)
 {
-    initEnvModWatcher(Utils::runAsync(&MsvcToolChain::environmentModifications,
+    initEnvModWatcher(Utils::runAsync(envModThreadPool(),
+                                      &MsvcToolChain::environmentModifications,
                                       varsBat, varsBatArg));
 
     Q_ASSERT(!name.isEmpty());
@@ -739,7 +751,8 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
     m_environmentModifications = Utils::EnvironmentItem::itemsFromVariantList(
                 data.value(QLatin1String(environModsKeyC)).toList());
 
-    initEnvModWatcher(Utils::runAsync(&MsvcToolChain::environmentModifications,
+    initEnvModWatcher(Utils::runAsync(envModThreadPool(),
+                                      &MsvcToolChain::environmentModifications,
                                       m_vcvarsBat, m_varsBatArg));
 
     return !m_vcvarsBat.isEmpty() && m_abi.isValid();
