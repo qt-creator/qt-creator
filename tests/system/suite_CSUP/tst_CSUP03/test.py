@@ -83,7 +83,8 @@ def main():
                 continue
             if not startCreator(useClang):
                 continue
-            projectName = createNewNonQtProject()
+            projectName = createNewNonQtProject(tempDir(), "project_csup03",
+                                                [Targets.DESKTOP_4_8_7_DEFAULT])
             checkCodeModelSettings(useClang)
             openDocument("%s.Sources.main\\.cpp" % projectName)
             editor = getEditorForFileSuffix("main.cpp")

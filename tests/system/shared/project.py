@@ -342,26 +342,15 @@ def createEmptyQtProject(workingDir=None, projectName=None, targets=Targets.desk
     __createProjectHandleLastPage__()
     return projectName
 
-def createNewNonQtProject(workingDir=None, projectName=None, target=[Targets.DESKTOP_4_8_7_DEFAULT],
-                          plainC=False, cmake=False, qbs=False):
+def createNewNonQtProject(workingDir, projectName, target, plainC=False, buildSystem="qmake"):
     if plainC:
         template = "Plain C Application"
     else:
         template = "Plain C++ Application"
 
     available = __createProjectOrFileSelectType__("  Non-Qt Project", template)
-    if workingDir == None:
-        workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
 
-    buildSystem = "qmake"
-    if qbs:
-        buildSystem = "Qbs"
-        if cmake:
-            test.warning("Unsupported combination, at least one of parameters cmake and qbs must "
-                         "be False, ignoring the value of cmake")
-    elif cmake:
-        buildSystem = "CMake"
     selectFromCombo("{name='BuildSystem' type='QComboBox' visible='1'}", buildSystem)
     clickButton(waitForObject(":Next_QPushButton"))
 
@@ -370,9 +359,8 @@ def createNewNonQtProject(workingDir=None, projectName=None, target=[Targets.DES
     __createProjectHandleLastPage__()
     return projectName
 
-def createNewCPPLib(projectDir = None, projectName = None, className = None, fromWelcome = False,
-                    target = [Targets.DESKTOP_4_8_7_DEFAULT], isStatic = False, modules = ["QtCore"]):
-    available = __createProjectOrFileSelectType__("  Library", "C++ Library", fromWelcome, True)
+def createNewCPPLib(projectDir, projectName, className, target, isStatic):
+    available = __createProjectOrFileSelectType__("  Library", "C++ Library", False, True)
     if isStatic:
         libType = LibType.STATIC
     else:
@@ -383,16 +371,13 @@ def createNewCPPLib(projectDir = None, projectName = None, className = None, fro
     __chooseTargets__(target, available)
     snooze(1)
     clickButton(waitForObject(":Next_QPushButton"))
-    __createProjectHandleModuleSelection__(modules)
+    __createProjectHandleModuleSelection__(["QtCore"])
     className = __createProjectHandleClassInformation__(className)
     __createProjectHandleLastPage__()
     return projectName, className
 
-def createNewQtPlugin(projectDir=None, projectName=None, className=None, fromWelcome=False,
-                      target=[Targets.DESKTOP_4_8_7_DEFAULT], baseClass="QGenericPlugin"):
-    available = __createProjectOrFileSelectType__("  Library", "C++ Library", fromWelcome, True)
-    if projectDir == None:
-        projectDir = tempDir()
+def createNewQtPlugin(projectDir, projectName, className, target, baseClass="QGenericPlugin"):
+    available = __createProjectOrFileSelectType__("  Library", "C++ Library", False, True)
     projectName = __createProjectSetNameAndPath__(projectDir, projectName, False, LibType.QT_PLUGIN)
     __chooseTargets__(target, available)
     snooze(1)
@@ -407,7 +392,7 @@ def createNewQtPlugin(projectDir=None, projectName=None, className=None, fromWel
 # parameter additionalFunc function to be executed inside the detailed view of each chosen kit
 #           if present, 'Details' button will be clicked, function will be executed,
 #           'Details' button will be clicked again
-def __chooseTargets__(targets=[Targets.DESKTOP_4_8_7_DEFAULT], availableTargets=None, additionalFunc=None):
+def __chooseTargets__(targets, availableTargets=None, additionalFunc=None):
     if availableTargets != None:
         available = availableTargets
     else:

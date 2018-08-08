@@ -57,8 +57,8 @@ def handleInsertVirtualFunctions(expected):
 
 def checkSimpleCppLib(projectName, static):
     projectName, className = createNewCPPLib(tempDir(), projectName, "MyClass",
-                                             target=Targets.desktopTargetClasses(),
-                                             isStatic=static)
+                                             Targets.desktopTargetClasses(),
+                                             static)
     for kit, config in iterateBuildConfigs("Release"):
         verifyBuildConfig(kit, config, False, True)
         invokeMenuItem('Build', 'Build Project "%s"' % projectName)
@@ -79,10 +79,8 @@ def main():
     checkSimpleCppLib("SampleApp1", False)
     checkSimpleCppLib("SampleApp2", True)
 
-    # Qt Plugin needs Qt4.8 for QGenericPlugin which is tested by default
-    targets = Targets.desktopTargetClasses()
     projectName, className = createNewQtPlugin(tempDir(), "SampleApp3", "MyPlugin",
-                                               target=targets)
+                                               Targets.desktopTargetClasses())
     virtualFunctionsAdded = False
     for kit, config in iterateBuildConfigs("Debug"):
         is487Kit = kit in (Targets.DESKTOP_4_8_7_DEFAULT, Targets.EMBEDDED_LINUX)
