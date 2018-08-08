@@ -461,7 +461,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, Method)
                 completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Method"),
-                                         CodeCompletion::FunctionCompletionKind,
+                                         CodeCompletion::FunctionDefinitionCompletionKind,
                                          CodeCompletion::Available));
     ASSERT_FALSE(extractor.currentCodeCompletion().hasParameters);
 }
@@ -475,7 +475,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, MethodWithParameters)
                 completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("MethodWithParameters"),
-                                         CodeCompletion::FunctionCompletionKind,
+                                         CodeCompletion::FunctionDefinitionCompletionKind,
                                          CodeCompletion::Available));
     ASSERT_TRUE(extractor.currentCodeCompletion().hasParameters);
 }
@@ -580,7 +580,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, DeprecatedFunction)
                 completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("DeprecatedFunction"),
-                                         CodeCompletion::FunctionCompletionKind,
+                                         CodeCompletion::FunctionDefinitionCompletionKind,
                                          CodeCompletion::Deprecated));
 }
 
@@ -593,7 +593,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, NotAccessibleFunction)
                 completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("NotAccessibleFunction"),
-                                         CodeCompletion::FunctionCompletionKind,
+                                         CodeCompletion::FunctionDefinitionCompletionKind,
                                          CodeCompletion::NotAccessible));
 }
 
@@ -606,7 +606,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, NotAvailableFunction)
                 completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("NotAvailableFunction"),
-                                         CodeCompletion::FunctionCompletionKind,
+                                         CodeCompletion::FunctionDefinitionCompletionKind,
                                          CodeCompletion::NotAvailable));
 }
 
@@ -622,7 +622,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, UnsavedFile)
                 completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Method2"),
-                                         CodeCompletion::FunctionCompletionKind,
+                                         CodeCompletion::FunctionDefinitionCompletionKind,
                                          CodeCompletion::Available));
 }
 
@@ -641,7 +641,7 @@ TEST_F(CodeCompletionsExtractorSlowTest, ChangeUnsavedFile)
                 completeResults.data());
 
     ASSERT_THAT(extractor, HasCompletion(Utf8StringLiteral("Method3"),
-                                         CodeCompletion::FunctionCompletionKind,
+                                         CodeCompletion::FunctionDefinitionCompletionKind,
                                          CodeCompletion::Available));
 }
 

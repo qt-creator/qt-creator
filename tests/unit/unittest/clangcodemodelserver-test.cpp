@@ -603,7 +603,7 @@ void ClangCodeModelServer::expectCompletionFromFileAUnsavedMethodVersion1()
 {
     const CodeCompletion completion(Utf8StringLiteral("Method2"),
                                     34,
-                                    CodeCompletion::FunctionCompletionKind);
+                                    CodeCompletion::FunctionDefinitionCompletionKind);
 
     expectCompletion(completion);
 }
@@ -612,7 +612,7 @@ void ClangCodeModelServer::expectCompletionFromFileAUnsavedMethodVersion2()
 {
     const CodeCompletion completion(Utf8StringLiteral("Method3"),
                                     34,
-                                    CodeCompletion::FunctionCompletionKind);
+                                    CodeCompletion::FunctionDefinitionCompletionKind);
 
     expectCompletion(completion);
 }
