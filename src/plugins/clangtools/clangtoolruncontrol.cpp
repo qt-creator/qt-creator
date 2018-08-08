@@ -185,16 +185,14 @@ private:
      bool m_success = false;
 };
 
-static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos,
-                                   const QString &clangVersion,
-                                   const QString &clangResourceDirectory)
+static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos)
 {
     AnalyzeUnits unitsToAnalyze;
     const CompilerOptionsBuilder::PchUsage pchUsage = CppTools::getPchUsage();
     for (const FileInfo &fileInfo : fileInfos) {
         CompilerOptionsBuilder optionsBuilder(*fileInfo.projectPart,
-                                              clangVersion,
-                                              clangResourceDirectory);
+                                              CLANG_VERSION,
+                                              CLANG_RESOURCE_DIR);
         QStringList arguments = extraClangToolsPrependOptions();
         arguments.append(optionsBuilder.build(fileInfo.kind, pchUsage));
         arguments.append(extraClangToolsAppendOptions());
@@ -204,12 +202,11 @@ static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos,
     return unitsToAnalyze;
 }
 
-AnalyzeUnits ClangToolRunControl::unitsToAnalyze(const QString &clangVersion)
+AnalyzeUnits ClangToolRunControl::unitsToAnalyze()
 {
     QTC_ASSERT(m_projectInfo.isValid(), return AnalyzeUnits());
 
-    const QString clangResourceDirectory = clangIncludeDirectory(m_clangExecutable, clangVersion);
-    return toAnalyzeUnits(m_fileInfos, clangVersion, clangResourceDirectory);
+    return toAnalyzeUnits(m_fileInfos);
 }
 
 static QDebug operator<<(QDebug debug, const Utils::Environment &environment)
@@ -311,7 +308,7 @@ void ClangToolRunControl::start()
     }
 
     // Collect files
-    const AnalyzeUnits unitsToProcess = unitsToAnalyze(CLANG_VERSION);
+    const AnalyzeUnits unitsToProcess = unitsToAnalyze();
     qCDebug(LOG) << "Files to process:" << unitsToProcess;
     m_unitsToProcess = unitsToProcess;
     m_initialFilesToProcessSize = m_unitsToProcess.count();
