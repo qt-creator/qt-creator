@@ -233,10 +233,21 @@ bool AnnotationItem::isEditable() const
     return true;
 }
 
+bool AnnotationItem::isEditing() const
+{
+    return m_textItem && m_textItem->hasFocus();
+}
+
 void AnnotationItem::edit()
 {
     if (m_textItem)
         m_textItem->setFocus();
+}
+
+void AnnotationItem::finishEdit()
+{
+    if (m_textItem)
+        m_textItem->clearFocus();
 }
 
 void AnnotationItem::mousePressEvent(QGraphicsSceneMouseEvent *event)

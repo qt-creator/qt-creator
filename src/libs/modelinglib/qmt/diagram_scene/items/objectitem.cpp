@@ -455,11 +455,22 @@ bool ObjectItem::isEditable() const
     return true;
 }
 
+bool ObjectItem::isEditing() const
+{
+    return m_nameItem && m_nameItem->hasFocus();
+}
+
 void ObjectItem::edit()
 {
     // TODO if name is initial name ("New Class" etc) select all text
     if (m_nameItem)
         m_nameItem->setFocus();
+}
+
+void ObjectItem::finishEdit()
+{
+    if (m_nameItem)
+        m_nameItem->clearFocus();
 }
 
 void ObjectItem::updateStereotypeIconDisplay()

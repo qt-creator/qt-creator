@@ -284,10 +284,21 @@ bool BoundaryItem::isEditable() const
     return true;
 }
 
+bool BoundaryItem::isEditing() const
+{
+    return m_textItem && m_textItem->hasFocus();
+}
+
 void BoundaryItem::edit()
 {
     if (m_textItem)
         m_textItem->setFocus();
+}
+
+void BoundaryItem::finishEdit()
+{
+    if (m_textItem)
+        m_textItem->clearFocus();
 }
 
 void BoundaryItem::mousePressEvent(QGraphicsSceneMouseEvent *event)

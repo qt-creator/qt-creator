@@ -81,7 +81,9 @@ public:
     void setBoundarySelected(const QRectF &boundary, bool secondary) override;
 
     bool isEditable() const override;
+    bool isEditing() const override;
     void edit() override;
+    void finishEdit() override;
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;

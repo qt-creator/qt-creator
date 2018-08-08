@@ -130,7 +130,9 @@ public:
     void align(AlignType alignType, const QString &identifier) override;
 
     bool isEditable() const override;
+    bool isEditing() const override;
     void edit() override;
+    void finishEdit() override;
 
 protected:
     void updateStereotypeIconDisplay();

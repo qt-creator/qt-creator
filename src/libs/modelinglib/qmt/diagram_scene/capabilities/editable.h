@@ -33,8 +33,10 @@ public:
     virtual ~IEditable() { }
 
     virtual bool isEditable() const = 0;
+    virtual bool isEditing() const = 0;
 
     virtual void edit() = 0;
+    virtual void finishEdit() = 0;
 };
 
 } // namespace qmt

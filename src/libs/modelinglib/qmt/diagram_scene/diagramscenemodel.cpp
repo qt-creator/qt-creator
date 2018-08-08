@@ -98,6 +98,7 @@ public:
     QSet<QGraphicsItem *> m_selectedItems;
     QSet<QGraphicsItem *> m_secondarySelectedItems;
     QGraphicsItem *m_focusItem = nullptr;
+    IEditable *m_editItem = nullptr;
     bool m_exportSelectedElements = false;
     QRectF m_sceneBoundingRect;
 };
@@ -955,6 +956,14 @@ void DiagramSceneModel::saveSelectionStatusBeforeExport(bool exportSelectedEleme
 
     // Selections would also render to the clipboard
     m_graphicsScene->clearSelection();
+    foreach (QGraphicsItem *item, m_graphicsItems) {
+        if (IEditable *editItem = dynamic_cast<IEditable *>(item)) {
+            if (editItem->isEditing()) {
+                status->m_editItem = editItem;
+                editItem->finishEdit();
+            }
+        }
+    }
     removeExtraSceneItems();
 
     foreach (QGraphicsItem *item, m_graphicsItems) {
@@ -1002,6 +1011,10 @@ void DiagramSceneModel::restoreSelectedStatusAfterExport(const DiagramSceneModel
             m_focusItem = status.m_focusItem;
         }
     }
+
+    // reset edit item
+    if (status.m_editItem)
+        status.m_editItem->edit();
 }
 
 void DiagramSceneModel::recalcSceneRectSize()
