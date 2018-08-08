@@ -108,7 +108,7 @@ class RunConfigurationSelectionDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit RunConfigurationSelectionDialog(const QString &testsInfo, QWidget *parent = nullptr);
+    explicit RunConfigurationSelectionDialog(const QString &buildTargetKey, QWidget *parent = nullptr);
     QString displayName() const;
     QString executable() const;
 private:

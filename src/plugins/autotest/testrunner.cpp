@@ -328,17 +328,14 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
     }
 }
 
-static QString firstTestCaseTarget(const TestConfiguration *config)
+static QString firstNonEmptyTestCaseTarget(const TestConfiguration *config)
 {
-    for (const QString &internalTarget : config->internalTargets()) {
-        const QString buildTarget = internalTarget.split('|').first();
-        if (!buildTarget.isEmpty())
-            return buildTarget;
-    }
-    return QString();
+    return Utils::findOrDefault(config->internalTargets(), [](const QString &internalTarget) {
+        return !internalTarget.isEmpty();
+    });
 }
 
-static ProjectExplorer::RunConfiguration *getRunConfiguration(const QString &dialogDetail)
+static ProjectExplorer::RunConfiguration *getRunConfiguration(const QString &buildTargetKey)
 {
     using namespace ProjectExplorer;
     const Project *project = SessionManager::startupProject();
@@ -356,7 +353,7 @@ static ProjectExplorer::RunConfiguration *getRunConfiguration(const QString &dia
     if (runConfigurations.size() == 1)
         return runConfigurations.first();
 
-    RunConfigurationSelectionDialog dialog(dialogDetail, Core::ICore::dialogParent());
+    RunConfigurationSelectionDialog dialog(buildTargetKey, Core::ICore::dialogParent());
     if (dialog.exec() == QDialog::Accepted) {
         const QString dName = dialog.displayName();
         if (dName.isEmpty())
@@ -408,7 +405,7 @@ void TestRunner::runTests()
             projectChanged = true;
             toBeRemoved.append(config);
         } else if (!config->hasExecutable()) {
-            if (auto rc = getRunConfiguration(firstTestCaseTarget(config)))
+            if (auto rc = getRunConfiguration(firstNonEmptyTestCaseTarget(config)))
                 config->setOriginalRunConfiguration(rc);
             else
                 toBeRemoved.append(config);
@@ -482,7 +479,7 @@ void TestRunner::debugTests()
         return;
     }
     if (!config->hasExecutable()) {
-        if (auto *rc = getRunConfiguration(firstTestCaseTarget(config)))
+        if (auto *rc = getRunConfiguration(firstNonEmptyTestCaseTarget(config)))
             config->completeTestInformation(rc, TestRunMode::Debug);
     }
 
@@ -626,7 +623,7 @@ void TestRunner::onFinished()
 
 /*************************************************************************************************/
 
-RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &testsInfo,
+RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &buildTargetKey,
                                                                  QWidget *parent)
     : QDialog(parent)
 {
@@ -634,8 +631,8 @@ RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &
     setWindowTitle(tr("Select Run Configuration"));
 
     QString details = tr("Could not determine which run configuration to choose for running tests");
-    if (!testsInfo.isEmpty())
-        details.append(QString(" (%1)").arg(testsInfo));
+    if (!buildTargetKey.isEmpty())
+        details.append(QString(" (%1)").arg(buildTargetKey));
     m_details = new QLabel(details, this);
     m_rcCombo = new QComboBox(this);
     m_executable = new QLabel(this);
