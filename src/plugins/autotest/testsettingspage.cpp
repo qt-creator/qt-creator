@@ -29,6 +29,7 @@
 #include "testsettingspage.h"
 #include "testsettings.h"
 #include "testtreemodel.h"
+#include "autotestplugin.h"
 
 #include <coreplugin/icore.h>
 #include <utils/fancylineedit.h>
@@ -139,6 +140,8 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
         m_ui.editFilter->setEnabled(enable);
         m_ui.removeFilter->setEnabled(enable);
     });
+    connect(m_ui.resetChoicesButton, &QPushButton::clicked,
+            this, [] { AutotestPlugin::clearChoiceCache(); });
 }
 
 void TestSettingsWidget::setSettings(const TestSettings &settings)
