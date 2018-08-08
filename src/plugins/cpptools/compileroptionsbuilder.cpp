@@ -513,7 +513,7 @@ void CompilerOptionsBuilder::addPredefinedHeaderPathsOptions()
 void CompilerOptionsBuilder::addClangIncludeFolder()
 {
     QTC_CHECK(!m_clangVersion.isEmpty());
-    add(SYSTEM_INCLUDE_PREFIX);
+    add(includeDirOption());
     add(clangIncludeDirectory(m_clangVersion, m_clangResourceDirectory));
 }
 
