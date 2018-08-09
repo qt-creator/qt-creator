@@ -32,8 +32,10 @@
 #include <extensionsystem/pluginspec.h>
 #include <qtsingleapplication.h>
 
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/optional.h>
 #include <utils/temporarydirectory.h>
 
 #include <QDebug>
@@ -95,6 +97,7 @@ const char TEST_OPTION[] = "-test";
 const char PID_OPTION[] = "-pid";
 const char BLOCK_OPTION[] = "-block";
 const char PLUGINPATH_OPTION[] = "-pluginpath";
+const char USER_LIBRARY_PATH_OPTION[] = "-user-library-path"; // hidden option for qtcreator.sh
 
 typedef QList<PluginSpec *> PluginSpecSet;
 
@@ -343,6 +346,7 @@ struct Options
     QString installSettingsPath;
     QStringList customPluginPaths;
     std::vector<char *> appArguments;
+    Utils::optional<QString> userLibraryPath;
     bool hasTestOption = false;
 };
 
@@ -365,6 +369,9 @@ Options parseCommandLine(int argc, char *argv[])
         } else if (arg == PLUGINPATH_OPTION && hasNext) {
             ++it;
             options.customPluginPaths += QDir::fromNativeSeparators(nextArg);
+        } else if (arg == USER_LIBRARY_PATH_OPTION && hasNext) {
+            ++it;
+            options.userLibraryPath = nextArg;
         } else { // arguments that are still passed on to the application
             if (arg == TEST_OPTION)
                 options.hasTestOption = true;
@@ -377,6 +384,24 @@ Options parseCommandLine(int argc, char *argv[])
 
 int main(int argc, char **argv)
 {
+    Utils::Environment::systemEnvironment(); // cache system environment before we do any changes
+
+    // Manually determine various command line options
+    // We can't use the regular way of the plugin manager,
+    // because settings can change the way plugin manager behaves
+    Options options = parseCommandLine(argc, argv);
+    applicationDirPath(argv[0]);
+
+    if (options.userLibraryPath) {
+        if ((*options.userLibraryPath).isEmpty()) {
+            Utils::Environment::modifySystemEnvironment(
+                {{"LD_LIBRARY_PATH", "", Utils::EnvironmentItem::Unset}});
+        } else {
+            Utils::Environment::modifySystemEnvironment(
+                {{"LD_LIBRARY_PATH", *options.userLibraryPath, Utils::EnvironmentItem::Set}});
+        }
+    }
+
 #ifdef Q_OS_WIN
     if (!qEnvironmentVariableIsSet("QT_OPENGL"))
         QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
@@ -399,12 +424,6 @@ int main(int argc, char **argv)
     rl.rlim_cur = qMin((rlim_t)OPEN_MAX, rl.rlim_max);
     setrlimit(RLIMIT_NOFILE, &rl);
 #endif
-
-    // Manually determine various command line options
-    // We can't use the regular way of the plugin manager,
-    // because settings can change the way plugin manager behaves
-    Options options = parseCommandLine(argc, argv);
-    applicationDirPath(argv[0]);
 
     QScopedPointer<Utils::TemporaryDirectory> temporaryCleanSettingsDir;
     if (options.settingsPath.isEmpty() && options.hasTestOption) {

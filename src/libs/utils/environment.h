@@ -139,6 +139,8 @@ public:
     bool operator!=(const Environment &other) const;
     bool operator==(const Environment &other) const;
 
+    static void modifySystemEnvironment(const QList<EnvironmentItem> &list); // use with care!!!
+
 private:
     FileName searchInDirectory(const QStringList &execs, const FileName &directory,
                                QSet<FileName> &alreadyChecked) const;

@@ -39,6 +39,7 @@ if test -d "$qtlibdir"; then
     qtlibpath=:$qtlibdir
 fi
 # Add Qt Creator library path
+_ORIGINAL_LD_LIBRARY_PATH=$LD_LIBRARY_PATH
 LD_LIBRARY_PATH=$libdir:$libdir/qtcreator$qtlibpath${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH
-exec "$bindir/qtcreator" ${1+"$@"}
+exec "$bindir/qtcreator" -user-library-path "$_ORIGINAL_LD_LIBRARY_PATH" ${1+"$@"}

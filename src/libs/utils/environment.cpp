@@ -34,30 +34,8 @@
 #include <QSet>
 #include <QCoreApplication>
 
-class SystemEnvironment : public Utils::Environment
-{
-public:
-    SystemEnvironment()
-        : Environment(QProcessEnvironment::systemEnvironment().toStringList())
-    {
-        if (Utils::HostOsInfo::isLinuxHost()) {
-            QString ldLibraryPath = value("LD_LIBRARY_PATH");
-            QDir lib(QCoreApplication::applicationDirPath());
-            lib.cd("../lib");
-            QString toReplace = lib.path();
-            lib.cd("qtcreator");
-            toReplace.append(':');
-            toReplace.append(lib.path());
-
-            if (ldLibraryPath.startsWith(toReplace + ':'))
-                set("LD_LIBRARY_PATH", ldLibraryPath.remove(0, toReplace.length() + 1));
-            else if (ldLibraryPath == toReplace)
-                unset("LD_LIBRARY_PATH");
-        }
-    }
-};
-
-Q_GLOBAL_STATIC(SystemEnvironment, staticSystemEnvironment)
+Q_GLOBAL_STATIC_WITH_ARGS(Utils::Environment, staticSystemEnvironment,
+                          (QProcessEnvironment::systemEnvironment().toStringList()))
 
 static QMap<QString, QString>::iterator findKey(QMap<QString, QString> &input, Utils::OsType osType,
                                                 const QString &key)
@@ -619,6 +597,11 @@ bool Environment::operator!=(const Environment &other) const
 bool Environment::operator==(const Environment &other) const
 {
     return m_osType == other.m_osType && m_values == other.m_values;
+}
+
+void Environment::modifySystemEnvironment(const QList<EnvironmentItem> &list)
+{
+    staticSystemEnvironment->modify(list);
 }
 
 /** Expand environment variables in a string.
