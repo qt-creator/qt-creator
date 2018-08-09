@@ -195,7 +195,7 @@ double GeometryUtilities::calcAngle(const QLineF &line)
 namespace {
 
 // scalar product
-static qreal operator&(const QVector2D &lhs, const QVector2D &rhs) {
+qreal operator&(const QVector2D &lhs, const QVector2D &rhs) {
     return lhs.x() * rhs.x() + lhs.y() * rhs.y();
 }
 

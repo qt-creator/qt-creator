@@ -72,7 +72,7 @@
 namespace qmt {
 
 namespace {
-static VoidElementTasks dummyElementTasks;
+VoidElementTasks dummyElementTasks;
 }
 
 class DiagramSceneController::AcceptRelationVisitor : public MVoidConstVisitor
@@ -516,7 +516,7 @@ MDiagram *DiagramSceneController::findDiagramBySearchId(MPackage *package, const
 
 namespace {
 
-static QPointF alignObjectLeft(DObject *object, DObject *otherObject)
+QPointF alignObjectLeft(DObject *object, DObject *otherObject)
 {
     qreal left = object->pos().x() + object->rect().left();
     QPointF pos = otherObject->pos();
@@ -526,7 +526,7 @@ static QPointF alignObjectLeft(DObject *object, DObject *otherObject)
     return pos;
 }
 
-static QPointF alignObjectRight(DObject *object, DObject *otherObject)
+QPointF alignObjectRight(DObject *object, DObject *otherObject)
 {
     qreal right = object->pos().x() + object->rect().right();
     QPointF pos = otherObject->pos();
@@ -536,7 +536,7 @@ static QPointF alignObjectRight(DObject *object, DObject *otherObject)
     return pos;
 }
 
-static QPointF alignObjectHCenter(DObject *object, DObject *otherObject)
+QPointF alignObjectHCenter(DObject *object, DObject *otherObject)
 {
     qreal center = object->pos().x();
     QPointF pos = otherObject->pos();
@@ -546,7 +546,7 @@ static QPointF alignObjectHCenter(DObject *object, DObject *otherObject)
     return pos;
 }
 
-static QPointF alignObjectTop(DObject *object, DObject *otherObject)
+QPointF alignObjectTop(DObject *object, DObject *otherObject)
 {
     qreal top = object->pos().y() + object->rect().top();
     QPointF pos = otherObject->pos();
@@ -556,7 +556,7 @@ static QPointF alignObjectTop(DObject *object, DObject *otherObject)
     return pos;
 }
 
-static QPointF alignObjectBottom(DObject *object, DObject *otherObject)
+QPointF alignObjectBottom(DObject *object, DObject *otherObject)
 {
     qreal bottom = object->pos().y() + object->rect().bottom();
     QPointF pos = otherObject->pos();
@@ -566,7 +566,7 @@ static QPointF alignObjectBottom(DObject *object, DObject *otherObject)
     return pos;
 }
 
-static QPointF alignObjectVCenter(DObject *object, DObject *otherObject)
+QPointF alignObjectVCenter(DObject *object, DObject *otherObject)
 {
     qreal center = object->pos().y();
     QPointF pos = otherObject->pos();
@@ -576,7 +576,7 @@ static QPointF alignObjectVCenter(DObject *object, DObject *otherObject)
     return pos;
 }
 
-static QRectF alignObjectWidth(DObject *object, const QSizeF &size)
+QRectF alignObjectWidth(DObject *object, const QSizeF &size)
 {
     QRectF rect = object->rect();
     rect.setX(-size.width() / 2.0);
@@ -584,7 +584,7 @@ static QRectF alignObjectWidth(DObject *object, const QSizeF &size)
     return rect;
 }
 
-static QRectF alignObjectHeight(DObject *object, const QSizeF &size)
+QRectF alignObjectHeight(DObject *object, const QSizeF &size)
 {
     QRectF rect = object->rect();
     rect.setY(-size.height() / 2.0);
@@ -592,7 +592,7 @@ static QRectF alignObjectHeight(DObject *object, const QSizeF &size)
     return rect;
 }
 
-static QRectF alignObjectSize(DObject *object, const QSizeF &size)
+QRectF alignObjectSize(DObject *object, const QSizeF &size)
 {
     Q_UNUSED(object);
 
