@@ -392,8 +392,8 @@ void DiagramSceneModel::copyToClipboard()
 
     auto mimeData = new QMimeData();
     // Create the image with the size of the shrunk scene
-    const int scaleFactor = 4;
-    const int border = 4;
+    const int scaleFactor = 1;
+    const int border = 5;
     const int baseDpi = 75;
     const int dotsPerMeter = 10000 * baseDpi / 254;
     QSize imageSize = status.m_sceneBoundingRect.size().toSize();
