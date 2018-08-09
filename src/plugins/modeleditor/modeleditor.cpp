@@ -101,6 +101,7 @@
 #include <QUndoStack>
 #include <QVBoxLayout>
 #include <QMenu>
+#include <QScrollBar>
 
 #include <algorithm>
 
@@ -422,9 +423,9 @@ void ModelEditor::initDocument()
             this, &ModelEditor::onCurrentEditorChanged, Qt::QueuedConnection);
 
     connect(d->diagramView, &EditorDiagramView::zoomIn,
-            this, &ModelEditor::zoomIn);
+            this, &ModelEditor::zoomInAtPos);
     connect(d->diagramView, &EditorDiagramView::zoomOut,
-            this, &ModelEditor::zoomOut);
+            this, &ModelEditor::zoomOutAtPos);
 
     connect(d->modelTreeView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &ModelEditor::onTreeViewSelectionChanged, Qt::QueuedConnection);
@@ -643,6 +644,33 @@ void ModelEditor::zoomOut()
     QTransform transform = d->diagramView->transform();
     transform.scale(1.0 / ZOOM_FACTOR, 1.0 / ZOOM_FACTOR);
     d->diagramView->setTransform(transform);
+    showZoomIndicator();
+}
+
+void ModelEditor::zoomInAtPos(const QPoint &pos)
+{
+    zoomAtPos(pos, ZOOM_FACTOR);
+}
+
+void ModelEditor::zoomOutAtPos(const QPoint &pos)
+{
+    zoomAtPos(pos, 1.0 / ZOOM_FACTOR);
+}
+
+void ModelEditor::zoomAtPos(const QPoint &pos, double scale)
+{
+    QPointF scenePos = d->diagramView->mapToScene(pos);
+    QTransform transform = d->diagramView->transform();
+    transform.scale(scale, scale);
+    d->diagramView->setTransform(transform);
+    QPoint scaledPos = d->diagramView->mapFromScene(scenePos);
+    QPoint delta = pos - scaledPos;
+    QScrollBar *hBar = d->diagramView->horizontalScrollBar();
+    if (hBar)
+        hBar->setValue(hBar->value() - delta.x());
+    QScrollBar *vBar = d->diagramView->verticalScrollBar();
+    if (vBar)
+        vBar->setValue(vBar->value() - delta.y());
     showZoomIndicator();
 }
 

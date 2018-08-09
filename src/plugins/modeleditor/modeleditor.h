@@ -91,6 +91,8 @@ public:
     void exportSelectedElements();
     void zoomIn();
     void zoomOut();
+    void zoomInAtPos(const QPoint &pos);
+    void zoomOutAtPos(const QPoint &pos);
     void resetZoom();
 
     qmt::MPackage *guessSelectedPackage() const;
@@ -109,6 +111,7 @@ private:
                                             QWidget *parent);
     bool updateButtonIconByTheme(QAbstractButton *button, const QString &name);
     void showZoomIndicator();
+    void zoomAtPos(const QPoint &pos, double scale);
 
     void onAddPackage();
     void onAddComponent();

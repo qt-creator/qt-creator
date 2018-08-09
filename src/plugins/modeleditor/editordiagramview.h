@@ -44,8 +44,8 @@ public:
     ~EditorDiagramView() override;
 
 signals:
-    void zoomIn();
-    void zoomOut();
+    void zoomIn(const QPoint &zoomOrigin);
+    void zoomOut(const QPoint &zoomOrigin);
 
 public:
     void setPxNodeController(PxNodeController *pxNodeController);

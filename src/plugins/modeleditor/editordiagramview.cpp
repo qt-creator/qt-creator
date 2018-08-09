@@ -72,9 +72,9 @@ void EditorDiagramView::wheelEvent(QWheelEvent *wheelEvent)
     if (wheelEvent->modifiers() == Qt::ControlModifier) {
         int degree = wheelEvent->angleDelta().y() / 8;
         if (degree > 0)
-            emit zoomIn();
+            emit zoomIn(wheelEvent->pos());
         else if (degree < 0)
-            emit zoomOut();
+            emit zoomOut(wheelEvent->pos());
     }
 }
 
