@@ -715,7 +715,7 @@ void ObjectItem::updateRelationStarter()
 {
     if (isFocusSelected()) {
         if (!m_relationStarter) {
-            m_relationStarter = new RelationStarter(this, diagramSceneModel(), 0);
+            m_relationStarter = new RelationStarter(this, diagramSceneModel(), nullptr);
             scene()->addItem(m_relationStarter);
             m_relationStarter->setZValue(RELATION_STARTER_ZVALUE);
             QString elementType;
@@ -827,13 +827,13 @@ void ObjectItem::updateAlignmentButtons()
 {
     if (isFocusSelected() && m_diagramSceneModel->hasMultiObjectsSelection()) {
         if (!m_horizontalAlignButtons && scene()) {
-            m_horizontalAlignButtons = new AlignButtonsItem(this, 0);
+            m_horizontalAlignButtons = new AlignButtonsItem(this, nullptr);
             m_horizontalAlignButtons->setZValue(ALIGN_BUTTONS_ZVALUE);
             scene()->addItem(m_horizontalAlignButtons);
         }
 
         if (!m_verticalAlignButtons && scene()) {
-            m_verticalAlignButtons = new AlignButtonsItem(this, 0);
+            m_verticalAlignButtons = new AlignButtonsItem(this, nullptr);
             m_verticalAlignButtons->setZValue(ALIGN_BUTTONS_ZVALUE);
             scene()->addItem(m_verticalAlignButtons);
         }

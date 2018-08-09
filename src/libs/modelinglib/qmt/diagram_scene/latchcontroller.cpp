@@ -41,8 +41,8 @@ namespace qmt {
 
 LatchController::LatchController(QObject *parent)
     : QObject(parent),
-      m_horizontalAlignLine(new AlignLineItem(AlignLineItem::Horizontal, 0)),
-      m_verticalAlignLine(new AlignLineItem(AlignLineItem::Vertical, 0))
+      m_horizontalAlignLine(new AlignLineItem(AlignLineItem::Horizontal, nullptr)),
+      m_verticalAlignLine(new AlignLineItem(AlignLineItem::Vertical, nullptr))
 {
     m_horizontalAlignLine->setZValue(LATCH_LINES_ZVALUE);
     m_horizontalAlignLine->setVisible(false);
