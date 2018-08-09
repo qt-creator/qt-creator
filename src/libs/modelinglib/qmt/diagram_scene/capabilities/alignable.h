@@ -41,7 +41,11 @@ public:
         AlignVcenter,
         AlignWidth,
         AlignHeight,
-        AlignSize
+        AlignSize,
+        AlignHCenterDistance,
+        AlignVCenterDistance,
+        AlignHBorderDistance,
+        AlignVBorderDistance
     };
 
     virtual ~IAlignable() {}

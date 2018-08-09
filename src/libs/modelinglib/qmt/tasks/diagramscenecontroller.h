@@ -125,9 +125,10 @@ public:
                      MDiagram *diagram);
     void alignSize(DObject *object, const DSelection &selection, const QSizeF &minimumSize,
                    MDiagram *diagram);
-    void distributeHorizontal(DObject *object, const DSelection &selection, MDiagram *diagram);
-    void distributeVertical(DObject *object, const DSelection &selection, MDiagram *diagram);
-    void distributeField(DObject *object, const DSelection &selection, MDiagram *diagram);
+    void alignHCenterDistance(const DSelection &selection, MDiagram *diagram);
+    void alignVCenterDistance(const DSelection &selection, MDiagram *diagram);
+    void alignHBorderDistance(const DSelection &selection, MDiagram *diagram);
+    void alignVBorderDistance(const DSelection &selection, MDiagram *diagram);
 
 private:
     void alignPosition(DObject *object, const DSelection &selection,
@@ -136,6 +137,8 @@ private:
     void alignSize(DObject *object, const DSelection &selection, const QSizeF &minimumSize,
                    QRectF (*aligner)(DObject *, const QSizeF &), MDiagram *diagram);
     void alignOnRaster(DElement *element, MDiagram *diagram);
+
+    QList<DObject *> collectObjects(const DSelection &selection, MDiagram *diagram);
 
     DElement *addModelElement(const Uid &modelElementKey, const QPointF &pos, MDiagram *diagram);
     DObject *addObject(MObject *modelObject, const QPointF &pos, MDiagram *diagram);

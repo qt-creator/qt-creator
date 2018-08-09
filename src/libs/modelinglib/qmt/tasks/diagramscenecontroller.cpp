@@ -654,6 +654,118 @@ void DiagramSceneController::alignSize(DObject *object, const DSelection &select
     alignSize(object, selection, minimumSize, alignObjectSize, diagram);
 }
 
+void DiagramSceneController::alignHCenterDistance(const DSelection &selection, MDiagram *diagram)
+{
+    QList<DObject *> sortedObjects = collectObjects(selection, diagram);
+    if (sortedObjects.length() > 2) {
+        std::sort(sortedObjects.begin(), sortedObjects.end(), [](const DObject *lhs, const DObject *rhs) {
+            return lhs->pos().x() < rhs->pos().x();
+        });
+        int n = sortedObjects.length() - 1;
+        DObject *leftObject = sortedObjects.at(0);
+        DObject *rightObject = sortedObjects.at(n);
+        double distance = rightObject->pos().x() - leftObject->pos().x();
+        double step = distance / n;
+        double startX = leftObject->pos().x();
+        for (int i = 1; i < n; ++i) {
+            DObject *selectedObject = sortedObjects.at(i);
+            QPointF newPos = selectedObject->pos();
+            newPos.setX(startX + i * step);
+            if (newPos != selectedObject->pos()) {
+                m_diagramController->startUpdateElement(selectedObject, diagram, DiagramController::UpdateGeometry);
+                selectedObject->setPos(newPos);
+                m_diagramController->finishUpdateElement(selectedObject, diagram, false);
+            }
+        }
+    }
+}
+
+void DiagramSceneController::alignVCenterDistance(const DSelection &selection, MDiagram *diagram)
+{
+    QList<DObject *> sortedObjects = collectObjects(selection, diagram);
+    if (sortedObjects.length() > 2) {
+        std::sort(sortedObjects.begin(), sortedObjects.end(), [](const DObject *lhs, const DObject *rhs) {
+            return lhs->pos().y() < rhs->pos().y();
+        });
+        int n = sortedObjects.length() - 1;
+        DObject *topObject = sortedObjects.at(0);
+        DObject *bottomObject = sortedObjects.at(n);
+        double distance = bottomObject->pos().y() - topObject->pos().y();
+        double step = distance / n;
+        double startY = topObject->pos().y();
+        for (int i = 1; i < n; ++i) {
+            DObject *selectedObject = sortedObjects.at(i);
+            QPointF newPos = selectedObject->pos();
+            newPos.setY(startY + i * step);
+            if (newPos != selectedObject->pos()) {
+                m_diagramController->startUpdateElement(selectedObject, diagram, DiagramController::UpdateGeometry);
+                selectedObject->setPos(newPos);
+                m_diagramController->finishUpdateElement(selectedObject, diagram, false);
+            }
+        }
+    }
+}
+
+void DiagramSceneController::alignHBorderDistance(const DSelection &selection, MDiagram *diagram)
+{
+    QList<DObject *> sortedObjects = collectObjects(selection, diagram);
+    if (sortedObjects.length() > 2) {
+        std::sort(sortedObjects.begin(), sortedObjects.end(), [](const DObject *lhs, const DObject *rhs) {
+            return lhs->pos().x() < rhs->pos().x();
+        });
+        int n = sortedObjects.length() - 1;
+        DObject *leftObject = sortedObjects.at(0);
+        DObject *rightObject = sortedObjects.at(n);
+        double space = rightObject->pos().x() + rightObject->rect().left() - (leftObject->pos().x() + leftObject->rect().right());
+        for (int i = 1; i < n; ++i)
+            space -= sortedObjects.at(i)->rect().width();
+        double step = space / n;
+        double x = leftObject->pos().x() + leftObject->rect().right();
+        for (int i = 1 ; i < n; ++i) {
+            DObject *selectedObject = sortedObjects.at(i);
+            QPointF newPos = selectedObject->pos();
+            x += step;
+            newPos.setX(x - selectedObject->rect().left());
+            x += selectedObject->rect().width();
+            if (newPos != selectedObject->pos()) {
+                m_diagramController->startUpdateElement(selectedObject, diagram, DiagramController::UpdateGeometry);
+                selectedObject->setPos(newPos);
+                m_diagramController->finishUpdateElement(selectedObject, diagram, false);
+            }
+        }
+    }
+}
+
+void DiagramSceneController::alignVBorderDistance(const DSelection &selection, MDiagram *diagram)
+{
+    QList<DObject *> sortedObjects = collectObjects(selection, diagram);
+    if (sortedObjects.length() > 2) {
+        std::sort(sortedObjects.begin(), sortedObjects.end(), [](const DObject *lhs, const DObject *rhs) {
+            return lhs->pos().y() < rhs->pos().y();
+        });
+        int n = sortedObjects.length() - 1;
+        DObject *topObject = sortedObjects.at(0);
+        DObject *bottomObject = sortedObjects.at(n);
+        double space = bottomObject->pos().y() + bottomObject->rect().top() - (topObject->pos().y() + topObject->rect().bottom());
+        for (int i = 1; i < n; ++i)
+            space -= sortedObjects.at(i)->rect().height();
+        double step = space / n;
+        double y = topObject->pos().y() + topObject->rect().bottom();
+        for (int i = 1 ; i < n; ++i) {
+            DObject *selectedObject = sortedObjects.at(i);
+            QPointF newPos = selectedObject->pos();
+            y += step;
+            newPos.setY(y - selectedObject->rect().top());
+            y += selectedObject->rect().height();
+            if (newPos != selectedObject->pos()) {
+                m_diagramController->startUpdateElement(selectedObject, diagram, DiagramController::UpdateGeometry);
+                selectedObject->setPos(newPos);
+                m_diagramController->finishUpdateElement(selectedObject, diagram, false);
+            }
+        }
+    }
+}
+
 void DiagramSceneController::alignPosition(DObject *object, const DSelection &selection,
                                            QPointF (*aligner)(DObject *, DObject *), MDiagram *diagram)
 {
@@ -705,6 +817,17 @@ void DiagramSceneController::alignOnRaster(DElement *element, MDiagram *diagram)
     visitor.setSceneInspector(m_sceneInspector);
     visitor.setDiagram(diagram);
     element->accept(&visitor);
+}
+
+QList<DObject *> DiagramSceneController::collectObjects(const DSelection &selection, MDiagram *diagram)
+{
+    QList<DObject *> list;
+    foreach (const DSelection::Index &index, selection.indices()) {
+        DObject *object = m_diagramController->findElement<DObject>(index.elementKey(), diagram);
+        if (object)
+            list.append(object);
+    }
+    return list;
 }
 
 DElement *DiagramSceneController::addModelElement(const Uid &modelElementKey, const QPointF &pos, MDiagram *diagram)

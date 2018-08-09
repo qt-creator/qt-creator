@@ -167,6 +167,10 @@ void AlignButtonsItem::addButton(IAlignable::AlignType alignType, const QString 
     case IAlignable::AlignWidth:
     case IAlignable::AlignHeight:
     case IAlignable::AlignSize:
+    case IAlignable::AlignHCenterDistance:
+    case IAlignable::AlignVCenterDistance:
+    case IAlignable::AlignHBorderDistance:
+    case IAlignable::AlignVBorderDistance:
         QMT_CHECK(false);
         break;
     }
