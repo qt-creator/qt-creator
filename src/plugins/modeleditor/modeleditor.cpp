@@ -1454,6 +1454,9 @@ void ModelEditor::synchronizeDiagramWithBrowser()
                                     disconnect(documentController->diagramsManager(), &qmt::DiagramsManager::diagramSelectionChanged,
                                                this, &ModelEditor::onDiagramSelectionChanged);
                                     d->diagramView->diagramSceneModel()->selectElement(diagramElement);
+                                    QGraphicsItem *item = d->diagramView->diagramSceneModel()->graphicsItem(diagramElement);
+                                    if (item)
+                                        d->diagramView->ensureVisible(item);
                                     connect(documentController->diagramsManager(), &qmt::DiagramsManager::diagramSelectionChanged,
                                             this, &ModelEditor::onDiagramSelectionChanged, Qt::QueuedConnection);
                                     done = true;
