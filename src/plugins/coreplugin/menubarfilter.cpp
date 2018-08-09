@@ -40,10 +40,12 @@
 #include <QRegularExpression>
 #include <QTimer>
 
+QT_BEGIN_NAMESPACE
 uint qHash(const QPointer<QAction> &p, uint seed)
 {
     return qHash(p.data(), seed);
 }
+QT_END_NAMESPACE
 
 using namespace Core::Internal;
 using namespace Core;
