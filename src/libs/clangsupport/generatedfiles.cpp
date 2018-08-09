@@ -48,6 +48,14 @@ void GeneratedFiles::update(V2::FileContainers &&fileContainers)
 
 class Compare {
 public:
+    bool operator()(const FilePath &first, const FilePath &second)
+    {
+        return first < second;
+    }
+    bool operator()(const V2::FileContainer &first, const V2::FileContainer &second)
+    {
+        return first.filePath < second.filePath;
+    }
     bool operator()(const V2::FileContainer &first, const FilePath &second)
     {
         return first.filePath < second;
