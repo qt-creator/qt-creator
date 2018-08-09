@@ -129,7 +129,7 @@ class Dumper(DumperBase):
                     # read raw memory in case the integerString can not be interpreted
                     pass
         if val.type.code == TypeCodeEnum:
-            val.ldisplay = enumValue(nativeValue)
+            val.ldisplay = self.enumValue(nativeValue)
         val.isBaseClass = val.name == val.type.name
         val.nativeValue = nativeValue
         val.laddress = nativeValue.address()
