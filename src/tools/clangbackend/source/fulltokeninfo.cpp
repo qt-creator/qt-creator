@@ -49,8 +49,11 @@ FullTokenInfo::operator TokenInfoContainer() const
 
 static Utf8String fullyQualifiedType(const Cursor &cursor) {
     Utf8String prefix;
-    if (cursor.kind() == CXCursor_ClassTemplate || cursor.kind() == CXCursor_Namespace)
+    if (cursor.kind() == CXCursor_ClassTemplate || cursor.kind() == CXCursor_Namespace) {
+        if (cursor.unifiedSymbolResolution() == "c:@aN")
+            return Utf8String::fromUtf8("(anonymous)");
         return qualificationPrefix(cursor) + cursor.displayName();
+    }
     return cursor.type().canonical().spelling();
 }
 
