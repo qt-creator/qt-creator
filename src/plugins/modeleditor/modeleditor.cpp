@@ -369,16 +369,16 @@ void ModelEditor::init(QWidget *parent)
 
 void ModelEditor::initDocument()
 {
+    if (d->diagramsViewManager)
+        return;
+
     initToolbars();
 
     ExtDocumentController *documentController = d->document->documentController();
 
     d->diagramView->setPxNodeController(documentController->pxNodeController());
 
-    QMT_CHECK(!d->diagramsViewManager);
     d->diagramsViewManager = new DiagramsViewManager(this);
-    //connect(diagramsViewManager, &DiagramsViewManager::someDiagramOpened,
-    //        documentController->diagramsManager(), &qmt::DiagramsManager::someDiagramOpened);
     connect(d->diagramsViewManager, &DiagramsViewManager::openNewDiagram,
             this, &ModelEditor::showDiagram);
     connect(d->diagramsViewManager, &DiagramsViewManager::closeOpenDiagram,

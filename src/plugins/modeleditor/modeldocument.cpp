@@ -127,8 +127,17 @@ bool ModelDocument::reload(QString *errorString, Core::IDocument::ReloadFlag fla
         emit changed();
         return true;
     }
-    *errorString = tr("Cannot reload model file.");
-    return false;
+    try {
+        d->documentController->loadProject(filePath().toString());
+    } catch (const qmt::FileNotFoundException &ex) {
+        *errorString = ex.errorMessage();
+        return false;
+    } catch (const qmt::Exception &ex) {
+        *errorString = tr("Could not open \"%1\" for reading: %2.").arg(filePath().toString()).arg(ex.errorMessage());
+        return false;
+    }
+    emit contentSet();
+    return true;
 }
 
 ExtDocumentController *ModelDocument::documentController() const
