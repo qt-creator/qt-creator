@@ -31,9 +31,14 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-debugging-helpers.html
     \page creator-debugging-qml.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-debug-mode.html
+    \nextpage creator-qml-debugging-example.html
+    \else
+    \previouspage creator-debugging-helpers.html
     \nextpage creator-debugging-example.html
+    \endif
 
     \title Debugging Qt Quick Projects
 

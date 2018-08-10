@@ -31,9 +31,13 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-options.html
     \page creator-editor-options-text.html
+    \previouspage creator-editor-options.html
+    \if defined(qtdesignstudio)
+    \nextpage studio-javascript.html
+    \else
     \nextpage creator-editor-fakevim.html
+    \endif
 
     \title Specifying Text Editor Settings
 

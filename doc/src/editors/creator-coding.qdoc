@@ -31,8 +31,13 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-usability.html
     \page creator-coding.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-keyboard-shortcuts.html
+    \nextpage
+    \else
+    \previouspage creator-usability.html
+    \endif
     \nextpage creator-editor-functions.html
 
     \title Coding

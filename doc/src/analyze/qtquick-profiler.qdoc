@@ -31,9 +31,14 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-analyze-mode.html
     \page creator-qml-performance-monitor.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-qml-performance-monitor.html
+    \nextpage creator-help-overview.html
+    \else
+    \previouspage creator-analyze-mode.html
     \nextpage creator-valgrind-overview.html
+    \endif
 
     \title Profiling QML Applications
 

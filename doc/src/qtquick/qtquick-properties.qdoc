@@ -25,9 +25,13 @@
 
 /*!
     \contentspage {Qt Creator Manual}
-    \previouspage qtquick-navigator.html
     \page qtquick-properties.html
+    \previouspage qtquick-navigator.html
+    \if defined(qtdesignstudio)
+    \nextpage studio-timeline.html
+    \else
     \nextpage qmldesigner-pathview-editor.html
+    \endif
 
     \title Specifying Item Properties
 

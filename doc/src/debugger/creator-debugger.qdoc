@@ -353,9 +353,14 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-debugger-operating-modes.html
     \page creator-debug-mode.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-debugging.html
+    \nextpage creator-debugging-qml.html
+    \else
+    \previouspage creator-debugger-operating-modes.html
     \nextpage creator-debugging-helpers.html
+    \endif
 
     \title Interacting with the Debugger
 

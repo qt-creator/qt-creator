@@ -25,9 +25,14 @@
 
 /*!
     \contentspage index.html
-    \previouspage qtquick-properties.html
     \page qmldesigner-pathview-editor.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-fonts.html
+    \nextpage qtquick-iso-icon-browser.html
+    \else
+    \previouspage qtquick-properties.html
     \nextpage qmldesigner-connections.html
+    \endif
 
     \title Editing PathView Properties
 
