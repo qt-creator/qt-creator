@@ -14,17 +14,9 @@ Project {
         Depends { name: "Core" }
         Depends { name: "TextEditor" }
         Depends { name: "app_version_header" }
+
         Depends { name: "libclang"; required: false }
-
-        Properties {
-            condition: libclang.present
-
-            cpp.defines: {
-                var defines = base;
-                defines.push('CLANG_BINDIR="' + libclang.llvmBinDir + '"');
-                return defines;
-            }
-        }
+        Depends { name: "clang_defines" }
 
         Group {
             name: "General"

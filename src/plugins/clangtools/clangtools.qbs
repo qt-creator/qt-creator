@@ -12,7 +12,9 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtcSsh" }
     Depends { name: "Utils" }
+
     Depends { name: "libclang"; required: false }
+    Depends { name: "clang_defines" }
 
     Depends { name: "Qt.widgets" }
 
@@ -23,23 +25,11 @@ QtcPlugin {
 
     condition: libclang.present
 
+    cpp.defines: base.concat("CLANGPCHMANAGER_LIB")
     cpp.includePaths: base.concat(libclang.llvmIncludeDir)
     cpp.libraryPaths: base.concat(libclang.llvmLibDir)
     cpp.dynamicLibraries: base.concat(libclang.llvmLibs)
     cpp.rpaths: base.concat(libclang.llvmLibDir)
-
-    cpp.defines: {
-        var defines = base;
-        defines.push("CLANGPCHMANAGER_LIB");
-
-        // The following defines are used to determine the clang include path for intrinsics.
-        defines.push('CLANG_VERSION="' + libclang.llvmVersion + '"');
-        var resourceDir = FileInfo.joinPaths(libclang.llvmLibDir, "clang", libclang.llvmVersion,
-                                             "include");
-        defines.push('CLANG_RESOURCE_DIR="' + resourceDir + '"');
-        defines.push('CLANG_BINDIR="' + libclang.llvmBinDir + '"');
-        return defines;
-    }
 
     files: [
         "clangfileinfo.h",
