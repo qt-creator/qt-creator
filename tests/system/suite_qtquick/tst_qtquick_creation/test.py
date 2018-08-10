@@ -33,10 +33,10 @@ def main():
     available = [("5.6", False), ("5.6", True)]
 
     for qtVersion, controls in available:
-        targ = [Targets.DESKTOP_5_6_1_DEFAULT]
+        targ = Targets.DESKTOP_5_6_1_DEFAULT
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
-        checkedTargets = createNewQtQuickApplication(workingDir, targets=targ,
+        checkedTargets = createNewQtQuickApplication(workingDir, targets=[targ],
                                                      minimumQtVersion=qtVersion,
                                                      withControls = controls)[0]
         if len(checkedTargets) == 0:
