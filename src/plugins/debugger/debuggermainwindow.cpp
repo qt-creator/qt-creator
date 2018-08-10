@@ -533,6 +533,8 @@ QToolButton *Perspective::addToolbarAction(QAction *action, const QIcon &toolbar
     op.action = action;
     op.icon = toolbarIcon;
     op.toolbutton = new QToolButton;
+    // QStyle::polish is called before it is added to the toolbar, explicitly make it a panel widget
+    op.toolbutton->setProperty("panelwidget", true);
     op.toolbutton->setDefaultAction(toolbarIcon.isNull()
          ? action : ProxyAction::proxyActionWithIcon(action, toolbarIcon));
     m_toolbarOperations.append(op);
@@ -544,6 +546,8 @@ void Perspective::addToolbarWidget(QWidget *widget)
 {
     ToolbarOperation op;
     op.widget = widget;
+    // QStyle::polish is called before it is added to the toolbar, explicitly make it a panel widget
+    op.widget->setProperty("panelwidget", true);
     m_toolbarOperations.append(op);
 }
 
