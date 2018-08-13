@@ -37,15 +37,19 @@
 
 namespace ClangBackEnd {
 
+class SourcesManager;
+
 class CollectMacrosSourceFileCallbacks : public clang::tooling::SourceFileCallbacks
 {
 public:
     CollectMacrosSourceFileCallbacks(SymbolEntries &symbolEntries,
                                      SourceLocationEntries &sourceLocationEntries,
-                                     FilePathCachingInterface &filePathCache)
+                                     FilePathCachingInterface &filePathCache,
+                                     SourcesManager &sourcesManager)
         : m_symbolEntries(symbolEntries),
           m_sourceLocationEntries(sourceLocationEntries),
-          m_filePathCache(filePathCache)
+          m_filePathCache(filePathCache),
+          m_sourcesManager(sourcesManager)
     {
     }
 
@@ -91,6 +95,7 @@ private:
     SymbolEntries &m_symbolEntries;
     SourceLocationEntries &m_sourceLocationEntries;
     FilePathCachingInterface &m_filePathCache;
+    SourcesManager &m_sourcesManager;
 };
 
 } // namespace ClangBackEnd

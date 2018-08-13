@@ -98,6 +98,12 @@ SymbolKindAndTags symbolKindAndTags(const clang::Decl *declaration)
     static IndexingDeclVisitor visitor;
     return visitor.Visit(declaration);
 }
+
+bool isContextIndependentDeclaration(const clang::Decl *declaration)
+{
+    return clang::dyn_cast<clang::ValueDecl>(declaration)
+            || clang::dyn_cast<clang::TypeDecl>(declaration);
+}
 }
 
 bool IndexDataConsumer::handleDeclOccurence(const clang::Decl *declaration,
@@ -107,10 +113,12 @@ bool IndexDataConsumer::handleDeclOccurence(const clang::Decl *declaration,
                                             unsigned offset,
                                             IndexDataConsumer::ASTNodeInfo astNodeInfo)
 {
-
     const auto *namedDeclaration = clang::dyn_cast<clang::NamedDecl>(declaration);
     if (namedDeclaration) {
         if (!namedDeclaration->getIdentifier())
+            return true;
+
+        if (alreadyParsed(fileId) && isContextIndependentDeclaration(declaration))
             return true;
 
         SymbolIndex globalId = toSymbolIndex(declaration->getCanonicalDecl());

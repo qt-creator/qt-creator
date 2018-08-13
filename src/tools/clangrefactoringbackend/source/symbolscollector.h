@@ -28,6 +28,7 @@
 #include "clangtool.h"
 #include "collectmacrossourcefilecallbacks.h"
 #include "collectsymbolsaction.h"
+#include "sourcesmanager.h"
 #include "symbolscollectorinterface.h"
 
 #include <filepathcachingfwd.h>
@@ -62,6 +63,7 @@ private:
     std::shared_ptr<IndexDataConsumer> m_indexDataConsumer;
     CollectSymbolsAction m_collectSymbolsAction;
     CollectMacrosSourceFileCallbacks m_collectMacrosSourceFileCallbacks;
+    SourcesManager m_sourcesManager;
     FilePathCachingInterface &m_filePathCache;
 };
 

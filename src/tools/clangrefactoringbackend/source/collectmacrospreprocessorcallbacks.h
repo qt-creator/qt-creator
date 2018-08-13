@@ -30,6 +30,7 @@
 #include "sourcedependency.h"
 #include "sourcelocationsutils.h"
 #include "sourcelocationentry.h"
+#include "sourcesmanager.h"
 #include "symbolentry.h"
 #include "usedmacro.h"
 
@@ -54,8 +55,9 @@ public:
                                        SourceDependencies &sourceDependencies,
                                        FilePathCachingInterface &filePathCache,
                                        const clang::SourceManager &sourceManager,
-                                       std::shared_ptr<clang::Preprocessor> &&preprocessor)
-        : SymbolsVisitorBase(filePathCache, &sourceManager),
+                                       std::shared_ptr<clang::Preprocessor> &&preprocessor,
+                                       SourcesManager &sourcesManager)
+        : SymbolsVisitorBase(filePathCache, &sourceManager, sourcesManager),
           m_preprocessor(std::move(preprocessor)),
           m_sourceDependencies(sourceDependencies),
           m_symbolEntries(symbolEntries),
@@ -165,6 +167,7 @@ public:
     {
         filterOutHeaderGuards();
         mergeUsedMacros();
+        m_sourcesManager.updateModifiedTimeStamps();
     }
 
     void filterOutHeaderGuards()
@@ -205,6 +208,9 @@ public:
     void addUsedMacro(const clang::Token &macroNameToken,
                        const clang::MacroDefinition &macroDefinition)
     {
+        if (isInSystemHeader(macroNameToken.getLocation()))
+            return;
+
         clang::MacroInfo *macroInfo = macroDefinition.getMacroInfo();
         UsedMacro usedMacro{macroNameToken.getIdentifierInfo()->getName(),
                               filePathId(macroNameToken.getLocation())};
@@ -229,12 +235,17 @@ public:
         return nullptr;
     }
 
+    bool isInSystemHeader(clang::SourceLocation sourceLocation) const
+    {
+        return m_sourceManager->isInSystemHeader(sourceLocation);
+    }
+
     void addMacroAsSymbol(const clang::Token &macroNameToken,
                           const clang::MacroInfo *macroInfo,
                           SourceLocationKind symbolType)
     {
         clang::SourceLocation sourceLocation = macroNameToken.getLocation();
-        if (macroInfo && sourceLocation.isFileID()) {
+        if (macroInfo && sourceLocation.isFileID() && !isInSystemHeader(sourceLocation)) {
             FilePathId fileId = filePathId(sourceLocation);
             if (fileId.isValid()) {
                 auto macroName = macroNameToken.getIdentifierInfo()->getName();

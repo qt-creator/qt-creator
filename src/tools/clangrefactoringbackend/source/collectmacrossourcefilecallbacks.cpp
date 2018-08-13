@@ -42,7 +42,8 @@ bool CollectMacrosSourceFileCallbacks::handleBeginSource(clang::CompilerInstance
                 m_sourceDependencies,
                 m_filePathCache,
                 compilerInstance.getSourceManager(),
-                compilerInstance.getPreprocessorPtr());
+                compilerInstance.getPreprocessorPtr(),
+                m_sourcesManager);
 
     compilerInstance.getPreprocessorPtr()->addPPCallbacks(std::move(callbacks));
 

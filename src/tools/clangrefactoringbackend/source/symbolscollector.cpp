@@ -30,9 +30,9 @@
 namespace ClangBackEnd {
 
 SymbolsCollector::SymbolsCollector(FilePathCachingInterface &filePathCache)
-    : m_indexDataConsumer(std::make_shared<IndexDataConsumer>(m_symbolEntries, m_sourceLocationEntries, filePathCache)),
+    : m_indexDataConsumer(std::make_shared<IndexDataConsumer>(m_symbolEntries, m_sourceLocationEntries, filePathCache, m_sourcesManager)),
       m_collectSymbolsAction(m_indexDataConsumer),
-      m_collectMacrosSourceFileCallbacks(m_symbolEntries, m_sourceLocationEntries, filePathCache),
+      m_collectMacrosSourceFileCallbacks(m_symbolEntries, m_sourceLocationEntries, filePathCache, m_sourcesManager),
       m_filePathCache(filePathCache)
 {
 }

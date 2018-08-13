@@ -42,8 +42,9 @@ class IndexDataConsumer : public clang::index::IndexDataConsumer,
 public:
     IndexDataConsumer(SymbolEntries &symbolEntries,
                       SourceLocationEntries &sourceLocationEntries,
-                      FilePathCachingInterface &filePathCache)
-        : SymbolsVisitorBase(filePathCache, nullptr),
+                      FilePathCachingInterface &filePathCache,
+                      SourcesManager &sourcesManager)
+        : SymbolsVisitorBase(filePathCache, nullptr, sourcesManager),
           m_symbolEntries(symbolEntries),
           m_sourceLocationEntries(sourceLocationEntries)
     {}

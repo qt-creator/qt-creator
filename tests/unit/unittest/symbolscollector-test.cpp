@@ -707,4 +707,34 @@ TEST_F(SymbolsCollector, IsVariableSymbol)
                         HasSymbolKind(SymbolKind::Variable))));
 }
 
+
+TEST_F(SymbolsCollector, DontIndexUnmodifiedHeaderFiles)
+{
+    collector.addFiles({filePathId(TESTDATA_DIR "/symbolscollector_unmodified.cpp")}, {"cc", "-I", {TESTDATA_DIR, "/include"}});
+    collector.collectSymbols();
+    collector.clear();
+    collector.addFiles({filePathId(TESTDATA_DIR "/symbolscollector_unmodified2.cpp")}, {"cc", "-I", {TESTDATA_DIR, "/include"}});
+
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.symbols(),
+                AllOf(
+                    Not(Contains(HasSymbolName("HeaderFunction"))),
+                    Not(Contains(HasSymbolName("Class"))),
+                    Not(Contains(HasSymbolName("Member")))));
+}
+
+TEST_F(SymbolsCollector, DontIndexSystemIncudes)
+{
+    collector.addFiles({filePathId(TESTDATA_DIR "/symbolscollector_unmodified.cpp")}, {"cc", "-isystem", {TESTDATA_DIR, "/include"}});
+
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.symbols(),
+                AllOf(
+                    Not(Contains(HasSymbolName("HeaderFunction"))),
+                    Not(Contains(HasSymbolName("Class"))),
+                    Not(Contains(HasSymbolName("Member"))),
+                    Not(Contains(HasSymbolName("HEADER_DEFINE")))));
+}
 }
