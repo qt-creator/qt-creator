@@ -34,7 +34,8 @@ Product {
             fileTags: "hpp"
         }
         prepare: {
-            var args = [input.filePath, "--amalgamation", "--minimized-build", "--disable-shared"];
+            var args = [input.filePath, "--amalgamation", "--minimized-build", "--disable-shared",
+                        "--without-documentation"];
             var modules = "aes,aes_ssse3,auto_rng,bigint,block,cbc,ctr,des,dh,dsa,ec_group,ecdh,"
                     + "ecdsa,entropy,filters,hmac,mode_pad,pubkey,rsa,sha1,sha1_sse2,sha1_x86,"
                     + "sha2_32,sha2_32_x86,sha2_64,simd,system_rng,emsa_pkcs1,pbes2,pbkdf2";

@@ -22,7 +22,7 @@ BOTAN_MODULES = aes aes_ssse3 auto_rng bigint block cbc ctr des dh dsa ec_group 
                 filters hmac mode_pad pubkey rsa sha1 sha1_sse2 sha1_x86 sha2_32 sha2_32_x86 \
                 sha2_64 simd system_rng,emsa_pkcs1,pbes2,pbkdf2
 OTHER_FLAGS = --amalgamation --minimized-build  --disable-shared \
-              --enable-modules=$$join(BOTAN_MODULES,",",,)
+              --enable-modules=$$join(BOTAN_MODULES,",",,) --without-documentation
 mingw {
     BOTAN_OS_SWITCH = "--os=mingw"
     OTHER_FLAGS += --without-stack-protector
