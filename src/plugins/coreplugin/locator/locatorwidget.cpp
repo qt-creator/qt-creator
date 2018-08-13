@@ -514,6 +514,13 @@ bool CompletionList::eventFilter(QObject *watched, QEvent *event)
                 return true;
             }
             break;
+        case Qt::Key_P:
+        case Qt::Key_N:
+            if (ke->modifiers() == Qt::KeyboardModifiers(Utils::HostOsInfo::controlModifier())) {
+                event->accept();
+                return true;
+            }
+            break;
         }
     }
     return Utils::TreeView::eventFilter(watched, event);
