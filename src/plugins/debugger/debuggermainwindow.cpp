@@ -102,10 +102,9 @@ DebuggerMainWindow::~DebuggerMainWindow()
         delete perspective;
 }
 
-void DebuggerMainWindow::registerPerspective(const QByteArray &perspectiveId, Perspective *perspective)
+void DebuggerMainWindow::registerPerspective(Perspective *perspective)
 {
     m_perspectives.append(perspective);
-    perspective->m_id = perspectiveId;
     QByteArray parentPerspective = perspective->parentPerspective();
     // Add "main" perspectives to the chooser.
     if (parentPerspective.isEmpty()) {
@@ -481,6 +480,13 @@ void DebuggerMainWindow::savePerspectiveHelper(const Perspective *perspective)
     settings->setValue(QLatin1String(LAST_PERSPECTIVE_KEY), perspective->m_id);
 }
 
+// Perspective
+
+Perspective::Perspective(const QByteArray &id, const QString &name)
+    : m_id(id), m_name(name)
+{
+}
+
 Perspective::~Perspective()
 {
     for (const ToolbarOperation &op : m_toolbarOperations) {
@@ -499,11 +505,6 @@ void Perspective::setCentralWidget(QWidget *centralWidget)
 QString Perspective::name() const
 {
     return m_name;
-}
-
-void Perspective::setName(const QString &name)
-{
-    m_name = name;
 }
 
 void Perspective::setAboutToActivateCallback(const Perspective::Callback &cb)
@@ -561,11 +562,6 @@ void Perspective::addToolbarSeparator()
 QWidget *Perspective::centralWidget() const
 {
     return m_centralWidget;
-}
-
-Perspective::Perspective(const QString &name)
-    : m_name(name)
-{
 }
 
 void Perspective::addWindow(QWidget *widget, OperationType type, QWidget *anchorWidget,

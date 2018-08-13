@@ -51,8 +51,7 @@ class DEBUGGER_EXPORT Perspective
 public:
     enum OperationType { SplitVertical, SplitHorizontal, AddToTab, Raise };
 
-    Perspective() = default;
-    explicit Perspective(const QString &name);
+    explicit Perspective(const QByteArray &id, const QString &name);
     ~Perspective();
 
     void setCentralWidget(QWidget *centralWidget);
@@ -69,7 +68,6 @@ public:
     QWidget *centralWidget() const;
 
     QString name() const;
-    void setName(const QString &name);
 
     using Callback = std::function<void()>;
     void setAboutToActivateCallback(const Callback &cb);
@@ -104,7 +102,7 @@ private:
         QIcon icon;
     };
 
-    QByteArray m_id;
+    const QByteArray m_id;
     QString m_name;
     QByteArray m_parentPerspective;
     QVector<Operation> m_operations;
@@ -121,7 +119,7 @@ public:
     DebuggerMainWindow();
     ~DebuggerMainWindow() override;
 
-    void registerPerspective(const QByteArray &perspectiveId, Perspective *perspective);
+    void registerPerspective(Perspective *perspective);
     void destroyDynamicPerspective(Perspective *perspective);
 
     void resetCurrentPerspective();

@@ -269,7 +269,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     const QString toolTip = tr("Clang-Tidy and Clazy use a customized Clang executable from the "
                                "Clang project to search for errors and warnings.");
 
-    auto perspective = new Perspective(tr("Clang-Tidy and Clazy"));
+    auto perspective = new Perspective(ClangTidyClazyPerspectiveId, tr("Clang-Tidy and Clazy"));
     perspective->addWindow(m_diagnosticView, Perspective::SplitVertical, nullptr);
 
     action = new QAction(tr("Clang-Tidy and Clazy..."), this);
@@ -289,7 +289,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     perspective->addToolbarWidget(m_filterLineEdit);
     perspective->addToolbarWidget(m_applyFixitsButton);
 
-    Debugger::registerPerspective(ClangTidyClazyPerspectiveId, perspective);
+    Debugger::registerPerspective(perspective);
 
     updateRunActions();
 

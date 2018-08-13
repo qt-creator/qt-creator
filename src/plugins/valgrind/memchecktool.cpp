@@ -556,7 +556,7 @@ MemcheckTool::MemcheckTool()
     m_errorView->setObjectName(QLatin1String("Valgrind.MemcheckTool.ErrorView"));
     m_errorView->setWindowTitle(tr("Memory Issues"));
 
-    auto perspective = new Perspective(tr("Memcheck"));
+    auto perspective = new Perspective(MemcheckPerspectiveId, tr("Memcheck"));
     perspective->addWindow(m_errorView, Perspective::SplitVertical, nullptr);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
@@ -690,7 +690,7 @@ MemcheckTool::MemcheckTool()
     perspective->addToolbarAction(m_goBack);
     perspective->addToolbarAction(m_goNext);
     perspective->addToolbarWidget(filterButton);
-    Debugger::registerPerspective(MemcheckPerspectiveId, perspective);
+    Debugger::registerPerspective(perspective);
 
     updateFromSettings();
     maybeActiveRunConfigurationChanged();

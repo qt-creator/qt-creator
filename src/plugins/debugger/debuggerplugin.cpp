@@ -1828,45 +1828,37 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 //    qmlToolbar.addAction(qmlSelectDummyAction, Icons::SELECT_TOOLBAR.icon());
 //    qmlToolbar.addWidget(new StyledSeparator);
 
-    auto createBasePerspective = [this] {
-        auto perspective = new Perspective("Debugger");
-        perspective->addWindow(m_stackWindow, Perspective::SplitVertical, nullptr);
-        perspective->addWindow(m_breakWindow, Perspective::SplitHorizontal, m_stackWindow);
-        perspective->addWindow(m_threadsWindow, Perspective::AddToTab, m_breakWindow, false);
-        perspective->addWindow(m_modulesWindow, Perspective::AddToTab, m_threadsWindow, false);
-        perspective->addWindow(m_sourceFilesWindow, Perspective::AddToTab, m_modulesWindow, false);
-        perspective->addWindow(m_snapshotWindow, Perspective::AddToTab, m_sourceFilesWindow, false);
-        perspective->addWindow(m_localsAndInspectorWindow, Perspective::AddToTab, nullptr, true,
-                     Qt::RightDockWidgetArea);
-        perspective->addWindow(m_watchersWindow, Perspective::AddToTab, m_localsAndInspectorWindow, true,
-                     Qt::RightDockWidgetArea);
-        perspective->addWindow(m_logWindow, Perspective::AddToTab, nullptr, false, Qt::TopDockWidgetArea);
-        perspective->addWindow(m_breakWindow, Perspective::Raise, nullptr);
+    auto perspective = new Perspective("Debugger", tr("Debugger"));
+    perspective->addWindow(m_stackWindow, Perspective::SplitVertical, nullptr);
+    perspective->addWindow(m_breakWindow, Perspective::SplitHorizontal, m_stackWindow);
+    perspective->addWindow(m_threadsWindow, Perspective::AddToTab, m_breakWindow, false);
+    perspective->addWindow(m_modulesWindow, Perspective::AddToTab, m_threadsWindow, false);
+    perspective->addWindow(m_sourceFilesWindow, Perspective::AddToTab, m_modulesWindow, false);
+    perspective->addWindow(m_snapshotWindow, Perspective::AddToTab, m_sourceFilesWindow, false);
+    perspective->addWindow(m_localsAndInspectorWindow, Perspective::AddToTab, nullptr, true,
+                           Qt::RightDockWidgetArea);
+    perspective->addWindow(m_watchersWindow, Perspective::AddToTab, m_localsAndInspectorWindow, true,
+                           Qt::RightDockWidgetArea);
+    perspective->addWindow(m_logWindow, Perspective::AddToTab, nullptr, false, Qt::TopDockWidgetArea);
+    perspective->addWindow(m_breakWindow, Perspective::Raise, nullptr);
+    perspective->addWindow(m_registerWindow, Perspective::AddToTab, m_snapshotWindow, false);
 
+    perspective->addToolbarAction(m_visibleStartAction);
+    perspective->addToolbarAction(ActionManager::command(Constants::STOP)->action(), Icons::DEBUG_EXIT_SMALL_TOOLBAR.icon());
+    perspective->addToolbarAction(ActionManager::command(Constants::NEXT)->action(), Icons::STEP_OVER_TOOLBAR.icon());
+    perspective->addToolbarAction(ActionManager::command(Constants::STEP)->action(), Icons::STEP_INTO_TOOLBAR.icon());
+    perspective->addToolbarAction(ActionManager::command(Constants::STEPOUT)->action(), Icons::STEP_OUT_TOOLBAR.icon());
+    perspective->addToolbarAction(ActionManager::command(Constants::RESET)->action(), Icons::RESTART_TOOLBAR.icon());
+    perspective->addToolbarAction(ActionManager::command(Constants::OPERATE_BY_INSTRUCTION)->action());
 
-        perspective->addToolbarAction(m_visibleStartAction);
-        perspective->addToolbarAction(ActionManager::command(Constants::STOP)->action(), Icons::DEBUG_EXIT_SMALL_TOOLBAR.icon());
-        perspective->addToolbarAction(ActionManager::command(Constants::NEXT)->action(), Icons::STEP_OVER_TOOLBAR.icon());
-        perspective->addToolbarAction(ActionManager::command(Constants::STEP)->action(), Icons::STEP_INTO_TOOLBAR.icon());
-        perspective->addToolbarAction(ActionManager::command(Constants::STEPOUT)->action(), Icons::STEP_OUT_TOOLBAR.icon());
-        perspective->addToolbarAction(ActionManager::command(Constants::RESET)->action(), Icons::RESTART_TOOLBAR.icon());
-        perspective->addToolbarAction(ActionManager::command(Constants::OPERATE_BY_INSTRUCTION)->action());
+    if (isReverseDebuggingEnabled())
+        perspective->addToolbarWidget(m_reverseToolButton);
 
-        if (isReverseDebuggingEnabled())
-            perspective->addToolbarWidget(m_reverseToolButton);
+    perspective->addToolbarSeparator();
+    perspective->addToolbarWidget(m_threadLabel);
+    perspective->addToolbarWidget(m_threadBox);
 
-        perspective->addToolbarSeparator();
-        perspective->addToolbarWidget(m_threadLabel);
-        perspective->addToolbarWidget(m_threadBox);
-
-        return perspective;
-    };
-
-    Perspective *cppPerspective = createBasePerspective();
-    cppPerspective->setName(tr("Debugger"));
-    cppPerspective->addWindow(m_registerWindow, Perspective::AddToTab, m_snapshotWindow, false);
-
-    Debugger::registerPerspective(CppPerspectiveId, cppPerspective);
+    Debugger::registerPerspective(perspective);
 
 //    Perspective *qmlPerspective = createBasePerspective();
 //    qmlPerspective->setName(tr("QML Debugger"));
@@ -3510,9 +3502,9 @@ QAction *createStopAction()
     return action;
 }
 
-void registerPerspective(const QByteArray &perspectiveId, Perspective *perspective)
+void registerPerspective(Perspective *perspective)
 {
-    dd->m_mainWindow->registerPerspective(perspectiveId, perspective);
+    dd->m_mainWindow->registerPerspective(perspective);
 }
 
 void setPerspectiveEnabled(const QByteArray &perspectiveId, bool enabled)

@@ -419,7 +419,7 @@ CallgrindTool::CallgrindTool()
             this, &CallgrindTool::setCostEvent);
     updateEventCombo();
 
-    auto perspective = new Perspective(tr("Callgrind"));
+    auto perspective = new Perspective(CallgrindPerspectiveId, tr("Callgrind"));
     perspective->addToolbarAction(m_startAction);
     perspective->addToolbarAction(m_stopAction);
     perspective->addToolbarAction(m_loadExternalLogFile);
@@ -510,7 +510,7 @@ CallgrindTool::CallgrindTool()
     perspective->addWindow(m_callersView, Perspective::SplitHorizontal, m_calleesView);
     perspective->addWindow(m_visualization, Perspective::SplitVertical, nullptr,
                            false, Qt::RightDockWidgetArea);
-    Debugger::registerPerspective(CallgrindPerspectiveId, perspective);
+    Debugger::registerPerspective(perspective);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
             this, &CallgrindTool::updateRunActions);
