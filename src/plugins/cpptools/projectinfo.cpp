@@ -66,6 +66,19 @@ ProjectUpdateInfo::ProjectUpdateInfo(ProjectExplorer::Project *project,
 {
 }
 
+ProjectUpdateInfo::ProjectUpdateInfo(ProjectExplorer::Project *project,
+                  const ToolChainInfo &cToolChainInfo,
+                  const ToolChainInfo &cxxToolChainInfo,
+                  const RawProjectParts &rawProjectParts)
+    : project(project)
+    , rawProjectParts(rawProjectParts)
+    , cToolChain(nullptr)
+    , cxxToolChain(nullptr)
+    , cToolChainInfo(cToolChainInfo)
+    , cxxToolChainInfo(cxxToolChainInfo)
+{
+}
+
 ProjectInfo::ProjectInfo(QPointer<ProjectExplorer::Project> project)
     : m_project(project)
 {

@@ -70,6 +70,10 @@ public:
                       const ProjectExplorer::ToolChain *cxxToolChain,
                       const ProjectExplorer::Kit *kit,
                       const RawProjectParts &rawProjectParts);
+    ProjectUpdateInfo(ProjectExplorer::Project *project,
+                      const ToolChainInfo &cToolChainInfo,
+                      const ToolChainInfo &cxxToolChainInfo,
+                      const RawProjectParts &rawProjectParts);
     bool isValid() const { return project && !rawProjectParts.isEmpty(); }
 
 public:

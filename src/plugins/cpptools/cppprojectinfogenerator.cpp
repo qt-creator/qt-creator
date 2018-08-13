@@ -28,6 +28,7 @@
 #include "cppprojectfilecategorizer.h"
 
 #include <projectexplorer/headerpath.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 namespace CppTools {
 namespace Internal {
@@ -55,6 +56,10 @@ public:
         m_projectPart.extraCodeModelFlags = m_tcInfo.extraCodeModelFlags;
 
         m_projectPart.warningFlags = m_flags.warningFlags;
+
+        // For compilation database pass the command line flags directly.
+        if (m_projectPart.toolchainType == ProjectExplorer::Constants::COMPILATION_DATABASE_TOOLCHAIN_TYPEID)
+            m_projectPart.extraCodeModelFlags = m_flags.commandLineFlags;
 
         mapLanguageVersion();
         mapLanguageExtensions();
