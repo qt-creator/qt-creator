@@ -6,6 +6,7 @@ Product {
     type: ["staticlibrary", "hpp"]
     Depends { name: "cpp" }
     Depends { name: "qtc" }
+    Depends { name: "xcode"; condition: qbs.toolchain.contains("xcode") }
     files: "update-botan.sh"
     Group {
         name: "Botan sources"
@@ -47,8 +48,11 @@ Product {
             }
             else if (product.qbs.toolchain.contains("gcc"))
                 cxxFlags.push("-Wno-unused-parameter");
-            if (product.qbs.targetOS.contains("macos"))
+            if (product.qbs.targetOS.contains("macos")) {
                 cxxFlags.push("-mmacosx-version-min=" + project.minimumMacosVersion);
+                if (product.qbs.toolchain.contains("xcode"))
+                    cxxFlags.push("-isysroot", product.xcode.sdkPath);
+            }
             if (product.qbs.targetOS.contains("unix"))
                 cxxFlags.push("-fPIC");
             if (cxxFlags.length > 0)
