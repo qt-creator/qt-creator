@@ -34,3 +34,8 @@ void f()
 
 void f(int);
 void f(double);
+
+void f2()
+{
+    function();
+}

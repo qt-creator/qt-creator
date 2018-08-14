@@ -168,7 +168,7 @@ TEST_F(SymbolsCollector, CollectSymbolName)
     collector.collectSymbols();
 
     ASSERT_THAT(collector.symbols(),
-                Contains(HasSymbolName("x")));
+                Contains(HasSymbolName("function")));
 }
 
 TEST_F(SymbolsCollector, SymbolMatchesLocation)
