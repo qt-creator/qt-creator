@@ -157,7 +157,7 @@ void ClangCodeModelPlugin::createCompilationDBButton()
             &ProjectExplorer::SessionManager::startupProjectChanged,
             this,
             [this](ProjectExplorer::Project *project) {
-        m_generateCompilationDBAction->setParameter(project->displayName());
+        m_generateCompilationDBAction->setParameter(project ? project->displayName() : "");
         if (!m_generatorWatcher.isRunning())
             m_generateCompilationDBAction->setEnabled(isDBGenerationEnabled(project));
     });
