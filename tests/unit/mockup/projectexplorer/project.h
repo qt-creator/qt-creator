@@ -36,6 +36,10 @@ public:
     Utils::FileName projectDirectory() const {
         return Utils::FileName();
     }
+
+    Utils::FileName rootProjectDirectory() const {
+        return Utils::FileName();
+    }
 };
 
 }

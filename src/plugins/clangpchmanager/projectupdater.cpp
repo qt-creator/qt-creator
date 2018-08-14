@@ -149,7 +149,7 @@ HeaderAndSources ProjectUpdater::headerAndSourcesFromProjectPart(
 QStringList ProjectUpdater::compilerArguments(CppTools::ProjectPart *projectPart)
 {
     using CppTools::CompilerOptionsBuilder;
-    CompilerOptionsBuilder builder(*projectPart);
+    CompilerOptionsBuilder builder(*projectPart, CppTools::UseSystemHeader::Yes);
     return builder.build(CppTools::ProjectFile::CXXHeader, CompilerOptionsBuilder::PchUsage::None);
 }
 

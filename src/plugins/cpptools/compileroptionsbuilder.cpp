@@ -29,6 +29,7 @@
 #include <coreplugin/vcsmanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/project.h>
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -38,8 +39,10 @@
 
 namespace CppTools {
 
-CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart)
-    : m_projectPart(projectPart)
+CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
+                                               UseSystemHeader useSystemHeader)
+    : m_projectPart(projectPart),
+      m_useSystemHeader(useSystemHeader)
 {
 }
 
@@ -188,7 +191,6 @@ void CompilerOptionsBuilder::enableExceptions()
 void CompilerOptionsBuilder::addHeaderPathOptions()
 {
     typedef ProjectPartHeaderPath HeaderPath;
-    const QString defaultPrefix = includeDirOption();
 
     QStringList result;
 
@@ -208,7 +210,7 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
         default: // This shouldn't happen, but let's be nice..:
             // intentional fall-through:
         case HeaderPath::IncludePath:
-            prefix = defaultPrefix;
+            prefix = includeDirOptionForPath(headerPath.path);
             break;
         }
 
@@ -423,9 +425,14 @@ void CompilerOptionsBuilder::addDefineFunctionMacrosMsvc()
         addMacros({{"__FUNCSIG__", "\"\""}, {"__FUNCTION__", "\"\""}, {"__FUNCDNAME__", "\"\""}});
 }
 
-QString CompilerOptionsBuilder::includeDirOption() const
+QString CompilerOptionsBuilder::includeDirOptionForPath(const QString &path) const
 {
-    return QLatin1String("-I");
+    if (m_useSystemHeader == UseSystemHeader::No
+            || path.startsWith(m_projectPart.project->rootProjectDirectory().toString())) {
+        return QString("-I");
+    } else {
+        return QString("-isystem");
+    }
 }
 
 QByteArray CompilerOptionsBuilder::macroOption(const ProjectExplorer::Macro &macro) const

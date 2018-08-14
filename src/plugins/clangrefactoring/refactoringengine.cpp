@@ -74,7 +74,7 @@ void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
 
     QString filePath = data.filePath().toString();
     QTextCursor textCursor = data.cursor();
-    CompilerOptionsBuilder optionsBuilder{*projectPart};
+    CompilerOptionsBuilder optionsBuilder{*projectPart, CppTools::UseSystemHeader::Yes};
     Utils::SmallStringVector commandLine{optionsBuilder.build(
                     fileKindInProjectPart(projectPart, filePath),
                     CppTools::getPchUsage())};

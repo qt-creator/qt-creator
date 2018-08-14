@@ -31,6 +31,12 @@
 
 namespace CppTools {
 
+enum class UseSystemHeader
+{
+    Yes,
+    No
+};
+
 class CPPTOOLS_EXPORT CompilerOptionsBuilder
 {
 public:
@@ -39,7 +45,8 @@ public:
         Use
     };
 
-    CompilerOptionsBuilder(const ProjectPart &projectPart);
+    CompilerOptionsBuilder(const ProjectPart &projectPart,
+                           UseSystemHeader useSystemHeader = UseSystemHeader::No);
     virtual ~CompilerOptionsBuilder() {}
 
     virtual void addTargetTriple();
@@ -80,8 +87,7 @@ protected:
     virtual QString defineOption() const;
     virtual QString undefineOption() const;
     virtual QString includeOption() const;
-    virtual QString includeDirOption() const;
-
+    QString includeDirOptionForPath(const QString &path) const;
     const ProjectPart m_projectPart;
 
 private:
@@ -90,6 +96,7 @@ private:
     QString defineDirectiveToDefineOption(const ProjectExplorer::Macro &marco) const;
 
     QStringList m_options;
+    UseSystemHeader m_useSystemHeader;
 };
 
 } // namespace CppTools

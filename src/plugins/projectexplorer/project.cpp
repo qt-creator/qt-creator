@@ -642,6 +642,15 @@ Utils::FileName Project::projectDirectory(const Utils::FileName &top)
     return Utils::FileName::fromString(top.toFileInfo().absoluteDir().path());
 }
 
+/*!
+    Returns the common root directory that contains all files which belongs to a project.
+*/
+
+Utils::FileName Project::rootProjectDirectory() const
+{
+    return projectDirectory(); // TODO parse all files and find the common path
+}
+
 ProjectNode *Project::rootProjectNode() const
 {
     return d->m_rootProjectNode.get();

@@ -153,7 +153,7 @@ Utils::SmallStringVector ClangQueryProjectsFindFilter::compilerArguments(CppTool
 {
     using CppTools::CompilerOptionsBuilder;
 
-    CompilerOptionsBuilder builder(*projectPart);
+    CompilerOptionsBuilder builder(*projectPart, CppTools::UseSystemHeader::Yes);
 
     return Utils::SmallStringVector(builder.build(fileKind,
                                                   CompilerOptionsBuilder::PchUsage::None));
