@@ -22,7 +22,8 @@ HEADERS += \
     $$PWD/projectpartartefact.h \
     $$PWD/filestatuscache.h \
     $$PWD/indexdataconsumer.h \
-    $$PWD/projectpartqueue.h
+    $$PWD/projectpartqueue.h \
+    $$PWD/sourcesmanager.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \

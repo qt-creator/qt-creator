@@ -94,7 +94,8 @@ SOURCES += \
     highlightingresultreporter-test.cpp \
     precompiledheaderstorage-test.cpp \
     projectpartqueue-test.cpp \
-    generatedfiles-test.cpp
+    generatedfiles-test.cpp \
+    sourcesmanager-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
