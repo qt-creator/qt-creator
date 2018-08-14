@@ -703,10 +703,8 @@ class DumperBase:
         elided, shown = self.computeLimit(size, limit)
         return elided, self.readMemory(data, shown)
 
-    def putCharArrayHelper(self, data, size, charType,
-                           displayFormat = AutomaticFormat,
-                           makeExpandable = True):
-        charSize = charType.size()
+    def putCharArrayValue(self, data, size, charSize,
+                          displayFormat = AutomaticFormat):
         bytelen = size * charSize
         elided, shown = self.computeLimit(bytelen, self.displayStringLimit)
         mem = self.readMemory(data, shown)
@@ -728,6 +726,12 @@ class DumperBase:
         if displayFormat in (SeparateLatin1StringFormat, SeparateUtf8StringFormat, SeparateFormat):
             elided, shown = self.computeLimit(bytelen, 100000)
             self.putDisplay(encodingType + ':separate', self.readMemory(data, shown))
+
+    def putCharArrayHelper(self, data, size, charType,
+                           displayFormat = AutomaticFormat,
+                           makeExpandable = True):
+        charSize = charType.size()
+        self.putCharArrayValue(data, size, charSize, displayFormat = displayFormat)
 
         if makeExpandable:
             self.putNumChild(size)

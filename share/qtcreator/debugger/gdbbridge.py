@@ -145,7 +145,8 @@ class PlainDumper:
         elif sys.version_info[0] <= 2 and isinstance(val, unicode):
             d.putValue(val)
         else: # Assuming LazyString
-            d.putCharArrayHelper(val.address, val.length, val.type)
+            d.putCharArrayValue(val.address, val.length,
+                                val.type.target().sizeof)
 
         d.putNumChild(len(children))
         if d.isExpanded():
