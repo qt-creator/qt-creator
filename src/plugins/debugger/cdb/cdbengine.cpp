@@ -539,10 +539,12 @@ void CdbEngine::handleInitialSessionIdle()
     runCommand({"sxn 0x4000001f", NoFlags}); // Do not break on WowX86 exceptions.
     runCommand({"sxn ibp", NoFlags}); // Do not break on initial breakpoints.
     runCommand({".asm source_line", NoFlags}); // Source line in assembly
-    runCommand({m_extensionCommandPrefix + "setparameter maxStringLength="
-                + action(MaximalStringLength)->value().toString()
-                + " maxStackDepth="
-                + action(MaximalStackDepth)->value().toString(), NoFlags});
+    runCommand({m_extensionCommandPrefix
+                + "setparameter maxStringLength=" + action(MaximalStringLength)->value().toString()
+                + " maxStackDepth=" + action(MaximalStackDepth)->value().toString()
+                + " firstChance=" + (action(FirstChanceExceptionTaskEntry)->value().toBool() ? "1" : "0")
+                + " secondChance=" + (action(SecondChanceExceptionTaskEntry)->value().toBool() ? "1" : "0")
+                , NoFlags});
 
     if (boolSetting(CdbUsePythonDumper))
         runCommand({"print(sys.version)", ScriptCommand, CB(setupScripting)});
@@ -2195,12 +2197,11 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
         if (!isDebuggerWinException(exception.exceptionCode)) {
             const Task::TaskType type =
                     isFatalWinException(exception.exceptionCode) ? Task::Error : Task::Warning;
-            const FileName fileName = exception.file.isEmpty()
-                    ? FileName() : FileName::fromUserInput(exception.file);
+            const FileName fileName = FileName::fromUserInput(exception.file);
             const QString taskEntry = tr("Debugger encountered an exception: %1").arg(
                         exception.toString(false).trimmed());
             TaskHub::addTask(type, taskEntry,
-                             Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME,
+                             Constants::TASK_CATEGORY_DEBUGGER_RUNTIME,
                              fileName, exception.lineNumber);
         }
         return;

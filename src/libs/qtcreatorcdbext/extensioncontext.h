@@ -43,6 +43,8 @@ struct Parameters
     unsigned maxStringLength = 10000;
     unsigned maxArraySize = 100;
     unsigned maxStackDepth = 1000;
+    unsigned firstChanceException = 1;
+    unsigned secondChanceException = 1;
 };
 
 // Global singleton with context.

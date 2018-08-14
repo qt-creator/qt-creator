@@ -173,14 +173,16 @@ STDMETHODIMP EventCallback::Exception(
     __in ULONG FirstChance
     )
 {
-    // Report the exception as GBMI and set potential stop reason
-    const ExtensionContext::StopReasonMap parameters =
-            exceptionParameters(*Ex, FirstChance);
+    if ((FirstChance && ExtensionContext::instance().parameters().firstChanceException != 0)
+            || (!FirstChance && ExtensionContext::instance().parameters().secondChanceException != 0)) {
+        // Report the exception as GBMI and set potential stop reason
+        const ExtensionContext::StopReasonMap parameters = exceptionParameters(*Ex, FirstChance);
 
-    std::ostringstream str;
-    formatGdbmiHash(str, parameters);
-    ExtensionContext::instance().setStopReason(parameters, "exception");
-    ExtensionContext::instance().report('E', 0, 0, "exception", "%s", str.str().c_str());
+        std::ostringstream str;
+        formatGdbmiHash(str, parameters);
+        ExtensionContext::instance().setStopReason(parameters, "exception");
+        ExtensionContext::instance().report('E', 0, 0, "exception", "%s", str.str().c_str());
+    }
     return m_wrapped ? m_wrapped->Exception(Ex, FirstChance) : S_OK;
 }
 

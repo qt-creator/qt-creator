@@ -965,6 +965,12 @@ extern "C" HRESULT CALLBACK setparameter(CIDebugClient *, PCSTR args)
             } else if (!token.compare(0, equalsPos, "maxArraySize")) {
                 if (integerFromString(value, &ExtensionContext::instance().parameters().maxArraySize))
                     ++success;
+            } else if (!token.compare(0, equalsPos, "firstChance")) {
+                if (integerFromString(value, &ExtensionContext::instance().parameters().firstChanceException))
+                    ++success;
+            } else if (!token.compare(0, equalsPos, "secondChance")) {
+                if (integerFromString(value, &ExtensionContext::instance().parameters().secondChanceException))
+                    ++success;
             } else if (!token.compare(0, equalsPos, "maxStackDepth")) {
                 if (integerFromString(value, &ExtensionContext::instance().parameters().maxStackDepth))
                     ++success;

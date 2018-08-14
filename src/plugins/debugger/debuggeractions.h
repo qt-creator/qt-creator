@@ -117,6 +117,8 @@ enum DebuggerActionCode
     UseCdbConsole,
     CdbBreakPointCorrection,
     CdbUsePythonDumper,
+    FirstChanceExceptionTaskEntry,
+    SecondChanceExceptionTaskEntry,
     IgnoreFirstChanceAccessViolation,
 
     // Gdb

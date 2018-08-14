@@ -183,6 +183,8 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent)
     group.insert(action(UseCdbConsole), m_ui.consoleCheckBox);
     group.insert(action(CdbBreakPointCorrection), m_ui.breakpointCorrectionCheckBox);
     group.insert(action(CdbUsePythonDumper), m_ui.usePythonDumper);
+    group.insert(action(FirstChanceExceptionTaskEntry), m_ui.firstChance);
+    group.insert(action(SecondChanceExceptionTaskEntry), m_ui.secondChance);
     group.insert(action(IgnoreFirstChanceAccessViolation),
                  m_ui.ignoreFirstChanceAccessViolationCheckBox);
 
