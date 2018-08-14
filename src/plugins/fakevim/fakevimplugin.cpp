@@ -1677,13 +1677,13 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
             triggerAction(Core::Constants::SPLIT_SIDE_BY_SIDE);
         else if (key == "W" || key == "<C-W>")
             triggerAction(Core::Constants::GOTO_NEXT_SPLIT);
-        else if (key.contains("RIGHT") || key == "L" || key == "<S-L>")
+        else if (key.contains("RIGHT") || key == "L" || key == "<S-L>" || key == "<C-L>")
             moveSomewhere(handler, &moveRightWeight, key == "<S-L>" ? -1 : count);
-        else if (key.contains("LEFT")  || key == "H" || key == "<S-H>")
+        else if (key.contains("LEFT")  || key == "H" || key == "<S-H>" || key == "<C-H>")
             moveSomewhere(handler, &moveLeftWeight, key == "<S-H>" ? -1 : count);
-        else if (key.contains("UP")    || key == "K" || key == "<S-K>")
+        else if (key.contains("UP")    || key == "K" || key == "<S-K>" || key == "<C-K>")
             moveSomewhere(handler, &moveUpWeight, key == "<S-K>" ? -1 : count);
-        else if (key.contains("DOWN")  || key == "J" || key == "<S-J>")
+        else if (key.contains("DOWN")  || key == "J" || key == "<S-J>" || key == "<C-J>")
             moveSomewhere(handler, &moveDownWeight, key == "<S-J>" ? -1 : count);
         else
             qDebug() << "UNKNOWN WINDOW COMMAND: <C-W>" << map;
