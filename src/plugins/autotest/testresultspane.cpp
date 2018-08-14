@@ -547,7 +547,7 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     connect(action, &QAction::triggered, this, &TestResultsPane::onSaveWholeTriggered);
     menu.addAction(action);
 
-    const auto correlatingItem = clicked ? clicked->findTestTreeItem() : nullptr;
+    const auto correlatingItem = (enabled && clicked) ? clicked->findTestTreeItem() : nullptr;
     action = new QAction(tr("Run This Test"), &menu);
     action->setEnabled(correlatingItem && correlatingItem->canProvideTestConfiguration());
     connect(action, &QAction::triggered, this, [this, clicked] {
