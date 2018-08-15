@@ -38,6 +38,8 @@
 
 #include <QCoreApplication>
 
+#include <cmath>
+
 using namespace TextEditor;
 using namespace Internal;
 
