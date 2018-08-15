@@ -379,7 +379,7 @@ int main(int argc, char **argv)
 {
 #ifdef Q_OS_WIN
     if (!qEnvironmentVariableIsSet("QT_OPENGL"))
-        qputenv("QT_OPENGL", "angle");
+        QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
 #endif
 
     if (qEnvironmentVariableIsSet("QTCREATOR_DISABLE_NATIVE_MENUBAR")
