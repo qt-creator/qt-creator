@@ -80,6 +80,37 @@ defineReplace(findClangLibInLibDir) {
     }
 }
 
+defineReplace(splitFlags) {
+    flags = $$1
+    inside_quotes = 0
+    starting_substr = $$str_member($$flags, 0, 0)
+    equals(starting_substr, "\"") {
+        inside_quotes = 1
+    }
+
+    flags_temp = $$split(flags, "\"")
+
+    for (flag, flags_temp) {
+        equals(inside_quotes, 0) {
+            inside_quotes = 1
+            flag ~= s,-I\S*,
+            flag ~= s,/D\S*,
+            flag ~= s,/Z\S*,
+            result += $$split(flag, " ")
+        } else {
+            inside_quotes = 0
+            starting_substr = $$str_member($$flag, 0, 0)
+            !equals(starting_substr, "/") {
+                starting_substr = $$str_member($$flag, 0, 1)
+                !equals(starting_substr, "-I") {
+                    result += "\"$$flag\""
+                }
+            }
+        }
+    }
+    return($$result)
+}
+
 CLANGTOOLING_LIBS=-lclangTooling -lclangIndex -lclangFrontend -lclangParse -lclangSerialization \
                   -lclangSema -lclangEdit -lclangAnalysis -lclangDriver -lclangDynamicASTMatchers \
                   -lclangASTMatchers -lclangToolingCore -lclangAST -lclangLex -lclangBasic
@@ -180,6 +211,8 @@ isEmpty(LLVM_VERSION) {
     LLVM_CXXFLAGS ~= s,/O\S*,
     LLVM_CXXFLAGS ~= s,/W4,
     LLVM_CXXFLAGS ~= s,/EH\S*,
+    LLVM_CXXFLAGS ~= s,/M\S*,
+    LLVM_CXXFLAGS ~= s,/G\S*,
     LLVM_CXXFLAGS ~= s,-Werror=date-time,
     LLVM_CXXFLAGS ~= s,-Wcovered-switch-default,
     LLVM_CXXFLAGS ~= s,-fPIC,
@@ -187,6 +220,8 @@ isEmpty(LLVM_VERSION) {
     LLVM_CXXFLAGS ~= s,-Wstring-conversion,
     # split-dwarf needs objcopy which does not work via icecc out-of-the-box
     LLVM_CXXFLAGS ~= s,-gsplit-dwarf,
+
+    LLVM_CXXFLAGS = $$splitFlags($$LLVM_CXXFLAGS)
 
     LLVM_IS_COMPILED_WITH_RTTI = $$system($$llvm_config --has-rtti, lines)
 
