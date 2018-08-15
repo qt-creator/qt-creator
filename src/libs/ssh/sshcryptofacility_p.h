@@ -25,7 +25,13 @@
 
 #pragma once
 
-#include <botan/botan.h>
+#include <botan/auto_rng.h>
+#include <botan/bigint.h>
+#include <botan/block_cipher.h>
+#include <botan/hmac.h>
+#include <botan/key_filt.h>
+#include <botan/pipe.h>
+#include <botan/pk_keys.h>
 
 #include <QByteArray>
 #include <QScopedPointer>

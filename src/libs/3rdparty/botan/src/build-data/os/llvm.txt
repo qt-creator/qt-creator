@@ -1,0 +1,9 @@
+
+obj_suffix bc
+
+ar_command llvm-link
+ar_options -o
+
+<target_features>
+filesystem
+</target_features>

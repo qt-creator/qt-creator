@@ -292,5 +292,9 @@
     \note Select a \l{glossary-build-config}{debug build configuration} to build
     the application for debugging.
 
-*/
+    \note \QC cannot debug applications on Android devices if Android Studio is
+    running. If the following message is displayed in the \uicontrol Output
+    pane, close Android Studio and try again: \e {Ignoring second debugger -
+    accepting and dropping.}
 
+*/

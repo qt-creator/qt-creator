@@ -69,6 +69,7 @@ Module {
     property string export_data_base: project.ide_source_tree + "/share/qtcreator"
 
     property bool testsEnabled: Environment.getEnv("TEST") || qbs.buildVariant === "debug"
+    property bool useSystemBotan: Environment.getEnv("USE_SYSTEM_BOTAN") === "1"
     property stringList generalDefines: [
         "QT_CREATOR",
         'IDE_LIBRARY_BASENAME="' + libDirName + '"',

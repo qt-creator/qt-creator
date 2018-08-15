@@ -1,0 +1,86 @@
+/Makefile
+CMakeLists.txt*
+libbotan*.so.*
+*.a
+*.so
+*.dylib
+*.exp
+*.lib
+*.pdb
+*.ilk
+*.dll
+*.exe
+*.manifest
+build
+build.log
+botan
+botan-test
+
+core.*
+vgcore.*
+
+# Text file backups (e.g. gedit, joe)
+*~
+\#*\#
+.\#*
+
+# Archive files
+*.tgz
+*.tar
+
+# Logs
+*.log
+
+# Patch files
+*.patch
+*.diff
+*.orig
+*.rej
+
+# Cache and temporary files
+*.pyc
+.DS_Store
+*.swp
+
+# ctags/etags files
+/TAGS
+/tags
+
+# Amalgamation code
+botan_all.h
+botan_all_internal.h
+botan_all.cpp
+botan_all_*.cpp
+
+# Coverage output
+coverage.info
+coverage.info.raw
+coverage/
+lcov-out/
+
+/fuzzer_corpus
+
+# Profiler outputs
+cachegrind.*
+callgrind.*
+
+# Ignore stuff in the top level dir that shouldn't be checked in
+/*.c
+/*.cpp
+/*.h
+/*.py
+/*.key
+/*.pem
+/*.der
+/*.ber
+/*.gpg
+/*.pub
+/*.crt
+/*.txt
+/*.rst
+
+# Add back files from the toplevel
+!/news.rst
+!/readme.rst
+!/configure.py
+!/license.txt

@@ -297,6 +297,11 @@ bool TestTreeItem::isGroupNodeFor(const TestTreeItem *other) const
     return QFileInfo(other->filePath()).absolutePath() == filePath();
 }
 
+bool TestTreeItem::isGroupable() const
+{
+    return true;
+}
+
 QSet<QString> TestTreeItem::internalTargets() const
 {
     auto cppMM = CppTools::CppModelManager::instance();

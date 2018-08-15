@@ -93,6 +93,11 @@ class Dumper(DumperBase):
         self.outputLock = threading.Lock()
         self.isCdb = True
 
+    def enumValue(self, nativeValue):
+        val = nativeValue.nativeDebuggerValue()
+        # remove '0n' decimal prefix of the native cdb value output
+        return val.replace('(0n', '(')
+
     def fromNativeValue(self, nativeValue):
         self.check(isinstance(nativeValue, cdbext.Value))
         val = self.Value(self)
@@ -123,6 +128,8 @@ class Dumper(DumperBase):
                 except:
                     # read raw memory in case the integerString can not be interpreted
                     pass
+        if val.type.code == TypeCodeEnum:
+            val.ldisplay = self.enumValue(nativeValue)
         val.isBaseClass = val.name == val.type.name
         val.nativeValue = nativeValue
         val.laddress = nativeValue.address()
@@ -212,9 +219,7 @@ class Dumper(DumperBase):
         value = cdbext.createValue(addr, nativeType)
         if value is None:
             return ''
-        enumDisplay = value.nativeDebuggerValue()
-        # remove '0n' decimal prefix of the native cdb value output
-        return enumDisplay.replace('(0n', '(')
+        return enumDisplay(value)
 
     def enumExpression(self, enumType, enumValue):
         ns = self.qtNamespace()

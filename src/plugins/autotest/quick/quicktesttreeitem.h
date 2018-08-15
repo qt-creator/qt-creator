@@ -53,6 +53,7 @@ public:
     bool isGroupNodeFor(const TestTreeItem *other) const override;
     bool removeOnSweepIfEmpty() const override;
     TestTreeItem *createParentGroupNode() const override;
+    bool isGroupable() const override;
     QSet<QString> internalTargets() const override;
     void markForRemovalRecursively(const QString &filePath) override;
 private:

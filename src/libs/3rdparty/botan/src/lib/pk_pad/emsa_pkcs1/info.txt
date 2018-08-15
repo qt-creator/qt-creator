@@ -1,0 +1,7 @@
+<defines>
+EMSA_PKCS1 -> 20140118
+</defines>
+
+<requires>
+hash_id
+</requires>

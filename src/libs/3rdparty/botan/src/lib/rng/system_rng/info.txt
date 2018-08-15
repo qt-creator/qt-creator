@@ -1,0 +1,18 @@
+<defines>
+SYSTEM_RNG -> 20141202
+</defines>
+
+<os_features>
+dev_random,posix1
+arc4random
+rtlgenrandom
+crypto_ng
+</os_features>
+
+<libs>
+uwp -> bcrypt.lib
+</libs>
+
+<requires>
+rtlgenrandom?dyn_load
+</requires>

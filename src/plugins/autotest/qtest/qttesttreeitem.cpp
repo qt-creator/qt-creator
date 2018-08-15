@@ -345,6 +345,11 @@ TestTreeItem *QtTestTreeItem::createParentGroupNode() const
     return new QtTestTreeItem(base.baseName(), fileInfo.absolutePath(), TestTreeItem::GroupNode);
 }
 
+bool QtTestTreeItem::isGroupable() const
+{
+    return type() == TestCase;
+}
+
 TestTreeItem *QtTestTreeItem::findChildByNameAndInheritance(const QString &name, bool inherited) const
 {
     return findFirstLevelChild([name, inherited](const TestTreeItem *other) {

@@ -346,13 +346,13 @@ static void applyParentCheckState(TestTreeItem *parent, TestTreeItem *newItem)
 void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled)
 {
     TestTreeItem *parentNode = root;
-    if (groupingEnabled) {
+    if (groupingEnabled && item->isGroupable()) {
         parentNode = root->findFirstLevelChild([item] (const TestTreeItem *it) {
             return it->isGroupNodeFor(item);
         });
         if (!parentNode) {
             parentNode = item->createParentGroupNode();
-            if (!parentNode) // we might not get a group node at all
+            if (!QTC_GUARD(parentNode)) // we might not get a group node at all
                 parentNode = root;
             else
                 root->appendChild(parentNode);

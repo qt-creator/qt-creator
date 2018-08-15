@@ -25,19 +25,12 @@
 
 #pragma once
 
-#include <botan/botan.h>
-
 #include <string>
 
 namespace QSsh {
 namespace Internal {
 
-class SshKeyPasswordRetriever : public Botan::User_Interface
-{
-public:
-    std::string get_passphrase(const std::string &what, const std::string &source,
-        UI_Result &result) const;
-};
+std::string get_passphrase();
 
 } // namespace Internal
 } // namespace QSsh

@@ -34,12 +34,9 @@
 #include "sshdirecttcpiptunnel.h"
 #include "sshtcpipforwardserver.h"
 #include "sshexception_p.h"
-#include "sshinit_p.h"
 #include "sshkeyexchange_p.h"
 #include "sshlogging_p.h"
 #include "sshremoteprocess.h"
-
-#include <botan/botan.h>
 
 #include <QFile>
 #include <QMutex>
@@ -94,7 +91,6 @@ bool operator!=(const SshConnectionParameters &p1, const SshConnectionParameters
 SshConnection::SshConnection(const SshConnectionParameters &serverInfo, QObject *parent)
     : QObject(parent)
 {
-    Internal::initSsh();
     qRegisterMetaType<QSsh::SshError>("QSsh::SshError");
     qRegisterMetaType<QSsh::SftpJobId>("QSsh::SftpJobId");
     qRegisterMetaType<QSsh::SftpFileInfo>("QSsh::SftpFileInfo");
@@ -947,10 +943,12 @@ void SshConnectionPrivate::closeConnection(SshErrorCode sshError,
     disconnect(&m_timeoutTimer, 0, this, 0);
     m_keepAliveTimer.stop();
     disconnect(&m_keepAliveTimer, 0, this, 0);
-    try {
-        m_channelManager->closeAllChannels(SshChannelManager::CloseAllAndReset);
-        m_sendFacility.sendDisconnectPacket(sshError, serverErrorString);
-    } catch (...) {}  // Nothing sensible to be done here.
+    if (m_state != SocketConnected) {
+        try {
+            m_channelManager->closeAllChannels(SshChannelManager::CloseAllAndReset);
+            m_sendFacility.sendDisconnectPacket(sshError, serverErrorString);
+        } catch (...) {}  // Nothing sensible to be done here.
+    }
     if (m_error != SshNoError)
         emit error(userError);
     if (m_state == ConnectionEstablished)

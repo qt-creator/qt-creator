@@ -26,6 +26,7 @@ Prerequisites:
 * LLVM/Clang 6.0.0 or later (optional, needed for the Clang Code Model, see the
   section "Get LLVM/Clang for the Clang Code Model")
     * CMake (only for manual builds of LLVM/Clang)
+* Python 2.6 or later (needed for building the bundled Botan library)
 * Qbs 1.7.x (optional, sources also contain Qbs itself)
 
 The installed toolchains have to match the one Qt was compiled with.

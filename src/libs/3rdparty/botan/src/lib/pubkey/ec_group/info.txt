@@ -1,0 +1,20 @@
+<defines>
+ECC_GROUP -> 20170225
+EC_CURVE_GFP -> 20131128
+</defines>
+
+<requires>
+asn1
+numbertheory
+pem
+</requires>
+
+<header:internal>
+point_mul.h
+</header:internal>
+
+<header:public>
+curve_gfp.h
+ec_group.h
+point_gfp.h
+</header:public>

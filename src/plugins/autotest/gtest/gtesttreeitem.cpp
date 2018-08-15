@@ -403,8 +403,6 @@ bool GTestTreeItem::modify(const TestParseResult *result)
 
 TestTreeItem *GTestTreeItem::createParentGroupNode() const
 {
-    if (type() != TestCase)
-        return nullptr;
     if (GTestFramework::groupMode() == GTest::Constants::Directory) {
         const QFileInfo fileInfo(filePath());
         const QFileInfo base(fileInfo.absolutePath());
@@ -509,6 +507,11 @@ bool GTestTreeItem::isGroupNodeFor(const TestTreeItem *other) const
         return (matches && name() == matchingString())
                 || (!matches && name() == notMatchingString());
     }
+}
+
+bool GTestTreeItem::isGroupable() const
+{
+    return type() == TestCase;
 }
 
 TestTreeItem *GTestTreeItem::applyFilters()

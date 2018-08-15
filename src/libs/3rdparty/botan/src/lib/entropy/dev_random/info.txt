@@ -1,0 +1,11 @@
+<defines>
+ENTROPY_SRC_DEV_RANDOM -> 20131128
+</defines>
+
+<header:internal>
+dev_random.h
+</header:internal>
+
+<os_features>
+dev_random,posix1
+</os_features>

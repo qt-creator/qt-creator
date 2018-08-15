@@ -121,6 +121,7 @@ public:
     virtual TestTreeItem *findChild(const TestTreeItem *other) = 0;
     virtual bool modify(const TestParseResult *result) = 0;
     virtual bool isGroupNodeFor(const TestTreeItem *other) const;
+    virtual bool isGroupable() const;
     virtual TestTreeItem *createParentGroupNode() const = 0;
     // based on (internal) filters this will be used to filter out sub items (and remove them)
     // returns a copy of the item that contains the filtered out children or nullptr

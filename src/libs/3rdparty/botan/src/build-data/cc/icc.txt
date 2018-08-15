@@ -1,0 +1,24 @@
+macro_name INTEL
+
+binary_name icpc
+
+optimization_flags "-O2"
+size_optimization_flags "-Os"
+
+lang_flags "-std=c++11"
+warning_flags "-w1"
+shared_flags "-fPIC"
+
+<isa_flags>
+sse2    -> "-msse2"
+ssse3   -> "-mssse3"
+sse41   -> "-msse4.1"
+sse42   -> "-msse4.2"
+avx2    -> "-march=core-avx2"
+aesni   -> "-march=corei7"
+rdrand  -> "-march=core-avx-i"
+</isa_flags>
+
+<so_link_commands>
+default -> "$(CXX) -fPIC -shared -Wl,-soname,{soname_abi}"
+</so_link_commands>

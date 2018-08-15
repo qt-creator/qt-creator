@@ -72,6 +72,7 @@ public:
     QString nameSuffix() const;
     QSet<QString> internalTargets() const override;
     bool isGroupNodeFor(const TestTreeItem *other) const override;
+    bool isGroupable() const override;
     TestTreeItem *applyFilters() override;
 private:
     bool modifyTestSetContent(const GTestParseResult *result);

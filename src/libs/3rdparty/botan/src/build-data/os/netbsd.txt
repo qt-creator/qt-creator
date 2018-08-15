@@ -1,0 +1,14 @@
+
+soname_suffix "so"
+
+<target_features>
+posix1
+posix_mlock
+clock_gettime
+dev_random
+arc4random
+
+sockets
+threads
+filesystem
+</target_features>

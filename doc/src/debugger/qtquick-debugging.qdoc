@@ -57,9 +57,6 @@
 
         \li Debugging is enabled by default for Qt 5.0, or later.
 
-            You might have to compile the library first, by selecting the
-            \uicontrol Compile link.
-
             \image qml-link-debugging-library.png "Build Steps"
 
             \note Debugging requires opening a socket at a TCP port,

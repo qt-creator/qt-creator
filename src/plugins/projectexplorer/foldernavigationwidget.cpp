@@ -295,6 +295,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_toggleSync(new QToolButton(this)),
     m_toggleRootSync(new QToolButton(this)),
     m_rootSelector(new QComboBox),
+    m_crumbContainer(new QWidget(this)),
     m_crumbLabel(new DelayedFileCrumbLabel(this))
 {
     m_context = new Core::IContext(this);
@@ -337,16 +338,21 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     selectorLayout->setContentsMargins(0, 0, 0, 0);
     selectorLayout->addWidget(m_rootSelector, 10);
 
+    auto crumbContainerLayout = new QVBoxLayout;
+    crumbContainerLayout->setSpacing(0);
+    crumbContainerLayout->setContentsMargins(0, 0, 0, 0);
+    m_crumbContainer->setLayout(crumbContainerLayout);
     auto crumbLayout = new QVBoxLayout;
     crumbLayout->setSpacing(0);
     crumbLayout->setContentsMargins(4, 4, 4, 4);
     crumbLayout->addWidget(m_crumbLabel);
+    crumbContainerLayout->addLayout(crumbLayout);
+    crumbContainerLayout->addWidget(createHLine());
     m_crumbLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
     auto layout = new QVBoxLayout();
     layout->addWidget(selectorWidget);
-    layout->addLayout(crumbLayout);
-    layout->addWidget(createHLine());
+    layout->addWidget(m_crumbContainer);
     layout->addWidget(m_listView);
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -432,7 +438,7 @@ void FolderNavigationWidget::toggleAutoSynchronization()
 void FolderNavigationWidget::setShowBreadCrumbs(bool show)
 {
     m_showBreadCrumbsAction->setChecked(show);
-    m_crumbLabel->setVisible(show);
+    m_crumbContainer->setVisible(show);
 }
 
 void FolderNavigationWidget::setShowFoldersOnTop(bool onTop)

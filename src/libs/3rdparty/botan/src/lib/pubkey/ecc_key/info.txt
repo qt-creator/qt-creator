@@ -1,0 +1,10 @@
+<defines>
+ECC_PUBLIC_KEY_CRYPTO -> 20131128
+</defines>
+
+<requires>
+asn1
+bigint
+ec_group
+numbertheory
+</requires>

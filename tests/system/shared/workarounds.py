@@ -24,7 +24,6 @@
 ############################################################################
 
 import urllib2
-import re
 
 ############ functions not related to issues tracked inside jira ############
 

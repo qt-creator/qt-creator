@@ -1,0 +1,11 @@
+<defines>
+X509_CERTIFICATES -> 20151023
+OCSP -> 20161118
+</defines>
+
+<requires>
+asn1
+pubkey
+sha1
+sha2_32
+</requires>

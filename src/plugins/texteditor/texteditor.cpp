@@ -83,6 +83,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
+#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/uncommentselection.h>
@@ -804,7 +805,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     auto toolBarLayout = new QHBoxLayout;
     toolBarLayout->setContentsMargins(0, 0, 0, 0);
     toolBarLayout->setSpacing(0);
-    m_toolBarWidget = new QWidget;
+    m_toolBarWidget = new Utils::StyledBar;
     m_toolBarWidget->setLayout(toolBarLayout);
     m_stretchWidget = new QWidget;
     m_stretchWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);

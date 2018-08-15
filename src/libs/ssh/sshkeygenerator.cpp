@@ -27,11 +27,20 @@
 
 #include "sshbotanconversions_p.h"
 #include "sshcapabilities_p.h"
+#include "sshlogging_p.h"
 #include "ssh_global.h"
-#include "sshinit_p.h"
 #include "sshpacket_p.h"
 
-#include <botan/botan.h>
+#include <botan/auto_rng.h>
+#include <botan/der_enc.h>
+#include <botan/dsa.h>
+#include <botan/ecdsa.h>
+#include <botan/numthry.h>
+#include <botan/pem.h>
+#include <botan/pipe.h>
+#include <botan/pkcs8.h>
+#include <botan/rsa.h>
+#include <botan/x509_key.h>
 
 #include <QDateTime>
 #include <QInputDialog>
@@ -45,7 +54,6 @@ using namespace Internal;
 
 SshKeyGenerator::SshKeyGenerator() : m_type(Rsa)
 {
-    initSsh();
 }
 
 bool SshKeyGenerator::generateKeys(KeyType type, PrivateKeyFormat format, int keySize,
@@ -116,8 +124,10 @@ void SshKeyGenerator::generatePkcs8KeyString(const KeyPtr &key, bool privateKey,
     }
     pipe.end_msg();
     keyData->resize(static_cast<int>(pipe.remaining(pipe.message_count() - 1)));
-    pipe.read(convertByteArray(*keyData), keyData->size(),
-        pipe.message_count() - 1);
+    if (pipe.read(convertByteArray(*keyData), keyData->size(), pipe.message_count() - 1)
+            != std::size_t(keyData->size())) {
+        qCWarning(sshLog) << "short read from botan pipe";
+    }
 }
 
 void SshKeyGenerator::generateOpenSslKeyStrings(const KeyPtr &key)
@@ -146,7 +156,7 @@ void SshKeyGenerator::generateOpenSslPublicKeyString(const KeyPtr &key)
     }
     case Ecdsa: {
         const auto ecdsaKey = key.dynamicCast<ECDSA_PrivateKey>();
-        q = convertByteArray(EC2OSP(ecdsaKey->public_point(), PointGFp::UNCOMPRESSED));
+        q = convertByteArray(ecdsaKey->public_point().encode(PointGFp::UNCOMPRESSED));
         keyId = SshCapabilities::ecdsaPubKeyAlgoForKeyWidth(
                     static_cast<int>(ecdsaKey->private_value().bytes()));
         break;

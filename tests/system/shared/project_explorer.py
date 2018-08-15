@@ -23,8 +23,6 @@
 #
 ############################################################################
 
-import re;
-
 # this function switches the MainWindow of creator to the specified view
 def switchViewTo(view):
     # make sure that no tooltip is shown, so move the mouse away and wait until all disappear

@@ -1,0 +1,24 @@
+<defines>
+FILTERS -> 20160415
+</defines>
+
+<header:public>
+basefilt.h
+buf_filt.h
+data_snk.h
+comp_filter.h
+filter.h
+filters.h
+key_filt.h
+pipe.h
+secqueue.h
+cipher_filter.h
+</header:public>
+
+<header:internal>
+out_buf.h
+</header:internal>
+
+<requires>
+modes
+</requires>

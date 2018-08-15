@@ -29,8 +29,6 @@
 #include "sshlogging_p.h"
 #include "sshsendfacility_p.h"
 
-#include <botan/botan.h>
-
 #include <QTimer>
 
 namespace QSsh {

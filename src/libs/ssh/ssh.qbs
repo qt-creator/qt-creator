@@ -7,12 +7,18 @@ Project {
     QtcDevHeaders { }
 
     QtcLibrary {
-        cpp.defines: base.concat(["QTCSSH_LIBRARY"]).concat(botanDefines)
+        cpp.defines: base.concat("QTCSSH_LIBRARY")
         cpp.includePaths: botanIncludes
         cpp.dynamicLibraries: botanLibs
         cpp.enableExceptions: true
 
+        Properties {
+            condition: qbs.toolchain.contains("msvc")
+            cpp.cxxFlags: base.concat("/wd4250");
+        }
+
         Depends { name: "Qt"; submodules: ["widgets", "network" ] }
+        Depends { name: "Botan"; condition: !qtc.useSystemBotan }
 
         files: [
             "sftpchannel.h", "sftpchannel_p.h", "sftpchannel.cpp",
@@ -38,7 +44,6 @@ Project {
             "sshhostkeydatabase.cpp",
             "sshhostkeydatabase.h",
             "sshincomingpacket_p.h", "sshincomingpacket.cpp",
-            "sshinit_p.h", "sshinit.cpp",
             "sshkeycreationdialog.cpp", "sshkeycreationdialog.h", "sshkeycreationdialog.ui",
             "sshkeyexchange.cpp", "sshkeyexchange_p.h",
             "sshkeygenerator.cpp", "sshkeygenerator.h",
@@ -54,21 +59,15 @@ Project {
             "sshsendfacility.cpp", "sshsendfacility_p.h",
             "sshtcpipforwardserver.cpp", "sshtcpipforwardserver.h", "sshtcpipforwardserver_p.h",
             "sshtcpiptunnel.cpp", "sshtcpiptunnel_p.h",
-        ].concat(botanFiles)
+        ]
 
-        property var useSystemBotan: Environment.getEnv("USE_SYSTEM_BOTAN") === "1"
-        property var botanIncludes: {
-            var result = ["../3rdparty"];
-            if (useSystemBotan)
-                result.push("/usr/include/botan-1.10")
-            return result
-        }
+        property var botanIncludes: qtc.useSystemBotan ? ["/usr/include/botan-2"] : []
         property var botanLibs: {
             var result = [];
-            if (useSystemBotan)
-                result.push("botan-1.10")
+            if (qtc.useSystemBotan)
+                result.push("botan-2")
             if (qbs.targetOS.contains("windows"))
-                result.push("advapi32", "user32")
+                result.push("advapi32", "user32", "ws2_32")
             else if (qbs.targetOS.contains("linux"))
                 result.push("rt", "dl");
             else if (qbs.targetOS.contains("macos"))
@@ -77,57 +76,6 @@ Project {
                 result.push("rt");
             return result
         }
-        property var botanDefines: {
-            var result = [];
-            if (useSystemBotan) {
-                result.push("USE_SYSTEM_BOTAN")
-            } else {
-                result.push("BOTAN_DLL=")
-                if (qbs.toolchain.contains("msvc"))
-                    result.push("BOTAN_BUILD_COMPILER_IS_MSVC",
-                                "BOTAN_TARGET_OS_HAS_GMTIME_S",
-                                "_SCL_SECURE_NO_WARNINGS")
-                if (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw"))
-                    result.push("BOTAN_BUILD_COMPILER_IS_GCC")
-                if (qbs.targetOS.contains("linux"))
-                    result.push("BOTAN_TARGET_OS_IS_LINUX", "BOTAN_TARGET_OS_HAS_CLOCK_GETTIME",
-                                "BOTAN_TARGET_OS_HAS_DLOPEN", " BOTAN_TARGET_OS_HAS_GMTIME_R",
-                                "BOTAN_TARGET_OS_HAS_POSIX_MLOCK", "BOTAN_HAS_DYNAMICALLY_LOADED_ENGINE",
-                                "BOTAN_HAS_DYNAMIC_LOADER", "BOTAN_TARGET_OS_HAS_GETTIMEOFDAY",
-                                "BOTAN_HAS_ALLOC_MMAP", "BOTAN_HAS_ENTROPY_SRC_DEV_RANDOM",
-                                "BOTAN_HAS_ENTROPY_SRC_EGD", "BOTAN_HAS_ENTROPY_SRC_FTW",
-                                "BOTAN_HAS_ENTROPY_SRC_UNIX", "BOTAN_HAS_MUTEX_PTHREAD", "BOTAN_HAS_PIPE_UNIXFD_IO")
-                if (qbs.targetOS.contains("macos"))
-                    result.push("BOTAN_TARGET_OS_IS_DARWIN", "BOTAN_TARGET_OS_HAS_GETTIMEOFDAY",
-                                "BOTAN_HAS_ALLOC_MMAP", "BOTAN_HAS_ENTROPY_SRC_DEV_RANDOM",
-                                "BOTAN_HAS_ENTROPY_SRC_EGD", "BOTAN_HAS_ENTROPY_SRC_FTW",
-                                "BOTAN_HAS_ENTROPY_SRC_UNIX", "BOTAN_HAS_MUTEX_PTHREAD", "BOTAN_HAS_PIPE_UNIXFD_IO")
-                if (qbs.targetOS.contains("windows"))
-                    result.push("BOTAN_TARGET_OS_IS_WINDOWS",
-                                "BOTAN_TARGET_OS_HAS_LOADLIBRARY", "BOTAN_TARGET_OS_HAS_WIN32_GET_SYSTEMTIME",
-                                "BOTAN_TARGET_OS_HAS_WIN32_VIRTUAL_LOCK", "BOTAN_HAS_DYNAMICALLY_LOADED_ENGINE",
-                                "BOTAN_HAS_DYNAMIC_LOADER", "BOTAN_HAS_ENTROPY_SRC_CAPI",
-                                "BOTAN_HAS_ENTROPY_SRC_WIN32", "BOTAN_HAS_MUTEX_WIN32")
-            }
-            return result
-        }
-        property var botanFiles: {
-            var result = ["../3rdparty/botan/botan.h"];
-            if (!useSystemBotan)
-                result.push("../3rdparty/botan/botan.cpp")
-            return result
-        }
-
-        // For Botan.
-        Properties {
-            condition: qbs.toolchain.contains("mingw")
-            cpp.cxxFlags: base.concat([
-                "-fpermissive",
-                "-finline-functions",
-                "-Wno-long-long"
-            ])
-        }
-        cpp.cxxFlags: base
 
         Export {
             Depends { name: "Qt"; submodules: ["widgets", "network"] }

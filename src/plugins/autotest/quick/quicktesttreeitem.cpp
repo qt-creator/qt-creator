@@ -401,14 +401,14 @@ bool QuickTestTreeItem::removeOnSweepIfEmpty() const
 
 TestTreeItem *QuickTestTreeItem::createParentGroupNode() const
 {
-    if (filePath().isEmpty() || name().isEmpty())
-        return nullptr;
-    if (type() == TestFunctionOrSet)
-        return nullptr;
-
     const QFileInfo fileInfo(filePath());
     const QFileInfo base(fileInfo.absolutePath());
     return new QuickTestTreeItem(base.baseName(), fileInfo.absolutePath(), TestTreeItem::GroupNode);
+}
+
+bool QuickTestTreeItem::isGroupable() const
+{
+    return type() == TestCase && !name().isEmpty() && !filePath().isEmpty();
 }
 
 QSet<QString> QuickTestTreeItem::internalTargets() const

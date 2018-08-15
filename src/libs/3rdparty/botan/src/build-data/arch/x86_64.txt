@@ -1,0 +1,25 @@
+endian little
+wordsize 64
+
+family x86
+
+<aliases>
+amd64
+x86-64
+em64t
+x64
+x86_amd64
+</aliases>
+
+<isa_extensions>
+aesni
+avx2
+bmi2
+rdrand
+rdseed
+sha
+sse2
+sse41
+sse42
+ssse3
+</isa_extensions>

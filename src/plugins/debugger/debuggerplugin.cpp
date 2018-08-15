@@ -1188,7 +1188,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                         kit = KitManager::kit(Utils::equal(&Kit::displayName, val));
                 } else if (key == "server") {
                     startMode = AttachToRemoteServer;
-                    remoteChannel = remoteChannel;
+                    remoteChannel = val;
                 } else if (key == "core") {
                     startMode = AttachCore;
                     coreFile = val;

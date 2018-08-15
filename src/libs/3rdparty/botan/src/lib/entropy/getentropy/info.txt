@@ -1,0 +1,11 @@
+<defines>
+ENTROPY_SRC_GETENTROPY -> 20170327
+</defines>
+
+<header:internal>
+getentropy.h
+</header:internal>
+
+<os_features>
+getentropy
+</os_features>

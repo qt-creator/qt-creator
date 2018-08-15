@@ -33,7 +33,18 @@
 #include "sshexception_p.h"
 #include "sshincomingpacket_p.h"
 
-#include <botan/botan.h>
+#include <botan/auto_rng.h>
+#include <botan/dh.h>
+#include <botan/dl_group.h>
+#include <botan/dsa.h>
+#include <botan/ec_group.h>
+#include <botan/ecdh.h>
+#include <botan/ecdsa.h>
+#include <botan/lookup.h>
+#include <botan/point_gfp.h>
+#include <botan/pubkey.h>
+#include <botan/rsa.h>
+#include <botan/types.h>
 
 #include <string>
 
@@ -148,12 +159,13 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
     printData("K_S", reply.k_s);
 
     SecureVector<byte> encodedK;
+    Botan::AutoSeeded_RNG rng;
     if (m_dhKey) {
         concatenatedData += AbstractSshPacket::encodeMpInt(m_dhKey->get_y());
         concatenatedData += AbstractSshPacket::encodeMpInt(reply.f);
-        DH_KA_Operation dhOp(*m_dhKey);
-        SecureVector<byte> encodedF = BigInt::encode(reply.f);
-        encodedK = dhOp.agree(encodedF, encodedF.size());
+        Botan::PK_Key_Agreement dhOp(*m_dhKey, rng, "Raw");
+        const std::vector<std::uint8_t> encodedF = BigInt::encode(reply.f);
+        encodedK = dhOp.derive_key(m_dhKey->group_p().bytes(), encodedF).bits_of();
         printData("y", AbstractSshPacket::encodeMpInt(m_dhKey->get_y()));
         printData("f", AbstractSshPacket::encodeMpInt(reply.f));
         m_dhKey.reset(nullptr);
@@ -162,8 +174,9 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
         concatenatedData // Q_C.
                 += AbstractSshPacket::encodeString(convertByteArray(m_ecdhKey->public_value()));
         concatenatedData += AbstractSshPacket::encodeString(reply.q_s);
-        ECDH_KA_Operation ecdhOp(*m_ecdhKey);
-        encodedK = ecdhOp.agree(convertByteArray(reply.q_s), reply.q_s.count());
+        Botan::PK_Key_Agreement ecdhOp(*m_ecdhKey, rng, "Raw");
+        encodedK = ecdhOp.derive_key(m_ecdhKey->domain().get_p().bytes(),
+                                     convertByteArray(reply.q_s), reply.q_s.count()).bits_of();
         m_ecdhKey.reset(nullptr);
     }
 
@@ -173,7 +186,7 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
     concatenatedData += m_k;
     printData("Concatenated data", concatenatedData);
 
-    m_hash.reset(get_hash(botanHMacAlgoName(hashAlgoForKexAlgo())));
+    m_hash = HashFunction::create_or_throw(botanHMacAlgoName(hashAlgoForKexAlgo()));
     const SecureVector<byte> &hashResult = m_hash->process(convertByteArray(concatenatedData),
                                                            concatenatedData.size());
     m_h = convertByteArray(hashResult);
@@ -193,8 +206,7 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
     } else {
         QSSH_ASSERT_AND_RETURN(m_serverHostKeyAlgo.startsWith(SshCapabilities::PubKeyEcdsaPrefix));
         const EC_Group domain(SshCapabilities::oid(m_serverHostKeyAlgo));
-        const PointGFp point = OS2ECP(convertByteArray(reply.q), reply.q.count(),
-                                      domain.get_curve());
+        const PointGFp point = domain.OS2ECP(convertByteArray(reply.q), reply.q.count());
         ECDSA_PublicKey * const ecdsaKey = new ECDSA_PublicKey(domain, point);
         sigKey.reset(ecdsaKey);
     }

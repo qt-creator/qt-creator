@@ -145,6 +145,7 @@ private:
     QToolButton *m_toggleSync = nullptr;
     QToolButton *m_toggleRootSync = nullptr;
     QComboBox *m_rootSelector = nullptr;
+    QWidget *m_crumbContainer = nullptr;
     DelayedFileCrumbLabel *m_crumbLabel = nullptr;
 
     // FolderNavigationWidgetFactory needs private members to build a menu

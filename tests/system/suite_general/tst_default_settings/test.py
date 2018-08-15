@@ -25,8 +25,6 @@
 
 source("../../shared/qtcreator.py")
 
-import re
-
 currentSelectedTreeItem = None
 warningOrError = re.compile('<p><b>((Error|Warning).*?)</p>')
 

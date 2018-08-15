@@ -822,13 +822,15 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
         }
         cFlags = cxxFlags = commonFlags;
 
-        const QString cxxLanguageVersion = getCppProp("cxxLanguageVersion").toString();
-        if (cxxLanguageVersion == "c++11")
-            cxxFlags << "-std=c++0x";
-        else if (cxxLanguageVersion == "c++14")
-            cxxFlags << "-std=c++1y";
+        const auto cxxLanguageVersion = getCppProp("cxxLanguageVersion").toStringList();
+        if (cxxLanguageVersion.contains("c++17"))
+            cxxFlags << "-std=c++17";
+        else if (cxxLanguageVersion.contains("c++14"))
+            cxxFlags << "-std=c++14";
+        else if (cxxLanguageVersion.contains("c++11"))
+            cxxFlags << "-std=c++11";
         else if (!cxxLanguageVersion.isEmpty())
-            cxxFlags << ("-std=" + cxxLanguageVersion);
+            cxxFlags << ("-std=" + cxxLanguageVersion.first());
         const QString cxxStandardLibrary = getCppProp("cxxStandardLibrary").toString();
         if (!cxxStandardLibrary.isEmpty() && toolchain.contains("clang"))
             cxxFlags << ("-stdlib=" + cxxStandardLibrary);
@@ -839,11 +841,13 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
         if (enableRtti.isValid())
             cxxFlags << QLatin1String(enableRtti.toBool() ? "-frtti" : "-fno-rtti");
 
-        const QString cLanguageVersion = getCppProp("cLanguageVersion").toString();
-        if (cLanguageVersion == "c11")
-            cFlags << "-std=c1x";
+        const auto cLanguageVersion = getCppProp("cLanguageVersion").toStringList();
+        if (cLanguageVersion.contains("c11"))
+            cFlags << "-std=c11";
+        else if (cLanguageVersion.contains("c99"))
+            cFlags << "-std=c99";
         else if (!cLanguageVersion.isEmpty())
-            cFlags << ("-std=" + cLanguageVersion);
+            cFlags << ("-std=" + cLanguageVersion.first());
     } else if (toolchain.contains("msvc")) {
         if (enableExceptions.toBool()) {
             const QString exceptionModel = getCppProp("exceptionHandlingModel").toString();
@@ -859,6 +863,8 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
         cxxFlags << "/TP";
         if (enableRtti.isValid())
             cxxFlags << QLatin1String(enableRtti.toBool() ? "/GR" : "/GR-");
+        if (getCppProp("cxxLanguageVersion").toStringList().contains("c++17"))
+            cxxFlags << "/std:c++17";
     }
 }
 

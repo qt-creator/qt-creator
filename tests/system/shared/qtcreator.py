@@ -24,6 +24,7 @@
 ############################################################################
 
 import platform;
+import re;
 import shutil;
 import os;
 import glob;
