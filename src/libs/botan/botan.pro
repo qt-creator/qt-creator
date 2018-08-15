@@ -44,7 +44,7 @@ configure.output = $$BOTAN_BUILD_DIR/Makefile
 configure.variable_out = BOTAN_MAKEFILE
 configure.commands = cd $$BOTAN_BUILD_DIR_FOR_SHELL && \
                      python $$CONFIGURE_FILE_PATH_FOR_SHELL \
-                     --cc=$$BOTAN_CC_TYPE --cc-bin=$$QMAKE_CXX \
+                     --cc=$$BOTAN_CC_TYPE --cc-bin=$$shell_quote($$QMAKE_CXX) \
                      $$BOTAN_ARCH_SWITCH $$BOTAN_OS_SWITCH $$OTHER_FLAGS
 QMAKE_EXTRA_COMPILERS += configure
 
