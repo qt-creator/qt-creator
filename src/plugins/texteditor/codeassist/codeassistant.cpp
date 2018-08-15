@@ -350,6 +350,7 @@ void CodeAssistantPrivate::processProposalItem(AssistProposalItemInterface *prop
     destroyContext();
     if (!proposalItem->isSnippet())
         process();
+    m_editorWidget->encourageApply();
 }
 
 void CodeAssistantPrivate::handlePrefixExpansion(const QString &newPrefix)
