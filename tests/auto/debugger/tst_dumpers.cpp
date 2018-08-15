@@ -1339,6 +1339,7 @@ void tst_Dumpers::dumper()
             "\n\n" + data.includes +
             "\n\n" + (data.useQHash ?
                 "\n#include <QByteArray>"
+                "\n#include <QtGlobal>"
                 "\n#if QT_VERSION >= 0x050900"
                 "\n#include <QHash>"
                 "\nvoid initHashSeed() { qSetGlobalQHashSeed(0); }"
