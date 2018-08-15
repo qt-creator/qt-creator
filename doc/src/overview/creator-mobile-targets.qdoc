@@ -59,10 +59,12 @@
             2.3.3, or later. You must install a Qt version targeting Android and
             the Android SDK and NDK to develop for Android devices.
 
+        \if defined(qtcreator)
         \li \l{Connecting Bare Metal Devices}
 
             You can connect bare metal devices to the development PC and use \QC
             to debug applications on them with GDB or a hardware debugger.
+        \endif
 
         \li \l{Connecting Embedded Linux Devices}
 
@@ -70,6 +72,7 @@
             Linux devices installed on the development
             PC, you can add it and the device to \QC.
 
+        \if defined(qtcreator)
         \li \l{Connecting iOS Devices}
 
             You use the tools delivered with Xcode to connect devices to \QC.
@@ -82,9 +85,11 @@
             debug applications on them from within \QC. This is currently only
             supported for QNX Neutrino devices, and requires the QNX SDK to be
             installed on the development PC.
+        \endif
 
     \endlist
 
+    \if defined(qtcreator)
     \section1 Related Topics
 
     \list
@@ -97,4 +102,5 @@
             local Linux PC, remote generic SSH Linux targets, or
             \l{Embedded Devices}{embedded devices}.
     \endlist
+    \endif
 */

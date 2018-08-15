@@ -76,5 +76,8 @@
     \l{Specifying Run Settings}.
 
     \include linux-mobile/creator-projects-running-generic-linux.qdocinc running on embedded linux
+
+    \if defined(qtcreator)
     \include qnx/creator-projects-running-qnx.qdocinc running on qnx
+    \endif
 */

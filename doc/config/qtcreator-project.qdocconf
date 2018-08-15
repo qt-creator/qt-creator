@@ -51,6 +51,8 @@ include(macros.qdocconf)
 include(qt-cpp-ignore.qdocconf)
 include(qt-defines.qdocconf)
 
+defines += qtcreator
+
 sources.fileextensions         = "*.qdoc"
 
 qhp.projects            = QtCreator
