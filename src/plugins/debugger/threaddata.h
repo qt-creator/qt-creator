@@ -33,28 +33,6 @@ namespace Internal {
 
 ////////////////////////////////////////////////////////////////////////
 //
-// ThreadId
-//
-////////////////////////////////////////////////////////////////////////
-
-/*! A typesafe identifier. */
-class ThreadId
-{
-public:
-    ThreadId() = default;
-    explicit ThreadId(qint64 id) : m_id(id) {}
-
-    bool isValid() const { return m_id != -1; }
-    qint64 raw() const { return m_id; }
-    bool operator==(const ThreadId other) const { return m_id == other.m_id; }
-    bool operator!=(const ThreadId other) const { return m_id != other.m_id; }
-
-private:
-    qint64 m_id = -1;
-};
-
-////////////////////////////////////////////////////////////////////////
-//
 // ThreadData
 //
 ////////////////////////////////////////////////////////////////////////
@@ -77,12 +55,10 @@ struct ThreadData
         CoreColumn,
         ComboNameColumn,
         ColumnCount = CoreColumn,
-
-        IdRole = Qt::UserRole
     };
 
     // Permanent data.
-    ThreadId id;
+    QString id;
     QString groupId;
     QString targetId;
     QString core;

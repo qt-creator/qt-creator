@@ -684,9 +684,9 @@ void QmlEngine::activateFrame(int index)
     d->updateLocals();
 }
 
-void QmlEngine::selectThread(ThreadId threadId)
+void QmlEngine::selectThread(const Thread &thread)
 {
-    Q_UNUSED(threadId)
+    Q_UNUSED(thread)
 }
 
 void QmlEngine::insertBreakpoint(const Breakpoint &bp)

@@ -30,6 +30,7 @@
 #include "debuggeritem.h"
 #include "debuggerprotocol.h"
 #include "breakhandler.h"
+#include "threadshandler.h"
 
 #include <coreplugin/icontext.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -37,7 +38,6 @@
 #include <texteditor/textmark.h>
 #include <utils/fileutils.h>
 
-#include <QObject>
 #include <QProcess>
 
 QT_BEGIN_NAMESPACE
@@ -74,13 +74,11 @@ class RegisterHandler;
 class StackHandler;
 class StackFrame;
 class SourceFilesHandler;
-class ThreadsHandler;
 class WatchHandler;
 class WatchTreeView;
 class DebuggerToolTipContext;
 class MemoryViewSetupData;
 class TerminalRunner;
-class ThreadId;
 
 class DebuggerRunParameters
 {
@@ -317,7 +315,7 @@ public:
 
     virtual void assignValueInDebugger(WatchItem *item,
         const QString &expr, const QVariant &value);
-    virtual void selectThread(Internal::ThreadId threadId) = 0;
+    virtual void selectThread(const Internal::Thread &thread) = 0;
 
     virtual void executeRecordReverse(bool) {}
     virtual void executeReverse(bool) {}
@@ -416,8 +414,6 @@ public:
 
     bool isRegistersWindowVisible() const;
     bool isModulesWindowVisible() const;
-
-    void setThreadBoxContents(const QStringList &list, int index);
 
     void openMemoryEditor();
 

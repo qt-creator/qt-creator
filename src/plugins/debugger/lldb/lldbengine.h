@@ -82,7 +82,7 @@ private:
     void executeJumpToLine(const ContextData &data) override;
 
     void activateFrame(int index) override;
-    void selectThread(ThreadId threadId) override;
+    void selectThread(const Thread &thread) override;
     void fetchFullBacktrace();
 
     // This should be always the last call in a function.

@@ -397,8 +397,12 @@ public:
 
     void selectThread(int index)
     {
-        ThreadId id = m_engine->threadsHandler()->threadAt(index);
-        m_engine->selectThread(id);
+        const Thread thread = m_engine->threadsHandler()->rootItem()->childAt(index);
+        QTC_ASSERT(thread, return);
+        // For immediate visual feedback.
+        m_engine->threadsHandler()->setCurrentThread(thread);
+        // Initiate the actual switching in the debugger backend.
+        m_engine->selectThread(thread);
     }
 
     void handleOperateByInstructionTriggered(bool on)
@@ -745,6 +749,7 @@ void DebuggerEnginePrivate::setupViews()
 
     m_threadBox = new QComboBox;
     m_threadBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    m_threadBox->setModel(m_threadsHandler.model());
     connect(m_threadBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
             this, &DebuggerEnginePrivate::selectThread);
 
@@ -855,15 +860,6 @@ bool DebuggerEngine::isRegistersWindowVisible() const
 bool DebuggerEngine::isModulesWindowVisible() const
 {
     return d->m_modulesWindow->isVisible();
-}
-
-void DebuggerEngine::setThreadBoxContents(const QStringList &list, int index)
-{
-    QSignalBlocker blocker(d->m_threadBox);
-    d->m_threadBox->clear();
-    for (const QString &item : list)
-        d->m_threadBox->addItem(item);
-    d->m_threadBox->setCurrentIndex(index);
 }
 
 void DebuggerEngine::frameUp()

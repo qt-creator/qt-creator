@@ -219,7 +219,7 @@ private: ////////// General Interface //////////
 
     ////////// View & Data Stuff //////////
 
-    void selectThread(ThreadId threadId) final;
+    void selectThread(const Thread &thread) final;
     void activateFrame(int index) final;
 
     //

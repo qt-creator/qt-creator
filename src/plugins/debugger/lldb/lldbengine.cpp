@@ -444,17 +444,18 @@ void LldbEngine::activateFrame(int frameIndex)
 
     DebuggerCommand cmd("activateFrame");
     cmd.arg("index", frameIndex);
-    cmd.arg("thread", threadsHandler()->currentThread().raw());
+    cmd.arg("thread", threadsHandler()->currentThread()->id());
     runCommand(cmd);
 
     updateLocals();
     reloadRegisters();
 }
 
-void LldbEngine::selectThread(ThreadId threadId)
+void LldbEngine::selectThread(const Thread &thread)
 {
+    QTC_ASSERT(thread, return);
     DebuggerCommand cmd("selectThread");
-    cmd.arg("id", threadId.raw());
+    cmd.arg("id", thread->id());
     cmd.callback = [this](const DebuggerResponse &) {
         fetchStack(action(MaximalStackDepth)->value().toInt());
     };

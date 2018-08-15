@@ -523,7 +523,7 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
         QString id = result["id"].data();
         showStatusMessage(tr("Thread %1 created.").arg(id), 1000);
         ThreadData thread;
-        thread.id = ThreadId(id.toLong());
+        thread.id = id;
         thread.groupId = result["group-id"].data();
         threadsHandler()->updateThread(thread);
     } else if (asyncClass == "thread-group-exited") {
@@ -537,7 +537,7 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
         QString groupid = result["group-id"].data();
         showStatusMessage(tr("Thread %1 in group %2 exited.")
                           .arg(id).arg(groupid), 1000);
-        threadsHandler()->removeThread(ThreadId(id.toLong()));
+        threadsHandler()->removeThread(id);
     } else if (asyncClass == "thread-selected") {
         QString id = result["id"].data();
         showStatusMessage(tr("Thread %1 selected.").arg(id), 1000);
@@ -2880,12 +2880,11 @@ void GdbEngine::reloadSourceFiles()
 //
 //////////////////////////////////////////////////////////////////////
 
-void GdbEngine::selectThread(ThreadId threadId)
+void GdbEngine::selectThread(const Thread &thread)
 {
-    threadsHandler()->setCurrentThread(threadId);
-    showStatusMessage(tr("Retrieving data for stack view thread 0x%1...")
-        .arg(threadId.raw(), 0, 16), 10000);
-    DebuggerCommand cmd("-thread-select " + QString::number(threadId.raw()), Discardable);
+    showStatusMessage(tr("Retrieving data for stack view thread %1...")
+        .arg(thread->id()), 10000);
+    DebuggerCommand cmd("-thread-select " + thread->id(), Discardable);
     cmd.callback = [this](const DebuggerResponse &) {
         QTC_CHECK(state() == InferiorUnrunnable || state() == InferiorStopOk);
         showStatusMessage(tr("Retrieving data for stack view..."), 3000);
@@ -2987,9 +2986,8 @@ void GdbEngine::handleThreadInfo(const DebuggerResponse &response)
         ThreadsHandler *handler = threadsHandler();
         handler->updateThreads(response.data);
         // This is necessary as the current thread might not be in the list.
-        if (!handler->currentThread().isValid()) {
-            ThreadId other = handler->threadAt(0);
-            if (other.isValid())
+        if (!handler->currentThread()) {
+            if (Thread other = handler->threadAt(0))
                 selectThread(other);
         }
         updateState(false); // Adjust Threads combobox.
@@ -3011,9 +3009,9 @@ void GdbEngine::handleThreadListIds(const DebuggerResponse &response)
     // In gdb 7.1+ additionally: current-thread-id="1"
     ThreadsHandler *handler = threadsHandler();
     const QVector<GdbMi> &items = response.data["thread-ids"].children();
-    for (int index = 0, n = items.size(); index != n; ++index) {
+    for (const GdbMi &item : items) {
         ThreadData thread;
-        thread.id = ThreadId(items.at(index).toInt());
+        thread.id = item.data();
         handler->updateThread(thread);
     }
     reloadStack(); // Will trigger register reload.
@@ -3027,7 +3025,7 @@ void GdbEngine::handleThreadNames(const DebuggerResponse &response)
         names.fromString(response.consoleStreamOutput);
         for (const GdbMi &name : names.children()) {
             ThreadData thread;
-            thread.id = ThreadId(name["id"].toInt());
+            thread.id = name["id"].data();
             thread.name = decodeData(name["value"].data(), name["valueencoded"].data());
             handler->updateThread(thread);
         }

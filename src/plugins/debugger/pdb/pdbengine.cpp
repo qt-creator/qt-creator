@@ -240,9 +240,9 @@ void PdbEngine::activateFrame(int frameIndex)
     updateLocals();
 }
 
-void PdbEngine::selectThread(ThreadId threadId)
+void PdbEngine::selectThread(const Thread &thread)
 {
-    Q_UNUSED(threadId)
+    Q_UNUSED(thread)
 }
 
 bool PdbEngine::acceptsBreakpoint(const BreakpointParameters &bp) const

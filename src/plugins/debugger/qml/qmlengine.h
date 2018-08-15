@@ -93,7 +93,7 @@ private:
     void executeJumpToLine(const ContextData &data) override;
 
     void activateFrame(int index) override;
-    void selectThread(ThreadId threadId) override;
+    void selectThread(const Thread &thread) override;
 
     bool acceptsBreakpoint(const BreakpointParameters &bp) const final;
     void insertBreakpoint(const Breakpoint &bp) final;

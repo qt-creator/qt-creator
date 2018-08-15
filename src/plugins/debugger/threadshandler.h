@@ -29,6 +29,8 @@
 
 #include <utils/treemodel.h>
 
+#include <QPointer>
+
 ////////////////////////////////////////////////////////////////////////
 //
 // ThreadsHandler
@@ -40,7 +42,33 @@ namespace Internal {
 
 class DebuggerEngine;
 class GdbMi;
-class ThreadItem;
+class ThreadsHandler;
+
+class ThreadItem : public QObject, public Utils::TreeItem
+{
+    Q_OBJECT
+
+public:
+    ThreadItem(const ThreadsHandler *handler, const ThreadData &data = ThreadData());
+
+    QVariant data(int column, int role) const override;
+    Qt::ItemFlags flags(int column) const override;
+
+    QString threadToolTip() const;
+    QVariant threadPart(int column) const;
+
+    void notifyRunning();
+    void notifyStopped();
+
+    void mergeThreadData(const ThreadData &other);
+    QString id() const { return threadData.id; }
+
+public:
+    ThreadData threadData;
+    const ThreadsHandler * const handler;
+};
+
+using Thread = QPointer<ThreadItem>;
 
 class ThreadsHandler : public Utils::TreeModel<Utils::TypedTreeItem<ThreadItem>, ThreadItem>
 {
@@ -50,43 +78,34 @@ public:
     explicit ThreadsHandler(DebuggerEngine *engine);
 
     int currentThreadIndex() const;
-    ThreadId currentThread() const;
-    ThreadId threadAt(int index) const;
-    void setCurrentThread(ThreadId id);
+    Thread currentThread() const;
+    Thread threadAt(int index) const;
+    Thread threadForId(const QString &id) const;
+    void setCurrentThread(const Thread &thread);
     QString pidForGroupId(const QString &groupId) const;
 
     void updateThread(const ThreadData &threadData);
     void updateThreads(const GdbMi &data);
 
-    void removeThread(ThreadId threadId);
-    void setThreads(const Threads &threads);
+    void removeThread(const QString &id);
     void removeAll();
-    ThreadData thread(ThreadId id) const;
     QAbstractItemModel *model();
 
     void notifyGroupCreated(const QString &groupId, const QString &pid);
     bool notifyGroupExited(const QString &groupId); // Returns true when empty.
 
-    // Clear out all frame information
-    void notifyRunning(const QString &data);
-    void notifyRunning(ThreadId threadId);
-    void notifyAllRunning();
-
-    void notifyStopped(const QString &data);
-    void notifyStopped(ThreadId threadId);
-    void notifyAllStopped();
+    void notifyRunning(const QString &id);
+    void notifyStopped(const QString &id);
 
     void resetLocation();
     void scheduleResetLocation();
 
 private:
-    void updateThreadBox();
-
     void sort(int column, Qt::SortOrder order) override;
     bool setData(const QModelIndex &idx, const QVariant &data, int role) override;
 
     DebuggerEngine *m_engine;
-    ThreadId m_currentId;
+    Thread m_currentThread;
     bool m_resetLocationScheduled = false;
     QHash<QString, QString> m_pidForGroupId;
 };

@@ -80,7 +80,7 @@ public:
     void executeDebuggerCommand(const QString &command) override;
 
     void activateFrame(int index) override;
-    void selectThread(ThreadId threadId) override;
+    void selectThread(const Thread &thread) override;
 
     bool stateAcceptsBreakpointChanges() const override;
     bool acceptsBreakpoint(const BreakpointParameters &params) const override;
