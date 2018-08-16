@@ -28,7 +28,8 @@ mingw {
     OTHER_FLAGS += --without-stack-protector
 }
 BOTAN_CXX_FLAGS =
-msvc: BOTAN_CXX_FLAGS += /wd4127 /wd4244 /wd4250 /wd4267 /wd4334 /wd4702 /wd4996
+msvc: BOTAN_CXX_FLAGS += /wd4127 /wd4244 /wd4250 /wd4267 /wd4334 /wd4702 /wd4996 \
+                         /D_ENABLE_EXTENDED_ALIGNED_STORAGE
 else: BOTAN_CXX_FLAGS += -Wno-unused-parameter
 macos: BOTAN_CXX_FLAGS += -mmacosx-version-min=$$QMAKE_MACOSX_DEPLOYMENT_TARGET -isysroot $$shell_quote($$QMAKE_MAC_SDK_PATH)
 unix: BOTAN_CXX_FLAGS += -fPIC
