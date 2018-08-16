@@ -337,7 +337,8 @@ public:
         FlatProjectsMode,
         FlatMenuBar,
         ToolBarIconShadow,
-        WindowColorAsBase
+        WindowColorAsBase,
+        DarkUserInteface
     };
 
     Q_INVOKABLE bool flag(Flag f) const;

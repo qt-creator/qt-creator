@@ -223,6 +223,7 @@ FlatProjectsMode=false
 FlatMenuBar=false
 ToolBarIconShadow=true
 WindowColorAsBase=false
+DarkUserInteface=false
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=00000000

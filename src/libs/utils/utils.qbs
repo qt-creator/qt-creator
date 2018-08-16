@@ -315,6 +315,15 @@ Project {
         }
 
         Group {
+            name: "Theme_macos"
+            condition: qbs.targetOS.contains("macos")
+            prefix: "theme/"
+            files: [
+                "theme_mac.h", "theme_mac.mm",
+            ]
+        }
+
+        Group {
             name: "ProcessHandle_macos"
             condition: qbs.targetOS.contains("macos")
             files: [

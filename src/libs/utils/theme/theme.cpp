@@ -27,6 +27,9 @@
 #include "theme_p.h"
 #include "../algorithm.h"
 #include "../qtcassert.h"
+#ifdef Q_OS_MACOS
+#import "theme_mac.h"
+#endif
 
 #include <QApplication>
 #include <QFileInfo>
@@ -69,6 +72,14 @@ void setCreatorTheme(Theme *theme)
         return;
     delete m_creatorTheme;
     m_creatorTheme = theme;
+
+#ifdef Q_OS_MACOS
+    // Match the native UI theme and palette with the creator
+    // theme by forcing light aqua for light creator themes.
+    if (!theme->flag(Theme::DarkUserInteface))
+        Internal::forceMacOSLightAquaApperance();
+#endif
+
     setThemeApplicationPalette();
 }
 
