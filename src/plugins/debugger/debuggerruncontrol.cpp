@@ -903,17 +903,16 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
     m_runParameters.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
     m_runParameters.macroExpander = kit->macroExpander();
     m_runParameters.debugger = DebuggerKitInformation::runnable(kit);
+    m_runParameters.cppEngineType = DebuggerKitInformation::engineType(kit);
 
     if (QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(kit))
         m_runParameters.qtPackageSourceLocation = qtVersion->qtPackageSourcePath().toString();
 
     if (auto aspect = runConfig ? runConfig->extraAspect<DebuggerRunConfigurationAspect>() : nullptr) {
-        if (aspect->useCppDebugger())
-            m_runParameters.cppEngineType = DebuggerKitInformation::engineType(kit);
+        if (!aspect->useCppDebugger())
+            m_runParameters.cppEngineType = NoEngineType;
         m_runParameters.isQmlDebugging = aspect->useQmlDebugger();
         m_runParameters.multiProcess = aspect->useMultiProcess();
-    } else if (m_runParameters.isCppDebugging()) {
-        m_runParameters.cppEngineType = DebuggerKitInformation::engineType(kit);
     }
 
     m_runParameters.inferior = runnable();
