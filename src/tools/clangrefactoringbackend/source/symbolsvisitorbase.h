@@ -60,7 +60,12 @@ public:
         return filePathId(fileEntry);
     }
 
-    bool alreadyParsed(clang::FileID fileId)
+    bool dependentFilesAreModified()
+    {
+        return m_sourcesManager.dependentFilesModified();
+    }
+
+    bool isAlreadyParsed(clang::FileID fileId)
     {
         const clang::FileEntry *fileEntry = m_sourceManager->getFileEntryForID(fileId);
 
@@ -70,7 +75,7 @@ public:
 
     bool alreadyParsed(clang::SourceLocation sourceLocation)
     {
-        return alreadyParsed(m_sourceManager->getFileID(sourceLocation));
+        return isAlreadyParsed(m_sourceManager->getFileID(sourceLocation));
     }
 
     FilePathId filePathId(const clang::FileEntry *fileEntry)
@@ -149,6 +154,11 @@ public:
     {
         return clang::SrcMgr::isSystem(
                     m_sourceManager->getSLocEntry(fileId).getFile().getFileCharacteristic());
+    }
+
+    void clear()
+    {
+        m_filePathIndices.clear();
     }
 
 protected:

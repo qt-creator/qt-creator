@@ -2,4 +2,7 @@
 
 #define MAINFILE_DEFINE
 
-void MainFileFunction();
+void MainFileFunction()
+{
+    HeaderFunctionReferenceInMainFile();
+}

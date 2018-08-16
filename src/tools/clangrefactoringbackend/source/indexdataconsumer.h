@@ -60,6 +60,9 @@ public:
                              ASTNodeInfo astNodeInfo) override;
 
 private:
+    bool skipSymbol(clang::FileID fileId, clang::index::SymbolRoleSet symbolRoles);
+
+private:
     SymbolEntries &m_symbolEntries;
     SourceLocationEntries &m_sourceLocationEntries;
 };

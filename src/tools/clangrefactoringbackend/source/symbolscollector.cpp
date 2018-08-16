@@ -51,6 +51,7 @@ void SymbolsCollector::addUnsavedFiles(const V2::FileContainers &unsavedFiles)
 
 void SymbolsCollector::clear()
 {
+    m_indexDataConsumer->clear();
     m_collectMacrosSourceFileCallbacks.clear();
     m_symbolEntries.clear();
     m_sourceLocationEntries.clear();

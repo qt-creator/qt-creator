@@ -248,4 +248,4 @@ HEADERS += \
     testclangtool.h \
 }
 
-OTHER_FILES += $$files(data/*)
+OTHER_FILES += $$files(data/*) $$files(data/include/*)

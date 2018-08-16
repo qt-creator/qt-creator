@@ -59,7 +59,7 @@ public:
         if (!upToDate)
            addOrUpdateNewEntry(filePathId, modifiedTime);
 
-        m_dependendFilesModified = m_dependendFilesModified || !upToDate;
+        m_dependentFilesModified = m_dependentFilesModified || !upToDate;
 
         return upToDate ;
     }
@@ -82,17 +82,17 @@ public:
 
         m_modifiedTimeStamps = std::move(mergedModifiedTimeStamps);
         m_newModifiedTimeStamps.clear();
-        m_dependendFilesModified = false;
+        m_dependentFilesModified = false;
     }
 
-    bool dependendFilesModified() const
+    bool dependentFilesModified() const
     {
-        return m_dependendFilesModified;
+        return m_dependentFilesModified;
     }
 
-    bool alreadyParsedAllDependFiles(FilePathId filePathId, std::time_t modifiedTime)
+    bool alreadyParsedAllDependentFiles(FilePathId filePathId, std::time_t modifiedTime)
     {
-        return alreadyParsed(filePathId, modifiedTime) && !dependendFilesModified();
+        return alreadyParsed(filePathId, modifiedTime) && !dependentFilesModified();
     }
 
 private:
@@ -114,7 +114,7 @@ private:
 private:
     std::vector<FilePathIdTime> m_modifiedTimeStamps;
     std::vector<FilePathIdTime> m_newModifiedTimeStamps;
-    bool m_dependendFilesModified = false;
+    bool m_dependentFilesModified = false;
 };
 
 }

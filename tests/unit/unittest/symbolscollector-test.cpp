@@ -36,6 +36,12 @@
 #include <QDateTime>
 #include <QDir>
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <utime.h>
+#endif
+
 using testing::PrintToString;
 using testing::AllOf;
 using testing::Contains;
@@ -152,6 +158,15 @@ protected:
         }
 
         return 0;
+    }
+
+    void touchFile(const char *filePath)
+    {
+#ifdef _WIN32
+        QFile::resize(QString::fromUtf8(filePath), QFileInfo(QString::fromUtf8(filePath)).size());
+#else
+        utime(filePath, nullptr);
+#endif
     }
 
 protected:
@@ -707,8 +722,24 @@ TEST_F(SymbolsCollector, IsVariableSymbol)
                         HasSymbolKind(SymbolKind::Variable))));
 }
 
+TEST_F(SymbolsCollector, IndexUnmodifiedHeaderFilesAtFirstRun)
+{
+    collector.addFiles({filePathId(TESTDATA_DIR "/symbolscollector_unmodified.cpp")}, {"cc", "-I", {TESTDATA_DIR, "/include"}});
 
-TEST_F(SymbolsCollector, DontIndexUnmodifiedHeaderFiles)
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.symbols(),
+                AllOf(
+                    Contains(HasSymbolName("MemberReference")),
+                    Contains(HasSymbolName("HeaderFunction")),
+                    Contains(HasSymbolName("HeaderFunctionReference")),
+                    Contains(HasSymbolName("Class")),
+                    Contains(HasSymbolName("Member")),
+                    Contains(HasSymbolName("HEADER_DEFINE")),
+                    Contains(HasSymbolName("FunctionLocalVariable"))));
+}
+
+TEST_F(SymbolsCollector, DontIndexUnmodifiedHeaderFilesAtSecondRun)
 {
     collector.addFiles({filePathId(TESTDATA_DIR "/symbolscollector_unmodified.cpp")}, {"cc", "-I", {TESTDATA_DIR, "/include"}});
     collector.collectSymbols();
@@ -719,6 +750,29 @@ TEST_F(SymbolsCollector, DontIndexUnmodifiedHeaderFiles)
 
     ASSERT_THAT(collector.symbols(),
                 AllOf(
+                    Contains(HasSymbolName("HeaderFunctionReferenceInMainFile")),
+                    Not(Contains(HasSymbolName("MemberReference"))),
+                    Not(Contains(HasSymbolName("HeaderFunctionReference"))),
+                    Not(Contains(HasSymbolName("HeaderFunction"))),
+                    Not(Contains(HasSymbolName("Class"))),
+                    Not(Contains(HasSymbolName("Member")))));
+}
+
+TEST_F(SymbolsCollector, DontIndexUnmodifiedHeaderFilesAtTouchHeader)
+{
+    collector.addFiles({filePathId(TESTDATA_DIR "/symbolscollector_unmodified3.cpp")}, {"cc", "-I", {TESTDATA_DIR, "/include"}});
+    collector.collectSymbols();
+    collector.clear();
+    touchFile(TESTDATA_DIR "/include/symbolscollector_unmodified_header2.h");
+    collector.addFiles({filePathId(TESTDATA_DIR "/symbolscollector_unmodified3.cpp")}, {"cc", "-I", {TESTDATA_DIR, "/include"}});
+
+    collector.collectSymbols();
+
+    ASSERT_THAT(collector.symbols(),
+                AllOf(
+                    Contains(HasSymbolName("HeaderFunctionReferenceInMainFile")),
+                    Not(Contains(HasSymbolName("MemberReference"))),
+                    Not(Contains(HasSymbolName("HeaderFunctionReference"))),
                     Not(Contains(HasSymbolName("HeaderFunction"))),
                     Not(Contains(HasSymbolName("Class"))),
                     Not(Contains(HasSymbolName("Member")))));
@@ -732,9 +786,13 @@ TEST_F(SymbolsCollector, DontIndexSystemIncudes)
 
     ASSERT_THAT(collector.symbols(),
                 AllOf(
+                    Contains(HasSymbolName("MainFileFunction")),
+                    Contains(HasSymbolName("HeaderFunctionReferenceInMainFile")),
+                    Not(Contains(HasSymbolName("MemberReference"))),
                     Not(Contains(HasSymbolName("HeaderFunction"))),
                     Not(Contains(HasSymbolName("Class"))),
                     Not(Contains(HasSymbolName("Member"))),
-                    Not(Contains(HasSymbolName("HEADER_DEFINE")))));
+                    Not(Contains(HasSymbolName("HEADER_DEFINE"))),
+                    Not(Contains(HasSymbolName("FunctionLocalVariable")))));
 }
 }
