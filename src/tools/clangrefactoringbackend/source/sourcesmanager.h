@@ -59,6 +59,8 @@ public:
         if (!upToDate)
            addOrUpdateNewEntry(filePathId, modifiedTime);
 
+        m_dependendFilesModified = m_dependendFilesModified || !upToDate;
+
         return upToDate ;
     }
 
@@ -80,6 +82,17 @@ public:
 
         m_modifiedTimeStamps = std::move(mergedModifiedTimeStamps);
         m_newModifiedTimeStamps.clear();
+        m_dependendFilesModified = false;
+    }
+
+    bool dependendFilesModified() const
+    {
+        return m_dependendFilesModified;
+    }
+
+    bool alreadyParsedAllDependFiles(FilePathId filePathId, std::time_t modifiedTime)
+    {
+        return alreadyParsed(filePathId, modifiedTime) && !dependendFilesModified();
     }
 
 private:
@@ -101,6 +114,7 @@ private:
 private:
     std::vector<FilePathIdTime> m_modifiedTimeStamps;
     std::vector<FilePathIdTime> m_newModifiedTimeStamps;
+    bool m_dependendFilesModified = false;
 };
 
 }
