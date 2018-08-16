@@ -26,8 +26,8 @@
 #include "generatedfiles.h"
 
 namespace ClangBackEnd {
-template<class Type>
-void GeneratedFiles::updateInternal(Type &&fileContainers)
+
+void GeneratedFiles::update(V2::FileContainers &&fileContainers)
 {
     V2::FileContainers unionFileContainers;
     unionFileContainers.reserve(m_fileContainers.size() + fileContainers.size());
@@ -46,14 +46,23 @@ void GeneratedFiles::updateInternal(Type &&fileContainers)
     m_fileContainers = std::move(unionFileContainers);
 }
 
-void GeneratedFiles::update(V2::FileContainers &&fileContainers)
-{
-    updateInternal(std::move(fileContainers));
-}
-
 void GeneratedFiles::update(const V2::FileContainers &fileContainers)
 {
-    updateInternal(fileContainers);
+    V2::FileContainers unionFileContainers;
+    unionFileContainers.reserve(m_fileContainers.size() + fileContainers.size());
+
+    auto compare = [] (const V2::FileContainer &first, const V2::FileContainer &second) {
+        return first.filePath < second.filePath;
+    };
+
+    std::set_union(fileContainers.begin(),
+                   fileContainers.end(),
+                   std::make_move_iterator(m_fileContainers.begin()),
+                   std::make_move_iterator(m_fileContainers.end()),
+                   std::back_inserter(unionFileContainers),
+                   compare);
+
+    m_fileContainers = std::move(unionFileContainers);
 }
 
 class Compare {

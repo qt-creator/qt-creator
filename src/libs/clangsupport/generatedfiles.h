@@ -37,9 +37,6 @@ public:
     void remove(const FilePaths &filePaths);
 
     const V2::FileContainers &fileContainers() const;
-private:
-    template<class Type>
-    void updateInternal(Type &&fileContainers);
 
 private:
     V2::FileContainers m_fileContainers;
