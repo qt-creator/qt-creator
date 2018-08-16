@@ -67,22 +67,19 @@ public:
     static void registerUserDocumentation(const QStringList &filePaths);
     static QSet<QString> userDocumentationPaths();
 
-    static QMap<QString, QUrl> linksForKeyword(const QString &key);
-    static QMap<QString, QUrl> linksForIdentifier(const QString &id);
-
     static QUrl findFile(const QUrl &url);
     static QByteArray fileData(const QUrl &url);
 
+
+    static QMap<QString, QUrl> linksForKeyword(const QString &key);
+    static QMap<QString, QUrl> linksForIdentifier(const QString &id);
     static QStringList registeredNamespaces();
     static QString namespaceFromFile(const QString &file);
     static QString fileFromNamespace(const QString &nameSpace);
-
     static void setCustomValue(const QString &key, const QVariant &value);
     static QVariant customValue(const QString &key, const QVariant &value = QVariant());
-
     static Filters filters();
     static Filters fixedFilters();
-
     static Filters userDefinedFilters();
     static void removeUserDefinedFilter(const QString &filter);
     static void addUserDefinedFilter(const QString &filter, const QStringList &attr);
