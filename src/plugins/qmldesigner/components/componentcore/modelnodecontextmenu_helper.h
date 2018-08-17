@@ -180,7 +180,7 @@ public:
     QByteArray category() const override  { return m_category; }
     QByteArray menuId() const override  { return QByteArray(); }
     int priority() const override { return m_priority; }
-    Type type() const override { return Action; }
+    Type type() const override { return ContextMenuAction; }
     void currentContextChanged(const SelectionContext &) override {}
 
 private:

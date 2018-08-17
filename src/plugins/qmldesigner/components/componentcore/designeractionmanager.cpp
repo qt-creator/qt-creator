@@ -669,7 +669,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &toBack,
                           &singleSelection));
 
-    addDesignerAction(new ModelNodeAction(
+    addDesignerAction(new ModelNodeFormEditorAction(
                           raiseCommandId, raiseDisplayName,
                           Utils::Icon({{":/qmldesigner/icon/designeractions/images/raise.png", Utils::Theme::IconsBaseColor}}).icon(),
                           raiseToolTip,
@@ -679,7 +679,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &raise,
                           &raiseAvailable));
 
-    addDesignerAction(new ModelNodeAction(
+    addDesignerAction(new ModelNodeFormEditorAction(
                           lowerCommandId,
                           lowerDisplayName,
                           Utils::Icon({{":/qmldesigner/icon/designeractions/images/lower.png", Utils::Theme::IconsBaseColor}}).icon(),
