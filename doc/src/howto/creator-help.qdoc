@@ -31,9 +31,14 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-help-overview.html
     \page creator-help.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-help.html
+    \nextpage studio-faq.html
+    \else
+    \previouspage creator-help-overview.html
     \nextpage creator-faq.html
+    \endif
 
     \title Using the Help Mode
 

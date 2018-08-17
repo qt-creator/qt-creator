@@ -32,11 +32,7 @@
 /*!
     \contentspage index.html
     \page creator-help-overview.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-qml-performance-monitor.html
-    \else
     \previouspage creator-task-lists.html
-    \endif
     \nextpage creator-help.html
 
     \title Getting Help
