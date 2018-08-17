@@ -4464,32 +4464,13 @@ void GdbEngine::handleExecRun(const DebuggerResponse &response)
 {
     CHECK_STATE(EngineRunRequested);
 
-    if (isRemoteEngine()) {
-
-        if (response.resultClass == ResultRunning) {
-            notifyEngineRunAndInferiorRunOk();
-            showMessage("INFERIOR STARTED");
-            showMessage(msgInferiorSetupOk(), StatusBar);
-        } else {
-            showMessage(response.data["msg"].data());
-            notifyEngineRunFailed();
-        }
-
-    } else if (isPlainEngine()) {
-
-        if (response.resultClass == ResultRunning) {
-            notifyEngineRunAndInferiorRunOk(); // For gdb < 7.0
-            //showStatusMessage(tr("Running..."));
-            showMessage("INFERIOR STARTED");
-            showMessage(msgInferiorSetupOk(), StatusBar);
-        } else {
-            QString msg = response.data["msg"].data();
-            //QTC_CHECK(status() == InferiorRunOk);
-            //interruptInferior();
-            showMessage(msg);
-            notifyEngineRunFailed();
-        }
-
+    if (response.resultClass == ResultRunning) {
+        notifyEngineRunAndInferiorRunOk();
+        showMessage("INFERIOR STARTED");
+        showMessage(msgInferiorSetupOk(), StatusBar);
+    } else {
+        showMessage(response.data["msg"].data());
+        notifyEngineRunFailed();
     }
 }
 
