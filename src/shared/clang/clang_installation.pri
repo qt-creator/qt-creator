@@ -93,9 +93,9 @@ defineReplace(splitFlags) {
     for (flag, flags_temp) {
         equals(inside_quotes, 0) {
             inside_quotes = 1
-            flag ~= s,-I\S*,
-            flag ~= s,/D\S*,
-            flag ~= s,/Z\S*,
+            flag ~= s,-I\S*,,
+            flag ~= s,/D\S*,,
+            flag ~= s,/Z\S*,,
             result += $$split(flag, " ")
         } else {
             inside_quotes = 0
