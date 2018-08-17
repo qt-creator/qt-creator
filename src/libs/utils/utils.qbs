@@ -307,7 +307,7 @@ Project {
         }
 
         Group {
-            name: "FileUtils_osx"
+            name: "FileUtils_macos"
             condition: qbs.targetOS.contains("macos")
             files: [
                 "fileutils_mac.h", "fileutils_mac.mm",
