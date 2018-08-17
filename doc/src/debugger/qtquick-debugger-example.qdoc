@@ -33,7 +33,7 @@
     \contentspage index.html
     \page creator-qml-debugging-example.html
     \if defined(qtdesignstudio)
-    \previouspage creator-qml-debugging-example.html
+    \previouspage creator-debugging-qml.html
     \nextpage creator-qml-performance-monitor.html
     \else
     \previouspage creator-debugging-example.html

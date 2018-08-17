@@ -33,7 +33,7 @@
     \contentspage index.html
     \page creator-debugging-qml.html
     \if defined(qtdesignstudio)
-    \previouspage creator-debug-mode.html
+    \previouspage studio-debugging.html
     \nextpage creator-qml-debugging-example.html
     \else
     \previouspage creator-debugging-helpers.html
@@ -157,6 +157,13 @@
         \li \l{Evaluating Expressions}{Evaluating expressions at run time}
 
     \endlist
+
+    \if defined(qtdesignstudio)
+    \include creator-debugger-common.qdocinc debugger-breakpoints
+    \include creator-debugger-common.qdocinc debugger-call-stack-trace
+    \include creator-debugger-common.qdocinc debugger-locals
+    \include creator-debugger-common.qdocinc debugger-expressions
+    \endif
 
     \section1 Executing JavaScript Expressions
 
