@@ -449,7 +449,7 @@ void ClangToolRunControl::finalize()
     const QString toolName = tool()->name();
     appendMessage(tr("%1 finished: "
                      "Processed %2 files successfully, %3 failed.")
-                        .arg(toolName, m_filesAnalyzed, m_filesNotAnalyzed),
+                        .arg(toolName).arg(m_filesAnalyzed).arg(m_filesNotAnalyzed),
                   Utils::NormalMessageFormat);
 
     if (m_filesNotAnalyzed != 0) {
