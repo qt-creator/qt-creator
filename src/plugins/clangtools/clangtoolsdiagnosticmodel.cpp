@@ -263,7 +263,7 @@ static QVariant iconData(const QString &type)
 {
     if (type == "warning")
         return Utils::Icons::CODEMODEL_WARNING.icon();
-    if (type == "error")
+    if (type == "error" || type == "fatal")
         return Utils::Icons::CODEMODEL_ERROR.icon();
     if (type == "note")
         return Utils::Icons::BOOKMARK.icon();

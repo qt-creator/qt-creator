@@ -406,22 +406,25 @@ void ClangToolRunControl::onRunnerFinishedWithSuccess(const QString &filePath)
 }
 
 void ClangToolRunControl::onRunnerFinishedWithFailure(const QString &errorMessage,
-                                                            const QString &errorDetails)
+                                                      const QString &errorDetails)
 {
     qCDebug(LOG).noquote() << "onRunnerFinishedWithFailure:"
                            << errorMessage << '\n' << errorDetails;
 
+    auto *toolRunner = qobject_cast<ClangToolRunner *>(sender());
+    const QString filePath = toolRunner->filePath();
+    const QString logFilePath = toolRunner->logFilePath();
+
     // Even in the error case the log file was created, so clean it up here, too.
-    QFile::remove(qobject_cast<ClangToolRunner *>(sender())->logFilePath());
+    QFile::remove(logFilePath);
+
+    const QString message = tr("Failed to analyze \"%1\": %2").arg(filePath, errorMessage);
 
     ++m_filesNotAnalyzed;
     m_success = false;
-    const QString filePath = qobject_cast<ClangToolRunner *>(sender())->filePath();
-    appendMessage(tr("Failed to analyze \"%1\": %2").arg(filePath, errorMessage),
-                  Utils::StdErrFormat);
+    appendMessage(message, Utils::StdErrFormat);
     appendMessage(errorDetails, Utils::StdErrFormat);
-    TaskHub::addTask(Task::Warning, errorMessage, Debugger::Constants::ANALYZERTASK_ID);
-    TaskHub::addTask(Task::Warning, errorDetails, Debugger::Constants::ANALYZERTASK_ID);
+    TaskHub::addTask(Task::Warning, message, Debugger::Constants::ANALYZERTASK_ID);
     handleFinished();
 }
 
