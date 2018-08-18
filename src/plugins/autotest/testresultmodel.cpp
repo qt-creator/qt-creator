@@ -57,6 +57,7 @@ static QIcon testResultIcon(Result::Type result) {
         Icons::RESULT_MESSAGEWARN.icon(),
         Icons::RESULT_MESSAGEFATAL.icon(),
         Icons::RESULT_MESSAGEFATAL.icon(), // System gets same handling as Fatal for now
+        QIcon(),
         Icons::RESULT_MESSAGEPASSWARN.icon(),
         Icons::RESULT_MESSAGEFAILWARN.icon(),
     }; // provide an icon for unknown??
@@ -81,8 +82,14 @@ static QIcon testResultIcon(Result::Type result) {
 QVariant TestResultItem::data(int column, int role) const
 {
     switch (role) {
-    case Qt::DecorationRole:
-        return m_testResult ? testResultIcon(m_testResult->result()) : QVariant();
+    case Qt::DecorationRole: {
+        if (!m_testResult)
+            return QVariant();
+        const Result::Type result = m_testResult->result();
+        if (result == Result::MessageLocation && parent())
+            return parent()->data(column, role);
+        return testResultIcon(result);
+    }
     case Qt::DisplayRole:
         return m_testResult ? m_testResult->outputString(true) : QVariant();
     default:
@@ -354,7 +361,7 @@ void TestResultFilterModel::enableAllResultTypes()
 {
     m_enabled << Result::Pass << Result::Fail << Result::ExpectedFail
               << Result::UnexpectedPass << Result::Skip << Result::MessageDebug
-              << Result::MessageWarn << Result::MessageInternal
+              << Result::MessageWarn << Result::MessageInternal << Result::MessageLocation
               << Result::MessageFatal << Result::Invalid << Result::BlacklistedPass
               << Result::BlacklistedFail << Result::Benchmark << Result::MessageIntermediate
               << Result::MessageCurrentTest << Result::MessageTestCaseStart

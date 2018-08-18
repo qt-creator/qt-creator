@@ -136,6 +136,8 @@ QString TestResult::resultToString(const Result::Type type)
         return QString("BPASS");
     case Result::BlacklistedFail:
         return QString("BFAIL");
+    case Result::MessageLocation:
+        return QString();
     default:
         if (type >= Result::INTERNAL_MESSAGES_BEGIN && type <= Result::INTERNAL_MESSAGES_END)
             return QString();

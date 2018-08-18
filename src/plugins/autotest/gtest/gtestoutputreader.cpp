@@ -144,7 +144,7 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
         TestResultPtr testResult = createDefaultResult();
         testResult->setResult(Result::Fail);
         m_description.chop(1);
-        testResult->setDescription(m_description);
+        QStringList resultDescription;
 
         for (const QString &output : m_description.split('\n')) {
             QRegExp *match = nullptr;
@@ -152,17 +152,23 @@ void GTestOutputReader::processOutput(const QByteArray &outputLine)
                 match = &failureLocation;
             else if (errorLocation.exactMatch(output))
                 match = &errorLocation;
-
-            if (match) {
-                testResult->setLine(match->cap(2).toInt());
-
-                QString file = constructSourceFilePath(m_buildDir, match->cap(1));
-                if (!file.isEmpty())
-                    testResult->setFileName(file);
-
-                break;
+            if (!match) {
+                resultDescription << output;
+                continue;
             }
+            testResult->setDescription(resultDescription.join('\n'));
+            reportResult(testResult);
+            resultDescription.clear();
+
+            testResult = createDefaultResult();
+            testResult->setResult(Result::MessageLocation);
+            testResult->setLine(match->cap(2).toInt());
+            QString file = constructSourceFilePath(m_buildDir, match->cap(1));
+            if (!file.isEmpty())
+                testResult->setFileName(file);
+            resultDescription << output;
         }
+        testResult->setDescription(resultDescription.join('\n'));
         reportResult(testResult);
         m_description.clear();
         testResult = createDefaultResult();

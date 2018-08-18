@@ -637,6 +637,9 @@ QString TestResultsPane::getWholeOutput(const QModelIndex &parent)
 
 void TestResultsPane::createMarks(const QModelIndex &parent)
 {
+    const TestResult *parentResult = m_model->testResult(parent);
+    Result::Type parentType = parentResult ? parentResult->result() : Result::Invalid;
+    const QVector<Result::Type> interested{Result::Fail, Result::UnexpectedPass};
     for (int row = 0, count = m_model->rowCount(parent); row < count; ++row) {
         const QModelIndex index = m_model->index(row, 0, parent);
         const TestResult *result = m_model->testResult(index);
@@ -645,8 +648,9 @@ void TestResultsPane::createMarks(const QModelIndex &parent)
         if (m_model->hasChildren(index))
             createMarks(index);
 
-        const QVector<Result::Type> interested{Result::Fail, Result::UnexpectedPass};
-        if (interested.contains(result->result())) {
+        bool isLocationItem = result->result() == Result::MessageLocation;
+        if (interested.contains(result->result())
+                || (isLocationItem && interested.contains(parentType))) {
             const Utils::FileName fileName = Utils::FileName::fromString(result->fileName());
             TestEditorMark *mark = new TestEditorMark(index, fileName, result->line());
             mark->setIcon(index.data(Qt::DecorationRole).value<QIcon>());
