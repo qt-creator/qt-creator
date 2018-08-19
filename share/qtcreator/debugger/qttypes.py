@@ -1806,7 +1806,10 @@ def qdump__QSharedPointer(d, value):
 def qdump__QWeakPointer(d, value):
     qdump_QWeakPointerHelper(d, value, True)
 
-def qdump_QWeakPointerHelper(d, value, isWeak):
+def qdump__QPointer(d, value):
+    qdump_QWeakPointerHelper(d, value['wp'], True, value.type[0])
+
+def qdump_QWeakPointerHelper(d, value, isWeak, innerType = None):
     if isWeak:
         (d_ptr, val) = value.split('pp')
     else:
@@ -1828,7 +1831,8 @@ def qdump_QWeakPointerHelper(d, value, isWeak):
     d.check(strongref <= weakref)
     d.check(weakref <= 10*1000*1000)
 
-    innerType = value.type[0]
+    if innerType is None:
+        innerType = value.type[0]
     with Children(d):
         short = d.putSubItem('data', d.createValue(val, innerType))
         d.putIntItem('weakref', weakref)

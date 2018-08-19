@@ -3110,6 +3110,20 @@ void tst_Dumpers::dumper_data()
                 + Check("ppp.a", "1", "int");
 
 
+    QTest::newRow("QPointer")
+            << Data("#include <QPointer>\n"
+                    "#include <QTimer>\n",
+
+                    "QTimer timer; unused(&timer);\n"
+                    "QPointer<QTimer> ptr0; unused(&ptr0);\n"
+                    "QPointer<QTimer> ptr1(&timer); unused(&ptr1);\n\n")
+
+               + CoreProfile()
+
+               + Check("ptr0", "(null)", "@QPointer<QTimer>")
+               + Check("ptr1", "", "@QPointer<QTimer>");
+
+
     QTest::newRow("QScopedPointer")
             << Data("#include <QScopedPointer>\n"
                     "#include <QString>\n",
