@@ -33,6 +33,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <proparser/qmakevfs.h>
+#include <projectexplorer/deployablefile.h>
+#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorer.h>
@@ -1357,6 +1359,11 @@ void BaseQtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Tar
             ? QtSupport::QtKitInformation::qtVersion(kit) : nullptr;
     QStringList additionalSearchDirectories = qtVersion
             ? QStringList(qtVersion->qmlPath().toString()) : QStringList();
+
+    if (target) {
+        for (const ProjectExplorer::DeployableFile &file : target->deploymentData().allFiles())
+            finder->addMappedPath(file.localFilePath().toString(), file.remoteFilePath());
+    }
 
     // Finally, do populate m_projectFinder
     finder->setProjectDirectory(projectDirectory);

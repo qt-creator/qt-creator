@@ -38,11 +38,9 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT FileInProjectFinder
 {
 public:
-    enum FindMode {
-        FindFile      = 0x1,
-        FindDirectory = 0x2,
-        FindEither    = FindFile | FindDirectory
-    };
+
+    using FileHandler = std::function<void(const QString &)>;
+    using DirectoryHandler = std::function<void(const QStringList &)>;
 
     FileInProjectFinder();
 
@@ -52,22 +50,31 @@ public:
     void setProjectFiles(const FileNameList &projectFiles);
     void setSysroot(const QString &sysroot);
 
+    void addMappedPath(const QString &localFilePath, const QString &remoteFilePath);
+
     QString findFile(const QUrl &fileUrl, bool *success = nullptr) const;
-    QString findFileOrDirectory(const QString &originalPath, FindMode findMode,
-                                bool *success) const;
+    bool findFileOrDirectory(const QString &originalPath, FileHandler fileHandler = nullptr,
+                             DirectoryHandler directoryHandler = nullptr) const;
 
     QStringList searchDirectories() const;
     void setAdditionalSearchDirectories(const QStringList &searchDirectories);
 
 private:
-    QString findInSearchPaths(const QString &filePath, FindMode findMode, bool *success) const;
+    struct PathMappingNode
+    {
+        ~PathMappingNode();
+        QString localPath;
+        QHash<QString, PathMappingNode *> children;
+    };
+
+    QString findInSearchPaths(const QString &filePath, FileHandler fileHandler,
+                              DirectoryHandler directoryHandler) const;
     static QString findInSearchPath(const QString &searchPath, const QString &filePath,
-                                    FindMode findMode, bool *success);
+                                    FileHandler fileHandler, DirectoryHandler directoryHandler);
     QStringList filesWithSameFileName(const QString &fileName) const;
     QStringList pathSegmentsWithSameName(const QString &path) const;
 
-    QString handleSuccess(const QString &originalPath, const QString &found, bool *success,
-                          const char *where, bool doCache = true) const;
+    bool handleSuccess(const QString &originalPath, const QString &found, const char *where) const;
 
     static int rankFilePath(const QString &candidatePath, const QString &filePathToFind);
     static QString bestMatch(const QStringList &filePaths, const QString &filePathToFind);
@@ -76,6 +83,8 @@ private:
     QString m_sysroot;
     FileNameList m_projectFiles;
     QStringList m_searchDirectories;
+    PathMappingNode m_pathMapRoot;
+
     mutable QHash<QString,QString> m_cache;
 };
 
