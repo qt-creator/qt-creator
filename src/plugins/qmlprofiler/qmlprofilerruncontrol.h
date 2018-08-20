@@ -75,9 +75,6 @@ public:
     LocalQmlProfilerSupport(QmlProfilerTool *profilerTool, ProjectExplorer::RunControl *runControl);
     LocalQmlProfilerSupport(QmlProfilerTool *profilerTool, ProjectExplorer::RunControl *runControl,
                             const QUrl &serverUrl);
-
-private:
-    QmlProfilerRunner *m_profiler;
 };
 
 } // namespace Internal
