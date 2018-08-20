@@ -414,6 +414,11 @@ void DebuggerRunTool::setDebugInfoLocation(const QString &debugInfoLocation)
     m_runParameters.debugInfoLocation = debugInfoLocation;
 }
 
+QUrl DebuggerRunTool::qmlServer() const
+{
+    return m_runParameters.qmlServer;
+}
+
 void DebuggerRunTool::setQmlServer(const QUrl &qmlServer)
 {
     m_runParameters.qmlServer = qmlServer;

@@ -116,6 +116,7 @@ public:
     void setDebugInfoLocation(const QString &debugInfoLocation);
 
     void setQmlServer(const QUrl &qmlServer);
+    QUrl qmlServer() const; // Used in GammaRay integration.
 
     void setCoreFileName(const QString &core, bool isSnapshot = false);
 
