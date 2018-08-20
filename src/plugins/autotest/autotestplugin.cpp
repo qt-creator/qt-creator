@@ -110,7 +110,8 @@ void AutotestPlugin::initializeMenuEntries()
     action->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR.icon());
     action->setToolTip(tr("Run All Tests"));
     Command *command = ActionManager::registerAction(action, Constants::ACTION_RUN_ALL_ID);
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+T,Alt+A")));
+    command->setDefaultKeySequence(
+        QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+A") : tr("Alt+Shift+T,Alt+A")));
     connect(action, &QAction::triggered, this, &AutotestPlugin::onRunAllTriggered);
     action->setEnabled(false);
     menu->addAction(command);
@@ -122,7 +123,8 @@ void AutotestPlugin::initializeMenuEntries()
     action->setIcon(runSelectedIcon.icon());
     action->setToolTip(tr("Run Selected Tests"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_SELECTED_ID);
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+T,Alt+R")));
+    command->setDefaultKeySequence(
+        QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+R") : tr("Alt+Shift+T,Alt+R")));
     connect(action, &QAction::triggered, this, &AutotestPlugin::onRunSelectedTriggered);
     action->setEnabled(false);
     menu->addAction(command);
@@ -134,15 +136,17 @@ void AutotestPlugin::initializeMenuEntries()
     action->setIcon(runFileIcon.icon());
     action->setToolTip(tr("Run Tests for Current File"));
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_FILE_ID);
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+T,Alt+F")));
+    command->setDefaultKeySequence(
+        QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+F") : tr("Alt+Shift+T,Alt+F")));
     connect(action, &QAction::triggered, this, &AutotestPlugin::onRunFileTriggered);
     action->setEnabled(false);
     menu->addAction(command);
 
     action = new QAction(tr("Re&scan Tests"), this);
     command = ActionManager::registerAction(action, Constants::ACTION_SCAN_ID);
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+T,Alt+S")));
-    connect(action, &QAction::triggered, this, [] () {
+    command->setDefaultKeySequence(
+        QKeySequence(useMacShortcuts ? tr("Ctrl+Meta+T, Ctrl+Meta+S") : tr("Alt+Shift+T,Alt+S")));
+    connect(action, &QAction::triggered, this, []() {
         TestTreeModel::instance()->parser()->updateTestTree();
     });
     menu->addAction(command);
