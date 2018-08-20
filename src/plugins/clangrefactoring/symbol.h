@@ -35,8 +35,9 @@ using SymbolString = Utils::BasicSmallString<63>;
 using SignatureString = Utils::BasicSmallString<126>;
 using SymbolId = long long;
 
-struct Symbol
+class Symbol
 {
+public:
     Symbol() = default;
     Symbol(SymbolId symbolId, Utils::SmallStringView name)
         : name(name), symbolId(symbolId)
