@@ -25,6 +25,7 @@
 
 #include "spotlightlocatorfilter.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 
 #include <QMutex>
@@ -180,19 +181,20 @@ void SpotlightIterator::ensureNext()
 
 void SpotlightLocatorFilter::prepareSearch(const QString &entry)
 {
-    if (entry.isEmpty()) {
+    const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
+    if (fp.filePath.isEmpty()) {
         setFileIterator(new BaseFileFilter::ListIterator(QStringList()));
     } else {
         // only pass the file name part to spotlight to allow searches like "somepath/*foo"
-        int lastSlash = entry.lastIndexOf(QLatin1Char('/'));
-        QString quoted = entry.mid(lastSlash + 1);
+        int lastSlash = fp.filePath.lastIndexOf(QLatin1Char('/'));
+        QString quoted = fp.filePath.mid(lastSlash + 1);
         quoted.replace(QLatin1Char('\\'), QLatin1String("\\\\"))
             .replace(QLatin1Char('\''), QLatin1String("\\\'"))
             .replace(QLatin1Char('\"'), QLatin1String("\\\""));
         setFileIterator(new SpotlightIterator(
                             QString::fromLatin1("kMDItemFSName like%1 \"*%2*\"")
-                            .arg(caseSensitivity(entry) == Qt::CaseInsensitive ? QLatin1String("[c]")
-                                                                               : QString())
+                            .arg(caseSensitivity(fp.filePath) == Qt::CaseInsensitive ? QLatin1String("[c]")
+                                                                                     : QString())
                             .arg(quoted)));
     }
     BaseFileFilter::prepareSearch(entry);
