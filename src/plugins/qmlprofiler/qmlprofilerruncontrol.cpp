@@ -83,8 +83,6 @@ QmlProfilerRunner::QmlProfilerRunner(RunControl *runControl)
 
 QmlProfilerRunner::~QmlProfilerRunner()
 {
-    if (runControl()->isRunning() && d->m_profilerState)
-        runControl()->initiateStop();
     delete d;
 }
 
