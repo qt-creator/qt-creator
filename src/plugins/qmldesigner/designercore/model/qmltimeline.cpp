@@ -104,14 +104,14 @@ bool QmlTimeline::hasTimeline(const ModelNode &node, const PropertyName &propert
 qreal QmlTimeline::startKeyframe() const
 {
     if (isValid())
-        return QmlObjectNode(modelNode()).instanceValue("startFrame").toReal();
+        return QmlObjectNode(modelNode()).modelValue("startFrame").toReal();
     return 0;
 }
 
 qreal QmlTimeline::endKeyframe() const
 {
     if (isValid())
-        return QmlObjectNode(modelNode()).instanceValue("endFrame").toReal();
+        return QmlObjectNode(modelNode()).modelValue("endFrame").toReal();
     return 0;
 }
 
