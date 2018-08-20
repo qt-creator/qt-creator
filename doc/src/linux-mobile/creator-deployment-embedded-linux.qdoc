@@ -31,9 +31,13 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-deploying-android.html
     \page creator-deployment-embedded-linux.html
+    \previouspage creator-deploying-android.html
+    \if defined(qtdesignstudio)
+    \nextpage creator-connecting-mobile.html
+    \else
     \nextpage creator-deployment-qnx.html
+    \endif
 
     \title Deploying Applications to Embedded Linux Devices
 

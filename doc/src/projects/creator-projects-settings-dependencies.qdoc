@@ -31,9 +31,13 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-code-style-settings.html
     \page creator-build-dependencies.html
+    \previouspage creator-code-style-settings.html
+    \if defined(qtdesignstudio)
+    \nextpage studio-designing.html
+    \else
     \nextpage creator-sharing-project-settings.html
+    \endif
 
     \title Specifying Dependencies
 

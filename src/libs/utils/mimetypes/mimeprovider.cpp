@@ -50,6 +50,7 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QtEndian>
+#include <QtGlobal>
 
 using namespace Utils;
 using namespace Utils::Internal;

@@ -31,9 +31,14 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-using-qt-quick-designer.html
     \page quick-components.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-designing.html
+    \nextpage qtquick-navigator.html
+    \else
+    \previouspage creator-using-qt-quick-designer.html
     \nextpage quick-buttons.html
+    \endif
 
     \title Creating Components
 

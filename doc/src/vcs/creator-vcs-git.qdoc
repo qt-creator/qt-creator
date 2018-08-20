@@ -31,9 +31,14 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-vcs-cvs.html
     \page creator-vcs-git.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-projects.html
+    \nextpage studio-designing.html
+    \else
+    \previouspage creator-vcs-cvs.html
     \nextpage creator-vcs-mercurial.html
+    \endif
 
     \title Using Git
 

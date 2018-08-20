@@ -31,9 +31,14 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-debugging-helpers.html
     \page creator-debugging-qml.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-debugging.html
+    \nextpage creator-qml-debugging-example.html
+    \else
+    \previouspage creator-debugging-helpers.html
     \nextpage creator-debugging-example.html
+    \endif
 
     \title Debugging Qt Quick Projects
 
@@ -152,6 +157,13 @@
         \li \l{Evaluating Expressions}{Evaluating expressions at run time}
 
     \endlist
+
+    \if defined(qtdesignstudio)
+    \include creator-debugger-common.qdocinc debugger-breakpoints
+    \include creator-debugger-common.qdocinc debugger-call-stack-trace
+    \include creator-debugger-common.qdocinc debugger-locals
+    \include creator-debugger-common.qdocinc debugger-expressions
+    \endif
 
     \section1 Executing JavaScript Expressions
 

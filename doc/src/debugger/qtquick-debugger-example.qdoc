@@ -31,9 +31,14 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-debugging-example.html
     \page creator-qml-debugging-example.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-debugging-qml.html
+    \nextpage creator-qml-performance-monitor.html
+    \else
+    \previouspage creator-debugging-example.html
     \nextpage creator-troubleshooting-debugging.html
+    \endif
 
     \title Debugging a Qt Quick Example Application
 

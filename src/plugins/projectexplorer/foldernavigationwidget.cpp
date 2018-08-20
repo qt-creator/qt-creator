@@ -378,10 +378,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     connect(m_listView->selectionModel(),
             &QItemSelectionModel::currentChanged,
             this,
-            [this](const QModelIndex &current, const QModelIndex &previous) {
-                setCrumblePath(m_sortProxyModel->mapToSource(current),
-                               m_sortProxyModel->mapToSource(previous));
-            },
+            &FolderNavigationWidget::setCrumblePath,
             Qt::QueuedConnection);
     connect(m_crumbLabel, &Utils::FileCrumbLabel::pathClicked, [this](const Utils::FileName &path) {
         const QModelIndex rootIndex = m_sortProxyModel->mapToSource(m_listView->rootIndex());
@@ -618,13 +615,15 @@ void FolderNavigationWidget::selectFile(const Utils::FileName &filePath)
         // Use magic timer for scrolling.
         m_listView->setCurrentIndex(fileIndex);
         QTimer::singleShot(200, this, [this, filePath] {
-            const QModelIndex fileIndex = m_fileSystemModel->index(filePath.toString());
+            const QModelIndex fileIndex = m_sortProxyModel->mapFromSource(
+                m_fileSystemModel->index(filePath.toString()));
             if (fileIndex == m_listView->rootIndex()) {
                 m_listView->horizontalScrollBar()->setValue(0);
                 m_listView->verticalScrollBar()->setValue(0);
             } else {
                 m_listView->scrollTo(fileIndex);
             }
+            setCrumblePath(fileIndex);
         });
     }
 }
@@ -700,11 +699,12 @@ void FolderNavigationWidget::createNewFolder(const QModelIndex &parent)
     m_listView->edit(index);
 }
 
-void FolderNavigationWidget::setCrumblePath(const QModelIndex &index, const QModelIndex &)
+void FolderNavigationWidget::setCrumblePath(const QModelIndex &index)
 {
+    const QModelIndex sourceIndex = m_sortProxyModel->mapToSource(index);
     const int width = m_crumbLabel->width();
     const int previousHeight = m_crumbLabel->immediateHeightForWidth(width);
-    m_crumbLabel->setPath(Utils::FileName::fromString(m_fileSystemModel->filePath(index)));
+    m_crumbLabel->setPath(Utils::FileName::fromString(m_fileSystemModel->filePath(sourceIndex)));
     const int currentHeight = m_crumbLabel->immediateHeightForWidth(width);
     const int diff = currentHeight - previousHeight;
     if (diff != 0 && m_crumbLabel->isVisible()) {

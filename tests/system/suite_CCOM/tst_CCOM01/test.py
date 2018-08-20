@@ -41,7 +41,7 @@ def main():
         return
     # open example project, supports only Qt 5
     targets = Targets.desktopTargetClasses()
-    targets.remove(Targets.DESKTOP_4_8_7_DEFAULT)
+    targets.discard(Targets.DESKTOP_4_8_7_DEFAULT)
     openQmakeProject(examplePath, targets)
     # build and wait until finished - on all build configurations
     availableConfigs = iterateBuildConfigs()

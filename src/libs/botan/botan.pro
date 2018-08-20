@@ -28,9 +28,10 @@ mingw {
     OTHER_FLAGS += --without-stack-protector
 }
 BOTAN_CXX_FLAGS =
-msvc: BOTAN_CXX_FLAGS += /wd4127 /wd4244 /wd4250 /wd4267 /wd4334 /wd4702 /wd4996
+msvc: BOTAN_CXX_FLAGS += /wd4127 /wd4244 /wd4250 /wd4267 /wd4334 /wd4702 /wd4996 \
+                         /D_ENABLE_EXTENDED_ALIGNED_STORAGE
 else: BOTAN_CXX_FLAGS += -Wno-unused-parameter
-macos: BOTAN_CXX_FLAGS += -mmacosx-version-min=$$QMAKE_MACOSX_DEPLOYMENT_TARGET -isysroot $$shell_quote($$QMAKE_MAC_SDK.macosx.Path)
+macos: BOTAN_CXX_FLAGS += -mmacosx-version-min=$$QMAKE_MACOSX_DEPLOYMENT_TARGET -isysroot $$shell_quote($$QMAKE_MAC_SDK_PATH)
 unix: BOTAN_CXX_FLAGS += -fPIC
 !isEmpty(BOTAN_CXX_FLAGS): OTHER_FLAGS += --cxxflags=$$shell_quote($$BOTAN_CXX_FLAGS)
 win32: OTHER_FLAGS += --link-method=hardlink
@@ -44,7 +45,7 @@ configure.output = $$BOTAN_BUILD_DIR/Makefile
 configure.variable_out = BOTAN_MAKEFILE
 configure.commands = cd $$BOTAN_BUILD_DIR_FOR_SHELL && \
                      python $$CONFIGURE_FILE_PATH_FOR_SHELL \
-                     --cc=$$BOTAN_CC_TYPE --cc-bin=$$QMAKE_CXX \
+                     --cc=$$BOTAN_CC_TYPE --cc-bin=$$shell_quote($$QMAKE_CXX) \
                      $$BOTAN_ARCH_SWITCH $$BOTAN_OS_SWITCH $$OTHER_FLAGS
 QMAKE_EXTRA_COMPILERS += configure
 

@@ -44,7 +44,7 @@ class Targets:
 
     @staticmethod
     def availableTargetClasses():
-        availableTargets = list(Targets.ALL_TARGETS)
+        availableTargets = set(Targets.ALL_TARGETS)
         if platform.system() in ('Windows', 'Microsoft'):
             availableTargets.remove(Targets.EMBEDDED_LINUX)
         elif platform.system() == 'Darwin':
@@ -54,8 +54,7 @@ class Targets:
     @staticmethod
     def desktopTargetClasses():
         desktopTargets = Targets.availableTargetClasses()
-        if Targets.EMBEDDED_LINUX in desktopTargets:
-            desktopTargets.remove(Targets.EMBEDDED_LINUX)
+        desktopTargets.discard(Targets.EMBEDDED_LINUX)
         return desktopTargets
 
     @staticmethod
@@ -64,10 +63,7 @@ class Targets:
 
     @staticmethod
     def getTargetsAsStrings(targets):
-        if not isinstance(targets, (tuple,list)):
-            test.fatal("Wrong usage... This function handles only tuples or lists.")
-            return None
-        return map(Targets.getStringForTarget, targets)
+        return set(map(Targets.getStringForTarget, targets))
 
     @staticmethod
     def getIdForTargetName(targetName):

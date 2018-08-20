@@ -44,7 +44,7 @@ Product {
             var cxxFlags = [];
             if (product.qbs.toolchain.contains("msvc")) {
                 cxxFlags.push("/wd4127", "/wd4244", "/wd4250", "/wd4267", "/wd4334", "/wd4702",
-                              "/wd4996");
+                              "/wd4996", "/D_ENABLE_EXTENDED_ALIGNED_STORAGE");
             }
             else if (product.qbs.toolchain.contains("gcc"))
                 cxxFlags.push("-Wno-unused-parameter");

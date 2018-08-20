@@ -25,9 +25,14 @@
 
 /*!
     \contentspage index.html
-    \previouspage quick-states.html
     \page qtquick-iso-icon-browser.html
+    \if defined(qtdesignstudio)
+    \previouspage qmldesigner-pathview-editor.html
+    \nextpage creator-quick-ui-forms.html
+    \else
+    \previouspage quick-states.html
     \nextpage quick-export-to-qml.html
+    \endif
 
     \title Browsing ISO 7000 Icons
 

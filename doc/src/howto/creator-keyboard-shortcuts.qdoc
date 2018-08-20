@@ -31,9 +31,14 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-cli.html
     \page creator-keyboard-shortcuts.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-advanced.html
+    \nextpage creator-coding.html
+    \else
+    \previouspage creator-cli.html
     \nextpage creator-editor-external.html
+    \endif
 
     \title Keyboard Shortcuts
 

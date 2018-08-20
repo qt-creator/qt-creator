@@ -32,9 +32,14 @@
 /*!
 
     \contentspage index.html
-    \previouspage quick-projects.html
     \page creator-quick-ui-forms.html
+    \if defined(qtdesignstudio)
+    \previouspage qtquick-iso-icon-browser.html
+    \nextpage studio-live-preview.html
+    \else
+    \previouspage quick-projects.html
     \nextpage creator-using-qt-quick-designer.html
+    \endif
 
     \title Qt Quick UI Forms
 

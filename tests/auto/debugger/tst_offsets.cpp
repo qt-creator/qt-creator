@@ -37,6 +37,8 @@
 #endif
 #endif
 
+#include <QtGlobal>
+
 #include <private/qdatetime_p.h>
 #include <private/qfile_p.h>
 #include <private/qfileinfo_p.h>
