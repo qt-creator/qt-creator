@@ -119,8 +119,8 @@ void ClangCodeModelPlugin::createCompilationDBButton()
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
     // generate compile_commands.json
     m_generateCompilationDBAction = new ::Utils::ParameterAction(
-                tr("Generate compilation database"),
-                tr("Generate compilation database for \"%1\""),
+                tr("Generate Compilation Database"),
+                tr("Generate Compilation Database for \"%1\""),
                 ::Utils::ParameterAction::AlwaysEnabled, this);
 
     ProjectExplorer::Project *startupProject = ProjectExplorer::SessionManager::startupProject();
