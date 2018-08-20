@@ -30,6 +30,7 @@
 #include <coreplugin/ioutputpane.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <utils/fancylineedit.h>
 #include <utils/outputformat.h>
 
 #include <QPointer>
@@ -145,6 +146,12 @@ private:
     void updateFontSettings();
     void storeZoomFactor();
     void updateBehaviorSettings();
+    void updateFilter();
+    void configureCurrentWindow();
+    void filterOutputButtonClicked();
+
+    void setCaseSensitive(bool caseSensitive);
+    void setRegularExpressions(bool regularExpressions);
 
     void loadSettings();
     void storeSettings() const;
@@ -163,9 +170,14 @@ private:
     QToolButton *m_zoomInButton;
     QToolButton *m_zoomOutButton;
     QToolButton * const m_settingsButton;
+    QAction *m_filterActionRegexp = nullptr;
+    QAction *m_filterActionCaseSensitive = nullptr;
+    Utils::FancyLineEdit *m_filterOutputLineEdit = nullptr;
     QWidget *m_formatterWidget;
     float m_zoom;
     AppOutputSettings m_settings;
+    bool m_filterRegexp = false;
+    bool m_filterCaseSensitive = false;
 };
 
 class AppOutputSettingsPage : public Core::IOptionsPage

@@ -187,6 +187,8 @@ void QtOutputFormatter::appendMessage(const QString &txt, const QTextCharFormat 
         appendMessagePart(output.text, output.format);
 
     d->cursor.endEditBlock();
+
+    emit contentChanged();
 }
 
 void QtOutputFormatter::appendLine(const LinkResult &lr, const QString &line, OutputFormat format)

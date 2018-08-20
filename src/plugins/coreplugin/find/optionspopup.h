@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,56 +25,35 @@
 
 #pragma once
 
-#include "utils_global.h"
-#include "outputformat.h"
+#include <coreplugin/id.h>
 
-#include <QObject>
-#include <QFont>
+#include <QMap>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QPlainTextEdit;
-class QTextCharFormat;
-class QTextCursor;
+class QAction;
+class QCheckBox;
 QT_END_NAMESPACE
 
-namespace Utils {
+namespace Core {
 
-class FormattedText;
-
-namespace Internal { class OutputFormatterPrivate; }
-
-class QTCREATOR_UTILS_EXPORT OutputFormatter : public QObject
+class CORE_EXPORT OptionsPopup : public QWidget
 {
     Q_OBJECT
 
 public:
-    OutputFormatter();
-    ~OutputFormatter() override;
-
-    QPlainTextEdit *plainTextEdit() const;
-    virtual void setPlainTextEdit(QPlainTextEdit *plainText);
-
-    void flush();
-
-    virtual void appendMessage(const QString &text, OutputFormat format);
-    virtual void handleLink(const QString &href);
-    virtual QList<QWidget *> toolbarWidgets() const { return {}; }
-    virtual void clear() {}
-    void setBoldFontEnabled(bool enabled);
-
-signals:
-    void contentChanged();
+    OptionsPopup(QWidget *parent, const QVector<Id> &commands);
 
 protected:
-    void initFormats();
-    virtual void clearLastLine();
-    QTextCharFormat charFormat(OutputFormat format) const;
-    QList<FormattedText> parseAnsi(const QString &text, const QTextCharFormat &format);
-    void append(const QString &text, const QTextCharFormat &format);
+    bool event(QEvent *ev) override;
+    bool eventFilter(QObject *obj, QEvent *ev) override;
 
 private:
-    virtual void appendMessage(const QString &text, const QTextCharFormat &format);
-    Internal::OutputFormatterPrivate *d;
+    void actionChanged();
+
+    QCheckBox *createCheckboxForCommand(Id id);
+
+    QMap<QAction *, QCheckBox *> m_checkboxMap;
 };
 
-} // namespace Utils
+} // namespace Core

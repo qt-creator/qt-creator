@@ -8,6 +8,7 @@ HEADERS += \
     $$PWD/ifindfilter.h \
     $$PWD/ifindsupport.h \
     $$PWD/itemviewfind.h \
+    $$PWD/optionspopup.h \
     $$PWD/searchresultcolor.h \
     $$PWD/searchresulttreeitemdelegate.h \
     $$PWD/searchresulttreeitemroles.h \
@@ -29,6 +30,7 @@ SOURCES += \
     $$PWD/ifindfilter.cpp \
     $$PWD/ifindsupport.cpp \
     $$PWD/itemviewfind.cpp \
+    $$PWD/optionspopup.cpp \
     $$PWD/searchresulttreeitemdelegate.cpp \
     $$PWD/searchresulttreeitems.cpp \
     $$PWD/searchresulttreemodel.cpp \

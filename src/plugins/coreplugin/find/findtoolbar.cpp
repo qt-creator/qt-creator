@@ -26,6 +26,7 @@
 #include "findtoolbar.h"
 #include "ifindfilter.h"
 #include "findplugin.h"
+#include "optionspopup.h"
 
 #include <coreplugin/coreicons.h>
 #include <coreplugin/coreplugin.h>
@@ -659,7 +660,8 @@ void FindToolBar::findFlagsChanged()
 
 void FindToolBar::findEditButtonClicked()
 {
-    auto popup = new OptionsPopup(m_ui.findEdit);
+    auto popup = new OptionsPopup(m_ui.findEdit, {Constants::CASE_SENSITIVE, Constants::WHOLE_WORDS,
+                                                  Constants::REGULAR_EXPRESSIONS, Constants::PRESERVE_CASE});
     popup->show();
 }
 
@@ -1012,72 +1014,6 @@ void FindToolBar::updateReplaceEnabled()
     m_replaceAllAction->setEnabled(globalsEnabled);
     m_replaceNextAction->setEnabled(globalsEnabled);
     m_replacePreviousAction->setEnabled(globalsEnabled);
-}
-
-OptionsPopup::OptionsPopup(QWidget *parent)
-    : QWidget(parent, Qt::Popup)
-{
-    setAttribute(Qt::WA_DeleteOnClose);
-    auto layout = new QVBoxLayout(this);
-    layout->setContentsMargins(2, 2, 2, 2);
-    layout->setSpacing(2);
-    setLayout(layout);
-    QCheckBox *firstCheckBox = createCheckboxForCommand(Constants::CASE_SENSITIVE);
-    layout->addWidget(firstCheckBox);
-    layout->addWidget(createCheckboxForCommand(Constants::WHOLE_WORDS));
-    layout->addWidget(createCheckboxForCommand(Constants::REGULAR_EXPRESSIONS));
-    layout->addWidget(createCheckboxForCommand(Constants::PRESERVE_CASE));
-    firstCheckBox->setFocus();
-    move(parent->mapToGlobal(QPoint(0, -sizeHint().height())));
-}
-
-bool OptionsPopup::event(QEvent *ev)
-{
-    if (ev->type() == QEvent::ShortcutOverride) {
-        auto ke = static_cast<QKeyEvent *>(ev);
-        if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
-            ev->accept();
-            return true;
-        }
-    }
-    return QWidget::event(ev);
-}
-
-bool OptionsPopup::eventFilter(QObject *obj, QEvent *ev)
-{
-    auto checkbox = qobject_cast<QCheckBox *>(obj);
-    if (ev->type() == QEvent::KeyPress && checkbox) {
-        auto ke = static_cast<QKeyEvent *>(ev);
-        if (!ke->modifiers() && (ke->key() == Qt::Key_Enter || ke->key() == Qt::Key_Return)) {
-            checkbox->click();
-            ev->accept();
-            return true;
-        }
-    }
-    return QWidget::eventFilter(obj, ev);
-}
-
-void OptionsPopup::actionChanged()
-{
-    auto action = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(action, return);
-    QCheckBox *checkbox = m_checkboxMap.value(action);
-    QTC_ASSERT(checkbox, return);
-    checkbox->setEnabled(action->isEnabled());
-}
-
-QCheckBox *OptionsPopup::createCheckboxForCommand(Id id)
-{
-    QAction *action = ActionManager::command(id)->action();
-    QCheckBox *checkbox = new QCheckBox(action->text());
-    checkbox->setToolTip(action->toolTip());
-    checkbox->setChecked(action->isChecked());
-    checkbox->setEnabled(action->isEnabled());
-    checkbox->installEventFilter(this); // enter key handling
-    QObject::connect(checkbox, &QCheckBox::clicked, action, &QAction::setChecked);
-    QObject::connect(action, &QAction::changed, this, &OptionsPopup::actionChanged);
-    m_checkboxMap.insert(action, checkbox);
-    return checkbox;
 }
 
 } // namespace Internal
