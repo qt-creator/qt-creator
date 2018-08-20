@@ -27,7 +27,7 @@ mingw {
     BOTAN_OS_SWITCH = "--os=mingw"
     OTHER_FLAGS += --without-stack-protector
 }
-BOTAN_CXX_FLAGS =
+BOTAN_CXX_FLAGS = $$QMAKE_CXXFLAGS
 msvc: BOTAN_CXX_FLAGS += /wd4127 /wd4244 /wd4250 /wd4267 /wd4334 /wd4702 /wd4996 \
                          /D_ENABLE_EXTENDED_ALIGNED_STORAGE
 else: BOTAN_CXX_FLAGS += -Wno-unused-parameter
