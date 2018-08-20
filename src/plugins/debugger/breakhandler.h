@@ -89,7 +89,7 @@ public:
     bool isEnabled() const { return m_params.enabled; }
     void setEnabled(bool enabled);
 
-    const BreakpointParameters &parameters() const { return m_params; }
+    const BreakpointParameters &requestedParameters() const { return m_params; }
 
 private:
     friend class BreakHandler;
@@ -326,6 +326,8 @@ private:
 
     bool contextMenuEvent(const Utils::ItemViewEvent &ev);
     void gotoLocation(const GlobalBreakpoint &gbp) const;
+    void editBreakpoint(const GlobalBreakpoint &gbp, QWidget *parent);
+    void editBreakpoints(const GlobalBreakpoints &gbps, QWidget *parent);
 };
 
 } // namespace Internal

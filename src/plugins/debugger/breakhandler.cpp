@@ -1458,7 +1458,7 @@ bool BreakHandler::tryClaimBreakpoint(const GlobalBreakpoint &gbp)
     if (Utils::anyOf(bps, [gbp](const Breakpoint &bp) { return bp->globalBreakpoint() == gbp; }))
         return false;
 
-    if (!m_engine->acceptsBreakpoint(gbp->parameters())) {
+    if (!m_engine->acceptsBreakpoint(gbp->requestedParameters())) {
         m_engine->showMessage(QString("BREAKPOINT %1 IS NOT ACCEPTED BY ENGINE %2")
                     .arg(gbp->displayName()).arg(objectName()));
         return false;
@@ -1800,7 +1800,7 @@ BreakpointItem::BreakpointItem(const GlobalBreakpoint &gbp)
     : m_globalBreakpoint(gbp)
 {
     if (gbp)
-        m_requestedParameters = gbp->parameters();
+        m_requestedParameters = gbp->requestedParameters();
 }
 
 BreakpointItem::~BreakpointItem()
@@ -2554,9 +2554,9 @@ bool BreakpointManager::setData(const QModelIndex &idx, const QVariant &value, i
 
         if (ev.as<QMouseEvent>(QEvent::MouseButtonDblClick)) {
             if (GlobalBreakpoint gbp = findBreakpointByIndex(idx)) {
-//                if (idx.column() >= BreakpointAddressColumn)
-//                    editBreakpoints({gbp}, ev.view());
-//                else
+                if (idx.column() >= BreakpointAddressColumn)
+                    editBreakpoints({gbp}, ev.view());
+                else
                     gotoLocation(gbp);
             } else {
                 BreakpointManager::executeAddBreakpointDialog();
@@ -2575,9 +2575,6 @@ bool BreakpointManager::contextMenuEvent(const ItemViewEvent &ev)
     const GlobalBreakpoints selectedBreakpoints = findBreakpointsByIndex(selectedIndices);
     const bool breakpointsEnabled = selectedBreakpoints.isEmpty() || selectedBreakpoints.at(0)->isEnabled();
 
-//    QList<LocationItem *> selectedLocations;
-//    const bool locationsEnabled = selectedLocations.isEmpty() || selectedLocations.at(0)->params.enabled;
-
     auto menu = new QMenu;
 
     addAction(menu, tr("Add Breakpoint..."), true, &BreakpointManager::executeAddBreakpointDialog);
@@ -2589,9 +2586,9 @@ bool BreakpointManager::contextMenuEvent(const ItemViewEvent &ev)
                     gbp->deleteBreakpoint();
              });
 
-//    addAction(menu, tr("Edit Selected Breakpoints..."),
-//              !selectedBreakpoints.isEmpty(),
-//              [this, selectedBreakpoints, ev] { editBreakpoints(selectedBreakpoints, ev.view()); });
+    addAction(menu, tr("Edit Selected Breakpoints..."),
+              !selectedBreakpoints.isEmpty(),
+              [this, selectedBreakpoints, ev] { editBreakpoints(selectedBreakpoints, ev.view()); });
 
     addAction(menu,
               selectedBreakpoints.size() > 1
@@ -2664,6 +2661,59 @@ void BreakpointManager::executeDeleteAllBreakpointsDialog()
         gbp->deleteBreakpoint();
 }
 
+void BreakpointManager::editBreakpoint(const GlobalBreakpoint &gbp, QWidget *parent)
+{
+    QTC_ASSERT(gbp, return);
+    BreakpointParts parts = NoParts;
+
+    BreakpointParameters params = gbp->requestedParameters();
+    BreakpointDialog dialog(~0, parent);
+    if (!dialog.showDialog(&params, &parts))
+        return;
+
+    gbp->destroyMarker();
+    gbp->deleteBreakpoint();
+    BreakpointManager::createBreakpoint(params);
+}
+
+void BreakpointManager::editBreakpoints(const GlobalBreakpoints &gbps, QWidget *parent)
+{
+    QTC_ASSERT(!gbps.isEmpty(), return);
+
+    GlobalBreakpoint gbp = gbps.at(0);
+
+    if (gbps.size() == 1) {
+        editBreakpoint(gbp, parent);
+        return;
+    }
+
+    // This allows to change properties of multiple breakpoints at a time.
+    QTC_ASSERT(gbp, return);
+    BreakpointParameters params = gbp->requestedParameters();
+
+    MultiBreakPointsDialog dialog(~0, parent);
+    dialog.setCondition(params.condition);
+    dialog.setIgnoreCount(params.ignoreCount);
+    dialog.setThreadSpec(params.threadSpec);
+
+    if (dialog.exec() == QDialog::Rejected)
+        return;
+
+    const QString newCondition = dialog.condition();
+    const int newIgnoreCount = dialog.ignoreCount();
+    const int newThreadSpec = dialog.threadSpec();
+
+    for (GlobalBreakpoint gbp : gbps) {
+        QTC_ASSERT(gbp, continue);
+        BreakpointParameters newParams = gbp->requestedParameters();
+        newParams.condition = newCondition;
+        newParams.ignoreCount = newIgnoreCount;
+        newParams.threadSpec = newThreadSpec;
+        gbp->destroyMarker();
+        gbp->deleteBreakpoint();
+        BreakpointManager::createBreakpoint(newParams);
+    }
+}
 void BreakpointManager::saveSessionData()
 {
     QList<QVariant> list;
