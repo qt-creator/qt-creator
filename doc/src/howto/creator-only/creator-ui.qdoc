@@ -376,6 +376,9 @@
     \uicontrol {Window > Output Panes}. To display the \uicontrol {To-Do Entries} pane,
     enable the Todo plugin.
 
+    For more information about the \uicontrol {Debugger Console} view, see
+    \l{Executing JavaScript Expressions}.
+
     \section2 Issues
 
     The \uicontrol{Issues} pane provides lists of following types of issues:
@@ -495,17 +498,6 @@
     \uicontrol {Open Compile Output pane when building} check box.
     In the \uicontrol {Limit build output to} field, you can specify the maximum
     amount of build output lines to display in the pane.
-
-    \section2 Debugger Console
-
-    In the \uicontrol {Debugger Console}, you can type JavaScript expressions and use them to get
-    information about the state of your application during debugging. You can change property
-    values temporarily, without editing the source, and view the results in the running
-    application.
-
-    \image qml-script-console.png "Debugger Console"
-
-    You can change the property values permanently in the code editor.
 
     \section2 To-Do Entries
 

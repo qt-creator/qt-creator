@@ -42,20 +42,25 @@
 
     \title Debugging Qt Quick Projects
 
+    \if defined(qtcreator)
     \note You need Qt 5.0 or later to debug Qt Quick projects.
+    \endif
 
     For an example of how to debug Qt Quick Projects, see
     \l{Debugging a Qt Quick Example Application}.
 
     \section1 Setting Up QML Debugging
 
+    \if defined(qtcreator)
     The process of setting up debugging for Qt Quick projects depends on the
     \l{Creating Qt Quick Projects}{type of the project}: Qt Quick UI or Qt Quick
     Application, and the Qt version used.
+    \endif
 
     To debug Qt Quick UI projects, select the \uicontrol {Enable QML} check box in the
     \uicontrol {Debugger Settings} in \uicontrol Projects mode \uicontrol {Run Settings}.
 
+    \if defined(qtcreator)
     To debug Qt Quick Applications:
 
         \list 1
@@ -90,6 +95,7 @@
     select the \uicontrol {Enable C++} and \uicontrol {Enable QML} checkboxes for both
     languages in the \uicontrol {Debugger Settings} section in the project
     \uicontrol{Run Settings}.
+    \endif
 
     \image qtquick-debugging-settings.png
 
@@ -115,12 +121,13 @@
 
     \list 1
 
+        \if defined(qtcreator)
         \li Build the application by using the appropriate configuration
             parameters (if you build the application with \QC, it automatically
             uses the correct configuration):
 
             \c {CONFIG+=qml_debug}
-
+        \endif
 
         \li Start the application with the following arguments:
 
@@ -154,7 +161,7 @@
         \li \l{Local Variables and Function Parameters}
               {Viewing local variables and function parameters}
 
-        \li \l{Evaluating Expressions}{Evaluating expressions at run time}
+        \li \l{Inspecting Items}{Evaluating expressions at runtime}
 
     \endlist
 
@@ -162,25 +169,7 @@
     \include creator-debugger-common.qdocinc debugger-breakpoints
     \include creator-debugger-common.qdocinc debugger-call-stack-trace
     \include creator-debugger-common.qdocinc debugger-locals
-    \include creator-debugger-common.qdocinc debugger-expressions
     \endif
-
-    \section1 Executing JavaScript Expressions
-
-    When the application is interrupted by a breakpoint, you can use the
-    \uicontrol {Debugger Console} to execute JavaScript expressions in the current
-    context. To open it, choose \uicontrol Window > \uicontrol {Output Panes}
-    > \uicontrol {Debugger Console}.
-
-    \image qml-script-console.png "Debugger Console"
-
-    For more information about using the console, see \l{Debugger Console}.
-
-    \section1 Applying QML Changes at Runtime
-
-    When you change property values in the \uicontrol {Debugger Console} or in the
-    \uicontrol {Locals} or \uicontrol {Expression} view, they are immediately updated
-    in the running application, but not in the source code.
 
     \section1 Inspecting Items
 
@@ -219,9 +208,11 @@
     application to jump to their definitions in the code. The properties of the
     selected item are displayed in the \uicontrol {Locals} view.
 
+    \if defined(qtcreator)
     The \uicontrol Select tool will be enabled either if your application is
     using Qt 5.7 or later, or if your application is using an earlier version
     of Qt and is based on the \c QQuickView class.
+    \endif
 
     You can also view the item hierarchy in the running application:
 
@@ -233,4 +224,22 @@
     To move the application running in \QQV to the front, select
     \uicontrol Debug > \uicontrol {Show Application on Top}.
 
+    \section1 Executing JavaScript Expressions
+
+    When the application is interrupted by a breakpoint, you can use the
+    \uicontrol {Debugger Console} to execute JavaScript expressions in the
+    current context. To open it, choose \uicontrol Window >
+    \uicontrol {Output Panes} > \uicontrol {Debugger Console}.
+
+    \image qml-script-console.png "Debugger Console"
+
+    You can change property values temporarily, without editing the source, and
+    view the results in the running application. You can change the property
+    values permanently in the \uicontrol Properties view in the Design mode.
+
+    \section1 Applying QML Changes at Runtime
+
+    When you change property values in the \uicontrol {Debugger Console} or in
+    the \uicontrol Locals or \uicontrol Expression view, they are immediately
+    updated in the running application, but not in the source code.
 */
