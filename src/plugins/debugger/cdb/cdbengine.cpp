@@ -226,7 +226,7 @@ void CdbEngine::init()
     m_stopMode = NoStopRequested;
     m_nextCommandToken  = 0;
     m_currentBuiltinResponseToken = -1;
-    m_operateByInstruction = action(OperateByInstruction)->isChecked();
+    m_operateByInstruction = true; // Default CDB setting.
     m_hasDebuggee = false;
     m_sourceStepInto = false;
     m_watchPointX = m_watchPointY = 0;
