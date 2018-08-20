@@ -188,6 +188,22 @@ ProjectImporter *QbsProject::projectImporter() const
     return m_importer;
 }
 
+QVariant QbsProject::additionalData(Id id, const Target *target) const
+{
+    if (id == "QmlDesignerImportPath") {
+        const qbs::Project qbsProject = m_qbsProjects.value(const_cast<Target *>(target));
+        const qbs::ProjectData projectData = qbsProject.isValid()
+                ? qbsProject.projectData() : qbs::ProjectData();
+        QStringList designerImportPaths;
+        foreach (const qbs::ProductData &product, projectData.allProducts()) {
+            designerImportPaths << product.properties()
+                                   .value("qmlDesignerImportPaths").toStringList();
+        }
+        return designerImportPaths;
+    }
+    return Project::additionalData(id, target);
+}
+
 QStringList QbsProject::filesGeneratedFrom(const QString &sourceFile) const
 {
     QStringList generated;

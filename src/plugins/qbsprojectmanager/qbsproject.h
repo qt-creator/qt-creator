@@ -135,6 +135,7 @@ private:
 
     void projectLoaded() override;
     ProjectExplorer::ProjectImporter *projectImporter() const override;
+    QVariant additionalData(Core::Id id, const ProjectExplorer::Target *target) const final;
 
     static bool ensureWriteableQbsFile(const QString &file);
 

@@ -175,7 +175,8 @@
 
     If you want to use a different module in the Design mode than in your actual
     application for example to mockup C++ items, then you can use \c{QML_DESIGNER_IMPORT_PATH}
-    in the \c{.pro} file.
+    in the \c{.pro} file (for qmake projects), or declare and set the property
+    qmlDesignerImportPaths in your product (for Qbs projects).
     Modules in the import paths defined in \c{QML_DESIGNER_IMPORT_PATH} will be
     used only in the Design mode.
     For an example, see \l {Qt Quick Controls 2 - Contact List}.
