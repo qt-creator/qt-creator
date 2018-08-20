@@ -145,7 +145,7 @@ void ClangCompletionContextAnalyzer::handleCommaInFunctionCall()
 
 void ClangCompletionContextAnalyzer::handleFunctionCall(int afterOperatorPosition)
 {
-    if (m_completionOperator == T_LPAREN) {
+    if (m_completionOperator == T_LPAREN || m_completionOperator == T_LBRACE) {
         ExpressionUnderCursor expressionUnderCursor(m_languageFeatures);
         QTextCursor textCursor(m_interface->textDocument());
         textCursor.setPosition(m_positionEndOfExpression);

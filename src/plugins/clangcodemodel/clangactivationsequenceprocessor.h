@@ -49,6 +49,7 @@ private:
     void processDot();
     void processComma();
     void processLeftParen();
+    void processLeftBrace();
     void processColonColon();
     void processArrow();
     void processDotStar();

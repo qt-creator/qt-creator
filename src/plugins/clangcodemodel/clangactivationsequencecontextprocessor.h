@@ -67,7 +67,7 @@ protected:
     void processComment();
     void processInclude();
     void processSlashOutsideOfAString();
-    void processLeftParen();
+    void processLeftParenOrBrace();
     void processPreprocessorInclude();
     void resetPositionsForEOFCompletionKind();
 

@@ -83,7 +83,7 @@ void ActivationSequenceContextProcessor::process()
         processComment();
         processInclude();
         processSlashOutsideOfAString();
-        processLeftParen();
+        processLeftParenOrBrace();
         processPreprocessorInclude();
     }
 
@@ -163,9 +163,9 @@ void ActivationSequenceContextProcessor::processSlashOutsideOfAString()
         m_completionKind = CPlusPlus::T_EOF_SYMBOL;
 }
 
-void ActivationSequenceContextProcessor::processLeftParen()
+void ActivationSequenceContextProcessor::processLeftParenOrBrace()
 {
-    if (m_completionKind == CPlusPlus::T_LPAREN) {
+    if (m_completionKind == CPlusPlus::T_LPAREN || m_completionKind == CPlusPlus::T_LBRACE) {
         if (m_tokenIndex > 0) {
             // look at the token at the left of T_LPAREN
             const CPlusPlus::Token &previousToken = m_tokens.at(m_tokenIndex - 1);

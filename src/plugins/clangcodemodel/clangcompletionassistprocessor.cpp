@@ -188,7 +188,8 @@ IAssistProposal *ClangCompletionAssistProcessor::perform(const AssistInterface *
 static CodeCompletions filterFunctionSignatures(const CodeCompletions &completions)
 {
     return ::Utils::filtered(completions, [](const CodeCompletion &completion) {
-        return completion.completionKind == CodeCompletion::FunctionOverloadCompletionKind;
+        return completion.completionKind == CodeCompletion::FunctionOverloadCompletionKind
+                || completion.completionKind == CodeCompletion::ConstructorCompletionKind;
     });
 }
 
@@ -197,19 +198,24 @@ void ClangCompletionAssistProcessor::handleAvailableCompletions(
 {
     QTC_CHECK(m_completions.isEmpty());
 
-    if (m_sentRequestType == NormalCompletion) {
-        m_completions = toAssistProposalItems(completions, m_interface.data());
-
-        if (m_addSnippets && !m_completions.isEmpty())
-            addSnippets();
-
-        setAsyncProposalAvailable(createProposal());
-    } else {
+    if (m_sentRequestType == FunctionHintCompletion){
         const CodeCompletions functionSignatures = filterFunctionSignatures(completions);
-        if (!functionSignatures.isEmpty())
+        if (!functionSignatures.isEmpty()) {
             setAsyncProposalAvailable(createFunctionHintProposal(functionSignatures));
-        // else: Not a function call, but e.g. a function declaration like "void f("
+            return;
+        }
+        // else: Proceed with a normal completion in case:
+        // 1) it was not a function call, but e.g. a function declaration like "void f("
+        // 2) '{' meant not a constructor call.
     }
+
+    //m_sentRequestType == NormalCompletion or function signatures were empty
+    m_completions = toAssistProposalItems(completions, m_interface.data());
+
+    if (m_addSnippets && !m_completions.isEmpty())
+        addSnippets();
+
+    setAsyncProposalAvailable(createProposal());
 }
 
 const TextEditorWidget *ClangCompletionAssistProcessor::textEditorWidget() const

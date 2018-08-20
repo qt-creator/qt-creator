@@ -269,6 +269,27 @@ TEST_F(ClangCompletionContextAnalyzer, WhitespaceAfterFunctionName)
     ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, 0, 0, positionInText));
 }
 
+TEST_F(ClangCompletionContextAnalyzer, ConstructorCallWithBraceInitializer)
+{
+    auto analyzer = runAnalyzer("f{@");
+
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, 0, 0, positionInText));
+}
+
+TEST_F(ClangCompletionContextAnalyzer, ArgumentTwoWithSpaceAtConstructorCallWithBraceInitializer)
+{
+    auto analyzer = runAnalyzer("f{1, @");
+
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, -3, -3, positionInText));
+}
+
+TEST_F(ClangCompletionContextAnalyzer, WhitespaceBeforeConstructorCallWithBraceInitializer)
+{
+    auto analyzer = runAnalyzer("foo {@");
+
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, 0, 0, positionInText));
+}
+
 TEST_F(ClangCompletionContextAnalyzer, AfterOpeningParenthesis)
 {
     auto analyzer = runAnalyzer("(@");

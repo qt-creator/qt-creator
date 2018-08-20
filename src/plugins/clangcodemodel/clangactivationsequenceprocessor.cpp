@@ -90,6 +90,7 @@ void ActivationSequenceProcessor::process()
     processDot();
     processComma();
     processLeftParen();
+    processLeftBrace();
     processColonColon();
     processArrow();
     processDotStar();
@@ -121,6 +122,14 @@ void ActivationSequenceProcessor::processLeftParen()
 {
     if (m_char3 == QLatin1Char('(') && m_wantFunctionCall) {
         m_completionKind = CPlusPlus::T_LPAREN;
+        m_offset = 1;
+    }
+}
+
+void ActivationSequenceProcessor::processLeftBrace()
+{
+    if (m_char3 == QLatin1Char('{') && m_wantFunctionCall) {
+        m_completionKind = CPlusPlus::T_LBRACE;
         m_offset = 1;
     }
 }
