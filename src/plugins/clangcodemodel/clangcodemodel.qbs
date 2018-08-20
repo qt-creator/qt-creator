@@ -126,7 +126,7 @@ QtcPlugin {
         fileTags: []
         files: [
             "README",
-            project.ide_source_tree + "/doc/src/editors/creator-clang-codemodel.qdoc",
+            project.ide_source_tree + "/doc/src/editors/creator-only/creator-clang-codemodel.qdoc",
         ]
     }
 }

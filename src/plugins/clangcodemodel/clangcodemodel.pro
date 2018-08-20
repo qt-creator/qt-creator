@@ -85,7 +85,7 @@ FORMS += clangprojectsettingswidget.ui
 
 DISTFILES += \
     README \
-    $${IDE_SOURCE_TREE}/doc/src/editors/creator-clang-codemodel.qdoc
+    $${IDE_SOURCE_TREE}/doc/src/editors/creator-only/creator-clang-codemodel.qdoc
 
 equals(TEST, 1) {
     HEADERS += \

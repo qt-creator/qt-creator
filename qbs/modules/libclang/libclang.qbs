@@ -61,7 +61,8 @@ Module {
         if (!clangProbe.found) {
             console.warn("No usable libclang version found."
                          + " Set LLVM_INSTALL_DIR to build the Clang Code Model."
-                         + " For details, see doc/src/editors/creator-clang-codemodel.qdoc.");
+                         + " For details, see"
+                         + " doc/src/editors/creator-only/creator-clang-codemodel.qdoc.");
             throw new Error();
         }
     }

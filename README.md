@@ -138,7 +138,7 @@ For detailed information on the supported compilers, see
          the location of libclang.dll/.so that you want to be used.
          See more info in the section "Prebuilt LLVM/Clang packages".
        * When you launch Qt Creator, activate the Clang Code Model plugin as
-         described in doc/src/editors/creator-clang-codemodel.qdoc.
+         described in doc/src/editors/creator-only/creator-clang-codemodel.qdoc.
 
    11. You are now ready to configure and build Qt and Qt Creator.
        Please see <https://wiki.qt.io/Building_Qt_5_from_Git> for
