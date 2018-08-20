@@ -310,7 +310,7 @@ class BreakpointDialog : public QDialog
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::BreakHandler)
 
 public:
-    explicit BreakpointDialog(const DebuggerEngine *engine, QWidget *parent = nullptr);
+    explicit BreakpointDialog(unsigned int enabledParts, QWidget *parent = nullptr);
     bool showDialog(BreakpointParameters *data, BreakpointParts *parts);
 
     void setParameters(const BreakpointParameters &data);
@@ -367,8 +367,8 @@ private:
     QDialogButtonBox *m_buttonBox;
 };
 
-BreakpointDialog::BreakpointDialog(const DebuggerEngine *engine, QWidget *parent)
-    : QDialog(parent), m_enabledParts(~0), m_previousType(UnknownBreakpointType),
+BreakpointDialog::BreakpointDialog(unsigned int enabledParts, QWidget *parent)
+    : QDialog(parent), m_enabledParts(enabledParts), m_previousType(UnknownBreakpointType),
       m_firstTypeChange(true)
 {
     setWindowTitle(tr("Edit Breakpoint Properties"));
@@ -496,15 +496,6 @@ BreakpointDialog::BreakpointDialog(const DebuggerEngine *engine, QWidget *parent
 
     m_buttonBox = new QDialogButtonBox(this);
     m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
-
-    if (engine) {
-        if (!engine->hasCapability(BreakConditionCapability))
-            m_enabledParts &= ~ConditionPart;
-        if (!engine->hasCapability(BreakModuleCapability))
-            m_enabledParts &= ~ModulePart;
-        if (!engine->hasCapability(TracePointCapability))
-            m_enabledParts &= ~TracePointPart;
-    }
 
     auto basicLayout = new QFormLayout(groupBoxBasic);
     basicLayout->addRow(m_labelType, m_comboBoxType);
@@ -854,7 +845,7 @@ class MultiBreakPointsDialog : public QDialog
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::BreakHandler)
 
 public:
-    MultiBreakPointsDialog(bool canUseConditions, QWidget *parent);
+    MultiBreakPointsDialog(unsigned int enabledParts, QWidget *parent);
 
     QString condition() const { return m_lineEditCondition->text(); }
     int ignoreCount() const { return m_spinBoxIgnoreCount->value(); }
@@ -873,7 +864,7 @@ private:
     QDialogButtonBox *m_buttonBox;
 };
 
-MultiBreakPointsDialog::MultiBreakPointsDialog(bool canUseConditions, QWidget *parent) :
+MultiBreakPointsDialog::MultiBreakPointsDialog(unsigned int enabledParts, QWidget *parent) :
     QDialog(parent)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -889,7 +880,7 @@ MultiBreakPointsDialog::MultiBreakPointsDialog(bool canUseConditions, QWidget *p
     m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
     auto formLayout = new QFormLayout;
-    if (canUseConditions)
+    if (enabledParts & ConditionPart)
         formLayout->addRow(tr("&Condition:"), m_lineEditCondition);
     formLayout->addRow(tr("&Ignore count:"), m_spinBoxIgnoreCount);
     formLayout->addRow(tr("&Thread specification:"), m_lineEditThreadSpec);
@@ -1730,13 +1721,25 @@ void BreakHandler::removeBreakpoint(const Breakpoint &bp)
     }
 }
 
+static unsigned int engineBreakpointCapabilities(DebuggerEngine *engine)
+{
+    unsigned int enabledParts = ~0;
+    if (!engine->hasCapability(BreakConditionCapability))
+        enabledParts &= ~ConditionPart;
+    if (!engine->hasCapability(BreakModuleCapability))
+        enabledParts &= ~ModulePart;
+    if (!engine->hasCapability(TracePointCapability))
+        enabledParts &= ~TracePointPart;
+    return enabledParts;
+}
+
 void BreakHandler::editBreakpoint(const Breakpoint &bp, QWidget *parent)
 {
     QTC_ASSERT(bp, return);
     BreakpointParameters params = bp->requestedParameters();
     BreakpointParts parts = NoParts;
 
-    BreakpointDialog dialog(m_engine, parent);
+    BreakpointDialog dialog(engineBreakpointCapabilities(m_engine), parent);
     if (!dialog.showDialog(&params, &parts))
         return;
 
@@ -1762,12 +1765,9 @@ void BreakHandler::editBreakpoints(const Breakpoints &bps, QWidget *parent)
     }
 
     // This allows to change properties of multiple breakpoints at a time.
-    if (!bp)
-        return;
+    QTC_ASSERT(bp, return);
 
-    const bool canUseConditions = m_engine->hasCapability(BreakConditionCapability);
-
-    MultiBreakPointsDialog dialog(canUseConditions, parent);
+    MultiBreakPointsDialog dialog(engineBreakpointCapabilities(m_engine), parent);
     dialog.setCondition(bp->condition());
     dialog.setIgnoreCount(bp->ignoreCount());
     dialog.setThreadSpec(bp->threadSpec());
@@ -2501,7 +2501,7 @@ void BreakpointManager::executeAddBreakpointDialog()
 {
     BreakpointParameters data(BreakpointByFileAndLine);
     BreakpointParts parts = NoParts;
-    BreakpointDialog dialog(nullptr, ICore::dialogParent());
+    BreakpointDialog dialog(~0, ICore::dialogParent());
     dialog.setWindowTitle(tr("Add Breakpoint"));
     if (dialog.showDialog(&data, &parts))
         BreakpointManager::createBreakpoint(data);
