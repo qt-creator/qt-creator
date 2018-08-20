@@ -673,6 +673,11 @@ void Target::setNamedSettings(const QString &name, const QVariant &value)
         d->m_pluginSettings.insert(name, value);
 }
 
+QVariant Target::additionalData(Core::Id id) const
+{
+    return project()->additionalData(id, this);
+}
+
 void Target::updateDeviceState()
 {
     IDevice::ConstPtr current = DeviceKitInformation::device(kit());

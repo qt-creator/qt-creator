@@ -166,6 +166,8 @@ public:
     void setup(const QList<const BuildInfo *> &infoList);
     Utils::MacroExpander *macroExpander() const;
 
+    virtual QVariant additionalData(Core::Id id, const Target *target) const;
+
     bool isParsing() const;
     bool hasParsingData() const;
 

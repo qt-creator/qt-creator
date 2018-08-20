@@ -1378,6 +1378,13 @@ QString QmakeProject::mapProFilePathToTarget(const FileName &proFilePath)
     return pro ? pro->targetInformation().target : QString();
 }
 
+QVariant QmakeProject::additionalData(Core::Id id, const Target *target) const
+{
+    if (id == "QmlDesignerImportPath")
+        return rootProjectNode()->variableValue(Variable::QmlDesignerImportPath);
+    return Project::additionalData(id, target);
+}
+
 } // namespace QmakeProjectManager
 
 #include "qmakeproject.moc"

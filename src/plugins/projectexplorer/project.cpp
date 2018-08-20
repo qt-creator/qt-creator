@@ -855,6 +855,13 @@ Utils::MacroExpander *Project::macroExpander() const
     return &d->m_macroExpander;
 }
 
+QVariant Project::additionalData(Core::Id id, const Target *target) const
+{
+    Q_UNUSED(id);
+    Q_UNUSED(target);
+    return QVariant();
+}
+
 bool Project::isParsing() const
 {
     return d->m_isParsing;

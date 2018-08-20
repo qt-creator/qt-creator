@@ -39,9 +39,8 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakenodes.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/icore.h>
 #include <qtsupport/baseqtversion.h>
@@ -468,12 +467,10 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     if (!styleConfigFileName.isEmpty())
         environment.appendOrSet("QT_QUICK_CONTROLS_CONF", styleConfigFileName);
 
-    if (m_currentProject) {
-        auto qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(m_currentProject);
-        if (qmakeProject) {
-            QStringList designerImports = qmakeProject->rootProjectNode()->variableValue(QmakeProjectManager::Variable::QmlDesignerImportPath);
-            importPaths.append(designerImports);
-        }
+    if (m_currentProject && m_currentProject->activeTarget()) {
+        QStringList designerImports = m_currentProject->activeTarget()
+                ->additionalData("QmlDesignerImportPath").toStringList();
+        importPaths.append(designerImports);
     }
 
     if (m_availablePuppetType == FallbackPuppet)

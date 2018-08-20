@@ -120,6 +120,8 @@ public:
     QVariant namedSettings(const QString &name) const;
     void setNamedSettings(const QString &name, const QVariant &value);
 
+    QVariant additionalData(Core::Id id) const;
+
     template<typename S, typename R, typename T>
     void subscribeSignal(void (S::*sig)(), R*recv, T (R::*sl)()) {
         new Internal::TargetSubscription([sig, recv, sl, this](ProjectConfiguration *pc) {

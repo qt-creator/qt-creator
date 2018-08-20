@@ -111,6 +111,8 @@ public:
 
     QString mapProFilePathToTarget(const Utils::FileName &proFilePath);
 
+    QVariant additionalData(Core::Id id, const ProjectExplorer::Target *target) const final;
+
 signals:
     void proFileUpdated(QmakeProjectManager::QmakeProFile *pro, bool, bool);
     void buildDirectoryInitialized();
