@@ -159,7 +159,7 @@ void AndroidDebugSupport::start()
         setQmlServer(m_runner->qmlServer());
         //TODO: Not sure if these are the right paths.
         if (qtVersion)
-            addSearchDirectory(qtVersion->qmlPath().toString());
+            addSearchDirectory(qtVersion->qmlPath());
     }
 
     DebuggerRunTool::start();

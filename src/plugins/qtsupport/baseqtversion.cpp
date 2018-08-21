@@ -1357,8 +1357,8 @@ void BaseQtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Tar
     QString activeSysroot = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
     const QtSupport::BaseQtVersion *qtVersion = QtVersionManager::isLoaded()
             ? QtSupport::QtKitInformation::qtVersion(kit) : nullptr;
-    QStringList additionalSearchDirectories = qtVersion
-            ? QStringList(qtVersion->qmlPath().toString()) : QStringList();
+    Utils::FileNameList additionalSearchDirectories = qtVersion
+            ? Utils::FileNameList({qtVersion->qmlPath()}) : Utils::FileNameList();
 
     if (target) {
         for (const ProjectExplorer::DeployableFile &file : target->deploymentData().allFiles())

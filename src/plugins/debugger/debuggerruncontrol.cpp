@@ -514,7 +514,7 @@ void DebuggerRunTool::addExpectedSignal(const QString &signal)
     m_runParameters.expectedSignals.append(signal);
 }
 
-void DebuggerRunTool::addSearchDirectory(const QString &dir)
+void DebuggerRunTool::addSearchDirectory(const Utils::FileName &dir)
 {
     m_runParameters.additionalSearchDirectories.append(dir);
 }

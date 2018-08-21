@@ -287,8 +287,9 @@ bool FileInProjectFinder::findFileOrDirectory(const QString &originalPath, FileH
 QString FileInProjectFinder::findInSearchPaths(const QString &filePath, FileHandler fileHandler,
                                                DirectoryHandler directoryHandler) const
 {
-    for (const QString &dirPath : m_searchDirectories) {
-        const QString found = findInSearchPath(dirPath, filePath, fileHandler, directoryHandler);
+    for (const FileName &dirPath : m_searchDirectories) {
+        const QString found = findInSearchPath(dirPath.toString(), filePath, fileHandler,
+                                               directoryHandler);
         if (!found.isEmpty())
             return found;
     }
@@ -389,12 +390,12 @@ QString FileInProjectFinder::bestMatch(const QStringList &filePaths, const QStri
     return QString();
 }
 
-QStringList FileInProjectFinder::searchDirectories() const
+FileNameList FileInProjectFinder::searchDirectories() const
 {
     return m_searchDirectories;
 }
 
-void FileInProjectFinder::setAdditionalSearchDirectories(const QStringList &searchDirectories)
+void FileInProjectFinder::setAdditionalSearchDirectories(const FileNameList &searchDirectories)
 {
     m_searchDirectories = searchDirectories;
 }

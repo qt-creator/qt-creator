@@ -2499,8 +2499,10 @@ QString DebuggerEngine::formatStartParameters() const
         str << "PID: " << sp.attachPID.pid() << ' ' << sp.crashParameter << '\n';
     if (!sp.projectSourceDirectory.isEmpty()) {
         str << "Project: " << sp.projectSourceDirectory.toUserOutput() << '\n';
-        str << "Additional Search Directories:"
-            << sp.additionalSearchDirectories.join(QLatin1Char(' ')) << '\n';
+        str << "Additional Search Directories:";
+        for (const FileName &dir : sp.additionalSearchDirectories)
+            str << ' ' << dir;
+        str << '\n';
     }
     if (!sp.remoteChannel.isEmpty())
         str << "Remote: " << sp.remoteChannel << '\n';

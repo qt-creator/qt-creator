@@ -116,7 +116,7 @@ public:
     // Used by Android to avoid false positives on warnOnRelease
     bool skipExecutableValidation = false;
     bool useTargetAsync = false;
-    QStringList additionalSearchDirectories;
+    Utils::FileNameList additionalSearchDirectories;
 
     // Used by iOS.
     QString platform;

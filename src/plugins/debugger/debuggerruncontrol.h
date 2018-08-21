@@ -86,7 +86,7 @@ public:
     void setCrashParameter(const QString &event);
 
     void addExpectedSignal(const QString &signal);
-    void addSearchDirectory(const QString &dir);
+    void addSearchDirectory(const Utils::FileName &dir);
 
     void setStartMode(DebuggerStartMode startMode);
     void setCloseMode(DebuggerCloseMode closeMode);

@@ -56,8 +56,8 @@ public:
     bool findFileOrDirectory(const QString &originalPath, FileHandler fileHandler = nullptr,
                              DirectoryHandler directoryHandler = nullptr) const;
 
-    QStringList searchDirectories() const;
-    void setAdditionalSearchDirectories(const QStringList &searchDirectories);
+    FileNameList searchDirectories() const;
+    void setAdditionalSearchDirectories(const FileNameList &searchDirectories);
 
 private:
     struct PathMappingNode
@@ -82,7 +82,7 @@ private:
     FileName m_projectDir;
     QString m_sysroot;
     FileNameList m_projectFiles;
-    QStringList m_searchDirectories;
+    FileNameList m_searchDirectories;
     PathMappingNode m_pathMapRoot;
 
     mutable QHash<QString,QString> m_cache;
