@@ -1554,22 +1554,28 @@ LinuxIccToolChainFactory::LinuxIccToolChainFactory()
 
 QSet<Core::Id> LinuxIccToolChainFactory::supportedLanguages() const
 {
-    return {Constants::CXX_LANGUAGE_ID};
+    return {Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID};
 }
 
 QList<ToolChain *> LinuxIccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
-    return autoDetectToolchains(compilerPathFromEnvironment("icpc"), Abi::hostAbi(),
-                                Constants::CXX_LANGUAGE_ID, Constants::LINUXICC_TOOLCHAIN_TYPEID,
-                                alreadyKnown);
+    QList<ToolChain *> result
+            = autoDetectToolchains(compilerPathFromEnvironment("icpc"),
+                                   Abi::hostAbi(), Constants::CXX_LANGUAGE_ID,
+                                   Constants::LINUXICC_TOOLCHAIN_TYPEID, alreadyKnown);
+    result += autoDetectToolchains(compilerPathFromEnvironment("icc"),
+                                   Abi::hostAbi(), Constants::C_LANGUAGE_ID,
+                                   Constants::LINUXICC_TOOLCHAIN_TYPEID, alreadyKnown);
+    return result;
 }
 
 QList<ToolChain *> LinuxIccToolChainFactory::autoDetect(const FileName &compilerPath, const Core::Id &language)
 {
     const QString fileName = compilerPath.fileName();
-    if (language == Constants::CXX_LANGUAGE_ID && fileName.startsWith("icpc"))
+    if ((language == Constants::CXX_LANGUAGE_ID && fileName.startsWith("icpc")) ||
+        (language == Constants::C_LANGUAGE_ID && fileName.startsWith("icc")))
         return autoDetectToolChain(compilerPath, language);
-    return QList<ToolChain *>();
+    return {};
 }
 
 bool LinuxIccToolChainFactory::canRestore(const QVariantMap &data)
