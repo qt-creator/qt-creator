@@ -691,7 +691,6 @@ public:
     void updatePresetState();
 
 public:
-    QPointer<DebuggerMainWindow> m_mainWindow;
     QPointer<QWidget> m_modeWindow;
     QPointer<DebugMode> m_mode;
 
@@ -765,6 +764,7 @@ public:
     IContext m_debugModeContext;
 
     DebugInfoTaskHandler m_debugInfoTaskHandler;
+    Perspective m_perspective{Constants::PRESET_PERSPRECTIVE_ID, tr("Debugger")};
 };
 
 DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
@@ -970,8 +970,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     if (!m_arguments.isEmpty())
         connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::finishedInitialization,
                 this, &DebuggerPluginPrivate::parseCommandLineArguments);
-
-    m_mainWindow = new DebuggerMainWindow;
 
     // Menus
     m_menu = ActionManager::createMenu(M_DEBUG_ANALYZER);
@@ -1304,7 +1302,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     // Debug mode setup
     m_mode = new DebugMode;
-    m_modeWindow = createModeWindow(Constants::MODE_DEBUG, m_mainWindow);
+    m_modeWindow = createModeWindow(Constants::MODE_DEBUG);
     m_mode->setWidget(m_modeWindow);
 
     m_debugModeContext.setContext(Context(CC::C_EDITORMANAGER));
@@ -1353,11 +1351,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     connect(action(SettingsDialog), &QAction::triggered,
             [] { ICore::showOptionsDialog(DEBUGGER_COMMON_SETTINGS_ID); });
 
-    auto perspective = new Perspective(Constants::PRESET_PERSPRECTIVE_ID, tr("Debugger"));
-    Debugger::registerPerspective(perspective);
-
-    perspective->addToolBarWidget(EngineManager::engineChooser());
-    perspective->addToolBarAction(&m_startAction);
+    m_perspective.addToolBarWidget(EngineManager::engineChooser());
+    m_perspective.addToolBarAction(&m_startAction);
 
 //    QAction *operateByInstructionAction = action(OperateByInstruction);
 //    operateByInstructionAction->setText(tr("Start in Operate by Instruction mode"));
@@ -1368,11 +1363,11 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 ////                                        Icons::SINGLE_INSTRUCTION_MODE.icon()};
 //    Action m_enableReverseDebuggingAction{tr("Start with recording information to reverse step if possible"),
 //                                          Icons::REVERSE_MODE.icon()}
-//    perspective->addToolbarAction(operateByInstructionAction);
+//    m_perspective.addToolbarAction(operateByInstructionAction);
 
-    perspective->addWindow(m_breakpointManagerWindow, Perspective::SplitVertical, nullptr);
-    perspective->addWindow(m_globalLogWindow, Perspective::SplitHorizontal, m_breakpointManagerWindow);
-    perspective->addWindow(m_engineManagerWindow, Perspective::AddToTab, m_globalLogWindow);
+    m_perspective.addWindow(m_breakpointManagerWindow, Perspective::SplitVertical, nullptr);
+    m_perspective.addWindow(m_globalLogWindow, Perspective::SplitHorizontal, m_breakpointManagerWindow);
+    m_perspective.addWindow(m_engineManagerWindow, Perspective::AddToTab, m_globalLogWindow);
 
 //    connect(action(EnableReverseDebugging), &SavedAction::valueChanged,
 //            this, &DebuggerPluginPrivate::enableReverseDebuggingTriggered);
@@ -2210,6 +2205,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     RunControl::registerWorker<DebuggerRunTool>
         (ProjectExplorer::Constants::DEBUG_RUN_MODE, constraint);
+
+    DebuggerMainWindow::ensureMainWindowExists();
 }
 
 SavedAction *action(int code)
@@ -2292,9 +2289,9 @@ void showModuleSections(const QString &moduleName, const Sections &sections)
 
 void DebuggerPluginPrivate::doShutdown()
 {
+    DebuggerMainWindow::doShutdown();
+
     m_shutdownTimer.stop();
-    delete m_mainWindow;
-    m_mainWindow = nullptr;
 
     delete m_modeWindow;
     m_modeWindow = nullptr;
@@ -2323,7 +2320,7 @@ void openTextEditor(const QString &titlePattern0, const QString &contents)
 
 QWidget *mainWindow()
 {
-    return dd->m_mainWindow;
+    return DebuggerMainWindow::instance();
 }
 
 QSharedPointer<Internal::GlobalDebuggerOptions> globalDebuggerOptions()
@@ -2416,14 +2413,14 @@ void DebuggerPlugin::extensionsInitialized()
 
 void DebuggerPluginPrivate::onModeChanged(Id mode)
 {
-    m_mainWindow->onModeChanged(mode);
+    DebuggerMainWindow::onModeChanged(mode);
     // FIXME: This one gets always called, even if switching between modes
     //        different then the debugger mode. E.g. Welcome and Help mode and
     //        also on shutdown.
 
     if (mode == MODE_DEBUG) {
 //        if (EngineManager::engines().isEmpty())
-//            m_mainWindow->restorePerspective(Constants::PRESET_PERSPRECTIVE_ID);
+//            DebuggerMainWindow::instance()->restorePerspective(Constants::PRESET_PERSPRECTIVE_ID);
         EngineManager::selectUiForCurrentEngine();
         if (IEditor *editor = EditorManager::currentEditor())
             editor->widget()->setFocus();
@@ -2551,35 +2548,25 @@ QAction *createStopAction()
     return action;
 }
 
-void registerPerspective(Perspective *perspective)
-{
-    dd->m_mainWindow->registerPerspective(perspective);
-}
-
 void selectPerspective(const QByteArray &perspectiveId)
 {
-    if (auto perspective = dd->m_mainWindow->findPerspective(perspectiveId))
+    if (auto perspective = DebuggerMainWindow::findPerspective(perspectiveId))
         perspective->select();
-}
-
-QWidget *mainWindow()
-{
-    return dd->m_mainWindow;
 }
 
 void enableMainWindow(bool on)
 {
-    dd->m_mainWindow->setEnabled(on);
+    DebuggerMainWindow::instance()->setEnabled(on);
 }
 
 void showStatusMessage(const QString &message, int timeoutMS)
 {
-    dd->m_mainWindow->showStatusMessage(message, timeoutMS);
+    DebuggerMainWindow::showStatusMessage(message, timeoutMS);
 }
 
 void showPermanentStatusMessage(const QString &message)
 {
-    dd->m_mainWindow->showStatusMessage(message, -1);
+    DebuggerMainWindow::showStatusMessage(message, -1);
 }
 
 namespace Internal {

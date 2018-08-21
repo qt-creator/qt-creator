@@ -93,8 +93,6 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
     }
     m_perspective->addWindow(m_statisticsView, Perspective::AddToTab, anchorDock);
     m_perspective->addWindow(anchorDock, Perspective::Raise, nullptr);
-
-    Debugger::registerPerspective(m_perspective);
 }
 
 QmlProfilerViewManager::~QmlProfilerViewManager()

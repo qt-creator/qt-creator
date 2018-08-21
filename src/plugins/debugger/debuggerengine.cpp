@@ -330,7 +330,7 @@ public:
         DebuggerToolTipManager::deregisterEngine(m_engine);
         m_memoryAgents.handleDebuggerFinished();
 
-        m_perspective->destroy();
+        delete m_perspective;
         m_perspective = nullptr;
 
         setBusyCursor(false);
@@ -787,7 +787,6 @@ void DebuggerEnginePrivate::setupViews()
     m_perspective->addWindow(m_registerWindow, Perspective::AddToTab, m_watchersWindow, true, Qt::RightDockWidgetArea);
     m_perspective->addWindow(m_logWindow, Perspective::AddToTab, nullptr, false, Qt::TopDockWidgetArea);
 
-    Debugger::registerPerspective(m_perspective);
     m_perspective->select();
 }
 

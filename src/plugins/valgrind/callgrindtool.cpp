@@ -215,6 +215,8 @@ public:
 
     QString m_toggleCollectFunction;
     bool m_toolBusy = false;
+
+    Perspective m_perspective{CallgrindPerspectiveId, tr("Callgrind")};
 };
 
 CallgrindTool::CallgrindTool()
@@ -419,18 +421,17 @@ CallgrindTool::CallgrindTool()
             this, &CallgrindTool::setCostEvent);
     updateEventCombo();
 
-    auto perspective = new Perspective(CallgrindPerspectiveId, tr("Callgrind"));
-    perspective->addToolBarAction(m_startAction);
-    perspective->addToolBarAction(m_stopAction);
-    perspective->addToolBarAction(m_loadExternalLogFile);
-    perspective->addToolBarAction(m_dumpAction);
-    perspective->addToolBarAction(m_resetAction);
-    perspective->addToolBarAction(m_pauseAction);
-    perspective->addToolBarAction(m_discardAction);
-    perspective->addToolBarAction(m_goBack);
-    perspective->addToolBarAction(m_goNext);
-    perspective->addToolbarSeparator();
-    perspective->addToolBarWidget(m_eventCombo);
+    m_perspective.addToolBarAction(m_startAction);
+    m_perspective.addToolBarAction(m_stopAction);
+    m_perspective.addToolBarAction(m_loadExternalLogFile);
+    m_perspective.addToolBarAction(m_dumpAction);
+    m_perspective.addToolBarAction(m_resetAction);
+    m_perspective.addToolBarAction(m_pauseAction);
+    m_perspective.addToolBarAction(m_discardAction);
+    m_perspective.addToolBarAction(m_goBack);
+    m_perspective.addToolBarAction(m_goNext);
+    m_perspective.addToolbarSeparator();
+    m_perspective.addToolBarWidget(m_eventCombo);
 
     // Cost formatting
     {
@@ -463,7 +464,7 @@ CallgrindTool::CallgrindTool()
     button->setPopupMode(QToolButton::InstantPopup);
     button->setText(QLatin1String("$"));
     button->setToolTip(tr("Cost Format"));
-    perspective->addToolBarWidget(button);
+    m_perspective.addToolBarWidget(button);
     }
 
     ValgrindGlobalSettings *settings = ValgrindPlugin::globalSettings();
@@ -500,17 +501,16 @@ CallgrindTool::CallgrindTool()
     setCostFormat(settings->costFormat());
     enableCycleDetection(settings->detectCycles());
 
-    perspective->addToolBarAction(m_cycleDetection);
-    perspective->addToolBarAction(m_shortenTemplates);
-    perspective->addToolBarAction(m_filterProjectCosts);
-    perspective->addToolBarWidget(m_searchFilter);
+    m_perspective.addToolBarAction(m_cycleDetection);
+    m_perspective.addToolBarAction(m_shortenTemplates);
+    m_perspective.addToolBarAction(m_filterProjectCosts);
+    m_perspective.addToolBarWidget(m_searchFilter);
 
-    perspective->addWindow(m_flatView, Perspective::SplitVertical, nullptr);
-    perspective->addWindow(m_calleesView, Perspective::SplitVertical, nullptr);
-    perspective->addWindow(m_callersView, Perspective::SplitHorizontal, m_calleesView);
-    perspective->addWindow(m_visualization, Perspective::SplitVertical, nullptr,
+    m_perspective.addWindow(m_flatView, Perspective::SplitVertical, nullptr);
+    m_perspective.addWindow(m_calleesView, Perspective::SplitVertical, nullptr);
+    m_perspective.addWindow(m_callersView, Perspective::SplitHorizontal, m_calleesView);
+    m_perspective.addWindow(m_visualization, Perspective::SplitVertical, nullptr,
                            false, Qt::RightDockWidgetArea);
-    Debugger::registerPerspective(perspective);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
             this, &CallgrindTool::updateRunActions);

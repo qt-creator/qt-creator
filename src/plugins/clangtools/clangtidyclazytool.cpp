@@ -269,8 +269,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     const QString toolTip = tr("Clang-Tidy and Clazy use a customized Clang executable from the "
                                "Clang project to search for errors and warnings.");
 
-    auto perspective = new Perspective(ClangTidyClazyPerspectiveId, tr("Clang-Tidy and Clazy"));
-    perspective->addWindow(m_diagnosticView, Perspective::SplitVertical, nullptr);
+    m_perspective.addWindow(m_diagnosticView, Perspective::SplitVertical, nullptr);
 
     action = new QAction(tr("Clang-Tidy and Clazy..."), this);
     action->setToolTip(toolTip);
@@ -282,14 +281,12 @@ ClangTidyClazyTool::ClangTidyClazyTool()
         action->setEnabled(m_startAction->isEnabled());
     });
 
-    perspective->addToolBarAction(m_startAction);
-    perspective->addToolBarAction(m_stopAction);
-    perspective->addToolBarAction(m_goBack);
-    perspective->addToolBarAction(m_goNext);
-    perspective->addToolBarWidget(m_filterLineEdit);
-    perspective->addToolBarWidget(m_applyFixitsButton);
-
-    Debugger::registerPerspective(perspective);
+    m_perspective.addToolBarAction(m_startAction);
+    m_perspective.addToolBarAction(m_stopAction);
+    m_perspective.addToolBarAction(m_goBack);
+    m_perspective.addToolBarAction(m_goNext);
+    m_perspective.addToolBarWidget(m_filterLineEdit);
+    m_perspective.addToolBarWidget(m_applyFixitsButton);
 
     updateRunActions();
 
@@ -355,7 +352,7 @@ void ClangTidyClazyTool::startTool(bool askUserForFileSelection)
         emit finished(success);
     });
 
-    Debugger::selectPerspective(ClangTidyClazyPerspectiveId);
+    m_perspective.select();
 
     m_diagnosticModel->clear();
     setToolBusy(true);

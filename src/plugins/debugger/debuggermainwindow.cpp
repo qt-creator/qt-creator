@@ -158,7 +158,6 @@ class DebuggerMainWindowPrivate : public QObject
 {
 public:
     DebuggerMainWindowPrivate(DebuggerMainWindow *parent);
-    ~DebuggerMainWindowPrivate();
 
     void ensureToolBarDockExists();
 
@@ -205,8 +204,6 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
 DebuggerMainWindow::DebuggerMainWindow()
     : d(new DebuggerMainWindowPrivate(this))
 {
-    theMainWindow = this;
-
     setDockNestingEnabled(true);
     setDockActionsVisible(false);
     setDocumentMode(true);
@@ -242,21 +239,20 @@ DebuggerMainWindow::DebuggerMainWindow()
 
 DebuggerMainWindow::~DebuggerMainWindow()
 {
+    d->savePerspectiveHelper(d->m_currentPerspective);
     delete d;
+}
+
+void DebuggerMainWindow::ensureMainWindowExists()
+{
+    if (!theMainWindow)
+        theMainWindow = new DebuggerMainWindow;
+}
+
+void DebuggerMainWindow::doShutdown()
+{
+    delete theMainWindow;
     theMainWindow = nullptr;
-}
-
-DebuggerMainWindowPrivate::~DebuggerMainWindowPrivate()
-{
-    savePerspectiveHelper(m_currentPerspective);
-
-    delete m_editorPlaceHolder;
-    m_editorPlaceHolder = nullptr;
-}
-
-void DebuggerMainWindow::registerPerspective(Perspective *perspective)
-{
-    d->registerPerspective(perspective);
 }
 
 void DebuggerMainWindowPrivate::registerPerspective(Perspective *perspective)
@@ -291,43 +287,53 @@ void DebuggerMainWindowPrivate::destroyPerspective(Perspective *perspective)
     // Dynamic perspectives are currently not visible in the chooser.
     // This might change in the future, make sure we notice.
     const int idx = indexInChooser(perspective);
-    QTC_ASSERT(idx == -1, m_perspectiveChooser->removeItem(idx));
+    if (idx != -1)
+        m_perspectiveChooser->removeItem(idx);
 
-    // All dynamic perspectives currently have a static parent perspective.
-    // This might change in the future, make sure we notice.
-    QTC_CHECK(!perspective->d->m_parentPerspective.isEmpty());
-    restorePerspective(findPerspective(perspective->d->m_parentPerspective));
+    if (perspective == m_currentPerspective) {
+        m_currentPerspective = nullptr;
+        if (!perspective->d->m_parentPerspective.isEmpty()) {
+            if (Perspective *parent = findPerspective(perspective->d->m_parentPerspective))
+                parent->select();
+        }
+    }
 }
 
 void DebuggerMainWindow::showStatusMessage(const QString &message, int timeoutMS)
 {
-    d->m_statusLabel->showStatusMessage(message, timeoutMS);
+    if (theMainWindow)
+        theMainWindow->d->m_statusLabel->showStatusMessage(message, timeoutMS);
 }
 
 void DebuggerMainWindow::onModeChanged(Core::Id mode)
 {
     if (mode == Debugger::Constants::MODE_DEBUG) {
-        setDockActionsVisible(true);
-        d->restorePerspective(nullptr);
+        theMainWindow->setDockActionsVisible(true);
+        theMainWindow->d->restorePerspective(nullptr);
     } else {
-        setDockActionsVisible(false);
+        theMainWindow->setDockActionsVisible(false);
 
         // Hide dock widgets manually in case they are floating.
-        foreach (QDockWidget *dockWidget, dockWidgets()) {
+        foreach (QDockWidget *dockWidget, theMainWindow->dockWidgets()) {
             if (dockWidget->isFloating())
                 dockWidget->hide();
         }
     }
 }
 
-Perspective *DebuggerMainWindow::findPerspective(const QByteArray &perspectiveId) const
+Perspective *DebuggerMainWindow::findPerspective(const QByteArray &perspectiveId)
 {
-    return d->findPerspective(perspectiveId);
+    return theMainWindow ? theMainWindow->d->findPerspective(perspectiveId) : nullptr;
 }
 
 QWidget *DebuggerMainWindow::centralWidgetStack()
 {
-    return d->m_centralWidgetStack;
+    return theMainWindow ? theMainWindow->d->m_centralWidgetStack : nullptr;
+}
+
+DebuggerMainWindow *DebuggerMainWindow::instance()
+{
+    return theMainWindow;
 }
 
 Perspective *DebuggerMainWindowPrivate::findPerspective(const QByteArray &perspectiveId) const
@@ -410,7 +416,7 @@ void DebuggerMainWindowPrivate::ensureToolBarDockExists()
     });
 }
 
-QWidget *createModeWindow(const Core::Id &mode, DebuggerMainWindow *mainWindow)
+QWidget *createModeWindow(const Core::Id &mode)
 {
     auto editorHolderLayout = new QVBoxLayout;
     editorHolderLayout->setMargin(0);
@@ -418,7 +424,7 @@ QWidget *createModeWindow(const Core::Id &mode, DebuggerMainWindow *mainWindow)
 
     auto editorAndFindWidget = new QWidget;
     editorAndFindWidget->setLayout(editorHolderLayout);
-    editorHolderLayout->addWidget(mainWindow->centralWidgetStack());
+    editorHolderLayout->addWidget(theMainWindow->centralWidgetStack());
     editorHolderLayout->addWidget(new FindToolBarPlaceHolder(editorAndFindWidget));
 
     auto documentAndRightPane = new MiniSplitter;
@@ -438,7 +444,7 @@ QWidget *createModeWindow(const Core::Id &mode, DebuggerMainWindow *mainWindow)
 
     // Right-side window with editor, output etc.
     auto mainWindowSplitter = new MiniSplitter;
-    mainWindowSplitter->addWidget(mainWindow);
+    mainWindowSplitter->addWidget(theMainWindow);
     mainWindowSplitter->addWidget(new OutputPanePlaceHolder(mode, mainWindowSplitter));
     auto outputPane = new OutputPanePlaceHolder(mode, mainWindowSplitter);
     outputPane->setObjectName(QLatin1String("DebuggerOutputPanePlaceHolder"));
@@ -449,13 +455,13 @@ QWidget *createModeWindow(const Core::Id &mode, DebuggerMainWindow *mainWindow)
 
     // Navigation and right-side window.
     auto splitter = new MiniSplitter;
-    splitter->setFocusProxy(mainWindow->centralWidgetStack());
+    splitter->setFocusProxy(theMainWindow->centralWidgetStack());
     splitter->addWidget(new NavigationWidgetPlaceHolder(mode, Side::Left));
     splitter->addWidget(mainWindowSplitter);
     splitter->setStretchFactor(0, 0);
     splitter->setStretchFactor(1, 1);
     splitter->setObjectName(QLatin1String("DebugModeWidget"));
-    mainWindow->setCentralWidget(centralEditorWidget);
+    theMainWindow->setCentralWidget(centralEditorWidget);
 
     return splitter;
 }
@@ -587,10 +593,15 @@ Perspective::Perspective(const QString &id, const QString &name)
 {
     d->m_id = id;
     d->m_name = name;
+
+    DebuggerMainWindow::ensureMainWindowExists();
+    theMainWindow->d->registerPerspective(this);
 }
 
 Perspective::~Perspective()
 {
+    if (theMainWindow)
+        theMainWindow->d->destroyPerspective(this);
     delete d;
 }
 
@@ -628,6 +639,7 @@ void Perspective::setParentPerspective(const QByteArray &parentPerspective)
 
 void Perspective::setEnabled(bool enabled)
 {
+    QTC_ASSERT(theMainWindow, return);
     const int index = theMainWindow->d->indexInChooser(this);
     QTC_ASSERT(index != -1, return);
     auto model = qobject_cast<QStandardItemModel*>(theMainWindow->d->m_perspectiveChooser->model());
@@ -671,11 +683,6 @@ void Perspective::addToolbarSeparator()
 QWidget *Perspective::centralWidget() const
 {
     return d->m_centralWidget;
-}
-
-void Perspective::destroy()
-{
-    theMainWindow->d->destroyPerspective(this);
 }
 
 Perspective *Perspective::currentPerspective()

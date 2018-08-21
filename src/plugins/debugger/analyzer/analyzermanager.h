@@ -60,11 +60,7 @@ enum ToolMode {
 DEBUGGER_EXPORT bool wantRunTool(ToolMode toolMode, const QString &toolName);
 DEBUGGER_EXPORT void showCannotStartDialog(const QString &toolName);
 
-// Register a tool for a given start mode.
-DEBUGGER_EXPORT void registerPerspective(Utils::Perspective *perspective);
-
 DEBUGGER_EXPORT void enableMainWindow(bool on);
-DEBUGGER_EXPORT QWidget *mainWindow();
 
 DEBUGGER_EXPORT void selectPerspective(const QByteArray &perspectiveId);
 

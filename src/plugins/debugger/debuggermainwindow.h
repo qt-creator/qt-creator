@@ -60,15 +60,13 @@ public:
     Qt::ToolButtonStyle m_toolButtonStyle = Qt::ToolButtonIconOnly;
 };
 
-class DEBUGGER_EXPORT Perspective : public QObject
+class DEBUGGER_EXPORT Perspective
 {
-    Q_OBJECT
-
 public:
-    enum OperationType { SplitVertical, SplitHorizontal, AddToTab, Raise };
-
     explicit Perspective(const QString &id, const QString &name);
     ~Perspective();
+
+    enum OperationType { SplitVertical, SplitHorizontal, AddToTab, Raise };
 
     void setCentralWidget(QWidget *centralWidget);
     void addWindow(QWidget *widget,
@@ -94,7 +92,6 @@ public:
     void setParentPerspective(const QByteArray &parentPerspective);
     void setEnabled(bool enabled);
 
-    void destroy();
     void select();
     static Perspective *currentPerspective();
 
@@ -104,6 +101,9 @@ public:
     void hideToolBar();
 
 private:
+    Perspective(const Perspective &) = delete;
+    void operator=(const Perspective &) = delete;
+
     friend class DebuggerMainWindow;
     friend class DebuggerMainWindowPrivate;
     class PerspectivePrivate *d = nullptr;
@@ -114,17 +114,21 @@ class DEBUGGER_EXPORT DebuggerMainWindow : public FancyMainWindow
     Q_OBJECT
 
 public:
+    static DebuggerMainWindow *instance();
+
+    static void ensureMainWindowExists();
+    static void doShutdown();
+
+    static void showStatusMessage(const QString &message, int timeoutMS);
+    static void onModeChanged(Core::Id mode);
+
+    static Perspective *findPerspective(const QByteArray &perspectiveId);
+    static QWidget *centralWidgetStack();
+
+private:
     DebuggerMainWindow();
     ~DebuggerMainWindow() override;
 
-    void registerPerspective(Perspective *perspective);
-    void showStatusMessage(const QString &message, int timeoutMS);
-    void onModeChanged(Core::Id mode);
-
-    Perspective *findPerspective(const QByteArray &perspectiveId) const;
-    QWidget *centralWidgetStack();
-
-private:
     void closeEvent(QCloseEvent *) final;
 
     friend class Perspective;
@@ -132,6 +136,6 @@ private:
     class DebuggerMainWindowPrivate *d = nullptr;
 };
 
-DEBUGGER_EXPORT QWidget *createModeWindow(const Core::Id &mode, DebuggerMainWindow *mainWindow);
+DEBUGGER_EXPORT QWidget *createModeWindow(const Core::Id &mode);
 
 } // Utils

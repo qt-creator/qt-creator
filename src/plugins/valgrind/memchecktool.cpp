@@ -440,6 +440,7 @@ private:
     bool m_toolBusy = false;
 
     QString m_exitMsg;
+    Perspective m_perspective{MemcheckPerspectiveId, tr("Memcheck")};
 };
 
 #ifdef Q_OS_WIN
@@ -556,8 +557,7 @@ MemcheckTool::MemcheckTool()
     m_errorView->setObjectName(QLatin1String("Valgrind.MemcheckTool.ErrorView"));
     m_errorView->setWindowTitle(tr("Memory Issues"));
 
-    auto perspective = new Perspective(MemcheckPerspectiveId, tr("Memcheck"));
-    perspective->addWindow(m_errorView, Perspective::SplitVertical, nullptr);
+    m_perspective.addWindow(m_errorView, Perspective::SplitVertical, nullptr);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
             this, &MemcheckTool::maybeActiveRunConfigurationChanged);
@@ -683,14 +683,13 @@ MemcheckTool::MemcheckTool()
         ProjectExplorerPlugin::startRunControl(rc);
     });
 
-    perspective->addToolBarAction(m_startAction);
+    m_perspective.addToolBarAction(m_startAction);
     //toolbar.addAction(m_startWithGdbAction);
-    perspective->addToolBarAction(m_stopAction);
-    perspective->addToolBarAction(m_loadExternalLogFile);
-    perspective->addToolBarAction(m_goBack);
-    perspective->addToolBarAction(m_goNext);
-    perspective->addToolBarWidget(filterButton);
-    Debugger::registerPerspective(perspective);
+    m_perspective.addToolBarAction(m_stopAction);
+    m_perspective.addToolBarAction(m_loadExternalLogFile);
+    m_perspective.addToolBarAction(m_goBack);
+    m_perspective.addToolBarAction(m_goNext);
+    m_perspective.addToolBarWidget(filterButton);
 
     updateFromSettings();
     maybeActiveRunConfigurationChanged();
