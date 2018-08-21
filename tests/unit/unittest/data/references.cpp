@@ -157,3 +157,18 @@ int functionLikeMacro(int foo)
 {
     return BAR(foo);
 }
+
+template<class T>
+class Container
+{
+public:
+    T &operator[](int); T &operator()(int, int);
+};
+
+int testOperator() {
+  Container<int> vec;
+
+  int n = 10;
+  vec[n] = n * 100;
+  vec(n, n) = 100;
+}

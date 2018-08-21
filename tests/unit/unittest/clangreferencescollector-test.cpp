@@ -463,6 +463,54 @@ TEST_F(ReferencesCollector, ArgumentToFunctionLikeMacro)
     ASSERT_THAT(actual, expected);
 }
 
+TEST_F(ReferencesCollector, OverloadedBraceOperatorArgument)
+{
+    const ReferencesResult expected {
+        true,
+        {createSourceRange(171, 7, 1),
+         createSourceRange(172, 7, 1),
+         createSourceRange(172, 12, 1),
+         createSourceRange(173, 7, 1),
+         createSourceRange(173, 10, 1)},
+    };
+
+    const ReferencesResult actual = getReferences(172, 7);
+
+    ASSERT_THAT(actual, expected);
+}
+
+TEST_F(ReferencesCollector, OverloadedParenOperatorSecondArgument)
+{
+    const ReferencesResult expected {
+        true,
+        {createSourceRange(171, 7, 1),
+         createSourceRange(172, 7, 1),
+         createSourceRange(172, 12, 1),
+         createSourceRange(173, 7, 1),
+         createSourceRange(173, 10, 1)},
+    };
+
+    const ReferencesResult actual = getReferences(173, 10);
+
+    ASSERT_THAT(actual, expected);
+}
+
+TEST_F(ReferencesCollector, OverloadedOperatorsArgumentsFromOutside)
+{
+    const ReferencesResult expected {
+        true,
+        {createSourceRange(171, 7, 1),
+         createSourceRange(172, 7, 1),
+         createSourceRange(172, 12, 1),
+         createSourceRange(173, 7, 1),
+         createSourceRange(173, 10, 1)},
+    };
+
+    const ReferencesResult actual = getReferences(171, 7);
+
+    ASSERT_THAT(actual, expected);
+}
+
 std::unique_ptr<const Data> ReferencesCollector::data;
 
 void ReferencesCollector::SetUpTestCase()
