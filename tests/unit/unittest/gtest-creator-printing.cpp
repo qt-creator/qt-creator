@@ -28,13 +28,16 @@
 #include "gtest-qt-printing.h"
 
 #include <gtest/gtest-printers.h>
+#include <gmock/gmock-matchers.h>
 
 #include <sourcelocations.h>
 
 #include <clangcodemodelclientmessages.h>
 #include <clangcodemodelservermessages.h>
+#include <clangdocumentsuspenderresumer.h>
 #include <clangpathwatcher.h>
 #include <clangrefactoringmessages.h>
+#include <clangreferencescollector.h>
 #include <filestatus.h>
 #include <filepath.h>
 #include <fulltokeninfo.h>
@@ -994,6 +997,30 @@ std::ostream &operator<<(std::ostream &out, const UpdateGeneratedFilesMessage &m
 std::ostream &operator<<(std::ostream &out, const RemoveGeneratedFilesMessage &message)
 {
     return out << "(" << message.generatedFiles << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const SuspendResumeJobsEntry &entry)
+{
+    return out << "("
+               << entry.document.filePath() << ", "
+               << entry.jobRequestType << ", "
+               << entry.preferredTranslationUnit
+               << ")";
+}
+
+std::ostream &operator<<(std::ostream &os, const ReferencesResult &value)
+{
+    os << "ReferencesResult(";
+    os << value.isLocalVariable << ", {";
+    for (const SourceRangeContainer &r : value.references) {
+        os << r.start.line << ",";
+        os << r.start.column << ",";
+        EXPECT_THAT(r.start.line, testing::Eq(r.end.line));
+        os << r.end.column - r.start.column << ",";
+    }
+    os << "})";
+
+    return os;
 }
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os)

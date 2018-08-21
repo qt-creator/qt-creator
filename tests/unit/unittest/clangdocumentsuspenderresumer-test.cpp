@@ -62,17 +62,6 @@ bool operator==(const SuspendResumeJobsEntry &a, const SuspendResumeJobsEntry &b
         && a.preferredTranslationUnit == b.preferredTranslationUnit;
 }
 
-std::ostream &operator<<(std::ostream &os, const SuspendResumeJobsEntry &entry)
-{
-    os << "SuspendResumeJobsEntry("
-       << entry.document.filePath() << ", "
-       << entry.jobRequestType << ", "
-       << entry.preferredTranslationUnit
-       << ")";
-
-    return os;
-}
-
 } // ClangBackEnd
 
 namespace {

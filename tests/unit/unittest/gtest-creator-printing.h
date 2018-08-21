@@ -169,6 +169,8 @@ enum class SymbolTag : uchar;
 using SymbolTags = Utils::SizedArray<SymbolTag, 7>;
 class UpdateGeneratedFilesMessage;
 class RemoveGeneratedFilesMessage;
+class SuspendResumeJobsEntry;
+class ReferencesResult;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
@@ -248,6 +250,8 @@ std::ostream &operator<<(std::ostream &out, SymbolTag symbolTag);
 std::ostream &operator<<(std::ostream &out, SymbolTags symbolTags);
 std::ostream &operator<<(std::ostream &out, const UpdateGeneratedFilesMessage &message);
 std::ostream &operator<<(std::ostream &out, const RemoveGeneratedFilesMessage &message);
+std::ostream &operator<<(std::ostream &os, const SuspendResumeJobsEntry &entry);
+std::ostream &operator<<(std::ostream &os, const ReferencesResult &value);
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os);
 void PrintTo(const FilePathView &filePathView, ::std::ostream *os);
