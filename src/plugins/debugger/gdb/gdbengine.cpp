@@ -1615,7 +1615,7 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
     if (!boolSetting(AutoEnrichParameters))
         return cleanFilePath;
 
-    const QString sysroot = runParameters().sysRoot;
+    const QString sysroot = runParameters().sysRoot.toString();
     if (QFileInfo(cleanFilePath).isReadable())
         return cleanFilePath;
     if (!sysroot.isEmpty() && fileName.startsWith('/')) {
@@ -3701,10 +3701,10 @@ void GdbEngine::setupEngine()
     }
 
     if (!rp.sysRoot.isEmpty()) {
-        runCommand({"set sysroot " + rp.sysRoot});
+        runCommand({"set sysroot " + rp.sysRoot.toString()});
         // sysroot is not enough to correctly locate the sources, so explicitly
         // relocate the most likely place for the debug source
-        runCommand({"set substitute-path /usr/src " + rp.sysRoot + "/usr/src"});
+        runCommand({"set substitute-path /usr/src " + rp.sysRoot.toString() + "/usr/src"});
     }
 
     //QByteArray ba = QFileInfo(sp.dumperLibrary).path().toLocal8Bit();

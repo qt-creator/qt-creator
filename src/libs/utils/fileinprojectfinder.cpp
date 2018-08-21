@@ -102,16 +102,12 @@ void FileInProjectFinder::setProjectFiles(const FileNameList &projectFiles)
     m_cache.clear();
 }
 
-void FileInProjectFinder::setSysroot(const QString &sysroot)
+void FileInProjectFinder::setSysroot(const FileName &sysroot)
 {
-    QString newsys = sysroot;
-    while (newsys.endsWith(QLatin1Char('/')))
-        newsys.remove(newsys.length() - 1, 1);
-
-    if (m_sysroot == newsys)
+    if (m_sysroot == sysroot)
         return;
 
-    m_sysroot = newsys;
+    m_sysroot = sysroot;
     m_cache.clear();
 }
 
@@ -274,9 +270,10 @@ bool FileInProjectFinder::findFileOrDirectory(const QString &originalPath, FileH
 
     // check if absolute path is found in sysroot
     if (!m_sysroot.isEmpty()) {
-        const QString sysrootPath = m_sysroot + originalPath;
-        if (checkPath(sysrootPath, fileHandler, directoryHandler))
-            return handleSuccess(originalPath, sysrootPath, "in sysroot");
+        FileName sysrootPath = m_sysroot;
+        sysrootPath.appendPath(originalPath);
+        if (checkPath(sysrootPath.toString(), fileHandler, directoryHandler))
+            return handleSuccess(originalPath, sysrootPath.toString(), "in sysroot");
     }
 
     qCDebug(finderLog) << "FileInProjectFinder: couldn't find file!";

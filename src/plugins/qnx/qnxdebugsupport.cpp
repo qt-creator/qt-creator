@@ -85,8 +85,10 @@ static QStringList searchPaths(Kit *kit)
         searchPaths << qtVersion->qmakeProperty("QT_INSTALL_PLUGINS") + '/' + dir;
 
     searchPaths << qtVersion->qmakeProperty("QT_INSTALL_LIBS");
-    searchPaths << qtVersion->qnxTarget() + '/' + qtVersion->cpuDir() + "/lib";
-    searchPaths << qtVersion->qnxTarget() + '/' + qtVersion->cpuDir() + "/usr/lib";
+    searchPaths << qtVersion->qnxTarget().appendPath(qtVersion->cpuDir()).appendPath("lib")
+                   .toString();
+    searchPaths << qtVersion->qnxTarget().appendPath(qtVersion->cpuDir()).appendPath("usr/lib")
+                   .toString();
 
     return searchPaths;
 }

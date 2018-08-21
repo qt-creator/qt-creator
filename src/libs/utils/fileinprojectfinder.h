@@ -48,7 +48,7 @@ public:
     FileName projectDirectory() const;
 
     void setProjectFiles(const FileNameList &projectFiles);
-    void setSysroot(const QString &sysroot);
+    void setSysroot(const FileName &sysroot);
 
     void addMappedPath(const FileName &localFilePath, const QString &remoteFilePath);
 
@@ -80,7 +80,7 @@ private:
     static QString bestMatch(const QStringList &filePaths, const QString &filePathToFind);
 
     FileName m_projectDir;
-    QString m_sysroot;
+    FileName m_sysroot;
     FileNameList m_projectFiles;
     FileNameList m_searchDirectories;
     PathMappingNode m_pathMapRoot;

@@ -308,7 +308,7 @@ void DebuggerRunTool::setAttachPid(qint64 pid)
     m_runParameters.attachPID = ProcessHandle(pid);
 }
 
-void DebuggerRunTool::setSysRoot(const QString &sysRoot)
+void DebuggerRunTool::setSysRoot(const Utils::FileName &sysRoot)
 {
     m_runParameters.sysRoot = sysRoot;
 }
@@ -811,7 +811,7 @@ bool DebuggerRunTool::fixupParameters()
     }
 
     if (!boolSetting(AutoEnrichParameters)) {
-        const QString sysroot = rp.sysRoot;
+        const QString sysroot = rp.sysRoot.toString();
         if (rp.debugInfoLocation.isEmpty())
             rp.debugInfoLocation = sysroot + "/usr/lib/debug";
         if (rp.debugSourceLocation.isEmpty()) {
@@ -905,7 +905,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
         kit = runConfig->target()->kit();
     QTC_ASSERT(kit, return);
 
-    m_runParameters.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
+    m_runParameters.sysRoot = SysRootKitInformation::sysRoot(kit);
     m_runParameters.macroExpander = kit->macroExpander();
     m_runParameters.debugger = DebuggerKitInformation::runnable(kit);
     m_runParameters.cppEngineType = DebuggerKitInformation::engineType(kit);
@@ -976,7 +976,7 @@ void DebuggerRunTool::startRunControl()
 void DebuggerRunTool::addSolibSearchDir(const QString &str)
 {
     QString path = str;
-    path.replace("%{sysroot}", m_runParameters.sysRoot);
+    path.replace("%{sysroot}", m_runParameters.sysRoot.toString());
     m_runParameters.solibSearchPath.append(path);
 }
 

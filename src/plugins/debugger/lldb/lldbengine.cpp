@@ -284,7 +284,8 @@ void LldbEngine::setupEngine()
         QTC_CHECK(!rp.attachPID.isValid() || (rp.startMode == AttachCrashedExternal
                                               || rp.startMode == AttachExternal));
         cmd2.arg("attachpid", rp.attachPID.pid());
-        cmd2.arg("sysroot", rp.deviceSymbolsRoot.isEmpty() ? rp.sysRoot : rp.deviceSymbolsRoot);
+        cmd2.arg("sysroot", rp.deviceSymbolsRoot.isEmpty() ? rp.sysRoot.toString()
+                                                           : rp.deviceSymbolsRoot);
         cmd2.arg("remotechannel", ((rp.startMode == AttachToRemoteProcess
                                    || rp.startMode == AttachToRemoteServer)
                                   ? rp.remoteChannel : QString()));

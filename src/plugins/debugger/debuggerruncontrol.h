@@ -94,7 +94,7 @@ public:
     void setAttachPid(Utils::ProcessHandle pid);
     void setAttachPid(qint64 pid);
 
-    void setSysRoot(const QString &sysRoot);
+    void setSysRoot(const Utils::FileName &sysRoot);
     void setSymbolFile(const QString &symbolFile);
     void setRemoteChannel(const QString &channel);
     void setRemoteChannel(const QString &host, int port);

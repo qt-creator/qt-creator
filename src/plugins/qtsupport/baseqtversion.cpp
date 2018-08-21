@@ -1354,7 +1354,7 @@ void BaseQtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Tar
 
     // ... and find the sysroot and qml directory if we have any target at all.
     const ProjectExplorer::Kit *kit = target ? target->kit() : nullptr;
-    QString activeSysroot = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
+    const Utils::FileName activeSysroot = ProjectExplorer::SysRootKitInformation::sysRoot(kit);
     const QtSupport::BaseQtVersion *qtVersion = QtVersionManager::isLoaded()
             ? QtSupport::QtKitInformation::qtVersion(kit) : nullptr;
     Utils::FileNameList additionalSearchDirectories = qtVersion
