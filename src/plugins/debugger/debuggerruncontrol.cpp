@@ -286,7 +286,7 @@ void DebuggerRunTool::setStartMode(DebuggerStartMode startMode)
         foreach (Project *project, projects)
             m_runParameters.projectSourceFiles.append(project->files(Project::SourceFiles));
         if (!projects.isEmpty())
-            m_runParameters.projectSourceDirectory = projects.first()->projectDirectory().toString();
+            m_runParameters.projectSourceDirectory = projects.first()->projectDirectory();
 
     } else {
         m_runParameters.startMode = startMode;
@@ -932,7 +932,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
 
     Project *project = runConfig ? runConfig->target()->project() : nullptr;
     if (project) {
-        m_runParameters.projectSourceDirectory = project->projectDirectory().toString();
+        m_runParameters.projectSourceDirectory = project->projectDirectory();
         m_runParameters.projectSourceFiles = project->files(Project::SourceFiles);
     }
 

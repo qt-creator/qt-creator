@@ -192,7 +192,7 @@ void StackFrame::fixQrcFrame(const DebuggerRunParameters &rp)
     while (relativeFile.startsWith(QLatin1Char('/')))
         relativeFile = relativeFile.mid(1);
 
-    QString absFile = findFile(rp.projectSourceDirectory, relativeFile);
+    QString absFile = findFile(rp.projectSourceDirectory.toString(), relativeFile);
     if (absFile.isEmpty())
         absFile = findFile(QDir::currentPath(), relativeFile);
 

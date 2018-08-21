@@ -1332,12 +1332,12 @@ void BaseQtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Tar
     const QList<ProjectExplorer::Project *> projects = ProjectExplorer::SessionManager::projects();
     QTC_CHECK(projects.isEmpty() || startupProject);
 
-    QString projectDirectory;
+    Utils::FileName projectDirectory;
     Utils::FileNameList sourceFiles;
 
     // Sort files from startupProject to the front of the list ...
     if (startupProject) {
-        projectDirectory = startupProject->projectDirectory().toString();
+        projectDirectory = startupProject->projectDirectory();
         sourceFiles.append(startupProject->files(ProjectExplorer::Project::SourceFiles));
     }
 

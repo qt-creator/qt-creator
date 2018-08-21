@@ -75,30 +75,20 @@ static bool checkPath(const QString &candidate, FileInProjectFinder::FileHandler
 
 FileInProjectFinder::FileInProjectFinder() = default;
 
-static QString stripTrailingSlashes(const QString &path)
+void FileInProjectFinder::setProjectDirectory(const FileName &absoluteProjectPath)
 {
-    QString newPath = path;
-    while (newPath.endsWith(QLatin1Char('/')))
-        newPath.remove(newPath.length() - 1, 1);
-    return newPath;
-}
-
-void FileInProjectFinder::setProjectDirectory(const QString &absoluteProjectPath)
-{
-    const QString newProjectPath = stripTrailingSlashes(absoluteProjectPath);
-
-    if (newProjectPath == m_projectDir)
+    if (absoluteProjectPath == m_projectDir)
         return;
 
-    const QFileInfo infoPath(newProjectPath);
-    QTC_CHECK(newProjectPath.isEmpty()
+    const QFileInfo infoPath = absoluteProjectPath.toFileInfo();
+    QTC_CHECK(absoluteProjectPath.isEmpty()
               || (infoPath.exists() && infoPath.isAbsolute()));
 
-    m_projectDir = newProjectPath;
+    m_projectDir = absoluteProjectPath;
     m_cache.clear();
 }
 
-QString FileInProjectFinder::projectDirectory() const
+FileName  FileInProjectFinder::projectDirectory() const
 {
     return m_projectDir;
 }
@@ -224,7 +214,7 @@ bool FileInProjectFinder::findFileOrDirectory(const QString &originalPath, FileH
 
         int prefixToIgnore = -1;
         const QChar separator = QLatin1Char('/');
-        if (originalPath.startsWith(m_projectDir + separator)) {
+        if (originalPath.startsWith(m_projectDir.toString() + separator)) {
             if (HostOsInfo::isMacHost()) {
                 // starting with the project path is not sufficient if the file was
                 // copied in an insource build, e.g. into MyApp.app/Contents/Resources
@@ -255,7 +245,7 @@ bool FileInProjectFinder::findFileOrDirectory(const QString &originalPath, FileH
         while (prefixToIgnore != -1) {
             QString candidate = originalPath;
             candidate.remove(0, prefixToIgnore);
-            candidate.prepend(m_projectDir);
+            candidate.prepend(m_projectDir.toString());
             if (checkPath(candidate, fileHandler, directoryHandler))
                 return handleSuccess(originalPath, candidate, "in project directory");
             prefixToIgnore = originalPath.indexOf(separator, prefixToIgnore + 1);

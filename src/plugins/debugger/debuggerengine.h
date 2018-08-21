@@ -146,7 +146,7 @@ public:
     bool isSnapshot = false; // Set if created internally.
     ProjectExplorer::Abi toolChainAbi;
 
-    QString projectSourceDirectory;
+    Utils::FileName projectSourceDirectory;
     Utils::FileNameList projectSourceFiles;
 
     // Used by Script debugging

@@ -44,8 +44,8 @@ public:
 
     FileInProjectFinder();
 
-    void setProjectDirectory(const QString &absoluteProjectPath);
-    QString projectDirectory() const;
+    void setProjectDirectory(const FileName &absoluteProjectPath);
+    FileName projectDirectory() const;
 
     void setProjectFiles(const FileNameList &projectFiles);
     void setSysroot(const QString &sysroot);
@@ -79,7 +79,7 @@ private:
     static int rankFilePath(const QString &candidatePath, const QString &filePathToFind);
     static QString bestMatch(const QStringList &filePaths, const QString &filePathToFind);
 
-    QString m_projectDir;
+    FileName m_projectDir;
     QString m_sysroot;
     FileNameList m_projectFiles;
     QStringList m_searchDirectories;
