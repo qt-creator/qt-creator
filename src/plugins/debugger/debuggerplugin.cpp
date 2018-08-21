@@ -1684,7 +1684,7 @@ public:
         : DebuggerRunTool(runControl, kit)
     {
         IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-        setDisplayName("AttachToRunningProcess");
+        setId("AttachToRunningProcess");
         setUsePortsGatherer(true, false);
         portsGatherer()->setDevice(device);
 

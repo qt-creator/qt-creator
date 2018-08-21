@@ -878,7 +878,7 @@ Internal::TerminalRunner *DebuggerRunTool::terminalRunner() const
 DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTerminal)
     : RunWorker(runControl), d(new DebuggerRunToolPrivate)
 {
-    setDisplayName("DebuggerRunTool");
+    setId("DebuggerRunTool");
 
     RunConfiguration *runConfig = runControl->runConfiguration();
 
@@ -1027,7 +1027,7 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
 GdbServerPortsGatherer::GdbServerPortsGatherer(RunControl *runControl)
     : ChannelProvider(runControl, 2)
 {
-    setDisplayName("GdbServerPortsGatherer");
+    setId("GdbServerPortsGatherer");
     m_device = runControl->device();
 }
 
@@ -1065,7 +1065,7 @@ void GdbServerPortsGatherer::setDevice(IDevice::ConstPtr device)
 GdbServerRunner::GdbServerRunner(RunControl *runControl, GdbServerPortsGatherer *portsGatherer)
    : SimpleTargetRunner(runControl), m_portsGatherer(portsGatherer)
 {
-    setDisplayName("GdbServerRunner");
+    setId("GdbServerRunner");
     m_runnable = runControl->runnable();
     addStartDependency(m_portsGatherer);
 }

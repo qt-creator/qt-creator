@@ -35,7 +35,7 @@ AndroidQmlToolingSupport::AndroidQmlToolingSupport(RunControl *runControl,
                                                    const QString &intentName)
     : RunWorker(runControl)
 {
-    setDisplayName("AndroidQmlToolingSupport");
+    setId("AndroidQmlToolingSupport");
 
     auto runner = new AndroidRunner(runControl, intentName);
     addStartDependency(runner);

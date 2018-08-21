@@ -381,7 +381,7 @@ void IosRunSupport::stop()
 IosQmlProfilerSupport::IosQmlProfilerSupport(RunControl *runControl)
     : RunWorker(runControl)
 {
-    setDisplayName("IosAnalyzeSupport");
+    setId("IosAnalyzeSupport");
 
     auto iosRunConfig = qobject_cast<IosRunConfiguration *>(runControl->runConfiguration());
     Runnable runnable;

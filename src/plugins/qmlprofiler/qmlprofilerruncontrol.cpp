@@ -76,7 +76,7 @@ QmlProfilerRunner::QmlProfilerRunner(RunControl *runControl)
     : RunWorker(runControl)
     , d(new QmlProfilerRunnerPrivate)
 {
-    setDisplayName("QmlProfilerRunner");
+    setId("QmlProfilerRunner");
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
     setSupportsReRunning(false);
 }
@@ -229,7 +229,7 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(QmlProfilerTool *profilerTool,
                                                  RunControl *runControl, const QUrl &serverUrl)
     : SimpleTargetRunner(runControl)
 {
-    setDisplayName("LocalQmlProfilerSupport");
+    setId("LocalQmlProfilerSupport");
 
     QmlProfilerRunner *profiler = new QmlProfilerRunner(runControl);
     profiler->setServerUrl(serverUrl);

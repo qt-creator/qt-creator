@@ -121,7 +121,7 @@ namespace Internal {
 AndroidRunner::AndroidRunner(RunControl *runControl, const QString &intentName)
     : RunWorker(runControl), m_target(runControl->runConfiguration()->target())
 {
-    setDisplayName("AndroidRunner");
+    setId("AndroidRunner");
     static const int metaTypes[] = {
         qRegisterMetaType<QVector<QStringList> >("QVector<QStringList>"),
         qRegisterMetaType<Utils::Port>("Utils::Port"),

@@ -102,7 +102,7 @@ static QString toNdkArch(const QString &arch)
 AndroidDebugSupport::AndroidDebugSupport(RunControl *runControl, const QString &intentName)
     : Debugger::DebuggerRunTool(runControl)
 {
-    setDisplayName("AndroidDebugger");
+    setId("AndroidDebugger");
     m_runner = new AndroidRunner(runControl, intentName);
     addStartDependency(m_runner);
 }

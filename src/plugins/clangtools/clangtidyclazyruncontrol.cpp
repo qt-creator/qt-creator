@@ -41,7 +41,7 @@ ClangTidyClazyRunControl::ClangTidyClazyRunControl(
     : ClangToolRunControl(runControl, target, fileInfos)
     , m_diagnosticConfig(diagnosticConfig)
 {
-    setDisplayName("ClangTidyClazyRunner");
+    setId("ClangTidyClazyRunner");
     init();
 }
 

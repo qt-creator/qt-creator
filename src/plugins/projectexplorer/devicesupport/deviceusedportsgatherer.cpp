@@ -177,7 +177,7 @@ void DeviceUsedPortsGatherer::handleRemoteStdErr()
 PortsGatherer::PortsGatherer(RunControl *runControl)
    : RunWorker(runControl)
 {
-    setDisplayName("PortGatherer");
+    setId("PortGatherer");
 
     connect(&m_portsGatherer, &DeviceUsedPortsGatherer::error, this, &PortsGatherer::reportFailure);
     connect(&m_portsGatherer, &DeviceUsedPortsGatherer::portListReady, this, [this] {
@@ -257,7 +257,7 @@ public:
     SubChannelProvider(RunControl *runControl, RunWorker *sharedEndpointGatherer)
         : RunWorker(runControl)
     {
-        setDisplayName("SubChannelProvider");
+        setId("SubChannelProvider");
 
         m_portGatherer = qobject_cast<PortsGatherer *>(sharedEndpointGatherer);
         if (m_portGatherer) {
@@ -334,7 +334,7 @@ private:
 ChannelProvider::ChannelProvider(RunControl *runControl, int requiredChannels)
    : RunWorker(runControl)
 {
-    setDisplayName("ChannelProvider");
+    setId("ChannelProvider");
 
     RunWorker *sharedEndpoints = nullptr;
     if (auto sharedEndpointGatherer = device()->workerCreator("SharedEndpointGatherer")) {

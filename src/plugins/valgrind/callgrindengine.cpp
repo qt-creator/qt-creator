@@ -47,7 +47,7 @@ void setupCallgrindRunner(CallgrindToolRunner *);
 CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
     : ValgrindToolRunner(runControl)
 {
-    setDisplayName("CallgrindToolRunner");
+    setId("CallgrindToolRunner");
 
     connect(&m_runner, &ValgrindRunner::finished,
             this, &CallgrindToolRunner::slotFinished);

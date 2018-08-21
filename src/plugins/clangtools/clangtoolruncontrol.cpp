@@ -119,7 +119,7 @@ public:
     ProjectBuilder(RunControl *runControl, Project *project, ClangToolRunControl *parent)
         : RunWorker(runControl), m_project(project), m_parent(parent)
     {
-        setDisplayName("ProjectBuilder");
+        setId("ProjectBuilder");
     }
 
     void setEnabled(bool enabled) { m_enabled = enabled; }

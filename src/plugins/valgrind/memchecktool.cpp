@@ -1120,7 +1120,7 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
       m_withGdb(runControl->runMode() == MEMCHECK_WITH_GDB_RUN_MODE),
       m_localServerAddress(QHostAddress::LocalHost)
 {
-    setDisplayName("MemcheckToolRunner");
+    setId("MemcheckToolRunner");
     connect(m_runner.parser(), &XmlProtocol::ThreadedParser::error,
             this, &MemcheckToolRunner::parserError);
     connect(m_runner.parser(), &XmlProtocol::ThreadedParser::suppressionCount,

@@ -36,7 +36,7 @@ namespace Internal {
 LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
     : DebuggerRunTool(runControl)
 {
-    setDisplayName("LinuxDeviceDebugSupport");
+    setId("LinuxDeviceDebugSupport");
 
     setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
     addQmlServerInferiorCommandLineArgumentIfNeeded();

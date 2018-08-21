@@ -50,7 +50,7 @@ namespace Internal {
 QnxQmlProfilerSupport::QnxQmlProfilerSupport(RunControl *runControl)
     : SimpleTargetRunner(runControl)
 {
-    setDisplayName("QnxQmlProfilerSupport");
+    setId("QnxQmlProfilerSupport");
     appendMessage(tr("Preparing remote side..."), Utils::LogMessageFormat);
 
     m_portsGatherer = new PortsGatherer(runControl);

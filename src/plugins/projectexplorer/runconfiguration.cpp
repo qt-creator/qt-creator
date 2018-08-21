@@ -1637,7 +1637,7 @@ void RunControl::appendMessage(const QString &msg, Utils::OutputFormat format)
 SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
     : RunWorker(runControl)
 {
-    setDisplayName("SimpleTargetRunner");
+    setId("SimpleTargetRunner");
     m_runnable = runControl->runnable(); // Default value. Can be overridden using setRunnable.
     m_device = runControl->device(); // Default value. Can be overridden using setDevice.
     if (auto runConfig = runControl->runConfiguration()) {

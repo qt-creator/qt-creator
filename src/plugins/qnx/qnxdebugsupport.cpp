@@ -99,7 +99,7 @@ public:
     QnxDebuggeeRunner(RunControl *runControl, GdbServerPortsGatherer *portsGatherer)
         : SimpleTargetRunner(runControl), m_portsGatherer(portsGatherer)
     {
-        setDisplayName("QnxDebuggeeRunner");
+        setId("QnxDebuggeeRunner");
     }
 
 private:
@@ -133,7 +133,7 @@ private:
 QnxDebugSupport::QnxDebugSupport(RunControl *runControl)
     : DebuggerRunTool(runControl)
 {
-    setDisplayName("QnxDebugSupport");
+    setId("QnxDebugSupport");
     appendMessage(tr("Preparing remote side..."), LogMessageFormat);
 
     setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
@@ -202,7 +202,7 @@ public:
     PDebugRunner(RunControl *runControl, GdbServerPortsGatherer *portsGatherer)
         : SimpleTargetRunner(runControl), m_portsGatherer(portsGatherer)
     {
-        setDisplayName("PDebugRunner");
+        setId("PDebugRunner");
         addStartDependency(m_portsGatherer);
     }
 
@@ -225,7 +225,7 @@ private:
 QnxAttachDebugSupport::QnxAttachDebugSupport(RunControl *runControl)
     : DebuggerRunTool(runControl)
 {
-    setDisplayName("QnxAttachDebugSupport");
+    setId("QnxAttachDebugSupport");
 
     setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
 

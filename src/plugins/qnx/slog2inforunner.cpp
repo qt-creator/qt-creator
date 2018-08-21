@@ -44,7 +44,7 @@ namespace Internal {
 Slog2InfoRunner::Slog2InfoRunner(RunControl *runControl)
     : RunWorker(runControl)
 {
-    setDisplayName("Slog2InfoRunner");
+    setId("Slog2InfoRunner");
     m_applicationId = runControl->runConfiguration()->extraAspect<ExecutableAspect>()->executable().fileName();
 
     // See QTCREATORBUG-10712 for details.

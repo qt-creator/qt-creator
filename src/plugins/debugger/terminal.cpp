@@ -171,7 +171,7 @@ void Terminal::onSlaveReaderActivated(int fd)
 TerminalRunner::TerminalRunner(RunControl *runControl, const Runnable &stubRunnable)
     : RunWorker(runControl)
 {
-    setDisplayName("TerminalRunner");
+    setId("TerminalRunner");
 
     m_stubRunnable = stubRunnable;
 
