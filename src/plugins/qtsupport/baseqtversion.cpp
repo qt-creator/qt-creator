@@ -1362,7 +1362,7 @@ void BaseQtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Tar
 
     if (target) {
         for (const ProjectExplorer::DeployableFile &file : target->deploymentData().allFiles())
-            finder->addMappedPath(file.localFilePath().toString(), file.remoteFilePath());
+            finder->addMappedPath(file.localFilePath(), file.remoteFilePath());
     }
 
     // Finally, do populate m_projectFinder

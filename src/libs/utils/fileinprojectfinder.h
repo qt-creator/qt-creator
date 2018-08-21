@@ -50,7 +50,7 @@ public:
     void setProjectFiles(const FileNameList &projectFiles);
     void setSysroot(const QString &sysroot);
 
-    void addMappedPath(const QString &localFilePath, const QString &remoteFilePath);
+    void addMappedPath(const FileName &localFilePath, const QString &remoteFilePath);
 
     QString findFile(const QUrl &fileUrl, bool *success = nullptr) const;
     bool findFileOrDirectory(const QString &originalPath, FileHandler fileHandler = nullptr,
@@ -63,7 +63,7 @@ private:
     struct PathMappingNode
     {
         ~PathMappingNode();
-        QString localPath;
+        FileName localPath;
         QHash<QString, PathMappingNode *> children;
     };
 

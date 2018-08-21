@@ -115,7 +115,7 @@ void FileInProjectFinder::setSysroot(const QString &sysroot)
     m_cache.clear();
 }
 
-void FileInProjectFinder::addMappedPath(const QString &localFilePath, const QString &remoteFilePath)
+void FileInProjectFinder::addMappedPath(const FileName &localFilePath, const QString &remoteFilePath)
 {
     const QStringList segments = remoteFilePath.split('/', QString::SkipEmptyParts);
 
@@ -186,8 +186,9 @@ bool FileInProjectFinder::findFileOrDirectory(const QString &originalPath, FileH
 
     if (node) {
         if (!node->localPath.isEmpty()) {
-            if (checkPath(node->localPath, fileHandler, directoryHandler))
-                return handleSuccess(originalPath, node->localPath, "in deployment data");
+            const QString localPath = node->localPath.toString();
+            if (checkPath(localPath, fileHandler, directoryHandler))
+                return handleSuccess(originalPath, localPath, "in deployment data");
         } else if (directoryHandler) {
             directoryHandler(node->children.keys());
             qCDebug(finderLog) << "FileInProjectFinder: found virtual directory" << originalPath
