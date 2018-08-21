@@ -427,6 +427,11 @@
             can be selected.
     \endlist
 
+    \if defined(qtdesignstudio)
+    \include qtdesignstudio-components.qdocinc creating studio components
+    \include qtdesignstudio-components.qdocinc studio components
+    \endif
+
     \section1 History of Qt Quick Controls
 
     In Qt 4, ready-made Qt Quick 1 Components were provided for creating
@@ -461,6 +466,7 @@
     Some ready-made controls, such as a gauge, dial, status indicator, and
     tumbler, are provided by the \l {Qt Quick Extras} module.
 
+    \if defined(qtcreator)
     \section1 Creating Components in Design Mode
 
     \list 1
@@ -495,6 +501,7 @@
         \li \l{Creating Scalable Buttons and Borders}
 
     \endlist
+    \endif
 
     \section1 Moving Within Components
 
