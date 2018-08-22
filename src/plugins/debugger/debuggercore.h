@@ -68,7 +68,6 @@ enum TestCases
 // Some convenience.
 void openTextEditor(const QString &titlePattern, const QString &contents);
 
-QWidget *mainWindow();
 void showModuleSymbols(const QString &moduleName, const QVector<Internal::Symbol> &symbols);
 void showModuleSections(const QString &moduleName, const QVector<Internal::Section> &sections);
 

@@ -1258,7 +1258,7 @@ void DebuggerEngine::notifyInferiorSpontaneousStop()
     showMessage(tr("Stopped."), StatusBar);
     setState(InferiorStopOk);
     if (boolSetting(RaiseOnInterrupt))
-        ICore::raiseWindow(Internal::mainWindow());
+        ICore::raiseWindow(DebuggerMainWindow::instance());
     EngineManager::activateEngine(this);
 }
 
@@ -1423,7 +1423,7 @@ void DebuggerEnginePrivate::updateState(bool alsoUpdateCompanion)
     m_detachAction.setEnabled(detachable);
 
     if (stopped)
-        QApplication::alert(mainWindow(), 3000);
+        QApplication::alert(ICore::mainWindow(), 3000);
 
     updateReverseActions();
 

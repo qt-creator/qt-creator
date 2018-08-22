@@ -24,16 +24,18 @@
 ****************************************************************************/
 
 #include "debuggertooltipmanager.h"
-#include "debuggerinternalconstants.h"
-#include "debuggerengine.h"
-#include "debuggerprotocol.h"
+
 #include "debuggeractions.h"
-#include "snapshothandler.h"
-#include "stackhandler.h"
 #include "debuggercore.h"
+#include "debuggerengine.h"
+#include "debuggerinternalconstants.h"
+#include "debuggermainwindow.h"
+#include "debuggerprotocol.h"
+#include "snapshothandler.h"
+#include "sourceutils.h"
+#include "stackhandler.h"
 #include "watchhandler.h"
 #include "watchwindow.h"
-#include "sourceutils.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -797,7 +799,7 @@ void DebuggerToolTipHolder::updateTooltip(DebuggerEngine *engine)
 
     if (state == PendingUnshown) {
         setState(PendingShown);
-        ToolTip::show(context.mousePosition, widget, Internal::mainWindow());
+        ToolTip::show(context.mousePosition, widget, DebuggerMainWindow::instance());
     }
 
     if (item && sameFrame) {
@@ -845,7 +847,7 @@ void DebuggerToolTipHolder::releaseEngine()
         // (Out of scope items, keywords, ...)
         ToolTip::show(context.mousePosition,
                       DebuggerToolTipManager::tr("No valid expression"),
-                      Internal::mainWindow());
+                      DebuggerMainWindow::instance());
         widget->deleteLater();
         return;
     }
@@ -1156,7 +1158,7 @@ static void slotTooltipOverrideRequested
 
     if (context.expression.isEmpty()) {
         ToolTip::show(point, DebuggerToolTipManager::tr("No valid expression"),
-                             Internal::mainWindow());
+                             DebuggerMainWindow::instance());
         *handled = true;
         return;
     }
@@ -1178,13 +1180,13 @@ static void slotTooltipOverrideRequested
         if (tooltip) {
             DEBUG("REUSING LOCALS TOOLTIP");
             tooltip->context.mousePosition = point;
-            ToolTip::move(point, Internal::mainWindow());
+            ToolTip::move(point, DebuggerMainWindow::instance());
         } else {
             DEBUG("CREATING LOCALS, WAITING...");
             tooltip = new DebuggerToolTipHolder(context);
             tooltip->setState(Acquired);
             m_tooltips.push_back(tooltip);
-            ToolTip::show(point, tooltip->widget, Internal::mainWindow());
+            ToolTip::show(point, tooltip->widget, DebuggerMainWindow::instance());
         }
         DEBUG("SYNC IN STATE" << tooltip->state);
         tooltip->updateTooltip(engine);
@@ -1202,7 +1204,7 @@ static void slotTooltipOverrideRequested
         if (tooltip) {
             //tooltip->destroy();
             tooltip->context.mousePosition = point;
-            ToolTip::move(point, Internal::mainWindow());
+            ToolTip::move(point, DebuggerMainWindow::instance());
             DEBUG("UPDATING DELAYED.");
             *handled = true;
         } else {
@@ -1215,7 +1217,7 @@ static void slotTooltipOverrideRequested
                 engine->updateItem(context.iname);
             } else {
                 ToolTip::show(point, DebuggerToolTipManager::tr("Expression too complex"),
-                              Internal::mainWindow());
+                              DebuggerMainWindow::instance());
                 tooltip->destroy();
             }
         }

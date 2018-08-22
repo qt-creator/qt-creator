@@ -31,6 +31,7 @@
 #include "debuggerdialogs.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
+#include "debuggermainwindow.h"
 #include "debuggerprotocol.h"
 #include "debuggertooltipmanager.h"
 #include "imageviewer.h"
@@ -269,7 +270,7 @@ static void saveFormats()
 class SeparatedView : public QTabWidget
 {
 public:
-    SeparatedView() : QTabWidget(Internal::mainWindow())
+    SeparatedView() : QTabWidget(DebuggerMainWindow::instance())
     {
         setTabsClosable(true);
         connect(this, &QTabWidget::tabCloseRequested, this, &SeparatedView::closeTab);
@@ -1975,8 +1976,7 @@ void WatchHandler::cleanup()
     saveWatchers();
     m_model->reinitialize();
     emit m_model->updateFinished();
-    if (Internal::mainWindow())
-        m_model->m_separatedView->hide();
+    m_model->m_separatedView->hide();
 }
 
 static bool sortByName(const WatchItem *a, const WatchItem *b)

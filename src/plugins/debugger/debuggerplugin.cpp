@@ -2318,11 +2318,6 @@ void openTextEditor(const QString &titlePattern0, const QString &contents)
     QTC_ASSERT(editor, return);
 }
 
-QWidget *mainWindow()
-{
-    return DebuggerMainWindow::instance();
-}
-
 QSharedPointer<Internal::GlobalDebuggerOptions> globalDebuggerOptions()
 {
     return dd->m_globalDebuggerOptions;
