@@ -29,12 +29,16 @@
 
 namespace {
 
-using ClangBackEnd::SymbolIndexerTask;
 using ClangBackEnd::FilePathId;
+using ClangBackEnd::SymbolsCollectorInterface;
+using ClangBackEnd::SymbolIndexerTask;
+using ClangBackEnd::SymbolStorageInterface;
+
+using Callable = ClangBackEnd::SymbolIndexerTask::Callable;
 
 MATCHER_P2(IsTask, filePathId, projectPartId,
           std::string(negation ? "is't" : "is")
-          + PrintToString(SymbolIndexerTask(filePathId, projectPartId, []{})))
+          + PrintToString(SymbolIndexerTask(filePathId, projectPartId, Callable{})))
 {
     const SymbolIndexerTask &task = arg;
 
@@ -54,12 +58,12 @@ protected:
 
 TEST_F(SymbolIndexerTaskQueue, AddTasks)
 {
-    queue.addOrUpdateTasks({{{1, 2}, projectPartId("foo"), [] {}},
-                            {{1, 4}, projectPartId("foo"), [] {}}});
+    queue.addOrUpdateTasks({{{1, 2}, projectPartId("foo"), Callable{}},
+                            {{1, 4}, projectPartId("foo"), Callable{}}});
 
-    queue.addOrUpdateTasks({{{1, 1}, projectPartId("foo"), [] {}},
-                            {{1, 3}, projectPartId("foo"), [] {}},
-                            {{1, 5}, projectPartId("foo"), [] {}}});
+    queue.addOrUpdateTasks({{{1, 1}, projectPartId("foo"), Callable{}},
+                            {{1, 3}, projectPartId("foo"), Callable{}},
+                            {{1, 5}, projectPartId("foo"), Callable{}}});
 
     ASSERT_THAT(queue.tasks(),
                 ElementsAre(IsTask(FilePathId{1, 1}, projectPartId("foo")),
@@ -71,12 +75,12 @@ TEST_F(SymbolIndexerTaskQueue, AddTasks)
 
 TEST_F(SymbolIndexerTaskQueue, ReplaceTask)
 {
-    queue.addOrUpdateTasks({{{1, 1}, projectPartId("foo"), [] {}},
-                            {{1, 3}, projectPartId("foo"), [] {}},
-                            {{1, 5}, projectPartId("foo"), [] {}}});
+    queue.addOrUpdateTasks({{{1, 1}, projectPartId("foo"), Callable{}},
+                            {{1, 3}, projectPartId("foo"), Callable{}},
+                            {{1, 5}, projectPartId("foo"), Callable{}}});
 
-    queue.addOrUpdateTasks({{{1, 2}, projectPartId("foo"), [] {}},
-                            {{1, 3}, projectPartId("foo"), [] {}}});
+    queue.addOrUpdateTasks({{{1, 2}, projectPartId("foo"), Callable{}},
+                            {{1, 3}, projectPartId("foo"), Callable{}}});
 
     ASSERT_THAT(queue.tasks(),
                 ElementsAre(IsTask(FilePathId{1, 1}, projectPartId("foo")),
@@ -87,12 +91,12 @@ TEST_F(SymbolIndexerTaskQueue, ReplaceTask)
 
 TEST_F(SymbolIndexerTaskQueue, AddTaskWithDifferentProjectId)
 {
-    queue.addOrUpdateTasks({{{1, 1}, projectPartId("foo"), [] {}},
-                            {{1, 3}, projectPartId("foo"), [] {}},
-                            {{1, 5}, projectPartId("foo"), [] {}}});
+    queue.addOrUpdateTasks({{{1, 1}, projectPartId("foo"), Callable{}},
+                            {{1, 3}, projectPartId("foo"), Callable{}},
+                            {{1, 5}, projectPartId("foo"), Callable{}}});
 
-    queue.addOrUpdateTasks({{{1, 2}, projectPartId("bar"), [] {}},
-                            {{1, 3}, projectPartId("bar"), [] {}}});
+    queue.addOrUpdateTasks({{{1, 2}, projectPartId("bar"), Callable{}},
+                            {{1, 3}, projectPartId("bar"), Callable{}}});
 
     ASSERT_THAT(queue.tasks(),
                 ElementsAre(IsTask(FilePathId{1, 1}, projectPartId("foo")),
@@ -104,15 +108,15 @@ TEST_F(SymbolIndexerTaskQueue, AddTaskWithDifferentProjectId)
 
 TEST_F(SymbolIndexerTaskQueue, RemoveTaskByProjectParts)
 {
-    queue.addOrUpdateTasks({{{1, 1}, projectPartId("yi"), [] {}},
-                            {{1, 3}, projectPartId("yi"), [] {}},
-                            {{1, 5}, projectPartId("yi"), [] {}}});
-    queue.addOrUpdateTasks({{{1, 2}, projectPartId("er"), [] {}},
-                            {{1, 3}, projectPartId("er"), [] {}}});
-    queue.addOrUpdateTasks({{{1, 2}, projectPartId("san"), [] {}},
-                            {{1, 3}, projectPartId("san"), [] {}}});
-    queue.addOrUpdateTasks({{{1, 2}, projectPartId("se"), [] {}},
-                            {{1, 3}, projectPartId("se"), [] {}}});
+    queue.addOrUpdateTasks({{{1, 1}, projectPartId("yi"), Callable{}},
+                            {{1, 3}, projectPartId("yi"), Callable{}},
+                            {{1, 5}, projectPartId("yi"), Callable{}}});
+    queue.addOrUpdateTasks({{{1, 2}, projectPartId("er"), Callable{}},
+                            {{1, 3}, projectPartId("er"), Callable{}}});
+    queue.addOrUpdateTasks({{{1, 2}, projectPartId("san"), Callable{}},
+                            {{1, 3}, projectPartId("san"), Callable{}}});
+    queue.addOrUpdateTasks({{{1, 2}, projectPartId("se"), Callable{}},
+                            {{1, 3}, projectPartId("se"), Callable{}}});
 
     queue.removeTasks({"er", "san"});
 

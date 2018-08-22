@@ -34,14 +34,18 @@
 
 namespace ClangBackEnd {
 
+class SymbolsCollectorInterface;
+class SymbolStorageInterface;
+
 class SymbolIndexerTask
 {
 public:
-    using CallableType = std::function<void()>;
+    using Callable = std::function<void(SymbolsCollectorInterface &symbolsCollector,
+                                        SymbolStorageInterface &symbolStorage)>;
 
     SymbolIndexerTask(FilePathId filePathId,
                       std::size_t projectPartId,
-                      CallableType &&callable)
+                      Callable &&callable)
         : callable(std::move(callable)),
           filePathId(filePathId),
           projectPartId(projectPartId)
@@ -67,7 +71,7 @@ public:
     }
 
 public:
-    CallableType callable;
+    Callable callable;
     FilePathId filePathId;
     std::size_t projectPartId;
 };

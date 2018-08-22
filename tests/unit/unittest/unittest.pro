@@ -96,7 +96,8 @@ SOURCES += \
     projectpartqueue-test.cpp \
     generatedfiles-test.cpp \
     sourcesmanager-test.cpp \
-    symbolindexertaskqueue-test.cpp
+    symbolindexertaskqueue-test.cpp \
+    symbolindexertaskscheduler-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -232,7 +233,8 @@ HEADERS += \
     mocksqlitetransactionbackend.h \
     mockprojectpartprovider.h \
     mockprecompiledheaderstorage.h \
-    mockeditormanager.h
+    mockeditormanager.h \
+    mocksymbolscollectormanager.h
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
     chunksreportedmonitor.h \

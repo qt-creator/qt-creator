@@ -63,6 +63,9 @@ public:
     virtual const FileStatuses &fileStatuses() const = 0;
     virtual const SourceDependencies &sourceDependencies() const = 0;
 
+    virtual bool isUsed() const = 0;
+    virtual void setIsUsed(bool isUsed) = 0;
+
 protected:
     ~SymbolsCollectorInterface() = default;
 };

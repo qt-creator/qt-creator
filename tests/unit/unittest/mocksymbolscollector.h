@@ -62,4 +62,10 @@ public:
 
    MOCK_CONST_METHOD0(sourceDependencies,
                       const ClangBackEnd::SourceDependencies &());
+
+   MOCK_CONST_METHOD0(isUsed,
+                      bool());
+
+   MOCK_METHOD1(setIsUsed,
+                void(bool));
 };

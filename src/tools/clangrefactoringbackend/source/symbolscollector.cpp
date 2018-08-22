@@ -154,4 +154,14 @@ const SourceDependencies &SymbolsCollector::sourceDependencies() const
     return m_collectMacrosSourceFileCallbacks.sourceDependencies();
 }
 
+bool SymbolsCollector::isUsed() const
+{
+    return m_isUsed;
+}
+
+void SymbolsCollector::setIsUsed(bool isUsed)
+{
+    m_isUsed = isUsed;
+}
+
 } // namespace ClangBackEnd

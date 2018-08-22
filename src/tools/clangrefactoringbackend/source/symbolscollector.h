@@ -35,7 +35,7 @@
 
 namespace ClangBackEnd {
 
-class SymbolsCollector : public SymbolsCollectorInterface
+class SymbolsCollector final : public SymbolsCollectorInterface
 {
 public:
     SymbolsCollector(FilePathCachingInterface &filePathCache);
@@ -56,6 +56,9 @@ public:
     const FileStatuses &fileStatuses() const override;
     const SourceDependencies &sourceDependencies() const override;
 
+    bool isUsed() const override;
+    void setIsUsed(bool isUsed) override;
+
 private:
     ClangTool m_clangTool;
     SymbolEntries m_symbolEntries;
@@ -65,6 +68,7 @@ private:
     CollectMacrosSourceFileCallbacks m_collectMacrosSourceFileCallbacks;
     SourcesManager m_sourcesManager;
     FilePathCachingInterface &m_filePathCache;
+    bool m_isUsed = false;
 };
 
 } // namespace ClangBackEnd
