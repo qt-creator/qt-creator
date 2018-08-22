@@ -43,26 +43,26 @@ protected:
                                                         {"--er"},
                                                         {{"ER","2"}},
                                                         {"/bar"},
-                                                        {{2, 1}},
-                                                        {{2, 2}}};
+                                                        {{2, 3}},
+                                                        {{2, 4}}};
     ClangBackEnd::V2::ProjectPartContainer projectPart2b{"ProjectPart2",
                                                         {"--liang"},
                                                         {{"LIANG","3"}},
                                                         {"/liang"},
-                                                        {{2, 3}},
-                                                        {{2, 2}, {2, 4}}};
+                                                        {{2, 5}},
+                                                        {{2, 4}, {2, 6}}};
     ClangBackEnd::V2::ProjectPartContainer projectPart3{"ProjectPart3",
                                                         {"--san"},
                                                         {{"SAN","2"}},
                                                         {"/SAN"},
-                                                        {{3, 1}},
-                                                        {{3, 2}}};
+                                                        {{3, 7}},
+                                                        {{3, 8}}};
     ClangBackEnd::V2::ProjectPartContainer projectPartMerged{"ProjectPart2",
                                                              {"--liang"},
                                                              {{"LIANG","3"}},
                                                              {"/liang"},
-                                                             {{2, 1}, {2, 3}},
-                                                             {{2, 2}, {2, 4}}};
+                                                             {{2, 3}, {2, 5}},
+                                                             {{2, 4}, {2, 6}}};
 };
 
 TEST_F(ProjectPartQueue, AddProjectPart)

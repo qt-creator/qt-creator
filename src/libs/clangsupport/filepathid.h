@@ -51,10 +51,7 @@ public:
 
     friend bool operator==(FilePathId first, FilePathId second)
     {
-        return first.isValid()
-            && second.isValid()
-            && first.directoryId == second.directoryId
-            && first.filePathId == second.filePathId;
+        return first.isValid() && first.filePathId == second.filePathId;
     }
 
     friend bool operator!=(FilePathId first, FilePathId second)
@@ -64,8 +61,7 @@ public:
 
     friend bool operator<(FilePathId first, FilePathId second)
     {
-        return std::tie(first.directoryId, first.filePathId)
-             < std::tie(second.directoryId, second.filePathId);
+        return first.filePathId < second.filePathId;
     }
 
     friend QDataStream &operator<<(QDataStream &out, const FilePathId &filePathId)
