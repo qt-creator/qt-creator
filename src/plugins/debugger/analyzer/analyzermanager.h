@@ -62,8 +62,6 @@ DEBUGGER_EXPORT void showCannotStartDialog(const QString &toolName);
 
 DEBUGGER_EXPORT void enableMainWindow(bool on);
 
-DEBUGGER_EXPORT void selectPerspective(const QByteArray &perspectiveId);
-
 // Convenience functions.
 DEBUGGER_EXPORT void showStatusMessage(const QString &message, int timeoutMS = 10000);
 DEBUGGER_EXPORT void showPermanentStatusMessage(const QString &message);

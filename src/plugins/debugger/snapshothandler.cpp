@@ -332,12 +332,13 @@ void EngineManagerPrivate::selectUiForCurrentEngine()
 
     m_engineChooser->setCurrentIndex(row);
 
-    if (perspective)
-        perspective->select();
-    else
-        selectPerspective(Debugger::Constants::PRESET_PERSPRECTIVE_ID);
+    if (!perspective)
+        perspective = Perspective::findPerspective(Debugger::Constants::PRESET_PERSPRECTIVE_ID);
 
-    m_engineModel.rootItem()->forFirstLevelChildren([this](EngineItem *engineItem) {
+    QTC_ASSERT(perspective, return);
+    perspective->select();
+
+    m_engineModel.rootItem()->forFirstLevelChildren([](EngineItem *engineItem) {
         if (engineItem && engineItem->m_engine)
             engineItem->m_engine->updateMarkers();
     });

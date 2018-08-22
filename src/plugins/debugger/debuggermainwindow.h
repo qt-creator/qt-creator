@@ -89,11 +89,13 @@ public:
     void setAboutToActivateCallback(const Callback &cb);
     void aboutToActivate() const;
 
-    void setParentPerspective(const QByteArray &parentPerspective);
+    void setParentPerspective(const QString &parentPerspectiveId);
     void setEnabled(bool enabled);
 
     void select();
+
     static Perspective *currentPerspective();
+    static Perspective *findPerspective(const QString &perspectiveId);
 
     Core::Context context() const;
 
@@ -122,7 +124,6 @@ public:
     static void showStatusMessage(const QString &message, int timeoutMS);
     static void onModeChanged(Core::Id mode);
 
-    static Perspective *findPerspective(const QByteArray &perspectiveId);
     static QWidget *centralWidgetStack();
 
 private:

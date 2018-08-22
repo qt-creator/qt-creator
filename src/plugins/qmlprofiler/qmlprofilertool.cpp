@@ -547,7 +547,7 @@ ProjectExplorer::RunControl *QmlProfilerTool::attachToWaitingApplication()
     serverUrl.setHost(toolControl.host());
     serverUrl.setPort(port);
 
-    Debugger::selectPerspective(Constants::QmlProfilerPerspectiveId);
+    d->m_viewContainer->perspective()->select();
 
     auto runConfig = RunConfiguration::startupRunConfiguration();
     auto runControl = new RunControl(runConfig, ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
@@ -616,7 +616,7 @@ void QmlProfilerTool::showLoadDialog()
     if (!checkForUnsavedNotes())
         return;
 
-    Debugger::selectPerspective(QmlProfilerPerspectiveId);
+    d->m_viewContainer->perspective()->select();
 
     QLatin1String tFile(QtdFileExtension);
     QLatin1String zFile(QztFileExtension);
@@ -640,8 +640,8 @@ void QmlProfilerTool::profileStartupProject()
 {
     if (!prepareTool())
         return;
-   Debugger::selectPerspective(Constants::QmlProfilerPerspectiveId);
-   ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    d->m_viewContainer->perspective()->select();
+    ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
 }
 
 QAction *QmlProfilerTool::startAction() const

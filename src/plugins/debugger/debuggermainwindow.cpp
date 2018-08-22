@@ -146,7 +146,7 @@ public:
 
     QString m_id;
     QString m_name;
-    QByteArray m_parentPerspective;
+    QString m_parentPerspective;
     QVector<DockOperation> m_dockOperations;
     QVector<ToolbarOperation> m_toolBarOperations;
     QPointer<QWidget> m_centralWidget;
@@ -168,7 +168,6 @@ public:
     void registerPerspective(Perspective *perspective);
     void increaseChooserWidthIfNecessary(const QString &visibleName);
     void resetCurrentPerspective();
-    Perspective *findPerspective(const QByteArray &perspectiveId) const;
     int indexInChooser(Perspective *perspective) const;
 
     DebuggerMainWindow *q = nullptr;
@@ -197,7 +196,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     m_perspectiveChooser->setProperty("panelwidget", true);
     connect(m_perspectiveChooser, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
             this, [this](int item) {
-        restorePerspective(q->findPerspective(m_perspectiveChooser->itemData(item).toByteArray()));
+        restorePerspective(Perspective::findPerspective(m_perspectiveChooser->itemData(item).toString()));
     });
 }
 
@@ -258,7 +257,7 @@ void DebuggerMainWindow::doShutdown()
 void DebuggerMainWindowPrivate::registerPerspective(Perspective *perspective)
 {
     m_perspectives.append(perspective);
-    QByteArray parentPerspective = perspective->d->m_parentPerspective;
+    QString parentPerspective = perspective->d->m_parentPerspective;
     // Add "main" perspectives to the chooser.
     if (parentPerspective.isEmpty()) {
         m_perspectiveChooser->addItem(perspective->name(), perspective->id());
@@ -293,7 +292,7 @@ void DebuggerMainWindowPrivate::destroyPerspective(Perspective *perspective)
     if (perspective == m_currentPerspective) {
         m_currentPerspective = nullptr;
         if (!perspective->d->m_parentPerspective.isEmpty()) {
-            if (Perspective *parent = findPerspective(perspective->d->m_parentPerspective))
+            if (Perspective *parent = Perspective::findPerspective(perspective->d->m_parentPerspective))
                 parent->select();
         }
     }
@@ -321,11 +320,6 @@ void DebuggerMainWindow::onModeChanged(Core::Id mode)
     }
 }
 
-Perspective *DebuggerMainWindow::findPerspective(const QByteArray &perspectiveId)
-{
-    return theMainWindow ? theMainWindow->d->findPerspective(perspectiveId) : nullptr;
-}
-
 QWidget *DebuggerMainWindow::centralWidgetStack()
 {
     return theMainWindow ? theMainWindow->d->m_centralWidgetStack : nullptr;
@@ -336,10 +330,10 @@ DebuggerMainWindow *DebuggerMainWindow::instance()
     return theMainWindow;
 }
 
-Perspective *DebuggerMainWindowPrivate::findPerspective(const QByteArray &perspectiveId) const
+Perspective *Perspective::findPerspective(const QString &perspectiveId)
 {
-    return Utils::findOr(m_perspectives, nullptr, [&](Perspective *perspective) {
-        return perspective->d->m_id.toUtf8() == perspectiveId;
+    return Utils::findOr(theMainWindow->d->m_perspectives, nullptr, [&](Perspective *perspective) {
+        return perspective->d->m_id == perspectiveId;
     });
 }
 
@@ -491,7 +485,8 @@ void DebuggerMainWindowPrivate::loadPerspectiveHelper(Perspective *perspective, 
         m_currentPerspective = perspective;
     } else {
         const QSettings *settings = ICore::settings();
-        m_currentPerspective = findPerspective(settings->value(QLatin1String(LAST_PERSPECTIVE_KEY)).toByteArray());
+        const QString lastPerspectiveId = settings->value(QLatin1String(LAST_PERSPECTIVE_KEY)).toString();
+        m_currentPerspective = Perspective::findPerspective(lastPerspectiveId);
         // If we don't find a perspective with the stored name, pick any.
         // This can happen e.g. when a plugin was disabled that provided
         // the stored perspective, or when the save file was modified externally.
@@ -632,9 +627,9 @@ void Perspective::aboutToActivate() const
         d->m_aboutToActivateCallback();
 }
 
-void Perspective::setParentPerspective(const QByteArray &parentPerspective)
+void Perspective::setParentPerspective(const QString &parentPerspectiveId)
 {
-    d->m_parentPerspective = parentPerspective;
+    d->m_parentPerspective = parentPerspectiveId;
 }
 
 void Perspective::setEnabled(bool enabled)

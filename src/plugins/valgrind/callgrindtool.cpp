@@ -102,7 +102,6 @@ using namespace Utils;
 namespace Valgrind {
 namespace Internal {
 
-const char CallgrindPerspectiveId[]       = "Callgrind.Perspective";
 const char CallgrindLocalActionId[]       = "Callgrind.Local.Action";
 const char CallgrindRemoteActionId[]      = "Callgrind.Remote.Action";
 const char CALLGRIND_RUN_MODE[]           = "CallgrindTool.CallgrindRunMode";
@@ -216,7 +215,7 @@ public:
     QString m_toggleCollectFunction;
     bool m_toolBusy = false;
 
-    Perspective m_perspective{CallgrindPerspectiveId, tr("Callgrind")};
+    Perspective m_perspective{"Callgrind.Perspective", tr("Callgrind")};
 };
 
 CallgrindTool::CallgrindTool()
@@ -252,10 +251,10 @@ CallgrindTool::CallgrindTool()
         action->setToolTip(toolTip);
         menu->addAction(ActionManager::registerAction(action, CallgrindLocalActionId),
                         Debugger::Constants::G_ANALYZER_TOOLS);
-        QObject::connect(action, &QAction::triggered, this, [action] {
+        QObject::connect(action, &QAction::triggered, this, [this, action] {
             if (!Debugger::wantRunTool(OptimizedMode, action->text()))
                 return;
-            Debugger::selectPerspective(CallgrindPerspectiveId);
+            m_perspective.select();
             ProjectExplorerPlugin::runStartupProject(CALLGRIND_RUN_MODE);
         });
         QObject::connect(m_startAction, &QAction::triggered, action, &QAction::triggered);
@@ -268,7 +267,7 @@ CallgrindTool::CallgrindTool()
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, CallgrindRemoteActionId),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
-    QObject::connect(action, &QAction::triggered, this, [action] {
+    QObject::connect(action, &QAction::triggered, this, [this, action] {
         auto runConfig = RunConfiguration::startupRunConfiguration();
         if (!runConfig) {
             showCannotStartDialog(action->text());
@@ -277,7 +276,7 @@ CallgrindTool::CallgrindTool()
         StartRemoteDialog dlg;
         if (dlg.exec() != QDialog::Accepted)
             return;
-        Debugger::selectPerspective(CallgrindPerspectiveId);
+        m_perspective.select();
         auto runControl = new RunControl(runConfig, CALLGRIND_RUN_MODE);
         if (auto creator = RunControl::producer(runConfig, CALLGRIND_RUN_MODE))
             creator(runControl);

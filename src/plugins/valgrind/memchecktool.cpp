@@ -117,9 +117,6 @@ namespace Internal {
 const char MEMCHECK_RUN_MODE[] = "MemcheckTool.MemcheckRunMode";
 const char MEMCHECK_WITH_GDB_RUN_MODE[] = "MemcheckTool.MemcheckWithGdbRunMode";
 
-const char MemcheckPerspectiveId[] = "Memcheck.Perspective";
-
-
 class MemcheckToolRunner : public ValgrindToolRunner
 {
     Q_OBJECT
@@ -440,7 +437,7 @@ private:
     bool m_toolBusy = false;
 
     QString m_exitMsg;
-    Perspective m_perspective{MemcheckPerspectiveId, tr("Memcheck")};
+    Perspective m_perspective{"Memcheck.Perspective", tr("Memcheck")};
 };
 
 #ifdef Q_OS_WIN
@@ -617,11 +614,11 @@ MemcheckTool::MemcheckTool()
         action->setToolTip(toolTip);
         menu->addAction(ActionManager::registerAction(action, "Memcheck.Local"),
                         Debugger::Constants::G_ANALYZER_TOOLS);
-        QObject::connect(action, &QAction::triggered, this, [action] {
+        QObject::connect(action, &QAction::triggered, this, [this, action] {
             if (!Debugger::wantRunTool(DebugMode, action->text()))
                 return;
             TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
-            Debugger::selectPerspective(MemcheckPerspectiveId);
+            m_perspective.select();
             ProjectExplorerPlugin::runStartupProject(MEMCHECK_RUN_MODE);
         });
         QObject::connect(m_startAction, &QAction::triggered, action, &QAction::triggered);
@@ -636,11 +633,11 @@ MemcheckTool::MemcheckTool()
             "the application is interrupted and can be debugged."));
         menu->addAction(ActionManager::registerAction(action, "MemcheckWithGdb.Local"),
                         Debugger::Constants::G_ANALYZER_TOOLS);
-        QObject::connect(action, &QAction::triggered, this, [action] {
+        QObject::connect(action, &QAction::triggered, this, [this, action] {
             if (!Debugger::wantRunTool(DebugMode, action->text()))
                 return;
             TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
-            Debugger::selectPerspective(MemcheckPerspectiveId);
+            m_perspective.select();
             ProjectExplorerPlugin::runStartupProject(MEMCHECK_WITH_GDB_RUN_MODE);
         });
         QObject::connect(m_startWithGdbAction, &QAction::triggered, action, &QAction::triggered);
@@ -663,7 +660,7 @@ MemcheckTool::MemcheckTool()
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, "Memcheck.Remote"),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
-    QObject::connect(action, &QAction::triggered, this, [action] {
+    QObject::connect(action, &QAction::triggered, this, [this, action] {
         auto runConfig = RunConfiguration::startupRunConfiguration();
         if (!runConfig) {
             showCannotStartDialog(action->text());
@@ -673,7 +670,7 @@ MemcheckTool::MemcheckTool()
         if (dlg.exec() != QDialog::Accepted)
             return;
         TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
-        Debugger::selectPerspective(MemcheckPerspectiveId);
+        m_perspective.select();
         RunControl *rc = new RunControl(runConfig, MEMCHECK_RUN_MODE);
         if (auto creator = RunControl::producer(runConfig, MEMCHECK_RUN_MODE))
             creator(rc);
@@ -980,7 +977,7 @@ void MemcheckTool::loadShowXmlLogFile(const QString &filePath, const QString &ex
     clearErrorView();
     m_settings->setFilterExternalIssues(false);
     m_filterProjectAction->setChecked(true);
-    Debugger::selectPerspective(MemcheckPerspectiveId);
+    m_perspective.select();
     Core::ModeManager::activateMode(Debugger::Constants::MODE_DEBUG);
 
     m_exitMsg = exitMsg;

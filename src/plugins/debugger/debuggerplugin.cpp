@@ -2548,12 +2548,6 @@ QAction *createStopAction()
     return action;
 }
 
-void selectPerspective(const QByteArray &perspectiveId)
-{
-    if (auto perspective = DebuggerMainWindow::findPerspective(perspectiveId))
-        perspective->select();
-}
-
 void enableMainWindow(bool on)
 {
     DebuggerMainWindow::instance()->setEnabled(on);
