@@ -526,11 +526,12 @@ public:
 
 void DebuggerEnginePrivate::setupViews()
 {
-    const DebuggerRunParameters &rp = m_engine->runParameters();
+    const DebuggerRunParameters &rp = m_runParameters;
 
     QTC_CHECK(!m_perspective);
-    const QString id = Constants::PERSPECTIVE_ID + m_debuggerName + rp.displayName;
-    m_perspective = new Perspective(id, m_engine->displayName());
+    const QString perspectiveId = "Debugger.Perspective." + m_debuggerName + '.' + rp.displayName;
+    m_perspective = new Perspective(perspectiveId, m_engine->displayName(),
+                                    Debugger::Constants::PRESET_PERSPRECTIVE_ID);
 
     m_progress.setProgressRange(0, 1000);
     FutureProgress *fp = ProgressManager::addTask(m_progress.future(),
@@ -571,7 +572,10 @@ void DebuggerEnginePrivate::setupViews()
             this, &DebuggerEnginePrivate::resetLocation);
 
     QSettings *settings = ICore::settings();
-    const QString perspectiveId = m_perspective->id();
+
+    auto dockId = [perspectiveId](const QString &dockname) {
+        return QString(dockname + '.' + perspectiveId);
+    };
 
     m_modulesView = new BaseTreeView;
     m_modulesView->setModel(m_modulesHandler.model());
@@ -581,7 +585,7 @@ void DebuggerEnginePrivate::setupViews()
             m_engine, &DebuggerEngine::reloadModules,
             Qt::QueuedConnection);
     m_modulesWindow = addSearch(m_modulesView);
-    m_modulesWindow->setObjectName(DOCKWIDGET_MODULES + perspectiveId);
+    m_modulesWindow->setObjectName(dockId(DOCKWIDGET_MODULES));
     m_modulesWindow->setWindowTitle(tr("&Modules"));
 
     m_registerView = new BaseTreeView;
@@ -592,7 +596,7 @@ void DebuggerEnginePrivate::setupViews()
             m_engine, &DebuggerEngine::reloadRegisters,
             Qt::QueuedConnection);
     m_registerWindow = addSearch(m_registerView);
-    m_registerWindow->setObjectName(DOCKWIDGET_REGISTER + m_perspective->id());
+    m_registerWindow->setObjectName(dockId(DOCKWIDGET_REGISTER));
     m_registerWindow->setWindowTitle(tr("Reg&isters"));
 
     m_stackView = new BaseTreeView;
@@ -600,7 +604,7 @@ void DebuggerEnginePrivate::setupViews()
     m_stackView->setSettings(settings, "Debugger.StackView");
     m_stackView->setIconSize(QSize(10, 10));
     m_stackWindow = addSearch(m_stackView);
-    m_stackWindow->setObjectName(DOCKWIDGET_STACK + m_perspective->id());
+    m_stackWindow->setObjectName(dockId(DOCKWIDGET_STACK));
     m_stackWindow->setWindowTitle(tr("&Stack"));
 
     m_sourceFilesView = new BaseTreeView;
@@ -611,7 +615,7 @@ void DebuggerEnginePrivate::setupViews()
             m_engine, &DebuggerEngine::reloadSourceFiles,
             Qt::QueuedConnection);
     m_sourceFilesWindow = addSearch(m_sourceFilesView);
-    m_sourceFilesWindow->setObjectName(DOCKWIDGET_SOURCE_FILES + m_perspective->id());
+    m_sourceFilesWindow->setObjectName(dockId(DOCKWIDGET_SOURCE_FILES));
     m_sourceFilesWindow->setWindowTitle(tr("Source Files"));
 
     m_threadsView = new BaseTreeView;
@@ -620,13 +624,13 @@ void DebuggerEnginePrivate::setupViews()
     m_threadsView->setSettings(settings, "Debugger.ThreadsView");
     m_threadsView->setIconSize(QSize(10, 10));
     m_threadsWindow = addSearch(m_threadsView);
-    m_threadsWindow->setObjectName(DOCKWIDGET_THREADS + m_perspective->id());
+    m_threadsWindow->setObjectName(dockId(DOCKWIDGET_THREADS));
     m_threadsWindow->setWindowTitle(tr("&Threads"));
 
     m_returnView = new WatchTreeView{ReturnType};
     m_returnView->setModel(m_watchHandler.model());
     m_returnWindow = addSearch(m_returnView);
-    m_returnWindow->setObjectName("CppDebugReturn" + m_perspective->id());
+    m_returnWindow->setObjectName(dockId("CppDebugReturn"));
     m_returnWindow->setWindowTitle(tr("Locals"));
     m_returnWindow->setVisible(false);
 
@@ -634,26 +638,26 @@ void DebuggerEnginePrivate::setupViews()
     m_localsView->setModel(m_watchHandler.model());
     m_localsView->setSettings(settings, "Debugger.LocalsView");
     m_localsWindow = addSearch(m_localsView);
-    m_localsWindow->setObjectName("CppDebugLocals" + m_perspective->id());
+    m_localsWindow->setObjectName(dockId("CppDebugLocals"));
     m_localsWindow->setWindowTitle(tr("Locals"));
 
     m_inspectorView = new WatchTreeView{InspectType};
     m_inspectorView->setModel(m_watchHandler.model());
     m_inspectorView->setSettings(settings, "Debugger.LocalsView"); // sic! same as locals view.
     m_inspectorWindow = addSearch(m_inspectorView);
-    m_inspectorWindow->setObjectName("Inspector" + m_perspective->id());
+    m_inspectorWindow->setObjectName(dockId("Inspector"));
     m_inspectorWindow->setWindowTitle(tr("Locals"));
 
     m_watchersView = new WatchTreeView{WatchersType};
     m_watchersView->setModel(m_watchHandler.model());
     m_watchersView->setSettings(settings, "Debugger.WatchersView");
     m_watchersWindow = addSearch(m_watchersView);
-    m_watchersWindow->setObjectName("CppDebugWatchers" + m_perspective->id());
+    m_watchersWindow->setObjectName(dockId("CppDebugWatchers"));
     m_watchersWindow->setWindowTitle(tr("&Expressions"));
 
     m_localsAndInspectorWindow = new LocalsAndInspectorWindow(
                 m_localsWindow, m_inspectorWindow, m_returnWindow);
-    m_localsAndInspectorWindow->setObjectName(DOCKWIDGET_LOCALS_AND_INSPECTOR + m_perspective->id());
+    m_localsAndInspectorWindow->setObjectName(dockId(DOCKWIDGET_LOCALS_AND_INSPECTOR));
     m_localsAndInspectorWindow->setWindowTitle(m_localsWindow->windowTitle());
 
     // Locals
@@ -670,7 +674,7 @@ void DebuggerEnginePrivate::setupViews()
     m_breakView->setModel(m_breakHandler.model());
     m_breakView->setRootIsDecorated(true);
     m_breakWindow = addSearch(m_breakView);
-    m_breakWindow->setObjectName(DOCKWIDGET_BREAK + m_perspective->id());
+    m_breakWindow->setObjectName(dockId(DOCKWIDGET_BREAK));
     m_breakWindow->setWindowTitle(tr("&Breakpoints"));
 
     m_perspective->addToolBarWidget(EngineManager::engineChooser());
@@ -776,7 +780,6 @@ void DebuggerEnginePrivate::setupViews()
         m_inspectorWindow->setFont(font);
     });
 
-    m_perspective->setParentPerspective(Debugger::Constants::PRESET_PERSPRECTIVE_ID);
     m_perspective->addWindow(m_stackWindow, Perspective::SplitVertical, nullptr);
     m_perspective->addWindow(m_breakWindow, Perspective::SplitHorizontal, m_stackWindow);
     m_perspective->addWindow(m_threadsWindow, Perspective::AddToTab, m_breakWindow,false);

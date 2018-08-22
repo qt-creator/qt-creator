@@ -147,12 +147,13 @@ public:
 
     QString m_id;
     QString m_name;
-    QString m_parentPerspective;
+    QString m_parentPerspectiveId;
     QVector<DockOperation> m_dockOperations;
     QVector<ToolbarOperation> m_toolBarOperations;
     QPointer<QWidget> m_centralWidget;
     Perspective::Callback m_aboutToActivateCallback;
     QPointer<QWidget> m_toolButtonBox;
+    QString m_lastActiveSubPerspectiveId;
 };
 
 class DebuggerMainWindowPrivate : public QObject
@@ -162,8 +163,9 @@ public:
 
     void ensureToolBarDockExists();
 
-    void restorePerspective(Perspective *perspective);
-    void loadPerspectiveHelper(Perspective *perspective, bool fromStoredSettings = true);
+    void selectPerspective(Perspective *perspective);
+    void depopulateCurrentPerspective();
+    void populateCurrentPerspective();
     void savePerspectiveHelper(const Perspective *perspective);
     void destroyPerspective(Perspective *perspective);
     void registerPerspective(Perspective *perspective);
@@ -196,7 +198,12 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     m_perspectiveChooser->setProperty("panelwidget", true);
     connect(m_perspectiveChooser, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
             this, [this](int item) {
-        restorePerspective(Perspective::findPerspective(m_perspectiveChooser->itemData(item).toString()));
+        Perspective *perspective = Perspective::findPerspective(m_perspectiveChooser->itemData(item).toString());
+        QTC_ASSERT(perspective, return);
+        if (auto subPerspective = Perspective::findPerspective(perspective->d->m_lastActiveSubPerspectiveId))
+            subPerspective->select();
+        else
+            perspective->select();
     });
 }
 
@@ -257,8 +264,8 @@ void DebuggerMainWindow::doShutdown()
 void DebuggerMainWindowPrivate::registerPerspective(Perspective *perspective)
 {
     m_perspectives.append(perspective);
-    QString parentPerspective = perspective->d->m_parentPerspective;
-    // Add "main" perspectives to the chooser.
+    QString parentPerspective = perspective->d->m_parentPerspectiveId;
+    // Add only "main" perspectives to the chooser.
     if (parentPerspective.isEmpty()) {
         m_perspectiveChooser->addItem(perspective->name(), perspective->id());
         increaseChooserWidthIfNecessary(perspective->name());
@@ -291,8 +298,8 @@ void DebuggerMainWindowPrivate::destroyPerspective(Perspective *perspective)
 
     if (perspective == m_currentPerspective) {
         m_currentPerspective = nullptr;
-        if (!perspective->d->m_parentPerspective.isEmpty()) {
-            if (Perspective *parent = Perspective::findPerspective(perspective->d->m_parentPerspective))
+        if (!perspective->d->m_parentPerspectiveId.isEmpty()) {
+            if (Perspective *parent = Perspective::findPerspective(perspective->d->m_parentPerspectiveId))
                 parent->select();
         }
     }
@@ -308,7 +315,20 @@ void DebuggerMainWindow::onModeChanged(Core::Id mode)
 {
     if (mode == Debugger::Constants::MODE_DEBUG) {
         theMainWindow->setDockActionsVisible(true);
-        theMainWindow->d->restorePerspective(nullptr);
+        Perspective *perspective = theMainWindow->d->m_currentPerspective;
+        if (!perspective) {
+            const QSettings *settings = ICore::settings();
+            const QString lastPerspectiveId = settings->value(QLatin1String(LAST_PERSPECTIVE_KEY)).toString();
+            perspective = Perspective::findPerspective(lastPerspectiveId);
+            // If we don't find a perspective with the stored name, pick any.
+            // This can happen e.g. when a plugin was disabled that provided
+            // the stored perspective, or when the save file was modified externally.
+            if (!perspective && !theMainWindow->d->m_perspectives.isEmpty())
+                perspective = theMainWindow->d->m_perspectives.first();
+        }
+        // There's at least the debugger preset perspective that should be found above.
+        QTC_ASSERT(perspective, return);
+        perspective->select();
     } else {
         theMainWindow->setDockActionsVisible(false);
 
@@ -344,7 +364,8 @@ void DebuggerMainWindow::closeEvent(QCloseEvent *)
 
 void DebuggerMainWindowPrivate::resetCurrentPerspective()
 {
-    loadPerspectiveHelper(m_currentPerspective, false);
+    depopulateCurrentPerspective();
+    populateCurrentPerspective();
 }
 
 int DebuggerMainWindowPrivate::indexInChooser(Perspective *perspective) const
@@ -352,9 +373,23 @@ int DebuggerMainWindowPrivate::indexInChooser(Perspective *perspective) const
     return perspective ? m_perspectiveChooser->findData(perspective->d->m_id) : -1;
 }
 
-void DebuggerMainWindowPrivate::restorePerspective(Perspective *perspective)
+void DebuggerMainWindowPrivate::selectPerspective(Perspective *perspective)
 {
-    loadPerspectiveHelper(perspective, true);
+    QTC_ASSERT(perspective, return);
+
+    depopulateCurrentPerspective();
+
+    m_currentPerspective = perspective;
+
+    perspective->aboutToActivate();
+
+    populateCurrentPerspective();
+
+    QSettings *settings = ICore::settings();
+    settings->beginGroup(perspective->d->m_id);
+    if (settings->value(QLatin1String("ToolSettingsSaved"), false).toBool())
+        q->restoreSettings(settings);
+    settings->endGroup();
 
     const int index = indexInChooser(m_currentPerspective);
     if (index != -1)
@@ -460,75 +495,64 @@ QWidget *createModeWindow(const Core::Id &mode)
     return splitter;
 }
 
-void DebuggerMainWindowPrivate::loadPerspectiveHelper(Perspective *perspective, bool fromStoredSettings)
+void DebuggerMainWindowPrivate::depopulateCurrentPerspective()
 {
     // Clean up old perspective.
-    if (m_currentPerspective) {
-        savePerspectiveHelper(m_currentPerspective);
-        const QList<QDockWidget *> allDocks = q->dockWidgets();
-        for (QDockWidget *dock : allDocks) {
-            if (dock->property(OWNED_BY_PERSPECTIVE).toBool()) {
-                dock->setParent(nullptr);
+    savePerspectiveHelper(m_currentPerspective);
+    for (QDockWidget *dock : q->dockWidgets()) {
+        if (dock->property(OWNED_BY_PERSPECTIVE).toBool()) {
+            // Prevent deletion of plugin-owned widgets.
+            if (dock->widget())
                 dock->widget()->setParent(nullptr);
-                ActionManager::unregisterAction(dock->toggleViewAction(),
-                                                Id("Dock.").withSuffix(dock->objectName()));
-                delete dock;
-            }
+            ActionManager::unregisterAction(dock->toggleViewAction(),
+                                            Id("Dock.").withSuffix(dock->objectName()));
+            delete dock;
         }
+    }
 
+    if (m_currentPerspective) {
         ICore::removeAdditionalContext(m_currentPerspective->context());
         QWidget *central = m_currentPerspective->centralWidget();
         m_centralWidgetStack->removeWidget(central ? central : m_editorPlaceHolder);
 
         m_currentPerspective->d->destroyToolBar();
     }
+}
 
-    if (perspective) {
-        m_currentPerspective = perspective;
-    } else {
-        const QSettings *settings = ICore::settings();
-        const QString lastPerspectiveId = settings->value(QLatin1String(LAST_PERSPECTIVE_KEY)).toString();
-        m_currentPerspective = Perspective::findPerspective(lastPerspectiveId);
-        // If we don't find a perspective with the stored name, pick any.
-        // This can happen e.g. when a plugin was disabled that provided
-        // the stored perspective, or when the save file was modified externally.
-        if (!m_currentPerspective && !m_perspectives.isEmpty())
-            m_currentPerspective = m_perspectives.first();
-    }
-    QTC_ASSERT(m_currentPerspective, return);
-
-    ICore::addAdditionalContext(m_currentPerspective->context());
-
-    m_currentPerspective->aboutToActivate();
-
+void DebuggerMainWindowPrivate::populateCurrentPerspective()
+{
+    // Create dock widgets wrapping ther perspective's widgets.
     QHash<QString, QDockWidget *> dockForDockId;
     for (const DockOperation &op : m_currentPerspective->d->m_dockOperations) {
         QTC_ASSERT(op.widget, continue);
         const QString dockId = op.widget->objectName();
+        QTC_CHECK(!dockId.isEmpty());
+        QTC_ASSERT(!dockForDockId.contains(dockId), continue);
+        QDockWidget *dock = q->addDockForWidget(op.widget);
+        dock->setProperty(OWNED_BY_PERSPECTIVE, true);
+        dockForDockId[dockId] = dock;
+        q->addDockWidget(op.area, dock);
+
+        QAction *toggleViewAction = dock->toggleViewAction();
+        toggleViewAction->setText(dock->windowTitle());
+
+        Command *cmd = ActionManager::registerAction(toggleViewAction,
+                                                     Id("Dock.").withSuffix(dock->objectName()),
+                                                     m_currentPerspective->context());
+        cmd->setAttribute(Command::CA_Hide);
+        ActionManager::actionContainer(Core::Constants::M_WINDOW_VIEWS)->addAction(cmd);
+    }
+
+    // Pre-arrange dock widgets.
+    for (const DockOperation &op : m_currentPerspective->d->m_dockOperations) {
+        QTC_ASSERT(op.widget, continue);
+        const QString dockId = op.widget->objectName();
         QDockWidget *dock = dockForDockId.value(dockId);
-        if (!dock) {
-            QTC_CHECK(!dockId.isEmpty());
-            dock = q->addDockForWidget(op.widget);
-            dock->setProperty(OWNED_BY_PERSPECTIVE, true);
-            dockForDockId[dockId] = dock;
-
-            QAction *toggleViewAction = dock->toggleViewAction();
-            toggleViewAction->setText(dock->windowTitle());
-
-            Command *cmd = ActionManager::registerAction(toggleViewAction,
-                                                         Id("Dock.").withSuffix(dock->objectName()),
-                                                         m_currentPerspective->context());
-            cmd->setAttribute(Command::CA_Hide);
-
-            ActionManager::actionContainer(Core::Constants::M_WINDOW_VIEWS)->addAction(cmd);
-        }
-        // Restore parent/child relation, so that the widget hierarchy is clear.
-        dock->setParent(q);
+        QTC_ASSERT(dock, continue);
         if (op.operationType == Perspective::Raise) {
             dock->raise();
             continue;
         }
-        q->addDockWidget(op.area, dock);
         QDockWidget *anchor = dockForDockId.value(op.anchorDockId);
         if (!anchor && op.area == Qt::BottomDockWidgetArea) {
             ensureToolBarDockExists();
@@ -555,22 +579,13 @@ void DebuggerMainWindowPrivate::loadPerspectiveHelper(Perspective *perspective, 
 
     m_currentPerspective->d->showToolBar();
 
-    if (fromStoredSettings) {
-        QSettings *settings = ICore::settings();
-        settings->beginGroup(m_currentPerspective->d->m_id);
-        if (settings->value(QLatin1String("ToolSettingsSaved"), false).toBool())
-            q->restoreSettings(settings);
-        settings->endGroup();
-    } else {
-        // By default, show the central widget
-        q->showCentralWidgetAction()->setChecked(true);
-    }
-
     QWidget *central = m_currentPerspective->centralWidget();
     m_centralWidgetStack->addWidget(central ? central : m_editorPlaceHolder);
     q->showCentralWidgetAction()->setText(central ? central->windowTitle() : tr("Editor"));
 
     m_statusLabel->clear();
+
+    ICore::addAdditionalContext(m_currentPerspective->context());
 }
 
 void DebuggerMainWindowPrivate::savePerspectiveHelper(const Perspective *perspective)
@@ -587,11 +602,12 @@ void DebuggerMainWindowPrivate::savePerspectiveHelper(const Perspective *perspec
 
 // Perspective
 
-Perspective::Perspective(const QString &id, const QString &name)
+Perspective::Perspective(const QString &id, const QString &name, const QString &parentPerspectiveId)
     : d(new PerspectivePrivate)
 {
     d->m_id = id;
     d->m_name = name;
+    d->m_parentPerspectiveId = parentPerspectiveId;
 
     DebuggerMainWindow::ensureMainWindowExists();
     theMainWindow->d->registerPerspective(this);
@@ -599,8 +615,9 @@ Perspective::Perspective(const QString &id, const QString &name)
 
 Perspective::~Perspective()
 {
-    if (theMainWindow)
+    if (theMainWindow) {
         theMainWindow->d->destroyPerspective(this);
+    }
     delete d;
 }
 
@@ -629,11 +646,6 @@ void Perspective::aboutToActivate() const
 {
     if (d->m_aboutToActivateCallback)
         d->m_aboutToActivateCallback();
-}
-
-void Perspective::setParentPerspective(const QString &parentPerspectiveId)
-{
-    d->m_parentPerspective = parentPerspectiveId;
 }
 
 void Perspective::setEnabled(bool enabled)
@@ -749,13 +761,12 @@ void Perspective::addWindow(QWidget *widget,
 
 void Perspective::select()
 {
-    if (ModeManager::currentModeId() == Debugger::Constants::MODE_DEBUG && currentPerspective() == this) {
-        // Prevents additional show events triggering modules and register updates.
-        return;
-    }
-
     ModeManager::activateMode(Debugger::Constants::MODE_DEBUG);
-    theMainWindow->d->restorePerspective(this);
+    theMainWindow->d->selectPerspective(this);
+    if (Perspective *parent = Perspective::findPerspective(d->m_parentPerspectiveId))
+        parent->d->m_lastActiveSubPerspectiveId = d->m_id;
+    else
+        d->m_lastActiveSubPerspectiveId.clear();
 }
 
 // ToolbarAction

@@ -615,8 +615,8 @@ void DebuggerRunTool::start()
         return;
     }
 
-    m_engine->setRunTool(this);
     m_engine->setRunParameters(m_runParameters);
+    m_engine->setRunTool(this);
     m_engine->setCompanionEngine(m_engine2);
     connect(m_engine, &DebuggerEngine::requestRunControlFinish,
             runControl(), &RunControl::initiateFinish);
@@ -644,8 +644,8 @@ void DebuggerRunTool::start()
     });
 
     if (m_engine2) {
-        m_engine2->setRunTool(this);
         m_engine2->setRunParameters(m_runParameters);
+        m_engine2->setRunTool(this);
         m_engine2->setCompanionEngine(m_engine);
         m_engine2->setSecondaryEngine();
         connect(m_engine2, &DebuggerEngine::requestRunControlFinish,

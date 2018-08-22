@@ -39,7 +39,6 @@ const char C_CPPDEBUGGER[]          = "Gdb Debugger";
 const char C_QMLDEBUGGER[]          = "Qml/JavaScript Debugger";
 
 const char PRESET_PERSPRECTIVE_ID[] = "Debugger.Perspective.Preset";
-const char PERSPECTIVE_ID[]         = "Debugger.Perspective";
 
 // Menu Groups
 const char G_GENERAL[]              = "Debugger.Group.General";

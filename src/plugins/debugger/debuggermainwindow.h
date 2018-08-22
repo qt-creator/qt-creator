@@ -63,7 +63,8 @@ public:
 class DEBUGGER_EXPORT Perspective
 {
 public:
-    explicit Perspective(const QString &id, const QString &name);
+    Perspective(const QString &id, const QString &name,
+                const QString &parentPerspectiveId = QString());
     ~Perspective();
 
     enum OperationType { SplitVertical, SplitHorizontal, AddToTab, Raise };
@@ -89,7 +90,6 @@ public:
     void setAboutToActivateCallback(const Callback &cb);
     void aboutToActivate() const;
 
-    void setParentPerspective(const QString &parentPerspectiveId);
     void setEnabled(bool enabled);
 
     void select();
