@@ -203,6 +203,8 @@ void CppHighlighter::highlightBlock(const QString &text)
                       formatForCategory(C_PRIMITIVE_TYPE));
         } else if (tk.isOperator()) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_OPERATOR));
+        } else if (tk.isPunctuation()) {
+            setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_PUNCTUATION));
         } else if (i == 0 && tokens.size() > 1 && tk.is(T_IDENTIFIER) && tokens.at(1).is(T_COLON)) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_LABEL));
         } else if (tk.is(T_IDENTIFIER)) {

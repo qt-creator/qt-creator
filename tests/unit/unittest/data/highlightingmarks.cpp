@@ -672,4 +672,5 @@ int signalSlotTest() {
     SIGNAL(something(QString));
     SLOT(something(QString));
     SIGNAL(something(QString (*func1)(QString)));
+    1 == 2;
 }

@@ -86,6 +86,7 @@ enum class HighlightingType : quint8
     Preprocessor,
     PreprocessorDefinition,
     PreprocessorExpansion,
+    Punctuation,
     Label,
     Declaration,
     FunctionDefinition,

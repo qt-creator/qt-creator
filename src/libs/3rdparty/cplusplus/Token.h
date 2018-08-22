@@ -332,6 +332,9 @@ public:
     inline bool isOperator() const
     { return f.kind >= T_FIRST_OPERATOR && f.kind <= T_LAST_OPERATOR; }
 
+    inline bool isPunctuation() const
+    { return f.kind >= T_FIRST_PUNCTUATION && f.kind <= T_LAST_PUNCTUATION; }
+
     inline bool isPunctuationOrOperator() const
     { return f.kind >= T_FIRST_PUNCTUATION_OR_OPERATOR && f.kind <= T_LAST_PUNCTUATION_OR_OPERATOR; }
 

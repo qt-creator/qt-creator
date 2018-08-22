@@ -62,6 +62,8 @@ TextEditor::TextStyle toTextStyle(ClangBackEnd::HighlightingType type)
     case HighlightingType::PreprocessorDefinition:
     case HighlightingType::PreprocessorExpansion:
         return TextEditor::C_PREPROCESSOR;
+    case HighlightingType::Punctuation:
+        return TextEditor::C_PUNCTUATION;
     case HighlightingType::Declaration:
         return TextEditor::C_DECLARATION;
     case HighlightingType::FunctionDefinition:

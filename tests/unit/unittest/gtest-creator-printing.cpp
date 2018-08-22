@@ -518,6 +518,7 @@ static const char *highlightingTypeToCStringLiteral(HighlightingType type)
         RETURN_TEXT_FOR_CASE(PreprocessorDefinition);
         RETURN_TEXT_FOR_CASE(PreprocessorExpansion);
         RETURN_TEXT_FOR_CASE(PrimitiveType);
+        RETURN_TEXT_FOR_CASE(Punctuation);
         RETURN_TEXT_FOR_CASE(Declaration);
         RETURN_TEXT_FOR_CASE(Namespace);
         RETURN_TEXT_FOR_CASE(Class);

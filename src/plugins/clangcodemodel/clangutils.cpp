@@ -235,7 +235,8 @@ int clangColumn(const QTextBlock &line, int cppEditorColumn)
     ClangBackEnd::StorageClass storageClass = extraInfo.storageClass;
     if (mainType == ClangBackEnd::HighlightingType::VirtualFunction
             || mainType == ClangBackEnd::HighlightingType::Function
-            || mainType == ClangBackEnd::HighlightingType::Operator) {
+            || token.types.mixinHighlightingTypes.contains(
+                ClangBackEnd::HighlightingType::Operator)) {
         if (storageClass != ClangBackEnd::StorageClass::Static) {
             switch (access) {
             case ClangBackEnd::AccessSpecifier::Public:

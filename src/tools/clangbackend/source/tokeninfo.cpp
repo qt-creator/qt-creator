@@ -529,13 +529,13 @@ void TokenInfo::overloadedOperatorKind()
     if (inOperatorDeclaration && !isTokenPartOfOperator(declarationCursor, m_cxToken))
         return;
 
-    if (m_types.mainHighlightingType == HighlightingType::Invalid)
-        m_types.mainHighlightingType = HighlightingType::Operator;
+    m_types.mixinHighlightingTypes.push_back(HighlightingType::Operator);
     m_types.mixinHighlightingTypes.push_back(HighlightingType::OverloadedOperator);
 }
 
 void TokenInfo::punctuationOrOperatorKind()
 {
+    m_types.mainHighlightingType = HighlightingType::Punctuation;
     auto kind = m_originalCursor.kind();
     switch (kind) {
         case CXCursor_CallExpr:
@@ -557,9 +557,7 @@ void TokenInfo::punctuationOrOperatorKind()
         case CXCursor_BinaryOperator:
         case CXCursor_CompoundAssignOperator:
         case CXCursor_ConditionalOperator:
-            m_types.mainHighlightingType = HighlightingType::Operator;
-            break;
-        default:
+            m_types.mixinHighlightingTypes.push_back(HighlightingType::Operator);
             break;
     }
 

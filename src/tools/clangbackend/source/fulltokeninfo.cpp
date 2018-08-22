@@ -243,7 +243,7 @@ void FullTokenInfo::overloadedOperatorKind()
 {
     TokenInfo::overloadedOperatorKind();
 
-    if (m_types.mixinHighlightingTypes.front() != HighlightingType::OverloadedOperator)
+    if (!m_types.mixinHighlightingTypes.contains(HighlightingType::OverloadedOperator))
         return;
 
     // Overloaded operator
