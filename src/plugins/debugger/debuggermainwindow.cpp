@@ -64,6 +64,7 @@ using namespace Core;
 namespace Utils {
 
 const char LAST_PERSPECTIVE_KEY[]   = "LastPerspective";
+const char OWNED_BY_PERSPECTIVE[]   = "OwnedByPerspective";
 
 static DebuggerMainWindow *theMainWindow = nullptr;
 
@@ -129,7 +130,7 @@ class DockOperation
 {
 public:
     QPointer<QWidget> widget;
-    QByteArray anchorDockId;
+    QString anchorDockId;
     Perspective::OperationType operationType = Perspective::Raise;
     bool visibleByDefault = true;
     Qt::DockWidgetArea area = Qt::BottomDockWidgetArea;
@@ -179,7 +180,6 @@ public:
     Utils::StatusLabel *m_statusLabel = nullptr;
     QDockWidget *m_toolBarDock = nullptr;
 
-    QHash<QByteArray, QDockWidget *> m_dockForDockId;
     QList<Perspective *> m_perspectives;
 };
 
@@ -465,14 +465,16 @@ void DebuggerMainWindowPrivate::loadPerspectiveHelper(Perspective *perspective, 
     // Clean up old perspective.
     if (m_currentPerspective) {
         savePerspectiveHelper(m_currentPerspective);
-        for (QDockWidget *dock : m_dockForDockId) {
-            dock->setParent(nullptr);
-            dock->widget()->setParent(nullptr);
-            ActionManager::unregisterAction(dock->toggleViewAction(),
-                Id("Dock.").withSuffix(dock->objectName()));
-            delete dock;
+        const QList<QDockWidget *> allDocks = q->dockWidgets();
+        for (QDockWidget *dock : allDocks) {
+            if (dock->property(OWNED_BY_PERSPECTIVE).toBool()) {
+                dock->setParent(nullptr);
+                dock->widget()->setParent(nullptr);
+                ActionManager::unregisterAction(dock->toggleViewAction(),
+                                                Id("Dock.").withSuffix(dock->objectName()));
+                delete dock;
+            }
         }
-        m_dockForDockId.clear();
 
         ICore::removeAdditionalContext(m_currentPerspective->context());
         QWidget *central = m_currentPerspective->centralWidget();
@@ -499,14 +501,16 @@ void DebuggerMainWindowPrivate::loadPerspectiveHelper(Perspective *perspective, 
 
     m_currentPerspective->aboutToActivate();
 
+    QHash<QString, QDockWidget *> dockForDockId;
     for (const DockOperation &op : m_currentPerspective->d->m_dockOperations) {
         QTC_ASSERT(op.widget, continue);
-        const QByteArray dockId = op.widget->objectName().toUtf8();
-        QDockWidget *dock = m_dockForDockId.value(dockId);
+        const QString dockId = op.widget->objectName();
+        QDockWidget *dock = dockForDockId.value(dockId);
         if (!dock) {
             QTC_CHECK(!dockId.isEmpty());
             dock = q->addDockForWidget(op.widget);
-            m_dockForDockId[dockId] = dock;
+            dock->setProperty(OWNED_BY_PERSPECTIVE, true);
+            dockForDockId[dockId] = dock;
 
             QAction *toggleViewAction = dock->toggleViewAction();
             toggleViewAction->setText(dock->windowTitle());
@@ -525,7 +529,7 @@ void DebuggerMainWindowPrivate::loadPerspectiveHelper(Perspective *perspective, 
             continue;
         }
         q->addDockWidget(op.area, dock);
-        QDockWidget *anchor = m_dockForDockId.value(op.anchorDockId);
+        QDockWidget *anchor = dockForDockId.value(op.anchorDockId);
         if (!anchor && op.area == Qt::BottomDockWidgetArea) {
             ensureToolBarDockExists();
             anchor = m_toolBarDock;
@@ -736,7 +740,7 @@ void Perspective::addWindow(QWidget *widget,
     DockOperation op;
     op.widget = widget;
     if (anchorWidget)
-        op.anchorDockId = anchorWidget->objectName().toUtf8();
+        op.anchorDockId = anchorWidget->objectName();
     op.operationType = type;
     op.visibleByDefault = visibleByDefault;
     op.area = area;
