@@ -6,8 +6,8 @@ First - and most important - you have to own a valid Squish license. At least Sq
 
 Second - some of the test suites/test cases expect a build of Qt 4.8.7 to be available:
  1. Download the source code from:
-    * Windows: http://download.qt.io/official_releases/qt/4.8/4.8.7/qt-everywhere-opensource-src-4.8.7.zip
-    * Other: http://download.qt.io/official_releases/qt/4.8/4.8.7/qt-everywhere-opensource-src-4.8.7.tar.gz
+    * Windows: https://download.qt.io/archive/qt/4.8/4.8.7/qt-everywhere-opensource-src-4.8.7.zip
+    * Other: https://download.qt.io/archive/qt/4.8/4.8.7/qt-everywhere-opensource-src-4.8.7.tar.gz
  2. Extract the contents of the archive's directory qt-everywhere-opensource-src-4.8.7 to:
     * Windows: C:\Qt\Qt4.8.7
     * Other: $HOME/Qt4.8.7
