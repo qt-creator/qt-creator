@@ -1157,19 +1157,21 @@ QVariant BreakpointItem::data(int column, int role) const
 
 void BreakpointItem::addToCommand(DebuggerCommand *cmd) const
 {
+    QTC_ASSERT(m_globalBreakpoint, return);
+    const BreakpointParameters &requested = requestedParameters();
     cmd->arg("modelid", modelId());
     cmd->arg("id", m_responseId);
-    cmd->arg("type", m_requestedParameters.type);
-    cmd->arg("ignorecount", m_requestedParameters.ignoreCount);
-    cmd->arg("condition", toHex(m_requestedParameters.condition));
-    cmd->arg("command", toHex(m_requestedParameters.command));
-    cmd->arg("function", m_requestedParameters.functionName);
-    cmd->arg("oneshot", m_requestedParameters.oneShot);
-    cmd->arg("enabled", m_requestedParameters.enabled);
-    cmd->arg("file", m_requestedParameters.fileName);
-    cmd->arg("line", m_requestedParameters.lineNumber);
-    cmd->arg("address", m_requestedParameters.address);
-    cmd->arg("expression", m_requestedParameters.expression);
+    cmd->arg("type", requested.type);
+    cmd->arg("ignorecount", requested.ignoreCount);
+    cmd->arg("condition", toHex(requested.condition));
+    cmd->arg("command", toHex(requested.command));
+    cmd->arg("function", requested.functionName);
+    cmd->arg("oneshot", requested.oneShot);
+    cmd->arg("enabled", requested.enabled);
+    cmd->arg("file", requested.fileName);
+    cmd->arg("line", requested.lineNumber);
+    cmd->arg("address", requested.address);
+    cmd->arg("expression", requested.expression);
 }
 
 void BreakpointItem::updateFromGdbOutput(const GdbMi &bkpt)
@@ -1216,7 +1218,6 @@ void BreakHandler::requestBreakpointRemoval(const Breakpoint &bp)
 void BreakHandler::requestBreakpointEnabling(const Breakpoint &bp, bool enabled)
 {
     if (bp->m_parameters.enabled != enabled) {
-        bp->m_requestedParameters.enabled = enabled;
         bp->updateMarkerIcon();
         bp->update();
         requestBreakpointUpdate(bp);
@@ -1802,8 +1803,6 @@ void BreakHandler::editBreakpoints(const Breakpoints &bps, QWidget *parent)
 BreakpointItem::BreakpointItem(const GlobalBreakpoint &gbp)
     : m_globalBreakpoint(gbp)
 {
-    if (gbp)
-        m_requestedParameters = gbp->requestedParameters();
 }
 
 BreakpointItem::~BreakpointItem()
@@ -1843,7 +1842,7 @@ int BreakpointItem::markerLineNumber() const
 
 const BreakpointParameters &BreakpointItem::requestedParameters() const
 {
-    return m_requestedParameters;
+    return m_globalBreakpoint ? m_globalBreakpoint->requestedParameters() : m_alienParameters;
 }
 
 static void formatAddress(QTextStream &str, quint64 address)
@@ -1920,6 +1919,7 @@ QIcon BreakpointItem::icon() const
 
 QString BreakpointItem::toolTip() const
 {
+    const BreakpointParameters &requested = requestedParameters();
     QString rc;
     QTextStream str(&rc);
     str << "<html><body><b>" << tr("Breakpoint") << "</b>"
@@ -1932,7 +1932,7 @@ QString BreakpointItem::toolTip() const
         str << ", " << tr("pending");
     str << ", " << stateToString(m_state) << "</td></tr>";
     str << "<tr><td>" << tr("Breakpoint Type:")
-        << "</td><td>" << typeToString(m_requestedParameters.type) << "</td></tr>"
+        << "</td><td>" << typeToString(requested.type) << "</td></tr>"
         << "<tr><td>" << tr("Marker File:")
         << "</td><td>" << QDir::toNativeSeparators(markerFileName()) << "</td></tr>"
         << "<tr><td>" << tr("Marker Line:")
@@ -1949,63 +1949,63 @@ QString BreakpointItem::toolTip() const
     }
     if (m_parameters.type == BreakpointByFunction) {
         str << "<tr><td>" << tr("Function Name:")
-        << "</td><td>" << m_requestedParameters.functionName
+        << "</td><td>" << requested.functionName
         << "</td><td>" << m_parameters.functionName
         << "</td></tr>";
     }
     if (m_parameters.type == BreakpointByFileAndLine) {
         str << "<tr><td>" << tr("File Name:")
-            << "</td><td>" << QDir::toNativeSeparators(m_requestedParameters.fileName)
+            << "</td><td>" << QDir::toNativeSeparators(requested.fileName)
             << "</td><td>" << QDir::toNativeSeparators(m_parameters.fileName)
             << "</td></tr>"
             << "<tr><td>" << tr("Line Number:")
-            << "</td><td>" << m_requestedParameters.lineNumber
+            << "</td><td>" << requested.lineNumber
             << "</td><td>" << m_parameters.lineNumber << "</td></tr>";
     }
-    if (m_requestedParameters.type == BreakpointByFunction || m_parameters.type == BreakpointByFileAndLine) {
+    if (requested.type == BreakpointByFunction || m_parameters.type == BreakpointByFileAndLine) {
         str << "<tr><td>" << tr("Module:")
-            << "</td><td>" << m_requestedParameters.module
+            << "</td><td>" << requested.module
             << "</td><td>" << m_parameters.module
             << "</td></tr>";
     }
     str << "<tr><td>" << tr("Breakpoint Address:")
         << "</td><td>";
-    formatAddress(str, m_requestedParameters.address);
+    formatAddress(str, requested.address);
     str << "</td><td>";
     formatAddress(str, m_parameters.address);
     str << "</td></tr>";
-    if (!m_requestedParameters.command.isEmpty() || !m_parameters.command.isEmpty()) {
+    if (!requested.command.isEmpty() || !m_parameters.command.isEmpty()) {
         str << "<tr><td>" << tr("Command:")
-            << "</td><td>" << m_requestedParameters.command
+            << "</td><td>" << requested.command
             << "</td><td>" << m_parameters.command
             << "</td></tr>";
     }
-    if (!m_requestedParameters.message.isEmpty() || !m_parameters.message.isEmpty()) {
+    if (!requested.message.isEmpty() || !m_parameters.message.isEmpty()) {
         str << "<tr><td>" << tr("Message:")
-            << "</td><td>" << m_requestedParameters.message
+            << "</td><td>" << requested.message
             << "</td><td>" << m_parameters.message
             << "</td></tr>";
     }
-    if (!m_requestedParameters.condition.isEmpty() || !m_parameters.condition.isEmpty()) {
+    if (!requested.condition.isEmpty() || !m_parameters.condition.isEmpty()) {
         str << "<tr><td>" << tr("Condition:")
-            << "</td><td>" << m_requestedParameters.condition
+            << "</td><td>" << requested.condition
             << "</td><td>" << m_parameters.condition
             << "</td></tr>";
     }
-    if (m_requestedParameters.ignoreCount || m_parameters.ignoreCount) {
+    if (requested.ignoreCount || m_parameters.ignoreCount) {
         str << "<tr><td>" << tr("Ignore Count:") << "</td><td>";
-        if (m_requestedParameters.ignoreCount)
+        if (requested.ignoreCount)
             str << m_parameters.ignoreCount;
         str << "</td><td>";
         if (m_parameters.ignoreCount)
             str << m_parameters.ignoreCount;
         str << "</td></tr>";
     }
-    if (m_requestedParameters.threadSpec >= 0 || m_parameters.threadSpec >= 0) {
+    if (requested.threadSpec >= 0 || m_parameters.threadSpec >= 0) {
         str << "<tr><td>" << tr("Thread Specification:")
             << "</td><td>";
-        if (m_requestedParameters.threadSpec >= 0)
-            str << m_requestedParameters.threadSpec;
+        if (requested.threadSpec >= 0)
+            str << requested.threadSpec;
         str << "</td><td>";
         if (m_parameters.threadSpec >= 0)
             str << m_parameters.threadSpec;

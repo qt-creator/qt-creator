@@ -205,11 +205,11 @@ private:
     void setState(BreakpointState state);
 
     const GlobalBreakpoint m_globalBreakpoint; // Origin, or null for aliens.
-    BreakpointParameters m_requestedParameters; // May differ from global value over lifetime of breakpoint.
-    BreakpointParameters m_parameters;
+    BreakpointParameters m_parameters;         // Parameters acknowledged by engine.
+    BreakpointParameters m_alienParameters;    // Requested parameters in case of no associated global bp.
     BreakpointState m_state = BreakpointNew;   // Current state of breakpoint.
     BreakpointMarker *m_marker = nullptr;
-    QString m_responseId;      //!< Breakpoint number or id assigne by or used in the debugger backend.
+    QString m_responseId;      //!< Breakpoint number or id assigned by or used in the debugger backend.
     QString m_displayName;
 };
 
