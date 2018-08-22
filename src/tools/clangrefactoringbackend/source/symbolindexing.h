@@ -68,7 +68,7 @@ private:
     FilePathCachingInterface &m_filePathCache;
     SymbolsCollector m_collector{m_filePathCache};
     StatementFactory m_statementFactory;
-    Storage m_symbolStorage{m_statementFactory, m_filePathCache};
+    Storage m_symbolStorage{m_statementFactory};
     ClangPathWatcher<QFileSystemWatcher, QTimer> m_sourceWatcher{m_filePathCache};
     FileStatusCache m_fileStatusCache{m_filePathCache};
     SymbolIndexer m_indexer{m_collector,

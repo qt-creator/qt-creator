@@ -58,7 +58,6 @@ using Storage = ClangBackEnd::SymbolStorage<StatementFactory>;
 class SymbolStorage : public testing::Test
 {
 protected:
-    MockFilePathCaching filePathCache;
     NiceMock<MockSqliteDatabase> mockDatabase;
     StatementFactory statementFactory{mockDatabase};
     MockSqliteWriteStatement &insertSymbolsToNewSymbolsStatement = statementFactory.insertSymbolsToNewSymbolsStatement;
@@ -95,7 +94,7 @@ protected:
     SourceLocationEntries sourceLocations{{1, {1, 3}, {42, 23}, SourceLocationKind::Declaration},
                                           {2, {1, 4}, {7, 11}, SourceLocationKind::Definition}};
     ClangBackEnd::ProjectPartArtefact artefact{"[\"-DFOO\"]", "{\"FOO\":\"1\"}", "[\"/includes\"]", 74};
-    Storage storage{statementFactory, filePathCache};
+    Storage storage{statementFactory};
 };
 
 TEST_F(SymbolStorage, CreateAndFillTemporaryLocationsTable)

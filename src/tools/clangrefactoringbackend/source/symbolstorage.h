@@ -45,10 +45,8 @@ class SymbolStorage final : public SymbolStorageInterface
     using Database = typename StatementFactory::Database;
 
 public:
-    SymbolStorage(StatementFactory &statementFactory,
-                  FilePathCachingInterface &filePathCache)
-        : m_statementFactory(statementFactory),
-          m_filePathCache(filePathCache)
+    SymbolStorage(StatementFactory &statementFactory)
+        : m_statementFactory(statementFactory)
     {
     }
 
@@ -266,7 +264,6 @@ public:
 
 private:
     StatementFactory &m_statementFactory;
-    FilePathCachingInterface &m_filePathCache;
 };
 
 } // namespace ClangBackEnd
