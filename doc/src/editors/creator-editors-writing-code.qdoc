@@ -84,6 +84,7 @@
             few people can visualize the color \c {#18793f}. To easily edit
             these properties, you can use the Qt Quick Toolbars.
 
+        \if defined(qtcreator)
         \li \l{Pasting and Fetching Code Snippets}
 
             You can cooperate with other developers by pasting and fetching
@@ -97,6 +98,7 @@
             keyboard sequence as a macro. You can then play the macro to
             repeat the sequence. You can save the latest macro and assign a
             keyboard shortcut for running it or run it from the locator.
+        \endif
 
     \endlist
 
@@ -109,12 +111,14 @@
             You can use a diff editor to compare two versions of a file and
             view the differences side-by-side in the \uicontrol Edit mode.
 
+        \if defined(qtcreator)
         \li \l{Parsing C++ Files with the Clang Code Model}
 
             The Clang code model provides some of the services previously
             provided by the built-in C/C++ code model, such as code
             completion, syntactic and semantic highlighting, diagnostics,
             tooltips, outline of symbols, and renaming of local symbols.
+        \endif
 
     \endlist
 
