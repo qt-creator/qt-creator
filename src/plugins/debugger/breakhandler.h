@@ -78,8 +78,6 @@ public:
     void updateLineNumber(int lineNumber);
     void updateFileName(const Utils::FileName &fileName);
 
-    bool isLocatedAt(const QString &fileName, int lineNumber, bool useMarkerPosition) const;
-
     QString displayName() const;
     QString markerFileName() const;
     QString toolTip() const;
@@ -296,12 +294,7 @@ public:
     static const GlobalBreakpoints globalBreakpoints();
 
     static GlobalBreakpoint createBreakpoint(const BreakpointParameters &data);
-
-    static GlobalBreakpoint findBreakpointByLocation(const ContextData &location);
-    // Find a breakpoint matching approximately the data in needle.
-    static GlobalBreakpoint findSimilarBreakpoint(const BreakpointParameters &needle);
-    static GlobalBreakpoint findWatchpoint(const BreakpointParameters &data);
-    static GlobalBreakpoint findBreakpointByFunction(const QString &functionName);
+    static GlobalBreakpoint findBreakpointFromContext(const ContextData &location);
 
     static void claimBreakpointsForEngine(DebuggerEngine *engine);
     static void toggleBreakpoint(const ContextData &location, const QString &tracePointMessage = QString());

@@ -1881,19 +1881,10 @@ void DebuggerPluginPrivate::updateBreakMenuItem(IEditor *editor)
 void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
     int lineNumber, QMenu *menu)
 {
-    GlobalBreakpoint gbp;
     TextDocument *document = widget->textDocument();
 
-    ContextData args = getLocationContext(document, lineNumber);
-    if (args.type == LocationByAddress) {
-        BreakpointParameters needle;
-        needle.type = BreakpointByAddress;
-        needle.address = args.address;
-        needle.lineNumber = -1;
-        gbp = BreakpointManager::findSimilarBreakpoint(needle);
-    } else if (args.type == LocationByFile) {
-        gbp = BreakpointManager::findBreakpointByLocation(args);
-    }
+    const ContextData args = getLocationContext(document, lineNumber);
+    const GlobalBreakpoint gbp = BreakpointManager::findBreakpointFromContext(args);
 
     if (gbp) {
 

@@ -941,13 +941,6 @@ static bool isSimilarTo(const BreakpointParameters &params, const BreakpointPara
             && params.lineNumber == needle.lineNumber)
         return true;
 
-    // At least at a position we were looking for.
-    // FIXME: breaks multiple breakpoints at the same location
-    if (!params.fileName.isEmpty()
-            && fileNameMatch(params.fileName, needle.fileName)
-            && params.lineNumber == needle.lineNumber)
-        return true;
-
     return false;
 }
 
@@ -2415,14 +2408,6 @@ const GlobalBreakpoints BreakpointManager::globalBreakpoints()
     return items;
 }
 
-GlobalBreakpoint BreakpointManager::findSimilarBreakpoint(const BreakpointParameters &needle)
-{
-    // Search a breakpoint we might refer to.
-    return theBreakpointManager->findItemAtLevel<1>([needle](const GlobalBreakpoint &gbp) {
-        return gbp && isSimilarTo(gbp->m_params, needle);
-    });
-}
-
 void BreakpointManager::claimBreakpointsForEngine(DebuggerEngine *engine)
 {
     theBreakpointManager->forItemsAtLevel<1>([&](GlobalBreakpoint gbp) {
@@ -2472,7 +2457,7 @@ void BreakpointManager::createBreakpointForEngine(const BreakpointParameters &pa
 void BreakpointManager::toggleBreakpoint(const ContextData &location, const QString &tracePointMessage)
 {
     QTC_ASSERT(location.isValid(), return);
-    GlobalBreakpoint gbp = findBreakpointByLocation(location);
+    GlobalBreakpoint gbp = findBreakpointFromContext(location);
 
     if (gbp) {
         gbp->deleteBreakpoint();
@@ -2496,16 +2481,38 @@ void BreakpointManager::toggleBreakpoint(const ContextData &location, const QStr
     }
 }
 
-GlobalBreakpoint BreakpointManager::findBreakpointByLocation(const ContextData &location)
+GlobalBreakpoint BreakpointManager::findBreakpointFromContext(const ContextData &location)
 {
-    return theBreakpointManager->findItemAtLevel<1>([&location](GlobalBreakpoint bp) {
-        if (location.type == LocationByFile)
-            return bp->m_params.isLocatedAt(location.fileName, location.lineNumber, QString());
-        if (location.type == LocationByAddress)
-            return bp->m_params.address == location.address;
-        return false;
+    int matchLevel = 0;
+    GlobalBreakpoint bestMatch;
+    theBreakpointManager->forItemsAtLevel<1>([&](const GlobalBreakpoint &gbp) {
+        if (location.type == LocationByFile) {
+            if (gbp->m_params.isLocatedAt(location.fileName, location.lineNumber, QString())) {
+                matchLevel = 2;
+                bestMatch = gbp;
+            } else if (matchLevel < 2) {
+                for (const QPointer<DebuggerEngine> engine : EngineManager::engines()) {
+                    BreakHandler *handler = engine->breakHandler();
+                    for (Breakpoint bp : handler->breakpoints()) {
+                        if (bp->globalBreakpoint() == gbp) {
+                            if (fileNameMatch(bp->fileName(), location.fileName)
+                                    && bp->lineNumber() == location.lineNumber) {
+                                matchLevel = 1;
+                                bestMatch = gbp;
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (location.type == LocationByAddress) {
+            if (gbp->m_params.address == location.address) {
+                matchLevel = 2;
+                bestMatch = gbp;
+            }
+        }
     });
-    return {};
+
+    return bestMatch;
 }
 
 void BreakpointManager::executeAddBreakpointDialog()
