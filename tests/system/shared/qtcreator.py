@@ -37,11 +37,10 @@ from datetime import datetime,timedelta;
 import __builtin__
 
 srcPath = ''
-SettingsPath = ''
+SettingsPath = []
 tmpSettingsDir = ''
 testSettings.logScreenshotOnFail = True
 testSettings.logScreenshotOnError = True
-__origStartApplication__ = None
 
 source("../../shared/classes.py")
 source("../../shared/utils.py")
@@ -55,24 +54,18 @@ source("../../shared/clang.py")
 source("../../shared/welcome.py")
 source("../../shared/workarounds.py") # include this at last
 
-# ATTENTION: if a test case calls startApplication("qtcreator...") for several times this
-# function must be called BEFORE any call except the first (which is done always automatically)
-def overrideStartApplication():
-    global startApplication, __origStartApplication__
-    if (platform.system() == "Linux"):
-        return
-    if (__origStartApplication__ == None):
-        __origStartApplication__ = startApplication
-    def startApplication(*args):
-        args = list(args)
-        if str(args[0]).startswith('qtcreator'):
-            if platform.system() == 'Darwin':
-                args[0] = args[0].replace('qtcreator', '"Qt Creator"', 1)
-                test.log("Using workaround for MacOS (different AUT name)")
-            else:
-                args[0] = args[0] + ' -platform windows:dialogs=none'
-                test.log("Using workaround for Windows (failing to hook into native FileDialog)")
-        return __origStartApplication__(*args)
+# additionalParameters must be a list or tuple of strings or None
+def startQC(additionalParameters=None, withPreparedSettingsPath=True):
+    global SettingsPath
+    appWithOptions = ['"Qt Creator"' if platform.system() == 'Darwin' else "qtcreator"]
+    if withPreparedSettingsPath:
+        appWithOptions.extend(SettingsPath)
+    if additionalParameters is not None:
+        appWithOptions.extend(additionalParameters)
+    if platform.system() in ('Microsoft', 'Windows'): # for hooking into native file dialog
+        appWithOptions.extend(('-platform', 'windows:dialogs=none'))
+    test.log("Starting now: %s" % ' '.join(appWithOptions))
+    startApplication(' '.join(appWithOptions))
 
 def startedWithoutPluginError():
     try:
@@ -304,7 +297,7 @@ def copySettingsToTmpDir(destination=None, omitFiles=[]):
     elif platform.system() in ('Windows', 'Microsoft'):
         substituteCdb(tmpSettingsDir)
     substituteUnchosenTargetABIs(tmpSettingsDir)
-    SettingsPath = ' -settingspath "%s"' % tmpSettingsDir
+    SettingsPath = ['-settingspath', '"%s"' % tmpSettingsDir]
 
 # current dir is directory holding qtcreator.py
 origSettingsDir = os.path.abspath(os.path.join(os.getcwd(), "..", "..", "settings"))
@@ -319,8 +312,6 @@ else:
     origSettingsDir = os.path.join(origSettingsDir, "unix")
 
 srcPath = os.getenv("SYSTEST_SRCPATH", os.path.expanduser(os.path.join("~", "squish-data")))
-
-overrideStartApplication()
 
 # the following only doesn't work if the test ends in an exception
 if os.getenv("SYSTEST_NOSETTINGSPATH") != "1":

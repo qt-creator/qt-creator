@@ -59,7 +59,7 @@ def openExample(examplesLineEdit, input, exampleRegex, exampleName):
 
 def main():
     # open Qt Creator
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     qchs = []

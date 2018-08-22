@@ -27,8 +27,7 @@ source("../../shared/qtcreator.py")
 
 def main():
     for lang in testData.dataset("languages.tsv"):
-        overrideStartApplication()
-        startApplication("qtcreator" + SettingsPath)
+        startQC()
         if not startedWithoutPluginError():
             return
         invokeMenuItem("Tools", "Options...")
@@ -47,8 +46,7 @@ def main():
         invokeMenuItem("File", "Exit")
         waitForCleanShutdown()
         snooze(4) # wait for complete unloading of Creator
-        overrideStartApplication()
-        startApplication("qtcreator" + SettingsPath)
+        startQC()
         try:
             # Use Locator for menu items which wouldn't work on macOS
             exitCommand = testData.field(lang, "Exit")

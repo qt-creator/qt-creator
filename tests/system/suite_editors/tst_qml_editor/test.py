@@ -33,7 +33,7 @@ def main():
     proFile = "keyinteraction.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):
         return
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     # add docs to have the correct tool tips

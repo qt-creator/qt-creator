@@ -30,7 +30,7 @@ def main():
     if not projects:
         return
     sessionName = "SampleSession"
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     createAndSwitchToSession(sessionName)

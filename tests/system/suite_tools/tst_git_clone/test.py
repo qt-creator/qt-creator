@@ -81,7 +81,7 @@ def verifyFiles(targetDir):
                     "Verify the existence of %s" % file)
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     for button in ["Cancel immediately",

@@ -76,7 +76,7 @@ def verifyUrl(expected):
 
 def main():
     noMatch = "Your search did not match any documents."
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     addHelpDocumentation([os.path.join(qt4Path, "doc", "qch", "qt.qch")])

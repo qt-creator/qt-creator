@@ -106,7 +106,7 @@ def main():
     if not expectedVersion:
         test.fatal("Can't find version from file.")
         return
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     setKeyboardShortcutForAboutQtC()

@@ -38,7 +38,7 @@ def main():
     examplePath = os.path.join(templateDir, proFile)
     for useClang in [False, True]:
         with TestSection(getCodeModelString(useClang)):
-            if not startCreator(useClang):
+            if not startCreatorVerifyingClang(useClang):
                 continue
             # open example project
             openQmakeProject(examplePath)

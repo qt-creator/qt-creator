@@ -33,7 +33,7 @@ def main():
     else:
         test.warning("Could not find cmake in PATH - several tests won't run without.")
 
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     kits = getConfiguredKits()

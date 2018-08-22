@@ -43,7 +43,7 @@ def addFileToProject(projectPath, category, fileTemplate, fileName):
     __createProjectHandleLastPage__()
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     targets = Targets.desktopTargetClasses()

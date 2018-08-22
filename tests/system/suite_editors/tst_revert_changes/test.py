@@ -44,7 +44,7 @@ def main():
         test.fatal("Could not prepare test files - leaving test")
         return
     proFile = os.path.join(folder, "testfiles.pro")
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     openQmakeProject(proFile)

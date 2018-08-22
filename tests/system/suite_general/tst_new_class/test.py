@@ -31,7 +31,7 @@ def main():
     sourceFileName = newClassName.lower() + ".cpp"
     basePath = tempDir()
     notOverwrittenComment = "// If you can read this, the file was not overwritten."
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     addCPlusPlusFile(newClassName, "C++ Class", None, newBasePath=basePath,

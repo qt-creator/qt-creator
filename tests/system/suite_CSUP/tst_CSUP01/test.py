@@ -45,7 +45,7 @@ def triggerCompletion(editorWidget):
 def main():
     for useClang in [False, True]:
         with TestSection(getCodeModelString(useClang)):
-            if not startCreator(useClang):
+            if not startCreatorVerifyingClang(useClang):
                 continue
             # create qt quick application
 # Step 1: Open test .pro project.

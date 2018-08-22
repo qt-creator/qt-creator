@@ -52,7 +52,7 @@ def main():
     if not neededFilePresent(SpeedCrunchPath):
         return
 
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     result = openCmakeProject(SpeedCrunchPath, BuildPath)

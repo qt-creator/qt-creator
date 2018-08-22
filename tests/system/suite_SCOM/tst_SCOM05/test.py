@@ -35,7 +35,7 @@ def verifyChangeProject(projectName):
 def main():
     projectName1 = "SampleApp1"
     projectName2 = "SampleApp2"
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     # create qt quick application 1

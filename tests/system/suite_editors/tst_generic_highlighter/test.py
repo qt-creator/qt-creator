@@ -171,7 +171,7 @@ def displayHintForHighlighterDefinition(fileName, patterns, lPatterns, added, ad
 
 def main():
     miss = "A highlight definition was not found for this file. Would you like to try to find one?"
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     uncheckGenericHighlighterFallback()

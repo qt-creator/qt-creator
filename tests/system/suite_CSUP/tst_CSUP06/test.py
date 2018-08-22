@@ -163,7 +163,7 @@ def main():
     examplePath = os.path.join(templateDir, "cplusplus-tools.pro")
     for useClang in [False, True]:
         with TestSection(getCodeModelString(useClang)):
-            if not startCreator(useClang):
+            if not startCreatorVerifyingClang(useClang):
                 continue
             openQmakeProject(examplePath, [Targets.DESKTOP_5_6_1_DEFAULT])
             checkCodeModelSettings(useClang)

@@ -70,7 +70,7 @@ def main():
     if not neededFilePresent(sourceExample):
         return
     # open Qt Creator
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
 

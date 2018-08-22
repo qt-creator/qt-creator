@@ -161,7 +161,7 @@ def addEmptyFileOutsideProject(filename):
     __createProjectHandleLastPage__([filename], "Git", "<None>")
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     createProject_Qt_GUI(srcPath, projectName, addToVersionControl = "Git")

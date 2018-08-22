@@ -23,10 +23,11 @@
 #
 ############################################################################
 
-def startCreatorTryingClang():
+def startCreatorVerifyingClang(useClang):
     try:
-        # start Qt Creator with enabled ClangCodeModel plugin (without modifying settings)
-        startApplication("qtcreator -load ClangCodeModel" + SettingsPath)
+        # start Qt Creator with / without enabled ClangCodeModel plugin (without modifying settings)
+        loadOrNoLoad = '-load' if useClang else '-noload'
+        startQC([loadOrNoLoad, 'ClangCodeModel'])
     except RuntimeError:
         t, v = sys.exc_info()[:2]
         strv = str(v)
@@ -35,25 +36,16 @@ def startCreatorTryingClang():
         else:
             test.fatal("Exception caught", "%s(%s)" % (str(t), strv))
         return False
+    if platform.system() not in ('Microsoft', 'Windows'): # only Win uses dialogs for this
+        return startedWithoutPluginError()
     errorMsg = "{type='QMessageBox' unnamed='1' visible='1' windowTitle='Qt Creator'}"
     errorOK = "{text='OK' type='QPushButton' unnamed='1' visible='1' window=%s}" % errorMsg
     if not waitFor("object.exists(errorOK)", 5000):
-        return True
+        return startedWithoutPluginError()
     clickButton(errorOK) # Error message
     clickButton(errorOK) # Help message
     test.fatal("ClangCodeModel plugin not available.")
     return False
-
-def startCreator(useClang):
-    try:
-        if useClang:
-            if not startCreatorTryingClang():
-                return False
-        else:
-            startApplication("qtcreator -noload ClangCodeModel" + SettingsPath)
-    finally:
-        overrideStartApplication()
-    return startedWithoutPluginError()
 
 def __openCodeModelOptions__():
     invokeMenuItem("Tools", "Options...")

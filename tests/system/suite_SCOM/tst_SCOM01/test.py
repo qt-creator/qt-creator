@@ -27,7 +27,7 @@ source("../../shared/qtcreator.py")
 
 # entry of test
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     # create qt quick application
