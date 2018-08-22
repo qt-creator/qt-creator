@@ -489,6 +489,8 @@ QString firstCharToLower(const QString &string)
 
 QString AbstractView::generateNewId(const QString &prefixName) const
 {
+    if (ModelNode::isValidId(prefixName))
+        return generateNewId("element");
     int counter = 1;
 
     /* First try just the prefixName without number as postfix, then continue with 2 and further as postfix
