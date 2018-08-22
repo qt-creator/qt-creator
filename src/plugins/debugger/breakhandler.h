@@ -312,6 +312,7 @@ public:
     static void claimBreakpointsForEngine(DebuggerEngine *engine);
     static void toggleBreakpoint(const ContextData &location, const QString &tracePointMessage = QString());
     static void createBreakpointForEngine(const BreakpointParameters &data, DebuggerEngine *engine);
+    static void editBreakpoint(const GlobalBreakpoint &gbp, QWidget *parent);
 
     static void executeAddBreakpointDialog();
     static void executeDeleteAllBreakpointsDialog();
@@ -326,7 +327,6 @@ private:
 
     bool contextMenuEvent(const Utils::ItemViewEvent &ev);
     void gotoLocation(const GlobalBreakpoint &gbp) const;
-    void editBreakpoint(const GlobalBreakpoint &gbp, QWidget *parent);
     void editBreakpoints(const GlobalBreakpoints &gbps, QWidget *parent);
 };
 

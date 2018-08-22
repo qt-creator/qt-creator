@@ -1913,20 +1913,20 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
         auto act = menu->addAction(tr("Remove Breakpoint"));
         connect(act, &QAction::triggered, [gbp] { gbp->deleteBreakpoint(); });
 
-//        // Enable/disable existing breakpoint.
-//        if (gbp->isEnabled()) {
-//            act = menu->addAction(tr("Disable Breakpoint %1").arg(id));
-//            connect(act, &QAction::triggered, [gbp] { gbp.setEnabled(false); });
-//        } else {
-//            act = menu->addAction(tr("Enable Breakpoint %1").arg(id));
-//            connect(act, &QAction::triggered, [gbp] { gbp.setEnabled(true); });
-//        }
+        // Enable/disable existing breakpoint.
+        if (gbp->isEnabled()) {
+            act = menu->addAction(tr("Disable Breakpoint"));
+            connect(act, &QAction::triggered, [gbp] { gbp->setEnabled(false); });
+        } else {
+            act = menu->addAction(tr("Enable Breakpoint"));
+            connect(act, &QAction::triggered, [gbp] { gbp->setEnabled(true); });
+        }
 
-//        // Edit existing breakpoint.
-//        act = menu->addAction(tr("Edit Breakpoint %1...").arg(id));
-//        connect(act, &QAction::triggered, [gbp] {
-//            globalBreakHandler()->editBreakpoint(gbp, ICore::dialogParent());
-//        });
+        // Edit existing breakpoint.
+        act = menu->addAction(tr("Edit Breakpoint ..."));
+        connect(act, &QAction::triggered, [gbp] {
+            BreakpointManager::editBreakpoint(gbp, ICore::dialogParent());
+        });
 
     } else {
         // Handle non-existing breakpoint.

@@ -2322,9 +2322,10 @@ void GlobalBreakpointItem::setEnabled(bool enabled)
     update();
 
     for (QPointer<DebuggerEngine> engine : EngineManager::engines()) {
-        for (Breakpoint bp : engine->breakHandler()->breakpoints()) {
+        BreakHandler *handler = engine->breakHandler();
+        for (Breakpoint bp : handler->breakpoints()) {
             if (bp->globalBreakpoint() == this)
-                bp->setEnabled(enabled);
+                handler->requestBreakpointEnabling(bp, enabled);
         }
     }
 }
