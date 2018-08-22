@@ -50,6 +50,7 @@
 #include <tokenprocessor.h>
 #include <filepathview.h>
 #include <symbolentry.h>
+#include <symbolindexertaskqueue.h>
 #include <symbol.h>
 #include <tooltipinfo.h>
 #include <projectpartentry.h>
@@ -1021,6 +1022,11 @@ std::ostream &operator<<(std::ostream &os, const ReferencesResult &value)
     os << "})";
 
     return os;
+}
+
+std::ostream &operator<<(std::ostream &out, const SymbolIndexerTask &task)
+{
+    return out << "(" << task.filePathId << ", " << task.projectPartId << ")";
 }
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os)

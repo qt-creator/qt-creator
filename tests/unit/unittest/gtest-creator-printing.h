@@ -171,6 +171,7 @@ class UpdateGeneratedFilesMessage;
 class RemoveGeneratedFilesMessage;
 class SuspendResumeJobsEntry;
 class ReferencesResult;
+class SymbolIndexerTask;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
@@ -252,6 +253,7 @@ std::ostream &operator<<(std::ostream &out, const UpdateGeneratedFilesMessage &m
 std::ostream &operator<<(std::ostream &out, const RemoveGeneratedFilesMessage &message);
 std::ostream &operator<<(std::ostream &os, const SuspendResumeJobsEntry &entry);
 std::ostream &operator<<(std::ostream &os, const ReferencesResult &value);
+std::ostream &operator<<(std::ostream &out, const SymbolIndexerTask &task);
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os);
 void PrintTo(const FilePathView &filePathView, ::std::ostream *os);

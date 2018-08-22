@@ -95,7 +95,8 @@ SOURCES += \
     precompiledheaderstorage-test.cpp \
     projectpartqueue-test.cpp \
     generatedfiles-test.cpp \
-    sourcesmanager-test.cpp
+    sourcesmanager-test.cpp \
+    symbolindexertaskqueue-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
