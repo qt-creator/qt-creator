@@ -1182,7 +1182,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     cmd->setAttribute(Command::CA_UpdateText);
     debugMenu->addAction(cmd);
     m_nextAction.setIcon(Icons::STEP_OVER.icon());
-    connect(&m_nextAction, &QAction::triggered, this, [this] {
+    connect(&m_nextAction, &QAction::triggered, this, [] {
         if (DebuggerEngine *engine = EngineManager::currentEngine()) {
             engine->executeNext();
         } else {
@@ -1197,7 +1197,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     cmd->setAttribute(Command::CA_UpdateText);
     debugMenu->addAction(cmd);
     m_stepAction.setIcon(Icons::STEP_OVER.icon());
-    connect(&m_stepAction, &QAction::triggered, this, [this] {
+    connect(&m_stepAction, &QAction::triggered, this, [] {
         if (DebuggerEngine *engine = EngineManager::currentEngine()) {
             engine->executeStep();
         } else {
