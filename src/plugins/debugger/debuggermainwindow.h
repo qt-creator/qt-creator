@@ -130,8 +130,6 @@ private:
     DebuggerMainWindow();
     ~DebuggerMainWindow() override;
 
-    void closeEvent(QCloseEvent *) final;
-
     friend class Perspective;
     friend class PerspectivePrivate;
     class DebuggerMainWindowPrivate *d = nullptr;

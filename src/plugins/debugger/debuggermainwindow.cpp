@@ -287,7 +287,6 @@ void DebuggerMainWindowPrivate::increaseChooserWidthIfNecessary(const QString &v
 
 void DebuggerMainWindowPrivate::destroyPerspective(Perspective *perspective)
 {
-    savePerspectiveHelper(perspective);
     m_perspectives.removeAll(perspective);
 
     // Dynamic perspectives are currently not visible in the chooser.
@@ -355,11 +354,6 @@ Perspective *Perspective::findPerspective(const QString &perspectiveId)
     return Utils::findOr(theMainWindow->d->m_perspectives, nullptr, [&](Perspective *perspective) {
         return perspective->d->m_id == perspectiveId;
     });
-}
-
-void DebuggerMainWindow::closeEvent(QCloseEvent *)
-{
-    d->savePerspectiveHelper(d->m_currentPerspective);
 }
 
 void DebuggerMainWindowPrivate::resetCurrentPerspective()
@@ -600,7 +594,6 @@ void DebuggerMainWindowPrivate::savePerspectiveHelper(const Perspective *perspec
     q->saveSettings(settings);
     settings->setValue(QLatin1String("ToolSettingsSaved"), true);
     settings->endGroup();
-    settings->setValue(QLatin1String(LAST_PERSPECTIVE_KEY), perspective->d->m_id);
 }
 
 // Perspective
@@ -765,11 +758,14 @@ void Perspective::addWindow(QWidget *widget,
 void Perspective::select()
 {
     ModeManager::activateMode(Debugger::Constants::MODE_DEBUG);
+    if (Perspective::currentPerspective() == this)
+        return;
     theMainWindow->d->selectPerspective(this);
     if (Perspective *parent = Perspective::findPerspective(d->m_parentPerspectiveId))
         parent->d->m_lastActiveSubPerspectiveId = d->m_id;
     else
         d->m_lastActiveSubPerspectiveId.clear();
+    ICore::settings()->setValue(QLatin1String(LAST_PERSPECTIVE_KEY), d->m_id);
 }
 
 // ToolbarAction
