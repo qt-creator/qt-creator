@@ -45,6 +45,8 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/messagebox.h>
 
+#include <projectexplorer/session.h>
+
 #include <texteditor/syntaxhighlighter.h>
 
 #include <app/app_version.h>
@@ -81,6 +83,7 @@
 #include <ctype.h>
 
 using namespace Core;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Debugger {
@@ -212,12 +215,12 @@ static QString stripForFormat(const QString &ba)
 
 static void saveWatchers()
 {
-    setSessionValue("Watchers", WatchHandler::watchedExpressions());
+    SessionManager::setValue("Watchers", WatchHandler::watchedExpressions());
 }
 
 static void loadFormats()
 {
-    QVariant value = sessionValue("DefaultFormats");
+    QVariant value = SessionManager::value("DefaultFormats");
     QMapIterator<QString, QVariant> it(value.toMap());
     while (it.hasNext()) {
         it.next();
@@ -225,7 +228,7 @@ static void loadFormats()
             theTypeFormats.insert(it.key(), it.value().toInt());
     }
 
-    value = sessionValue("IndividualFormats");
+    value = SessionManager::value("IndividualFormats");
     it = QMapIterator<QString, QVariant>(value.toMap());
     while (it.hasNext()) {
         it.next();
@@ -247,7 +250,7 @@ static void saveFormats()
                 formats.insert(key, format);
         }
     }
-    setSessionValue("DefaultFormats", formats);
+    SessionManager::setValue("DefaultFormats", formats);
 
     formats.clear();
     it = QHashIterator<QString, int>(theIndividualFormats);
@@ -258,7 +261,18 @@ static void saveFormats()
         if (!key.isEmpty())
             formats.insert(key, format);
     }
-    setSessionValue("IndividualFormats", formats);
+    SessionManager::setValue("IndividualFormats", formats);
+}
+
+static void saveSessionData()
+{
+    saveWatchers();
+    saveFormats();
+}
+
+static void loadSessionData()
+{
+    // Handled by loadSesseionDataForEngine.
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -277,7 +291,7 @@ public:
         setWindowFlags(windowFlags() | Qt::Window);
         setWindowTitle(WatchHandler::tr("Debugger - %1").arg(Core::Constants::IDE_DISPLAY_NAME));
 
-        QVariant geometry = sessionValue("DebuggerSeparateWidgetGeometry");
+        QVariant geometry = SessionManager::value("DebuggerSeparateWidgetGeometry");
         if (geometry.isValid()) {
             QRect rc = geometry.toRect();
             if (rc.width() < 400)
@@ -290,7 +304,7 @@ public:
 
     void saveGeometry()
     {
-        setSessionValue("DebuggerSeparateWidgetGeometry", geometry());
+        SessionManager::setValue("DebuggerSeparateWidgetGeometry", geometry());
     }
 
     ~SeparatedView() override
@@ -506,6 +520,11 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
         m_engine, &DebuggerEngine::updateAll);
     connect(action(ShowQObjectNames), &SavedAction::valueChanged,
         m_engine, &DebuggerEngine::updateAll);
+
+    connect(SessionManager::instance(), &SessionManager::sessionLoaded,
+            this, &loadSessionData);
+    connect(SessionManager::instance(), &SessionManager::aboutToSaveSession,
+            this, &saveSessionData);
 }
 
 void WatchModel::reinitialize(bool includeInspectData)
@@ -2077,7 +2096,7 @@ void WatchHandler::resetWatchers()
     loadFormats();
     theWatcherNames.clear();
     theWatcherCount = 0;
-    const QStringList watchers = sessionValue("Watchers").toStringList();
+    const QStringList watchers = SessionManager::value("Watchers").toStringList();
     m_model->m_watchRoot->removeChildren();
     for (const QString &exp : watchers)
         watchExpression(exp.trimmed());
@@ -2383,23 +2402,12 @@ QStringList WatchHandler::watchedExpressions()
     return watcherNames;
 }
 
-void WatchHandler::saveSessionData()
-{
-    saveWatchers();
-    saveFormats();
-}
-
-void WatchHandler::loadSessionData()
-{
-    // Handled by loadSesseionDataForEngine.
-}
-
 void WatchHandler::loadSessionDataForEngine()
 {
     loadFormats();
     theWatcherNames.clear();
     theWatcherCount = 0;
-    QVariant value = sessionValue("Watchers");
+    QVariant value = SessionManager::value("Watchers");
     m_model->m_watchRoot->removeChildren();
     foreach (const QString &exp, value.toStringList())
         watchExpression(exp.trimmed());

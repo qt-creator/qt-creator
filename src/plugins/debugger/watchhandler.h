@@ -78,9 +78,6 @@ public:
 
     void loadSessionDataForEngine();
 
-    static void loadSessionData();
-    static void saveSessionData();
-
     bool isExpandedIName(const QString &iname) const;
     QSet<QString> expandedINames() const;
 

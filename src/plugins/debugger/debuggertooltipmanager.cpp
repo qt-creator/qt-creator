@@ -1076,7 +1076,7 @@ void DebuggerToolTipManagerPrivate::sessionAboutToChange()
 void DebuggerToolTipManagerPrivate::loadSessionData()
 {
     closeAllToolTips();
-    const QString data = sessionValue(sessionSettingsKeyC).toString();
+    const QString data = SessionManager::value(sessionSettingsKeyC).toString();
     QXmlStreamReader r(data);
     if (r.readNextStartElement() && r.name() == QLatin1String(sessionDocumentC)) {
         while (!r.atEnd()) {

@@ -73,8 +73,6 @@ void showModuleSections(const QString &moduleName, const QVector<Internal::Secti
 
 QSharedPointer<Internal::GlobalDebuggerOptions> globalDebuggerOptions();
 
-QVariant sessionValue(const QByteArray &name);
-void setSessionValue(const QByteArray &name, const QVariant &value);
 QVariant configValue(const QString &name);
 void setConfigValue(const QString &name, const QVariant &value);
 

@@ -676,10 +676,6 @@ public:
 
     void onStartupProjectChanged(Project *project);
 
-    void sessionLoaded();
-    void aboutToUnloadSession();
-    void aboutToSaveSession();
-
     void handleOperateByInstructionTriggered(bool operateByInstructionTriggered);
 
     bool parseArgument(QStringList::const_iterator &it,
@@ -1330,12 +1326,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
 
     // ProjectExplorer
-    connect(SessionManager::instance(), &SessionManager::sessionLoaded,
-            this, &DebuggerPluginPrivate::sessionLoaded);
-    connect(SessionManager::instance(), &SessionManager::aboutToSaveSession,
-            this, &DebuggerPluginPrivate::aboutToSaveSession);
-    connect(SessionManager::instance(), &SessionManager::aboutToUnloadSession,
-            this, &DebuggerPluginPrivate::aboutToUnloadSession);
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
             this, &DebuggerPluginPrivate::updatePresetState);
 
@@ -2073,23 +2063,6 @@ void DebuggerPluginPrivate::dumpLog()
     saver.finalize(ICore::mainWindow());
 }
 
-void DebuggerPluginPrivate::sessionLoaded()
-{
-    BreakpointManager::loadSessionData();
-    WatchHandler::loadSessionData();
-}
-
-void DebuggerPluginPrivate::aboutToUnloadSession()
-{
-    BreakpointManager::aboutToUnloadSession();
-}
-
-void DebuggerPluginPrivate::aboutToSaveSession()
-{
-    WatchHandler::saveSessionData();
-    BreakpointManager::saveSessionData();
-}
-
 void DebuggerPluginPrivate::aboutToShutdown()
 {
     m_shuttingDown = true;
@@ -2106,16 +2079,6 @@ void DebuggerPluginPrivate::aboutToShutdown()
         }
     }
     m_shutdownTimer.start();
-}
-
-void setSessionValue(const QByteArray &key, const QVariant &value)
-{
-    SessionManager::setValue(QString::fromUtf8(key), value);
-}
-
-QVariant sessionValue(const QByteArray &key)
-{
-    return SessionManager::value(QString::fromUtf8(key));
 }
 
 static void createNewDock(QWidget *widget)

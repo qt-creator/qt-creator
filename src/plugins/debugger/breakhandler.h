@@ -234,9 +234,6 @@ public:
     QAbstractItemModel *model() { return this; }
     const Breakpoints breakpoints() const;
 
-    void loadSessionData();
-    void saveSessionData();
-
     bool tryClaimBreakpoint(const GlobalBreakpoint &gbp);
     void releaseAllBreakpoints();
 
@@ -297,9 +294,6 @@ public:
     static QAbstractItemModel *model();
 
     static const GlobalBreakpoints globalBreakpoints();
-    static void loadSessionData();
-    static void saveSessionData();
-    static void aboutToUnloadSession();
 
     static GlobalBreakpoint createBreakpoint(const BreakpointParameters &data);
 
@@ -324,6 +318,10 @@ private:
 
     QVariant data(const QModelIndex &idx, int role) const final;
     bool setData(const QModelIndex &idx, const QVariant &value, int role) final;
+
+    void loadSessionData();
+    void saveSessionData();
+    void aboutToUnloadSession();
 
     bool contextMenuEvent(const Utils::ItemViewEvent &ev);
     void gotoLocation(const GlobalBreakpoint &gbp) const;

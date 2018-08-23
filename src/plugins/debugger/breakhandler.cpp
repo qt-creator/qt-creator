@@ -40,6 +40,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
+#include <projectexplorer/session.h>
+
 #include <texteditor/textmark.h>
 #include <texteditor/texteditor.h>
 
@@ -69,6 +71,7 @@
 #include <QMenu>
 
 using namespace Core;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Debugger {
@@ -2391,6 +2394,12 @@ BreakpointManager::BreakpointManager()
     theBreakpointManager = this;
     setHeader({tr("Debuggee"), tr("Function"), tr("File"), tr("Line"), tr("Address"),
                tr("Condition"), tr("Ignore"), tr("Threads")});
+    connect(SessionManager::instance(), &SessionManager::sessionLoaded,
+            this, &BreakpointManager::loadSessionData);
+    connect(SessionManager::instance(), &SessionManager::aboutToSaveSession,
+            this, &BreakpointManager::saveSessionData);
+    connect(SessionManager::instance(), &SessionManager::aboutToUnloadSession,
+            this, &BreakpointManager::aboutToUnloadSession);
 }
 
 QAbstractItemModel *BreakpointManager::model()
@@ -2755,20 +2764,20 @@ void BreakpointManager::saveSessionData()
             map.insert("message", params.message);
         list.append(map);
     });
-    setSessionValue("Breakpoints", list);
+    SessionManager::setValue("Breakpoints", list);
 }
 
 void BreakpointManager::aboutToUnloadSession()
 {
     saveSessionData();
-    theBreakpointManager->clear();
+    clear();
 }
 
 void BreakpointManager::loadSessionData()
 {
-    theBreakpointManager->clear();
+    clear();
 
-    const QVariant value = sessionValue("Breakpoints");
+    const QVariant value = SessionManager::value("Breakpoints");
     const QList<QVariant> list = value.toList();
     for (const QVariant &var : list) {
         const QMap<QString, QVariant> map = var.toMap();
