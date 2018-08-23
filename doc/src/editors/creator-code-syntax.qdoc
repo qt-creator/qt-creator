@@ -1,0 +1,698 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-highlighting.html
+    \page creator-checking-code-syntax.html
+    \nextpage creator-completing-code.html
+
+    \title Checking Code Syntax
+
+    As you write code, \QC checks code syntax. When \QC spots a syntax error in
+    your code it underlines it and shows error details when you move the mouse
+    pointer over the error. Similarly, when you are working on an instance of a
+    JavaScript object notation (JSON) entity, \QC underlines errors in JSON data
+    structure.
+
+    \list
+        \li Syntax errors are underlined in red.
+
+            In the following figure, a semicolon is missing at the end of the
+            line.
+            \image qtcreator-syntaxerror.png
+        \li Semantic errors and warnings are underlined in olive.
+
+            In the following figure, the variable is not used.
+            \image qtcreator-semanticerror.png
+    \endlist
+
+    When using the Clang code model, errors and warnings are additionally marked
+    with icons and annotated. If a \l{http://clang.llvm.org/diagnostics.html}
+    {Clang fix-it} is available, you can execute it by clicking the
+    \inlineimage refactormarker.png
+    icon and pressing \key Enter.
+
+    In the following figure, a semicolon is missing at the end of the
+    line.
+
+    \image qtcreator-syntaxerror-clang.png
+
+    In the following figure, the variable is not used.
+
+    \image qtcreator-semanticerror-clang.png
+
+    To specify the position where the annotations are displayed, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol Display > \uicontrol {Line annotations}, and then select
+    whether to display the annotations directly next to the code, aligned
+    to the right of the code, or in the right margin. Showing annotations
+    between lines can be useful if there is usually not enough space to
+    display annotations next to the text.
+
+    If you hide the annotations by deselecting the check box, you can move the
+    mouse pointer over an icon to view them.
+
+    \section1 Checking JSON Data Structure
+
+    You can run static checks on the QML and JavaScript code in
+    your project to find common problems.
+
+    \QC validates instances of JSON entities against
+    \l{http://tools.ietf.org/html/draft-zyp-json-schema-03}
+    {A JSON Media Type for Describing the Structure and Meaning of JSON Documents}.
+    However, \QC does not understand the entire specification.
+
+    A JSON schema defines the structure of JSON data. It determines what JSON
+    data is required for an application and how to interact with it.
+
+    The specification does not define how to map JSON instances with JSON
+    schemas. \QC looks for a JSON schema file with a name that matches the
+    name of the JSON instance file in the user configuration folder. For
+    example, \c {~/config/QtProject/qtcreator/json} on Linux and \macos and
+    \c {C:\Users\username\AppData\Roaming\QtCreator\qtcreator\json} on
+    Windows. To check JSON data structure, copy the JSON schema file to the
+    above folder.
+
+    \section2 Checking JavaScript and QML Syntax
+
+    To run the checks, select \uicontrol Tools > \uicontrol {QML/JS} >
+    \uicontrol {Run Checks} or press \key {Ctrl+Shift+C}. The results are shown
+    in the \uicontrol {QML Analysis} filter of the \uicontrol Issues output
+    pane.
+
+    \section2 List of JavaScript and QML Checks
+
+    Many of the JavaScript checks are similar to the ones in Douglas Crockford's
+    \l{http://www.jslint.com}{JSLint} tool. For more information about JSLint
+    errors, see \l{http://linterrors.com/js}{JSLint Error Explanations}.
+
+    \table
+    \header
+        \li Id
+        \li Severity
+        \li Message
+        \li Description
+
+    \row
+        \li M1
+        \li Error
+        \li Invalid value for enum
+        \li
+
+    \row
+        \li M2
+        \li Error
+        \li Enum value must be a string or a number
+        \li
+
+    \row
+        \li M3
+        \li Error
+        \li Number value expected
+        \li
+
+    \row
+        \li M4
+        \li Error
+        \li Boolean value expected
+        \li
+
+    \row
+        \li M5
+        \li Error
+        \li String value expected
+        \li
+
+    \row
+        \li M6
+        \li Error
+        \li Invalid URL
+        \li
+
+    \row
+        \li M7
+        \li Warning
+        \li File or directory does not exist
+        \li
+
+    \row
+        \li M8
+        \li Error
+        \li Invalid color
+        \li
+
+    \row
+        \li M9
+        \li Error
+        \li Anchor line expected
+        \li
+
+    \row
+        \li M10
+        \li Error
+        \li Duplicate property binding
+        \li See also: \l{http://linterrors.com/js/duplicate-key-a}
+            {Duplicate key '{a}'}.
+
+    \row
+        \li M11
+        \li Error
+        \li Id expected
+        \li See also:
+            \l{http://linterrors.com/js/expected-an-identifier-and-instead-saw-a-a-reserved-word}
+            {Expected an identifier and instead saw '{a}' (a reserved word)}.
+
+    \row
+        \li M14
+        \li Error
+        \li Invalid id
+        \li See also:
+            \l{http://linterrors.com/js/expected-an-identifier-and-instead-saw-a-a-reserved-word}
+            {Expected an identifier and instead saw '{a}' (a reserved word)}.
+
+
+    \row
+        \li M15
+        \li Error
+        \li Duplicate id
+        \li Ids in a file must be unique.
+            See also: \l{http://linterrors.com/js/duplicate-key-a}
+            {Duplicate key '{a}'}.
+
+    \row
+        \li M16
+        \li Error
+        \li Invalid property name \c name
+        \li
+
+    \row
+        \li M17
+        \li Error
+        \li \c Name does not have members
+        \li
+
+    \row
+        \li M18
+        \li Error
+        \li \c Field is not a member of \c object
+        \li
+
+    \row
+        \li M19
+        \li Warning
+        \li Assignment in condition
+        \li It could be a typing error. If it is intentional, wrap the
+            assignment in parentheses.
+
+    \row
+        \li M20
+        \li Warning
+        \li Unterminated non-empty case block
+        \li Case blocks should either be empty or end in a flow control
+            statement such as \c break, \c return or \c continue.
+            Alternatively you can indicate intentional fall through by ending
+            with a \c {// fall through} comment.
+
+    \row
+        \li M23
+        \li Warning
+        \li Do not use \c eval
+        \li See also: \l{http://linterrors.com/js/eval-is-evil}{eval is evil}.
+
+    \row
+        \li M28
+        \li Warning
+        \li Unreachable
+        \li Indicates that the underlined statement will never be executed.
+
+    \row
+        \li M29
+        \li Warning
+        \li Do not use \c with
+        \li See also: \l{http://linterrors.com/js/unexpected-with}
+            {Unexpected 'with'}.
+
+    \row
+        \li M30
+        \li Warning
+        \li Do not use comma expressions
+        \li
+
+    \row
+        \li M31
+        \li Warning
+        \li Unnecessary message suppression
+        \li
+
+    \row
+        \li M103
+        \li Warning
+        \li \c Name is already a formal parameter
+        \li
+
+    \row
+        \li M104
+        \li Warning
+        \li \c Name is already a function
+        \li
+
+    \row
+        \li M105
+        \li Warning
+        \li Var \c name is used before its declaration
+        \li
+
+    \row
+        \li M106
+        \li Warning
+        \li \c Name is already a var
+        \li
+
+    \row
+        \li M107
+        \li Warning
+        \li \c Name is declared more than once
+        \li Variables declared in a function are always visible everywhere in
+            the function, even when declared in nested blocks or \c for
+            statement conditions. Redeclaring a variable has no effect.
+
+    \row
+        \li M108
+        \li Warning
+        \li Function \c name is used before its declaration
+        \li See also: \l{http://linterrors.com/js/a-was-used-before-it-was-defined}
+            {{a} was used before it was defined}.
+
+    \row
+        \li M109
+        \li Warning
+        \li Do not use \c Boolean as a constructor
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
+
+    \row
+        \li M110
+        \li Warning
+        \li Do not use \c String as a constructor
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
+
+    \row
+        \li M111
+        \li Warning
+        \li Do not use \c Object as a constructor
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
+
+    \row
+        \li M112
+        \li Warning
+        \li Do not use \c Array as a constructor
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
+
+    \row
+        \li M113
+        \li Warning
+        \li Do not use \c Function as a constructor
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
+
+    \row
+        \li M114
+        \li Hint
+        \li The \c function keyword and the opening parenthesis should be
+            separated by a single space
+        \li See also: \l{http://linterrors.com/js/expected-exactly-one-space-between-a-and-b}
+            {Expected exactly one space between {a} and {b}}.
+
+    \row
+        \li M115
+        \li Warning
+        \li Do not use stand-alone blocks
+        \li Blocks do not affect variable scoping. Thus blocks that are not
+            associated to \c if, \c while, etc. have no effect and should be
+            avoided.
+
+    \row
+        \li M116
+        \li Warning
+        \li Do not use void expressions
+        \li
+
+    \row
+        \li M117
+        \li Warning
+        \li Confusing pluses
+        \li See also: \l{http://linterrors.com/js/confusing-pluses}
+            {Confusing pluses}.
+
+    \row
+        \li M119
+        \li Warning
+        \li Confusing minuses
+        \li See also: \l{http://linterrors.com/js/confusing-minuses}
+            {Confusing minuses}.
+
+    \row
+        \li M121
+        \li Hint
+        \li Declare all function vars on a single line
+        \li
+
+    \row
+        \li M123
+        \li Hint
+        \li Unnecessary parentheses
+        \li
+
+    \target m126
+    \row
+        \li M126
+        \li Warning
+        \li \c == and \c != may perform type coercion, use \c === or \c !== to
+            avoid it
+        \li The non-strict equality comparison is allowed to convert its
+            arguments to a common type. That can lead to unexpected results such
+            as \c {' \t\r\n' == 0} being true. Use the strict equality operators
+            \c === and \c !== and be explicit about conversions you require.
+
+    \row
+        \li M127
+        \li Warning
+        \li Expression statements should be assignments, calls or delete
+            expressions only
+        \li
+
+    \row
+        \li M128
+        \li Error
+        \li A state cannot have the specified child item
+        \li
+
+    \row
+        \li M201
+        \li Hint
+        \li Place var declarations at the start of a function
+        \li See also:
+            \l{http://linterrors.com/js/move-var-declarations-to-the-top-of-the-function}
+            {Move 'var' declarations to the top of the function}.
+
+    \row
+        \li M202
+        \li Hint
+        \li Use only one statement per line
+        \li
+
+    \row
+        \li M203
+        \li Warning
+        \li Imperative code is not supported in the Design mode
+        \li
+
+    \row
+        \li M204
+        \li Warning
+        \li This QML type is not supported in the Design mode
+        \li
+    \row
+        \li M205
+        \li Warning
+        \li Reference to parent QML type cannot be resolved correctly by the
+            Design mode
+        \li
+
+    \row
+        \li M206
+        \li Warning
+        \li This visual property binding cannot be evaluated in the local
+            context and might not show up in Design mode as expected
+        \li
+
+    \row
+        \li M207
+        \li Warning
+        \li Design mode only supports states in the root QML type
+        \li
+
+    \row
+        \li M208
+        \li Error
+        \li This id might be ambiguous and is not supported in the Design mode.
+        \li
+
+    \row
+        \li M209
+        \li Error
+        \li This type (type name) is not supported as a root element in the
+            Design mode.
+        \li
+
+    \row
+        \li M220
+        \li Error
+        \li This type (type name) is not supported as a root element of a Qt
+            Quick UI form.
+        \li
+
+    \row
+        \li M221
+        \li Error
+        \li This type (type name) is not supported in a Qt Quick UI form.
+        \li
+
+    \row
+        \li M222
+        \li Error
+        \li Functions are not supported in a Qt Quick UI form.
+        \li
+
+    \row
+        \li M223
+        \li Error
+        \li Java Script blocks are not supported in a Qt Quick UI form.
+        \li
+
+    \row
+        \li M224
+        \li Error
+        \li Behavior type is not supported in a Qt Quick UI form.
+        \li
+
+    \row
+        \li M225
+        \li Error
+        \li States are only supported in the root item in a Qt Quick UI form.
+        \li
+
+    \row
+        \li M226
+        \li Error
+        \li Referencing the parent of the root item is not supported in a Qt
+            Quick UI form.
+        \li
+
+    \row
+        \li M300
+        \li Error
+        \li Unknown component
+        \li
+
+    \row
+        \li M301
+        \li Error
+        \li Could not resolve the prototype \c name of \c object
+        \li
+
+    \row
+        \li M302
+        \li Error
+        \li Could not resolve the prototype \c name
+        \li
+
+    \row
+        \li M303
+        \li Error
+        \li Prototype cycle, the last non-repeated component is \c name
+        \li
+
+    \row
+        \li M304
+        \li Error
+        \li Invalid property type \c name
+        \li
+    \row
+        \li M305
+        \li Warning
+        \li \c == and \c != perform type coercion, use \c === or \c !== to
+            avoid it
+        \li See \l{m126}{M126}.
+    \row
+        \li M306
+        \li Warning
+        \li Calls of functions that start with an uppercase letter should use
+            \c new
+        \li By convention, functions that start with an uppercase letter
+            are constructor functions that should only be used with \c new.
+
+    \row
+        \li M307
+        \li Warning
+        \li Use \c new only with functions that start with an uppercase letter
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
+
+    \row
+        \li M308
+        \li Warning
+        \li Do not use \c Number as a constructor
+        \li See also: \l{http://linterrors.com/js/do-not-use-a-as-a-constructor}
+            {Do not use {a} as a constructor}.
+
+    \row
+        \li M309
+        \li Hint
+        \li Use spaces around binary operators
+        \li
+
+    \row
+        \li M310
+        \li Warning
+        \li Unintentional empty block, use ({}) for empty object literal
+        \li
+
+    \row
+        \li M311
+        \li Hint
+        \li Use \c type instead of \c var or \c variant to improve performance
+        \li
+
+    \row
+        \li M312
+        \li Error
+        \li Missing property \c number
+        \li
+
+    \row
+        \li M313
+        \li Error
+        \li Object value expected
+        \li
+
+    \row
+        \li M314
+        \li Error
+        \li Array value expected
+        \li
+
+    \row
+        \li M315
+        \li Error
+        \li \c Value value expected
+        \li
+
+    \row
+        \li M316
+        \li Error
+        \li Maximum number value is \c number
+        \li
+
+    \row
+        \li M317
+        \li Error
+        \li Minimum number value is \c number
+        \li
+
+    \row
+        \li M318
+        \li Error
+        \li Maximum number value is exclusive
+        \li
+
+    \row
+        \li M319
+        \li Error
+        \li Minimum number value is exclusive
+        \li
+
+    \row
+        \li M320
+        \li Error
+        \li String value does not match required pattern
+        \li
+
+    \row
+        \li M321
+        \li Error
+        \li Minimum string value length is \c number
+        \li
+
+    \row
+        \li M322
+        \li Error
+        \li Maximum string value length is \c number
+        \li
+
+    \row
+        \li M323
+        \li Error
+        \li \c Number elements expected in array value
+        \li See also:
+            \l{http://linterrors.com/js/the-array-literal-notation-is-preferrable}
+            {The array literal notation [] is preferable}.
+
+    \endtable
+
+    \section1 Resetting the Code Model
+
+    If you change the build and run kit when you have QML files open in the code
+    editor, the code model might become corrupt. The following error message
+    indicates that this might have happened: \e{Using Qt Quick 1 code model
+    instead of Qt Quick 2}.
+
+    You can see the error message when you move the mouse pointer over code that
+    \QC underlines in the code editor or when you open a QML file in the Design
+    mode.
+
+    To reset the code model, select \uicontrol Tools > \uicontrol {QML/JS} >
+    \uicontrol {Reset Code Model}.
+
+    If this does not help, try changing the QML emulation layer to the one that
+    was built with the same Qt version as the one selected in the build and run
+    kit. For more information, see \l{Running QML Modules in Design Mode}.
+
+    \section1 Inspecting QML and JavaScript
+
+    To inspect QML and JavaScript properties, methods, and enums, move the
+    cursor over them and select \uicontrol Tools > \uicontrol {QML/JS} >
+    \uicontrol {Inspect API for Element Under Cursor}.
+
+    \section1 Automatically Formatting QML/JS Files
+
+    To automatically format QML/JS files upon saving, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} >
+    \uicontrol {Enable auto format on file save}.
+*/

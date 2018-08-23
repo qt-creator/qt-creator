@@ -1,0 +1,59 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-codepasting.html
+    \page creator-macros.html
+    \nextpage creator-diff-editor.html
+
+    \title Using Text Editing Macros
+
+    To record a text editing macro, select \uicontrol Tools >
+    \uicontrol {Text Editing Macros} > \uicontrol {Record Macro}
+    or press \key {Alt+(}. To stop recording, select \uicontrol Tools >
+    \uicontrol {Text Editing Macros} > \uicontrol {Stop Recording Macro} or
+    press \key {Alt+)}.
+
+    \note The macro recorder does not support code completion.
+
+    To play the last macro, select \uicontrol Tools >
+    \uicontrol {Text Editing Macros} > \uicontrol {Play Last Macro} or
+    press \key {Alt+R}.
+
+    To save the last macro, select \uicontrol Tools >
+    \uicontrol {Text Editing Macros} > \uicontrol {Save Last Macro}.
+
+    To assign a keyboard shortcut to a text editing macro, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol Environment >
+    \uicontrol Keyboard. For more information, see
+    \l{Configuring Keyboard Shortcuts}.
+
+    You can also use the \c rm locator filter to run a macro. For more
+    information, see \l{Searching with the Locator}.
+
+    To view and remove saved macros, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Text Editor} > \uicontrol Macros.
+*/

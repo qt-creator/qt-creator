@@ -1,0 +1,272 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-finding-overview.html
+    \page creator-editor-finding.html
+    \nextpage creator-editor-locator.html
+
+    \title Finding and Replacing
+
+    To search through the currently open file:
+
+    \list 1
+
+        \li Press \key {Ctrl+F} or select \uicontrol Edit >
+            \uicontrol {Find/Replace} > \uicontrol {Find/Replace}.
+
+        \li Enter the text you are looking for.
+
+            If the text is found, all occurrences are highlighted as you type.
+
+        \li To go to the next occurrence, click \inlineimage next.png
+            (\uicontrol {Find Next}), or press \key F3. To go to the previous
+            occurrence click \inlineimage prev.png
+            (\uicontrol {Find Previous}), or press \key {Shift+F3}.
+
+    \endlist
+
+    You can restrict the search in the \uicontrol Find field by selecting one
+    or several search criteria:
+
+    \list
+
+        \li To make your search case sensitive, select
+            \uicontrol {Case Sensitive}.
+
+        \li To search only whole words, select \uicontrol {Whole Words Only}.
+
+        \li To search using regular expressions, select
+            \uicontrol {Use Regular Expressions}. Regular expressions used in \QC
+            are modeled on Perl regular expressions. For more information on
+            using regular expressions, see the documentation for the
+            QRegularExpression Class.
+
+    \endlist
+
+    \note If you have selected text before selecting \uicontrol {Find/Replace}, the
+    search is conducted within the selection.
+
+    To replace occurrences of the existing text, enter the new text in the
+    \uicontrol {Replace with} field.
+
+    \list
+
+        \li To replace the selected occurrence and move to the next one,
+            click \uicontrol {Find Next} or press \key {Ctrl+=}.
+
+        \li To replace the selected occurrence and move to the previous one,
+            click \uicontrol {Find Previous}.
+
+        \li To replace all occurrences in the file, click
+            \uicontrol {Replace All}.
+
+    \endlist
+
+    The \uicontrol {Preserve Case when Replacing} option can be selected to
+    preserve the case of the original text when replacing. This option is not
+    compatible with the \uicontrol {Use Regular Expressions} search option, and will
+    thus be disabled when regular expressions are used. When the option is used,
+    the case of the occurrence will be conserved, according to the following
+    rules:
+
+    \list
+
+        \li All upper-case occurrences are replaced with the upper-case new
+            text.
+        \li All lower-case occurrences are replaced with the lower-case new
+            text.
+
+        \li Capitalized occurrences are replaced with the capitalized new text.
+
+        \li Other occurrences are replaced with the new text as entered.
+
+        \li If an occurrence and the new text have the same prefix or suffix,
+            then the case of the prefix and/or suffix are preserved, and the
+            other rules are applied on the rest of the occurrence only.
+
+    \endlist
+
+    The locations of search hits, breakpoints, and bookmarks in your document
+    are highlighted on the editor scroll bar. To turn highlighting off, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol Display > \uicontrol {Highlight search results on the scrollbar}.
+
+    \section1 Advanced Search
+
+    To search through projects, files on a file system or currently open files:
+
+    \list 1
+
+        \li Press \key {Ctrl+Shift+F} or select \uicontrol Edit >
+            \uicontrol {Find/Replace} > \uicontrol {Advanced Find} >
+            \uicontrol {Open Advanced Find}.
+
+        \li Select the scope of your search:
+
+            \list
+
+                \li \uicontrol {All Projects} searches from all currently open
+                    projects.
+
+                    \image qtcreator-search-allprojects.png
+
+                \li \uicontrol {Current Project} searches from the project you
+                    are currently editing.
+
+                \li \uicontrol {Files in File System} recursively searches from
+                    the selected directory.
+
+                    \image qtcreator-search-filesystem.png
+
+                    In the \uicontrol {Search engine} field, select the search
+                    engine to use:
+
+                    \list
+                        \li Select \uicontrol Internal to use the \QC search
+                            engine.
+
+                        \li Select \uicontrol {Git Grep} to use Git to only
+                            search tracked files in the Git work tree. To
+                            restrict the search to the HEAD, a tag, a local or
+                            remote branch, or a commit hash, enter a reference.
+                            Leave the field empty to search through the file
+                            system.
+
+                        \li Select \uicontrol {Silver Searcher} to use the
+                            experimental Silver Searcher plugin. For more
+                            information, see \l{Enabling Silver Searcher}.
+
+                    \endlist
+
+                \li \uicontrol {Current File} searches only from the current
+                    file.
+
+                \li \uicontrol {Open Documents} searches from all open files.
+
+                \li \uicontrol {Clang Query Project} explores the Clang abstract
+                     syntax tree (AST) using AST matcher expressions. For more
+                     information, see \l{Exploring Clang AST}.
+
+            \endlist
+
+        \li In the \uicontrol {File pattern} field, specify file patterns to
+            restrict the search to files that match the pattern. For example, to
+            search for a string only in \c {.cpp} and \c {.h} files, enter
+            \c {*.cpp,*.h}.
+
+        \li In the \uicontrol {Exclusion pattern} field, specify file patterns
+            to omit files from the search.
+
+        \li Enter the text you are looking for and click \uicontrol Search.
+
+            \image qtcreator-searchresults.png
+
+             A list of files containing the searched text is displayed in the
+            \uicontrol {Search Results} pane.
+
+            \list
+
+                \li To see all occurrences in a file, double-click the file name
+                    in the list.
+
+                \li To go to an occurrence, double-click it.
+
+                \li To repeat the search after you have made changes to the
+                    listed files, for example, select
+                    \uicontrol {Search Again}.
+
+            \endlist
+
+    \endlist
+
+    The search results are stored in the search history from which you can
+    select earlier searches.
+
+    To clear the search results, select the \inlineimage clean_pane_small.png
+    (\uicontrol Clear) button.
+
+    To start a new search, select the \inlineimage qtcreator-new-search-icon.png
+    (\uicontrol {New Search}) button.
+
+    \note You can use \uicontrol {Advanced Find} also to search for symbols. For
+    more information, see \l{Finding Symbols}.
+
+    \section1 Enabling Silver Searcher
+
+    You can use Silver Searcher as a search engine in \QC if you install
+    Silver Searcher on the development PC and enable the experimental plugin.
+
+    To use Silver Searcher:
+
+    \list 1
+
+        \li Download and install Silver Searcher from
+            \l {https://geoff.greer.fm/ag/}{The Silver Searcher} or
+            \l {https://github.com/ggreer/the_silver_searcher}{GitHub}.
+
+            You might have to build Silver Searcher from sources for some
+            platforms.
+
+        \li Select \uicontrol Help > \uicontrol {About Plugins} >
+            \uicontrol {Utilities} > \uicontrol {SilverSearcher} to enable the
+            plugin.
+
+        \li Restart \QC to be able to use the plugin.
+
+        \li When searching, select \uicontrol {Silver Searcher} in the
+            \uicontrol {Search engine} field.
+
+    \endlist
+
+    \section1 Exploring Clang AST
+
+    You can use the experimental Clang Refactoring plugin to explore the Clang
+    AST using AST matcher expressions. For more information about constructing
+    matcher expressions, see
+    \l {http://clang.llvm.org/docs/LibASTMatchersReference.html}
+    {AST Matcher Reference}.
+
+    To explore the AST:
+
+    \list 1
+
+        \li Select \uicontrol Help > \uicontrol {About Plugins} > \uicontrol C++
+            > \uicontrol {ClangRefactoring} to enable the plugin.
+
+        \li Restart \QC to be able to use the plugin.
+
+        \li When searching, select \uicontrol {Clang Query Project} in the
+            \uicontrol {Scope} field.
+
+        \li Enter an AST matcher expression in the \uicontrol {Search for}
+            field.
+
+    \endlist
+
+    You can view the results of the query as links to code positions in the
+    \uicontrol {Search Results} output pane.
+*/

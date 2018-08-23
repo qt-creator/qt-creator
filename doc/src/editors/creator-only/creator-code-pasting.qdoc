@@ -1,0 +1,102 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \previouspage qt-quick-toolbars.html
+    \page creator-editor-codepasting.html
+    \nextpage creator-macros.html
+
+    \title Pasting and Fetching Code Snippets
+
+    In \QC, you can paste snippets of code to a server or fetch snippets of
+    code from the server. To paste and fetch snippets of code, \QC uses the
+    following:
+
+    \list
+        \li \uicontrol {Pastebin.Com}
+        \li \uicontrol {Pastebin.Ca}
+        \li \uicontrol {Paste.KDE.Org}
+        \li \uicontrol {Shared network drives}
+    \endlist
+
+    \section1 Specifying Settings for Code Pasting
+
+    To specify settings for the code pasting service:
+
+    \list 1
+        \li Select \uicontrol Tools > \uicontrol Options  >
+            \uicontrol {Code Pasting}.
+            \image qtcreator-code-pasting-options.png "Code Pasting options"
+        \li In the \uicontrol {Default protocol} field, select a code pasting
+            service to use by default.
+        \li In the \uicontrol Username field, enter your username.
+        \li In the \uicontrol {Expires after} field, specify the time to keep
+            the pasted snippet on the server.
+        \li Select the \uicontrol {Copy-paste URL to clipboard} check box to
+            copy the URL of the post on the code pasting service to the
+            clipboard when you paste a post.
+        \li Select the \uicontrol {Display Output pane after sending a post}
+            check box to display the URL in the \uicontrol {General Messages}
+            output pane when you paste a post.
+    \endlist
+
+    Select \uicontrol Fileshare to specify the path to a shared network drive.
+    The code snippets are copied to the drive as simple files. You have to
+    delete obsolete files from the drive manually.
+
+    \section1 Using Code Pasting Services
+
+    To paste a snippet of code onto the server, select \uicontrol Tools >
+    \uicontrol {Code Pasting} > \uicontrol {Paste Snippet} or press
+    \key {Alt+C,Alt+P}. By default, \QC copies the URL of the snippet to the
+    clipboard and displays the URL in the \uicontrol {General Messages} output
+    pane.
+
+    To paste any content that you copied to the clipboard, select
+    \uicontrol Tools > \uicontrol {Code Pasting} > \uicontrol {Paste Snippet}.
+
+    To paste content from the \l{Comparing Files}{diff editor}, right-click a
+    chunk and select \uicontrol {Send Chunk to CodePaster} in the context menu.
+
+    To fetch a snippet of code from the server, select \uicontrol Tools >
+    \uicontrol {Code Pasting} > \uicontrol {Fetch Snippet} or press
+    \key {Alt+C,Alt+F}. Select the snippet to fetch from the list.
+
+    To fetch the content stored at an URL, select \uicontrol Tools >
+    \uicontrol {Code Pasting} > \uicontrol {Fetch from URL}.
+
+    For example, you might ask colleagues to review a change that you plan to
+    submit to a version control system. If you use the Git version control
+    system, you can create a \e{diff} view by selecting \uicontrol Tools >
+    \uicontrol Git > \uicontrol {Local Repository} > \uicontrol Diff. You can
+    then upload its contents to the server by selecting \uicontrol Tools >
+    \uicontrol {Code Pasting} > \uicontrol {Paste Snippet}. The reviewers can
+    retrieve the code snippet by selecting \uicontrol Tools >
+    \uicontrol {Code Pasting} > \uicontrol {Fetch Snippet}. If they have the
+    project currently opened in \QC, they can apply and test the change by
+    choosing \uicontrol Tools > \uicontrol Git > \uicontrol {Patch} >
+    \uicontrol {Apply from Editor}.
+*/

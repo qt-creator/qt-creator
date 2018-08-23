@@ -1,0 +1,228 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-options-text.html
+    \page creator-editor-fakevim.html
+    \nextpage creator-mime-types.html
+
+    \title Using FakeVim Mode
+
+    In the \uicontrol FakeVim mode, you can run the main editor in a manner
+    similar to the Vim editor. To run the editor in the \uicontrol FakeVim
+    mode, select \uicontrol Edit > \uicontrol Advanced >
+    \uicontrol {Use Vim-style Editing} or press \key {Alt+V,Alt+V}.
+
+    \section1 Supported Modes and Commands
+
+    In the \uicontrol FakeVim mode, most keystrokes in the main editor will be
+    intercepted and interpreted in a way that resembles Vim. Most of the
+    supported commands can be followed by a motion command or executed in visual
+    mode, or they work with registers or can be prefixed with a number of
+    repetitions.
+
+    The following sections describe the commands emulated in the supported modes
+    and how they diverge from Vim in functionality:
+
+    \list
+        \li Normal
+        \li Visual
+        \li Command line (:)
+        \li Insert and replace
+    \endlist
+
+    For more information on using Vim, see \l{http://www.vim.org/docs.php}
+    {Documentation} on the Vim web site.
+
+    \section2 Normal and Visual Modes
+
+    \list
+        \li Basic movement, such as \c h/j/k/l, \c <C-U>, \c <C-D>, \c <C-F>,
+            \c <C-B>, \c gg, \c G, \c 0, \c ^, \c $
+        \li Word movement, such as \c w, \c e, \c b
+        \li \e Inner/a movement, such as \c ciw, \c 3daw, ya{
+        \li \c f and \c t movement
+        \li \c [ and \c ] movement
+        \li { and } paragraph movement
+        \li Delete/change/yank/paste with register
+        \li Undo and redo
+        \li \c <C-A> and \c <C-X> increase or decrease a number in decimal,
+            octal, or hexadecimal format (for example \c 128<C-A> on or before
+            \c "0x0ff" changes it to \c "0x17f")
+        \li \c . repeats the last change
+        \li \c /search, \c ?search, \c *, \c #, \c n, \c N - most of regular
+            expression syntax is used in Vim except that \c \< and \c \> are
+            the same as \c {\b} in QRegExp
+        \li \c @ and \c q (macro recording and execution) special keys are saved
+            as \c <S-Left>
+        \li Marks
+        \li \c gv goes to last visual selection; can differ if text is edited
+            around it
+        \li Indentation using \c =, \c <<, \c >>, with movement, count, and in
+            visual mode
+        \li \e {to upper/lower}, such as \c ~, \c gU, \c gu
+        \li \c i, \c a, \c o, \c I, \c A, and \c O enter insert mode
+        \li Scroll window, such as \c zt, \c zb, \c zz
+        \li Wrap line movement, such as \c gj, \c gk, \c g0, \c g^, \c g$
+    \endlist
+
+    \section2 Command Line Mode
+
+    \list
+        \li \c :map, \c :unmap, \c :inoremap, and so on
+        \li \c :source provides very basic line-by-line sourcing of vimrc files
+        \li \c :substitute substitutes an expression in a range
+        \li \c :'<,'>!cmd filters through an external command (for example,
+            sorts the lines in a file with \c :%!sort)
+        \li \c :<range>sor[t][!]
+        \li \c :.!cmd inserts the standard output of an external command
+        \li \c :read
+        \li \c :yank, \c :delete, \c :change
+        \li \c :move, \c :join
+        \li \c :20 goes to an address
+        \li \c :history
+        \li \c :registers, \c :display
+        \li \c :nohlsearch
+        \li \c :undo, \c :redo
+        \li \c :normal
+        \li \c :<, \c :>
+    \endlist
+
+    \section2 Insert Mode
+
+    \list
+        \li \c <C-O> executes a single command and returns to insert mode
+        \li \c <C-V> inserts a raw character
+        \li \c <insert> toggles replace mode
+    \endlist
+
+    \section2 Options
+
+    Use \c {:set ...} to set the following options:
+
+    \list
+        \li \c autoindent
+        \li \c clipboard
+        \li \c backspace
+        \li \c expandtab
+        \li \c hlsearch
+        \li \c ignorecase
+        \li \c incsearch
+        \li \c indent
+        \li \c iskeyword
+        \li \c scrolloff
+        \li \c shiftwidth
+        \li \c showcmd
+        \li \c smartcase
+        \li \c smartindent
+        \li \c smarttab
+        \li \c startofline
+        \li \c tabstop
+        \li \c tildeop
+        \li \c wrapscan
+    \endlist
+
+    \section2 Vimrc Example
+
+    \code
+    " highlight matched
+    set hlsearch
+    " case insensitive search
+    set ignorecase
+    set smartcase
+    " search while typing
+    set incsearch
+    " wrap-around when searching
+    set wrapscan
+    " show pressed keys in lower right corner
+    set showcmd
+    " tab -> spaces
+    set expandtab
+    set tabstop=4
+    set shiftwidth=4
+    " keep a 5 line buffer for the cursor from top/bottom of window
+    set scrolloff=5
+    " X11 clipboard
+    set clipboard=unnamed
+    " use ~ with movement
+    set tildeop
+
+    " mappings
+    nnoremap ; :
+    inoremap jj <Esc>
+
+    " clear highlighted search term on space
+    noremap <silent> <Space> :nohls<CR>
+
+    " reselect visual block after indent
+    vnoremap < <gv
+    vnoremap > >gv
+
+    " MOVE LINE/BLOCK
+    nnoremap <C-S-J> :m+<CR>==
+    nnoremap <C-S-K> :m-2<CR>==
+    inoremap <C-S-J> <Esc>:m+<CR>==gi
+    inoremap <C-S-K> <Esc>:m-2<CR>==gi
+    vnoremap <C-S-J> :m'>+<CR>gv=gv
+    vnoremap <C-S-K> :m-2<CR>gv=gv
+    \endcode
+
+    \section1 Mapping FakeVim Commands
+
+    To map commands entered on the \uicontrol FakeVim command line to actions
+    of the \QC core, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol FakeVim > \uicontrol {Ex Command Mapping}.
+
+    To map \e {user commands} to keyboard shortcuts, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol FakeVim >
+    \uicontrol {User Command Mapping}. The user command mapped to the shortcut
+    is executed by FakeVim as if you were typing it (as when replaying a macro).
+
+    \section1 Specifying FakeVim Options
+
+    To make changes to the Vim-style settings, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol FakeVim > \uicontrol General.
+
+    \image qtcreator-fakevim-options.png "FakeVim options"
+
+    To preselect the indentation settings specified for the text editor, select
+    \uicontrol {Copy Text Editor Settings}. To preselect the Qt coding style,
+    select \uicontrol {Set Qt Style}. To preselect a simple indentation style,
+    select \uicontrol {Set Plain Style}. You can then change any of the
+    preselected settings.
+
+    To use a Vim-style color scheme, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Text Editor} > \uicontrol {Fonts & Color}.
+    In the \uicontrol {Color Scheme} list, select \uicontrol {Vim (dark)}.
+
+    \section1 Quitting FakeVim Mode
+
+    To quit the FakeVim mode, unselect \uicontrol Tools > \uicontrol Options >
+    \uicontrol FakeVim > \uicontrol {Use FakeVim} or press \key {Alt+V,Alt+V}.
+
+    You can temporarily escape FakeVim mode to access the normal \QC keyboard
+    shortcuts like \key {Ctrl-R} for \uicontrol Run by pressing \key {,} first.
+*/

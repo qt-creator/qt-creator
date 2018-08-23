@@ -1,0 +1,249 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-checking-code-syntax.html
+    \page creator-completing-code.html
+    \nextpage creator-indenting-code.html
+
+    \title Completing Code
+
+    As you write code, \QC suggests properties, IDs, and code snippets to
+    complete the code. It provides a list of context-sensitive suggestions to
+    the statement currently under your cursor. Press \key Tab
+    or \key Enter to accept the selected suggestion and complete the code.
+
+    \image qtcreator-codecompletion.png
+
+    To open the list of suggestions at any time, press \key {Ctrl+Space}.
+    If only one option is available, \QC inserts it automatically.
+
+    When completion is invoked manually, \QC completes the common prefix of the
+    list of suggestions. This is especially useful for classes with several
+    similarly named members. To disable this functionality, uncheck
+    \uicontrol {Autocomplete common prefix} in the code completion preferences.
+    Select \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor}
+    > \uicontrol Completion.
+
+    By default, code completion does not consider case. To apply full or
+    first-letter case-sensitivity, select \uicontrol Full or
+    \uicontrol {First Letter} in the \uicontrol {Case-sensitivity} field.
+
+    \section2 Summary of Available Types
+
+    The following table lists available types for code completion and icon used
+    for each.
+
+    \table
+        \header
+            \li  Icon
+            \li  Description
+        \row
+            \li \inlineimage completion/class.png
+            \li A class
+        \row
+            \li \inlineimage completion/enum.png
+            \li An enum
+        \row
+            \li \inlineimage completion/enumerator.png
+            \li An enumerator (value of an enum)
+        \row
+            \li \inlineimage completion/func.png
+            \li A function
+        \row
+            \li \inlineimage completion/func_priv.png
+            \li A private function
+        \row
+            \li \inlineimage completion/func_prot.png
+            \li A protected function
+        \row
+            \li \inlineimage completion/var.png
+            \li A variable
+        \row
+            \li \inlineimage completion/var_priv.png
+            \li A private variable
+        \row
+            \li \inlineimage completion/var_prot.png
+            \li A protected variable
+        \row
+            \li \inlineimage completion/signal.png
+            \li A signal
+        \row
+            \li \inlineimage completion/slot.png
+            \li A slot
+        \row
+            \li \inlineimage completion/slot_priv.png
+            \li A private slot
+        \row
+            \li \inlineimage completion/slot_prot.png
+            \li A protected slot
+        \row
+            \li \inlineimage completion/keyword.png
+            \li A C++ keyword
+        \row
+            \li \inlineimage completion/snippet.png
+            \li A C++ code snippet
+        \row
+            \li \inlineimage completion/element.png
+            \li A QML type
+        \row
+            \li \inlineimage completion/qmlsnippet.png
+            \li A QML code snippet
+        \row
+            \li \inlineimage completion/macro.png
+            \li A macro
+        \row
+            \li \inlineimage completion/namespace.png
+            \li A namespace
+    \endtable
+
+    \section2 Completing Code Snippets
+
+    Code snippets can consist of multiple variables that you specify values for.
+    Select an item in the list and press \key Tab or \key Enter to complete the
+    code. Press \key Tab to move between the variables and specify values for
+    them. When you specify a value for a variable, all instances of the variable
+    within the snippet are renamed.
+
+    \image qmldesigner-code-completion.png "Completing QML code"
+
+    \section2 Editing Code Snippets
+
+    Code snippets specify C++ or QML code constructs. You can add, modify,
+    and remove snippets in the snippet editor. To open the editor, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol Snippets.
+
+    \image qtcreator-edit-code-snippets.png "Snippet options"
+
+    \QC provides you with built-in snippets in the following categories:
+
+    \list
+
+        \li Text snippets, which can contain any text string. For example, code
+            comments
+
+        \li C++ code snippets, which specify C++ code constructs
+
+        \li CMake code snippets that you can use when editing \c CMakeLists.txt
+            files in the CMake editor
+
+        \li QML code snippets, which specify QML code constructs
+
+        \li Nim code snippets, which specify Nim code constructs
+
+    \endlist
+
+    \section3 Adding and Editing Snippets
+
+    Select a snippet in the list to edit it in the snippet editor. To add a new
+    snippet, select \uicontrol Add. Specify a trigger and, if the trigger is
+    already in use, an optional variant, which appear in the list of suggestions
+    when you write code. Also specify a text string or C++ or QML code construct
+    in the snippet editor, depending on the snippet category. You can use
+    \l{Using Qt Creator Variables}{predefined variables} in snippets.
+
+    The snippet editor provides you with:
+
+    \list
+
+        \li Highlighting
+
+        \li Indentation
+
+        \li Parentheses matching
+
+        \li Basic code completion
+
+    \endlist
+
+    Specify the variables for the snippets in the following format:
+
+    \code
+    $variable$
+    \endcode
+
+    Specify \QC variables in the following format:
+
+    \code
+    %{variable}
+    \endcode
+
+    For example, the following variable expands to the name of the current
+    project: \c {%{CurrentProject:Name}}.
+
+    Use unique variable names within a snippet, because all instances of a
+    variable are renamed when you specify a value for it.
+
+    To determine the case of values you enter in snippets, use the following
+    modifiers:
+
+    \list
+
+        \li \c {:c} converts the initial letter of the string to upper case
+
+        \li \c {:l} converts the string to lower case
+
+        \li \c {:u} converts the string to upper case
+
+    \endlist
+
+    For example, add the following line to the \c class snippet to specify that
+    the function name is converted to all lower case characters regardless of
+    how you specify the value of the \c{$name$} variable:
+
+    \code
+        void $name:l$() {}
+    \endcode
+
+    \image qtcreator-snippet-modifiers.png
+
+    The snippet editor does not check the syntax of the snippets that you edit
+    or add. However, when you use the snippets, the code editor marks any
+    errors by underlining them in red.
+
+    To discard the changes you made to a built-in snippet, select
+    \uicontrol {Revert Built-in}.
+
+    \section3 Removing Snippets
+
+    Several similar built-in snippets might be provided for different use cases.
+    To make the list of suggestions shorter when you write code, remove the
+    built-in snippets that you do not need. If you need them later, you can
+    restore them.
+
+    To remove snippets, select a snippet in the list, and then select
+    \uicontrol Remove. To restore the removed snippets, select
+    \uicontrol {Restore Removed Built-ins}.
+
+    \section3 Resetting Snippets
+
+    To remove all added snippets and to restore all removed snippets, select
+    \uicontrol {Reset All}.
+
+    \note If you now select \uicontrol OK or \uicontrol Apply, you permanently
+    lose all your own snippets.
+*/

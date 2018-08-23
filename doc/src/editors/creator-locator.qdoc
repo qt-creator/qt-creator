@@ -1,0 +1,403 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-finding.html
+    \page creator-editor-locator.html
+    \nextpage creator-editor-refactoring.html
+
+    \title Searching with the Locator
+
+    You can find the locator in the bottom left of the \QC window.
+
+    \image qtcreator-locator.png
+
+    To activate the locator:
+
+    \list
+
+        \li Press \key {Ctrl+K} (\key {Cmd+K} on \macos).
+
+        \li Select \uicontrol Tools > \uicontrol Locate.
+
+        \li Select \uicontrol Edit > \uicontrol {Go to Line}.
+
+        \li Click the line and column indicator on the
+            \l{Using the Editor Toolbar}{editor toolbar}.
+
+    \endlist
+
+    To edit the currently open project's main.cpp file using the locator:
+
+    \list 1
+
+        \li Activate the locator by pressing \key {Ctrl+K}.
+
+        \li Enter \c {main.cpp}.
+
+            \image qtcreator-locator-open.png
+
+        \li Press \key Enter.
+
+            The \c {main.cpp} file opens in the editor.
+
+        \li To move to a line in the file, enter the line number in the locator.
+
+    \endlist
+
+    To move directly to a particular line and column in the document when you
+    open the document, append them to the file name in the locator, separated by
+    plus signs (+) or colons (:). For example, to open main.cpp to line 41 and
+    column 2, enter: \c {main.cpp:41:2}.
+
+    If the path to a file is very long, it might not fit into the locator
+    window. To view the full path, press \key Alt when the filename is selected
+    or use the handle next to the locator window to increase the window width.
+
+    It is also possible to enter only a part of a search string. As you type,
+    the locator shows the occurrences of that string regardless of where in the
+    name of an component it appears. Some locator filters, such as colon and
+    \c m, support \e fuzzy matching, which means that you can enter the
+    uppercase letters to locate a symbol when using camel case or the letters
+    after the underscore when using snake case.
+
+    To narrow down the search results, you can use the following wildcard
+    characters:
+
+    \list
+
+        \li To match any number of any or no characters, enter \c{*}.
+
+        \li To match a single instance of any character, enter \c{?}.
+
+    \endlist
+
+    \section1 Using Locator Filters
+
+    The locator enables you to browse not only files, but any items defined by
+    \b{locator filters}. By default, the locator contains filters for:
+
+    \list
+
+        \li Locating any open document (\c {o})
+
+        \li Locating files anywhere on your file system (\c {f})
+
+        \li Locating files belonging to your project (\c {p}), such as source,
+            header resource, and \c {.ui} files, or to any project (\c {a})
+
+        \li Locating bookmarks (\c {b}).
+            For more information, see \l{Using Bookmarks}.
+
+        \li Locating class (\c {c}), enum, and function (m) definitions in your
+            project or anywhere referenced from your project (\c {:})
+
+        \li Locating symbols in the current document (\c {.})
+
+        \li Locating a specific line and column in the document displayed in
+            your editor (\c {l <line_number>:<column_number>})
+
+        \li Opening help topics, including Qt documentation (\c {?})
+
+        \li Performing web searches (\c {r})
+
+        \li Running text editing macros that you record and save (\c {rm}). For
+            more information, see \l{Using Text Editing Macros}
+
+        \li Executing JavaScript (\c {=}), especially useful for calculations.
+            For more information, see \l{Executing JavaScript}.
+
+        \li Executing shell commands (\c {!})
+
+        \li Executing version control system commands (\c {git}). For more
+            information, see \l{Using Version Control Systems}
+
+        \li Triggering menu items from the main menu (\c {t})
+
+        \li Running external tools (\c x)
+
+    \endlist
+
+    To use a specific locator filter, type the assigned prefix followed by
+    \key Space. The prefix is usually a single character. Then type the search
+    string (typically, a filename or class name) or the command to execute.
+
+    You can also double-click a locator filter in the filter list to use it. You
+    can use the up and down arrow keys or the \key Ctrl+P and \key Ctrl+N
+    keyboard shortcuts to move up and down the list, and then press \key Enter
+    to use the selected filter.
+
+    For example, to locate symbols matching QDataStream:
+
+    \list 1
+
+        \li Activate the locator.
+
+        \li Enter a colon (:) followed by a space and the upper case letters in
+            the symbol name (QDataStream):
+
+            \code
+            : qds
+            \endcode
+
+            The locator lists the results.
+
+            \image qtcreator-navigate-popup.png
+
+    \endlist
+
+    Filters locating files also accept paths, such as \c {tools/*main.cpp}.
+    Filters locating class and function definitions also accept namespaces,
+    such as \c {Utils::*View}.
+
+    For example, to create a new file and open it in the editor, type \c f
+    followed by \key Space, followed by path and file name, and then press
+    \key Enter.
+
+    You can use the filter that triggers menu commands to open sessions. Enter
+    \c {t yoursess} or \c {t sess yoursess} to trigger \uicontrol File >
+    \uicontrol Sessions > \e yoursessionname.
+
+    By default, the following filters are enabled and you do not need to use
+    their prefixes explicitly:
+
+    \list
+
+        \li Going to a line and column in the current file (\c {l}).
+
+        \li Going to an open file (\c {o}).
+
+        \li Going to a file in any open project (\c {a}).
+
+    \endlist
+
+    If locator does not find some files, you can add them to the \c DISTFILES
+    variable in the \c .pro file to include them into the distribution tarball
+    of your project and thus make them known to \QC as well.
+
+    \section1 Configuring Locator Filters
+
+    If the default filters do not match your use case, you can check whether you
+    can change them. For all filters, you can change the filter prefix and
+    restrict the search to items that match the filter.
+
+    To configure a locator filter:
+
+    \list 1
+
+        \li In the locator, click \inlineimage magnifier.png
+            (\uicontrol Options) and select \uicontrol Configure to open the
+            \uicontrol Locator options.
+
+        \li Select a filter, and then select \uicontrol Edit.
+
+        \li Specify the prefix string.
+
+        \li To implicitly include the filter even when not typing a prefix as a
+            part of the search string, select \uicontrol {Include by default}.
+
+        \li Specify other available options. For more information, see
+            \l{Adding Web Search Engines}.
+
+    \endlist
+
+    \section2 Adding Web Search Engines
+
+    You can use the \uicontrol {Web Search (r)} locator filter to perform
+    web searches. URLs and search commands for Bing, Google, Yahoo! Search,
+    cplusplus.com, and Wikipedia are configured by default.
+
+    To find out the format of the search command to use for your favorite
+    web search engine, perform a search in your browser and copy the resulting
+    URL to the locator filter configuration. Replace the search term with the
+    variable \c {%1}.
+
+    To add URLs and search commands to the list:
+
+    \list 1
+
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol Environment > \uicontrol Locator >
+            \uicontrol {Web Search (prefix: r)} > \uicontrol Edit.
+
+        \li Select \uicontrol Add to add a new entry to the list.
+
+            \image qtcreator-add-online-doc.png "Filter Configuration dialog"
+
+        \li Double-click the new entry to specify a URL and a search command.
+            For example, \c {http://www.google.com/search?q=%1}.
+
+        \li Click \uicontrol OK.
+
+    \endlist
+
+    \section1 Creating Locator Filters
+
+    To quickly access files not directly mentioned in your project, you can
+    create your own locator filters. That way you can locate files in a
+    directory structure you have defined.
+
+    To create a locator filter:
+
+    \list 1
+
+        \li In the locator, select \uicontrol Options >
+            \uicontrol Configure to open the \uicontrol Locator options.
+
+            \image qtcreator-locator-customize.png
+
+        \li Click \uicontrol Add.
+
+        \li In the \uicontrol {Filter Configuration} dialog:
+
+        \list
+
+            \li Name your filter.
+
+            \li Select at least one directory. The locator searches directories
+                recursively.
+
+            \li Define the file pattern as a comma separated list. For example,
+                to search all \c {.h} and \c {.cpp} files, enter \c{*.h,*.cpp}
+
+            \li Specify the prefix string.
+
+                To implicitly include the filter even when not typing a prefix
+                as a part of the search string, select
+                \uicontrol {Include by default}.
+
+                \image qtcreator-navigate-customfilter.png
+
+        \endlist
+
+        \li Click \uicontrol OK.
+
+    \endlist
+
+    \section1 Configuring Locator Cache
+
+    The locator searches the files matching your file pattern in the directories
+    you have selected and caches that information. The cache for all default
+    filters is updated as you write your code. By default, \QC updates the
+    filters created by you once an hour.
+
+    To update the cached information manually, select \uicontrol Options >
+    \uicontrol Refresh in the locator.
+
+    To set a new cache update time:
+
+    \list 1
+
+        \li Select \uicontrol Tools > \uicontrol Options >
+            \uicontrol Environment > \uicontrol Locator.
+
+        \li In \uicontrol {Refresh interval}, define new time in minutes.
+
+    \endlist
+
+    \section1 Executing JavaScript
+
+    The locator provides access to a JavaScript interpreter, that can be used to
+    perform calculations.
+
+    Beside simple mathematical operations, like ((1 + 2) * 3), the following
+    built-in functions exist:
+
+    \table
+        \header
+            \li  Function
+            \li  Purpose
+        \row
+            \li  abs(x)
+            \li  Returns the absolute value of x
+        \row
+            \li  acos(x)
+            \li  Returns the arccosine of x, in radians
+        \row
+            \li  asin(x)
+            \li  Returns the arcsine of x, in radians
+        \row
+            \li  atan(x)
+            \li  Returns the arctangent of x, in radians
+        \row
+            \li  atan2(x, y)
+            \li  Returns the arctangent of the quotient of its arguments
+        \row
+            \li  bin(x)
+            \li  Returns the binary representation of x
+        \row
+            \li  ceil(x)
+            \li  Returns the value of x rounded up to the next integer
+        \row
+            \li  cos(x)
+            \li  Returns the cosine of x (x is in radians)
+        \row
+            \li  exp(x)
+            \li  Returns the value of E to the power of x
+        \row
+            \li  e()
+            \li  Returns Euler's number E (2.71828...)
+        \row
+            \li  floor(x)
+            \li  Returns the value of x rounded down to the next integer
+        \row
+            \li  hex(x)
+            \li  Returns the hexadecimal representation of x
+        \row
+            \li  log(x)
+            \li  Returns the natural logarithm (base E) of x
+        \row
+            \li  max([value1[, value2[, ...]]])
+            \li  Returns the highest value of the given numbers
+        \row
+            \li  min([value1[, value2[, ...]]])
+            \li  Returns the lowest value of the given numbers
+        \row
+            \li  oct(x)
+            \li  Returns the octal representation of x
+        \row
+            \li  pi()
+            \li  Returns PI (3.14159...)
+        \row
+            \li  pow(x, y)
+            \li  Returns the value of x to the power of y
+        \row
+            \li  random()
+            \li  Returns a random number between 0 and 1
+        \row
+            \li  round(x)
+            \li  Returns the value of x rounded to the next integer
+        \row
+            \li  sin(x)
+            \li  Returns the sine of x (x is in radians)
+        \row
+            \li  sqrt(x)
+            \li  Returns the square root of x
+        \row
+            \li  tan(x)
+            \li  Returns the tangent of x (x is in radians)
+        \endtable
+*/
