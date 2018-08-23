@@ -46,13 +46,15 @@ public:
     };
 
     CompilerOptionsBuilder(const ProjectPart &projectPart,
-                           UseSystemHeader useSystemHeader = UseSystemHeader::No);
+                           UseSystemHeader useSystemHeader = UseSystemHeader::No,
+                           QString clangVersion = QString(),
+                           QString clangResourceDirectory = QString());
     virtual ~CompilerOptionsBuilder() {}
 
     virtual void addTargetTriple();
     virtual void addExtraCodeModelFlags();
     virtual void enableExceptions();
-    virtual void addPredefinedHeaderPathsOptions();
+    virtual void insertPredefinedHeaderPathsOptions();
     virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);
     virtual void updateLanguageOption(ProjectFile::Kind fileKind);
 
@@ -68,6 +70,7 @@ public:
 
     // Add options based on project part
     void addWordWidth();
+    void addGlobalUndef();
     void addHeaderPathOptions();
     void addPrecompiledHeaderOptions(PchUsage pchUsage);
     virtual void addToolchainAndProjectMacros();
@@ -95,8 +98,14 @@ private:
     QByteArray toDefineOption(const ProjectExplorer::Macro &macro) const;
     QString defineDirectiveToDefineOption(const ProjectExplorer::Macro &marco) const;
 
+    void addClangIncludeFolder(QStringList &list);
+    void addWrappedQtHeadersIncludePath(QStringList &list);
+
     QStringList m_options;
     UseSystemHeader m_useSystemHeader;
+
+    QString m_clangVersion;
+    QString m_clangResourceDirectory;
 };
 
 } // namespace CppTools

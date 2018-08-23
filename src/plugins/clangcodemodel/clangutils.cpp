@@ -83,42 +83,15 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, const QString &fil
     return createClangOptions(pPart, fileKind);
 }
 
-static QString creatorResourcePath()
-{
-#ifndef UNIT_TESTS
-    return Core::ICore::resourcePath();
-#else
-    return QString();
-#endif
-}
-
-static QString clangIncludeDirectory(const QString &clangVersion,
-                                     const QString &clangResourceDirectory)
-{
-#ifndef UNIT_TESTS
-    return Core::ICore::clangIncludeDirectory(clangVersion, clangResourceDirectory);
-#else
-    return QString();
-#endif
-}
-
 class LibClangOptionsBuilder final : public CompilerOptionsBuilder
 {
 public:
     LibClangOptionsBuilder(const ProjectPart &projectPart)
-        : CompilerOptionsBuilder(projectPart)
-        , m_clangVersion(CLANG_VERSION)
-        , m_clangResourceDirectory(CLANG_RESOURCE_DIR)
+        : CompilerOptionsBuilder(projectPart,
+                                 UseSystemHeader::No,
+                                 QString(CLANG_VERSION),
+                                 QString(CLANG_RESOURCE_DIR))
     {
-    }
-
-    void addPredefinedHeaderPathsOptions() final
-    {
-        CompilerOptionsBuilder::addPredefinedHeaderPathsOptions();
-        add("-nostdinc");
-        add("-nostdlibinc");
-        addClangIncludeFolder();
-        addWrappedQtHeadersIncludePath();
     }
 
     void addToolchainAndProjectMacros() final
@@ -138,28 +111,6 @@ public:
     }
 
 private:
-    void addClangIncludeFolder()
-    {
-        QTC_CHECK(!m_clangVersion.isEmpty());
-        add("-I");
-        add(clangIncludeDirectory(m_clangVersion, m_clangResourceDirectory));
-    }
-
-    void addWrappedQtHeadersIncludePath()
-    {
-        static const QString resourcePath = creatorResourcePath();
-        static QString wrappedQtHeadersPath = resourcePath + "/cplusplus/wrappedQtHeaders";
-        QTC_ASSERT(QDir(wrappedQtHeadersPath).exists(), return;);
-
-        if (m_projectPart.qtVersion != CppTools::ProjectPart::NoQt) {
-            const QString wrappedQtCoreHeaderPath = wrappedQtHeadersPath + "/QtCore";
-            add(includeDirOptionForPath(wrappedQtHeadersPath));
-            add(QDir::toNativeSeparators(wrappedQtHeadersPath));
-            add(includeDirOptionForPath(wrappedQtHeadersPath));
-            add(QDir::toNativeSeparators(wrappedQtCoreHeaderPath));
-        }
-    }
-
     void addDummyUiHeaderOnDiskIncludePath()
     {
         const QString path = ModelManagerSupportClang::instance()->dummyUiHeaderOnDiskDirPath();
@@ -168,9 +119,6 @@ private:
             add(QDir::toNativeSeparators(path));
         }
     }
-
-    QString m_clangVersion;
-    QString m_clangResourceDirectory;
 };
 
 /**

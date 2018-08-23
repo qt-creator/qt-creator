@@ -25,6 +25,8 @@
 
 #include "compileroptionsbuilder.h"
 
+#include "cppmodelmanager.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
 
@@ -40,9 +42,13 @@
 namespace CppTools {
 
 CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
-                                               UseSystemHeader useSystemHeader)
-    : m_projectPart(projectPart),
-      m_useSystemHeader(useSystemHeader)
+                                               UseSystemHeader useSystemHeader,
+                                               QString clangVersion,
+                                               QString clangResourceDirectory)
+    : m_projectPart(projectPart)
+    , m_useSystemHeader(useSystemHeader)
+    , m_clangVersion(clangVersion)
+    , m_clangResourceDirectory(clangResourceDirectory)
 {
 }
 
@@ -69,7 +75,7 @@ QStringList CompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind, 
     undefineCppLanguageFeatureMacrosForMsvc2015();
     addDefineFunctionMacrosMsvc();
 
-    addPredefinedHeaderPathsOptions();
+    addGlobalUndef();
     addPrecompiledHeaderOptions(pchUsage);
     addHeaderPathOptions();
     addProjectConfigFileInclude();
@@ -77,6 +83,8 @@ QStringList CompilerOptionsBuilder::build(CppTools::ProjectFile::Kind fileKind, 
     addMsvcCompatibilityVersion();
 
     addExtraOptions();
+
+    insertPredefinedHeaderPathsOptions();
 
     return options();
 }
@@ -509,7 +517,107 @@ bool CompilerOptionsBuilder::excludeHeaderPath(const QString &headerPath) const
     return clangIncludeDir.match(headerPath).hasMatch();
 }
 
-void CompilerOptionsBuilder::addPredefinedHeaderPathsOptions()
+static QString creatorResourcePath()
+{
+#ifndef UNIT_TESTS
+    return Core::ICore::resourcePath();
+#else
+    return QString();
+#endif
+}
+
+static QString clangIncludeDirectory(const QString &clangVersion,
+                                     const QString &clangResourceDirectory)
+{
+#ifndef UNIT_TESTS
+    return Core::ICore::clangIncludeDirectory(clangVersion, clangResourceDirectory);
+#else
+    return QString();
+#endif
+}
+
+static int lastIncludeIndex(const QStringList &options, const QRegularExpression &includePathRegEx)
+{
+    int index = options.lastIndexOf(includePathRegEx);
+
+    while (index > 0 && options[index - 1] != "-I" && options[index - 1] != "-isystem")
+        index = options.lastIndexOf(includePathRegEx, index - 1);
+
+    if (index == 0)
+        index = -1;
+
+    return index;
+}
+
+static int includeIndexForResourceDirectory(const QStringList &options)
+{
+    // include/c++/{version}, include/c++/v1 and include/g++
+    const int cppIncludeIndex = lastIncludeIndex(
+                options,
+                QRegularExpression("\\A.*[\\/\\\\]include[\\/\\\\].*(g\\+\\+.*\\z|c\\+\\+[\\/\\\\](v1\\z|\\d+.*\\z))"));
+
+    if (cppIncludeIndex > 0)
+        return cppIncludeIndex + 1;
+
+    return -1;
+}
+
+void CompilerOptionsBuilder::insertPredefinedHeaderPathsOptions()
+{
+    if (m_clangVersion.isEmpty())
+        return;
+
+    QStringList wrappedQtHeaders;
+    addWrappedQtHeadersIncludePath(wrappedQtHeaders);
+
+    QStringList predefinedOptions;
+    predefinedOptions.append("-nostdinc");
+    predefinedOptions.append("-nostdlibinc");
+    addClangIncludeFolder(predefinedOptions);
+
+    const int index = m_options.indexOf(QRegularExpression("\\A-I.*\\z"));
+    if (index < 0) {
+        m_options.append(wrappedQtHeaders);
+        m_options.append(predefinedOptions);
+        return;
+    }
+
+    int includeIndexForResourceDir = includeIndexForResourceDirectory(m_options);
+    if (includeIndexForResourceDir < index)
+        includeIndexForResourceDir = index;
+
+    m_options = m_options.mid(0, index)
+                + wrappedQtHeaders
+                + m_options.mid(index, includeIndexForResourceDir - index)
+                + predefinedOptions
+                + m_options.mid(includeIndexForResourceDir);
+}
+
+void CompilerOptionsBuilder::addClangIncludeFolder(QStringList &list)
+{
+    QTC_CHECK(!m_clangVersion.isEmpty());
+    const QString clangIncludeDir = clangIncludeDirectory(m_clangVersion, m_clangResourceDirectory);
+
+    list.append(includeDirOptionForPath(clangIncludeDir));
+    list.append(clangIncludeDir);
+}
+
+void CompilerOptionsBuilder::addWrappedQtHeadersIncludePath(QStringList &list)
+{
+    static const QString resourcePath = creatorResourcePath();
+    static QString wrappedQtHeadersPath = resourcePath + "/cplusplus/wrappedQtHeaders";
+    QTC_ASSERT(QDir(wrappedQtHeadersPath).exists(), return;);
+
+    if (m_projectPart.qtVersion != CppTools::ProjectPart::NoQt) {
+        const QString wrappedQtCoreHeaderPath = wrappedQtHeadersPath + "/QtCore";
+        list.append(includeDirOptionForPath(wrappedQtHeadersPath));
+        list.append(QDir::toNativeSeparators(wrappedQtHeadersPath));
+        list.append(includeDirOptionForPath(wrappedQtHeadersPath));
+        list.append(QDir::toNativeSeparators(wrappedQtCoreHeaderPath));
+    }
+}
+
+void CompilerOptionsBuilder::addGlobalUndef()
 {
     // In case of MSVC we need builtin clang defines to correctly handle clang includes
     if (m_projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)

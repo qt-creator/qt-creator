@@ -191,7 +191,10 @@ static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos)
     AnalyzeUnits unitsToAnalyze;
     const CompilerOptionsBuilder::PchUsage pchUsage = CppTools::getPchUsage();
     for (const FileInfo &fileInfo : fileInfos) {
-        CompilerOptionsBuilder optionsBuilder(*fileInfo.projectPart);
+        CompilerOptionsBuilder optionsBuilder(*fileInfo.projectPart,
+                                              CppTools::UseSystemHeader::No,
+                                              QString(CLANG_VERSION),
+                                              QString(CLANG_RESOURCE_DIR));
         QStringList arguments = extraClangToolsPrependOptions();
         arguments.append(optionsBuilder.build(fileInfo.kind, pchUsage));
         arguments.append(extraClangToolsAppendOptions());
