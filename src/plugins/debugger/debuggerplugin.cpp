@@ -764,7 +764,7 @@ public:
     IContext m_debugModeContext;
 
     DebugInfoTaskHandler m_debugInfoTaskHandler;
-    Perspective m_perspective{Constants::PRESET_PERSPRECTIVE_ID, tr("Debugger")};
+    Perspective m_perspective{Constants::PRESET_PERSPECTIVE_ID, tr("Debugger")};
 };
 
 DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
@@ -2415,7 +2415,7 @@ void DebuggerPluginPrivate::onModeChanged(Id mode)
 
     if (mode == MODE_DEBUG) {
 //        if (EngineManager::engines().isEmpty())
-//            DebuggerMainWindow::instance()->restorePerspective(Constants::PRESET_PERSPRECTIVE_ID);
+//            DebuggerMainWindow::instance()->restorePerspective(Constants::PRESET_PERSPECTIVE_ID);
         EngineManager::selectUiForCurrentEngine();
         if (IEditor *editor = EditorManager::currentEditor())
             editor->widget()->setFocus();

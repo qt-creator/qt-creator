@@ -531,7 +531,7 @@ void DebuggerEnginePrivate::setupViews()
     QTC_CHECK(!m_perspective);
     const QString perspectiveId = "Debugger.Perspective." + m_debuggerName + '.' + rp.displayName;
     m_perspective = new Perspective(perspectiveId, m_engine->displayName(),
-                                    Debugger::Constants::PRESET_PERSPRECTIVE_ID);
+                                    Debugger::Constants::PRESET_PERSPECTIVE_ID);
 
     m_progress.setProgressRange(0, 1000);
     FutureProgress *fp = ProgressManager::addTask(m_progress.future(),

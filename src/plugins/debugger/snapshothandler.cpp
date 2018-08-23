@@ -333,7 +333,7 @@ void EngineManagerPrivate::selectUiForCurrentEngine()
     m_engineChooser->setCurrentIndex(row);
 
     if (!perspective)
-        perspective = Perspective::findPerspective(Debugger::Constants::PRESET_PERSPRECTIVE_ID);
+        perspective = Perspective::findPerspective(Debugger::Constants::PRESET_PERSPECTIVE_ID);
 
     QTC_ASSERT(perspective, return);
     perspective->select();
