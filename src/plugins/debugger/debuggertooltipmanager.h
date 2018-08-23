@@ -31,15 +31,10 @@
 #include <QDate>
 #include <QPoint>
 
-QT_BEGIN_NAMESPACE
-class QAbstractItemModel;
-QT_END_NAMESPACE
-
 namespace Debugger {
 namespace Internal {
 
 class DebuggerEngine;
-class DebuggerCommand;
 class StackFrame;
 
 class DebuggerToolTipContext
@@ -74,26 +69,20 @@ class DebuggerToolTipManager : public QObject
     Q_OBJECT
 
 public:
-    DebuggerToolTipManager();
+    explicit DebuggerToolTipManager(DebuggerEngine *engine);
     ~DebuggerToolTipManager() override;
 
-    static void registerEngine(DebuggerEngine *engine);
-    static void deregisterEngine(DebuggerEngine *engine);
-    static void updateEngine(DebuggerEngine *engine);
-    static bool hasToolTips();
+    void deregisterEngine();
+    void updateToolTips();
+    bool hasToolTips() const;
 
-    static DebuggerToolTipContexts pendingTooltips(DebuggerEngine *engine);
+    DebuggerToolTipContexts pendingTooltips() const;
 
-    bool eventFilter(QObject *, QEvent *) override;
+    void closeAllToolTips();
+    void resetLocation();
 
-    void debugModeEntered();
-    void leavingDebugMode();
-    void sessionAboutToChange();
-    static void loadSessionData();
-    static void saveSessionData();
-    static void closeAllToolTips();
-    static void resetLocation();
-    static void updateVisibleToolTips();
+private:
+    class DebuggerToolTipManagerPrivate *d;
 };
 
 } // namespace Internal

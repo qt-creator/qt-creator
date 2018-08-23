@@ -517,7 +517,7 @@ void PdbEngine::refreshLocals(const GdbMi &vars)
     handler->insertItems(vars);
     handler->notifyUpdateFinished();
 
-    DebuggerToolTipManager::updateEngine(this);
+    updateToolTips();
 }
 
 void PdbEngine::refreshStack(const GdbMi &stack)

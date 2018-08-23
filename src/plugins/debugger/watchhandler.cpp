@@ -1683,8 +1683,8 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
               });
 
     addAction(menu, tr("Close Editor Tooltips"),
-              DebuggerToolTipManager::hasToolTips(),
-              [] { DebuggerToolTipManager::closeAllToolTips(); });
+              m_engine->toolTipManager()->hasToolTips(),
+              [this] { m_engine->toolTipManager()->closeAllToolTips(); });
 
     addAction(menu, tr("Copy View Contents to Clipboard"),
               true,
@@ -2578,8 +2578,8 @@ static inline QJsonObject watcher(const QString &iname, const QString &exp)
 void WatchHandler::appendWatchersAndTooltipRequests(DebuggerCommand *cmd)
 {
     QJsonArray watchers;
-    DebuggerToolTipContexts toolTips = DebuggerToolTipManager::pendingTooltips(m_model->m_engine);
-    foreach (const DebuggerToolTipContext &p, toolTips)
+    const DebuggerToolTipContexts toolTips = m_engine->toolTipManager()->pendingTooltips();
+    for (const DebuggerToolTipContext &p : toolTips)
         watchers.append(watcher(p.iname, p.expression));
 
     QMapIterator<QString, int> it(WatchHandler::watcherNames());

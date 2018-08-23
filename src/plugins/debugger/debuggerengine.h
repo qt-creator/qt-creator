@@ -77,6 +77,7 @@ class SourceFilesHandler;
 class WatchHandler;
 class WatchTreeView;
 class DebuggerToolTipContext;
+class DebuggerToolTipManager;
 class MemoryViewSetupData;
 class TerminalRunner;
 
@@ -371,6 +372,9 @@ public:
     QString nativeStartupCommands() const;
     Utils::Perspective *perspective() const;
     void updateMarkers();
+
+    void updateToolTips();
+    DebuggerToolTipManager *toolTipManager();
 
 signals:
     void engineStarted();

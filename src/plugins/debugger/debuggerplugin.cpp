@@ -49,7 +49,6 @@
 #include "watchwindow.h"
 #include "watchutils.h"
 #include "unstartedappwatcherdialog.h"
-#include "debuggertooltipmanager.h"
 #include "localsandexpressionswindow.h"
 #include "loadcoredialog.h"
 #include "sourceutils.h"
@@ -756,7 +755,6 @@ public:
     bool m_shuttingDown = false;
     DebuggerSettings *m_debuggerSettings = nullptr;
     QStringList m_arguments;
-    DebuggerToolTipManager m_toolTipManager;
     const QSharedPointer<GlobalDebuggerOptions> m_globalDebuggerOptions;
 
     DebuggerItemManager m_debuggerItemManager;
@@ -2014,8 +2012,6 @@ void DebuggerPluginPrivate::requestMark(TextEditorWidget *widget, int lineNumber
 
 void DebuggerPluginPrivate::setInitialState()
 {
-    m_toolTipManager.closeAllToolTips();
-
     m_startAndDebugApplicationAction.setEnabled(true);
     m_attachToQmlPortAction.setEnabled(true);
     m_attachToCoreAction.setEnabled(true);
@@ -2081,20 +2077,17 @@ void DebuggerPluginPrivate::sessionLoaded()
 {
     BreakpointManager::loadSessionData();
     WatchHandler::loadSessionData();
-    DebuggerToolTipManager::loadSessionData();
 }
 
 void DebuggerPluginPrivate::aboutToUnloadSession()
 {
     BreakpointManager::aboutToUnloadSession();
-    m_toolTipManager.sessionAboutToChange();
 }
 
 void DebuggerPluginPrivate::aboutToSaveSession()
 {
     WatchHandler::saveSessionData();
     BreakpointManager::saveSessionData();
-    DebuggerToolTipManager::saveSessionData();
 }
 
 void DebuggerPluginPrivate::aboutToShutdown()
@@ -2414,15 +2407,8 @@ void DebuggerPluginPrivate::onModeChanged(Id mode)
     //        also on shutdown.
 
     if (mode == MODE_DEBUG) {
-//        if (EngineManager::engines().isEmpty())
-//            DebuggerMainWindow::instance()->restorePerspective(Constants::PRESET_PERSPECTIVE_ID);
-        EngineManager::selectUiForCurrentEngine();
         if (IEditor *editor = EditorManager::currentEditor())
             editor->widget()->setFocus();
-
-        m_toolTipManager.debugModeEntered();
-    } else {
-        m_toolTipManager.leavingDebugMode();
     }
 }
 

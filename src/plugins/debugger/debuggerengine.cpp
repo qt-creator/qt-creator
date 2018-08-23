@@ -277,7 +277,8 @@ public:
           m_stackHandler(engine),
           m_threadsHandler(engine),
           m_watchHandler(engine),
-          m_disassemblerAgent(engine)
+          m_disassemblerAgent(engine),
+          m_toolTipManager(engine)
     {
         m_logWindow = new LogWindow(m_engine); // Needed before start()
         m_logWindow->setObjectName(QLatin1String(DOCKWIDGET_OUTPUT));
@@ -327,7 +328,7 @@ public:
 
         // Give up ownership on claimed breakpoints.
         m_breakHandler.releaseAllBreakpoints();
-        DebuggerToolTipManager::deregisterEngine(m_engine);
+        m_toolTipManager.deregisterEngine();
         m_memoryAgents.handleDebuggerFinished();
 
         delete m_perspective;
@@ -392,7 +393,7 @@ public:
         m_watchHandler.resetLocation();
         m_threadsHandler.resetLocation();
         m_disassemblerAgent.resetLocation();
-        DebuggerToolTipManager::resetLocation();
+        m_toolTipManager.resetLocation();
     }
 
     void selectThread(int index)
@@ -522,6 +523,7 @@ public:
     OptionalAction m_snapshotAction{tr("Take Snapshot of Process State")};
 
     QPointer<TerminalRunner> m_terminalRunner;
+    DebuggerToolTipManager m_toolTipManager;
 };
 
 void DebuggerEnginePrivate::setupViews()
@@ -1733,10 +1735,8 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
     if (!forced && !isAllowedTransition(oldState, state))
         qDebug() << "*** UNEXPECTED STATE TRANSITION: " << this << msg;
 
-    if (state == EngineRunRequested) {
-        DebuggerToolTipManager::registerEngine(this);
+    if (state == EngineRunRequested)
         emit engineStarted();
-    }
 
     showMessage(msg, LogDebug);
 
@@ -1795,6 +1795,16 @@ void DebuggerEngine::updateMarkers()
         d->m_locationMark->updateIcon();
 
     d->m_disassemblerAgent.updateLocationMarker();
+}
+
+void DebuggerEngine::updateToolTips()
+{
+    d->m_toolTipManager.updateToolTips();
+}
+
+DebuggerToolTipManager *DebuggerEngine::toolTipManager()
+{
+    return &d->m_toolTipManager;
 }
 
 bool DebuggerEngine::debuggerActionsEnabled() const
@@ -2206,7 +2216,7 @@ void DebuggerEngine::updateLocalsView(const GdbMi &all)
                 .arg(++count).arg(LogWindow::logTimeStamp()), LogMiscInput);
     showMessage(tr("Finished retrieving data"), 400, StatusBar);
 
-    DebuggerToolTipManager::updateEngine(this);
+    d->m_toolTipManager.updateToolTips();
 
     const bool partial = all["partial"].toInt();
     if (!partial)

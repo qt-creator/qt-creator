@@ -138,11 +138,22 @@ public:
         m_engineChooser->setModel(&m_engineModel);
         connect(m_engineChooser, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
                 this, &EngineManagerPrivate::activateEngineByIndex);
+        connect(ModeManager::instance(), &ModeManager::currentModeChanged,
+                this, &EngineManagerPrivate::onModeChanged);
     }
 
     ~EngineManagerPrivate()
     {
         delete m_engineChooser;
+    }
+
+    void onModeChanged(Id mode)
+    {
+        if (mode == Constants::MODE_DEBUG) {
+            //        if (EngineManager::engines().isEmpty())
+            //            DebuggerMainWindow::instance()->restorePerspective(Constants::PRESET_PERSPRECTIVE_ID);
+            selectUiForCurrentEngine();
+        }
     }
 
     EngineItem *findEngineItem(DebuggerEngine *engine);
