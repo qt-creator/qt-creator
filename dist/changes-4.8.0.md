@@ -41,6 +41,9 @@ C++ Support
 * Clang Code Model
     * Added function overloads to tooltip in completion popup
     * Added `Build` > `Generate Compilation Database`
+    * Fixed that braced initialization did not provide constructor completion
+      (QTCREATORBUG-20957)
+    * Fixed local references for operator arguments (QTCREATORBUG-20966)
 
 QML Support
 
@@ -74,9 +77,24 @@ Image Viewer
 
 Test Integration
 
+* Google Test
+    * Fixed that not all failure locations were shown (QTCREATORBUG-20967)
+
+Model Editor
+
+* Fixed that selections and text cursors where exported (QTCREATORBUG-16689)
+
 Platform Specific
 
 Windows
+
+Linux
+
+* Added detection of Intel C compiler (QTCREATORBUG-18302)
+
+macOS
+
+* Fixed light themes for macOS Mojave (10.14)
 
 Android
 
