@@ -505,7 +505,7 @@ bool CompilerOptionsBuilder::excludeHeaderPath(const QString &headerPath) const
     // For example GCC on macOS uses system clang include path which makes clang code model
     // include incorrect system headers.
     static QRegularExpression clangIncludeDir(
-                QLatin1String("\\A.*/lib/clang/\\d+\\.\\d+(\\.\\d+)?/include\\z"));
+                QLatin1String("\\A.*[\\/\\\\]lib\\d*[\\/\\\\]clang[\\/\\\\]\\d+\\.\\d+(\\.\\d+)?[\\/\\\\]include\\z"));
     return clangIncludeDir.match(headerPath).hasMatch();
 }
 
