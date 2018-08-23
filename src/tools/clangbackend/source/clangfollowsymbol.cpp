@@ -151,8 +151,17 @@ FollowSymbolResult FollowSymbol::followSymbol(CXTranslationUnit tu,
     }
 
     // For definitions we can always find a declaration in current TU
-    if (cursor.isDefinition())
+    if (cursor.isDefinition()) {
+        if (tokenSpelling == "auto") {
+            Type type = cursor.type().pointeeType();
+            if (!type.isValid())
+                type = cursor.type();
+            const Cursor declCursor = type.declaration();
+            return extractMatchingTokenRange(declCursor, declCursor.spelling());
+        }
+
         return extractMatchingTokenRange(cursor.canonical(), tokenSpelling);
+    }
 
     if (!cursor.isDeclaration()) {
         // This is the symbol usage
