@@ -4,6 +4,7 @@ QtcAutotest {
     name: "Highlighter engine autotest"
     Depends { name: "Core" }
     Depends { name: "Utils" }
+    Depends { name: "TextEditor" }
     Depends { name: "Qt.widgets" }
     Group {
         name: "Sources from TextEditor plugin"

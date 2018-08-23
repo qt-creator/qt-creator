@@ -23,17 +23,19 @@
 **
 ****************************************************************************/
 
-#include "highlighter.h"
-#include "highlightdefinition.h"
 #include "context.h"
-#include "rule.h"
-#include "itemdata.h"
+#include "highlightdefinition.h"
+#include "highlighter.h"
 #include "highlighterexception.h"
+#include "itemdata.h"
 #include "progressdata.h"
 #include "reuse.h"
+#include "rule.h"
 #include "tabsettings.h"
 
 #include <coreplugin/messagemanager.h>
+#include <texteditor/fontsettings.h>
+#include <texteditor/texteditorsettings.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -567,7 +569,7 @@ void Highlighter::applyFormat(int offset,
             // think this approach would fit better. If there are other ideas...
             QBrush bg = format.background();
             if (bg.style() == Qt::NoBrush)
-                bg = formatForCategory(C_TEXT).background();
+                bg = TextEditorSettings::fontSettings().toTextCharFormat(C_TEXT).background();
             if (itemData->color().isValid() && isReadableOn(bg.color(), itemData->color()))
                 format.setForeground(itemData->color());
             if (itemData->isItalicSpecified())
