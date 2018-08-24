@@ -138,7 +138,7 @@ class PlainDumper:
             printer = self.printer.invoke(value.nativeValue)
         lister = getattr(printer, 'children', None)
         children = [] if lister is None else list(lister())
-        d.putType(self.printer.name)
+        d.putType(value.nativeValue.type.name)
         val = printer.to_string()
         if isinstance(val, str):
             d.putValue(val)
