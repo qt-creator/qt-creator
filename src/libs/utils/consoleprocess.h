@@ -28,6 +28,7 @@
 #include "utils_global.h"
 
 #include <QProcess>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -36,6 +37,20 @@ QT_END_NAMESPACE
 namespace Utils {
 class Environment;
 struct ConsoleProcessPrivate;
+
+class QTCREATOR_UTILS_EXPORT TerminalCommand
+{
+public:
+    TerminalCommand() = default;
+    TerminalCommand(const QString &command, const QString &openArgs, const QString &executeArgs);
+
+    bool operator==(const TerminalCommand &other) const;
+    bool operator<(const TerminalCommand &other) const;
+
+    QString command;
+    QString openArgs;
+    QString executeArgs;
+};
 
 class QTCREATOR_UTILS_EXPORT ConsoleProcess : public QObject
 {
@@ -88,17 +103,17 @@ public:
 #ifndef Q_OS_WIN
     void setSettings(QSettings *settings);
 
-    static QString defaultTerminalEmulator();
-    static QStringList availableTerminalEmulators();
-    static QString terminalEmulator(const QSettings *settings, bool nonEmpty = true);
-    static void setTerminalEmulator(QSettings *settings, const QString &term);
+    static TerminalCommand defaultTerminalEmulator();
+    static QVector<TerminalCommand> availableTerminalEmulators();
+    static TerminalCommand terminalEmulator(const QSettings *settings);
+    static void setTerminalEmulator(QSettings *settings, const TerminalCommand &term);
 #else
     void setSettings(QSettings *) {}
 
-    static QString defaultTerminalEmulator() { return QString(); }
-    static QStringList availableTerminalEmulators() { return QStringList(); }
-    static QString terminalEmulator(const QSettings *, bool = true) { return QString(); }
-    static void setTerminalEmulator(QSettings *, const QString &) {}
+    static TerminalCommand defaultTerminalEmulator() { return TerminalCommand(); }
+    static QVector<TerminalCommand> availableTerminalEmulators() { return {}; }
+    static TerminalCommand terminalEmulator(const QSettings *) { return TerminalCommand(); }
+    static void setTerminalEmulator(QSettings *, const TerminalCommand &) {}
 #endif
 
     static bool startTerminalEmulator(QSettings *settings, const QString &workingDir);
@@ -144,3 +159,5 @@ private:
 };
 
 } //namespace Utils
+
+Q_DECLARE_METATYPE(Utils::TerminalCommand)

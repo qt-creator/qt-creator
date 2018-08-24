@@ -27,6 +27,13 @@
 
 namespace Utils {
 
+TerminalCommand::TerminalCommand(const QString &command, const QString &openArgs, const QString &executeArgs)
+    : command(command)
+    , openArgs(openArgs)
+    , executeArgs(executeArgs)
+{
+}
+
 ConsoleProcess::~ConsoleProcess()
 {
     stop();
@@ -149,6 +156,18 @@ void ConsoleProcess::emitError(QProcess::ProcessError err, const QString &errorS
     d->m_errorString = errorString;
     emit error(err);
     emit processError(errorString);
+}
+
+bool TerminalCommand::operator==(const TerminalCommand &other) const
+{
+    return other.command == command && other.executeArgs == executeArgs;
+}
+
+bool TerminalCommand::operator<(const TerminalCommand &other) const
+{
+    if (command == other.command)
+        return executeArgs < other.executeArgs;
+    return command < other.command;
 }
 
 }
