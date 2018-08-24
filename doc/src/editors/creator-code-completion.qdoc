@@ -36,7 +36,15 @@
     the statement currently under your cursor. Press \key Tab
     or \key Enter to accept the selected suggestion and complete the code.
 
+    \if defined(qtcreator)
+    The following image displays suggestions for completing C++ code:
+
     \image qtcreator-codecompletion.png
+    \endif
+
+    The following image displays suggestions for completing QML code:
+
+    \image qml-code-completion.png
 
     To open the list of suggestions at any time, press \key {Ctrl+Space}.
     If only one option is available, \QC inserts it automatically.
@@ -61,6 +69,7 @@
         \header
             \li  Icon
             \li  Description
+        \if defined(qtcreator)
         \row
             \li \inlineimage completion/class.png
             \li A class
@@ -106,18 +115,21 @@
         \row
             \li \inlineimage completion/snippet.png
             \li A C++ code snippet
+        \endif
         \row
             \li \inlineimage completion/element.png
             \li A QML type
         \row
             \li \inlineimage completion/qmlsnippet.png
             \li A QML code snippet
+        \if defined(qtcreator)
         \row
             \li \inlineimage completion/macro.png
             \li A macro
         \row
             \li \inlineimage completion/namespace.png
             \li A namespace
+        \endif
     \endtable
 
     \section2 Completing Code Snippets
@@ -128,16 +140,32 @@
     them. When you specify a value for a variable, all instances of the variable
     within the snippet are renamed.
 
-    \image qmldesigner-code-completion.png "Completing QML code"
+    \if defined(qtcreator)
+    The following image shows a C++ code snippet:
+
+    \image qmldesigner-code-completion.png "Completing C++ code"
+    \endif
+
+    The following image shows a QML code snippet:
+
+    \image qml-code-snippet.png
 
     \section2 Editing Code Snippets
 
-    Code snippets specify C++ or QML code constructs. You can add, modify,
+    Code snippets specify code constructs. You can add, modify,
     and remove snippets in the snippet editor. To open the editor, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
     \uicontrol Snippets.
 
-    \image qtcreator-edit-code-snippets.png "Snippet options"
+    \if defined(qtcreator)
+    The following image shows built-in C++ code snippets:
+
+    \image qtcreator-edit-code-snippets.png "C++ snippet options"
+    \endif
+
+    The following image shows built-in QML code snippets:
+
+    \image qml-snippet-editor.png
 
     \QC provides you with built-in snippets in the following categories:
 
@@ -146,14 +174,18 @@
         \li Text snippets, which can contain any text string. For example, code
             comments
 
+        \if defined(qtcreator)
         \li C++ code snippets, which specify C++ code constructs
 
         \li CMake code snippets that you can use when editing \c CMakeLists.txt
             files in the CMake editor
+        \endif
 
         \li QML code snippets, which specify QML code constructs
 
+        \if defined(qtcreator)
         \li Nim code snippets, which specify Nim code constructs
+        \endif
 
     \endlist
 
@@ -162,9 +194,15 @@
     Select a snippet in the list to edit it in the snippet editor. To add a new
     snippet, select \uicontrol Add. Specify a trigger and, if the trigger is
     already in use, an optional variant, which appear in the list of suggestions
-    when you write code. Also specify a text string or C++ or QML code construct
+    when you write code.
+    \if defined(qtcreator)
+    Also specify a text string or C++ or QML code construct
     in the snippet editor, depending on the snippet category. You can use
     \l{Using Qt Creator Variables}{predefined variables} in snippets.
+    \else
+    Also specify a text string or QML code in the snippet editor, depending on
+    the snippet category.
+    \endif
 
     The snippet editor provides you with:
 
@@ -186,6 +224,7 @@
     $variable$
     \endcode
 
+    \if defined(qtcreator)
     Specify \QC variables in the following format:
 
     \code
@@ -220,6 +259,7 @@
     \endcode
 
     \image qtcreator-snippet-modifiers.png
+    \endif
 
     The snippet editor does not check the syntax of the snippets that you edit
     or add. However, when you use the snippets, the code editor marks any
