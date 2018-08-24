@@ -33,7 +33,7 @@
     \contentspage index.html
     \page creator-help.html
     \if defined(qtdesignstudio)
-    \previouspage studio-help.html
+    \previouspage studio-tutorials.html
     \nextpage studio-faq.html
     \else
     \previouspage creator-help-overview.html

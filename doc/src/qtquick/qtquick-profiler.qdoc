@@ -34,7 +34,7 @@
     \page creator-qml-performance-monitor.html
     \if defined(qtdesignstudio)
     \previouspage creator-qml-debugging-example.html
-    \nextpage creator-help-overview.html
+    \nextpage studio-help.html
     \else
     \previouspage creator-analyze-mode.html
     \nextpage creator-valgrind-overview.html

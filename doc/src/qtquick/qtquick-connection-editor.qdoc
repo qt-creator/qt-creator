@@ -66,6 +66,8 @@
         \li \l{Connecting Objects to Signals}
         \li \l{Specifying Dynamic Properties}
         \li \l{Adding Bindings Between Properties}
+        \if defined(qtcreator)
         \li \l{Managing C++ Backend Objects}
+        \endif
     \endlist
 */

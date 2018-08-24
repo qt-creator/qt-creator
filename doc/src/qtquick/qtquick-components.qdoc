@@ -32,11 +32,10 @@
 /*!
     \contentspage index.html
     \page quick-components.html
+    \previouspage creator-using-qt-quick-designer.html
     \if defined(qtdesignstudio)
-    \previouspage studio-designing.html
     \nextpage qtquick-navigator.html
     \else
-    \previouspage creator-using-qt-quick-designer.html
     \nextpage quick-buttons.html
     \endif
 

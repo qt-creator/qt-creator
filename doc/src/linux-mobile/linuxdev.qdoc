@@ -29,7 +29,7 @@
     \page creator-developing-generic-linux.html
     \if defined(qtdesignstudio)
     \previouspage creator-developing-android.html
-    \nextpage creator-build-process-customizing.html
+    \nextpage studio-advanced.html
     \else
     \previouspage creator-developing-baremetal.html
     \nextpage creator-developing-ios.html

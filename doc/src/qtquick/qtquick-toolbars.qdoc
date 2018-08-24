@@ -33,7 +33,11 @@
     \contentspage index.html
     \previouspage creator-indenting-code.html
     \page qt-quick-toolbars.html
+    \if defined(qtdesignstudio)
+    \nextpage creator-diff-editor.html
+    \else
     \nextpage creator-editor-codepasting.html
+    \endif
 
     \title Using Qt Quick Toolbars
 

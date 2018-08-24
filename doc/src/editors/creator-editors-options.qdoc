@@ -31,8 +31,12 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-beautifier.html
     \page creator-editor-options.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-editor-refactoring.html
+    \else
+    \previouspage creator-beautifier.html
+    \endif
     \nextpage creator-editor-options-text.html
 
     \title Configuring the Editor
@@ -73,13 +77,16 @@
         \li Add, modify, and remove \l{Editing Code Snippets}{code snippets} in
             \uicontrol Snippets.
 
+        \if defined(qtcreator)
         \li View and remove \l{Using Text Editing Macros}{text editing macros}
             in \uicontrol Macros.
+        \endif
 
         \li Configure \l{Completing Code}{code completion} in \uicontrol Completion.
 
     \endlist
 
+    \if defined(qtcreator)
     \section1 Related Topics
 
     \list
@@ -90,5 +97,6 @@
             FakeVim mode.
 
     \endlist
+    \endif
 
 */

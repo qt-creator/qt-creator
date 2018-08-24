@@ -25,9 +25,13 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-locator.html
     \page creator-editor-refactoring.html
+    \previouspage creator-editor-locator.html
+    \if defined(qtdesignstudio)
+    \nextpage creator-editor-options.html
+    \else
     \nextpage creator-beautifier.html
+    \endif
 
     \title Refactoring
 

@@ -31,8 +31,13 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-clang-codemodel.html
     \page creator-finding-overview.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-diff-editor.html
+    \else
+    \previouspage creator-clang-codemodel.html
+    \endif
+
     \nextpage creator-editor-finding.html
 
     \title Finding

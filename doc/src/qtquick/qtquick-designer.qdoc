@@ -33,12 +33,11 @@
     \contentspage index.html
     \page creator-using-qt-quick-designer.html
     \if defined(qtdesignstudio)
-    \previouspage studio-tutorials.html
-    \nextpage studio-preview-example.html
+    \previouspage studio-prototyping.html
     \else
     \previouspage creator-quick-ui-forms.html
-    \nextpage quick-components.html
     \endif
+    \nextpage quick-components.html
 
     \title Editing QML Files in Design Mode
 
