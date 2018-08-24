@@ -37,6 +37,7 @@
     JavaScript object notation (JSON) entity, \QC underlines errors in JSON data
     structure.
 
+    \if defined(qtcreator)
     \list
         \li Syntax errors are underlined in red.
 
@@ -64,6 +65,15 @@
 
     \image qtcreator-semanticerror-clang.png
 
+    \else
+    In addition to underlining, errors and warnings are marked with icons and
+    annotated.
+    \endif
+    When writing QML or JavaScript code, the annotations may contain error codes
+    listed in \l{JavaScript and QML Error Codes}.
+
+    \image qml-syntax-check.png
+
     To specify the position where the annotations are displayed, select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
     \uicontrol Display > \uicontrol {Line annotations}, and then select
@@ -75,37 +85,15 @@
     If you hide the annotations by deselecting the check box, you can move the
     mouse pointer over an icon to view them.
 
-    \section1 Checking JSON Data Structure
+    \section1 JavaScript and QML Error Codes
 
-    You can run static checks on the QML and JavaScript code in
-    your project to find common problems.
+    You can run static checks on the QML and JavaScript code in your project to
+    find common problems. To run the checks, select \uicontrol Tools >
+    \uicontrol {QML/JS} > \uicontrol {Run Checks} or press \key {Ctrl+Shift+C}.
+    The results are shown in the \uicontrol QML and \uicontrol {QML Analysis}
+    filters of the \uicontrol Issues output pane.
 
-    \QC validates instances of JSON entities against
-    \l{http://tools.ietf.org/html/draft-zyp-json-schema-03}
-    {A JSON Media Type for Describing the Structure and Meaning of JSON Documents}.
-    However, \QC does not understand the entire specification.
-
-    A JSON schema defines the structure of JSON data. It determines what JSON
-    data is required for an application and how to interact with it.
-
-    The specification does not define how to map JSON instances with JSON
-    schemas. \QC looks for a JSON schema file with a name that matches the
-    name of the JSON instance file in the user configuration folder. For
-    example, \c {~/config/QtProject/qtcreator/json} on Linux and \macos and
-    \c {C:\Users\username\AppData\Roaming\QtCreator\qtcreator\json} on
-    Windows. To check JSON data structure, copy the JSON schema file to the
-    above folder.
-
-    \section2 Checking JavaScript and QML Syntax
-
-    To run the checks, select \uicontrol Tools > \uicontrol {QML/JS} >
-    \uicontrol {Run Checks} or press \key {Ctrl+Shift+C}. The results are shown
-    in the \uicontrol {QML Analysis} filter of the \uicontrol Issues output
-    pane.
-
-    \section2 List of JavaScript and QML Checks
-
-    Many of the JavaScript checks are similar to the ones in Douglas Crockford's
+    Many of the error messages are similar to the ones in Douglas Crockford's
     \l{http://www.jslint.com}{JSLint} tool. For more information about JSLint
     errors, see \l{http://linterrors.com/js}{JSLint Error Explanations}.
 
@@ -666,6 +654,24 @@
 
     \endtable
 
+    \section1 Checking JSON Data Structure
+
+    \QC validates instances of JSON entities against
+    \l{http://tools.ietf.org/html/draft-zyp-json-schema-03}
+    {A JSON Media Type for Describing the Structure and Meaning of JSON Documents}.
+    However, \QC does not understand the entire specification.
+
+    A JSON schema defines the structure of JSON data. It determines what JSON
+    data is required for an application and how to interact with it.
+
+    The specification does not define how to map JSON instances with JSON
+    schemas. \QC looks for a JSON schema file with a name that matches the
+    name of the JSON instance file in the user configuration folder. For
+    example, \c {~/config/QtProject/qtcreator/json} on Linux and \macos and
+    \c {C:\Users\username\AppData\Roaming\QtCreator\qtcreator\json} on
+    Windows. To check JSON data structure, copy the JSON schema file to the
+    above folder.
+
     \section1 Resetting the Code Model
 
     If you change the build and run kit when you have QML files open in the code
@@ -680,9 +686,11 @@
     To reset the code model, select \uicontrol Tools > \uicontrol {QML/JS} >
     \uicontrol {Reset Code Model}.
 
+    \if defined(qtcreator)
     If this does not help, try changing the QML emulation layer to the one that
     was built with the same Qt version as the one selected in the build and run
     kit. For more information, see \l{Running QML Modules in Design Mode}.
+    \endif
 
     \section1 Inspecting QML and JavaScript
 

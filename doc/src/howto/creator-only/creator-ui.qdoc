@@ -198,11 +198,9 @@
 
         \li \uicontrol Python - Runtime errors and exceptions of Python scripts.
 
-        \li \uicontrol QML - Errors in QML syntax.
-
-        \li \uicontrol {QML Analysis} - Results of the JavaScript
-            \l{Checking JavaScript and QML Syntax}
-            {code syntax and validation checks}
+        \li \uicontrol QML and \uicontrol {QML Analysis} -
+            \l{JavaScript and QML Error Codes}
+            {QML and JavaScript syntax errors}.
 
     \endlist
 
