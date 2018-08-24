@@ -525,6 +525,8 @@ void DebuggerMainWindowPrivate::populateCurrentPerspective()
     // Create dock widgets wrapping ther perspective's widgets.
     QHash<QString, QDockWidget *> dockForDockId;
     for (const DockOperation &op : m_currentPerspective->d->m_dockOperations) {
+        if (op.operationType == Perspective::Raise)
+            continue;
         QTC_ASSERT(op.widget, continue);
         const QString dockId = op.widget->objectName();
         QTC_CHECK(!dockId.isEmpty());
