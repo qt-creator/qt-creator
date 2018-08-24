@@ -424,7 +424,7 @@ void DebuggerMainWindowPrivate::ensureToolBarDockExists()
     hbox->addWidget(viewButton);
     hbox->addWidget(closeButton);
 
-    auto dock = new QDockWidget(tr("Toolbar"));
+    auto dock = new QDockWidget(tr("Toolbar"), q);
     dock->setObjectName(QLatin1String("Toolbar"));
     dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
     dock->setAllowedAreas(Qt::BottomDockWidgetArea);
@@ -433,6 +433,7 @@ void DebuggerMainWindowPrivate::ensureToolBarDockExists()
     dock->setWidget(toolbar);
     m_toolBarDock = dock;
     q->addDockWidget(Qt::BottomDockWidgetArea, m_toolBarDock);
+    m_toolBarDock->setVisible(true);
 
     connect(viewButton, &QAbstractButton::clicked, [this, viewButton] {
         QMenu menu;
