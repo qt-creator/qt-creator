@@ -504,6 +504,7 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
         // target-name="/usr/lib/libdrm.so.2",
         // host-name="/usr/lib/libdrm.so.2"
         QString id = result["id"].data();
+        modulesHandler()->removeModule(result["target-name"].data());
         progressPing();
         showStatusMessage(tr("Library %1 unloaded.").arg(id), 1000);
     } else if (asyncClass == "thread-group-added") {
@@ -1044,7 +1045,6 @@ void GdbEngine::updateAll()
 {
     //PENDING_DEBUG("UPDATING ALL\n");
     QTC_CHECK(state() == InferiorUnrunnable || state() == InferiorStopOk);
-    reloadModulesInternal();
     DebuggerCommand cmd(stackCommand(action(MaximalStackDepth)->value().toInt()));
     cmd.callback = [this](const DebuggerResponse &r) { handleStackListFrames(r, false); };
     runCommand(cmd);
@@ -2626,7 +2626,6 @@ void GdbEngine::loadSymbolsForStack()
         }
     }
     if (needUpdate) {
-        //reloadModulesInternal();
         reloadStack();
         updateLocals();
     }

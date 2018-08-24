@@ -2326,6 +2326,7 @@ namespace plugin {
             // Step
             name = lib.errorString();
         }
+        lib.unload();
         dummyStatement(&name, &res);
     }
 
