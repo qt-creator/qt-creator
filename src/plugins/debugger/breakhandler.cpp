@@ -1429,6 +1429,7 @@ void BreakHandler::handleAlienBreakpoint(const QString &responseId, const Breakp
         }
     } else {
         bp = new BreakpointItem(nullptr);
+        bp->m_responseId = responseId;
         bp->setState(BreakpointInserted);
         bp->setParameters(params);
         rootItem()->appendChild(bp);
