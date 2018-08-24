@@ -620,8 +620,10 @@ void CompilerOptionsBuilder::addWrappedQtHeadersIncludePath(QStringList &list)
 void CompilerOptionsBuilder::addGlobalUndef()
 {
     // In case of MSVC we need builtin clang defines to correctly handle clang includes
-    if (m_projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+    if (m_projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
+        && m_projectPart.toolchainType != ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
         add("-undef");
+    }
 }
 
 void CompilerOptionsBuilder::addProjectConfigFileInclude()
