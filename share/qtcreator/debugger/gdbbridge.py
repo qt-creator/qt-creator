@@ -152,7 +152,7 @@ class PlainDumper:
         if d.isExpanded():
             with Children(d):
                 for child in children:
-                    d.putSubItem(child[0], child[1])
+                    d.putSubItem(child[0], d.fromNativeValue(child[1]))
 
 def importPlainDumpers(args):
     if args == 'off':
