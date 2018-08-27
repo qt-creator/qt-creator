@@ -1366,7 +1366,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 //    m_perspective.addToolbarAction(operateByInstructionAction);
 
     m_perspective.addWindow(m_breakpointManagerWindow, Perspective::SplitVertical, nullptr);
-    m_perspective.addWindow(m_globalLogWindow, Perspective::SplitHorizontal, m_breakpointManagerWindow);
+    m_perspective.addWindow(m_globalLogWindow, Perspective::SplitHorizontal, m_breakpointManagerWindow, false);
     m_perspective.addWindow(m_engineManagerWindow, Perspective::AddToTab, m_globalLogWindow);
 
 //    connect(action(EnableReverseDebugging), &SavedAction::valueChanged,
