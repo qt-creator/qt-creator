@@ -754,4 +754,62 @@ Q_REQUIRED_RESULT decltype(auto) take(C &container, R (S::*function)() const)
     return take(container, std::mem_fn(function));
 }
 
+//////////////////
+// setUnionMerge: Works like std::set_union but provides a merge function for items that match
+//                !(a > b) && !(b > a) which normally means that there is an "equal" match.
+//                It uses iterators to support move_iterators.
+/////////////////
+
+template<class InputIt1,
+         class InputIt2,
+         class OutputIt,
+         class Merge,
+         class Compare>
+OutputIt setUnionMerge(InputIt1 first1,
+                       InputIt1 last1,
+                       InputIt2 first2,
+                       InputIt2 last2,
+                       OutputIt d_first,
+                       Merge merge,
+                       Compare comp)
+{
+    for (; first1 != last1; ++d_first) {
+        if (first2 == last2)
+            return std::copy(first1, last1, d_first);
+        if (comp(*first2, *first1)) {
+            *d_first = *first2++;
+        } else {
+            if (comp(*first1, *first2)) {
+                *d_first = *first1;
+            } else {
+                *d_first = merge(*first1, *first2);
+                ++first2;
+            }
+            ++first1;
+        }
+    }
+    return std::copy(first2, last2, d_first);
+}
+
+template<class InputIt1,
+         class InputIt2,
+         class OutputIt,
+         class Merge>
+OutputIt setUnionMerge(InputIt1 first1,
+                       InputIt1 last1,
+                       InputIt2 first2,
+                       InputIt2 last2,
+                       OutputIt d_first,
+                       Merge merge)
+{
+    return setUnionMerge(first1,
+                         last1,
+                         first2,
+                         last2,
+                         d_first,
+                         merge,
+                         std::less<decltype(*first1)>{});
+}
+
+
 } // namespace Utils
