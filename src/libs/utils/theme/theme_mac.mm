@@ -26,6 +26,7 @@
 #include "theme_mac.h"
 
 #include <qglobal.h>
+#include <QOperatingSystemVersion>
 
 #include <AppKit/AppKit.h>
 
