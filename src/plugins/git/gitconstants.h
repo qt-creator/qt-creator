@@ -46,8 +46,6 @@ const char GIT_REBASE_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Reba
 const char GIT_CONTEXT[] = "Git Context";
 const char GITSUBMITEDITOR_ID[] = "Git Submit Editor";
 const char GITSUBMITEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Git Submit Editor");
-const char SUBMIT_CURRENT[] = "Git.SubmitCurrentLog";
-const char DIFF_SELECTED[] = "Git.DiffSelectedFilesInLog";
 const char SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.git.submit";
 const char C_GITEDITORID[]  = "Git Editor";
 

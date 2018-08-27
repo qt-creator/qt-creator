@@ -104,9 +104,6 @@ const char COMMIT[] = "Bazaar.Action.Commit";
 const char UNCOMMIT[] = "Bazaar.Action.UnCommit";
 const char CREATE_REPOSITORY[] = "Bazaar.Action.CreateRepository";
 
-// Submit editor actions
-const char DIFFEDITOR[] = "Bazaar.Action.Editor.Diff";
-
 const VcsBaseEditorParameters editorParameters[] = {
     {   LogOutput, // type
         Constants::FILELOG_ID, // id
@@ -174,8 +171,6 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     m_commandLocator = new CommandLocator("Bazaar", prefix, prefix, this);
 
     createMenu(context);
-
-    createSubmitEditorActions();
 
     return true;
 }
@@ -486,26 +481,6 @@ void BazaarPlugin::update()
     m_client->update(state.topLevel(), revertUi.revisionLineEdit->text());
 }
 
-void BazaarPlugin::createSubmitEditorActions()
-{
-    Context context(COMMIT_ID);
-    Command *command;
-
-    m_editorCommit = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
-    command = ActionManager::registerAction(m_editorCommit, COMMIT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_editorCommit, &QAction::triggered, this, &BazaarPlugin::commitFromEditor);
-
-    m_editorDiff = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
-    ActionManager::registerAction(m_editorDiff, DIFFEDITOR, context);
-
-    m_editorUndo = new QAction(tr("&Undo"), this);
-    ActionManager::registerAction(m_editorUndo, Core::Constants::UNDO, context);
-
-    m_editorRedo = new QAction(tr("&Redo"), this);
-    ActionManager::registerAction(m_editorRedo, Core::Constants::REDO, context);
-}
-
 void BazaarPlugin::commit()
 {
     if (!promptBeforeCommit())
@@ -559,7 +534,6 @@ void BazaarPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &stat
     }
     setSubmitEditor(commitEditor);
 
-    commitEditor->registerActions(m_editorUndo, m_editorRedo, m_editorCommit, m_editorDiff);
     connect(commitEditor, &VcsBaseSubmitEditor::diffSelectedFiles,
             this, &BazaarPlugin::diffFromEditorSelected);
     commitEditor->setCheckScriptWorkingDirectory(m_submitRepository);

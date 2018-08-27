@@ -114,7 +114,7 @@ private:
     void projectStatus();
     void updateDirectory();
     void updateProject();
-    void submitCurrentLog();
+    void commitFromEditor() override;
     void diffCommitFiles(const QStringList &);
     void logProject();
     void logRepository();
@@ -188,10 +188,6 @@ private:
     QAction *m_updateRepositoryAction = nullptr;
     QAction *m_statusRepositoryAction = nullptr;
 
-    QAction *m_submitCurrentLogAction = nullptr;
-    QAction *m_submitDiffAction = nullptr;
-    QAction *m_submitUndoAction = nullptr;
-    QAction *m_submitRedoAction = nullptr;
     QAction *m_menuAction = nullptr;
     bool m_submitActionTriggered = false;
 

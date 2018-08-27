@@ -49,8 +49,5 @@ const char SUBVERSION_BLAME_EDITOR_ID[] = "Subversion Annotation Editor";
 const char SUBVERSION_BLAME_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("VCS", "Subversion Annotation Editor");
 const char SUBVERSION_BLAME_MIMETYPE[] = "text/vnd.qtcreator.svn.annotation";
 
-const char SUBMIT_CURRENT[] = "Subversion.SubmitCurrentLog";
-const char DIFF_SELECTED[] = "Subversion.DiffSelectedFilesInLog";
-
 } // namespace Constants
 } // namespace Subversion

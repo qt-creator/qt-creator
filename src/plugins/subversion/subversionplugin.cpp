@@ -386,23 +386,6 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    // Actions of the submit editor
-    Context svncommitcontext(Constants::SUBVERSION_COMMIT_EDITOR_ID);
-
-    m_submitCurrentLogAction = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
-    command = ActionManager::registerAction(m_submitCurrentLogAction, SUBMIT_CURRENT, svncommitcontext);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_submitCurrentLogAction, &QAction::triggered, this, &SubversionPlugin::submitCurrentLog);
-
-    m_submitDiffAction = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
-    ActionManager::registerAction(m_submitDiffAction , DIFF_SELECTED, svncommitcontext);
-
-    m_submitUndoAction = new QAction(tr("&Undo"), this);
-    ActionManager::registerAction(m_submitUndoAction, Core::Constants::UNDO, svncommitcontext);
-
-    m_submitRedoAction = new QAction(tr("&Redo"), this);
-    ActionManager::registerAction(m_submitRedoAction, Core::Constants::REDO, svncommitcontext);
-
     return true;
 }
 
@@ -485,7 +468,6 @@ SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QStri
     SubversionSubmitEditor *submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return 0);
     setSubmitEditor(submitEditor);
-    submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);
     connect(submitEditor, &VcsBaseSubmitEditor::diffSelectedFiles,
             this, &SubversionPlugin::diffCommitFiles);
     submitEditor->setCheckScriptWorkingDirectory(m_commitRepository);
@@ -867,7 +849,7 @@ void SubversionPlugin::slotDescribe()
     describe(state.topLevel(), QString::number(revision));
 }
 
-void SubversionPlugin::submitCurrentLog()
+void SubversionPlugin::commitFromEditor()
 {
     m_submitActionTriggered = true;
     QTC_ASSERT(submitEditor(), return);

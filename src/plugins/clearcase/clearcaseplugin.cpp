@@ -567,23 +567,6 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    // Actions of the submit editor
-    Context clearcasecheckincontext(Constants::CLEARCASECHECKINEDITOR_ID);
-
-    m_checkInSelectedAction = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Check In"), this);
-    command = ActionManager::registerAction(m_checkInSelectedAction, Constants::CHECKIN_SELECTED, clearcasecheckincontext);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_checkInSelectedAction, &QAction::triggered, this, &ClearCasePlugin::checkInSelected);
-
-    m_checkInDiffAction = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff Selected Files"), this);
-    ActionManager::registerAction(m_checkInDiffAction , Constants::DIFF_SELECTED, clearcasecheckincontext);
-
-    m_submitUndoAction = new QAction(tr("&Undo"), this);
-    ActionManager::registerAction(m_submitUndoAction, Core::Constants::UNDO, clearcasecheckincontext);
-
-    m_submitRedoAction = new QAction(tr("&Redo"), this);
-    ActionManager::registerAction(m_submitRedoAction, Core::Constants::REDO, clearcasecheckincontext);
-
     return true;
 }
 
@@ -745,7 +728,6 @@ ClearCaseSubmitEditor *ClearCasePlugin::openClearCaseSubmitEditor(const QString 
             EditorManager::openEditor(fileName, Constants::CLEARCASECHECKINEDITOR_ID);
     ClearCaseSubmitEditor *submitEditor = qobject_cast<ClearCaseSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return 0);
-    submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_checkInSelectedAction, m_checkInDiffAction);
     connect(submitEditor, &VcsBaseSubmitEditor::diffSelectedFiles,
             this, &ClearCasePlugin::diffCheckInFiles);
     submitEditor->setCheckScriptWorkingDirectory(m_checkInView);
@@ -1441,7 +1423,7 @@ void ClearCasePlugin::describe(const QString &source, const QString &changeNr)
     }
 }
 
-void ClearCasePlugin::checkInSelected()
+void ClearCasePlugin::commitFromEditor()
 {
     m_submitActionTriggered = true;
     QTC_ASSERT(submitEditor(), return);

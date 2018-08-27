@@ -640,22 +640,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(createRepositoryAction, &QAction::triggered, this, &GitPlugin::createRepository);
     gitContainer->addAction(createRepositoryCommand);
 
-    // Submit editor
-    Context submitContext(Constants::GITSUBMITEDITOR_ID);
-    m_submitCurrentAction = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
-    Command *command = ActionManager::registerAction(m_submitCurrentAction, Constants::SUBMIT_CURRENT, submitContext);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_submitCurrentAction, &QAction::triggered, this, &GitPlugin::submitCurrentLog);
-
-    m_diffSelectedFilesAction = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
-    ActionManager::registerAction(m_diffSelectedFilesAction, Constants::DIFF_SELECTED, submitContext);
-
-    m_undoAction = new QAction(tr("&Undo"), this);
-    ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, submitContext);
-
-    m_redoAction = new QAction(tr("&Redo"), this);
-    ActionManager::registerAction(m_redoAction, Core::Constants::REDO, submitContext);
-
     connect(VcsManager::instance(), &VcsManager::repositoryChanged,
             this, &GitPlugin::updateContinueAndAbortCommands);
     connect(VcsManager::instance(), &VcsManager::repositoryChanged,
@@ -1002,9 +986,6 @@ IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &
     GitSubmitEditor *submitEditor = qobject_cast<GitSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return 0);
     setSubmitEditor(submitEditor);
-    // The actions are for some reason enabled by the context switching
-    // mechanism. Disable them correctly.
-    submitEditor->registerActions(m_undoAction, m_redoAction, m_submitCurrentAction, m_diffSelectedFilesAction);
     submitEditor->setCommitData(cd);
     submitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
     QString title;
@@ -1024,7 +1005,7 @@ IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &
     return editor;
 }
 
-void GitPlugin::submitCurrentLog()
+void GitPlugin::commitFromEditor()
 {
     // Close the submit editor
     m_submitActionTriggered = true;

@@ -136,7 +136,7 @@ private:
     void logProject();
     void logRepository();
 
-    void submitCurrentLog();
+    void commitFromEditor() override;
     void printPendingChanges();
     void slotSubmitDiff(const QStringList &files);
     void setTopLevel(const QString &);
@@ -234,14 +234,10 @@ private:
     QAction *m_filelogAction = nullptr;
     Utils::ParameterAction *m_logProjectAction = nullptr;
     QAction *m_logRepositoryAction = nullptr;
-    QAction *m_submitCurrentLogAction = nullptr;
     QAction *m_updateAllAction = nullptr;
     bool m_submitActionTriggered = false;
-    QAction *m_diffSelectedFiles = nullptr;
     QString m_commitMessageFileName;
     mutable QString m_tempFilePattern;
-    QAction *m_undoAction = nullptr;
-    QAction *m_redoAction = nullptr;
     QAction *m_menuAction = nullptr;
 
     static PerforcePlugin *m_instance;

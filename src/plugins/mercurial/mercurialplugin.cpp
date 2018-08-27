@@ -145,8 +145,6 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
 
     createMenu(context);
 
-    createSubmitEditorActions();
-
     return true;
 }
 
@@ -472,25 +470,6 @@ void MercurialPlugin::outgoing()
     m_client->outgoing(state.topLevel());
 }
 
-void MercurialPlugin::createSubmitEditorActions()
-{
-    Core::Context context(Constants::COMMIT_ID);
-
-    editorCommit = new QAction(VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
-    Core::Command *command = Core::ActionManager::registerAction(editorCommit, Core::Id(Constants::COMMIT), context);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(editorCommit, &QAction::triggered, this, &MercurialPlugin::commitFromEditor);
-
-    editorDiff = new QAction(VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
-    Core::ActionManager::registerAction(editorDiff, Core::Id(Constants::DIFFEDITOR), context);
-
-    editorUndo = new QAction(tr("&Undo"), this);
-    Core::ActionManager::registerAction(editorUndo, Core::Id(Core::Constants::UNDO), context);
-
-    editorRedo = new QAction(tr("&Redo"), this);
-    Core::ActionManager::registerAction(editorRedo, Core::Id(Core::Constants::REDO), context);
-}
-
 void MercurialPlugin::commit()
 {
     if (!promptBeforeCommit())
@@ -538,7 +517,6 @@ void MercurialPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &s
     CommitEditor *commitEditor = static_cast<CommitEditor *>(editor);
     setSubmitEditor(commitEditor);
 
-    commitEditor->registerActions(editorUndo, editorRedo, editorCommit, editorDiff);
     connect(commitEditor, &VcsBaseSubmitEditor::diffSelectedFiles,
             this, &MercurialPlugin::diffFromEditorSelected);
     commitEditor->setCheckScriptWorkingDirectory(m_submitRepository);

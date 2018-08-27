@@ -122,7 +122,7 @@ private:
     void projectStatus();
     void slotDescribe();
     void updateProject();
-    void submitCurrentLog();
+    void commitFromEditor() override;
     void diffCommitFiles(const QStringList &);
     void logProject();
     void logRepository();
@@ -171,10 +171,6 @@ private:
     Utils::ParameterAction *m_commitProjectAction = nullptr;
     QAction *m_describeAction = nullptr;
 
-    QAction *m_submitCurrentLogAction = nullptr;
-    QAction *m_submitDiffAction = nullptr;
-    QAction *m_submitUndoAction = nullptr;
-    QAction *m_submitRedoAction = nullptr;
     QAction *m_menuAction = nullptr;
     bool m_submitActionTriggered = false;
 

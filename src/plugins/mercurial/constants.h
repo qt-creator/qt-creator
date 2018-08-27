@@ -86,8 +86,5 @@ const char OUTGOING[] = "Mercurial.Action.Outgoing";
 const char COMMIT[] = "Mercurial.Action.Commit";
 const char CREATE_REPOSITORY[] = "Mercurial.Action.CreateRepository";
 
-// Submit editor actions
-const char DIFFEDITOR[] = "Mercurial.Action.Editor.Diff";
-
 } // namespace Constants
 } // namespace mercurial

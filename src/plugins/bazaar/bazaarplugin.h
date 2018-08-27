@@ -96,13 +96,12 @@ private:
     void update();
     void commit();
     void showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status);
-    void commitFromEditor();
+    void commitFromEditor() override;
     void uncommit();
     void diffFromEditorSelected(const QStringList &files);
 
     // Functions
     void createMenu(const Core::Context &context);
-    void createSubmitEditorActions();
     void createFileActions(const Core::Context &context);
     void createDirectoryActions(const Core::Context &context);
     void createRepositoryActions(const Core::Context &context);
@@ -127,11 +126,6 @@ private:
     Utils::ParameterAction *m_revertFile = nullptr;
     Utils::ParameterAction *m_statusFile = nullptr;
 
-    // Submit editor actions
-    QAction *m_editorCommit = nullptr;
-    QAction *m_editorDiff = nullptr;
-    QAction *m_editorUndo = nullptr;
-    QAction *m_editorRedo = nullptr;
     QAction *m_menuAction = nullptr;
 
     QString m_submitRepository;

@@ -108,7 +108,7 @@ private slots:
 private:
     void diffCurrentFile();
     void diffCurrentProject();
-    void submitCurrentLog();
+    void commitFromEditor() override;
     void logFile();
     void blameFile();
     void logProject();
@@ -186,10 +186,6 @@ private:
 
     Core::CommandLocator *m_commandLocator = nullptr;
 
-    QAction *m_submitCurrentAction = nullptr;
-    QAction *m_diffSelectedFilesAction = nullptr;
-    QAction *m_undoAction = nullptr;
-    QAction *m_redoAction = nullptr;
     QAction *m_menuAction = nullptr;
     QAction *m_repositoryBrowserAction = nullptr;
     QAction *m_mergeToolAction = nullptr;

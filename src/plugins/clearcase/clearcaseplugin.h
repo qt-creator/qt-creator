@@ -210,7 +210,7 @@ private:
     void historyCurrentFile();
     void annotateCurrentFile();
     void viewStatus();
-    void checkInSelected();
+    void commitFromEditor() override;
     void diffCheckInFiles(const QStringList &);
     void updateIndex();
     void updateView();
@@ -281,10 +281,6 @@ private:
     QAction *m_checkInAllAction = nullptr;
     QAction *m_statusAction = nullptr;
 
-    QAction *m_checkInSelectedAction = nullptr;
-    QAction *m_checkInDiffAction = nullptr;
-    QAction *m_submitUndoAction = nullptr;
-    QAction *m_submitRedoAction = nullptr;
     QAction *m_menuAction = nullptr;
     bool m_submitActionTriggered = false;
     QMutex *m_activityMutex;
