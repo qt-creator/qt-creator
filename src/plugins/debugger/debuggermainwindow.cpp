@@ -510,7 +510,7 @@ void DebuggerMainWindowPrivate::depopulateCurrentPerspective()
         QWidget *central = m_currentPerspective->centralWidget();
         m_centralWidgetStack->removeWidget(central ? central : m_editorPlaceHolder);
 
-        m_currentPerspective->d->destroyToolBar();
+        m_currentPerspective->d->hideToolBar();
     }
 }
 
