@@ -40,7 +40,11 @@ namespace Internal {
 
 void forceMacOSLightAquaApperance()
 {
+#if __has_builtin(__builtin_available)
     if (__builtin_available(macOS 10.14, *))
+#else // Xcode 8
+    if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::MacOS, 10, 14, 0))
+#endif
         NSApp.appearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua];
 }
 
