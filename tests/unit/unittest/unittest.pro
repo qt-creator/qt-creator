@@ -234,7 +234,8 @@ HEADERS += \
     mockprojectpartprovider.h \
     mockprecompiledheaderstorage.h \
     mockeditormanager.h \
-    mocksymbolscollectormanager.h
+    mocksymbolscollectormanager.h \
+    mocksymbolindexertaskqueue.h
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
     chunksreportedmonitor.h \

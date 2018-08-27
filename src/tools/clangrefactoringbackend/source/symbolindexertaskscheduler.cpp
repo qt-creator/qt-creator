@@ -25,28 +25,78 @@
 
 #include "symbolindexertaskscheduler.h"
 
+#include <symbolindexertaskqueueinterface.h>
 #include <symbolscollectormanagerinterface.h>
 #include <symbolscollectorinterface.h>
+
+#include <QAbstractEventDispatcher>
+#include <QCoreApplication>
+#include <QMetaObject>
+#include <QThread>
 
 #include <algorithm>
 #include <thread>
 
 namespace ClangBackEnd {
+namespace {
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
+template <typename CallableType>
+class CallableEvent : public QEvent {
+public:
+   using Callable = std::decay_t<CallableType>;
+   CallableEvent(Callable &&callable)
+       : QEvent(QEvent::None),
+         callable(std::move(callable))
+   {}
+   CallableEvent(const Callable &callable)
+       : QEvent(QEvent::None),
+         callable(callable)
+   {}
+
+   ~CallableEvent()
+   {
+       callable();
+   }
+public:
+   Callable callable;
+};
+
+template <typename Callable>
+void executeInLoop(Callable &&callable, QObject *object = QCoreApplication::instance()) {
+   if (QThread *thread = qobject_cast<QThread*>(object))
+       object = QAbstractEventDispatcher::instance(thread);
+
+   QCoreApplication::postEvent(object,
+                               new CallableEvent<Callable>(std::forward<Callable>(callable)),
+                               Qt::HighEventPriority);
+}
+#else
+template <typename Callable>
+void executeInLoop(Callable &&callable, QObject *object = QCoreApplication::instance()) {
+   if (QThread *thread = qobject_cast<QThread*>(object))
+       object = QAbstractEventDispatcher::instance(thread);
+
+   QMetaObject::invokeMethod(object, std::forward<Callable>(callable));
+}
+#endif
+}
 
 void SymbolIndexerTaskScheduler::addTasks(std::vector<Task> &&tasks)
 {
     for (auto &task : tasks) {
-        auto callWrapper = [task=std::move(task)] (
-                std::reference_wrapper<SymbolsCollectorInterface> symbolsCollector,
-                std::reference_wrapper<SymbolStorageInterface> symbolStorage)
+        auto callWrapper = [&, task=std::move(task)] (
+                std::reference_wrapper<SymbolsCollectorInterface> symbolsCollector)
                 -> SymbolsCollectorInterface& {
-            task(symbolsCollector.get(), symbolStorage.get());
+            task(symbolsCollector.get(), m_symbolStorage);
+            executeInLoop([&] {
+                m_symbolIndexerTaskQueue.processTasks();
+            });
+
             return symbolsCollector;
         };
         m_futures.emplace_back(std::async(m_launchPolicy,
                                           std::move(callWrapper),
-                                          std::ref(m_symbolsCollectorManager.unusedSymbolsCollector()),
-                                          std::ref(m_symbolStorage)));
+                                          std::ref(m_symbolsCollectorManager.unusedSymbolsCollector())));
     }
 }
 

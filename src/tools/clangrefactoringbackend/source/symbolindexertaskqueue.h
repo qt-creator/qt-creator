@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "symbolindexertaskqueueinterface.h"
+
 #include <filepathid.h>
 
 #include <utils/smallstringvector.h>
@@ -91,6 +93,8 @@ public:
     std::size_t projectPartNumberId(Utils::SmallStringView projectPartId);
     std::vector<std::size_t> projectPartNumberIds(const Utils::SmallStringVector &projectPartIds)
     /* [[ensures result: std::is_sorted(result)]] */;
+
+    void processTasks() ;
 
 private:
     std::vector<Utils::SmallString> m_projectPartIds;

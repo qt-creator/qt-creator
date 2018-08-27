@@ -34,6 +34,7 @@ namespace ClangBackEnd {
 class FilePathCachingInterface;
 class SymbolsCollectorInterface;
 class SymbolsCollectorManagerInterface;
+class SymbolIndexerTaskQueueInterface;
 class SymbolStorageInterface;
 
 class SymbolIndexerTaskScheduler
@@ -45,10 +46,12 @@ public:
 
     SymbolIndexerTaskScheduler(SymbolsCollectorManagerInterface &symbolsCollectorManager,
                                SymbolStorageInterface &symbolStorage,
+                               SymbolIndexerTaskQueueInterface &symbolIndexerTaskQueue,
                                int hardware_concurrency,
                                std::launch launchPolicy = std::launch::async)
         : m_symbolsCollectorManager(symbolsCollectorManager),
           m_symbolStorage(symbolStorage),
+          m_symbolIndexerTaskQueue(symbolIndexerTaskQueue),
           m_hardware_concurrency(hardware_concurrency),
           m_launchPolicy(launchPolicy)
     {}
@@ -68,6 +71,7 @@ private:
     std::vector<Future> m_futures;
     SymbolsCollectorManagerInterface &m_symbolsCollectorManager;
     SymbolStorageInterface &m_symbolStorage;
+    SymbolIndexerTaskQueueInterface &m_symbolIndexerTaskQueue;
     int m_hardware_concurrency;
     std::launch m_launchPolicy;
 };

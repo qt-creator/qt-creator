@@ -25,11 +25,14 @@
 
 #include "googletest.h"
 
+#include "mocksymbolindexertaskqueue.h"
 #include "mocksymbolscollectormanager.h"
 #include "mocksymbolscollector.h"
 #include "mocksymbolstorage.h"
 
 #include <symbolindexertaskscheduler.h>
+
+#include <QCoreApplication>
 
 namespace {
 
@@ -42,6 +45,11 @@ protected:
     void SetUp()
     {
         ON_CALL(mockSymbolsCollectorManager, unusedSymbolsCollector()).WillByDefault(ReturnRef(mockSymbolsCollector));
+    }
+    void TearDown()
+    {
+        scheduler.syncTasks();
+        QCoreApplication::processEvents();
     }
 
 protected:
@@ -56,8 +64,9 @@ protected:
     NiceMock<MockSymbolsCollectorManager> mockSymbolsCollectorManager;
     NiceMock<MockSymbolsCollector> mockSymbolsCollector;
     MockSymbolStorage mockSymbolStorage;
-    ClangBackEnd::SymbolIndexerTaskScheduler scheduler{mockSymbolsCollectorManager, mockSymbolStorage, 4};
-    ClangBackEnd::SymbolIndexerTaskScheduler deferedScheduler{mockSymbolsCollectorManager, mockSymbolStorage, 4, std::launch::deferred};
+    NiceMock<MockSymbolIndexerTaskQueue> mockSymbolIndexerTaskQueue;
+    ClangBackEnd::SymbolIndexerTaskScheduler scheduler{mockSymbolsCollectorManager, mockSymbolStorage, mockSymbolIndexerTaskQueue, 4};
+    ClangBackEnd::SymbolIndexerTaskScheduler deferedScheduler{mockSymbolsCollectorManager, mockSymbolStorage, mockSymbolIndexerTaskQueue, 4, std::launch::deferred};
 };
 
 TEST_F(SymbolIndexerTaskScheduler, AddTasks)
@@ -125,6 +134,13 @@ TEST_F(SymbolIndexerTaskScheduler, FreeSlotsCallSymbolsCollectorSetIsUnused)
 TEST_F(SymbolIndexerTaskScheduler, AddTaskCallSymbolsCollectorManagerUnusedSymbolsCollector)
 {
     EXPECT_CALL(mockSymbolsCollectorManager, unusedSymbolsCollector()).Times(2);
+
+    scheduler.addTasks({nocall, nocall});
+}
+
+TEST_F(SymbolIndexerTaskScheduler, CallProcessTasksInQueueAfterFinishedTasks)
+{
+    EXPECT_CALL(mockSymbolIndexerTaskQueue, processTasks()).Times(2);
 
     scheduler.addTasks({nocall, nocall});
 }

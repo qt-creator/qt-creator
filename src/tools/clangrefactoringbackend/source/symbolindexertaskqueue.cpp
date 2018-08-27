@@ -131,4 +131,9 @@ std::vector<std::size_t> SymbolIndexerTaskQueue::projectPartNumberIds(const Util
     return ids;
 }
 
+void SymbolIndexerTaskQueue::processTasks()
+{
+
+}
+
 } // namespace ClangBackEnd

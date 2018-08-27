@@ -26,7 +26,8 @@ HEADERS += \
     $$PWD/sourcesmanager.h \
     $$PWD/symbolindexertaskqueue.h \
     $$PWD/symbolindexertaskscheduler.h \
-    $$PWD/symbolscollectormanagerinterface.h
+    $$PWD/symbolscollectormanagerinterface.h \
+    $$PWD/symbolindexertaskqueueinterface.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
