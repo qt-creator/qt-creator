@@ -225,7 +225,7 @@ FlatProjectsMode=false
 FlatMenuBar=false
 ToolBarIconShadow=false
 WindowColorAsBase=false
-DarkUserInteface=false
+DarkUserInterface=false
 
 [Gradients]
 DetailsWidgetHeaderGradient\1\color=00000000

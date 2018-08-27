@@ -76,7 +76,7 @@ void setCreatorTheme(Theme *theme)
 #ifdef Q_OS_MACOS
     // Match the native UI theme and palette with the creator
     // theme by forcing light aqua for light creator themes.
-    if (!theme->flag(Theme::DarkUserInteface))
+    if (!theme->flag(Theme::DarkUserInterface))
         Internal::forceMacOSLightAquaApperance();
 #endif
 
