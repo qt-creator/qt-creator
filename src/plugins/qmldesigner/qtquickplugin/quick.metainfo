@@ -112,6 +112,22 @@ MetaInfo {
     }
 
     Type {
+        name: "QtQuick.AnimatedImage"
+        icon: ":/qtquickplugin/images/image-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Animated Image"
+            category: "Qt Quick - Basic"
+            libraryIcon: ":/qtquickplugin/images/image-icon.png"
+            version: "2.0"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+            Property { name: "source"; type: "QUrl"; value:"qrc:/qtquickplugin/images/template_image.png"; }
+        }
+    }
+
+    Type {
         name: "QtQuick.BorderImage"
         icon: ":/qtquickplugin/images/border-image-icon16.png"
 
