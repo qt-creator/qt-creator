@@ -952,21 +952,24 @@ RunControl::RunControl(RunConfiguration *runConfiguration, Core::Id mode) :
     d(std::make_unique<RunControlPrivate>(this, runConfiguration, mode))
 {
 #ifdef WITH_JOURNALD
-    JournaldWatcher::instance()->subscribe(this, [this](const JournaldWatcher::LogEntry &entry) {
-        if (entry.value("_MACHINE_ID") != JournaldWatcher::instance()->machineId())
-            return;
+    if (!device().isNull() && device()->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        JournaldWatcher::instance()->subscribe(this, [this](const JournaldWatcher::LogEntry &entry) {
 
-        const QByteArray pid = entry.value("_PID");
-        if (pid.isEmpty())
-            return;
+            if (entry.value("_MACHINE_ID") != JournaldWatcher::instance()->machineId())
+                return;
 
-        const qint64 pidNum = static_cast<qint64>(QString::fromLatin1(pid).toInt());
-        if (pidNum != d->applicationProcessHandle.pid())
-            return;
+            const QByteArray pid = entry.value("_PID");
+            if (pid.isEmpty())
+                return;
 
-        const QString message = QString::fromUtf8(entry.value("MESSAGE")) + "\n";
-        appendMessageRequested(this, message, Utils::OutputFormat::LogMessageFormat);
-    });
+            const qint64 pidNum = static_cast<qint64>(QString::fromLatin1(pid).toInt());
+            if (pidNum != d->applicationProcessHandle.pid())
+                return;
+
+            const QString message = QString::fromUtf8(entry.value("MESSAGE")) + "\n";
+            appendMessageRequested(this, message, Utils::OutputFormat::LogMessageFormat);
+        });
+    }
 #endif
 }
 
