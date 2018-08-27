@@ -93,9 +93,6 @@ const char COMMIT[] = "Fossil.Action.Commit";
 const char CONFIGURE_REPOSITORY[] = "Fossil.Action.Settings";
 const char CREATE_REPOSITORY[] = "Fossil.Action.CreateRepository";
 
-//submit editor actions
-const char DIFFEDITOR[] = "Fossil.Action.Editor.Diff";
-
 // File status hint
 const char FSTATUS_ADDED[] = "Added";
 const char FSTATUS_ADDED_BY_MERGE[] = "Added by Merge";

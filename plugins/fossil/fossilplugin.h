@@ -91,13 +91,12 @@ private:
     void configureRepository();
     void commit();
     void showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status);
-    void commitFromEditor();
+    void commitFromEditor() override;
     void diffFromEditorSelected(const QStringList &files);
     void createRepository();
 
     // Methods
     void createMenu(const Core::Context &context);
-    void createSubmitEditorActions();
     void createFileActions(const Core::Context &context);
     void createDirectoryActions(const Core::Context &context);
     void createRepositoryActions(const Core::Context &context);
@@ -124,10 +123,6 @@ private:
     QAction *m_createRepositoryAction = nullptr;
 
     // Submit editor actions
-    QAction *m_editorCommit = nullptr;
-    QAction *m_editorDiff = nullptr;
-    QAction *m_editorUndo = nullptr;
-    QAction *m_editorRedo = nullptr;
     QAction *m_menuAction = nullptr;
 
     QString m_submitRepository;

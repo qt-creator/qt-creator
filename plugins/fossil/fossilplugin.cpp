@@ -149,8 +149,6 @@ bool FossilPlugin::initialize(const QStringList &arguments, QString *errorMessag
 
     createMenu(context);
 
-    createSubmitEditorActions();
-
     Core::HelpManager::registerDocumentation({Core::ICore::documentationPath()
                                               + "/fossil.qch"});
 
@@ -529,26 +527,6 @@ void FossilPlugin::configureRepository()
     m_client->synchronousConfigureRepository(state.topLevel(), newSettings, currentSettings);
 }
 
-void FossilPlugin::createSubmitEditorActions()
-{
-    Core::Context context(Constants::COMMIT_ID);
-    Core::Command *command;
-
-    m_editorCommit = new QAction(VcsBase::VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
-    command = Core::ActionManager::registerAction(m_editorCommit, Constants::COMMIT, context);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(m_editorCommit, &QAction::triggered, this, &FossilPlugin::commitFromEditor);
-
-    m_editorDiff = new QAction(VcsBase::VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
-    command = Core::ActionManager::registerAction(m_editorDiff, Constants::DIFFEDITOR, context);
-
-    m_editorUndo = new QAction(tr("&Undo"), this);
-    command = Core::ActionManager::registerAction(m_editorUndo, Core::Constants::UNDO, context);
-
-    m_editorRedo = new QAction(tr("&Redo"), this);
-    command = Core::ActionManager::registerAction(m_editorRedo, Core::Constants::REDO, context);
-}
-
 void FossilPlugin::commit()
 {
     if (!promptBeforeCommit())
@@ -615,7 +593,6 @@ void FossilPlugin::showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusIt
     tags.removeAll(currentBranch.name());
     commitEditor->setFields(m_submitRepository, currentBranch, tags, currentUser, status);
 
-    commitEditor->registerActions(m_editorUndo, m_editorRedo, m_editorCommit, m_editorDiff);
     connect(commitEditor, &VcsBase::VcsBaseSubmitEditor::diffSelectedFiles,
             this, &FossilPlugin::diffFromEditorSelected);
     commitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
