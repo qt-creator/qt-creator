@@ -74,8 +74,6 @@ public:
     // Register the actions with the submit editor widget.
     void registerActions(QAction *editorUndoAction,  QAction *editorRedoAction,
                          QAction *submitAction = nullptr, QAction *diffAction = nullptr);
-    void unregisterActions(QAction *editorUndoAction,  QAction *editorRedoAction,
-                           QAction *submitAction = nullptr, QAction *diffAction = nullptr);
 
     ~VcsBaseSubmitEditor() override;
 

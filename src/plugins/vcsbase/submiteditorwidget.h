@@ -60,8 +60,6 @@ public:
     // be updated.
     void registerActions(QAction *editorUndoAction,  QAction *editorRedoAction,
                          QAction *submitAction = nullptr, QAction *diffAction = nullptr);
-    void unregisterActions(QAction *editorUndoAction,  QAction *editorRedoAction,
-                           QAction *submitAction = nullptr, QAction *diffAction = nullptr);
 
     QString descriptionText() const;
     void setDescriptionText(const QString &text);

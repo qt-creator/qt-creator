@@ -250,37 +250,6 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction, QAction *edi
     }
 }
 
-void SubmitEditorWidget::unregisterActions(QAction *editorUndoAction,  QAction *editorRedoAction,
-                                           QAction *submitAction, QAction *diffAction)
-{
-    if (editorUndoAction) {
-        disconnect(d->m_ui.description, &CompletingTextEdit::undoAvailable,
-                   editorUndoAction, &QAction::setEnabled);
-        disconnect(editorUndoAction, &QAction::triggered,
-                   d->m_ui.description, &CompletingTextEdit::undo);
-    }
-    if (editorRedoAction) {
-        disconnect(d->m_ui.description, &CompletingTextEdit::redoAvailable,
-                   editorRedoAction, &QAction::setEnabled);
-        disconnect(editorRedoAction, &QAction::triggered,
-                   d->m_ui.description, &CompletingTextEdit::redo);
-    }
-
-    if (submitAction) {
-        disconnect(this, &SubmitEditorWidget::submitActionEnabledChanged,
-                   submitAction, &QAction::setEnabled);
-        // Just deactivate the QActionSetTextSlotHelper on the action
-        disconnect(this, &SubmitEditorWidget::submitActionTextChanged, 0, 0);
-    }
-
-    if (diffAction) {
-         disconnect(this, &SubmitEditorWidget::fileSelectionChanged,
-                    diffAction, &QAction::setEnabled);
-         disconnect(diffAction, &QAction::triggered,
-                    this, &SubmitEditorWidget::triggerDiffSelected);
-    }
-}
-
 // Make sure we have one terminating NL. Do not trim front as leading space might be
 // required for some formattings.
 void SubmitEditorWidget::trimDescription()

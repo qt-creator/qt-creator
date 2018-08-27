@@ -310,13 +310,6 @@ void VcsBaseSubmitEditor::registerActions(QAction *editorUndoAction, QAction *ed
     d->m_submitAction = submitAction;
 }
 
-void VcsBaseSubmitEditor::unregisterActions(QAction *editorUndoAction,  QAction *editorRedoAction,
-                           QAction *submitAction, QAction *diffAction)
-{
-    d->m_widget->unregisterActions(editorUndoAction, editorRedoAction, submitAction, diffAction);
-    d->m_diffAction = d->m_submitAction = 0;
-}
-
 QAbstractItemView::SelectionMode VcsBaseSubmitEditor::fileListSelectionMode() const
 {
     return d->m_widget->fileListSelectionMode();
