@@ -43,7 +43,10 @@ public:
 private:
     QSet<QString> annotationChanges() const final;
     QString changeUnderCursor(const QTextCursor &cursor) const final;
-    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const final;
+    QString decorateVersion(const QString &revision) const final;
+    QStringList annotationPreviousVersions(const QString &revision) const final;
+    VcsBase::BaseAnnotationHighlighter *createAnnotationHighlighter(
+            const QSet<QString> &changes) const final;
 
     FossilEditorWidgetPrivate *d;
 };

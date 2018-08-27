@@ -48,11 +48,13 @@ public:
         TimelineWidthFeature = 0x4,
         DiffIgnoreWhiteSpaceFeature = 0x8,
         TimelinePathFeature = 0x10,
+        AnnotateRevisionFeature = 0x20,
         AllSupportedFeatures =  // | all defined features
             AnnotateBlameFeature
             | TimelineWidthFeature
             | DiffIgnoreWhiteSpaceFeature
             | TimelinePathFeature
+            | AnnotateRevisionFeature
     };
     Q_DECLARE_FLAGS(SupportedFeatures, SupportedFeature)
 
@@ -64,7 +66,8 @@ public:
     unsigned int synchronousBinaryVersion() const;
     BranchInfo synchronousCurrentBranch(const QString &workingDirectory);
     QList<BranchInfo> synchronousBranchQuery(const QString &workingDirectory);
-    RevisionInfo synchronousRevisionQuery(const QString &workingDirectory, const QString &id = QString());
+    RevisionInfo synchronousRevisionQuery(const QString &workingDirectory, const QString &id = QString(),
+                                          bool getCommentMsg = false) const;
     QStringList synchronousTagQuery(const QString &workingDirectory, const QString &id = QString());
     RepositorySettings synchronousSettingsQuery(const QString &workingDirectory);
     bool synchronousSetSetting(const QString &workingDirectory, const QString &property,
@@ -113,6 +116,7 @@ public:
 
 private:
     static QList<BranchInfo> branchListFromOutput(const QString &output, const BranchInfo::BranchFlags defaultFlags = 0);
+    static QStringList parseRevisionCommentLine(const QString &commentLine);
 
     QString sanitizeFossilOutput(const QString &output) const;
     QString vcsCommandString(VcsCommandTag cmd) const final;

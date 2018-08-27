@@ -99,7 +99,7 @@ public:
         // This way the annotated line number would not get offset by the version list.
         settings.setValue(FossilSettings::annotateListVersionsKey, false);
 
-        mapSetting(addToggleButton(QLatin1String("--log"), tr("List Versions")),
+        mapSetting(addToggleButton("--log", tr("List Versions")),
                    settings.boolPointer(FossilSettings::annotateListVersionsKey));
     }
 };
@@ -342,7 +342,23 @@ QList<BranchInfo> FossilClient::synchronousBranchQuery(const QString &workingDir
     return branches;
 }
 
-RevisionInfo FossilClient::synchronousRevisionQuery(const QString &workingDirectory, const QString &id)
+QStringList FossilClient::parseRevisionCommentLine(const QString &commentLine)
+{
+    // "comment:      This is a (test) commit message (user: the.name)"
+
+    const QRegularExpression commentRx("^comment:\\s+(.*)\\s\\(user:\\s(.*)\\)$",
+                                       QRegularExpression::CaseInsensitiveOption);
+    QTC_ASSERT(commentRx.isValid(), return QStringList());
+
+    const QRegularExpressionMatch match = commentRx.match(commentLine);
+    if (!match.hasMatch())
+        return QStringList();
+
+    return QStringList({match.captured(1), match.captured(2)});
+}
+
+RevisionInfo FossilClient::synchronousRevisionQuery(const QString &workingDirectory, const QString &id,
+                                                    bool getCommentMsg) const
 {
     // Query details of the given revision/check-out id,
     // if none specified, provide information about current revision
@@ -361,6 +377,9 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const QString &workingDirect
 
     QString revisionId;
     QString parentId;
+    QStringList mergeParentIds;
+    QString commentMsg;
+    QString committer;
 
     const QRegularExpression idRx("([0-9a-f]{5,40})");
     QTC_ASSERT(idRx.isValid(), return RevisionInfo());
@@ -376,6 +395,15 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const QString &workingDirect
             const QRegularExpressionMatch idMatch = idRx.match(l);
             if (idMatch.hasMatch())
                 parentId = idMatch.captured(1);
+        } else if (l.startsWith("merged-from: ", Qt::CaseInsensitive)) {
+            const QRegularExpressionMatch idMatch = idRx.match(l);
+            if (idMatch.hasMatch())
+                mergeParentIds.append(idMatch.captured(1));
+        } else if (getCommentMsg
+                   && l.startsWith("comment: ", Qt::CaseInsensitive)) {
+            const QStringList commentLineParts = parseRevisionCommentLine(l);
+            commentMsg = commentLineParts.value(0);
+            committer = commentLineParts.value(1);
         }
     }
 
@@ -385,7 +413,7 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const QString &workingDirect
     if (parentId.isEmpty())
         parentId = revisionId;  // root
 
-    return RevisionInfo(revisionId, parentId);
+    return RevisionInfo(revisionId, parentId, mergeParentIds, commentMsg, committer);
 }
 
 QStringList FossilClient::synchronousTagQuery(const QString &workingDirectory, const QString &id)
@@ -452,8 +480,7 @@ RepositorySettings FossilClient::synchronousSettingsQuery(const QString &working
                      || lcValue == "2")
                 repoSettings.autosync = RepositorySettings::AutosyncPullOnly;
         }
-
-        if (property == "ssl-identity") {
+        else if (property == "ssl-identity") {
             repoSettings.sslIdentityFile = value;
         }
     }
@@ -582,6 +609,7 @@ QString FossilClient::synchronousTopic(const QString &workingDirectory)
         return QString();
 
     // return current branch name
+
     const BranchInfo branchInfo = synchronousCurrentBranch(workingDirectory);
     if (branchInfo.name().isEmpty())
         return QString();
@@ -726,20 +754,13 @@ VcsBase::VcsBaseEditorWidget *FossilClient::annotate(
 
     QString vcsCmdString = vcsCommandString(AnnotateCommand);
     const Core::Id kind = vcsEditorKind(AnnotateCommand);
-    const QString id = VcsBase::VcsBaseEditor::getSource(workingDir, QStringList(file));
+    const QString id = VcsBase::VcsBaseEditor::getTitleId(workingDir, QStringList(file), revision);
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const QString source = VcsBase::VcsBaseEditor::getSource(workingDir, file);
 
     VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
                                                   VcsBase::VcsBaseEditor::getCodec(source),
                                                   vcsCmdString.toLatin1().constData(), id);
-
-    // We need to be able to re-query the configuration widget for the arguments
-    // each time the Annotate is requested from the main menu. This allows processing of
-    // the effective args controlled via configuration widget.
-    // However VcsBaseEditorWidget no longer stores the configuration widget and thus
-    // does not support configurationWidget() query.
-    // So we re-implement the configurationWidget() in FossilEditorWidget sub-class.
 
     auto *fossilEditor = qobject_cast<FossilEditorWidget *>(editor);
     QTC_ASSERT(fossilEditor, return editor);
@@ -769,7 +790,11 @@ VcsBase::VcsBaseEditorWidget *FossilClient::annotate(
         effectiveArgs.removeAt(pos);
     }
     QStringList args(vcsCmdString);
-    args << revisionSpec(revision) << effectiveArgs << file;
+    if (!revision.isEmpty()
+        && supportedFeatures().testFlag(AnnotateRevisionFeature))
+        args << "-r" << revision;
+
+    args << effectiveArgs << file;
 
     // When version list requested, ignore the source line.
     if (args.contains("--log"))
@@ -805,7 +830,7 @@ bool FossilClient::managesFile(const QString &workingDirectory, const QString &f
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return false;
     QString output = sanitizeFossilOutput(response.stdOut());
-    return !output.startsWith("no history for file");
+    return !output.startsWith("no history for file", Qt::CaseInsensitive);
 }
 
 unsigned int FossilClient::binaryVersion() const
@@ -851,8 +876,10 @@ FossilClient::SupportedFeatures FossilClient::supportedFeatures() const
 
     const unsigned int version = binaryVersion();
 
-    if (version < 0x13000) {
-        features &= ~TimelinePathFeature;
+    if (version < 0x20400) {
+        features &= ~AnnotateRevisionFeature;
+        if (version < 0x13000)
+            features &= ~TimelinePathFeature;
         if (version < 0x12900)
             features &= ~DiffIgnoreWhiteSpaceFeature;
         if (version < 0x12800) {
@@ -860,6 +887,7 @@ FossilClient::SupportedFeatures FossilClient::supportedFeatures() const
             features &= ~TimelineWidthFeature;
         }
     }
+
     return features;
 }
 
