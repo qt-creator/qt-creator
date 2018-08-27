@@ -333,9 +333,10 @@ void EngineManagerPrivate::activateEngineItem(EngineItem *engineItem)
 
 void EngineManagerPrivate::selectUiForCurrentEngine()
 {
-    if (!Perspective::currentPerspective()->id().startsWith("Debugger.Perspective."))
+    Perspective *perspective = Perspective::currentPerspective();
+    if (perspective && !perspective->id().startsWith("Debugger.Perspective."))
         return;
-    Perspective *perspective = nullptr;
+    perspective = nullptr;
     int row = 0;
 
     if (m_currentItem && m_currentItem->m_engine) {
