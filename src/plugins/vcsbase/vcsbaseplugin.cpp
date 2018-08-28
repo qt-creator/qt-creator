@@ -643,12 +643,13 @@ bool VcsBasePlugin::enableMenuAction(ActionState as, QAction *menuAction) const
 
 QString VcsBasePlugin::commitDisplayName() const
 {
-    return tr("commit", "name of \"commit\" action of the VCS.");
+    return tr("Commit", "name of \"commit\" action of the VCS.");
 }
 
 bool VcsBasePlugin::promptBeforeCommit()
 {
-    return DocumentManager::saveAllModifiedDocuments(tr("Save before %1?").arg(commitDisplayName()));
+    return DocumentManager::saveAllModifiedDocuments(tr("Save before %1?")
+                                                     .arg(commitDisplayName().toLower()));
 }
 
 void VcsBasePlugin::promptToDeleteCurrentFile()

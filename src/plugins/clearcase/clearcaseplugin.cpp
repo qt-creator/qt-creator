@@ -838,7 +838,7 @@ void ClearCasePlugin::updateActions(VcsBasePlugin::ActionState as)
 
 QString ClearCasePlugin::commitDisplayName() const
 {
-    return tr("check in", "\"commit\" action for ClearCase.");
+    return tr("Check In");
 }
 
 void ClearCasePlugin::checkOutCurrentFile()

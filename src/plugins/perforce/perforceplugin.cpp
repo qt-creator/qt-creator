@@ -1228,7 +1228,7 @@ void PerforceDiffConfig::triggerReRun()
 
 QString PerforcePlugin::commitDisplayName() const
 {
-    return tr("submit", "\"commit\" action for perforce");
+    return tr("Submit");
 }
 
 void PerforcePlugin::p4Diff(const QString &workingDir, const QStringList &files)
