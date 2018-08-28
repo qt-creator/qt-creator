@@ -145,7 +145,8 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
     setLayout(groupLayout);
 
     d->m_viewContainer = container;
-    d->m_modelProxy = new Timeline::TimelineModelAggregator(modelManager->notesModel(), this);
+    d->m_modelProxy = new Timeline::TimelineModelAggregator(this);
+    d->m_modelProxy->setNotes(modelManager->notesModel());
     d->m_modelManager = modelManager;
 
     QVariantList models;

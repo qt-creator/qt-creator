@@ -35,9 +35,9 @@ class TRACING_EXPORT TimelineModelAggregator : public QObject
     Q_OBJECT
     Q_PROPERTY(int height READ height NOTIFY heightChanged)
     Q_PROPERTY(QVariantList models READ models WRITE setModels NOTIFY modelsChanged)
-    Q_PROPERTY(Timeline::TimelineNotesModel *notes READ notes CONSTANT)
+    Q_PROPERTY(Timeline::TimelineNotesModel *notes READ notes WRITE setNotes NOTIFY notesChanged)
 public:
-    TimelineModelAggregator(TimelineNotesModel *notes = nullptr, QObject *parent = nullptr);
+    TimelineModelAggregator(QObject *parent = nullptr);
     ~TimelineModelAggregator() override;
 
     int height() const;
@@ -50,6 +50,8 @@ public:
     void setModels(const QVariantList &models);
 
     TimelineNotesModel *notes() const;
+    void setNotes(TimelineNotesModel *notes);
+
     void clear();
     int modelCount() const;
     int modelIndexById(int modelId) const;
@@ -62,6 +64,7 @@ public:
 signals:
     void modelsChanged();
     void heightChanged();
+    void notesChanged();
     void updateCursorPosition();
 
 private:
