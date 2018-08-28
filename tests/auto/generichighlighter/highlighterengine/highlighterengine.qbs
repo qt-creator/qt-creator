@@ -38,7 +38,6 @@ QtcAutotest {
         ]
     }
 
-    cpp.defines: base.concat(["TEXTEDITOR_LIBRARY"]) // For Windows
     cpp.includePaths: base.concat([
         path,
         project.genericHighlighterDir + "/../..",
