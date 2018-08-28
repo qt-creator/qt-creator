@@ -65,9 +65,12 @@
     A keyboard shortcut might also conflict with a shortcut that a Window
     manager uses for its own purposes. In that case, \QC shortcuts do not work.
     Typically, you can configure the shortcuts in the window manager, but if
-    that is not allowed, you can change the \QC shortcuts. For example, Unity on
+    that is not allowed, you can change the \QC shortcuts.
+    \if defined(qtcreator)
+    For example, Unity on
     Ubuntu 11.10 uses \key F10 in its window manager, and therefore the default
     \QC keyboard shortcut \key F10 (Step Over) does not work on that system.
+    \endif
 
     \section1 Configuring Keyboard Shortcuts
 
@@ -224,9 +227,11 @@
             \li  Alt+number (Cmd+number on \macos)
 
             Where the number is the number of the output pane.
+        \if defined(qtcreator)
         \row
             \li  Activate \uicontrol Bookmarks pane
             \li  Alt+M
+        \endif
         \row
             \li  Activate \uicontrol{File System} pane
             \li  Alt+Y
@@ -401,6 +406,7 @@
         \row
             \li  Preview
             \li  Alt+Shift+R
+        \if defined(qtcreator)
         \row
             \li  Edit signals and slots
             \li  F4
@@ -419,6 +425,7 @@
         \row
             \li  Paste snippet
             \li  Alt+C, Alt+P
+        \endif
         \row
             \li  Find usages
             \li  Ctrl+Shift+U
@@ -437,9 +444,11 @@
         \row
             \li  Open type hierarchy
             \li  Ctrl+Shift+T
+            \if defined(qtcreator)
         \row
             \li  Switch between header and source file
             \li  F4
+        \endif
         \row
             \li  Turn selected text into lowercase
             \li  Alt+U
@@ -470,6 +479,7 @@
         \row
             \li  Open advanced find
             \li  Ctrl+Shift+F
+        \if defined(qtcreator)
         \row
             \li  Record a text-editing macro
             \li  Alt+(
@@ -485,8 +495,10 @@
         \row
             \li  Execute user actions in FakeVim mode
             \li  Alt+V, n, where n is the number of the user action, from 1 to 9
+        \endif
     \endtable
 
+    \if defined(qtcreator)
     \section3 Emacs Shortcuts
 
     You can specify shortcuts for executing actions in a way that is familiar to
@@ -543,6 +555,7 @@
             \li  Original size
             \li  Ctrl+0
     \endtable
+    \endif
 
     \section2 Design Mode Keyboard Shortcuts
 
@@ -609,12 +622,14 @@
         \header
             \li  Action
             \li  Keyboard shortcut
+        \if defined(qtcreator)
         \row
             \li  Build project
             \li  Ctrl+B
         \row
             \li  Build all
             \li  Ctrl+Shift+B
+        \endif
         \row
             \li  New project
             \li  Ctrl+Shift+N
@@ -657,6 +672,7 @@
 
     \section2 Version Control Keyboard Shortcuts
 
+    \if defined(qtcreator)
     \table
         \header
             \li  {1,2} Action
@@ -757,4 +773,35 @@
             \li  Alt+P, Alt+O
             \li
     \endtable
+    \else
+    \table
+        \header
+            \li Action
+            \li Keyboard shortcut
+        \row
+            \li Stage file for commit
+            \li Alt+G, Alt+A
+        \row
+            \li Commit
+            \li Alt+G, Alt+C
+        \row
+            \li Diff current file
+            \li Alt+G, Alt+D
+        \row
+            \li Diff project
+            \li Alt+G, Alt+Shift+D
+        \row
+            \li Blame
+            \li Alt+G, Alt+B
+        \row
+            \li Log current file
+            \li Alt+G, Alt+L
+        \row
+            \li Log project
+            \li Alt+G, Alt+K
+        \row
+            \li Reset
+            \li Alt+G, Alt+U
+    \endtable
+    \endif
 */
