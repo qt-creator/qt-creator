@@ -290,6 +290,13 @@ TEST_F(ClangCompletionContextAnalyzer, WhitespaceBeforeConstructorCallWithBraceI
     ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClangAfterLeftParen, 0, 0, positionInText));
 }
 
+TEST_F(ClangCompletionContextAnalyzer, OpenFunctionScopeNotAConstructor)
+{
+    auto analyzer = runAnalyzer("foo() {@");
+
+    ASSERT_THAT(analyzer, HasResult(CCA::PassThroughToLibClang, 0, 0, positionInText));
+}
+
 TEST_F(ClangCompletionContextAnalyzer, AfterOpeningParenthesis)
 {
     auto analyzer = runAnalyzer("(@");

@@ -190,8 +190,22 @@ IAssistProposal *ClangCompletionAssistProcessor::perform(const AssistInterface *
 static CodeCompletions filterFunctionSignatures(const CodeCompletions &completions)
 {
     return ::Utils::filtered(completions, [](const CodeCompletion &completion) {
-        return completion.completionKind == CodeCompletion::FunctionOverloadCompletionKind
-                || completion.completionKind == CodeCompletion::ConstructorCompletionKind;
+        return completion.completionKind == CodeCompletion::FunctionOverloadCompletionKind;
+    });
+}
+
+static CodeCompletions filterConstructorSignatures(Utf8String textBefore,
+                                                   const CodeCompletions &completions)
+{
+    const int prevStatementEnd = textBefore.lastIndexOf(";");
+    if (prevStatementEnd != -1)
+        textBefore = textBefore.mid(prevStatementEnd + 1);
+
+    return ::Utils::filtered(completions, [&textBefore](const CodeCompletion &completion) {
+        if (completion.completionKind != CodeCompletion::ConstructorCompletionKind)
+            return false;
+        const Utf8String type = completion.chunks.at(0).text;
+        return textBefore.indexOf(type) != -1;
     });
 }
 
@@ -201,7 +215,18 @@ void ClangCompletionAssistProcessor::handleAvailableCompletions(
     QTC_CHECK(m_completions.isEmpty());
 
     if (m_sentRequestType == FunctionHintCompletion){
-        const CodeCompletions functionSignatures = filterFunctionSignatures(completions);
+        CodeCompletions functionSignatures;
+        if (m_completionOperator == T_LPAREN) {
+            functionSignatures = filterFunctionSignatures(completions);
+        } else {
+            const QTextBlock block = m_interface->textDocument()->findBlock(
+                        m_interface->position());
+            const QString textBefore = block.text().left(
+                        m_interface->position() - block.position());
+
+            functionSignatures = filterConstructorSignatures(textBefore, completions);
+        }
+
         if (!functionSignatures.isEmpty()) {
             setAsyncProposalAvailable(createFunctionHintProposal(functionSignatures));
             return;

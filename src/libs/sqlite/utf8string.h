@@ -131,6 +131,16 @@ public:
         return byteArray.indexOf(text);
     }
 
+    int lastIndexOf(const Utf8String &text) const
+    {
+        return byteArray.lastIndexOf(text.byteArray);
+    }
+
+    int lastIndexOf(const char *text) const
+    {
+        return byteArray.lastIndexOf(text);
+    }
+
     int indexOf(char character) const
     {
         return byteArray.indexOf(character);

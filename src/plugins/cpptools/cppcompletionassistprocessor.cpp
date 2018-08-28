@@ -68,6 +68,22 @@ static bool isDoxygenTagCompletionCharacter(const QChar &character)
         || character == QLatin1Char('@') ;
 }
 
+static bool twoIndentifiersBeforeLBrace(const Tokens &tokens, int tokenIdx)
+{
+    const Token &previousToken = tokens.at(tokenIdx - 1);
+    if (previousToken.kind() != T_IDENTIFIER)
+        return false;
+    for (int index = tokenIdx - 2; index >= 0; index -= 2) {
+        const Token &token = tokens.at(index);
+        if (token.kind() == T_IDENTIFIER)
+            return true;
+
+        if (token.kind() != T_COLON_COLON)
+            return false;
+    }
+    return false;
+}
+
 void CppCompletionAssistProcessor::startOfOperator(QTextDocument *textDocument,
         int positionInDocument,
         unsigned *kind,
@@ -145,6 +161,11 @@ void CppCompletionAssistProcessor::startOfOperator(QTextDocument *textDocument,
                     *kind = T_EOF_SYMBOL;
                     start = positionInDocument;
                 }
+            }
+        } else if (*kind == T_LBRACE) {
+            if (tokenIdx > 0 && !twoIndentifiersBeforeLBrace(tokens, tokenIdx)) {
+                *kind = T_EOF_SYMBOL;
+                start = positionInDocument;
             }
         }
         // Check for include preprocessor directive
