@@ -39,9 +39,13 @@
     You can specify indentation for:
 
     \list
+        \if defined(qtcreator)
         \li C++ files
+        \endif
         \li QML files
+        \if defined(qtcreator)
         \li Nim files
+        \endif
         \li Other text files
     \endlist
 
@@ -49,6 +53,7 @@
     specify several sets of code style settings and easily switch between them.
     In addition, you can import and export code style settings.
 
+    \if defined(qtcreator)
     \section1 Indenting C++ Files
 
     To specify indentation settings for the C++ editor:
@@ -81,6 +86,7 @@
 
     To specify different settings for a particular project, select
     \uicontrol Projects > \uicontrol {Code Style Settings}.
+    \endif
 
     \section1 Indenting QML Files
 
@@ -103,6 +109,7 @@
     To specify different settings for a particular project, select
     \uicontrol Projects > \uicontrol {Code Style Settings}.
 
+    \if defined(qtcreator)
     \section1 Indenting Nim Files
 
     To specify settings for the Nim editor (experimental):
@@ -122,6 +129,7 @@
 
     To specify different settings for a particular project, select
     \uicontrol Projects > \uicontrol {Code Style}.
+    \endif
 
     \section1 Indenting Other Text Files
 
@@ -142,10 +150,14 @@
     You can specify tab settings at the following levels:
 
     \list
+        \if defined(qtcreator)
         \li For all C++ files
+        \endif
         \li For all QML files
         \li For all other text files
+        \if defined(qtcreator)
         \li For C++ files in a project
+        \endif
         \li For QML files in a project
         \li For other text files in a project
     \endlist
@@ -168,11 +180,14 @@
     select \uicontrol {With Spaces}. To follow the \uicontrol {Tab policy},
     select \uicontrol {With Regular Indent}.
 
-    \section2 Specifying Typing Options
+    \section1 Specifying Typing Options
 
     When you type text or code, it is indented automatically according to the
-    selected text editor or code style options. Specify typing options in the
-    \uicontrol Typing group. To disable automatic indentation, deselect the
+    selected text editor or code style options. To specify typing options,
+    select \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol Behavior > \uicontrol Typing.
+
+    To disable automatic indentation,  deselect the
     \uicontrol {Enable automatic indentation} check box.
 
     You can specify how the indentation is decreased when you press
@@ -189,6 +204,7 @@
     the cursor is located within leading white space, select \uicontrol {In
     Leading White Space}.
 
+    \if defined(qtcreator)
     \section1 Specifying Settings for Content
 
     You can indent public, protected, and private statements and declarations
@@ -244,4 +260,5 @@
     \uicontrol {Getter and Setter} tab.
 
     \image qtcreator-code-style-getter-setter.png
+    \endif
 */
