@@ -173,7 +173,7 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
     FilePathCaching filePathCache{database};
-    ClangBackEnd::SymbolsCollector collector{filePathCache};
+    ClangBackEnd::SymbolsCollector collector{database};
 };
 
 TEST_F(SymbolsCollector, CollectSymbolName)

@@ -29,6 +29,7 @@
 #include "mocksymbolscollectormanager.h"
 #include "mocksymbolscollector.h"
 #include "mocksymbolstorage.h"
+#include "mocksqlitetransactionbackend.h"
 
 #include <symbolindexertaskscheduler.h>
 
@@ -55,18 +56,27 @@ protected:
 protected:
     MockFunction<void()> mock;
     ClangBackEnd::SymbolIndexerTaskScheduler::Task call{
-        [&] (SymbolsCollectorInterface &symbolsCollector,
-                SymbolStorageInterface &symbolStorage) {
+        [&] (SymbolsCollectorInterface &, SymbolStorageInterface &, Sqlite::TransactionInterface &) {
             mock.Call(); }};
     ClangBackEnd::SymbolIndexerTaskScheduler::Task nocall{
-        [&] (SymbolsCollectorInterface &symbolsCollector,
-                SymbolStorageInterface &symbolStorage) {}};
+        [&] (SymbolsCollectorInterface &, SymbolStorageInterface &, Sqlite::TransactionInterface &) {
+        }};
     NiceMock<MockSymbolsCollectorManager> mockSymbolsCollectorManager;
     NiceMock<MockSymbolsCollector> mockSymbolsCollector;
     MockSymbolStorage mockSymbolStorage;
     NiceMock<MockSymbolIndexerTaskQueue> mockSymbolIndexerTaskQueue;
-    ClangBackEnd::SymbolIndexerTaskScheduler scheduler{mockSymbolsCollectorManager, mockSymbolStorage, mockSymbolIndexerTaskQueue, 4};
-    ClangBackEnd::SymbolIndexerTaskScheduler deferedScheduler{mockSymbolsCollectorManager, mockSymbolStorage, mockSymbolIndexerTaskQueue, 4, std::launch::deferred};
+    MockSqliteTransactionBackend mockSqliteTransactionBackend;
+    ClangBackEnd::SymbolIndexerTaskScheduler scheduler{mockSymbolsCollectorManager,
+                mockSymbolStorage,
+                mockSqliteTransactionBackend,
+                mockSymbolIndexerTaskQueue,
+                4};
+    ClangBackEnd::SymbolIndexerTaskScheduler deferedScheduler{mockSymbolsCollectorManager,
+                mockSymbolStorage,
+                mockSqliteTransactionBackend,
+                mockSymbolIndexerTaskQueue,
+                4,
+                std::launch::deferred};
 };
 
 TEST_F(SymbolIndexerTaskScheduler, AddTasks)
@@ -123,10 +133,22 @@ TEST_F(SymbolIndexerTaskScheduler, NoFuturesAfterFreeSlots)
 
 TEST_F(SymbolIndexerTaskScheduler, FreeSlotsCallSymbolsCollectorSetIsUnused)
 {
+    InSequence s;
     scheduler.addTasks({nocall, nocall});
     scheduler.syncTasks();
 
     EXPECT_CALL(mockSymbolsCollector, setIsUsed(false)).Times(2);
+
+    scheduler.freeSlots();
+}
+
+TEST_F(SymbolIndexerTaskScheduler, FreeSlotsCallClearsSymbolsCollector)
+{
+    InSequence s;
+    scheduler.addTasks({nocall, nocall});
+    scheduler.syncTasks();
+
+    EXPECT_CALL(mockSymbolsCollector, clear()).Times(2);
 
     scheduler.freeSlots();
 }
@@ -140,8 +162,12 @@ TEST_F(SymbolIndexerTaskScheduler, AddTaskCallSymbolsCollectorManagerUnusedSymbo
 
 TEST_F(SymbolIndexerTaskScheduler, CallProcessTasksInQueueAfterFinishedTasks)
 {
-    EXPECT_CALL(mockSymbolIndexerTaskQueue, processTasks()).Times(2);
+    InSequence s;
 
-    scheduler.addTasks({nocall, nocall});
+    EXPECT_CALL(mock, Call());
+    EXPECT_CALL(mockSymbolIndexerTaskQueue, processTasks());
+
+    scheduler.addTasks({call});
+    scheduler.syncTasks();
 }
 }

@@ -97,7 +97,8 @@ SOURCES += \
     generatedfiles-test.cpp \
     sourcesmanager-test.cpp \
     symbolindexertaskqueue-test.cpp \
-    symbolindexertaskscheduler-test.cpp
+    symbolindexertaskscheduler-test.cpp \
+    symbolscollectormanager-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -174,7 +175,7 @@ SOURCES += \
     symbolindexing-test.cpp \
     symbolscollector-test.cpp \
     symbolfinder-test.cpp \
-    testclangtool.cpp \
+    testclangtool.cpp
 }
 
 exists($$GOOGLEBENCHMARK_DIR) {
@@ -235,7 +236,9 @@ HEADERS += \
     mockprecompiledheaderstorage.h \
     mockeditormanager.h \
     mocksymbolscollectormanager.h \
-    mocksymbolindexertaskqueue.h
+    mocksymbolindexertaskqueue.h \
+    mocksymbolindexertaskscheduler.h
+
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \
     chunksreportedmonitor.h \

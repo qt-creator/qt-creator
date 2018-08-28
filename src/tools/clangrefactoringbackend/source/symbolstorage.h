@@ -64,7 +64,7 @@ public:
         deleteNewLocationsTable();
     }
 
-    void insertOrUpdateProjectPart(Utils::SmallStringView projectPartName,
+    int insertOrUpdateProjectPart(Utils::SmallStringView projectPartName,
                                    const Utils::SmallStringVector &commandLineArguments,
                                    const CompilerMacros &compilerMacros,
                                    const Utils::SmallStringVector &includeSearchPaths) override
@@ -88,6 +88,8 @@ public:
                                   includeSearchPathsAsJason,
                                   projectPartName);
         }
+
+        return int(m_statementFactory.database.lastInsertedRowId());
     }
 
     Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(FilePathId sourceId) const override

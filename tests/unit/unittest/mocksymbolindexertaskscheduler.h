@@ -25,23 +25,20 @@
 
 #pragma once
 
-#include <vector>
+#include "googletest.h"
 
-namespace ClangBackEnd {
+#include <symbolindexertaskschedulerinterface.h>
 
-class SymbolsCollectorInterface;
-
-class SymbolsCollectorManagerInterface
+class MockSymbolIndexerTaskScheduler : public ClangBackEnd::SymbolIndexerTaskSchedulerInterface
 {
 public:
-    SymbolsCollectorManagerInterface() = default;
-    SymbolsCollectorManagerInterface(const SymbolsCollectorManagerInterface &) = delete;
-    SymbolsCollectorManagerInterface &operator=(const SymbolsCollectorManagerInterface &) = delete;
+    MOCK_METHOD1(addTasks,
+                 void (const std::vector<ClangBackEnd::SymbolIndexerTaskSchedulerInterface::Task> &));
+    MOCK_METHOD0(freeSlots,
+                 uint ());
 
-    virtual SymbolsCollectorInterface &unusedSymbolsCollector() = 0;
-
-protected:
-    ~SymbolsCollectorManagerInterface() = default;
+    void addTasks(std::vector<ClangBackEnd::SymbolIndexerTaskSchedulerInterface::Task> &&tasks) override
+    {
+        addTasks(tasks);
+    }
 };
-
-} // namespace ClangBackEnd

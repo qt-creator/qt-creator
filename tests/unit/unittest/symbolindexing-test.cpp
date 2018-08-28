@@ -96,6 +96,7 @@ protected:
 TEST_F(SymbolIndexing, Locations)
 {
     indexing.indexer().updateProjectParts({projectPart1}, {});
+    indexing.syncTasks();
 
     auto locations = query.locationsAt(filePathId(TESTDATA_DIR "/symbolindexing_main1.cpp"), 1, 6);
     ASSERT_THAT(locations,
@@ -108,6 +109,7 @@ TEST_F(SymbolIndexing, Locations)
 TEST_F(SymbolIndexing, DISABLED_TemplateFunction)
 {
     indexing.indexer().updateProjectParts({projectPart1}, {});
+    indexing.syncTasks();
 
     auto locations = query.locationsAt(filePathId(TESTDATA_DIR "/symbolindexing_main1.cpp"), 21, 24);
     ASSERT_THAT(locations,
@@ -122,6 +124,8 @@ TEST_F(SymbolIndexing, PathsAreUpdated)
 
     indexing.indexer().pathsChanged({filePathId(main1Path)});
     indexing.indexer().pathsChanged({filePathId(main1Path)});
+    indexing.syncTasks();
+
     auto locations = query.locationsAt(filePathId(TESTDATA_DIR "/symbolindexing_main1.cpp"), 1, 6);
     ASSERT_THAT(locations,
                 ElementsAre(

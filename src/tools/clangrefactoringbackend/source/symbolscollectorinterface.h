@@ -44,11 +44,11 @@ class SymbolsCollectorInterface
 {
 public:
     SymbolsCollectorInterface() = default;
+    virtual ~SymbolsCollectorInterface() = default;
     SymbolsCollectorInterface(const SymbolsCollectorInterface &) = delete;
     SymbolsCollectorInterface &operator=(const SymbolsCollectorInterface &) = delete;
 
-    virtual void addFiles(const FilePathIds &filePathIds,
-                          const Utils::SmallStringVector &arguments) = 0;
+    virtual void addFile(FilePathId filePathId, const Utils::SmallStringVector &arguments) = 0;
 
     virtual void addUnsavedFiles(const V2::FileContainers &unsavedFiles) = 0;
 
@@ -65,9 +65,6 @@ public:
 
     virtual bool isUsed() const = 0;
     virtual void setIsUsed(bool isUsed) = 0;
-
-protected:
-    ~SymbolsCollectorInterface() = default;
 };
 
 } // namespace ClangBackEnd

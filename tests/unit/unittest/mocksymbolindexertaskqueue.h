@@ -32,5 +32,9 @@
 class MockSymbolIndexerTaskQueue : public ClangBackEnd::SymbolIndexerTaskQueueInterface
 {
 public:
+    MOCK_METHOD1(addOrUpdateTasks,
+                 void (std::vector< ClangBackEnd::SymbolIndexerTask> &&tasks));
+    MOCK_METHOD1(removeTasks,
+                 void (const Utils::SmallStringVector &projectPartIds));
     MOCK_METHOD0(processTasks, void());
 };

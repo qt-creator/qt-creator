@@ -25,23 +25,36 @@
 
 #pragma once
 
+#include <functional>
 #include <vector>
+
+namespace Sqlite {
+class TransactionInterface;
+}
 
 namespace ClangBackEnd {
 
 class SymbolsCollectorInterface;
+class SymbolStorageInterface;
 
-class SymbolsCollectorManagerInterface
+using uint = unsigned int;
+
+class SymbolIndexerTaskSchedulerInterface
 {
 public:
-    SymbolsCollectorManagerInterface() = default;
-    SymbolsCollectorManagerInterface(const SymbolsCollectorManagerInterface &) = delete;
-    SymbolsCollectorManagerInterface &operator=(const SymbolsCollectorManagerInterface &) = delete;
+    using Task = std::function<void(SymbolsCollectorInterface &symbolsCollector,
+                                    SymbolStorageInterface &symbolStorage,
+                                    Sqlite::TransactionInterface &transaction)>;
 
-    virtual SymbolsCollectorInterface &unusedSymbolsCollector() = 0;
+    SymbolIndexerTaskSchedulerInterface() = default;
+    SymbolIndexerTaskSchedulerInterface(const SymbolIndexerTaskSchedulerInterface &) = delete;
+    SymbolIndexerTaskSchedulerInterface &operator=(const SymbolIndexerTaskSchedulerInterface &) = delete;
+
+    virtual void addTasks(std::vector<Task> &&tasks) = 0;
+    virtual uint freeSlots() = 0;
 
 protected:
-    ~SymbolsCollectorManagerInterface() = default;
+    ~SymbolIndexerTaskSchedulerInterface() = default;
 };
 
 } // namespace ClangBackEnd

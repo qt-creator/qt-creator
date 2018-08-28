@@ -25,9 +25,16 @@
 
 #pragma once
 
+#include "symbolindexertaskschedulerinterface.h"
+#include "symbolindexertask.h"
+
 #include <functional>
 #include <future>
 #include <vector>
+
+namespace Sqlite {
+class TransactionInterface;
+};
 
 namespace ClangBackEnd {
 
@@ -37,20 +44,21 @@ class SymbolsCollectorManagerInterface;
 class SymbolIndexerTaskQueueInterface;
 class SymbolStorageInterface;
 
-class SymbolIndexerTaskScheduler
+class SymbolIndexerTaskScheduler final : public SymbolIndexerTaskSchedulerInterface
 {
 public:
-    using Task = std::function<void(SymbolsCollectorInterface &symbolsCollector,
-                                    SymbolStorageInterface &symbolStorage)>;
+    using Task = SymbolIndexerTask::Callable;
     using Future = std::future<SymbolsCollectorInterface&>;
 
     SymbolIndexerTaskScheduler(SymbolsCollectorManagerInterface &symbolsCollectorManager,
                                SymbolStorageInterface &symbolStorage,
+                               Sqlite::TransactionInterface &transactionInterface,
                                SymbolIndexerTaskQueueInterface &symbolIndexerTaskQueue,
-                               int hardware_concurrency,
+                               uint hardware_concurrency,
                                std::launch launchPolicy = std::launch::async)
         : m_symbolsCollectorManager(symbolsCollectorManager),
           m_symbolStorage(symbolStorage),
+          m_transactionInterface(transactionInterface),
           m_symbolIndexerTaskQueue(symbolIndexerTaskQueue),
           m_hardware_concurrency(hardware_concurrency),
           m_launchPolicy(launchPolicy)
@@ -60,9 +68,11 @@ public:
 
     const std::vector<Future> &futures() const;
 
-    int freeSlots();
+    uint freeSlots();
 
     void syncTasks();
+
+    void disable();
 
 private:
     void removeFinishedFutures();
@@ -71,9 +81,11 @@ private:
     std::vector<Future> m_futures;
     SymbolsCollectorManagerInterface &m_symbolsCollectorManager;
     SymbolStorageInterface &m_symbolStorage;
+    Sqlite::TransactionInterface &m_transactionInterface;
     SymbolIndexerTaskQueueInterface &m_symbolIndexerTaskQueue;
-    int m_hardware_concurrency;
+    uint m_hardware_concurrency;
     std::launch m_launchPolicy;
+    bool m_isDisabled = false;
 };
 
 } // namespace ClangBackEnd

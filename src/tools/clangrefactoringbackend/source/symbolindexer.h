@@ -26,7 +26,7 @@
 #pragma once
 
 #include "filestatuscache.h"
-#include "symbolscollectorinterface.h"
+#include "symbolindexertaskqueueinterface.h"
 #include "symbolstorageinterface.h"
 #include "clangpathwatcher.h"
 
@@ -35,10 +35,12 @@
 
 namespace ClangBackEnd {
 
+class SymbolsCollectorInterface;
+
 class SymbolIndexer : public ClangPathWatcherNotifier
 {
 public:
-    SymbolIndexer(SymbolsCollectorInterface &symbolsCollector,
+    SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQueue,
                   SymbolStorageInterface &symbolStorage,
                   ClangPathWatcherInterface &pathWatcher,
                   FilePathCachingInterface &filePathCache,
@@ -52,7 +54,8 @@ public:
 
     void pathsWithIdsChanged(const Utils::SmallStringVector &ids) override;
     void pathsChanged(const FilePathIds &filePathIds) override;
-    void updateChangedPath(FilePathId filePath);
+    void updateChangedPath(FilePathId filePath,
+                           std::vector<SymbolIndexerTask> &symbolIndexerTask);
 
     bool compilerMacrosOrIncludeSearchPathsAreDifferent(
             const V2::ProjectPartContainer &projectPart,
@@ -70,7 +73,7 @@ public:
                                                int projectPartId) const;
 
 private:
-    SymbolsCollectorInterface &m_symbolsCollector;
+    SymbolIndexerTaskQueueInterface &m_symbolIndexerTaskQueue;
     SymbolStorageInterface &m_symbolStorage;
     ClangPathWatcherInterface &m_pathWatcher;
     FilePathCachingInterface &m_filePathCache;

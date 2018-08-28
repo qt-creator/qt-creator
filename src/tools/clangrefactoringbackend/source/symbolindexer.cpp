@@ -25,15 +25,18 @@
 
 #include "symbolindexer.h"
 
+#include <symbolscollector.h>
+#include <symbolindexertaskqueue.h>
+
 namespace ClangBackEnd {
 
-SymbolIndexer::SymbolIndexer(SymbolsCollectorInterface &symbolsCollector,
+SymbolIndexer::SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQueue,
                              SymbolStorageInterface &symbolStorage,
                              ClangPathWatcherInterface &pathWatcher,
                              FilePathCachingInterface &filePathCache,
                              FileStatusCache &fileStatusCache,
                              Sqlite::TransactionInterface &transactionInterface)
-    : m_symbolsCollector(symbolsCollector),
+    : m_symbolIndexerTaskQueue(symbolIndexerTaskQueue),
       m_symbolStorage(symbolStorage),
       m_pathWatcher(pathWatcher),
       m_filePathCache(filePathCache),
@@ -52,41 +55,60 @@ void SymbolIndexer::updateProjectParts(V2::ProjectPartContainers &&projectParts,
 void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart,
                                       const V2::FileContainers &generatedFiles)
 {
-    m_symbolsCollector.clear();
+    Sqlite::ImmediateTransaction transaction{m_transactionInterface};
+    const auto optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(projectPart.projectPartId);
+    int projectPartId = m_symbolStorage.insertOrUpdateProjectPart(projectPart.projectPartId,
+                                                                  projectPart.arguments,
+                                                                  projectPart.compilerMacros,
+                                                                  projectPart.includeSearchPaths);
+    transaction.commit();
 
-    const Utils::optional<ProjectPartArtefact> optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(
-                projectPart.projectPartId);
+    if (optionalArtefact)
+        projectPartId = optionalArtefact->projectPartId;
 
     FilePathIds sourcePathIds = updatableFilePathIds(projectPart, optionalArtefact);
 
-    if (!sourcePathIds.empty()) {
-        m_symbolsCollector.addFiles(projectPart.sourcePathIds,
-                                    compilerArguments(projectPart, optionalArtefact));
+    if (sourcePathIds.empty())
+        return;
 
-        m_symbolsCollector.addUnsavedFiles(generatedFiles);
+    Utils::SmallStringVector arguments = compilerArguments(projectPart, optionalArtefact);
 
-        m_symbolsCollector.collectSymbols();
+    std::vector<SymbolIndexerTask> symbolIndexerTask;
+    symbolIndexerTask.reserve(projectPart.sourcePathIds.size());
 
-        Sqlite::ImmediateTransaction transaction{m_transactionInterface};
+    for (FilePathId sourcePathId : projectPart.sourcePathIds) {
+        auto indexing = [projectPart, arguments, generatedFiles, sourcePathId]
+                (SymbolsCollectorInterface &symbolsCollector,
+                SymbolStorageInterface &symbolStorage,
+                Sqlite::TransactionInterface &transactionInterface) {
+            symbolsCollector.addFile(sourcePathId, arguments);
 
-        m_symbolStorage.addSymbolsAndSourceLocations(m_symbolsCollector.symbols(),
-                                                     m_symbolsCollector.sourceLocations());
+            symbolsCollector.addUnsavedFiles(generatedFiles);
 
-        m_symbolStorage.insertOrUpdateProjectPart(projectPart.projectPartId,
-                                                  projectPart.arguments,
-                                                  projectPart.compilerMacros,
-                                                  projectPart.includeSearchPaths);
-        m_symbolStorage.updateProjectPartSources(projectPart.projectPartId,
-                                                 m_symbolsCollector.sourceFiles());
+            symbolsCollector.collectSymbols();
 
-        m_symbolStorage.insertOrUpdateUsedMacros(m_symbolsCollector.usedMacros());
+            Sqlite::ImmediateTransaction transaction{transactionInterface};
 
-        m_symbolStorage.insertFileStatuses(m_symbolsCollector.fileStatuses());
+            symbolStorage.addSymbolsAndSourceLocations(symbolsCollector.symbols(),
+                                                       symbolsCollector.sourceLocations());
 
-        m_symbolStorage.insertOrUpdateSourceDependencies(m_symbolsCollector.sourceDependencies());
+            symbolStorage.updateProjectPartSources(projectPart.projectPartId,
+                                                   symbolsCollector.sourceFiles());
 
-        transaction.commit();
+            symbolStorage.insertOrUpdateUsedMacros(symbolsCollector.usedMacros());
+
+            symbolStorage.insertFileStatuses(symbolsCollector.fileStatuses());
+
+            symbolStorage.insertOrUpdateSourceDependencies(symbolsCollector.sourceDependencies());
+
+            transaction.commit();
+        };
+
+        symbolIndexerTask.emplace_back(sourcePathId, projectPartId, std::move(indexing));
     }
+
+    m_symbolIndexerTaskQueue.addOrUpdateTasks(std::move(symbolIndexerTask));
+    m_symbolIndexerTaskQueue.processTasks();
 }
 
 void SymbolIndexer::pathsWithIdsChanged(const Utils::SmallStringVector &)
@@ -95,40 +117,57 @@ void SymbolIndexer::pathsWithIdsChanged(const Utils::SmallStringVector &)
 
 void SymbolIndexer::pathsChanged(const FilePathIds &filePathIds)
 {
+    std::vector<SymbolIndexerTask> symbolIndexerTask;
+    symbolIndexerTask.reserve(filePathIds.size());
+
     for (FilePathId filePathId : filePathIds)
-        updateChangedPath(filePathId);
+        updateChangedPath(filePathId, symbolIndexerTask);
+
+    m_symbolIndexerTaskQueue.addOrUpdateTasks(std::move(symbolIndexerTask));
+    m_symbolIndexerTaskQueue.processTasks();
 }
 
-void SymbolIndexer::updateChangedPath(FilePathId filePathId)
+void SymbolIndexer::updateChangedPath(FilePathId filePathId,
+                                      std::vector<SymbolIndexerTask> &symbolIndexerTask)
 {
-    m_symbolsCollector.clear();
     m_fileStatusCache.update(filePathId);
 
+    Sqlite::DeferredTransaction transaction{m_transactionInterface};
     const Utils::optional<ProjectPartArtefact> optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(filePathId);
+    transaction.commit();
 
     if (optionalArtefact && !optionalArtefact.value().compilerArguments.empty()) {
+
         const ProjectPartArtefact &artefact = optionalArtefact.value();
 
-        m_symbolsCollector.addFiles({filePathId},
-                                    compilerArguments(artefact.compilerArguments, artefact.projectPartId));
+        Utils::SmallStringVector arguments = compilerArguments(artefact.compilerArguments,
+                                                               artefact.projectPartId);
 
-        m_symbolsCollector.collectSymbols();
+        auto indexing = [projectPartId=artefact.projectPartId, arguments, filePathId]
+                (SymbolsCollectorInterface &symbolsCollector,
+                SymbolStorageInterface &symbolStorage,
+                Sqlite::TransactionInterface &transactionInterface) {
+            symbolsCollector.addFile(filePathId, arguments);
 
-        Sqlite::ImmediateTransaction transaction{m_transactionInterface};
+            symbolsCollector.collectSymbols();
 
-        m_symbolStorage.addSymbolsAndSourceLocations(m_symbolsCollector.symbols(),
-                                                     m_symbolsCollector.sourceLocations());
+            Sqlite::ImmediateTransaction transaction{transactionInterface};
 
-        m_symbolStorage.updateProjectPartSources(artefact.projectPartId,
-                                                 m_symbolsCollector.sourceFiles());
+            symbolStorage.addSymbolsAndSourceLocations(symbolsCollector.symbols(),
+                                                       symbolsCollector.sourceLocations());
 
-        m_symbolStorage.insertOrUpdateUsedMacros(m_symbolsCollector.usedMacros());
+            symbolStorage.updateProjectPartSources(projectPartId, symbolsCollector.sourceFiles());
 
-        m_symbolStorage.insertFileStatuses(m_symbolsCollector.fileStatuses());
+            symbolStorage.insertOrUpdateUsedMacros(symbolsCollector.usedMacros());
 
-        m_symbolStorage.insertOrUpdateSourceDependencies(m_symbolsCollector.sourceDependencies());
+            symbolStorage.insertFileStatuses(symbolsCollector.fileStatuses());
 
-        transaction.commit();
+            symbolStorage.insertOrUpdateSourceDependencies(symbolsCollector.sourceDependencies());
+
+            transaction.commit();
+        };
+
+        symbolIndexerTask.emplace_back(filePathId, optionalArtefact->projectPartId, std::move(indexing));
     }
 }
 

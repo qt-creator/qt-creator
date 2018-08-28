@@ -31,17 +31,22 @@
 #include "sourcesmanager.h"
 #include "symbolscollectorinterface.h"
 
-#include <filepathcachingfwd.h>
+#include <filepathcaching.h>
+
+namespace Sqlite {
+class Database;
+}
 
 namespace ClangBackEnd {
 
 class SymbolsCollector final : public SymbolsCollectorInterface
 {
 public:
-    SymbolsCollector(FilePathCachingInterface &filePathCache);
+    SymbolsCollector(Sqlite::Database &database);
 
     void addFiles(const FilePathIds &filePathIds,
-                  const Utils::SmallStringVector &arguments) override;
+                  const Utils::SmallStringVector &arguments);
+    void addFile(FilePathId filePathId, const Utils::SmallStringVector &arguments) override;
 
     void addUnsavedFiles(const V2::FileContainers &unsavedFiles) override;
 
@@ -60,6 +65,7 @@ public:
     void setIsUsed(bool isUsed) override;
 
 private:
+    FilePathCaching m_filePathCache;
     ClangTool m_clangTool;
     SymbolEntries m_symbolEntries;
     SourceLocationEntries m_sourceLocationEntries;
@@ -67,7 +73,6 @@ private:
     CollectSymbolsAction m_collectSymbolsAction;
     CollectMacrosSourceFileCallbacks m_collectMacrosSourceFileCallbacks;
     SourcesManager m_sourcesManager;
-    FilePathCachingInterface &m_filePathCache;
     bool m_isUsed = false;
 };
 

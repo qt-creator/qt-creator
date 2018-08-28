@@ -29,14 +29,28 @@
 
 #include <symbolscollectorinterface.h>
 
+namespace Sqlite {
+class Database;
+}
+
 class MockSymbolsCollector : public ClangBackEnd::SymbolsCollectorInterface
 {
 public:
+    MockSymbolsCollector()
+    {
+    }
+
+    MockSymbolsCollector(const Sqlite::Database &)
+    {
+        ON_CALL(*this, setIsUsed(_)).WillByDefault(Invoke(this, &MockSymbolsCollector::setIsUsed2));
+        ON_CALL(*this, isUsed()).WillByDefault(Invoke(this, &MockSymbolsCollector::isUsed2));
+    }
+
     MOCK_METHOD0(collectSymbols,
                  void());
 
-    MOCK_METHOD2(addFiles,
-                 void(const ClangBackEnd::FilePathIds &filePathIds,
+    MOCK_METHOD2(addFile,
+                 void(ClangBackEnd::FilePathId filePathId,
                       const Utils::SmallStringVector &arguments));
 
     MOCK_METHOD1(addUnsavedFiles,
@@ -60,12 +74,25 @@ public:
     MOCK_CONST_METHOD0(fileStatuses,
                        const ClangBackEnd::FileStatuses &());
 
-   MOCK_CONST_METHOD0(sourceDependencies,
-                      const ClangBackEnd::SourceDependencies &());
+    MOCK_CONST_METHOD0(sourceDependencies,
+                       const ClangBackEnd::SourceDependencies &());
 
-   MOCK_CONST_METHOD0(isUsed,
-                      bool());
+    MOCK_CONST_METHOD0(isUsed,
+                       bool());
 
-   MOCK_METHOD1(setIsUsed,
-                void(bool));
+    MOCK_METHOD1(setIsUsed,
+                 void(bool));
+
+    void setIsUsed2(bool isUsed)
+    {
+        used = isUsed;
+    }
+
+    bool isUsed2() const
+    {
+        return used;
+    }
+
+public:
+    bool used = false;
 };

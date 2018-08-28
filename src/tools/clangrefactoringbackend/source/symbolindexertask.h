@@ -25,15 +25,9 @@
 
 #pragma once
 
-#include "symbolindexertaskqueueinterface.h"
-#include "symbolindexertask.h"
-
 #include <filepathid.h>
 
-#include <utils/smallstringvector.h>
-
 #include <functional>
-#include <vector>
 
 namespace Sqlite {
 class TransactionInterface;
@@ -45,29 +39,49 @@ class SymbolIndexerTaskSchedulerInterface;
 class SymbolsCollectorInterface;
 class SymbolStorageInterface;
 
-class SymbolIndexerTaskQueue final : public SymbolIndexerTaskQueueInterface
+class SymbolIndexerTask
 {
 public:
-    SymbolIndexerTaskQueue(SymbolIndexerTaskSchedulerInterface &symbolIndexerTaskScheduler)
-        : m_symbolIndexerScheduler(symbolIndexerTaskScheduler)
-    {}
+    using Callable = std::function<void(SymbolsCollectorInterface &symbolsCollector,
+                                        SymbolStorageInterface &symbolStorage,
+                                        Sqlite::TransactionInterface &transaction)>;
 
-    void addOrUpdateTasks(std::vector<SymbolIndexerTask> &&tasks);
-    void removeTasks(const Utils::SmallStringVector &projectPartIds);
+    SymbolIndexerTask(FilePathId filePathId,
+                      int projectPartId,
+                      Callable &&callable)
+        : callable(std::move(callable)),
+          filePathId(filePathId),
+          projectPartId(projectPartId)
+    {
+    }
 
-    const std::vector<SymbolIndexerTask> &tasks() const;
+    SymbolIndexerTask clone() const
+    {
+        return *this;
+    }
 
-    std::size_t projectPartNumberId(Utils::SmallStringView projectPartId);
-    std::vector<std::size_t> projectPartNumberIds(const Utils::SmallStringVector &projectPartIds)
-    /* [[ensures result: std::is_sorted(result)]] */;
+    friend
+    bool operator==(const SymbolIndexerTask &first, const SymbolIndexerTask &second)
+    {
+        return first.filePathId == second.filePathId && first.projectPartId == second.projectPartId;
+    }
 
-    void processTasks();
-    void syncTasks();
+    friend
+    bool operator<(const SymbolIndexerTask &first, const SymbolIndexerTask &second)
+    {
+        return std::tie(first.filePathId, first.projectPartId)
+             < std::tie(second.filePathId, second.projectPartId);
+    }
 
-private:
-    std::vector<Utils::SmallString> m_projectPartIds;
-    std::vector<SymbolIndexerTask> m_tasks;
-    SymbolIndexerTaskSchedulerInterface &m_symbolIndexerScheduler;
+    operator Callable&&()
+    {
+        return std::move(callable);
+    }
+
+public:
+    Callable callable;
+    FilePathId filePathId;
+    int projectPartId;
 };
 
 } // namespace ClangBackEnd

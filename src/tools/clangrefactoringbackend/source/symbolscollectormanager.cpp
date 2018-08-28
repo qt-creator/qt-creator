@@ -23,25 +23,13 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "symbolscollectormanager.h"
 
-#include <vector>
+#include "symbolscollector.h"
 
 namespace ClangBackEnd {
 
-class SymbolsCollectorInterface;
 
-class SymbolsCollectorManagerInterface
-{
-public:
-    SymbolsCollectorManagerInterface() = default;
-    SymbolsCollectorManagerInterface(const SymbolsCollectorManagerInterface &) = delete;
-    SymbolsCollectorManagerInterface &operator=(const SymbolsCollectorManagerInterface &) = delete;
 
-    virtual SymbolsCollectorInterface &unusedSymbolsCollector() = 0;
-
-protected:
-    ~SymbolsCollectorManagerInterface() = default;
-};
 
 } // namespace ClangBackEnd

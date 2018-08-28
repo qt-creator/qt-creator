@@ -29,11 +29,11 @@
 
 namespace ClangBackEnd {
 
-SymbolsCollector::SymbolsCollector(FilePathCachingInterface &filePathCache)
-    : m_indexDataConsumer(std::make_shared<IndexDataConsumer>(m_symbolEntries, m_sourceLocationEntries, filePathCache, m_sourcesManager)),
+SymbolsCollector::SymbolsCollector(Sqlite::Database &database)
+    : m_filePathCache(database),
+      m_indexDataConsumer(std::make_shared<IndexDataConsumer>(m_symbolEntries, m_sourceLocationEntries, m_filePathCache, m_sourcesManager)),
       m_collectSymbolsAction(m_indexDataConsumer),
-      m_collectMacrosSourceFileCallbacks(m_symbolEntries, m_sourceLocationEntries, filePathCache, m_sourcesManager),
-      m_filePathCache(filePathCache)
+      m_collectMacrosSourceFileCallbacks(m_symbolEntries, m_sourceLocationEntries, m_filePathCache, m_sourcesManager)
 {
 }
 
@@ -42,6 +42,11 @@ void SymbolsCollector::addFiles(const FilePathIds &filePathIds,
 {
     m_clangTool.addFiles(m_filePathCache.filePaths(filePathIds), arguments);
     m_collectMacrosSourceFileCallbacks.addSourceFiles(filePathIds);
+}
+
+void SymbolsCollector::addFile(FilePathId filePathId, const Utils::SmallStringVector &arguments)
+{
+    addFiles({filePathId}, arguments);
 }
 
 void SymbolsCollector::addUnsavedFiles(const V2::FileContainers &unsavedFiles)

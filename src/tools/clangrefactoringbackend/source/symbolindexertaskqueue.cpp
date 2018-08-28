@@ -25,6 +25,8 @@
 
 #include "symbolindexertaskqueue.h"
 
+#include <symbolindexertaskschedulerinterface.h>
+
 namespace ClangBackEnd {
 
 namespace {
@@ -57,11 +59,6 @@ OutputIt set_union_merge(InputIt1 first1,
     }
     return std::copy(first2, last2, d_first);
 }
-
-}
-
-SymbolIndexerTaskQueue::SymbolIndexerTaskQueue()
-{
 
 }
 
@@ -133,7 +130,12 @@ std::vector<std::size_t> SymbolIndexerTaskQueue::projectPartNumberIds(const Util
 
 void SymbolIndexerTaskQueue::processTasks()
 {
+    int taskCount = m_symbolIndexerScheduler.freeSlots();
 
+    auto newEnd = std::prev(m_tasks.end(), std::min<int>(taskCount, int(m_tasks.size())));
+    m_symbolIndexerScheduler.addTasks({std::make_move_iterator(newEnd),
+                                       std::make_move_iterator(m_tasks.end())});
+    m_tasks.erase(newEnd, m_tasks.end());
 }
 
 } // namespace ClangBackEnd

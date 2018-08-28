@@ -30,6 +30,9 @@
 #include "storagesqlitestatementfactory.h"
 #include "symbolindexer.h"
 #include "symbolscollector.h"
+#include "symbolscollectormanager.h"
+#include "symbolindexertaskqueue.h"
+#include "symbolindexertaskscheduler.h"
 #include "symbolstorage.h"
 
 #include <refactoringdatabaseinitializer.h>
@@ -40,6 +43,8 @@
 #include <sqlitewritestatement.h>
 
 #include <QFileSystemWatcher>
+
+#include <thread>
 
 namespace ClangBackEnd {
 
@@ -52,8 +57,15 @@ public:
     SymbolIndexing(Sqlite::Database &database,
                    FilePathCachingInterface &filePathCache)
         : m_filePathCache(filePathCache),
-          m_statementFactory(database)
+          m_statementFactory(database),
+          m_collectorManger(database),
+          m_indexerScheduler(m_collectorManger, m_symbolStorage, database, m_indexerQueue, std::thread::hardware_concurrency())
     {
+    }
+
+    ~SymbolIndexing()
+    {
+        syncTasks();
     }
 
     SymbolIndexer &indexer()
@@ -61,17 +73,28 @@ public:
         return m_indexer;
     }
 
+    void syncTasks()
+    {
+        m_indexerScheduler.disable();
+        while (!m_indexerScheduler.futures().empty()) {
+            m_indexerScheduler.syncTasks();
+            m_indexerScheduler.freeSlots();
+        }
+    }
+
     void updateProjectParts(V2::ProjectPartContainers &&projectParts,
                             const V2::FileContainers &generatedFiles) override;
 
 private:
     FilePathCachingInterface &m_filePathCache;
-    SymbolsCollector m_collector{m_filePathCache};
     StatementFactory m_statementFactory;
     Storage m_symbolStorage{m_statementFactory};
     ClangPathWatcher<QFileSystemWatcher, QTimer> m_sourceWatcher{m_filePathCache};
     FileStatusCache m_fileStatusCache{m_filePathCache};
-    SymbolIndexer m_indexer{m_collector,
+    SymbolsCollectorManager<SymbolsCollector> m_collectorManger;
+    SymbolIndexerTaskScheduler m_indexerScheduler;
+    SymbolIndexerTaskQueue m_indexerQueue{m_indexerScheduler};
+    SymbolIndexer m_indexer{m_indexerQueue,
                             m_symbolStorage,
                             m_sourceWatcher,
                             m_filePathCache,

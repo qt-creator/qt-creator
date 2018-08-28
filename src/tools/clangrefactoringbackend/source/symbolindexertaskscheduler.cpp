@@ -87,7 +87,7 @@ void SymbolIndexerTaskScheduler::addTasks(std::vector<Task> &&tasks)
         auto callWrapper = [&, task=std::move(task)] (
                 std::reference_wrapper<SymbolsCollectorInterface> symbolsCollector)
                 -> SymbolsCollectorInterface& {
-            task(symbolsCollector.get(), m_symbolStorage);
+            task(symbolsCollector.get(), m_symbolStorage, m_transactionInterface);
             executeInLoop([&] {
                 m_symbolIndexerTaskQueue.processTasks();
             });
@@ -105,17 +105,25 @@ const std::vector<SymbolIndexerTaskScheduler::Future> &SymbolIndexerTaskSchedule
     return m_futures;
 }
 
-int SymbolIndexerTaskScheduler::freeSlots()
+uint SymbolIndexerTaskScheduler::freeSlots()
 {
     removeFinishedFutures();
 
-    return std::max(m_hardware_concurrency - int(m_futures.size()), 0);
+    if (m_isDisabled)
+        return 0;
+
+    return uint(std::max(int(m_hardware_concurrency) - int(m_futures.size()), 0));
 }
 
 void SymbolIndexerTaskScheduler::syncTasks()
 {
     for (auto &future : m_futures)
         future.wait();
+}
+
+void SymbolIndexerTaskScheduler::disable()
+{
+    m_isDisabled = true;
 }
 
 void SymbolIndexerTaskScheduler::removeFinishedFutures()
@@ -127,7 +135,9 @@ void SymbolIndexerTaskScheduler::removeFinishedFutures()
     auto split = std::partition(m_futures.begin(), m_futures.end(), notReady);
 
     std::for_each(split, m_futures.end(), [] (Future &future) {
-        future.get().setIsUsed(false);
+        SymbolsCollectorInterface &symbolCollector = future.get();
+        symbolCollector.setIsUsed(false);
+        symbolCollector.clear();
     });
 
     m_futures.erase(split, m_futures.end());

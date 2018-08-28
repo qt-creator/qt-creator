@@ -27,7 +27,10 @@ HEADERS += \
     $$PWD/symbolindexertaskqueue.h \
     $$PWD/symbolindexertaskscheduler.h \
     $$PWD/symbolscollectormanagerinterface.h \
-    $$PWD/symbolindexertaskqueueinterface.h
+    $$PWD/symbolindexertaskqueueinterface.h \
+    $$PWD/symbolindexertaskschedulerinterface.h \
+    $$PWD/symbolscollectormanager.h \
+    $$PWD/symbolindexertask.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
@@ -75,4 +78,5 @@ SOURCES += \
     $$PWD/filestatuscache.cpp \
     $$PWD/projectpartqueue.cpp \
     $$PWD/symbolindexertaskqueue.cpp \
-    $$PWD/symbolindexertaskscheduler.cpp
+    $$PWD/symbolindexertaskscheduler.cpp \
+    $$PWD/symbolscollectormanager.cpp

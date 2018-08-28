@@ -25,49 +25,59 @@
 
 #pragma once
 
-#include "symbolindexertaskqueueinterface.h"
-#include "symbolindexertask.h"
+#include "symbolscollectormanagerinterface.h"
+#include "symbolscollectorinterface.h"
 
-#include <filepathid.h>
-
-#include <utils/smallstringvector.h>
-
-#include <functional>
-#include <vector>
+#include <memory>
 
 namespace Sqlite {
-class TransactionInterface;
+class Database;
 }
 
 namespace ClangBackEnd {
 
-class SymbolIndexerTaskSchedulerInterface;
-class SymbolsCollectorInterface;
-class SymbolStorageInterface;
-
-class SymbolIndexerTaskQueue final : public SymbolIndexerTaskQueueInterface
+class SymbolsCollector;
+template<typename SymbolsCollector>
+class SymbolsCollectorManager final : public SymbolsCollectorManagerInterface
 {
 public:
-    SymbolIndexerTaskQueue(SymbolIndexerTaskSchedulerInterface &symbolIndexerTaskScheduler)
-        : m_symbolIndexerScheduler(symbolIndexerTaskScheduler)
+    SymbolsCollectorManager(Sqlite::Database &database)
+        : m_database(database)
     {}
 
-    void addOrUpdateTasks(std::vector<SymbolIndexerTask> &&tasks);
-    void removeTasks(const Utils::SmallStringVector &projectPartIds);
+    SymbolsCollector &unusedSymbolsCollector() override
+    {
+        auto split = std::partition(m_collectors.begin(),
+                                    m_collectors.end(),
+                                    [] (const auto &collector) {
+            return collector->isUsed();
+        });
 
-    const std::vector<SymbolIndexerTask> &tasks() const;
+        auto freeCollectors = std::distance(split, m_collectors.end());
 
-    std::size_t projectPartNumberId(Utils::SmallStringView projectPartId);
-    std::vector<std::size_t> projectPartNumberIds(const Utils::SmallStringVector &projectPartIds)
-    /* [[ensures result: std::is_sorted(result)]] */;
+        if (freeCollectors > 0)
+            return usedCollector(*split->get());
 
-    void processTasks();
-    void syncTasks();
+        m_collectors.emplace_back(std::make_unique<SymbolsCollector>(m_database));
+
+        return  usedCollector(*m_collectors.back().get());
+    }
+
+    const std::vector<std::unique_ptr<SymbolsCollector>> &collectors() const
+    {
+        return m_collectors;
+    }
 
 private:
-    std::vector<Utils::SmallString> m_projectPartIds;
-    std::vector<SymbolIndexerTask> m_tasks;
-    SymbolIndexerTaskSchedulerInterface &m_symbolIndexerScheduler;
+    SymbolsCollector &usedCollector(SymbolsCollector &collector)
+    {
+        collector.setIsUsed(true);
+        return collector;
+    }
+
+private:
+    std::vector<std::unique_ptr<SymbolsCollector>> m_collectors;
+    Sqlite::Database &m_database;
 };
 
 } // namespace ClangBackEnd

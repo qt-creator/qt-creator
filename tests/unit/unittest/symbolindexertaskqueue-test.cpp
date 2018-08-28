@@ -25,6 +25,8 @@
 
 #include "googletest.h"
 
+#include "mocksymbolindexertaskscheduler.h"
+
 #include <symbolindexertaskqueue.h>
 
 namespace {
@@ -48,12 +50,13 @@ MATCHER_P2(IsTask, filePathId, projectPartId,
 class SymbolIndexerTaskQueue : public testing::Test
 {
 protected:
-    std::size_t projectPartId(const Utils::SmallString &projectPartId)
+    int projectPartId(const Utils::SmallString &projectPartId)
     {
-        return queue.projectPartNumberId(projectPartId);
+        return int(queue.projectPartNumberId(projectPartId));
     }
 protected:
-    ClangBackEnd::SymbolIndexerTaskQueue queue;
+    NiceMock<MockSymbolIndexerTaskScheduler> mockSymbolIndexerTaskScheduler;
+    ClangBackEnd::SymbolIndexerTaskQueue queue{mockSymbolIndexerTaskScheduler};
 };
 
 TEST_F(SymbolIndexerTaskQueue, AddTasks)
@@ -161,5 +164,53 @@ TEST_F(SymbolIndexerTaskQueue, GetProjectPartIds)
     auto ids = queue.projectPartNumberIds({"yi", "se", "san"});
 
     ASSERT_THAT(ids , ElementsAre(0, 2, 3));
+}
+
+TEST_F(SymbolIndexerTaskQueue, ProcessTasksCallsFreeSlotsAndAddTasksInScheduler)
+{
+    InSequence s;
+    queue.addOrUpdateTasks({{{1, 1}, projectPartId("yi"), Callable{}},
+                            {{1, 3}, projectPartId("yi"), Callable{}},
+                            {{1, 5}, projectPartId("yi"), Callable{}}});
+
+    EXPECT_CALL(mockSymbolIndexerTaskScheduler, freeSlots()).WillRepeatedly(Return(2));
+    EXPECT_CALL(mockSymbolIndexerTaskScheduler, addTasks(SizeIs(2)));
+
+    queue.processTasks();
+}
+
+TEST_F(SymbolIndexerTaskQueue, ProcessTasksCallsFreeSlotsAndAddTasksWithNoTaskInSchedulerIfTaskAreEmpty)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockSymbolIndexerTaskScheduler, freeSlots()).WillRepeatedly(Return(2));
+    EXPECT_CALL(mockSymbolIndexerTaskScheduler, addTasks(IsEmpty()));
+
+    queue.processTasks();
+}
+
+TEST_F(SymbolIndexerTaskQueue, ProcessTasksCallsFreeSlotsAndMoveAllTasksInSchedulerIfMoreSlotsAreFree)
+{
+    InSequence s;
+    queue.addOrUpdateTasks({{{1, 1}, projectPartId("yi"), Callable{}},
+                            {{1, 3}, projectPartId("yi"), Callable{}},
+                            {{1, 5}, projectPartId("yi"), Callable{}}});
+
+    EXPECT_CALL(mockSymbolIndexerTaskScheduler, freeSlots()).WillRepeatedly(Return(4));
+    EXPECT_CALL(mockSymbolIndexerTaskScheduler, addTasks(SizeIs(3)));
+
+    queue.processTasks();
+}
+
+TEST_F(SymbolIndexerTaskQueue, ProcessTasksRemovesProcessedTasks)
+{
+    queue.addOrUpdateTasks({{{1, 1}, projectPartId("yi"), Callable{}},
+                            {{1, 3}, projectPartId("yi"), Callable{}},
+                            {{1, 5}, projectPartId("yi"), Callable{}}});
+    ON_CALL(mockSymbolIndexerTaskScheduler, freeSlots()).WillByDefault(Return(2));
+
+    queue.processTasks();
+
+    ASSERT_THAT(queue.tasks(), SizeIs(1));
 }
 }
