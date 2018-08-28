@@ -39,8 +39,8 @@ PendingChangesDialog::PendingChangesDialog(const QString &data, QWidget *parent)
         int pos = 0;
         QListWidgetItem *item;
         while ((pos = r.indexIn(data, pos)) != -1) {
-            item = new QListWidgetItem(tr("Change %1: %2").arg(r.cap(1))
-                .arg(r.cap(2).trimmed()), m_ui.listWidget);
+            item = new QListWidgetItem(tr("Change %1: %2").arg(r.cap(1), r.cap(2).trimmed()),
+                                       m_ui.listWidget);
             item->setData(234, r.cap(1).trimmed());
             ++pos;
         }

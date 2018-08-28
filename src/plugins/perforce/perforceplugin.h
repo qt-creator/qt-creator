@@ -77,10 +77,10 @@ class PerforcePlugin : public VcsBase::VcsBasePlugin
 public:
     PerforcePlugin() = default;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-    void extensionsInitialized();
+    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void extensionsInitialized() override;
 
-    bool managesDirectory(const QString &directory, QString *topLevel = 0);
+    bool managesDirectory(const QString &directory, QString *topLevel = nullptr);
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
     bool vcsOpen(const QString &workingDir, const QString &fileName, bool silently = false);
     bool vcsAdd(const QString &workingDir, const QString &fileName);
@@ -104,8 +104,8 @@ public:
                      const QString &revision, int lineNumber);
 
 protected:
-    void updateActions(VcsBase::VcsBasePlugin::ActionState);
-    bool submitEditorAboutToClose();
+    void updateActions(VcsBase::VcsBasePlugin::ActionState) override;
+    bool submitEditorAboutToClose() override;
 
 #ifdef WITH_TESTS
 private slots:
@@ -157,7 +157,7 @@ private:
 
     Core::IEditor *showOutputInEditor(const QString &title, const QString &output,
                                       int editorType, const QString &source,
-                                      QTextCodec *codec = 0);
+                                      QTextCodec *codec = nullptr);
 
     // Flags for runP4Cmd.
     enum RunFlags { CommandToWindow = 0x1, StdOutToWindow = 0x2,
@@ -178,7 +178,7 @@ private:
                                      unsigned flags = CommandToWindow|StdErrToWindow|ErrorToWindow,
                                      const QStringList &extraArgs = QStringList(),
                                      const QByteArray &stdInput = QByteArray(),
-                                     QTextCodec *outputCodec = 0);
+                                     QTextCodec *outputCodec = nullptr);
 
     static PerforceResponse synchronousProcess(const QString &workingDir,
                                                const QStringList &args,
