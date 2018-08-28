@@ -50,19 +50,20 @@
 
     \endlist
 
-    To edit the currently open project's main.cpp file using the locator:
+    To open a QML file called \e HelloWorld.qml in the currently open project
+    using the locator:
 
     \list 1
 
         \li Activate the locator by pressing \key {Ctrl+K}.
 
-        \li Enter \c {main.cpp}.
+        \li Start typing the filename.
 
             \image qtcreator-locator-open.png
 
-        \li Press \key Enter.
+        \li Move to the filename in the list and press \key Enter.
 
-            The \c {main.cpp} file opens in the editor.
+            The file opens in the editor.
 
         \li To move to a line in the file, enter the line number in the locator.
 
@@ -70,8 +71,8 @@
 
     To move directly to a particular line and column in the document when you
     open the document, append them to the file name in the locator, separated by
-    plus signs (+) or colons (:). For example, to open main.cpp to line 41 and
-    column 2, enter: \c {main.cpp:41:2}.
+    plus signs (+) or colons (:). For example, to open \e HelloWorld.qml to line
+    41 and column 2, enter: \c {HelloWorld.qml:41:2}.
 
     If the path to a file is very long, it might not fit into the locator
     window. To view the full path, press \key Alt when the filename is selected
@@ -107,13 +108,17 @@
         \li Locating files anywhere on your file system (\c {f})
 
         \li Locating files belonging to your project (\c {p}), such as source,
-            header resource, and \c {.ui} files, or to any project (\c {a})
+            header, resource, and \c {.ui} files, or to any project (\c {a})
 
+        \if defined(qtcreator)
         \li Locating bookmarks (\c {b}).
             For more information, see \l{Using Bookmarks}.
 
         \li Locating class (\c {c}), enum, and function (m) definitions in your
             project or anywhere referenced from your project (\c {:})
+        \endif
+
+        \li Locating QML methods (m)
 
         \li Locating symbols in the current document (\c {.})
 
@@ -124,20 +129,28 @@
 
         \li Performing web searches (\c {r})
 
+        \if defined(qtcreator)
         \li Running text editing macros that you record and save (\c {rm}). For
             more information, see \l{Using Text Editing Macros}
+        \endif
 
         \li Executing JavaScript (\c {=}), especially useful for calculations.
             For more information, see \l{Executing JavaScript}.
 
         \li Executing shell commands (\c {!})
 
-        \li Executing version control system commands (\c {git}). For more
-            information, see \l{Using Version Control Systems}
+        \li Executing version control system commands (\c {git}).
+            \if defined(qtcreator)
+            For more information, see \l{Using Version Control Systems}
+            \else
+            For more information, see \l{Using Git}
+            \endif
 
         \li Triggering menu items from the main menu (\c {t})
 
+        \if defined(qtcreator)
         \li Running external tools (\c x)
+        \endif
 
     \endlist
 
@@ -150,6 +163,7 @@
     keyboard shortcuts to move up and down the list, and then press \key Enter
     to use the selected filter.
 
+    \if defined(qtcreator)
     For example, to locate symbols matching QDataStream:
 
     \list 1
@@ -172,6 +186,7 @@
     Filters locating files also accept paths, such as \c {tools/*main.cpp}.
     Filters locating class and function definitions also accept namespaces,
     such as \c {Utils::*View}.
+    \endif
 
     For example, to create a new file and open it in the editor, type \c f
     followed by \key Space, followed by path and file name, and then press
@@ -273,23 +288,28 @@
 
         \li In the \uicontrol {Filter Configuration} dialog:
 
+                \image qtcreator-navigate-customfilter.png
+
         \list
 
-            \li Name your filter.
+            \li In the \uicontrol Name field, enter a name for your filter.
 
-            \li Select at least one directory. The locator searches directories
-                recursively.
+            \li In the \uicontrol Directories field, select at least one
+                directory. The locator searches directories recursively.
 
-            \li Define the file pattern as a comma separated list. For example,
-                to search all \c {.h} and \c {.cpp} files, enter \c{*.h,*.cpp}
+            \li In the \uicontrol {File pattern} field, specify file patterns to
+                restrict the search to files that match the pattern.
+                Use a comma separated list. For example, to search for all
+                \c {.qml} and \c {.ui.qml} files, enter \c{*.qml,*.ui.qml}
 
-            \li Specify the prefix string.
+            \li In the \uicontrol {Exclusion pattern} field, specify file
+                patterns to omit files from the search.
+
+            \li In the \uicontrol Prefix field, specify the prefix string.
 
                 To implicitly include the filter even when not typing a prefix
                 as a part of the search string, select
                 \uicontrol {Include by default}.
-
-                \image qtcreator-navigate-customfilter.png
 
         \endlist
 
