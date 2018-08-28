@@ -811,5 +811,41 @@ OutputIt setUnionMerge(InputIt1 first1,
                          std::less<decltype(*first1)>{});
 }
 
+template<class OutputContainer,
+         class InputContainer1,
+         class InputContainer2,
+         class Merge,
+         class Compare>
+OutputContainer setUnionMerge(InputContainer1 &&input1,
+                              InputContainer2 &&input2,
+                              Merge merge,
+                              Compare comp)
+{
+    OutputContainer results;
+    results.reserve(input1.size() + input2.size());
 
+    setUnionMerge(std::make_move_iterator(std::begin(input1)),
+                  std::make_move_iterator(std::end(input1)),
+                  std::make_move_iterator(std::begin(input2)),
+                  std::make_move_iterator(std::end(input2)),
+                  std::back_inserter(results),
+                  merge,
+                  comp);
+
+    return results;
+}
+
+template<class OutputContainer,
+         class InputContainer1,
+         class InputContainer2,
+         class Merge>
+OutputContainer setUnionMerge(InputContainer1 &&input1,
+                              InputContainer2 &&input2,
+                              Merge merge)
+{
+    return setUnionMerge(std::forward<InputContainer1>(input1),
+                         std::forward<InputContainer2>(input2),
+                         merge,
+                         std::less<decltype(*std::begin(input1))>{});
+}
 } // namespace Utils
