@@ -113,12 +113,12 @@ MetaInfo {
 
     Type {
         name: "QtQuick.AnimatedImage"
-        icon: ":/qtquickplugin/images/image-icon16.png"
+        icon: ":/qtquickplugin/images/animated-image-icon16.png"
 
         ItemLibraryEntry {
             name: "Animated Image"
             category: "Qt Quick - Basic"
-            libraryIcon: ":/qtquickplugin/images/image-icon.png"
+            libraryIcon: ":/qtquickplugin/images/animated-image-icon.png"
             version: "2.0"
 
             Property { name: "width"; type: "int"; value: 100; }

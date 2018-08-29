@@ -69,5 +69,8 @@
         <file>images/text-edit-icon@2x.png</file>
         <file>images/text-icon@2x.png</file>
         <file>images/text-input-icon@2x.png</file>
+        <file>images/animated-image-icon.png</file>
+        <file>images/animated-image-icon@2x.png</file>
+        <file>images/animated-image-icon16.png</file>
     </qresource>
 </RCC>
