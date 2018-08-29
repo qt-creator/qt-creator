@@ -28,6 +28,7 @@
 #include <QHash>
 
 namespace Core { class Id; }
+namespace Utils { class Environment; }
 
 namespace Autotest {
 namespace Internal {
@@ -37,6 +38,7 @@ bool isQTestMacro(const QByteArray &macro);
 QHash<QString, QString> testCaseNamesForFiles(const Core::Id &id, const QStringList &files);
 QMultiHash<QString, QString> alternativeFiles(const Core::Id &id, const QStringList &files);
 QStringList filterInterfering(const QStringList &provided, QStringList *omitted, bool isQuickTest);
+Utils::Environment prepareBasicEnvironment(const Utils::Environment &env);
 
 } // namespace QTestUtils
 } // namespace Internal

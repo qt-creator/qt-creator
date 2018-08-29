@@ -92,7 +92,7 @@ public:
     virtual TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
                                            QProcess *app) const = 0;
     virtual QStringList argumentsForTestRunner(QStringList *omitted = nullptr) const = 0;
-
+    virtual Utils::Environment filteredEnvironment(const Utils::Environment &original) const = 0;
 private:
     QStringList m_testCases;
     int m_testCaseCount = 0;

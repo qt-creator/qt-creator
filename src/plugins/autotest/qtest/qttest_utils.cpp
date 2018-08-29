@@ -25,7 +25,9 @@
 
 #include "qttest_utils.h"
 #include "qttesttreeitem.h"
+#include "../autotestplugin.h"
 #include "../testframeworkmanager.h"
+#include "../testsettings.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -138,6 +140,17 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted,
         }
     }
     return allowed;
+}
+
+Utils::Environment prepareBasicEnvironment(const Utils::Environment &env)
+{
+    Utils::Environment result(env);
+    if (Utils::HostOsInfo::isWindowsHost())
+        result.set("QT_LOGGING_TO_CONSOLE", "1");
+    const int timeout = AutotestPlugin::settings()->timeout;
+    if (timeout > 5 * 60 * 1000) // Qt5.5 introduced hard limit, Qt5.6.1 added env var to raise this
+        result.set("QTEST_FUNCTION_TIMEOUT", QString::number(timeout));
+    return result;
 }
 
 } // namespace QTestUtils

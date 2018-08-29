@@ -86,6 +86,11 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
     return arguments;
 }
 
+Utils::Environment QuickTestConfiguration::filteredEnvironment(const Utils::Environment &original) const
+{
+    return QTestUtils::prepareBasicEnvironment(original);
+}
+
 void QuickTestConfiguration::setUnnamedOnly(bool unnamedOnly)
 {
     m_unnamedOnly = unnamedOnly;

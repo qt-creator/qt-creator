@@ -84,5 +84,10 @@ QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) co
     return arguments;
 }
 
+Utils::Environment QtTestConfiguration::filteredEnvironment(const Utils::Environment &original) const
+{
+    return QTestUtils::prepareBasicEnvironment(original);
+}
+
 } // namespace Internal
 } // namespace Autotest

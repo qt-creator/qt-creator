@@ -148,6 +148,15 @@ static QString constructOmittedDetailsString(const QStringList &omitted)
                           "configuration page for \"%1\":") + '\n' + omitted.join('\n');
 }
 
+static QString constructOmittedVariablesDetailsString(const QList<Utils::EnvironmentItem> &diff)
+{
+    auto removedVars = Utils::transform<QStringList>(diff, [](const Utils::EnvironmentItem &it) {
+        return it.name;
+    });
+    return TestRunner::tr("Omitted the following environment variables for \"%1\":")
+            + '\n' + removedVars.join('\n');
+}
+
 void TestRunner::scheduleNext()
 {
     QTC_ASSERT(!m_selectedTests.isEmpty(), onFinished(); return);
@@ -192,17 +201,23 @@ void TestRunner::scheduleNext()
             details.arg(m_currentConfig->displayName()))));
     }
     m_currentProcess->setWorkingDirectory(m_currentConfig->workingDirectory());
-    QProcessEnvironment environment = m_currentConfig->environment().toProcessEnvironment();
-    if (Utils::HostOsInfo::isWindowsHost())
-        environment.insert("QT_LOGGING_TO_CONSOLE", "1");
-    const int timeout = AutotestPlugin::settings()->timeout;
-    if (timeout > 5 * 60 * 1000) // Qt5.5 introduced hard limit, Qt5.6.1 added env var to raise this
-        environment.insert("QTEST_FUNCTION_TIMEOUT", QString::number(timeout));
-    m_currentProcess->setProcessEnvironment(environment);
+    const Utils::Environment &original = m_currentConfig->environment();
+    Utils::Environment environment =  m_currentConfig->filteredEnvironment(original);
+    const QList<Utils::EnvironmentItem> removedVariables
+            = Utils::filtered(original.diff(environment), [](const Utils::EnvironmentItem &it) {
+        return it.operation == Utils::EnvironmentItem::Unset;
+    });
+    if (!removedVariables.isEmpty()) {
+        const QString &details = constructOmittedVariablesDetailsString(removedVariables)
+                .arg(m_currentConfig->displayName());
+        emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageWarn, details)));
+    }
+    m_currentProcess->setProcessEnvironment(environment.toProcessEnvironment());
 
     connect(m_currentProcess,
             static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             this, &TestRunner::onProcessFinished);
+    const int timeout = AutotestPlugin::settings()->timeout;
     QTimer::singleShot(timeout, m_currentProcess, [this]() { cancelCurrent(Timeout); });
 
     m_currentProcess->start();
@@ -520,6 +535,17 @@ void TestRunner::debugTests()
         const QString &details = constructOmittedDetailsString(omitted);
         emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
             details.arg(config->displayName()))));
+    }
+    Utils::Environment original(inferior.environment);
+    inferior.environment = config->filteredEnvironment(original);
+    const QList<Utils::EnvironmentItem> removedVariables
+            = Utils::filtered(original.diff(inferior.environment), [](const Utils::EnvironmentItem &it) {
+        return it.operation == Utils::EnvironmentItem::Unset;
+    });
+    if (!removedVariables.isEmpty()) {
+        const QString &details = constructOmittedVariablesDetailsString(removedVariables)
+                .arg(config->displayName());
+        emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageWarn, details)));
     }
     auto debugger = new Debugger::DebuggerRunTool(runControl);
     debugger->setInferior(inferior);
