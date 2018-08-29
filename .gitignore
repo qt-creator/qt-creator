@@ -1,0 +1,10 @@
+/*.user*
+.qmake.*
+Makefile*
+.moc/
+.obj/
+.rcc/
+.uic/
+/plugins/fossil/Fossil.json
+/qdoc_wrapper.sh
+/doc/fossil/
