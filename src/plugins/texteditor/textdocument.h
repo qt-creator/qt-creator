@@ -81,13 +81,14 @@ public:
 
     const TypingSettings &typingSettings() const;
     const StorageSettings &storageSettings() const;
-    const TabSettings &tabSettings() const;
+    virtual TabSettings tabSettings() const;
     const ExtraEncodingSettings &extraEncodingSettings() const;
     const FontSettings &fontSettings() const;
 
     void setIndenter(Indenter *indenter);
     Indenter *indenter() const;
-    void autoIndent(const QTextCursor &cursor, QChar typedChar = QChar::Null);
+    void autoIndent(const QTextCursor &cursor, QChar typedChar = QChar::Null,
+                    bool autoTriggered = true);
     void autoReindent(const QTextCursor &cursor);
     QTextCursor indent(const QTextCursor &cursor, bool blockSelection = false, int column = 0,
                        int *offset = nullptr);

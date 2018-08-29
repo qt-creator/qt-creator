@@ -25,29 +25,29 @@
 
 #pragma once
 
-#include "clangtoolssettings.h"
-
-#include <QWidget>
+#include <extensionsystem/iplugin.h>
 
 #include <memory>
 
-namespace ClangTools {
+namespace ClangFormat {
 namespace Internal {
 
-namespace Ui { class ClangToolsConfigWidget; }
+class ClangFormatOptionsPage;
 
-class ClangExecutableVersion;
-
-class ClangToolsConfigWidget : public QWidget
+class ClangFormatPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangFormat.json")
 
 public:
-    ClangToolsConfigWidget(ClangToolsSettings *settings, QWidget *parent = nullptr);
-    ~ClangToolsConfigWidget();
+    ClangFormatPlugin();
+    ~ClangFormatPlugin();
+
 private:
-    std::unique_ptr<Ui::ClangToolsConfigWidget> m_ui;
-    ClangToolsSettings *m_settings;
+    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void extensionsInitialized() final {}
+
+    std::unique_ptr<ClangFormatOptionsPage> m_optionsPage;
 };
 
 } // namespace Internal

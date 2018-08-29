@@ -48,6 +48,7 @@ namespace CPlusPlus { class LookupContext; }
 namespace ProjectExplorer { class Project; }
 namespace TextEditor {
 class BaseHoverHandler;
+class Indenter;
 class TextDocument;
 } // namespace TextEditor
 
@@ -211,6 +212,13 @@ public:
     static void addRefactoringEngine(RefactoringEngineType type,
                                      RefactoringEngineInterface *refactoringEngine);
     static void removeRefactoringEngine(RefactoringEngineType type);
+
+    using CppIndenterCreator = std::function<TextEditor::Indenter *()>;
+    void setCppIndenterCreator(CppIndenterCreator indenterCreator)
+    {
+        createCppIndenter = std::move(indenterCreator);
+    }
+    CppIndenterCreator createCppIndenter;
 
     void setLocatorFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
     void setClassesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);

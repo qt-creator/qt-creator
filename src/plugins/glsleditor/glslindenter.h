@@ -45,7 +45,8 @@ public:
     virtual void indent(QTextDocument *doc,
                         const QTextCursor &cursor,
                         const QChar &typedChar,
-                        const TextEditor::TabSettings &tabSettings) override;
+                        const TextEditor::TabSettings &tabSettings,
+                        bool autoTriggered = true) override;
 
     int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
     TextEditor::IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,

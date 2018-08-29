@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,45 +25,33 @@
 
 #pragma once
 
-#include "cpptools_global.h"
-
 #include <texteditor/indenter.h>
 
-namespace TextEditor
-{
-class ICodeStylePreferences;
-}
+namespace ClangFormat {
+namespace Internal {
 
-namespace CppTools {
-class CppCodeStyleSettings;
-class CppCodeStylePreferences;
-
-class CPPTOOLS_EXPORT CppQtStyleIndenter : public TextEditor::Indenter
+class ClangFormatIndenter final : public TextEditor::Indenter
 {
 public:
-    CppQtStyleIndenter();
-    ~CppQtStyleIndenter() override;
-
-    bool isElectricCharacter(const QChar &ch) const override;
-    void indentBlock(QTextDocument *doc,
-                     const QTextBlock &block,
-                     const QChar &typedChar,
-                     const TextEditor::TabSettings &tabSettings) override;
-
     void indent(QTextDocument *doc,
                 const QTextCursor &cursor,
                 const QChar &typedChar,
                 const TextEditor::TabSettings &tabSettings,
                 bool autoTriggered = true) override;
-
-    void setCodeStylePreferences(TextEditor::ICodeStylePreferences *preferences) override;
-    void invalidateCache(QTextDocument *doc) override;
+    void reindent(QTextDocument *doc,
+                  const QTextCursor &cursor,
+                  const TextEditor::TabSettings &tabSettings) override;
+    void indentBlock(QTextDocument *doc,
+                                 const QTextBlock &block,
+                                 const QChar &typedChar,
+                                 const TextEditor::TabSettings &tabSettings) override;
     int indentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings) override;
-    TextEditor::IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
-                                                         const TextEditor::TabSettings &tabSettings) override;
-private:
-    CppCodeStyleSettings codeStyleSettings() const;
-    CppCodeStylePreferences *m_cppCodeStylePreferences;
+
+    bool isElectricCharacter(const QChar &ch) const override;
+
+    bool hasTabSettings() const override { return true; }
+    TextEditor::TabSettings tabSettings() const override;
 };
 
-} // CppTools
+} // namespace Internal
+} // namespace ClangFormat

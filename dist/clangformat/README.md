@@ -1,6 +1,6 @@
 # .clang-format for Qt Creator
 
-Alongside this file you find an EXPERIMENTAL .clang-format configuration file
+In you Qt Creator root there is an EXPERIMENTAL .clang-format configuration file
 for the Qt Creator code base.
 
 The current configuration is useful, but not fully in accordance with the
@@ -26,25 +26,11 @@ For more information about clang-format, see
 
 ## Set up Qt Creator for use with clang-format
 
-### Install the configuration file
-
-For a given source file to format, clang-format it will read the configuration
-from .clang-format in the closest parent directory for the file to format.
-
-Hence symlink/copy .clang-format from this directory to e.g. Qt Creator's top
-level directory:
-
-For Linux/macOS:
-
-    $ cd $QTC_SOURCE
-    $ ln -s dist/clangformat/.clang-format
-
-For Windows:
-
-    $ cd $QTC_SOURCE
-    $ copy dist\clangformat\.clang-format # Do not forget to keep this updated
-
 ### Configure Qt Creator
+
+  0. Enable experimental ClangFormat plugin to get C++ indentation based on it.
+
+  Or use an alternative way:
 
   1. Enable the Beautifier plugin and restart to load it.
 

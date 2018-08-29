@@ -84,7 +84,8 @@ void GlslIndenter::indentBlock(QTextDocument *doc,
 void GlslIndenter::indent(QTextDocument *doc,
                           const QTextCursor &cursor,
                           const QChar &typedChar,
-                          const TextEditor::TabSettings &tabSettings)
+                          const TextEditor::TabSettings &tabSettings,
+                          bool /*autoTriggered*/)
 {
     if (cursor.hasSelection()) {
         QTextBlock block = doc->findBlock(cursor.selectionStart());

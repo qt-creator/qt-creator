@@ -29,7 +29,6 @@
 .DS_Store
 /.qmake.cache
 /.qmake.stash
-/.clang-format
 Makefile*
 Thumbs.db
 core

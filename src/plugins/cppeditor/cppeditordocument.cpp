@@ -103,7 +103,7 @@ CppEditorDocument::CppEditorDocument()
 {
     setId(CppEditor::Constants::CPPEDITOR_ID);
     setSyntaxHighlighter(new CppHighlighter);
-    setIndenter(new CppTools::CppQtStyleIndenter);
+    setIndenter(CppTools::CppModelManager::instance()->createCppIndenter());
 
     connect(this, &TextEditor::TextDocument::tabSettingsChanged,
             this, &CppEditorDocument::invalidateFormatterCache);
@@ -431,6 +431,13 @@ CppTools::BaseEditorDocumentProcessor *CppEditorDocument::processor()
     }
 
     return m_processor.data();
+}
+
+TextEditor::TabSettings CppEditorDocument::tabSettings() const
+{
+    return indenter()->hasTabSettings()
+            ? indenter()->tabSettings()
+            : TextEditor::TextDocument::tabSettings();
 }
 
 } // namespace Internal

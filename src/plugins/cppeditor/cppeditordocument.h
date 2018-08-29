@@ -67,6 +67,7 @@ public:
     ParseContextModel &parseContextModel();
 
     QFuture<CppTools::CursorInfo> cursorInfo(const CppTools::CursorInfoParams &params);
+    TextEditor::TabSettings tabSettings() const override;
 
 signals:
     void codeWarningsUpdated(unsigned contentsRevision,

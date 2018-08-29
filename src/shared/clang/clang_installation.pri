@@ -116,6 +116,9 @@ CLANGTOOLING_LIBS=-lclangTooling -lclangIndex -lclangFrontend -lclangParse -lcla
                   -lclangASTMatchers -lclangToolingCore -lclangAST -lclangLex -lclangBasic
 win32:CLANGTOOLING_LIBS += -lversion
 
+CLANGFORMAT_LIBS=-lclangFormat -lclangToolingCore -lclangRewrite -lclangLex -lclangBasic
+win32:CLANGFORMAT_LIBS += -lversion
+
 BIN_EXTENSION =
 win32: BIN_EXTENSION = .exe
 
@@ -198,6 +201,8 @@ isEmpty(LLVM_VERSION) {
     } else {
         warning("Clang LibTooling is disabled. Set QTC_ENABLE_CLANG_LIBTOOLING to enable it.")
     }
+
+    CLANGFORMAT_LIBS = -L$${LLVM_LIBDIR} $$CLANGFORMAT_LIBS $$LLVM_STATIC_LIBS
 
     contains(QMAKE_DEFAULT_INCDIRS, $$LLVM_INCLUDEPATH): LLVM_INCLUDEPATH =
 

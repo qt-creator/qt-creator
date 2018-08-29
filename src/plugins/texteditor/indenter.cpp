@@ -59,7 +59,8 @@ void Indenter::indentBlock(QTextDocument *doc,
 void Indenter::indent(QTextDocument *doc,
                       const QTextCursor &cursor,
                       const QChar &typedChar,
-                      const TabSettings &tabSettings)
+                      const TabSettings &tabSettings,
+                      bool /*autoTriggered*/)
 {
     if (cursor.hasSelection()) {
         QTextBlock block = doc->findBlock(cursor.selectionStart());

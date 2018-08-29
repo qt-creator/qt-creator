@@ -290,7 +290,7 @@ static void showError(const QString &error)
  * Checks the state of @a task and if the formatting was successful calls updateEditorText() with
  * the respective members of @a task.
  */
-void checkAndApplyTask(const FormatTask &task)
+static void checkAndApplyTask(const FormatTask &task)
 {
     if (!task.error.isEmpty()) {
         showError(task.error);

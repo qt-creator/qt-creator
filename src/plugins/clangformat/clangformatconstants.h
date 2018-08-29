@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -24,31 +24,3 @@
 ****************************************************************************/
 
 #pragma once
-
-#include "clangtoolssettings.h"
-
-#include <QWidget>
-
-#include <memory>
-
-namespace ClangTools {
-namespace Internal {
-
-namespace Ui { class ClangToolsConfigWidget; }
-
-class ClangExecutableVersion;
-
-class ClangToolsConfigWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    ClangToolsConfigWidget(ClangToolsSettings *settings, QWidget *parent = nullptr);
-    ~ClangToolsConfigWidget();
-private:
-    std::unique_ptr<Ui::ClangToolsConfigWidget> m_ui;
-    ClangToolsSettings *m_settings;
-};
-
-} // namespace Internal
-} // namespace ClangTools

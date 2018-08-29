@@ -80,10 +80,7 @@ ClangToolsConfigWidget::ClangToolsConfigWidget(
     });
 }
 
-ClangToolsConfigWidget::~ClangToolsConfigWidget()
-{
-    delete m_ui;
-}
+ClangToolsConfigWidget::~ClangToolsConfigWidget() = default;
 
 } // namespace Internal
 } // namespace ClangTools

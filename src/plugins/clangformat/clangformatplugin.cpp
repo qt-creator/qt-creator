@@ -23,20 +23,10 @@
 **
 ****************************************************************************/
 
-#include "clangtoolsplugin.h"
+#include "clangformatplugin.h"
 
-#include "clangtoolsconfigwidget.h"
-#include "clangtoolsconstants.h"
-#include "clangtoolsprojectsettingswidget.h"
-#include "clangtidyclazytool.h"
-#include "clangtoolsprojectsettings.h"
-
-#ifdef WITH_TESTS
-#include "clangtoolspreconfiguredsessiontests.h"
-#include "clangtoolsunittests.h"
-#endif
-
-#include <debugger/analyzer/analyzericons.h>
+#include "clangformatconfigwidget.h"
+#include "clangformatindenter.h"
 
 #include <utils/qtcassert.h>
 
@@ -65,33 +55,31 @@
 
 using namespace ProjectExplorer;
 
-namespace ClangTools {
+namespace ClangFormat {
 namespace Internal {
 
-class ClangToolsOptionsPage : public Core::IOptionsPage
+class ClangFormatOptionsPage : public Core::IOptionsPage
 {
 public:
-    explicit ClangToolsOptionsPage()
+    explicit ClangFormatOptionsPage()
     {
-        setId("Analyzer.ClangTools.Settings");
+        setId("Cpp.CodeStyle.ClangFormat");
         setDisplayName(QCoreApplication::translate(
-                           "ClangTools::Internal::ClangToolsOptionsPage",
-                           "Clang Tools"));
-        setCategory("T.Analyzer");
-        setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
-        setCategoryIcon(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+                           "ClangFormat::Internal::ClangFormatOptionsPage",
+                           "Clang Format"));
+        setCategory(CppTools::Constants::CPP_SETTINGS_CATEGORY);
     }
 
     QWidget *widget()
     {
         if (!m_widget)
-            m_widget = new ClangToolsConfigWidget(ClangToolsSettings::instance());
+            m_widget = new ClangFormatConfigWidget;
         return m_widget;
     }
 
     void apply()
     {
-        ClangToolsSettings::instance()->writeSettings();
+        m_widget->apply();
     }
 
     void finish()
@@ -100,47 +88,33 @@ public:
     }
 
 private:
-    QPointer<QWidget> m_widget;
+    QPointer<ClangFormatConfigWidget> m_widget;
 };
 
-class ClangToolsPluginPrivate
-{
-public:
-    ClangTidyClazyTool clangTidyClazyTool;
-    ClangToolsOptionsPage optionsPage;
-    ClangToolsProjectSettingsManager settingsManager;
-};
+ClangFormatPlugin::ClangFormatPlugin() = default;
+ClangFormatPlugin::~ClangFormatPlugin() = default;
 
-ClangToolsPlugin::~ClangToolsPlugin()
-{
-    delete d;
-}
-
-bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorString)
+bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
 
-    d = new ClangToolsPluginPrivate;
+    m_optionsPage = std::make_unique<ClangFormatOptionsPage>();
 
     auto panelFactory = new ProjectPanelFactory();
-    panelFactory->setPriority(100);
-    panelFactory->setDisplayName(tr("Clang Tools"));
-    panelFactory->setCreateWidgetFunction([](Project *project) { return new ProjectSettingsWidget(project); });
+    panelFactory->setPriority(120);
+    panelFactory->setDisplayName(tr("Clang Format"));
+    panelFactory->setCreateWidgetFunction([](Project *project) {
+        return new ClangFormatConfigWidget(project);
+    });
     ProjectPanelFactory::registerFactory(panelFactory);
+
+    CppTools::CppModelManager::instance()->setCppIndenterCreator([]() {
+        return new ClangFormatIndenter();
+    });
 
     return true;
 }
 
-QList<QObject *> ClangToolsPlugin::createTestObjects() const
-{
-    QList<QObject *> tests;
-#ifdef WITH_TESTS
-    tests << new PreconfiguredSessionTests;
-    tests << new ClangToolsUnitTests;
-#endif
-    return tests;
-}
-
 } // namespace Internal
-} // namespace ClangTools
+} // namespace ClangFormat

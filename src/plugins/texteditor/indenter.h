@@ -27,6 +27,8 @@
 
 #include "texteditor_global.h"
 
+#include "tabsettings.h"
+
 #include <QMap>
 
 QT_BEGIN_NAMESPACE
@@ -62,7 +64,8 @@ public:
     virtual void indent(QTextDocument *doc,
                         const QTextCursor &cursor,
                         const QChar &typedChar,
-                        const TabSettings &tabSettings);
+                        const TabSettings &tabSettings,
+                        bool autoTriggered = true);
 
     // Reindent at cursor. Selection will be adjusted according to the indentation
     // change of the first block.
@@ -77,6 +80,9 @@ public:
     // Expects a list of blocks in order of occurrence in the document.
     virtual IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
                                                      const TextEditor::TabSettings &tabSettings);
+
+    virtual bool hasTabSettings() const { return false; }
+    virtual TabSettings tabSettings() const { return TabSettings(); }
 };
 
 } // namespace TextEditor
