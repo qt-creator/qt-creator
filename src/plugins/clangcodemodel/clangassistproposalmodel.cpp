@@ -63,7 +63,8 @@ void ClangAssistProposalModel::sort(const QString &/*prefix*/)
                     || (first->order() == second->order() && first->text() < second->text())));
     };
 
-    std::sort(m_currentItems.begin(), m_currentItems.end(), currentItemsCompare);
+    // Keep the order for the items with the same priority and name.
+    std::stable_sort(m_currentItems.begin(), m_currentItems.end(), currentItemsCompare);
 }
 
 } // namespace Internal

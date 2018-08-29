@@ -133,12 +133,14 @@ static QList<AssistProposalItemInterface *> toAssistProposalItems(
             auto samePreviousConstructor
                     = std::find_if(items.begin(),
                                    items.end(),
-                                   [&name](const AssistProposalItemInterface *item) {
-                return item->text() == name;
+                                   [&](const AssistProposalItemInterface *item) {
+                return item->text() == name
+                        && static_cast<const ClangAssistProposalItem *>(item)->firstCodeCompletion()
+                        .completionKind == codeCompletion.completionKind;
             });
             if (samePreviousConstructor == items.end()) {
                 addAssistProposalItem(items, codeCompletion, name);
-            } else {
+            } else if (codeCompletion.completionKind == CodeCompletion::ConstructorCompletionKind){
                 addFunctionOverloadAssistProposalItem(items, *samePreviousConstructor, interface,
                                                       codeCompletion, name);
             }

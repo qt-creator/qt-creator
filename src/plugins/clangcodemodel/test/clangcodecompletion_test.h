@@ -46,6 +46,7 @@ private slots:
     void testCompleteMembers();
     void testCompleteFunctions();
     void testCompleteConstructor();
+    void testCompleteClassAndConstructor();
 
     void testCompleteWithDotToArrowCorrection();
     void testDontCompleteWithDotToArrowCorrectionForFloats();

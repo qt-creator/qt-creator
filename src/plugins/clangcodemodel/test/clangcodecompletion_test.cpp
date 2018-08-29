@@ -361,6 +361,20 @@ bool hasItem(TextEditor::ProposalModelPtr model, const QByteArray &text)
     return indexOfItemWithText(model, text) != -1;
 }
 
+int itemsWithText(TextEditor::ProposalModelPtr model, const QByteArray &text)
+{
+    if (!model)
+        return 0;
+
+    int amount = 0;
+    for (int i = 0, size = model->size(); i < size; ++i) {
+        if (model->text(i) == QString::fromUtf8(text))
+            ++amount;
+    }
+
+    return amount;
+}
+
 bool hasItem(TextEditor::ProposalModelPtr model, const QByteArray &text, const QByteArray &detail)
 {
     const int index = indexOfItemWithText(model, text);
@@ -571,6 +585,13 @@ void ClangCodeCompletionTest::testCompleteConstructor()
     QVERIFY(hasItem(t.proposal, "Foo(int, double)"));
 }
 
+void ClangCodeCompletionTest::testCompleteClassAndConstructor()
+{
+    ProjectLessCompletionTest t("classAndConstructorCompletion.cpp");
+
+    QCOMPARE(itemsWithText(t.proposal, "Foo"), 2);
+}
+
 // Explicitly Inserting The Dot
 // ----------------------------
 // Inserting the dot for is important since it will send the editor
@@ -582,7 +603,7 @@ void ClangCodeCompletionTest::testCompleteWithDotToArrowCorrection()
     ProjectLessCompletionTest t("dotToArrowCorrection.cpp",
                                 QStringLiteral(".")); // See above "Explicitly Inserting The Dot"
 
-    QVERIFY(hasItem(t.proposal, "member"));
+    QVERIFY(hasItem(t.proposal, "member (requires to correct [4:8-4:9] to \"->\")"));
 }
 
 void ClangCodeCompletionTest::testDontCompleteWithDotToArrowCorrectionForFloats()
