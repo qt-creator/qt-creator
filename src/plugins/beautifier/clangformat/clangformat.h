@@ -46,7 +46,7 @@ public:
     QString id() const override;
     bool initialize() override;
     void updateActions(Core::IEditor *editor) override;
-    Command command() const override;
+    TextEditor::Command command() const override;
     bool isApplicable(const Core::IDocument *document) const override;
 
 private:
@@ -57,7 +57,7 @@ private:
     QAction *m_formatRange = nullptr;
     QAction *m_disableFormattingSelectedText = nullptr;
     ClangFormatSettings *m_settings;
-    Command command(int offset, int length) const;
+    TextEditor::Command command(int offset, int length) const;
 };
 
 } // namespace ClangFormat

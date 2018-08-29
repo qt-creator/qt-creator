@@ -75,6 +75,8 @@ Project {
             "detailsbutton.h",
             "detailswidget.cpp",
             "detailswidget.h",
+            "differ.cpp",
+            "differ.h",
             "dropsupport.cpp",
             "dropsupport.h",
             "elfreader.cpp",

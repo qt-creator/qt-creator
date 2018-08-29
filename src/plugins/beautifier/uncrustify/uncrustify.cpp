@@ -44,11 +44,14 @@
 #include <cppeditor/cppeditorconstants.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
+#include <texteditor/formattexteditor.h>
 #include <texteditor/texteditor.h>
 #include <utils/fileutils.h>
 
 #include <QAction>
 #include <QMenu>
+
+using namespace TextEditor;
 
 namespace Beautifier {
 namespace Internal {
@@ -111,7 +114,7 @@ void Uncrustify::formatFile()
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
                                         tr(Constants::Uncrustify::DISPLAY_NAME)));
     } else {
-        BeautifierPlugin::formatCurrentFile(command(cfgFileName));
+        formatCurrentFile(command(cfgFileName));
     }
 }
 
@@ -124,8 +127,7 @@ void Uncrustify::formatSelectedText()
         return;
     }
 
-    const TextEditor::TextEditorWidget *widget
-            = TextEditor::TextEditorWidget::currentTextEditorWidget();
+    const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
     if (!widget)
         return;
 
@@ -141,7 +143,7 @@ void Uncrustify::formatSelectedText()
         if (tc.positionInBlock() > 0)
             tc.movePosition(QTextCursor::EndOfLine);
         const int endPos = tc.position();
-        BeautifierPlugin::formatCurrentFile(command(cfgFileName, true), startPos, endPos);
+        formatCurrentFile(command(cfgFileName, true), startPos, endPos);
     } else if (m_settings->formatEntireFileFallback()) {
         formatFile();
     }

@@ -11,7 +11,6 @@ HEADERS += \
         diffeditorfactory.h \
         diffeditorplugin.h \
         diffeditorwidgetcontroller.h \
-        differ.h \
         diffutils.h \
         diffview.h \
         selectabletexteditorwidget.h \
@@ -27,7 +26,6 @@ SOURCES += \
         diffeditorfactory.cpp \
         diffeditorplugin.cpp \
         diffeditorwidgetcontroller.cpp \
-        differ.cpp \
         diffutils.cpp \
         diffview.cpp \
         selectabletexteditorwidget.cpp \

@@ -41,7 +41,7 @@ publication by Neil Fraser: http://neil.fraser.name/writing/diff/
 #include <QCoreApplication>
 #include <QFutureInterfaceBase>
 
-namespace DiffEditor {
+namespace Utils {
 
 static int commonPrefix(const QString &text1, const QString &text2)
 {
@@ -1555,4 +1555,4 @@ QList<Diff> Differ::cleanupSemanticsLossless(const QList<Diff> &diffList)
     return newDiffList;
 }
 
-} // namespace DiffEditor
+} // namespace Utils

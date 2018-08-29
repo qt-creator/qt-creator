@@ -101,7 +101,9 @@ SOURCES += texteditorplugin.cpp \
     codeassist/keywordscompletionassist.cpp \
     completionsettingspage.cpp \
     commentssettings.cpp \
-    marginsettings.cpp
+    marginsettings.cpp \
+    formattexteditor.cpp \
+    command.cpp
 
 HEADERS += texteditorplugin.h \
     plaintexteditorfactory.h \
@@ -214,7 +216,9 @@ HEADERS += texteditorplugin.h \
     blockrange.h \
     completionsettingspage.h \
     commentssettings.h \
-    textstyles.h
+    textstyles.h \
+    formattexteditor.h \
+    command.h
 
 FORMS += \
     displaysettingspage.ui \

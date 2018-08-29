@@ -45,7 +45,7 @@ public:
     bool initialize() override;
     QString id() const override;
     void updateActions(Core::IEditor *editor) override;
-    Command command() const override;
+    TextEditor::Command command() const override;
     bool isApplicable(const Core::IDocument *document) const override;
 
 private:
@@ -55,7 +55,7 @@ private:
     QAction *m_formatRange = nullptr;
     UncrustifySettings *m_settings;
     QString configurationFile() const;
-    Command command(const QString &cfgFile, bool fragment = false) const;
+    TextEditor::Command command(const QString &cfgFile, bool fragment = false) const;
 };
 
 } // namespace Uncrustify

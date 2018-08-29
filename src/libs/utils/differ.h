@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "diffeditor_global.h"
+#include "utils_global.h"
 #include <QString>
 
 QT_BEGIN_NAMESPACE
@@ -34,9 +34,9 @@ class QMap;
 class QFutureInterfaceBase;
 QT_END_NAMESPACE
 
-namespace DiffEditor {
+namespace Utils {
 
-class DIFFEDITOR_EXPORT Diff
+class QTCREATOR_UTILS_EXPORT Diff
 {
 public:
     enum Command {
@@ -54,7 +54,7 @@ public:
     static QString commandString(Command com);
 };
 
-class DIFFEDITOR_EXPORT Differ
+class QTCREATOR_UTILS_EXPORT Differ
 {
 public:
     enum DiffMode
@@ -114,4 +114,4 @@ private:
     QFutureInterfaceBase *m_jobController = nullptr;
 };
 
-} // namespace DiffEditor
+} // namespace Utils

@@ -25,13 +25,14 @@
 
 #pragma once
 
+#include "texteditor_global.h"
+
 #include <QString>
 #include <QStringList>
 
-namespace Beautifier {
-namespace Internal {
+namespace TextEditor {
 
-class Command
+class TEXTEDITOR_EXPORT Command
 {
 public:
     enum Processing {
@@ -64,5 +65,4 @@ private:
     bool m_returnsCRLF = false;
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // namespace TextEditor

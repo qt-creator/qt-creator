@@ -25,8 +25,7 @@
 
 #include "command.h"
 
-namespace Beautifier {
-namespace Internal {
+namespace TextEditor {
 
 bool Command::isValid() const
 {
@@ -83,5 +82,4 @@ void Command::setReturnsCRLF(bool returnsCRLF)
     m_returnsCRLF = returnsCRLF;
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // namespace TextEditor

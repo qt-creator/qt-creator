@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "command.h"
+#include <texteditor/command.h>
 
 #include <QObject>
 
@@ -53,7 +53,7 @@ public:
      *
      * @note    The received command may be invalid.
      */
-    virtual Command command() const = 0;
+    virtual TextEditor::Command command() const = 0;
 
     virtual bool isApplicable(const Core::IDocument *document) const = 0;
 };

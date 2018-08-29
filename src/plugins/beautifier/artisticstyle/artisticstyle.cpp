@@ -44,11 +44,14 @@
 #include <cppeditor/cppeditorconstants.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
+#include <texteditor/formattexteditor.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 
 #include <QAction>
 #include <QMenu>
+
+using namespace TextEditor;
 
 namespace Beautifier {
 namespace Internal {
@@ -101,7 +104,7 @@ void ArtisticStyle::formatFile()
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
                                         tr(Constants::ArtisticStyle::DISPLAY_NAME)));
     } else {
-        BeautifierPlugin::formatCurrentFile(command(cfgFileName));
+        formatCurrentFile(command(cfgFileName));
     }
 }
 

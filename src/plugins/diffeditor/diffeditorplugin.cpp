@@ -29,7 +29,6 @@
 #include "diffeditorcontroller.h"
 #include "diffeditordocument.h"
 #include "diffeditorfactory.h"
-#include "differ.h"
 
 #include <QAction>
 #include <QFileDialog>
@@ -50,10 +49,12 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
+#include <utils/differ.h>
 #include <utils/mapreduce.h>
 #include <utils/qtcassert.h>
 
 using namespace Core;
+using namespace Utils;
 
 namespace DiffEditor {
 namespace Internal {

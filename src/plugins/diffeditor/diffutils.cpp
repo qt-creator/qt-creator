@@ -24,14 +24,16 @@
 ****************************************************************************/
 
 #include "diffutils.h"
-#include "differ.h"
 
-#include "texteditor/fontsettings.h"
+#include <texteditor/fontsettings.h>
+#include <utils/differ.h>
 
 #include <QFutureInterfaceBase>
 #include <QRegularExpression>
 #include <QStringList>
 #include <QTextStream>
+
+using namespace Utils;
 
 namespace DiffEditor {
 
@@ -103,7 +105,7 @@ static void handleDifference(const QString &text,
  * The number of equalities on both lists must be the same.
 */
 ChunkData DiffUtils::calculateOriginalData(const QList<Diff> &leftDiffList,
-                                const QList<Diff> &rightDiffList)
+                                           const QList<Diff> &rightDiffList)
 {
     int i = 0;
     int j = 0;

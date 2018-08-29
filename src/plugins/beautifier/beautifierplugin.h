@@ -25,9 +25,8 @@
 
 #pragma once
 
-#include "command.h"
-
 #include <extensionsystem/iplugin.h>
+#include <texteditor/command.h>
 
 namespace Beautifier {
 namespace Internal {
@@ -38,8 +37,6 @@ class BeautifierPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Beautifier.json")
 
 public:
-    static void formatCurrentFile(const Command &command, int startPos = -1, int endPos = 0);
-
     static QString msgCannotGetConfigurationFile(const QString &command);
     static QString msgFormatCurrentFile();
     static QString msgFormatSelectedText();
