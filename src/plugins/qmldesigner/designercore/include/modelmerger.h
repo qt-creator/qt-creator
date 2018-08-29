@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <qmldesignercorelib_global.h>
 
 #include <QPointer>
 
@@ -33,7 +34,7 @@ namespace QmlDesigner {
 class AbstractView;
 class ModelNode;
 
-class ModelMerger
+class QMLDESIGNERCORE_EXPORT ModelMerger
 {
 public:
     ModelMerger(AbstractView *view) : m_view(view) {}
