@@ -231,7 +231,17 @@
         </property>
        </widget>
       </item>
-      <item row="7" column="0" colspan="2">
+      <item row="7" column="0">
+       <widget class="QCheckBox" name="automaticallyCreateRunConfiguration">
+        <property name="toolTip">
+         <string>Creates suitable run configurations automatically when setting up a new kit.</string>
+        </property>
+        <property name="text">
+         <string>Create suitable run configurations automatically</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
          <widget class="QLabel" name="labelStopBeforeBuild">
@@ -279,7 +289,7 @@
         </item>
        </layout>
       </item>
-      <item row="8" column="0" colspan="2">
+      <item row="9" column="0" colspan="2">
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="spacing">
          <number>0</number>
@@ -312,7 +322,7 @@
         </item>
        </layout>
       </item>
-      <item row="9" column="0" colspan="2">
+      <item row="10" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <property name="topMargin">
          <number>12</number>

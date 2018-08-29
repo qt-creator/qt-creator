@@ -25,25 +25,27 @@
 
 #include "target.h"
 
+#include "buildconfiguration.h"
 #include "buildinfo.h"
+#include "buildmanager.h"
 #include "buildtargetinfo.h"
+#include "deployconfiguration.h"
 #include "deploymentdata.h"
+#include "devicesupport/devicemanager.h"
 #include "kit.h"
 #include "kitinformation.h"
 #include "kitmanager.h"
-#include "buildconfiguration.h"
-#include "deployconfiguration.h"
 #include "project.h"
+#include "projectexplorer.h"
+#include "projectexplorericons.h"
+#include "projectexplorersettings.h"
 #include "runconfiguration.h"
 #include "session.h"
 
-#include <limits>
 #include <coreplugin/coreconstants.h>
-#include <projectexplorer/buildmanager.h>
-#include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/projectexplorericons.h>
+
 #include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/projectexplorer.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -51,6 +53,8 @@
 #include <QDebug>
 #include <QIcon>
 #include <QPainter>
+
+#include <limits>
 
 namespace {
 const char ACTIVE_BC_KEY[] = "ProjectExplorer.Target.ActiveBuildConfiguration";
@@ -574,41 +578,43 @@ void Target::updateDefaultRunConfigurations()
     }
     configuredCount -= toRemove.count();
 
-    // Create new "automatic" RCs and put them into newConfigured/newUnconfigured
-    foreach (const RunConfigurationCreationInfo &item, creators) {
-        if (item.creationMode == RunConfigurationCreationInfo::ManualCreationOnly)
-            continue;
-        bool exists = false;
-        for (const RunConfigurationCreationInfo &ex : existing) {
-            if (ex.id == item.id && ex.buildKey == item.buildKey)
-                exists = true;
-        }
-        if (exists)
-            continue;
-
-        RunConfiguration *rc = item.create(this);
-        if (!rc)
-            continue;
-        QTC_CHECK(rc->id() == item.id);
-        if (!rc->isConfigured())
-            newUnconfigured << rc;
-        else
-            newConfigured << rc;
-    }
-    configuredCount += newConfigured.count();
-
-    // Decide what to do with the different categories:
     bool removeExistingUnconfigured = false;
-    if (configuredCount > 0) {
-        // new non-Custom Executable RCs were added
-        removeExistingUnconfigured = true;
-        qDeleteAll(newUnconfigured);
-        newUnconfigured.clear();
-    } else {
-        // no new RCs, use old or new CERCs?
-        if (!existingUnconfigured.isEmpty()) {
+    if (ProjectExplorerPlugin::projectExplorerSettings().automaticallyCreateRunConfigurations) {
+        // Create new "automatic" RCs and put them into newConfigured/newUnconfigured
+        foreach (const RunConfigurationCreationInfo &item, creators) {
+            if (item.creationMode == RunConfigurationCreationInfo::ManualCreationOnly)
+                continue;
+            bool exists = false;
+            for (const RunConfigurationCreationInfo &ex : existing) {
+                if (ex.id == item.id && ex.buildKey == item.buildKey)
+                    exists = true;
+            }
+            if (exists)
+                continue;
+
+            RunConfiguration *rc = item.create(this);
+            if (!rc)
+                continue;
+            QTC_CHECK(rc->id() == item.id);
+            if (!rc->isConfigured())
+                newUnconfigured << rc;
+            else
+                newConfigured << rc;
+        }
+        configuredCount += newConfigured.count();
+
+        // Decide what to do with the different categories:
+        if (configuredCount > 0) {
+            // new non-Custom Executable RCs were added
+            removeExistingUnconfigured = true;
             qDeleteAll(newUnconfigured);
             newUnconfigured.clear();
+        } else {
+            // no new RCs, use old or new CERCs?
+            if (!existingUnconfigured.isEmpty()) {
+                qDeleteAll(newUnconfigured);
+                newUnconfigured.clear();
+            }
         }
     }
 

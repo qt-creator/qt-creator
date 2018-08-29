@@ -108,7 +108,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     m_settings.wrapAppOutput = m_ui.wrapAppOutputCheckBox->isChecked();
     m_settings.useJom = m_ui.jomCheckbox->isChecked();
     m_settings.addLibraryPathsToRunEnv = m_ui.addLibraryPathsToRunEnvCheckBox->isChecked();
-    m_settings.prompToStopRunControl = m_ui.promptToStopRunControlCheckBox->isChecked();
+    m_settings.automaticallyCreateRunConfigurations = m_ui.automaticallyCreateRunConfiguration->isChecked();
     m_settings.maxAppOutputLines = m_ui.maxAppOutputBox->value();
     m_settings.maxBuildOutputLines = m_ui.maxBuildOutputBox->value();
     m_settings.stopBeforeBuild = static_cast<ProjectExplorerSettings::StopBeforeBuild>(m_ui.stopBeforeBuildComboBox->currentIndex());
@@ -130,6 +130,7 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_ui.jomCheckbox->setChecked(m_settings.useJom);
     m_ui.addLibraryPathsToRunEnvCheckBox->setChecked(m_settings.addLibraryPathsToRunEnv);
     m_ui.promptToStopRunControlCheckBox->setChecked(m_settings.prompToStopRunControl);
+    m_ui.automaticallyCreateRunConfiguration->setChecked(m_settings.automaticallyCreateRunConfigurations);
     m_ui.maxAppOutputBox->setValue(m_settings.maxAppOutputLines);
     m_ui.maxBuildOutputBox->setValue(m_settings.maxBuildOutputLines);
     m_ui.stopBeforeBuildComboBox->setCurrentIndex(static_cast<int>(m_settings.stopBeforeBuild));
