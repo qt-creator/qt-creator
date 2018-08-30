@@ -1804,7 +1804,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
     // Further examine stop and report to user
     QString message;
     QString exceptionBoxMessage;
-    Thread forcedThread;
+    bool forcedThread = false;
     const unsigned stopFlags = examineStopReason(stopReason, &message, &exceptionBoxMessage,
                                                  conditionalBreakPointTriggered);
     m_stopMode = NoStopRequested;
@@ -1842,7 +1842,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
         if (stopFlags & StopInArtificialThread) {
             showMessage(tr("Switching to main thread..."), LogMisc);
             runCommand({"~0 s", NoFlags});
-            forcedThread = Thread();
+            forcedThread = true;
             // Re-fetch stack again.
             reloadFullStack();
         } else {
@@ -1868,7 +1868,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
         if (threads.isValid()) {
             threadsHandler()->setThreads(threads);
             if (forcedThread)
-                threadsHandler()->setCurrentThread(forcedThread);
+                threadsHandler()->setCurrentThread(threadsHandler()->threadForId("0"));
         } else {
             showMessage(stopReason["threaderror"].data(), LogError);
         }

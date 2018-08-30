@@ -285,6 +285,7 @@ Thread ThreadsHandler::currentThread() const
 
 void ThreadsHandler::setCurrentThread(const Thread &thread)
 {
+    QTC_ASSERT(thread, return);
     if (thread == m_currentThread)
         return;
 
