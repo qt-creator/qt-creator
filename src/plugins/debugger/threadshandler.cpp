@@ -240,7 +240,8 @@ bool ThreadsHandler::setData(const QModelIndex &idx, const QVariant &data, int r
 {
     if (role == BaseTreeView::ItemActivatedRole) {
         const Thread thread = itemForIndexAtLevel<1>(idx);
-        m_engine->selectThread(thread);
+        if (thread != m_currentThread)
+            m_engine->doSelectThread(thread);
         return true;
     }
 

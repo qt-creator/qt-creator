@@ -397,11 +397,7 @@ public:
     void selectThread(int index)
     {
         const Thread thread = m_engine->threadsHandler()->rootItem()->childAt(index);
-        QTC_ASSERT(thread, return);
-        // For immediate visual feedback.
-        m_engine->threadsHandler()->setCurrentThread(thread);
-        // Initiate the actual switching in the debugger backend.
-        m_engine->selectThread(thread);
+        m_engine->doSelectThread(thread);
     }
 
     void handleOperateByInstructionTriggered(bool on)
@@ -2080,6 +2076,16 @@ void DebuggerEngine::enableSubBreakpoint(const SubBreakpoint &sbp, bool)
 void DebuggerEngine::assignValueInDebugger(WatchItem *,
     const QString &, const QVariant &)
 {
+}
+
+void DebuggerEngine::doSelectThread(const Thread &thread)
+{
+    QTC_ASSERT(thread, return);
+    // For immediate visual feedback.
+    d->m_threadsHandler.setCurrentThread(thread);
+    d->m_threadBox->setCurrentIndex(d->m_threadsHandler.currentThreadIndex());
+    // Initiate the actual switching in the debugger backend.
+    selectThread(thread);
 }
 
 void DebuggerEngine::handleRecordReverse(bool record)

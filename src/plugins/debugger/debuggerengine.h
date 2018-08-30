@@ -317,6 +317,7 @@ public:
     virtual void assignValueInDebugger(WatchItem *item,
         const QString &expr, const QVariant &value);
     virtual void selectThread(const Internal::Thread &thread) = 0;
+    void doSelectThread(const Internal::Thread &thread);
 
     virtual void executeRecordReverse(bool) {}
     virtual void executeReverse(bool) {}
