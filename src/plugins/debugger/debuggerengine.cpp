@@ -378,7 +378,6 @@ public:
     {
         m_stackHandler.scheduleResetLocation();
         m_watchHandler.scheduleResetLocation();
-        m_threadsHandler.scheduleResetLocation();
         m_disassemblerAgent.scheduleResetLocation();
         m_locationTimer.setSingleShot(true);
         m_locationTimer.start(80);
@@ -391,7 +390,6 @@ public:
         m_locationMark.reset();
         m_stackHandler.resetLocation();
         m_watchHandler.resetLocation();
-        m_threadsHandler.resetLocation();
         m_disassemblerAgent.resetLocation();
         m_toolTipManager.resetLocation();
     }

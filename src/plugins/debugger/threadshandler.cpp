@@ -398,19 +398,6 @@ void ThreadsHandler::updateThreads(const GdbMi &data)
     m_currentThread = threadForId(currentId);
 }
 
-void ThreadsHandler::scheduleResetLocation()
-{
-    m_resetLocationScheduled = true;
-}
-
-void ThreadsHandler::resetLocation()
-{
-    if (m_resetLocationScheduled) {
-        m_resetLocationScheduled = false;
-        layoutChanged();
-    }
-}
-
 QAbstractItemModel *ThreadsHandler::model()
 {
     return this;

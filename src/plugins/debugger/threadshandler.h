@@ -97,9 +97,6 @@ public:
     void notifyRunning(const QString &id);
     void notifyStopped(const QString &id);
 
-    void resetLocation();
-    void scheduleResetLocation();
-
 private:
     void sort(int column, Qt::SortOrder order) override;
     QVariant data(const QModelIndex &index, int role) const override;
@@ -107,7 +104,6 @@ private:
 
     DebuggerEngine *m_engine;
     Thread m_currentThread;
-    bool m_resetLocationScheduled = false;
     QHash<QString, QString> m_pidForGroupId;
 };
 
