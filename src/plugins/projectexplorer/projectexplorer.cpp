@@ -145,6 +145,8 @@
 #include <QThreadPool>
 #include <QTimer>
 
+#include <functional>
+
 /*!
     \namespace ProjectExplorer
     The ProjectExplorer namespace contains the classes to explore projects.
@@ -208,6 +210,8 @@ const char OPENFILE[]             = "ProjectExplorer.OpenFile";
 const char SEARCHONFILESYSTEM[]   = "ProjectExplorer.SearchOnFileSystem";
 const char SHOWINGRAPHICALSHELL[] = "ProjectExplorer.ShowInGraphicalShell";
 const char OPENTERMINALHERE[]     = "ProjectExplorer.OpenTerminalHere";
+const char OPENTERMINALHEREBUILD[]= "ProjectExplorer.OpenTerminalHereBuildEnv";
+const char OPENTERMINALHERERUN[]  = "ProjectExplorer.OpenTerminalHereRunEnv";
 const char DUPLICATEFILE[]        = "ProjectExplorer.DuplicateFile";
 const char DELETEFILE[]           = "ProjectExplorer.DeleteFile";
 const char DIFFFILE[]             = "ProjectExplorer.DiffFile";
@@ -234,6 +238,26 @@ const char FOLDER_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.F.OpenLocation.CtxMe
 const char PROJECT_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.P.OpenLocation.CtxMenu";
 
 } // namespace Constants
+
+
+static Utils::optional<Utils::Environment> sysEnv(const Project *)
+{
+    return Utils::Environment::systemEnvironment();
+}
+
+static Utils::optional<Utils::Environment> buildEnv(const Project *project)
+{
+    if (!project || !project->activeTarget() || !project->activeTarget()->activeBuildConfiguration())
+        return {};
+    return project->activeTarget()->activeBuildConfiguration()->environment();
+}
+
+static Utils::optional<Utils::Environment> runEnv(const Project *project)
+{
+    if (!project || !project->activeTarget() || !project->activeTarget()->activeRunConfiguration())
+        return {};
+    return project->activeTarget()->activeRunConfiguration()->runnable().environment;
+}
 
 static Target *activeTarget()
 {
@@ -330,7 +354,8 @@ public:
     void clearRecentProjects();
     void openRecentProject(const QString &fileName);
     void updateUnloadProjectMenu();
-    void openTerminalHere();
+    using EnvironmentGetter = std::function<Utils::optional<Utils::Environment>(const Project *project)>;
+    void openTerminalHere(const EnvironmentGetter &env);
 
     void invalidateProject(ProjectExplorer::Project *project);
 
@@ -358,6 +383,7 @@ public:
 public:
     QMenu *m_sessionMenu;
     QMenu *m_openWithMenu;
+    QMenu *m_openTerminalMenu;
 
     QMultiMap<int, QObject*> m_actionMap;
     QAction *m_sessionManagerAction;
@@ -406,6 +432,8 @@ public:
     QAction *m_searchOnFileSystem;
     QAction *m_showInGraphicalShell;
     QAction *m_openTerminalHere;
+    QAction *m_openTerminalHereBuildEnv;
+    QAction *m_openTerminalHereRunEnv;
     Utils::ParameterAction *m_setStartupProjectAction;
     QAction *m_projectSelectorAction;
     QAction *m_projectSelectorActionMenu;
@@ -759,6 +787,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mfileContextMenu->appendGroup(Constants::G_FILE_OTHER);
     mfileContextMenu->appendGroup(Constants::G_FILE_CONFIG);
     mfileContextMenu->appendGroup(Constants::G_PROJECT_TREE);
+
+    // Open Terminal submenu
+    ActionContainer * const openTerminal =
+            ActionManager::createMenu(ProjectExplorer::Constants::M_OPENTERMINALCONTEXT);
+    openTerminal->setOnAllDisabledBehavior(ActionContainer::Show);
+    dd->m_openTerminalMenu = openTerminal->menu();
+    dd->m_openTerminalMenu->setTitle(FileUtils::msgTerminalAction());
+
     // "open with" submenu
     ActionContainer * const openWith =
             ActionManager::createMenu(ProjectExplorer::Constants::M_OPENFILEWITHCONTEXT);
@@ -825,11 +861,26 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
 
-    dd->m_openTerminalHere = new QAction(FileUtils::msgTerminalAction(), this);
+    // Open Terminal Here menu
+    mfileContextMenu->addMenu(openTerminal, Constants::G_FILE_OPEN);
+    mfolderContextMenu->addMenu(openTerminal, Constants::G_FOLDER_FILES);
+
+    dd->m_openTerminalHere = new QAction(tr("System Environment"), this);
     cmd = ActionManager::registerAction(dd->m_openTerminalHere, Constants::OPENTERMINALHERE,
-                       projecTreeContext);
-    mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
-    mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
+                                        projecTreeContext);
+    dd->m_openTerminalMenu->addAction(dd->m_openTerminalHere);
+
+    dd->m_openTerminalHereBuildEnv = new QAction(tr("Build Environment"), this);
+    dd->m_openTerminalHereRunEnv = new QAction(tr("Run Environment"), this);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+    cmd = ActionManager::registerAction(dd->m_openTerminalHereBuildEnv, Constants::OPENTERMINALHEREBUILD,
+                                        projecTreeContext);
+    dd->m_openTerminalMenu->addAction(dd->m_openTerminalHereBuildEnv);
+
+    cmd = ActionManager::registerAction(dd->m_openTerminalHereRunEnv, Constants::OPENTERMINALHERERUN,
+                                        projecTreeContext);
+    dd->m_openTerminalMenu->addAction(dd->m_openTerminalHereRunEnv);
+#endif
 
     // Open With menu
     mfileContextMenu->addMenu(openWith, Constants::G_FILE_OPEN);
@@ -1344,8 +1395,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::searchOnFileSystem);
     connect(dd->m_showInGraphicalShell, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::showInGraphicalShell);
-    connect(dd->m_openTerminalHere, &QAction::triggered,
-            dd, &ProjectExplorerPluginPrivate::openTerminalHere);
+
+    connect(dd->m_openTerminalHere, &QAction::triggered, dd, []() { dd->openTerminalHere(sysEnv); });
+    connect(dd->m_openTerminalHereBuildEnv, &QAction::triggered, dd, []() { dd->openTerminalHere(buildEnv); });
+    connect(dd->m_openTerminalHereRunEnv, &QAction::triggered, dd, []() { dd->openTerminalHere(runEnv); });
+
     connect(dd->m_filePropertiesAction, &QAction::triggered, this, []() {
                 const Node *currentNode = ProjectTree::findCurrentNode();
                 QTC_ASSERT(currentNode && currentNode->nodeType() == NodeType::File, return);
@@ -2962,6 +3016,9 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
     m_diffFileAction->setVisible(DiffService::instance());
 
     m_openTerminalHere->setVisible(true);
+    m_openTerminalHereBuildEnv->setVisible(false);
+    m_openTerminalHereRunEnv->setVisible(false);
+
     m_showInGraphicalShell->setVisible(true);
     m_searchOnFileSystem->setVisible(true);
 
@@ -2979,6 +3036,9 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             pn = const_cast<ProjectNode*>(currentNode->asProjectNode());
 
         Project *project = ProjectTree::currentProject();
+        m_openTerminalHereBuildEnv->setVisible(bool(buildEnv(project)));
+        m_openTerminalHereRunEnv->setVisible(bool(runEnv(project)));
+
         if (pn && project) {
             if (pn == project->rootProjectNode()) {
                 m_runActionContextMenu->setVisible(true);
@@ -3257,11 +3317,16 @@ void ProjectExplorerPluginPrivate::showInGraphicalShell()
     FileUtils::showInGraphicalShell(ICore::mainWindow(), pathFor(currentNode));
 }
 
-void ProjectExplorerPluginPrivate::openTerminalHere()
+void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env)
 {
     const Node *currentNode = ProjectTree::findCurrentNode();
     QTC_ASSERT(currentNode, return);
-    FileUtils::openTerminal(directoryFor(currentNode));
+
+    const auto environment = env(ProjectTree::projectForNode(currentNode));
+    if (!environment)
+        return;
+
+    FileUtils::openTerminal(directoryFor(currentNode), environment.value());
 }
 
 void ProjectExplorerPluginPrivate::removeFile()

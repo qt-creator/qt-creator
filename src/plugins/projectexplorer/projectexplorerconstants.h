@@ -64,6 +64,7 @@ const char M_SUBPROJECTCONTEXT[]  = "Project.Menu.SubProject";
 const char M_FOLDERCONTEXT[]      = "Project.Menu.Folder";
 const char M_FILECONTEXT[]        = "Project.Menu.File";
 const char M_OPENFILEWITHCONTEXT[] = "Project.Menu.File.OpenWith";
+const char M_OPENTERMINALCONTEXT[] = "Project.Menu.File.OpenTerminal";
 
 // Context menu groups
 const char G_SESSION_BUILD[]      = "Session.Group.Build";
