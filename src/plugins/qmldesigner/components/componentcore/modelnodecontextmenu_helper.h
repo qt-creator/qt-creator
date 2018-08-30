@@ -192,7 +192,7 @@ private:
 class ModelNodeContextMenuAction : public AbstractAction
 {
 public:
-    ModelNodeContextMenuAction(const QByteArray &id, const QString &description,  const QByteArray &category, const QKeySequence &key, int priority,
+    ModelNodeContextMenuAction(const QByteArray &id, const QString &description, const QIcon &icon, const QByteArray &category, const QKeySequence &key, int priority,
             SelectionContextOperation selectionAction,
             SelectionContextPredicate enabled = &SelectionContextFunctors::always,
             SelectionContextPredicate visibility = &SelectionContextFunctors::always) :
@@ -204,6 +204,7 @@ public:
         m_visibility(visibility)
     {
         action()->setShortcut(key);
+        action()->setIcon(icon);
     }
 
     bool isVisible(const SelectionContext &selectionState) const override { return m_visibility(selectionState); }
@@ -233,7 +234,7 @@ public:
                     int priority,
                     SelectionContextOperation selectionAction,
                     SelectionContextPredicate enabled = &SelectionContextFunctors::always) :
-        ModelNodeContextMenuAction(id, description, category, key, priority, selectionAction, enabled, &SelectionContextFunctors::always)
+        ModelNodeContextMenuAction(id, description, icon, category, key, priority, selectionAction, enabled, &SelectionContextFunctors::always)
     {
         action()->setIcon(icon);
         action()->setToolTip(tooltip);
@@ -255,7 +256,7 @@ public:
                               SelectionContextOperation selectionAction,
                               SelectionContextPredicate enabled = &SelectionContextFunctors::always,
                               SelectionContextPredicate visible = &SelectionContextFunctors::always) :
-        ModelNodeContextMenuAction(id, description, category, key, priority, selectionAction, enabled, visible)
+        ModelNodeContextMenuAction(id, description, icon, category, key, priority, selectionAction, enabled, visible)
     {
         action()->setIcon(icon);
         action()->setToolTip(tooltip);
