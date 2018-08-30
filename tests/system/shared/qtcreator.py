@@ -78,11 +78,11 @@ def startedWithoutPluginError():
     try:
         loaderErrorWidgetName = ("{name='ExtensionSystem__Internal__PluginErrorOverview' "
                                  "type='ExtensionSystem::PluginErrorOverview' visible='1' "
-                                 "windowTitle='Qt Creator - Plugin loader messages'}")
-        loaderError = waitForObject(loaderErrorWidgetName, 1000)
+                                 "windowTitle='Plugin Loader Messages'}")
+        waitForObject(loaderErrorWidgetName, 1000)
         test.fatal("Could not perform clean start of Qt Creator - Plugin error occurred.",
-                   waitForObject("{name='pluginError' type='QTextEdit' visible='1' window=%s}"
-                                 % loaderErrorWidgetName, 1000).plainText)
+                   str(waitForObject("{name='pluginError' type='QTextEdit' visible='1' window=%s}"
+                                     % loaderErrorWidgetName, 1000).plainText))
         clickButton("{text~='(Next.*|Continue)' type='QPushButton' visible='1'}")
         invokeMenuItem("File", "Exit")
         return False
