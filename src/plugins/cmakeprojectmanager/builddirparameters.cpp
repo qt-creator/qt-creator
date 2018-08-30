@@ -34,6 +34,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
+#include <utils/hostosinfo.h>
+
 using namespace ProjectExplorer;
 
 namespace CMakeProjectManager {
@@ -53,6 +55,11 @@ BuildDirParameters::BuildDirParameters(CMakeBuildConfiguration *bc)
     buildDirectory = bc->buildDirectory();
 
     environment = bc->environment();
+    // Disable distributed building for configuration runs. CMake does not do those in parallel,
+    // so there is no win in sending data over the network.
+    // Unfortunately distcc does not have a simple environment flag to turn it off:-/
+    if (Utils::HostOsInfo::isAnyUnixHost())
+        environment.set("ICECC", "no");
 
     cmakeToolId = CMakeKitInformation::cmakeToolId(k);
 
