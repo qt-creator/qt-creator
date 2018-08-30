@@ -546,11 +546,19 @@ void QbsProject::handleRuleExecutionDone()
 
 void QbsProject::changeActiveTarget(Target *t)
 {
-    if (t) {
-        m_qbsProject = m_qbsProjects.value(t);
-        if (t->isActive())
-            delayParsing();
+    bool targetFound = false;
+    for (auto it = m_qbsProjects.begin(); it != m_qbsProjects.end(); ++it) {
+        qbs::Project &qbsProjectForTarget = it.value();
+        if (it.key() == t) {
+            m_qbsProject = qbsProjectForTarget;
+            targetFound = true;
+        } else if (qbsProjectForTarget.isValid() && !BuildManager::isBuilding(it.key())) {
+            qbsProjectForTarget = qbs::Project();
+        }
     }
+    QTC_ASSERT(targetFound || !t, m_qbsProject = qbs::Project());
+    if (t && t->isActive())
+        delayParsing();
 }
 
 void QbsProject::startParsing()
