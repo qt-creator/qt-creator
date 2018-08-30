@@ -6,8 +6,8 @@ First - and most important - you have to own a valid Squish license. At least Sq
 
 Second - some of the test suites/test cases expect a build of Qt 4.8.7 to be available:
  1. Download the source code from:
-    * Windows: http://download.qt.io/official_releases/qt/4.8/4.8.7/qt-everywhere-opensource-src-4.8.7.zip
-    * Other: http://download.qt.io/official_releases/qt/4.8/4.8.7/qt-everywhere-opensource-src-4.8.7.tar.gz
+    * Windows: https://download.qt.io/archive/qt/4.8/4.8.7/qt-everywhere-opensource-src-4.8.7.zip
+    * Other: https://download.qt.io/archive/qt/4.8/4.8.7/qt-everywhere-opensource-src-4.8.7.tar.gz
  2. Extract the contents of the archive's directory qt-everywhere-opensource-src-4.8.7 to:
     * Windows: C:\Qt\Qt4.8.7
     * Other: $HOME/Qt4.8.7
@@ -49,14 +49,13 @@ Qt 5.4.1 (gcc)
 Qt 5.6.1-1 (MSVC2013, 32 bit)
 Qt 5.10.1 (MSVC2015, 32 bit)
 
-Fourth - you'll have to provide some additional repositories (and for the hooking into subprocesses even some more Squish bundles, see below).
+Fourth - you'll have to provide some additional repositories.
 These additional repositories are located inside ~/squish-data or C:\Users\<user>\squish-data (depending on the OS you're on).
 You can also just provide them inside a different folder and specify the folder with the environment variable SYSTEST_SRCPATH.
 This folder must contain the following:
  * a QtCreator repository (or source copy) of tag v4.7.0 named 'creator' including the submodule src/shared/qbs
  * a subfolder called 'creator-test-data'
  * a speedcrunch 0.11 repository (or source copy) inside 'creator-test-data' named 'speedcrunch'
- * additional Squish versions for hooking into subprocesses inside different folders inside 'creator-test-data' following the information below
 
 Fifth - you'll have to make sure that some needed tools are available (no matter on which OS you're on).
  * cmake

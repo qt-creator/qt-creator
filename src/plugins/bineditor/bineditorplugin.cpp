@@ -228,8 +228,7 @@ public:
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override
     {
-        Q_UNUSED(state)
-        return type == TypeRemoved ? BehaviorSilent : BehaviorAsk;
+        return type == TypeRemoved ? BehaviorSilent : IDocument::reloadBehavior(state, type);
     }
 
     bool save(QString *errorString, const QString &fn, bool autoSave) override

@@ -1,4 +1,4 @@
-QTC_PLUGIN_DEPENDS += coreplugin
+QTC_PLUGIN_DEPENDS += coreplugin texteditor
 include(../../qttest.pri)
 QT += gui
 PLUGINSDIR = $$IDE_SOURCE_TREE/src/plugins

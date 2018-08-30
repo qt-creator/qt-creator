@@ -42,11 +42,15 @@
 
     \title Using Git
 
-    Git is a fast decentralized version control system. Git is available
-    for Windows, Linux, and \macos.
+    \l{http://git-scm.com/}{Git} is a fast decentralized version control system.
+    Git is available for Windows, Linux, and \macos.
 
     You can use the \l{http://code.google.com/p/gerrit/}{Gerrit} code review
     tool for projects that use Git.
+
+    \if defined(qtdesignstudio)
+    \include creator-vcs-options.qdocinc vcs options
+    \endif
 
     \section1 Using Git for Windows
 
@@ -65,85 +69,158 @@
     set to \c %HOMEDRIVE%%HOMEPATH% when the Git executable is run and
     authorization works as it would with \c {git bash}.
 
-    \section1 Reverting Changes Using Git
-
-    The Git version control system has an index that is used to stage
-    changes. The index is committed on the next commit. Git allows you to revert
-    back to the state of the last commit as well as to the state staged in the
-    index.
-
-    \list
-
-        \li \uicontrol Git > \uicontrol {Current File} >
-            \uicontrol{Undo Unstaged Changes} reverts all changes and resets the
-            current file to the state of the index.
-
-        \li \uicontrol Git > \uicontrol {Current File} >
-            \uicontrol {Undo Uncommitted Changes} reverts all changes,
-            discarding the index. This returns the current file to the state it
-            was in right after the last commit.
-
-        \li \uicontrol Git > \uicontrol {Local Repository} > \uicontrol Reset
-            opens a dialog where you can select the SHA-1 to reset the working
-            directory to. This is useful after applying patches for review, for
-            example. You can choose between a \uicontrol Soft reset that does
-            not touch the index file nor the working tree at all, a
-            \uicontrol Hard reset that discards all changes to tracked files in
-            working tree, and a \uicontrol Mixed reset that resets HEAD and the
-            index (nothing remains staged) without touching the working
-            directory.
-
-    \endlist
-
     \section1 Working with the Current File
 
-    In addition to the standard version control system functions, you can
-    select \uicontrol Tools > \uicontrol Git > \uicontrol {Current File} >
-    \uicontrol {Stage File for Commit} to mark a new or modified file for
-    committing to the repository.
+    To work with the current file, select the commands in \uicontrol Tools >
+    \uicontrol Git > \uicontrol {Current File}. Some of the commands are also
+    available for the project or local repository that contains the file.
 
-    To undo this function, select \uicontrol {Unstage File from Commit}.
+    \section2 Viewing Git Diff
+
+    You can \e{diff} the current file or project to compare it with the latest
+    version stored in the repository and to display the differences. To display
+    the diff in a read-only editor, select \uicontrol {Diff of}. If the file is
+    accessible, you can double-click on a selected diff chunk and \QC opens an
+    editor displaying the file, scrolled to the line in question.
+
+    \image qtcreator-vcs-diff.png
+
+    The diff is displayed side-by-side in a \l{Comparing Files}{diff editor}
+    by default. To use the unified diff view instead, select the
+    \uicontrol {Switch to Unified Diff Editor} (1) option from the toolbar.
+    In both views, you can use context menu commands to apply, revert, stage,
+    and unstage hunks, as well as send them to a code pasting service.
+
+    \section2 Viewing Git Log
+
+    To display the versioning history of a file, select \uicontrol{Log of}.
+    The log output contains the date, the commit message, and a commit
+    identifier. Click on the commit identifier to display a description
+    of the change including the diff in the \uicontrol {Git Show} view.
+
+    \image qtcreator-vcs-show.png
+
+    Right-clicking on a commit identifier brings up a context menu that lets
+    you apply actions on the commit, such as view annotations or cherry-pick
+    or revert a commit.
+
+    Select \inlineimage reload_gray.png
+    (\uicontrol Reload) to rescan the files.
+
+    \section2 Viewing Annotations
+
+    To view annotations, select \uicontrol{Blame}. The view displays the lines
+    of the file prepended by the commit identifier they originate from. Clicking
+    on the commit identifier shows a detailed description of the change.
+
+    To show the annotation of a previous version, right-click on the commit
+    identifier and select \uicontrol {Blame Parent Revision}. This allows you
+    to navigate through the history of the file and obtain previous versions
+    of it.
+
+    The other actions in the context-menu enable you to apply actions to the
+    commit, such as cherry-pick, checkout, or revert it.
+
+    To rescan the files, click \inlineimage reload_gray.png
+    (\uicontrol Reload).
+
+    \section2 Staging Changes
+
+    To mark a new or modified file for committing it to the repository,
+    select \uicontrol {Stage File for Commit}. To undo this function,
+    select \uicontrol {Unstage File from Commit}.
+
+    \section2 Resetting Changes
+
+    Git has an index that is used to stage changes. The index is committed on
+    the next commit. Git allows you to revert back to the state of the last
+    commit as well as to the state staged in the index.
+
+    To revert all changes and reset the current file to the state of the index,
+    select \uicontrol{Undo Unstaged Changes}.
+
+    To return the current file to the state it was in right after the last
+    commit, select \uicontrol {Undo Uncommitted Changes}. This reverts all
+    changes, discarding the index.
 
     \section1 Working with the Current Project
 
-    In addition to the standard version control system functions, you can
-    select \uicontrol Tools > \uicontrol Git > \uicontrol {Current Project} >
-    \uicontrol {Clean Project}
-    to clean the working directory. All files that are not under version control
-    are displayed in the \uicontrol {Clean Repository} dialog. Ignored files are
+    To work with the current project, select the commands in \uicontrol Tools >
+    \uicontrol Git > \uicontrol {Current Project}. The \uicontrol {Diff Project}
+    and \uicontrol {Log Project} commands, which are also available for the
+    current file, are described above.
+
+    \section2 Cleaning Projects
+
+    To clean the working directory, select \uicontrol {Clean Project}.
+    All files that are not under version control are displayed in
+    the \uicontrol {Clean Repository} dialog. Ignored files are
     deselected by default. Select the files to delete and click
     \uicontrol Delete.
 
     \section1 Working with Local Repositories
 
-    In addition to the standard version control system functions, you can
-    select \uicontrol Tools > \uicontrol Git > \uicontrol {Local Repository} >
-    \uicontrol Clean to clean the repository.
+    To work with the local repository, select the commands in \uicontrol Tools >
+    \uicontrol Git > \uicontrol {Local Repository}. The commands that are also
+    available for the current file or project are described above.
 
-    To apply latest changes to the last commit, select \uicontrol Tools >
-    \uicontrol Git > \uicontrol {Local Repository} >
+    \section2 Viewing Reference Log
+
+    Reference logs record when the tips of branches and other references were
+    updated in the local repository. To view the reference log, select
+    \uicontrol Reflog.
+
+    \section2 Viewing Git Status
+
+    To view the status of the repository in the \uicontrol {Version Control}
+    output view, select \uicontrol Status.
+
+    \section2 Committing Changes to Git
+
+    To submit your changes to Git, select \uicontrol Commit. \QC displays a
+    commit page containing a text editor where you can enter your commit
+    message and a checkable list of modified files to be included.
+
+    \image qtcreator-vcs-commit.png
+
+    When you have finished filling out the commit page information, click on
+    \uicontrol Commit to start committing.
+
+    The \uicontrol {Diff Selected Files} button brings up a diff view of the
+    files selected in the file list. Since the commit page is just another
+    editor, you can go back to it by closing the diff view. You can also switch
+    to an open diff view by selecting it in the \uicontrol {Open Documents} pane
+    in the sidebar.
+
+    \section2 Amending Commits
+
+    To apply latest changes to the last commit, select
     \uicontrol {Amend Last Commit}. You can also edit the commit message.
 
     To amend an earlier comment in a series of related commits, select
-    \uicontrol Tools > \uicontrol Git > \uicontrol {Local Repository} >
     \uicontrol {Fixup Previous Commit}. This operation is done using interactive
     rebase. In case of conflicts, a merge tool is suggested.
 
-    To recover removed files, select \uicontrol Tools > \uicontrol Git >
-    \uicontrol {Recover Deleted Files}.
+    \section2 Resetting Local Repository
+
+    To reset changes, select \uicontrol Reset. This opens a dialog where you
+    can select the commit to reset the working directory to. This is useful
+    after applying patches for review, for example. You can choose between a
+    \uicontrol Soft reset that does not touch the index file nor the working
+    tree at all, a \uicontrol Hard reset that discards all changes to tracked
+    files in the working tree, and a \uicontrol Mixed reset that resets HEAD
+    and the index (nothing remains staged) without touching the working
+    directory.
+
+    To recover removed files, select \uicontrol {Recover Deleted Files}.
 
     To change a series of commits in the local repository, select
-    \uicontrol Tools > \uicontrol Git > \uicontrol {Local Repository} >
     \uicontrol {Interactive Rebase}. You can reorder or discard commits, squash
     them into a single commit, or edit the commit messages.
 
-    The following sections describe how to manage local and remote branches,
-    apply patches, and use stashes.
-
     \section2 Working with Branches
 
-    To work with Git branches, select \uicontrol Tools > \uicontrol Git >
-    \uicontrol {Local Repository} > \uicontrol {Branches}. The checked out
+    To work with Git branches, select \uicontrol {Branches}. The checked out
     branch is shown in bold and underlined in the list of branches. Double-click
     branch names to edit them.
 
@@ -204,8 +281,7 @@
     \section2 Applying Patches
 
     Patches are rewriting instructions that can be applied to a set of files.
-    To apply a patch file that is open in \QC, select \uicontrol Tools >
-    \uicontrol Git > \uicontrol {Local Repository} > \uicontrol Patch >
+    To apply a patch file that is open in \QC, select \uicontrol Patch >
     \uicontrol {Apply from Editor}.
 
     To select the patch file to apply from the file system, select
@@ -218,8 +294,7 @@
     changes to work on higher priority tasks or to pull in new chages from
     another repository.
 
-    To stash all local changes, select \uicontrol Tools > \uicontrol Git >
-    \uicontrol {Local Repository} > \uicontrol Stash > \uicontrol Stash. The
+    To stash all local changes, select \uicontrol Stash > \uicontrol Stash. The
     working copy is reset to the state it had after the last commit. To save the
     current state of your unstaged files and reset the repository to its staged
     state, select \uicontrol {Stash Unstaged Files}.
@@ -244,15 +319,30 @@
 
     \image creator-git-commit-actions.png "Select a Git Commit dialog"
 
+    \section1 Initializing Git Repositories
+
+    To start controlling a project directory that is currently not under
+    version control, select \uicontrol Tools > \uicontrol Git >
+    \uicontrol {Create Repository}. \QC creates a new subdirectory named .git
+    that contains all the necessary repository files. However, nothing in the
+    project is tracked yet, so you will need to create an initial commit to
+    start tracking the project files.
+
     \section1 Working with Remote Repositories
 
-    In addition to the standard version control system functions, you can
-    select \uicontrol Tools > \uicontrol Git > \uicontrol {Remote Repository} >
-    \uicontrol Pull topull changes from the remote repository. If there are
-    locally modified files, you are prompted to stash the changes. Select
+    To work with remote repositories, select the commands in \uicontrol Tools >
+    \uicontrol Git > \uicontrol {Remote Repository}.
+
+    To fetch all the branches and change information from a remote repository,
+    select \uicontrol Fetch.
+
+    To pull changes from the remote repository, select \uicontrol Pull. If there
+    are locally modified files, you are prompted to stash the changes. Select
     \uicontrol Tools > \uicontrol Options > \uicontrol {Version Control} >
     \uicontrol Git and then select the \uicontrol {Pull with rebase} check box
     to perform a rebase operation while pulling.
+
+    To push committed changes to the remote repository, select \uicontrol Push.
 
     \section2 Managing Remote Repositories
 

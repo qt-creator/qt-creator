@@ -259,9 +259,11 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
     if (!ActionManager::command(focusActionId)) {
         auto focusDocumentInProjectTree = new QAction(tr("Focus Document in Project Tree"), this);
         Command *cmd = ActionManager::registerAction(focusDocumentInProjectTree, focusActionId);
-        cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+L")));
-        connect(focusDocumentInProjectTree, &QAction::triggered,
-                this, [this]() { syncFromDocumentManager(); });
+        cmd->setDefaultKeySequence(
+            QKeySequence(useMacShortcuts ? tr("Meta+Shift+L") : tr("Alt+Shift+L")));
+        connect(focusDocumentInProjectTree, &QAction::triggered, this, [this]() {
+            syncFromDocumentManager();
+        });
     }
 
     m_trimEmptyDirectoriesAction = new QAction(tr("Hide Empty Directories"), this);

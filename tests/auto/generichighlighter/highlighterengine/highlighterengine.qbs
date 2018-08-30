@@ -4,6 +4,7 @@ QtcAutotest {
     name: "Highlighter engine autotest"
     Depends { name: "Core" }
     Depends { name: "Utils" }
+    Depends { name: "TextEditor" }
     Depends { name: "Qt.widgets" }
     Group {
         name: "Sources from TextEditor plugin"
@@ -37,7 +38,6 @@ QtcAutotest {
         ]
     }
 
-    cpp.defines: base.concat(["TEXTEDITOR_LIBRARY"]) // For Windows
     cpp.includePaths: base.concat([
         path,
         project.genericHighlighterDir + "/../..",

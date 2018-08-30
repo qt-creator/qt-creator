@@ -29,6 +29,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
@@ -178,8 +179,11 @@ RefactoringFile::RefactoringFile(const QString &fileName, const QSharedPointer<R
     , m_appliedOnce(false)
 {
     QList<IEditor *> editors = DocumentModel::editorsForFilePath(fileName);
-    if (!editors.isEmpty())
-        m_editor = qobject_cast<TextEditorWidget *>(editors.first()->widget());
+    if (!editors.isEmpty()) {
+        auto editorWidget = qobject_cast<TextEditorWidget *>(editors.first()->widget());
+        if (editorWidget && !editorWidget->isReadOnly())
+            m_editor = editorWidget;
+    }
 }
 
 RefactoringFile::~RefactoringFile()
@@ -378,6 +382,8 @@ bool RefactoringFile::apply()
             if (!m_editor && m_textFileFormat.codec) {
                 QTC_ASSERT(!m_fileName.isEmpty(), return false);
                 QString error;
+                // suppress "file has changed" warnings if the file is open in a read-only editor
+                Core::FileChangeBlocker block(m_fileName);
                 if (!m_textFileFormat.writeFile(m_fileName, doc->toPlainText(), &error)) {
                     qWarning() << "Could not apply changes to" << m_fileName << ". Error: " << error;
                     result = false;

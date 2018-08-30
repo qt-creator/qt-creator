@@ -27,6 +27,8 @@
 
 #include "timelineabstractrenderer.h"
 
+#include <QPointer>
+
 namespace Timeline {
 
 class TRACING_EXPORT TimelineAbstractRenderer::TimelineAbstractRendererPrivate {
@@ -36,9 +38,9 @@ public:
 
     int selectedItem;
     bool selectionLocked;
-    TimelineModel *model;
-    TimelineNotesModel *notes;
-    TimelineZoomControl *zoomer;
+    QPointer<TimelineModel> model;
+    QPointer<TimelineNotesModel> notes;
+    QPointer<TimelineZoomControl> zoomer;
 
     bool modelDirty;
     bool rowHeightsDirty;

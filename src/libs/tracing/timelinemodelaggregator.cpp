@@ -30,6 +30,7 @@
 
 #include <utils/algorithm.h>
 
+#include <QPointer>
 #include <QStringList>
 #include <QVariant>
 
@@ -38,15 +39,13 @@ namespace Timeline {
 class TimelineModelAggregator::TimelineModelAggregatorPrivate {
 public:
     QList <TimelineModel *> modelList;
-    TimelineNotesModel *notesModel;
+    QPointer<TimelineNotesModel> notesModel;
     int currentModelId = 0;
 };
 
-TimelineModelAggregator::TimelineModelAggregator(TimelineNotesModel *notes, QObject *parent)
+TimelineModelAggregator::TimelineModelAggregator(QObject *parent)
     : QObject(parent), d_ptr(new TimelineModelAggregatorPrivate)
 {
-    Q_D(TimelineModelAggregator);
-    d->notesModel = notes;
 }
 
 TimelineModelAggregator::~TimelineModelAggregator()
@@ -127,6 +126,25 @@ TimelineNotesModel *TimelineModelAggregator::notes() const
 {
     Q_D(const TimelineModelAggregator);
     return d->notesModel;
+}
+
+void TimelineModelAggregator::setNotes(TimelineNotesModel *notes)
+{
+    Q_D(TimelineModelAggregator);
+    if (d->notesModel == notes)
+        return;
+
+    if (d->notesModel) {
+        disconnect(d->notesModel, &QObject::destroyed,
+                   this, &TimelineModelAggregator::notesChanged);
+    }
+
+    d->notesModel = notes;
+
+    if (d->notesModel)
+        connect(d->notesModel, &QObject::destroyed, this, &TimelineModelAggregator::notesChanged);
+
+    emit notesChanged();
 }
 
 void TimelineModelAggregator::clear()
