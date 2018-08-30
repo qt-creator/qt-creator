@@ -2983,12 +2983,7 @@ void GdbEngine::handleThreadInfo(const DebuggerResponse &response)
 {
     if (response.resultClass == ResultDone) {
         ThreadsHandler *handler = threadsHandler();
-        handler->updateThreads(response.data);
-        // This is necessary as the current thread might not be in the list.
-        if (!handler->currentThread()) {
-            if (Thread other = handler->threadAt(0))
-                selectThread(other);
-        }
+        handler->setThreads(response.data);
         updateState(false); // Adjust Threads combobox.
         if (boolSetting(ShowThreadNames)) {
             runCommand({"threadnames " + action(MaximalStackDepth)->value().toString(),

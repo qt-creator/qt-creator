@@ -79,13 +79,12 @@ public:
 
     int currentThreadIndex() const;
     Thread currentThread() const;
-    Thread threadAt(int index) const;
     Thread threadForId(const QString &id) const;
     void setCurrentThread(const Thread &thread);
     QString pidForGroupId(const QString &groupId) const;
 
     void updateThread(const ThreadData &threadData);
-    void updateThreads(const GdbMi &data);
+    void setThreads(const GdbMi &data);
 
     void removeThread(const QString &id);
     void removeAll();

@@ -656,7 +656,7 @@ void LldbEngine::updateAll()
 {
     DebuggerCommand cmd("fetchThreads");
     cmd.callback = [this](const DebuggerResponse &response) {
-        threadsHandler()->updateThreads(response.data);
+        threadsHandler()->setThreads(response.data);
         fetchStack(action(MaximalStackDepth)->value().toInt());
         reloadRegisters();
     };

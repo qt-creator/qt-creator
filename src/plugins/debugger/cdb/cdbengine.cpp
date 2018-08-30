@@ -1002,7 +1002,7 @@ void CdbEngine::handleThreads(const DebuggerResponse &response)
                qPrintable(DebuggerResponse::stringFromResultClass(response.resultClass)));
     }
     if (response.resultClass == ResultDone) {
-        threadsHandler()->updateThreads(response.data);
+        threadsHandler()->setThreads(response.data);
         // Continue sequence
         reloadFullStack();
     } else {
@@ -1866,7 +1866,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
         }
         const GdbMi threads = stopReason["threads"];
         if (threads.isValid()) {
-            threadsHandler()->updateThreads(threads);
+            threadsHandler()->setThreads(threads);
             if (forcedThread)
                 threadsHandler()->setCurrentThread(forcedThread);
         } else {

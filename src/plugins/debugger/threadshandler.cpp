@@ -282,12 +282,6 @@ Thread ThreadsHandler::currentThread() const
     return m_currentThread;
 }
 
-Thread ThreadsHandler::threadAt(int index) const
-{
-    QTC_ASSERT(index >= 0 && index < rootItem()->childCount(), return Thread());
-    return rootItem()->childAt(index);
-}
-
 void ThreadsHandler::setCurrentThread(const Thread &thread)
 {
     if (thread == m_currentThread)
@@ -368,8 +362,10 @@ void ThreadsHandler::notifyStopped(const QString &id)
         thread->notifyStopped();
 }
 
-void ThreadsHandler::updateThreads(const GdbMi &data)
+void ThreadsHandler::setThreads(const GdbMi &data)
 {
+    rootItem()->removeChildren();
+
     // ^done,threads=[{id="1",target-id="Thread 0xb7fdc710 (LWP 4264)",
     // frame={level="0",addr="0x080530bf",func="testQString",args=[],
     // file="/.../app.cpp",fullname="/../app.cpp",line="1175"},
@@ -396,6 +392,9 @@ void ThreadsHandler::updateThreads(const GdbMi &data)
 
     const QString &currentId = data["current-thread-id"].data();
     m_currentThread = threadForId(currentId);
+
+    if (!m_currentThread && !items.isEmpty())
+        m_currentThread = rootItem()->childAt(0);
 }
 
 QAbstractItemModel *ThreadsHandler::model()
