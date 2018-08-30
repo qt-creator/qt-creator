@@ -50,128 +50,88 @@ MATCHER_P2(IsTask, filePathId, projectPartId,
 class SymbolIndexerTaskQueue : public testing::Test
 {
 protected:
-    int projectPartId(const Utils::SmallString &projectPartId)
-    {
-        return int(queue.projectPartNumberId(projectPartId));
-    }
-protected:
     NiceMock<MockSymbolIndexerTaskScheduler> mockSymbolIndexerTaskScheduler;
     ClangBackEnd::SymbolIndexerTaskQueue queue{mockSymbolIndexerTaskScheduler};
 };
 
 TEST_F(SymbolIndexerTaskQueue, AddTasks)
 {
-    queue.addOrUpdateTasks({{{1, 2}, projectPartId("foo"), Callable{}},
-                            {{1, 4}, projectPartId("foo"), Callable{}}});
+    queue.addOrUpdateTasks({{{1, 2}, 1, Callable{}},
+                            {{1, 4}, 1, Callable{}}});
 
-    queue.addOrUpdateTasks({{{1, 1}, projectPartId("foo"), Callable{}},
-                            {{1, 3}, projectPartId("foo"), Callable{}},
-                            {{1, 5}, projectPartId("foo"), Callable{}}});
+    queue.addOrUpdateTasks({{{1, 1}, 1, Callable{}},
+                            {{1, 3}, 1, Callable{}},
+                            {{1, 5}, 1, Callable{}}});
 
     ASSERT_THAT(queue.tasks(),
-                ElementsAre(IsTask(FilePathId{1, 1}, projectPartId("foo")),
-                            IsTask(FilePathId{1, 2}, projectPartId("foo")),
-                            IsTask(FilePathId{1, 3}, projectPartId("foo")),
-                            IsTask(FilePathId{1, 4}, projectPartId("foo")),
-                            IsTask(FilePathId{1, 5}, projectPartId("foo"))));
+                ElementsAre(IsTask(FilePathId{1, 1}, 1),
+                            IsTask(FilePathId{1, 2}, 1),
+                            IsTask(FilePathId{1, 3}, 1),
+                            IsTask(FilePathId{1, 4}, 1),
+                            IsTask(FilePathId{1, 5}, 1)));
 }
 
 TEST_F(SymbolIndexerTaskQueue, ReplaceTask)
 {
-    queue.addOrUpdateTasks({{{1, 1}, projectPartId("foo"), Callable{}},
-                            {{1, 3}, projectPartId("foo"), Callable{}},
-                            {{1, 5}, projectPartId("foo"), Callable{}}});
+    queue.addOrUpdateTasks({{{1, 1}, 1, Callable{}},
+                            {{1, 3}, 1, Callable{}},
+                            {{1, 5}, 1, Callable{}}});
 
-    queue.addOrUpdateTasks({{{1, 2}, projectPartId("foo"), Callable{}},
-                            {{1, 3}, projectPartId("foo"), Callable{}}});
+    queue.addOrUpdateTasks({{{1, 2}, 1, Callable{}},
+                            {{1, 3}, 1, Callable{}}});
 
     ASSERT_THAT(queue.tasks(),
-                ElementsAre(IsTask(FilePathId{1, 1}, projectPartId("foo")),
-                            IsTask(FilePathId{1, 2}, projectPartId("foo")),
-                            IsTask(FilePathId{1, 3}, projectPartId("foo")),
-                            IsTask(FilePathId{1, 5}, projectPartId("foo"))));
+                ElementsAre(IsTask(FilePathId{1, 1}, 1),
+                            IsTask(FilePathId{1, 2}, 1),
+                            IsTask(FilePathId{1, 3}, 1),
+                            IsTask(FilePathId{1, 5}, 1)));
 }
 
 TEST_F(SymbolIndexerTaskQueue, AddTaskWithDifferentProjectId)
 {
-    queue.addOrUpdateTasks({{{1, 1}, projectPartId("foo"), Callable{}},
-                            {{1, 3}, projectPartId("foo"), Callable{}},
-                            {{1, 5}, projectPartId("foo"), Callable{}}});
+    queue.addOrUpdateTasks({{{1, 1}, 1, Callable{}},
+                            {{1, 3}, 1, Callable{}},
+                            {{1, 5}, 1, Callable{}}});
 
-    queue.addOrUpdateTasks({{{1, 2}, projectPartId("bar"), Callable{}},
-                            {{1, 3}, projectPartId("bar"), Callable{}}});
+    queue.addOrUpdateTasks({{{1, 2}, 2, Callable{}},
+                            {{1, 3}, 2, Callable{}}});
 
     ASSERT_THAT(queue.tasks(),
-                ElementsAre(IsTask(FilePathId{1, 1}, projectPartId("foo")),
-                            IsTask(FilePathId{1, 2}, projectPartId("bar")),
-                            IsTask(FilePathId{1, 3}, projectPartId("foo")),
-                            IsTask(FilePathId{1, 3}, projectPartId("bar")),
-                            IsTask(FilePathId{1, 5}, projectPartId("foo"))));
+                ElementsAre(IsTask(FilePathId{1, 1}, 1),
+                            IsTask(FilePathId{1, 2}, 2),
+                            IsTask(FilePathId{1, 3}, 1),
+                            IsTask(FilePathId{1, 3}, 2),
+                            IsTask(FilePathId{1, 5}, 1)));
 }
 
 TEST_F(SymbolIndexerTaskQueue, RemoveTaskByProjectParts)
 {
-    queue.addOrUpdateTasks({{{1, 1}, projectPartId("yi"), Callable{}},
-                            {{1, 3}, projectPartId("yi"), Callable{}},
-                            {{1, 5}, projectPartId("yi"), Callable{}}});
-    queue.addOrUpdateTasks({{{1, 2}, projectPartId("er"), Callable{}},
-                            {{1, 3}, projectPartId("er"), Callable{}}});
-    queue.addOrUpdateTasks({{{1, 2}, projectPartId("san"), Callable{}},
-                            {{1, 3}, projectPartId("san"), Callable{}}});
-    queue.addOrUpdateTasks({{{1, 2}, projectPartId("se"), Callable{}},
-                            {{1, 3}, projectPartId("se"), Callable{}}});
+    queue.addOrUpdateTasks({{{1, 1}, 1, Callable{}},
+                            {{1, 3}, 1, Callable{}},
+                            {{1, 5}, 1, Callable{}}});
+    queue.addOrUpdateTasks({{{1, 2}, 2, Callable{}},
+                            {{1, 3}, 2, Callable{}}});
+    queue.addOrUpdateTasks({{{1, 2}, 3, Callable{}},
+                            {{1, 3}, 3, Callable{}}});
+    queue.addOrUpdateTasks({{{1, 2}, 4, Callable{}},
+                            {{1, 3}, 4, Callable{}}});
 
-    queue.removeTasks({"er", "san"});
+    queue.removeTasks({2, 3});
 
     ASSERT_THAT(queue.tasks(),
-                ElementsAre(IsTask(FilePathId{1, 1}, projectPartId("yi")),
-                            IsTask(FilePathId{1, 2}, projectPartId("se")),
-                            IsTask(FilePathId{1, 3}, projectPartId("yi")),
-                            IsTask(FilePathId{1, 3}, projectPartId("se")),
-                            IsTask(FilePathId{1, 5}, projectPartId("yi"))));
-}
-
-TEST_F(SymbolIndexerTaskQueue, GetProjectPartIdIfEmpty)
-{
-    auto id = queue.projectPartNumberId("foo");
-
-    ASSERT_THAT(id , 0);
-}
-
-TEST_F(SymbolIndexerTaskQueue, GetProjectPartIdIfNotExists)
-{
-    queue.projectPartNumberId("foo");
-
-    auto id = queue.projectPartNumberId("bar");
-
-    ASSERT_THAT(id , 1);
-}
-
-TEST_F(SymbolIndexerTaskQueue, GetProjectPartIdIfExists)
-{
-    queue.projectPartNumberId("foo");
-    queue.projectPartNumberId("bar");
-
-    auto id = queue.projectPartNumberId("foo");
-
-    ASSERT_THAT(id , 0);
-}
-
-TEST_F(SymbolIndexerTaskQueue, GetProjectPartIds)
-{
-    queue.projectPartNumberIds({"yi", "er", "san"});
-
-    auto ids = queue.projectPartNumberIds({"yi", "se", "san"});
-
-    ASSERT_THAT(ids , ElementsAre(0, 2, 3));
+                ElementsAre(IsTask(FilePathId{1, 1}, 1),
+                            IsTask(FilePathId{1, 2}, 4),
+                            IsTask(FilePathId{1, 3}, 1),
+                            IsTask(FilePathId{1, 3}, 4),
+                            IsTask(FilePathId{1, 5}, 1)));
 }
 
 TEST_F(SymbolIndexerTaskQueue, ProcessTasksCallsFreeSlotsAndAddTasksInScheduler)
 {
     InSequence s;
-    queue.addOrUpdateTasks({{{1, 1}, projectPartId("yi"), Callable{}},
-                            {{1, 3}, projectPartId("yi"), Callable{}},
-                            {{1, 5}, projectPartId("yi"), Callable{}}});
+    queue.addOrUpdateTasks({{{1, 1}, 1, Callable{}},
+                            {{1, 3}, 1, Callable{}},
+                            {{1, 5}, 1, Callable{}}});
 
     EXPECT_CALL(mockSymbolIndexerTaskScheduler, freeSlots()).WillRepeatedly(Return(2));
     EXPECT_CALL(mockSymbolIndexerTaskScheduler, addTasks(SizeIs(2)));
@@ -192,9 +152,9 @@ TEST_F(SymbolIndexerTaskQueue, ProcessTasksCallsFreeSlotsAndAddTasksWithNoTaskIn
 TEST_F(SymbolIndexerTaskQueue, ProcessTasksCallsFreeSlotsAndMoveAllTasksInSchedulerIfMoreSlotsAreFree)
 {
     InSequence s;
-    queue.addOrUpdateTasks({{{1, 1}, projectPartId("yi"), Callable{}},
-                            {{1, 3}, projectPartId("yi"), Callable{}},
-                            {{1, 5}, projectPartId("yi"), Callable{}}});
+    queue.addOrUpdateTasks({{{1, 1}, 1, Callable{}},
+                            {{1, 3}, 1, Callable{}},
+                            {{1, 5}, 1, Callable{}}});
 
     EXPECT_CALL(mockSymbolIndexerTaskScheduler, freeSlots()).WillRepeatedly(Return(4));
     EXPECT_CALL(mockSymbolIndexerTaskScheduler, addTasks(SizeIs(3)));
@@ -204,9 +164,9 @@ TEST_F(SymbolIndexerTaskQueue, ProcessTasksCallsFreeSlotsAndMoveAllTasksInSchedu
 
 TEST_F(SymbolIndexerTaskQueue, ProcessTasksRemovesProcessedTasks)
 {
-    queue.addOrUpdateTasks({{{1, 1}, projectPartId("yi"), Callable{}},
-                            {{1, 3}, projectPartId("yi"), Callable{}},
-                            {{1, 5}, projectPartId("yi"), Callable{}}});
+    queue.addOrUpdateTasks({{{1, 1}, 1, Callable{}},
+                            {{1, 3}, 1, Callable{}},
+                            {{1, 5}, 1, Callable{}}});
     ON_CALL(mockSymbolIndexerTaskScheduler, freeSlots()).WillByDefault(Return(2));
 
     queue.processTasks();

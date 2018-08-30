@@ -22,7 +22,6 @@ HEADERS += \
     $$PWD/projectpartartefact.h \
     $$PWD/filestatuscache.h \
     $$PWD/indexdataconsumer.h \
-    $$PWD/projectpartqueue.h \
     $$PWD/sourcesmanager.h \
     $$PWD/symbolindexertaskqueue.h \
     $$PWD/symbolindexertaskscheduler.h \
@@ -76,7 +75,6 @@ SOURCES += \
     $$PWD/symbolindexer.cpp \
     $$PWD/projectpartartefact.cpp \
     $$PWD/filestatuscache.cpp \
-    $$PWD/projectpartqueue.cpp \
     $$PWD/symbolindexertaskqueue.cpp \
     $$PWD/symbolindexertaskscheduler.cpp \
     $$PWD/symbolscollectormanager.cpp

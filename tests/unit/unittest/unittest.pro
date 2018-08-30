@@ -93,7 +93,6 @@ SOURCES += \
     filestatuscache-test.cpp \
     highlightingresultreporter-test.cpp \
     precompiledheaderstorage-test.cpp \
-    projectpartqueue-test.cpp \
     generatedfiles-test.cpp \
     sourcesmanager-test.cpp \
     symbolindexertaskqueue-test.cpp \

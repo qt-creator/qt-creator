@@ -53,13 +53,9 @@ public:
     {}
 
     void addOrUpdateTasks(std::vector<SymbolIndexerTask> &&tasks);
-    void removeTasks(const Utils::SmallStringVector &projectPartIds);
+    void removeTasks(const std::vector<int> &projectPartIds);
 
     const std::vector<SymbolIndexerTask> &tasks() const;
-
-    std::size_t projectPartNumberId(Utils::SmallStringView projectPartId);
-    std::vector<std::size_t> projectPartNumberIds(const Utils::SmallStringVector &projectPartIds)
-    /* [[ensures result: std::is_sorted(result)]] */;
 
     void processTasks();
     void syncTasks();

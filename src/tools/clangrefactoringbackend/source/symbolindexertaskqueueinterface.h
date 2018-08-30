@@ -40,7 +40,7 @@ public:
 
     virtual void addOrUpdateTasks(std::vector<SymbolIndexerTask> &&tasks) = 0
     /* [[expects: std::is_sorted(tasks)]] */;
-    virtual void removeTasks(const Utils::SmallStringVector &projectPartIds) = 0
+    virtual void removeTasks(const std::vector<int> &projectPartIds) = 0
     /* [[expects: std::is_sorted(projectPartIds)]] */;
     virtual void processTasks() = 0;
 
