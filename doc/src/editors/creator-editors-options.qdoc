@@ -46,8 +46,10 @@
     \uicontrol Options > \uicontrol{Text Editor}.
 
     These settings apply to all projects. To specify editor behavior for an open
-    project, select \uicontrol Projects > \uicontrol Editor. For more
-    information, see \l{Specifying Editor Settings}.
+    project, select \uicontrol Projects > \uicontrol Editor.
+    \if defined(qtcreator)
+    For more information, see \l{Specifying Editor Settings}.
+    \endif
 
     You can also specify indentation settings separately for C++ and QML files
     either globally or for the open project. For more information, see
@@ -68,11 +70,10 @@
         \li Set \l{Indenting Text or Code}{tabs, indentation, the handling of
             whitespace, and mouse operations} in \uicontrol Behavior.
 
-        \li Set various display properties, for example,
+        \li Set various display properties, such as
             \l{Highlighting and folding blocks}
-            {highlighting and folding blocks}, text wrapping or
-            \l{Moving to symbol definition or declaration}
-            {moving to symbol definition or declaration} in \uicontrol Display.
+            {highlighting and folding blocks} or text
+            wrapping in \uicontrol Display.
 
         \li Add, modify, and remove \l{Editing Code Snippets}{code snippets} in
             \uicontrol Snippets.

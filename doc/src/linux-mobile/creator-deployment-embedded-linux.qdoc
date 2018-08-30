@@ -107,6 +107,7 @@
 
     \section1 Qt for Device Creation Deployment Steps
 
+    \if defined(qtcreator)
     The deployment steps depend on the Qt for Device Creation version specified
     in the kit.
 
@@ -136,6 +137,7 @@
     When developing with Qt for Device Creation version 5.9 or later, you can
     specify the deployment steps described in this section in addition to the
     generic deployment steps.
+    \endif
 
     To execute custom commands when the application is deployed to the device,
     select \uicontrol {Add Deploy Step} > \uicontrol {Run Custom Remote Command}
@@ -144,6 +146,7 @@
     To have your application launch on boot, select \uicontrol {Add Deploy Step}
     > \uicontrol {Change Default Application}.
 
+    \if defined(qtcreator)
     \include creator-projects-cmake-deploying.qdocinc cmake deploying embedded
-
+    \endif
 */

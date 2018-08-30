@@ -156,9 +156,11 @@
                             Leave the field empty to search through the file
                             system.
 
+                        \if defined(qtcreator)
                         \li Select \uicontrol {Silver Searcher} to use the
                             experimental Silver Searcher plugin. For more
                             information, see \l{Enabling Silver Searcher}.
+                        \endif
 
                     \endlist
 
@@ -167,9 +169,11 @@
 
                 \li \uicontrol {Open Documents} searches from all open files.
 
+                \if defined(qtcreator)
                 \li \uicontrol {Clang Query Project} explores the Clang abstract
                      syntax tree (AST) using AST matcher expressions. For more
                      information, see \l{Exploring Clang AST}.
+                 \endif
 
             \endlist
 
@@ -213,8 +217,14 @@
     (\uicontrol {New Search}) button.
 
     \note You can use \uicontrol {Advanced Find} also to search for symbols. For
-    more information, see \l{Finding Symbols}.
+    more information, see
+    \if defined(qtcreator)
+    \l{Finding Symbols}.
+    \else
+    \l{Finding QML Types}.
+    \endif
 
+    \if defined(qtcreator)
     \section1 Enabling Silver Searcher
 
     You can use Silver Searcher as a search engine in \QC if you install
@@ -269,4 +279,5 @@
 
     You can view the results of the query as links to code positions in the
     \uicontrol {Search Results} output pane.
+    \endif
 */

@@ -128,8 +128,7 @@
 
         \li To open files that belong to a project, double-click them in the
             project tree. Files open in the appropriate editor, according to the
-            file type. For example, code source files open in the code editor
-            and image files in the \l{Viewing Images}{image viewer}.
+            file type. For example, code source files open in the code editor.
 
         \li To bring up a context menu containing the actions most commonly
             needed, right-click an item in the project tree. For example,

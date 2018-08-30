@@ -143,7 +143,9 @@
             \endqml
         \endlist
 
+    \if defined(qtcreator)
     \include qtquick-states-scxml.qdocinc scxml state machines
+    \endif
 
     \section1 Animating Transitions Between States
 

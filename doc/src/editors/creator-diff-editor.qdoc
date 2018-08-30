@@ -98,9 +98,11 @@
     If the files change outside \QC, select \inlineimage reload_gray.png
     (\uicontrol {Reload Editor}) to compare them again and to show the results.
 
+    \if defined(qtcreator)
     To send a chunk of changes to a \l{Pasting and Fetching Code Snippets}
     {code pasting service}, select \uicontrol {Send Chunk to CodePaster} in the
     context menu.
+    \endif
 
     \section1 Changing the Colors
 

@@ -31,8 +31,12 @@
 
 /*!
     \contentspage index.html
-    \previouspage technical-support.html
     \page creator-acknowledgements.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-terms.html
+    \else
+    \previouspage technical-support.html
+    \endif
 
     \title Acknowledgements
 

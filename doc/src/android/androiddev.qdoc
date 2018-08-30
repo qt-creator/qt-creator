@@ -176,7 +176,11 @@
         \li Select \uicontrol File > \uicontrol {New File or Project} > \uicontrol Application >
             \uicontrol {Qt Quick Application} > \uicontrol Choose, and
             follow the instructions of the wizard. For more information, see
+            \if defined(qtcreator)
             \l{Creating Qt Quick Projects}.
+            \else
+            \l{Creating UI Prototype Projects}.
+            \endif
 
         \li To specify settings for deploying applications to Android, select
             \uicontrol Projects > \uicontrol Run for the \uicontrol Android kit, and then select

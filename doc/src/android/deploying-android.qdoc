@@ -49,8 +49,10 @@
     To specify settings for application packages, select \uicontrol Projects >
     \uicontrol {Build Android APK} > \uicontrol Details.
 
+    \if defined(qtcreator)
     For more information about options that you have for running applications,
     see \l {Specifying Run Settings for Android Devices}.
+    \endif
 
     \section1 Using Ministro to Install Qt Libraries
 

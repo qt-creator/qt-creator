@@ -76,8 +76,10 @@
 
     \image qtcreator-application-output.png
 
+    \if defined(qtcreator)
     For more information on the options you have, see
     \l{Specifying Run Settings}.
+    \endif
 
     \include linux-mobile/creator-projects-running-generic-linux.qdocinc running on embedded linux
 
