@@ -42,6 +42,7 @@
 #include <QStringList>
 
 #include <memory>
+#include <type_traits>
 
 namespace Utils
 {
@@ -808,7 +809,7 @@ OutputIt setUnionMerge(InputIt1 first1,
                          last2,
                          d_first,
                          merge,
-                         std::less<decltype(*first1)>{});
+                         std::less<std::decay_t<decltype(*first1)>>{});
 }
 
 template<class OutputContainer,
@@ -843,9 +844,9 @@ OutputContainer setUnionMerge(InputContainer1 &&input1,
                               InputContainer2 &&input2,
                               Merge merge)
 {
-    return setUnionMerge(std::forward<InputContainer1>(input1),
-                         std::forward<InputContainer2>(input2),
-                         merge,
-                         std::less<decltype(*std::begin(input1))>{});
+    return setUnionMerge<OutputContainer>(std::forward<InputContainer1>(input1),
+                                          std::forward<InputContainer2>(input2),
+                                          merge,
+                                          std::less<std::decay_t<decltype(*std::begin(input1))>>{});
 }
 } // namespace Utils

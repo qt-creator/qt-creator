@@ -23,47 +23,14 @@
 **
 ****************************************************************************/
 
+#include <utils/algorithm.h>
+
 #include "projectpartqueue.h"
 
 namespace ClangBackEnd {
 
 ProjectPartQueue::ProjectPartQueue()
 {
-
-}
-
-namespace {
-
-template<class InputIt1,
-         class InputIt2,
-         class OutputIt,
-         class Compare,
-         class Merge>
-OutputIt set_union_merge(InputIt1 first1,
-                         InputIt1 last1,
-                         InputIt2 first2,
-                         InputIt2 last2,
-                         OutputIt d_first,
-                         Compare comp,
-                         Merge merge)
-{
-    for (; first1 != last1; ++d_first) {
-        if (first2 == last2)
-            return std::copy(first1, last1, d_first);
-        if (comp(*first2, *first1)) {
-            *d_first = *first2++;
-        } else {
-            if (comp(*first1, *first2)) {
-                *d_first = *first1;
-            } else {
-                *d_first = merge(*first1, *first2);
-                ++first2;
-            }
-            ++first1;
-        }
-    }
-    return std::copy(first2, last2, d_first);
-}
 
 }
 
@@ -98,17 +65,10 @@ void ProjectPartQueue::addProjectParts(V2::ProjectPartContainers &&projectParts)
         return first;
     };
 
-    V2::ProjectPartContainers mergedProjectParts;
-    mergedProjectParts.reserve(m_projectParts.size() + projectParts.size());
-    set_union_merge(std::make_move_iterator(m_projectParts.begin()),
-                    std::make_move_iterator(m_projectParts.end()),
-                    std::make_move_iterator(projectParts.begin()),
-                    std::make_move_iterator(projectParts.end()),
-                    std::back_inserter(mergedProjectParts),
-                    compare,
-                    merge);
-
-    m_projectParts = std::move(mergedProjectParts);
+    m_projectParts = Utils::setUnionMerge<V2::ProjectPartContainers>(m_projectParts,
+                                                                     projectParts,
+                                                                     merge,
+                                                                     compare);
 }
 
 class CompareDifference

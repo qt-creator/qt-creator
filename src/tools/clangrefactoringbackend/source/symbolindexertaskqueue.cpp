@@ -27,60 +27,19 @@
 
 #include <symbolindexertaskschedulerinterface.h>
 
+#include <utils/algorithm.h>
+
 namespace ClangBackEnd {
-
-namespace {
-
-template<class InputIt1,
-         class InputIt2,
-         class OutputIt,
-         class Merge>
-OutputIt set_union_merge(InputIt1 first1,
-                         InputIt1 last1,
-                         InputIt2 first2,
-                         InputIt2 last2,
-                         OutputIt d_first,
-                         Merge merge)
-{
-    for (; first1 != last1; ++d_first) {
-        if (first2 == last2)
-            return std::copy(first1, last1, d_first);
-        if (*first2 < *first1) {
-            *d_first = *first2++;
-        } else {
-            if (*first1 < *first2) {
-                *d_first = *first1;
-            } else {
-                *d_first = merge(*first1, *first2);
-                ++first2;
-            }
-            ++first1;
-        }
-    }
-    return std::copy(first2, last2, d_first);
-}
-
-}
 
 void SymbolIndexerTaskQueue::addOrUpdateTasks(std::vector<SymbolIndexerTask> &&tasks)
 {
-    std::vector<SymbolIndexerTask> mergedTasks;
-    mergedTasks.reserve(m_tasks.size() + tasks.size());
-
     auto merge = [] (SymbolIndexerTask &&first, SymbolIndexerTask &&second) {
         first.callable = std::move(second.callable);
 
         return std::move(first);
     };
 
-    set_union_merge(std::make_move_iterator(tasks.begin()),
-                    std::make_move_iterator(tasks.end()),
-                    std::make_move_iterator(m_tasks.begin()),
-                    std::make_move_iterator(m_tasks.end()),
-                    std::back_inserter(mergedTasks),
-                    merge);
-
-    m_tasks = std::move(mergedTasks);
+    m_tasks = Utils::setUnionMerge<std::vector<SymbolIndexerTask>>(tasks, m_tasks, merge);
 }
 
 void SymbolIndexerTaskQueue::removeTasks(const Utils::SmallStringVector &projectPartIds)
