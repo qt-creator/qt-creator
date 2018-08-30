@@ -3862,11 +3862,7 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, Id settingsIdHint)
     showMessage("ADAPTER START FAILED");
     if (!msg.isEmpty() && !Internal::isTestRun()) {
         const QString title = tr("Adapter Start Failed");
-        if (!settingsIdHint.isValid()) {
-            ICore::showWarningWithOptions(title, msg);
-        } else {
-            ICore::showWarningWithOptions(title, msg, QString(), settingsIdHint);
-        }
+        ICore::showWarningWithOptions(title, msg, QString(), settingsIdHint);
     }
     notifyEngineSetupFailed();
 }
