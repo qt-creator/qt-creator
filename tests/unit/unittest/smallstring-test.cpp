@@ -1657,11 +1657,29 @@ TEST(SmallString, StringViewPlusOperator)
     ASSERT_THAT(result, "text and more text");
 }
 
+TEST(SmallString, StringViewPlusOperatorReverseOrder)
+{
+    SmallStringView text = " and more text";
+
+    auto result = "text" + text;
+
+    ASSERT_THAT(result, "text and more text");
+}
+
 TEST(SmallString, StringPlusOperator)
 {
     SmallString text = "text";
 
     auto result = text + " and more text";
+
+    ASSERT_THAT(result, "text and more text");
+}
+
+TEST(SmallString, StringPlusOperatorReverseOrder)
+{
+    SmallString text = " and more text";
+
+    auto result = "text" + text;
 
     ASSERT_THAT(result, "text and more text");
 }

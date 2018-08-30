@@ -615,7 +615,13 @@ public:
 
     friend BasicSmallString operator+(SmallStringView first, const BasicSmallString &second)
     {
-        return operator+(second, first);
+        BasicSmallString text;
+        text.reserve(first.size() + second.size());
+
+        text.append(first);
+        text.append(second);
+
+        return text;
     }
 
     template<size_type ArraySize>
