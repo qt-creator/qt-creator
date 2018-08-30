@@ -55,8 +55,8 @@ namespace Internal {
 
 // ThreadItem
 
-ThreadItem::ThreadItem(const ThreadsHandler *handler, const ThreadData &data)
-    : threadData(data), handler(handler)
+ThreadItem::ThreadItem(const ThreadData &data)
+    : threadData(data)
 {}
 
 QVariant ThreadItem::data(int column, int role) const
@@ -68,12 +68,6 @@ QVariant ThreadItem::data(int column, int role) const
         return threadPart(column);
     case Qt::ToolTipRole:
         return threadToolTip();
-    case Qt::DecorationRole:
-        // Return icon that indicates whether this is the active stack frame.
-        if (column == 0)
-            return this == handler->currentThread() ? Icons::LOCATION.icon()
-                                                    : Icons::EMPTY.icon();
-        break;
     default:
         break;
     }
@@ -229,6 +223,19 @@ ThreadsHandler::ThreadsHandler(DebuggerEngine *engine)
               });
 }
 
+QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
+{
+    if (role == Qt::DecorationRole && index.column() == 0) {
+        // Return icon that indicates whether this is the active thread.
+        TreeItem *item = itemForIndex(index);
+        if (item && item == m_currentThread)
+            return Icons::LOCATION.icon();
+        return Icons::EMPTY.icon();
+    }
+
+    return ThreadsHandlerModel::data(index, role);
+}
+
 bool ThreadsHandler::setData(const QModelIndex &idx, const QVariant &data, int role)
 {
     if (role == BaseTreeView::ItemActivatedRole) {
@@ -310,7 +317,7 @@ void ThreadsHandler::updateThread(const ThreadData &threadData)
     if (Thread thread = threadForId(threadData.id))
         thread->mergeThreadData(threadData);
     else
-        rootItem()->appendChild(new ThreadItem(this, threadData));
+        rootItem()->appendChild(new ThreadItem(threadData));
 }
 
 void ThreadsHandler::removeThread(const QString &id)

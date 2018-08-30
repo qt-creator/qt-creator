@@ -49,7 +49,7 @@ class ThreadItem : public QObject, public Utils::TreeItem
     Q_OBJECT
 
 public:
-    ThreadItem(const ThreadsHandler *handler, const ThreadData &data = ThreadData());
+    ThreadItem(const ThreadData &data = ThreadData());
 
     QVariant data(int column, int role) const override;
     Qt::ItemFlags flags(int column) const override;
@@ -65,12 +65,12 @@ public:
 
 public:
     ThreadData threadData;
-    const ThreadsHandler * const handler;
 };
 
 using Thread = QPointer<ThreadItem>;
+using ThreadsHandlerModel = Utils::TreeModel<Utils::TypedTreeItem<ThreadItem>, ThreadItem>;
 
-class ThreadsHandler : public Utils::TreeModel<Utils::TypedTreeItem<ThreadItem>, ThreadItem>
+class ThreadsHandler : public ThreadsHandlerModel
 {
     Q_OBJECT
 
@@ -102,6 +102,7 @@ public:
 
 private:
     void sort(int column, Qt::SortOrder order) override;
+    QVariant data(const QModelIndex &index, int role) const override;
     bool setData(const QModelIndex &idx, const QVariant &data, int role) override;
 
     DebuggerEngine *m_engine;
