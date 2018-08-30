@@ -404,12 +404,12 @@ void ProjectTree::forEachNode(const std::function<void(Node *)> &task)
     }
 }
 
-Project *ProjectTree::projectForNode(Node *node)
+Project *ProjectTree::projectForNode(const Node *node)
 {
     if (!node)
         return nullptr;
 
-    FolderNode *folder = node->asFolderNode();
+    const FolderNode *folder = node->asFolderNode();
     if (!folder)
         folder = node->parentFolderNode();
 

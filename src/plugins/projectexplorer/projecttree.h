@@ -75,7 +75,7 @@ public:
     static bool hasNode(const Node *node);
     static void forEachNode(const std::function<void(Node *)> &task);
 
-    static Project *projectForNode(Node *node);
+    static Project *projectForNode(const Node *node);
     static Node *nodeForFile(const Utils::FileName &fileName);
 
     void collapseAll();
