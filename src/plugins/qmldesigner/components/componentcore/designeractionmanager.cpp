@@ -598,6 +598,9 @@ bool lowerAvailable(const SelectionContext &selectionState)
     if (modelNode.isRootNode())
         return false;
 
+    if (!modelNode.hasParentProperty())
+        return false;
+
     if (!modelNode.parentProperty().isNodeListProperty())
         return false;
 
