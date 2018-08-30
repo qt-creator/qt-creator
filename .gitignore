@@ -97,6 +97,9 @@ phony.c
 *.jsc
 *.qmlc
 
+# Squish generated files
+/tests/system/suite_*/config.xml
+
 # Directories to ignore
 # ---------------------
 
