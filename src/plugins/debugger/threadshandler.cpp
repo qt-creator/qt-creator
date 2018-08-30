@@ -296,11 +296,6 @@ void ThreadsHandler::setCurrentThread(const Thread &thread)
     thread->update();
 }
 
-QString ThreadsHandler::pidForGroupId(const QString &groupId) const
-{
-    return m_pidForGroupId[groupId];
-}
-
 void ThreadsHandler::notifyGroupCreated(const QString &groupId, const QString &pid)
 {
     m_pidForGroupId[groupId] = pid;

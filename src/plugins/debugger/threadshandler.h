@@ -81,7 +81,6 @@ public:
     Thread currentThread() const;
     Thread threadForId(const QString &id) const;
     void setCurrentThread(const Thread &thread);
-    QString pidForGroupId(const QString &groupId) const;
 
     void updateThread(const ThreadData &threadData);
     void setThreads(const GdbMi &data);
