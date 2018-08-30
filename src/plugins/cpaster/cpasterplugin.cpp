@@ -29,6 +29,7 @@
 #include "kdepasteprotocol.h"
 #include "pastebindotcomprotocol.h"
 #include "pastebindotcaprotocol.h"
+#include "pastecodedotxyzprotocol.h"
 #include "fileshareprotocol.h"
 #include "pasteselectdialog.h"
 #include "settingspage.h"
@@ -122,7 +123,8 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     Protocol *protos[] =  {new PasteBinDotComProtocol,
                            new PasteBinDotCaProtocol,
                            new KdePasteProtocol,
-                           new FileShareProtocol
+                           new FileShareProtocol,
+                           new PasteCodeDotXyzProtocol,
                           };
     const int count = sizeof(protos) / sizeof(Protocol *);
     for (int i = 0; i < count; ++i) {
