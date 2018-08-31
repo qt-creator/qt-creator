@@ -489,7 +489,8 @@ QString firstCharToLower(const QString &string)
 
 QString AbstractView::generateNewId(const QString &prefixName) const
 {
-    if (!ModelNode::isValidId(prefixName))
+    QString fixedPrefix = firstCharToLower(prefixName);
+    if (!ModelNode::isValidId(fixedPrefix))
         return generateNewId("element");
     int counter = 1;
 
