@@ -1496,7 +1496,7 @@ void CdbEngine::requestModuleSymbols(const QString &moduleName)
 
 void CdbEngine::reloadRegisters()
 {
-    if (!(threadsHandler()->currentThreadIndex() >= 0))
+    if (!threadsHandler()->currentThread())
         return;
     runCommand({"registers", ExtensionCommand, CB(handleRegistersExt)});
 }

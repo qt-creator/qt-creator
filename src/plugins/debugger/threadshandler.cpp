@@ -221,6 +221,13 @@ ThreadsHandler::ThreadsHandler(DebuggerEngine *engine)
                   tr("Address"), tr("Function"), tr("File"), tr("Line"), tr("State"),
                   tr("Name"), tr("Target ID"), tr("Details"), tr("Core"),
               });
+
+    m_comboBox = new QComboBox;
+    m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    m_comboBox->setModel(this);
+    connect(m_comboBox, QOverload<int>::of(&QComboBox::activated), this, [this](int row) {
+        setData(index(row, 0), {}, BaseTreeView::ItemActivatedRole);
+    });
 }
 
 QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
@@ -240,8 +247,11 @@ bool ThreadsHandler::setData(const QModelIndex &idx, const QVariant &data, int r
 {
     if (role == BaseTreeView::ItemActivatedRole) {
         const Thread thread = itemForIndexAtLevel<1>(idx);
-        if (thread != m_currentThread)
-            m_engine->doSelectThread(thread);
+        if (thread != m_currentThread) {
+            m_currentThread = thread;
+            m_comboBox->setCurrentIndex(idx.row());
+            m_engine->selectThread(thread);
+        }
         return true;
     }
 
@@ -257,11 +267,6 @@ bool ThreadsHandler::setData(const QModelIndex &idx, const QVariant &data, int r
     }
 
     return false;
-}
-
-int ThreadsHandler::currentThreadIndex() const
-{
-    return rootItem()->indexOf(m_currentThread);
 }
 
 void ThreadsHandler::sort(int column, Qt::SortOrder order)

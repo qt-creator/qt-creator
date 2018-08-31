@@ -394,12 +394,6 @@ public:
         m_toolTipManager.resetLocation();
     }
 
-    void selectThread(int index)
-    {
-        const Thread thread = m_engine->threadsHandler()->rootItem()->childAt(index);
-        m_engine->doSelectThread(thread);
-    }
-
     void handleOperateByInstructionTriggered(bool on)
     {
         // Go to source only if we have the file.
@@ -485,7 +479,6 @@ public:
     QPointer<LocalsAndInspectorWindow> m_localsAndInspectorWindow;
 
     QPointer<QLabel> m_threadLabel;
-    QPointer<QComboBox> m_threadBox;
 
     bool m_busy = false;
     bool m_isDying = false;
@@ -746,14 +739,7 @@ void DebuggerEnginePrivate::setupViews()
 
     m_threadLabel = new QLabel(tr("Threads:"));
     m_perspective->addToolBarWidget(m_threadLabel);
-
-    m_threadBox = new QComboBox;
-    m_threadBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    m_threadBox->setModel(m_threadsHandler.model());
-    connect(m_threadBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
-            this, &DebuggerEnginePrivate::selectThread);
-
-    m_perspective->addToolBarWidget(m_threadBox);
+    m_perspective->addToolBarWidget(m_threadsHandler.threadSwitcher());
 
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
             this, [this](const FontSettings &settings) {
@@ -1321,8 +1307,6 @@ void DebuggerEnginePrivate::updateState(bool alsoUpdateCompanion)
 {
     if (!m_perspective)
         return;
-    QTC_ASSERT(m_threadBox, return);
-    m_threadBox->setCurrentIndex(m_threadsHandler.currentThreadIndex());
 
     const DebuggerState state = m_state;
     const bool companionPreventsAction = m_engine->companionPreventsActions();
@@ -1410,8 +1394,9 @@ void DebuggerEnginePrivate::updateState(bool alsoUpdateCompanion)
     m_attachToCoreAction.setEnabled(true);
     m_attachToRemoteServerAction.setEnabled(true);
 
-    m_threadBox->setEnabled(state == InferiorStopOk || state == InferiorUnrunnable);
-    m_threadLabel->setEnabled(m_threadBox->isEnabled());
+    const bool threadsEnabled = state == InferiorStopOk || state == InferiorUnrunnable;
+    m_threadsHandler.threadSwitcher()->setEnabled(threadsEnabled);
+    m_threadLabel->setEnabled(threadsEnabled);
 
     const bool isCore = m_engine->runParameters().startMode == AttachCore;
     const bool stopped = state == InferiorStopOk;
@@ -2076,16 +2061,6 @@ void DebuggerEngine::enableSubBreakpoint(const SubBreakpoint &sbp, bool)
 void DebuggerEngine::assignValueInDebugger(WatchItem *,
     const QString &, const QVariant &)
 {
-}
-
-void DebuggerEngine::doSelectThread(const Thread &thread)
-{
-    QTC_ASSERT(thread, return);
-    // For immediate visual feedback.
-    d->m_threadsHandler.setCurrentThread(thread);
-    d->m_threadBox->setCurrentIndex(d->m_threadsHandler.currentThreadIndex());
-    // Initiate the actual switching in the debugger backend.
-    selectThread(thread);
 }
 
 void DebuggerEngine::handleRecordReverse(bool record)
