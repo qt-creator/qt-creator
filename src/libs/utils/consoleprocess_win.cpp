@@ -33,6 +33,7 @@
 #include <QAbstractEventDispatcher>
 
 #include <stdlib.h>
+#include <cstring>
 
 namespace Utils {
 
@@ -361,7 +362,8 @@ QString ConsoleProcess::createWinCommandline(const QString &program, const QStri
     return programName;
 }
 
-bool ConsoleProcess::startTerminalEmulator(QSettings *, const QString &workingDir)
+bool ConsoleProcess::startTerminalEmulator(QSettings *, const QString &workingDir,
+                                           const Utils::Environment &env)
 {
     STARTUPINFO si;
     ZeroMemory(&si, sizeof(si));
@@ -375,9 +377,13 @@ bool ConsoleProcess::startTerminalEmulator(QSettings *, const QString &workingDi
     // cmdLine is assumed to be detached -
     // https://blogs.msdn.microsoft.com/oldnewthing/20090601-00/?p=18083
 
+    QString totalEnvironment = env.toStringList().join('\0') + '\0';
+    LPVOID envPtr = (env != Utils::Environment::systemEnvironment())
+            ? (WCHAR *)(totalEnvironment.utf16()) : nullptr;
+
     bool success = CreateProcessW(0, (WCHAR *)cmdLine.utf16(),
-                                  0, 0, FALSE, CREATE_NEW_CONSOLE,
-                                  0, workingDir.isEmpty() ? 0 : (WCHAR *)workingDir.utf16(),
+                                  0, 0, FALSE, CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
+                                  envPtr, workingDir.isEmpty() ? 0 : (WCHAR *)workingDir.utf16(),
                                   &si, &pinfo);
 
     if (success) {

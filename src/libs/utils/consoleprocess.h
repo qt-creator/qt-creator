@@ -116,7 +116,8 @@ public:
     static void setTerminalEmulator(QSettings *, const TerminalCommand &) {}
 #endif
 
-    static bool startTerminalEmulator(QSettings *settings, const QString &workingDir);
+    static bool startTerminalEmulator(QSettings *settings, const QString &workingDir,
+                                      const Utils::Environment &env);
 
 signals:
     void error(QProcess::ProcessError error);

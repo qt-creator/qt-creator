@@ -431,10 +431,18 @@ void ConsoleProcess::setTerminalEmulator(QSettings *settings, const TerminalComm
     }
 }
 
-bool ConsoleProcess::startTerminalEmulator(QSettings *settings, const QString &workingDir)
+bool ConsoleProcess::startTerminalEmulator(QSettings *settings, const QString &workingDir,
+                                           const Utils::Environment &env)
 {
     const TerminalCommand term = terminalEmulator(settings);
-    return QProcess::startDetached(term.command, QtcProcess::splitArgs(term.openArgs), workingDir);
+
+    QProcess process;
+    process.setProgram(term.command);
+    process.setArguments(QtcProcess::splitArgs(term.openArgs));
+    process.setProcessEnvironment(env.toProcessEnvironment());
+    process.setWorkingDirectory(workingDir);
+
+    return process.startDetached();
 }
 
 } // namespace Utils

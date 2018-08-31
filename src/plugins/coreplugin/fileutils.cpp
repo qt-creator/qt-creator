@@ -109,11 +109,16 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
 
 void FileUtils::openTerminal(const QString &path)
 {
+    openTerminal(path, Environment::systemEnvironment());
+}
+
+void FileUtils::openTerminal(const QString &path, const Environment &env)
+{
     const QFileInfo fileInfo(path);
     const QString pwd = QDir::toNativeSeparators(fileInfo.isDir() ?
                                                  fileInfo.absoluteFilePath() :
                                                  fileInfo.absolutePath());
-    ConsoleProcess::startTerminalEmulator(ICore::settings(), pwd);
+    ConsoleProcess::startTerminalEmulator(ICore::settings(), pwd, env);
 }
 
 QString FileUtils::msgFindInDirectory()
