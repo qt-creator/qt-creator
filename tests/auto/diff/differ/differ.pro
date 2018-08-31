@@ -1,4 +1,4 @@
-QTC_PLUGIN_DEPENDS += diffeditor
+QTC_LIB_DEPENDS += utils
 
 include(../../qttest.pri)
 

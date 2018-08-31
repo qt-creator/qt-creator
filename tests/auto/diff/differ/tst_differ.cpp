@@ -30,11 +30,11 @@
 #include <QTextBlock>
 #include <QMetaType>
 
-#include <diffeditor/differ.h>
+#include <utils/differ.h>
 
-Q_DECLARE_METATYPE(DiffEditor::Diff)
+Q_DECLARE_METATYPE(Utils::Diff)
 
-using namespace DiffEditor;
+using namespace Utils;
 
 QT_BEGIN_NAMESPACE
 namespace QTest {
