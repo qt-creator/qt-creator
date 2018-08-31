@@ -161,9 +161,12 @@ void CppCompletionAssistProcessor::startOfOperator(QTextDocument *textDocument,
                     *kind = T_EOF_SYMBOL;
                     start = positionInDocument;
                 }
+            } else {
+                *kind = T_EOF_SYMBOL;
+                start = positionInDocument;
             }
         } else if (*kind == T_LBRACE) {
-            if (tokenIdx > 0 && !twoIndentifiersBeforeLBrace(tokens, tokenIdx)) {
+            if (tokenIdx <= 0 || !twoIndentifiersBeforeLBrace(tokens, tokenIdx)) {
                 *kind = T_EOF_SYMBOL;
                 start = positionInDocument;
             }
