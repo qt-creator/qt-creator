@@ -39,6 +39,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QSyntaxHighlighter>
 
@@ -67,6 +68,7 @@ public:
         VcsBase::VcsBaseClientSettings &settings = client->settings();
         FossilClient::SupportedFeatures features = client->supportedFeatures();
 
+        addButton(tr("Reload"), Utils::Icons::RELOAD.icon());
         if (features.testFlag(FossilClient::DiffIgnoreWhiteSpaceFeature)) {
             mapSetting(addToggleButton("-w", tr("Ignore All Whitespace")),
                        settings.boolPointer(FossilSettings::diffIgnoreAllWhiteSpaceKey));
@@ -113,6 +115,8 @@ public:
         VcsBase::VcsBaseEditorConfig(toolBar)
     {
         QTC_ASSERT(client, return);
+
+        addButton(tr("Reload"), Utils::Icons::RELOAD.icon());
     }
 
 };
@@ -128,6 +132,7 @@ public:
     {
         QTC_ASSERT(client, return);
 
+        addButton(tr("Reload"), Utils::Icons::RELOAD.icon());
         addLineageComboBox();
         addVerboseToggleButton();
         addItemTypeComboBox();
