@@ -69,10 +69,13 @@ using namespace Core;
 using namespace Core::Internal;
 using namespace Utils;
 
+static CorePlugin *m_instance = nullptr;
+
 CorePlugin::CorePlugin()
 {
     qRegisterMetaType<Id>();
     qRegisterMetaType<Core::Search::TextPosition>();
+    m_instance = this;
 }
 
 CorePlugin::~CorePlugin()
@@ -87,6 +90,11 @@ CorePlugin::~CorePlugin()
 
     delete m_mainWindow;
     setCreatorTheme(nullptr);
+}
+
+CorePlugin *CorePlugin::instance()
+{
+    return m_instance;
 }
 
 struct CoreArguments {
@@ -226,7 +234,6 @@ void CorePlugin::extensionsInitialized()
 
 bool CorePlugin::delayedInitialize()
 {
-    HelpManager::setupHelpManager();
     m_locator->delayedInitialize();
     IWizardFactory::allWizardFactories(); // scan for all wizard factories
     return true;
@@ -290,6 +297,5 @@ ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
 {
     Find::aboutToShutdown();
     m_mainWindow->aboutToShutdown();
-    HelpManager::aboutToShutdown();
     return SynchronousShutdown;
 }

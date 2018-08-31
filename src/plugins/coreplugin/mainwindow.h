@@ -45,7 +45,6 @@ namespace Core {
 
 class EditorManager;
 class ExternalToolManager;
-class HelpManager;
 class IDocument;
 class JsExpander;
 class MessageManager;
@@ -154,7 +153,6 @@ private:
     JsExpander *m_jsExpander = nullptr;
     VcsManager *m_vcsManager = nullptr;
     ModeManager *m_modeManager = nullptr;
-    HelpManager *m_helpManager = nullptr;
     FancyTabWidget *m_modeStack = nullptr;
     NavigationWidget *m_leftNavigationWidget = nullptr;
     NavigationWidget *m_rightNavigationWidget = nullptr;

@@ -53,6 +53,8 @@ public:
     CorePlugin();
     ~CorePlugin() override;
 
+    static CorePlugin *instance();
+
     bool initialize(const QStringList &arguments, QString *errorMessage = nullptr) override;
     void extensionsInitialized() override;
     bool delayedInitialize() override;

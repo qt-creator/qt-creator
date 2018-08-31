@@ -9,7 +9,7 @@ Project {
     QtcPlugin {
         Depends {
             name: "Qt"
-            submodules: ["widgets", "xml", "network", "qml", "sql", "help", "printsupport"]
+            submodules: ["widgets", "xml", "network", "qml", "sql", "printsupport"]
         }
 
         Depends {
@@ -86,6 +86,7 @@ Project {
                 "generatedfile.h",
                 "helpmanager.cpp",
                 "helpmanager.h",
+                "helpmanager_implementation.h",
                 "icontext.cpp",
                 "icontext.h",
                 "icore.cpp",

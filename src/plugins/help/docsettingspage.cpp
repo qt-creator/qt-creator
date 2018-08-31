@@ -25,6 +25,7 @@
 
 #include "docsettingspage.h"
 #include "helpconstants.h"
+#include "helpmanager.h"
 
 #include <coreplugin/helpmanager.h>
 #include <utils/algorithm.h>
@@ -41,8 +42,6 @@
 #include <QVector>
 
 #include <algorithm>
-
-using namespace Core;
 
 namespace Help {
 namespace Internal {
@@ -245,7 +244,7 @@ void DocSettingsPage::addDocumentation()
 
 void DocSettingsPage::apply()
 {
-    HelpManager::unregisterDocumentation(m_filesToUnregister.keys());
+    Core::HelpManager::unregisterDocumentation(m_filesToUnregister.keys());
     QStringList files;
     auto it = m_filesToRegisterUserManaged.constBegin();
     while (it != m_filesToRegisterUserManaged.constEnd()) {

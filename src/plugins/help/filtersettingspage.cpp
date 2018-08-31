@@ -26,6 +26,7 @@
 #include "filtersettingspage.h"
 
 #include "helpconstants.h"
+#include "helpmanager.h"
 
 #include <filternamedialog.h>
 
@@ -36,7 +37,6 @@
 #include <QMessageBox>
 
 using namespace Help::Internal;
-using namespace Core;
 
 FilterSettingsPage::FilterSettingsPage()
 {
@@ -61,8 +61,10 @@ QWidget *FilterSettingsPage::widget()
                 this, &FilterSettingsPage::addFilter);
         connect(m_ui.filterRemoveButton, &QPushButton::clicked,
                 this, &FilterSettingsPage::removeFilter);
-        connect(HelpManager::instance(), &HelpManager::documentationChanged,
-                this, &FilterSettingsPage::updateFilterPage);
+        connect(Core::HelpManager::Signals::instance(),
+                &Core::HelpManager::Signals::documentationChanged,
+                this,
+                &FilterSettingsPage::updateFilterPage);
     }
     return m_widget;
 }
@@ -219,8 +221,10 @@ void FilterSettingsPage::apply()
 
 void FilterSettingsPage::finish()
 {
-    disconnect(HelpManager::instance(), &HelpManager::documentationChanged,
-               this, &FilterSettingsPage::updateFilterPage);
+    disconnect(Core::HelpManager::Signals::instance(),
+               &Core::HelpManager::Signals::documentationChanged,
+               this,
+               &FilterSettingsPage::updateFilterPage);
     delete m_widget;
 }
 

@@ -25,37 +25,25 @@
 
 #pragma once
 
-#include <coreplugin/helpmanager.h>
-#include <extensionsystem/iplugin.h>
+#include "helpmanager.h"
 
-QT_BEGIN_NAMESPACE
-class QUrl;
-QT_END_NAMESPACE
+namespace Core {
 
-namespace Help {
-namespace Internal {
+namespace HelpManager {
 
-class HelpViewer;
-
-class HelpPlugin : public ExtensionSystem::IPlugin
+class CORE_EXPORT Implementation
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Help.json")
+protected:
+    Implementation();
+    virtual ~Implementation();
 
 public:
-    HelpPlugin();
-    ~HelpPlugin() final;
-
-    static HelpViewer *viewerForHelpViewerLocation(Core::HelpManager::HelpViewerLocation location);
-    static void showInHelpViewer(const QUrl &url, HelpViewer *viewer);
-    static HelpViewer *createHelpViewer(qreal zoom);
-
-private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
-    void extensionsInitialized() final;
-    bool delayedInitialize() final;
-    ShutdownFlag aboutToShutdown() final;
+    virtual void registerDocumentation(const QStringList &fileNames) = 0;
+    virtual void unregisterDocumentation(const QStringList &nameSpaces) = 0;
+    virtual QMap<QString, QUrl> linksForIdentifier(const QString &id) = 0;
+    virtual QByteArray fileData(const QUrl &url) = 0;
+    virtual void handleHelpRequest(const QUrl &url, HelpViewerLocation location = HelpModeAlways) = 0;
 };
 
-} // namespace Internal
-} // namespace Help
+} // HelpManager
+} // Core

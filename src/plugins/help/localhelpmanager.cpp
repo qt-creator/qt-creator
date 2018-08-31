@@ -27,6 +27,7 @@
 
 #include "bookmarkmanager.h"
 #include "helpconstants.h"
+#include "helpmanager.h"
 #include "helpviewer.h"
 
 #include <app/app_version.h>
@@ -266,7 +267,7 @@ void LocalHelpManager::setupGuiHelpEngine()
 {
     if (m_needsCollectionFile) {
         m_needsCollectionFile = false;
-        helpEngine().setCollectionFile(Core::HelpManager::collectionFilePath());
+        helpEngine().setCollectionFile(HelpManager::collectionFilePath());
         m_guiNeedsSetup = true;
     }
 

@@ -17,6 +17,7 @@ HEADERS += \
     helpfindsupport.h \
     helpindexfilter.h \
     localhelpmanager.h \
+    helpmanager.h \
     helpmode.h \
     helpplugin.h \
     helpviewer.h \
@@ -39,6 +40,7 @@ SOURCES += \
     helpfindsupport.cpp \
     helpindexfilter.cpp \
     localhelpmanager.cpp \
+    helpmanager.cpp \
     helpmode.cpp \
     helpplugin.cpp \
     helpviewer.cpp \

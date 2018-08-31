@@ -27,6 +27,7 @@
 
 #include "centralwidget.h"
 #include "helpicons.h"
+#include "helpmanager.h"
 #include "topicchooser.h"
 
 #include <coreplugin/icore.h>
@@ -54,10 +55,12 @@ HelpIndexFilter::HelpIndexFilter()
     setShortcutString("?");
 
     m_icon = Utils::Icons::BOOKMARK.icon();
-    connect(HelpManager::instance(), &HelpManager::setupFinished,
+    connect(Core::HelpManager::Signals::instance(), &Core::HelpManager::Signals::setupFinished,
             this, &HelpIndexFilter::invalidateCache);
-    connect(HelpManager::instance(), &HelpManager::documentationChanged,
-            this, &HelpIndexFilter::invalidateCache);
+    connect(Core::HelpManager::Signals::instance(),
+            &Core::HelpManager::Signals::documentationChanged,
+            this,
+            &HelpIndexFilter::invalidateCache);
     connect(HelpManager::instance(), &HelpManager::collectionFileChanged,
             this, &HelpIndexFilter::invalidateCache);
 }

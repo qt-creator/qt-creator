@@ -115,10 +115,10 @@ ExampleSetModel::ExampleSetModel()
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsLoaded,
             this, &ExampleSetModel::qtVersionManagerLoaded);
 
-    if (auto helpManager = Core::HelpManager::instance()) {
-        connect(helpManager, &Core::HelpManager::setupFinished,
-                this, &ExampleSetModel::helpManagerInitialized);
-    }
+    connect(Core::HelpManager::Signals::instance(),
+            &Core::HelpManager::Signals::setupFinished,
+            this,
+            &ExampleSetModel::helpManagerInitialized);
 }
 
 void ExampleSetModel::recreateModel(const QList<BaseQtVersion *> &qtVersions)
@@ -236,8 +236,10 @@ ExamplesListModel::ExamplesListModel(QObject *parent)
 {
     connect(&m_exampleSetModel, &ExampleSetModel::selectedExampleSetChanged,
             this, &ExamplesListModel::updateExamples);
-    connect(Core::HelpManager::instance(), &Core::HelpManager::documentationChanged,
-            this, &ExamplesListModel::updateExamples);
+    connect(Core::HelpManager::Signals::instance(),
+            &Core::HelpManager::Signals::documentationChanged,
+            this,
+            &ExamplesListModel::updateExamples);
 }
 
 static QString fixStringForTags(const QString &string)
@@ -682,7 +684,7 @@ void ExampleSetModel::tryToInitialize()
         return;
     if (!m_qtVersionManagerInitialized)
         return;
-    if (Core::HelpManager::instance() && !m_helpManagerInitialized)
+    if (!m_helpManagerInitialized)
         return;
 
     m_initalized = true;

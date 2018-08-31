@@ -28,85 +28,44 @@
 #include "core_global.h"
 
 #include <QObject>
-#include <QStringList>
-#include <QVariant>
 #include <QMap>
-#include <QHash>
-#include <QFutureInterface>
 
-QT_FORWARD_DECLARE_CLASS(QUrl)
+QT_BEGIN_NAMESPACE
+class QStringList;
+class QUrl;
+QT_END_NAMESPACE
 
 namespace Core {
-struct HelpManagerPrivate;
 
-namespace Internal {
-class CorePlugin;
-class MainWindow;
-}
+namespace HelpManager {
 
-class CORE_EXPORT HelpManager : public QObject
+class CORE_EXPORT Signals : public QObject
 {
     Q_OBJECT
 
 public:
-    enum HelpViewerLocation {
-        SideBySideIfPossible = 0,
-        SideBySideAlways = 1,
-        HelpModeAlways = 2,
-        ExternalHelpAlways = 3
-    };
-
-    using Filters = QHash<QString, QStringList>;
-
-    static HelpManager *instance();
-    static QString collectionFilePath();
-
-    static void registerDocumentation(const QStringList &fileNames);
-    static void unregisterDocumentation(const QStringList &nameSpaces);
-
-    static void registerUserDocumentation(const QStringList &filePaths);
-    static QSet<QString> userDocumentationPaths();
-
-    static QUrl findFile(const QUrl &url);
-    static QByteArray fileData(const QUrl &url);
-
-
-    static QMap<QString, QUrl> linksForKeyword(const QString &key);
-    static QMap<QString, QUrl> linksForIdentifier(const QString &id);
-    static QStringList registeredNamespaces();
-    static QString namespaceFromFile(const QString &file);
-    static QString fileFromNamespace(const QString &nameSpace);
-    static void setCustomValue(const QString &key, const QVariant &value);
-    static QVariant customValue(const QString &key, const QVariant &value = QVariant());
-    static Filters filters();
-    static Filters fixedFilters();
-    static Filters userDefinedFilters();
-    static void removeUserDefinedFilter(const QString &filter);
-    static void addUserDefinedFilter(const QString &filter, const QStringList &attr);
-
-    static void aboutToShutdown();
-
-public slots:
-    static void handleHelpRequest(const QUrl &url,
-                                  Core::HelpManager::HelpViewerLocation location = HelpModeAlways);
-    static void handleHelpRequest(const QString &url,
-                                  Core::HelpManager::HelpViewerLocation location = HelpModeAlways);
+    static Signals *instance();
 
 signals:
     void setupFinished();
     void documentationChanged();
-    void collectionFileChanged();
-    void helpRequested(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
-
-private:
-    explicit HelpManager(QObject *parent = nullptr);
-    ~HelpManager() override;
-
-    static void setupHelpManager();
-    static void registerDocumentationNow(QFutureInterface<bool> &futureInterface,
-                                         const QStringList &fileNames);
-    friend class Core::Internal::CorePlugin; // setupHelpManager
-    friend class Core::Internal::MainWindow; // constructor/destructor
 };
 
-}   // Core
+enum HelpViewerLocation {
+    SideBySideIfPossible = 0,
+    SideBySideAlways = 1,
+    HelpModeAlways = 2,
+    ExternalHelpAlways = 3
+};
+
+CORE_EXPORT void registerDocumentation(const QStringList &fileNames);
+CORE_EXPORT void unregisterDocumentation(const QStringList &nameSpaces);
+
+CORE_EXPORT QMap<QString, QUrl> linksForIdentifier(const QString &id);
+CORE_EXPORT QByteArray fileData(const QUrl &url);
+
+CORE_EXPORT void handleHelpRequest(const QUrl &url, HelpViewerLocation location = HelpModeAlways);
+CORE_EXPORT void handleHelpRequest(const QString &url, HelpViewerLocation location = HelpModeAlways);
+
+} // HelpManager
+} // Core
