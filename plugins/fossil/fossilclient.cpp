@@ -1048,7 +1048,7 @@ void FossilClient::logCurrentFile(const QString &workingDir, const QStringList &
     fossilEditor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
 
     if (!fossilEditor->editorConfig()) {
-        if (VcsBase::VcsBaseEditorConfig *editorConfig = createLogEditor(fossilEditor)) {
+        if (VcsBase::VcsBaseEditorConfig *editorConfig = createLogCurrentFileEditor(fossilEditor)) {
             editorConfig->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
             connect(editorConfig, &VcsBase::VcsBaseEditorConfig::commandExecutionRequested,
