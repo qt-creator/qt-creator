@@ -37,10 +37,10 @@
 
 namespace CodePaster {
 
-static QString baseUrl() { return "https://pastecode.xyz"; }
+static QString baseUrl() { return QString("https://pastecode.xyz"); }
 static QString apiUrl() { return baseUrl() + "/api"; }
 
-QString PasteCodeDotXyzProtocol::protocolName() { return "Pastecode.Xyz"; }
+QString PasteCodeDotXyzProtocol::protocolName() { return QString("Pastecode.Xyz"); }
 
 unsigned PasteCodeDotXyzProtocol::capabilities() const
 {
