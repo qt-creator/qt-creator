@@ -129,6 +129,11 @@ bool EnvironmentModel::changes(const QString &name) const
     return d->findInChanges(name) >= 0;
 }
 
+Environment EnvironmentModel::baseEnvironment() const
+{
+    return d->m_baseEnvironment;
+}
+
 QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())

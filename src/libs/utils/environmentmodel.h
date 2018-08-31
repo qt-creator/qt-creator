@@ -60,6 +60,7 @@ public:
     QString indexToVariable(const QModelIndex &index) const;
     QModelIndex variableToIndex(const QString &name) const;
     bool changes(const QString &key) const;
+    Environment baseEnvironment() const;
     void setBaseEnvironment(const Environment &env);
     QList<EnvironmentItem> userChanges() const;
     void setUserChanges(QList<EnvironmentItem> list);

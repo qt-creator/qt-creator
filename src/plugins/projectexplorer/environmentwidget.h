@@ -66,6 +66,7 @@ private:
     void removeEnvironmentButtonClicked();
     void unsetEnvironmentButtonClicked();
     void batchEditEnvironmentButtonClicked();
+    void openTerminal();
     void environmentCurrentIndexChanged(const QModelIndex &current);
     void invalidateCurrentIndex();
     void updateSummaryText();
