@@ -2305,7 +2305,7 @@ void GitClient::launchGitK(const QString &workingDirectory, const QString &fileN
 {
     const QFileInfo binaryInfo = vcsBinary().toFileInfo();
     QDir foundBinDir(binaryInfo.dir());
-    const bool foundBinDirIsCmdDir = foundBinDir.dirName() == "cmd";
+    const bool foundBinDirIsBinDir = foundBinDir.dirName() == "bin";
     QProcessEnvironment env = processEnvironment();
     if (tryLauchingGitK(env, workingDirectory, fileName, foundBinDir.path()))
         return;
@@ -2313,13 +2313,16 @@ void GitClient::launchGitK(const QString &workingDirectory, const QString &fileN
     QString gitkPath = foundBinDir.path() + "/gitk";
     VcsOutputWindow::appendSilently(msgCannotLaunch(gitkPath));
 
-    if (foundBinDirIsCmdDir) {
+    if (foundBinDirIsBinDir) {
         foundBinDir.cdUp();
+        const QString binDirName = foundBinDir.dirName();
+        if (binDirName == "usr" || binDirName.startsWith("mingw"))
+            foundBinDir.cdUp();
         if (tryLauchingGitK(env, workingDirectory, fileName,
-                            foundBinDir.path() + "/bin")) {
+                            foundBinDir.path() + "/cmd")) {
             return;
         }
-        gitkPath = foundBinDir.path() + "/gitk";
+        gitkPath = foundBinDir.path() + "/cmd/gitk";
         VcsOutputWindow::appendSilently(msgCannotLaunch(gitkPath));
     }
 
