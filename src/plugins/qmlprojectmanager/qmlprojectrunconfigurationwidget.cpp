@@ -51,6 +51,7 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
     m_fileListModel(new QStandardItemModel(this))
 {
     auto form = new QFormLayout(this);
+    rc->qmlViewerAspect()->addToConfigurationLayout(form);
 
     m_fileListCombo = new QComboBox;
     m_fileListCombo->setModel(m_fileListModel);

@@ -56,6 +56,11 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
     addAspect<QmlProjectEnvironmentAspect>();
+    m_qmlViewerAspect = addAspect<BaseStringAspect>();
+    m_qmlViewerAspect->setLabelText(tr("QML viewer:"));
+    m_qmlViewerAspect->setPlaceHolderText(executable());
+    m_qmlViewerAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+
     setOutputFormatter<QtSupport::QtOutputFormatter>();
 
     // reset default settings in constructor
@@ -98,6 +103,10 @@ QString QmlProjectRunConfiguration::disabledReason() const
 
 QString QmlProjectRunConfiguration::executable() const
 {
+    const QString qmlViewer = m_qmlViewerAspect->value();
+    if (!qmlViewer.isEmpty())
+        return qmlViewer;
+
     BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
     if (!version) // No Qt version in Kit. Don't try to run qmlscene.
         return QString();

@@ -28,6 +28,7 @@
 #include "qmlprojectmanager_global.h"
 
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runconfigurationaspects.h>
 
 namespace Core { class IEditor; }
 
@@ -62,6 +63,7 @@ public:
     QVariantMap toMap() const override;
 
     ProjectExplorer::Abi abi() const override;
+    ProjectExplorer::BaseStringAspect *qmlViewerAspect() const { return m_qmlViewerAspect; }
 
 signals:
     void scriptSourceChanged();
@@ -82,6 +84,7 @@ private:
 
     QString m_scriptFile;
     QString m_qmlViewerArgs;
+    ProjectExplorer::BaseStringAspect *m_qmlViewerAspect;
 };
 
 namespace Internal {
