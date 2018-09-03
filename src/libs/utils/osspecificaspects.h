@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "utils_global.h"
-
 #include <QString>
 
 #include <algorithm>
@@ -40,7 +38,7 @@ enum OsType { OsTypeWindows, OsTypeLinux, OsTypeMac, OsTypeOtherUnix, OsTypeOthe
 
 namespace OsSpecificAspects {
 
-QTCREATOR_UTILS_EXPORT inline QString withExecutableSuffix(OsType osType, const QString &executable)
+inline QString withExecutableSuffix(OsType osType, const QString &executable)
 {
     QString finalName = executable;
     if (osType == OsTypeWindows)
@@ -48,22 +46,22 @@ QTCREATOR_UTILS_EXPORT inline QString withExecutableSuffix(OsType osType, const 
     return finalName;
 }
 
-QTCREATOR_UTILS_EXPORT inline Qt::CaseSensitivity fileNameCaseSensitivity(OsType osType)
+inline Qt::CaseSensitivity fileNameCaseSensitivity(OsType osType)
 {
     return osType == OsTypeWindows || osType == OsTypeMac ? Qt::CaseInsensitive : Qt::CaseSensitive;
 }
 
-QTCREATOR_UTILS_EXPORT inline QChar pathListSeparator(OsType osType)
+inline QChar pathListSeparator(OsType osType)
 {
     return QLatin1Char(osType == OsTypeWindows ? ';' : ':');
 }
 
-QTCREATOR_UTILS_EXPORT inline Qt::KeyboardModifier controlModifier(OsType osType)
+inline Qt::KeyboardModifier controlModifier(OsType osType)
 {
     return osType == OsTypeMac ? Qt::MetaModifier : Qt::ControlModifier;
 }
 
-QTCREATOR_UTILS_EXPORT inline QString pathWithNativeSeparators(OsType osType, const QString &pathName)
+inline QString pathWithNativeSeparators(OsType osType, const QString &pathName)
 {
     if (osType == OsTypeWindows) {
         const int pos = pathName.indexOf('/');
