@@ -46,7 +46,7 @@ public:
 
     CPlusPlus::Document::Ptr document() const;
     CPlusPlus::Snapshot snapshot() const;
-    ProjectPartHeaderPaths headerPaths() const;
+    ProjectExplorer::HeaderPaths headerPaths() const;
 
     void releaseResources();
 
@@ -67,7 +67,7 @@ private:
     struct ExtraState {
         QByteArray configFile;
 
-        ProjectPartHeaderPaths headerPaths;
+        ProjectExplorer::HeaderPaths headerPaths;
         QString projectConfigFile;
         QStringList precompiledHeaders;
 

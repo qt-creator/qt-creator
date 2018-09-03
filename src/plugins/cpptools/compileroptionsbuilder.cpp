@@ -198,11 +198,11 @@ void CompilerOptionsBuilder::enableExceptions()
 
 void CompilerOptionsBuilder::addHeaderPathOptions()
 {
-    typedef ProjectPartHeaderPath HeaderPath;
+    using ProjectExplorer::IncludePathType;
 
     QStringList result;
 
-    foreach (const HeaderPath &headerPath , m_projectPart.headerPaths) {
+    for (const ProjectExplorer::HeaderPath &headerPath : qAsConst(m_projectPart.headerPaths)) {
         if (headerPath.path.isEmpty())
             continue;
 
@@ -212,12 +212,15 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
         QString prefix;
         Utils::FileName path;
         switch (headerPath.type) {
-        case HeaderPath::FrameworkPath:
+        case IncludePathType::Framework:
             prefix = QLatin1String("-F");
+            break;
+        case IncludePathType::System:
+            prefix = "-isystem";
             break;
         default: // This shouldn't happen, but let's be nice..:
             // intentional fall-through:
-        case HeaderPath::IncludePath:
+        case IncludePathType::User:
             prefix = includeDirOptionForPath(headerPath.path);
             break;
         }

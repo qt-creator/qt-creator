@@ -335,7 +335,7 @@ static void processCMakeIncludes(const CMakeBuildTarget &cbt, const ToolChain *t
         return;
 
     foreach (const HeaderPath &hp, tc->systemHeaderPaths(flags, sysroot))
-        tcIncludes.insert(FileName::fromString(hp.path()));
+        tcIncludes.insert(FileName::fromString(hp.path));
     foreach (const FileName &i, cbt.includeFiles) {
         if (!tcIncludes.contains(i))
             includePaths.append(i.toString());

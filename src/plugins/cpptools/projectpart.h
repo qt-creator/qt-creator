@@ -28,8 +28,8 @@
 #include "cpptools_global.h"
 
 #include "cppprojectfile.h"
-#include "projectpartheaderpath.h"
 
+#include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectexplorer_global.h>
 #include <projectexplorer/projectmacro.h>
 
@@ -123,7 +123,7 @@ public:
     ProjectFiles files;
 
     QStringList precompiledHeaders;
-    ProjectPartHeaderPaths headerPaths;
+    ProjectExplorer::HeaderPaths headerPaths;
 
     ProjectExplorer::Macros projectMacros;
 

@@ -32,6 +32,8 @@
 #include <filepathcachinginterface.h>
 #include <generatedfiles.h>
 
+#include <projectexplorer/headerpath.h>
+
 namespace ProjectExplorer {
 class Macro;
 using Macros = QVector<Macro>;
@@ -40,8 +42,6 @@ using Macros = QVector<Macro>;
 namespace CppTools {
 class ProjectPart;
 class ProjectFile;
-class ProjectPartHeaderPath;
-using ProjectPartHeaderPaths = QVector<ProjectPartHeaderPath>;
 }
 
 namespace ClangBackEnd {
@@ -90,7 +90,7 @@ unittest_public:
     static ClangBackEnd::CompilerMacros createCompilerMacros(
             const ProjectExplorer::Macros &projectMacros);
     static Utils::SmallStringVector createIncludeSearchPaths(
-            const CppTools::ProjectPartHeaderPaths &projectPartHeaderPaths);
+            const ProjectExplorer::HeaderPaths &projectPartHeaderPaths);
     static ClangBackEnd::FilePaths createExcludedPaths(
             const ClangBackEnd::V2::FileContainers &generatedFiles);
 

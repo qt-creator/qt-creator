@@ -111,7 +111,7 @@ private:
     QVector<ProjectPart::Ptr> m_projectParts;
 
     // The members below are (re)calculated from the project parts with finish()
-    ProjectPartHeaderPaths m_headerPaths;
+    ProjectExplorer::HeaderPaths m_headerPaths;
     QSet<QString> m_sourceFiles;
     ProjectExplorer::Macros m_defines;
 };

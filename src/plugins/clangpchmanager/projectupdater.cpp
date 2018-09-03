@@ -166,11 +166,11 @@ ClangBackEnd::CompilerMacros ProjectUpdater::createCompilerMacros(const ProjectE
 }
 
 Utils::SmallStringVector ProjectUpdater::createIncludeSearchPaths(
-        const CppTools::ProjectPartHeaderPaths &projectPartHeaderPaths)
+        const ProjectExplorer::HeaderPaths &projectPartHeaderPaths)
 {
     Utils::SmallStringVector includePaths;
 
-    for (const CppTools::ProjectPartHeaderPath &projectPartHeaderPath : projectPartHeaderPaths) {
+    for (const ProjectExplorer::HeaderPath &projectPartHeaderPath : projectPartHeaderPaths) {
         if (projectPartHeaderPath.isValid())
             includePaths.emplace_back(projectPartHeaderPath.path);
     }

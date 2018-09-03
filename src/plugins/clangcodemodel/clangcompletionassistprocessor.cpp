@@ -465,16 +465,16 @@ bool ClangCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
     }
 
     // Make completion for all relevant includes
-    CppTools::ProjectPartHeaderPaths headerPaths = m_interface->headerPaths();
-    const CppTools::ProjectPartHeaderPath currentFilePath(QFileInfo(m_interface->fileName()).path(),
-                                                          CppTools::ProjectPartHeaderPath::IncludePath);
+    ProjectExplorer::HeaderPaths headerPaths = m_interface->headerPaths();
+    const ProjectExplorer::HeaderPath currentFilePath(QFileInfo(m_interface->fileName()).path(),
+                                                          ProjectExplorer::IncludePathType::User);
     if (!headerPaths.contains(currentFilePath))
         headerPaths.append(currentFilePath);
 
     const ::Utils::MimeType mimeType = ::Utils::mimeTypeForName("text/x-c++hdr");
     const QStringList suffixes = mimeType.suffixes();
 
-    foreach (const CppTools::ProjectPartHeaderPath &headerPath, headerPaths) {
+    foreach (const ProjectExplorer::HeaderPath &headerPath, headerPaths) {
         QString realPath = headerPath.path;
         if (!directoryPrefix.isEmpty()) {
             realPath += QLatin1Char('/');

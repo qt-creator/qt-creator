@@ -120,14 +120,14 @@ static void addSystemHeaderPaths(QList<ProjectExplorer::HeaderPath> &paths,
     Utils::FileName includePath = stdcppPath;
     Utils::FileName cppLibsPath = stdcppPath;
     cppLibsPath.appendPath("libs/" + getArch(triple) + "/include/");
-    paths.prepend({cppLibsPath.toString(), ProjectExplorer::HeaderPath::GlobalHeaderPath});
+    paths.prepend({cppLibsPath.toString(), ProjectExplorer::IncludePathType::System});
     includePath.appendPath("include/");
-    paths.prepend({includePath.toString(), ProjectExplorer::HeaderPath::GlobalHeaderPath});
+    paths.prepend({includePath.toString(), ProjectExplorer::IncludePathType::System});
 
     paths.prepend({ndkPath.toString() + "/sysroot/usr/include/" + triple,
-                  ProjectExplorer::HeaderPath::GlobalHeaderPath});
+                   ProjectExplorer::IncludePathType::System});
     paths.prepend({ndkPath.toString() + "/sysroot/usr/include",
-                  ProjectExplorer::HeaderPath::GlobalHeaderPath});
+                   ProjectExplorer::IncludePathType::System});
 }
 
 AndroidToolChain::SystemHeaderPathsRunner AndroidToolChain::createSystemHeaderPathsRunner() const

@@ -59,7 +59,7 @@ using ClangBackEnd::CompilerMacro;
 using ClangBackEnd::V2::FileContainer;
 using ClangBackEnd::V2::ProjectPartContainer;
 using CppTools::CompilerOptionsBuilder;
-using CppTools::ProjectPartHeaderPath;
+using ProjectExplorer::HeaderPath;
 
 class ProjectUpdater : public testing::Test
 {
@@ -250,10 +250,10 @@ TEST_F(ProjectUpdater, CreateSortedCompilerMacros)
 
 TEST_F(ProjectUpdater, CreateSortedIncludeSearchPaths)
 {
-    ProjectPartHeaderPath includePath{"/to/path1", ProjectPartHeaderPath::IncludePath};
-    ProjectPartHeaderPath includePath2{"/to/path2", ProjectPartHeaderPath::IncludePath};
-    ProjectPartHeaderPath invalidPath;
-    ProjectPartHeaderPath frameworkPath{"/framework/path", ProjectPartHeaderPath::FrameworkPath};
+    ProjectExplorer::HeaderPath includePath{"/to/path1", ProjectExplorer::IncludePathType::User};
+    ProjectExplorer::HeaderPath includePath2{"/to/path2", ProjectExplorer::IncludePathType::User};
+    ProjectExplorer::HeaderPath invalidPath;
+    ProjectExplorer::HeaderPath frameworkPath{"/framework/path", ProjectExplorer::IncludePathType::Framework};
 
     auto paths = updater.createIncludeSearchPaths({frameworkPath, includePath2, includePath, invalidPath});
 

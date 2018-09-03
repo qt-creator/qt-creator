@@ -73,7 +73,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
 
     CppModelManager *modelManager = CppModelManager::instance();
     QByteArray configFile = modelManager->codeModelConfiguration();
-    ProjectPartHeaderPaths headerPaths;
+    ProjectExplorer::HeaderPaths headerPaths;
     QStringList precompiledHeaders;
     QString projectConfigFile;
     LanguageFeatures features = LanguageFeatures::defaultFeatures();
@@ -245,7 +245,7 @@ Snapshot BuiltinEditorDocumentParser::snapshot() const
     return extraState().snapshot;
 }
 
-ProjectPartHeaderPaths BuiltinEditorDocumentParser::headerPaths() const
+ProjectExplorer::HeaderPaths BuiltinEditorDocumentParser::headerPaths() const
 {
     return extraState().headerPaths;
 }

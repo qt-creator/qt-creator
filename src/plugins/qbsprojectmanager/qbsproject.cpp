@@ -981,11 +981,9 @@ void QbsProject::updateCppCodeModel()
             list.append(props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                               QLatin1String(CONFIG_SYSTEM_INCLUDEPATHS)));
             list.removeDuplicates();
-            CppTools::ProjectPartHeaderPaths grpHeaderPaths;
+            ProjectExplorer::HeaderPaths grpHeaderPaths;
             foreach (const QString &p, list)
-                grpHeaderPaths += CppTools::ProjectPartHeaderPath(
-                            FileName::fromUserInput(p).toString(),
-                            CppTools::ProjectPartHeaderPath::IncludePath);
+                grpHeaderPaths += {FileName::fromUserInput(p).toString(),  IncludePathType::User};
 
             list = props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                          QLatin1String(CONFIG_FRAMEWORKPATHS));
@@ -993,9 +991,7 @@ void QbsProject::updateCppCodeModel()
                                                               QLatin1String(CONFIG_SYSTEM_FRAMEWORKPATHS)));
             list.removeDuplicates();
             foreach (const QString &p, list)
-                grpHeaderPaths += CppTools::ProjectPartHeaderPath(
-                            FileName::fromUserInput(p).toString(),
-                            CppTools::ProjectPartHeaderPath::FrameworkPath);
+                grpHeaderPaths += {FileName::fromUserInput(p).toString(), IncludePathType::Framework};
 
             rpp.setHeaderPaths(grpHeaderPaths);
 

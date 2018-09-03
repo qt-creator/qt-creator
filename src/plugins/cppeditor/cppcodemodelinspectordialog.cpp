@@ -288,7 +288,7 @@ class ProjectHeaderPathsModel : public QAbstractListModel
     Q_OBJECT
 public:
     ProjectHeaderPathsModel(QObject *parent);
-    void configure(const ProjectPartHeaderPaths &paths);
+    void configure(const ProjectExplorer::HeaderPaths &paths);
     void clear();
 
     enum Columns { TypeColumn, PathColumn, ColumnCount };
@@ -299,14 +299,14 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
 private:
-    ProjectPartHeaderPaths m_paths;
+    ProjectExplorer::HeaderPaths m_paths;
 };
 
 ProjectHeaderPathsModel::ProjectHeaderPathsModel(QObject *parent) : QAbstractListModel(parent)
 {
 }
 
-void ProjectHeaderPathsModel::configure(const ProjectPartHeaderPaths &paths)
+void ProjectHeaderPathsModel::configure(const ProjectExplorer::HeaderPaths &paths)
 {
     emit layoutAboutToBeChanged();
     m_paths = paths;

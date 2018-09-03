@@ -151,7 +151,7 @@ public:
     // The members below are cached/(re)calculated from the projects and/or their project parts
     bool m_dirty;
     QStringList m_projectFiles;
-    ProjectPartHeaderPaths m_headerPaths;
+    ProjectExplorer::HeaderPaths m_headerPaths;
     ProjectExplorer::Macros m_definedMacros;
 
     // Editor integration
@@ -615,18 +615,18 @@ QStringList CppModelManager::internalProjectFiles() const
     return files;
 }
 
-ProjectPartHeaderPaths CppModelManager::internalHeaderPaths() const
+ProjectExplorer::HeaderPaths CppModelManager::internalHeaderPaths() const
 {
-    ProjectPartHeaderPaths headerPaths;
+    ProjectExplorer::HeaderPaths headerPaths;
     QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(d->m_projectToProjectsInfo);
     while (it.hasNext()) {
         it.next();
         const ProjectInfo pinfo = it.value();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
-            foreach (const ProjectPartHeaderPath &path, part->headerPaths) {
-                const ProjectPartHeaderPath hp(QDir::cleanPath(path.path), path.type);
+            foreach (const ProjectExplorer::HeaderPath &path, part->headerPaths) {
+                ProjectExplorer::HeaderPath hp(QDir::cleanPath(path.path), path.type);
                 if (!headerPaths.contains(hp))
-                    headerPaths += hp;
+                    headerPaths.push_back(std::move(hp));
             }
         }
     }
@@ -1433,7 +1433,7 @@ QStringList CppModelManager::projectFiles()
     return d->m_projectFiles;
 }
 
-ProjectPartHeaderPaths CppModelManager::headerPaths()
+ProjectExplorer::HeaderPaths CppModelManager::headerPaths()
 {
     QMutexLocker locker(&d->m_projectMutex);
     ensureUpdated();
@@ -1441,7 +1441,7 @@ ProjectPartHeaderPaths CppModelManager::headerPaths()
     return d->m_headerPaths;
 }
 
-void CppModelManager::setHeaderPaths(const ProjectPartHeaderPaths &headerPaths)
+void CppModelManager::setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPaths)
 {
     QMutexLocker locker(&d->m_projectMutex);
     d->m_headerPaths = headerPaths;

@@ -24,36 +24,55 @@
 ****************************************************************************/
 
 #pragma once
-#include <QString>
 
-#include "projectexplorer_export.h"
+#include <QString>
+#include <QVector>
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT HeaderPath
+enum class IncludePathType {
+    Invalid,
+    User,
+    System,
+    Framework
+};
+
+class HeaderPath
 {
 public:
-    enum Kind {
-        GlobalHeaderPath,
-        UserHeaderPath,
-        FrameworkHeaderPath
-    };
-
     HeaderPath() = default;
-    HeaderPath(const QString &path, Kind kind) : m_path(path), m_kind(kind)
+    HeaderPath(const QString &path, IncludePathType type)
+        : path(path), type(type)
     { }
 
-    QString path() const { return m_path; }
-    Kind kind() const { return m_kind; }
+    bool isValid() const
+    {
+        return type != IncludePathType::Invalid;
+    }
+
+    bool isFrameworkPath() const
+    {
+        return type == IncludePathType::Framework;
+    }
 
     bool operator==(const HeaderPath &other) const
     {
-        return m_kind == other.m_kind && m_path == other.m_path;
+        return type == other.type && path == other.path;
     }
 
-private:
-    QString m_path;
-    Kind m_kind = GlobalHeaderPath;
+    bool operator!=(const HeaderPath &other) const
+    {
+        return !(*this == other);
+    }
+
+    QString path;
+    IncludePathType type = IncludePathType::Invalid;
 };
 
+inline uint qHash(const HeaderPath &key, uint seed = 0)
+{
+    return ((qHash(key.path) << 2) | uint(key.type)) ^ seed;
+}
+
+using HeaderPaths = QVector<HeaderPath>;
 } // namespace ProjectExplorer

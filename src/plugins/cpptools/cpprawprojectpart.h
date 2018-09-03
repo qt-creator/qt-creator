@@ -68,7 +68,7 @@ public:
     void setQtVersion(ProjectPart::QtVersion qtVersion);
 
     void setMacros(const ProjectExplorer::Macros &macros);
-    void setHeaderPaths(const ProjectPartHeaderPaths &headerPaths);
+    void setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPaths);
     void setIncludePaths(const QStringList &includePaths);
 
     void setPreCompiledHeaders(const QStringList &preCompiledHeaders);
@@ -88,7 +88,7 @@ public:
     QString callGroupId;
     QString buildSystemTarget;
     QStringList precompiledHeaders;
-    ProjectPartHeaderPaths headerPaths;
+    ProjectExplorer::HeaderPaths headerPaths;
     ProjectExplorer::Macros projectMacros;
     ProjectPart::QtVersion qtVersion = ProjectPart::UnknownQt;
     bool selectedForBuilding = true;

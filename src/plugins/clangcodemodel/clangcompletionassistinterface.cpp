@@ -36,7 +36,7 @@ ClangCompletionAssistInterface::ClangCompletionAssistInterface(
         int position,
         const QString &fileName,
         TextEditor::AssistReason reason,
-        const CppTools::ProjectPartHeaderPaths &headerPaths,
+        const ProjectExplorer::HeaderPaths &headerPaths,
         const CPlusPlus::LanguageFeatures &features)
     : AssistInterface(textEditorWidget->document(), position, fileName, reason)
     , m_communicator(communicator)
@@ -51,7 +51,7 @@ bool ClangCompletionAssistInterface::objcEnabled() const
     return true; // TODO:
 }
 
-const CppTools::ProjectPartHeaderPaths &ClangCompletionAssistInterface::headerPaths() const
+const ProjectExplorer::HeaderPaths &ClangCompletionAssistInterface::headerPaths() const
 {
     return m_headerPaths;
 }
@@ -61,7 +61,7 @@ CPlusPlus::LanguageFeatures ClangCompletionAssistInterface::languageFeatures() c
     return m_languageFeatures;
 }
 
-void ClangCompletionAssistInterface::setHeaderPaths(const CppTools::ProjectPartHeaderPaths &headerPaths)
+void ClangCompletionAssistInterface::setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPaths)
 {
     m_headerPaths = headerPaths;
 }

@@ -111,17 +111,6 @@ private:
             languageExtensions |= ProjectPart::ObjectiveCExtensions;
     }
 
-    static ProjectPartHeaderPath toProjectPartHeaderPath(
-            const ProjectExplorer::HeaderPath &headerPath)
-    {
-        const ProjectPartHeaderPath::Type headerPathType =
-            headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath
-                ? ProjectPartHeaderPath::FrameworkPath
-                : ProjectPartHeaderPath::IncludePath;
-
-        return ProjectPartHeaderPath(headerPath.path(), headerPathType);
-    }
-
     void addHeaderPaths()
     {
         if (!m_tcInfo.headerPathsRunner)
@@ -131,9 +120,9 @@ private:
                 = m_tcInfo.headerPathsRunner(m_flags.commandLineFlags,
                                              m_tcInfo.sysRootPath);
 
-        ProjectPartHeaderPaths &headerPaths = m_projectPart.headerPaths;
+        ProjectExplorer::HeaderPaths &headerPaths = m_projectPart.headerPaths;
         for (const ProjectExplorer::HeaderPath &header : systemHeaderPaths) {
-            const ProjectPartHeaderPath headerPath = toProjectPartHeaderPath(header);
+            const ProjectExplorer::HeaderPath headerPath{header.path, header.type};
             if (!headerPaths.contains(headerPath))
                 headerPaths.push_back(headerPath);
         }

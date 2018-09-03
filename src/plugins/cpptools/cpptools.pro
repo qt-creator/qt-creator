@@ -90,7 +90,6 @@ HEADERS += \
     cpptoolsbridgeinterface.h \
     cpptoolsbridgeqtcreatorimplementation.h \
     projectpart.h \
-    projectpartheaderpath.h \
     projectinfo.h \
     cppprojectinfogenerator.h \
     compileroptionsbuilder.h \

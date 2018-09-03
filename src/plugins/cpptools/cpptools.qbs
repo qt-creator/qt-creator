@@ -200,7 +200,6 @@ Project {
             "projectinfo.h",
             "projectpart.cpp",
             "projectpart.h",
-            "projectpartheaderpath.h",
             "searchsymbols.cpp",
             "searchsymbols.h",
             "semantichighlighter.cpp",

@@ -89,13 +89,14 @@ QString Utils::toString(CPlusPlus::Document::DiagnosticMessage::Level level)
     return QString();
 }
 
-QString Utils::toString(ProjectPartHeaderPath::Type type)
+QString Utils::toString(ProjectExplorer::IncludePathType type)
 {
-#define CASE_LANGUAGEVERSION(x) case ProjectPartHeaderPath::x: return QLatin1String(#x)
+#define CASE_LANGUAGEVERSION(x) case ProjectExplorer::IncludePathType::x: return QLatin1String(#x"Path")
     switch (type) {
-    CASE_LANGUAGEVERSION(InvalidPath);
-    CASE_LANGUAGEVERSION(IncludePath);
-    CASE_LANGUAGEVERSION(FrameworkPath);
+    CASE_LANGUAGEVERSION(Invalid);
+    CASE_LANGUAGEVERSION(User);
+    CASE_LANGUAGEVERSION(System);
+    CASE_LANGUAGEVERSION(Framework);
     // no default to get a compiler warning if anything is added
     }
 #undef CASE_LANGUAGEVERSION
@@ -409,14 +410,12 @@ QString Utils::pathListToString(const QStringList &pathList)
     return result.join(QLatin1Char('\n'));
 }
 
-QString Utils::pathListToString(const ProjectPartHeaderPaths &pathList)
+QString Utils::pathListToString(const ProjectExplorer::HeaderPaths &pathList)
 {
     QStringList result;
-    foreach (const ProjectPartHeaderPath &path, pathList) {
+    foreach (const ProjectExplorer::HeaderPath &path, pathList) {
         result << QString(QLatin1String("%1 (%2 path)")).arg(
-                      QDir::toNativeSeparators(path.path),
-                      path.isFrameworkPath() ? QLatin1String("framework") : QLatin1String("include")
-                      );
+                      QDir::toNativeSeparators(path.path), toString(path.type));
     }
     return result.join(QLatin1Char('\n'));
 }
@@ -465,6 +464,17 @@ Dumper::Dumper(const CPlusPlus::Snapshot &globalSnapshot, const QString &logFile
 Dumper::~Dumper()
 {
     m_out << "*** END Code Model Inspection Report\n";
+}
+
+static void printIncludeType(QTextStream &out, ProjectExplorer::IncludePathType type)
+{
+    using ProjectExplorer::IncludePathType;
+    switch (type) {
+        case IncludePathType::Invalid: out << "(invalid include path)"; break;
+        case IncludePathType::User: out << "(user include path)"; break;
+        case IncludePathType::System: out << "(system include path)"; break;
+        case IncludePathType::Framework: out << "(framework path)"; break;
+    }
 }
 
 void Dumper::dumpProjectInfos( const QList<ProjectInfo> &projectInfos)
@@ -526,12 +536,11 @@ void Dumper::dumpProjectInfos( const QList<ProjectInfo> &projectInfos)
 
             if (!part->headerPaths.isEmpty()) {
                 m_out << i3 << "Header Paths:{{{4\n";
-                foreach (const ProjectPartHeaderPath &headerPath, part->headerPaths)
-                    m_out << i4 << headerPath.path
-                          << (headerPath.type == ProjectPartHeaderPath::IncludePath
-                              ? "(include path)"
-                              : "(framework path)")
-                          << "\n";
+                foreach (const ProjectExplorer::HeaderPath &headerPath, part->headerPaths) {
+                    m_out << i4 << headerPath.path;
+                    printIncludeType(m_out, headerPath.type);
+                    m_out << "\n";
+                }
             }
 
             if (!part->precompiledHeaders.isEmpty()) {
@@ -593,7 +602,7 @@ void Dumper::dumpWorkingCopy(const WorkingCopy &workingCopy)
     }
 }
 
-void Dumper::dumpMergedEntities(const ProjectPartHeaderPaths &mergedHeaderPaths,
+void Dumper::dumpMergedEntities(const ProjectExplorer::HeaderPaths &mergedHeaderPaths,
                                 const QByteArray &mergedMacros)
 {
     m_out << "Merged Entities{{{1\n";
@@ -601,10 +610,11 @@ void Dumper::dumpMergedEntities(const ProjectPartHeaderPaths &mergedHeaderPaths,
     const QByteArray i3 = indent(3);
 
     m_out << i2 << "Merged Header Paths{{{2\n";
-    foreach (const ProjectPartHeaderPath &hp, mergedHeaderPaths)
-        m_out << i3 << hp.path
-              << (hp.isFrameworkPath() ? " (framework path)" : " (include path)")
-              << "\n";
+    foreach (const ProjectExplorer::HeaderPath &hp, mergedHeaderPaths) {
+        m_out << i3 << hp.path;
+        printIncludeType(m_out, hp.type);
+        m_out << "\n";
+    }
     m_out << i2 << "Merged Defines{{{2\n";
     m_out << mergedMacros;
 }

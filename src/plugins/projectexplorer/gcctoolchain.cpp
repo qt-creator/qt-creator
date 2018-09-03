@@ -151,24 +151,24 @@ QList<HeaderPath> GccToolChain::gccHeaderPaths(const FileName &gcc, const QStrin
     }
 
     if (!line.isEmpty() && line.startsWith("#include")) {
-        HeaderPath::Kind kind = HeaderPath::UserHeaderPath;
+        auto kind = IncludePathType::User;
         while (cpp.canReadLine()) {
             line = cpp.readLine();
             if (line.startsWith("#include")) {
-                kind = HeaderPath::GlobalHeaderPath;
+                kind = IncludePathType::System;
             } else if (! line.isEmpty() && QChar(line.at(0)).isSpace()) {
-                HeaderPath::Kind thisHeaderKind = kind;
+                IncludePathType thisHeaderKind = kind;
 
                 line = line.trimmed();
 
                 const int index = line.indexOf(" (framework directory)");
                 if (index != -1) {
                     line.truncate(index);
-                    thisHeaderKind = HeaderPath::FrameworkHeaderPath;
+                    thisHeaderKind = IncludePathType::Framework;
                 }
 
                 const QString headerPath = QFileInfo(QFile::decodeName(line)).canonicalFilePath();
-                systemHeaderPaths.append(HeaderPath(headerPath, thisHeaderKind));
+                systemHeaderPaths.append({headerPath, thisHeaderKind});
             } else if (line.startsWith("End of search list.")) {
                 break;
             } else {
@@ -657,7 +657,7 @@ ToolChain::SystemHeaderPathsRunner GccToolChain::createSystemHeaderPathsRunner()
             qCDebug(gccLog) << compilerCommand.toUserOutput()
                             << (languageId == Constants::CXX_LANGUAGE_ID ? ": C++ [" : ": C [")
                             << arguments.join(", ") << "]"
-                            << hp.path();
+                            << hp.path;
         }
 
         return paths;

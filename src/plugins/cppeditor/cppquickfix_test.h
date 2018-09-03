@@ -24,8 +24,9 @@
 ****************************************************************************/
 
 #include "cppeditortestcase.h"
+#include "cppquickfix.h"
 
-#include <cpptools/projectpartheaderpath.h>
+#include <projectexplorer/headerpath.h>
 
 #include <QByteArray>
 #include <QList>
@@ -76,8 +77,8 @@ public:
     /// Exactly one QuickFixTestDocument must contain the cursor position marker '@'
     /// or "@{start}" and "@{end}"
     BaseQuickFixTestCase(const QList<QuickFixTestDocument::Ptr> &testDocuments,
-                         const CppTools::ProjectPartHeaderPaths &headerPaths
-                            = CppTools::ProjectPartHeaderPaths());
+                         const ProjectExplorer::HeaderPaths &headerPaths
+                            = ProjectExplorer::HeaderPaths());
 
     ~BaseQuickFixTestCase();
 
@@ -91,7 +92,7 @@ private:
     CppTools::CppCodeStylePreferences *m_cppCodeStylePreferences;
     QByteArray m_cppCodeStylePreferencesOriginalDelegateId;
 
-    CppTools::ProjectPartHeaderPaths m_headerPathsToRestore;
+    ProjectExplorer::HeaderPaths m_headerPathsToRestore;
     bool m_restoreHeaderPaths;
 };
 
@@ -101,8 +102,8 @@ class QuickFixOperationTest : public BaseQuickFixTestCase
 public:
     QuickFixOperationTest(const QList<QuickFixTestDocument::Ptr> &testDocuments,
                           CppQuickFixFactory *factory,
-                          const CppTools::ProjectPartHeaderPaths &headerPaths
-                            = CppTools::ProjectPartHeaderPaths(),
+                          const ProjectExplorer::HeaderPaths &headerPaths
+                            = ProjectExplorer::HeaderPaths(),
                           int operationIndex = 0,
                           const QByteArray &expectedFailMessage = QByteArray());
 
@@ -118,8 +119,8 @@ class QuickFixOfferedOperationsTest : public BaseQuickFixTestCase
 public:
     QuickFixOfferedOperationsTest(const QList<QuickFixTestDocument::Ptr> &testDocuments,
                                   CppQuickFixFactory *factory,
-                                  const CppTools::ProjectPartHeaderPaths &headerPaths
-                                    = CppTools::ProjectPartHeaderPaths(),
+                                  const ProjectExplorer::HeaderPaths &headerPaths
+                                    = ProjectExplorer::HeaderPaths(),
                                   const QStringList &expectedOperations = QStringList());
 };
 

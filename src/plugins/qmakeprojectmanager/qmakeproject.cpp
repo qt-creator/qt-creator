@@ -41,7 +41,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cpprawprojectpart.h>
 #include <cpptools/projectinfo.h>
-#include <cpptools/projectpartheaderpath.h>
+#include <projectexplorer/headerpath.h>
 #include <cpptools/cppprojectupdater.h>
 #include <cpptools/cppmodelmanager.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -313,17 +313,15 @@ void QmakeProject::updateCppCodeModel()
             rpp.setQtVersion(ProjectPart::NoQt);
 
         // Header paths
-        CppTools::ProjectPartHeaderPaths headerPaths;
-        using CppToolsHeaderPath = CppTools::ProjectPartHeaderPath;
+        ProjectExplorer::HeaderPaths headerPaths;
         foreach (const QString &inc, pro->variableValue(Variable::IncludePath)) {
-            const auto headerPath = CppToolsHeaderPath(inc, CppToolsHeaderPath::IncludePath);
+            const ProjectExplorer::HeaderPath headerPath{inc, IncludePathType::User};
             if (!headerPaths.contains(headerPath))
                 headerPaths += headerPath;
         }
 
         if (qtVersion && !qtVersion->frameworkInstallPath().isEmpty()) {
-            headerPaths += CppToolsHeaderPath(qtVersion->frameworkInstallPath(),
-                                              CppToolsHeaderPath::FrameworkPath);
+            headerPaths += {qtVersion->frameworkInstallPath(), IncludePathType::Framework};
         }
         rpp.setHeaderPaths(headerPaths);
 

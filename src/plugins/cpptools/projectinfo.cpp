@@ -128,11 +128,11 @@ void ProjectInfo::appendProjectPart(const ProjectPart::Ptr &projectPart)
 
 void ProjectInfo::finish()
 {
-    QSet<ProjectPartHeaderPath> uniqueHeaderPaths;
+    QSet<ProjectExplorer::HeaderPath> uniqueHeaderPaths;
 
     foreach (const ProjectPart::Ptr &part, m_projectParts) {
         // Update header paths
-        foreach (const ProjectPartHeaderPath &headerPath, part->headerPaths) {
+        foreach (const ProjectExplorer::HeaderPath &headerPath, part->headerPaths) {
             const int count = uniqueHeaderPaths.count();
             uniqueHeaderPaths.insert(headerPath);
             if (count < uniqueHeaderPaths.count())

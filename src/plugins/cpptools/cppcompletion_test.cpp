@@ -109,7 +109,7 @@ public:
             = new CppCompletionAssistInterface(m_editorWidget->textDocument()->filePath().toString(),
                                                m_textDocument, m_position,
                                                ExplicitlyInvoked, m_snapshot,
-                                               ProjectPartHeaderPaths(),
+                                               ProjectExplorer::HeaderPaths(),
                                                languageFeatures);
         ai->prepareForAsyncUse();
         ai->recreateTextDocument();

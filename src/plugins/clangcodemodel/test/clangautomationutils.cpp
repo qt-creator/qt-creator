@@ -92,13 +92,11 @@ public:
     TextEditor::ProposalModelPtr proposalModel;
 };
 
-static const CppTools::ProjectPartHeaderPaths toHeaderPaths(const QStringList &paths)
+static const ProjectExplorer::HeaderPaths toHeaderPaths(const QStringList &paths)
 {
-    using namespace CppTools;
-
-    ProjectPartHeaderPaths result;
+    ProjectExplorer::HeaderPaths result;
     foreach (const QString &path, paths)
-        result << ProjectPartHeaderPath(path, ProjectPartHeaderPath::IncludePath);
+        result.push_back({path, ProjectExplorer::IncludePathType::User});
     return result;
 }
 

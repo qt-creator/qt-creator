@@ -30,7 +30,7 @@
 #include "refactoringengineinterface.h"
 #include "projectinfo.h"
 #include "projectpart.h"
-#include "projectpartheaderpath.h"
+#include <projectexplorer/headerpath.h>
 
 #include <cplusplus/cppmodelmanagerbase.h>
 #include <coreplugin/find/ifindfilter.h>
@@ -189,10 +189,10 @@ public:
 
     QStringList projectFiles();
 
-    ProjectPartHeaderPaths headerPaths();
+    ProjectExplorer::HeaderPaths headerPaths();
 
     // Use this *only* for auto tests
-    void setHeaderPaths(const ProjectPartHeaderPaths &headerPaths);
+    void setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPaths);
 
     ProjectExplorer::Macros definedMacros();
 
@@ -274,7 +274,7 @@ private:
 
     void ensureUpdated();
     QStringList internalProjectFiles() const;
-    ProjectPartHeaderPaths internalHeaderPaths() const;
+    ProjectExplorer::HeaderPaths internalHeaderPaths() const;
     ProjectExplorer::Macros internalDefinedMacros() const;
 
     void dumpModelManagerConfiguration(const QString &logFileId);

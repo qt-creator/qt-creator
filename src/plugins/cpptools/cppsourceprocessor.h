@@ -63,7 +63,7 @@ public:
     void setCancelChecker(const CancelChecker &cancelChecker);
 
     void setWorkingCopy(const CppTools::WorkingCopy &workingCopy);
-    void setHeaderPaths(const ProjectPartHeaderPaths &headerPaths);
+    void setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPaths);
     void setLanguageFeatures(CPlusPlus::LanguageFeatures languageFeatures);
     void setFileSizeLimitInMb(int fileSizeLimitInMb);
     void setTodo(const QSet<QString> &files);
@@ -78,7 +78,7 @@ public:
     void setGlobalSnapshot(const CPlusPlus::Snapshot &snapshot) { m_globalSnapshot = snapshot; }
 
 private:
-    void addFrameworkPath(const ProjectPartHeaderPath &frameworkPath);
+    void addFrameworkPath(const ProjectExplorer::HeaderPath &frameworkPath);
 
     CPlusPlus::Document::Ptr switchCurrentDocument(CPlusPlus::Document::Ptr doc);
 
@@ -87,7 +87,7 @@ private:
     bool checkFile(const QString &absoluteFilePath) const;
     QString resolveFile(const QString &fileName, IncludeType type);
     QString resolveFile_helper(const QString &fileName,
-                               ProjectPartHeaderPaths::Iterator headerPathsIt);
+                               ProjectExplorer::HeaderPaths::Iterator headerPathsIt);
 
     void mergeEnvironment(CPlusPlus::Document::Ptr doc);
 
@@ -115,7 +115,7 @@ private:
     DocumentCallback m_documentFinished;
     CPlusPlus::Environment m_env;
     CPlusPlus::Preprocessor m_preprocess;
-    ProjectPartHeaderPaths m_headerPaths;
+    ProjectExplorer::HeaderPaths m_headerPaths;
     CPlusPlus::LanguageFeatures m_languageFeatures;
     CppTools::WorkingCopy m_workingCopy;
     QSet<QString> m_included;
