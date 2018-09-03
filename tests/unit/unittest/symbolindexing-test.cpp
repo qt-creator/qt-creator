@@ -81,7 +81,8 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
     FilePathCaching filePathCache{database};
-    ClangBackEnd::SymbolIndexing indexing{database, filePathCache};
+    ClangBackEnd::GeneratedFiles generatedFiles;
+    ClangBackEnd::SymbolIndexing indexing{database, filePathCache, generatedFiles};
     StatementFactory queryFactory{database};
     Query query{queryFactory};
     PathString main1Path = TESTDATA_DIR "/symbolindexing_main1.cpp";
@@ -95,7 +96,7 @@ protected:
 
 TEST_F(SymbolIndexing, Locations)
 {
-    indexing.indexer().updateProjectParts({projectPart1}, {});
+    indexing.indexer().updateProjectParts({projectPart1});
     indexing.syncTasks();
 
     auto locations = query.locationsAt(filePathId(TESTDATA_DIR "/symbolindexing_main1.cpp"), 1, 6);
@@ -108,7 +109,7 @@ TEST_F(SymbolIndexing, Locations)
 
 TEST_F(SymbolIndexing, DISABLED_TemplateFunction)
 {
-    indexing.indexer().updateProjectParts({projectPart1}, {});
+    indexing.indexer().updateProjectParts({projectPart1});
     indexing.syncTasks();
 
     auto locations = query.locationsAt(filePathId(TESTDATA_DIR "/symbolindexing_main1.cpp"), 21, 24);
@@ -120,7 +121,7 @@ TEST_F(SymbolIndexing, DISABLED_TemplateFunction)
 
 TEST_F(SymbolIndexing, PathsAreUpdated)
 {
-    indexing.indexer().updateProjectParts({projectPart1}, {});
+    indexing.indexer().updateProjectParts({projectPart1});
 
     indexing.indexer().pathsChanged({filePathId(main1Path)});
     indexing.indexer().pathsChanged({filePathId(main1Path)});

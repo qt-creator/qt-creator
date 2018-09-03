@@ -44,12 +44,12 @@ void SymbolsCollector::addFiles(const FilePathIds &filePathIds,
     m_collectMacrosSourceFileCallbacks.addSourceFiles(filePathIds);
 }
 
-void SymbolsCollector::addFile(FilePathId filePathId, const Utils::SmallStringVector &arguments)
+void SymbolsCollector::setFile(FilePathId filePathId, const Utils::SmallStringVector &arguments)
 {
     addFiles({filePathId}, arguments);
 }
 
-void SymbolsCollector::addUnsavedFiles(const V2::FileContainers &unsavedFiles)
+void SymbolsCollector::setUnsavedFiles(const V2::FileContainers &unsavedFiles)
 {
     m_clangTool.addUnsavedFiles(unsavedFiles);
 }

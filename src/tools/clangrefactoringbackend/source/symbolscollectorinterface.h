@@ -48,9 +48,9 @@ public:
     SymbolsCollectorInterface(const SymbolsCollectorInterface &) = delete;
     SymbolsCollectorInterface &operator=(const SymbolsCollectorInterface &) = delete;
 
-    virtual void addFile(FilePathId filePathId, const Utils::SmallStringVector &arguments) = 0;
+    virtual void setFile(FilePathId filePathId, const Utils::SmallStringVector &arguments) = 0;
 
-    virtual void addUnsavedFiles(const V2::FileContainers &unsavedFiles) = 0;
+    virtual void setUnsavedFiles(const V2::FileContainers &unsavedFiles) = 0;
 
     virtual void clear() = 0;
 

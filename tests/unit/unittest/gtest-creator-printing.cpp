@@ -149,17 +149,17 @@ std::ostream &operator<<(std::ostream &out, const LineColumn &lineColumn)
 
 void PrintTo(Utils::SmallStringView text, ::std::ostream *os)
 {
-    *os << text;
+    *os << "\"" << text << "\"";
 }
 
 void PrintTo(const Utils::SmallString &text, ::std::ostream *os)
 {
-    *os << text;
+    *os << "\"" << text << "\"";
 }
 
 void PrintTo(const Utils::PathString &text, ::std::ostream *os)
 {
-    *os << text;
+    *os << "\"" << text << "\"";
 }
 
 } // namespace Utils

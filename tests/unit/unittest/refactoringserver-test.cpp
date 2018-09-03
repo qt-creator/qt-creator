@@ -94,7 +94,8 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
-    ClangBackEnd::RefactoringServer refactoringServer{mockSymbolIndexing, filePathCache};
+    ClangBackEnd::GeneratedFiles generatedFiles;
+    ClangBackEnd::RefactoringServer refactoringServer{mockSymbolIndexing, filePathCache, generatedFiles};
     Utils::SmallString sourceContent{"void f()\n {}"};
     FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"},
                          sourceContent.clone(),
@@ -304,12 +305,21 @@ TEST_F(RefactoringServer, UpdateGeneratedFilesSetMemberWhichIsUsedForSymbolIndex
                             "void f();",
                             {}}};
 
-
-    EXPECT_CALL(mockSymbolIndexing,
-                updateProjectParts(_, unsaved));
-
     refactoringServer.updateGeneratedFiles(Utils::clone(unsaved));
-    refactoringServer.updateProjectParts({});
+
+    ASSERT_THAT(generatedFiles.fileContainers(), ElementsAre(unsaved.front()));
+}
+
+TEST_F(RefactoringServer, RemoveGeneratedFilesSetMemberWhichIsUsedForSymbolIndexing)
+{
+    FileContainers unsaved{{{TESTDATA_DIR, "query_simplefunction.h"},
+                            "void f();",
+                            {}}};
+    refactoringServer.updateGeneratedFiles(Utils::clone(unsaved));
+
+    refactoringServer.removeGeneratedFiles({{{TESTDATA_DIR, "query_simplefunction.h"}}});
+
+    ASSERT_THAT(generatedFiles.fileContainers(), IsEmpty());
 }
 
 TEST_F(RefactoringServer, UpdateProjectPartsCallsSymbolIndexingUpdateProjectParts)
@@ -323,7 +333,7 @@ TEST_F(RefactoringServer, UpdateProjectPartsCallsSymbolIndexingUpdateProjectPart
 
 
     EXPECT_CALL(mockSymbolIndexing,
-                updateProjectParts(projectParts, _));
+                updateProjectParts(projectParts));
 
     refactoringServer.updateProjectParts({Utils::clone(projectParts)});
 }

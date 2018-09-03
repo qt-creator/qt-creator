@@ -14,7 +14,10 @@ OBJECTS_DIR = $$OUT_PWD/obj # workaround for qmake bug in object_parallel_to_sou
 !msvc:force_debug_info:QMAKE_CXXFLAGS += -fno-omit-frame-pointer
 
 DEFINES += \
+    QT_NO_CAST_TO_ASCII \
     QT_RESTRICTED_CAST_FROM_ASCII \
+    QT_USE_FAST_OPERATOR_PLUS \
+    QT_USE_FAST_CONCATENATION \
     UNIT_TESTS \
     DONT_CHECK_MESSAGE_COUNTER \
     TESTDATA_DIR=\"R\\\"xxx($$PWD/data)xxx\\\"\"

@@ -44,16 +44,17 @@ public:
     {
         ON_CALL(*this, setIsUsed(_)).WillByDefault(Invoke(this, &MockSymbolsCollector::setIsUsed2));
         ON_CALL(*this, isUsed()).WillByDefault(Invoke(this, &MockSymbolsCollector::isUsed2));
+        ON_CALL(*this, setUnsavedFiles(_)).WillByDefault(Invoke(this, &MockSymbolsCollector::setHasUnsavedFiles));
     }
 
     MOCK_METHOD0(collectSymbols,
                  void());
 
-    MOCK_METHOD2(addFile,
+    MOCK_METHOD2(setFile,
                  void(ClangBackEnd::FilePathId filePathId,
                       const Utils::SmallStringVector &arguments));
 
-    MOCK_METHOD1(addUnsavedFiles,
+    MOCK_METHOD1(setUnsavedFiles,
                  void(const ClangBackEnd::V2::FileContainers &unsavedFiles));
 
     MOCK_METHOD0(clear,
@@ -93,6 +94,12 @@ public:
         return used;
     }
 
+    void setHasUnsavedFiles(const ClangBackEnd::V2::FileContainers &unsavedFiles)
+    {
+        hasUnsavedFiles = true;
+    }
+
 public:
     bool used = false;
+    bool hasUnsavedFiles = false;
 };

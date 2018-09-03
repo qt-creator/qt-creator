@@ -81,7 +81,7 @@ public:
     }
     bool operator()(const FilePath &first, const V2::FileContainer &second)
     {
-        return second.filePath < first;
+        return first < second.filePath;
     }
 };
 

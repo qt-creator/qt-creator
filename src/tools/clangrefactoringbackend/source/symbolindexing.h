@@ -55,10 +55,11 @@ public:
     using Storage = ClangBackEnd::SymbolStorage<StatementFactory>;
 
     SymbolIndexing(Sqlite::Database &database,
-                   FilePathCachingInterface &filePathCache)
+                   FilePathCachingInterface &filePathCache,
+                   const GeneratedFiles &generatedFiles)
         : m_filePathCache(filePathCache),
           m_statementFactory(database),
-          m_collectorManger(database),
+          m_collectorManger(database, generatedFiles),
           m_indexerScheduler(m_collectorManger, m_symbolStorage, database, m_indexerQueue, std::thread::hardware_concurrency())
     {
     }
@@ -82,8 +83,7 @@ public:
         }
     }
 
-    void updateProjectParts(V2::ProjectPartContainers &&projectParts,
-                            const V2::FileContainers &generatedFiles) override;
+    void updateProjectParts(V2::ProjectPartContainers &&projectParts) override;
 
 private:
     FilePathCachingInterface &m_filePathCache;

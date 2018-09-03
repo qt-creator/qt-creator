@@ -37,7 +37,7 @@ namespace ClangBackEnd {
 
 class SymbolsCollectorInterface;
 
-class SymbolIndexer : public ClangPathWatcherNotifier
+class SymbolIndexer final : public ClangPathWatcherNotifier
 {
 public:
     SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQueue,
@@ -47,10 +47,8 @@ public:
                   FileStatusCache &fileStatusCache,
                   Sqlite::TransactionInterface &transactionInterface);
 
-    void updateProjectParts(V2::ProjectPartContainers &&projectParts,
-                            const V2::FileContainers &generatedFiles);
-    void updateProjectPart(V2::ProjectPartContainer &&projectPart,
-                           const V2::FileContainers &generatedFiles);
+    void updateProjectParts(V2::ProjectPartContainers &&projectParts);
+    void updateProjectPart(V2::ProjectPartContainer &&projectPart);
 
     void pathsWithIdsChanged(const Utils::SmallStringVector &ids) override;
     void pathsChanged(const FilePathIds &filePathIds) override;

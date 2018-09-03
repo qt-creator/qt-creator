@@ -82,11 +82,7 @@ std::ostream &operator<<(std::ostream &out, const BasicSmallString<Size> &string
     formatedString.replace("\n", "\\n");
     formatedString.replace("\t", "\\t");
 
-    out << "\"";
-
     out.write(formatedString.data(), std::streamsize(formatedString.size()));
-
-    out << "\"";
 
     return out;
 }

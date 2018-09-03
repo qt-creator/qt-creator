@@ -27,6 +27,7 @@
 
 #include "symbolscollectormanagerinterface.h"
 #include "symbolscollectorinterface.h"
+#include "generatedfiles.h"
 
 #include <memory>
 
@@ -36,13 +37,16 @@ class Database;
 
 namespace ClangBackEnd {
 
+class GeneratedFiles;
 class SymbolsCollector;
 template<typename SymbolsCollector>
 class SymbolsCollectorManager final : public SymbolsCollectorManagerInterface
 {
 public:
-    SymbolsCollectorManager(Sqlite::Database &database)
-        : m_database(database)
+    SymbolsCollectorManager(Sqlite::Database &database,
+                            const GeneratedFiles &generatedFiles)
+        : m_database(database),
+          m_generatedFiles(generatedFiles)
     {}
 
     SymbolsCollector &unusedSymbolsCollector() override
@@ -56,11 +60,11 @@ public:
         auto freeCollectors = std::distance(split, m_collectors.end());
 
         if (freeCollectors > 0)
-            return usedCollector(*split->get());
+            return initializedCollector(*split->get());
 
         m_collectors.emplace_back(std::make_unique<SymbolsCollector>(m_database));
 
-        return  usedCollector(*m_collectors.back().get());
+        return  initializedCollector(*m_collectors.back().get());
     }
 
     const std::vector<std::unique_ptr<SymbolsCollector>> &collectors() const
@@ -69,15 +73,17 @@ public:
     }
 
 private:
-    SymbolsCollector &usedCollector(SymbolsCollector &collector)
+    SymbolsCollector &initializedCollector(SymbolsCollector &collector)
     {
         collector.setIsUsed(true);
+        collector.setUnsavedFiles(m_generatedFiles.fileContainers());
         return collector;
     }
 
 private:
     std::vector<std::unique_ptr<SymbolsCollector>> m_collectors;
     Sqlite::Database &m_database;
+    const GeneratedFiles &m_generatedFiles;
 };
 
 } // namespace ClangBackEnd

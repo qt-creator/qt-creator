@@ -46,9 +46,9 @@ public:
 
     void addFiles(const FilePathIds &filePathIds,
                   const Utils::SmallStringVector &arguments);
-    void addFile(FilePathId filePathId, const Utils::SmallStringVector &arguments) override;
+    void setFile(FilePathId filePathId, const Utils::SmallStringVector &arguments) override;
 
-    void addUnsavedFiles(const V2::FileContainers &unsavedFiles) override;
+    void setUnsavedFiles(const V2::FileContainers &unsavedFiles) override;
 
     void clear() override;
 

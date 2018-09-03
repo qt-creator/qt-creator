@@ -25,10 +25,36 @@
 
 #include "symbolindexer.h"
 
-#include <symbolscollector.h>
+#include <symbolscollectorinterface.h>
 #include <symbolindexertaskqueue.h>
 
+#include <chrono>
+#include <iostream>
+
 namespace ClangBackEnd {
+
+using namespace std::chrono;
+
+class Timer
+{
+public:
+    Timer(Utils::SmallStringView name)
+        : name(name)
+    {}
+
+    void commit()
+    {
+        auto end = steady_clock::now();
+        auto time_difference = duration_cast<milliseconds>(end - begin);
+        begin = end;
+        std::cerr << name << " " << timePoint++ << ": " << time_difference.count() << "\n";
+    }
+
+private:
+    Utils::SmallString name;
+    time_point<steady_clock> begin{steady_clock::now()};
+    int timePoint = 1;
+};
 
 SymbolIndexer::SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQueue,
                              SymbolStorageInterface &symbolStorage,
@@ -46,14 +72,13 @@ SymbolIndexer::SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQ
     pathWatcher.setNotifier(this);
 }
 
-void SymbolIndexer::updateProjectParts(V2::ProjectPartContainers &&projectParts, const V2::FileContainers &generatedFiles)
+void SymbolIndexer::updateProjectParts(V2::ProjectPartContainers &&projectParts)
 {
         for (V2::ProjectPartContainer &projectPart : projectParts)
-            updateProjectPart(std::move(projectPart), generatedFiles);
+            updateProjectPart(std::move(projectPart));
 }
 
-void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart,
-                                      const V2::FileContainers &generatedFiles)
+void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart)
 {
     Sqlite::ImmediateTransaction transaction{m_transactionInterface};
     const auto optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(projectPart.projectPartId);
@@ -67,7 +92,6 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart,
         projectPartId = optionalArtefact->projectPartId;
 
     FilePathIds sourcePathIds = updatableFilePathIds(projectPart, optionalArtefact);
-
     if (sourcePathIds.empty())
         return;
 
@@ -75,15 +99,14 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart,
 
     std::vector<SymbolIndexerTask> symbolIndexerTask;
     symbolIndexerTask.reserve(projectPart.sourcePathIds.size());
-
     for (FilePathId sourcePathId : projectPart.sourcePathIds) {
-        auto indexing = [projectPart, arguments, generatedFiles, sourcePathId]
+        auto indexing = [projectPartId = projectPart.projectPartId, arguments, sourcePathId]
                 (SymbolsCollectorInterface &symbolsCollector,
                 SymbolStorageInterface &symbolStorage,
                 Sqlite::TransactionInterface &transactionInterface) {
-            symbolsCollector.addFile(sourcePathId, arguments);
+            auto id = Utils::SmallString::number(sourcePathId.filePathId);
 
-            symbolsCollector.addUnsavedFiles(generatedFiles);
+            symbolsCollector.setFile(sourcePathId, arguments);
 
             symbolsCollector.collectSymbols();
 
@@ -92,7 +115,7 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart,
             symbolStorage.addSymbolsAndSourceLocations(symbolsCollector.symbols(),
                                                        symbolsCollector.sourceLocations());
 
-            symbolStorage.updateProjectPartSources(projectPart.projectPartId,
+            symbolStorage.updateProjectPartSources(projectPartId,
                                                    symbolsCollector.sourceFiles());
 
             symbolStorage.insertOrUpdateUsedMacros(symbolsCollector.usedMacros());
@@ -147,7 +170,7 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
                 (SymbolsCollectorInterface &symbolsCollector,
                 SymbolStorageInterface &symbolStorage,
                 Sqlite::TransactionInterface &transactionInterface) {
-            symbolsCollector.addFile(filePathId, arguments);
+            symbolsCollector.setFile(filePathId, arguments);
 
             symbolsCollector.collectSymbols();
 

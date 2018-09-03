@@ -38,7 +38,8 @@ class SymbolsCollectorManager : public testing::Test
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
-    ClangBackEnd::SymbolsCollectorManager<NiceMock<MockSymbolsCollector>> manager{database};
+    ClangBackEnd::GeneratedFiles generatedFiles;
+    ClangBackEnd::SymbolsCollectorManager<NiceMock<MockSymbolsCollector>> manager{database, generatedFiles};
 };
 
 TEST_F(SymbolsCollectorManager, CreateUnsedSystemCollector)
@@ -75,6 +76,23 @@ TEST_F(SymbolsCollectorManager, AsGetReusedUnusedSymbolsCollectorItIsSetUsed)
     auto &collector2 = manager.unusedSymbolsCollector();
 
     ASSERT_TRUE(collector2.isUsed());
+}
+
+TEST_F(SymbolsCollectorManager, UnusedSystemCollectorIsInitializedWithUnsavedFiles)
+{
+    auto &collector = manager.unusedSymbolsCollector();
+
+    ASSERT_TRUE(collector.hasUnsavedFiles);
+}
+
+TEST_F(SymbolsCollectorManager, ReusedSystemCollectorIsInitializedWithUnsavedFiles)
+{
+    auto &collector = manager.unusedSymbolsCollector();
+    collector.setIsUsed(false);
+
+    auto &collector2 = manager.unusedSymbolsCollector();
+
+    ASSERT_TRUE(collector2.hasUnsavedFiles);
 }
 
 }

@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <filecontainerv2.h>
+
 #include <vector>
 
 namespace ClangBackEnd {

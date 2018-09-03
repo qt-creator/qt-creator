@@ -99,6 +99,8 @@ protected:
         ON_CALL(mockStorage, fetchLowestLastModifiedTime(A<FilePathId>())).WillByDefault(Return(QDateTime::currentSecsSinceEpoch()));
 
         mockCollector.setIsUsed(false);
+
+        generatedFiles.update(unsaved);
     }
 
     void TearDown()
@@ -179,7 +181,8 @@ protected:
     NiceMock<MockSymbolStorage> mockStorage;
     NiceMock<MockClangPathWatcher> mockPathWatcher;
     ClangBackEnd::FileStatusCache fileStatusCache{filePathCache};
-    SymbolsCollectorManager<NiceMock<MockSymbolsCollector>> collectorManger{data->database};
+    ClangBackEnd::GeneratedFiles generatedFiles;
+    SymbolsCollectorManager<NiceMock<MockSymbolsCollector>> collectorManger{data->database, generatedFiles};
     SymbolIndexerTaskScheduler indexerScheduler{collectorManger, mockStorage, mockSqliteTransactionBackend, indexerQueue, 1};
     SymbolIndexerTaskQueue indexerQueue{indexerScheduler};
     ClangBackEnd::SymbolIndexer indexer{indexerQueue,
@@ -195,9 +198,9 @@ std::unique_ptr<Data> SymbolIndexer::data;
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollector)
 {
-    EXPECT_CALL(mockCollector, addFile(main1PathId, projectPart1.arguments));
+    EXPECT_CALL(mockCollector, setFile(main1PathId, projectPart1.arguments));
 
-    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithPrecompiledHeaderInCollector)
@@ -205,7 +208,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithPrecompiledHeaderInColl
     ON_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId))).WillByDefault(Return(emptyArtefact));
     ON_CALL(mockStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId))).WillByDefault(Return(projectPartPch));
 
-    EXPECT_CALL(mockCollector, addFile(main1PathId,
+    EXPECT_CALL(mockCollector, setFile(main1PathId,
                                        ElementsAre(Eq("-I"),
                                                    Eq(TESTDATA_DIR),
                                                    Eq("-Wno-pragma-once-outside-header"),
@@ -214,76 +217,76 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithPrecompiledHeaderInColl
                                                    Eq("-Xclang"),
                                                    Eq("/path/to/pch"))));
 
-    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithoutPrecompiledHeaderInCollector)
 {
     ON_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId))).WillByDefault(Return(emptyArtefact));
 
-    EXPECT_CALL(mockCollector, addFile(main1PathId,
+    EXPECT_CALL(mockCollector, setFile(main1PathId,
                                        ElementsAre(Eq("-I"),
                                                    Eq(TESTDATA_DIR),
                                                    Eq("-Wno-pragma-once-outside-header"))));
 
-    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsClearInCollector)
 {
     EXPECT_CALL(mockCollector, clear()).Times(2);
 
-    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollectorForEveryProjectPart)
 {
-    EXPECT_CALL(mockCollector, addFile(_, _)).Times(2);
+    EXPECT_CALL(mockCollector, setFile(_, _)).Times(2);
 
-    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsDoesNotCallAddFilesInCollectorForEmptyEveryProjectParts)
 {
-    EXPECT_CALL(mockCollector, addFile(_, _))
+    EXPECT_CALL(mockCollector, setFile(_, _))
             .Times(0);
 
-    indexer.updateProjectParts({}, {});
+    indexer.updateProjectParts({});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallscollectSymbolsInCollector)
 {
     EXPECT_CALL(mockCollector, collectSymbols()).Times(2);;
 
-    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsSymbolsInCollector)
 {
     EXPECT_CALL(mockCollector, symbols()).Times(2);
 
-    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsSourceLocationsInCollector)
 {
     EXPECT_CALL(mockCollector, sourceLocations()).Times(2);
 
-    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddUnsavedFilesInCollector)
 {
-    EXPECT_CALL(mockCollector, addUnsavedFiles(unsaved)).Times(2);
+    EXPECT_CALL(mockCollector, setUnsavedFiles(unsaved)).Times(2);
 
-    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddSymbolsAndSourceLocationsInStorage)
 {
     EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations)).Times(2);
 
-    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartsInStorage)
@@ -297,7 +300,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartsInStorage)
                                                        ElementsAre(CompilerMacro{"BAR", "1"}, CompilerMacro{"FOO", "0"}),
                                                        ElementsAre("/includes")));
 
-    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartSources)
@@ -305,7 +308,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsUpdateProjectPartSources)
     EXPECT_CALL(mockStorage, updateProjectPartSources(TypedEq<Utils::SmallStringView>("project1"), ElementsAre(IsFileId(1, 1), IsFileId(42, 23))));
     EXPECT_CALL(mockStorage, updateProjectPartSources(TypedEq<Utils::SmallStringView>("project2"), ElementsAre(IsFileId(1, 1), IsFileId(42, 23))));
 
-    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertOrUpdateUsedMacros)
@@ -313,7 +316,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertOrUpdateUsedMacros)
     EXPECT_CALL(mockStorage, insertOrUpdateUsedMacros(Eq(usedMacros)))
             .Times(2);
 
-    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertFileStatuses)
@@ -321,7 +324,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertFileStatuses)
     EXPECT_CALL(mockStorage, insertFileStatuses(Eq(fileStatus)))
             .Times(2);
 
-    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertOrUpdateSourceDependencies)
@@ -329,7 +332,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInsertOrUpdateSourceDependencies)
     EXPECT_CALL(mockStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)))
             .Times(2);
 
-    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsFetchProjectPartArtefacts)
@@ -337,7 +340,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsFetchProjectPartArtefacts)
     EXPECT_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId)));
     EXPECT_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart2.projectPartId)));
 
-    indexer.updateProjectParts({projectPart1, projectPart2}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1, projectPart2});
 }
 
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
@@ -348,8 +351,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
     EXPECT_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId)));
     EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq(projectPart1.projectPartId), Eq(projectPart1.arguments), Eq(projectPart1.compilerMacros), Eq(projectPart1.includeSearchPaths)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
-    EXPECT_CALL(mockCollector, addFile(main1PathId, projectPart1.arguments));
-    EXPECT_CALL(mockCollector, addUnsavedFiles(unsaved));
+    EXPECT_CALL(mockCollector, setFile(main1PathId, projectPart1.arguments));
     EXPECT_CALL(mockCollector, collectSymbols());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
@@ -359,7 +361,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
     EXPECT_CALL(mockStorage, insertOrUpdateSourceDependencies(Eq(sourceDependencies)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
 
-    indexer.updateProjectParts({projectPart1}, Utils::clone(unsaved));
+    indexer.updateProjectParts({projectPart1});
 }
 
 TEST_F(SymbolIndexer, CallSetNotifier)
@@ -381,10 +383,10 @@ TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrder)
 {
     InSequence s;
 
-    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
+    EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
     EXPECT_CALL(mockStorage, fetchProjectPartArtefact(sourceFileIds[0])).WillOnce(Return(artefact));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
-    EXPECT_CALL(mockCollector, addFile(Eq(sourceFileIds[0]), Eq(artefact.compilerArguments)));
+    EXPECT_CALL(mockCollector, setFile(Eq(sourceFileIds[0]), Eq(artefact.compilerArguments)));
     EXPECT_CALL(mockCollector, collectSymbols());
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations));
@@ -401,10 +403,10 @@ TEST_F(SymbolIndexer, HandleEmptyOptionalArtifactInUpdateChangedPath)
 {
     InSequence s;
 
-    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
+    EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
     EXPECT_CALL(mockStorage, fetchProjectPartArtefact(sourceFileIds[0])).WillOnce(Return(emptyArtefact));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
-    EXPECT_CALL(mockCollector, addFile(_, _)).Times(0);
+    EXPECT_CALL(mockCollector, setFile(_, _)).Times(0);
     EXPECT_CALL(mockCollector, collectSymbols()).Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
     EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(_, _)).Times(0);
@@ -425,7 +427,7 @@ TEST_F(SymbolIndexer, UpdateChangedPathIsUsingPrecompiledHeader)
             .WillByDefault(Return(projectPartPch));
     std::vector<SymbolIndexerTask> symbolIndexerTask;
 
-    EXPECT_CALL(mockCollector, addFile(Eq(sourceFileIds[0]),
+    EXPECT_CALL(mockCollector, setFile(Eq(sourceFileIds[0]),
                                        ElementsAre(Eq("-DFOO"),
                                                    Eq("-Xclang"),
                                                    Eq("-include-pch"),
@@ -441,7 +443,7 @@ TEST_F(SymbolIndexer, UpdateChangedPathIsNotUsingPrecompiledHeaderIfItNotExists)
             .WillByDefault(Return(artefact));
     std::vector<SymbolIndexerTask> symbolIndexerTask;
 
-    EXPECT_CALL(mockCollector, addFile(Eq(sourceFileIds[0]),
+    EXPECT_CALL(mockCollector, setFile(Eq(sourceFileIds[0]),
                                        ElementsAre(Eq("-DFOO"))));
 
     indexer.pathsChanged({sourceFileIds[0]});
@@ -492,7 +494,7 @@ TEST_F(SymbolIndexer, DontReparseInUpdateProjectPartsIfDefinesAreTheSame)
     EXPECT_CALL(mockStorage, fetchProjectPartArtefact(TypedEq<Utils::SmallStringView>(projectPart1.projectPartId))).WillRepeatedly(Return(artefact));
     EXPECT_CALL(mockStorage, insertOrUpdateProjectPart(Eq(projectPart1.projectPartId), Eq(projectPart1.arguments), Eq(projectPart1.compilerMacros), Eq(projectPart1.includeSearchPaths)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
-    EXPECT_CALL(mockCollector, addFile(_, _)).Times(0);
+    EXPECT_CALL(mockCollector, setFile(_, _)).Times(0);
     EXPECT_CALL(mockCollector, collectSymbols()).Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
     EXPECT_CALL(mockStorage, addSymbolsAndSourceLocations(_, _)).Times(0);
@@ -502,7 +504,7 @@ TEST_F(SymbolIndexer, DontReparseInUpdateProjectPartsIfDefinesAreTheSame)
     EXPECT_CALL(mockStorage, insertOrUpdateSourceDependencies(_)).Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
 
-    indexer.updateProjectPart(std::move(projectPart1), {});
+    indexer.updateProjectPart(std::move(projectPart1));
 }
 
 TEST_F(SymbolIndexer, PathsChangedUpdatesFileStatusCache)
@@ -575,9 +577,9 @@ TEST_F(SymbolIndexer, OutdatedFilesAreParsedInUpdateProjectParts)
     ON_CALL(mockStorage, fetchLowestLastModifiedTime(A<FilePathId>()))
             .WillByDefault(Return(0));
 
-    EXPECT_CALL(mockCollector, addFile(Eq(main1PathId), _));
+    EXPECT_CALL(mockCollector, setFile(Eq(main1PathId), _));
 
-    indexer.updateProjectParts({projectPart1}, {});
+    indexer.updateProjectParts({projectPart1});
 }
 
 TEST_F(SymbolIndexer, UpToDateFilesAreNotParsedInUpdateProjectParts)
@@ -588,9 +590,9 @@ TEST_F(SymbolIndexer, UpToDateFilesAreNotParsedInUpdateProjectParts)
     ON_CALL(mockStorage, fetchLowestLastModifiedTime(A<FilePathId>()))
             .WillByDefault(Return(QDateTime::currentSecsSinceEpoch()));
 
-    EXPECT_CALL(mockCollector, addFile(_, _)).Times(0);
+    EXPECT_CALL(mockCollector, setFile(_, _)).Times(0);
 
-    indexer.updateProjectParts({projectPart1}, {});
+    indexer.updateProjectParts({projectPart1});
 }
 
 }

@@ -76,5 +76,4 @@ SOURCES += \
     $$PWD/projectpartartefact.cpp \
     $$PWD/filestatuscache.cpp \
     $$PWD/symbolindexertaskqueue.cpp \
-    $$PWD/symbolindexertaskscheduler.cpp \
-    $$PWD/symbolscollectormanager.cpp
+    $$PWD/symbolindexertaskscheduler.cpp
