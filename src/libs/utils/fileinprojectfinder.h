@@ -43,6 +43,7 @@ public:
     using DirectoryHandler = std::function<void(const QStringList &)>;
 
     FileInProjectFinder();
+    ~FileInProjectFinder();
 
     void setProjectDirectory(const FileName &absoluteProjectPath);
     FileName projectDirectory() const;

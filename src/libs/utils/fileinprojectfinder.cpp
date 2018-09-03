@@ -74,6 +74,7 @@ static bool checkPath(const QString &candidate, FileInProjectFinder::FileHandler
 */
 
 FileInProjectFinder::FileInProjectFinder() = default;
+FileInProjectFinder::~FileInProjectFinder() = default;
 
 void FileInProjectFinder::setProjectDirectory(const FileName &absoluteProjectPath)
 {
