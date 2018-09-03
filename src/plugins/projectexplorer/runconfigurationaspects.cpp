@@ -350,6 +350,13 @@ void BaseStringAspect::setLabelText(const QString &labelText)
         m_label->setText(labelText);
 }
 
+void BaseStringAspect::setLabelPixmap(const QPixmap &labelPixmap)
+{
+    m_labelPixmap = labelPixmap;
+    if (m_label)
+        m_label->setPixmap(labelPixmap);
+}
+
 QString BaseStringAspect::labelText() const
 {
     return m_labelText;
@@ -406,6 +413,7 @@ void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
     QWidget *parent = layout->parentWidget();
     m_label = new QLabel(parent);
     m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_label->setPixmap(m_labelPixmap);
 
     auto hbox = new QHBoxLayout;
     switch (m_displayStyle) {

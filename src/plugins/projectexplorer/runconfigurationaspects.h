@@ -173,6 +173,7 @@ public:
 
     QString labelText() const;
     void setLabelText(const QString &labelText);
+    void setLabelPixmap(const QPixmap &labelPixmap);
 
     void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
     void setPlaceHolderText(const QString &placeHolderText);
@@ -209,6 +210,7 @@ private:
     QPointer<QLabel> m_labelDisplay;
     QPointer<Utils::FancyLineEdit> m_lineEditDisplay;
     QPointer<Utils::PathChooser> m_pathChooserDisplay;
+    QPixmap m_labelPixmap;
 };
 
 class PROJECTEXPLORER_EXPORT ExecutableAspect : public IRunConfigurationAspect
