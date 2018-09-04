@@ -97,7 +97,7 @@ private:
 IosRunConfiguration::IosRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    addExtraAspect(new ArgumentsAspect(this));
+    addAspect<ArgumentsAspect>();
     setOutputFormatter<QtSupport::QtOutputFormatter>();
 
     connect(DeviceManager::instance(), &DeviceManager::updated,

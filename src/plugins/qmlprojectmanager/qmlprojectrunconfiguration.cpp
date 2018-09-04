@@ -55,7 +55,7 @@ const char M_CURRENT_FILE[] = "CurrentFile";
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
-    addExtraAspect(new QmlProjectEnvironmentAspect(this));
+    addAspect<QmlProjectEnvironmentAspect>();
     setOutputFormatter<QtSupport::QtOutputFormatter>();
 
     // reset default settings in constructor

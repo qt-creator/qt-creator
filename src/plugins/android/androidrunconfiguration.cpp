@@ -111,28 +111,25 @@ void BaseStringListAspect::setLabel(const QString &label)
 AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    addExtraAspect(new AndroidRunEnvironmentAspect(this));
-    addExtraAspect(new ArgumentsAspect(this));
+    addAspect<AndroidRunEnvironmentAspect>();
+    addAspect<ArgumentsAspect>();
 
-    auto amStartArgsAspect = new BaseStringAspect(this);
+    auto amStartArgsAspect = addAspect<BaseStringAspect>();
     amStartArgsAspect->setId(Constants::ANDROID_AMSTARTARGS);
     amStartArgsAspect->setSettingsKey("Android.AmStartArgsKey");
     amStartArgsAspect->setLabelText(tr("Activity manager start options:"));
     amStartArgsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
     amStartArgsAspect->setHistoryCompleter("Android.AmStartArgs.History");
-    addExtraAspect(amStartArgsAspect);
 
-    auto preStartShellCmdAspect = new BaseStringListAspect(this);
+    auto preStartShellCmdAspect = addAspect<BaseStringListAspect>();
     preStartShellCmdAspect->setId(Constants::ANDROID_PRESTARTSHELLCMDLIST);
     preStartShellCmdAspect->setSettingsKey("Android.PreStartShellCmdListKey");
     preStartShellCmdAspect->setLabel(tr("Shell commands to run on Android device before application launch."));
-    addExtraAspect(preStartShellCmdAspect);
 
-    auto postStartShellCmdAspect = new BaseStringListAspect(this);
+    auto postStartShellCmdAspect = addAspect<BaseStringListAspect>();
     postStartShellCmdAspect->setId(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
     postStartShellCmdAspect->setSettingsKey("Android.PostStartShellCmdListKey");
     postStartShellCmdAspect->setLabel(tr("Shell commands to run on Android device after application quits."));
-    addExtraAspect(postStartShellCmdAspect);
 
     setOutputFormatter<QtSupport::QtOutputFormatter>();
     connect(target->project(), &Project::parsingFinished, this, [this] {

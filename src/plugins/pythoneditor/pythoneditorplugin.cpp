@@ -250,23 +250,21 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
     const Environment sysEnv = Environment::systemEnvironment();
     const QString exec = sysEnv.searchInPath("python").toString();
 
-    auto interpreterAspect = new InterpreterAspect(this);
+    auto interpreterAspect = addAspect<InterpreterAspect>();
     interpreterAspect->setSettingsKey("PythonEditor.RunConfiguation.Interpreter");
     interpreterAspect->setLabelText(tr("Interpreter:"));
     interpreterAspect->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
     interpreterAspect->setHistoryCompleter("PythonEditor.Interpreter.History");
     interpreterAspect->setValue(exec.isEmpty() ? "python" : exec);
-    addExtraAspect(interpreterAspect);
 
-    auto scriptAspect = new MainScriptAspect(this);
+    auto scriptAspect = addAspect<MainScriptAspect>();
     scriptAspect->setSettingsKey("PythonEditor.RunConfiguation.Script");
     scriptAspect->setLabelText(tr("Script:"));
     scriptAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
-    addExtraAspect(scriptAspect);
 
-    addExtraAspect(new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier()));
-    addExtraAspect(new ArgumentsAspect(this));
-    addExtraAspect(new TerminalAspect(this));
+    addAspect<LocalEnvironmentAspect>(LocalEnvironmentAspect::BaseEnvironmentModifier());
+    addAspect<ArgumentsAspect>();
+    addAspect<TerminalAspect>();
 
     setOutputFormatter<PythonOutputFormatter>();
 

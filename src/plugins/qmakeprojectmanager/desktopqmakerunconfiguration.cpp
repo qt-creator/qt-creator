@@ -63,26 +63,23 @@ const char PRO_FILE_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.ProFile";
 DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    auto envAspect = new LocalEnvironmentAspect(this, [](RunConfiguration *rc, Environment &env) {
+    auto envAspect = addAspect<LocalEnvironmentAspect>([](RunConfiguration *rc, Environment &env) {
                        static_cast<DesktopQmakeRunConfiguration *>(rc)->addToBaseEnvironment(env);
                    });
-    addExtraAspect(envAspect);
 
-    addExtraAspect(new ExecutableAspect(this));
-    addExtraAspect(new ArgumentsAspect(this));
-    addExtraAspect(new WorkingDirectoryAspect(this));
-    addExtraAspect(new TerminalAspect(this));
+    addAspect<ExecutableAspect>();
+    addAspect<ArgumentsAspect>();
+    addAspect<WorkingDirectoryAspect>();
+    addAspect<TerminalAspect>();
 
     setOutputFormatter<QtSupport::QtOutputFormatter>();
 
-    auto libAspect = new UseLibraryPathsAspect(this);
-    addExtraAspect(libAspect);
+    auto libAspect = addAspect<UseLibraryPathsAspect>();
     connect(libAspect, &UseLibraryPathsAspect::changed,
             envAspect, &EnvironmentAspect::environmentChanged);
 
     if (HostOsInfo::isMacHost()) {
-        auto dyldAspect = new UseDyldSuffixAspect(this);
-        addExtraAspect(dyldAspect);
+        auto dyldAspect = addAspect<UseDyldSuffixAspect>();
         connect(dyldAspect, &UseLibraryPathsAspect::changed,
                 envAspect, &EnvironmentAspect::environmentChanged);
     }

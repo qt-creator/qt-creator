@@ -56,8 +56,8 @@ WinRtRunConfiguration::WinRtRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
     setDisplayName(tr("Run App Package"));
-    addExtraAspect(new ArgumentsAspect(this));
-    addExtraAspect(new UninstallAfterStopAspect(this));
+    addAspect<ArgumentsAspect>();
+    addAspect<UninstallAfterStopAspect>();
 }
 
 QWidget *WinRtRunConfiguration::createConfigurationWidget()

@@ -231,7 +231,7 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
             [this] { return displayName(); }, false);
 
     for (const AspectFactory &factory : theAspectFactories)
-        addExtraAspect(factory(this));
+        m_aspects.append(factory(this));
 }
 
 RunConfiguration::~RunConfiguration()
@@ -278,12 +278,6 @@ void RunConfiguration::updateEnabledState()
 void RunConfiguration::addAspectFactory(const AspectFactory &aspectFactory)
 {
     theAspectFactories.push_back(aspectFactory);
-}
-
-void RunConfiguration::addExtraAspect(IRunConfigurationAspect *aspect)
-{
-    if (aspect)
-        m_aspects += aspect;
 }
 
 /*!

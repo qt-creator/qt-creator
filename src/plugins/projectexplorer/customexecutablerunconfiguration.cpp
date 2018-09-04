@@ -175,20 +175,18 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    auto envAspect = new LocalEnvironmentAspect(this, LocalEnvironmentAspect::BaseEnvironmentModifier());
-    addExtraAspect(envAspect);
+    auto envAspect = addAspect<LocalEnvironmentAspect>(LocalEnvironmentAspect::BaseEnvironmentModifier());
 
-    auto exeAspect = new ExecutableAspect(this);
+    auto exeAspect = addAspect<ExecutableAspect>();
     exeAspect->setSettingsKey("ProjectExplorer.CustomExecutableRunConfiguration.Executable");
     exeAspect->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
     exeAspect->setHistoryCompleter("Qt.CustomExecutable.History");
     exeAspect->setExpectedKind(PathChooser::ExistingCommand);
     exeAspect->setEnvironment(envAspect->environment());
-    addExtraAspect(exeAspect);
 
-    addExtraAspect(new ArgumentsAspect(this));
-    addExtraAspect(new WorkingDirectoryAspect(this));
-    addExtraAspect(new TerminalAspect(this));
+    addAspect<ArgumentsAspect>();
+    addAspect<WorkingDirectoryAspect>();
+    addAspect<TerminalAspect>();
 
     connect(envAspect, &EnvironmentAspect::environmentChanged,
             this, [exeAspect, envAspect] { exeAspect->setEnvironment(envAspect->environment()); });

@@ -41,16 +41,15 @@ namespace Internal {
 BareMetalCustomRunConfiguration::BareMetalCustomRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    auto exeAspect = new ExecutableAspect(this);
+    auto exeAspect = addAspect<ExecutableAspect>();
     exeAspect->setSettingsKey("BareMetal.CustomRunConfig.Executable");
     exeAspect->setPlaceHolderText(tr("Unknown"));
     exeAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
     exeAspect->setHistoryCompleter("BareMetal.CustomRunConfig.History");
     exeAspect->setExpectedKind(PathChooser::Any);
-    addExtraAspect(exeAspect);
 
-    addExtraAspect(new ArgumentsAspect(this));
-    addExtraAspect(new WorkingDirectoryAspect(this));
+    addAspect<ArgumentsAspect>();
+    addAspect<WorkingDirectoryAspect>();
 
     setDefaultDisplayName(RunConfigurationFactory::decoratedTargetName(tr("Custom Executable"), target));
 }

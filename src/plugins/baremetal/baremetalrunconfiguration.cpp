@@ -43,13 +43,12 @@ namespace Internal {
 BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    auto exeAspect = new ExecutableAspect(this);
+    auto exeAspect = addAspect<ExecutableAspect>();
     exeAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
     exeAspect->setPlaceHolderText(tr("Unknown"));
-    addExtraAspect(exeAspect);
 
-    addExtraAspect(new ArgumentsAspect(this));
-    addExtraAspect(new WorkingDirectoryAspect(this));
+    addAspect<ArgumentsAspect>();
+    addAspect<WorkingDirectoryAspect>();
 
     connect(target, &Target::deploymentDataChanged,
             this, &BareMetalRunConfiguration::updateTargetInformation);

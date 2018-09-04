@@ -36,10 +36,9 @@ namespace Internal {
 QnxRunConfiguration::QnxRunConfiguration(Target *target, Core::Id id)
     : RemoteLinuxRunConfiguration(target, id)
 {
-    auto libAspect = new QtLibPathAspect(this);
+    auto libAspect = addAspect<QtLibPathAspect>();
     libAspect->setSettingsKey("Qt4ProjectManager.QnxRunConfiguration.QtLibPath");
     libAspect->setLabelText(tr("Path to Qt libraries on device"));
-    addExtraAspect(libAspect);
 }
 
 Runnable QnxRunConfiguration::runnable() const

@@ -45,23 +45,21 @@ namespace RemoteLinux {
 RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    auto exeAspect = new ExecutableAspect(this);
+    auto exeAspect = addAspect<ExecutableAspect>();
     exeAspect->setLabelText(tr("Executable on device:"));
     exeAspect->setExecutablePathStyle(OsTypeLinux);
     exeAspect->setPlaceHolderText(tr("Remote path not set"));
     exeAspect->makeOverridable("RemoteLinux.RunConfig.AlternateRemoteExecutable",
                                "RemoteLinux.RunConfig.UseAlternateRemoteExecutable");
     exeAspect->setHistoryCompleter("RemoteLinux.AlternateExecutable.History");
-    addExtraAspect(exeAspect);
 
-    auto symbolsAspect = new SymbolFileAspect(this);
+    auto symbolsAspect = addAspect<SymbolFileAspect>();
     symbolsAspect->setLabelText(tr("Executable on host:"));
     symbolsAspect->setDisplayStyle(SymbolFileAspect::LabelDisplay);
-    addExtraAspect(symbolsAspect);
 
-    addExtraAspect(new ArgumentsAspect(this));
-    addExtraAspect(new WorkingDirectoryAspect(this));
-    addExtraAspect(new RemoteLinuxEnvironmentAspect(this));
+    addAspect<ArgumentsAspect>();
+    addAspect<WorkingDirectoryAspect>();
+    addAspect<RemoteLinuxEnvironmentAspect>();
 
     setOutputFormatter<QtSupport::QtOutputFormatter>();
 

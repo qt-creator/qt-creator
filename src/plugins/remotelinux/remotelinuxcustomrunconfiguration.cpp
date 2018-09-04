@@ -42,24 +42,22 @@ namespace Internal {
 RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    auto exeAspect = new ExecutableAspect(this);
+    auto exeAspect = addAspect<ExecutableAspect>();
     exeAspect->setSettingsKey("RemoteLinux.CustomRunConfig.RemoteExecutable");
     exeAspect->setLabelText(tr("Remote executable:"));
     exeAspect->setExecutablePathStyle(OsTypeLinux);
     exeAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
     exeAspect->setHistoryCompleter("RemoteLinux.CustomExecutable.History");
     exeAspect->setExpectedKind(PathChooser::Any);
-    addExtraAspect(exeAspect);
 
-    auto symbolsAspect = new SymbolFileAspect(this);
+    auto symbolsAspect = addAspect<SymbolFileAspect>();
     symbolsAspect->setSettingsKey("RemoteLinux.CustomRunConfig.LocalExecutable");
     symbolsAspect->setLabelText(tr("Local executable:"));
     symbolsAspect->setDisplayStyle(SymbolFileAspect::PathChooserDisplay);
-    addExtraAspect(symbolsAspect);
 
-    addExtraAspect(new ArgumentsAspect(this));
-    addExtraAspect(new WorkingDirectoryAspect(this));
-    addExtraAspect(new RemoteLinuxEnvironmentAspect(this));
+    addAspect<ArgumentsAspect>();
+    addAspect<WorkingDirectoryAspect>();
+    addAspect<RemoteLinuxEnvironmentAspect>();
 
     setDefaultDisplayName(runConfigDefaultDisplayName());
     setOutputFormatter<QtSupport::QtOutputFormatter>();

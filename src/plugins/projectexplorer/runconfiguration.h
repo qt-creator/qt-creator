@@ -222,7 +222,13 @@ public:
     // The BuildTargetInfo corresponding to the buildKey.
     BuildTargetInfo buildTargetInfo() const;
 
-    void addExtraAspect(IRunConfigurationAspect *aspect);
+    template<class Aspect, typename ...Args>
+    Aspect *addAspect(Args && ...args)
+    {
+        auto aspect = new Aspect(this, args...);
+        m_aspects.append(aspect);
+        return aspect;
+    }
 
     static RunConfiguration *startupRunConfiguration();
     virtual bool canRunForNode(const ProjectExplorer::Node *) const { return false; }
