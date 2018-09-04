@@ -610,13 +610,12 @@
     A snapshot contains the complete state of the debugged program at a time,
     including the full memory contents.
 
-    To create snapshots of a debugged program, select
-    \uicontrol {Create Snapshot} in the context menu in the \uicontrol Snapshots
-    view.
+    To create snapshots of a debugged program, select \uicontrol {Create Snapshot}
+    in the context menu in the \uicontrol {Debugger Perspectives} view.
 
-    Double-click on entries in the \uicontrol Snapshots view to switch between
-    snapshots. The debugger views are updated to reflect the state of the
-    program at time of taking the snapshot.
+    Double-click on entries in the \uicontrol {Debugger Perspectives} view to
+    switch between snapshots. The debugger views are updated to reflect the state
+    of the program at time of taking the snapshot.
 
 */
 

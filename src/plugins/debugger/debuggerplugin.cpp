@@ -1021,7 +1021,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_engineManagerView->setIconSize(QSize(10, 10));
     m_engineManagerView->setModel(m_engineManager.model());
     m_engineManagerWindow = addSearch(m_engineManagerView);
-    m_engineManagerWindow->setWindowTitle(tr("Snapshots"));
+    m_engineManagerWindow->setWindowTitle(tr("Debugger Perspectives"));
     m_engineManagerWindow->setObjectName(DOCKWIDGET_ENGINEMANAGER);
 
     //act = m_snapshotAction = new QAction(tr("Create Snapshot"), this);
