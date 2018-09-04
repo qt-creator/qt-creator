@@ -217,23 +217,23 @@ void TestRunner::scheduleNext()
 void TestRunner::cancelCurrent(TestRunner::CancelReason reason)
 {
     m_canceled = true;
-    if (reason == UserCanceled) {
-        // when using the stop button we need to report, for progress bar this happens automatically
-        if (m_fakeFutureInterface && !m_fakeFutureInterface->isCanceled())
-            m_fakeFutureInterface->reportCanceled();
-    } else if (reason == KitChanged) {
-        if (m_fakeFutureInterface)
-            m_fakeFutureInterface->reportCanceled();
-        emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageWarn,
-                tr("Current kit has changed. Canceling test run."))));
-    }
+
+    if (m_fakeFutureInterface)
+        m_fakeFutureInterface->reportCanceled();
+
+    auto reportResult = [this](Result::Type type, const QString &detail){
+        emit testResultReady(TestResultPtr(new FaultyTestResult(type, detail)));
+    };
+
+    if (reason == KitChanged)
+        reportResult(Result::MessageWarn, tr("Current kit has changed. Canceling test run."));
+    else if (reason == Timeout)
+        reportResult(Result::MessageFatal, tr("Test case canceled due to timeout.\nMaybe raise the timeout?"));
+
+    // if user or timeout cancels the current run ensure to kill the running process
     if (m_currentProcess && m_currentProcess->state() != QProcess::NotRunning) {
         m_currentProcess->kill();
         m_currentProcess->waitForFinished();
-    }
-    if (reason == Timeout) {
-        emit testResultReady(TestResultPtr(new FaultyTestResult(Result::MessageFatal,
-                tr("Test case canceled due to timeout.\nMaybe raise the timeout?"))));
     }
 }
 
