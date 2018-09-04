@@ -238,8 +238,10 @@ Environment::Environment(const QStringList &env, OsType osType) : m_osType(osTyp
         int i = s.indexOf('=', 1);
         if (i >= 0) {
             const QString key = s.left(i);
-            const QString value = s.mid(i + 1);
-            set(key, value);
+            if (!key.contains('=')) {
+                const QString value = s.mid(i + 1);
+                set(key, value);
+            }
         }
     }
 }
@@ -262,6 +264,7 @@ QProcessEnvironment Environment::toProcessEnvironment() const
 
 void Environment::set(const QString &key, const QString &value)
 {
+    QTC_ASSERT(!key.contains('='), return);
     auto it = findKey(m_values, m_osType, key);
     if (it == m_values.end())
         m_values.insert(key, value);
@@ -271,6 +274,7 @@ void Environment::set(const QString &key, const QString &value)
 
 void Environment::unset(const QString &key)
 {
+    QTC_ASSERT(!key.contains('='), return);
     auto it = findKey(m_values, m_osType, key);
     if (it != m_values.end())
         m_values.erase(it);
@@ -278,6 +282,7 @@ void Environment::unset(const QString &key)
 
 void Environment::appendOrSet(const QString &key, const QString &value, const QString &sep)
 {
+    QTC_ASSERT(!key.contains('='), return);
     auto it = findKey(m_values, m_osType, key);
     if (it == m_values.end()) {
         m_values.insert(key, value);
@@ -291,6 +296,7 @@ void Environment::appendOrSet(const QString &key, const QString &value, const QS
 
 void Environment::prependOrSet(const QString&key, const QString &value, const QString &sep)
 {
+    QTC_ASSERT(!key.contains('='), return);
     auto it = findKey(m_values, m_osType, key);
     if (it == m_values.end()) {
         m_values.insert(key, value);
