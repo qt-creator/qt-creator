@@ -233,6 +233,9 @@ public:
     void setRunTool(DebuggerRunTool *runTool);
     void setRunParameters(const DebuggerRunParameters &runParameters);
 
+    void setRunId(const QString &id);
+    QString runId() const;
+
     const DebuggerRunParameters &runParameters() const;
     bool isStartupRunConfiguration() const;
     void setCompanionEngine(DebuggerEngine *engine);
@@ -302,7 +305,7 @@ public:
     virtual void updateLocals();
 
     virtual Core::Context languageContext() const { return {}; }
-    virtual QString displayName() const;
+    QString displayName() const;
 
     virtual bool stateAcceptsBreakpointChanges() const { return true; }
     virtual bool acceptsBreakpoint(const BreakpointParameters &bp) const = 0;
@@ -415,6 +418,7 @@ public:
     WatchTreeView *inspectorView();
     void updateLocalsWindow(bool showReturn);
     void raiseWatchersWindow();
+    QString debuggerName() const;
 
     bool isRegistersWindowVisible() const;
     bool isModulesWindowVisible() const;

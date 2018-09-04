@@ -51,6 +51,8 @@ using namespace Utils;
 namespace Debugger {
 namespace Internal {
 
+const bool hideSwitcherUnlessNeeded = false;
+
 #if 0
 SnapshotData::SnapshotData()
 {}
@@ -134,26 +136,18 @@ public:
         m_engineModel.rootItem()->appendChild(new EngineItem); // The preset case.
 
         m_engineChooser = new QComboBox;
-        m_engineChooser->setVisible(false);
         m_engineChooser->setModel(&m_engineModel);
+        m_engineChooser->setIconSize(QSize(0, 0));
+        if (hideSwitcherUnlessNeeded)
+            m_engineChooser->hide();
+
         connect(m_engineChooser, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
                 this, &EngineManagerPrivate::activateEngineByIndex);
-        connect(ModeManager::instance(), &ModeManager::currentModeChanged,
-                this, &EngineManagerPrivate::onModeChanged);
     }
 
     ~EngineManagerPrivate()
     {
         delete m_engineChooser;
-    }
-
-    void onModeChanged(Id mode)
-    {
-        if (mode == Constants::MODE_DEBUG) {
-            //        if (EngineManager::engines().isEmpty())
-            //            DebuggerMainWindow::instance()->restorePerspective(Constants::PRESET_PERSPRECTIVE_ID);
-            selectUiForCurrentEngine();
-        }
     }
 
     EngineItem *findEngineItem(DebuggerEngine *engine);
@@ -226,8 +220,18 @@ QVariant EngineItem::data(int column, int role) const
         switch (role) {
         case Qt::DisplayRole:
             switch (column) {
-            case 0:
-                return m_engine->displayName();
+            case 0: {
+                QString myName = m_engine->displayName();
+                int count = 0;
+                for (TreeItem *item : *TreeItem::parent()) {
+                    DebuggerEngine *engine = static_cast<EngineItem *>(item)->m_engine;
+                    count += engine && engine->displayName() == myName;
+                }
+                if (count > 1)
+                    myName += QString(" (%1)").arg(m_engine->runId());
+
+                return myName;
+            }
             case 1:
                 return rp.coreFile.isEmpty() ? rp.inferior.executable : rp.coreFile;
             }
@@ -333,18 +337,28 @@ void EngineManagerPrivate::activateEngineItem(EngineItem *engineItem)
 
 void EngineManagerPrivate::selectUiForCurrentEngine()
 {
-    Perspective *perspective = Perspective::currentPerspective();
-    if (perspective && !perspective->id().startsWith("Debugger.Perspective."))
+    if (ModeManager::currentModeId() != Constants::MODE_DEBUG)
         return;
-    perspective = nullptr;
+
+    Perspective *perspective = nullptr;
     int row = 0;
 
     if (m_currentItem && m_currentItem->m_engine) {
         perspective = m_currentItem->m_engine->perspective();
-        row = m_engineModel.rootItem()->indexOf(m_currentItem);
+        m_currentItem->m_engine->updateState(false);
     }
 
+    if (m_currentItem)
+        row = m_engineModel.rootItem()->indexOf(m_currentItem);
+
     m_engineChooser->setCurrentIndex(row);
+    const int contentWidth = m_engineChooser->fontMetrics().width(m_engineChooser->currentText() + "xx");
+    QStyleOptionComboBox option;
+    option.initFrom(m_engineChooser);
+    const QSize sz(contentWidth, 1);
+    const int width = m_engineChooser->style()->sizeFromContents(
+                QStyle::CT_ComboBox, &option, sz).width();
+    m_engineChooser->setFixedWidth(width);
 
     if (!perspective)
         perspective = Perspective::findPerspective(Debugger::Constants::PRESET_PERSPECTIVE_ID);
@@ -380,9 +394,11 @@ void EngineManagerPrivate::activateEngine(DebuggerEngine *engine)
 
 void EngineManagerPrivate::updateEngineChooserVisibility()
 {
-    // Show it if there's more than one option (i.e. not the the preset engine only)
-    const int count = m_engineModel.rootItem()->childCount();
-    m_engineChooser->setVisible(count >= 2);
+    // Show it if there's more than one option (i.e. not the preset engine only)
+    if (hideSwitcherUnlessNeeded) {
+        const int count = m_engineModel.rootItem()->childCount();
+        m_engineChooser->setVisible(count >= 2);
+    }
 }
 
 void EngineManager::registerEngine(DebuggerEngine *engine)
@@ -401,8 +417,25 @@ void EngineManager::activateDebugMode()
     }
 }
 
+bool EngineManager::isLastOf(const QString &type)
+{
+    int count = 0;
+    d->m_engineModel.rootItem()->forFirstLevelChildren([&](EngineItem *engineItem) {
+        if (engineItem && engineItem->m_engine)
+            count += (engineItem->m_engine->debuggerName() == type);
+    });
+    return count == 1;
+}
+
 void EngineManager::unregisterEngine(DebuggerEngine *engine)
 {
+    if (ModeManager::currentModeId() == Constants::MODE_DEBUG) {
+        if (Perspective *parent = Perspective::findPerspective(Constants::PRESET_PERSPECTIVE_ID))
+            parent->select();
+    }
+
+    d->activateEngineItem(d->m_engineModel.rootItem()->childAt(0)); // Preset.
+
     // Could be that the run controls died before it was appended.
     if (auto engineItem = d->findEngineItem(engine))
         d->m_engineModel.destroyItem(engineItem);

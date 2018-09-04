@@ -259,7 +259,7 @@ QmlEngine::QmlEngine()
   :  d(new QmlEnginePrivate(this, new QmlDebugConnection(this)))
 {
     setObjectName("QmlEngine");
-    setDebuggerName(tr("QML Debugger"));
+    setDebuggerName("QML");
 
     QmlDebugConnection *connection = d->connection();
 

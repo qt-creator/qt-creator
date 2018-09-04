@@ -256,6 +256,7 @@ public:
     int snapshotCounter = 0;
     int engineStartsNeeded = 0;
     int engineStopsNeeded = 0;
+    QString runId;
 };
 
 } // namespace Internal
@@ -616,6 +617,7 @@ void DebuggerRunTool::start()
     }
 
     m_engine->setRunParameters(m_runParameters);
+    m_engine->setRunId(d->runId);
     m_engine->setRunTool(this);
     m_engine->setCompanionEngine(m_engine2);
     connect(m_engine, &DebuggerEngine::requestRunControlFinish,
@@ -645,6 +647,7 @@ void DebuggerRunTool::start()
 
     if (m_engine2) {
         m_engine2->setRunParameters(m_runParameters);
+        m_engine2->setRunId(d->runId);
         m_engine2->setRunTool(this);
         m_engine2->setCompanionEngine(m_engine);
         m_engine2->setSecondaryEngine();
@@ -879,6 +882,14 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, Kit *kit, bool allowTer
     : RunWorker(runControl), d(new DebuggerRunToolPrivate)
 {
     setId("DebuggerRunTool");
+
+    static int toolRunCount = 0;
+
+    // Reset once all are gone.
+    if (EngineManager::engines().isEmpty())
+        toolRunCount = 0;
+
+    d->runId = QString::number(++toolRunCount);
 
     RunConfiguration *runConfig = runControl->runConfiguration();
 

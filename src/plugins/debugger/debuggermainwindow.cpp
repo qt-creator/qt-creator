@@ -68,64 +68,6 @@ const char OWNED_BY_PERSPECTIVE[]   = "OwnedByPerspective";
 
 static DebuggerMainWindow *theMainWindow = nullptr;
 
-class ToolbarOperation
-{
-public:
-    void attachToToolbar(QWidget *parent)
-    {
-        QLayout *layout = parent->layout();
-        if (toolBarWidget) {
-            toolBarWidget->setParent(parent);
-            layout->addWidget(toolBarWidget);
-        }
-        if (toolBarAction) {
-            toolBarAction->m_toolButton = new QToolButton(parent);
-            toolBarAction->m_toolButton->setToolButtonStyle(toolBarAction->m_toolButtonStyle);
-            toolBarAction->m_toolButton->setProperty("panelwidget", true);
-            toolBarAction->m_toolButton->setDefaultAction(toolBarAction);
-            toolBarAction->m_toolButton->setVisible(toolBarAction->isVisible());
-            layout->addWidget(toolBarAction->m_toolButton);
-        }
-        if (toolBarPlainAction) {
-            toolBarPlainActionButton = new QToolButton(parent);
-            toolBarPlainActionButton->setProperty("panelwidget", true);
-            toolBarPlainActionButton->setDefaultAction(toolBarPlainAction);
-            layout->addWidget(toolBarPlainActionButton);
-        }
-        if (separator) {
-            separator->setParent(parent);
-            layout->addWidget(separator);
-        }
-    }
-
-    void detachFromToolbar()
-    {
-        if (toolBarWidget) {
-            toolBarWidget->setParent(nullptr);
-        }
-        if (toolBarAction) {
-            delete toolBarAction->m_toolButton;
-            toolBarAction->m_toolButton = nullptr;
-        }
-        if (toolBarPlainAction) {
-            delete toolBarPlainActionButton;
-            toolBarPlainActionButton = nullptr;
-        }
-        if (separator) {
-            separator->setParent(nullptr);
-        }
-    }
-
-    QPointer<QAction> toolBarPlainAction; // Owned by plugin if present.
-    QPointer<OptionalAction> toolBarAction; // Owned by plugin if present.
-    QPointer<QWidget> toolBarWidget; // Owned by plugin if present.
-
-    // Helper/wrapper widget owned by us if present.
-    QPointer<QToolButton> toolBarPlainActionButton;
-    QPointer<QWidget> toolBarWidgetParent;
-    QPointer<QWidget> separator;
-};
-
 class DockOperation
 {
 public:
@@ -139,21 +81,26 @@ public:
 class PerspectivePrivate
 {
 public:
-    ~PerspectivePrivate() { destroyToolBar(); }
-
     void showToolBar();
     void hideToolBar();
-    void destroyToolBar();
+    void restoreLayout();
+    void saveLayout();
+    QString settingsId() const;
+    QToolButton *setupToolButton(QAction *action);
 
     QString m_id;
     QString m_name;
     QString m_parentPerspectiveId;
+    QString m_subPerspectiveType;
     QVector<DockOperation> m_dockOperations;
-    QVector<ToolbarOperation> m_toolBarOperations;
     QPointer<QWidget> m_centralWidget;
     Perspective::Callback m_aboutToActivateCallback;
-    QPointer<QWidget> m_toolButtonBox;
+    QPointer<QWidget> m_innerToolBar;
+    QHBoxLayout *m_innerToolBarLayout = nullptr;
+    QPointer<QWidget> m_switcher;
     QString m_lastActiveSubPerspectiveId;
+    QHash<QString, QVariant> m_nonPersistenSettings;
+    Perspective::ShouldPersistChecker m_shouldPersistChecker;
 };
 
 class DebuggerMainWindowPrivate : public QObject
@@ -161,15 +108,13 @@ class DebuggerMainWindowPrivate : public QObject
 public:
     DebuggerMainWindowPrivate(DebuggerMainWindow *parent);
 
-    void ensureToolBarDockExists();
+    void createToolBar();
 
     void selectPerspective(Perspective *perspective);
     void depopulateCurrentPerspective();
     void populateCurrentPerspective();
-    void savePerspectiveHelper(const Perspective *perspective);
     void destroyPerspective(Perspective *perspective);
     void registerPerspective(Perspective *perspective);
-    void increaseChooserWidthIfNecessary(const QString &visibleName);
     void resetCurrentPerspective();
     int indexInChooser(Perspective *perspective) const;
 
@@ -177,7 +122,8 @@ public:
     Perspective *m_currentPerspective = nullptr;
     QComboBox *m_perspectiveChooser = nullptr;
     QStackedWidget *m_centralWidgetStack = nullptr;
-    QHBoxLayout *m_toolBarLayout = nullptr;
+    QHBoxLayout *m_subToolsSwitcherLayout = nullptr;
+    QHBoxLayout *m_innerToolsLayout = nullptr;
     QWidget *m_editorPlaceHolder = nullptr;
     Utils::StatusLabel *m_statusLabel = nullptr;
     QDockWidget *m_toolBarDock = nullptr;
@@ -195,8 +141,9 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     m_editorPlaceHolder = new EditorManagerPlaceHolder;
 
     m_perspectiveChooser = new QComboBox;
-    m_perspectiveChooser->setObjectName(QLatin1String("PerspectiveChooser"));
+    m_perspectiveChooser->setObjectName("PerspectiveChooser");
     m_perspectiveChooser->setProperty("panelwidget", true);
+    m_perspectiveChooser->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     connect(m_perspectiveChooser, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
             this, [this](int item) {
         Perspective *perspective = Perspective::findPerspective(m_perspectiveChooser->itemData(item).toString());
@@ -205,6 +152,62 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
             subPerspective->select();
         else
             perspective->select();
+    });
+
+    auto viewButton = new QToolButton;
+    viewButton->setText(tr("&Views"));
+
+    auto closeButton = new QToolButton();
+    closeButton->setIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
+    closeButton->setToolTip(tr("Leave Debug Mode"));
+
+    auto toolbar = new Utils::StyledBar;
+    toolbar->setProperty("topBorder", true);
+
+    // "Engine switcher" style comboboxes
+    auto subToolsSwitcher = new QWidget;
+    m_subToolsSwitcherLayout = new QHBoxLayout(subToolsSwitcher);
+    m_subToolsSwitcherLayout->setMargin(0);
+    m_subToolsSwitcherLayout->setSpacing(0);
+
+    // All perspective toolbars will get inserted here, but only
+    // the current perspective's toolbar is set visible.
+    auto innerTools = new QWidget;
+    m_innerToolsLayout = new QHBoxLayout(innerTools);
+    m_innerToolsLayout->setMargin(0);
+    m_innerToolsLayout->setSpacing(0);
+
+    auto hbox = new QHBoxLayout(toolbar);
+    hbox->setMargin(0);
+    hbox->setSpacing(0);
+    hbox->addWidget(m_perspectiveChooser);
+    hbox->addWidget(subToolsSwitcher);
+    hbox->addWidget(innerTools);
+    hbox->addWidget(m_statusLabel);
+    hbox->addStretch(1);
+    hbox->addWidget(new Utils::StyledSeparator);
+    hbox->addWidget(viewButton);
+    hbox->addWidget(closeButton);
+
+    auto dock = new QDockWidget(tr("Toolbar"), q);
+    dock->setObjectName(QLatin1String("Toolbar"));
+    dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    dock->setAllowedAreas(Qt::BottomDockWidgetArea);
+    dock->setTitleBarWidget(new QWidget(dock)); // hide title bar
+    dock->setProperty("managed_dockwidget", QLatin1String("true"));
+    toolbar->setParent(dock);
+    dock->setWidget(toolbar);
+    m_toolBarDock = dock;
+    q->addDockWidget(Qt::BottomDockWidgetArea, m_toolBarDock);
+
+    connect(viewButton, &QAbstractButton::clicked, [this, viewButton] {
+        QMenu menu;
+        q->addDockActionsToMenu(&menu);
+        menu.exec(viewButton->mapToGlobal(QPoint()));
+    });
+
+    connect(closeButton, &QAbstractButton::clicked, [] {
+        ModeManager::activateMode(Core::Constants::MODE_EDIT);
     });
 }
 
@@ -246,7 +249,6 @@ DebuggerMainWindow::DebuggerMainWindow()
 
 DebuggerMainWindow::~DebuggerMainWindow()
 {
-    d->savePerspectiveHelper(d->m_currentPerspective);
     delete d;
 }
 
@@ -264,30 +266,20 @@ void DebuggerMainWindow::doShutdown()
 
 void DebuggerMainWindowPrivate::registerPerspective(Perspective *perspective)
 {
-    m_perspectives.append(perspective);
     QString parentPerspective = perspective->d->m_parentPerspectiveId;
     // Add only "main" perspectives to the chooser.
-    if (parentPerspective.isEmpty()) {
-        m_perspectiveChooser->addItem(perspective->name(), perspective->id());
-        increaseChooserWidthIfNecessary(perspective->name());
-    }
-}
-
-void DebuggerMainWindowPrivate::increaseChooserWidthIfNecessary(const QString &visibleName)
-{
-    const int oldWidth = m_perspectiveChooser->width();
-    const int contentWidth = m_perspectiveChooser->fontMetrics().width(visibleName);
-    QStyleOptionComboBox option;
-    option.initFrom(m_perspectiveChooser);
-    const QSize sz(contentWidth, 1);
-    const int width = m_perspectiveChooser->style()->sizeFromContents(
-                QStyle::CT_ComboBox, &option, sz).width();
-    if (width > oldWidth)
-        m_perspectiveChooser->setFixedWidth(width);
+    if (parentPerspective.isEmpty())
+        m_perspectiveChooser->addItem(perspective->d->m_name, perspective->d->m_id);
+    m_perspectives.append(perspective);
 }
 
 void DebuggerMainWindowPrivate::destroyPerspective(Perspective *perspective)
 {
+    if (perspective == m_currentPerspective) {
+        depopulateCurrentPerspective();
+        m_currentPerspective = nullptr;
+    }
+
     m_perspectives.removeAll(perspective);
 
     // Dynamic perspectives are currently not visible in the chooser.
@@ -295,14 +287,6 @@ void DebuggerMainWindowPrivate::destroyPerspective(Perspective *perspective)
     const int idx = indexInChooser(perspective);
     if (idx != -1)
         m_perspectiveChooser->removeItem(idx);
-
-    if (perspective == m_currentPerspective) {
-        m_currentPerspective = nullptr;
-        if (!perspective->d->m_parentPerspectiveId.isEmpty()) {
-            if (Perspective *parent = Perspective::findPerspective(perspective->d->m_parentPerspectiveId))
-                parent->select();
-        }
-    }
 }
 
 void DebuggerMainWindow::showStatusMessage(const QString &message, int timeoutMS)
@@ -330,6 +314,9 @@ void DebuggerMainWindow::onModeChanged(Core::Id mode)
         QTC_ASSERT(perspective, return);
         perspective->select();
     } else {
+        if (Perspective *perspective = theMainWindow->d->m_currentPerspective)
+            perspective->d->saveLayout();
+
         theMainWindow->setDockActionsVisible(false);
 
         // Hide dock widgets manually in case they are floating.
@@ -359,6 +346,10 @@ Perspective *Perspective::findPerspective(const QString &perspectiveId)
 
 void DebuggerMainWindowPrivate::resetCurrentPerspective()
 {
+    if (m_currentPerspective) {
+        m_currentPerspective->d->m_nonPersistenSettings.clear();
+        m_currentPerspective->d->hideToolBar();
+    }
     depopulateCurrentPerspective();
     populateCurrentPerspective();
 }
@@ -372,6 +363,11 @@ void DebuggerMainWindowPrivate::selectPerspective(Perspective *perspective)
 {
     QTC_ASSERT(perspective, return);
 
+    if (m_currentPerspective) {
+        m_currentPerspective->d->saveLayout();
+        m_currentPerspective->d->hideToolBar();
+    }
+
     depopulateCurrentPerspective();
 
     m_currentPerspective = perspective;
@@ -380,64 +376,21 @@ void DebuggerMainWindowPrivate::selectPerspective(Perspective *perspective)
 
     populateCurrentPerspective();
 
-    QSettings *settings = ICore::settings();
-    settings->beginGroup(perspective->d->m_id);
-    if (settings->value(QLatin1String("ToolSettingsSaved"), false).toBool())
-        q->restoreSettings(settings);
-    settings->endGroup();
+    if (m_currentPerspective)
+        m_currentPerspective->d->restoreLayout();
 
     const int index = indexInChooser(m_currentPerspective);
-    if (index != -1)
+    if (index != -1) {
         m_perspectiveChooser->setCurrentIndex(index);
-}
 
-void DebuggerMainWindowPrivate::ensureToolBarDockExists()
-{
-    if (m_toolBarDock)
-        return;
-
-    auto viewButton = new QToolButton;
-    viewButton->setText(tr("&Views"));
-
-    auto closeButton = new QToolButton();
-    closeButton->setIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
-    closeButton->setToolTip(tr("Leave Debug Mode"));
-
-    auto toolbar = new Utils::StyledBar;
-    toolbar->setProperty("topBorder", true);
-    auto hbox = new QHBoxLayout(toolbar);
-    m_toolBarLayout = hbox;
-    hbox->setMargin(0);
-    hbox->setSpacing(0);
-    hbox->addWidget(m_perspectiveChooser);
-    // <- All perspective toolbars will get inserted here, but only
-    // the current perspective's toolbar is set visible.
-    hbox->addWidget(m_statusLabel);
-    hbox->addStretch(1);
-    hbox->addWidget(new Utils::StyledSeparator);
-    hbox->addWidget(viewButton);
-    hbox->addWidget(closeButton);
-
-    auto dock = new QDockWidget(tr("Toolbar"), q);
-    dock->setObjectName(QLatin1String("Toolbar"));
-    dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
-    dock->setAllowedAreas(Qt::BottomDockWidgetArea);
-    dock->setTitleBarWidget(new QWidget(dock)); // hide title bar
-    dock->setProperty("managed_dockwidget", QLatin1String("true"));
-    dock->setWidget(toolbar);
-    m_toolBarDock = dock;
-    q->addDockWidget(Qt::BottomDockWidgetArea, m_toolBarDock);
-    m_toolBarDock->setVisible(true);
-
-    connect(viewButton, &QAbstractButton::clicked, [this, viewButton] {
-        QMenu menu;
-        q->addDockActionsToMenu(&menu);
-        menu.exec(viewButton->mapToGlobal(QPoint()));
-    });
-
-    connect(closeButton, &QAbstractButton::clicked, [] {
-        ModeManager::activateMode(Core::Constants::MODE_EDIT);
-    });
+        const int contentWidth = m_perspectiveChooser->fontMetrics().width(perspective->d->m_name);
+        QStyleOptionComboBox option;
+        option.initFrom(m_perspectiveChooser);
+        const QSize sz(contentWidth, 1);
+        const int width = m_perspectiveChooser->style()->sizeFromContents(
+                    QStyle::CT_ComboBox, &option, sz).width();
+        m_perspectiveChooser->setFixedWidth(width);
+    }
 }
 
 QWidget *createModeWindow(const Core::Id &mode)
@@ -493,7 +446,6 @@ QWidget *createModeWindow(const Core::Id &mode)
 void DebuggerMainWindowPrivate::depopulateCurrentPerspective()
 {
     // Clean up old perspective.
-    savePerspectiveHelper(m_currentPerspective);
     for (QDockWidget *dock : q->dockWidgets()) {
         if (dock->property(OWNED_BY_PERSPECTIVE).toBool()) {
             // Prevent deletion of plugin-owned widgets.
@@ -509,8 +461,6 @@ void DebuggerMainWindowPrivate::depopulateCurrentPerspective()
         ICore::removeAdditionalContext(m_currentPerspective->context());
         QWidget *central = m_currentPerspective->centralWidget();
         m_centralWidgetStack->removeWidget(central ? central : m_editorPlaceHolder);
-
-        m_currentPerspective->d->hideToolBar();
     }
 }
 
@@ -552,7 +502,6 @@ void DebuggerMainWindowPrivate::populateCurrentPerspective()
         }
         QDockWidget *anchor = dockForDockId.value(op.anchorDockId);
         if (!anchor && op.area == Qt::BottomDockWidgetArea) {
-            ensureToolBarDockExists();
             anchor = m_toolBarDock;
         }
 
@@ -585,33 +534,40 @@ void DebuggerMainWindowPrivate::populateCurrentPerspective()
     ICore::addAdditionalContext(m_currentPerspective->context());
 }
 
-void DebuggerMainWindowPrivate::savePerspectiveHelper(const Perspective *perspective)
-{
-    if (!perspective)
-        return;
-    QSettings *settings = ICore::settings();
-    settings->beginGroup(perspective->d->m_id);
-    q->saveSettings(settings);
-    settings->setValue(QLatin1String("ToolSettingsSaved"), true);
-    settings->endGroup();
-}
-
 // Perspective
 
-Perspective::Perspective(const QString &id, const QString &name, const QString &parentPerspectiveId)
+Perspective::Perspective(const QString &id, const QString &name,
+                         const QString &parentPerspectiveId,
+                         const QString &subPerspectiveType)
     : d(new PerspectivePrivate)
 {
+    const bool shouldPersist = parentPerspectiveId.isEmpty();
     d->m_id = id;
     d->m_name = name;
     d->m_parentPerspectiveId = parentPerspectiveId;
+    d->m_subPerspectiveType = subPerspectiveType;
+    d->m_shouldPersistChecker = [shouldPersist] { return shouldPersist; };
 
     DebuggerMainWindow::ensureMainWindowExists();
     theMainWindow->d->registerPerspective(this);
+
+    d->m_innerToolBar = new QWidget;
+    d->m_innerToolBar->setVisible(false);
+    theMainWindow->d->m_innerToolsLayout->addWidget(d->m_innerToolBar);
+
+    d->m_innerToolBarLayout = new QHBoxLayout(d->m_innerToolBar);
+    d->m_innerToolBarLayout->setMargin(0);
+    d->m_innerToolBarLayout->setSpacing(0);
 }
 
 Perspective::~Perspective()
 {
     if (theMainWindow) {
+        d->saveLayout();
+
+        delete d->m_innerToolBar;
+        d->m_innerToolBar = nullptr;
+
         theMainWindow->d->destroyPerspective(this);
     }
     delete d;
@@ -621,11 +577,6 @@ void Perspective::setCentralWidget(QWidget *centralWidget)
 {
     QTC_ASSERT(d->m_centralWidget == nullptr, return);
     d->m_centralWidget = centralWidget;
-}
-
-QString Perspective::name() const
-{
-    return d->m_name;
 }
 
 QString Perspective::id() const
@@ -655,36 +606,50 @@ void Perspective::setEnabled(bool enabled)
     item->setFlags(enabled ? item->flags() | Qt::ItemIsEnabled : item->flags() & ~Qt::ItemIsEnabled );
 }
 
+QToolButton *PerspectivePrivate::setupToolButton(QAction *action)
+{
+    auto toolButton = new QToolButton(m_innerToolBar);
+    toolButton->setProperty("panelwidget", true);
+    toolButton->setDefaultAction(action);
+    m_innerToolBarLayout->addWidget(toolButton);
+    return toolButton;
+}
+
 void Perspective::addToolBarAction(QAction *action)
 {
-    auto toolButton = new QToolButton;
-    ToolbarOperation op;
-    op.toolBarPlainAction = action;
-    op.toolBarPlainActionButton = toolButton;
-    d->m_toolBarOperations.append(op);
+    d->setupToolButton(action);
 }
 
 void Perspective::addToolBarAction(OptionalAction *action)
 {
-    ToolbarOperation op;
-    op.toolBarAction = action;
-    d->m_toolBarOperations.append(op);
+    action->m_toolButton = d->setupToolButton(action);
 }
 
 void Perspective::addToolBarWidget(QWidget *widget)
 {
-    ToolbarOperation op;
-    op.toolBarWidget = widget;
     // QStyle::polish is called before it is added to the toolbar, explicitly make it a panel widget
-    op.toolBarWidget->setProperty("panelwidget", true);
-    d->m_toolBarOperations.append(op);
+    widget->setProperty("panelwidget", true);
+    widget->setParent(d->m_innerToolBar);
+    d->m_innerToolBarLayout->addWidget(widget);
+}
+
+void Perspective::addToolBarSwitcher(QWidget *widget, bool owner)
+{
+    d->m_switcher = widget;
+    d->m_switcher->setProperty("panelwidget", true);
+    d->m_switcher->setVisible(false);
+    if (owner)
+        theMainWindow->d->m_subToolsSwitcherLayout->addWidget(d->m_switcher);
 }
 
 void Perspective::addToolbarSeparator()
 {
-    ToolbarOperation op;
-    op.separator = new StyledSeparator;
-    d->m_toolBarOperations.append(op);
+    d->m_innerToolBarLayout->addWidget(new StyledSeparator(d->m_innerToolBar));
+}
+
+void Perspective::setShouldPersistChecker(const ShouldPersistChecker &checker)
+{
+    d->m_shouldPersistChecker = checker;
 }
 
 QWidget *Perspective::centralWidget() const
@@ -704,39 +669,17 @@ Context Perspective::context() const
 
 void PerspectivePrivate::showToolBar()
 {
-    if (!m_toolButtonBox) {
-        m_toolButtonBox = new QWidget;
-        theMainWindow->d->m_toolBarLayout->insertWidget(1, m_toolButtonBox);
-
-        auto hbox = new QHBoxLayout(m_toolButtonBox);
-        hbox->setMargin(0);
-        hbox->setSpacing(0);
-        for (ToolbarOperation &op : m_toolBarOperations)
-            op.attachToToolbar(m_toolButtonBox);
-    }
-
-    for (ToolbarOperation &op : m_toolBarOperations) {
-        if (op.toolBarAction)
-            op.toolBarAction->m_toolButton->setVisible(op.toolBarAction->isVisible());
-    }
-
-    m_toolButtonBox->setVisible(true);
+    m_innerToolBar->setVisible(true);
+    if (m_switcher)
+        m_switcher->setVisible(true);
 }
 
 void PerspectivePrivate::hideToolBar()
 {
-    if (m_toolButtonBox)
-        m_toolButtonBox->setVisible(false);
-
-}
-void PerspectivePrivate::destroyToolBar()
-{
-    // Detach potentially re-used widgets to prevent deletion.
-    for (ToolbarOperation &op : m_toolBarOperations)
-        op.detachFromToolbar();
-
-    delete m_toolButtonBox;
-    m_toolButtonBox = nullptr;
+    QTC_ASSERT(m_innerToolBar, return);
+    m_innerToolBar->setVisible(false);
+    if (m_switcher)
+        m_switcher->setVisible(false);
 }
 
 void Perspective::addWindow(QWidget *widget,
@@ -765,7 +708,45 @@ void Perspective::select()
         parent->d->m_lastActiveSubPerspectiveId = d->m_id;
     else
         d->m_lastActiveSubPerspectiveId.clear();
-    ICore::settings()->setValue(QLatin1String(LAST_PERSPECTIVE_KEY), d->m_id);
+
+    const QString &lastKey = d->m_parentPerspectiveId.isEmpty() ? d->m_id : d->m_parentPerspectiveId;
+    ICore::settings()->setValue(QLatin1String(LAST_PERSPECTIVE_KEY), lastKey);
+}
+
+void PerspectivePrivate::restoreLayout()
+{
+    if (m_nonPersistenSettings.isEmpty()) {
+        //qDebug() << "PERSPECTIVE" << m_id << "RESTORE PERSISTENT FROM " << settingsId();
+        QSettings *settings = ICore::settings();
+        settings->beginGroup(settingsId());
+        theMainWindow->restoreSettings(settings);
+        settings->endGroup();
+        m_nonPersistenSettings = theMainWindow->saveSettings();
+    } else {
+        //qDebug() << "PERSPECTIVE" << m_id << "RESTORE FROM LOCAL TEMP";
+        theMainWindow->restoreSettings(m_nonPersistenSettings);
+    }
+}
+
+void PerspectivePrivate::saveLayout()
+{
+    //qDebug() << "PERSPECTIVE" << m_id << "SAVE LOCAL TEMP";
+    m_nonPersistenSettings = theMainWindow->saveSettings();
+
+    if (m_shouldPersistChecker()) {
+        //qDebug() << "PERSPECTIVE" << m_id << "SAVE PERSISTENT TO " << settingsId();
+        QSettings *settings = ICore::settings();
+        settings->beginGroup(settingsId());
+        theMainWindow->saveSettings(settings);
+        settings->endGroup();
+    } else {
+        //qDebug() << "PERSPECTIVE" << m_id << "NOT PERSISTENT";
+    }
+}
+
+QString PerspectivePrivate::settingsId() const
+{
+    return m_parentPerspectiveId.isEmpty() ? m_id : (m_parentPerspectiveId + '.' + m_subPerspectiveType);
 }
 
 // ToolbarAction
@@ -789,7 +770,8 @@ void OptionalAction::setVisible(bool on)
 
 void OptionalAction::setToolButtonStyle(Qt::ToolButtonStyle style)
 {
-    m_toolButtonStyle = style;
+    QTC_ASSERT(m_toolButton, return);
+    m_toolButton->setToolButtonStyle(style);
 }
 
 } // Utils

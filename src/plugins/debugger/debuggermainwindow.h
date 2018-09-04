@@ -57,14 +57,14 @@ public:
 
 public:
     QPointer<QToolButton> m_toolButton;
-    Qt::ToolButtonStyle m_toolButtonStyle = Qt::ToolButtonIconOnly;
 };
 
 class DEBUGGER_EXPORT Perspective
 {
 public:
     Perspective(const QString &id, const QString &name,
-                const QString &parentPerspectiveId = QString());
+                const QString &parentPerspectiveId = QString(),
+                const QString &subPerspectiveType = QString());
     ~Perspective();
 
     enum OperationType { SplitVertical, SplitHorizontal, AddToTab, Raise };
@@ -79,12 +79,14 @@ public:
     void addToolBarAction(QAction *action);
     void addToolBarAction(OptionalAction *action);
     void addToolBarWidget(QWidget *widget);
+    void addToolBarSwitcher(QWidget *widget, bool owner);
     void addToolbarSeparator();
 
-    QWidget *centralWidget() const;
+    using ShouldPersistChecker = std::function<bool()>;
+    void setShouldPersistChecker(const ShouldPersistChecker &checker);
 
-    QString name() const;
-    QString id() const;
+    QString id() const; // Currently used by GammaRay plugin.
+    QWidget *centralWidget() const;
 
     using Callback = std::function<void()>;
     void setAboutToActivateCallback(const Callback &cb);

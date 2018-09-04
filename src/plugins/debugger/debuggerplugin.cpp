@@ -1339,7 +1339,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     connect(action(SettingsDialog), &QAction::triggered,
             [] { ICore::showOptionsDialog(DEBUGGER_COMMON_SETTINGS_ID); });
 
-    m_perspective.addToolBarWidget(EngineManager::engineChooser());
+    m_perspective.addToolBarSwitcher(EngineManager::engineChooser(), true);
     m_perspective.addToolBarAction(&m_startAction);
 
 //    QAction *operateByInstructionAction = action(OperateByInstruction);
