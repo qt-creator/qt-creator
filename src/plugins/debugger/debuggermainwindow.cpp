@@ -191,6 +191,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     m_centralWidgetStack = new QStackedWidget;
     m_statusLabel = new Utils::StatusLabel;
     m_statusLabel->setProperty("panelwidget", true);
+    m_statusLabel->setIndent(2 * QFontMetrics(q->font()).width(QChar('x')));
     m_editorPlaceHolder = new EditorManagerPlaceHolder;
 
     m_perspectiveChooser = new QComboBox;
@@ -411,7 +412,6 @@ void DebuggerMainWindowPrivate::ensureToolBarDockExists()
     hbox->addWidget(m_perspectiveChooser);
     // <- All perspective toolbars will get inserted here, but only
     // the current perspective's toolbar is set visible.
-    hbox->addStretch(3);
     hbox->addWidget(m_statusLabel);
     hbox->addStretch(1);
     hbox->addWidget(new Utils::StyledSeparator);
