@@ -274,7 +274,7 @@ void StatesEditorView::setWhenCondition(int internalNodeId, const QString &condi
             if (state.isValid())
                 state.modelNode().bindingProperty("when").setExpression(condition);
 
-        } catch (const RewritingException &e) {
+        } catch (const Exception &e) {
             e.showException();
         }
     }
