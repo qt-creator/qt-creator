@@ -56,12 +56,6 @@ Runnable QnxRunConfiguration::runnable() const
     return r;
 }
 
-void QnxRunConfiguration::fillConfigurationLayout(QFormLayout *layout) const
-{
-    RemoteLinuxRunConfiguration::fillConfigurationLayout(layout);
-    extraAspect<QtLibPathAspect>()->addToConfigurationLayout(layout);
-}
-
 // QnxRunConfigurationFactory
 
 QnxRunConfigurationFactory::QnxRunConfigurationFactory()

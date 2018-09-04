@@ -234,7 +234,6 @@ public:
 
 private:
     void doAdditionalSetup(const RunConfigurationCreationInfo &) final { updateTargetInformation(); }
-    void fillConfigurationLayout(QFormLayout *layout) const final;
     Runnable runnable() const final;
 
     bool supportsDebugger() const { return true; }
@@ -283,14 +282,6 @@ void PythonRunConfiguration::updateTargetInformation()
     const QString script = bti.targetFilePath.toString();
     setDefaultDisplayName(tr("Run %1").arg(script));
     extraAspect<MainScriptAspect>()->setValue(script);
-}
-
-void PythonRunConfiguration::fillConfigurationLayout(QFormLayout *layout) const
-{
-    extraAspect<InterpreterAspect>()->addToConfigurationLayout(layout);
-    extraAspect<MainScriptAspect>()->addToConfigurationLayout(layout);
-    extraAspect<ArgumentsAspect>()->addToConfigurationLayout(layout);
-    extraAspect<TerminalAspect>()->addToConfigurationLayout(layout);
 }
 
 Runnable PythonRunConfiguration::runnable() const

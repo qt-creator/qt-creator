@@ -70,8 +70,8 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target, Core:
 
     addExtraAspect(new ExecutableAspect(this));
     addExtraAspect(new ArgumentsAspect(this));
-    addExtraAspect(new TerminalAspect(this));
     addExtraAspect(new WorkingDirectoryAspect(this));
+    addExtraAspect(new TerminalAspect(this));
 
     setOutputFormatter<QtSupport::QtOutputFormatter>();
 

@@ -258,29 +258,14 @@ QWidget *RunConfiguration::createConfigurationWidget()
     auto widget = new QWidget;
     auto formLayout = new QFormLayout(widget);
 
-    fillConfigurationLayout(formLayout);
+    for (IRunConfigurationAspect *aspect : m_aspects) {
+        if (aspect->m_visible)
+            aspect->addToConfigurationLayout(formLayout);
+    }
 
     Core::VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 
     return wrapWidget(widget);
-}
-
-void RunConfiguration::fillConfigurationLayout(QFormLayout *layout) const
-{
-    if (auto aspect = extraAspect<ExecutableAspect>())
-        aspect->addToConfigurationLayout(layout);
-    if (auto aspect = extraAspect<SymbolFileAspect>())
-        aspect->addToConfigurationLayout(layout);
-    if (auto aspect = extraAspect<ArgumentsAspect>())
-        aspect->addToConfigurationLayout(layout);
-    if (auto aspect = extraAspect<WorkingDirectoryAspect>())
-        aspect->addToConfigurationLayout(layout);
-    if (auto aspect = extraAspect<TerminalAspect>())
-        aspect->addToConfigurationLayout(layout);
-    if (auto aspect = extraAspect<UseLibraryPathsAspect>())
-        aspect->addToConfigurationLayout(layout);
-    if (auto aspect = extraAspect<UseDyldSuffixAspect>())
-        aspect->addToConfigurationLayout(layout);
 }
 
 void RunConfiguration::updateEnabledState()

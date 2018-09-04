@@ -56,8 +56,8 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *target, Core::Id id)
     addExtraAspect(new LocalEnvironmentAspect(this, cmakeRunEnvironmentModifier));
     addExtraAspect(new ExecutableAspect(this));
     addExtraAspect(new ArgumentsAspect(this));
-    addExtraAspect(new TerminalAspect(this));
     addExtraAspect(new WorkingDirectoryAspect(this));
+    addExtraAspect(new TerminalAspect(this));
 
     connect(target->project(), &Project::parsingFinished,
             this, &CMakeRunConfiguration::updateTargetInformation);

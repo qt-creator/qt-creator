@@ -129,6 +129,7 @@ public:
     QString settingsKey() const { return  m_settingsKey; }
     bool isUsingGlobalSettings() const { return m_useGlobalSettings; }
     void setUsingGlobalSettings(bool value);
+    void setVisible(bool visible) { m_visible = visible; }
     void resetProjectToGlobalSettings();
 
     ISettingsAspect *projectSettings() const { return m_projectSettings; }
@@ -151,6 +152,7 @@ private:
     QString m_displayName;
     QString m_settingsKey; // Name of data in settings.
     bool m_useGlobalSettings = false;
+    bool m_visible = true;
     RunConfiguration *m_runConfiguration = nullptr;
     ISettingsAspect *m_projectSettings = nullptr; // Owned if present.
     ISettingsAspect *m_globalSettings = nullptr;  // Not owned.
@@ -185,7 +187,6 @@ public:
     QString disabledReason() const override;
 
     virtual QWidget *createConfigurationWidget();
-    virtual void fillConfigurationLayout(QFormLayout *layout) const;
 
     virtual bool isConfigured() const;
     // Pop up configuration dialog in case for example the executable is missing.

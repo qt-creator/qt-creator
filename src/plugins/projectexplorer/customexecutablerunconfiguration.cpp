@@ -139,8 +139,8 @@ void CustomExecutableDialog::accept()
 {
     auto executable = FileName::fromString(m_executableChooser->path());
     m_rc->extraAspect<ExecutableAspect>()->setExecutable(executable);
-    m_rc->extraAspect<WorkingDirectoryAspect>()->copyFrom(&m_workingDirectory);
     m_rc->extraAspect<ArgumentsAspect>()->copyFrom(&m_arguments);
+    m_rc->extraAspect<WorkingDirectoryAspect>()->copyFrom(&m_workingDirectory);
     m_rc->extraAspect<TerminalAspect>()->copyFrom(&m_terminal);
 
     QDialog::accept();
@@ -187,8 +187,8 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
     addExtraAspect(exeAspect);
 
     addExtraAspect(new ArgumentsAspect(this));
-    addExtraAspect(new TerminalAspect(this));
     addExtraAspect(new WorkingDirectoryAspect(this));
+    addExtraAspect(new TerminalAspect(this));
 
     connect(envAspect, &EnvironmentAspect::environmentChanged,
             this, [exeAspect, envAspect] { exeAspect->setEnvironment(envAspect->environment()); });
