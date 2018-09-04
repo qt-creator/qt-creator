@@ -53,8 +53,6 @@ public:
                                           const Utils::SmallStringVector &commandLineArguments,
                                           const CompilerMacros &compilerMacros,
                                           const Utils::SmallStringVector &includeSearchPaths) = 0;
-    virtual void updateProjectPartSources(Utils::SmallStringView projectPartName,
-                                          const FilePathIds &sourceFilePathIds) = 0;
     virtual void updateProjectPartSources(int projectPartId,
                                           const FilePathIds &sourceFilePathIds) = 0;
     virtual void insertOrUpdateUsedMacros(const UsedMacros &usedMacros) = 0;

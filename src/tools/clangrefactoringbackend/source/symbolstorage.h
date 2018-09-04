@@ -136,15 +136,6 @@ public:
         m_statementFactory.deleteNewSourceDependenciesStatement.execute();
     }
 
-    void updateProjectPartSources(Utils::SmallStringView projectPartName,
-                                  const FilePathIds &sourceFilePathIds) override
-    {
-        ReadStatement &getProjectPartIdStatement = m_statementFactory.getProjectPartIdStatement;
-        int projectPartId = getProjectPartIdStatement.template value<int>(projectPartName).value();
-
-        updateProjectPartSources(projectPartId, sourceFilePathIds);
-    }
-
     void updateProjectPartSources(int projectPartId,
                                   const FilePathIds &sourceFilePathIds) override
     {

@@ -225,12 +225,11 @@ TEST_F(SymbolStorage, UpdateProjectPartSources)
 {
     InSequence sequence;
 
-    EXPECT_CALL(getProjectPartIdStatement, valueReturnInt32(TypedEq<Utils::SmallStringView>("project"))).WillRepeatedly(Return(42));
     EXPECT_CALL(deleteAllProjectPartsSourcesWithProjectPartIdStatement, write(TypedEq<int>(42)));
     EXPECT_CALL(insertProjectPartSourcesStatement, write(TypedEq<int>(42), TypedEq<int>(1)));
     EXPECT_CALL(insertProjectPartSourcesStatement, write(TypedEq<int>(42), TypedEq<int>(2)));
 
-    storage.updateProjectPartSources("project", {{1, 1}, {1, 2}});
+    storage.updateProjectPartSources(42, {{1, 1}, {1, 2}});
 }
 
 TEST_F(SymbolStorage, InsertOrUpdateUsedMacros)

@@ -43,9 +43,6 @@ public:
                     const ClangBackEnd::CompilerMacros &compilerMacros,
                     const Utils::SmallStringVector &includeSearchPaths));
    MOCK_METHOD2(updateProjectPartSources,
-                void(Utils::SmallStringView projectPartName,
-                     const ClangBackEnd::FilePathIds &sourceFilePathIds));
-   MOCK_METHOD2(updateProjectPartSources,
                 void(int projectPartId,
                      const ClangBackEnd::FilePathIds &sourceFilePathIds));
    MOCK_METHOD1(insertOrUpdateUsedMacros,

@@ -86,26 +86,25 @@ void SymbolIndexer::updateProjectPart(V2::ProjectPartContainer &&projectPart)
                                                                   projectPart.arguments,
                                                                   projectPart.compilerMacros,
                                                                   projectPart.includeSearchPaths);
-    transaction.commit();
-
     if (optionalArtefact)
         projectPartId = optionalArtefact->projectPartId;
+    const Utils::optional<ProjectPartPch> optionalProjectPartPch = m_symbolStorage.fetchPrecompiledHeader(projectPartId);
 
     FilePathIds sourcePathIds = updatableFilePathIds(projectPart, optionalArtefact);
+    transaction.commit();
     if (sourcePathIds.empty())
         return;
 
-    Utils::SmallStringVector arguments = compilerArguments(projectPart, optionalArtefact);
+    const Utils::SmallStringVector arguments = compilerArguments(projectPart.arguments,
+                                                                 optionalProjectPartPch);
 
     std::vector<SymbolIndexerTask> symbolIndexerTask;
     symbolIndexerTask.reserve(projectPart.sourcePathIds.size());
     for (FilePathId sourcePathId : projectPart.sourcePathIds) {
-        auto indexing = [projectPartId = projectPart.projectPartId, arguments, sourcePathId]
+        auto indexing = [projectPartId, arguments, sourcePathId]
                 (SymbolsCollectorInterface &symbolsCollector,
                 SymbolStorageInterface &symbolStorage,
                 Sqlite::TransactionInterface &transactionInterface) {
-            auto id = Utils::SmallString::number(sourcePathId.filePathId);
-
             symbolsCollector.setFile(sourcePathId, arguments);
 
             symbolsCollector.collectSymbols();
@@ -157,14 +156,18 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
 
     Sqlite::DeferredTransaction transaction{m_transactionInterface};
     const Utils::optional<ProjectPartArtefact> optionalArtefact = m_symbolStorage.fetchProjectPartArtefact(filePathId);
+    if (!optionalArtefact)
+        return;
+
+    const Utils::optional<ProjectPartPch> optionalProjectPartPch = m_symbolStorage.fetchPrecompiledHeader(optionalArtefact->projectPartId);
     transaction.commit();
 
-    if (optionalArtefact && !optionalArtefact.value().compilerArguments.empty()) {
+    if (!optionalArtefact.value().compilerArguments.empty()) {
 
         const ProjectPartArtefact &artefact = optionalArtefact.value();
 
-        Utils::SmallStringVector arguments = compilerArguments(artefact.compilerArguments,
-                                                               artefact.projectPartId);
+        const Utils::SmallStringVector arguments = compilerArguments(artefact.compilerArguments,
+                                                                     optionalProjectPartPch);
 
         auto indexing = [projectPartId=artefact.projectPartId, arguments, filePathId]
                 (SymbolsCollectorInterface &symbolsCollector,
@@ -233,10 +236,8 @@ FilePathIds SymbolIndexer::updatableFilePathIds(const V2::ProjectPartContainer &
 
 Utils::SmallStringVector SymbolIndexer::compilerArguments(
         Utils::SmallStringVector arguments,
-        int projectPartId) const
+        const Utils::optional<ProjectPartPch> optionalProjectPartPch) const
 {
-    Utils::optional<ProjectPartPch> optionalProjectPartPch =  m_symbolStorage.fetchPrecompiledHeader(projectPartId);
-
     if (optionalProjectPartPch) {
         arguments.emplace_back("-Xclang");
         arguments.emplace_back("-include-pch");
@@ -245,17 +246,6 @@ Utils::SmallStringVector SymbolIndexer::compilerArguments(
     }
 
     return arguments;
-}
-
-Utils::SmallStringVector SymbolIndexer::compilerArguments(
-        const V2::ProjectPartContainer &projectPart,
-        const Utils::optional<ProjectPartArtefact> &optionalProjectPartArtefact) const
-{
-    if (optionalProjectPartArtefact)
-        return compilerArguments(projectPart.arguments,
-                                 optionalProjectPartArtefact.value().projectPartId);
-
-    return projectPart.arguments;
 }
 
 } // namespace ClangBackEnd

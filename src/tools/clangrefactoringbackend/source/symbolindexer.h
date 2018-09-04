@@ -65,10 +65,8 @@ public:
     FilePathIds updatableFilePathIds(const V2::ProjectPartContainer &projectPart,
                                      const Utils::optional<ProjectPartArtefact> &optionalArtefact) const;
 
-    Utils::SmallStringVector compilerArguments(const V2::ProjectPartContainer &projectPart,
-                                               const Utils::optional<ProjectPartArtefact> &optionalArtefact) const;
     Utils::SmallStringVector compilerArguments(Utils::SmallStringVector arguments,
-                                               int projectPartId) const;
+                                               const Utils::optional<ProjectPartPch> optionalProjectPartPch) const;
 
 private:
     SymbolIndexerTaskQueueInterface &m_symbolIndexerTaskQueue;
