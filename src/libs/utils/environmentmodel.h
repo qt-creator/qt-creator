@@ -63,7 +63,7 @@ public:
     Environment baseEnvironment() const;
     void setBaseEnvironment(const Environment &env);
     QList<EnvironmentItem> userChanges() const;
-    void setUserChanges(QList<EnvironmentItem> list);
+    void setUserChanges(const QList<EnvironmentItem> &list);
 
 signals:
     void userChangesChanged();

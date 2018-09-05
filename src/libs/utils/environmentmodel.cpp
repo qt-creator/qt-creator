@@ -25,6 +25,7 @@
 
 #include "environmentmodel.h"
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
@@ -212,6 +213,8 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
         //fail if a variable with the same name already exists
         const QString &newName = HostOsInfo::isWindowsHost()
                 ? value.toString().toUpper() : value.toString();
+        if (newName.isEmpty() || newName.contains('='))
+            return false;
         // Does the new name exist already?
         if (d->m_resultEnvironment.hasKey(newName) || newName.isEmpty())
             return false;
@@ -357,17 +360,20 @@ QList<EnvironmentItem> EnvironmentModel::userChanges() const
     return d->m_items;
 }
 
-void EnvironmentModel::setUserChanges(QList<EnvironmentItem> list)
+void EnvironmentModel::setUserChanges(const QList<EnvironmentItem> &list)
 {
+    QList<EnvironmentItem> filtered = Utils::filtered(list, [](const EnvironmentItem &i) {
+        return i.name != "export " && !i.name.contains('=');
+    });
     // We assume nobody is reordering the items here.
-    if (list == d->m_items)
+    if (filtered == d->m_items)
         return;
     beginResetModel();
-    d->m_items = list;
-    for (int i = 0; i != list.size(); ++i) {
-        QString &name = d->m_items[i].name;
+    d->m_items = filtered;
+    for (EnvironmentItem &item : d->m_items) {
+        QString &name = item.name;
         name = name.trimmed();
-        if (name.startsWith(QLatin1String("export ")))
+        if (name.startsWith("export "))
             name = name.mid(7).trimmed();
         if (d->m_baseEnvironment.osType() == OsTypeWindows) {
             // Environment variable names are case-insensitive under windows, but we still
