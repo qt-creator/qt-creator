@@ -51,7 +51,7 @@ RemoteLinuxSignalOperation::~RemoteLinuxSignalOperation()
 
 static QString signalProcessGroupByPidCommandLine(qint64 pid, int signal)
 {
-    return QString::fromLatin1("kill -%1 -- -%2 %2").arg(signal).arg(pid);
+    return QString::fromLatin1("kill -%1 -%2 %2").arg(signal).arg(pid);
 }
 
 void RemoteLinuxSignalOperation::run(const QString &command)
@@ -78,7 +78,7 @@ static QString signalProcessGroupByNameCommandLine(const QString &filePath, int 
                 "cd /proc; for pid in `ls -d [0123456789]*`; "
                 "do "
                 "if [ \"`readlink /proc/$pid/exe`\" = \"%1\" ]; then "
-                "    kill -%2 -- -$pid $pid;"
+                "    kill -%2 -$pid $pid;"
                 "fi; "
                 "done").arg(filePath).arg(signal);
 }
