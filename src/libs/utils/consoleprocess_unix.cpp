@@ -350,9 +350,10 @@ TerminalCommand ConsoleProcess::defaultTerminalEmulator()
     if (defaultTerm.command.isEmpty()) {
         defaultTerm = []() -> TerminalCommand {
             if (HostOsInfo::isMacHost()) {
-                QString termCmd = QCoreApplication::applicationDirPath() + "/../Resources/scripts/openTerminal.command";
+                const QString termCmd = QCoreApplication::applicationDirPath()
+                                        + "/../Resources/scripts/openTerminal.command";
                 if (QFileInfo::exists(termCmd))
-                    return {termCmd.replace(' ', "\\ "), "", ""};
+                    return {termCmd, "", ""};
                 return {"/usr/X11/bin/xterm", "", "-e"};
             }
             const Environment env = Environment::systemEnvironment();
