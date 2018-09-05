@@ -106,7 +106,6 @@ void BasicBundleProvider::mergeBundlesForKit(ProjectExplorer::Kit *kit
         bundles.mergeBundleForLanguage(Dialect::QmlQtQuick2Ui, b2);
         return;
     }
-    QString qtImportsPath = qtVersion->qmakeProperty("QT_INSTALL_IMPORTS");
     QString qtQmlPath = qtVersion->qmlPath().toString();
 
     myReplacements.insert(QLatin1String("$(CURRENT_DIRECTORY)"), qtQmlPath);

@@ -878,7 +878,6 @@ bool ListField::parseData(const QVariant &data, QString *errorMessage)
 
     for (const QVariant &i : value.toList()) {
         std::unique_ptr<QStandardItem> item = createStandardItemFromListItem(i, errorMessage);
-        QString test = item->text();
         QTC_ASSERT(!item || !item->text().isEmpty(), continue);
         m_itemList.emplace_back(std::move(item));
     }

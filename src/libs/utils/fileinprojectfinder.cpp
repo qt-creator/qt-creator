@@ -309,7 +309,6 @@ QString FileInProjectFinder::findInSearchPath(const QString &searchPath, const Q
 {
     qCDebug(finderLog) << "FileInProjectFinder: checking search path" << searchPath;
 
-    QFileInfo fi;
     QString s = filePath;
     while (!s.isEmpty()) {
         const QString candidate = searchPath + QLatin1Char('/') + s;

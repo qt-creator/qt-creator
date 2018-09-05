@@ -119,7 +119,6 @@ static QString tweakName(const QString &oldName)
         return QString();
     }
     int templateStart = fullName.indexOf('<');
-    QString name = fullName.mid(0, templateStart);
     QString templatePart = fullName.mid(templateStart + 1,
                                         fullName.length() - templateStart - 2);
     return "new " + templatePart + "(";
