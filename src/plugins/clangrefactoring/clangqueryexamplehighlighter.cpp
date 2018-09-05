@@ -36,11 +36,11 @@ ClangQueryExampleHighlighter::ClangQueryExampleHighlighter()
     : m_marker(*this)
 {
     std::array<QTextCharFormat, 5> textFormats;
-    textFormats[0].setBackground(QColor("#c9ffc3"));
-    textFormats[1].setBackground(QColor("#c3d9ff"));
-    textFormats[2].setBackground(QColor("#e5c3ff"));
-    textFormats[3].setBackground(QColor("#ffc3cb"));
-    textFormats[4].setBackground(QColor("#ffe8c3"));
+    textFormats[0].setBackground(QColor(0xc9, 0xff, 0xc3));
+    textFormats[1].setBackground(QColor(0xc3, 0xd9, 0xff));
+    textFormats[2].setBackground(QColor(0xe5, 0xc3, 0xff));
+    textFormats[3].setBackground(QColor(0xff, 0xc3, 0xcb));
+    textFormats[4].setBackground(QColor(0xff, 0xe8, 0xc3));
 
     m_marker.setTextFormats(std::move(textFormats));
 

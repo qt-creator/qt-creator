@@ -524,7 +524,7 @@ bool DefaultStyleEngine::areStackingRoles(DObject::VisualPrimaryRole rhsPrimaryR
 QColor DefaultStyleEngine::baseColor(ElementType elementType, ObjectVisuals objectVisuals)
 {
     if (objectVisuals.visualSecondaryRole() == DObject::SecondaryRoleOutline)
-        return QColor("#FFFFFF");
+        return QColor(0xFF, 0xFF, 0xFF);
 
     QColor baseColor;
 
@@ -534,33 +534,33 @@ QColor DefaultStyleEngine::baseColor(ElementType elementType, ObjectVisuals obje
         } else {
             switch (elementType) {
             case TypePackage:
-                baseColor = QColor("#7C98AD");
+                baseColor = QColor(0x7C, 0x98, 0xAD);
                 break;
             case TypeComponent:
-                baseColor = QColor("#A0A891");
+                baseColor = QColor(0xA0, 0xA8, 0x91);
                 break;
             case TypeClass:
-                baseColor = QColor("#E5A858");
+                baseColor = QColor(0xE5, 0xA8, 0x58);
                 break;
             case TypeItem:
-                baseColor = QColor("#B995C6");
+                baseColor = QColor(0xB9, 0x95, 0xC6);
                 break;
             case TypeRelation:
             case TypeAnnotation:
             case TypeBoundary:
             case TypeSwimlane:
             case TypeOther:
-                baseColor = QColor("#BF7D65");
+                baseColor = QColor(0xBF, 0x7D, 0x65);
                 break;
             }
         }
     } else {
         static QColor customColors[] = {
-            QColor("#EE8E99").darker(110),  // ROLE_CUSTOM1,
-            QColor("#80AF47").lighter(130), // ROLE_CUSTOM2,
-            QColor("#FFA15B").lighter(100), // ROLE_CUSTOM3,
-            QColor("#55C4CF").lighter(120), // ROLE_CUSTOM4,
-            QColor("#FFE14B")               // ROLE_CUSTOM5,
+            QColor(0xEE, 0x8E, 0x99).darker(110),  // ROLE_CUSTOM1,
+            QColor(0x80, 0xAF, 0x47).lighter(130), // ROLE_CUSTOM2,
+            QColor(0xFF, 0xA1, 0x5B).lighter(100), // ROLE_CUSTOM3,
+            QColor(0x55, 0xC4, 0xCF).lighter(120), // ROLE_CUSTOM4,
+            QColor(0xFF, 0xE1, 0x4B)               // ROLE_CUSTOM5,
         };
 
         int index = static_cast<int>(objectVisuals.visualPrimaryRole()) - static_cast<int>(DObject::PrimaryRoleCustom1);
