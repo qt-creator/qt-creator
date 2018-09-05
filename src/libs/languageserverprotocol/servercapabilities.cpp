@@ -63,7 +63,7 @@ ServerCapabilities::typeDefinitionProvider() const
 {
     using RetType = Utils::variant<bool, ServerCapabilities::RegistrationOptions>;
     QJsonValue provider = value(typeDefinitionProviderKey);
-    if (provider.isUndefined())
+    if (provider.isUndefined() || !(provider.isBool() || provider.isObject()))
         return Utils::nullopt;
     return Utils::make_optional(provider.isBool() ? RetType(provider.toBool())
                                                   : RetType(RegistrationOptions(provider.toObject())));
@@ -83,7 +83,7 @@ ServerCapabilities::implementationProvider() const
 {
     using RetType = Utils::variant<bool, ServerCapabilities::RegistrationOptions>;
     QJsonValue provider = value(implementationProviderKey);
-    if (provider.isUndefined())
+    if (provider.isUndefined() || !(provider.isBool() || provider.isObject()))
         return Utils::nullopt;
     return Utils::make_optional(provider.isBool() ? RetType(provider.toBool())
                                                   : RetType(RegistrationOptions(provider.toObject())));
