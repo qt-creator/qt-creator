@@ -159,12 +159,6 @@ bool TextDocumentRegistrationOptions::filterApplies(const Utils::FileName &fileN
     });
 }
 
-bool ServerCapabilities::RegistrationOptions::isValid(QStringList *error) const
-{
-    return TextDocumentRegistrationOptions::isValid(error)
-            && StaticRegistrationOptions::isValid(error);
-}
-
 bool TextDocumentSyncOptions::isValid(QStringList *error) const
 {
     return checkOptional<bool>(error, openCloseKey)

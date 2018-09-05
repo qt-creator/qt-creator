@@ -42,7 +42,7 @@ public:
     { return checkOptional<bool>(error, resolveProviderKey); }
 };
 
-class LANGUAGESERVERPROTOCOL_EXPORT TextDocumentRegistrationOptions : public virtual JsonObject
+class LANGUAGESERVERPROTOCOL_EXPORT TextDocumentRegistrationOptions : public JsonObject
 {
 public:
     using JsonObject::JsonObject;
@@ -198,7 +198,7 @@ public:
 
     using ColorProviderOptions = JsonObject;
 
-    class LANGUAGESERVERPROTOCOL_EXPORT StaticRegistrationOptions : public virtual JsonObject
+    class LANGUAGESERVERPROTOCOL_EXPORT StaticRegistrationOptions : public JsonObject
     {
     public:
         using JsonObject::JsonObject;
@@ -245,12 +245,27 @@ public:
     { insert(definitionProviderKey, definitionProvider); }
     void clearDefinitionProvider() { remove(definitionProviderKey); }
 
-    class LANGUAGESERVERPROTOCOL_EXPORT RegistrationOptions
-            : public TextDocumentRegistrationOptions, public StaticRegistrationOptions
+    class LANGUAGESERVERPROTOCOL_EXPORT RegistrationOptions : public JsonObject
     {
     public:
-        using TextDocumentRegistrationOptions::TextDocumentRegistrationOptions;
-        bool isValid(QStringList *error) const override;
+        using JsonObject::JsonObject;
+
+        LanguageClientArray<DocumentFilter> documentSelector() const
+        { return clientArray<DocumentFilter>(documentSelectorKey); }
+        void setDocumentSelector(const LanguageClientArray<DocumentFilter> &documentSelector)
+        { insert(documentSelectorKey, documentSelector.toJson()); }
+
+        bool filterApplies(const Utils::FileName &fileName,
+                           const Utils::MimeType &mimeType = Utils::MimeType()) const;
+
+        // The id used to register the request. The id can be used to deregister
+        // the request again. See also Registration#id.
+        Utils::optional<QString> id() const { return optionalValue<QString>(idKey); }
+        void setId(const QString &id) { insert(idKey, id); }
+        void clearId() { remove(idKey); }
+
+        bool isValid(QStringList *error) const override
+        { return checkArray<DocumentFilter>(error, documentSelectorKey) && checkOptional<bool>(error, idKey); }
     };
 
     // The server provides Goto Type Definition support.
