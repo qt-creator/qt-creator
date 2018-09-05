@@ -614,7 +614,7 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
         (*cancelled) = false;
 
     QList<IDocument *> notSaved;
-    QMap<IDocument *, QString> modifiedDocumentsMap;
+    QHash<IDocument *, QString> modifiedDocumentsMap;
     QList<IDocument *> modifiedDocuments;
 
     foreach (IDocument *document, documents) {
@@ -1023,7 +1023,7 @@ void DocumentManager::checkForReload()
     FileDeletedPromptAnswer previousDeletedAnswer = FileDeletedSave;
 
     QList<IDocument *> documentsToClose;
-    QMap<IDocument*, QString> documentsToSave;
+    QHash<IDocument*, QString> documentsToSave;
 
     // collect file information
     QMap<QString, FileStateItem> currentStates;
@@ -1243,7 +1243,7 @@ void DocumentManager::checkForReload()
 
     // handle deleted files
     EditorManager::closeDocuments(documentsToClose, false);
-    QMapIterator<IDocument *, QString> it(documentsToSave);
+    QHashIterator<IDocument *, QString> it(documentsToSave);
     while (it.hasNext()) {
         it.next();
         saveDocument(it.key(), it.value());
