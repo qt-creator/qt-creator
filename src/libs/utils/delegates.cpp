@@ -24,9 +24,11 @@
 ****************************************************************************/
 
 #include "delegates.h"
+#include "completinglineedit.h"
 
 #include <QPainter>
 #include <QApplication>
+#include <QCompleter>
 
 using namespace Utils;
 
@@ -173,4 +175,61 @@ void PathChooserDelegate::updateEditorGeometry(QWidget *editor, const QStyleOpti
 void PathChooserDelegate::setHistoryCompleter(const QString &key)
 {
     m_historyKey = key;
+}
+
+CompleterDelegate::CompleterDelegate(const QStringList &candidates, QObject *parent)
+    : CompleterDelegate(new QCompleter(candidates, parent))
+{ }
+
+CompleterDelegate::CompleterDelegate(QAbstractItemModel *model, QObject *parent)
+    : CompleterDelegate(new QCompleter(model, parent))
+{ }
+
+CompleterDelegate::CompleterDelegate(QCompleter *completer, QObject *parent)
+    : QStyledItemDelegate(parent)
+    , m_completer(completer)
+{ }
+
+CompleterDelegate::~CompleterDelegate()
+{
+    if (m_completer)
+        delete m_completer;
+}
+
+QWidget *CompleterDelegate::createEditor(QWidget *parent,
+                                         const QStyleOptionViewItem &option,
+                                         const QModelIndex &index) const
+{
+    Q_UNUSED(option);
+    Q_UNUSED(index);
+
+    auto edit = new CompletingLineEdit(parent);
+
+    edit->setCompleter(m_completer);
+
+    return edit;
+}
+
+void CompleterDelegate::setEditorData(QWidget *editor,
+                                      const QModelIndex &index) const
+{
+    if (auto *edit = qobject_cast<CompletingLineEdit *>(editor))
+        edit->setText(index.model()->data(index, Qt::EditRole).toString());
+}
+
+void CompleterDelegate::setModelData(QWidget *editor,
+                                     QAbstractItemModel *model,
+                                     const QModelIndex &index) const
+{
+    if (auto edit = qobject_cast<CompletingLineEdit *>(editor))
+        model->setData(index, edit->text(), Qt::EditRole);
+}
+
+void CompleterDelegate::updateEditorGeometry(QWidget *editor,
+                                             const QStyleOptionViewItem &option,
+                                             const QModelIndex &index) const
+{
+    Q_UNUSED(index);
+
+    editor->setGeometry(option.rect);
 }

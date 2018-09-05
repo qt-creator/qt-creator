@@ -114,8 +114,7 @@ BaseClient::State BaseClient::state() const
 void BaseClient::openDocument(Core::IDocument *document)
 {
     using namespace TextEditor;
-    const QString languageId = TextDocumentItem::mimeTypeToLanguageId(document->mimeType());
-    if (!isSupportedLanguage(languageId))
+    if (!isSupportedMimeType(document->mimeType()))
         return;
     const FileName &filePath = document->filePath();
     const QString method(DidOpenTextDocumentNotification::methodName);
@@ -137,7 +136,7 @@ void BaseClient::openDocument(Core::IDocument *document)
     }
     auto textDocument = qobject_cast<TextDocument *>(document);
     TextDocumentItem item;
-    item.setLanguageId(languageId);
+    item.setLanguageId(TextDocumentItem::mimeTypeToLanguageId(document->mimeType()));
     item.setUri(DocumentUri::fromFileName(filePath));
     item.setText(QString::fromUtf8(document->contents()));
     item.setVersion(textDocument ? textDocument->document()->revision() : 0);
@@ -483,14 +482,14 @@ void BaseClient::projectClosed(ProjectExplorer::Project *project)
     sendContent(change);
 }
 
-void BaseClient::setSupportedLanguages(const QStringList &supportedLanguages)
+void BaseClient::setSupportedMimeType(const QStringList &supportedMimeTypes)
 {
-    m_supportedLanguageIds = supportedLanguages;
+    m_supportedMimeTypes = supportedMimeTypes;
 }
 
-bool BaseClient::isSupportedLanguage(const QString &language) const
+bool BaseClient::isSupportedMimeType(const QString &mimeType) const
 {
-    return m_supportedLanguageIds.isEmpty() || m_supportedLanguageIds.contains(language);
+    return m_supportedMimeTypes.isEmpty() || m_supportedMimeTypes.contains(mimeType);
 }
 
 void BaseClient::reset()

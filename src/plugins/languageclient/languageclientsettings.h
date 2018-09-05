@@ -39,17 +39,17 @@ class LanguageClientSettings
 {
 public:
     LanguageClientSettings() = default;
-    LanguageClientSettings(const QString &name, bool enabled, const QString &language,
+    LanguageClientSettings(const QString &name, bool enabled, const QString &mimeTypeName,
                            const QString &executable, const QStringList &arguments)
         : m_name(name)
         , m_enabled(enabled)
-        , m_language(language)
+        , m_mimeType(mimeTypeName)
         , m_executable(executable)
         , m_arguments(arguments)
     {}
     QString m_name = QString("New Language Server");
     bool m_enabled = true;
-    QString m_language = QLatin1String(noLanguageFilter);
+    QString m_mimeType = QLatin1String(noLanguageFilter);
     QString m_executable;
     QStringList m_arguments;
 

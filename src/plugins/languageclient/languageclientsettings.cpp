@@ -30,10 +30,12 @@
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/delegates.h>
+#include <utils/mimetypes/mimedatabase.h>
 #include <languageserverprotocol/lsptypes.h>
 
 #include <QBoxLayout>
 #include <QComboBox>
+#include <QCompleter>
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QHeaderView>
@@ -44,7 +46,7 @@
 
 constexpr char nameKey[] = "name";
 constexpr char enabledKey[] = "enabled";
-constexpr char languageKey[] = "language";
+constexpr char mimeTypeKey[] = "mimeType";
 constexpr char executableKey[] = "executable";
 constexpr char argumentsKey[] = "arguments";
 constexpr char settingsGroupKey[] = "LanguageClient";
@@ -75,7 +77,7 @@ public:
     enum Columns {
         DisplayNameColumn = 0,
         EnabledColumn,
-        LanguageColumn,
+        MimeTypeColumn,
         ExecutableColumn,
         ArgumentsColumn,
         ColumnCount
@@ -152,7 +154,14 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
     m_view->header()->setStretchLastSection(true);
     m_view->setRootIsDecorated(false);
     m_view->setItemsExpandable(false);
-    m_view->setItemDelegateForColumn(LanguageClientSettingsModel::LanguageColumn, new LanguageChooseDelegate());
+    auto mimeTypes = Utils::transform(Utils::allMimeTypes(), [](const Utils::MimeType &mimeType){
+        return mimeType.name();
+    });
+    auto mimeTypeCompleter = new QCompleter(mimeTypes);
+    mimeTypeCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+    mimeTypeCompleter->setFilterMode(Qt::MatchContains);
+    m_view->setItemDelegateForColumn(LanguageClientSettingsModel::MimeTypeColumn,
+                                     new Utils::CompleterDelegate(mimeTypeCompleter));
     auto executableDelegate = new Utils::PathChooserDelegate();
     executableDelegate->setExpectedKind(Utils::PathChooser::File);
     executableDelegate->setHistoryCompleter("LanguageClient.ServerPathHistory");
@@ -232,7 +241,7 @@ QVariant LanguageClientSettingsModel::data(const QModelIndex &index, int role) c
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         switch (index.column()) {
         case DisplayNameColumn: return setting.m_name;
-        case LanguageColumn: return setting.m_language;
+        case MimeTypeColumn: return setting.m_mimeType;
         case ExecutableColumn: return setting.m_executable;
         case ArgumentsColumn: return setting.m_arguments.join(' ');
         }
@@ -250,7 +259,7 @@ QVariant LanguageClientSettingsModel::headerData(int section, Qt::Orientation or
     switch (section) {
     case DisplayNameColumn: return tr("Name");
     case EnabledColumn: return tr("Enabled");
-    case LanguageColumn: return tr("Language");
+    case MimeTypeColumn: return tr("Mime Type");
     case ExecutableColumn: return tr("Executable");
     case ArgumentsColumn: return tr("Arguments");
     }
@@ -288,7 +297,7 @@ bool LanguageClientSettingsModel::setData(const QModelIndex &index, const QVaria
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         switch (index.column()) {
         case DisplayNameColumn: setting.m_name = value.toString(); break;
-        case LanguageColumn: setting.m_language = value.toString(); break;
+        case MimeTypeColumn: setting.m_mimeType = value.toString(); break;
         case ExecutableColumn: setting.m_executable = value.toString(); break;
         case ArgumentsColumn: setting.m_arguments = value.toString().split(' '); break;
         default:
@@ -346,8 +355,8 @@ void LanguageClientSettingsModel::applyChanges()
         });
         if (setting.isValid() && setting.m_enabled) {
             toStart.removeAll(setting);
-            if (!interface->isSupportedLanguage(setting.m_language))
-                interface->setSupportedLanguages({setting.m_language});
+            if (!interface->isSupportedMimeType(setting.m_mimeType))
+                interface->setSupportedMimeType({setting.m_mimeType});
         } else {
             toShutdown << interface;
         }
@@ -358,8 +367,8 @@ void LanguageClientSettingsModel::applyChanges()
         if (setting.isValid() && setting.m_enabled) {
             auto client = new StdIOClient(setting.m_executable, setting.m_arguments);
             client->setName(setting.m_name);
-            if (setting.m_language != noLanguageFilter)
-                client->setSupportedLanguages({setting.m_language});
+            if (setting.m_mimeType != noLanguageFilter)
+                client->setSupportedMimeType({setting.m_mimeType});
             LanguageClientManager::startClient(client);
         }
     }
@@ -374,7 +383,7 @@ bool LanguageClientSettings::operator==(const LanguageClientSettings &other) con
 {
     return m_name == other.m_name
             && m_enabled == other.m_enabled
-            && m_language == other.m_language
+            && m_mimeType == other.m_mimeType
             && m_executable == other.m_executable
             && m_arguments == other.m_arguments;
 }
@@ -384,7 +393,7 @@ QVariantMap LanguageClientSettings::toMap() const
     QVariantMap map;
     map.insert(nameKey, m_name);
     map.insert(enabledKey, m_enabled);
-    map.insert(languageKey, m_language);
+    map.insert(mimeTypeKey, m_mimeType);
     map.insert(executableKey, m_executable);
     map.insert(argumentsKey, m_arguments);
     return map;
@@ -394,7 +403,7 @@ LanguageClientSettings LanguageClientSettings::fromMap(const QVariantMap &map)
 {
     return { map[nameKey].toString(),
                 map[enabledKey].toBool(),
-                map[languageKey].toString(),
+                map[mimeTypeKey].toString(),
                 map[executableKey].toString(),
                 map[argumentsKey].toStringList() };
 }

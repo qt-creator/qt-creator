@@ -81,4 +81,30 @@ private:
     QString m_historyKey;
 };
 
+class QTCREATOR_UTILS_EXPORT CompleterDelegate : public QStyledItemDelegate
+{
+public:
+    CompleterDelegate(const QStringList &candidates, QObject *parent = nullptr);
+    CompleterDelegate(QAbstractItemModel *model, QObject *parent = nullptr);
+    CompleterDelegate(QCompleter *completer, QObject *parent = nullptr);
+    ~CompleterDelegate() override;
+
+    CompleterDelegate(const CompleterDelegate &other) = delete;
+    CompleterDelegate(CompleterDelegate &&other) = delete;
+
+    CompleterDelegate &operator=(const CompleterDelegate &other) = delete;
+    CompleterDelegate &operator=(CompleterDelegate &&other) = delete;
+
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                          const QModelIndex &index) const override;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+                      const QModelIndex &index) const override;
+    void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const
+                              QModelIndex &index) const override;
+
+private:
+    QCompleter *m_completer = nullptr;
+};
+
 } // Utils
