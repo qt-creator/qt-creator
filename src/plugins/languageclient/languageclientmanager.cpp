@@ -225,6 +225,7 @@ void LanguageClientManager::clientFinished(BaseClient *client)
     managerInstance->removeMarks(client->id());
     managerInstance->m_clients.removeAll(client);
     if (unexpectedFinish) {
+        client->disconnect(managerInstance);
         client->log(tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS),
                     Core::MessageManager::Flash);
         client->reset();
