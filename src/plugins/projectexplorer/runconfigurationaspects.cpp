@@ -413,7 +413,9 @@ void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
     QWidget *parent = layout->parentWidget();
     m_label = new QLabel(parent);
     m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    m_label->setPixmap(m_labelPixmap);
+    m_label->setText(m_labelText);
+    if (!m_labelPixmap.isNull())
+        m_label->setPixmap(m_labelPixmap);
 
     auto hbox = new QHBoxLayout;
     switch (m_displayStyle) {
@@ -471,8 +473,11 @@ void BaseStringAspect::update()
     if (m_labelDisplay)
         m_labelDisplay->setText(displayedString);
 
-    if (m_label)
+    if (m_label) {
         m_label->setText(m_labelText);
+        if (!m_labelPixmap.isNull())
+            m_label->setPixmap(m_labelPixmap);
+    }
 }
 
 void BaseStringAspect::makeCheckable(const QString &checkerLabel, const QString &checkerKey)
