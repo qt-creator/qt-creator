@@ -52,6 +52,7 @@ def performAutoCompletionTest(editor, lineToStartRegEx, linePrefix, testFunc, *f
     while currentLine.startswith(linePrefix):
         type(editor, eol)
         type(editor, "<Ctrl+/>")      # uncomment current line
+        snooze(1)
         type(editor, autoComp)        # invoke auto-completion
         testFunc(currentLine, *funcArgs)
         type(editor, "<Ctrl+/>")      # comment current line again
