@@ -408,7 +408,7 @@ class Dumper(DumperBase):
                     found = True
             if not found or v != 0:
                 # Leftover value
-                flags.append('unknown:%d' % v)
+                flags.append('unknown: %d' % v)
             return " | ".join(flags) + ' (' + (form % intval) + ')'
         except:
             pass

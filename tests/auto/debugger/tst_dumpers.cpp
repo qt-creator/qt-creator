@@ -5420,8 +5420,8 @@ void tst_Dumpers::dumper_data()
                + GdbEngine
                + Check("fone", "one (1)", "Flags")
                + Check("fthree", "(one | two) (3)", "Flags")
-               + Check("fmixed", "(two | unknown:8) (10)", "Flags")
-               + Check("fbad", "(unknown:24) (24)", "Flags");
+               + Check("fmixed", "(two | unknown: 8) (10)", "Flags")
+               + Check("fbad", "(unknown: 24) (24)", "Flags");
 
 
     QTest::newRow("EnumInClass")
@@ -5435,9 +5435,9 @@ void tst_Dumpers::dumper_data()
                     "};\n",
                     "E e;\n")
                 + GdbEngine
-                + Check("e.e1", "E::b1 | E::c1 (0x0003)", "E::Enum1")
-                + Check("e.e2", "E::b2 | E::c2 (0x0003)", "E::Enum2")
-                + Check("e.e3", "E::b3 | E::c3 (0x0003)", "E::Enum3");
+                + Check("e.e1", "(E::b1 | E::c1) (3)", "E::Enum1")
+                + Check("e.e2", "(E::b2 | E::c2) (3)", "E::Enum2")
+                + Check("e.e3", "(E::b3 | E::c3) (3)", "E::Enum3");
 
 
     QTest::newRow("Array")
