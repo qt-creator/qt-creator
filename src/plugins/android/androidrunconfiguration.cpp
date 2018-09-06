@@ -121,6 +121,10 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
     amStartArgsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
     amStartArgsAspect->setHistoryCompleter("Android.AmStartArgs.History");
 
+    auto warning = addAspect<BaseStringAspect>();
+    warning->setLabelPixmap(Icons::WARNING.pixmap());
+    warning->setValue(tr("If the \"am start\" options conflict, the application might not start."));
+
     auto preStartShellCmdAspect = addAspect<BaseStringListAspect>();
     preStartShellCmdAspect->setId(Constants::ANDROID_PRESTARTSHELLCMDLIST);
     preStartShellCmdAspect->setSettingsKey("Android.PreStartShellCmdListKey");
@@ -139,23 +143,7 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
 
 QWidget *AndroidRunConfiguration::createConfigurationWidget()
 {
-    auto widget = new QWidget;
-    auto layout = new QFormLayout(widget);
-
-    extraAspect<ArgumentsAspect>()->addToConfigurationLayout(layout);
-    extraAspect(Constants::ANDROID_AMSTARTARGS)->addToConfigurationLayout(layout);
-
-    auto warningIconLabel = new QLabel;
-    warningIconLabel->setPixmap(Utils::Icons::WARNING.pixmap());
-
-    auto warningLabel = new QLabel(tr("If the \"am start\" options conflict, the application might not start."));
-    layout->addRow(warningIconLabel, warningLabel);
-
-    extraAspect(Constants::ANDROID_PRESTARTSHELLCMDLIST)->addToConfigurationLayout(layout);
-    extraAspect(Constants::ANDROID_POSTFINISHSHELLCMDLIST)->addToConfigurationLayout(layout);
-    extraAspect<AndroidRunEnvironmentAspect>()->addToConfigurationLayout(layout);
-
-    auto wrapped = wrapWidget(widget);
+    auto wrapped = RunConfiguration::createConfigurationWidget();
     auto detailsWidget = qobject_cast<DetailsWidget *>(wrapped);
     QTC_ASSERT(detailsWidget, return wrapped);
     detailsWidget->setState(DetailsWidget::Expanded);
