@@ -53,9 +53,7 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
     auto envAspect = addAspect<LocalEnvironmentAspect>(
-            [](RunConfiguration *rc, Environment &env) {
-                static_cast<QbsRunConfiguration *>(rc)->addToBaseEnvironment(env);
-            });
+            [this](Environment &env) { addToBaseEnvironment(env); });
 
     addAspect<ExecutableAspect>();
     addAspect<ArgumentsAspect>();

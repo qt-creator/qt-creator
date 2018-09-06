@@ -56,7 +56,7 @@ Utils::Environment LocalEnvironmentAspect::baseEnvironment() const
     }
 
     if (m_baseEnvironmentModifier)
-        m_baseEnvironmentModifier(runConfiguration(), env);
+        m_baseEnvironmentModifier(env);
 
     return env;
 }

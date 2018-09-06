@@ -44,11 +44,11 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
     // Workaround for QTCREATORBUG-19354:
-    auto cmakeRunEnvironmentModifier = [](RunConfiguration *rc, Utils::Environment &env) {
-        if (!Utils::HostOsInfo::isWindowsHost() || !rc)
+    auto cmakeRunEnvironmentModifier = [target](Utils::Environment &env) {
+        if (!Utils::HostOsInfo::isWindowsHost())
             return;
 
-        const Kit *k = rc->target()->kit();
+        const Kit *k = target->kit();
         const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(k);
         if (qt)
             env.prependOrSetPath(qt->qmakeProperty("QT_INSTALL_BINS"));
