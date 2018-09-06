@@ -73,7 +73,6 @@ public:
     }
 
 private:
-    QWidget *createConfigurationWidget() override { return nullptr; }
     TestConfiguration *m_testConfig = nullptr;
 };
 
