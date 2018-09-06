@@ -29,20 +29,15 @@ import os
 import pipes
 import subprocess
 import sys
+from tempfile import NamedTemporaryFile
 
-def quote_for_applescript(arg):
+def quote_applescript(arg):
     return arg.replace('\\', '\\\\').replace('"', '\\"')
 
-def quote(arg):
-    return quote_for_applescript(pipes.quote(arg))
+def quote_shell(arg):
+    return pipes.quote(arg)
 
-def quote_args(args):
-    return [quote(arg) for arg in args]
-
-def cd_cwd_arguments():
-    return ['cd', os.getcwd()]
-
-def apple_script(shell_script):
+def apple_script(shell_command):
     return '''
 --Terminal opens a window by default when it is not running, so check
 on applicationIsRunning(applicationName)
@@ -63,13 +58,21 @@ tell application "Terminal"
     set currentWindow to first window whose tabs contains currentTab
     activate
 end tell
-'''.format(shell_script)
+'''.format(shell_command)
 
 def main():
-    args = quote_args(cd_cwd_arguments()) + [';'] + quote_args(sys.argv[1:])
-    shell_script = ' '.join(args)
-    osascript_process = subprocess.Popen(['/usr/bin/osascript'], stdin=subprocess.PIPE)
-    osascript_process.communicate(apple_script(shell_script))
+    # create temporary file to be sourced into bash that deletes itself
+    with NamedTemporaryFile(delete=False) as shell_script:
+        quoted_shell_script = quote_shell(shell_script.name)
+        commands = ('cd ' + quote_shell(os.getcwd()) + '\n' +
+                    ' '.join([quote_shell(arg) for arg in sys.argv[1:]]) + '\n' +
+                    'rm ' + quoted_shell_script + '\n'
+                    )
+        shell_script.write(commands)
+        shell_script.flush()
+        shell_command = quote_applescript('source ' + quoted_shell_script)
+        osascript_process = subprocess.Popen(['/usr/bin/osascript'], stdin=subprocess.PIPE)
+        osascript_process.communicate(apple_script(shell_command))
 
 if __name__ == "__main__":
     main()
