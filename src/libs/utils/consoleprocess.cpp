@@ -160,13 +160,17 @@ void ConsoleProcess::emitError(QProcess::ProcessError err, const QString &errorS
 
 bool TerminalCommand::operator==(const TerminalCommand &other) const
 {
-    return other.command == command && other.executeArgs == executeArgs;
+    return other.command == command && other.openArgs == openArgs
+           && other.executeArgs == executeArgs;
 }
 
 bool TerminalCommand::operator<(const TerminalCommand &other) const
 {
-    if (command == other.command)
-        return executeArgs < other.executeArgs;
+    if (command == other.command) {
+        if (openArgs == other.openArgs)
+            return executeArgs < other.executeArgs;
+        return openArgs < other.openArgs;
+    }
     return command < other.command;
 }
 
