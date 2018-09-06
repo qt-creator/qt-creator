@@ -207,8 +207,9 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     d->m_terminalButton = new QPushButton(this);
     d->m_terminalButton->setText(tr("Open &Terminal"));
     d->m_terminalButton->setToolTip(tr("Open a terminal with this environment set up."));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     buttonLayout->addWidget(d->m_terminalButton);
-
+#endif
     buttonLayout->addStretch();
 
     horizontalLayout->addLayout(buttonLayout);
@@ -231,10 +232,8 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
             this, &EnvironmentWidget::batchEditEnvironmentButtonClicked);
     connect(d->m_environmentView->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &EnvironmentWidget::environmentCurrentIndexChanged);
-
     connect(d->m_terminalButton, &QAbstractButton::clicked,
             this, &EnvironmentWidget::openTerminal);
-
     connect(d->m_detailsContainer, &Utils::DetailsWidget::linkActivated,
             this, &EnvironmentWidget::linkActivated);
 
