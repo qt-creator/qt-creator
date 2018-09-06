@@ -62,13 +62,7 @@ WinRtRunConfiguration::WinRtRunConfiguration(Target *target, Core::Id id)
 
 QWidget *WinRtRunConfiguration::createConfigurationWidget()
 {
-    auto widget = new QWidget;
-    auto fl = new QFormLayout(widget);
-
-    extraAspect<ArgumentsAspect>()->addToConfigurationLayout(fl);
-    extraAspect<UninstallAfterStopAspect>()->addToConfigurationLayout(fl);
-
-    auto wrapped = wrapWidget(widget);
+    auto wrapped = RunConfiguration::createConfigurationWidget();
     auto detailsWidget = qobject_cast<DetailsWidget *>(wrapped);
     QTC_ASSERT(detailsWidget, return wrapped);
     detailsWidget->setState(DetailsWidget::Expanded);
