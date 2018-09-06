@@ -6574,19 +6574,19 @@ void tst_Dumpers::dumper_data()
                     "D &dr = dd; unused(&dr);\n")
                 + Cxx11Profile()
                 + Check("c.c", "1", "int")
-                + Check("c.@1.@2.a", "42", "int") % NoLldbEngine
-                + Check("c.@1.@4.v", "45", "int") % NoLldbEngine
-                + Check("c.@2.@2.a", "43", "int") % NoLldbEngine
-                + Check("c.@2.@4.v", "45", "int") % NoLldbEngine
-                + Check("c.@1.@1.a", "42", "int") % LldbEngine
-                + Check("c.@1.@2.v", "45", "int") % LldbEngine
-                + Check("c.@2.@1.a", "43", "int") % LldbEngine
-                + Check("c.@2.@2.v", "45", "int") % LldbEngine
+                + CheckSet({{"c.@1.@2.a", "42", "int"},  // LLDB vs GDB vs ..
+                            {"c.@1.@1.a", "42", "int"}})
+                + CheckSet({{"c.@2.@2.a", "43", "int"},
+                            {"c.@2.@1.a", "43", "int"}})
+                + CheckSet({{"c.@1.@4.v", "45", "int"},
+                            {"c.@1.@2.v", "45", "int"},
+                            {"c.@2.@4.v", "45", "int"},
+                            {"c.@2.@2.v", "45", "int"}})
                 + Check("tt.c", "1", "int")
-                + Check("tt.@1.@2.v", "45", "int") % NoLldbEngine
-                + Check("tt.@2.@2.v", "45", "int") % NoLldbEngine
-                + Check("tt.@1.@1.v", "45", "int") % LldbEngine
-                + Check("tt.@2.@1.v", "45", "int") % LldbEngine
+                + CheckSet({{"tt.@1.@2.v", "45", "int"},
+                            {"tt.@1.@1.v", "45", "int"},
+                            {"tt.@2.@2.v", "45", "int"},
+                            {"tt.@2.@1.v", "45", "int"}})
 
                 + Check("dd.@1.@1.a", "1", "int") // B::a
                 // C::a - fails with command line LLDB 3.8/360.x
