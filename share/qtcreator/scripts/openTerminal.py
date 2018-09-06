@@ -37,6 +37,41 @@ def quote_applescript(arg):
 def quote_shell(arg):
     return pipes.quote(arg)
 
+def clean_environment_script():
+    # keep some basic environment settings to ensure functioning terminal and config files
+    env_to_keep = ' '.join(['_', 'HOME', 'LOGNAME', 'PWD', 'SHELL', 'TMPDIR', 'USER', 'TERM',
+                            'TERM_PROGRAM', 'TERM_PROGRAM_VERSION', 'TERM_SESSION_CLASS_ID',
+                            'TERM_SESSION_ID'])
+    return '''
+function ignore() {
+  local keys="''' + env_to_keep + '''"
+  local v=$1
+  for e in $keys; do [[ "$e" == "$v" ]] && return 0; done
+}
+while read -r line; do
+  key=$(echo $line | /usr/bin/cut -d '=' -f 1)
+  ignore $key || unset $key
+done < <(env)
+'''
+
+def system_login_script():
+    return 'if [ -f /etc/profile ]; then source /etc/profile; fi\n'
+
+def login_script():
+    return '''
+if [ -f $HOME/.bash_profile ]; then
+  source $HOME/.bash_profile
+elif [ -f $HOME/.bash_login ]; then
+  source $HOME/.bash_login ]
+elif [ -f $HOME/.profile ]; then
+  source $HOME/.profile
+fi
+'''
+
+def environment_script():
+    return ''.join(['export ' + quote_shell(key + '=' + os.environ[key]) + '\n'
+                    for key in os.environ])
+
 def apple_script(shell_command):
     return '''
 --Terminal opens a window by default when it is not running, so check
@@ -64,7 +99,11 @@ def main():
     # create temporary file to be sourced into bash that deletes itself
     with NamedTemporaryFile(delete=False) as shell_script:
         quoted_shell_script = quote_shell(shell_script.name)
-        commands = ('cd ' + quote_shell(os.getcwd()) + '\n' +
+        commands = (clean_environment_script() +
+                    system_login_script() + # /etc/profile by default resets the path, so do first
+                    environment_script() +
+                    login_script() +
+                    'cd ' + quote_shell(os.getcwd()) + '\n' +
                     ' '.join([quote_shell(arg) for arg in sys.argv[1:]]) + '\n' +
                     'rm ' + quoted_shell_script + '\n'
                     )
