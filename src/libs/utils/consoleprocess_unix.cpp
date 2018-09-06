@@ -123,7 +123,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
             stubServerShutdown();
             emitError(QProcess::FailedToStart, msgCannotCreateTempFile(d->m_tempFile->errorString()));
             delete d->m_tempFile;
-            d->m_tempFile = 0;
+            d->m_tempFile = nullptr;
             return false;
         }
         QByteArray contents;
@@ -135,7 +135,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
             stubServerShutdown();
             emitError(QProcess::FailedToStart, msgCannotWriteTempFile());
             delete d->m_tempFile;
-            d->m_tempFile = 0;
+            d->m_tempFile = nullptr;
             return false;
         }
     }
@@ -159,7 +159,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         emitError(QProcess::UnknownError, tr("Cannot start the terminal emulator \"%1\", change the setting in the "
                              "Environment options.").arg(terminal.command));
         delete d->m_tempFile;
-        d->m_tempFile = 0;
+        d->m_tempFile = nullptr;
         return false;
     }
     d->m_stubConnectTimer = new QTimer(this);
@@ -252,7 +252,7 @@ void ConsoleProcess::stubServerShutdown()
         d->m_stubSocket->disconnect(); // avoid getting queued readyRead signals
         d->m_stubSocket->deleteLater(); // we might be called from the disconnected signal of m_stubSocket
     }
-    d->m_stubSocket = 0;
+    d->m_stubSocket = nullptr;
     if (d->m_stubServer.isListening()) {
         d->m_stubServer.close();
         ::rmdir(d->m_stubServerDir.constData());
@@ -263,7 +263,7 @@ void ConsoleProcess::stubConnectionAvailable()
 {
     if (d->m_stubConnectTimer) {
         delete d->m_stubConnectTimer;
-        d->m_stubConnectTimer = 0;
+        d->m_stubConnectTimer = nullptr;
     }
     d->m_stubConnected = true;
     emit stubStarted();
@@ -288,7 +288,7 @@ void ConsoleProcess::readStubOutput()
             emitError(QProcess::FailedToStart, msgCannotExecute(d->m_executable, errorMsg(out.mid(9).toInt())));
         } else if (out.startsWith("spid ")) {
             delete d->m_tempFile;
-            d->m_tempFile = 0;
+            d->m_tempFile = nullptr;
 
             d->m_stubPid = out.mid(4).toInt();
         } else if (out.startsWith("pid ")) {
@@ -321,7 +321,7 @@ void ConsoleProcess::stubExited()
     stubServerShutdown();
     d->m_stubPid = 0;
     delete d->m_tempFile;
-    d->m_tempFile = 0;
+    d->m_tempFile = nullptr;
     if (d->m_appPid) {
         d->m_appStatus = QProcess::CrashExit;
         d->m_appCode = -1;
@@ -438,6 +438,7 @@ bool ConsoleProcess::startTerminalEmulator(QSettings *settings, const QString &w
     const TerminalCommand term = terminalEmulator(settings);
 #if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
     // for 5.9 and below we cannot set the environment
+    Q_UNUSED(env);
     return QProcess::startDetached(term.command, QtcProcess::splitArgs(term.openArgs),
                                    workingDir);
 #else
