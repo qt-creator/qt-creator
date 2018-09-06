@@ -584,6 +584,12 @@ struct Check
     mutable bool optionallyPresent = false;
 };
 
+struct CheckSet : public Check
+{
+    CheckSet(std::initializer_list<Check> checks) : checks(checks) {}
+    QList<Check> checks;
+};
+
 struct CheckType : public Check
 {
     CheckType(const QByteArray &iname, const Name &name,
@@ -703,6 +709,12 @@ public:
     const Data &operator+(const Check &check) const
     {
         checks.append(check);
+        return *this;
+    }
+
+    const Data &operator+(const CheckSet &checkset) const
+    {
+        checksets.append(checkset);
         return *this;
     }
 
@@ -959,6 +971,7 @@ public:
     mutable QString code;
 
     mutable QList<Check> checks;
+    mutable QList<CheckSet> checksets;
     mutable QList<RequiredMessage> requiredMessages;
 };
 
@@ -1449,15 +1462,20 @@ void tst_Dumpers::dumper()
 
     QSet<QString> expandedINames;
     expandedINames.insert("local");
-    for (const Check &check : qAsConst(data.checks)) {
-        QString parent = check.iname;
-        while (true) {
-            parent = parentIName(parent);
-            if (parent.isEmpty())
-                break;
-            expandedINames.insert(parent);
+    auto collectExpandedINames = [&](const QList<Check> &checks) {
+        for (const Check &check : checks) {
+            QString parent = check.iname;
+            while (true) {
+                parent = parentIName(parent);
+                if (parent.isEmpty())
+                    break;
+                expandedINames.insert(parent);
+            }
         }
-    }
+    };
+    collectExpandedINames(data.checks);
+    for (const auto checkset : qAsConst(data.checksets))
+        collectExpandedINames(checkset.checks);
 
     QString expanded;
     QString expandedq;
@@ -1668,43 +1686,75 @@ void tst_Dumpers::dumper()
     QSet<QString> seenINames;
     bool ok = true;
 
-    for (int i = data.checks.size(); --i >= 0; ) {
-        Check check = data.checks.at(i);
+    auto test = [&](const Check &check, bool *removeIt, bool single) {
         const QString iname = check.iname;
         WatchItem *item = static_cast<WatchItem *>(local.findAnyChild([iname](Utils::TreeItem *item) {
             return static_cast<WatchItem *>(item)->internalName() == iname;
         }));
-        if (item) {
-            seenINames.insert(iname);
-            //qDebug() << "CHECKS" << i << check.iname;
-            data.checks.removeAt(i);
-            if (check.matches(m_debuggerEngine, m_debuggerVersion, context)) {
-                //qDebug() << "USING MATCHING TEST FOR " << iname;
-                QString name = item->realName();
-                QString type = item->type;
-                if (!check.expectedName.matches(name, context)) {
-                    qDebug() << "INAME        : " << iname;
-                    qDebug() << "NAME ACTUAL  : " << name;
-                    qDebug() << "NAME EXPECTED: " << check.expectedName.name;
-                    ok = false;
-                }
-                if (!check.expectedValue.matches(item->value, context)) {
-                    qDebug() << "INAME         : " << iname;
-                    qDebug() << "VALUE ACTUAL  : " << item->value << toHex(item->value);
-                    qDebug() << "VALUE EXPECTED: " << check.expectedValue.value << toHex(check.expectedValue.value);
-                    ok = false;
-                }
-                if (!check.expectedType.matches(type, context)) {
-                    qDebug() << "INAME        : " << iname;
-                    qDebug() << "TYPE ACTUAL  : " << type;
-                    qDebug() << "TYPE EXPECTED: " << check.expectedType.type;
-                    ok = false;
-                }
-            } else {
-                qDebug() << "SKIPPING NON-MATCHING TEST FOR " << iname;
-            }
-        } else {
+        if (!item) {
             qDebug() << "NOT SEEN: " << check.iname;
+            return false;
+        }
+        seenINames.insert(iname);
+        //qDebug() << "CHECKS" << i << check.iname;
+
+        *removeIt = true;
+
+        if (!check.matches(m_debuggerEngine, m_debuggerVersion, context)) {
+            if (single)
+                qDebug() << "SKIPPING NON-MATCHING TEST FOR " << iname;
+            return false;
+        }
+
+        //qDebug() << "USING MATCHING TEST FOR " << iname;
+        QString name = item->realName();
+        QString type = item->type;
+        if (!check.expectedName.matches(name, context)) {
+            if (single) {
+                qDebug() << "INAME        : " << iname;
+                qDebug() << "NAME ACTUAL  : " << name;
+                qDebug() << "NAME EXPECTED: " << check.expectedName.name;
+            }
+            return false;
+        }
+        if (!check.expectedValue.matches(item->value, context)) {
+            if (single) {
+                qDebug() << "INAME         : " << iname;
+                qDebug() << "VALUE ACTUAL  : " << item->value << toHex(item->value);
+                qDebug() << "VALUE EXPECTED: " << check.expectedValue.value << toHex(check.expectedValue.value);
+            }
+            return false;
+        }
+        if (!check.expectedType.matches(type, context)) {
+            if (single) {
+                qDebug() << "INAME        : " << iname;
+                qDebug() << "TYPE ACTUAL  : " << type;
+                qDebug() << "TYPE EXPECTED: " << check.expectedType.type;
+            }
+            return false;
+        }
+        return true;
+    };
+
+    for (int i = data.checks.size(); --i >= 0; ) {
+        bool removeIt = false;
+        if (!test(data.checks.at(i), &removeIt, true))
+            ok = false;
+        if (removeIt)
+            data.checks.removeAt(i);
+    }
+
+    for (const CheckSet &checkset : data.checksets) {
+        bool setok = false;
+        bool removeItDummy = false;
+        for (const Check &check : checkset.checks) {
+            if (test(check, &removeItDummy, false)) {
+                setok = true;
+            }
+        }
+        if (!setok) {
+            qDebug() << "NO CHECK IN SET PASSED";
+            ok = false;
         }
     }
 
@@ -5045,11 +5095,18 @@ void tst_Dumpers::dumper_data()
                + Cxx11Profile()
 
                + Check("set1", "<3 items>", "std::unordered_set<int>")
-               + Check("set1.0", "[0]", "33", "int") % NoCdbEngine
-               + Check("set1.0", "[0]", "11", "int") % CdbEngine
-               + Check("set1.1", "[1]", "22", "int")
-               + Check("set1.2", "[2]", "11", "int") % NoCdbEngine
-               + Check("set1.2", "[2]", "33", "int") % CdbEngine
+
+               + CheckSet({{"set1.0", "[0]", "11", "int"},
+                           {"set1.1", "[1]", "11", "int"},
+                           {"set1.2", "[2]", "11", "int"}})
+
+               + CheckSet({{"set1.0", "[0]", "22", "int"},
+                           {"set1.1", "[1]", "22", "int"},
+                           {"set1.2", "[2]", "22", "int"}})
+
+               + CheckSet({{"set1.0", "[0]", "33", "int"},
+                           {"set1.1", "[1]", "33", "int"},
+                           {"set1.2", "[2]", "33", "int"}})
 
                + Check("set2", "<2 items>", "std::unordered_multiset<int>")
                + Check("set2.0", "[0]", "42", "int")
