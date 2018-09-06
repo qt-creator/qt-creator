@@ -28,6 +28,7 @@
 #include "environment.h"
 #include "optional.h"
 #include "qtcassert.h"
+#include "macroexpander.h"
 
 #include "synchronousprocess.h"
 #include "hostosinfo.h"
@@ -174,12 +175,14 @@ public:
     Environment m_environment;
     BinaryVersionToolTipEventFilter *m_binaryVersionToolTipEventFilter = nullptr;
     QList<QAbstractButton *> m_buttons;
+    MacroExpander *m_macroExpander;
 };
 
 PathChooserPrivate::PathChooserPrivate() :
     m_hLayout(new QHBoxLayout),
     m_lineEdit(new FancyLineEdit),
-    m_acceptingKind(PathChooser::ExistingDirectory)
+    m_acceptingKind(PathChooser::ExistingDirectory),
+    m_macroExpander(globalMacroExpander())
 {
 }
 
@@ -187,7 +190,12 @@ QString PathChooserPrivate::expandedPath(const QString &input) const
 {
     if (input.isEmpty())
         return input;
-    const QString path = FileName::fromUserInput(m_environment.expandVariables(input)).toString();
+
+    QString expandedInput = m_environment.expandVariables(input);
+    if (m_macroExpander)
+        expandedInput = m_macroExpander->expand(expandedInput);
+
+    const QString path = FileName::fromUserInput(expandedInput).toString();
     if (path.isEmpty())
         return path;
 
@@ -690,6 +698,11 @@ void PathChooser::installLineEditVersionToolTip(QLineEdit *le, const QStringList
 void PathChooser::setHistoryCompleter(const QString &historyKey, bool restoreLastItemFromHistory)
 {
     d->m_lineEdit->setHistoryCompleter(historyKey, restoreLastItemFromHistory);
+}
+
+void PathChooser::setMacroExpander(MacroExpander *macroExpander)
+{
+    d->m_macroExpander = macroExpander;
 }
 
 QStringList PathChooser::commandVersionArguments() const

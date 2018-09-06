@@ -39,6 +39,7 @@ QT_END_NAMESPACE
 namespace Utils {
 
 class FancyLineEdit;
+class MacroExpander;
 class Environment;
 class PathChooserPrivate;
 
@@ -134,6 +135,11 @@ public:
 
     // Enable a history completer with a history of entries.
     void setHistoryCompleter(const QString &historyKey, bool restoreLastItemFromHistory = false);
+
+    // Sets a macro expander that is used when producing path and fileName.
+    // By default, the global expander is used.
+    // nullptr can be passed to disable macro expansion.
+    void setMacroExpander(MacroExpander *macroExpander);
 
     bool isReadOnly() const;
     void setReadOnly(bool b);
