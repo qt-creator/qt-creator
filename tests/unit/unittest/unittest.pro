@@ -100,7 +100,8 @@ SOURCES += \
     sourcesmanager-test.cpp \
     symbolindexertaskqueue-test.cpp \
     symbolindexertaskscheduler-test.cpp \
-    symbolscollectormanager-test.cpp
+    symbolscollectormanager-test.cpp \
+    refactoringprojectupdater-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \
@@ -239,7 +240,8 @@ HEADERS += \
     mockeditormanager.h \
     mocksymbolscollectormanager.h \
     mocksymbolindexertaskqueue.h \
-    mocksymbolindexertaskscheduler.h
+    mocksymbolindexertaskscheduler.h \
+    mockcppmodelmanager.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

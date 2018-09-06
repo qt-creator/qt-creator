@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,21 +25,16 @@
 
 #pragma once
 
-#include <utils/smallstring.h>
+#include "projectpart.h"
 
-#include <QDir>
+namespace CppTools {
 
-inline
-bool operator==(const QString &first, const char *second)
+class CppModelManagerInterface
 {
-    return first == QString::fromUtf8(second, int(std::strlen(second)));
-}
+public:
+    virtual ProjectPart::Ptr projectPartForId(const QString &projectPartId) const = 0;
 
-namespace UnitTest {
-
-inline
-Utils::PathString temporaryDirPath()
-{
-    return Utils::PathString::fromQString(QDir::tempPath());
+protected:
+    ~CppModelManagerInterface() = default;
+};
 }
-} // namespace UnitTest

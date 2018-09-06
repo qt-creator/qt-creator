@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,21 +25,13 @@
 
 #pragma once
 
-#include <utils/smallstring.h>
+#include "googletest.h"
 
-#include <QDir>
+#include <cpptools/cppmodelmanagerinterface.h>
 
-inline
-bool operator==(const QString &first, const char *second)
+class MockCppModelManager : public CppTools::CppModelManagerInterface
 {
-    return first == QString::fromUtf8(second, int(std::strlen(second)));
-}
-
-namespace UnitTest {
-
-inline
-Utils::PathString temporaryDirPath()
-{
-    return Utils::PathString::fromQString(QDir::tempPath());
-}
-} // namespace UnitTest
+public:
+    MOCK_CONST_METHOD1(projectPartForId,
+                       CppTools::ProjectPart::Ptr (const QString &projectPartId));
+};

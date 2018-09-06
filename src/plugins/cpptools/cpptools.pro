@@ -100,7 +100,8 @@ HEADERS += \
     cursorineditor.h \
     wrappablelineedit.h \
     usages.h \
-    cpptools_clangtidychecks.h
+    cpptools_clangtidychecks.h \
+    cppmodelmanagerinterface.h
 
 SOURCES += \
     abstracteditorsupport.cpp \

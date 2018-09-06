@@ -459,9 +459,8 @@ Utils::PathStringVector PchCreator::generateProjectPartHeaderAndSourcePaths(
         const V2::ProjectPartContainer &projectPart) const
 {
     Utils::PathStringVector includeAndSources;
-    includeAndSources.reserve(projectPart.headerPathIds.size() + projectPart.sourcePathIds.size());
+    includeAndSources.reserve(projectPart.sourcePathIds.size());
 
-    appendFilePathId(includeAndSources, projectPart.headerPathIds, m_filePathCache);
     appendFilePathId(includeAndSources, projectPart.sourcePathIds, m_filePathCache);
 
     return includeAndSources;
@@ -520,10 +519,6 @@ Utils::SmallStringVector PchCreator::generateProjectPartPchCompilerArguments(
 
     arguments.emplace_back("-x");
     arguments.emplace_back("c++-header");
-//    arguments.emplace_back("-Xclang");
-//    arguments.emplace_back("-include-pch");
-//    arguments.emplace_back("-Xclang");
-//    arguments.emplace_back(generateGlobalPchFilePath());
     arguments.emplace_back("-Xclang");
     arguments.emplace_back("-emit-pch");
     arguments.emplace_back("-o");

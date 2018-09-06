@@ -27,12 +27,13 @@
 #include "locatorfilter.h"
 #include "qtcreatorsymbolsfindfilter.h"
 #include "qtcreatoreditormanager.h"
+#include "qtcreatorrefactoringprojectupdater.h"
 #include "querysqlitestatementfactory.h"
 #include "sqlitedatabase.h"
 #include "sqlitereadstatement.h"
 #include "symbolquery.h"
 
-#include <clangpchmanager/qtcreatorprojectupdater.h>
+#include <clangpchmanager/clangpchmanagerplugin.h>
 #include <clangsupport/refactoringdatabaseinitializer.h>
 
 #include <cpptools/cppmodelmanager.h>
@@ -72,7 +73,6 @@ std::unique_ptr<ClangRefactoringPluginData> ClangRefactoringPlugin::d;
 
 class ClangRefactoringPluginData
 {
-    using ProjectUpdater = ClangPchManager::QtCreatorProjectUpdater<ClangPchManager::ProjectUpdater>;
 public:
     using QuerySqliteReadStatementFactory = QuerySqliteStatementFactory<Sqlite::Database,
                                                                         Sqlite::ReadStatement>;
@@ -90,7 +90,9 @@ public:
     QtCreatorClangQueryFindFilter qtCreatorfindFilter{connectionClient.serverProxy(),
                                                       qtCreatorSearch,
                                                       refactoringClient};
-    ProjectUpdater projectUpdate{connectionClient.serverProxy(), filePathCache};
+    QtCreatorRefactoringProjectUpdater projectUpdate{connectionClient.serverProxy(),
+                                                     ClangPchManager::ClangPchManagerPlugin::pchManagerClient(),
+                                                     filePathCache};
 };
 
 ClangRefactoringPlugin::ClangRefactoringPlugin()

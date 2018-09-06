@@ -65,6 +65,9 @@ public:
     PrecompiledHeaderStorage<> preCompiledHeaderStorage{database};
     PchManagerClient pchManagerClient{preCompiledHeaderStorage};
     PchManagerConnectionClient connectionClient{&pchManagerClient};
+    QtCreatorProjectUpdater<PchManagerProjectUpdater> projectUpdate{connectionClient.serverProxy(),
+                                                                    pchManagerClient,
+                                                                    filePathCache};
 };
 
 std::unique_ptr<ClangPchManagerPluginData> ClangPchManagerPlugin::d;

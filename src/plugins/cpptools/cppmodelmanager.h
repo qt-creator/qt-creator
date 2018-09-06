@@ -27,6 +27,7 @@
 
 #include "cpptools_global.h"
 
+#include "cppmodelmanagerinterface.h"
 #include "refactoringengineinterface.h"
 #include "projectinfo.h"
 #include "projectpart.h"
@@ -83,7 +84,8 @@ enum class RefactoringEngineType : int
 };
 
 class CPPTOOLS_EXPORT CppModelManager final : public CPlusPlus::CppModelManagerBase,
-        public RefactoringEngineInterface
+        public RefactoringEngineInterface,
+        public CppModelManagerInterface
 {
     Q_OBJECT
 

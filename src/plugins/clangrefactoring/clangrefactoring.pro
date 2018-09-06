@@ -21,7 +21,8 @@ HEADERS += \
     sourcelocations.h \
     symbolsfindfilterconfigwidget.h \
     symbolquery.h \
-    qtcreatoreditormanager.h
+    qtcreatoreditormanager.h \
+    qtcreatorrefactoringprojectupdater.h
 
 SOURCES += \
     clangrefactoringplugin.cpp \
@@ -35,7 +36,8 @@ SOURCES += \
     qtcreatorsearchhandle.cpp \
     qtcreatorsymbolsfindfilter.cpp \
     symbolsfindfilterconfigwidget.cpp \
-    qtcreatoreditormanager.cpp
+    qtcreatoreditormanager.cpp \
+    qtcreatorrefactoringprojectupdater.cpp
 
 FORMS += \
     clangqueryprojectsfindfilter.ui

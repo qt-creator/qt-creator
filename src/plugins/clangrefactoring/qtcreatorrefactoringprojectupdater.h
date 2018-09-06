@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,21 +25,21 @@
 
 #pragma once
 
-#include <utils/smallstring.h>
+#include "refactoringprojectupdater.h"
 
-#include <QDir>
+namespace ClangRefactoring {
 
-inline
-bool operator==(const QString &first, const char *second)
+class QtCreatorRefactoringProjectUpdater final : public RefactoringProjectUpdater
 {
-    return first == QString::fromUtf8(second, int(std::strlen(second)));
-}
+public:
+    QtCreatorRefactoringProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
+                                       ClangPchManager::PchManagerClient &pchManagerClient,
+                                       ClangBackEnd::FilePathCachingInterface &filePathCache);
 
-namespace UnitTest {
+private:
+    void abstractEditorUpdated(const QString &filePath, const QByteArray &contents);
+    void abstractEditorRemoved(const QString &filePath);
+    void connectToCppModelManager();
+};
 
-inline
-Utils::PathString temporaryDirPath()
-{
-    return Utils::PathString::fromQString(QDir::tempPath());
-}
-} // namespace UnitTest
+} // namespace ClangRefactoring
