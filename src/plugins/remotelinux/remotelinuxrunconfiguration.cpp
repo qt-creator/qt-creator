@@ -89,8 +89,8 @@ void RemoteLinuxRunConfiguration::updateTargetInformation()
     QString localExecutable = bti.targetFilePath.toString();
     DeployableFile depFile = target()->deploymentData().deployableForLocalFile(localExecutable);
 
-    extraAspect<ExecutableAspect>()->setExecutable(FileName::fromString(depFile.remoteFilePath()));
-    extraAspect<SymbolFileAspect>()->setValue(localExecutable);
+    aspect<ExecutableAspect>()->setExecutable(FileName::fromString(depFile.remoteFilePath()));
+    aspect<SymbolFileAspect>()->setValue(localExecutable);
 
     emit enabledChanged();
 }

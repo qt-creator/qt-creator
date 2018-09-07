@@ -98,11 +98,11 @@ QString CMakeRunConfiguration::disabledReason() const
 void CMakeRunConfiguration::updateTargetInformation()
 {
     BuildTargetInfo bti = target()->applicationTargets().buildTargetInfo(buildKey());
-    extraAspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
-    extraAspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
-    extraAspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();
+    aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
+    aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
+    aspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();
 
-    auto terminalAspect = extraAspect<TerminalAspect>();
+    auto terminalAspect = aspect<TerminalAspect>();
     if (!terminalAspect->isUserSet())
         terminalAspect->setUseTerminal(bti.usesTerminal);
 }

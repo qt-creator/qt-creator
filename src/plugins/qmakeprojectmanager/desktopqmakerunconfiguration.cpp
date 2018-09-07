@@ -91,20 +91,20 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target, Core:
 void DesktopQmakeRunConfiguration::updateTargetInformation()
 {
     setDefaultDisplayName(defaultDisplayName());
-    extraAspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();
+    aspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();
 
     BuildTargetInfo bti = buildTargetInfo();
 
-    auto wda = extraAspect<WorkingDirectoryAspect>();
+    auto wda = aspect<WorkingDirectoryAspect>();
     wda->setDefaultWorkingDirectory(bti.workingDirectory);
     if (wda->pathChooser())
         wda->pathChooser()->setBaseFileName(target()->project()->projectDirectory());
 
-    auto terminalAspect = extraAspect<TerminalAspect>();
+    auto terminalAspect = aspect<TerminalAspect>();
     if (!terminalAspect->isUserSet())
         terminalAspect->setUseTerminal(bti.usesTerminal);
 
-    extraAspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
+    aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
 }
 
 QVariantMap DesktopQmakeRunConfiguration::toMap() const
@@ -135,9 +135,9 @@ void DesktopQmakeRunConfiguration::addToBaseEnvironment(Environment &env) const
 {
     BuildTargetInfo bti = buildTargetInfo();
     if (bti.runEnvModifier)
-        bti.runEnvModifier(env, extraAspect<UseLibraryPathsAspect>()->value());
+        bti.runEnvModifier(env, aspect<UseLibraryPathsAspect>()->value());
 
-    if (auto dyldAspect = extraAspect<UseDyldSuffixAspect>()) {
+    if (auto dyldAspect = aspect<UseDyldSuffixAspect>()) {
         if (dyldAspect->value())
             env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
     }

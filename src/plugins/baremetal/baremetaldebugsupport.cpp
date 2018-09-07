@@ -85,7 +85,7 @@ void BareMetalDebugSupport::start()
 {
     const auto rc = runControl()->runConfiguration();
     QTC_ASSERT(rc, reportFailure(); return);
-    const auto exeAspect = rc->extraAspect<ExecutableAspect>();
+    const auto exeAspect = rc->aspect<ExecutableAspect>();
     QTC_ASSERT(exeAspect, reportFailure(); return);
 
     const QString bin = exeAspect->executable().toString();
@@ -124,7 +124,7 @@ void BareMetalDebugSupport::start()
 
     Runnable inferior;
     inferior.executable = bin;
-    if (auto aspect = rc->extraAspect<ArgumentsAspect>())
+    if (auto aspect = rc->aspect<ArgumentsAspect>())
         inferior.commandLineArguments = aspect->arguments(rc->macroExpander());
     setInferior(inferior);
     setSymbolFile(bin);

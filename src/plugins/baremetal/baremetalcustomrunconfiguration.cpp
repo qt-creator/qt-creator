@@ -58,7 +58,7 @@ const char *BareMetalCustomRunConfiguration::Id = "BareMetal";
 
 bool BareMetalCustomRunConfiguration::isConfigured() const
 {
-    return !extraAspect<ExecutableAspect>()->executable().isEmpty();
+    return !aspect<ExecutableAspect>()->executable().isEmpty();
 }
 
 RunConfiguration::ConfigurationState

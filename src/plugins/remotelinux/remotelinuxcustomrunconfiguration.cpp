@@ -65,7 +65,7 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
 
 bool RemoteLinuxCustomRunConfiguration::isConfigured() const
 {
-    return !extraAspect<ExecutableAspect>()->executable().isEmpty();
+    return !aspect<ExecutableAspect>()->executable().isEmpty();
 }
 
 RunConfiguration::ConfigurationState
@@ -88,7 +88,7 @@ Core::Id RemoteLinuxCustomRunConfiguration::runConfigId()
 
 QString RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName()
 {
-    QString remoteExecutable = extraAspect<ExecutableAspect>()->executable().toString();
+    QString remoteExecutable = aspect<ExecutableAspect>()->executable().toString();
     QString display = remoteExecutable.isEmpty()
             ? tr("Custom Executable") : tr("Run \"%1\"").arg(remoteExecutable);
     return  RunConfigurationFactory::decoratedTargetName(display, target());

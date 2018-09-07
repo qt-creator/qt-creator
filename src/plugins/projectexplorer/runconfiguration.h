@@ -185,8 +185,8 @@ public:
 
     template <class T = ISettingsAspect> T *currentSettings(Core::Id id) const
     {
-        if (auto aspect = qobject_cast<GlobalOrProjectAspect *>(extraAspect(id)))
-            return qobject_cast<T *>(aspect->currentSettings());
+        if (auto a = qobject_cast<GlobalOrProjectAspect *>(aspect(id)))
+            return qobject_cast<T *>(a->currentSettings());
         return nullptr;
     }
 

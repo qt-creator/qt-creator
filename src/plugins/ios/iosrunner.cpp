@@ -100,7 +100,7 @@ IosRunner::IosRunner(RunControl *runControl)
     stopRunningRunControl(runControl);
     auto runConfig = qobject_cast<IosRunConfiguration *>(runControl->runConfiguration());
     m_bundleDir = runConfig->bundleDirectory().toString();
-    m_arguments = runConfig->extraAspect<ArgumentsAspect>()->arguments(runConfig->macroExpander());
+    m_arguments = runConfig->aspect<ArgumentsAspect>()->arguments(runConfig->macroExpander());
     m_device = DeviceKitInformation::device(runConfig->target()->kit());
     m_deviceType = runConfig->deviceType();
 }
@@ -387,7 +387,7 @@ IosQmlProfilerSupport::IosQmlProfilerSupport(RunControl *runControl)
     Runnable runnable;
     runnable.executable = iosRunConfig->localExecutable().toUserOutput();
     runnable.commandLineArguments =
-            iosRunConfig->extraAspect<ArgumentsAspect>()->arguments(iosRunConfig->macroExpander());
+            iosRunConfig->aspect<ArgumentsAspect>()->arguments(iosRunConfig->macroExpander());
     runControl->setDisplayName(iosRunConfig->applicationName());
     runControl->setRunnable(runnable);
 

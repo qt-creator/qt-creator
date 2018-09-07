@@ -241,9 +241,9 @@ private:
     Runnable runnable() const final;
 
     bool supportsDebugger() const { return true; }
-    QString mainScript() const { return extraAspect<MainScriptAspect>()->value(); }
-    QString arguments() const { return extraAspect<ArgumentsAspect>()->arguments(macroExpander()); }
-    QString interpreter() const { return extraAspect<InterpreterAspect>()->value(); }
+    QString mainScript() const { return aspect<MainScriptAspect>()->value(); }
+    QString arguments() const { return aspect<ArgumentsAspect>()->arguments(macroExpander()); }
+    QString interpreter() const { return aspect<InterpreterAspect>()->value(); }
 
     void updateTargetInformation();
 };
@@ -283,7 +283,7 @@ void PythonRunConfiguration::updateTargetInformation()
     const BuildTargetInfo bti = buildTargetInfo();
     const QString script = bti.targetFilePath.toString();
     setDefaultDisplayName(tr("Run %1").arg(script));
-    extraAspect<MainScriptAspect>()->setValue(script);
+    aspect<MainScriptAspect>()->setValue(script);
 }
 
 Runnable PythonRunConfiguration::runnable() const
@@ -291,9 +291,9 @@ Runnable PythonRunConfiguration::runnable() const
     Runnable r;
     QtcProcess::addArg(&r.commandLineArguments, mainScript());
     QtcProcess::addArgs(&r.commandLineArguments,
-                        extraAspect<ArgumentsAspect>()->arguments(macroExpander()));
-    r.executable = extraAspect<InterpreterAspect>()->value();
-    r.environment = extraAspect<EnvironmentAspect>()->environment();
+                        aspect<ArgumentsAspect>()->arguments(macroExpander()));
+    r.executable = aspect<InterpreterAspect>()->value();
+    r.environment = aspect<EnvironmentAspect>()->environment();
     return r;
 }
 

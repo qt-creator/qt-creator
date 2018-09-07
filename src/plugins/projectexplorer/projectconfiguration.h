@@ -126,9 +126,9 @@ public:
 
     const QList<ProjectConfigurationAspect *> aspects() const { return m_aspects; }
 
-    ProjectConfigurationAspect *extraAspect(Core::Id id) const;
+    ProjectConfigurationAspect *aspect(Core::Id id) const;
 
-    template <typename T> T *extraAspect() const
+    template <typename T> T *aspect() const
     {
         for (ProjectConfigurationAspect *aspect : m_aspects)
             if (T *result = qobject_cast<T *>(aspect))
