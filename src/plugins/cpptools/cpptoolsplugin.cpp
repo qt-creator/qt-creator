@@ -109,8 +109,7 @@ CppToolsPlugin::CppToolsPlugin()
     : m_fileSettings(new CppFileSettings)
 {
     m_instance = this;
-    auto bridgeImplementation = std::unique_ptr<CppToolsBridgeQtCreatorImplementation>(new CppToolsBridgeQtCreatorImplementation);
-    CppToolsBridge::setCppToolsBridgeImplementation(std::move(bridgeImplementation));
+    CppToolsBridge::setCppToolsBridgeImplementation(std::make_unique<CppToolsBridgeQtCreatorImplementation>());
 }
 
 CppToolsPlugin::~CppToolsPlugin()
