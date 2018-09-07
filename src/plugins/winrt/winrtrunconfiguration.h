@@ -44,8 +44,6 @@ class WinRtRunConfiguration : public ProjectExplorer::RunConfiguration
 
 public:
     WinRtRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-
-    QWidget *createConfigurationWidget() override;
 };
 
 class WinRtRunConfigurationFactory  : public ProjectExplorer::RunConfigurationFactory

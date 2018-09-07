@@ -26,18 +26,7 @@
 #include "winrtrunconfiguration.h"
 #include "winrtconstants.h"
 
-#include <coreplugin/icore.h>
-
-#include <projectexplorer/target.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/runconfigurationaspects.h>
-
-#include <utils/detailswidget.h>
-
-#include <QFormLayout>
-
 using namespace ProjectExplorer;
-using namespace Utils;
 
 namespace WinRt {
 namespace Internal {
@@ -58,16 +47,6 @@ WinRtRunConfiguration::WinRtRunConfiguration(Target *target, Core::Id id)
     setDisplayName(tr("Run App Package"));
     addAspect<ArgumentsAspect>();
     addAspect<UninstallAfterStopAspect>();
-}
-
-QWidget *WinRtRunConfiguration::createConfigurationWidget()
-{
-    auto wrapped = RunConfiguration::createConfigurationWidget();
-    auto detailsWidget = qobject_cast<DetailsWidget *>(wrapped);
-    QTC_ASSERT(detailsWidget, return wrapped);
-    detailsWidget->setState(DetailsWidget::Expanded);
-    detailsWidget->setSummaryText(tr("Launch App"));
-    return detailsWidget;
 }
 
 // WinRtRunConfigurationFactory
