@@ -36,7 +36,7 @@ def main():
     # copy example project to temp directory
     templateDir = prepareTemplate(sourceExample)
 
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     usedProFile = os.path.join(templateDir, proFile)

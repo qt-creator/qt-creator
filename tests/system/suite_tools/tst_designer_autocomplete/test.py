@@ -26,7 +26,7 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     createProject_Qt_GUI(tempDir(), "DesignerTestApp")

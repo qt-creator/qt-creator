@@ -93,7 +93,14 @@ bool WinRtPackageDeploymentStep::init(QList<const BuildStep *> &earlierSteps)
     }
 
     ProcessParameters *params = processParameters();
-    params->setCommand(QLatin1String("windeployqt.exe"));
+    const QString windeployqtPath
+            = Utils::FileUtils::resolvePath(qt->binPath().toString(), "windeployqt.exe");
+    if (!QFile::exists(windeployqtPath)) {
+        raiseError(tr("Cannot find windeployqt.exe in \"%1\".").arg(
+                    QDir::toNativeSeparators(qt->binPath().toString())));
+        return false;
+    }
+    params->setCommand(windeployqtPath);
     params->setArguments(args);
     params->setEnvironment(buildConfiguration()->environment());
 

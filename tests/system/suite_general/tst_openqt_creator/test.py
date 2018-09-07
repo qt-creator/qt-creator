@@ -31,7 +31,7 @@ def main():
     if not neededFilePresent(pathCreator) or not neededFilePresent(pathSpeedcrunch):
         return
 
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
 

@@ -35,7 +35,7 @@ def main():
                                  "'SyntaxError': undeclared identifier", # MSVC2015
                                  "use of undeclared identifier 'SyntaxError'",
                                  "unknown type name 'SyntaxError'"]
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     # create qt quick application

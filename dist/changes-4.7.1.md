@@ -12,6 +12,10 @@ Editing
 * Fixed that generic highlighting could use unreadable colors
   (QTCREATORBUG-20919)
 
+All Projects
+
+* Fixed jumping text cursor when editing custom executable path
+
 Qbs Projects
 
 * Fixed C++ version passed to code model (QTCREATORBUG-20909)

@@ -65,7 +65,8 @@ void tst_TimelineModelAggregator::height()
 void tst_TimelineModelAggregator::addRemoveModel()
 {
     Timeline::TimelineNotesModel notes;
-    Timeline::TimelineModelAggregator aggregator(&notes);
+    Timeline::TimelineModelAggregator aggregator;
+    aggregator.setNotes(&notes);
     QSignalSpy spy(&aggregator, SIGNAL(modelsChanged()));
 
     QCOMPARE(aggregator.notes(), &notes);

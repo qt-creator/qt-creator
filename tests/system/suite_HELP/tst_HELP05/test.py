@@ -45,7 +45,7 @@ def verifyInteractiveQMLHelp(lineText, helpText):
                 % (helpText, getHelpTitle()))
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     qchs = []

@@ -76,7 +76,7 @@ def main():
     templateDir = prepareTemplate(sourceExample)
     examplePath = os.path.join(templateDir, proFile)
     templateDir = os.path.join(templateDir, "basics")   # only check subproject
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     # open example project

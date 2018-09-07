@@ -38,7 +38,7 @@ def main():
     proFile = os.path.join(tempDir, proFileName)
     cleanUpUserFiles(proFile)
 
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     openQmakeProject(proFile)

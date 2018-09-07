@@ -26,7 +26,7 @@
 source("../../shared/qtcreator.py")
 
 def startQtCreatorWithNewAppAtQMLEditor(projectDir, projectName, line = None):
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return None
     # create qt quick application

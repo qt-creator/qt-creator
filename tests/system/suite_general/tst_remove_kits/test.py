@@ -52,7 +52,7 @@ def __removeKit__(kit, kitName):
     clickButton(waitForObject(":Remove_QPushButton"))
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     createProject_Qt_Console(tempDir(), "SquishProject")

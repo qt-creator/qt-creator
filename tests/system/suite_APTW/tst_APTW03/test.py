@@ -72,7 +72,7 @@ def addReturn(editor, toFunction, returnValue):
     type(editor, "return %s;" % returnValue)
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
 

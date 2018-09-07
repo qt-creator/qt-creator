@@ -27,7 +27,7 @@ source("../../shared/qtcreator.py")
 
 def main():
     # open Qt Creator
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     wsButtonFrame, wsButtonLabel = getWelcomeScreenSideBarButton('Get Started Now')

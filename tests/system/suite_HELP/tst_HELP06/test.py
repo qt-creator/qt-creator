@@ -46,7 +46,7 @@ def textForQtVersion(text):
     return text
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     # goto help mode and click on topic

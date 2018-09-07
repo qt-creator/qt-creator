@@ -28,7 +28,7 @@ source("../../shared/qtcreator.py")
 project = "SquishProject"
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     createProject_Qt_Console(tempDir(), project)

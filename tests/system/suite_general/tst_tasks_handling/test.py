@@ -92,7 +92,7 @@ def getBuildIssuesTypeCounts(model):
 def main():
     tasksFile, issueTypes = generateMockTasksFile()
     expectedNo = sum(issueTypes)
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
