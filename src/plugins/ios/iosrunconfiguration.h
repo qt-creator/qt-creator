@@ -61,9 +61,6 @@ public:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-signals:
-    void localExecutableChanged();
-
 private:
     void deviceChanges();
     friend class IosRunConfigurationWidget;

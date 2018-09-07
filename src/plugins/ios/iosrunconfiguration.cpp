@@ -90,13 +90,15 @@ private:
     IosRunConfiguration *m_runConfiguration;
     QStandardItemModel m_deviceTypeModel;
     QLabel *m_deviceTypeLabel;
-    QLineEdit *m_executableLineEdit;
     QComboBox *m_deviceTypeComboBox;
 };
 
 IosRunConfiguration::IosRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
+    auto executableAspect = addAspect<ExecutableAspect>();
+    executableAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
+
     addAspect<ArgumentsAspect>();
     setOutputFormatter<QtSupport::QtOutputFormatter>();
 
@@ -132,6 +134,8 @@ void IosRunConfiguration::updateDisplayNames()
     const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
     setDefaultDisplayName(tr("Run on %1").arg(devName));
     setDisplayName(tr("Run %1 on %2").arg(applicationName()).arg(devName));
+
+    extraAspect<ExecutableAspect>()->setExecutable(localExecutable());
 }
 
 void IosRunConfiguration::updateEnabledState()
@@ -348,9 +352,6 @@ IosRunConfigurationWidget::IosRunConfigurationWidget(IosRunConfiguration *runCon
     sizePolicy.setVerticalStretch(0);
     setSizePolicy(sizePolicy);
 
-    m_executableLineEdit = new QLineEdit(this);
-    m_executableLineEdit->setReadOnly(true);
-
     m_deviceTypeComboBox = new QComboBox(this);
     m_deviceTypeComboBox->setModel(&m_deviceTypeModel);
 
@@ -358,15 +359,13 @@ IosRunConfigurationWidget::IosRunConfigurationWidget(IosRunConfiguration *runCon
 
     auto layout = new QFormLayout(this);
     runConfiguration->extraAspect<ArgumentsAspect>()->addToConfigurationLayout(layout);
-    layout->addRow(IosRunConfiguration::tr("Executable:"), m_executableLineEdit);
+    runConfiguration->extraAspect<ExecutableAspect>()->addToConfigurationLayout(layout);
     layout->addRow(m_deviceTypeLabel, m_deviceTypeComboBox);
 
     updateValues();
 
     connect(m_deviceTypeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &IosRunConfigurationWidget::setDeviceTypeIndex);
-    connect(runConfiguration, &IosRunConfiguration::localExecutableChanged,
-            this, &IosRunConfigurationWidget::updateValues);
 }
 
 void IosRunConfigurationWidget::setDeviceTypeIndex(int devIndex)
@@ -413,7 +412,6 @@ void IosRunConfigurationWidget::updateValues()
             qCWarning(iosLog) << "could not set " << currentDType << " as it is not in model";
         }
     }
-    m_executableLineEdit->setText(m_runConfiguration->localExecutable().toUserOutput());
 }
 
 
