@@ -11,14 +11,12 @@ HEADERS += qmlproject.h \
     qmlprojectnodes.h \
     qmlprojectrunconfiguration.h \
     qmlprojectmanager_global.h \
-    qmlprojectmanagerconstants.h \
-    qmlprojectrunconfigurationwidget.h
+    qmlprojectmanagerconstants.h
 
 SOURCES += qmlproject.cpp \
     qmlprojectenvironmentaspect.cpp \
     qmlprojectplugin.cpp \
     qmlprojectnodes.cpp \
-    qmlprojectrunconfiguration.cpp \
-    qmlprojectrunconfigurationwidget.cpp
+    qmlprojectrunconfiguration.cpp
 
 RESOURCES += qmlproject.qrc

@@ -30,61 +30,31 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
 
-namespace Core { class IEditor; }
-
 namespace QmlProjectManager {
-class QmlProject;
 
-namespace Internal { class QmlProjectRunConfigurationWidget; }
+class MainQmlFileAspect;
 
 class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
-    friend class Internal::QmlProjectRunConfigurationWidget;
-    friend class QmlProject; // to call updateEnabled()
 
 public:
     QmlProjectRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
-    ProjectExplorer::Runnable runnable() const override;
-
-    enum MainScriptSource {
-        FileInEditor,
-        FileInProjectFile,
-        FileInSettings
-    };
-    MainScriptSource mainScriptSource() const;
-    void setScriptSource(MainScriptSource source, const QString &settingsPath = QString());
-
-    QString mainScript() const;
-
-    QString disabledReason() const override;
-    QWidget *createConfigurationWidget() override;
-    QVariantMap toMap() const override;
-
-    ProjectExplorer::Abi abi() const override;
-    ProjectExplorer::BaseStringAspect *qmlViewerAspect() const { return m_qmlViewerAspect; }
-
-signals:
-    void scriptSourceChanged();
-
 private:
-    bool fromMap(const QVariantMap &map) override;
+    friend class MainQmlFileAspect;
 
-    void changeCurrentFile(Core::IEditor* = 0);
+    ProjectExplorer::Runnable runnable() const final;
+    QString disabledReason() const final;
+    ProjectExplorer::Abi abi() const final;
     void updateEnabledState() final;
 
+    QString mainScript() const;
     QString executable() const;
     QString commandLineArguments() const;
 
-    // absolute path to current file (if being used)
-    QString m_currentFileFilename;
-    // absolute path to selected main script (if being used)
-    QString m_mainScriptFilename;
-
-    QString m_scriptFile;
-    QString m_qmlViewerArgs;
     ProjectExplorer::BaseStringAspect *m_qmlViewerAspect;
+    MainQmlFileAspect *m_mainQmlFileAspect;
 };
 
 namespace Internal {
