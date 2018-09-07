@@ -94,3 +94,4 @@ def main():
             invokeMenuItem("File", "Close All")
             clickButton(waitForObject(":Save Changes.Do not Save_QPushButton"))
             invokeMenuItem("File", "Exit")
+            waitForCleanShutdown()

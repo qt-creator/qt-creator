@@ -54,3 +54,4 @@ def main():
             snooze(1)
             invokeMenuItem("File", "Close All")
             invokeMenuItem("File", "Exit")
+            waitForCleanShutdown()

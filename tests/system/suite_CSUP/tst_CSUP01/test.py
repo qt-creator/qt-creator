@@ -133,3 +133,4 @@ def main():
             # exit qt creator
             invokeMenuItem("File", "Save All")
             invokeMenuItem("File", "Exit")
+            waitForCleanShutdown()
