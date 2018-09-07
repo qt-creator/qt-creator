@@ -202,7 +202,7 @@ public:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-    QList<IRunConfigurationAspect *> extraAspects() const;
+    const QList<IRunConfigurationAspect *> aspects() const;
     IRunConfigurationAspect *extraAspect(Core::Id id) const;
 
     template <typename T> T *extraAspect() const

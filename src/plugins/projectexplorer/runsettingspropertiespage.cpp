@@ -528,9 +528,8 @@ QString RunSettingsWidget::uniqueRCName(const QString &name)
 
 void RunSettingsWidget::addRunControlWidgets()
 {
-    foreach (IRunConfigurationAspect *aspect, m_runConfiguration->extraAspects()) {
-        RunConfigWidget *rcw = aspect->createConfigurationWidget();
-        if (rcw)
+    for (IRunConfigurationAspect *aspect : m_runConfiguration->aspects()) {
+        if (RunConfigWidget *rcw = aspect->createConfigurationWidget())
             addSubWidget(rcw);
     }
 }
