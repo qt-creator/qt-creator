@@ -41,7 +41,7 @@ def main():
     files = checkAndCopyFiles(testData.dataset("files.tsv"), "filename", tempDir())
     if not files:
         return
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
 

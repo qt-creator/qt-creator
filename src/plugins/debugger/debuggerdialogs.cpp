@@ -436,6 +436,11 @@ void StartApplicationDialog::run(bool attachRemote)
     debugger->setServerStartScript(newParameters.serverStartScript); // Note: This requires inferior.
 
     bool isLocal = !dev || (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+    if (isLocal) {
+        Environment inferiorEnvironment = Environment::systemEnvironment();
+        k->addToEnvironment(inferiorEnvironment);
+        debugger->setInferiorEnvironment(inferiorEnvironment);
+    }
     if (!attachRemote)
         debugger->setStartMode(isLocal ? StartExternal : StartRemoteProcess);
 

@@ -186,7 +186,7 @@ def verifyPreview(menuItems, comboItems):
     sendEvent("QCloseEvent", waitForObject(prev))
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     createProject_Qt_GUI(tempDir(), "DesignerTestApp", False)

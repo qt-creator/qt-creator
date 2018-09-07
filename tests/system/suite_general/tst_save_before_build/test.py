@@ -38,7 +38,7 @@ def ensureSaveBeforeBuildChecked(shouldBeChecked):
         clickButton(waitForObject(":Options.OK_QPushButton"))
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     ensureSaveBeforeBuildChecked(False)

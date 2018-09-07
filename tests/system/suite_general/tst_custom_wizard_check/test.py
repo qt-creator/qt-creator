@@ -26,7 +26,7 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    startApplication("qtcreator" + SettingsPath + " -customwizard-verbose")
+    startQC(["-customwizard-verbose"])
     if not startedWithoutPluginError():
         return
 

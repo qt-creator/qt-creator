@@ -31,7 +31,7 @@ def main():
     outputQDebug = "Output from qDebug()."
     outputStdOut = "Output from std::cout."
     outputStdErr = "Output from std::cerr."
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     createProject_Qt_Console(tempDir(), project)

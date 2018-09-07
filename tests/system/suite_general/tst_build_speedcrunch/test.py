@@ -38,7 +38,7 @@ def buildConfigFromFancyToolButton(fancyToolButton):
 def main():
     if not neededFilePresent(SpeedCrunchPath):
         return
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     openQmakeProject(SpeedCrunchPath, [Targets.DESKTOP_4_8_7_DEFAULT])

@@ -172,7 +172,7 @@ def fetchSnippet(protocol, description, pasteId, skippedPasting):
     return pasteId
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     protocolsToTest = [NAME_KDE, NAME_PBCA, NAME_PBCOM]

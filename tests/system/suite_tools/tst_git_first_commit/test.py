@@ -30,7 +30,7 @@ def main():
     if not neededFilePresent(pathReadme):
         return
 
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
 

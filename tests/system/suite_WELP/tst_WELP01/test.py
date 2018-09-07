@@ -75,7 +75,7 @@ def checkTableViewForContent(tableViewStr, expectedRegExTitle, section, atLeastO
 def main():
     global getStarted
     # open Qt Creator
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
 

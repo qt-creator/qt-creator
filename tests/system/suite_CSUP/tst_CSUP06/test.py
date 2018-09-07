@@ -52,6 +52,7 @@ def performAutoCompletionTest(editor, lineToStartRegEx, linePrefix, testFunc, *f
     while currentLine.startswith(linePrefix):
         type(editor, eol)
         type(editor, "<Ctrl+/>")      # uncomment current line
+        snooze(1)
         type(editor, autoComp)        # invoke auto-completion
         testFunc(currentLine, *funcArgs)
         type(editor, "<Ctrl+/>")      # comment current line again
@@ -163,7 +164,7 @@ def main():
     examplePath = os.path.join(templateDir, "cplusplus-tools.pro")
     for useClang in [False, True]:
         with TestSection(getCodeModelString(useClang)):
-            if not startCreator(useClang):
+            if not startCreatorVerifyingClang(useClang):
                 continue
             openQmakeProject(examplePath, [Targets.DESKTOP_5_6_1_DEFAULT])
             checkCodeModelSettings(useClang)

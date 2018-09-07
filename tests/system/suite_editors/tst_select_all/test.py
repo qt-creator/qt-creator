@@ -35,7 +35,7 @@ def main():
         if not neededFilePresent(currentFile):
             return
 
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     for currentFile in files:

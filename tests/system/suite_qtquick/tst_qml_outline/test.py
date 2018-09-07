@@ -36,7 +36,7 @@ def main():
     if not neededFilePresent(os.path.join(sourceExample, proFile)):
         return
     templateDir = prepareTemplate(sourceExample)
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     openQmakeProject(os.path.join(templateDir, proFile), [Targets.DESKTOP_5_6_1_DEFAULT])

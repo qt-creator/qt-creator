@@ -30,7 +30,7 @@ def main():
     if not neededFilePresent(pathCreator):
         return
 
-    startApplication("qtcreator" + SettingsPath)
+    startQC()
     if not startedWithoutPluginError():
         return
     openQbsProject(pathCreator)

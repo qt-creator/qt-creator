@@ -58,7 +58,7 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
     QUrl serverUrl = Utils::urlFromLocalHostAndFreePort();
     QVERIFY(serverUrl.port() >= 0);
     QVERIFY(serverUrl.port() <= std::numeric_limits<quint16>::max());
-    server.listen(QHostAddress(serverUrl.host()), static_cast<quint16>(serverUrl.port()));
+    server.listen(QHostAddress::Any, static_cast<quint16>(serverUrl.port()));
 
     QScopedPointer<QTcpSocket> connection;
     connect(&server, &QTcpServer::newConnection, this, [&]() {
