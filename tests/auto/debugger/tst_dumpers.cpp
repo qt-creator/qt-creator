@@ -1703,7 +1703,7 @@ void tst_Dumpers::dumper()
         if (!check.matches(m_debuggerEngine, m_debuggerVersion, context)) {
             if (single)
                 qDebug() << "SKIPPING NON-MATCHING TEST FOR " << iname;
-            return false;
+            return true; // we have not failed
         }
 
         //qDebug() << "USING MATCHING TEST FOR " << iname;
