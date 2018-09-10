@@ -281,7 +281,7 @@ void MainQmlFileAspect::changeCurrentFile(IEditor *editor)
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
-    addAspect<QmlProjectEnvironmentAspect>();
+    addAspect<QmlProjectEnvironmentAspect>(target);
     m_qmlViewerAspect = addAspect<BaseStringAspect>();
     m_qmlViewerAspect->setLabelText(tr("QML viewer:"));
     m_qmlViewerAspect->setPlaceHolderText(executable());

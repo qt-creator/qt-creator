@@ -47,16 +47,16 @@ Environment QmlProjectEnvironmentAspect::baseEnvironment() const
             ? Environment::systemEnvironment()
             : Environment();
 
-    if (QmlProject *project = qobject_cast<QmlProject *>(runConfiguration()->target()->project()))
+    if (QmlProject *project = qobject_cast<QmlProject *>(m_target->project()))
         env.modify(project->environment());
 
     return env;
 }
 
-QmlProjectEnvironmentAspect::QmlProjectEnvironmentAspect(RunConfiguration *rc)
-    : EnvironmentAspect(rc)
+QmlProjectEnvironmentAspect::QmlProjectEnvironmentAspect(RunConfiguration *rc, Target *target)
+    : EnvironmentAspect(rc), m_target(target)
 {
-    if (DeviceTypeKitInformation::deviceTypeId(runConfiguration()->target()->kit())
+    if (DeviceTypeKitInformation::deviceTypeId(target->kit())
             == Constants::DESKTOP_DEVICE_TYPE)
         addPreferredBaseEnvironment(SystemEnvironmentBase, tr("System Environment"));
 
