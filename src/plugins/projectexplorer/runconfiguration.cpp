@@ -401,7 +401,7 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
     \sa ProjectExplorer::IRunConfigurationAspect
 */
 
-QList<IRunConfigurationAspect *> RunConfiguration::extraAspects() const
+const QList<IRunConfigurationAspect *> RunConfiguration::aspects() const
 {
     return m_aspects;
 }
