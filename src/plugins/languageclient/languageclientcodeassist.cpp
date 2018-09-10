@@ -82,7 +82,7 @@ QString LanguageClientCompletionItem::text() const
 { return m_item.label(); }
 
 bool LanguageClientCompletionItem::implicitlyApplies() const
-{ return true; }
+{ return false; }
 
 bool LanguageClientCompletionItem::prematurelyApplies(const QChar &/*typedCharacter*/) const
 { return false; }
