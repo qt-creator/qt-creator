@@ -86,7 +86,10 @@ private:
 
 CustomExecutableDialog::CustomExecutableDialog(RunConfiguration *rc)
     : QDialog(Core::ICore::dialogParent()),
-      m_rc(rc), m_arguments(rc), m_workingDirectory(rc), m_terminal(rc)
+      m_rc(rc),
+      m_arguments(rc),
+      m_workingDirectory(rc, rc->extraAspect<EnvironmentAspect>()),
+      m_terminal(rc)
 {
     auto vbox = new QVBoxLayout(this);
     vbox->addWidget(new QLabel(tr("Could not find the executable, please specify one.")));
@@ -185,7 +188,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
     exeAspect->setEnvironment(envAspect->environment());
 
     addAspect<ArgumentsAspect>();
-    addAspect<WorkingDirectoryAspect>();
+    addAspect<WorkingDirectoryAspect>(envAspect);
     addAspect<TerminalAspect>();
 
     connect(envAspect, &EnvironmentAspect::environmentChanged,

@@ -27,6 +27,7 @@
 
 #include "runconfiguration.h"
 #include "applicationlauncher.h"
+#include "environmentaspect.h"
 
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
@@ -70,7 +71,8 @@ class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public IRunConfigurationAs
     Q_OBJECT
 
 public:
-    explicit WorkingDirectoryAspect(RunConfiguration *runConfig);
+    WorkingDirectoryAspect(RunConfiguration *runConfig,
+                           EnvironmentAspect *envAspect = nullptr);
 
     void addToConfigurationLayout(QFormLayout *layout) override;
 
@@ -87,6 +89,7 @@ private:
     void resetPath();
     QString keyForDefaultWd() const;
 
+    EnvironmentAspect * const m_envAspect = nullptr;
     Utils::FileName m_workingDirectory;
     Utils::FileName m_defaultWorkingDirectory;
     QPointer<Utils::PathChooser> m_chooser;

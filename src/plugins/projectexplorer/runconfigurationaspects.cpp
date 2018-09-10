@@ -115,8 +115,10 @@ bool TerminalAspect::isUserSet() const
     \class ProjectExplorer::WorkingDirectoryAspect
 */
 
-WorkingDirectoryAspect::WorkingDirectoryAspect(RunConfiguration *runConfig)
-    : IRunConfigurationAspect(runConfig)
+WorkingDirectoryAspect::WorkingDirectoryAspect(RunConfiguration *runConfig,
+                                               EnvironmentAspect *envAspect)
+    : IRunConfigurationAspect(runConfig),
+      m_envAspect(envAspect)
 {
     setDisplayName(tr("Working Directory"));
     setId("WorkingDirectoryAspect");
@@ -145,11 +147,11 @@ void WorkingDirectoryAspect::addToConfigurationLayout(QFormLayout *layout)
 
     m_resetButton->setEnabled(m_workingDirectory != m_defaultWorkingDirectory);
 
-    if (auto envAspect = runConfiguration()->extraAspect<EnvironmentAspect>()) {
-        connect(envAspect, &EnvironmentAspect::environmentChanged, m_chooser.data(), [this, envAspect] {
-            m_chooser->setEnvironment(envAspect->environment());
+    if (m_envAspect) {
+        connect(m_envAspect, &EnvironmentAspect::environmentChanged, m_chooser.data(), [this] {
+            m_chooser->setEnvironment(m_envAspect->environment());
         });
-        m_chooser->setEnvironment(envAspect->environment());
+        m_chooser->setEnvironment(m_envAspect->environment());
     }
 
     auto hbox = new QHBoxLayout;
@@ -190,9 +192,8 @@ void WorkingDirectoryAspect::toMap(QVariantMap &data) const
 
 FileName WorkingDirectoryAspect::workingDirectory() const
 {
-    auto envAspect = runConfiguration()->extraAspect<EnvironmentAspect>();
-    const Utils::Environment env = envAspect ? envAspect->environment()
-                                             : Utils::Environment::systemEnvironment();
+    const Utils::Environment env = m_envAspect ? m_envAspect->environment()
+                                               : Utils::Environment::systemEnvironment();
     const QString macroExpanded
             = runConfiguration()->macroExpander()->expandProcessArgs(m_workingDirectory.toUserOutput());
     return FileName::fromString(PathChooser::expandedDirectory(macroExpanded, env, QString()));
