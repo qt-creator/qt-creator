@@ -40,6 +40,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDebug>
@@ -671,7 +672,9 @@ void BaseClient::parseData(const QByteArray &data)
     }
 }
 
-StdIOClient::StdIOClient(const QString &command, const QStringList &args)
+StdIOClient::StdIOClient(const QString &executable, const QString &arguments)
+    : m_executable(executable)
+    , m_arguments(arguments)
 {
     connect(&m_process, &QProcess::readyReadStandardError,
             this, &StdIOClient::readError);
@@ -680,8 +683,8 @@ StdIOClient::StdIOClient(const QString &command, const QStringList &args)
     connect(&m_process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             this, &StdIOClient::onProcessFinished);
 
-    m_process.setArguments(args);
-    m_process.setProgram(command);
+    m_process.setArguments(Utils::QtcProcess::splitArgs(m_arguments));
+    m_process.setProgram(m_executable);
 }
 
 StdIOClient::~StdIOClient()
@@ -706,8 +709,8 @@ void StdIOClient::setWorkingDirectory(const QString &workingDirectory)
 
 bool StdIOClient::matches(const LanguageClientSettings &setting)
 {
-    return setting.m_executable == m_process.program()
-            && setting.m_arguments == m_process.arguments();
+    return setting.m_executable == m_executable
+            && setting.m_arguments == m_executable;
 }
 
 void StdIOClient::sendData(const QByteArray &data)

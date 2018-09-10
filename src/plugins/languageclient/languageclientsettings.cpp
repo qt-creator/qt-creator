@@ -30,6 +30,7 @@
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/delegates.h>
+#include <utils/qtcprocess.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <languageserverprotocol/lsptypes.h>
 
@@ -243,7 +244,7 @@ QVariant LanguageClientSettingsModel::data(const QModelIndex &index, int role) c
         case DisplayNameColumn: return setting.m_name;
         case MimeTypeColumn: return setting.m_mimeType;
         case ExecutableColumn: return setting.m_executable;
-        case ArgumentsColumn: return setting.m_arguments.join(' ');
+        case ArgumentsColumn: return setting.m_arguments;
         }
     } else if (role == Qt::CheckStateRole && index.column() == EnabledColumn) {
         return setting.m_enabled ? Qt::Checked : Qt::Unchecked;
@@ -299,7 +300,7 @@ bool LanguageClientSettingsModel::setData(const QModelIndex &index, const QVaria
         case DisplayNameColumn: setting.m_name = value.toString(); break;
         case MimeTypeColumn: setting.m_mimeType = value.toString(); break;
         case ExecutableColumn: setting.m_executable = value.toString(); break;
-        case ArgumentsColumn: setting.m_arguments = value.toString().split(' '); break;
+        case ArgumentsColumn: setting.m_arguments = value.toString(); break;
         default:
             return false;
         }
@@ -364,13 +365,8 @@ void LanguageClientSettingsModel::applyChanges()
     for (auto interface : toShutdown)
         interface->shutdown();
     for (auto setting : toStart) {
-        if (setting.isValid() && setting.m_enabled) {
-            auto client = new StdIOClient(setting.m_executable, setting.m_arguments);
-            client->setName(setting.m_name);
-            if (setting.m_mimeType != noLanguageFilter)
-                client->setSupportedMimeType({setting.m_mimeType});
-            LanguageClientManager::startClient(client);
-        }
+        if (setting.isValid() && setting.m_enabled)
+            LanguageClientManager::startClient(setting);
     }
 }
 
@@ -405,7 +401,7 @@ LanguageClientSettings LanguageClientSettings::fromMap(const QVariantMap &map)
                 map[enabledKey].toBool(),
                 map[mimeTypeKey].toString(),
                 map[executableKey].toString(),
-                map[argumentsKey].toStringList() };
+                map[argumentsKey].toString() };
 }
 
 void LanguageClientSettings::init()

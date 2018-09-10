@@ -162,7 +162,7 @@ class StdIOClient : public BaseClient
 {
     Q_OBJECT
 public:
-    StdIOClient(const QString &command, const QStringList &args = QStringList());
+    StdIOClient(const QString &executable, const QString &arguments);
     ~StdIOClient() override;
 
     StdIOClient() = delete;
@@ -185,6 +185,9 @@ private:
     void readError();
     void readOutput();
     void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+
+    const QString m_executable;
+    const QString m_arguments;
 };
 
 } // namespace LanguageClient

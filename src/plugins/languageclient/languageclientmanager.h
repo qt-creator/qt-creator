@@ -26,6 +26,7 @@
 #pragma once
 
 #include "baseclient.h"
+#include "languageclientsettings.h"
 
 #include <coreplugin/id.h>
 
@@ -60,6 +61,7 @@ public:
     static void removeMarks(const Utils::FileName &fileName, const Core::Id &id);
     static void removeMarks(const Core::Id &id);
 
+    static void startClient(LanguageClientSettings setting);
     static void startClient(BaseClient *client);
     static QVector<BaseClient *> clients();
 

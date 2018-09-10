@@ -40,7 +40,7 @@ class LanguageClientSettings
 public:
     LanguageClientSettings() = default;
     LanguageClientSettings(const QString &name, bool enabled, const QString &mimeTypeName,
-                           const QString &executable, const QStringList &arguments)
+                           const QString &executable, const QString &arguments)
         : m_name(name)
         , m_enabled(enabled)
         , m_mimeType(mimeTypeName)
@@ -51,7 +51,7 @@ public:
     bool m_enabled = true;
     QString m_mimeType = QLatin1String(noLanguageFilter);
     QString m_executable;
-    QStringList m_arguments;
+    QString m_arguments;
 
     bool isValid();
 
