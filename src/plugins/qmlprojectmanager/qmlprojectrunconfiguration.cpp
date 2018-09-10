@@ -71,7 +71,7 @@ static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
 class MainQmlFileAspect : public IRunConfigurationAspect
 {
 public:
-    MainQmlFileAspect(RunConfiguration *rc);
+    MainQmlFileAspect(RunConfiguration *rc, QmlProject *project);
     ~MainQmlFileAspect() { delete m_fileListCombo; }
 
     enum MainScriptSource {
@@ -95,6 +95,7 @@ public:
     bool isQmlFilePresent();
 
 public:
+    QmlProject *m_project;
     QPointer<QComboBox> m_fileListCombo;
     QStandardItemModel m_fileListModel;
     QString m_scriptFile;
@@ -104,8 +105,8 @@ public:
     QString m_mainScriptFilename;
 };
 
-MainQmlFileAspect::MainQmlFileAspect(RunConfiguration *rc)
-    : IRunConfigurationAspect(rc)
+MainQmlFileAspect::MainQmlFileAspect(RunConfiguration *rc, QmlProject *project)
+    : IRunConfigurationAspect(rc), m_project(project)
 {
     m_scriptFile = M_CURRENT_FILE;
 
@@ -151,8 +152,7 @@ void MainQmlFileAspect::fromMap(const QVariantMap &map)
 
 void MainQmlFileAspect::updateFileComboBox()
 {
-    Project *project = runConfiguration()->target()->project();
-    QDir projectDir(project->projectDirectory().toString());
+    QDir projectDir(m_project->projectDirectory().toString());
 
     if (mainScriptSource() == FileInProjectFile) {
         const QString mainScriptInFilePath = projectDir.relativeFilePath(mainScript());
@@ -169,7 +169,7 @@ void MainQmlFileAspect::updateFileComboBox()
     m_fileListModel.appendRow(new QStandardItem(QLatin1String(CURRENT_FILE)));
     QModelIndex currentIndex;
 
-    QStringList sortedFiles = Utils::transform(project->files(Project::AllFiles),
+    QStringList sortedFiles = Utils::transform(m_project->files(Project::AllFiles),
                                                &Utils::FileName::toString);
 
     // make paths relative to project directory
@@ -206,8 +206,7 @@ void MainQmlFileAspect::updateFileComboBox()
 
 MainQmlFileAspect::MainScriptSource MainQmlFileAspect::mainScriptSource() const
 {
-    QmlProject *project = static_cast<QmlProject *>(runConfiguration()->target()->project());
-    if (!project->mainFile().isEmpty())
+    if (!m_project->mainFile().isEmpty())
         return FileInProjectFile;
     if (!m_mainScriptFilename.isEmpty())
         return FileInSettings;
@@ -234,8 +233,7 @@ void MainQmlFileAspect::setScriptSource(MainScriptSource source, const QString &
         m_mainScriptFilename.clear();
     } else { // FileInSettings
         m_scriptFile = settingsPath;
-        Project *project = runConfiguration()->target()->project();
-        m_mainScriptFilename = project->projectDirectory().toString() + '/' + m_scriptFile;
+        m_mainScriptFilename = m_project->projectDirectory().toString() + '/' + m_scriptFile;
     }
 
     emit changed();
@@ -247,15 +245,12 @@ void MainQmlFileAspect::setScriptSource(MainScriptSource source, const QString &
   */
 QString MainQmlFileAspect::mainScript() const
 {
-    QmlProject *project = qobject_cast<QmlProject *>(runConfiguration()->target()->project());
-    if (!project)
-        return m_currentFileFilename;
-    if (!project->mainFile().isEmpty()) {
-        const QString pathInProject = project->mainFile();
+    if (!m_project->mainFile().isEmpty()) {
+        const QString pathInProject = m_project->mainFile();
         if (QFileInfo(pathInProject).isAbsolute())
             return pathInProject;
         else
-            return QDir(project->canonicalProjectDir().toString()).absoluteFilePath(pathInProject);
+            return QDir(m_project->canonicalProjectDir().toString()).absoluteFilePath(pathInProject);
     }
 
     if (!m_mainScriptFilename.isEmpty())
@@ -290,7 +285,9 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     auto argumentAspect = addAspect<ArgumentsAspect>();
     argumentAspect->setSettingsKey(Constants::QML_VIEWER_ARGUMENTS_KEY);
 
-    m_mainQmlFileAspect = addAspect<MainQmlFileAspect>();
+    auto qmlProject = qobject_cast<QmlProject *>(target->project());
+    QTC_ASSERT(qmlProject, return);
+    m_mainQmlFileAspect = addAspect<MainQmlFileAspect>(qmlProject);
     connect(m_mainQmlFileAspect, &MainQmlFileAspect::changed,
             this, &QmlProjectRunConfiguration::updateEnabledState);
 
@@ -417,7 +414,7 @@ bool MainQmlFileAspect::isQmlFilePresent()
                 || mainScriptMimeType.matchesName(QLatin1String(QmlJSTools::Constants::QMLPROJECT_MIMETYPE))) {
             // find a qml file with lowercase filename. This is slow, but only done
             // in initialization/other border cases.
-            const auto files = runConfiguration()->target()->project()->files(Project::AllFiles);
+            const auto files = m_project->files(Project::AllFiles);
             for (const Utils::FileName &filename : files) {
                 const QFileInfo fi = filename.toFileInfo();
 
