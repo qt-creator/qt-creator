@@ -42,8 +42,6 @@ public:
     QmlProjectRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
 private:
-    friend class MainQmlFileAspect;
-
     ProjectExplorer::Runnable runnable() const final;
     QString disabledReason() const final;
     ProjectExplorer::Abi abi() const final;

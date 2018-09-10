@@ -238,8 +238,7 @@ void MainQmlFileAspect::setScriptSource(MainScriptSource source, const QString &
         m_mainScriptFilename = project->projectDirectory().toString() + '/' + m_scriptFile;
     }
 
-    qobject_cast<QmlProjectRunConfiguration *>(runConfiguration())->updateEnabledState();
-
+    emit changed();
     updateFileComboBox();
 }
 
@@ -273,7 +272,7 @@ void MainQmlFileAspect::changeCurrentFile(IEditor *editor)
     if (editor)
         m_currentFileFilename = editor->document()->filePath().toString();
 
-    qobject_cast<QmlProjectRunConfiguration *>(runConfiguration())->updateEnabledState();
+    emit changed();
 }
 
 
@@ -292,6 +291,8 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     argumentAspect->setSettingsKey(Constants::QML_VIEWER_ARGUMENTS_KEY);
 
     m_mainQmlFileAspect = addAspect<MainQmlFileAspect>();
+    connect(m_mainQmlFileAspect, &MainQmlFileAspect::changed,
+            this, &QmlProjectRunConfiguration::updateEnabledState);
 
     setOutputFormatter<QtSupport::QtOutputFormatter>();
 
