@@ -40,7 +40,8 @@ class RemoteLinuxEnvironmentAspectWidget : public ProjectExplorer::EnvironmentAs
     Q_OBJECT
 
 public:
-    RemoteLinuxEnvironmentAspectWidget(RemoteLinuxEnvironmentAspect *aspect);
+    RemoteLinuxEnvironmentAspectWidget(RemoteLinuxEnvironmentAspect *aspect,
+                                       ProjectExplorer::Target *target);
 
     RemoteLinuxEnvironmentAspect *aspect() const;
     QPushButton *fetchButton() const;

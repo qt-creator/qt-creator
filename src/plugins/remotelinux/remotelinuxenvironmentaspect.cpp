@@ -53,7 +53,9 @@ RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(ProjectExplorer::RunC
     addSupportedBaseEnvironment(CleanBaseEnvironment, tr("Clean Environment"));
     addPreferredBaseEnvironment(RemoteBaseEnvironment, tr("System Environment"));
 
-    setRunConfigWidgetCreator([this] { return new RemoteLinuxEnvironmentAspectWidget(this); });
+    setRunConfigWidgetCreator([this, rc] {
+        return new RemoteLinuxEnvironmentAspectWidget(this, rc->target());
+    });
 }
 
 Utils::Environment RemoteLinuxEnvironmentAspect::baseEnvironment() const
