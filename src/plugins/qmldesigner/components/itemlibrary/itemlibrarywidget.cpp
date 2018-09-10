@@ -437,7 +437,7 @@ void ItemLibraryWidget::addResources()
     QMultiMap<QString, QString> partitionedFileNames;
 
     for (const QString &fileName : fileNames) {
-        const QString suffix = "*." + QFileInfo(fileName).completeSuffix();
+        const QString suffix = "*." + QFileInfo(fileName).suffix();
         const QString category = reverseMap.value(suffix);
         partitionedFileNames.insert(category, fileName);
     }
