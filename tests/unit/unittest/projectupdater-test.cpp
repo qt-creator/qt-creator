@@ -82,15 +82,18 @@ protected:
         projectPart.files.push_back(header2ProjectFile);
         projectPart.files.push_back(source1ProjectFile);
         projectPart.files.push_back(source2ProjectFile);
-        projectPart.displayName = QString(projectPartId);
+        projectPart.displayName = "project1";
         projectPart.projectMacros = {{"FOO", "2"}, {"BAR", "1"}};
+        projectPartId = projectPart.id();
 
         projectPart2.files.push_back(header2ProjectFile);
         projectPart2.files.push_back(header1ProjectFile);
         projectPart2.files.push_back(source2ProjectFile);
         projectPart2.files.push_back(source1ProjectFile);
-        projectPart2.displayName = QString(projectPartId2);
+        projectPart2.displayName = "project2";
         projectPart2.projectMacros = {{"BAR", "1"}, {"FOO", "2"}};
+        projectPartId2 = projectPart2.id();
+
 
         Utils::SmallStringVector arguments{ClangPchManager::ProjectUpdater::compilerArguments(
                         &projectPart)};
@@ -120,8 +123,8 @@ protected:
     MockPchManagerNotifier mockPchManagerNotifier{pchManagerClient};
     NiceMock<MockPchManagerServer> mockPchManagerServer;
     ClangPchManager::ProjectUpdater updater{mockPchManagerServer, filePathCache};
-    Utils::SmallString projectPartId{"project1"};
-    Utils::SmallString projectPartId2{"project2"};
+    Utils::SmallString projectPartId;
+    Utils::SmallString projectPartId2;
     Utils::PathStringVector headerPaths = {"/path/to/header1.h", "/path/to/header2.h"};
     Utils::PathStringVector sourcePaths = {"/path/to/source1.cpp", "/path/to/source2.cpp"};
     ClangBackEnd::CompilerMacros compilerMacros = {{"BAR", "1"}, {"FOO", "2"}};

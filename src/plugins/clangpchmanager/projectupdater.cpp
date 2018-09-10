@@ -188,7 +188,7 @@ ClangBackEnd::V2::ProjectPartContainer ProjectUpdater::toProjectPartContainer(
 
     HeaderAndSources headerAndSources = headerAndSourcesFromProjectPart(projectPart);
 
-    return ClangBackEnd::V2::ProjectPartContainer(projectPart->displayName,
+    return ClangBackEnd::V2::ProjectPartContainer(projectPart->id(),
                                                   Utils::SmallStringVector(arguments),
                                                   createCompilerMacros(projectPart->projectMacros),
                                                   createIncludeSearchPaths(projectPart->headerPaths),
