@@ -246,7 +246,8 @@ bool CustomExecutableRunConfiguration::isConfigured() const
 
 Runnable CustomExecutableRunConfiguration::runnable() const
 {
-    FileName workingDirectory = extraAspect<WorkingDirectoryAspect>()->workingDirectory();
+    FileName workingDirectory =
+            extraAspect<WorkingDirectoryAspect>()->workingDirectory(macroExpander());
 
     Runnable r;
     r.executable = extraAspect<ExecutableAspect>()->executable().toString();

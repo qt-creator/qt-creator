@@ -442,7 +442,7 @@ Runnable RunConfiguration::runnable() const
     if (auto aspect = extraAspect<ArgumentsAspect>())
         r.commandLineArguments = aspect->arguments();
     if (auto aspect = extraAspect<WorkingDirectoryAspect>())
-        r.workingDirectory = aspect->workingDirectory().toString();
+        r.workingDirectory = aspect->workingDirectory(macroExpander()).toString();
     if (auto aspect = extraAspect<EnvironmentAspect>())
         r.environment = aspect->environment();
     return r;

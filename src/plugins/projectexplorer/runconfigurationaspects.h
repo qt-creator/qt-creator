@@ -76,7 +76,7 @@ public:
 
     void addToConfigurationLayout(QFormLayout *layout) override;
 
-    Utils::FileName workingDirectory() const;
+    Utils::FileName workingDirectory(const Utils::MacroExpander *expander) const;
     Utils::FileName defaultWorkingDirectory() const;
     Utils::FileName unexpandedWorkingDirectory() const;
     void setDefaultWorkingDirectory(const Utils::FileName &defaultWorkingDir);
