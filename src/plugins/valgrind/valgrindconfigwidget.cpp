@@ -44,10 +44,8 @@
 namespace Valgrind {
 namespace Internal {
 
-ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
-        QWidget *parent, bool global)
-    : QWidget(parent),
-      m_settings(settings),
+ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings, bool global)
+    : m_settings(settings),
       m_ui(new Ui::ValgrindConfigWidget)
 {
     m_ui->setupUi(this);

@@ -59,7 +59,7 @@ public:
         LeakCheckOnFinishYes
     };
 
-    ValgrindBaseSettings(ProjectExplorer::RunConfiguration *runConfiguration = nullptr);
+    ValgrindBaseSettings(const ConfigWidgetCreator &creator);
 
     void toMap(QVariantMap &map) const override;
     void fromMap(const QVariantMap &map) override;
@@ -183,7 +183,6 @@ class ValgrindGlobalSettings : public ValgrindBaseSettings
 public:
     ValgrindGlobalSettings();
 
-    QWidget *createConfigWidget(QWidget *parent) override;
     void toMap(QVariantMap &map) const override;
     void fromMap(const QVariantMap &map) override;
 
@@ -239,9 +238,8 @@ class ValgrindProjectSettings : public ValgrindBaseSettings
     Q_OBJECT
 
 public:
-    ValgrindProjectSettings(ProjectExplorer::RunConfiguration *runConfiguration);
+    ValgrindProjectSettings();
 
-    QWidget *createConfigWidget(QWidget *parent) override;
     void toMap(QVariantMap &map) const override;
     void fromMap(const QVariantMap &map) override;
 

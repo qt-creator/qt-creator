@@ -54,7 +54,6 @@ private:
 
     QWidget *m_configWidget;
     ProjectExplorer::IRunConfigurationAspect *m_aspect;
-    ProjectExplorer::ISettingsAspect *m_config;
     QComboBox *m_settingsCombo;
     QPushButton *m_restoreButton;
     Utils::DetailsWidget *m_details;

@@ -71,7 +71,7 @@ public:
     QWidget *widget()
     {
         if (!m_widget)
-            m_widget = new ValgrindConfigWidget(theGlobalSettings, 0, true);
+            m_widget = new ValgrindConfigWidget(theGlobalSettings, true);
         return m_widget;
     }
 
@@ -95,7 +95,7 @@ public:
     ValgrindRunConfigurationAspect(RunConfiguration *parent)
         : IRunConfigurationAspect(parent)
     {
-        setProjectSettings(new ValgrindProjectSettings(parent));
+        setProjectSettings(new ValgrindProjectSettings);
         setGlobalSettings(ValgrindPlugin::globalSettings());
         setId(ANALYZER_VALGRIND_SETTINGS);
         setDisplayName(QCoreApplication::translate("Valgrind::Internal::ValgrindRunConfigurationAspect",

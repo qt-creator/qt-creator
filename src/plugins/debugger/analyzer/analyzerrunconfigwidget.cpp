@@ -41,7 +41,6 @@ namespace Debugger {
 AnalyzerRunConfigWidget::AnalyzerRunConfigWidget(ProjectExplorer::IRunConfigurationAspect *aspect)
 {
     m_aspect = aspect;
-    m_config = aspect->projectSettings();
 
     auto globalSetting = new QWidget;
     auto globalSettingLayout = new QHBoxLayout(globalSetting);
@@ -63,7 +62,7 @@ AnalyzerRunConfigWidget::AnalyzerRunConfigWidget(ProjectExplorer::IRunConfigurat
     globalSettingLayout->addStretch(2);
 
     QWidget *innerPane = new QWidget;
-    m_configWidget = m_config->createConfigWidget(innerPane);
+    m_configWidget = aspect->projectSettings()->createConfigWidget();
 
     auto layout = new QVBoxLayout(innerPane);
     layout->setContentsMargins(0, 0, 0, 0);

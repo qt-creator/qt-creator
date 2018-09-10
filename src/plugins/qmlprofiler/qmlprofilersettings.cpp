@@ -34,8 +34,8 @@
 namespace QmlProfiler {
 namespace Internal {
 
-QmlProfilerSettings::QmlProfilerSettings(ProjectExplorer::RunConfiguration *runConfiguration) :
-    ProjectExplorer::ISettingsAspect(runConfiguration)
+QmlProfilerSettings::QmlProfilerSettings()
+    :  ProjectExplorer::ISettingsAspect([this] { return new QmlProfilerConfigWidget(this); })
 {
     QVariantMap defaults;
     defaults.insert(QLatin1String(Constants::FLUSH_INTERVAL), 1000);
@@ -52,11 +52,6 @@ QmlProfilerSettings::QmlProfilerSettings(ProjectExplorer::RunConfiguration *runC
     settings->endGroup();
 
     fromMap(map);
-}
-
-QWidget *QmlProfilerSettings::createConfigWidget(QWidget *parent)
-{
-    return new Internal::QmlProfilerConfigWidget(this, parent);
 }
 
 bool QmlProfilerSettings::flushEnabled() const

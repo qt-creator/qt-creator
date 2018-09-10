@@ -81,6 +81,10 @@ template <typename T> void setIfPresent(const QVariantMap &map, const QString &k
         *val = map.value(key).template value<T>();
 }
 
+ValgrindBaseSettings::ValgrindBaseSettings(const ConfigWidgetCreator &creator)
+    : ISettingsAspect(creator)
+{}
+
 void ValgrindBaseSettings::fromMap(const QVariantMap &map)
 {
     // General
@@ -112,10 +116,6 @@ void ValgrindBaseSettings::fromMap(const QVariantMap &map)
 
     emit changed();
 }
-
-ValgrindBaseSettings::ValgrindBaseSettings(ProjectExplorer::RunConfiguration *runConfiguration) :
-    ProjectExplorer::ISettingsAspect(runConfiguration)
-{}
 
 void ValgrindBaseSettings::toMap(QVariantMap &map) const
 {
@@ -289,13 +289,9 @@ void ValgrindBaseSettings::setVisualisationMinimumInclusiveCostRatio(
 //////////////////////////////////////////////////////////////////
 
 ValgrindGlobalSettings::ValgrindGlobalSettings()
+    : ValgrindBaseSettings([this] { return new ValgrindConfigWidget(this, true); })
 {
     readSettings();
-}
-
-QWidget *ValgrindGlobalSettings::createConfigWidget(QWidget *parent)
-{
-    return new ValgrindConfigWidget(this, parent, true);
 }
 
 void ValgrindGlobalSettings::fromMap(const QVariantMap &map)
@@ -475,15 +471,9 @@ void ValgrindGlobalSettings::setShortenTemplates(bool on)
 //
 //////////////////////////////////////////////////////////////////
 
-ValgrindProjectSettings::ValgrindProjectSettings(
-        ProjectExplorer::RunConfiguration *runConfiguration) :
-    ValgrindBaseSettings(runConfiguration)
+ValgrindProjectSettings::ValgrindProjectSettings()
+    : ValgrindBaseSettings([this] { return new ValgrindConfigWidget(this, false); })
 {}
-
-QWidget *ValgrindProjectSettings::createConfigWidget(QWidget *parent)
-{
-    return new ValgrindConfigWidget(this, parent, false);
-}
 
 void ValgrindProjectSettings::fromMap(const QVariantMap &map)
 {

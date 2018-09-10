@@ -79,12 +79,11 @@ class PROJECTEXPLORER_EXPORT ISettingsAspect : public QObject
     Q_OBJECT
 
 public:
-    ISettingsAspect(RunConfiguration *runConfiguration);
-
     /// Create a configuration widget for this settings aspect.
-    virtual QWidget *createConfigWidget(QWidget *parent) = 0;
+    using ConfigWidgetCreator = std::function<QWidget *()>;
 
-    RunConfiguration *runConfiguration() const;
+    explicit ISettingsAspect(const ConfigWidgetCreator &configWidgetCreator);
+    QWidget *createConfigWidget() const;
 
 protected:
     ///
@@ -94,8 +93,7 @@ protected:
     /// Read object state from @p map.
     virtual void fromMap(const QVariantMap &map) = 0;
 
-private:
-    RunConfiguration *m_runConfiguration;
+    ConfigWidgetCreator m_configWidgetCreator;
 };
 
 

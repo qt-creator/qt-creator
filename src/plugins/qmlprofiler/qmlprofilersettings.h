@@ -34,8 +34,7 @@ class QmlProfilerSettings : public ProjectExplorer::ISettingsAspect
 {
     Q_OBJECT
 public:
-    QmlProfilerSettings(ProjectExplorer::RunConfiguration *runConfiguration = nullptr);
-    QWidget *createConfigWidget(QWidget *parent) override;
+    QmlProfilerSettings();
 
     bool flushEnabled() const;
     void setFlushEnabled(bool flushEnabled);

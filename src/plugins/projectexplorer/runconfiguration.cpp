@@ -77,14 +77,14 @@ namespace ProjectExplorer {
 //
 ///////////////////////////////////////////////////////////////////////
 
-ISettingsAspect::ISettingsAspect(RunConfiguration *runConfiguration) :
-    m_runConfiguration(runConfiguration)
-{
-}
+ISettingsAspect::ISettingsAspect(const ConfigWidgetCreator &creator)
+    : m_configWidgetCreator(creator)
+{}
 
-RunConfiguration *ISettingsAspect::runConfiguration() const
+QWidget *ISettingsAspect::createConfigWidget() const
 {
-    return m_runConfiguration;
+    QTC_ASSERT(m_configWidgetCreator, return nullptr);
+    return m_configWidgetCreator();
 }
 
 ///////////////////////////////////////////////////////////////////////
