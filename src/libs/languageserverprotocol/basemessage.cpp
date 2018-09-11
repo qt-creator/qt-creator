@@ -153,6 +153,7 @@ void BaseMessage::parse(QBuffer *data, QString &parseError, BaseMessage &message
     }
 
     // the complete header wasn't received jet, waiting for the rest of it and reparse
+    message = BaseMessage();
     data->seek(startPos);
 }
 
