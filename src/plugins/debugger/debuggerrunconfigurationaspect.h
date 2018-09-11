@@ -61,7 +61,6 @@ public:
     void toMap(QVariantMap &map) const override;
 
     bool useCppDebugger() const;
-    void setUseCppDebugger(bool value);
     bool useQmlDebugger() const;
     void setUseQmlDebugger(bool value);
     uint qmlDebugServerPort() const;
