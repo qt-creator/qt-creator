@@ -1,6 +1,6 @@
 import QtQuick 2.0
 
-Item { // 324 1 4
+Item {
     x: {
         switch (a) {
         case 1:
