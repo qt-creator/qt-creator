@@ -122,7 +122,7 @@ public:
     Perspective *m_currentPerspective = nullptr;
     QComboBox *m_perspectiveChooser = nullptr;
     QStackedWidget *m_centralWidgetStack = nullptr;
-    QHBoxLayout *m_subToolsSwitcherLayout = nullptr;
+    QHBoxLayout *m_subPerspectiveSwitcherLayout = nullptr;
     QHBoxLayout *m_innerToolsLayout = nullptr;
     QWidget *m_editorPlaceHolder = nullptr;
     Utils::StatusLabel *m_statusLabel = nullptr;
@@ -165,10 +165,10 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     toolbar->setProperty("topBorder", true);
 
     // "Engine switcher" style comboboxes
-    auto subToolsSwitcher = new QWidget;
-    m_subToolsSwitcherLayout = new QHBoxLayout(subToolsSwitcher);
-    m_subToolsSwitcherLayout->setMargin(0);
-    m_subToolsSwitcherLayout->setSpacing(0);
+    auto subPerspectiveSwitcher = new QWidget;
+    m_subPerspectiveSwitcherLayout = new QHBoxLayout(subPerspectiveSwitcher);
+    m_subPerspectiveSwitcherLayout->setMargin(0);
+    m_subPerspectiveSwitcherLayout->setSpacing(0);
 
     // All perspective toolbars will get inserted here, but only
     // the current perspective's toolbar is set visible.
@@ -181,7 +181,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     hbox->setMargin(0);
     hbox->setSpacing(0);
     hbox->addWidget(m_perspectiveChooser);
-    hbox->addWidget(subToolsSwitcher);
+    hbox->addWidget(subPerspectiveSwitcher);
     hbox->addWidget(innerTools);
     hbox->addWidget(m_statusLabel);
     hbox->addStretch(1);
@@ -332,6 +332,13 @@ QWidget *DebuggerMainWindow::centralWidgetStack()
     return theMainWindow ? theMainWindow->d->m_centralWidgetStack : nullptr;
 }
 
+void DebuggerMainWindow::setSubPerspectiveSwitcher(QWidget *widget)
+{
+    widget->setVisible(false);
+    widget->setProperty("panelwidget", true);
+    d->m_subPerspectiveSwitcherLayout->addWidget(widget);
+}
+
 DebuggerMainWindow *DebuggerMainWindow::instance()
 {
     return theMainWindow;
@@ -393,8 +400,10 @@ void DebuggerMainWindowPrivate::selectPerspective(Perspective *perspective)
     }
 }
 
-QWidget *createModeWindow(const Core::Id &mode)
+QWidget *createModeWindow(const Core::Id &mode, QWidget *switcher)
 {
+    theMainWindow->setSubPerspectiveSwitcher(switcher);
+
     auto editorHolderLayout = new QVBoxLayout;
     editorHolderLayout->setMargin(0);
     editorHolderLayout->setSpacing(0);
@@ -633,13 +642,9 @@ void Perspective::addToolBarWidget(QWidget *widget)
     d->m_innerToolBarLayout->addWidget(widget);
 }
 
-void Perspective::addToolBarSwitcher(QWidget *widget, bool owner)
+void Perspective::useSubPerspectiveSwitcher(QWidget *widget)
 {
     d->m_switcher = widget;
-    d->m_switcher->setProperty("panelwidget", true);
-    d->m_switcher->setVisible(false);
-    if (owner)
-        theMainWindow->d->m_subToolsSwitcherLayout->addWidget(d->m_switcher);
 }
 
 void Perspective::addToolbarSeparator()

@@ -1296,7 +1296,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     // Debug mode setup
     m_mode = new DebugMode;
-    m_modeWindow = createModeWindow(Constants::MODE_DEBUG);
+    m_modeWindow = createModeWindow(Constants::MODE_DEBUG, EngineManager::engineChooser());
     m_mode->setWidget(m_modeWindow);
 
     m_debugModeContext.setContext(Context(CC::C_EDITORMANAGER));
@@ -1339,7 +1339,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     connect(action(SettingsDialog), &QAction::triggered,
             [] { ICore::showOptionsDialog(DEBUGGER_COMMON_SETTINGS_ID); });
 
-    m_perspective.addToolBarSwitcher(EngineManager::engineChooser(), true);
+    m_perspective.useSubPerspectiveSwitcher(EngineManager::engineChooser());
     m_perspective.addToolBarAction(&m_startAction);
 
 //    QAction *operateByInstructionAction = action(OperateByInstruction);

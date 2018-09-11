@@ -79,8 +79,9 @@ public:
     void addToolBarAction(QAction *action);
     void addToolBarAction(OptionalAction *action);
     void addToolBarWidget(QWidget *widget);
-    void addToolBarSwitcher(QWidget *widget, bool owner);
     void addToolbarSeparator();
+
+    void useSubPerspectiveSwitcher(QWidget *widget);
 
     using ShouldPersistChecker = std::function<bool()>;
     void setShouldPersistChecker(const ShouldPersistChecker &checker);
@@ -127,6 +128,7 @@ public:
     static void onModeChanged(Core::Id mode);
 
     static QWidget *centralWidgetStack();
+    void setSubPerspectiveSwitcher(QWidget *widget);
 
 private:
     DebuggerMainWindow();
@@ -137,6 +139,6 @@ private:
     class DebuggerMainWindowPrivate *d = nullptr;
 };
 
-DEBUGGER_EXPORT QWidget *createModeWindow(const Core::Id &mode);
+DEBUGGER_EXPORT QWidget *createModeWindow(const Core::Id &mode, QWidget *);
 
 } // Utils

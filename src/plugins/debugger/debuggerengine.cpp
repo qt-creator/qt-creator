@@ -667,7 +667,7 @@ void DebuggerEnginePrivate::setupViews()
     m_breakWindow->setObjectName(DOCKWIDGET_BREAK);
     m_breakWindow->setWindowTitle(tr("&Breakpoints"));
 
-    m_perspective->addToolBarSwitcher(EngineManager::engineChooser(), false);
+    m_perspective->useSubPerspectiveSwitcher(EngineManager::engineChooser());
 
     m_perspective->addToolBarAction(&m_continueAction);
     m_perspective->addToolBarAction(&m_interruptAction);
