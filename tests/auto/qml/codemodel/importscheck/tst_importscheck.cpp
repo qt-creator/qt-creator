@@ -128,9 +128,9 @@ void tst_ImportCheck::test_data()
     QTest::newRow("002_nestedQmlOnly") << QStringList(QString(TESTSRCDIR "/002_nestedQmlOnly"))
                           << QStringList()
                           << QStringList();
-    /*QTest::newRow("003_packageQmlOnly") << QStringList(QString(TESTSRCDIR "/003_packageQmlOnly"))
-                          << QStringList("QtGraphicalEffects")
-                          << QStringList()
+    QTest::newRow("003_packageQmlOnly") << QStringList(QString(TESTSRCDIR "/003_packageQmlOnly"))
+                          << QStringList("QtGraphicalEffects 1.0")
+                          << (QStringList()
                               << QString(TESTSRCDIR "/003_packageQmlOnly/QtGraphicalEffects/ZoomBlur.qml")
                               << QString(TESTSRCDIR "/003_packageQmlOnly/QtGraphicalEffects/private/FastGlow.qml")
                               << QString(TESTSRCDIR "/003_packageQmlOnly/QtGraphicalEffects/private/GaussianInnerShadow.qml")
@@ -164,11 +164,10 @@ void tst_ImportCheck::test_data()
                               << QString(TESTSRCDIR "/003_packageQmlOnly/QtGraphicalEffects/ThresholdMask.qml")
                               << QString(TESTSRCDIR "/003_packageQmlOnly/QtGraphicalEffects/LevelAdjust.qml")
                               << QString(TESTSRCDIR "/003_packageQmlOnly/QtGraphicalEffects/FastBlur.qml"));
-    QTest::newRow("004_cppOnly copy") << QStringList(QString(TESTSRCDIR "004_cppOnly copy"))
+    QTest::newRow("004_cppOnly copy") << QStringList(QString(TESTSRCDIR "/004_cppOnly copy"))
                           << QStringList({ "QML 1.0", "QtQml 2.2", "QtQml 2.1", "QtQuick 2.0",
-                                           "QtQml 2.0", "QtQuick 2.-1", "QtQuick 2.1",
-                                           "QtQuick 2.2", "<cpp>" })
-                          << QStringList();*/
+                                           "QtQml 2.0", "QtQuick 2.1", "QtQuick 2.2", "<cpp>" })
+                          << QStringList();
 }
 
 void tst_ImportCheck::test()
