@@ -25,21 +25,22 @@
 
 #pragma once
 
-#include "generatedfilesinterface.h"
+#include "googletest.h"
 
-namespace ClangBackEnd {
+#include <generatedfilesinterface.h>
 
-class CLANGSUPPORT_EXPORT GeneratedFiles final : public GeneratedFilesInterface
+class MockGeneratedFiles : public ClangBackEnd::GeneratedFilesInterface
 {
 public:
-    void update(V2::FileContainers &&fileContainers);
-    void update(const V2::FileContainers &fileContainers);
-    void remove(const FilePaths &filePaths);
+    MOCK_METHOD1(update,
+                 void (const ClangBackEnd::V2::FileContainers &fileContainers));
+    MOCK_METHOD1(remove,
+                 void (const ClangBackEnd::FilePaths &filePaths));
+    MOCK_CONST_METHOD0(fileContainers,
+                       const ClangBackEnd::V2::FileContainers &());
 
-    const V2::FileContainers &fileContainers() const;
-
-private:
-    V2::FileContainers m_fileContainers;
+    void update(ClangBackEnd::V2::FileContainers &&fileContainers)
+    {
+        update(fileContainers);
+    }
 };
-
-} // namespace ClangBackEnd

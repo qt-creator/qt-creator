@@ -37,18 +37,11 @@ class MockPchCreator : public ClangBackEnd::PchCreatorInterface
 public:
     MOCK_METHOD1(generatePchs,
                  void(const ClangBackEnd::V2::ProjectPartContainers &projectParts));
-    MOCK_METHOD1(setGeneratedFiles,
-                 void(const ClangBackEnd::V2::FileContainers &generatedFiles));
     MOCK_METHOD0(takeProjectsIncludes,
                  std::vector<ClangBackEnd::IdPaths>());
 
     void generatePchs(std::vector<ClangBackEnd::V2::ProjectPartContainer> &&projectParts) override
     {
         generatePchs(projectParts);
-    }
-
-    void setGeneratedFiles(ClangBackEnd::V2::FileContainers &&generatedFiles) override
-    {
-        setGeneratedFiles(generatedFiles);
     }
 };

@@ -32,6 +32,7 @@
 #include "pchmanagerserverinterface.h"
 #include "projectpartsinterface.h"
 
+#include <generatedfilesinterface.h>
 #include <ipcclientprovider.h>
 
 namespace ClangBackEnd {
@@ -47,8 +48,8 @@ class PchManagerServer : public PchManagerServerInterface,
 public:
     PchManagerServer(ClangPathWatcherInterface &fileSystemWatcher,
                      PchCreatorInterface &pchCreator,
-                     ProjectPartsInterface &projectParts);
-
+                     ProjectPartsInterface &projectParts,
+                     GeneratedFilesInterface &generatedFiles);
 
     void end() override;
     void updateProjectParts(UpdateProjectPartsMessage &&message) override;
@@ -64,6 +65,7 @@ private:
     ClangPathWatcherInterface &m_fileSystemWatcher;
     PchCreatorInterface &m_pchCreator;
     ProjectPartsInterface &m_projectParts;
+    GeneratedFilesInterface &m_generatedFiles;
 };
 
 } // namespace ClangBackEnd

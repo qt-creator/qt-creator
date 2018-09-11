@@ -241,7 +241,8 @@ HEADERS += \
     mocksymbolscollectormanager.h \
     mocksymbolindexertaskqueue.h \
     mocksymbolindexertaskscheduler.h \
-    mockcppmodelmanager.h
+    mockcppmodelmanager.h \
+    mockgeneratedfiles.h
 
 !isEmpty(LIBCLANG_LIBS) {
 HEADERS += \

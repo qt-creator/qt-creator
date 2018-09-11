@@ -208,6 +208,7 @@ HEADERS += \
     $$PWD/projectpartpchproviderinterface.h \
     $$PWD/updategeneratedfilesmessage.h \
     $$PWD/removegeneratedfilesmessage.h \
-    $$PWD/generatedfiles.h
+    $$PWD/generatedfiles.h \
+    $$PWD/generatedfilesinterface.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

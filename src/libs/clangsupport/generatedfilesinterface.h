@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,54 +25,21 @@
 
 #pragma once
 
-#include "projectpartcontainerv2.h"
+#include <filecontainerv2.h>
 
 namespace ClangBackEnd {
 
-class RemoveProjectPartsMessage
+class GeneratedFilesInterface
 {
 public:
-    RemoveProjectPartsMessage() = default;
-    RemoveProjectPartsMessage(Utils::SmallStringVector &&projectsPartIds)
-        : projectsPartIds(std::move(projectsPartIds))
-    {}
+    virtual void update(V2::FileContainers &&fileContainers) = 0;
+    virtual void update(const V2::FileContainers &fileContainers) = 0;
+    virtual void remove(const FilePaths &filePaths) = 0;
 
-    Utils::SmallStringVector takeProjectsPartIds()
-    {
-        return std::move(projectsPartIds);
-    }
+    virtual const V2::FileContainers &fileContainers() const = 0;
 
-    friend QDataStream &operator<<(QDataStream &out, const RemoveProjectPartsMessage &message)
-    {
-        out << message.projectsPartIds;
-
-        return out;
-    }
-
-    friend QDataStream &operator>>(QDataStream &in, RemoveProjectPartsMessage &message)
-    {
-        in >> message.projectsPartIds;
-
-        return in;
-    }
-
-    friend bool operator==(const RemoveProjectPartsMessage &first,
-                           const RemoveProjectPartsMessage &second)
-    {
-        return first.projectsPartIds == second.projectsPartIds;
-    }
-
-    RemoveProjectPartsMessage clone() const
-    {
-        return *this;
-    }
-
-public:
-    Utils::SmallStringVector projectsPartIds;
+protected:
+    ~GeneratedFilesInterface() = default;
 };
-
-CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const RemoveProjectPartsMessage &message);
-
-DECLARE_MESSAGE(RemoveProjectPartsMessage)
 
 } // namespace ClangBackEnd

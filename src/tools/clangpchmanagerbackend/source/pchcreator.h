@@ -43,20 +43,21 @@ QT_FORWARD_DECLARE_CLASS(QProcess)
 namespace ClangBackEnd {
 
 class Environment;
+class GeneratedFiles;
 
 class PchCreator final : public PchCreatorInterface
 {
 public:
     PchCreator(Environment &environment,
-               FilePathCachingInterface &filePathCache);
+               FilePathCachingInterface &filePathCache,
+               const GeneratedFiles &generatedFiles);
     PchCreator(V2::ProjectPartContainers &&projectsParts,
                Environment &environment,
                FilePathCachingInterface &filePathCache,
                PchGeneratorInterface *pchGenerator,
-               V2::FileContainers &&generatedFiles);
+               const GeneratedFiles &generatedFiles);
 
     void generatePchs(V2::ProjectPartContainers &&projectsParts) override;
-    void setGeneratedFiles(V2::FileContainers &&generatedFiles) override;
     std::vector<IdPaths> takeProjectsIncludes() override;
 
     void setGenerator(PchGeneratorInterface *pchGenerator);
@@ -93,9 +94,9 @@ unittest_public:
             const V2::ProjectPartContainer &projectPart) const;
     Utils::PathStringVector generateProjectPartHeaders(
             const V2::ProjectPartContainer &projectPart) const;
-    Utils::SmallString generateProjectPartHeaderAndSourcesContent(
+    Utils::SmallString generateProjectPartSourcesContent(
             const V2::ProjectPartContainer &projectPart) const;
-    Utils::PathStringVector generateProjectPartHeaderAndSourcePaths(
+    Utils::PathStringVector generateProjectPartSourcePaths(
             const V2::ProjectPartContainer &projectPart) const;
     std::pair<FilePathIds,FilePathIds> generateProjectPartPchIncludes(
             const V2::ProjectPartContainer &projectPart) const;
@@ -123,9 +124,9 @@ private:
 
 private:
     V2::ProjectPartContainers m_projectParts;
-    V2::FileContainers m_generatedFiles;
     std::vector<ProjectPartPch> m_projectPartPchs;
     std::vector<IdPaths> m_projectsIncludeIds;
+    const GeneratedFiles &m_generatedFiles;
     Environment &m_environment;
     FilePathCachingInterface &m_filePathCache;
     PchGeneratorInterface *m_pchGenerator = nullptr;

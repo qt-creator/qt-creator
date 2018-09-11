@@ -26,6 +26,7 @@
 #include <clangpathwatcher.h>
 #include <connectionserver.h>
 #include <environment.h>
+#include <generatedfiles.h>
 #include <pchcreator.h>
 #include <pchgenerator.h>
 #include <pchmanagerserver.h>
@@ -50,6 +51,7 @@ using namespace std::chrono_literals;
 
 using ClangBackEnd::ClangPathWatcher;
 using ClangBackEnd::ConnectionServer;
+using ClangBackEnd::GeneratedFiles;
 using ClangBackEnd::PchCreator;
 using ClangBackEnd::PchGenerator;
 using ClangBackEnd::PchManagerClientProxy;
@@ -57,7 +59,7 @@ using ClangBackEnd::PchManagerServer;
 using ClangBackEnd::ProjectParts;
 using ClangBackEnd::FilePathCache;
 
-class PchManagerApplication : public QCoreApplication
+class PchManagerApplication final : public QCoreApplication
 {
 public:
     using QCoreApplication::QCoreApplication;
@@ -74,7 +76,7 @@ public:
     }
 };
 
-class ApplicationEnvironment : public ClangBackEnd::Environment
+class ApplicationEnvironment final : public ClangBackEnd::Environment
 {
 public:
     ApplicationEnvironment(const QString &pchsPath)
@@ -142,12 +144,14 @@ int main(int argc, char *argv[])
         ClangPathWatcher<QFileSystemWatcher, QTimer> includeWatcher(filePathCache);
         ApplicationEnvironment environment{pchsPath};
         PchGenerator<QProcess> pchGenerator(environment);
-        PchCreator pchCreator(environment, filePathCache);
+        GeneratedFiles generatedFiles;
+        PchCreator pchCreator(environment, filePathCache, generatedFiles);
         pchCreator.setGenerator(&pchGenerator);
         ProjectParts projectParts;
         PchManagerServer clangPchManagerServer(includeWatcher,
                                                pchCreator,
-                                               projectParts);
+                                               projectParts,
+                                               generatedFiles);
         includeWatcher.setNotifier(&clangPchManagerServer);
         pchGenerator.setNotifier(&clangPchManagerServer);
 

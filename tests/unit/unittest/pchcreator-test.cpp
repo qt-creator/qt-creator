@@ -32,6 +32,7 @@
 
 #include <refactoringdatabaseinitializer.h>
 #include <filepathcaching.h>
+#include <generatedfiles.h>
 #include <pchcreator.h>
 #include <pchgenerator.h>
 
@@ -42,6 +43,7 @@
 namespace {
 
 using ClangBackEnd::FilePathId;
+using ClangBackEnd::GeneratedFiles;
 using ClangBackEnd::IdPaths;
 using ClangBackEnd::ProjectPartPch;
 using ClangBackEnd::V2::ProjectPartContainer;
@@ -58,12 +60,18 @@ using UnitTests::EndsWith;
 class PchCreator: public ::testing::Test
 {
 protected:
+    void SetUp()
+    {
+        generatedFiles.update({generatedFile});
+    }
+
     ClangBackEnd::FilePathId id(ClangBackEnd::FilePathView path)
     {
         return filePathCache.filePathId(path);
     }
 
 protected:
+    GeneratedFiles generatedFiles;
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
@@ -93,7 +101,7 @@ protected:
                                      environment,
                                      filePathCache,
                                      &generator,
-                                     {generatedFile}};
+                                     generatedFiles};
 };
 using PchCreatorSlowTest = PchCreator;
 using PchCreatorVerySlowTest = PchCreator;
@@ -207,11 +215,11 @@ TEST_F(PchCreator, CreateProjectPartHeaders)
     ASSERT_THAT(includeIds, UnorderedElementsAre(header1Path, generatedFilePath));
 }
 
-TEST_F(PchCreator, CreateProjectPartHeaderAndSources)
+TEST_F(PchCreator, CreateProjectPartSources)
 {
-    auto includeIds = creator.generateProjectPartHeaderAndSourcePaths(projectPart1);
+    auto includeIds = creator.generateProjectPartSourcePaths(projectPart1);
 
-    ASSERT_THAT(includeIds, UnorderedElementsAre(main1Path, header1Path));
+    ASSERT_THAT(includeIds, UnorderedElementsAre(main1Path));
 }
 
 TEST_F(PchCreatorSlowTest, CreateProjectPartPchIncludes)
@@ -346,12 +354,11 @@ TEST_F(PchCreatorVerySlowTest, IdPathsForCreatePchsForProjectParts)
                                                                Contains(id(TESTDATA_DIR "/includecollector_external2.h")))))));
 }
 
-TEST_F(PchCreator, CreateProjectPartHeaderAndSourcesContent)
+TEST_F(PchCreator, CreateProjectPartSourcesContent)
 {
-    auto content = creator.generateProjectPartHeaderAndSourcesContent(projectPart1);
+    auto content = creator.generateProjectPartSourcesContent(projectPart1);
 
-    ASSERT_THAT(content, Eq("#include \"" TESTDATA_DIR "/includecollector_header1.h\"\n"
-                            "#include \"" TESTDATA_DIR "/includecollector_main3.cpp\"\n"));
+    ASSERT_THAT(content, Eq("#include \"" TESTDATA_DIR "/includecollector_main3.cpp\"\n"));
 }
 
 

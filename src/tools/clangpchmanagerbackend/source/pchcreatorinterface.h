@@ -41,7 +41,6 @@ public:
     PchCreatorInterface &operator=(const PchCreatorInterface &) = delete;
 
     virtual void generatePchs(V2::ProjectPartContainers &&projectsParts) = 0;
-    virtual void setGeneratedFiles(V2::FileContainers &&generatedFiles) = 0;
     virtual std::vector<IdPaths> takeProjectsIncludes() = 0;
 
 protected:

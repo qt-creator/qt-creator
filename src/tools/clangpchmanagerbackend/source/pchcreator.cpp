@@ -30,6 +30,7 @@
 #include "pchnotcreatederror.h"
 
 #include <filepathcachinginterface.h>
+#include <generatedfiles.h>
 #include <projectpartpch.h>
 
 #include <QCryptographicHash>
@@ -39,8 +40,11 @@
 
 namespace ClangBackEnd {
 
-PchCreator::PchCreator(Environment &environment, FilePathCachingInterface &filePathCache)
-   : m_environment(environment),
+PchCreator::PchCreator(Environment &environment,
+                       FilePathCachingInterface &filePathCache,
+                       const GeneratedFiles &generatedFiles)
+   : m_generatedFiles(generatedFiles),
+     m_environment(environment),
      m_filePathCache(filePathCache)
 {
 }
@@ -49,18 +53,13 @@ PchCreator::PchCreator(V2::ProjectPartContainers &&projectsParts,
                        Environment &environment,
                        FilePathCachingInterface &filePathCache,
                        PchGeneratorInterface *pchGenerator,
-                       V2::FileContainers &&generatedFiles)
+                       const GeneratedFiles &generatedFiles)
     : m_projectParts(std::move(projectsParts)),
-      m_generatedFiles(std::move(generatedFiles)),
+      m_generatedFiles(generatedFiles),
       m_environment(environment),
       m_filePathCache(filePathCache),
       m_pchGenerator(pchGenerator)
 {
-}
-
-void PchCreator::setGeneratedFiles(V2::FileContainers &&generatedFiles)
-{
-    m_generatedFiles = generatedFiles;
 }
 
 namespace {
@@ -161,9 +160,9 @@ Utils::PathStringVector PchCreator::generateGlobalHeaderPaths() const
 
     Utils::PathStringVector headerPaths = generateGlobal<Utils::PathStringVector>(m_projectParts,
                                                                                   includeFunction,
-                                                                                  m_generatedFiles.size());
+                                                                                  m_generatedFiles.fileContainers().size());
 
-    Utils::PathStringVector generatedPath = generatedFilePaths(m_generatedFiles);
+    Utils::PathStringVector generatedPath = generatedFilePaths(m_generatedFiles.fileContainers());
 
     headerPaths.insert(headerPaths.end(),
                        std::make_move_iterator(generatedPath.begin()),
@@ -250,11 +249,11 @@ FilePathIds PchCreator::generateGlobalPchIncludeIds() const
 {
     IncludeCollector collector(m_filePathCache);
 
-    collector.setExcludedIncludes(generateGlobalHeaderAndSourcePaths());
+    collector.setExcludedIncludes(generateGlobalSourcePaths());
 
     collector.addFiles(generateGlobalHeaderAndSourcePaths(), generateGlobalCommandLine());
 
-    collector.addUnsavedFiles(m_generatedFiles);
+    collector.addUnsavedFiles(m_generatedFiles.fileContainers());
 
     collector.collectIncludes();
 
@@ -281,7 +280,7 @@ Utils::SmallString PchCreator::generatePchIncludeFileContent(const FilePathIds &
 
     fileContent.reserve(includes.size() * lineTemplateSize + contentSize(includes));
 
-    for (const Utils::SmallStringView &include : includes)
+    for (Utils::SmallStringView include : includes)
         fileContent += {"#include \"", include, "\"\n"};
 
     return fileContent;
@@ -400,7 +399,7 @@ Utils::PathStringVector PchCreator::generateProjectPartHeaders(
         const V2::ProjectPartContainer &projectPart) const
 {
    Utils::PathStringVector headerPaths;
-   headerPaths.reserve(projectPart.headerPathIds.size() + m_generatedFiles.size());
+   headerPaths.reserve(projectPart.headerPathIds.size() + m_generatedFiles.fileContainers().size());
 
    std::transform(projectPart.headerPathIds.begin(),
                   projectPart.headerPathIds.end(),
@@ -409,7 +408,7 @@ Utils::PathStringVector PchCreator::generateProjectPartHeaders(
        return m_filePathCache.filePath(filePathId);
    });
 
-   Utils::PathStringVector generatedPath = generatedFilePaths(m_generatedFiles);
+   Utils::PathStringVector generatedPath = generatedFilePaths(m_generatedFiles.fileContainers());
 
    std::copy(std::make_move_iterator(generatedPath.begin()),
              std::make_move_iterator(generatedPath.end()),
@@ -447,15 +446,15 @@ Utils::SmallString concatContent(const Utils::PathStringVector &paths, std::size
 
 }
 
-Utils::SmallString PchCreator::generateProjectPartHeaderAndSourcesContent(
+Utils::SmallString PchCreator::generateProjectPartSourcesContent(
         const V2::ProjectPartContainer &projectPart) const
 {
-    Utils::PathStringVector paths = generateProjectPartHeaderAndSourcePaths(projectPart);
+    Utils::PathStringVector paths = generateProjectPartSourcePaths(projectPart);
 
     return concatContent(paths, sizeOfContent(paths));
 }
 
-Utils::PathStringVector PchCreator::generateProjectPartHeaderAndSourcePaths(
+Utils::PathStringVector PchCreator::generateProjectPartSourcePaths(
         const V2::ProjectPartContainer &projectPart) const
 {
     Utils::PathStringVector includeAndSources;
@@ -469,7 +468,7 @@ Utils::PathStringVector PchCreator::generateProjectPartHeaderAndSourcePaths(
 std::pair<FilePathIds,FilePathIds> PchCreator::generateProjectPartPchIncludes(
         const V2::ProjectPartContainer &projectPart) const
 {
-    Utils::SmallString jointedFileContent = generateProjectPartHeaderAndSourcesContent(projectPart);
+    Utils::SmallString jointedFileContent = generateProjectPartSourcesContent(projectPart);
     Utils::SmallString jointedFilePath = generateProjectPartSourceFilePath(projectPart);
     auto jointFile = generateFileWithContent(jointedFilePath, jointedFileContent);
     Utils::SmallStringVector arguments = generateProjectPartCommandLine(projectPart);
@@ -478,14 +477,14 @@ std::pair<FilePathIds,FilePathIds> PchCreator::generateProjectPartPchIncludes(
 
     IncludeCollector collector(m_filePathCache);
 
-    collector.setExcludedIncludes(generateProjectPartHeaderAndSourcePaths(projectPart));
+    collector.setExcludedIncludes(generateProjectPartSourcePaths(projectPart));
 
     collector.addFile(std::string(filePath.directory()),
                       std::string(filePath.name()),
                       {},
                       arguments);
 
-    collector.addUnsavedFiles(m_generatedFiles);
+    collector.addUnsavedFiles(m_generatedFiles.fileContainers());
 
     collector.collectIncludes();
 

@@ -27,6 +27,7 @@
 
 #include <pchmanagerclientinterface.h>
 #include <precompiledheadersupdatedmessage.h>
+#include <removegeneratedfilesmessage.h>
 #include <removeprojectpartsmessage.h>
 #include <updategeneratedfilesmessage.h>
 #include <updateprojectpartsmessage.h>
@@ -39,10 +40,12 @@ namespace ClangBackEnd {
 
 PchManagerServer::PchManagerServer(ClangPathWatcherInterface &fileSystemWatcher,
                                    PchCreatorInterface &pchCreator,
-                                   ProjectPartsInterface &projectParts)
+                                   ProjectPartsInterface &projectParts,
+                                   GeneratedFilesInterface &generatedFiles)
     : m_fileSystemWatcher(fileSystemWatcher),
       m_pchCreator(pchCreator),
-      m_projectParts(projectParts)
+      m_projectParts(projectParts),
+      m_generatedFiles(generatedFiles)
 {
     m_fileSystemWatcher.setNotifier(this);
 }
@@ -69,12 +72,12 @@ void PchManagerServer::removeProjectParts(RemoveProjectPartsMessage &&message)
 
 void PchManagerServer::updateGeneratedFiles(UpdateGeneratedFilesMessage &&message)
 {
-    m_pchCreator.setGeneratedFiles(message.takeGeneratedFiles());
+    m_generatedFiles.update(message.takeGeneratedFiles());
 }
 
 void PchManagerServer::removeGeneratedFiles(RemoveGeneratedFilesMessage &&message)
 {
-    // TODO
+    m_generatedFiles.remove(message.takeGeneratedFiles());
 }
 
 void PchManagerServer::pathsWithIdsChanged(const Utils::SmallStringVector &ids)
