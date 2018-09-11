@@ -1,6 +1,5 @@
 import QtQuick 2.0
 
-
 /* Comment 1
    This is a multiline comment. */
 

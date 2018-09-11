@@ -99,7 +99,7 @@ void tst_Reformatter::test()
         const QString &newLinee = newLines.at(i);
         if (sourceLine.trimmed().isEmpty() && newLinee.trimmed().isEmpty())
             continue;
-        bool fail = !QCOMPARE_NOEXIT(sourceLine, newLinee);
+        bool fail = !QCOMPARE_NOEXIT(newLinee, sourceLine);
         if (fail) {
             qDebug() << "in line" << (i + 1);
             return;
