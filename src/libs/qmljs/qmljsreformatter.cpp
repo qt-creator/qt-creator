@@ -173,8 +173,11 @@ protected:
         QStringList lines = str.split(QLatin1Char('\n'));
         bool multiline = lines.length() > 1;
         for (int i = 0; i < lines.size(); ++i) {
-            if (multiline)
+            if (multiline) {
+                if (i == 0)
+                    newLine();
                 _line = lines.at(i);  // multiline comments don't keep track of previos lines
+            }
             else
                 _line += lines.at(i);
             if (i != lines.size() - 1)
