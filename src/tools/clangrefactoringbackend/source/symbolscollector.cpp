@@ -129,6 +129,10 @@ void SymbolsCollector::collectSymbols()
                                                     &m_collectMacrosSourceFileCallbacks).get());
 }
 
+void SymbolsCollector::doInMainThreadAfterFinished()
+{
+}
+
 const SymbolEntries &SymbolsCollector::symbols() const
 {
     return m_symbolEntries;

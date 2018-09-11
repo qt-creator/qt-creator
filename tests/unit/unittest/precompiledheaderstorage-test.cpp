@@ -34,7 +34,7 @@
 
 namespace  {
 
-using Storage = ClangPchManager::PrecompiledHeaderStorage<NiceMock<MockSqliteDatabase>>;
+using Storage = ClangBackEnd::PrecompiledHeaderStorage<NiceMock<MockSqliteDatabase>>;
 
 class PrecompiledHeaderStorage : public testing::Test
 {
@@ -133,7 +133,7 @@ TEST_F(PrecompiledHeaderStorage, CompilePrecompiledHeaderStatements)
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
 
-    ASSERT_NO_THROW(ClangPchManager::PrecompiledHeaderStorage<>{database});
+    ASSERT_NO_THROW(ClangBackEnd::PrecompiledHeaderStorage<>{database});
 }
 
 }

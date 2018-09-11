@@ -27,10 +27,9 @@
 
 #include "pchcreatorinterface.h"
 
-#include "pchgeneratorinterface.h"
 #include "idpaths.h"
 
-#include <filepathcachingfwd.h>
+#include <filepathcaching.h>
 #include <projectpartpch.h>
 #include <projectpartcontainerv2.h>
 
@@ -44,49 +43,39 @@ namespace ClangBackEnd {
 
 class Environment;
 class GeneratedFiles;
+class PchManagerClientInterface;
+class ClangPathWatcherInterface;
 
 class PchCreator final : public PchCreatorInterface
 {
 public:
     PchCreator(Environment &environment,
-               FilePathCachingInterface &filePathCache,
-               const GeneratedFiles &generatedFiles);
-    PchCreator(V2::ProjectPartContainers &&projectsParts,
-               Environment &environment,
-               FilePathCachingInterface &filePathCache,
-               PchGeneratorInterface *pchGenerator,
-               const GeneratedFiles &generatedFiles);
+               Sqlite::Database &database,
+               PchManagerClientInterface &pchManagerClient,
+               ClangPathWatcherInterface &fileSystemWatcher)
+        : m_filePathCache(database),
+          m_environment(environment),
+          m_pchManagerClient(pchManagerClient),
+          m_fileSystemWatcher(fileSystemWatcher)
+    {
+    }
 
-    void generatePchs(V2::ProjectPartContainers &&projectsParts) override;
-    std::vector<IdPaths> takeProjectsIncludes() override;
+    void generatePch(const V2::ProjectPartContainer &projectsPart) override;
+    IdPaths takeProjectIncludes() override;
+    const ProjectPartPch &projectPartPch() override;
+    void setUnsavedFiles(const V2::FileContainers &fileContainers) override;
+    void setIsUsed(bool isUsed) override;
+    bool isUsed() const override;
+    void clear() override;
+    void doInMainThreadAfterFinished() override;
 
-    void setGenerator(PchGeneratorInterface *pchGenerator);
-
-unittest_public:
-    Utils::PathStringVector generateGlobalHeaderPaths() const;
-    Utils::PathStringVector generateGlobalSourcePaths() const;
-    Utils::PathStringVector generateGlobalHeaderAndSourcePaths() const;
-    Utils::SmallStringVector generateGlobalArguments() const;
-    Utils::SmallStringVector generateGlobalCommandLine() const;
-    Utils::SmallStringVector generateGlobalPchCompilerArguments() const;
-    Utils::SmallStringVector generateGlobalClangCompilerArguments() const;
-
-    FilePathIds generateGlobalPchIncludeIds() const;
+    const IdPaths &projectIncludes() const;
+    const FilePathCaching &filePathCache();
 
     Utils::SmallString generatePchIncludeFileContent(const FilePathIds &includeIds) const;
-    Utils::SmallString generateGlobalPchHeaderFileContent() const;
-    std::unique_ptr<QFile> generateGlobalPchHeaderFile();
-    void generatePch(Utils::SmallStringVector &&commandLineArguments,
-                     ProjectPartPch &&projectPartPch);
-    void generateGlobalPch();
-
-    Utils::SmallString globalPchContent() const;
+    bool generatePch(Utils::SmallStringVector &&commandLineArguments);
 
     static QStringList convertToQStringList(const Utils::SmallStringVector &convertToQStringList);
-
-    Utils::SmallString generateGlobalPchFilePathWithoutExtension() const;
-    Utils::SmallString generateGlobalPchHeaderFilePath() const;
-    Utils::SmallString generateGlobalPchFilePath() const;
 
     Utils::SmallStringVector generateProjectPartCommandLine(
             const V2::ProjectPartContainer &projectPart) const;
@@ -116,20 +105,18 @@ unittest_public:
             const Utils::SmallString &filePath,
             const Utils::SmallString &content);
 
-    void generatePchs();
-
 private:
     static QByteArray projectPartHash(const V2::ProjectPartContainer &projectPart);
-    QByteArray globalProjectHash() const;
 
 private:
-    V2::ProjectPartContainers m_projectParts;
-    std::vector<ProjectPartPch> m_projectPartPchs;
-    std::vector<IdPaths> m_projectsIncludeIds;
-    const GeneratedFiles &m_generatedFiles;
+    ProjectPartPch m_projectPartPch;
+    IdPaths m_projectIncludeIds;
+    FilePathCaching m_filePathCache;
+    V2::FileContainers m_unsavedFiles;
     Environment &m_environment;
-    FilePathCachingInterface &m_filePathCache;
-    PchGeneratorInterface *m_pchGenerator = nullptr;
+    PchManagerClientInterface &m_pchManagerClient;
+    ClangPathWatcherInterface &m_fileSystemWatcher;
+    bool m_isUsed = false;
 };
 
 } // namespace ClangBackEnd

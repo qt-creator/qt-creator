@@ -25,33 +25,26 @@
 
 #pragma once
 
-#include "filestatus.h"
-#include "symbolentry.h"
-#include "sourcedependency.h"
-#include "sourcelocationentry.h"
-#include "usedmacro.h"
-
-#include <processorinterface.h>
-
-#include <utils/smallstringvector.h>
-
-#include <string>
-#include <vector>
+#include <utils/smallstringview.h>
 
 namespace ClangBackEnd {
 
-class SymbolsCollectorInterface : public ProcessorInterface
+class PrecompiledHeaderStorageInterface
 {
 public:
-    virtual void setFile(FilePathId filePathId, const Utils::SmallStringVector &arguments) = 0;
-    virtual void collectSymbols() = 0;
+    PrecompiledHeaderStorageInterface() = default;
 
-    virtual const SymbolEntries &symbols() const = 0;
-    virtual const SourceLocationEntries &sourceLocations() const = 0;
-    virtual const FilePathIds &sourceFiles() const = 0;
-    virtual const UsedMacros &usedMacros() const = 0;
-    virtual const FileStatuses &fileStatuses() const = 0;
-    virtual const SourceDependencies &sourceDependencies() const = 0;
+    PrecompiledHeaderStorageInterface(const PrecompiledHeaderStorageInterface&) = delete;
+    PrecompiledHeaderStorageInterface &operator=(const PrecompiledHeaderStorageInterface&) = delete;
+
+    virtual void insertPrecompiledHeader(Utils::SmallStringView projectPartName,
+                                         Utils::SmallStringView pchPath,
+                                         long long pchBuildTime) = 0;
+
+    virtual void deletePrecompiledHeader(Utils::SmallStringView projectPartName) = 0;
+
+protected:
+    ~PrecompiledHeaderStorageInterface() = default;
 };
 
 } // namespace ClangBackEnd

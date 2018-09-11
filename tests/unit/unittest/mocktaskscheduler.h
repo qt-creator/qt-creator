@@ -27,17 +27,19 @@
 
 #include "googletest.h"
 
-#include <symbolindexertaskschedulerinterface.h>
+#include <taskschedulerinterface.h>
+#include <symbolindexertask.h>
 
-class MockSymbolIndexerTaskScheduler : public ClangBackEnd::SymbolIndexerTaskSchedulerInterface
+template <typename Task>
+class MockTaskScheduler : public ClangBackEnd::TaskSchedulerInterface<Task>
 {
 public:
-    MOCK_METHOD1(addTasks,
-                 void (const std::vector<ClangBackEnd::SymbolIndexerTaskSchedulerInterface::Task> &));
+    MOCK_METHOD1_T(addTasks,
+                 void (const std::vector<Task> &));
     MOCK_METHOD0(freeSlots,
                  uint ());
 
-    void addTasks(std::vector<ClangBackEnd::SymbolIndexerTaskSchedulerInterface::Task> &&tasks) override
+    void addTasks(std::vector<Task> &&tasks)
     {
         addTasks(tasks);
     }

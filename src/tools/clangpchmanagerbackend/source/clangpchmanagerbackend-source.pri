@@ -2,7 +2,8 @@ INCLUDEPATH += $$PWD
 
 SOURCES += \
     $$PWD/pchmanagerserver.cpp \
-    $$PWD/projectparts.cpp
+    $$PWD/projectparts.cpp \
+    $$PWD/projectpartqueue.cpp
 
 HEADERS += \
     $$PWD/pchmanagerserver.h \
@@ -12,9 +13,15 @@ HEADERS += \
     $$PWD/projectparts.h \
     $$PWD/pchcreatorinterface.h \
     $$PWD/projectpartsinterface.h \
-    $$PWD/pchgenerator.h \
-    $$PWD/pchgeneratornotifierinterface.h \
-    $$PWD/pchgeneratorinterface.h
+    $$PWD/projectpartqueue.h \
+    $$PWD/queueinterface.h \
+    $$PWD/projectpartqueueinterface.h \
+    $$PWD/processormanagerinterface.h \
+    $$PWD/processorinterface.h \
+    $$PWD/taskscheduler.h \
+    $$PWD/taskschedulerinterface.h \
+    $$PWD/precompiledheaderstorage.h \
+    $$PWD/precompiledheaderstorageinterface.h
 
 !isEmpty(LIBTOOLING_LIBS) {
 SOURCES += \
@@ -26,5 +33,6 @@ HEADERS += \
     $$PWD/collectincludestoolaction.h \
     $$PWD/collectincludesaction.h \
     $$PWD/collectincludespreprocessorcallbacks.h \
-    $$PWD/pchcreator.h
+    $$PWD/pchcreator.h \
+    $$PWD/processormanager.h
 }

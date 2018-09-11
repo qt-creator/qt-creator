@@ -34,10 +34,10 @@
 #include <filestatuscache.h>
 #include <projectpartcontainerv2.h>
 #include <refactoringdatabaseinitializer.h>
-#include <symbolscollectormanager.h>
+#include <processormanager.h>
 #include <symbolindexer.h>
 #include <symbolindexertaskqueue.h>
-#include <symbolindexertaskscheduler.h>
+#include <taskscheduler.h>
 #include <updateprojectpartsmessage.h>
 
 #include <QCoreApplication>
@@ -60,8 +60,8 @@ using ClangBackEnd::SymbolEntries;
 using ClangBackEnd::SymbolEntry;
 using ClangBackEnd::SymbolIndexerTask;
 using ClangBackEnd::SymbolIndexerTaskQueue;
-using ClangBackEnd::SymbolIndexerTaskScheduler;
-using ClangBackEnd::SymbolsCollectorManager;
+using ClangBackEnd::TaskScheduler;
+using ClangBackEnd::ProcessorManager;
 using ClangBackEnd::SourceDependencies;
 using ClangBackEnd::SourceLocationEntries;
 using ClangBackEnd::SourceLocationEntry;
@@ -82,6 +82,21 @@ struct Data
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
+};
+
+class Manager final : public ProcessorManager<NiceMock<MockSymbolsCollector>>
+{
+public:
+    using Processor = NiceMock<MockSymbolsCollector>;
+    Manager(const ClangBackEnd::GeneratedFiles &generatedFiles)
+        : ProcessorManager(generatedFiles)
+    {}
+
+protected:
+    std::unique_ptr<NiceMock<MockSymbolsCollector>> createProcessor() const
+    {
+        return std::make_unique<NiceMock<MockSymbolsCollector>>();
+    }
 };
 
 class SymbolIndexer : public testing::Test
@@ -140,6 +155,7 @@ protected:
 
 protected:
     static std::unique_ptr<Data> data; // it can be non const because data holds no tested classes
+    using Scheduler = TaskScheduler<Manager, ClangBackEnd::SymbolIndexerTask::Callable>;
     ClangBackEnd::FilePathCaching &filePathCache = data->filePathCache;
     ClangBackEnd::FilePathId main1PathId{filePathId(TESTDATA_DIR "/symbolindexer_main1.cpp")};
     ClangBackEnd::FilePathId main2PathId{filePathId(TESTDATA_DIR "/symbolindexer_main2.cpp")};
@@ -183,8 +199,8 @@ protected:
     NiceMock<MockClangPathWatcher> mockPathWatcher;
     ClangBackEnd::FileStatusCache fileStatusCache{filePathCache};
     ClangBackEnd::GeneratedFiles generatedFiles;
-    SymbolsCollectorManager<NiceMock<MockSymbolsCollector>> collectorManger{data->database, generatedFiles};
-    SymbolIndexerTaskScheduler indexerScheduler{collectorManger, mockStorage, mockSqliteTransactionBackend, indexerQueue, 1};
+    Manager collectorManger{generatedFiles};
+    Scheduler indexerScheduler{collectorManger, indexerQueue, 1};
     SymbolIndexerTaskQueue indexerQueue{indexerScheduler};
     ClangBackEnd::SymbolIndexer indexer{indexerQueue,
                                         mockStorage,
@@ -192,7 +208,7 @@ protected:
                                         filePathCache,
                                         fileStatusCache,
                                         mockSqliteTransactionBackend};
-    NiceMock<MockSymbolsCollector> &mockCollector{collectorManger.unusedSymbolsCollector()};
+    MockSymbolsCollector &mockCollector{static_cast<MockSymbolsCollector&>(collectorManger.unusedProcessor())};
 };
 
 std::unique_ptr<Data> SymbolIndexer::data;

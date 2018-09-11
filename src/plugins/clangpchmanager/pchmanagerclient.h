@@ -26,7 +26,6 @@
 #pragma once
 
 #include "clangpchmanager_global.h"
-#include "precompiledheaderstorageinterface.h"
 
 #include <pchmanagerclientinterface.h>
 #include <projectpartpchproviderinterface.h>
@@ -43,7 +42,7 @@ class CLANGPCHMANAGER_EXPORT PchManagerClient final : public ClangBackEnd::PchMa
 {
     friend class PchManagerNotifierInterface;
 public:
-    PchManagerClient(PrecompiledHeaderStorageInterface &precompiledHeaderStorage);
+    PchManagerClient() = default;
     void alive() override;
     void precompiledHeadersUpdated(ClangBackEnd::PrecompiledHeadersUpdatedMessage &&message) override;
 
@@ -71,14 +70,10 @@ unittest_public:
     void addProjectPartPch(ClangBackEnd::ProjectPartPch &&projectPartPch);
     void removeProjectPartPch(Utils::SmallStringView projectPartId);
 
-    void addPchToDatabase(const ClangBackEnd::ProjectPartPch &projectPartPch);
-    void removePchFromDatabase(const Utils::SmallStringView &projectPartId);
-
 private:
     ClangBackEnd::ProjectPartPchs m_projectPartPchs;
     std::vector<PchManagerNotifierInterface*> m_notifiers;
     PchManagerConnectionClient *m_connectionClient=nullptr;
-    PrecompiledHeaderStorageInterface &m_precompiledHeaderStorage;
 };
 
 } // namespace ClangPchManager

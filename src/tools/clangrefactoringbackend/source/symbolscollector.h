@@ -54,6 +54,8 @@ public:
 
     void collectSymbols() override;
 
+    void doInMainThreadAfterFinished() override;
+
     const SymbolEntries &symbols() const override;
     const SourceLocationEntries &sourceLocations() const override;
     const FilePathIds &sourceFiles() const override;

@@ -35,16 +35,13 @@ class TransactionInterface;
 
 namespace ClangBackEnd {
 
-class SymbolIndexerTaskSchedulerInterface;
 class SymbolsCollectorInterface;
 class SymbolStorageInterface;
 
 class SymbolIndexerTask
 {
 public:
-    using Callable = std::function<void(SymbolsCollectorInterface &symbolsCollector,
-                                        SymbolStorageInterface &symbolStorage,
-                                        Sqlite::TransactionInterface &transaction)>;
+    using Callable = std::function<void(SymbolsCollectorInterface &symbolsCollector)>;
 
     SymbolIndexerTask(FilePathId filePathId,
                       int projectPartId,

@@ -72,9 +72,10 @@ void ProjectUpdater::updateProjectParts(const std::vector<CppTools::ProjectPart 
 
 void ProjectUpdater::removeProjectParts(const QStringList &projectPartIds)
 {
-    ClangBackEnd::RemoveProjectPartsMessage message{Utils::SmallStringVector(projectPartIds)};
+    Utils::SmallStringVector sortedIds(projectPartIds);
+    std::sort(sortedIds.begin(), sortedIds.end());
 
-    m_server.removeProjectParts(std::move(message));
+    m_server.removeProjectParts(ClangBackEnd::RemoveProjectPartsMessage{std::move(sortedIds)});
 }
 
 void ProjectUpdater::updateGeneratedFiles(ClangBackEnd::V2::FileContainers &&generatedFiles)

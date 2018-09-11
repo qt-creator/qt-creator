@@ -17,6 +17,7 @@ QT -= gui
 
 LIBS += $$LIBTOOLING_LIBS
 INCLUDEPATH += $$LLVM_INCLUDEPATH
+INCLUDEPATH += ../clangpchmanagerbackend/source
 
 QMAKE_CXXFLAGS += $$LLVM_CXXFLAGS
 

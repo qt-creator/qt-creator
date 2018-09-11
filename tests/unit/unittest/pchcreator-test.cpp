@@ -27,14 +27,15 @@
 
 #include "fakeprocess.h"
 
-#include "mockpchgeneratornotifier.h"
+#include "mockclangpathwatcher.h"
+#include "mockpchmanagerclient.h"
 #include "testenvironment.h"
 
 #include <refactoringdatabaseinitializer.h>
 #include <filepathcaching.h>
 #include <generatedfiles.h>
 #include <pchcreator.h>
-#include <pchgenerator.h>
+#include <precompiledheadersupdatedmessage.h>
 
 #include <sqlitedatabase.h>
 
@@ -62,25 +63,28 @@ class PchCreator: public ::testing::Test
 protected:
     void SetUp()
     {
-        generatedFiles.update({generatedFile});
+        creator.setUnsavedFiles({generatedFile});
     }
 
     ClangBackEnd::FilePathId id(ClangBackEnd::FilePathView path)
     {
-        return filePathCache.filePathId(path);
+        return creator.filePathCache().filePathId(path);
     }
 
 protected:
-    GeneratedFiles generatedFiles;
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
-    ClangBackEnd::FilePathCaching filePathCache{database};
     FilePath main1Path = TESTDATA_DIR "/includecollector_main3.cpp";
     FilePath main2Path = TESTDATA_DIR "/includecollector_main2.cpp";
     FilePath header1Path = TESTDATA_DIR "/includecollector_header1.h";
     FilePath header2Path = TESTDATA_DIR "/includecollector_header2.h";
     Utils::SmallStringView generatedFileName = "includecollector_generated_file.h";
     FilePath generatedFilePath = TESTDATA_DIR "/includecollector_generated_file.h";
+    TestEnvironment environment;
+    FileContainer generatedFile{{TESTDATA_DIR, generatedFileName}, "#pragma once", {}};
+    NiceMock<MockPchManagerClient> mockPchManagerClient;
+    NiceMock<MockClangPathWatcher> mockClangPathWatcher;
+    ClangBackEnd::PchCreator creator{environment, database, mockPchManagerClient, mockClangPathWatcher};
     ProjectPartContainer projectPart1{"project1",
                                       {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
                                       {{"DEFINE", "1"}},
@@ -93,112 +97,15 @@ protected:
                                       {"/includes"},
                                       {id(header2Path)},
                                       {id(main2Path)}};
-    TestEnvironment environment;
-    FileContainer generatedFile{{TESTDATA_DIR, generatedFileName}, "#pragma once", {}};
-    NiceMock<MockPchGeneratorNotifier> mockPchGeneratorNotifier;
-    ClangBackEnd::PchGenerator<FakeProcess> generator{environment, &mockPchGeneratorNotifier};
-    ClangBackEnd::PchCreator creator{{projectPart1.clone(),projectPart2.clone()},
-                                     environment,
-                                     filePathCache,
-                                     &generator,
-                                     generatedFiles};
 };
 using PchCreatorSlowTest = PchCreator;
 using PchCreatorVerySlowTest = PchCreator;
-
-TEST_F(PchCreator, CreateGlobalHeaderPaths)
-{
-    auto filePaths = creator.generateGlobalHeaderPaths();
-
-    ASSERT_THAT(filePaths,
-                UnorderedElementsAre(header1Path, header2Path, generatedFilePath));
-}
-
-TEST_F(PchCreator, CreateGlobalSourcePaths)
-{
-    auto filePaths = creator.generateGlobalSourcePaths();
-
-    ASSERT_THAT(filePaths,
-                UnorderedElementsAre(main1Path, main2Path));
-}
-
-TEST_F(PchCreator, CreateGlobalHeaderAndSourcePaths)
-{
-    auto filePaths = creator.generateGlobalHeaderAndSourcePaths();
-
-    ASSERT_THAT(filePaths,
-                UnorderedElementsAre(main1Path, main2Path, header1Path, header2Path, generatedFilePath));
-}
-
-TEST_F(PchCreator, CreateGlobalArguments)
-{
-    auto arguments = creator.generateGlobalArguments();
-
-    ASSERT_THAT(arguments, ElementsAre("-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header", "-I", TESTDATA_DIR, "-x" , "c++-header", "-Wno-pragma-once-outside-header"));
-}
-
-TEST_F(PchCreator, CreateGlobalCommandLine)
-{
-    auto arguments = creator.generateGlobalCommandLine();
-
-    ASSERT_THAT(arguments, ElementsAre(environment.clangCompilerPath(), "-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header", "-I", TESTDATA_DIR, "-x" , "c++-header", "-Wno-pragma-once-outside-header"));
-}
-
-TEST_F(PchCreatorVerySlowTest, CreateGlobalPchIncludes)
-{
-    auto includeIds = creator.generateGlobalPchIncludeIds();
-
-    ASSERT_THAT(includeIds,
-                AllOf(Contains(id(TESTDATA_DIR "/includecollector_external3.h")),
-                      Contains(id(TESTDATA_DIR "/includecollector_external1.h")),
-                      Contains(id(TESTDATA_DIR "/includecollector_external2.h"))));
-}
-
-TEST_F(PchCreatorVerySlowTest, CreateGlobalPchFileContent)
-{
-    auto content = creator.generateGlobalPchHeaderFileContent();
-
-    ASSERT_THAT(std::string(content),
-                AllOf(HasSubstr("#include \"" TESTDATA_DIR "/includecollector_external3.h\"\n"),
-                      HasSubstr("#include \"" TESTDATA_DIR "/includecollector_external1.h\"\n"),
-                      HasSubstr("#include \"" TESTDATA_DIR "/includecollector_external2.h\"\n")));
-}
-
-TEST_F(PchCreatorVerySlowTest, CreateGlobalPchHeaderFile)
-{
-    auto file = creator.generateGlobalPchHeaderFile();
-    file->open(QIODevice::ReadOnly);
-
-    auto content = file->readAll();
-
-    ASSERT_THAT(content.toStdString(),
-                AllOf(HasSubstr("#include \"" TESTDATA_DIR "/includecollector_external3.h\"\n"),
-                      HasSubstr("#include \"" TESTDATA_DIR "/includecollector_external1.h\"\n"),
-                      HasSubstr("#include \"" TESTDATA_DIR "/includecollector_external2.h\"\n")));
-}
 
 TEST_F(PchCreator, ConvertToQStringList)
 {
     auto arguments = creator.convertToQStringList({"-I", TESTDATA_DIR});
 
     ASSERT_THAT(arguments, ElementsAre(QString("-I"), QString(TESTDATA_DIR)));
-}
-
-TEST_F(PchCreator, CreateGlobalPchCompilerArguments)
-{
-    auto arguments = creator.generateGlobalPchCompilerArguments();
-
-    ASSERT_THAT(arguments, ElementsAre("-x","c++-header", "-Xclang", "-emit-pch", "-o", EndsWith(".pch"), EndsWith(".h")));
-}
-
-TEST_F(PchCreator, CreateGlobalClangCompilerArguments)
-{
-    auto arguments = creator.generateGlobalClangCompilerArguments();
-
-    ASSERT_THAT(arguments, AllOf(Contains("-Wno-pragma-once-outside-header"),
-                                 Contains("-emit-pch"),
-                                 Contains("-o"),
-                                 Not(Contains(environment.clangCompilerPath()))));
 }
 
 TEST_F(PchCreator, CreateProjectPartCommandLine)
@@ -275,10 +182,6 @@ TEST_F(PchCreator, CreateProjectPartPchCompilerArguments)
 
     ASSERT_THAT(arguments, AllOf(Contains("-x"),
                                  Contains("c++-header"),
-//                                 Contains("-Xclang"),
-//                                 Contains("-include-pch"),
-//                                 Contains("-Xclang"),
-//                                 Contains(EndsWith(".pch")),
                                  Contains("-Xclang"),
                                  Contains("-emit-pch"),
                                  Contains("-o"),
@@ -295,66 +198,100 @@ TEST_F(PchCreator, CreateProjectPartClangCompilerArguments)
                                  Not(Contains(environment.clangCompilerPath()))));
 }
 
-TEST_F(PchCreatorVerySlowTest, ProjectPartPchsExistsAfterCreation)
-{
-    creator.generateGlobalPch();
-
-    creator.generateProjectPartPch(projectPart1);
-
-    ASSERT_TRUE(QFileInfo::exists(QString(creator.generateProjectPathPchHeaderFilePath(projectPart1))));
-}
-
-TEST_F(PchCreatorVerySlowTest, DISABLED_CreatePartPchs)
-{
-    creator.generateGlobalPch();
-
-    auto includePaths = creator.generateProjectPartPch(projectPart1);
-
-    ASSERT_THAT(includePaths.id, projectPart1.projectPartId);
-    ASSERT_THAT(includePaths.filePathIds,
-                AllOf(Contains(FilePathId{1, 1}),
-                      Contains(FilePathId{1, 2}),
-                      Contains(FilePathId{1, 3})));
-}
-
 TEST_F(PchCreatorVerySlowTest, IncludesForCreatePchsForProjectParts)
 {
-    creator.generatePchs();
+    creator.generatePch(projectPart1);
 
-    ASSERT_THAT(creator.takeProjectsIncludes(),
-                ElementsAre(Field(&IdPaths::id, "project1"),
-                            Field(&IdPaths::id, "project2")));
+    ASSERT_THAT(creator.takeProjectIncludes().id, "project1");
 }
 
-TEST_F(PchCreatorVerySlowTest, ProjectPartPchsForCreatePchsForProjectParts)
+TEST_F(PchCreatorVerySlowTest, ProjectPartPchsSendToPchManagerClient)
 {
-    EXPECT_CALL(mockPchGeneratorNotifier,
-                taskFinished(ClangBackEnd::TaskFinishStatus::Successfully,
-                             Field(&ProjectPartPch::projectPartId, "project1")));
-    EXPECT_CALL(mockPchGeneratorNotifier,
-                taskFinished(ClangBackEnd::TaskFinishStatus::Successfully,
-                             Field(&ProjectPartPch::projectPartId, "project2")));
+    creator.generatePch(projectPart1);
 
-    creator.generatePchs();
+    EXPECT_CALL(mockPchManagerClient,
+                precompiledHeadersUpdated(
+                    Field(&ClangBackEnd::PrecompiledHeadersUpdatedMessage::projectPartPchs,
+                          ElementsAre(Eq(creator.projectPartPch())))));
+
+    creator.doInMainThreadAfterFinished();
+}
+
+TEST_F(PchCreatorVerySlowTest, UpdateFileWatcherIncludes)
+{
+    creator.generatePch(projectPart1);
+
+    EXPECT_CALL(mockClangPathWatcher,
+                updateIdPaths(ElementsAre(creator.projectIncludes())));
+
+    creator.doInMainThreadAfterFinished();
 }
 
 TEST_F(PchCreatorVerySlowTest, IdPathsForCreatePchsForProjectParts)
 {
-    creator.generatePchs();
+    creator.generatePch(projectPart1);
 
-    ASSERT_THAT(creator.takeProjectsIncludes(),
-                ElementsAre(AllOf(Field(&IdPaths::id, "project1"),
-                                  Field(&IdPaths::filePathIds, AllOf(Contains(id(TESTDATA_DIR "/includecollector_header2.h")),
-                                                               Contains(id(TESTDATA_DIR "/includecollector_external1.h")),
-                                                               Contains(id(TESTDATA_DIR "/includecollector_external2.h"))))),
-                            AllOf(Field(&IdPaths::id, "project2"),
-                                  Field(&IdPaths::filePathIds, AllOf(Contains(id(TESTDATA_DIR "/includecollector_external1.h")),
-                                                               Contains(id(TESTDATA_DIR "/includecollector_external3.h")),
-                                                               Contains(id(TESTDATA_DIR "/includecollector_header1.h")),
-                                                               Contains(id(TESTDATA_DIR "/includecollector_external2.h")))))));
+    ASSERT_THAT(creator.takeProjectIncludes(),
+                AllOf(Field(&IdPaths::id, "project1"),
+                      Field(&IdPaths::filePathIds, AllOf(Contains(id(TESTDATA_DIR "/includecollector_header2.h")),
+                                                         Contains(id(TESTDATA_DIR "/includecollector_external1.h")),
+                                                         Contains(id(TESTDATA_DIR "/includecollector_external2.h"))))));
+}
+
+TEST_F(PchCreatorVerySlowTest, ProjectPartPchForCreatesPchForProjectPart)
+{
+    creator.generatePch(projectPart1);
+
+    ASSERT_THAT(creator.projectPartPch(),
+                AllOf(Field(&ProjectPartPch::projectPartId, Eq("project1")),
+                      Field(&ProjectPartPch::pchPath, Not(IsEmpty())),
+                      Field(&ProjectPartPch::lastModified, Not(Eq(-1)))));
+}
+
+TEST_F(PchCreatorVerySlowTest, ProjectPartPchCleared)
+{
+    creator.generatePch(projectPart1);
+
+    creator.clear();
+
+    ASSERT_THAT(creator.projectPartPch(), ClangBackEnd::ProjectPartPch{});
+}
+
+
+TEST_F(PchCreatorVerySlowTest, ProjectIncludesCleared)
+{
+    creator.generatePch(projectPart1);
+
+    creator.clear();
+
+    ASSERT_THAT(creator.projectIncludes(), ClangBackEnd::IdPaths{});
+}
+
+TEST_F(PchCreatorVerySlowTest, FaultyProjectPartPchForCreatesNoPchForProjectPart)
+{
+    ProjectPartContainer faultyProjectPart{"faultyProject",
+                                           {"-I", TESTDATA_DIR},
+                                           {{"DEFINE", "1"}},
+                                           {"/includes"},
+                                           {},
+                                           {id(TESTDATA_DIR "/includecollector_faulty.cpp")}};
+
+    creator.generatePch(faultyProjectPart);
+
+    ASSERT_THAT(creator.projectPartPch(),
+                AllOf(Field(&ProjectPartPch::projectPartId, Eq("faultyProject")),
+                      Field(&ProjectPartPch::pchPath, IsEmpty()),
+                      Field(&ProjectPartPch::lastModified, Eq(-1))));
 }
 
 TEST_F(PchCreator, CreateProjectPartSourcesContent)
+{
+    auto content = creator.generateProjectPartSourcesContent(projectPart1);
+
+    ASSERT_THAT(content, Eq("#include \"" TESTDATA_DIR "/includecollector_main3.cpp\"\n"));
+}
+
+TEST_F(PchCreator, Call)
 {
     auto content = creator.generateProjectPartSourcesContent(projectPart1);
 

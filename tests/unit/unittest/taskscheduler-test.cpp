@@ -26,26 +26,29 @@
 #include "googletest.h"
 
 #include "mocksymbolindexertaskqueue.h"
-#include "mocksymbolscollectormanager.h"
+#include "mockprocessormanager.h"
 #include "mocksymbolscollector.h"
-#include "mocksymbolstorage.h"
-#include "mocksqlitetransactionbackend.h"
 
-#include <symbolindexertaskscheduler.h>
+#include <taskscheduler.h>
 
 #include <QCoreApplication>
 
 namespace {
 
+using Task = std::function<void(ClangBackEnd::ProcessorInterface&)>;
+
+using ClangBackEnd::ProcessorInterface;
 using ClangBackEnd::SymbolsCollectorInterface;
 using ClangBackEnd::SymbolStorageInterface;
+using NiceMockProcessorManager = NiceMock<MockProcessorManager>;
+using Scheduler = ClangBackEnd::TaskScheduler<NiceMockProcessorManager, Task>;
 
-class SymbolIndexerTaskScheduler : public testing::Test
+class TaskScheduler : public testing::Test
 {
 protected:
     void SetUp()
     {
-        ON_CALL(mockSymbolsCollectorManager, unusedSymbolsCollector()).WillByDefault(ReturnRef(mockSymbolsCollector));
+        ON_CALL(mockProcessorManager, unusedProcessor()).WillByDefault(ReturnRef(mockSymbolsCollector));
     }
     void TearDown()
     {
@@ -55,63 +58,53 @@ protected:
 
 protected:
     MockFunction<void()> mock;
-    ClangBackEnd::SymbolIndexerTaskScheduler::Task call{
-        [&] (SymbolsCollectorInterface &, SymbolStorageInterface &, Sqlite::TransactionInterface &) {
-            mock.Call(); }};
-    ClangBackEnd::SymbolIndexerTaskScheduler::Task nocall{
-        [&] (SymbolsCollectorInterface &, SymbolStorageInterface &, Sqlite::TransactionInterface &) {
-        }};
-    NiceMock<MockSymbolsCollectorManager> mockSymbolsCollectorManager;
+    Task call{[&] (ClangBackEnd::ProcessorInterface&) { mock.Call(); }};
+    Task nocall{[&] (ClangBackEnd::ProcessorInterface&) {}};
+    NiceMockProcessorManager mockProcessorManager;
     NiceMock<MockSymbolsCollector> mockSymbolsCollector;
-    MockSymbolStorage mockSymbolStorage;
     NiceMock<MockSymbolIndexerTaskQueue> mockSymbolIndexerTaskQueue;
-    MockSqliteTransactionBackend mockSqliteTransactionBackend;
-    ClangBackEnd::SymbolIndexerTaskScheduler scheduler{mockSymbolsCollectorManager,
-                mockSymbolStorage,
-                mockSqliteTransactionBackend,
+    Scheduler scheduler{mockProcessorManager,
                 mockSymbolIndexerTaskQueue,
                 4};
-    ClangBackEnd::SymbolIndexerTaskScheduler deferedScheduler{mockSymbolsCollectorManager,
-                mockSymbolStorage,
-                mockSqliteTransactionBackend,
+    Scheduler deferredScheduler{mockProcessorManager,
                 mockSymbolIndexerTaskQueue,
                 4,
                 std::launch::deferred};
 };
 
-TEST_F(SymbolIndexerTaskScheduler, AddTasks)
+TEST_F(TaskScheduler, AddTasks)
 {
-    deferedScheduler.addTasks({nocall});
+    deferredScheduler.addTasks({nocall});
 
-    ASSERT_THAT(deferedScheduler.futures(), SizeIs(1));
+    ASSERT_THAT(deferredScheduler.futures(), SizeIs(1));
 }
 
-TEST_F(SymbolIndexerTaskScheduler, AddTasksCallsFunction)
+TEST_F(TaskScheduler, AddTasksCallsFunction)
 {
     EXPECT_CALL(mock, Call()).Times(2);
 
     scheduler.addTasks({call, call});
 }
 
-TEST_F(SymbolIndexerTaskScheduler, FreeSlots)
+TEST_F(TaskScheduler, FreeSlots)
 {
-    deferedScheduler.addTasks({nocall, nocall});
+    deferredScheduler.addTasks({nocall, nocall});
 
-    auto count = deferedScheduler.freeSlots();
+    auto count = deferredScheduler.freeSlots();
 
     ASSERT_THAT(count, 2);
 }
 
-TEST_F(SymbolIndexerTaskScheduler, ReturnZeroFreeSlotsIfMoreCallsThanCores)
+TEST_F(TaskScheduler, ReturnZeroFreeSlotsIfMoreCallsThanCores)
 {
-    deferedScheduler.addTasks({nocall, nocall, nocall, nocall, nocall, nocall});
+    deferredScheduler.addTasks({nocall, nocall, nocall, nocall, nocall, nocall});
 
-    auto count = deferedScheduler.freeSlots();
+    auto count = deferredScheduler.freeSlots();
 
     ASSERT_THAT(count, 0);
 }
 
-TEST_F(SymbolIndexerTaskScheduler, FreeSlotsAfterFinishing)
+TEST_F(TaskScheduler, FreeSlotsAfterFinishing)
 {
     scheduler.addTasks({nocall, nocall});
     scheduler.syncTasks();
@@ -121,7 +114,7 @@ TEST_F(SymbolIndexerTaskScheduler, FreeSlotsAfterFinishing)
     ASSERT_THAT(count, 4);
 }
 
-TEST_F(SymbolIndexerTaskScheduler, NoFuturesAfterFreeSlots)
+TEST_F(TaskScheduler, NoFuturesAfterFreeSlots)
 {
     scheduler.addTasks({nocall, nocall});
     scheduler.syncTasks();
@@ -131,41 +124,35 @@ TEST_F(SymbolIndexerTaskScheduler, NoFuturesAfterFreeSlots)
     ASSERT_THAT(scheduler.futures(), IsEmpty());
 }
 
-TEST_F(SymbolIndexerTaskScheduler, FreeSlotsCallSymbolsCollectorSetIsUnused)
+TEST_F(TaskScheduler, FreeSlotsCallsCleanupMethodsAfterTheWorkIsDone)
 {
-    InSequence s;
     scheduler.addTasks({nocall, nocall});
     scheduler.syncTasks();
+    InSequence s;
 
-    EXPECT_CALL(mockSymbolsCollector, setIsUsed(false)).Times(2);
+    EXPECT_CALL(mockSymbolsCollector, doInMainThreadAfterFinished());
+    EXPECT_CALL(mockSymbolsCollector, setIsUsed(false));
+    EXPECT_CALL(mockSymbolsCollector, clear());
+    EXPECT_CALL(mockSymbolsCollector, doInMainThreadAfterFinished());
+    EXPECT_CALL(mockSymbolsCollector, setIsUsed(false));
+    EXPECT_CALL(mockSymbolsCollector, clear());
 
     scheduler.freeSlots();
 }
 
-TEST_F(SymbolIndexerTaskScheduler, FreeSlotsCallClearsSymbolsCollector)
+TEST_F(TaskScheduler, AddTaskCallSymbolsCollectorManagerUnusedSymbolsCollector)
 {
-    InSequence s;
-    scheduler.addTasks({nocall, nocall});
-    scheduler.syncTasks();
-
-    EXPECT_CALL(mockSymbolsCollector, clear()).Times(2);
-
-    scheduler.freeSlots();
-}
-
-TEST_F(SymbolIndexerTaskScheduler, AddTaskCallSymbolsCollectorManagerUnusedSymbolsCollector)
-{
-    EXPECT_CALL(mockSymbolsCollectorManager, unusedSymbolsCollector()).Times(2);
+    EXPECT_CALL(mockProcessorManager, unusedProcessor()).Times(2);
 
     scheduler.addTasks({nocall, nocall});
 }
 
-TEST_F(SymbolIndexerTaskScheduler, CallProcessTasksInQueueAfterFinishedTasks)
+TEST_F(TaskScheduler, CallProcessTasksInQueueAfterFinishedTasks)
 {
     InSequence s;
 
     EXPECT_CALL(mock, Call());
-    EXPECT_CALL(mockSymbolIndexerTaskQueue, processTasks());
+    EXPECT_CALL(mockSymbolIndexerTaskQueue, processEntries());
 
     scheduler.addTasks({call});
     scheduler.syncTasks();

@@ -32,7 +32,7 @@
 
 #include <utils/smallstringview.h>
 
-namespace ClangPchManager {
+namespace ClangBackEnd {
 
 template<typename Database=Sqlite::Database>
 class PrecompiledHeaderStorage final : public PrecompiledHeaderStorageInterface

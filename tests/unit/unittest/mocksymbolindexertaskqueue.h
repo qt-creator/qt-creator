@@ -36,5 +36,5 @@ public:
                  void (std::vector<ClangBackEnd::SymbolIndexerTask> &&tasks));
     MOCK_METHOD1(removeTasks,
                  void (const std::vector<int> &projectPartIds));
-    MOCK_METHOD0(processTasks, void());
+    MOCK_METHOD0(processEntries, void());
 };

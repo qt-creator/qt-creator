@@ -30,9 +30,9 @@
 #include "storagesqlitestatementfactory.h"
 #include "symbolindexer.h"
 #include "symbolscollector.h"
-#include "symbolscollectormanager.h"
+#include "processormanager.h"
 #include "symbolindexertaskqueue.h"
-#include "symbolindexertaskscheduler.h"
+#include "taskscheduler.h"
 #include "symbolstorage.h"
 
 #include <refactoringdatabaseinitializer.h>
@@ -48,19 +48,40 @@
 
 namespace ClangBackEnd {
 
+class SymbolsCollectorManager;
+
+class SymbolsCollectorManager final : public ClangBackEnd::ProcessorManager<SymbolsCollector>
+{
+public:
+    using Processor = SymbolsCollector;
+    SymbolsCollectorManager(const ClangBackEnd::GeneratedFiles &generatedFiles,
+                            Sqlite::Database &database)
+        : ProcessorManager(generatedFiles),
+          m_database(database)
+    {}
+
+protected:
+    std::unique_ptr<SymbolsCollector> createProcessor() const
+    {
+        return  std::make_unique<SymbolsCollector>(m_database);
+    }
+
+private:
+    Sqlite::Database &m_database;
+};
+
 class SymbolIndexing final : public SymbolIndexingInterface
 {
 public:
     using StatementFactory = ClangBackEnd::StorageSqliteStatementFactory<Sqlite::Database>;
     using Storage = ClangBackEnd::SymbolStorage<StatementFactory>;
-
     SymbolIndexing(Sqlite::Database &database,
                    FilePathCachingInterface &filePathCache,
                    const GeneratedFiles &generatedFiles)
         : m_filePathCache(filePathCache),
           m_statementFactory(database),
-          m_collectorManger(database, generatedFiles),
-          m_indexerScheduler(m_collectorManger, m_symbolStorage, database, m_indexerQueue, std::thread::hardware_concurrency())
+          m_collectorManger(generatedFiles, database),
+          m_indexerScheduler(m_collectorManger, m_indexerQueue, std::thread::hardware_concurrency())
     {
     }
 
@@ -86,12 +107,13 @@ public:
     void updateProjectParts(V2::ProjectPartContainers &&projectParts) override;
 
 private:
+    using SymbolIndexerTaskScheduler = TaskScheduler<SymbolsCollectorManager, SymbolIndexerTask::Callable>;
     FilePathCachingInterface &m_filePathCache;
     StatementFactory m_statementFactory;
     Storage m_symbolStorage{m_statementFactory};
     ClangPathWatcher<QFileSystemWatcher, QTimer> m_sourceWatcher{m_filePathCache};
     FileStatusCache m_fileStatusCache{m_filePathCache};
-    SymbolsCollectorManager<SymbolsCollector> m_collectorManger;
+    SymbolsCollectorManager m_collectorManger;
     SymbolIndexerTaskScheduler m_indexerScheduler;
     SymbolIndexerTaskQueue m_indexerQueue{m_indexerScheduler};
     SymbolIndexer m_indexer{m_indexerQueue,

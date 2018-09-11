@@ -27,7 +27,6 @@
 
 #include "mockcppmodelmanager.h"
 #include "mockrefactoringserver.h"
-#include "mockprecompiledheaderstorage.h"
 
 #include <sqlitedatabase.h>
 
@@ -87,8 +86,7 @@ protected:
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
     NiceMock<MockRefactoringServer> mockRefactoringServer;
-    NiceMock<MockPrecompiledHeaderStorage> mockPrecompiledHeaderStorage;
-    ClangPchManager::PchManagerClient pchManagerClient{mockPrecompiledHeaderStorage};
+    ClangPchManager::PchManagerClient pchManagerClient;
     MockCppModelManager mockCppModelManager;
     ClangRefactoring::RefactoringProjectUpdater updater{mockRefactoringServer, pchManagerClient, mockCppModelManager, filePathCache};
     Utils::SmallString projectPartId;
