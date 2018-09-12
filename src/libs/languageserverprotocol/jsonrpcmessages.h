@@ -67,6 +67,13 @@ class LANGUAGESERVERPROTOCOL_EXPORT JsonRpcMessageHandler
 public:
     using MessageProvider = std::function<IContent *(const QJsonObject &)>;
     static void registerMessageProvider(const QString &method, MessageProvider provider);
+    template<typename T>
+    static void registerMessageProvider()
+    {
+        registerMessageProvider(T::methodName, [](const QJsonObject &object){
+            return new T(object);
+        });
+    }
     static QByteArray jsonRpcMimeType();
     static void parseContent(const QByteArray &content, QTextCodec *codec, QString &errorMessage,
                              ResponseHandlers responseHandlers,

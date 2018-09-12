@@ -71,19 +71,10 @@ public:
     }
 };
 
-template<typename T>
-void registerMessageProvider()
-{
-    JsonRpcMessageHandler::registerMessageProvider(T::methodName,
-                                                   [](const QJsonObject &object){
-        return new T(object);
-    });
-}
-
 LanguageClientManager::LanguageClientManager()
 {
-    registerMessageProvider<PublishDiagnosticsNotification>();
-    registerMessageProvider<LogMessageNotification>();
+    JsonRpcMessageHandler::registerMessageProvider<PublishDiagnosticsNotification>();
+    JsonRpcMessageHandler::registerMessageProvider<LogMessageNotification>();
     managerInstance = this;
 }
 
