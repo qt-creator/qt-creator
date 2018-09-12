@@ -74,6 +74,7 @@ public:
 private:
     friend class Internal::DebuggerRunConfigWidget;
     DebuggerRunConfigurationAspectData d;
+    ProjectExplorer::Target *m_target;
 };
 
 } // namespace Debugger

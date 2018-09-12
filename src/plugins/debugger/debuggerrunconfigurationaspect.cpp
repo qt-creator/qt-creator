@@ -211,7 +211,7 @@ void DebuggerRunConfigWidget::useMultiProcessToggled(bool on)
 
 DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(
         RunConfiguration *rc) :
-    IRunConfigurationAspect(rc)
+    IRunConfigurationAspect(rc), m_target(rc->target())
 {
     setId("DebuggerAspect");
     setDisplayName(tr("Debugger settings"));
@@ -226,7 +226,7 @@ void DebuggerRunConfigurationAspect::setUseQmlDebugger(bool value)
 bool DebuggerRunConfigurationAspect::useCppDebugger() const
 {
     if (d.useCppDebugger == AutoEnabledLanguage)
-        return runConfiguration()->target()->project()->projectLanguages().contains(
+        return m_target->project()->projectLanguages().contains(
                     ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     return d.useCppDebugger == EnabledLanguage;
 }
@@ -234,7 +234,7 @@ bool DebuggerRunConfigurationAspect::useCppDebugger() const
 bool DebuggerRunConfigurationAspect::useQmlDebugger() const
 {
     if (d.useQmlDebugger == AutoEnabledLanguage) {
-        const Core::Context languages = runConfiguration()->target()->project()->projectLanguages();
+        const Core::Context languages = m_target->project()->projectLanguages();
         if (!languages.contains(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID))
             return false;
 
@@ -242,7 +242,7 @@ bool DebuggerRunConfigurationAspect::useQmlDebugger() const
         // Try to find a build step (qmake) to check whether qml debugging is enabled there
         // (Using the Qt metatype system to avoid a hard qt4projectmanager dependency)
         //
-        if (BuildConfiguration *bc = runConfiguration()->target()->activeBuildConfiguration()) {
+        if (BuildConfiguration *bc = m_target->activeBuildConfiguration()) {
             if (BuildStepList *bsl = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD)) {
                 foreach (BuildStep *step, bsl->steps()) {
                     QVariant linkProperty = step->property("linkQmlDebuggingLibrary");
@@ -279,7 +279,7 @@ void DebuggerRunConfigurationAspect::setUseMultiProcess(bool value)
 
 bool DebuggerRunConfigurationAspect::isQmlDebuggingSpinboxSuppressed() const
 {
-    Kit *k = runConfiguration()->target()->kit();
+    Kit *k = m_target->kit();
     IDevice::ConstPtr dev = DeviceKitInformation::device(k);
     if (dev.isNull())
         return false;
