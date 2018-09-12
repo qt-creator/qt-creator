@@ -47,7 +47,7 @@ public:
     QString message() const { return typedValue<QString>(messageKey); }
     void setMessage(QString message) { insert(messageKey, message); }
 
-    QString toString();
+    QString toString() const;
 
     bool isValid(QStringList *error) const override
     { return check<int>(error, typeKey) && check<QString>(error, messageKey); }

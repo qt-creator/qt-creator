@@ -516,7 +516,8 @@ void BaseClient::log(const QString &message, Core::MessageManager::PrintToOutput
     Core::MessageManager::write(QString("LanguageClient %1: %2").arg(name(), message), flag);
 }
 
-void BaseClient::log(LogMessageParams &message, Core::MessageManager::PrintToOutputPaneFlag flag)
+void BaseClient::log(const LogMessageParams &message,
+                     Core::MessageManager::PrintToOutputPaneFlag flag)
 {
     log(message.toString(), flag);
 }

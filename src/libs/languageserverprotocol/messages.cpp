@@ -67,7 +67,7 @@ static QString messageTypeName(int messageType)
     return QString("");
 }
 
-QString ShowMessageParams::toString()
+QString ShowMessageParams::toString() const
 {
     return messageTypeName(type()) + ": " + message();
 }

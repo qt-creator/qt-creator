@@ -118,7 +118,7 @@ public:
 
     void log(const QString &message,
              Core::MessageManager::PrintToOutputPaneFlag flag = Core::MessageManager::NoModeSwitch);
-    void log(LanguageServerProtocol::LogMessageParams &message,
+    void log(const LanguageServerProtocol::LogMessageParams &message,
              Core::MessageManager::PrintToOutputPaneFlag flag = Core::MessageManager::NoModeSwitch);
 
 signals:
