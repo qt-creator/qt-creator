@@ -105,7 +105,7 @@ public:
 
     void addToConfigurationLayout(QFormLayout *layout) override;
 
-    QString arguments() const;
+    QString arguments(const Utils::MacroExpander *expander) const;
     QString unexpandedArguments() const;
 
     void setArguments(const QString &arguments);

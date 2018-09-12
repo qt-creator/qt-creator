@@ -238,7 +238,7 @@ private:
 
     bool supportsDebugger() const { return true; }
     QString mainScript() const { return extraAspect<MainScriptAspect>()->value(); }
-    QString arguments() const { return extraAspect<ArgumentsAspect>()->arguments(); }
+    QString arguments() const { return extraAspect<ArgumentsAspect>()->arguments(macroExpander()); }
     QString interpreter() const { return extraAspect<InterpreterAspect>()->value(); }
 
     void updateTargetInformation();
@@ -286,7 +286,8 @@ Runnable PythonRunConfiguration::runnable() const
 {
     Runnable r;
     QtcProcess::addArg(&r.commandLineArguments, mainScript());
-    QtcProcess::addArgs(&r.commandLineArguments, extraAspect<ArgumentsAspect>()->arguments());
+    QtcProcess::addArgs(&r.commandLineArguments,
+                        extraAspect<ArgumentsAspect>()->arguments(macroExpander()));
     r.executable = extraAspect<InterpreterAspect>()->value();
     r.environment = extraAspect<EnvironmentAspect>()->environment();
     return r;

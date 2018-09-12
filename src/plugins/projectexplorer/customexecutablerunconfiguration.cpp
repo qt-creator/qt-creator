@@ -251,7 +251,7 @@ Runnable CustomExecutableRunConfiguration::runnable() const
 
     Runnable r;
     r.executable = extraAspect<ExecutableAspect>()->executable().toString();
-    r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments();
+    r.commandLineArguments = extraAspect<ArgumentsAspect>()->arguments(macroExpander());
     r.environment = extraAspect<EnvironmentAspect>()->environment();
     r.workingDirectory = workingDirectory.toString();
     r.device = DeviceManager::instance()->defaultDevice(Constants::DESKTOP_DEVICE_TYPE);

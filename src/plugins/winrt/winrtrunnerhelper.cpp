@@ -82,7 +82,7 @@ WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QStr
         m_executableFilePath += QStringLiteral(".exe");
 
     if (auto aspect = runConfiguration->extraAspect<ArgumentsAspect>())
-        m_arguments = aspect->arguments();
+        m_arguments = aspect->arguments(runConfiguration->macroExpander());
     if (auto aspect = runConfiguration->extraAspect<UninstallAfterStopAspect>())
         m_uninstallAfterStop = aspect->value();
 

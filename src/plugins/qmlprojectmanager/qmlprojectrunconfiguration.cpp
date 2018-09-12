@@ -354,7 +354,7 @@ QString QmlProjectRunConfiguration::executable() const
 QString QmlProjectRunConfiguration::commandLineArguments() const
 {
     // arguments in .user file
-    QString args = extraAspect<ArgumentsAspect>()->arguments();
+    QString args = extraAspect<ArgumentsAspect>()->arguments(macroExpander());
     const Target *currentTarget = target();
     const IDevice::ConstPtr device = DeviceKitInformation::device(currentTarget->kit());
     const Utils::OsType osType = device ? device->osType() : Utils::HostOsInfo::hostOs();

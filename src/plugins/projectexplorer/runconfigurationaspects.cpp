@@ -245,9 +245,10 @@ ArgumentsAspect::ArgumentsAspect(RunConfiguration *runConfig)
     setSettingsKey("RunConfiguration.Arguments");
 }
 
-QString ArgumentsAspect::arguments() const
+QString ArgumentsAspect::arguments(const MacroExpander *expander) const
 {
-    return runConfiguration()->macroExpander()->expandProcessArgs(m_arguments);
+    QTC_ASSERT(expander, return m_arguments);
+    return expander->expandProcessArgs(m_arguments);
 }
 
 QString ArgumentsAspect::unexpandedArguments() const
