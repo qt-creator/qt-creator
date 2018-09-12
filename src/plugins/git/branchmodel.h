@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/optional.h>
+
 #include <QAbstractListModel>
 #include <QVariant>
 
@@ -81,6 +83,7 @@ public:
     QModelIndex addBranch(const QString &name, bool track, const QModelIndex &trackedBranch);
     void setRemoteTracking(const QModelIndex &trackingIndex);
     void setOldBranchesIncluded(bool value);
+    Utils::optional<QString> remoteName(const QModelIndex &idx) const;
 
 private:
     void parseOutputLine(const QString &line);

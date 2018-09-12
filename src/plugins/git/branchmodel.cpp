@@ -647,6 +647,19 @@ void BranchModel::setOldBranchesIncluded(bool value)
     m_oldBranchesIncluded = value;
 }
 
+Utils::optional<QString> BranchModel::remoteName(const QModelIndex &idx) const
+{
+    const BranchNode *remotesNode = m_rootNode->children.at(RemoteBranches);
+    const BranchNode *node = indexToNode(idx);
+    if (!node)
+        return Utils::nullopt;
+    if (node == remotesNode)
+        return QString();
+    if (node->parent == remotesNode)
+        return node->name;
+    return Utils::nullopt;
+}
+
 void BranchModel::parseOutputLine(const QString &line)
 {
     if (line.size() < 3)
