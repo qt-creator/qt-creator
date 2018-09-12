@@ -51,8 +51,7 @@ namespace ProjectExplorer {
     \class ProjectExplorer::TerminalAspect
 */
 
-TerminalAspect::TerminalAspect(RunConfiguration *runConfig, bool useTerminal) :
-    IRunConfigurationAspect(runConfig), m_useTerminal(useTerminal)
+TerminalAspect::TerminalAspect()
 {
     setDisplayName(tr("Terminal"));
     setId("TerminalAspect");
@@ -115,10 +114,8 @@ bool TerminalAspect::isUserSet() const
     \class ProjectExplorer::WorkingDirectoryAspect
 */
 
-WorkingDirectoryAspect::WorkingDirectoryAspect(RunConfiguration *runConfig,
-                                               EnvironmentAspect *envAspect)
-    : IRunConfigurationAspect(runConfig),
-      m_envAspect(envAspect)
+WorkingDirectoryAspect::WorkingDirectoryAspect(EnvironmentAspect *envAspect)
+    : m_envAspect(envAspect)
 {
     setDisplayName(tr("Working Directory"));
     setId("WorkingDirectoryAspect");
@@ -237,8 +234,7 @@ PathChooser *WorkingDirectoryAspect::pathChooser() const
     \class ProjectExplorer::ArgumentsAspect
 */
 
-ArgumentsAspect::ArgumentsAspect(RunConfiguration *runConfig)
-    : IRunConfigurationAspect(runConfig)
+ArgumentsAspect::ArgumentsAspect()
 {
     setDisplayName(tr("Arguments"));
     setId("ArgumentsAspect");
@@ -300,10 +296,7 @@ void ArgumentsAspect::addToConfigurationLayout(QFormLayout *layout)
     \class ProjectExplorer::BaseStringAspect
 */
 
-BaseStringAspect::BaseStringAspect(RunConfiguration *rc)
-    : IRunConfigurationAspect(rc)
-{
-}
+BaseStringAspect::BaseStringAspect() = default;
 
 BaseStringAspect::~BaseStringAspect()
 {
@@ -486,7 +479,7 @@ void BaseStringAspect::update()
 void BaseStringAspect::makeCheckable(const QString &checkerLabel, const QString &checkerKey)
 {
     QTC_ASSERT(!m_checker, return);
-    m_checker = new BaseBoolAspect(runConfiguration());
+    m_checker = new BaseBoolAspect;
     m_checker->setLabel(checkerLabel);
     m_checker->setSettingsKey(checkerKey);
 
@@ -500,8 +493,7 @@ void BaseStringAspect::makeCheckable(const QString &checkerLabel, const QString 
     \class ProjectExplorer::ExecutableAspect
 */
 
-ExecutableAspect::ExecutableAspect(RunConfiguration *rc)
-    : IRunConfigurationAspect(rc), m_executable(rc)
+ExecutableAspect::ExecutableAspect()
 {
     setDisplayName(tr("Executable"));
     setId("ExecutableAspect");
@@ -556,7 +548,7 @@ void ExecutableAspect::setDisplayStyle(BaseStringAspect::DisplayStyle style)
 void ExecutableAspect::makeOverridable(const QString &overridingKey, const QString &useOverridableKey)
 {
     QTC_ASSERT(!m_alternativeExecutable, return);
-    m_alternativeExecutable = new BaseStringAspect(runConfiguration());
+    m_alternativeExecutable = new BaseStringAspect;
     m_alternativeExecutable->setDisplayStyle(BaseStringAspect::LineEditDisplay);
     m_alternativeExecutable->setLabelText(tr("Alternate executable on device:"));
     m_alternativeExecutable->setSettingsKey(overridingKey);
@@ -619,8 +611,7 @@ void ExecutableAspect::toMap(QVariantMap &map) const
     \class ProjectExplorer::BaseBoolAspect
 */
 
-BaseBoolAspect::BaseBoolAspect(RunConfiguration *runConfig, const QString &settingsKey)
-    : IRunConfigurationAspect(runConfig)
+BaseBoolAspect::BaseBoolAspect(const QString &settingsKey)
 {
     setSettingsKey(settingsKey);
 }
@@ -670,8 +661,7 @@ void BaseBoolAspect::setLabel(const QString &label)
     \class ProjectExplorer::UseLibraryPathsAspect
 */
 
-UseLibraryPathsAspect::UseLibraryPathsAspect(RunConfiguration *rc)
-    : BaseBoolAspect(rc)
+UseLibraryPathsAspect::UseLibraryPathsAspect()
 {
     setId("UseLibraryPath");
     setSettingsKey("RunConfiguration.UseLibrarySearchPath");
@@ -688,8 +678,7 @@ UseLibraryPathsAspect::UseLibraryPathsAspect(RunConfiguration *rc)
     \class ProjectExplorer::UseDyldSuffixAspect
 */
 
-UseDyldSuffixAspect::UseDyldSuffixAspect(RunConfiguration *rc)
-    : BaseBoolAspect(rc)
+UseDyldSuffixAspect::UseDyldSuffixAspect()
 {
     setId("UseDyldSuffix");
     setSettingsKey("RunConfiguration.UseDyldImageSuffix");

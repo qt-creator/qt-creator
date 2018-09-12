@@ -63,7 +63,7 @@ const char PRO_FILE_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.ProFile";
 DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    auto envAspect = addAspect<LocalEnvironmentAspect>([this](Environment &env) {
+    auto envAspect = addAspect<LocalEnvironmentAspect>(target, [this](Environment &env) {
                       addToBaseEnvironment(env);
                    });
 

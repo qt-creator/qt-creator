@@ -34,8 +34,7 @@ namespace QmlProfiler {
 namespace Internal {
 
 QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(
-        ProjectExplorer::RunConfiguration *parent) :
-    ProjectExplorer::IRunConfigurationAspect(parent)
+        ProjectExplorer::RunConfiguration *)
 {
     setProjectSettings(new QmlProfilerSettings);
     setGlobalSettings(QmlProfilerPlugin::globalSettings());

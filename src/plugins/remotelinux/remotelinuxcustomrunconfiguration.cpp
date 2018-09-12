@@ -57,7 +57,7 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
 
     addAspect<ArgumentsAspect>();
     addAspect<WorkingDirectoryAspect>();
-    addAspect<RemoteLinuxEnvironmentAspect>();
+    addAspect<RemoteLinuxEnvironmentAspect>(target);
 
     setDefaultDisplayName(runConfigDefaultDisplayName());
     setOutputFormatter<QtSupport::QtOutputFormatter>();

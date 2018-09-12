@@ -48,7 +48,7 @@ class PROJECTEXPLORER_EXPORT TerminalAspect : public IRunConfigurationAspect
     Q_OBJECT
 
 public:
-    TerminalAspect(RunConfiguration *rc, bool useTerminal = false);
+    TerminalAspect();
 
     void addToConfigurationLayout(QFormLayout *layout) override;
 
@@ -71,8 +71,7 @@ class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public IRunConfigurationAs
     Q_OBJECT
 
 public:
-    WorkingDirectoryAspect(RunConfiguration *runConfig,
-                           EnvironmentAspect *envAspect = nullptr);
+    explicit WorkingDirectoryAspect(EnvironmentAspect *envAspect = nullptr);
 
     void addToConfigurationLayout(QFormLayout *layout) override;
 
@@ -101,7 +100,7 @@ class PROJECTEXPLORER_EXPORT ArgumentsAspect : public IRunConfigurationAspect
     Q_OBJECT
 
 public:
-    explicit ArgumentsAspect(RunConfiguration *runConfig);
+    ArgumentsAspect();
 
     void addToConfigurationLayout(QFormLayout *layout) override;
 
@@ -126,7 +125,7 @@ class PROJECTEXPLORER_EXPORT BaseBoolAspect : public IRunConfigurationAspect
     Q_OBJECT
 
 public:
-    explicit BaseBoolAspect(RunConfiguration *rc, const QString &settingsKey = QString());
+    explicit BaseBoolAspect(const QString &settingsKey = QString());
     ~BaseBoolAspect() override;
 
     void addToConfigurationLayout(QFormLayout *layout) override;
@@ -150,7 +149,7 @@ class PROJECTEXPLORER_EXPORT UseLibraryPathsAspect : public BaseBoolAspect
     Q_OBJECT
 
 public:
-    explicit UseLibraryPathsAspect(RunConfiguration *rc);
+    UseLibraryPathsAspect();
 };
 
 class PROJECTEXPLORER_EXPORT UseDyldSuffixAspect : public BaseBoolAspect
@@ -158,7 +157,7 @@ class PROJECTEXPLORER_EXPORT UseDyldSuffixAspect : public BaseBoolAspect
     Q_OBJECT
 
 public:
-    explicit UseDyldSuffixAspect(RunConfiguration *rc);
+    UseDyldSuffixAspect();
 };
 
 class PROJECTEXPLORER_EXPORT BaseStringAspect : public IRunConfigurationAspect
@@ -166,7 +165,7 @@ class PROJECTEXPLORER_EXPORT BaseStringAspect : public IRunConfigurationAspect
     Q_OBJECT
 
 public:
-    explicit BaseStringAspect(RunConfiguration *rc);
+    BaseStringAspect();
     ~BaseStringAspect() override;
 
     void addToConfigurationLayout(QFormLayout *layout) override;
@@ -221,7 +220,7 @@ class PROJECTEXPLORER_EXPORT ExecutableAspect : public IRunConfigurationAspect
     Q_OBJECT
 
 public:
-    explicit ExecutableAspect(RunConfiguration *rc);
+    ExecutableAspect();
     ~ExecutableAspect() override;
 
     Utils::FileName executable() const;
@@ -254,7 +253,7 @@ class PROJECTEXPLORER_EXPORT SymbolFileAspect : public BaseStringAspect
     Q_OBJECT
 
 public:
-     SymbolFileAspect(RunConfiguration *rc) : BaseStringAspect(rc) {}
+     SymbolFileAspect() = default;
 };
 
 } // namespace ProjectExplorer

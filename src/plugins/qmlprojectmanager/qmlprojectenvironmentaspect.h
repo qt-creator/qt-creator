@@ -34,8 +34,7 @@ class QmlProjectEnvironmentAspect : public ProjectExplorer::EnvironmentAspect
     Q_OBJECT
 
 public:
-    QmlProjectEnvironmentAspect(ProjectExplorer::RunConfiguration *rc,
-                                ProjectExplorer::Target *target);
+    QmlProjectEnvironmentAspect(ProjectExplorer::Target *target);
 
     Utils::Environment baseEnvironment() const override;
 

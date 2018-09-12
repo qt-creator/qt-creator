@@ -36,7 +36,7 @@ class QtLibPathAspect : public ProjectExplorer::BaseStringAspect
     Q_OBJECT
 
 public:
-    QtLibPathAspect(ProjectExplorer::RunConfiguration *rc) : BaseStringAspect(rc) {}
+    QtLibPathAspect() = default;
 };
 
 class QnxRunConfiguration : public RemoteLinux::RemoteLinuxRunConfiguration

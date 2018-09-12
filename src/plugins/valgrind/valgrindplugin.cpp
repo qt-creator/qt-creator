@@ -92,8 +92,7 @@ private:
 class ValgrindRunConfigurationAspect : public IRunConfigurationAspect
 {
 public:
-    ValgrindRunConfigurationAspect(RunConfiguration *parent)
-        : IRunConfigurationAspect(parent)
+    ValgrindRunConfigurationAspect(RunConfiguration *)
     {
         setProjectSettings(new ValgrindProjectSettings);
         setGlobalSettings(ValgrindPlugin::globalSettings());

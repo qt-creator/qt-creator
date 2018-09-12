@@ -107,7 +107,7 @@ class PROJECTEXPLORER_EXPORT IRunConfigurationAspect : public QObject
     Q_OBJECT
 
 public:
-    explicit IRunConfigurationAspect(RunConfiguration *runConfig);
+    IRunConfigurationAspect();
     ~IRunConfigurationAspect() override;
 
     using ConfigWidgetCreator = std::function<QWidget *()>;
@@ -132,7 +132,6 @@ public:
     ISettingsAspect *projectSettings() const { return m_projectSettings; }
     ISettingsAspect *globalSettings() const { return m_globalSettings; }
     ISettingsAspect *currentSettings() const;
-    RunConfiguration *runConfiguration() const { return m_runConfiguration; }
 
     virtual void addToConfigurationLayout(QFormLayout *layout);
 
@@ -150,7 +149,6 @@ private:
     QString m_settingsKey; // Name of data in settings.
     bool m_useGlobalSettings = false;
     bool m_visible = true;
-    RunConfiguration *m_runConfiguration = nullptr;
     ISettingsAspect *m_projectSettings = nullptr; // Owned if present.
     ISettingsAspect *m_globalSettings = nullptr;  // Not owned.
     ConfigWidgetCreator m_configWidgetCreator;
@@ -222,7 +220,7 @@ public:
     template<class Aspect, typename ...Args>
     Aspect *addAspect(Args && ...args)
     {
-        auto aspect = new Aspect(this, args...);
+        auto aspect = new Aspect(args...);
         m_aspects.append(aspect);
         return aspect;
     }

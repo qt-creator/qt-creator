@@ -59,7 +59,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
 
     addAspect<ArgumentsAspect>();
     addAspect<WorkingDirectoryAspect>();
-    addAspect<RemoteLinuxEnvironmentAspect>();
+    addAspect<RemoteLinuxEnvironmentAspect>(target);
 
     setOutputFormatter<QtSupport::QtOutputFormatter>();
 

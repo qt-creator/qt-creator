@@ -67,11 +67,10 @@ void LocalEnvironmentAspect::buildEnvironmentHasChanged()
         emit environmentChanged();
 }
 
-LocalEnvironmentAspect::LocalEnvironmentAspect(RunConfiguration *parent,
+LocalEnvironmentAspect::LocalEnvironmentAspect(Target *target,
                                                const BaseEnvironmentModifier &modifier) :
-    EnvironmentAspect(parent),
     m_baseEnvironmentModifier(modifier),
-    m_target(parent->target())
+    m_target(target)
 {
     addPreferredBaseEnvironment(BuildEnvironmentBase, tr("Build Environment"));
     addSupportedBaseEnvironment(SystemEnvironmentBase, tr("System Environment"));

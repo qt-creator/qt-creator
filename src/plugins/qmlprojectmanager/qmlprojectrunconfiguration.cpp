@@ -71,7 +71,7 @@ static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
 class MainQmlFileAspect : public IRunConfigurationAspect
 {
 public:
-    MainQmlFileAspect(RunConfiguration *rc, QmlProject *project);
+    explicit MainQmlFileAspect(QmlProject *project);
     ~MainQmlFileAspect() { delete m_fileListCombo; }
 
     enum MainScriptSource {
@@ -105,8 +105,8 @@ public:
     QString m_mainScriptFilename;
 };
 
-MainQmlFileAspect::MainQmlFileAspect(RunConfiguration *rc, QmlProject *project)
-    : IRunConfigurationAspect(rc), m_project(project)
+MainQmlFileAspect::MainQmlFileAspect(QmlProject *project)
+    : m_project(project)
 {
     m_scriptFile = M_CURRENT_FILE;
 

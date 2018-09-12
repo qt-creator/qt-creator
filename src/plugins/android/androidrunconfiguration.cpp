@@ -56,10 +56,7 @@ using namespace Utils;
 
 namespace Android {
 
-BaseStringListAspect::BaseStringListAspect(RunConfiguration *runConfig,
-                                           const QString &settingsKey,
-                                           Core::Id id)
-    : IRunConfigurationAspect(runConfig)
+BaseStringListAspect::BaseStringListAspect(const QString &settingsKey, Core::Id id)
 {
     setSettingsKey(settingsKey);
     setId(id);

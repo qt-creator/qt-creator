@@ -53,8 +53,8 @@ Environment QmlProjectEnvironmentAspect::baseEnvironment() const
     return env;
 }
 
-QmlProjectEnvironmentAspect::QmlProjectEnvironmentAspect(RunConfiguration *rc, Target *target)
-    : EnvironmentAspect(rc), m_target(target)
+QmlProjectEnvironmentAspect::QmlProjectEnvironmentAspect(Target *target)
+    : m_target(target)
 {
     if (DeviceTypeKitInformation::deviceTypeId(target->kit())
             == Constants::DESKTOP_DEVICE_TYPE)

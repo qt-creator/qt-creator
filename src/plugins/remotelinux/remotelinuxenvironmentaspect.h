@@ -36,7 +36,7 @@ class REMOTELINUX_EXPORT RemoteLinuxEnvironmentAspect : public ProjectExplorer::
     Q_OBJECT
 
 public:
-    RemoteLinuxEnvironmentAspect(ProjectExplorer::RunConfiguration *rc);
+    RemoteLinuxEnvironmentAspect(ProjectExplorer::Target *target);
 
     Utils::Environment baseEnvironment() const override;
 

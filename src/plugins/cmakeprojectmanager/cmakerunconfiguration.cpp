@@ -53,7 +53,7 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *target, Core::Id id)
         if (qt)
             env.prependOrSetPath(qt->qmakeProperty("QT_INSTALL_BINS"));
     };
-    auto envAspect = addAspect<LocalEnvironmentAspect>(cmakeRunEnvironmentModifier);
+    auto envAspect = addAspect<LocalEnvironmentAspect>(target, cmakeRunEnvironmentModifier);
 
     addAspect<ExecutableAspect>();
     addAspect<ArgumentsAspect>();

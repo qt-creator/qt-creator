@@ -32,8 +32,7 @@ enum BaseEnvironmentBase {
 
 namespace Android {
 
-AndroidRunEnvironmentAspect::AndroidRunEnvironmentAspect(ProjectExplorer::RunConfiguration *rc) :
-    ProjectExplorer::EnvironmentAspect (rc)
+AndroidRunEnvironmentAspect::AndroidRunEnvironmentAspect()
 {
     addSupportedBaseEnvironment(CleanEnvironmentBase, tr("Clean Environment"));
 }

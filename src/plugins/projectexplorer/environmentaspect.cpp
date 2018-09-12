@@ -39,8 +39,7 @@ namespace ProjectExplorer {
 // EnvironmentAspect:
 // --------------------------------------------------------------------
 
-EnvironmentAspect::EnvironmentAspect(RunConfiguration *runConfig) :
-    IRunConfigurationAspect(runConfig)
+EnvironmentAspect::EnvironmentAspect()
 {
     setDisplayName(tr("Run Environment"));
     setId("EnvironmentAspect");

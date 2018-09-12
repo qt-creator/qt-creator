@@ -93,9 +93,7 @@ QWidget *ISettingsAspect::createConfigWidget() const
 //
 ///////////////////////////////////////////////////////////////////////
 
-IRunConfigurationAspect::IRunConfigurationAspect(RunConfiguration *runConfig) :
-    m_runConfiguration(runConfig)
-{ }
+IRunConfigurationAspect::IRunConfigurationAspect() = default;
 
 IRunConfigurationAspect::~IRunConfigurationAspect()
 {

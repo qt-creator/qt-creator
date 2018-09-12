@@ -64,7 +64,7 @@ signals:
     void environmentChanged();
 
 protected:
-    explicit EnvironmentAspect(RunConfiguration *rc);
+    EnvironmentAspect();
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 

@@ -52,7 +52,7 @@ namespace Internal {
 QbsRunConfiguration::QbsRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    auto envAspect = addAspect<LocalEnvironmentAspect>(
+    auto envAspect = addAspect<LocalEnvironmentAspect>(target,
             [this](Environment &env) { addToBaseEnvironment(env); });
 
     addAspect<ExecutableAspect>();

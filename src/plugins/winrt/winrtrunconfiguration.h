@@ -35,7 +35,7 @@ class UninstallAfterStopAspect : public ProjectExplorer::BaseBoolAspect
     Q_OBJECT
 
 public:
-    UninstallAfterStopAspect(ProjectExplorer::RunConfiguration *rc);
+    UninstallAfterStopAspect();
 };
 
 class WinRtRunConfiguration : public ProjectExplorer::RunConfiguration

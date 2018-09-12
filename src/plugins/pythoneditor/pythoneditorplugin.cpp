@@ -209,7 +209,7 @@ class InterpreterAspect : public BaseStringAspect
     Q_OBJECT
 
 public:
-    explicit InterpreterAspect(RunConfiguration *rc) : BaseStringAspect(rc) {}
+    InterpreterAspect() = default;
 };
 
 class MainScriptAspect : public BaseStringAspect
@@ -217,7 +217,7 @@ class MainScriptAspect : public BaseStringAspect
     Q_OBJECT
 
 public:
-    explicit MainScriptAspect(RunConfiguration *rc) : BaseStringAspect(rc) {}
+    MainScriptAspect() = default;
 };
 
 class PythonRunConfiguration : public RunConfiguration
@@ -262,7 +262,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
     scriptAspect->setLabelText(tr("Script:"));
     scriptAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
 
-    addAspect<LocalEnvironmentAspect>(LocalEnvironmentAspect::BaseEnvironmentModifier());
+    addAspect<LocalEnvironmentAspect>(target, LocalEnvironmentAspect::BaseEnvironmentModifier());
     addAspect<ArgumentsAspect>();
     addAspect<TerminalAspect>();
 

@@ -33,8 +33,8 @@ namespace Internal {
 
 // UninstallAfterStopAspect
 
-UninstallAfterStopAspect::UninstallAfterStopAspect(RunConfiguration *rc)
-    : BaseBoolAspect(rc, "WinRtRunConfigurationUninstallAfterStopId")
+UninstallAfterStopAspect::UninstallAfterStopAspect()
+    : BaseBoolAspect("WinRtRunConfigurationUninstallAfterStopId")
 {
     setLabel(WinRtRunConfiguration::tr("Uninstall package after application stops"));
 }

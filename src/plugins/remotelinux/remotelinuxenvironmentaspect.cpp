@@ -47,14 +47,13 @@ enum BaseEnvironmentBase {
 };
 
 
-RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(ProjectExplorer::RunConfiguration *rc) :
-    ProjectExplorer::EnvironmentAspect(rc)
+RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(ProjectExplorer::Target *target)
 {
     addSupportedBaseEnvironment(CleanBaseEnvironment, tr("Clean Environment"));
     addPreferredBaseEnvironment(RemoteBaseEnvironment, tr("System Environment"));
 
-    setConfigWidgetCreator([this, rc] {
-        return new RemoteLinuxEnvironmentAspectWidget(this, rc->target());
+    setConfigWidgetCreator([this, target] {
+        return new RemoteLinuxEnvironmentAspectWidget(this, target);
     });
 }
 

@@ -33,7 +33,7 @@ class AndroidRunEnvironmentAspect : public ProjectExplorer::EnvironmentAspect
     Q_OBJECT
 
 public:
-    AndroidRunEnvironmentAspect(ProjectExplorer::RunConfiguration *rc);
+    AndroidRunEnvironmentAspect();
 
     Utils::Environment baseEnvironment() const override;
 };

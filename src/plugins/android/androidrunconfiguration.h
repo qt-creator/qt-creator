@@ -39,8 +39,7 @@ class BaseStringListAspect : public ProjectExplorer::IRunConfigurationAspect
     Q_OBJECT
 
 public:
-    explicit BaseStringListAspect(ProjectExplorer::RunConfiguration *rc,
-                                  const QString &settingsKey = QString(),
+    explicit BaseStringListAspect(const QString &settingsKey = QString(),
                                   Core::Id id = Core::Id());
     ~BaseStringListAspect() override;
 
