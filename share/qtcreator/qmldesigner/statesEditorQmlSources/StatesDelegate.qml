@@ -181,6 +181,8 @@ Rectangle {
             id: stateImage
             anchors.centerIn: parent
             source: delegateStateImageSource
+            sourceSize.width: delegateStateImageSize
+            sourceSize.height: delegateStateImageSize
         }
     }
 

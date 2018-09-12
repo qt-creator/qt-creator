@@ -384,10 +384,12 @@ QImage QuickItemNodeInstance::renderPreviewImage(const QSize &previewImageSize) 
     QRectF previewItemBoundingRect = boundingRect();
 
     if (previewItemBoundingRect.isValid() && quickItem()) {
+        static double devicePixelRatio = qgetenv("FORMEDITOR_DEVICE_PIXEL_RATIO").toDouble();
+        const QSize size = previewImageSize * devicePixelRatio;
         if (quickItem()->isVisible()) {
-            return designerSupport()->renderImageForItem(quickItem(), previewItemBoundingRect, previewImageSize);
+            return designerSupport()->renderImageForItem(quickItem(), previewItemBoundingRect, size);
         } else {
-            QImage transparentImage(previewImageSize, QImage::Format_ARGB32_Premultiplied);
+            QImage transparentImage(size, QImage::Format_ARGB32_Premultiplied);
             transparentImage.fill(Qt::transparent);
             return transparentImage;
         }
