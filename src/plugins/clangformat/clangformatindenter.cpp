@@ -477,8 +477,10 @@ TabSettings ClangFormatIndenter::tabSettings() const
     switch (style.UseTab) {
     case FormatStyle::UT_Never:
         tabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
+        break;
     case FormatStyle::UT_Always:
         tabSettings.m_tabPolicy = TabSettings::TabsOnlyTabPolicy;
+        break;
     default:
         tabSettings.m_tabPolicy = TabSettings::MixedTabPolicy;
     }
