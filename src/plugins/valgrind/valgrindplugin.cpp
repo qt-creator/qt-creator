@@ -102,7 +102,7 @@ public:
                                                    "Valgrind Settings"));
         setUsingGlobalSettings(true);
         resetProjectToGlobalSettings();
-        setRunConfigWidgetCreator([this] { return new Debugger::AnalyzerRunConfigWidget(this); });
+        setConfigWidgetCreator([this] { return new Debugger::AnalyzerRunConfigWidget(this); });
     }
 };
 

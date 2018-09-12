@@ -39,14 +39,12 @@ namespace Utils { class DetailsWidget; }
 
 namespace Debugger {
 
-class DEBUGGER_EXPORT AnalyzerRunConfigWidget : public ProjectExplorer::RunConfigWidget
+class DEBUGGER_EXPORT AnalyzerRunConfigWidget : public QWidget
 {
     Q_OBJECT
 
 public:
     AnalyzerRunConfigWidget(ProjectExplorer::IRunConfigurationAspect *aspect);
-
-    QString displayName() const override;
 
 private:
     void chooseSettings(int setting);

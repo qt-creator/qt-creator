@@ -57,7 +57,6 @@ class Node;
 class RunConfigurationFactory;
 class RunConfiguration;
 class RunConfigurationCreationInfo;
-class RunConfigWidget;
 class RunControl;
 class RunWorkerFactory;
 class Target;
@@ -111,9 +110,9 @@ public:
     explicit IRunConfigurationAspect(RunConfiguration *runConfig);
     ~IRunConfigurationAspect() override;
 
-    using RunConfigWidgetCreator = std::function<RunConfigWidget *()>;
-    void setRunConfigWidgetCreator(const RunConfigWidgetCreator &runConfigWidgetCreator);
-    RunConfigWidget *createConfigurationWidget() const;
+    using ConfigWidgetCreator = std::function<QWidget *()>;
+    void setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator);
+    QWidget *createConfigWidget() const;
     void copyFrom(IRunConfigurationAspect *other);
 
     void setId(Core::Id id) { m_id = id; }
@@ -154,7 +153,7 @@ private:
     RunConfiguration *m_runConfiguration = nullptr;
     ISettingsAspect *m_projectSettings = nullptr; // Owned if present.
     ISettingsAspect *m_globalSettings = nullptr;  // Not owned.
-    RunConfigWidgetCreator m_runConfigWidgetCreator;
+    ConfigWidgetCreator m_configWidgetCreator;
 };
 
 class PROJECTEXPLORER_EXPORT Runnable
@@ -351,17 +350,6 @@ public:
 private:
     const QString m_fixedBuildTarget;
     const bool m_decorateTargetName;
-};
-
-class PROJECTEXPLORER_EXPORT RunConfigWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    virtual QString displayName() const = 0;
-
-signals:
-    void displayNameChanged(const QString &);
 };
 
 class PROJECTEXPLORER_EXPORT RunWorker : public QObject

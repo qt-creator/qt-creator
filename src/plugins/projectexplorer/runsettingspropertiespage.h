@@ -77,7 +77,7 @@ private:
     void setConfigurationWidget(RunConfiguration *rc);
 
     void addRunControlWidgets();
-    void addSubWidget(RunConfigWidget *subWidget);
+    void addSubWidget(QWidget *subWidget, QLabel *label);
     void removeSubWidgets();
 
     void updateEnabledState();
@@ -94,7 +94,7 @@ private:
     QMenu *m_addRunMenu;
     QMenu *m_addDeployMenu;
     bool m_ignoreChange = false;
-    typedef QPair<RunConfigWidget *, QLabel *> RunConfigItem;
+    typedef QPair<QWidget *, QLabel *> RunConfigItem;
     QList<RunConfigItem> m_subWidgets;
 
     QGridLayout *m_gridLayout;

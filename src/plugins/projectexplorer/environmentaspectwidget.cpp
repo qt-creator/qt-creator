@@ -42,7 +42,6 @@ namespace ProjectExplorer {
 // --------------------------------------------------------------------
 
 EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWidget *additionalWidget) :
-    RunConfigWidget(),
     m_aspect(aspect),
     m_additionalWidget(additionalWidget)
 {
@@ -96,11 +95,6 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWid
             this, &EnvironmentAspectWidget::changeUserChanges);
     connect(m_aspect, &EnvironmentAspect::environmentChanged,
             this, &EnvironmentAspectWidget::environmentChanged);
-}
-
-QString EnvironmentAspectWidget::displayName() const
-{
-    return m_aspect->displayName();
 }
 
 EnvironmentAspect *EnvironmentAspectWidget::aspect() const

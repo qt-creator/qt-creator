@@ -107,9 +107,9 @@ IRunConfigurationAspect::~IRunConfigurationAspect()
     transferred to the caller.
 */
 
-RunConfigWidget *IRunConfigurationAspect::createConfigurationWidget() const
+QWidget *IRunConfigurationAspect::createConfigWidget() const
 {
-    return m_runConfigWidgetCreator ? m_runConfigWidgetCreator() : nullptr;
+    return m_configWidgetCreator ? m_configWidgetCreator() : nullptr;
 }
 
 void IRunConfigurationAspect::copyFrom(IRunConfigurationAspect *source)
@@ -159,9 +159,9 @@ void IRunConfigurationAspect::addToConfigurationLayout(QFormLayout *layout)
     Q_UNUSED(layout);
 }
 
-void IRunConfigurationAspect::setRunConfigWidgetCreator(const RunConfigWidgetCreator &runConfigWidgetCreator)
+void IRunConfigurationAspect::setConfigWidgetCreator(const ConfigWidgetCreator &runConfigWidgetCreator)
 {
-    m_runConfigWidgetCreator = runConfigWidgetCreator;
+    m_configWidgetCreator = runConfigWidgetCreator;
 }
 
 void IRunConfigurationAspect::resetProjectToGlobalSettings()

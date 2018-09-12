@@ -79,11 +79,6 @@ AnalyzerRunConfigWidget::AnalyzerRunConfigWidget(ProjectExplorer::IRunConfigurat
     chooseSettings(m_aspect->isUsingGlobalSettings() ? 0 : 1);
 }
 
-QString AnalyzerRunConfigWidget::displayName() const
-{
-    return m_aspect->displayName();
-}
-
 void AnalyzerRunConfigWidget::chooseSettings(int setting)
 {
     QTC_ASSERT(m_aspect, return);

@@ -45,14 +45,13 @@ namespace ProjectExplorer {
 
 class EnvironmentWidget;
 
-class PROJECTEXPLORER_EXPORT EnvironmentAspectWidget : public RunConfigWidget
+class PROJECTEXPLORER_EXPORT EnvironmentAspectWidget : public QWidget
 {
     Q_OBJECT
 
 public:
     explicit EnvironmentAspectWidget(EnvironmentAspect *aspect, QWidget *additionalWidget = nullptr);
 
-    QString displayName() const override;
     virtual EnvironmentAspect *aspect() const;
 
     QWidget *additionalWidget() const;

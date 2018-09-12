@@ -43,7 +43,7 @@ QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(
     setDisplayName(QCoreApplication::translate("QmlProfilerRunConfiguration", "QML Profiler Settings"));
     setUsingGlobalSettings(true);
     resetProjectToGlobalSettings();
-    setRunConfigWidgetCreator([this] { return new Debugger::AnalyzerRunConfigWidget(this); });
+    setConfigWidgetCreator([this] { return new Debugger::AnalyzerRunConfigWidget(this); });
 }
 
 } // Internal

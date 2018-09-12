@@ -63,13 +63,12 @@ namespace Internal {
 //
 ////////////////////////////////////////////////////////////////////////
 
-class DebuggerRunConfigWidget : public RunConfigWidget
+class DebuggerRunConfigWidget : public QWidget
 {
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::RunConfigWidget)
 
 public:
     explicit DebuggerRunConfigWidget(DebuggerRunConfigurationAspect *aspect);
-    QString displayName() const override { return tr("Debugger Settings"); }
 
     void showEvent(QShowEvent *event) override;
     void update();
@@ -153,7 +152,7 @@ void DebuggerRunConfigWidget::showEvent(QShowEvent *event)
     if (!event->spontaneous())
         update();
 
-    RunConfigWidget::showEvent(event);
+    QWidget::showEvent(event);
 }
 
 void DebuggerRunConfigWidget::update()
@@ -215,7 +214,7 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(
 {
     setId("DebuggerAspect");
     setDisplayName(tr("Debugger settings"));
-    setRunConfigWidgetCreator([this] { return new Internal::DebuggerRunConfigWidget(this); });
+    setConfigWidgetCreator([this] { return new Internal::DebuggerRunConfigWidget(this); });
 }
 
 void DebuggerRunConfigurationAspect::setUseQmlDebugger(bool value)
