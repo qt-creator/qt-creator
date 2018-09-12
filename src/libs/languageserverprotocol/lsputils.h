@@ -118,6 +118,13 @@ public:
             *this = fromJsonValue<T>(value);
     }
 
+    operator const QJsonValue() const
+    {
+        if (auto val = Utils::get_if<T>(this))
+            return QJsonValue(*val);
+        return QJsonValue();
+    }
+
     T value(const T &defaultValue = T()) const
     {
         QTC_ASSERT(Utils::holds_alternative<T>(*this), return defaultValue);
@@ -129,13 +136,6 @@ public:
     {
         QTC_ASSERT(!Utils::holds_alternative<T>(*this), return LanguageClientValue<Type>());
         return Type(Utils::get<T>(*this));
-    }
-
-    QJsonValue toJson() const
-    {
-        if (auto val = Utils::get_if<T>(this))
-            return QJsonValue(*val);
-        return QJsonValue();
     }
 
     bool isNull() const { return Utils::holds_alternative<std::nullptr_t>(*this); }

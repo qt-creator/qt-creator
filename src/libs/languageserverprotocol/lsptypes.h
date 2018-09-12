@@ -239,7 +239,7 @@ public:
      * truth (as speced with document content ownership)
      */
     LanguageClientValue<int> version() const { return clientValue<int>(versionKey); }
-    void setVersion(LanguageClientValue<int> version) { insert(versionKey, version.toJson()); }
+    void setVersion(LanguageClientValue<int> version) { insert(versionKey, version); }
 
     bool isValid(QStringList *error) const override
     { return TextDocumentIdentifier::isValid(error) && check<int, std::nullptr_t>(error, versionKey); }

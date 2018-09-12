@@ -66,7 +66,7 @@ public:
      * its process.
      */
     LanguageClientValue<int> processId() const { return clientValue<int>(processIdKey); }
-    void setProcessId(const LanguageClientValue<int> &id) { insert(processIdKey, id.toJson()); }
+    void setProcessId(const LanguageClientValue<int> &id) { insert(processIdKey, id); }
 
     /*
      * The rootPath of the workspace. Is null
@@ -77,7 +77,7 @@ public:
     Utils::optional<LanguageClientValue<QString>> rootPath() const
     { return optionalClientValue<QString>(rootPathKey); }
     void setRootPath(const LanguageClientValue<QString> &path)
-    { insert(rootPathKey, path.toJson()); }
+    { insert(rootPathKey, path); }
     void clearRootPath() { remove(rootPathKey); }
 
     /*
@@ -88,7 +88,7 @@ public:
     LanguageClientValue<DocumentUri> rootUri() const
     { return clientValue<QString>(rootUriKey).transform<DocumentUri>(); }
     void setRootUri(const LanguageClientValue<DocumentUri> &uri)
-    { insert(rootUriKey, uri.toJson()); }
+    { insert(rootUriKey, uri); }
 
     // User provided initialization options.
     Utils::optional<QJsonObject> initializationOptions() const
