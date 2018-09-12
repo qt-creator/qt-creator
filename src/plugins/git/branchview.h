@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "branchutils.h"
-
 #include <coreplugin/inavigationwidgetfactory.h>
 
 #include <QPointer>
@@ -48,7 +46,7 @@ namespace Internal {
 
 class BranchModel;
 
-class BranchView : public QWidget, public BranchUtils
+class BranchView : public QWidget
 {
     Q_OBJECT
 
@@ -71,11 +69,23 @@ private:
     void expandAndResize();
     void setIncludeOldEntries(bool filter);
     void setIncludeTags(bool includeTags);
+    QModelIndex selectedIndex();
+    bool add();
+    bool checkout();
+    bool remove();
+    bool rename();
+    bool reset();
+    bool isFastForwardMerge();
+    bool merge(bool allowFastForward);
+    void rebase();
+    bool cherryPick();
 
     QToolButton *m_addButton = nullptr;
     QToolButton *m_refreshButton = nullptr;
     Utils::ElidingLabel *m_repositoryLabel = nullptr;
     Utils::NavigationTreeView *m_branchView = nullptr;
+    BranchModel *m_model = nullptr;
+    QString m_repository;
 };
 
 class BranchViewFactory : public Core::INavigationWidgetFactory

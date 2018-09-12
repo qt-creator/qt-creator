@@ -25,7 +25,6 @@ HEADERS += gitplugin.h \
     branchcheckoutdialog.h \
     githighlighters.h \
     gitgrep.h \
-    branchutils.h \
     branchview.h
 
 SOURCES += gitplugin.cpp \
@@ -50,7 +49,6 @@ SOURCES += gitplugin.cpp \
     branchcheckoutdialog.cpp \
     githighlighters.cpp \
     gitgrep.cpp \
-    branchutils.cpp \
     branchview.cpp
 
 FORMS += changeselectiondialog.ui \
