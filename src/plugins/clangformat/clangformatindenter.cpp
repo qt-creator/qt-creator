@@ -90,7 +90,8 @@ Replacements filteredReplacements(const Replacements &replacements,
         if (replacementOffset > offset + lengthForFilter)
             break;
 
-        if (offset > prevBlockLength && replacementOffset < offset - prevBlockLength)
+        if (offset > static_cast<unsigned int>(prevBlockLength)
+                && replacementOffset < offset - static_cast<unsigned int>(prevBlockLength))
             continue;
 
         if (lengthForFilter == 0 && replacement.getReplacementText().find('\n') == std::string::npos
@@ -99,7 +100,7 @@ Replacements filteredReplacements(const Replacements &replacements,
         }
 
         if (replacementOffset + 1 >= offset)
-            replacementOffset += extraOffsetToAdd;
+            replacementOffset += static_cast<unsigned int>(extraOffsetToAdd);
 
         Error error = filtered.add(Replacement(replacement.getFilePath(),
                                                replacementOffset,
