@@ -118,8 +118,6 @@ public:
 
     void log(const QString &message,
              Core::MessageManager::PrintToOutputPaneFlag flag = Core::MessageManager::NoModeSwitch);
-    void log(const LanguageServerProtocol::LogMessageParams &message,
-             Core::MessageManager::PrintToOutputPaneFlag flag = Core::MessageManager::NoModeSwitch);
 
 signals:
     void initialized(LanguageServerProtocol::ServerCapabilities capabilities);
@@ -139,6 +137,11 @@ private:
     void intializeCallback(const LanguageServerProtocol::InitializeResponse &initResponse);
     void shutDownCallback(const LanguageServerProtocol::ShutdownResponse &shutdownResponse);
     bool sendWorkspceFolderChanges() const;
+    void log(const LanguageServerProtocol::ShowMessageParams &message,
+             Core::MessageManager::PrintToOutputPaneFlag flag = Core::MessageManager::NoModeSwitch);
+
+    void showMessageBox(const LanguageServerProtocol::ShowMessageRequestParams &message,
+                        const LanguageServerProtocol::MessageId &id);
 
     using ContentHandler = std::function<void(const QByteArray &, QTextCodec *, QString &,
                                               LanguageServerProtocol::ResponseHandlers,

@@ -47,6 +47,7 @@
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QPointer>
+#include <QPushButton>
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextDocument>
@@ -516,10 +517,38 @@ void BaseClient::log(const QString &message, Core::MessageManager::PrintToOutput
     Core::MessageManager::write(QString("LanguageClient %1: %2").arg(name(), message), flag);
 }
 
-void BaseClient::log(const LogMessageParams &message,
+void BaseClient::log(const ShowMessageParams &message,
                      Core::MessageManager::PrintToOutputPaneFlag flag)
 {
     log(message.toString(), flag);
+}
+
+void BaseClient::showMessageBox(const ShowMessageRequestParams &message, const MessageId &id)
+{
+    auto box = new QMessageBox();
+    box->setText(message.toString());
+    box->setAttribute(Qt::WA_DeleteOnClose);
+    switch (message.type()) {
+    case Error: box->setIcon(QMessageBox::Critical); break;
+    case Warning: box->setIcon(QMessageBox::Warning); break;
+    case Info: box->setIcon(QMessageBox::Information); break;
+    case Log: box->setIcon(QMessageBox::NoIcon); break;
+    }
+    QHash<QAbstractButton *, MessageActionItem> itemForButton;
+    if (const Utils::optional<QList<MessageActionItem>> actions = message.actions()) {
+        for (const MessageActionItem &action : actions.value())
+            itemForButton.insert(box->addButton(action.title(), QMessageBox::InvalidRole), action);
+    }
+    box->setModal(true);
+    connect(box, &QMessageBox::finished, this, [=]{
+        Response<LanguageClientValue<MessageActionItem>, LanguageClientNull> response;
+        response.setId(id);
+        const MessageActionItem &item = itemForButton.value(box->clickedButton());
+        response.setResult(item.isValid(nullptr) ? LanguageClientValue<MessageActionItem>(item)
+                                                 : LanguageClientValue<MessageActionItem>());
+        sendContent(response);
+    });
+    box->show();
 }
 
 void BaseClient::handleResponse(const MessageId &id, const QByteArray &content, QTextCodec *codec)
@@ -541,7 +570,30 @@ void BaseClient::handleMethod(const QString &method, MessageId id, const IConten
         auto params = dynamic_cast<const LogMessageNotification *>(content)->params().value_or(LogMessageParams());
         paramsValid = params.isValid(&error);
         if (paramsValid)
+            log(params, Core::MessageManager::Flash);
+    } else if (method == ShowMessageNotification::methodName) {
+        auto params = dynamic_cast<const ShowMessageNotification *>(content)->params().value_or(ShowMessageParams());
+        paramsValid = params.isValid(&error);
+        if (paramsValid)
             log(params);
+    } else if (method == ShowMessageRequest::methodName) {
+        const ShowMessageRequest *request = dynamic_cast<const ShowMessageRequest *>(content);
+        auto params = request->params().value_or(ShowMessageRequestParams());
+        paramsValid = params.isValid(&error);
+        if (paramsValid) {
+            showMessageBox(params, request->id());
+        } else {
+            Response<LanguageClientValue<MessageActionItem>, LanguageClientNull> response;
+            response.setId(request->id());
+            ResponseError<LanguageClientNull> error;
+            const QString errorMessage =
+                    QString("Could not parse ShowMessageRequest parameter of '%1': \"%2\"")
+                    .arg(request->id().toString(),
+                         QString::fromUtf8(QJsonDocument(params).toJson()));
+            error.setMessage(errorMessage);
+            response.setError(error);
+            sendContent(response);
+        }
     } else if (method == RegisterCapabilityRequest::methodName) {
         auto params = dynamic_cast<const RegisterCapabilityRequest *>(content)->params().value_or(RegistrationParams());
         paramsValid = params.isValid(&error);
