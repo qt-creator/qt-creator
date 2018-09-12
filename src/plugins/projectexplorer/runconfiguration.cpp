@@ -229,7 +229,7 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
             [this] { return displayName(); }, false);
 
     for (const AspectFactory &factory : theAspectFactories)
-        m_aspects.append(factory(this));
+        m_aspects.append(factory(target));
 }
 
 RunConfiguration::~RunConfiguration()

@@ -33,7 +33,7 @@ namespace Internal {
 class QmlProfilerRunConfigurationAspect : public ProjectExplorer::IRunConfigurationAspect
 {
 public:
-    QmlProfilerRunConfigurationAspect(ProjectExplorer::RunConfiguration *);
+    QmlProfilerRunConfigurationAspect(ProjectExplorer::Target *);
 };
 
 } // Internal

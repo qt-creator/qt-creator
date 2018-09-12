@@ -55,7 +55,7 @@ class DEBUGGER_EXPORT DebuggerRunConfigurationAspect
     Q_OBJECT
 
 public:
-    DebuggerRunConfigurationAspect(ProjectExplorer::RunConfiguration *runConfiguration);
+    DebuggerRunConfigurationAspect(ProjectExplorer::Target *target);
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;

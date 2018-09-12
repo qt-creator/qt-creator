@@ -208,8 +208,8 @@ void DebuggerRunConfigWidget::useMultiProcessToggled(bool on)
     \class Debugger::DebuggerRunConfigurationAspect
 */
 
-DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(RunConfiguration *rc)
-    : m_target(rc->target())
+DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
+    : m_target(target)
 {
     setId("DebuggerAspect");
     setDisplayName(tr("Debugger settings"));

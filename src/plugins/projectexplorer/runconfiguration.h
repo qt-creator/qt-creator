@@ -228,10 +228,10 @@ public:
     static RunConfiguration *startupRunConfiguration();
     virtual bool canRunForNode(const ProjectExplorer::Node *) const { return false; }
 
-    using AspectFactory = std::function<IRunConfigurationAspect *(RunConfiguration *)>;
+    using AspectFactory = std::function<IRunConfigurationAspect *(Target *)>;
     template <class T> static void registerAspect()
     {
-        addAspectFactory([](RunConfiguration *rc) { return new T(rc); });
+        addAspectFactory([](Target *target) { return new T(target); });
     }
 
 signals:
