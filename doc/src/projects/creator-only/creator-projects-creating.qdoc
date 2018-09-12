@@ -122,12 +122,6 @@
                 Qt 5.9 or later) or a set of pages with a stack-based or
                 swipe-based navigation model (requires Qt 5.7 or later).
 
-            \li Qt Canvas 3D Application
-
-                Create a Qt Quick application that imports the Qt Canvas 3D
-                module and, optionally, includes \l{http://threejs.org}
-                {three.js}.
-
             \li Qt Console Application
 
                 Use a single main.cpp file

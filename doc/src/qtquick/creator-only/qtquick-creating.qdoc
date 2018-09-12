@@ -65,10 +65,6 @@
             {SwipeWiew} type to implement a set of pages with a swipe-based
             navigation model (requires Qt 5.7 or later).
 
-        \li \uicontrol {Qt Canvas 3D Application} creates a Qt Quick application
-            that imports the Qt Canvas 3D module and, optionally, includes
-            \l{http://threejs.org}{three.js}.
-
         \li \uicontrol {Qt Quick UI Prototype} (in the \uicontrol {Other Project}
             category) creates a \l{Creating Qt Quick UI Projects}
             {Qt Quick UI project} with a single QML file that
