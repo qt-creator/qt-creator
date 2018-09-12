@@ -71,16 +71,19 @@ public:
     }
 };
 
+template<typename T>
+void registerMessageProvider()
+{
+    JsonRpcMessageHandler::registerMessageProvider(T::methodName,
+                                                   [](const QJsonObject &object){
+        return new T(object);
+    });
+}
+
 LanguageClientManager::LanguageClientManager()
 {
-    JsonRpcMessageHandler::registerMessageProvider("textDocument/publishDiagnostics",
-                                                   [](const QJsonObject &object){
-        return new PublishDiagnosticsNotification(object);
-    });
-    JsonRpcMessageHandler::registerMessageProvider(LogMessageNotification::methodName,
-                                                   [](const QJsonObject &object){
-        return new LogMessageNotification(object);
-    });
+    registerMessageProvider<PublishDiagnosticsNotification>();
+    registerMessageProvider<LogMessageNotification>();
     managerInstance = this;
 }
 
