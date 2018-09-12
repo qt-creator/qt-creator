@@ -67,6 +67,9 @@ JsonRpcMessage::JsonRpcMessage(const QJsonObject &jsonObject)
     : m_jsonObject(jsonObject)
 { }
 
+JsonRpcMessage::JsonRpcMessage(QJsonObject &&jsonObject)
+    : m_jsonObject(std::move(jsonObject))
+{ }
 
 QByteArray JsonRpcMessageHandler::jsonRpcMimeType()
 {

@@ -49,6 +49,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT JsonRpcMessage : public IContent
 public:
     JsonRpcMessage();
     JsonRpcMessage(const QJsonObject &jsonObject);
+    JsonRpcMessage(QJsonObject &&jsonObject);
 
     QByteArray toRawData() const final;
     QByteArray mimeType() const final;
