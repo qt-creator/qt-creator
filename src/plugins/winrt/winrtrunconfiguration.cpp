@@ -26,6 +26,10 @@
 #include "winrtrunconfiguration.h"
 #include "winrtconstants.h"
 
+#include <projectexplorer/target.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
+
 using namespace ProjectExplorer;
 
 namespace WinRt {
@@ -39,6 +43,24 @@ UninstallAfterStopAspect::UninstallAfterStopAspect()
     setLabel(WinRtRunConfiguration::tr("Uninstall package after application stops"));
 }
 
+// LoopbackExemptClientAspect
+
+LoopbackExemptClientAspect::LoopbackExemptClientAspect()
+    : BaseBoolAspect("WinRtRunConfigurationLoopbackExemptClient")
+{
+    setLabel(WinRtRunConfiguration::tr("Enable localhost communication for "
+                                       "clients"));
+}
+
+// LoopbackExemptServerAspect
+
+LoopbackExemptServerAspect::LoopbackExemptServerAspect()
+    : BaseBoolAspect("WinRtRunConfigurationLoopbackExemptServer")
+{
+    setLabel(WinRtRunConfiguration::tr("Enable localhost communication for "
+                                       "servers (requires elevated rights)"));
+}
+
 // WinRtRunConfiguration
 
 WinRtRunConfiguration::WinRtRunConfiguration(Target *target, Core::Id id)
@@ -47,6 +69,13 @@ WinRtRunConfiguration::WinRtRunConfiguration(Target *target, Core::Id id)
     setDisplayName(tr("Run App Package"));
     addAspect<ArgumentsAspect>();
     addAspect<UninstallAfterStopAspect>();
+
+    const QtSupport::BaseQtVersion *qt
+            = QtSupport::QtKitInformation::qtVersion(target->kit());
+    if (qt && qt->qtVersion() >= QtSupport::QtVersionNumber(5, 12, 0)) {
+        addAspect<LoopbackExemptClientAspect>();
+        addAspect<LoopbackExemptServerAspect>();
+    }
 }
 
 // WinRtRunConfigurationFactory

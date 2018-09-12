@@ -81,10 +81,23 @@ WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QStr
     if (!m_executableFilePath.endsWith(QLatin1String(".exe")))
         m_executableFilePath += QStringLiteral(".exe");
 
+
+    bool loopbackExemptClient = false;
+    bool loopbackExemptServer = false;
     if (auto aspect = runConfiguration->extraAspect<ArgumentsAspect>())
         m_arguments = aspect->arguments(runConfiguration->macroExpander());
     if (auto aspect = runConfiguration->extraAspect<UninstallAfterStopAspect>())
         m_uninstallAfterStop = aspect->value();
+    if (auto aspect = runConfiguration->extraAspect<LoopbackExemptClientAspect>())
+        loopbackExemptClient = aspect->value();
+    if (auto aspect = runConfiguration->extraAspect<LoopbackExemptServerAspect>())
+        loopbackExemptServer = aspect->value();
+    if (loopbackExemptClient && loopbackExemptServer)
+        m_loopbackArguments = "--loopbackexempt clientserver";
+    else if (loopbackExemptClient)
+        m_loopbackArguments = "--loopbackexempt client";
+    else if (loopbackExemptServer)
+        m_loopbackArguments = "--loopbackexempt server";
 
     if (ProjectExplorer::BuildConfiguration *bc = target->activeBuildConfiguration())
         m_environment = bc->environment();
@@ -194,6 +207,7 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
              m_device->type() == Constants::WINRT_DEVICE_TYPE_EMULATOR)
         QtcProcess::addArgs(&runnerArgs, QStringLiteral("--profile appxphone"));
 
+    QtcProcess::addArgs(&runnerArgs, m_loopbackArguments);
     QtcProcess::addArg(&runnerArgs, m_executableFilePath);
     if (!m_arguments.isEmpty())
         QtcProcess::addArgs(&runnerArgs, m_arguments);

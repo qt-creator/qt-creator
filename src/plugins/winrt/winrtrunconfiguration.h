@@ -38,6 +38,22 @@ public:
     UninstallAfterStopAspect();
 };
 
+class LoopbackExemptClientAspect : public ProjectExplorer::BaseBoolAspect
+{
+    Q_OBJECT
+
+public:
+    LoopbackExemptClientAspect();
+};
+
+class LoopbackExemptServerAspect : public ProjectExplorer::BaseBoolAspect
+{
+    Q_OBJECT
+
+public:
+    LoopbackExemptServerAspect();
+};
+
 class WinRtRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
