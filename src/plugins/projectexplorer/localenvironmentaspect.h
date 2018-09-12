@@ -43,6 +43,7 @@ public:
 
 private:
     BaseEnvironmentModifier m_baseEnvironmentModifier;
+    Target *m_target;
 };
 
 } // namespace ProjectExplorer
