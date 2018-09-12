@@ -45,7 +45,7 @@ class ClangFormatConfigWidget : public QWidget
 public:
     explicit ClangFormatConfigWidget(ProjectExplorer::Project *project = nullptr,
                                      QWidget *parent = nullptr);
-    ~ClangFormatConfigWidget();
+    ~ClangFormatConfigWidget() override;
     void apply();
 
 private:
