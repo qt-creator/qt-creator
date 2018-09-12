@@ -376,6 +376,8 @@ void ClangFormatIndenter::indentBlock(QTextDocument *doc,
                                       const QChar &typedChar,
                                       const TabSettings &tabSettings)
 {
+    Q_UNUSED(tabSettings);
+
     TextEditorWidget *editor = TextEditorWidget::currentTextEditorWidget();
     if (!editor)
         return;
