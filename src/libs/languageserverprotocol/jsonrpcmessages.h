@@ -224,10 +224,12 @@ template <typename Result, typename Error, typename Params>
 class Request : public Notification<Params>
 {
 public:
-    Request() : Notification<Params>(), m_callBack(0) { setId(QUuid::createUuid().toString()); }
+    Request() : Notification<Params>() { setId(QUuid::createUuid().toString()); }
     Request(const QString &methodName, const Params &params = Params())
-        : Notification<Params>(methodName, params), m_callBack(0)
+        : Notification<Params>(methodName, params)
     { setId(QUuid::createUuid().toString()); }
+    Request(const QJsonObject &jsonObject) : Notification<Params>(jsonObject) { }
+    Request(QJsonObject &&jsonObject) : Notification<Params>(std::move(jsonObject)) { }
 
     MessageId id() const
     { return MessageId(JsonRpcMessage::m_jsonObject.value(idKey)); }
