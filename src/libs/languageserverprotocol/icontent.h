@@ -77,6 +77,15 @@ public:
             error->append("Expected int or string as MessageId");
         return false;
     }
+
+    QString toString() const
+    {
+        if (auto id = Utils::get_if<QString>(this))
+            return *id;
+        if (auto id = Utils::get_if<int>(this))
+            return QString::number(*id);
+        return {};
+    }
 };
 
 using ResponseHandler = std::function<void(const QByteArray &, QTextCodec *)>;
