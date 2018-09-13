@@ -330,11 +330,13 @@ static QJsonObject createFileObject(CompilerOptionsBuilder &optionsBuilder,
                                     const ProjectFile &projFile,
                                     const ::Utils::FileName &buildDir)
 {
-    optionsBuilder.updateLanguageOption(ProjectFile::classify(projFile.path));
+    const ProjectFile::Kind kind = ProjectFile::classify(projFile.path);
+    optionsBuilder.updateLanguageOption(kind);
 
     QJsonObject fileObject;
     fileObject["file"] = projFile.path;
     QJsonArray args = QJsonArray::fromStringList(optionsBuilder.options());
+    args.prepend(kind == ProjectFile::CXXSource ? "clang++" : "clang");
     args.append(QDir::toNativeSeparators(projFile.path));
     fileObject["arguments"] = args;
     fileObject["directory"] = buildDir.toString();
