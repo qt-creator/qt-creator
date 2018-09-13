@@ -101,7 +101,7 @@ void DesignerActionManagerView::currentStateChanged(const ModelNode &)
 
 void DesignerActionManagerView::selectedNodesChanged(const QList<ModelNode> &selectedNodes, const QList<ModelNode> &)
 {
-    setupContext();
+    setupContext(SelectionContext::UpdateMode::Fast);
 
     /* This breaks encapsulation, but the selection state is a very minor information.
      * Without this signal the ShortcutManager would have to be refactored completely.

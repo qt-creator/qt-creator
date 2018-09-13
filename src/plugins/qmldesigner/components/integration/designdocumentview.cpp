@@ -159,7 +159,7 @@ void DesignDocumentView::fromText(const QString &text)
         try {
             merger.replaceModel(rewriterView->rootModelNode());
         } catch(Exception &e) {
-            e.showException();
+            /* e.showException(); Do not show any error if the clipboard contains invalid QML */
         }
     }
 }
