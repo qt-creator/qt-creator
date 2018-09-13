@@ -479,7 +479,7 @@ bool ClangCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
         if (!directoryPrefix.isEmpty()) {
             realPath += QLatin1Char('/');
             realPath += directoryPrefix;
-            if (headerPath.isFrameworkPath())
+            if (headerPath.type == ProjectExplorer::HeaderPathType::Framework)
                 realPath += QLatin1String(".framework/Headers");
         }
         completeIncludePath(realPath, suffixes);

@@ -44,11 +44,6 @@ public:
         : path(path), type(type)
     { }
 
-    bool isFrameworkPath() const
-    {
-        return type == HeaderPathType::Framework;
-    }
-
     bool operator==(const HeaderPath &other) const
     {
         return type == other.type && path == other.path;

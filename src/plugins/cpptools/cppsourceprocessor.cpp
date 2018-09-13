@@ -159,7 +159,7 @@ void CppSourceProcessor::setLanguageFeatures(const LanguageFeatures languageFeat
 // if the "Frameworks" folder exists inside the top level framework.
 void CppSourceProcessor::addFrameworkPath(const ProjectExplorer::HeaderPath &frameworkPath)
 {
-    QTC_ASSERT(frameworkPath.isFrameworkPath(), return);
+    QTC_ASSERT(frameworkPath.type == ProjectExplorer::HeaderPathType::Framework, return);
 
     // The algorithm below is a bit too eager, but that's because we're not getting
     // in the frameworks we're linking against. If we would have that, then we could
@@ -303,7 +303,7 @@ QString CppSourceProcessor::resolveFile_helper(const QString &fileName,
     for (; headerPathsIt != headerPathsEnd; ++headerPathsIt) {
         if (!headerPathsIt->path.isNull()) {
             QString path;
-            if (headerPathsIt->isFrameworkPath()) {
+            if (headerPathsIt->type == ProjectExplorer::HeaderPathType::Framework) {
                 if (index == -1)
                     continue;
                 path = headerPathsIt->path + fileName.left(index)
