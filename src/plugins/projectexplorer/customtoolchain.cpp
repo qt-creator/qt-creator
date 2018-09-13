@@ -168,11 +168,11 @@ void CustomToolChain::setPredefinedMacros(const Macros &macros)
 
 ToolChain::SystemHeaderPathsRunner CustomToolChain::createSystemHeaderPathsRunner() const
 {
-    const QList<HeaderPath> systemHeaderPaths = m_systemHeaderPaths;
+    const HeaderPaths systemHeaderPaths = m_systemHeaderPaths;
 
     // This runner must be thread-safe!
     return [systemHeaderPaths](const QStringList &cxxFlags, const QString &) {
-        QList<HeaderPath> flagHeaderPaths;
+        HeaderPaths flagHeaderPaths;
         for (const QString &cxxFlag : cxxFlags) {
             if (cxxFlag.startsWith(QLatin1String("-I"))) {
                 flagHeaderPaths.push_back({cxxFlag.mid(2).trimmed(), HeaderPathType::System});
@@ -183,8 +183,8 @@ ToolChain::SystemHeaderPathsRunner CustomToolChain::createSystemHeaderPathsRunne
     };
 }
 
-QList<HeaderPath> CustomToolChain::systemHeaderPaths(const QStringList &cxxFlags,
-                                                     const FileName &fileName) const
+HeaderPaths CustomToolChain::systemHeaderPaths(const QStringList &cxxFlags,
+                                               const FileName &fileName) const
 {
     return createSystemHeaderPathsRunner()(cxxFlags, fileName.toString());
 }
@@ -222,12 +222,12 @@ IOutputParser *CustomToolChain::outputParser() const
 
 QStringList CustomToolChain::headerPathsList() const
 {
-    return Utils::transform(m_systemHeaderPaths, &HeaderPath::path);
+    return Utils::transform<QList>(m_systemHeaderPaths, &HeaderPath::path);
 }
 
 void CustomToolChain::setHeaderPaths(const QStringList &list)
 {
-    QList<HeaderPath> tmp = Utils::transform(list, [](const QString &headerPath) {
+    HeaderPaths tmp = Utils::transform<QVector>(list, [](const QString &headerPath) {
         return HeaderPath(headerPath.trimmed(), HeaderPathType::System);
     });
 

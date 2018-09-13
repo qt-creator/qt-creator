@@ -136,10 +136,10 @@ static ProjectExplorer::Macros gccPredefinedMacros(const FileName &gcc,
     return predefinedMacros;
 }
 
-QList<HeaderPath> GccToolChain::gccHeaderPaths(const FileName &gcc, const QStringList &arguments,
-                                               const QStringList &env)
+HeaderPaths GccToolChain::gccHeaderPaths(const FileName &gcc, const QStringList &arguments,
+                                         const QStringList &env)
 {
-    QList<HeaderPath> systemHeaderPaths;
+    HeaderPaths systemHeaderPaths;
     QByteArray line;
     QByteArray data = runGcc(gcc, arguments, env);
     QBuffer cpp(&data);
@@ -255,7 +255,7 @@ GccToolChain::GccToolChain(Detection d) :
 GccToolChain::GccToolChain(Core::Id typeId, Detection d) :
     ToolChain(typeId, d),
     m_predefinedMacrosCache(std::make_shared<Cache<QVector<Macro>, 64>>()),
-    m_headerPathsCache(std::make_shared<Cache<QList<HeaderPath>>>())
+    m_headerPathsCache(std::make_shared<Cache<HeaderPaths>>())
 { }
 
 void GccToolChain::setCompilerCommand(const FileName &path)
@@ -631,7 +631,7 @@ ToolChain::SystemHeaderPathsRunner GccToolChain::createSystemHeaderPathsRunner()
     const QStringList platformCodeGenFlags = m_platformCodeGenFlags;
     OptionsReinterpreter reinterpretOptions = m_optionsReinterpreter;
     QTC_CHECK(reinterpretOptions);
-    std::shared_ptr<Cache<QList<HeaderPath>>> headerCache = m_headerPathsCache;
+    std::shared_ptr<Cache<HeaderPaths>> headerCache = m_headerPathsCache;
     Core::Id languageId = language();
 
     // This runner must be thread-safe!
@@ -642,13 +642,12 @@ ToolChain::SystemHeaderPathsRunner GccToolChain::createSystemHeaderPathsRunner()
         QStringList arguments = gccPrepareArguments(flags, sysRoot, platformCodeGenFlags,
                                                     languageId, reinterpretOptions);
 
-        const Utils::optional<QList<HeaderPath>> cachedPaths = headerCache->check(arguments);
+        const Utils::optional<HeaderPaths> cachedPaths = headerCache->check(arguments);
         if (cachedPaths)
             return cachedPaths.value();
 
-        QList<HeaderPath> paths = gccHeaderPaths(findLocalCompiler(compilerCommand, env),
-                                                 arguments,
-                                                 env.toStringList());
+        HeaderPaths paths = gccHeaderPaths(findLocalCompiler(compilerCommand, env),
+                                           arguments, env.toStringList());
         extraHeaderPathsFunction(paths);
         headerCache->insert(arguments, paths);
 
@@ -664,8 +663,8 @@ ToolChain::SystemHeaderPathsRunner GccToolChain::createSystemHeaderPathsRunner()
     };
 }
 
-QList<HeaderPath> GccToolChain::systemHeaderPaths(const QStringList &flags,
-                                                  const FileName &sysRoot) const
+HeaderPaths GccToolChain::systemHeaderPaths(const QStringList &flags,
+                                            const FileName &sysRoot) const
 {
     return createSystemHeaderPathsRunner()(flags, sysRoot.toString());
 }

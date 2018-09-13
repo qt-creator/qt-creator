@@ -116,7 +116,7 @@ private:
         if (!m_tcInfo.headerPathsRunner)
             return; // No compiler set in kit.
 
-        const QList<ProjectExplorer::HeaderPath> systemHeaderPaths
+        const ProjectExplorer::HeaderPaths systemHeaderPaths
                 = m_tcInfo.headerPathsRunner(m_flags.commandLineFlags,
                                              m_tcInfo.sysRootPath);
 

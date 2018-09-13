@@ -313,8 +313,8 @@ public:
     CompilerFlags compilerFlags(const QStringList &cxxflags) const override { Q_UNUSED(cxxflags); return NoFlags; }
     WarningFlags warningFlags(const QStringList &cflags) const override { Q_UNUSED(cflags); return WarningFlags::NoWarnings; }
     SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override { return SystemHeaderPathsRunner(); }
-    QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags, const FileName &sysRoot) const override
-    { Q_UNUSED(cxxflags); Q_UNUSED(sysRoot); return QList<HeaderPath>(); }
+    HeaderPaths systemHeaderPaths(const QStringList &cxxflags, const FileName &sysRoot) const override
+    { Q_UNUSED(cxxflags); Q_UNUSED(sysRoot); return {}; }
     void addToEnvironment(Environment &env) const override { Q_UNUSED(env); }
     QString makeCommand(const Environment &env) const override { Q_UNUSED(env); return QString("make"); }
     FileName compilerCommand() const override { return Utils::FileName::fromString("/tmp/test/gcc"); }

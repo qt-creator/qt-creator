@@ -106,7 +106,7 @@ static QString getArch(const QString &triple)
 // Paths added here are those that were used by qmake. They were taken from
 // *qtsource*/qtbase/mkspecs/common/android-base-head.conf
 // Adding them here allows us to use them for all build systems.
-static void addSystemHeaderPaths(QList<ProjectExplorer::HeaderPath> &paths,
+static void addSystemHeaderPaths(ProjectExplorer::HeaderPaths &paths,
                                  const QString &triple, const QString &version)
 {
     const Utils::FileName ndkPath = AndroidConfigurations::currentConfig().ndkLocation();
@@ -134,7 +134,7 @@ AndroidToolChain::SystemHeaderPathsRunner AndroidToolChain::createSystemHeaderPa
 {
     const QString triple = originalTargetTriple();
     const QString version = this->version();
-    initExtraHeaderPathsFunction([triple, version] (QList<HeaderPath> &paths) {
+    initExtraHeaderPathsFunction([triple, version] (HeaderPaths &paths) {
         addSystemHeaderPaths(paths, triple, version);
     });
     return GccToolChain::createSystemHeaderPathsRunner();

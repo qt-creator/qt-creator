@@ -58,8 +58,8 @@ public:
     CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cflags) const override;
     SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override;
-    QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags,
-                                        const Utils::FileName &sysRoot) const override;
+    HeaderPaths systemHeaderPaths(const QStringList &cxxflags,
+                                  const Utils::FileName &sysRoot) const override;
     void addToEnvironment(Utils::Environment &env) const override;
 
     QString makeCommand(const Utils::Environment &environment) const override;
@@ -104,7 +104,7 @@ protected:
     mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.
     mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC
     mutable QMutex *m_headerPathsMutex = nullptr;
-    mutable QList<HeaderPath> m_headerPaths;
+    mutable HeaderPaths m_headerPaths;
     Abi m_abi;
 
     QString m_vcvarsBat;

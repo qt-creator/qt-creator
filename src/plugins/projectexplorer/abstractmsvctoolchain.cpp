@@ -225,8 +225,8 @@ ToolChain::SystemHeaderPathsRunner AbstractMsvcToolChain::createSystemHeaderPath
     };
 }
 
-QList<HeaderPath> AbstractMsvcToolChain::systemHeaderPaths(const QStringList &cxxflags,
-                                                           const Utils::FileName &sysRoot) const
+HeaderPaths AbstractMsvcToolChain::systemHeaderPaths(const QStringList &cxxflags,
+                                                     const Utils::FileName &sysRoot) const
 {
     return createSystemHeaderPathsRunner()(cxxflags, sysRoot.toString());
 }

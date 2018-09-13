@@ -79,8 +79,8 @@ public:
     void setPredefinedMacros(const Macros &macros);
 
     SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override;
-    QList<HeaderPath> systemHeaderPaths(const QStringList &cxxFlags,
-                                        const Utils::FileName &) const override;
+    HeaderPaths systemHeaderPaths(const QStringList &cxxFlags,
+                                  const Utils::FileName &) const override;
     void addToEnvironment(Utils::Environment &env) const override;
     Utils::FileNameList suggestedMkspecList() const override;
     IOutputParser *outputParser() const override;
@@ -125,7 +125,7 @@ private:
 
     Abi m_targetAbi;
     Macros m_predefinedMacros;
-    QList<HeaderPath> m_systemHeaderPaths;
+    HeaderPaths m_systemHeaderPaths;
     QStringList m_cxx11Flags;
     Utils::FileNameList m_mkspecs;
 

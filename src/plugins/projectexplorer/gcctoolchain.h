@@ -147,8 +147,8 @@ public:
     Macros predefinedMacros(const QStringList &cxxflags) const override;
 
     SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override;
-    QList<HeaderPath> systemHeaderPaths(const QStringList &flags,
-                                        const Utils::FileName &sysRoot) const override;
+    HeaderPaths systemHeaderPaths(const QStringList &flags,
+                                  const Utils::FileName &sysRoot) const override;
 
     void addToEnvironment(Utils::Environment &env) const override;
     QString makeCommand(const Utils::Environment &environment) const override;
@@ -210,10 +210,11 @@ protected:
     using OptionsReinterpreter = std::function<QStringList(const QStringList &options)>;
     void setOptionsReinterpreter(const OptionsReinterpreter &optionsReinterpreter);
 
-    using ExtraHeaderPathsFunction = std::function<void(QList<HeaderPath> &)>;
+    using ExtraHeaderPathsFunction = std::function<void(HeaderPaths &)>;
     void initExtraHeaderPathsFunction(ExtraHeaderPathsFunction &&extraHeaderPathsFunction) const;
 
-    static QList<HeaderPath> gccHeaderPaths(const Utils::FileName &gcc, const QStringList &args, const QStringList &env);
+    static HeaderPaths gccHeaderPaths(const Utils::FileName &gcc, const QStringList &args,
+                                      const QStringList &env);
 
     class WarningFlagAdder
     {
@@ -249,12 +250,12 @@ private:
     Abi m_targetAbi;
     mutable QList<Abi> m_supportedAbis;
     mutable QString m_originalTargetTriple;
-    mutable QList<HeaderPath> m_headerPaths;
+    mutable HeaderPaths m_headerPaths;
     mutable QString m_version;
 
     mutable std::shared_ptr<Cache<QVector<Macro>, 64>> m_predefinedMacrosCache;
-    mutable std::shared_ptr<Cache<QList<HeaderPath>>> m_headerPathsCache;
-    mutable ExtraHeaderPathsFunction m_extraHeaderPathsFunction = [](QList<HeaderPath> &) {};
+    mutable std::shared_ptr<Cache<HeaderPaths>> m_headerPathsCache;
+    mutable ExtraHeaderPathsFunction m_extraHeaderPathsFunction = [](HeaderPaths &) {};
 
     friend class Internal::GccToolChainConfigWidget;
     friend class Internal::GccToolChainFactory;

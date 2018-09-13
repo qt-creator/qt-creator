@@ -102,9 +102,9 @@ ToolChain::SystemHeaderPathsRunner NimToolChain::createSystemHeaderPathsRunner()
     return ToolChain::SystemHeaderPathsRunner();
 }
 
-QList<HeaderPath> NimToolChain::systemHeaderPaths(const QStringList &, const FileName &) const
+HeaderPaths NimToolChain::systemHeaderPaths(const QStringList &, const FileName &) const
 {
-    return QList<HeaderPath>();
+    return {};
 }
 
 void NimToolChain::addToEnvironment(Environment &env) const

@@ -27,6 +27,8 @@
 
 #include "projectexplorer_export.h"
 #include "projectexplorer_global.h"
+
+#include "headerpath.h"
 #include "projectmacro.h"
 
 #include <coreplugin/id.h>
@@ -60,7 +62,6 @@ QString languageId(Language l);
 } // namespace Deprecated
 
 class Abi;
-class HeaderPath;
 class IOutputParser;
 class ToolChainConfigWidget;
 class ToolChainFactory;
@@ -131,11 +132,11 @@ public:
     virtual Macros predefinedMacros(const QStringList &cxxflags) const = 0;
 
     // A SystemHeaderPathsRunner is created in the ui thread and runs in another thread.
-    using SystemHeaderPathsRunner = std::function<QList<HeaderPath>(const QStringList &cxxflags,
-                                                                    const QString &sysRoot)>;
+    using SystemHeaderPathsRunner = std::function<HeaderPaths(const QStringList &cxxflags,
+                                                              const QString &sysRoot)>;
     virtual SystemHeaderPathsRunner createSystemHeaderPathsRunner() const = 0;
-    virtual QList<HeaderPath> systemHeaderPaths(const QStringList &cxxflags,
-                                                const Utils::FileName &sysRoot) const = 0;
+    virtual HeaderPaths systemHeaderPaths(const QStringList &cxxflags,
+                                          const Utils::FileName &sysRoot) const = 0;
     virtual void addToEnvironment(Utils::Environment &env) const = 0;
     virtual QString makeCommand(const Utils::Environment &env) const = 0;
 
