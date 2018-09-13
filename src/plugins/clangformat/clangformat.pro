@@ -13,6 +13,8 @@ win32 {
 LIBS += $$CLANGFORMAT_LIBS
 INCLUDEPATH += $$LLVM_INCLUDEPATH
 
+QMAKE_CXXFLAGS += $$LLVM_CXXFLAGS
+
 SOURCES = \
     clangformatconfigwidget.cpp \
     clangformatindenter.cpp \
