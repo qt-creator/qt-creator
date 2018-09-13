@@ -36,7 +36,7 @@
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT EnvironmentAspect : public IRunConfigurationAspect
+class PROJECTEXPLORER_EXPORT EnvironmentAspect : public ProjectConfigurationAspect
 {
     Q_OBJECT
 

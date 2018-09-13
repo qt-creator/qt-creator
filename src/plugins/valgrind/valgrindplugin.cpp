@@ -89,7 +89,7 @@ private:
     QPointer<QWidget> m_widget;
 };
 
-class ValgrindRunConfigurationAspect : public IRunConfigurationAspect
+class ValgrindRunConfigurationAspect : public GlobalOrProjectAspect
 {
 public:
     ValgrindRunConfigurationAspect(Target *)

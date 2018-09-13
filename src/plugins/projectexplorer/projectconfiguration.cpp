@@ -25,6 +25,7 @@
 
 #include "projectconfiguration.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -33,11 +34,36 @@ const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
 const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
 const char DEFAULT_DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
 
+// ProjectConfigurationAspect
+
+ProjectConfigurationAspect::ProjectConfigurationAspect() = default;
+
+ProjectConfigurationAspect::~ProjectConfigurationAspect() = default;
+
+void ProjectConfigurationAspect::setConfigWidgetCreator
+    (const ConfigWidgetCreator &configWidgetCreator)
+{
+    m_configWidgetCreator = configWidgetCreator;
+}
+
+QWidget *ProjectConfigurationAspect::createConfigWidget() const
+{
+    return m_configWidgetCreator ? m_configWidgetCreator() : nullptr;
+}
+
+
+// ProjectConfiguration
+
 ProjectConfiguration::ProjectConfiguration(QObject *parent, Core::Id id)
     : QObject(parent), m_id(id)
 {
     QTC_CHECK(id.isValid());
     setObjectName(id.toString());
+}
+
+ProjectConfiguration::~ProjectConfiguration()
+{
+    qDeleteAll(m_aspects);
 }
 
 Core::Id ProjectConfiguration::id() const
@@ -103,6 +129,10 @@ QVariantMap ProjectConfiguration::toMap() const
     map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id.toSetting());
     map.insert(QLatin1String(DISPLAY_NAME_KEY), m_displayName);
     map.insert(QLatin1String(DEFAULT_DISPLAY_NAME_KEY), m_defaultDisplayName);
+
+    for (const auto &aspect : m_aspects)
+        aspect->toMap(map);
+
     return map;
 }
 
@@ -117,13 +147,24 @@ bool ProjectConfiguration::fromMap(const QVariantMap &map)
     m_defaultDisplayName = map.value(QLatin1String(DEFAULT_DISPLAY_NAME_KEY),
                                      m_defaultDisplayName.isEmpty() ?
                                          m_displayName : m_defaultDisplayName).toString();
+
+    for (const auto &aspect : qAsConst(m_aspects))
+        aspect->fromMap(map);
+
     return true;
+}
+
+ProjectConfigurationAspect *ProjectConfiguration::extraAspect(Core::Id id) const
+{
+    return Utils::findOrDefault(m_aspects, Utils::equal(&ProjectConfigurationAspect::id, id));
 }
 
 Core::Id ProjectExplorer::idFromMap(const QVariantMap &map)
 {
     return Core::Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
 }
+
+// StatefulProjectConfiguration
 
 bool StatefulProjectConfiguration::isEnabled() const
 {

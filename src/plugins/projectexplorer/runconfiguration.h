@@ -43,16 +43,12 @@
 #include <functional>
 #include <memory>
 
-QT_BEGIN_NAMESPACE
-class QFormLayout;
-QT_END_NAMESPACE
-
 namespace Utils { class OutputFormatter; }
 
 namespace ProjectExplorer {
 class Abi;
 class BuildConfiguration;
-class IRunConfigurationAspect;
+class GlobalOrProjectAspect;
 class Node;
 class RunConfigurationFactory;
 class RunConfiguration;
@@ -86,7 +82,7 @@ public:
 
 protected:
     ///
-    friend class IRunConfigurationAspect;
+    friend class GlobalOrProjectAspect;
     /// Converts current object into map for storage.
     virtual void toMap(QVariantMap &map) const = 0;
     /// Read object state from @p map.
@@ -102,56 +98,34 @@ protected:
  *
  */
 
-class PROJECTEXPLORER_EXPORT IRunConfigurationAspect : public QObject
+class PROJECTEXPLORER_EXPORT GlobalOrProjectAspect : public ProjectConfigurationAspect
 {
     Q_OBJECT
 
 public:
-    IRunConfigurationAspect();
-    ~IRunConfigurationAspect() override;
+    GlobalOrProjectAspect();
+    ~GlobalOrProjectAspect() override;
 
-    using ConfigWidgetCreator = std::function<QWidget *()>;
-    void setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator);
-    QWidget *createConfigWidget() const;
-    void copyFrom(IRunConfigurationAspect *other);
-
-    void setId(Core::Id id) { m_id = id; }
-    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
-    void setSettingsKey(const QString &settingsKey) { m_settingsKey = settingsKey; }
     void setProjectSettings(ISettingsAspect *settings);
     void setGlobalSettings(ISettingsAspect *settings);
 
-    Core::Id id() const { return m_id; }
-    QString displayName() const { return m_displayName; }
-    QString settingsKey() const { return  m_settingsKey; }
     bool isUsingGlobalSettings() const { return m_useGlobalSettings; }
     void setUsingGlobalSettings(bool value);
-    void setVisible(bool visible) { m_visible = visible; }
     void resetProjectToGlobalSettings();
 
     ISettingsAspect *projectSettings() const { return m_projectSettings; }
     ISettingsAspect *globalSettings() const { return m_globalSettings; }
     ISettingsAspect *currentSettings() const;
 
-    virtual void addToConfigurationLayout(QFormLayout *layout);
-
-signals:
-    void changed();
-
 protected:
     friend class RunConfiguration;
-    virtual void fromMap(const QVariantMap &map);
-    virtual void toMap(QVariantMap &data) const;
+    void fromMap(const QVariantMap &map) override;
+    void toMap(QVariantMap &data) const override;
 
 private:
-    Core::Id m_id;
-    QString m_displayName;
-    QString m_settingsKey; // Name of data in settings.
     bool m_useGlobalSettings = false;
-    bool m_visible = true;
     ISettingsAspect *m_projectSettings = nullptr; // Owned if present.
     ISettingsAspect *m_globalSettings = nullptr;  // Not owned.
-    ConfigWidgetCreator m_configWidgetCreator;
 };
 
 class PROJECTEXPLORER_EXPORT Runnable
@@ -197,17 +171,6 @@ public:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-    const QList<IRunConfigurationAspect *> aspects() const;
-    IRunConfigurationAspect *extraAspect(Core::Id id) const;
-
-    template <typename T> T *extraAspect() const
-    {
-        foreach (IRunConfigurationAspect *aspect, m_aspects)
-            if (T *result = qobject_cast<T *>(aspect))
-                return result;
-        return nullptr;
-    }
-
     virtual Runnable runnable() const;
     virtual Abi abi() const;
 
@@ -217,18 +180,17 @@ public:
     // The BuildTargetInfo corresponding to the buildKey.
     BuildTargetInfo buildTargetInfo() const;
 
-    template<class Aspect, typename ...Args>
-    Aspect *addAspect(Args && ...args)
-    {
-        auto aspect = new Aspect(args...);
-        m_aspects.append(aspect);
-        return aspect;
-    }
-
     static RunConfiguration *startupRunConfiguration();
     virtual bool canRunForNode(const ProjectExplorer::Node *) const { return false; }
 
-    using AspectFactory = std::function<IRunConfigurationAspect *(Target *)>;
+    template <class T = ISettingsAspect> T *currentSettings(Core::Id id) const
+    {
+        if (auto aspect = qobject_cast<GlobalOrProjectAspect *>(extraAspect(id)))
+            return qobject_cast<T *>(aspect->currentSettings());
+        return nullptr;
+    }
+
+    using AspectFactory = std::function<ProjectConfigurationAspect *(Target *)>;
     template <class T> static void registerAspect()
     {
         addAspectFactory([](Target *target) { return new T(target); });
@@ -258,7 +220,6 @@ private:
 
     friend class RunConfigurationCreationInfo;
 
-    QList<IRunConfigurationAspect *> m_aspects;
     QString m_buildKey;
     std::function<Utils::OutputFormatter *(Project *)> m_outputFormatterCreator;
 };

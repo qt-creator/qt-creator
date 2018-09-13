@@ -34,7 +34,7 @@
 
 namespace Android {
 
-class BaseStringListAspect : public ProjectExplorer::IRunConfigurationAspect
+class BaseStringListAspect : public ProjectExplorer::ProjectConfigurationAspect
 {
     Q_OBJECT
 

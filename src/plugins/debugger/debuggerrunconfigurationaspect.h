@@ -50,7 +50,7 @@ public:
 };
 
 class DEBUGGER_EXPORT DebuggerRunConfigurationAspect
-    : public ProjectExplorer::IRunConfigurationAspect
+    : public ProjectExplorer::GlobalOrProjectAspect
 {
     Q_OBJECT
 

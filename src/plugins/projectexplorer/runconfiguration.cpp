@@ -93,76 +93,48 @@ QWidget *ISettingsAspect::createConfigWidget() const
 //
 ///////////////////////////////////////////////////////////////////////
 
-IRunConfigurationAspect::IRunConfigurationAspect() = default;
+GlobalOrProjectAspect::GlobalOrProjectAspect() = default;
 
-IRunConfigurationAspect::~IRunConfigurationAspect()
+GlobalOrProjectAspect::~GlobalOrProjectAspect()
 {
     delete m_projectSettings;
 }
 
-/*!
-    Returns the widget used to configure this run configuration. Ownership is
-    transferred to the caller.
-*/
-
-QWidget *IRunConfigurationAspect::createConfigWidget() const
-{
-    return m_configWidgetCreator ? m_configWidgetCreator() : nullptr;
-}
-
-void IRunConfigurationAspect::copyFrom(IRunConfigurationAspect *source)
-{
-    QTC_ASSERT(source, return);
-    QVariantMap data;
-    source->toMap(data);
-    fromMap(data);
-}
-
-void IRunConfigurationAspect::setProjectSettings(ISettingsAspect *settings)
+void GlobalOrProjectAspect::setProjectSettings(ISettingsAspect *settings)
 {
     m_projectSettings = settings;
 }
 
-void IRunConfigurationAspect::setGlobalSettings(ISettingsAspect *settings)
+void GlobalOrProjectAspect::setGlobalSettings(ISettingsAspect *settings)
 {
     m_globalSettings = settings;
 }
 
-void IRunConfigurationAspect::setUsingGlobalSettings(bool value)
+void GlobalOrProjectAspect::setUsingGlobalSettings(bool value)
 {
     m_useGlobalSettings = value;
 }
 
-ISettingsAspect *IRunConfigurationAspect::currentSettings() const
+ISettingsAspect *GlobalOrProjectAspect::currentSettings() const
 {
    return m_useGlobalSettings ? m_globalSettings : m_projectSettings;
 }
 
-void IRunConfigurationAspect::fromMap(const QVariantMap &map)
+void GlobalOrProjectAspect::fromMap(const QVariantMap &map)
 {
     if (m_projectSettings)
         m_projectSettings->fromMap(map);
     m_useGlobalSettings = map.value(m_id.toString() + QLatin1String(".UseGlobalSettings"), true).toBool();
 }
 
-void IRunConfigurationAspect::toMap(QVariantMap &map) const
+void GlobalOrProjectAspect::toMap(QVariantMap &map) const
 {
     if (m_projectSettings)
         m_projectSettings->toMap(map);
     map.insert(m_id.toString() + QLatin1String(".UseGlobalSettings"), m_useGlobalSettings);
 }
 
-void IRunConfigurationAspect::addToConfigurationLayout(QFormLayout *layout)
-{
-    Q_UNUSED(layout);
-}
-
-void IRunConfigurationAspect::setConfigWidgetCreator(const ConfigWidgetCreator &runConfigWidgetCreator)
-{
-    m_configWidgetCreator = runConfigWidgetCreator;
-}
-
-void IRunConfigurationAspect::resetProjectToGlobalSettings()
+void GlobalOrProjectAspect::resetProjectToGlobalSettings()
 {
     QTC_ASSERT(m_globalSettings, return);
     QVariantMap map;
@@ -232,10 +204,7 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
         m_aspects.append(factory(target));
 }
 
-RunConfiguration::~RunConfiguration()
-{
-    qDeleteAll(m_aspects);
-}
+RunConfiguration::~RunConfiguration() = default;
 
 bool RunConfiguration::isActive() const
 {
@@ -256,8 +225,8 @@ QWidget *RunConfiguration::createConfigurationWidget()
     auto widget = new QWidget;
     auto formLayout = new QFormLayout(widget);
 
-    for (IRunConfigurationAspect *aspect : m_aspects) {
-        if (aspect->m_visible)
+    for (ProjectConfigurationAspect *aspect : m_aspects) {
+        if (aspect->isVisible())
             aspect->addToConfigurationLayout(formLayout);
     }
 
@@ -344,8 +313,6 @@ QVariantMap RunConfiguration::toMap() const
         const Core::Id mangled = id().withSuffix(m_buildKey);
         map.insert(settingsIdKey(), mangled.toSetting());
     }
-    foreach (IRunConfigurationAspect *aspect, m_aspects)
-        aspect->toMap(map);
 
     return map;
 }
@@ -375,9 +342,6 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
     const Core::Id mangledId = Core::Id::fromSetting(map.value(settingsIdKey()));
     m_buildKey = mangledId.suffixAfter(id());
 
-    foreach (IRunConfigurationAspect *aspect, m_aspects)
-        aspect->fromMap(map);
-
     return  true;
 }
 
@@ -392,22 +356,6 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
     This prevents a combinatorial explosion of subclasses and eliminates
     the need to add all options to the base class.
 */
-
-/*!
-    Returns extra aspects.
-
-    \sa ProjectExplorer::IRunConfigurationAspect
-*/
-
-const QList<IRunConfigurationAspect *> RunConfiguration::aspects() const
-{
-    return m_aspects;
-}
-
-IRunConfigurationAspect *RunConfiguration::extraAspect(Core::Id id) const
-{
-    return Utils::findOrDefault(m_aspects, Utils::equal(&IRunConfigurationAspect::id, id));
-}
 
 /*!
     \internal

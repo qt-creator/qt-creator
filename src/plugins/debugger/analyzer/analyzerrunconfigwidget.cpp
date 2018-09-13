@@ -38,7 +38,7 @@
 
 namespace Debugger {
 
-AnalyzerRunConfigWidget::AnalyzerRunConfigWidget(ProjectExplorer::IRunConfigurationAspect *aspect)
+AnalyzerRunConfigWidget::AnalyzerRunConfigWidget(ProjectExplorer::GlobalOrProjectAspect *aspect)
 {
     m_aspect = aspect;
 

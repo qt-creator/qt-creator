@@ -68,7 +68,7 @@ static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
 
 // MainQmlFileAspect
 
-class MainQmlFileAspect : public IRunConfigurationAspect
+class MainQmlFileAspect : public ProjectConfigurationAspect
 {
 public:
     explicit MainQmlFileAspect(QmlProject *project);

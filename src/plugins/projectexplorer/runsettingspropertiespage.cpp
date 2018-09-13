@@ -528,11 +528,11 @@ QString RunSettingsWidget::uniqueRCName(const QString &name)
 
 void RunSettingsWidget::addRunControlWidgets()
 {
-    for (IRunConfigurationAspect *aspect : m_runConfiguration->aspects()) {
+    for (ProjectConfigurationAspect *aspect : m_runConfiguration->aspects()) {
         if (QWidget *rcw = aspect->createConfigWidget()) {
             auto label = new QLabel(this);
             label->setText(aspect->displayName());
-            connect(aspect, &IRunConfigurationAspect::changed, label, [label, aspect] {
+            connect(aspect, &GlobalOrProjectAspect::changed, label, [label, aspect] {
                 label->setText(aspect->displayName());
             });
             addSubWidget(rcw, label);

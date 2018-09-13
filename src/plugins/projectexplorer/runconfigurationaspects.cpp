@@ -589,7 +589,7 @@ void ExecutableAspect::setExecutable(const FileName &executable)
 
 void ExecutableAspect::setSettingsKey(const QString &key)
 {
-    IRunConfigurationAspect::setSettingsKey(key);
+    ProjectConfigurationAspect::setSettingsKey(key);
     m_executable.setSettingsKey(key);
 }
 

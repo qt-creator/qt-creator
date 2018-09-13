@@ -59,6 +59,13 @@ const char CUSTOM_EXECUTABLE_ID[] = "ProjectExplorer.CustomExecutableRunConfigur
 
 // Dialog prompting the user to complete the configuration.
 
+static void copyAspect(ProjectConfigurationAspect *source, ProjectConfigurationAspect *target)
+{
+    QVariantMap data;
+    source->toMap(data);
+    target->fromMap(data);
+}
+
 class CustomExecutableDialog : public QDialog
 {
 public:
@@ -119,13 +126,13 @@ CustomExecutableDialog::CustomExecutableDialog(RunConfiguration *rc)
     connect(m_executableChooser, &PathChooser::rawPathChanged,
             this, &CustomExecutableDialog::changed);
 
-    m_arguments.copyFrom(rc->extraAspect<ArgumentsAspect>());
+    copyAspect(rc->extraAspect<ArgumentsAspect>(), &m_arguments);
     m_arguments.addToConfigurationLayout(layout);
 
-    m_workingDirectory.copyFrom(rc->extraAspect<WorkingDirectoryAspect>());
+    copyAspect(rc->extraAspect<WorkingDirectoryAspect>(), &m_workingDirectory);
     m_workingDirectory.addToConfigurationLayout(layout);
 
-    m_terminal.copyFrom(rc->extraAspect<TerminalAspect>());
+    copyAspect(rc->extraAspect<TerminalAspect>(), &m_terminal);
     m_terminal.addToConfigurationLayout(layout);
 
     auto enviromentAspect = rc->extraAspect<EnvironmentAspect>();
@@ -140,9 +147,9 @@ void CustomExecutableDialog::accept()
 {
     auto executable = FileName::fromString(m_executableChooser->path());
     m_rc->extraAspect<ExecutableAspect>()->setExecutable(executable);
-    m_rc->extraAspect<ArgumentsAspect>()->copyFrom(&m_arguments);
-    m_rc->extraAspect<WorkingDirectoryAspect>()->copyFrom(&m_workingDirectory);
-    m_rc->extraAspect<TerminalAspect>()->copyFrom(&m_terminal);
+    copyAspect(&m_arguments, m_rc->extraAspect<ArgumentsAspect>());
+    copyAspect(&m_workingDirectory, m_rc->extraAspect<WorkingDirectoryAspect>());
+    copyAspect(&m_terminal, m_rc->extraAspect<TerminalAspect>());
 
     QDialog::accept();
 }

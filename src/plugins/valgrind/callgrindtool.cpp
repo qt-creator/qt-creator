@@ -766,12 +766,11 @@ void CallgrindTool::setupRunner(CallgrindToolRunner *toolRunner)
     QTC_ASSERT(m_visualization, return);
 
     // apply project settings
-    if (IRunConfigurationAspect *analyzerAspect = runControl->runConfiguration()->extraAspect(ANALYZER_VALGRIND_SETTINGS)) {
-        if (const ValgrindBaseSettings *settings = qobject_cast<ValgrindBaseSettings *>(analyzerAspect->currentSettings())) {
-            m_visualization->setMinimumInclusiveCostRatio(settings->visualisationMinimumInclusiveCostRatio() / 100.0);
-            m_proxyModel.setMinimumInclusiveCostRatio(settings->minimumInclusiveCostRatio() / 100.0);
-            m_dataModel.setVerboseToolTipsEnabled(settings->enableEventToolTips());
-        }
+    if (auto settings = runControl->runConfiguration()
+            ->currentSettings<ValgrindBaseSettings>(ANALYZER_VALGRIND_SETTINGS)) {
+        m_visualization->setMinimumInclusiveCostRatio(settings->visualisationMinimumInclusiveCostRatio() / 100.0);
+        m_proxyModel.setMinimumInclusiveCostRatio(settings->minimumInclusiveCostRatio() / 100.0);
+        m_dataModel.setVerboseToolTipsEnabled(settings->enableEventToolTips());
     }
 
     m_toolBusy = true;

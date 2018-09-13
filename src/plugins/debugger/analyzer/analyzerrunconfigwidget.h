@@ -44,14 +44,14 @@ class DEBUGGER_EXPORT AnalyzerRunConfigWidget : public QWidget
     Q_OBJECT
 
 public:
-    AnalyzerRunConfigWidget(ProjectExplorer::IRunConfigurationAspect *aspect);
+    AnalyzerRunConfigWidget(ProjectExplorer::GlobalOrProjectAspect *aspect);
 
 private:
     void chooseSettings(int setting);
     void restoreGlobal();
 
     QWidget *m_configWidget;
-    ProjectExplorer::IRunConfigurationAspect *m_aspect;
+    ProjectExplorer::GlobalOrProjectAspect *m_aspect;
     QComboBox *m_settingsCombo;
     QPushButton *m_restoreButton;
     Utils::DetailsWidget *m_details;

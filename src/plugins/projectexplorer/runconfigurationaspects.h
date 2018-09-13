@@ -43,7 +43,7 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT TerminalAspect : public IRunConfigurationAspect
+class PROJECTEXPLORER_EXPORT TerminalAspect : public ProjectConfigurationAspect
 {
     Q_OBJECT
 
@@ -66,7 +66,7 @@ private:
     QPointer<QCheckBox> m_checkBox; // Owned by RunConfigWidget
 };
 
-class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public IRunConfigurationAspect
+class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public ProjectConfigurationAspect
 {
     Q_OBJECT
 
@@ -95,7 +95,7 @@ private:
     QPointer<QToolButton> m_resetButton;
 };
 
-class PROJECTEXPLORER_EXPORT ArgumentsAspect : public IRunConfigurationAspect
+class PROJECTEXPLORER_EXPORT ArgumentsAspect : public ProjectConfigurationAspect
 {
     Q_OBJECT
 
@@ -120,7 +120,7 @@ private:
     QPointer<Utils::FancyLineEdit> m_chooser;
 };
 
-class PROJECTEXPLORER_EXPORT BaseBoolAspect : public IRunConfigurationAspect
+class PROJECTEXPLORER_EXPORT BaseBoolAspect : public ProjectConfigurationAspect
 {
     Q_OBJECT
 
@@ -145,7 +145,7 @@ private:
     bool m_value = false;
     bool m_defaultValue = false;
     QString m_label;
-    QPointer<QCheckBox> m_checkBox; // Owned by RunConfigWidget
+    QPointer<QCheckBox> m_checkBox; // Owned by configuration widget
 };
 
 class PROJECTEXPLORER_EXPORT UseLibraryPathsAspect : public BaseBoolAspect
@@ -164,7 +164,7 @@ public:
     UseDyldSuffixAspect();
 };
 
-class PROJECTEXPLORER_EXPORT BaseStringAspect : public IRunConfigurationAspect
+class PROJECTEXPLORER_EXPORT BaseStringAspect : public ProjectConfigurationAspect
 {
     Q_OBJECT
 
@@ -219,7 +219,7 @@ private:
     QPixmap m_labelPixmap;
 };
 
-class PROJECTEXPLORER_EXPORT ExecutableAspect : public IRunConfigurationAspect
+class PROJECTEXPLORER_EXPORT ExecutableAspect : public ProjectConfigurationAspect
 {
     Q_OBJECT
 
