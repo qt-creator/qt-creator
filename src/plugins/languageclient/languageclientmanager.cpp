@@ -82,8 +82,7 @@ LanguageClientManager::LanguageClientManager()
 
 LanguageClientManager::~LanguageClientManager()
 {
-    for (auto interface : Utils::filtered(m_clients, &BaseClient::reachable))
-        interface->shutdown();
+    QTC_ASSERT(m_clients.isEmpty(), qDeleteAll(m_clients));
 }
 
 void LanguageClientManager::init()
@@ -168,6 +167,8 @@ void LanguageClientManager::removeMarks(const Core::Id &id)
 
 void LanguageClientManager::startClient(LanguageClientSettings setting)
 {
+    if (managerInstance->m_shuttingDown)
+        return;
     auto client = new StdIOClient(setting.m_executable, setting.m_arguments);
     client->setName(setting.m_name);
     if (setting.m_mimeType != noLanguageFilter)
@@ -177,6 +178,10 @@ void LanguageClientManager::startClient(LanguageClientSettings setting)
 
 void LanguageClientManager::startClient(BaseClient *client)
 {
+    if (managerInstance->m_shuttingDown) {
+        managerInstance->clientFinished(client);
+        return;
+    }
     if (!managerInstance->m_clients.contains(client))
         managerInstance->m_clients.append(client);
     connect(client, &BaseClient::finished, managerInstance, [client](){
@@ -215,6 +220,20 @@ void LanguageClientManager::deleteClient(BaseClient *client)
     delete client;
 }
 
+void LanguageClientManager::shutdown()
+{
+    if (managerInstance->m_shuttingDown)
+        return;
+    managerInstance->m_shuttingDown = true;
+    for (auto interface : managerInstance->m_clients)
+        interface->shutdown();
+}
+
+LanguageClientManager *LanguageClientManager::instance()
+{
+    return managerInstance;
+}
+
 QVector<BaseClient *> LanguageClientManager::reachableClients()
 {
     return Utils::filtered(m_clients, &BaseClient::reachable);
@@ -236,15 +255,17 @@ void LanguageClientManager::clientFinished(BaseClient *client)
     constexpr int restartTimeoutS = 5;
     const bool unexpectedFinish = client->state() != BaseClient::Shutdown
             && client->state() != BaseClient::ShutdownRequested;
-    if (unexpectedFinish) {
-        managerInstance->removeMarks(client->id());
-        client->disconnect(managerInstance);
+    if (unexpectedFinish && !m_shuttingDown) {
+        removeMarks(client->id());
+        client->disconnect(this);
         client->log(tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS),
                     Core::MessageManager::Flash);
         client->reset();
-        QTimer::singleShot(restartTimeoutS * 1000, this, [client](){ startClient(client); });
+        QTimer::singleShot(restartTimeoutS * 1000, client, [client](){ startClient(client); });
     } else {
         deleteClient(client);
+        if (m_shuttingDown && m_clients.isEmpty())
+            emit shutdownFinished();
     }
 }
 

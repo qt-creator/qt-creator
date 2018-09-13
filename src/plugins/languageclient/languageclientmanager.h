@@ -70,6 +70,13 @@ public:
 
     static void deleteClient(BaseClient *client);
 
+    static void shutdown();
+
+    static LanguageClientManager *instance();
+
+signals:
+    void shutdownFinished();
+
 private:
     LanguageClientManager();
     LanguageClientManager(const LanguageClientManager &other) = delete;
@@ -90,6 +97,7 @@ private:
 
     void clientFinished(BaseClient *client);
 
+    bool m_shuttingDown = false;
     QVector<BaseClient *> m_clients;
     QHash<Utils::FileName, QHash<Core::Id, QVector<LanguageClientMark *>>> m_marks;
     QHash<LanguageServerProtocol::MessageId, QList<BaseClient *>> m_exclusiveRequests;
