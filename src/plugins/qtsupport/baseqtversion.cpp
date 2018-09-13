@@ -332,6 +332,12 @@ QSet<Id> BaseQtVersion::availableFeatures() const
     if (qtVersion().matches(5, 11))
         return features;
 
+    features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 2, 12));
+    features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_2_PREFIX, 2, 5));
+
+    if (qtVersion().matches(5, 12))
+        return features;
+
     return features;
 }
 
