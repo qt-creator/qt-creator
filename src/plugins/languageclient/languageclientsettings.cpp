@@ -351,7 +351,8 @@ void LanguageClientSettingsModel::applyChanges()
     QList<LanguageClientSettings> toStart = m_settings;
     // check currently registered interfaces
     for (auto interface : interfaces) {
-        auto setting = Utils::findOr(m_settings, LanguageClientSettings(), [interface](const LanguageClientSettings &setting){
+        auto setting = Utils::findOr(m_settings, LanguageClientSettings(),
+                                     [interface](const LanguageClientSettings &setting){
             return interface->matches(setting);
         });
         if (setting.isValid() && setting.m_enabled) {
@@ -362,8 +363,12 @@ void LanguageClientSettingsModel::applyChanges()
             toShutdown << interface;
         }
     }
-    for (auto interface : toShutdown)
-        interface->shutdown();
+    for (auto interface : toShutdown) {
+        if (interface->reachable())
+            interface->shutdown();
+        else
+            LanguageClientManager::deleteClient(interface);
+    }
     for (auto setting : toStart) {
         if (setting.isValid() && setting.m_enabled)
             LanguageClientManager::startClient(setting);

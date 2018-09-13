@@ -68,6 +68,8 @@ public:
     static void addExclusiveRequest(const LanguageServerProtocol::MessageId &id, BaseClient *client);
     static void reportFinished(const LanguageServerProtocol::MessageId &id, BaseClient *byClient);
 
+    static void deleteClient(BaseClient *client);
+
 private:
     LanguageClientManager();
     LanguageClientManager(const LanguageClientManager &other) = delete;
