@@ -171,7 +171,7 @@ Utils::SmallStringVector ProjectUpdater::createIncludeSearchPaths(
     Utils::SmallStringVector includePaths;
 
     for (const ProjectExplorer::HeaderPath &projectPartHeaderPath : projectPartHeaderPaths) {
-        if (projectPartHeaderPath.isValid())
+        if (!projectPartHeaderPath.path.isEmpty())
             includePaths.emplace_back(projectPartHeaderPath.path);
     }
 
