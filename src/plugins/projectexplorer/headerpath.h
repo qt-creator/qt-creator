@@ -31,7 +31,6 @@
 namespace ProjectExplorer {
 
 enum class HeaderPathType {
-    Invalid,
     User,
     System,
     Framework
@@ -44,11 +43,6 @@ public:
     HeaderPath(const QString &path, HeaderPathType type)
         : path(path), type(type)
     { }
-
-    bool isValid() const
-    {
-        return type != HeaderPathType::Invalid;
-    }
 
     bool isFrameworkPath() const
     {
@@ -66,7 +60,7 @@ public:
     }
 
     QString path;
-    HeaderPathType type = HeaderPathType::Invalid;
+    HeaderPathType type = HeaderPathType::User;
 };
 
 inline uint qHash(const HeaderPath &key, uint seed = 0)

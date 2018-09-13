@@ -301,7 +301,7 @@ QString CppSourceProcessor::resolveFile_helper(const QString &fileName,
     auto headerPathsEnd = m_headerPaths.end();
     const int index = fileName.indexOf(QLatin1Char('/'));
     for (; headerPathsIt != headerPathsEnd; ++headerPathsIt) {
-        if (headerPathsIt->isValid()) {
+        if (!headerPathsIt->path.isNull()) {
             QString path;
             if (headerPathsIt->isFrameworkPath()) {
                 if (index == -1)

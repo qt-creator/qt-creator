@@ -93,7 +93,6 @@ QString Utils::toString(ProjectExplorer::HeaderPathType type)
 {
 #define CASE_LANGUAGEVERSION(x) case ProjectExplorer::HeaderPathType::x: return QLatin1String(#x"Path")
     switch (type) {
-    CASE_LANGUAGEVERSION(Invalid);
     CASE_LANGUAGEVERSION(User);
     CASE_LANGUAGEVERSION(System);
     CASE_LANGUAGEVERSION(Framework);
@@ -470,7 +469,6 @@ static void printIncludeType(QTextStream &out, ProjectExplorer::HeaderPathType t
 {
     using ProjectExplorer::HeaderPathType;
     switch (type) {
-        case HeaderPathType::Invalid: out << "(invalid include path)"; break;
         case HeaderPathType::User: out << "(user include path)"; break;
         case HeaderPathType::System: out << "(system include path)"; break;
         case HeaderPathType::Framework: out << "(framework path)"; break;
