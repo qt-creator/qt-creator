@@ -30,7 +30,7 @@
 
 namespace ProjectExplorer {
 
-enum class IncludePathType {
+enum class HeaderPathType {
     Invalid,
     User,
     System,
@@ -41,18 +41,18 @@ class HeaderPath
 {
 public:
     HeaderPath() = default;
-    HeaderPath(const QString &path, IncludePathType type)
+    HeaderPath(const QString &path, HeaderPathType type)
         : path(path), type(type)
     { }
 
     bool isValid() const
     {
-        return type != IncludePathType::Invalid;
+        return type != HeaderPathType::Invalid;
     }
 
     bool isFrameworkPath() const
     {
-        return type == IncludePathType::Framework;
+        return type == HeaderPathType::Framework;
     }
 
     bool operator==(const HeaderPath &other) const
@@ -66,7 +66,7 @@ public:
     }
 
     QString path;
-    IncludePathType type = IncludePathType::Invalid;
+    HeaderPathType type = HeaderPathType::Invalid;
 };
 
 inline uint qHash(const HeaderPath &key, uint seed = 0)

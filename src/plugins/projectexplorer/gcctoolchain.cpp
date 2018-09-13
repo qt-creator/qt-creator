@@ -151,20 +151,20 @@ QList<HeaderPath> GccToolChain::gccHeaderPaths(const FileName &gcc, const QStrin
     }
 
     if (!line.isEmpty() && line.startsWith("#include")) {
-        auto kind = IncludePathType::User;
+        auto kind = HeaderPathType::User;
         while (cpp.canReadLine()) {
             line = cpp.readLine();
             if (line.startsWith("#include")) {
-                kind = IncludePathType::System;
+                kind = HeaderPathType::System;
             } else if (! line.isEmpty() && QChar(line.at(0)).isSpace()) {
-                IncludePathType thisHeaderKind = kind;
+                HeaderPathType thisHeaderKind = kind;
 
                 line = line.trimmed();
 
                 const int index = line.indexOf(" (framework directory)");
                 if (index != -1) {
                     line.truncate(index);
-                    thisHeaderKind = IncludePathType::Framework;
+                    thisHeaderKind = HeaderPathType::Framework;
                 }
 
                 const QString headerPath = QFileInfo(QFile::decodeName(line)).canonicalFilePath();

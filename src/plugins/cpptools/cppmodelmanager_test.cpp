@@ -186,16 +186,16 @@ void CppToolsPlugin::test_modelmanager_paths_are_clean()
     ProjectPart::Ptr part(new ProjectPart);
     part->qtVersion = ProjectPart::Qt5;
     part->projectMacros = {ProjectExplorer::Macro("OH_BEHAVE", "-1")};
-    part->headerPaths = {{testDataDir.includeDir(false), IncludePathType::User},
-                         {testDataDir.frameworksDir(false), IncludePathType::Framework}};
+    part->headerPaths = {{testDataDir.includeDir(false), HeaderPathType::User},
+                         {testDataDir.frameworksDir(false), HeaderPathType::Framework}};
     pi.appendProjectPart(part);
 
     mm->updateProjectInfo(pi);
 
     ProjectExplorer::HeaderPaths headerPaths = mm->headerPaths();
     QCOMPARE(headerPaths.size(), 2);
-    QVERIFY(headerPaths.contains({testDataDir.includeDir(), IncludePathType::User}));
-    QVERIFY(headerPaths.contains({testDataDir.frameworksDir(), IncludePathType::Framework}));
+    QVERIFY(headerPaths.contains({testDataDir.includeDir(), HeaderPathType::User}));
+    QVERIFY(headerPaths.contains({testDataDir.frameworksDir(), HeaderPathType::Framework}));
 }
 
 /// Check: Frameworks headers are resolved.
@@ -215,8 +215,8 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
     ProjectPart::Ptr part(new ProjectPart);
     part->qtVersion = ProjectPart::Qt5;
     part->projectMacros = {{"OH_BEHAVE", "-1"}};
-    part->headerPaths = {{testDataDir.includeDir(false), IncludePathType::User},
-                         {testDataDir.frameworksDir(false), IncludePathType::Framework}};
+    part->headerPaths = {{testDataDir.includeDir(false), HeaderPathType::User},
+                         {testDataDir.frameworksDir(false), HeaderPathType::Framework}};
     const QString &source = testDataDir.fileFromSourcesDir(
         _("test_modelmanager_framework_headers.cpp"));
     part->files << ProjectFile(source, ProjectFile::CXXSource);
@@ -262,7 +262,7 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
     ProjectPart::Ptr part(new ProjectPart);
     part->qtVersion = ProjectPart::Qt5;
     part->projectMacros = {{"OH_BEHAVE", "-1"}};
-    part->headerPaths = {{testDataDir.includeDir(false), IncludePathType::User}};
+    part->headerPaths = {{testDataDir.includeDir(false), HeaderPathType::User}};
     part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
     pi.appendProjectPart(part);
 
@@ -754,7 +754,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
     part1->files.append(ProjectFile(header, ProjectFile::CXXHeader));
     part1->qtVersion = ProjectPart::NoQt;
     part1->projectMacros = {{"SUB1"}};
-    part1->headerPaths = {{testDataDirectory.includeDir(false), IncludePathType::User}};
+    part1->headerPaths = {{testDataDirectory.includeDir(false), HeaderPathType::User}};
 
     ProjectPart::Ptr part2(new ProjectPart);
     part2->projectFile = QLatin1String("project1.projectfile");
@@ -762,7 +762,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
     part2->files.append(ProjectFile(header, ProjectFile::CXXHeader));
     part2->qtVersion = ProjectPart::NoQt;
     part2->projectMacros = {{"SUB2"}};
-    part2->headerPaths = {{testDataDirectory.includeDir(false), IncludePathType::User}};
+    part2->headerPaths = {{testDataDirectory.includeDir(false), HeaderPathType::User}};
 
     ProjectInfo pi = ProjectInfo(project);
     pi.appendProjectPart(part1);
@@ -818,7 +818,7 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
     part1->files.append(ProjectFile(header, ProjectFile::CXXHeader));
     part1->qtVersion = ProjectPart::NoQt;
     part1->precompiledHeaders.append(pch1File);
-    part1->headerPaths = {{testDataDirectory.includeDir(false), IncludePathType::User}};
+    part1->headerPaths = {{testDataDirectory.includeDir(false), HeaderPathType::User}};
     part1->updateLanguageFeatures();
 
     ProjectPart::Ptr part2(new ProjectPart);
@@ -827,7 +827,7 @@ void CppToolsPlugin::test_modelmanager_precompiled_headers()
     part2->files.append(ProjectFile(header, ProjectFile::CXXHeader));
     part2->qtVersion = ProjectPart::NoQt;
     part2->precompiledHeaders.append(pch2File);
-    part2->headerPaths = {{testDataDirectory.includeDir(false), IncludePathType::User}};
+    part2->headerPaths = {{testDataDirectory.includeDir(false), HeaderPathType::User}};
     part2->updateLanguageFeatures();
 
     ProjectInfo pi = ProjectInfo(project);
@@ -899,13 +899,13 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
     part1->files.append(ProjectFile(main1File, ProjectFile::CXXSource));
     part1->files.append(ProjectFile(header, ProjectFile::CXXHeader));
     part1->qtVersion = ProjectPart::NoQt;
-    part1->headerPaths = {{testDataDirectory.includeDir(false), IncludePathType::User}};
+    part1->headerPaths = {{testDataDirectory.includeDir(false), HeaderPathType::User}};
 
     ProjectPart::Ptr part2(new ProjectPart);
     part2->files.append(ProjectFile(main2File, ProjectFile::CXXSource));
     part2->files.append(ProjectFile(header, ProjectFile::CXXHeader));
     part2->qtVersion = ProjectPart::NoQt;
-    part2->headerPaths = {{testDataDirectory.includeDir(false), IncludePathType::User}};
+    part2->headerPaths = {{testDataDirectory.includeDir(false), HeaderPathType::User}};
 
     ProjectInfo pi = ProjectInfo(project);
     pi.appendProjectPart(part1);

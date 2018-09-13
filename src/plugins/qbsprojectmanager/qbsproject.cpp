@@ -983,7 +983,7 @@ void QbsProject::updateCppCodeModel()
             list.removeDuplicates();
             ProjectExplorer::HeaderPaths grpHeaderPaths;
             foreach (const QString &p, list)
-                grpHeaderPaths += {FileName::fromUserInput(p).toString(),  IncludePathType::User};
+                grpHeaderPaths += {FileName::fromUserInput(p).toString(),  HeaderPathType::User};
 
             list = props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                          QLatin1String(CONFIG_FRAMEWORKPATHS));
@@ -991,7 +991,7 @@ void QbsProject::updateCppCodeModel()
                                                               QLatin1String(CONFIG_SYSTEM_FRAMEWORKPATHS)));
             list.removeDuplicates();
             foreach (const QString &p, list)
-                grpHeaderPaths += {FileName::fromUserInput(p).toString(), IncludePathType::Framework};
+                grpHeaderPaths += {FileName::fromUserInput(p).toString(), HeaderPathType::Framework};
 
             rpp.setHeaderPaths(grpHeaderPaths);
 

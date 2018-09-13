@@ -535,7 +535,7 @@ static QList<Include> includesForSource(const QString &filePath)
     cmm->GC();
     QScopedPointer<CppSourceProcessor> sourceProcessor(CppModelManager::createSourceProcessor());
     sourceProcessor->setHeaderPaths({{TestIncludePaths::globalIncludePath(),
-                                      ProjectExplorer::IncludePathType::User}});
+                                      ProjectExplorer::HeaderPathType::User}});
     sourceProcessor->run(filePath);
 
     Document::Ptr document = cmm->document(filePath);

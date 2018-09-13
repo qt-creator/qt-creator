@@ -219,7 +219,7 @@ ToolChain::SystemHeaderPathsRunner AbstractMsvcToolChain::createSystemHeaderPath
         QMutexLocker locker(m_headerPathsMutex);
         if (m_headerPaths.isEmpty()) {
             foreach (const QString &path, env.value(QLatin1String("INCLUDE")).split(QLatin1Char(';')))
-                m_headerPaths.append({path, IncludePathType::System});
+                m_headerPaths.append({path, HeaderPathType::System});
         }
         return m_headerPaths;
     };

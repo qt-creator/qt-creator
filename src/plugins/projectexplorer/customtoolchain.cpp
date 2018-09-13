@@ -175,7 +175,7 @@ ToolChain::SystemHeaderPathsRunner CustomToolChain::createSystemHeaderPathsRunne
         QList<HeaderPath> flagHeaderPaths;
         for (const QString &cxxFlag : cxxFlags) {
             if (cxxFlag.startsWith(QLatin1String("-I"))) {
-                flagHeaderPaths.push_back({cxxFlag.mid(2).trimmed(), IncludePathType::System});
+                flagHeaderPaths.push_back({cxxFlag.mid(2).trimmed(), HeaderPathType::System});
             }
         }
 
@@ -228,7 +228,7 @@ QStringList CustomToolChain::headerPathsList() const
 void CustomToolChain::setHeaderPaths(const QStringList &list)
 {
     QList<HeaderPath> tmp = Utils::transform(list, [](const QString &headerPath) {
-        return HeaderPath(headerPath.trimmed(), IncludePathType::System);
+        return HeaderPath(headerPath.trimmed(), HeaderPathType::System);
     });
 
     if (m_systemHeaderPaths == tmp)

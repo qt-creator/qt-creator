@@ -89,9 +89,9 @@ QString Utils::toString(CPlusPlus::Document::DiagnosticMessage::Level level)
     return QString();
 }
 
-QString Utils::toString(ProjectExplorer::IncludePathType type)
+QString Utils::toString(ProjectExplorer::HeaderPathType type)
 {
-#define CASE_LANGUAGEVERSION(x) case ProjectExplorer::IncludePathType::x: return QLatin1String(#x"Path")
+#define CASE_LANGUAGEVERSION(x) case ProjectExplorer::HeaderPathType::x: return QLatin1String(#x"Path")
     switch (type) {
     CASE_LANGUAGEVERSION(Invalid);
     CASE_LANGUAGEVERSION(User);
@@ -466,14 +466,14 @@ Dumper::~Dumper()
     m_out << "*** END Code Model Inspection Report\n";
 }
 
-static void printIncludeType(QTextStream &out, ProjectExplorer::IncludePathType type)
+static void printIncludeType(QTextStream &out, ProjectExplorer::HeaderPathType type)
 {
-    using ProjectExplorer::IncludePathType;
+    using ProjectExplorer::HeaderPathType;
     switch (type) {
-        case IncludePathType::Invalid: out << "(invalid include path)"; break;
-        case IncludePathType::User: out << "(user include path)"; break;
-        case IncludePathType::System: out << "(system include path)"; break;
-        case IncludePathType::Framework: out << "(framework path)"; break;
+        case HeaderPathType::Invalid: out << "(invalid include path)"; break;
+        case HeaderPathType::User: out << "(user include path)"; break;
+        case HeaderPathType::System: out << "(system include path)"; break;
+        case HeaderPathType::Framework: out << "(framework path)"; break;
     }
 }
 

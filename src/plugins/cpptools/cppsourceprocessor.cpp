@@ -132,13 +132,13 @@ void CppSourceProcessor::setWorkingCopy(const WorkingCopy &workingCopy)
 
 void CppSourceProcessor::setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPaths)
 {
-    using ProjectExplorer::IncludePathType;
+    using ProjectExplorer::HeaderPathType;
     m_headerPaths.clear();
 
     for (int i = 0, ei = headerPaths.size(); i < ei; ++i) {
         const ProjectExplorer::HeaderPath &path = headerPaths.at(i);
 
-        if (path.type == IncludePathType::User || path.type == IncludePathType::System)
+        if (path.type == HeaderPathType::User || path.type == HeaderPathType::System)
             m_headerPaths.append({cleanPath(path.path), path.type});
         else
             addFrameworkPath(path);
@@ -165,7 +165,7 @@ void CppSourceProcessor::addFrameworkPath(const ProjectExplorer::HeaderPath &fra
     // in the frameworks we're linking against. If we would have that, then we could
     // add only those private frameworks.
     const ProjectExplorer::HeaderPath cleanFrameworkPath(cleanPath(frameworkPath.path),
-                                                         ProjectExplorer::IncludePathType::Framework);
+                                                         ProjectExplorer::HeaderPathType::Framework);
     if (!m_headerPaths.contains(cleanFrameworkPath))
         m_headerPaths.append(cleanFrameworkPath);
 
@@ -178,7 +178,7 @@ void CppSourceProcessor::addFrameworkPath(const ProjectExplorer::HeaderPath &fra
                                           QLatin1String("Frameworks"));
         if (privateFrameworks.exists() && privateFrameworks.isDir())
             addFrameworkPath({privateFrameworks.absoluteFilePath(),
-                              ProjectExplorer::IncludePathType::Framework});
+                              ProjectExplorer::HeaderPathType::Framework});
     }
 }
 

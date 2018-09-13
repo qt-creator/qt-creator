@@ -270,7 +270,7 @@ void QuickFixOperationTest::run(const QList<QuickFixTestDocument::Ptr> &testDocu
                                 int operationIndex)
 {
     ProjectExplorer::HeaderPaths headerPaths;
-    headerPaths.push_back({headerPath, ProjectExplorer::IncludePathType::User});
+    headerPaths.push_back({headerPath, ProjectExplorer::HeaderPathType::User});
     QuickFixOperationTest(testDocuments, factory, headerPaths, operationIndex);
 }
 
@@ -3673,7 +3673,7 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noDoubleQtH
     testDocuments << QuickFixTestDocument::create(base + "/fileWantsToUseQDir.cpp", original, expected);
 
     ProjectExplorer::HeaderPaths headerPaths{{TestIncludePaths::globalQtCoreIncludePath(),
-                                              ProjectExplorer::IncludePathType::User}};
+                                              ProjectExplorer::HeaderPathType::User}};
 
     AddIncludeForUndefinedIdentifier factory;
     const QStringList expectedOperations = QStringList("Add #include <QDir>");

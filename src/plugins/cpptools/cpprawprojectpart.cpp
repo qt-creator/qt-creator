@@ -96,7 +96,7 @@ void RawProjectPart::setIncludePaths(const QStringList &includePaths)
     headerPaths.clear();
 
     foreach (const QString &includeFile, includePaths) {
-        ProjectExplorer::HeaderPath hp(includeFile, ProjectExplorer::IncludePathType::User);
+        ProjectExplorer::HeaderPath hp(includeFile, ProjectExplorer::HeaderPathType::User);
 
         // The simple project managers are utterly ignorant of frameworks on macOS, and won't report
         // framework paths. The work-around is to check if the include path ends in ".framework",
@@ -104,7 +104,7 @@ void RawProjectPart::setIncludePaths(const QStringList &includePaths)
         if (includeFile.endsWith(QLatin1String(".framework"))) {
             const int slashIdx = includeFile.lastIndexOf(QLatin1Char('/'));
             if (slashIdx != -1) {
-                hp = {includeFile.left(slashIdx), ProjectExplorer::IncludePathType::Framework};
+                hp = {includeFile.left(slashIdx), ProjectExplorer::HeaderPathType::Framework};
             }
         }
 

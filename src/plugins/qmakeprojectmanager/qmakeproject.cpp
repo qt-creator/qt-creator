@@ -315,13 +315,13 @@ void QmakeProject::updateCppCodeModel()
         // Header paths
         ProjectExplorer::HeaderPaths headerPaths;
         foreach (const QString &inc, pro->variableValue(Variable::IncludePath)) {
-            const ProjectExplorer::HeaderPath headerPath{inc, IncludePathType::User};
+            const ProjectExplorer::HeaderPath headerPath{inc, HeaderPathType::User};
             if (!headerPaths.contains(headerPath))
                 headerPaths += headerPath;
         }
 
         if (qtVersion && !qtVersion->frameworkInstallPath().isEmpty()) {
-            headerPaths += {qtVersion->frameworkInstallPath(), IncludePathType::Framework};
+            headerPaths += {qtVersion->frameworkInstallPath(), HeaderPathType::Framework};
         }
         rpp.setHeaderPaths(headerPaths);
 

@@ -96,7 +96,7 @@ static const ProjectExplorer::HeaderPaths toHeaderPaths(const QStringList &paths
 {
     ProjectExplorer::HeaderPaths result;
     foreach (const QString &path, paths)
-        result.push_back({path, ProjectExplorer::IncludePathType::User});
+        result.push_back({path, ProjectExplorer::HeaderPathType::User});
     return result;
 }
 

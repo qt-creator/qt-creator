@@ -253,10 +253,10 @@ TEST_F(ProjectUpdater, CreateSortedCompilerMacros)
 
 TEST_F(ProjectUpdater, CreateSortedIncludeSearchPaths)
 {
-    ProjectExplorer::HeaderPath includePath{"/to/path1", ProjectExplorer::IncludePathType::User};
-    ProjectExplorer::HeaderPath includePath2{"/to/path2", ProjectExplorer::IncludePathType::User};
+    ProjectExplorer::HeaderPath includePath{"/to/path1", ProjectExplorer::HeaderPathType::User};
+    ProjectExplorer::HeaderPath includePath2{"/to/path2", ProjectExplorer::HeaderPathType::User};
     ProjectExplorer::HeaderPath invalidPath;
-    ProjectExplorer::HeaderPath frameworkPath{"/framework/path", ProjectExplorer::IncludePathType::Framework};
+    ProjectExplorer::HeaderPath frameworkPath{"/framework/path", ProjectExplorer::HeaderPathType::Framework};
 
     auto paths = updater.createIncludeSearchPaths({frameworkPath, includePath2, includePath, invalidPath});
 

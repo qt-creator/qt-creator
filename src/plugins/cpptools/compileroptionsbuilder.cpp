@@ -198,7 +198,7 @@ void CompilerOptionsBuilder::enableExceptions()
 
 void CompilerOptionsBuilder::addHeaderPathOptions()
 {
-    using ProjectExplorer::IncludePathType;
+    using ProjectExplorer::HeaderPathType;
 
     QStringList result;
 
@@ -212,15 +212,15 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
         QString prefix;
         Utils::FileName path;
         switch (headerPath.type) {
-        case IncludePathType::Framework:
+        case HeaderPathType::Framework:
             prefix = QLatin1String("-F");
             break;
-        case IncludePathType::System:
+        case HeaderPathType::System:
             prefix = "-isystem";
             break;
         default: // This shouldn't happen, but let's be nice..:
             // intentional fall-through:
-        case IncludePathType::User:
+        case HeaderPathType::User:
             prefix = includeDirOptionForPath(headerPath.path);
             break;
         }
