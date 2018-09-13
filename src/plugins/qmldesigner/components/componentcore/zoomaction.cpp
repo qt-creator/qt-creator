@@ -120,7 +120,7 @@ void ZoomAction::emitZoomLevelChanged(int index)
     if (index == -1)
         return;
 
-    QModelIndex modelIndex(m_comboBoxModel.data()->index(index, 0));
+    const QModelIndex modelIndex(m_comboBoxModel.data()->index(index, 0));
     setZoomLevel(m_comboBoxModel.data()->data(modelIndex, Qt::UserRole).toDouble());
 }
 
