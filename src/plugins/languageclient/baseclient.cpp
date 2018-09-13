@@ -645,6 +645,8 @@ bool BaseClient::sendWorkspceFolderChanges() const
 void BaseClient::parseData(const QByteArray &data)
 {
     const qint64 preWritePosition = m_buffer.pos();
+    if (!m_buffer.atEnd())
+        m_buffer.seek(preWritePosition + m_buffer.bytesAvailable());
     m_buffer.write(data);
     m_buffer.seek(preWritePosition);
     while (!m_buffer.atEnd()) {
