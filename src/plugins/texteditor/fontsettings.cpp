@@ -228,21 +228,23 @@ void FontSettings::addMixinStyle(QTextCharFormat &textCharFormat,
     for (TextStyle mixinStyle : mixinStyles) {
         const Format &format = m_scheme.formatFor(mixinStyle);
 
-        if (textCharFormat.hasProperty(QTextFormat::ForegroundBrush)) {
-            if (format.foreground().isValid())
-                textCharFormat.setForeground(format.foreground());
-            else
+        if (format.foreground().isValid()) {
+            textCharFormat.setForeground(format.foreground());
+        } else {
+            if (textCharFormat.hasProperty(QTextFormat::ForegroundBrush)) {
                 textCharFormat.setForeground(mixBrush(textCharFormat.foreground(),
                                                       format.relativeForegroundSaturation(),
                                                       format.relativeForegroundLightness()));
+            }
         }
-        if (textCharFormat.hasProperty(QTextFormat::BackgroundBrush)) {
-            if (format.background().isValid())
-                textCharFormat.setBackground(format.background());
-            else
+        if (format.background().isValid()) {
+            textCharFormat.setBackground(format.background());
+        } else {
+            if (textCharFormat.hasProperty(QTextFormat::BackgroundBrush)) {
                 textCharFormat.setBackground(mixBrush(textCharFormat.background(),
                                                       format.relativeBackgroundSaturation(),
                                                       format.relativeBackgroundLightness()));
+            }
         }
         if (!textCharFormat.fontItalic())
             textCharFormat.setFontItalic(format.italic());
