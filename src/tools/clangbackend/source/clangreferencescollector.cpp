@@ -43,15 +43,8 @@ namespace {
 class ReferencedCursor
 {
 public:
-    static ReferencedCursor find(const Cursor &cursor, const CXToken &token)
+    static ReferencedCursor find(const Cursor &cursor)
     {
-        if (cursor.spelling().startsWith("operator")
-                && clang_getTokenKind(token) == CXToken_Identifier) {
-            // We are actually inside operator, use clang_getCursor to return a proper cursor instead.
-            return find(clang_getCursor(cursor.cxTranslationUnit(),
-                                        clang_getTokenLocation(cursor.cxTranslationUnit(), token)),
-                        token);
-        }
         // Query the referenced cursor directly instead of first testing with cursor.isReference().
         // cursor.isReference() reports false for e.g. CXCursor_DeclRefExpr or CXCursor_CallExpr
         // although it returns a valid cursor.
@@ -209,7 +202,7 @@ bool ReferencesCollector::checkToken(unsigned index, const Utf8String &identifie
     }
 
     const Cursor currentCursor(m_cxCursors[static_cast<int>(index)]);
-    const ReferencedCursor candidate = ReferencedCursor::find(currentCursor, token);
+    const ReferencedCursor candidate = ReferencedCursor::find(currentCursor);
 
     return candidate.usr() == usr;
 }
@@ -224,7 +217,7 @@ ReferencesResult ReferencesCollector::collect(uint line, uint column, bool local
 
     const Cursor cursorFromUser = m_cxCursors[static_cast<int>(index)];
 
-    const ReferencedCursor refCursor = ReferencedCursor::find(cursorFromUser, m_cxTokens[index]);
+    const ReferencedCursor refCursor = ReferencedCursor::find(cursorFromUser);
     const Utf8String usr = refCursor.usr();
     if (usr.isEmpty())
         return result;
