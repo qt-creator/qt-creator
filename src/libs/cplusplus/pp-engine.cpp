@@ -76,6 +76,7 @@ using namespace Utils;
 
 namespace {
 enum {
+    MAX_FUNCTION_LIKE_ARGUMENTS_COUNT = 100,
     MAX_TOKEN_EXPANSION_COUNT = 5000,
     MAX_TOKEN_BUFFER_DEPTH = 16000 // for when macros are using some kind of right-folding, this is the list of "delayed" buffers waiting to be expanded after the current one.
 };
@@ -1057,6 +1058,9 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
                                           *macro,
                                           argRefs);
         }
+
+        if (allArgTks.size() > MAX_FUNCTION_LIKE_ARGUMENTS_COUNT)
+            return false;
 
         if (!handleFunctionLikeMacro(macro, body, allArgTks, baseLine)) {
             if (m_client && !idTk.expanded())
