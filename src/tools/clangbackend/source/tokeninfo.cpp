@@ -559,6 +559,8 @@ void TokenInfo::punctuationOrOperatorKind()
         case CXCursor_ConditionalOperator:
             m_types.mixinHighlightingTypes.push_back(HighlightingType::Operator);
             break;
+        default:
+            break;
     }
 
     if (isOutputArgument())
