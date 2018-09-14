@@ -123,3 +123,4 @@ def main():
             snooze(1)   # "Close All" might be disabled
             invokeMenuItem('File', 'Close All')
             invokeMenuItem('File', 'Exit')
+            waitForCleanShutdown()

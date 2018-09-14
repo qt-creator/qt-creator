@@ -78,3 +78,4 @@ def main():
             validateSearchResult(5 if JIRA.isBugStillOpen(2863) else 3)
             invokeMenuItem("File", "Close All")
             invokeMenuItem("File", "Exit")
+            waitForCleanShutdown()

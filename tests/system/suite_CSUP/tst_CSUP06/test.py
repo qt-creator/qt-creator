@@ -181,3 +181,4 @@ def main():
             # editor must be closed to get the second code model applied on re-opening the file
             invokeMenuItem('File', 'Close "main.cpp"')
             invokeMenuItem("File", "Exit")
+            waitForCleanShutdown()

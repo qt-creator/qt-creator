@@ -87,3 +87,4 @@ def main():
             invokeMenuItem('File', 'Close "main.cpp"')
             # exit qt creator
             invokeMenuItem("File", "Exit")
+            waitForCleanShutdown()
