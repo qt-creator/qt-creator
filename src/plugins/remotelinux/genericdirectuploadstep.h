@@ -43,19 +43,11 @@ public:
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool initInternal(QString *error = nullptr) override;
 
-    void setIncrementalDeployment(bool incremental);
-    bool incrementalDeployment() const;
-
-    void setIgnoreMissingFiles(bool ignoreMissingFiles);
-    bool ignoreMissingFiles() const;
-
     static Core::Id stepId();
     static QString displayName();
 
 private:
     GenericDirectUploadService *deployService() const override;
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
 
     Internal::GenericDirectUploadStepPrivate *d;
 };

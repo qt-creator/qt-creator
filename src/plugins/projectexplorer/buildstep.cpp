@@ -35,6 +35,8 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QFormLayout>
+
 /*!
     \class ProjectExplorer::BuildStep
 
@@ -123,6 +125,40 @@ BuildStep::BuildStep(BuildStepList *bsl, Core::Id id) :
     expander->setDisplayName(tr("Build Step"));
     expander->setAccumulating(true);
     expander->registerSubProvider([this] { return projectConfiguration()->macroExpander(); });
+}
+
+class ConfigWidget : public BuildStepConfigWidget
+{
+public:
+    ConfigWidget(BuildStep *step) : m_step(step)
+    {
+        connect(m_step, &ProjectConfiguration::displayNameChanged,
+                this, &BuildStepConfigWidget::updateSummary);
+    }
+
+    QString summaryText() const override { return QLatin1String("<b>") + displayName() + QLatin1String("</b>"); }
+    QString displayName() const override { return m_step->displayName(); }
+    bool showWidget() const override { return true; }
+    BuildStep *step() const { return m_step; }
+
+private:
+    BuildStep *m_step;
+};
+
+BuildStepConfigWidget *BuildStep::createConfigWidget()
+{
+    auto widget = new ConfigWidget(this);
+
+    auto formLayout = new QFormLayout(widget);
+    formLayout->setMargin(0);
+    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+
+    for (ProjectConfigurationAspect *aspect : m_aspects) {
+        if (aspect->isVisible())
+            aspect->addToConfigurationLayout(formLayout);
+    }
+
+    return widget;
 }
 
 bool BuildStep::fromMap(const QVariantMap &map)
