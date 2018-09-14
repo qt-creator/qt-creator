@@ -499,8 +499,11 @@ bool BaseClient::isSupportedMimeType(const QString &mimeType) const
     return m_supportedMimeTypes.isEmpty() || m_supportedMimeTypes.contains(mimeType);
 }
 
-void BaseClient::reset()
+bool BaseClient::reset()
 {
+    if (!m_restartsLeft)
+        return false;
+    --m_restartsLeft;
     m_state = Uninitialized;
     m_responseHandlers.clear();
     m_buffer.close();
@@ -509,6 +512,7 @@ void BaseClient::reset()
     m_openedDocument.clear();
     m_serverCapabilities = ServerCapabilities();
     m_dynamicCapabilities.reset();
+    return true;
 }
 
 void BaseClient::setError(const QString &message)

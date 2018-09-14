@@ -255,12 +255,11 @@ void LanguageClientManager::clientFinished(BaseClient *client)
     constexpr int restartTimeoutS = 5;
     const bool unexpectedFinish = client->state() != BaseClient::Shutdown
             && client->state() != BaseClient::ShutdownRequested;
-    if (unexpectedFinish && !m_shuttingDown) {
+    if (unexpectedFinish && !m_shuttingDown && client->reset()) {
         removeMarks(client->id());
         client->disconnect(this);
         client->log(tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS),
                     Core::MessageManager::Flash);
-        client->reset();
         QTimer::singleShot(restartTimeoutS * 1000, client, [client](){ startClient(client); });
     } else {
         deleteClient(client);

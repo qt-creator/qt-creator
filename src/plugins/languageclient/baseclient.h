@@ -114,7 +114,7 @@ public:
 
     virtual bool start() { return true; }
     virtual bool matches(const LanguageClientSettings &/*setting*/) { return false; }
-    virtual void reset();
+    virtual bool reset();
 
     void log(const QString &message,
              Core::MessageManager::PrintToOutputPaneFlag flag = Core::MessageManager::NoModeSwitch);
@@ -159,6 +159,7 @@ private:
     DynamicCapabilities m_dynamicCapabilities;
     LanguageServerProtocol::BaseMessage m_currentMessage;
     QHash<LanguageServerProtocol::DocumentUri, LanguageServerProtocol::MessageId> m_highlightRequests;
+    int m_restartsLeft = 5;
 };
 
 class StdIOClient : public BaseClient
