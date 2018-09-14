@@ -42,12 +42,6 @@ class REMOTELINUX_EXPORT AbstractRemoteLinuxCustomCommandDeploymentStep
 public:
     ~AbstractRemoteLinuxCustomCommandDeploymentStep() override;
 
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
-
-    void setCommandLine(const QString &commandLine);
-    QString commandLine() const;
-
 protected:
     AbstractRemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 

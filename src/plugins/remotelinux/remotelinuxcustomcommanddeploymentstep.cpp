@@ -25,58 +25,17 @@
 
 #include "remotelinuxcustomcommanddeploymentstep.h"
 
-#include <QString>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QVBoxLayout>
+#include <projectexplorer/runconfigurationaspects.h>
 
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 namespace Internal {
-namespace {
-
-const char CommandLineKey[] = "RemoteLinuxCustomCommandDeploymentStep.CommandLine";
-
-class ConfigWidget : public SimpleBuildStepConfigWidget
-{
-    Q_OBJECT
-public:
-    ConfigWidget(AbstractRemoteLinuxCustomCommandDeploymentStep *step)
-        : SimpleBuildStepConfigWidget(step)
-    {
-        QVBoxLayout * const mainLayout = new QVBoxLayout(this);
-        mainLayout->setMargin(0);
-        QHBoxLayout * const commandLineLayout = new QHBoxLayout;
-        mainLayout->addLayout(commandLineLayout);
-        QLabel * const commandLineLabel = new QLabel(tr("Command line:"));
-        commandLineLayout->addWidget(commandLineLabel);
-        m_commandLineEdit.setText(step->commandLine());
-        commandLineLayout->addWidget(&m_commandLineEdit);
-
-        connect(&m_commandLineEdit, &QLineEdit::textEdited,
-                this, &ConfigWidget::handleCommandLineEdited);
-    }
-
-    bool showWidget() const { return true; }
-
-private:
-    void handleCommandLineEdited() {
-        AbstractRemoteLinuxCustomCommandDeploymentStep *step =
-            qobject_cast<AbstractRemoteLinuxCustomCommandDeploymentStep *>(this->step());
-        step->setCommandLine(m_commandLineEdit.text().trimmed());
-    }
-
-    QLineEdit m_commandLineEdit;
-};
-
-} // anonymous namespace
 
 class AbstractRemoteLinuxCustomCommandDeploymentStepPrivate
 {
 public:
-    QString commandLine;
+    BaseStringAspect *commandLineAspect;
 };
 
 class GenericRemoteLinuxCustomCommandDeploymentStepPrivate
@@ -95,6 +54,11 @@ AbstractRemoteLinuxCustomCommandDeploymentStep::AbstractRemoteLinuxCustomCommand
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
     d = new AbstractRemoteLinuxCustomCommandDeploymentStepPrivate;
+
+    d->commandLineAspect = addAspect<BaseStringAspect>();
+    d->commandLineAspect->setSettingsKey("RemoteLinuxCustomCommandDeploymentStep.CommandLine");
+    d->commandLineAspect->setLabelText(tr("Command line:"));
+    d->commandLineAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
 }
 
 AbstractRemoteLinuxCustomCommandDeploymentStep::~AbstractRemoteLinuxCustomCommandDeploymentStep()
@@ -102,40 +66,15 @@ AbstractRemoteLinuxCustomCommandDeploymentStep::~AbstractRemoteLinuxCustomComman
     delete d;
 }
 
-bool AbstractRemoteLinuxCustomCommandDeploymentStep::fromMap(const QVariantMap &map)
-{
-    if (!AbstractRemoteLinuxDeployStep::fromMap(map))
-        return false;
-    d->commandLine = map.value(QLatin1String(CommandLineKey)).toString();
-    return true;
-}
-
-QVariantMap AbstractRemoteLinuxCustomCommandDeploymentStep::toMap() const
-{
-    QVariantMap map = AbstractRemoteLinuxDeployStep::toMap();
-    map.insert(QLatin1String(CommandLineKey), d->commandLine);
-    return map;
-}
-
-void AbstractRemoteLinuxCustomCommandDeploymentStep::setCommandLine(const QString &commandLine)
-{
-    d->commandLine = commandLine;
-}
-
-QString AbstractRemoteLinuxCustomCommandDeploymentStep::commandLine() const
-{
-    return d->commandLine;
-}
-
 bool AbstractRemoteLinuxCustomCommandDeploymentStep::initInternal(QString *error)
 {
-    deployService()->setCommandLine(d->commandLine);
+    deployService()->setCommandLine(d->commandLineAspect->value().trimmed());
     return deployService()->isDeploymentPossible(error);
 }
 
 BuildStepConfigWidget *AbstractRemoteLinuxCustomCommandDeploymentStep::createConfigWidget()
 {
-    return new ConfigWidget(this);
+    return BuildStep::createConfigWidget();
 }
 
 
@@ -167,5 +106,3 @@ QString GenericRemoteLinuxCustomCommandDeploymentStep::displayName()
 }
 
 } // namespace RemoteLinux
-
-#include "remotelinuxcustomcommanddeploymentstep.moc"
