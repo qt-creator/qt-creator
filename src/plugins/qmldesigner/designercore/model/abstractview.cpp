@@ -490,6 +490,7 @@ QString firstCharToLower(const QString &string)
 QString AbstractView::generateNewId(const QString &prefixName) const
 {
     QString fixedPrefix = firstCharToLower(prefixName);
+    fixedPrefix.remove(' ');
     if (!ModelNode::isValidId(fixedPrefix))
         return generateNewId("element");
     int counter = 1;
