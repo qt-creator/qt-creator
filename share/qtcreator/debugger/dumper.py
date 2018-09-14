@@ -1949,7 +1949,7 @@ class DumperBase:
 
                         with SubItem(self, '[connections]'):
                             if connectionListsPtr:
-                                typeName = ns + 'QVector<' + ns + 'QObjectPrivate::ConnectionList>'
+                                typeName = '@QObjectConnectionListVector'
                                 self.putItem(self.createValue(connectionListsPtr, typeName))
                             else:
                                 self.putItemCount(0)

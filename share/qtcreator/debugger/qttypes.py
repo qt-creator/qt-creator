@@ -1793,6 +1793,14 @@ def qdump__QVector(d, value):
     d.putItemCount(size)
     d.putPlotData(data, size, value.type[0])
 
+def qdump__QObjectConnectionList(d, value):
+    dd = d.extractPointer(value)
+    data, size, alloc = d.vectorDataHelper(dd)
+    d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
+    d.putItemCount(size)
+    d.putPlotData(data, size, d.createType('@QObjectPrivate::ConnectionList'))
+
+
 def qdump__QVarLengthArray(d, value):
     (cap, size, data) = value.split('iip')
     d.check(0 <= size)
