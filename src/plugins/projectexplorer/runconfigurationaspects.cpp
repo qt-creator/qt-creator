@@ -632,12 +632,22 @@ void BaseBoolAspect::addToConfigurationLayout(QFormLayout *layout)
 
 void BaseBoolAspect::fromMap(const QVariantMap &map)
 {
-    m_value = map.value(settingsKey(), false).toBool();
+    m_value = map.value(settingsKey(), m_defaultValue).toBool();
 }
 
 void BaseBoolAspect::toMap(QVariantMap &data) const
 {
     data.insert(settingsKey(), m_value);
+}
+
+bool BaseBoolAspect::defaultValue() const
+{
+    return m_defaultValue;
+}
+
+void BaseBoolAspect::setDefaultValue(bool defaultValue)
+{
+    m_defaultValue = defaultValue;
 }
 
 bool BaseBoolAspect::value() const

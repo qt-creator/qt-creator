@@ -133,6 +133,9 @@ public:
     bool value() const;
     void setValue(bool val);
 
+    bool defaultValue() const;
+    void setDefaultValue(bool defaultValue);
+
     void setLabel(const QString &label);
 
     void fromMap(const QVariantMap &map) override;
@@ -140,6 +143,7 @@ public:
 
 private:
     bool m_value = false;
+    bool m_defaultValue = false;
     QString m_label;
     QPointer<QCheckBox> m_checkBox; // Owned by RunConfigWidget
 };
