@@ -5265,16 +5265,12 @@ void tst_Dumpers::dumper_data()
 
                + Check("a.d", FloatValue("9.1245819032257467e-313"), "double")
 
-               //+ Check("a.b", "43", "int") % GdbVersion(0, 70699)
-               //+ Check("a.i", "42", "int") % GdbVersion(0, 70699)
-               //+ Check("a.f", ff, "float") % GdbVersion(0, 70699)
-
-               + Check("a.#1.b", "43", "int") % NoCdbEngine
-               + Check("a.#1.i", "42", "int") % NoCdbEngine
-               + Check("a.#2.f", ff, "float") % NoCdbEngine
-               + Check("a.b", "43", "int") % CdbEngine
-               + Check("a.i", "42", "int") % CdbEngine
-               + Check("a.f", ff, "float") % CdbEngine;
+               + CheckSet({{"a.#1.b", "43", "int"}, // LLDB, new GDB
+                           {"a.b", "43", "int"}})   // CDB, old GDB
+               + CheckSet({{"a.#1.i", "42", "int"},
+                           {"a.i", "42", "int"}})
+               + CheckSet({{"a.#2.f", ff, "float"},
+                           {"a.f", ff, "float"}});
 
 
     QTest::newRow("Chars")
@@ -6511,10 +6507,10 @@ void tst_Dumpers::dumper_data()
                                     "std::_Tree_simple_types<std::pair<"
                                     "std::string const ,std::list<std::string>>>>>",
                                     "std::map<std::string, std::list<std::string> >::const_iterator"))
-         + Check("it.first", "\"one\"", "std::string") % NoCdbEngine
-         + Check("it.second", "<3 items>", "std::list<std::string>") % NoCdbEngine
-         + Check("it.0.first", "\"one\"", "std::string") % CdbEngine
-         + Check("it.0.second", "<3 items>", "std::list<std::string>") % CdbEngine;
+         + CheckSet({{"it.first", "\"one\"", "std::string"},    // NoCdbEngine
+                     {"it.0.first", "\"one\"", "std::string"}}) // CdbEngine
+         + CheckSet({{"it.second", "<3 items>", "std::list<std::string>"},
+                     {"it.0.second", "<3 items>", "std::list<std::string>"}});
 
     QTest::newRow("Varargs")
             << Data("#include <stdarg.h>\n"
@@ -6689,8 +6685,8 @@ void tst_Dumpers::dumper_data()
                + Check("v", "", TypePattern("main::.*::Test")) % CdbEngine
                //+ Check("v.a", "1", "int") % GdbVersion(0, 70699)
                //+ Check("v.0.a", "1", "int") % GdbVersion(70700)
-               + Check("v.#1.a", "1", "int") % NoCdbEngine
-               + Check("v.a", "1", "int") % CdbEngine;
+               + CheckSet({{"v.#1.a", "1", "int"},
+                           {"v.a", "1", "int"}});
 
 
     QTest::newRow("Gdb10586eclipse")
@@ -6707,12 +6703,12 @@ void tst_Dumpers::dumper_data()
                + Check("n", "", TypePattern("main::.*::S")) % CdbEngine
                //+ Check("v.a", "2", "int") % GdbVersion(0, 70699)
                //+ Check("v.0.a", "2", "int") % GdbVersion(70700)
-               + Check("v.#1.a", "2", "int") % NoCdbEngine
-               + Check("v.a", "2", "int") % CdbEngine
+               + CheckSet({{"v.#1.a", "2", "int"},
+                           {"v.a", "2", "int"}})
                //+ Check("v.b", "3", "int") % GdbVersion(0, 70699)
                //+ Check("v.1.b", "3", "int") % GdbVersion(70700)
-               + Check("v.#2.b", "3", "int") % NoCdbEngine
-               + Check("v.b", "3", "int") % CdbEngine
+               + CheckSet({{"v.#2.b", "3", "int"},
+                           {"v.b", "3", "int"}})
                + Check("v.x", "1", "int")
                + Check("n.x", "10", "int")
                + Check("n.y", "20", "int");
