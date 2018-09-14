@@ -61,7 +61,6 @@ public:
 
     QString summaryText() const override;
     QString displayName() const override;
-    bool showWidget() const override;
 private:
     AndroidPackageInstallationStep *m_step;
 };
