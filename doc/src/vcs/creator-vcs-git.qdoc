@@ -221,20 +221,21 @@
     \section2 Working with Branches
 
     To work with Git branches, select \uicontrol {Branches}. The checked out
-    branch is shown in bold and underlined in the list of branches. Double-click
-    branch names to edit them.
+    branch is shown in bold and underlined in the list of branches in the
+    \uicontrol {Git Branches} sidebar view. Double-click local branch names to
+    edit them.
 
-    \image qtcreator-vcs-gitbranch.png "Branches dialog"
+    To refresh the list of branches, click \inlineimage reload_gray.png
+    (\uicontrol Refresh).
 
-    The following operations are supported:
+    \image qtcreator-vcs-gitbranch.png "Git Branches sidebar view"
+
+    The following operations are supported in the context-menu for a branch:
 
     \table
         \header
             \li Menu Item
             \li Description
-        \row
-            \li \uicontrol{Refresh}
-            \li Refresh the list of branches.
         \row
             \li \uicontrol{Add}
             \li Create new tracking and non-tracking branches.
@@ -256,20 +257,22 @@
             \li \uicontrol{Log}
             \li Show the changes in a branch.
         \row
+            \li \uicontrol Reset
+            \li Hard reset the active branch to the selected branch.
+        \row
             \li \uicontrol Merge
             \li Join the development histories in two branches together.
 
                 If the commit you are merging can be reached by following the
                 first commit's history, there is no divergent work to merge
                 together. To allow Git to move the branch pointer forward,
-                select \uicontrol {Fast-Forward}. If you do not want to
-                fast-forward the branch, select \uicontrol {No Fast-Forward}.
+                select \uicontrol {Merge (Fast-Forward)}. If you do not want to
+                fast-forward the branch, select
+                \uicontrol {Merge (No Fast-Forward)}.
         \row
             \li \uicontrol Rebase
             \li Copy local commits to the updated upstream head.
-        \row
-            \li \uicontrol Reset
-            \li Hard reset the active branch to the selected branch.
+
         \row
             \li \uicontrol {Cherry Pick}
             \li Cherry pick the top commit from the selected branch.

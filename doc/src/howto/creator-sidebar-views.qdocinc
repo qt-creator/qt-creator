@@ -47,6 +47,9 @@
         \endif
         \li \uicontrol{File System} shows all files in the currently selected
              directory.
+        \li \uicontrol {Git Branches} shows the local and remote brances for the
+            project in the Git version control system. For more information, see
+            \l{Working with Branches}.
         \li \uicontrol Outline shows an overview of defined types and other
             symbols, as well as their properties and hierarchy in a source file.
     \endlist
