@@ -1311,7 +1311,7 @@ template <class NonModalDialog>
 void GitPlugin::branchList()
 {
     ModeManager::activateMode(Core::Constants::MODE_EDIT);
-    Core::NavigationWidget::activateSubWidget(Constants::GIT_BRANCH_VIEW_ID, Core::Side::Right);
+    NavigationWidget::activateSubWidget(Constants::GIT_BRANCH_VIEW_ID, Side::Right);
 }
 
 void GitPlugin::remoteList()
