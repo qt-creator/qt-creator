@@ -71,7 +71,7 @@ BranchView::BranchView() :
     m_addButton->setProperty("noArrow", true);
     connect(m_addButton, &QToolButton::clicked, this, &BranchView::add);
 
-    m_refreshButton->setIcon(Utils::Icons::RESET_TOOLBAR.icon());
+    m_refreshButton->setIcon(Utils::Icons::RELOAD.icon());
     m_refreshButton->setToolTip(tr("Refresh"));
     m_refreshButton->setProperty("noArrow", true);
     connect(m_refreshButton, &QToolButton::clicked, this, &BranchView::refreshCurrentRepository);
