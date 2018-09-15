@@ -55,6 +55,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/locator/commandlocator.h>
+#include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/vcsmanager.h>
 
@@ -1309,6 +1310,7 @@ template <class NonModalDialog>
 
 void GitPlugin::branchList()
 {
+    ModeManager::activateMode(Core::Constants::MODE_EDIT);
     Core::NavigationWidget::activateSubWidget(Constants::GIT_BRANCH_VIEW_ID, Core::Side::Right);
 }
 
