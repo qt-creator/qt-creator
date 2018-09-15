@@ -593,7 +593,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
                                       VcsCommand::SuppressCommandLogging)) {
             const QStringList values = output.split(' ');
             startSha = values[0];
-            branchDateTime = QDateTime::fromTime_t(values[1].toInt());
+            branchDateTime = QDateTime::fromTime_t(values[1].toUInt());
         }
     }
 
