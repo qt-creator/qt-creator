@@ -172,9 +172,8 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
             contextMenu.addAction(tr("Remove"), this, &BranchView::remove);
         if (isLocal || isTag)
             contextMenu.addAction(tr("Rename"), this, &BranchView::rename);
-        if (!currentSelected) {
+        if (!currentSelected)
             contextMenu.addAction(tr("Checkout"), this, &BranchView::checkout);
-        }
         contextMenu.addSeparator();
         contextMenu.addAction(tr("Diff"), this, [this] {
             const QString fullName = m_model->fullName(selectedIndex(), true);
