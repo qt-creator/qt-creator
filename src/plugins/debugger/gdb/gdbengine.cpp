@@ -3031,6 +3031,8 @@ void GdbEngine::handleThreadNames(const DebuggerResponse &response)
         for (const GdbMi &name : names.children()) {
             ThreadData thread;
             thread.id = name["id"].data();
+            // Core is unavailable in core dump. Allow the user to provide it.
+            thread.core = name["core"].data();
             thread.name = decodeData(name["value"].data(), name["valueencoded"].data());
             handler->updateThread(thread);
         }
