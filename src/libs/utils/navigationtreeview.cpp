@@ -105,7 +105,10 @@ void NavigationTreeView::focusOutEvent(QFocusEvent *event)
 
 void NavigationTreeView::resizeEvent(QResizeEvent *event)
 {
-    header()->setMinimumSectionSize(viewport()->width());
+    const int columns = header()->count();
+    const int minimumWidth = columns > 1 ? viewport()->width() / columns
+                                         : viewport()->width();
+    header()->setMinimumSectionSize(minimumWidth);
     TreeView::resizeEvent(event);
 }
 
