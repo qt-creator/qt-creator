@@ -37,6 +37,12 @@ enum class UseSystemHeader
     No
 };
 
+enum class SkipBuiltIn
+{
+    Yes,
+    No
+};
+
 class CPPTOOLS_EXPORT CompilerOptionsBuilder
 {
 public:
@@ -47,6 +53,7 @@ public:
 
     CompilerOptionsBuilder(const ProjectPart &projectPart,
                            UseSystemHeader useSystemHeader = UseSystemHeader::No,
+                           SkipBuiltIn skipBuiltInHeaderPaths = SkipBuiltIn::No,
                            QString clangVersion = QString(),
                            QString clangResourceDirectory = QString());
     virtual ~CompilerOptionsBuilder() {}
@@ -106,6 +113,8 @@ private:
 
     QString m_clangVersion;
     QString m_clangResourceDirectory;
+
+    SkipBuiltIn m_skipBuiltInHeaderPaths;
 };
 
 } // namespace CppTools

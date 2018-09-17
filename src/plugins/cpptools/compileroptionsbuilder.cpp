@@ -43,12 +43,14 @@ namespace CppTools {
 
 CompilerOptionsBuilder::CompilerOptionsBuilder(const ProjectPart &projectPart,
                                                UseSystemHeader useSystemHeader,
+                                               SkipBuiltIn skipBuiltInHeaderPaths,
                                                QString clangVersion,
                                                QString clangResourceDirectory)
     : m_projectPart(projectPart)
     , m_useSystemHeader(useSystemHeader)
     , m_clangVersion(clangVersion)
     , m_clangResourceDirectory(clangResourceDirectory)
+    , m_skipBuiltInHeaderPaths(skipBuiltInHeaderPaths)
 {
 }
 
@@ -237,7 +239,8 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
 
     m_options.append(includes);
     m_options.append(systemIncludes);
-    m_options.append(builtInIncludes);
+    if (m_skipBuiltInHeaderPaths == SkipBuiltIn::No)
+        m_options.append(builtInIncludes);
 }
 
 void CompilerOptionsBuilder::addPrecompiledHeaderOptions(PchUsage pchUsage)

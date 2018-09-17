@@ -89,6 +89,7 @@ public:
     LibClangOptionsBuilder(const ProjectPart &projectPart)
         : CompilerOptionsBuilder(projectPart,
                                  UseSystemHeader::No,
+                                 CppTools::SkipBuiltIn::No,
                                  QString(CLANG_VERSION),
                                  QString(CLANG_RESOURCE_DIR))
     {
@@ -348,7 +349,9 @@ void generateCompilationDB(::Utils::FileName projectDir, CppTools::ProjectInfo p
     for (ProjectPart::Ptr projectPart : projectInfo.projectParts()) {
         const ::Utils::FileName buildDir = buildDirectory(*projectPart);
 
-        CompilerOptionsBuilder optionsBuilder(*projectPart);
+        CompilerOptionsBuilder optionsBuilder(*projectPart,
+                                              CppTools::UseSystemHeader::No,
+                                              CppTools::SkipBuiltIn::Yes);
         optionsBuilder.build(CppTools::ProjectFile::Unclassified,
                              CppTools::CompilerOptionsBuilder::PchUsage::None);
 
