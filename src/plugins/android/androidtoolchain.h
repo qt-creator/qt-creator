@@ -58,7 +58,7 @@ public:
     bool isSecondaryToolChain() const;
     void setSecondaryToolChain(bool b);
 
-    SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override;
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
 
 protected:
     DetectedAbisResult detectSupportedAbis() const override;

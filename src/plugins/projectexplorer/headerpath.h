@@ -32,8 +32,9 @@ namespace ProjectExplorer {
 
 enum class HeaderPathType {
     User,
+    BuiltIn,
     System,
-    Framework
+    Framework,
 };
 
 class HeaderPath

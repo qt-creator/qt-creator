@@ -57,8 +57,8 @@ public:
     Macros predefinedMacros(const QStringList &cxxflags) const override;
     CompilerFlags compilerFlags(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cflags) const override;
-    SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override;
-    HeaderPaths systemHeaderPaths(const QStringList &cxxflags,
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
+    HeaderPaths builtInHeaderPaths(const QStringList &cxxflags,
                                   const Utils::FileName &sysRoot) const override;
     void addToEnvironment(Utils::Environment &env) const override;
 

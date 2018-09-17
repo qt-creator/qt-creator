@@ -45,9 +45,9 @@ public:
     CompilerFlags compilerFlags(const QStringList &flags) const final;
     ProjectExplorer::WarningFlags warningFlags(const QStringList &flags) const final;
 
-    SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override;
-    ProjectExplorer::HeaderPaths systemHeaderPaths(const QStringList &flags,
-                                                   const Utils::FileName &sysRoot) const final;
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
+    ProjectExplorer::HeaderPaths builtInHeaderPaths(const QStringList &flags,
+                                                    const Utils::FileName &sysRoot) const final;
     void addToEnvironment(Utils::Environment &env) const final;
     QString makeCommand(const Utils::Environment &env) const final;
     Utils::FileName compilerCommand() const final;

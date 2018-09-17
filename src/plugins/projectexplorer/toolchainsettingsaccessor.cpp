@@ -312,8 +312,8 @@ public:
     Macros predefinedMacros(const QStringList &cxxflags) const override { Q_UNUSED(cxxflags); return Macros(); }
     CompilerFlags compilerFlags(const QStringList &cxxflags) const override { Q_UNUSED(cxxflags); return NoFlags; }
     WarningFlags warningFlags(const QStringList &cflags) const override { Q_UNUSED(cflags); return WarningFlags::NoWarnings; }
-    SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override { return SystemHeaderPathsRunner(); }
-    HeaderPaths systemHeaderPaths(const QStringList &cxxflags, const FileName &sysRoot) const override
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override { return BuiltInHeaderPathsRunner(); }
+    HeaderPaths builtInHeaderPaths(const QStringList &cxxflags, const FileName &sysRoot) const override
     { Q_UNUSED(cxxflags); Q_UNUSED(sysRoot); return {}; }
     void addToEnvironment(Environment &env) const override { Q_UNUSED(env); }
     QString makeCommand(const Environment &env) const override { Q_UNUSED(env); return QString("make"); }

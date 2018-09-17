@@ -47,7 +47,7 @@ ToolChainInfo::ToolChainInfo(const ProjectExplorer::ToolChain *toolChain,
         // ...and save the potentially expensive operations for later so that
         // they can be run from a worker thread.
         sysRootPath = ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString();
-        headerPathsRunner = toolChain->createSystemHeaderPathsRunner();
+        headerPathsRunner = toolChain->createBuiltInHeaderPathsRunner();
         predefinedMacrosRunner = toolChain->createPredefinedMacrosRunner();
     }
 }

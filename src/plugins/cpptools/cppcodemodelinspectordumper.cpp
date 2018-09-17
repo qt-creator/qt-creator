@@ -96,6 +96,7 @@ QString Utils::toString(ProjectExplorer::HeaderPathType type)
     CASE_LANGUAGEVERSION(User);
     CASE_LANGUAGEVERSION(System);
     CASE_LANGUAGEVERSION(Framework);
+    CASE_LANGUAGEVERSION(BuiltIn);
     // no default to get a compiler warning if anything is added
     }
 #undef CASE_LANGUAGEVERSION
@@ -472,6 +473,7 @@ static void printIncludeType(QTextStream &out, ProjectExplorer::HeaderPathType t
         case HeaderPathType::User: out << "(user include path)"; break;
         case HeaderPathType::System: out << "(system include path)"; break;
         case HeaderPathType::Framework: out << "(framework path)"; break;
+        case HeaderPathType::BuiltIn: out << "(built-in include path)"; break;
     }
 }
 

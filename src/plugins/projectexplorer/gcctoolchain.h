@@ -146,9 +146,9 @@ public:
     PredefinedMacrosRunner createPredefinedMacrosRunner() const override;
     Macros predefinedMacros(const QStringList &cxxflags) const override;
 
-    SystemHeaderPathsRunner createSystemHeaderPathsRunner() const override;
-    HeaderPaths systemHeaderPaths(const QStringList &flags,
-                                  const Utils::FileName &sysRoot) const override;
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
+    HeaderPaths builtInHeaderPaths(const QStringList &flags,
+                                   const Utils::FileName &sysRoot) const override;
 
     void addToEnvironment(Utils::Environment &env) const override;
     QString makeCommand(const Utils::Environment &environment) const override;

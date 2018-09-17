@@ -131,11 +131,11 @@ public:
     virtual PredefinedMacrosRunner createPredefinedMacrosRunner() const = 0;
     virtual Macros predefinedMacros(const QStringList &cxxflags) const = 0;
 
-    // A SystemHeaderPathsRunner is created in the ui thread and runs in another thread.
-    using SystemHeaderPathsRunner = std::function<HeaderPaths(const QStringList &cxxflags,
+    // A BuiltInHeaderPathsRunner is created in the ui thread and runs in another thread.
+    using BuiltInHeaderPathsRunner = std::function<HeaderPaths(const QStringList &cxxflags,
                                                               const QString &sysRoot)>;
-    virtual SystemHeaderPathsRunner createSystemHeaderPathsRunner() const = 0;
-    virtual HeaderPaths systemHeaderPaths(const QStringList &cxxflags,
+    virtual BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const = 0;
+    virtual HeaderPaths builtInHeaderPaths(const QStringList &cxxflags,
                                           const Utils::FileName &sysRoot) const = 0;
     virtual void addToEnvironment(Utils::Environment &env) const = 0;
     virtual QString makeCommand(const Utils::Environment &env) const = 0;

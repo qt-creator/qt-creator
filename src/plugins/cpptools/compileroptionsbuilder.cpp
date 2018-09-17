@@ -200,7 +200,9 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
 {
     using ProjectExplorer::HeaderPathType;
 
-    QStringList result;
+    QStringList includes;
+    QStringList systemIncludes;
+    QStringList builtInIncludes;
 
     for (const ProjectExplorer::HeaderPath &headerPath : qAsConst(m_projectPart.headerPaths)) {
         if (headerPath.path.isEmpty())
@@ -209,29 +211,33 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
         if (excludeHeaderPath(headerPath.path))
             continue;
 
-        QString prefix;
-        Utils::FileName path;
         switch (headerPath.type) {
         case HeaderPathType::Framework:
-            prefix = QLatin1String("-F");
-            break;
-        case HeaderPathType::System:
-            prefix = m_useSystemHeader == UseSystemHeader::No
-                    ? QLatin1String("-I")
-                    : QLatin1String("-isystem");
+            includes.append("-F");
+            includes.append(QDir::toNativeSeparators(headerPath.path));
             break;
         default: // This shouldn't happen, but let's be nice..:
             // intentional fall-through:
         case HeaderPathType::User:
-            prefix = includeDirOptionForPath(headerPath.path);
+            includes.append(includeDirOptionForPath(headerPath.path));
+            includes.append(QDir::toNativeSeparators(headerPath.path));
+            break;
+        case HeaderPathType::BuiltIn:
+            builtInIncludes.append("-isystem");
+            builtInIncludes.append(QDir::toNativeSeparators(headerPath.path));
+            break;
+        case HeaderPathType::System:
+            systemIncludes.append(m_useSystemHeader == UseSystemHeader::No
+                                  ? QLatin1String("-I")
+                                  : QLatin1String("-isystem"));
+            systemIncludes.append(QDir::toNativeSeparators(headerPath.path));
             break;
         }
-
-        result.append(prefix);
-        result.append(QDir::toNativeSeparators(headerPath.path));
     }
 
-    m_options.append(result);
+    m_options.append(includes);
+    m_options.append(systemIncludes);
+    m_options.append(builtInIncludes);
 }
 
 void CompilerOptionsBuilder::addPrecompiledHeaderOptions(PchUsage pchUsage)

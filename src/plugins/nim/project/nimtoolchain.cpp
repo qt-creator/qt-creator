@@ -97,12 +97,12 @@ WarningFlags NimToolChain::warningFlags(const QStringList &) const
     return WarningFlags::NoWarnings;
 }
 
-ToolChain::SystemHeaderPathsRunner NimToolChain::createSystemHeaderPathsRunner() const
+ToolChain::BuiltInHeaderPathsRunner NimToolChain::createBuiltInHeaderPathsRunner() const
 {
-    return ToolChain::SystemHeaderPathsRunner();
+    return ToolChain::BuiltInHeaderPathsRunner();
 }
 
-HeaderPaths NimToolChain::systemHeaderPaths(const QStringList &, const FileName &) const
+HeaderPaths NimToolChain::builtInHeaderPaths(const QStringList &, const FileName &) const
 {
     return {};
 }

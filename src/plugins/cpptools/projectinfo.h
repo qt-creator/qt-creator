@@ -57,7 +57,7 @@ public:
     QStringList extraCodeModelFlags;
 
     QString sysRootPath; // For headerPathsRunner.
-    ProjectExplorer::ToolChain::SystemHeaderPathsRunner headerPathsRunner;
+    ProjectExplorer::ToolChain::BuiltInHeaderPathsRunner headerPathsRunner;
     ProjectExplorer::ToolChain::PredefinedMacrosRunner predefinedMacrosRunner;
 };
 

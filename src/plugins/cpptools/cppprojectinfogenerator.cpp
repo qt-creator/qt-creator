@@ -116,12 +116,12 @@ private:
         if (!m_tcInfo.headerPathsRunner)
             return; // No compiler set in kit.
 
-        const ProjectExplorer::HeaderPaths systemHeaderPaths
+        const ProjectExplorer::HeaderPaths builtInHeaderPaths
                 = m_tcInfo.headerPathsRunner(m_flags.commandLineFlags,
                                              m_tcInfo.sysRootPath);
 
         ProjectExplorer::HeaderPaths &headerPaths = m_projectPart.headerPaths;
-        for (const ProjectExplorer::HeaderPath &header : systemHeaderPaths) {
+        for (const ProjectExplorer::HeaderPath &header : builtInHeaderPaths) {
             const ProjectExplorer::HeaderPath headerPath{header.path, header.type};
             if (!headerPaths.contains(headerPath))
                 headerPaths.push_back(headerPath);

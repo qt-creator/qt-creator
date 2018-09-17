@@ -139,7 +139,7 @@ static ProjectExplorer::Macros gccPredefinedMacros(const FileName &gcc,
 HeaderPaths GccToolChain::gccHeaderPaths(const FileName &gcc, const QStringList &arguments,
                                          const QStringList &env)
 {
-    HeaderPaths systemHeaderPaths;
+    HeaderPaths builtInHeaderPaths;
     QByteArray line;
     QByteArray data = runGcc(gcc, arguments, env);
     QBuffer cpp(&data);
@@ -155,7 +155,7 @@ HeaderPaths GccToolChain::gccHeaderPaths(const FileName &gcc, const QStringList 
         while (cpp.canReadLine()) {
             line = cpp.readLine();
             if (line.startsWith("#include")) {
-                kind = HeaderPathType::System;
+                kind = HeaderPathType::BuiltIn;
             } else if (! line.isEmpty() && QChar(line.at(0)).isSpace()) {
                 HeaderPathType thisHeaderKind = kind;
 
@@ -168,7 +168,7 @@ HeaderPaths GccToolChain::gccHeaderPaths(const FileName &gcc, const QStringList 
                 }
 
                 const QString headerPath = QFileInfo(QFile::decodeName(line)).canonicalFilePath();
-                systemHeaderPaths.append({headerPath, thisHeaderKind});
+                builtInHeaderPaths.append({headerPath, thisHeaderKind});
             } else if (line.startsWith("End of search list.")) {
                 break;
             } else {
@@ -176,7 +176,7 @@ HeaderPaths GccToolChain::gccHeaderPaths(const FileName &gcc, const QStringList 
             }
         }
     }
-    return systemHeaderPaths;
+    return builtInHeaderPaths;
 }
 
 void GccToolChain::toolChainUpdated()
@@ -621,7 +621,7 @@ void GccToolChain::initExtraHeaderPathsFunction(ExtraHeaderPathsFunction &&extra
     m_extraHeaderPathsFunction = std::move(extraHeaderPathsFunction);
 }
 
-ToolChain::SystemHeaderPathsRunner GccToolChain::createSystemHeaderPathsRunner() const
+ToolChain::BuiltInHeaderPathsRunner GccToolChain::createBuiltInHeaderPathsRunner() const
 {
     // Using a clean environment breaks ccache/distcc/etc.
     Environment env = Environment::systemEnvironment();
@@ -663,10 +663,10 @@ ToolChain::SystemHeaderPathsRunner GccToolChain::createSystemHeaderPathsRunner()
     };
 }
 
-HeaderPaths GccToolChain::systemHeaderPaths(const QStringList &flags,
-                                            const FileName &sysRoot) const
+HeaderPaths GccToolChain::builtInHeaderPaths(const QStringList &flags,
+                                             const FileName &sysRoot) const
 {
-    return createSystemHeaderPathsRunner()(flags, sysRoot.toString());
+    return createBuiltInHeaderPathsRunner()(flags, sysRoot.toString());
 }
 
 void GccToolChain::addCommandPathToEnvironment(const FileName &command, Environment &env)

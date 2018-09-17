@@ -138,10 +138,10 @@ void CppSourceProcessor::setHeaderPaths(const ProjectExplorer::HeaderPaths &head
     for (int i = 0, ei = headerPaths.size(); i < ei; ++i) {
         const ProjectExplorer::HeaderPath &path = headerPaths.at(i);
 
-        if (path.type == HeaderPathType::User || path.type == HeaderPathType::System)
-            m_headerPaths.append({cleanPath(path.path), path.type});
-        else
+        if (path.type == HeaderPathType::Framework )
             addFrameworkPath(path);
+        else
+            m_headerPaths.append({cleanPath(path.path), path.type});
     }
 }
 

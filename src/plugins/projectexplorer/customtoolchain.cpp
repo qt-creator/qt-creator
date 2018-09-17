@@ -166,27 +166,27 @@ void CustomToolChain::setPredefinedMacros(const Macros &macros)
     toolChainUpdated();
 }
 
-ToolChain::SystemHeaderPathsRunner CustomToolChain::createSystemHeaderPathsRunner() const
+ToolChain::BuiltInHeaderPathsRunner CustomToolChain::createBuiltInHeaderPathsRunner() const
 {
-    const HeaderPaths systemHeaderPaths = m_systemHeaderPaths;
+    const HeaderPaths builtInHeaderPaths = m_builtInHeaderPaths;
 
     // This runner must be thread-safe!
-    return [systemHeaderPaths](const QStringList &cxxFlags, const QString &) {
+    return [builtInHeaderPaths](const QStringList &cxxFlags, const QString &) {
         HeaderPaths flagHeaderPaths;
         for (const QString &cxxFlag : cxxFlags) {
             if (cxxFlag.startsWith(QLatin1String("-I"))) {
-                flagHeaderPaths.push_back({cxxFlag.mid(2).trimmed(), HeaderPathType::System});
+                flagHeaderPaths.push_back({cxxFlag.mid(2).trimmed(), HeaderPathType::BuiltIn});
             }
         }
 
-        return systemHeaderPaths + flagHeaderPaths;
+        return builtInHeaderPaths + flagHeaderPaths;
     };
 }
 
-HeaderPaths CustomToolChain::systemHeaderPaths(const QStringList &cxxFlags,
+HeaderPaths CustomToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
                                                const FileName &fileName) const
 {
-    return createSystemHeaderPathsRunner()(cxxFlags, fileName.toString());
+    return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString());
 }
 
 void CustomToolChain::addToEnvironment(Environment &env) const
@@ -222,18 +222,18 @@ IOutputParser *CustomToolChain::outputParser() const
 
 QStringList CustomToolChain::headerPathsList() const
 {
-    return Utils::transform<QList>(m_systemHeaderPaths, &HeaderPath::path);
+    return Utils::transform<QList>(m_builtInHeaderPaths, &HeaderPath::path);
 }
 
 void CustomToolChain::setHeaderPaths(const QStringList &list)
 {
     HeaderPaths tmp = Utils::transform<QVector>(list, [](const QString &headerPath) {
-        return HeaderPath(headerPath.trimmed(), HeaderPathType::System);
+        return HeaderPath(headerPath.trimmed(), HeaderPathType::BuiltIn);
     });
 
-    if (m_systemHeaderPaths == tmp)
+    if (m_builtInHeaderPaths == tmp)
         return;
-    m_systemHeaderPaths = tmp;
+    m_builtInHeaderPaths = tmp;
     toolChainUpdated();
 }
 
@@ -372,7 +372,7 @@ bool CustomToolChain::operator ==(const ToolChain &other) const
             && m_makeCommand == customTc->m_makeCommand
             && m_targetAbi == customTc->m_targetAbi
             && m_predefinedMacros == customTc->m_predefinedMacros
-            && m_systemHeaderPaths == customTc->m_systemHeaderPaths;
+            && m_builtInHeaderPaths == customTc->m_builtInHeaderPaths;
 }
 
 Core::Id CustomToolChain::outputParserId() const

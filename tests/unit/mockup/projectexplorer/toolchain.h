@@ -57,8 +57,8 @@ public:
 
     Abi targetAbi() const { return Abi(); }
 
-    using SystemHeaderPathsRunner = std::function<HeaderPaths(const QStringList &cxxflags, const QString &sysRoot)>;
-    virtual SystemHeaderPathsRunner createSystemHeaderPathsRunner() const { return SystemHeaderPathsRunner(); }
+    using BuiltInHeaderPathsRunner = std::function<HeaderPaths(const QStringList &cxxflags, const QString &sysRoot)>;
+    virtual BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const { return BuiltInHeaderPathsRunner(); }
 
     using PredefinedMacrosRunner = std::function<Macros(const QStringList &cxxflags)>;
     virtual PredefinedMacrosRunner createPredefinedMacrosRunner() const { return PredefinedMacrosRunner(); }
