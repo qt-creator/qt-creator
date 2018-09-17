@@ -155,7 +155,8 @@ HEADERS += projectexplorer.h \
     extracompiler.h \
     customexecutablerunconfiguration.h \
     projectmacro.h \
-    makestep.h
+    makestep.h \
+    projectconfigurationaspects.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -292,7 +293,8 @@ SOURCES += projectexplorer.cpp \
     extracompiler.cpp \
     customexecutablerunconfiguration.cpp \
     projectmacro.cpp \
-    makestep.cpp
+    makestep.cpp \
+    projectconfigurationaspects.cpp
 
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
