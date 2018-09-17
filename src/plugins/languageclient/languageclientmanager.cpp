@@ -165,17 +165,6 @@ void LanguageClientManager::removeMarks(const Core::Id &id)
         removeMarks(fileName, id);
 }
 
-void LanguageClientManager::startClient(LanguageClientSettings setting)
-{
-    if (managerInstance->m_shuttingDown)
-        return;
-    auto client = new StdIOClient(setting.m_executable, setting.m_arguments);
-    client->setName(setting.m_name);
-    if (setting.m_mimeType != noLanguageFilter)
-        client->setSupportedMimeType({setting.m_mimeType});
-    startClient(client);
-}
-
 void LanguageClientManager::startClient(BaseClient *client)
 {
     if (managerInstance->m_shuttingDown) {

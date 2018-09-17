@@ -61,7 +61,6 @@ public:
     static void removeMarks(const Utils::FileName &fileName, const Core::Id &id);
     static void removeMarks(const Core::Id &id);
 
-    static void startClient(LanguageClientSettings setting);
     static void startClient(BaseClient *client);
     static QVector<BaseClient *> clients();
 

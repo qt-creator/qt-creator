@@ -371,7 +371,7 @@ void LanguageClientSettingsModel::applyChanges()
     }
     for (auto setting : toStart) {
         if (setting.isValid() && setting.m_enabled)
-            LanguageClientManager::startClient(setting);
+            LanguageClientManager::startClient(setting.createClient());
     }
 }
 
@@ -387,6 +387,15 @@ bool LanguageClientSettings::operator==(const LanguageClientSettings &other) con
             && m_mimeType == other.m_mimeType
             && m_executable == other.m_executable
             && m_arguments == other.m_arguments;
+}
+
+BaseClient *LanguageClientSettings::createClient()
+{
+    auto client = new StdIOClient(m_executable, m_arguments);
+    client->setName(m_name);
+    if (m_mimeType != noLanguageFilter)
+        client->setSupportedMimeType({m_mimeType});
+    return client;
 }
 
 QVariantMap LanguageClientSettings::toMap() const

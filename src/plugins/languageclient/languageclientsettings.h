@@ -35,6 +35,8 @@ namespace LanguageClient {
 
 constexpr char noLanguageFilter[] = "No Filter";
 
+class BaseClient;
+
 class LanguageClientSettings
 {
 public:
@@ -56,6 +58,8 @@ public:
     bool isValid();
 
     bool operator==(const LanguageClientSettings &other) const;
+
+    BaseClient *createClient();
 
     QVariantMap toMap() const;
     static LanguageClientSettings fromMap(const QVariantMap &map);
