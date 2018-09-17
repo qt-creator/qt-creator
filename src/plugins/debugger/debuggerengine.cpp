@@ -774,6 +774,7 @@ void DebuggerEnginePrivate::setupViews()
     m_perspective->addWindow(m_logWindow, Perspective::AddToTab, nullptr, false, Qt::TopDockWidgetArea);
 
     m_perspective->select();
+    m_watchHandler.loadSessionDataForEngine();
 }
 
 //////////////////////////////////////////////////////////////////////

@@ -1974,7 +1974,6 @@ WatchHandler::WatchHandler(DebuggerEngine *engine)
     : m_engine(engine)
 {
     m_model = new WatchModel(this, engine);
-    loadSessionDataForEngine();
 }
 
 WatchHandler::~WatchHandler()
