@@ -1687,6 +1687,12 @@ void tst_Dumpers::dumper()
     bool ok = true;
 
     auto test = [&](const Check &check, bool *removeIt, bool single) {
+        if (!check.matches(m_debuggerEngine, m_debuggerVersion, context)) {
+            if (single)
+                qDebug() << "SKIPPING NON-MATCHING TEST FOR " << check.iname;
+            return true; // we have not failed
+        }
+
         const QString iname = check.iname;
         WatchItem *item = static_cast<WatchItem *>(local.findAnyChild([iname](Utils::TreeItem *item) {
             return static_cast<WatchItem *>(item)->internalName() == iname;
@@ -1699,12 +1705,6 @@ void tst_Dumpers::dumper()
         //qDebug() << "CHECKS" << i << check.iname;
 
         *removeIt = true;
-
-        if (!check.matches(m_debuggerEngine, m_debuggerVersion, context)) {
-            if (single)
-                qDebug() << "SKIPPING NON-MATCHING TEST FOR " << iname;
-            return true; // we have not failed
-        }
 
         //qDebug() << "USING MATCHING TEST FOR " << iname;
         QString name = item->realName();
