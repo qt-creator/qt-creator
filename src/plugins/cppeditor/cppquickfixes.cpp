@@ -1084,12 +1084,6 @@ static QByteArray charToStringEscapeSequences(const QByteArray &content)
     return QByteArray();
 }
 
-static QString msgQtStringLiteralDescription(const QString &replacement, int qtVersion)
-{
-    return QApplication::translate("CppTools::QuickFix", "Enclose in %1(...) (Qt %2)")
-           .arg(replacement).arg(qtVersion);
-}
-
 static QString msgQtStringLiteralDescription(const QString &replacement)
 {
     return QApplication::translate("CppTools::QuickFix", "Enclose in %1(...)").arg(replacement);
@@ -1291,10 +1285,10 @@ void WrapStringLiteral::match(const CppQuickFixInterface &interface, QuickFixOpe
         }
         actions = EncloseInQLatin1StringAction | objectiveCActions;
         result << new WrapStringLiteralOp(interface, priority, actions,
-                                          msgQtStringLiteralDescription(stringLiteralReplacement(actions), 4), literal);
+                                          msgQtStringLiteralDescription(stringLiteralReplacement(actions)), literal);
         actions = EncloseInQStringLiteralAction | objectiveCActions;
         result << new WrapStringLiteralOp(interface, priority, actions,
-                                          msgQtStringLiteralDescription(stringLiteralReplacement(actions), 5), literal);
+                                          msgQtStringLiteralDescription(stringLiteralReplacement(actions)), literal);
     }
 }
 
