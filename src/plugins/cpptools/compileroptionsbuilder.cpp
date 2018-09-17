@@ -216,7 +216,9 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
             prefix = QLatin1String("-F");
             break;
         case HeaderPathType::System:
-            prefix = "-isystem";
+            prefix = m_useSystemHeader == UseSystemHeader::No
+                    ? QLatin1String("-I")
+                    : QLatin1String("-isystem");
             break;
         default: // This shouldn't happen, but let's be nice..:
             // intentional fall-through:
