@@ -61,7 +61,7 @@ public:
     virtual void addTargetTriple();
     virtual void addExtraCodeModelFlags();
     virtual void enableExceptions();
-    virtual void insertPredefinedHeaderPathsOptions();
+    virtual void insertWrappedQtHeaders();
     virtual void addOptionsForLanguage(bool checkForBorlandExtensions = true);
     virtual void updateLanguageOption(ProjectFile::Kind fileKind);
 
@@ -105,7 +105,6 @@ private:
     QByteArray toDefineOption(const ProjectExplorer::Macro &macro) const;
     QString defineDirectiveToDefineOption(const ProjectExplorer::Macro &marco) const;
 
-    void addClangIncludeFolder(QStringList &list);
     void addWrappedQtHeadersIncludePath(QStringList &list);
 
     QStringList m_options;
