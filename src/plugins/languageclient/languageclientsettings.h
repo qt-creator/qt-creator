@@ -40,9 +40,15 @@ class BaseClient;
 class LanguageClientSettings
 {
 public:
-    LanguageClientSettings() = default;
-    LanguageClientSettings(const QString &name, bool enabled, const QString &mimeTypeName,
-                           const QString &executable, const QString &arguments)
+    static void init();
+};
+
+class BaseSettings
+{
+public:
+    BaseSettings() = default;
+    BaseSettings(const QString &name, bool enabled, const QString &mimeTypeName,
+                 const QString &executable, const QString &arguments)
         : m_name(name)
         , m_enabled(enabled)
         , m_mimeType(mimeTypeName)
@@ -60,8 +66,7 @@ public:
     BaseClient *createClient();
 
     QVariantMap toMap() const;
-    static LanguageClientSettings fromMap(const QVariantMap &map);
-    static void init();
+    static BaseSettings fromMap(const QVariantMap &map);
 };
 
 

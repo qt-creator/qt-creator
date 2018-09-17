@@ -85,7 +85,7 @@ public:
     };
 
 private:
-    QList<LanguageClientSettings *> m_settings;
+    QList<BaseSettings *> m_settings;
 };
 
 class LanguageClientSettingsPageWidget : public QWidget
@@ -238,7 +238,7 @@ QVariant LanguageClientSettingsModel::data(const QModelIndex &index, int role) c
 {
     if (!index.isValid())
         return QVariant();
-    LanguageClientSettings *setting = m_settings[index.row()];
+    BaseSettings *setting = m_settings[index.row()];
     QTC_ASSERT(setting, return false);
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         switch (index.column()) {
@@ -286,7 +286,7 @@ bool LanguageClientSettingsModel::insertRows(int row, int count, const QModelInd
         return false;
     beginInsertRows(parent, row, row + count - 1);
     for (int i = 0; i < count; ++i)
-        m_settings.insert(row + i, new LanguageClientSettings());
+        m_settings.insert(row + i, new BaseSettings());
     endInsertRows();
     return true;
 }
@@ -295,7 +295,7 @@ bool LanguageClientSettingsModel::setData(const QModelIndex &index, const QVaria
 {
     if (!index.isValid())
         return false;
-    LanguageClientSettings *setting = m_settings[index.row()];
+    BaseSettings *setting = m_settings[index.row()];
     QTC_ASSERT(setting, return false);
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         switch (index.column()) {
@@ -329,7 +329,7 @@ void LanguageClientSettingsModel::toSettings(QSettings *settings) const
 {
     settings->beginGroup(settingsGroupKey);
     settings->setValue(clientsKey, Utils::transform(m_settings,
-                                                    [](const LanguageClientSettings *setting){
+                                                    [](const BaseSettings *setting){
         return QVariant(setting->toMap());
     }));
     settings->endGroup();
@@ -341,7 +341,7 @@ void LanguageClientSettingsModel::fromSettings(QSettings *settings)
     auto variants = settings->value(clientsKey).toList();
     m_settings.reserve(variants.size());
     m_settings = Utils::transform(variants, [](const QVariant& var){
-        return new LanguageClientSettings(LanguageClientSettings::fromMap(var.toMap()));
+        return new BaseSettings(BaseSettings::fromMap(var.toMap()));
     });
     settings->endGroup();
 }
@@ -350,11 +350,11 @@ void LanguageClientSettingsModel::applyChanges()
 {
     const QVector<BaseClient *> interfaces(LanguageClientManager::clients());
     QVector<BaseClient *> toShutdown;
-    QList<LanguageClientSettings *> toStart = m_settings;
+    QList<BaseSettings *> toStart = m_settings;
     // check currently registered interfaces
     for (auto interface : interfaces) {
         auto setting = Utils::findOr(m_settings, nullptr,
-                                     [interface](const LanguageClientSettings *setting){
+                                     [interface](const BaseSettings *setting){
             return interface->matches(setting);
         });
         if (setting && setting->isValid() && setting->m_enabled) {
@@ -377,12 +377,12 @@ void LanguageClientSettingsModel::applyChanges()
     }
 }
 
-bool LanguageClientSettings::isValid()
+bool BaseSettings::isValid()
 {
     return !m_name.isEmpty() && !m_executable.isEmpty() && QFile::exists(m_executable);
 }
 
-BaseClient *LanguageClientSettings::createClient()
+BaseClient *BaseSettings::createClient()
 {
     auto client = new StdIOClient(m_executable, m_arguments);
     client->setName(m_name);
@@ -391,7 +391,7 @@ BaseClient *LanguageClientSettings::createClient()
     return client;
 }
 
-QVariantMap LanguageClientSettings::toMap() const
+QVariantMap BaseSettings::toMap() const
 {
     QVariantMap map;
     map.insert(nameKey, m_name);
@@ -402,7 +402,7 @@ QVariantMap LanguageClientSettings::toMap() const
     return map;
 }
 
-LanguageClientSettings LanguageClientSettings::fromMap(const QVariantMap &map)
+BaseSettings BaseSettings::fromMap(const QVariantMap &map)
 {
     return { map[nameKey].toString(),
                 map[enabledKey].toBool(),
