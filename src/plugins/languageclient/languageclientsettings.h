@@ -57,8 +57,6 @@ public:
 
     bool isValid();
 
-    bool operator==(const LanguageClientSettings &other) const;
-
     BaseClient *createClient();
 
     QVariantMap toMap() const;

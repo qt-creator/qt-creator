@@ -113,7 +113,7 @@ public:
     Core::Id id() const { return m_id; }
 
     virtual bool start() { return true; }
-    virtual bool matches(const LanguageClientSettings &/*setting*/) { return false; }
+    virtual bool matches(const LanguageClientSettings * /*setting*/) { return false; }
     virtual bool reset();
 
     void log(const QString &message,
@@ -179,7 +179,7 @@ public:
 
     void setWorkingDirectory(const QString &workingDirectory);
 
-    bool matches(const LanguageClientSettings &setting) override;
+    bool matches(const LanguageClientSettings *setting) override;
 
 protected:
     void sendData(const QByteArray &data) final;

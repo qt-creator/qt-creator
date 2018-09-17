@@ -771,10 +771,9 @@ void StdIOClient::setWorkingDirectory(const QString &workingDirectory)
     m_process.setWorkingDirectory(workingDirectory);
 }
 
-bool StdIOClient::matches(const LanguageClientSettings &setting)
+bool StdIOClient::matches(const LanguageClientSettings *setting)
 {
-    return setting.m_executable == m_executable
-            && setting.m_arguments == m_executable;
+    return setting->m_executable == m_executable && setting->m_arguments == m_executable;
 }
 
 void StdIOClient::sendData(const QByteArray &data)
