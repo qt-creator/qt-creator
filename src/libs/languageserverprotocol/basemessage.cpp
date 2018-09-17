@@ -71,7 +71,7 @@ bool BaseMessage::operator==(const BaseMessage &other) const
 static QPair<QByteArray, QByteArray> splitHeaderFieldLine(
         const QByteArray &headerFieldLine, QString &parseError)
 {
-    static const int fieldSeparatorLength = std::strlen(headerFieldSeparator);
+    static const int fieldSeparatorLength = int(std::strlen(headerFieldSeparator));
     int assignmentIndex = headerFieldLine.indexOf(headerFieldSeparator);
     if (assignmentIndex >= 0) {
         return {headerFieldLine.mid(0, assignmentIndex),
