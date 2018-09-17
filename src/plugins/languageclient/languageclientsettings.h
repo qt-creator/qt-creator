@@ -66,8 +66,7 @@ public:
     BaseClient *createClient();
 
     QVariantMap toMap() const;
-    static BaseSettings fromMap(const QVariantMap &map);
+    void fromMap(const QVariantMap &map);
 };
-
 
 } // namespace LanguageClient

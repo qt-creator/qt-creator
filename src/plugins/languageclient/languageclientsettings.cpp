@@ -341,7 +341,9 @@ void LanguageClientSettingsModel::fromSettings(QSettings *settings)
     auto variants = settings->value(clientsKey).toList();
     m_settings.reserve(variants.size());
     m_settings = Utils::transform(variants, [](const QVariant& var){
-        return new BaseSettings(BaseSettings::fromMap(var.toMap()));
+        auto settings = new BaseSettings();
+        settings->fromMap(var.toMap());
+        return settings;
     });
     settings->endGroup();
 }
@@ -402,13 +404,13 @@ QVariantMap BaseSettings::toMap() const
     return map;
 }
 
-BaseSettings BaseSettings::fromMap(const QVariantMap &map)
+void BaseSettings::fromMap(const QVariantMap &map)
 {
-    return { map[nameKey].toString(),
-                map[enabledKey].toBool(),
-                map[mimeTypeKey].toString(),
-                map[executableKey].toString(),
-                map[argumentsKey].toString() };
+    m_name = map[nameKey].toString();
+    m_enabled = map[enabledKey].toBool();
+    m_mimeType = map[mimeTypeKey].toString();
+    m_executable = map[executableKey].toString();
+    m_arguments = map[argumentsKey].toString();
 }
 
 void LanguageClientSettings::init()
